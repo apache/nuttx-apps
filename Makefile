@@ -47,7 +47,6 @@ BUILTIN_APPS_BUILT =
 
 ifeq ($(CONFIG_BUILTIN_APPS_NUTTX),y)
 
-
 # Individual application: HELLO
 
 ifeq ($(CONFIG_BUILTIN_APPS_HELLO),y)
@@ -57,9 +56,6 @@ BUILTIN_APPS_DIR += hello
 # we use a non-existing .built_always to guarantee that Makefile
 # always walks into the sub-directories and asks for build
 BUILTIN_APPS_BUILT += hello/.built_always
-
-hello/libhello$(LIBEXT):
-	@$(MAKE) -C hello TOPDIR="$(TOPDIR)" libhello$(LIBEXT)
 
 endif
 
