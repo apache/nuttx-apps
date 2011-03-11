@@ -120,10 +120,6 @@ int exec_nuttapp(FAR const char *appname, FAR const char *argv[])
 {
   int i;
   
-  // Not sure what to do with exports and nexports ... as found in exec
-  // FAR const struct symtab_s *exports, int nexports
-  // so they are ommited in the args list.
-  
   if ( (i = nuttapp_isavail(appname)) >= 0 )
   {
 #ifndef CONFIG_CUSTOM_STACK
@@ -132,6 +128,17 @@ int exec_nuttapp(FAR const char *appname, FAR const char *argv[])
 #else
     i = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main, &argv[1]);
 #endif
+
+#if CONFIG_RR_INTERVAL > 0
+    if (i > 0)
+    {
+      struct sched_param param;
+	
+      sched_getparam(0, &param);
+	  sched_setscheduler(i, SCHED_RR, &param);
+	}
+#endif
+
     return i;
   }
   
