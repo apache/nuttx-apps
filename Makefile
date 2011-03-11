@@ -97,11 +97,11 @@ $(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
 	done ; )
 
 .depend: Makefile $(SRCS)
+	@echo "/* List of application requirements, generated during make depend. */" > exec_nuttapp_list.h
+	@echo "/* List of application entry points, generated during make depend. */" > exec_nuttapp_proto.h
 	@$(MKDEP) $(ROOTDEPPATH) \
 	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
-	echo "/* List of application requirements, generated during make depend. */" > exec_nuttapp_list.h
-	echo "/* List of application entry points, generated during make depend. */" > exec_nuttapp_proto.h
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" depend ; \
 	done

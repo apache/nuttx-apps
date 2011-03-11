@@ -35,7 +35,7 @@ where each application can be controlled as:
 To include applications under the user ../apps directory:
 	CONFIG_BUILTIN_APPS_USER=y/n
 
-When the user defines an option:
+When the user defines an option: (NOT IMPLEMENTED YET)
 	CONFIG_BUILTIN_APP_START=<application name>
 
 then after initialization of the NuttX OS it starts this application
@@ -56,7 +56,3 @@ define:
  4. add enable/disable option in the top file in this directory as:
 	ifeq CONFIG_BUILTIN_APPS_<NAME>
 	...
-	
-To include user (external) application create an application under 
-../apps directory and steps 1. - 3. The last 4. step is not needed, as,
-all applications under ../apps becomes a part of the build process.

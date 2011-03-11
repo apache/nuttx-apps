@@ -91,27 +91,49 @@ static const struct nuttapp_s nuttapps[] = {
  * Public Functions
  ****************************************************************************/
 
+
+const char * nuttapp_getname(int index)
+{
+  if ( index < 0 || index >= (sizeof(nuttapps)/sizeof(struct nuttapp_s)) )
+	return NULL;
+	
+  return nuttapps[index].name;
+}
+ 
+
+int nuttapp_isavail(FAR const char *appname)
+{
+  int i;
+    
+  for (i=0; nuttapps[i].name; i++) 
+  {
+    if ( !strcmp(nuttapps[i].name, appname) ) 
+      return i;
+  }
+  
+  errno = ENOENT;
+  return -1;
+}
+ 
+
 int exec_nuttapp(FAR const char *appname, FAR const char *argv[])
 {
-  int i, ret = ERROR;
+  int i;
   
   // Not sure what to do with exports and nexports ... as found in exec
   // FAR const struct symtab_s *exports, int nexports
   // so they are ommited in the args list.
   
-  for (i=0; nuttapps[i].name; i++) 
+  if ( (i = nuttapp_isavail(appname)) >= 0 )
   {
-    if ( !strcmp(nuttapps[i].name, appname) ) 
-    {
 #ifndef CONFIG_CUSTOM_STACK
-      ret = task_create(nuttapps[i].name, nuttapps[i].priority, 
-                        nuttapps[i].stacksize, nuttapps[i].main, &argv[1]);
+    i = task_create(nuttapps[i].name, nuttapps[i].priority, 
+                      nuttapps[i].stacksize, nuttapps[i].main, &argv[1]);
 #else
-      ret = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main, &argv[1]);
+    i = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main, &argv[1]);
 #endif
-      return ret;
-    }
+    return i;
   }
-  errno = ENOENT;
-  return ret;
+  
+  return i;
 }
