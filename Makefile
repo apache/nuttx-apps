@@ -103,6 +103,7 @@ $(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
 	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
+		rm -f $$dir/.depend ; \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" depend ; \
 	done
 

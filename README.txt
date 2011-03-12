@@ -2,9 +2,7 @@
 Application Folder
 ==================
 
-This folder provides various applications that can be enabled in the .config
-file and further provides frame-work to include external user applications
-from the ../apps directory.
+This folder provides various applications found in sub-directories.
 
 Application entry points with their requirements are gathered together in 
 this folder, in two files:
@@ -16,15 +14,12 @@ Application information is collected during the make .depend process.
 To execute an application function:
 	exec_nuttapp() is defined in the include/nuttx/nuttapp.h 
 	
-Further, builtin applications may be accessed via pseudo file-system found
-under the nuttx/drivers/sbin directory.
-
 NuttShell provides transparent method of invoking the command, when the
-following option is enabled (regardless of sbin pseudo file system):
+following option is enabled:
 	CONFIG_EXAMPLES_NSH_BUILTIN_APPS=y
 
 To select which application to be included in the build process set your
-preferences the .config file as:
+preferences the nuttx/.config file as:
 
 To include applications under the nuttx apps directory:
 	CONFIG_BUILTIN_APPS_NUTTX=y/n
@@ -32,14 +27,13 @@ To include applications under the nuttx apps directory:
 where each application can be controlled as:
 	CONFIG_BUILTIN_APPS_<NAME>=y/n
 	
-To include applications under the user ../apps directory:
-	CONFIG_BUILTIN_APPS_USER=y/n
-
-When the user defines an option: (NOT IMPLEMENTED YET)
+When the user defines an option:
 	CONFIG_BUILTIN_APP_START=<application name>
-
-then after initialization of the NuttX OS it starts this application
-using the exec_nuttapp() method.
+	
+Note that application name must be provided in ".." as: "hello"
+for the hello application, which starts the immediately after system 
+starts:
+	int hello_main(int argc, char *argv[])
 
 Application skeleton can be found under the hello sub-directory,
 which shows how an application can be added to the project. One must
@@ -53,6 +47,4 @@ define:
 	ASRCS		= asm source file list as a.asm b.asm ...
 	CSRCS		= C source file list as foo1.c foo2.c ..
 
- 4. add enable/disable option in the top file in this directory as:
-	ifeq CONFIG_BUILTIN_APPS_<NAME>
-	...
+ 4. add application in the apps/Makefile

@@ -124,9 +124,11 @@ int exec_nuttapp(FAR const char *appname, FAR const char *argv[])
   {
 #ifndef CONFIG_CUSTOM_STACK
     i = task_create(nuttapps[i].name, nuttapps[i].priority, 
-                      nuttapps[i].stacksize, nuttapps[i].main, &argv[1]);
+                      nuttapps[i].stacksize, nuttapps[i].main, 
+                      (argv) ? &argv[1] : (const char **)NULL);
 #else
-    i = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main, &argv[1]);
+    i = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main,
+                      (argv) ? &argv[1] : (const char **)NULL);
 #endif
 
 #if CONFIG_RR_INTERVAL > 0
