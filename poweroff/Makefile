@@ -87,7 +87,7 @@ $(BIN):	$(OBJS)
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) \
 	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(call REGISTER, $(APPNAME), $(PRIORITY), $(STACKSIZE), $(APPNAME)_main)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
 
 # Register application
