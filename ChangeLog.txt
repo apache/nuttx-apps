@@ -5,6 +5,9 @@
 
 5.20 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
 
-	* README cosmetics
-	* hello world minor changes
-	* Makefile cosmetics (I am slowly adding the Darjeeling JVM)
+	* README.txt -- README cosmetics
+	* hello/ -- hello world minor changes
+	* Makefile -- Makefile cosmetics (I am slowly adding the Darjeeling JVM)
+	* Make.defs -- New file adds common make definitions for applications.
+	* hello/Makefile -- Now uses new Make.defs definitions.  Added README.txt.
+	* apps/poweroff -- New application to turn off board power.
