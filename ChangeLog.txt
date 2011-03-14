@@ -1,0 +1,10 @@
+5.19 2011-03-12 Gregory Nutt <spudmonkey@racsa.co.cr>
+
+	* Initial version of the apps/ directory was released as contributed by
+	  Uros Platise.
+
+5.20 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+
+	* README cosmetics
+	* hello world minor changes
+	* Makefile cosmetics (I am slowly adding the Darjeeling JVM)

@@ -34,6 +34,24 @@
  ****************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
+
+
+void memtest(void)
+{
+	char *p;
+	int   i, j;
+	
+	for (i=0; i<1000; i++) {
+		p = malloc(40000);
+		if (!p) {
+			printf("No memory\n");
+			break;
+		}
+		for (j=0; j<40000; j++) p[j] = 0;
+		free(p);
+	}
+}
 
 
 /** Example of a standalone application
@@ -41,7 +59,17 @@
 int hello_main(int argc, char *argv[])
 {
 	int i;
-	printf("Hello Builtin Application\nFound argc=%d arguments and are as follows:\n", argc);
-	for (i=0; i<argc; i++) printf("%s\n", argv[i]);
+		
+	printf("Hello Builtin Application\n"
+		   "Found argc=%d arguments and are as follows:\n", argc);
+		   
+	// note that stdout is bufferred and that fflush() and is called on exit.
+	fflush(stdout);
+		   
+	for (i=0; i<argc; i++) 
+		printf("%s\n", argv[i]);
+		
+	//memtest();
+	
 	return 0;
 }
