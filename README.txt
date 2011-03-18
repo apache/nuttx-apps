@@ -18,7 +18,7 @@ To execute an application function:
 NuttShell provides transparent method of invoking the command, when the
 following option is enabled:
 
-	CONFIG_EXAMPLES_NSH_BUILTIN_APPS=y
+	CONFIG_NSH_BUILTIN_APPS=y
 
 in the NuttX configuration.
 

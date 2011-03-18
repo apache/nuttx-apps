@@ -51,7 +51,7 @@
 
 #include "nsh.h"
 
-#ifdef CONFIG_EXAMPLES_NSH_BUILTIN_APPS
+#ifdef CONFIG_NSH_BUILTIN_APPS
 
 /****************************************************************************
  * Definitions
@@ -127,6 +127,6 @@ int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    return OK;
 }
 
-#endif /* CONFIG_EXAMPLES_NSH_BUILTIN_APPS */
+#endif /* CONFIG_NSH_BUILTIN_APPS */
 
 

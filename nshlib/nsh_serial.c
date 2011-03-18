@@ -63,7 +63,7 @@ struct serial_s
   struct nsh_vtbl_s ss_vtbl;
   int    ss_fd;      /* Re-direct file descriptor */
   FILE  *ss_stream;  /* Re-direct stream */
-  char   ss_line[CONFIG_EXAMPLES_NSH_LINELEN];
+  char   ss_line[CONFIG_NSH_LINELEN];
 };
 
 struct serialsave_s
@@ -76,7 +76,7 @@ struct serialsave_s
  * Private Function Prototypes
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static FAR struct nsh_vtbl_s *nsh_consoleclone(FAR struct nsh_vtbl_s *vtbl);
 static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl);
 #endif
@@ -108,7 +108,7 @@ static inline FAR struct serial_s *nsh_allocstruct(void)
   struct serial_s *pstate = (struct serial_s *)zalloc(sizeof(struct serial_s));
   if (pstate)
     {
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
       pstate->ss_vtbl.clone      = nsh_consoleclone;
       pstate->ss_vtbl.release    = nsh_consolerelease;
 #endif
@@ -262,7 +262,7 @@ static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static FAR struct nsh_vtbl_s *nsh_consoleclone(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct serial_s *pstate = (FAR struct serial_s *)vtbl;
@@ -290,7 +290,7 @@ static FAR struct nsh_vtbl_s *nsh_consoleclone(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct serial_s *pstate = (FAR struct serial_s *)vtbl;
@@ -422,7 +422,7 @@ int nsh_consolemain(int argc, char *argv[])
 
   /* Execute the startup script */
 
-#ifdef CONFIG_EXAMPLES_NSH_ROMFSETC
+#ifdef CONFIG_NSH_ROMFSETC
   (void)nsh_script(&pstate->ss_vtbl, "init", NSH_INITPATH);
 #endif
 
@@ -437,7 +437,7 @@ int nsh_consolemain(int argc, char *argv[])
 
       /* Get the next line of input */
 
-      if (fgets(pstate->ss_line, CONFIG_EXAMPLES_NSH_LINELEN, stdin))
+      if (fgets(pstate->ss_line, CONFIG_NSH_LINELEN, stdin))
         {
           /* Parse process the command */
 

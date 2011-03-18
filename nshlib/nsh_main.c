@@ -52,11 +52,11 @@
 #include <errno.h>
 #include <debug.h>
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 #  include <pthread.h>
 #endif
 
-#ifdef CONFIG_EXAMPLES_NSH_BUILTIN_APPS
+#ifdef CONFIG_NSH_BUILTIN_APPS
 #  include <apps/apps.h>
 #endif
 #include <apps/nsh.h>
@@ -79,7 +79,7 @@
  * Maximum size is NSH_MAX_ARGUMENTS+5
  */
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 #  define MAX_ARGV_ENTRIES (NSH_MAX_ARGUMENTS+5)
 #else
 #  define MAX_ARGV_ENTRIES (NSH_MAX_ARGUMENTS+4)
@@ -98,7 +98,7 @@ struct cmdmap_s
   const char *usage;      /* Usage instructions for 'help' command */
 };
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 struct cmdarg_s
 {
   FAR struct nsh_vtbl_s *vtbl;      /* For front-end interaction */
@@ -112,11 +112,11 @@ struct cmdarg_s
  * Private Function Prototypes
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_HELP
+#ifndef CONFIG_NSH_DISABLE_HELP
   static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_EXIT
+#ifndef CONFIG_NSH_DISABLE_EXIT
   static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
@@ -134,31 +134,31 @@ static const char g_failure[]    = "1";
 
 static const struct cmdmap_s g_cmdmap[] =
 {
-#if !defined(CONFIG_EXAMPLES_NSH_DISABLESCRIPT) && !defined(CONFIG_EXAMPLES_NSH_DISABLE_TEST)
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   { "[",        cmd_lbracket, 4, NSH_MAX_ARGUMENTS, "<expression> ]" },
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_CAT
+# ifndef CONFIG_NSH_DISABLE_CAT
   { "cat",      cmd_cat,      2, NSH_MAX_ARGUMENTS, "<path> [<path> [<path> ...]]" },
 # endif
 #ifndef CONFIG_DISABLE_ENVIRON
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_CD
+# ifndef CONFIG_NSH_DISABLE_CD
   { "cd",       cmd_cd,       1, 2, "[<dir-path>|-|~|..]" },
 # endif
 #endif
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_CP
+# ifndef CONFIG_NSH_DISABLE_CP
   { "cp",       cmd_cp,       3, 3, "<source-path> <dest-path>" },
 # endif
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_LS
+# ifndef CONFIG_NSH_DISABLE_LS
   { "dd",       cmd_dd,       3, 6, "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_ECHO
+#ifndef CONFIG_NSH_DISABLE_ECHO
 # ifndef CONFIG_DISABLE_ENVIRON
   { "echo",     cmd_echo,     0, NSH_MAX_ARGUMENTS, "[<string|$name> [<string|$name>...]]" },
 # else
@@ -166,172 +166,172 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_EXEC
+#ifndef CONFIG_NSH_DISABLE_EXEC
   { "exec",     cmd_exec,     2, 3, "<hex-address>" },
 #endif
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_EXIT
+#ifndef CONFIG_NSH_DISABLE_EXIT
   { "exit",     cmd_exit,     1, 1, NULL },
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_FREE
+#ifndef CONFIG_NSH_DISABLE_FREE
   { "free",     cmd_free,     1, 1, NULL },
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_GET
+# ifndef CONFIG_NSH_DISABLE_GET
   { "get",      cmd_get,      4, 7, "[-b|-n] [-f <local-path>] -h <ip-address> <remote-path>" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_HELP
+#ifndef CONFIG_NSH_DISABLE_HELP
   { "help",     cmd_help,     1, 1, NULL },
 #endif
 
 #ifdef CONFIG_NET
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_IFCONFIG
+# ifndef CONFIG_NSH_DISABLE_IFCONFIG
   { "ifconfig", cmd_ifconfig, 1, 1, NULL },
 # endif
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_SLEEP
+# ifndef CONFIG_NSH_DISABLE_SLEEP
   { "kill",     cmd_kill,     3, 3, "-<signal> <pid>" },
 # endif
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_LOSETUP
+# ifndef CONFIG_NSH_DISABLE_LOSETUP
   { "losetup",   cmd_losetup, 3, 6, "[-d <dev-path>] | [[-o <offset>] [-r] <dev-path> <file-path>]" },
 # endif
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_LS
+# ifndef CONFIG_NSH_DISABLE_LS
   { "ls",       cmd_ls,       1, 5, "[-lRs] <dir-path>" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MB
+#ifndef CONFIG_NSH_DISABLE_MB
   { "mb",       cmd_mb,       2, 3, "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKDIR
+# ifndef CONFIG_NSH_DISABLE_MKDIR
   { "mkdir",    cmd_mkdir,    2, 2, "<path>" },
 # endif
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_FAT)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKFATFS
+# ifndef CONFIG_NSH_DISABLE_MKFATFS
   { "mkfatfs",  cmd_mkfatfs,  2, 2, "<path>" },
 # endif
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKFIFO
+# ifndef CONFIG_NSH_DISABLE_MKFIFO
   { "mkfifo",   cmd_mkfifo,   2, 2, "<path>" },
 # endif
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKRD
+# ifndef CONFIG_NSH_DISABLE_MKRD
   { "mkrd",     cmd_mkrd,     2, 6, "[-m <minor>] [-s <sector-size>] <nsectors>" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MH
+#ifndef CONFIG_NSH_DISABLE_MH
   { "mh",       cmd_mh,       2, 3, "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_MOUNT
+# ifndef CONFIG_NSH_DISABLE_MOUNT
   { "mount",    cmd_mount,    4, 5, "-t <fstype> <block-device> <dir-path>" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MW
+#ifndef CONFIG_NSH_DISABLE_MW
   { "mw",       cmd_mw,       2, 3, "<hex-address>[=<hex-value>][ <hex-byte-count>]" },
 #endif
 
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_PING
+# ifndef CONFIG_NSH_DISABLE_PING
   { "ping",     cmd_ping,     2, 6, "[-c <count>] [-i <interval>] <ip-address>" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_PS
+#ifndef CONFIG_NSH_DISABLE_PS
   { "ps",       cmd_ps,       1, 1, NULL },
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_PUT
+# ifndef CONFIG_NSH_DISABLE_PUT
   { "put",      cmd_put,      4, 7, "[-b|-n] [-f <remote-path>] -h <ip-address> <local-path>" },
 # endif
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_PWD
+# ifndef CONFIG_NSH_DISABLE_PWD
   { "pwd",      cmd_pwd,      1, 1, NULL },
 # endif
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_RM
+# ifndef CONFIG_NSH_DISABLE_RM
   { "rm",       cmd_rm,       2, 2, "<file-path>" },
 # endif
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_RMDIR
+# ifndef CONFIG_NSH_DISABLE_RMDIR
   { "rmdir",    cmd_rmdir,    2, 2, "<dir-path>" },
 # endif
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_SET
+# ifndef CONFIG_NSH_DISABLE_SET
   { "set",      cmd_set,      3, 3, "<name> <value>" },
 # endif
 #endif
 
-#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_EXAMPLES_NSH_DISABLESCRIPT)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_SH
+#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+# ifndef CONFIG_NSH_DISABLE_SH
   { "sh",       cmd_sh,       2, 2, "<script-path>" },
 # endif
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_SLEEP
+# ifndef CONFIG_NSH_DISABLE_SLEEP
   { "sleep",    cmd_sleep,    2, 2, "<sec>" },
 # endif
 #endif
 
-#if !defined(CONFIG_EXAMPLES_NSH_DISABLESCRIPT) && !defined(CONFIG_EXAMPLES_NSH_DISABLE_TEST)
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   { "test",     cmd_test,     3, NSH_MAX_ARGUMENTS, "<expression>" },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_UMOUNT
+# ifndef CONFIG_NSH_DISABLE_UMOUNT
   { "umount",   cmd_umount,   2, 2, "<dir-path>" },
 # endif
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_UNSET
+# ifndef CONFIG_NSH_DISABLE_UNSET
   { "unset",    cmd_unset,    2, 2, "<name>" },
 # endif
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_USLEEP
+# ifndef CONFIG_NSH_DISABLE_USLEEP
   { "usleep",   cmd_usleep,   2, 2, "<usec>" },
 # endif
 #endif
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_EXAMPLES_NSH_DISABLE_GET
+# ifndef CONFIG_NSH_DISABLE_GET
   { "wget",     cmd_wget,     2, 4, "[-o <local-path>] <url>" },
 # endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_XD
+#ifndef CONFIG_NSH_DISABLE_XD
   { "xd",       cmd_xd,       3, 3, "<hex-address> <byte-count>" },
 #endif
   { NULL,       NULL,         1, 1, NULL }
@@ -352,7 +352,7 @@ const char g_fmtnosuch[]         = "nsh: %s: no such %s: %s\n";
 const char g_fmttoomanyargs[]    = "nsh: %s: too many arguments\n";
 const char g_fmtdeepnesting[]    = "nsh: %s: nesting too deep\n";
 const char g_fmtcontext[]        = "nsh: %s: not valid in this context\n";
-#ifdef CONFIG_EXAMPLES_NSH_STRERROR
+#ifdef CONFIG_NSH_STRERROR
 const char g_fmtcmdfailed[]      = "nsh: %s: %s failed: %s\n";
 #else
 const char g_fmtcmdfailed[]      = "nsh: %s: %s failed: %d\n";
@@ -371,18 +371,18 @@ const char g_fmtsignalrecvd[]    = "nsh: %s: Interrupted by signal\n";
  * Name: cmd_help
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_HELP
+#ifndef CONFIG_NSH_DISABLE_HELP
 static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   const struct cmdmap_s *ptr;
 
   nsh_output(vtbl, "NSH command forms:\n");
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
   nsh_output(vtbl, "  [nice [-d <niceness>>]] <cmd> [> <file>|>> <file>] [&]\n");
 #else
   nsh_output(vtbl, "  <cmd> [> <file>|>> <file>]\n");
 #endif
-#ifndef CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLESCRIPT
   nsh_output(vtbl, "OR\n");
   nsh_output(vtbl, "  if <cmd>\n");
   nsh_output(vtbl, "  then\n");
@@ -421,7 +421,7 @@ static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_exit
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_EXIT
+#ifndef CONFIG_NSH_DISABLE_EXIT
 static int cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   nsh_exit(vtbl);
@@ -491,7 +491,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
     * a list of pre-built applications.
     */
 
-#ifdef CONFIG_EXAMPLES_NSH_BUILTIN_APPS
+#ifdef CONFIG_NSH_BUILTIN_APPS
    if (handler == cmd_unrecognized && nsh_execapp(vtbl, cmd, argv) == OK)
      {
        /* The pre-built application was successfully started -- return OK.
@@ -510,7 +510,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
  * Name: nsh_releaseargs
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static void nsh_releaseargs(struct cmdarg_s *arg)
 {
   FAR struct nsh_vtbl_s *vtbl = arg->vtbl;
@@ -544,7 +544,7 @@ static void nsh_releaseargs(struct cmdarg_s *arg)
  * Name: nsh_child
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static pthread_addr_t nsh_child(pthread_addr_t arg)
 {
   struct cmdarg_s *carg = (struct cmdarg_s *)arg;
@@ -568,7 +568,7 @@ static pthread_addr_t nsh_child(pthread_addr_t arg)
  * Name: nsh_cloneargs
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static inline struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
                                              int fd, int argc, char *argv[])
 {
@@ -735,7 +735,7 @@ char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr)
  * Name: nsh_cmdenabled
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLESCRIPT
 static inline bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 {
   struct nsh_parser_s *np = &vtbl->np;
@@ -766,7 +766,7 @@ static inline bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
  * Name: nsh_ifthenelse
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLESCRIPT
 static inline int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd, FAR char **saveptr)
 {
   struct nsh_parser_s *np = &vtbl->np;
@@ -800,7 +800,7 @@ static inline int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd, 
 
           /* Check if we have exceeded the maximum depth of nesting */
 
-          if (np->np_ndx >= CONFIG_EXAMPLES_NSH_NESTDEPTH-1)
+          if (np->np_ndx >= CONFIG_NSH_NESTDEPTH-1)
             {
               nsh_output(vtbl, g_fmtdeepnesting, "if");
               goto errout;
@@ -909,7 +909,7 @@ static inline int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 {
   struct nsh_parser_s *np = &vtbl->np;
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLESCRIPT
   if (np->np_st[np->np_ndx].ns_state == NSH_PARSER_IF)
     {
       np->np_fail = false;
@@ -928,7 +928,7 @@ static inline int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
  * Name: nsh_nice
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static inline int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd, FAR char **saveptr)
 {
   FAR char *cmd = *ppcmd;
@@ -1016,7 +1016,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
   /* Initialize parser state */
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = false;
 #endif
   vtbl->np.np_redirect = false;
@@ -1028,7 +1028,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
 
   /* Handler if-then-else-fi */
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLESCRIPT
   if (nsh_ifthenelse(vtbl, &cmd, &saveptr) != 0)
     {
       goto errout;
@@ -1037,7 +1037,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
 
   /* Handle nice */
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
   if (nsh_nice(vtbl, &cmd, &saveptr) != 0)
     {
       goto errout;
@@ -1048,7 +1048,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
    * currently disabled.
    */
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLESCRIPT
   if (!cmd || !nsh_cmdenabled(vtbl))
 #else
   if (!cmd)
@@ -1088,7 +1088,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
 
   /* Check if the command should run in background */
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
   if (argc > 1 && strcmp(argv[argc-1], "&") == 0)
     {
       vtbl->np.np_bg = true;
@@ -1155,9 +1155,9 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
    * However is app is to be started as nuttapp new process will
    * be created anyway, so skip this step. */
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
   if (vtbl->np.np_bg
-#ifdef CONFIG_EXAMPLES_NSH_BUILTIN_APPS
+#ifdef CONFIG_NSH_BUILTIN_APPS
       && nuttapp_isavail(argv[0]) < 0     
 #endif
   )
@@ -1287,7 +1287,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
 
   return nsh_saveresult(vtbl, false);
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 errout_with_redirect:
   if (vtbl->np.np_redirect)
     {

@@ -49,11 +49,11 @@ ASRCS	=
 CSRCS	= nsh_main.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c \
 		nsh_envcmds.c nsh_dbgcmds.c
 
-ifeq ($(CONFIG_EXAMPLES_NSH_BUILTIN_APPS),y)
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CSRCS	+= nsh_apps.c
 endif
 
-ifeq ($(CONFIG_EXAMPLES_NSH_ROMFSETC),y)
+ifeq ($(CONFIG_NSH_ROMFSETC),y)
 CSRCS	+= nsh_romfsetc.c
 endif
 
@@ -61,15 +61,15 @@ ifeq ($(CONFIG_NET),y)
 CSRCS	+= nsh_netinit.c nsh_netcmds.c
 endif
 
-ifeq ($(CONFIG_EXAMPLES_NSH_CONSOLE),y)
+ifeq ($(CONFIG_NSH_CONSOLE),y)
 CSRCS	+= nsh_serial.c
 endif
 
-ifeq ($(CONFIG_EXAMPLES_NSH_TELNET),y)
+ifeq ($(CONFIG_NSH_TELNET),y)
 CSRCS	+= nsh_telnetd.c
 endif
 
-ifneq ($(CONFIG_EXAMPLES_NSH_DISABLESCRIPT),y)
+ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
 CSRCS	+= nsh_test.c
 endif
 

@@ -59,14 +59,14 @@
 
 #include <net/if.h>
 #include <net/uip/uip-lib.h>
-#if defined(CONFIG_EXAMPLES_NSH_DHCPC)
+#if defined(CONFIG_NSH_DHCPC)
 #  include <net/uip/resolv.h>
 #  include <net/uip/dhcpc.h>
 #endif
 
 #include "nsh.h"
 
-#ifdef CONFIG_EXAMPLES_NSH_TELNET
+#ifdef CONFIG_NSH_TELNET
 
 /****************************************************************************
  * Definitions
@@ -89,7 +89,7 @@
 #define TELNET_DO    253
 #define TELNET_DONT  254
 
-#ifdef CONFIG_EXAMPLES_NSH_TELNETD_DUMPBUFFER
+#ifdef CONFIG_NSH_TELNETD_DUMPBUFFER
 # define nsh_telnetdump(vtbl,msg,buf,nb) nsh_dumpbuffer(vtbl,msg,buf,nb)
 #else
 # define nsh_telnetdump(vtbl,msg,buf,nb)
@@ -105,7 +105,7 @@ struct telnetio_s
   int     tio_sockfd;
   uint8_t tio_bufndx;
   uint8_t tio_state;
-  char    tio_inbuffer[CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE];
+  char    tio_inbuffer[CONFIG_NSH_IOBUFFER_SIZE];
 };
 
 struct redirect_s
@@ -134,15 +134,15 @@ struct telnetd_s
       struct telnetio_s *tn;
       struct redirect_s  rd;
     } u;
-  char tn_outbuffer[CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE];
-  char tn_cmd[CONFIG_EXAMPLES_NSH_LINELEN];
+  char tn_outbuffer[CONFIG_NSH_IOBUFFER_SIZE];
+  char tn_cmd[CONFIG_NSH_LINELEN];
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static void tio_semtake(struct telnetio_s *tio);
 static FAR struct nsh_vtbl_s *nsh_telnetclone(FAR struct nsh_vtbl_s *vtbl);
 #endif
@@ -192,7 +192,7 @@ static FAR struct telnetd_s *nsh_allocstruct(void)
   struct telnetd_s *pstate = (struct telnetd_s *)zalloc(sizeof(struct telnetd_s));
   if (pstate)
     {
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
       pstate->tn_vtbl.clone      = nsh_telnetclone;
       pstate->tn_vtbl.release    = nsh_telnetrelease;
 #endif
@@ -287,7 +287,7 @@ static void nsh_putchar(struct telnetd_s *pstate, uint8_t ch)
 
   /* If a newline was added or if the buffer is full, then process it now */
 
-  if (ch == ISO_nl || tio->tio_bufndx == (CONFIG_EXAMPLES_NSH_LINELEN - 1))
+  if (ch == ISO_nl || tio->tio_bufndx == (CONFIG_NSH_LINELEN - 1))
     {
       pstate->tn_cmd[tio->tio_bufndx] = '\0';
       nsh_telnetdump(&pstate->tn_vtbl, "TELNET CMD",
@@ -488,7 +488,7 @@ static void *nsh_connection(void *arg)
 
       /* Execute the startup script */
 
-#if defined(CONFIG_EXAMPLES_NSH_ROMFSETC) && !defined(CONFIG_EXAMPLES_NSH_CONSOLE)
+#if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
      (void)nsh_script(vtbl, "init", NSH_INITPATH);
 #endif
 
@@ -504,7 +504,7 @@ static void *nsh_connection(void *arg)
           /* Read a buffer of data from the TELNET client */
 
           ret = recv(tio->tio_sockfd, tio->tio_inbuffer,
-                     CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE, 0);
+                     CONFIG_NSH_IOBUFFER_SIZE, 0);
           if (ret > 0)
             {
 
@@ -594,12 +594,12 @@ static int nsh_telnetoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
   va_list            ap;
 
   /* Put the new info into the buffer.  Here we are counting on the fact that
-   * no output strings will exceed CONFIG_EXAMPLES_NSH_LINELEN!
+   * no output strings will exceed CONFIG_NSH_LINELEN!
    */
 
   va_start(ap, fmt);
   vsnprintf(&pstate->tn_outbuffer[nbytes],
-            (CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE - 1) - nbytes, fmt, ap);
+            (CONFIG_NSH_IOBUFFER_SIZE - 1) - nbytes, fmt, ap);
   va_end(ap);
 
   /* Get the size of the new string just added and the total size of
@@ -611,7 +611,7 @@ static int nsh_telnetoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
 
   /* Expand any terminating \n to \r\n */
 
-  if (nbytes < (CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE - 2) &&
+  if (nbytes < (CONFIG_NSH_IOBUFFER_SIZE - 2) &&
       pstate->tn_outbuffer[nbytes-1] == '\n')
     {
       pstate->tn_outbuffer[nbytes-1] = ISO_cr;
@@ -625,7 +625,7 @@ static int nsh_telnetoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
    * maximum length string.
    */
 
-  if (nbytes > CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE - CONFIG_EXAMPLES_NSH_LINELEN)
+  if (nbytes > CONFIG_NSH_IOBUFFER_SIZE - CONFIG_NSH_LINELEN)
     {
       nsh_flush(pstate);
     }
@@ -686,7 +686,7 @@ static FAR char *nsh_telnetlinebuffer(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static FAR struct nsh_vtbl_s *nsh_telnetclone(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct telnetd_s  *pstate = (FAR struct telnetd_s *)vtbl;
@@ -720,7 +720,7 @@ static FAR struct nsh_vtbl_s *nsh_telnetclone(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLEBG
+#ifndef CONFIG_NSH_DISABLEBG
 static void nsh_telnetrelease(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct telnetd_s *pstate = (FAR struct telnetd_s *)vtbl;
@@ -846,8 +846,8 @@ int nsh_telnetmain(int argc, char *argv[])
 {
   /* Execute nsh_connection() on each connection to port 23 */
 
-  uip_server(HTONS(23), nsh_connection, CONFIG_EXAMPLES_NSH_STACKSIZE);
+  uip_server(HTONS(23), nsh_connection, CONFIG_NSH_STACKSIZE);
   return OK;
 }
 
-#endif /* CONFIG_EXAMPLES_NSH_TELNET */
+#endif /* CONFIG_NSH_TELNET */

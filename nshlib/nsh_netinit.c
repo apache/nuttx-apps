@@ -46,7 +46,7 @@
 
 #include <net/if.h>
 #include <net/uip/uip-lib.h>
-#if defined(CONFIG_EXAMPLES_NSH_DHCPC)
+#if defined(CONFIG_NSH_DHCPC)
 #  include <net/uip/resolv.h>
 #  include <net/uip/dhcpc.h>
 #endif
@@ -86,16 +86,16 @@
 int nsh_netinit(void)
 {
  struct in_addr addr;
-#if defined(CONFIG_EXAMPLES_NSH_DHCPC)
+#if defined(CONFIG_NSH_DHCPC)
  FAR void *handle;
 #endif
-#if defined(CONFIG_EXAMPLES_NSH_DHCPC) || defined(CONFIG_EXAMPLES_NSH_NOMAC)
+#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)
  uint8_t mac[IFHWADDRLEN];
 #endif
 
 /* Many embedded network interfaces must have a software assigned MAC */
 
-#ifdef CONFIG_EXAMPLES_NSH_NOMAC
+#ifdef CONFIG_NSH_NOMAC
   mac[0] = 0x00;
   mac[1] = 0xe0;
   mac[2] = 0xb0;
@@ -107,8 +107,8 @@ int nsh_netinit(void)
 
   /* Set up our host address */
 
-#if !defined(CONFIG_EXAMPLES_NSH_DHCPC)
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_NSH_IPADDR);
+#if !defined(CONFIG_NSH_DHCPC)
+  addr.s_addr = HTONL(CONFIG_NSH_IPADDR);
 #else
   addr.s_addr = 0;
 #endif
@@ -116,21 +116,21 @@ int nsh_netinit(void)
 
   /* Set up the default router address */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_NSH_DRIPADDR);
+  addr.s_addr = HTONL(CONFIG_NSH_DRIPADDR);
   uip_setdraddr("eth0", &addr);
 
   /* Setup the subnet mask */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_NSH_NETMASK);
+  addr.s_addr = HTONL(CONFIG_NSH_NETMASK);
   uip_setnetmask("eth0", &addr);
 
-#if defined(CONFIG_EXAMPLES_NSH_DHCPC)
+#if defined(CONFIG_NSH_DHCPC)
   /* Set up the resolver */
 
   resolv_init();
 #endif
 
-#if defined(CONFIG_EXAMPLES_NSH_DHCPC)
+#if defined(CONFIG_NSH_DHCPC)
   /* Get the MAC address of the NIC */
 
   uip_getmacaddr("eth0", mac);

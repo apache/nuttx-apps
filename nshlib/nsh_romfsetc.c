@@ -47,13 +47,13 @@
 
 #include "nsh.h"
 
-#ifdef CONFIG_EXAMPLES_NSH_ROMFSETC
+#ifdef CONFIG_NSH_ROMFSETC
 
 /* Should we use the default ROMFS image?  Or a custom, board-specific
  * ROMFS image?
  */
 
-#ifdef CONFIG_EXAMPLES_NSH_ARCHROMFS
+#ifdef CONFIG_NSH_ARCHROMFS
 #  include <arch/board/nsh_romfsimg.h>
 #else
 #  include "nsh_romfsimg.h"
@@ -97,8 +97,8 @@ int nsh_romfsetc(void)
 
   /* Create a ROM disk for the /etc filesystem */
 
-  ret = romdisk_register(CONFIG_EXAMPLES_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_EXAMPLES_NSH_ROMFSSECTSIZE);
+  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
+                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
   if (ret < 0)
     {
       dbg("nsh: romdisk_register failed: %d\n", -ret);
@@ -108,17 +108,17 @@ int nsh_romfsetc(void)
   /* Mount the file system */
 
   vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_EXAMPLES_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
+       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
 
-  ret = mount(MOUNT_DEVNAME, CONFIG_EXAMPLES_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
       dbg("nsh: mount(%s,%s,romfs) failed: %s\n",
-          MOUNT_DEVNAME, CONFIG_EXAMPLES_NSH_ROMFSMOUNTPT, errno);
+          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
       return ERROR;
     }
   return OK;
 }
 
-#endif /* CONFIG_EXAMPLES_NSH_ROMFSETC */
+#endif /* CONFIG_NSH_ROMFSETC */
 

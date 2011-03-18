@@ -70,7 +70,7 @@
 
 #include "nsh.h"
 
-#if !defined(CONFIG_EXAMPLES_NSH_DISABLESCRIPT) && !defined(CONFIG_EXAMPLES_NSH_DISABLE_TEST)
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
 
 /****************************************************************************
  * Definitions
@@ -434,4 +434,4 @@ int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 }
 
-#endif /* !CONFIG_EXAMPLES_NSH_DISABLESCRIPT && !CONFIG_EXAMPLES_NSH_DISABLE_TEST */
+#endif /* !CONFIG_NSH_DISABLESCRIPT && !CONFIG_NSH_DISABLE_TEST */

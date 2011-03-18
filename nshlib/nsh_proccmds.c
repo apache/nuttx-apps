@@ -98,7 +98,7 @@ static const char *g_statenames[] =
  * Name: ps_task
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_PS
+#ifndef CONFIG_NSH_DISABLE_PS
 static void ps_task(FAR _TCB *tcb, FAR void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
@@ -145,7 +145,7 @@ static void ps_task(FAR _TCB *tcb, FAR void *arg)
  * Name: cmd_exec
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_EXEC
+#ifndef CONFIG_NSH_DISABLE_EXEC
 int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *endptr;
@@ -167,7 +167,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_ps
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_PS
+#ifndef CONFIG_NSH_DISABLE_PS
 int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   nsh_output(vtbl, "PID   PRI SCHD TYPE   NP STATE    NAME\n");
@@ -181,7 +181,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_SIGNALS
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_KILL
+#ifndef CONFIG_NSH_DISABLE_KILL
 int cmd_kill(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *ptr;
@@ -255,7 +255,7 @@ invalid_arg:
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_SIGNALS
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_SLEEP
+#ifndef CONFIG_NSH_DISABLE_SLEEP
 int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *endptr;
@@ -278,7 +278,7 @@ int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_SIGNALS
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_USLEEP
+#ifndef CONFIG_NSH_DISABLE_USLEEP
 int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *endptr;

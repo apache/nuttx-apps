@@ -74,7 +74,7 @@
 #endif
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
-#  ifndef CONFIG_EXAMPLES_NSH_DISABLE_WGET
+#  ifndef CONFIG_NSH_DISABLE_WGET
 #    include <net/uip/uip-lib.h>
 #    include <net/uip/webclient.h>
 #  endif
@@ -143,7 +143,7 @@ static inline uint16_t ping_newid(void)
  * Name: uip_statistics
  ****************************************************************************/
 
-#if defined(CONFIG_NET_STATISTICS) && !defined(CONFIG_EXAMPLES_NSH_DISABLE_IFCONFIG)
+#if defined(CONFIG_NET_STATISTICS) && !defined(CONFIG_NSH_DISABLE_IFCONFIG)
 static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
 {
   nsh_output(vtbl, "uIP         IP ");
@@ -405,7 +405,7 @@ errout:
  ****************************************************************************/
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_WGET
+#ifndef CONFIG_NSH_DISABLE_WGET
 static void wget_callback(FAR char **buffer, int offset, int datend,
                           FAR int *buflen, FAR void *arg)
 {
@@ -423,7 +423,7 @@ static void wget_callback(FAR char **buffer, int offset, int datend,
  ****************************************************************************/
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_GET
+#ifndef CONFIG_NSH_DISABLE_GET
 int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct tftpc_args_s args;
@@ -463,7 +463,7 @@ int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_ifconfig
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_IFCONFIG
+#ifndef CONFIG_NSH_DISABLE_IFCONFIG
 int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   netdev_foreach(ifconfig_callback, vtbl);
@@ -478,7 +478,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_PING
+#ifndef CONFIG_NSH_DISABLE_PING
 int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR const char *fmt = g_fmtarginvalid;
@@ -641,7 +641,7 @@ errout:
  ****************************************************************************/
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_PUT
+#ifndef CONFIG_NSH_DISABLE_PUT
 int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct tftpc_args_s args;
@@ -682,7 +682,7 @@ int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_WGET
+#ifndef CONFIG_NSH_DISABLE_WGET
 int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *localfile = NULL;

@@ -208,7 +208,7 @@ void nsh_freefullpath(char *relpath)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_CD
+#ifndef CONFIG_NSH_DISABLE_CD
 int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   const char *path = argv[1];
@@ -266,7 +266,7 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_echo
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_ECHO
+#ifndef CONFIG_NSH_DISABLE_ECHO
 int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   int i;
@@ -289,7 +289,7 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_PWD
+#ifndef CONFIG_NSH_DISABLE_PWD
 int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   nsh_output(vtbl, "%s\n", nsh_getcwd());
@@ -303,7 +303,7 @@ int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_ENVIRON
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_SET
+#ifndef CONFIG_NSH_DISABLE_SET
 int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   int ret = setenv(argv[1], argv[2], TRUE);
@@ -321,7 +321,7 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_DISABLE_ENVIRON
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_UNSET
+#ifndef CONFIG_NSH_DISABLE_UNSET
 int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   int ret = unsetenv(argv[1]);

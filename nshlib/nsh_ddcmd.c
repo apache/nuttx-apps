@@ -53,7 +53,7 @@
 #include <nuttx/fs.h>
 #include "nsh.h"
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_EXAMPLES_NSH_DISABLE_DD)
+#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_DD)
 
 /****************************************************************************
  * Definitions
@@ -492,7 +492,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifdef CAN_PIPE_FROM_STD
   DD_INFD      = 0;       /* stdin */
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_DD
+#ifndef CONFIG_NSH_DISABLE_DD
   dd.infread   = readch;  /* Character oriented read */
   dd.infclose  = noclose; /* Don't close stdin */
 #endif
@@ -503,7 +503,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifdef CAN_PIPE_FROM_STD
   DD_OUTDF     = 1;       /* stdout */
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_DD
+#ifndef CONFIG_NSH_DISABLE_DD
   dd.outfwrite = writech; /* Character oriented write */
   dd.outfclose = noclose; /* Don't close stdout */
 #endif
@@ -637,5 +637,5 @@ errout_with_paths:
   return ret;
 }
 
-#endif /* CONFIG_NFILE_DESCRIPTORS && !CONFIG_EXAMPLES_NSH_DISABLE_DD */
+#endif /* CONFIG_NFILE_DESCRIPTORS && !CONFIG_NSH_DISABLE_DD */
 

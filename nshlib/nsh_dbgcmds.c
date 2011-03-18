@@ -137,7 +137,7 @@ int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
  * Name: cmd_mb
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MB
+#ifndef CONFIG_NSH_DISABLE_MB
 int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct dbgmem_s mem;
@@ -190,7 +190,7 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mh
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MH
+#ifndef CONFIG_NSH_DISABLE_MH
 int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct dbgmem_s mem;
@@ -243,7 +243,7 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mw
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MW
+#ifndef CONFIG_NSH_DISABLE_MW
 int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct dbgmem_s mem;
@@ -329,7 +329,7 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
  * Name: cmd_xd
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_XD
+#ifndef CONFIG_NSH_DISABLE_XD
 int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char  *addr;

@@ -75,7 +75,7 @@
  * Name: cmd_free
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_FREE
+#ifndef CONFIG_NSH_DISABLE_FREE
 int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct mallinfo mem;

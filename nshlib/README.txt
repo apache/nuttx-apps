@@ -100,7 +100,7 @@ NSH Start-Up Script
 ^^^^^^^^^^^^^^^^^^^
 
 NSH supports options to provide a start up script for NSH.  In general
-this capability is enabled with CONFIG_EXAMPLES_NSH_ROMFSETC, but has
+this capability is enabled with CONFIG_NSH_ROMFSETC, but has
 several other related configuration options as described in the final
 section of this README.  This capability also depends on:
 
@@ -116,7 +116,7 @@ for the use of Start-Up files.  This paragraph will discuss the general
 behavior when all of the configuration options are set to the default
 values.
 
-In this default case, enabling CONFIG_EXAMPLES_NSH_ROMFSETC will cause
+In this default case, enabling CONFIG_NSH_ROMFSETC will cause
 NSH to behave as follows at NSH startup time:
 
 - NSH will create a read-only RAM disk (a ROM disk), containing a tiny
@@ -159,12 +159,12 @@ Modifying the ROMFS Image
 -------------------------
 
 The contents of the /etc directory are retained in the file
-apps/nshlib/nsh_romfsimg.h (OR, if CONFIG_EXAMPLES_NSH_ARCHROMFS
+apps/nshlib/nsh_romfsimg.h (OR, if CONFIG_NSH_ARCHROMFS
 is defined, include/arch/board/rcs.template).  In order to modify
 the start-up behavior, there are three things to study:
 
 1. Configuration Options.
-   The additional CONFIG_EXAMPLES_NSH_ROMFSETC configuration options
+   The additional CONFIG_NSH_ROMFSETC configuration options
    discussed in the final section of this README.
 
 2. tools/mkromfsimg.sh Script.
@@ -179,7 +179,7 @@ the start-up behavior, there are three things to study:
    - The configuration settings of the installed NuttX configuration.
    - The genromfs tool (available from http://romfs.sourceforge.net).
    - The file apps/nshlib/rcS.template (OR, if
-     CONFIG_EXAMPLES_NSH_ARCHROMFS is defined, include/arch/board/rcs.template)
+     CONFIG_NSH_ARCHROMFS is defined, include/arch/board/rcs.template)
 
 3. rcS.template.
    The file apps/nshlib/rcS.template contains the general form
@@ -189,7 +189,7 @@ the start-up behavior, there are three things to study:
 NOTE:
 
    apps/nshlib/rcS.template generates the standard, default
-   nsh_romfsimg.h file.  If CONFIG_EXAMPLES_NSH_ARCHROMFS is defined
+   nsh_romfsimg.h file.  If CONFIG_NSH_ARCHROMFS is defined
    in the NuttX configuration file, then a custom, board-specific
    nsh_romfsimg.h file residing in configs/<board>/include will be
    used.  NOTE when the OS is configured, include/arch/board will
@@ -769,7 +769,7 @@ Command Dependencies on Configuration Settings
 
   Command    Depends on Configuration
   ---------- --------------------------
-  [          !CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+  [          !CONFIG_NSH_DISABLESCRIPT
   cat        CONFIG_NFILE_DESCRIPTORS > 0
   cd         !CONFIG_DISABLE_ENVIRON && CONFIG_NFILE_DESCRIPTORS > 0
   cp         CONFIG_NFILE_DESCRIPTORS > 0
@@ -797,9 +797,9 @@ Command Dependencies on Configuration Settings
   rm         !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE (see note 4)
   rmdir      !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE (see note 4)
   set        !CONFIG_DISABLE_ENVIRON
-  sh         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+  sh         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
   sleep      !CONFIG_DISABLE_SIGNALS
-  test       !CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+  test       !CONFIG_NSH_DISABLESCRIPT
   umount     !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE
   unset      !CONFIG_DISABLE_ENVIRON
   usleep     !CONFIG_DISABLE_SIGNALS
@@ -821,19 +821,19 @@ In addition, each NSH command can be individually disabled via one of the follow
 settings.  All of these settings make the configuration of NSH potentially complex but
 also allow it to squeeze into very small memory footprints.
 
-  CONFIG_EXAMPLES_NSH_DISABLE_CAT,      CONFIG_EXAMPLES_NSH_DISABLE_CD,       CONFIG_EXAMPLES_NSH_DISABLE_CP,
-  CONFIG_EXAMPLES_NSH_DISABLE_DD,       CONFIG_EXAMPLES_NSH_DISABLE_ECHO,     CONFIG_EXAMPLES_NSH_DISABLE_EXEC,
-  CONFIG_EXAMPLES_NSH_DISABLE_EXIT,     CONFIG_EXAMPLES_NSH_DISABLE_FREE,     CONFIG_EXAMPLES_NSH_DISABLE_GET,
-  CONFIG_EXAMPLES_NSH_DISABLE_HELP,     CONFIG_EXAMPLES_NSH_DISABLE_IFCONFIG, CONFIG_EXAMPLES_NSH_DISABLE_KILL,
-  CONFIG_EXAMPLES_NSH_DISABLE_LOSETUP,  CONFIG_EXAMPLES_NSH_DISABLE_LS,       CONFIG_EXAMPLES_NSH_DISABLE_MB,
-  CONFIG_EXAMPLES_NSH_DISABLE_MKDIR,    CONFIG_EXAMPLES_NSH_DISABLE_MKFATFS,  CONFIG_EXAMPLES_NSH_DISABLE_MKFIFO,
-  CONFIG_EXAMPLES_NSH_DISABLE_MKRD,     CONFIG_EXAMPLES_NSH_DISABLE_MH,       CONFIG_EXAMPLES_NSH_DISABLE_MOUNT,
-  CONFIG_EXAMPLES_NSH_DISABLE_MW,       CONFIG_EXAMPLES_NSH_DISABLE_PS,       CONFIG_EXAMPLES_NSH_DISABLE_PING,
-  CONFIG_EXAMPLES_NSH_DISABLE_PUT,      CONFIG_EXAMPLES_NSH_DISABLE_PWD,      CONFIG_EXAMPLES_NSH_DISABLE_RM,
-  CONFIG_EXAMPLES_NSH_DISABLE_RMDIR,    CONFIG_EXAMPLES_NSH_DISABLE_SET,      CONFIG_EXAMPLES_NSH_DISABLE_SH,
-  CONFIG_EXAMPLES_NSH_DISABLE_SLEEP,    CONFIG_EXAMPLES_NSH_DISABLE_TEST,     CONFIG_EXAMPLES_NSH_DISABLE_UMOUNT,
-  CONFIG_EXAMPLES_NSH_DISABLE_UNSET,    CONFIG_EXAMPLES_NSH_DISABLE_USLEEP,   CONFIG_EXAMPLES_NSH_DISABLE_WGET,
-  CONFIG_EXAMPLES_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_CAT,      CONFIG_NSH_DISABLE_CD,       CONFIG_NSH_DISABLE_CP,
+  CONFIG_NSH_DISABLE_DD,       CONFIG_NSH_DISABLE_ECHO,     CONFIG_NSH_DISABLE_EXEC,
+  CONFIG_NSH_DISABLE_EXIT,     CONFIG_NSH_DISABLE_FREE,     CONFIG_NSH_DISABLE_GET,
+  CONFIG_NSH_DISABLE_HELP,     CONFIG_NSH_DISABLE_IFCONFIG, CONFIG_NSH_DISABLE_KILL,
+  CONFIG_NSH_DISABLE_LOSETUP,  CONFIG_NSH_DISABLE_LS,       CONFIG_NSH_DISABLE_MB,
+  CONFIG_NSH_DISABLE_MKDIR,    CONFIG_NSH_DISABLE_MKFATFS,  CONFIG_NSH_DISABLE_MKFIFO,
+  CONFIG_NSH_DISABLE_MKRD,     CONFIG_NSH_DISABLE_MH,       CONFIG_NSH_DISABLE_MOUNT,
+  CONFIG_NSH_DISABLE_MW,       CONFIG_NSH_DISABLE_PS,       CONFIG_NSH_DISABLE_PING,
+  CONFIG_NSH_DISABLE_PUT,      CONFIG_NSH_DISABLE_PWD,      CONFIG_NSH_DISABLE_RM,
+  CONFIG_NSH_DISABLE_RMDIR,    CONFIG_NSH_DISABLE_SET,      CONFIG_NSH_DISABLE_SH,
+  CONFIG_NSH_DISABLE_SLEEP,    CONFIG_NSH_DISABLE_TEST,     CONFIG_NSH_DISABLE_UMOUNT,
+  CONFIG_NSH_DISABLE_UNSET,    CONFIG_NSH_DISABLE_USLEEP,   CONFIG_NSH_DISABLE_WGET,
+  CONFIG_NSH_DISABLE_XD
 
 NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -841,70 +841,70 @@ NSH-Specific Configuration Settings
   The behavior of NSH can be modified with the following settings in
   the configs/<board-name>/defconfig file:
 
-  * CONFIG_EXAMPLES_NSH_FILEIOSIZE
+  * CONFIG_NSH_FILEIOSIZE
       Size of a static I/O buffer used for file access (ignored if
       there is no filesystem). Default is 1024.
 
-  * CONFIG_EXAMPLES_NSH_STRERROR
+  * CONFIG_NSH_STRERROR
       strerror(errno) makes more readable output but strerror() is
       very large and will not be used unless this setting is 'y'
 
-  * CONFIG_EXAMPLES_NSH_LINELEN
+  * CONFIG_NSH_LINELEN
       The maximum length of one command line and of one output line.
       Default: 80
 
-  * CONFIG_EXAMPLES_NSH_STACKSIZE
+  * CONFIG_NSH_STACKSIZE
       The stack size to use when spawning new threads or tasks.  Such
       new threads are generated when a command is executed in background
       or as new TELNET connections are established.
 
-  * CONFIG_EXAMPLES_NSH_NESTDEPTH
+  * CONFIG_NSH_NESTDEPTH
       The maximum number of nested if-then[-else]-fi sequences that
       are permissable.  Default: 3
 
-  * CONFIG_EXAMPLES_NSH_DISABLESCRIPT
+  * CONFIG_NSH_DISABLESCRIPT
       This can be set to 'y' to suppress support for scripting.  This
       setting disables the 'sh', 'test', and '[' commands and the
       if-then[-else]-fi construct.  This would only be set on systems
       where a minimal footprint is a necessity and scripting is not.
 
-  * CONFIG_EXAMPLES_NSH_DISABLEBG
+  * CONFIG_NSH_DISABLEBG
       This can be set to 'y' to suppress support for background
       commands.  This setting disables the 'nice' command prefix and
       the '&' command suffix.  This would only be set on systems
       where a minimal footprint is a necessity and background command
       execution is not.
 
-  * CONFIG_EXAMPLES_NSH_MMCSDMINOR
+  * CONFIG_NSH_MMCSDMINOR
       If the architecture supports an MMC/SD slot and if the NSH
       architecture specific logic is present, this option will provide
       the MMC/SD minor number, i.e., the MMC/SD block driver will
       be registered as /dev/mmcsdN where N is the minor number.
       Default is zero.
 
-  * CONFIG_EXAMPLES_NSH_ROMFSETC
+  * CONFIG_NSH_ROMFSETC
       Mount a ROMFS filesystem at /etc and provide a startup script
       at /etc/init.d/rcS.  The default startup script will mount
       a FAT FS RAMDISK at /tmp but the logic is easily extensible.
 
-  * CONFIG_EXAMPLES_NSH_CONSOLE
-      If CONFIG_EXAMPLES_NSH_CONSOLE is set to 'y', then a serial
+  * CONFIG_NSH_CONSOLE
+      If CONFIG_NSH_CONSOLE is set to 'y', then a serial
       console front-end is selected.
 
-  * CONFIG_EXAMPLES_NSH_TELNET
-      If CONFIG_EXAMPLES_NSH_TELNET is set to 'y', then a TELENET
+  * CONFIG_NSH_TELNET
+      If CONFIG_NSH_TELNET is set to 'y', then a TELENET
       server front-end is selected.  When this option is provided,
       you may log into NuttX remotely using telnet in order to
       access NSH.
 
-  * CONFIG_EXAMPLES_NSH_ARCHINIT
+  * CONFIG_NSH_ARCHINIT
       Set if your board provides architecture specific initialization
       via the board-specific function nsh_archinitialize().  This
       function will be called early in NSH initialization to allow
       board logic to do such things as configure MMC/SD slots.
 
-  One or both of CONFIG_EXAMPLES_NSH_CONSOLE and CONFIG_EXAMPLES_NSH_TELNET
-  must be defined.  If CONFIG_EXAMPLES_NSH_TELNET is selected, then there some
+  One or both of CONFIG_NSH_CONSOLE and CONFIG_NSH_TELNET
+  must be defined.  If CONFIG_NSH_TELNET is selected, then there some
   other configuration settings that apply:
 
   * CONFIG_NET=y
@@ -917,24 +917,24 @@ NSH-Specific Configuration Settings
       TCP/IP support is required for telnet (as well as various other TCP-related
       configuration settings).
 
-  * CONFIG_EXAMPLES_NSH_IOBUFFER_SIZE
+  * CONFIG_NSH_IOBUFFER_SIZE
       Determines the size of the I/O buffer to use for sending/
       receiving TELNET commands/reponses
 
-  * CONFIG_EXAMPLES_NSH_DHCPC
+  * CONFIG_NSH_DHCPC
       Obtain the IP address via DHCP.
 
-  * CONFIG_EXAMPLES_NSH_IPADDR
-      If CONFIG_EXAMPLES_NSH_DHCPC is NOT set, then the static IP
+  * CONFIG_NSH_IPADDR
+      If CONFIG_NSH_DHCPC is NOT set, then the static IP
       address must be provided.
 
-  * CONFIG_EXAMPLES_NSH_DRIPADDR
+  * CONFIG_NSH_DRIPADDR
       Default router IP address
 
-  * CONFIG_EXAMPLES_NSH_NETMASK
+  * CONFIG_NSH_NETMASK
       Network mask
 
-  * CONFIG_EXAMPLES_NSH_NOMAC
+  * CONFIG_NSH_NOMAC
       Set if your ethernet hardware has no built-in MAC address.
       If set, a bogus MAC will be assigned.
 
@@ -958,47 +958,47 @@ NSH-Specific Configuration Settings
       Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
       messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
 
-  If CONFIG_EXAMPLES_NSH_ROMFSETC is selected, then the following additional
+  If CONFIG_NSH_ROMFSETC is selected, then the following additional
   configuration setting apply:
 
-  * CONFIG_EXAMPLES_NSH_ROMFSMOUNTPT
+  * CONFIG_NSH_ROMFSMOUNTPT
       The default mountpoint for the ROMFS volume is /etc, but that
       can be changed with this setting.  This must be a absolute path
       beginning with '/'.
 
-  * CONFIG_EXAMPLES_NSH_INITSCRIPT
+  * CONFIG_NSH_INITSCRIPT
       This is the relative path to the startup script within the mountpoint.
       The default is init.d/rcS.  This is a relative path and must not
       start with '/'.
 
-  * CONFIG_EXAMPLES_NSH_ROMFSDEVNO
+  * CONFIG_NSH_ROMFSDEVNO
       This is the minor number of the ROMFS block device.  The default is 
       '0' corresponding to /dev/ram0.
 
-  * CONFIG_EXAMPLES_NSH_ROMFSSECTSIZE
+  * CONFIG_NSH_ROMFSSECTSIZE
       This is the sector size to use with the ROMFS volume.  Since the
       default volume is very small, this defaults to 64 but should be
       increased if the ROMFS volume were to be become large.  Any value
       selected must be a power of 2.
 
-  When the default rcS file used when CONFIG_EXAMPLES_NSH_ROMFSETC is
+  When the default rcS file used when CONFIG_NSH_ROMFSETC is
   selected, it will mount a FAT FS under /tmp.  The following selections
   describe that FAT FS.
 
-  * CONFIG_EXAMPLES_NSH_FATDEVNO
+  * CONFIG_NSH_FATDEVNO
       This is the minor number of the FAT FS block device.  The default is 
       '1' corresponding to /dev/ram1.
 
-  * CONFIG_EXAMPLES_NSH_FATSECTSIZE
+  * CONFIG_NSH_FATSECTSIZE
       This is the sector size use with the FAT FS. Default is 512.
 
-  * CONFIG_EXAMPLES_NSH_FATNSECTORS
+  * CONFIG_NSH_FATNSECTORS
       This is the number of sectors to use with the FAT FS.  Defalt is
       1024.  The amount of memory used by the FAT FS will be
-      CONFIG_EXAMPLES_NSH_FATSECTSIZE * CONFIG_EXAMPLES_NSH_FATNSECTORS
+      CONFIG_NSH_FATSECTSIZE * CONFIG_NSH_FATNSECTORS
       bytes.
 
-  * CONFIG_EXAMPLES_NSH_FATMOUNTPT
+  * CONFIG_NSH_FATMOUNTPT
       This is the location where the FAT FS will be mounted.  Default
       is /tmp.
 

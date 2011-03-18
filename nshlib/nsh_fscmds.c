@@ -83,9 +83,9 @@
  */
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#  ifdef CONFIG_EXAMPLES_NSH_FILEIOSIZE
-#    if CONFIG_EXAMPLES_NSH_FILEIOSIZE > (PATH_MAX + 1)
-#      define IOBUFFERSIZE CONFIG_EXAMPLES_NSH_FILEIOSIZE
+#  ifdef CONFIG_NSH_FILEIOSIZE
+#    if CONFIG_NSH_FILEIOSIZE > (PATH_MAX + 1)
+#      define IOBUFFERSIZE CONFIG_NSH_FILEIOSIZE
 #    else
 #      define IOBUFFERSIZE (PATH_MAX + 1)
 #    endif
@@ -176,7 +176,7 @@ static int foreach_direntry(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const 
 
   /* Trim trailing '/' from directory names */
 
-#ifdef CONFIG_EXAMPLES_NSH_FULLPATH
+#ifdef CONFIG_NSH_FULLPATH
   trim_dir(arg);
 #endif
 
@@ -330,7 +330,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, const char *dirpath, struct d
 
   /* then provide the filename that is common to normal and verbose output */
 
-#ifdef CONFIG_EXAMPLES_NSH_FULLPATH
+#ifdef CONFIG_NSH_FULLPATH
   nsh_output(vtbl, " %s/%s", arg, entryp->d_name);
 #else
   nsh_output(vtbl, " %s", entryp->d_name);
@@ -395,7 +395,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_CAT
+#ifndef CONFIG_NSH_DISABLE_CAT
 int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char buffer[IOBUFFERSIZE];
@@ -508,7 +508,7 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_CP
+#ifndef CONFIG_NSH_DISABLE_CP
 int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct stat buf;
@@ -690,7 +690,7 @@ errout:
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_LOSETUP
+#ifndef CONFIG_NSH_DISABLE_LOSETUP
 int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *loopdev  = NULL;
@@ -821,7 +821,7 @@ errout_with_paths:
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_LS
+#ifndef CONFIG_NSH_DISABLE_LS
 int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   const char *relpath;
@@ -914,7 +914,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKDIR
+#ifndef CONFIG_NSH_DISABLE_MKDIR
 int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
@@ -939,7 +939,7 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_FAT)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKFATFS
+#ifndef CONFIG_NSH_DISABLE_MKFATFS
 int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct fat_format_s fmt = FAT_FORMAT_INITIALIZER;
@@ -965,7 +965,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKFIFO
+#ifndef CONFIG_NSH_DISABLE_MKFIFO
 int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
@@ -990,7 +990,7 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MKRD
+#ifndef CONFIG_NSH_DISABLE_MKRD
 int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   const char *fmt;
@@ -1100,7 +1100,7 @@ errout_with_fmt:
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_MOUNT
+#ifndef CONFIG_NSH_DISABLE_MOUNT
 int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *source;
@@ -1190,7 +1190,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_RM
+#ifndef CONFIG_NSH_DISABLE_RM
 int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
@@ -1215,7 +1215,7 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_RMDIR
+#ifndef CONFIG_NSH_DISABLE_RMDIR
 int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
@@ -1239,7 +1239,7 @@ int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: nsh_script
  ****************************************************************************/
 
-#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_EXAMPLES_NSH_DISABLESCRIPT)
+#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const char *path)
 {
   char *fullpath;
@@ -1280,7 +1280,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const char *path)
           /* Get the next line of input from the file*/
 
           fflush(stdout);
-          pret = fgets(buffer, CONFIG_EXAMPLES_NSH_LINELEN, stream);
+          pret = fgets(buffer, CONFIG_NSH_LINELEN, stream);
           if (pret)
             {
               /* Parse process the command.  NOTE:  this is recursive...
@@ -1304,8 +1304,8 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const char *path)
  * Name: cmd_sh
  ****************************************************************************/
 
-#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_EXAMPLES_NSH_DISABLESCRIPT)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_SH
+#if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
+#ifndef CONFIG_NSH_DISABLE_SH
 int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return nsh_script(vtbl, argv[0], argv[1]);
@@ -1318,7 +1318,7 @@ int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
-#ifndef CONFIG_EXAMPLES_NSH_DISABLE_UMOUNT
+#ifndef CONFIG_NSH_DISABLE_UMOUNT
 int cmd_umount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
