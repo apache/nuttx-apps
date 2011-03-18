@@ -1,8 +1,8 @@
 /****************************************************************************
- * drivers/sbin/exec_nuttapp.c
+ * free/free.c
  *
- *   Copyright (C) 2011 Uros Platise. All rights reserved.
- *   Author: Uros Platise <uros.platise@isotel.eu>
+ *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,111 +38,56 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <apps/apps.h>
-#include <sched.h>
 
-#include <string.h>
-#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+
+/****************************************************************************
+ * Definitions
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-/* Load builtin function prototypes */
-
-#undef EXTERN
-#if defined(__cplusplus)
-#define EXTERN extern "C"
-extern "C" {
-#else
-#define EXTERN extern
-#endif
-
-#include "exec_nuttapp_proto.h"
-
-static const struct nuttapp_s nuttapps[] = {
-# include "exec_nuttapp_list.h"
-  {.name=NULL}
-};
-
-#undef EXTERN
-#if defined(__cplusplus)
-}
-#endif
-
-
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
-
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: cmd_free
+ ****************************************************************************/
 
-const char * nuttapp_getname(int index)
+int free_main(int argc, char **argv)
 {
-  if ( index < 0 || index >= (sizeof(nuttapps)/sizeof(struct nuttapp_s)) )
-	return NULL;
-	
-  return nuttapps[index].name;
-}
- 
+  struct mallinfo mem;
 
-int nuttapp_isavail(FAR const char *appname)
-{
-  int i;
-    
-  for (i=0; nuttapps[i].name; i++) 
-  {
-    if ( !strcmp(nuttapps[i].name, appname) ) 
-      return i;
-  }
-  
-  errno = ENOENT;
-  return -1;
-}
- 
-
-int exec_nuttapp(FAR const char *appname, FAR const char *argv[])
-{
-  int i;
-  
-  if ( (i = nuttapp_isavail(appname)) >= 0 )
-  {
-#ifndef CONFIG_CUSTOM_STACK
-    i = task_create(nuttapps[i].name, nuttapps[i].priority, 
-                      nuttapps[i].stacksize, nuttapps[i].main, 
-                      (argv) ? &argv[1] : (const char **)NULL);
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  mem = mallinfo();
 #else
-    i = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main,
-                      (argv) ? &argv[1] : (const char **)NULL);
+  (void)mallinfo(&mem);
 #endif
 
-#if CONFIG_RR_INTERVAL > 0
-    if (i > 0)
-    {
-      struct sched_param param;
-	
-      sched_getparam(0, &param);
-	  sched_setscheduler(i, SCHED_RR, &param);
-	}
-#endif
+  printf("             total       used       free    largest\n");
+  printf("Mem:   %11d%11d%11d%11d\n",
+         mem.arena, mem.uordblks, mem.fordblks, mem.mxordblk);
 
-    return i;
-  }
-  
-  return i;
+  return OK;
 }

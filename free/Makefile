@@ -1,5 +1,5 @@
 ############################################################################
-# apps/Makefile
+# Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
 #   Author: Uros Platise <uros.platise@isotel.eu>
@@ -34,60 +34,25 @@
 #
 ############################################################################
 
+# TODO, this makefile should run make under the app dirs, instead of
+# sourcing the Make.defs!
+
 -include $(TOPDIR)/Make.defs
+include ../Make.defs
 
 ifeq ($(WINTOOL),y)
 INCDIROPT	= -w
 endif
 
-# Application Directories
+# Hello Application
+# TODO: appname can be automatically extracted from the directory name
 
-# we use a non-existing .built_always to guarantee that Makefile
-# always walks into the sub-directories and asks for build
-BUILTIN_APPS_BUILT =
-BUILTIN_APPS_DIR =
+APPNAME		= free
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 768
 
-ifeq ($(CONFIG_BUILTIN_APPS),y)
-
-# CONFIGURED_APPS is the list of all configured built-in directories/built action
-# It is created by the configured appconfig file (a copy of which appears in this
-# directoy as .config)
-
-CONFIGURED_APPS =
--include .config
-
-# AVAILABLE_APPS is the list of currently available application directories.  It
-# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent apps
-
-AVAILABLE_APPS =
-
-define ADD_AVAILABLE
-AVAILABLE_APPS += ${shell DIR=`echo $1 | cut -d'/' -f1`; if [ -r $$DIR/Makefile ]; then echo "$1"; fi}
-endef
-
-define BUILTIN_ADD_APP
-BUILTIN_APPS_DIR += ${shell echo $1 | cut -d'/' -f1}
-endef
-
-define BUILTIN_ADD_BUILT
-BUILTIN_APPS_BUILT += $1
-endef
-
-# (1) Create the list of available applications (AVAILABLE_APPS), (2) Add each
-# available app to the list of  to build (BUILTIN_APPS_DIR), and (3) Add the
-# "built" indication for each app (BUILTIN_APPS_BUILT). 
-
-$(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_AVAILABLE,$(BUILTIN))))
-$(foreach APP, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_APP,$(APP))))
-$(foreach BUILT, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_BUILT,$(BUILT))))
-
-# end of application list
-
-endif
-
-ROOTDEPPATH	= --dep-path .
 ASRCS		=
-CSRCS		= exec_nuttapp.c
+CSRCS		= free.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -95,50 +60,44 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= libapps$(LIBEXT)
+BIN	    	= ../libapps$(LIBEXT)
+
+ROOTDEPPATH	= --dep-path .
+
+# Common build
 
 VPATH		= 
 
-all:	$(BIN)
+all:	.built
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
 $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
-	
-$(BUILTIN_APPS_BUILT):
-	@for dir in $(BUILTIN_APPS_DIR) ; do \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" ; \
-	done
 
-$(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
+$(BIN):	$(OBJS)
 	@( for obj in $(OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
+	@touch .built
+	
+.built: $(BIN)
 
 .depend: Makefile $(SRCS)
-	@echo "/* List of application requirements, generated during make depend. */" > exec_nuttapp_list.h
-	@echo "/* List of application entry points, generated during make depend. */" > exec_nuttapp_proto.h
 	@$(MKDEP) $(ROOTDEPPATH) \
 	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
-	@for dir in $(BUILTIN_APPS_DIR) ; do \
-		rm -f $$dir/.depend ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" depend ; \
-	done
 
+# Register application
 depend: .depend
 
 clean:
-	@rm -f $(BIN) *~ .*.swp *.o libapps.a
+	@rm -f $(BIN) *.o *~ .*.swp .built
 	$(call CLEAN)
 
 distclean: clean
-	@rm -r .config
 	@rm -f Make.dep .depend
-	@rm -f exec_nuttapp_list.h
-	@rm -f exec_nuttapp_proto.h
 
 -include Make.dep
-

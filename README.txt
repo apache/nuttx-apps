@@ -1,4 +1,3 @@
-
 Application Folder
 ==================
 
@@ -6,27 +5,42 @@ This folder provides various applications found in sub-directories.
 
 Application entry points with their requirements are gathered together in 
 in two files:
+
 	- exec_nuttapp_proto.h	Entry points, prototype function
 	- exec_nuttapp_list.h	Application specific information and requirements
 
 Information is collected during the make .depend process.
 
 To execute an application function:
-	exec_nuttapp() is defined in the include/nuttx/nuttapp.h 
+
+	exec_nuttapp() is defined in the nuttx/include/apps/apps.h 
 	
 NuttShell provides transparent method of invoking the command, when the
 following option is enabled:
+
 	CONFIG_EXAMPLES_NSH_BUILTIN_APPS=y
 
-To select which application to be included in the build process set your
-preferences in the nuttx/.config file as:
+in the NuttX configuration.
 
-To include applications under the nuttx apps directory:
-	CONFIG_BUILTIN_APPS_NUTTX=y/n
-	
-where each application can be controlled as:
-	CONFIG_BUILTIN_APPS_<NAME>=y/n
-	
+A special configuration file is used to configure which applications
+are to be included in the build.  This file is configs/<board>/<configuration>/appconfig.
+The existence of the appconfig file in the board configuration directory
+is sufficient to enable building of applications.
+
+The appconfig file is copied into the apps/ directory as .config when
+NuttX is configured.  .config is included in the toplevel apps/Makefile.
+As a minimum, this configuration file must define files to add to the
+CONFIGURED_APPS list like:
+
+  CONFIGURED_APPS  += hello/.built_always poweroff/.built_always jvm/.built_always
+
+The form of each entry is <dir>/<dependency> when:
+
+  <dir> is the name of a subdirectory in the apps directory, and
+
+  <dependency> is a make dependency.  This will be "touch"-ed each time
+  that the sub-directory is rebuilt.
+
 When the user defines an option:
 	CONFIG_BUILTIN_APP_START=<application name>
 	
