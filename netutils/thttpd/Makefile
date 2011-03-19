@@ -1,9 +1,8 @@
-############################################################################
-# Makefile
+#############################################################################
+# apps/netutils/thttpd/Makefile
 #
-#   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Author: Uros Platise <uros.platise@isotel.eu>
-#           Gregory Nutt <spudmonkey@racsa.co.cr>
+#   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,28 +31,20 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-############################################################################
-
-# TODO, this makefile should run make under the app dirs, instead of
-# sourcing the Make.defs!
+#############################################################################
 
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
-endif
-
-# Hello Application
-# TODO: appname can be automatically extracted from the directory name
-
-APPNAME		= hello
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 768
+# THTTPD Library
 
 ASRCS		=
-CSRCS		= hello.c
+CSRCS		= 
+
+ifeq ($(CONFIG_NET_TCP),y)
+CSRCS		+= thttpd.c libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c fdwatch.c tdate_parse.c
+endif
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -65,17 +56,44 @@ BIN	    	= ../../libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
 
-# Common build
+# CGI binaries (examples only, not used in the build)
 
-VPATH		= 
+CGIBINDIR	= $(APPDIR)/netutils/thttpd/cgi-bin
 
-all:	.built
+SUBDIRS		=
+ifeq ($(CONFIG_NXFLAT),y)
+SUBDIRS		= cgi-src
+SUBDIR_BIN1	= phf
+SUBDIR_BIN2	= redirect
+SUBDIR_BIN3	= ssi
+SUBDIR_BIN	+= cgi-bin/$(SUBDIR_BIN1) cgi-bin/$(SUBDIR_BIN2)  cgi-bin/$(SUBDIR_BIN3)
+endif
 
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
+all: $(SUBDIR_BIN) $(BIN)
+.PHONY: depend clean distclean
 
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
+ifeq ($(CONFIG_NXFLAT),y)
+cgi-bin:
+	@mkdir cgi-bin
+
+cgi-src/$(SUBDIR_BIN1):
+	@$(MAKE) -C cgi-src $(SUBDIR_BIN1)
+
+cgi-bin/$(SUBDIR_BIN1): cgi-bin cgi-src/$(SUBDIR_BIN1)
+	@cp -a cgi-src/$(SUBDIR_BIN1) $@
+
+cgi-src/$(SUBDIR_BIN2):
+	@$(MAKE) -C cgi-src $(SUBDIR_BIN2)
+
+cgi-bin/$(SUBDIR_BIN2): cgi-bin cgi-src/$(SUBDIR_BIN2)
+	@cp -a cgi-src/$(SUBDIR_BIN2) $@
+
+cgi-src/$(SUBDIR_BIN3):
+	@$(MAKE) -C cgi-src $(SUBDIR_BIN3)
+
+cgi-bin/$(SUBDIR_BIN3): cgi-bin cgi-src/$(SUBDIR_BIN3)
+	@cp -a cgi-src/$(SUBDIR_BIN3) $@
+endif
 
 $(BIN):	$(OBJS)
 	@( for obj in $(OBJS) ; do \
@@ -88,7 +106,6 @@ $(BIN):	$(OBJS)
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) \
 	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
 
 # Register application

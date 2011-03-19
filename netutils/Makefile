@@ -1,5 +1,5 @@
 ############################################################################
-# apps/vsn/Makefile
+# apps/netutils/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,9 +33,13 @@
 #
 ############################################################################
 
+-include $(TOPDIR)/.config	# Current configuration
+
 # Sub-directories
 
-SUBDIRS = free hello poweroff ramtron sdcard
+ifeq ($(CONFIG_NET),y)
+SUBDIRS = uiplib dhcpc dhcpd resolv smtp telnetd webclient webserver tftpc thttpd
+endif
 
 all: nothing
 .PHONY: nothing depend clean distclean

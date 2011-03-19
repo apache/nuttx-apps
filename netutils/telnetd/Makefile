@@ -1,5 +1,5 @@
 ############################################################################
-# apps/vsn/Makefile
+# apps/netutils/telnetd/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,26 +33,62 @@
 #
 ############################################################################
 
-# Sub-directories
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-SUBDIRS = free hello poweroff ramtron sdcard
+# Telnet daemon
 
-all: nothing
-.PHONY: nothing depend clean distclean
+ASRCS		=
+CSRCS		= 
 
-nothing:
+ifeq ($(CONFIG_NET_TCP),y)
+CSRCS		+= telnetd.c shell.c
+endif
 
-define DOMAKE
-	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR) APPDIR=$(APPDIR)"
-endef
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-depend:
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),depend)))
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
+
+BIN	    	= ../../libapps$(LIBEXT)
+
+ROOTDEPPATH	= --dep-path .
+
+# Common build
+
+VPATH		= 
+
+all: .built
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+$(BIN):	$(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $@, $${obj}); \
+	done ; )
+	@touch .built
+	
+.built: $(BIN)
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) \
+	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+# Register application
+depend: .depend
 
 clean:
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),clean)))
+	@rm -f $(BIN) *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),distclean)))
+	@rm -f Make.dep .depend
 
 -include Make.dep

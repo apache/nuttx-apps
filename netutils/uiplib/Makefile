@@ -1,5 +1,5 @@
 ############################################################################
-# apps/vsn/Makefile
+# apps/netutils/uiplib/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,26 +33,71 @@
 #
 ############################################################################
 
-# Sub-directories
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-SUBDIRS = free hello poweroff ramtron sdcard
+# UIP Library
 
-all: nothing
-.PHONY: nothing depend clean distclean
+ASRCS		=
+CSRCS		= uiplib.c uip_sethostaddr.c uip_gethostaddr.c uip_setdraddr.c \
+			  uip_setnetmask.c uip_parsehttpurl.c uip_server.c
 
-nothing:
+# No MAC address support for SLIP (Ethernet only)
 
-define DOMAKE
-	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR) APPDIR=$(APPDIR)"
-endef
+ifneq ($(CONFIG_NET_SLIP),y)
+CSRCS		+= uip_setmacaddr.c uip_getmacaddr.c
+endif
 
-depend:
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),depend)))
+# IGMP support
+
+ifeq ($(CONFIG_NET_IGMP),y)
+CSRCS		+= uip_ipmsfilter.c
+endif
+
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
+
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
+
+BIN	    	= ../../libapps$(LIBEXT)
+
+ROOTDEPPATH	= --dep-path .
+
+# Common build
+
+VPATH		= 
+
+all: .built
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+$(BIN):	$(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $@, $${obj}); \
+	done ; )
+	@touch .built
+	
+.built: $(BIN)
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) \
+	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+# Register application
+depend: .depend
 
 clean:
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),clean)))
+	@rm -f $(BIN) *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),distclean)))
+	@rm -f Make.dep .depend
 
 -include Make.dep

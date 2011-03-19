@@ -33,15 +33,9 @@
 #
 ############################################################################
 
-# TODO, this makefile should run make under the app dirs, instead of
-# sourcing the Make.defs!
-
+-include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include ../Make.defs
-
-ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
-endif
+include $(APPDIR)/Make.defs
 
 # NSH Library
 

@@ -47,7 +47,7 @@ APPDIR = ${shell pwd}
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
 # only for cleaning.
 
-SUBDIRS = nshlib vsn
+SUBDIRS = nshlib netutils vsn
 
 # we use a non-existing .built_always to guarantee that Makefile
 # always walks into the sub-directories and asks for build

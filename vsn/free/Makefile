@@ -37,8 +37,9 @@
 # TODO, this makefile should run make under the app dirs, instead of
 # sourcing the Make.defs!
 
+-include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include ../../Make.defs
+include $(APPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
 INCDIROPT	= -w

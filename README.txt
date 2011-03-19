@@ -52,6 +52,7 @@ will call:
 Application skeleton can be found under the hello sub-directory,
 which shows how an application can be added to the project. One must
 define:
+
  1. create sub-directory as: appname
  2. provide entry point: appname_main()
  3. set the requirements in the file: Makefile, specially the lines:
@@ -62,3 +63,6 @@ define:
 	CSRCS		= C source file list as foo1.c foo2.c ..
 
  4. add application in the apps/Makefile
+
+
+
