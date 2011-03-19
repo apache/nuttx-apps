@@ -38,7 +38,7 @@
 SUBDIRS = free hello poweroff ramtron sdcard
 
 all: nothing
-.PHONY: nothing
+.PHONY: nothing depend clean distclean
 
 nothing:
 
