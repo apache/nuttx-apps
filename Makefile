@@ -40,6 +40,8 @@ ifeq ($(WINTOOL),y)
 INCDIROPT	= -w
 endif
 
+APPDIR = ${shell pwd}
+
 # Application Directories
 
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
@@ -115,7 +117,7 @@ $(COBJS): %$(OBJEXT): %.c
 	
 $(BUILTIN_APPS_BUILT):
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" ; \
+		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
 	done
 
 $(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
@@ -131,13 +133,13 @@ $(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
 	@touch $@
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		rm -f $$dir/.depend ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" depend ; \
+		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR=$(APPDIR) depend ; \
 	done
 
 depend: .depend
 
 define MAKECLEAN
-	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR)"
+	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR)
 endef
 
 clean:

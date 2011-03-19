@@ -43,7 +43,7 @@ all: nothing
 nothing:
 
 define DOMAKE
-	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR)"
+	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR) APPDIR=$(APPDIR)"
 endef
 
 depend:
