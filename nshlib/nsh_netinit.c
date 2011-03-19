@@ -45,10 +45,11 @@
 #include <debug.h>
 
 #include <net/if.h>
-#include <net/uip/uip-lib.h>
+
+#include <apps/netutils/uiplib.h>
 #if defined(CONFIG_NSH_DHCPC)
-#  include <net/uip/resolv.h>
-#  include <net/uip/dhcpc.h>
+#  include <apps/netutils/resolv.h>
+#  include <apps/netutils/dhcpc.h>
 #endif
 
 #include "nsh.h"

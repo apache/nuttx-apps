@@ -65,18 +65,18 @@
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
-#  include <net/uip/uip-lib.h>
+#  include <apps/netutils/uiplib.h>
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#  include <net/uip/uip-lib.h>
-#  include <net/uip/tftp.h>
+#  include <apps/netutils/uiplib.h>
+#  include <apps/netutils/tftp.h>
 #endif
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
 #  ifndef CONFIG_NSH_DISABLE_WGET
-#    include <net/uip/uip-lib.h>
-#    include <net/uip/webclient.h>
+#    include <apps/netutils/uiplib.h>
+#    include <apps/netutils/webclient.h>
 #  endif
 #endif
 
