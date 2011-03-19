@@ -42,8 +42,14 @@ endif
 
 # Application Directories
 
+# SUBDIRS is the list of all directories containing Makefiles.  It is used
+# only for cleaning.
+
+SUBDIRS = nshlib vsn
+
 # we use a non-existing .built_always to guarantee that Makefile
 # always walks into the sub-directories and asks for build
+
 BUILTIN_APPS_BUILT =
 BUILTIN_APPS_DIR =
 
@@ -130,15 +136,21 @@ $(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
 
 depend: .depend
 
+define MAKECLEAN
+	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR)"
+endef
+
 clean:
 	@rm -f $(BIN) *~ .*.swp *.o libapps.a
 	$(call CLEAN)
+	$(foreach DIR, $(SUBDIRS), $(eval $(call MAKECLEAN,$(DIR),clean)))
 
 distclean: clean
 	@rm -f .config
 	@rm -f Make.dep .depend
 	@rm -f exec_nuttapp_list.h
 	@rm -f exec_nuttapp_proto.h
+	$(foreach DIR, $(SUBDIRS), $(eval $(call MAKECLEAN,$(DIR),distclean)))
 
 -include Make.dep
 

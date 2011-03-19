@@ -1,6 +1,5 @@
 ############################################################################
-# apps/Make.defs
-# Common make definitions provided to all applications
+# vsn/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -34,8 +33,26 @@
 #
 ############################################################################
 
-define REGISTER
-	@echo "Register: $1"
-	@echo "{ .name = \"$1\", .priority = $2, .stacksize = $3, .main = $4 }," >> "$(APPDIR)/exec_nuttapp_list.h"
-	@echo "EXTERN int $4(int argc, char *argv[]);" >> "$(APPDIR)/exec_nuttapp_proto.h"
+# Sub-directories
+
+SUBDIRS = free hello poweroff ramtron sdcard
+
+all: nothing
+.PHONY: nothing
+
+nothing:
+
+define DOMAKE
+	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR)"
 endef
+
+depend:
+	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),depend)))
+
+clean:
+	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),clean)))
+
+distclean: clean
+	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),distclean)))
+
+-include Make.dep

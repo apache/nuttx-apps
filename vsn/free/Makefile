@@ -38,7 +38,7 @@
 # sourcing the Make.defs!
 
 -include $(TOPDIR)/Make.defs
-include ../Make.defs
+include ../../Make.defs
 
 ifeq ($(WINTOOL),y)
 INCDIROPT	= -w
@@ -47,12 +47,12 @@ endif
 # Hello Application
 # TODO: appname can be automatically extracted from the directory name
 
-APPNAME		= ramtron
+APPNAME		= free
 PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 1024
+STACKSIZE	= 768
 
 ASRCS		=
-CSRCS		= ramtron.c
+CSRCS		= free.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -60,7 +60,7 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= ../libapps$(LIBEXT)
+BIN	    	= ../../libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
 
