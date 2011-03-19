@@ -86,8 +86,7 @@ $(BIN):	$(OBJS)
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
 # Register application

@@ -104,8 +104,9 @@ $(BIN):	$(OBJS)
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+ifneq ($(SRCS),)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+endif
 	@touch $@
 
 # Register application
