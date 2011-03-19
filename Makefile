@@ -62,15 +62,15 @@ CONFIGURED_APPS =
 AVAILABLE_APPS =
 
 define ADD_AVAILABLE
-AVAILABLE_APPS += ${shell DIR=`echo $1 | cut -d'/' -f1`; if [ -r $$DIR/Makefile ]; then echo "$1"; fi}
+AVAILABLE_APPS += ${shell DIR=`echo $1 | cut -d'=' -f1`; if [ -r $$DIR/Makefile ]; then echo "$1"; fi}
 endef
 
 define BUILTIN_ADD_APP
-BUILTIN_APPS_DIR += ${shell echo $1 | cut -d'/' -f1}
+BUILTIN_APPS_DIR += ${shell echo $1 | cut -d'=' -f1}
 endef
 
 define BUILTIN_ADD_BUILT
-BUILTIN_APPS_BUILT += $1
+BUILTIN_APPS_BUILT += ${shell echo $1 | sed -e "s:=:/:g"}
 endef
 
 # (1) Create the list of available applications (AVAILABLE_APPS), (2) Add each
@@ -135,7 +135,7 @@ clean:
 	$(call CLEAN)
 
 distclean: clean
-	@rm -r .config
+	@rm -f .config
 	@rm -f Make.dep .depend
 	@rm -f exec_nuttapp_list.h
 	@rm -f exec_nuttapp_proto.h
