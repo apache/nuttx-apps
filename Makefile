@@ -41,15 +41,16 @@ APPDIR = ${shell pwd}
 # Application Directories
 
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
-# only for cleaning.
+# only for cleaning. nuttapp must always be the first in the list.
 
-SUBDIRS = nshlib netutils examples vsn
+SUBDIRS = nuttapp nshlib netutils examples vsn
 
-# we use a non-existing .built_always to guarantee that Makefile
-# always walks into the sub-directories and asks for build
+# We use a non-existing .built_always to guarantee that Makefile always walks
+# into the sub-directories and asks for build.  NOTE that nuttapp is always
+# in the list of applications to be built
 
-BUILTIN_APPS_BUILT =
-BUILTIN_APPS_DIR =
+BUILTIN_APPS_BUILT = nuttapp/.built_always
+BUILTIN_APPS_DIR = nuttapp
 
 ifeq ($(CONFIG_BUILTIN_APPS),y)
 
@@ -89,69 +90,44 @@ $(foreach BUILT, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_BUILT,$(BUILT))))
 
 endif
 
-# Source and object files
+# The final build target
 
-ASRCS		=
-CSRCS		= exec_nuttapp.c
+BIN		= libapps$(LIBEXT)
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+# Build targets
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+all: $(BIN)
+.PHONY: $(BUILTIN_APPS_BUILT) .depend depend clean distclean
 
-BIN	    	= libapps$(LIBEXT)
-
-ROOTDEPPATH	= --dep-path .
-VPATH		= 
-
-all:	$(BIN)
-.PHONY: .depend depend clean distclean 
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-	
 $(BUILTIN_APPS_BUILT):
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
 	done
 
-$(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
+$(BIN):	$(BUILTIN_APPS_BUILT)
 	@( for obj in $(OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
 
 .depend: Makefile $(SRCS)
-	@echo "/* List of application requirements, generated during make depend. */" > exec_nuttapp_list.h
-	@echo "/* List of application entry points, generated during make depend. */" > exec_nuttapp_proto.h
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		rm -f $$dir/.depend ; \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR=$(APPDIR) depend ; \
 	done
+	@touch $@
 
 depend: .depend
 
 clean:
-	@rm -f $(BIN) *~ .*.swp *.o libapps.a
-	$(call CLEAN)
 	@for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
 	done
+	@rm -f $(BIN) *~ .*.swp *.o
+	$(call CLEAN)
 
 distclean: clean
-	@rm -f .config
-	@rm -f Make.dep .depend
-	@rm -f exec_nuttapp_list.h
-	@rm -f exec_nuttapp_proto.h
 	@for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
 	done
-
--include Make.dep
+	@rm -f .config .depend
 

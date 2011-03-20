@@ -1,9 +1,8 @@
 ############################################################################
-# Makefile
+# apps/nshlib/Makefile
 #
-#   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Author: Uros Platise <uros.platise@isotel.eu>
-#           Gregory Nutt <spudmonkey@racsa.co.cr>
+#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -34,26 +33,16 @@
 #
 ############################################################################
 
-# TODO, this makefile should run make under the app dirs, instead of
-# sourcing the Make.defs!
-
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
-endif
+# NSH Library
 
-# Hello Application
-# TODO: appname can be automatically extracted from the directory name
-
-APPNAME		= free
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 768
+# Source and object files
 
 ASRCS		=
-CSRCS		= free.c
+CSRCS		= exec_nuttapp.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -64,12 +53,12 @@ OBJS		= $(AOBJS) $(COBJS)
 BIN	    	= $(APPDIR)/libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
-
-# Common build
-
 VPATH		= 
 
+# Build Targets
+
 all:	.built
+.PHONY: depend .depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -86,12 +75,11 @@ $(BIN):	$(OBJS)
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@echo "/* List of application requirements, generated during make depend. */" > exec_nuttapp_list.h
+	@echo "/* List of application entry points, generated during make depend. */" > exec_nuttapp_proto.h
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
-# Register application
 depend: .depend
 
 clean:
@@ -100,5 +88,8 @@ clean:
 
 distclean: clean
 	@rm -f Make.dep .depend
+	@rm -f exec_nuttapp_list.h
+	@rm -f exec_nuttapp_proto.h
 
 -include Make.dep
+

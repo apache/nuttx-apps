@@ -50,7 +50,7 @@ CXXOBJS		= $(CXXSRCS:.cxx=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS) $(CXXSRCS)
 OBJS		= $(AOBJS) $(COBJS) $(CXXOBJS)
 
-BIN	    	= ../../libapps$(LIBEXT)
+BIN	    	= $(APPDIR)/libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
 
@@ -98,7 +98,7 @@ $(BIN):	chkcxx $(OBJS)
 depend: .depend
 
 clean:
-	@rm -f $(BIN) *.o *~ .*.swp .built
+	@rm -f *.o *~ .*.swp .built
 	$(call CLEAN)
 
 distclean: clean

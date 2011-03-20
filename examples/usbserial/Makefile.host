@@ -39,7 +39,7 @@
 -include $(TOPDIR)/Make.defs
 
 SRC	= host.c
-BIN	= host
+BIN	= host$(EXEEXT)
 
 DEFINES	=
 ifeq ($(CONFIG_EXAMPLES_USBSERIAL_INONLY),y)
@@ -55,12 +55,13 @@ ifeq ($(CONFIG_EXAMPLES_USBSERIAL_ONLYBIG),y)
 DEFINES	+= -DCONFIG_EXAMPLES_USBSERIAL_ONLYBIG=1
 endif
 
-all: $(BIN)$(EXEEXT)
+all: $(BIN)
 
-$(BIN)$(EXEEXT): $(SRC)
+$(BIN): $(SRC)
 	@$(HOSTCC) $(HOSTCFLAGS) $(DEFINES) $^ -o $@
 
 clean:
 	@rm -f $(BIN) *~ .*.swp *.o
 	$(call CLEAN)
+
 

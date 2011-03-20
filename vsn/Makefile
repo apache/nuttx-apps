@@ -33,6 +33,8 @@
 #
 ############################################################################
 
+-include $(TOPDIR)/.config	# Current configuration
+
 # Sub-directories
 
 SUBDIRS = free hello poweroff ramtron sdcard
@@ -42,17 +44,20 @@ all: nothing
 
 nothing:
 
-define DOMAKE
-	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR) APPDIR=$(APPDIR)"
-endef
-
 depend:
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),depend)))
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 clean:
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),clean)))
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 distclean: clean
-	$(foreach DIR, $(SUBDIRS), $(eval $(call DOMAKE,$(DIR),distclean)))
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 -include Make.dep
+

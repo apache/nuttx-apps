@@ -11,3 +11,6 @@
 	* Make.defs -- New file adds common make definitions for applications.
 	* hello/Makefile -- Now uses new Make.defs definitions.  Added README.txt.
 	* apps/poweroff -- New application to turn off board power.
+	* Moved NSH library, netutils, and examples from the nuttx/ directory to
+	  the apps/ directory
+	* Moved exec_nuttapp machinery into the nuttapp/ directory.
