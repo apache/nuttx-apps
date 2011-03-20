@@ -1,7 +1,7 @@
 ############################################################################
-# apps/nshlib/Makefile
+# apps/examples/sendmail/Makefile.host
 #
-#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,83 +33,45 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
+# TOPDIR must be defined on the make command line
+
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
-# NSH Library
+OBJS		= host.o1 smtp.o1
+BIN			= sendmail
 
-ASRCS	=
-CSRCS	= nsh_parse.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c \
-		nsh_envcmds.c nsh_dbgcmds.c
+HOSTCFLAGS	+= -DCONFIG_WEBCLIENT_HOST=1
+HOSTCFLAGS	+= -I. -include hostdefs.h -Iinclude
+VPATH		= $(TOPDIR)/netutils/smtp:.
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS	+= nsh_apps.c
-endif
+all: $(BIN)
+.PHONY: clean context clean_context distclean
 
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS	+= nsh_romfsetc.c
-endif
+$(OBJS): %.o1: %.c
+	$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 
-ifeq ($(CONFIG_NET),y)
-CSRCS	+= nsh_netinit.c nsh_netcmds.c
-endif
+include:
+	@mkdir include
 
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS	+= nsh_serial.c
-endif
+include/net: include
+	@ln -s $(TOPDIR)/include/net include/net
 
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS	+= nsh_telnetd.c
-endif
+include/nuttx:
+	@mkdir -p include/nuttx
 
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS	+= nsh_test.c
-endif
+include/queue.h: include
+	@cp -a $(TOPDIR)/include/queue.h include/.
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+include/nuttx/config.h: include/nuttx
+	@touch include/nuttx/config.h
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+headers:  include/nuttx/config.h include/queue.h include/net
 
-BIN	    	= ../libapps$(LIBEXT)
-
-ROOTDEPPATH	= --dep-path .
-
-# Common build
-
-VPATH		= 
-
-all:	.built
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(BIN):	$(OBJS)
-	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
-	done ; )
-	@touch .built
-	
-.built: $(BIN)
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-# Register application
-depend: .depend
+$(BIN): headers $(OBJS)
+	$(HOSTCC) $(HOSTLDFLAGS) $(OBJS) -o $@
 
 clean:
-	@rm -f $(BIN) *.o *~ .*.swp .built
-	$(call CLEAN)
+	@rm -f $(BIN).* *.o1 *~
+	@rm -rf include
 
-distclean: clean
-	@rm -f Make.dep .depend
 
--include Make.dep

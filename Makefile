@@ -36,10 +36,6 @@
 
 -include $(TOPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
-endif
-
 APPDIR = ${shell pwd}
 
 # Application Directories
@@ -47,7 +43,7 @@ APPDIR = ${shell pwd}
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
 # only for cleaning.
 
-SUBDIRS = nshlib netutils vsn
+SUBDIRS = nshlib netutils examples vsn
 
 # we use a non-existing .built_always to guarantee that Makefile
 # always walks into the sub-directories and asks for build
@@ -93,7 +89,8 @@ $(foreach BUILT, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_BUILT,$(BUILT))))
 
 endif
 
-ROOTDEPPATH	= --dep-path .
+# Source and object files
+
 ASRCS		=
 CSRCS		= exec_nuttapp.c
 
@@ -105,9 +102,11 @@ OBJS		= $(AOBJS) $(COBJS)
 
 BIN	    	= libapps$(LIBEXT)
 
+ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all:	$(BIN)
+.PHONY: .depend depend clean distclean 
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -138,21 +137,21 @@ $(BIN):	$(OBJS) $(BUILTIN_APPS_BUILT)
 
 depend: .depend
 
-define MAKECLEAN
-	@(MAKE) -C $1 $2 TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR)
-endef
-
 clean:
 	@rm -f $(BIN) *~ .*.swp *.o libapps.a
 	$(call CLEAN)
-	$(foreach DIR, $(SUBDIRS), $(eval $(call MAKECLEAN,$(DIR),clean)))
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 distclean: clean
 	@rm -f .config
 	@rm -f Make.dep .depend
 	@rm -f exec_nuttapp_list.h
 	@rm -f exec_nuttapp_proto.h
-	$(foreach DIR, $(SUBDIRS), $(eval $(call MAKECLEAN,$(DIR),distclean)))
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 -include Make.dep
 

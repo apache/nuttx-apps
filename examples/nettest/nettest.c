@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/nettest/nettest.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,36 +39,18 @@
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <debug.h>
-#include <errno.h>
 
-#include <nuttx/ramdisk.h>
+#include <net/if.h>
+#include <net/uip/uip.h>
+#include <apps/netutils/uiplib.h>
 
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
+#include "nettest.h"
 
 /****************************************************************************
  * Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
@@ -76,49 +58,65 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_romfsetc
+ * user_initialize
  ****************************************************************************/
 
-int nsh_romfsetc(void)
+#ifndef CONFIG_HAVE_WEAKFUNCTIONS
+void user_initialize(void)
 {
-  int  ret;
-
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
+  /* Stub that must be provided only if the toolchain does
+   * not support weak functions.
+   */
 }
+#endif
 
-#endif /* CONFIG_NSH_ROMFSETC */
+/****************************************************************************
+ * user_start
+ ****************************************************************************/
 
+int user_start(int argc, char *argv[])
+{
+  struct in_addr addr;
+#ifdef CONFIG_EXAMPLE_NETTEST_NOMAC
+  uint8_t mac[IFHWADDRLEN];
+#endif
+
+/* Many embedded network interfaces must have a software assigned MAC */
+
+#ifdef CONFIG_EXAMPLE_NETTEST_NOMAC
+  mac[0] = 0x00;
+  mac[1] = 0xe0;
+  mac[2] = 0xb0;
+  mac[3] = 0x0b;
+  mac[4] = 0xba;
+  mac[5] = 0xbe;
+  uip_setmacaddr("eth0", mac);
+#endif
+
+  /* Set up our host address */
+
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_NETTEST_IPADDR);
+  uip_sethostaddr("eth0", &addr);
+
+  /* Set up the default router address */
+
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_NETTEST_DRIPADDR);
+  uip_setdraddr("eth0", &addr);
+
+  /* Setup the subnet mask */
+
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_NETTEST_NETMASK);
+  uip_setnetmask("eth0", &addr);
+
+#ifdef CONFIG_EXAMPLE_NETTEST_SERVER
+  recv_server();
+#else
+  send_client();
+#endif
+
+  return 0;
+}

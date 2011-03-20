@@ -1,7 +1,7 @@
 ############################################################################
-# apps/nshlib/Makefile
+# examples/nxflat/tests/signal/Makefile
 #
-#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2009 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,83 +33,46 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+-include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/Make.defs	# Basic make info
 
-# NSH Library
+BIN			= signal
 
-ASRCS	=
-CSRCS	= nsh_parse.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c \
-		nsh_envcmds.c nsh_dbgcmds.c
+R1SRCS			= $(BIN).c
+R1OBJS			= $(R1SRCS:.c=.o)
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS	+= nsh_apps.c
-endif
+R2SRC			= $(BIN)-thunk.S
+R2OBJ			= $(R2SRC:.S=.o)
 
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS	+= nsh_romfsetc.c
-endif
+all: $(BIN)
 
-ifeq ($(CONFIG_NET),y)
-CSRCS	+= nsh_netinit.c nsh_netcmds.c
-endif
+$(R1OBJS): %.o: %.c
+	@echo "CC: $<"
+	@$(CC) -c $(CPICFLAGS) $< -o $@
 
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS	+= nsh_serial.c
-endif
+$(R2OBJ): %.o: %.S
+	@echo "AS: $<"
+	@$(CC) -c $(CPICFLAGS) $< -o $@
 
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS	+= nsh_telnetd.c
-endif
+$(BIN).r1: $(R1OBJS)
+	@echo "LD: $<"
+	@$(LD) $(NXFLATLDFLAGS1) -o $@ $^
 
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS	+= nsh_test.c
-endif
+$(R2SRC): $(BIN).r1
+	@echo "MK: $<"
+	@$(MKNXFLAT) -o $@ $^
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+$(BIN).r2: $(R2OBJ)
+	@echo "LD: $<"
+	@$(LD) $(NXFLATLDFLAGS2) -o $@ $(R1OBJS) $(R2OBJ)
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+$(BIN): $(BIN).r2
+	@echo "LD: $<"
+	@$(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
-BIN	    	= ../libapps$(LIBEXT)
+clean: 
+	@rm -f $(BIN) $(R2SRC) *.o *.r1 *.r2 *~ .*.swp core
 
-ROOTDEPPATH	= --dep-path .
+install:
+	@install -D $(BIN) $(ROMFS_DIR)/$(BIN)
 
-# Common build
-
-VPATH		= 
-
-all:	.built
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(BIN):	$(OBJS)
-	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
-	done ; )
-	@touch .built
-	
-.built: $(BIN)
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-# Register application
-depend: .depend
-
-clean:
-	@rm -f $(BIN) *.o *~ .*.swp .built
-	$(call CLEAN)
-
-distclean: clean
-	@rm -f Make.dep .depend
-
--include Make.dep

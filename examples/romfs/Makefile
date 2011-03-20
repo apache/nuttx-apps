@@ -1,7 +1,7 @@
 ############################################################################
-# apps/nshlib/Makefile
+# apps/examples/romfs/Makefile
 #
-#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2008, 2010-2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,35 +37,10 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# NSH Library
+# ROMFS File System Example
 
-ASRCS	=
-CSRCS	= nsh_parse.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c \
-		nsh_envcmds.c nsh_dbgcmds.c
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS	+= nsh_apps.c
-endif
-
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS	+= nsh_romfsetc.c
-endif
-
-ifeq ($(CONFIG_NET),y)
-CSRCS	+= nsh_netinit.c nsh_netcmds.c
-endif
-
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS	+= nsh_serial.c
-endif
-
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS	+= nsh_telnetd.c
-endif
-
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS	+= nsh_test.c
-endif
+ASRCS		=
+CSRCS		= romfs_main.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -73,7 +48,7 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= ../libapps$(LIBEXT)
+BIN	    	= ../../libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
 
@@ -81,7 +56,8 @@ ROOTDEPPATH	= --dep-path .
 
 VPATH		= 
 
-all:	.built
+all: .built
+.PHONY:	checkgenromfs .built clean depend disclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -89,7 +65,23 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-$(BIN):	$(OBJS)
+checkgenromfs:
+	@genromfs -h 1>/dev/null 2>&1 || { \
+		echo "Host executable genromfs not available in PATH"; \
+		echo "You may need to download in from http://romfs.sourceforge.net/"; \
+		exit 1; \
+	}
+
+testdir : testdir.tar.gz
+	@tar zxf $< || { echo "tar zxf $< failed" ; exit 1 ; }
+
+testdir.img : checkgenromfs testdir
+	@genromfs -f $@ -d testdir -V "ROMFS_Test" || { echo "genromfs failed" ; exit 1 ; }
+
+romfs_testdir.h : testdir.img
+	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
+
+$(BIN):	romfs_testdir.h $(OBJS)
 	@( for obj in $(OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
@@ -98,8 +90,7 @@ $(BIN):	$(OBJS)
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
 # Register application
@@ -110,6 +101,7 @@ clean:
 	$(call CLEAN)
 
 distclean: clean
-	@rm -f Make.dep .depend
+	@rm -f Make.dep .depend testdir.img
 
 -include Make.dep
+

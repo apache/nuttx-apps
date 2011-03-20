@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/pipe/pipe.h
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,92 +33,42 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_PIPE_PIPE_H
+#define __EXAMPLES_PIPE_PIPE_H
+
+/****************************************************************************
+ * Compilation Switches
+ ****************************************************************************/
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
-#include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
-
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
 
 /****************************************************************************
  * Definitions
  ****************************************************************************/
 
+#define FIFO_PATH1 "/tmp/testfifo-1"
+#define FIFO_PATH2 "/tmp/testfifo-2"
+
+#ifndef CONFIG_EXAMPLES_PIPE_STACKSIZE
+#  define CONFIG_EXAMPLES_PIPE_STACKSIZE 1024
+#endif
+
 /****************************************************************************
- * Private Types
+ * Public Types
  ****************************************************************************/
 
 /****************************************************************************
- * Private Function Prototypes
+ * Public Variables
  ****************************************************************************/
 
 /****************************************************************************
- * Private Data
+ * Public Function Prototypes
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+extern int transfer_test(int fdin, int fdout);
+extern int interlock_test(void);
+extern int redirection_test(void);
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
-{
-  int  ret;
-
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
-}
-
-#endif /* CONFIG_NSH_ROMFSETC */
-
+#endif /* __EXAMPLES_PIPE_PIPE_H */

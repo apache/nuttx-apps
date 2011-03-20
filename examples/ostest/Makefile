@@ -1,7 +1,7 @@
 ############################################################################
-# apps/nshlib/Makefile
+# apps/examples/ostest/Makefile
 #
-#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,35 +37,50 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# NSH Library
+# NuttX OS Test
 
-ASRCS	=
-CSRCS	= nsh_parse.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c \
-		nsh_envcmds.c nsh_dbgcmds.c
+ASRCS		=
+CSRCS		= main.c dev_null.c
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS	+= nsh_apps.c
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+CSRCS		+= cancel.c cond.c mutex.c sem.c barrier.c
+ifneq ($(CONFIG_RR_INTERVAL),0)
+CSRCS		+= roundrobin.c
+endif # CONFIG_RR_INTERVAL
+ifeq ($(CONFIG_MUTEX_TYPES),y)
+CSRCS		+= rmutex.c
+endif # CONFIG_MUTEX_TYPES
+endif # CONFIG_DISABLE_PTHREAD
+
+ifneq ($(CONFIG_DISABLE_SIGNALS),y)
+CSRCS		+= sighand.c
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+ifneq ($(CONFIG_DISABLE_CLOCK),y)
+CSRCS		+= timedwait.c
+endif # CONFIG_DISABLE_CLOCK
+endif # CONFIG_DISABLE_PTHREAD
+endif # CONFIG_DISABLE_SIGNALS
+
+ifneq ($(CONFIG_DISABLE_MQUEUE),y)
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+CSRCS		+= mqueue.c 
+ifneq ($(CONFIG_DISABLE_CLOCK),y)
+CSRCS		+= timedmqueue.c 
+endif # CONFIG_DISABLE_CLOCK
+endif # CONFIG_DISABLE_PTHREAD
+endif # CONFIG_DISABLE_MQUEUE
+
+ifneq ($(CONFIG_DISABLE_POSIX_TIMERS),y)
+CSRCS		+= posixtimer.c
 endif
 
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS	+= nsh_romfsetc.c
-endif
-
-ifeq ($(CONFIG_NET),y)
-CSRCS	+= nsh_netinit.c nsh_netcmds.c
-endif
-
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS	+= nsh_serial.c
-endif
-
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS	+= nsh_telnetd.c
-endif
-
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS	+= nsh_test.c
-endif
+ifneq ($(CONFIG_DISABLE_SIGNALS),y)
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+ifeq ($(CONFIG_PRIORITY_INHERITANCE),y)
+CSRCS		+= prioinherit.c
+endif # CONFIG_PRIORITY_INHERITANCE
+endif # CONFIG_DISABLE_PTHREAD
+endif # CONFIG_DISABLE_SIGNALS
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -73,7 +88,7 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= ../libapps$(LIBEXT)
+BIN	    	= ../../libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
 
@@ -81,7 +96,8 @@ ROOTDEPPATH	= --dep-path .
 
 VPATH		= 
 
-all:	.built
+all: .built
+.PHONY:	.built clean depend disclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -98,8 +114,7 @@ $(BIN):	$(OBJS)
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
 # Register application

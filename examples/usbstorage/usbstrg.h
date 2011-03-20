@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/usbstorage/usbstrg.h
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,92 +33,87 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_USBSTORAGE_USBSTRG_H
+#define __EXAMPLES_USBSTORAGE_USBSTRG_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
+/****************************************************************************
+ * Pre-Processor Definitions
+ ****************************************************************************/
 
-#include <nuttx/ramdisk.h>
+/* Configuration ************************************************************/
 
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
+#ifndef CONFIG_EXAMPLES_USBSTRG_NLUNS
+#  define CONFIG_EXAMPLES_USBSTRG_NLUNS 1
 #endif
 
-/****************************************************************************
- * Definitions
- ****************************************************************************/
+#ifndef CONFIG_EXAMPLES_USBSTRG_DEVMINOR1
+#  define CONFIG_EXAMPLES_USBSTRG_DEVMINOR1 0
+#endif
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#ifndef CONFIG_EXAMPLES_USBSTRG_DEVPATH1
+#  define CONFIG_EXAMPLES_USBSTRG_DEVPATH1 "/dev/mmcsd0"
+#endif
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+#if CONFIG_EXAMPLES_USBSTRG_NLUNS > 1
+#  ifndef CONFIG_EXAMPLES_USBSTRG_DEVMINOR2
+#    error "CONFIG_EXAMPLES_USBSTRG_DEVMINOR2 for LUN=2"
+#  endif
+#  ifndef CONFIG_EXAMPLES_USBSTRG_DEVPATH2
+#    error "CONFIG_EXAMPLES_USBSTRG_DEVPATH2 for LUN=2"
+#  endif
+#  if CONFIG_EXAMPLES_USBSTRG_NLUNS > 2
+#    ifndef CONFIG_EXAMPLES_USBSTRG_DEVMINOR3
+#      error "CONFIG_EXAMPLES_USBSTRG_DEVMINOR2 for LUN=3"
+#    endif
+#    ifndef CONFIG_EXAMPLES_USBSTRG_DEVPATH2
+#      error "CONFIG_EXAMPLES_USBSTRG_DEVPATH2 for LUN=3"
+#    endif
+#    if CONFIG_EXAMPLES_USBSTRG_NLUNS > 3
+#      error "CONFIG_EXAMPLES_USBSTRG_NLUNS must be {1,2,3}"
+#    endif
+#  endif
+#endif
 
-/****************************************************************************
- * Private Data
- ****************************************************************************/
+/* Debug ********************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+#ifdef CONFIG_CPP_HAVE_VARARGS
+#  ifdef CONFIG_DEBUG
+#    define message(...) lib_lowprintf(__VA_ARGS__)
+#    define msgflush()
+#  else
+#    define message(...) printf(__VA_ARGS__)
+#    define msgflush() fflush(stdout)
+#  endif
+#else
+#  ifdef CONFIG_DEBUG
+#    define message lib_lowprintf
+#    define msgflush()
+#  else
+#    define message printf
+#    define msgflush() fflush(stdout)
+#  endif
+#endif
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_romfsetc
+ * Name: usbstrg_archinitialize
+ *
+ * Description:
+ *   Perform architecture specific initialization.  This function must
+ *   configure the block device to export via USB.  This function must be
+ *   provided by architecture-specific logic in order to use this example.
+ *
  ****************************************************************************/
 
-int nsh_romfsetc(void)
-{
-  int  ret;
+extern int usbstrg_archinitialize(void);
 
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
-}
-
-#endif /* CONFIG_NSH_ROMFSETC */
-
+#endif /* __EXAMPLES_USBSTORAGE_USBSTRG_H */

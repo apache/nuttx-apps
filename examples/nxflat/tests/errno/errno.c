@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/nxflat/tests/errno/errno.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,88 +37,47 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <debug.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
-
 /****************************************************************************
- * Definitions
+ * Included Files
  ****************************************************************************/
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+static const char g_nonexistent[] = "aflav-sautga-ay";
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
+int main(int argc, char **argv)
 {
-  int  ret;
+  FILE *test_stream;
 
-  /* Create a ROM disk for the /etc filesystem */
+  /* Try using stdout and stderr explicitly.  These are global variables
+   * exported from the base code.
+   */
 
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
+  fprintf(stdout, "Hello, World on stdout\n");
+  fprintf(stderr, "Hello, World on stderr\n");
+
+  /* Try opening a non-existent file using buffered IO. */
+
+  test_stream = fopen(g_nonexistent, "r");
+  if (test_stream)
     {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
+      fprintf(stderr, "Hmm... Delete \"%s\" and try this again\n",
+	      g_nonexistent);
+      exit(1);
     }
 
-  /* Mount the file system */
+  /* Now print the errno on stderr.  Errno is also a global
+   * variable exported by the base code.
+   */
 
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
+  fprintf(stderr, "We failed to open \"%s!\" errno is %d\n",
+	  g_nonexistent, errno);
 
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
+  return 0;
 }
-
-#endif /* CONFIG_NSH_ROMFSETC */
-

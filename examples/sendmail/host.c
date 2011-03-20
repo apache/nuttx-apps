@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/sendmail/host.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
+ * 3. Neither the name Gregory Nutt nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -37,88 +37,67 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <debug.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include <errno.h>
 
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
-
-/****************************************************************************
- * Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+#include <apps/netutils/smtp.h>
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+static const char g_host_name[] = "localhost";
+static const char g_sender[]    = "nuttx-testing@example.com";
+static const char g_subject[]   = "Testing SMTP from NuttX";
+static const char g_msg_body[]  = "Test message sent by NuttX\r\n";
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
+ * Name: show_usage
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
+static void show_usage(const char *progname, int exitcode)
 {
-  int  ret;
-
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
+  fprintf(stderr, "USAGE: %s <recipient>\n", progname);
+  exit(exitcode);
 }
 
-#endif /* CONFIG_NSH_ROMFSETC */
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+/****************************************************************************
+ * Name: main
+ ****************************************************************************/
 
+int main(int argc, char **argv, char **envp)
+{
+  struct in_addr addr;
+  void *handle;
+
+  if (argc != 2)
+    {
+      show_usage(argv[0], 1);
+    }
+
+  printf("sendmail: To: %s\n", argv[1]);
+  printf("sendmail: From: %s\n", g_sender);
+  printf("sendmail: Subject: %s\n", g_subject);
+  printf("sendmail: Body: %s\n", g_msg_body);
+
+  uip_ipaddr(addr.s_addr, 127, 0, 0, 1);
+  handle = smtp_open();
+  if (handle)
+    {
+      smtp_configure(handle, g_host_name, &addr.s_addr);
+      smtp_send(handle, argv[1], NULL, g_sender, g_subject,
+                g_msg_body, strlen(g_msg_body));
+      smtp_close(handle);
+    }
+  return 0;
+}

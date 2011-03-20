@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/nxflat/tests/longjmp/longjmp.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,88 +37,92 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
-
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
+#include <stdio.h>
+#include <setjmp.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#define MAIN_VAL        47
+#define FUNC_VAL        92
+#define LEAF_VAL       163
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+#define FUNCTION_ARG   MAIN_VAL
+#define LEAF_ARG      (FUNCTION_ARG + FUNC_VAL)
+#define SETJMP_RETURN (LEAF_ARG + LEAF_VAL)
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+static jmp_buf env;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
+static int leaf(int *some_arg)
+{
+  int some_local_variable = *some_arg + LEAF_VAL;
+
+  printf("leaf: received %d\n", *some_arg);
+
+  if (*some_arg != LEAF_ARG)
+    printf("leaf: ERROR: expected %d\n", LEAF_ARG);
+
+  printf("leaf: Calling longjmp() with %d\n", some_local_variable);
+
+  longjmp(env, some_local_variable);
+}
+
+static int function(int some_arg)
+{
+  int some_local_variable = some_arg + FUNC_VAL;
+  int retval;
+
+  printf("function: received %d\n", some_arg);
+
+  if (some_arg != FUNCTION_ARG)
+    printf("function: ERROR: expected %d\n", FUNCTION_ARG);
+
+  printf("function: Calling leaf() with %d\n", some_local_variable);
+
+  retval = leaf(&some_local_variable);
+
+  printf("function: ERROR -- leaf returned!\n");
+  return retval;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
+int main(int argc, char **argv)
 {
-  int  ret;
+  int value;
 
-  /* Create a ROM disk for the /etc filesystem */
+  printf("main: Calling setjmp\n");
+  value = setjmp(env);
+  printf("main: setjmp returned %d\n", value);
 
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
+  if (value == 0)
     {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
+      printf("main: Normal setjmp return\n");
+      printf("main: Calling function with %d\n", MAIN_VAL);
+      function(MAIN_VAL);
+      printf("main: ERROR -- function returned!\n");
+      return 1;
     }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
+  else if (value != SETJMP_RETURN)
     {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
+      printf("main: ERROR: Expected %d\n", SETJMP_RETURN);
+      return 1;
     }
-  return OK;
+  else
+    {
+      printf("main: SUCCESS: setjmp return from longjmp call\n");
+      return 0;
+    }
 }
-
-#endif /* CONFIG_NSH_ROMFSETC */
 

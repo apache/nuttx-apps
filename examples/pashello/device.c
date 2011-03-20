@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/pashello/device.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,91 +34,77 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Compilation Switches
+ ****************************************************************************/
+
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
-#include <debug.h>
+#include <sys/types.h>
+#include <string.h>
 #include <errno.h>
+#include <nuttx/fs.h>
 
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
-
-/****************************************************************************
- * Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#include "hello.h"
+#include "pashello.h"
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
+static ssize_t hello_read(struct file *, char *, size_t);
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+static const struct file_operations hello_fops =
+{
+  0,             /* open */
+  0,             /* close */
+  hello_read,    /* read */
+  0,             /* write */
+  0,             /* seek */
+  0,             /* ioctl */
+#ifndef CONFIG_DISABLE_POLL
+  0              /* poll */
+#endif
+};
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
+static ssize_t hello_read(struct file *filep, char *buffer, size_t len)
+{
+  off_t offset  = filep->f_pos;  /* Start read position */
+  ssize_t nread = 0;             /* Bytes read -- assume EOF */
+
+  /* Make sure that the offset is within the .pex file */
+
+  if (offset < hello_pex_len)
+    {
+      /* Make sure the read does not extend beyond the .pex file */
+
+      nread = len;
+      if (nread + offset > hello_pex_len)
+        {
+          nread = hello_pex_len - offset;
+        }
+      memcpy(buffer, &hello_pex[offset], nread);
+      filep->f_pos += nread;
+    }
+  return nread;
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
+void hello_register(void)
 {
-  int  ret;
-
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
+  (void)register_driver("/dev/hello", &hello_fops, 0444, NULL);
 }
-
-#endif /* CONFIG_NSH_ROMFSETC */
-

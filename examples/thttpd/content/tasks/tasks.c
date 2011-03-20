@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/thttpd/tasks/tasks.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,25 +39,10 @@
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
-
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sched.h>
 
 /****************************************************************************
  * Definitions
@@ -75,6 +60,23 @@
  * Private Data
  ****************************************************************************/
 
+static const char *g_statenames[] =
+{
+  "INVALID ",
+  "PENDING ",
+  "READY   ", 
+  "RUNNING ", 
+  "INACTIVE", 
+  "WAITSEM ", 
+#ifndef CONFIG_DISABLE_MQUEUE
+  "WAITSIG ", 
+#endif
+#ifndef CONFIG_DISABLE_MQUEUE
+  "MQNEMPTY", 
+  "MQNFULL "
+#endif
+};
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -83,42 +85,84 @@
  * Private Functions
  ****************************************************************************/
 
+/* NOTEs:
+ *
+ * 1. One limitation in the use of NXFLAT is that functions that are
+ *    referenced as a pointer-to-a-function must have global scope.  Otherwise
+ *    ARM GCC will generate some bad logic.
+ * 2. In general, when called back, there is no guarantee to that PIC registers
+ *    will be valid and, unless you take special precautions, it could be
+ *    dangerous to reference global variables in the callback function.
+ */
+
+/* static */ void show_task(FAR _TCB *tcb, FAR void *arg)
+{
+  int i;
+
+  /* Show task status */
+
+  printf("%5d %3d %4s %7s%c%c %8s ",
+         tcb->pid, tcb->sched_priority,
+         tcb->flags & TCB_FLAG_ROUND_ROBIN ? "RR  " : "FIFO",
+         tcb->flags & TCB_FLAG_PTHREAD ? "PTHREAD" : "TASK   ",
+         tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
+         tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
+         g_statenames[tcb->task_state]);
+
+  /* Show task name and arguments */
+
+  printf("%s(", tcb->argv[0]);
+
+  /* Special case 1st argument (no comma) */
+
+  if (tcb->argv[1])
+    {
+     printf("%p", tcb->argv[1]);
+    }
+
+  /* Then any additional arguments */
+
+#if CONFIG_MAX_TASK_ARGS > 2
+  for (i = 2; i <= CONFIG_MAX_TASK_ARGS && tcb->argv[i]; i++)
+    {
+      printf(", %p", tcb->argv[i]);
+     }
+#endif
+  printf(")\n");
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
+int main(int argc, char *argv[])
 {
-  int  ret;
+  puts(
+	"Content-type: text/html\r\n"
+	"Status: 200/html\r\n"
+	"\r\n"
+    "<html>\r\n"
+      "<head>\r\n"
+        "<title>NuttX Tasks</title>\r\n"
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\">\r\n"
+      "</head>\r\n"
+      "<body bgcolor=\"#fffeec\" text=\"black\">\r\n"
+        "<div class=\"menu\">\r\n"
+        "<div class=\"menubox\"><a href=\"/index.html\">Front page</a></div>\r\n"
+        "<div class=\"menubox\"><a href=\"hello\">Say Hello</a></div>\r\n"
+        "<div class=\"menubox\"><a href=\"tasks\">Tasks</a></div>\r\n"
+        "<div class=\"menubox\"><a href=\"netstat\">Network status</a></div>\r\n"
+        "<br>\r\n"
+        "</div>\r\n"
+        "<div class=\"contentblock\">\r\n"
+        "<pre>\r\n"
+        "PID   PRI SCHD TYPE   NP STATE    NAME\r\n");
 
-  /* Create a ROM disk for the /etc filesystem */
+  sched_foreach(show_task, NULL);
 
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
+  puts(
+        "</pre>\r\n"
+      "</body>\r\n"
+   "</html>\r\n");
+  return 0;
 }
-
-#endif /* CONFIG_NSH_ROMFSETC */
-

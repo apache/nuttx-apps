@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/nxflat/tests/struct/struct.h
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,92 +33,57 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H
+#define __EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
-
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
+#include <stdio.h>
+#include <stdlib.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#define DUMMY_SCALAR_VALUE1 42
+#define DUMMY_SCALAR_VALUE2 87
+#define DUMMY_SCALAR_VALUE3 117
 
 /****************************************************************************
- * Private Function Prototypes
+ * Public Types
  ****************************************************************************/
 
-/****************************************************************************
- * Private Data
- ****************************************************************************/
+typedef void (*dummy_t)(void);
+
+struct struct_dummy_s
+{
+  int  n;    /* This is a simple scalar value (DUMMY_SCALAR_VALUE3) */
+};
+
+struct struct_s
+{
+  int  n;                           /* This is a simple scalar value (DUMMY_SCALAR_VALUE1) */
+  const int *pn;                    /* This is a pointer to a simple scalar value */
+  const struct struct_dummy_s *ps;  /* This is a pointer to a structure */
+  dummy_t pf;                       /* This is a pointer to a function */
+};
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+extern int    dummy_scalar; /* (DUMMY_SCALAR_VALUE2) */
+extern const struct struct_dummy_s dummy_struct;
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
+extern void dummyfunc(void);
+extern const struct struct_s *getstruct(void);
 
-int nsh_romfsetc(void)
-{
-  int  ret;
+#endif /* __EXAMPLES_NXFLAT_TESTS_STRUCT_STRUCT_H */
 
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
-}
-
-#endif /* CONFIG_NSH_ROMFSETC */
 

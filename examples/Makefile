@@ -1,5 +1,5 @@
 ############################################################################
-# apps/nshlib/Makefile
+# apps/examples/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,83 +33,33 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+-include $(TOPDIR)/.config	# Current configuration
 
-# NSH Library
+# Sub-directories
 
-ASRCS	=
-CSRCS	= nsh_parse.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c \
-		nsh_envcmds.c nsh_dbgcmds.c
+SUBDIRS = dhcpd hello helloxx hidkbd igmp mm mount nettest nsh null nx \
+	  nxflat ostest pashello pipe poll romfs sendmail serloop thttpd \
+	  udp uip usbserial usbstorage wget wlan
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS	+= nsh_apps.c
-endif
+all: nothing
+.PHONY: nothing depend clean distclean
 
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS	+= nsh_romfsetc.c
-endif
+nothing:
 
-ifeq ($(CONFIG_NET),y)
-CSRCS	+= nsh_netinit.c nsh_netcmds.c
-endif
-
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS	+= nsh_serial.c
-endif
-
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS	+= nsh_telnetd.c
-endif
-
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS	+= nsh_test.c
-endif
-
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
-
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
-
-BIN	    	= ../libapps$(LIBEXT)
-
-ROOTDEPPATH	= --dep-path .
-
-# Common build
-
-VPATH		= 
-
-all:	.built
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(BIN):	$(OBJS)
-	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
-	done ; )
-	@touch .built
-	
-.built: $(BIN)
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-# Register application
-depend: .depend
+depend:
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 clean:
-	@rm -f $(BIN) *.o *~ .*.swp .built
-	$(call CLEAN)
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 distclean: clean
-	@rm -f Make.dep .depend
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
 
 -include Make.dep
+

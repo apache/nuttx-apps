@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/igmp/igmp.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,48 +39,38 @@
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <debug.h>
-#include <errno.h>
 
-#include <nuttx/ramdisk.h>
+#include <net/if.h>
+#include <net/uip/uip.h>
+#include <apps/netutils/uiplib.h>
+#include <apps/netutils/ipmsfilter.h>
 
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
+#include "igmp.h"
 
 /****************************************************************************
  * Definitions
  ****************************************************************************/
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+/* Check if the destination address is a multicast address
+ *
+ * - IPv4: multicast addresses lie in the class D group -- The address range
+ *   224.0.0.0 to 239.255.255.255 (224.0.0.0/4)
+ *
+ * - IPv6 multicast addresses are have the high-order octet of the
+ *   addresses=0xff (ff00::/8.)
+ */
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+#if ((CONFIG_EXAMPLE_IGMP_GRPADDR & 0xffff0000) < 0xe0000000ul) || \
+    ((CONFIG_EXAMPLE_IGMP_GRPADDR & 0xffff0000) > 0xeffffffful)
+#  error "Bad range for IGMP group address"
+#endif
 
 /****************************************************************************
  * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -88,37 +78,78 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_romfsetc
+ * user_initialize
  ****************************************************************************/
 
-int nsh_romfsetc(void)
+#ifndef CONFIG_HAVE_WEAKFUNCTIONS
+void user_initialize(void)
 {
-  int  ret;
-
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
+  /* Stub that must be provided only if the toolchain does
+   * not support weak functions.
+   */
 }
+#endif
 
-#endif /* CONFIG_NSH_ROMFSETC */
+/****************************************************************************
+ * user_start
+ ****************************************************************************/
 
+int user_start(int argc, char *argv[])
+{
+  struct in_addr addr;
+#if defined(CONFIG_EXAMPLE_IGMP_NOMAC)
+  uint8_t mac[IFHWADDRLEN];
+#endif
+
+  message("Configuring Ethernet...\n");
+  
+  /* Many embedded network interfaces must have a software assigned MAC */
+
+#ifdef CONFIG_EXAMPLE_IGMP_NOMAC
+  mac[0] = 0x00;
+  mac[1] = 0xe0;
+  mac[2] = 0xb0;
+  mac[3] = 0x0b;
+  mac[4] = 0xba;
+  mac[5] = 0xbe;
+  uip_setmacaddr("eth0", mac);
+#endif
+
+  /* Set up our host address */
+
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_IGMP_IPADDR);
+  uip_sethostaddr("eth0", &addr);
+
+  /* Set up the default router address */
+
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_IGMP_DRIPADDR);
+  uip_setdraddr("eth0", &addr);
+
+  /* Setup the subnet mask */
+
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_IGMP_NETMASK);
+  uip_setnetmask("eth0", &addr);
+
+  /* Not much of a test for now */
+  /* Join the group */
+
+  message("Join group...\n");
+  addr.s_addr = HTONL(CONFIG_EXAMPLE_IGMP_GRPADDR);
+  ipmsfilter("eth0", &addr, MCAST_INCLUDE);
+
+  /* Wait a while */
+
+  message("Wait for timeout...\n");
+  sleep(5);
+
+  /* Leave the group */
+
+  message("Leave group...\n");
+  ipmsfilter("eth0", &addr, MCAST_EXCLUDE);
+
+  /* Wait a while */
+
+  sleep(5);
+  message("Exiting...\n");
+  return 0;
+}

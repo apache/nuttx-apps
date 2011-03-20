@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/nx/nx_server.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,25 +39,25 @@
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
-#include <debug.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sched.h>
 #include <errno.h>
+#include <debug.h>
 
-#include <nuttx/ramdisk.h>
+#include <nuttx/arch.h>
+#include <nuttx/nx.h>
 
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
+#ifdef CONFIG_NX_LCDDRIVER
+#  include <nuttx/lcd/lcd.h>
 #else
-#  include "nsh_romfsimg.h"
+#  include <nuttx/fb.h>
 #endif
+
+#include "nx_internal.h"
+
+#ifdef CONFIG_NX_MULTIUSER
 
 /****************************************************************************
  * Definitions
@@ -68,15 +68,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
  ****************************************************************************/
 
 /****************************************************************************
@@ -88,37 +80,73 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_romfsetc
+ * Name: nx_servertask
  ****************************************************************************/
 
-int nsh_romfsetc(void)
+int nx_servertask(int argc, char *argv[])
 {
-  int  ret;
+  FAR NX_DRIVERTYPE *dev;
+  int ret;
 
-  /* Create a ROM disk for the /etc filesystem */
+#if defined(CONFIG_EXAMPLES_NX_EXTERNINIT)
+  /* Use external graphics driver initialization */
 
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
+  message("nxeg_initialize: Initializing external graphics device\n");
+  dev = up_nxdrvinit(CONFIG_EXAMPLES_NX_DEVNO);
+  if (!dev)
     {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
+      message("nxeg_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
 
-  /* Mount the file system */
+#elif defined(CONFIG_NX_LCDDRIVER)
+  /* Initialize the LCD device */
 
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
+  message("nx_servertask: Initializing LCD\n");
+  ret = up_lcdinitialize();
   if (ret < 0)
     {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
+      message("nx_servertask: up_lcdinitialize failed: %d\n", -ret);
+      return 1;
     }
-  return OK;
+
+  /* Get the device instance */
+
+  dev = up_lcdgetdev(CONFIG_EXAMPLES_NX_DEVNO);
+  if (!dev)
+    {
+      message("nx_servertask: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      return 2;
+    }
+
+  /* Turn the LCD on at 75% power */
+
+  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
+#else
+  /* Initialize the frame buffer device */
+
+  message("nx_servertask: Initializing framebuffer\n");
+  ret = up_fbinitialize();
+  if (ret < 0)
+    {
+      message("nx_servertask: up_fbinitialize failed: %d\n", -ret);
+      return 1;
+    }
+
+  dev = up_fbgetvplane(CONFIG_EXAMPLES_NX_VPLANE);
+  if (!dev)
+    {
+      message("nx_servertask: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NX_VPLANE);
+      return 2;
+    }
+#endif
+
+  /* Then start the server */
+
+  ret = nx_run(dev);
+  message("nx_servertask: nx_run returned: %d\n", errno);
+  return 3;
 }
 
-#endif /* CONFIG_NSH_ROMFSETC */
-
+#endif /* CONFIG_NX_MULTIUSER */

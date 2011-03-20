@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/mount/ramdisk.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,29 +39,24 @@
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
-#include <debug.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/ramdisk.h>
+#include <nuttx/mkfatfs.h>
 
-#include "nsh.h"
+#include "mount.h"
 
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
+#ifndef CONFIG_EXAMPLES_MOUNT_DEVNAME
 
 /****************************************************************************
- * Definitions
+ * Private Definitions
  ****************************************************************************/
+
+#define BUFFER_SIZE (CONFIG_EXAMPLES_MOUNT_NSECTORS*CONFIG_EXAMPLES_MOUNT_SECTORSIZE)
 
 /****************************************************************************
  * Private Types
@@ -75,50 +70,72 @@
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+static struct fat_format_s g_fmt = FAT_FORMAT_INITIALIZER;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
+ 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_romfsetc
+ * Name: create_ramdisk
+ *
+ * Description:
+ *   Create a RAM disk of the specified size formatting with a FAT file
+ *   system
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Return:
+ *   Zero on success, a negated errno on failure.
+ *
  ****************************************************************************/
 
-int nsh_romfsetc(void)
+int create_ramdisk(void)
 {
-  int  ret;
+  char *pbuffer;
+  int ret;
 
-  /* Create a ROM disk for the /etc filesystem */
+  /* Allocate a buffer to hold the file system image. */
 
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
+  pbuffer = (char*)malloc(BUFFER_SIZE);
+  if (!pbuffer)
     {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
+      printf("create_ramdisk: Failed to allocate ramdisk of size %d\n",
+             BUFFER_SIZE);
+      return -ENOMEM;
     }
 
-  /* Mount the file system */
+  /* Register a RAMDISK device to manage this RAM image */
 
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = ramdisk_register(CONFIG_EXAMPLES_MOUNT_RAMDEVNO,
+                    pbuffer,
+                    CONFIG_EXAMPLES_MOUNT_NSECTORS,
+                    CONFIG_EXAMPLES_MOUNT_SECTORSIZE,
+                    true);
   if (ret < 0)
     {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
+      printf("create_ramdisk: Failed to register ramdisk at %s: %d\n",
+             g_source, -ret);
+      free(pbuffer);
+      return ret;
     }
-  return OK;
+
+  /* Create a FAT filesystem on the ramdisk */
+
+  ret = mkfatfs(g_source, &g_fmt);
+  if (ret < 0)
+    {
+      printf("create_ramdisk: Failed to create FAT filesystem on ramdisk at %s\n",
+             g_source);
+      /* free(pbuffer); -- RAM disk is registered */
+      return ret;
+    }
+
+  return 0;
 }
-
-#endif /* CONFIG_NSH_ROMFSETC */
-
+#endif /* !CONFIG_EXAMPLES_MOUNT_DEVNAME */

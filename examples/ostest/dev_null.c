@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/ostest/dev_null.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,87 +38,55 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
-
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
-
-/****************************************************************************
- * Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "ostest.h"
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+#if CONFIG_NFILE_DESCRIPTORS > 0
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+static FAR char buffer[1024];
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
+int dev_null(void)
 {
-  int  ret;
+  int nbytes;
+  int fd;
 
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
+  fd = open("/dev/null", O_RDWR);
+  if (fd < 0)
     {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
+      printf("dev_null: ERROR Failed to open /dev/null\n");
+      return -1;
     }
 
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
+  nbytes = read(fd, buffer, 1024);
+  if (nbytes < 0)
     {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
+      printf("dev_null: ERROR Failed to read from /dev/null\n");
+      close(fd);
+      return -1;
     }
-  return OK;
+  printf("dev_null: Read %d bytes from /dev/null\n", nbytes);
+
+  nbytes = write(fd, buffer, 1024);
+  if (nbytes < 0)
+    {
+      printf("dev_null: ERROR Failed to write to /dev/null\n");
+      close(fd);
+      return -1;
+    }
+  printf("dev_null: Wrote %d bytes to /dev/null\n", nbytes);
+
+  close(fd);
+  return 0;
 }
 
-#endif /* CONFIG_NSH_ROMFSETC */
-
+#endif /*CONFIG_NFILE_DESCRIPTORS */

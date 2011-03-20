@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/nshlib/nsh_main.c
+ * apps/nshlib/nsh_parse.c
  *
  *   Copyright (C) 2007-2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>

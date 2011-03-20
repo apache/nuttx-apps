@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_romfsetc.c
+ * examples/mount/mount.h
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,92 +33,64 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_MOUNT_MOUNT_H
+#define __EXAMPLES_MOUNT_MOUNT_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
-#include <debug.h>
-#include <errno.h>
-
-#include <nuttx/ramdisk.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_ROMFSETC
-
-/* Should we use the default ROMFS image?  Or a custom, board-specific
- * ROMFS image?
- */
-
-#ifdef CONFIG_NSH_ARCHROMFS
-#  include <arch/board/nsh_romfsimg.h>
-#else
-#  include "nsh_romfsimg.h"
-#endif
-
 /****************************************************************************
  * Definitions
  ****************************************************************************/
 
+/* Configure the test */
+
+#if defined(CONFIG_EXAMPLES_MOUNT_DEVNAME)
+#  if !defined(CONFIG_FS_WRITABLE)
+#    error "Writable filesystem required in this configuration"
+#  endif
+#  undef  CONFIG_EXAMPLES_MOUNT_NSECTORS
+#  undef  CONFIG_EXAMPLES_MOUNT_SECTORSIZE
+#  undef  CONFIG_EXAMPLES_MOUNT_RAMDEVNO
+#  define MOUNT_DEVNAME CONFIG_EXAMPLES_MOUNT_DEVNAME
+#else
+#  if !defined(CONFIG_FS_FAT)
+#    error "CONFIG_FS_FAT required in this configuration"
+#  endif
+#  if !defined(CONFIG_EXAMPLES_MOUNT_SECTORSIZE)
+#    define CONFIG_EXAMPLES_MOUNT_SECTORSIZE 512
+#  endif
+#  if !defined(CONFIG_EXAMPLES_MOUNT_NSECTORS)
+#    define CONFIG_EXAMPLES_MOUNT_NSECTORS   2048
+#  endif
+#  if !defined(CONFIG_EXAMPLES_MOUNT_RAMDEVNO)
+#     define CONFIG_EXAMPLES_MOUNT_RAMDEVNO  0
+#  endif
+#  define STR_RAMDEVNO(m)    #m
+#  define MKMOUNT_DEVNAME(m) "/dev/ram" STR_RAMDEVNO(m)
+#  define MOUNT_DEVNAME      MKMOUNT_DEVNAME(CONFIG_EXAMPLES_MOUNT_RAMDEVNO)
+#endif
+
+
 /****************************************************************************
- * Private Types
+ * Public Types
  ****************************************************************************/
 
 /****************************************************************************
- * Private Function Prototypes
+ * Public Variables
  ****************************************************************************/
+
+extern const char g_source[]; /* Mount 'source' path */
 
 /****************************************************************************
- * Private Data
+ * Public Function Prototypes
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+#ifndef CONFIG_EXAMPLES_MOUNT_DEVNAME
+extern int create_ramdisk(void);
+#endif
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: nsh_romfsetc
- ****************************************************************************/
-
-int nsh_romfsetc(void)
-{
-  int  ret;
-
-  /* Create a ROM disk for the /etc filesystem */
-
-  ret = romdisk_register(CONFIG_NSH_ROMFSDEVNO, romfs_img,
-                         NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
-  if (ret < 0)
-    {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
-      return ERROR;
-    }
-
-  /* Mount the file system */
-
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
-      return ERROR;
-    }
-  return OK;
-}
-
-#endif /* CONFIG_NSH_ROMFSETC */
-
+#endif /* __EXAMPLES_MOUNT_MOUNT_H */
