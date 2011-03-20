@@ -58,7 +58,7 @@ endif
 all: $(BIN)$(EXEEXT)
 
 $(BIN)$(EXEEXT): $(SRC)
-	$(HOSTCC) $(HOSTCFLAGS) $(DEFINES) $^ -o $@
+	@$(HOSTCC) $(HOSTCFLAGS) $(DEFINES) $^ -o $@
 
 clean:
 	@rm -f $(BIN) *~ .*.swp *.o
