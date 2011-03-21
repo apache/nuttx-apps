@@ -51,11 +51,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_BUILTIN_APPS
-#  warning "This example requires CONFIG_BUILTIN_APPS..."
-#  warning "  You must have an appconfig file in your config directory to use this example"
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/

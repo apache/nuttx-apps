@@ -52,8 +52,6 @@ SUBDIRS = nuttapp nshlib netutils examples vsn
 BUILTIN_APPS_BUILT = nuttapp/.built_always
 BUILTIN_APPS_DIR = nuttapp
 
-ifeq ($(CONFIG_BUILTIN_APPS),y)
-
 # CONFIGURED_APPS is the list of all configured built-in directories/built action
 # It is created by the configured appconfig file (a copy of which appears in this
 # directoy as .config)
@@ -85,10 +83,6 @@ endef
 $(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_AVAILABLE,$(BUILTIN))))
 $(foreach APP, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_APP,$(APP))))
 $(foreach BUILT, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_BUILT,$(BUILT))))
-
-# end of application list
-
-endif
 
 # The final build target
 
