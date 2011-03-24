@@ -76,13 +76,14 @@ $(BIN):	$(OBJS)
 
 .built: $(BIN)
 
+context:
+
 # We can't make dependencies in this directory because the required
 # header files may not yet exist.
 
 .depend:
 	@touch $@
 
-# Register application
 depend: .depend
 
 clean:

@@ -73,6 +73,8 @@ $(BIN):	$(OBJS)
 
 .built: $(BIN)
 
+context:
+
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@

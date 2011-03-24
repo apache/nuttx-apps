@@ -101,11 +101,12 @@ $(HOST_BIN): $(HOST_OBJS)
 
 .built: $(TARG_BIN) $(HOST_BIN)
 
+context:
+
 .depend: Makefile $(TARG_SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep
 	@touch $@
 
-# Register application
 depend: .depend
 
 clean:
