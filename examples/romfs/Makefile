@@ -86,7 +86,7 @@ $(BIN):	romfs_testdir.h $(OBJS)
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
 	@touch .built
-	
+
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)

@@ -91,7 +91,7 @@ BIN		= libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: $(BUILTIN_APPS_BUILT) .depend depend clean distclean
+.PHONY: $(BUILTIN_APPS_BUILT) context depend clean distclean
 
 $(BUILTIN_APPS_BUILT):
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
@@ -103,7 +103,16 @@ $(BIN):	$(BUILTIN_APPS_BUILT)
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
 
-.depend: Makefile $(SRCS)
+.context:
+	@for dir in $(BUILTIN_APPS_DIR) ; do \
+		rm -f $$dir/.context ; \
+		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR=$(APPDIR) context ; \
+	done
+	@touch $@
+
+context: .context
+
+.depend: context Makefile $(SRCS)
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		rm -f $$dir/.depend ; \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR=$(APPDIR) depend ; \
@@ -123,5 +132,5 @@ distclean: clean
 	@for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
 	done
-	@rm -f .config .depend
+	@rm -f .config .context .depend
 

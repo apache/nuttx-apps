@@ -87,7 +87,7 @@ $(BIN):	chkcxx $(OBJS)
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
 	@touch .built
-	
+
 .built: $(BIN)
 
 .depend: Makefile $(SRCS)

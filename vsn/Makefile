@@ -40,9 +40,17 @@
 SUBDIRS = free hello poweroff ramtron sdcard
 
 all: nothing
-.PHONY: nothing depend clean distclean
+.PHONY: nothing context depend clean distclean
 
 nothing:
+
+.context:
+	@for dir in $(SUBDIRS) ; do \
+		$(MAKE) -C $$dir context TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+	done
+	@touch $@
+
+context: .context
 
 depend:
 	@for dir in $(SUBDIRS) ; do \

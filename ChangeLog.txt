@@ -3,7 +3,7 @@
 	* Initial version of the apps/ directory was released as contributed by
 	  Uros Platise.
 
-5.20 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.0 2011-03-21 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* README.txt -- README cosmetics
 	* hello/ -- hello world minor changes
@@ -14,3 +14,8 @@
 	* Moved NSH library, netutils, and examples from the nuttx/ directory to
 	  the apps/ directory
 	* Moved exec_nuttapp machinery into the nuttapp/ directory.
+
+6.0 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+
+	* Creation of auto-generated header files now occurs during the context
+	  build phase.

@@ -9,7 +9,9 @@ in two files:
 	- exec_nuttapp_proto.h	Entry points, prototype function
 	- exec_nuttapp_list.h	Application specific information and requirements
 
-Information is collected during the make .depend process.
+The build occurs in several phases as different build targets are executed:
+(1) contex, (2) depend, and (3) default (all). Application information is
+collected during the make context build phase.
 
 To execute an application function:
 
@@ -34,7 +36,7 @@ CONFIGURED_APPS list like:
 
   CONFIGURED_APPS  += hello/.built_always poweroff/.built_always jvm/.built_always
 
-The form of each entry is <dir>/<dependency> when:
+The form of each entry is <dir>=<dependency> when:
 
   <dir> is the name of a subdirectory in the apps directory, and
 

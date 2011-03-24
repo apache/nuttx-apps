@@ -70,6 +70,7 @@ ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all:	.built
+.PHONY: .built context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -85,13 +86,20 @@ $(BIN):	$(OBJS)
 	
 .built: $(BIN)
 
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) \
-	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+# Register application
+
+.context:
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
 
-# Register application
+context: .context
+
+# Create dependencies
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
 depend: .depend
 
 clean:
@@ -99,6 +107,6 @@ clean:
 	$(call CLEAN)
 
 distclean: clean
-	@rm -f Make.dep .depend
+	@rm -f .context Make.dep .depend
 
 -include Make.dep

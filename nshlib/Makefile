@@ -76,12 +76,12 @@ OBJS		= $(AOBJS) $(COBJS)
 BIN	    	= $(APPDIR)/libapps$(LIBEXT)
 
 ROOTDEPPATH	= --dep-path .
-
-# Common build
-
 VPATH		= 
 
+# Build targets
+
 all:	.built
+.PHONY: context .depend depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -96,6 +96,8 @@ $(BIN):	$(OBJS)
 	@touch .built
 	
 .built: $(BIN)
+
+context:
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) \

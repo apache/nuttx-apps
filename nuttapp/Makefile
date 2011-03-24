@@ -58,7 +58,7 @@ VPATH		=
 # Build Targets
 
 all:	.built
-.PHONY: depend .depend clean distclean
+.PHONY: .context context .depend depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -74,9 +74,14 @@ $(BIN):	$(OBJS)
 	
 .built: $(BIN)
 
+.context:
+	@echo "/* List of application requirements, generated during make context. */" > exec_nuttapp_list.h
+	@echo "/* List of application entry points, generated during make context. */" > exec_nuttapp_proto.h
+	@touch $@
+
+context: .context
+
 .depend: Makefile $(SRCS)
-	@echo "/* List of application requirements, generated during make depend. */" > exec_nuttapp_list.h
-	@echo "/* List of application entry points, generated during make depend. */" > exec_nuttapp_proto.h
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
@@ -87,7 +92,7 @@ clean:
 	$(call CLEAN)
 
 distclean: clean
-	@rm -f Make.dep .depend
+	@rm -f .context Make.dep .depend
 	@rm -f exec_nuttapp_list.h
 	@rm -f exec_nuttapp_proto.h
 

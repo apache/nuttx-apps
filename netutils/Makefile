@@ -42,9 +42,11 @@ SUBDIRS = uiplib dhcpc dhcpd resolv smtp telnetd webclient webserver tftpc thttp
 endif
 
 all: nothing
-.PHONY: nothing depend clean distclean
+.PHONY: nothing context depend clean distclean
 
 nothing:
+
+context:
 
 depend:
 	@for dir in $(SUBDIRS) ; do \

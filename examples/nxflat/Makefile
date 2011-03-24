@@ -73,7 +73,7 @@ $(BIN):	$(OBJS)
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
 	@touch .built
-	
+
 .built: $(BIN)
 
 # We can't make dependencies in this directory because the required

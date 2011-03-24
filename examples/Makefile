@@ -42,9 +42,11 @@ SUBDIRS = dhcpd hello helloxx hidkbd igmp mm mount nettest nsh null nx \
 	  udp uip usbserial usbstorage wget wlan
 
 all: nothing
-.PHONY: nothing depend clean distclean
+.PHONY: nothing context depend clean distclean
 
 nothing:
+
+context:
 
 depend:
 	@for dir in $(SUBDIRS) ; do \
