@@ -81,7 +81,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_WLAN_DEVNAME
-#  define CONFIG_EXAMPLES_WLAN_DEVNAME "/dev/wlana"
+#  define CONFIG_EXAMPLES_WLAN_DEVNAME "wlan0"
 #endif
 
 /****************************************************************************
@@ -155,10 +155,7 @@ void user_initialize(void)
 
 int user_start(int argc, char *argv[])
 {
-  char buffer[256];
   pid_t pid;
-  ssize_t nbytes;
-  int fd;
   int ret;
 
   /* First, register all of the USB host Wireless LAN drivers */
@@ -189,51 +186,12 @@ int user_start(int argc, char *argv[])
                         (main_t)wlan_waiter, (const char **)NULL);
 #endif
 
-      /* Now just sleep.  Eventually logic here will open the WLAN device and
-       * perform the device test.
-       */
+      /* Now just sleep.  Eventually logic here will perform the device test. */
 
       for (;;)
         {
-          /* Open the WLAN device.  Loop until the device is successfully
-           * opened.
-           */
-
-          do
-            {
-              printf("Opening device %s\n", CONFIG_EXAMPLES_WLAN_DEVNAME);
-              fd = open(CONFIG_EXAMPLES_WLAN_DEVNAME, O_RDONLY);
-              if (fd < 0)
-                {
-                   printf("Failed: %d\n", errno);
-                   fflush(stdout);
-                   sleep(3);
-                }
-            }
-          while (fd < 0);
-
-          printf("Device %s opened\n", CONFIG_EXAMPLES_WLAN_DEVNAME);
-          fflush(stdout);
-
-          /* Loop until there is a read failure */
-
-          do
-            {
-              /* Read a buffer of data */
-
-              nbytes = read(fd, buffer, 256);
-              if (nbytes > 0)
-                {
-                  /* On success, echo the buffer to stdout */
-
-                  (void)write(1, buffer, nbytes);
-                }
-            }
-          while (nbytes >= 0);
-
-          printf("Closing device %s: %d\n", CONFIG_EXAMPLES_WLAN_DEVNAME, (int)nbytes);
-          fflush(stdout);
-          close(fd);
+          sleep(5);
+          printf("usert_start:  Still alive\n");
         }
     }
   return 0;
