@@ -48,13 +48,13 @@
 #  include <nuttx/mmcsd.h>
 #endif
 
-
+// TODO get the structure out from the slot number
+static FAR struct sdio_dev_s *sdio = NULL;
 
 /* Create device device for the SDIO-based MMC/SD block driver */
 
 int sdcard_start(int slotno)
 {
-  FAR struct sdio_dev_s *sdio;
   int ret;
 
   /* First, get an instance of the SDIO interface */
@@ -89,22 +89,41 @@ int sdcard_start(int slotno)
 
 int sdcard_main(int argc, char *argv[])
 {
-  int slotno;
+    int slotno = 0;
   
-  if (argc == 3) {
-    slotno = atoi(argv[2]);
+    if (argc >= 2) {
     
-    if (!strcmp(argv[1], "start")) {
-      return sdcard_start(slotno);
+        /* The 3rd argument is expected to be a slot number, if given */
+        if (argc==3)
+            slotno = atoi(argv[2]);
+    
+        /* Commands */
+    
+        if (!strcmp(argv[1], "start")) {
+            return sdcard_start(slotno);
+        }
+        else if (!strcmp(argv[1], "stop")) {
+            fprintf(stderr, "Not implemented yet\n");
+        }
+        else if (!strcmp(argv[1], "insert")) {
+            if (sdio) {
+                return sdio_mediachange(sdio, true);
+            }
+        }
+        else if (!strcmp(argv[1], "eject")) {
+            if (sdio) {
+                return sdio_mediachange(sdio, false);
+            }
+        }
+        else if (!strcmp(argv[1], "status")) {
+            printf("SDcard #%d Status:\n", slotno);
+#ifndef CONFIG_MMCSD_HAVECARDDETECT
+            printf("\t - Without SDcard detect capability\n");
+#endif
+            return 0;
+        }
     }
-    else if (!strcmp(argv[1], "stop")) {
-    }
-    else if (!strcmp(argv[1], "insert")) {
-    }
-    else if (!strcmp(argv[1], "eject")) {
-    }
-  }
   
-  printf("%s: <start" /*|stop|insert|eject*/ "> <slotno>\n", argv[0]);
-  return -1;
+    printf("%s: <start|stop|insert|eject|status> {slotno}\n", argv[0]);
+    return -1;
 }

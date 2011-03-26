@@ -107,8 +107,15 @@ int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            nsh_output(vtbl, "%s ", name);
          }
        nsh_output(vtbl, "\nand type 'help' for more NSH commands.\n\n");
+
+       /* If the failing command was '?', then do not report an error */
        
-	   return err;
+       if (strcmp(cmd, "?") != 0)
+         {
+           return err;
+         }
+
+       return OK;
      }
 
 #ifdef CONFIG_SCHED_WAITPID
