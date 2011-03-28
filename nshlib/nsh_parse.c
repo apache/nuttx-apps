@@ -1152,13 +1152,13 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
     }
 
   /* Handle the case where the command is executed in background.
-   * However is app is to be started as nuttapp new process will
+   * However is app is to be started as namedapp new process will
    * be created anyway, so skip this step. */
 
 #ifndef CONFIG_NSH_DISABLEBG
   if (vtbl->np.np_bg
 #ifdef CONFIG_NSH_BUILTIN_APPS
-      && nuttapp_isavail(argv[0]) < 0     
+      && namedapp_isavail(argv[0]) < 0     
 #endif
   )
     {

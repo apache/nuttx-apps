@@ -6,8 +6,8 @@ This folder provides various applications found in sub-directories.
 Application entry points with their requirements are gathered together in 
 in two files:
 
-	- exec_nuttapp_proto.h	Entry points, prototype function
-	- exec_nuttapp_list.h	Application specific information and requirements
+	- namedapp/namedapp_proto.h	Entry points, prototype function
+	- namedapp/namedapp_list.h	Application specific information and requirements
 
 The build occurs in several phases as different build targets are executed:
 (1) contex, (2) depend, and (3) default (all). Application information is
@@ -15,7 +15,7 @@ collected during the make context build phase.
 
 To execute an application function:
 
-	exec_nuttapp() is defined in the nuttx/include/apps/apps.h 
+	exec_namedapp() is defined in the nuttx/include/apps/apps.h 
 	
 NuttShell provides transparent method of invoking the command, when the
 following option is enabled:

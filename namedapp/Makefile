@@ -42,7 +42,11 @@ include $(APPDIR)/Make.defs
 # Source and object files
 
 ASRCS		=
-CSRCS		= exec_nuttapp.c
+CSRCS		= namedapp.c exec_namedapp.c
+
+ifeq ($(CONFIG_APPS_BINDIR),y)
+CSRCS		+= binfs.c
+endif
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -75,8 +79,8 @@ $(BIN):	$(OBJS)
 .built: $(BIN)
 
 .context:
-	@echo "/* List of application requirements, generated during make context. */" > exec_nuttapp_list.h
-	@echo "/* List of application entry points, generated during make context. */" > exec_nuttapp_proto.h
+	@echo "/* List of application requirements, generated during make context. */" > namedapp_list.h
+	@echo "/* List of application entry points, generated during make context. */" > namedapp_proto.h
 	@touch $@
 
 context: .context
@@ -93,8 +97,8 @@ clean:
 
 distclean: clean
 	@rm -f .context Make.dep .depend
-	@rm -f exec_nuttapp_list.h
-	@rm -f exec_nuttapp_proto.h
+	@rm -f namedapp_list.h
+	@rm -f namedapp_proto.h
 
 -include Make.dep
 

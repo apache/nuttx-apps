@@ -1,8 +1,10 @@
 /****************************************************************************
- * drivers/sbin/exec_nuttapp.c
+ * apps/namedaps/namedapp.h
  *
  *   Copyright (C) 2011 Uros Platise. All rights reserved.
- *   Author: Uros Platise <uros.platise@isotel.eu>
+ *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Authors: Uros Platise <uros.platise@isotel.eu>
+ *            Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,23 +35,23 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_NAMEDAPP_NAMEDAPP_H
+#define __APPS_NAMEDAPP_NAMEDAPP_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 #include <apps/apps.h>
-#include <sched.h>
-
-#include <string.h>
-#include <errno.h>
-
 
 /****************************************************************************
- * Private Types
+ * Public Types
  ****************************************************************************/
 
-/* Load builtin function prototypes */
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 #undef EXTERN
 #if defined(__cplusplus)
@@ -59,90 +61,18 @@ extern "C" {
 #define EXTERN extern
 #endif
 
-#include "exec_nuttapp_proto.h"
+EXTERN const struct namedapp_s namedapps[];
 
-static const struct nuttapp_s nuttapps[] = {
-# include "exec_nuttapp_list.h"
-  {.name=NULL}
-};
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+EXTERN int number_namedapps(void);
 
 #undef EXTERN
 #if defined(__cplusplus)
 }
 #endif
 
+#endif /* __APPS_NAMEDAPP_NAMEDAPP_H */
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-
-const char * nuttapp_getname(int index)
-{
-  if ( index < 0 || index >= (sizeof(nuttapps)/sizeof(struct nuttapp_s)) )
-	return NULL;
-	
-  return nuttapps[index].name;
-}
- 
-
-int nuttapp_isavail(FAR const char *appname)
-{
-  int i;
-    
-  for (i=0; nuttapps[i].name; i++) 
-  {
-    if ( !strcmp(nuttapps[i].name, appname) ) 
-      return i;
-  }
-  
-  errno = ENOENT;
-  return -1;
-}
- 
-
-int exec_nuttapp(FAR const char *appname, FAR const char *argv[])
-{
-  int i;
-  
-  if ( (i = nuttapp_isavail(appname)) >= 0 )
-  {
-#ifndef CONFIG_CUSTOM_STACK
-    i = task_create(nuttapps[i].name, nuttapps[i].priority, 
-                      nuttapps[i].stacksize, nuttapps[i].main, 
-                      (argv) ? &argv[1] : (const char **)NULL);
-#else
-    i = task_create(nuttapps[i].name, nuttapps[i].priority, nuttapps[i].main,
-                      (argv) ? &argv[1] : (const char **)NULL);
-#endif
-
-#if CONFIG_RR_INTERVAL > 0
-    if (i > 0)
-    {
-      struct sched_param param;
-	
-      sched_getparam(0, &param);
-	  sched_setscheduler(i, SCHED_RR, &param);
-	}
-#endif
-
-    return i;
-  }
-  
-  return i;
-}

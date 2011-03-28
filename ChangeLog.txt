@@ -20,3 +20,7 @@
 	* Creation of auto-generated header files now occurs during the context
 	  build phase.
 	* Added sdcard insert and eject, nsh command '?' and some code remarks
+	* Renamed nuttapp to namedapp
+	* namedapp/binfs.c -- Create a tiny filesystem that can be used
+	  to show the internal named apps under /bin.
+

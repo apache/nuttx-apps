@@ -41,16 +41,16 @@ APPDIR = ${shell pwd}
 # Application Directories
 
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
-# only for cleaning. nuttapp must always be the first in the list.
+# only for cleaning. namedapp must always be the first in the list.
 
-SUBDIRS = nuttapp nshlib netutils examples vsn
+SUBDIRS = namedapp nshlib netutils examples vsn
 
 # We use a non-existing .built_always to guarantee that Makefile always walks
-# into the sub-directories and asks for build.  NOTE that nuttapp is always
+# into the sub-directories and asks for build.  NOTE that namedapp is always
 # in the list of applications to be built
 
-BUILTIN_APPS_BUILT = nuttapp/.built_always
-BUILTIN_APPS_DIR = nuttapp
+BUILTIN_APPS_BUILT = namedapp/.built_always
+BUILTIN_APPS_DIR = namedapp
 
 # CONFIGURED_APPS is the list of all configured built-in directories/built action
 # It is created by the configured appconfig file (a copy of which appears in this

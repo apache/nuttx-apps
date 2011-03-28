@@ -1,9 +1,10 @@
 /****************************************************************************
- * apps/nshlib/nsh_apps.c
+ * apps/namedaps/namedapp.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2011 Uros Platise. All rights reserved.
- *   Author: Uros Platise <uros.platise@isotel.eu>
+ *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Authors: Uros Platise <uros.platise@isotel.eu>
+ *            Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,23 +40,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#ifdef CONFIG_SCHED_WAITPID
-#  include <sys/wait.h>
-#endif
-
-#include <stdbool.h>
-#include <errno.h>
-
 #include <apps/apps.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_BUILTIN_APPS
-
-/****************************************************************************
- * Definitions
- ****************************************************************************/
 
 /****************************************************************************
  * Private Types
@@ -66,11 +51,33 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Private Data
+ * Public Data
  ****************************************************************************/
 
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C" {
+#else
+#define EXTERN extern
+#endif
+
+#include "namedapp_proto.h"
+
+const struct namedapp_s namedapps[] =
+{
+# include "namedapp_list.h"
+  {.name = NULL}
+};
+
+#undef EXTERN
+#if defined(__cplusplus)
+}
+#endif
+
+
 /****************************************************************************
- * Public Data
+ * Private Data
  ****************************************************************************/
 
 /****************************************************************************
@@ -81,59 +88,9 @@
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_execute
- ****************************************************************************/
-
-int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char *argv[])
+int number_namedapps(void)
 {
-   int ret = OK;
-   FAR const char * name;
-
-   /* Try to find command within pre-built application list. */
-
-   ret = exec_namedapp(cmd, argv);
-   if (ret < 0)
-     {
-       int err = -errno;
-       int i;
-
-       /* On failure, list the set of available built-in commands */
-
-       nsh_output(vtbl, "Builtin Apps: ");
-       for (i = 0; (name = namedapp_getname(i)) != NULL; i++)
-         {
-           nsh_output(vtbl, "%s ", name);
-         }
-       nsh_output(vtbl, "\nand type 'help' for more NSH commands.\n\n");
-
-       /* If the failing command was '?', then do not report an error */
-       
-       if (strcmp(cmd, "?") != 0)
-         {
-           return err;
-         }
-
-       return OK;
-     }
-
-#ifdef CONFIG_SCHED_WAITPID
-   if (vtbl->np.np_bg == false)
-     {
-       waitpid(ret, NULL, 0);
-     }
-   else
-#endif
-     {
-       struct sched_param param;
-       sched_getparam(0, &param);
-       nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, param.sched_priority);
-     }
-
-   return OK;
+  return sizeof(namedapps)/sizeof(struct namedapp_s) - 1;
 }
-
-#endif /* CONFIG_NSH_BUILTIN_APPS */
 
 

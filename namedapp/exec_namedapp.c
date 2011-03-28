@@ -1,7 +1,6 @@
 /****************************************************************************
- * apps/nshlib/nsh_apps.c
+ * apps/namedaps/exec_namedapp.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2011 Uros Platise. All rights reserved.
  *   Author: Uros Platise <uros.platise@isotel.eu>
  *
@@ -39,23 +38,13 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <apps/apps.h>
+#include <sched.h>
 
-#ifdef CONFIG_SCHED_WAITPID
-#  include <sys/wait.h>
-#endif
-
-#include <stdbool.h>
+#include <string.h>
 #include <errno.h>
 
-#include <apps/apps.h>
-
-#include "nsh.h"
-
-#ifdef CONFIG_NSH_BUILTIN_APPS
-
-/****************************************************************************
- * Definitions
- ****************************************************************************/
+#include "namedapp.h"
 
 /****************************************************************************
  * Private Types
@@ -70,10 +59,6 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -81,59 +66,57 @@
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: nsh_execute
- ****************************************************************************/
-
-int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char *argv[])
+const char *namedapp_getname(int index)
 {
-   int ret = OK;
-   FAR const char * name;
-
-   /* Try to find command within pre-built application list. */
-
-   ret = exec_namedapp(cmd, argv);
-   if (ret < 0)
-     {
-       int err = -errno;
-       int i;
-
-       /* On failure, list the set of available built-in commands */
-
-       nsh_output(vtbl, "Builtin Apps: ");
-       for (i = 0; (name = namedapp_getname(i)) != NULL; i++)
-         {
-           nsh_output(vtbl, "%s ", name);
-         }
-       nsh_output(vtbl, "\nand type 'help' for more NSH commands.\n\n");
-
-       /* If the failing command was '?', then do not report an error */
-       
-       if (strcmp(cmd, "?") != 0)
-         {
-           return err;
-         }
-
-       return OK;
-     }
-
-#ifdef CONFIG_SCHED_WAITPID
-   if (vtbl->np.np_bg == false)
-     {
-       waitpid(ret, NULL, 0);
-     }
-   else
-#endif
-     {
-       struct sched_param param;
-       sched_getparam(0, &param);
-       nsh_output(vtbl, "%s [%d:%d]\n", cmd, ret, param.sched_priority);
-     }
-
-   return OK;
+  if (index < 0 || index >= number_namedapps())
+   {
+	 return NULL;
+   }
+	
+  return namedapps[index].name;
 }
+ 
+int namedapp_isavail(FAR const char *appname)
+{
+  int i;
+    
+  for (i = 0; namedapps[i].name; i++) 
+    {
+      if (!strcmp(namedapps[i].name, appname))
+        {
+          return i;
+        }
+    }
 
-#endif /* CONFIG_NSH_BUILTIN_APPS */
+  errno = ENOENT;
+  return -1;
+}
+ 
+int exec_namedapp(FAR const char *appname, FAR const char *argv[])
+{
+  int i;
+  
+  if ((i = namedapp_isavail(appname)) >= 0)
+    {
+#ifndef CONFIG_CUSTOM_STACK
+      i = task_create(namedapps[i].name, namedapps[i].priority, 
+                        namedapps[i].stacksize, namedapps[i].main, 
+                        (argv) ? &argv[1] : (const char **)NULL);
+#else
+      i = task_create(namedapps[i].name, namedapps[i].priority, namedapps[i].main,
+                        (argv) ? &argv[1] : (const char **)NULL);
+#endif
 
-
+#if CONFIG_RR_INTERVAL > 0
+      if (i > 0)
+        {
+          struct sched_param param;
+	
+          sched_getparam(0, &param);
+	      sched_setscheduler(i, SCHED_RR, &param);
+	    }
+#endif
+    }
+  
+  return i;
+}
