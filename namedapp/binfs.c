@@ -310,7 +310,7 @@ static int binfs_opendir(struct inode *mountpt, const char *relpath,
   struct binfs_state_s   *bm;
   int                     ret;
 
-  fvdbg("relpath: '%s'\n", relpath);
+  fvdbg("relpath: \"%s\"\n", relpath ? relpath : "NULL");
 
   /* Sanity checks */
 
@@ -352,8 +352,6 @@ static int binfs_readdir(struct inode *mountpt, struct fs_dirent_s *dir)
   unsigned int index;
   int ret;
 
-  fvdbg("Entry\n");
-
   /* Sanity checks */
 
   DEBUGASSERT(mountpt != NULL && mountpt->i_private != NULL);
@@ -372,13 +370,14 @@ static int binfs_readdir(struct inode *mountpt, struct fs_dirent_s *dir)
        * special error -ENOENT
        */
 
-      fdbg("End of directory\n");
+      fvdbg("Entry %d: End of directory\n", index);
       ret = -ENOENT;
     }
   else
     {
       /* Save the filename and file type */
 
+      fvdbg("Entry %d: \"%s\"\n", index, namedapps[index].name);
       dir->fd_dir.d_type = DTYPE_FILE;
       strncpy(dir->fd_dir.d_name, namedapps[index].name, NAME_MAX+1);
 
