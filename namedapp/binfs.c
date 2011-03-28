@@ -561,12 +561,6 @@ static int binfs_stat(struct inode *mountpt, const char *relpath, struct stat *b
 
   if (relpath && relpath[0] != '\0')
     {
-      /* It's a read-only directory name */
-
-      buf->st_mode = S_IFDIR|S_IROTH|S_IRGRP|S_IRUSR|S_IXOTH|S_IXGRP|S_IXUSR;
-    }
-  else
-    {
       /* Check if there is a file with this name. */
 
       if (namedapp_isavail(relpath) < 0)
@@ -575,9 +569,15 @@ static int binfs_stat(struct inode *mountpt, const char *relpath, struct stat *b
           goto errout_with_semaphore;
         }
 
-      /* It's a read-only file name */
+      /* It's a execute-only file name */
 
-      buf->st_mode = S_IFREG|S_IROTH|S_IRGRP|S_IRUSR|S_IXOTH|S_IXGRP|S_IXUSR;
+      buf->st_mode = S_IFREG|S_IXOTH|S_IXGRP|S_IXUSR;
+    }
+  else
+    {
+      /* It's a read/execute-only directory name */
+
+      buf->st_mode = S_IFDIR|S_IROTH|S_IRGRP|S_IRUSR|S_IXOTH|S_IXGRP|S_IXUSR;
     }
 
   /* File/directory size, access block size */
