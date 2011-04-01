@@ -95,7 +95,7 @@ cgi-bin/$(SUBDIR_BIN3): cgi-bin cgi-src/$(SUBDIR_BIN3)
 	@cp -a cgi-src/$(SUBDIR_BIN3) $@
 endif
 
-$(BIN):	$(OBJS)
+.built: $(OBJS)
 	@( for obj in $(OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )

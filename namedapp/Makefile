@@ -62,7 +62,7 @@ VPATH		=
 # Build Targets
 
 all:	.built
-.PHONY: .context context .depend depend clean distclean
+.PHONY: .context context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -70,13 +70,11 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-$(BIN):	$(OBJS)
+.built: $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
 	@touch .built
-	
-.built: $(BIN)
 
 .context:
 	@echo "/* List of application requirements, generated during make context. */" > namedapp_list.h

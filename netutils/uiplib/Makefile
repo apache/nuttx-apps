@@ -70,6 +70,7 @@ ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all: .built
+.PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -77,13 +78,11 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-$(BIN):	$(OBJS)
+.built: $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
 	@touch .built
-	
-.built: $(BIN)
 
 context:
 

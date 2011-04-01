@@ -57,7 +57,7 @@ ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all: .built
-.PHONY:	.built headers clean depend disclean
+.PHONY: headers clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -68,13 +68,11 @@ $(COBJS): %$(OBJEXT): %.c
 headers:
 	@$(MAKE) -C content TOPDIR=$(TOPDIR) APPDIR=$(APPDIR) CROSSDEV=$(CROSSDEV)
 
-$(BIN):	headers $(OBJS)
+.built: headers $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
 	@touch .built
-
-.built: $(BIN)
 
 context:
 

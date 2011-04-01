@@ -57,7 +57,7 @@ ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all: .built
-.PHONY:	checkgenromfs .built clean depend disclean
+.PHONY:	checkgenromfs clean depend disclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -81,13 +81,11 @@ testdir.img : checkgenromfs testdir
 romfs_testdir.h : testdir.img
 	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
 
-$(BIN):	romfs_testdir.h $(OBJS)
+.built: romfs_testdir.h $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
 	@touch .built
-
-.built: $(BIN)
 
 context:
 

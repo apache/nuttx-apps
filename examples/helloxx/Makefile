@@ -59,7 +59,7 @@ ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all: .built
-.PHONY:	.built clean depend disclean chkcxx
+.PHONY:	clean depend disclean chkcxx
 
 chkcxx:
 ifneq ($(CONFIG_HAVE_CXX),y)
@@ -82,13 +82,11 @@ $(COBJS): %$(OBJEXT): %.c
 $(CXXOBJS): %$(OBJEXT): %.cxx
 	$(call COMPILEXX, $<, $@)
 
-$(BIN):	chkcxx $(OBJS)
+.built: chkcxx $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
 	@touch .built
-
-.built: $(BIN)
 
 context:
 
