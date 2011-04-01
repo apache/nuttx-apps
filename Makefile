@@ -45,60 +45,42 @@ APPDIR = ${shell pwd}
 
 SUBDIRS = namedapp nshlib netutils examples vsn
 
-# We use a non-existing .built_always to guarantee that Makefile always walks
-# into the sub-directories and asks for build.  NOTE that namedapp is always
-# in the list of applications to be built
-
-BUILTIN_APPS_BUILT = namedapp/.built_always
-BUILTIN_APPS_DIR = namedapp
-
 # CONFIGURED_APPS is the list of all configured built-in directories/built action
 # It is created by the configured appconfig file (a copy of which appears in this
-# directoy as .config)
+# directory as .config)
 
 CONFIGURED_APPS =
 -include .config
 
-# AVAILABLE_APPS is the list of currently available application directories.  It
+# BUILTIN_APPS_DIR is the list of currently available application directories.  It
 # is the same as CONFIGURED_APPS, but filtered to exclude any non-existent apps
+# namedapp is always in the list of applications to be built
 
-AVAILABLE_APPS =
+BUILTIN_APPS_DIR = namedapp
 
-define ADD_AVAILABLE
-AVAILABLE_APPS += ${shell DIR=`echo $1 | cut -d'=' -f1`; if [ -r $$DIR/Makefile ]; then echo "$1"; fi}
+# Create the list of available applications (BUILTIN_APPS_DIR)
+
+define ADD_BUILTIN
+BUILTIN_APPS_DIR  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
 endef
 
-define BUILTIN_ADD_APP
-BUILTIN_APPS_DIR += ${shell echo $1 | cut -d'=' -f1}
-endef
-
-define BUILTIN_ADD_BUILT
-BUILTIN_APPS_BUILT += ${shell echo $1 | sed -e "s:=:/:g"}
-endef
-
-# (1) Create the list of available applications (AVAILABLE_APPS), (2) Add each
-# available app to the list of  to build (BUILTIN_APPS_DIR), and (3) Add the
-# "built" indication for each app (BUILTIN_APPS_BUILT). 
-
-$(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_AVAILABLE,$(BUILTIN))))
-$(foreach APP, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_APP,$(APP))))
-$(foreach BUILT, $(AVAILABLE_APPS), $(eval $(call BUILTIN_ADD_BUILT,$(BUILT))))
+$(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_BUILTIN,$(BUILTIN))))
 
 # The final build target
 
-BIN		= libapps$(LIBEXT)
+BIN = libapps$(LIBEXT)
 
 # Build targets
 
 all: $(BIN)
-.PHONY: $(BUILTIN_APPS_BUILT) context depend clean distclean
+.PHONY: $(BUILTIN_APPS_DIR) context depend clean distclean
 
-$(BUILTIN_APPS_BUILT):
+$(BUILTIN_APPS_DIR):
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
 	done
 
-$(BIN):	$(BUILTIN_APPS_BUILT)
+$(BIN):	$(BUILTIN_APPS_DIR)
 	@( for obj in $(OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )

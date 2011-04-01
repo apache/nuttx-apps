@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/udp/Makefile
 #
-#   Copyright (C) 2007-2008, 2010 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2008, 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ ROOTDEPPATH	= --dep-path .
 VPATH		= 
 
 all: .built
-.PHONY:	.built clean depend disclean
+.PHONY:	clean depend disclean
 
 $(TARG_AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -91,7 +91,6 @@ $(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
 	@( for obj in $(TARG_OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
-	@touch .built
 
 $(HOST_OBJS): %.o: %.c
 	$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
@@ -100,6 +99,7 @@ $(HOST_BIN): $(HOST_OBJS)
 	$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
 .built: $(TARG_BIN) $(HOST_BIN)
+	@touch .built
 
 context:
 

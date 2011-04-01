@@ -34,7 +34,7 @@ NuttX is configured.  .config is included in the toplevel apps/Makefile.
 As a minimum, this configuration file must define files to add to the
 CONFIGURED_APPS list like:
 
-  CONFIGURED_APPS  += hello/.built_always poweroff/.built_always jvm/.built_always
+  CONFIGURED_APPS  += hello poweroff jvm
 
 The form of each entry is <dir>=<dependency> when:
 

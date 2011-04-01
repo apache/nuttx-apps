@@ -8,7 +8,7 @@ examples
   application Makefile (this path is a relative to the apps/ top-
   level directory).  For example, 
 
-    CONFIGURE_APPS += examples/ostest=.built_always
+    CONFIGURE_APPS += examples/ostest
 
   Selects the examples/ostest example.
 
@@ -46,7 +46,7 @@ examples/dhcpd
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
+  CONFIGURED_APPS += uiplib
 
 examples/hello
 ^^^^^^^^^^^^^^
@@ -101,7 +101,7 @@ examples/igmp
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
+  CONFIGURED_APPS += uiplib
 
 examples/mm
 ^^^^^^^^^^^
@@ -145,7 +145,7 @@ examples/netttest
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
+  CONFIGURED_APPS += uiplib
 
 examples/nsh
 ^^^^^^^^^^^^
@@ -159,15 +159,15 @@ examples/nsh
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = nshlib=.built_always
+  CONFIGURED_APPS += nshlib
 
   And if networking is included:
 
-  CONFIGURED_APPS = uiplib=.built_always
-  CONFIGURED_APPS = dhcpc=.built_always
-  CONFIGURED_APPS = resolv=.built_always
-  CONFIGURED_APPS = tftp=.built_always
-  CONFIGURED_APPS = webclient=.built_always
+  CONFIGURED_APPS += uiplib
+  CONFIGURED_APPS += dhcpc
+  CONFIGURED_APPS += resolv
+  CONFIGURED_APPS += tftp
+  CONFIGURED_APPS += webclient
 
 examples/nx
 ^^^^^^^^^^^
@@ -332,7 +332,7 @@ examples/poll
   provide an appconfig file in the configuration driver with instruction
   to build applications like:
 
-  CONFIGURED_APPS = uiplib=.built_always
+  CONFIGURED_APPS += uiplib
 
 examples/romfs
 ^^^^^^^^^^^^^^
@@ -384,8 +384,8 @@ examples/sendmail
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
-  CONFIGURED_APPS = smtp=.built_always
+  CONFIGURED_APPS += uiplib
+  CONFIGURED_APPS += smtp
 
 examples/serloop
 ^^^^^^^^^^^^^^^^
@@ -412,8 +412,8 @@ examples/thttpd
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
-  CONFIGURED_APPS = thttpd=.built_always
+  CONFIGURED_APPS += uiplib
+  CONFIGURED_APPS += thttpd
 
 examples/udp
 ^^^^^^^^^^^^
@@ -425,7 +425,7 @@ examples/udp
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
+  CONFIGURED_APPS += uiplib
 
 examples/uip
 ^^^^^^^^^^^^
@@ -465,10 +465,10 @@ examples/uip
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
-  CONFIGURED_APPS = dhcpc=.built_always
-  CONFIGURED_APPS = resolv=.built_always
-  CONFIGURED_APPS = webserver=.built_always
+  CONFIGURED_APPS += uiplib
+  CONFIGURED_APPS += dhcpc
+  CONFIGURED_APPS += resolv
+  CONFIGURED_APPS += webserver
 
 examples/usbserial
 ^^^^^^^^^^^^^^^^^^
@@ -629,8 +629,8 @@ examples/wget
   file in the configuration driver with instruction to build applications
   like:
 
-  CONFIGURED_APPS = uiplib=.built_always
-  CONFIGURED_APPS = resolv=.built_always
-  CONFIGURED_APPS = webclient=.built_always
+  CONFIGURED_APPS += uiplib
+  CONFIGURED_APPS += resolv
+  CONFIGURED_APPS += webclient
 
 
