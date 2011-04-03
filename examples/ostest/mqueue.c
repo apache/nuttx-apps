@@ -1,5 +1,5 @@
 /**************************************************************************
- * mqueue.c
+ * apps/examples/ostest/mqueue.c
  *
  *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -212,9 +212,9 @@ static void *receiver_thread(void *arg)
            * it is not a failure.
            */
 
-          if (*get_errno_ptr() != EINTR)
+          if (errno != EINTR)
             {
-              printf("receiver_thread: ERROR mq_receive failure on msg %d, errno=%d\n", i, *get_errno_ptr());
+              printf("receiver_thread: ERROR mq_receive failure on msg %d, errno=%d\n", i, errno);
               nerrors++;
             }
           else

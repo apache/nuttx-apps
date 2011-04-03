@@ -156,7 +156,7 @@ static void binfs_semtake(struct binfs_state_s *bm)
        * the wait was awakened by a signal.
        */
 
-      ASSERT(*get_errno_ptr() == EINTR);
+      ASSERT(errno == EINTR);
     }
 }
 

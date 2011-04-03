@@ -46,6 +46,7 @@
 
 #include <stdbool.h>
 #include <errno.h>
+#include <string.h>
 
 #include <apps/apps.h>
 
@@ -98,7 +99,8 @@ int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
      {
        int err = -errno;
        int i;
-
+       
+#ifndef CONFIG_APPS_BINDIR
        /* On failure, list the set of available built-in commands */
 
        nsh_output(vtbl, "Builtin Apps: ");
@@ -116,6 +118,9 @@ int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
          }
 
        return OK;
+#else
+       return err;
+#endif
      }
 
 #ifdef CONFIG_SCHED_WAITPID

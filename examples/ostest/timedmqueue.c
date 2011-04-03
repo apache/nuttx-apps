@@ -1,7 +1,7 @@
 /**************************************************************************
- * examples/ostest/mqueue.c
+ * apps/examples/ostest/mqueue.c
  *
- *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -157,13 +157,13 @@ static void *sender_thread(void *arg)
       status = mq_timedsend(mqfd, msg_buffer, TEST_MSGLEN, 42, &time);
       if (status < 0)
         {
-          if (i == TEST_SEND_NMSGS-1 && *get_errno_ptr() == ETIMEDOUT)
+          if (i == TEST_SEND_NMSGS-1 && errno == ETIMEDOUT)
             {
               printf("sender_thread: mq_timedsend %d timed out as expected\n", i);
             }
           else
             {
-              printf("sender_thread: ERROR mq_timedsend failure=%d on msg %d\n", *get_errno_ptr(), i);
+              printf("sender_thread: ERROR mq_timedsend failure=%d on msg %d\n", errno, i);
               nerrors++;
             }
         }
@@ -248,13 +248,13 @@ static void *receiver_thread(void *arg)
       nbytes = mq_timedreceive(mqfd, msg_buffer, TEST_MSGLEN, 0, &time);
       if (nbytes < 0)
         {
-          if (i == TEST_SEND_NMSGS-1 && *get_errno_ptr() == ETIMEDOUT)
+          if (i == TEST_SEND_NMSGS-1 && errno == ETIMEDOUT)
             {
               printf("receiver_thread: Receive %d timed out as expected\n", i);
             }
           else
             {
-              printf("receiver_thread: ERROR mq_timedreceive failure=%d on msg %d\n", *get_errno_ptr(), i);
+              printf("receiver_thread: ERROR mq_timedreceive failure=%d on msg %d\n", errno, i);
               nerrors++;
             }
         }

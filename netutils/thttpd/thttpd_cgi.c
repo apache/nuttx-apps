@@ -152,7 +152,7 @@ static inline void cgi_semtake(void)
        * awakened by a signal.
        */
 
-      ASSERT(*get_errno_ptr() == EINTR);
+      ASSERT(errno == EINTR);
     }
 }
 

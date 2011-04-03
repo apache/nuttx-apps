@@ -1,7 +1,7 @@
 /***********************************************************************
- * examples/ostest/sighand.c
+ * apps/examples/ostest/sighand.c
  *
- *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -160,7 +160,7 @@ static int waiter_main(int argc, char *argv[])
   status = sem_wait(&sem);
   if (status != 0)
     {
-      int error = *get_errno_ptr();
+      int error = errno;
       if (error == EINTR)
         {
           printf("waiter_main: sem_wait() successfully interrupted by signal\n" );
