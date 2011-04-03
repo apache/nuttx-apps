@@ -334,7 +334,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
   if (!packet)
     {
       ndbg("packet memory allocation failure\n");
-      errno = ENOMEM;
+      set_errno(ENOMEM);
       goto errout;
     }
 
@@ -388,7 +388,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
       if (++retry > TFTP_RETRIES)
         {
           ndbg("Retry count exceeded\n");
-          errno = ETIMEDOUT;
+          set_errno(ETIMEDOUT);
           goto errout_with_sd;
         }
     }
@@ -455,7 +455,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
       if (++retry > TFTP_RETRIES)
         {
           ndbg("Retry count exceeded\n");
-          errno = ETIMEDOUT;
+          set_errno(ETIMEDOUT);
           goto errout_with_sd;
         }
     }

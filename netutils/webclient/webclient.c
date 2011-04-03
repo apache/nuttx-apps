@@ -431,7 +431,7 @@ int wget(FAR const char *url, FAR char *buffer, int buflen,
   if (ret != 0)
     {
       ndbg("Malformed HTTP URL: %s\n", url);
-      errno = -ret;
+      set_errno(-ret);
       return ERROR;
     }
   nvdbg("hostname='%s' filename='%s'\n", ws.hostname, ws.filename);
@@ -576,7 +576,7 @@ int wget(FAR const char *url, FAR char *buffer, int buflen,
   return OK;
 
 errout_with_errno:
-  errno = -ret;
+  set_errno(-ret);
 errout:
   close(sockfd);
   return ERROR;

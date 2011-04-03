@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #ifdef CONFIG_NSH_CONSOLE
 # include <stdio.h>

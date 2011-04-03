@@ -88,8 +88,8 @@ int namedapp_isavail(FAR const char *appname)
         }
     }
 
-  errno = ENOENT;
-  return -1;
+  set_errno(ENOENT);
+  return ERROR;
 }
  
 int exec_namedapp(FAR const char *appname, FAR const char *argv[])

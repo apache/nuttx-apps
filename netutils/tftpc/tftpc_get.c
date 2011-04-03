@@ -167,7 +167,7 @@ int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary)
   if (!packet)
     {
       ndbg("packet memory allocation failure\n");
-      errno = ENOMEM;
+      set_errno(ENOMEM);
       goto errout;
     }
 
