@@ -76,9 +76,7 @@ all: $(BIN)
 .PHONY: $(BUILTIN_APPS_DIR) context depend clean distclean
 
 $(BUILTIN_APPS_DIR):
-	@for dir in $(BUILTIN_APPS_DIR) ; do \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
-	done
+	@$(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR);
 
 $(BIN):	$(BUILTIN_APPS_DIR)
 	@( for obj in $(OBJS) ; do \
