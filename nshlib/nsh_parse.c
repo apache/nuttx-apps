@@ -153,7 +153,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-# ifndef CONFIG_NSH_DISABLE_LS
+# ifndef CONFIG_NSH_DISABLE_DD
   { "dd",       cmd_dd,       3, 6, "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]" },
 # endif
 #endif
@@ -194,7 +194,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
-# ifndef CONFIG_NSH_DISABLE_SLEEP
+# ifndef CONFIG_NSH_DISABLE_KILL
   { "kill",     cmd_kill,     3, 3, "-<signal> <pid>" },
 # endif
 #endif

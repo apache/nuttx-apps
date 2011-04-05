@@ -69,6 +69,7 @@ typedef int (*exec_t)(void);
  * Private Data
  ****************************************************************************/
 
+#ifndef CONFIG_NSH_DISABLE_PS
 static const char *g_statenames[] =
 {
   "INVALID ",
@@ -85,6 +86,7 @@ static const char *g_statenames[] =
   "MQNFULL "
 #endif
 };
+#endif
 
 /****************************************************************************
  * Public Data
