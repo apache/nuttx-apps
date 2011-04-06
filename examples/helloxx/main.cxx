@@ -1,7 +1,7 @@
 //***************************************************************************
 // examples/helloxx/main.c
 //
-//   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+//   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 //
 // Redistribution and use in source and binary forms, with or without
@@ -85,18 +85,6 @@ static CHelloWorld g_HelloWorld;
 //***************************************************************************
 // Public Functions
 //***************************************************************************
-
-//***************************************************************************
-// user_initialize
-//***************************************************************************
-
-#ifndef CONFIG_HAVE_WEAKFUNCTIONS
-void user_initialize(void)
-{
-  // Stub that must be provided only if the toolchain does not support weak
-  // functions.
-}
-#endif
 
 //***************************************************************************
 // user_start

@@ -97,18 +97,6 @@ static const char g_msg_body[]  = CONFIG_EXAMPLE_SENDMAIL_BODY "\r\n";
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-/****************************************************************************
- * user_initialize
- ****************************************************************************/
-
-#ifndef CONFIG_HAVE_WEAKFUNCTIONS
-void user_initialize(void)
-{
-  /* Stub that must be provided only if the toolchain does not support weak
-   * functions.
-   */
-}
-#endif
 
 /****************************************************************************
  * user_start

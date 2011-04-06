@@ -76,22 +76,6 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: user_initialize
- ****************************************************************************/
-
-/* In order to support user_initialize if CONFIG_PAGING is defined, this
- * function (and only this function) would need to get moved to the locked
- * text region.
- */
-
-#ifndef CONFIG_PAGING
-void user_initialize(void)
-{
-  /* stub */
-}
-#endif
-
-/****************************************************************************
  * Name: user_start
  ****************************************************************************/
 

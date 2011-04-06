@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/usbstorage/usbstrg_main.c
  *
- *   Copyright (C) 2008-2010 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -282,19 +282,6 @@ static int usbstrg_enumerate(struct usbtrace_s *trace, void *arg)
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-/****************************************************************************
- * user_initialize
- ****************************************************************************/
-
-#ifndef CONFIG_HAVE_WEAKFUNCTIONS
-void user_initialize(void)
-{
-  /* Stub that must be provided only if the toolchain does not support weak
-   * functions.
-   */
-}
-#endif
 
 /****************************************************************************
  * user_start
