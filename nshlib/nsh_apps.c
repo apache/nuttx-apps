@@ -89,8 +89,10 @@
 int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char *argv[])
 {
-   int ret = OK;
+#ifndef CONFIG_APPS_BINDIR
    FAR const char * name;
+#endif
+   int ret = OK;
 
    /* Try to find command within pre-built application list. */
 
@@ -98,9 +100,9 @@ int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    if (ret < 0)
      {
        int err = -errno;
+#ifndef CONFIG_APPS_BINDIR
        int i;
        
-#ifndef CONFIG_APPS_BINDIR
        /* On failure, list the set of available built-in commands */
 
        nsh_output(vtbl, "Builtin Apps: ");
