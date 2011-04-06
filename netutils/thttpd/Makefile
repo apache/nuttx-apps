@@ -69,8 +69,14 @@ SUBDIR_BIN3	= ssi
 SUBDIR_BIN	+= cgi-bin/$(SUBDIR_BIN1) cgi-bin/$(SUBDIR_BIN2)  cgi-bin/$(SUBDIR_BIN3)
 endif
 
-all: $(SUBDIR_BIN) $(BIN)
+all: $(SUBDIR_BIN) .built
 .PHONY: depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
 
 ifeq ($(CONFIG_NXFLAT),y)
 cgi-bin:
@@ -97,12 +103,10 @@ endif
 
 .built: $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
 	@touch .built
 	
-.built: $(BIN)
-
 context:
 
 .depend: Makefile $(SRCS)
