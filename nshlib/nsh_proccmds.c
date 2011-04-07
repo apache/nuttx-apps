@@ -86,6 +86,14 @@ static const char *g_statenames[] =
   "MQNFULL "
 #endif
 };
+
+static const char *g_ttypenames[4] =
+{
+  "TASK   ",
+  "PTHREAD",
+  "KTHREAD",
+  "--?--  "
+};
 #endif
 
 /****************************************************************************
@@ -111,7 +119,7 @@ static void ps_task(FAR _TCB *tcb, FAR void *arg)
   nsh_output(vtbl, "%5d %3d %4s %7s%c%c %8s ",
              tcb->pid, tcb->sched_priority,
              tcb->flags & TCB_FLAG_ROUND_ROBIN ? "RR  " : "FIFO",
-             tcb->flags & TCB_FLAG_PTHREAD ? "PTHREAD" : "TASK   ",
+             g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >> TCB_FLAG_TTYPE_SHIFT],
              tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
              tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
              g_statenames[tcb->task_state]);

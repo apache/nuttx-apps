@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/thttpd/tasks/tasks.c
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,14 @@ static const char *g_statenames[] =
 #endif
 };
 
+static const char *g_ttypenames[4] =
+{
+  "TASK   ",
+  "PTHREAD",
+  "KTHREAD",
+  "--?--  "
+};
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -104,7 +112,7 @@ static const char *g_statenames[] =
   printf("%5d %3d %4s %7s%c%c %8s ",
          tcb->pid, tcb->sched_priority,
          tcb->flags & TCB_FLAG_ROUND_ROBIN ? "RR  " : "FIFO",
-         tcb->flags & TCB_FLAG_PTHREAD ? "PTHREAD" : "TASK   ",
+         g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >> TCB_FLAG_TTYPE_SHIFT],
          tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
          tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
          g_statenames[tcb->task_state]);
