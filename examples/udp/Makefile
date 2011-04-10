@@ -54,7 +54,11 @@ TARG_COBJS	= $(TARG_CSRCS:.c=$(OBJEXT))
 TARG_SRCS	= $(TARG_ASRCS) $(TARG_CSRCS)
 TARG_OBJS	= $(TARG_AOBJS) $(TARG_COBJS)
 
-TARG_BIN	= $(APPDIR)/libapps$(LIBEXT)
+ifeq ($(WINTOOL),y)
+  TARG_BIN	= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  TARG_BIN	= "$(APPDIR)/libapps$(LIBEXT)"
+endif
 
 HOSTCFLAGS	+= -DCONFIG_EXAMPLE_UDP_HOST=1
 ifeq ($(CONFIG_EXAMPLE_UDP_SERVER),y)

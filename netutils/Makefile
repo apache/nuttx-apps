@@ -50,17 +50,17 @@ context:
 
 depend:
 	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
 
 clean:
 	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
 
 distclean: clean
 	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
 
 -include Make.dep

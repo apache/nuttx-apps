@@ -48,7 +48,11 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= $(APPDIR)/libapps$(LIBEXT)
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
 
 ROOTDEPPATH	= --dep-path .
 
@@ -66,7 +70,7 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 headers:
-	@$(MAKE) -C content TOPDIR=$(TOPDIR) APPDIR=$(APPDIR) CROSSDEV=$(CROSSDEV)
+	@$(MAKE) -C content TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 .built: headers $(OBJS)
 	@( for obj in $(OBJS) ; do \
@@ -84,7 +88,7 @@ depend: .depend
 
 clean:
 	@rm -f *.o *~ .*.swp .built
-	@make -C content clean TOPDIR=$(TOPDIR) APPDIR=$(APPDIR) CROSSDEV=$(CROSSDEV)
+	@make -C content clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	$(call CLEAN)
 
 distclean: clean

@@ -76,7 +76,7 @@ all: $(BIN)
 .PHONY: $(BUILTIN_APPS_DIR) context depend clean distclean
 
 $(BUILTIN_APPS_DIR):
-	@$(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR);
+	@$(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)";
 
 $(BIN):	$(BUILTIN_APPS_DIR)
 	@( for obj in $(OBJS) ; do \
@@ -86,7 +86,7 @@ $(BIN):	$(BUILTIN_APPS_DIR)
 .context:
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		rm -f $$dir/.context ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR=$(APPDIR) context ; \
+		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR="$(APPDIR)" context ; \
 	done
 	@touch $@
 
@@ -95,7 +95,7 @@ context: .context
 .depend: context Makefile $(SRCS)
 	@for dir in $(BUILTIN_APPS_DIR) ; do \
 		rm -f $$dir/.depend ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR=$(APPDIR) depend ; \
+		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR="$(APPDIR)" depend ; \
 	done
 	@touch $@
 
@@ -103,14 +103,14 @@ depend: .depend
 
 clean:
 	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
 	@rm -f $(BIN) *~ .*.swp *.o
 	$(call CLEAN)
 
 distclean: clean
 	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR=$(APPDIR); \
+		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
 	@rm -f .config .context .depend
 

@@ -50,7 +50,11 @@ CXXOBJS		= $(CXXSRCS:.cxx=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS) $(CXXSRCS)
 OBJS		= $(AOBJS) $(COBJS) $(CXXOBJS)
 
-BIN	    	= $(APPDIR)/libapps$(LIBEXT)
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
 
 ROOTDEPPATH	= --dep-path .
 

@@ -15,7 +15,7 @@
 	  the apps/ directory
 	* Moved exec_nuttapp machinery into the nuttapp/ directory.
 
-6.0 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.1 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* Creation of auto-generated header files now occurs during the context
 	  build phase.
@@ -23,4 +23,6 @@
 	* Renamed nuttapp to namedapp
 	* namedapp/binfs.c -- Create a tiny filesystem that can be used
 	  to show the internal named apps under /bin.
+	* Numerous fixes to build system required to support building with native
+	  Windows toolchain.
 

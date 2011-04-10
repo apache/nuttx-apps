@@ -48,7 +48,11 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= $(APPDIR)/libapps$(LIBEXT)
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
 
 ROOTDEPPATH	= --dep-path .
 
@@ -82,7 +86,7 @@ depend: .depend
 clean:
 	@rm -f *.o *~ .*.swp .built
 	$(call CLEAN)
-	@make -f Makefile.host clean TOPDIR=$(TOPDIR) APPDIR=$(APPDIR)
+	@make -f Makefile.host clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 distclean: clean
 	@rm -f Make.dep .depend
