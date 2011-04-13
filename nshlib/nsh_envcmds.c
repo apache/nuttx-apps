@@ -240,7 +240,8 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Set the new workding directory */
 
-  if (chdir(path) != 0)
+  ret = chdir(path);
+  if (ret != 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "chdir", NSH_ERRNO);
       ret = ERROR;
