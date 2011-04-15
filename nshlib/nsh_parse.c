@@ -52,6 +52,8 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <nuttx/version.h>
+
 #ifndef CONFIG_NSH_DISABLEBG
 #  include <pthread.h>
 #endif
@@ -341,8 +343,22 @@ static const struct cmdmap_s g_cmdmap[] =
  * Public Data
  ****************************************************************************/
 
+/* If NuttX versioning information is available, Include that information
+ * in the NSH greeting.
+ */
+
+#if CONFIG_VERSION_MAJOR != 0 || CONFIG_VERSION_MINOR != 0
+const char g_nshgreeting[]       = "\nNuttShell (NSH) NuttX-" CONFIG_VERSION_STRING "\n
+#else
 const char g_nshgreeting[]       = "\nNuttShell (NSH)\n";
+#endif
+
+/* The NSH prompt */
+
 const char g_nshprompt[]         = "nsh> ";
+
+/* Common, message formats */
+
 const char g_nshsyntax[]         = "nsh: %s: syntax error\n";
 const char g_fmtargrequired[]    = "nsh: %s: missing required argument(s)\n";
 const char g_fmtarginvalid[]     = "nsh: %s: argument invalid\n";
