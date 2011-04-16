@@ -36,40 +36,44 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
-CFLAGS		+= -I$(APPDIR)/netutils/thttpd -I$(APPDIR)/netutils/thttpd/cgi-src
+ifeq ($(WINTOOL),y)
+INCDIROPT	= -w
+endif
+
+CFLAGS		+= ${shell $(TOPDIR)/tools/incdir.sh $(INCDIROPT) "$(CC)" "$(APPDIR)/netutils/thttpd" "$(APPDIR)/netutils/thttpd/cgi-src"}
 CGIBINDIR	= $(APPDIR)/netutils/thttpd/cgi-bin
 CLEANFILES	= *.o redirect ssi phf
 
-BIN1			= phf
-BIN2			= redirect
-BIN3			= ssi
-BIN				= $(BIN1) $(BIN2) $(BIN3)
+BIN1		= phf
+BIN2		= redirect
+BIN3		= ssi
+BIN			= $(BIN1) $(BIN2) $(BIN3)
 
-R1SRCS1			= $(BIN1).c
-R1OBJS1			= $(R1SRCS1:.c=.o)
-R2SRC1			= $(BIN1)-thunk.S
-R2OBJ1			= $(R2SRC1:.S=.o)
+R1SRCS1		= $(BIN1).c
+R1OBJS1		= $(R1SRCS1:.c=.o)
+R2SRC1		= $(BIN1)-thunk.S
+R2OBJ1		= $(R2SRC1:.S=.o)
 
-R1SRCS2			= $(BIN2).c
-R1OBJS2			= $(R1SRCS2:.c=.o)
-R2SRC2			= $(BIN2)-thunk.S
-R2OBJ2			= $(R2SRC2:.S=.o)
+R1SRCS2		= $(BIN2).c
+R1OBJS2		= $(R1SRCS2:.c=.o)
+R2SRC2		= $(BIN2)-thunk.S
+R2OBJ2		= $(R2SRC2:.S=.o)
 
-R1SRCS3			= $(BIN3).c
-R1OBJS3			= $(R1SRCS3:.c=.o)
-R2SRC3			= $(BIN3)-thunk.S
-R2OBJ3			= $(R2SRC3:.S=.o)
+R1SRCS3		= $(BIN3).c
+R1OBJS3		= $(R1SRCS3:.c=.o)
+R2SRC3		= $(BIN3)-thunk.S
+R2OBJ3		= $(R2SRC3:.S=.o)
 
-DERIVED			= $(R2SRC1) $(R2SRC2) $(R2SRC3)
+DERIVED		= $(R2SRC1) $(R2SRC2) $(R2SRC3)
 
-R1COBJS			= $(R1OBJS1) $(R1OBJS2) $(R1OBJS3)
-R2AOBJS			= $(R2OBJ1) $(R2OBJ2) $(R2OBJ3)
+R1COBJS		= $(R1OBJS1) $(R1OBJS2) $(R1OBJS3)
+R2AOBJS		= $(R2OBJ1) $(R2OBJ2) $(R2OBJ3)
 
 all: $(BIN1) $(BIN2) $(BIN3)
 
 $(R1COBJS): %.o: %.c
 	@echo "CC: $<"
-	@$(CC) -c $(CPICFLAGS) $< -o $@
+	$(CC) -c $(CPICFLAGS) $< -o $@
 
 $(R2AOBJS): %.o: %.S
 	@echo "AS: $<"

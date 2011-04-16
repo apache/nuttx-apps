@@ -348,7 +348,7 @@ static const struct cmdmap_s g_cmdmap[] =
  */
 
 #if CONFIG_VERSION_MAJOR != 0 || CONFIG_VERSION_MINOR != 0
-const char g_nshgreeting[]       = "\nNuttShell (NSH) NuttX-" CONFIG_VERSION_STRING "\n
+const char g_nshgreeting[]       = "\nNuttShell (NSH) NuttX-" CONFIG_VERSION_STRING "\n";
 #else
 const char g_nshgreeting[]       = "\nNuttShell (NSH)\n";
 #endif
