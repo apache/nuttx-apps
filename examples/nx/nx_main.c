@@ -705,7 +705,7 @@ int user_start(int argc, char *argv[])
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
   message("user_start: Add toolbar to window #1\n");
-  ret = nxeq_opentoolbar(hwnd1, CONFIG_TOOLBAR_HEIGHT, &g_tbcb, &g_wstate[0]);
+  ret = nxeq_opentoolbar(hwnd1, CONFIG_EXAMPLES_NX_TOOLBAR_HEIGHT, &g_tbcb, &g_wstate[0]);
   if (ret < 0)
     {
       goto errout_with_hwnd1;
@@ -766,7 +766,7 @@ int user_start(int argc, char *argv[])
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
   message("user_start: Add toolbar to window #2\n");
-  ret = nxeq_opentoolbar(hwnd2, CONFIG_TOOLBAR_HEIGHT, &g_tbcb, &g_wstate[1]);
+  ret = nxeq_opentoolbar(hwnd2, CONFIG_EXAMPLES_NX_TOOLBAR_HEIGHT, &g_tbcb, &g_wstate[1]);
   if (ret < 0)
     {
       goto errout_with_hwnd2;
