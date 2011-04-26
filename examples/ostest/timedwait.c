@@ -1,7 +1,7 @@
 /***********************************************************************
  * examples/ostest/timedwait.c
  *
- *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ static pthread_cond_t  cond;
 
 static void *thread_waiter(void *parameter)
 {
-  struct timespec time;
+  struct timespec ts;
   int status;
 
   /* Take the mutex */
@@ -82,16 +82,16 @@ static void *thread_waiter(void *parameter)
 
   printf("thread_waiter: Starting 5 second wait for condition\n");
 
-  status = clock_gettime(CLOCK_REALTIME, &time);
+  status = clock_gettime(CLOCK_REALTIME, &ts);
   if (status != 0)
     {
       printf("thread_waiter: ERROR clock_gettime failed\n");
     }
-  time.tv_sec += 5;
+  ts.tv_sec += 5;
 
   /* The wait -- no-one is ever going to awaken us */
 
-  status = pthread_cond_timedwait(&cond, &mutex, &time);
+  status = pthread_cond_timedwait(&cond, &mutex, &ts);
   if (status != 0)
     {
       if (status == ETIMEDOUT)

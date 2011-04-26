@@ -142,19 +142,19 @@ static void *sender_thread(void *arg)
 
   for (i = 0; i < TEST_SEND_NMSGS; i++)
     {
-       struct timespec time;
-       status = clock_gettime(CLOCK_REALTIME, &time);
+       struct timespec ts;
+       status = clock_gettime(CLOCK_REALTIME, &ts);
        if (status != 0)
          {
            printf("sender_thread: ERROR clock_gettime failed\n");
          }
-       time.tv_sec += 5;
+       ts.tv_sec += 5;
 
       /* The first TEST_SEND_NMSGS-1 send should succeed.  The last
        * one should fail with errno == ETIMEDOUT
        */
 
-      status = mq_timedsend(mqfd, msg_buffer, TEST_MSGLEN, 42, &time);
+      status = mq_timedsend(mqfd, msg_buffer, TEST_MSGLEN, 42, &ts);
       if (status < 0)
         {
           if (i == TEST_SEND_NMSGS-1 && errno == ETIMEDOUT)
@@ -232,20 +232,20 @@ static void *receiver_thread(void *arg)
 
    for (i = 0; i < TEST_RECEIVE_NMSGS; i++)
     {
-       struct timespec time;
-       int status = clock_gettime(CLOCK_REALTIME, &time);
+       struct timespec ts;
+       int status = clock_gettime(CLOCK_REALTIME, &ts);
        if (status != 0)
          {
            printf("sender_thread: ERROR clock_gettime failed\n");
          }
-       time.tv_sec += 5;
+       ts.tv_sec += 5;
 
       /* The first TEST_SEND_NMSGS-1 send should succeed.  The last
        * one should fail with errno == ETIMEDOUT
        */
 
       memset(msg_buffer, 0xaa, TEST_MSGLEN);
-      nbytes = mq_timedreceive(mqfd, msg_buffer, TEST_MSGLEN, 0, &time);
+      nbytes = mq_timedreceive(mqfd, msg_buffer, TEST_MSGLEN, 0, &ts);
       if (nbytes < 0)
         {
           if (i == TEST_SEND_NMSGS-1 && errno == ETIMEDOUT)
