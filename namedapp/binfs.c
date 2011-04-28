@@ -4,8 +4,6 @@
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
- * References: Linux/Documentation/filesystems/romfs.txt
- *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -388,11 +386,10 @@ static int binfs_readdir(struct inode *mountpt, struct fs_dirent_s *dir)
       index++;
 
       /* Set up the next directory entry offset.  NOTE that we could use the
-       * standard fr_curroffset instead of our own private fr_curroffset.
+       * standard f_pos instead of our own private fb_index.
        */
 
       dir->u.binfs.fb_index      = index;
-      dir->u.romfs.fr_curroffset = index;
       ret                        = OK;
     }
 
@@ -423,7 +420,6 @@ static int binfs_rewinddir(struct inode *mountpt, struct fs_dirent_s *dir)
   binfs_semtake(bm);
 
   dir->u.binfs.fb_index      = 0;
-  dir->u.romfs.fr_curroffset = 0;
 
   binfs_semgive(bm);
   return OK;
