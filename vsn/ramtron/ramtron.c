@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <debug.h>
 #include <errno.h>
+#include <string.h>
 
 #include <nuttx/spi.h>
 #include <nuttx/mtd.h>
@@ -72,7 +73,7 @@ int ramtron_start(int spino)
   printf("RAMTRON: FM25V10 of size 128 kB\n");
   //printf("RAMTRON: %s of size %d B\n", ramtron_getpart(mtd), ramtron_getsize(mtd) );
 
-  retval = ftl_initialize(0, NULL, mtd);
+  retval = ftl_initialize(0, mtd);
   printf("RAMTRON: FTL Initialized (returns with %d)\n", retval);
 
   return OK;
