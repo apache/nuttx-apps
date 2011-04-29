@@ -39,9 +39,16 @@
 
 #include <nuttx/config.h>
 
+#include <sys/mount.h>
+
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <crc32.h>
 
 #include <nuttx/mtd.h>
 #include <nuttx/nxffs.h>
@@ -68,25 +75,232 @@
 #define CONFIG_EXAMPLES_NXFFS_BUFSIZE \
   (CONFIG_RAMMTD_ERASESIZE * CONFIG_EXAMPLES_NXFFS_NEBLOCKS)
 
+#ifndef CONFIG_EXAMPLES_NXFFS_MAXNAME
+#  define CONFIG_EXAMPLES_NXFFS_MAXNAME 128
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXFFS_MAXFILE
+#  define CONFIG_EXAMPLES_NXFFS_MAXFILE 8192
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXFFS_GULP
+#  define CONFIG_EXAMPLES_NXFFS_GULP 347
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXFFS_MAXOPEN
+#  define CONFIG_EXAMPLES_NXFFS_MAXOPEN 512
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXFFS_MOUNTPT
+#  define CONFIG_EXAMPLES_NXFFS_MOUNTPT "/mnt/nxffs"
+#endif
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct nxffs_filedesc_s
+{
+  FAR char *name;
+  size_t len;
+  uint32_t crc;
+};
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 /* Pre-allocated simulated flash */
 
 static uint8_t g_simflash[CONFIG_EXAMPLES_NXFFS_BUFSIZE];
+static uint8_t g_fileimage[CONFIG_EXAMPLES_NXFFS_MAXFILE];
+static struct nxffs_filedesc_s g_files[CONFIG_EXAMPLES_NXFFS_MAXOPEN];
+static const char g_mountdir[] = CONFIG_EXAMPLES_NXFFS_MOUNTPT "/";
+static int g_nfiles;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: nxffs_randchar
+ ****************************************************************************/
+
+static inline char nxffs_randchar(void)
+{
+  int value = rand() % 63;
+  if (value == 0)
+    {
+      return '/';
+    }
+  else if (value <= 10)
+    {
+      return value + '0' - 1;
+    }
+  else if (value <= 36)
+    {
+      return value + 'a' - 11;
+    }
+  else /* if (value <= 62) */
+    {
+      return value + 'A' - 37;
+    }
+}
+
+/****************************************************************************
+ * Name: nxffs_randname
+ ****************************************************************************/
+
+static inline void nxffs_randname(FAR struct nxffs_filedesc_s *file)
+{
+  int dirlen;
+  int maxname;
+  int namelen;
+  int alloclen;
+  int i;
+
+  dirlen   = strlen(g_mountdir);
+  maxname  = CONFIG_EXAMPLES_NXFFS_MAXNAME - dirlen;
+  namelen  = (rand() % maxname) + 1;
+  alloclen = namelen + dirlen;
+
+  file->name = (FAR char*)malloc(alloclen + 1);
+  if (!file->name)
+    {
+      fprintf(stderr, "ERROR: Failed to allocate name, length=%d\n", namelen);
+      exit(3);
+    }
+
+  memcpy(file->name, g_mountdir, dirlen);
+  for (i = dirlen; i < alloclen; i++)
+    {
+      file->name[i] = nxffs_randchar();
+    }
+ 
+  file->name[alloclen] = '\0';
+}
+
+/****************************************************************************
+ * Name: nxffs_randfile
+ ****************************************************************************/
+
+static inline void nxffs_randfile(FAR struct nxffs_filedesc_s *file)
+{
+  int i;
+
+  file->len = (rand() % CONFIG_EXAMPLES_NXFFS_MAXFILE) + 1;
+  for (i = 0; i < file->len; i++)
+    {
+      g_fileimage[i] = nxffs_randchar();
+    }
+  file->crc = crc32(g_fileimage, file->len);
+}
+
+/****************************************************************************
+ * Name: nxffs_freefile
+ ****************************************************************************/
+
+static void nxffs_freefile(FAR struct nxffs_filedesc_s *file)
+{
+  if (file->name)
+    {
+      free(file->name);
+    }
+  memset(file, 0, sizeof(struct nxffs_filedesc_s));
+}
+
+/****************************************************************************
+ * Name: nxffs_wrfile
+ ****************************************************************************/
+
+static inline int nxffs_wrfile(void)
+{
+  struct nxffs_filedesc_s *file = NULL;
+  size_t offset;
+  int fd;
+  int i;
+
+  for (i = 0; i < CONFIG_EXAMPLES_NXFFS_MAXOPEN; i++)
+    {
+      if (g_files[i].name == NULL)
+        {
+          file = &g_files[i];
+          break;
+        }
+    }
+
+  if (!file)
+    {
+      fprintf(stderr, "No available files\n");
+      return ERROR;
+    }
+
+  nxffs_randname(file);
+  nxffs_randfile(file);
+  fd = open(file->name, O_WRONLY, 0666);
+  if (fd < 0)
+    {
+      fprintf(stderr, "Failed to open file: %d\n", errno);
+      fprintf(stderr, "  File name: %s\n", file->name);
+      fprintf(stderr, "  File size: %d\n", file->len);
+      nxffs_freefile(file);
+      return ERROR;
+    }
+
+  for (offset = 0; offset < file->len; )
+    {
+      size_t nbytestowrite = file->len - offset;
+      ssize_t nbyteswritten;
+
+      if (nbytestowrite > CONFIG_EXAMPLES_NXFFS_GULP)
+        {
+          nbytestowrite = CONFIG_EXAMPLES_NXFFS_GULP;
+        }
+
+      nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
+      if (nbyteswritten < 0)
+        {
+          fprintf(stderr, "Failed to write file: %d\n", errno);
+          fprintf(stderr, "  File name:    %s\n", file->name);
+          fprintf(stderr, "  File size:    %d\n", file->len);
+          fprintf(stderr, "  Write offset: %d\n", offset);
+          fprintf(stderr, "  Write size:   %d\n", nbytestowrite);
+          nxffs_freefile(file);
+          close(fd);
+          return ERROR;
+        }
+      else if (nbyteswritten != nbytestowrite)
+        {
+          fprintf(stderr, "Partial write: %d\n");
+          fprintf(stderr, "  File name:    %s\n", file->name);
+          fprintf(stderr, "  File size:    %d\n", file->len);
+          fprintf(stderr, "  Write offset: %d\n", offset);
+          fprintf(stderr, "  Write size:   %d\n", nbytestowrite);
+          fprintf(stderr, "  Written:      %d\n", nbyteswritten);
+        }
+      offset += nbyteswritten;
+    }
+
+  close(fd);
+  g_nfiles++;
+  return OK;
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * user_start
+ * Name: user_start
  ****************************************************************************/
 
 int user_start(int argc, char *argv[])
 {
   FAR struct mtd_dev_s *mtd;
   int ret;
+
+  /* Seed the random number generated */
+
+  srand(0x93846);
 
   /* Create and initialize a RAM MTD device instance */
 
@@ -104,6 +318,24 @@ int user_start(int argc, char *argv[])
     {
       fprintf(stderr, "ERROR: NXFFS initialization failed: %d\n", -ret);
       exit(2);
+    }
+
+  /* Mount the file system */
+
+  ret = mount(NULL, CONFIG_EXAMPLES_NXFFS_MOUNTPT, "nxffs", 0, NULL);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to mount the NXFFS volume: %d\n", errno);
+      exit(3);
+    }
+
+  /* Then write a file to the NXFFS file system */
+
+  ret = nxffs_wrfile();
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to write a file\n");
+      exit(3);
     }
 
   return 0;
