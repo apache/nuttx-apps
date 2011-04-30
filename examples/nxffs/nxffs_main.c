@@ -172,7 +172,7 @@ static inline void nxffs_randname(FAR struct nxffs_filedesc_s *file)
   if (!file->name)
     {
       fprintf(stderr, "ERROR: Failed to allocate name, length=%d\n", namelen);
-      exit(3);
+      exit(5);
     }
 
   memcpy(file->name, g_mountdir, dirlen);
@@ -335,13 +335,19 @@ int user_start(int argc, char *argv[])
       exit(3);
     }
 
-  /* Then write a file to the NXFFS file system */
+  /* Then write a files to the NXFFS file system until either (1) all of the
+   * open file structures are utilized or until (2) NXFFS reports an error
+   * (hopefully that the file system is full)
+   */
 
-  ret = nxffs_wrfile();
-  if (ret < 0)
+  for (;;)
     {
-      fprintf(stderr, "ERROR: Failed to write a file\n");
-      exit(3);
+      ret = nxffs_wrfile();
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: Failed to write a file\n");
+          exit(4);
+        }
     }
 
   return 0;
