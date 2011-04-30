@@ -79,12 +79,17 @@
 #  define CONFIG_EXAMPLES_NXFFS_MAXNAME 128
 #endif
 
+#if CONFIG_EXAMPLES_NXFFS_MAXNAME > 255
+#  undef CONFIG_EXAMPLES_NXFFS_MAXNAME
+#  define CONFIG_EXAMPLES_NXFFS_MAXNAME 255
+#endif
+
 #ifndef CONFIG_EXAMPLES_NXFFS_MAXFILE
 #  define CONFIG_EXAMPLES_NXFFS_MAXFILE 8192
 #endif
 
-#ifndef CONFIG_EXAMPLES_NXFFS_GULP
-#  define CONFIG_EXAMPLES_NXFFS_GULP 347
+#ifndef CONFIG_EXAMPLES_NXFFS_MAXIO
+#  define CONFIG_EXAMPLES_NXFFS_MAXIO 347
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXFFS_MAXOPEN
@@ -248,12 +253,13 @@ static inline int nxffs_wrfile(void)
 
   for (offset = 0; offset < file->len; )
     {
+      size_t maxio = (rand() % CONFIG_EXAMPLES_NXFFS_MAXIO) + 1;
       size_t nbytestowrite = file->len - offset;
       ssize_t nbyteswritten;
 
-      if (nbytestowrite > CONFIG_EXAMPLES_NXFFS_GULP)
+      if (nbytestowrite > maxio)
         {
-          nbytestowrite = CONFIG_EXAMPLES_NXFFS_GULP;
+          nbytestowrite = maxio;
         }
 
       nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
@@ -270,7 +276,7 @@ static inline int nxffs_wrfile(void)
         }
       else if (nbyteswritten != nbytestowrite)
         {
-          fprintf(stderr, "Partial write: %d\n");
+          fprintf(stderr, "Partial write:\n");
           fprintf(stderr, "  File name:    %s\n", file->name);
           fprintf(stderr, "  File size:    %d\n", file->len);
           fprintf(stderr, "  Write offset: %d\n", offset);
