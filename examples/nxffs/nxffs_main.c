@@ -107,6 +107,7 @@
 struct nxffs_filedesc_s
 {
   FAR char *name;
+  bool deleted;
   size_t len;
   uint32_t crc;
 };
@@ -121,6 +122,7 @@ static uint8_t g_fileimage[CONFIG_EXAMPLES_NXFFS_MAXFILE];
 static struct nxffs_filedesc_s g_files[CONFIG_EXAMPLES_NXFFS_MAXOPEN];
 static const char g_mountdir[] = CONFIG_EXAMPLES_NXFFS_MOUNTPT "/";
 static int g_nfiles;
+static int g_ndeleted;
 
 /****************************************************************************
  * Private Functions
@@ -217,39 +219,26 @@ static void nxffs_freefile(FAR struct nxffs_filedesc_s *file)
  * Name: nxffs_wrfile
  ****************************************************************************/
 
-static inline int nxffs_wrfile(void)
+static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
 {
-  struct nxffs_filedesc_s *file = NULL;
   size_t offset;
   int fd;
-  int i;
 
-  for (i = 0; i < CONFIG_EXAMPLES_NXFFS_MAXOPEN; i++)
-    {
-      if (g_files[i].name == NULL)
-        {
-          file = &g_files[i];
-          break;
-        }
-    }
-
-  if (!file)
-    {
-      fprintf(stderr, "No available files\n");
-      return ERROR;
-    }
+  /* Create a random file */
 
   nxffs_randname(file);
   nxffs_randfile(file);
   fd = open(file->name, O_WRONLY, 0666);
   if (fd < 0)
     {
-      fprintf(stderr, "Failed to open file: %d\n", errno);
+      fprintf(stderr, "Failed to open file for writing: %d\n", errno);
       fprintf(stderr, "  File name: %s\n", file->name);
       fprintf(stderr, "  File size: %d\n", file->len);
       nxffs_freefile(file);
       return ERROR;
     }
+
+  /* Write a random amount of data dat the file */
 
   for (offset = 0; offset < file->len; )
     {
@@ -287,7 +276,197 @@ static inline int nxffs_wrfile(void)
     }
 
   close(fd);
-  g_nfiles++;
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nxffs_fillfs
+ ****************************************************************************/
+
+static int nxffs_fillfs(void)
+{
+  FAR struct nxffs_filedesc_s *file;
+  int ret;
+  int i;
+
+  /* Create a file for each unused file structure */
+
+  for (i = 0; i < CONFIG_EXAMPLES_NXFFS_MAXOPEN; i++)
+    {
+      file = &g_files[i];
+      if (file->name == NULL)
+        {
+          ret = nxffs_wrfile(file);
+          if (ret < 0)
+            {
+              fprintf(stderr, "ERROR: Failed to write a file. g_nfiles=%d\n", g_nfiles);
+              return ERROR;
+            }
+
+          g_nfiles++;
+        }
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nxffs_rdblock
+ ****************************************************************************/
+
+static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
+                             size_t offset, size_t len)
+{
+  size_t maxio = (rand() % CONFIG_EXAMPLES_NXFFS_MAXIO) + 1;
+  size_t nbytestoread = len - offset;
+  ssize_t nbytesread;
+
+  if (nbytestoread > maxio)
+    {
+      nbytestoread = maxio;
+    }
+
+  nbytesread = read(fd, &g_fileimage[offset], nbytestoread);
+  if (nbytesread < 0)
+    {
+      fprintf(stderr, "Failed to read file: %d\n", errno);
+      fprintf(stderr, "  File name:    %s\n", file->name);
+      fprintf(stderr, "  File size:    %d\n", file->len);
+      fprintf(stderr, "  Read offset:  %d\n", offset);
+      fprintf(stderr, "  Read size:    %d\n", nbytestoread);
+      return ERROR;
+    }
+  else if (nbytesread != nbytestoread)
+    {
+      fprintf(stderr, "Partial read:\n");
+      fprintf(stderr, "  File name:    %s\n", file->name);
+      fprintf(stderr, "  File size:    %d\n", file->len);
+      fprintf(stderr, "  Read offset:  %d\n", offset);
+      fprintf(stderr, "  Read size:    %d\n", nbytestoread);
+      fprintf(stderr, "  Bytes read:   %d\n", nbytesread);
+    }
+  return nbytesread;
+}
+
+/****************************************************************************
+ * Name: nxffs_rdfile
+ ****************************************************************************/
+
+static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
+{
+  size_t ntotalread;
+  ssize_t nbytesread;
+  uint32_t crc;
+  int fd;
+
+  /* Open the file for reading */
+
+  fd = open(file->name, O_RDONLY);
+  if (fd < 0)
+    {
+      fprintf(stderr, "Failed to open file for reading: %d\n", errno);
+      fprintf(stderr, "  File name: %s\n", file->name);
+      fprintf(stderr, "  File size: %d\n", file->len);
+      return ERROR;
+    }
+
+  /* Read all of the data info the fileimage buffer using random read sizes */
+
+  for (ntotalread =0; ntotalread < file->len; )
+    {
+      nbytesread = nxffs_rdblock(fd, file, ntotalread, file->len - ntotalread);
+      if (nbytesread < 0)
+        {
+          close(fd);
+          return ERROR;
+        }
+
+      ntotalread += nbytesread;
+    }
+
+  /* Verify the file image CRC */
+
+  crc = crc32(g_fileimage, file->len);
+  if (crc != file->crc)
+    {
+      fprintf(stderr, "Bad CRC: %d vs %d\n", crc, file->crc);
+      fprintf(stderr, "  File name: %s\n", file->name);
+      fprintf(stderr, "  File size: %d\n", file->len);
+      close(fd);
+      return ERROR;
+    }
+
+  /* Try reading past the end of the file */
+
+  nbytesread = nxffs_rdblock(fd, file, ntotalread, 1024) ;
+  if (nbytesread >= 0)
+    {
+      fprintf(stderr, "Read past the end of file\n");
+      fprintf(stderr, "  File name: %s\n", file->name);
+      fprintf(stderr, "  File size: %d\n", file->len);
+      close(fd);
+      return ERROR;
+    }
+
+  close(fd);
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nxffs_verifyfs
+ ****************************************************************************/
+
+static int nxffs_verifyfs(void)
+{
+  FAR struct nxffs_filedesc_s *file;
+  int ret;
+  int i;
+
+  /* Create a file for each unused file structure */
+
+  for (i = 0; i < CONFIG_EXAMPLES_NXFFS_MAXOPEN; i++)
+    {
+      file = &g_files[i];
+      if (file->name != NULL)
+        {
+          ret = nxffs_rdfile(file);
+          if (ret < 0)
+            {
+              if (file->deleted)
+                {
+                  fprintf(stderr, "Deleted file %d OK\n", i);
+                  nxffs_freefile(file);
+                  g_ndeleted--;
+                  g_nfiles--;
+                }
+              else
+                {
+                  fprintf(stderr, "Failed to read a file: %d\n", i);
+                  fprintf(stderr, "  File name: %s\n", file->name);
+                  fprintf(stderr, "  File size: %d\n", file->len);
+                  return ERROR;
+                }
+            }
+          else
+            {
+              if (file->deleted)
+                {
+                  fprintf(stderr, "Succesffully read a deleted file\n");
+                  fprintf(stderr, "  File name: %s\n", file->name);
+                  fprintf(stderr, "  File size: %d\n", file->len);
+                  nxffs_freefile(file);
+                  g_ndeleted--;
+                  g_nfiles--;
+                  return ERROR;
+                }
+              else
+                {
+                  fprintf(stderr, "File %d file OK\n", i);
+                }
+            }
+        }
+    }
+
   return OK;
 }
 
@@ -340,14 +519,20 @@ int user_start(int argc, char *argv[])
    * (hopefully that the file system is full)
    */
 
-  for (;;)
+  ret = nxffs_fillfs();
+  fprintf(stderr, "Filled file system\n");
+  fprintf(stderr, "  Number of files: %d\n", g_nfiles);
+  fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
+  nxffs_dump(mtd);
+
+  /* Verify all files written to FLASH */
+
+  ret = nxffs_verifyfs();
+  if (ret < 0)
     {
-      ret = nxffs_wrfile();
-      if (ret < 0)
-        {
-          fprintf(stderr, "ERROR: Failed to write a file\n");
-          exit(4);
-        }
+      fprintf(stderr, "Failed to verify files\n");
+      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
+      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
     }
 
   return 0;
