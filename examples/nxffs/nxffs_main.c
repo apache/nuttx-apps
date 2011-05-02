@@ -228,7 +228,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
 
   nxffs_randname(file);
   nxffs_randfile(file);
-  fd = open(file->name, O_WRONLY, 0666);
+  fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
   if (fd < 0)
     {
       fprintf(stderr, "Failed to open file for writing: %d\n", errno);
@@ -254,7 +254,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
       nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
       if (nbyteswritten < 0)
         {
-          fprintf(stderr, "Failed to write file: %d\n", errno);
+          fprintf(stderr, "ERROR: Failed to write file: %d\n", errno);
           fprintf(stderr, "  File name:    %s\n", file->name);
           fprintf(stderr, "  File size:    %d\n", file->len);
           fprintf(stderr, "  Write offset: %d\n", offset);
@@ -265,7 +265,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
         }
       else if (nbyteswritten != nbytestowrite)
         {
-          fprintf(stderr, "Partial write:\n");
+          fprintf(stderr, "ERROR: Partial write:\n");
           fprintf(stderr, "  File name:    %s\n", file->name);
           fprintf(stderr, "  File size:    %d\n", file->len);
           fprintf(stderr, "  Write offset: %d\n", offset);
@@ -328,7 +328,7 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
   nbytesread = read(fd, &g_fileimage[offset], len);
   if (nbytesread < 0)
     {
-      fprintf(stderr, "Failed to read file: %d\n", errno);
+      fprintf(stderr, "ERROR: Failed to read file: %d\n", errno);
       fprintf(stderr, "  File name:    %s\n", file->name);
       fprintf(stderr, "  File size:    %d\n", file->len);
       fprintf(stderr, "  Read offset:  %d\n", offset);
@@ -338,7 +338,7 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
   else if (nbytesread == 0)
     {
 #if 0 /* No... we do this on purpose sometimes */
-      fprintf(stderr, "Unexpected end-of-file:\n");
+      fprintf(stderr, "ERROR: Unexpected end-of-file:\n");
       fprintf(stderr, "  File name:    %s\n", file->name);
       fprintf(stderr, "  File size:    %d\n", file->len);
       fprintf(stderr, "  Read offset:  %d\n", offset);
@@ -348,7 +348,7 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
     }
   else if (nbytesread != len)
     {
-      fprintf(stderr, "Partial read:\n");
+      fprintf(stderr, "ERROR: Partial read:\n");
       fprintf(stderr, "  File name:    %s\n", file->name);
       fprintf(stderr, "  File size:    %d\n", file->len);
       fprintf(stderr, "  Read offset:  %d\n", offset);
@@ -374,7 +374,7 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   fd = open(file->name, O_RDONLY);
   if (fd < 0)
     {
-      fprintf(stderr, "Failed to open file for reading: %d\n", errno);
+      fprintf(stderr, "ERROR: Failed to open file for reading: %d\n", errno);
       fprintf(stderr, "  File name: %s\n", file->name);
       fprintf(stderr, "  File size: %d\n", file->len);
       return ERROR;
@@ -399,7 +399,7 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      fprintf(stderr, "Bad CRC: %d vs %d\n", crc, file->crc);
+      fprintf(stderr, "ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
       fprintf(stderr, "  File name: %s\n", file->name);
       fprintf(stderr, "  File size: %d\n", file->len);
       close(fd);
@@ -411,7 +411,7 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   nbytesread = nxffs_rdblock(fd, file, ntotalread, 1024) ;
   if (nbytesread > 0)
     {
-      fprintf(stderr, "Read past the end of file\n");
+      fprintf(stderr, "ERROR: Read past the end of file\n");
       fprintf(stderr, "  File name:  %s\n", file->name);
       fprintf(stderr, "  File size:  %d\n", file->len);
       fprintf(stderr, "  Bytes read: %d\n", nbytesread);
@@ -452,7 +452,7 @@ static int nxffs_verifyfs(void)
                 }
               else
                 {
-                  fprintf(stderr, "Failed to read a file: %d\n", i);
+                  fprintf(stderr, "ERROR: Failed to read a file: %d\n", i);
                   fprintf(stderr, "  File name: %s\n", file->name);
                   fprintf(stderr, "  File size: %d\n", file->len);
                   return ERROR;
@@ -541,7 +541,7 @@ int user_start(int argc, char *argv[])
   ret = nxffs_verifyfs();
   if (ret < 0)
     {
-      fprintf(stderr, "Failed to verify files\n");
+      fprintf(stderr, "ERROR: Failed to verify files\n");
       fprintf(stderr, "  Number of files: %d\n", g_nfiles);
       fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
     }
