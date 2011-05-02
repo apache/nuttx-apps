@@ -318,31 +318,41 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
                              size_t offset, size_t len)
 {
   size_t maxio = (rand() % CONFIG_EXAMPLES_NXFFS_MAXIO) + 1;
-  size_t nbytestoread = len - offset;
   ssize_t nbytesread;
 
-  if (nbytestoread > maxio)
+  if (len > maxio)
     {
-      nbytestoread = maxio;
+      len = maxio;
     }
 
-  nbytesread = read(fd, &g_fileimage[offset], nbytestoread);
+  nbytesread = read(fd, &g_fileimage[offset], len);
   if (nbytesread < 0)
     {
       fprintf(stderr, "Failed to read file: %d\n", errno);
       fprintf(stderr, "  File name:    %s\n", file->name);
       fprintf(stderr, "  File size:    %d\n", file->len);
       fprintf(stderr, "  Read offset:  %d\n", offset);
-      fprintf(stderr, "  Read size:    %d\n", nbytestoread);
+      fprintf(stderr, "  Read size:    %d\n", len);
       return ERROR;
     }
-  else if (nbytesread != nbytestoread)
+  else if (nbytesread == 0)
+    {
+#if 0 /* No... we do this on purpose sometimes */
+      fprintf(stderr, "Unexpected end-of-file:\n");
+      fprintf(stderr, "  File name:    %s\n", file->name);
+      fprintf(stderr, "  File size:    %d\n", file->len);
+      fprintf(stderr, "  Read offset:  %d\n", offset);
+      fprintf(stderr, "  Read size:    %d\n", len);
+#endif
+      return ERROR;
+    }
+  else if (nbytesread != len)
     {
       fprintf(stderr, "Partial read:\n");
       fprintf(stderr, "  File name:    %s\n", file->name);
       fprintf(stderr, "  File size:    %d\n", file->len);
       fprintf(stderr, "  Read offset:  %d\n", offset);
-      fprintf(stderr, "  Read size:    %d\n", nbytestoread);
+      fprintf(stderr, "  Read size:    %d\n", len);
       fprintf(stderr, "  Bytes read:   %d\n", nbytesread);
     }
   return nbytesread;
@@ -372,7 +382,7 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
 
   /* Read all of the data info the fileimage buffer using random read sizes */
 
-  for (ntotalread =0; ntotalread < file->len; )
+  for (ntotalread = 0; ntotalread < file->len; )
     {
       nbytesread = nxffs_rdblock(fd, file, ntotalread, file->len - ntotalread);
       if (nbytesread < 0)
@@ -399,11 +409,12 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   /* Try reading past the end of the file */
 
   nbytesread = nxffs_rdblock(fd, file, ntotalread, 1024) ;
-  if (nbytesread >= 0)
+  if (nbytesread > 0)
     {
       fprintf(stderr, "Read past the end of file\n");
-      fprintf(stderr, "  File name: %s\n", file->name);
-      fprintf(stderr, "  File size: %d\n", file->len);
+      fprintf(stderr, "  File name:  %s\n", file->name);
+      fprintf(stderr, "  File size:  %d\n", file->len);
+      fprintf(stderr, "  Bytes read: %d\n", nbytesread);
       close(fd);
       return ERROR;
     }
@@ -461,7 +472,7 @@ static int nxffs_verifyfs(void)
                 }
               else
                 {
-                  fprintf(stderr, "File %d file OK\n", i);
+                  fprintf(stderr, "File %d: OK\n", i);
                 }
             }
         }
