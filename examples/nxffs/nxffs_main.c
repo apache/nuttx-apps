@@ -374,9 +374,12 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   fd = open(file->name, O_RDONLY);
   if (fd < 0)
     {
-      fprintf(stderr, "ERROR: Failed to open file for reading: %d\n", errno);
-      fprintf(stderr, "  File name: %s\n", file->name);
-      fprintf(stderr, "  File size: %d\n", file->len);
+      if (!file->deleted)
+        {
+          fprintf(stderr, "ERROR: Failed to open file for reading: %d\n", errno);
+          fprintf(stderr, "  File name: %s\n", file->name);
+          fprintf(stderr, "  File size: %d\n", file->len);
+        }
       return ERROR;
     }
 
@@ -482,6 +485,63 @@ static int nxffs_verifyfs(void)
 }
 
 /****************************************************************************
+ * Name: nxffs_delfiles
+ ****************************************************************************/
+
+static int nxffs_delfiles(void)
+{
+  FAR struct nxffs_filedesc_s *file;
+  int ndel;
+  int ret;
+  int i;
+  int j;
+
+  /* How many files should we delete? */
+
+  ndel = (rand() % (g_nfiles - g_ndeleted)) + 1;
+
+  /* Now pick which files to delete */
+
+  for (i = 0; i < ndel; i++)
+    {
+      /* Guess a file index */
+
+      int ndx = (rand() % (g_nfiles - g_ndeleted));
+
+      /* And delete the next undeleted file after that random index */
+
+      for (j = ndx + 1; j != ndx; j++)
+        {
+          if (j >= CONFIG_EXAMPLES_NXFFS_MAXOPEN)
+            {
+              j = 0;
+            }
+
+          file = &g_files[j];
+          if (file->name && !file->deleted)
+            {
+              ret = unlink(file->name);
+              if (ret < 0)
+                {
+                  fprintf(stderr, "ERROR: Unlink %d failed: %d\n", i+1, errno);
+                  fprintf(stderr, "  File name:  %s\n", file->name);
+                  fprintf(stderr, "  File size:  %d\n", file->len);
+                  fprintf(stderr, "  File index: %d\n", j);
+                }
+              else
+                {
+                   file->deleted = true;
+                   g_ndeleted++;
+                   break;
+                }
+            }
+        }
+    }
+
+  return OK;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -532,6 +592,31 @@ int user_start(int argc, char *argv[])
 
   ret = nxffs_fillfs();
   fprintf(stderr, "Filled file system\n");
+  fprintf(stderr, "  Number of files: %d\n", g_nfiles);
+  fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
+  nxffs_dump(mtd);
+
+  /* Verify all files written to FLASH */
+
+  ret = nxffs_verifyfs();
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to verify files\n");
+      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
+      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
+    }
+
+  /* Delete some files */
+
+  ret = nxffs_delfiles();
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to delete files\n");
+    }
+  else
+    {
+      fprintf(stderr, "Deleted some files\n");
+    }
   fprintf(stderr, "  Number of files: %d\n", g_nfiles);
   fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
   nxffs_dump(mtd);
