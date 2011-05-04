@@ -46,9 +46,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <string.h>
 #include <errno.h>
 #include <crc32.h>
+#include <debug.h>
 
 #include <nuttx/mtd.h>
 #include <nuttx/nxffs.h>
@@ -98,6 +100,22 @@
 
 #ifndef CONFIG_EXAMPLES_NXFFS_MOUNTPT
 #  define CONFIG_EXAMPLES_NXFFS_MOUNTPT "/mnt/nxffs"
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXFFS_NLOOPS
+#  define CONFIG_EXAMPLES_NXFFS_NLOOPS 2
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXFFS_VERBOSE
+#  define CONFIG_EXAMPLES_NXFFS_VERBOSE 0
+#endif
+
+#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_FS)
+#  define message    lib_rawprintf
+#  define msgflush()
+#else
+#  define message    printf
+#  define msgflush() fflush(stdout);
 #endif
 
 /****************************************************************************
@@ -173,7 +191,8 @@ static inline void nxffs_randname(FAR struct nxffs_filedesc_s *file)
   file->name = (FAR char*)malloc(alloclen + 1);
   if (!file->name)
     {
-      fprintf(stderr, "ERROR: Failed to allocate name, length=%d\n", namelen);
+      message("ERROR: Failed to allocate name, length=%d\n", namelen);
+      msgflush();
       exit(5);
     }
 
@@ -232,9 +251,9 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
   fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
   if (fd < 0)
     {
-      fprintf(stderr, "Failed to open file for writing: %d\n", errno);
-      fprintf(stderr, "  File name: %s\n", file->name);
-      fprintf(stderr, "  File size: %d\n", file->len);
+      message("ERROR: Failed to open file for writing: %d\n", errno);
+      message("  File name: %s\n", file->name);
+      message("  File size: %d\n", file->len);
       nxffs_freefile(file);
       return ERROR;
     }
@@ -255,11 +274,11 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
       nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
       if (nbyteswritten < 0)
         {
-          fprintf(stderr, "ERROR: Failed to write file: %d\n", errno);
-          fprintf(stderr, "  File name:    %s\n", file->name);
-          fprintf(stderr, "  File size:    %d\n", file->len);
-          fprintf(stderr, "  Write offset: %d\n", offset);
-          fprintf(stderr, "  Write size:   %d\n", nbytestowrite);
+          message("ERROR: Failed to write file: %d\n", errno);
+          message("  File name:    %s\n", file->name);
+          message("  File size:    %d\n", file->len);
+          message("  Write offset: %d\n", offset);
+          message("  Write size:   %d\n", nbytestowrite);
           close(fd);
 
           /* Remove any garbage file that might have been left behind */
@@ -267,11 +286,11 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
           ret = unlink(file->name);
           if (ret < 0)
             {
-              fprintf(stderr, "  Failed to remove corrupted file\n");
+              message("  Failed to remove corrupted file\n");
             }
           else
             {
-              fprintf(stderr, "  Successfully removed corrupted file\n");
+              message("  Successfully removed corrupted file\n");
             }
 
           nxffs_freefile(file);
@@ -279,12 +298,12 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
         }
       else if (nbyteswritten != nbytestowrite)
         {
-          fprintf(stderr, "ERROR: Partial write:\n");
-          fprintf(stderr, "  File name:    %s\n", file->name);
-          fprintf(stderr, "  File size:    %d\n", file->len);
-          fprintf(stderr, "  Write offset: %d\n", offset);
-          fprintf(stderr, "  Write size:   %d\n", nbytestowrite);
-          fprintf(stderr, "  Written:      %d\n", nbyteswritten);
+          message("ERROR: Partial write:\n");
+          message("  File name:    %s\n", file->name);
+          message("  File size:    %d\n", file->len);
+          message("  Write offset: %d\n", offset);
+          message("  Write size:   %d\n", nbytestowrite);
+          message("  Written:      %d\n", nbyteswritten);
         }
       offset += nbyteswritten;
     }
@@ -313,7 +332,7 @@ static int nxffs_fillfs(void)
           ret = nxffs_wrfile(file);
           if (ret < 0)
             {
-              fprintf(stderr, "ERROR: Failed to write a file. g_nfiles=%d\n", g_nfiles);
+              message("ERROR: Failed to write file %d\n", i);
               return ERROR;
             }
 
@@ -342,32 +361,32 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
   nbytesread = read(fd, &g_fileimage[offset], len);
   if (nbytesread < 0)
     {
-      fprintf(stderr, "ERROR: Failed to read file: %d\n", errno);
-      fprintf(stderr, "  File name:    %s\n", file->name);
-      fprintf(stderr, "  File size:    %d\n", file->len);
-      fprintf(stderr, "  Read offset:  %d\n", offset);
-      fprintf(stderr, "  Read size:    %d\n", len);
+      message("ERROR: Failed to read file: %d\n", errno);
+      message("  File name:    %s\n", file->name);
+      message("  File size:    %d\n", file->len);
+      message("  Read offset:  %d\n", offset);
+      message("  Read size:    %d\n", len);
       return ERROR;
     }
   else if (nbytesread == 0)
     {
 #if 0 /* No... we do this on purpose sometimes */
-      fprintf(stderr, "ERROR: Unexpected end-of-file:\n");
-      fprintf(stderr, "  File name:    %s\n", file->name);
-      fprintf(stderr, "  File size:    %d\n", file->len);
-      fprintf(stderr, "  Read offset:  %d\n", offset);
-      fprintf(stderr, "  Read size:    %d\n", len);
+      message("ERROR: Unexpected end-of-file:\n");
+      message("  File name:    %s\n", file->name);
+      message("  File size:    %d\n", file->len);
+      message("  Read offset:  %d\n", offset);
+      message("  Read size:    %d\n", len);
 #endif
       return ERROR;
     }
   else if (nbytesread != len)
     {
-      fprintf(stderr, "ERROR: Partial read:\n");
-      fprintf(stderr, "  File name:    %s\n", file->name);
-      fprintf(stderr, "  File size:    %d\n", file->len);
-      fprintf(stderr, "  Read offset:  %d\n", offset);
-      fprintf(stderr, "  Read size:    %d\n", len);
-      fprintf(stderr, "  Bytes read:   %d\n", nbytesread);
+      message("ERROR: Partial read:\n");
+      message("  File name:    %s\n", file->name);
+      message("  File size:    %d\n", file->len);
+      message("  Read offset:  %d\n", offset);
+      message("  Read size:    %d\n", len);
+      message("  Bytes read:   %d\n", nbytesread);
     }
   return nbytesread;
 }
@@ -390,9 +409,9 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
     {
       if (!file->deleted)
         {
-          fprintf(stderr, "ERROR: Failed to open file for reading: %d\n", errno);
-          fprintf(stderr, "  File name: %s\n", file->name);
-          fprintf(stderr, "  File size: %d\n", file->len);
+          message("ERROR: Failed to open file for reading: %d\n", errno);
+          message("  File name: %s\n", file->name);
+          message("  File size: %d\n", file->len);
         }
       return ERROR;
     }
@@ -416,9 +435,9 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      fprintf(stderr, "ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
-      fprintf(stderr, "  File name: %s\n", file->name);
-      fprintf(stderr, "  File size: %d\n", file->len);
+      message("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      message("  File name: %s\n", file->name);
+      message("  File size: %d\n", file->len);
       close(fd);
       return ERROR;
     }
@@ -428,10 +447,10 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   nbytesread = nxffs_rdblock(fd, file, ntotalread, 1024) ;
   if (nbytesread > 0)
     {
-      fprintf(stderr, "ERROR: Read past the end of file\n");
-      fprintf(stderr, "  File name:  %s\n", file->name);
-      fprintf(stderr, "  File size:  %d\n", file->len);
-      fprintf(stderr, "  Bytes read: %d\n", nbytesread);
+      message("ERROR: Read past the end of file\n");
+      message("  File name:  %s\n", file->name);
+      message("  File size:  %d\n", file->len);
+      message("  Bytes read: %d\n", nbytesread);
       close(fd);
       return ERROR;
     }
@@ -462,16 +481,18 @@ static int nxffs_verifyfs(void)
             {
               if (file->deleted)
                 {
-                  fprintf(stderr, "Deleted file %d OK\n", i);
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+                  message("Deleted file %d OK\n", i);
+#endif
                   nxffs_freefile(file);
                   g_ndeleted--;
                   g_nfiles--;
                 }
               else
                 {
-                  fprintf(stderr, "ERROR: Failed to read a file: %d\n", i);
-                  fprintf(stderr, "  File name: %s\n", file->name);
-                  fprintf(stderr, "  File size: %d\n", file->len);
+                  message("ERROR: Failed to read a file: %d\n", i);
+                  message("  File name: %s\n", file->name);
+                  message("  File size: %d\n", file->len);
                   return ERROR;
                 }
             }
@@ -479,9 +500,11 @@ static int nxffs_verifyfs(void)
             {
               if (file->deleted)
                 {
-                  fprintf(stderr, "Succesffully read a deleted file\n");
-                  fprintf(stderr, "  File name: %s\n", file->name);
-                  fprintf(stderr, "  File size: %d\n", file->len);
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+                  message("Succesffully read a deleted file\n");
+                  message("  File name: %s\n", file->name);
+                  message("  File size: %d\n", file->len);
+#endif
                   nxffs_freefile(file);
                   g_ndeleted--;
                   g_nfiles--;
@@ -489,7 +512,9 @@ static int nxffs_verifyfs(void)
                 }
               else
                 {
-                  fprintf(stderr, "File %d: OK\n", i);
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+                  message("File %d: OK\n", i);
+#endif
                 }
             }
         }
@@ -532,10 +557,10 @@ static int nxffs_delfiles(void)
               ret = unlink(file->name);
               if (ret < 0)
                 {
-                  fprintf(stderr, "ERROR: Unlink %d failed: %d\n", i+1, errno);
-                  fprintf(stderr, "  File name:  %s\n", file->name);
-                  fprintf(stderr, "  File size:  %d\n", file->len);
-                  fprintf(stderr, "  File index: %d\n", j);
+                  message("ERROR: Unlink %d failed: %d\n", i+1, errno);
+                  message("  File name:  %s\n", file->name);
+                  message("  File size:  %d\n", file->len);
+                  message("  File index: %d\n", j);
                 }
               else
                 {
@@ -555,6 +580,51 @@ static int nxffs_delfiles(void)
         }
     }
 
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nxffs_directory
+ ****************************************************************************/
+
+static int nxffs_directory(void)
+{
+  DIR *dirp;
+  FAR struct dirent *entryp;
+  int number;
+
+  /* Open the directory */
+
+  dirp = opendir(CONFIG_EXAMPLES_NXFFS_MOUNTPT);
+
+  if (!dirp)
+    {
+      /* Failed to open the directory */
+
+      message("ERROR: Failed to open directory '%s': %d\n",
+              CONFIG_EXAMPLES_NXFFS_MOUNTPT, errno);
+      return ERROR;
+    }
+
+  /* Read each directory entry */
+
+  message("Directory:\n");
+  number = 1;
+  do
+    {
+      entryp = readdir(dirp);
+      if (entryp)
+        {
+          message("%2d. Type[%d]: %s Name: %s\n",
+                  number, entryp->d_type,
+                  entryp->d_type == DTYPE_FILE ? "File " : "Error",
+                  entryp->d_name);
+        }
+      number++;
+    }
+  while (entryp != NULL);
+
+  closedir(dirp);
   return OK;
 }
 
@@ -581,7 +651,8 @@ int user_start(int argc, char *argv[])
   mtd = rammtd_initialize(g_simflash, CONFIG_EXAMPLES_NXFFS_BUFSIZE);
   if (!mtd)
     {
-      fprintf(stderr, "ERROR: Failed to create RAM MTD instance\n");
+      message("ERROR: Failed to create RAM MTD instance\n");
+      msgflush();
       exit(1);
     }
 
@@ -590,7 +661,8 @@ int user_start(int argc, char *argv[])
   ret = nxffs_initialize(mtd);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: NXFFS initialization failed: %d\n", -ret);
+      message("ERROR: NXFFS initialization failed: %d\n", -ret);
+      msgflush();
       exit(2);
     }
 
@@ -599,7 +671,8 @@ int user_start(int argc, char *argv[])
   ret = mount(NULL, CONFIG_EXAMPLES_NXFFS_MOUNTPT, "nxffs", 0, NULL);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: Failed to mount the NXFFS volume: %d\n", errno);
+      message("ERROR: Failed to mount the NXFFS volume: %d\n", errno);
+      msgflush();
       exit(3);
     }
 
@@ -608,64 +681,89 @@ int user_start(int argc, char *argv[])
    * delete, etc.  This beats the FLASH very hard!
    */
 
-  for (i = 0; i < 2; i++)
+#if CONFIG_EXAMPLES_NXFFS_NLOOPS == 0
+  for (;;)
+#else
+  for (i = 1; i <= CONFIG_EXAMPLES_NXFFS_NLOOPS; i++)
+#endif
     {
       /* Write a files to the NXFFS file system until either (1) all of the
        * open file structures are utilized or until (2) NXFFS reports an error
        * (hopefully that the file system is full)
        */
 
+      message("=== FILLING %d =============================\n", i);
       ret = nxffs_fillfs();
-      fprintf(stderr, "Filled file system\n");
-      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
-      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
-      nxffs_dump(mtd);
+      message("Filled file system\n");
+      message("  Number of files: %d\n", g_nfiles);
+      message("  Number deleted:  %d\n", g_ndeleted);
+      nxffs_dump(mtd, CONFIG_EXAMPLES_NXFFS_VERBOSE);
+
+      /* Directory listing */
+
+      nxffs_directory();
 
       /* Verify all files written to FLASH */
 
       ret = nxffs_verifyfs();
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR: Failed to verify files\n");
+          message("ERROR: Failed to verify files\n");
+          message("  Number of files: %d\n", g_nfiles);
+          message("  Number deleted:  %d\n", g_ndeleted);
+          nxffs_dump(mtd, true);
         }
       else
         {
-          fprintf(stderr, "Verified!\n");
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+          message("Verified!\n");
+          message("  Number of files: %d\n", g_nfiles);
+          message("  Number deleted:  %d\n", g_ndeleted);
+#endif
         }
-
-      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
-      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
 
       /* Delete some files */
 
+      message("=== DELETING %d ============================\n", i);
       ret = nxffs_delfiles();
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR: Failed to delete files\n");
+          message("ERROR: Failed to delete files\n");
+          message("  Number of files: %d\n", g_nfiles);
+          message("  Number deleted:  %d\n", g_ndeleted);
         }
       else
         {
-          fprintf(stderr, "Deleted some files\n");
+          message("Deleted some files\n");
+          message("  Number of files: %d\n", g_nfiles);
+          message("  Number deleted:  %d\n", g_ndeleted);
         }
+      nxffs_dump(mtd, CONFIG_EXAMPLES_NXFFS_VERBOSE);
 
-      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
-      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
-      nxffs_dump(mtd);
+      /* Directory listing */
+
+      nxffs_directory();
 
       /* Verify all files written to FLASH */
 
       ret = nxffs_verifyfs();
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR: Failed to verify files\n");
+          message("ERROR: Failed to verify files\n");
+          message("  Number of files: %d\n", g_nfiles);
+          message("  Number deleted:  %d\n", g_ndeleted);
+          nxffs_dump(mtd, true);
         }
       else
         {
-          fprintf(stderr, "Verified!\n");
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+          message("Verified!\n");
+          message("  Number of files: %d\n", g_nfiles);
+          message("  Number deleted:  %d\n", g_ndeleted);
+#endif
         }
 
-      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
-      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
+      msgflush();
     }
 
   return 0;
