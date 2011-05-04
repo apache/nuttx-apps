@@ -223,6 +223,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
 {
   size_t offset;
   int fd;
+  int ret;
 
   /* Create a random file */
 
@@ -259,8 +260,21 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
           fprintf(stderr, "  File size:    %d\n", file->len);
           fprintf(stderr, "  Write offset: %d\n", offset);
           fprintf(stderr, "  Write size:   %d\n", nbytestowrite);
-          nxffs_freefile(file);
           close(fd);
+
+          /* Remove any garbage file that might have been left behind */
+
+          ret = unlink(file->name);
+          if (ret < 0)
+            {
+              fprintf(stderr, "  Failed to remove corrupted file\n");
+            }
+          else
+            {
+              fprintf(stderr, "  Successfully removed corrupted file\n");
+            }
+
+          nxffs_freefile(file);
           return ERROR;
         }
       else if (nbyteswritten != nbytestowrite)
@@ -510,13 +524,8 @@ static int nxffs_delfiles(void)
 
       /* And delete the next undeleted file after that random index */
 
-      for (j = ndx + 1; j != ndx; j++)
+      for (j = ndx + 1; j != ndx;)
         {
-          if (j >= CONFIG_EXAMPLES_NXFFS_MAXOPEN)
-            {
-              j = 0;
-            }
-
           file = &g_files[j];
           if (file->name && !file->deleted)
             {
@@ -535,6 +544,14 @@ static int nxffs_delfiles(void)
                    break;
                 }
             }
+
+          /* Increment the index and test for wrap-around */
+
+          if (++j >= CONFIG_EXAMPLES_NXFFS_MAXOPEN)
+            {
+              j = 0;
+            }
+
         }
     }
 
