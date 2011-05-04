@@ -553,6 +553,7 @@ int user_start(int argc, char *argv[])
 {
   FAR struct mtd_dev_s *mtd;
   int ret;
+  int i;
 
   /* Seed the random number generated */
 
@@ -585,48 +586,67 @@ int user_start(int argc, char *argv[])
       exit(3);
     }
 
-  /* Then write a files to the NXFFS file system until either (1) all of the
-   * open file structures are utilized or until (2) NXFFS reports an error
-   * (hopefully that the file system is full)
+  /* Loop a few times ... file the file system with some random, files,
+   * delete some files randomly, fill the file system with more random file,
+   * delete, etc.  This beats the FLASH very hard!
    */
 
-  ret = nxffs_fillfs();
-  fprintf(stderr, "Filled file system\n");
-  fprintf(stderr, "  Number of files: %d\n", g_nfiles);
-  fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
-  nxffs_dump(mtd);
-
-  /* Verify all files written to FLASH */
-
-  ret = nxffs_verifyfs();
-  if (ret < 0)
+  for (i = 0; i < 2; i++)
     {
-      fprintf(stderr, "ERROR: Failed to verify files\n");
+      /* Write a files to the NXFFS file system until either (1) all of the
+       * open file structures are utilized or until (2) NXFFS reports an error
+       * (hopefully that the file system is full)
+       */
+
+      ret = nxffs_fillfs();
+      fprintf(stderr, "Filled file system\n");
       fprintf(stderr, "  Number of files: %d\n", g_nfiles);
       fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
-    }
+      nxffs_dump(mtd);
 
-  /* Delete some files */
+      /* Verify all files written to FLASH */
 
-  ret = nxffs_delfiles();
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to delete files\n");
-    }
-  else
-    {
-      fprintf(stderr, "Deleted some files\n");
-    }
-  fprintf(stderr, "  Number of files: %d\n", g_nfiles);
-  fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
-  nxffs_dump(mtd);
+      ret = nxffs_verifyfs();
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: Failed to verify files\n");
+        }
+      else
+        {
+          fprintf(stderr, "Verified!\n");
+        }
 
-  /* Verify all files written to FLASH */
+      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
+      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
 
-  ret = nxffs_verifyfs();
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to verify files\n");
+      /* Delete some files */
+
+      ret = nxffs_delfiles();
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: Failed to delete files\n");
+        }
+      else
+        {
+          fprintf(stderr, "Deleted some files\n");
+        }
+
+      fprintf(stderr, "  Number of files: %d\n", g_nfiles);
+      fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
+      nxffs_dump(mtd);
+
+      /* Verify all files written to FLASH */
+
+      ret = nxffs_verifyfs();
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: Failed to verify files\n");
+        }
+      else
+        {
+          fprintf(stderr, "Verified!\n");
+        }
+
       fprintf(stderr, "  Number of files: %d\n", g_nfiles);
       fprintf(stderr, "  Number deleted:  %d\n", g_ndeleted);
     }
