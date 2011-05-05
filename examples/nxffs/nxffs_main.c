@@ -103,7 +103,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXFFS_NLOOPS
-#  define CONFIG_EXAMPLES_NXFFS_NLOOPS 3
+#  define CONFIG_EXAMPLES_NXFFS_NLOOPS 10
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXFFS_VERBOSE
@@ -336,7 +336,10 @@ static int nxffs_fillfs(void)
               return ERROR;
             }
 
-          g_nfiles++;
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+         message("  Created file %s\n", file->name);
+#endif
+         g_nfiles++;
         }
     }
 
@@ -513,7 +516,7 @@ static int nxffs_verifyfs(void)
               else
                 {
 #if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
-                  message("File %d: OK\n", i);
+                  message("  Verifed file %s\n", file->name);
 #endif
                 }
             }
@@ -564,9 +567,12 @@ static int nxffs_delfiles(void)
                 }
               else
                 {
-                   file->deleted = true;
-                   g_ndeleted++;
-                   break;
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+                  message("  Deleted file %s\n", file->name);
+#endif
+                  file->deleted = true;
+                  g_ndeleted++;
+                  break;
                 }
             }
 
@@ -711,7 +717,6 @@ int user_start(int argc, char *argv[])
           message("ERROR: Failed to verify files\n");
           message("  Number of files: %d\n", g_nfiles);
           message("  Number deleted:  %d\n", g_ndeleted);
-          nxffs_dump(mtd, true);
         }
       else
         {
@@ -752,7 +757,6 @@ int user_start(int argc, char *argv[])
           message("ERROR: Failed to verify files\n");
           message("  Number of files: %d\n", g_nfiles);
           message("  Number deleted:  %d\n", g_ndeleted);
-          nxffs_dump(mtd, true);
         }
       else
         {
