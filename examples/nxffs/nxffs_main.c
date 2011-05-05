@@ -142,9 +142,72 @@ static const char g_mountdir[] = CONFIG_EXAMPLES_NXFFS_MOUNTPT "/";
 static int g_nfiles;
 static int g_ndeleted;
 
+static struct mallinfo g_mmbefore;
+static struct mallinfo g_mmprevious;
+static struct mallinfo g_mmafter;
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: nxffs_memusage
+ ****************************************************************************/
+
+static void nxffs_showmemusage(struct mallinfo *mmbefore,
+                               struct mallinfo *mmafter)
+{
+  message("VARIABLE  BEFORE   AFTER\n");
+  message("======== ======== ========\n");
+  message("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
+  message("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
+  message("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
+  message("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
+  message("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+}
+
+/****************************************************************************
+ * Name: nxffs_loopmemusage
+ ****************************************************************************/
+
+static void nxffs_loopmemusage(void)
+{
+  /* Get the current memory usage */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmafter = mallinfo();
+#else
+  (void)mallinfo(&g_mmafter);
+#endif
+
+  /* Show the change from the previous loop */
+
+  message("\nEnd of loop memory usage:\n");
+  nxffs_showmemusage(&g_mmprevious, &g_mmafter);
+
+  /* Set up for the next test */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmprevious = g_mmafter;
+#else
+  memcpy(&g_mmprevious, &g_mmafter, sizeof(struct mallinfo));
+#endif
+}
+
+/****************************************************************************
+ * Name: nxffs_endmemusage
+ ****************************************************************************/
+
+static void nxffs_endmemusage(void)
+{
+#ifdef CONFIG_CAN_PASS_STRUCTS
+      g_mmafter = mallinfo();
+#else
+      (void)mallinfo(&g_mmafter);
+#endif
+      message("\nFinal memory usage:\n");
+      nxffs_showmemusage(&g_mmbefore, &g_mmafter);
+}
 
 /****************************************************************************
  * Name: nxffs_randchar
@@ -265,7 +328,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
       return ERROR;
     }
 
-  /* Write a random amount of data dat the file */
+  /* Write a random amount of data to the file */
 
   for (offset = 0; offset < file->len; )
     {
@@ -611,6 +674,44 @@ static int nxffs_delfiles(void)
 }
 
 /****************************************************************************
+ * Name: nxffs_delallfiles
+ ****************************************************************************/
+
+static int nxffs_delallfiles(void)
+{
+  FAR struct nxffs_filedesc_s *file;
+  int ret;
+  int i;
+
+  for (i = 0; i < CONFIG_EXAMPLES_NXFFS_MAXOPEN; i++)
+    {
+      file = &g_files[i];
+      if (file->name)
+        {
+          ret = unlink(file->name);
+          if (ret < 0)
+            {
+               message("ERROR: Unlink %d failed: %d\n", i+1, errno);
+               message("  File name:  %s\n", file->name);
+               message("  File size:  %d\n", file->len);
+               message("  File index: %d\n", i);
+            }
+          else
+            {
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+              message("  Deleted file %s\n", file->name);
+#endif
+              nxffs_freefile(file);
+            }
+        }
+    }
+
+  g_nfiles = 0;
+  g_ndeleted = 0;
+  return OK;
+}
+
+/****************************************************************************
  * Name: nxffs_directory
  ****************************************************************************/
 
@@ -703,6 +804,16 @@ int user_start(int argc, char *argv[])
       exit(3);
     }
 
+  /* Set up memory monitoring */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmbefore = mallinfo();
+  g_mmprevious = g_mmbefore;
+#else
+  (void)mallinfo(&g_mmbefore);
+  memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
+#endif
+
   /* Loop a few times ... file the file system with some random, files,
    * delete some files randomly, fill the file system with more random file,
    * delete, etc.  This beats the FLASH very hard!
@@ -719,7 +830,7 @@ int user_start(int argc, char *argv[])
        * (hopefully that the file system is full)
        */
 
-      message("=== FILLING %d =============================\n", i);
+      message("\n=== FILLING %d =============================\n", i);
       ret = nxffs_fillfs();
       message("Filled file system\n");
       message("  Number of files: %d\n", g_nfiles);
@@ -750,7 +861,7 @@ int user_start(int argc, char *argv[])
 
       /* Delete some files */
 
-      message("=== DELETING %d ============================\n", i);
+      message("\n=== DELETING %d ============================\n", i);
       ret = nxffs_delfiles();
       if (ret < 0)
         {
@@ -788,9 +899,17 @@ int user_start(int argc, char *argv[])
 #endif
         }
 
+      /* Show memory usage */
+
+      nxffs_loopmemusage();
       msgflush();
     }
 
+  /* Delete all files then show memory usage again */
+
+  nxffs_delallfiles();
+  nxffs_endmemusage();
+  msgflush();
   return 0;
 }
 
