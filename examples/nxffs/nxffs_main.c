@@ -251,9 +251,16 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
   fd = open(file->name, O_WRONLY | O_CREAT | O_EXCL, 0666);
   if (fd < 0)
     {
-      message("ERROR: Failed to open file for writing: %d\n", errno);
-      message("  File name: %s\n", file->name);
-      message("  File size: %d\n", file->len);
+      /* If it failed because there is no space on the device, then don't
+       * complain.
+       */
+
+      if (errno != ENOSPC)
+        {
+          message("ERROR: Failed to open file for writing: %d\n", errno);
+          message("  File name: %s\n", file->name);
+          message("  File size: %d\n", file->len);
+        }
       nxffs_freefile(file);
       return ERROR;
     }
@@ -274,11 +281,21 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
       nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
       if (nbyteswritten < 0)
         {
-          message("ERROR: Failed to write file: %d\n", errno);
-          message("  File name:    %s\n", file->name);
-          message("  File size:    %d\n", file->len);
-          message("  Write offset: %d\n", offset);
-          message("  Write size:   %d\n", nbytestowrite);
+          int err = errno;
+
+          /* If the write failed because there is no space on the device,
+           * then don't complain.
+           */
+
+          if (err != ENOSPC)
+            {
+              message("ERROR: Failed to write file: %d\n", err);
+              message("  File name:    %s\n", file->name);
+              message("  File size:    %d\n", file->len);
+              message("  Write offset: %d\n", offset);
+              message("  Write size:   %d\n", nbytestowrite);
+              ret = ERROR;
+            }
           close(fd);
 
           /* Remove any garbage file that might have been left behind */
@@ -286,11 +303,13 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
           ret = unlink(file->name);
           if (ret < 0)
             {
-              message("  Failed to remove corrupted file\n");
+              message("  Failed to remove partial file\n");
             }
           else
             {
-              message("  Successfully removed corrupted file\n");
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
+              message("  Successfully removed partial file\n");
+#endif
             }
 
           nxffs_freefile(file);
@@ -332,7 +351,9 @@ static int nxffs_fillfs(void)
           ret = nxffs_wrfile(file);
           if (ret < 0)
             {
+#if CONFIG_EXAMPLES_NXFFS_VERBOSE != 0
               message("ERROR: Failed to write file %d\n", i);
+#endif
               return ERROR;
             }
 
@@ -645,8 +666,8 @@ static int nxffs_directory(void)
 int user_start(int argc, char *argv[])
 {
   FAR struct mtd_dev_s *mtd;
+  unsigned int i;
   int ret;
-  int i;
 
   /* Seed the random number generated */
 
@@ -688,7 +709,7 @@ int user_start(int argc, char *argv[])
    */
 
 #if CONFIG_EXAMPLES_NXFFS_NLOOPS == 0
-  for (;;)
+  for (i = 0; ; i++)
 #else
   for (i = 1; i <= CONFIG_EXAMPLES_NXFFS_NLOOPS; i++)
 #endif
