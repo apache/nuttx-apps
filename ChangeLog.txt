@@ -26,4 +26,9 @@
 	* Numerous fixes to build system required to support building with native
 	  Windows toolchain.
 
-6.2 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.2 2011-05-06 Gregory Nutt <spudmonkey@racsa.co.cr>
+
+	* apps/examples/nxffs:  Add a test a a configuration that will be used to
+	  verify NXFFS.
+
+6.3 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
