@@ -465,6 +465,19 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
     */
 
    cmd = argv[0];
+   
+   /* Try to find a command in the application library.
+    */
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+   if (nsh_execapp(vtbl, cmd, argv) == OK)
+     {
+       /* The pre-built application was successfully started -- return OK. */
+
+       return OK;
+     }
+#endif
+
 
    /* See if the command is one that we understand */
 
@@ -502,21 +515,6 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
              }
          }
      }
-
-   /* If the command was not found, then try to execute the command from
-    * a list of pre-built applications.
-    */
-
-#ifdef CONFIG_NSH_BUILTIN_APPS
-   if (handler == cmd_unrecognized && nsh_execapp(vtbl, cmd, argv) == OK)
-     {
-       /* The pre-built application was successfully started -- return OK.
-        * If not, then fall through to execute the cmd_nrecognized handler.
-        */
-
-       return OK;
-     }
-#endif
 
    ret = handler(vtbl, argc, argv);
    return ret;

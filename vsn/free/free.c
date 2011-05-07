@@ -33,61 +33,80 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
-
 #include <nuttx/config.h>
+#include <nuttx/progmem.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
 
 /****************************************************************************
- * Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
+ 
+/* \todo Max block size only works on uniform prog mem */
+ 
+void free_getprogmeminfo(struct mallinfo * mem)
+{
+    uint16_t page = 0, stpage = 0xFFFF;
+    uint16_t pagesize = 0;
+    int status;
+    
+    mem->arena    = 0;
+    mem->fordblks = 0;
+    mem->uordblks = 0;
+    mem->mxordblk = 0;
+    
+    for (status=0, page=0; status >= 0; page++) {
+    
+        status = up_progmem_ispageerased(page);
+        pagesize = up_progmem_pagesize(page);
+        
+        mem->arena += pagesize;
+        
+        /* Is this beginning of new free space section */
+        if (status == 0) {
+            if (stpage == 0xFFFF) stpage = page;
+            mem->fordblks += pagesize;
+        }
+        else if (status != 0) {
+            mem->uordblks += pagesize;
+
+            if (stpage != 0xFFFF && up_progmem_isuniform()) {
+                stpage = page - stpage;
+                if (stpage > mem->mxordblk) 
+                    mem->mxordblk = stpage;
+                stpage = 0xFFFF;
+            }
+        }
+    }
+    
+    mem->mxordblk *= pagesize;
+}
+
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: cmd_free
- ****************************************************************************/
-
 int free_main(int argc, char **argv)
 {
-  struct mallinfo mem;
+  struct mallinfo data;
+  struct mallinfo prog;
 
 #ifdef CONFIG_CAN_PASS_STRUCTS
-  mem = mallinfo();
+  data = mallinfo();
 #else
-  (void)mallinfo(&mem);
+  (void)mallinfo(&data);
 #endif
 
-  printf("             total       used       free    largest\n");
-  printf("Mem:   %11d%11d%11d%11d\n",
-         mem.arena, mem.uordblks, mem.fordblks, mem.mxordblk);
+  free_getprogmeminfo(&prog);
+
+  printf("              total       used       free    largest\n");
+  printf("Data:   %11d%11d%11d%11d\n",
+         data.arena, data.uordblks, data.fordblks, data.mxordblk);
+  printf("Prog:   %11d%11d%11d%11d\n",
+         prog.arena, prog.uordblks, prog.fordblks, prog.mxordblk);
 
   return OK;
 }
