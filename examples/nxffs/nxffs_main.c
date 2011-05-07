@@ -59,23 +59,32 @@
  * Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
+/* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But
+ * an architecture-specific MTD driver can be used instead by defining
+ * CONFIG_EXAMPLES_NXFFS_ARCHINIT.  In this case, the initialization logic
+ * will call nxffs_archinitialize() to obtain the MTD driver instance.
+ */
+
+#ifndef CONFIG_EXAMPLES_NXFFS_ARCHINIT
+
 /* This must exactly match the default configuration in drivers/mtd/rammtd.c */
 
-#ifndef CONFIG_RAMMTD_BLOCKSIZE
-#  define CONFIG_RAMMTD_BLOCKSIZE 512
-#endif
+#  ifndef CONFIG_RAMMTD_BLOCKSIZE
+#    define CONFIG_RAMMTD_BLOCKSIZE 512
+#  endif
 
-#ifndef CONFIG_RAMMTD_ERASESIZE
-#  define CONFIG_RAMMTD_ERASESIZE 4096
-#endif
+#  ifndef CONFIG_RAMMTD_ERASESIZE
+#    define CONFIG_RAMMTD_ERASESIZE 4096
+#  endif
 
-#ifndef CONFIG_EXAMPLES_NXFFS_NEBLOCKS
-#  define CONFIG_EXAMPLES_NXFFS_NEBLOCKS (32)
-#endif
+#  ifndef CONFIG_EXAMPLES_NXFFS_NEBLOCKS
+#    define CONFIG_EXAMPLES_NXFFS_NEBLOCKS (32)
+#  endif
 
-#undef CONFIG_EXAMPLES_NXFFS_BUFSIZE
-#define CONFIG_EXAMPLES_NXFFS_BUFSIZE \
+#  undef CONFIG_EXAMPLES_NXFFS_BUFSIZE
+#  define CONFIG_EXAMPLES_NXFFS_BUFSIZE \
   (CONFIG_RAMMTD_ERASESIZE * CONFIG_EXAMPLES_NXFFS_NEBLOCKS)
+#endif
 
 #ifndef CONFIG_EXAMPLES_NXFFS_MAXNAME
 #  define CONFIG_EXAMPLES_NXFFS_MAXNAME 128
@@ -135,7 +144,10 @@ struct nxffs_filedesc_s
  ****************************************************************************/
 /* Pre-allocated simulated flash */
 
+#ifndef CONFIG_EXAMPLES_NXFFS_ARCHINIT
 static uint8_t g_simflash[CONFIG_EXAMPLES_NXFFS_BUFSIZE];
+#endif
+
 static uint8_t g_fileimage[CONFIG_EXAMPLES_NXFFS_MAXFILE];
 static struct nxffs_filedesc_s g_files[CONFIG_EXAMPLES_NXFFS_MAXOPEN];
 static const char g_mountdir[] = CONFIG_EXAMPLES_NXFFS_MOUNTPT "/";
@@ -145,6 +157,14 @@ static int g_ndeleted;
 static struct mallinfo g_mmbefore;
 static struct mallinfo g_mmprevious;
 static struct mallinfo g_mmafter;
+
+/****************************************************************************
+ * External Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_NXFFS_ARCHINIT
+extern FAR struct mtd_dev_s *nxffs_archinitialize(void);
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -776,7 +796,11 @@ int user_start(int argc, char *argv[])
 
   /* Create and initialize a RAM MTD device instance */
 
+#ifdef CONFIG_EXAMPLES_NXFFS_ARCHINIT
+  mtd = nxffs_archinitialize();
+#else
   mtd = rammtd_initialize(g_simflash, CONFIG_EXAMPLES_NXFFS_BUFSIZE);
+#endif
   if (!mtd)
     {
       message("ERROR: Failed to create RAM MTD instance\n");
