@@ -92,7 +92,7 @@ int namedapp_isavail(FAR const char *appname)
   return ERROR;
 }
  
-int exec_namedapp(FAR const char *appname, FAR const char *argv[])
+int exec_namedapp(FAR const char *appname, FAR const char **argv)
 {
   int i;
   
