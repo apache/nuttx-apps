@@ -40,16 +40,16 @@ APPDIR = ${shell pwd}
 
 # Application Directories
 
+# CONFIGURED_APPS is the list of all configured built-in directories/built
+#   action. It is created by the configured appconfig file (a copy of which
+#   appears in this directory as .config)
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
-# only for cleaning. namedapp must always be the first in the list.
-
-SUBDIRS = namedapp nshlib netutils examples vsn
-
-# CONFIGURED_APPS is the list of all configured built-in directories/built action
-# It is created by the configured appconfig file (a copy of which appears in this
-# directory as .config)
+#   only for cleaning. namedapp must always be the first in the list.  This
+#   list can be extended by the .config file as well
 
 CONFIGURED_APPS =
+SUBDIRS = namedapp nshlib netutils examples vsn
+
 -include .config
 
 # BUILTIN_APPS_DIR is the list of currently available application directories.  It
