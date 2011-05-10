@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/pashello/Makefile
+# apps/interpreters/Makefile
 #
-#   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,61 +33,38 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+-include $(TOPDIR)/.config	# Current configuration
 
-# Pascal Add-On Example
+# Sub-directories containing interpreter runtime
 
-ASRCS		=
-CSRCS		= pashello.c device.c
+SUBDIRS = pcode
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+# Create the list of installed runtime modules (INSTALLED_DIRS)
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+define ADD_DIRECTORY
+INSTALLED_DIRS  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
+endef
 
-ifeq ($(WINTOOL),y)
-  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
-else
-  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
-endif
+$(foreach DIR, $(SUBDIRS), $(eval $(call ADD_DIRECTORY,$(DIR))))
 
-ROOTDEPPATH	= --dep-path .
+all: nothing
+.PHONY: nothing context depend clean distclean
 
-# Common build
-
-VPATH		= 
-
-all: .built
-.PHONY: clean depend distclean
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-.built: $(OBJS)
-	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $(BIN), $${obj}); \
-	done ; )
-	@touch .built
+nothing:
 
 context:
 
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
+depend:
+	@for dir in $(INSTALLED_DIRS) ; do \
+		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
+	done
 
 clean:
-	@rm -f *.o *~ .*.swp .built
-	$(call CLEAN)
+	@for dir in $(INSTALLED_DIRS) ; do \
+		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
+	done
 
 distclean: clean
-	@rm -f Make.dep .depend
-
--include Make.dep
+	@for dir in $(INSTALLED_DIRS) ; do \
+		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
+	done

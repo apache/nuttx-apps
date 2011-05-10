@@ -48,20 +48,20 @@ APPDIR = ${shell pwd}
 #   list can be extended by the .config file as well
 
 CONFIGURED_APPS =
-SUBDIRS = namedapp nshlib netutils examples vsn
+SUBDIRS = examples interpreters namedapp nshlib netutils vsn
 
 -include .config
 
-# BUILTIN_APPS_DIR is the list of currently available application directories.  It
-# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent apps
+# INSTALLED_APPS is the list of currently available application directories.  It
+# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent apps.
 # namedapp is always in the list of applications to be built
 
-BUILTIN_APPS_DIR = namedapp
+INSTALLED_APPS = namedapp
 
-# Create the list of available applications (BUILTIN_APPS_DIR)
+# Create the list of available applications (INSTALLED_APPS)
 
 define ADD_BUILTIN
-BUILTIN_APPS_DIR  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
+INSTALLED_APPS  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
 endef
 
 $(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_BUILTIN,$(BUILTIN))))
@@ -73,18 +73,18 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: $(BUILTIN_APPS_DIR) context depend clean distclean
+.PHONY: $(INSTALLED_APPS) context depend clean distclean
 
-$(BUILTIN_APPS_DIR):
+$(INSTALLED_APPS):
 	@$(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)";
 
-$(BIN):	$(BUILTIN_APPS_DIR)
+$(BIN):	$(INSTALLED_APPS)
 	@( for obj in $(OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
 
 .context:
-	@for dir in $(BUILTIN_APPS_DIR) ; do \
+	@for dir in $(INSTALLED_APPS) ; do \
 		rm -f $$dir/.context ; \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR="$(APPDIR)" context ; \
 	done
@@ -93,7 +93,7 @@ $(BIN):	$(BUILTIN_APPS_DIR)
 context: .context
 
 .depend: context Makefile $(SRCS)
-	@for dir in $(BUILTIN_APPS_DIR) ; do \
+	@for dir in $(INSTALLED_APPS) ; do \
 		rm -f $$dir/.depend ; \
 		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR="$(APPDIR)" depend ; \
 	done

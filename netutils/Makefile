@@ -62,6 +62,3 @@ distclean: clean
 	@for dir in $(SUBDIRS) ; do \
 		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
-
--include Make.dep
-
