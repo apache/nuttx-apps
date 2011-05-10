@@ -4,6 +4,14 @@ apps/interpreters README file
 This apps/ directory is set aside to hold interpreters that may be
 incorporated into NuttX.
 
+ficl
+----
+
+  This is DIY port of Ficl (the "Forth Inspired Command Language").  See
+  http://ficl.sourceforge.net/.  It is a "DIY" port because the Ficl source
+  is not in that directory, only an environment and instructions that will
+  let you build Ficl under NuttX.  The rest is up to you.
+
 pcode
 -----
 
