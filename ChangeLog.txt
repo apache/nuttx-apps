@@ -33,6 +33,7 @@
 
 6.3 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
 
-	* apps/interpreter: Add a directory to hold interpreters.  The Pascal add-
+    * apps/interpreter: Add a directory to hold interpreters.  The Pascal add-
 	  on module now installs and builds under this directory.
-
+	* apps/interpreter/ficl: Added logic to build Ficl (the "Forth Inspired
+	  Command Language").  See http://ficl.sourceforge.net/.

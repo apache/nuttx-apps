@@ -1,5 +1,5 @@
 ############################################################################
-# apps/interpreters/Makefile
+# apps/interpreters/ficl/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,38 +33,86 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+BUILDDIR := ${shell pwd | sed -e 's/ /\\ /g'}
 
-# Sub-directories containing interpreter runtime
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-SUBDIRS = pcode ficl
+# Tools
 
-# Create the list of installed runtime modules (INSTALLED_DIRS)
+INCDIR = $(TOPDIR)/tools/incdir.sh
 
-define ADD_DIRECTORY
-INSTALLED_DIRS  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
-endef
+ifeq ($(WINTOOL),y)
+INCDIROPT = -w
+endif
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call ADD_DIRECTORY,$(DIR))))
+# Include paths
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
 
-nothing:
+# Source Files
+
+ASRCS =
+CXXSRCS =
+CSRCS = nuttx.c
+
+include Make.srcs
+
+ASRCS += $(FICL_ASRCS)
+CXXSRCS += $(FICL_CXXSRCS)
+CSRCS += $(FICL_CSRCS)
+
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
+
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
+
+ROOT_DEPPATH = --dep-path .
+SRC_DEPPATH = --dep-path src
+
+VPATH = src:$(FICL_SUBDIR)
+
+all: .built
+.PHONY: debug context depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+debug:
+	@#echo "FICL:   $(FICL_SUBDIR)"
+	@#echo "VPATH:  $(VPATH)"
+	@#echo "CFLAGS: $(CFLAGS)"
+
+.built: debug $(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $(BIN), $${obj}); \
+	done ; )
+	@touch .built
 
 context:
 
-depend:
-	@for dir in $(INSTALLED_DIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+.depend: debug Makefile $(SRCS)
+	@$(MKDEP) $(ROOT_DEPPATH) $(SRC_DEPPATH) $(FICL_DEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+depend: .depend
 
 clean:
-	@for dir in $(INSTALLED_DIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	@for dir in $(INSTALLED_DIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f Make.dep .depend
+
+-include Make.dep
