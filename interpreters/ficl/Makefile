@@ -57,7 +57,7 @@ ASRCS =
 CXXSRCS =
 CSRCS = nuttx.c
 
-include Make.srcs
+-include Make.srcs
 
 ASRCS += $(FICL_ASRCS)
 CXXSRCS += $(FICL_CXXSRCS)
