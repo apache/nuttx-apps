@@ -82,9 +82,7 @@ $(COBJS): %$(OBJEXT): %.c
 context:
 
 .depend: Makefile $(SRCS)
-ifeq ($(CONFIG_NET_UDP),y)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-endif
 	@touch $@
 
 depend: .depend

@@ -114,9 +114,7 @@ endif
 context:
 
 .depend: Makefile $(SRCS)
-ifneq ($(SRCS),)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
-endif
 	@touch $@
 
 depend: .depend
