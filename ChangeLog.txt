@@ -37,3 +37,6 @@
 	  on module now installs and builds under this directory.
 	* apps/interpreter/ficl: Added logic to build Ficl (the "Forth Inspired
 	  Command Language").  See http://ficl.sourceforge.net/.
+	* apps/netutils/dhcpc, dhcpcd, and tftp.  If these directories are included
+	  in the configuration but CONFIG_NET_UDP is disable (which is not very wise),
+	  then a make error occurs because tools/mkdep.sh is called with no files.
