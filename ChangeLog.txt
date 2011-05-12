@@ -42,3 +42,8 @@
 	  then a make error occurs because tools/mkdep.sh is called with no files.
 	* system/free: Move Uros' custom free command from vsn/free
 	* system/install: Add a new install command submitted by Uros Platise.
+	* examples/rgmpp.  Add a placeholder for an RGMP build example.
+	  RGMP is a project for running GPOS and RTOS simultaneously on
+	  multi-processor platforms. See http://rgmp.sourceforge.net/wiki/index.php/Main_Page
+	  for further information about RGMP.  NOTE:  This is an empty example
+	  on initial check-in
