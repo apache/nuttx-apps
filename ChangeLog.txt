@@ -40,3 +40,5 @@
 	* apps/netutils/dhcpc, dhcpcd, and tftp.  If these directories are included
 	  in the configuration but CONFIG_NET_UDP is disable (which is not very wise),
 	  then a make error occurs because tools/mkdep.sh is called with no files.
+	* system/free: Move Uros' custom free command from vsn/free
+	* system/install: Add a new install command submitted by Uros Platise.
