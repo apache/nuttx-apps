@@ -1,5 +1,5 @@
 ############################################################################
-# Makefile
+# apps/system/install/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
 #   Author: Uros Platise <uros.platise@isotel.eu>
@@ -48,12 +48,12 @@ endif
 # Hello Application
 # TODO: appname can be automatically extracted from the directory name
 
-APPNAME		= free
+APPNAME		= install
 PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 768
+STACKSIZE	= 1024
 
 ASRCS		=
-CSRCS		= free.c
+CSRCS		= install.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -61,7 +61,11 @@ COBJS		= $(CSRCS:.c=$(OBJEXT))
 SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
-BIN	    	= $(APPDIR)/libapps$(LIBEXT)
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
 
 ROOTDEPPATH	= --dep-path .
 

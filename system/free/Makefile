@@ -1,5 +1,5 @@
 ############################################################################
-# apps/Makefile
+# apps/system/free/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
 #   Author: Uros Platise <uros.platise@isotel.eu>
@@ -34,83 +34,77 @@
 #
 ############################################################################
 
+# TODO, this makefile should run make under the app dirs, instead of
+# sourcing the Make.defs!
+
+-include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-APPDIR = ${shell pwd}
+ifeq ($(WINTOOL),y)
+INCDIROPT	= -w
+endif
 
-# Application Directories
+# Hello Application
+# TODO: appname can be automatically extracted from the directory name
 
-# CONFIGURED_APPS is the list of all configured built-in directories/built
-#   action. It is created by the configured appconfig file (a copy of which
-#   appears in this directory as .config)
-# SUBDIRS is the list of all directories containing Makefiles.  It is used
-#   only for cleaning. namedapp must always be the first in the list.  This
-#   list can be extended by the .config file as well
+APPNAME		= free
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 768
 
-CONFIGURED_APPS =
-SUBDIRS = examples interpreters namedapp nshlib netutils system vsn
+ASRCS		=
+CSRCS		= free.c
 
--include .config
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-# INSTALLED_APPS is the list of currently available application directories.  It
-# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent apps.
-# namedapp is always in the list of applications to be built
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
 
-INSTALLED_APPS = namedapp
+BIN	    	= $(APPDIR)/libapps$(LIBEXT)
 
-# Create the list of available applications (INSTALLED_APPS)
+ROOTDEPPATH	= --dep-path .
 
-define ADD_BUILTIN
-INSTALLED_APPS  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
-endef
+# Common build
 
-$(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_BUILTIN,$(BUILTIN))))
+VPATH		= 
 
-# The final build target
+all:	.built
+.PHONY: context depend clean distclean
 
-BIN = libapps$(LIBEXT)
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
 
-# Build targets
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
 
-all: $(BIN)
-.PHONY: $(INSTALLED_APPS) context depend clean distclean
-
-$(INSTALLED_APPS):
-	@$(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)";
-
-$(BIN):	$(INSTALLED_APPS)
+.built: $(OBJS)
 	@( for obj in $(OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(BIN), $${obj}); \
 	done ; )
+	@touch .built
+
+# Register application
 
 .context:
-	@for dir in $(INSTALLED_APPS) ; do \
-		rm -f $$dir/.context ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR="$(APPDIR)" context ; \
-	done
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
 
 context: .context
 
-.depend: context Makefile $(SRCS)
-	@for dir in $(INSTALLED_APPS) ; do \
-		rm -f $$dir/.depend ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)"  APPDIR="$(APPDIR)" depend ; \
-	done
+# Create dependencies
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
 depend: .depend
 
 clean:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
-	@rm -f $(BIN) *~ .*.swp *.o
+	@rm -f *.o *~ .*.swp .built
 	$(call CLEAN)
 
 distclean: clean
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
-	@rm -f .config .context .depend
+	@rm -f .context Make.dep .depend
 
+-include Make.dep
