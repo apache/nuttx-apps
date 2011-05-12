@@ -64,7 +64,7 @@ const char *install_help =
     "Installs XIP program into flash and creates a start-up script in the\n"
     "destination directory.\n\n"
     "Usage:\t%s [options] source-file.xip destination-directory\n\n"
-    "Example:\n\t%s --stack 1024 demo.xip /usr/bin\n\n"
+    "Example:\n\t%s --stack 1024 /sdcard/demo.xip /usr/bin\n\n"
     "Options:\n"
     "\t--stack <required_stack_space>\n"
     "\t--priority <priority>\n"
@@ -77,7 +77,7 @@ const char *install_script_text =
     "# XIP stacksize=%x priority=%x size=%x\n";
     
 const char *install_script_exec = 
-    "exec %x\n";
+    "exec 0x%x\n";
     
     
 /****************************************************************************
@@ -88,12 +88,13 @@ int install_getstartpage(int startpage, int pagemargin, int desiredsize)
 {
     uint16_t page = 0, stpage = 0xFFFF;
     uint16_t pagesize = 0;
-    int maxlen = 0, maxlen_start = 0xFFFF;
-    int status;
+    int      maxlen = -1;
+    int      maxlen_start = 0xFFFF;
+    int      status;
     
     for (status=0, page=0; status >= 0; page++) {
     
-        status = up_progmem_ispageerased(page);
+        status   = up_progmem_ispageerased(page);
         pagesize = up_progmem_pagesize(page);
         
         /* Is this beginning of new free space section */
@@ -102,10 +103,10 @@ int install_getstartpage(int startpage, int pagemargin, int desiredsize)
         }
         else if (status != 0) {
 
-            if (stpage != 0xFFFF && up_progmem_isuniform()) {
+            if (stpage != 0xFFFF) {
                 
                 if ( (page - stpage) > maxlen) {
-                            
+
                     if (maxlen==-1) { /* First time found sth? */
                         stpage += pagemargin;
                         maxlen = 0;
@@ -293,7 +294,7 @@ int install_remove(const char *scriptname)
 
 int install_main(int argc, char *argv[])
 {
-	int i;
+    int i;
     int progsize;
     int scrsta;
     int stacksize       = 4096;
@@ -302,7 +303,7 @@ int install_main(int argc, char *argv[])
     int startpage       = 0;
     int startaddr       = 0;
     int action          = ACTION_INSTALL;
-    char scriptname[2*CONFIG_NAME_MAX];
+    char scriptname[128];
     
     /* Supported? */
     

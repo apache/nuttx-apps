@@ -37,7 +37,7 @@
 
 # Sub-directories
 
-SUBDIRS = free hello poweroff ramtron sdcard sysinfo
+SUBDIRS = hello poweroff ramtron sdcard sysinfo
 
 all: nothing
 .PHONY: nothing context depend clean distclean
