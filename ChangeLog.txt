@@ -46,4 +46,4 @@
 	  RGMP is a project for running GPOS and RTOS simultaneously on
 	  multi-processor platforms. See http://rgmp.sourceforge.net/wiki/index.php/Main_Page
 	  for further information about RGMP.  NOTE:  This is an empty example
-	  on initial check-in
+	  on initial check-in.
