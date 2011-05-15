@@ -31,7 +31,7 @@
 	* apps/examples/nxffs:  Add a test a a configuration that will be used to
 	  verify NXFFS.
 
-6.3 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.3 2011-05-15 Gregory Nutt <spudmonkey@racsa.co.cr>
 
     * apps/interpreter: Add a directory to hold interpreters.  The Pascal add-
 	  on module now installs and builds under this directory.
@@ -47,3 +47,5 @@
 	  multi-processor platforms. See http://rgmp.sourceforge.net/wiki/index.php/Main_Page
 	  for further information about RGMP.  NOTE:  This is an empty example
 	  on initial check-in.
+
+6.4 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
