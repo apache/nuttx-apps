@@ -38,8 +38,8 @@
 # Sub-directories
 
 SUBDIRS = dhcpd hello helloxx hidkbd igmp mm mount nettest nsh null nx \
-	  nxflat ostest pashello pipe poll rgmp romfs sendmail serloop thttpd \
-	  udp uip usbserial usbstorage wget wlan
+	  nxffs nxflat ostest pashello pipe poll rgmp romfs sendmail serloop \
+      thttpd udp uip usbserial usbstorage wget wlan
 
 all: nothing
 .PHONY: nothing context depend clean distclean
