@@ -49,3 +49,7 @@
 	  on initial check-in.
 
 6.4 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+
+	* nshlib/nsh_netcmds.c: If a network device name and IP address are provided
+	  with the ifconfig command, then this command will now set the network address.
+

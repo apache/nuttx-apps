@@ -466,8 +466,48 @@ int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_IFCONFIG
 int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  netdev_foreach(ifconfig_callback, vtbl);
-  uip_statistics(vtbl);
+  struct in_addr addr;
+  in_addr_t ip;
+
+  /* With one or no arguments, ifconfig simply shows the status of ethernet
+   * device:
+   *
+   *   ifconfig
+   *   ifconfig [nic_name]
+   */
+
+  if (argc <= 2)
+    {
+	  netdev_foreach(ifconfig_callback, vtbl);
+	  uip_statistics(vtbl);
+	  return OK;
+    }
+
+  /* If both the network interface name and an IP address are supplied as
+   * arguments, then ifconfig will set the address of the ethernet device:
+   *
+   *    ifconfig nic_name ip_address
+   */
+
+  /* Set host ip address */
+
+  ip = addr.s_addr = inet_addr(argv[2]);
+  uip_sethostaddr(argv[1], &addr);
+
+  /* Set gateway */
+
+  ip = NTOHL(ip);
+  ip &= ~0x000000ff;
+  ip |= 0x00000001;
+
+  addr.s_addr = HTONL(ip);
+  uip_setdraddr(argv[1], &addr);
+
+  /* Set netmask */
+
+  addr.s_addr = inet_addr("255.255.255.0");
+  uip_setnetmask(argv[1], &addr);
+
   return OK;
 }
 #endif

@@ -191,7 +191,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef CONFIG_NET
 # ifndef CONFIG_NSH_DISABLE_IFCONFIG
-  { "ifconfig", cmd_ifconfig, 1, 1, NULL },
+  { "ifconfig", cmd_ifconfig, 1, 3, "[nic_name [ip]]" },
 # endif
 #endif
 
