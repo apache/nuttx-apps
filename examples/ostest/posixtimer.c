@@ -1,7 +1,7 @@
 /***********************************************************************
  * examples/ostest/posixtimer.c
  *
- *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,12 +55,6 @@
 
 #define MY_TIMER_SIGNAL 17
 #define SIGVALUE_INT  42
-
-#if CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0
-#  define FFLUSH() fflush(stdout)
-#else
-#  define FFLUSH()
-#endif
 
 /**************************************************************************
  * Private Data

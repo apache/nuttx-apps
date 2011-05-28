@@ -69,12 +69,6 @@
 #define TEST_SEND_NMSGS     (10)
 #define TEST_RECEIVE_NMSGS  (10)
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0
-#  define FFLUSH() fflush(stdout)
-#else
-#  define FFLUSH()
-#endif
-
 /**************************************************************************
  * Private Types
  **************************************************************************/

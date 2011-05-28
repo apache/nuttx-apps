@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/ostest.h
  *
- *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,18 @@
 #  define dump_nfreeholders(s) printf(s " nfreeholders: %d\n", sem_nfreeholders())
 #else
 #  define dump_nfreeholders(s)
+#endif
+
+/* If CONFIG_STDIO_LINEBUFFER is defined, the STDIO buffer will be flushed
+ * on each new line.  Otherwise, STDIO needs to be explicitly flushed to
+ * see the output in context.
+ */
+
+#if CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && \
+    CONFIG_STDIO_BUFFER_SIZE > 0 && !defined(CONFIG_STDIO_LINEBUFFER)
+#  define FFLUSH() fflush(stdout)
+#else
+#  define FFLUSH()
 #endif
 
 /****************************************************************************

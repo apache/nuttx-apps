@@ -49,12 +49,6 @@
  * Private Definitions
  **************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0
-#  define FFLUSH() fflush(stdout)
-#else
-#  define FFLUSH()
-#endif
-
 /**************************************************************************
  * Private Data
  **************************************************************************/

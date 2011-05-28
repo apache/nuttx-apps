@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/barrier.c
  *
- *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,6 +77,7 @@ static void *barrier_func(void *parameter)
 
   printf("barrier_func: Thread %d calling pthread_barrier_wait()\n",
          id);
+  FFLUSH();
   status = pthread_barrier_wait(&barrier);
   if (status == 0)
     {
@@ -95,11 +96,13 @@ static void *barrier_func(void *parameter)
       printf("barrier_func: ERROR thread %d could not get semaphore value\n",
              id);
     }
+  FFLUSH();
 
 #ifndef CONFIG_DISABLE_SIGNALS
   usleep(HALF_SECOND);
 #endif
   printf("barrier_func: Thread %d done\n",  id);
+  FFLUSH();
   return NULL;
 }
 
@@ -158,12 +161,15 @@ void barrier_test(void)
         {
           printf("barrier_test: Error in thread %d create, status=%d\n",
                  i, status);
+          printf("barrier_test: Test aborted with waiting threads\n");
+          goto abort_test;
         }
       else
         {
           printf("barrier_test: Thread %d created\n", i);
         }
     }
+  FFLUSH();
 
   /* Wait for all thread instances to complete */
 
@@ -184,6 +190,7 @@ void barrier_test(void)
 
   /* Destroy the barrier */
 
+abort_test:
   status = pthread_barrier_destroy(&barrier);
   if (status != OK)
     {
@@ -197,4 +204,5 @@ void barrier_test(void)
       printf("barrier_test: pthread_barrierattr_destroy failed, status=%d\n",
              status);
     }
+  FFLUSH();
 }
