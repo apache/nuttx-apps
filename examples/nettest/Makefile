@@ -91,7 +91,7 @@ $(TARG_AOBJS): %$(OBJEXT): %.S
 $(TARG_COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-"$(TARG_BIN)": $(TARG_OBJS) $(HOST_BIN)
+$(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
 	@( for obj in $(TARG_OBJS) ; do \
 		$(call ARCHIVE, $@, $${obj}); \
 	done ; )
