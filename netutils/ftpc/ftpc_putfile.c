@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+#include <errno.h>
 #include <debug.h>
 
 #include <apps/ftpc.h>
@@ -398,7 +399,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
           ret = fseek(finstream, session->offset, SEEK_SET);
           if (ret != OK)
             {
-              ndbg("fseek failed: %d\n", errnoo);
+              ndbg("fseek failed: %d\n", errno);
               fclose(finstream);
               return ERROR;
             }

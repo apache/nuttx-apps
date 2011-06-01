@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <libgen.h>
+#include <errno.h>
 #include <debug.h>
 
 #include <apps/ftpc.h>

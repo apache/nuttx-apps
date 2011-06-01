@@ -166,7 +166,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 #ifdef CONFIG_DEBUG
   tmp = inet_ntoa(session->addr);
   ndbg("Connecting to server address %s:%d\n",
-       server->proxy ? "proxy" : "server", tmp, ntohl(session->port));
+       tmp, ntohl(session->port));
   free(tmp);
 #endif
 
@@ -212,10 +212,10 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
 #ifdef CONFIG_DEBUG
   ndbg("Connected\n");
-  tmp = inet_ntoa(session->cmd.raddr.sin_addr.s_addr);
+  tmp = inet_ntoa(session->cmd.raddr.sin_addr);
   ndbg("  Remote address: %s:%d\n", tmp, ntohl(session->cmd.raddr.sin_port));
   free(tmp);
-  tmp = inet_ntoa(session->cmd.laddr.sin_addr.s_addr);
+  tmp = inet_ntoa(session->cmd.laddr.sin_addr);
   ndbg("  Local address: %s:d\n", tmp, ntohl(session->cmd.laddr.sin_port));
   free(tmp);
 #endif

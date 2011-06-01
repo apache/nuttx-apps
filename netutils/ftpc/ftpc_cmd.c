@@ -41,6 +41,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <errno.h>
 #include <debug.h>
 
 #include "ftpc_internal.h"
@@ -163,7 +164,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
 
       if (ret < 0)
         {
-          ndbg("Error sending cmd: %s, %d\n" cmd, errno);
+          ndbg("Error sending cmd %s: %d\n", cmd, errno);
           goto errout;
        }
 
@@ -172,7 +173,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
       ret = fptc_getreply(session);
       if (ret < 0)
         {
-          ndbg("Error getting reply: %d\n" errno);
+          ndbg("Error getting reply: %d\n", errno);
           goto errout;
        }
 
