@@ -1,5 +1,5 @@
 ############################################################################
-# apps/netutils/Makefile
+# apps/netutils/ftpc/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,32 +33,81 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+# DHCP Daemn Library
 
-ifeq ($(CONFIG_NET),y)
-SUBDIRS = uiplib dhcpc dhcpd ftpc resolv smtp telnetd webclient webserver tftpc thttpd
+ASRCS		=
+CSRCS		= 
+
+ifeq ($(CONFIG_NET_TCP),y)
+# FTP connection management
+CSRCS = ftpc_connect.c ftpc_disconnect.c 
+
+# FTP commands
+CSRCS += ftpc_cdup.c ftpc_chdir.c ftpc_chmod.c ftpc_filesize.c ftpc_filetime.c
+CSRCS += ftpc_help.c ftpc_idle.c ftpc_listdir.c ftpc_login.c ftpc_mkdir.c
+CSRCS += ftpc_noop.c ftpc_pwd.c ftpc_quit.c ftpc_rename.c ftpc_rmdir.c ftpc_unlink.c
+CSRCS += ftpc_cmd.c
+
+# FTP transfers
+CSRCS += ftpc_getfile.c ftpc_putfile.c ftpc_transfer.c
+
+# FTP responses
+CSRCS += ftpc_response.c ftpc_getreply.c
+
+# FTP helpers
+CSRCS += ftpc_utils.c ftpc_socket.c
 endif
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-nothing:
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
+
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
+
+ROOTDEPPATH	= --dep-path .
+
+# Common build
+
+VPATH		= 
+
+all: .built
+.PHONY: context depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $(BIN), $${obj}); \
+	done ; )
+	@touch .built
 
 context:
 
-depend:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+depend: .depend
 
 clean:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f Make.dep .depend
+
+-include Make.dep
