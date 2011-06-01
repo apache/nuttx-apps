@@ -48,6 +48,21 @@ examples/dhcpd
 
   CONFIGURED_APPS += uiplib
 
+examples/ftpc
+^^^^^^^^^^^^^
+
+  This is a simple FTP client shell used to exercise the capabilities
+  of the FTPC library (apps/netutils/ftpc).  This example is configured
+  to that it will only work as a "built-in" program that can be run from
+  NSH when CONFIG_NSH_BUILTIN_APPS is defined.
+
+  From NSH, the startup command line is then:
+
+    ftpc xx.xx.xx.xx[:pp]
+
+  where xx.xx.xx.xx is the IP address of the FTP server and pp is an
+  optional port number.
+
 examples/hello
 ^^^^^^^^^^^^^^
 

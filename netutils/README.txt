@@ -21,6 +21,7 @@ highly influenced by uIP) include:
 
   dhcpd     - Dynamic Host Configuration Protocol (DHCP) server
   tftpc     - TFTP client
+  ftpc      - FTP client
   thttpd    - This is a port of Jef Poskanzer's THTTPD HTPPD server.
               See http://acme.com/software/thttpd/.
 

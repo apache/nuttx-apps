@@ -198,7 +198,7 @@ static void ftpc_nlstparse(FAR FILE *instream, callback_t callback,
 
   /* Read every filename from the temporary file */
 
-  while (!feof(instream))
+  for (;;)
     {
       /* Read the next line from the file */
 

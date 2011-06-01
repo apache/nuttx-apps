@@ -111,32 +111,37 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
   int ret = OK;
 
   buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
-  while (!feof(linstream))
+  for (;;)
     {
       nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, linstream);
-    if (nread <= 0)
-      {
-        (void)ftpc_xfrabort(session, linstream);
-        ret = ERROR;
-        break;
-      }
+      if (nread <= 0)
+        {
+          /* nread == 0 is just EOF */
 
-    if (ftpc_waitoutput(session) != 0)
-      {
-        ret = ERROR;
-        break;
-      }
+          if (nread < 0)
+            {
+              (void)ftpc_xfrabort(session, linstream);
+              ret = ERROR;
+            }
+          break;
+        }
 
-    nwritten = fwrite(buf, sizeof(char), nread, routstream);
-    if (nwritten != nread)
-      {
-        (void)ftpc_xfrabort(session, routstream);
-        ret = ERROR;
-         break;
-      }
+      if (ftpc_waitoutput(session) != 0)
+        {
+          ret = ERROR;
+          break;
+        }
 
-    session->size += nread;
-  }
+      nwritten = fwrite(buf, sizeof(char), nread, routstream);
+      if (nwritten != nread)
+        {
+          (void)ftpc_xfrabort(session, routstream);
+          ret = ERROR;
+           break;
+        }
+
+      session->size += nread;
+    }
 
   free(buf);
   return ret;

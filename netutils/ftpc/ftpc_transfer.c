@@ -44,10 +44,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <poll.h>
+#include <signal.h>
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
 #include <debug.h>
+
+#include <apps/ftpc.h>
 
 #include "ftpc_internal.h"
 
@@ -396,5 +399,23 @@ int ftpc_waitdata(FAR struct ftpc_session_s *session, FAR FILE *stream, bool rdw
   return ret;
 }
 
+/****************************************************************************
+ * Name: ftpc_timeout
+ *
+ * Description:
+ *   A timeout occurred -- either on a specific command or while waiting
+ *   for a reply.
+ *
+ * NOTE:
+ *   This function executes in the context of a timer interrupt handler.
+ *
+ ****************************************************************************/
 
+void ftpc_timeout(int argc, uint32_t arg1, ...)
+{
+  FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)arg1;
 
+  nlldbg("Timeout!\n");
+  DEBUGASSERT(argc == 1 && session);
+  kill(session->pid, CONFIG_FTP_SIGNAL);
+}

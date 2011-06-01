@@ -188,8 +188,8 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
       err = ENOMEM;
       goto errout_with_err;
     }
-  
-  while (!feof(rinstream))
+
+  for (;;)
     {
       if (ftpc_waitinput(session) != 0)
         {
@@ -201,8 +201,13 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
       nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
       if (nread <= 0)
         {
-          (void)ftpc_xfrabort(session, rinstream);
-          ret = ERROR;
+          /* nread == 0 means end of file */
+
+          if (nread < 0)
+            {
+              (void)ftpc_xfrabort(session, rinstream);
+              ret = ERROR;
+            }
           break;
         }
 

@@ -43,7 +43,9 @@
 #include <nuttx/config.h>
 
 #include <stdbool.h>
+#include <signal.h>
 #include <time.h>
+
 #include <netinet/in.h>
 
 /****************************************************************************
@@ -77,6 +79,10 @@
 
 #ifndef CONFIG_FTP_MAXPATH
 #  define CONFIG_FTP_MAXPATH 256
+#endif
+
+#ifndef CONFIG_FTP_SIGNAL
+#  define CONFIG_FTP_SIGNAL SIGUSR1
 #endif
 
 /* Interface arguments ******************************************************/
@@ -185,7 +191,7 @@ EXTERN int ftpc_idle(SESSION handle, unsigned int idletime);
 EXTERN int ftpc_noop(SESSION handle);
 EXTERN int ftpc_help(SESSION handle, FAR const char *arg);
 
-/* Director listings ********************************************************/
+/* Directory listings *******************************************************/
 
 EXTERN FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
                                                FAR const char *dirpath);

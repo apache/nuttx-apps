@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -98,6 +99,7 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
 
   session->addr.s_addr  = server->addr.s_addr;
   session->port         = server->port;
+  session->pid          = getpid();
 
   /* Create up a timer to prevent hangs */
 
@@ -143,7 +145,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
   /* Set up a timer to prevent hangs */
 
-  ret = wd_start(session->wdog, session->conntimeo, ftpc_conntimeo, 1, session);
+  ret = wd_start(session->wdog, session->conntimeo, ftpc_timeout, 1, session);
   if (ret != OK)
     {
       ndbg("wd_start() failed\n");

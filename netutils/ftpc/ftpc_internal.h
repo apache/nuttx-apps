@@ -160,6 +160,7 @@ struct ftpc_session_s
   FAR char            *prevdir;    /* Previous directory */
   FAR char            *rname;      /* Remote file name */
   FAR char            *lname;      /* Local file name */
+  pid_t                pid;        /* Task ID of FTP client */
   uint8_t              xfrmode;    /* Previous data transfer type (See FTPC_XFRMODE_* defines) */
   uint16_t             port;       /* Server/proxy port number (probably 21) */
   uint16_t             flags;      /* Connection flags (see FTPC_FLAGS_* defines) */
@@ -238,11 +239,7 @@ EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
 /* Socket I/O helpers */
 
 EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock, const char *str, ...);
-
-/* Timeout handlers */
-
-EXTERN void ftpc_replytimeo(int argc, uint32_t arg1, ...);
-EXTERN void ftpc_conntimeo(int argc, uint32_t arg1, ...);
+EXTERN void ftpc_timeout(int argc, uint32_t arg1, ...);
 
 /* Transfer helpers */
 

@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __NSH_H
-#define __HSH_H
+#ifndef __APPS_NSHLIB_NSH_H
+#define __APPS_NSHLIB_NSH_H
 
 /****************************************************************************
  * Included Files
@@ -488,4 +488,4 @@ extern int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
 #endif /* CONFIG_DISABLE_SIGNALS */
 
-#endif /* __NSH_H */
+#endif /* __APPS_NSHLIB_NSH_H */

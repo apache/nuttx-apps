@@ -53,4 +53,8 @@
 	* nshlib/nsh_netcmds.c: If a network device name and IP address are provided
 	  with the ifconfig command, then this command will now set the network address.
 	  (Contributed by Yu Qiang).
+	* netutils/ftpc: A library to support client-side FTP.
+	* examples/ftpc: A simple add-on to the NSH.  From NSH, you can start
+	  this simple FTP shell to transfer files to/from a remote FTP server.
+
 
