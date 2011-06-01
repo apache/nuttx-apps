@@ -81,7 +81,7 @@ typedef void (*callback_t)(FAR const char *name, FAR void *arg);
  ****************************************************************************/
 
 static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
-                              FAR const char *relpath);
+                              FAR const char *relpath)
 {
   FAR char *ptr = NULL;
   int ret = OK;
@@ -101,7 +101,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
  
       if (relpath[1] == '\0')
         {
-          return strdup(session->home);
+          return strdup(session->homedir);
         }
 
       /* No... then a '/' better follow the tilde */
@@ -155,7 +155,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
 
 static void ftpc_dircount(FAR const char *name, FAR void *arg)
 {
-  unsigned int *dircount = (unsigned int *)arg;
+  FAR unsigned int *dircount = (FAR unsigned int *)arg;
   (*dircount)++;
 }
 

@@ -105,9 +105,9 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
 
   /* Save the login parameter */
 
-  session->uname   = decode_rfc1738(login->uname);
-  session->pwd     = decode_rfc1738(login->pwd);
-  session->initdir = decode_rfc1738(login->rdir);
+  session->uname   = ftpc_dequote(login->uname);
+  session->pwd     = ftpc_dequote(login->pwd);
+  session->initdir = ftpc_dequote(login->rdir);
 
   /* Is passive mode requested? */
 

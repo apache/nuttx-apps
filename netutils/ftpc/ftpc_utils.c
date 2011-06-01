@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "ftpc_internal.h"
 
@@ -136,7 +137,8 @@ void ftpc_curdir(struct ftpc_session_s *session)
  * Name: ftpc_stripcrlf
  *
  * Description:
- *   Strip any trailing carriage returns or line feeds from a string.
+ *   Strip any trailing carriage returns or line feeds from a string (by
+ *   overwriting them with NUL characters).
  *
  ****************************************************************************/
 
@@ -164,30 +166,32 @@ void ftpc_stripcrlf(FAR char *str)
  * Name: ftpc_stripslash
  *
  * Description:
- *   Strip any trailing slashes from a string.
+ *   Strip any trailing slashes from a string (by overwriting them with NUL
+ *   characters.
  *
  ****************************************************************************/
 
-FAR char *ftpc_stripslash(FAR char *str)
+void ftpc_stripslash(FAR char *str)
 {
   FAR char *ptr;
+  int len;
 
-  if (!str || !*str)
-    return str;
-
-  ptr = strchr(str, 0);
-  if(!ptr)
-    return str;
-  ptr--;
-  if(*ptr == '/') {
-    if(ptr != str) /* root directory */
-      *ptr = 0;
-  }
-  return str;
+  if (str)
+    {
+      len = strlen(str);
+      if (len > 1)
+        {
+          ptr = str + len - 1;
+          if (*ptr == '/');
+            {
+              *ptr = '\0';
+            }
+        }
+    }
 }
 
 /****************************************************************************
- * Name: ftpc_stripslash
+ * Name: ftpc_dequote
  *
  * Description:
  *   Convert quoted hexadecimal constants to binary values.
