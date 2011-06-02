@@ -63,6 +63,10 @@ examples/ftpc
   where xx.xx.xx.xx is the IP address of the FTP server and pp is an
   optional port number.
 
+  NOTE: The ftpc task uses the system console for input/output.  It will
+  not work from NSH over a telnet NSH connection (Well, it will work you 
+  just won't be able to access the command line).
+
 examples/hello
 ^^^^^^^^^^^^^^
 

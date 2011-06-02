@@ -98,7 +98,7 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
   /* Initialize the session structure */
 
   session->addr.s_addr  = server->addr.s_addr;
-  session->port         = server->port;
+  session->port         = server->port ? server->port : CONFIG_FTP_DEFPORT;
   session->pid          = getpid();
 
   /* Create up a timer to prevent hangs */
@@ -165,9 +165,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
 #ifdef CONFIG_DEBUG
   tmp = inet_ntoa(session->addr);
-  ndbg("Connecting to server address %s:%d\n",
-       tmp, ntohl(session->port));
-  free(tmp);
+  ndbg("Connecting to server address %s:%d\n", tmp, ntohl(session->port));
 #endif
 
   addr.sin_family      = AF_INET;
@@ -214,10 +212,8 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
   ndbg("Connected\n");
   tmp = inet_ntoa(session->cmd.raddr.sin_addr);
   ndbg("  Remote address: %s:%d\n", tmp, ntohl(session->cmd.raddr.sin_port));
-  free(tmp);
   tmp = inet_ntoa(session->cmd.laddr.sin_addr);
   ndbg("  Local address: %s:d\n", tmp, ntohl(session->cmd.laddr.sin_port));
-  free(tmp);
 #endif
   return OK;
 
