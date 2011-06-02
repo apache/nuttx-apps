@@ -37,7 +37,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "ftpc_config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -86,26 +86,50 @@ FAR char *ftpc_pwd(SESSION handle)
   FAR char *end;
   FAR char *pwd;
   FAR char *ptr;
+  int len;
   int ret;
 
+  /* Send the PWD command */
+
   ret = ftpc_cmd(session, "PWD");
+
+  /* Response is like: 257 "/home/gnutt" (from vsftpd).
+   *
+   * Extract the quoated path name into allocated memory.
+   */
+
   start = strchr(session->reply, '\"');
   if (!start)
     {
       ndbg("Opening quote not found\n");
       return NULL;
     }
-
   start++;
+ 
   end = strchr(start, '\"');
   if (!end)
     {
-      ndbg("Clsoing quote not found\n");
+      ndbg("Closing quote not found\n");
       return NULL;
     }
 
-  pwd = (char *)malloc(end-start+1);
-  strncpy(pwd, start, end-start);
+  /* Allocate memory for the path name */
+ 
+  len = end - start;
+  pwd = (char *)malloc(len + 1);
+  if (!pwd)
+    {
+      ndbg("Failed to allocate string\n");
+      return NULL;
+    }
+ 
+  /* Copy the string into the allocated memory */
+
+  memcpy(pwd, start, len);
+  pwd[len] = '\0';
+
+  /* Remove any trailing slashes that the server may have added */
+
   ftpc_stripslash(pwd);
 
   /* Change DOS style directory separator ('\') to UNIX style ('/') */

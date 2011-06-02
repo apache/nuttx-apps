@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/ftpc/ftpc_chdir.c
+ * apps/netutils/ftpc/ftpc_config.h
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,59 +33,40 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_NETUTILS_FTPC_FTPC_CONFIG_H
+#define __APPS_NETUTILS_FTPC_FTPC_CONFIG_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "ftpc_config.h"
-
-#include <apps/ftpc.h>
-
-#include "ftpc_internal.h"
+#include <nuttx/config.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* This is a mindless little wrapper around include/nuttx/config.h.  Every
+ * file in the ftpc directory includes this file at the very beginning of
+ * of the file (instead of include/nuttx/config.h).  The only purpose of
+ * this file is to muck with some of the settings to support some debug
+ * features.
+ *
+ * The FPT client uses common networking debug macros (ndbg and nvdbg).
+ * This can be overwhelming if there is a lot of networking debug output
+ * as well.  But by defining CONFIG_DEBUG_FTPC, this file will force
+ * networking debug ON only for the files within this directory.
+ */
+
+#if !defined(CONFIG_DEBUG_NET) && defined(CONFIG_DEBUG_FTPC)
+#  define CONFIG_DEBUG_NET 1
+#endif
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
+ * Public Types
  ****************************************************************************/
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: ftpc_chdir
- *
- * Description:
- *   Change the current working directory.
- *
- ****************************************************************************/
-
-int ftpc_chdir(SESSION handle, FAR const char *path)
-{
-  FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
-  int ret;
-
-  ret = ftpc_cmd(session, "CWD %s", path);
-  if (ret != OK)
-    {
-      return ret;
-    }
-
-  ftpc_curdir(session);
-  return OK;
-}
+#endif /* __APPS_NETUTILS_FTPC_FTPC_CONFIG_H */

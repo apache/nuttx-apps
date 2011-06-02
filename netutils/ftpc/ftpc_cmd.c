@@ -37,7 +37,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "ftpc_config.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -149,7 +149,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
       /* Send the command */
 
       va_start(ap, cmd);
-      ret = ftpc_sockprintf(&session->cmd, cmd, ap);
+      ret = ftpc_sockvprintf(&session->cmd, cmd, ap);
       if (ret >= 0)
         {
           ret = ftpc_sockprintf(&session->cmd, "\r\n");

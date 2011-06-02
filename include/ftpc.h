@@ -66,7 +66,7 @@
 #endif
 
 #ifndef CONFIG_FTP_MAXREPLY
-#  define CONFIG_FTP_MAXREPLY 21
+#  define CONFIG_FTP_MAXREPLY 256
 #endif
 
 #ifndef CONFIG_FTP_TMPDIR
@@ -74,7 +74,7 @@
 #endif
 
 #ifndef CONFIG_FTP_BUFSIZE
-#  define CONFIG_FTP_BUFSIZE 4096
+#  define CONFIG_FTP_BUFSIZE 1024
 #endif
 
 #ifndef CONFIG_FTP_MAXPATH

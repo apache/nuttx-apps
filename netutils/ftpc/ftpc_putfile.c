@@ -37,7 +37,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "ftpc_config.h"
 
 #include <sys/stat.h>
 #include <stdlib.h>

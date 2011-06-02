@@ -40,7 +40,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "ftpc_config.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -200,6 +200,8 @@ extern "C" {
   fgetc((s)->instream)
 #define ftpc_sockflush(s) \
   fflush((s)->outstream)
+#define ftpc_sockvprintf(s,f,ap) \
+  vfprintf((s)->outstream,f,ap)
 
 /****************************************************************************
  * Public Functions
@@ -237,7 +239,7 @@ EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
 
 /* Socket I/O helpers */
 
-EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock, const char *str, ...);
+EXTERN int ftpc_sockprintf(FAR struct ftpc_socket_s *sock, const char *fmt, ...);
 EXTERN void ftpc_timeout(int argc, uint32_t arg1, ...);
 
 /* Transfer helpers */

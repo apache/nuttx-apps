@@ -332,13 +332,13 @@ int ftpc_socklisten(struct ftpc_socket_s *sock)
  *
  ****************************************************************************/
 
-int ftpc_sockprintf(struct ftpc_socket_s *sock, const char *str, ...)
+int ftpc_sockprintf(struct ftpc_socket_s *sock, const char *fmt, ...)
 {
   va_list ap;
   int r;
 
-  va_start(ap, str);
-  r = vfprintf(sock->outstream, str, ap);
+  va_start(ap, fmt);
+  r = vfprintf(sock->outstream, fmt, ap);
   va_end(ap);
   return r;
 }
