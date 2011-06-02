@@ -85,6 +85,17 @@ int ftpc_rmdir(SESSION handle, FAR const char *path)
   ptr = strdup(path);
   ftpc_stripslash(ptr);
 
+  /* An RMD request asks the server to remove a directory. A typical server
+   * accepts RMD with:
+   *
+   * - "250 Requested file action okay, completed" if the directory was
+   *   successfully removed
+   *
+   * Or rejects RMD with:
+   *
+   * - "550 Requested action not taken" if the removal failed.
+   */
+
   ret = ftpc_cmd(session, "RMD %s", ptr);
   free(ptr);
   return ret;

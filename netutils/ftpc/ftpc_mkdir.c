@@ -87,6 +87,18 @@ int ftpc_mkdir(SESSION handle, FAR const char *path)
   ptr = strdup(path);
   ftpc_stripslash(ptr);
 
+  /* Send the MKD request. The MKD request asks the server to create a new
+   * directory. The server accepts the MKD with either:
+   *
+   * - "257 PATHNAME created" that includes the pathname of the directory
+   * - "250 - Requested file action okay, completed" if the directory was
+   *   successfully created.
+   *
+   * The server reject MKD with:
+   *
+   * - "550 Requested action not taken" if the creation failed.
+   */
+
   ret = ftpc_cmd(session, "MKD %s", ptr);
   free(ptr);
   return ret;

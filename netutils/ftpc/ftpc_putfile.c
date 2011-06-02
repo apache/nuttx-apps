@@ -208,6 +208,8 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                          FILE *stream, uint8_t how, uint8_t xfrmode)
 {
   long offset = session->offset;
+  FAR char *str;
+  int len;
   int ret;
 
   session->offset = 0;
@@ -236,6 +238,10 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
 
   ftpc_xfrmode(session, xfrmode);
 
+  /* The REST command sets the start position in the file.  Some servers
+   * allow REST immediately before STOR for binary files.
+   */
+
   if (offset > 0)
     {
       ret = ftpc_cmd(session, "REST %ld", offset);
@@ -243,19 +249,56 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
       session->rstrsize = offset;
     }
 
-  switch(how)
+  /* Send the file using STOR, STOU, or APPE:
+   *
+   * - STOR request asks the server to receive the contents of a file from
+   *   the data connection already established by the client.
+   * - APPE is just like STOR except that, if the file already exists, the
+   *   server appends the client's data to the file.
+   * - STOU is just like STOR except that it asks the server to create a
+   *   file under a new pathname selected by the server. If the server
+   *   accepts STOU, it provides the pathname in a human-readable format in
+   *   the text of its response.
+   */
+
+  switch (how)
     {
     case FTPC_PUT_UNIQUE:
-      ret = ftpc_cmd(session, "STOU %s", path);
+      {
+        ret = ftpc_cmd(session, "STOU %s", path);
 
-      /* Check for "502 Command not implemented" */
+        /* Check for "502 Command not implemented" */
 
-      if (session->code == 502)
-        {
-          /* The host does not support the STOU command */
+        if (session->code == 502)
+          {
+            /* The host does not support the STOU command */
 
-          FTPC_CLR_STOU(session);
-        }
+            FTPC_CLR_STOU(session);
+            return ERROR;
+          }
+
+        /* Get the remote filename from the response */
+ 
+        str = strstr(session->reply, " for ");
+        if (str)
+          {
+            str += 5;
+            len = strlen(str);
+            if (len)
+              {
+                free(session->lname);
+                if (*str == '\'')
+                  {
+                    session->lname = strndup(str+1, len-3);
+                  }
+                else
+                  {
+                    session->lname = strndup(str, len-1);
+                    nvdbg("Unique filename is: %s\n",  session->lname);
+                  }
+              }
+          }
+      }
       break;
 
     case FTPC_PUT_APPEND:
@@ -268,32 +311,34 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
       break;
   }
 
-  if (how == FTPC_PUT_UNIQUE)
-    {
-      /* Determine the remote filename */
- 
-      char *str = strstr(session->reply, " for ");
-      if (str)
-        {
-          int len;
-
-          str += 5;
-          len = strlen(str);
-         if (len)
-           {
-             free(session->lname);
-             if (*str == '\'')
-               {
-                 session->lname = strndup(str+1, len-3);
-               }
-             else
-               {
-                 session->lname = strndup(str, len-1);
-                 nvdbg("parsed unique filename as '%s'\n",  session->lname);
-               }
-           }
-        }
-    }
+  /* If the server is willing to create a new file under that name, or
+   * replace an existing file under that name, it responds with a mark
+   * using code 150:
+   *
+   * - "150 File status okay; about to open data connection"
+   *
+   * It then attempts to read the contents of the file from the data
+   * connection, and closes the data connection. Finally it accepts the STOR
+   * with:
+   *
+   * - "226 Closing data connection" if the entire file was successfully
+   *    received and stored
+   *
+   * Or rejects the STOR with:
+   *
+   * - "425 Can't open data connection" if no TCP connection was established
+   * - "426 Connection closed; transfer aborted" if the TCP connection was
+   *    established but then broken by the client or by network failure
+   * - "451 Requested action aborted: local error in processing",
+   *   "452 - Requested action not taken", or "552 Requested file action
+   *   aborted" if the server had trouble saving the file to disk.
+   *
+   * The server may reject the STOR request with:
+   *
+   * - "450 Requested file action not taken", "452 - Requested action not
+   *   taken" or "553 Requested action not taken" without first responding
+   *   with a mark. 
+   */
 
   ret = ftpc_sockaccept(&session->data, "w", FTPC_IS_PASSIVE(session));
   if (ret != OK)

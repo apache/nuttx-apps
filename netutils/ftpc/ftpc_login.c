@@ -147,7 +147,21 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
   int err;
   int ret;
 
-  /* Log into the server */
+  /* Log into the server.  First send the USER command.  The server may accept
+   * USER with:
+   *
+   * - "230 User logged in, proceed" meaning that the client has permission to
+   *    access files under that username
+   * - "331 "User name okay, need password" or "332 Need account for login"
+   *    meaning that permission might be granted after a PASS request.
+   *
+   * Or the server may reject USER with:
+   *
+   * - "530 Not logged in" meaning that the username is unacceptable.
+   *
+   * In practice, the server does not check the username until after a PASS
+   * request
+   */
 
   FTPC_CLR_LOGGEDIN(session);
   ret = ftpc_cmd(session, "USER %s", session->uname);
@@ -157,6 +171,21 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
       return ERROR;
     }
 
+  /* Send the PASS command with the passed. The server may accept PASS with:
+   *
+   * - "230 User logged in, proceed" meaning that the client has permission to
+   *    access files under that username
+   * - "202 Command not implemented, superfluous at this site" meaning that
+   *    permission was already granted in response to USER
+   * - "332 Need account for login" meaning that permission might be granted
+   *    after an ACCT request.
+   *
+   * The server may reject PASS with:
+   *
+   * - "503 Bad sequence of commands" if the previous request was not USER
+   * - "530 - Not logged in" if this username and password are unacceptable.
+   */
+
   ret = ftpc_cmd(session, "PASS %s", session->pwd);
   if (ret != OK)
     {
@@ -164,10 +193,19 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
       return ret;
     }
 
+  /* We are logged in.. the current working directory on login is our "home"
+   * directory.
+   */
+
   FTPC_SET_LOGGEDIN(session);
   session->homedir = ftpc_pwd((SESSION)session);
   session->curdir  = strdup(session->homedir);
   session->prevdir = strdup(session->homedir);
+
+  /* If the user has requested a special start up directory, then change to
+   * that directory now.
+   */
+
   if (session->initdir)
     {
       ftpc_chdir((SESSION)session, session->initdir);

@@ -87,6 +87,19 @@ int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname
 
   oldcopy = strdup(oldname);
   ftpc_stripslash(oldcopy);
+
+  /* A RNFR request asks the server to begin renaming a file. A typical
+   * server accepts RNFR with:
+   *
+   * - "350 Requested file action pending further information" if the file
+   *   exists
+   *
+   * Or rejects RNFR with:
+   *
+   * - "450 Requested file action not taken"
+   * - "550 Requested action not taken"
+   */
+
   ret = ftpc_cmd(session, "RNFR %s", oldcopy);
   if (ret != OK)
     {
@@ -96,6 +109,23 @@ int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname
 
   newcopy = strdup(newname);
   ftpc_stripslash(newcopy);
+  
+  /* A RNTO request asks the server to finish renaming a file. RNTO must
+   * come immediately after RNFR; otherwise the server may reject RNTO with:
+   *
+   * - "503 Bad sequence of commands"
+   *
+   * A typical server accepts RNTO with:
+   *
+   * - "250 Requested file action okay, completed" if the file was renamed
+   *   successfully
+   *
+   * Or rejects RMD with:
+   *
+   * - "550 Requested action not taken"
+   * - "553 Requested action not taken"
+   */
+
   ret = ftpc_cmd(session, "RNTO %s", newcopy);
 
   free(oldcopy);

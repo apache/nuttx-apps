@@ -256,7 +256,15 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
       return ERROR;
     }
 
-  /* Send the "NLST" command */
+  /* Send the "NLST" command.  Normally the server responds with a mark
+   * using code 150:
+   *
+   * - "150 File status okay; about to open data connection"
+   *
+   * It then stops accepting new connections, attempts to
+   * send the contents of the directory over the data connection, and
+   * closes the data connection.
+   */
 
   ret = ftpc_cmd(session, "NLST");
   if (ret != OK)
@@ -273,7 +281,7 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
       return ERROR;
     }
 
-  /* Receive the NLST response */
+  /* Receive the NLST directory list  */
 
   ret = ftpc_recvtext(session, session->data.instream, outstream);
   ftpc_sockclose(&session->data);
@@ -282,7 +290,24 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
       return ERROR;
     }
 
-  /* Get the server reply */
+  /* Get the server reply. After closing the data connection, the should
+   * accept the request with:
+   *
+   * - "226 Closing data connection" if the entire directory was
+   *    successfully transmitted;
+   *
+   * Or reject it with:
+   *
+   * - "425 Can't open data connection" if no TCP connection was established
+   * - "426 - Connection closed; transfer aborted" if the TCP connection was
+   *    established but then broken by the client or by network failure
+   * - "451 - Requested action aborted: local error in processing" if the
+   *    server had trouble reading the directory from disk.
+   *
+   * The server may reject the LIST or NLST request (with code 450 or 550)
+   * without first responding with a mark. In this case the server does not
+   * touch the data connection.
+   */
 
   fptc_getreply(session);
   return OK;

@@ -115,7 +115,10 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
     return ERROR;
   }
 
-  /* Request passive mode */
+  /* Request passive mode.  The server normally accepts PASV with code 227.
+   * Its response is a single line showing the IP address of the server and
+   * the TCP port number where the server is accepting connections.
+   */
 
   ret = ftpc_cmd(session, "PASV");
   if (ret < 0 || !ftpc_connected(session))
@@ -277,12 +280,25 @@ int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode)
 {
   int ret;
 
+  /* Check if we have already selected the requested mode */
+
   DEBUGASSERT(xfrmode != FTPC_XFRMODE_UNKNOWN);
   if (session->xfrmode != xfrmode)
-  {
-    ret = ftpc_cmd(session, "TYPE %c", xfrmode == FTPC_XFRMODE_ASCII ? 'A' : 'I');
-    session->xfrmode = xfrmode;
-  }
+    {
+      /* Send the TYPE request to control the binary flag.  Parameters for the
+       * TYPE request include:
+       *
+       *  A: Turn the binary flag off.
+       *  A N: Turn the binary flag off.
+       *  I: Turn the binary flag on.
+       *  L 8: Turn the binary flag on.
+       *
+       *  The server accepts the TYPE request with code 200.
+       */
+  
+      ret = ftpc_cmd(session, "TYPE %c", xfrmode == FTPC_XFRMODE_ASCII ? 'A' : 'I');
+      session->xfrmode = xfrmode;
+    }
   return OK;
 }
 

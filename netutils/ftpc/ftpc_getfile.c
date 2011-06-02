@@ -120,7 +120,27 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
       session->rstrsize = offset;
     }
 
-  /* Send the RETR (Retrieve a remote file) command */
+  /* Send the RETR (Retrieve a remote file) command.  Normally the server
+   * responds with a mark using code 150:
+   *
+   * - "150 File status okay; about to open data connection"
+   *
+   * It then stops accepting new connections, attempts to send the contents
+   * of the file over the data connection, and closes the data connection.
+   * Finally it either accepts the RETR request with:
+   *
+   * - "226 Closing data connection" if the entire file was successfully
+   *    written to the server's TCP buffers
+   *
+   * Or rejects the RETR request with:
+   *
+   * - "425 Can't open data connection" if no TCP connection was established
+   * - "426 Connection closed; transfer aborted" if the TCP connection was
+   *    established but then broken by the client or by network failure
+   * - "451 Requested action aborted: local error in processing" or
+   *   "551 Requested action aborted: page type unknown" if the server had
+   *   trouble reading the file from disk.
+   */
 
   ret = ftpc_cmd(session, "RETR %s", path);
   if (ret < 0)
