@@ -95,6 +95,7 @@ static const struct cmdmap_s g_cmdmap[] =
   { "size",     cmd_rsize,   2, 2, "<filepath>" },
   { "time",     cmd_rtime,   2, 2, "<filepath>" },
   { "up",       cmd_rcdup,   1, 1, "" },
+  { NULL,       NULL,        1, 1, NULL }
 };
 
 static char g_line[CONFIG_FTPC_LINELEN];
@@ -383,7 +384,7 @@ int ftpc_main(int argc, char **argv, char **envp)
 
   /* Present a greeting */
 
-  printf("FTPC:\n");
+  printf("NuttX FTP Client:\n");
   FFLUSH();
 
   /* Then enter the command line parsing loop */
@@ -392,7 +393,7 @@ int ftpc_main(int argc, char **argv, char **envp)
     {
       /* Display the prompt string */
 
-      fputs("FTPC>", stdout);
+      fputs("nfc> ", stdout);
       FFLUSH();
 
       /* Get the next line of input */

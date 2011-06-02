@@ -220,10 +220,10 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
 #ifdef CONFIG_DEBUG
   ndbg("Connected\n");
-  tmp = inet_ntoa(session->cmd.raddr.sin_addr);
-  ndbg("  Remote address: %s:%d\n", tmp, ntohs(session->cmd.raddr.sin_port));
+  tmp = inet_ntoa(addr.sin_addr);
+  ndbg("  Remote address: %s:%d\n", tmp, ntohs(addr.sin_port));
   tmp = inet_ntoa(session->cmd.laddr.sin_addr);
-  ndbg("  Local address: %s:d\n", tmp, ntohs(session->cmd.laddr.sin_port));
+  ndbg("  Local address: %s:%d\n", tmp, ntohs(session->cmd.laddr.sin_port));
 #endif
   return OK;
 

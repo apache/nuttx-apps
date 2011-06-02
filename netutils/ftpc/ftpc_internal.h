@@ -140,7 +140,6 @@ struct ftpc_socket_s
   FILE              *instream;             /* Incoming stream */
   FILE              *outstream;            /* Outgoing stream */
   struct sockaddr_in laddr;                /* Local address */
-  struct sockaddr_in raddr;                /* Remote address */
   bool               connected;            /* True: socket is connected */
 };
 

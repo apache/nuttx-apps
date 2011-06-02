@@ -82,12 +82,9 @@
 
 int ftpc_sockinit(FAR struct ftpc_socket_s *sock)
 {
-  int dupsd;
-
   /* Initialize the socket structure */
 
   memset(sock, 0, sizeof(struct ftpc_socket_s));
-  sock->raddr.sin_family = AF_INET;
 
   /* Create a socket descriptor */
 
@@ -98,50 +95,40 @@ int ftpc_sockinit(FAR struct ftpc_socket_s *sock)
       goto errout;
     }
 
-  /* 'dup' the socket descriptor to create an independent input stream */
+  /* Call fdopen to "wrap" the socket descriptor as an input stream using C
+   * buffered I/O.
+   */
 
-  dupsd = dup(sock->sd);
-  if (dupsd < 0)
-    {
-      ndbg("socket() failed: %d\n", errno);
-      goto errout_with_sd;
-    }
-
-  /* Call fdopen to "wrap" the input stream with C buffered I/O */
-
-  sock->instream = fdopen(dupsd, "r");
+  sock->instream = fdopen(sock->sd, "r");
   if (!sock->instream)
     {
       ndbg("fdopen() failed: %d\n", errno);
-      close(dupsd);
       goto errout_with_sd;
     }
 
-  /* 'dup' the socket descriptor to create an independent output stream */
+  /* Call fdopen to "wrap" the socket descriptor as an output stream using C
+   * buffered I/O.
+   */
 
-  dupsd = dup(sock->sd);
-  if (dupsd < 0)
-    {
-      ndbg("socket() failed: %d\n", errno);
-      goto errout_with_instream;
-    }
-
-  /* Call fdopen to "wrap" the output stream with C buffered I/O */
-
-  sock->outstream = fdopen(dupsd, "w");
+  sock->outstream = fdopen(sock->sd, "w");
   if (!sock->outstream)
     {
       ndbg("fdopen() failed: %d\n", errno);
-      close(dupsd);
       goto errout_with_instream;
     }
 
   return OK;
 
+/* Close the instream.  NOTE:  Since the underlying socket descriptor is
+ * *not* dup'ed, the following close should fail harmlessly.
+ */
+
 errout_with_instream:
   fclose(sock->instream);
+  sock->instream = NULL;
 errout_with_sd:
   close(sock->sd);
+  sock->sd = -1;
 errout:
   return ERROR;
 }
@@ -156,17 +143,23 @@ errout:
 
 void ftpc_sockclose(struct ftpc_socket_s *sock)
 {
+  /* Note that the same underlying socket descriptor is used for both streams.
+   * There should be harmless failures on the second fclose and the close.
+   */
+
   fclose(sock->instream);
   fclose(sock->outstream);
   close(sock->sd);
   memset(sock, 0, sizeof(struct ftpc_socket_s));
+  sock->sd = -1;
 }
 
 /****************************************************************************
  * Name: ftpc_sockconnect
  *
  * Description:
- *   Connect the socket to the host
+ *   Connect the socket to the host.  On a failure, the caller should call.
+ *   ftpc_sockclose() to clean up.
  *
  ****************************************************************************/
 
@@ -174,13 +167,12 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
 {
   int ret;
 
-  /* Connect to the socket */
+  /* Connect to the server */
 
   ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr));
   if (ret < 0)
     {
       ndbg("connect() failed: %d\n", errno);
-      close(sock->sd);
       return ERROR;
     }
 
@@ -190,7 +182,6 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
   if (ret < 0)
     {
       ndbg("ftpc_sockgetsockname() failed: %d\n", errno);
-      close(sock->sd);
       return ERROR;
     }
   sock->connected = true;
@@ -209,7 +200,6 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
 void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
                    FAR const struct ftpc_socket_s *src)
 {
-  memcpy(&dest->raddr, &src->raddr, sizeof(struct sockaddr_in));
   memcpy(&dest->laddr, &src->laddr, sizeof(struct sockaddr_in));
   dest->connected = ftpc_sockconnected(src);
 }
@@ -226,8 +216,13 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
 {
   struct sockaddr addr;
   socklen_t addrlen;
-  int dupsd;
   int sd;
+
+  /* Any previous socket should have been uninitialized (0) or explicitly
+   * closed (-1).
+   */
+
+  DEBUGASSERT(sock->sd == 0 || sock->sd == -1);
 
   /* In active mode FTP the client connects from a random port (N>1023) to the
    * FTP server's command port, port 21. Then, the client starts listening to
@@ -248,63 +243,45 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
 
   if (!passive)
     {
-      addrlen = sizeof(addr);
-      sd      = accept(sock->sd, &addr, &addrlen);
-      close(sock->sd);
+      addrlen  = sizeof(addr);
+      sock->sd = accept(sock->sd, &addr, &addrlen);
       if (sd == -1)
         {
           ndbg("accept() failed: %d\n", errno);
-          sock->sd = -1;
           return ERROR;
         }
-
-      sock->sd = sd;
       memcpy(&sock->laddr, &addr, sizeof(sock->laddr));
     }
 
-  /* Create in/out C buffer I/O streams on the cmd channel */
+  /* Create in/out C buffer I/O streams on the data channel.  First, create
+   * the incoming buffered stream.
+   */
 
-  fclose(sock->instream);
-  fclose(sock->outstream);
-
-  /* Dup the socket descriptor and create the incoming stream */
-
-  dupsd = dup(sock->sd);
-  if (dupsd < 0)
-    {
-      ndbg("dup() failed: %d\n", errno);
-      goto errout_with_sd;
-    }
-
-  sock->instream = fdopen(dupsd, mode);
+  sock->instream = fdopen(sock->sd, mode);
   if (!sock->instream)
     {
       ndbg("fdopen() failed: %d\n", errno);
-      close(dupsd);
       goto errout_with_sd;
     }
 
-  /* Dup the socket descriptor and create the outgoing stream */
+  /* Create the outgoing stream */
 
-  dupsd = dup(sock->sd);
-  if (dupsd < 0)
-    {
-      ndbg("dup() failed: %d\n", errno);
-      goto errout_with_instream;
-    }
-
-  sock->outstream = fdopen(dupsd, mode);
+  sock->outstream = fdopen(sock->sd, mode);
   if (!sock->outstream)
     {
       ndbg("fdopen() failed: %d\n", errno);
-      close(dupsd);
       goto errout_with_instream;
     }
 
   return OK;
 
+/* Close the instream.  NOTE:  Since the underlying socket descriptor is
+ * *not* dup'ed, the following close should fail harmlessly.
+ */
+
 errout_with_instream:
   fclose(sock->instream);
+  sock->instream = NULL;
 errout_with_sd:
   close(sock->sd);
   sock->sd = -1;
