@@ -377,10 +377,10 @@ int ftpc_sockprintf(struct ftpc_socket_s *sock, const char *str, ...)
 int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
                          FAR struct sockaddr_in *addr)
 {
-  unsigned int len = sizeof(struct sockaddr_in);
+  socklen_t len = sizeof(struct sockaddr_in);
   int ret;
 
-  ret = getsockname(sock->sd, (struct sockaddr *)addr, &len);
+  ret = getsockname(sock->sd, (FAR struct sockaddr *)addr, &len);
   if (ret < 0)
     {
       ndbg("getsockname failed: %d\n", errno);

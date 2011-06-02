@@ -102,24 +102,24 @@ extern void ftpc_freefullpath(char *relpath);
 
 /* FTP command handlers */
 
-extern int cmd_login(SESSION handle, int argc, char **argv);
-extern int cmd_quit(SESSION handle, int argc, char **argv);
-extern int cmd_chdir(SESSION handle, int argc, char **argv);
+extern int cmd_rlogin(SESSION handle, int argc, char **argv);
+extern int cmd_rquit(SESSION handle, int argc, char **argv);
+extern int cmd_rchdir(SESSION handle, int argc, char **argv);
 extern int cmd_rpwd(SESSION handle, int argc, char **argv);
-extern int cmd_cdup(SESSION handle, int argc, char **argv);
-extern int cmd_mkdir(SESSION handle, int argc, char **argv);
+extern int cmd_rcdup(SESSION handle, int argc, char **argv);
+extern int cmd_rmkdir(SESSION handle, int argc, char **argv);
 
-extern int cmd_rmdir(SESSION handle, int argc, char **argv);
-extern int cmd_unlink(SESSION handle, int argc, char **argv);
-extern int cmd_chmod(SESSION handle, int argc, char **argv);
-extern int cmd_rename(SESSION handle, int argc, char **argv);
-extern int cmd_size(SESSION handle, int argc, char **argv);
-extern int cmd_time(SESSION handle, int argc, char **argv);
-extern int cmd_idle(SESSION handle, int argc, char **argv);
-extern int cmd_noop(SESSION handle, int argc, char **argv);
+extern int cmd_rrmdir(SESSION handle, int argc, char **argv);
+extern int cmd_runlink(SESSION handle, int argc, char **argv);
+extern int cmd_rchmod(SESSION handle, int argc, char **argv);
+extern int cmd_rrename(SESSION handle, int argc, char **argv);
+extern int cmd_rsize(SESSION handle, int argc, char **argv);
+extern int cmd_rtime(SESSION handle, int argc, char **argv);
+extern int cmd_ridle(SESSION handle, int argc, char **argv);
+extern int cmd_rnoop(SESSION handle, int argc, char **argv);
 extern int cmd_rhelp(SESSION handle, int argc, char **argv);
 extern int cmd_rls(SESSION handle, int argc, char **argv);
-extern int cmd_get(SESSION handle, int argc, char **argv);
-extern int cmd_put(SESSION handle, int argc, char **argv);
+extern int cmd_rget(SESSION handle, int argc, char **argv);
+extern int cmd_rput(SESSION handle, int argc, char **argv);
 
 #endif /* __APPS_EXAMPLES_FTPC_FTPC_H */

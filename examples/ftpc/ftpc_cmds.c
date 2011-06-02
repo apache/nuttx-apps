@@ -61,10 +61,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cmd_login
+ * Name: cmd_rlogin
  ****************************************************************************/
 
-int cmd_login(SESSION handle, int argc, char **argv)
+int cmd_rlogin(SESSION handle, int argc, char **argv)
 {
   struct ftpc_login_s login = {0, 0, 0, true};
 
@@ -78,10 +78,10 @@ int cmd_login(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_quit
+ * Name: cmd_rquit
  ****************************************************************************/
 
-int cmd_quit(SESSION handle, int argc, char **argv)
+int cmd_rquit(SESSION handle, int argc, char **argv)
 {
   int ret = ftpc_quit(handle);
   if (ret < 0)
@@ -94,10 +94,10 @@ int cmd_quit(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_chdir
+ * Name: cmd_rchdir
  ****************************************************************************/
 
-int cmd_chdir(SESSION handle, int argc, char **argv)
+int cmd_rchdir(SESSION handle, int argc, char **argv)
 {
   return ftpc_chdir(handle, argv[1]);
 }
@@ -119,64 +119,64 @@ int cmd_rpwd(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_cdup
+ * Name: cmd_rcdup
  ****************************************************************************/
 
-int cmd_cdup(SESSION handle, int argc, char **argv)
+int cmd_rcdup(SESSION handle, int argc, char **argv)
 {
   return ftpc_cdup(handle);
 }
 
 /****************************************************************************
- * Name: cmd_mkdir
+ * Name: cmd_rmkdir
  ****************************************************************************/
 
-int cmd_mkdir(SESSION handle, int argc, char **argv)
+int cmd_rmkdir(SESSION handle, int argc, char **argv)
 {
   return ftpc_mkdir(handle, argv[1]);
 }
 
 /****************************************************************************
- * Name: cmd_rmdir
+ * Name: cmd_rrmdir
  ****************************************************************************/
 
-int cmd_rmdir(SESSION handle, int argc, char **argv)
+int cmd_rrmdir(SESSION handle, int argc, char **argv)
 {
   return ftpc_rmdir(handle, argv[1]);
 }
 
 /****************************************************************************
- * Name: cmd_unlink
+ * Name: cmd_runlink
  ****************************************************************************/
 
-int cmd_unlink(SESSION handle, int argc, char **argv)
+int cmd_runlink(SESSION handle, int argc, char **argv)
 {
   return ftpc_unlink(handle, argv[1]);
 }
 
 /****************************************************************************
- * Name: cmd_chmod
+ * Name: cmd_rchmod
  ****************************************************************************/
 
-int cmd_chmod(SESSION handle, int argc, char **argv)
+int cmd_rchmod(SESSION handle, int argc, char **argv)
 {
   return ftpc_chmod(handle, argv[1], argv[2]);
 }
 
 /****************************************************************************
- * Name: cmd_rename
+ * Name: cmd_rrename
  ****************************************************************************/
 
-int cmd_rename(SESSION handle, int argc, char **argv)
+int cmd_rrename(SESSION handle, int argc, char **argv)
 {
   return ftpc_rename(handle, argv[1], argv[2]);
 }
 
 /****************************************************************************
- * Name: cmd_size
+ * Name: cmd_rsize
  ****************************************************************************/
 
-int cmd_size(SESSION handle, int argc, char **argv)
+int cmd_rsize(SESSION handle, int argc, char **argv)
 {
   uint64_t size = ftpc_filesize(handle, argv[1]);
   printf("SIZE: %ull\n", size);
@@ -184,10 +184,10 @@ int cmd_size(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_time
+ * Name: cmd_rtime
  ****************************************************************************/
 
-int cmd_time(SESSION handle, int argc, char **argv)
+int cmd_rtime(SESSION handle, int argc, char **argv)
 {
   time_t filetime = ftpc_filetime(handle, argv[1]);
   printf("TIME: %ul\n", (long)filetime);
@@ -195,10 +195,10 @@ int cmd_time(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_idle
+ * Name: cmd_ridle
  ****************************************************************************/
 
-int cmd_idle(SESSION handle, int argc, char **argv)
+int cmd_ridle(SESSION handle, int argc, char **argv)
 {
   unsigned int idletime = 0;
 
@@ -211,10 +211,10 @@ int cmd_idle(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_noop
+ * Name: cmd_rnoop
  ****************************************************************************/
 
-int cmd_noop(SESSION handle, int argc, char **argv)
+int cmd_rnoop(SESSION handle, int argc, char **argv)
 {
   return ftpc_noop(handle);
 }
@@ -270,10 +270,10 @@ int cmd_rls(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_get
+ * Name: cmd_rget
  ****************************************************************************/
 
-int cmd_get(SESSION handle, int argc, char **argv)
+int cmd_rget(SESSION handle, int argc, char **argv)
 {
   FAR const char *lname = argv[1];
 
@@ -285,10 +285,10 @@ int cmd_get(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_put
+ * Name: cmd_rput
  ****************************************************************************/
 
-int cmd_put(SESSION handle, int argc, char **argv)
+int cmd_rput(SESSION handle, int argc, char **argv)
 {
   FAR const char *rname = argv[1];
 

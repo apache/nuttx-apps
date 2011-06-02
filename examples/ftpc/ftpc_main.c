@@ -71,30 +71,30 @@ struct cmdmap_s
 
 static const char g_delim[] = " \t\n";
 
-static int cmd_help(SESSION handle, int argc, char **argv);
-static int cmd_unrecognized(SESSION handle, int argc, char **argv);
+static int cmd_lhelp(SESSION handle, int argc, char **argv);
+static int cmd_lunrecognized(SESSION handle, int argc, char **argv);
 
 static const struct cmdmap_s g_cmdmap[] =
 {
-  { "cd",       cmd_chdir,  2, 2, "<directory>" },
-  { "chmod",    cmd_chmod,  3, 3, "<permissions> <path>" },
-  { "get",      cmd_unlink, 2, 3, "<rname> [<lname>]" },
-  { "help",     cmd_help,   1, 2, "" },
-  { "idle",     cmd_idle,   1, 2, "[<idletime>]" },
-  { "login",    cmd_login,  2, 3, "<uname> [<password>]" },
-  { "ls",       cmd_login,  1, 2, "[<dirpath>]" },
-  { "quit",     cmd_login,  1, 1, "" },
-  { "mkdir",    cmd_mkdir,  2, 2, "<directory>" },
-  { "noop",     cmd_noop,   1, 1, "" },
-  { "put",      cmd_unlink, 2, 3, "<lname> [<rname>]" },
-  { "pwd",      cmd_rpwd,   1, 1, "" },
-  { "rename",   cmd_rename, 3, 3, "<oldname> <newname>" },
-  { "rhelp",    cmd_rhelp,  1, 2, "[<command>]" },
-  { "rm",       cmd_unlink, 2, 2, "" },
-  { "rmdir",    cmd_rmdir,  2, 2, "<directory>" },
-  { "size",     cmd_size,   2, 2, "<filepath>" },
-  { "time",     cmd_time,   2, 2, "<filepath>" },
-  { "up",       cmd_cdup,   1, 1, "" },
+  { "cd",       cmd_rchdir,  2, 2, "<directory>" },
+  { "chmod",    cmd_rchmod,  3, 3, "<permissions> <path>" },
+  { "get",      cmd_rget,    2, 3, "<rname> [<lname>]" },
+  { "help",     cmd_lhelp,   1, 2, "" },
+  { "idle",     cmd_ridle,   1, 2, "[<idletime>]" },
+  { "login",    cmd_rlogin,  2, 3, "<uname> [<password>]" },
+  { "ls",       cmd_rls,     1, 2, "[<dirpath>]" },
+  { "quit",     cmd_rquit,   1, 1, "" },
+  { "mkdir",    cmd_rmkdir,  2, 2, "<directory>" },
+  { "noop",     cmd_rnoop,   1, 1, "" },
+  { "put",      cmd_rput,    2, 3, "<lname> [<rname>]" },
+  { "pwd",      cmd_rpwd,    1, 1, "" },
+  { "rename",   cmd_rrename, 3, 3, "<oldname> <newname>" },
+  { "rhelp",    cmd_rhelp,   1, 2, "[<command>]" },
+  { "rm",       cmd_runlink, 2, 2, "" },
+  { "rmdir",    cmd_rrmdir,  2, 2, "<directory>" },
+  { "size",     cmd_rsize,   2, 2, "<filepath>" },
+  { "time",     cmd_rtime,   2, 2, "<filepath>" },
+  { "up",       cmd_rcdup,   1, 1, "" },
 };
 
 static char g_line[CONFIG_FTPC_LINELEN];
@@ -104,10 +104,10 @@ static char g_line[CONFIG_FTPC_LINELEN];
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cmd_help
+ * Name: cmd_lhelp
  ****************************************************************************/
 
-static int cmd_help(SESSION handle, int argc, char **argv)
+static int cmd_lhelp(SESSION handle, int argc, char **argv)
 {
   const struct cmdmap_s *ptr;
 
@@ -127,10 +127,10 @@ static int cmd_help(SESSION handle, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_unrecognized
+ * Name: cmd_lunrecognized
  ****************************************************************************/
 
-static int cmd_unrecognized(SESSION handle, int argc, char **argv)
+static int cmd_lunrecognized(SESSION handle, int argc, char **argv)
 {
   printf("Command %s unrecognized\n", argv[0]);
   return ERROR;
@@ -226,7 +226,7 @@ static int ftpc_execute(SESSION handle, int argc, char *argv[])
 {
    const struct cmdmap_s *cmdmap;
    const char            *cmd;
-   cmd_t                  handler = cmd_unrecognized;
+   cmd_t                  handler = cmd_lunrecognized;
    int                    ret;
 
    /* The form of argv is:

@@ -98,8 +98,18 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
   /* Initialize the session structure */
 
   session->addr.s_addr  = server->addr.s_addr;
-  session->port         = server->port ? server->port : CONFIG_FTP_DEFPORT;
   session->pid          = getpid();
+
+  /* Use the default port if the user specified port number zero */
+
+  if (!server->port)
+    {
+      session->port     = HTONS(CONFIG_FTP_DEFPORT);
+    }
+  else
+    {
+      session->port     = htons(server->port);
+    }
 
   /* Create up a timer to prevent hangs */
 
@@ -165,7 +175,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
 #ifdef CONFIG_DEBUG
   tmp = inet_ntoa(session->addr);
-  ndbg("Connecting to server address %s:%d\n", tmp, ntohl(session->port));
+  ndbg("Connecting to server address %s:%d\n", tmp, ntohs(session->port));
 #endif
 
   addr.sin_family      = AF_INET;
@@ -211,9 +221,9 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 #ifdef CONFIG_DEBUG
   ndbg("Connected\n");
   tmp = inet_ntoa(session->cmd.raddr.sin_addr);
-  ndbg("  Remote address: %s:%d\n", tmp, ntohl(session->cmd.raddr.sin_port));
+  ndbg("  Remote address: %s:%d\n", tmp, ntohs(session->cmd.raddr.sin_port));
   tmp = inet_ntoa(session->cmd.laddr.sin_addr);
-  ndbg("  Local address: %s:d\n", tmp, ntohl(session->cmd.laddr.sin_port));
+  ndbg("  Local address: %s:d\n", tmp, ntohs(session->cmd.laddr.sin_port));
 #endif
   return OK;
 

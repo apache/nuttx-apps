@@ -116,9 +116,10 @@ typedef FAR void *SESSION;
  *
  * addr - The IPv4 address of the FTP server (or the proxy) for the FTP
  *        server.
- * port - The port number on the FTP server to connect to.  This is usually
- *        port 21 for FTP.  You may set this value to zero to let FTPC
- *        select the default port number for you (CONFIG_FTP_DEFPORT).
+ * port - The port number on the FTP server to connect to (in host byte
+ *        order).  This is usually port 21 for FTP.  You may set this
+ *        value to zero to let FTPC select the default port number for
+ *        you (it will use CONFIG_FTP_DEFPORT).
  */
 
 struct ftpc_connect_s
