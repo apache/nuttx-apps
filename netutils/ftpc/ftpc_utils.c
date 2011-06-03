@@ -182,7 +182,7 @@ void ftpc_stripslash(FAR char *str)
       if (len > 1)
         {
           ptr = str + len - 1;
-          if (*ptr == '/');
+          if (*ptr == '/')
             {
               *ptr = '\0';
             }

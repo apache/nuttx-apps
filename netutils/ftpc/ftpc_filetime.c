@@ -74,7 +74,8 @@
  * Name: ftpc_filetime
  *
  * Descripton:
- *   Return the timestamp on the remote file.
+ *   Return the timestamp on the remote file.  Returned time is UTC
+ *   (Universal Coordinated Time).
  *
  ****************************************************************************/
 

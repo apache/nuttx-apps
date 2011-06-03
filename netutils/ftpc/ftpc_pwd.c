@@ -113,9 +113,15 @@ FAR char *ftpc_pwd(SESSION handle)
       return NULL;
     }
 
-  /* Allocate memory for the path name */
+  /* Allocate memory for the path name:
+   *
+   *   Reply: 257 "/home/gnutt"
+   *               ^start     ^end
+   *
+   *   len = end - start + 1 = 11 (+ NUL terminator)
+   */
  
-  len = end - start;
+  len = end - start + 1;
   pwd = (char *)malloc(len + 1);
   if (!pwd)
     {
