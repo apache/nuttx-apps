@@ -95,21 +95,23 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
       goto errout;
     }
 
-  /* Initialize the session structure */
+  /* Initialize the session structure with all non-zero and variable values */
 
-  ftpc_reset(session);
-  session->addr.s_addr  = server->addr.s_addr;
-  session->pid          = getpid();
+  session->addr.s_addr = server->addr.s_addr;
+  session->flags       = FTPC_FLAGS_INIT;
+  session->replytimeo  = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
+  session->conntimeo   = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
+  session->pid         = getpid();
 
   /* Use the default port if the user specified port number zero */
 
   if (!server->port)
     {
-      session->port     = HTONS(CONFIG_FTP_DEFPORT);
+      session->port = HTONS(CONFIG_FTP_DEFPORT);
     }
   else
     {
-      session->port     = htons(server->port);
+      session->port = htons(server->port);
     }
 
   /* Create up a timer to prevent hangs */
@@ -124,6 +126,7 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
       ndbg("ftpc_reconnect() failed: %d\n", errno);
       goto errout_with_alloc;
     }
+
   return (SESSION)session;
 
 errout_with_alloc:
@@ -182,6 +185,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
   addr.sin_family      = AF_INET;
   addr.sin_port        = session->port;
   addr.sin_addr.s_addr = session->addr.s_addr;
+
   ret = ftpc_sockconnect(&session->cmd, &addr);
   if (ret != OK)
     {
