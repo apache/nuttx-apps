@@ -74,79 +74,6 @@ typedef void (*callback_t)(FAR const char *name, FAR void *arg);
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ftpc_abspath
- *
- * Description:
- *   Get the absolute path to a file, handling tilde expansion.
- *
- ****************************************************************************/
-
-static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
-                              FAR const char *relpath)
-{
-  FAR char *ptr = NULL;
-  int ret = OK;
-
-  /* If no relative path was provide, then use the current working directory */
-
-  if (!relpath)
-    {
-      return strdup(session->curdir);
-    }
-
-  /* Handle tilde expansion */
-
-  if (relpath[0] == '~')
-    {
-      /* Is the relative path only '~' */
- 
-      if (relpath[1] == '\0')
-        {
-          return strdup(session->homedir);
-        }
-
-      /* No... then a '/' better follow the tilde */
-
-      else if (relpath[1] == '/')
-        {
-          ret = asprintf(&ptr, "%s%s", session->homedir, &relpath[1]);
-        }
-
-      /* Hmmm... this prety much guaranteed to fail */
-
-      else
-        {
-          ptr = strdup(relpath);
-        }
-    }
-
-  /* No tilde expansion.  Check for a path relative to the current
-   * directory.
-   */
-  
-  else if (strncmp(relpath, "./", 2) == 0)
-    {
-      ret = asprintf(&ptr, "%s%s", session->curdir, relpath+1);
-    }
-
-  /* Check for an absolute path */
-
-  else if (relpath[0] == '/' && relpath[1] == ':' && relpath[2] == '\\')
-    {
-      ptr = strdup(relpath);
-    }
-
-  /* Take a wild guess */
-
-  else
-    {
-      ret = asprintf(&ptr, "%s/%s", session->curdir, relpath);
-    }
-
-  return ptr;
-}
-
-/****************************************************************************
  * Name: ftpc_dircount
  *
  * Description:
@@ -342,30 +269,30 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
   struct ftpc_dirlist_s *dirlist;
   FILE *filestream;
-  FAR char *abspath;
+  FAR char *absrpath;
   FAR char *tmpfname;
-  bool iscurdir;
+  bool iscurrdir;
   unsigned int nnames;
   int allocsize;
   int ret;
 
   /* Get the absolute path to the directory */
 
-  abspath = ftpc_abspath(session, dirpath);
-  ftpc_stripslash(abspath);
+  absrpath = ftpc_absrpath(session, dirpath);
+  ftpc_stripslash(absrpath);
 
   /* Is the directory also the remote current working directory? */
 
-  iscurdir = (strcmp(abspath, session->curdir) == 0);
+  iscurrdir = (strcmp(absrpath, session->currdir) == 0);
 
   /* Create a temporary file to hold the directory listing */
 
-  asprintf(&tmpfname, "%s/TMP%s.dat", CONFIG_FTP_TMPDIR, getpid());
+  asprintf(&tmpfname, "%s/TMP%d.dat", CONFIG_FTP_TMPDIR, getpid());
   filestream = fopen(tmpfname, "w+");
   if (!filestream)
     {
       ndbg("Failed to create %s: %d\n", tmpfname, errno);
-      free(abspath);
+      free(absrpath);
       free(tmpfname);
       return NULL;
     }
@@ -374,12 +301,12 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
    * directory itself.
    */
 
-  if (!iscurdir)
+  if (!iscurrdir)
     {
-      ret = ftpc_cmd(session, "CWD %s", abspath);
+      ret = ftpc_cmd(session, "CWD %s", absrpath);
       if (ret != OK)
         {
-          ndbg("CWD to %s failed\n", abspath);
+          ndbg("CWD to %s failed\n", absrpath);
         }
     }
 
@@ -391,12 +318,12 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
 
   /* Go back to the correct current working directory */
 
-  if (!iscurdir)
+  if (!iscurrdir)
     {
-      int tmpret = ftpc_cmd(session, "CWD %s", session->curdir);
+      int tmpret = ftpc_cmd(session, "CWD %s", session->currdir);
       if (tmpret != OK)
         {
-          ndbg("CWD back to to %s failed\n", session->curdir);
+          ndbg("CWD back to to %s failed\n", session->currdir);
         }
     }
 
@@ -435,7 +362,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
 
 errout:
   fclose(filestream);
-  free(abspath);
+  free(absrpath);
   unlink(tmpfname);
   free(tmpfname);
   return dirlist;

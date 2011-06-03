@@ -216,7 +216,6 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
 {
   struct sockaddr addr;
   socklen_t addrlen;
-  int sd;
 
   /* Any previous socket should have been uninitialized (0) or explicitly
    * closed (-1).
@@ -245,7 +244,7 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
     {
       addrlen  = sizeof(addr);
       sock->sd = accept(sock->sd, &addr, &addrlen);
-      if (sd == -1)
+      if (sock->sd == -1)
         {
           ndbg("accept() failed: %d\n", errno);
           return ERROR;

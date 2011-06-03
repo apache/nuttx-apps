@@ -91,10 +91,10 @@ void ftpc_disconnect(SESSION handle)
 
       free(session->uname);
       free(session->pwd);
-      free(session->initdir);
-      free(session->homedir);
-      free(session->curdir);
-      free(session->prevdir);
+      free(session->initrdir);
+      free(session->homerdir);
+      free(session->currdir);
+      free(session->prevrdir);
       free(session->rname);
       free(session->lname);
 

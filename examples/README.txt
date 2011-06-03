@@ -56,9 +56,13 @@ examples/ftpc
   to that it will only work as a "built-in" program that can be run from
   NSH when CONFIG_NSH_BUILTIN_APPS is defined.
 
-  From NSH, the startup command line is then:
+  From NSH, the startup command sequence is as follows.  This is only
+  an example, your configration could have different mass storage devices,
+  mount paths, and FTP directories:
 
-    ftpc xx.xx.xx.xx[:pp]
+    mount -t vfat /dev/mmcsd0 /tmp # Mount the SD card at /tmp
+    cd /tmp                        # cd into the /tmp directory
+    ftpc xx.xx.xx.xx[:pp]          # Start the FTP client
 
   where xx.xx.xx.xx is the IP address of the FTP server and pp is an
   optional port number.

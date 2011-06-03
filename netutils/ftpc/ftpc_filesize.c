@@ -78,10 +78,10 @@
  *
  ****************************************************************************/
 
- uint64_t ftpc_filesize(SESSION handle, FAR const char *path)
+off_t ftpc_filesize(SESSION handle, FAR const char *path)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
-  uint64_t ret;
+  unsigned long ret;
 
   /* Check if the host supports the SIZE command */
 
@@ -107,6 +107,6 @@
       return ERROR;
     }
 
-  sscanf(session->reply, "%*s %llu", &ret);
-  return ret;
+  sscanf(session->reply, "%*s %lu", &ret);
+  return (off_t)ret;
 }

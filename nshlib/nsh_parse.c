@@ -140,6 +140,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "[",        cmd_lbracket, 4, NSH_MAX_ARGUMENTS, "<expression> ]" },
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_HELP
+  { "?",        cmd_help,     1, 1, NULL },
+#endif
+
 #if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_CAT
   { "cat",      cmd_cat,      2, NSH_MAX_ARGUMENTS, "<path> [<path> [<path> ...]]" },
@@ -391,6 +395,10 @@ const char g_fmtsignalrecvd[]    = "nsh: %s: Interrupted by signal\n";
 static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   const struct cmdmap_s *ptr;
+#ifdef CONFIG_NSH_BUILTIN_APPS
+   FAR const char * name;
+   int i;
+#endif
 
   nsh_output(vtbl, "NSH command forms:\n");
 #ifndef CONFIG_NSH_DISABLEBG
@@ -419,6 +427,17 @@ static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           nsh_output(vtbl, "  %s\n", ptr->cmd);
         }
     }
+
+  /* List the set of available built-in commands */
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+   nsh_output(vtbl, "\nBuiltin Apps: ");
+    for (i = 0; (name = namedapp_getname(i)) != NULL; i++)
+      {
+        nsh_output(vtbl, "  %s\n", name);
+      }
+#endif
+
   return OK;
 }
 #endif

@@ -87,8 +87,8 @@ static int ftpc_restore(struct ftpc_session_s *session)
     {
       /* Set the initial directory to the last valid current directory */
 
-      free(session->initdir);
-      session->initdir = ftpc_dequote(session->curdir);
+      free(session->initrdir);
+      session->initrdir = ftpc_dequote(session->currdir);
 
       /* Reconnect to the server */
 

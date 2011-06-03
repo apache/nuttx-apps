@@ -85,7 +85,7 @@ int ftpc_chmod(SESSION handle, FAR const char *path, FAR const char *mode)
 
   if (FTPC_HAS_CHMOD(session))
     {
-      ret = ftpc_cmd(session, "SITE CHMOD %s %s", mode, path);
+      ret = ftpc_cmd(session, "SITE CHMOD %s %s", path, mode);
 
       /* Check for "502 Command not implemented" */
 

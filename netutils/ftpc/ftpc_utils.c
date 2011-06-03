@@ -109,8 +109,8 @@ void ftpc_reset(struct ftpc_session_s *session)
   session->uname      = NULL;
   free(session->pwd);
   session->pwd        = NULL;
-  free(session->initdir);
-  session->initdir    = NULL;
+  free(session->initrdir);
+  session->initrdir   = NULL;
   session->flags      = FTPC_FLAGS_INIT;
   session->xfrmode    = FTPC_XFRMODE_UNKNOWN;
   session->code       = 0;
@@ -119,18 +119,43 @@ void ftpc_reset(struct ftpc_session_s *session)
 }
 
 /****************************************************************************
- * Name: ftpc_curdir
+ * Name: ftpc_currdir
  *
  * Description:
- *   Update the current working directory
+ *   Update the remote current working directory
  *
  ****************************************************************************/
 
-void ftpc_curdir(struct ftpc_session_s *session)
+void ftpc_currdir(struct ftpc_session_s *session)
 {
-  free(session->prevdir);
-  session->prevdir = session->curdir;
-  session->curdir = ftpc_pwd((SESSION)session);
+  free(session->prevrdir);
+  session->prevrdir = session->currdir;
+  session->currdir  = ftpc_rpwd((SESSION)session);
+}
+
+/****************************************************************************
+ * Name: ftpc_lpwd
+ *
+ * Description:
+ *   Return the local current working directory.  NOTE:  This is a peek at
+ *   a global copy.  The caller should call strdup if it wants to keep it.
+ *
+ ****************************************************************************/
+
+FAR const char *ftpc_lpwd(void)
+{
+#ifndef CONFIG_DISABLE_ENVIRON
+  FAR const char *val;
+
+  val = getenv("PWD");
+  if (!val)
+    {
+      val = CONFIG_FTP_TMPDIR;
+    }
+  return val;
+#else
+  return CONFIG_FTP_TMPDIR;
+#endif
 }
 
 /****************************************************************************

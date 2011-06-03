@@ -159,6 +159,80 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
 }
 
 /****************************************************************************
+ * Name: ftpc_abspath
+ *
+ * Description:
+ *   Get the absolute path to a file, handling tilde expansion.
+ *
+ ****************************************************************************/
+
+static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
+                              FAR const char *relpath, FAR const char *homedir,
+                              FAR const char *curdir)
+{
+  FAR char *ptr = NULL;
+  int ret = OK;
+
+  /* If no relative path was provide, then use the current working directory */
+
+  if (!relpath)
+    {
+      return strdup(curdir);
+    }
+
+  /* Handle tilde expansion */
+
+  if (relpath[0] == '~')
+    {
+      /* Is the relative path only '~' */
+ 
+      if (relpath[1] == '\0')
+        {
+          return strdup(homedir);
+        }
+
+      /* No... then a '/' better follow the tilde */
+
+      else if (relpath[1] == '/')
+        {
+          ret = asprintf(&ptr, "%s%s", homedir, &relpath[1]);
+        }
+
+      /* Hmmm... this pretty much guaranteed to fail */
+
+      else
+        {
+          ptr = strdup(relpath);
+        }
+    }
+
+  /* No tilde expansion.  Check for a path relative to the current
+   * directory.
+   */
+  
+  else if (strncmp(relpath, "./", 2) == 0)
+    {
+      ret = asprintf(&ptr, "%s%s", curdir, relpath+1);
+    }
+
+  /* Check for an absolute path */
+
+  else if (relpath[0] == '/' && relpath[1] == ':' && relpath[2] == '\\')
+    {
+      ptr = strdup(relpath);
+    }
+
+  /* Assume it a relative path */
+
+  else
+    {
+      ret = asprintf(&ptr, "%s/%s", curdir, relpath);
+    }
+
+  return ptr;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -182,6 +256,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 
   if (!ftpc_connected(session))
     {
+      ndbg("Not connected\n");
       goto errout;
     }
 
@@ -207,6 +282,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftp_pasvmode(session, addrport);
       if (ret != OK)
         {
+          ndbg("ftp_pasvmode() failed: %d\n", errno);
           goto errout_with_data;
         }
     }
@@ -343,7 +419,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
    * <IAC IP><IAC DM>ABORT<CR><LF>
    */
 
-  ndbg("Telnet ABORt sequence\n");
+  nvdbg("Telnet ABORt sequence\n");
   ftpc_sockprintf(&session->cmd, "%c%c", TELNET_IAC, TELNET_IP); /* Interrupt process */
   ftpc_sockprintf(&session->cmd, "%c%c", TELNET_IAC, TELNET_DM); /* Telnet synch signal */
   ftpc_sockprintf(&session->cmd, "ABOR\r\n");                    /* Abort */
@@ -435,3 +511,39 @@ void ftpc_timeout(int argc, uint32_t arg1, ...)
   DEBUGASSERT(argc == 1 && session);
   kill(session->pid, CONFIG_FTP_SIGNAL);
 }
+
+/****************************************************************************
+ * Name: ftpc_absrpath
+ *
+ * Description:
+ *   Get the absolute path to a remote file, handling tilde expansion.
+ *
+ ****************************************************************************/
+
+FAR char *ftpc_absrpath(FAR struct ftpc_session_s *session,
+                        FAR const char *relpath)
+{
+  FAR char *absrpath = ftpc_abspath(session, relpath,
+                                    session->homerdir, session->currdir);
+  nvdbg("%s -> %s\n", relpath, absrpath);
+  return absrpath;
+}
+
+/****************************************************************************
+ * Name: ftpc_abslpath
+ *
+ * Description:
+ *   Get the absolute path to a local file, handling tilde expansion.
+ *
+ ****************************************************************************/
+
+FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
+                        FAR const char *relpath)
+{
+  FAR char *abslpath = ftpc_abspath(session, relpath,
+                                    session->homeldir, session->curldir);
+  nvdbg("%s -> %s\n", relpath, abslpath);
+  return abslpath;
+}
+
+

@@ -42,6 +42,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/types.h>
 #include <stdbool.h>
 #include <signal.h>
 #include <time.h>
@@ -184,7 +185,7 @@ EXTERN int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login);
 EXTERN int ftpc_quit(SESSION handle);
 
 EXTERN int ftpc_chdir(SESSION handle, FAR const char *path);
-EXTERN FAR char *ftpc_pwd(SESSION handle);
+EXTERN FAR char *ftpc_rpwd(SESSION handle);
 EXTERN int ftpc_cdup(SESSION handle);
 EXTERN int ftpc_mkdir(SESSION handle, FAR const char *path);
 EXTERN int ftpc_rmdir(SESSION handle, FAR const char *path);
@@ -192,7 +193,7 @@ EXTERN int ftpc_rmdir(SESSION handle, FAR const char *path);
 EXTERN int ftpc_unlink(SESSION handle, FAR const char *path);
 EXTERN int ftpc_chmod(SESSION handle, FAR const char *path, FAR const char *mode);
 EXTERN int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname);
-EXTERN uint64_t ftpc_filesize(SESSION handle, FAR const char *path);
+EXTERN off_t ftpc_filesize(SESSION handle, FAR const char *path);
 EXTERN time_t ftpc_filetime(SESSION handle, FAR const char *filename);
 
 EXTERN int ftpc_idle(SESSION handle, unsigned int idletime);

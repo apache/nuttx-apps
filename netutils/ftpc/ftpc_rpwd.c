@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/ftpc/ftpc_pwd.c
+ * apps/netutils/ftpc/ftpc_rpwd.c
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -72,14 +72,14 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ftpc_pwd
+ * Name: ftpc_rpwd
  *
  * Descripton:
  *   Returns the current working directory on the remote server.
  *
  ****************************************************************************/
 
-FAR char *ftpc_pwd(SESSION handle)
+FAR char *ftpc_rpwd(SESSION handle)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
   FAR char *start;

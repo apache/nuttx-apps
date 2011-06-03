@@ -91,7 +91,7 @@ int ftpc_idle(SESSION handle, unsigned int idletime)
 
   if (!FTPC_HAS_IDLE(session))
   {
-    ndbg("Server doesn't support SITE IDLE\n");
+    ndbg("Server does not support SITE IDLE\n");
     return ERROR;
   }
 
@@ -108,12 +108,13 @@ int ftpc_idle(SESSION handle, unsigned int idletime)
       ret = ftpc_cmd(session, "SITE IDLE");
     }
 
-  /* Check for "502 Command not implemented" */
+  /* Check for "502 Command not implemented" or 500 "Unknown SITE command" */
 
-  if (session->code == 502)
+  if (session->code == 500 || session->code == 502)
     {
       /* Server does not support SITE IDLE */
 
+      ndbg("Server does not support SITE IDLE\n");
       FTPC_CLR_IDLE(session);
     }
 

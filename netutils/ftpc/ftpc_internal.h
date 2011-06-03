@@ -153,11 +153,12 @@ struct ftpc_session_s
   WDOG_ID              wdog;       /* Timer */
   FAR char            *uname;      /* Login uname */
   FAR char            *pwd;        /* Login pwd  */
-  FAR char            *initdir;    /* Initial remote directory */
-  FAR char            *homedir;    /* Home directory (curdir on startup) */
-  FAR char            *curdir;     /* Current directory */
-  FAR char            *prevdir;    /* Previous directory */
+  FAR char            *initrdir;   /* Initial remote directory */
+  FAR char            *homerdir;   /* Remote home directory (currdir on startup) */
+  FAR char            *currdir;    /* Remote current directory */
+  FAR char            *prevrdir;   /* Previous remote directory */
   FAR char            *rname;      /* Remote file name */
+  FAR char            *homeldir;   /* Local home directory (PWD on startup) */
   FAR char            *lname;      /* Local file name */
   pid_t                pid;        /* Task ID of FTP client */
   uint8_t              xfrmode;    /* Previous data transfer type (See FTPC_XFRMODE_* defines) */
@@ -173,6 +174,13 @@ struct ftpc_session_s
 
   char reply[CONFIG_FTP_MAXREPLY+1]; /* Last reply string from server */
 };
+
+/* There is not yet any want to change the local working directly (an lcd
+ * command), but the following definition is provided to reserve the name
+ * for the storage location for the local current working directory.
+ */
+
+#define curldir homeldir
 
 /****************************************************************************
  * Public Data
@@ -212,16 +220,23 @@ EXTERN void ftpc_stripcrlf(FAR char *str);
 EXTERN void ftpc_stripslash(FAR char *str);
 EXTERN FAR char *ftpc_dequote(FAR const char *hostname);
 
+/* Connection helpers */
+
+EXTERN int ftpc_reconnect(FAR struct ftpc_session_s *session);
+EXTERN int ftpc_relogin(FAR struct ftpc_session_s *session);
+
 /* FTP helpers */
 
 EXTERN void ftpc_reset(struct ftpc_session_s *session);
 EXTERN int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...);
 EXTERN int fptc_getreply(struct ftpc_session_s *session);
-EXTERN void ftpc_curdir(struct ftpc_session_s *session);
+EXTERN void ftpc_currdir(struct ftpc_session_s *session);
+EXTERN FAR const char *ftpc_lpwd(void);
 EXTERN int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode);
-
-EXTERN int ftpc_reconnect(FAR struct ftpc_session_s *session);
-EXTERN int ftpc_relogin(FAR struct ftpc_session_s *session);
+EXTERN FAR char *ftpc_absrpath(FAR struct ftpc_session_s *session,
+                               FAR const char *relpath);
+EXTERN FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
+                               FAR const char *relpath);
 
 /* Socket helpers */
 

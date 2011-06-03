@@ -41,6 +41,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -113,6 +114,15 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
     {
       session->port = htons(server->port);
     }
+
+  /* Get the local home directory, i.e., the value of the PWD environment
+   * variable at the time of the connection.  We keep a local copy so that
+   * we can change the current working directory without effecting any other
+   * logic that may be in same context.
+   */
+
+  session->homeldir = strdup(ftpc_lpwd());
+/* session->curldir = strdup(sssion->homeldir); */
 
   /* Create up a timer to prevent hangs */
 

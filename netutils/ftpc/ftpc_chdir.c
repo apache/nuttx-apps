@@ -86,6 +86,6 @@ int ftpc_chdir(SESSION handle, FAR const char *path)
       return ret;
     }
 
-  ftpc_curdir(session);
+  ftpc_currdir(session);
   return OK;
 }

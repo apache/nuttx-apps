@@ -270,20 +270,30 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
   struct stat statbuf;
   FILE *loutstream;
+  FAR char *abslpath;
   off_t offset;
   int ret;
 
+  /* Get the full path to the local file */
+
+  abslpath = ftpc_abslpath(session, lname);
+  if (!abslpath)
+    {
+      ndbg("ftpc_abslpath(%s) failed: %d\n", errno);
+      goto errout;
+    }
+
   /* Get information about the local file */
 
-  ret = stat(lname, &statbuf);
+  ret = stat(abslpath, &statbuf);
   if (ret == 0)
     {
       /* It already exists.  Is it a directory? */
 
       if (S_ISDIR(statbuf.st_mode))
         {
-          ndbg("'%s' is a directory\n", lname);
-          return ERROR;
+          ndbg("'%s' is a directory\n", abslpath);
+          goto errout_with_abspath;
         }
     }
 
@@ -292,8 +302,8 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
 #ifdef S_IWRITE
   if (!(statbuf.st_mode & S_IWRITE))
     {
-      ndbg("'%s' permission denied\n", lname);
-      return ERROR;
+      ndbg("'%s' permission denied\n", abslpath);
+      goto errout_with_abspath;
     }
 #endif
 
@@ -316,27 +326,14 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
   if (ret != OK)
     {
       ndbg("ftpc_recvinit failed\n");
-      return ERROR;
+      goto errout_with_abspath;
     }
 
-  loutstream = fopen(lname, (offset > 0 || (how == FTPC_GET_APPEND)) ? "a" : "w");
+  loutstream = fopen(abslpath, (offset > 0 || (how == FTPC_GET_APPEND)) ? "a" : "w");
   if (!loutstream)
     {
       ndbg("fopen failed: %d\n", errno);
-      session->offset = 0;
-      return ERROR;
-    }
-
-  if (offset > 0)
-    {
-      ret = fseek(loutstream, offset, SEEK_SET);
-      if (ret != OK)
-        {
-          ndbg("fseek failed: %d\n", errno);
-          fclose(loutstream);
-          session->offset = 0;
-          return ERROR;
-        }
+      goto errout_with_abspath;
     }
 
   /* Save the new local and remote file names */
@@ -344,7 +341,17 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
   free(session->rname);
   free(session->lname);
   session->rname = strdup(rname);
-  session->lname = strdup(lname);
+  session->lname = abslpath;
+
+  if (offset > 0)
+    {
+      ret = fseek(loutstream, offset, SEEK_SET);
+      if (ret != OK)
+        {
+          ndbg("fseek failed: %d\n", errno);
+          goto errout_with_outstream;
+        }
+    }
 
   /* And receive the new file data */
 
@@ -364,8 +371,26 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
       fptc_getreply(session);
     }
 
+  /* On success, the last rname and lname are retained for debug purpose */
+
+  if (ret == OK && !FTPC_INTERRUPTED(session))
+    {
+      fclose(loutstream);
+      return OK;
+    }
+
+  /* Various error exits */
+
+errout_with_outstream:
   fclose(loutstream);
-  return (ret == OK && !FTPC_INTERRUPTED(session)) ? OK : ERROR;
+  free(session->rname);
+  session->rname = NULL;
+  session->lname = NULL;
+errout_with_abspath:
+  free(abslpath);
+  session->offset = 0;
+errout:
+  return ERROR;
 }
 
 /****************************************************************************

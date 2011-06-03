@@ -89,9 +89,6 @@
 int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char *argv[])
 {
-#ifndef CONFIG_APPS_BINDIR
-   FAR const char * name;
-#endif
    int ret = OK;
 
    /* Try to find command within pre-built application list. */
@@ -99,30 +96,7 @@ int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
    ret = exec_namedapp(cmd, argv);
    if (ret < 0)
      {
-       int err = -errno;
-#ifndef CONFIG_APPS_BINDIR
-       int i;
-       
-       /* On failure, list the set of available built-in commands */
-
-       nsh_output(vtbl, "Builtin Apps: ");
-       for (i = 0; (name = namedapp_getname(i)) != NULL; i++)
-         {
-           nsh_output(vtbl, "%s ", name);
-         }
-       nsh_output(vtbl, "\nand type 'help' for more NSH commands.\n\n");
-
-       /* If the failing command was '?', then do not report an error */
-       
-       if (strcmp(cmd, "?") != 0)
-         {
-           return err;
-         }
-
-       return OK;
-#else
-       return err;
-#endif
+       return -errno;
      }
 
 #ifdef CONFIG_SCHED_WAITPID

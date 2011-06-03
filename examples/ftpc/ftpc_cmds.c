@@ -108,7 +108,7 @@ int cmd_rchdir(SESSION handle, int argc, char **argv)
 
 int cmd_rpwd(SESSION handle, int argc, char **argv)
 {
-  FAR char *pwd = ftpc_pwd(handle);
+  FAR char *pwd = ftpc_rpwd(handle);
   if (pwd)
     {
       printf("PWD: %s\n", pwd);
@@ -178,8 +178,8 @@ int cmd_rrename(SESSION handle, int argc, char **argv)
 
 int cmd_rsize(SESSION handle, int argc, char **argv)
 {
-  uint64_t size = ftpc_filesize(handle, argv[1]);
-  printf("SIZE: %ull\n", size);
+  off_t size = ftpc_filesize(handle, argv[1]);
+  printf("SIZE: %lu\n", size);
   return OK;
 }
 
@@ -190,7 +190,7 @@ int cmd_rsize(SESSION handle, int argc, char **argv)
 int cmd_rtime(SESSION handle, int argc, char **argv)
 {
   time_t filetime = ftpc_filetime(handle, argv[1]);
-  printf("TIME: %ul\n", (long)filetime);
+  printf("TIME: %lu\n", (long)filetime);
   return OK;
 }
 
@@ -264,6 +264,7 @@ int cmd_rls(SESSION handle, int argc, char **argv)
     {
       printf("  %s\n", dirlist->name[i]);
     }
+  FFLUSH();
 
   ftpc_dirfree(dirlist);
   return OK;

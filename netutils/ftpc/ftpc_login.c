@@ -105,9 +105,9 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
 
   /* Save the login parameter */
 
-  session->uname   = ftpc_dequote(login->uname);
-  session->pwd     = ftpc_dequote(login->pwd);
-  session->initdir = ftpc_dequote(login->rdir);
+  session->uname    = ftpc_dequote(login->uname);
+  session->pwd      = ftpc_dequote(login->pwd);
+  session->initrdir = ftpc_dequote(login->rdir);
 
   /* Is passive mode requested? */
 
@@ -198,17 +198,17 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
    */
 
   FTPC_SET_LOGGEDIN(session);
-  session->homedir = ftpc_pwd((SESSION)session);
-  session->curdir  = strdup(session->homedir);
-  session->prevdir = strdup(session->homedir);
+  session->homerdir = ftpc_rpwd((SESSION)session);
+  session->currdir  = strdup(session->homerdir);
+  session->prevrdir = strdup(session->homerdir);
 
   /* If the user has requested a special start up directory, then change to
    * that directory now.
    */
 
-  if (session->initdir)
+  if (session->initrdir)
     {
-      ftpc_chdir((SESSION)session, session->initdir);
+      ftpc_chdir((SESSION)session, session->initrdir);
     }
 
   return OK;

@@ -286,15 +286,15 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
             len = strlen(str);
             if (len)
               {
-                free(session->lname);
+                free(session->rname);
                 if (*str == '\'')
                   {
-                    session->lname = strndup(str+1, len-3);
+                    session->rname = strndup(str+1, len-3);
                   }
                 else
                   {
-                    session->lname = strndup(str, len-1);
-                    nvdbg("Unique filename is: %s\n",  session->lname);
+                    session->rname = strndup(str, len-1);
+                    nvdbg("Unique filename is: %s\n",  session->rname);
                   }
               }
           }
@@ -383,34 +383,45 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
                 uint8_t how, uint8_t xfrmode)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
+  FAR char *abslpath;
   struct stat statbuf;
   FILE *finstream;
   int ret;
 
+  /* Get the full path to the local file */
+
+  abslpath = ftpc_abslpath(session, lname);
+  if (!abslpath)
+    {
+      ndbg("ftpc_abslpath(%s) failed: %d\n", errno);
+      goto errout;
+    }
+
   /* Make sure that the local file exists */
 
-  ret = stat(lname, &statbuf);
+  ret = stat(abslpath, &statbuf);
   if (ret != OK)
     {
-      ndbg("stat() failed: %d\n", errno);
-      return ERROR;
+      ndbg("stat(%s) failed: %d\n", errno);
+      free(abslpath);
+      goto errout;
     }
 
   /* Make sure that the local name does not refer to a directory */
 
   if (S_ISDIR(statbuf.st_mode))
     {
-      ndbg("%s is a directory\n", lname);
-      return ERROR;
+      ndbg("%s is a directory\n", abslpath);
+      goto errout_with_abspath;
     }
 
   /* Open the local file for reading */
 
-  finstream = fopen(lname, "r");
+  finstream = fopen(abslpath, "r");
   if (!finstream == 0)
     {
       ndbg("fopen() failed: %d\n", errno);
-      return ERROR;
+      goto errout_with_abspath;
     }
 
   /* Configure for the transfer */
@@ -418,8 +429,8 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   session->filesize = statbuf.st_size;
   free(session->rname);
   free(session->lname);
-  session->rname = strdup(lname);
-  session->lname = strdup(rname);
+  session->rname = strdup(rname);
+  session->lname = abslpath;
 
   /* Are we resuming a transfer? */
 
@@ -434,6 +445,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
       if (session->offset == (off_t)ERROR)
         {
           ndbg("Failed to get size of remote file: %s\n", rname);
+          goto errout_with_instream;
         }
       else
         {
@@ -445,13 +457,29 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
           if (ret != OK)
             {
               ndbg("fseek failed: %d\n", errno);
-              fclose(finstream);
-              return ERROR;
+              goto errout_with_instream;
             }
         }
     }
 
+  /* On success, the last rname and lname are retained for debug purpose */
+
   ret = ftpc_sendfile(session, rname, finstream, how, xfrmode);
+  if (ret == OK)
+    {
+      fclose(finstream);
+      return OK;
+    }
+
+  /* Various error exits */
+
+errout_with_instream:
   fclose(finstream);
-  return ret;
+  free(session->rname);
+  session->rname = NULL;
+  session->lname = NULL;
+errout_with_abspath:
+  free(abslpath);
+errout:
+  return ERROR;
 }

@@ -49,7 +49,7 @@ CSRCS = ftpc_connect.c ftpc_disconnect.c
 # FTP commands
 CSRCS += ftpc_cdup.c ftpc_chdir.c ftpc_chmod.c ftpc_filesize.c ftpc_filetime.c
 CSRCS += ftpc_help.c ftpc_idle.c ftpc_listdir.c ftpc_login.c ftpc_mkdir.c
-CSRCS += ftpc_noop.c ftpc_pwd.c ftpc_quit.c ftpc_rename.c ftpc_rmdir.c ftpc_unlink.c
+CSRCS += ftpc_noop.c ftpc_rpwd.c ftpc_quit.c ftpc_rename.c ftpc_rmdir.c ftpc_unlink.c
 CSRCS += ftpc_cmd.c
 
 # FTP transfers

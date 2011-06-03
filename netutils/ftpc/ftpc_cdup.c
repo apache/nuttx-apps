@@ -75,13 +75,13 @@
  *
  ****************************************************************************/
  
- int ftpc_cdup(SESSION handle)
+int ftpc_cdup(SESSION handle)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
   int ret;
 
   ret = ftpc_cmd(session, "CDUP");
-  ftpc_curdir(session);
+  ftpc_currdir(session);
   return ret;
 }
 
