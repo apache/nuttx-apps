@@ -276,7 +276,7 @@ int cmd_rls(SESSION handle, int argc, char **argv)
 
 int cmd_rget(SESSION handle, int argc, char **argv)
 {
-  FAR const char *lname = argv[1];
+  FAR const char *lname = NULL;
 
   if (argc > 2)
     {
@@ -291,7 +291,7 @@ int cmd_rget(SESSION handle, int argc, char **argv)
 
 int cmd_rput(SESSION handle, int argc, char **argv)
 {
-  FAR const char *rname = argv[1];
+  FAR const char *rname = NULL;
 
   if (argc > 2)
     {

@@ -285,21 +285,21 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
           ndbg("ftp_pasvmode() failed: %d\n", errno);
           goto errout_with_data;
         }
-    }
 
-  /* Configure the data socket */
+      /* Configure the data socket */
 
-  ftpc_sockgetsockname(&session->cmd, &addr);
-  memcpy(&addr.sin_addr, addrport, (size_t)4);
-  memcpy(&addr.sin_port, addrport+4, (size_t)2);
+      ftpc_sockgetsockname(&session->cmd, &addr);
+      memcpy(&addr.sin_addr, addrport, (size_t)4);
+      memcpy(&addr.sin_port, addrport+4, (size_t)2);
 
-  /* Connect the data socket */
+      /* Connect the data socket */
 
-  ret = ftpc_sockconnect(&session->data, &addr);
-  if (ret < 0)
-    {
-      ndbg("ftpc_sockconnect() failed: %d\n", errno);
-      goto errout_with_data;
+      ret = ftpc_sockconnect(&session->data, &addr);
+      if (ret < 0)
+        {
+          ndbg("ftpc_sockconnect() failed: %d\n", errno);
+          goto errout_with_data;
+        }
     }
   else
     {

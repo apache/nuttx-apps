@@ -340,7 +340,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
    *   with a mark. 
    */
 
-  ret = ftpc_sockaccept(&session->data, "w", FTPC_IS_PASSIVE(session));
+  ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
   if (ret != OK)
     {
       ndbg("Data connection not accepted\n");
@@ -387,6 +387,19 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   struct stat statbuf;
   FILE *finstream;
   int ret;
+
+  /* Don't call this with a NULL local file name */
+
+  DEBUGASSERT(lname);
+
+  /* If the remote name is not specified, then it is assumed to the same as
+   * the local file name.
+   */
+
+  if (!rname)
+    {
+      rname = lname;
+    }
 
   /* Get the full path to the local file */
 

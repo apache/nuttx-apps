@@ -151,7 +151,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
 
   /* Accept a connection on the data socket */
 
-  ret = ftpc_sockaccept(&session->data, "r", FTPC_IS_PASSIVE(session));
+  ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
   if (ret != OK)
   {
     ndbg("data connection not accepted\n");
@@ -273,6 +273,19 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
   FAR char *abslpath;
   off_t offset;
   int ret;
+
+  /* Don't call this with a NULL remote file name */
+
+  DEBUGASSERT(rname);
+
+  /* If the local name is not specified, then it is assumed to the same as
+   * the remote file name.
+   */
+
+  if (!lname)
+    {
+      lname = rname;
+    }
 
   /* Get the full path to the local file */
 

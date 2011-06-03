@@ -246,8 +246,7 @@ EXTERN int ftpc_sockconnect(FAR struct ftpc_socket_s *sock,
                            FAR struct sockaddr_in *addr);
 EXTERN int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
                                 FAR struct sockaddr_in *sa);
-EXTERN int ftpc_sockaccept(FAR struct ftpc_socket_s *sock,
-                           FAR const char *mode, bool passive);
+EXTERN int ftpc_sockaccept(FAR struct ftpc_socket_s *sock, bool passive);
 EXTERN int ftpc_socklisten(FAR struct ftpc_socket_s *sock);
 EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
                           FAR const struct ftpc_socket_s *src);

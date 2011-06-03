@@ -212,16 +212,20 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  *
  ****************************************************************************/
 
-int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
+int ftpc_sockaccept(struct ftpc_socket_s *sock, bool passive)
 {
   struct sockaddr addr;
   socklen_t addrlen;
 
   /* Any previous socket should have been uninitialized (0) or explicitly
-   * closed (-1).
+   * closed (-1).  But the path to this function may include a call to
+   * ftpc_sockinit().
    */
 
-  DEBUGASSERT(sock->sd == 0 || sock->sd == -1);
+  if (sock->sd > 0)
+    {
+      ftpc_sockclose(sock);
+    }
 
   /* In active mode FTP the client connects from a random port (N>1023) to the
    * FTP server's command port, port 21. Then, the client starts listening to
@@ -249,6 +253,7 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
           ndbg("accept() failed: %d\n", errno);
           return ERROR;
         }
+
       memcpy(&sock->laddr, &addr, sizeof(sock->laddr));
     }
 
@@ -256,7 +261,7 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
    * the incoming buffered stream.
    */
 
-  sock->instream = fdopen(sock->sd, mode);
+  sock->instream = fdopen(sock->sd, "r");
   if (!sock->instream)
     {
       ndbg("fdopen() failed: %d\n", errno);
@@ -265,7 +270,7 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, const char *mode, bool passive)
 
   /* Create the outgoing stream */
 
-  sock->outstream = fdopen(sock->sd, mode);
+  sock->outstream = fdopen(sock->sd, "w");
   if (!sock->outstream)
     {
       ndbg("fdopen() failed: %d\n", errno);

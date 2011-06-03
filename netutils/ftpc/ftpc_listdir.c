@@ -201,7 +201,7 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
 
   /* Accept the connection from the server */
 
-  ret = ftpc_sockaccept(&session->data, "r", FTPC_IS_PASSIVE(session));
+  ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
   if (ret != OK)
     {
       ndbg("ftpc_sockaccept() failed: %d\n", errno);

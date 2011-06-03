@@ -431,7 +431,7 @@ static int cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* List the set of available built-in commands */
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-   nsh_output(vtbl, "\nBuiltin Apps: ");
+   nsh_output(vtbl, "\nBuiltin Apps:\n");
     for (i = 0; (name = namedapp_getname(i)) != NULL; i++)
       {
         nsh_output(vtbl, "  %s\n", name);
