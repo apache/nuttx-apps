@@ -66,7 +66,7 @@
 
 int cmd_rlogin(SESSION handle, int argc, char **argv)
 {
-  struct ftpc_login_s login = {0, 0, 0, true};
+  struct ftpc_login_s login = {NULL, NULL, NULL, true};
 
   login.uname = argv[1];
   if (argc > 2)

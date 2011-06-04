@@ -73,24 +73,31 @@
 
 /* Session flag bits ********************************************************/
 
-#define FTPC_FLAG_CONNECTED (1 << 0)  /* Connected to host */
-#define FTPC_FLAG_LOGGEDIN  (1 << 1)  /* Logged in to host */
-#define FTPC_STATE_FLAGS    (0x0003)  /* State of connection */
+#define FTPC_FLAG_PASSIVE   (1 << 0)  /* Passive mode requested */
+#define FTPC_SESSION_FLAGS  (0x0001)  /* Persist throughout the session */
 
-#define FTPC_FLAG_MDTM      (1 << 2)  /* Host supports MDTM command */
-#define FTPC_FLAG_SIZE      (1 << 3)  /* Host supports SIZE command */
-#define FTPC_FLAG_PASV      (1 << 4)  /* Host supports PASV command */
-#define FTPC_FLAG_STOU      (1 << 5)  /* Host supports STOU command */
-#define FTPC_FLAG_CHMOD     (1 << 6)  /* Host supports SITE CHMOD command */
-#define FTPC_FLAG_IDLE      (1 << 7)  /* Host supports SITE IDLE command */
-#define FTPC_HOSTCAP_FLAGS  (0x00fc)  /* Host capabilities */
+#define FTPC_FLAG_CONNECTED (1 << 1)  /* Connected to host */
+#define FTPC_FLAG_LOGGEDIN  (1 << 2)  /* Logged in to host */
+#define FTPC_STATE_FLAGS    (0x0006)  /* State of connection */
 
-#define FTPC_FLAG_INTERRUPT (1 << 8)  /* Transfer interrupted */
-#define FTPC_FLAG_PUT       (1 << 9)  /* Transfer is a PUT operation (upload) */
-#define FTPC_FLAG_PASSIVE   (1 << 10) /* Passive mode requested */
-#define FTPC_XFER_FLAGS     (0x0700)  /* Transfer related */
+#define FTPC_FLAG_MDTM      (1 << 3)  /* Host supports MDTM command */
+#define FTPC_FLAG_SIZE      (1 << 4)  /* Host supports SIZE command */
+#define FTPC_FLAG_PASV      (1 << 5)  /* Host supports PASV command */
+#define FTPC_FLAG_STOU      (1 << 6)  /* Host supports STOU command */
+#define FTPC_FLAG_CHMOD     (1 << 7)  /* Host supports SITE CHMOD command */
+#define FTPC_FLAG_IDLE      (1 << 8)  /* Host supports SITE IDLE command */
+#define FTPC_HOSTCAP_FLAGS  (0x01f8)  /* Host capabilities */
 
-#define FTPC_FLAGS_INIT     FTPC_HOSTCAP_FLAGS
+#define FTPC_FLAG_INTERRUPT (1 << 9)  /* Transfer interrupted */
+#define FTPC_FLAG_PUT       (1 << 10) /* Transfer is a PUT operation (upload) */
+#define FTPC_XFER_FLAGS     (0x0600)  /* Transfer related */
+
+/* These are the bits to be set/cleared when the flags are reset */
+
+#define FTPC_FLAGS_CLEAR    (FTPC_STATE_FLAGS | FTPC_XFER_FLAGS)
+#define FTPC_FLAGS_SET       FTPC_HOSTCAP_FLAGS
+
+/* Macros to set bits */
 
 #define FTPC_SET_CONNECTED(s) do { (s)->flags |= FTPC_FLAG_CONNECTED; } while (0)
 #define FTPC_SET_LOGGEDIN(s)  do { (s)->flags |= FTPC_FLAG_LOGGEDIN; } while (0)
@@ -104,6 +111,8 @@
 #define FTPC_SET_PUT(s)       do { (s)->flags |= FTPC_FLAG_PUT; } while (0)
 #define FTPC_SET_PASSIVE(s)   do { (s)->flags |= FTPC_FLAG_PASSIVE; } while (0)
 
+/* Macros to clear bits */
+
 #define FTPC_CLR_CONNECTED(s) do { (s)->flags &= ~FTPC_FLAG_CONNECTED; } while (0)
 #define FTPC_CLR_LOGGEDIN(s)  do { (s)->flags &= ~FTPC_FLAG_LOGGEDIN; } while (0)
 #define FTPC_CLR_MDTM(s)      do { (s)->flags &= ~FTPC_FLAG_MDTM; } while (0)
@@ -115,6 +124,8 @@
 #define FTPC_CLR_INTERRUPT(s) do { (s)->flags &= ~FTPC_FLAG_INTERRUPT; } while (0)
 #define FTPC_CLR_PUT(s)       do { (s)->flags &= ~FTPC_FLAG_PUT; } while (0)
 #define FTPC_CLR_PASSIVE(s)   do { (s)->flags &= ~FTPC_FLAG_PASSIVE; } while (0)
+
+/* Macros to test bits */
 
 #define FTPC_IS_CONNECTED(s)  (((s)->flags & FTPC_FLAG_CONNECTED) != 0)
 #define FTPC_IS_LOGGEDIN(s)   (((s)->flags & FTPC_FLAG_LOGGEDIN) != 0)

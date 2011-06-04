@@ -114,6 +114,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
   FTPC_CLR_PASSIVE(session);
   if (login->pasv)
     {
+      nvdbg("Setting passive mode\n");
       FTPC_SET_PASSIVE(session);
     }
 

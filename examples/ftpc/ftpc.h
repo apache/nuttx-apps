@@ -83,22 +83,9 @@ typedef int (*cmd_t)(SESSION handle, int argc, char **argv);
  * Public Data
  ****************************************************************************/
 
-extern const char g_ftpcgreeting[];
-extern const char g_ftpcprompt[];
-extern const char g_fmtcmdfailed[];
-
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
-
-/* Network initialization */
-
-extern int ftpc_netinit(void);
-
-/* Current working directory support */
-
-extern char *ftpc_getfullpath(const char *relpath);
-extern void ftpc_freefullpath(char *relpath);
 
 /* FTP command handlers */
 

@@ -99,7 +99,8 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
   /* Initialize the session structure with all non-zero and variable values */
 
   session->addr.s_addr = server->addr.s_addr;
-  session->flags       = FTPC_FLAGS_INIT;
+  session->flags      &= ~FTPC_FLAGS_CLEAR;
+  session->flags      |= FTPC_FLAGS_SET;
   session->replytimeo  = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
   session->conntimeo   = CONFIG_FTP_DEFTIMEO * CLOCKS_PER_SEC;
   session->pid         = getpid();
