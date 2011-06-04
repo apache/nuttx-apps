@@ -37,6 +37,7 @@
  * Included Files
  ****************************************************************************/
 
+#include "ftpc_config.h"
 #include <sys/socket.h>
 
 #include <stdlib.h>
@@ -208,7 +209,8 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  * Name: ftpc_sockaccept
  *
  * Description:
- *   Accept a connection from the server.
+ *   Accept a connection on the data socket (unless passive mode then this
+ *   function does nothing).
  *
  ****************************************************************************/
 
@@ -216,16 +218,6 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, bool passive)
 {
   struct sockaddr addr;
   socklen_t addrlen;
-
-  /* Any previous socket should have been uninitialized (0) or explicitly
-   * closed (-1).  But the path to this function may include a call to
-   * ftpc_sockinit().
-   */
-
-  if (sock->sd > 0)
-    {
-      ftpc_sockclose(sock);
-    }
 
   /* In active mode FTP the client connects from a random port (N>1023) to the
    * FTP server's command port, port 21. Then, the client starts listening to
@@ -246,6 +238,17 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, bool passive)
 
   if (!passive)
     {
+      /* Any previous socket should have been uninitialized (0) or explicitly
+       * closed (-1).  But the path to this function may include a call to
+       * ftpc_sockinit().  If so... close that socket and call accept to
+       * get a new one.
+       */
+
+      if (sock->sd > 0)
+        {
+          ftpc_sockclose(sock);
+        }
+
       addrlen  = sizeof(addr);
       sock->sd = accept(sock->sd, &addr, &addrlen);
       if (sock->sd == -1)
@@ -255,26 +258,32 @@ int ftpc_sockaccept(struct ftpc_socket_s *sock, bool passive)
         }
 
       memcpy(&sock->laddr, &addr, sizeof(sock->laddr));
+
+      /* Create in/out C buffer I/O streams on the data channel.  First,
+       * create the incoming buffered stream.
+       */
+
+      sock->instream = fdopen(sock->sd, "r");
+      if (!sock->instream)
+        {
+          ndbg("fdopen() failed: %d\n", errno);
+          goto errout_with_sd;
+        }
+
+      /* Create the outgoing stream */
+
+      sock->outstream = fdopen(sock->sd, "w");
+      if (!sock->outstream)
+        {
+          ndbg("fdopen() failed: %d\n", errno);
+          goto errout_with_instream;
+        }
     }
-
-  /* Create in/out C buffer I/O streams on the data channel.  First, create
-   * the incoming buffered stream.
-   */
-
-  sock->instream = fdopen(sock->sd, "r");
-  if (!sock->instream)
+  else
     {
-      ndbg("fdopen() failed: %d\n", errno);
-      goto errout_with_sd;
-    }
+      /* Should already be set up from ftpc_sockinit() call */
 
-  /* Create the outgoing stream */
-
-  sock->outstream = fdopen(sock->sd, "w");
-  if (!sock->outstream)
-    {
-      ndbg("fdopen() failed: %d\n", errno);
-      goto errout_with_instream;
+      DEBUGASSERT(sock->sd >= 0 && sock->instream && sock->outstream);
     }
 
   return OK;

@@ -60,9 +60,11 @@ examples/ftpc
   an example, your configration could have different mass storage devices,
   mount paths, and FTP directories:
 
-    mount -t vfat /dev/mmcsd0 /tmp # Mount the SD card at /tmp
-    cd /tmp                        # cd into the /tmp directory
-    ftpc xx.xx.xx.xx[:pp]          # Start the FTP client
+    nsh> mount -t vfat /dev/mmcsd0 /tmp # Mount the SD card at /tmp
+    nsh> cd /tmp                        # cd into the /tmp directory
+    nsh> ftpc xx.xx.xx.xx[:pp]          # Start the FTP client
+    nfc> login <name> <password>        # Log into the FTP server
+    nfc> help                           # See a list of FTP commands
 
   where xx.xx.xx.xx is the IP address of the FTP server and pp is an
   optional port number.

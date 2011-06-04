@@ -149,13 +149,15 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
       return ERROR;
     }
 
-  /* Accept a connection on the data socket */
+  /* Accept a connection on the data socket (unless passive mode then the
+   * function does nothing).
+   */
 
   ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
   if (ret != OK)
-  {
-    ndbg("Data connection not accepted\n");
-  }
+    {
+      ndbg("Data connection not accepted\n");
+    }
 
   return ret;
 }
