@@ -87,7 +87,18 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
   ssize_t nwritten;
   int ret = OK;
 
+  /* Allocate a buffer to hold the binary data */
+
   buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
+  if (!buf)
+    {
+      ndbg("Failed to allocate an I/O buffer\n");
+      set_errno(ENOMEM);
+      return ERROR;
+    }
+
+  /* Loop until the entire file is sent */
+
   for (;;)
     {
       /* Read data from the file */
@@ -102,6 +113,9 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
               (void)ftpc_xfrabort(session, linstream);
               ret = ERROR;
             }
+
+          /* Break out of the loop */
+
           break;
         }
 
@@ -111,8 +125,11 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
       if (nwritten != nread)
         {
           (void)ftpc_xfrabort(session, routstream);
+
+          /* Break out of the loop and return failue */
+
           ret = ERROR;
-           break;
+          break;
         }
 
       /* Increment the size of the file sent */
@@ -136,16 +153,16 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
                          FAR FILE *linstream, FAR FILE *routstream)
 {
   char *buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
-  int c;
+  int ch;
   int ret = OK;
 
   /* Write characters one at a time. */
 
-  while ((c = fgetc(linstream)) != EOF)
+  while ((ch = fgetc(linstream)) != EOF)
     {
       /* If it is a newline, send a carriage return too */
 
-      if (c == '\n')
+      if (ch == '\n')
         {
           if (fputc('\r', routstream) == EOF)
             {
@@ -161,7 +178,7 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
 
       /* Send the character */
 
-      if (fputc(c, routstream) == EOF)
+      if (fputc(ch, routstream) == EOF)
         {
           (void)ftpc_xfrabort(session, routstream);
           ret = ERROR;
@@ -340,11 +357,11 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
 
   if (xfrmode == FTPC_XFRMODE_ASCII)
     {
-      ret = ftpc_sendtext(session, stream, session->data.instream);
+      ret = ftpc_sendtext(session, stream, session->data.outstream);
     }
   else
     {
-      ret = ftpc_sendbinary(session, stream, session->data.instream);
+      ret = ftpc_sendbinary(session, stream, session->data.outstream);
     }
 
   ftpc_sockflush(&session->data);

@@ -252,20 +252,34 @@ int cmd_rhelp(SESSION handle, int argc, char **argv)
 int cmd_rls(SESSION handle, int argc, char **argv)
 {
   FAR struct ftpc_dirlist_s *dirlist;
+  FAR char *dirname = NULL;
   int i;
 
-  dirlist = ftpc_listdir(handle, argv[1]);
+  /* Get the directory listing */
+
+  if (argc > 1)
+    {
+      dirname = argv[1];
+    }
+
+  dirlist = ftpc_listdir(handle, dirname);
   if (!dirlist)
     {
       return ERROR;
     }
 
-  printf("%s/\n", argv[1]);
+  /* Print the directory listing */
+
+  printf("%s/\n", dirname ? dirname : ".");
   for (i = 0; i < dirlist->nnames; i++)
     {
       printf("  %s\n", dirlist->name[i]);
     }
   FFLUSH();
+
+  /* We are responsible for freeing the directory structure allocated by
+   * ftpc_listdir().
+   */
 
   ftpc_dirfree(dirlist);
   return OK;

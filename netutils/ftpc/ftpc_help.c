@@ -92,7 +92,9 @@ int ftpc_help(SESSION handle, FAR const char *arg)
       ret = ftpc_cmd(session, "HELP");
     }
 
-  /* Logic is missing here to return the help string to the caller */
+  /* Logic is missing here to return the help string to the caller.  The caller
+   * needs to call ftpc_getreply.
+   */
 
   return ret;
 }

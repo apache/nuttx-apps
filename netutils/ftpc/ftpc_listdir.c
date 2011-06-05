@@ -341,12 +341,15 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
       /* Count the number of names in the temporary file */
 
       rewind(filestream);
+      nnames = 0;
+
       ftpc_nlstparse(filestream, ftpc_dircount, &nnames);
       if (!nnames)
         {
           ndbg("Nothing found in directory\n");
           goto errout;
         }
+      nvdbg("nnames: %d\n", nnames);
 
       /* Allocate and initialize a directory container */
 
@@ -357,12 +360,13 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
           ndbg("Failed to allocate dirlist\n");
           goto errout;
         }
-      dirlist->nnames = 0;
 
       /* Then copy all of the directory strings into the container */
 
       rewind(filestream);
-      ftpc_nlstparse(filestream, ftpc_dircount, &nnames);
+      dirlist->nnames = 0;
+
+      ftpc_nlstparse(filestream, ftpc_addname, dirlist);
       DEBUGASSERT(nnames == dirlist->nnames);
     }
 
