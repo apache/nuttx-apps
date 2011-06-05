@@ -43,7 +43,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <poll.h>
 #include <signal.h>
 #include <ctype.h>
 #include <errno.h>
@@ -289,8 +288,8 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       /* Configure the data socket */
 
       ftpc_sockgetsockname(&session->cmd, &addr);
-      memcpy(&addr.sin_addr, addrport, (size_t)4);
-      memcpy(&addr.sin_port, addrport+4, (size_t)2);
+      memcpy(&addr.sin_addr, addrport, 4);
+      memcpy(&addr.sin_port, addrport+4, 2);
 
       /* Connect the data socket */
 
@@ -459,36 +458,6 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
     }
 
   return ERROR;
-}
-
-/****************************************************************************
- * Name: ftpc_waitdata
- *
- * Description:
- *   Wait for dta to be available on the provided stream.
- *
- ****************************************************************************/
-
-int ftpc_waitdata(FAR struct ftpc_session_s *session, FAR FILE *stream, bool rdwait)
-{
-  FAR struct pollfd fds;
-  int ret;
-
-  /* Check the stream to see if it has input OR is ready for output */
-
-  fds.fd = fileno(stream);
-  fds.events = rdwait ? POLLIN : POLLOUT;
-  ret = poll(&fds, 1, 10*1000);
-  if (ret < 0)
-    {
-      if (errno == EINTR)
-        {
-          return OK;
-        }
-      return ERROR;
-    }
-
-  return ret;
 }
 
 /****************************************************************************

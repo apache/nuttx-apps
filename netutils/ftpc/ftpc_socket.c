@@ -185,8 +185,8 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
       ndbg("ftpc_sockgetsockname() failed: %d\n", errno);
       return ERROR;
     }
-  sock->connected = true;
 
+  sock->connected = true;
   return OK;
 }
 

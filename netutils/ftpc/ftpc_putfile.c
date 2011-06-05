@@ -72,30 +72,6 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ftpc_waitoutput
- *
- * Description:
- *   Wait to send data.
- *
- ****************************************************************************/
-
-static int ftpc_waitoutput(FAR struct ftpc_session_s *session)
-{
-  int ret;
-
-  do
-    {
-      ret = ftpc_waitdata(session, session->data.outstream, false);
-      if (ret < 0)
-        {
-          return ERROR;
-        }
-    }
-  while(ret == 0);
-  return OK;
-}
-
-/****************************************************************************
  * Name: ftpc_sendbinary
  *
  * Description:
@@ -126,15 +102,6 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
               (void)ftpc_xfrabort(session, linstream);
               ret = ERROR;
             }
-          break;
-        }
-
-      /* Wait to make sure that we send the data without blocking */
-
-      ret = ftpc_waitoutput(session);
-      if (ret != OK)
-        {
-          ret = ERROR;
           break;
         }
 
@@ -174,15 +141,8 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
 
   /* Write characters one at a time. */
 
-  while((c = fgetc(linstream)) != EOF)
+  while ((c = fgetc(linstream)) != EOF)
     {
-      /* Make sure that we can send the character without blocking */
-
-      if (ftpc_waitoutput(session) != 0)
-        {
-          break;
-        }
-
       /* If it is a newline, send a carriage return too */
 
       if (c == '\n')

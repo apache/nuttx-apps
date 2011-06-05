@@ -167,31 +167,6 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
 }
 
 /****************************************************************************
- * Name: ftpc_waitinput
- *
- * Description:
- *   Wait to receive data.
- *
- ****************************************************************************/
-
-static int ftpc_waitinput(FAR struct ftpc_session_s *session)
-{
-  int ret;
-  do {
-    ret = ftpc_waitdata(session, session->data.instream, true);
-    if (ret == -1) {
-      if (errno == EINTR)
-        {
-          FTPC_SET_INTERRUPT(session);
-        }
-      return ERROR;
-    }
-  } while(ret == 0);
-
-  return OK;
-}
-
-/****************************************************************************
  * Name: ftpc_recvbinary
  *
  * Description:
@@ -219,16 +194,6 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
 
   for (;;)
     {
-      /* Wait for input on the socket */
-
-      ret = ftpc_waitinput(session);
-      if (ret != OK)
-        {
-          nvdbg("ftpc_waitinput() failed\n");
-          err = EIO;
-          goto errout_with_buf;
-        }
-
       /* Read the data from the socket */
 
       nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
@@ -451,15 +416,6 @@ int ftpc_recvtext(FAR struct ftpc_session_s *session,
 
   while ((ch = fgetc(rinstream)) != EOF)
     {
-      /* Wait for input on the socket */
-
-      ret = ftpc_waitinput(session);
-      if (ret != OK)
-        {
-          nvdbg("ftpc_waitinput() failed\n");
-          break;
-        }
-
       /* Is it a carriage return? Compress \r\n to \n */
 
       if (ch == '\r')
