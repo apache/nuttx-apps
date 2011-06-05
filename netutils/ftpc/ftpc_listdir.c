@@ -199,13 +199,19 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
       return ERROR;
     }
 
-  /* Accept the connection from the server */
+  /* In active mode, we need to accept a connection on the data socket
+   * (in passive mode, we have already connected the data channel to
+   * the FTP server).
+   */
 
-  ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
-  if (ret != OK)
+  if (!FTPC_IS_PASSIVE(session))
     {
-      ndbg("ftpc_sockaccept() failed: %d\n", errno);
-      return ERROR;
+      ret = ftpc_sockaccept(&session->data);
+      if (ret != OK)
+        {
+          ndbg("ftpc_sockaccept() failed: %d\n", errno);
+          return ERROR;
+        }
     }
 
   /* Receive the NLST directory list  */

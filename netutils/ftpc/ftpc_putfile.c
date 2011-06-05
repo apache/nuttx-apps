@@ -114,6 +114,8 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
   buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
   for (;;)
     {
+      /* Read data from the file */
+
       nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, linstream);
       if (nread <= 0)
         {
@@ -127,11 +129,16 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
           break;
         }
 
-      if (ftpc_waitoutput(session) != 0)
+      /* Wait to make sure that we send the data without blocking */
+
+      ret = ftpc_waitoutput(session);
+      if (ret != OK)
         {
           ret = ERROR;
           break;
         }
+
+      /* Send the data */
 
       nwritten = fwrite(buf, sizeof(char), nread, routstream);
       if (nwritten != nread)
@@ -140,6 +147,8 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
           ret = ERROR;
            break;
         }
+
+      /* Increment the size of the file sent */
 
       session->size += nread;
     }
@@ -163,12 +172,18 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
   int c;
   int ret = OK;
 
+  /* Write characters one at a time. */
+
   while((c = fgetc(linstream)) != EOF)
     {
+      /* Make sure that we can send the character without blocking */
+
       if (ftpc_waitoutput(session) != 0)
         {
           break;
         }
+
+      /* If it is a newline, send a carriage return too */
 
       if (c == '\n')
         {
@@ -179,8 +194,12 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
               break;
             }
 
+          /* Increment the size of the file sent */
+
           session->size++;
         }
+
+      /* Send the character */
 
       if (fputc(c, routstream) == EOF)
         {
@@ -188,6 +207,8 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
           ret = ERROR;
           break;
         }
+
+      /* Increment the size of the file sent */
 
       session->size++;
     }
@@ -340,20 +361,30 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
    *   with a mark. 
    */
 
-  ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
-  if (ret != OK)
+  /* In active mode, we need to accept a connection on the data socket
+   * (in passive mode, we have already connected the data channel to
+   * the FTP server).
+   */
+
+  if (!FTPC_IS_PASSIVE(session))
     {
-      ndbg("Data connection not accepted\n");
-      return ERROR;
+      ret = ftpc_sockaccept(&session->data);
+      if (ret != OK)
+        {
+          ndbg("Data connection not accepted\n");
+          return ERROR;
+        }
     }
+
+  /* Then perform the data transfer */
 
   if (xfrmode == FTPC_XFRMODE_ASCII)
     {
-      ret = ftpc_sendbinary(session, stream, session->data.instream);
+      ret = ftpc_sendtext(session, stream, session->data.instream);
     }
   else
     {
-      ret = ftpc_sendtext(session, stream, session->data.instream);
+      ret = ftpc_sendbinary(session, stream, session->data.instream);
     }
 
   ftpc_sockflush(&session->data);

@@ -149,14 +149,18 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
       return ERROR;
     }
 
-  /* Accept a connection on the data socket (unless passive mode then the
-   * function does nothing).
+  /* In active mode, we need to accept a connection on the data socket
+   * (in passive mode, we have already connected the data channel to
+   * the FTP server).
    */
 
-  ret = ftpc_sockaccept(&session->data, FTPC_IS_PASSIVE(session));
-  if (ret != OK)
+  if (!FTPC_IS_PASSIVE(session))
     {
-      ndbg("Data connection not accepted\n");
+      ret = ftpc_sockaccept(&session->data);
+      if (ret != OK)
+        {
+          ndbg("Data connection not accepted\n");
+        }
     }
 
   return ret;
@@ -204,6 +208,8 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
   int err;
   int ret = OK;
 
+  /* Allocate an I/O buffer */
+
   buf = (FAR char *)malloc(CONFIG_FTP_BUFSIZE);
   if (!buf)
     {
@@ -213,12 +219,17 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
 
   for (;;)
     {
-      if (ftpc_waitinput(session) != 0)
+      /* Wait for input on the socket */
+
+      ret = ftpc_waitinput(session);
+      if (ret != OK)
         {
           nvdbg("ftpc_waitinput() failed\n");
           err = EIO;
           goto errout_with_buf;
         }
+
+      /* Read the data from the socket */
 
       nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
       if (nread <= 0)
@@ -227,11 +238,15 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
 
           if (nread < 0)
             {
+              /* errno should already be set by fread */
+
               (void)ftpc_xfrabort(session, rinstream);
               ret = ERROR;
             }
           break;
         }
+
+      /* Write the data to the file */
 
       nwritten = fwrite(buf, sizeof(char), nread, loutstream);
       if (nwritten != nread)
@@ -372,11 +387,11 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
 
   if (xfrmode == FTPC_XFRMODE_ASCII)
     {
-      ret = ftpc_recvbinary(session, session->data.instream, loutstream);
+      ret = ftpc_recvtext(session, session->data.instream, loutstream);
     }
   else
     {
-      ret = ftpc_recvtext(session, session->data.instream, loutstream);
+      ret = ftpc_recvbinary(session, session->data.instream, loutstream);
     }
 
   ftpc_sockclose(&session->data);
@@ -419,39 +434,67 @@ errout:
 int ftpc_recvtext(FAR struct ftpc_session_s *session,
                   FAR FILE *rinstream, FAR FILE *loutstream)
 {
-  char *buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
-  int c;
+  FAR char *buf;
+  int ch;
   int ret = OK;
 
-  while((c = fgetc(rinstream)) != EOF) {
+  /* Allocate an I/O buffer */
 
-    if (ftpc_waitinput(session) != 0)
-      {
-        break;
-      }
-
-    if (c == '\r')
+  buf = (FAR char *)malloc(CONFIG_FTP_BUFSIZE);
+  if (!buf)
     {
-      c = fgetc(rinstream);
-      if (c == EOF)
-        {
-         (void)ftpc_xfrabort(session, rinstream);
-          ret = ERROR;
-          break;
-        }
-      if (c != '\n')
-        {
-          ungetc(c, rinstream);
-          c = '\r';
-        }
+      set_errno(ENOMEM);
+      return ERROR;
     }
 
-    if (fputc(c, loutstream) == EOF)
+  /* Read the next character from the incoming data stream */
+
+  while ((ch = fgetc(rinstream)) != EOF)
+    {
+      /* Wait for input on the socket */
+
+      ret = ftpc_waitinput(session);
+      if (ret != OK)
+        {
+          nvdbg("ftpc_waitinput() failed\n");
+          break;
+        }
+
+      /* Is it a carriage return? Compress \r\n to \n */
+
+      if (ch == '\r')
+        {
+          /* Get the next character */
+
+          ch = fgetc(rinstream);
+          if (ch == EOF)
+            {
+              /* Ooops... */
+
+              (void)ftpc_xfrabort(session, rinstream);
+              ret = ERROR;
+              break;
+            }
+
+          /* If its not a newline, then keep the carriage return */
+
+          if (ch != '\n')
+            {
+              ungetc(ch, rinstream);
+              ch = '\r';
+            }
+        }
+
+    /* Then write the character to the output file */
+
+    if (fputc(ch, loutstream) == EOF)
       {
         (void)ftpc_xfrabort(session, loutstream);
         ret = ERROR;
         break;
       }
+
+    /* Increase the actual size of the file by one */
 
     session->size++;
   }

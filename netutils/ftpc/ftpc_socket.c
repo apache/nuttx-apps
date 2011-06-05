@@ -209,81 +209,71 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  * Name: ftpc_sockaccept
  *
  * Description:
- *   Accept a connection on the data socket (unless passive mode then this
- *   function does nothing).
+ *   Accept a connection on the data socket.  This function is onlly used
+ *   in active mode. 
+ *
+ *   In active mode FTP the client connects from a random port (N>1023) to the
+ *   FTP server's command port, port 21. Then, the client starts listening to
+ *   port N+1 and sends the FTP command PORT N+1 to the FTP server. The server
+ *   will then connect back to the client's specified data port from its local
+ *   data port, which is port 20. In passive mode FTP the client initiates
+ *   both connections to the server, solving the problem of firewalls filtering 
+ *   the incoming data port connection to the client from the server. When
+ *   opening an FTP connection, the client opens two random ports locally
+ *   (N>1023 and N+1). The first port contacts the server on port 21, but
+ *   instead of then issuing a PORT command and allowing the server to connect
+ *   back to its data port, the client will issue the PASV command. The result
+ *   of this is that the server then opens a random unprivileged port (P >
+ *   1023) and sends the PORT P command back to the client. The client then
+ *   initiates the connection from port N+1 to port P on the server to transfer 
+ *   data.
  *
  ****************************************************************************/
 
-int ftpc_sockaccept(struct ftpc_socket_s *sock, bool passive)
+int ftpc_sockaccept(FAR struct ftpc_socket_s *sock)
 {
   struct sockaddr addr;
   socklen_t addrlen;
 
-  /* In active mode FTP the client connects from a random port (N>1023) to the
-   * FTP server's command port, port 21. Then, the client starts listening to
-   * port N+1 and sends the FTP command PORT N+1 to the FTP server. The server
-   * will then connect back to the client's specified data port from its local
-   * data port, which is port 20. In passive mode FTP the client initiates
-   * both connections to the server, solving the problem of firewalls filtering 
-   * the incoming data port connection to the client from the server. When
-   * opening an FTP connection, the client opens two random ports locally
-   * (N>1023 and N+1). The first port contacts the server on port 21, but
-   * instead of then issuing a PORT command and allowing the server to connect
-   * back to its data port, the client will issue the PASV command. The result
-   * of this is that the server then opens a random unprivileged port (P >
-   * 1023) and sends the PORT P command back to the client. The client then
-   * initiates the connection from port N+1 to port P on the server to transfer 
-   * data.
+  /* Any previous socket should have been uninitialized (0) or explicitly
+   * closed (-1).  But the path to this function may include a call to
+   * ftpc_sockinit().  If so... close that socket and call accept to
+   * get a new one.
    */
 
-  if (!passive)
+  if (sock->sd > 0)
     {
-      /* Any previous socket should have been uninitialized (0) or explicitly
-       * closed (-1).  But the path to this function may include a call to
-       * ftpc_sockinit().  If so... close that socket and call accept to
-       * get a new one.
-       */
-
-      if (sock->sd > 0)
-        {
-          ftpc_sockclose(sock);
-        }
-
-      addrlen  = sizeof(addr);
-      sock->sd = accept(sock->sd, &addr, &addrlen);
-      if (sock->sd == -1)
-        {
-          ndbg("accept() failed: %d\n", errno);
-          return ERROR;
-        }
-
-      memcpy(&sock->laddr, &addr, sizeof(sock->laddr));
-
-      /* Create in/out C buffer I/O streams on the data channel.  First,
-       * create the incoming buffered stream.
-       */
-
-      sock->instream = fdopen(sock->sd, "r");
-      if (!sock->instream)
-        {
-          ndbg("fdopen() failed: %d\n", errno);
-          goto errout_with_sd;
-        }
-
-      /* Create the outgoing stream */
-
-      sock->outstream = fdopen(sock->sd, "w");
-      if (!sock->outstream)
-        {
-          ndbg("fdopen() failed: %d\n", errno);
-          goto errout_with_instream;
-        }
+      ftpc_sockclose(sock);
     }
-  else
-    {
-      /* Should already be set up from ftpc_sockinit() call */
 
-      DEBUGASSERT(sock->sd >= 0 && sock->instream && sock->outstream);
+  addrlen  = sizeof(addr);
+  sock->sd = accept(sock->sd, &addr, &addrlen);
+  if (sock->sd == -1)
+    {
+      ndbg("accept() failed: %d\n", errno);
+      return ERROR;
+    }
+
+  memcpy(&sock->laddr, &addr, sizeof(sock->laddr));
+
+  /* Create in/out C buffer I/O streams on the data channel.  First,
+   * create the incoming buffered stream.
+   */
+
+  sock->instream = fdopen(sock->sd, "r");
+  if (!sock->instream)
+    {
+      ndbg("fdopen() failed: %d\n", errno);
+      goto errout_with_sd;
+    }
+
+  /* Create the outgoing stream */
+
+  sock->outstream = fdopen(sock->sd, "w");
+  if (!sock->outstream)
+    {
+      ndbg("fdopen() failed: %d\n", errno);
+      goto errout_with_instream;
     }
 
   return OK;

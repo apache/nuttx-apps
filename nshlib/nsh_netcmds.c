@@ -331,20 +331,28 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       return ERROR;
     }
 
-  /* There should be exactly on parameter left on the command-line */
+  /* There should be exactly one parameter left on the command-line */
 
   if (optind == argc-1)
     {
       args->srcpath = argv[optind];
     }
+
+  /* optind == argc means that there is nothing left on the command-line */
+
   else if (optind >= argc)
     {
-      fmt = g_fmttoomanyargs;
+      fmt = g_fmtargrequired;
       goto errout;
     }
+
+  /* optind < argc-1 means that there are too many arguments on the
+   * command-line
+   */
+
   else
     {
-      fmt = g_fmtargrequired;
+      fmt = g_fmttoomanyargs;
       goto errout;
     }
 

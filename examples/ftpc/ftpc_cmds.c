@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <apps/ftpc.h>
 
@@ -233,13 +234,13 @@ int cmd_rhelp(SESSION handle, int argc, char **argv)
       cmd = argv[1];
     }
 
- ret = ftpc_help(handle, cmd);
- if (ret == OK)
-   {
-     FAR char *msg = ftpc_response(handle);
-     puts(msg);
-     free(msg);
-   }
+  ret = ftpc_help(handle, cmd);
+  if (ret == OK)
+    {
+      FAR char *msg = ftpc_response(handle);
+      puts(msg);
+      free(msg);
+    }
 
  return ret;
 }
@@ -276,13 +277,54 @@ int cmd_rls(SESSION handle, int argc, char **argv)
 
 int cmd_rget(SESSION handle, int argc, char **argv)
 {
+  FAR const char *rname;
   FAR const char *lname = NULL;
+  int xfrmode = FTPC_XFRMODE_ASCII;
+  int option;
 
-  if (argc > 2)
+  while ((option = getopt(argc, argv, "ab")) != ERROR)
     {
-      lname = argv[2];
+      if (option == 'a')
+        {
+          xfrmode = FTPC_XFRMODE_ASCII;
+        }
+      else if (option == 'b')
+        {
+          xfrmode = FTPC_XFRMODE_BINARY;
+        }
+      else
+        {
+          printf("%s: Unrecognized option: '%c'\n", "put", option);
+          return ERROR;
+        }
     }
-  return ftpc_getfile(handle, argv[1], lname, FTPC_GET_NORMAL, FTPC_XFRMODE_ASCII);
+
+  /* There should be one or two parameters remaining on the command line */
+
+  if (optind >= argc)
+    {
+      printf("%s: Missing required arguments\n", "get");
+      return ERROR;
+    }
+
+  rname = argv[optind];
+  optind++;
+
+  if (optind < argc)
+    {
+      lname = argv[optind];
+      optind++;
+    }
+
+  if (optind != argc)
+    {
+      printf("%s: Too many arguments\n", "get");
+      return ERROR;
+    }
+
+  /* Perform the transfer */
+
+  return ftpc_getfile(handle, rname, lname, FTPC_GET_NORMAL, xfrmode);
 }
 
 /****************************************************************************
@@ -291,11 +333,52 @@ int cmd_rget(SESSION handle, int argc, char **argv)
 
 int cmd_rput(SESSION handle, int argc, char **argv)
 {
+  FAR const char *lname;
   FAR const char *rname = NULL;
+  int xfrmode = FTPC_XFRMODE_ASCII;
+  int option;
 
-  if (argc > 2)
+  while ((option = getopt(argc, argv, "ab")) != ERROR)
     {
-      rname = argv[2];
+      if (option == 'a')
+        {
+          xfrmode = FTPC_XFRMODE_ASCII;
+        }
+      else if (option == 'b')
+        {
+          xfrmode = FTPC_XFRMODE_BINARY;
+        }
+      else
+        {
+          printf("%s: Unrecognized option: '%c'\n", "put", option);
+          return ERROR;
+        }
     }
-  return ftp_putfile(handle, argv[1], rname, FTPC_PUT_NORMAL, FTPC_XFRMODE_ASCII);
+
+  /* There should be one or two parameters remaining on the command line */
+
+  if (optind >= argc)
+    {
+      printf("%s: Missing required arguments\n", "get");
+      return ERROR;
+    }
+
+  lname = argv[optind];
+  optind++;
+
+  if (optind < argc)
+    {
+      rname = argv[optind];
+      optind++;
+    }
+
+  if (optind >= argc)
+    {
+      printf("%s: Too many arguments\n ");
+      return ERROR;
+    }
+
+  /* Perform the transfer */
+
+  return ftp_putfile(handle, lname, rname, FTPC_PUT_NORMAL, xfrmode);
 }

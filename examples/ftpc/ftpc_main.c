@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #include <arpa/inet.h>
@@ -50,7 +51,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define FTPC_MAX_ARGUMENTS 3
+#define FTPC_MAX_ARGUMENTS 4
 
 /****************************************************************************
  * Public Types
@@ -78,7 +79,7 @@ static const struct cmdmap_s g_cmdmap[] =
 {
   { "cd",       cmd_rchdir,  2, 2, "<directory>" },
   { "chmod",    cmd_rchmod,  3, 3, "<permissions> <path>" },
-  { "get",      cmd_rget,    2, 3, "<rname> [<lname>]" },
+  { "get",      cmd_rget,    2, 4, "[-a|b] <rname> [<lname>]" },
   { "help",     cmd_lhelp,   1, 2, "" },
   { "idle",     cmd_ridle,   1, 2, "[<idletime>]" },
   { "login",    cmd_rlogin,  2, 3, "<uname> [<password>]" },
@@ -86,7 +87,7 @@ static const struct cmdmap_s g_cmdmap[] =
   { "quit",     cmd_rquit,   1, 1, "" },
   { "mkdir",    cmd_rmkdir,  2, 2, "<directory>" },
   { "noop",     cmd_rnoop,   1, 1, "" },
-  { "put",      cmd_rput,    2, 3, "<lname> [<rname>]" },
+  { "put",      cmd_rput,    2, 4, "[-a|b] <lname> [<rname>]" },
   { "pwd",      cmd_rpwd,    1, 1, "" },
   { "rename",   cmd_rrename, 3, 3, "<oldname> <newname>" },
   { "rhelp",    cmd_rhelp,   1, 2, "[<command>]" },
@@ -367,13 +368,20 @@ int ftpc_main(int argc, char **argv, char **envp)
       exit(1);
     }
 
+  /* Check if the argument includes a port number */
+
   ptr = strchr(argv[1], ':');
   if (ptr)
     {
       *ptr = '\0';
       connect.port = atoi(ptr+1);
     }
+
+  /* In any event, we can now extract the IP address from the comman-line */
+
   connect.addr.s_addr = inet_addr(argv[1]);
+
+  /* Connect to the FTP server */
 
   handle = ftpc_connect(&connect);
   if (!handle)
@@ -386,6 +394,13 @@ int ftpc_main(int argc, char **argv, char **envp)
 
   printf("NuttX FTP Client:\n");
   FFLUSH();
+
+  /* Setting optind to -1 is a non-standard, backdoor way to reinitialize
+   * getopt().  getopt() is not thread safe and we have no idea what state
+   * it is in now!
+   */
+
+  optind = -1;
 
   /* Then enter the command line parsing loop */
 
