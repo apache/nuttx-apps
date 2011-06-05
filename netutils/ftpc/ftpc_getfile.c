@@ -181,7 +181,6 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
   ssize_t nread;
   ssize_t nwritten;
   int err;
-  int ret = OK;
 
   /* Allocate an I/O buffer */
 
@@ -199,16 +198,20 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
       nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
       if (nread <= 0)
         {
-          /* nread == 0 means end of file */
+          /* nread < 0 is an error */
 
           if (nread < 0)
             {
               /* errno should already be set by fread */
 
               (void)ftpc_xfrabort(session, rinstream);
-              ret = ERROR;
+              goto errout_with_buf;
             }
-          break;
+
+          /* nread == 0 means end of file. Return success */
+
+          free(buf);
+          return OK;
         }
 
       /* Write the data to the file */
@@ -217,19 +220,24 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
       if (nwritten != nread)
         {
           (void)ftpc_xfrabort(session, loutstream);
-          ret = ERROR;
-          break;
+
+          /* If nwritten < 0 errno should already be set by fwrite.
+           * What would a short write mean?
+           */
+
+          goto errout_with_buf;
         }
 
-      session->size += nread;
+      /* Increment the size of the file written */
+ 
+      session->size += nwritten;
     }
 
+errout_with_buf: /* Buffer allocated, errno already set */
   free(buf);
-  return ret;
+  return ERROR;
 
-errout_with_buf:
-  free(buf);
-errout_with_err:
+errout_with_err: /* Buffer not allocated, errno needs to be set */
   set_errno(err);
   return ERROR;
 }

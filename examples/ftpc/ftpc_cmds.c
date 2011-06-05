@@ -372,7 +372,7 @@ int cmd_rput(SESSION handle, int argc, char **argv)
       optind++;
     }
 
-  if (optind >= argc)
+  if (optind != argc)
     {
       printf("%s: Too many arguments\n ");
       return ERROR;

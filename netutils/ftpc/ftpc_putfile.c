@@ -422,7 +422,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   /* Open the local file for reading */
 
   finstream = fopen(abslpath, "r");
-  if (!finstream == 0)
+  if (!finstream)
     {
       ndbg("fopen() failed: %d\n", errno);
       goto errout_with_abspath;
