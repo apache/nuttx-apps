@@ -48,7 +48,7 @@
 	  for further information about RGMP.  NOTE:  This is an empty example
 	  on initial check-in.
 
-6.4 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.4 2011-06-06 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* nshlib/nsh_netcmds.c: If a network device name and IP address are provided
 	  with the ifconfig command, then this command will now set the network address.
@@ -57,4 +57,4 @@
 	* examples/ftpc: A simple add-on to the NSH.  From NSH, you can start
 	  this simple FTP shell to transfer files to/from a remote FTP server.
 
-
+6.5 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
