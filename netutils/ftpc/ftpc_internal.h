@@ -172,8 +172,8 @@ struct ftpc_session_s
   uint8_t              xfrmode;    /* Previous data transfer type (See FTPC_XFRMODE_* defines) */
   uint16_t             port;       /* Server/proxy port number (probably 21) */
   uint16_t             flags;      /* Connection flags (see FTPC_FLAGS_* defines) */
-  uint16_t             code;       /* Last 3-digit replay code */
-  uint32_t             replytimeo; /* Server replay timeout (ticks) */
+  uint16_t             code;       /* Last 3-digit reply code */
+  uint32_t             replytimeo; /* Server reply timeout (ticks) */
   uint32_t             conntimeo;  /* Connection timeout (ticks) */
   off_t                offset;     /* Transfer file offset */
   off_t                size;       /* Number of bytes transferred */
