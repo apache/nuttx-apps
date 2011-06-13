@@ -120,21 +120,6 @@ void ftpc_reset(struct ftpc_session_s *session)
 }
 
 /****************************************************************************
- * Name: ftpc_currdir
- *
- * Description:
- *   Update the remote current working directory
- *
- ****************************************************************************/
-
-void ftpc_currdir(struct ftpc_session_s *session)
-{
-  free(session->prevrdir);
-  session->prevrdir = session->currdir;
-  session->currdir  = ftpc_rpwd((SESSION)session);
-}
-
-/****************************************************************************
  * Name: ftpc_lpwd
  *
  * Description:

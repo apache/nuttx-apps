@@ -167,10 +167,7 @@ struct ftpc_session_s
   FAR char            *initrdir;   /* Initial remote directory */
   FAR char            *homerdir;   /* Remote home directory (currdir on startup) */
   FAR char            *currdir;    /* Remote current directory */
-  FAR char            *prevrdir;   /* Previous remote directory */
-  FAR char            *rname;      /* Remote file name */
   FAR char            *homeldir;   /* Local home directory (PWD on startup) */
-  FAR char            *lname;      /* Local file name */
   pid_t                pid;        /* Task ID of FTP client */
   uint8_t              xfrmode;    /* Previous data transfer type (See FTPC_XFRMODE_* defines) */
   uint16_t             port;       /* Server/proxy port number (probably 21) */
@@ -178,12 +175,11 @@ struct ftpc_session_s
   uint16_t             code;       /* Last 3-digit replay code */
   uint32_t             replytimeo; /* Server replay timeout (ticks) */
   uint32_t             conntimeo;  /* Connection timeout (ticks) */
-  off_t                filesize;   /* Total file size to transfer */
   off_t                offset;     /* Transfer file offset */
   off_t                size;       /* Number of bytes transferred */
-  off_t                rstrsize;   /* restart size */
 
   char reply[CONFIG_FTP_MAXREPLY+1]; /* Last reply string from server */
+  char buffer[CONFIG_FTP_BUFSIZE]; /* Used to buffer file data during transfers */
 };
 
 /* There is not yet any want to change the local working directly (an lcd
@@ -241,7 +237,6 @@ EXTERN int ftpc_relogin(FAR struct ftpc_session_s *session);
 EXTERN void ftpc_reset(struct ftpc_session_s *session);
 EXTERN int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...);
 EXTERN int fptc_getreply(struct ftpc_session_s *session);
-EXTERN void ftpc_currdir(struct ftpc_session_s *session);
 EXTERN FAR const char *ftpc_lpwd(void);
 EXTERN int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode);
 EXTERN FAR char *ftpc_absrpath(FAR struct ftpc_session_s *session,

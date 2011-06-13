@@ -94,9 +94,6 @@ void ftpc_disconnect(SESSION handle)
       free(session->initrdir);
       free(session->homerdir);
       free(session->currdir);
-      free(session->prevrdir);
-      free(session->rname);
-      free(session->lname);
 
       /* Then destroy the session */
 

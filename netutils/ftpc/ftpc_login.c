@@ -201,7 +201,6 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
   FTPC_SET_LOGGEDIN(session);
   session->homerdir = ftpc_rpwd((SESSION)session);
   session->currdir  = strdup(session->homerdir);
-  session->prevrdir = strdup(session->homerdir);
 
   /* If the user has requested a special start up directory, then change to
    * that directory now.

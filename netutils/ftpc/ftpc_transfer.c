@@ -341,7 +341,6 @@ void ftpc_xfrreset(struct ftpc_session_s *session)
 {
   session->size     = 0;
   session->flags   &= ~FTPC_XFER_FLAGS;
-  session->rstrsize = 0;
 }
 
 /****************************************************************************
@@ -388,7 +387,6 @@ int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode)
 
 int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
 {
-  char buffer[CONFIG_FTP_BUFSIZE];
   FAR struct pollfd fds;
   int ret;
 
@@ -409,7 +407,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
     /* Read data from command channel */
  
     nvdbg("Flush cmd channel data\n");
-    while (stream && fread(buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
+    while (stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
     return OK;
   }
 
@@ -427,8 +425,8 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
 
   /* Read remaining bytes from connection */
 
-  while (stream && fread(buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
-  while(stream && fread(buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0)
+  while (stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
+  while(stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0)
 
   /* Get the ABORt reply */
  

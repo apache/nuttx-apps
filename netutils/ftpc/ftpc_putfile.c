@@ -82,20 +82,8 @@
 static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
                            FAR FILE *linstream, FILE *routstream)
 {
-  FAR char *buf;
   ssize_t nread;
   ssize_t nwritten;
-  int ret = OK;
-
-  /* Allocate a buffer to hold the binary data */
-
-  buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
-  if (!buf)
-    {
-      ndbg("Failed to allocate an I/O buffer\n");
-      set_errno(ENOMEM);
-      return ERROR;
-    }
 
   /* Loop until the entire file is sent */
 
@@ -103,7 +91,7 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
     {
       /* Read data from the file */
 
-      nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, linstream);
+      nread = fread(session->buffer, sizeof(char), CONFIG_FTP_BUFSIZE, linstream);
       if (nread <= 0)
         {
           /* nread == 0 is just EOF */
@@ -111,34 +99,30 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
           if (nread < 0)
             {
               (void)ftpc_xfrabort(session, linstream);
-              ret = ERROR;
+              return ERROR;
             }
 
-          /* Break out of the loop */
+          /* Return success */
 
-          break;
+          return OK;
         }
 
       /* Send the data */
 
-      nwritten = fwrite(buf, sizeof(char), nread, routstream);
+      nwritten = fwrite(session->buffer, sizeof(char), nread, routstream);
       if (nwritten != nread)
         {
           (void)ftpc_xfrabort(session, routstream);
 
-          /* Break out of the loop and return failue */
+          /* Return failue */
 
-          ret = ERROR;
-          break;
+          return ERROR;
         }
 
       /* Increment the size of the file sent */
 
       session->size += nread;
     }
-
-  free(buf);
-  return ret;
 }
 
 /****************************************************************************
@@ -152,7 +136,6 @@ static int ftpc_sendbinary(FAR struct ftpc_session_s *session,
 static int ftpc_sendtext(FAR struct ftpc_session_s *session,
                          FAR FILE *linstream, FAR FILE *routstream)
 {
-  char *buf = (char *)malloc(CONFIG_FTP_BUFSIZE);
   int ch;
   int ret = OK;
 
@@ -190,7 +173,6 @@ static int ftpc_sendtext(FAR struct ftpc_session_s *session,
       session->size++;
     }
 
-  free(buf);
   return ret;
 }
 
@@ -206,8 +188,11 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                          FILE *stream, uint8_t how, uint8_t xfrmode)
 {
   long offset = session->offset;
+#ifdef CONFIG_DEBUG
+  FAR char *rname;
   FAR char *str;
   int len;
+#endif
   int ret;
 
   session->offset = 0;
@@ -244,7 +229,6 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
     {
       ret = ftpc_cmd(session, "REST %ld", offset);
       session->size = offset;
-      session->rstrsize = offset;
     }
 
   /* Send the file using STOR, STOU, or APPE:
@@ -276,7 +260,8 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
           }
 
         /* Get the remote filename from the response */
- 
+
+#ifdef CONFIG_DEBUG
         str = strstr(session->reply, " for ");
         if (str)
           {
@@ -284,18 +269,19 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
             len = strlen(str);
             if (len)
               {
-                free(session->rname);
                 if (*str == '\'')
                   {
-                    session->rname = strndup(str+1, len-3);
+                    rname = strndup(str+1, len-3);
                   }
                 else
                   {
-                    session->rname = strndup(str, len-1);
-                    nvdbg("Unique filename is: %s\n",  session->rname);
+                    rname = strndup(str, len-1);
+                    nvdbg("Unique filename is: %s\n",  rname);
                   }
+                free(rname);
               }
           }
+#endif
       }
       break;
 
@@ -424,8 +410,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   if (ret != OK)
     {
       ndbg("stat(%s) failed: %d\n", errno);
-      free(abslpath);
-      goto errout;
+      goto errout_with_abspath;
     }
 
   /* Make sure that the local name does not refer to a directory */
@@ -444,14 +429,6 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
       ndbg("fopen() failed: %d\n", errno);
       goto errout_with_abspath;
     }
-
-  /* Configure for the transfer */
-
-  session->filesize = statbuf.st_size;
-  free(session->rname);
-  free(session->lname);
-  session->rname = strdup(rname);
-  session->lname = abslpath;
 
   /* Are we resuming a transfer? */
 
@@ -483,12 +460,13 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
         }
     }
 
-  /* On success, the last rname and lname are retained for debug purpose */
+  /* Send the file */
 
   ret = ftpc_sendfile(session, rname, finstream, how, xfrmode);
   if (ret == OK)
     {
       fclose(finstream);
+      free(abslpath);
       return OK;
     }
 
@@ -496,9 +474,6 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
 
 errout_with_instream:
   fclose(finstream);
-  free(session->rname);
-  session->rname = NULL;
-  session->lname = NULL;
 errout_with_abspath:
   free(abslpath);
 errout:

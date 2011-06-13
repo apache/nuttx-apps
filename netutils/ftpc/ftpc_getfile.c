@@ -95,8 +95,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
 
   /* Configure the transfer:  Initial file offset and tranfer mode */
 
-  session->offset   = 0;
-  session->filesize = -1;
+  session->offset = 0;
   ftpc_xfrmode(session, xfrmode);
 
   /* Handle the resume offset (caller is responsible for fseeking in the
@@ -116,8 +115,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
           return ERROR;
         }
  
-      session->size     = offset;
-      session->rstrsize = offset;
+      session->size = offset;
     }
 
   /* Send the RETR (Retrieve a remote file) command.  Normally the server
@@ -177,25 +175,16 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
 static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
                            FAR FILE *rinstream, FAR FILE *loutstream)
 {
-  FAR char *buf;
   ssize_t nread;
   ssize_t nwritten;
-  int err;
 
-  /* Allocate an I/O buffer */
-
-  buf = (FAR char *)malloc(CONFIG_FTP_BUFSIZE);
-  if (!buf)
-    {
-      err = ENOMEM;
-      goto errout_with_err;
-    }
+  /* Loop until the entire file is received */
 
   for (;;)
     {
       /* Read the data from the socket */
 
-      nread = fread(buf, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
+      nread = fread(session->buffer, sizeof(char), CONFIG_FTP_BUFSIZE, rinstream);
       if (nread <= 0)
         {
           /* nread < 0 is an error */
@@ -205,18 +194,17 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
               /* errno should already be set by fread */
 
               (void)ftpc_xfrabort(session, rinstream);
-              goto errout_with_buf;
+              return ERROR;
             }
 
           /* nread == 0 means end of file. Return success */
 
-          free(buf);
           return OK;
         }
 
       /* Write the data to the file */
 
-      nwritten = fwrite(buf, sizeof(char), nread, loutstream);
+      nwritten = fwrite(session->buffer, sizeof(char), nread, loutstream);
       if (nwritten != nread)
         {
           (void)ftpc_xfrabort(session, loutstream);
@@ -225,21 +213,13 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
            * What would a short write mean?
            */
 
-          goto errout_with_buf;
+         return ERROR;
         }
 
       /* Increment the size of the file written */
  
       session->size += nwritten;
     }
-
-errout_with_buf: /* Buffer allocated, errno already set */
-  free(buf);
-  return ERROR;
-
-errout_with_err: /* Buffer not allocated, errno needs to be set */
-  set_errno(err);
-  return ERROR;
 }
 
 /****************************************************************************
@@ -339,12 +319,7 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
       goto errout_with_abspath;
     }
 
-  /* Save the new local and remote file names */
-
-  free(session->rname);
-  free(session->lname);
-  session->rname = strdup(rname);
-  session->lname = abslpath;
+  /* If the offset is non-zero, then seek to that offset in the file */
 
   if (offset > 0)
     {
@@ -374,11 +349,12 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
       fptc_getreply(session);
     }
 
-  /* On success, the last rname and lname are retained for debug purpose */
+  /* Check for success */
 
   if (ret == OK && !FTPC_INTERRUPTED(session))
     {
       fclose(loutstream);
+      free(abslpath);
       return OK;
     }
 
@@ -386,9 +362,6 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
 
 errout_with_outstream:
   fclose(loutstream);
-  free(session->rname);
-  session->rname = NULL;
-  session->lname = NULL;
 errout_with_abspath:
   free(abslpath);
   session->offset = 0;
@@ -397,7 +370,7 @@ errout:
 }
 
 /****************************************************************************
- * Name: ftpc_recvbinary
+ * Name: ftpc_recvtext
  *
  * Description:
  *   Receive a text file.
@@ -407,18 +380,7 @@ errout:
 int ftpc_recvtext(FAR struct ftpc_session_s *session,
                   FAR FILE *rinstream, FAR FILE *loutstream)
 {
-  FAR char *buf;
   int ch;
-  int ret = OK;
-
-  /* Allocate an I/O buffer */
-
-  buf = (FAR char *)malloc(CONFIG_FTP_BUFSIZE);
-  if (!buf)
-    {
-      set_errno(ENOMEM);
-      return ERROR;
-    }
 
   /* Read the next character from the incoming data stream */
 
@@ -436,8 +398,7 @@ int ftpc_recvtext(FAR struct ftpc_session_s *session,
               /* Ooops... */
 
               (void)ftpc_xfrabort(session, rinstream);
-              ret = ERROR;
-              break;
+              return ERROR;
             }
 
           /* If its not a newline, then keep the carriage return */
@@ -454,8 +415,7 @@ int ftpc_recvtext(FAR struct ftpc_session_s *session,
     if (fputc(ch, loutstream) == EOF)
       {
         (void)ftpc_xfrabort(session, loutstream);
-        ret = ERROR;
-        break;
+        return ERROR;
       }
 
     /* Increase the actual size of the file by one */
@@ -463,8 +423,7 @@ int ftpc_recvtext(FAR struct ftpc_session_s *session,
     session->size++;
   }
 
-  free(buf);
-  return ret;
+  return OK;
 }
 
 

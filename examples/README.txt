@@ -73,6 +73,13 @@ examples/ftpc
   not work from NSH over a telnet NSH connection (Well, it will work you 
   just won't be able to access the command line).
 
+  You may also want to define the following in your configuration file.
+  Otherwise, you will have not feeback about what is going on:
+ 
+    CONFIG_DEBUG=y
+    CONFIG_DEBUG_VERBOSE=y
+    CONFIG_DEBUG_FTPC=y
+
 examples/hello
 ^^^^^^^^^^^^^^
 
