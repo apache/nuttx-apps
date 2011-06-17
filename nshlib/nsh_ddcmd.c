@@ -455,7 +455,6 @@ static inline int dd_outfopen(const char *name, struct dd_s *dd)
   DD_OUTFD = open(name, O_WRONLY|O_CREAT|O_TRUNC, 0644);
   if (DD_OUTFD < 0)
     {
-      FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
       nsh_output(dd->vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
       return ERROR;
     }

@@ -112,7 +112,9 @@ static const char *g_ttypenames[4] =
 static void ps_task(FAR _TCB *tcb, FAR void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
+#if CONFIG_MAX_TASK_ARGS > 2
   int i;
+#endif
 
   /* Show task status */
 
@@ -159,9 +161,9 @@ static void ps_task(FAR _TCB *tcb, FAR void *arg)
 int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *endptr;
-  long addr;
+  uintptr_t addr;
 
-  addr = strtol(argv[1], &endptr, 0);
+  addr = (uintptr_t)strtol(argv[1], &endptr, 0);
   if (!addr || endptr == argv[1] || *endptr != '\0')
     {
        nsh_output(vtbl, g_fmtarginvalid, argv[0]);

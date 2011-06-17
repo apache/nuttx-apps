@@ -114,7 +114,7 @@ int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   /* Get the address to be accessed */
 
-  mem->dm_addr = (void*)strtol(argv[1], NULL, 16);
+  mem->dm_addr = (void*)((uintptr_t)strtol(argv[1], NULL, 16));
 
   /* Get the number of bytes to access */
 
@@ -332,11 +332,11 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
 #ifndef CONFIG_NSH_DISABLE_XD
 int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char  *addr;
-  char  *endptr;
-  int    nbytes;
+  FAR char *addr;
+  FAR char *endptr;
+  int       nbytes;
 
-  addr = (char*)strtol(argv[1], &endptr, 16);
+  addr = (char*)((uintptr_t)strtol(argv[1], &endptr, 16));
   if (argv[0][0] == '\0' || *endptr != '\0')
     {
       return ERROR;
