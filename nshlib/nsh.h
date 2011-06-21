@@ -331,7 +331,7 @@ extern int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline);
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
 extern int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                       FAR char *argv[]);
+                       FAR char **argv);
 #endif
 
 /* Working directory support */

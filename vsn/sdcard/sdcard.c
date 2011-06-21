@@ -48,6 +48,9 @@
 #  include <nuttx/mmcsd.h>
 #endif
 
+FAR struct sdio_dev_s *sdio_initialize(int slotno);
+void sdio_mediachange(FAR struct sdio_dev_s *dev, bool cardinslot);
+
 // TODO get the structure out from the slot number
 static FAR struct sdio_dev_s *sdio = NULL;
 
@@ -107,12 +110,14 @@ int sdcard_main(int argc, char *argv[])
         }
         else if (!strcmp(argv[1], "insert")) {
             if (sdio) {
-                return sdio_mediachange(sdio, true);
+                sdio_mediachange(sdio, true);
+                return OK;
             }
         }
         else if (!strcmp(argv[1], "eject")) {
             if (sdio) {
-                return sdio_mediachange(sdio, false);
+                sdio_mediachange(sdio, false);
+                return OK;
             }
         }
         else if (!strcmp(argv[1], "status")) {

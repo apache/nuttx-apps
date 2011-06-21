@@ -87,13 +87,13 @@
  ****************************************************************************/
 
 int nsh_execapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                FAR char *argv[])
+                FAR char **argv)
 {
    int ret = OK;
 
    /* Try to find command within pre-built application list. */
 
-   ret = exec_namedapp(cmd, argv);
+   ret = exec_namedapp(cmd, (FAR const char **)argv);
    if (ret < 0)
      {
        return -errno;

@@ -47,6 +47,7 @@
 #include <nuttx/spi.h>
 #include <nuttx/mtd.h>
 
+FAR struct mtd_dev_s *ramtron_initialize(FAR struct spi_dev_s *dev);
 
 int ramtron_start(int spino)
 {
