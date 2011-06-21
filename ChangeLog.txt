@@ -57,6 +57,9 @@
 	* examples/ftpc: A simple add-on to the NSH.  From NSH, you can start
 	  this simple FTP shell to transfer files to/from a remote FTP server.
 
-6.5 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.5 2011-06-21 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* netutils/ftpc:  Simpflication and size reduction.
+
+6.6 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+
