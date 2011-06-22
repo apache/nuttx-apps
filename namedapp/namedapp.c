@@ -67,7 +67,7 @@ extern "C" {
 const struct namedapp_s namedapps[] =
 {
 # include "namedapp_list.h"
-  {.name = NULL}
+  { NULL, 0, 0, 0 }
 };
 
 #undef EXTERN

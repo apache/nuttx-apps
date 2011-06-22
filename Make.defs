@@ -36,6 +36,6 @@
 
 define REGISTER
 	@echo "Register: $1"
-	@echo "{ .name = \"$1\", .priority = $2, .stacksize = $3, .main = $4 }," >> "$(APPDIR)/namedapp/namedapp_list.h"
+	@echo "{ \"$1\", $2, $3, $4 }," >> "$(APPDIR)/namedapp/namedapp_list.h"
 	@echo "EXTERN int $4(int argc, char *argv[]);" >> "$(APPDIR)/namedapp/namedapp_proto.h"
 endef
