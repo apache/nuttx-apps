@@ -476,7 +476,7 @@ int nsh_consolemain(int argc, char *argv[])
 
   /* Present a greeting */
 
-  fprintf(pstate->ss_outstream, g_nshgreeting);
+  fputs(g_nshgreeting, pstate->ss_outstream);
   fflush(pstate->ss_outstream);
 
   /* Execute the startup script */

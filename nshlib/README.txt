@@ -901,6 +901,12 @@ NSH-Specific Configuration Settings
       the system console is used to provide debug output.  Default:
       stdin and stdout (probably "/dev/console")
 
+      NOTE: When any other device other than /dev/console is used
+      for a user interface, (1) linefeeds (\n) will not be expanded to
+      carriage return / linefeeds (\r\n).  You will need to set
+      your terminal program to account for this.  And (2) input is
+      not automatically echoed so you will have to turn local echo on.
+
   * CONFIG_NSH_TELNET
       If CONFIG_NSH_TELNET is set to 'y', then a TELENET
       server front-end is selected.  When this option is provided,
