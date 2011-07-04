@@ -43,8 +43,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 #include <errno.h>
 #include <debug.h>
 
@@ -54,22 +56,50 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Are we using the NuttX console for I/O?  Or some other character device? */
+
+#ifdef CONFIG_NSH_CONDEV
+#  define INFD(p)      ((p)->ss_confd)
+#  define INSTREAM(p)  ((p)->ss_constream)
+#  define OUTFD(p)     ((p)->ss_confd)
+#  define OUTSTREAM(p) ((p)->ss_constream)
+#else
+#  define INFD(p)      0
+#  define INSTREAM(p)  stdin
+#  define OUTFD(p)     1
+#  define OUTSTREAM(p) stdout
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
 struct serial_s
 {
+  /* NSH front-end call table */
+
   struct nsh_vtbl_s ss_vtbl;
-  int    ss_fd;      /* Re-direct file descriptor */
-  FILE  *ss_stream;  /* Re-direct stream */
+
+  /* NSH input/output streams */
+
+#ifdef CONFIG_NSH_CONDEV
+  int    ss_confd;     /* Console I/O file descriptor */
+#endif
+  int    ss_outfd;     /* Output file descriptor (possibly redirected) */
+#ifdef CONFIG_NSH_CONDEV
+  FILE  *ss_constream; /* Console I/O stream (possibly redirected) */
+#endif
+  FILE  *ss_outstream; /* Output stream */
+
+  /* Line input buffer */
+
   char   ss_line[CONFIG_NSH_LINELEN];
 };
 
 struct serialsave_s
 {
-  int    ss_fd;      /* Re-direct file descriptor */
-  FILE  *ss_stream;  /* Re-direct stream */
+  int    ss_outfd;     /* Re-directed output file descriptor */
+  FILE  *ss_outstream; /* Re-directed output stream */
 };
 
 /****************************************************************************
@@ -108,6 +138,8 @@ static inline FAR struct serial_s *nsh_allocstruct(void)
   struct serial_s *pstate = (struct serial_s *)zalloc(sizeof(struct serial_s));
   if (pstate)
     {
+      /* Initialize the call table */
+
 #ifndef CONFIG_NSH_DISABLEBG
       pstate->ss_vtbl.clone      = nsh_consoleclone;
       pstate->ss_vtbl.release    = nsh_consolerelease;
@@ -119,8 +151,31 @@ static inline FAR struct serial_s *nsh_allocstruct(void)
       pstate->ss_vtbl.undirect   = nsh_consoleundirect;
       pstate->ss_vtbl.exit       = nsh_consoleexit;
 
-      pstate->ss_fd              = 1;
-      pstate->ss_stream          = stdout;
+      /* (Re-) open the console input device */
+
+#ifdef CONFIG_NSH_CONDEV
+      pstate->ss_confd           = open(CONFIG_NSH_CONDEV, O_RDWR);
+      if (pstate->ss_confd < 0)
+        {
+          free(pstate);
+          return NULL;
+        }
+
+      /* Create a standard C stream on the console device */
+
+      pstate->ss_constream = fdopen(pstate->ss_confd, "r+");
+      if (!pstate->ss_constream)
+        {
+          close(pstate->ss_confd);
+          free(pstate);
+          return NULL;
+        }
+#endif
+
+      /* Initialize the output stream */
+
+      pstate->ss_outfd           = OUTFD(pstate);
+      pstate->ss_outstream       = OUTSTREAM(pstate);
     }
   return pstate;
 }
@@ -135,10 +190,10 @@ static int nsh_openifnotopen(struct serial_s *pstate)
    * descriptor may be opened on a different task than the stream.
    */
 
-  if (!pstate->ss_stream)
+  if (!pstate->ss_outstream)
     {
-      pstate->ss_stream = fdopen(pstate->ss_fd, "w");
-      if (!pstate->ss_stream)
+      pstate->ss_outstream = fdopen(pstate->ss_outfd, "w");
+      if (!pstate->ss_outstream)
         {
           return ERROR;
         }
@@ -148,29 +203,33 @@ static int nsh_openifnotopen(struct serial_s *pstate)
 
 /****************************************************************************
  * Name: nsh_closeifnotclosed
+ *
+ * Description:
+ *   Close the output stream if it is not the standard output stream.
+ *
  ****************************************************************************/
 
 static void nsh_closeifnotclosed(struct serial_s *pstate)
 {
-  if (pstate->ss_stream == stdout)
+  if (pstate->ss_outstream == OUTSTREAM(pstate))
     {
-      fflush(stdout);
-      pstate->ss_fd = 1;
+      fflush(OUTSTREAM(pstate));
+      pstate->ss_outfd = OUTFD(pstate);
     }
   else
     {
-      if (pstate->ss_stream)
+      if (pstate->ss_outstream)
         {
-          fflush(pstate->ss_stream);
-          fclose(pstate->ss_stream);
+          fflush(pstate->ss_outstream);
+          fclose(pstate->ss_outstream);
         }
-      else if (pstate->ss_fd >= 0 && pstate->ss_fd != 1)
+      else if (pstate->ss_outfd >= 0 && pstate->ss_outfd != OUTFD(pstate))
         {
-          close(pstate->ss_fd);
+          close(pstate->ss_outfd);
         }
 
-      pstate->ss_fd     = -1;
-      pstate->ss_stream = NULL;
+      pstate->ss_outfd     = -1;
+      pstate->ss_outstream = NULL;
     }
 }
 
@@ -201,10 +260,10 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
 
   /* Write the data to the output stream */
 
-  ret = fwrite(buffer, 1, nbytes, pstate->ss_stream);
+  ret = fwrite(buffer, 1, nbytes, pstate->ss_outstream);
   if (ret < 0)
     {
-      dbg("[%d] Failed to send buffer: %d\n", pstate->ss_fd, errno);
+      dbg("[%d] Failed to send buffer: %d\n", pstate->ss_outfd, errno);
     }
   return ret;
 }
@@ -234,7 +293,7 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
    }
  
   va_start(ap, fmt);
-  ret = vfprintf(pstate->ss_stream, fmt, ap);
+  ret = vfprintf(pstate->ss_outstream, fmt, ap);
   va_end(ap);
  
   return ret;
@@ -265,19 +324,7 @@ static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl)
 #ifndef CONFIG_NSH_DISABLEBG
 static FAR struct nsh_vtbl_s *nsh_consoleclone(FAR struct nsh_vtbl_s *vtbl)
 {
-  FAR struct serial_s *pstate = (FAR struct serial_s *)vtbl;
   FAR struct serial_s *pclone = nsh_allocstruct();
-
-  if (pclone->ss_fd == 1)
-    {
-      pclone->ss_fd     = 1;
-      pclone->ss_stream = stdout;
-    }
-  else
-    {
-      pclone->ss_fd     = pstate->ss_fd;
-      pclone->ss_stream = NULL;
-    }
   return &pclone->ss_vtbl;
 }
 #endif
@@ -295,8 +342,19 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct serial_s *pstate = (FAR struct serial_s *)vtbl;
 
+  /* Close the output stream */
+
   nsh_closeifnotclosed(pstate);
-  free(vtbl);
+
+  /* Close the console stream */
+
+#ifdef CONFIG_NSH_CONDEV
+  (void)fclose(pstate->ss_constream);
+#endif
+
+  /* Then release the vtable container */
+
+  free(pstate);
 }
 #endif
 
@@ -339,26 +397,26 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t
 
   if (ssave)
     {
-      /* pstate->ss_stream and ss_fd refer refer to the
-       * currently opened output stream.  If the console is open, flush
+      /* pstate->ss_outstream and ss_outfd refer refer to the
+       * currently opened output stream.  If the output stream is open, flush
        * any pending output.
        */
 
-      if (pstate->ss_stream)
+      if (pstate->ss_outstream)
         {
-          fflush(pstate->ss_stream);          
+          fflush(pstate->ss_outstream);          
         }
 
       /* Save the current fd and stream values.  These will be restored
        * when nsh_consoleundirect() is called.
        */
 
-      ssave->ss_fd     = pstate->ss_fd;
-      ssave->ss_stream = pstate->ss_stream;
+      ssave->ss_outfd     = pstate->ss_outfd;
+      ssave->ss_outstream = pstate->ss_outstream;
     }
   else
     {
-      /* nsh_consoleclone() set pstate->ss_fd and ss_stream to refer
+      /* nsh_consoleclone() set pstate->ss_outfd and ss_outstream to refer
        * to standard out.  We just want to leave these alone and overwrite
        * them with the fd for the re-directed stream.
        */
@@ -368,8 +426,8 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t
    * the output stream (it will be fdopen'ed if it is used).
    */
 
-  pstate->ss_fd     = fd;
-  pstate->ss_stream = NULL;
+  pstate->ss_outfd     = fd;
+  pstate->ss_outstream = NULL;
 }
 
 /****************************************************************************
@@ -386,8 +444,8 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save)
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
 
   nsh_closeifnotclosed(pstate);
-  pstate->ss_fd     = ssave->ss_fd;
-  pstate->ss_stream = ssave->ss_stream;
+  pstate->ss_outfd     = ssave->ss_outfd;
+  pstate->ss_outstream = ssave->ss_outstream;
 }
 
 /****************************************************************************
@@ -414,11 +472,12 @@ static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl)
 int nsh_consolemain(int argc, char *argv[])
 {
   FAR struct serial_s *pstate = nsh_allocstruct();
+  DEBUGASSERT(pstate);
 
   /* Present a greeting */
 
-  printf(g_nshgreeting);
-  fflush(pstate->ss_stream);
+  fprintf(pstate->ss_outstream, g_nshgreeting);
+  fflush(pstate->ss_outstream);
 
   /* Execute the startup script */
 
@@ -432,17 +491,17 @@ int nsh_consolemain(int argc, char *argv[])
     {
       /* Display the prompt string */
 
-      fputs(g_nshprompt, pstate->ss_stream);
-      fflush(pstate->ss_stream);
+      fputs(g_nshprompt, pstate->ss_outstream);
+      fflush(pstate->ss_outstream);
 
       /* Get the next line of input */
 
-      if (fgets(pstate->ss_line, CONFIG_NSH_LINELEN, stdin))
+      if (fgets(pstate->ss_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)))
         {
           /* Parse process the command */
 
           (void)nsh_parse(&pstate->ss_vtbl, pstate->ss_line);
-          fflush(pstate->ss_stream);
+          fflush(pstate->ss_outstream);
         }
     }
   return OK;

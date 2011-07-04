@@ -891,6 +891,16 @@ NSH-Specific Configuration Settings
       If CONFIG_NSH_CONSOLE is set to 'y', then a serial
       console front-end is selected.
 
+  * CONFIG_NSH_CONDEV
+      If CONFIG_NSH_CONSOLE is set to 'y', then CONFIG_NSH_CONDEV
+      may also be set to select the serial device used to support
+      the NSH console.   This should be set to the quoted name of a
+      readable/write-able character driver such as:
+      CONFIG_NSH_CONDEV="/dev/ttyS1". This is useful, for example,
+      to separate the NSH command line from the system console when
+      the system console is used to provide debug output.  Default:
+      stdin and stdout (probably "/dev/console")
+
   * CONFIG_NSH_TELNET
       If CONFIG_NSH_TELNET is set to 'y', then a TELENET
       server front-end is selected.  When this option is provided,
