@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nx/nx_kbdin.c
  *
- *   Copyright (C) 2008, 2010 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2010-2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ static void nxeg_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
       if (!nxgl_nullrect(&intersection))
         {
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-          ret = nxtk_bitmapwindow((NXTKWINDOW)hwnd, &intersection, &src,
+          ret = nxtk_bitmapwindow((NXTKWINDOW)hwnd, &intersection, (FAR const void **)&src,
                                   &bm->bounds.pt1,
                                   (unsigned int)bm->glyph->stride);
           if (ret < 0)
