@@ -34,23 +34,337 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * NOTE: This test exercises internal button driver interfaces.  As such, it
+ * it relies on internal OS interfaces that are not normally available to a
+ * user-space program.  As a result, this example cannot be used if a
+ * NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+ ****************************************************************************/
+
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/arch.h>
+
 #include <stdio.h>
+#include <unistd.h>
+#include <debug.h>
 
 /****************************************************************************
  * Definitions
  ****************************************************************************/
+/* Configuration ************************************************************/
+
+#ifndef CONFIG_ARCH_BUTTONS
+#  error "CONFIG_ARCH_BUTTONS is not defined in the configuration"
+#endif
+
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME0
+#  define CONFIG_EXAMPLE_BUTTONS_NAME0 "BUTTON0"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME1
+#  define CONFIG_EXAMPLE_BUTTONS_NAME1 "BUTTON1"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME2
+#  define CONFIG_EXAMPLE_BUTTONS_NAME2 "BUTTON2"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME3
+#  define CONFIG_EXAMPLE_BUTTONS_NAME3 "BUTTON3"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME4
+#  define CONFIG_EXAMPLE_BUTTONS_NAME4 "BUTTON4"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME5
+#  define CONFIG_EXAMPLE_BUTTONS_NAME5 "BUTTON5"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME6
+#  define CONFIG_EXAMPLE_BUTTONS_NAME6 "BUTTON6"
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_NAME7
+#  define CONFIG_EXAMPLE_BUTTONS_NAME7 "BUTTON7"
+#endif
+
+#define BUTTON_MIN 0
+#define BUTTON_MAX 7
+
+#ifndef CONFIG_EXAMPLE_BUTTONS_MIN
+#  define CONFIG_EXAMPLE_BUTTONS_MIN BUTTON_MIN
+#endif
+#ifndef CONFIG_EXAMPLE_BUTTONS_MAX
+#  define CONFIG_EXAMPLE_BUTTONS_MAX BUTTON_MAX
+#endif
+
+#if CONFIG_EXAMPLE_BUTTONS_MIN > CONFIG_EXAMPLE_BUTTONS_MAX
+#  error "CONFIG_EXAMPLE_BUTTONS_MIN > CONFIG_EXAMPLE_BUTTONS_MAX"
+#endif
+#if CONFIG_EXAMPLE_BUTTONS_MAX > 7
+#  error "CONFIG_EXAMPLE_BUTTONS_MAX > 7"
+#endif
+
+#ifndef CONFIG_EXAMPLE_IRQBUTTONS_MIN
+#  define CONFIG_EXAMPLE_IRQBUTTONS_MIN CONFIG_EXAMPLE_BUTTONS_MIN
+#endif
+#ifndef CONFIG_EXAMPLE_IRQBUTTONS_MAX
+#  define CONFIG_EXAMPLE_IRQBUTTONS_MAX CONFIG_EXAMPLE_BUTTONS_MAX
+#endif
+
+#if CONFIG_EXAMPLE_IRQBUTTONS_MIN > CONFIG_EXAMPLE_IRQBUTTONS_MAX
+#  error "CONFIG_EXAMPLE_IRQBUTTONS_MIN > CONFIG_EXAMPLE_IRQBUTTONS_MAX"
+#endif
+#if CONFIG_EXAMPLE_IRQBUTTONS_MAX > 7
+#  error "CONFIG_EXAMPLE_IRQBUTTONS_MAX > 7"
+#endif
+
+#ifndef MIN
+#  define MIN(a,b) (a < b ? a : b)
+#endif
+#ifndef MAX
+#  define MAX(a,b) (a > b ? a : b)
+#endif
+
+#define MIN_BUTTON MIN(CONFIG_EXAMPLE_BUTTONS_MIN, CONFIG_EXAMPLE_IRQBUTTONS_MIN)
+#define MAX_BUTTON MAX(CONFIG_EXAMPLE_BUTTONS_MAX, CONFIG_EXAMPLE_IRQBUTTONS_MAX)
+
+#define NUM_BUTTONS     (MAX_BUTTON - MIN_BUTTON + 1)
+#define BUTTON_INDEX(b) ((b)-MIN_BUTTON)
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+struct button_info_s
+{
+  FAR const char *name; /* Name for the button */
+#ifdef CONFIG_ARCH_IRQBUTTONS
+  xcpt_t handler;       /* Button interrupt handler */
+#endif
+};
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static void show_buttons(uint8_t oldset, uint8_t newset);
+
+#ifdef CONFIG_ARCH_IRQBUTTONS
+static void button_handler(int id, int irq);
+
+#if MIN_BUTTON < 1
+static int button0_handler(int irq, FAR void *context);
+#endif
+#if MIN_BUTTON < 2 && MAX_BUTTON > 0
+static int button1_handler(int irq, FAR void *context);
+#endif
+#if MIN_BUTTON < 3 && MAX_BUTTON > 1
+static int button2_handler(int irq, FAR void *context);
+#endif
+#if MIN_BUTTON < 4 && MAX_BUTTON > 2
+static int button3_handler(int irq, FAR void *context);
+#endif
+#if MIN_BUTTON < 5 && MAX_BUTTON > 3
+static int button4_handler(int irq, FAR void *context);
+#endif
+#if MIN_BUTTON < 6 && MAX_BUTTON > 4
+static int button5_handler(int irq, FAR void *context);
+#endif
+#if MIN_BUTTON < 7 && MAX_BUTTON > 5
+static int button6_handler(int irq, FAR void *context);
+#endif
+#if MAX_BUTTON > 6
+static int button7_handler(int irq, FAR void *context);
+#endif
+#endif /* CONFIG_ARCH_IRQBUTTONS */
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
+ /* Button Names */
+
+static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
+{
+#if MIN_BUTTON < 1
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME0,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button0_handler
+#endif
+  },
+#endif
+#if MIN_BUTTON < 2 && MAX_BUTTON > 0
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME1,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button1_handler
+#endif
+  },
+#endif
+#if MIN_BUTTON < 3 && MAX_BUTTON > 1
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME2,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button2_handler
+#endif
+  },
+#endif
+#if MIN_BUTTON < 4 && MAX_BUTTON > 2
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME3,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button3_handler
+#endif
+  },
+#endif
+#if MIN_BUTTON < 5 && MAX_BUTTON > 3
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME4,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button4_handler
+#endif
+  },
+#endif
+#if MIN_BUTTON < 6 && MAX_BUTTON > 4
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME5,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button5_handler
+#endif
+  },
+#endif
+#if MIN_BUTTON < 7 && MAX_BUTTON > 5
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME6,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button6_handler
+#endif
+  },
+#endif
+#if MAX_BUTTON > 6
+  {
+    CONFIG_EXAMPLE_BUTTONS_NAME7,
+#ifdef CONFIG_ARCH_IRQBUTTONS
+    button7_handler
+#endif
+  }
+#endif
+};
+
+/* Last sampled button set */
+
+static uint8_t g_oldset;
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+static void show_buttons(uint8_t oldset, uint8_t newset)
+{
+  uint8_t chgset = oldset ^ newset;
+  int i;
+
+  for (i = MIN_BUTTON; i <= MAX_BUTTON; i++)
+    {
+      uint8_t mask = (1 << i);
+      if ((chgset & mask) != 0)
+        {
+          FAR const char *state;
+
+          /* Get the button state */
+
+          if ((newset & mask) != 0)
+            {
+              state = "depressed";
+            }
+          else
+            {
+              state = "released";            
+            }
+
+          /* Use lib_lowprintf() because we make be executing from an
+           * interrupt handler.
+           */
+
+          lib_lowprintf("  %s %s\n", g_buttoninfo[BUTTON_INDEX(i)].name, state);
+        }
+    }
+}
+
+#ifdef CONFIG_ARCH_IRQBUTTONS
+static void button_handler(int id, int irq)
+{
+  uint8_t newset = up_buttons();
+
+  lib_lowprintf("IRQ:%d Button %d:%s IRQ:%d SET:%02x:\n",
+                irq, id, g_buttoninfo[BUTTON_INDEX(id)].name, newset);
+  show_buttons(g_oldset, newset);
+  g_oldset = newset;
+}
+
+#if MIN_BUTTON < 1
+static int button0_handler(int irq, FAR void *context)
+{
+  button_handler(0, irq);
+  return OK;
+}
+#endif
+
+#if MIN_BUTTON < 2 && MAX_BUTTON > 0
+static int button1_handler(int irq, FAR void *context)
+{
+  button_handler(1, irq);
+  return OK;
+}
+#endif
+
+#if MIN_BUTTON < 3 && MAX_BUTTON > 1
+static int button2_handler(int irq, FAR void *context)
+{
+  button_handler(2, irq);
+  return OK;
+}
+#endif
+
+#if MIN_BUTTON < 4 && MAX_BUTTON > 2
+static int button3_handler(int irq, FAR void *context)
+{
+  button_handler(3, irq);
+  return OK;
+}
+#endif
+
+#if MIN_BUTTON < 5 && MAX_BUTTON > 3
+static int button4_handler(int irq, FAR void *context)
+{
+  button_handler(4, irq);
+  return OK;
+}
+#endif
+
+#if MIN_BUTTON < 6 && MAX_BUTTON > 4
+static int button5_handler(int irq, FAR void *context)
+{
+  button_handler(5, irq);
+  return OK;
+}
+#endif
+
+#if MIN_BUTTON < 7 && MAX_BUTTON > 5
+static int button6_handler(int irq, FAR void *context)
+{
+  button_handler(6, irq);
+  return OK;
+}
+#endif
+
+#if MAX_BUTTON > 6
+static int button7_handler(int irq, FAR void *context)
+{
+  button_handler(7, irq);
+  return OK;
+}
+#endif
+#endif /* CONFIG_ARCH_IRQBUTTONS */
 
 /****************************************************************************
  * user_start
@@ -58,6 +372,74 @@
 
 int user_start(int argc, char *argv[])
 {
+  uint8_t newset;
+  irqstate_t flags;
+  int i;
+
+  /* Register to recieve button interrupts */
+
+#ifdef CONFIG_ARCH_IRQBUTTONS
+  for (i = CONFIG_EXAMPLE_IRQBUTTONS_MIN; i <= CONFIG_EXAMPLE_IRQBUTTONS_MAX; i++)
+    {
+      xcpt_t oldhandler = up_irqbutton(i, g_buttoninfo[BUTTON_INDEX(i)].handler);
+
+      /* Use lib_lowprintf() for compatibility with interrrupt handler output. */
+
+      lib_lowprintf("Attached handler at %p to button %d [%s], oldhandler:%p\n",
+                    g_buttoninfo[BUTTON_INDEX(i)].handler, i,
+                    g_buttoninfo[BUTTON_INDEX(i)].name, oldhandler);
+
+      /* Some hardware multiplexes different GPIO button sources to the same
+       * physical interrupt.  If we register multiple such multiplexed button
+       * interrupts, then the second registration will overwrite the first.  In
+       * this case, the first button interrupts may be aliased to the second
+       * interrupt handler (or worse, could be lost).
+       */
+
+      if (oldhandler != NULL)
+        {
+          lib_lowprintf("WARNING: oldhandler:%p is not NULL!  "
+                        "Button events may be lost or aliased!\n",
+                        oldhandler);
+        }
+    }
+#endif
+
+  /* Poll button state */
+
+  g_oldset = up_buttons();
+  for (;;)
+    {
+      /* Get the set of pressed and release buttons. */
+
+      newset = up_buttons();
+
+      /* Any changes from the last sample? */
+
+      if (newset != g_oldset)
+        {
+          /* Disable interrupts so that output here will not collide with
+           * output from an interrupt handler.
+           */
+
+          flags = irqsave();
+
+          /* Use lib_lowprintf() for compatibility with interrrupt handler
+           * output.
+           */
+
+          lib_lowprintf("POLL SET:%02x:\n", newset);
+          show_buttons(g_oldset, newset);
+          g_oldset = newset;
+          irqrestore(flags);
+        }
+
+      /* Sleep a little... but not long.  This will determine how fast we
+       * poll for button changes.
+       */
+
+      usleep(150000); /* 150 Milliseconds */
+    }
   return 0;
 }
 

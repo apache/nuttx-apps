@@ -65,3 +65,4 @@
 
 	* Make.defs, namedapp/namedapp.c: Several structural changes made to get a
 	  clean compile under the ez80 ZDS-II toolchain (no design changes).
+	* apps/examples/buttons: Add a test for the new standardized button interfaces

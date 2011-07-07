@@ -19,15 +19,27 @@ examples/buttons
   specific button interfaces.  Configuration options:
 
   CONFIG_ARCH_BUTTONS                - Must be defined for button support
-  CONFIG_EXAMPLE_BUTTONS_MIN         - Lowest button number
-  CONFIG_EXAMPLE_BUTTONS_MAX         - Highest button number
+  CONFIG_EXAMPLE_BUTTONS_MIN         - Lowest button number (MIN=0)
+  CONFIG_EXAMPLE_BUTTONS_MAX         - Highest button number (MAX=7)
 
   CONFIG_ARCH_IRQBUTTONS             - Must be defined for interrupting button support
-  CONFIG_EXAMPLE_IRQBUTTONS_MIN      - Lowest interrupting button number
-  CONFIG_EXAMPLE_IRQBUTTONS_MAX      - Highest interrupting button number
+  CONFIG_EXAMPLE_IRQBUTTONS_MIN      - Lowest interrupting button number (MIN=0)
+  CONFIG_EXAMPLE_IRQBUTTONS_MAX      - Highest interrupting button number (MAX=7)
+
+  Name strings for buttons:
+  
+    CONFIG_EXAMPLE_BUTTONS_NAME0, CONFIG_EXAMPLE_BUTTONS_NAME1,
+    CONFIG_EXAMPLE_BUTTONS_NAME2, CONFIG_EXAMPLE_BUTTONS_NAME3,
+    CONFIG_EXAMPLE_BUTTONS_NAME4, CONFIG_EXAMPLE_BUTTONS_NAME5,
+    CONFIG_EXAMPLE_BUTTONS_NAME6, CONFIG_EXAMPLE_BUTTONS_NAME7,
 
   Additional architecture-/board- specific configuration settings may also
   be required.
+
+  NOTE: This test exercises internal button driver interfaces.  As such, it
+  it relies on internal OS interfaces that are not normally available to a
+  user-space program.  As a result, this example cannot be used if a
+  NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
 
 examples/dhcpd
 ^^^^^^^^^^^^^^
