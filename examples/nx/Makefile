@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/nxflat/Makefile
+# apps/examples/nx/Makefile
 #
 #   Copyright (C) 2009-2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>

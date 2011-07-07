@@ -116,7 +116,7 @@ static void nxeg_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   if (src)
     {
-      /* Get the intersection of the redraw region and the characer bitmap */
+      /* Get the intersection of the redraw region and the character bitmap */
 
       nxgl_rectintersect(&intersection, rect, &bm->bounds);
       if (!nxgl_nullrect(&intersection))
@@ -446,7 +446,7 @@ void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg)
 #endif
 
 /****************************************************************************
- * Name: nxeg_tbkbdin
+ * Name: nxeg_filltext
  ****************************************************************************/
 
 void nxeg_filltext(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
