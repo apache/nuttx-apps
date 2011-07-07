@@ -12,6 +12,23 @@ examples
 
   Selects the examples/ostest example.
 
+examples/buttons
+^^^^^^^^^^^^^^^^
+
+  This is a simple configuration that may be used to test the board-
+  specific button interfaces.  Configuration options:
+
+  CONFIG_ARCH_BUTTONS                - Must be defined for button support
+  CONFIG_EXAMPLE_BUTTONS_MIN         - Lowest button number
+  CONFIG_EXAMPLE_BUTTONS_MAX         - Highest button number
+
+  CONFIG_ARCH_IRQBUTTONS             - Must be defined for interrupting button support
+  CONFIG_EXAMPLE_IRQBUTTONS_MIN      - Lowest interrupting button number
+  CONFIG_EXAMPLE_IRQBUTTONS_MAX      - Highest interrupting button number
+
+  Additional architecture-/board- specific configuration settings may also
+  be required.
+
 examples/dhcpd
 ^^^^^^^^^^^^^^
 
