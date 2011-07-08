@@ -249,7 +249,7 @@ examples/nx
       CONFIG_EXAMPLES_NX_BPP.
     CONFIG_EXAMPLES_NX_TBCOLOR -- The color of the toolbar. Default depends on
       CONFIG_EXAMPLES_NX_BPP.
-    CONFIG_EXAMPLES_NX_FONTCOLOR -- The color of the toolbar. Default depends on
+    CONFIG_EXAMPLES_NX_FONTCOLOR -- The color of the fonts. Default depends on
       CONFIG_EXAMPLES_NX_BPP.
     CONFIG_EXAMPLES_NX_BPP -- Pixels per pixel to use.  Valid options
       include 2, 4, 8, 16, 24, and 32.  Default is 32.
@@ -304,6 +304,69 @@ examples/nxflat
   test programs under examples/nxflat tests.  These tests are build using
   the NXFLAT format and installed in a ROMFS file system.  At run time,
   each program in the ROMFS file system is executed.  Requires CONFIG_NXFLAT.
+
+examples/nxtest
+^^^^^^^^^^^^^^^
+
+  This directory contains another simple test of a subset of the NX APIs
+  defined in include/nuttx/nx.h.  This text focuses on text displays on
+  the dispaly background combined with pop-up displays over the text.
+  The text display will continue to update while the pop-up is visible.
+  
+  The following configuration options can be selected:
+
+    CONFIG_EXAMPLES_NXTEXT_VPLANE -- The plane to select from the frame-
+      buffer driver for use in the test.  Default: 0
+    CONFIG_EXAMPLES_NXTEXT_DEVNO - The LCD device to select from the LCD
+      driver for use in the test: Default: 0
+    CONFIG_EXAMPLES_NXTEXT_BGCOLOR -- The color of the background.  Default
+      depends on CONFIG_EXAMPLES_NXTEXT_BPP.
+    CONFIG_EXAMPLES_NXTEXT_BGFONTCOLOR -- The color of the fonts used in the
+      background window. Default depends on CONFIG_EXAMPLES_NXTEXT_BPP.
+    CONFIG_EXAMPLES_NXTEXT_PUCOLOR -- The color of the pop-up window.  Default
+      depends on CONFIG_EXAMPLES_NXTEXT_BPP.
+    CONFIG_EXAMPLES_NXTEXT_PUFONTCOLOR -- The color of the fonts used in the
+      background window. Default depends on CONFIG_EXAMPLES_NXTEXT_BPP.
+    CONFIG_EXAMPLES_NXTEXT_BPP -- Pixels per pixel to use.  Valid options
+      include 2, 4, 8, 16, 24, and 32.  Default is 32.
+    CONFIG_EXAMPLES_NXTEXT_EXTERNINIT - The driver for the graphics device on
+      this platform requires some unusual initialization.  This is the
+      for, for example, SPI LCD/OLED devices.  If this configuration is
+      selected, then the platform code must provide an LCD initialization
+      function with a prototype like:
+
+      #ifdef CONFIG_NX_LCDDRIVER
+      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      #else
+      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      #endif
+
+    CONFIG_EXAMPLES_NXTEXT_BMCACHE - The maximum number of characters that
+      can be put in the background window.  Default is 128.
+    CONFIG_EXAMPLES_NXTEXT_GLCACHE - The maximum nuber of pre-rendered
+      fonts that can be retained for the background window.
+
+  This test can be performed with either the single-user version of
+  NX or with the multiple user version of NX selected with CONFIG_NX_MULTIUSER.
+  If CONFIG_NX_MULTIUSER is defined, then the following configuration
+  options also apply:
+
+    CONFIG_EXAMPLES_NXTEXT_STACKSIZE -- The stacksize to use when creating
+      the NX server.  Default 2048
+    CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO -- The client priority.  Default: 100
+    CONFIG_EXAMPLES_NXTEXT_SERVERPRIO -- The server priority.  Default: 120
+    CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO -- The priority of the event listener
+      thread. Default 80.
+    CONFIG_EXAMPLES_NXTEXT_NOTIFYSIGNO -- The signal number to use with
+      nx_eventnotify().  Default: 4
+
+  If CONFIG_NX_MULTIUSER is defined, then the example also expects the
+  following settings and will generate an error if they are not as expected:
+
+    CONFIG_DISABLE_MQUEUE=n
+    CONFIG_DISABLE_SIGNALS=n
+    CONFIG_DISABLE_PTHREAD=n
+    CONFIG_NX_BLOCKING=y
 
 examples/null
 ^^^^^^^^^^^^^

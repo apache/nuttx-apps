@@ -66,3 +66,6 @@
 	* Make.defs, namedapp/namedapp.c: Several structural changes made to get a
 	  clean compile under the ez80 ZDS-II toolchain (no design changes).
 	* apps/examples/buttons: Add a test for the new standardized button interfaces
+	* apps/examples/nxtext: Add another NX graphics test.  This one focus on
+	  placing text on the background while pop-up windows occur.  Text should
+	  continue to update normally with or without the popup windows present.
