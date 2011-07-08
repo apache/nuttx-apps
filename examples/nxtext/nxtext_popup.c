@@ -192,11 +192,13 @@ static inline void nxpu_fillwindow(NXWINDOW hwnd,
    * will actually be redrawn).
    */
 
+#ifdef CONFIG_NX_KBD
   nxtext_home(st);
   for (i = 0; i < st->nchars; i++)
     {
       nxtext_fillchar(hwnd, rect, &st->bm[i]);
     }
+#endif
 }
 
 /****************************************************************************
@@ -231,7 +233,10 @@ static void nxpu_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
           hwnd, size->w, size->h, pos->x, pos->y,
           bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
-  /* Save the window size */
+  /* Save the window position and size */
+
+  st->wpos.x  = pos->x;
+  st->wpos.y  = pos->y;
 
   st->wsize.w = size->w;
   st->wsize.h = size->h;
@@ -390,11 +395,29 @@ errout_with_state:
 
 int nxpu_close(NXWINDOW hwnd)
 {
-  int ret = nx_closewindow(hwnd);
+  struct nxgl_rect_s rect;
+  int ret;
+
+  ret = nx_closewindow(hwnd);
   if (ret < 0)
     {
       message("nxpu_close: nx_closewindow failed: %d\n", errno);
       g_exitcode = NXEXIT_NXCLOSEWINDOW;
+      return ret;
     }
-  return ret;
+
+  /* NOTE:  The following should not be necessary.  This is
+   * a temporary workaround for a bug in the TODO list:
+   * "When a window is closed, the display is not updated."
+   */
+
+  rect.pt1.x = g_pustate.wpos.x;
+  rect.pt1.y = g_pustate.wpos.y;
+  rect.pt2.x = g_pustate.wpos.x + g_pustate.wsize.w - 1;
+  rect.pt2.y = g_pustate.wpos.y + g_pustate.wsize.h - 1;
+  gvdbg("Redraw: pt1(%d,%d) pt2(%d,%d)\n", 
+        rect.pt1.x, rect.pt1.y, rect.pt2.x, rect.pt2.y);
+
+  nxbg_redrawrect(g_bgwnd, &rect);
+  return OK;
 }

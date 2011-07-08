@@ -392,22 +392,7 @@ int user_start(int argc, char *argv[])
        * window after two more seconds.
        */
 
-      if (popcnt >= 5)
-        {
-          /* Destroy the pop-up window and restart the sequence */
- 
-          message("user_start: Close pop-up\n");
-          (void)nxpu_close(hwnd);
-
-          /* NOTE:  The following should not be necessary.  This is
-           * a temporary workaround for a bug in the TOD list:
-           * "When a window is closed, the display is not updated."
-           */
-
-          nxbg_refresh(g_bgwnd);
-          popcnt = 0;
-        }
-      else if (popcnt >= 3)
+      if (popcnt == 3)
         {
           /* Create a pop-up window */
 
@@ -424,6 +409,14 @@ int user_start(int argc, char *argv[])
              goto errout_with_hwnd;
            }
 #endif
+        }
+      else if (popcnt == 5)
+        {
+          /* Destroy the pop-up window and restart the sequence */
+ 
+          message("user_start: Close pop-up\n");
+          (void)nxpu_close(hwnd);
+          popcnt = 0;
         }
 
       /* Give another line of text to the background window.  Force this

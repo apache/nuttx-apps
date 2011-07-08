@@ -221,6 +221,7 @@ struct nxtext_state_s
 
   nxgl_mxpixel_t wcolor[CONFIG_NX_NPLANES]; /* Window color */
   struct nxgl_size_s wsize;                 /* Window size */
+  struct nxgl_point_s wpos;                 /* Window position */
 
   /* These characterize the font in use */
 
@@ -228,10 +229,7 @@ struct nxtext_state_s
   uint8_t fheight;                          /* Max height of a font in pixels */
   uint8_t fwidth;                           /* Max width of a font in pixels */
   uint8_t spwidth;                          /* The width of a space */
-
-  /* This is the next display position */
-
-  struct nxgl_point_s pos;                  /* Next display position */
+  struct nxgl_point_s fpos;                 /* Next display position */
 
   /* These describe all text already added to the display */
 
@@ -289,7 +287,7 @@ extern FAR void *nxtext_listener(FAR void *arg);
 
 extern FAR struct nxtext_state_s *nxbg_getstate(void);
 extern void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen);
-extern void nxbg_refresh(NXWINDOW hwnd);
+extern void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect);
 
 /* Pop-up window interfaces */
 

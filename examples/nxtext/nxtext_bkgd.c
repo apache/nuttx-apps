@@ -116,48 +116,17 @@ NXHANDLE g_bgwnd;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxbg_fillwindow
- ****************************************************************************/
-
-static inline void nxbg_fillwindow(NXWINDOW hwnd,
-                                   FAR const struct nxgl_rect_s *rect,
-                                   FAR struct nxtext_state_s *st)
-{
-  int ret;
-  int i;
-
-  ret = nx_fill(hwnd, rect, st->wcolor);
-  if (ret < 0)
-    {
-      message("nxbg_fillwindow: nx_fill failed: %d\n", errno);
-    }
-
-  /* Fill each character on the display (Only the characters within rect
-   * will actually be redrawn).
-   */
-
-#ifdef CONFIG_NX_KBD
-  nxtext_home(st);
-  for (i = 0; i < st->nchars; i++)
-    {
-      nxtext_fillchar(hwnd, rect, &st->bm[i]);
-    }
-#endif
-}
-
-/****************************************************************************
  * Name: nxbg_redraw
  ****************************************************************************/
 
 static void nxbg_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
-  FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
   message("nxbg_redraw: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
           hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
           more ? "true" : "false");
 
-  nxbg_fillwindow(hwnd, rect, st);
+  nxbg_redrawrect(hwnd, rect);
 }
 
 /****************************************************************************
@@ -233,6 +202,7 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 {
+  struct nxgl_rect_s rect;
   int i;
   int j;
 
@@ -240,7 +210,7 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
    * do this more than once (unlikely)
    */
 
-  while (g_bgstate.pos.y >= g_bgstate.wsize.h - lineheight)
+  while (g_bgstate.fpos.y >= g_bgstate.wsize.h - lineheight)
     {
       /* Adjust the vertical position of each character */
 
@@ -283,12 +253,16 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
       /* And move the next display position up by one line as well */
 
-      g_bgstate.pos.y -= lineheight;
+      g_bgstate.fpos.y -= lineheight;
     }
 
   /* Then re-draw the entire display */
 
-  nxbg_refresh(hwnd);
+  rect.pt1.x = 0;
+  rect.pt1.y = 0;
+  rect.pt2.x = g_bgstate.wsize.w - 1;
+  rect.pt2.y = g_bgstate.wsize.h - 1;
+  nxbg_redrawrect(hwnd, &rect);
 }
 
 /****************************************************************************
@@ -351,7 +325,7 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
     {
       /* Will another character fit on this line? */
 
-      if (g_bgstate.pos.x + g_bgstate.fwidth > g_bgstate.wsize.w)
+      if (g_bgstate.fpos.x + g_bgstate.fwidth > g_bgstate.wsize.w)
         {
           /* No.. move to the next line */
 
@@ -368,7 +342,7 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
 
       /* Check if we need to scroll up */
 
-      if (g_bgstate.pos.y >= g_bgstate.wsize.h - lineheight)
+      if (g_bgstate.fpos.y >= g_bgstate.wsize.h - lineheight)
         {
           nxbg_scroll(hwnd, lineheight);
         }
@@ -380,22 +354,29 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
 }
 
 /****************************************************************************
- * Name: nxbg_refresh
- *
- * Description:
- *   Re-draw the entire background.
- *
+ * Name: nxbg_redrawrect
  ****************************************************************************/
 
-void nxbg_refresh(NXWINDOW hwnd)
+void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
 {
-  struct nxgl_rect_s rect;
+  int ret;
+  int i;
 
-  rect.pt1.x = 0;
-  rect.pt1.y = 0;
-  rect.pt2.x = g_bgstate.wsize.w - 1;
-  rect.pt2.y = g_bgstate.wsize.h - 1;
-  nxbg_fillwindow(hwnd, &rect, &g_bgstate);
+  ret = nx_fill(hwnd, rect, g_bgstate.wcolor);
+  if (ret < 0)
+    {
+      message("nxbg_redrawrect: nx_fill failed: %d\n", errno);
+    }
+
+  /* Fill each character on the display (Only the characters within rect
+   * will actually be redrawn).
+   */
+
+  nxtext_home(&g_bgstate);
+  for (i = 0; i < g_bgstate.nchars; i++)
+    {
+      nxtext_fillchar(hwnd, rect, &g_bgstate.bm[i]);
+    }
 }
 
 
