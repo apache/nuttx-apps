@@ -252,6 +252,10 @@ struct nxtext_state_s
 
 extern NXHANDLE g_hnx;
 
+/* Background window handle */
+
+extern NXHANDLE g_bgwnd;
+
 /* NX callback vtables */
 
 extern const struct nx_callback_s g_bgcb;
@@ -285,6 +289,7 @@ extern FAR void *nxtext_listener(FAR void *arg);
 
 extern FAR struct nxtext_state_s *nxbg_getstate(void);
 extern void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen);
+extern void nxbg_refresh(NXWINDOW hwnd);
 
 /* Pop-up window interfaces */
 

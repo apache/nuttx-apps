@@ -44,7 +44,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
@@ -332,10 +331,6 @@ int user_start(int argc, char *argv[])
   int bkgndx;
   int ret;
 
-  /* Seed the random number generator */
-
-  srand(0x1234);
-
   /* Initialize NX */
 
   ret = nxtext_initialize();
@@ -403,6 +398,13 @@ int user_start(int argc, char *argv[])
  
           message("user_start: Close pop-up\n");
           (void)nxpu_close(hwnd);
+
+          /* NOTE:  The following should not be necessary.  This is
+           * a temporary workaround for a bug in the TOD list:
+           * "When a window is closed, the display is not updated."
+           */
+
+          nxbg_refresh(g_bgwnd);
           popcnt = 0;
         }
       else if (popcnt >= 3)
@@ -411,7 +413,7 @@ int user_start(int argc, char *argv[])
 
           hwnd = nxpu_open();
 
-          /* Give keyboard input to the top window */
+          /* Give keyboard input to the top window (which should be the pop-up) */
 
 #ifdef CONFIG_NX_KBD
           message("user_start: Send keyboard input: %s\n", g_pumsg);
@@ -428,7 +430,7 @@ int user_start(int argc, char *argv[])
        * text to go the background by calling the kbdin method directly.
        */
 
-      nxbg_write(g_hnx, (FAR const uint8_t *)g_bgmsg[bkgndx], strlen(g_bgmsg[bkgndx]));
+      nxbg_write(g_bgwnd, (FAR const uint8_t *)g_bgmsg[bkgndx], strlen(g_bgmsg[bkgndx]));
       if (++bkgndx >= BGMSG_LINES)
         {
           bkgndx = 0;
@@ -445,7 +447,7 @@ errout_with_hwnd:
     }
 
 //errout_with_bkgd:
-  (void)nx_releasebkgd(g_hnx);
+  (void)nx_releasebkgd(g_bgwnd);
 
 errout_with_nx:
 #ifdef CONFIG_NX_MULTIUSER

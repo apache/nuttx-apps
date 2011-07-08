@@ -42,7 +42,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <semaphore.h>
 #include <debug.h>
@@ -88,6 +87,8 @@ static void nxpu_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  * Private Data
  ****************************************************************************/
 
+/* Pop-up NX callbacks */
+
 static const struct nx_callback_s g_pucb =
 {
   nxpu_redraw,   /* redraw */
@@ -100,11 +101,20 @@ static const struct nx_callback_s g_pucb =
 #endif
 };
 
+/* Pop-up state information */
+
 static struct nxtext_state_s g_pustate;
 #ifdef CONFIG_NX_KBD
 static struct nxtext_bitmap_s  g_pubm[NBM_CACHE];
 static struct nxtext_glyph_s g_puglyph[NGLYPH_CACHE];
 #endif
+
+/* Some random numbers */
+
+static const uint8_t g_rand8[9] =
+{
+  0x18, 0x8d, 0x60, 0x42, 0xb7, 0xc2, 0x2d, 0xea, 0x6b
+};
 
 /****************************************************************************
  * Public Data
@@ -115,6 +125,23 @@ static struct nxtext_glyph_s g_puglyph[NGLYPH_CACHE];
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: nxpu_randpos
+ ****************************************************************************/
+
+static fb_coord_t nxpu_randpos(fb_coord_t value)
+{
+  static uint8_t ndx = 0;
+  uint8_t rand8 = g_rand8[ndx];
+
+  if (++ndx >= 9)
+    {
+      ndx = 0;
+    }
+ 
+  return (fb_coord_t)(((uint32_t)value * (uint32_t)rand8) >> 8);
+}
+
+/****************************************************************************
  * Name: nxpu_setsize
  ****************************************************************************/
 
@@ -123,7 +150,7 @@ static inline int nxpu_setsize(NXWINDOW hwnd, FAR struct nxgl_size_s *size)
   int ret = nx_setsize(hwnd, size);
   if (ret < 0)
     {
-      message("user_start: nx_setsize failed: %d\n", errno);
+      message("nxpu_setsize: nx_setsize failed: %d\n", errno);
       g_exitcode = NXEXIT_NXSETSIZE;
     }
   return ret;
@@ -138,7 +165,7 @@ static inline int nxpu_setposition(NXWINDOW hwnd, FAR struct nxgl_point_s *pos)
   int ret = nx_setposition(hwnd, pos);
   if (ret < 0)
     {
-      message("user_start: nx_setposition failed: %d\n", errno);
+      message("nxpu_setposition: nx_setposition failed: %d\n", errno);
       g_exitcode = NXEXIT_NXSETPOSITION;
     }
   return ret;
@@ -307,38 +334,42 @@ NXWINDOW nxpu_open(void)
 
   /* Create a pop-up window */
 
-  message("user_start: Create pop-up\n");
+  message("nxpu_open: Create pop-up\n");
   nxpu_initstate();
 
   hwnd = nx_openwindow(g_hnx, &g_pucb, (FAR void *)&g_pustate);
-  message("user_start: hwnd=%p\n", hwnd);
+  message("nxpu_open: hwnd=%p\n", hwnd);
 
   if (!hwnd)
     {
-      message("user_start: nx_openwindow failed: %d\n", errno);
+      message("nxpu_open: nx_openwindow failed: %d\n", errno);
       g_exitcode = NXEXIT_NXOPENWINDOW;
       goto errout_with_state;
     }
 
-  /* Set the size of the pop-up window */
+  /* Select the size of the pop-up window */
 
   size.w = g_xres / 4;
   size.h = g_yres / 4;
 
-  message("user_start: Set pop-up size to (%d,%d)\n", size.w, size.h);
-  ret = nxpu_setsize(hwnd, &size);
+  /* Select a random position for pop-up window */
+
+  pt.x =  nxpu_randpos(g_xres - size.w);
+  pt.y =  nxpu_randpos(g_yres - size.h);
+
+  /* Set the position for the pop-up window */
+
+  message("nxpu_open: Set pop-up postion to (%d,%d)\n", pt.x, pt.y);
+  ret = nxpu_setposition(hwnd, &pt);
   if (ret < 0)
     {
       goto errout_with_hwnd;
     }
 
-  /* Set a random position for pop-up */
+  /* Set the size of the pop-up window */
 
-  pt.x = ((uint32_t)(g_xres - size.w) * rand()) >> 16;
-  pt.y = ((uint32_t)(g_yres - size.h) * rand()) >> 16;
-
-  message("user_start: Set pop-up postion to (%d,%d)\n", pt.x, pt.y);
-  ret = nxpu_setposition(hwnd, &pt);
+  message("nxpu_open: Set pop-up size to (%d,%d)\n", size.w, size.h);
+  ret = nxpu_setsize(hwnd, &size);
   if (ret < 0)
     {
       goto errout_with_hwnd;

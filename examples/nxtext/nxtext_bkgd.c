@@ -93,6 +93,8 @@ static struct nxtext_glyph_s  g_bgglyph[CONFIG_EXAMPLES_NXTEXT_GLCACHE];
  * Public Data
  ****************************************************************************/
 
+/* Background window call table */
+
 const struct nx_callback_s g_bgcb =
 {
   nxbg_redraw,   /* redraw */
@@ -104,6 +106,10 @@ const struct nx_callback_s g_bgcb =
   , nxbg_kbdin   /* my kbdin */
 #endif
 };
+
+/* Background window handle */
+
+NXHANDLE g_bgwnd;
 
 /****************************************************************************
  * Private Functions
@@ -175,7 +181,11 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   if (!b_haveresolution)
     {
-      /* Save the window size */
+      /* Save the background window handle */
+
+      g_bgwnd = hwnd;
+
+      /* Save the background window size */
 
       st->wsize.w = size->w;
       st->wsize.h = size->h;
@@ -223,7 +233,6 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 {
-  struct nxgl_rect_s rect;
   int i;
   int j;
 
@@ -277,13 +286,9 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
       g_bgstate.pos.y -= lineheight;
     }
 
-  /* Then re-draw the entry display */
+  /* Then re-draw the entire display */
 
-  rect.pt1.x = 0;
-  rect.pt1.y = 0;
-  rect.pt2.x = g_bgstate.wsize.w -1;
-  rect.pt2.y = g_bgstate.wsize.h -1;
-  nxbg_fillwindow(hwnd, &rect, &g_bgstate);
+  nxbg_refresh(hwnd);
 }
 
 /****************************************************************************
@@ -291,7 +296,11 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxbg_initstate
+ * Name: nxbg_getstate
+ *
+ * Description:
+ *   Initialize the background window state structure.
+ *
  ****************************************************************************/
 
 FAR struct nxtext_state_s *nxbg_getstate(void)
@@ -328,6 +337,10 @@ FAR struct nxtext_state_s *nxbg_getstate(void)
 
 /****************************************************************************
  * Name: nxbg_write
+ *
+ * Description:
+ *   Put a sequence of bytes in the window.
+ *
  ****************************************************************************/
 
 void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
@@ -365,5 +378,25 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
       nxtext_putc(hwnd, &g_bgstate, (uint8_t)*buffer++);
     }
 }
+
+/****************************************************************************
+ * Name: nxbg_refresh
+ *
+ * Description:
+ *   Re-draw the entire background.
+ *
+ ****************************************************************************/
+
+void nxbg_refresh(NXWINDOW hwnd)
+{
+  struct nxgl_rect_s rect;
+
+  rect.pt1.x = 0;
+  rect.pt1.y = 0;
+  rect.pt2.x = g_bgstate.wsize.w - 1;
+  rect.pt2.y = g_bgstate.wsize.h - 1;
+  nxbg_fillwindow(hwnd, &rect, &g_bgstate);
+}
+
 
 
