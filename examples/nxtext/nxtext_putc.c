@@ -120,7 +120,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
   /* Make sure that there is room for another glyph */
 
   message("nxtext_renderglyph: ch=%02x\n", ch);
-  if (st->nglyphs < NXTK_MAXKBDCHARS)
+  if (st->nglyphs < st->nglyphs)
     {
       /* Allocate the glyph */
 
@@ -193,8 +193,8 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
           /* Then render the glyph into the allocated memory */
 
           ret = RENDERER((FAR nxgl_mxpixel_t*)glyph->bitmap,
-                          glyph->fheight, glyph->width, glyph->stride,
-                          bm, st->fcolor);
+                          glyph->height, glyph->width, glyph->stride,
+                          bm, st->fcolor[0]);
           if (ret < 0)
             {
               /* Actually, the RENDERER never returns a failure */
@@ -227,7 +227,7 @@ nxtext_addspace(FAR struct nxtext_state_s *st, uint8_t ch)
 
   /* Make sure that there is room for another glyph */
 
-  if (st->nglyphs < NXTK_MAXKBDCHARS)
+  if (st->nglyphs < st->nglyphs)
     {
       /* Allocate the NULL glyph */
 
@@ -313,7 +313,7 @@ nxtext_addchar(FAR struct nxtext_state_s *st, uint8_t ch)
 
   /* Is there space for another character on the display? */
 
-  if (st->nchars < NXTK_MAXKBDCHARS)
+  if (st->nchars < st->nchars)
     {
        /* Yes, setup the bitmap */
 
@@ -369,7 +369,7 @@ void nxtext_home(FAR struct nxtext_state_s *st)
 {
   /* The first character is one space from the left */
 
-  st->pox.x = st->spwidth;
+  st->pos.x = st->spwidth;
 
   /* And two lines from the top */
 
@@ -388,7 +388,7 @@ void nxtext_newline(FAR struct nxtext_state_s *st)
 {
   /* Carriage return: The first character is one space from the left */
 
-  st->pox.x = st->spwidth;
+  st->pos.x = st->spwidth;
 
   /* Linefeed: Done the max font height + 2 */
 
@@ -442,7 +442,7 @@ void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,  uint8_t ch)
 void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                      FAR const struct nxtext_bitmap_s *bm)
 {
-  FAR void *src = (FAR void *)bm->glyph->bitmap;
+  FAR const void *src = (FAR const void *)bm->glyph->bitmap;
   struct nxgl_rect_s intersection;
   int ret;
 

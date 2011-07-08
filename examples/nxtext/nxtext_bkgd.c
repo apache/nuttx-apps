@@ -43,12 +43,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <semaphore.h>
 #include <debug.h>
 #include <errno.h>
 
 #include <nuttx/nx.h>
-#include <nuttx/nxtk.h>
+#include <nuttx/nxfonts.h>
 
 #include "nxtext_internal.h"
 
@@ -64,35 +65,35 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void nxbg_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+static void nxbg_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool morem, FAR void *arg);
-static void nxbg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg);
 #ifdef CONFIG_NX_MOUSE
-static void nxbg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxbg_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg);
 #endif
 
 #ifdef CONFIG_NX_KBD
 static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
-                       FAR void *arg)
+                       FAR void *arg);
 #endif
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static struct nxtext_state_s g_bgstate;
-static struct nxtext_bitmap_s  g_bgbm[CONFIG_EXAMPLES_NXTEXT_BMCACHE];
-static struct nxtext_glyph_s g_bgglyph[CONFIG_EXAMPLES_NXTEXT_GLCACHE];
+static struct nxtext_state_s  g_bgstate;
+static struct nxtext_bitmap_s g_bgbm[CONFIG_EXAMPLES_NXTEXT_BMCACHE];
+static struct nxtext_glyph_s  g_bgglyph[CONFIG_EXAMPLES_NXTEXT_GLCACHE];
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-const struct nx_callback_s g_bkgdcb =
+const struct nx_callback_s g_bgcb =
 {
   nxbg_redraw,   /* redraw */
   nxbg_position  /* position */
@@ -112,14 +113,14 @@ const struct nx_callback_s g_bkgdcb =
  * Name: nxbg_fillwindow
  ****************************************************************************/
 
-static inline void nxbg_fillwindow(NXEGWINDOW hwnd,
+static inline void nxbg_fillwindow(NXWINDOW hwnd,
                                    FAR const struct nxgl_rect_s *rect,
                                    FAR struct nxtext_state_s *st)
 {
   int ret;
   int i;
 
-  ret = nx_fill(hwnd, rect, st->color);
+  ret = nx_fill(hwnd, rect, st->wcolor);
   if (ret < 0)
     {
       message("nxbg_fillwindow: nx_fill failed: %d\n", errno);
@@ -142,7 +143,7 @@ static inline void nxbg_fillwindow(NXEGWINDOW hwnd,
  * Name: nxbg_redraw
  ****************************************************************************/
 
-static void nxbg_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+static void nxbg_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
   FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
@@ -157,7 +158,7 @@ static void nxbg_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxbg_position
  ****************************************************************************/
 
-static void nxbg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg)
@@ -195,10 +196,9 @@ static void nxbg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_MOUSE
-static void nxbg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxbg_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
   message("nxbg_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
           hwnd,  pos->x, pos->y, buttons);
 }
@@ -212,9 +212,8 @@ static void nxbg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                        FAR void *arg)
 {
-  FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
   message("nxbg_kbdin: hwnd=%p nch=%d\n", hwnd, nch);
-  nxbg_puts(hwnd, st, nch, ch);
+  nxbg_write(hwnd, ch, nch);
 }
 #endif
 
@@ -301,7 +300,7 @@ FAR struct nxtext_state_s *nxbg_getstate(void)
 
   /* Initialize the color (used for redrawing the window) */
 
-  memset(&g_gbstate, 0, sizeof(struct nxtext_state_s));
+  memset(&g_bgstate, 0, sizeof(struct nxtext_state_s));
   g_bgstate.wcolor[0] = CONFIG_EXAMPLES_NXTEXT_BGCOLOR;
   g_bgstate.fcolor[0] = CONFIG_EXAMPLES_NXTEXT_BGFONTCOLOR;
 
@@ -323,23 +322,23 @@ FAR struct nxtext_state_s *nxbg_getstate(void)
 
   /* Set the first display position */
 
-  nxtext_home(st);
+  nxtext_home(&g_bgstate);
   return &g_bgstate;
 }
 
 /****************************************************************************
- * Name: nxbg_puts
+ * Name: nxbg_write
  ****************************************************************************/
 
-void nxbg_puts(NXWINDOW hwnd, FAR const uint8_t *ch)
+void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
 {
   int lineheight = (g_bgstate.fheight + 2);
 
-  while (*ch)
+  while (buflen-- > 0)
     {
       /* Will another character fit on this line? */
 
-      if (g_bgstate.pos.x + b_bgstate.spwidth > bg_state.size.w)
+      if (g_bgstate.pos.x + g_bgstate.fwidth > g_bgstate.wsize.w)
         {
           /* No.. move to the next line */
 
@@ -347,9 +346,9 @@ void nxbg_puts(NXWINDOW hwnd, FAR const uint8_t *ch)
 
           /* If we were about to output a newline character, then don't */
 
-          if (*ch == '\n')
+          if (*buffer == '\n')
             {
-              ch++;
+              buffer++;
               continue;
             }
         }
@@ -363,7 +362,7 @@ void nxbg_puts(NXWINDOW hwnd, FAR const uint8_t *ch)
 
       /* Finally, we can output the character */
 
-      nxtext_putc(hwnd, &g_bgstate, *ch++);
+      nxtext_putc(hwnd, &g_bgstate, (uint8_t)*buffer++);
     }
 }
 

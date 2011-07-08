@@ -38,7 +38,7 @@
 # Sub-directories
 
 SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp mm mount nettest \
-	  nsh null nx nxffs nxflat ostest pashello pipe poll rgmp romfs \
+	  nsh null nx nxffs nxflat nxtext ostest pashello pipe poll rgmp romfs \
       sendmail serloop thttpd udp uip usbserial usbstorage wget wlan
 
 all: nothing

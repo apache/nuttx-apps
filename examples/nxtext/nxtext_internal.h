@@ -148,9 +148,6 @@
 #  endif
 #endif
 
-#define NXEGWINDOW NXWINDOW
-#define NXTK_MAXKBDCHARS 16
-
 /* Debug ********************************************************************/
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
@@ -178,9 +175,7 @@
 enum exitcode_e
 {
   NXEXIT_SUCCESS = 0,
-  NXEXIT_SIGPROCMASK,
   NXEXIT_SCHEDSETPARAM,
-  NXEXIT_EVENTNOTIFY,
   NXEXIT_TASKCREATE,
   NXEXIT_PTHREADCREATE,
   NXEXIT_EXTINITIALIZE,
@@ -189,15 +184,12 @@ enum exitcode_e
   NXEXIT_LCDINITIALIZE,
   NXEXIT_LCDGETDEV,
   NXEXIT_NXOPEN,
-  NXEXIT_NXREQUESTBKGD
-  NXEXIT_NXOPENTOOLBAR,
+  NXEXIT_NXREQUESTBKGD,
   NXEXIT_NXCONNECT,
   NXEXIT_NXSETBGCOLOR,
   NXEXIT_NXOPENWINDOW,
   NXEXIT_NXSETSIZE,
   NXEXIT_NXSETPOSITION,
-  NXEXIT_NXLOWER,
-  NXEXIT_NXRAISE,
   NXEXIT_NXCLOSEWINDOW,
   NXEXIT_LOSTSERVERCONN
 };
@@ -228,28 +220,28 @@ struct nxtext_state_s
   /* The following describe the window */
 
   nxgl_mxpixel_t wcolor[CONFIG_NX_NPLANES]; /* Window color */
-  struct nxgl_size_s wsize,            /* Window size */
+  struct nxgl_size_s wsize;                 /* Window size */
 
   /* These characterize the font in use */
 
   nxgl_mxpixel_t fcolor[CONFIG_NX_NPLANES]; /* Font color */
-  uint8_t fheight;                     /* Max height of a font in pixels */
-  uint8_t fwidth;                      /* Max width of a font in pixels */
-  uint8_t spwidth;                     /* The width of a space */
+  uint8_t fheight;                          /* Max height of a font in pixels */
+  uint8_t fwidth;                           /* Max width of a font in pixels */
+  uint8_t spwidth;                          /* The width of a space */
 
   /* This is the next display position */
 
-  struct nxgl_point_s pos;             /* Next display position */
+  struct nxgl_point_s pos;                  /* Next display position */
 
   /* These describe all text already added to the display */
 
-  uint8_t maxchars;                    /* Size of the mb array */
-  uint8_t maxglyphs;                   /* Size of the glyph array */
-  uint8_t nchars;                      /* Number of chars already displayed */
-  uint8_t nglyphs;                     /* Number of glyphs cached */
+  uint16_t maxchars;                        /* Size of the mb array */
+  uint8_t maxglyphs;                        /* Size of the glyph array */
+  uint8_t nchars;                           /* Number of chars already displayed */
+  uint8_t nglyphs;                          /* Number of glyphs cached */
 
-  FAR struct nxtext_bitmap_s  *bm;
-  FAR struct nxtext_glyph_s *glyph;
+  FAR struct nxtext_bitmap_s *bm;           /* List of characters on the display */
+  FAR struct nxtext_glyph_s  *glyph;        /* Cache of rendered fonts in use */
 };
 
 /****************************************************************************
@@ -262,7 +254,7 @@ extern NXHANDLE g_hnx;
 
 /* NX callback vtables */
 
-extern const struct nx_callback_s g_bkgdcb;
+extern const struct nx_callback_s g_bgcb;
 
 /* The screen resolution */
 
@@ -274,6 +266,8 @@ extern bool b_haveresolution;
 extern bool g_connected;
 #endif
 extern sem_t g_semevent;
+
+extern int g_exitcode;
 
 /****************************************************************************
  * Public Function Prototypes
@@ -289,13 +283,13 @@ extern FAR void *nxtext_listener(FAR void *arg);
 
 /* Background window interfaces */
 
-extern FAR struct nxtext_state_s *nxgb_getstate(void);
-extern void nxbg_puts(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
-                      uint8_t nch, FAR const uint8_t *ch)
+extern FAR struct nxtext_state_s *nxbg_getstate(void);
+extern void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen);
 
 /* Pop-up window interfaces */
 
-extern NXEGWINDOW nxpu_open(void);
+extern NXWINDOW nxpu_open(void);
+extern int nxpu_close(NXWINDOW hwnd);
 
 /* Generic text helpers */
 
@@ -304,6 +298,6 @@ extern void nxtext_newline(FAR struct nxtext_state_s *st);
 extern void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
                         uint8_t ch);
 extern void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                            FAR const struct nxtext_bitmap_s *bm)
+                            FAR const struct nxtext_bitmap_s *bm);
 
 #endif /* __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H */

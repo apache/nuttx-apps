@@ -43,12 +43,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <semaphore.h>
 #include <debug.h>
 #include <errno.h>
 
 #include <nuttx/nx.h>
-#include <nuttx/nxtk.h>
+#include <nuttx/nxfonts.h>
 
 #include "nxtext_internal.h"
 
@@ -67,20 +68,20 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void nxpu_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+static void nxpu_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool morem, FAR void *arg);
-static void nxpu_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxpu_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg);
 #ifdef CONFIG_NX_MOUSE
-static void nxpu_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxpu_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg);
 #endif
 
 #ifdef CONFIG_NX_KBD
 static void nxpu_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
-                       FAR void *arg)
+                       FAR void *arg);
 #endif
 
 /****************************************************************************
@@ -117,7 +118,7 @@ static struct nxtext_glyph_s g_puglyph[NGLYPH_CACHE];
  * Name: nxpu_setsize
  ****************************************************************************/
 
-static inline int nxpu_setsize(NXEGWINDOW hwnd, FAR struct nxgl_size_s *size)
+static inline int nxpu_setsize(NXWINDOW hwnd, FAR struct nxgl_size_s *size)
 {
   int ret = nx_setsize(hwnd, size);
   if (ret < 0)
@@ -132,7 +133,7 @@ static inline int nxpu_setsize(NXEGWINDOW hwnd, FAR struct nxgl_size_s *size)
  * Name: nxpu_setposition
  ****************************************************************************/
 
-static inline int nxpu_setposition(NXEGWINDOW hwnd, FAR struct nxgl_point_s *pos)
+static inline int nxpu_setposition(NXWINDOW hwnd, FAR struct nxgl_point_s *pos)
 {
   int ret = nx_setposition(hwnd, pos);
   if (ret < 0)
@@ -147,14 +148,14 @@ static inline int nxpu_setposition(NXEGWINDOW hwnd, FAR struct nxgl_point_s *pos
  * Name: nxpu_fillwindow
  ****************************************************************************/
 
-static inline void nxpu_fillwindow(NXEGWINDOW hwnd,
+static inline void nxpu_fillwindow(NXWINDOW hwnd,
                                    FAR const struct nxgl_rect_s *rect,
                                    FAR struct nxtext_state_s *st)
 {
   int ret;
   int i;
 
-  ret = nx_fill(hwnd, rect, st->color);
+  ret = nx_fill(hwnd, rect, st->wcolor);
   if (ret < 0)
     {
       message("nxpu_fillwindow: nx_fill failed: %d\n", errno);
@@ -175,7 +176,7 @@ static inline void nxpu_fillwindow(NXEGWINDOW hwnd,
  * Name: nxpu_redraw
  ****************************************************************************/
 
-static void nxpu_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+static void nxpu_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
   FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
@@ -190,7 +191,7 @@ static void nxpu_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
  * Name: nxpu_position
  ****************************************************************************/
 
-static void nxpu_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
+static void nxpu_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg)
@@ -214,10 +215,9 @@ static void nxpu_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
  ****************************************************************************/
 
 #ifdef CONFIG_NX_MOUSE
-static void nxpu_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
+static void nxpu_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
   message("nxpu_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
           hwnd,  pos->x, pos->y, buttons);
 }
@@ -263,7 +263,7 @@ static inline void nxpu_initstate(void)
 
   /* Initialize the color (used for redrawing the window) */
 
-  memset(&g_gbstate, 0, sizeof(struct nxtext_state_s));
+  memset(&g_pustate, 0, sizeof(struct nxtext_state_s));
   g_pustate.wcolor[0] = CONFIG_EXAMPLES_NXTEXT_PUCOLOR;
   g_pustate.fcolor[0] = CONFIG_EXAMPLES_NXTEXT_PUFONTCOLOR;
 
@@ -286,7 +286,7 @@ static inline void nxpu_initstate(void)
 
   /* Set the first display position */
 
-  nxtext_home(st);
+  nxtext_home(&g_pustate);
 #endif
 }
 
@@ -298,25 +298,26 @@ static inline void nxpu_initstate(void)
  * Name: nxpu_open
  ****************************************************************************/
 
-NXEGWINDOW nxpu_open(void)
+NXWINDOW nxpu_open(void)
 {
-  NXEGWINDOW hwnd;
+  NXWINDOW hwnd;
   struct nxgl_size_s size;
   struct nxgl_point_s pt;
+  int ret;
 
   /* Create a pop-up window */
 
   message("user_start: Create pop-up\n");
   nxpu_initstate();
 
-  hwnd = nx_openwindow(g_hnx, cb, (FAR void *)state);
+  hwnd = nx_openwindow(g_hnx, &g_pucb, (FAR void *)&g_pustate);
   message("user_start: hwnd=%p\n", hwnd);
 
   if (!hwnd)
     {
       message("user_start: nx_openwindow failed: %d\n", errno);
       g_exitcode = NXEXIT_NXOPENWINDOW;
-      goto errout_with_bkgd;
+      goto errout_with_state;
     }
 
   /* Set the size of the pop-up window */
@@ -325,7 +326,7 @@ NXEGWINDOW nxpu_open(void)
   size.h = g_yres / 4;
 
   message("user_start: Set pop-up size to (%d,%d)\n", size.w, size.h);
-  ret = nxpu_setsize(hwnd, &g_pustate.size);
+  ret = nxpu_setsize(hwnd, &size);
   if (ret < 0)
     {
       goto errout_with_hwnd;
@@ -344,5 +345,25 @@ NXEGWINDOW nxpu_open(void)
     }
 
   return hwnd;
+
+errout_with_hwnd:
+  (void)nx_closewindow(hwnd);
+
+errout_with_state:
+  return NULL;
 }
 
+/****************************************************************************
+ * Name: nxpu_close
+ ****************************************************************************/
+
+int nxpu_close(NXWINDOW hwnd)
+{
+  int ret = nx_closewindow(hwnd);
+  if (ret < 0)
+    {
+      message("nxpu_close: nx_closewindow failed: %d\n", errno);
+      g_exitcode = NXEXIT_NXCLOSEWINDOW;
+    }
+  return ret;
+}

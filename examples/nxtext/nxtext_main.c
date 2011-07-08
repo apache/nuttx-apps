@@ -62,8 +62,6 @@
 #include <nuttx/arch.h>
 #include <nuttx/nx.h>
 #include <nuttx/nxglib.h>
-#include <nuttx/nxtk.h>
-#include <nuttx/nxfonts.h>
 
 #include "nxtext_internal.h"
 
@@ -84,6 +82,8 @@
 #  define CONFIG_EXAMPLES_NXTEXT_DEVNO 0
 #endif
 
+#define BGMSG_LINES 4
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -96,16 +96,14 @@
  * Private Data
  ****************************************************************************/
 
-static int g_exitcode = NXEXIT_SUCCESS;
-
 #ifdef CONFIG_NX_KBD
 static const uint8_t g_pumsg[] = "Pop-Up!";
-static const char *g_bkgdmsg[4] =
+static const char *g_bgmsg[BGMSG_LINES] =
 {
   "Now is the time ",
   "for all good men ",
   "To come to the aid ",
-  "of their party "
+  "of their party.  "
 };
 #endif
 
@@ -128,42 +126,11 @@ bool g_connected = false;
 #endif
 sem_t g_semevent = {0};
 
+int g_exitcode = NXEXIT_SUCCESS;
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: nxtext_openwindow
- ****************************************************************************/
-
-static inline NXEGWINDOW nxtext_openwindow(FAR const struct nx_callback_s *cb,
-                                       FAR struct nxtext_state_s *state)
-{
-  NXEGWINDOW hwnd;
-
-  hwnd = nx_openwindow(g_hnx, cb, (FAR void *)state);
-  if (!hwnd)
-    {
-      message("user_start: nx_openwindow failed: %d\n", errno);
-      g_exitcode = NXEXIT_NXOPENWINDOW;
-    }
-  return hwnd;
-}
-
-/****************************************************************************
- * Name: nxtext_closewindow
- ****************************************************************************/
-
-static inline int nxtext_closewindow(NXEGWINDOW hwnd, FAR struct nxtext_state_s *state)
-{
-  int ret = nx_closewindow(hwnd);
-  if (ret < 0)
-    {
-      message("user_start: nx_closewindow failed: %d\n", errno);
-      g_exitcode = NXEXIT_NXCLOSEWINDOW;
-    }
-  return ret;
-}
 
 /****************************************************************************
  * Name: nxtext_suinitialize
@@ -359,7 +326,7 @@ static int nxtext_initialize(void)
 int user_start(int argc, char *argv[])
 {
   FAR struct nxtext_state_s *bgstate;
-  NXEGWINDOW hwnd;
+  NXWINDOW hwnd = NULL;
   nxgl_mxpixel_t color;
   int popcnt;
   int bkgndx;
@@ -435,7 +402,7 @@ int user_start(int argc, char *argv[])
           /* Destroy the pop-up window and restart the sequence */
  
           message("user_start: Close pop-up\n");
-          (void)nxtext_closewindow(hwnd, &g_pustate);
+          (void)nxpu_close(hwnd);
           popcnt = 0;
         }
       else if (popcnt >= 3)
@@ -461,8 +428,11 @@ int user_start(int argc, char *argv[])
        * text to go the background by calling the kbdin method directly.
        */
 
-      nxbg_puts(g_hnx, strlen(g_bkgdmsg[bkgndx]), g_bkgdmsg[bkgndx], g_bkgdstate);
-#endif
+      nxbg_write(g_hnx, (FAR const uint8_t *)g_bgmsg[bkgndx], strlen(g_bgmsg[bkgndx]));
+      if (++bkgndx >= BGMSG_LINES)
+        {
+          bkgndx = 0;
+        }
     }
 
   /* Close the pop-up window */
@@ -471,10 +441,10 @@ errout_with_hwnd:
   if (popcnt >= 3)
     {
       message("user_start: Close pop-up\n");
-     (void)nxtext_closewindow(hwnd, &g_pustate);
+     (void)nxpu_close(hwnd);
     }
 
-errout_with_bkgd:
+//errout_with_bkgd:
   (void)nx_releasebkgd(g_hnx);
 
 errout_with_nx:
