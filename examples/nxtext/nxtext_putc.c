@@ -120,7 +120,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
   /* Make sure that there is room for another glyph */
 
   message("nxtext_renderglyph: ch=%02x\n", ch);
-  if (st->nglyphs < st->nglyphs)
+  if (st->nglyphs < st->maxglyphs)
     {
       /* Allocate the glyph */
 
@@ -227,7 +227,7 @@ nxtext_addspace(FAR struct nxtext_state_s *st, uint8_t ch)
 
   /* Make sure that there is room for another glyph */
 
-  if (st->nglyphs < st->nglyphs)
+  if (st->nglyphs < st->maxglyphs)
     {
       /* Allocate the NULL glyph */
 
@@ -295,9 +295,10 @@ nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
         }
       else
         {
-          glyph =  nxtext_renderglyph(st, bm, ch);
+          glyph = nxtext_renderglyph(st, bm, ch);
         }
     }
+
   return glyph;
 }
 
@@ -313,7 +314,7 @@ nxtext_addchar(FAR struct nxtext_state_s *st, uint8_t ch)
 
   /* Is there space for another character on the display? */
 
-  if (st->nchars < st->nchars)
+  if (st->nchars < st->maxchars)
     {
        /* Yes, setup the bitmap */
 
@@ -333,23 +334,24 @@ nxtext_addchar(FAR struct nxtext_state_s *st, uint8_t ch)
          {
             /* The first character is one space from the left */
 
-            st->pos.x  = st->spwidth;
+            st->fpos.x  = st->spwidth;
          }
        else
          {
             /* Otherwise, it is to the left of the preceding char */
 
             bmleft = &st->bm[st->nchars-1];
-            st->pos.x  = bmleft->bounds.pt2.x + 1;
+            st->fpos.x  = bmleft->bounds.pt2.x + 1;
          }
 
-       bm->bounds.pt1.x = st->pos.x;
-       bm->bounds.pt1.y = st->pos.y;
-       bm->bounds.pt2.x = st->pos.x + bm->glyph->width - 1;
-       bm->bounds.pt2.y = st->pos.y + bm->glyph->height - 1;
+       bm->bounds.pt1.x = st->fpos.x;
+       bm->bounds.pt1.y = st->fpos.y;
+       bm->bounds.pt2.x = st->fpos.x + bm->glyph->width - 1;
+       bm->bounds.pt2.y = st->fpos.y + bm->glyph->height - 1;
 
        st->nchars++;
     }
+
   return bm;
 }
 
@@ -369,11 +371,11 @@ void nxtext_home(FAR struct nxtext_state_s *st)
 {
   /* The first character is one space from the left */
 
-  st->pos.x = st->spwidth;
+  st->fpos.x = st->spwidth;
 
   /* And two lines from the top */
 
-  st->pos.y = 2;
+  st->fpos.y = 2;
 }
 
 /****************************************************************************
@@ -388,11 +390,11 @@ void nxtext_newline(FAR struct nxtext_state_s *st)
 {
   /* Carriage return: The first character is one space from the left */
 
-  st->pos.x = st->spwidth;
+  st->fpos.x = st->spwidth;
 
   /* Linefeed: Done the max font height + 2 */
 
-  st->pos.y += (st->fheight + 2);
+  st->fpos.y += (st->fheight + 2);
 }
 
 /****************************************************************************
@@ -403,7 +405,7 @@ void nxtext_newline(FAR struct nxtext_state_s *st)
  *
  ****************************************************************************/
 
-void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,  uint8_t ch)
+void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, uint8_t ch)
 {
   FAR const struct nxtext_bitmap_s *bm;
 
