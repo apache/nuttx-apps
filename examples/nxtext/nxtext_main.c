@@ -81,7 +81,7 @@
 #  define CONFIG_EXAMPLES_NXTEXT_DEVNO 0
 #endif
 
-#define BGMSG_LINES 4
+#define BGMSG_LINES 24
 
 /****************************************************************************
  * Private Types
@@ -99,10 +99,30 @@
 static const uint8_t g_pumsg[] = "Pop-Up!";
 static const char *g_bgmsg[BGMSG_LINES] =
 {
-  "Now is the time ",
-  "for all good men ",
-  "To come to the aid ",
-  "of their party.  "
+  "\nJULIET\n",
+  "Wilt thou be gone? ",
+  "It is not yet near day:\n",
+  "It was the nightingale, ",
+  "and not the lark,\n",
+  "That pierced the fearful hollow ",
+  "of thine ear;\n",
+  "Nightly she sings ",
+  "on yon pomegranate-tree:\n",
+  "Believe me, love, "
+  "it was the nightingale.\n"
+  "\nROMEO\n"
+  "It was the lark, "
+  "the herald of the morn,\n"
+  "No nightingale: "
+  "look, love, what envious streaks\n"
+  "Do lace the severing clouds "
+  "in yonder east:\n"
+  "Night's candles are burnt out, "
+  "and jocund day\n"
+  "Stands tiptoe "
+  "on the misty mountain tops.\n"
+  "I must be gone and live, "
+  "or stay and die. \n"
 };
 #endif
 

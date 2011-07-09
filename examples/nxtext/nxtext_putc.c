@@ -522,8 +522,8 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   bounds.pt1.x = bm->pos.x;
   bounds.pt1.y = bm->pos.y;
-  bounds.pt1.x = bm->pos.x + glyph->width - 1;
-  bounds.pt1.y = bm->pos.y + glyph->height - 1;
+  bounds.pt2.x = bm->pos.x + glyph->width - 1;
+  bounds.pt2.y = bm->pos.y + glyph->height - 1;
 
   /* Should this also be clipped to a region in the window? */
 
@@ -545,6 +545,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
   if (!nxgl_nullrect(&intersection))
     {
       FAR const void *src = (FAR const void *)glyph->bitmap;
+
       ret = nx_bitmap((NXWINDOW)hwnd, &intersection, &src,
                       &bm->pos, (unsigned int)glyph->stride);
       if (ret < 0)
