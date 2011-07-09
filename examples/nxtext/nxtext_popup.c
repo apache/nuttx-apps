@@ -196,7 +196,7 @@ static inline void nxpu_fillwindow(NXWINDOW hwnd,
   nxtext_home(st);
   for (i = 0; i < st->nchars; i++)
     {
-      nxtext_fillchar(hwnd, rect, &st->bm[i]);
+      nxtext_fillchar(hwnd, rect, st, &st->bm[i]);
     }
 #endif
 }

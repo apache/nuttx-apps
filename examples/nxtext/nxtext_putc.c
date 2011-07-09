@@ -103,7 +103,122 @@
  * Name: nxtext_renderglyph
  ****************************************************************************/
 
-static inline FAR const struct nxtext_glyph_s *
+static void nxtext_freeglyph(FAR struct nxtext_glyph_s *glyph)
+{
+  if (glyph->bitmap)
+    {
+      free(glyph->bitmap);
+    }
+  memset(glyph, 0, sizeof(struct nxtext_glyph_s));
+}
+
+/****************************************************************************
+ * Name: nxtext_allocglyph
+ ****************************************************************************/
+
+static inline FAR struct nxtext_glyph_s *
+nxtext_allocglyph(FAR struct nxtext_state_s *st)
+{
+  FAR struct nxtext_glyph_s *glyph = NULL;
+  FAR struct nxtext_glyph_s *luglyph = NULL;
+  uint8_t luusecnt;
+  int i;
+
+  /* Search through the glyph cache looking for an unused glyph.  Also, keep
+   * track of the least used glyph as well.  We need that if we have to replace
+   * a glyph in the cache.
+   */
+ 
+   for (i = 0; i < st->maxglyphs; i++)
+    {
+      /* Is this glyph in use? */
+
+      glyph = &st->glyph[i];
+      if (!glyph->usecnt)
+        {
+          /* No.. return this glyph with a use count of one */
+
+          glyph->usecnt = 1;
+          return glyph;
+        }
+
+      /* Yes.. check for the least recently used */
+
+      if (!luglyph || glyph->usecnt < luglyph->usecnt)
+        {
+          luglyph = glyph;
+        }
+    }
+
+  /* If we get here, the glyph cache is full.  We replace the least used
+   * glyph with the one we need now. (luglyph can't be NULL).
+   */
+   
+  luusecnt = luglyph->usecnt;
+  nxtext_freeglyph(luglyph);
+
+  /* But lets decrement all of the usecnts so that the new one one be so
+   * far behind in the counts as the older ones.
+   */
+
+  if (luusecnt > 1)
+    {
+       uint8_t decr = luusecnt - 1;
+ 
+       for (i = 0; i < st->maxglyphs; i++)
+        {
+          /* Is this glyph in use? */
+
+          glyph = &st->glyph[i];
+          if (glyph->usecnt > decr)
+            {
+              glyph->usecnt -= decr;
+            }
+        }
+    }
+
+  /* Then return the least used glyph */
+
+  luglyph->usecnt = 1;
+  return luglyph;
+}
+
+/****************************************************************************
+ * Name: nxtext_findglyph
+ ****************************************************************************/
+
+static FAR struct nxtext_glyph_s *
+nxtext_findglyph(FAR struct nxtext_state_s *st, uint8_t ch)
+{
+  int i;
+
+  /* First, try to find the glyph in the cache of pre-rendered glyphs */
+
+   for (i = 0; i < st->maxglyphs; i++)
+    {
+      FAR struct nxtext_glyph_s *glyph = &st->glyph[i];
+      if (glyph->usecnt > 0 && glyph->code == ch)
+        {
+          /* Increment the use count (unless it is already at the max) */
+
+          if (glyph->usecnt < MAX_USECNT)
+            {
+               glyph->usecnt++;
+            }
+
+          /* And return the glyph that we found */
+
+          return glyph;
+        }
+    }
+  return NULL;
+}
+
+/****************************************************************************
+ * Name: nxtext_renderglyph
+ ****************************************************************************/
+
+static inline FAR struct nxtext_glyph_s *
 nxtext_renderglyph(FAR struct nxtext_state_s *st,
                    FAR const struct nx_fontbitmap_s *bm, uint8_t ch)
 {
@@ -120,182 +235,116 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
   /* Make sure that there is room for another glyph */
 
   message("nxtext_renderglyph: ch=%02x\n", ch);
-  if (st->nglyphs < st->maxglyphs)
+
+  /* Allocate the glyph (always succeeds) */
+
+  glyph         = nxtext_allocglyph(st);
+  glyph->code   = ch;
+
+  /* Get the dimensions of the glyph */
+
+  glyph->width  = bm->metric.width + bm->metric.xoffset;
+  glyph->height = bm->metric.height + bm->metric.yoffset;
+
+  /* Allocate memory to hold the glyph with its offsets */
+
+  glyph->stride = (glyph->width * CONFIG_EXAMPLES_NXTEXT_BPP + 7) / 8;
+  bmsize        =  glyph->stride * glyph->height;
+  glyph->bitmap = (FAR uint8_t *)malloc(bmsize);
+
+  if (glyph->bitmap)
     {
-      /* Allocate the glyph */
-
-      glyph         = &st->glyph[st->nglyphs];
-      glyph->code   = ch;
-
-      /* Get the dimensions of the glyph */
-
-      glyph->width  = bm->metric.width + bm->metric.xoffset;
-      glyph->height = bm->metric.height + bm->metric.yoffset;
-
-      /* Allocate memory to hold the glyph with its offsets */
-
-      glyph->stride = (glyph->width * CONFIG_EXAMPLES_NXTEXT_BPP + 7) / 8;
-      bmsize        =  glyph->stride * glyph->height;
-      glyph->bitmap = (FAR uint8_t *)malloc(bmsize);
-
-      if (glyph->bitmap)
-        {
-          /* Initialize the glyph memory to the background color */
+      /* Initialize the glyph memory to the background color */
 
 #if CONFIG_EXAMPLES_NXTEXT_BPP < 8
-          pixel  = st->wcolor[0];
+      pixel  = st->wcolor[0];
 #  if CONFIG_EXAMPLES_NXTEXT_BPP == 1
-          /* Pack 1-bit pixels into a 2-bits */
+      /* Pack 1-bit pixels into a 2-bits */
 
-          pixel &= 0x01;
-          pixel  = (pixel) << 1 |pixel;
+      pixel &= 0x01;
+      pixel  = (pixel) << 1 |pixel;
 #  endif
 #  if CONFIG_EXAMPLES_NXTEXT_BPP < 4
-          /* Pack 2-bit pixels into a nibble */
+      /* Pack 2-bit pixels into a nibble */
 
-          pixel &= 0x03;
-          pixel  = (pixel) << 2 |pixel;
+      pixel &= 0x03;
+      pixel  = (pixel) << 2 |pixel;
 #  endif
 
-          /* Pack 4-bit nibbles into a byte */
+      /* Pack 4-bit nibbles into a byte */
 
-          pixel &= 0x0f;
-          pixel  = (pixel) << 4 | pixel;
+      pixel &= 0x0f;
+      pixel  = (pixel) << 4 | pixel;
 
-          ptr    = (FAR nxgl_mxpixel_t *)glyph->bitmap;
-          for (row = 0; row < glyph->height; row++)
+      ptr    = (FAR nxgl_mxpixel_t *)glyph->bitmap;
+      for (row = 0; row < glyph->height; row++)
+        {
+          for (col = 0; col < glyph->stride; col++)
             {
-              for (col = 0; col < glyph->stride; col++)
-                {
-                  /* Transfer the packed bytes into the buffer */
+              /* Transfer the packed bytes into the buffer */
 
-                  *ptr++ = pixel;
-                }
+              *ptr++ = pixel;
             }
+        }
 
 #elif CONFIG_EXAMPLES_NXTEXT_BPP == 24
 # error "Additional logic is needed here for 24bpp support"
 
 #else /* CONFIG_EXAMPLES_NXTEXT_BPP = {8,16,32} */
 
-          ptr = (FAR nxgl_mxpixel_t *)glyph->bitmap;
-          for (row = 0; row < glyph->height; row++)
-            {
-              /* Just copy the color value into the glyph memory */
+      ptr = (FAR nxgl_mxpixel_t *)glyph->bitmap;
+      for (row = 0; row < glyph->height; row++)
+        {
+          /* Just copy the color value into the glyph memory */
 
-              for (col = 0; col < glyph->width; col++)
-                {
-                  *ptr++ = st->wcolor[0];
-                }
+          for (col = 0; col < glyph->width; col++)
+            {
+              *ptr++ = st->wcolor[0];
             }
+        }
 #endif
 
-          /* Then render the glyph into the allocated memory */
+      /* Then render the glyph into the allocated memory */
 
-          ret = RENDERER((FAR nxgl_mxpixel_t*)glyph->bitmap,
-                          glyph->height, glyph->width, glyph->stride,
-                          bm, st->fcolor[0]);
-          if (ret < 0)
-            {
-              /* Actually, the RENDERER never returns a failure */
-
-              message("nxtext_renderglyph: RENDERER failed\n");
-              free(glyph->bitmap);
-              glyph->bitmap = NULL;
-              glyph         = NULL;
-            }
-          else
-            {
-               /* Make it permanent */
-
-               st->nglyphs++;
-            }
-        }
-    }
-
-  return glyph;
-}
-
-/****************************************************************************
- * Name: nxtext_addspace
- ****************************************************************************/
-
-static inline FAR const struct nxtext_glyph_s *
-nxtext_addspace(FAR struct nxtext_state_s *st, uint8_t ch)
-{
-  FAR struct nxtext_glyph_s *glyph = NULL;
-
-  /* Make sure that there is room for another glyph */
-
-  if (st->nglyphs < st->maxglyphs)
-    {
-      /* Allocate the NULL glyph */
-
-      glyph        = &st->glyph[st->nglyphs];
-      memset(glyph, 0, sizeof(struct nxtext_glyph_s));
-
-      glyph->code  = ' ';
-      glyph->width = st->spwidth;
-
-      st->nglyphs++;
-    }
-  return glyph;
-}
-
-/****************************************************************************
- * Name: nxtext_findglyph
- ****************************************************************************/
-
-static FAR const struct nxtext_glyph_s *
-nxtext_findglyph(FAR struct nxtext_state_s *st, uint8_t ch)
-{
-  int i;
-
-  /* First, try to find the glyph in the cache of pre-rendered glyphs */
-
-   for (i = 0; i < st->nglyphs; i++)
-    {
-      if (st->glyph[i].code == ch)
+      ret = RENDERER((FAR nxgl_mxpixel_t*)glyph->bitmap,
+                      glyph->height, glyph->width, glyph->stride,
+                      bm, st->fcolor[0]);
+      if (ret < 0)
         {
-          return &st->glyph[i];
+          /* Actually, the RENDERER never returns a failure */
+
+          message("nxtext_renderglyph: RENDERER failed\n");
+          nxtext_freeglyph(glyph);
+          glyph = NULL;
         }
     }
-  return NULL;
+
+  return glyph;
 }
 
 /****************************************************************************
  * Name: nxtext_getglyph
  ****************************************************************************/
 
-static FAR const struct nxtext_glyph_s *
+static FAR struct nxtext_glyph_s *
 nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
 {
-  FAR const struct nxtext_glyph_s *glyph;
-  FAR const struct nx_fontbitmap_s *bm;
+  FAR struct nxtext_glyph_s *glyph;
+  FAR const struct nx_fontbitmap_s *fbm;
 
   /* First, try to find the glyph in the cache of pre-rendered glyphs */
 
   glyph = nxtext_findglyph(st, ch);
   if (!glyph)
     {
-      /* No, it is not cached... Does the code map to a glyph? */
+      /* No, it is not cached... Does the code map to a font? */
 
-      bm = nxf_getbitmap(ch);
-      if (!bm)
+      fbm = nxf_getbitmap(ch);
+      if (fbm)
         {
-          /* No, there is no glyph for this code.  Use space */
+          /* Yes.. render the glyph */
 
-          glyph = nxtext_findglyph(st, ' ');
-          if (!glyph)
-            {
-              /* There isn't fake glyph for ' ' yet... create one */
-
-              glyph = nxtext_addspace(st, ' ');
-            }
-        }
-      else
-        {
-          glyph = nxtext_renderglyph(st, bm, ch);
+          glyph = nxtext_renderglyph(st, fbm, ch);
         }
     }
 
@@ -304,50 +353,52 @@ nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
 
 /****************************************************************************
  * Name: nxtext_addchar
+ *
+ * Description:
+ *   This is part of the nxtext_putc logic.  It creates and positions a
+ *   the character and renders (or re-uses) a glyph for font.
+ *
  ****************************************************************************/
 
 static FAR const struct nxtext_bitmap_s *
 nxtext_addchar(FAR struct nxtext_state_s *st, uint8_t ch)
 {
   FAR struct nxtext_bitmap_s *bm = NULL;
-  FAR struct nxtext_bitmap_s *bmleft;
+  FAR struct nxtext_glyph_s *glyph;
 
   /* Is there space for another character on the display? */
 
   if (st->nchars < st->maxchars)
     {
-       /* Yes, setup the bitmap */
+       /* Yes, setup the bitmap information */
 
-       bm = &st->bm[st->nchars];
+       bm        = &st->bm[st->nchars];
+       bm->code  = ch;
+       bm->flags = 0;
+       bm->pos.x = st->fpos.x;
+       bm->pos.y = st->fpos.y;
 
-       /* Find the matching glyph */
+       /* Find (or create) the matching glyph */
 
-       bm->glyph = nxtext_getglyph(st, ch);
-       if (!bm->glyph)
+       glyph = nxtext_getglyph(st, ch);
+       if (!glyph)
          {
-           return NULL;
-         }
+            /* No, there is no font for this code.  Just mark this as a space. */
 
-       /* Set up the bounds for the bitmap */
+            bm->flags |= BMFLAGS_NOGLYPH;
 
-       if (st->nchars <= 0)
-         {
-            /* The first character is one space from the left */
+            /* Set up the next character position */
 
-            st->fpos.x  = st->spwidth;
+            st->fpos.x += st->spwidth;
          }
        else
          {
-            /* Otherwise, it is to the left of the preceding char */
+            /* Set up the next character position */
 
-            bmleft = &st->bm[st->nchars-1];
-            st->fpos.x  = bmleft->bounds.pt2.x + 1;
+            st->fpos.x += glyph->width;
          }
 
-       bm->bounds.pt1.x = st->fpos.x;
-       bm->bounds.pt1.y = st->fpos.y;
-       bm->bounds.pt2.x = st->fpos.x + bm->glyph->width - 1;
-       bm->bounds.pt2.y = st->fpos.y + bm->glyph->height - 1;
+       /* Success.. increment nchars to retain this character */
 
        st->nchars++;
     }
@@ -427,7 +478,7 @@ void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, uint8_t ch)
       bm = nxtext_addchar(st, ch);
       if (bm)
         {
-          nxtext_fillchar(hwnd, &bm->bounds, bm);
+          nxtext_fillchar(hwnd, NULL, st, bm);
         }
     }
 }
@@ -442,28 +493,63 @@ void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, uint8_t ch)
  ****************************************************************************/
 
 void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+                     FAR struct nxtext_state_s *st,
                      FAR const struct nxtext_bitmap_s *bm)
 {
-  FAR const void *src = (FAR const void *)bm->glyph->bitmap;
+  FAR struct nxtext_glyph_s *glyph;
+  struct nxgl_rect_s bounds;
   struct nxgl_rect_s intersection;
   int ret;
 
   /* Handle the special case of spaces which have no glyph bitmap */
 
-  if (src)
+  if (BM_ISSPACE(bm))
+    {
+      return;
+    }
+
+  /* Find (or create) the matching glyph */
+
+  glyph = nxtext_getglyph(st, bm->code);
+  if (!glyph)
+    {
+      /* This shouldn't happen */
+
+      return;
+    }
+
+  /* Construct a bounding box for the glyph */
+
+  bounds.pt1.x = bm->pos.x;
+  bounds.pt1.y = bm->pos.y;
+  bounds.pt1.x = bm->pos.x + glyph->width - 1;
+  bounds.pt1.y = bm->pos.y + glyph->height - 1;
+
+  /* Should this also be clipped to a region in the window? */
+
+  if (rect)
     {
       /* Get the intersection of the redraw region and the character bitmap */
 
-      nxgl_rectintersect(&intersection, rect, &bm->bounds);
-      if (!nxgl_nullrect(&intersection))
+      nxgl_rectintersect(&intersection, rect, &bounds);
+    }
+  else
+    {
+      /* The intersection is the whole glyph */
+
+      nxgl_rectcopy(&intersection, &bounds);
+    }
+
+  /* Check for empty intersections */
+
+  if (!nxgl_nullrect(&intersection))
+    {
+      FAR const void *src = (FAR const void *)glyph->bitmap;
+      ret = nx_bitmap((NXWINDOW)hwnd, &intersection, &src,
+                      &bm->pos, (unsigned int)glyph->stride);
+      if (ret < 0)
         {
-          ret = nx_bitmap((NXWINDOW)hwnd, &intersection, &src,
-                          &bm->bounds.pt1,
-                          (unsigned int)bm->glyph->stride);
-          if (ret < 0)
-            {
-              message("nxtext_fillchar: nx_bitmapwindow failed: %d\n", errno);
-            }
+          message("nxtext_fillchar: nx_bitmapwindow failed: %d\n", errno);
         }
     }
 }

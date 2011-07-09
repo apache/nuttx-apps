@@ -161,8 +161,8 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
       /* Save the window limits (these should be the same for all places and all windows */
 
-      g_xres = bounds->pt2.x;
-      g_yres = bounds->pt2.y;
+      g_xres = bounds->pt2.x + 1;
+      g_yres = bounds->pt2.y + 1;
 
       b_haveresolution = true;
       sem_post(&g_semevent);
@@ -202,7 +202,6 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 {
-  struct nxgl_rect_s rect;
   int i;
   int j;
 
@@ -220,7 +219,7 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
           /* Has any part of this character scrolled off the screen? */
 
-          if (bm->bounds.pt1.y < lineheight)
+          if (bm->pos.y < lineheight)
             {
               /* Yes... Delete the character by moving all of the data */
 
@@ -242,10 +241,9 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
           else
             {
-              bm->bounds.pt1.y -= lineheight;
-              bm->bounds.pt2.y -= lineheight;
+              bm->pos.y -= lineheight;
 
-              /* Increment to the next character */
+              /* We are keeping this one so increment to the next character */
  
               i++;
             }
@@ -258,11 +256,7 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
   /* Then re-draw the entire display */
 
-  rect.pt1.x = 0;
-  rect.pt1.y = 0;
-  rect.pt2.x = g_bgstate.wsize.w - 1;
-  rect.pt2.y = g_bgstate.wsize.h - 1;
-  nxbg_redrawrect(hwnd, &rect);
+  nxbg_redrawrect(hwnd, NULL);
 }
 
 /****************************************************************************
@@ -375,7 +369,7 @@ void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
   nxtext_home(&g_bgstate);
   for (i = 0; i < g_bgstate.nchars; i++)
     {
-      nxtext_fillchar(hwnd, rect, &g_bgstate.bm[i]);
+      nxtext_fillchar(hwnd, rect, &g_bgstate, &g_bgstate.bm[i]);
     }
 }
 

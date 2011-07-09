@@ -111,11 +111,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXTEXT_GLCACHE
-#  if CONFIG_NXFONTS_CHARBITS < 8
-#    define CONFIG_EXAMPLES_NXTEXT_GLCACHE MIN(CONFIG_EXAMPLES_NXTEXT_BMCACHE, 128)
-#  else
-#    define CONFIG_EXAMPLES_NXTEXT_GLCACHE MIN(CONFIG_EXAMPLES_NXTEXT_BMCACHE, 256)
-#  endif
+#  define CONFIG_EXAMPLES_NXTEXT_BMCACHE 16
 #endif
 
 #ifdef CONFIG_NX_MULTIUSER
@@ -168,6 +164,16 @@
 #  endif
 #endif
 
+/* Bitmap flags */
+
+#define BMFLAGS_NOGLYPH (1 << 0) /* No glyph available, use space */
+
+#define BM_ISSPACE(bm)  (((bm)->flags & BMFLAGS_NOGLYPH) != 0)
+
+/* Sizes and maximums */
+
+#define MAX_USECNT 255
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -202,6 +208,7 @@ struct nxtext_glyph_s
   uint8_t height;                      /* Height of this glyph (in rows) */
   uint8_t width;                       /* Width of this glyph (in pixels) */
   uint8_t stride;                      /* Width of the glyph row (in bytes) */
+  uint8_t usecnt;                      /* Use count */
   FAR uint8_t *bitmap;                 /* Allocated bitmap memory */
 };
 
@@ -209,8 +216,9 @@ struct nxtext_glyph_s
 
 struct nxtext_bitmap_s
 {
-  struct nxgl_rect_s bounds;              /* Size/position of bitmap */
-  FAR const struct nxtext_glyph_s *glyph; /* The cached glyph */
+  uint8_t code;                        /* Character code */
+  uint8_t flags;                       /* See BMFLAGS_* */
+  struct nxgl_point_s pos;             /* Character position */
 };
 
 /* Describes the state of one text display */
@@ -236,7 +244,6 @@ struct nxtext_state_s
   uint16_t maxchars;                        /* Size of the mb array */
   uint8_t maxglyphs;                        /* Size of the glyph array */
   uint8_t nchars;                           /* Number of chars already displayed */
-  uint8_t nglyphs;                          /* Number of glyphs cached */
 
   FAR struct nxtext_bitmap_s *bm;           /* List of characters on the display */
   FAR struct nxtext_glyph_s  *glyph;        /* Cache of rendered fonts in use */
@@ -301,6 +308,7 @@ extern void nxtext_newline(FAR struct nxtext_state_s *st);
 extern void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
                         uint8_t ch);
 extern void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+                            FAR struct nxtext_state_s *st,
                             FAR const struct nxtext_bitmap_s *bm);
 
 #endif /* __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H */
