@@ -44,8 +44,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <debug.h>
 #include <errno.h>
+#include <debug.h>
 
 #include <nuttx/nx.h>
 #include <nuttx/nxtk.h>
@@ -234,7 +234,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
 
   /* Make sure that there is room for another glyph */
 
-  message("nxtext_renderglyph: ch=%c [%02x]\n", isprint(ch) ? ch : '.', ch);
+  gvdbg("ch=%c [%02x]\n", isprint(ch) ? ch : '.', ch);
 
   /* Allocate the glyph (always succeeds) */
 

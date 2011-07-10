@@ -44,8 +44,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <semaphore.h>
-#include <debug.h>
 #include <errno.h>
+#include <debug.h>
 
 #include <nuttx/nx.h>
 #include <nuttx/nxfonts.h>
@@ -209,7 +209,7 @@ static void nxpu_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
   FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
-  message("nxpu_redraw: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+  gvdbg("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
           hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
           more ? "true" : "false");
 
@@ -229,9 +229,9 @@ static void nxpu_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  message("nxpu_position: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
-          hwnd, size->w, size->h, pos->x, pos->y,
-          bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
+  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+        hwnd, size->w, size->h, pos->x, pos->y,
+        bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
   /* Save the window position and size */
 
@@ -278,7 +278,7 @@ static void nxpu_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                        FAR void *arg)
 {
   FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
-  message("nxpu_kbdin: hwnd=%p nch=%d\n", hwnd, nch);
+  gvdbg("hwnd=%p nch=%d\n", hwnd, nch);
   nxpu_puts(hwnd, st, nch, ch);
 }
 #endif
@@ -343,7 +343,7 @@ NXWINDOW nxpu_open(void)
   nxpu_initstate();
 
   hwnd = nx_openwindow(g_hnx, &g_pucb, (FAR void *)&g_pustate);
-  message("nxpu_open: hwnd=%p\n", hwnd);
+  gvdbg("hwnd=%p\n", hwnd);
 
   if (!hwnd)
     {
@@ -373,7 +373,7 @@ NXWINDOW nxpu_open(void)
 
   /* Set the size of the pop-up window */
 
-  message("nxpu_open: Set pop-up size to (%d,%d)\n", size.w, size.h);
+  gvdbg("Set pop-up size to (%d,%d)\n", size.w, size.h);
   ret = nxpu_setsize(hwnd, &size);
   if (ret < 0)
     {
@@ -415,7 +415,7 @@ int nxpu_close(NXWINDOW hwnd)
   rect.pt1.y = g_pustate.wpos.y;
   rect.pt2.x = g_pustate.wpos.x + g_pustate.wsize.w - 1;
   rect.pt2.y = g_pustate.wpos.y + g_pustate.wsize.h - 1;
-  gvdbg("Redraw: pt1(%d,%d) pt2(%d,%d)\n", 
+  gvdbg("pt1(%d,%d) pt2(%d,%d)\n", 
         rect.pt1.x, rect.pt1.y, rect.pt2.x, rect.pt2.y);
 
   nxbg_redrawrect(g_bgwnd, &rect);

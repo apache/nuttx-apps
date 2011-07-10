@@ -45,8 +45,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <semaphore.h>
-#include <debug.h>
 #include <errno.h>
+#include <debug.h>
 
 #include <nuttx/nx.h>
 #include <nuttx/nxfonts.h>
@@ -122,9 +122,9 @@ NXHANDLE g_bgwnd;
 static void nxbg_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
-  message("nxbg_redraw: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
-          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
-          more ? "true" : "false");
+  gvdbg("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+         hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
+         more ? "true" : "false");
 
   nxbg_redrawrect(hwnd, rect);
 }
@@ -142,9 +142,9 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  message("nxbg_position: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
-          hwnd, size->w, size->h, pos->x, pos->y,
-          bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
+  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+        hwnd, size->w, size->h, pos->x, pos->y,
+        bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
   /* Have we picked off the window bounds yet? */
 
@@ -166,7 +166,7 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
       b_haveresolution = true;
       sem_post(&g_semevent);
-      message("nxbg_position: Have xres=%d yres=%d\n", g_xres, g_yres);
+      gvdbg("Have xres=%d yres=%d\n", g_xres, g_yres);
     }
 }
 
@@ -191,7 +191,7 @@ static void nxbg_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                        FAR void *arg)
 {
-  message("nxbg_kbdin: hwnd=%p nch=%d\n", hwnd, nch);
+  gvdbg("hwnd=%p nch=%d\n", hwnd, nch);
   nxbg_write(hwnd, ch, nch);
 }
 #endif

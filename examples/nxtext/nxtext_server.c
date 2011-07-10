@@ -145,7 +145,7 @@ int nxtext_server(int argc, char *argv[])
   /* Then start the server */
 
   ret = nx_run(dev);
-  message("nxtext_server: nx_run returned: %d\n", errno);
+  gvdbg("nx_run returned: %d\n", errno);
   return 3;
 }
 

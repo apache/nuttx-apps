@@ -108,20 +108,20 @@ static const char *g_bgmsg[BGMSG_LINES] =
   "  of thine ear;\n",
   "Nightly she sings\n",
   "  on yon pomegranate-tree:\n",
-  "Believe me, love,\n"
-  "  it was the nightingale.\n"
-  "\nROMEO\n"
-  "It was the lark,\n"
-  "  the herald of the morn,\n"
-  "No nightingale:\n"
-  "  look, love, what envious streaks\n"
-  "Do lace the severing clouds\n"
-  "  in yonder east:\n"
-  "Night's candles are burnt out,\n"
-  "  and jocund day\n"
-  "Stands tiptoe\n"
-  "  on the misty mountain tops.\n"
-  "I must be gone and live,\n"
+  "Believe me, love,\n",
+  "  it was the nightingale.\n",
+  "\nROMEO\n",
+  "It was the lark,\n",
+  "  the herald of the morn,\n",
+  "No nightingale:\n",
+  "  look, love, what envious streaks\n",
+  "Do lace the severing clouds\n",
+  "  in yonder east:\n",
+  "Night's candles are burnt out,\n",
+  "  and jocund day\n",
+  "Stands tiptoe\n",
+  "  on the misty mountain tops.\n",
+  "I must be gone and live,\n",
   "  or stay and die.\n"
 };
 #endif
