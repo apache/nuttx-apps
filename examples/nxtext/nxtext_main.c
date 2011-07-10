@@ -99,30 +99,30 @@
 static const uint8_t g_pumsg[] = "Pop-Up!";
 static const char *g_bgmsg[BGMSG_LINES] =
 {
-  "\nJULIET\n",
-  "Wilt thou be gone?\n",
-  "  It is not yet near day:\n",
-  "It was the nightingale,\n",
-  "  and not the lark,\n",
-  "That pierced the fearful hollow\n",
-  "  of thine ear;\n",
-  "Nightly she sings\n",
-  "  on yon pomegranate-tree:\n",
-  "Believe me, love,\n",
-  "  it was the nightingale.\n",
-  "\nROMEO\n",
-  "It was the lark,\n",
-  "  the herald of the morn,\n",
-  "No nightingale:\n",
-  "  look, love, what envious streaks\n",
-  "Do lace the severing clouds\n",
-  "  in yonder east:\n",
-  "Night's candles are burnt out,\n",
-  "  and jocund day\n",
-  "Stands tiptoe\n",
-  "  on the misty mountain tops.\n",
-  "I must be gone and live,\n",
-  "  or stay and die.\n"
+  "\nJULIET\n",                           /* Line 1 */
+  "Wilt thou be gone?\n",                 /* Line 2 */
+  "  It is not yet near day:\n",          /* Line 3 */
+  "It was the nightingale,\n",            /* Line 4 */
+  "  and not the lark,\n",                /* Line 5 */
+  "That pierced the fearful hollow\n",    /* Line 6 */
+  "  of thine ear;\n",                    /* Line 7 */
+  "Nightly she sings\n",                  /* Line 8 */
+  "  on yon pomegranate-tree:\n",         /* Line 9 */
+  "Believe me, love,\n",                  /* Line 10 */
+  "  it was the nightingale.\n",          /* Line 11 */
+  "\nROMEO\n",                            /* Line 12 */
+  "It was the lark,\n",                   /* Line 13 */
+  "  the herald of the morn,\n",          /* Line 14 */
+  "No nightingale:\n",                    /* Line 15 */
+  "  look, love, what envious streaks\n", /* Line 16 */
+  "Do lace the severing clouds\n",        /* Line 17 */
+  "  in yonder east:\n",                  /* Line 18 */
+  "Night's candles are burnt out,\n",     /* Line 19 */
+  "  and jocund day\n",                   /* Line 20 */
+  "Stands tiptoe\n",                      /* Line 21 */
+  "  on the misty mountain tops.\n",      /* Line 22 */
+  "I must be gone and live,\n",           /* Line 23 */
+  "  or stay and die.\n"                  /* Line 24 */
 };
 #endif
 
@@ -440,7 +440,8 @@ int user_start(int argc, char *argv[])
         }
 
       /* Give another line of text to the background window.  Force this
-       * text to go the background by calling the kbdin method directly.
+       * text to go the background by calling the background window interfaces
+       * directly.
        */
 
       nxbg_write(g_bgwnd, (FAR const uint8_t *)g_bgmsg[bkgndx], strlen(g_bgmsg[bkgndx]));

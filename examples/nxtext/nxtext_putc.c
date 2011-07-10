@@ -572,7 +572,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   if (!nxgl_nullrect(&intersection))
     {
-      FAR const void *src = (FAR const void *)glyph->bitmap;
+      FAR const void *src;
 
       /* Find (or create) the glyph that goes with this font */
 

@@ -314,10 +314,11 @@ examples/nxtest
   The text display will continue to update while the pop-up is visible.
 
   NOTE:  This example will *only* work with FB drivers and with LCD
-  drivers that support reading the contents of the internal LCD memory.
-  If you notice garbage on the display or a failure at the point where
-  the display should scroll, it is probably because you have an LCD
-  driver that is write-only.
+  drivers that support reading the contents of the internal LCD memory
+  *unless* you define CONFIG_EXAMPLES_NXTEXT_NOGETRUN.  If you notice
+  garbage on the display or a failure at the point where the display
+  should scroll, it is probably because you have an LCD driver that is
+  write-only.
   
   The following configuration options can be selected:
 
@@ -335,6 +336,9 @@ examples/nxtest
       background window. Default depends on CONFIG_EXAMPLES_NXTEXT_BPP.
     CONFIG_EXAMPLES_NXTEXT_BPP -- Pixels per pixel to use.  Valid options
       include 2, 4, 8, 16, 24, and 32.  Default is 32.
+    CONFIG_EXAMPLES_NXTEXT_NOGETRUN -- If your display is read-only OR if
+      reading is not reliable, then select this configuration to avoid
+      reading from the display.
     CONFIG_EXAMPLES_NXTEXT_EXTERNINIT - The driver for the graphics device on
       this platform requires some unusual initialization.  This is the
       for, for example, SPI LCD/OLED devices.  If this configuration is

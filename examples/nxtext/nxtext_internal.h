@@ -242,9 +242,9 @@ struct nxtext_state_s
 
   /* These describe all text already added to the display */
 
-  uint16_t maxchars;                        /* Size of the mb array */
-  uint8_t maxglyphs;                        /* Size of the glyph array */
-  uint8_t nchars;                           /* Number of chars already displayed */
+  uint8_t maxglyphs;                        /* Size of the glyph[] array */
+  uint16_t maxchars;                        /* Size of the bm[] array */
+  uint16_t nchars;                          /* Number of chars in the bm[] array */
 
   FAR struct nxtext_bitmap_s *bm;           /* List of characters on the display */
   FAR struct nxtext_glyph_s  *glyph;        /* Cache of rendered fonts in use */

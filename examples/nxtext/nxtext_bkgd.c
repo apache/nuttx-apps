@@ -197,14 +197,110 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 #endif
 
 /****************************************************************************
+ * Name: nxbg_movedisplay
+ *
+ * Description:
+ *   This function implements the data movement for the scroll operation.  If
+ *   we can read the displays framebuffer memory, then the job is pretty
+ *   easy.  However, many displays (such as SPI-based LCDs) are often read-
+ *   only.
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_NXTEXT_NOGETRUN
+static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
+{
+  FAR struct nxtext_bitmap_s *bm;
+  struct nxgl_rect_s rect;
+  nxgl_coord_t row;
+  int ret;
+  int i;
+
+  /* Move each row, one at a time.  They could all be moved at once (by calling
+   * nxbg_redrawrect), but the since the region is cleared, then re-written, the
+   * effect would not be good.  Below the region is also cleared and re-written,
+   * however, in much smaller chunks.
+   */
+
+  rect.pt1.x = 0;
+  rect.pt2.x = g_bgstate.wsize.w - 1;
+
+  for (row = LINE_SEPARATION; row < bottom; row += lineheight)
+    {
+      /* Create a bounding box the size of one row of characters */
+
+      rect.pt1.y = row;
+      rect.pt2.y = row + lineheight - 1;
+
+      /* Clear the region */
+
+      ret = nx_fill(hwnd, &rect, g_bgstate.wcolor);
+      if (ret < 0)
+        {
+          message("nxbg_movedisplay: nx_fill failed: %d\n", errno);
+        }
+
+      /* Fill each character that might lie within in the bounding box */
+
+      for (i = 0; i < g_bgstate.nchars; i++)
+        {
+          bm = &g_bgstate.bm[i];
+          if (bm->pos.y <= rect.pt2.y && bm->pos.y + g_bgstate.fheight >= rect.pt1.y)
+            {
+              nxtext_fillchar(hwnd, &rect, &g_bgstate, bm);
+            }
+        }
+    }
+
+  /* Finally, clear the bottom part of the display */
+
+  rect.pt1.y = bottom;
+  rect.pt2.y = g_bgstate.wsize.h- 1;
+
+  ret = nx_fill(hwnd, &rect, g_bgstate.wcolor);
+  if (ret < 0)
+    {
+      message("nxbg_movedisplay: nx_fill failed: %d\n", errno);
+    }
+}
+#else
+static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
+{
+  struct nxgl_rect_s rect;
+  struct nxgl_point_s offset;
+  int ret;
+
+  /* Move the display in the range of 0-height up one lineheight.  The
+   * line at the bottom will be reset to the background color automatically.
+   *
+   * The source rectangle to be moved.
+   */
+
+  rect.pt1.x = 0;
+  rect.pt1.y = lineheight + LINE_SEPARATION;
+  rect.pt2.x = g_bgstate.wsize.w - 1;
+  rect.pt2.y = g_bgstate.wsize.h - 1;
+
+  /* The offset that determines how far to move the source rectangle */
+
+  offset.x   = 0;
+  offset.y   = -lineheight;
+
+  /* Move the source rectangle */
+
+  ret = nx_move(hwnd, &rect, &offset);
+  if (ret < 0)
+    {
+      message("nxbg_redrawrect: nx_move failed: %d\n", errno);
+    }
+}
+#endif
+
+/****************************************************************************
  * Name: nxbg_scroll
  ****************************************************************************/
 
 static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 {
-  struct nxgl_rect_s rect;
-  struct nxgl_point_s offset;
-  int ret;
   int i;
   int j;
 
@@ -216,7 +312,7 @@ static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
       /* Has any part of this character scrolled off the screen? */
 
-      if (bm->pos.y < lineheight)
+      if (bm->pos.y < lineheight + LINE_SEPARATION)
         {
           /* Yes... Delete the character by moving all of the data */
 
@@ -250,29 +346,9 @@ static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
   g_bgstate.fpos.y -= lineheight;
 
-  /* Move the display in the range of 0-height up one lineheight.  The
-   * line at the bottom will be reset to the background color automatically.
-   *
-   * The source rectangle to be moved.
-   */
+  /* Move the display in the range of 0-height up one lineheight. */
 
-  rect.pt1.x = 0;
-  rect.pt1.y = lineheight;
-  rect.pt2.x = g_bgstate.wsize.w - 1;
-  rect.pt2.y = g_bgstate.wsize.h - 1;
-
-  /* The offset that determines how far to move the source rectangle */
-
-  offset.x   = 0;
-  offset.y   = -lineheight;
-
-  /* Move the source rectangle */
-
-  ret = nx_move(hwnd, &rect, &offset);
-  if (ret < 0)
-    {
-      message("nxbg_redrawrect: nx_move failed: %d\n", errno);
-    }
+  nxbg_movedisplay(hwnd, g_bgstate.fpos.y, lineheight);
 }
 
 /****************************************************************************
