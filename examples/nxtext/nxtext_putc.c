@@ -220,7 +220,7 @@ nxtext_findglyph(FAR struct nxtext_state_s *st, uint8_t ch)
 
 static inline FAR struct nxtext_glyph_s *
 nxtext_renderglyph(FAR struct nxtext_state_s *st,
-                   FAR const struct nx_fontbitmap_s *bm, uint8_t ch)
+                   FAR const struct nx_fontbitmap_s *fbm, uint8_t ch)
 {
   FAR struct nxtext_glyph_s *glyph = NULL;
   FAR nxgl_mxpixel_t *ptr;
@@ -234,7 +234,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
 
   /* Make sure that there is room for another glyph */
 
-  message("nxtext_renderglyph: ch=%02x\n", ch);
+  message("nxtext_renderglyph: ch=%c [%02x]\n", isprint(ch) ? ch : '.', ch);
 
   /* Allocate the glyph (always succeeds) */
 
@@ -243,8 +243,8 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
 
   /* Get the dimensions of the glyph */
 
-  glyph->width  = bm->metric.width + bm->metric.xoffset;
-  glyph->height = bm->metric.height + bm->metric.yoffset;
+  glyph->width  = fbm->metric.width + fbm->metric.xoffset;
+  glyph->height = fbm->metric.height + fbm->metric.yoffset;
 
   /* Allocate memory to hold the glyph with its offsets */
 
@@ -308,7 +308,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
 
       ret = RENDERER((FAR nxgl_mxpixel_t*)glyph->bitmap,
                       glyph->height, glyph->width, glyph->stride,
-                      bm, st->fcolor[0]);
+                      fbm, st->fcolor[0]);
       if (ret < 0)
         {
           /* Actually, the RENDERER never returns a failure */
@@ -320,6 +320,29 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
     }
 
   return glyph;
+}
+
+/****************************************************************************
+ * Name: nxtext_fontsize
+ ****************************************************************************/
+
+static int nxtext_fontsize(uint8_t ch, FAR struct nxgl_size_s *size)
+{
+  FAR const struct nx_fontbitmap_s *fbm;
+
+  /* No, it is not cached... Does the code map to a font? */
+
+  fbm = nxf_getbitmap(ch);
+  if (fbm)
+    {
+      /* Yes.. return the font size */
+
+      size->w = fbm->metric.width + fbm->metric.xoffset;
+      size->h = fbm->metric.height + fbm->metric.yoffset;
+      return OK;
+    }
+
+  return ERROR;
 }
 
 /****************************************************************************
@@ -424,9 +447,9 @@ void nxtext_home(FAR struct nxtext_state_s *st)
 
   st->fpos.x = st->spwidth;
 
-  /* And two lines from the top */
+  /* And LINE_SEPARATION lines from the top */
 
-  st->fpos.y = 2;
+  st->fpos.y = LINE_SEPARATION;
 }
 
 /****************************************************************************
@@ -443,9 +466,9 @@ void nxtext_newline(FAR struct nxtext_state_s *st)
 
   st->fpos.x = st->spwidth;
 
-  /* Linefeed: Down the max font height + 2 */
+  /* Linefeed: Down the max font height + LINE_SEPARATION */
 
-  st->fpos.y += (st->fheight + 2);
+  st->fpos.y += (st->fheight + LINE_SEPARATION);
 }
 
 /****************************************************************************
@@ -499,6 +522,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
   FAR struct nxtext_glyph_s *glyph;
   struct nxgl_rect_s bounds;
   struct nxgl_rect_s intersection;
+  struct nxgl_size_s fsize;
   int ret;
 
   /* Handle the special case of spaces which have no glyph bitmap */
@@ -508,12 +532,16 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
       return;
     }
 
-  /* Find (or create) the matching glyph */
+  /* Get the size of the font glyph (which may not have been created yet) */
 
-  glyph = nxtext_getglyph(st, bm->code);
-  if (!glyph)
+  ret = nxtext_fontsize(bm->code, &fsize);
+  if (ret < 0)
     {
-      /* This shouldn't happen */
+      /* This would mean that there is no bitmap for the character code and
+       * that the font would be rendered as a space.  But this case should
+       * never happen here because the BM_ISSPACE() should have already
+       * found all such cases.
+       */
 
       return;
     }
@@ -522,8 +550,8 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   bounds.pt1.x = bm->pos.x;
   bounds.pt1.y = bm->pos.y;
-  bounds.pt2.x = bm->pos.x + glyph->width - 1;
-  bounds.pt2.y = bm->pos.y + glyph->height - 1;
+  bounds.pt2.x = bm->pos.x + fsize.w - 1;
+  bounds.pt2.y = bm->pos.y + fsize.h - 1;
 
   /* Should this also be clipped to a region in the window? */
 
@@ -546,6 +574,19 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
     {
       FAR const void *src = (FAR const void *)glyph->bitmap;
 
+      /* Find (or create) the glyph that goes with this font */
+
+       glyph = nxtext_getglyph(st, bm->code);
+       if (!glyph)
+         {
+           /* Shouldn't happen */
+
+           return;
+         }
+
+      /* Blit the font bitmap into the window */
+
+      src = (FAR const void *)glyph->bitmap;
       ret = nx_bitmap((NXWINDOW)hwnd, &intersection, &src,
                       &bm->pos, (unsigned int)glyph->stride);
       if (ret < 0)

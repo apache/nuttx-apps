@@ -100,29 +100,29 @@ static const uint8_t g_pumsg[] = "Pop-Up!";
 static const char *g_bgmsg[BGMSG_LINES] =
 {
   "\nJULIET\n",
-  "Wilt thou be gone? ",
-  "It is not yet near day:\n",
-  "It was the nightingale, ",
-  "and not the lark,\n",
-  "That pierced the fearful hollow ",
-  "of thine ear;\n",
-  "Nightly she sings ",
-  "on yon pomegranate-tree:\n",
-  "Believe me, love, "
-  "it was the nightingale.\n"
+  "Wilt thou be gone?\n",
+  "  It is not yet near day:\n",
+  "It was the nightingale,\n",
+  "  and not the lark,\n",
+  "That pierced the fearful hollow\n",
+  "  of thine ear;\n",
+  "Nightly she sings\n",
+  "  on yon pomegranate-tree:\n",
+  "Believe me, love,\n"
+  "  it was the nightingale.\n"
   "\nROMEO\n"
-  "It was the lark, "
-  "the herald of the morn,\n"
-  "No nightingale: "
-  "look, love, what envious streaks\n"
-  "Do lace the severing clouds "
-  "in yonder east:\n"
-  "Night's candles are burnt out, "
-  "and jocund day\n"
-  "Stands tiptoe "
-  "on the misty mountain tops.\n"
-  "I must be gone and live, "
-  "or stay and die. \n"
+  "It was the lark,\n"
+  "  the herald of the morn,\n"
+  "No nightingale:\n"
+  "  look, love, what envious streaks\n"
+  "Do lace the severing clouds\n"
+  "  in yonder east:\n"
+  "Night's candles are burnt out,\n"
+  "  and jocund day\n"
+  "Stands tiptoe\n"
+  "  on the misty mountain tops.\n"
+  "I must be gone and live,\n"
+  "  or stay and die.\n"
 };
 #endif
 

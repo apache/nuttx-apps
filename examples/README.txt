@@ -312,6 +312,12 @@ examples/nxtest
   defined in include/nuttx/nx.h.  This text focuses on text displays on
   the dispaly background combined with pop-up displays over the text.
   The text display will continue to update while the pop-up is visible.
+
+  NOTE:  This example will *only* work with FB drivers and with LCD
+  drivers that support reading the contents of the internal LCD memory.
+  If you notice garbage on the display or a failure at the point where
+  the display should scroll, it is probably because you have an LCD
+  driver that is write-only.
   
   The following configuration options can be selected:
 

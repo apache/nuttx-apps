@@ -200,68 +200,73 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  * Name: nxbg_scroll
  ****************************************************************************/
 
-static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
+static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 {
   struct nxgl_rect_s rect;
+  struct nxgl_point_s offset;
+  int ret;
   int i;
   int j;
 
-  /* Scroll up until the next display position is in the window.  We may need
-   * do this more than once (unlikely)
-   */
+  /* Adjust the vertical position of each character */
 
-  while (g_bgstate.fpos.y >= g_bgstate.wsize.h - lineheight)
+  for (i = 0; i < g_bgstate.nchars; )
     {
-      /* Adjust the vertical position of each character */
+      FAR struct nxtext_bitmap_s *bm = &g_bgstate.bm[i];
 
-      for (i = 0; i < g_bgstate.nchars; )
+      /* Has any part of this character scrolled off the screen? */
+
+      if (bm->pos.y < lineheight)
         {
-          FAR struct nxtext_bitmap_s *bm = &g_bgstate.bm[i];
+          /* Yes... Delete the character by moving all of the data */
 
-          /* Has any part of this character scrolled off the screen? */
-
-          if (bm->pos.y < lineheight)
+          for (j = i; j < g_bgstate.nchars-1; j++)
             {
-              /* Yes... Delete the character by moving all of the data */
-
-              for (j = i; j < g_bgstate.nchars-1; j++)
-                {
-                  memcpy(&g_bgstate.bm[j], &g_bgstate.bm[j+1], sizeof(struct nxtext_bitmap_s));
-                }
-
-              /* Decrement the number of cached characters (i is not incremented
-               * in this case because it already points to the next charactger)
-               */
-
-              g_bgstate.nchars--;
+              memcpy(&g_bgstate.bm[j], &g_bgstate.bm[j+1], sizeof(struct nxtext_bitmap_s));
             }
 
-          /* No.. just decrement its vertical position (moving it "up" the
-           * display by one line.
+          /* Decrement the number of cached characters ('i' is not incremented
+           * in this case because it already points to the next character)
            */
 
-          else
-            {
-              bm->pos.y -= lineheight;
-
-              /* We are keeping this one so increment to the next character */
- 
-              i++;
-            }
+          g_bgstate.nchars--;
         }
 
-      /* And move the next display position up by one line as well */
+      /* No.. just decrement its vertical position (moving it "up" the
+       * display by one line).
+       */
 
-      g_bgstate.fpos.y -= lineheight;
+      else
+        {
+          bm->pos.y -= lineheight;
+
+          /* We are keeping this one so increment to the next character */
+ 
+          i++;
+        }
     }
 
-  /* Then re-draw the entire display */
+  /* And move the next display position up by one line as well */
+
+  g_bgstate.fpos.y -= lineheight;
+
+  /* Move the display in the range of 0-height up one lineheight.  The
+   * line at the bottom will be reset to the background color automatically.
+   */
 
   rect.pt1.x = 0;
-  rect.pt1.y = 0;
+  rect.pt1.y = lineheight;
   rect.pt2.x = g_bgstate.wsize.w - 1;
   rect.pt2.y = g_bgstate.wsize.h - 1;
-  nxbg_redrawrect(hwnd, NULL);
+
+  offset.x   = 0;
+  offset.y   = -lineheight;
+
+  ret = nx_move(hwnd, &rect, &offset);
+  if (ret < 0)
+    {
+      message("nxbg_redrawrect: nx_move failed: %d\n", errno);
+    }
 }
 
 /****************************************************************************
@@ -318,7 +323,7 @@ FAR struct nxtext_state_s *nxbg_getstate(void)
 
 void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
 {
-  int lineheight = (g_bgstate.fheight + 2);
+  int lineheight = (g_bgstate.fheight + LINE_SEPARATION);
 
   while (buflen-- > 0)
     {
@@ -339,9 +344,11 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
             }
         }
 
-      /* Check if we need to scroll up */
+      /* Check if we need to scroll up (handling a corner case where
+       * there may be more than one newline).
+       */
 
-      if (g_bgstate.fpos.y >= g_bgstate.wsize.h - lineheight)
+      while (g_bgstate.fpos.y >= g_bgstate.wsize.h - lineheight)
         {
           nxbg_scroll(hwnd, lineheight);
         }

@@ -172,7 +172,8 @@
 
 /* Sizes and maximums */
 
-#define MAX_USECNT 255
+#define MAX_USECNT      255  /* Limit to range of a uint8_t */
+#define LINE_SEPARATION 2    /* Space (in rows) between lines */
 
 /****************************************************************************
  * Public Types
