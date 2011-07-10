@@ -252,6 +252,8 @@ static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
   /* Move the display in the range of 0-height up one lineheight.  The
    * line at the bottom will be reset to the background color automatically.
+   *
+   * The source rectangle to be moved.
    */
 
   rect.pt1.x = 0;
@@ -259,8 +261,12 @@ static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
   rect.pt2.x = g_bgstate.wsize.w - 1;
   rect.pt2.y = g_bgstate.wsize.h - 1;
 
+  /* The offset that determines how far to move the source rectangle */
+
   offset.x   = 0;
   offset.y   = -lineheight;
+
+  /* Move the source rectangle */
 
   ret = nx_move(hwnd, &rect, &offset);
   if (ret < 0)
