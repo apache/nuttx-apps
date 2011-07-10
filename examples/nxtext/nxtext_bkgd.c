@@ -202,6 +202,7 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 {
+  struct nxgl_rect_s rect;
   int i;
   int j;
 
@@ -256,6 +257,10 @@ static void nxbg_scroll(NXWINDOW hwnd, int lineheight)
 
   /* Then re-draw the entire display */
 
+  rect.pt1.x = 0;
+  rect.pt1.y = 0;
+  rect.pt2.x = g_bgstate.wsize.w - 1;
+  rect.pt2.y = g_bgstate.wsize.h - 1;
   nxbg_redrawrect(hwnd, NULL);
 }
 
@@ -366,7 +371,6 @@ void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
    * will actually be redrawn).
    */
 
-  nxtext_home(&g_bgstate);
   for (i = 0; i < g_bgstate.nchars; i++)
     {
       nxtext_fillchar(hwnd, rect, &g_bgstate, &g_bgstate.bm[i]);

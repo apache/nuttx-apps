@@ -443,7 +443,7 @@ void nxtext_newline(FAR struct nxtext_state_s *st)
 
   st->fpos.x = st->spwidth;
 
-  /* Linefeed: Done the max font height + 2 */
+  /* Linefeed: Down the max font height + 2 */
 
   st->fpos.y += (st->fheight + 2);
 }
