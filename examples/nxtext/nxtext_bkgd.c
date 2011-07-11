@@ -116,6 +116,31 @@ NXHANDLE g_bgwnd;
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: nxbg_redrawrect
+ ****************************************************************************/
+
+static void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
+{
+  int ret;
+  int i;
+
+  ret = nx_fill(hwnd, rect, g_bgstate.wcolor);
+  if (ret < 0)
+    {
+      message("nxbg_redrawrect: nx_fill failed: %d\n", errno);
+    }
+
+  /* Fill each character on the display (Only the characters within rect
+   * will actually be redrawn).
+   */
+
+  for (i = 0; i < g_bgstate.nchars; i++)
+    {
+      nxtext_fillchar(hwnd, rect, &g_bgstate, &g_bgstate.bm[i]);
+    }
+}
+
+/****************************************************************************
  * Name: nxbg_redraw
  ****************************************************************************/
 
@@ -290,7 +315,7 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
   ret = nx_move(hwnd, &rect, &offset);
   if (ret < 0)
     {
-      message("nxbg_redrawrect: nx_move failed: %d\n", errno);
+      message("nxbg_movedisplay: nx_move failed: %d\n", errno);
     }
 }
 #endif
@@ -440,31 +465,3 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
       nxtext_putc(hwnd, &g_bgstate, (uint8_t)*buffer++);
     }
 }
-
-/****************************************************************************
- * Name: nxbg_redrawrect
- ****************************************************************************/
-
-void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
-{
-  int ret;
-  int i;
-
-  ret = nx_fill(hwnd, rect, g_bgstate.wcolor);
-  if (ret < 0)
-    {
-      message("nxbg_redrawrect: nx_fill failed: %d\n", errno);
-    }
-
-  /* Fill each character on the display (Only the characters within rect
-   * will actually be redrawn).
-   */
-
-  for (i = 0; i < g_bgstate.nchars; i++)
-    {
-      nxtext_fillchar(hwnd, rect, &g_bgstate, &g_bgstate.bm[i]);
-    }
-}
-
-
-

@@ -295,7 +295,6 @@ extern FAR void *nxtext_listener(FAR void *arg);
 
 extern FAR struct nxtext_state_s *nxbg_getstate(void);
 extern void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen);
-extern void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect);
 
 /* Pop-up window interfaces */
 

@@ -395,7 +395,6 @@ errout_with_state:
 
 int nxpu_close(NXWINDOW hwnd)
 {
-  struct nxgl_rect_s rect;
   int ret;
 
   ret = nx_closewindow(hwnd);
@@ -405,19 +404,5 @@ int nxpu_close(NXWINDOW hwnd)
       g_exitcode = NXEXIT_NXCLOSEWINDOW;
       return ret;
     }
-
-  /* NOTE:  The following should not be necessary.  This is
-   * a temporary workaround for a bug in the TODO list:
-   * "When a window is closed, the display is not updated."
-   */
-
-  rect.pt1.x = g_pustate.wpos.x;
-  rect.pt1.y = g_pustate.wpos.y;
-  rect.pt2.x = g_pustate.wpos.x + g_pustate.wsize.w - 1;
-  rect.pt2.y = g_pustate.wpos.y + g_pustate.wsize.h - 1;
-  gvdbg("pt1(%d,%d) pt2(%d,%d)\n", 
-        rect.pt1.x, rect.pt1.y, rect.pt2.x, rect.pt2.y);
-
-  nxbg_redrawrect(g_bgwnd, &rect);
   return OK;
 }
