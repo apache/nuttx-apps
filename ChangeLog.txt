@@ -61,7 +61,7 @@
 
 	* netutils/ftpc:  Simpflication and size reduction.
 
-6.6 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.6 2011-07-11 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* Make.defs, namedapp/namedapp.c: Several structural changes made to get a
 	  clean compile under the ez80 ZDS-II toolchain (no design changes).
@@ -69,3 +69,6 @@
 	* apps/examples/nxtext: Add another NX graphics test.  This one focus on
 	  placing text on the background while pop-up windows occur.  Text should
 	  continue to update normally with or without the popup windows present.
+
+6.7 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+
