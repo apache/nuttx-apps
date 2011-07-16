@@ -2,8 +2,8 @@
 # apps/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Author: Uros Platise <uros.platise@isotel.eu>
-#           Gregory Nutt <spudmonkey@racsa.co.cr>
+#   Authors: Uros Platise <uros.platise@isotel.eu>
+#            Gregory Nutt <spudmonkey@racsa.co.cr>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions

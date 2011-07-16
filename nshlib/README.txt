@@ -841,6 +841,11 @@ NSH-Specific Configuration Settings
   The behavior of NSH can be modified with the following settings in
   the configs/<board-name>/defconfig file:
 
+  * CONFIG_NSH_BUILTIN_APPS
+      Support external registered, "named" applications that can be
+      executed from the NSH command line (see apps/README.txt for
+      more information).
+  
   * CONFIG_NSH_FILEIOSIZE
       Size of a static I/O buffer used for file access (ignored if
       there is no filesystem). Default is 1024.

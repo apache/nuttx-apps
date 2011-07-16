@@ -237,6 +237,8 @@ examples/nx
   defined in include/nuttx/nx.h.  The following configuration options
   can be selected:
 
+    CONFIG_EXAMPLES_NX_BUILTIN -- Build the NX example as a "built-in"
+      that can be executed from the NSH command line    
     CONFIG_EXAMPLES_NX_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
     CONFIG_EXAMPLES_NX_DEVNO - The LCD device to select from the LCD
@@ -322,6 +324,8 @@ examples/nxtest
   
   The following configuration options can be selected:
 
+    CONFIG_EXAMPLES_NXTEXT_BUILTIN -- Build the NXTEXT example as a "built-in"
+      that can be executed from the NSH command line    
     CONFIG_EXAMPLES_NXTEXT_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
     CONFIG_EXAMPLES_NXTEXT_DEVNO - The LCD device to select from the LCD

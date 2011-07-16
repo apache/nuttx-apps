@@ -41,12 +41,19 @@ SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp mm mount nettest \
 	  nsh null nx nxffs nxflat nxtext ostest pashello pipe poll rgmp romfs \
       sendmail serloop thttpd udp uip usbserial usbstorage wget wlan
 
+# Sub-directories that might need context setup
+
+CNTXTDIRS = nx nxtext
+
 all: nothing
 .PHONY: nothing context depend clean distclean
 
 nothing:
 
 context:
+	@for dir in $(CNTXTDIRS) ; do \
+		$(MAKE) -C $$dir context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
+	done
 
 depend:
 	@for dir in $(SUBDIRS) ; do \

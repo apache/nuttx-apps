@@ -72,3 +72,6 @@
 
 6.7 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
 
+	* apps/examples/nx and nxtext:  These examples can now be built as NSH
+	  "built-in" commands.
+

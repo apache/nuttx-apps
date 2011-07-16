@@ -339,10 +339,14 @@ static int nxtext_initialize(void)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: user_start
+ * Name: user_start/nxtext_main
  ****************************************************************************/
 
+#ifdef CONFIG_EXAMPLES_NXTEXT_BUILTIN
+int nxtext_main(int argc, char **argv)
+#else
 int user_start(int argc, char *argv[])
+#endif
 {
   FAR struct nxtext_state_s *bgstate;
   NXWINDOW hwnd = NULL;

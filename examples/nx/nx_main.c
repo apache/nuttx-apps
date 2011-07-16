@@ -610,10 +610,14 @@ static int nxeg_initialize(void)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: user_start
+ * Name: user_start/nx_main
  ****************************************************************************/
 
+#ifdef CONFIG_EXAMPLES_NX_BUILTIN
+int nx_main(int argc, char **argv)
+#else
 int user_start(int argc, char *argv[])
+#endif
 {
   NXEGWINDOW hwnd1;
   NXEGWINDOW hwnd2;
