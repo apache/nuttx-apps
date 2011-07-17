@@ -264,8 +264,8 @@ extern const struct nx_callback_s g_tbcb;
 
 /* The screen resolution */
 
-nxgl_coord_t g_xres;
-nxgl_coord_t g_yres;
+extern nxgl_coord_t g_xres;
+extern nxgl_coord_t g_yres;
 
 extern bool b_haveresolution;
 #ifdef CONFIG_NX_MULTIUSER
