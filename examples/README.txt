@@ -307,7 +307,39 @@ examples/nxflat
   the NXFLAT format and installed in a ROMFS file system.  At run time,
   each program in the ROMFS file system is executed.  Requires CONFIG_NXFLAT.
 
-examples/nxtest
+examplex/nxhello
+^^^^^^^^^^^^^^^^
+
+  A very simple graphics example that just says "Hello, World!" in the
+  center of the display.
+
+  The following configuration options can be selected:
+
+    CONFIG_EXAMPLES_NXHELLO_BUILTIN -- Build the NXHELLO example as a "built-in"
+      that can be executed from the NSH command line    
+    CONFIG_EXAMPLES_NXHELLO_VPLANE -- The plane to select from the frame-
+      buffer driver for use in the test.  Default: 0
+    CONFIG_EXAMPLES_NXHELLO_DEVNO - The LCD device to select from the LCD
+      driver for use in the test: Default: 0
+    CONFIG_EXAMPLES_NXHELLO_BGCOLOR -- The color of the background.  Default
+      depends on CONFIG_EXAMPLES_NXHELLO_BPP.
+    CONFIG_EXAMPLES_NXHELLO_FONTCOLOR -- The color of the fonts used in the
+      background window. Default depends on CONFIG_EXAMPLES_NXHELLO_BPP.
+    CONFIG_EXAMPLES_NXHELLO_BPP -- Pixels per pixel to use.  Valid options
+      include 2, 4, 8, 16, 24, and 32.  Default is 32.
+    CONFIG_EXAMPLES_NXHELLO_EXTERNINIT - The driver for the graphics device on
+      this platform requires some unusual initialization.  This is the
+      for, for example, SPI LCD/OLED devices.  If this configuration is
+      selected, then the platform code must provide an LCD initialization
+      function with a prototype like:
+
+      #ifdef CONFIG_NX_LCDDRIVER
+      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      #else
+      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      #endif
+
+examples/nxtext
 ^^^^^^^^^^^^^^^
 
   This directory contains another simple test of a subset of the NX APIs
