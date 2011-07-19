@@ -38,12 +38,13 @@
 # Sub-directories
 
 SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp mm mount nettest \
-	  nsh null nx nxffs nxflat nxtext ostest pashello pipe poll rgmp romfs \
-      sendmail serloop thttpd udp uip usbserial usbstorage wget wlan
+	  nsh null nx nxffs nxflat nxtext nxhello ostest pashello pipe poll \
+	  rgmp romfs sendmail serloop thttpd udp uip usbserial usbstorage \
+	  wget wlan
 
 # Sub-directories that might need context setup
 
-CNTXTDIRS = nx nxtext
+CNTXTDIRS = nx nxhello nxtext
 
 all: nothing
 .PHONY: nothing context depend clean distclean
