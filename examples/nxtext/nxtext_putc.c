@@ -332,7 +332,7 @@ static int nxtext_fontsize(uint8_t ch, FAR struct nxgl_size_s *size)
 
   /* No, it is not cached... Does the code map to a font? */
 
-  fbm = nxf_getbitmap(ch);
+  fbm = nxf_getbitmap(ch, NXFONT_DEFAULT);
   if (fbm)
     {
       /* Yes.. return the font size */
@@ -362,7 +362,7 @@ nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
     {
       /* No, it is not cached... Does the code map to a font? */
 
-      fbm = nxf_getbitmap(ch);
+      fbm = nxf_getbitmap(ch, NXFONT_DEFAULT);
       if (fbm)
         {
           /* Yes.. render the glyph */

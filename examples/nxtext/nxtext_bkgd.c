@@ -402,7 +402,7 @@ FAR struct nxtext_state_s *nxbg_getstate(void)
    * state structure
    */
 
-  fontset             = nxf_getfontset();
+  fontset             = nxf_getfontset(NXFONT_DEFAULT);
   g_bgstate.fheight   = fontset->mxheight;
   g_bgstate.fwidth    = fontset->mxwidth;
   g_bgstate.spwidth   = fontset->spwidth;

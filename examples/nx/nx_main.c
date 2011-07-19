@@ -179,7 +179,7 @@ static void nxeg_initstate(FAR struct nxeg_state_s *st, int wnum,
    */
 
 #ifdef CONFIG_NX_KBD
-  fontset      = nxf_getfontset();
+  fontset      = nxf_getfontset(NXFONT_DEFAULT);
   st->nchars   = 0;
   st->nglyphs  = 0;
   st->height   = fontset->mxheight;

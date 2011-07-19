@@ -228,7 +228,7 @@ static void nxhello_center(FAR struct nxgl_point_s *pos,
     {
       /* Get the font bitmap for this character */
 
-      fbm = nxf_getbitmap(*ptr);
+      fbm = nxf_getbitmap(*ptr, NXFONT_DEFAULT);
       if (fbm)
         {
           /* Add the font size */
@@ -353,7 +353,7 @@ void nxhello_hello(NXWINDOW hwnd)
 
   /* Get information about the font we are going to use */
 
-  fontset = nxf_getfontset();
+  fontset = nxf_getfontset(NXFONT_DEFAULT);
 
   /* Allocate a bit of memory to hold the largest rendered font */
 
@@ -377,7 +377,7 @@ void nxhello_hello(NXWINDOW hwnd)
     {
       /* Get the bitmap font for this ASCII code */
 
-      fbm = nxf_getbitmap(*ptr);
+      fbm = nxf_getbitmap(*ptr, NXFONT_DEFAULT);
       if (fbm)
         {
           uint8_t fheight;      /* Height of this glyph (in rows) */

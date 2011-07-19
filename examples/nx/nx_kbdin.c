@@ -323,7 +323,7 @@ nxeg_getglyph(FAR struct nxeg_state_s *st, uint8_t ch)
     {
       /* No, it is not cached... Does the code map to a glyph? */
 
-      bm = nxf_getbitmap(ch);
+      bm = nxf_getbitmap(ch, NXFONT_DEFAULT);
       if (!bm)
         {
           /* No, there is no glyph for this code.  Use space */
