@@ -384,7 +384,7 @@ void nxhello_hello(NXWINDOW hwnd)
           uint8_t fwidth;       /* Width of this glyph (in pixels) */
           uint8_t fstride;      /* Width of the glyph row (in bytes) */
 
-          /* Get information about the fount bitmap */
+          /* Get information about the font bitmap */
 
           fwidth  = fbm->metric.width + fbm->metric.xoffset;
           fheight = fbm->metric.height + fbm->metric.yoffset;
