@@ -120,6 +120,7 @@ enum exitcode_e
   NXEXIT_LCDINITIALIZE,
   NXEXIT_LCDGETDEV,
   NXEXIT_NXOPEN,
+  NXEXIT_FONTOPEN,
   NXEXIT_NXREQUESTBKGD,
   NXEXIT_NXSETBGCOLOR
 };
@@ -147,10 +148,11 @@ struct nxhello_bitmap_s
 
 struct nxhello_data_s
 {
-  /* The NX handle */
+  /* The NX handles */
 
   NXHANDLE hnx;
   NXHANDLE hbkgd;
+  NXHANDLE hfont;
 
   /* The screen resolution */
 

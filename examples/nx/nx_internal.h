@@ -196,6 +196,7 @@ enum exitcode_e
   NXEXIT_LCDINITIALIZE,
   NXEXIT_LCDGETDEV,
   NXEXIT_NXOPEN,
+  NXEXIT_FONTOPEN,
   NXEXIT_NXOPENTOOLBAR,
   NXEXIT_NXCONNECT,
   NXEXIT_NXSETBGCOLOR,
@@ -251,7 +252,7 @@ struct nxeg_state_s
  * Public Variables
  ****************************************************************************/
 
-/* The connecton handler */
+/* The connecton handle */
 
 extern NXHANDLE g_hnx;
 
@@ -261,6 +262,10 @@ extern const struct nx_callback_s g_nxcb;
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
 extern const struct nx_callback_s g_tbcb;
 #endif
+
+/* The font handle */
+
+extern NXHANDLE g_fonthandle;
 
 /* The screen resolution */
 

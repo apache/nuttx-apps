@@ -304,7 +304,7 @@ static inline void nxpu_initstate(void)
    */
 
 #ifdef CONFIG_NX_KBD
-  fontset             = nxf_getfontset(NXFONT_DEFAULT);
+  fontset             = nxf_getfontset(g_fonthandle);
   g_pustate.fheight   = fontset->mxheight;
   g_pustate.fwidth    = fontset->mxwidth;
   g_pustate.spwidth   = fontset->spwidth;

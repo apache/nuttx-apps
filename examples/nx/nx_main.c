@@ -102,6 +102,10 @@ static const uint8_t g_kbdmsg1[] = "NuttX is cool!";
 static const uint8_t g_kbdmsg2[] = "NuttX is fun!";
 #endif
 
+/* The font handle */
+
+NXHANDLE g_fonthandle;
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -179,7 +183,7 @@ static void nxeg_initstate(FAR struct nxeg_state_s *st, int wnum,
    */
 
 #ifdef CONFIG_NX_KBD
-  fontset      = nxf_getfontset(NXFONT_DEFAULT);
+  fontset      = nxf_getfontset(g_fonthandle);
   st->nchars   = 0;
   st->nglyphs  = 0;
   st->height   = fontset->mxheight;
@@ -634,6 +638,16 @@ int user_start(int argc, char *argv[])
     {
       message("user_start: Failed to get NX handle: %d\n", errno);
       g_exitcode = NXEXIT_NXOPEN;
+      goto errout;
+    }
+
+  /* Get the default font handle */
+
+  g_fonthandle = nxf_getfonthandle(NXFONT_DEFAULT);
+  if (!g_fonthandle)
+    {
+      message("user_start: Failed to get font handle: %d\n", errno);
+      g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
 

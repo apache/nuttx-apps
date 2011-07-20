@@ -61,6 +61,7 @@
 #include <nuttx/arch.h>
 #include <nuttx/nx.h>
 #include <nuttx/nxglib.h>
+#include <nuttx/nxfonts.h>
 
 #include "nxtext_internal.h"
 
@@ -133,6 +134,10 @@ static const char *g_bgmsg[BGMSG_LINES] =
 /* The connecton handler */
 
 NXHANDLE g_hnx = NULL;
+
+/* The font handle */
+
+NXHANDLE g_fonthandle = NULL;
 
 /* The screen resolution */
 
@@ -363,6 +368,16 @@ int user_start(int argc, char *argv[])
     {
       message("user_start: Failed to get NX handle: %d\n", errno);
       g_exitcode = NXEXIT_NXOPEN;
+      goto errout;
+    }
+
+  /* Get the default font handle */
+
+  g_fonthandle = nxf_getfonthandle(NXFONT_DEFAULT);
+  if (!g_fonthandle)
+    {
+      message("user_start: Failed to get font handle: %d\n", errno);
+      g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
 

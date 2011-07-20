@@ -77,4 +77,5 @@
 	* apps/examples/nxhello:  The simplest graphics example:  It just says
 	  "Hello, World!" in the center of the display. This example can also be
 	  built as an NSH "built-in" command.
-
+	* apps/examples/nx, ntext, and nxhello:  All updated to use the new
+	  NuttX font interfaces.

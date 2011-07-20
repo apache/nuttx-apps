@@ -61,6 +61,7 @@
 #include <nuttx/arch.h>
 #include <nuttx/nx.h>
 #include <nuttx/nxglib.h>
+#include <nuttx/nxfonts.h>
 
 #include "nxhello.h"
 
@@ -101,6 +102,7 @@ struct nxhello_data_s g_nxhello =
 {
   NULL,          /* hnx */
   NULL,          /* hbkgd */
+  NULL,          /* hfont */
   0,             /* xres */
   0,             /* yres */
   false,         /* havpos */
@@ -225,6 +227,16 @@ int MAIN_NAME(int argc, char *argv[])
     {
       message(MAIN_NAME_STRING ": Failed to get NX handle: %d\n", errno);
       g_nxhello.code = NXEXIT_NXOPEN;
+      goto errout;
+    }
+
+  /* Get the default font handle */
+
+  g_nxhello.hfont = nxf_getfonthandle(NXFONT_DEFAULT);
+  if (!g_nxhello.hfont)
+    {
+      message("user_start: Failed to get font handle: %d\n", errno);
+      g_nxhello.code = NXEXIT_FONTOPEN;
       goto errout;
     }
 

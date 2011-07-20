@@ -191,6 +191,7 @@ enum exitcode_e
   NXEXIT_LCDINITIALIZE,
   NXEXIT_LCDGETDEV,
   NXEXIT_NXOPEN,
+  NXEXIT_FONTOPEN,
   NXEXIT_NXREQUESTBKGD,
   NXEXIT_NXCONNECT,
   NXEXIT_NXSETBGCOLOR,
@@ -261,6 +262,10 @@ extern NXHANDLE g_hnx;
 /* Background window handle */
 
 extern NXHANDLE g_bgwnd;
+
+/* The font handle */
+
+extern NXHANDLE g_fonthandle;
 
 /* NX callback vtables */
 
