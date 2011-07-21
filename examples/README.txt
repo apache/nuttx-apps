@@ -374,6 +374,12 @@ examples/nximage
       FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
       #endif
 
+    How was that run-length encoded image produced?
+
+    a. I used GIMP output the image as a .c file.
+    b. I added som C logic to palette-ize the RGB image in the GIMP .c file
+    c. Then I add some simple run-length encoding to palette-ized image.
+
     NOTE: As of this writing, not all of the scaling options and combinations
     have been tested.
 
