@@ -332,10 +332,10 @@ static void nxhello_initglyph(FAR uint8_t *glyph, uint8_t height,
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxhello_write
+ * Name: nxhello_hello
  *
  * Description:
- *   Put a sequence of bytes in the window.
+ *   Print "Hello, World!" in the center of the display.
  *
  ****************************************************************************/
 

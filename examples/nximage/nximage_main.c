@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nxhello/nxhello_main.c
+ * examples/nximage/nximage_main.c
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -63,7 +63,7 @@
 #include <nuttx/nxglib.h>
 #include <nuttx/nxfonts.h>
 
-#include "nxhello.h"
+#include "nximage.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -72,14 +72,14 @@
 /* Configuration ************************************************************/
 /* If not specified, assume that the hardware supports one video plane */
 
-#ifndef CONFIG_EXAMPLES_NXHELLO_VPLANE
-#  define CONFIG_EXAMPLES_NXHELLO_VPLANE 0
+#ifndef CONFIG_EXAMPLES_NXIMAGE_VPLANE
+#  define CONFIG_EXAMPLES_NXIMAGE_VPLANE 0
 #endif
 
 /* If not specified, assume that the hardware supports one LCD device */
 
-#ifndef CONFIG_EXAMPLES_NXHELLO_DEVNO
-#  define CONFIG_EXAMPLES_NXHELLO_DEVNO 0
+#ifndef CONFIG_EXAMPLES_NXIMAGE_DEVNO
+#  define CONFIG_EXAMPLES_NXIMAGE_DEVNO 0
 #endif
 
 /****************************************************************************
@@ -98,11 +98,10 @@
  * Public Data
  ****************************************************************************/
 
-struct nxhello_data_s g_nxhello =
+struct nximage_data_s g_nximage =
 {
   NULL,          /* hnx */
   NULL,          /* hbkgd */
-  NULL,          /* hfont */
   0,             /* xres */
   0,             /* yres */
   false,         /* havpos */
@@ -115,23 +114,28 @@ struct nxhello_data_s g_nxhello =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxhello_initialize
+ * Name: nximage_initialize
+ *
+ * Description:
+ *   Initialize the LCD or framebuffer device (single user mode only), then
+ *   open NX.
+ *
  ****************************************************************************/
 
-static inline int nxhello_initialize(void)
+static inline int nximage_initialize(void)
 {
   FAR NX_DRIVERTYPE *dev;
 
-#if defined(CONFIG_EXAMPLES_NXHELLO_EXTERNINIT)
+#if defined(CONFIG_EXAMPLES_NXIMAGE_EXTERNINIT)
   /* Use external graphics driver initialization */
 
-  message("nxhello_initialize: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXHELLO_DEVNO);
+  message("nximage_initialize: Initializing external graphics device\n");
+  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXIMAGE_DEVNO);
   if (!dev)
     {
-      message("nxhello_initialize: up_nxdrvinit failed, devno=%d\n",
-              CONFIG_EXAMPLES_NXHELLO_DEVNO);
-      g_nxhello.code = NXEXIT_EXTINITIALIZE;
+      message("nximage_initialize: up_nxdrvinit failed, devno=%d\n",
+              CONFIG_EXAMPLES_NXIMAGE_DEVNO);
+      g_nximage.code = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
 
@@ -140,22 +144,22 @@ static inline int nxhello_initialize(void)
 
   /* Initialize the LCD device */
 
-  message("nxhello_initialize: Initializing LCD\n");
+  message("nximage_initialize: Initializing LCD\n");
   ret = up_lcdinitialize();
   if (ret < 0)
     {
-      message("nxhello_initialize: up_lcdinitialize failed: %d\n", -ret);
-      g_nxhello.code = NXEXIT_LCDINITIALIZE;
+      message("nximage_initialize: up_lcdinitialize failed: %d\n", -ret);
+      g_nximage.code = NXEXIT_LCDINITIALIZE;
       return ERROR;
     }
 
   /* Get the device instance */
 
-  dev = up_lcdgetdev(CONFIG_EXAMPLES_NXHELLO_DEVNO);
+  dev = up_lcdgetdev(CONFIG_EXAMPLES_NXIMAGE_DEVNO);
   if (!dev)
     {
-      message("nxhello_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXHELLO_DEVNO);
-      g_nxhello.code = NXEXIT_LCDGETDEV;
+      message("nximage_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXIMAGE_DEVNO);
+      g_nximage.code = NXEXIT_LCDGETDEV;
       return ERROR;
     }
 
@@ -167,32 +171,32 @@ static inline int nxhello_initialize(void)
 
   /* Initialize the frame buffer device */
 
-  message("nxhello_initialize: Initializing framebuffer\n");
+  message("nximage_initialize: Initializing framebuffer\n");
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      message("nxhello_initialize: up_fbinitialize failed: %d\n", -ret);
-      g_nxhello.code = NXEXIT_FBINITIALIZE;
+      message("nximage_initialize: up_fbinitialize failed: %d\n", -ret);
+      g_nximage.code = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXHELLO_VPLANE);
+  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXIMAGE_VPLANE);
   if (!dev)
     {
-      message("nxhello_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXHELLO_VPLANE);
-      g_nxhello.code = NXEXIT_FBGETVPLANE;
+      message("nximage_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXIMAGE_VPLANE);
+      g_nximage.code = NXEXIT_FBGETVPLANE;
       return ERROR;
     }
 #endif
 
   /* Then open NX */
 
-  message("nxhello_initialize: Open NX\n");
-  g_nxhello.hnx = nx_open(dev);
-  if (!g_nxhello.hnx)
+  message("nximage_initialize: Open NX\n");
+  g_nximage.hnx = nx_open(dev);
+  if (!g_nximage.hnx)
     {
-      message("nxhello_initialize: nx_open failed: %d\n", errno);
-      g_nxhello.code = NXEXIT_NXOPEN;
+      message("nximage_initialize: nx_open failed: %d\n", errno);
+      g_nximage.code = NXEXIT_NXOPEN;
       return ERROR;
     }
   return OK;
@@ -203,12 +207,16 @@ static inline int nxhello_initialize(void)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: user_start/nxhello_main
+ * Name: user_start/nximage_main
+ *
+ * Description:
+ *   Main entry pointer.  Configures the basic display resources.
+ *
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NXHELLO_BUILTIN
-#  define MAIN_NAME nxhello_main
-#  define MAIN_NAME_STRING "nxhello_main"
+#ifdef CONFIG_EXAMPLES_NXIMAGE_BUILTIN
+#  define MAIN_NAME nximage_main
+#  define MAIN_NAME_STRING "nximage_main"
 #else
 #  define MAIN_NAME user_start
 #  define MAIN_NAME_STRING "user_start"
@@ -221,46 +229,35 @@ int MAIN_NAME(int argc, char *argv[])
 
   /* Initialize NX */
 
-  ret = nxhello_initialize();
-  message(MAIN_NAME_STRING ": NX handle=%p\n", g_nxhello.hnx);
-  if (!g_nxhello.hnx || ret < 0)
+  ret = nximage_initialize();
+  message(MAIN_NAME_STRING ": NX handle=%p\n", g_nximage.hnx);
+  if (!g_nximage.hnx || ret < 0)
     {
       message(MAIN_NAME_STRING ": Failed to get NX handle: %d\n", errno);
-      g_nxhello.code = NXEXIT_NXOPEN;
-      goto errout;
-    }
-
-  /* Get the default font handle */
-
-  g_nxhello.hfont = nxf_getfonthandle(NXFONT_DEFAULT);
-  if (!g_nxhello.hfont)
-    {
-      message("user_start: Failed to get font handle: %d\n", errno);
-      g_nxhello.code = NXEXIT_FONTOPEN;
+      g_nximage.code = NXEXIT_NXOPEN;
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  message(MAIN_NAME_STRING ": Set background color=%d\n",
-          CONFIG_EXAMPLES_NXHELLO_BGCOLOR);
+  color =  nximage_bgcolor();
+  message(MAIN_NAME_STRING ": Set background color=%d\n", color);
 
-  color = CONFIG_EXAMPLES_NXHELLO_BGCOLOR;
-  ret = nx_setbgcolor(g_nxhello.hnx, &color);
+  ret = nx_setbgcolor(g_nximage.hnx, &color);
   if (ret < 0)
     {
       message(MAIN_NAME_STRING ": nx_setbgcolor failed: %d\n", errno);
-      g_nxhello.code = NXEXIT_NXSETBGCOLOR;
+      g_nximage.code = NXEXIT_NXSETBGCOLOR;
       goto errout_with_nx;
     }
 
   /* Get the background window */
 
-  ret = nx_requestbkgd(g_nxhello.hnx, &g_bgcb, NULL);
+  ret = nx_requestbkgd(g_nximage.hnx, &g_bgcb, NULL);
   if (ret < 0)
     {
       message(MAIN_NAME_STRING ": nx_setbgcolor failed: %d\n", errno);
-      g_nxhello.code = NXEXIT_NXREQUESTBKGD;
+      g_nximage.code = NXEXIT_NXREQUESTBKGD;
       goto errout_with_nx;
     }
 
@@ -268,27 +265,25 @@ int MAIN_NAME(int argc, char *argv[])
    * unless we are dealing with the NX server.
    */
 
-  while (!g_nxhello.havepos)
+  while (!g_nximage.havepos)
     {
-      (void)sem_wait(&g_nxhello.sem);
+      (void)sem_wait(&g_nximage.sem);
     }
-  message(MAIN_NAME_STRING ": Screen resolution (%d,%d)\n", g_nxhello.xres, g_nxhello.yres);
+  message(MAIN_NAME_STRING ": Screen resolution (%d,%d)\n", g_nximage.xres, g_nximage.yres);
 
-  /* Now, say hello and exit, sleeping a little before each. */
+  /* Now, put up the NuttX logo. */
 
-  sleep(1);
-  nxhello_hello(g_nxhello.hbkgd);
-  sleep(1);
+  nximage_image(g_nximage.hbkgd);
 
   /* Release background */
 
-  (void)nx_releasebkgd(g_nxhello.hbkgd);
+  (void)nx_releasebkgd(g_nximage.hbkgd);
 
   /* Close NX */
 
 errout_with_nx:
   message(MAIN_NAME_STRING ": Close NX\n");
-  nx_close(g_nxhello.hnx);
+  nx_close(g_nximage.hnx);
 errout:
-  return g_nxhello.code;
+  return g_nximage.code;
 }
