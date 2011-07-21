@@ -1238,7 +1238,7 @@ void nximage_blitrow(FAR nxgl_mxpixel_t *run, FAR const void **state)
   last        = nximage_bgcolor();
 #endif
 
-  for (width = 0; width < IMAGE_WIDTH; pos++)
+  for (width = 0; width < SCALED_WIDTH; pos++)
     {
       nrun  = (unsigned int)pos->npix;
       color = g_rgblut[pos->code];
