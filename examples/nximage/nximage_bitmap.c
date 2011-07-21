@@ -144,10 +144,17 @@ static const nxgl_mxpixel_t g_lut[IMAGE_NLUTCODES] =
   0x53fc                                                                           /* Codes 140-140 */
 };
 
-/* RGB8 (332) Colors */
+/* 8-bit color lookups.  NOTE:  This is really dumb!  The lookup index is 8-bits and it used
+ * to lookup an 8-bit value.  There is no savings in that!  It would be better to just put
+ * the 8-bit color/greyscale value in the run-length encoded image and save the cost of these
+ * pointless lookups.  But these p;ointless lookups do make the logic compatible with the
+ * 16- and 24-bit types.
+ */
 
 #elif CONFIG_EXAMPLES_NXIMAGE_BPP == 8
 #  ifdef CONFIG_EXAMPLES_NXIMAGE_GREYSCALE
+
+/* 8-bit Greyscale */
 
 static const uint8_t g_lut[IMAGE_NLUTCODES] =
 {
@@ -162,6 +169,8 @@ static const uint8_t g_lut[IMAGE_NLUTCODES] =
 };
 
 #  else /* CONFIG_EXAMPLES_NXIMAGE_GREYSCALE */
+
+/* RGB8 (332) Colors */
 
 static const nxgl_mxpixel_t g_lut[IMAGE_NLUTCODES] =
 {
