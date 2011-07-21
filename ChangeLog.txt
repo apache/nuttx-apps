@@ -79,3 +79,6 @@
 	  built as an NSH "built-in" command.
 	* apps/examples/nx, ntext, and nxhello:  All updated to use the new
 	  NuttX font interfaces.
+	* apps/examples/nximage:  Another super simple  graphics example:  It just puts
+	  the NuttX logo in the center of the display. This example can also be
+	  built as an NSH "built-in" command.
