@@ -343,8 +343,8 @@ examples/nximage
 ^^^^^^^^^^^^^^^^
 
   This is a simple example that just puts the NuttX logo image in the center
-  of the display.  This only works for RGB23 (888), RGB16 (656), and RGB8 (332
-  for now.
+  of the display.  This only works for RGB23 (888), RGB16 (656), RGB8 (332),
+  and 8-bit greyscale for now.
 
     CONFIG_EXAMPLES_NXIMAGE_BUILTIN -- Build the NXIMAGE example as a "built-in"
       that can be executed from the NSH command line    
@@ -362,6 +362,7 @@ examples/nximage
     CONFIG_EXAMPLES_NXIMAGE_YSCALE2p0 -- The logo image height is 160 rows.
       One of these may be defined to rescale the image vertically by .5, 1.5,
       or 2.0.
+    CONFIG_EXAMPLES_NXIMAGE_GREYSCALE -- Grey scale image.  Default: RGB.
     CONFIG_EXAMPLES_NXIMAGE_EXTERNINIT - The driver for the graphics device on
       this platform requires some unusual initialization.  This is the
       for, for example, SPI LCD/OLED devices.  If this configuration is
@@ -380,8 +381,8 @@ examples/nximage
     b. I added som C logic to palette-ize the RGB image in the GIMP .c file
     c. Then I add some simple run-length encoding to palette-ized image.
 
-    NOTE: As of this writing, not all of the scaling options and combinations
-    have been tested.
+    NOTE: As of this writing, most of the pixel depth, scaling options, and
+    combinations thereof  have not been tested.
 
 examples/nxtext
 ^^^^^^^^^^^^^^^
