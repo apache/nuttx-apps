@@ -82,3 +82,7 @@
 	* apps/examples/nximage:  Another super simple  graphics example:  It just puts
 	  the NuttX logo in the center of the display. This example can also be
 	  built as an NSH "built-in" command.
+	* apps/examples/usbstorage: Can now be built as two NSH "built-in" commands:
+	  'msconn' will connect the USB mass storage device; 'msdis' will disconnect
+	  the USB storage device.
+

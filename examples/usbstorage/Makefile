@@ -56,12 +56,22 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 
+# NXTEXT built-in application info
+
+APPNAME1	= msconn
+PRIORITY1	= SCHED_PRIORITY_DEFAULT
+STACKSIZE1	= 2048
+
+APPNAME2	= msdis
+PRIORITY2	= SCHED_PRIORITY_DEFAULT
+STACKSIZE2	= 2048
+
 # Common build
 
 VPATH		= 
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: context clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -75,7 +85,14 @@ $(COBJS): %$(OBJEXT): %.c
 	done ; )
 	@touch .built
 
-context:
+.context:
+ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
+	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(APPNAME1)_main)
+	$(call REGISTER,$(APPNAME2),$(PRIORITY2),$(STACKSIZE2),$(APPNAME2)_main)
+	@touch $@
+endif
+
+context: .context
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep

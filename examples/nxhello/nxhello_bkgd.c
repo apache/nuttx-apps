@@ -248,7 +248,7 @@ static void nxhello_center(FAR struct nxgl_point_s *pos,
    */
 
   pos->x = (g_nxhello.xres - width) / 2;
-  pos->y = (g_nxhello.yres - fbm->metric.height) / 2;
+  pos->y = (g_nxhello.yres - fontset->mxheight) / 2;
 }
 
 /****************************************************************************

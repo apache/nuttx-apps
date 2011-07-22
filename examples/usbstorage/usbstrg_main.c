@@ -93,6 +93,17 @@
  * Private Data
  ****************************************************************************/
 
+/* This is the handle that references to this particular USB storage driver
+ * instance.  It is only needed if the USB mass storage device example is
+ * built using CONFIG_EXAMPLES_USBSTRG_BUILTIN.  In this case, the value
+ * of the driver handle must be remembered between the 'msconn' and 'msdis'
+ * commands.
+ */
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_BUILTIN
+static FAR void *g_mshandle;
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -284,13 +295,45 @@ static int usbstrg_enumerate(struct usbtrace_s *trace, void *arg)
  ****************************************************************************/
 
 /****************************************************************************
- * user_start
+ * user_start/msconn_main
+ *
+ * Description:
+ *   This is the main program that configures the USB mass storage device
+ *   and exports the LUN(s).  If CONFIG_EXAMPLES_USBSTRG_BUILTIN is defined
+ *   in the NuttX configuration, then this program can be executed by
+ *   entering the "msconn" command at the NSH console.
+ *
  ****************************************************************************/
 
-int user_start(int argc, char *argv[])
+#ifdef CONFIG_EXAMPLES_USBSTRG_BUILTIN
+#  define MAIN_NAME msconn_main
+#  define MAIN_NAME_STRING "msconn"
+#else
+#  define MAIN_NAME user_start
+#  define MAIN_NAME_STRING "user_start"
+#endif
+
+int MAIN_NAME(int argc, char *argv[])
 {
-  void *handle;
+  FAR void *handle;
   int ret;
+
+  /* If this program is implemented as the NSH 'msconn' command, then we need to
+   * do a little error checking to assure that we are not being called re-entrantly.
+   */
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_BUILTIN
+
+   /* Check if there is a non-NULL USB mass storage device handle (meaning that the
+    * USB mass storage device is already configured).
+    */
+
+   if (g_mshandle)
+     {
+       message(MAIN_NAME_STRING ": ERROR: Already connected\n");
+       return 1;
+     }
+#endif
 
   /* Initialize USB trace output IDs */
 
@@ -298,58 +341,58 @@ int user_start(int argc, char *argv[])
 
   /* Register block drivers (architecture-specific) */
 
-  message("user_start: Creating block drivers\n");
+  message(MAIN_NAME_STRING ": Creating block drivers\n");
   ret = usbstrg_archinitialize();
   if (ret < 0)
     {
-      message("user_start: usbstrg_archinitialize failed: %d\n", -ret);
-      return 1;
+      message(MAIN_NAME_STRING ": usbstrg_archinitialize failed: %d\n", -ret);
+      return 2;
     }
 
   /* Then exports the LUN(s) */
 
-  message("user_start: Configuring with NLUNS=%d\n", CONFIG_EXAMPLES_USBSTRG_NLUNS);
+  message(MAIN_NAME_STRING ": Configuring with NLUNS=%d\n", CONFIG_EXAMPLES_USBSTRG_NLUNS);
   ret = usbstrg_configure(CONFIG_EXAMPLES_USBSTRG_NLUNS, &handle);
   if (ret < 0)
     {
-      message("user_start: usbstrg_configure failed: %d\n", -ret);
+      message(MAIN_NAME_STRING ": usbstrg_configure failed: %d\n", -ret);
       usbstrg_uninitialize(handle);
-      return 2;
+      return 3;
     }
-  message("user_start: handle=%p\n", handle);
+  message(MAIN_NAME_STRING ": handle=%p\n", handle);
 
-  message("user_start: Bind LUN=0 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH1);
+  message(MAIN_NAME_STRING ": Bind LUN=0 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH1);
   ret = usbstrg_bindlun(handle, CONFIG_EXAMPLES_USBSTRG_DEVPATH1, 0, 0, 0, false);
   if (ret < 0)
     {
-      message("user_start: usbstrg_bindlun failed for LUN 1 using %s: %d\n",
+      message(MAIN_NAME_STRING ": usbstrg_bindlun failed for LUN 1 using %s: %d\n",
                CONFIG_EXAMPLES_USBSTRG_DEVPATH1, -ret);
       usbstrg_uninitialize(handle);
-      return 2;
+      return 4;
     }
 
 #if CONFIG_EXAMPLES_USBSTRG_NLUNS > 1
 
-  message("user_start: Bind LUN=1 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH2);
+  message(MAIN_NAME_STRING ": Bind LUN=1 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH2);
   ret = usbstrg_bindlun(handle, CONFIG_EXAMPLES_USBSTRG_DEVPATH2, 1, 0, 0, false);
   if (ret < 0)
     {
-      message("user_start: usbstrg_bindlun failed for LUN 2 using %s: %d\n",
+      message(MAIN_NAME_STRING ": usbstrg_bindlun failed for LUN 2 using %s: %d\n",
                CONFIG_EXAMPLES_USBSTRG_DEVPATH2, -ret);
       usbstrg_uninitialize(handle);
-      return 3;
+      return 5;
     }
 
 #if CONFIG_EXAMPLES_USBSTRG_NLUNS > 2
 
-  message("user_start: Bind LUN=2 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH3);
+  message(MAIN_NAME_STRING ": Bind LUN=2 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH3);
   ret = usbstrg_bindlun(handle, CONFIG_EXAMPLES_USBSTRG_DEVPATH3, 2, 0, 0, false);
   if (ret < 0)
     {
-      message("user_start: usbstrg_bindlun failed for LUN 3 using %s: %d\n",
+      message(MAIN_NAME_STRING ": usbstrg_bindlun failed for LUN 3 using %s: %d\n",
                CONFIG_EXAMPLES_USBSTRG_DEVPATH3, -ret);
       usbstrg_uninitialize(handle);
-      return 4;
+      return 6;
     }
 
 #endif
@@ -358,34 +401,83 @@ int user_start(int argc, char *argv[])
   ret = usbstrg_exportluns(handle);
   if (ret < 0)
     {
-      message("user_start: usbstrg_exportluns failed: %d\n", -ret);
+      message(MAIN_NAME_STRING ": usbstrg_exportluns failed: %d\n", -ret);
       usbstrg_uninitialize(handle);
-      return 5;
+      return 7;
     }
 
-  /* Now just hang around and monitor the USB storage activity */
+  /* It this program was configued as an NSH command, then just exit now.
+   * Also, if signals are not enabled (and, hence, sleep() is not supported.
+   * then we have not real option but to exit now.
+   */
 
-#ifndef CONFIG_DISABLE_SIGNALS
+#if !defined(CONFIG_EXAMPLES_USBSTRG_BUILTIN) && !defined(CONFIG_DISABLE_SIGNALS)
+
+  /* Otherwise, this thread will hang around and monitor the USB storage activity */
+
   for (;;)
     {
       msgflush();
       sleep(5);
 
-#ifdef CONFIG_USBDEV_TRACE
+#  ifdef CONFIG_USBDEV_TRACE
       message("\nuser_start: USB TRACE DATA:\n");
       ret =  usbtrace_enumerate(usbstrg_enumerate, NULL);
       if (ret < 0)
         {
-          message("user_start: usbtrace_enumerate failed: %d\n", -ret);
+          message(MAIN_NAME_STRING ": usbtrace_enumerate failed: %d\n", -ret);
           usbstrg_uninitialize(handle);
-          return 6;
+          return 8;
         }
-#else
-      message("user_start: Still alive\n");
-#endif
+#  else
+      message(MAIN_NAME_STRING ": Still alive\n");
+#  endif
     }
-#else
-     message("user_start: Exiting\n");
- #endif
+#elif defined(CONFIG_EXAMPLES_USBSTRG_BUILTIN)
+
+   /* Return the USB mass storage device handle so it can be used by the 'misconn'
+    * command.
+    */
+
+   message(MAIN_NAME_STRING ": Connected\n");
+   g_mshandle = handle;
+
+#else /* defined(CONFIG_DISABLE_SIGNALS) */
+
+  /* Just exit */
+ 
+   message(MAIN_NAME_STRING ": Exiting\n");
+
+#endif
+   return 0;
 }
 
+/****************************************************************************
+ * msdis_main
+ *
+ * Description:
+ *   This is a program entry point that will disconnet the USB mass storage
+ *   device.  This program is only available if CONFIG_EXAMPLES_USBSTRG_BUILTIN
+ *   is defined in the NuttX configuration.  In that case, this program can
+ *   be executed by entering the "msdis" command at the NSH console.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_BUILTIN
+int msdis_main(int argc, char *argv[])
+{
+  /* First check if the USB mass storage device is already connected */
+
+  if (!g_mshandle)
+    {
+      message("msdis: ERROR: Not connected\n");
+      return 1;
+    }
+
+  /* Then disconnect the device and uninitialize the USB mass storage driver */
+
+   usbstrg_uninitialize(g_mshandle);
+   g_mshandle = NULL;
+   message("msdis: Disconnected\n");
+}
+#endif

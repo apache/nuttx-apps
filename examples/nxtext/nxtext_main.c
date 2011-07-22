@@ -233,7 +233,7 @@ static inline int nxtext_suinitialize(void)
   g_hnx = nx_open(dev);
   if (!g_hnx)
     {
-      message("user_start: nx_open failed: %d\n", errno);
+      message("nxtext_initialize: nx_open failed: %d\n", errno);
       g_exitcode = NXEXIT_NXOPEN;
       return ERROR;
     }
@@ -348,10 +348,14 @@ static int nxtext_initialize(void)
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_NXTEXT_BUILTIN
-int nxtext_main(int argc, char **argv)
+#  define MAIN_NAME nxtext_main
+#  define MAIN_NAME_STRING "nxtext_main"
 #else
-int user_start(int argc, char *argv[])
+#  define MAIN_NAME user_start
+#  define MAIN_NAME_STRING "user_start"
 #endif
+
+int MAIN_NAME(int argc, char **argv)
 {
   FAR struct nxtext_state_s *bgstate;
   NXWINDOW hwnd = NULL;
@@ -363,10 +367,10 @@ int user_start(int argc, char *argv[])
   /* Initialize NX */
 
   ret = nxtext_initialize();
-  message("user_start: NX handle=%p\n", g_hnx);
+  message(MAIN_NAME_STRING ": NX handle=%p\n", g_hnx);
   if (!g_hnx || ret < 0)
     {
-      message("user_start: Failed to get NX handle: %d\n", errno);
+      message(MAIN_NAME_STRING ": Failed to get NX handle: %d\n", errno);
       g_exitcode = NXEXIT_NXOPEN;
       goto errout;
     }
@@ -376,19 +380,19 @@ int user_start(int argc, char *argv[])
   g_fonthandle = nxf_getfonthandle(NXFONT_DEFAULT);
   if (!g_fonthandle)
     {
-      message("user_start: Failed to get font handle: %d\n", errno);
+      message(MAIN_NAME_STRING ": Failed to get font handle: %d\n", errno);
       g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  message("user_start: Set background color=%d\n", CONFIG_EXAMPLES_NXTEXT_BGCOLOR);
+  message(MAIN_NAME_STRING ": Set background color=%d\n", CONFIG_EXAMPLES_NXTEXT_BGCOLOR);
   color = CONFIG_EXAMPLES_NXTEXT_BGCOLOR;
   ret = nx_setbgcolor(g_hnx, &color);
   if (ret < 0)
     {
-      message("user_start: nx_setbgcolor failed: %d\n", errno);
+      message(MAIN_NAME_STRING ": nx_setbgcolor failed: %d\n", errno);
       g_exitcode = NXEXIT_NXSETBGCOLOR;
       goto errout_with_nx;
     }
@@ -399,7 +403,7 @@ int user_start(int argc, char *argv[])
   ret = nx_requestbkgd(g_hnx, &g_bgcb, bgstate);
   if (ret < 0)
     {
-      message("user_start: nx_setbgcolor failed: %d\n", errno);
+      message(MAIN_NAME_STRING ": nx_setbgcolor failed: %d\n", errno);
       g_exitcode = NXEXIT_NXREQUESTBKGD;
       goto errout_with_nx;
     }
@@ -412,7 +416,7 @@ int user_start(int argc, char *argv[])
     {
       (void)sem_wait(&g_semevent);
     }
-  message("user_start: Screen resolution (%d,%d)\n", g_xres, g_yres);
+  message(MAIN_NAME_STRING ": Screen resolution (%d,%d)\n", g_xres, g_yres);
 
   /* Now loop, adding text to the background and periodically presenting
    * a pop-up window.
@@ -440,11 +444,11 @@ int user_start(int argc, char *argv[])
           /* Give keyboard input to the top window (which should be the pop-up) */
 
 #ifdef CONFIG_NX_KBD
-          message("user_start: Send keyboard input: %s\n", g_pumsg);
+          message(MAIN_NAME_STRING ": Send keyboard input: %s\n", g_pumsg);
           ret = nx_kbdin(g_hnx, strlen((FAR const char *)g_pumsg), g_pumsg);
           if (ret < 0)
            {
-             message("user_start: nx_kbdin failed: %d\n", errno);
+             message(MAIN_NAME_STRING ": nx_kbdin failed: %d\n", errno);
              goto errout_with_hwnd;
            }
 #endif
@@ -453,7 +457,7 @@ int user_start(int argc, char *argv[])
         {
           /* Destroy the pop-up window and restart the sequence */
  
-          message("user_start: Close pop-up\n");
+          message(MAIN_NAME_STRING ": Close pop-up\n");
           (void)nxpu_close(hwnd);
           popcnt = 0;
         }
@@ -475,7 +479,7 @@ int user_start(int argc, char *argv[])
 errout_with_hwnd:
   if (popcnt >= 3)
     {
-      message("user_start: Close pop-up\n");
+      message(MAIN_NAME_STRING ": Close pop-up\n");
      (void)nxpu_close(hwnd);
     }
 
@@ -486,12 +490,12 @@ errout_with_nx:
 #ifdef CONFIG_NX_MULTIUSER
   /* Disconnect from the server */
 
-  message("user_start: Disconnect from the server\n");
+  message(MAIN_NAME_STRING ": Disconnect from the server\n");
   nx_disconnect(g_hnx);
 #else
   /* Close the server */
 
-  message("user_start: Close NX\n");
+  message(MAIN_NAME_STRING ": Close NX\n");
   nx_close(g_hnx);
 #endif
 errout:

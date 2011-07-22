@@ -38,13 +38,29 @@
 # Sub-directories
 
 SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp mm mount nettest \
-	  nsh null nx nxffs nxflat nxhello nximage nxtext stest pashello pipe \
+	  nsh null nx nxffs nxflat nxhello nximage nxtext ostest pashello pipe \
 	  poll rgmp romfs sendmail serloop thttpd udp uip usbserial usbstorage \
 	  wget wlan
 
 # Sub-directories that might need context setup
 
-CNTXTDIRS = nx nxhello nximage nxtext
+CNTXTDIRS = 
+
+ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
+CNTXTDIRS +=  nx
+endif
+ifeq ($(CONFIG_EXAMPLES_NXHELLO_BUILTIN),y)
+CNTXTDIRS +=  nxhello
+endif
+ifeq ($(CONFIG_EXAMPLES_NXIMAGE_BUILTIN),y)
+CNTXTDIRS +=  nximage
+endif
+ifeq ($(CONFIG_EXAMPLES_NXTEXT_BUILTIN),y)
+CNTXTDIRS +=  nxtext
+endif
+ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
+CNTXTDIRS +=  usbstorage
+endif
 
 all: nothing
 .PHONY: nothing context depend clean distclean

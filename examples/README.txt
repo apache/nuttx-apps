@@ -800,6 +800,10 @@ examples/usbstorage
 
   Configuration options:
 
+  CONFIG_EXAMPLES_USBSTRG_BUILTIN
+    This example can be built as two NSH "built-in" commands if this option
+    is selection: 'msconn' will connect the USB mass storage device; 'msdis'
+    will disconnect the USB storage device.
   CONFIG_EXAMPLES_USBSTRG_NLUNS
     Defines the number of logical units (LUNs) exported by the USB storage
     driver.  Each LUN corresponds to one exported block driver (or partition
