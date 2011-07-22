@@ -339,7 +339,14 @@ void nximage_image(NXWINDOW hwnd)
 
       for (i = 0; i < SCALED_WIDTH; i++)
         {
-          g_runs[0].run[i] = nximage_avgcolor(g_runs[0].run[i], g_runs[1].run[i]);
+          /* Only average if the corresponding pixels in each row differ */
+
+          nxgl_mxpixel_t pix0 = g_runs[0].run[i];
+          nxgl_mxpixel_t pix1 = g_runs[1].run[i];
+          if (pix0 != pix1)
+            {
+              g_runs[0].run[i] = nximage_avgcolor(pix0, pix1);
+            }
         }
 
 #endif
