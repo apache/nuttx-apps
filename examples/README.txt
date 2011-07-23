@@ -37,7 +37,7 @@ examples/buttons
   be required.
 
   NOTE: This test exercises internal button driver interfaces.  As such, it
-  it relies on internal OS interfaces that are not normally available to a
+  relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
   NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
 
@@ -837,6 +837,11 @@ examples/usbstorage
     Show interrupt-related events.
 
   Error results are always shown in the trace output
+
+  NOTE: This test exercises internal USB device driver interfaces.  As such,
+  it relies on internal OS interfaces that are not normally available to a
+  user-space program.  As a result, this example cannot be used if a
+  NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
 
 examples/wget
 ^^^^^^^^^^^^^
