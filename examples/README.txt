@@ -1,16 +1,34 @@
 examples
 ^^^^^^^^
 
-  The examples directory contains several sample applications that
-  can be linked with NuttX.  The specific example is selected in the
-  configs/<board-name>/appconfig file via the CONFIGURED_APPS setting.
-  This setting provides the path to the directory containing the
-  application Makefile (this path is a relative to the apps/ top-
-  level directory).  For example, 
+  appconfig and CONFIG_APPS
+  
+    The examples directory contains several sample applications that
+    can be linked with NuttX.  The specific example is selected in the
+    configs/<board-name>/appconfig file via the CONFIGURED_APPS setting.
+    This setting provides the path to the directory containing the
+    application Makefile (this path is a relative to the apps/ top-
+    level directory).  For example, 
 
-    CONFIGURE_APPS += examples/ostest
+      CONFIGURE_APPS += examples/ostest
 
-  Selects the examples/ostest example.
+    Selects the examples/ostest example.
+
+  Built-In functions
+
+    Some of the examples may be built as "built-in" functions that
+    can be executed at run time (rather than as NuttX "main" programs).
+    These "built-in" examples can be also be executed from the NuttShell
+    (NSH) command line.  In order to configure these built-in  NSH
+    functions, you have to set up the following:
+
+    - CONFIG_NSH_BUILTIN_APPS - Enable support for external registered,
+      "named" applications that can be executed from the NSH
+      command line (see apps/README.txt for more information).
+    - CONFIG_EXAMPLES_XYZ_BUILTIN -- Build the XYZ example as a "built-in"
+      that can be executed from the NSH command line (where XYZ is
+      the specific example.  See the following for examples that
+      support this option).
 
 examples/buttons
 ^^^^^^^^^^^^^^^^
@@ -838,7 +856,22 @@ examples/usbstorage
 
   Error results are always shown in the trace output
 
-  NOTE: This test exercises internal USB device driver interfaces.  As such,
+  NOTE 1: When built as an NSH add-on command (CONFIG_EXAMPLES_USBSTRG_BUILTIN=y),
+  Caution should be used to assure that the SD drive (or other storage device) is
+  not in use when the USB storage device is configured.  Specifically, the SD
+  driver should be unmounted like:
+
+  nsh> mount -t vfat /dev/mmcsd0 /mnt/sdcard # Card is mounted in NSH
+  ...
+  nsh> umount /mnd/sdcard                    # Unmount before connecting USB!!!
+  nsh> msconn                                # Connect the USB storage device
+  ...
+  nsh> msdis                                 # Disconnect USB storate device
+  nsh> mount -t vfat /dev/mmcsd0 /mnt/sdcard # Restore the mount
+
+  Failure to do this could result in corruption of the SD card format.
+
+  NOTE 2: This test exercises internal USB device driver interfaces.  As such,
   it relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
   NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
