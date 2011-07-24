@@ -45,8 +45,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <semaphore.h>
-#include <nuttx/nx.h>
-#include <nuttx/nxtk.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxtk.h>
 
 /****************************************************************************
  * Definitions

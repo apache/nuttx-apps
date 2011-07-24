@@ -479,5 +479,6 @@ int msdis_main(int argc, char *argv[])
    usbstrg_uninitialize(g_mshandle);
    g_mshandle = NULL;
    message("msdis: Disconnected\n");
+   return 0;
 }
 #endif

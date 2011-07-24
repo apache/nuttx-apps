@@ -47,7 +47,7 @@
 #include <debug.h>
 
 #include <nuttx/arch.h>
-#include <nuttx/nx.h>
+#include <nuttx/nx/nx.h>
 
 #ifdef CONFIG_NX_LCDDRIVER
 #  include <nuttx/lcd/lcd.h>

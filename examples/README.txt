@@ -252,7 +252,7 @@ examples/nx
 ^^^^^^^^^^^
 
   This directory contains a simple test of a subset of the NX APIs
-  defined in include/nuttx/nx.h.  The following configuration options
+  defined in include/nuttx/nx/nx.h.  The following configuration options
   can be selected:
 
     CONFIG_EXAMPLES_NX_BUILTIN -- Build the NX example as a "built-in"
@@ -406,7 +406,7 @@ examples/nxtext
 ^^^^^^^^^^^^^^^
 
   This directory contains another simple test of a subset of the NX APIs
-  defined in include/nuttx/nx.h.  This text focuses on text displays on
+  defined in include/nuttx/nx/nx.h.  This text focuses on text displays on
   the dispaly background combined with pop-up displays over the text.
   The text display will continue to update while the pop-up is visible.
 

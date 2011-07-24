@@ -48,9 +48,9 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/nx.h>
-#include <nuttx/nxglib.h>
-#include <nuttx/nxfonts.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxglib.h>
+#include <nuttx/nx/nxfonts.h>
 
 #include "nximage.h"
 

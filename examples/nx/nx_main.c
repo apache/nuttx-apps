@@ -58,9 +58,9 @@
 #endif
 
 #include <nuttx/arch.h>
-#include <nuttx/nx.h>
-#include <nuttx/nxtk.h>
-#include <nuttx/nxfonts.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxtk.h>
+#include <nuttx/nx/nxfonts.h>
 
 #include "nx_internal.h"
 

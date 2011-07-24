@@ -42,8 +42,8 @@
 #include <stdint.h>
 #include <assert.h>
 
-#include <nuttx/nx.h>
-#include <nuttx/nxglib.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxglib.h>
 
 #include "nximage.h"
 

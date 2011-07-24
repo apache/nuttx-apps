@@ -85,4 +85,5 @@
 	* apps/examples/usbstorage: Can now be built as two NSH "built-in" commands:
 	  'msconn' will connect the USB mass storage device; 'msdis' will disconnect
 	  the USB storage device.
-
+	* apps/examples/nx*:  All NX header files moved from nuttx/include/nuttx to 
+	  nuttx/include/nuttx/nx.
