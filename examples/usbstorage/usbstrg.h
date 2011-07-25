@@ -41,6 +41,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <stdlib.h>
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -98,6 +99,52 @@
 #    define message printf
 #    define msgflush() fflush(stdout)
 #  endif
+#endif
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+/* All global variables used by this example are packed into a structure in
+ * order to avoid name collisions.
+ */
+
+#if defined(CONFIG_EXAMPLES_USBSTRG_BUILTIN) || defined(CONFIG_EXAMPLES_USBSTRG_DEBUGMM)
+struct usbstrg_state_s
+{
+  /* This is the handle that references to this particular USB storage driver
+   * instance.  It is only needed if the USB mass storage device example is
+   * built using CONFIG_EXAMPLES_USBSTRG_BUILTIN.  In this case, the value
+   * of the driver handle must be remembered between the 'msconn' and 'msdis'
+   * commands.
+   */
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_BUILTIN
+  FAR void *mshandle;
+#endif
+
+  /* Heap usage samples.  These are useful for checking USB storage memory
+   * usage and for tracking down memoryh leaks.
+   */
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_DEBUGMM
+  struct mallinfo mmstart;    /* Memory usage before the connection */
+  struct mallinfo mmprevious; /* The last memory usage sample */
+  struct mallinfo mmcurrent;  /* The current memory usage sample */
+#endif
+};
+#endif
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* All global variables used by this example are packed into a structure in
+ * order to avoid name collisions.
+ */
+
+#if defined(CONFIG_EXAMPLES_USBSTRG_BUILTIN) || defined(CONFIG_EXAMPLES_USBSTRG_DEBUGMM)
+extern struct usbstrg_state_s g_usbstrg;
 #endif
 
 /****************************************************************************

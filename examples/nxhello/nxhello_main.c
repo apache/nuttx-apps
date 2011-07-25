@@ -211,7 +211,7 @@ static inline int nxhello_initialize(void)
 #  define MAIN_NAME_STRING "nxhello_main"
 #else
 #  define MAIN_NAME user_start
-#  define MAIN_NAME_STRING MAIN_NAME_STRING ""
+#  define MAIN_NAME_STRING "user_start"
 #endif
 
 int MAIN_NAME(int argc, char *argv[])

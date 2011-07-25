@@ -838,6 +838,8 @@ examples/usbstorage
   CONFIG_EXAMPLES_USBSTRG_DEVMINOR3 and CONFIG_EXAMPLES_USBSTRG_DEVPATH3
     Similar parameters that would have to be provided if CONFIG_EXAMPLES_USBSTRG_NLUNS
     is 3.  No defaults.
+  CONFIG_EXAMPLES_USBSTRG_DEBUGMM
+    Enables some debug tests to check for memory usage and memory leaks.
 
   If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB), then
   the example code will also manage the USB trace output.  The amount of trace output

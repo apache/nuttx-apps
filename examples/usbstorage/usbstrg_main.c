@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <debug.h>
 
@@ -93,20 +94,93 @@
  * Private Data
  ****************************************************************************/
 
-/* This is the handle that references to this particular USB storage driver
- * instance.  It is only needed if the USB mass storage device example is
- * built using CONFIG_EXAMPLES_USBSTRG_BUILTIN.  In this case, the value
- * of the driver handle must be remembered between the 'msconn' and 'msdis'
- * commands.
+/* All global variables used by this example are packed into a structure in
+ * order to avoid name collisions.
  */
 
-#ifdef CONFIG_EXAMPLES_USBSTRG_BUILTIN
-static FAR void *g_mshandle;
+#if defined(CONFIG_EXAMPLES_USBSTRG_BUILTIN) || defined(CONFIG_EXAMPLES_USBSTRG_DEBUGMM)
+struct usbstrg_state_s g_usbstrg;
 #endif
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: show_memory_usage
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_DEBUGMM
+static void show_memory_usage(struct mallinfo *mmbefore,
+                              struct mallinfo *mmafter)
+{
+  message("VARIABLE  BEFORE   AFTER\n");
+  message("======== ======== ========\n");
+  message("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
+  message("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
+  message("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
+  message("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
+  message("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+}
+#else
+# define show_memory_usage(mm1, mm2)
+#endif
+
+/****************************************************************************
+ * Name: check_test_memory_usage
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_DEBUGMM
+static void check_test_memory_usage(FAR const char *msg)
+{
+  /* Get the current memory usage */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_usbstrg.mmcurrent = mallinfo();
+#else
+  (void)mallinfo(&g_usbstrg.mmcurrent);
+#endif
+
+  /* Show the change from the previous time */
+
+  message("\%s:\n", msg);
+  show_memory_usage(&g_usbstrg.mmprevious, &g_usbstrg.mmcurrent);
+
+  /* Set up for the next test */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_usbstrg.mmprevious = g_usbstrg.mmcurrent;
+#else
+  memcpy(&g_usbstrg.mmprevious, &g_usbstrg.mmcurrent, sizeof(struct mallinfo));
+#endif
+}
+#else
+#  define check_test_memory_usage(msg)
+#endif
+
+/****************************************************************************
+ * Name: check_test_memory_usage
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_USBSTRG_DEBUGMM
+static void final_memory_usage(FAR const char *msg)
+{
+  /* Get the current memory usage */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_usbstrg.mmcurrent = mallinfo();
+#else
+  (void)mallinfo(&g_usbstrg.mmcurrent);
+#endif
+
+  /* Show the change from the previous time */
+
+  message("\n%s:\n", msg);
+  show_memory_usage(&g_usbstrg.mmstart, &g_usbstrg.mmcurrent);
+}
+#else
+#  define final_memory_usage(msg)
+#endif
 
 /****************************************************************************
  * Name: usbstrg_enumerate
@@ -328,16 +402,27 @@ int MAIN_NAME(int argc, char *argv[])
     * USB mass storage device is already configured).
     */
 
-   if (g_mshandle)
+   if (g_usbstrg.mshandle)
      {
        message(MAIN_NAME_STRING ": ERROR: Already connected\n");
        return 1;
      }
 #endif
 
+#ifdef CONFIG_EXAMPLES_USBSTRG_DEBUGMM
+#  ifdef CONFIG_CAN_PASS_STRUCTS
+  g_usbstrg.mmstart    = mallinfo();
+  g_usbstrg.mmprevious = g_usbstrg.mmstart;
+#  else
+  (void)mallinfo(&g_usbstrg.mmstart);
+  memcpy(&g_usbstrg.mmprevious, &g_usbstrg.mmstart, sizeof(struct mallinfo));
+#  endif
+#endif
+
   /* Initialize USB trace output IDs */
 
   usbtrace_enable(TRACE_BITSET);
+  check_test_memory_usage("After usbtrace_enable()");
 
   /* Register block drivers (architecture-specific) */
 
@@ -348,6 +433,7 @@ int MAIN_NAME(int argc, char *argv[])
       message(MAIN_NAME_STRING ": usbstrg_archinitialize failed: %d\n", -ret);
       return 2;
     }
+  check_test_memory_usage("After usbstrg_archinitialize()");
 
   /* Then exports the LUN(s) */
 
@@ -360,6 +446,7 @@ int MAIN_NAME(int argc, char *argv[])
       return 3;
     }
   message(MAIN_NAME_STRING ": handle=%p\n", handle);
+  check_test_memory_usage("After usbstrg_configure()");
 
   message(MAIN_NAME_STRING ": Bind LUN=0 to %s\n", CONFIG_EXAMPLES_USBSTRG_DEVPATH1);
   ret = usbstrg_bindlun(handle, CONFIG_EXAMPLES_USBSTRG_DEVPATH1, 0, 0, 0, false);
@@ -370,6 +457,7 @@ int MAIN_NAME(int argc, char *argv[])
       usbstrg_uninitialize(handle);
       return 4;
     }
+  check_test_memory_usage("After usbstrg_bindlun()");
 
 #if CONFIG_EXAMPLES_USBSTRG_NLUNS > 1
 
@@ -382,6 +470,7 @@ int MAIN_NAME(int argc, char *argv[])
       usbstrg_uninitialize(handle);
       return 5;
     }
+  check_test_memory_usage("After usbstrg_bindlun() #2");
 
 #if CONFIG_EXAMPLES_USBSTRG_NLUNS > 2
 
@@ -394,6 +483,7 @@ int MAIN_NAME(int argc, char *argv[])
       usbstrg_uninitialize(handle);
       return 6;
     }
+  check_test_memory_usage("After usbstrg_bindlun() #3");
 
 #endif
 #endif
@@ -405,6 +495,7 @@ int MAIN_NAME(int argc, char *argv[])
       usbstrg_uninitialize(handle);
       return 7;
     }
+  check_test_memory_usage("After usbstrg_exportluns()");
 
   /* It this program was configued as an NSH command, then just exit now.
    * Also, if signals are not enabled (and, hence, sleep() is not supported.
@@ -429,6 +520,7 @@ int MAIN_NAME(int argc, char *argv[])
           usbstrg_uninitialize(handle);
           return 8;
         }
+      check_test_memory_usage("After usbtrace_enumerate()");
 #  else
       message(MAIN_NAME_STRING ": Still alive\n");
 #  endif
@@ -440,7 +532,8 @@ int MAIN_NAME(int argc, char *argv[])
     */
 
    message(MAIN_NAME_STRING ": Connected\n");
-   g_mshandle = handle;
+   g_usbstrg.mshandle = handle;
+   check_test_memory_usage("Final connection memory usage");
 
 #else /* defined(CONFIG_DISABLE_SIGNALS) */
 
@@ -448,6 +541,9 @@ int MAIN_NAME(int argc, char *argv[])
  
    message(MAIN_NAME_STRING ": Exiting\n");
 
+   /* Dump debug memory usage */
+ 
+   final_memory_usage("Final memory usage");
 #endif
    return 0;
 }
@@ -468,7 +564,7 @@ int msdis_main(int argc, char *argv[])
 {
   /* First check if the USB mass storage device is already connected */
 
-  if (!g_mshandle)
+  if (!g_usbstrg.mshandle)
     {
       message("msdis: ERROR: Not connected\n");
       return 1;
@@ -476,9 +572,14 @@ int msdis_main(int argc, char *argv[])
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
-   usbstrg_uninitialize(g_mshandle);
-   g_mshandle = NULL;
+   usbstrg_uninitialize(g_usbstrg.mshandle);
+   g_usbstrg.mshandle = NULL;
    message("msdis: Disconnected\n");
+   check_test_memory_usage("After usbstrg_uninitialize()");
+
+   /* Dump debug memory usage */
+
+   final_memory_usage("Final memory usage");
    return 0;
 }
 #endif
