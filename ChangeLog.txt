@@ -87,3 +87,5 @@
 	  the USB storage device.
 	* apps/examples/nx*:  All NX header files moved from nuttx/include/nuttx to 
 	  nuttx/include/nuttx/nx.
+	* apps/examples/usbstorage: Added instrumentation to monitor memory usage
+	  to check for memory leaks in the USB storage driver.

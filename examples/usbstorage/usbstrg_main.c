@@ -114,13 +114,23 @@ struct usbstrg_state_s g_usbstrg;
 static void show_memory_usage(struct mallinfo *mmbefore,
                               struct mallinfo *mmafter)
 {
-  message("VARIABLE  BEFORE   AFTER\n");
-  message("======== ======== ========\n");
-  message("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
-  message("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
-  message("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
-  message("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
-  message("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+  int diff;
+
+  message("              total       used       free    largest\n");
+  message("Before:%11d%11d%11d%11d\n",
+             mmbefore->arena, mmbefore->uordblks, mmbefore->fordblks, mmbefore->mxordblk);
+  message("After: %11d%11d%11d%11d\n",
+             mmafter->arena, mmafter->uordblks, mmafter->fordblks, mmafter->mxordblk);
+
+  diff = mmbefore->uordblks - mmafter->uordblks;
+  if (diff < 0)
+    {
+      message("Change:%11d allocated\n", -diff);
+    }
+  else if (diff > 0)
+    {
+      message("Change:%11d freed\n", diff);
+    }
 }
 #else
 # define show_memory_usage(mm1, mm2)
@@ -533,7 +543,7 @@ int MAIN_NAME(int argc, char *argv[])
 
    message(MAIN_NAME_STRING ": Connected\n");
    g_usbstrg.mshandle = handle;
-   check_test_memory_usage("Final connection memory usage");
+   check_test_memory_usage("After MS connection");
 
 #else /* defined(CONFIG_DISABLE_SIGNALS) */
 
@@ -569,6 +579,7 @@ int msdis_main(int argc, char *argv[])
       message("msdis: ERROR: Not connected\n");
       return 1;
     }
+   check_test_memory_usage("Since MS connection");
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
