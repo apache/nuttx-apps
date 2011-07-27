@@ -135,9 +135,10 @@ static const char *g_bgmsg[BGMSG_LINES] =
 
 NXHANDLE g_hnx = NULL;
 
-/* The font handle */
+/* The font handles */
 
-NXHANDLE g_fonthandle = NULL;
+NXHANDLE g_bghfont = NULL;
+NXHANDLE g_puhfont = NULL;
 
 /* The screen resolution */
 
@@ -375,12 +376,20 @@ int MAIN_NAME(int argc, char **argv)
       goto errout;
     }
 
-  /* Get the default font handle */
+  /* Get the configured font handles */
 
-  g_fonthandle = nxf_getfonthandle(NXFONT_DEFAULT);
-  if (!g_fonthandle)
+  g_bghfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXTEXT_BGFONTID);
+  if (!g_bghfont)
     {
-      message(MAIN_NAME_STRING ": Failed to get font handle: %d\n", errno);
+      message(MAIN_NAME_STRING ": Failed to get background font handle: %d\n", errno);
+      g_exitcode = NXEXIT_FONTOPEN;
+      goto errout;
+    }
+
+  g_puhfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXTEXT_PUFONTID);
+  if (!g_puhfont)
+    {
+      message(MAIN_NAME_STRING ": Failed to get pop-up font handle: %d\n", errno);
       g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }

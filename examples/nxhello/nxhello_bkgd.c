@@ -233,7 +233,7 @@ static void nxhello_center(FAR struct nxgl_point_s *pos,
         {
           /* Add the font size */
 
-          width += fbm->metric.width;
+          width += fbm->metric.width + fbm->metric.xoffset;
         }
       else
         {
@@ -349,6 +349,7 @@ void nxhello_hello(NXWINDOW hwnd)
   FAR struct nxgl_rect_s dest;
   FAR const void *src[CONFIG_NX_NPLANES];
   unsigned int glyphsize;
+  unsigned int mxstride;
   int ret;
 
   /* Get information about the font we are going to use */
@@ -357,8 +358,9 @@ void nxhello_hello(NXWINDOW hwnd)
 
   /* Allocate a bit of memory to hold the largest rendered font */
 
-  glyphsize = (unsigned int)fontset->mxheight * (unsigned int)fontset->mxwidth;
-  glyph = (FAR uint8_t*)malloc(glyphsize);
+  mxstride  = (fontset->mxwidth * CONFIG_EXAMPLES_NXHELLO_BPP + 7) >> 3;
+  glyphsize = (unsigned int)fontset->mxheight * mxstride;
+  glyph     = (FAR uint8_t*)malloc(glyphsize);
 
   /* NOTE: no check for failure to allocate the memory.  In a real application
    * you would need to handle that event.
@@ -388,7 +390,7 @@ void nxhello_hello(NXWINDOW hwnd)
 
           fwidth  = fbm->metric.width + fbm->metric.xoffset;
           fheight = fbm->metric.height + fbm->metric.yoffset;
-          fstride = (fwidth * CONFIG_EXAMPLES_NXHELLO_BPP + 7) / 8;
+          fstride = (fwidth * CONFIG_EXAMPLES_NXHELLO_BPP + 7) >> 3;
 
           /* Initialize the glyph memory to the background color */
 
@@ -434,4 +436,8 @@ void nxhello_hello(NXWINDOW hwnd)
           pos.x += fontset->spwidth;
         }
     }
+
+  /* Free the allocated glyph */
+
+  free(glyph);
 }

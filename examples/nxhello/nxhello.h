@@ -46,8 +46,9 @@
 #include <stdbool.h>
 #include <semaphore.h>
 
-#include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxfonts.h>
 
 /****************************************************************************
  * Definitions
@@ -75,6 +76,10 @@
 #  else
 #    define CONFIG_EXAMPLES_NXHELLO_BGCOLOR ' '
 # endif
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXHELLO_FONTID
+#  define CONFIG_EXAMPLES_NXHELLO_FONTID NXFONT_DEFAULT
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXHELLO_FONTCOLOR

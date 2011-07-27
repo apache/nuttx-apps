@@ -269,6 +269,8 @@ examples/nx
       CONFIG_EXAMPLES_NX_BPP.
     CONFIG_EXAMPLES_NX_TBCOLOR -- The color of the toolbar. Default depends on
       CONFIG_EXAMPLES_NX_BPP.
+    CONFIG_EXAMPLES_NX_FONTID - Selects the font (see font ID numbers in
+      include/nuttx/nx/nxfonts.h)
     CONFIG_EXAMPLES_NX_FONTCOLOR -- The color of the fonts. Default depends on
       CONFIG_EXAMPLES_NX_BPP.
     CONFIG_EXAMPLES_NX_BPP -- Pixels per pixel to use.  Valid options
@@ -341,6 +343,8 @@ examplex/nxhello
       driver for use in the test: Default: 0
     CONFIG_EXAMPLES_NXHELLO_BGCOLOR -- The color of the background.  Default
       depends on CONFIG_EXAMPLES_NXHELLO_BPP.
+    CONFIG_EXAMPLES_NXHELLO_FONTID - Selects the font (see font ID numbers in
+      include/nuttx/nx/nxfonts.h)
     CONFIG_EXAMPLES_NXHELLO_FONTCOLOR -- The color of the fonts used in the
       background window. Default depends on CONFIG_EXAMPLES_NXHELLO_BPP.
     CONFIG_EXAMPLES_NXHELLO_BPP -- Pixels per pixel to use.  Valid options
@@ -427,10 +431,14 @@ examples/nxtext
       driver for use in the test: Default: 0
     CONFIG_EXAMPLES_NXTEXT_BGCOLOR -- The color of the background.  Default
       depends on CONFIG_EXAMPLES_NXTEXT_BPP.
+    CONFIG_EXAMPLES_NXTEXT_BGFONTID - Selects the font to use in the
+      background text (see font ID numbers in include/nuttx/nx/nxfonts.h)
     CONFIG_EXAMPLES_NXTEXT_BGFONTCOLOR -- The color of the fonts used in the
       background window. Default depends on CONFIG_EXAMPLES_NXTEXT_BPP.
     CONFIG_EXAMPLES_NXTEXT_PUCOLOR -- The color of the pop-up window.  Default
       depends on CONFIG_EXAMPLES_NXTEXT_BPP.
+    CONFIG_EXAMPLES_NXTEXT_PUFONTID - Selects the font to use in the pop-up
+      windows (see font ID numbers in include/nuttx/nx/nxfonts.h)
     CONFIG_EXAMPLES_NXTEXT_PUFONTCOLOR -- The color of the fonts used in the
       background window. Default depends on CONFIG_EXAMPLES_NXTEXT_BPP.
     CONFIG_EXAMPLES_NXTEXT_BPP -- Pixels per pixel to use.  Valid options

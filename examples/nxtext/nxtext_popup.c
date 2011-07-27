@@ -196,7 +196,7 @@ static inline void nxpu_fillwindow(NXWINDOW hwnd,
   nxtext_home(st);
   for (i = 0; i < st->nchars; i++)
     {
-      nxtext_fillchar(hwnd, rect, st, &st->bm[i]);
+      nxtext_fillchar(hwnd, rect, st, g_puhfont, &st->bm[i]);
     }
 #endif
 }
@@ -265,7 +265,7 @@ static inline void nxpu_puts(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
   nxtext_home(st);
   while (nch--)
     {
-      nxtext_putc(hwnd, st, *ch++);
+      nxtext_putc(hwnd, st, g_puhfont, *ch++);
     }
 }
 
@@ -304,7 +304,7 @@ static inline void nxpu_initstate(void)
    */
 
 #ifdef CONFIG_NX_KBD
-  fontset             = nxf_getfontset(g_fonthandle);
+  fontset             = nxf_getfontset(g_puhfont);
   g_pustate.fheight   = fontset->mxheight;
   g_pustate.fwidth    = fontset->mxwidth;
   g_pustate.spwidth   = fontset->spwidth;

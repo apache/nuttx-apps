@@ -45,8 +45,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <semaphore.h>
+
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxtk.h>
+#include <nuttx/nx/nxfonts.h>
 
 /****************************************************************************
  * Definitions
@@ -104,6 +106,10 @@
 #  else
 #    define CONFIG_EXAMPLES_NX_TBCOLOR 'T'
 #  endif
+#endif
+
+#ifndef CONFIG_EXAMPLES_NX_FONTID
+#  define CONFIG_EXAMPLES_NX_FONTID NXFONT_DEFAULT
 #endif
 
 #ifndef CONFIG_EXAMPLES_NX_FONTCOLOR

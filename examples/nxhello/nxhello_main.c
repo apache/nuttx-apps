@@ -232,7 +232,7 @@ int MAIN_NAME(int argc, char *argv[])
 
   /* Get the default font handle */
 
-  g_nxhello.hfont = nxf_getfonthandle(NXFONT_DEFAULT);
+  g_nxhello.hfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXHELLO_FONTID);
   if (!g_nxhello.hfont)
     {
       message(MAIN_NAME_STRING ": Failed to get font handle: %d\n", errno);

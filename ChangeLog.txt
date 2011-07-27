@@ -89,3 +89,6 @@
 	  nuttx/include/nuttx/nx.
 	* apps/examples/usbstorage: Added instrumentation to monitor memory usage
 	  to check for memory leaks in the USB storage driver.
+	* apps/examples/nxhello/nxhello_bkgd.c:  Fix handling of allocated glyph
+	  memory.
+

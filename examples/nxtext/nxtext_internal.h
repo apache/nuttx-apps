@@ -45,8 +45,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <semaphore.h>
+
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxtk.h>
+#include <nuttx/nx/nxfonts.h>
 
 /****************************************************************************
  * Definitions
@@ -76,6 +78,10 @@
 # endif
 #endif
 
+#ifndef CONFIG_EXAMPLES_NXTEXT_PUFONTID
+#  define CONFIG_EXAMPLES_NXTEXT_PUFONTID NXFONT_DEFAULT
+#endif
+
 #ifndef CONFIG_EXAMPLES_NXTEXT_PUCOLOR
 #  if CONFIG_EXAMPLES_NXTEXT_BPP == 24 || CONFIG_EXAMPLES_NXTEXT_BPP == 32
 #    define CONFIG_EXAMPLES_NXTEXT_PUCOLOR 0x00dcdcdc
@@ -84,6 +90,10 @@
 #  else
 #    define CONFIG_EXAMPLES_NXTEXT_PUCOLOR '2'
 # endif
+#endif
+
+#ifndef CONFIG_EXAMPLES_NXTEXT_BGFONTID
+#  define CONFIG_EXAMPLES_NXTEXT_BGFONTID NXFONT_DEFAULT
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXTEXT_BGFONTCOLOR
@@ -263,9 +273,10 @@ extern NXHANDLE g_hnx;
 
 extern NXHANDLE g_bgwnd;
 
-/* The font handle */
+/* The font handlse */
 
-extern NXHANDLE g_fonthandle;
+extern NXHANDLE g_bghfont;
+extern NXHANDLE g_puhfont;
 
 /* NX callback vtables */
 
@@ -311,9 +322,9 @@ extern int nxpu_close(NXWINDOW hwnd);
 extern void nxtext_home(FAR struct nxtext_state_s *st);
 extern void nxtext_newline(FAR struct nxtext_state_s *st);
 extern void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
-                        uint8_t ch);
+                        NXHANDLE hfont, uint8_t ch);
 extern void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                            FAR struct nxtext_state_s *st,
+                            FAR struct nxtext_state_s *st, NXHANDLE hfont,
                             FAR const struct nxtext_bitmap_s *bm);
 
 #endif /* __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H */

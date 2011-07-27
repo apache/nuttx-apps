@@ -136,7 +136,7 @@ static void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
 
   for (i = 0; i < g_bgstate.nchars; i++)
     {
-      nxtext_fillchar(hwnd, rect, &g_bgstate, &g_bgstate.bm[i]);
+      nxtext_fillchar(hwnd, rect, &g_bgstate, g_bghfont, &g_bgstate.bm[i]);
     }
 }
 
@@ -271,7 +271,7 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
           bm = &g_bgstate.bm[i];
           if (bm->pos.y <= rect.pt2.y && bm->pos.y + g_bgstate.fheight >= rect.pt1.y)
             {
-              nxtext_fillchar(hwnd, &rect, &g_bgstate, bm);
+              nxtext_fillchar(hwnd, &rect, &g_bgstate, g_bghfont, bm);
             }
         }
     }
@@ -402,7 +402,7 @@ FAR struct nxtext_state_s *nxbg_getstate(void)
    * state structure
    */
 
-  fontset             = nxf_getfontset(g_fonthandle);
+  fontset             = nxf_getfontset(g_bghfont);
   g_bgstate.fheight   = fontset->mxheight;
   g_bgstate.fwidth    = fontset->mxwidth;
   g_bgstate.spwidth   = fontset->spwidth;
@@ -462,6 +462,6 @@ void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen)
 
       /* Finally, we can output the character */
 
-      nxtext_putc(hwnd, &g_bgstate, (uint8_t)*buffer++);
+      nxtext_putc(hwnd, &g_bgstate, g_bghfont, (uint8_t)*buffer++);
     }
 }

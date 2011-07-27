@@ -326,13 +326,13 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
  * Name: nxtext_fontsize
  ****************************************************************************/
 
-static int nxtext_fontsize(uint8_t ch, FAR struct nxgl_size_s *size)
+static int nxtext_fontsize(NXHANDLE hfont, uint8_t ch, FAR struct nxgl_size_s *size)
 {
   FAR const struct nx_fontbitmap_s *fbm;
 
   /* No, it is not cached... Does the code map to a font? */
 
-  fbm = nxf_getbitmap(g_fonthandle, ch);
+  fbm = nxf_getbitmap(hfont, ch);
   if (fbm)
     {
       /* Yes.. return the font size */
@@ -350,7 +350,7 @@ static int nxtext_fontsize(uint8_t ch, FAR struct nxgl_size_s *size)
  ****************************************************************************/
 
 static FAR struct nxtext_glyph_s *
-nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
+nxtext_getglyph(NXHANDLE hfont, FAR struct nxtext_state_s *st, uint8_t ch)
 {
   FAR struct nxtext_glyph_s *glyph;
   FAR const struct nx_fontbitmap_s *fbm;
@@ -362,7 +362,7 @@ nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
     {
       /* No, it is not cached... Does the code map to a font? */
 
-      fbm = nxf_getbitmap(g_fonthandle, ch);
+      fbm = nxf_getbitmap(hfont, ch);
       if (fbm)
         {
           /* Yes.. render the glyph */
@@ -384,7 +384,7 @@ nxtext_getglyph(FAR struct nxtext_state_s *st, uint8_t ch)
  ****************************************************************************/
 
 static FAR const struct nxtext_bitmap_s *
-nxtext_addchar(FAR struct nxtext_state_s *st, uint8_t ch)
+nxtext_addchar(NXHANDLE hfont, FAR struct nxtext_state_s *st, uint8_t ch)
 {
   FAR struct nxtext_bitmap_s *bm = NULL;
   FAR struct nxtext_glyph_s *glyph;
@@ -403,7 +403,7 @@ nxtext_addchar(FAR struct nxtext_state_s *st, uint8_t ch)
 
        /* Find (or create) the matching glyph */
 
-       glyph = nxtext_getglyph(st, ch);
+       glyph = nxtext_getglyph(hfont, st, ch);
        if (!glyph)
          {
             /* No, there is no font for this code.  Just mark this as a space. */
@@ -479,7 +479,7 @@ void nxtext_newline(FAR struct nxtext_state_s *st)
  *
  ****************************************************************************/
 
-void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, uint8_t ch)
+void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, NXHANDLE hfont, uint8_t ch)
 {
   FAR const struct nxtext_bitmap_s *bm;
 
@@ -498,10 +498,10 @@ void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, uint8_t ch)
 
   else
     {
-      bm = nxtext_addchar(st, ch);
+      bm = nxtext_addchar(hfont, st, ch);
       if (bm)
         {
-          nxtext_fillchar(hwnd, NULL, st, bm);
+          nxtext_fillchar(hwnd, NULL, st, hfont, bm);
         }
     }
 }
@@ -517,7 +517,7 @@ void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st, uint8_t ch)
 
 void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                      FAR struct nxtext_state_s *st,
-                     FAR const struct nxtext_bitmap_s *bm)
+                     NXHANDLE hfont, FAR const struct nxtext_bitmap_s *bm)
 {
   FAR struct nxtext_glyph_s *glyph;
   struct nxgl_rect_s bounds;
@@ -534,7 +534,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   /* Get the size of the font glyph (which may not have been created yet) */
 
-  ret = nxtext_fontsize(bm->code, &fsize);
+  ret = nxtext_fontsize(hfont, bm->code, &fsize);
   if (ret < 0)
     {
       /* This would mean that there is no bitmap for the character code and
@@ -576,7 +576,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
       /* Find (or create) the glyph that goes with this font */
 
-       glyph = nxtext_getglyph(st, bm->code);
+       glyph = nxtext_getglyph(hfont, st, bm->code);
        if (!glyph)
          {
            /* Shouldn't happen */

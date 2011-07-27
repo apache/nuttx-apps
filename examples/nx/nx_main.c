@@ -647,7 +647,7 @@ int MAIN_NAME(int argc, char *argv[])
 
   /* Get the default font handle */
 
-  g_fonthandle = nxf_getfonthandle(NXFONT_DEFAULT);
+  g_fonthandle = nxf_getfonthandle(CONFIG_EXAMPLES_NX_FONTID);
   if (!g_fonthandle)
     {
       message(MAIN_NAME_STRING ": Failed to get font handle: %d\n", errno);
