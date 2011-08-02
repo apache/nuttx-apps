@@ -70,7 +70,7 @@
 	  placing text on the background while pop-up windows occur.  Text should
 	  continue to update normally with or without the popup windows present.
 
-6.7 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.7 2011-08-02 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* apps/examples/nx and nxtext:  These examples can now be built as NSH
 	  "built-in" commands.
@@ -92,3 +92,4 @@
 	* apps/examples/nxhello/nxhello_bkgd.c:  Fix handling of allocated glyph
 	  memory.
 
+6.8 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
