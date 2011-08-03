@@ -264,7 +264,7 @@ int MAIN_NAME(int argc, char *argv[])
    * logic is cosmetic). 
    */
 
-  nxlinex_test(g_nxlines.hbkgd);
+  nxlines_test(g_nxlines.hbkgd);
 
   /* Release background */
 

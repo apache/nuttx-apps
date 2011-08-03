@@ -168,6 +168,6 @@ extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
 
 /* Background window interfaces */
 
-extern void nxlinex_test(NXWINDOW hwnd);
+extern void nxlines_test(NXWINDOW hwnd);
 
 #endif /* __APPS_EXAMPLES_NXLINES_NXLINES_H */

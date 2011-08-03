@@ -192,14 +192,14 @@ static void nxlines_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxlinex_test
+ * Name: nxlines_test
  *
  * Description:
  *   Print "Hello, World!" in the center of the display.
  *
  ****************************************************************************/
 
-void nxlinex_test(NXWINDOW hwnd)
+void nxlines_test(NXWINDOW hwnd)
 {
   struct nxgl_vector_s vector;
   struct nxgl_vector_s previous;
@@ -236,7 +236,7 @@ void nxlinex_test(NXWINDOW hwnd)
        vector.pt2.x = xcenter - halfx;
        vector.pt2.y = ycenter - halfy;
 
-       message("Angle: %04x vector: (%d,%d)->(%d,%d)\n",
+       message("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
                angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
 
        /* Clear the previous line */
@@ -245,7 +245,7 @@ void nxlinex_test(NXWINDOW hwnd)
        ret = nx_drawline((NXWINDOW)hwnd, &previous, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
        if (ret < 0)
          {
-           message("nxlinex_test: nx_drawline failed clearing: %d\n", ret);
+           message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
          }
 
        /* Draw the new line */
@@ -254,13 +254,13 @@ void nxlinex_test(NXWINDOW hwnd)
        ret = nx_drawline((NXWINDOW)hwnd, &vector, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
        if (ret < 0)
          {
-           message("nxlinex_test: nx_drawline failed clearing: %d\n", ret);
+           message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
          }
 
        /* Set up for the next time throught the loop then sleep for a bit. */
 
        angle += b16PI / 16;                      /* 32 angular positions in full circle */
-       if (angle > (31 *  (2 * b16PI) / 16))     /* Wrap back to zero.. allowing for slop */
+       if (angle > (31 *  (2 * b16PI) / 32))     /* Wrap back to zero.. allowing for slop */
          {
            angle = 0;
          }
