@@ -406,6 +406,40 @@ examples/nximage
     NOTE: As of this writing, most of the pixel depth, scaling options, and
     combinations thereof  have not been tested.
 
+examplex/nxlines
+^^^^^^^^^^^^^^^^
+
+  A very simple graphics example that just exercised the NX line drawing
+  logic.
+
+  The following configuration options can be selected:
+
+    CONFIG_EXAMPLES_NXLINES_BUILTIN -- Build the NXLINES example as a "built-in"
+      that can be executed from the NSH command line    
+    CONFIG_EXAMPLES_NXLINES_VPLANE -- The plane to select from the frame-
+      buffer driver for use in the test.  Default: 0
+    CONFIG_EXAMPLES_NXLINES_DEVNO - The LCD device to select from the LCD
+      driver for use in the test: Default: 0
+    CONFIG_EXAMPLES_NXLINES_BGCOLOR -- The color of the background.  Default
+      depends on CONFIG_EXAMPLES_NXLINES_BPP.
+    CONFIG_EXAMPLES_NXLINES_LINEWIDTH - Selects the width of the lines in
+      pixels (default: 16)
+    CONFIG_EXAMPLES_NXLINES_LINECOLOR -- The color of the lines drawn in the
+      background window. Default depends on CONFIG_EXAMPLES_NXLINES_BPP.
+    CONFIG_EXAMPLES_NXLINES_BPP -- Pixels per pixel to use.  Valid options
+      include 2, 4, 8, 16, 24, and 32.  Default is 16.
+    CONFIG_EXAMPLES_NXLINES_EXTERNINIT - The driver for the graphics device on
+      this platform requires some unusual initialization.  This is the
+      for, for example, SPI LCD/OLED devices.  If this configuration is
+      selected, then the platform code must provide an LCD initialization
+      function with a prototype like:
+
+      #ifdef CONFIG_NX_LCDDRIVER
+      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      #else
+      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      #endif
+
 examples/nxtext
 ^^^^^^^^^^^^^^^
 

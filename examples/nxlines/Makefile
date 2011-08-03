@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/Makefile
+# apps/examples/nxlines/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,62 +33,73 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+# NuttX NX Graphics Example.
 
-SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp mm mount nettest \
-	  nsh null nx nxffs nxflat nxhello nximage nxlines nxtext ostest pashello \
-	  pipe poll rgmp romfs sendmail serloop thttpd udp uip usbserial \
-	  usbstorage wget wlan
+ASRCS		=
+CSRCS		= nxlines_main.c nxlines_bkgd.c
 
-# Sub-directories that might need context setup
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-CNTXTDIRS = 
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
 
-ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
-CNTXTDIRS +=  nx
-endif
-ifeq ($(CONFIG_EXAMPLES_NXHELLO_BUILTIN),y)
-CNTXTDIRS +=  nxhello
-endif
-ifeq ($(CONFIG_EXAMPLES_NXIMAGE_BUILTIN),y)
-CNTXTDIRS +=  nximage
-endif
-ifeq ($(CONFIG_EXAMPLES_LINES_BUILTIN),y)
-CNTXTDIRS +=  nxlines
-endif
-ifeq ($(CONFIG_EXAMPLES_NXTEXT_BUILTIN),y)
-CNTXTDIRS +=  nxtext
-endif
-ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
-CNTXTDIRS +=  usbstorage
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
 endif
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+ROOTDEPPATH	= --dep-path .
 
-nothing:
+# NXLINES built-in application info
 
-context:
-	@for dir in $(CNTXTDIRS) ; do \
-		$(MAKE) -C $$dir context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+APPNAME		= nxlines
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 2048
 
-depend:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+# Common build
+
+VPATH		= 
+
+all: .built
+.PHONY: context clean depend distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $(BIN), $${obj}); \
+	done ; )
+	@touch .built
+
+.context:
+ifeq ($(CONFIG_EXAMPLES_NXLINES_BUILTIN),y)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
+endif
+
+context: .context
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+depend: .depend
 
 clean:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f Make.dep .depend
 
 -include Make.dep
-
