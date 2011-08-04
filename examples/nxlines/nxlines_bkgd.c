@@ -257,12 +257,25 @@ void nxlines_test(NXWINDOW hwnd)
            message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
          }
 
-       /* Set up for the next time throught the loop then sleep for a bit. */
+       /* Set up for the next time through the loop then sleep for a bit. */
 
-       angle += b16PI / 16;                      /* 32 angular positions in full circle */
-       if (angle > (31 *  (2 * b16PI) / 32))     /* Wrap back to zero.. allowing for slop */
+       angle += b16PI / 16;  /* 32 angular positions in full circle */
+
+       /* Check if we have gone all the way around */
+
+       if (angle > (31 *  (2 * b16PI) / 32))
          {
+#ifdef CONFIG_EXAMPLES_NXLINES_BUILTIN
+           /* If this example was built as an NSH add-on, then exit after we
+            * have gone all the way around once.
+            */
+
+           return;
+#else
+           /* Wrap back to zero and continue with the test */
+
            angle = 0;
+#endif
          }
 
        memcpy(&previous, &vector, sizeof(struct nxgl_vector_s));
