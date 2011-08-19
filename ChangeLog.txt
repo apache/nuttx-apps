@@ -92,7 +92,9 @@
 	* apps/examples/nxhello/nxhello_bkgd.c:  Fix handling of allocated glyph
 	  memory.
 
-6.8 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.8 2011-08-11 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* apps/examples/nxlines:  Added a test for NX line drawing capabilities.
+
+6.9 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
 
