@@ -201,84 +201,135 @@ static void nxlines_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 void nxlines_test(NXWINDOW hwnd)
 {
+  struct nxgl_point_s center;
   struct nxgl_vector_s vector;
   struct nxgl_vector_s previous;
   nxgl_mxpixel_t color[CONFIG_NX_NPLANES];
-  nxgl_coord_t xcenter;
-  nxgl_coord_t ycenter;
+  nxgl_coord_t maxradius;
   nxgl_coord_t radius;
   nxgl_coord_t halfx;
   nxgl_coord_t halfy;
   b16_t angle;
   int ret;
 
-  /* Get the radius and center of the circle */
+  /* Get the maximum radius and center of the circle */
 
-  radius  = MIN(g_nxlines.yres, g_nxlines.xres) >> 1;
-  xcenter = g_nxlines.xres >> 1;
-  ycenter = g_nxlines.yres >> 1;
+  maxradius = MIN(g_nxlines.yres, g_nxlines.xres) >> 1;
+  center.x  = g_nxlines.xres >> 1;
+  center.y  = g_nxlines.yres >> 1;
+
+  /* Draw a circular background */
+
+  radius = maxradius - ((CONFIG_EXAMPLES_NXLINES_BORDERWIDTH+1)/2);
+  color[0] = CONFIG_EXAMPLES_NXLINES_CIRCLECOLOR;
+  ret = nx_fillcircle((NXWINDOW)hwnd, &center, radius, color);
+  if (ret < 0)
+    {
+      message("nxlines_test: nx_fillcircle failed: %d\n", ret);
+    }
+
+  /* Draw the circular border */
+
+  color[0] = CONFIG_EXAMPLES_NXLINES_BORDERCOLOR;
+  ret = nx_drawcircle((NXWINDOW)hwnd, &center, radius,
+                      CONFIG_EXAMPLES_NXLINES_BORDERWIDTH, color);
+  if (ret < 0)
+    {
+      message("nxlines_test: nx_fillcircle failed: %d\n", ret);
+    }
+
+  /* Back off the radius to account for the thickness of border line
+   * and with a big fudge factor that will (hopefully) prevent the corners
+   * of the lines from overwriting the border.  This is overly complicated
+   * here because we don't assume anything about the screen resolution or
+   * the borderwidth or the line thickness (and there are certainly some
+   * smarter ways to do this).
+   */
+
+  if (maxradius > (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 80))
+    {
+      radius = maxradius - (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 40);
+    }
+  else if (maxradius > (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 60))
+    {
+      radius = maxradius - (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 30);
+    }
+  else if (maxradius > (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 40))
+    {
+      radius = maxradius - (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 20);
+    }
+  else if (maxradius > (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 20))
+    {
+      radius = maxradius - (CONFIG_EXAMPLES_NXLINES_BORDERWIDTH + 10);
+    }
+  else
+    {
+      radius = maxradius - CONFIG_EXAMPLES_NXLINES_BORDERWIDTH;
+    }
+
+  /* The loop, showing the line in various orientations */
 
   angle = 0;
-  previous.pt1.x = xcenter;
-  previous.pt1.y = ycenter;
-  previous.pt2.x = xcenter;
-  previous.pt2.y = ycenter;
+  previous.pt1.x = center.x;
+  previous.pt1.y = center.y;
+  previous.pt2.x = center.x;
+  previous.pt2.y = center.y;
 
   for (;;)
     {
-       /* Determine the position of the line on this pass */
+      /* Determine the position of the line on this pass */
 
-       halfx = b16toi(b16muli(b16sin(angle), radius));
-       halfy = b16toi(b16muli(b16cos(angle), radius));
+      halfx = b16toi(b16muli(b16sin(angle), radius));
+      halfy = b16toi(b16muli(b16cos(angle), radius));
 
-       vector.pt1.x = xcenter + halfx;
-       vector.pt1.y = ycenter + halfy;
-       vector.pt2.x = xcenter - halfx;
-       vector.pt2.y = ycenter - halfy;
+      vector.pt1.x = center.x + halfx;
+      vector.pt1.y = center.y + halfy;
+      vector.pt2.x = center.x - halfx;
+      vector.pt2.y = center.y - halfy;
 
-       message("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
-               angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
+      message("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
+              angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
 
-       /* Clear the previous line */
+      /* Clear the previous line by overwriting it with the circle color */
 
-       color[0] = CONFIG_EXAMPLES_NXLINES_BGCOLOR;
-       ret = nx_drawline((NXWINDOW)hwnd, &previous, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
-       if (ret < 0)
-         {
-           message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
-         }
+      color[0] = CONFIG_EXAMPLES_NXLINES_CIRCLECOLOR;
+      ret = nx_drawline((NXWINDOW)hwnd, &previous, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
+      if (ret < 0)
+        {
+          message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
+        }
 
-       /* Draw the new line */
+      /* Draw the new line */
 
-       color[0] = CONFIG_EXAMPLES_NXLINES_LINECOLOR;
-       ret = nx_drawline((NXWINDOW)hwnd, &vector, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
-       if (ret < 0)
-         {
-           message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
-         }
+      color[0] = CONFIG_EXAMPLES_NXLINES_LINECOLOR;
+      ret = nx_drawline((NXWINDOW)hwnd, &vector, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
+      if (ret < 0)
+        {
+          message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
+        }
 
-       /* Set up for the next time through the loop then sleep for a bit. */
+      /* Set up for the next time through the loop then sleep for a bit. */
 
-       angle += b16PI / 16;  /* 32 angular positions in full circle */
+      angle += b16PI / 16;  /* 32 angular positions in full circle */
 
-       /* Check if we have gone all the way around */
+      /* Check if we have gone all the way around */
 
-       if (angle > (31 *  (2 * b16PI) / 32))
-         {
+      if (angle > (31 *  (2 * b16PI) / 32))
+        {
 #ifdef CONFIG_EXAMPLES_NXLINES_BUILTIN
-           /* If this example was built as an NSH add-on, then exit after we
-            * have gone all the way around once.
-            */
+          /* If this example was built as an NSH add-on, then exit after we
+           * have gone all the way around once.
+           */
 
-           return;
+          return;
 #else
-           /* Wrap back to zero and continue with the test */
+          /* Wrap back to zero and continue with the test */
 
-           angle = 0;
+          angle = 0;
 #endif
-         }
+        }
 
-       memcpy(&previous, &vector, sizeof(struct nxgl_vector_s));
-       usleep(500*1000);
+      memcpy(&previous, &vector, sizeof(struct nxgl_vector_s));
+      usleep(500*1000);
     }
 }

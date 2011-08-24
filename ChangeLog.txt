@@ -98,3 +98,5 @@
 
 6.9 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
 
+	* apps/examples/nxlines:  Extend the line drawing text to include drawing
+	  of circles.
