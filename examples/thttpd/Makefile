@@ -88,7 +88,7 @@ depend: .depend
 
 clean:
 	@rm -f *.o *~ .*.swp .built
-	@make -C content clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+	@$(MAKE) -C content clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	$(call CLEAN)
 
 distclean: clean
