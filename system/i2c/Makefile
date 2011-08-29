@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/Makefile
+# apps/system/i2c
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,38 +33,63 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories containing system task
+# I2C tool
 
-SUBDIRS = free i2c install
+ASRCS	=
+CSRCS	= i2c_detect.c i2c_dump.c i2c_get.c i2c_main.c i2c_set.c
 
-# Create the list of installed runtime modules (INSTALLED_DIRS)
 
-define ADD_DIRECTORY
-INSTALLED_DIRS  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
-endef
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call ADD_DIRECTORY,$(DIR))))
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
+endif
 
-nothing:
+ROOTDEPPATH	= --dep-path .
+VPATH		= 
+
+# Build targets
+
+all:	.built
+.PHONY: context .depend depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $(BIN), $${obj}); \
+	done ; )
+	@touch .built
 
 context:
 
-depend:
-	@for dir in $(INSTALLED_DIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) \
+	  $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+depend: .depend
 
 clean:
-	@for dir in $(INSTALLED_DIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	@for dir in $(INSTALLED_DIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f Make.dep .depend
+
+-include Make.dep
+
