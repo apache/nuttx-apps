@@ -56,44 +56,16 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* Are we using the NuttX console for I/O?  Or some other character device? */
-
-#ifdef CONFIG_I2CTOOL_INDEV
-#  define INFD(p)      ((p)->ss_infd)
-#  define INSTREAM(p)  ((p)->ss_instream)
-#else
-#  define INFD(p)      0
-#  define INSTREAM(p)  stdin
-#endif
-
-#ifdef CONFIG_I2CTOOL_OUTDEV
-#  define OUTFD(p)     ((p)->ss_outfd)
-#  define OUTSTREAM(p) ((p)->ss_outstream)
-#else
-#  define OUTFD(p)     1
-#  define OUTSTREAM(p) stdout
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
-
-struct i2ctool_s
-{
-  /* Output streams */
-
-#ifdef CONFIG_I2CTOOL_OUTDEV
-  int    ss_outfd;     /* Output file descriptor */
-  FILE  *ss_outstream; /* Output stream */
-#endif
-};
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static int cmd_help(FAR void *handle, int argc, char **argv);
-static int cmd_unrecognized(FAR void *handle, int argc, char **argv);
+static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
+static int cmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
 
 /****************************************************************************
  * Private Data
@@ -103,12 +75,13 @@ struct i2ctool_s g_i2ctool;
 
 static const struct cmdmap_s g_i2ccmds[] =
 {
-  { "?",        cmd_help,     1, 1, NULL },
-  { "detect",   cmd_detect,   1, 1, NULL },
-  { "dump",     cmd_dump,     1, 1, NULL },
-  { "get",      cmd_get,      1, 1, NULL },
-  { "help",     cmd_help,     1, 1, NULL },
-  { "set",      cmd_set,      1, 1, NULL },
+  { "?",    cmd_help, "Show help",       NULL },
+  { "bus",  cmd_bus,  "List busses"      "[OPTIONS]" },
+  { "dev",  cmd_dev,  "List devices",    "[OPTIONS]" },
+  { "dump", cmd_dump, "Dump registers",  "[OPTIONS]" },
+  { "get",  cmd_get,  "Read registers",  "[OPTIONS]" },
+  { "help", cmd_help, "Show help",       NULL },
+  { "set",  cmd_set,  "Write registers", "[OPTIONS]]" },
 };
 
 /****************************************************************************
@@ -138,33 +111,41 @@ const char g_fmtinternalerror[]  = "i2ctool: %s: Internal error\n";
  * Name: cmd_help
  ****************************************************************************/
 
-static int cmd_help(FAR void *handle, int argc, char **argv)
+static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
   const struct cmdmap_s *ptr;
 
-  i2ctool_printf(handle, "Usage: i2ctool <cmd> [arguments]\n");
-  i2ctool_printf(handle, "Where <cmd> is one of:\n");
+  i2ctool_printf(i2ctool, "Usage: i2ctool <cmd> [arguments]\n");
+  i2ctool_printf(i2ctool, "Where <cmd> is one of:\n");
   for (ptr = g_i2ccmds; ptr->cmd; ptr++)
     {
       if (ptr->usage)
         {
-          i2ctool_printf(handle, "  %s %s\n", ptr->cmd, ptr->usage);
+          i2ctool_printf(i2ctool, "%s: %s %s\n", ptr->desc, ptr->cmd, ptr->usage);
         }
       else
         {
-          i2ctool_printf(handle, "  %s\n", ptr->cmd);
+          i2ctool_printf(i2ctool, "%s: %s\n", ptr->desc, ptr->cmd);
         }
     }
 
-  i2ctool_printf(handle, "NOTES:\n");
+  i2ctool_printf(i2ctool, "Where common OPTIONS include:\n");
+  i2ctool_printf(i2ctool, "[-a addr] is the I2C device address (hex).  Default: %02x\n",
+                 CONFIG_I2CTOOL_MINADDR);
+  i2ctool_printf(i2ctool, "[-b bus] is the I2C bus number (decimal).  Default: %d\n",
+                 CONFIG_I2CTOOL_MINBUS);
+  i2ctool_printf(i2ctool, "[-r regaddr] is the I2C device register address (hex).  Default: 0\n");
+  i2ctool_printf(i2ctool, "[-w width] is the data width (8 or 16 decimal). Default: 8 \n");
+  i2ctool_printf(i2ctool, "[-s|n], send/don't send start between command and data. Default: -n\n");
+  i2ctool_printf(i2ctool, "\nNOTES:\n");
 #ifndef CONFIG_DISABLE_ENVIRON
-  i2ctool_printf(handle, "- An environment variable like $PATH may be used for any argument.\n");
+  i2ctool_printf(i2ctool, "o An environment variable like $PATH may be used for any argument.\n");
 #endif
-  i2ctool_printf(handle, "- Arguments are persistent.  For example, once the I2C address is\n");
-  i2ctool_printf(handle, "  specified, that address will be re-used until it changes.\n");
-  i2ctool_printf(handle, "WARNING:\n");
-  i2ctool_printf(handle, "- The I2C detect command may have bad side effects on your I2C devices.\n");
-  i2ctool_printf(handle, "  Use only at your own risk.\n");
+  i2ctool_printf(i2ctool, "o Arguments are \"sticky\".  For example, once the I2C address is\n");
+  i2ctool_printf(i2ctool, "  specified, that address will be re-used until it changes.\n");
+  i2ctool_printf(i2ctool, "\nWARNING:\n");
+  i2ctool_printf(i2ctool, "o The I2C dev command may have bad side effects on your I2C devices.\n");
+  i2ctool_printf(i2ctool, "  Use only at your own risk.\n");
   return OK;
 }
 
@@ -172,9 +153,9 @@ static int cmd_help(FAR void *handle, int argc, char **argv)
  * Name: cmd_unrecognized
  ****************************************************************************/
 
-static int cmd_unrecognized(FAR void *handle, int argc, char **argv)
+static int cmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
-  i2ctool_printf(handle, g_fmtcmdnotfound, argv[0]);
+  i2ctool_printf(i2ctool, g_fmtcmdnotfound, argv[0]);
   return ERROR;
 }
 
@@ -182,11 +163,11 @@ static int cmd_unrecognized(FAR void *handle, int argc, char **argv)
  * Name: i2c_execute
  ****************************************************************************/
 
-static int i2c_execute(FAR void *handle, int argc, char *argv[])
+static int i2c_execute(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
 {
    const struct cmdmap_s *cmdmap;
    const char            *cmd;
-   cmd_t                  handler = cmd_unrecognized;
+   cmd_t                  handler;
    int                    ret;
 
    /* The form of argv is:
@@ -197,46 +178,21 @@ static int i2c_execute(FAR void *handle, int argc, char *argv[])
     * argv[argc]:   NULL terminating pointer
     */
 
-   cmd = argv[0];
-
    /* See if the command is one that we understand */
+
+   cmd     = argv[0];
+   handler = cmd_unrecognized;
 
    for (cmdmap = g_i2ccmds; cmdmap->cmd; cmdmap++)
      {
        if (strcmp(cmdmap->cmd, cmd) == 0)
          {
-           /* Check if a valid number of arguments was provided.  We
-            * do this simple, imperfect checking here so that it does
-            * not have to be performed in each command.
-            */
-
-           if (argc < cmdmap->minargs)
-             {
-               /* Fewer than the minimum number were provided */
-
-               i2ctool_printf(handle, g_fmtargrequired, cmd);
-               return ERROR;
-             }
-           else if (argc > cmdmap->maxargs)
-             {
-               /* More than the maximum number were provided */
-
-               i2ctool_printf(handle, g_fmttoomanyargs, cmd);
-               return ERROR;
-             }
-           else
-             {
-               /* A valid number of arguments were provided (this does
-                * not mean they are right).
-                */
-
-               handler = cmdmap->handler;
-               break;
-             }
+           handler = cmdmap->handler;
+           break;
          }
      }
 
-   ret = handler(handle, argc, argv);
+   ret = handler(i2ctool, argc, argv);
    return ret;
 }
 
@@ -244,7 +200,7 @@ static int i2c_execute(FAR void *handle, int argc, char *argv[])
  * Name: i2c_argument
  ****************************************************************************/
 
-FAR char *i2c_argument(FAR void *handle, int argc, char *argv[], int *pindex)
+FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool, int argc, char *argv[], int *pindex)
 {
   FAR char *arg;
   int  index = *pindex;
@@ -289,7 +245,7 @@ FAR char *i2c_argument(FAR void *handle, int argc, char *argv[], int *pindex)
  * Name: i2c_parse
  ****************************************************************************/
 
-int i2c_parse(FAR void *handle, int argc, char *argv[])
+int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
 {
   FAR char *newargs[MAX_ARGUMENTS+1];
   FAR char *cmd;
@@ -303,7 +259,7 @@ int i2c_parse(FAR void *handle, int argc, char *argv[])
   /* Parse out the command, skipping the first argument (the program name)*/
 
   index = 1;
-  cmd = i2c_argument(handle, argc, argv, &index);
+  cmd = i2c_argument(i2ctool, argc, argv, &index);
 
   /* Check if any command was provided */
 
@@ -314,7 +270,7 @@ int i2c_parse(FAR void *handle, int argc, char *argv[])
        * command status.
        */
 
-      return cmd_help(handle, 0, NULL);
+      return cmd_help(i2ctool, 0, NULL);
     }
 
   /* Parse all of the arguments following the command name. */
@@ -322,7 +278,7 @@ int i2c_parse(FAR void *handle, int argc, char *argv[])
   newargs[0] = cmd;
   for (nargs = 1; nargs < MAX_ARGUMENTS; nargs++)
     {
-      newargs[nargs] = i2c_argument(handle, argc, argv, &index);
+      newargs[nargs] = i2c_argument(i2ctool, argc, argv, &index);
       if (!newargs[nargs])
         {
           break;
@@ -332,7 +288,7 @@ int i2c_parse(FAR void *handle, int argc, char *argv[])
 
   /* Then execute the command */
 
-  return i2c_execute(handle, nargs, newargs);
+  return i2c_execute(i2ctool, nargs, newargs);
 }
 
 /****************************************************************************
@@ -399,10 +355,32 @@ static void i2c_teardown(void)
 
 int MAIN_NAME(int argc, char *argv[])
 {
+  /* Verify settings */
+
+  if (g_i2ctool.bus < CONFIG_I2CTOOL_MINBUS || g_i2ctool.bus > CONFIG_I2CTOOL_MAXBUS)
+    {
+      g_i2ctool.bus = CONFIG_I2CTOOL_MINBUS;
+    }
+
+  if (g_i2ctool.addr < CONFIG_I2CTOOL_MINADDR || g_i2ctool.addr > CONFIG_I2CTOOL_MAXADDR)
+    {
+      g_i2ctool.addr = CONFIG_I2CTOOL_MINADDR;
+    }
+
+  if (g_i2ctool.regaddr < CONFIG_I2CTOOL_MAXREGADDR)
+    {
+      g_i2ctool.regaddr = 0;
+    }
+
+  if (g_i2ctool.width != 8 && g_i2ctool.width != 16)
+    {
+      g_i2ctool.width = 8;
+    }
+
   /* Parse process the command line */
 
   i2c_setup();
-  (void)i2c_parse((FAR void *)&g_i2ctool, argc, argv);
+  (void)i2c_parse(&g_i2ctool, argc, argv);
 
   i2c_teardown();
   return OK;
@@ -416,16 +394,13 @@ int MAIN_NAME(int argc, char *argv[])
  *
  ****************************************************************************/
 
-int i2ctool_printf(FAR void *handle, const char *fmt, ...)
+int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...)
 {
-#ifdef CONFIG_I2CTOOL_OUTDEV
-  FAR struct i2ctool_s *pstate = (FAR struct i2ctool_s *)handle;
-#endif
   va_list ap;
   int     ret;
 
   va_start(ap, fmt);
-  ret = vfprintf(OUTSTREAM(pstate), fmt, ap);
+  ret = vfprintf(OUTSTREAM(i2ctool), fmt, ap);
   va_end(ap);
  
   return ret;
@@ -439,19 +414,16 @@ int i2ctool_printf(FAR void *handle, const char *fmt, ...)
  *
  ****************************************************************************/
 
-ssize_t i2ctool_write(FAR void *handle, FAR const void *buffer, size_t nbytes)
+ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, size_t nbytes)
 {
-#ifdef CONFIG_I2CTOOL_OUTDEV
-  FAR struct i2ctool_s *pstate = (FAR struct i2ctool_s *)handle;
-#endif
   ssize_t ret;
 
   /* Write the data to the output stream */
 
-  ret = fwrite(buffer, 1, nbytes, OUTSTREAM(pstate));
+  ret = fwrite(buffer, 1, nbytes, OUTSTREAM(i2ctool));
   if (ret < 0)
     {
-      dbg("[%d] Failed to send buffer: %d\n", OUTFD(pstate), errno);
+      dbg("[%d] Failed to send buffer: %d\n", OUTFD(i2ctool), errno);
     }
   return ret;
 }

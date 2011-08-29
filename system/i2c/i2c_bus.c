@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/i2c/i2c_detect.c
+ * apps/system/i2c/i2c_bus.c
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -39,6 +39,8 @@
 
 #include <nuttx/config.h>
 
+#include <nuttx/i2c.h>
+
 #include "i2ctool.h"
 
 /****************************************************************************
@@ -70,10 +72,28 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cmd_detect
+ * Name: cmd_bus
  ****************************************************************************/
 
-int cmd_detect(FAR void *handle, int argc, char **argv)
+int cmd_bus(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
+  FAR struct i2c_dev_s *dev;
+  int i;
+
+  i2ctool_printf(i2ctool, " BUS   EXISTS?\n");
+  for (i = CONFIG_I2CTOOL_MINBUS; i <= CONFIG_I2CTOOL_MAXBUS; i++)
+    {
+      dev = up_i2cinitialize(i);
+      if (dev)
+        {
+          i2ctool_printf(i2ctool, "Bus %d: YES\n", i);
+          (void)up_i2cuninitialize(dev);
+        }
+      else
+        {
+          i2ctool_printf(i2ctool, "Bus %d: NO\n", i);
+        }
+    }
+
   return OK;
 }

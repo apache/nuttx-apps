@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/i2c/i2c_set.c
+ * apps/system/i2c/i2c_common.c
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -39,7 +39,7 @@
 
 #include <nuttx/config.h>
 
-#include <nuttx/i2c.h>
+#include <stdlib.h>
 
 #include "i2ctool.h"
 
@@ -72,38 +72,127 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cmd_set
+ * Name: common_args
  ****************************************************************************/
 
-int cmd_set(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
 {
-  FAR struct i2c_dev_s *dev;
-  int nargs;
-  int i;
+  FAR char *ptr = *arg;
+  long value;
+  int ret;
 
-  /* Parse any command line arguments */
-
-  for (i = 1; i < argc; )
+  if (ptr[0] != '-')
     {
-      nargs = common_args(i2ctool, &argv[i]);
-      if (nargs < 0)
-        {
-          return ERROR;
-        }
-      i += nargs;
+      goto invalid_argument;
     }
 
-  /* Get a handle to the I2C bus */
-
-  dev = up_i2cinitialize(i2ctool->bus);
-  if (!dev)
+  switch (ptr[0])
     {
-       i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
-       return ERROR;
+      case 'a':
+        ret = arg_hex(arg, &value);
+        if (value < CONFIG_I2CTOOL_MINADDR || value > CONFIG_I2CTOOL_MAXADDR)
+          {
+            goto out_of_range;
+          }
+
+        i2ctool->addr = (uint8_t) value;
+        return ret;
+
+      case 'b':
+        ret = arg_decimal(arg, &value);
+        if (value < CONFIG_I2CTOOL_MINBUS || value > CONFIG_I2CTOOL_MAXBUS)
+          {
+            goto out_of_range;
+          }
+
+        i2ctool->bus = (uint8_t) value;
+        return ret;
+
+      case 'n':
+        i2ctool->start = false;
+        return 1;
+
+      case 'r':
+        ret = arg_hex(arg, &value);
+        if (value < 0 || value > CONFIG_I2CTOOL_MAXREGADDR)
+          {
+            goto out_of_range;
+          }
+
+        i2ctool->regaddr = (uint8_t) value;
+        return ret;
+
+      case 's':
+        i2ctool->start = true;
+        return 1;
+
+      case 'w':
+        ret = arg_decimal(arg, &value);
+        if (value != 8 && value != 16)
+          {
+            goto out_of_range;
+          }
+
+        i2ctool->width = (uint8_t) value;
+        return ret;
+
+      default:
+        goto invalid_argument;
     }
 
-#warning "missing logic"
+invalid_argument:
+  i2ctool_printf(i2ctool, g_fmtarginvalid, arg);
+  return ERROR;
 
-  (void)up_i2cuninitialize(dev);
-  return OK;
+out_of_range:
+  i2ctool_printf(i2ctool, g_fmtargrange, arg);
+  return ERROR;
+}
+
+/****************************************************************************
+ * Name: arg_string
+ ****************************************************************************/
+
+int arg_string(FAR char **arg, FAR char **value)
+{
+  FAR char *ptr = *arg;
+
+  if (ptr[2] == '\0')
+    {
+      *value = arg[1];
+      return 2;
+    }
+  else
+    {
+      *value = &ptr[2];
+      return 1;
+    }
+}
+
+/****************************************************************************
+ * Name: arg_decimal
+ ****************************************************************************/
+
+int arg_decimal(FAR char **arg, FAR long *value)
+{
+  FAR char *string;
+  int ret;
+  
+  ret = arg_string(arg, &string);
+  *value = strtol(string, NULL, 10);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: arg_hex
+ ****************************************************************************/
+
+int arg_hex(FAR char **arg, FAR long *value)
+{
+  FAR char *string;
+  int ret;
+  
+  ret = arg_string(arg, &string);
+  *value = strtol(string, NULL, 16);
+  return ret;
 }

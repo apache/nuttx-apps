@@ -39,6 +39,8 @@
 
 #include <nuttx/config.h>
 
+#include <nuttx/i2c.h>
+
 #include "i2ctool.h"
 
 /****************************************************************************
@@ -73,7 +75,35 @@
  * Name: cmd_get
  ****************************************************************************/
 
-int cmd_get(FAR void *handle, int argc, char **argv)
+int cmd_get(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
+  FAR struct i2c_dev_s *dev;
+  int nargs;
+  int i;
+
+  /* Parse any command line arguments */
+
+  for (i = 1; i < argc; )
+    {
+      nargs = common_args(i2ctool, &argv[i]);
+      if (nargs < 0)
+        {
+          return ERROR;
+        }
+      i += nargs;
+    }
+
+  /* Get a handle to the I2C bus */
+
+  dev = up_i2cinitialize(i2ctool->bus);
+  if (!dev)
+    {
+       i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
+       return ERROR;
+    }
+
+#warning "missing logic"
+
+  (void)up_i2cuninitialize(dev);
   return OK;
 }

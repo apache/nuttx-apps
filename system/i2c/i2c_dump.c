@@ -73,7 +73,7 @@
  * Name: cmd_dump
  ****************************************************************************/
 
-int cmd_dump(FAR void *handle, int argc, char **argv)
+int cmd_dump(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
   return OK;
 }
