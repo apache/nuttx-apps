@@ -100,3 +100,5 @@
 
 	* apps/examples/nxlines:  Extend the line drawing text to include drawing
 	  of circles.
+	* apps/system/i2c:  Add an I2C test tool that should help to bring up I2C
+	  devices (when it is fully functional).

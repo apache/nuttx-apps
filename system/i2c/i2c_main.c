@@ -76,11 +76,12 @@ struct i2ctool_s g_i2ctool;
 static const struct cmdmap_s g_i2ccmds[] =
 {
   { "?",    cmd_help, "Show help",       NULL },
-  { "bus",  cmd_bus,  "List busses"      "[OPTIONS]" },
+  { "bus",  cmd_bus,  "List busses",     "[OPTIONS]" },
   { "dev",  cmd_dev,  "List devices",    "[OPTIONS] <first> <last>" },
   { "get",  cmd_get,  "Read register",   "[OPTIONS]" },
   { "help", cmd_help, "Show help",       NULL },
   { "set",  cmd_set,  "Write register",  "[OPTIONS] <value>" },
+  { NULL,   NULL,     NULL,              NULL }
 };
 
 /****************************************************************************
@@ -109,37 +110,37 @@ static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
   const struct cmdmap_s *ptr;
 
-  i2ctool_printf(i2ctool, "Usage: i2ctool <cmd> [arguments]\n");
-  i2ctool_printf(i2ctool, "Where <cmd> is one of:\n");
+  i2ctool_printf(i2ctool, "Usage: i2c <cmd> [arguments]\n");
+  i2ctool_printf(i2ctool, "Where <cmd> is one of:\n\n");
   for (ptr = g_i2ccmds; ptr->cmd; ptr++)
     {
       if (ptr->usage)
         {
-          i2ctool_printf(i2ctool, "%s: %s %s\n", ptr->desc, ptr->cmd, ptr->usage);
+          i2ctool_printf(i2ctool, "  %s: %s %s\n", ptr->desc, ptr->cmd, ptr->usage);
         }
       else
         {
-          i2ctool_printf(i2ctool, "%s: %s\n", ptr->desc, ptr->cmd);
+          i2ctool_printf(i2ctool, "  %s: %s\n", ptr->desc, ptr->cmd);
         }
     }
 
-  i2ctool_printf(i2ctool, "Where common \"sticky\" OPTIONS include:\n");
-  i2ctool_printf(i2ctool, "[-a addr] is the I2C device address (hex).  "
+  i2ctool_printf(i2ctool, "\nWhere common \"sticky\" OPTIONS include:\n");
+  i2ctool_printf(i2ctool, "  [-a addr] is the I2C device address (hex).  "
                           "Default: %02x Current: %02x\n",
                  CONFIG_I2CTOOL_MINADDR, i2ctool->addr);
-  i2ctool_printf(i2ctool, "[-b bus] is the I2C bus number (decimal).  "
+  i2ctool_printf(i2ctool, "  [-b bus] is the I2C bus number (decimal).  "
                           "Default: %d Current: %d\n",
                  CONFIG_I2CTOOL_MINBUS, i2ctool->bus);
-  i2ctool_printf(i2ctool, "[-r regaddr] is the I2C device register address (hex).  "
+  i2ctool_printf(i2ctool, "  [-r regaddr] is the I2C device register address (hex).  "
                           "Default: 00 Current: %02x\n",
                  i2ctool->regaddr);
-  i2ctool_printf(i2ctool, "[-w width] is the data width (8 or 16 decimal).  "
+  i2ctool_printf(i2ctool, "  [-w width] is the data width (8 or 16 decimal).  "
                           "Default: 8 Current: %d\n",
                  i2ctool->width);
-  i2ctool_printf(i2ctool, "[-s|n], send/don't send start between command and data.  "
+  i2ctool_printf(i2ctool, "  [-s|n], send/don't send start between command and data.  "
                           "Default: -n Current: %s\n",
                  i2ctool->start ? "-s" : "-n");
-  i2ctool_printf(i2ctool, "[-f freq] I2C frequency.  "
+  i2ctool_printf(i2ctool, "  [-f freq] I2C frequency.  "
                           "Default: %d Current: %d\n",
                  CONFIG_I2CTOOL_DEFFREQ, i2ctool->freq);
   i2ctool_printf(i2ctool, "\nNOTES:\n");
@@ -147,7 +148,7 @@ static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   i2ctool_printf(i2ctool, "o An environment variable like $PATH may be used for any argument.\n");
 #endif
   i2ctool_printf(i2ctool, "o Arguments are \"sticky\".  For example, once the I2C address is\n");
-  i2ctool_printf(i2ctool, "  specified, that address will be re-used until it changes.\n");
+  i2ctool_printf(i2ctool, "  specified, that address will be re-used until it is changed.\n");
   i2ctool_printf(i2ctool, "\nWARNING:\n");
   i2ctool_printf(i2ctool, "o The I2C dev command may have bad side effects on your I2C devices.\n");
   i2ctool_printf(i2ctool, "  Use only at your own risk.\n");
@@ -256,10 +257,6 @@ int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
   FAR char *cmd;
   int       nargs;
   int       index;
-
-  /* Initialize parser state */
-
-  memset(argv, 0, MAX_ARGUMENTS*sizeof(FAR char *));
 
   /* Parse out the command, skipping the first argument (the program name)*/
 

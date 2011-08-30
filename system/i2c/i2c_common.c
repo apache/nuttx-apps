@@ -86,7 +86,7 @@ int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
       goto invalid_argument;
     }
 
-  switch (ptr[0])
+  switch (ptr[1])
     {
       case 'a':
         ret = arg_hex(arg, &value);
@@ -151,11 +151,11 @@ int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
     }
 
 invalid_argument:
-  i2ctool_printf(i2ctool, g_i2carginvalid, arg);
+  i2ctool_printf(i2ctool, g_i2carginvalid, ptr);
   return ERROR;
 
 out_of_range:
-  i2ctool_printf(i2ctool, g_i2cargrange, arg);
+  i2ctool_printf(i2ctool, g_i2cargrange, ptr);
   return ERROR;
 }
 
