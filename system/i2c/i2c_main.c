@@ -297,13 +297,13 @@ int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
  * Name: i2c_setup
  ****************************************************************************/
 
-static inline int i2c_setup(void)
+static inline int i2c_setup(FAR struct i2ctool_s *i2ctool)
 {
   /* Initialize the output stream */
 
 #ifdef CONFIG_I2CTOOL_OUTDEV
-  g_i2ctool.ss_outfd = open(CONFIG_I2CTOOL_OUTDEV, O_WRONLY);
-  if (g_i2ctool.ss_outfd < 0)
+  i2ctool->ss_outfd = open(CONFIG_I2CTOOL_OUTDEV, O_WRONLY);
+  if (i2ctool->ss_outfd < 0)
     {
       fprintf(stderr, g_i2ccmdfailed, "open", errno);
       return ERROR;
@@ -311,8 +311,8 @@ static inline int i2c_setup(void)
 
   /* Create a standard C stream on the console device */
 
-  g_i2ctool.ss_outstream = fdopen(g_i2ctool.ss_outfd, "w");
-  if (!g_i2ctool.ss_outstream)
+  i2ctool->ss_outstream = fdopen(i2ctool->ss_outfd, "w");
+  if (!i2ctool->ss_outstream)
     {
       fprintf(stderr, g_i2ccmdfailed, "fdopen", errno);
       return ERROR;
@@ -330,12 +330,12 @@ static inline int i2c_setup(void)
  *
  ****************************************************************************/
 
-static void i2c_teardown(void)
+static void i2c_teardown(FAR struct i2ctool_s *i2ctool)
 {
   fflush(OUTSTREAM(&g_i2ctool));
 
 #ifdef CONFIG_I2CTOOL_OUTDEV
-  fclose(g_i2ctool.ss_outstream);
+  fclose(i2ctool->ss_outstream);
 #endif
 }
 
@@ -386,10 +386,11 @@ int MAIN_NAME(int argc, char *argv[])
   
   /* Parse process the command line */
 
-  i2c_setup();
+  i2c_setup(&g_i2ctool);
   (void)i2c_parse(&g_i2ctool, argc, argv);
 
-  i2c_teardown();
+  i2ctool_flush(&g_i2ctool);
+  i2c_teardown(&g_i2ctool);
   return OK;
 }
 
@@ -435,3 +436,15 @@ ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, siz
   return ret;
 }
 
+/****************************************************************************
+ * Name: i2ctool_flush
+ *
+ * Description:
+ *   Flush buffered I/O to the currently selected stream.
+ *
+ ****************************************************************************/
+
+void i2ctool_flush(FAR struct i2ctool_s *i2ctool)
+{
+  fflush(OUTSTREAM(i2ctool));
+}

@@ -227,6 +227,7 @@ int cmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
             }
         }
       i2ctool_printf(i2ctool, "\n");
+      i2ctool_flush(i2ctool);
     }
 
   (void)up_i2cuninitialize(dev);

@@ -179,12 +179,12 @@ extern const char g_i2cxfrerror[];
 
 ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, size_t nbytes);
 int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...);
+void i2ctool_flush(FAR struct i2ctool_s *i2ctool);
 
 /* Command handlers */
 
 int cmd_bus(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int cmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
-int cmd_dump(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int cmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 int cmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 
