@@ -77,11 +77,10 @@ static const struct cmdmap_s g_i2ccmds[] =
 {
   { "?",    cmd_help, "Show help",       NULL },
   { "bus",  cmd_bus,  "List busses"      "[OPTIONS]" },
-  { "dev",  cmd_dev,  "List devices",    "[OPTIONS]" },
-  { "dump", cmd_dump, "Dump registers",  "[OPTIONS]" },
-  { "get",  cmd_get,  "Read registers",  "[OPTIONS]" },
+  { "dev",  cmd_dev,  "List devices",    "[OPTIONS] <first> <last>" },
+  { "get",  cmd_get,  "Read register",   "[OPTIONS]" },
   { "help", cmd_help, "Show help",       NULL },
-  { "set",  cmd_set,  "Write registers", "[OPTIONS]]" },
+  { "set",  cmd_set,  "Write register",  "[OPTIONS] <value>" },
 };
 
 /****************************************************************************
@@ -90,18 +89,13 @@ static const struct cmdmap_s g_i2ccmds[] =
 
 /* Common, message formats */
 
-const char g_syntax[]            = "i2ctool: %s: syntax error\n";
-const char g_fmtargrequired[]    = "i2ctool: %s: missing required argument(s)\n";
-const char g_fmtarginvalid[]     = "i2ctool: %s: argument invalid\n";
-const char g_fmtargrange[]       = "i2ctool: %s: value out of range\n";
-const char g_fmtcmdnotfound[]    = "i2ctool: %s: command not found\n";
-const char g_fmtnosuch[]         = "i2ctool: %s: no such %s: %s\n";
-const char g_fmttoomanyargs[]    = "i2ctool: %s: too many arguments\n";
-const char g_fmtdeepnesting[]    = "i2ctool: %s: nesting too deep\n";
-const char g_fmtcontext[]        = "i2ctool: %s: not valid in this context\n";
-const char g_fmtcmdfailed[]      = "i2ctool: %s: %s failed: %d\n";
-const char g_fmtcmdoutofmemory[] = "i2ctool: %s: out of memory\n";
-const char g_fmtinternalerror[]  = "i2ctool: %s: Internal error\n";
+const char g_i2cargrequired[]    = "i2ctool: %s: missing required argument(s)\n";
+const char g_i2carginvalid[]     = "i2ctool: %s: argument invalid\n";
+const char g_i2cargrange[]       = "i2ctool: %s: value out of range\n";
+const char g_i2ccmdnotfound[]    = "i2ctool: %s: command not found\n";
+const char g_i2ctoomanyargs[]    = "i2ctool: %s: too many arguments\n";
+const char g_i2ccmdfailed[]      = "i2ctool: %s: %s failed: %d\n";
+const char g_i2cxfrerror[]       = "i2ctool: %s: Transfer failed: %d\n";
 
 /****************************************************************************
  * Private Functions
@@ -129,14 +123,25 @@ static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
         }
     }
 
-  i2ctool_printf(i2ctool, "Where common OPTIONS include:\n");
-  i2ctool_printf(i2ctool, "[-a addr] is the I2C device address (hex).  Default: %02x\n",
-                 CONFIG_I2CTOOL_MINADDR);
-  i2ctool_printf(i2ctool, "[-b bus] is the I2C bus number (decimal).  Default: %d\n",
-                 CONFIG_I2CTOOL_MINBUS);
-  i2ctool_printf(i2ctool, "[-r regaddr] is the I2C device register address (hex).  Default: 0\n");
-  i2ctool_printf(i2ctool, "[-w width] is the data width (8 or 16 decimal). Default: 8 \n");
-  i2ctool_printf(i2ctool, "[-s|n], send/don't send start between command and data. Default: -n\n");
+  i2ctool_printf(i2ctool, "Where common \"sticky\" OPTIONS include:\n");
+  i2ctool_printf(i2ctool, "[-a addr] is the I2C device address (hex).  "
+                          "Default: %02x Current: %02x\n",
+                 CONFIG_I2CTOOL_MINADDR, i2ctool->addr);
+  i2ctool_printf(i2ctool, "[-b bus] is the I2C bus number (decimal).  "
+                          "Default: %d Current: %d\n",
+                 CONFIG_I2CTOOL_MINBUS, i2ctool->bus);
+  i2ctool_printf(i2ctool, "[-r regaddr] is the I2C device register address (hex).  "
+                          "Default: 00 Current: %02x\n",
+                 i2ctool->regaddr);
+  i2ctool_printf(i2ctool, "[-w width] is the data width (8 or 16 decimal).  "
+                          "Default: 8 Current: %d\n",
+                 i2ctool->width);
+  i2ctool_printf(i2ctool, "[-s|n], send/don't send start between command and data.  "
+                          "Default: -n Current: %s\n",
+                 i2ctool->start ? "-s" : "-n");
+  i2ctool_printf(i2ctool, "[-f freq] I2C frequency.  "
+                          "Default: %d Current: %d\n",
+                 CONFIG_I2CTOOL_DEFFREQ, i2ctool->freq);
   i2ctool_printf(i2ctool, "\nNOTES:\n");
 #ifndef CONFIG_DISABLE_ENVIRON
   i2ctool_printf(i2ctool, "o An environment variable like $PATH may be used for any argument.\n");
@@ -155,7 +160,7 @@ static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
 static int cmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
-  i2ctool_printf(i2ctool, g_fmtcmdnotfound, argv[0]);
+  i2ctool_printf(i2ctool, g_i2ccmdnotfound, argv[0]);
   return ERROR;
 }
 
@@ -303,7 +308,7 @@ static inline int i2c_setup(void)
   g_i2ctool.ss_outfd = open(CONFIG_I2CTOOL_OUTDEV, O_WRONLY);
   if (g_i2ctool.ss_outfd < 0)
     {
-      fprintf(stderr, g_fmtcmdfailed, "open", errno);
+      fprintf(stderr, g_i2ccmdfailed, "open", errno);
       return ERROR;
     }
 
@@ -312,7 +317,7 @@ static inline int i2c_setup(void)
   g_i2ctool.ss_outstream = fdopen(g_i2ctool.ss_outfd, "w");
   if (!g_i2ctool.ss_outstream)
     {
-      fprintf(stderr, g_fmtcmdfailed, "fdopen", errno);
+      fprintf(stderr, g_i2ccmdfailed, "fdopen", errno);
       return ERROR;
     }
 #endif
@@ -377,6 +382,11 @@ int MAIN_NAME(int argc, char *argv[])
       g_i2ctool.width = 8;
     }
 
+  if (g_i2ctool.freq == 0)
+    {
+      g_i2ctool.freq = CONFIG_I2CTOOL_DEFFREQ;
+    }
+  
   /* Parse process the command line */
 
   i2c_setup();

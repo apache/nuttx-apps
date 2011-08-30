@@ -108,6 +108,16 @@ int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
         i2ctool->bus = (uint8_t) value;
         return ret;
 
+      case 'f':
+        ret = arg_decimal(arg, &value);
+        if (value == 0)
+          {
+            goto out_of_range;
+          }
+
+        i2ctool->freq = value;
+        return ret;
+
       case 'n':
         i2ctool->start = false;
         return 1;
@@ -141,11 +151,11 @@ int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
     }
 
 invalid_argument:
-  i2ctool_printf(i2ctool, g_fmtarginvalid, arg);
+  i2ctool_printf(i2ctool, g_i2carginvalid, arg);
   return ERROR;
 
 out_of_range:
-  i2ctool_printf(i2ctool, g_fmtargrange, arg);
+  i2ctool_printf(i2ctool, g_i2cargrange, arg);
   return ERROR;
 }
 

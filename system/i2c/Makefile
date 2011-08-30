@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # I2C tool
 
 ASRCS	=
-CSRCS	= i2c_bus.c i2c_common.c i2c_dev.c i2c_dump.c i2c_get.c i2c_main.c i2c_set.c
+CSRCS	= i2c_bus.c i2c_common.c i2c_dev.c i2c_get.c i2c_main.c i2c_set.c
 
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
@@ -57,6 +57,10 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 VPATH		= 
+
+APPNAME		= i2c
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 2048
 
 # Build targets
 
@@ -76,6 +80,8 @@ $(COBJS): %$(OBJEXT): %.c
 	@touch .built
 
 context:
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) \

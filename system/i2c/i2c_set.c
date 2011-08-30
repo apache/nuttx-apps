@@ -39,6 +39,8 @@
 
 #include <nuttx/config.h>
 
+#include <stdlib.h>
+
 #include <nuttx/i2c.h>
 
 #include "i2ctool.h"
@@ -75,22 +77,77 @@
  * Name: cmd_set
  ****************************************************************************/
 
-int cmd_set(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+int cmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 {
   FAR struct i2c_dev_s *dev;
+  struct i2c_msg_s msg[2];
+  FAR char *ptr;
+  union
+  {
+    uint16_t data16;
+    uint8_t  data8;
+  } u;
+
+  long value;
   int nargs;
-  int i;
+  int argndx;
+  int ret;
 
   /* Parse any command line arguments */
 
-  for (i = 1; i < argc; )
+  for (argndx = 1; argndx < argc; )
     {
-      nargs = common_args(i2ctool, &argv[i]);
+      /* Break out of the look when the last option has been parsed */
+
+      ptr = argv[argndx];
+      if (*ptr != '-')
+        {
+          break;
+        }
+
+      /* Otherwise, check for common options */
+
+      nargs = common_args(i2ctool, &argv[argndx]);
       if (nargs < 0)
         {
           return ERROR;
         }
-      i += nargs;
+      argndx += nargs;
+    }
+
+  /* There should be exactly one more thing on the command line:  The value
+   * to be written.
+   */
+
+  if (argndx < argc)
+    {
+      value = strtol(argv[argndx], NULL, 16);
+      if (i2ctool->width == 8)
+        {
+          if (value < 0 || value > 255)
+            {
+              i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
+              return ERROR;
+            }
+        }
+      else if (value < 0 || value > 65535)
+        {
+          i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
+          return ERROR;
+        }
+
+      argndx++;
+    }
+  else
+    {
+      i2ctool_printf(i2ctool, g_i2cargrequired, argv[0]);
+      return ERROR;
+    }
+
+  if (argndx != argc)
+    {
+      i2ctool_printf(i2ctool, g_i2ctoomanyargs, argv[0]);
+      return ERROR;
     }
 
   /* Get a handle to the I2C bus */
@@ -102,8 +159,73 @@ int cmd_set(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
        return ERROR;
     }
 
-#warning "missing logic"
+  /* Set the frequency and address (NOTE:  Only 7-bit address supported now) */
+
+  I2C_SETFREQUENCY(dev, i2ctool->freq);
+  I2C_SETADDRESS(dev, i2ctool->addr, 7);
+
+  /* Set up data structures */
+
+  msg[0].addr   = i2ctool->addr;
+  msg[0].flags  = 0;
+  msg[0].buffer = &i2ctool->regaddr;
+  msg[0].length = 1;
+
+  msg[1].addr   = i2ctool->addr;
+  msg[1].flags  = 0;
+  if (i2ctool->width == 8)
+    {
+      u.data8       = value;
+      msg[1].buffer = &u.data8;
+      msg[1].length = 1;
+    }
+  else
+    {
+      u.data16      = value;
+      msg[1].buffer = (uint8_t*)&u.data16;
+      msg[1].length = 2;
+    }
+
+  if (i2ctool->start)
+    {
+      ret = I2C_TRANSFER(dev, &msg[0], 1);
+      if (ret < 0)
+        {
+          i2ctool_printf(i2ctool, g_i2cxfrerror, argv[0], -ret);
+          goto errout;
+        }
+      ret = I2C_TRANSFER(dev, &msg[1], 1);
+      if (ret < 0)
+        {
+          i2ctool_printf(i2ctool, g_i2cxfrerror, argv[0], -ret);
+          goto errout;
+        }
+    }
+  else
+    {
+      ret = I2C_TRANSFER(dev, msg, 2);
+      if (ret < 0)
+        {
+          goto errout;
+        }
+    }
+
+  i2ctool_printf(i2ctool, "WROTE Bus: %d Addr: %02x Subaddr: %02x Value: ",
+                 i2ctool->bus, i2ctool->addr, i2ctool->regaddr);
+  if (i2ctool->width == 8)
+    {
+      i2ctool_printf(i2ctool, "%02x\n", u.data8);
+    }
+  else
+    {
+      i2ctool_printf(i2ctool, "%04x\n", u.data16);
+    }
 
   (void)up_i2cuninitialize(dev);
   return OK;
+
+errout:
+  i2ctool_printf(i2ctool, g_i2cxfrerror, argv[0], -ret);
+  (void)up_i2cuninitialize(dev);
+  return ERROR;
 }
