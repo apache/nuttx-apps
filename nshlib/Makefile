@@ -55,6 +55,10 @@ ifeq ($(CONFIG_NET),y)
 CSRCS	+= nsh_netinit.c nsh_netcmds.c
 endif
 
+ifeq ($(CONFIG_RTC),y)
+CSRCS	+= nsh_timcmds.c
+endif
+
 ifeq ($(CONFIG_NSH_CONSOLE),y)
 CSRCS	+= nsh_serial.c
 endif
@@ -66,6 +70,7 @@ endif
 ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
 CSRCS	+= nsh_test.c
 endif
+
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))

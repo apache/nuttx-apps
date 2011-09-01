@@ -379,6 +379,12 @@ extern int cmd_test(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 extern int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#ifndef CONFIG_DISABLE_CLOCK
+#  if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+extern int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#endif
+
 #if CONFIG_NFILE_DESCRIPTORS > 0
 #  ifndef CONFIG_NSH_DISABLE_CAT
      extern int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

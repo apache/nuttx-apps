@@ -158,6 +158,10 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
+#if defined (CONFIG_RTC) && !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_NSH_DISABLE_DATE)
+  { "date",     cmd_date,     1, 3, "[-s \"MMM DD HH:MM:SS YYYY\"]" },
+#endif
+
 #if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_DD
   { "dd",       cmd_dd,       3, 6, "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]" },
