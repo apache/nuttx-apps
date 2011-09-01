@@ -124,7 +124,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
 
   /* Break the current time up into the format needed by strftime */
 
-  (void)gmtime_r((FAR const time_t*)ts.tv_sec, &tm);
+  (void)gmtime_r((FAR const time_t*)&ts.tv_sec, &tm);
 
   /* Show the current time in the requested format */
 
@@ -166,7 +166,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
 
   /* Get the day of the month.  NOTE: Accepts day-of-month up to 31 for all months */
 
-  token = strtok_r(newtime, " \t",&saveptr);
+  token = strtok_r(NULL, " \t",&saveptr);
   if (token == NULL)
     {
       goto errout_bad_parm;
@@ -237,7 +237,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
     {
       goto errout_bad_parm;
     }
-  tm.tm_year = (int)result;
+  tm.tm_year = (int)result - 1900;
 
   /* Convert this to the right form, then set the timer */
 

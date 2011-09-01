@@ -102,3 +102,5 @@
 	  of circles.
 	* apps/system/i2c:  Add an I2C test tool that should help to bring up I2C
 	  devices (when it is fully functional).
+	* apps/nshlib/nsh_timcmds.c:  Add the date command that can be used to
+	  show or set the time (only if CONFIG_RTC is set).

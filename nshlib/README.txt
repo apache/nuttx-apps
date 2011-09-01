@@ -262,6 +262,18 @@ o cp <source-path> <dest-path>
   Copy of the contents of the file at <source-path> to the location
   in the filesystem indicated by <path-path>
 
+o date [-s "MMM DD HH:MM:SS YYYY"]
+
+  Show or set the current date and time.  This command is only supported
+  if the platform supported RTC hardware (CONFIG_RTC=y).
+
+  Only one format is used both on display and when setting the date/time:
+  MMM DD HH:MM:SS YYYY.  For example,
+  
+    data -s "Sep 1 11:30:00 2011"
+
+  24-hour time format is assumed.
+
 o dd if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]
 
   Copy blocks from <infile> to <outfile>.  <nfile> or <outfile> may
