@@ -18,6 +18,9 @@ CONTENTS
     - dev
     - get
     - set
+  o I2C Build Configuration
+    - NuttX Configuration Requirements
+    - I2C Tool Configuration Options
 
 HELP
 ====
@@ -122,8 +125,18 @@ Common Option Summary
   
   All I2C address are 7-bit, hexadecimal values.
 
-  Note that in the "help" output above also shows both default value of
-  the I2C address (03 hex) and the current address value (also 03).
+  NOTE 1: Notice in the "help" output above it shows both default value of
+  the I2C address (03 hex) and the current address value (also 03 hex).
+
+  NOTE 2: Sometimes I2C addresses are represented as 8-bit values (with
+  bit zero indicating a read or write operation).  The I2C tool uses a
+  7-bit representation of the address with bit 7 unused and no read/write
+  indication in bit 0.  Essentially, the 7-bit address is like the 8-bit
+  address shifted right by 1.
+
+  NOTE 3: Most I2C bus controllers will also support 10-bit addressing.
+  That capability has not been integrated into the I2C tool as of this
+  writing.
 
 [-b bus] is the I2C bus number (decimal).  Default: 1 Current: 1
 
@@ -159,7 +172,7 @@ COMMAND SUMMARY
 ===============
 
 We have already seen the I2C help (or ?) commands above.  This section will
-discussethe remaining commands.
+discusse the remaining commands.
 
 List buses: bus [OPTIONS]
 --------------------------
@@ -242,4 +255,61 @@ Write register: set [OPTIONS] <value>
 
   All values (except the bus numbers) are hexadecimal.
 
+I2C BUILD CONFIGURATION
+=======================
 
+NuttX Configuration Requirements
+--------------------------------
+The I2C tools requires the following in your NuttX configuration:
+
+1. Device-specific I2C support must be enabled.  The I2C tool will call the
+   platform-specific function up_i2cinitialize() to get instances of the
+   I2C interface and the platform-specific function up_i2cuninitialize()
+   to discard instances of the I2C interface.
+
+   NOTE 1: The I2C interface is defined in include/nuttx/i2c.h.
+
+   NOTE 2: This I2C tool uses direct I2C device interfaces.  As such, it
+   relies on internal OS interfaces that are not normally available to a
+   user-space program.  As a result, the I2C tool cannot be used if a
+   NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+
+2. I2C driver configuration
+
+   The CONFIG_I2C_TRANSFER option must also be set in your NuttX
+   configuration.  This configuration is the defconfig file in your
+   configuration directory that is copied to the NuttX top-level
+   directory as .config when NuttX is configured.
+
+     CONFIG_I2C_TRANSFER=y
+
+   NOTE:  CONFIG_I2C_TRANSFER adds extra methods to the I2C interface.
+   Not all I2C interfaces support these extra methods.  If your platform's
+   I2C driver does not support these extra methods, then you cannot use
+   the I2C tool unless you extend the support in your platform I2C
+   driver.
+
+3. Application configuration.
+
+   The path to the I2C tool directory must also be set in your NuttX
+   application configuration.  This application configuration is the
+   appconfig file in your configuration directory that is copied to the
+   NuttX application directory as .config when NuttX is configured.
+
+     CONFIGURE_APPS += system/i2c
+
+I2C Tool Configuration Options
+------------------------------
+
+The default behavior of the I2C tool can be modified by the setting the
+options in the NuttX configuration.  This configuration is the defconfig
+file in your configuration directory that is copied to the NuttX top-level
+directory as .config when NuttX is configured.
+
+  CONFIG_I2CTOOL_BUILTIN: Build the tools as an NSH built-in command
+  CONFIG_I2CTOOL_MINBUS: Smallest bus index supported by the hardware (default 0).
+  CONFIG_I2CTOOL_MAXBUS: Largest bus index supported by the hardware (default 3)
+  CONFIG_I2CTOOL_MINADDR: Minium device address (default: 0x03)
+  CONFIG_I2CTOOL_MAXADDR: Largest device address (default: 0x77)
+  CONFIG_I2CTOOL_MAXREGADDR: Largest register address (default: 0xff)
+  CONFIG_I2CTOOL_DEFFREQ: Default frequency (default: 4000000)
