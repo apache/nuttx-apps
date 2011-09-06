@@ -91,10 +91,11 @@
 #endif
 
 /* This is the maximum number of arguments that will be accepted for a
- * command
+ * command.  The only real limit is in the OS configuration that limits
+ * the number of parameters passed to a task.
  */
 
-#define MAX_ARGUMENTS 6
+#define MAX_ARGUMENTS (CONFIG_MAX_TASK_ARGS-1)
 
 /* Maximum size of one command line */
 

@@ -253,7 +253,7 @@ FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool, int argc, char *argv[], in
 
 int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
 {
-  FAR char *newargs[MAX_ARGUMENTS+1];
+  FAR char *newargs[MAX_ARGUMENTS+2];
   FAR char *cmd;
   int       nargs;
   int       index;
@@ -278,7 +278,7 @@ int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
   /* Parse all of the arguments following the command name. */
 
   newargs[0] = cmd;
-  for (nargs = 1; nargs < MAX_ARGUMENTS; nargs++)
+  for (nargs = 1; nargs <= MAX_ARGUMENTS; nargs++)
     {
       newargs[nargs] = i2c_argument(i2ctool, argc, argv, &index);
       if (!newargs[nargs])

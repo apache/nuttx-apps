@@ -187,7 +187,7 @@ int arg_decimal(FAR char **arg, FAR long *value)
 {
   FAR char *string;
   int ret;
-  
+
   ret = arg_string(arg, &string);
   *value = strtol(string, NULL, 10);
   return ret;
