@@ -76,7 +76,7 @@ struct i2ctool_s g_i2ctool;
 static const struct cmdmap_s g_i2ccmds[] =
 {
   { "?",    cmd_help, "Show help",       NULL },
-  { "bus",  cmd_bus,  "List busses",     "[OPTIONS]" },
+  { "bus",  cmd_bus,  "List busses",     NULL },
   { "dev",  cmd_dev,  "List devices",    "[OPTIONS] <first> <last>" },
   { "get",  cmd_get,  "Read register",   "[OPTIONS]" },
   { "help", cmd_help, "Show help",       NULL },

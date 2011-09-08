@@ -87,7 +87,7 @@
 #endif
 
 #ifndef CONFIG_I2CTOOL_DEFFREQ
-#  define CONFIG_I2CTOOL_DEFFREQ 400000
+#  define CONFIG_I2CTOOL_DEFFREQ 100000
 #endif
 
 /* This is the maximum number of arguments that will be accepted for a

@@ -7,6 +7,9 @@ will provide usage information for the I2C tools.
 CONTENTS
 ========
 
+  o System Requirements
+    - I2C Driver
+    - Configuration Options
   o Help
   o Common Line Form
   o Common Command Options
@@ -21,6 +24,34 @@ CONTENTS
   o I2C Build Configuration
     - NuttX Configuration Requirements
     - I2C Tool Configuration Options
+
+System Requirements
+===================
+
+I2C Driver
+----------
+In order to use the I2C driver, you system -- in particular, your I2C driver --
+must meet certain requirements:
+
+1. It support calling up_i2cinitialize() numerous times, resetting the I2C
+   hardware on each (initial) time.  up_i2cuninitialize() will be called after
+   each call to up_i2cinitialize() to free any resources and disable the I2C.
+2. up_i2cinitialize must accept any interface number without crashing.  It
+   must simply return NULL if the device is not supported.
+3. The I2C driver must support the transfer method (CONFIG_I2C_TRANSFER=y).
+
+The I2C tool is designed to be implemented as a NuttShell (NSH) add-on.  Read
+the apps/nshlib/README.txt file for information about add-ons.
+
+Configuration Options
+---------------------
+CONFIG_I2CTOOL_BUILTIN - Build the tools as an NSH built-in command
+CONFIG_I2CTOOL_MINBUS - Smallest bus index supported by the hardware (default 0).
+CONFIG_I2CTOOL_MAXBUS - Largest bus index supported by the hardware (default 3)
+CONFIG_I2CTOOL_MINADDR - Minium device address (default: 0x03)
+CONFIG_I2CTOOL_MAXADDR - Largest device address (default: 0x77)
+CONFIG_I2CTOOL_MAXREGADDR - Largest register address (default: 0xff)
+CONFIG_I2CTOOL_DEFFREQ - Default frequency (default: 4000000)
 
 HELP
 ====
@@ -44,7 +75,7 @@ options.
   Where <cmd> is one of:
 
     Show help: ?
-    List buses: bus [OPTIONS]
+    List buses: bus
     List devices: dev [OPTIONS] <first> <last>
     Read register: get [OPTIONS]
     Show help: help
@@ -56,7 +87,7 @@ options.
     [-r regaddr] is the I2C device register address (hex).  Default: 00 Current: 00
     [-w width] is the data width (8 or 16 decimal).  Default: 8 Current: 8
     [-s|n], send/don't send start between command and data.  Default: -n Current: -n
-    [-f freq] I2C frequency.  Default: 400000 Current: 400000
+    [-f freq] I2C frequency.  Default: 100000 Current: 100000
 
   NOTES:
   o An environment variable like $PATH may be used for any argument.
