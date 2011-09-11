@@ -96,7 +96,7 @@
 
 	* apps/examples/nxlines:  Added a test for NX line drawing capabilities.
 
-6.9 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+6.9 2011-09-11 Gregory Nutt <spudmonkey@racsa.co.cr>
 
 	* apps/examples/nxlines:  Extend the line drawing text to include drawing
 	  of circles.
@@ -104,3 +104,5 @@
 	  devices (when it is fully functional).
 	* apps/nshlib/nsh_timcmds.c:  Add the date command that can be used to
 	  show or set the time (only if CONFIG_RTC is set).
+
+6.10 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
