@@ -51,6 +51,10 @@
 #include <nuttx/usb/usbdev.h>
 #include <nuttx/usb/usbdev_trace.h>
 
+#ifdef CONFIG_CDCSER
+#  include <nuttx/usb/cdc_serial.h>
+#endif
+
 /****************************************************************************
  * Definitions
  ****************************************************************************/
@@ -211,7 +215,11 @@ int user_start(int argc, char *argv[])
   /* Initialize the USB serial driver */
 
   message("user_start: Registering USB serial driver\n");
+#ifdef CONFIG_CDCSER
+  ret = cdcser_initialize(0);
+#else
   ret = usbdev_serialinitialize(0);
+#endif
   if (ret < 0)
     {
       message("user_start: ERROR: Failed to create the USB serial device: %d\n", -ret);
