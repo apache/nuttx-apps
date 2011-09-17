@@ -201,7 +201,7 @@ int cmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
           else
             {
               msg[1].buffer = (uint8_t*)&u.data16;
-              msg[2].length = 2;
+              msg[1].length = 2;
             }
 
           if (i2ctool->start)
