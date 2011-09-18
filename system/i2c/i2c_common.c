@@ -118,6 +118,14 @@ int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
         i2ctool->freq = value;
         return ret;
 
+      case 'i':
+        i2ctool->autoincr = true;
+        return 1;
+
+      case 'j':
+        i2ctool->autoincr = false;
+        return 1;
+
       case 'n':
         i2ctool->start = false;
         return 1;

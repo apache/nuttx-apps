@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/i2c/i2c_set.c
+ * apps/system/i2c/i2c_verf.c
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -74,15 +74,17 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: i2ccmd_set
+ * Name: i2ccmd_verf
  ****************************************************************************/
 
-int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
+int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 {
   FAR struct i2c_dev_s *dev;
   FAR char *ptr;
+  uint16_t rdvalue;
   uint8_t regaddr;
-  long value;
+  bool addrinaddr;
+  long wrvalue;
   long repititions;
   int nargs;
   int argndx;
@@ -111,33 +113,33 @@ int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
       argndx += nargs;
     }
 
-  /* There must be at least one more thing on the command line:  The value
-   * to be written.
+  /* The options may be followed by the optional wrvalue to be written.  If omitted, then
+   * the register address will be used as the wrvalue, providing an address-in-address
+   * test.
    */
+
+  addrinaddr = true;
+  wrvalue    = 0;
 
   if (argndx < argc)
     {
-      value = strtol(argv[argndx], NULL, 16);
+      wrvalue = strtol(argv[argndx], NULL, 16);
       if (i2ctool->width == 8)
         {
-          if (value < 0 || value > 255)
+          if (wrvalue < 0 || wrvalue > 255)
             {
               i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
               return ERROR;
             }
         }
-      else if (value < 0 || value > 65535)
+      else if (wrvalue < 0 || wrvalue > 65535)
         {
           i2ctool_printf(i2ctool, g_i2cargrange, argv[0]);
           return ERROR;
         }
 
+      addrinaddr = false;
       argndx++;
-    }
-  else
-    {
-      i2ctool_printf(i2ctool, g_i2cargrequired, argv[0]);
-      return ERROR;
     }
 
   /* There may be one more thing on the command line:  The repitition
@@ -184,23 +186,48 @@ int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 
   for (i = 0; i < repititions; i++)
     {
+      /* If we are performing an address-in-address test, then use the register
+       * address as the value to write.
+       */
+
+      if (addrinaddr)
+        {
+          wrvalue = regaddr;
+        }
+
       /* Write to the I2C bus */
 
-      ret = i2ctool_set(i2ctool, dev, regaddr, (uint16_t)value);
+      ret = i2ctool_set(i2ctool, dev, regaddr, (uint16_t)wrvalue);
+      if (ret == OK)
+        {
+          /* Read the value back from the I2C bus */
+
+          ret = i2ctool_get(i2ctool, dev, regaddr, &rdvalue);
+        }
 
       /* Display the result */
 
       if (ret == OK)
         {
-          i2ctool_printf(i2ctool, "WROTE Bus: %d Addr: %02x Subaddr: %02x Value: ",
+          i2ctool_printf(i2ctool, "VERIFY Bus: %d Addr: %02x Subaddr: %02x Wrote: ",
                          i2ctool->bus, i2ctool->addr, i2ctool->regaddr);
+
           if (i2ctool->width == 8)
             {
-              i2ctool_printf(i2ctool, "%02x\n", (int)value);
+              i2ctool_printf(i2ctool, "%02x Read: %02x", (int)wrvalue, (int)rdvalue);
             }
           else
             {
-              i2ctool_printf(i2ctool, "%04x\n", (int)value);
+              i2ctool_printf(i2ctool, "%04x Read: %04x", (int)wrvalue, (int)rdvalue);
+            }
+
+          if (wrvalue != rdvalue)
+            {
+              i2ctool_printf(i2ctool, "  <<< FAILURE\n");
+            }
+          else
+            {
+              i2ctool_printf(i2ctool, "\n");
             }
         }
       else
@@ -218,58 +245,5 @@ int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
     }
 
   (void)up_i2cuninitialize(dev);
-  return ret;
-}
-
-/****************************************************************************
- * Name: i2ctool_set
- ****************************************************************************/
-
-int i2ctool_set(FAR struct i2ctool_s *i2ctool, FAR struct i2c_dev_s *dev,
-                uint8_t regaddr, uint16_t value)
-{
-  struct i2c_msg_s msg[2];
-  union
-  {
-    uint16_t data16;
-    uint8_t  data8;
-  } u;
-  int ret;
-
-  /* Set up data structures */
-
-  msg[0].addr   = i2ctool->addr;
-  msg[0].flags  = 0;
-  msg[0].buffer = &regaddr;
-  msg[0].length = 1;
-
-  msg[1].addr   = i2ctool->addr;
-  msg[1].flags  = 0;
-  if (i2ctool->width == 8)
-    {
-      u.data8       = (uint8_t)value;
-      msg[1].buffer = &u.data8;
-      msg[1].length = 1;
-    }
-  else
-    {
-      u.data16      = value;
-      msg[1].buffer = (uint8_t*)&u.data16;
-      msg[1].length = 2;
-    }
-
-  if (i2ctool->start)
-    {
-      ret = I2C_TRANSFER(dev, &msg[0], 1);
-      if (ret == OK)
-        {
-          ret = I2C_TRANSFER(dev, &msg[1], 1);
-        }
-    }
-  else
-    {
-      ret = I2C_TRANSFER(dev, msg, 2);
-    }
-
   return ret;
 }

@@ -49,6 +49,8 @@
 #include <stdbool.h>
 #include <errno.h>
 
+#include <nuttx/i2c.h>
+
 /****************************************************************************
  * Definitions
  ****************************************************************************/
@@ -139,7 +141,8 @@ struct i2ctool_s
   uint8_t  bus;        /* [-b bus] is the I2C bus number */
   uint8_t  regaddr;    /* [-r regaddr] is the I2C device register address */
   uint8_t  width;      /* [-w width] is the data width (8 or 16) */
-  bool     start;      /* [-s|n], send/don't send start between command and data */
+  bool     start;      /* [-s|n], send|don't send start between command and data */
+  bool     autoincr;   /* [-i|j], Auto increment|don't increment regaddr on repititions */
   uint32_t freq;       /* [-f freq] I2C frequency */
 
   /* Output streams */
@@ -184,10 +187,18 @@ void i2ctool_flush(FAR struct i2ctool_s *i2ctool);
 
 /* Command handlers */
 
-int cmd_bus(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
-int cmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
-int cmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
-int cmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+int i2ccmd_bus(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+int i2ccmd_set(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
+
+/* I2C access functions */
+
+int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_dev_s *dev,
+                uint8_t addr, uint16_t *result);
+int i2ctool_set(FAR struct i2ctool_s *i2ctool, FAR struct i2c_dev_s *dev,
+                uint8_t regaddr, uint16_t value);
 
 /* Common logic */
 

@@ -64,8 +64,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
-static int cmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
+static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
+static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv);
 
 /****************************************************************************
  * Private Data
@@ -75,13 +75,14 @@ struct i2ctool_s g_i2ctool;
 
 static const struct cmdmap_s g_i2ccmds[] =
 {
-  { "?",    cmd_help, "Show help",       NULL },
-  { "bus",  cmd_bus,  "List busses",     NULL },
-  { "dev",  cmd_dev,  "List devices",    "[OPTIONS] <first> <last>" },
-  { "get",  cmd_get,  "Read register",   "[OPTIONS]" },
-  { "help", cmd_help, "Show help",       NULL },
-  { "set",  cmd_set,  "Write register",  "[OPTIONS] <value>" },
-  { NULL,   NULL,     NULL,              NULL }
+  { "?",    i2ccmd_help, "Show help     ",  NULL },
+  { "bus",  i2ccmd_bus,  "List busses   ",  NULL },
+  { "dev",  i2ccmd_dev,  "List devices  ", "[OPTIONS] <first> <last>" },
+  { "get",  i2ccmd_get,  "Read register ", "[OPTIONS] [<repititions>]" },
+  { "help", i2ccmd_help, "Show help     ", NULL },
+  { "set",  i2ccmd_set,  "Write register", "[OPTIONS] <value> [<repititions>]" },
+  { "verf", i2ccmd_verf, "Verify access ", "[OPTIONS] [<value>] [<repititions>]" },
+  { NULL,   NULL,        NULL,             NULL }
 };
 
 /****************************************************************************
@@ -103,10 +104,10 @@ const char g_i2cxfrerror[]       = "i2ctool: %s: Transfer failed: %d\n";
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cmd_help
+ * Name: i2ccmd_help
  ****************************************************************************/
 
-static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+static int i2ccmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
   const struct cmdmap_s *ptr;
 
@@ -140,6 +141,9 @@ static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
   i2ctool_printf(i2ctool, "  [-s|n], send/don't send start between command and data.  "
                           "Default: -n Current: %s\n",
                  i2ctool->start ? "-s" : "-n");
+  i2ctool_printf(i2ctool, "  [-i|j], Auto increment|don't increment regaddr on repititions.  "
+                          "Default: NO Current: %s\n",
+                 i2ctool->autoincr ? "YES" : "NO");
   i2ctool_printf(i2ctool, "  [-f freq] I2C frequency.  "
                           "Default: %d Current: %d\n",
                  CONFIG_I2CTOOL_DEFFREQ, i2ctool->freq);
@@ -156,10 +160,10 @@ static int cmd_help(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: cmd_unrecognized
+ * Name: i2ccmd_unrecognized
  ****************************************************************************/
 
-static int cmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
   i2ctool_printf(i2ctool, g_i2ccmdnotfound, argv[0]);
   return ERROR;
@@ -187,7 +191,7 @@ static int i2c_execute(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
    /* See if the command is one that we understand */
 
    cmd     = argv[0];
-   handler = cmd_unrecognized;
+   handler = i2ccmd_unrecognized;
 
    for (cmdmap = g_i2ccmds; cmdmap->cmd; cmdmap++)
      {
@@ -272,7 +276,7 @@ int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
        * command status.
        */
 
-      return cmd_help(i2ctool, 0, NULL);
+      return i2ccmd_help(i2ctool, 0, NULL);
     }
 
   /* Parse all of the arguments following the command name. */

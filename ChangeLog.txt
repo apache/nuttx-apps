@@ -106,3 +106,8 @@
 	  show or set the time (only if CONFIG_RTC is set).
 
 6.10 2011-xx-xx Gregory Nutt <spudmonkey@racsa.co.cr>
+
+	* apps/system/i2c:  Add repitition and address auto-incrementing so that
+	  and command can be executed numerous times.  Add a new verify command
+	  that will write to a register, read from register, and verify that
+	  returned value.

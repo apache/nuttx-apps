@@ -72,10 +72,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: cmd_bus
+ * Name: i2ccmd_bus
  ****************************************************************************/
 
-int cmd_bus(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
+int i2ccmd_bus(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
   FAR struct i2c_dev_s *dev;
   int i;
