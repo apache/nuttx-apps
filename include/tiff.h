@@ -232,6 +232,7 @@ struct tiff_header_s
   uint8_t magic[2];  /* 2-3: 42 in appropriate byte order */
   uint8_t offset[4]; /* 4-7: Offset to the first IFD */
 };
+#define SIZEOF_TIFF_HEADER 8
 
 /* "An Image File Directory (IFD) consists of a 2-byte count of the number
  *  of directory entries (i.e., the number of fields), followed by a sequence
@@ -248,6 +249,7 @@ struct tiff_ifdentry_s
   uint8_t count[4];  /* 4-7: The number of values of the indicated type */
   uint8_t offset[4]; /* 8-11: The Value Offset (or the value itself) */
 };
+#define SIZEOF_IFD_ENTRY 12
 
 /************************************************************************************/
 /* Structures needed to interface with the TIFF file creation library )and also 
@@ -280,6 +282,12 @@ struct tiff_info_s
   FAR const char *outfile;  /* Full path to the final output file name */
   FAR const char *tmpfile1; /* Full path to first temporary file */
   FAR const char *tmpfile2; /* Full path to second temporary file */
+
+  uint8_t      pmi;         /* PhotometricInterpretation, See TAG_PMI_* definitions */
+  uint8_t      bps;         /* BitsPerSample, Greyscale bits per sample (4 or 8) */
+  nxgl_coord_t rps;         /* RowsPerStrip */
+  nxgl_coord_t imgwidth;    /* Number of columns in the image */
+  nxgl_coord_t imgheight;   /* Number of rows in the image */
 
   /* The second set of fields are used only internally by the TIFF file
    * creation logic.  These fields must be set to zero initially by the
@@ -335,20 +343,19 @@ EXTERN int tiff_initialize(FAR struct tiff_info_s *info);
  * Name: tiff_addstrip
  *
  * Description:
- *   Add an image data strip.
+ *   Add an image data strip.  The size of the strip in pixels must be equal to
+ *   the RowsPerStrip x ImageWidth values that were provided to tiff_initialize().
  *
  * Input Parameters:
  *   info    - A pointer to the caller allocated parameter passing/TIFF state instance.
  *   buffer  - A buffer containing a single row of data.
- *   npixels - The number of pixels (not necessarily bytes) in the row of data.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ************************************************************************************/
 
-EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *buffer,
-                         nxgl_coord_t npixels);
+EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *strip);
 
 /************************************************************************************
  * Name: tiff_finalize

@@ -75,20 +75,20 @@
  * Name: tiff_addstrip
  *
  * Description:
- *   Add an image data strip.
+ *   Add an image data strip.  The size of the strip in pixels must be equal
+ *   to the RowsPerStrip x ImageWidth values that were provided to
+ *   tiff_initialize().
  *
  * Input Parameters:
  *   info    - A pointer to the caller allocated parameter passing/TIFF state instance.
  *   buffer  - A buffer containing a single row of data.
- *   npixels - The number of pixels (not necessarily bytes) in the row of data.
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *buffer,
-                  nxgl_coord_t npixels)
+int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *strip)
 {
 #warning "Missing logic"
   return -ENOSYS;
