@@ -111,3 +111,4 @@
 	  and command can be executed numerous times.  Add a new verify command
 	  that will write to a register, read from register, and verify that
 	  returned value.
+	* apps/graphics/tiff:  Add a library that can be used to create TIFF files.
