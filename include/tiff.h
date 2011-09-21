@@ -264,6 +264,23 @@ struct tiff_strip_s
   uint32_t count;  /* Count of pixels in the strip */
 };
 
+/* This structure is used only internally by the TIFF file creation library to
+ * manage file offsets.
+ */
+
+struct tiff_filefmt_s
+{
+  uint16_t nifdentries;    /* Number of IFD entries */
+  uint16_t soifdoffset;    /* Offset to StripOffset IFD entry */
+  uint16_t sbcifdoffset;   /* Offset to StripByteCount IFD entry */
+  uint16_t valoffset;      /* Offset to first values */
+  uint16_t xresoffset;     /* Offset to XResolution values */
+  uint16_t yresoffset;     /* Offset to yResolution values */
+  uint16_t swoffset;       /* Offset to Software string */
+  uint16_t dateoffset;     /* Offset to DateTime string */
+  uint16_t sbcoffset;      /* Offset to StripByteCount values */
+};
+
 /* These type is used to hold information about the TIFF file under
  * construction
  */
@@ -277,33 +294,51 @@ struct tiff_info_s
    * output file and (2) two paths to temporary files.  One temporary file
    * (tmpfile1) will be used to hold the strip image data and the other
    * (tmpfile2) will be used to hold strip offset and count information.
+   *
+   * colorfmt  - Specifies the form of the color data that will be provided
+   *             in the strip data.  These are the FB_FMT_* definitions
+   *             provided in include/nuttx/fb.h.  Only the following values
+   *             are supported:
+   *
+   *             FB_FMT_Y1               BPP=1, monochrome, 0=black
+   *             FB_FMT_Y4               BPP=4, 4-bit greyscale, 0=black
+   *             FB_FMT_Y8               BPP=8, 8-bit greyscale, 0=black
+   *             FB_FMT_RGB16_565        BPP=16 R=6, G=6, B=5
+   *             FB_FMT_RGB24            BPP=24 R=8, G=8, B=8
+   *
+   * rps       - TIFF RowsPerStrip
+   * imgwidth  - TIFF ImageWidth, Number of columns in the image
+   * imgheight - TIFF ImageLength, Number of rows in the image
    */
 
   FAR const char *outfile;  /* Full path to the final output file name */
   FAR const char *tmpfile1; /* Full path to first temporary file */
   FAR const char *tmpfile2; /* Full path to second temporary file */
 
-  uint8_t      pmi;         /* PhotometricInterpretation, See TAG_PMI_* definitions */
-  uint8_t      bps;         /* BitsPerSample, Greyscale bits per sample (4 or 8) */
-  nxgl_coord_t rps;         /* RowsPerStrip */
-  nxgl_coord_t imgwidth;    /* Number of columns in the image */
-  nxgl_coord_t imgheight;   /* Number of rows in the image */
+  uint8_t      colorfmt;    /* See FB_FMT_* definitions in include/nuttx/fb.h */
+  nxgl_coord_t rps;         /* TIFF RowsPerStrip */
+  nxgl_coord_t imgwidth;    /* TIFF ImageWidth, Number of columns in the image */
+  nxgl_coord_t imgheight;   /* TIFF ImageLength, Number of rows in the image */
 
   /* The second set of fields are used only internally by the TIFF file
    * creation logic.  These fields must be set to zero initially by the
    * caller of tiff_initialize().  User logic should not depend upon any
    * definitions in the following -- they are subject to change without
-   * notice.
+   * notice.  They are only exposed here so that the caller can allocate
+   * memory for their storage.
    */
 
+  uint8_t      imgflags;    /* Bit-encoded image flags */
   nxgl_coord_t nstrips;     /* Number of strips in tmpfile3 */
-  int     outfd;            /* outfile file descriptor */
-  int     tmp1fd;           /* tmpfile1 file descriptor */
-  int     tmp2fd;           /* tmpfile2 file descriptor */
-  off_t   outsize;          /* Current size of outfile */
-  off_t   tmp1size;         /* Current size of tmpfile1 */
-  off_t   sooffset;         /* Offset to StripOffsets IFD entry in outfile */
-  off_t   sbcffset;         /* Offset to StripByteCounts IFD entry in outfile */
+  int          outfd;       /* outfile file descriptor */
+  int          tmp1fd;      /* tmpfile1 file descriptor */
+  int          tmp2fd;      /* tmpfile2 file descriptor */
+  off_t        outsize;     /* Current size of outfile */
+  off_t        tmp1size;    /* Current size of tmpfile1 */
+
+  /* Points to an internal constant structure of file offsets */
+  
+  FAR const struct tiff_filefmt_s *filefmt;
 };
 
 /************************************************************************************

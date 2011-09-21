@@ -48,7 +48,7 @@ APPDIR = ${shell pwd}
 #   list can be extended by the .config file as well
 
 CONFIGURED_APPS =
-SUBDIRS = examples interpreters namedapp nshlib netutils system vsn
+SUBDIRS = examples graphics interpreters namedapp nshlib netutils system vsn
 
 -include .config
 

@@ -51,6 +51,30 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
+/* Image Type **************************************************************/
+
+#define IMGFLAGS_BILEV_BIT     (1 << 0)
+#define IMGFLAGS_GREY_BIT      (1 << 1)
+#define IMGFLAGS_GREY8_BIT     (1 << 2)
+#define IMGFLAGS_RGB_BIT       (1 << 3)
+#define IMGFLAGS_RGB565_BIT    (1 << 4)
+
+#define IMGFLAGS_FMT_Y1        (IMGFLAGS_BILEV_BIT)
+#define IMGFLAGS_FMT_Y4        (IMGFLAGS_GREY_BIT)
+#define IMGFLAGS_FMT_Y8        (IMGFLAGS_GREY_BIT|IMGFLAGS_GREY8_BIT)
+#define IMGFLAGS_FMT_RGB16_565 (IMGFLAGS_RGB_BIT)
+#define IMGFLAGS_FMT_RGB24     (IMGFLAGS_RGB_BIT|IMGFLAGS_RGB565_BIT)
+
+#define IMGFLAGS_ISBILEV(f) \
+  (((f) & IMGFLAGS_BILEV_BIT) != 0)
+#define IMGFLAGS_ISGREY(f) \
+  (((f) & IMGFLAGS_GREY_BIT) != 0)
+#define IMGFLAGS_ISGREY4(f) \
+  (((f) & (IMGFLAGS_GREY_BIT|IMGFLAGS_GREY8_BIT)) == IMGFLAGS_GREY_BIT)
+#define IMGFLAGS_ISGREY8(f) \
+  (((f) & (IMGFLAGS_GREY_BIT|IMGFLAGS_GREY8_BIT)) == (IMGFLAGS_GREY_BIT|IMGFLAGS_GREY8_BIT))
+#define IMGFLAGS_ISRGB(f) \
+  (((f) & IMGFLAGS_FMT_RGB24) != 0)
 
 /****************************************************************************
  * Public Types
@@ -88,7 +112,7 @@ extern "C" {
  *
  ****************************************************************************/
 
-EXTERN int tiff_write(int fd, FAR void *buffer, size_t count);
+EXTERN int tiff_write(int fd, FAR const void *buffer, size_t count);
 
 #undef EXTERN
 #if defined(__cplusplus)

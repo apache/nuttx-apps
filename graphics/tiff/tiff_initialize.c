@@ -39,8 +39,10 @@
 
 #include <nuttx/config.h>
 
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
@@ -61,28 +63,28 @@
  *            8    [2 bytes padding]
  * IFD:      10    Number of Directory Entries 12
  *           12    NewSubfileType
- *           24    ImageWidth                  Number of columns is a user parmeter
+ *           24    ImageWidth                  Number of columns is a user parameter
  *           36    ImageLength                 Number of rows is a user parameter
  *           48    Compression                 Hard-coded no compression (for now)
  *           60    PhotometricInterpretation   Value is a user parameter
- *           72    StripOffsets                Offset and count determined at run time
+ *           72    StripOffsets                Offset and count determined as strips added
  *           84    RowsPerStrip                Value is a user parameter
- *           96    StripByteCounts             Offset and count determined at run time
+ *           96    StripByteCounts             Offset and count determined as strips added
  *          108    XResolution                 Value is a user parameter
  *          120    YResolution                 Value is a user parameter
- *          132    Resolution Unit             Hard-coded to 1
+ *          132    Resolution Unit             Hard-coded to "inches"
  *          144    Software
  *          156    DateTime
  *          168    Next IFD offset             0
  *          170    [2 bytes padding]
  * Values:
- *          172    XResolution                 nnnn 1, nnnn is user supplied
- *          180    YResolution                 nnnn 1, nnnn is user supplied
- *          188    "NuttX"                     Length = 6 (includeing NUL terminator)
+ *          172    XResolution                 Hard-coded to 300/1
+ *          180    YResolution                 Hard-coded to 300/1
+ *          188    "NuttX"                     Length = 6 (including NUL terminator)
  *          194    "YYYY:MM:DD HH:MM:SS"       Length = 20 (ncluding NUL terminator)
  *          214    [2 bytes padding]
- *          216    StripOffsets                Beginning of strip offsets
- *          xxx    StripByteCounts             Beginning of strip byte counts
+ *          216    StripByteCounts             Beginning of strip byte counts
+ *          xxx    StripOffsets                Beginning of strip offsets
  *          xxx    [Probably padding]
  *          xxx    Data for strips             Beginning of strip data
  */
@@ -97,7 +99,13 @@
 #define TIFF_BILEV_YRESOFFSET     180
 #define TIFF_BILEV_SWOFFSET       188
 #define TIFF_BILEV_DATEOFFSET     194
-#define TIFF_BILEV_STRIPOFFSET    216
+#define TIFF_BILEV_STRIPBCOFFSET  216
+
+#define TIFF_SOFTWARE_STRING      "NuttX"
+#define TIFF_SOFTWARE_STRLEN      6
+
+#define TIFF_DATETIME_FORMAT      "%Y:%m:%d %H:%M:%S"
+#define TIFF_DATETIME_STRLEN      20
 
 /* Greyscale Images have one additional IFD entry: BitsPerSample (4 or 8)
  *
@@ -107,29 +115,29 @@
  *            8    [2 bytes padding]
  * IFD:      10    Number of Directory Entries 13
  *           12    NewSubfileType
- *           24    ImageWidth                  Number of columns is a user parmeter
+ *           24    ImageWidth                  Number of columns is a user parameter
  *           36    ImageLength                 Number of rows is a user parameter
  *           48    BitsPerSample
  *           60    Compression                 Hard-coded no compression (for now)
  *           72    PhotometricInterpretation   Value is a user parameter
- *           84    StripOffsets                Offset and count determined at run time
+ *           84    StripOffsets                Offset and count determined as strips added
  *           96    RowsPerStrip                Value is a user parameter
- *          108    StripByteCounts             Offset and count determined at run time
+ *          108    StripByteCounts             Offset and count determined as strips added
  *          120    XResolution                 Value is a user parameter
  *          132    YResolution                 Value is a user parameter
- *          144    Resolution Unit             Hard-coded to 1
+ *          144    Resolution Unit             Hard-coded to "inches"
  *          156    Software
  *          168    DateTime
  *          180    Next IFD offset             0
  *          182    [2 bytes padding]
  * Values:
- *          184    XResolution                 nnnn 1, nnnn is user supplied
- *          192    YResolution                 nnnn 1, nnnn is user supplied
- *          200    "NuttX"                     Length = 6 (includeing NUL terminator)
+ *          184    XResolution                 Hard-coded to 300/1
+ *          192    YResolution                 Hard-coded to 300/1
+ *          200    "NuttX"                     Length = 6 (including NUL terminator)
  *          206    "YYYY:MM:DD HH:MM:SS"       Length = 20 (ncluding NUL terminator)
  *          226    [2 bytes padding]
- *          228    StripOffsets                Beginning of strip offsets
- *          xxx    StripByteCounts             Beginning of strip byte counts
+ *          228    StripByteCounts             Beginning of strip byte counts
+ *          xxx    StripOffsets                Beginning of strip offsets
  *          xxx    [Probably padding]
  *          xxx    Data for strips             Beginning of strip data
  */
@@ -142,7 +150,7 @@
 #define TIFF_GREY_YRESOFFSET     192
 #define TIFF_GREY_SWOFFSET       200
 #define TIFF_GREY_DATEOFFSET     206
-#define TIFF_GREY_STRIPOFFSET    228
+#define TIFF_GREY_STRIPBCOFFSET  228
 
 /* RGB Images have two additional IFD entries: BitsPerSample (8,8,8) and
  * SamplesPerPixel (3):
@@ -153,32 +161,32 @@
  *            8    [2 bytes padding]
  * IFD:      10    Number of Directory Entries 14
  *           12    NewSubfileType
- *           24    ImageWidth                  Number of columns is a user parmeter
+ *           24    ImageWidth                  Number of columns is a user parameter
  *           36    ImageLength                 Number of rows is a user parameter
  *           48    BitsPerSample               8, 8, 8
  *           60    Compression                 Hard-coded no compression (for now)
  *           72    PhotometricInterpretation   Value is a user parameter
- *           84    StripOffsets                Offset and count determined at run time
+ *           84    StripOffsets                Offset and count determined as strips added
  *           96    SamplesPerPixel             Hard-coded to 3
  *          108    RowsPerStrip                Value is a user parameter
- *          120    StripByteCounts             Offset and count determined at run time
+ *          120    StripByteCounts             Offset and count determined as strips added
  *          132    XResolution                 Value is a user parameter
  *          144    YResolution                 Value is a user parameter
- *          156    Resolution Unit              Hard-coded to 1
+ *          156    Resolution Unit              Hard-coded to "inches"
  *          168    Software
  *          180    DateTime
  *          192    Next IFD offset             0
  *          194    [2 bytes padding]
  * Values:
- *          196    XResolution                 nnnn 1, nnnn is user supplied
- *          204    YResolution                 nnnn 1, nnnn is user supplied
+ *          196    XResolution                 Hard-coded to 300/1
+ *          204    YResolution                 Hard-coded to 300/1
  *          212    BitsPerSample               8, 8, 8
  *          218    [2 bytes padding]
- *          220    "NuttX"                     Length = 6 (includeing NUL terminator)
+ *          220    "NuttX"                     Length = 6 (including NUL terminator)
  *          226    "YYYY:MM:DD HH:MM:SS"       Length = 20 (ncluding NUL terminator)
  *          246    [2 bytes padding]
- *          248    StripOffsets                Beginning of strip offsets
- *          xxx    StripByteCounts             Beginning of strip byte counts
+ *          248    StripByteCounts             Beginning of strip byte counts
+ *          xxx    StripOffsets                Beginning of strip offsets
  *          xxx    [Probably padding]
  *          xxx    Data for strips             Beginning of strip data
  */
@@ -192,7 +200,21 @@
 #define TIFF_RGB_BPSOFFSET      212
 #define TIFF_RGB_SWOFFSET       220
 #define TIFF_RGB_DATEOFFSET     226
-#define TIFF_RGB_STRIPOFFSET    248
+#define TIFF_RGB_STRIPBCOFFSET  248
+
+/* Debug *******************************************************************/
+
+#ifndef CONFIG_DEBUG
+#  undef CONFIG_DEBUG_GRAPHICS
+#endif
+
+#ifdef CONFIG_DEBUG_GRAPHICS
+#  define tiff_offset(o,l)      (o) += (l)
+#  define tiff_checkoffs(o,x)   ASSERT((o) == (x));
+#else
+#  define tiff_offset(o,l)
+#  define tiff_checkoffs(o,x)
+#endif
 
 /****************************************************************************
  * Private Types
@@ -201,6 +223,45 @@
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+static const struct tiff_filefmt_s g_bilevinfo =
+{
+  TIFF_BILEV_NIFDENTRIES,    /* nifdentries, Number of IFD entries */
+  TIFF_BILEV_STRIPIFDOFFS,   /* soifdoffset, Offset to StripOffset IFD entry */
+  TIFF_BILEV_STRIPBCIFDOFFS, /* sbcifdoffset, Offset to StripByteCount IFD entry */
+  TIFF_BILEV_VALOFFSET,      /* valoffset, Offset to first values */
+  TIFF_BILEV_XRESOFFSET,     /* xresoffset, Offset to XResolution values */
+  TIFF_BILEV_YRESOFFSET,     /* yresoffset, Offset to yResolution values */
+  TIFF_BILEV_SWOFFSET,       /* swoffset, Offset to Software string */
+  TIFF_BILEV_DATEOFFSET,     /* dateoffset, Offset to DateTime string */
+  TIFF_BILEV_STRIPBCOFFSET   /* sbcoffset,  Offset to StripByteCount values */
+};
+
+static const struct tiff_filefmt_s g_greyinfo =
+{
+  TIFF_GREY_NIFDENTRIES,     /* nifdentries, Number of IFD entries */
+  TIFF_GREY_STRIPIFDOFFS,    /* soifdoffset, Offset to StripOffset IFD entry */
+  TIFF_GREY_STRIPBCIFDOFFS,  /* sbcifdoffset, Offset to StripByteCount IFD entry */
+  TIFF_GREY_VALOFFSET,       /* valoffset, Offset to first values */
+  TIFF_GREY_XRESOFFSET,      /* xresoffset, Offset to XResolution values */
+  TIFF_GREY_YRESOFFSET,      /* yresoffset, Offset to yResolution values */
+  TIFF_GREY_SWOFFSET,        /* swoffset, Offset to Software string */
+  TIFF_GREY_DATEOFFSET,      /* dateoffset, Offset to DateTime string */
+  TIFF_GREY_STRIPBCOFFSET    /* sbcoffset,  Offset to StripByteCount values */
+};
+
+static const struct tiff_filefmt_s g_rgbinfo =
+{
+  TIFF_RGB_NIFDENTRIES,      /* nifdentries, Number of IFD entries */
+  TIFF_RGB_STRIPIFDOFFS,     /* soifdoffset, Offset to StripOffset IFD entry */
+  TIFF_RGB_STRIPBCIFDOFFS,   /* sbcifdoffset, Offset to StripByteCount IFD entry */
+  TIFF_RGB_VALOFFSET,        /* valoffset, Offset to first values */
+  TIFF_RGB_XRESOFFSET,       /* xresoffset, Offset to XResolution values */
+  TIFF_RGB_YRESOFFSET,       /* yresoffset, Offset to yResolution values */
+  TIFF_RGB_SWOFFSET,         /* swoffset, Offset to Software string */
+  TIFF_RGB_DATEOFFSET,       /* dateoffset, Offset to DateTime string */
+  TIFF_RGB_STRIPBCOFFSET     /* sbcoffset,  Offset to StripByteCount values */
+};
 
 /****************************************************************************
  * Public Data
@@ -219,6 +280,7 @@
  * Input Parameters:
  *   info - A pointer to the caller allocated parameter passing/TIFF state
  *          instance.
+ *   value - The 2-byte, uint16_t value to write
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -233,6 +295,58 @@ static int tiff_putint16(FAR struct tiff_info_s *info, uint16_t value)
 
   tiff_put16(bytes, value);
   return tiff_write(info->outfd, bytes, 2);
+}
+
+/****************************************************************************
+ * Name: tiff_putint32
+ *
+ * Description:
+ *   Write four bytes to the outfile.
+ *
+ * Input Parameters:
+ *   info - A pointer to the caller allocated parameter passing/TIFF state
+ *          instance.
+ *   value - The 4-byte, uint32_t value to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+static int tiff_putint32(FAR struct tiff_info_s *info, uint32_t value)
+{
+  uint8_t bytes[4];
+  
+  /* Write the four bytes to the output file */
+
+  tiff_put32(bytes, value);
+  return tiff_write(info->outfd, bytes, 4);
+}
+
+/****************************************************************************
+ * Name: tiff_putstring
+ *
+ * Description:
+ *  Write a string of fixed length to the outfile.
+ *
+ * Input Parameters:
+ *   info - A pointer to the caller allocated parameter passing/TIFF state
+ *          instance.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+static int tiff_putstring(FAR struct tiff_info_s *info, FAR const char *string,
+                          int len)
+{
+#ifdef CONFIG_DEBUG_GRAPHICS
+  int actual = strlen(string);
+
+  ASSERT(len = actual+1);
+#endif
+  return tiff_write(info->outfd, string, len);
 }
 
 /****************************************************************************
@@ -291,11 +405,15 @@ static inline int tiff_putheader(FAR struct tiff_info_s *info)
  * Name: tiff_putifdentry
  *
  * Description:
- *   Variouis IFD entry writing routines
+ *   Write an IFD entry to outfile
  *
  * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state
- *          instance.
+ *   info   - A pointer to the caller allocated parameter passing/TIFF state
+ *            instance.
+ *   tag    - The value for the IFD tag field
+ *   type   - The value for the IFD type field
+ *   count  - The value for the IFD count field
+ *   offset - The value for the IFD offset field
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -313,6 +431,25 @@ static int tiff_putifdentry(FAR struct tiff_info_s *info, uint16_t tag,
   return tiff_write(info->outfd, &ifd, SIZEOF_IFD_ENTRY);
 }
 
+/****************************************************************************
+ * Name: tiff_putifdentry
+ *
+ * Description:
+ *   Write an IFD with a 16-bit immediate value
+ *
+ * Input Parameters:
+ *   info - A pointer to the caller allocated parameter passing/TIFF state
+ *          instance.
+ *   tag    - The value for the IFD tag field
+ *   type   - The value for the IFD type field
+ *   count  - The value for the IFD count field
+ *   value  - The 16-bit immediate value
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
 static int tiff_putifdentry16(FAR struct tiff_info_s *info, uint16_t tag,
                              uint16_t type, uint32_t count, uint16_t value)
 {
@@ -328,103 +465,42 @@ static int tiff_putifdentry16(FAR struct tiff_info_s *info, uint16_t tag,
 }
 
 /****************************************************************************
- * Name: tiff_*
+ * Name: tiff_datetime
  *
  * Description:
- *   Variouis IFD entry writing routines
+ *   Get the DateTime string
  *
  * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state
- *          instance.
+ *   
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
  *
  ****************************************************************************/
 
-static int tiff_newsubfiletype(FAR struct tiff_info_s *info)
+static int tiff_datetime(FAR char *timbuf, unsigned int buflen)
 {
-  return tiff_putifdentry16(info, IFD_TAG_NEWSUBFILETYPE, IFD_FIELD_LONG, 1, 0);
-}
-  
-static int tiff_imagewidth(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_IMAGEWIDTH, IFD_FIELD_SHORT, 1, info->imgwidth);
-}
+  struct timespec ts;
+  struct tm tm;
+  int ret;
 
-static int tiff_imagelength(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_IMAGELENGTH, IFD_FIELD_SHORT, 1, info->imgheight);
-}
+  /* Get the current time */
 
-static int tiff_greybitspersample(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_BITSPERSAMPLE, IFD_FIELD_SHORT, 1, info->bps);
-}
+  ret = clock_gettime(CLOCK_REALTIME, &ts);
+  if (ret < 0)
+    {
+      gdbg("clock_gettime failed: %d\n", errno);
+      return ERROR;
+    }
 
-static int tiff_rgbbitspersample(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry(info, IFD_TAG_BITSPERSAMPLE, IFD_FIELD_SHORT, 3, TIFF_RGB_BPSOFFSET);
-}
+  /* Break the current time up into the format needed by strftime */
 
-static int tiff_compression(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_COMPRESSION, IFD_FIELD_SHORT, 1, TAG_COMP_NONE);
-}
+  (void)gmtime_r((FAR const time_t*)&ts.tv_sec, &tm);
 
-static int tiff_photointerp(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_PMI, IFD_FIELD_SHORT, 1, info->pmi);
-}
+  /* Comvert the current time in the TIFF format */
 
-static int tiff_stripoffsets(FAR struct tiff_info_s *info, uint32_t count, uint32_t offset)
-{
-  return tiff_putifdentry(info, IFD_TAG_STRIPOFFSETS, IFD_FIELD_LONG, count, offset);
-}
-
-static int tiff_samplesperpixel(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_SAMPLESPERPIXEL, IFD_FIELD_SHORT, 1, 3);
-}
-
-static int tiff_rowsperstrip(FAR struct tiff_info_s *info)
-{
-  return tiff_putifdentry16(info, IFD_TAG_ROWSPERSTRIP, IFD_FIELD_SHORT, 1, info->rps);
-}
-
-static int tiff_stripbytecounts(FAR struct tiff_info_s *info, uint32_t count, uint32_t offset)
-{
-  return tiff_putifdentry(info, IFD_TAG_STRIPCOUNTS, IFD_FIELD_LONG, count, offset);
-}
-
-static int tiff_xresolution(FAR struct tiff_info_s *info)
-{
-# warning "Missing logic"
-  return -ENOSYS;
-}
-
-static int tiff_yresolution(FAR struct tiff_info_s *info)
-{
-# warning "Missing logic"
-  return -ENOSYS;
-}
-
-static int tiff_resolutionunit(FAR struct tiff_info_s *info)
-{
-# warning "Missing logic"
-  return -ENOSYS;
-}
-
-static int tiff_software(FAR struct tiff_info_s *info)
-{
-# warning "Missing logic"
-  return -ENOSYS;
-}
-
-static int tiff_datetime(FAR struct tiff_info_s *info)
-{
-# warning "Missing logic"
-  return -ENOSYS;
+  (void)strftime(timbuf, buflen, TIFF_DATETIME_FORMAT, &tm);
+  return OK;
 }
 
 /****************************************************************************
@@ -447,6 +523,11 @@ static int tiff_datetime(FAR struct tiff_info_s *info)
 
 int tiff_initialize(FAR struct tiff_info_s *info)
 {
+  uint16_t val16;
+#if CONFIG_DEBUG_GRAPHICS
+  off_t offset = 0;
+#endif
+  char timbuf[TIFF_DATETIME_STRLEN + 8];
   int ret = -EINVAL;
 
   DEBUGASSERT(info && info->outfile && info->tmpfile1 && info->tmpfile2);
@@ -474,16 +555,403 @@ int tiff_initialize(FAR struct tiff_info_s *info)
       goto errout_with_tmp1fd;
     }
 
-  /* Write the TIFF header data to the outfile */
+  /* Make some decisions using the color format.  Only the following are
+   * supported:
+   */
+
+  switch (info->colorfmt)
+    {
+      case FB_FMT_Y1:                               /* BPP=1, monochrome, 0=black */
+        info->filefmt  = &g_bilevinfo;              /* Bi-level file image file info */
+        info->imgflags = IMGFLAGS_FMT_Y1;           /* Bit encoded image characteristics */
+        break;
+
+      case FB_FMT_Y4:                               /* BPP=4, 4-bit greyscale, 0=black */
+        info->filefmt  = &g_greyinfo;               /* Greyscale file image file info */
+        info->imgflags = IMGFLAGS_FMT_Y4;           /* Bit encoded image characteristics */
+        break;
+
+      case FB_FMT_Y8:                               /* BPP=8, 8-bit greyscale, 0=black */
+        info->filefmt  = &g_greyinfo;               /* Greyscale file image file info */
+        info->imgflags = IMGFLAGS_FMT_Y8;           /* Bit encoded image characteristics */
+        break;
+
+      case FB_FMT_RGB16_565:                        /* BPP=16 R=6, G=6, B=5 */
+        info->filefmt  = &g_rgbinfo;                /* RGB file image file info */
+        info->imgflags = IMGFLAGS_FMT_RGB16_565;    /* Bit encoded image characteristics */
+        break;
+
+      case FB_FMT_RGB24:                            /* BPP=24 R=8, G=8, B=8 */
+        info->filefmt  = &g_rgbinfo;                /* RGB file image file info */
+        info->imgflags = IMGFLAGS_FMT_RGB24;        /* Bit encoded image characteristics */
+        break;
+
+      default:
+        gdbg("Unsupported color format: %d\n", info->colorfmt);
+        return -EINVAL;
+    }
+
+  /* Write the TIFF header data to the outfile:
+   *
+   * Header:    0    Byte Order                  "II" or "MM"
+   *            2    Magic Number                42     
+   *            4    1st IFD offset              10
+   *            8    [2 bytes padding]
+   */
 
   ret = tiff_putheader(info);
   if (ret < 0)
     {
       goto errout_with_tmp2fd;
     }
+  tiff_offset(offset, TIFF_IFD_OFFSET);
 
-  /* Write the IFD data to the outfile */
-#warning "Missing Logic"
+  /* Write the Number of directory entries
+   *
+   * All formats: Offset 10 Number of Directory Entries 12
+   */
+
+  ret = tiff_putint16(info, info->filefmt->nifdentries);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 2);
+
+  /* Write the NewSubfileType IFD entry
+   *
+   * All formats: Offset 12 NewSubfileType
+   */
+
+  ret = tiff_putifdentry16(info, IFD_TAG_NEWSUBFILETYPE, IFD_FIELD_LONG, 1, 0);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write ImageWidth and ImageLength
+   *
+   * All formats: Offset 24 ImageWidth  Number of columns is a user parameter
+   *                     36 ImageLength Number of rows is a user parameter
+   */
+
+  ret = tiff_putifdentry16(info, IFD_TAG_IMAGEWIDTH, IFD_FIELD_SHORT, 1, info->imgwidth);
+  if (ret == OK)
+    {
+      ret= tiff_putifdentry16(info, IFD_TAG_IMAGELENGTH, IFD_FIELD_SHORT, 1, info->imgheight);
+    }
+
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 2*SIZEOF_IFD_ENTRY);
+
+  /* Write BitsPerSample
+   *
+   * Bi-level Images: None
+   * Greyscale:       Offset 48 BitsPerSample (4 or 8)
+   * RGB:             Offset 48 BitsPerSample (8,8,8)
+   */
+
+  tiff_checkoffs(offset, 48);
+  if (IMGFLAGS_ISGREY(info->imgflags))
+    {
+      if (IMGFLAGS_ISGREY8(info->imgflags))
+        {
+          val16 = 8;
+        }
+      else
+        {
+          val16 = 4;
+        }
+
+      ret = tiff_putifdentry16(info, IFD_TAG_BITSPERSAMPLE, IFD_FIELD_SHORT, 1, val16);
+      if (ret < 0)
+        {
+          goto errout_with_tmp2fd;
+        }
+      tiff_offset(offset, SIZEOF_IFD_ENTRY);
+    }
+  else if (IMGFLAGS_ISRGB(info->imgflags))
+    {
+      ret = tiff_putifdentry(info, IFD_TAG_BITSPERSAMPLE, IFD_FIELD_SHORT, 3, TIFF_RGB_BPSOFFSET);
+      if (ret < 0)
+        {
+          goto errout_with_tmp2fd;
+        }
+      tiff_offset(offset, SIZEOF_IFD_ENTRY);
+    }
+
+  /* Write Compression:
+   *
+   * Bi-level Images: Offset 48 Hard-coded no compression (for now)
+   * Greyscale:       Offset 60  "  " "   " "" "          " " " " "
+   * RGB:             Offset 60 "  " "   " "" "          " " " " "
+   */
+
+  ret = tiff_putifdentry16(info, IFD_TAG_COMPRESSION, IFD_FIELD_SHORT, 1, TAG_COMP_NONE);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write PhotometricInterpretation:
+   *
+   * Bi-level Images: Offset 48 Hard-coded BlackIsZero
+   * Greyscale:       Offset 72 Hard-coded BlackIsZero
+   * RGB:             Offset 72 Hard-coded RGB
+   */
+
+  if (IMGFLAGS_ISRGB(info->imgflags))
+    {
+      val16 = TAG_PMI_BLACK;
+    }
+  else
+    {
+      val16 = TAG_PMI_RGB;
+    }
+
+  ret = tiff_putifdentry16(info, IFD_TAG_PMI, IFD_FIELD_SHORT, 1, val16);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write StripOffsets:
+   *
+   * Bi-level Images: Offset 72 Value determined by switch statement above
+   * Greyscale:       Offset 84 Value determined by switch statement above
+   * RGB:             Offset 84 Value determined by switch statement above
+   */
+
+  tiff_checkoffs(offset, info->filefmt->soifdoffset);
+  ret = tiff_putifdentry(info, IFD_TAG_STRIPOFFSETS, IFD_FIELD_LONG, 0, 0);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write SamplesPerPixel
+   *
+   * Bi-level Images: N/A
+   * Greyscale:       N/A
+   * RGB:             Offset 96 Hard-coded to 3
+   */
+
+  if (IMGFLAGS_ISRGB(info->imgflags))
+    {
+      ret = tiff_putifdentry16(info, IFD_TAG_SAMPLESPERPIXEL, IFD_FIELD_SHORT, 1, 3);
+      if (ret < 0)
+        {
+          goto errout_with_tmp2fd;
+        }
+      tiff_offset(offset, SIZEOF_IFD_ENTRY);
+    }
+
+  /* Write RowsPerStrip:
+   *
+   * Bi-level Images: Offset  84 Value is a user parameter
+   * Greyscale:       Offset  96 Value is a user parameter
+   * RGB:             Offset 108 Value is a user parameter
+   */
+
+  ret = tiff_putifdentry16(info, IFD_TAG_ROWSPERSTRIP, IFD_FIELD_SHORT, 1, info->rps);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write StripByteCounts:
+   *
+   * Bi-level Images: Offset  96 Count determined as strips added, Value offset = 216
+   * Greyscale:       Offset 108 Count determined as strips added, Value offset = 228
+   * RGB:             Offset 120 Count determined as strips added, Value offset = 248
+   */
+
+  tiff_checkoffs(offset, info->filefmt->sbcifdoffset);
+  ret = tiff_putifdentry(info, IFD_TAG_STRIPCOUNTS, IFD_FIELD_LONG, 0, info->filefmt->sbcoffset);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write XResolution and YResolution:
+   *
+   * Bi-level Images: Offset 108 and 120, Values are a user parameters
+   * Greyscale:       Offset 120 and 132, Values are a user parameters
+   * RGB:             Offset 132 and 144, Values are a user parameters
+   */
+
+  ret = tiff_putifdentry(info, IFD_TAG_XRESOLUTION, IFD_FIELD_RATIONAL, 1, info->filefmt->xresoffset);
+  if (ret == OK)
+    {
+      ret = tiff_putifdentry(info, IFD_TAG_YRESOLUTION, IFD_FIELD_RATIONAL, 1, info->filefmt->yresoffset);
+    }
+
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 2*SIZEOF_IFD_ENTRY);
+
+  /* Write ResolutionUnit:
+   *
+   * Bi-level Images: Offset 132, Hard-coded to "inches"
+   * Greyscale:       Offset 144, Hard-coded to "inches"
+   * RGB:             Offset 156, Hard-coded to "inches"
+   */
+
+  ret = tiff_putifdentry16(info, IFD_TAG_RESUNIT, IFD_FIELD_SHORT, 1, TAG_RESUNIT_INCH);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write Software:
+   *
+   * Bi-level Images: Offset 144 Count, Hard-coded "NuttX"
+   * Greyscale:       Offset 156 Count, Hard-coded "NuttX"
+   * RGB:             Offset 168 Count, Hard-coded "NuttX"
+   */
+
+  tiff_checkoffs(offset, info->filefmt->sbcifdoffset);
+  ret = tiff_putifdentry(info, IFD_TAG_SOFTWARE, IFD_FIELD_ASCII, TIFF_SOFTWARE_STRLEN, info->filefmt->swoffset);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write DateTime:
+   *
+   * Bi-level Images: Offset 156 Count, Format "YYYY:MM:DD HH:MM:SS"
+   * Greyscale:       Offset 168 Count, Format "YYYY:MM:DD HH:MM:SS"
+   * RGB:             Offset 180 Count, Format "YYYY:MM:DD HH:MM:SS"
+   */
+
+  tiff_checkoffs(offset, info->filefmt->sbcifdoffset);
+  ret = tiff_putifdentry(info, IFD_TAG_DATETIME, IFD_FIELD_ASCII, TIFF_DATETIME_STRLEN, info->filefmt->dateoffset);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, SIZEOF_IFD_ENTRY);
+
+  /* Write Next IFD Offset and 2 bytes of padding:
+   *
+   * Bi-level Images: Offset 168, Next IFD offset
+   *                  Offset 170, [2 bytes padding]
+   * Greyscale:       Offset 180, Next IFD offset
+   *                  Offset 182, [2 bytes padding]
+   * RGB:             Offset 192, Next IFD offset
+   *                  Offset 194, [2 bytes padding]
+   */
+
+  ret = tiff_putint32(info, 0);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 4);
+
+  /* Now we begin the value section of the file */
+  
+  tiff_checkoffs(offset, info->filefmt->valoffset);
+
+  /* Write the XResolution and YResolution data:
+   * 
+   * Bi-level Images: Offset 172 Count, Hard-coded to 300/1
+   *                  Offset 180 Count, Hard-coded to 300/1
+   * Greyscale:       Offset 184 Count, Hard-coded to 300/1
+   *                  Offset 192 Count, Hard-coded to 300/1
+   * RGB:             Offset 196 Count, Hard-coded to 300/1
+   *                  Offset 204 Count, Hard-coded to 300/1
+   */
+
+  tiff_checkoffs(offset, info->filefmt->xresoffset);
+  ret = tiff_putint32(info, 300);
+  if (ret == OK)
+    {
+      ret = tiff_putint32(info, 1);
+    }
+
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 8);
+
+  tiff_checkoffs(offset, info->filefmt->yresoffset);
+  ret = tiff_putint32(info, 300);
+  if (ret == OK)
+    {
+      ret = tiff_putint32(info, 1);
+    }
+
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 8);
+
+  /* Write the Software string:
+   *
+   *
+   * Bi-level Images: Offset 188, Hard-coded "NuttX"
+   * Greyscale:       Offset 200, Hard-coded "NuttX"
+   * RGB:             Offset 220, Hard-coded "NuttX"
+   */
+   
+  tiff_checkoffs(offset, info->filefmt->xresoffset);
+  ret = tiff_putstring(info, TIFF_SOFTWARE_STRING, TIFF_SOFTWARE_STRLEN);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, TIFF_SOFTWARE_STRLEN);
+
+  /* Write the DateTime string:
+   *
+   *
+   * Bi-level Images: Offset 188, Format "YYYY:MM:DD HH:MM:SSS"
+   * Greyscale:       Offset 200, Hard-coded "NuttX"
+   * RGB:             Offset 220, Hard-coded "NuttX"
+   */
+
+  tiff_checkoffs(offset, info->filefmt->dateoffset);
+  ret = tiff_datetime(timbuf, TIFF_DATETIME_STRLEN + 8);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+
+  ret = tiff_putstring(info, timbuf, TIFF_DATETIME_STRLEN);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, TIFF_DATETIME_STRLEN);
+
+  /* Add two bytes of padding */
+
+  ret = tiff_putint16(info, 0);
+  if (ret < 0)
+    {
+      goto errout_with_tmp2fd;
+    }
+  tiff_offset(offset, 2);
+
+  /* And that should do it! */
+
+  tiff_checkoffs(offset, info->filefmt->sbcoffset);
   return OK;
 
 errout_with_tmp2fd:
