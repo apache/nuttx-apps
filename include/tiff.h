@@ -320,6 +320,14 @@ struct tiff_info_s
   nxgl_coord_t imgwidth;    /* TIFF ImageWidth, Number of columns in the image */
   nxgl_coord_t imgheight;   /* TIFF ImageLength, Number of rows in the image */
 
+  /* The caller must provide an I/O buffer as well.  This I/O buffer will
+   * used for color conversions and as the intermediate buffer for copying
+   * files.  The larger the buffer, the better the performance.
+   */
+
+  FAR uint8_t *iobuffer;    /* IO buffer allocated by the caller */
+  unsigned int iosize;      /* The size of the I/O buffer in bytes */
+
   /* The second set of fields are used only internally by the TIFF file
    * creation logic.  These fields must be set to zero initially by the
    * caller of tiff_initialize().  User logic should not depend upon any
@@ -330,11 +338,14 @@ struct tiff_info_s
 
   uint8_t      imgflags;    /* Bit-encoded image flags */
   nxgl_coord_t nstrips;     /* Number of strips in tmpfile3 */
+  size_t       pps;         /* Pixels per strip */
+  size_t       bps;         /* Bytes per strip */
   int          outfd;       /* outfile file descriptor */
   int          tmp1fd;      /* tmpfile1 file descriptor */
   int          tmp2fd;      /* tmpfile2 file descriptor */
   off_t        outsize;     /* Current size of outfile */
   off_t        tmp1size;    /* Current size of tmpfile1 */
+  off_t        tmp2size;    /* Current size of tmpfile2 */
 
   /* Points to an internal constant structure of file offsets */
   
@@ -390,7 +401,7 @@ EXTERN int tiff_initialize(FAR struct tiff_info_s *info);
  *
  ************************************************************************************/
 
-EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *strip);
+EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip);
 
 /************************************************************************************
  * Name: tiff_finalize
@@ -409,22 +420,41 @@ EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *strip);
 EXTERN int tiff_finalize(FAR struct tiff_info_s *info);
 
 /************************************************************************************
- * Name: tiff_put16 and tiff_put32
+ * Name: tiff_abort
  *
  * Description:
- *   Put 16 and 32 values in the correct byte order at the specified position.
+ *   Abort the TIFF file creation and create-up resources.
  *
  * Input Parameters:
- *   dest - The location to store the multi-byte data
- *   value - The value to be stored
+ *   info - A pointer to the caller allocated parameter passing/TIFF state instance.
  *
  * Returned Value:
  *   None
  *
  ************************************************************************************/
 
+EXTERN void tiff_abort(FAR struct tiff_info_s *info);
+
+/************************************************************************************
+ * Name: tiff_put/get16/32
+ *
+ * Description:
+ *   Put and get 16 and 32 values in the correct byte order at the specified position.
+ *
+ * Input Parameters:
+ *   dest - The location to store the multi-byte data (put only)
+ *   src - The location to get the multi-byte data (get only)
+ *
+ * Returned Value:
+ *   None (put)
+ *   The extracted value (get)
+ *
+ ************************************************************************************/
+
 EXTERN void tiff_put16(FAR uint8_t *dest, uint16_t value);
 EXTERN void tiff_put32(FAR uint8_t *dest, uint32_t value);
+EXTERN uint16_t tiff_get16(FAR uint8_t *dest);
+EXTERN uint32_t tiff_get32(FAR uint8_t *dest);
 
 #undef EXTERN
 #ifdef __cplusplus

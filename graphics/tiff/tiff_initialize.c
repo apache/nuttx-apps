@@ -272,84 +272,6 @@ static const struct tiff_filefmt_s g_rgbinfo =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: tiff_putint16
- *
- * Description:
- *   Write two bytes to the outfile.
- *
- * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state
- *          instance.
- *   value - The 2-byte, uint16_t value to write
- *
- * Returned Value:
- *   Zero (OK) on success.  A negated errno value on failure.
- *
- ****************************************************************************/
-
-static int tiff_putint16(FAR struct tiff_info_s *info, uint16_t value)
-{
-  uint8_t bytes[2];
-  
-  /* Write the two bytes to the output file */
-
-  tiff_put16(bytes, value);
-  return tiff_write(info->outfd, bytes, 2);
-}
-
-/****************************************************************************
- * Name: tiff_putint32
- *
- * Description:
- *   Write four bytes to the outfile.
- *
- * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state
- *          instance.
- *   value - The 4-byte, uint32_t value to write
- *
- * Returned Value:
- *   Zero (OK) on success.  A negated errno value on failure.
- *
- ****************************************************************************/
-
-static int tiff_putint32(FAR struct tiff_info_s *info, uint32_t value)
-{
-  uint8_t bytes[4];
-  
-  /* Write the four bytes to the output file */
-
-  tiff_put32(bytes, value);
-  return tiff_write(info->outfd, bytes, 4);
-}
-
-/****************************************************************************
- * Name: tiff_putstring
- *
- * Description:
- *  Write a string of fixed length to the outfile.
- *
- * Input Parameters:
- *   info - A pointer to the caller allocated parameter passing/TIFF state
- *          instance.
- *
- * Returned Value:
- *   Zero (OK) on success.  A negated errno value on failure.
- *
- ****************************************************************************/
-
-static int tiff_putstring(FAR struct tiff_info_s *info, FAR const char *string,
-                          int len)
-{
-#ifdef CONFIG_DEBUG_GRAPHICS
-  int actual = strlen(string);
-
-  ASSERT(len = actual+1);
-#endif
-  return tiff_write(info->outfd, string, len);
-}
-
-/****************************************************************************
  * Name: tiff_putheader
  *
  * Description:
@@ -397,7 +319,7 @@ static inline int tiff_putheader(FAR struct tiff_info_s *info)
 
  /* Two pad bytes following the header */
 
- ret = tiff_putint16(info, 0);
+ ret = tiff_putint16(info->outfd, 0);
  return ret;
 }
 
@@ -534,56 +456,62 @@ int tiff_initialize(FAR struct tiff_info_s *info)
 
   /* Open all output files */
 
-  info->outfd = open(info->outfile, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+  info->outfd = open(info->outfile, O_RDWR|O_CREAT|O_TRUNC, 0666);
   if (info->outfd < 0)
     {
-      gdbg("Failed to open %s for writing: %d\n", info->outfile, errno);
+      gdbg("Failed to open %s for reading/writing: %d\n", info->outfile, errno);
       goto errout;
     }
 
-  info->tmp1fd = open(info->tmpfile1, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+  info->tmp1fd = open(info->tmpfile1, O_RDWR|O_CREAT|O_TRUNC, 0666);
   if (info->tmp1fd < 0)
     {
-      gdbg("Failed to open %s for writing: %d\n", info->tmpfile1, errno);
-      goto errout_with_outfd;
+      gdbg("Failed to open %s for reading/writing: %d\n", info->tmpfile1, errno);
+      goto errout;
     }
 
-  info->tmp2fd = open(info->tmpfile1, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+  info->tmp2fd = open(info->tmpfile1, O_RDWR|O_CREAT|O_TRUNC, 0666);
   if (info->tmp2fd < 0)
     {
-      gdbg("Failed to open %s for writing: %d\n", info->tmpfile1, errno);
-      goto errout_with_tmp1fd;
+      gdbg("Failed to open %s for reading/writing: %d\n", info->tmpfile1, errno);
+      goto errout;
     }
 
   /* Make some decisions using the color format.  Only the following are
    * supported:
    */
 
+  info->pps = info->imgwidth * info->rps;           /* Pixels per strip */
   switch (info->colorfmt)
     {
       case FB_FMT_Y1:                               /* BPP=1, monochrome, 0=black */
         info->filefmt  = &g_bilevinfo;              /* Bi-level file image file info */
         info->imgflags = IMGFLAGS_FMT_Y1;           /* Bit encoded image characteristics */
+        info->bps      = (info->pps + 7) >> 3;      /* Bytes per strip */
         break;
 
       case FB_FMT_Y4:                               /* BPP=4, 4-bit greyscale, 0=black */
         info->filefmt  = &g_greyinfo;               /* Greyscale file image file info */
         info->imgflags = IMGFLAGS_FMT_Y4;           /* Bit encoded image characteristics */
+        info->bps      = (info->pps + 1) >> 1;      /* Bytes per strip */
         break;
 
       case FB_FMT_Y8:                               /* BPP=8, 8-bit greyscale, 0=black */
         info->filefmt  = &g_greyinfo;               /* Greyscale file image file info */
         info->imgflags = IMGFLAGS_FMT_Y8;           /* Bit encoded image characteristics */
+        info->bps      = info->pps;                 /* Bytes per strip */
         break;
 
       case FB_FMT_RGB16_565:                        /* BPP=16 R=6, G=6, B=5 */
         info->filefmt  = &g_rgbinfo;                /* RGB file image file info */
         info->imgflags = IMGFLAGS_FMT_RGB16_565;    /* Bit encoded image characteristics */
+        info->bps      = 3 * info->pps;             /* Bytes per strip */
         break;
 
       case FB_FMT_RGB24:                            /* BPP=24 R=8, G=8, B=8 */
         info->filefmt  = &g_rgbinfo;                /* RGB file image file info */
         info->imgflags = IMGFLAGS_FMT_RGB24;        /* Bit encoded image characteristics */
+        info->bps      = 3 *info->pps;              /* Bytes per strip */
         break;
 
       default:
@@ -602,7 +530,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putheader(info);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, TIFF_IFD_OFFSET);
 
@@ -611,10 +539,10 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    * All formats: Offset 10 Number of Directory Entries 12
    */
 
-  ret = tiff_putint16(info, info->filefmt->nifdentries);
+  ret = tiff_putint16(info->outfd, info->filefmt->nifdentries);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 2);
 
@@ -626,7 +554,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry16(info, IFD_TAG_NEWSUBFILETYPE, IFD_FIELD_LONG, 1, 0);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -644,7 +572,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
 
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 2*SIZEOF_IFD_ENTRY);
 
@@ -670,7 +598,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
       ret = tiff_putifdentry16(info, IFD_TAG_BITSPERSAMPLE, IFD_FIELD_SHORT, 1, val16);
       if (ret < 0)
         {
-          goto errout_with_tmp2fd;
+          goto errout;
         }
       tiff_offset(offset, SIZEOF_IFD_ENTRY);
     }
@@ -679,7 +607,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
       ret = tiff_putifdentry(info, IFD_TAG_BITSPERSAMPLE, IFD_FIELD_SHORT, 3, TIFF_RGB_BPSOFFSET);
       if (ret < 0)
         {
-          goto errout_with_tmp2fd;
+          goto errout;
         }
       tiff_offset(offset, SIZEOF_IFD_ENTRY);
     }
@@ -694,7 +622,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry16(info, IFD_TAG_COMPRESSION, IFD_FIELD_SHORT, 1, TAG_COMP_NONE);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -717,7 +645,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry16(info, IFD_TAG_PMI, IFD_FIELD_SHORT, 1, val16);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -732,7 +660,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry(info, IFD_TAG_STRIPOFFSETS, IFD_FIELD_LONG, 0, 0);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -748,7 +676,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
       ret = tiff_putifdentry16(info, IFD_TAG_SAMPLESPERPIXEL, IFD_FIELD_SHORT, 1, 3);
       if (ret < 0)
         {
-          goto errout_with_tmp2fd;
+          goto errout;
         }
       tiff_offset(offset, SIZEOF_IFD_ENTRY);
     }
@@ -763,7 +691,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry16(info, IFD_TAG_ROWSPERSTRIP, IFD_FIELD_SHORT, 1, info->rps);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -778,7 +706,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry(info, IFD_TAG_STRIPCOUNTS, IFD_FIELD_LONG, 0, info->filefmt->sbcoffset);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -797,7 +725,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
 
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 2*SIZEOF_IFD_ENTRY);
 
@@ -811,7 +739,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry16(info, IFD_TAG_RESUNIT, IFD_FIELD_SHORT, 1, TAG_RESUNIT_INCH);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -826,7 +754,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry(info, IFD_TAG_SOFTWARE, IFD_FIELD_ASCII, TIFF_SOFTWARE_STRLEN, info->filefmt->swoffset);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -841,7 +769,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_putifdentry(info, IFD_TAG_DATETIME, IFD_FIELD_ASCII, TIFF_DATETIME_STRLEN, info->filefmt->dateoffset);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, SIZEOF_IFD_ENTRY);
 
@@ -855,10 +783,10 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    *                  Offset 194, [2 bytes padding]
    */
 
-  ret = tiff_putint32(info, 0);
+  ret = tiff_putint32(info->outfd, 0);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 4);
 
@@ -877,28 +805,28 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    */
 
   tiff_checkoffs(offset, info->filefmt->xresoffset);
-  ret = tiff_putint32(info, 300);
+  ret = tiff_putint32(info->outfd, 300);
   if (ret == OK)
     {
-      ret = tiff_putint32(info, 1);
+      ret = tiff_putint32(info->outfd, 1);
     }
 
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 8);
 
   tiff_checkoffs(offset, info->filefmt->yresoffset);
-  ret = tiff_putint32(info, 300);
+  ret = tiff_putint32(info->outfd, 300);
   if (ret == OK)
     {
-      ret = tiff_putint32(info, 1);
+      ret = tiff_putint32(info->outfd, 1);
     }
 
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 8);
 
@@ -911,10 +839,10 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    */
    
   tiff_checkoffs(offset, info->filefmt->xresoffset);
-  ret = tiff_putstring(info, TIFF_SOFTWARE_STRING, TIFF_SOFTWARE_STRLEN);
+  ret = tiff_putstring(info->outfd, TIFF_SOFTWARE_STRING, TIFF_SOFTWARE_STRLEN);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, TIFF_SOFTWARE_STRLEN);
 
@@ -930,40 +858,33 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   ret = tiff_datetime(timbuf, TIFF_DATETIME_STRLEN + 8);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
 
-  ret = tiff_putstring(info, timbuf, TIFF_DATETIME_STRLEN);
+  ret = tiff_putstring(info->outfd, timbuf, TIFF_DATETIME_STRLEN);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, TIFF_DATETIME_STRLEN);
 
   /* Add two bytes of padding */
 
-  ret = tiff_putint16(info, 0);
+  ret = tiff_putint16(info->outfd, 0);
   if (ret < 0)
     {
-      goto errout_with_tmp2fd;
+      goto errout;
     }
   tiff_offset(offset, 2);
 
   /* And that should do it! */
 
   tiff_checkoffs(offset, info->filefmt->sbcoffset);
+  info->outsize = info->filefmt->sbcoffset;
   return OK;
 
-errout_with_tmp2fd:
-  (void)close(info->tmp2fd);
-  info->tmp2fd = -1;
-errout_with_tmp1fd:
-  (void)close(info->tmp1fd);
-  info->tmp1fd = -1;
-errout_with_outfd:
-  (void)close(info->outfd);
-  info->outfd = -1;
 errout:
+  tiff_abort(info);
   return ret;
 }
 

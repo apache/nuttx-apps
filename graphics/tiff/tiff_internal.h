@@ -51,7 +51,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
-/* Image Type **************************************************************/
+/* Image Type ***************************************************************/
 
 #define IMGFLAGS_BILEV_BIT     (1 << 0)
 #define IMGFLAGS_GREY_BIT      (1 << 1)
@@ -97,6 +97,24 @@ extern "C" {
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: tiff_read
+ *
+ * Description:
+ *   Read TIFF data from the specified file
+ *
+ * Input Parameters:
+ *   fd - Open file descriptor to read from
+ *   buffer - Read-only buffer containing the data to be written
+ *   count - The number of bytes to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+EXTERN int tiff_read(int fd, FAR void *buffer, size_t count);
+
+/****************************************************************************
  * Name: tiff_write
  *
  * Description:
@@ -113,6 +131,75 @@ extern "C" {
  ****************************************************************************/
 
 EXTERN int tiff_write(int fd, FAR const void *buffer, size_t count);
+
+/****************************************************************************
+ * Name: tiff_putint16
+ *
+ * Description:
+ *   Write two bytes to the outfile.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   value - The 2-byte, uint16_t value to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+EXTERN int tiff_putint16(int fd, uint16_t value);
+
+/****************************************************************************
+ * Name: tiff_putint32
+ *
+ * Description:
+ *   Write four bytes to the outfile.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   value - The 4-byte, uint32_t value to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+EXTERN int tiff_putint32(int fd, uint32_t value);
+
+/****************************************************************************
+ * Name: tiff_putstring
+ *
+ * Description:
+ *  Write a string of fixed length to the outfile.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   string - A pointer to the memory containing the string
+ *   len - The length of the string (including the NUL terminator)
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+EXTERN int tiff_putstring(int fd, FAR const char *string, int len);
+
+/****************************************************************************
+ * Name: tiff_wordalign
+ *
+ * Description:
+ *  Pad a file with zeros as necessary to achieve word alignament.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   size - The current size of the file
+ *
+ * Returned Value:
+ *   The new size of the file on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+EXTERN ssize_t tiff_wordalign(int fd, size_t size);
 
 #undef EXTERN
 #if defined(__cplusplus)

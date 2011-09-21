@@ -68,6 +68,87 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: tiff_addstrip
+ *
+ * Description:
+ *   Convert an RGB565 strip to an RGB888 strip and write it to tmpfile2.
+ *
+ *   Add an image data strip.  The size of the strip in pixels must be equal
+ *   to the RowsPerStrip x ImageWidth values that were provided to
+ *   tiff_initialize().
+ *
+ * Input Parameters:
+ *   info    - A pointer to the caller allocated parameter passing/TIFF state instance.
+ *   buffer  - A buffer containing a single row of data.
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+int tiff_convstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip)
+{
+#ifdef CONFIG_DEBUG_GRAPHICS
+  size_t ntotal;
+#endif
+  size_t nbytes;
+  FAR uint16_t *src;
+  FAR uint8_t *dest;
+  uint16_t rgb565;
+  int ret;
+  int i;
+
+  DEBUGASSERT(info->iobuffer != NULL);
+
+  /* Convert each RGB565 pixel to RGB888 */
+
+  src    = (FAR uint16_t *)strip;
+  dest   = info->iobuffer;
+  nbytes = 0;
+#ifdef CONFIG_DEBUG_GRAPHICS
+  ntotal = 0;
+#endif
+
+  for (i = 0; i < info->pps; i++)
+    {
+      /* Convert RGB565 to RGB888 */
+
+      rgb565  = *src++;
+      *dest++ = (rgb565 >> 11);
+      *dest++ = (rgb565 >>  5) & 0x3f;
+      *dest++ =  rgb565        & 0x1f;
+
+      /* Update the byte count */
+
+      nbytes += 3;
+#ifdef CONFIG_DEBUG_GRAPHICS
+      ntotal += 3;
+#endif
+
+      /* Flush the conversion buffer to tmpfile2 when it becomes full */
+
+      if (nbytes > (info->iosize-3))
+        {
+          ret = tiff_write(info->tmp2fd, info->iobuffer, nbytes);
+          if (ret < 0)
+            {
+              return ret;
+            }
+
+          /* Reset to refill the conversion buffer */
+
+          dest   = info->iobuffer;
+          nbytes = 0;
+        }
+    }
+
+  /* Flush any buffer data to tmpfile2 */
+
+  ret = tiff_write(info->tmp2fd, info->iobuffer, nbytes);
+  DEBUGASSERT(ntotal == info->bps);
+  return ret;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -88,9 +169,69 @@
  *
  ****************************************************************************/
 
-int tiff_addstrip(FAR struct tiff_info_s *info, FAR uint8_t *strip)
+int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip)
 {
-#warning "Missing logic"
-  return -ENOSYS;
+  ssize_t newsize;
+  int ret;
+
+  /* Add the new strip based on the color format.  For FB_FMT_RGB16_565,
+   * will have to perform a conversion to RGB888.
+   */
+
+  if (info->colorfmt == FB_FMT_RGB16_565)
+    {
+      ret = tiff_convstrip(info, strip);
+    }
+
+  /* For other formats, it is a simple write using the number of bytes per strip */
+
+  else
+    {
+      ret = tiff_write(info->tmp2fd, strip, info->bps);
+    }
+
+  if (ret < 0)
+    {
+      goto errout;
+    }
+
+  /* Write the byte count to the outfile and the offset to tmpfile1 */
+
+  ret = tiff_putint32(info->outfd, info->bps);
+  if (ret < 0)
+    {
+      goto errout;
+    }
+  info->outsize += 4;
+
+  ret = tiff_putint32(info->tmp1fd, info->tmp2size);
+  if (ret < 0)
+    {
+      goto errout;
+    }
+  info->tmp1size += 4;
+
+  /* Increment the size of tmp2file. */
+
+  info->tmp2size += info->bps;
+  
+  /* Pad tmpfile2 as necessary achieve word alignment */
+
+  newsize = tiff_wordalign(info->tmp2fd, info->tmp2size);
+  if (newsize < 0)
+    {
+      ret = (int)newsize;
+      goto errout;
+    }
+  info->tmp2size = (size_t)newsize;
+
+  /* Increment the number of strips in the TIFF file */
+
+  info->nstrips++;
+  return OK;
+
+errout:
+  tiff_abort(info);
+  return ret;
 }
 

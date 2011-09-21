@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <string.h>
 #include <unistd.h>
 #include <assert.h>
 #include <errno.h>
@@ -73,17 +74,20 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: tiff_put16 and tiff_put32
+ * Name: tiff_put/get16/32
  *
  * Description:
- *   Put 16 and 32 values in the correct byte order at the specified position.
+ *   Put and get 16 and 32 values in the correct byte order at the specified
+ *   position.
  *
  * Input Parameters:
- *   dest - The location to store the multi-byte data
- *   value - The value to be stored
+ *   dest - The location to store the multi-byte data (put only)
+ *   src - The location to get the multi-byte data (get only)
+ *   value - The value to be stored (put only)
  *
  * Returned Value:
- *   None
+ *   None (put)
+ *   The extracted value (get)
  *
  ****************************************************************************/
 
@@ -109,6 +113,86 @@ void tiff_put32(FAR uint8_t *dest, uint32_t value)
 #endif
 }
 
+uint16_t tiff_get16(FAR uint8_t *src)
+{
+#ifdef CONFIG_ENDIAN_BIG
+  return (uint16_t)src[0] << 8 | (uint16_t)src[1];
+#else
+  return (uint16_t)src[1] << 8 | (uint16_t)src[0];
+#endif
+}
+
+uint32_t tiff_get32(FAR uint8_t *src)
+{
+#ifdef CONFIG_ENDIAN_BIG
+  return (uint32_t)tiff_get16(src) << 16 | (uint32_t)tiff_get16(src+2);
+#else
+  return (uint32_t)tiff_get16(src+2) << 16 | (uint32_t)tiff_get16(src);
+#endif
+
+}
+
+/****************************************************************************
+ * Name: tiff_read
+ *
+ * Description:
+ *   Read TIFF data from the specified file
+ *
+ * Input Parameters:
+ *   fd - Open file descriptor to read from
+ *   buffer - Read-only buffer containing the data to be written
+ *   count - The number of bytes to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int tiff_read(int fd, FAR void *buffer, size_t count)
+{
+  ssize_t nbytes;
+  int errval;
+
+  /* This loop retries the write until either: (1) it completes successfully,
+   * or (2) until an irrecoverble error occurs.
+   */
+
+  while (count > 0)
+    {
+      /* Do the read */
+
+      nbytes = read(fd, buffer, count);
+
+      /* Check for an error */
+
+      if (nbytes < 0)
+        {
+          /* EINTR is not an error.. this just means that the write was
+           * interrupted by a signal.
+           */
+
+          errval = errno;
+          if (errval != EINTR)
+            {
+              /* Other errors are bad news and we will break out with an error */
+
+              return -errval;
+            }
+        }
+
+      /* What if read returns some number of bytes other than the requested number? */
+
+      else
+        {
+          DEBUGASSERT(nbytes < count && nbytes != 0);
+          buffer += nbytes;
+          count  -= nbytes;
+        }
+    }
+
+  return OK;
+}
+
 /****************************************************************************
  * Name: tiff_write
  *
@@ -125,7 +209,7 @@ void tiff_put32(FAR uint8_t *dest, uint32_t value)
  *
  ****************************************************************************/
 
-int tiff_write(int fd, FAR void *buffer, size_t count)
+int tiff_write(int fd, FAR const void *buffer, size_t count)
 {
   ssize_t nbytes;
   int errval;
@@ -157,15 +241,127 @@ int tiff_write(int fd, FAR void *buffer, size_t count)
             }
         }
 
-      /* What if the the write returns some number of bytes other than the requested number? */
+      /* What if write returns some number of bytes other than the requested number? */
 
       else
         {
           DEBUGASSERT(nbytes < count && nbytes != 0);
-          count -= nbytes;
+          buffer += nbytes;
+          count  -= nbytes;
         }
     }
 
   return OK;
 }
 
+/****************************************************************************
+ * Name: tiff_putint16
+ *
+ * Description:
+ *   Write two bytes to the outfile.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   value - The 2-byte, uint16_t value to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int tiff_putint16(int fd, uint16_t value)
+{
+  uint8_t bytes[2];
+  
+  /* Write the two bytes to the output file */
+
+  tiff_put16(bytes, value);
+  return tiff_write(fd, bytes, 2);
+}
+
+/****************************************************************************
+ * Name: tiff_putint32
+ *
+ * Description:
+ *   Write four bytes to the outfile.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   value - The 4-byte, uint32_t value to write
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int tiff_putint32(int fd, uint32_t value)
+{
+  uint8_t bytes[4];
+  
+  /* Write the four bytes to the output file */
+
+  tiff_put32(bytes, value);
+  return tiff_write(fd, bytes, 4);
+}
+
+/****************************************************************************
+ * Name: tiff_putstring
+ *
+ * Description:
+ *  Write a string of fixed length to the outfile.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   string - A pointer to the memory containing the string
+ *   len - The length of the string (including the NUL terminator)
+ *
+ * Returned Value:
+ *   Zero (OK) on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int tiff_putstring(int fd, FAR const char *string, int len)
+{
+#ifdef CONFIG_DEBUG_GRAPHICS
+  int actual = strlen(string);
+
+  ASSERT(len = actual+1);
+#endif
+  return tiff_write(fd, string, len);
+}
+
+/****************************************************************************
+ * Name: tiff_wordalign
+ *
+ * Description:
+ *  Pad a file with zeros as necessary to achieve word alignament.
+ *
+ * Input Parameters:
+ *   fd - File descriptor to be used.
+ *   size - The current size of the file
+ *
+ * Returned Value:
+ *   The new size of the file on success.  A negated errno value on failure.
+ *
+ ****************************************************************************/
+
+ssize_t tiff_wordalign(int fd, size_t size)
+{
+  unsigned int remainder;
+  int ret;
+
+  remainder = size & 3;
+  if (remainder > 0)
+    {
+      unsigned int nbytes = 4 - remainder;
+      uint32_t value      = 0;
+
+      ret = tiff_write(fd, &value, nbytes);
+      if (ret < 0)
+        {
+          return (ssize_t)ret;
+        }
+      size += nbytes;  
+    }
+  return size;
+}
