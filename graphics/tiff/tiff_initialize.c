@@ -203,14 +203,18 @@
 #define TIFF_RGB_STRIPBCOFFSET  248
 
 /* Debug *******************************************************************/
+/* CONFIG_DEBUG_TIFFOFFSETS may be defined (along with CONFIG_DEBUG and
+ * CONFIG_DEBUG_GRAPHICS) in order to verify the pre-determined TIFF file
+ * offsets.
+ */
 
-#ifndef CONFIG_DEBUG
-#  undef CONFIG_DEBUG_GRAPHICS
+#if !defined(CONFIG_DEBUG) || !defined(CONFIG_DEBUG_GRAPHICS)
+#  undef CONFIG_DEBUG_TIFFOFFSETS
 #endif
 
-#ifdef CONFIG_DEBUG_GRAPHICS
+#ifdef CONFIG_DEBUG_TIFFOFFSETS
 #  define tiff_offset(o,l)      (o) += (l)
-#  define tiff_checkoffs(o,x)   ASSERT((o) == (x));
+#  define tiff_checkoffs(o,x)   ASSERT((o) == (x))
 #else
 #  define tiff_offset(o,l)
 #  define tiff_checkoffs(o,x)
@@ -307,7 +311,7 @@ static inline int tiff_putheader(FAR struct tiff_info_s *info)
 
   /* 4-7: Offset to the first IFD */
 
-  tiff_put16(hdr.offset, TIFF_IFD_OFFSET);
+  tiff_put32(hdr.offset, TIFF_IFD_OFFSET);
 
   /* Write the header to the output file */
 
@@ -446,7 +450,7 @@ static int tiff_datetime(FAR char *timbuf, unsigned int buflen)
 int tiff_initialize(FAR struct tiff_info_s *info)
 {
   uint16_t val16;
-#if CONFIG_DEBUG_GRAPHICS
+#if CONFIG_DEBUG_TIFFOFFSETS
   off_t offset = 0;
 #endif
   char timbuf[TIFF_DATETIME_STRLEN + 8];
