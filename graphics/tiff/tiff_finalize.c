@@ -88,18 +88,22 @@ static int tiff_readifdentry(int fd, off_t offset,
                              FAR struct tiff_ifdentry_s *ifdentry)
 {
   off_t newoffs;
+  ssize_t nbytes;
 
   /* Seek to the read position */
 
-  newoffs = lseek(fd, SEEK_SET, offset);
+  newoffs = lseek(fd, offset, SEEK_SET);
   if (newoffs == (off_t)-1)
     {
       return -errno;
     }
  
-    /* Then read the IFD entry */
+  /* Then read the IFD entry.  Anything returned by tiff_read other than the
+   * size of the IFD entry would be an error.
+   */
 
-  return tiff_read(fd, ifdentry, SIZEOF_IFD_ENTRY);
+  nbytes = tiff_read(fd, ifdentry, SIZEOF_IFD_ENTRY);
+  return nbytes == SIZEOF_IFD_ENTRY ? OK : -ENOSPC;
 }
 
 /****************************************************************************
@@ -125,7 +129,7 @@ static int tiff_writeifdentry(int fd, off_t offset,
 
   /* Seek to the write position */
 
-  newoffs = lseek(fd, SEEK_SET, offset);
+  newoffs = lseek(fd, offset, SEEK_SET);
   if (newoffs == (off_t)-1)
     {
       return -errno;
@@ -247,9 +251,9 @@ int tiff_finalize(FAR struct tiff_info_s *info)
       goto errout;
     }
 
-  /* Seek to the beginning of tmpfile2 */
+  /* Revind to the beginning of tmpfile1 */
 
-  offset = lseek(info->tmp2fd, SEEK_SET, 0);
+  offset = lseek(info->tmp1fd, 0, SEEK_SET);
   if (offset == (off_t)-1)
     {
       ret = -errno;
@@ -258,14 +262,14 @@ int tiff_finalize(FAR struct tiff_info_s *info)
 
   /* Seek to the end of the outfile */
 
-  ret = lseek(info->outfd, SEEK_END, 0);
+  ret = lseek(info->outfd, 0, SEEK_END);
   if (offset == (off_t)-1)
     {
       ret = -errno;
       goto errout;
     }
 
-  /* Now read strip offset data from tmpfile2, update the offsets, and write
+  /* Now read strip offset data from tmpfile1, update the offsets, and write
    * the updated offsets to the outfile.
    */
 
@@ -277,6 +281,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
   for (i = 0; i < info->nstrips; )
     {
       size_t noffsets;
+      ssize_t nbytes;
 
       /* Read a group of up to 32-bit values */
 
@@ -286,8 +291,13 @@ int tiff_finalize(FAR struct tiff_info_s *info)
           noffsets = maxoffsets;
         }
 
-      ret = tiff_read(info->tmp1fd, info->iobuffer, noffsets << 2);
-      if (ret <= 0)
+      nbytes = tiff_read(info->tmp1fd, info->iobuffer, noffsets << 2);
+
+      /* If an error occurs or we fail to read exactly this number of
+       * bytes, then something bad happened.
+       */
+
+      if (nbytes != noffsets << 2)
         {
           goto errout;
         }
@@ -305,7 +315,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
 
       /* Then write the corrected offsets to the outfile */
 
-      ret = tiff_write(info->outfd, info->iobuffer, noffsets << 2);
+      ret = tiff_write(info->outfd, info->iobuffer, nbytes);
       if (ret < 0)
         {
           goto errout;
@@ -315,13 +325,21 @@ int tiff_finalize(FAR struct tiff_info_s *info)
 
       i     += noffsets;
 #ifdef CONFIG_DEBUG_GRAPHICS
-      total += noffsets << 2;
+      total += nbytes;
 #endif
-
     }
 #ifdef CONFIG_DEBUG_GRAPHICS
   ASSERT(total == info->tmp1size);
 #endif
+
+  /* Rewind to the beginning of tmpfile2 */
+
+  offset = lseek(info->tmp2fd, 0, SEEK_SET);
+  if (offset == (off_t)-1)
+    {
+      ret = -errno;
+      goto errout;
+    }
 
   /* Finally, copy the tmpfile2 to the end of the outfile */
 
@@ -335,12 +353,15 @@ int tiff_finalize(FAR struct tiff_info_s *info)
       /* Read a block of data from tmpfile2 */
 
       nbytes = tiff_read(info->tmp2fd, info->iobuffer, info->iosize);
+
+      /* Check for tead errors and for end-of-file */
+
       if (nbytes < 0)
         {
           ret = (int)nbytes;
           goto errout;
         }
-      else if (ret == 0)
+      else if (nbytes == 0)
         {
           break;
         }

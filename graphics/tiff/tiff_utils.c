@@ -144,12 +144,14 @@ uint32_t tiff_get32(FAR uint8_t *src)
  *   count - The number of bytes to write
  *
  * Returned Value:
- *   Zero (OK) on success.  A negated errno value on failure.
+ *   On success, then number of bytes read; Zero is returned on EOF.
+ *   Otherwise, a negated errno value on failure.
  *
  ****************************************************************************/
 
-int tiff_read(int fd, FAR void *buffer, size_t count)
+ssize_t tiff_read(int fd, FAR void *buffer, size_t count)
 {
+  size_t  ntotal;
   ssize_t nbytes;
   int errval;
 
@@ -157,11 +159,14 @@ int tiff_read(int fd, FAR void *buffer, size_t count)
    * or (2) until an irrecoverble error occurs.
    */
 
-  while (count > 0)
+  for (ntotal = 0; ntotal < count; )
     {
-      /* Do the read */
+      /* Do the read.  The number of bytes left to read is the total
+       * requested size (count) minus the amount that we have alread read
+       * (ntotal).
+       */
 
-      nbytes = read(fd, buffer, count);
+      nbytes = read(fd, buffer, count-ntotal);
 
       /* Check for an error */
 
@@ -180,17 +185,26 @@ int tiff_read(int fd, FAR void *buffer, size_t count)
             }
         }
 
-      /* What if read returns some number of bytes other than the requested number? */
+      /* Zero is a special case and means that the end of file was encountered. */
+
+      else if (nbytes == 0)
+        {
+          break;
+        }
+
+      /* What if read returns some number of bytes other than the requested number?
+       * This probably means that the end-of-file will be encountered the next time
+       * that we call read().
+       */
 
       else
         {
-          DEBUGASSERT(nbytes < count && nbytes != 0);
           buffer += nbytes;
-          count  -= nbytes;
+          ntotal += nbytes;
         }
     }
 
-  return OK;
+  return ntotal;
 }
 
 /****************************************************************************
@@ -245,7 +259,7 @@ int tiff_write(int fd, FAR const void *buffer, size_t count)
 
       else
         {
-          DEBUGASSERT(nbytes < count && nbytes != 0);
+          DEBUGASSERT(nbytes == count);
           buffer += nbytes;
           count  -= nbytes;
         }

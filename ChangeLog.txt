@@ -112,3 +112,4 @@
 	  that will write to a register, read from register, and verify that
 	  returned value.
 	* apps/graphics/tiff:  Add a library that can be used to create TIFF files.
+	* apps/examples/tiff:  Add a unit test for the TIFF file creation logic

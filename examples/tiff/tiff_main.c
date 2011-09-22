@@ -48,6 +48,34 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
+/* Configuration ************************************************************/
+/* This is a simple unit test for the TIFF creation library at apps/graphic/tiff.
+ * It is configured to work in the Linux user-mode simulation and has not been
+ * tested in any other environment.  Since the example also depends on some
+ * other logic to mount a file system, currently it will only work as an NSH
+ * built-on, i.e., if the following is defined:
+ *
+ *   CONFIG_NSH_BUILTIN_APPS=y
+ *   CONFIG_EXAMPLES_TIFF_BUILTIN=y
+ *
+ * Other configuration options:
+ *
+ *  CONFIG_EXAMPLES_TIFF_OUTFILE - Name of the resulting TIFF file
+ *  CONFIG_EXAMPLES_TIFF_TMPFILE1/2 - Names of two temporaries files that
+ *    will be used in the file creation.
+ */
+
+#ifndef CONFIG_EXAMPLES_TIFF_OUTFILE
+#  define CONFIG_EXAMPLES_TIFF_OUTFILE "/tmp/result.tif"
+#endif
+
+#ifndef CONFIG_EXAMPLES_TIFF_TMPFILE1
+#  define CONFIG_EXAMPLES_TIFF_TMPFILE1 "/tmp/tmpfile1.dat"
+#endif
+
+#ifndef CONFIG_EXAMPLES_TIFF_TMPFILE2
+#  define CONFIG_EXAMPLES_TIFF_TMPFILE2 "/tmp/tmpfile2.dat"
+#endif
 
 /****************************************************************************
  * Private Types
@@ -95,9 +123,9 @@ int MAIN_NAME(int argc, char *argv[])
   /* Configure the interface structure */
 
   memset(&info, 0, sizeof(struct tiff_info_s));
-  info.outfile   = "result.tif";
-  info.tmpfile1  = "tmpfile1.dat";
-  info.tmpfile2  = "tmpfile2.dat";
+  info.outfile   = CONFIG_EXAMPLES_TIFF_OUTFILE;
+  info.tmpfile1  = CONFIG_EXAMPLES_TIFF_TMPFILE1;
+  info.tmpfile2  = CONFIG_EXAMPLES_TIFF_TMPFILE2;
   info.colorfmt  = FB_FMT_RGB24;
   info.rps       = 1;
   info.imgwidth  = 256;
@@ -118,6 +146,7 @@ int MAIN_NAME(int argc, char *argv[])
 
   for (green = 0, ptr = strip; green < 256; green++)
     {
+      ptr = strip;
       for (blue = 0; blue < 256; blue++)
         {
           *ptr++ = (green + blue) >> 1;
@@ -138,7 +167,7 @@ int MAIN_NAME(int argc, char *argv[])
   ret = tiff_finalize(&info);
   if (ret < 0)
     {
-      printf("tiff_initialize() failed: %d\n", ret);
+      printf("tiff_finalize() failed: %d\n", ret);
       exit(1);
     }
   return 0;

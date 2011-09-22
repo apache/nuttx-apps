@@ -108,11 +108,12 @@ extern "C" {
  *   count - The number of bytes to write
  *
  * Returned Value:
- *   Zero (OK) on success.  A negated errno value on failure.
+ *   On success, then number of bytes read; Zero is returned on EOF.
+ *   Otherwise, a negated errno value on failure.
  *
  ****************************************************************************/
 
-EXTERN int tiff_read(int fd, FAR void *buffer, size_t count);
+EXTERN ssize_t tiff_read(int fd, FAR void *buffer, size_t count);
 
 /****************************************************************************
  * Name: tiff_write

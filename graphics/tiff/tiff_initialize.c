@@ -635,11 +635,11 @@ int tiff_initialize(FAR struct tiff_info_s *info)
 
   if (IMGFLAGS_ISRGB(info->imgflags))
     {
-      val16 = TAG_PMI_BLACK;
+      val16 = TAG_PMI_RGB;
     }
   else
     {
-      val16 = TAG_PMI_RGB;
+      val16 = TAG_PMI_BLACK;
     }
 
   ret = tiff_putifdentry16(info, IFD_TAG_PMI, IFD_FIELD_SHORT, 1, val16);
@@ -750,7 +750,6 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    * RGB:             Offset 168 Count, Hard-coded "NuttX"
    */
 
-  tiff_checkoffs(offset, info->filefmt->sbcifdoffset);
   ret = tiff_putifdentry(info, IFD_TAG_SOFTWARE, IFD_FIELD_ASCII, TIFF_SOFTWARE_STRLEN, info->filefmt->swoffset);
   if (ret < 0)
     {
@@ -765,7 +764,6 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    * RGB:             Offset 180 Count, Format "YYYY:MM:DD HH:MM:SS"
    */
 
-  tiff_checkoffs(offset, info->filefmt->sbcifdoffset);
   ret = tiff_putifdentry(info, IFD_TAG_DATETIME, IFD_FIELD_ASCII, TIFF_DATETIME_STRLEN, info->filefmt->dateoffset);
   if (ret < 0)
     {
@@ -830,6 +828,24 @@ int tiff_initialize(FAR struct tiff_info_s *info)
     }
   tiff_offset(offset, 8);
 
+  /* Write RGB BitsPerSample Data:
+   *
+   * Bi-level Images: N/A
+   * Greyscale:       N/A
+   * RGB:             Offset 212 BitsPerSample (8,8,8)
+   *                  Offset 218  [2 bytes padding]
+   */
+
+  if (IMGFLAGS_ISRGB(info->imgflags))
+    {
+      tiff_checkoffs(offset, TIFF_RGB_BPSOFFSET);
+      tiff_putint16(info->outfd, 8);
+      tiff_putint16(info->outfd, 8);
+      tiff_putint16(info->outfd, 8);
+      tiff_putint16(info->outfd, 0);
+      tiff_offset(offset, 8);
+    }
+
   /* Write the Software string:
    *
    *
@@ -838,7 +854,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    * RGB:             Offset 220, Hard-coded "NuttX"
    */
    
-  tiff_checkoffs(offset, info->filefmt->xresoffset);
+  tiff_checkoffs(offset, info->filefmt->swoffset);
   ret = tiff_putstring(info->outfd, TIFF_SOFTWARE_STRING, TIFF_SOFTWARE_STRLEN);
   if (ret < 0)
     {

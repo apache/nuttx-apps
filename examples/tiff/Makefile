@@ -82,7 +82,7 @@ $(COBJS): %$(OBJEXT): %.c
 	@touch .built
 
 .context:
-ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
+ifeq ($(CONFIG_EXAMPLES_TIFF_BUILTIN),y)
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
 endif
