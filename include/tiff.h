@@ -44,6 +44,7 @@
  ************************************************************************************/
 
 #include <nuttx/config.h>
+#include <sys/types.h>
 #include <nuttx/nx/nxglib.h>
 
 /************************************************************************************
@@ -78,9 +79,9 @@
 /* Values for the IFD tag type */
 
 #define IFD_TAG_NEWSUBFILETYPE    254 /* NewSubfileType, LONG */
-#  define TAG_SUBFILETYPE_REDUCED (1 << 0) /* Bit 0: Reduced resolution verson of image */
-#  define TAG_SUBFILETYPE_SINGLE  (1 << 1) /* Bit 1: Single page of a multi-page image */
-#  define TAG_SUBFILETYPE_TRANSP  (1 << 2) /* Bit 2: Defines a transparency mask for image */
+#  define TAG_NEWSUBFILETYPE_REDUCED (1 << 0) /* Bit 0: Reduced resolution verson of image */
+#  define TAG_NEWSUBFILETYPE_SINGLE  (1 << 1) /* Bit 1: Single page of a multi-page image */
+#  define TAG_NEWSUBFILETYPE_TRANSP  (1 << 2) /* Bit 2: Defines a transparency mask for image */
 #define IFD_TAG_SUBFILETYPE       255 /* SubfileType, SHORT */
 #  define TAG_SUBFILETYPE_FULL      1 /*   Full-resolution image data */
 #  define TAG_SUBFILETYPE_REDUCED   2 /*   Reduced-resolution image data */
@@ -97,7 +98,7 @@
 #  define TAG_COMP_T6               4 /*   CCITT T.6 bi-level encoding */
 #  define TAG_COMP_LZW              5 /*   LZW */
 #  define TAG_COMP_JPEG             6 /*   LZW */
-#  define TAG_COMP_NONE         32773 /*   PackBits compression */
+#  define TAG_COMP_PACKBITS     32773 /*   PackBits compression */
 #define IFD_TAG_PMI               262 /* PhotometricInterpretation, SHORT (Required) */
 #  define TAG_PMI_WHITE             0 /*   WhiteIsZero */
 #  define TAG_PMI_BLACK             1 /*   BlackIsZero */

@@ -113,9 +113,9 @@ int tiff_convstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip)
       /* Convert RGB565 to RGB888 */
 
       rgb565  = *src++;
-      *dest++ = (rgb565 >> 11);
-      *dest++ = (rgb565 >>  5) & 0x3f;
-      *dest++ =  rgb565        & 0x1f;
+      *dest++ = (rgb565 >> (11-3)) & 0xf8; /* Move bits 11-15 to 3-7 */
+      *dest++ = (rgb565 >> ( 5-2)) & 0xfc; /* Move bits  5-10 to 2-7 */
+      *dest++ = (rgb565 << (   3)) & 0xf8; /* Move bits  0- 4 to 3-7 */
 
       /* Update the byte count */
 

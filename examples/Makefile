@@ -40,7 +40,7 @@
 SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp mm mount \
 	nettest nsh null nx nxffs nxflat nxhello nximage nxlines \
 	nxtext ostest pashello pipe poll rgmp romfs sendmail serloop \
-	thttpd udp uip usbserial usbstorage wget wlan
+	thttpd tiff udp uip usbserial usbstorage wget wlan
 
 # Sub-directories that might need context setup
 
@@ -60,6 +60,9 @@ CNTXTDIRS +=  nxlines
 endif
 ifeq ($(CONFIG_EXAMPLES_NXTEXT_BUILTIN),y)
 CNTXTDIRS +=  nxtext
+endif
+ifeq ($(CONFIG_EXAMPLES_TIFF_BUILTIN),y)
+CNTXTDIRS +=  tiff
 endif
 ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
 CNTXTDIRS +=  usbstorage

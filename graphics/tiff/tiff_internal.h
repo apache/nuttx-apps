@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/tiff/tiff_internal.h
  *
- *   Copyright (C) 2010 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRPHICS_TIFF_TIFF_INTERNAL_H
-#define __APPS_GRPHICS_TIFF_TIFF_INTERNAL_H
+#ifndef __APPS_GRAPHICS_TIFF_TIFF_INTERNAL_H
+#define __APPS_GRAPHICS_TIFF_TIFF_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -206,5 +206,5 @@ EXTERN ssize_t tiff_wordalign(int fd, size_t size);
 }
 #endif
 
-#endif  /* __APPS_GRPHICS_TIFF_TIFF_INTERNAL_H */
+#endif  /* __APPS_GRAPHICS_TIFF_TIFF_INTERNAL_H */
 

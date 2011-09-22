@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/tiff/Makefile
+# apps/examples/tiff/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -37,10 +37,10 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# NuttX TIFF Creation Tool
+# TIFF Unit Test
 
 ASRCS		=
-CSRCS		= tiff_addstrip.c tiff_finalize.c tiff_initialize.c tiff_utils.c
+CSRCS		= tiff_main.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -56,12 +56,18 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 
+# TIFF built-in application info
+
+APPNAME			= tiff
+PRIORITY		= SCHED_PRIORITY_DEFAULT
+STACKSIZE		= 2048
+
 # Common build
 
 VPATH		= 
 
 all: .built
-.PHONY: context clean depend distclean
+.PHONY: clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -75,7 +81,13 @@ $(COBJS): %$(OBJEXT): %.c
 	done ; )
 	@touch .built
 
-context:
+.context:
+ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
+endif
+
+context: .context
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
@@ -85,6 +97,7 @@ depend: .depend
 
 clean:
 	@rm -f *.o *~ .*.swp .built
+	@rm -f result.tif tmpfile1.dat tmpfile2.dat
 	$(call CLEAN)
 
 distclean: clean

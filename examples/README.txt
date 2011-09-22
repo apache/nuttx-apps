@@ -730,6 +730,16 @@ examples/thttpd
   CONFIGURED_APPS += uiplib
   CONFIGURED_APPS += thttpd
 
+examples/tiff
+^^^^^^^^^^^^^
+
+  This is a simple unit test for the TIFF creation library at apps/graphic/tiff.
+  It is configured to work in the Linux user-mode simulation and has not been
+  tested in any other environment.
+
+  At a miniumum, you would probably have to change the hard-coded pathes to
+  the TIFF files defined in the example to run in an embedded platform.
+
 examples/udp
 ^^^^^^^^^^^^
 
