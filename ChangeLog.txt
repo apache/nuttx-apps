@@ -113,3 +113,5 @@
 	  returned value.
 	* apps/graphics/tiff:  Add a library that can be used to create TIFF files.
 	* apps/examples/tiff:  Add a unit test for the TIFF file creation logic
+	* apps/examples/lcdrw:  Add a test to verify if you can or can or read
+	  data from an LCD correctly.

@@ -182,6 +182,13 @@ examples/igmp
 
   CONFIGURED_APPS += uiplib
 
+examples/lcdrw
+^^^^^^^^^^^^^^
+
+  This example may be used to verify if you can or cannot read data
+  correct from an LCD interface.  At present, this supports only LCDs
+  with RGB565 color format.
+
 examples/mm
 ^^^^^^^^^^^
 
