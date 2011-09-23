@@ -61,7 +61,7 @@
  *            2    Magic Number                42     
  *            4    1st IFD offset              10
  *            8    [2 bytes padding]
- * IFD:      10    Number of Directory Entries 12
+ * IFD:      10    Number of Directory Entries 13
  *           12    NewSubfileType
  *           24    ImageWidth                  Number of columns is a user parameter
  *           36    ImageLength                 Number of rows is a user parameter
@@ -91,7 +91,7 @@
 
 #define TIFF_IFD_OFFSET           (SIZEOF_TIFF_HEADER+2)
 
-#define TIFF_BILEV_NIFDENTRIES    12
+#define TIFF_BILEV_NIFDENTRIES    13
 #define TIFF_BILEV_STRIPIFDOFFS   72
 #define TIFF_BILEV_STRIPBCIFDOFFS 96
 #define TIFF_BILEV_VALOFFSET      172
@@ -113,7 +113,7 @@
  *            2    Magic Number                42     
  *            4    1st IFD offset              10
  *            8    [2 bytes padding]
- * IFD:      10    Number of Directory Entries 13
+ * IFD:      10    Number of Directory Entries 14
  *           12    NewSubfileType
  *           24    ImageWidth                  Number of columns is a user parameter
  *           36    ImageLength                 Number of rows is a user parameter
@@ -142,7 +142,7 @@
  *          xxx    Data for strips             Beginning of strip data
  */
 
-#define TIFF_GREY_NIFDENTRIES    13
+#define TIFF_GREY_NIFDENTRIES    14
 #define TIFF_GREY_STRIPIFDOFFS   84
 #define TIFF_GREY_STRIPBCIFDOFFS 108
 #define TIFF_GREY_VALOFFSET      184
@@ -159,7 +159,7 @@
  *            2    Magic Number                42     
  *            4    1st IFD offset              10
  *            8    [2 bytes padding]
- * IFD:      10    Number of Directory Entries 14
+ * IFD:      10    Number of Directory Entries 15
  *           12    NewSubfileType
  *           24    ImageWidth                  Number of columns is a user parameter
  *           36    ImageLength                 Number of rows is a user parameter
@@ -191,7 +191,7 @@
  *          xxx    Data for strips             Beginning of strip data
  */
 
-#define TIFF_RGB_NIFDENTRIES    13
+#define TIFF_RGB_NIFDENTRIES    15
 #define TIFF_RGB_STRIPIFDOFFS   84
 #define TIFF_RGB_STRIPBCIFDOFFS 120
 #define TIFF_RGB_VALOFFSET      196

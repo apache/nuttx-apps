@@ -270,7 +270,8 @@ int tiff_finalize(FAR struct tiff_info_s *info)
     }
 
   /* Now read strip offset data from tmpfile1, update the offsets, and write
-   * the updated offsets to the outfile.
+   * the updated offsets to the outfile.  The strip data will begin at offset
+   * outsize + tmp1size;
    */
 
   maxoffsets = info->iosize >> 2;
@@ -309,7 +310,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
            j++, ptr += 4)
         {
           uint32_t stripoff = tiff_get32(ptr);
-          stripoff += info->outsize;
+          stripoff += (info->outsize + info->tmp1size);
           tiff_put32(ptr, stripoff);
         }
 
