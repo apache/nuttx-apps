@@ -215,10 +215,26 @@ int tiff_finalize(FAR struct tiff_info_s *info)
   int i;
   int j;
 
+  /* Put all of the pieces together to create the final output file.  There
+   * are three pieces:
+   *
+   * 1) outfile: The partial output file containing the header, IFD and strip
+   *    counts. This includes the StripOffsets and StripByteCounts that need
+   *    to be updated.  Size=outsize;
+   * 2) tmpfile1: This contains the offsets into tmpfile3 for each strip.  The
+   *    size of this file is tmp1size.  These offsets are relative to the
+   *    beginning of tmpfile3 and need to be offset by outsize+tmp1size.
+   * 3) tmpfile3: The strip data.  Size is tmp2size.  This is raw image data;
+   *    no fixups are required.
+   */
+
   DEBUGASSERT(info && info->outfd >= 0 && info->tmp1fd >= 0 && info->tmp2fd >= 0);
   DEBUGASSERT((info->outsize & 3) == 0 && (info->tmp1size & 3) == 0);
 
-  /* Fix-up the count value in the StripByteCounts IFD entry in the outfile */
+  /* Fix-up the count value in the StripByteCounts IFD entry in the outfile.
+   * The actual number of strips was unknown at the time that the IFD entry
+   * was written.
+   */
 
   ret = tiff_readifdentry(info->outfd, info->filefmt->sbcifdoffset, &ifdentry);
   if (ret < 0)
@@ -234,7 +250,10 @@ int tiff_finalize(FAR struct tiff_info_s *info)
       goto errout;
     }
 
-  /* Fix-up the count and offset values in the StripOffsets IFD entry in the outfile */
+  /* Fix-up the count and offset values in the StripOffsets IFD entry in the
+   * outfile.  The StripOffsets data will be stored immediately after the
+   * outfile, hence, the correct offset is outsize.
+   */
 
   ret = tiff_readifdentry(info->outfd, info->filefmt->soifdoffset, &ifdentry);
   if (ret < 0)
@@ -243,7 +262,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
     }
 
   tiff_put32(ifdentry.count, info->nstrips);
-  tiff_put32(ifdentry.offset, info->outsize + info->tmp1size);
+  tiff_put32(ifdentry.offset, info->outsize);
 
   ret = tiff_writeifdentry(info->outfd, info->filefmt->soifdoffset, &ifdentry);
   if (ret < 0)
@@ -251,7 +270,7 @@ int tiff_finalize(FAR struct tiff_info_s *info)
       goto errout;
     }
 
-  /* Revind to the beginning of tmpfile1 */
+  /* Rewind to the beginning of tmpfile1 */
 
   offset = lseek(info->tmp1fd, 0, SEEK_SET);
   if (offset == (off_t)-1)

@@ -387,7 +387,7 @@ static int tiff_putifdentry16(FAR struct tiff_info_s *info, uint16_t tag,
 
   u.w = 0;
   tiff_put16(u.b, value);
-  return tiff_putifdentry(info, tag, count, type, u.w);
+  return tiff_putifdentry(info, tag, type, count, u.w);
 }
 
 /****************************************************************************
