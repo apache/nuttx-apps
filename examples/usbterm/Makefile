@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/Makefile
+# apps/examples/usbterm/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,71 +33,75 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+# USB terminal example
 
-SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
-	nettest nsh null nx nxffs nxflat nxhello nximage nxlines \
-	nxtext ostest pashello pipe poll rgmp romfs sendmail serloop \
-	thttpd tiff udp uip usbserial usbstorage usbterm wget wlan
+ASRCS		=
+CSRCS		=  usbterm_main.c
 
-# Sub-directories that might need context setup
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-CNTXTDIRS = 
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
 
-ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
-CNTXTDIRS +=  lcdrw
-endif
-ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
-CNTXTDIRS +=  nx
-endif
-ifeq ($(CONFIG_EXAMPLES_NXHELLO_BUILTIN),y)
-CNTXTDIRS +=  nxhello
-endif
-ifeq ($(CONFIG_EXAMPLES_NXIMAGE_BUILTIN),y)
-CNTXTDIRS +=  nximage
-endif
-ifeq ($(CONFIG_EXAMPLES_LINES_BUILTIN),y)
-CNTXTDIRS +=  nxlines
-endif
-ifeq ($(CONFIG_EXAMPLES_NXTEXT_BUILTIN),y)
-CNTXTDIRS +=  nxtext
-endif
-ifeq ($(CONFIG_EXAMPLES_TIFF_BUILTIN),y)
-CNTXTDIRS +=  tiff
-endif
-ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
-CNTXTDIRS +=  usbstorage
-endif
-ifeq ($(CONFIG_EXAMPLES_USBTERM_BUILTIN),y)
-CNTXTDIRS +=  usbterm
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
 endif
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+ROOTDEPPATH	= --dep-path .
 
-nothing:
+# Built-in application info
 
-context:
-	@for dir in $(CNTXTDIRS) ; do \
-		$(MAKE) -C $$dir context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+APPNAME			= usbterm
+PRIORITY		= SCHED_PRIORITY_DEFAULT
+STACKSIZE		= 2048
 
-depend:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+# Common build
+
+VPATH		= 
+
+all: .built
+.PHONY: clean depend distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $(BIN), $${obj}); \
+	done ; )
+	@touch .built
+
+.context:
+ifeq ($(CONFIG_EXAMPLES_UBSTERM_BUILTIN),y)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
+endif
+
+context: .context
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+depend: .depend
 
 clean:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f *.o *~ .*.swp .built
+	$(call CLEAN)
+	@$(MAKE) -f Makefile.host clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 distclean: clean
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f Make.dep .depend
 
 -include Make.dep
 

@@ -966,6 +966,45 @@ examples/usbstorage
   user-space program.  As a result, this example cannot be used if a
   NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
 
+examples/usbterm
+^^^^^^^^^^^^^^^^
+
+  This example implements a little USB terminal.. more of a USB "chat"
+  edited lines are received from the remote host connected via USB
+  serial and echoed out the target serial console.  Edited lines from
+  the local target serial console are received and forwarded to the
+  remote host via USB serial.
+
+  Configuration options:
+
+  CONFIG_EXAMPLES_UBSTERM_BUILTIN - Build the usbterm example as an NSH
+    built-in command.  NOTE:  This is not fully functional as of this
+    writing.. It should work, but there is no mechanism in place yet
+    to exit the USB terminal program and return to NSH.
+  CONFIG_EXAMPLES_USBTERM_BUFLEN - The size of the input and output
+    buffers used for receiving data. Default 256 bytes.
+
+  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB, or
+  CONFIG_USBDEV_TRACE), then the example code will also manage the USB trace
+  output.  The amount of trace output can be controlled using:
+
+  CONFIG_EXAMPLES_USBTERM_TRACEINIT
+    Show initialization events
+  CONFIG_EXAMPLES_USBTERM_TRACECLASS
+    Show class driver events
+  CONFIG_EXAMPLES_USBTERM_TRACETRANSFERS
+    Show data transfer events
+  CONFIG_EXAMPLES_USBTERM_TRACECONTROLLER
+    Show controller events
+  CONFIG_EXAMPLES_USBTERM_TRACEINTERRUPTS
+    Show interrupt-related events.
+
+  Error results are always shown in the trace output
+
+  Other relevant configuration options:  CONFIG_CDCSER selected by the
+  Prolifics emulation (not defined) and the CDC serial implementation
+  (when defined). CONFIG_USBDEV_TRACE_INITIALIDSET.
+
 examples/wget
 ^^^^^^^^^^^^^
 

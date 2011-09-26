@@ -115,3 +115,6 @@
 	* apps/examples/tiff:  Add a unit test for the TIFF file creation logic
 	* apps/examples/lcdrw:  Add a test to verify if you can or can or read
 	  data from an LCD correctly.
+	* apps/examples/usbterm:  A USB terminal example.. more of a USB chat or
+	  serial bridge:  Data received on local console echoed via USB serial; 
+	  data received on USB serial is echoed on the local console.
