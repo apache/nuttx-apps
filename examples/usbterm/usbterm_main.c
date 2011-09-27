@@ -127,7 +127,7 @@ FAR void *usbterm_listener(FAR void *parameter)
     {
       /* Display the prompt string on the remote USB serial connection */
 
-      fputs("usbterm> ", g_usbterm.outstream);
+      fputs("\rusbterm> ", g_usbterm.outstream);
       fflush(g_usbterm.outstream);
 
      /* Get the next line of input from the remote USB serial connection */
@@ -293,7 +293,7 @@ int MAIN_NAME(int argc, char *argv[])
 
           /* Display the prompt string on the remote USB serial connection */
 
-          fputs("usbterm> ", g_usbterm.outstream);
+          fputs("\rusbterm> ", g_usbterm.outstream);
           fflush(g_usbterm.outstream);
         }
 
