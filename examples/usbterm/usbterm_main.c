@@ -134,9 +134,13 @@ FAR void *usbterm_listener(FAR void *parameter)
 
       if (fgets(g_usbterm.inbuffer, CONFIG_EXAMPLES_USBTERM_BUFLEN, g_usbterm.instream))
         {
-          /* Send the line of input via USB */
+          /* Echo the line on the local stdout */
 
-          fputs(g_usbterm.outbuffer, stdout);
+          fputs(g_usbterm.inbuffer, stdout);
+
+          /* Display the prompt string on stdout */
+
+          fputs("usbterm> ", stdout);
           fflush(stdout);
         }
 
@@ -235,14 +239,14 @@ int MAIN_NAME(int argc, char *argv[])
 
       dumptrace();
     }
-  while (g_usbterm.outstream < 0);
+  while (g_usbterm.outstream == NULL);
 
   /* Open the USB serial device for reading.  Since we are already connected, this
    * should not fail.
    */
 
   g_usbterm.instream = fopen("/dev/ttyUSB0", "r");
-  if (g_usbterm.instream < 0)
+  if (g_usbterm.instream == NULL)
     {
       message(MAIN_STRING "ERROR: Failed to open /dev/ttyUSB0 for reading: %d\n", errno);
       goto errout_with_outstream;
@@ -286,6 +290,10 @@ int MAIN_NAME(int argc, char *argv[])
           /* Send the line of input via USB */
 
           fputs(g_usbterm.outbuffer, g_usbterm.outstream);
+
+          /* Display the prompt string on the remote USB serial connection */
+
+          fputs("usbterm> ", g_usbterm.outstream);
           fflush(g_usbterm.outstream);
         }
 

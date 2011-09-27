@@ -975,6 +975,22 @@ examples/usbterm
   the local target serial console are received and forwarded to the
   remote host via USB serial.
 
+  Usage:
+    - Build the example and load into the target FLASH
+    - Connect on  terminal to the target RS-232 connect and configure
+      for 115200 8N1.  For example, suppose this Tera Term on a Windows
+      box.
+    - Power up the target board
+    - Connect the USB to a Linux box.  Use the Linux dmesg command to
+      assure that the connect was successful.  The USB CDC ACM device
+      should appear as /dev/ttyACM0
+    - On the Linux box, open minicom with tty=/dev/ttyACM0.
+      Configure minicom so that (1) local characters are echoed and (2)
+      so that no CR is required.
+    - Now what you type on the target Tera Term window should echo on
+      the Linux  minicom window and, conversely, what you type on the
+      minicom winow should be echo in the target Tera Term window.
+
   Configuration options:
 
   CONFIG_EXAMPLES_UBSTERM_BUILTIN - Build the usbterm example as an NSH
