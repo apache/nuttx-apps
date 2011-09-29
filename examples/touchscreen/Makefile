@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/Makefile
+# apps/examples/touchscreen/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
@@ -33,74 +33,73 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+# NuttX NX Graphics Example.
 
-SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
-	nettest nsh null nx nxffs nxflat nxhello nximage nxlines \
-	nxtext ostest pashello pipe poll rgmp romfs sendmail serloop \
-	thttpd tiff touchscreen udp uip usbserial usbstorage usbterm wget wlan
+ASRCS		=
+CSRCS		= tc_main.c
 
-# Sub-directories that might need context setup
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-CNTXTDIRS = 
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
 
-ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
-CNTXTDIRS +=  lcdrw
+ifeq ($(WINTOOL),y)
+  BIN		= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
+else
+  BIN		= "$(APPDIR)/libapps$(LIBEXT)"
 endif
-ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
-CNTXTDIRS +=  nx
-endif
-ifeq ($(CONFIG_EXAMPLES_NXHELLO_BUILTIN),y)
-CNTXTDIRS +=  nxhello
-endif
-ifeq ($(CONFIG_EXAMPLES_NXIMAGE_BUILTIN),y)
-CNTXTDIRS +=  nximage
-endif
-ifeq ($(CONFIG_EXAMPLES_LINES_BUILTIN),y)
-CNTXTDIRS +=  nxlines
-endif
-ifeq ($(CONFIG_EXAMPLES_NXTEXT_BUILTIN),y)
-CNTXTDIRS +=  nxtext
-endif
-ifeq ($(CONFIG_EXAMPLES_TIFF_BUILTIN),y)
-CNTXTDIRS +=  tiff
-endif
+
+ROOTDEPPATH	= --dep-path .
+
+# NXHELLO built-in application info
+
+APPNAME		= tc
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 2048
+
+# Common build
+
+VPATH		= 
+
+all: .built
+.PHONY: context clean depend distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	@( for obj in $(OBJS) ; do \
+		$(call ARCHIVE, $(BIN), $${obj}); \
+	done ; )
+	@touch .built
+
+.context:
 ifeq ($(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN),y)
-CNTXTDIRS +=  touchscreen
-endif
-ifeq ($(CONFIG_EXAMPLES_USBSTRG_BUILTIN),y)
-CNTXTDIRS +=  usbstorage
-endif
-ifeq ($(CONFIG_EXAMPLES_USBTERM_BUILTIN),y)
-CNTXTDIRS +=  usbterm
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
 endif
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+context: .context
 
-nothing:
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
 
-context:
-	@for dir in $(CNTXTDIRS) ; do \
-		$(MAKE) -C $$dir context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
-
-depend:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+depend: .depend
 
 clean:
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f *.o *~ .*.swp .built
+	$(call CLEAN)
 
 distclean: clean
-	@for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
+	@rm -f Make.dep .depend
 
 -include Make.dep
-

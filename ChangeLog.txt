@@ -118,3 +118,5 @@
 	* apps/examples/usbterm:  A USB terminal example.. more of a USB chat or
 	  serial bridge:  Data received on local console echoed via USB serial; 
 	  data received on USB serial is echoed on the local console.
+	* apps/examples/touchscreen:  Add a simple, generic test for any
+	  touschscreen driver.
