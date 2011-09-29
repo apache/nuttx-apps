@@ -189,13 +189,13 @@ int MAIN_NAME(int argc, char *argv[])
         message("Sample     :\n");
         message("   npoints : %d\n",   sample.npoints);
         message("Point 1    :\n");
-        message("        id : %d\n",   sample.point[1].id);
-        message("     flags : %02x\n", sample.point[1].flags);
-        message("         x : %d\n",   sample.point[1].x);
-        message("         y : %d\n",   sample.point[1].y);
-        message("         h : %d\n",   sample.point[1].h);
-        message("         w : %d\n",   sample.point[1].w);
-        message("  pressure : %d\n",   sample.point[1].pressure);
+        message("        id : %d\n",   sample.point[0].id);
+        message("     flags : %02x\n", sample.point[0].flags);
+        message("         x : %d\n",   sample.point[0].x);
+        message("         y : %d\n",   sample.point[0].y);
+        message("         h : %d\n",   sample.point[0].h);
+        message("         w : %d\n",   sample.point[0].w);
+        message("  pressure : %d\n",   sample.point[0].pressure);
       }
   }
 
