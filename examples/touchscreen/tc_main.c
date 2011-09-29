@@ -150,9 +150,16 @@ int MAIN_NAME(int argc, char *argv[])
   for (;;)
 #endif
   {
+    /* Flush any output before the loop entered or from the previous pass
+     * through the loop.
+     */
+
+    msgflush();
+
     /* Read one sample */
 
     nbytes = read(fd, &sample, sizeof(struct touch_sample_s));
+    ivdbg("Bytes read: %d\n", nbytes);
 
     /* Handle unexpected return values */
 
@@ -197,5 +204,7 @@ errout_with_dev:
 errout_with_tc:
   arch_tcuninitialize();
 errout:
+  message("Terminating!\n");
+  msgflush();
   return errval;
 }
