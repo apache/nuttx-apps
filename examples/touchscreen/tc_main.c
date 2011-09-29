@@ -143,9 +143,9 @@ int MAIN_NAME(int argc, char *argv[])
    */
 
 #if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN)
-  for (; namples > 0; nsamples--)
+  for (; nsamples > 0; nsamples--)
 #elif defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
-  for (namples = 0; namples < CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES; nsamples++)
+  for (nsamples = 0; nsamples < CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES; nsamples++)
 #else
   for (;;)
 #endif

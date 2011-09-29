@@ -98,7 +98,6 @@ depend: .depend
 clean:
 	@rm -f *.o *~ .*.swp .built
 	$(call CLEAN)
-	@$(MAKE) -f Makefile.host clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 distclean: clean
 	@rm -f Make.dep .depend
