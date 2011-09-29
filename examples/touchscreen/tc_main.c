@@ -95,7 +95,7 @@ int MAIN_NAME(int argc, char *argv[])
 {
   struct touch_sample_s sample;
   ssize_t nbytes;
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN) || defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
   long nsamples;
 #endif
   int fd;
@@ -142,8 +142,10 @@ int MAIN_NAME(int argc, char *argv[])
    * touchscreen samples.
    */
 
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN)
   for (; namples > 0; nsamples--)
+#elif defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
+  for (namples = 0; namples < CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES; nsamples++)
 #else
   for (;;)
 #endif

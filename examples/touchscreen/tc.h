@@ -55,6 +55,11 @@
  * CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
  *   device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
  *   Default: "/dev/input0"
+ * CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+ *   is defined, then the number of samples is provided on the command line
+ *   and this value is ignored.  Otherwise, this number of samples is
+ *   collected and the program terminates.  Default:  Samples are collected
+ *   indefinitely.
  */
 
 #ifndef CONFIG_INPUT
