@@ -42,6 +42,7 @@
 #include <sys/types.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -106,12 +107,15 @@ int MAIN_NAME(int argc, char *argv[])
    * samples that we collect before returning.  Otherwise, we never return
    */
 
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN)
   nsamples = 1;
   if (argc > 1)
     {
-      nsamples = strtol(argv[1]);
+      nsamples = strtol(argv[1], NULL, 10);
     }
+  message(MAIN_STRING "nsamples: %d\n", nsamples);
+#elif defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
+  message(MAIN_STRING "nsamples: %d\n", CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES);
 #endif
 
   /* Initialization of the touchscreen hardware is performed by logic
