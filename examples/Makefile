@@ -46,6 +46,9 @@ SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
 
 CNTXTDIRS = 
 
+ifeq ($(CONFIG_EXAMPLES_HELLOXX_BUILTIN),y)
+CNTXTDIRS +=  helloxx
+endif
 ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
 CNTXTDIRS +=  lcdrw
 endif

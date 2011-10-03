@@ -58,6 +58,12 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 
+# helloxx built-in application info
+
+APPNAME		= helloxx
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 2048
+
 # Common build
 
 VPATH		= 
@@ -92,7 +98,13 @@ $(CXXOBJS): %$(OBJEXT): %.cxx
 	done ; )
 	@touch .built
 
-context:
+.context:
+ifeq ($(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN),y)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
+endif
+
+context: .context
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep

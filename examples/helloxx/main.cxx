@@ -60,12 +60,12 @@ class CHelloWorld
     {
         if (mSecret != 42)
           {
-            printf("CONSTRUCTION FAILED!\n");
+            printf("CHelloWorld::HelloWorld: CONSTRUCTION FAILED!\n");
             return false;
           }
         else
           {
-            printf("Hello, World!!\n");
+            printf("CHelloWorld::HelloWorld: Hello, World!!\n");
             return true;
           }
     };
@@ -90,23 +90,36 @@ static CHelloWorld g_HelloWorld;
 // user_start
 //***************************************************************************
 
-int user_start(int argc, char *argv[])
+/****************************************************************************
+ * Name: user_start/nxhello_main
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+extern "C" int helloxx_main(int argc, char *argv[]);
+#  define MAIN_NAME   helloxx_main
+#  define MAIN_STRING "helloxx_main: "
+#else
+#  define MAIN_NAME   user_start
+#  define MAIN_STRING "user_start: "
+#endif
+
+int MAIN_NAME(int argc, char *argv[])
 {
 #ifndef CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST
   CHelloWorld HelloWorld;
 #endif
   CHelloWorld *pHelloWorld = new CHelloWorld;
 
-  printf("Saying hello from the dynamically constructed instance\n");
+  printf(MAIN_STRING "Saying hello from the dynamically constructed instance\n");
   pHelloWorld->HelloWorld();
 
 #ifndef CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST
-  printf("Saying hello from the statically constructed instance\n");
+  printf(MAIN_STRING "Saying hello from the statically constructed instance\n");
   HelloWorld.HelloWorld();
 #endif
 
 #ifndef CONFIG_EXAMPLE_HELLOXX_NOSTATICCONST
-  printf("Saying hello from the statically constructed instance\n");
+  printf(MAIN_STRING "Saying hello from the statically constructed instance\n");
   g_HelloWorld.HelloWorld();
 #endif
 

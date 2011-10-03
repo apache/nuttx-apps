@@ -131,23 +131,41 @@ examples/hello
 ^^^^^^^^^^^^^^
 
   This is the mandatory, "Hello, World!!" example.  It is little more
-  than examples/null with a single printf statement.  Again useful only
+  than examples/null with a single printf statement.  Really useful only
   for bringing up new NuttX architectures.
-
-  NuttX configuration settings:
-
-    CONFIG_EXAMPLE_HELLOXX_NOSTATICCONST - Set if system does not support
-      static constructors.
-    CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST - Set if the systgem does not
-      support constructionof objects on the stack.
 
 examples/helloxx
 ^^^^^^^^^^^^^^^^
 
   This is C++ version of the "Hello, World!!" example.  It is intended
-  only to verify that the C++ compiler is function, that basic C++
+  only to verify that the C++ compiler is functional, that basic C++
   library suupport is available, and that class are instantiated
   correctly.
+
+  NuttX configuration settings:
+
+    CONFIG_EXAMPLES_HELLOXX_BUILTIN -- Build the helloxx example as a
+      "built-in"  that can be executed from the NSH command line.
+    CONFIG_EXAMPLE_HELLOXX_NOSTATICCONST - Set if system does not support
+      static constructors.
+    CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST - Set if the system does not
+      support construction of objects on the stack.
+
+  Also needed:
+
+    CONFIG_HAVE_CXX=y
+
+  And you may have to tinker with the following to get libxx to compile
+  properly:
+
+    CONFIG_CXX_NEWLONG=y or =n
+
+  The argument of the 'new' operators should take a type of size_t.  But size_t
+  has an unknown underlying.  In the nuttx sys/types.h header file, size_t
+  is typed as uint32_t (which is determined by architecture-specific logic).
+  But the C++ compiler may believe that size_t is of a different type resulting
+  in compilation errors in the operator.  Using the underlying integer type
+  Instead of size_t seems to resolve the compilation issues.
 
 examples/hidkbd
 ^^^^^^^^^^^^^^^^
