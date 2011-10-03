@@ -146,9 +146,9 @@ examples/helloxx
 
     CONFIG_EXAMPLES_HELLOXX_BUILTIN -- Build the helloxx example as a
       "built-in"  that can be executed from the NSH command line.
-    CONFIG_EXAMPLE_HELLOXX_NOSTATICCONST - Set if system does not support
+    CONFIG_EXAMPLES_HELLOXX_NOSTATICCONST - Set if system does not support
       static constructors.
-    CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST - Set if the system does not
+    CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST - Set if the system does not
       support construction of objects on the stack.
 
   Also needed:

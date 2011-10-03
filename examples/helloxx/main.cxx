@@ -78,7 +78,7 @@ class CHelloWorld
 // Private Data
 //***************************************************************************
 
-#ifndef CONFIG_EXAMPLE_HELLOXX_NOSTATICCONST 
+#ifndef CONFIG_EXAMPLES_HELLOXX_NOSTATICCONST 
 static CHelloWorld g_HelloWorld;
 #endif
 
@@ -94,7 +94,7 @@ static CHelloWorld g_HelloWorld;
  * Name: user_start/nxhello_main
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+#ifdef CONFIG_EXAMPLES_HELLOXX_BUILTIN
 extern "C" int helloxx_main(int argc, char *argv[]);
 #  define MAIN_NAME   helloxx_main
 #  define MAIN_STRING "helloxx_main: "
@@ -105,7 +105,7 @@ extern "C" int helloxx_main(int argc, char *argv[]);
 
 int MAIN_NAME(int argc, char *argv[])
 {
-#ifndef CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST
+#ifndef CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST
   CHelloWorld HelloWorld;
 #endif
   CHelloWorld *pHelloWorld = new CHelloWorld;
@@ -113,12 +113,12 @@ int MAIN_NAME(int argc, char *argv[])
   printf(MAIN_STRING "Saying hello from the dynamically constructed instance\n");
   pHelloWorld->HelloWorld();
 
-#ifndef CONFIG_EXAMPLE_HELLOXX_NOSTACKCONST
-  printf(MAIN_STRING "Saying hello from the statically constructed instance\n");
+#ifndef CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST
+  printf(MAIN_STRING "Saying hello from the instance constructed of the stack\n");
   HelloWorld.HelloWorld();
 #endif
 
-#ifndef CONFIG_EXAMPLE_HELLOXX_NOSTATICCONST
+#ifndef CONFIG_EXAMPLES_HELLOXX_NOSTATICCONST
   printf(MAIN_STRING "Saying hello from the statically constructed instance\n");
   g_HelloWorld.HelloWorld();
 #endif
