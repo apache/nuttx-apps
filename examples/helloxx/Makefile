@@ -76,7 +76,7 @@ ifneq ($(CONFIG_HAVE_CXX),y)
 	@echo ""
 	@echo "In order to use this example, you toolchain must support must"
 	@echo ""
-	@echo "  (1) Explicitly seelct CONFIG_HAVE_CXX to build in C++ support"
+	@echo "  (1) Explicitly select CONFIG_HAVE_CXX to build in C++ support"
 	@echo "  (2) Define CXX, CXXFLAGS, and COMPILEXX in the Make.defs file"
 	@echo "      of the configuration that you are using."
 	@echo ""
@@ -99,7 +99,7 @@ $(CXXOBJS): %$(OBJEXT): %.cxx
 	@touch .built
 
 .context:
-ifeq ($(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN),y)
+ifeq ($(CONFIG_EXAMPLES_HELLOXX_BUILTIN),y)
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	@touch $@
 endif

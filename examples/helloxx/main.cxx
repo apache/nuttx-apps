@@ -114,7 +114,7 @@ int MAIN_NAME(int argc, char *argv[])
   pHelloWorld->HelloWorld();
 
 #ifndef CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST
-  printf(MAIN_STRING "Saying hello from the instance constructed of the stack\n");
+  printf(MAIN_STRING "Saying hello from the instance constructed on the stack\n");
   HelloWorld.HelloWorld();
 #endif
 
