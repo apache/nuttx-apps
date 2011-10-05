@@ -53,18 +53,27 @@ SUBDIRS = examples graphics interpreters namedapp nshlib netutils system vsn
 -include .config
 
 # INSTALLED_APPS is the list of currently available application directories.  It
-# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent apps.
-# namedapp is always in the list of applications to be built
+# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent
+# application directory. namedapp is always in the list of applications to be
+# built.
 
 INSTALLED_APPS = namedapp
 
 # Create the list of available applications (INSTALLED_APPS)
 
 define ADD_BUILTIN
-INSTALLED_APPS  += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
+INSTALLED_APPS += ${shell if [ -r $1/Makefile ]; then echo "$1"; fi}
 endef
 
 $(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_BUILTIN,$(BUILTIN))))
+
+# The external/ directory may also be added to the INSTALLED_APPS.  But there
+# is no external/ directory in the repository.  Rather, this directory may be
+# provided by the user (possibly as a symbolic link) to add libraries and
+# applications to the standard build from the repository.
+
+INSTALLED_APPS += ${shell if [ -r external/Makefile ]; then echo "external"; fi}
+SUBDIRS += ${shell if [ -r external/Makefile ]; then echo "external"; fi}
 
 # The final build target
 

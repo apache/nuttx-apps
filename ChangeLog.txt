@@ -120,3 +120,7 @@
 	  data received on USB serial is echoed on the local console.
 	* apps/examples/touchscreen:  Add a simple, generic test for any
 	  touschscreen driver.
+	* Makefile:  The apps/ Makefile now checks for an apps/external directory
+	  or symbolic link.  If such a directory/link exists (and has a Makefile),
+	  it will be added to the apps/ build.  This allows external directories
+	  to be included into the apps/ build by simply creating a symbolic link.
