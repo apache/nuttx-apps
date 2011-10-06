@@ -122,4 +122,6 @@ distclean: clean
 		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
 	done
 	@rm -f .config .context .depend
+	#@rm -f external -- User make remove the external directory manually
+
 
