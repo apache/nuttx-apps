@@ -2,7 +2,7 @@
  * examples/nxffs/nxffs_main.c
  *
  *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -642,9 +642,17 @@ static int nxffs_delfiles(void)
   int i;
   int j;
 
-  /* How many files should we delete? */
+  /* Are there any files to be deleted? */
 
-  ndel = (rand() % (g_nfiles - g_ndeleted)) + 1;
+  int nfiles = g_nfiles - g_ndeleted;
+  if (nfiles < 1)
+    {
+      return 0;
+    }
+
+  /* Yes... How many files should we delete? */
+
+  ndel = (rand() % nfiles) + 1;
 
   /* Now pick which files to delete */
 
