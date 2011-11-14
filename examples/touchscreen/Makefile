@@ -56,7 +56,7 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 
-# NXHELLO built-in application info
+# Touchscreen built-in application info
 
 APPNAME		= tc
 PRIORITY	= SCHED_PRIORITY_DEFAULT

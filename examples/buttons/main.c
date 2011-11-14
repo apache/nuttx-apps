@@ -48,6 +48,7 @@
 #include <nuttx/arch.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <debug.h>
 
@@ -128,6 +129,16 @@
 
 #define NUM_BUTTONS     (MAX_BUTTON - MIN_BUTTON + 1)
 #define BUTTON_INDEX(b) ((b)-MIN_BUTTON)
+
+/* Is this being built as an NSH built-in application? */
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+#  define MAIN_NAME   buttons_main
+#  define MAIN_STRING "buttons_main: "
+#else
+#  define MAIN_NAME   user_start
+#  define MAIN_STRING "user_start: "
+#endif
 
 /****************************************************************************
  * Private Types
@@ -254,14 +265,31 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 
 static uint8_t g_oldset;
 
+/* Used to limit the number of button presses */
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+static volatile long g_nbuttons;
+#endif
+
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 static void show_buttons(uint8_t oldset, uint8_t newset)
 {
   uint8_t chgset = oldset ^ newset;
   int i;
+
+  /* Update the count of button presses shown */
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  if ((chgset & newset) != 0)
+    {
+      g_nbuttons++;
+    }
+#endif
+
+  /* Show each button state change */
 
   for (i = MIN_BUTTON; i <= MAX_BUTTON; i++)
     {
@@ -295,7 +323,7 @@ static void button_handler(int id, int irq)
 {
   uint8_t newset = up_buttons();
 
-  lib_lowprintf("IRQ:%d Button %d:%s IRQ:%d SET:%02x:\n",
+  lib_lowprintf("IRQ:%d Button %d:%s SET:%02x:\n",
                 irq, id, g_buttoninfo[BUTTON_INDEX(id)].name, newset);
   show_buttons(g_oldset, newset);
   g_oldset = newset;
@@ -367,14 +395,32 @@ static int button7_handler(int irq, FAR void *context)
 #endif /* CONFIG_ARCH_IRQBUTTONS */
 
 /****************************************************************************
- * user_start
+ * Public Functions
  ****************************************************************************/
 
-int user_start(int argc, char *argv[])
+/****************************************************************************
+ * user_start/buttons_main
+ ****************************************************************************/
+
+int MAIN_NAME(int argc, char *argv[])
 {
   uint8_t newset;
   irqstate_t flags;
   int i;
+
+  /* If this example is configured as an NX add-on, then limit the number of
+   * samples that we collect before returning.  Otherwise, we never return
+   */
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  long maxbuttons = 1;
+  g_nbuttons      = 0;
+  if (argc > 1)
+    {
+      maxbuttons = strtol(argv[1], NULL, 10);
+    }
+  lib_lowprintf("maxbuttons: %d\n", maxbuttons);
+#endif
 
   /* Register to recieve button interrupts */
 
@@ -408,7 +454,11 @@ int user_start(int argc, char *argv[])
   /* Poll button state */
 
   g_oldset = up_buttons();
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  while (g_nbuttons < maxbuttons)
+#else
   for (;;)
+#endif
     {
       /* Get the set of pressed and release buttons. */
 
@@ -440,6 +490,16 @@ int user_start(int argc, char *argv[])
 
       usleep(150000); /* 150 Milliseconds */
     }
+
+  /* Un-register button handlers */
+
+#if defined(CONFIG_ARCH_IRQBUTTONS) && defined(CONFIG_NSH_BUILTIN_APPS)
+  for (i = CONFIG_EXAMPLE_IRQBUTTONS_MIN; i <= CONFIG_EXAMPLE_IRQBUTTONS_MAX; i++)
+    {
+      (void)up_irqbutton(i, NULL);
+    }
+#endif
+
   return 0;
 }
 

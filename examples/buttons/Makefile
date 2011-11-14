@@ -56,12 +56,18 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 
+# Buttons built-in application info
+
+APPNAME		= buttons
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 2048
+
 # Common build
 
 VPATH		= 
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: context clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -75,7 +81,13 @@ $(COBJS): %$(OBJEXT): %.c
 	done ; )
 	@touch .built
 
-context:
+.context:
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
+endif
+
+context: .context
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
