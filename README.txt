@@ -9,6 +9,7 @@ Contents
   Named Applications
   Named Startup main() function
   NuttShell (NSH) Built-In Commands
+  Synchronous Built-In Commands
   Application Configuration File
   Example Named Application
 
@@ -70,6 +71,27 @@ a seamless method invoking the applications, when the following option is
 enabled in the NuttX configuration file:
 
   CONFIG_NSH_BUILTIN_APPS=y
+
+Applications registered in the apps/namedapp/namedapp_list.h file will then
+be accessible from the NSH command line.  If you type 'help' at the NSH
+prompt, you will see a list of the registered commands.
+
+Synchronous Built-In Commands
+-----------------------------
+By default, built-in commands started from the NSH command line will run
+asynchronously with NSH.  If you want to force NSH to execute commands
+then wait for the command to execute, you can enable that feature by
+adding the following to the NuttX configuration file:
+
+CONFIG_SCHED_WAITPID=y
+
+The configuration option enables support for the waitpid() RTOS interface.
+When that interface is enabled, NSH will use it to wait, sleeping until
+the built-in command executes to completion.
+
+Of course, even with CONFIG_SCHED_WAITPID=y defined, specific commands
+can still be forced to run asynchronously by adding the ampersand (&)
+after the NSH command.
 
 Application Configuration File
 ------------------------------
