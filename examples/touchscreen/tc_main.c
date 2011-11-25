@@ -131,7 +131,7 @@ int MAIN_NAME(int argc, char *argv[])
       goto errout;
     }
 
-  /* Open the framebuffer device for reading */
+  /* Open the touchscreen device for reading */
 
   fd = open(CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, O_RDONLY);
   if (fd < 0)
