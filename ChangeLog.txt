@@ -129,7 +129,9 @@
 
 	(No major changes from 6.10)
 
-6.12 2011-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.12 2011-12-06 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/buttons:  The button test can now be executed as an NSH
 	  built in command.
+
+6.13 2012-xx-xx Gregory Nutt <gnutt@nuttx.org>
