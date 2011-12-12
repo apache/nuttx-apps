@@ -256,10 +256,19 @@ int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary)
 
               /* Parse the incoming DATA packet */
 
-              if (nbytesrecvd < TFTP_DATAHEADERSIZE ||
-                  tftp_parsedatapacket(packet, &opcode, &rblockno) != OK ||
+              if (nbytesrecvd < TFTP_DATAHEADERSIZE)
+                {
+                  /* Packet is not big enough to be parsed */
+
+                  nvdbg("Tiny data packet ignored\n");
+                  continue;
+                }
+
+              if (tftp_parsedatapacket(packet, &opcode, &rblockno) != OK ||
                   blockno != rblockno)
                 {
+                  /* Opcode is not TFTP_DATA or the block number is unexpected */
+
                   nvdbg("Parse failure\n");
                   if (opcode > TFTP_MAXRFC1350)
                     {
