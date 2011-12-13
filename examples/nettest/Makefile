@@ -54,10 +54,11 @@ TARG_COBJS	= $(TARG_CSRCS:.c=$(OBJEXT))
 TARG_SRCS	= $(TARG_ASRCS) $(TARG_CSRCS)
 TARG_OBJS	= $(TARG_AOBJS) $(TARG_COBJS)
 
+TARG_POSIX	= "$(APPDIR)/libapps$(LIBEXT)"
 ifeq ($(WINTOOL),y)
   TARG_BIN	= "${shell cygpath -w  $(APPDIR)/libapps$(LIBEXT)}"
 else
-  TARG_BIN	= "$(APPDIR)/libapps$(LIBEXT)"
+  TARG_BIN	= "$(TARG_POSIX)"
 endif
 
 HOSTCFLAGS	+= -DCONFIG_EXAMPLE_NETTEST_HOST=1
@@ -97,20 +98,18 @@ $(TARG_AOBJS): %$(OBJEXT): %.S
 $(TARG_COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-$(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
-	@( for obj in $(TARG_OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
-	done ; )
-
 $(HOST_OBJS): %.o: %.c
-	@echo "CC: $<"
+	@echo "CC:  $<"
 	@$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 
 $(HOST_BIN): $(HOST_OBJS)
-	@echo "LD: $@"
+	@echo "LD:  $@"
 	@$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
-.built:	$(TARG_BIN) $(HOST_BIN)
+.built:	$(HOST_BIN) $(TARG_OBJS)
+	@( for obj in $(TARG_OBJS) ; do \
+		$(call ARCHIVE, $@, $${obj}); \
+	done ; )
 	@touch .built
 
 .context:
@@ -128,7 +127,7 @@ context: .context
 depend: .depend
 
 clean:
-	@rm -f $(TARG_BIN) $(HOST_BIN) .built *.o *~ .*.swp
+	@rm -f $(TARG_POSIX) $(HOST_BIN) .built *.o *~ .*.swp
 	$(call CLEAN)
 
 distclean: clean
