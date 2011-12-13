@@ -2,7 +2,7 @@
 # apps/examples/Makefile
 #
 #   Copyright (C) 2011 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
+#   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -46,11 +46,17 @@ SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
 
 CNTXTDIRS = 
 
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+CNTXTDIRS +=  dhcpd
+endif
 ifeq ($(CONFIG_EXAMPLES_HELLOXX_BUILTIN),y)
 CNTXTDIRS +=  helloxx
 endif
 ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
 CNTXTDIRS +=  lcdrw
+endif
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+CNTXTDIRS +=  nettest
 endif
 ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
 CNTXTDIRS +=  nx

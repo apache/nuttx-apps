@@ -2,7 +2,7 @@
 # examples/nettest/Makefile
 #
 #   Copyright (C) 2007-2008, 2010-2011 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
+#   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -78,6 +78,12 @@ HOST_BIN	= host
 
 ROOTDEPPATH	= --dep-path .
 
+# NET test built-in application info
+
+APPNAME		= nettest
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 2048
+
 # Common build
 
 VPATH		= 
@@ -107,7 +113,13 @@ $(HOST_BIN): $(HOST_OBJS)
 .built:	$(TARG_BIN) $(HOST_BIN)
 	@touch .built
 
-context:
+.context:
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@touch $@
+endif
+
+context: .context
 
 .depend: Makefile $(TARG_SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) $(CC) -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep

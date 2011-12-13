@@ -136,5 +136,9 @@
 
 6.13 2012-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
-* apps/netutils/dhcpd/dhcpd.c: Fix several problems using host order address
-  where network addresses expected (and vice versa).
+	* apps/examples/dhcpd: May now be built as an NSH built-in application
+	  by setting CONFIG_NSH_BUILTIN_APPS.
+	* apps/netutils/dhcpd/dhcpd.c: Fix several problems using host order address
+	  where network addresses expected (and vice versa).
+	* apps/examples/nettest: May now be built as an NSH built-in application
+	  by setting CONFIG_NSH_BUILTIN_APPS.
