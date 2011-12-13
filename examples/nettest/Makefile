@@ -66,6 +66,11 @@ ifeq ($(CONFIG_EXAMPLE_NETTEST_SERVER),y)
 HOSTCFLAGS	+= -DCONFIG_EXAMPLE_NETTEST_SERVER=1 \
 		   -DCONFIG_EXAMPLE_NETTEST_CLIENTIP="$(CONFIG_EXAMPLE_NETTEST_CLIENTIP)"
 endif
+ifeq ($(CONFIG_EXAMPLE_NETTEST_PERFORMANCE),y)
+HOSTCFLAGS	+= -DCONFIG_EXAMPLE_NETTEST_PERFORMANCE=1
+endif
+
+
 
 HOST_SRCS	= host.c
 ifeq ($(CONFIG_EXAMPLE_NETTEST_SERVER),y)
@@ -89,7 +94,7 @@ STACKSIZE	= 2048
 
 VPATH		= 
 
-all: .built
+all: .built $(HOST_BIN)
 .PHONY:	clean depend disclean
 
 $(TARG_AOBJS): %$(OBJEXT): %.S
@@ -106,9 +111,9 @@ $(HOST_BIN): $(HOST_OBJS)
 	@echo "LD:  $@"
 	@$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
-.built:	$(HOST_BIN) $(TARG_OBJS)
+.built: $(TARG_OBJS)
 	@( for obj in $(TARG_OBJS) ; do \
-		$(call ARCHIVE, $@, $${obj}); \
+		$(call ARCHIVE, $(TARG_BIN), $${obj}); \
 	done ; )
 	@touch .built
 

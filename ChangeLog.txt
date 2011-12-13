@@ -142,3 +142,5 @@
 	  where network addresses expected (and vice versa).
 	* apps/examples/nettest: May now be built as an NSH built-in application
 	  by setting CONFIG_NSH_BUILTIN_APPS.
+	* apps/examples/nettest: Correct some build issues with the nettest is
+	  built for performance evaluation.

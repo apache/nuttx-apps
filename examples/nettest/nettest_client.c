@@ -127,15 +127,16 @@ void send_client(void)
 
   for (;;)
     {
-      nbytessent = send(sockfd, outbuf, 512, 0);
+      nbytessent = send(sockfd, outbuf, SENDSIZE, 0);
       if (nbytessent < 0)
         {
           message("client: send failed: %d\n", errno);
           goto errout_with_socket;
         }
-      else if (nbytessent != 512)
+      else if (nbytessent != SENDSIZE)
         {
-          message("client: Bad send length=%d: %d\n", nbytessent);
+          message("client: Bad send length=%d: %d of \n",
+                  nbytessent, SENDSIZE);
           goto errout_with_socket;
         }
     }
