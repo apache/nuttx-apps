@@ -154,6 +154,7 @@ void recv_server(void)
           message("server: recv failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
+      message("Received %d bytes\n", nbytesread);
     }
 #else
   /* Receive canned message */

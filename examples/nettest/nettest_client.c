@@ -82,7 +82,6 @@ void send_client(void)
       exit(1);
     }
 
-
   /* Create a new TCP socket */
 
   sockfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -139,6 +138,7 @@ void send_client(void)
                   nbytessent, SENDSIZE);
           goto errout_with_socket;
         }
+      message("Sent %d bytes\n", nbytessent);
     }
 #else
   /* Then send and receive one message */
