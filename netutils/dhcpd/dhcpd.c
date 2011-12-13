@@ -2,7 +2,7 @@
  * netutils/dhcpd/dhcpd.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <spudmonkey@racsa.co.cr>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -293,12 +293,12 @@ static inline void dhcpd_arpupdate(uint16_t *pipaddr, uint8_t *phwaddr)
 #elif defined(HAVE_LEASE_TIME)
 static time_t dhcpd_time(void)
 {
-  struct timespec time;
+  struct timespec ts;
   time_t ret = 0;
 
-  if (clock_gettime(CLOCK_REALTIME, &time) == OK)
+  if (clock_gettime(CLOCK_REALTIME, &ts) == OK)
     {
-      ret = time.tv_sec;
+      ret = ts.tv_sec;
     }
   return ret;
 }
@@ -333,8 +333,18 @@ static inline bool dhcpd_leaseexpired(struct lease_s *lease)
 
 struct lease_s *dhcpd_setlease(const uint8_t *mac, in_addr_t ipaddr, time_t expiry)
 {
-  int ndx = ntohl(ipaddr) - CONFIG_NETUTILS_DHCPD_STARTIP;
+  /* Calculate the offset from the first IP address managed by DHCPD.
+   * ipaddr must be in host order!
+   */
+
+  int ndx = ipaddr - CONFIG_NETUTILS_DHCPD_STARTIP;
   struct lease_s *ret = NULL;
+
+  nvdbg("ipaddr: %08x ipaddr: %08x ndx: %d MAX: %d\n",
+        ipaddr, CONFIG_NETUTILS_DHCPD_STARTIP, ndx,
+        CONFIG_NETUTILS_DHCPD_MAXLEASES);
+
+  /* Verify that the address offset is within the supported range */
 
   if (ndx >= 0 && ndx < CONFIG_NETUTILS_DHCPD_MAXLEASES)
     {
@@ -345,6 +355,7 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac, in_addr_t ipaddr, time_t expi
         ret->expiry = dhcpd_time() + expiry;
 #endif
     }
+
   return ret;
 }
 
@@ -354,7 +365,9 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac, in_addr_t ipaddr, time_t expi
 
 static inline in_addr_t dhcp_leaseipaddr( struct lease_s *lease)
 {
-  return htonl((g_state.ds_leases - lease)/sizeof(struct lease_s) + CONFIG_NETUTILS_DHCPD_STARTIP);
+  /* Return IP address in host order */
+
+  return (g_state.ds_leases - lease)/sizeof(struct lease_s) + CONFIG_NETUTILS_DHCPD_STARTIP;
 }
 
 /****************************************************************************
@@ -768,7 +781,7 @@ static inline int dhcpd_openresponder(void)
   int sockfd;
   int ret;
 
-  nvdbg("Responder: %08lx\n", (long)g_state.ds_serverip);
+  nvdbg("Responder: %08lx\n", ntohl(g_state.ds_serverip));
 
   /* Create a socket to listen for requests from DHCP clients */
 
@@ -909,12 +922,13 @@ static int dhcpd_sendpacket(int bbroadcast)
 
       len = (g_state.ds_optend - (uint8_t*)&g_state.ds_outpacket) + 1;
       nvdbg("sendto %08lx:%04x len=%d\n",
-            (long)addr.sin_addr.s_addr, addr.sin_port, len);
+            (long)ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port), len);
  
       ret = sendto(sockfd, &g_state.ds_outpacket, len, 0,
                    (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
       close(sockfd);
     }
+
   return ret;
 }
 
@@ -924,15 +938,20 @@ static int dhcpd_sendpacket(int bbroadcast)
 
 static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
 {
+  in_addr_t netaddr;
+
+  /* IP address is in host order */
+
   nvdbg("Sending offer: %08lx\n", (long)ipaddr);
 
   /* Initialize the outgoing packet */
 
   dhcpd_initpacket(DHCPOFFER);
 
-  /* Add the address offered to the client */
+  /* Add the address offered to the client (converting to network order) */
 
-  memcpy(g_state.ds_outpacket.yiaddr, &ipaddr, 4);
+  netaddr = htonl(ipaddr);
+  memcpy(g_state.ds_outpacket.yiaddr, &netaddr, 4);
 
   /* Add the leasetime to the response options */
 
@@ -967,6 +986,7 @@ static int dhcpd_sendnak(void)
 int dhcpd_sendack(in_addr_t ipaddr)
 {
   uint32_t leasetime = CONFIG_NETUTILS_DHCPD_LEASETIME;
+  in_addr_t netaddr;
 
   /* Initialize the ACK response */
 
@@ -975,7 +995,8 @@ int dhcpd_sendack(in_addr_t ipaddr)
 
   /* Add the IP address assigned to the client */
 
-  memcpy(g_state.ds_outpacket.yiaddr, &ipaddr, 4);
+  netaddr = htonl(ipaddr);
+  memcpy(g_state.ds_outpacket.yiaddr, &netaddr, 4);
 
   /* Did the client request a specific lease time? */
 
@@ -1025,7 +1046,7 @@ static inline int dhcpd_discover(void)
             }
         }
 #endif
-      /* Get the IP address associated with the lease */
+      /* Get the IP address associated with the lease (host order) */
 
       ipaddr = dhcp_leaseipaddr(lease);
       nvdbg("Already have lease for IP %08lx\n", (long)ipaddr);
@@ -1035,14 +1056,14 @@ static inline int dhcpd_discover(void)
 
   else if (dhcpd_verifyreqip())
     {
-      /* Use the requested IP address */
+      /* Use the requested IP address (host order) */
 
       ipaddr = g_state.ds_optreqip;
-      nvdbg("Use requested IP %08lx\n", (long)ipaddr);
+      nvdbg("User requested IP %08lx\n", (long)ipaddr);
     }
   else
     {
-      /* No... allocate a new IP address */
+      /* No... allocate a new IP address (host order)*/
 
       ipaddr = dhcpd_allocipaddr();
       nvdbg("Allocated IP %08lx\n", (long)ipaddr);
@@ -1082,7 +1103,7 @@ static inline int dhcpd_discover(void)
 static inline int dhcpd_request(void)
 {
   struct lease_s *lease;
-  in_addr_t ipaddr;
+  in_addr_t ipaddr = 0;
   uint8_t response = 0;
 
   /* Check if this client already holds a lease.  This can happen when the client (1)
@@ -1094,10 +1115,13 @@ static inline int dhcpd_request(void)
   if (lease)
     {
       /* Yes.. the client already holds a lease.  Verify that the request is consistent
-       * with the existing lease.
+       * with the existing lease (host order).
        */
 
       ipaddr = dhcp_leaseipaddr(lease);
+      nvdbg("Lease ipaddr: %08x Server IP: %08x Requested IP: %08x\n",
+            ipaddr, g_state.ds_optserverip, g_state.ds_optreqip);
+
       if (g_state.ds_optserverip)
         {
           /* ACK if the serverip is correct and the requested IP address is the one
@@ -1115,13 +1139,15 @@ static inline int dhcpd_request(void)
             }
         }
 
-      /* We have the lease and no server IP was requested. Was as specific IP address
-       * requested?
+      /* We have the lease and no server IP was requested. Was a specific IP address
+       * requested? (host order)
        */
 
       else if (g_state.ds_optreqip)
         {
-          /* Yes..ACK if the requested IP address is the one already leased */
+          /* Yes..ACK if the requested IP address is the one already leased.
+           * Both addresses are in host order.
+           */
 
           if (ipaddr == g_state.ds_optreqip)
             {
@@ -1137,9 +1163,12 @@ static inline int dhcpd_request(void)
 
       else
         {
-          /* ACK if the IP used by the client is the one already assigned to it */
+          /* ACK if the IP used by the client is the one already assigned to it.
+           * NOTE ipaddr is in host order; ciaddr is network order!
+           */
 
-          if (memcmp(&ipaddr, g_state.ds_inpacket.ciaddr, 4) == 0)
+          uint32_t tmp = htonl(ipaddr);
+          if (memcmp(&tmp, g_state.ds_inpacket.ciaddr, 4) == 0)
             {
               response = DHCPACK;
             }
@@ -1157,6 +1186,9 @@ static inline int dhcpd_request(void)
 
   else if (g_state.ds_optreqip && !g_state.ds_optserverip)
     {
+      nvdbg("Server IP: %08x Requested IP: %08x\n",
+            g_state.ds_optserverip, g_state.ds_optreqip);
+
       /* Is this IP address already assigned? */
 
       lease = dhcpd_findbyipaddr(g_state.ds_optreqip);
@@ -1179,6 +1211,10 @@ static inline int dhcpd_request(void)
         }
     }
 
+  /* Otherwise, the client does not hold a lease and is not requesting any
+   * specific IP address.
+   */
+
   /* Finally, either (1) send the ACK, (2) send a NAK, or (3) remain silent
    * based on the checks above.
    */
@@ -1192,6 +1228,10 @@ static inline int dhcpd_request(void)
     {
       nvdbg("NAK IP %08lx\n", (long)ipaddr);
       dhcpd_sendnak();
+    }
+  else
+    {
+      nvdbg("Remaining silent IP %08lx\n", (long)ipaddr);
     }
 
   return OK;

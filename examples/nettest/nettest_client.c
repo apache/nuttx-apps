@@ -123,7 +123,7 @@ void send_client(void)
     }
 
 #ifdef CONFIG_EXAMPLE_NETTEST_PERFORMANCE
-  /* Then receive messages forever */
+  /* Then send messages forever */
 
   for (;;)
     {

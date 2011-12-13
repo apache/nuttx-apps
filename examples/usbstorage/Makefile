@@ -56,7 +56,7 @@ endif
 
 ROOTDEPPATH	= --dep-path .
 
-# NXTEXT built-in application info
+# USB storage built-in application info
 
 APPNAME1	= msconn
 PRIORITY1	= SCHED_PRIORITY_DEFAULT
