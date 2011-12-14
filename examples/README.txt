@@ -30,6 +30,23 @@ examples
       the specific example.  See the following for examples that
       support this option).
 
+examples/adc
+^^^^^^^^^^^^
+
+  A mindlessly simple test of an ADC devices.  It simply reads from the
+  ADC device and dumps the data to the console forever.
+
+    - CONFIG_NSH_BUILTIN_APPS - Build the ADC test as an NSH built-in function.
+      Default: Built as a standalone problem
+    - CONFIG_EXAMPLES_ADC_DEVPATH - The path to the ADC device. Default: /dev/adc0
+    - CONFIG_EXAMPLES_ADC_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
+      is defined, then the number of samples is provided on the command line
+      and this value is ignored.  Otherwise, this number of samples is
+      collected and the program terminates.  Default:  Samples are collected
+      indefinitely.
+    - CONFIG_EXAMPLES_ADC_SAMPLESIZE - The number of bytes to read in one sample.
+      Default: 8
+
 examples/buttons
 ^^^^^^^^^^^^^^^^
 

@@ -37,7 +37,7 @@
 
 # Sub-directories
 
-SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
+SUBDIRS = adc buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
 	nettest nsh null nx nxffs nxflat nxhello nximage nxlines \
 	nxtext ostest pashello pipe poll rgmp romfs sendmail serloop \
 	thttpd tiff touchscreen udp uip usbserial usbstorage usbterm wget wlan
@@ -46,6 +46,9 @@ SUBDIRS = buttons dhcpd ftpc hello helloxx hidkbd igmp lcdrw mm mount \
 
 CNTXTDIRS = 
 
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+CNTXTDIRS +=  adc
+endif
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS +=  dhcpd
 endif
