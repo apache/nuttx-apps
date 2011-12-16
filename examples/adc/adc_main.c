@@ -94,8 +94,9 @@
 
 int MAIN_NAME(int argc, char *argv[])
 {
-  uintt_t sample[CONFIG_EXAMPLES_ADC_SAMPLESIZE];
+  uint8_t sample[ADC_SAMPLE_SIZE];
   ssize_t nbytes;
+  FAR adc_sample_t *ptr;
 #if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_ADC_NSAMPLES)
   long nsamples;
 #endif
@@ -131,6 +132,7 @@ int MAIN_NAME(int argc, char *argv[])
       errval = 1;
       goto errout;
     }
+  message(MAIN_STRING "Hardware initialized. Opening the ADC device\n");
 
   /* Open the ADC device for reading */
 
@@ -147,6 +149,8 @@ int MAIN_NAME(int argc, char *argv[])
    * ADC samples.
    */
 
+  message(MAIN_STRING "Entering the main loop\n");
+
 #if defined(CONFIG_NSH_BUILTIN_APPS)
   for (; nsamples > 0; nsamples--)
 #elif defined(CONFIG_EXAMPLES_ADC_NSAMPLES)
@@ -161,10 +165,10 @@ int MAIN_NAME(int argc, char *argv[])
 
     msgflush();
 
-    /* Read one sample */
+    /* Read one sample of size ADC_SAMPLE_SIZE */
 
-    nbytes = read(fd, sample,CONFIG_EXAMPLES_ADC_SAMPLESIZE ));
-    ivdbg("Bytes read: %d\n", nbytes);
+    nbytes = read(fd, sample, ADC_SAMPLE_SIZE);
+    message("Bytes read: %d\n", nbytes);
 
     /* Handle unexpected return values */
 
@@ -181,10 +185,10 @@ int MAIN_NAME(int argc, char *argv[])
 
         message(MAIN_STRING "Interrupted read...\n");
       }
-    else if (nbytes != CONFIG_EXAMPLES_ADC_SAMPLESIZE)
+    else if (nbytes != ADC_SAMPLE_SIZE)
       {
         message(MAIN_STRING "Unexpected read size=%d, expected=%d, Ignoring\n",
-                nbytes, CONFIG_EXAMPLES_ADC_SAMPLESIZE);        
+                nbytes, ADC_SAMPLE_SIZE);        
       }
 
     /* Print the sample data on successful return */
@@ -192,16 +196,17 @@ int MAIN_NAME(int argc, char *argv[])
     else
       {
         message("Sample :\n");
-        for (i = 0; i < CONFIG_EXAMPLES_ADC_SAMPLESIZE; i++)
+        ptr = (FAR adc_sample_t*)sample;
+        for (i = 0; i < CONFIG_EXAMPLES_ADC_GROUPSIZE; i++)
           {
-            message("%d: %02x\n", i, sample[i]);
+            message("%d: " SAMPLE_FMT "\n", i, ptr[i]);
           }
       }
   }
 
 errout_with_dev:
   close(fd);
-errout_with_dev:
+
 errout:
   message("Terminating!\n");
   msgflush();

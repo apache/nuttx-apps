@@ -44,8 +44,10 @@ examples/adc
       and this value is ignored.  Otherwise, this number of samples is
       collected and the program terminates.  Default:  Samples are collected
       indefinitely.
-    - CONFIG_EXAMPLES_ADC_SAMPLESIZE - The number of bytes to read in one sample.
-      Default: 8
+    - CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
+      Default: 4
+    - CONFIG_EXAMPLES_ADC_SAMPLEWIDTH - The width (in bits) of the on ADC sample.
+      Default: 16
 
 examples/buttons
 ^^^^^^^^^^^^^^^^

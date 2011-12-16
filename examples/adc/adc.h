@@ -54,8 +54,10 @@
  *   and this value is ignored.  Otherwise, this number of samples is
  *   collected and the program terminates.  Default:  Samples are collected
  *   indefinitely.
- * CONFIG_EXAMPLES_ADC_SAMPLESIZE - The number of bytes to read in one sample.
- *   Default: 8
+ * CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
+ *   Default: 4
+ * CONFIG_EXAMPLES_ADC_SAMPLEWIDTH - The width (in bits) of the on ADC sample.
+ *   Default: 16
  */
 
 #ifndef CONFIG_ADC
@@ -66,9 +68,42 @@
 #  define CONFIG_EXAMPLES_ADC_DEVPATH "/dev/adc0"
 #endif
 
-#ifndef CONFIG_EXAMPLES_ADC_SAMPLESIZE
-#  define CONFIG_EXAMPLES_ADC_SAMPLESIZE 8
+#ifndef CONFIG_EXAMPLES_ADC_GROUPSIZE
+#  define CONFIG_EXAMPLES_ADC_GROUPSIZE 4
 #endif
+
+#ifndef CONFIG_EXAMPLES_ADC_SAMPLEWIDTH
+#  define CONFIG_EXAMPLES_ADC_SAMPLEWIDTH 16
+#endif
+
+/* Sample characteristics ***************************************************/
+
+#undef ADC_SAMPLE_BYTEWIDTH
+#if CONFIG_EXAMPLES_ADC_SAMPLEWIDTH <= 8
+#  undef CONFIG_EXAMPLES_ADC_SAMPLEWIDTH
+#  define CONFIG_EXAMPLES_ADC_SAMPLEWIDTH 8
+#  define ADC_SAMPLE_BYTEWIDTH 1
+#  define SAMPLE_FMT "%02x"
+#elif CONFIG_EXAMPLES_ADC_SAMPLEWIDTH <= 16
+#  undef CONFIG_EXAMPLES_ADC_SAMPLEWIDTH
+#  define CONFIG_EXAMPLES_ADC_SAMPLEWIDTH 16
+#  define ADC_SAMPLE_BYTEWIDTH 2
+#  define SAMPLE_FMT "%04x"
+#elif CONFIG_EXAMPLES_ADC_SAMPLEWIDTH <= 24
+#  undef CONFIG_EXAMPLES_ADC_SAMPLEWIDTH
+#  define CONFIG_EXAMPLES_ADC_SAMPLEWIDTH 24
+#  define ADC_SAMPLE_BYTEWIDTH 3
+#  define SAMPLE_FMT "%06x"
+#elif CONFIG_EXAMPLES_ADC_SAMPLEWIDTH <= 32
+#  undef CONFIG_EXAMPLES_ADC_SAMPLEWIDTH
+#  define CONFIG_EXAMPLES_ADC_SAMPLEWIDTH 32
+#  define ADC_SAMPLE_BYTEWIDTH 4
+#  define SAMPLE_FMT "%08x"
+#else
+#  error "Unsupported sample width"
+#endif
+
+#undef ADC_SAMPLE_SIZE (CONFIG_EXAMPLES_ADC_GROUPSIZE * ADC_SAMPLE_BYTEWIDTH)
 
 /* Debug ********************************************************************/
 
@@ -94,6 +129,18 @@
  * Public Types
  ****************************************************************************/
 
+#if CONFIG_EXAMPLES_ADC_SAMPLEWIDTH == 8
+typedef uint8_t adc_sample_t;
+#elif CONFIG_EXAMPLES_ADC_SAMPLEWIDTH == 16
+typedef uint16_t adc_sample_t;
+#elif CONFIG_EXAMPLES_ADC_SAMPLEWIDTH == 24
+typedef uint32_t adc_sample_t;
+#elif CONFIG_EXAMPLES_ADC_SAMPLEWIDTH == 32
+typedef uint32_t adc_sample_t;
+#else
+#  error "Unsupported sample width"
+#endif
+
 /****************************************************************************
  * Public Variables
  ****************************************************************************/
@@ -111,6 +158,6 @@
  *
  ****************************************************************************/
 
-void adc_devinit(void);
+int adc_devinit(void);
 
 #endif /* __APPS_EXAMPLES_ADC_ADC_H */
