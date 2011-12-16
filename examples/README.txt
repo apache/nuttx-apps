@@ -46,8 +46,6 @@ examples/adc
       indefinitely.
     - CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
       Default: 4
-    - CONFIG_EXAMPLES_ADC_SAMPLEWIDTH - The width (in bits) of the on ADC sample.
-      Default: 16
 
 examples/buttons
 ^^^^^^^^^^^^^^^^

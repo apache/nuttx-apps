@@ -94,9 +94,9 @@
 
 int MAIN_NAME(int argc, char *argv[])
 {
-  uint8_t sample[ADC_SAMPLE_SIZE];
+  struct adc_msg_s samples[CONFIG_EXAMPLES_ADC_GROUPSIZE];
+  size_t readsize;
   ssize_t nbytes;
-  FAR adc_sample_t *ptr;
 #if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_ADC_NSAMPLES)
   long nsamples;
 #endif
@@ -165,9 +165,10 @@ int MAIN_NAME(int argc, char *argv[])
 
     msgflush();
 
-    /* Read one sample of size ADC_SAMPLE_SIZE */
+    /* Read CONFIG_EXAMPLES_ADC_GROUPSIZE samples */
 
-    nbytes = read(fd, sample, ADC_SAMPLE_SIZE);
+    readsize = CONFIG_EXAMPLES_ADC_GROUPSIZE * sizeof(struct adc_msg_s);
+    nbytes = read(fd, sample, readsize);
     message("Bytes read: %d\n", nbytes);
 
     /* Handle unexpected return values */
@@ -185,10 +186,10 @@ int MAIN_NAME(int argc, char *argv[])
 
         message(MAIN_STRING "Interrupted read...\n");
       }
-    else if (nbytes != ADC_SAMPLE_SIZE)
+    else if (nbytes != readsize)
       {
         message(MAIN_STRING "Unexpected read size=%d, expected=%d, Ignoring\n",
-                nbytes, ADC_SAMPLE_SIZE);        
+                nbytes, readsize);        
       }
 
     /* Print the sample data on successful return */
@@ -196,10 +197,10 @@ int MAIN_NAME(int argc, char *argv[])
     else
       {
         message("Sample :\n");
-        ptr = (FAR adc_sample_t*)sample;
         for (i = 0; i < CONFIG_EXAMPLES_ADC_GROUPSIZE; i++)
           {
-            message("%d: " SAMPLE_FMT "\n", i, ptr[i]);
+            message("%d: channel: %d value: %d\n",
+                     i, sample[i].am_channel, sample[i].am_data);
           }
       }
   }
