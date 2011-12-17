@@ -94,7 +94,7 @@
 
 int MAIN_NAME(int argc, char *argv[])
 {
-  struct adc_msg_s samples[CONFIG_EXAMPLES_ADC_GROUPSIZE];
+  struct adc_msg_s sample[CONFIG_EXAMPLES_ADC_GROUPSIZE];
   size_t readsize;
   ssize_t nbytes;
 #if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_ADC_NSAMPLES)
