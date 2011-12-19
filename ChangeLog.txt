@@ -144,3 +144,5 @@
 	  by setting CONFIG_NSH_BUILTIN_APPS.
 	* apps/examples/nettest: Correct some build issues with the nettest is
 	  built for performance evaluation.
+	* apps/examples/adc:  Add a very simple test to drive and test an ADC
+	  driver.
