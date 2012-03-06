@@ -71,7 +71,7 @@ ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
 CSRCS	+= nsh_test.c
 endif
 
-ifneq ($(CONFIG_USBDEV),y)
+ifeq ($(CONFIG_USBDEV),y)
 CSRCS	+= nsh_usbdev.c
 endif
 
