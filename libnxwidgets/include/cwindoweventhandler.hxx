@@ -105,6 +105,12 @@ namespace NXWidgets
 #ifdef CONFIG_NX_KBD
     virtual void handleKeyboardEvent(void) { }
 #endif
+
+    /**
+     * Handle a NX window blocked event
+     */
+ 
+    virtual void handleBlockedEvent(void) { }
   };
 }
 
