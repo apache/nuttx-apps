@@ -132,6 +132,7 @@ EXTERN int  uip_parsehttpurl(const char *url, uint16_t *port,
 
 /* Generic server logic */
 
+EXTERN int uip_listenon(uint16_t portno);
 EXTERN void uip_server(uint16_t portno, pthread_startroutine_t handler, int stacksize);
 
 #undef EXTERN

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/uiplib/uip_server.c
+ * netutils/uiplib/uip_listenon.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -41,14 +41,11 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
-
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <errno.h>
 #include <debug.h>
-
 #include <netinet/in.h>
 
 #include <apps/netutils/uiplib.h>
@@ -62,89 +59,73 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_server
+ * Name: uip_listenon
  *
  * Description:
- *   Implement basic server logic
+ *   Implement basic server listening
  *
  * Parameters:
  *   portno    The port to listen on (in network byte order)
- *   handler   The entrypoint of the task to spawn when a new connection is
- *             accepted.
- *   stacksize The stack size needed by the spawned task
  *
  * Return:
- *   Does not return unless an error occurs.
+ *   A valid listening socket or -1 on error.
  *
  ****************************************************************************/
 
-void uip_server(uint16_t portno, pthread_startroutine_t handler, int stacksize)
+int uip_listenon(uint16_t portno)
 {
   struct sockaddr_in myaddr;
-#ifdef CONFIG_NET_HAVE_SOLINGER
-  struct linger ling;
-#endif
-  pthread_t child;
-  pthread_attr_t attr;
-  socklen_t addrlen;
   int listensd;
-  int acceptsd;
+#ifdef CONFIG_NET_HAVE_REUSEADDR
+  int optval;
+#endif
 
   /* Create a new TCP socket to use to listen for connections */
 
-  listensd = uip_listenon(portno);
+  listensd = socket(PF_INET, SOCK_STREAM, 0);
   if (listensd < 0)
     {
-      return;
+      ndbg("socket failure: %d\n", errno);
+      return ERROR;
     }
 
-  /* Begin serving connections */
+  /* Set socket to reuse address */
 
-  for (;;)
+#ifdef CONFIG_NET_HAVE_REUSEADDR
+  optval = 1;
+  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      addrlen = sizeof(struct sockaddr_in);
-      acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
-      if (acceptsd < 0)
-        {
-          ndbg("accept failure: %d\n", errno);
-          break;;
-        }
-
-      nvdbg("Connection accepted -- spawning sd=%d\n", acceptsd);
-
-      /* Configure to "linger" until all data is sent when the socket is closed */
-
-#ifdef CONFIG_NET_HAVE_SOLINGER
-      ling.l_onoff  = 1;
-      ling.l_linger = 30;     /* timeout is seconds */
-      if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
-        {
-          close(acceptsd);
-          ndbg("setsockopt SO_LINGER failure: %d\n", errno);
-          break;
-        }
+      ndbg("setsockopt SO_REUSEADDR failure: %d\n", errno);
+      goto errout_with_socket;
+    }
 #endif
 
-      /* Create a thread to handle the connection.  The socket descriptor is
-       * provided in as the single argument to the new thread.
-       */
+  /* Bind the socket to a local address */
 
-      (void)pthread_attr_init(&attr);
-      (void)pthread_attr_setstacksize(&attr, stacksize);
+  myaddr.sin_family      = AF_INET;
+  myaddr.sin_port        = portno;
+  myaddr.sin_addr.s_addr = INADDR_ANY;
 
-      if (pthread_create(&child, &attr, handler, (void*)acceptsd) != 0)
-        {
-          close(acceptsd);
-          ndbg("create_create failed\n");
-          break;
-        }
-
-      /* We don't care when/how the child thread exits so detach from it now
-       * in order to avoid memory leaks.
-       */
-
-      (void)pthread_detach(child);
+  if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+    {
+      ndbg("bind failure: %d\n", errno);
+      goto errout_with_socket;
     }
 
+  /* Listen for connections on the bound TCP socket */
+
+  if (listen(listensd, 5) < 0)
+    {
+      ndbg("listen failure %d\n", errno);
+      goto errout_with_socket;
+    }
+
+  /* Begin accepting connections */
+
+  nvdbg("Accepting connections on port %d\n", ntohs(portno));
+  return listensd;
+
+errout_with_socket:
   close(listensd);
+  return ERROR;
 }

@@ -41,7 +41,13 @@ include $(APPDIR)/Make.defs
 
 ASRCS		=
 CSRCS		= uiplib.c uip_sethostaddr.c uip_gethostaddr.c uip_setdraddr.c \
-			  uip_setnetmask.c uip_parsehttpurl.c uip_server.c
+			  uip_setnetmask.c uip_parsehttpurl.c
+
+# These require TCP support
+
+ifeq ($(CONFIG_NET_TCP),y)
+CSRCS		+= uip_server.c uip_listenon.c
+endif
 
 # No MAC address support for SLIP (Ethernet only)
 
