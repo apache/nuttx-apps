@@ -3,14 +3,14 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-menuconfig NxWIDGETS
+menuconfig NXWIDGETS
 	bool "Enable NxWidgets"
 	default n
 	depends on NX && HAVE_CXX
 	---help---
 		Enable support for NxWidgets
 
-if NxWIDGETS
+if NXWIDGETS
 comment "NX Server/Device Configuration"
 
 config NXWIDGETS_DEVNO
@@ -88,7 +88,7 @@ config NXWIDGETS_BPP
 		BPP configuration supported by NX.
 
 config NXWIDGETS_SIZEOFCHAR
-	int "Size of a character (1 or 2 bytes)
+	int "Size of a character (1 or 2 bytes)"
 	range 1 2
 	---help---
 		Size of character {1 or 2 bytes}.  Default Determined by
@@ -116,12 +116,12 @@ config NXWIDGETS_TNXARRAY_SIZEINCREMENT
 config NXWIDGETS_DEFAULT_BACKGROUNDCOLOR
 	hex "Normal Background Color"
 	---help---
-		Normal background color.  Default: RGB(160,160,160)
+		Normal background color.  Default: RGB(148,189,215)
 
 config NXWIDGETS_DEFAULT_SELECTEDBACKGROUNDCOLOR
 	hex "Selected Background Color"
 	---help---
-		Default selected background color. Default: RGB(120,192,192)
+		Default selected background color. Default: RGB(206,227,241)
 
 config NXWIDGETS_DEFAULT_SHINEEDGECOLOR
 	hex "Shiny Edge Color"
@@ -131,7 +131,7 @@ config NXWIDGETS_DEFAULT_SHINEEDGECOLOR
 config NXWIDGETS_DEFAULT_SHADOWEDGECOLOR
 	hex "Shadow Edge Color"
 	---help---
-		Shadowed side border color. Default: RGB(0,0,0)
+		Shadowed side border color. Default: RGB(35,58,73)
 
 config NXWIDGETS_DEFAULT_HIGHLIGHTCOLOR
 	hex "Highlight Color"
@@ -203,20 +203,26 @@ config NXWIDGETS_CURSORCONTROL_SIZE
 
 endif
 
-menuconfig NxWM
+menuconfig NXWM
 	bool "Enable NxWM"
 	default n
-	depends on NxWIDGETS && NX_MULTIUSER
+	depends on NXWIDGETS && NX_MULTIUSER
 	---help---
 		Enable support for the NuttX Tiny Window Manager (NxWM)
 
-if NxWM
+if NXWM
 comment "General settings"
 
 config NXWM_DEFAULT_FONTID
 	int "Font ID"
 	---help---
 		The NxWM default font ID. Default: NXFONT_DEFAULT
+
+config NXWM_UNITTEST
+	bool "NxWM Unit Test"
+	default n
+	---help---
+		Enable Hooks for the NxWM Unit Test
 
 comment "Color configuration"
 
