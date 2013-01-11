@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/posix_spawn/Makefile
+# examples/elf/tests/hello/Makefile
 #
-#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,79 +33,27 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
-# ELF Example
+BIN = hello
 
-ASRCS =
-CSRCS = spawn_main.c symtab.c
+SRCS = $(BIN).c
+OBJS = $(SRCS:.c=.o)
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
+all: $(BIN)
 
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
+$(OBJS): %.o: %.c
+	@echo "CC: $<"
+	$(Q) $(CC) -c $(CELFFLAGS) $< -o $@
 
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
-else
-  BIN		= ../../libapps$(LIBEXT)
-endif
-endif
+$(BIN): $(OBJS)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
 
-ROOTDEPPATH	= --dep-path . --dep-path filesystem
-
-# Build targets
-
-VPATH = filesystem
-
-all: build
-.PHONY: build clean_filesystem clean depend distclean
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-# This is a little messy.  The build is broken into two pieces:  (1) the
-# filesystem/ subdir build that auto-generates several files, and (2) the library
-# build.  This is done because we need a fresh build context after auto-
-# generating the source files.
-
-build_lib: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-
-build:
-	@$(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-	@$(MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" build_lib
-
-context:
-
-# We can't make dependencies in this directory because the required
-# header files may not yet exist.
-
-.depend:
-	@touch $@
-
-depend: .depend
-
-clean_filesystem:
-	@$(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV) clean
-
-clean: clean_filesystem
+clean: 
+	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-# There are no dependencies in this directory.  We should are code some of
-# more important dependencies here:
-
--include Make.dep
+install:
+	$(Q) mkdir -p $(ROMFS_DIR)
+	$(Q) install $(BIN) $(ROMFS_DIR)/$(BIN)

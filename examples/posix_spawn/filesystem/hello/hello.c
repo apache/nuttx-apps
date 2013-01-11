@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/posix_spawn/filesystem/program/program.c
+ * examples/posix_spawn/filesystem/hello/hello.c
  *
  *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -38,6 +38,7 @@
  ****************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /****************************************************************************
  * Public Functions
@@ -45,16 +46,33 @@
 
 int main(int argc, char **argv)
 {
-  int ch;
+  int i;
 
-  /* stdin should have been redirected to testdata.txt.  Read and print until
-   * we hit the end of file.
-   */
+  /* Mandatory "Hello, world!" */
 
-  while ((ch = getchar()) != EOF)
+  puts("Getting ready to say \"Hello, world\"\n");
+  printf("Hello, world!\n");
+  puts("It has been said.\n");
+
+  /* Print arguments */
+
+  printf("argc\t= %d\n", argc);
+  printf("argv\t= 0x%p\n", argv);
+
+  for (i = 0; i < argc; i++)
     {
-      putchar(ch);
+      printf("argv[%d]\t= ", i);
+      if (argv[i])
+        {
+          printf("(0x%p) \"%s\"\n", argv[i], argv[i]);
+        }
+      else
+        {
+          printf("NULL?\n");
+        }
     }
 
+  printf("argv[%d]\t= 0x%p\n", argc, argv[argc]);
+  printf("Goodbye, world!\n");
   return 0;
 }
