@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/examples/adc/adc.h
+ * apps/include/usbmonitor.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_ADC_ADC_H
-#define __APPS_EXAMPLES_ADC_ADC_H
+#ifndef __APPS_INCLUDE_USBMONITOR_H
+#define __APPS_INCLUDE_USBMONITOR_H
 
 /****************************************************************************
  * Included Files
@@ -42,84 +42,55 @@
 
 #include <nuttx/config.h>
 
-/****************************************************************************
- * Definitions
- ****************************************************************************/
-/* Configuration ************************************************************/
-/* CONFIG_NSH_BUILTIN_APPS - Build the ADC test as an NSH built-in function.
- *  Default: Built as a standalone problem
- * CONFIG_EXAMPLES_ADC_DEVPATH - The default path to the ADC device. Default: /dev/adc0
- * CONFIG_EXAMPLES_ADC_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
- *   is defined, then the number of samples is provided on the command line
- *   and this value is ignored.  Otherwise, this number of samples is
- *   collected and the program terminates.  Default:  Samples are collected
- *   indefinitely.
- * CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
- *   Default: 4
- */
-
-#ifndef CONFIG_ADC
-#  error "ADC device support is not enabled (CONFIG_ADC)"
-#endif
-
-#ifndef CONFIG_EXAMPLES_ADC_DEVPATH
-#  define CONFIG_EXAMPLES_ADC_DEVPATH "/dev/adc0"
-#endif
-
-#ifndef CONFIG_EXAMPLES_ADC_GROUPSIZE
-#  define CONFIG_EXAMPLES_ADC_GROUPSIZE 4
-#endif
-
-/* Debug ********************************************************************/
-
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG
-#    define message(...) syslog(__VA_ARGS__)
-#    define msgflush()
-#  else
-#    define message(...) printf(__VA_ARGS__)
-#    define msgflush() fflush(stdout)
-#  endif
-#else
-#  ifdef CONFIG_DEBUG
-#    define message syslog
-#    define msgflush()
-#  else
-#    define message printf
-#    define msgflush() fflush(stdout)
-#  endif
-#endif
+#ifdef CONFIG_SYSTEM_USBMONITOR
 
 /****************************************************************************
- * Public Types
+ * Pre-Processor Definitions
  ****************************************************************************/
 
-struct adc_state_s
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C" 
 {
-  bool      initialized;
-  FAR char *devpath;
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_ADC_NSAMPLES)
-  int       count;
+#else
+#define EXTERN extern
 #endif
-};
-
-/****************************************************************************
- * Public Variables
- ****************************************************************************/
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
- * Name: adc_devinit()
+ * Name: usbmon_start and usbmon_stop
  *
- * Description:
- *   Perform architecuture-specific initialization of the ADC hardware.  This
- *   interface must be provided by all configurations using apps/examples/adc
+ *   Start and top the USB monitor daemon.  These are normally controlled
+ *   from the USB command line, but the ability to control these
+ *   programmatically is also helpful (for example, so that the daemon is
+ *   running before NSH starts).
  *
- ****************************************************************************/
+ * Input Parameters:
+ *   Standard task parameters.  These can be called or spawned.  Since the
+ *   return almost immediately, it is fine to just call the functions.  The
+ *   parameters are not used so you can pass 0 and NULL, respectivley; this
+ *   is done this way so that these functions can be NSH builtin
+ *   applications.
+ *
+ * Returned values:
+ *   Standard task return values (zero meaning success).
+ *
+ **************************************************************************/
 
-int adc_devinit(void);
+int usbmonitor_start(int argc, char **argv);
+int usbmonitor_stop(int argc, char **argv);
 
-#endif /* __APPS_EXAMPLES_ADC_ADC_H */
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CONFIG_SYSTEM_USBMONITOR */
+#endif /* __APPS_INCLUDE_USBMONITOR_H */
