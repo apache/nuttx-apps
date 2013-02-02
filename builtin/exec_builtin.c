@@ -140,16 +140,16 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
 
   /* Initialize attributes for task_spawn(). */
 
-  ret = posix_spawn_file_actions_init(&file_actions);
+  ret = posix_spawnattr_init(&attr);
   if (ret != 0)
     {
       goto errout_with_errno;
     }
 
-  ret = posix_spawnattr_init(&attr);
+  ret = posix_spawn_file_actions_init(&file_actions);
   if (ret != 0)
     {
-      goto errout_with_errno;
+      goto errout_with_attrs;
     }
 
   /* Set the correct task size and priority */
@@ -158,13 +158,13 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
   ret = posix_spawnattr_setschedparam(&attr, &param);
   if (ret != 0)
     {
-      goto errout_with_errno;
+      goto errout_with_actions;
     }
 
   ret = task_spawnattr_setstacksize(&attr, builtin->stacksize);
   if (ret != 0)
     {
-      goto errout_with_errno;
+      goto errout_with_actions;
     }
 
    /* If robin robin scheduling is enabled, then set the scheduling policy
@@ -175,7 +175,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
   ret = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
   if (ret != 0)
     {
-      goto errout_with_errno;
+      goto errout_with_actions;
     }
 
   ret = posix_spawnattr_setflags(&attr,
@@ -183,13 +183,13 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
                                  POSIX_SPAWN_SETSCHEDULER);
   if (ret != 0)
     {
-      goto errout_with_errno;
+      goto errout_with_actions;
     }
 #else
   ret = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
   if (ret != 0)
     {
-      goto errout_with_errno;
+      goto errout_with_actions;
     }
 #endif
 
@@ -204,7 +204,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       if (ret != 0)
         {
           sdbg("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
-          goto errout_with_errno;
+          goto errout_with_actions;
         }
     }
 
@@ -216,15 +216,27 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
   if (ret != 0)
     {
       sdbg("ERROR: task_spawn failed: %d\n", ret);
-      goto errout_with_errno;
+      goto errout_with_actions;
     }
+
+  /* Free attibutes and file actions.  Ignoring return values in the case
+   * of an error.
+   */
 
   /* Return the task ID of the new task if the task was sucessfully
    * started.  Otherwise, ret will be ERROR (and the errno value will
    * be set appropriately).
    */
 
+  (void)posix_spawn_file_actions_destroy(&file_actions);
+  (void)posix_spawnattr_destroy(&attr);
   return pid;
+
+errout_with_actions:
+  (void)posix_spawn_file_actions_destroy(&file_actions);
+
+errout_with_attrs:
+  (void)posix_spawnattr_destroy(&attr);
 
 errout_with_errno:
   set_errno(ret);

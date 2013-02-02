@@ -1424,6 +1424,13 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
        * successfully).  So certainly it is not an NSH command.
        */
 
+      /* Free the redirected output file path */
+
+      nsh_freefullpath(redirfile);
+      redirfile = NULL;
+
+      /* Save the result:  success if 0; failure if 1 */
+
       return nsh_saveresult(vtbl, ret != OK);
     }
 
@@ -1457,6 +1464,13 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
        * command was successfully started (although it may not have ran
        * successfully).  So certainly it is not an NSH command.
        */
+
+      /* Free the redirected output file path */
+
+      nsh_freefullpath(redirfile);
+      redirfile = NULL;
+
+      /* Save the result:  success if 0; failure if 1 */
 
       return nsh_saveresult(vtbl, ret != OK);
     }
