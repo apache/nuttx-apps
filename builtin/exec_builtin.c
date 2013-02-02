@@ -46,43 +46,29 @@
 
 #include <nuttx/config.h>
 
-#include <sys/wait.h>
-#include <sched.h>
-#include <string.h>
+#include <spawn.h>
 #include <fcntl.h>
-#include <semaphore.h>
 #include <errno.h>
 #include <debug.h>
 
+#if 0
+#include <sys/wait.h>
+#include <sched.h>
+#include <string.h>
+#include <semaphore.h>
+
 #include <nuttx/binfmt/builtin.h>
+#endif
+
 #include <apps/builtin.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_BUILTIN_PROXY_STACKSIZE
-#  define CONFIG_BUILTIN_PROXY_STACKSIZE 1024
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
-
-struct builtin_parms_s
-{
-  /* Input values */
-
-  FAR const char *redirfile;
-  FAR const char **argv;
-  int oflags;
-  int index;
-
-  /* Returned values */
-
-  pid_t result;
-  int errcode;
-};
 
 /****************************************************************************
  * Private Function Prototypes
@@ -92,318 +78,9 @@ struct builtin_parms_s
  * Private Data
  ****************************************************************************/
 
-static sem_t g_builtin_parmsem = SEM_INITIALIZER(1);
-#ifndef CONFIG_SCHED_WAITPID
-static sem_t g_builtin_execsem = SEM_INITIALIZER(0);
-#endif
-static struct builtin_parms_s g_builtin_parms;
-
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: bultin_semtake and builtin_semgive
- *
- * Description:
- *   Give and take semaphores
- *
- * Input Parameters:
- *
- *   sem - The semaphore to act on.
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-
-static void bultin_semtake(FAR sem_t *sem)
-{
-  int ret;
-
-  do
-    {
-      ret = sem_wait(sem);
-      ASSERT(ret == 0 || get_errno() == EINTR);
-    }
-  while (ret != 0);
-}
-
-#define builtin_semgive(sem) sem_post(sem)
-
-/****************************************************************************
- * Name: builtin_taskcreate
- *
- * Description:
- *   Execute the builtin task
- *
- * Returned Value:
- *   On success, the task ID of the builtin task is returned; On failure, -1
- *  (ERROR) is returned and the errno is set appropriately.
- *
- ****************************************************************************/
-
-static int builtin_taskcreate(int index, FAR const char **argv)
-{
-  FAR const struct builtin_s *b;
-  int ret;
-
-  b = builtin_for_index(index);
-
-  if (b == NULL)
-    { 
-      set_errno(ENOENT);
-      return ERROR;
-    }
-
-  /* Disable pre-emption.  This means that although we start the builtin
-   * application here, it will not actually run until pre-emption is
-   * re-enabled below.
-   */
-
-  sched_lock();
-
-  /* Start the builtin application task */
-
-  ret = TASK_CREATE(b->name, b->priority, b->stacksize, b->main,
-                    (argv) ? &argv[1] : (FAR const char **)NULL);
-
-  /* If robin robin scheduling is enabled, then set the scheduling policy
-   * of the new task to SCHED_RR before it has a chance to run.
-   */
-
-#if CONFIG_RR_INTERVAL > 0
-  if (ret > 0)
-    {
-      struct sched_param param;
-
-      /* Pre-emption is disabled so the task creation and the
-       * following operation will be atomic.  The priority of the
-       * new task cannot yet have changed from its initial value.
-       */
-
-      param.sched_priority = b->priority;
-      (void)sched_setscheduler(ret, SCHED_RR, &param);
-    }
-#endif
-
-  /* Now let the builtin application run */
-
-  sched_unlock();
-
-  /* Return the task ID of the new task if the task was sucessfully
-   * started.  Otherwise, ret will be ERROR (and the errno value will
-   * be set appropriately).
-   */
-
-  return ret;
-}
-
-/****************************************************************************
- * Name: builtin_proxy
- *
- * Description:
- *   Perform output redirection, then execute the builtin task.
- *
- * Input Parameters:
- *   Standard task start-up parameters
- *
- * Returned Value:
- *   Standard task return value.
- *
- ****************************************************************************/
-
-static int builtin_proxy(int argc, char *argv[])
-{
-  int fd;
-  int ret = ERROR;
-
-  /* Open the output file for redirection */
-
-  svdbg("Open'ing redirfile=%s oflags=%04x mode=0644\n",
-        g_builtin_parms.redirfile, g_builtin_parms.oflags);
-
-  fd = open(g_builtin_parms.redirfile, g_builtin_parms.oflags, 0644);
-  if (fd < 0)
-    {
-      /* Remember the errno value.  ret is already set to ERROR */
-
-      g_builtin_parms.errcode = get_errno();
-      sdbg("ERROR: open of %s failed: %d\n",
-           g_builtin_parms.redirfile, g_builtin_parms.errcode);
-    }
-
-  /* Does the return file descriptor happen to match the required file
-   * desciptor number?
-   */
-
-  else if (fd != 1)
-    {
-      /* No.. dup2 to get the correct file number */
-
-      svdbg("Dup'ing %d->1\n", fd);
-
-      ret = dup2(fd, 1);
-      if (ret < 0)
-        {
-          g_builtin_parms.errcode = get_errno();
-          sdbg("ERROR: dup2 failed: %d\n", g_builtin_parms.errcode);
-        }
-
-      svdbg("Closing fd=%d\n", fd);
-      close(fd);
-    }
-
-  /* Was the setup successful? */
-
-  if (ret == OK)
-    {
-      /* Yes.. Start the task.  On success, the task ID of the builtin task
-       * is returned; On failure, -1 (ERROR) is returned and the errno
-       * is set appropriately.
-       */
-
-      ret = builtin_taskcreate(g_builtin_parms.index, g_builtin_parms.argv);
-      if (ret < 0)
-        {
-          g_builtin_parms.errcode = get_errno();
-          sdbg("ERROR: builtin_taskcreate failed: %d\n",
-               g_builtin_parms.errcode);
-        }
-    }
-
-  /* NOTE:  There is a logical error here if CONFIG_SCHED_HAVE_PARENT is
-   * defined:  The new task is the child of this proxy task, not the
-   * original caller.  As a consequence, operations like waitpid() will
-   * fail on the caller's thread.
-   */
-
-  /* Post the semaphore to inform the parent task that we have completed
-   * what we need to do.
-   */
-
-  g_builtin_parms.result = ret;
-#ifndef CONFIG_SCHED_WAITPID
-  builtin_semgive(&g_builtin_execsem);
-#endif
-  return 0;
-}
-
-/****************************************************************************
- * Name: builtin_startproxy
- *
- * Description:
- *   Perform output redirection, then execute the builtin task.
- *
- * Input Parameters:
- *   Standard task start-up parameters
- *
- * Returned Value:
- *   On success, the task ID of the builtin task is returned; On failure, -1
- *  (ERROR) is returned and the errno is set appropriately.
- *
- ****************************************************************************/
-
-static inline int builtin_startproxy(int index, FAR const char **argv,
-                                     FAR const char *redirfile, int oflags)
-{
-  struct sched_param param;
-  pid_t proxy;
-  int errcode = OK;
-#ifdef CONFIG_SCHED_WAITPID
-  int status;
-#endif
-  int ret;
-
-  svdbg("index=%d argv=%p redirfile=%s oflags=%04x\n",
-        index, argv, redirfile, oflags);
-
-  /* We will have to go through an intermediary/proxy task in order to
-   * perform the I/O redirection.  This would be a natural place to fork().
-   * However, true fork() behavior requires an MMU and most implementations
-   * of vfork() are not capable of these operations.
-   *
-   * Even without fork(), we can still do the job, but parameter passing is
-   * messier.  Unfortunately, there is no (clean) way to pass binary values
-   * as a task parameter, so we will use a semaphore-protected global
-   * structure.
-   */
-
-  /* Get exclusive access to the global parameter structure */
-
-  bultin_semtake(&g_builtin_parmsem);
-
-  /* Populate the parameter structure */
-
-  g_builtin_parms.redirfile = redirfile;
-  g_builtin_parms.argv      = argv;
-  g_builtin_parms.result    = ERROR;
-  g_builtin_parms.oflags    = oflags;
-  g_builtin_parms.index     = index;
-
-  /* Get the priority of this (parent) task */
-
-  ret = sched_getparam(0, &param);
-  if (ret < 0)
-    {
-      errcode = get_errno();
-      sdbg("ERROR: sched_getparam failed: %d\n", errcode);
-      goto errout_with_sem;
-    }
-
-  /* Disable pre-emption so that the proxy does not run until we waitpid
-   * is called.  This is probably unnecessary since the builtin_proxy has
-   * the same priority as this thread; it should be schedule behind this
-   * task in the ready-to-run list.
-   */
-
-#ifdef CONFIG_SCHED_WAITPID
-  sched_lock();
-#endif
-
-  /* Start the intermediary/proxy task at the same priority as the parent task. */
-
-  proxy = TASK_CREATE("builtin_proxy", param.sched_priority,
-                      CONFIG_BUILTIN_PROXY_STACKSIZE, (main_t)builtin_proxy,
-                      (FAR const char **)NULL);
-  if (proxy < 0)
-    {
-      errcode = get_errno();
-      sdbg("ERROR: Failed to start builtin_proxy: %d\n", errcode);
-      goto errout_with_lock;
-    }
-
-   /* Wait for the proxy to complete its job.  We could use waitpid()
-    * for this.
-    */
-
-#ifdef CONFIG_SCHED_WAITPID
-   ret = waitpid(proxy, &status, 0);
-   if (ret < 0)
-     {
-       sdbg("ERROR: waitpid() failed: %d\n", get_errno());
-       goto errout_with_lock;
-     }
-#else
-   bultin_semtake(&g_builtin_execsem);
-#endif
-
-   /* Get the result and relinquish our access to the parameter structure */
-
-   set_errno(g_builtin_parms.errcode);
-   builtin_semgive(&g_builtin_parmsem);
-   return g_builtin_parms.result;
-
-errout_with_lock:
-#ifdef CONFIG_SCHED_WAITPID
-  sched_unlock();
-#endif
-
-errout_with_sem:
-  set_errno(errcode);
-  builtin_semgive(&g_builtin_parmsem);
-  return ERROR;
-}
 
 /****************************************************************************
  * Public Functions
@@ -432,36 +109,124 @@ errout_with_sem:
  *
  ****************************************************************************/
 
-int exec_builtin(FAR const char *appname, FAR const char **argv,
+int exec_builtin(FAR const char *appname, FAR char * const *argv,
                  FAR const char *redirfile, int oflags)
 {
+  FAR const struct builtin_s *builtin;
+  posix_spawnattr_t attr;
+  posix_spawn_file_actions_t file_actions;
+  struct sched_param param;
+  pid_t pid;
   int index;
-  int ret = ERROR;
+  int ret;
 
   /* Verify that an application with this name exists */
 
   index = builtin_isavail(appname);
-  if (index >= 0)
+  if (index < 0)
     {
-      /* Is output being redirected? */
+      ret = ENOENT;
+      goto errout_with_errno;
+    }
 
-      if (redirfile)
-        {
-          ret = builtin_startproxy(index, argv, redirfile, oflags);
-        }
-      else
-        {
-          /* Start the builtin application task */
+  /* Get information about the builtin */
 
-          ret = builtin_taskcreate(index, argv);
+  builtin = builtin_for_index(index);
+  if (builtin == NULL)
+    { 
+      ret = ENOENT;
+      goto errout_with_errno;
+    }
+
+  /* Initialize attributes for task_spawn(). */
+
+  ret = posix_spawn_file_actions_init(&file_actions);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+
+  ret = posix_spawnattr_init(&attr);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+
+  /* Set the correct task size and priority */
+
+  param.sched_priority = builtin->priority;
+  ret = posix_spawnattr_setschedparam(&attr, &param);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+
+  ret = task_spawnattr_setstacksize(&attr, builtin->stacksize);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+
+   /* If robin robin scheduling is enabled, then set the scheduling policy
+    * of the new task to SCHED_RR before it has a chance to run.
+    */
+
+#if CONFIG_RR_INTERVAL > 0
+  ret = posix_spawnattr_setschedpolicy(&attr, SCHED_RR);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+
+  ret = posix_spawnattr_setflags(&attr,
+                                 POSIX_SPAWN_SETSCHEDPARAM |
+                                 POSIX_SPAWN_SETSCHEDULER);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+#else
+  ret = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
+  if (ret != 0)
+    {
+      goto errout_with_errno;
+    }
+#endif
+
+  /* Is output being redirected? */
+
+  if (redirfile)
+    {
+      /* Set up to close open redirfile and set to stdout (1) */
+
+      ret = posix_spawn_file_actions_addopen(&file_actions, 1,
+                                             redirfile, O_WRONLY, 0644);
+      if (ret != 0)
+        {
+          sdbg("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
+          goto errout_with_errno;
         }
     }
 
+  /* Start the built-in */
+
+  ret = task_spawn(&pid, builtin->name, builtin->main, &file_actions,
+                   &attr, (argv) ? &argv[1] : (FAR char * const *)NULL,
+                   (FAR char * const *)NULL);
+  if (ret != 0)
+    {
+      sdbg("ERROR: task_spawn failed: %d\n", ret);
+      goto errout_with_errno;
+    }
 
   /* Return the task ID of the new task if the task was sucessfully
    * started.  Otherwise, ret will be ERROR (and the errno value will
    * be set appropriately).
    */
 
-  return ret;
+  return pid;
+
+errout_with_errno:
+  set_errno(ret);
+  return ERROR;
 }

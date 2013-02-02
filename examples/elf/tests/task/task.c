@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 
   child_argv[0] = child_arg;
   child_argv[1] = 0;
-  child_pid = task_create(child_name, 50, 512, child_task, (const char**)child_argv);
+  child_pid = task_create(child_name, 50, 512, child_task, (FAR char * const *)child_argv);
   if (child_pid < 0)
     {
       printf("Parent: task_create failed: %d\n", errno);

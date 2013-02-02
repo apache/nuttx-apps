@@ -1024,10 +1024,10 @@ int cgi(httpd_conn *hc)
 #ifndef CONFIG_CUSTOM_STACK
       child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
                           CONFIG_THTTPD_CGI_STACKSIZE,
-                          (main_t)cgi_child, (const char **)argv);
+                          (main_t)cgi_child, (FAR char * const *)argv);
 #else
       child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
-                          (main_t)cgi_child, (const char **)argv);
+                          (main_t)cgi_child, (FAR char * const *)argv);
 #endif
       if (child < 0)
         {

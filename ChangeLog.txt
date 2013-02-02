@@ -507,3 +507,8 @@
 	  occur (it would return an empty string which is not very useful).
 
 6.26 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/builtin/exec_builtin.c:  Now uses task_spawn() to start
+	  builtin applications.
+	* Type of argv has changed from const char ** to char * const *
+

@@ -100,7 +100,7 @@ extern "C" {
  *
  ****************************************************************************/
 
-EXTERN int exec_builtin(FAR const char *appname, FAR const char **argv,
+EXTERN int exec_builtin(FAR const char *appname, FAR char * const *argv,
                         FAR const char *redirfile, int oflags);
 
 #undef EXTERN

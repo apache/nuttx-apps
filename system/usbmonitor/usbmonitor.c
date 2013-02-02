@@ -185,7 +185,7 @@ int usbmonitor_start(int argc, char **argv)
 
       ret = TASK_CREATE("USB Monitor", CONFIG_SYSTEM_USBMONITOR_PRIORITY,
                         CONFIG_SYSTEM_USBMONITOR_STACKSIZE,
-                        (main_t)usbmonitor_daemon, (const char **)NULL);
+                        (main_t)usbmonitor_daemon, (FAR char * const *)NULL);
       if (ret < 0)
         {
           int errcode = errno;
