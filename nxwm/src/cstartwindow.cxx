@@ -182,7 +182,7 @@ bool CStartWindow::run(void)
 
   m_taskId = TASK_CREATE("StartWindow", CONFIG_NXWM_STARTWINDOW_PRIO,
                          CONFIG_NXWM_STARTWINDOW_STACKSIZE, startWindow,
-                        (FAR const char **)0);
+                        (FAR char * const *)0);
 
   // Did we successfully start the NxConsole task?
 

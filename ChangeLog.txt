@@ -268,3 +268,6 @@
   panel.
 
 1.6 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* Type of argv[] has changed from const char ** to char * const *
+

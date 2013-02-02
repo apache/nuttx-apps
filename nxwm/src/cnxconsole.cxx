@@ -247,7 +247,7 @@ bool CNxConsole::run(void)
   sched_lock();
   m_pid = TASK_CREATE("NxConsole", CONFIG_NXWM_NXCONSOLE_PRIO,
                       CONFIG_NXWM_NXCONSOLE_STACKSIZE, nxconsole,
-                      (FAR const char **)0);
+                      (FAR char * const *)0);
 
   // Did we successfully start the NxConsole task?
 
