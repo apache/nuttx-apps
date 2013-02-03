@@ -503,7 +503,7 @@ static void stdio_test(void)
  * ostest_main
  ****************************************************************************/
 
-int ostest_main(int argc, char *argv[])
+int ostest_main(int argc, FAR char *argv[])
 {
   int result;
 
@@ -546,9 +546,11 @@ int ostest_main(int argc, char *argv[])
   /* Verify that we can spawn a new task */
 
 #ifndef CONFIG_CUSTOM_STACK
-  result = task_create("ostest", PRIORITY, STACKSIZE, user_main, g_argv);
+  result = task_create("ostest", PRIORITY, STACKSIZE, user_main,
+                       (FAR char * const *)g_argv);
 #else
-  result = task_create("ostest", PRIORITY, user_main, g_argv);
+  result = task_create("ostest", PRIORITY, user_main,
+                       (FAR char * const *)g_argv);
 #endif
   if (result == ERROR)
     {
