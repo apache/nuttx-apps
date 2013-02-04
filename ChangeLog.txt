@@ -513,4 +513,6 @@
 	* Type of argv has changed from const char ** to char * const *
 	* apps/nshlib/nsh_parse.c:  Fix memory lead: Need to detach after
 	  creating a pthread.
+	* apps/examples and nshlib:  Change name of _TCB to struct tcb_s to
+	  match NuttX name change.
 

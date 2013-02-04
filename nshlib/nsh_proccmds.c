@@ -110,7 +110,7 @@ static const char *g_ttypenames[4] =
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PS
-static void ps_task(FAR _TCB *tcb, FAR void *arg)
+static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
 #if CONFIG_MAX_TASK_ARGS > 2

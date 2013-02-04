@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/thttpd/tasks/tasks.c
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ static const char *g_ttypenames[4] =
  *    dangerous to reference global variables in the callback function.
  */
 
-/* static */ void show_task(FAR _TCB *tcb, FAR void *arg)
+/* static */ void show_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
   int i;
 
