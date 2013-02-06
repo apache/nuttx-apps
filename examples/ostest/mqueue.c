@@ -92,6 +92,7 @@
  **************************************************************************/
 
 static mqd_t g_send_mqfd;
+static mqd_t g_recv_mqfd;
 
 /**************************************************************************
  * Private Functions
@@ -128,7 +129,7 @@ static void *sender_thread(void *arg)
    * already created it.
    */
 
-  g_send_mqfd = mq_open("testmq", O_WRONLY|O_CREAT, 0666, &attr);
+  g_send_mqfd = mq_open("mqueue", O_WRONLY|O_CREAT, 0666, &attr);
   if (g_send_mqfd < 0)
     {
       printf("sender_thread: ERROR mq_open failed\n");
@@ -161,6 +162,10 @@ static void *sender_thread(void *arg)
     {
       printf("sender_thread: ERROR mq_close failed\n");
     }
+  else
+    {
+      g_send_mqfd = NULL;
+    }
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
   return (pthread_addr_t)nerrors;
@@ -168,7 +173,6 @@ static void *sender_thread(void *arg)
 
 static void *receiver_thread(void *arg)
 {
-  mqd_t mqfd;
   char msg_buffer[TEST_MSGLEN];
   struct mq_attr attr;
   int nbytes;
@@ -194,8 +198,8 @@ static void *receiver_thread(void *arg)
    * already created it.
    */
 
-   mqfd = mq_open("testmq", O_RDONLY|O_CREAT, 0666, &attr);
-   if (mqfd < 0)
+   g_recv_mqfd = mq_open("mqueue", O_RDONLY|O_CREAT, 0666, &attr);
+   if (g_recv_mqfd < 0)
      {
        printf("receiver_thread: ERROR mq_open failed\n");
        pthread_exit((pthread_addr_t)1);
@@ -206,7 +210,7 @@ static void *receiver_thread(void *arg)
    for (i = 0; i < TEST_RECEIVE_NMSGS; i++)
     {
       memset(msg_buffer, 0xaa, TEST_MSGLEN);
-      nbytes = mq_receive(mqfd, msg_buffer, TEST_MSGLEN, 0);
+      nbytes = mq_receive(g_recv_mqfd, msg_buffer, TEST_MSGLEN, 0);
       if (nbytes < 0)
         {
           /* mq_receive failed.  If the error is because of EINTR then
@@ -260,18 +264,14 @@ static void *receiver_thread(void *arg)
 
   /* Close the queue and return success */
 
-  if (mq_close(mqfd) < 0)
+  if (mq_close(g_recv_mqfd) < 0)
     {
       printf("receiver_thread: ERROR mq_close failed\n");
       nerrors++;
     }
-
-  /* Destroy the queue */
-
-  if (mq_unlink("testmq") < 0)
+  else
     {
-      printf("receiver_thread: ERROR mq_close failed\n");
-      nerrors++;
+      g_recv_mqfd = NULL;
     }
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
@@ -291,6 +291,11 @@ void mqueue_test(void)
   int prio_max;
   int prio_mid;
   int status;
+
+  /* Reset globals for the beginning of the test */
+
+  g_send_mqfd = NULL;
+  g_recv_mqfd = NULL;
 
   /* Start the sending thread at higher priority */
 
@@ -410,9 +415,38 @@ void mqueue_test(void)
    * message queue open.
    */
 
-  if (mq_close(g_send_mqfd) < 0)
+  if (result == PTHREAD_CANCELED && g_send_mqfd)
     {
-      printf("sender_thread: ERROR mq_close failed\n");
+      if (mq_close(g_send_mqfd) < 0)
+        {
+          printf("mqueue_test: ERROR mq_close failed\n");
+        }
+    }
+  else if (result != PTHREAD_CANCELED && g_send_mqfd)
+    {
+      printf("mqueue_test: ERROR send mqd_t left open\n");
+      if (mq_close(g_send_mqfd) < 0)
+        {
+          printf("mqueue_test: ERROR mq_close failed\n");
+        }
+    }
+
+  /* Make sure that the receive queue is closed as well */
+
+  if (g_recv_mqfd)
+    {
+      printf("mqueue_test: ERROR receive mqd_t left open\n");
+      if (mq_close(g_recv_mqfd) < 0)
+        {
+          printf("sender_thread: ERROR mq_close failed\n");
+        }
+    }
+
+  /* Destroy the message queue */
+
+  if (mq_unlink("mqueue") < 0)
+    {
+      printf("mqueue_test: ERROR mq_unlink failed\n");
     }
 }
 

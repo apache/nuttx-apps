@@ -1,7 +1,7 @@
 /***********************************************************************
  * cond.c
  *
- *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,6 +97,7 @@ static void *thread_waiter(void *parameter)
                printf("waiter_thread: ERROR pthread_cond_wait failed, status=%d\n", status);
                waiter_nerrors++;
              }
+
            waiter_waits++;
         }
 
@@ -123,6 +124,7 @@ static void *thread_waiter(void *parameter)
 
       waiter_nloops++;
     }
+
   return NULL;
 }
 
@@ -288,7 +290,10 @@ void cond_test(void)
   printf("cond_test: Loops\t%d\t%d\n", waiter_nloops, signaler_nloops);
   printf("cond_test: Errors\t%d\t%d\n", waiter_nerrors, signaler_nerrors);
   printf("cond_test:\n");
-  printf("cond_test: %d times, waiter did not have to wait for data\n", waiter_nloops - waiter_waits);
-  printf("cond_test: %d times, data was already available when the signaler run\n", signaler_already);
-  printf("cond_test: %d times, the waiter was in an unexpected state when the signaler ran\n", signaler_state);
+  printf("cond_test: %d times, waiter did not have to wait for data\n",
+          waiter_nloops - waiter_waits);
+  printf("cond_test: %d times, data was already available when the signaler run\n",
+          signaler_already);
+  printf("cond_test: %d times, the waiter was in an unexpected state when the signaler ran\n",
+         signaler_state);
 }

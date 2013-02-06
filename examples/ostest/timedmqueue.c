@@ -85,6 +85,9 @@
  * Private Variables
  **************************************************************************/
 
+static mqd_t g_send_mqfd;
+static mqd_t g_recv_mqfd;
+
 /**************************************************************************
  * Private Functions
  **************************************************************************/
@@ -95,7 +98,6 @@
 
 static void *sender_thread(void *arg)
 {
-  mqd_t mqfd;
   char msg_buffer[TEST_MSGLEN];
   struct mq_attr attr;
   int status = 0;
@@ -121,8 +123,8 @@ static void *sender_thread(void *arg)
    * already created it.
    */
 
-  mqfd = mq_open("testmq", O_WRONLY|O_CREAT, 0666, &attr);
-  if (mqfd < 0)
+  g_send_mqfd = mq_open("timedmq", O_WRONLY|O_CREAT, 0666, &attr);
+  if (g_send_mqfd < 0)
     {
         printf("sender_thread: ERROR mq_open failed\n");
         pthread_exit((pthread_addr_t)1);
@@ -148,7 +150,7 @@ static void *sender_thread(void *arg)
        * one should fail with errno == ETIMEDOUT
        */
 
-      status = mq_timedsend(mqfd, msg_buffer, TEST_MSGLEN, 42, &ts);
+      status = mq_timedsend(g_send_mqfd, msg_buffer, TEST_MSGLEN, 42, &ts);
       if (status < 0)
         {
           if (i == TEST_SEND_NMSGS-1 && errno == ETIMEDOUT)
@@ -177,9 +179,13 @@ static void *sender_thread(void *arg)
 
   /* Close the queue and return success */
 
-  if (mq_close(mqfd) < 0)
+  if (mq_close(g_send_mqfd) < 0)
     {
       printf("sender_thread: ERROR mq_close failed\n");
+    }
+  else
+    {
+      g_send_mqfd = NULL;
     }
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
@@ -189,7 +195,6 @@ static void *sender_thread(void *arg)
 
 static void *receiver_thread(void *arg)
 {
-  mqd_t mqfd;
   char msg_buffer[TEST_MSGLEN];
   struct mq_attr attr;
   int nbytes;
@@ -215,8 +220,8 @@ static void *receiver_thread(void *arg)
    * already created it.
    */
 
-   mqfd = mq_open("testmq", O_RDONLY|O_CREAT, 0666, &attr);
-   if (mqfd < 0)
+   g_recv_mqfd = mq_open("timedmq", O_RDONLY|O_CREAT, 0666, &attr);
+   if (g_recv_mqfd < 0)
      {
        printf("receiver_thread: ERROR mq_open failed\n");
        pthread_exit((pthread_addr_t)1);
@@ -239,7 +244,7 @@ static void *receiver_thread(void *arg)
        */
 
       memset(msg_buffer, 0xaa, TEST_MSGLEN);
-      nbytes = mq_timedreceive(mqfd, msg_buffer, TEST_MSGLEN, 0, &ts);
+      nbytes = mq_timedreceive(g_recv_mqfd, msg_buffer, TEST_MSGLEN, 0, &ts);
       if (nbytes < 0)
         {
           if (i == TEST_SEND_NMSGS-1 && errno == ETIMEDOUT)
@@ -293,18 +298,14 @@ static void *receiver_thread(void *arg)
 
   /* Close the queue and return success */
 
-  if (mq_close(mqfd) < 0)
+  if (mq_close(g_recv_mqfd) < 0)
     {
       printf("receiver_thread: ERROR mq_close failed\n");
       nerrors++;
     }
-
-  /* Destroy the queue */
-
-  if (mq_unlink("testmq") < 0)
+  else
     {
-      printf("receiver_thread: ERROR mq_close failed\n");
-      nerrors++;
+      g_recv_mqfd = NULL;
     }
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
@@ -378,7 +379,37 @@ void timedmqueue_test(void)
   pthread_join(receiver, &result);
   if (result != (void*)0)
     {
-      printf("timedmqueue_test: ERROR receiver thread exited with %d errors\n", (int)result);
+      printf("timedmqueue_test: ERROR receiver thread exited with %d errors\n",
+             (int)result);
+    }
+
+  /* Make sure that the message queues were properly closed (otherwise, we
+   * might have problems the next time in the test loop.
+   */
+
+  if (g_send_mqfd)
+    {
+      printf("timedmqueue_test: ERROR send mqd_t left open\n");
+      if (mq_close(g_send_mqfd) < 0)
+        {
+          printf("timedmqueue_test: ERROR mq_close failed\n");
+        }
+    }
+
+  if (g_recv_mqfd)
+    {
+      printf("timedmqueue_test: ERROR receive mqd_t left open\n");
+      if (mq_close(g_recv_mqfd) < 0)
+        {
+          printf("timedmqueue_test: ERROR mq_close failed\n");
+        }
+    }
+
+  /* Destroy the message queue */
+
+  if (mq_unlink("timedmq") < 0)
+    {
+      printf("timedmqueue_test: ERROR mq_unlink failed\n");
     }
 
   printf("timedmqueue_test: Test complete\n");
