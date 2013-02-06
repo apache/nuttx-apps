@@ -415,17 +415,17 @@ void mqueue_test(void)
    * message queue open.
    */
 
-  if (result == PTHREAD_CANCELED && g_send_mqfd)
+  if (result == PTHREAD_CANCELED && g_recv_mqfd)
     {
-      if (mq_close(g_send_mqfd) < 0)
+      if (mq_close(g_recv_mqfd) < 0)
         {
           printf("mqueue_test: ERROR mq_close failed\n");
         }
     }
-  else if (result != PTHREAD_CANCELED && g_send_mqfd)
+  else if (result != PTHREAD_CANCELED && g_recv_mqfd)
     {
       printf("mqueue_test: ERROR send mqd_t left open\n");
-      if (mq_close(g_send_mqfd) < 0)
+      if (mq_close(g_recv_mqfd) < 0)
         {
           printf("mqueue_test: ERROR mq_close failed\n");
         }
@@ -433,10 +433,10 @@ void mqueue_test(void)
 
   /* Make sure that the receive queue is closed as well */
 
-  if (g_recv_mqfd)
+  if (g_send_mqfd)
     {
       printf("mqueue_test: ERROR receive mqd_t left open\n");
-      if (mq_close(g_recv_mqfd) < 0)
+      if (mq_close(g_send_mqfd) < 0)
         {
           printf("sender_thread: ERROR mq_close failed\n");
         }

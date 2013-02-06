@@ -111,6 +111,10 @@ int dev_null(void);
 
 void fpu_test(void);
 
+/* restart.c ****************************************************************/
+
+void restart_test(void);
+
 /* waitpid.c ****************************************************************/
 
 #ifdef CONFIG_SCHED_WAITPID

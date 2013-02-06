@@ -515,4 +515,5 @@
 	  creating a pthread.
 	* apps/examples and nshlib:  Change name of _TCB to struct tcb_s to
 	  match NuttX name change.
-
+	* apps/examples/ostest/restart.c:  Add a test case to verify
+	  task_restart().
