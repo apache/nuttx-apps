@@ -4,7 +4,7 @@
 #
 
 config EXAMPLES_CDCACM
-	bool "CAN example"
+	bool "CDC/ACM example"
 	default n
 	---help---
 		Enable the USB CDC/ACM class driver example
