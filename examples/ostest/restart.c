@@ -49,8 +49,6 @@
 
 #include "ostest.h"
 
-#ifdef CONFIG_SCHED_WAITPID
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -193,5 +191,3 @@ void restart_test(void)
 
   printf("restart_main: Exitting\n");
 }
-
-#endif /* CONFIG_SCHED_WAITPID */
