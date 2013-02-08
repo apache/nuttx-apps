@@ -129,23 +129,42 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
 
   /* Show task name and arguments */
 
-  nsh_output(vtbl, "%s(", tcb->argv[0]);
+#if CONFIG_TASK_NAME_SIZE > 0
+  nsh_output(vtbl, "%s(", tcb->name);
+#else
+  nsh_output(vtbl, "<noname>(");
+#endif
 
-  /* Special case 1st argument (no comma) */
+  /* Is this a task or a pthread? */
 
-  if (tcb->argv[1])
+#ifndef CONFIG_DISABLE_PTHREAD
+  if ((tcb->flags & TCB_FLAG_TTYPE_MASK) == TCB_FLAG_TTYPE_PTHREAD)
     {
-     nsh_output(vtbl, "%p", tcb->argv[1]);
+      FAR struct pthread_tcb_s *ptcb = (FAR struct pthread_tcb_s *)tcb;
+      nsh_output(vtbl, "%p", ptcb->arg);
     }
+  else
+#endif
+    {
+       FAR struct task_tcb_s *ttcb = (FAR struct task_tcb_s *)tcb;
 
-  /* Then any additional arguments */
+     /* Special case 1st argument (no comma) */
+
+      if (ttcb->argv[1])
+        {
+          nsh_output(vtbl, "%p", ttcb->argv[1]);
+        }
+
+      /* Then any additional arguments */
 
 #if CONFIG_MAX_TASK_ARGS > 2
-  for (i = 2; i <= CONFIG_MAX_TASK_ARGS && tcb->argv[i]; i++)
-    {
-      nsh_output(vtbl, ", %p", tcb->argv[i]);
-     }
+      for (i = 2; i <= CONFIG_MAX_TASK_ARGS && ttcb->argv[i]; i++)
+        {
+          nsh_output(vtbl, ", %p", ttcb->argv[i]);
+         }
 #endif
+    }
+
   nsh_output(vtbl, ")\n");
 }
 #endif
