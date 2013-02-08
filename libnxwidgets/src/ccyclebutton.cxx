@@ -424,7 +424,7 @@ void CCycleButton::drawOutline(CGraphicsPort *port)
  * @param y The y coordinate of the mouse.
  */
 
-void CCycleButton::onRelease(nxgl_coord_t x, nxgl_coord_t y)
+void CCycleButton::onPreRelease(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Choose next option
 
@@ -447,6 +447,8 @@ void CCycleButton::onRelease(nxgl_coord_t x, nxgl_coord_t y)
     }
 
   redraw();
+  
+  CButton::onPreRelease(x, y);
 }
 
 /**

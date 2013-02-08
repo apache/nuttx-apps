@@ -797,6 +797,13 @@ namespace NXWidgets
     }
 
     /**
+     * Get the style used by this widget
+     * 
+     * @return Const pointer to CWidgetStyle stored inside this widget.
+     */
+    inline const CWidgetStyle *getWidgetStyle() const { return &m_style; }
+    
+    /**
      * Sets this widget's border state.
      *
      * @param isBorderless The border state.

@@ -121,7 +121,7 @@ if __name__ == '__main__':
     print "Usage: bitmap_converter.py source.png output.cxx"
     sys.exit(1)
   
-  img = Image.open(sys.argv[1])
+  img = Image.open(sys.argv[1]).convert("RGB")
   outfile = open(sys.argv[2], 'w')
   palette = get_palette(img)
   

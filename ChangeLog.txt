@@ -270,4 +270,12 @@
 1.6 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
 * Type of argv[] has changed from const char ** to char * const *
+* NXWidgets::CNxWidget:  Add an inline function to get the current style.
+* NxWM::CTaskBar: Make a some methods of CTaskbar virtual to allow
+  customizations.  From Petteri Aimonen.
+* NXWidgets::CCycleButton: Make CCycleButton change state in onPreRelease().
+  This way the new value is already available when a listener gets the
+  action event.  From Petteri Aimonen.
+* NxWidgets/tools/bitmap_converter.py: Fix bitmap_converter.py so that
+  it works with indexed input images.
 

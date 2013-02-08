@@ -152,7 +152,7 @@ namespace NXWidgets
      * @param y The y coordinate of the mouse.
      */
 
-    virtual void onRelease(nxgl_coord_t x, nxgl_coord_t y);
+    virtual void onPreRelease(nxgl_coord_t x, nxgl_coord_t y);
     
     /**
      * Redraws the button.

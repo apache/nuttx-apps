@@ -83,9 +83,9 @@ namespace NxWM
    */
 
   class CTaskbar : public  NXWidgets::CNxServer,
-                   private NXWidgets::CWidgetEventHandler
+                   protected NXWidgets::CWidgetEventHandler
   {
-  private:
+  protected:
     /**
      * This structure represents an application and its associated icon image
      */
@@ -152,7 +152,7 @@ namespace NxWM
      * @return true on success
      */
 
-    bool createTaskbarWindow(void);
+    virtual bool createTaskbarWindow(void);
 
     /**
      * Create the background window. 
@@ -160,7 +160,7 @@ namespace NxWM
      * @return true on success
      */
 
-    bool createBackgroundWindow(void);
+    virtual bool createBackgroundWindow(void);
 
     /**
      * Create the background image. 
@@ -168,7 +168,7 @@ namespace NxWM
      * @return true on success
      */
 
-    bool createBackgroundImage(void);
+    virtual bool createBackgroundImage(void);
 
     /**
      * (Re-)draw the task bar window.
@@ -176,7 +176,7 @@ namespace NxWM
      * @return true on success
      */
 
-    bool redrawTaskbarWindow(void);
+    virtual bool redrawTaskbarWindow(void);
 
     /**
      * Redraw the window at the top of the heirarchy.
@@ -184,7 +184,7 @@ namespace NxWM
      * @return true on success
      */
 
-    bool redrawTopApplication(void);
+    virtual bool redrawTopApplication(void);
 
     /**
      * Raise the top window to the top of the NXheirarchy.
@@ -200,7 +200,7 @@ namespace NxWM
      * @return true on success
      */
 
-    bool redrawBackgroundWindow(void);
+    virtual bool redrawBackgroundWindow(void);
 
     /**
      * Redraw the last application in the list of application maintained by
