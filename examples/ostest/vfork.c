@@ -47,6 +47,9 @@
 
 #include "ostest.h"
 
+#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID) && \
+   !defined(CONFIG_DISABLE_SIGNALS)
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -55,9 +58,7 @@
  * Private Data
  ****************************************************************************/
 
-#if defined(CONFIG_ARCH_HAVE_VFORK) && !defined(CONFIG_DISABLE_SIGNALS)
 static volatile bool g_vforkchild;
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -65,7 +66,6 @@ static volatile bool g_vforkchild;
 
 int vfork_test(void)
 {
-#if defined(CONFIG_ARCH_HAVE_VFORK) && !defined(CONFIG_DISABLE_SIGNALS)
   pid_t pid;
 
   g_vforkchild = false;
@@ -97,7 +97,8 @@ int vfork_test(void)
           return -1;
         }
     }
-#endif
 
   return 0;
 }
+
+#endif /* CONFIG_ARCH_HAVE_VFORK && CONFIG_SCHED_WAITPID && !CONFIG_DISABLE_SIGNALS */

@@ -451,7 +451,8 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_SIGNALS && !CONFIG_DISABLE_PTHREAD */
 
-#ifdef CONFIG_ARCH_HAVE_VFORK
+#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID) && \
+   !defined(CONFIG_DISABLE_SIGNALS)
       printf("\nuser_main: vfork() test\n");
       vfork_test();
 #endif

@@ -89,7 +89,9 @@ CSRCS		+= posixtimer.c
 endif
 
 ifeq ($(CONFIG_ARCH_HAVE_VFORK),y)
+ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS		+= vfork.c
+endif
 endif
 
 ifneq ($(CONFIG_DISABLE_SIGNALS),y)
