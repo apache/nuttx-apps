@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/readline/readline.c
  *
- *   Copyright (C) 2007-2008, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2008, 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,9 +136,9 @@ static inline int readline_rawgetc(int infd)
  
       if (nread == 0)
         {
-          /* Return zero on end-of-file */
+          /* Return EOF on end-of-file */
 
-          return 0;
+          return EOF;
         }
 
       /* Check if an error occurred */
@@ -152,7 +152,9 @@ static inline int readline_rawgetc(int infd)
           int errcode = errno;
           if (errcode != EINTR)
             {
-              return -errcode;
+              /* Return EOF on any errors that we cannot handle */
+
+              return EOF;
             }
         }
     }
@@ -233,8 +235,8 @@ static inline void readline_consolewrite(int outfd, FAR const char *buffer, size
  *
  * Returned values:
  *   On success, the (positive) number of bytes transferred is returned.
- *   A length of zero would indicate an end of file condition. On failure,
- *   a negated errno value is returned.
+ *   EOF is returned to indicate either an end of file condition or a
+ *   failure.
  *
  **************************************************************************/
 
@@ -281,13 +283,15 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream)
 
   for(;;)
     {
-      /* Get the next character */
+      /* Get the next character. readline_rawgetc() returns EOF on any
+       * errors or at the end of file.
+       */
 
       int ch = readline_rawgetc(infd);
 
       /* Check for end-of-file or read error */
 
-      if (ch <= 0)
+      if (ch == EOF)
         {
           /* Did we already received some data? */
 
@@ -302,7 +306,7 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream)
               return nch;
             }
 
-          return ch;
+          return EOF;
         }
 
       /* Are we processing a VT100 escape sequence */

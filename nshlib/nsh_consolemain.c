@@ -42,8 +42,6 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <apps/readline.h>
-
 #include "nsh.h"
 #include "nsh_console.h"
 

@@ -129,11 +129,13 @@ int nsh_session(FAR struct console_stdio_s *pstate)
       fputs(g_nshprompt, pstate->cn_outstream);
       fflush(pstate->cn_outstream);
 
-      /* Get the next line of input */
+      /* Get the next line of input. readline() returns EOF on end-of-file
+       * or any read failure.
+       */
 
       ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
                      INSTREAM(pstate), OUTSTREAM(pstate));
-      if (ret > 0)
+      if (ret != EOF)
         {
           /* Parse process the command */
 
@@ -142,9 +144,8 @@ int nsh_session(FAR struct console_stdio_s *pstate)
         }
 
       /* Readline normally returns the number of characters read,
-       * but will return 0 on end of file or a negative value
-       * if an error occurs.  Either will cause the session to
-       * terminate.
+       * but will return EOF on end of file or if an error occurs.
+       * EOF will cause the session to terminate.
        */
 
       else

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ftpc/ftpc_main.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -431,14 +431,13 @@ int ftpc_main(int argc, char **argv, char **envp)
       ret = readline(g_line, CONFIG_FTPC_LINELEN, stdin, stdout);
 
       /* Readline normally returns the number of characters read,
-       * but will return 0 on end of file or a negative value
-       * if an error occurs.  Either will cause the session to
-       * terminate.
+       * but will return EOF on end of file or if an error occurs.
+       * Either will cause the session to terminate.
        */
 
-      if (ret <= 0)
+      if (ret == EOF)
         {
-          printf("ERROR: readline failed: %d\n", ret);
+          printf("ERROR: readline failed: %d\n", errno);
           return 1;
         }
 #endif

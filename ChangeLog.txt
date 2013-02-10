@@ -517,3 +517,8 @@
 	  match NuttX name change.
 	* apps/examples/ostest/restart.c:  Add a test case to verify
 	  task_restart().
+	* apps/system/readline.c:  readline() now returns EOF on any failure
+	  (instead of a negated errno value).  This is because the underlying
+	  read is based on logic similar to getc.  The value zero was being
+	  confused with a NUL.  So if a NUL was received, the NSH session
+	  would terminate because it thought it was the end of file.

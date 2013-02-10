@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/readline.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,8 +85,8 @@ extern "C" {
  *
  * Returned values:
  *   On success, the (positive) number of bytes transferred is returned.
- *   A length of zero would indicated an end of file condition. An failure,
- *   a negated errno value is returned.
+ *   EOF is returned to indicate either an end of file condition or a
+ *   failure.
  *
  **************************************************************************/
 
