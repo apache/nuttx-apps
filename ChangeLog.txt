@@ -278,4 +278,6 @@
   action event.  From Petteri Aimonen.
 * NxWidgets/tools/bitmap_converter.py: Fix bitmap_converter.py so that
   it works with indexed input images.
+* NxWidgets::CLabel: Fix backward conditional compilation in the
+  "flicker free" logic.
 

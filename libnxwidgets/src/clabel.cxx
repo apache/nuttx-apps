@@ -303,7 +303,7 @@ void CLabel::drawContents(CGraphicsPort *port)
 
   // Draw the background (excluding the border)
 
-#ifdef CONFIG_NXWIDGETS_FLICKERFREE
+#ifndef CONFIG_NXWIDGETS_FLICKERFREE
   port->drawFilledRect(rect.getX(), rect.getY(),
                        rect.getWidth(), rect.getHeight(), backColor);
 #endif
