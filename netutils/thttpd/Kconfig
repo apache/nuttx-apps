@@ -133,16 +133,26 @@ config THTTPD_INDEX_NAMES
 		A list of index filenames to check. The files are searched for
 		in this order.  Default: "\"index.html\", \"index.htm\", \"index.cgi\""
 
+config THTTPD_USE_AUTH_FILE
+	bool "Use authentication file"
+	default n
+	---help---
+		Select to define an authentication file that thttpd will check in
+		the local directory before every fetch. If the file exists then
+		authentication is done, otherwise the fetch proceeds as usual. If
+		you leave this undefined then thttpd will not implement
+		authentication at all and will not check for auth files, which saves
+		a bit of CPU time.
+
 config AUTH_FILE
 	string "Authorization file"
-#	default ".htpasswd"
+	default ".htpasswd"
+	depends on THTTPD_USE_AUTH_FILE
 	---help---
-		The file to use for authentication. If this is defined then thttpd
-		checks for this file in the local directory before every fetch. If
-		the file exists then authentication is done, otherwise the fetch proceeds
-		as usual. If you leave this undefined then thttpd will not implement
-		authentication at all and will not check for auth files, which saves a
-		bit of CPU time. A typical value is ".htpasswd"
+		The file to use for authentication. thttpd checks for this file in
+		the local directory before every fetch. If the file exists then
+		authentication is done, otherwise the fetch proceeds as usual. A
+		typical value is ".htpasswd"
 
 config THTTPD_LISTEN_BACKLOG
 	int "Listen backlog"
@@ -185,56 +195,117 @@ config THTTPD_IDLE_SEND_LIMIT_SEC
 		How many seconds before an idle connection gets closed.
 		Default: 300
 
-config THTTPD_TILDE_MAP1
-	string "Tilde mapping"
+choice
+	prompt "Tilde Mapping"
+	default THTTPD_TILDE_MAP_NONE
 	---help---
-		Tilde mapping.
+		Tilde mapping. Many URLs use ~username to indicate a user's home
+		directory. thttpd provides two options for mapping this construct to
+		an actual filename.
 
-		Many URLs use ~username to indicate a user's home directory. thttpd
-		provides two options for mapping this construct to an  actual filename.
+		1) Map ~username to <prefix>/username. This is the recommended
+		   choice. Each user gets a subdirectory in the main web tree, and
+		   the tilde construct points there.
 
-		1) Map ~username to <prefix>/username. This is the recommended choice.
-		 Each user gets a subdirectory in the main web tree, and the tilde
-		 construct points there. The prefix could be something like "users",
-		 or it could be empty.
+		   The prefix could be something like "users", or it could be empty.
+
 		2) Map ~username to <user's homedir>/<postfix>. The postfix would be
-		 the name of a subdirectory off of the user's actual home dir,
-		 something like "public_html".
+		   the name of a subdirectory off of the user's actual home dir,
+		   something like "public_html".
 
-		You can also leave both options undefined, and thttpd will not do
-		anything special about tildes. Enabling both options is an error.
-		Typical values, if they're defined, are "users" for
-		config THTTPD_TILDE_MAP1 and "public_html" for THTTPD_TILDE_MAP2. 
+		3) Niether.  You can also leave both options undefined, and thttpd
+		   will not do anything special about tildes. Enabling both options
+		   is an error.
+
+		Typical values, if they're defined, are "users" for THTTPD_TILDE_MAP1
+		and "public_html" for THTTPD_TILDE_MAP2. 
+
+config THTTPD_USE_TILDE_MAP1
+	bool "Tilde mapping 1"
+	---help---
+		Tilde mapping. Many URLs use ~username to indicate a user's home
+		directory. thttpd provides two options for mapping this construct to
+		an actual filename.  Choose this option for the first mapping:
+
+		1) Map ~username to <prefix>/username. This is the recommended
+		   choice. Each user gets a subdirectory in the main web tree, and
+		   the tilde construct points there.
+
+		   The prefix could be something like "users", or it could be empty.
+
+config THTTPD_USE_TILDE_MAP2
+	bool "Tilde mapping 2"
+	---help---
+		Tilde mapping. Many URLs use ~username to indicate a user's home
+		directory. thttpd provides two options for mapping this construct to
+		an actual filename.  Choose this option for the second mapping:
+
+		2) Map ~username to <user's homedir>/<postfix>. The postfix would be
+		   the name of a subdirectory off of the user's actual home dir,
+		   something like "public_html".
+
+		The typical value THTTPD_TILDE_MAP2 is "public_html". 
+
+config THTTPD_TILDE_MAP_NONE
+	bool "No tilde mapping"
+	---help---
+		Tilde mapping. Many URLs use ~username to indicate a user's home
+		directory. thttpd provides two options for mapping this construct to
+		an actual filename.  Choose this option to omit tilde mapping: thttpd
+		will not do anything special about tildes.
+
+endchoice
+
+config THTTPD_TILDE_MAP1
+	string "Tilde mapping 1"
+	default "user"
+	depends on THTTPD_USE_TILDE_MAP1
+	---help---
+		Tilde mapping. Many URLs use ~username to indicate a user's home
+		directory. thttpd provides two options for mapping this construct to
+		an actual filename.  Choose this option defines the <prefix> string
+		for the first mapping:
+
+		1) Map ~username to <prefix>/username. This is the recommended
+		   choice. Each user gets a subdirectory in the main web tree, and
+		   the tilde construct points there.
+
+		   The prefix could be something like "users", or it could be empty.
 
 config THTTPD_TILDE_MAP2
-	string "Tilde mapping"
+	string "Tilde mapping 2"
+	default "public_html"
+	depends on THTTPD_USE_TILDE_MAP2
 	---help---
-		Tilde mapping.
+		Tilde mapping. Many URLs use ~username to indicate a user's home
+		directory. thttpd provides two options for mapping this construct to
+		an actual filename.  Choose this option defines the <postfix> string
+		for the second mapping:
 
-		Many URLs use ~username to indicate a user's home directory. thttpd
-		provides two options for mapping this construct to an  actual filename.
-
-		1) Map ~username to <prefix>/username. This is the recommended choice.
-		 Each user gets a subdirectory in the main web tree, and the tilde
-		 construct points there. The prefix could be something like "users",
-		 or it could be empty.
 		2) Map ~username to <user's homedir>/<postfix>. The postfix would be
-		 the name of a subdirectory off of the user's actual home dir,
-		 something like "public_html".
+		   the name of a subdirectory off of the user's actual home dir,
+		   something like "public_html".
 
-		You can also leave both options undefined, and thttpd will not do
-		anything special about tildes. Enabling both options is an error.
-		Typical values, if they're defined, are "users" for
-		config THTTPD_TILDE_MAP1 and "public_html" for THTTPD_TILDE_MAP2. 
+		The typical value THTTPD_TILDE_MAP2 is "public_html". 
 
 config THTTPD_GENERATE_INDICES
 	bool "Generate name indices"
 	default n
 	---help---
 
+config THTTPD_USE_URLPATTERN
+	bool "Use URL pattern"
+	default n
+	---help---
+		Select to define a URL pattern that will be used to match and verify
+		referrers.
+
 config THTTPD_URLPATTERN
 	string "URL pattern"
+	default ""
+	depends on THTTPD_USE_URLPATTERN
 	---help---
-		If defined, then it will be used to match and verify referrers.
+		This string defines the UARL pattern that will be used to match and
+		verify referrers.
 
 endif

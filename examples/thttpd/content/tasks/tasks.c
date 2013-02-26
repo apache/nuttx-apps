@@ -107,7 +107,7 @@ static const char *g_ttypenames[4] =
 {
   int i;
 
-  /* Show task status */
+  /* Show task/thread status */
 
   printf("%5d %3d %4s %7s%c%c %8s ",
          tcb->pid, tcb->sched_priority,
@@ -117,26 +117,49 @@ static const char *g_ttypenames[4] =
          tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
          g_statenames[tcb->task_state]);
 
-  /* Show task name and arguments */
+  /* Is this a task or a thread? */
 
-  printf("%s(", tcb->argv[0]);
-
-  /* Special case 1st argument (no comma) */
-
-  if (tcb->argv[1])
+#ifndef CONFIG_DISABLE_PTHREAD
+  if ((tcb->flags & TCB_FLAG_TTYPE_MASK) == TCB_FLAG_TTYPE_PTHREAD)
     {
-     printf("%p", tcb->argv[1]);
-    }
+      FAR struct pthread_tcb_s *ptcb = (FAR struct pthread_tcb_s *)tcb;
 
-  /* Then any additional arguments */
+      /* It is a pthread.  Show any name assigned to the pthread via prtcl() along
+       * with the startup value.
+       */
+
+#if CONFIG_TASK_NAME_SIZE > 0
+      printf("%s(%p)\n", tcb->name, ptcb->arg);
+#else
+      printf("pthread(%p)\n", ptcb->arg);
+#endif
+    }
+  else
+#endif
+    {
+      FAR struct task_tcb_s *ttcb = (FAR struct task_tcb_s *)tcb;
+
+      /* Show task name and arguments */
+
+      printf("%s(", ttcb->argv[0]);
+
+      /* Special case 1st argument (no comma) */
+
+      if (ttcb->argv[1])
+        {
+         printf("%p", ttcb->argv[1]);
+        }
+
+      /* Then any additional arguments */
 
 #if CONFIG_MAX_TASK_ARGS > 2
-  for (i = 2; i <= CONFIG_MAX_TASK_ARGS && tcb->argv[i]; i++)
-    {
-      printf(", %p", tcb->argv[i]);
-     }
+      for (i = 2; i <= CONFIG_MAX_TASK_ARGS && ttcb->argv[i]; i++)
+        {
+          printf(", %p", ttcb->argv[i]);
+         }
 #endif
-  printf(")\n");
+      printf(")\n");
+    }
 }
 
 /****************************************************************************

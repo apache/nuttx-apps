@@ -856,7 +856,7 @@ static int cgi_child(int argc, char **argv)
   /* Run the CGI program. */
 
   nllvdbg("Starting CGI: %s\n", hc->expnfilename);
-  child = exec(hc->expnfilename, (FAR const char **)argp, g_thttpdsymtab, g_thttpdnsymbols);
+  child = exec(hc->expnfilename, (FAR char * const *)argp, g_thttpdsymtab, g_thttpdnsymbols);
   if (child < 0)
     {
       /* Something went wrong. */

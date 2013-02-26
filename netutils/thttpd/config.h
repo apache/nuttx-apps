@@ -158,11 +158,11 @@
 #  endif
 
 #  ifndef CONFIG_THTTPD_CGIINBUFFERSIZE
-#    define CONFIG_THTTPD_CGIINBUFFERSIZE 512	/* Size of buffer to interpose input */
+#    define CONFIG_THTTPD_CGIINBUFFERSIZE 512   /* Size of buffer to interpose input */
 #  endif
 
 #  ifndef CONFIG_THTTPD_CGIOUTBUFFERSIZE
-#    define CONFIG_THTTPD_CGIOUTBUFFERSIZE 512	/* Size of buffer to interpose output */
+#    define CONFIG_THTTPD_CGIOUTBUFFERSIZE 512  /* Size of buffer to interpose output */
 #  endif
 
 #  if CONFIG_THTTPD_IOBUFFERSIZE > 65535
@@ -236,7 +236,7 @@
  */
 
 #  if defined(CONFIG_THTTPD_TILDE_MAP1) && defined(CONFIG_THTTPD_TILDE_MAP2)
-#    error "Both CONFIG_THTTPD_TILDE_MAP1 andCONFIG_THTTPD_TILDE_MAP2 are defined"
+#    error "Both CONFIG_THTTPD_TILDE_MAP1 and CONFIG_THTTPD_TILDE_MAP2 are defined"
 #  endif
 
 /* If CONFIG_THTTPD_URLPATTERN is defined, then it will be used to match and verify
