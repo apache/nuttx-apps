@@ -83,7 +83,8 @@ static void get_primes(int *count, int *last)
 {
   int number;
   int local_count = 0;
-  *last = 0;    // to make compiler happy
+
+  *last = 0;    /* To make the compiler happy */
 
   for (number = 1; number < CONFIG_EXAMPLES_OSTEST_RR_RANGE; number++)
   {
@@ -114,10 +115,12 @@ static void get_primes(int *count, int *last)
  * Name: get_primes_thread
  ********************************************************************************/
 
-static void *get_primes_thread(void *parameter)
+static FAR void *get_primes_thread(FAR void *parameter)
 {
   int id = (int)parameter;
-  int i, count, last;
+  int count;
+  int last;
+  int i;
 
   printf("get_primes_thread id=%d started, looking for primes < %d, doing %d run(s)\n",
          id, CONFIG_EXAMPLES_OSTEST_RR_RANGE, CONFIG_EXAMPLES_OSTEST_RR_RUNS);
@@ -154,14 +157,14 @@ void rr_test(void)
   status = pthread_attr_init(&attr);
   if (status != OK)
     {
-      printf("rr_test: pthread_attr_init failed, status=%d\n",  status);
+      printf("rr_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
     }
 
   sparam.sched_priority = sched_get_priority_min(SCHED_FIFO);
   status = pthread_attr_setschedparam(&attr, &sparam);
   if (status != OK)
     {
-      printf("rr_test: pthread_attr_setschedparam failed, status=%d\n",  status);
+      printf("rr_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",  status);
     }
   else
     {
@@ -171,7 +174,7 @@ void rr_test(void)
   status = pthread_attr_setschedpolicy(&attr, SCHED_RR);
   if (status != OK)
     {
-      printf("rr_test: pthread_attr_setschedpolicy failed, status=%d\n",  status);
+      printf("rr_test: ERROR: pthread_attr_setschedpolicy failed, status=%d\n",  status);
     }
   else
     {
@@ -180,23 +183,25 @@ void rr_test(void)
 
   printf("rr_test: Starting first get_primes_thread\n");
 
-  status = pthread_create(&get_primes1_thread, &attr, get_primes_thread, (void*)1);
+  status = pthread_create(&get_primes1_thread, &attr, get_primes_thread, (FAR void *)1);
   if (status != 0)
     {
-      printf("rr_test: Error in thread 1 creation, status=%d\n",  status);
+      printf("         ERROR: Thread 1 creation failed: %d\n",  status);
     }
 
+  printf("         First get_primes_thread: %d\n", (int)get_primes1_thread);
   printf("rr_test: Starting second get_primes_thread\n");
 
-  status = pthread_create(&get_primes2_thread, &attr, get_primes_thread, (void*)2);
+  status = pthread_create(&get_primes2_thread, &attr, get_primes_thread, (FAR void *)2);
   if (status != 0)
     {
-      printf("rr_test: Error in thread 2 creation, status=%d\n",  status);
+      printf("         ERROR: Thread 2 creation failed: %d\n",  status);
     }
 
+  printf("         Second get_primes_thread: %d\n", (int)get_primes2_thread);
   printf("rr_test: Waiting for threads to complete -- this should take awhile\n");
-  printf("rr_test: If RR scheduling is working, they should start and complete at\n");
-  printf("rr_test: about the same time\n");
+  printf("         If RR scheduling is working, they should start and complete at\n");
+  printf("         about the same time\n");
 
   pthread_join(get_primes2_thread, &result);
   pthread_join(get_primes1_thread, &result);
