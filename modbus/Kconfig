@@ -3,8 +3,6 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-comment "FreeModbus"
-
 config MODBUS
 	bool "Modbus support via FreeModBus"
 	default n

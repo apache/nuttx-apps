@@ -87,7 +87,7 @@ static void waitpid_start_children(void)
       ret = TASK_CREATE("waitpid", PRIORITY, STACKSIZE, waitpid_main, NULL);
       if (ret < 0)
         {
-          printf("waitpid_start_child: ERROR Failed to start user_main\n");
+          printf("waitpid_start_child: ERROR Failed to start waitpid_main\n");
         }
       else
         {
@@ -100,8 +100,29 @@ static void waitpid_start_children(void)
 
 static void waitpid_last(void)
 {
+  pid_t pid = -1;
   int stat_loc;
   int ret;
+  int i;
+
+  /* Find the last child thread that was started successfully */
+
+  for (i = NCHILDREN-1; i > 0; i--)
+    {
+      if (g_waitpids[i] >= 0)
+        {
+          pid = i;
+          break;
+        }
+    }
+
+  /* Is there any thread to wait for? */
+
+  if (pid < 0)
+    {
+      printf("waitpid_last: ERROR: Nothing to wait for\n");
+      return;
+    }
 
   printf("waitpid_last: Waiting for PID=%d with waitpid()\n",
          g_waitpids[NCHILDREN-1]);
@@ -196,7 +217,7 @@ int waitpid_test(void)
              g_waitpids[0], stat_loc);
     }
 
-  /* Wait a big to make sure that the other threads complete */
+  /* Wait a bit to make sure that the other threads complete */
 
   waitpid_last();
   sleep(1);
@@ -246,7 +267,7 @@ int waitpid_test(void)
              info.si_pid, info.si_status);
     }
 
-  /* Wait a big to make sure that the other threads complete */
+  /* Wait a bit to make sure that the other threads complete */
 
   waitpid_last();
   sleep(1);
@@ -289,7 +310,7 @@ int waitpid_test(void)
              info.si_pid, info.si_status);
     }
 
-  /* Wait a big to make sure that the other threads complete */
+  /* Wait a bit to make sure that the other threads complete */
 
   waitpid_last();
   sleep(1);
@@ -332,7 +353,7 @@ int waitpid_test(void)
              ret, stat_loc);
     }
 
-  /* Wait a big to make sure that the other threads complete */
+  /* Wait a bit to make sure that the other threads complete */
 
   waitpid_last();
   sleep(1);

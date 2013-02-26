@@ -3,8 +3,6 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-comment "Interpreters"
-
 source "$APPSDIR/interpreters/ficl/Kconfig"
 
 config INTERPRETERS_PCODE

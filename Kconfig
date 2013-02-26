@@ -19,7 +19,7 @@ menu "Network Utilities"
 source "$APPSDIR/netutils/Kconfig"
 endmenu
 
-menu "ModBus"
+menu "FreeModBus"
 source "$APPSDIR/modbus/Kconfig"
 endmenu
 

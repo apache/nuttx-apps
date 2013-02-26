@@ -140,9 +140,9 @@ static void *poster_func(void *parameter)
 
 void sem_test(void)
 {
-  pthread_t waiter_thread1;
-  pthread_t waiter_thread2;
-  pthread_t poster_thread;
+  pthread_t waiter_thread1 = (pthread_t)0;
+  pthread_t waiter_thread2 = (pthread_t)0;
+  pthread_t poster_thread = (pthread_t)0;
 #ifdef SDCC
   pthread_addr_t result;
 #endif
@@ -173,7 +173,7 @@ void sem_test(void)
   status = pthread_attr_setschedparam(&attr,&sparam);
   if (status != OK)
     {
-      printf("sem_test: pthread_attr_setschedparam failed, status=%d\n",  status);
+      printf("sem_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",  status);
     }
   else
     {
@@ -183,21 +183,21 @@ void sem_test(void)
   status = pthread_create(&waiter_thread1, &attr, waiter_func, (pthread_addr_t)1);
   if (status != 0)
     {
-      printf("sem_test: Error in thread 1 creation, status=%d\n",  status);
+      printf("sem_test: ERROR: Thread 1 creation failed: %d\n",  status);
     }
 
   printf("sem_test: Starting waiter thread 2\n");
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("sem_test: pthread_attr_init failed, status=%d\n",  status);
+      printf("sem_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
     }
 
   sparam.sched_priority = prio_mid;
   status = pthread_attr_setschedparam(&attr,&sparam);
   if (status != OK)
     {
-      printf("sem_test: pthread_attr_setschedparam failed, status=%d\n",  status);
+      printf("sem_test: ERROR: pthread_attr_setschedparam failed, status=%d\n",  status);
     }
   else
     {
@@ -207,14 +207,14 @@ void sem_test(void)
   status = pthread_create(&waiter_thread2, &attr, waiter_func, (pthread_addr_t)2);
   if (status != 0)
     {
-      printf("sem_test: Error in thread 2 creation, status=%d\n",  status);
+      printf("sem_test: ERROR: Thread 2 creation failed: %d\n",  status);
     }
 
   printf("sem_test: Starting poster thread 3\n");
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("sem_test: pthread_attr_init failed, status=%d\n",  status);
+      printf("sem_test: ERROR: pthread_attr_init failed, status=%d\n",  status);
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
@@ -231,16 +231,42 @@ void sem_test(void)
   status = pthread_create(&poster_thread, &attr, poster_func, (pthread_addr_t)3);
   if (status != 0)
     {
-      printf("sem_test: Error in thread 3 creation, status=%d\n",  status);
+      printf("sem_test: ERROR: Thread 3 creation failed: %d\n",  status);
+      printf("          Canceling waiter threads\n");
+
+      pthread_cancel(waiter_thread1);
+      pthread_cancel(waiter_thread2); 
     }
 
 #ifdef SDCC
-  pthread_join(waiter_thread1, &result);
-  pthread_join(waiter_thread2, &result);
-  pthread_join(poster_thread, &result);
+  if (waiter_thread1 != (pthread_t)0)
+    {
+      pthread_join(waiter_thread1, &result);
+    }
+
+  if (waiter_thread2 != (pthread_t)0)
+    {
+      pthread_join(waiter_thread2, &result);
+    }
+
+  if (poster_thread != (pthread_t)0)
+    {
+      pthread_join(poster_thread, &result);
+    }
 #else
-  pthread_join(waiter_thread1, NULL);
-  pthread_join(waiter_thread2, NULL);
-  pthread_join(poster_thread, NULL);
+  if (waiter_thread1 != (pthread_t)0)
+    {
+      pthread_join(waiter_thread1, NULL);
+    }
+
+  if (waiter_thread2 != (pthread_t)0)
+    {
+      pthread_join(waiter_thread2, NULL);
+    }
+
+  if (poster_thread != (pthread_t)0)
+    {
+      pthread_join(poster_thread, NULL);
+    }
 #endif
 }
