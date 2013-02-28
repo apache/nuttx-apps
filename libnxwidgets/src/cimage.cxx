@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cimage.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Method Implementations
  ****************************************************************************/
@@ -163,6 +163,13 @@ void CImage::getPreferredDimensions(CRect &rect) const
 
 void CImage::drawContents(CGraphicsPort *port)
 {
+  if (!m_bitmap)
+    {
+      // No image to draw
+
+      return;
+    }
+
   // Get the the drawable region
 
   CRect rect;
@@ -187,11 +194,11 @@ void CImage::drawContents(CGraphicsPort *port)
   m_bitmap->setSelected(isClicked() || m_highlighted);
 
   // This is the number of rows that we can draw at the top of the display
- 
+
   nxgl_coord_t nTopRows = m_bitmap->getHeight() - m_origin.y;
   if (nTopRows > rect.getHeight())
     {
-      nTopRows = rect.getHeight(); 
+      nTopRows = rect.getHeight();
     }
   else if (nTopRows < 0)
     {
@@ -214,7 +221,7 @@ void CImage::drawContents(CGraphicsPort *port)
       // the display
 
       nxgl_coord_t nLeftPixels = m_bitmap->getWidth() - m_origin.x;
-  
+
       // This is the number of rows that we have to pad on the right if the display
       // width is wider than the image width
 
@@ -257,7 +264,7 @@ void CImage::drawContents(CGraphicsPort *port)
 
           // Replace any transparent pixels with the background color.
           // Then we can use the faster opaque drawBitmap() function.
-  
+
           ptr = buffer;
           for (int i = 0; i < nLeftPixels; i++, ptr++)
             {
@@ -337,12 +344,12 @@ void CImage::drawBorder(CGraphicsPort *port)
     {
       return;
     }
- 
+
   // Work out which colors to use
 
   nxgl_coord_t color1;
   nxgl_coord_t color2;
- 
+
   if (isClicked())
     {
       // Bevelled into the screen
@@ -357,7 +364,7 @@ void CImage::drawBorder(CGraphicsPort *port)
       color1 = getShineEdgeColor();
       color2 = getShadowEdgeColor();
     }
- 
+
   port->drawBevelledRect(getX(), getY(), getWidth(), getHeight(), color1, color2);
 }
 
@@ -389,7 +396,7 @@ void CImage::onClick(nxgl_coord_t x, nxgl_coord_t y)
 }
 
 /**
- * Raises an action. 
+ * Raises an action.
  *
  * @param x The x coordinate of the mouse.
  * @param y The y coordinate of the mouse.

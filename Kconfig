@@ -463,6 +463,30 @@ config NXWM_BACKGROUND_IMAGE
 		The name of the image to use in the background window.  Default:
 		NXWidgets::g_nuttxBitmap
 
+comment "Application Window Configuration"
+ 
+config NXWM_CUSTOM_APPWINDOW_ICONS
+	bool "Custom Start/Stop Application Window Icons"
+	default n
+	---help---
+		Select to override the default Application Window Stop and Minimize Icons.
+
+if NXWM_CUSTOM_APPWINDOW_ICONS
+
+config NXWM_STOP_BITMAP
+	string "Stop Icon"
+	default "NxWM::g_stopBitmap"
+	---help---
+		The glyph to use as the Stop icon.  Default: NxWM::g_stopBitmap
+
+config NXWM_MINIMIZE_BITMAP
+	string "Minimize Icon"
+	default "NxWM::g_minimizeBitmap"
+	---help---
+		The glyph to use as the Minimize icon.  Default: NxWM::g_minimizeBitmap
+
+endif
+
 comment "Start Window Configuration"
 
 comment "Horizontal and vertical spacing of icons in the task bar"

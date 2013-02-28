@@ -119,7 +119,6 @@ namespace NxWM
     CApplicationWindow               *m_window;    /**< Reference to the application window */
     TNxArray<struct SStartWindowSlot> m_slots;     /**< List of apps in the start window */
     struct nxgl_size_s                m_iconSize;  /**< A box big enough to hold the largest icon */
-    pid_t                             m_taskId;    /**< ID of the start window task */
 
     /**
      * This is the start window task.  This function receives window events from

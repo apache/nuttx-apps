@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cwidgetcontrol.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,6 +117,7 @@ CWidgetControl::CWidgetControl(FAR const CWidgetStyle *style)
   sem_init(&m_waitSem, 0, 0);
 #endif
 #ifdef CONFIG_NX_MULTIUSER
+  sem_init(&m_boundsSem, 0, 0);
   sem_init(&m_geoSem, 0, 0);
 #endif
 
@@ -135,12 +136,11 @@ CWidgetControl::CWidgetControl(FAR const CWidgetStyle *style)
       copyWidgetStyle(&m_style, style);
     }
 }
-  
 
 /**
  * Destructor.
  */
- 
+
 CWidgetControl::~CWidgetControl(void)
 {
   // Notify any external waiters... this should not happen because it
@@ -235,7 +235,7 @@ void CWidgetControl::postWindowEvent(void)
  *    all widgets in the window.
  * @return True means some interesting event occurred
  */
- 
+
 bool CWidgetControl::pollEvents(CNxWidget *widget)
 {
   // Delete any queued widgets
@@ -299,7 +299,7 @@ void CWidgetControl::removeControlledWidget(CNxWidget *widget)
  *
  * @param widget The widget to add to the delete queue.
  */
- 
+
 void CWidgetControl::addToDeleteQueue(CNxWidget *widget)
 {
   // Add the widget to the delete queue
@@ -330,7 +330,7 @@ void CWidgetControl::setClickedWidget(CNxWidget *widget)
 
       m_clickedWidget->release(m_clickedWidget->getX() - 10, 0);
     }
-  
+
   // Update the pointer
 
   m_clickedWidget = widget;
@@ -394,18 +394,19 @@ void CWidgetControl::geometryEvent(NXHANDLE hWindow,
   if (!m_hWindow)
     {
       // Save one-time server specific information
- 
+
       m_hWindow = hWindow;
       nxgl_rectcopy(&m_bounds, bounds);
+      giveBoundsSem();
     }
 
   // In the normal start up sequence, the window is created with zero size
   // at position 0,0.  The safe thing to do is to set the position (still
   // with size 0, then then set the size.  Assuming that is what is being
   // done, we will not report that we have valid geometry until the size
-  // becomes nonzero.
+  // becomes nonzero (or actually over 1).
 
-  if (!m_haveGeometry && size->h > 0 && size->w > 0)
+  if (!m_haveGeometry && size->h > 1 && size->w > 1)
     {
       // Wake up any threads waiting for initial position information.
       // REVISIT:  If the window is moved or repositioned, then the
@@ -619,7 +620,7 @@ void CWidgetControl::newKeyboardEvent(uint8_t nCh, FAR const uint8_t *pStr)
  *
  * @param cursorControl The cursor control code received.
  */
-    
+
 void CWidgetControl::newCursorControlEvent(ECursorControl cursorControl)
 {
   // Append the new cursor control
@@ -688,7 +689,7 @@ void CWidgetControl::copyWidgetStyle(CWidgetStyle *dest, const CWidgetStyle *src
  * @param tp A time in the past from which to compute the elapsed time.
  * @return The elapsed time since tp
  */
- 
+
 uint32_t CWidgetControl::elapsedTime(FAR const struct timespec *startTime)
 {
   struct timespec endTime;
@@ -701,7 +702,7 @@ uint32_t CWidgetControl::elapsedTime(FAR const struct timespec *startTime)
       uint32_t seconds = endTime.tv_sec - startTime->tv_sec;
 
       // Get the elapsed nanoseconds, borrowing from the seconds if necessary
- 
+
       int32_t endNanoSeconds = endTime.tv_nsec;
       if (startTime->tv_nsec > endNanoSeconds)
         {
@@ -767,7 +768,7 @@ void CWidgetControl::handleLeftClick(nxgl_coord_t x, nxgl_coord_t y, CNxWidget *
 /**
  * Delete any widgets in the deletion queue.
  */
- 
+
 void CWidgetControl::processDeleteQueue(void)
 {
   int i = 0;
@@ -911,6 +912,25 @@ void CWidgetControl::takeGeoSem(void)
   do
     {
       ret = sem_wait(&m_geoSem);
+    }
+  while (ret < 0 && errno == EINTR);
+}
+#endif
+
+/**
+ * Take the bounds semaphore (handling signal interruptions)
+ */
+
+#ifdef CONFIG_NX_MULTIUSER
+void CWidgetControl::takeBoundsSem(void)
+{
+  // Take the bounds semaphore.  Retry is an error occurs (only if
+  // the error is due to a signal interruption).
+
+  int ret;
+  do
+    {
+      ret = sem_wait(&m_boundsSem);
     }
   while (ret < 0 && errno == EINTR);
 }

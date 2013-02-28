@@ -1,7 +1,7 @@
 /********************************************************************************************
  * NxWidgets/nxwm/src/capplicationwindow.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,18 @@
 /********************************************************************************************
  * Pre-Processor Definitions
  ********************************************************************************************/
+
+#ifdef CONFIG_NXWM_STOP_BITMAP
+extern const struct NXWidgets::SRlePaletteBitmap CONFIG_NXWM_STOP_BITMAP;
+#else
+#  define CONFIG_NXWM_STOP_BITMAP g_stopBitmap
+#endif
+
+#ifdef CONFIG_NXWM_MINIMIZE_BITMAP
+extern const struct NXWidgets::SRlePaletteBitmap CONFIG_NXWM_MINIMIZE_BITMAP;
+#else
+#  define CONFIG_NXWM_MINIMIZE_BITMAP g_minimizeBitmap
+#endif
 
 /********************************************************************************************
  * CApplicationWindow Method Implementations
@@ -192,7 +204,7 @@ bool CApplicationWindow::open(void)
     {
       // Create STOP bitmap container
 
-      m_stopBitmap = new NXWidgets::CRlePaletteBitmap(&g_stopBitmap);
+      m_stopBitmap = new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_STOP_BITMAP);
       if (!m_stopBitmap)
         {
           return false;
@@ -244,7 +256,7 @@ bool CApplicationWindow::open(void)
 #ifndef CONFIG_NXWM_DISABLE_MINIMIZE
   // Create MINIMIZE application bitmap container
 
-  m_minimizeBitmap = new NXWidgets::CRlePaletteBitmap(&g_minimizeBitmap);
+  m_minimizeBitmap = new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_MINIMIZE_BITMAP);
   if (!m_minimizeBitmap)
     {
       return false;
@@ -375,7 +387,7 @@ void CApplicationWindow::redraw(void)
       m_minimizeImage->redraw();
       m_minimizeImage->setRaisesEvents(true);
     }
-      
+
   // And finally draw the window label
 
   m_windowLabel->enableDrawing();
@@ -406,7 +418,7 @@ void CApplicationWindow::hide(void)
     m_minimizeImage->disableDrawing();
     m_minimizeImage->setRaisesEvents(false);
   }
-    
+
   // Disable the window label
 
   m_windowLabel->disableDrawing();

@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/nxwm/include/cwindowmessenger.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,12 +39,12 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <mqueue.h>
 
+#include <nuttx/wqueue.h>
 #include <nuttx/nx/nxtk.h>
 #include <nuttx/nx/nxconsole.h>
 
@@ -83,9 +83,20 @@ namespace NxWM
                            public NXWidgets::CWidgetControl
   {
   private:
-    mqd_t m_mqd; /**< Message queue descriptor used to commincate with the
-                  **  start window thread. */
- 
+    /** Structure that stores data for the work queue callback. */
+
+    struct work_state_t
+      {
+        work_s work;
+        CWindowMessenger *windowMessenger;
+        void *instance;
+      };
+
+    /** Work queue callback functions */
+
+    static void inputWorkCallback(FAR void *arg);
+    static void destroyWorkCallback(FAR void *arg);
+
     /**
      * Handle an NX window mouse input event.
      *
@@ -109,7 +120,7 @@ namespace NxWM
      *
      * @param arg - User provided argument (see nx_block or nxtk_block)
      */
- 
+
     void handleBlockedEvent(FAR void *arg);
 
   public:

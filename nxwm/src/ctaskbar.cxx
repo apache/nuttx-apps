@@ -1,7 +1,7 @@
 /********************************************************************************************
  * NxWidgets/nxwm/src/ctaskbar.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -456,11 +456,21 @@ bool CTaskbar::startApplication(IApplication *app, bool minimized)
 
   NXWidgets::IBitmap *bitmap = app->getIcon();
 
-  // Create a CImage instance to manage the applications icon
+  // Create a CImage instance to manage the applications icon.  Assume the
+  // minimum size in case no bitmap is provided (bitmap == NULL)
+
+  int w = 1;
+  int h = 1;
+
+  if (bitmap)
+    {
+      w = bitmap->getWidth();
+      h = bitmap->getHeight();
+    }
 
   NXWidgets::CImage *image =
-    new NXWidgets::CImage(control, 0, 0, bitmap->getWidth(),
-                          bitmap->getHeight(), bitmap, 0);
+    new NXWidgets::CImage(control, 0, 0, w, h, bitmap, 0);
+
   if (!image)
     {
       return false;

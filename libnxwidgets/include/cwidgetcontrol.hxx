@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cwidgetcontrol.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,12 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <semaphore.h>
 #include <time.h>
 
@@ -203,6 +204,7 @@ namespace NXWidgets
     struct nxgl_rect_s          m_bounds;         /**< Size of the display */
 #ifdef CONFIG_NX_MULTIUSER
     sem_t                       m_geoSem;         /**< Posted when geometry is valid */
+    sem_t                       m_boundsSem;      /**< Posted when bounds are valid */
 #endif
     CWindowEventHandlerList     m_eventHandlers;  /**< List of event handlers. */
 
@@ -228,7 +230,7 @@ namespace NXWidgets
      * @param startTime A time in the past from which to compute the elapsed time.
      * @return The elapsed time since startTime
      */
- 
+
     uint32_t elapsedTime(FAR const struct timespec *startTime);
 
     /**
@@ -256,7 +258,7 @@ namespace NXWidgets
     /**
      * Delete any widgets in the deletion queue.
      */
- 
+
     void processDeleteQueue(void);
 
     /**
@@ -325,6 +327,37 @@ namespace NXWidgets
     }
 
     /**
+     * Take the bounds semaphore (handling signal interruptions)
+     */
+
+#ifdef CONFIG_NX_MULTIUSER
+    void takeBoundsSem(void);
+#else
+    inline void takeBoundsSem(void) {}
+#endif
+
+    /**
+     * Give the bounds semaphore
+     */
+
+    inline void giveBoundsSem(void)
+    {
+#ifdef CONFIG_NX_MULTIUSER
+      sem_post(&m_boundsSem);
+#endif
+    }
+
+    /**
+     * Wait for bounds data
+     */
+
+    inline void waitBoundsData(void)
+    {
+      takeBoundsSem();
+      giveBoundsSem();
+    }
+
+    /**
      * Clear all mouse events
      */
 
@@ -345,7 +378,7 @@ namespace NXWidgets
     /**
      * Destructor.
      */
- 
+
     virtual ~CWidgetControl(void);
 
     /**
@@ -407,7 +440,7 @@ namespace NXWidgets
      *    all widgets in the window.
      * @return True means some interesting event occurred
      */
- 
+
     bool pollEvents(CNxWidget *widget = (CNxWidget *)NULL);
 
     /**
@@ -425,7 +458,7 @@ namespace NXWidgets
      *
      * @param widget The widget to be controlled.
      */
- 
+
     inline void addControlledWidget(CNxWidget* widget)
     {
       m_widgets.push_back(widget);
@@ -438,7 +471,7 @@ namespace NXWidgets
      */
 
     void removeControlledWidget(CNxWidget* widget);
-    
+
     /**
      * Get the number of controlled widgets.
      *
@@ -456,7 +489,7 @@ namespace NXWidgets
      *
      * @param widget The widget to add to the delete queue.
      */
- 
+
     void addToDeleteQueue(CNxWidget *widget);
 
     /**
@@ -469,7 +502,7 @@ namespace NXWidgets
     void setClickedWidget(CNxWidget *widget);
 
     /**
-     * Get the clicked widget pointer.  
+     * Get the clicked widget pointer.
      *
      * @return Pointer to the clicked widget.
      */
@@ -502,7 +535,7 @@ namespace NXWidgets
     }
 
     /**
-     * Get the focused widget pointer.  
+     * Get the focused widget pointer.
      *
      * @return Pointer to the focused widget.
      */
@@ -513,7 +546,7 @@ namespace NXWidgets
     }
 
     /**
-     * Check for the occurrence of a double click.  
+     * Check for the occurrence of a double click.
      *
      * @return Pointer to the clicked widget.
      */
@@ -582,7 +615,7 @@ namespace NXWidgets
      * @param pos The (x,y) position of the mouse.
      * @param buttons See NX_MOUSE_* definitions.
      */
-     
+
     void newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t buttons);
 
    /**
@@ -624,7 +657,7 @@ namespace NXWidgets
     *
     * @param cursorControl The cursor control code received.
     */
-    
+
     void newCursorControlEvent(ECursorControl cursorControl);
 
     /**
@@ -639,21 +672,21 @@ namespace NXWidgets
     }
 
     /**
-     * Get the window bounding box in physical display coordinated.  This
-     * method may need to wait until geometry data is available.
+     * Get the window bounding box in physical display coordinates.  This
+     * method may need to wait until bounds data is available.
      *
      * @return This function returns the window handle.
      */
 
     inline CRect getWindowBoundingBox(void)
     {
-      waitGeoData();
+      waitBoundsData();
       return CRect(&m_bounds);
     }
 
     inline void getWindowBoundingBox(FAR struct nxgl_rect_s *bounds)
     {
-      waitGeoData();
+      waitBoundsData();
       nxgl_rectcopy(bounds, &m_bounds);
     }
 
@@ -759,7 +792,7 @@ namespace NXWidgets
 
    inline void removeWindowEventHandler(CWindowEventHandler *eventHandler)
    {
-     m_eventHandlers.removeWindowEventHandler(eventHandler);  
+     m_eventHandlers.removeWindowEventHandler(eventHandler);
    }
   };
 }

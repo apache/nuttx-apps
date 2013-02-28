@@ -1261,8 +1261,8 @@ void CMultiLineTextBox::drawRow(CGraphicsPort *port, int row)
   uint8_t rowLength = m_text->getLineTrimmedLength(row);
 
   struct nxgl_point_s pos;
-  pos.x = getRowX(row) + m_canvasX;
-  pos.y = getRowY(row) + m_canvasY;
+  pos.x = getRowX(row) + m_canvasX + rect.getX();
+  pos.y = getRowY(row) + m_canvasY + rect.getY();
 
   // Determine the background and text color
 

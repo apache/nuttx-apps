@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cimage.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -206,6 +206,12 @@ namespace NXWidgets
      */
 
     inline FAR IBitmap *getBitmap() const { return m_bitmap; }
+
+    /**
+     * Set the bitmap that this image contains.
+     */
+
+    inline void setBitmap(FAR IBitmap *bitmap) { m_bitmap = bitmap; }
 
     /**
      * Insert the dimensions that this widget wants to have into the rect

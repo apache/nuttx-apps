@@ -193,16 +193,16 @@ void CNxTimer::workQueueCallback(FAR void *arg)
 
   This->m_isRunning = false;
 
-  // Raise the action event.
-
-  This->m_widgetEventHandlers->raiseActionEvent();
-
   // Restart the timer if this is a repeating timer
 
   if (This->m_isRepeater)
     {
       This->start();
     }
+  
+  // Raise the action event.
+
+  This->m_widgetEventHandlers->raiseActionEvent();
 }
 
 
