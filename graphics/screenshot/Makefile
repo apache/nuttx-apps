@@ -1,7 +1,7 @@
 ############################################################################
-# apps/graphics/Makefile
+# apps/examples/screenshot/Makefile
 #
-#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,37 +34,80 @@
 ############################################################################
 
 -include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+ifeq ($(WINTOOL),y)
+INCDIROPT = -w
+endif
 
-SUBDIRS = tiff screenshot
+# TIFF Screenshot utility
 
-# Sub-directories that might need context setup
+ASRCS =
+CSRCS = screenshot_main.c
 
-CNTXTDIRS = 
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN = ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
+endif
 
-# $(foreach SDIR, $(CNTXTDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+ROOTDEPPATH = --dep-path .
 
-nothing:
+# TIFF screen built-in application info
 
-context: # $(foreach SDIR, $(CNTXTDIRS), $(SDIR)_context)
+APPNAME = screenshot
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 4096
 
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
+# Common build
 
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
+VPATH = 
 
-distclean: clean $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
+all: .built
+.PHONY: clean depend distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
+
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
+context:
+endif
+
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
+
+depend: .depend
+
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
 
 -include Make.dep
-

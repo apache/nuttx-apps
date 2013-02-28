@@ -38,3 +38,6 @@ ifeq ($(CONFIG_TIFF),y)
 CONFIGURED_APPS += graphics/tiff
 endif
 
+ifeq ($(CONFIG_GRAPHICS_SCREENSHOT),y)
+CONFIGURED_APPS += graphics/screenshot
+endif

@@ -1,0 +1,34 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config GRAPHICS_SCREENSHOT
+	bool "TIFF screenshot utility"
+	default n
+	depends on TIFF && NX
+	---help---
+		Generate a NX screenshot utility based on the TIFF library.
+
+if GRAPHICS_SCREENSHOT
+
+config SCREENSHOT_WIDTH
+	int "Screenshot width (in pixels)"
+	default 320
+	---help---
+		The width of the screenshot in pixels/columns.
+
+config SCREENSHOT_HEIGHT
+	int "Screenshot height (in lines)"
+	default 240
+	---help---
+		The height of the screenshot in pixels/rows.
+
+config SCREENSHOT_FORMAT
+	int "Screenshot color format"
+	default 9
+	---help---
+		See inlcude/nuttx/fb.h for a list of color formats.  The default
+		value of 9 corresponds to FB_FMT_RGB16_565
+
+endif

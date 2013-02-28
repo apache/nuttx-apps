@@ -11,6 +11,10 @@ menu "Examples"
 source "$APPSDIR/examples/Kconfig"
 endmenu
 
+menu "Graphics Support"
+source "$APPSDIR/graphics/Kconfig"
+endmenu
+
 menu "Interpreters"
 source "$APPSDIR/interpreters/Kconfig"
 endmenu
