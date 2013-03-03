@@ -66,7 +66,7 @@ redirect/redirect:
 $(ROMFS_IMG): hello/hello redirect/redirect testdata.txt $(ROMFS_DIR)
 	$(Q) $(MAKE) -C hello install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
 	$(Q) $(MAKE) -C redirect install TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)"
-	$(Q) install --mode=0644 testdata.txt $(ROMFS_DIR)/testdata.txt
+	$(Q) install -m 0644 testdata.txt $(ROMFS_DIR)/testdata.txt
 	$(Q) genromfs -f $@ -d $(ROMFS_DIR) -V "POSIXSPAWN"
 
 # Create the romfs.h header file from the romfs.img file
