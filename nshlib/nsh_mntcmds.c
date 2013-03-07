@@ -84,7 +84,7 @@
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
-    defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
+    defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF)
 static int df_handler(FAR const char *mountpoint,
                       FAR struct statfs *statbuf, FAR void *arg)
 {
