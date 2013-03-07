@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_mntcmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,7 @@ static int df_handler(FAR const char *mountpoint,
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
+#ifndef CONFIG_NUTTX_KERNEL
 static int mount_handler(FAR const char *mountpoint,
                          FAR struct statfs *statbuf, FAR void *arg)
 {
@@ -158,6 +159,7 @@ static int mount_handler(FAR const char *mountpoint,
   return OK;
 }
 #endif
+#endif
 
 /****************************************************************************
  * Name: mount_show
@@ -165,10 +167,12 @@ static int mount_handler(FAR const char *mountpoint,
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
+#ifndef CONFIG_NUTTX_KERNEL
 static inline int mount_show(FAR struct nsh_vtbl_s *vtbl, FAR const char *progname)
 {
   return foreach_mountpoint(mount_handler, (FAR void *)vtbl);
 }
+#endif
 #endif
 
 /****************************************************************************
@@ -209,10 +213,12 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* The mount command behaves differently if no parameters are provided */
 
+#ifndef CONFIG_NUTTX_KERNEL
   if (argc < 2)
     {
       return mount_show(vtbl, argv[0]);
     }
+#endif
 
   /* Get the mount options.  NOTE: getopt() is not thread safe nor re-entrant.
    * To keep its state proper for the next usage, it is necessary to parse to
