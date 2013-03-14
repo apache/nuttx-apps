@@ -127,15 +127,15 @@ static void mm_showmallinfo(void)
   alloc_info = mallinfo();
   printf("     mallinfo:\n");
   printf("       Total space allocated from system = %ld\n",
-	 alloc_info.arena);
+         alloc_info.arena);
   printf("       Number of non-inuse chunks        = %ld\n",
-	 alloc_info.ordblks);
+         alloc_info.ordblks);
   printf("       Largest non-inuse chunk           = %ld\n",
-	 alloc_info.mxordblk);
+         alloc_info.mxordblk);
   printf("       Total allocated space             = %ld\n",
-	 alloc_info.uordblks);
+         alloc_info.uordblks);
   printf("       Total non-inuse space             = %ld\n",
-	 alloc_info.fordblks);
+         alloc_info.fordblks);
 }
 
 static void do_mallocs(void **mem, const int *size, const int *seq, int n)
@@ -184,11 +184,11 @@ static void do_reallocs(void **mem, const int *oldsize, const int *newsize, cons
     {
       j = seq[i];
       printf("(%d)Re-allocating at %p from %d to %d bytes\n",
-	     i, mem[j], oldsize[j], newsize[j]);
+             i, mem[j], oldsize[j], newsize[j]);
       mem[j] = realloc(mem[j], newsize[j]);
       printf("(%d)Memory re-allocated at %p\n", i, mem[j]);
       if (mem[j] == NULL)
-	{
+        {
           int allocsize = MM_ALIGN_UP(newsize[j] + SIZEOF_MM_ALLOCNODE);
           fprintf(stderr, "(%d)realloc failed for allocsize=%d\n", i, allocsize);
           if (allocsize > alloc_info.mxordblk)
@@ -200,7 +200,7 @@ static void do_reallocs(void **mem, const int *oldsize, const int *newsize, cons
               fprintf(stderr, "   ERROR largest free block is %ld\n", alloc_info.mxordblk);
               exit(1);
             }
-	}
+        }
       else
         {
           memset(mem[j], 0x55, newsize[j]);
@@ -219,11 +219,11 @@ static void do_memaligns(void **mem, const int *size, const int *align, const in
     {
       j = seq[i];
       printf("(%d)Allocating %d bytes aligned to 0x%08x\n",
-	     i,  size[j], align[i]);
+             i,  size[j], align[i]);
       mem[j] = memalign(align[i], size[j]);
       printf("(%d)Memory allocated at %p\n", i, mem[j]);
       if (mem[j] == NULL)
-	{
+        {
           int allocsize = MM_ALIGN_UP(size[j] + SIZEOF_MM_ALLOCNODE) + 2*align[i];
           fprintf(stderr, "(%d)memalign failed for allocsize=%d\n", i, allocsize);
           if (allocsize > alloc_info.mxordblk)
@@ -235,7 +235,7 @@ static void do_memaligns(void **mem, const int *size, const int *align, const in
               fprintf(stderr, "   ERROR largest free block is %ld\n", alloc_info.mxordblk);
               exit(1);
             }
-	}
+        }
       else
         {
           memset(mem[j], 0x33, size[j]);
@@ -254,7 +254,7 @@ static void do_frees(void **mem, const int *size, const int *seq, int n)
     {
       j = seq[i];
       printf("(%d)Releasing memory at %p (size=%d bytes)\n",
-	     i, mem[j], size[j]);
+             i, mem[j], size[j]);
       free(mem[j]);
       mem[j] = NULL;
 
