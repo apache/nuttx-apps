@@ -506,7 +506,7 @@
 	  any returning special values when end-of-file or read errors
 	  occur (it would return an empty string which is not very useful).
 
-6.26 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.26 2013-03-15 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/builtin/exec_builtin.c:  Now uses task_spawn() to start
 	  builtin applications.
@@ -522,3 +522,5 @@
 	  read is based on logic similar to getc.  The value zero was being
 	  confused with a NUL.  So if a NUL was received, the NSH session
 	  would terminate because it thought it was the end of file.
+
+6.27 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
