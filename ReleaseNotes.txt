@@ -187,3 +187,75 @@ Bugfixes:
 * CGraphicsPort::_drawText:  Renamed from CGraphicsPort::drawText in order
   to eliminate some naming collisions when overloaded in some configurations
   (i.e., when both bool and nx_pixel_t are uint8_t).
+
+NxWidgets-1.6
+=============
+
+The 7th release of the NxWidgets package was made on March 15, 2013.  This
+release depends on NuttX-6.26 or above and should not be used with older
+NuttX releases.  This release corresponds to SVN revision r5745.
+
+Note: All of the changes between 1.5 and 1.6 were the result of the
+efforts of Petteri Aimonen.
+
+Additional new features and extended functionality in Version 1.6:
+
+* NXWidgets::CNxWidget:  Add an inline function to get the current style.
+* NXWidgets::CCycleButton: Make CCycleButton change state in onPreRelease().
+  This way the new value is already available when a listener gets the
+  action event.
+* NxWidgets::CImage:  Two enhancements:
+  1) Allow changing the bitmap even after the control has been created.
+  2) Allow giving 'null' to have the control draw no image at all.
+
+* NxWM::CTaskBar: Make a some methods of CTaskbar virtual to allow
+  customizations.
+* NxWM::CTaskBar:  Allow windows with null icon. This makes sense for e.g.
+  full screen windows.
+* NxWM::CApplicationWindow:  Add config options to override NxWM
+  stop/minimize icons.
+* NwWM::CStartWindow, NxWM::CWindowMessenger: Get rid of the start window
+  thread. Instead, handle all events through the USRWORK work queue.
+  For me, this was necessary because I would open some files in button
+  handlers and close them in NxTimer handlers. If these belonged to
+  different tasks, the close operation would fail.  Further benefits:
+  + Gets rid of one task and message queue.
+  + Reduces the amount of code required
+  + Decouples CStartWindow from everything else - now it is just a window
+    with application icons, not an integral part of the event logic.
+  + All events come from the same thread, which reduces the possibility of
+    multithreading errors in user code.
+  + The user code can also send events to USRWORK, so that everything gets
+    serialized nicely without having to use so many mutexes.
+  Drawbacks:
+  - Currently the work state structure is malloc()ed, causing one allocation
+    and free per each input event. Could add a memory pool for these later, but
+    the speed difference doesn't seem noticeable.
+  - The work queue will add ~50 ms latency to input events. This is however
+    configurable, and the delay is anyway short enough that it is unnoticeable.
+
+Bugfixes:
+
+* NxWidgets::CWidgetControl:  Added another semaphore, boundssem, which
+  is set as soon as the screen bounds are known.  This corrects two
+  problems:
+  1) Due to the way nxgl_rectsize computes the size, it will never
+     be 0,0 like CWidgetControl expects. Therefore the size is considered
+     valid even though it has not been set yet.
+  2) After the check is fixed to test for > 1, NxWM window creation will
+     hang. This is due to the fact that it uses the screen bounds for
+     determining window size. This was being blocked on geosem, which
+     is only posted after the size has been set.
+* NxWidgets::CNxTimer:  Previously repeated timers were re-enabled after
+  the timer action event. Consequently, if the action event handler tried
+  to stop the timer, the request would be ignored.  Changes the order
+  so that the timer is re-enabled before the callback.  There is still
+  no risk of re-entrancy, because everything executes on the USRWORK work
+  queue.
+* NxWidgets::CLabel: Fix backward conditional compilation in the "flicker
+  free" logic.
+* NxWidgets::CMultiLineTestBox: Fix text placement error.  From Petteri
+  Aimonen.
+
+* NxWidgets/tools/bitmap_converter.py: Fix bitmap_converter.py so that
+  it works with indexed input images.

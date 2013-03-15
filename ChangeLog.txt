@@ -267,7 +267,7 @@
   and panels below it. Pressing a button will select the corresponding
   panel.
 
-1.6 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.6 2013-03-15 Gregory Nutt <gnutt@nuttx.org>
 
 * Type of argv[] has changed from const char ** to char * const *
 * NXWidgets::CNxWidget:  Add an inline function to get the current style.
@@ -327,3 +327,5 @@
   - The work queue will add ~50 ms latency to input events. This is however
     configurable, and the delay is anyway short enough that it is unnoticeable.
   From Petteri Aimonen.
+
+1.7 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
