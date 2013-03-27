@@ -85,11 +85,11 @@ static void show_usage(FAR const char *progname, int exitcode)
 {
   printf("\nUsage: %s [-w|h|b] <hex-address> <decimal-size>\n", progname);
   printf("\nWhere:\n");
-  printf("  <hex-address> starting address of the test.");
-  printf("  <decimal-size> number of memory locations.");
-  printf("  -w Sets the width of a memory location to 32-bits.");
-  printf("  -h Sets the width of a memory location to 16-bits (default).");
-  printf("  -b Sets the width of a memory location to 8-bits.");
+  printf("  <hex-address> starting address of the test.\n");
+  printf("  <decimal-size> number of memory locations.\n");
+  printf("  -w Sets the width of a memory location to 32-bits.\n");
+  printf("  -h Sets the width of a memory location to 16-bits (default).\n");
+  printf("  -b Sets the width of a memory location to 8-bits.\n");
   exit(exitcode);
 }
 
