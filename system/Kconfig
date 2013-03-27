@@ -15,6 +15,10 @@ menu "FLASH Program Installation"
 source "$APPSDIR/system/install/Kconfig"
 endmenu
 
+menu "RAM Test"
+source "$APPSDIR/system/ramtest/Kconfig"
+endmenu
+
 menu "readline()"
 source "$APPSDIR/system/readline/Kconfig"
 endmenu

@@ -524,3 +524,5 @@
 	  would terminate because it thought it was the end of file.
 
 6.27 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/ramtest:  Add a simple memory test (2013-03-26).

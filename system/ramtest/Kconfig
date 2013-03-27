@@ -1,0 +1,10 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_RAMTEST
+	bool "RAM Test"
+	default n
+	---help---
+		Enable a simple RAM test.
