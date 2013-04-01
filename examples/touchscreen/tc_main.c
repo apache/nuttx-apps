@@ -88,7 +88,7 @@ int tc_main(int argc, char *argv[])
 {
   struct touch_sample_s sample;
   ssize_t nbytes;
-#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN) || defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
+#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN) || CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
   long nsamples;
 #endif
   int fd;
@@ -106,7 +106,7 @@ int tc_main(int argc, char *argv[])
       nsamples = strtol(argv[1], NULL, 10);
     }
   message("tc_main: nsamples: %d\n", nsamples);
-#elif defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
+#elif CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
   message("tc_main: nsamples: %d\n", CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES);
 #endif
 
@@ -141,7 +141,7 @@ int tc_main(int argc, char *argv[])
 
 #if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN)
   for (; nsamples > 0; nsamples--)
-#elif defined(CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES)
+#elif CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
   for (nsamples = 0; nsamples < CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES; nsamples++)
 #else
   for (;;)

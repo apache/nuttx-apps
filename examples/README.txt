@@ -1509,7 +1509,7 @@ examples/touchscreen
     CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN - Build the touchscreen test as 
       an NSH built-in function.  Default: Built as a standalone problem
     CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
-      correspnds to touchscreen device /dev/input0.  Note this value must
+      corresponds to touchscreen device /dev/input0.  Note this value must
       with CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH.  Default 0.
     CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
      device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
@@ -1523,13 +1523,12 @@ examples/touchscreen
   The following additional configurations must be set in the NuttX
   configuration file:
   
-    CONFIG_INPUTP=y
+    CONFIG_INPUT=y
     (Plus any touchscreen-specific settings).
 
   The following must also be defined in your apps configuration file:
 
-    CONFIGURED_APPS += examples/tiff
-    CONFIGURED_APPS += graphics/tiff
+    CONFIGURED_APPS += examples/touchscreen
 
   The board-specific logic must provide the following interfaces that will
   be called by the example in order to initialize and uninitialize the

@@ -42,7 +42,6 @@
 
 #include <nuttx/config.h>
 
-
 /****************************************************************************
  * Definitions
  ****************************************************************************/
@@ -50,7 +49,7 @@
 /* CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN - Build the touchscreen test as
  *   an NSH built-in function.  Default: Built as a standalone problem
  * CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
- *   correspnds to touchscreen device /dev/input0.  Note this value must
+ *   corresponds to touchscreen device /dev/input0.  Note this value must
  *   with CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH.  Default 0.
  * CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
  *   device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
@@ -58,8 +57,8 @@
  * CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
  *   is defined, then the number of samples is provided on the command line
  *   and this value is ignored.  Otherwise, this number of samples is
- *   collected and the program terminates.  Default:  Samples are collected
- *   indefinitely.
+ *   collected and the program terminates.  Default:  Zero (Samples are collected
+ *   indefinitely).
  */
 
 #ifndef CONFIG_INPUT
@@ -76,6 +75,10 @@
 #  undef  CONFIG_EXAMPLES_TOUCHSCREEN_MINOR
 #  define CONFIG_EXAMPLES_TOUCHSCREEN_MINOR 0
 #  define CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH "/dev/input0"
+#endif
+
+#ifndef CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES
+#  define CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES 0
 #endif
 
 /* Debug ********************************************************************/
