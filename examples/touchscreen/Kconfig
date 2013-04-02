@@ -25,7 +25,7 @@ config EXAMPLES_TOUCHSCREEN_MINOR
 	default 0
 	---help---
 		The minor device number.  Minor=N corresponds to touchscreen device
-		/dev/input0.  Note this value must with EXAMPLES_TOUCHSCREEN_DEVPATH.
+		/dev/inputN.  Note this value must with EXAMPLES_TOUCHSCREEN_DEVPATH.
 		Default 0.
 
 config EXAMPLES_TOUCHSCREEN_DEVPATH

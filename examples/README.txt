@@ -1509,7 +1509,7 @@ examples/touchscreen
     CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN - Build the touchscreen test as 
       an NSH built-in function.  Default: Built as a standalone problem
     CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
-      corresponds to touchscreen device /dev/input0.  Note this value must
+      corresponds to touchscreen device /dev/inputN.  Note this value must
       with CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH.  Default 0.
     CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
      device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
