@@ -1,0 +1,17 @@
+Make.dep
+.depend
+.built
+host
+*.swp
+*.asm
+*.rel
+*.lst
+*.sym
+*.adb
+*.lib
+*.src
+*.exe
+*.hobj
+
+
+

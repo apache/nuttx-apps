@@ -1,3 +1,5 @@
-*.bdat
+.updated
 *.pdat
+*.bdat
+
 

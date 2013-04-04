@@ -1,0 +1,8 @@
+external
+.context
+.config
+.depend
+*.lib
+
+
+

@@ -1,0 +1,15 @@
+Make.dep
+.depend
+.built
+*.swp
+*.src
+*.asm
+*.obj
+*.rel
+*.lst
+*.sym
+*.adb
+*.lib
+httpd_fsdata.c
+
+

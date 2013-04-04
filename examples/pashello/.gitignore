@@ -1,0 +1,14 @@
+Make.dep
+.depend
+.built
+*.o
+*.o1
+*.swp
+*.asm
+*.rel
+*.lst
+*.sym
+*.adb
+*.lib
+*.err
+

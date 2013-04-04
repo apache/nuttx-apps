@@ -1,0 +1,5 @@
+tasks
+*.r1
+*.r2
+*-thunk.S
+

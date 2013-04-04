@@ -1,0 +1,14 @@
+Make.dep
+.depend
+net
+nuttx
+*.swp
+*.o1
+*.src
+*.asm
+*.rel
+*.lst
+*.sym
+*.adb
+*.lib
+

@@ -1,0 +1,12 @@
+Make.dep
+.depend
+host
+*.swp
+*.asm
+*.rel
+*.lst
+*.sym
+*.adb
+*.lib
+*.exe
+
