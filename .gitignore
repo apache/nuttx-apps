@@ -1,8 +1,5 @@
-external
-.context
-.config
-.depend
-*.lib
-
-
-
+/external
+/.context
+/.config
+/.depend
+/*.lib
