@@ -1,5 +1,5 @@
-romfs
-romfs.h
-romfs.img
-symtab.h
+/romfs
+/romfs.h
+/romfs.img
+/symtab.h
 
