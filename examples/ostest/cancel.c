@@ -266,10 +266,20 @@ void cancel_test(void)
     }
 
   /* Test 3: Non-cancelable threads ************************************/
+  /* This test currently depends on signals.  It doesn't have to and
+   * could be re-designed so that it does not depend on signals.
+   */
 
+#ifndef CONFIG_DISABLE_SIGNALS
   printf("cancel_test: Test 3: Non-cancelable threads\n");
   printf("cancel_test: Re-starting thread (non-cancelable)\n");
   restart_thread(&waiter, 0);
+
+  /* Give the thread a chance to run an to set the non-cancelable state.
+   * This is the dependency on signals:
+   */
+
+  usleep(200*1000);
 
   /* Then cancel it.  It should be in the pthread_cond_wait now.  The
    * behavior here is non-standard:  when the thread is at a cancelation
@@ -329,5 +339,5 @@ void cancel_test(void)
           printf("cancel_test: PASS thread terminated with PTHREAD_CANCELED\n");
         }
     }
-
+#endif
 }
