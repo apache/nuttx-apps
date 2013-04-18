@@ -526,3 +526,6 @@
 6.27 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/system/ramtest:  Add a simple memory test (2013-03-26).
+	* apps/examples/ostest:  In the non-cancelable thread test, we need
+	  to give the thread an opportunity to run and to set the non-
+	  cancelable state.
