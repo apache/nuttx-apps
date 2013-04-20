@@ -16,7 +16,7 @@ pcode
 -----
 
   At present, only the NuttX Pascal add-on is supported.  This NuttX add-on
-  must be downloaded separately (or is available in an SVN snapshot in the
+  must be downloaded separately (or is available in an GIT snapshot in the
   misc/pascal directory).
 
   This Pascal add-on must be installed into the NuttX apps/ directory.  After
