@@ -204,18 +204,18 @@ choice
 		an actual filename.
 
 		1) Map ~username to <prefix>/username. This is the recommended
-		   choice. Each user gets a subdirectory in the main web tree, and
-		   the tilde construct points there.
+		choice. Each user gets a subdirectory in the main web tree, and
+		the tilde construct points there.
 
-		   The prefix could be something like "users", or it could be empty.
+		The prefix could be something like "users", or it could be empty.
 
 		2) Map ~username to <user's homedir>/<postfix>. The postfix would be
-		   the name of a subdirectory off of the user's actual home dir,
-		   something like "public_html".
+		the name of a subdirectory off of the user's actual home dir,
+		something like "public_html".
 
 		3) Niether.  You can also leave both options undefined, and thttpd
-		   will not do anything special about tildes. Enabling both options
-		   is an error.
+		will not do anything special about tildes. Enabling both options
+		is an error.
 
 		Typical values, if they're defined, are "users" for THTTPD_TILDE_MAP1
 		and "public_html" for THTTPD_TILDE_MAP2. 
@@ -228,10 +228,10 @@ config THTTPD_USE_TILDE_MAP1
 		an actual filename.  Choose this option for the first mapping:
 
 		1) Map ~username to <prefix>/username. This is the recommended
-		   choice. Each user gets a subdirectory in the main web tree, and
-		   the tilde construct points there.
+		choice. Each user gets a subdirectory in the main web tree, and
+		the tilde construct points there.
 
-		   The prefix could be something like "users", or it could be empty.
+		The prefix could be something like "users", or it could be empty.
 
 config THTTPD_USE_TILDE_MAP2
 	bool "Tilde mapping 2"
@@ -241,8 +241,8 @@ config THTTPD_USE_TILDE_MAP2
 		an actual filename.  Choose this option for the second mapping:
 
 		2) Map ~username to <user's homedir>/<postfix>. The postfix would be
-		   the name of a subdirectory off of the user's actual home dir,
-		   something like "public_html".
+		the name of a subdirectory off of the user's actual home dir,
+		something like "public_html".
 
 		The typical value THTTPD_TILDE_MAP2 is "public_html". 
 
@@ -267,10 +267,10 @@ config THTTPD_TILDE_MAP1
 		for the first mapping:
 
 		1) Map ~username to <prefix>/username. This is the recommended
-		   choice. Each user gets a subdirectory in the main web tree, and
-		   the tilde construct points there.
+		choice. Each user gets a subdirectory in the main web tree, and
+		the tilde construct points there.
 
-		   The prefix could be something like "users", or it could be empty.
+		The prefix could be something like "users", or it could be empty.
 
 config THTTPD_TILDE_MAP2
 	string "Tilde mapping 2"
@@ -283,8 +283,8 @@ config THTTPD_TILDE_MAP2
 		for the second mapping:
 
 		2) Map ~username to <user's homedir>/<postfix>. The postfix would be
-		   the name of a subdirectory off of the user's actual home dir,
-		   something like "public_html".
+		the name of a subdirectory off of the user's actual home dir,
+		something like "public_html".
 
 		The typical value THTTPD_TILDE_MAP2 is "public_html". 
 
