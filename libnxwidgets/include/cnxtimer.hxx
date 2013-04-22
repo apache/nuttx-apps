@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -87,11 +87,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -102,7 +102,7 @@ namespace NXWidgets
    * Timer widget.  It can drive time-based events, animations, etc.
    *
    * Using the timer is simple:
-   *  - Create an instance of the CNxTimer and add it as a child to a widget. 
+   *  - Create an instance of the CNxTimer and add it as a child to a widget.
    *  - Call the instance's "start()" method.
    *  - Catch the timer's action event and call any code that should run.
    */
@@ -170,6 +170,12 @@ namespace NXWidgets
     void stop(void);
 
     /**
+     * Returns true if the timer is currently running.
+     */
+
+    inline bool isRunning() const { return m_isRunning; }
+
+    /**
      * Set the timeout of this timer.  This timeout value will not
      * take effect until start() or reset() is called.
      *
@@ -181,7 +187,7 @@ namespace NXWidgets
     {
       m_timeout = timeout;
     }
-    
+
     /**
      * Return the timeout of this timer.
      *

@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -93,11 +93,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -105,8 +105,8 @@ namespace NXWidgets
   /**
    * Class containing a scrolling panel bordered by scrollbars.
    */
-  class CScollbarPanel : public CNxWidget, public IScrollable,
-                         public CWidgetEventHandler
+  class CScrollbarPanel : public CNxWidget, public IScrollable,
+                          public CWidgetEventHandler
   {
   protected:
     CWidgetControl       *m_widgetControl;          /**< Widget control instance */
@@ -143,13 +143,13 @@ namespace NXWidgets
      * Destructor.
      */
 
-    virtual ~CScollbarPanel(void) { }
+    virtual ~CScrollbarPanel(void) { }
 
     /**
      * Copy constructor is protected to prevent usage.
      */
 
-    inline CScollbarPanel(const CScollbarPanel &scrollbarPanel)
+    inline CScrollbarPanel(const CScrollbarPanel &scrollbarPanel)
     : CNxWidget(scrollbarPanel) { }
 
   public:
@@ -169,11 +169,11 @@ namespace NXWidgets
      *   the style into its own internal style object.
      */
 
-    CScollbarPanel(CWidgetControl *pWidgetControl,
-                   nxgl_coord_t x, nxgl_coord_t y,
-                   nxgl_coord_t width, nxgl_coord_t height,
-                   uint32_t flags,
-                   CWidgetStyle *style = (CWidgetStyle *)NULL);
+    CScrollbarPanel(CWidgetControl *pWidgetControl,
+                    nxgl_coord_t x, nxgl_coord_t y,
+                    nxgl_coord_t width, nxgl_coord_t height,
+                    uint32_t flags,
+                    CWidgetStyle *style = (CWidgetStyle *)NULL);
 
     /**
      * Scroll the panel by the specified amounts.
@@ -183,7 +183,7 @@ namespace NXWidgets
      */
 
     virtual void scroll(int32_t dx, int32_t dy);
-    
+
     /**
      * Reposition the panel's scrolling region to the specified coordinates.
      *
@@ -216,7 +216,7 @@ namespace NXWidgets
      */
 
     virtual void setCanvasWidth(const int32_t width);
-    
+
     /**
      * Sets the height of the virtual canvas.
      *
@@ -248,7 +248,7 @@ namespace NXWidgets
      */
 
     virtual const int32_t getCanvasX(void) const;
-    
+
     /**
      * Gets the y coordinate of the virtual canvas.
      *
@@ -264,7 +264,7 @@ namespace NXWidgets
      */
 
     virtual const int32_t getCanvasWidth(void) const;
-    
+
     /**
      * Gets the height of the virtual canvas.
      *

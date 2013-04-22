@@ -329,3 +329,18 @@
   From Petteri Aimonen.
 
 1.7 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* NxWidgets bitmap_converter.py: Fix bug when image width > 255.  From
+  Petteri Aimonen (2013-4-22).
+* NxWM::CScrollbarPanel:  Fix spelling error in class name: CScollbarPanel
+  should be CScrollbarPanel.  From Petteri Aimonen (2013-4-22).
+* NxWidgets:: CGlyphButton: Generate action event, like CButton does.
+  From Petteri Aimonen (2013-4-22).
+* NxWidgets:: CGlyphButton:  Prevent drawing outside of the bitmap size.
+  From Petteri Aimonen (2013-4-22).
+* NxWM::CTaskBar:  Add option CONFIG_NXWM_TASKBAR_NO_BORDER to suppress
+  drawing of the border on the taskbar.  From Petteri Aimonen (2013-4-22).
+* NxWidgets::CNxTimer:  Add function to check if CNxTimer is running.
+  From Petteri Aimonen (2013-4-22).
+* NxWidgets::CNxWidgets:  Allow overriding of the checkCollision() method.
+  From Petteri Aimonen (2013-4-22).

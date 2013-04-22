@@ -64,7 +64,7 @@ def encode_row(img, palette, y):
   
   for x in range(0, img.size[0]):
     c = quantize(img.getpixel((x, y)), palette)
-    if c == color:
+    if c == color and repeats < 255:
       repeats += 1
     else:
       if color is not None:

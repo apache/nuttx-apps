@@ -428,6 +428,12 @@ config NXWM_DISABLE_MINIMIZE
 		windows. If the buttons are small, it's easy to hit minimize
 		button accidentally when trying to close an application.
 
+config NXWM_TASKBAR_NO_BORDER
+	bool "Suppress Taskbar border"
+	default n
+	---help---
+		Suppress drawing a the border around the taskbar.
+
 comment "Tool Bar Configuration"
 
 config NXWM_CUSTOM_TOOLBAR_HEIGHT

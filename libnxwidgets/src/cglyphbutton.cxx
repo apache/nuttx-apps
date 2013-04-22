@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -193,16 +193,16 @@ void CGlyphButton::drawContents(CGraphicsPort *port)
 
   if (isEnabled())
     {
-      port->drawBitmap(rect.getX(), rect.getY(),
-                       rect.getWidth(), rect.getHeight(),
-                       bitmap, m_bitmapX, m_bitmapY,
+      port->drawBitmap(rect.getX() + m_bitmapX, rect.getY() + m_bitmapY,
+                       bitmap->width, bitmap->height,
+                       bitmap, 0, 0,
                        CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
     }
   else
     {
-      port->drawBitmapGreyScale(rect.getX(), rect.getY(),
-                                rect.getWidth(), rect.getHeight(),
-                                bitmap, m_bitmapX, m_bitmapY);
+      port->drawBitmapGreyScale(rect.getX() + m_bitmapX, rect.getY() + m_bitmapY,
+                                bitmap->width, bitmap->height,
+                                bitmap, 0, 0);
     }
 }
 
@@ -237,7 +237,7 @@ void CGlyphButton::drawOutline(CGraphicsPort *port)
 
       nxgl_coord_t color1;
       nxgl_coord_t color2;
-  
+
       if (isClicked())
         {
           // Bevelled into the screen
@@ -252,7 +252,7 @@ void CGlyphButton::drawOutline(CGraphicsPort *port)
           color1 = getShineEdgeColor();
           color2 = getShadowEdgeColor();
         }
-  
+
       port->drawBevelledRect(getX(), getY(),
                              getWidth(), getHeight(),
                              color1, color2);
@@ -272,7 +272,19 @@ void CGlyphButton::onClick(nxgl_coord_t x, nxgl_coord_t y)
 }
 
 /**
- * Raises an action event and redraws the button.
+  * Raises an action event.
+  *
+  * @param x The x coordinate of the mouse.
+  * @param y The y coordinate of the mouse.
+  */
+
+void CGlyphButton::onPreRelease(nxgl_coord_t x, nxgl_coord_t y)
+{
+  m_widgetEventHandlers->raiseActionEvent();
+}
+
+/**
+ * Raises a release event and redraws the button.
  *
  * @param x The x coordinate of the mouse.
  * @param y The y coordinate of the mouse.

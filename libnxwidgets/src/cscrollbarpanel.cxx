@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -104,10 +104,10 @@ using namespace NXWidgets;
  *   the style into its own internal style object.
  */
 
-CScollbarPanel::CScollbarPanel(CWidgetControl *pWidgetControl,
-                               nxgl_coord_t x, nxgl_coord_t y,
-                               nxgl_coord_t width, nxgl_coord_t height,
-                               uint32_t flags, CWidgetStyle *style)
+CScrollbarPanel::CScrollbarPanel(CWidgetControl *pWidgetControl,
+                                 nxgl_coord_t x, nxgl_coord_t y,
+                                 nxgl_coord_t width, nxgl_coord_t height,
+                                 uint32_t flags, CWidgetStyle *style)
 : CNxWidget(pWidgetControl, x, y, width, height, flags, style)
 {
   m_scrollbarWidth         = 10;
@@ -136,7 +136,7 @@ CScollbarPanel::CScollbarPanel(CWidgetControl *pWidgetControl,
  * @param dy The vertical distance to scroll.
  */
 
-void CScollbarPanel::scroll(int32_t dx, int32_t dy)
+void CScrollbarPanel::scroll(int32_t dx, int32_t dy)
 {
   m_panel->scroll(dx, dy);
 }
@@ -148,7 +148,7 @@ void CScollbarPanel::scroll(int32_t dx, int32_t dy)
  * @param y The new y coordinate of the scrolling region.
  */
 
-void CScollbarPanel::jump(int32_t x, int32_t y)
+void CScrollbarPanel::jump(int32_t x, int32_t y)
 {
   m_panel->jump(x, y);
 }
@@ -159,7 +159,7 @@ void CScollbarPanel::jump(int32_t x, int32_t y)
  * @param allow True to allow horizontal scrolling; false to deny it.
  */
 
-void CScollbarPanel::setAllowsVerticalScroll(bool allow)
+void CScrollbarPanel::setAllowsVerticalScroll(bool allow)
 {
   m_panel->setAllowsVerticalScroll(allow);
 
@@ -182,7 +182,7 @@ void CScollbarPanel::setAllowsVerticalScroll(bool allow)
  * @param allow True to allow horizontal scrolling; false to deny it.
  */
 
-void CScollbarPanel::setAllowsHorizontalScroll(bool allow)
+void CScrollbarPanel::setAllowsHorizontalScroll(bool allow)
 {
   m_panel->setAllowsHorizontalScroll(allow);
 
@@ -205,7 +205,7 @@ void CScollbarPanel::setAllowsHorizontalScroll(bool allow)
  * @param width The width of the virtual canvas.
  */
 
-void CScollbarPanel::setCanvasWidth(const int32_t width)
+void CScrollbarPanel::setCanvasWidth(const int32_t width)
 {
   m_panel->setCanvasWidth(width);
   m_scrollbarHorizontal->setMaximumValue(width);
@@ -217,7 +217,7 @@ void CScollbarPanel::setCanvasWidth(const int32_t width)
  * @param height The height of the virtual canvas.
  */
 
-void CScollbarPanel::setCanvasHeight(const int32_t height)
+void CScrollbarPanel::setCanvasHeight(const int32_t height)
 {
   m_panel->setCanvasHeight(height);
   m_scrollbarVertical->setMaximumValue(height);
@@ -229,7 +229,7 @@ void CScollbarPanel::setCanvasHeight(const int32_t height)
  * @return True if vertical scrolling is allowed.
  */
 
-bool CScollbarPanel::allowsVerticalScroll(void) const
+bool CScrollbarPanel::allowsVerticalScroll(void) const
 {
   return m_panel->allowsVerticalScroll();
 }
@@ -240,7 +240,7 @@ bool CScollbarPanel::allowsVerticalScroll(void) const
  * @return True if horizontal scrolling is allowed.
  */
 
-bool CScollbarPanel::allowsHorizontalScroll(void) const
+bool CScrollbarPanel::allowsHorizontalScroll(void) const
 {
   return m_panel->allowsHorizontalScroll();
 }
@@ -251,7 +251,7 @@ bool CScollbarPanel::allowsHorizontalScroll(void) const
  * @return The x coordinate of the virtual canvas.
  */
 
-const int32_t CScollbarPanel::getCanvasX(void) const
+const int32_t CScrollbarPanel::getCanvasX(void) const
 {
   return m_panel->getCanvasX();
 }
@@ -262,7 +262,7 @@ const int32_t CScollbarPanel::getCanvasX(void) const
  * @return The y coordinate of the virtual canvas.
  */
 
-const int32_t CScollbarPanel::getCanvasY(void) const
+const int32_t CScrollbarPanel::getCanvasY(void) const
 {
   return m_panel->getCanvasY();
 }
@@ -273,7 +273,7 @@ const int32_t CScollbarPanel::getCanvasY(void) const
  * @return The width of the virtual canvas.
  */
 
-const int32_t CScollbarPanel::getCanvasWidth(void) const
+const int32_t CScrollbarPanel::getCanvasWidth(void) const
 {
   return m_panel->getCanvasWidth();
 }
@@ -284,7 +284,7 @@ const int32_t CScollbarPanel::getCanvasWidth(void) const
  * @return The height of the virtual canvas.
  */
 
-const int32_t CScollbarPanel::getCanvasHeight(void) const
+const int32_t CScrollbarPanel::getCanvasHeight(void) const
 {
   return m_panel->getCanvasHeight();
 }
@@ -295,7 +295,7 @@ const int32_t CScollbarPanel::getCanvasHeight(void) const
  * @param e The event data.
  */
 
-void CScollbarPanel::handleScrollEvent(const CWidgetEventArgs &e)
+void CScrollbarPanel::handleScrollEvent(const CWidgetEventArgs &e)
 {
   if (e.getSource() != NULL)
     {
@@ -323,7 +323,7 @@ void CScollbarPanel::handleScrollEvent(const CWidgetEventArgs &e)
  * @param e The event data.
  */
 
-void CScollbarPanel::handleValueChangeEvent(const CWidgetEventArgs &e)
+void CScrollbarPanel::handleValueChangeEvent(const CWidgetEventArgs &e)
 {
   if (e.getSource() != NULL)
     {
@@ -352,7 +352,7 @@ void CScollbarPanel::handleValueChangeEvent(const CWidgetEventArgs &e)
  * Creates the child widgets.
  */
 
-void CScollbarPanel::buildUI(void)
+void CScrollbarPanel::buildUI(void)
 {
   CRect rect;
   getClientRect(rect);
@@ -432,7 +432,7 @@ void CScollbarPanel::buildUI(void)
  * @see redraw()
  */
 
-void CScollbarPanel::drawContents(CGraphicsPort *port)
+void CScrollbarPanel::drawContents(CGraphicsPort *port)
 {
   port->drawFilledRect(0, 0, getWidth(), getHeight(), getBackgroundColor());
 }
