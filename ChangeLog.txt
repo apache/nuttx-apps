@@ -529,3 +529,6 @@
 	* apps/examples/ostest:  In the non-cancelable thread test, we need
 	  to give the thread an opportunity to run and to set the non-
 	  cancelable state.
+	* apps/nshlib/nsh_ddcmd.c: Correct the test of the skip input
+	  parameter.  Was limiting the range to <= count.  From Ken
+	  Petit (2014-4-24).

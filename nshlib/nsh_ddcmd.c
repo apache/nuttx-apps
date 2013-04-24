@@ -545,12 +545,6 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
-  if (dd.skip > dd.nsectors)
-    {
-      nsh_output(vtbl, g_fmtarginvalid, g_dd);
-      goto errout_with_paths;
-    }
-
   /* Allocate the I/O buffer */
 
   dd.buffer = malloc(dd.sectsize);
