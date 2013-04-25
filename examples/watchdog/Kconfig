@@ -17,14 +17,14 @@ config EXAMPLES_WATCHDOG_DEVPATH
 	---help---
 		The path to the watchdog device. Default: /dev/watchdog0
 
-config CONFIG_EXAMPLES_WATCHDOG_PINGTIME
+config EXAMPLES_WATCHDOG_PINGTIME
 	int "Watchdog ping time"
 	default 5000
 	---help---
 		Time in milliseconds that the example will ping the watchdog before letting the
 		watchdog expire. Default: 5000 milliseconds.
 
-config CONFIG_EXAMPLES_WATCHDOG_PINGDELAY
+config EXAMPLES_WATCHDOG_PINGDELAY
 	int "Watchdog ping delay"
 	default 500
 	---help---

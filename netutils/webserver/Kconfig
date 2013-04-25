@@ -50,10 +50,10 @@ config NETUTILS_HTTPD_CGIPATH
 		httpd_cgi_register(&a[i]);
 		}
 
-		Where (under CONFIG_NETUTILS_HTTPD_CGIPATH) the "/xyz" is a URL path,
+		Where (under NETUTILS_HTTPD_CGIPATH) the "/xyz" is a URL path,
 		rather than a %! xyz style call in the existing manner.
 
-		This is useful when CONFIG_NETUTILS_HTTPD_SCRIPT_DISABLE is defined.
+		This is useful when NETUTILS_HTTPD_SCRIPT_DISABLE is defined.
 
 		In other words, this provides a way to get your CGI functions called
 		without needing the scripting language. I'm using this to provide a

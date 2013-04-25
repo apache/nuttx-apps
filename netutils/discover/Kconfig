@@ -33,7 +33,7 @@ config DISCOVER_DEVICE_CLASS
 	hex "Network Discovery Class"
 	default 0xff
 
-config CONFIG_DISCOVER_DESCR
+config DISCOVER_DESCR
 	string "Discoverer Description"
 	default "NuttX"
 
