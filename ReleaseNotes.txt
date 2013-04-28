@@ -272,7 +272,7 @@ efforts of Petteri Aimonen.
 
 Additional new features and extended functionality in Version 1.7:
 
-* NxWidgets:: CGlyphButton: Generate action event, like CButton does.
+* NxWidgets::CGlyphButton: Generate action event, like CButton does.
 * NxWM::CTaskBar:  Add option CONFIG_NXWM_TASKBAR_NO_BORDER to suppress
   drawing of the border on the taskbar.
 * NxWidgets::CNxTimer:  Add function to check if CNxTimer is running.
@@ -283,4 +283,4 @@ Bugfixes:
 * NxWidgets bitmap_converter.py: Fix bug when image width > 255
 * NxWM::CScrollbarPanel:  Fix spelling error in class name: CScollbarPanel
   should be CScrollbarPanel
-* NxWidgets:: CGlyphButton:  Prevent drawing outside of the bitmap size.
+* NxWidgets::CGlyphButton:  Prevent drawing outside of the bitmap size.
