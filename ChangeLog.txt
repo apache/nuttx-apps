@@ -523,7 +523,7 @@
 	  confused with a NUL.  So if a NUL was received, the NSH session
 	  would terminate because it thought it was the end of file.
 
-6.27 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.27 2013-04-28 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/system/ramtest:  Add a simple memory test (2013-03-26).
 	* apps/examples/ostest:  In the non-cancelable thread test, we need
@@ -532,3 +532,5 @@
 	* apps/nshlib/nsh_ddcmd.c: Correct the test of the skip input
 	  parameter.  Was limiting the range to <= count.  From Ken
 	  Petit (2014-4-24).
+
+6.28 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
