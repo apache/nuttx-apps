@@ -259,3 +259,28 @@ Bugfixes:
 
 * NxWidgets/tools/bitmap_converter.py: Fix bitmap_converter.py so that
   it works with indexed input images.
+
+NxWidgets-1.7
+=============
+
+The 8th release of the NxWidgets package was made on April 28, 2013.  This
+release depends on NuttX-6.26 or above and should not be used with older
+NuttX releases.
+
+Note: All of the changes between 1.6 and 1.7 were the result of the
+efforts of Petteri Aimonen.
+
+Additional new features and extended functionality in Version 1.7:
+
+* NxWidgets:: CGlyphButton: Generate action event, like CButton does.
+* NxWM::CTaskBar:  Add option CONFIG_NXWM_TASKBAR_NO_BORDER to suppress
+  drawing of the border on the taskbar.
+* NxWidgets::CNxTimer:  Add function to check if CNxTimer is running.
+* NxWidgets::CNxWidgets:  Allow overriding of the checkCollision() method.
+
+Bugfixes:
+
+* NxWidgets bitmap_converter.py: Fix bug when image width > 255
+* NxWM::CScrollbarPanel:  Fix spelling error in class name: CScollbarPanel
+  should be CScrollbarPanel
+* NxWidgets:: CGlyphButton:  Prevent drawing outside of the bitmap size.

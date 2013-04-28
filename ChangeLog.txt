@@ -328,7 +328,7 @@
     configurable, and the delay is anyway short enough that it is unnoticeable.
   From Petteri Aimonen.
 
-1.7 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.7 2013-04-28 Gregory Nutt <gnutt@nuttx.org>
 
 * NxWidgets bitmap_converter.py: Fix bug when image width > 255.  From
   Petteri Aimonen (2013-4-22).
@@ -344,3 +344,5 @@
   From Petteri Aimonen (2013-4-22).
 * NxWidgets::CNxWidgets:  Allow overriding of the checkCollision() method.
   From Petteri Aimonen (2013-4-22).
+
+1.8 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
