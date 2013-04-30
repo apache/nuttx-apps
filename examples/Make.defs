@@ -118,6 +118,10 @@ ifeq ($(CONFIG_EXAMPLES_MOUNT),y)
 CONFIGURED_APPS += examples/mount
 endif
 
+ifeq ($(CONFIG_EXAMPLES_MTDPART),y)
+CONFIGURED_APPS += examples/mtdpart
+endif
+
 ifeq ($(CONFIG_EXAMPLES_NETTEST),y)
 CONFIGURED_APPS += examples/nettest
 endif

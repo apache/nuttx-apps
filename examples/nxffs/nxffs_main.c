@@ -69,10 +69,6 @@
 
 /* This must exactly match the default configuration in drivers/mtd/rammtd.c */
 
-#  ifndef CONFIG_RAMMTD_BLOCKSIZE
-#    define CONFIG_RAMMTD_BLOCKSIZE 512
-#  endif
-
 #  ifndef CONFIG_RAMMTD_ERASESIZE
 #    define CONFIG_RAMMTD_ERASESIZE 4096
 #  endif
@@ -81,8 +77,7 @@
 #    define CONFIG_EXAMPLES_NXFFS_NEBLOCKS (32)
 #  endif
 
-#  undef CONFIG_EXAMPLES_NXFFS_BUFSIZE
-#  define CONFIG_EXAMPLES_NXFFS_BUFSIZE \
+#  define EXAMPLES_NXFFS_BUFSIZE \
   (CONFIG_RAMMTD_ERASESIZE * CONFIG_EXAMPLES_NXFFS_NEBLOCKS)
 #endif
 
@@ -145,7 +140,7 @@ struct nxffs_filedesc_s
 /* Pre-allocated simulated flash */
 
 #ifndef CONFIG_EXAMPLES_NXFFS_ARCHINIT
-static uint8_t g_simflash[CONFIG_EXAMPLES_NXFFS_BUFSIZE];
+static uint8_t g_simflash[EXAMPLES_NXFFS_BUFSIZE];
 #endif
 
 static uint8_t g_fileimage[CONFIG_EXAMPLES_NXFFS_MAXFILE];
@@ -807,7 +802,7 @@ int nxffs_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_NXFFS_ARCHINIT
   mtd = nxffs_archinitialize();
 #else
-  mtd = rammtd_initialize(g_simflash, CONFIG_EXAMPLES_NXFFS_BUFSIZE);
+  mtd = rammtd_initialize(g_simflash, EXAMPLES_NXFFS_BUFSIZE);
 #endif
   if (!mtd)
     {

@@ -534,3 +534,5 @@
 	  Petit (2014-4-24).
 
 6.28 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/mtdpart:  Provides a simple test of MTD partitions.
