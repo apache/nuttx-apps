@@ -156,6 +156,7 @@ int mtdpart_main(int argc, char *argv[])
   FAR uint32_t *buffer;
   char blockname[32];
   char charname[32];
+  size_t partsize;
   ssize_t nbytes;
   off_t nblocks;
   off_t offset;
@@ -217,27 +218,39 @@ int mtdpart_main(int argc, char *argv[])
     }
 
   message("Flash Geometry:\n");
-  message("  blocksize:    %uld\n", (unsigned long)geo.blocksize);
-  message("  erasesize:    %uld\n", (unsigned long)geo.erasesize);
-  message("  neraseblocks: %uld\n", (unsigned long)geo.neraseblocks);
+  message("  blocksize:      %lu\n", (unsigned long)geo.blocksize);
+  message("  erasesize:      %lu\n", (unsigned long)geo.erasesize);
+  message("  neraseblocks:   %lu\n", (unsigned long)geo.neraseblocks);
   
-  /* Determine the size of each partition */
+  /* Determine the size of each partition.  Make each partition an even
+   * multiple of the erase block size (perhaps not using some space at the
+   * end of the FLASH).
+   */
 
   blkpererase = geo.erasesize / geo.blocksize;
-  nblocks = geo.neraseblocks * blkpererase / CONFIG_EXAMPLES_MTDPART_NPARTITIONS;
+  nblocks     = (geo.neraseblocks / CONFIG_EXAMPLES_MTDPART_NPARTITIONS) * blkpererase;
+  partsize    = nblocks * geo.blocksize;
+
+  message("  No. partitions: %u\n", CONFIG_EXAMPLES_MTDPART_NPARTITIONS);
+  message("  Partition size: %lu Blocks (%lu bytes)\n", nblocks, partsize);
 
   /* Now create MTD FLASH partitions */
+
+  message("Creating partitions\n");
 
   for (offset = 0, i = 1;
        i <= CONFIG_EXAMPLES_MTDPART_NPARTITIONS;
        offset += nblocks, i++)
     {
+      message("  Partition %d. Block offset=%lu, size=%lu\n",
+              i, (unsigned long)offset, (unsigned long)nblocks);
+
       /* Create the partition */
 
       part[i] = mtd_partition(master, offset, nblocks);
       if (!part[i])
         {
-          message("ERROR: mtd_partition failed. offset=%uld nblocks=%uld\n",
+          message("ERROR: mtd_partition failed. offset=%lu nblocks=%lu\n",
                   (unsigned long)offset, (unsigned long)nblocks);
           msgflush();
           exit(4);
@@ -289,6 +302,8 @@ int mtdpart_main(int argc, char *argv[])
 
   /* Now write the offset into every block */
 
+  message("Initializing media:\n");
+
   offset = 0;
   for (i = 0; i < geo.neraseblocks; i++)
     {
@@ -318,10 +333,15 @@ int mtdpart_main(int argc, char *argv[])
 
   /* Now read each partition */
 
+  message("Checking partitions:\n");
+
   for (offset = 0, i = 1;
        i <= CONFIG_EXAMPLES_MTDPART_NPARTITIONS;
-       offset += nblocks, i++)
+       offset += partsize, i++)
     {
+      message("  Partition %d. Byte offset=%lu, size=%lu\n",
+              i, (unsigned long)offset, (unsigned long)partsize);
+
       /* Open the master MTD partition character driver for writing */
 
       snprintf(charname, 32, "/dev/mtd%d", i);
@@ -336,35 +356,57 @@ int mtdpart_main(int argc, char *argv[])
       /* Now verify the offset in every block */
 
       check = offset;
-      for (i = 0; i < nblocks; i++)
+      for (j = 0; j < nblocks; j++)
         {
-          for (j = 0; j < blkpererase; j++)
+#if 0 /* Too much */
+          message("  block=%u offset=%lu\n", j, (unsigned long) check);
+#endif
+
+          /* Read the next block into memory */
+
+          nbytes = read(fd, buffer, geo.blocksize);
+          if (nbytes < 0)
             {
-              /* Read the next block into memory */
+              message("ERROR: read from %s failed: %d\n", charname, errno);
+              msgflush();
+              exit(11);
+            }
 
-              nbytes = read(fd, buffer, geo.blocksize);
-              if (nbytes < 0)
+          /* Since we forced the size of the partition to be an even number
+           * of erase blocks, we do not expect to encounter the end of file
+           * indication.
+           */
+
+         else if (nbytes == 0)
+           {
+              message("ERROR: Unexpected end of file on %s\n", charname);
+              msgflush();
+              exit(11);
+           }
+
+         /* This is not expected at all */
+
+         else if (nbytes != geo.blocksize)
+           {
+              message("ERROR: Short read from %s failed: %lu\n",
+                      charname, (unsigned long)nbytes);
+              msgflush();
+              exit(11);
+            }
+
+          /* Verfy the offsets in the block */
+
+          for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
+            {
+              if (buffer[k] != check)
                 {
-                  message("ERROR: read from %s failed: %d\n", charname, errno);
+                  message("ERROR: Bad offset %lu, expected %lu\n",
+                          (long)buffer[k], (long)check);
                   msgflush();
-                  exit(11);
+                  exit(12);
                 }
 
-              /* Verfy the offsets in the block */
-
-              check = offset;
-              for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
-                {
-                  if (buffer[k] != check)
-                    {
-                      message("ERROR: Bad offset %uld, expected %uld\n",
-                              buffer[k], check);
-                      msgflush();
-                      exit(12);
-                    }
-
-                  check += 4;
-                }
+              check += 4;
             }
         }
 
@@ -373,6 +415,7 @@ int mtdpart_main(int argc, char *argv[])
 
   /* And exit without bothering to clean up */
 
+  message("PASS: Everything looks good\n");
   msgflush();
   return 0;
 }
