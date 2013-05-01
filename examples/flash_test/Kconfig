@@ -1,0 +1,20 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_FLASH_TEST
+	bool "SMART FLASH block device test"
+	default n
+	depends on !NUTTX_KERNEL && MTD_SMART && NSH_BUILTIN_APPS
+	---help---
+		This logic performs a SMART flash block device test.  This test
+		performs a sector allocate, read, write, free and garbage collection
+		test on a SMART MTD block device.  This test can be built only as an
+		NSH command
+
+		NOTE:  This test uses internal OS interfaces and so is not available
+		in the NUTTX kernel build
+
+if EXAMPLES_FLASH_TEST
+endif

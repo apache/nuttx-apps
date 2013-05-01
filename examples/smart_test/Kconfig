@@ -1,0 +1,16 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_SMART_TEST
+	bool "SMART filesystem test tool"
+	default n
+	depends on NSH_BUILTIN_APPS
+	---help---
+		Performs a file-based test on a SMART (or any) filesystem. Validates
+		seek, append and seek-with-write operations.  This test can be built
+		only as an NSH command
+
+if EXAMPLES_SMART_TEST
+endif

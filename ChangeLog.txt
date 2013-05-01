@@ -541,4 +541,6 @@
 	* apps/nshlib/nsh_fscmds.c: Add support for the mksmartfs command.
 	  (Ken Petit, 2013-4-30).
 	* apps/system/flash_eraseall:  Add an interface to erase FLASH using a
-	  flash_eraseall NSH command
+	  flash_eraseall NSH command  (Ken Pettit, 2013-5-1).
+	* apps/examples/flash_test and apps/examples/smart_test:  Add tests of
+	  the SMART block driver and file system  (Ken Pettit, 2013-5-1).

@@ -214,6 +214,14 @@ ifeq ($(CONFIG_EXAMPLES_SERLOOP),y)
 CONFIGURED_APPS += examples/serloop
 endif
 
+ifeq ($(CONFIG_EXAMPLES_FLASH_TEST),y)
+CONFIGURED_APPS += examples/flash_test
+endif
+
+ifeq ($(CONFIG_EXAMPLES_SMART_TEST),y)
+CONFIGURED_APPS += examples/smart_test
+endif
+
 ifeq ($(CONFIG_EXAMPLES_TELNETD),y)
 CONFIGURED_APPS += examples/telnetd
 endif
