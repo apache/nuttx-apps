@@ -54,6 +54,9 @@
 #   ifdef CONFIG_FS_FAT
 #     include <nuttx/fs/mkfatfs.h>
 #   endif
+#   ifdef CONFIG_FS_SMARTFS
+#     include <nuttx/fs/mksmartfs.h>
+#   endif
 #   ifdef CONFIG_NFS
 #     include <sys/socket.h>
 #     include <netinet/in.h>
@@ -980,7 +983,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int ret = ERROR;
 
   if (fullpath)
-    {  
+    {
       ret = mkfatfs(fullpath, &fmt);
       if (ret < 0)
         {
@@ -1124,6 +1127,57 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 errout_with_fmt:
   nsh_output(vtbl, fmt, argv[0]);
   return ERROR;
+}
+#endif
+#endif
+
+/****************************************************************************
+ * Name: cmd_mksmartfs
+ ****************************************************************************/
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
+     defined(CONFIG_FS_SMARTFS)
+#ifndef CONFIG_NSH_DISABLE_MKSMARTFS
+int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  int ret = ERROR;
+#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
+  int nrootdirs = 1;
+#endif
+
+  if (fullpath)
+    {
+      /* Test if number of root directories was supplied */
+
+#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
+      if (argc == 3)
+        {
+          nrootdirs = atoi(argv[2]);
+        }
+
+      if (nrootdirs > 8 || nrootdirs < 1)
+        {
+          nsh_output(vtbl, "Invalid number of root directories specified\n");
+        }
+      else
+#endif
+        {
+#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
+          ret = mksmartfs(fullpath, nrootdirs);
+#else
+          ret = mksmartfs(fullpath);
+#endif
+          if (ret < 0)
+            {
+              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mksmartfs", NSH_ERRNO);
+            }
+        }
+
+      nsh_freefullpath(fullpath);
+    }
+
+  return ret;
 }
 #endif
 #endif

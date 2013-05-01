@@ -216,9 +216,17 @@ config NSH_DISABLE_XD
 
 endmenu
 
+menu "Configure Command Options"
+
+config NSH_CMDOPT_DF_H
+	bool "df: Enable [-h] man-readable format"
+	default n
+
 config NSH_CODECS_BUFSIZE
 	int "File buffer size used by CODEC commands"
 	default 128
+
+endmenu
 
 config NSH_FILEIOSIZE
 	int "NSH I/O buffer size"

@@ -187,7 +187,11 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF)
+#ifdef CONFIG_NSH_CMDOPT_DF_H
+  { "df",       cmd_df,       1, 2, "[-h]" },
+#else
   { "df",       cmd_df,       1, 1, NULL },
+#endif
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_SYSLOG) && \
@@ -293,6 +297,16 @@ static const struct cmdmap_s g_cmdmap[] =
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
 # ifndef CONFIG_NSH_DISABLE_MKRD
   { "mkrd",     cmd_mkrd,     2, 6, "[-m <minor>] [-s <sector-size>] <nsectors>" },
+# endif
+#endif
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_SMARTFS)
+# ifndef CONFIG_NSH_DISABLE_MKSMARTFS
+#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
+  { "mksmartfs",  cmd_mksmartfs,  2, 3, "<path> [<num-root-directories>]" },
+#else
+  { "mksmartfs",  cmd_mksmartfs,  2, 2, "<path>" },
+#endif
 # endif
 #endif
 

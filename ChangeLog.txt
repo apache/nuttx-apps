@@ -536,3 +536,7 @@
 6.28 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/mtdpart:  Provides a simple test of MTD partitions.
+	* apps/nshlib/nsh_mntcmds.c:  Add a -h option to the df command to show
+	  the volume information in human readable form (Ken Petit, 2013-4-30).
+	* apps/nshlib/nsh_fscmds.c: Add support for the mksmartfs command.
+	  (Ken Petit, 2013-4-30).
