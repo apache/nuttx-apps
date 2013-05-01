@@ -50,6 +50,10 @@
 #include <unistd.h>
 #include <errno.h>
 
+#ifdef CONFIG_NSH_STRERROR
+#  include <string.h>
+#endif
+
 #include <nuttx/usb/usbdev_trace.h>
 
 /****************************************************************************
