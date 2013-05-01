@@ -15,8 +15,8 @@ menu "FLASH Program Installation"
 source "$APPSDIR/system/install/Kconfig"
 endmenu
 
-menu "RAM Test"
-source "$APPSDIR/system/ramtest/Kconfig"
+menu "FLASH Erase-all Command"
+source "$APPSDIR/system/flash_eraseall/Kconfig"
 endmenu
 
 menu "readline()"

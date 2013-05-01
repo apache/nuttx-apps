@@ -540,3 +540,5 @@
 	  the volume information in human readable form (Ken Petit, 2013-4-30).
 	* apps/nshlib/nsh_fscmds.c: Add support for the mksmartfs command.
 	  (Ken Petit, 2013-4-30).
+	* apps/system/flash_eraseall:  Add an interface to erase FLASH using a
+	  flash_eraseall NSH command

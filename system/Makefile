@@ -1,7 +1,7 @@
 ############################################################################
 # apps/system/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 
 # Sub-directories containing system task
 
-SUBDIRS  = free i2c install readline poweroff ramtest ramtron sdcard
-SUBDIRS += sysinfo usbmonitor
+SUBDIRS  = flash_eraseall free i2c install poweroff ramtest ramtron readline
+SUBDIRS += sdcard sysinfo usbmonitor
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 
