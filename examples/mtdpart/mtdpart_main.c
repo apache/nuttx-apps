@@ -161,6 +161,8 @@ int mtdpart_main(int argc, char *argv[])
   off_t nblocks;
   off_t offset;
   off_t check;
+  off_t sectoff;
+  off_t seekpos;
   unsigned int blkpererase;
   int fd;
   int i;
@@ -180,6 +182,14 @@ int mtdpart_main(int argc, char *argv[])
       message("ERROR: Failed to create RAM MTD instance\n");
       msgflush();
       exit(1);
+    }
+
+  /* Perform the IOCTL to erase the entire FLASH part */
+
+  ret = master->ioctl(master, MTDIOC_BULKERASE, 0);
+  if (ret < 0)
+    {
+      message("ERROR: MTDIOC_BULKERASE ioctl failed: %d\n", ret);
     }
 
   /* Initialize to provide an FTL block driver on the MTD FLASH interface.
@@ -345,7 +355,7 @@ int mtdpart_main(int argc, char *argv[])
       /* Open the master MTD partition character driver for writing */
 
       snprintf(charname, 32, "/dev/mtd%d", i);
-      fd = open(charname, O_RDONLY);
+      fd = open(charname, O_RDWR);
       if (fd < 0)
         {
           message("ERROR: open %s failed: %d\n", charname, errno);
@@ -356,11 +366,23 @@ int mtdpart_main(int argc, char *argv[])
       /* Now verify the offset in every block */
 
       check = offset;
+      sectoff = 0;
+
       for (j = 0; j < nblocks; j++)
         {
 #if 0 /* Too much */
           message("  block=%u offset=%lu\n", j, (unsigned long) check);
 #endif
+          /* Seek to the next read position */
+
+          seekpos = lseek(fd, sectoff, SEEK_SET);
+          if (seekpos != sectoff)
+            {
+              message("ERROR: lseek to offset %ld failed: %d\n",
+                      (unsigned long)sectoff, errno);
+              msgflush();
+              exit(11);
+            }
 
           /* Read the next block into memory */
 
@@ -369,7 +391,20 @@ int mtdpart_main(int argc, char *argv[])
             {
               message("ERROR: read from %s failed: %d\n", charname, errno);
               msgflush();
-              exit(11);
+              exit(12);
+            }
+          else if (nbytes == 0)
+            {
+              message("ERROR: Unexpected end-of file in %s\n", charname);
+              msgflush();
+              exit(13);
+            }
+          else if (nbytes != geo.blocksize)
+            {
+              message("ERROR: Unexpected read size from %s: %ld\n",
+                      charname, (unsigned long)nbytes);
+              msgflush();
+              exit(14);
             }
 
           /* Since we forced the size of the partition to be an even number
@@ -381,7 +416,7 @@ int mtdpart_main(int argc, char *argv[])
            {
               message("ERROR: Unexpected end of file on %s\n", charname);
               msgflush();
-              exit(11);
+              exit(15);
            }
 
          /* This is not expected at all */
@@ -391,7 +426,7 @@ int mtdpart_main(int argc, char *argv[])
               message("ERROR: Short read from %s failed: %lu\n",
                       charname, (unsigned long)nbytes);
               msgflush();
-              exit(11);
+              exit(16);
             }
 
           /* Verfy the offsets in the block */
@@ -403,15 +438,123 @@ int mtdpart_main(int argc, char *argv[])
                   message("ERROR: Bad offset %lu, expected %lu\n",
                           (long)buffer[k], (long)check);
                   msgflush();
-                  exit(12);
+                  exit(17);
                 }
 
-              check += 4;
+              /* Invert the value to indicate that we have verified
+               * this value.
+               */
+
+              buffer[k] = ~check;
+              check += sizeof(uint32_t);
             }
+
+          /* Seek to the next write position */
+
+          seekpos = lseek(fd, sectoff, SEEK_SET);
+          if (seekpos != sectoff)
+            {
+              message("ERROR: lseek to offset %ld failed: %d\n",
+                      (unsigned long)sectoff, errno);
+              msgflush();
+              exit(18);
+            }
+
+          /* Now write the block back to FLASH with the modified value */
+
+          nbytes = write(fd, buffer, geo.blocksize);
+          if (nbytes < 0)
+            {
+              message("ERROR: write to %s failed: %d\n", charname, errno);
+              msgflush();
+              exit(19);
+            }
+          else if (nbytes != geo.blocksize)
+            {
+              message("ERROR: Unexpected write size to %s: %ld\n",
+                      charname, (unsigned long)nbytes);
+              msgflush();
+              exit(20);
+            }
+
+          /* Get the offset to the next block */
+
+          sectoff += geo.blocksize;
+        }
+
+      /* Try reading one more time.  We should get the end of file */
+
+      nbytes = read(fd, buffer, geo.blocksize);
+      if (nbytes != 0)
+        {
+          message("ERROR: Expected end-of-file from %s failed: %d %d\n",
+                  charname, nbytes, errno);
+          msgflush();
+          exit(22);
         }
 
       close(fd);
     }
+
+  /* Now verify that all of the verifed blocks appear where we thing they
+   * should on the device.
+   */
+
+  message("Verfying media:\n");
+
+  fd = open("/dev/mtd0", O_RDONLY);
+  if (fd < 0)
+    {
+      message("ERROR: open /dev/mtd0 failed: %d\n", errno);
+      msgflush();
+      exit(23);
+    }
+
+  offset = 0;
+  check  = 0;
+
+  for (i = 0; i < nblocks * CONFIG_EXAMPLES_MTDPART_NPARTITIONS; i++)
+    {
+      /* Read the next block into memory */
+
+      nbytes = read(fd, buffer, geo.blocksize);
+      if (nbytes < 0)
+        {
+          message("ERROR: read from %s failed: %d\n", charname, errno);
+          msgflush();
+          exit(24);
+        }
+      else if (nbytes == 0)
+        {
+          message("ERROR: Unexpected end-of file in %s\n", charname);
+          msgflush();
+          exit(25);
+        }
+      else if (nbytes != geo.blocksize)
+        {
+          message("ERROR: Unexpected read size from %s: %ld\n",
+                  charname, (unsigned long)nbytes);
+          msgflush();
+          exit(26);
+        }
+
+      /* Verfy the values in the block */
+
+      for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
+        {
+          if (buffer[k] != ~check)
+            {
+              message("ERROR: Bad value %lu, expected %lu\n",
+                      (long)buffer[k], (long)(~check));
+              msgflush();
+              exit(27);
+            }
+
+          check += sizeof(uint32_t);
+        }
+    }
+
+  close(fd);
 
   /* And exit without bothering to clean up */
 

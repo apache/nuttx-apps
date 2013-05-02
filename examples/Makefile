@@ -39,8 +39,8 @@
 
 SUBDIRS  = adc buttons can cdcacm composite cxxtest dhcpd discover elf
 SUBDIRS += flash_test ftpc ftpd hello helloxx hidkbd igmp json keypadtest
-SUBDIRS += lcdrw mm modbus mount nettest nsh null nx nxconsole nxffs nxflat
-SUBDIRS += nxhello nximage nxlines nxtext ostest  pashello pipe poll
+SUBDIRS += lcdrw mm modbus mount mtdpart nettest nsh null nx nxconsole nxffs
+SUBDIRS += nxflat nxhello nximage nxlines nxtext ostest  pashello pipe poll
 SUBDIRS += posix_spawn pwm qencoder relays rgmp romfs sendmail serloop
 SUBDIRS += smart_test telnetd thttpd tiff touchscreen udp uip usbserial 
 SUBDIRS += usbstorage usbterm watchdog wget wgetjson xmlrpc
@@ -59,8 +59,8 @@ CNTXTDIRS = pwm
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cdcacm composite cxxtest dhcpd discover flash_test ftpd
-CNTXTDIRS += hello json keypadtestmodbus nettest nxlines relays qencoder
-CNTXTDIRS += smart_test telnetd watchdog wgetjson
+CNTXTDIRS += hello json keypadtestmodbus mtdpart nettest nxlines relays
+CNTXTDIRS += qencoder smart_test telnetd watchdog wgetjson
 endif
 
 ifeq ($(CONFIG_EXAMPLES_HELLOXX_BUILTIN),y)
