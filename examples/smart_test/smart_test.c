@@ -53,7 +53,7 @@
  ****************************************************************************/
 
 #define SMART_TEST_LINE_COUNT 2000
-#define SMART_TEST_SEEK_WRITE_COUNT 12000
+#define SMART_TEST_SEEK_WRITE_COUNT 2000
 
 /****************************************************************************
  * Private data

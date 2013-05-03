@@ -546,3 +546,5 @@
 	  the SMART block driver and file system  (Ken Pettit, 2013-5-1).
 	* apps/examples/mtdpart:  Extended to the test.  The original test
 	  coverage was superficial (2013-5-3).
+	* apps/examples/smart:  This is an adaptation of the NXFFS stress
+	  test for the SMART file system (Ken Pettit, 2013-5-3).

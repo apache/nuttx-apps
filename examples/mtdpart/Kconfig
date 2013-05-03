@@ -6,8 +6,12 @@
 config EXAMPLES_MTDPART
 	bool "MTD partition test"
 	default n
+	depends on MTD_PARTITION && !NUTTX_KERNEL
 	---help---
-		Enable the MTD partition test example
+		Enable the MTD partition test example.
+
+		NOTE: This example uses some internal NuttX interfaces and, hence,
+		is not available in the kernel build.
 
 if EXAMPLES_MTDPART
 

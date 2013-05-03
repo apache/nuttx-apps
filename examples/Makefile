@@ -33,7 +33,7 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config # Current configuration
 
 # Sub-directories
 
@@ -42,8 +42,8 @@ SUBDIRS += flash_test ftpc ftpd hello helloxx hidkbd igmp json keypadtest
 SUBDIRS += lcdrw mm modbus mount mtdpart nettest nsh null nx nxconsole nxffs
 SUBDIRS += nxflat nxhello nximage nxlines nxtext ostest  pashello pipe poll
 SUBDIRS += posix_spawn pwm qencoder relays rgmp romfs sendmail serloop
-SUBDIRS += smart_test telnetd thttpd tiff touchscreen udp uip usbserial 
-SUBDIRS += usbstorage usbterm watchdog wget wgetjson xmlrpc
+SUBDIRS += smart smart_test telnetd thttpd tiff touchscreen udp uip
+SUBDIRS += usbserial usbstorage usbterm watchdog wget wgetjson xmlrpc
 
 # Sub-directories that might need context setup.  Directories may need
 # context setup for a variety of reasons, but the most common is because

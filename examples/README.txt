@@ -1463,6 +1463,34 @@ examples/serloop
       Use C buffered I/O (getchar/putchar) vs. raw console I/O
       (read/read).
 
+examples/smart
+^^^^^^^^^^^^^^
+
+  This is a test of the SMART file systemt that derives from
+  examples/nxffs.
+
+  * CONFIG_EXAMPLES_SMART: -Enable the SMART file system example
+  * CONFIG_EXAMPLES_SMART_ARCHINIT: The default is to use the RAM MTD
+    device at drivers/mtd/rammtd.c.  But an architecture-specific MTD
+    driver can be used instead by defining CONFIG_EXAMPLES_SMART_ARCHINIT.  In
+    this case, the initialization logic will call smart_archinitialize()
+    to obtain the MTD driver instance.
+  * CONFIG_EXAMPLES_SMART_NEBLOCKS: When CONFIG_EXAMPLES_SMART_ARCHINIT is not
+    defined, this test will use the RAM MTD device at drivers/mtd/rammtd.c
+    to simulate FLASH.  In this case, this value must be provided to give
+    the nubmer of erase blocks in MTD RAM device.  The size of the allocated
+    RAM drive will be: CONFIG_RAMMTD_ERASESIZE * CONFIG_EXAMPLES_SMART_NEBLOCKS
+  * CONFIG_EXAMPLES_SMART_MAXNAME: Determines the maximum size of names used
+    in the filesystem
+  * CONFIG_EXAMPLES_SMART_MAXFILE: Determines the maximum size of a file
+  * CONFIG_EXAMPLES_SMART_MAXIO: Max I/O, default 347.
+  * CONFIG_EXAMPLES_SMART_MAXOPEN: Max open files.
+  * CONFIG_EXAMPLES_SMART_MOUNTPT: SMART mountpoint
+  * CONFIG_EXAMPLES_SMART_NLOOPS: Number of test loops. default 100
+  * CONFIG_EXAMPLES_SMART_VERBOSE: Verbose output
+
+endif
+
 examples/smart_test
 ^^^^^^^^^^^^^^^^^^^
 

@@ -222,6 +222,10 @@ ifeq ($(CONFIG_EXAMPLES_SMART_TEST),y)
 CONFIGURED_APPS += examples/smart_test
 endif
 
+ifeq ($(CONFIG_EXAMPLES_SMART),y)
+CONFIGURED_APPS += examples/smart
+endif
+
 ifeq ($(CONFIG_EXAMPLES_TELNETD),y)
 CONFIGURED_APPS += examples/telnetd
 endif
