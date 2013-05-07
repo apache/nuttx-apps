@@ -548,3 +548,6 @@
 	  coverage was superficial (2013-5-3).
 	* apps/examples/smart:  This is an adaptation of the NXFFS stress
 	  test for the SMART file system (Ken Pettit, 2013-5-3).
+	* apps/examplex/nxtext:  Remove the CONFIG_EXAMPLES_NXTEXT_NOGETRUN
+	  option.  The test logic was bad for the case where this options
+	  is not selected.  Also, complete the empty Kconfig file (2013-5-7).

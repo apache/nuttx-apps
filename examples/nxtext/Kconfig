@@ -10,4 +10,158 @@ config EXAMPLES_NXTEXT
 		Enable the NX graphics text example
 
 if EXAMPLES_NXTEXT
+
+comment "Basic Configuration of the example"
+
+config EXAMPLES_NXTEXT_BUILTIN
+	bool "NSH Built-IN"
+	depends on NSH_BUILTIN_APPS
+	---help---
+		Build the NX Text example as a "built-in" that can be executed from the
+		NSH command line.
+
+config EXAMPLES_NXTEXT_VPLANE
+	int "Video Plane"
+	default 0
+	---help---
+		The plane to select from the framebuffer driver for use in the test.
+		Default: 0
+
+config EXAMPLES_NXTEXT_DEVNO
+	int "Video Device Number"
+	default 0
+	---help---
+		The LCD device to select from the LCD driver for use in the test:
+		Default: 0
+
+config EXAMPLES_NXTEXT_BPP
+	int "Bits-Per-Pixel"
+	default 32
+	---help---
+		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
+		and 32.  Default is 32.
+
+config EXAMPLES_NXTEXT_BMCACHE
+	int "Character cache size"
+	default 128
+	---help---
+		Size of the character cache.
+
+config EXAMPLES_NXTEXT_GLCACHE
+	int "Glyph cache size"
+	default 16
+	---help---
+		Size of the glyph cache.
+
+comment "Example Color Configuration"
+
+config EXAMPLES_NXTEXT_DEFAULT_COLORS
+	bool "Use Default Colors"
+	default y
+
+if !EXAMPLES_NXTEXT_DEFAULT_COLORS
+
+config EXAMPLES_NXTEXT_BGCOLOR
+	hex "Background color"
+	default 0x0
+	---help---
+		The color of the background.  Default depends on config
+		EXAMPLES_NXTEXT_BPP.
+
+config EXAMPLES_NXTEXT_BGFONTCOLOR
+	hex "Background font color"
+	default 0x0
+	---help---
+		The color of the fonts used in the background window. Default
+		depends on config EXAMPLES_NXTEXT_BPP.
+
+config EXAMPLES_NXTEXT_PUCOLOR
+	hex "Pop-up color"
+	default 0x0
+	---help---
+		The color of the pop-up window.  Default depends on config
+		EXAMPLES_NXTEXT_BPP.
+
+config EXAMPLES_NXTEXT_PUFONTCOLOR
+	hex "Pop-up font color"
+	default 0x0
+	---help---
+		The color of the fonts used in the pop-up window. Default
+		depends on config EXAMPLES_NXTEXT_BPP.
+
+endif
+
+comment "Example Font Configuration"
+
+config EXAMPLES_NXTEXT_DEFAULT_FONT
+	bool "Use Default Font"
+	default y
+
+if !EXAMPLES_NXTEXT_DEFAULT_FONT
+
+config EXAMPLES_NXTEXT_BGFONTID
+	bool "Background font ID"
+	default 0
+	---help---
+		Selects the font used in the background window (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+config EXAMPLES_NXTEXT_PUFONTID
+	bool "Pop-up font ID"
+	default 0
+	---help---
+		Selects the font used in the pop-up window (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+endif
+
+config EXAMPLES_NXTEXT_EXTERNINIT
+	bool "External Device Initialization"
+	default n
+	---help---
+		The driver for the graphics device on this platform requires some
+		unusual initialization.  This is the case, for example, for SPI LCD/OLED
+		devices.  If this configuration is selected, then the platform code
+		must provide an LCD initialization function with a prototype like:
+
+		#ifdef CONFIG_NX_LCDDRIVER
+		FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+		#else
+		FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+		#endif
+
+if NX_MULTIUSER
+comment "Multi-User Configuration Options"
+
+config EXAMPLES_NXTEXT_STACKSIZE
+	int "NX Server Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when creating the NX server.  Default 2048
+
+config EXAMPLES_NXTEXT_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
+config EXAMPLES_NXTEXT_SERVERPRIO
+	int "Server Priority"
+	default 120
+	---help---
+		The server priority.  Default: 120
+
+config EXAMPLES_NXTEXT_LISTENERPRIO
+	int "Listener Priority"
+	default 80
+	---help---
+		The priority of the event listener thread. Default 100.
+
+config EXAMPLES_NXTEXT_NOTIFYSIGNO
+	int "Notify Signal Number"
+	default 4
+	---help---
+		The signal number to use with nx_eventnotify().  Default: 4
+
+endif
 endif

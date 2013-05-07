@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxtext/nxtext_bkgd.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,7 +231,6 @@ static void nxbg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  *   only.
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NXTEXT_NOGETRUN
 static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
 {
   FAR struct nxtext_bitmap_s *bm;
@@ -287,38 +286,6 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
       message("nxbg_movedisplay: nx_fill failed: %d\n", errno);
     }
 }
-#else
-static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
-{
-  struct nxgl_rect_s rect;
-  struct nxgl_point_s offset;
-  int ret;
-
-  /* Move the display in the range of 0-height up one lineheight.  The
-   * line at the bottom will be reset to the background color automatically.
-   *
-   * The source rectangle to be moved.
-   */
-
-  rect.pt1.x = 0;
-  rect.pt1.y = lineheight + LINE_SEPARATION;
-  rect.pt2.x = g_bgstate.wsize.w - 1;
-  rect.pt2.y = g_bgstate.wsize.h - 1;
-
-  /* The offset that determines how far to move the source rectangle */
-
-  offset.x   = 0;
-  offset.y   = -lineheight;
-
-  /* Move the source rectangle */
-
-  ret = nx_move(hwnd, &rect, &offset);
-  if (ret < 0)
-    {
-      message("nxbg_movedisplay: nx_move failed: %d\n", errno);
-    }
-}
-#endif
 
 /****************************************************************************
  * Name: nxbg_scroll
