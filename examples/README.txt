@@ -995,8 +995,12 @@ examples/nximage
     b. I added som C logic to palette-ize the RGB image in the GIMP .c file
     c. Then I add some simple run-length encoding to palette-ized image.
 
+    But now there is a tool that can be found in the NxWidgets package at
+    NxWidgets/tools/bitmap_converter.py that can be used to convert any
+    graphics format to the NuttX RLE format.
+
     NOTE: As of this writing, most of the pixel depth, scaling options, and
-    combinations thereof  have not been tested.
+    combinations thereof have not been tested.
 
 examplex/nxlines
 ^^^^^^^^^^^^^^^^
