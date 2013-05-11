@@ -49,6 +49,10 @@
 #include "cnxconsole.hxx"
 #include "chexcalculator.hxx"
 
+#ifdef CONFIG_NXWM_MEDIAPLAYER
+#include "cmediaplayer.hxx"
+#endif
+
 #ifdef CONFIG_NXWM_TOUCHSCREEN
 #  include "ctouchscreen.hxx"
 #  include "ccalibration.hxx"
@@ -561,6 +565,37 @@ static bool createHexCalculator(void)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+// Name: createMediaPlayer
+/////////////////////////////////////////////////////////////////////////////
+
+#ifdef CONFIG_NXWM_MEDIAPLAYER
+static bool createMediaPlayer(void)
+{
+  // Add the hex calculator application to the start window
+
+  printf("createHexCalculator: Creating the hex calculator application\n");
+  NxWM::CMediaPlayerFactory *calculator = new  NxWM::CMediaPlayerFactory(g_nxwmtest.taskbar);
+  if (!calculator)
+    {
+      printf("createMediaPlayer: ERROR: Failed to instantiate CMediaPlayerFactory\n");
+      return false;
+    }
+  showTestCaseMemory("createMediaPlayer: After creating the media player application");
+
+  printf("createMediaPlayer: Adding the hex calculator application to the start window\n");
+  if (!g_nxwmtest.startwindow->addApplication(calculator))
+    {
+      printf("createMediaPlayer: ERROR: Failed to add CNxConsoleFactory to the start window\n");
+      delete calculator;
+      return false;
+    }
+
+  showTestCaseMemory("createMediaPlayer: After adding the media player application");
+  return true;
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
 // Public Functions
 /////////////////////////////////////////////////////////////////////////////
 
@@ -672,6 +707,16 @@ int nxwm_main(int argc, char *argv[])
       printf("nxwm_main: ERROR: Failed to create the hex calculator application\n");
       testCleanUpAndExit(EXIT_FAILURE);
     }
+
+  // Create the media player application and add it to the start window
+
+#ifdef CONFIG_NXWM_MEDIAPLAYER
+  if (!createMediaPlayer())
+    {
+      printf("nxwm_main: ERROR: Failed to create the media player application\n");
+      testCleanUpAndExit(EXIT_FAILURE);
+    }
+#endif
 
   // Call CTaskBar::startWindowManager to start the display with applications in place.
 

@@ -346,3 +346,9 @@
   From Petteri Aimonen (2013-4-22).
 
 1.8 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+*  NxWM::CMediaPlayer: shell application for an MP3 Media Player with
+   Kconfig settings to enable it.  I plan to write this app to help
+   develop and test the MP3 codec chip driver.  It really doesn't do
+   anything yet except display a text box saying "Coming soon", and I
+   need to minimize the icon size a bit.  From Ken Pettit (2013-5-11).

@@ -75,6 +75,10 @@ CXXSRCS += glyph_calculator.cxx glyph_calibration.cxx glyph_cmd.cxx
 CXXSRCS += glyph_minimize.cxx glyph_nsh.cxx glyph_play.cxx glyph_start.cxx
 CXXSRCS += glyph_stop.cxx
 
+ifeq ($(CONFIG_NXWM_MEDIAPLAYER),y)
+CXXSRCS += glyph_mediaplayer.cxx cmediaplayer.cxx
+endif
+
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

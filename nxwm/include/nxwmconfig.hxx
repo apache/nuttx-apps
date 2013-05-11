@@ -533,6 +533,29 @@
 #  define CONFIG_NXWM_HEXCALCULATOR_FONTID CONFIG_NXWM_DEFAULT_FONTID
 #endif
 
+/* Media Player application ***********************************************/
+/**
+ *
+ * CONFIG_NXWM_HEXCALCULATOR_BACKGROUNDCOLOR - The background color of the
+ *   calculator display.  Default:  Same as CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
+ * CONFIG_NXWM_HEXCALCULATOR_ICON - The ICON to use for the hex calculator
+ *   application.  Default:  NxWM::g_calculatorBitmap
+ * CONFIG_NXWM_HEXCALCULATOR_FONTID - The font used with the calculator.
+ *   Default: CONFIG_NXWM_DEFAULT_FONTID
+ */
+
+#ifndef CONFIG_NXWM_MEDIAPLAYER_BACKGROUNDCOLOR
+#  define CONFIG_NXWM_MEDIAPLAYER_BACKGROUNDCOLOR CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
+#endif
+
+#ifndef CONFIG_NXWM_MEDIAPLAYER_ICON
+#  define CONFIG_NXWM_MEDIAPLAYER_ICON NxWM::g_mediaplayerBitmap
+#endif
+
+#ifndef CONFIG_NXWM_MEDIAPLAYER_FONTID
+#  define CONFIG_NXWM_MEDIAPLAYER_FONTID CONFIG_NXWM_DEFAULT_FONTID
+#endif
+
 /****************************************************************************
  * Global Function Prototypes
  ****************************************************************************/
