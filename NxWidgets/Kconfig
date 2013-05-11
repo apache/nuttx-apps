@@ -470,7 +470,7 @@ config NXWM_BACKGROUND_IMAGE
 		NXWidgets::g_nuttxBitmap
 
 comment "Application Window Configuration"
- 
+
 config NXWM_CUSTOM_APPWINDOW_ICONS
 	bool "Custom Start/Stop Application Window Icons"
 	default n
@@ -591,13 +591,13 @@ if NXWM_NXCONSOLE_CUSTOM_COLORS
 config NXWM_NXCONSOLE_WCOLOR
 	hex "NxConsole Background Color"
 	---help---
-		The color of the NxConsole window background. Default: 
+		The color of the NxConsole window background. Default:
 		RGB(192,192,192)
 
 config NXWM_NXCONSOLE_FONTCOLOR
 	hex "NxConsole Font Color"
 	---help---
-		The color of the fonts to use in the NxConsole window. 
+		The color of the fonts to use in the NxConsole window.
 		Default: RGB(0,0,0)
 endif
 
@@ -839,5 +839,17 @@ config NXWM_HEXCALCULATOR_FONTID
 		Use this default font ID in the calculator window instead of the
 		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0
 endif
+
+config NXWM_MEDIAPLAYER
+	bool "Enable Media Player"
+	default n
+	---help---
+		Enable support for the MP3 Media Player.  This features requires
+		a board that includes an MP3 Codec chip, such as the Mikromedia
+		boards available from MikroElektronica, along with a NuttX port
+		with a device driver for the MP3 codec.
+
+		NOTE:  This application is currently under development and just
+		       a shell of an app which will be developed soon.
 
 endif

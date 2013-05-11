@@ -551,3 +551,5 @@
 	* apps/examplex/nxtext:  Remove the CONFIG_EXAMPLES_NXTEXT_NOGETRUN
 	  option.  The test logic was bad for the case where this options
 	  is not selected.  Also, complete the empty Kconfig file (2013-5-7).
+	* apps/NxWidgets/Kconfig:  Updated to match NxWidgets/Kconfig by
+	  Ken Pettit (2013-5-11).
