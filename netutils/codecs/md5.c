@@ -97,15 +97,15 @@
 #ifndef CONFIG_ENDIAN_BIG
 #  define byteReverse(buf, len)
 #else
-static void byteReverse(unsigned char *buf, unsigned longs)
+static void byteReverse(FAR unsigned char *buf, unsigned longs)
 {
   uint32_t t;
   do
     {
-      t = ((uint32_t)buf[3] << 8) |
-          ((uint32_t)buf[2]) << 16) |
-          ((uint32_t)buf[1] << 8) | 
-          (uint32_t)buf[0];
+      t = ((uint32_t)buf[3] << 24) |
+          ((uint32_t)buf[2] << 16) |
+          ((uint32_t)buf[1] << 8)  |
+           (uint32_t)buf[0];
 
       *(uint32_t*)buf = t;
       buf += 4;

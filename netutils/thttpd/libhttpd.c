@@ -519,7 +519,7 @@ static int send_err_file(httpd_conn *hc, int status, char *title, char *extrahea
 
   return 1;
 }
-#endif
+#endif /* CONFIG_THTTPD_ERROR_DIRECTORY */
 
 #ifdef CONFIG_THTTPD_AUTH_FILE
 static void send_authenticate(httpd_conn *hc, char *realm)
@@ -664,7 +664,8 @@ static int auth_check(httpd_conn *hc, char *dirname)
     case 1:
       return 1;
     }
-#endif
+#endif /* CONFIG_THTTPD_GLOBALPASSWD */
+
   return auth_check2(hc, dirname);
 }
 
@@ -906,7 +907,7 @@ static int httpd_tilde_map1(httpd_conn *hc)
   (void)strcat(hc->expnfilename, temp);
   return 1;
 }
-#endif
+#endif /* CONFIG_THTTPD_TILDE_MAP1 */
 
 /* Map a ~username/whatever URL into <user's homedir>/<postfix>. */
 
@@ -973,7 +974,7 @@ static int httpd_tilde_map2(httpd_conn *hc)
   hc->tildemapped = true;
   return 1;
 }
-#endif
+#endif /* CONFIG_THTTPD_TILDE_MAP2 */
 
 /* Virtual host mapping. */
 
@@ -1030,6 +1031,7 @@ static int vhost_map(httpd_conn *hc)
   /* Figure out the host directory. */
 
 #ifdef VHOST_DIRLEVELS
+
   httpd_realloc_str(&hc->hostdir, &hc->maxhostdir, strlen(hc->vhostname) + 2 * VHOST_DIRLEVELS);
   if (strncmp(hc->vhostname, "www.", 4) == 0)
     {
@@ -1070,10 +1072,13 @@ static int vhost_map(httpd_conn *hc)
       *cp2++ = '/';
     }
   (void)strcpy(cp2, hc->vhostname);
+
 #else /* VHOST_DIRLEVELS */
+
   httpd_realloc_str(&hc->hostdir, &hc->maxhostdir, strlen(hc->vhostname));
   (void)strcpy(hc->hostdir, hc->vhostname);
-#endif                                 /* VHOST_DIRLEVELS */
+
+#endif /* VHOST_DIRLEVELS */
 
   /* Prepend hostdir to the filename. */
 
@@ -1134,7 +1139,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
       *restP = rest;
       return checked;
     }
-#endif
+#endif /* 0 */
 
   /* Handle leading / or . and relative pathes by copying the default directory into checked */
 
@@ -1944,10 +1949,14 @@ static int check_referer(httpd_conn *hc)
                                 "You must supply a local referer to get URL '%s' from this server.\n"),
                      hc->encodedurl);
     }
+
   return r;
-#else
+
+#else /* CONFIG_THTTPD_URLPATTERN */
+
   return 1;
-#endif
+
+#endif /* CONFIG_THTTPD_URLPATTERN */
 }
 
 /* Returns 1 if ok to serve the url, 0 if not. */
@@ -2035,25 +2044,23 @@ static int really_check_referer(httpd_conn *hc)
 
       return 1;
     }
-#endif
+#endif /* CONFIG_THTTPD_VHOST */
 #endif /* CONFIG_THTTPD_LOCALPATTERN */
 
   /* If the referer host doesn't match the local host pattern, and the
    * filename does match the url pattern, it's an illegal reference.
    */
 
-#ifdef CONFIG_THTTPD_URLPATTERN
   if (!match(lp, refhost) && match(CONFIG_THTTPD_URLPATTERN, hc->origfilename))
     {
       return 0;
     }
-#endif
 
   /* Otherwise ok. */
 
   return 1;
 }
-#endif
+#endif /* CONFIG_THTTPD_URLPATTERN */
 
 #ifdef CONFIG_DEBUG
 static int sockaddr_check(httpd_sockaddr *saP)
@@ -2072,7 +2079,7 @@ static int sockaddr_check(httpd_sockaddr *saP)
       return 0;
     }
 }
-#endif
+#endif /* CONFIG_DEBUG */
 
 static size_t sockaddr_len(httpd_sockaddr *saP)
 {
@@ -2234,7 +2241,7 @@ void httpd_send_err(httpd_conn *hc, int status, const char *title, const char *e
           return;
         }
     }
-#endif
+#endif /* CONFIG_THTTPD_VHOST */
 
   /* Try server-wide error page. */
 
@@ -2249,11 +2256,11 @@ void httpd_send_err(httpd_conn *hc, int status, const char *title, const char *e
 
   send_response(hc, status, title, extraheads, form, arg);
 
-#else
+#else /* CONFIG_THTTPD_ERROR_DIRECTORY */
 
   send_response(hc, status, title, extraheads, form, arg);
 
-#endif
+#endif /* CONFIG_THTTPD_ERROR_DIRECTORY */
 }
 
 const char *httpd_method_str(int method)
@@ -2959,7 +2966,7 @@ int httpd_parse_request(httpd_conn *hc)
             {
               ndbg("unknown request header: %s\n", buf);
             }
-#endif
+#endif /* LOG_UNKNOWN_HEADERS */
         }
     }
 
@@ -3122,7 +3129,7 @@ void httpd_destroy_conn(httpd_conn *hc)
       httpd_free((void *)hc->buffer);
 #ifdef CONFIG_THTTPD_TILDE_MAP2
       httpd_free((void *)hc->altdir);
-#endif                                 /*CONFIG_THTTPD_TILDE_MAP2 */
+#endif /*CONFIG_THTTPD_TILDE_MAP2 */
       hc->initialized = 0;
     }
 }
@@ -3134,7 +3141,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 #ifdef CONFIG_THTTPD_AUTH_FILE
   static char *dirname;
   static size_t maxdirname = 0;
-#endif                                 /* CONFIG_THTTPD_AUTH_FILE */
+#endif /* CONFIG_THTTPD_AUTH_FILE */
   size_t expnlen, indxlen;
   char *cp;
   char *pi;
@@ -3258,8 +3265,10 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
         }
 
       /* Ok, generate an index. */
+
       return ls(hc);
-#else
+#else /* CONFIG_THTTPD_GENERATE_INDICES */
+
       ndbg("%s URL \"%s\" tried to index a directory\n",
              httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
@@ -3267,7 +3276,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
                                 "The requested URL '%s' is a directory, and directory indexing is disabled on this server.\n"),
                      hc->encodedurl);
       return -1;
-#endif
+#endif /* CONFIG_THTTPD_GENERATE_INDICES */
 
     got_one:
 
@@ -3349,7 +3358,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
                      hc->encodedurl);
       return -1;
     }
-#endif
+#endif /* CONFIG_THTTPD_AUTH_FILE */
 
   /* Referer check. */
 
@@ -3455,7 +3464,7 @@ char *httpd_ntoa(httpd_sockaddr *saP)
 
   return inet_ntoa(saP->sin_addr);
 
-#endif
+#endif /* CONFIG_NET_IPv6 */
 }
 
 /* Read to requested buffer, accounting for interruptions and EOF */
@@ -3523,4 +3532,3 @@ int httpd_write(int fd, const void *buf, size_t nbytes)
 }
 
 #endif /* CONFIG_THTTPD */
-

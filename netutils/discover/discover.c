@@ -270,25 +270,27 @@ static inline int discover_respond(in_addr_t *ipaddr)
   int ret;
 
   sockfd = discover_openresponder();
-  if (sockfd >= 0)
+  if (sockfd < 0)
     {
-      /* Then send the reponse to the DHCP client port at that address */
-
-      memset(&addr, 0, sizeof(struct sockaddr_in));
-      addr.sin_family      = AF_INET;
-      addr.sin_port        = HTONS(CONFIG_DISCOVER_PORT);
-      addr.sin_addr.s_addr = *ipaddr;
-
-      ret = sendto(sockfd, &g_state.response, sizeof(g_state.response), 0,
-                   (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-      if (ret < 0)
-        {
-          ndbg("Could not send discovery response: %d\n", errno);
-        }
-
-      close(sockfd);
+      ndbg("discover_openresponder failed\n");
+      return ERROR;
     }
 
+  /* Then send the reponse to the DHCP client port at that address */
+
+  memset(&addr, 0, sizeof(struct sockaddr_in));
+  addr.sin_family      = AF_INET;
+  addr.sin_port        = HTONS(CONFIG_DISCOVER_PORT);
+  addr.sin_addr.s_addr = *ipaddr;
+
+  ret = sendto(sockfd, &g_state.response, sizeof(g_state.response), 0,
+               (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+  if (ret < 0)
+    {
+      ndbg("Could not send discovery response: %d\n", errno);
+    }
+
+  close(sockfd);
   return ret;
 }
 
