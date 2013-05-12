@@ -352,3 +352,5 @@
    develop and test the MP3 codec chip driver.  It really doesn't do
    anything yet except display a text box saying "Coming soon", and I
    need to minimize the icon size a bit.  From Ken Pettit (2013-5-11).
+*  NxWidgets/nxwm/src/glyph_mediaplayer.cxx:  Smaller version of the
+   media player glyph.  From Ken Pettit (2013-5-12).

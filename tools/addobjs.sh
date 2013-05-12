@@ -66,7 +66,7 @@ while [ ! -z "$1" ]; do
 		echo "  <obj-dir> is full path to the directory containing the object files to be added"
 		echo "OPTIONS include:"
 		echo "  -p Prefix to use.  For example, to use arm-elf-ar, add '-p arm-elf-'"
-		echo "  -w Use Windows style paths insted of POSIX paths"
+		echo "  -w Use Windows style paths instead of POSIX paths"
 		echo "  -d Enable script debug"
 		echo "  -h Show this usage information"
 		exit 0
