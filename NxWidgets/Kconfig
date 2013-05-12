@@ -40,10 +40,10 @@ config NXWIDGETS_VPLANE
 
 config NXWIDGETS_SERVERPRIO
 	int "NX Server priority"
-	default 51
+	default 110
 	---help---
 		Priority of the NX server.  This applies only if NX is configured in
-		multi-user mode (NX_MULTIUSER=y).  Default: 51.
+		multi-user mode (NX_MULTIUSER=y).  Default: 110.
 
 		NOTE:  Of the three priority definitions here, NXWIDGETS_SERVERPRIO
 		should have the highest priority to avoid data overrun race conditions.
@@ -58,18 +58,18 @@ config NXWIDGETS_SERVERSTACK
 
 config NXWIDGETS_CLIENTPRIO
 	int "NX Client Priority"
-	default 50
+	default 100
 	---help---
 		The thread that calls CNxServer::connect() will be re-prioritized to
 		this priority.  This applies only if NX is configured in multi-user
-		mode (NX_MULTIUSER=y). Default: 50
+		mode (NX_MULTIUSER=y). Default: 100
 
 config NXWIDGETS_LISTENERPRIO
 	int "NX Listener Priority"
-	default 50
+	default 100
 	---help---
 		Priority of the NX event listener thread. This applies only if NX
-		is configured in multi-user mode (NX_MULTIUSER=y). Default: 50
+		is configured in multi-user mode (NX_MULTIUSER=y). Default: 100
 
 config NXWIDGETS_LISTENERSTACK
 	int "NX Listener Stack Size"
@@ -544,9 +544,9 @@ config NXWM_STARTWINDOW_MXMPRIO
 
 config NXWM_STARTWINDOW_PRIO
 	int "StartWindow Task Priority"
-	default 50
+	default 100
 	---help---
-		Priority of the StartWindow task.  Default: 50.
+		Priority of the StartWindow task.  Default: 100.
 
 		NOTE:  This priority should be less than NXWIDGETS_SERVERPRIO or else
 		there may be data overrun errors. Such errors would most likely appear
@@ -563,9 +563,9 @@ comment "NxConsole Window Configuration"
 
 config NXWM_NXCONSOLE_PRIO
 	int "NxConsole Task Priority"
-	default 50
+	default 100
 	---help---
-		Priority of the NxConsole task.  Default:  50.
+		Priority of the NxConsole task.  Default:  100.
 
 		NOTE:  This priority should be less than NXWIDGETS_SERVERPRIO or
 		else there may be data overrun errors. Such errors would most likely
@@ -662,9 +662,9 @@ config NXWM_TOUCHSCREEN_SIGNO
 
 config NXWM_TOUCHSCREEN_LISTENERPRIO
 	int "Touchscreen Listener Task Priority"
-	default 50
+	default 100
 	---help---
-		Priority of the touchscreen listener thread.  Default: 50
+		Priority of the touchscreen listener thread.  Default: 100
 
 config NXWM_TOUCHSCREEN_LISTENERSTACK
 	int "Touchscreen Listener Task Stack Size"
@@ -704,9 +704,9 @@ config NXWM_KEYBOARD_BUFSIZE
 
 config NXWM_KEYBOARD_LISTENERPRIO
 	int "Keyboard Listener Task Priority"
-	default 50
+	default 100
 	---help---
-		Priority of the touchscreen listener thread.  Default: 50
+		Priority of the touchscreen listener thread.  Default: 100
 
 config NXWM_KEYBOARD_LISTENERSTACK
 	int "Keyboard Listener Task Stack Size"
@@ -779,9 +779,9 @@ config NXWM_CALIBRATION_SIGNO
 
 config NXWM_CALIBRATION_LISTENERPRIO
 	int "Calibration Task Priority"
-	default 50
+	default 100
 	---help---
-		Priority of the calibration listener thread.  Default: 50
+		Priority of the calibration listener thread.  Default: 100
 
 config NXWM_CALIBRATION_LISTENERSTACK
 	int "Calibration Task Stack Size"
