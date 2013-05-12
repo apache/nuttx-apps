@@ -358,3 +358,5 @@
    Fix a race condition that would cause the calibration screen
    to fail to come up when its icon was touched (From Ken Pettit,
    2013-5-12).
+*  Kconfig:  Default priorities for NxWidget and NxWM threads
+   should be 100, not 50, to be consistent with other default priorities.
