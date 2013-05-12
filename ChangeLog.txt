@@ -354,3 +354,7 @@
    need to minimize the icon size a bit.  From Ken Pettit (2013-5-11).
 *  NxWidgets/nxwm/src/glyph_mediaplayer.cxx:  Smaller version of the
    media player glyph.  From Ken Pettit (2013-5-12).
+*  NxWidgets/nxwm/include/ccalibration.hxx and src/ccalibration.cxx:
+   Fix a race condition that would cause the calibration screen
+   to fail to come up when its icon was touched (From Ken Pettit,
+   2013-5-12).

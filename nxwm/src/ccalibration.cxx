@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/nxwm/src/ccalibration.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -247,26 +247,34 @@ void CCalibration::hide(void)
 
 void CCalibration::redraw(void)
 {
+  uint8_t waitcount = 0;
+
   gvdbg("Entry\n");
 
-  // Is the calibration thread running?  We might have to restart it if
-  // we have completed the calibration early but are being brought to
-  // top of the display again
+  // Is the calibration thread still running?  We might have to restart
+  // it if we have completed the calibration early but are being brought
+  // to top of the display again
 
-  // Is the calibration thread running?
-
-  if (!isRunning())
+  if (!isStarted())
     {
       gvdbg("Starting calibration: m_calthread=%d\n", (int)m_calthread);
       (void)startCalibration(CALTHREAD_SHOW);
     }
 
+  // Is the calibration thread running? If not, then wait until it is.
+
+  while (!isRunning() && (++waitcount < 10))
+    {
+      usleep(500);
+    }
+
   // The calibration thread is running.  Make sure that is is not
   // already processing a redraw
 
-  else if (m_calthread != CALTHREAD_SHOW)
+  if (m_calthread != CALTHREAD_SHOW)
     {
-      // Ask the calibration thread to restart the calibration and redraw the display
+      // Ask the calibration thread to restart the calibration and redraw
+      // the display
 
       m_calthread = CALTHREAD_SHOW;
       (void)pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);

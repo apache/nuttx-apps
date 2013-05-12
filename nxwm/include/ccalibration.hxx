@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/nxwm/include/ccalibration.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,17 +175,40 @@ namespace NxWM
 
     /**
      *  Return true if the calibration thread is running normally.  There are
-     *  lots of potential race conditions.  Let's hope that things are running
-     *  orderly and we that we do not have to concern ourself with them
+     *  lots of potential race conditions.  There are also two ambiguous
+     *  states:
+     *
+     *  1) The thread may have been started but not yet running
+     *     (CALTHREAD_STARTED), or the
+     *  2) The thread may been requested to terminate, but has not yet
+     *     terminated (CALTHREAD_STOPREQUESTED)
+     *
+     *  Both of those states will cause isRunning() to return false.
      *
      * @return True if the calibration thread is runnning normally.
      */
 
     inline bool isRunning(void) const
       {
-        // What if the boundary states CALTHREAD_STARTED and CALTHREAD_STOPREQUESTED?
- 
         return (m_calthread ==  CALTHREAD_RUNNING ||
+                m_calthread ==  CALTHREAD_HIDE ||
+                m_calthread ==  CALTHREAD_SHOW);
+      }
+
+    /**
+     *  Return true if the calibration thread is has been started and has not
+     *  yet terminated.  There is a potential race condition here when the
+     *  thread has been requested to terminate, but has not yet terminated
+     *  (CALTHREAD_STOPREQUESTED).  isStarted() will return false in that case.
+     *
+     * @return True if the calibration thread has been started and/or is
+     *  running normally.
+     */
+
+    inline bool isStarted(void) const
+      {
+        return (m_calthread ==  CALTHREAD_STARTED ||
+                m_calthread ==  CALTHREAD_RUNNING ||
                 m_calthread ==  CALTHREAD_HIDE ||
                 m_calthread ==  CALTHREAD_SHOW);
       }
