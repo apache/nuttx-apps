@@ -46,9 +46,10 @@
 #include <nuttx/nx/nxtk.h>
 #include <nuttx/nx/nxconsole.h>
 
-#include "cbuttonarray.hxx"
+#include "cimage.hxx"
 #include "clabel.hxx"
 #include "cnxfont.hxx"
+#include "cglyphsliderhorizontal.hxx"
 
 #include "iapplication.hxx"
 #include "capplicationwindow.hxx"
@@ -105,6 +106,10 @@ namespace NxWM
 
     NXWidgets::CLabel       *m_text;       /**< Some text in the app for now */
     NXWidgets::CNxFont      *m_font;       /**< The font used in the media player */
+    NXWidgets::CImage       *m_rew;        /**< Rewind control */
+    NXWidgets::CImage       *m_playPause;  /**< Play/Pause control */
+    NXWidgets::CImage       *m_fwd;        /**< Forward control */
+    NXWidgets::CGlyphSliderHorizontal *m_volume; /**< Volume control */
 
     /**
      * Calculator geometry.  This stuff does not really have to be retained

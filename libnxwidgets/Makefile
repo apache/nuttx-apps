@@ -56,7 +56,8 @@ CXXSRCS += cstringiterator.cxx ctext.cxx cwidgetcontrol.cxx  cwidgeteventhandler
 CXXSRCS += cwindoweventhandlerlist.cxx singletons.cxx
 # Widget APIs
 CXXSRCS += cbutton.cxx cbuttonarray.cxx ccheckbox.cxx ccyclebutton.cxx
-CXXSRCS += cglyphbutton.cxx cimage.cxx ckeypad.cxx clabel.cxx clatchbutton.cxx
+CXXSRCS += cglyphbutton.cxx cglyphsliderhorizontal.cxx cglyphsliderhorizontalgrip.cxx
+CXXSRCS += cimage.cxx ckeypad.cxx clabel.cxx clatchbutton.cxx
 CXXSRCS += clatchbuttonarray.cxx clistbox.cxx clistboxdataitem.cxx cmultilinetextbox.cxx
 CXXSRCS += cnumericedit.cxx
 CXXSRCS += cprogressbar.cxx cradiobutton.cxx cradiobuttongroup.cxx cscrollbarhorizontal.cxx

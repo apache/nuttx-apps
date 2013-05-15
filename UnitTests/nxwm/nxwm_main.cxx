@@ -574,8 +574,8 @@ static bool createMediaPlayer(void)
   // Add the hex calculator application to the start window
 
   printf("createHexCalculator: Creating the hex calculator application\n");
-  NxWM::CMediaPlayerFactory *calculator = new  NxWM::CMediaPlayerFactory(g_nxwmtest.taskbar);
-  if (!calculator)
+  NxWM::CMediaPlayerFactory *mediaplayer = new  NxWM::CMediaPlayerFactory(g_nxwmtest.taskbar);
+  if (!mediaplayer)
     {
       printf("createMediaPlayer: ERROR: Failed to instantiate CMediaPlayerFactory\n");
       return false;
@@ -583,10 +583,10 @@ static bool createMediaPlayer(void)
   showTestCaseMemory("createMediaPlayer: After creating the media player application");
 
   printf("createMediaPlayer: Adding the hex calculator application to the start window\n");
-  if (!g_nxwmtest.startwindow->addApplication(calculator))
+  if (!g_nxwmtest.startwindow->addApplication(mediaplayer))
     {
       printf("createMediaPlayer: ERROR: Failed to add CNxConsoleFactory to the start window\n");
-      delete calculator;
+      delete mediaplayer;
       return false;
     }
 

@@ -552,6 +552,26 @@
 #  define CONFIG_NXWM_MEDIAPLAYER_ICON NxWM::g_mediaplayerBitmap
 #endif
 
+#ifndef CONFIG_NXWM_MPLAYER_FWD_ICON
+#  define CONFIG_NXWM_MPLAYER_FWD_ICON NxWM::g_mplayerFwdBitmap
+#endif
+
+#ifndef CONFIG_NXWM_MPLAYER_PLAY_ICON
+#  define CONFIG_NXWM_MPLAYER_PLAY_ICON NxWM::g_mplayerPlayBitmap
+#endif
+
+#ifndef CONFIG_NXWM_MPLAYER_PAUSE_ICON
+#  define CONFIG_NXWM_MPLAYER_PAUSE_ICON NxWM::g_mplayerPauseBitmap
+#endif
+
+#ifndef CONFIG_NXWM_MPLAYER_REW_ICON
+#  define CONFIG_NXWM_MPLAYER_REW_ICON NxWM::g_mplayerRewBitmap
+#endif
+
+#ifndef CONFIG_NXWM_MPLAYER_VOL_ICON
+#  define CONFIG_NXWM_MPLAYER_VOL_ICON NxWM::g_mplayerVolBitmap
+#endif
+
 #ifndef CONFIG_NXWM_MEDIAPLAYER_FONTID
 #  define CONFIG_NXWM_MEDIAPLAYER_FONTID CONFIG_NXWM_DEFAULT_FONTID
 #endif

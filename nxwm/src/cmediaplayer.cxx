@@ -267,6 +267,15 @@ void CMediaPlayer::redraw(void)
 
   m_text->enableDrawing();
   m_text->redraw();
+
+  m_rew->enableDrawing();
+  m_rew->redraw();
+  m_playPause->enableDrawing();
+  m_playPause->redraw();
+  m_fwd->enableDrawing();
+  m_fwd->redraw();
+  m_volume->enableDrawing();
+  m_volume->redraw();
 }
 
 /**
@@ -314,6 +323,8 @@ void CMediaPlayer::setGeometry(void)
 
 bool CMediaPlayer::createPlayer(void)
 {
+  int   playControlX, playControlY;
+
   // Select a font for the calculator
 
   m_font = new NXWidgets::CNxFont((nx_fontid_e)CONFIG_NXWM_MEDIAPLAYER_FONTID,
@@ -354,6 +365,54 @@ bool CMediaPlayer::createPlayer(void)
   // Select the font
 
   m_text->setFont(m_font);
+
+  // Create button for rewind
+
+  playControlX = (m_windowSize.w >> 1) - 64;
+  playControlY = m_windowSize.h - 64;
+
+  // Create the Rewind Image
+
+  NXWidgets::CRlePaletteBitmap *pRewBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
+  m_rew = new NXWidgets::CImage(control,
+                                playControlX, playControlY,
+                                32, 32,
+                                pRewBitmap, 0);
+  m_rew->setBorderless(true);
+
+  // Create the Play Image
+
+  pRewBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PLAY_ICON);
+  m_playPause = new NXWidgets::CImage(control,
+                                      playControlX + 32 + 16, playControlY,
+                                      32, 32,
+                                      pRewBitmap, 0);
+  m_playPause->setBorderless(true);
+
+  // Create the Forward Image
+
+  pRewBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
+  m_fwd = new NXWidgets::CImage(control,
+                                playControlX + 32*3, playControlY,
+                                32, 32,
+                                pRewBitmap, 0);
+  m_fwd->setBorderless(true);
+
+  // Create the Volume control
+
+  pRewBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_VOL_ICON);
+  m_volume = new NXWidgets::CGlyphSliderHorizontal(control,
+                                                   10, m_windowSize.h - 30,
+                                                   m_windowSize.w - 20, 26,
+                                                   pRewBitmap, MKRGB( 63, 90,192));
+  m_volume->setMinimumValue(0);
+  m_volume->setMaximumValue(100);
+  m_volume->setValue(15);
+
   return true;
 }
 

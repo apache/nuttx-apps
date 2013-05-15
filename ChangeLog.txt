@@ -360,3 +360,5 @@
    2013-5-12).
 *  Kconfig:  Default priorities for NxWidget and NxWM threads
    should be 100, not 50, to be consistent with other default priorities.
+*  NxWidgets::CGlyphSliderHorizontal and NxWidgets::CGlyphSliderHorizontalGrip:
+   New widgets added by Ken Pettit (2013-5-15).
