@@ -553,3 +553,5 @@
 	  is not selected.  Also, complete the empty Kconfig file (2013-5-7).
 	* apps/NxWidgets/Kconfig:  Updated to match NxWidgets/Kconfig by
 	  Ken Pettit (2013-5-11).
+	* apps/examples/helloxx:  C++ name mangling was occurring when this
+	  example is built as an NSH built-in application.  (2013-5-16).

@@ -59,13 +59,10 @@ CNTXTDIRS = pwm
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cdcacm composite cxxtest dhcpd discover flash_test ftpd
-CNTXTDIRS += hello json keypadtestmodbus mtdpart nettest nxlines relays
+CNTXTDIRS += hello helloxx json keypadtestmodbus mtdpart nettest nxlines relays
 CNTXTDIRS += qencoder smart_test telnetd watchdog wgetjson
 endif
 
-ifeq ($(CONFIG_EXAMPLES_HELLOXX_BUILTIN),y)
-CNTXTDIRS += helloxx
-endif
 ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
 CNTXTDIRS += lcdrw
 endif

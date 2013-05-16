@@ -100,7 +100,7 @@ $(CXXOBJS): %$(OBJEXT): %.cxx
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
-ifeq ($(CONFIG_EXAMPLES_HELLOXX_BUILTIN),y)
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 
