@@ -850,6 +850,6 @@ config NXWM_MEDIAPLAYER
 		with a device driver for the MP3 codec.
 
 		NOTE:  This application is currently under development and just
-		       a shell of an app which will be developed soon.
+		a shell of an app which will be developed soon.
 
 endif
