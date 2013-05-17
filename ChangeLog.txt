@@ -362,3 +362,7 @@
    should be 100, not 50, to be consistent with other default priorities.
 *  NxWidgets::CGlyphSliderHorizontal and NxWidgets::CGlyphSliderHorizontalGrip:
    New widgets added by Ken Pettit (2013-5-15).
+*  NxWidgets/UnitTests/CGlyphSliderHorizontal:  Addes a unit test for the
+   NxWidgets::CGlyphSliderHorizontal class. From Ken Pettit (2013-5-17) .
+*  NxWidgets::CGlyphSliderHorizontal:  Fix a drawing error.  From Ken
+   Pettit (2013-5-17).

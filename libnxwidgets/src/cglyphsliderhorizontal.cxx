@@ -331,7 +331,7 @@ void CGlyphSliderHorizontal::drawContents(CGraphicsPort * port)
   if (m_grip->getX() > halfGripWidth)
     port->drawFilledRect(getX() + 1 + halfGripWidth,
                          getY() + halfHeight - halfBar + 1,
-                         m_grip->getX() - halfGripWidth, m_barThickness - 2,
+                         m_grip->getX() - getX() - halfGripWidth, m_barThickness - 2,
                          color);
 
   // Fill in bar the area to the right of the grip
