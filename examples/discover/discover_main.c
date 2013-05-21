@@ -177,7 +177,7 @@ int discover_main(int argc, char *argv[])
 #endif /* CONFIG_EXAMPLES_DISCOVER_DHCPC */
 #endif /* CONFIG_NSH_BUILTIN_APPS */
 
-  if (discover_start() < 0)
+  if (discover_start(NULL) < 0)
     {
       ndbg("Could not start discover daemon.\n");
       return ERROR;

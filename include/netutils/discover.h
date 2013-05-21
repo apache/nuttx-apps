@@ -36,15 +36,27 @@
 #ifndef __APPS_INCLUDE_NETUTILS_DISCOVER_H
 #define __APPS_INCLUDE_NETUTILS_DISCOVER_H
 
+#include <stdint.h>
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+struct discover_info_s
+{
+  uint8_t devclass;         /* Device class, 0xff for all devices */
+  const char *description;
+};
 
 /****************************************************************************
  * Name: discover_start
  *
  * Description:
  *   Start the discover daemon.
+ *
+ * Input Paramters:
+ *
+ *   info    Discover information, if NULL mconf defaults will be used.
  *
  * Return:
  *   The process ID (pid) of the new discover daemon is returned on
@@ -53,6 +65,6 @@
  *
  ****************************************************************************/
 
-int discover_start(void);
+int discover_start(struct discover_info_s *info);
 
 #endif /* __APPS_INCLUDE_NETUTILS_DISCOVER_H */

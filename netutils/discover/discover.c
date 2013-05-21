@@ -94,7 +94,7 @@
  * Byte Description
  * 0    Protocol indentifier (0x99)
  * 1    Request command 0x01
- * 2    Destination device class (For querying subsets of available devices) 
+ * 2    Destination device class (For querying subsets of available devices)
  *      0xff for all devices
  * 3    Checksum (Byte 0 - Byte 1 - Byte n) & 0xff
  */
@@ -103,7 +103,7 @@
  * Byte Description
  * 0    Protocol indentifier (0x99)
  * 1    Reponse command (0x02)
- * 2-33 Device description string with 0 bytes filled    
+ * 2-33 Device description string with 0 bytes filled
  * 34   Checksum (Byte 0 - Byte 1 - Byte n) & 0xff
  */
 
@@ -123,6 +123,7 @@ typedef uint8_t response_t[DISCOVER_RESPONSE_SIZE];
 
 struct discover_state_s
 {
+  struct discover_info_s info;
   in_addr_t serverip;
   request_t request;
   response_t response;
@@ -132,7 +133,10 @@ struct discover_state_s
  * Public Data
  ****************************************************************************/
 
-struct discover_state_s g_state;
+struct discover_state_s g_state =
+{
+  {CONFIG_DISCOVER_DEVICE_CLASS, CONFIG_DISCOVER_DESCR}
+};
 
 /****************************************************************************
  * Private Function Prototypes
@@ -158,7 +162,7 @@ static inline void discover_initresponse()
   g_state.response[0] = DISCOVER_PROTO_ID;
   g_state.response[1] = DISCOVER_RESPONSE;
 
-  strncpy((char*) &g_state.response[2], CONFIG_DISCOVER_DESCR,
+  strncpy((char*) &g_state.response[2], g_state.info.description,
           DISCOVER_RESPONSE_SIZE-3);
 
   for (i = 0; i < DISCOVER_RESPONSE_SIZE-1; i++)
@@ -176,9 +180,9 @@ static int discover_daemon(int argc, char *argv[])
   int sockfd = -1;
   int nbytes;
   int addrlen = sizeof(struct sockaddr_in);
-  struct sockaddr_in srcaddr; 
+  struct sockaddr_in srcaddr;
 
-  memset(&g_state, 0, sizeof(struct discover_state_s));
+  /* memset(&g_state, 0, sizeof(struct discover_state_s)); */
   discover_initresponse();
 
   nvdbg("Started\n");
@@ -198,7 +202,7 @@ static int discover_daemon(int argc, char *argv[])
         }
 
       /* Read the next packet */
-      
+
       nbytes = recvfrom(sockfd, &g_state.request, sizeof(g_state.request), 0,
                         (struct sockaddr*) &srcaddr,
                         (socklen_t *) &addrlen);
@@ -214,14 +218,14 @@ static int discover_daemon(int argc, char *argv[])
             }
           continue;
         }
-      
+
       if (discover_parse(g_state.request) != OK)
         {
           continue;
         }
-      
+
       ndbg("Received discover from %08lx'\n", srcaddr.sin_addr.s_addr);
-      
+
       discover_respond(&srcaddr.sin_addr.s_addr);
     }
 
@@ -244,8 +248,8 @@ static inline int discover_parse(request_t packet)
       ndbg("Wrong command: %d\n", packet[1]);
       return ERROR;
     }
-     
-  if (packet[2] == 0xff || packet[2] == CONFIG_DISCOVER_DEVICE_CLASS)
+
+  if (packet[2] == 0xff || packet[2] == g_state.info.devclass)
     {
       for (i = 0; i < DISCOVER_REQUEST_SIZE-1; i++)
         chk -= packet[i];
@@ -437,9 +441,14 @@ static inline int discover_openresponder(void)
  *
  ****************************************************************************/
 
-int discover_start()
+int discover_start(struct discover_info_s *info)
 {
   pid_t pid;
+
+  if (info)
+    {
+      g_state.info = *info;
+    }
 
   /* Then start the new daemon */
 

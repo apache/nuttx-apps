@@ -555,3 +555,6 @@
 	  Ken Pettit (2013-5-11).
 	* apps/examples/helloxx:  C++ name mangling was occurring when this
 	  example is built as an NSH built-in application.  (2013-5-16).
+	* apps/netutils/discover:  Added a runtime configuration for the
+	  UDP discover utility.  From Max Holtzberg (2013-5-21).
+
