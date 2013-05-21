@@ -233,7 +233,7 @@ static int nsh_waitusbready(void)
     }
   while (fd < 0);
 
-  /* Now waiting until we successfully read a carriage return a few times. 
+  /* Now wait until we successfully read a carriage return a few times.
    * That is a sure way of know that there is something at the other end of
    * the USB serial connection that is ready to talk with us.  The user needs
    * to hit ENTER a few times to get things started.
