@@ -42,7 +42,7 @@ SUBDIRS += flash_test ftpc ftpd hello helloxx hidkbd igmp json keypadtest
 SUBDIRS += lcdrw mm modbus mount mtdpart nettest nsh null nx nxconsole nxffs
 SUBDIRS += nxflat nxhello nximage nxlines nxtext ostest  pashello pipe poll
 SUBDIRS += posix_spawn pwm qencoder relays rgmp romfs sendmail serloop
-SUBDIRS += smart smart_test telnetd thttpd tiff touchscreen udp uip
+SUBDIRS += smart smart_test tcpecho telnetd thttpd tiff touchscreen udp uip
 SUBDIRS += usbserial usbstorage usbterm watchdog wget wgetjson xmlrpc
 
 # Sub-directories that might need context setup.  Directories may need
@@ -60,7 +60,7 @@ CNTXTDIRS = pwm
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cdcacm composite cxxtest dhcpd discover flash_test ftpd
 CNTXTDIRS += hello helloxx json keypadtestmodbus mtdpart nettest nxlines relays
-CNTXTDIRS += qencoder smart_test telnetd watchdog wgetjson
+CNTXTDIRS += qencoder smart_test tcpecho telnetd watchdog wgetjson
 endif
 
 ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)

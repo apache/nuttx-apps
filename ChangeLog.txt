@@ -557,4 +557,6 @@
 	  example is built as an NSH built-in application.  (2013-5-16).
 	* apps/netutils/discover:  Added a runtime configuration for the
 	  UDP discover utility.  From Max Holtzberg (2013-5-21).
-
+	* apps/examples/tcpecho:  Added a simple single threaded, poll based
+ 	  TCP echo server based on W. Richard Stevens UNIX Network Programming
+	  Book.  Contributed by Max Holtberg (2013-5-22).
