@@ -102,13 +102,13 @@ static int tcpecho_netsetup()
    * network has already been configured by NSH's start-up logic.
    */
 
-  struct dhcpc_state ds;
 #ifndef CONFIG_NSH_BUILTIN_APPS
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_TCPECHO_DHCPC) || defined(CONFIG_EXAMPLES_TCPECHO_NOMAC)
   uint8_t mac[IFHWADDRLEN];
 #endif
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC
+  struct dhcpc_state ds;
   void *handle;
 #endif
 
