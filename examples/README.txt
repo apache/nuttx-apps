@@ -1469,13 +1469,19 @@ examples/serloop
       Use C buffered I/O (getchar/putchar) vs. raw console I/O
       (read/read).
 
+examples/slcd
+^^^^^^^^^^^^^
+  A simple test of alphanumeric, segment LCDs (SLCDs).
+
+  * CONFIG_EXAMPLES_SLCD - Enable the SLCD test
+
 examples/smart
 ^^^^^^^^^^^^^^
 
   This is a test of the SMART file systemt that derives from
   examples/nxffs.
 
-  * CONFIG_EXAMPLES_SMART: -Enable the SMART file system example
+  * CONFIG_EXAMPLES_SMART: - Enable the SMART file system example
   * CONFIG_EXAMPLES_SMART_ARCHINIT: The default is to use the RAM MTD
     device at drivers/mtd/rammtd.c.  But an architecture-specific MTD
     driver can be used instead by defining CONFIG_EXAMPLES_SMART_ARCHINIT.  In
