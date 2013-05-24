@@ -73,7 +73,7 @@ struct slcd_test_s
 
   /* The I/O buffer */
 
-  char buffer[CONFIG_EXAMPLES_SLCD_BUFSIZE];
+  uint8_t buffer[CONFIG_EXAMPLES_SLCD_BUFSIZE];
 };
 
 /****************************************************************************
@@ -81,19 +81,84 @@ struct slcd_test_s
  ****************************************************************************/
 
 static struct slcd_test_s g_slcdtest;
-static const char g_slcdhello[] = "hello";
+static const char g_slcdhello[] = "Hello";
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: slcd_putc
+ * Name: slcd_dumpbuffer
+ *
+ * Description:
+ *  Do a pretty buffer dump
+ *
+ ****************************************************************************/
+
+void slcd_dumpbuffer(FAR const char *msg, FAR const uint8_t *buffer, unsigned int buflen)
+{
+  int i;
+  int j;
+  int k;
+
+  printf("%s (%p):\n", msg, buffer);
+  for (i = 0; i < buflen; i += 32)
+    {
+      printf("%04x: ", i);
+      for (j = 0; j < 32; j++)
+        {
+          k = i + j;
+
+          if (j == 16)
+            {
+              printf(" ");
+            }
+
+          if (k < buflen)
+            {
+              printf("%02x", buffer[k]);
+            }
+          else
+            {
+              printf("  ");
+            }
+        }
+
+      printf(" ");
+      for (j = 0; j < 32; j++)
+        {
+         k = i + j;
+
+          if (j == 16)
+            {
+              printf(" ");
+            }
+
+          if (k < buflen)
+            {
+              if (buffer[k] >= 0x20 && buffer[k] < 0x7f)
+                {
+                  printf("%c", buffer[k]);
+                }
+              else
+                {
+                  printf(".");
+                }
+            }
+        }
+
+      printf("\n");
+   }
+}
+
+/****************************************************************************
+ * Name: slcd_flush
  ****************************************************************************/
 
 static int slcd_flush(FAR struct lib_outstream_s *stream)
 {
   FAR struct slcd_test_s *priv = (FAR struct slcd_test_s *)stream;
+  FAR const uint8_t *buffer;
   ssize_t nwritten;
   ssize_t remaining;
 
@@ -102,9 +167,13 @@ static int slcd_flush(FAR struct lib_outstream_s *stream)
    */
 
   remaining = stream->nput;
-  while (remaining > 0);
+  buffer    = priv->buffer;
+
+  slcd_dumpbuffer("WRITING", buffer, remaining);
+
+  while (remaining > 0)
     {
-      nwritten = write(priv->fd, priv->buffer, remaining);
+      nwritten = write(priv->fd, buffer, remaining);
       if (nwritten < 0)
         {
           int errcode = errno;
@@ -118,6 +187,7 @@ static int slcd_flush(FAR struct lib_outstream_s *stream)
       else
         {
           remaining -= nwritten;
+          buffer    += nwritten;
         }
     }
 
@@ -143,7 +213,7 @@ static void slcd_putc(FAR struct lib_outstream_s *stream, int ch)
 
   /* If the buffer is full, flush it */
 
-  if (stream->nput >=- CONFIG_EXAMPLES_SLCD_BUFSIZE)
+  if (stream->nput >= CONFIG_EXAMPLES_SLCD_BUFSIZE)
     {
       (void)slcd_flush(stream);
     }
@@ -199,7 +269,7 @@ int slcd_main(int argc, char *argv[])
   ret = ioctl(priv->fd, SLCDIOC_GEOMETRY, (unsigned long)&priv->geo);
   if (ret < 0)
     {
-      printf("Failed to open %s: %d\n", EXAMPLES_SLCD_DEVNAME, errno);
+      printf("ioctl(SLCDIOC_GEOMETRY) failed: %d\n", errno);
       goto errout_with_fd;
     }
 
@@ -208,14 +278,18 @@ int slcd_main(int argc, char *argv[])
 
   /* Home the cursor and clear the display */
 
+  printf("Clear screen\n");
   slcd_encode(SLCDCODE_CLEAR, 0, &priv->stream);
 
   /* Say hello */
 
+  printf("Print [%s]\n", g_slcdhello);
   slcd_puts(&priv->stream, g_slcdhello);
+  slcd_flush(&priv->stream);
 
   /* Normal exit */
 
+  printf("Test complete\n");
   close(priv->fd);
   return 0;
 
