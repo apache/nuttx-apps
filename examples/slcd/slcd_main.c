@@ -243,7 +243,19 @@ static void slcd_puts(FAR struct lib_outstream_s *outstream,
 int slcd_main(int argc, char *argv[])
 {
   FAR struct slcd_test_s *priv = &g_slcdtest;
+  FAR const char *str = g_slcdhello;
   int ret;
+
+  /* Parse the command line.  For now, only a single optional string argument
+   * is supported.
+   */
+
+#if defined(CONFIG_NSH_BUILTIN_APPS)
+  if (argc > 1)
+    {
+      str = argv[1];
+    }
+#endif
 
   /* Initialize the output stream */
 
@@ -273,8 +285,8 @@ int slcd_main(int argc, char *argv[])
       goto errout_with_fd;
     }
 
-  printf("Geometry rows: %d columns: %d\n",
-         priv->geo.nrows, priv->geo.ncolumns);
+  printf("Geometry rows: %d columns: %d nbars: %d\n",
+         priv->geo.nrows, priv->geo.ncolumns, priv->geo.nbars);
 
   /* Home the cursor and clear the display */
 
@@ -283,8 +295,8 @@ int slcd_main(int argc, char *argv[])
 
   /* Say hello */
 
-  printf("Print [%s]\n", g_slcdhello);
-  slcd_puts(&priv->stream, g_slcdhello);
+  printf("Print [%s]\n", str);
+  slcd_puts(&priv->stream, str);
   slcd_flush(&priv->stream);
 
   /* Normal exit */
