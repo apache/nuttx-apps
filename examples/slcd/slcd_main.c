@@ -262,7 +262,7 @@ int slcd_main(int argc, char *argv[])
   memset(priv, 0, sizeof(struct slcd_test_s));
   priv->stream.put   = slcd_putc;
 #ifdef CONFIG_STDIO_LINEBUFFER
-  priv->stream.flush = lib_noflush;
+  priv->stream.flush = slcd_flush;
 #endif
 
   /* Open the SLCD device */
