@@ -47,6 +47,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <nuttx/lcd/slcd_ioctl.h>
 #include <nuttx/lcd/slcd_codec.h>
 
 /****************************************************************************
