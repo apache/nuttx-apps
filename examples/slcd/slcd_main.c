@@ -250,6 +250,7 @@ int slcd_main(int argc, char *argv[])
 {
   FAR struct slcd_test_s *priv = &g_slcdtest;
   FAR const char *str = g_slcdhello;
+  int fd;
   int ret;
 
   /* Parse the command line.  For now, only a single optional string argument
@@ -261,11 +262,22 @@ int slcd_main(int argc, char *argv[])
     {
       str = argv[1];
     }
+#endif
+
+  /* Open the SLCD device */
+
+  printf("Opening %s for read/write access\n", CONFIG_EXAMPLES_SLCD_DEVNAME);
+
+  fd = open(CONFIG_EXAMPLES_SLCD_DEVNAME, O_RDWR);
+  if (priv->fd < 0)
+    {
+      printf("Failed to open %s: %d\n", CONFIG_EXAMPLES_SLCD_DEVNAME, errno);
+      goto errout;
+    }
 
   /* Are we already initialized? */
 
   if (!priv->initialized)
-#endif
     {
       /* Initialize the output stream */
 
@@ -275,20 +287,9 @@ int slcd_main(int argc, char *argv[])
       priv->stream.flush = slcd_flush;
 #endif
 
-      /* Open the SLCD device */
-
-      printf("Opening %s for read/write access\n", CONFIG_EXAMPLES_SLCD_DEVNAME);
-
-      priv->fd = open(CONFIG_EXAMPLES_SLCD_DEVNAME, O_RDWR);
-      if (priv->fd < 0)
-        {
-          printf("Failed to open %s: %d\n", CONFIG_EXAMPLES_SLCD_DEVNAME, errno);
-          goto errout;
-        }
-
       /* Get the geometry of the SCLD device */
 
-      ret = ioctl(priv->fd, SLCDIOC_GEOMETRY, (unsigned long)&priv->geo);
+      ret = ioctl(fd, SLCDIOC_GEOMETRY, (unsigned long)&priv->geo);
       if (ret < 0)
         {
           printf("ioctl(SLCDIOC_GEOMETRY) failed: %d\n", errno);
@@ -307,8 +308,12 @@ int slcd_main(int argc, char *argv[])
       priv->initialized = true;
     }
 
-  /* Set the cursor to the beginning of the current row and erase to the end
-   * of the line.
+  /* Save the file descriptor in a place where slcd_flush can find it */
+
+  priv->fd = fd;
+
+  /* Set the cursor to the beginning of the current row by homing the cursor
+   * then going down as necessary, and erase to the end of the line.
    */
 
   slcd_encode(SLCDCODE_HOME, 0, &priv->stream);
@@ -331,7 +336,7 @@ int slcd_main(int argc, char *argv[])
   /* Normal exit */
 
   printf("Test complete\n");
-  close(priv->fd);
+  close(fd);
   return 0;
 
 errout_with_fd:
