@@ -54,8 +54,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef EXAMPLES_SLCD_DEVNAME
-#  define EXAMPLES_SLCD_DEVNAME "/dev/slcd"
+#ifndef CONFIG_EXAMPLES_SLCD_DEVNAME
+#  define CONFIG_EXAMPLES_SLCD_DEVNAME "/dev/slcd"
 #endif
 
 /****************************************************************************
@@ -64,13 +64,18 @@
 /* All state information for this test is kept within the following structure
  * in order create a namespace and to minimize the possibility of name
  * collisions.
+ *
+ * NOTE: stream must be the first element of struct slcd_test_s to support
+ * casting between these two types.
  */
 
 struct slcd_test_s
 {
-  struct lib_outstream_s stream;  /* Stream to use for all output */
-  struct slcd_geometry_s geo;     /* Size of the SLCD (rows x columns) */
-  int                    fd;      /* File descriptor or the open SLCD device */
+  struct lib_outstream_s stream;      /* Stream to use for all output */
+  struct slcd_geometry_s geo;         /* Size of the SLCD (rows x columns) */
+  int                    fd;          /* File descriptor or the open SLCD device */
+  bool                   initialized; /* TRUE:  Initialized */
+  uint8_t                currow;      /* Next row to display */
 
   /* The I/O buffer */
 
@@ -102,7 +107,7 @@ void slcd_dumpbuffer(FAR const char *msg, FAR const uint8_t *buffer, unsigned in
   int j;
   int k;
 
-  printf("%s (%p):\n", msg, buffer);
+  printf("%s:\n", msg);
   for (i = 0; i < buflen; i += 32)
     {
       printf("%04x: ", i);
@@ -256,43 +261,66 @@ int slcd_main(int argc, char *argv[])
     {
       str = argv[1];
     }
+
+  /* Are we already initialized? */
+
+  if (!priv->initialized)
 #endif
+    {
+      /* Initialize the output stream */
 
-  /* Initialize the output stream */
-
-  memset(priv, 0, sizeof(struct slcd_test_s));
-  priv->stream.put   = slcd_putc;
+      memset(priv, 0, sizeof(struct slcd_test_s));
+      priv->stream.put   = slcd_putc;
 #ifdef CONFIG_STDIO_LINEBUFFER
-  priv->stream.flush = slcd_flush;
+      priv->stream.flush = slcd_flush;
 #endif
 
-  /* Open the SLCD device */
+      /* Open the SLCD device */
 
-  printf("Opening %s for read/write access\n", EXAMPLES_SLCD_DEVNAME);
+      printf("Opening %s for read/write access\n", CONFIG_EXAMPLES_SLCD_DEVNAME);
 
-  priv->fd = open(EXAMPLES_SLCD_DEVNAME, O_RDWR);
-  if (priv->fd < 0)
-    {
-      printf("Failed to open %s: %d\n", EXAMPLES_SLCD_DEVNAME, errno);
-      goto errout;
+      priv->fd = open(CONFIG_EXAMPLES_SLCD_DEVNAME, O_RDWR);
+      if (priv->fd < 0)
+        {
+          printf("Failed to open %s: %d\n", CONFIG_EXAMPLES_SLCD_DEVNAME, errno);
+          goto errout;
+        }
+
+      /* Get the geometry of the SCLD device */
+
+      ret = ioctl(priv->fd, SLCDIOC_GEOMETRY, (unsigned long)&priv->geo);
+      if (ret < 0)
+        {
+          printf("ioctl(SLCDIOC_GEOMETRY) failed: %d\n", errno);
+          goto errout_with_fd;
+        }
+
+      printf("Geometry rows: %d columns: %d nbars: %d\n",
+             priv->geo.nrows, priv->geo.ncolumns, priv->geo.nbars);
+
+      /* Home the cursor and clear the display */
+
+      printf("Clear screen\n");
+      slcd_encode(SLCDCODE_CLEAR, 0, &priv->stream);
+      slcd_flush(&priv->stream);
+
+      priv->initialized = true;
     }
 
-  /* Get the geometry of the SCLD device */
+  /* Set the cursor to the beginning of the current row and erase to the end
+   * of the line.
+   */
 
-  ret = ioctl(priv->fd, SLCDIOC_GEOMETRY, (unsigned long)&priv->geo);
-  if (ret < 0)
+  slcd_encode(SLCDCODE_HOME, 0, &priv->stream);
+  slcd_encode(SLCDCODE_DOWN, priv->currow, &priv->stream);
+  slcd_encode(SLCDCODE_ERASEEOL, 0, &priv->stream);
+
+  /* Increment to the next row, wrapping back to first if necessary. */
+
+  if (++priv->currow >= priv->geo.nrows)
     {
-      printf("ioctl(SLCDIOC_GEOMETRY) failed: %d\n", errno);
-      goto errout_with_fd;
+      priv->currow = 0;
     }
-
-  printf("Geometry rows: %d columns: %d nbars: %d\n",
-         priv->geo.nrows, priv->geo.ncolumns, priv->geo.nbars);
-
-  /* Home the cursor and clear the display */
-
-  printf("Clear screen\n");
-  slcd_encode(SLCDCODE_CLEAR, 0, &priv->stream);
 
   /* Say hello */
 
@@ -309,5 +337,6 @@ int slcd_main(int argc, char *argv[])
 errout_with_fd:
    close(priv->fd);
 errout:
+   priv->initialized = false;
    exit(EXIT_FAILURE);
 }

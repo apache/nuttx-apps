@@ -562,4 +562,5 @@
 	  Book.  Contributed by Max Holtberg (2013-5-22).
 	* apps/examples/slcd:  Add an example for testing alphanumeric,
 	  segment LCDs (2013-5-24).
-
+	* apps/examples/slcd:  Extend SLCD test to handle multi-line displays
+	  (2013-5-26).
