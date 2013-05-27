@@ -279,6 +279,8 @@ int slcd_main(int argc, char *argv[])
 
   if (!priv->initialized)
     {
+      unsigned long brightness;
+
       /* Initialize the output stream */
 
       memset(priv, 0, sizeof(struct slcd_test_s));
@@ -296,14 +298,32 @@ int slcd_main(int argc, char *argv[])
           goto errout_with_fd;
         }
 
-      printf("Geometry rows: %d columns: %d nbars: %d\n",
+      printf("Attributes:\n");
+      printf("  rows: %d columns: %d nbars: %d\n",
              priv->attr.nrows, priv->attr.ncolumns, priv->attr.nbars);
+      printf("  max contrast: %d max brightness: %d\n",
+             priv->attr.maxcontrast, priv->attr.maxbrightness);
 
       /* Home the cursor and clear the display */
 
       printf("Clear screen\n");
       slcd_encode(SLCDCODE_CLEAR, 0, &priv->stream);
       slcd_flush(&priv->stream);
+
+      /* Set the brightness to the mid value */
+
+      brightness = ((unsigned long)priv->attr.maxbrightness + 1) >> 1;
+      printf("Set brightness to %ld\n", brightness);
+
+      ret = ioctl(fd, SLCDIOC_SETBRIGHTNESS, brightness);
+      if (ret < 0)
+        {
+          /* Report the ioctl failure, but do not error out.  Some SLCDs
+           * do not support brightness settings.
+           */
+
+          printf("ioctl(SLCDIOC_GETATTRIBUTES) failed: %d\n", errno);
+        }
 
       priv->initialized = true;
     }

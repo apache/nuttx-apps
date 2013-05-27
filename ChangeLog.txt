@@ -85,7 +85,7 @@
 	* apps/examples/usbstorage: Can now be built as two NSH "built-in" commands:
 	  'msconn' will connect the USB mass storage device; 'msdis' will disconnect
 	  the USB storage device.
-	* apps/examples/nx*:  All NX header files moved from nuttx/include/nuttx to 
+	* apps/examples/nx*:  All NX header files moved from nuttx/include/nuttx to
 	  nuttx/include/nuttx/nx.
 	* apps/examples/usbstorage: Added instrumentation to monitor memory usage
 	  to check for memory leaks in the USB storage driver.
@@ -116,7 +116,7 @@
 	* apps/examples/lcdrw:  Add a test to verify if you can or can or read
 	  data from an LCD correctly.
 	* apps/examples/usbterm:  A USB terminal example.. more of a USB chat or
-	  serial bridge:  Data received on local console echoed via USB serial; 
+	  serial bridge:  Data received on local console echoed via USB serial;
 	  data received on USB serial is echoed on the local console.
 	* apps/examples/touchscreen:  Add a simple, generic test for any
 	  touschscreen driver.
@@ -301,7 +301,7 @@
 	  moved from apps/netutils/webserver/makefsdata to nuttx/tools/mkfsdata.pl
 	  (Part of a larger change submitted by Max Holtzberg).
 	* apps/netutils/webserver, apps/examples/uip, and apps/include/netutils/httpd.h:
-	  The "canned" version of the uIP web servers content that was at 
+	  The "canned" version of the uIP web servers content that was at
 	  netutils/webserver/httpd_fsdata.c has been replaced with a dynamically
 	  built configuration located at apps/examples/uip (Contributed by
 	  Max Holtzberg).
@@ -564,3 +564,5 @@
 	  segment LCDs (2013-5-24).
 	* apps/examples/slcd:  Extend SLCD test to handle multi-line displays
 	  (2013-5-26).
+	* apps/examples/slcd:  This test now sets the SLCD brightness level to
+	  the mid-point as part of its initialization (2013-5-27).
