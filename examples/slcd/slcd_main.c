@@ -71,11 +71,11 @@
 
 struct slcd_test_s
 {
-  struct lib_outstream_s stream;      /* Stream to use for all output */
-  struct slcd_geometry_s geo;         /* Size of the SLCD (rows x columns) */
-  int                    fd;          /* File descriptor or the open SLCD device */
-  bool                   initialized; /* TRUE:  Initialized */
-  uint8_t                currow;      /* Next row to display */
+  struct lib_outstream_s   stream;      /* Stream to use for all output */
+  struct slcd_attributes_s attr;        /* Size of the SLCD (rows x columns) */
+  int                      fd;          /* File descriptor or the open SLCD device */
+  bool                     initialized; /* TRUE:  Initialized */
+  uint8_t                  currow;      /* Next row to display */
 
   /* The I/O buffer */
 
@@ -287,17 +287,17 @@ int slcd_main(int argc, char *argv[])
       priv->stream.flush = slcd_flush;
 #endif
 
-      /* Get the geometry of the SCLD device */
+      /* Get the attributes of the SCLD device */
 
-      ret = ioctl(fd, SLCDIOC_GEOMETRY, (unsigned long)&priv->geo);
+      ret = ioctl(fd, SLCDIOC_GETATTRIBUTES, (unsigned long)&priv->attr);
       if (ret < 0)
         {
-          printf("ioctl(SLCDIOC_GEOMETRY) failed: %d\n", errno);
+          printf("ioctl(SLCDIOC_GETATTRIBUTES) failed: %d\n", errno);
           goto errout_with_fd;
         }
 
       printf("Geometry rows: %d columns: %d nbars: %d\n",
-             priv->geo.nrows, priv->geo.ncolumns, priv->geo.nbars);
+             priv->attr.nrows, priv->attr.ncolumns, priv->attr.nbars);
 
       /* Home the cursor and clear the display */
 
@@ -322,7 +322,7 @@ int slcd_main(int argc, char *argv[])
 
   /* Increment to the next row, wrapping back to first if necessary. */
 
-  if (++priv->currow >= priv->geo.nrows)
+  if (++priv->currow >= priv->attr.nrows)
     {
       priv->currow = 0;
     }
