@@ -135,6 +135,7 @@ clean:
 	$(call DELFILE, *$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, .built)
+	$(call DELFILE, *.dSYM)
 	$(call CLEAN)
 
 distclean: clean

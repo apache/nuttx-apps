@@ -52,6 +52,7 @@ $(BIN): $(OBJS)
 
 clean: 
 	$(call DELFILE, $(BIN))
+	$(call DELFILE, *.dSYM)
 	$(call CLEAN)
 
 install:

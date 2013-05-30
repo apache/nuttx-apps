@@ -94,5 +94,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 	$(call DELFILE, host$(HOSTEXEEXT))
+	$(call DELFILE, *.dSYM)
 
 -include Make.dep
