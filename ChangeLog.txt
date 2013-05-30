@@ -366,3 +366,6 @@
    NxWidgets::CGlyphSliderHorizontal class. From Ken Pettit (2013-5-17) .
 *  NxWidgets::CGlyphSliderHorizontal:  Fix a drawing error.  From Ken
    Pettit (2013-5-17).
+*  UnitTests/*/Makefile and .gitignore:  Update the way that NSH
+   the Unit Tests are registered as built-in NSH applications (2013-5-30).
+

@@ -1,7 +1,7 @@
 #################################################################################
 # NxWidgets/Unitests/nxwm/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -172,15 +172,18 @@ else
 endif
 	$(Q) touch .built
 
-# Standard housekeeping targets
+# Register NSH built-in application
 
-.context:
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
-endif
-	$(Q) touch $@
 
-context: .context
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
+context:
+endif
+
+# Standard housekeeping targets
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) $(CXX) -- $(CXXFLAGS) -- $(SRCS) >Make.dep
@@ -189,10 +192,12 @@ context: .context
 depend: .depend
 
 clean:
+	$(call DELFILE, $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat)
 	$(call DELFILE, .built)
 	$(call CLEAN)
 
 distclean: clean
+	$(call DELFILE, $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat)
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
