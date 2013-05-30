@@ -1,5 +1,4 @@
-Make.dep
-.depend
-.built
-
-
+/Make.dep
+/.depend
+/.built
+/*.dSYM

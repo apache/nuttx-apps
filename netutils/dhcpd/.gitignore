@@ -1,8 +1,7 @@
-.built
-.depend
-Make.dep
-*.src
-*.obj
-*.lst
-
-
+/.built
+/.depend
+/Make.dep
+/*.src
+/*.obj
+/*.lst
+/*.dSYM
