@@ -126,6 +126,10 @@ ifeq ($(CONFIG_EXAMPLES_NETTEST),y)
 CONFIGURED_APPS += examples/nettest
 endif
 
+ifeq ($(CONFIG_EXAMPLES_NRF24L01TERM),y)
+CONFIGURED_APPS += examples/nrf24l01_term
+endif
+
 ifeq ($(CONFIG_EXAMPLES_NSH),y)
 CONFIGURED_APPS += examples/nsh
 endif

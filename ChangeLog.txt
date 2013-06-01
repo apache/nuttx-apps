@@ -570,4 +570,5 @@
 	  ignore to be only the current directory; Ignore .dSYM files in
 	  directories where .exe's may be build.  Also, in Makefiles,
 	  clean .dSYM files in directories where .exe may be built (2013-5-30).
-
+	* apps/examples/nrf35l01_term: Add an example application to demo the
+	  nRF24L01 driver.  From Laurent Latil (2013-6-1).

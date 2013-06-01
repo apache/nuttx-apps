@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_NRF24L01TERM
+	bool "Basic nRF24L01 terminal"
+	default n
+
+if EXAMPLES_NRF24L01TERM
+endif
