@@ -29,12 +29,17 @@ information as "recommendations" -- not necessarily proven instructions.
    For example, './configure.sh ficl-4.1.0' will leave the Makefile
    fragment 'Make.srcs' in the ficl build directory.
 
-5. Create your NuttX configuration.  The appconfig file should include
-   (1) the path to your application code, and (2) the path to the Ficl
-   build directory.  That latter would appear as the following line in
-   your appconfig file:
+5. Create your NuttX configuration.  Using the 'make menuconfig', you
+   should select:
 
-   CONFIGURED_APPS += interpreters/ficl
+     CONFIG_INTERPRETERS_FICL=y
+
+   Deprecated: In the older style configuration, you would have used
+   an appconfig file to include (1) the path to your application code,
+   and (2) the path to the Ficl build directory.  That latter would
+   have appeared as the following line in your appconfig file:
+
+     CONFIGURED_APPS += interpreters/ficl
 
  6. Configure and build NuttX.  On successful completion, the Ficl objects
     will be available in apps/libapps.a and that NuttX binary will be

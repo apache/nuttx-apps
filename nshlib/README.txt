@@ -273,7 +273,7 @@ o date [-s "MMM DD HH:MM:SS YYYY"]
 
   Only one format is used both on display and when setting the date/time:
   MMM DD HH:MM:SS YYYY.  For example,
-  
+
     data -s "Sep 1 11:30:00 2011"
 
   24-hour time format is assumed.
@@ -326,7 +326,7 @@ o df
     Size   Blocks     Used Available Mounted on
       64        6        6         0 /etc
      512      985        2       983 /tmp
-  nsh> 
+  nsh>
 
 o echo [<string|$name> [<string|$name>...]]
 
@@ -757,7 +757,7 @@ o rmdir <dir-path>
   Recall that NuttX uses a pseudo filesystem for its root file system. The
   rmdir command can only be used to remove directories from volumes set up
   with the mount command; it cannot be used to remove directories from the
-  pseudo filesystem. 
+  pseudo filesystem.
 
   Example:
   ^^^^^^^^
@@ -808,7 +808,7 @@ o unset <name>
     nsh>
 
  o urldecode [-f] <string or filepath>
- 
+
  o urlencode [-f] <string or filepath>
 
 o usleep <usec>
@@ -844,7 +844,7 @@ NSH Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The availability of the above commands depends upon features that
-may or may not be enabled in the NuttX configuration file.  The 
+may or may not be enabled in the NuttX configuration file.  The
 following table indicates the dependency of each command on NuttX
 configuration settings.  General configuration settings are discussed
 in the NuttX Porting Guide.  Configuration settings specific to NSH
@@ -948,7 +948,7 @@ NSH-Specific Configuration Settings
       Support external registered, "builtin" applications that can be
       executed from the NSH command line (see apps/README.txt for
       more information).
-  
+
   * CONFIG_NSH_FILEIOSIZE
       Size of a static I/O buffer used for file access (ignored if
       there is no filesystem). Default is 1024.
@@ -1099,7 +1099,7 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NET=y
       Of course, networking must be enabled
- 
+
   * CONFIG_NSOCKET_DESCRIPTORS
       And, of course, you must allocate some socket descriptors.
 
@@ -1137,7 +1137,7 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NET=y
       Of course, networking must be enabled
- 
+
   * CONFIG_NSOCKET_DESCRIPTORS
       And, of course, you must allocate some socket descriptors.
 
@@ -1147,7 +1147,7 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NET_BROADCAST=y
       UDP broadcast support is needed.
- 
+
   * CONFIG_NET_BUFSIZE=650 (or larger)
       Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
       messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
@@ -1166,7 +1166,7 @@ NSH-Specific Configuration Settings
       start with '/'.
 
   * CONFIG_NSH_ROMFSDEVNO
-      This is the minor number of the ROMFS block device.  The default is 
+      This is the minor number of the ROMFS block device.  The default is
       '0' corresponding to /dev/ram0.
 
   * CONFIG_NSH_ROMFSSECTSIZE
@@ -1180,7 +1180,7 @@ NSH-Specific Configuration Settings
   describe that FAT FS.
 
   * CONFIG_NSH_FATDEVNO
-      This is the minor number of the FAT FS block device.  The default is 
+      This is the minor number of the FAT FS block device.  The default is
       '1' corresponding to /dev/ram1.
 
   * CONFIG_NSH_FATSECTSIZE
@@ -1212,7 +1212,6 @@ Common Problems
   Problem:
     The function 'readline' is undefined.
   Usual Cause:
-    The following is missing from your appconfig file:
+    The following is missing from your defconfig file:
 
-    CONFIGURED_APPS += system/readline
-
+      CONFIG_SYSTEM_READLINE=y

@@ -69,11 +69,13 @@ highly influenced by uIP) include:
               See http://acme.com/software/thttpd/ for general THTTPD
               information.  See apps/include/netutils/thttpd.h
               for interface information. Applications using this thttpd
-              will need to provide an appconfig file in the configuration
-              directory with instruction to build applications like:
+              will need to provide the following definitions in the
+              defconfig file to select the appropriate netutils
+              libraries:
 
-               CONFIGURED_APPS += uiplib
-               CONFIGURED_APPS += thttpd
+                CONFIG_NETUTILS_UIPLIB=y
+                CONFIG_NETUTILS_THTTPD=y
+
   xmlrpc    - The Embeddable Lightweight XML-RPC Server discussed at
               http://www.drdobbs.com/web-development/an-embeddable-lightweight-xml-rpc-server/184405364
 
@@ -85,16 +87,16 @@ Telnetd in NuttX is to support the NuttShell (NSH) Telnet front end.  See
 apps/include/netutils/telnetd.h for information about how to incorporate
 Telnetd into your custom applications.
 
-To enable and link the Telnetd daemon, you need to include the following in 
-in your appconfig (apps/.config) file:
+To enable and link the Telnetd daemon, you need to include the following in
+in your defconfig file:
 
-  CONFIGURED_APPS += uiplib
-  CONFIGURED_APPS += netutils/telnetd
+  CONFIG_NETUTILS_UIPLIB=y
+  CONFIG_NETUTILS_TELNETD=y
 
 Also if the Telnet console is enabled, make sure that you have the following
 set in the NuttX configuration file or else the performance will be very bad
 (because there will be only one character per TCP transfer):
-  
+
   CONFIG_STDIO_BUFFER_SIZE   Some value >= 64
   CONFIG_STDIO_LINEBUFFER=y  Since Telnetd is line oriented, line buffering
                              is optimal.

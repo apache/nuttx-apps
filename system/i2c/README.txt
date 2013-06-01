@@ -156,7 +156,7 @@ Common Option Summary
   through 0x77 (this valid range is controlled by the configuration settings
   CONFIG_I2CTOOL_MINADDR and CONFIG_I2CTOOL_MAXADDR).  If you are working
   with the same device, the address needs to be set only once.
-  
+
   All I2C address are 7-bit, hexadecimal values.
 
   NOTE 1: Notice in the "help" output above it shows both default value of
@@ -178,7 +178,7 @@ Common Option Summary
   numbering.  This option identifies which bus you are working with now.
   The valid range of bus numbers is controlled by the configuration settings
   CONFIG_I2CTOOL_MINBUS and CONFIG_I2CTOOL_MAXBUS.
-  
+
   The bus numbers are small, decimal numbers.
 
 [-r regaddr] is the I2C device register address (hex).  Default: 00 Current: 00
@@ -218,7 +218,7 @@ List buses: bus [OPTIONS]
 
 This command will simply list all of the configured I2C buses and indicate
 which are supported by the driver and which are not:
-  
+
    BUS   EXISTS?
   Bus 1: YES
   Bus 2: NO
@@ -260,7 +260,7 @@ Read register: get [OPTIONS]
 
   This command will read the value of the I2C register using the selected
   I2C parameters in the common options.  No other arguments are required.
-  
+
   This command with write the 8-bit address value then read an 8- or 16-bit
   data value from the device.  Optionally, it may re-start the transfer
   before obtaining the data.
@@ -288,7 +288,7 @@ Write register: set [OPTIONS] <value>
   as the final, hexadecimal value.  This value may be an 8-bit value (in the
   range 00-ff) or a 16-bit value (in the range 0000-ffff), depending upon
   the selected data width.
-  
+
   This command will write the 8-bit address value then write the 8- or 16-bit
   data value to the device.  Optionally, it may re-start the transfer
   before writing the data.
@@ -344,7 +344,19 @@ NuttX Configuration Requirements
 --------------------------------
 The I2C tools requires the following in your NuttX configuration:
 
-1. Device-specific I2C support must be enabled.  The I2C tool will call the
+1. Application configuration.
+
+   Using 'make menuconfig', select the i2c tool.  The following
+   definition should appear in your .config file:
+
+     CONFIG_SYSTEM_I2C=y
+
+   Deprecated.  In the older style configuration, there would have been
+   an appconfig file containing the path to the I2C tool directory like:
+
+     CONFIGURE_APPS += system/i2c
+
+2. Device-specific I2C support must be enabled.  The I2C tool will call the
    platform-specific function up_i2cinitialize() to get instances of the
    I2C interface and the platform-specific function up_i2cuninitialize()
    to discard instances of the I2C interface.
@@ -356,7 +368,7 @@ The I2C tools requires the following in your NuttX configuration:
    user-space program.  As a result, the I2C tool cannot be used if a
    NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
 
-2. I2C driver configuration
+3. I2C driver configuration
 
    The CONFIG_I2C_TRANSFER option must also be set in your NuttX
    configuration.  This configuration is the defconfig file in your
@@ -370,15 +382,6 @@ The I2C tools requires the following in your NuttX configuration:
    I2C driver does not support these extra methods, then you cannot use
    the I2C tool unless you extend the support in your platform I2C
    driver.
-
-3. Application configuration.
-
-   The path to the I2C tool directory must also be set in your NuttX
-   application configuration.  This application configuration is the
-   appconfig file in your configuration directory that is copied to the
-   NuttX application directory as .config when NuttX is configured.
-
-     CONFIGURE_APPS += system/i2c
 
 I2C Tool Configuration Options
 ------------------------------

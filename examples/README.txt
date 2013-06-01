@@ -1,16 +1,14 @@
 examples
 ^^^^^^^^
 
-  appconfig and CONFIG_APPS
-  
+  Selecting examples:
+
     The examples directory contains several sample applications that
     can be linked with NuttX.  The specific example is selected in the
-    configs/<board-name>/appconfig file via the CONFIGURED_APPS setting.
-    This setting provides the path to the directory containing the
-    application Makefile (this path is a relative to the apps/ top-
-    level directory).  For example, 
+    configs/<board-name>/defconfig file via the CONFIG_EXAMPLES_xyz
+    setting where xyz is the name of the example. For example,
 
-      CONFIGURE_APPS += examples/ostest
+      CONFIG_EXAMPLES_OSTEST=y
 
     Selects the examples/ostest example.
 
@@ -30,6 +28,25 @@ examples
       the specific example.  See the following for examples that
       support this option).
 
+      NOTE: The use of CONFIG_EXAMPLES_XYZ_BUILTIN is being phased
+      out.  For many example, the definition of CONFIG_NSH_BUILTIN_APPS
+      is sufficient built the example as an NSH built-in application.
+
+  Older configurations.
+
+    Older, deprecated configuration files might use a variable called
+    CONFIGURED_APPS to selected examples.  Those CONFIGURED_APPS settings
+    where kept in files called appconfig.  For example, in those older
+    configuration files, the OS test example would have been selected with
+    an entry like the following in the appconfig file:
+
+      CONFIGURED_APPS += examples/ostest
+
+    appconfig files are not longer used in the current NuttX configuration
+    system.  And syntax like the above is being phased out (but is still
+    supported by the make system butonly until the last configuration is
+    converted to the newer style configuration files).
+
 examples/adc
 ^^^^^^^^^^^^
 
@@ -44,7 +61,7 @@ examples/adc
       Default: Built as a standalone problem
 
   Specific configuration options for this example include:
- 
+
     CONFIG_EXAMPLES_ADC_DEVPATH - The default path to the ADC device. Default: /dev/adc0
     CONFIG_EXAMPLES_ADC_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
       is defined, then the number of samples is provided on the command line
@@ -69,7 +86,7 @@ examples/buttons
   CONFIG_EXAMPLES_IRQBUTTONS_MAX      - Highest interrupting button number (MAX=7)
 
   Name strings for buttons:
-  
+
     CONFIG_EXAMPLES_BUTTONS_NAME0, CONFIG_EXAMPLES_BUTTONS_NAME1,
     CONFIG_EXAMPLES_BUTTONS_NAME2, CONFIG_EXAMPLES_BUTTONS_NAME3,
     CONFIG_EXAMPLES_BUTTONS_NAME4, CONFIG_EXAMPLES_BUTTONS_NAME5,
@@ -99,9 +116,9 @@ examples/can
       mode for testing. The STM32 CAN driver does support loopback mode.
     CONFIG_NSH_BUILTIN_APPS - Build the CAN test as an NSH built-in function.
       Default: Built as a standalone problem
- 
+
   Specific configuration options for this example include:
- 
+
     CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device. Default: /dev/can0
     CONFIG_EXAMPLES_CAN_NMSGS - If CONFIG_NSH_BUILTIN_APPS
       is defined, then the number of loops is provided on the command line
@@ -223,7 +240,7 @@ examples/composite
     emulation) or "/dev/ttyACM0" (for the CDC/ACM serial device).
   CONFIG_EXAMPLES_COMPOSITE_BUFSIZE - The size of the serial I/O buffer in
     bytes.  Default 256 bytes.
- 
+
   If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB), then
   the example code will also manage the USB trace output.  The amount of trace output
   can be controlled using:
@@ -266,7 +283,7 @@ examples/dhcpd
 ^^^^^^^^^^^^^^
 
   This examples builds a tiny DCHP server for the target system.
-  
+
   NOTE: For test purposes, this example can be built as a
   host-based DHCPD server.  This can be built as follows:
 
@@ -274,7 +291,7 @@ examples/dhcpd
     make -f Makefile.host TOPDIR=<nuttx-directory>
 
   NuttX configuration settings:
-  
+
     CONFIG_NET=y                   - Of course
     CONFIG_NSOCKET_DESCRIPTORS     - And, of course, you must allocate some
                                      socket descriptors.
@@ -282,6 +299,7 @@ examples/dhcpd
                                      (as well as various other UDP-related
                                      configuration settings)
     CONFIG_NET_BROADCAST=y         - UDP broadcast support is needed.
+    CONFIG_NETUTILS_UIPLIB=y       - The UIP library is needed
 
     CONFIG_EXAMPLES_DHCPD_NOMAC     - (May be defined to use software assigned MAC)
     CONFIG_EXAMPLES_DHCPD_IPADDR    - Target IP address
@@ -291,12 +309,6 @@ examples/dhcpd
   See also CONFIG_NETUTILS_DHCPD_* settings described elsewhere
   and used in netutils/dhcpd/dhcpd.c. These settings are required
   to described the behavior of the daemon.
-
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
-
-  CONFIGURED_APPS += uiplib
 
 examples/discover
 ^^^^^^^^^^^^^^^^^
@@ -354,7 +366,7 @@ examples/elf
 
        LDELFFLAGS = -r -e main
 
-     If you use GCC to link, you make also need to include '-nostdlib' or 
+     If you use GCC to link, you make also need to include '-nostdlib' or
      '-nostartfiles' and '-nodefaultlibs'.
 
   3. This example also requires genromfs.  genromfs can be build as part of the
@@ -421,9 +433,9 @@ examples/ftpc
   optional port number.
 
   NOTE:  By default, FTPC uses readline to get data from stdin.  So your
-  appconfig file must have the following build path:
+  defconfig file must have the following build path:
 
-    CONFIGURED_APPS += system/readline
+    CONFIG_SYSTEM_READLINE=y
 
   NOTE: If you use the ftpc task over a telnet NSH connection, then you
   should set the following configuration item:
@@ -437,7 +449,7 @@ examples/ftpc
 
   You may also want to define the following in your configuration file.
   Otherwise, you will have not feeback about what is going on:
- 
+
     CONFIG_DEBUG=y
     CONFIG_DEBUG_VERBOSE=y
     CONFIG_DEBUG_FTPC=y
@@ -449,6 +461,7 @@ examples/ftpd
   configurations specific to the FTPD example (the FTPD daemon itself may
   require other configuration options as well).
 
+   CONFIG_EXAMPLES_FTPD - Enable the FTPD example.
    CONFIG_EXAMPLES_FTPD_PRIO - Priority of the FTP daemon.
      Default: SCHED_PRIORITY_DEFAULT
    CONFIG_EXAMPLES_FTPD_STACKSIZE - Stack size allocated for the
@@ -495,11 +508,11 @@ examples/ftpd
     CONFIG_FTPD_WORKERSTACKSIZE - The stacksize to allocate for each
       FTP daemon worker thread.  Default:  2048 bytes.
 
-  The appconfig file (apps/.config) should include:
+  The following netutils libraries should be enabled in your defconfig
+  file:
 
-    CONFIGURED_APPS += examples/ftpd
-    CONFIGURED_APPS += netutils/uiplib
-    CONFIGURED_APPS += netutils/ftpd
+    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_TELNED=y
 
 examples/hello
 ^^^^^^^^^^^^^^
@@ -524,7 +537,7 @@ examples/helloxx
     CONFIG_HAVE_CXX -- Enable C++ Support
 
   Optional NuttX configuration settings:
-  
+
     CONFIG_HAVE_CXXINITIALIZE -- Enable support for static constructors
       (may not be available on all platforms).
 
@@ -589,12 +602,8 @@ examples/igmp
       Network mask
   * CONFIG_EXAMPLES_IGMP_GRPADDR
       Multicast group address
-
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
-
-  CONFIGURED_APPS += uiplib
+  * CONFIG_EXAMPLES_UIPLIB
+      The UIP library is needed
 
 examples/json
 ^^^^^^^^^^^^^
@@ -635,7 +644,7 @@ examples/lcdrw
       LCD X resolution.  Default: 240
   * CONFIG_EXAMPLES_LDCRW_YRES
       LCD Y resolution.  Default: 320
-  
+
   NOTE: This test exercises internal lcd driver interfaces.  As such, it
   relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
@@ -721,13 +730,22 @@ examples/nettest
   This is a simple network test for verifying client- and server-
   functionality in a TCP/IP connection.
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
-
-  CONFIGURED_APPS += uiplib
+    CONFIG_EXAMPLES_NETTEST=y - Enables the nettest example
+    CONFIG_EXAMPLES_UIPLIB=y  - The UIP livrary in needed.
 
   See also examples/tcpecho
+
+examples/nrf24l01_term
+^^^^^^^^^^^^^^^^^^^^^^
+
+  These is a simple test of NRF24L01-based wireless connectivity.  Enabled\
+  with:
+
+    CONFIG_EXAMPLES_NRF24L01TERM
+
+  Options:
+
+    CONFIG_NSH_BUILTIN_APPS - Built as an NSH built-in applications.
 
 examples/nsh
 ^^^^^^^^^^^^
@@ -737,37 +755,37 @@ examples/nsh
   application.  NSH is described in its own README located at
   apps/nshlib/README.txt
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
+  Applications using this example will need to provide an defconfig
+  file in the configuration directory with instruction to build
+  applicationslike:
 
-  CONFIGURED_APPS += nshlib
+    CONFIG_NSH_LIBRARY=y
 
   NOTE:  If the NSH serial console is used, then following is also
   required to build the readline() library:
 
-  CONFIGURED_APPS += system/readline
+    CONFIG_SYSTEM_READLINE=y
 
   And if networking is included:
 
-  CONFIGURED_APPS += uiplib
-  CONFIGURED_APPS += dhcpc
-  CONFIGURED_APPS += resolv
-  CONFIGURED_APPS += tftp
-  CONFIGURED_APPS += webclient
+    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_DHCPC=y
+    CONFIG_NETUTILS_RESOLV=y
+    CONFIG_NETUTILS_TFTPC=y
+    CONFIG_NETUTILS_WEBCLIENT=y
 
-  If the Telnet console is enabled, then the appconfig file (apps/.config)
-  should also include:
+  If the Telnet console is enabled, then the defconfig file should
+  also include:
 
-  CONFIGURED_APPS += netutils/telnetd
+    CONFIG_NETUTILS_TELNETD=y
 
   Also if the Telnet console is enabled, make sure that you have the
   following set in the NuttX configuration file or else the performance
   will be very bad (because there will be only one character per TCP
   transfer):
-  
-  CONFIG_STDIO_BUFFER_SIZE - Some value >= 64
-  CONFIG_STDIO_LINEBUFFER=y
+
+    CONFIG_STDIO_BUFFER_SIZE - Some value >= 64
+    CONFIG_STDIO_LINEBUFFER=y
 
 examples/nx
 ^^^^^^^^^^^
@@ -777,7 +795,7 @@ examples/nx
   can be selected:
 
     CONFIG_EXAMPLES_NX_BUILTIN -- Build the NX example as a "built-in"
-      that can be executed from the NSH command line    
+      that can be executed from the NSH command line
     CONFIG_EXAMPLES_NX_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
     CONFIG_EXAMPLES_NX_DEVNO - The LCD device to select from the LCD
@@ -930,7 +948,7 @@ examplex/nxhello
   The following configuration options can be selected:
 
     CONFIG_EXAMPLES_NXHELLO_BUILTIN -- Build the NXHELLO example as a "built-in"
-      that can be executed from the NSH command line    
+      that can be executed from the NSH command line
     CONFIG_EXAMPLES_NXHELLO_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
     CONFIG_EXAMPLES_NXHELLO_DEVNO - The LCD device to select from the LCD
@@ -963,7 +981,7 @@ examples/nximage
   and 8-bit greyscale for now.
 
     CONFIG_EXAMPLES_NXIMAGE_BUILTIN -- Build the NXIMAGE example as a "built-in"
-      that can be executed from the NSH command line    
+      that can be executed from the NSH command line
     CONFIG_EXAMPLES_NXIMAGE_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
     CONFIG_EXAMPLES_NXIMAGE_DEVNO - The LCD device to select from the LCD
@@ -1066,11 +1084,11 @@ examples/nxtext
   garbage on the display or a failure at the point where the display
   should scroll, it is probably because you have an LCD driver that is
   write-only.
-  
+
   The following configuration options can be selected:
 
     CONFIG_EXAMPLES_NXTEXT_BUILTIN -- Build the NXTEXT example as a "built-in"
-      that can be executed from the NSH command line    
+      that can be executed from the NSH command line
     CONFIG_EXAMPLES_NXTEXT_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
     CONFIG_EXAMPLES_NXTEXT_DEVNO - The LCD device to select from the LCD
@@ -1243,10 +1261,10 @@ examples/poll
   the host.  The host should then receive the echo'ed message.
 
   If networking is enabled, applications using this example will need to
-  provide an appconfig file in the configuration driver with instruction
-  to build applications like:
+  provide the following definition in the defconfig file to enable the
+  UIP library:
 
-  CONFIGURED_APPS += uiplib
+    CONFIG_NETUTILS_UIPLIB=y
 
 examples/posix_spawn
 ^^^^^^^^^^^^^^^^^^^^
@@ -1294,7 +1312,7 @@ examples/posix_spawn
 
        LDELFFLAGS = -r -e main
 
-     If you use GCC to link, you make also need to include '-nostdlib' or 
+     If you use GCC to link, you make also need to include '-nostdlib' or
      '-nostartfiles' and '-nodefaultlibs'.
 
   3. This example also requires genromfs.  genromfs can be build as part of the
@@ -1338,9 +1356,9 @@ examples/pwm
     CONFIG_NSH_BUILTIN_APPS - Build the PWM test as an NSH built-in function.
       Default: Not built!  The example can only be used as an NSH built-in
       application
- 
+
   Specific configuration options for this example include:
- 
+
     CONFIG_EXAMPLES_PWM_DEVPATH - The path to the default PWM device. Default: /dev/pwm0
     CONFIG_EXAMPLES_PWM_FREQUENCY - The initial PWM frequency.  Default: 100 Hz
     CONFIG_EXAMPLES_PWM_DUTYPCT - The initial PWM duty as a percentage.  Default: 50%
@@ -1369,7 +1387,7 @@ examples/qencoder
   directory.
 
   Specific configuration options for this example include:
- 
+
     CONFIG_EXAMPLES_QENCODER_DEVPATH - The path to the QE device. Default:
       /dev/qe0
     CONFIG_EXAMPLES_QENCODER_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
@@ -1396,7 +1414,7 @@ examples/relays
 examples/rgmp
 ^^^^^^^^^^^^^
 
-  RGMP stands for RTOS and GPOS on Multi-Processor.  RGMP is a project for 
+  RGMP stands for RTOS and GPOS on Multi-Processor.  RGMP is a project for
   running GPOS and RTOS simultaneously on multi-processor platforms. You can
   port your favorite RTOS to RGMP together with an unmodified Linux to form a
   hybrid operating system. This makes your application able to use both RTOS
@@ -1446,18 +1464,17 @@ examples/sendmail
   NOTE: This test has not been verified on the NuttX target environment.
   As of this writing, unit-tested in the Cygwin/Linux host environment.
 
-  NOTE 2: This sendmail example only works for the simplest of 
+  NOTE 2: This sendmail example only works for the simplest of
   environments.  Virus protection software on your host may have
   to be disabled to allow you to send messages.  Only very open,
   unprotected recipients can be used.  Most will protect themselves
   from this test email because it looks like SPAM.
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
+  Applications using this example will need to enble the following
+  netutils libraries in their defconfig file:
 
-  CONFIGURED_APPS += uiplib
-  CONFIGURED_APPS += smtp
+    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_SMTP=y
 
 examples/serloop
 ^^^^^^^^^^^^^^^^
@@ -1507,7 +1524,7 @@ examples/smart_test
 ^^^^^^^^^^^^^^^^^^^
 
   Performs a file-based test on a SMART (or any) filesystem. Validates
-  seek, append and seek-with-write operations.  
+  seek, append and seek-with-write operations.
 
     * CONFIG_EXAMPLES_SMART_TEST=y
 
@@ -1542,6 +1559,9 @@ examples/telnetd
   the NuttX environment, the NuttShell (at apps/nshlib) supercedes this
   tiny shell and also supports telnetd.
 
+    CONFIG_EXAMPLES_TELNETD - Enable the Telnetd example
+    CONFIG_NETUTILS_UIPLIB, CONFIG_NETUTILS_TELNED - Enable netutils
+      libraries needed by the Telnetd example.
     CONFIG_EXAMPLES_TELNETD_DAEMONPRIO - Priority of the Telnet daemon.
       Default: SCHED_PRIORITY_DEFAULT
     CONFIG_EXAMPLES_TELNETD_DAEMONSTACKSIZE - Stack size allocated for the
@@ -1556,17 +1576,11 @@ examples/telnetd
     CONFIG_EXAMPLES_TELNETD_DRIPADDR - The default router address. Default
       10.0.0.1
     CONFIG_EXAMPLES_TELNETD_NETMASK - The network mask.  Default: 255.255.255.0
- 
-  The appconfig file (apps/.config) should include:
-
-    CONFIGURED_APPS += examples/telnetd
-    CONFIGURED_APPS += netutils/uiplib
-    CONFIGURED_APPS += netutils/telnetd
 
   Also, make sure that you have the following set in the NuttX configuration
   file or else the performance will be very bad (because there will be only
   one character per TCP transfer):
-  
+
     CONFIG_STDIO_BUFFER_SIZE - Some value >= 64
     CONFIG_STDIO_LINEBUFFER=y
 
@@ -1581,12 +1595,11 @@ examples/thttpd
     CONFIG_EXAMPLES_THTTPD_DRIPADDR - Default router IP addess
     CONFIG_EXAMPLES_THTTPD_NETMASK  - Network mask
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration directory with instruction to build applications
-  like:
+  Applications using this example will need to enable the following
+  netutils libraries in the defconfig file:
 
-    CONFIGURED_APPS += uiplib
-    CONFIGURED_APPS += thttpd
+    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_THTTPD=y
 
 examples/tiff
 ^^^^^^^^^^^^^
@@ -1611,18 +1624,18 @@ examples/tiff
 
   The following must also be defined in your apps/ configuration file:
 
-    CONFIGURED_APPS += examples/tiff
-    CONFIGURED_APPS += graphics/tiff
+    CONFIG_EXAMPLES_TIFF=y
+    CONFIG_GRAPHICS_TIFF=y
 
 examples/touchscreen
 ^^^^^^^^^^^^^^^^^^^^
 
   This configuration implements a simple touchscreen test at
   apps/examples/touchscreen.  This test will create an empty X11 window
-  and will print the touchscreen output as it is received from the 
+  and will print the touchscreen output as it is received from the
   simulated touchscreen driver.
 
-    CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN - Build the touchscreen test as 
+    CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN - Build the touchscreen test as
       an NSH built-in function.  Default: Built as a standalone problem
     CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
       corresponds to touchscreen device /dev/inputN.  Note this value must
@@ -1638,13 +1651,13 @@ examples/touchscreen
 
   The following additional configurations must be set in the NuttX
   configuration file:
-  
+
     CONFIG_INPUT=y
     (Plus any touchscreen-specific settings).
 
   The following must also be defined in your apps configuration file:
 
-    CONFIGURED_APPS += examples/touchscreen
+    CONFIG_EXAMPLES_TOUCHSREEN=y
 
   The board-specific logic must provide the following interfaces that will
   be called by the example in order to initialize and uninitialize the
@@ -1659,11 +1672,10 @@ examples/udp
   This is a simple network test for verifying client- and server-
   functionality over UDP.
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
+  Applications using this example will need to enabled the following
+  netutils libraries in the defconfig file:
 
-  CONFIGURED_APPS += uiplib
+    CONFIG_NETUTILS_UIPLIB=y
 
 examples/uip
 ^^^^^^^^^^^^
@@ -1699,14 +1711,13 @@ examples/uip
     CONFIG_NETUTILS_HTTPDFILESTATS
     CONFIG_NETUTILS_HTTPDNETSTATS
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
+  Applications using this example will need to enable the following
+  netutils libraries in their defconfig file:
 
-    CONFIGURED_APPS += uiplib
-    CONFIGURED_APPS += dhcpc
-    CONFIGURED_APPS += resolv
-    CONFIGURED_APPS += webserver
+    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_DHCPC=y
+    CONFIG_NETUTILS_RESOLV=y
+    CONFIG_NETUTILS_WEBSERVER=y
 
   NOTE:  This example does depend on the perl script at
   nuttx/tools/mkfsdata.pl.  You must have perl installed on your
@@ -1890,37 +1901,37 @@ examples/usbterm
 
   Configuration options:
 
-  CONFIG_EXAMPLES_USBTERM_BUILTIN - Build the usbterm example as an NSH
-    built-in command.  NOTE:  This is not fully functional as of this
-    writing.. It should work, but there is no mechanism in place yet
-    to exit the USB terminal program and return to NSH.
-  CONFIG_EXAMPLES_USBTERM_DEVINIT - If defined, then the example will
-    call a user provided function as part of its initialization:
-       int usbterm_devinit(void);
-    And another user provided function at termination:
-       void usbterm_devuninit(void);
-  CONFIG_EXAMPLES_USBTERM_BUFLEN - The size of the input and output
-    buffers used for receiving data. Default 256 bytes.
+    CONFIG_EXAMPLES_USBTERM_BUILTIN - Build the usbterm example as an NSH
+      built-in command.  NOTE:  This is not fully functional as of this
+      writing.. It should work, but there is no mechanism in place yet
+      to exit the USB terminal program and return to NSH.
+    CONFIG_EXAMPLES_USBTERM_DEVINIT - If defined, then the example will
+      call a user provided function as part of its initialization:
+         int usbterm_devinit(void);
+      And another user provided function at termination:
+         void usbterm_devuninit(void);
+    CONFIG_EXAMPLES_USBTERM_BUFLEN - The size of the input and output
+      buffers used for receiving data. Default 256 bytes.
 
   If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB, or
   CONFIG_USBDEV_TRACE), then the example code will also manage the USB trace
   output.  The amount of trace output can be controlled using:
 
-  CONFIG_EXAMPLES_USBTERM_TRACEINIT
-    Show initialization events
-  CONFIG_EXAMPLES_USBTERM_TRACECLASS
-    Show class driver events
-  CONFIG_EXAMPLES_USBTERM_TRACETRANSFERS
-    Show data transfer events
-  CONFIG_EXAMPLES_USBTERM_TRACECONTROLLER
-    Show controller events
-  CONFIG_EXAMPLES_USBTERM_TRACEINTERRUPTS
-    Show interrupt-related events.
+    CONFIG_EXAMPLES_USBTERM_TRACEINIT
+      Show initialization events
+    CONFIG_EXAMPLES_USBTERM_TRACECLASS
+      Show class driver events
+    CONFIG_EXAMPLES_USBTERM_TRACETRANSFERS
+      Show data transfer events
+    CONFIG_EXAMPLES_USBTERM_TRACECONTROLLER
+      Show controller events
+    CONFIG_EXAMPLES_USBTERM_TRACEINTERRUPTS
+      Show interrupt-related events.
 
   NOTE:  By default, USBterm uses readline to get data from stdin.  So your
-  appconfig file must have the following build path:
+  defconfig file must have the following build path:
 
-    CONFIGURED_APPS += system/readline
+    CONFIG_SYSTEM_READLINE=y
 
   NOTE: If you use the USBterm task over a telnet NSH connection, then you
   should set the following configuration item:
@@ -1953,9 +1964,9 @@ examples/watchdog
     CONFIG_NSH_BUILTIN_APPS - Build the watchdog time test as an NSH
       built-in function. Default: Not built!  The example can only be used
       as an NSH built-in application
- 
+
   Specific configuration options for this example include:
- 
+
     CONFIG_EXAMPLES_WATCHDOG_DEVPATH - The path to the Watchdog device.
       Default: /dev/watchdog0
     CONFIG_EXAMPLES_WATCHDOG_PINGTIME - Time in milliseconds that the example
@@ -2000,13 +2011,12 @@ examples/wget
     cd examples/wget
     make -f Makefile.host
 
-  Applications using this example will need to provide an appconfig
-  file in the configuration driver with instruction to build applications
-  like:
+  Applications using this example will need to enable the following netutils
+  libraries in the defconfig file:
 
-    CONFIGURED_APPS += uiplib
-    CONFIGURED_APPS += resolv
-    CONFIGURED_APPS += webclient
+    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_RESOLV=y
+    CONFIG_NETUTILS_WEBCLIENT=y
 
 examples/wget
 ^^^^^^^^^^^^^

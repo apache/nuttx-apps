@@ -33,7 +33,7 @@ pcode
       sub-directory.
 
     Example:
-  
+
       ./INSTALL.sh -16 $PWD/../../../apps/interpreters
 
     After installation, the NuttX apps/interpresters directory will contain
@@ -52,11 +52,18 @@ pcode
               `-- model-specific source files
 
   pashello
-  
+
     There is a simple Pascal example at apps/examples/pashello.  This is the
     standard "Hello, World!" example written in Pascal and interpreted from
     Pascal P-Code at runtime.  To use this example, place the following in
-    your appconfig file"
+    your defonfig file:
+
+      CONFIG_EXAMPLES_PASHELLO=y
+      CONFIG_INTERPRETERS_PCODE=y
+
+    Old Style (deprecated).  In the older configuration files, you would have
+    used an appconfig file containing the following definitions in order to
+    accomplish the same thing:
 
       # Path to example in apps/examples containing the passhello_main entry point
 

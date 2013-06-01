@@ -33,7 +33,7 @@ NuttX directory.  Like:
  `- apps
 
 If all of the above conditions are TRUE, then NuttX will be able to
-find the application directory.  If your application directory has a 
+find the application directory.  If your application directory has a
 different name or is location at a different position, then you will
 have to inform the NuttX build system of that location.  There are several
 ways to do that:
@@ -61,7 +61,7 @@ collected during the make context build phase.
 
 To execute an application function:
 
-  exec_builtin() is defined in the nuttx/include/apps/builtin.h 
+  exec_builtin() is defined in the nuttx/include/apps/builtin.h
 
 NuttShell (NSH) Built-In Commands
 ---------------------------------
@@ -98,7 +98,7 @@ Application Configuration File
 The old-style NuttX configuration uses a special configuration file is
 used to configure which applications are to be included in the build.
 The source for this file is  configs/<board>/<configuration>/appconfig.
-The existence of the appconfig file in the board configuration directory\
+The existence of the appconfig file in the board configuration directory
 is sufficient to enable building of applications.
 
 The appconfig file is copied into the apps/ directory as .config when
@@ -250,12 +250,13 @@ A: Here are four:
       a) Copy 'MyBoard' directory to configs/MyBoard.
       b) Add a symbolic link to MyApplication at apps/external
       c) Configure NuttX (usually by:
-      
+
          tools/configure.sh MyBoard/MyConfiguration
 
          or simply by copying defconfig->nutt/.config,
-         setenv.sh->nuttx/setenv.sh, Make.defs->nuttx/Make.defs,
-         appconfig->apps/.config
+         setenv.sh->nuttx/setenv.sh, and Make.defs->nuttx/Make.defs
+         (and appconfig->apps/.config for the old-style, deprecated
+         configuration files).
 
       Using the 'external' link makes it especially easy to add a
       'built-in' application an existing configuration.
