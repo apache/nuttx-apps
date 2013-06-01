@@ -566,3 +566,8 @@
 	  (2013-5-26).
 	* apps/examples/slcd:  This test now sets the SLCD brightness level to
 	  the mid-point as part of its initialization (2013-5-27).
+	* .gitignore:  Clean-up of most all .gitignore files:  Make scope of
+	  ignore to be only the current directory; Ignore .dSYM files in
+	  directories where .exe's may be build.  Also, in Makefiles,
+	  clean .dSYM files in directories where .exe may be built (2013-5-30).
+
