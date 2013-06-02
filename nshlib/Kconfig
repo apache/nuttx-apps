@@ -252,6 +252,13 @@ config NSH_LINELEN
 		The maximum length of one command line and of one output line.
 		Default: 80
 
+config NSH_MAXARGUMENTS
+	int "Maximum number of command arguments"
+	default 6
+	---help---
+		The maximum number of NSH command arguments.
+		Default: 6
+
 config NSH_NESTDEPTH
 	int "Maximum command nesting"
 	default 3
@@ -353,6 +360,16 @@ config NSH_ROMFSSECTSIZE
 		default volume is very small, this defaults to 64 but should be
 		increased if the ROMFS volume were to be become large.  Any value
 		selected must be a power of 2.
+
+config NSH_ARCHROMFS
+	bool "Architecture-specific ROMFS header"
+	default n
+	depends on NSH_ROMFSETC
+	---help---
+		Enable this option to provide an architecture-specific ROMFS
+		header at <arch/board/nsh_romfsimg.h>. Note that this header
+		will be copied from nuttx/configs/<boardname>/include and should
+		be stored at this location.
 
 config NSH_FATDEVNO
 	int "FAT block device minor number"

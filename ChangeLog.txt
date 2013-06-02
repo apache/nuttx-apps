@@ -572,3 +572,5 @@
 	  clean .dSYM files in directories where .exe may be built (2013-5-30).
 	* apps/examples/nrf35l01_term: Add an example application to demo the
 	  nRF24L01 driver.  From Laurent Latil (2013-6-1).
+	* apps/nshlib/Kconfig:  Add some missing NSH configuration values.
+	  From Lorenz Meier (2013-6-2).
