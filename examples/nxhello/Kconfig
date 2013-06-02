@@ -9,5 +9,84 @@ config EXAMPLES_NXHELLO
 	---help---
 		Enable the NX graphics \"Hello, World!\" example
 
-if EXAMPLES_HELLOXX
+if EXAMPLES_NXHELLO
+
+config EXAMPLES_NXHELLO_VPLANE
+	int "Video Plane"
+	default 0
+	---help---
+		The plane to select from the framebuffer driver for use in the test.
+		Default: 0
+
+config EXAMPLES_NXHELLO_DEVNO
+	int "Video Device Number"
+	default 0
+	---help---
+		The LCD device to select from the LCD driver for use in the test:
+		Default: 0
+
+config EXAMPLES_NXHELLO_BPP
+	int "Bits-Per-Pixel"
+	default 32
+	---help---
+		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
+		and 32.  Default is 32.
+
+
+comment "Example Color Configuration"
+
+config EXAMPLES_NXHELLO_DEFAULT_COLORS
+	bool "Use Default Colors"
+	default y
+
+if !EXAMPLES_NXHELLO_DEFAULT_COLORS
+
+config EXAMPLES_NXHELLO_BGCOLOR
+	hex "Background color"
+	default 0x0
+	---help---
+		The color of the background.  Default depends on config
+		EXAMPLES_NXHELLO_BPP.
+
+config EXAMPLES_NXHELLO_FONTCOLOR
+	hex "Background font color"
+	default 0x0
+	---help---
+		The color of the fonts used in the background window. Default
+		depends on config EXAMPLES_NXHELLO_BPP.
+
+endif
+
+comment "Example Font Configuration"
+
+config EXAMPLES_NXHELLO_DEFAULT_FONT
+	bool "Use Default Font"
+	default y
+
+if !EXAMPLES_NXHELLO_DEFAULT_FONT
+
+config EXAMPLES_NXHELLO_FONTID
+	int "Background font ID"
+	default 0
+	---help---
+		Selects the font used in the background window (see font ID numbers
+		in include/nuttx/nx/nxfonts.h)
+
+endif
+
+config EXAMPLES_NXHELLO_EXTERNINIT
+	bool "External Device Initialization"
+	default n
+	---help---
+		The driver for the graphics device on this platform requires some
+		unusual initialization.  This is the case, for example, for SPI LCD/OLED
+		devices.  If this configuration is selected, then the platform code
+		must provide an LCD initialization function with a prototype like:
+
+		#ifdef CONFIG_NX_LCDDRIVER
+		FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+		#else
+		FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+		#endif
+
 endif

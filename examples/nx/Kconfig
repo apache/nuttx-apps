@@ -70,7 +70,7 @@ config EXAMPLES_NX_DEFAULT_FONT
 	default y
 
 config EXAMPLES_NX_FONTID
-	bool "Font ID"
+	int "Font ID"
 	depends on !EXAMPLES_NX_DEFAULT_FONT
 	---help---
 		Selects the font (see font ID numbers in include/nuttx/nx/nxfonts.h)

@@ -100,14 +100,14 @@ config EXAMPLES_NXTEXT_DEFAULT_FONT
 if !EXAMPLES_NXTEXT_DEFAULT_FONT
 
 config EXAMPLES_NXTEXT_BGFONTID
-	bool "Background font ID"
+	int "Background font ID"
 	default 0
 	---help---
 		Selects the font used in the background window (see font ID numbers
 		in include/nuttx/nx/nxfonts.h)
 
 config EXAMPLES_NXTEXT_PUFONTID
-	bool "Pop-up font ID"
+	int "Pop-up font ID"
 	default 0
 	---help---
 		Selects the font used in the pop-up window (see font ID numbers

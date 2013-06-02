@@ -60,9 +60,9 @@ CNTXTDIRS = pwm
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cdcacm composite cxxtest dhcpd discover flash_test ftpd
-CNTXTDIRS += hello helloxx json keypadtestmodbus mtdpart nettest nxlines
-CNTXTDIRS += nrf24l01_term relays qencoder slcd smart_test tcpecho telnetd
-CNTXTDIRS += watchdog wgetjson
+CNTXTDIRS += hello helloxx json keypadtestmodbus mtdpart nettest nxhello
+CNTXTDIRS += nxlines nrf24l01_term relays qencoder slcd smart_test tcpecho
+CNTXTDIRS += telnetd touchscreen watchdog wgetjson
 endif
 
 ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
@@ -70,9 +70,6 @@ CNTXTDIRS += lcdrw
 endif
 ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
 CNTXTDIRS += nx
-endif
-ifeq ($(CONFIG_EXAMPLES_NXHELLO_BUILTIN),y)
-CNTXTDIRS += nxhello
 endif
 ifeq ($(CONFIG_EXAMPLES_NXIMAGE_BUILTIN),y)
 CNTXTDIRS += nximage
@@ -85,9 +82,6 @@ CNTXTDIRS += ostest
 endif
 ifeq ($(CONFIG_EXAMPLES_TIFF_BUILTIN),y)
 CNTXTDIRS += tiff
-endif
-ifeq ($(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN),y)
-CNTXTDIRS += touchscreen
 endif
 ifeq ($(CONFIG_EXAMPLES_USBMSC_BUILTIN),y)
 CNTXTDIRS += usbstorage
