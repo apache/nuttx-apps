@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/nxwm/include/cnxtaskbar.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,7 @@ namespace NxWM
     /**
      * This structure represents an application and its associated icon image
      */
- 
+
     struct STaskbarSlot
     {
       IApplication      *app;   /**< A reference to the icon */
@@ -108,7 +108,7 @@ namespace NxWM
     bool                          m_started;    /**< True if window manager has been started */
 
     /**
-     * Create a raw window. 
+     * Create a raw window.
      *
      * 1) Create a dumb NXWidgets::CWidgetControl instance  (See not).
      * 2) Pass the dumb NXWidgets::CWindowMessenger instance to the window constructor
@@ -134,7 +134,7 @@ namespace NxWM
      *
      * @return A partially initialized application window instance.
      */
- 
+
     NXWidgets::CNxTkWindow *openFramedWindow(void);
 
     /**
@@ -155,7 +155,7 @@ namespace NxWM
     virtual bool createTaskbarWindow(void);
 
     /**
-     * Create the background window. 
+     * Create the background window.
      *
      * @return true on success
      */
@@ -163,7 +163,7 @@ namespace NxWM
     virtual bool createBackgroundWindow(void);
 
     /**
-     * Create the background image. 
+     * Create the background image.
      *
      * @return true on success
      */
@@ -247,7 +247,7 @@ namespace NxWM
     /**
      * Connect to the server
      */
- 
+
     bool connect(void);
 
     /**
@@ -409,7 +409,15 @@ namespace NxWM
      */
 
     void getDisplaySize(FAR struct nxgl_size_s &size);
-     
+
+    /**
+     * Force a redraw of the taskbar and current application.
+     * This should only be necessary if the display loses state due to e.g. powerdown
+     * or other manual intervention.
+     */
+
+    inline void redraw() { redrawTopApplication(); }
+
     /**
      * Simulate a mouse click or release on the icon at index.  This method
      * is only available during automated testing of NxWM.

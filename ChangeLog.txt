@@ -374,4 +374,8 @@
 * NxWidgets::CNumericEdit:  Delay before auto-incrementing now varies:
   A longer delay is required to start auto-incrementing and speed increases
   while pressed.  From Petteri Aimonen (2013-6-4).
+* NxWM::CTaskbar: Add a method to redraw the taskbar and the current
+  application.  This should only be necessary if the display loses
+  state due to e.g. powerdown or other manual intervention.  From
+  Petteri Aimonen (2013-6-4).
 
