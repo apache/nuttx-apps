@@ -370,5 +370,8 @@
   the Unit Tests are registered as built-in NSH applications (2013-5-30).
 * NxWidgets::CImage:  Allow a NULL pointer for a bitmap.  Add protection
   to prevent dereferencing the NULL pointer.  From Petteri Aimonen
-  (2013-6-3).
+  (2013-6-4).
+* NxWidgets::CNumericEdit:  Delay before auto-incrementing now varies:
+  A longer delay is required to start auto-incrementing and speed increases
+  while pressed.  From Petteri Aimonen (2013-6-4).
 

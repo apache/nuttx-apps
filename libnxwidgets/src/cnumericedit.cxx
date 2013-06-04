@@ -216,14 +216,22 @@ void CNumericEdit::handleActionEvent(const CWidgetEventArgs &e)
     {
       m_timercount++;
 
-      int increment = m_increment;
+      // Increment the value at increasing speed.
+      // Ignore the first 3 timer ticks so that single clicks
+      // only increment by one.
+
+      int increment = 0;
       if (m_timercount > 50)
         {
           increment = m_increment * 100;
         }
-      else if (m_timercount > 10)
+      else if (m_timercount > 20)
         {
           increment = m_increment * 10;
+        }
+      else if (m_timercount > 3)
+        {
+          increment = m_increment;
         }
 
       if (m_button_minus->isClicked())
