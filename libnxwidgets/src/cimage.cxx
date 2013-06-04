@@ -138,19 +138,29 @@ CImage::CImage(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
 
 void CImage::getPreferredDimensions(CRect &rect) const
 {
-  nxgl_coord_t width  = m_bitmap->getWidth();
-  nxgl_coord_t height = m_bitmap->getHeight();
-
-  if (!m_flags.borderless)
+  if (!m_bitmap)
     {
-      width  += (m_borderSize.left + m_borderSize.right);
-      height += (m_borderSize.top + m_borderSize.bottom);
+      rect.setX(m_rect.getX());
+      rect.setY(m_rect.getY());
+      rect.setWidth(0);
+      rect.setHeight(0);
     }
+  else
+    {
+      nxgl_coord_t width  = m_bitmap->getWidth();
+      nxgl_coord_t height = m_bitmap->getHeight();
 
-  rect.setX(m_rect.getX());
-  rect.setY(m_rect.getY());
-  rect.setWidth(width);
-  rect.setHeight(height);
+      if (!m_flags.borderless)
+        {
+          width  += (m_borderSize.left + m_borderSize.right);
+          height += (m_borderSize.top + m_borderSize.bottom);
+        }
+
+      rect.setX(m_rect.getX());
+      rect.setY(m_rect.getY());
+      rect.setWidth(width);
+      rect.setHeight(height);
+    }
 }
 
 /**
@@ -440,7 +450,7 @@ void CImage::onReleaseOutside(nxgl_coord_t x, nxgl_coord_t y)
 
 void CImage::setImageLeft(nxgl_coord_t column)
 {
-  if (column > 0 && column <= m_bitmap->getWidth())
+  if (m_bitmap && column > 0 && column <= m_bitmap->getWidth())
     {
       m_origin.x = column;
     }
@@ -455,7 +465,7 @@ void CImage::setImageLeft(nxgl_coord_t column)
 
 void CImage::setImageTop(nxgl_coord_t row)
 {
-  if (row > 0 && row <= m_bitmap->getHeight())
+  if (m_bitmap && row > 0 && row <= m_bitmap->getHeight())
     {
       m_origin.x = row;
     }
