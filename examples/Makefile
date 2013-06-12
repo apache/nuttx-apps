@@ -49,45 +49,15 @@ SUBDIRS += wget wgetjson xmlrpc
 # Sub-directories that might need context setup.  Directories may need
 # context setup for a variety of reasons, but the most common is because
 # the example may be built as an NSH built-in function.
-#
-# Directories that may be built as NSH built-in functions may have their
-# own configuration setting (like CONFIG_EXAMPLES_HELLOXX_BUILTIN), but
-# many only depend on the generic CONFIG_NSH_BUILTIN_APPS setting.  And
-# there a few which an ONLY be built as NSH built-in applications; these
-# are included in the list unconditionally.
 
 CNTXTDIRS = pwm
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cdcacm composite cxxtest dhcpd discover flash_test ftpd
-CNTXTDIRS += hello helloxx json keypadtestmodbus mtdpart nettest nxhello
-CNTXTDIRS += nxlines nrf24l01_term relays qencoder slcd smart_test tcpecho
-CNTXTDIRS += telnetd touchscreen watchdog wgetjson
-endif
-
-ifeq ($(CONFIG_EXAMPLES_LCDRW_BUILTIN),y)
-CNTXTDIRS += lcdrw
-endif
-ifeq ($(CONFIG_EXAMPLES_NX_BUILTIN),y)
-CNTXTDIRS += nx
-endif
-ifeq ($(CONFIG_EXAMPLES_NXIMAGE_BUILTIN),y)
-CNTXTDIRS += nximage
-endif
-ifeq ($(CONFIG_EXAMPLES_NXTEXT_BUILTIN),y)
-CNTXTDIRS += nxtext
-endif
-ifeq ($(CONFIG_EXAMPLES_OSTEST_BUILTIN),y)
-CNTXTDIRS += ostest
-endif
-ifeq ($(CONFIG_EXAMPLES_TIFF_BUILTIN),y)
-CNTXTDIRS += tiff
-endif
-ifeq ($(CONFIG_EXAMPLES_USBMSC_BUILTIN),y)
-CNTXTDIRS += usbstorage
-endif
-ifeq ($(CONFIG_EXAMPLES_USBTERM_BUILTIN),y)
-CNTXTDIRS += usbterm
+CNTXTDIRS += hello helloxx json keypadtestmodbus lcdrw mtdpart nettest nx
+CNTXTDIRS += nxhello nximage nxlines nxtext nrf24l01_term ostest relays
+CNTXTDIRS += qencoder slcd smart_test tcpecho telnetd tiff touchscreen
+CNTXTDIRS += usbstorage usbterm watchdog wgetjson
 endif
 
 all: nothing

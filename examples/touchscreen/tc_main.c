@@ -88,7 +88,7 @@ int tc_main(int argc, char *argv[])
 {
   struct touch_sample_s sample;
   ssize_t nbytes;
-#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN) || CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
+#if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
   long nsamples;
 #endif
   int fd;
@@ -99,7 +99,7 @@ int tc_main(int argc, char *argv[])
    * samples that we collect before returning.  Otherwise, we never return
    */
 
-#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN)
+#if defined(CONFIG_NSH_BUILTIN_APPS)
   nsamples = 1;
   if (argc > 1)
     {
@@ -139,7 +139,7 @@ int tc_main(int argc, char *argv[])
    * touchscreen samples.
    */
 
-#if defined(CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN)
+#if defined(CONFIG_NSH_BUILTIN_APPS)
   for (; nsamples > 0; nsamples--)
 #elif CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
   for (nsamples = 0; nsamples < CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES; nsamples++)

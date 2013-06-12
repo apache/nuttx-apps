@@ -46,7 +46,7 @@ the apps/nshlib/README.txt file for information about add-ons.
 
 Configuration Options
 ---------------------
-CONFIG_I2CTOOL_BUILTIN - Build the tools as an NSH built-in command
+CONFIG_NSH_BUILTIN_APPS - Build the tools as an NSH built-in command
 CONFIG_I2CTOOL_MINBUS - Smallest bus index supported by the hardware (default 0).
 CONFIG_I2CTOOL_MAXBUS - Largest bus index supported by the hardware (default 3)
 CONFIG_I2CTOOL_MINADDR - Minium device address (default: 0x03)
@@ -391,7 +391,7 @@ options in the NuttX configuration.  This configuration is the defconfig
 file in your configuration directory that is copied to the NuttX top-level
 directory as .config when NuttX is configured.
 
-  CONFIG_I2CTOOL_BUILTIN: Build the tools as an NSH built-in command
+  CONFIG_NSH_BUILTIN_APPS: Build the tools as an NSH built-in command
   CONFIG_I2CTOOL_MINBUS: Smallest bus index supported by the hardware (default 0).
   CONFIG_I2CTOOL_MAXBUS: Largest bus index supported by the hardware (default 3)
   CONFIG_I2CTOOL_MINADDR: Minium device address (default: 0x03)

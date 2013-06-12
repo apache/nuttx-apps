@@ -11,13 +11,6 @@ config EXAMPLES_NX
 
 if EXAMPLES_NX
 
-config EXAMPLES_NX_BUILTIN
-	bool "NSH Built-IN"
-	depends on NSH_BUILTIN_APPS
-	---help---
-		Build the NX example as a "built-in" that can be executed from the
-		NSH command line    
-
 config EXAMPLES_NX_VPLANE
 	int "Video Plane"
 	default 0

@@ -11,13 +11,6 @@ config EXAMPLES_OSTEST
 
 if EXAMPLES_OSTEST
 
-config EXAMPLES_OSTEST_BUILTIN
-	bool "NSH built-in application"
-	default y if NSH_LIBRARY
-	default n if !NSH_LIBRARY
-	---help---
-		Build the OS test example as an NSH built-in application.
-
 config EXAMPLES_OSTEST_LOOPS
 	int "OS test loop"
 	default 1

@@ -23,14 +23,6 @@ examples
     - CONFIG_NSH_BUILTIN_APPS - Enable support for external registered,
       "named" applications that can be executed from the NSH
       command line (see apps/README.txt for more information).
-    - CONFIG_EXAMPLES_XYZ_BUILTIN -- Build the XYZ example as a "built-in"
-      that can be executed from the NSH command line (where XYZ is
-      the specific example.  See the following for examples that
-      support this option).
-
-      NOTE: The use of CONFIG_EXAMPLES_XYZ_BUILTIN is being phased
-      out.  For many example, the definition of CONFIG_NSH_BUILTIN_APPS
-      is sufficient built the example as an NSH built-in application.
 
   Older configurations.
 
@@ -543,7 +535,7 @@ examples/helloxx
 
   NuttX configuration settings specific to this examp;le:
 
-    CONFIG_EXAMPLES_HELLOXX_BUILTIN -- Build the helloxx example as a
+    CONFIG_NSH_BUILTIN_APPS -- Build the helloxx example as a
       "built-in"  that can be executed from the NSH command line.
     CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST - Set if the system does not
       support construction of objects on the stack.
@@ -794,7 +786,7 @@ examples/nx
   defined in include/nuttx/nx/nx.h.  The following configuration options
   can be selected:
 
-    CONFIG_EXAMPLES_NX_BUILTIN -- Build the NX example as a "built-in"
+    CONFIG_NSH_BUILTIN_APPS -- Build the NX example as a "built-in"
       that can be executed from the NSH command line
     CONFIG_EXAMPLES_NX_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
@@ -947,7 +939,7 @@ examplex/nxhello
 
   The following configuration options can be selected:
 
-    CONFIG_EXAMPLES_NXHELLO_BUILTIN -- Build the NXHELLO example as a "built-in"
+    CONFIG_NSH_BUILTIN_APPS -- Build the NXHELLO example as a "built-in"
       that can be executed from the NSH command line
     CONFIG_EXAMPLES_NXHELLO_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
@@ -980,7 +972,7 @@ examples/nximage
   of the display.  This only works for RGB23 (888), RGB16 (656), RGB8 (332),
   and 8-bit greyscale for now.
 
-    CONFIG_EXAMPLES_NXIMAGE_BUILTIN -- Build the NXIMAGE example as a "built-in"
+    CONFIG_NSH_BUILTIN_APPS -- Build the NXIMAGE example as a "built-in"
       that can be executed from the NSH command line
     CONFIG_EXAMPLES_NXIMAGE_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
@@ -1087,7 +1079,7 @@ examples/nxtext
 
   The following configuration options can be selected:
 
-    CONFIG_EXAMPLES_NXTEXT_BUILTIN -- Build the NXTEXT example as a "built-in"
+    CONFIG_NSH_BUILTIN_APPS -- Build the NXTEXT example as a "built-in"
       that can be executed from the NSH command line
     CONFIG_EXAMPLES_NXTEXT_VPLANE -- The plane to select from the frame-
       buffer driver for use in the test.  Default: 0
@@ -1165,7 +1157,7 @@ examples/ostest
   The behavior of the ostest can be modified with the following
   settings in the configs/<board-name>/defconfig file:
 
-  * CONFIG_EXAMPLES_OSTEST_BUILTIN
+  * CONFIG_NSH_BUILTIN_APPS
       Build the OS test example as an NSH built-in application.
   * CONFIG_EXAMPLES_OSTEST_LOOPS
       Used to control the number of executions of the test.  If
@@ -1611,7 +1603,6 @@ examples/tiff
   built-on, i.e., if the following is defined:
 
     CONFIG_NSH_BUILTIN_APPS=y
-    CONFIG_EXAMPLES_TIFF_BUILTIN=y
 
   At a miniumum, to run in an embedded environment, you will probably have to
   change the configured paths to the TIFF files defined in the example.
@@ -1635,7 +1626,7 @@ examples/touchscreen
   and will print the touchscreen output as it is received from the
   simulated touchscreen driver.
 
-    CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN - Build the touchscreen test as
+    CONFIG_NSH_BUILTIN_APPS - Build the touchscreen test as
       an NSH built-in function.  Default: Built as a standalone problem
     CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
       corresponds to touchscreen device /dev/inputN.  Note this value must
@@ -1643,7 +1634,7 @@ examples/touchscreen
     CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
      device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
      Default: "/dev/input0"
-    CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_EXAMPLES_TOUCHSCREEN_BUILTIN
+    CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
      is defined, then the number of samples is provided on the command line
      and this value is ignored.  Otherwise, this number of samples is
      collected and the program terminates.  Default:  Samples are collected
@@ -1814,7 +1805,7 @@ examples/usbstorage
 
   Configuration options:
 
-  CONFIG_EXAMPLES_USBMSC_BUILTIN
+  CONFIG_NSH_BUILTIN_APPS
     This example can be built as two NSH "built-in" commands if this option
     is selected: 'msconn' will connect the USB mass storage device; 'msdis'
     will disconnect the USB storage device.
@@ -1854,7 +1845,7 @@ examples/usbstorage
 
   Error results are always shown in the trace output
 
-  NOTE 1: When built as an NSH add-on command (CONFIG_EXAMPLES_USBMSC_BUILTIN=y),
+  NOTE 1: When built as an NSH add-on command (CONFIG_NSH_BUILTIN_APPS=y),
   Caution should be used to assure that the SD drive (or other storage device) is
   not in use when the USB storage device is configured.  Specifically, the SD
   driver should be unmounted like:
@@ -1901,7 +1892,7 @@ examples/usbterm
 
   Configuration options:
 
-    CONFIG_EXAMPLES_USBTERM_BUILTIN - Build the usbterm example as an NSH
+    CONFIG_NSH_BUILTIN_APPS - Build the usbterm example as an NSH
       built-in command.  NOTE:  This is not fully functional as of this
       writing.. It should work, but there is no mechanism in place yet
       to exit the USB terminal program and return to NSH.

@@ -574,3 +574,7 @@
 	  nRF24L01 driver.  From Laurent Latil (2013-6-1).
 	* apps/nshlib/Kconfig:  Add some missing NSH configuration values.
 	  From Lorenz Meier (2013-6-2).
+	* Standardize on CONFIG_NSH_BUILTIN_APPS.  Remove all other variants
+	  of the build-as-an-NSH-application configuration settings
+	  (2013-6-12).
+

@@ -109,17 +109,17 @@
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_EXAMPLES_USBMSC_BUILTIN) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
 struct usbmsc_state_s
 {
   /* This is the handle that references to this particular USB storage driver
    * instance.  It is only needed if the USB mass storage device example is
-   * built using CONFIG_EXAMPLES_USBMSC_BUILTIN.  In this case, the value
+   * built using CONFIG_NSH_BUILTIN_APPS.  In this case, the value
    * of the driver handle must be remembered between the 'msconn' and 'msdis'
    * commands.
    */
 
-#ifdef CONFIG_EXAMPLES_USBMSC_BUILTIN
+#ifdef CONFIG_NSH_BUILTIN_APPS
   FAR void *mshandle;
 #endif
 
@@ -143,7 +143,7 @@ struct usbmsc_state_s
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_EXAMPLES_USBMSC_BUILTIN) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
 extern struct usbmsc_state_s g_usbmsc;
 #endif
 

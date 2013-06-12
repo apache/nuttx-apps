@@ -13,13 +13,6 @@ if EXAMPLES_NXTEXT
 
 comment "Basic Configuration of the example"
 
-config EXAMPLES_NXTEXT_BUILTIN
-	bool "NSH Built-IN"
-	depends on NSH_BUILTIN_APPS
-	---help---
-		Build the NX Text example as a "built-in" that can be executed from the
-		NSH command line.
-
 config EXAMPLES_NXTEXT_VPLANE
 	int "Video Plane"
 	default 0

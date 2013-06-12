@@ -98,7 +98,7 @@
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_EXAMPLES_USBMSC_BUILTIN) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
 struct usbmsc_state_s g_usbmsc;
 #endif
 
@@ -383,7 +383,7 @@ static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
  *
  * Description:
  *   This is the main program that configures the USB mass storage device
- *   and exports the LUN(s).  If CONFIG_EXAMPLES_USBMSC_BUILTIN is defined
+ *   and exports the LUN(s).  If CONFIG_NSH_BUILTIN_APPS is defined
  *   in the NuttX configuration, then this program can be executed by
  *   entering the "msconn" command at the NSH console.
  *
@@ -398,7 +398,7 @@ int msconn_main(int argc, char *argv[])
    * do a little error checking to assure that we are not being called re-entrantly.
    */
 
-#ifdef CONFIG_EXAMPLES_USBMSC_BUILTIN
+#ifdef CONFIG_NSH_BUILTIN_APPS
 
    /* Check if there is a non-NULL USB mass storage device handle (meaning that the
     * USB mass storage device is already configured).
@@ -504,7 +504,7 @@ int msconn_main(int argc, char *argv[])
    * then we have not real option but to exit now.
    */
 
-#if !defined(CONFIG_EXAMPLES_USBMSC_BUILTIN) && !defined(CONFIG_DISABLE_SIGNALS)
+#if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
 
   /* Otherwise, this thread will hang around and monitor the USB storage activity */
 
@@ -527,7 +527,7 @@ int msconn_main(int argc, char *argv[])
       message("msconn_main: Still alive\n");
 #  endif
     }
-#elif defined(CONFIG_EXAMPLES_USBMSC_BUILTIN)
+#elif defined(CONFIG_NSH_BUILTIN_APPS)
 
    /* Return the USB mass storage device handle so it can be used by the 'misconn'
     * command.
@@ -555,13 +555,13 @@ int msconn_main(int argc, char *argv[])
  *
  * Description:
  *   This is a program entry point that will disconnet the USB mass storage
- *   device.  This program is only available if CONFIG_EXAMPLES_USBMSC_BUILTIN
+ *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
  *
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_USBMSC_BUILTIN
+#ifdef CONFIG_NSH_BUILTIN_APPS
 int msdis_main(int argc, char *argv[])
 {
   /* First check if the USB mass storage device is already connected */

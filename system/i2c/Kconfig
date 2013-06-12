@@ -11,12 +11,7 @@ config SYSTEM_I2CTOOL
 	---help---
 		Enable support for the I2C tool.
 
-config I2CTOOL_BUILTIN
-	bool "NSH built-in command"
-	default y
-	depends on SYSTEM_I2CTOOL && NSH_BUILTIN_APPS
-	---help---
-		Build the tools as an NSH built-in command
+if SYSTEM_I2CTOOL
 
 config I2CTOOL_MINBUS
 	int "Minimum bus number"
@@ -59,3 +54,5 @@ config I2CTOOL_DEFFREQ
 	depends on SYSTEM_I2CTOOL
 	---help---
 		Default I2C frequency (default: 4000000)
+
+endif

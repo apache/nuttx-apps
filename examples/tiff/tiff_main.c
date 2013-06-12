@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/tiff/tiff_main.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,6 @@
  * built-on, i.e., if the following is defined:
  *
  *   CONFIG_NSH_BUILTIN_APPS=y
- *   CONFIG_EXAMPLES_TIFF_BUILTIN=y
  *
  * Other configuration options:
  *
