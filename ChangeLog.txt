@@ -345,7 +345,7 @@
 * NxWidgets::CNxWidgets:  Allow overriding of the checkCollision() method.
   From Petteri Aimonen (2013-4-22).
 
-1.8 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.8 2013-06-14 Gregory Nutt <gnutt@nuttx.org>
 
 * NxWM::CMediaPlayer: shell application for an MP3 Media Player with
   Kconfig settings to enable it.  I plan to write this app to help
@@ -362,7 +362,7 @@
   should be 100, not 50, to be consistent with other default priorities.
 * NxWidgets::CGlyphSliderHorizontal and NxWidgets::CGlyphSliderHorizontalGrip:
   New widgets added by Ken Pettit (2013-5-15).
-* NxWidgets/UnitTests/CGlyphSliderHorizontal:  Addes a unit test for the
+* NxWidgets/UnitTests/CGlyphSliderHorizontal:  Adds a unit test for the
   NxWidgets::CGlyphSliderHorizontal class. From Ken Pettit (2013-5-17) .
 * NxWidgets::CGlyphSliderHorizontal:  Fix a drawing error.  From Ken
   Pettit (2013-5-17).
@@ -379,3 +379,4 @@
   state due to e.g. powerdown or other manual intervention.  From
   Petteri Aimonen (2013-6-4).
 
+1.9 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>

@@ -169,7 +169,7 @@ Additional new features and extended functionality in Version 1.5:
 * NxWM::CScrollingPanel::scrollChildren(): Avoid unnecessary redraws in
   CScrollingPanel
 * Kconfig: Added several "enabling" settings that must be selected to
-  override the default setting. 
+  override the default setting.
 * UnitTests:  Changes for compatibility with NuttX-6.25
 
 Bugfixes:
@@ -284,3 +284,38 @@ Bugfixes:
 * NxWM::CScrollbarPanel:  Fix spelling error in class name: CScollbarPanel
   should be CScrollbarPanel
 * NxWidgets::CGlyphButton:  Prevent drawing outside of the bitmap size.
+
+NxWidgets-1.8
+=============
+
+The 9th release of the NxWidgets package was made on June 14, 2013.  This
+release depends on NuttX-6.26 or above and should not be used with older
+NuttX releases.
+
+Note: Most of the changes between 1.7 and 1.8 were the result of the
+efforts of Ken Pettit and Petteri Aimonen.
+
+Additional new features and extended functionality in Version 1.8:
+
+* NxWM::CMediaPlayer: Shell application for an MP3 Media Player (from Ken
+  Pettit).
+* NxWidgets::CGlyphSliderHorizontal and NxWidgets::CGlyphSliderHorizontalGrip:
+  New widgets added by Ken Pettit.  Includes a Unit Test.
+* NxWidgets::CImage:  Allow a NULL pointer for a bitmap (from Petteri
+  Aimonen).
+* NxWidgets::CNumericEdit:  Delay before auto-incrementing now varies: A
+  longer delay is required to start auto-incrementing and speed increases
+  while pressed (from Petteri Aimonen).
+* NxWM::CTaskbar: Add a method to redraw the taskbar and the current
+  application.  This should only be necessary if the display loses state due
+  to e.g. powerdown or other manual intervention (from Petteri Aimonen).
+
+Bugfixes:
+
+* NxWM::CCalibration: Fix a race condition that would cause the calibration
+  screen to fail to come up when its icon was touched (from Ken Pettit).
+* Default priorities for NxWidget and NxWM threads should be 100, not 50, to
+  be consistent with other default priorities.
+* NxWidgets::CGlyphSliderHorizontal:  Fix a drawing error (from Ken Pettit).
+* Update the way that NSH the Unit Tests are registered as built-in NSH
+  applications.
