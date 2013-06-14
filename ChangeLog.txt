@@ -533,7 +533,7 @@
 	  parameter.  Was limiting the range to <= count.  From Ken
 	  Petit (2014-4-24).
 
-6.28 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.28 2013-06-14 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/mtdpart:  Provides a simple test of MTD partitions.
 	* apps/nshlib/nsh_mntcmds.c:  Add a -h option to the df command to show
@@ -544,7 +544,7 @@
 	  flash_eraseall NSH command  (Ken Pettit, 2013-5-1).
 	* apps/examples/flash_test and apps/examples/smart_test:  Add tests of
 	  the SMART block driver and file system  (Ken Pettit, 2013-5-1).
-	* apps/examples/mtdpart:  Extended to the test.  The original test
+	* apps/examples/mtdpart:  Extended the test.  The original test
 	  coverage was superficial (2013-5-3).
 	* apps/examples/smart:  This is an adaptation of the NXFFS stress
 	  test for the SMART file system (Ken Pettit, 2013-5-3).
@@ -559,7 +559,7 @@
 	  UDP discover utility.  From Max Holtzberg (2013-5-21).
 	* apps/examples/tcpecho:  Added a simple single threaded, poll based
  	  TCP echo server based on W. Richard Stevens UNIX Network Programming
-	  Book.  Contributed by Max Holtberg (2013-5-22).
+	  Book.  Contributed by Max Holtzberg (2013-5-22).
 	* apps/examples/slcd:  Add an example for testing alphanumeric,
 	  segment LCDs (2013-5-24).
 	* apps/examples/slcd:  Extend SLCD test to handle multi-line displays
@@ -578,3 +578,4 @@
 	  of the build-as-an-NSH-application configuration settings
 	  (2013-6-12).
 
+6.29 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
