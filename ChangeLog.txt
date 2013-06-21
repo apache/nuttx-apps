@@ -579,3 +579,15 @@
 	  (2013-6-12).
 
 6.29 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/nsh, cxxtest, and helloxx:  C++ initializers should be
+	  set once and, preferably, in the context of the task that uses any C++
+	  statically initialized classes.  These only becomes an issue is cxxtest
+	  or helloxx are built as NSH builtin applications.  Then you want the
+	  initialization done in cxxtext or helloxx and not in NSH (and certainly
+	  not twice).  Added configuration options to control who does the C++
+	  initialization.  NSH now does not do C++ initialization be default and
+	  must be configured to do otherwise.  Converserly, cxxtest and helloxx
+	  will do C++ initialization unless configured do otherwise (2013-6-21).
+	* apps/examples/cxxtext:  Add ostream test as provided by Michael
+	  (2013-6-21).

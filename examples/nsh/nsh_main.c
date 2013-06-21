@@ -46,11 +46,13 @@
 #include <errno.h>
 
 #include <nuttx/arch.h>
+
 #if defined(CONFIG_FS_BINFS) && (CONFIG_BUILTIN)
-#include <nuttx/binfmt/builtin.h>
+#  include <nuttx/binfmt/builtin.h>
 #endif
+
 #if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_EXECFUNCS_SYMTAB)
-#include <nuttx/binfmt/symtab.h>
+#  include <nuttx/binfmt/symtab.h>
 #endif
 
 #include <apps/nsh.h>
@@ -58,6 +60,12 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* C++ initialization requires CXX initializer support */
+
+#if !defined(CONFIG_HAVE_CXX) || !defined(CONFIG_HAVE_CXXINITIALIZE)
+#  undef CONFIG_EXAMPLES_NSH_CXXINITIALIZE
+#endif
 
 /* The NSH telnet console requires networking support (and TCP/IP) */
 
@@ -115,11 +123,11 @@ int nsh_main(int argc, char *argv[])
 
   /* Call all C++ static constructors */
 
-#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
+#if defined(CONFIG_EXAMPLES_NSH_CXXINITIALIZE)
   up_cxxinitialize();
 #endif
 
-  /* Make sure that we are using our symbol take */
+  /* Make sure that we are using our symbol table */
 
 #if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_EXECFUNCS_SYMTAB)
   exec_setsymtab(CONFIG_EXECFUNCS_SYMTAB, 0);

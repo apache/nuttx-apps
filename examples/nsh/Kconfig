@@ -12,4 +12,16 @@ config EXAMPLES_NSH
 		Enable the NuttShell (NSH) example
 
 if EXAMPLES_NSH
+
+config EXAMPLES_NSH_CXXINITIALIZE
+	bool "C++ Initialization"
+	default n
+	depends on HAVE_CXX && HAVE_CXXINITIALIZE
+	---help---
+		If HAVE_CXX and HAVE_CXXINITIALIZE are slected, then this NSH
+		example can be configured to initialize C++ constructors when it
+		is started.  NSH does not use C++ and, by default, assumes that
+		constructors are initialized elsewhere.  However, you can force
+		NSH to initialize constructors by setting this option.
+
 endif

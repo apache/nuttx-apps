@@ -256,20 +256,31 @@ examples/cxxtest
   is not included in the NuttX source tree by default, but must be installed
   (see misc/uClibc++/README.txt for installation).
 
-  The  NuttX setting that are required include:
-
-    CONFIG_HAVE_CXX=y
-    CONFIG_HAVE_CXXINITIALIZE=y
-    CONFIG_UCLIBCXX=y
-
-  Additional uClibc++ settings may be required in your build environment.
-
   The uClibc++ test includes simple test of:
 
     - iostreams,
     - STL,
     - RTTI, and
     - Exceptions
+
+  Example Configuration Options
+  -----------------------------
+    CONFIG_EXAMPLES_CXXTEST=y - Eanbles the example
+    CONFIG_EXAMPLES_CXXTEST_CXXINITIALIZE=y - By default, if CONFIG_HAVE_CXX
+      and CONFIG_HAVE_CXXINITIALIZE are defined, then this example
+      will call the NuttX function to initialize static C++ constructors.
+      This option may be disabled, however, if that static initialization
+      was performed elsewhere.
+
+  Other Required Configuration Settings
+  -------------------------------------
+  Other NuttX setting that are required include:
+
+    CONFIG_HAVE_CXX=y
+    CONFIG_HAVE_CXXINITIALIZE=y
+    CONFIG_UCLIBCXX=y
+
+  Additional uClibc++ settings may be required in your build environment.
 
 examples/dhcpd
 ^^^^^^^^^^^^^^
@@ -539,6 +550,11 @@ examples/helloxx
       "built-in"  that can be executed from the NSH command line.
     CONFIG_EXAMPLES_HELLOXX_NOSTACKCONST - Set if the system does not
       support construction of objects on the stack.
+    CONFIG_EXAMPLES_HELLOXX_CXXINITIALIZE - By default, if CONFIG_HAVE_CXX
+      and CONFIG_HAVE_CXXINITIALIZE are defined, then this example
+      will call the NuttX function to initialize static C++ constructors.
+      This option may be disabled, however, if that static initialization
+      was performed elsewhere.
 
   Also needed:
 
@@ -742,17 +758,23 @@ examples/nrf24l01_term
 examples/nsh
 ^^^^^^^^^^^^
 
+  Basic Configuration
+  -------------------
   This directory provides an example of how to configure and use
   the NuttShell (NSH) application.  NSH is a simple shell
   application.  NSH is described in its own README located at
-  apps/nshlib/README.txt
+  apps/nshlib/README.txt.  This function is enabled with:
+
+    CONFIG_EXAMPLES_NSH=y
 
   Applications using this example will need to provide an defconfig
   file in the configuration directory with instruction to build
-  applicationslike:
+  the NSH library like:
 
     CONFIG_NSH_LIBRARY=y
 
+  Other Configuration Requirements
+  --------------------------------
   NOTE:  If the NSH serial console is used, then following is also
   required to build the readline() library:
 
@@ -778,6 +800,16 @@ examples/nsh
 
     CONFIG_STDIO_BUFFER_SIZE - Some value >= 64
     CONFIG_STDIO_LINEBUFFER=y
+
+  C++ Support
+  -----------
+  If CONFIG_HAVE_CXX=y and CONFIG_HAVE_CXXINITIALIZE=y, then this NSH
+  example can be configured to initialize C++ constructors when it
+  is started.  NSH does not use C++ and, by default, assumes that
+  constructors are initialized elsewhere.  However, you can force
+  NSH to initialize constructors by setting:
+
+    CONFIG_EXAMPLES_NSH_CXXINITIALIZE=y
 
 examples/nx
 ^^^^^^^^^^^
