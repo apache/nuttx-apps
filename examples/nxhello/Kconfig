@@ -29,7 +29,7 @@ config EXAMPLES_NXHELLO_BPP
 	int "Bits-Per-Pixel"
 	default 32
 	---help---
-		Pixels per pixel to use.  Valid options include 2, 4, 8, 16, 24,
+		Pixels per pixel to use.  Valid options include 1, 2, 4, 8, 16, 24,
 		and 32.  Default is 32.
 
 

@@ -591,3 +591,6 @@
 	  will do C++ initialization unless configured do otherwise (2013-6-21).
 	* apps/examples/cxxtext:  Add ostream test as provided by Michael
 	  (2013-6-21).
+	* apps/examples/nxhello:  Minor fix for compilation error when the
+	  display resolution is low (< 8bpp) due to a typo that has been there
+	  for a long time (2013-6-23).

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello_bkgd.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -296,7 +296,7 @@ static void nxhello_initglyph(FAR uint8_t *glyph, uint8_t height,
   pixel  = (pixel) << 4 | pixel;
 
   ptr    = (FAR nxgl_mxpixel_t *)glyph;
-  for (row = 0; row < fheight; row++)
+  for (row = 0; row < height; row++)
     {
       for (col = 0; col < stride; col++)
         {
