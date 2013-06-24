@@ -270,7 +270,7 @@ static void nxhello_initglyph(FAR uint8_t *glyph, uint8_t height,
 #if CONFIG_EXAMPLES_NXHELLO_BPP < 8
 
   pixel  = CONFIG_EXAMPLES_NXHELLO_BGCOLOR;
-  
+
 #if CONFIG_NX_NPLANES > 1
 # warning "More logic is needed for the case where CONFIG_NX_PLANES > 1"
 #endif
@@ -279,7 +279,7 @@ static void nxhello_initglyph(FAR uint8_t *glyph, uint8_t height,
 
   pixel &= 0x01;
   pixel  = (pixel) << 1 |pixel;
-  
+
 #  endif
 #  if CONFIG_EXAMPLES_NXHELLO_BPP < 4
 
@@ -410,7 +410,7 @@ void nxhello_hello(NXWINDOW hwnd)
           dest.pt1.y = pos.y;
           dest.pt2.x = pos.x + fwidth - 1;
           dest.pt2.y = pos.y + fheight - 1;
-   
+
           /* Then put the font on the display */
 
           src[0] = (FAR const void *)glyph;

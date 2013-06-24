@@ -594,3 +594,6 @@
 	* apps/examples/nxhello:  Minor fix for compilation error when the
 	  display resolution is low (< 8bpp) due to a typo that has been there
 	  for a long time (2013-6-23).
+	* apps/examplex/nxhello:  Correct default colors when in Y1 code mode.
+	  (2013-6-24).
+
