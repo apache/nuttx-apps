@@ -19,6 +19,10 @@ menu "FLASH Erase-all Command"
 source "$APPSDIR/system/flash_eraseall/Kconfig"
 endmenu
 
+menu "RAM test"
+source "$APPSDIR/system/ramtest/Kconfig"
+endmenu
+
 menu "readline()"
 source "$APPSDIR/system/readline/Kconfig"
 endmenu

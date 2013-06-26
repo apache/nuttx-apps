@@ -596,4 +596,6 @@
 	  for a long time (2013-6-23).
 	* apps/examplex/nxhello:  Correct default colors when in Y1 code mode.
 	  (2013-6-24).
+	* system/Make.defs and Kconfig:  The RAM test was not correctly built
+	  into the configuration and build system.
 
