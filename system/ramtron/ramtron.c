@@ -44,7 +44,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <nuttx/spi.h>
+#include <nuttx/spi/spi.h>
 #include <nuttx/mtd.h>
 
 FAR struct mtd_dev_s *ramtron_initialize(FAR struct spi_dev_s *dev);
