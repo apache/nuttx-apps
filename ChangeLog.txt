@@ -596,6 +596,8 @@
 	  for a long time (2013-6-23).
 	* apps/examplex/nxhello:  Correct default colors when in Y1 code mode.
 	  (2013-6-24).
-	* system/Make.defs and Kconfig:  The RAM test was not correctly built
+	* apps/system/Make.defs and Kconfig:  The RAM test was not correctly built
 	  into the configuration and build system (2013-6-26).
-
+	* apps/examples/composite/composite_main.c:  SourceForge But Ticket #19.
+	  Change to prevent some false alarm debug assertions (From Chia Cheng
+	  Tao, 2013-7-9).

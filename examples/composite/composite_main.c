@@ -600,8 +600,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
 
 void board_mscuninitialize(FAR struct usbdevclass_driver_s *classdev)
 {
-  DEBUGASSERT(g_composite.mschandle != NULL &&
-              g_composite.mschandle == (FAR void *)classdev);
+  DEBUGASSERT(g_composite.mschandle != NULL);
   usbmsc_uninitialize(g_composite.mschandle);
 }
 
