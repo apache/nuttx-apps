@@ -1,0 +1,104 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_ZMODEM
+	bool "Zmodem commands"
+	default n
+	---help---
+		This selection enables the 'sz' and 'rz' NSH commands.
+
+if SYSTEM_ZMODEM
+
+config SYSTEM_ZMODEM_RCVBUFSIZE
+	int "Receive buffer size"
+	default 512
+	---help---
+		The size of one buffer used to read data from the remote peer.
+
+config SYSTEM_ZMODEM_PKTBUFSIZE
+	int "Maximum packet size"
+	default 512
+	---help---
+		Data may be received in gulps of varying size and alignment.
+		Received packets data is properly packed into a packet buffer of
+		this size.
+
+config SYSTEM_ZMODEM_SNDBUFSIZE
+	int "Send buffer size"
+	default 512
+	---help---
+		The size of one transmit buffer used for composing messages sent to
+		the remote peer.
+
+config SYSTEM_ZMODEM_MOUNTPOINT
+	string "Zmodem sandbox"
+	default "/tmp"
+	---help---
+		Absolute pathes are not accepted.  This configuration value must be
+		set to provide the path to the file storage directory (such as a
+		mountpoint directory).
+
+config SYSTEM_ZMODEM_SENDSAMPLE
+	bool "Reverse channel"
+	default y
+	---help---
+		Sender can sample reverse channel
+
+config SYSTEM_ZMODEM_SENDATTN
+	bool "Attn interrupt"
+	default y
+	---help---
+		Sender can be interrupted with ATTN
+
+config SYSTEM_ZMODEM_ALWAYSSINT
+	bool "Send ZSINIT"
+	default y
+	---help---
+		Always send ZSINIT header
+
+config SYSTEM_ZMODEM_TIMESTAMPS
+	bool "File timestamps"
+	default y
+	depends on RTC
+	---help---
+		File timestamps may be supported
+
+config SYSTEM_ZMODEM_SENDATTN
+	bool "Send Attn string"
+	default n
+	---help---
+		Send attention string not yet supported
+
+config SYSTEM_ZMODEM_FULLSTREAMING
+	bool "Full streaming"
+	default n
+	---help---
+		Full streaming is not yet supported
+
+config SYSTEM_ZMODEM_SENDBRAK
+	bool "Can break"
+	default n
+	---help---
+		Can not yet send BREAK
+
+config SYSTEM_ZMODEM_RESPTIME
+	bool "Response time"
+	default 10
+	---help---
+		Response time for sender to respond to requests.
+
+config SYSTEM_ZMODEM_SERIALNO
+	int "Serial number"
+	default 0
+	---help---
+		Receiver serial number
+
+config SYSTEM_ZMODEM_MAXERRORS
+	int "Max error"
+	default 20
+	---help---
+		Max receive errors before canceling the transfer.
+
+endif

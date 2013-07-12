@@ -38,7 +38,7 @@
 # Sub-directories containing system task
 
 SUBDIRS  = flash_eraseall free i2c install poweroff ramtest ramtron readline
-SUBDIRS += sdcard sysinfo usbmonitor
+SUBDIRS += sdcard sysinfo usbmonitor zmodem
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 

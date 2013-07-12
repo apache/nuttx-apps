@@ -601,3 +601,6 @@
 	* apps/examples/composite/composite_main.c:  SourceForge But Ticket #19.
 	  Change to prevent some false alarm debug assertions (From Chia Cheng
 	  Tao, 2013-7-9).
+	* apps/system/zmodem:  Add configuration support and a build framework
+	  for the Zmodem sz and rz command (which don't actually exist yet).
+	  (2013-7-12).
