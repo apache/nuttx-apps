@@ -38,40 +38,43 @@
 include $(APPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
+INCDIROPT = -w
 endif
 
 # Zmodem sz and rz commands
 
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 768
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 768
 
-ASRCS		=
-CSRCS		= sz_main.c rz_main.c
+ASRCS  =
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+CSRCS  = sz_main.c
+CSRCS += rz_main.c
+CSRCS += zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH =
 
-all:	.built
+all: .built
 .PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
