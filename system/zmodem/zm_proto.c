@@ -169,8 +169,8 @@ FAR uint8_t *zm_putzdle(FAR struct zm_state_s *pzm, FAR uint8_t *buffer,
  *   (ZBIN or ZBIN32 format assumed, ZCRCW terminator is always used)
  *
  * Input Parameters:
- *   pzm - Zmodem session state
- *   buffer - Buffer of data to be sent (must not be pzm->rcvbuf)
+ *   pzm    - Zmodem session state
+ *   buffer - Buffer of data to be sent
  *   buflen - The number of bytes in buffer to be sent
  *
  ****************************************************************************/
@@ -178,21 +178,24 @@ FAR uint8_t *zm_putzdle(FAR struct zm_state_s *pzm, FAR uint8_t *buffer,
 int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
                 size_t buflen)
 {
-  uint8_t *ptr = pzm->rcvbuf;
+  uint8_t *ptr = pzm->scratch;
   ssize_t nwritten;
   uint32_t crc;
   uint8_t zbin;
   uint8_t term;
+  int i;
 
   /* Make select ZBIN or ZBIN32 format and the ZCRCW terminator */
 
   if ((pzm->flags & ZM_FLAG_CRC32) != 0)
     {
       zbin = ZBIN32;
+      crc  = 0xffffffff;
     }
   else
     {
       zbin = ZBIN;
+      crc  = 0;
     }
 
   term = ZCRCW;
@@ -200,7 +203,6 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
 
   /* Transfer the data to the I/O buffer, accumulating the CRC */
 
-  crc = (zbin == ZBIN) ? 0 : 0xffffffff;
   while (buflen-- > 0)
     {
       if (zbin == ZBIN)
@@ -243,7 +245,7 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
   else
     {
       crc = ~crc;
-      for (buflen = 4; --buflen >= 0; crc >>= 8)
+      for (i = 0; i < 4; i++, crc >>= 8)
         {
           ptr = zm_putzdle(pzm, ptr, crc & 0xff);
         }
@@ -251,7 +253,7 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
 
   /* Send the header */
 
-  nwritten = zm_remwrite(pzm->remfd, pzm->rcvbuf, ptr - pzm->rcvbuf);
+  nwritten = zm_remwrite(pzm->remfd, pzm->scratch, ptr - pzm->scratch);
   return nwritten < 0 ? (int)nwritten : OK;
 }
 

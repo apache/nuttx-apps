@@ -603,7 +603,7 @@ FAR uint8_t *zm_putzdle(FAR struct zm_state_s *pzm, FAR uint8_t *buffer,
  *
  * Input Parameters:
  *   pzm    - Zmodem session state
- *   buffer - Buffer of data to be sent (must not be pzm->rcvbuf)
+ *   buffer - Buffer of data to be sent
  *   buflen - The number of bytes in buffer to be sent
  *
  ****************************************************************************/
