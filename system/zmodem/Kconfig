@@ -101,4 +101,22 @@ config SYSTEM_ZMODEM_MAXERRORS
 	---help---
 		Max receive errors before canceling the transfer.
 
+config DEBUG_ZMODEM
+	bool "Zmodem debug"
+	default n
+	---help---
+		Enable Zmodem debug output.  This debug is unrelated to the internal
+		NuttX debug option; it does not use the SYSLOG channel but, instead,
+		outputs debug information on stderr.  Obviously, enabling this
+		option will likely cause you all kinds of problems if you intend to
+		use /dev/console to transfer files!
+
+config SYSTEM_ZMODEM_DUMPBUFFER
+	bool "Dump buffers"
+	default n
+	depends on DEBUG_ZMODEM
+	---help---
+		Dump the contents of all incoming and outgoing buffers that are
+		exchanged with the remote peer.
+
 endif
