@@ -44,13 +44,13 @@ endif
 # Zmodem sz and rz commands
 
 PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 768
+STACKSIZE = 1536
 
 ASRCS  =
 
-CSRCS  = sz_main.c
+CSRCS  = sz_main.c zm_send.c
 CSRCS += rz_main.c
-CSRCS += zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
+CSRCS += zm_state.c zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

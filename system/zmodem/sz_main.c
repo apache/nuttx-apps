@@ -42,8 +42,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <libgen.h>
 #include <time.h>
 #include <errno.h>
 
@@ -55,11 +57,13 @@
 
 static void show_usage(FAR const char *progname, int errcode)
 {
-  fprintf(stderr, "USAGE: %s [OPTIONS] <lname> [<lname> [<lname> ...]]\n", progname);
+  fprintf(stderr, "USAGE: %s [OPTIONS] <lname> [<lname> [<lname> ...]]\n",
+                  progname);
   fprintf(stderr, "\nWhere:\n");
   fprintf(stderr, "\t<lname> is the local file name\n");
   fprintf(stderr, "\nand OPTIONS include the following:\n");
-  fprintf(stderr, "\t-d <device>: Communication device to use.  Default /dev/console\n");
+  fprintf(stderr, "\t-d <device>: Communication device to use.  Default: %s\n",
+                  CONFIG_SYSTEM_ZMODEM_DEVNAME);
   fprintf(stderr, "\t-r <rname>: Remote file name.  Default <lname>\n");
   fprintf(stderr, "\t-x <mode>: Transfer type\n");
   fprintf(stderr, "\t\t0: Normal file (default)\n");
@@ -91,7 +95,7 @@ int sz_main(int argc, FAR char **argv)
   enum zm_option_e xfroption = XM_OPTION_REPLACE;
   ZMSHANDLE handle;
   FAR const char *rname = NULL;
-  FAR const char *devname = "/dev/console";
+  FAR const char *devname = CONFIG_SYSTEM_ZMODEM_DEVNAME;
   FAR char *endptr;
   bool skip = false;
   long tmp;
@@ -197,11 +201,44 @@ int sz_main(int argc, FAR char **argv)
        */
 
       FAR const char *nextlname = argv[optind];
-      FAR const char *nextrname = rname ? rname : nextlname;
+      FAR const char *nextrname;
+      FAR char *ralloc;
+
+      /* Get the next remote file name */
+
+      nextrname = rname;
+      ralloc    = NULL;
+
+      if (!nextrname)
+        {
+          /* No remote filename, use the basename of the local filename.
+           * NOTE: that we have to duplicate the local filename to do this
+           * because basename() modifies the original string.
+           */
+
+          ralloc = strdup(nextlname);
+          if (!ralloc)
+           {
+             fprintf(stderr, "ERROR: Out-of-memory\n");
+             goto errout_with_device;
+           }
+
+          nextrname = basename(ralloc);
+        }
 
       /* Transfer the file */
 
       ret = zms_send(handle, nextlname, nextrname, xfrtype, xfroption, skip);
+
+      /* Free any allocations made for the remote file name */
+
+      if (ralloc)
+        {
+          free(ralloc);
+        }
+
+      /* Check if the transfer was successful */
+
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: Transfer of %s failed: %d\n",

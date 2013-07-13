@@ -199,7 +199,8 @@ int zm_senddata(FAR struct zm_state_s *pzm, FAR const uint8_t *buffer,
     }
 
   term = ZCRCW;
-  zmdbg("zbin=%c, buflen=%d, term=%c\n", zbin, buflen, term);
+  zmdbg("zbin=%c, buflen=%d, term=%c flags=%04x\n",
+        zbin, buflen, term, pzm->flags);
 
   /* Transfer the data to the I/O buffer, accumulating the CRC */
 
@@ -496,6 +497,6 @@ int zm_sendbinhdr(FAR struct zm_state_s *pzm, int type,
     }
   else
     {
-      return zm_sendbin16hdr(pzm, type, buffer);
+      return zm_sendbin32hdr(pzm, type, buffer);
     }
 }

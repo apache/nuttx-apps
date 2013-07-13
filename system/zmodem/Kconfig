@@ -11,6 +11,13 @@ config SYSTEM_ZMODEM
 
 if SYSTEM_ZMODEM
 
+config SYSTEM_ZMODEM_DEVNAME
+	string "Default Zmodem device"
+	default "/dev/console"
+	---help--
+		The default device used by the Zmodem commands if the -d option is
+		not provided on the sz or rz command line.  Default:  "/dev/console".
+
 config SYSTEM_ZMODEM_RCVBUFSIZE
 	int "Receive buffer size"
 	default 512
@@ -36,9 +43,12 @@ config SYSTEM_ZMODEM_MOUNTPOINT
 	string "Zmodem sandbox"
 	default "/tmp"
 	---help---
-		Absolute pathes are not accepted.  This configuration value must be
-		set to provide the path to the file storage directory (such as a
-		mountpoint directory).
+		Absolute pathes in received file names are not accepted.  This
+		configuration value must be set to provide the path to the file
+		storage directory (such as a mountpoint directory).
+
+		Names of file send by the sz commond, on the other hand, must be
+		absolute paths beginning with '/'.
 
 config SYSTEM_ZMODEM_SENDSAMPLE
 	bool "Reverse channel"

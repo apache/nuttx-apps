@@ -53,6 +53,15 @@
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
+
+/* The default device used by the Zmodem commands if the -d option is not
+ * provided on the sz or rz command line.
+ */
+
+#ifndef CONFIG_SYSTEM_ZMODEM_DEVNAME
+#  define CONFIG_SYSTEM_ZMODEM_DEVNAME "/dev/console"
+#endif
+
 /* The size of one buffer used to read data from the remote peer */
 
 #ifndef CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE
@@ -165,15 +174,40 @@ extern "C"
  *   remfd - The R/W file/socket descriptor to use for communication with the
  *      remote peer.
  *
+ * Returned Value:
+ *   An opaque handle that can be use with zmr_receive() and zmr_release().
+ *
  ****************************************************************************/
 
 ZMRHANDLE zmr_initialize(int remfd);
+
+/****************************************************************************
+ * Name: zmr_receive
+ *
+ * Description:
+ *   Receive file(s) sent from the remote peer.
+ *
+ * Input Parameters:
+ *   handle - The handler created by zmr_initialize().
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+int zmr_receive(ZMRHANDLE handle);
 
 /****************************************************************************
  * Name: zmr_release
  *
  * Description:
  *   Called by the user when there are no more files to receive.
+ *
+ * Input Parameters:
+ *   handle - The handler created by zmr_initialize().
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
  *
  ****************************************************************************/
 
@@ -198,6 +232,9 @@ int zmr_release(ZMRHANDLE);
  *   remfd - The R/W file/socket descriptor to use for communication with the
  *      remote peer.
  *
+ * Returned Value:
+ *   An opaque handle that can be use with zmx_send() and zms_release()
+ *
  ****************************************************************************/
 
 ZMSHANDLE zms_initialize(int remfd);
@@ -209,12 +246,15 @@ ZMSHANDLE zms_initialize(int remfd);
  *   Send a file.
  *
  * Input Parameters:
- *   handle - Handle previoulsy returned by xms_initialize()
- *   filename - The name of the local file to transfer
+ *   handle    - Handle previoulsy returned by xms_initialize()
+ *   filename  - The name of the local file to transfer
  *   rfilename - The name of the remote file name to create
- *   option - Describes optional transfer behavior
- *   f1 - The F1 transfer flags
- *   skip - True:  Skip if file not present at receiving end.
+ *   option    - Describes optional transfer behavior
+ *   f1        - The F1 transfer flags
+ *   skip      - True:  Skip if file not present at receiving end.
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
  *
  ****************************************************************************/
 
@@ -228,6 +268,12 @@ int zms_send(ZMSHANDLE handle, FAR const char *filename,
  * Description:
  *   Called by the user when there are no more files to send.
  *
+ * Input Parameters:
+ *   handle - The handler created by zms_initialize().
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
+ *
  ****************************************************************************/
 
 int zms_release(ZMSHANDLE handle);
@@ -239,6 +285,9 @@ int zms_release(ZMSHANDLE handle);
  *   If CONFIG_SYSTEM_ZMODEM_FULLSTREAMING is defined, then the system
  *   must provide the following interface in order to enable/disable hardware
  *   flow control on the device used to communicate with the remote peer.
+ *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.
  *
  ****************************************************************************/
 

@@ -200,7 +200,7 @@
 #define ZM_FLAG_APPEND    (1 << 8)   /* Append to the existing file */
 #define ZM_FLAG_TIMEOUT   (1 << 9)   /* A timeout has been detected */
 
-/* zm_parse() success/error return code definitions:
+/* The Zmodem parser success/error return code definitions:
  *
  * < 0 :  Transfer terminated due to an error
  * = 0 :  Transfer still in progress
@@ -694,19 +694,17 @@ int zm_sendbinhdr(FAR struct zm_state_s *pzm, int type,
                   FAR const uint8_t *buffer);
 
 /****************************************************************************
- * Name: zm_parse
+ * Name: zm_datapump
  *
  * Description:
- *   New data from the remote peer is available in pzm->rcvbuf.  The number
- *   number of bytes of new data is given by rcvlen.
- *
- *   This function will parse the data in the buffer and, based on the
- *   current state and the contents of the buffer, will drive the Zmodem
- *   state machine.
+ *   Drive the Zmodem state machine by reading data from the remote peer and
+ *   providing that data to the parser.  This loop runs until a fatal error
+ *   is detected or until the state machine reports that the transfer has
+ *   completed successfully.
  *
  ****************************************************************************/
 
-int zm_parse(FAR struct zm_state_s *pzm, size_t rcvlen);
+int zm_datapump(FAR struct zm_state_s *pzm);
 
 /****************************************************************************
  * Name: zm_readstate
