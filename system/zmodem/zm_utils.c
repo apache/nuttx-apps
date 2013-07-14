@@ -440,7 +440,7 @@ uint32_t zm_filecrc(FAR struct zm_state_s *pzm, FAR const char *filename)
   crc = 0xffffffff;
   while ((nread = zm_read(fd, pzm->scratch, CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE)) > 0)
     {
-      crc = crc32part(pzm->rcvbuf, nread, crc);
+      crc = crc32part(pzm->scratch, nread, crc);
     }
 
   /* Close the file and return the CRC */

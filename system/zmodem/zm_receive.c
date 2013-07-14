@@ -142,7 +142,8 @@ static int zmr_error(FAR struct zm_state_s *pzm);
 
 /* Internal helpers */
 
-static int zmr_parsefilename(FAR struct zmr_state_s *pzmr);
+static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
+                             FAR const uint8_t *namptr);
 static int zmr_openfile(FAR struct zmr_state_s *pzmr, uint32_t crc);
 static int zmr_fileerror(FAR struct zmr_state_s *pzmr, uint8_t type,
                          uint32_t data);
@@ -431,9 +432,9 @@ static int zmr_zsrintdata(FAR struct zm_state_s *pzm)
   /* Get the new attention string */
 
   pzmr->attn = NULL;
-  if (pzm->rcvbuf[0] != '\0')
+  if (pzm->pktbuf[0] != '\0')
     {
-      pzmr->attn = strdup((char *)pzm->rcvbuf);
+      pzmr->attn = strdup((char *)pzm->pktbuf);
     }
 
   /* And send ZACK */
@@ -598,6 +599,7 @@ static int zmr_badrpos(FAR struct zm_state_s *pzm)
 static int zmr_filename(FAR struct zm_state_s *pzm)
 {
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)pzm;
+  FAR const uint8_t *pktptr;
   unsigned long filesize;
   unsigned long timestamp;
   unsigned long bremaining;
@@ -605,7 +607,6 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
   int serialno;
   int fremaining;
   int filetype;
-  int len;
   int ret;
 
   zmdbg("PSTATE %d:%d->%d.%d\n",
@@ -642,7 +643,9 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
    * that we can use it.
    */
 
-  ret = zmr_parsefilename(pzmr);
+  pktptr = pzmr->cmn.pktbuf;
+  ret    = zmr_parsefilename(pzmr, pktptr);
+
   if (ret < 0)
     {
       zmdbg("ZMR_STATE %d->%d: ERROR: Failed to parse filename. Send ZSKIP: %d\n",
@@ -651,6 +654,10 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
       pzmr->cmn.state = ZMR_START;
       return zm_sendhexhdr(&pzmr->cmn, ZSKIP, g_zeroes);
     }
+
+  /* Skip over the file name (and its NUL termination) */
+
+  pktptr += (strlen((FAR const char *)pktptr) + 1);
 
   /* ZFILE: Following the file name are:
    *
@@ -665,8 +672,7 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
   bremaining = 0;
   filetype   = 0;
 
-  len = strlen((FAR char *)pzmr->cmn.rcvbuf);
-  sscanf((FAR char *)&pzmr->cmn.rcvbuf[len], "%ld %lo %o %o %d %ld %d",
+  sscanf((FAR char *)pktptr, "%ld %lo %o %o %d %ld %d",
          &filesize, &timestamp, &mode, &serialno, &fremaining, &bremaining,
          &filetype);
 
@@ -720,7 +726,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
       /* No.. increment the count of errors */
 
       pzm->nerrors++;
-      zmdbg("%d data errors", pzm->nerrors);
+      zmdbg("%d data errors\n", pzm->nerrors);
 
       /* If the count of errors exceeds the configurable limit, then cancel
        * the transfer
@@ -755,7 +761,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
 
   /* Write the packet of data to the file */
 
-  ret = zm_writefile(pzmr->outfd, pzm->rcvbuf, pzm->rcvlen, pzmr->f0 == ZCNL);
+  ret = zm_writefile(pzmr->outfd, pzm->pktbuf, pzm->pktlen, pzmr->f0 == ZCNL);
   if (ret < 0)
     {
       int errorcode = errno;
@@ -775,10 +781,10 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
       return zmr_fileerror(pzmr, ZFERR, (uint32_t)errorcode);
     }
 
-  zmdbg("offset: %ld nchars: %d\n", (unsigned long)pzmr->offset, pzm->rcvlen);
+  zmdbg("offset: %ld nchars: %d\n", (unsigned long)pzmr->offset, pzm->pktlen);
 
-  pzmr->offset += pzm->rcvlen;
-  zmdbg("%ld bytes received", (unsigned long)pzmr->offset);
+  pzmr->offset += pzm->pktlen;
+  zmdbg("%ld bytes received\n", (unsigned long)pzmr->offset);
 
   /* If this was the last data subpacket, leave data mode */
 
@@ -1044,8 +1050,8 @@ static int zmr_zstderr(FAR struct zm_state_s *pzm)
 {
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
-  pzm->rcvbuf[pzm->rcvlen] = '\0';
-  fprintf(stderr, "Message: %s", (char*)pzm->rcvbuf);
+  pzm->pktbuf[pzm->pktlen] = '\0';
+  fprintf(stderr, "Message: %s", (char*)pzm->pktbuf);
   return OK;
 }
 
@@ -1108,7 +1114,8 @@ static int zmr_error(FAR struct zm_state_s *pzm)
  *
  ****************************************************************************/
 
-static int zmr_parsefilename(FAR struct zmr_state_s *pzmr)
+static int zmr_parsefilename(FAR struct zmr_state_s *pzmr,
+                             FAR const uint8_t *namptr)
 {
   static uint32_t uniqno = 0;
   struct stat buf;
@@ -1121,7 +1128,7 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr)
 
   /* Don't allow absolute pathes */
 
-  if (pzmr->cmn.rcvbuf[0] == '/')
+  if (*namptr == '/')
     {
       return -EINVAL;
     }
@@ -1129,11 +1136,11 @@ static int zmr_parsefilename(FAR struct zmr_state_s *pzmr)
   /* Extend the relative path to the file storage directory */
 
   asprintf(&pzmr->filename, "%s/%s", CONFIG_SYSTEM_ZMODEM_MOUNTPOINT,
-           pzmr->cmn.rcvbuf);
+           namptr);
   if (!pzmr->filename)
     {
       zmdbg("ERROR: Failed to allocate full path %s/%s\n",
-            CONFIG_SYSTEM_ZMODEM_MOUNTPOINT, pzmr->cmn.rcvbuf);
+            CONFIG_SYSTEM_ZMODEM_MOUNTPOINT, namptr);
       return -ENOMEM;
     }
 
@@ -1384,7 +1391,7 @@ errout_with_filename:
  *
  * Description:
  *   If no output file has been opened to receive the data, then open the
- *   file for output whose name is in pzm->rcvbuf.
+ *   file for output whose name is in pzm->pktbuf.
  *
  ****************************************************************************/
 
@@ -1483,7 +1490,7 @@ static int zmr_fileerror(FAR struct zmr_state_s *pzmr, uint8_t type,
        * is encountered.
        */
 
-      dest = pzmr->cmn.rcvbuf;
+      dest = pzmr->cmn.pktbuf;
       for (src = (FAR void *)pzmr->attn; *src != '\0'; src++)
         {
           if (*src == ATTNBRK )
@@ -1514,8 +1521,8 @@ static int zmr_fileerror(FAR struct zmr_state_s *pzmr, uint8_t type,
 
       *dest++ = '\0';
 
-      len = strlen((FAR char *)pzmr->cmn.rcvbuf);
-      nwritten = zm_remwrite(pzmr->cmn.remfd, pzmr->cmn.rcvbuf, len);
+      len = strlen((FAR char *)pzmr->cmn.pktbuf);
+      nwritten = zm_remwrite(pzmr->cmn.remfd, pzmr->cmn.pktbuf, len);
       if (nwritten < 0)
         {
           zmdbg("ERROR: zm_remwrite failed: %d\n", (int)nwritten);
@@ -1600,6 +1607,7 @@ ZMRHANDLE zmr_initialize(int remfd)
       pzm->pstate    = PSTATE_IDLE;
       pzm->psubstate = PIDLE_ZPAD;
       pzm->remfd     = remfd;
+      pzmr->outfd    = -1;
 
       /* Create a timer to handle timeout events */
 

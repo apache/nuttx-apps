@@ -629,8 +629,8 @@ static int zms_message(FAR struct zm_state_s *pzm)
 static int zms_stderrdata(FAR struct zm_state_s *pzm)
 {
   zmdbg("ZMS_STATE %d\n", pzm->state);
-  pzm->rcvbuf[pzm->rcvndx] = '\0';
-  fprintf(stderr, "Message: %s", (char*)pzm->rcvbuf);
+  pzm->pktbuf[pzm->pktlen] = '\0';
+  fprintf(stderr, "Message: %s", (char*)pzm->pktbuf);
   return OK;
 }
 
