@@ -84,7 +84,6 @@
 static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch);
 static int zm_header(FAR struct zm_state_s *pzm, uint8_t ch);
 static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch);
-static int zm_finish(FAR struct zm_state_s *pzm, uint8_t ch);
 
 /****************************************************************************
  * Private Data
@@ -126,7 +125,7 @@ static int zm_event(FAR struct zm_state_s *pzm, int event)
     }
 
   zmdbg("Transition ZM[R|S]_state %d->%d discard: %d action: %p\n",
-       pzm->state, ptr->next, ptr->bdiscard, ptr->action);
+        pzm->state, ptr->next, ptr->bdiscard, ptr->action);
 
   /* Perform the state transition */
 
@@ -308,8 +307,8 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
 
     case ZDLE:
 
-      /* Was the ZDLE preceded by ZPAD[s]?  If not, fall through and treat
-       * as the default case.
+      /* Was the ZDLE preceded by ZPAD[s]?  If not, revert to the PIDLE_ZPAD
+       * substate.
        */
 
       if (pzm->psubstate == PIDLE_ZDLE)
@@ -317,12 +316,59 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
           zmdbg("PSTATE %d:%d->%d.%d\n",
                 pzm->pstate, pzm->psubstate, PSTATE_HEADER, PHEADER_FORMAT);
 
+          pzm->flags    &= ~ZM_FLAG_OO;
           pzm->pstate    = PSTATE_HEADER;
           pzm->psubstate = PHEADER_FORMAT;
           break;
         }
+      else
+        {
+          zmdbg("PSTATE %d:%d->%d.%d\n",
+                pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_ZPAD);
 
-    /* Unexpected character.  Wait for the next ZPAD to get us  */
+          pzm->psubstate = PIDLE_ZPAD;
+        }
+
+    /* O might be the first character of "OO".  "OO" might be part of the file
+     * receiver protocol.  After receiving on e file in a group of files, the
+     * receiver expected either "OO" indicating that all files have been sent,
+     * or a ZRQINIT header indicating the start of the next file.
+     */
+
+    case 'O':
+      /* Is "OO" a possibility in this context?  Fall through to the default
+       * case if not.
+       */
+
+      if ((pzm->state & ZM_FLAG_OO) != 0)
+        {
+          /* Yes... did we receive an 'O' before this one? */
+
+          if (pzm->psubstate != PIDLE_OO)
+            {
+              /* This is the second 'O' of "OO". the receiver operation is
+               * finished.
+               */
+
+              zmdbg("PSTATE %d:%d->%d.%d\n",
+                    pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_ZPAD);
+
+              pzm->psubstate = PIDLE_ZPAD;
+              return zm_event(pzm, ZME_OO);
+            }
+          else
+            {
+              /* No... this is the first 'O' that we have seen */
+
+              zmdbg("PSTATE %d:%d->%d.%d\n",
+                    pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_OO);
+
+              pzm->psubstate = PIDLE_OO;
+            }
+          break;
+        }
+
+    /* Unexpected character.  Wait for the next ZPAD to get us back in sync. */
 
     default:
       if (pzm->psubstate != PIDLE_ZPAD)
@@ -662,45 +708,6 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
 }
 
 /****************************************************************************
- * Name: zm_finish
- *
- * Description:
- *   Data has been received in state PSTATE_FINISH.  Juse wait for "OO"
- *
- ****************************************************************************/
-
-static int zm_finish(FAR struct zm_state_s *pzm, uint8_t ch)
-{
-  /* Wait for "OO" */
-
-  if (ch == 'O')
-    {
-      /* Have we seen the second '0'? */
-
-      if (pzm->psubstate == PFINISH_2NDO)
-        {
-          /* Yes.. then we are finished */
-
-          return ZM_XFRDONE;
-        }
-      else
-        {
-          /* No.. this was the first */
-
-          pzm->psubstate = PFINISH_2NDO;
-        }
-    }
-  else
-    {
-      /* Reset. We have not seen the first 'O' of the pair */
-
-      pzm->psubstate = PFINISH_1STO;
-    }
-
-  return OK;
-}
-
-/****************************************************************************
  * Name: zm_parse
  *
  * Description:
@@ -778,10 +785,6 @@ static int zm_parse(FAR struct zm_state_s *pzm, size_t rcvlen)
 
             case PSTATE_DATA:
               ret = zm_data(pzm, ch);
-              break;
-
-            case PSTATE_FINISH:
-              ret = zm_finish(pzm, ch);
               break;
 
             /* This should not happen */

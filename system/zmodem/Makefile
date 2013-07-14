@@ -49,7 +49,7 @@ STACKSIZE = 1536
 ASRCS  =
 
 CSRCS  = sz_main.c zm_send.c
-CSRCS += rz_main.c
+CSRCS += rz_main.c zm_receive.c
 CSRCS += zm_state.c zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

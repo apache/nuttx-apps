@@ -131,7 +131,7 @@ enum zmodem_state_e
  ****************************************************************************/
 /* Transition actions */
 
-static int zms_rinit(FAR struct zm_state_s *pzm);
+static int zms_zrinit(FAR struct zm_state_s *pzm);
 static int zms_attention(FAR struct zm_state_s *pzm);
 static int zms_challenge(FAR struct zm_state_s *pzm);
 static int zms_abort(FAR struct zm_state_s *pzm);
@@ -179,7 +179,7 @@ static int zms_sendfile(FAR struct zms_state_s *pzms, FAR const char *filename,
 
 static const struct zm_transition_s g_zms_start[] =
 {
-  {ZME_RINIT,     true,  ZMS_START,    zms_rinit},
+  {ZME_RINIT,     true,  ZMS_START,    zms_zrinit},
   {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_CHALLENGE, true,  ZMS_START,    zms_challenge},
   {ZME_ABORT,     true,  ZMS_FINISH,   zms_abort},
@@ -195,12 +195,12 @@ static const struct zm_transition_s g_zms_start[] =
  * ZSINIT, waiting for ZACK
  */
 
-static const struct zm_transition_s g_zms_init[] =
+static const struct zm_transition_s g_zmr_initack[] =
 {
   {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_ACK,       true,  ZMS_INITACK,  zms_initdone},
   {ZME_NAK,       true,  ZMS_INITACK,  zms_sendzsinit},
-  {ZME_RINIT,     true,  ZMS_INITACK,  zms_rinit},
+  {ZME_RINIT,     true,  ZMS_INITACK,  zms_zrinit},
   {ZME_CHALLENGE, true,  ZMS_INITACK,  zms_challenge},
   {ZME_ABORT,     true,  ZMS_FINISH,   zms_abort},
   {ZME_FERR,      true,  ZMS_FINISH,   zms_abort},
@@ -254,7 +254,7 @@ static const struct zm_transition_s g_zms_crcwait[] =
  * interrupt
  */
 
-static const struct zm_transition_s g_zms_streaming[] =
+static const struct zm_transition_s g_zmr_sending[] =
 {
   {ZME_SINIT,     false, ZMS_START,    zms_attention},
   {ZME_ACK,       false, ZMS_SENDING,  zms_sendack},
@@ -353,7 +353,7 @@ static struct zm_transition_s g_zms_command[] =
 
 /* Events handled in state ZMS_MESSAGE - Waiting for stderr data */
 
-static struct zm_transition_s g_zms_stderr[] =
+static struct zm_transition_s g_zms_message[] =
 {
   {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_DATARCVD,  false, ZMS_MESSAGE,  zms_stderrdata},
@@ -375,18 +375,18 @@ static struct zm_transition_s g_zms_done[] =
 
 static FAR const struct zm_transition_s * const g_zms_evtable[] =
 {
-  g_zms_start,      /* ZMS_START     - ZRQINIT sent, waiting for ZRINIT from receiver */
-  g_zms_init,       /* ZMS_INITACK   - Received ZRINIT, sent ZSINIT, waiting for ZACK */
-  g_zms_filewait,   /* ZMS_FILEWAIT  - Sent file header, waiting for ZRPOS */
-  g_zms_crcwait,    /* ZMS_CRCWAIT   - Sent file CRC, waiting for ZRPOS response */
-  g_zms_streaming,  /* ZMS_SENDING - Sending data subpackets, ready for interrupt */
-  g_zms_sendwait,   /* ZMS_SENDWAIT  - Waiting for ZACK */
-  g_zms_senddone,   /* ZMS_SENDDONE  - File sent, need to send ZEOF */
-  g_zms_sendeof,    /* ZMS_SENDEOF   - Sent ZEOF, waiting for ZACK */
-  g_zms_finish,     /* ZMS_FINISH    - Sent ZFIN, waiting for ZFIN */
-  g_zms_command,    /* ZMS_COMMAND   - Waiting for command data */
-  g_zms_stderr,     /* ZMS_MESSAGE   - Waiting for message from receiver */
-  g_zms_done        /* ZMS_DONE      - Finished with transfer */
+  g_zms_start,    /* ZMS_START:    ZRQINIT sent, waiting for ZRINIT from receiver */
+  g_zmr_initack,  /* ZMS_INITACK:  Received ZRINIT, sent ZSINIT, waiting for ZACK */
+  g_zms_filewait, /* ZMS_FILEWAIT: Sent file header, waiting for ZRPOS */
+  g_zms_crcwait,  /* ZMS_CRCWAIT:  Sent file CRC, waiting for ZRPOS response */
+  g_zmr_sending,  /* ZMS_SENDING:  Sending data subpackets, ready for interrupt */
+  g_zms_sendwait, /* ZMS_SENDWAIT: Waiting for ZACK */
+  g_zms_senddone, /* ZMS_SENDDONE: File sent, need to send ZEOF */
+  g_zms_sendeof,  /* ZMS_SENDEOF:  Sent ZEOF, waiting for ZACK */
+  g_zms_finish,   /* ZMS_FINISH:   Sent ZFIN, waiting for ZFIN */
+  g_zms_command,  /* ZMS_COMMAND:  Waiting for command data */
+  g_zms_message,  /* ZMS_MESSAGE:  Waiting for message from receiver */
+  g_zms_done      /* ZMS_DONE:     Finished with transfer */
 };
 
 /****************************************************************************
@@ -394,7 +394,7 @@ static FAR const struct zm_transition_s * const g_zms_evtable[] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: zms_rinit
+ * Name: zms_zrinit
  *
  * Description:
  *   Received ZRINIT.  Usually received while in start state, this can
@@ -402,7 +402,7 @@ static FAR const struct zm_transition_s * const g_zms_evtable[] =
  *
  ****************************************************************************/
 
-static int zms_rinit(FAR struct zm_state_s *pzm)
+static int zms_zrinit(FAR struct zm_state_s *pzm)
 {
   FAR struct zms_state_s *pzms = (FAR struct zms_state_s *)pzm;
   uint16_t rcaps;
@@ -1122,7 +1122,7 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
         }
     }
 #ifdef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
-  while (pzm->state != ZMS_SENDING && !zm_rcvpending(pzm));
+  while (pzm->state == ZMS_SENDING && !zm_rcvpending(pzm));
 #else
   while (0);
 #endif
@@ -1745,6 +1745,13 @@ int zms_release(ZMSHANDLE handle)
   /* Release the timer resources */
 
   (void)zm_timerrelease(&pzms->cmn);
+
+  /* Make sure that the file is closed */
+
+  if (pzms->infd)
+    {
+      close(pzms->infd);
+    }
 
   /* And free the Zmodem state structure */
 

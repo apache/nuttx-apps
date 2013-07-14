@@ -183,6 +183,7 @@
 #define ZME_COMMAND   ZCOMMAND       /* Command, from sending program */
 #define ZME_STDERR    ZSTDERR        /* Output this message to stderr */
 
+#define ZME_OO        252            /* Received OO, termining the receiver */
 #define ZME_DATARCVD  253            /* Data received */
 #define ZME_TIMEOUT   254            /* Timeout */
 #define ZME_ERROR     255            /* Protocol error */
@@ -198,6 +199,7 @@
 #define ZM_FLAG_WAIT      (1 << 6)   /* Next send should wait */
 #define ZM_FLAG_APPEND    (1 << 7)   /* Append to the existing file */
 #define ZM_FLAG_TIMEOUT   (1 << 8)   /* A timeout has been detected */
+#define ZM_FLAG_OO        (1 << 9)   /* "OO" may be received */
 
 /* The Zmodem parser success/error return code definitions:
  *
@@ -241,8 +243,7 @@ enum parser_state_e
 {
   PSTATE_IDLE = 0,           /* Nothing in progress */
   PSTATE_HEADER,             /* Parsing a header following ZPAD ZDLE */
-  PSTATE_DATA,               /* Sending data */
-  PSTATE_FINISH              /* Waiting for termination handshake */
+  PSTATE_DATA,               /* Sending/receiving data */
 };
 
 /* PSTATE_IDLE substates */
@@ -250,8 +251,8 @@ enum parser_state_e
 enum pidle_substate_e
 {
   PIDLE_ZPAD = 0,            /* Waiting for ZPAD */
-  PIDLE_ZDLE,                /* Waiting for ZDLE */
-  PIDLE_ZDLEE                /* Waiting for ZDLEE */
+  PIDLE_ZDLE,                /* ZPAD received, waiting for ZDLE */
+  PIDLE_OO                   /* First 'O' received, waiting for second 'O' of "OO" */
 };
 
 /* PSTATE_HEADER substates */
@@ -269,14 +270,6 @@ enum pdata_substate_e
 {
   PDATA_READ = 0,            /* Waiting for ZDLE <packet type> */
   PDATA_CRC                  /* Have the packet type, accumulating the CRC */
-};
-
-/* PSTATE_FINISH substates */
-
-enum pfinish_substate_e
-{
-  PFINISH_1STO = 0,          /* Waiting for first 'O' */
-  PFINISH_2NDO               /* Waiting for second 'O' */
 };
 
 /* This type describes the method to perform actions at the time of

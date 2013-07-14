@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/xmodem/rz_main.c
+ * system/zmodem/rz_main.c
  *
  *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,28 +40,113 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <libgen.h>
+#include <time.h>
+#include <errno.h>
 
 #include <apps/zmodem.h>
 
 /****************************************************************************
- * Definitions
+ * Private Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Private Data
- ****************************************************************************/
+static void show_usage(FAR const char *progname, int errcode)
+{
+  fprintf(stderr, "USAGE: %s [OPTIONS]\n",
+                  progname);
+  fprintf(stderr, "\nWhere OPTIONS include the following:\n");
+  fprintf(stderr, "\t-d <device>: Communication device to use.  Default: %s\n",
+                  CONFIG_SYSTEM_ZMODEM_DEVNAME);
+  fprintf(stderr, "\t-h: Show this text and exit\n");
+  exit(errcode);
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: rz_main
- ****************************************************************************/
-
-int rz_main(int argc, char *argv[])
+int rz_main(int argc, FAR char **argv)
 {
-  printf("Not yet implemented!!\n");
-  return 0;
-}
+  ZMRHANDLE handle;
+  FAR const char *devname = CONFIG_SYSTEM_ZMODEM_DEVNAME;
+  int exitcode = EXIT_FAILURE;
+  int option;
+  int ret;
+  int fd;
 
+  /* Parse input parameters */
+
+  while ((option = getopt(argc, argv, ":d:h")) != ERROR)
+    {
+      switch (option)
+        {
+          case 'd':
+            devname = optarg;
+            break;
+
+          case 'h':
+            show_usage(argv[0], EXIT_SUCCESS);
+            break;
+
+          case ':':
+            fprintf(stderr, "ERROR: Missing required argument\n");
+            show_usage(argv[0], EXIT_FAILURE);
+            break;
+
+          default:
+          case '?':
+            fprintf(stderr, "ERROR: Unrecognized option\n");
+            show_usage(argv[0], EXIT_FAILURE);
+            break;
+        }
+    }
+
+  /* Nothing else is expected on the command line */
+
+  if (optind < argc)
+    {
+      printf("ERROR: Too many command line arguments\n");
+      show_usage(argv[0], EXIT_FAILURE);
+    }
+
+  /* Open the device for read/write access */
+
+  fd = open(devname, O_RDWR);
+  if (fd < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to open %s\n", devname);
+      goto errout;
+    }
+
+  /* Get the Zmodem handle */
+
+  handle = zmr_initialize(fd);
+  if (!handle)
+    {
+      fprintf(stderr, "ERROR: Failed to get Zmodem handle\n");
+      goto errout_with_device;
+    }
+
+  /* And begin reception of files */
+
+  ret = zmr_receive(handle);
+  if (ret < 0)
+    {
+      fprintf(stderr, "File reception failed: %d\n", ret);
+      goto errout_with_zmodem;
+    }
+
+  exitcode = EXIT_SUCCESS;
+
+errout_with_zmodem:
+  (void)zmr_release(handle);
+errout_with_device:
+  (void)close(fd);
+errout:
+  return exitcode;
+}
