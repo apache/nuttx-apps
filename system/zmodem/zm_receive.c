@@ -324,8 +324,8 @@ static int zmr_zrinit(FAR struct zm_state_s *pzm)
   /* Send ZRINIT */
 
   pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
-  buf[0]       = CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE & 0xff;
-  buf[1]       = (CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE >> 8) & 0xff;
+  buf[0]       = CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE & 0xff;
+  buf[1]       = (CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE >> 8) & 0xff;
   buf[2]       = 0;
   buf[3]       = pzmr->rcaps;
   return zm_sendhexhdr(pzm, ZRINIT, buf);
@@ -739,11 +739,13 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
           zmdbg("PSTATE %d:%d->%d:%d\n",
                 pzm->pstate, pzm->psubstate, PSTATE_DATA, PDATA_READ);
 
-          /* Revert to the IDLE state and send the cancel string */
+          /* Send the cancel string */
 
-          pzm->pstate    = PSTATE_DATA;
-          pzm->psubstate = PDATA_READ;
           (void)zm_remwrite(pzm->remfd, g_canistr, CANISTR_SIZE);
+
+          /* Enter PSTATE_DATA */
+
+          zm_readstate(pzm);
           return -EIO;
         }
       else

@@ -56,6 +56,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <ctype.h>
 #include <fcntl.h>
 #include <sched.h>
 #include <assert.h>
@@ -641,9 +642,13 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
 
   /* Make sure that there is space for another byte in the packet buffer */
 
-  if (pzm->pktlen >= CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE)
+  if (pzm->pktlen >= ZM_PKTBUFSIZE)
     {
       zmdbg("ERROR:  The packet buffer is full\n");
+      zmdbg("        ch=%c[%02x] pktlen=%d ptktype=%02x ncrc=%d\n",
+            isprint(ch) ? ch : '.', ch, pzm->pktlen, pzm->pkttype, pzm->ncrc);
+      zmdbg("        rcvlen=%d rcvndx=%d\n",
+            pzm->rcvlen, pzm->rcvndx);
       return -ENOSPC;
     }
 

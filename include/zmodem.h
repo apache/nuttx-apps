@@ -62,14 +62,22 @@
 #  define CONFIG_SYSTEM_ZMODEM_DEVNAME "/dev/console"
 #endif
 
-/* The size of one buffer used to read data from the remote peer */
+/* The size of one buffer used to read data from the remote peer.  The total
+ * buffering capability is SYSTEM_ZMODEM_RCVBUFSIZE plus the size of the RX
+ * buffer in the device driver.  If you are using a serial driver with, say,
+ * USART0.  That that buffering capability includes USART0_RXBUFFERSIZE.
+ * This total buffering capability must be significantly larger than
+ * SYSTEM_ZMODEM_PKTBUFSIZE (larger due streaming race conditions, data
+ * expansion due to escaping, and possible protocol overhead).
+ */
 
 #ifndef CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE
 #  define CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE 512
 #endif
 
 /* Data may be received in gulps of varying size and alignment.  Received
- * packets data is properly packed into a packet buffer of this size.
+ * packets data is properly unescaped, aligned and packed nto a packet
+ * buffer of this size.
  */
 
 #ifndef CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE

@@ -210,6 +210,12 @@
 
 #define ZM_XFRDONE    1              /* Success - Transfer complete */
 
+/* The actual packet buffer size includes 5 bytes to hold the transfer type
+ * and the maxmimum size 4-byte CRC.
+ */
+
+#define ZM_PKTBUFSIZE (CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE + 5)
+
 /* Debug Definitions ********************************************************/
 
 /* Non-standard debug selectable with CONFIG_DEBUG_ZMODEM.  Debug output goes
@@ -347,7 +353,7 @@ struct zm_state_s
    */
 
   uint8_t  rcvbuf[CONFIG_SYSTEM_ZMODEM_RCVBUFSIZE];
-  uint8_t  pktbuf[CONFIG_SYSTEM_ZMODEM_PKTBUFSIZE];
+  uint8_t  pktbuf[ZM_PKTBUFSIZE];
   uint8_t  scratch[CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE];
 };
 

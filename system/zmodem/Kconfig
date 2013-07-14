@@ -22,15 +22,22 @@ config SYSTEM_ZMODEM_RCVBUFSIZE
 	int "Receive buffer size"
 	default 512
 	---help---
-		The size of one buffer used to read data from the remote peer.
+		The size of one buffer used to read data from the remote peer.  The
+		total buffering capability is SYSTEM_ZMODEM_RCVBUFSIZE plus the size
+		of the RX buffer in the device driver.  If you are using a serial
+		driver with, say, USART0.  That that buffering capability includes
+		USART0_RXBUFFERSIZE.  This total buffering capability must be
+		significantly larger than SYSTEM_ZMODEM_PKTBUFSIZE (larger due
+		streaming race conditions, data expansion due to escaping, and
+		possible protocol overhead).
 
 config SYSTEM_ZMODEM_PKTBUFSIZE
 	int "Maximum packet size"
 	default 512
 	---help---
 		Data may be received in gulps of varying size and alignment.
-		Received packets data is properly packed into a packet buffer of
-		this size.
+		Received packets data is properly unescaped, aligned and packed
+		into a packet buffer of this size.
 
 config SYSTEM_ZMODEM_SNDBUFSIZE
 	int "Send buffer size"
