@@ -614,6 +614,7 @@ static int zms_command(FAR struct zm_state_s *pzm)
 static int zms_message(FAR struct zm_state_s *pzm)
 {
   zmdbg("ZMS_STATE %d\n", pzm->state);
+
   zm_readstate(pzm);
   return OK;
 }
@@ -629,6 +630,7 @@ static int zms_message(FAR struct zm_state_s *pzm)
 static int zms_stderrdata(FAR struct zm_state_s *pzm)
 {
   zmdbg("ZMS_STATE %d\n", pzm->state);
+
   pzm->pktbuf[pzm->pktlen] = '\0';
   fprintf(stderr, "Message: %s", (char*)pzm->pktbuf);
   return OK;
@@ -647,6 +649,7 @@ static int zms_stderrdata(FAR struct zm_state_s *pzm)
 static int zms_initdone(FAR struct zm_state_s *pzm)
 {
   zmdbg("ZMS_STATE %d->%d\n", pzm->state, ZMS_DONE);
+
   pzm->state = ZMS_DONE;
   return ZM_XFRDONE;
 }

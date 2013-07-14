@@ -369,7 +369,6 @@ struct zmr_state_s
   uint8_t f2;                /* Transfer flag F2 */
   uint8_t f3;                /* Transfer flag F3 */
 #endif
-  uint8_t pkttype;           /* Type of packet */
   uint8_t ntimeouts;         /* Number of timeouts */
   uint32_t crc;              /* Remove file CRC */
   FAR char *filename;        /* Local filename */

@@ -319,6 +319,7 @@ static int zmr_zrinit(FAR struct zm_state_s *pzm)
 
   zmdbg("ZMR_STATE %d:->%d Send ZRINIT\n", pzm->state, ZMR_START);
   pzm->state   = ZMR_START;
+  pzm->flags  &= ~ZM_FLAG_OO;   /* In case we get here from ZMR_FINISH */
 
   /* Send ZRINIT */
 
@@ -409,7 +410,7 @@ static int zmr_zsrintdata(FAR struct zm_state_s *pzm)
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)pzm;
   uint8_t by[4];
 
-  zmdbg("PSTATE %d:%d->%d.%d. Received the rest of the ZSINIT packet\n",
+  zmdbg("PSTATE %d:%d->%d:%d. Received the rest of the ZSINIT packet\n",
         pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
 
   pzm->pstate    = PSTATE_IDLE;
@@ -513,6 +514,7 @@ static int zmr_zfile(FAR struct zm_state_s *pzm)
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
   pzm->nerrors = 0;
+  pzm->flags  &= ~ZM_FLAG_OO;   /* In case we get here from ZMR_FINISH */
 
   /* Cache flags (skipping of the initial header type byte) */
 
@@ -609,7 +611,7 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
   int filetype;
   int ret;
 
-  zmdbg("PSTATE %d:%d->%d.%d\n",
+  zmdbg("PSTATE %d:%d->%d:%d\n",
         pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
@@ -734,7 +736,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
 
       if (pzm->nerrors > CONFIG_SYSTEM_ZMODEM_MAXERRORS)
         {
-          zmdbg("PSTATE %d:%d->%d.%d\n",
+          zmdbg("PSTATE %d:%d->%d:%d\n",
                 pzm->pstate, pzm->psubstate, PSTATE_DATA, PDATA_READ);
 
           /* Revert to the IDLE state and send the cancel string */
@@ -746,7 +748,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
         }
       else
         {
-          zmdbg("PSTATE %d:%d->%d.%d\n",
+          zmdbg("PSTATE %d:%d->%d:%d\n",
                 pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
           zmdbg("ZMR_STATE %d->%d\n",  pzm->state, ZMR_READREADY);
 
@@ -769,7 +771,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
       /* Could not write to the the file. */
 
       zmdbg("ERROR: Write to file failed: %d\n", errorcode);
-      zmdbg("PSTATE %d:%d->%d.%d\n",
+      zmdbg("PSTATE %d:%d->%d:%d\n",
              pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
       zmdbg("ZMR_STATE %d->%d\n",  pzm->state, ZMR_FINISH);
 
@@ -781,16 +783,17 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
       return zmr_fileerror(pzmr, ZFERR, (uint32_t)errorcode);
     }
 
-  zmdbg("offset: %ld nchars: %d\n", (unsigned long)pzmr->offset, pzm->pktlen);
+  zmdbg("offset: %ld nchars: %d pkttype: %02x\n",
+        (unsigned long)pzmr->offset, pzm->pktlen, pzm->pkttype);
 
   pzmr->offset += pzm->pktlen;
-  zmdbg("%ld bytes received\n", (unsigned long)pzmr->offset);
+  zmdbg("Bytes received: %ld\n", (unsigned long)pzmr->offset);
 
   /* If this was the last data subpacket, leave data mode */
 
-  if (pzmr->pkttype == ZCRCE || pzmr->pkttype == ZCRCW)
+  if (pzm->pkttype == ZCRCE || pzm->pkttype == ZCRCW)
     {
-      zmdbg("PSTATE %d:%d->%d.%d: ZCRCE|ZCRCW\n",
+      zmdbg("PSTATE %d:%d->%d:%d: ZCRCE|ZCRCW\n",
             pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
       zmdbg("ZMR_STATE %d->%d\n",  pzm->state, ZMR_READREADY);
 
@@ -815,7 +818,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
    *   ZCRCE:  End of file, no response
    */
 
-  if (pzmr->pkttype == ZCRCQ || pzmr->pkttype == ZCRCW)
+  if (pzm->pkttype == ZCRCQ || pzm->pkttype == ZCRCW)
     {
       zmdbg("Send ZACK\n");
 
@@ -961,7 +964,7 @@ static int zmr_zfin(FAR struct zm_state_s *pzm)
    * meaning that we are all done.
    */
 
-  zmdbg("PSTATE %d:%d->%d.%d:  Send ZFIN\n",
+  zmdbg("PSTATE %d:%d->%d:%d:  Send ZFIN\n",
          pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
@@ -999,6 +1002,8 @@ static int zmr_finto(FAR struct zm_state_s *pzm)
    */
 
   pzmr->ntimeouts++;
+  pzm->flags  &= ~ZM_FLAG_OO; /* No longer expect "OO" */
+
   zmdbg("ZMR_STATE %d: %d send timeouts\n", pzm->state, pzmr->ntimeouts);
 
   /* And terminate the reception with a timeout error */
@@ -1007,7 +1012,7 @@ static int zmr_finto(FAR struct zm_state_s *pzm)
 }
 
 /****************************************************************************
- * Name: zmr_finto
+ * Name: zmr_oo
  *
  * Description:
  *   Received "OO" in the ZMR_FINISH state.  We are finished!
@@ -1103,6 +1108,7 @@ static int zmr_error(FAR struct zm_state_s *pzm)
         pzm->state, pzm->hdrdata[0]);
 
   pzm->flags |= ZM_FLAG_WAIT;
+  pzm->flags &= ~ZM_FLAG_OO;   /* In case we get here from ZMR_FINISH */
   return OK;
 }
 
@@ -1473,7 +1479,7 @@ static int zmr_fileerror(FAR struct zmr_state_s *pzmr, uint8_t type,
 
   /* Set the state back to IDLE to abort the transfer */
 
-  zmdbg("PSTATE %d:%d->%d.%d\n",
+  zmdbg("PSTATE %d:%d->%d:%d\n",
         pzmr->cmn.pstate, pzmr->cmn.psubstate, PSTATE_IDLE, PIDLE_ZPAD);
 
   pzmr->cmn.pstate    = PSTATE_IDLE;

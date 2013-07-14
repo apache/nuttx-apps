@@ -154,7 +154,7 @@ static int zm_event(FAR struct zm_state_s *pzm, int event)
 
 static int zm_nakhdr(FAR struct zm_state_s *pzm)
 {
-  zmdbg("PSTATE %d:%d->%d.%d: NAKing\n",
+  zmdbg("PSTATE %d:%d->%d:%d: NAKing\n",
         pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
 
   /* Revert to the IDLE state */
@@ -180,7 +180,7 @@ static int zm_hdrevent(FAR struct zm_state_s *pzm)
   zmdbg("Received type: %d data: %02x %02x %02x %02x\n",
         pzm->hdrdata[0],
         pzm->hdrdata[1], pzm->hdrdata[2], pzm->hdrdata[3], pzm->hdrdata[4]);
-  zmdbg("PSTATE %d:%d->%d.%d\n",
+  zmdbg("PSTATE %d:%d->%d:%d\n",
         pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
 
   /* Revert to the IDLE state */
@@ -231,7 +231,7 @@ static int zm_hdrevent(FAR struct zm_state_s *pzm)
 static int zm_dataevent(FAR struct zm_state_s *pzm)
 {
   zmdbg("Received type: %d length: %d\n", pzm->pkttype, pzm->pktlen);
-  zmdbg("PSTATE %d:%d->%d.%d\n",
+  zmdbg("PSTATE %d:%d->%d:%d\n",
         pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
 
   /* Revert to the IDLE state */
@@ -255,6 +255,12 @@ static int zm_dataevent(FAR struct zm_state_s *pzm)
         {
           pzm->flags |= ZM_FLAG_CRKOK;
         }
+
+      /* Adjust the back length to exclude the packet type length of the 4-
+       * byte checksum.
+       */
+
+      pzm->pktlen -= 5;
     }
   else
     {
@@ -270,7 +276,15 @@ static int zm_dataevent(FAR struct zm_state_s *pzm)
         {
           pzm->flags |= ZM_FLAG_CRKOK;
         }
+
+     /* Adjust the back length to exclude the packet type length of the 2-
+      * byte checksum.
+      */
+
+      pzm->pktlen -= 3;
     }
+
+  /* Then handle the data received event */
 
   return zm_event(pzm, ZME_DATARCVD);
 }
@@ -296,7 +310,7 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
       {
         /* The ZDLE character is expected next */
 
-        zmdbg("PSTATE %d:%d->%d.%d\n",
+        zmdbg("PSTATE %d:%d->%d:%d\n",
               pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_ZDLE);
 
         pzm->psubstate = PIDLE_ZDLE;
@@ -313,7 +327,7 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
 
       if (pzm->psubstate == PIDLE_ZDLE)
         {
-          zmdbg("PSTATE %d:%d->%d.%d\n",
+          zmdbg("PSTATE %d:%d->%d:%d\n",
                 pzm->pstate, pzm->psubstate, PSTATE_HEADER, PHEADER_FORMAT);
 
           pzm->flags    &= ~ZM_FLAG_OO;
@@ -323,7 +337,7 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
         }
       else
         {
-          zmdbg("PSTATE %d:%d->%d.%d\n",
+          zmdbg("PSTATE %d:%d->%d:%d\n",
                 pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_ZPAD);
 
           pzm->psubstate = PIDLE_ZPAD;
@@ -340,27 +354,28 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
        * case if not.
        */
 
-      if ((pzm->state & ZM_FLAG_OO) != 0)
+      if ((pzm->flags & ZM_FLAG_OO) != 0)
         {
           /* Yes... did we receive an 'O' before this one? */
 
-          if (pzm->psubstate != PIDLE_OO)
+          if (pzm->psubstate == PIDLE_OO)
             {
               /* This is the second 'O' of "OO". the receiver operation is
                * finished.
                */
 
-              zmdbg("PSTATE %d:%d->%d.%d\n",
+              zmdbg("PSTATE %d:%d->%d:%d\n",
                     pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_ZPAD);
 
+              pzm->flags    &= ~ZM_FLAG_OO;
               pzm->psubstate = PIDLE_ZPAD;
               return zm_event(pzm, ZME_OO);
             }
           else
             {
-              /* No... this is the first 'O' that we have seen */
+              /* No... then this is the first 'O' that we have seen */
 
-              zmdbg("PSTATE %d:%d->%d.%d\n",
+              zmdbg("PSTATE %d:%d->%d:%d\n",
                     pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_OO);
 
               pzm->psubstate = PIDLE_OO;
@@ -373,7 +388,7 @@ static int zm_idle(FAR struct zm_state_s *pzm, uint8_t ch)
     default:
       if (pzm->psubstate != PIDLE_ZPAD)
         {
-          zmdbg("PSTATE %d:%d->%d.%d\n",
+          zmdbg("PSTATE %d:%d->%d:%d\n",
                 pzm->pstate, pzm->psubstate, pzm->pstate, PIDLE_ZPAD);
 
           pzm->psubstate = PIDLE_ZPAD;
@@ -894,7 +909,7 @@ int zm_datapump(FAR struct zm_state_s *pzm)
                 {
                   /* Yes... a timeout occurred */
 
-                  zm_timeout(pzm);
+                  ret = zm_timeout(pzm);
                 }
 
               /* No.. then just ignore the EINTR. */
@@ -940,7 +955,7 @@ int zm_datapump(FAR struct zm_state_s *pzm)
 
 void zm_readstate(FAR struct zm_state_s *pzm)
 {
-  zmdbg("PSTATE %d:%d->%d.%d\n",
+  zmdbg("PSTATE %d:%d->%d:%d\n",
         pzm->pstate, pzm->psubstate, PSTATE_DATA, PDATA_READ);
 
   pzm->pstate    = PSTATE_DATA;
