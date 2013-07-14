@@ -95,8 +95,8 @@
  *                <---- ZRPOS
  *   ZCRC         ---->               ZMS_CRCWAIT
  *                <---- ZRPOS
- *   ZDATA        ---->               ZMS_SENDING
- *   Data packets ---->               [Perhaps ZMS_SENDWAIT<->ZMS_SENDING]
+ *   ZDATA        ---->
+ *   Data packets ---->               ZMS_SENDING /ZMS_SENDWAIT
  *   Last packet  ---->               ZMS_SENDDONE
  *   ZEOF         ---->               ZMS_SENDEOF
  *                <---- ZRINIT
@@ -116,7 +116,7 @@ enum zmodem_state_e
   ZMS_INITACK,        /* Received ZRINIT, sent ZSINIT, waiting for ZACK */
   ZMS_FILEWAIT,       /* Sent file header, waiting for ZRPOS */
   ZMS_CRCWAIT,        /* Sent file CRC, waiting for ZRPOS */
-  ZMS_SENDING,        /* Sending data subpackets, ready for interrupt */
+  ZMS_SENDING,        /* Streaming data subpackets, ready for interrupt */
   ZMS_SENDWAIT,       /* Waiting for ZACK */
   ZMS_SENDDONE,       /* File finished, need to send ZEOF */
   ZMS_SENDEOF,        /* Sent ZEOF, waiting for ZACK */
@@ -180,7 +180,7 @@ static int zms_sendfile(FAR struct zms_state_s *pzms, FAR const char *filename,
 static const struct zm_transition_s g_zms_start[] =
 {
   {ZME_RINIT,     true,  ZMS_START,    zms_rinit},
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_CHALLENGE, true,  ZMS_START,    zms_challenge},
   {ZME_ABORT,     true,  ZMS_FINISH,   zms_abort},
   {ZME_FERR,      true,  ZMS_FINISH,   zms_abort},
@@ -197,7 +197,7 @@ static const struct zm_transition_s g_zms_start[] =
 
 static const struct zm_transition_s g_zms_init[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_ACK,       true,  ZMS_INITACK,  zms_initdone},
   {ZME_NAK,       true,  ZMS_INITACK,  zms_sendzsinit},
   {ZME_RINIT,     true,  ZMS_INITACK,  zms_rinit},
@@ -214,7 +214,7 @@ static const struct zm_transition_s g_zms_init[] =
 
 static const struct zm_transition_s g_zms_filewait[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_RPOS,      true,  ZMS_SENDING,  zms_sendfiledata},
   {ZME_SKIP,      true,  ZMS_FILEWAIT, zms_fileskip},
   {ZME_CRC,       true,  ZMS_FILEWAIT, zms_filecrc},
@@ -235,7 +235,7 @@ static const struct zm_transition_s g_zms_filewait[] =
 
 static const struct zm_transition_s g_zms_crcwait[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_RPOS,      true,  ZMS_SENDING,  zms_sendfiledata},
   {ZME_SKIP,      true,  ZMS_FILEWAIT, zms_fileskip},
   {ZME_NAK,       true,  ZMS_CRCWAIT,  zms_filecrc},
@@ -254,7 +254,7 @@ static const struct zm_transition_s g_zms_crcwait[] =
  * interrupt
  */
 
-static const struct zm_transition_s g_zms_sending[] =
+static const struct zm_transition_s g_zms_streaming[] =
 {
   {ZME_SINIT,     false, ZMS_START,    zms_attention},
   {ZME_ACK,       false, ZMS_SENDING,  zms_sendack},
@@ -288,7 +288,7 @@ static const struct zm_transition_s g_zms_sendwait[] =
 
 static const struct zm_transition_s g_zms_senddone[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_ACK,       false, ZMS_SENDWAIT, zms_senddoneack},
   {ZME_RPOS,      true,  ZMS_SENDING,  zms_sendrpos},
   {ZME_SKIP,      true,  ZMS_FILEWAIT, zms_fileskip},
@@ -315,7 +315,7 @@ static const struct zm_transition_s g_zms_senddone[] =
 const struct zm_transition_s g_zms_sendeof[] =
 {
   {ZME_RINIT,     true,  ZMS_START,    zms_endoftransfer},
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_ACK,       false, ZMS_SENDEOF,  zms_ignore},
   {ZME_RPOS,      true,  ZMS_SENDWAIT, zms_sendrpos},
   {ZME_SKIP,      true,  ZMS_START,    zms_fileskip},
@@ -331,7 +331,7 @@ const struct zm_transition_s g_zms_sendeof[] =
 
 static const struct zm_transition_s g_zms_finish[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_FIN,       true,  ZMS_DONE,     zms_xfrdone},
   {ZME_NAK,       true,  ZMS_FINISH,   zms_finish},
   {ZME_RINIT,     true,  ZMS_FINISH,   zms_finish},
@@ -345,7 +345,7 @@ static const struct zm_transition_s g_zms_finish[] =
 
 static struct zm_transition_s g_zms_command[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_DATARCVD,  false, ZMS_COMMAND,  zms_ignore},
   {ZME_TIMEOUT,   false, ZMS_COMMAND,  zms_cmdto},
   {ZME_ERROR,     false, ZMS_COMMAND,  zms_error}
@@ -355,7 +355,7 @@ static struct zm_transition_s g_zms_command[] =
 
 static struct zm_transition_s g_zms_stderr[] =
 {
-  {ZME_SINIT,     false, ZMS_START,    zms_attention},
+  {ZME_SINIT,     false, ZMS_START,    zms_ignore},
   {ZME_DATARCVD,  false, ZMS_MESSAGE,  zms_stderrdata},
   {ZME_TIMEOUT,   false, ZMS_MESSAGE,  zms_cmdto},
   {ZME_ERROR,     false, ZMS_MESSAGE,  zms_error}
@@ -375,18 +375,18 @@ static struct zm_transition_s g_zms_done[] =
 
 static FAR const struct zm_transition_s * const g_zms_evtable[] =
 {
-  g_zms_start,      /* ZMS_START    - ZRQINIT sent, waiting for ZRINIT from receiver */
-  g_zms_init,       /* ZMS_INITACK  - Received ZRINIT, sent ZSINIT, waiting for ZACK */
-  g_zms_filewait,   /* ZMS_FILEWAIT - Sent file header, waiting for ZRPOS */
-  g_zms_crcwait,    /* ZMS_CRCWAIT  - Sent file CRC, waiting for ZRPOS response */
-  g_zms_sending,    /* ZMS_SENDING  - Sending data subpackets, ready for interrupt */
-  g_zms_sendwait,   /* ZMS_SENDWAIT - Waiting for ZACK */
-  g_zms_senddone,   /* ZMS_SENDDONE - File sent, need to send ZEOF */
-  g_zms_sendeof,    /* ZMS_SENDEOF  - Sent ZEOF, waiting for ZACK */
-  g_zms_finish,     /* ZMS_FINISH   - Sent ZFIN, waiting for ZFIN */
-  g_zms_command,    /* ZMS_COMMAND  - Waiting for command data */
-  g_zms_stderr,     /* ZMS_MESSAGE  - Waiting for message from receiver */
-  g_zms_done        /* ZMS_DONE     - Finished with transfer */
+  g_zms_start,      /* ZMS_START     - ZRQINIT sent, waiting for ZRINIT from receiver */
+  g_zms_init,       /* ZMS_INITACK   - Received ZRINIT, sent ZSINIT, waiting for ZACK */
+  g_zms_filewait,   /* ZMS_FILEWAIT  - Sent file header, waiting for ZRPOS */
+  g_zms_crcwait,    /* ZMS_CRCWAIT   - Sent file CRC, waiting for ZRPOS response */
+  g_zms_streaming,  /* ZMS_SENDING - Sending data subpackets, ready for interrupt */
+  g_zms_sendwait,   /* ZMS_SENDWAIT  - Waiting for ZACK */
+  g_zms_senddone,   /* ZMS_SENDDONE  - File sent, need to send ZEOF */
+  g_zms_sendeof,    /* ZMS_SENDEOF   - Sent ZEOF, waiting for ZACK */
+  g_zms_finish,     /* ZMS_FINISH    - Sent ZFIN, waiting for ZFIN */
+  g_zms_command,    /* ZMS_COMMAND   - Waiting for command data */
+  g_zms_stderr,     /* ZMS_MESSAGE   - Waiting for message from receiver */
+  g_zms_done        /* ZMS_DONE      - Finished with transfer */
 };
 
 /****************************************************************************
@@ -438,21 +438,56 @@ static int zms_rinit(FAR struct zm_state_s *pzm)
   (void)zms_hwflowcontrol(pzmr->cmn.remfd, true);
 #endif
 
-#if defined(CONFIG_SYSTEM_ZMODEM_SENDSAMPLE) || defined(CONFIG_SYSTEM_ZMODEM_SENDATTN)
+  /* Check if the receiver supports full-duplex streaming
+   *
+   * ZCRCW:
+   *   "If the receiver cannot overlap serial and disk I/O, it uses the
+   *    ZRINIT frame to specify a buffer length which the sender will
+   *    not overflow.  The sending program sends a ZCRCW data subpacket
+   *    and waits for a ZACK header before sending the next segment of
+   *    the file.
+   *
+   * ZCRCG
+   *   "A data subpacket terminated by ZCRCG and CRC does not elicit a
+   *    response unless an error is detected; more data subpacket(s)
+   *    follow immediately."
+   *
+   *
+   * In order to support ZCRCG, this logic must be able to sample the
+   * reverse channel while streaming to determine if the receiving wants
+   * interrupt the transfer (CONFIG_SYSTEM_ZMODEM_RCVSAMPLE).
+   *
+   * ZCRCQ
+   *   "ZCRCQ data subpackets expect a ZACK response with the
+   *    receiver's file offset if no error, otherwise a ZRPOS response
+   *    with the last good file offset.  Another data subpacket
+   *    continues immediately.  ZCRCQ subpackets are not used if the
+   *    receiver does not indicate FDX ability with the CANFDX bit.
+   */
+
+#ifdef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
+  /* We support CANFDX.  We can do ZCRCG if the remote sender does too */
+
   if ((rcaps & (CANFDX | CANOVIO)) == (CANFDX | CANOVIO) && pzms->rcvmax == 0)
     {
-      pzms->strtype = ZCRCG;
+      pzms->dpkttype = ZCRCG;
     }
-  else
 #else
+  /* We don't support CANFDX.  We can do ZCRCQ if the remote sender does  */
+
   if ((rcaps & (CANFDX | CANOVIO)) == (CANFDX | CANOVIO) && pzms->rcvmax == 0)
     {
-      pzms->strtype = ZCRCQ;
+      /* For the local sender, this is just like ZCRCW */
+
+      pzms->dpkttype = ZCRCQ;
     }
-  else
 #endif
+
+  /* Otherwise, we have to to ZCRCW */
+
+  else
     {
-      pzms->strtype = ZCRCG;
+      pzms->dpkttype = ZCRCW;
     }
 
 #ifdef CONFIG_SYSTEM_ZMODEM_ALWAYSSINT
@@ -475,15 +510,33 @@ static int zms_rinit(FAR struct zm_state_s *pzm)
  * Name: zms_attention
  *
  * Description:
- *   Received ZSINIT.  The receiver wants something.  Set the interrupt flag
- *   and handle this later in zms_sendpacket().
+ *   Received ZSINIT while sending data.  The receiver wants something.
+ *   Switch tot he ZMS_SENDWAIT state and wait.  A ZRPOS should be forth-
+ *   coming.
  *
  ****************************************************************************/
 
 static int zms_attention(FAR struct zm_state_s *pzm)
 {
   zmdbg("ZMS_STATE %d\n", pzm->state);
-  pzm->flags |= ZM_FLAG_INTERRUPT;
+
+  /* In the case of full streaming, the presence of pending read data should
+   * cause the sending logic to break out of the loop and handle the received
+   * data, getting us to this point.
+   */
+
+  if (pzm->state == ZMS_SENDING || pzm->state == ZMS_SENDWAIT)
+    {
+     /* Enter a wait state and see what they want.  Next header *should* be
+      * ZRPOS.
+      */
+
+      zmdbg("ZMS_STATE %d->%d: Interrupt\n", pzm->state, ZMS_SENDWAIT);
+
+      pzm->state   = ZMS_SENDWAIT;
+      pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
+    }
+
   return OK;
 }
 
@@ -685,7 +738,7 @@ static int zms_sendfilename(FAR struct zm_state_s *pzm)
   ptr += len + 1;
 
   /* Paragraph 13:
-   * 
+   *
    *   Length
    *     The file length ... is stored as a decimal string counting  the
    *     number of data bytes in the file.
@@ -697,7 +750,7 @@ static int zms_sendfilename(FAR struct zm_state_s *pzm)
    *   File Mode
    *     A single space separates the file mode from the modification date.
    *     The file mode is stored as an octal string. Unless the file
-   *     originated from a Unix system, the file mode is set to 0. 
+   *     originated from a Unix system, the file mode is set to 0.
    *   Serial Number
    *     A single space separates the serial number from the file mode.
    *     The serial number of the transmitting program is stored as an
@@ -713,7 +766,7 @@ static int zms_sendfilename(FAR struct zm_state_s *pzm)
    *     as a decimal number, and includes the current file
    *   File Type
    *     Iff the file type is sent, a single space separates this field from
-   *     the previous field.  This field is coded as a decimal number. 
+   *     the previous field.  This field is coded as a decimal number.
    *     Currently defined values are:
    *
    *       0  Sequential file - no special type
@@ -821,242 +874,258 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
   int ret;
   int i;
 
-  /* ZCRCE: CRC next, frame ends, header follows ZCRCG: CRC next, frame
-   * continues nonstop ZCRCQ: CRC next, send ZACK, frame continues nonstop
-   * ZCRCW: CRC next, send ZACK, frame ends, header follows.
+  /* Loop, sending packets while we can if the receiver supports streaming
+   * data.
    */
 
-  if ((pzm->flags & ZM_FLAG_INTERRUPT) != 0)
+  do
     {
-      /* Receiver sent an interrupt.  Enter a wait state and see what
-       * they want.  Next header *should* be ZRPOS.
+      /* This is the number of byte left in the file to be sent */
+
+      sndsize = pzms->filesize - pzms->offset;
+
+      /* This is the nubmer of bytes that have been sent but not yet ackowledged. */
+
+      unacked = pzms->offset - pzms->lastoffs;
+
+      /* Can we still send?  If so, how much?   If rcvmax is zero, then the
+       * remote can handle full streaming and we never have to wait.
+       * Otherwise, we have to restrict the total number of unacknowledged
+       * bytes to rcvmax.
        */
 
-      zmdbg("ZMS_STATE %d->%d: Interrupt\n", pzm->state, ZMS_SENDWAIT);
+      zmdbg("sndsize: %d unacked: %d rcvmax: %d\n",
+            sndsize, unacked, pzms->rcvmax);
 
-      pzm->state   = ZMS_SENDWAIT;
-      pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
-      pzm->flags  &= ~ZM_FLAG_INTERRUPT;
-      return 0;
-    }
-
-  /* This is the number of byte left in the file to be sent */
-
-  sndsize = pzms->filesize - pzms->offset;
-
-  /* This is the nubmer of bytes that have been sent but not yet ackowledged. */
-
-  unacked = pzms->offset - pzms->lastoffs;
-
-  /* Can we still send?  If so, how much?   If rcvmax is zero, then the
-   * remote can handle full streaming and we never have to wait.  Otherwise,
-   * we have to restrict the total number of unacknowledged bytes to rcvmax.
-   */
-
-  zmdbg("sndsize: %d unacked: %d rcvmax: %d\n",
-        sndsize, unacked, pzms->rcvmax);
-
-  if (pzms->rcvmax != 0)
-    {
-      /* If we were to send 'sndsize' more bytes, would that exceed recvmax? */
-
-      if (sndsize + unacked > pzms->rcvmax)
+     if (pzms->rcvmax != 0)
         {
-          /* Yes... clip the maximum so that we stay within that limit */
+          /* If we were to send 'sndsize' more bytes, would that exceed recvmax? */
 
-          int maximum = pzms->rcvmax - unacked;
-          if (sndsize < maximum)
+          if (sndsize + unacked > pzms->rcvmax)
             {
-              sndsize = maximum;
+              /* Yes... clip the maximum so that we stay within that limit */
+
+              int maximum = pzms->rcvmax - unacked;
+              if (sndsize < maximum)
+                {
+                  sndsize = maximum;
+                }
+
+              wait = true;
+              zmdbg("Clipped sndsize: %d\n", sndsize);
             }
-          
-          wait = true;
-          zmdbg("Clipped sndsize: %d\n", sndsize);
         }
-    }
 
-  /* Can we send anything? */
+      /* Can we send anything? */
 
-  if (sndsize <= 0)
-    {
-      /* No, not now. Keep waiting */
-
-      zmdbg("ZMS_STATE %d->%d\n", pzm->state, ZMS_SENDWAIT);
-
-      pzm->state   = ZMS_SENDWAIT;
-      pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
-      return OK;
-    }
-
-  /* Determine what kind of packet to send */
-
-  if ((pzm->flags & ZM_FLAG_WAIT) != 0)
-    {
-      type = ZCRCW;
-      pzm->flags &= ~ZM_FLAG_WAIT;
-    }
-  else if (wait)
-    {
-      type = ZCRCW;
-    }
-  else
-    {
-      type = pzms->strtype;
-    }
-
-  /* Read characters from file and put into buffer until buffer is full or
-   * file is exhausted
-   */
-
-  bcrc32      = ((pzm->flags & ZM_FLAG_CRC32) != 0);
-  crc         = bcrc32 ? 0xffffffff : 0;
-  pzm->flags &= ~ZM_FLAG_ATSIGN;
-
-  ptr         = pzm->scratch;
-  pktsize     = 0;
-
-  while (pktsize <= (CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE - 10) &&
-         (ret = zm_getc(pzms->infd)) != EOF)
-    {
-      /* Add the new value to the accumulated CRC */
-
-      uint8_t ch = (uint8_t)ret;
-      if (!bcrc32)
+      if (sndsize <= 0)
         {
-          crc = (uint32_t)crc16part(&ch, 1, (uint16_t)crc);
+          /* No, not now. Keep waiting */
+
+          zmdbg("ZMS_STATE %d->%d\n", pzm->state, ZMS_SENDWAIT);
+
+          pzm->state   = ZMS_SENDWAIT;
+          pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
+          return OK;
         }
-      else
-        {
-          crc = crc32part(&ch, 1, crc);
-        }
 
-      /* Put the character into the buffer, escaping as necessary */
-
-      ptr = zm_putzdle(pzm, ptr, ch);
-
-      /* Recalculate the accumulated packet size to handle expansion due to
-       * escaping.
+      /* Determine what kind of packet to send
+       *
+       * ZCRCW:
+       *   "If the receiver cannot overlap serial and disk I/O, it uses the
+       *    ZRINIT frame to specify a buffer length which the sender will
+       *    not overflow.  The sending program sends a ZCRCW data subpacket
+       *    and waits for a ZACK header before sending the next segment of
+       *    the file.
+       *
+       * ZCRCG
+       *   "A data subpacket terminated by ZCRCG and CRC does not elicit a
+       *    response unless an error is detected; more data subpacket(s)
+       *    follow immediately."
+       *
+       * ZCRCQ
+       *   "ZCRCQ data subpackets expect a ZACK response with the
+       *    receiver's file offset if no error, otherwise a ZRPOS response
+       *    with the last good file offset.  Another data subpacket
+       *    continues immediately.  ZCRCQ subpackets are not used if the
+       *    receiver does not indicate FDX ability with the CANFDX bit.
        */
-      
-      pktsize = (int32_t)(ptr - pzm->scratch);
 
-      /* And increment the file offset */
-
-      pzms->offset++;
-    }
-
-  /* If we've reached file end, a ZEOF header will follow.  If there's room
-   * in the outgoing buffer for it, end the packet with ZCRCE and append the
-   * ZEOF header.  If there isn't room, we'll have to do a ZCRCW
-   */
-
-  pzm->flags &= ~ZM_FLAG_EOF;
-  if (ret == EOF)
-    {
-      pzm->flags |= ZM_FLAG_EOF;
-      if (wait || (pzms->rcvmax != 0 && pktsize < 24))
+      if ((pzm->flags & ZM_FLAG_WAIT) != 0)
+        {
+          type = ZCRCW;
+          pzm->flags &= ~ZM_FLAG_WAIT;
+        }
+      else if (wait)
         {
           type = ZCRCW;
         }
       else
         {
-          type = ZCRCE;
+          type = pzms->dpkttype;
         }
-    }
 
-   /* Save the ZDLE in the transmit buffer */
+      /* Read characters from file and put into buffer until buffer is full
+       * or file is exhausted
+       */
 
-  *ptr++ = ZDLE;
+      bcrc32      = ((pzm->flags & ZM_FLAG_CRC32) != 0);
+      crc         = bcrc32 ? 0xffffffff : 0;
+      pzm->flags &= ~ZM_FLAG_ATSIGN;
 
-  /* Save the type */
+      ptr         = pzm->scratch;
+      pktsize     = 0;
 
-  if (!bcrc32)
-    {
-      crc = (uint32_t)crc16part(&type, 1, (uint16_t)crc);
-    }
-  else
-    {
-      crc = crc32part(&type, 1, crc);
-    }
-
-  *ptr++ = type;
-
-  /* Update the CRC and put the CRC in the transmit buffer */
-
-  if (!bcrc32)
-    {
-      crc = (uint32_t)crc16part(g_zeroes, 2, (uint16_t)crc);
-      ptr = zm_putzdle(pzm, ptr, (crc >> 8) & 0xff);
-      ptr = zm_putzdle(pzm, ptr, crc & 0xff);
-    }
-  else
-    {
-      crc = ~crc;
-      for (i = 0; i < 4; i++, crc >>= 8)
+      while (pktsize <= (CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE - 10) &&
+             (ret = zm_getc(pzms->infd)) != EOF)
         {
-          ptr = zm_putzdle(pzm, ptr, crc & 0xff);
+          /* Add the new value to the accumulated CRC */
+
+          uint8_t ch = (uint8_t)ret;
+          if (!bcrc32)
+            {
+              crc = (uint32_t)crc16part(&ch, 1, (uint16_t)crc);
+            }
+          else
+            {
+              crc = crc32part(&ch, 1, crc);
+            }
+
+          /* Put the character into the buffer, escaping as necessary */
+
+          ptr = zm_putzdle(pzm, ptr, ch);
+
+          /* Recalculate the accumulated packet size to handle expansion due
+           * to escaping.
+           */
+
+          pktsize = (int32_t)(ptr - pzm->scratch);
+
+          /* And increment the file offset */
+
+          pzms->offset++;
         }
-    }
 
-  /* Get the final packet size */
+      /* If we've reached file end, a ZEOF header will follow.  If there's
+       * room in the outgoing buffer for it, end the packet with ZCRCE and
+       * append the ZEOF header.  If there isn't room, we'll have to do a
+       * ZCRCW
+       */
 
-  pktsize = ptr - pzm->scratch;
-  DEBUGASSERT(pktsize < CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE);
-
-  /* And send the packet */
-
-  dbg("Sending %d bytes. New offset: %ld\n",
-      pktsize, (unsigned long)pzms->offset);
-
-  nwritten = zm_remwrite(pzm->remfd, pzm->scratch, pktsize);
-  if (nwritten < 0)
-    {
-      zmdbg("ERROR: zm_remwrite failed: %d\n", (int)nwritten);
-      return (int)nwritten;
-    }
-
-  /* Then do what?   That depends on the type of the transfer */
-
-  switch (type)
-    {
-    /* That was the last packet.  Send ZCRCE to indicate the end of file */
-
-    case ZCRCE:  /* CRC next, frame ends, header follows */
-      zmdbg("ZMS_STATE %d->%d: ZCRCE\n", pzm->state, ZMS_SENDEOF);
-
-      pzm->state   = ZMS_SENDEOF;
-      pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
-      zm_be32toby(pzms->offset, by);
-      return zm_sendhexhdr(pzm, ZEOF, by);
-
-    /* We need to want for ZACK */
-
-    case ZCRCW:  /* CRC next, send ZACK, frame ends */
-      if ((pzm->flags & ZM_FLAG_EOF) != 0)
+      pzm->flags &= ~ZM_FLAG_EOF;
+      if (ret == EOF)
         {
-          zmdbg("ZMS_STATE %d->%d: EOF\n", pzm->state, ZMS_SENDDONE);
-          pzm->state = ZMS_SENDDONE;
+          pzm->flags |= ZM_FLAG_EOF;
+          if (wait || (pzms->rcvmax != 0 && pktsize < 24))
+            {
+              type = ZCRCW;
+            }
+          else
+            {
+              type = ZCRCE;
+            }
+        }
+
+       /* Save the ZDLE in the transmit buffer */
+
+      *ptr++ = ZDLE;
+
+      /* Save the type */
+
+      if (!bcrc32)
+        {
+          crc = (uint32_t)crc16part(&type, 1, (uint16_t)crc);
         }
       else
         {
-          zmdbg("ZMS_STATE %d->%d: Not EOF\n", pzm->state, ZMS_SENDWAIT);
-          pzm->state = ZMS_SENDWAIT;
+          crc = crc32part(&type, 1, crc);
         }
 
-      pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
-      break;
+      *ptr++ = type;
 
-    /* No response is expected */
+      /* Update the CRC and put the CRC in the transmit buffer */
 
-    case ZCRCG:  /* CRC next, frame continues nonstop */
-    case ZCRCQ:  /* CRC next, send ZACK, frame continues nonstop */
-    default:
-      zmdbg("ZMS_STATE %d->%d: Default\n", pzm->state, ZMS_SENDING);
+      if (!bcrc32)
+        {
+          crc = (uint32_t)crc16part(g_zeroes, 2, (uint16_t)crc);
+          ptr = zm_putzdle(pzm, ptr, (crc >> 8) & 0xff);
+          ptr = zm_putzdle(pzm, ptr, crc & 0xff);
+        }
+      else
+        {
+          crc = ~crc;
+          for (i = 0; i < 4; i++, crc >>= 8)
+            {
+              ptr = zm_putzdle(pzm, ptr, crc & 0xff);
+            }
+        }
 
-      pzm->state = ZMS_SENDING;
-      pzm->timeout = 0;
-      break;
+      /* Get the final packet size */
+
+      pktsize = ptr - pzm->scratch;
+      DEBUGASSERT(pktsize < CONFIG_SYSTEM_ZMODEM_SNDBUFSIZE);
+
+      /* And send the packet */
+
+      dbg("Sending %d bytes. New offset: %ld\n",
+          pktsize, (unsigned long)pzms->offset);
+
+      nwritten = zm_remwrite(pzm->remfd, pzm->scratch, pktsize);
+      if (nwritten < 0)
+        {
+          zmdbg("ERROR: zm_remwrite failed: %d\n", (int)nwritten);
+          return (int)nwritten;
+        }
+
+      /* Then do what?   That depends on the type of the transfer */
+
+      switch (type)
+        {
+          /* That was the last packet.  Send ZCRCE to indicate the end of
+           * file.
+           */
+
+        case ZCRCE:  /* CRC next, transfer ends, ZEOF follows */
+          zmdbg("ZMS_STATE %d->%d: ZCRCE\n", pzm->state, ZMS_SENDEOF);
+
+          pzm->state   = ZMS_SENDEOF;
+          pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
+          zm_be32toby(pzms->offset, by);
+          return zm_sendhexhdr(pzm, ZEOF, by);
+
+        /* We need to want for ZACK */
+
+        case ZCRCW:  /* CRC next, send ZACK, transfer ends */
+          if ((pzm->flags & ZM_FLAG_EOF) != 0)
+            {
+              zmdbg("ZMS_STATE %d->%d: EOF\n", pzm->state, ZMS_SENDDONE);
+              pzm->state = ZMS_SENDDONE;
+            }
+          else
+            {
+              zmdbg("ZMS_STATE %d->%d: Not EOF\n", pzm->state, ZMS_SENDWAIT);
+              pzm->state = ZMS_SENDWAIT;
+            }
+
+          pzm->timeout = CONFIG_SYSTEM_ZMODEM_RESPTIME;
+          break;
+
+       /* No response is expected -- we are streaming */
+
+        case ZCRCG:  /* Transfer continues non-stop */
+        case ZCRCQ:  /* Expect ZACK, transfer may continues non-stop */
+        default:
+          zmdbg("ZMS_STATE %d->%d: Default\n", pzm->state, ZMS_SENDING);
+
+          pzm->state = ZMS_SENDING;
+          break;
+        }
     }
+#ifdef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
+  while (pzm->state != ZMS_SENDING && !zm_rcvpending(pzm));
+#else
+  while (0);
+#endif
 
   return OK;
 }
@@ -1096,7 +1165,7 @@ static int zms_sendack(FAR struct zm_state_s *pzm)
   FAR struct zms_state_s *pzms = (FAR struct zms_state_s *)pzm;
   off_t offset;
 
-  /* Paragraph 11.4  ZACK.  Acknowledgment to a ZSINIT frame, ..., ZCRCQ or
+  /* Paragraph 11.4  ZACK.  Acknowledgment to a ZSINIT , ..., ZCRCQ or
    * ZCRCW data subpacket.  ZP0 to ZP3 contain file offset.
    */
 
@@ -1127,8 +1196,8 @@ static int zms_sendwaitack(FAR struct zm_state_s *pzm)
   off_t offset;
   int ret;
 
-  /* Paragraph 11.4  ZACK.  Acknowledgment to a ZSINIT frame, ..., ZCRCQ or
-   * ZCRCW data subpacket.  ZP0 to ZP3 contain file offset.
+  /* Paragraph 11.4  ZACK.  ?Acknowledgment to a ZSINIT frame, ..., ZCRCQ or
+   * ZCRCW data subpacket.  ZP0 to ZP3 contain file offset."
    */
 
   offset = zm_bytobe32(pzm->hdrdata + 1);
@@ -1524,7 +1593,7 @@ ZMSHANDLE zms_initialize(int remfd)
       pzm->remfd     = remfd;
 
       /* Create a timer to handle timeout events */
-      
+
       ret = zm_timerinit(pzm);
       if (ret < 0)
         {

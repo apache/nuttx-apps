@@ -195,10 +195,9 @@
 #define ZM_FLAG_ATSIGN    (1 << 3)   /* Last char was '@' */
 #define ZM_FLAG_ESCCTRL   (1 << 4)   /* Other end requests ctrl chars be escaped */
 #define ZM_FLAG_ESC       (1 << 5)   /* Next character is escaped */
-#define ZM_FLAG_INTERRUPT (1 << 6)   /* Received attention signal */
-#define ZM_FLAG_WAIT      (1 << 7)   /* Next send should wait */
-#define ZM_FLAG_APPEND    (1 << 8)   /* Append to the existing file */
-#define ZM_FLAG_TIMEOUT   (1 << 9)   /* A timeout has been detected */
+#define ZM_FLAG_WAIT      (1 << 6)   /* Next send should wait */
+#define ZM_FLAG_APPEND    (1 << 7)   /* Append to the existing file */
+#define ZM_FLAG_TIMEOUT   (1 << 8)   /* A timeout has been detected */
 
 /* The Zmodem parser success/error return code definitions:
  *
@@ -400,7 +399,7 @@ struct zms_state_s
 
   /* State data unique to the Zmodem send implementation ********************/
 
-  uint8_t strtype;           /* Streaming type: ZCRCG or ZCRCQ */
+  uint8_t dpkttype;          /* Streaming data packet type: ZCRCG, ZCRCQ, or ZCRCW */
   uint8_t fflags[4];         /* File xfer flags */
   uint16_t rcvmax;           /* Max packet size the remote can receive. */
 #ifdef CONFIG_SYSTEM_ZMODEM_TIMESTAMPS
@@ -725,6 +724,20 @@ void zm_readstate(FAR struct zm_state_s *pzm);
  ****************************************************************************/
 
 int zm_timeout(FAR struct zm_state_s *pzm);
+
+/****************************************************************************
+ * Name: zm_rcvpending
+ *
+ * Description:
+ *   Return true if data from the remote receiver is pending.  In that case,
+ *   the local sender should stop data streaming operations and process the
+ *   incoming data.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
+bool zm_rcvpending(FAR struct zm_state_s *pzm);
+#endif
 
 /****************************************************************************
  * Name:  zm_timerinit

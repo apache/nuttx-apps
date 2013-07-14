@@ -93,6 +93,34 @@
 #  define CONFIG_SYSTEM_ZMODEM_MOUNTPOINT "/tmp"
 #endif
 
+/* CONFIG_SYSTEM_ZMODEM_RCVSAMPLE indicates the the local sender can sample
+ * reverse channel while sending.  This means in particular, that Zmodem can
+ * detect if data is received from the remote receiver while streaming a file
+ * to the remote receiver. Support for such asychronous incoming data
+ * notification is needed to support interruption of the file transfer by
+ * the remote receiver.
+ *
+ * This capapability is not yet supported.  There are only incomplete hooks
+ * in the code now!
+ */
+
+#ifndef CONFIG_SYSTEM_ZMODEM_MOUNTPOINT
+#  warning CONFIG_SYSTEM_ZMODEM_RCVSAMPLE not yet support
+#  undef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
+#endif
+
+/* CONFIG_SYSTEM_ZMODEM_SENDATTN indicates that the local sender retains
+ * an attention string that will be sent to the remote receiver
+ *
+ * This capapability is not yet supported.  There are only incomplete hooks
+ * in the code now!
+ */
+
+#ifndef CONFIG_SYSTEM_ZMODEM_SENDATTN
+#  warning CONFIG_SYSTEM_ZMODEM_SENDATTN not yet support
+#  undef CONFIG_SYSTEM_ZMODEM_SENDATTN
+#endif
+
 /* Response time for sender to respond to requests */
 
 #ifndef CONFIG_SYSTEM_ZMODEM_RESPTIME

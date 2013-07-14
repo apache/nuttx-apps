@@ -50,17 +50,27 @@ config SYSTEM_ZMODEM_MOUNTPOINT
 		Names of file send by the sz commond, on the other hand, must be
 		absolute paths beginning with '/'.
 
-config SYSTEM_ZMODEM_SENDSAMPLE
+config SYSTEM_ZMODEM_RCVSAMPLE
 	bool "Reverse channel"
-	default y
+	default n
 	---help---
-		Sender can sample reverse channel
+		Local sender can sample reverse channel while sending.  This means
+		in particular, that Zmodem can detect if data is received from the
+		remote receiver while streaming a file to the remote receiver.
+		Support for such asychronous incoming data notification is needed to
+		support interruption of the file transfer by the remote receiver.
+
+		This capapability is not yet supported.  There are only incomplete
+		hooks in the code now!  Enable only if you want to see the warning.
 
 config SYSTEM_ZMODEM_SENDATTN
 	bool "Attn interrupt"
-	default y
+	default n
 	---help---
-		Sender can be interrupted with ATTN
+		Local sender retains an attention string that will be sent to the remote receiver
+
+		This capapability is not yet supported.  There are only incomplete
+		hooks in the code now!  Enable only if you want to see the warning.
 
 config SYSTEM_ZMODEM_ALWAYSSINT
 	bool "Send ZSINIT"

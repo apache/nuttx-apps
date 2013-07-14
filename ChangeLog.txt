@@ -602,5 +602,8 @@
 	  Change to prevent some false alarm debug assertions (From Chia Cheng
 	  Tao, 2013-7-9).
 	* apps/system/zmodem:  Add configuration support and a build framework
-	  for the Zmodem sz and rz command (which don't actually exist yet).
-	  (2013-7-12).
+	  for the Zmodem sz and rz command (which exist but have not yet been
+	  checked in) (2013-7-12).
+	* apps/system/zmodem:  The 'sz' command is not complete and seems
+	  functional (given on light testing).  The rz command logic exists but
+	  is still untested and not yet checked in.
