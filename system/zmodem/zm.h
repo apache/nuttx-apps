@@ -287,8 +287,8 @@ typedef int (*action_t)(FAR struct zm_state_s *pzm);
 struct zm_transition_s
 {
   uint8_t    type;           /* Event (Frame type) */
-  uint8_t    next;           /* Next state */
   bool       bdiscard;       /* TRUE: discard buffered input */
+  uint8_t    next;           /* Next state */
   action_t   action;         /* Transition action */
 };
 

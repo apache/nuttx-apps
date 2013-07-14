@@ -81,14 +81,14 @@
  *                <---- ZRINIT        ZMR_START
  *   ZSINIT       ---->
  *                <---- ZACK          ZMR_INITWAIT
- *   ZFILE        ----> 
+ *   ZFILE        ---->
  *                <---- ZRPOS         ZMR_FILEINFO
  *   ZDATA        ---->
  *                <---- ZCRC          ZMR_CRCWAIT
  *   ZCRC         ---->               ZMR_READREADY
  *   Data packets ---->               ZMR_READING
  *   Last packet  ---->
- *   ZEOF         ----> 
+ *   ZEOF         ---->
  *                <---- ZRINIT
  *   ZFIN         ---->
  *                <---- ZFIN          ZMR_FINISH
@@ -955,7 +955,7 @@ static int zmr_zfin(FAR struct zm_state_s *pzm)
    * meaning that we are all done.
    */
 
-  zmdbg("PSTATE %d:%d->%d.%d:  send ZFIN\n",
+  zmdbg("PSTATE %d:%d->%d.%d:  Send ZFIN\n",
          pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
   zmdbg("ZMR_STATE %d\n", pzm->state);
 
