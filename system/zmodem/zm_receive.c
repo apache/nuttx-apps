@@ -59,6 +59,8 @@
 #include <assert.h>
 #include <errno.h>
 
+#include <apps/zmodem.h>
+
 #include "zm.h"
 
 /****************************************************************************
@@ -130,7 +132,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm);
 static int zmr_rcvto(FAR struct zm_state_s *pzm);
 static int zmr_fileto(FAR struct zm_state_s *pzm);
 static int zmr_cmddata(FAR struct zm_state_s *pzm);
-static int zmr_eof(FAR struct zm_state_s *pzm);
+static int zmr_zeof(FAR struct zm_state_s *pzm);
 static int zmr_zfin(FAR struct zm_state_s *pzm);
 static int zmr_finto(FAR struct zm_state_s *pzm);
 static int zmr_oo(FAR struct zm_state_s *pzm);
@@ -215,7 +217,7 @@ static const struct zm_transition_s g_zmr_readready[] =
 {
   {ZME_DATA,     false, ZMR_READING,     zmr_zdata},
   {ZME_NAK,      false, ZMR_READREADY,   zmr_badrpos},
-  {ZME_EOF,      false, ZMR_START,       zmr_eof},
+  {ZME_EOF,      false, ZMR_START,       zmr_zeof},
   {ZME_RQINIT,   true,  ZMR_START,       zmr_zrinit},
   {ZME_FILE,     false, ZMR_READREADY,   zmr_badrpos},
   {ZME_FIN,      true,  ZMR_FINISH,      zmr_zfin},
@@ -232,7 +234,7 @@ static const struct zm_transition_s g_zmr_reading[] =
   {ZME_NAK,      true,  ZMR_READREADY,   zmr_badrpos},
   {ZME_FIN,      true,  ZMR_FINISH,      zmr_zfin},
   {ZME_DATA,     false, ZMR_READING,     zmr_zdata},
-  {ZME_EOF,      true,  ZMR_START,       zmr_eof},
+  {ZME_EOF,      true,  ZMR_START,       zmr_zeof},
   {ZME_DATARCVD, false, ZMR_READING,     zmr_filedata},
   {ZME_TIMEOUT,  false, ZMR_READING,     zmr_fileto},
   {ZME_ERROR,    false, ZMR_READING,     zmr_error}
@@ -717,7 +719,8 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
 
   if ((pzm->flags & ZM_FLAG_CRKOK) == 0)
     {
-      zmdbg("ERROR: Bad crc, send ZRPOS(%ld)\n", (unsigned long)pzmr->offset);
+      zmdbg("ERROR: Bad crc, send ZRPOS(%ld)\n",
+            (unsigned long)pzmr->offset);
 
       /* No.. increment the count of errors */
 
@@ -759,7 +762,8 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
 
   /* Write the packet of data to the file */
 
-  ret = zm_writefile(pzmr->outfd, pzm->pktbuf, pzm->pktlen, pzmr->f0 == ZCNL);
+  ret = zm_writefile(pzmr->outfd, pzm->pktbuf, pzm->pktlen,
+                     pzmr->f0 == ZCNL);
   if (ret < 0)
     {
       int errorcode = errno;
@@ -894,14 +898,14 @@ static int zmr_fileto(FAR struct zm_state_s *pzm)
 }
 
 /****************************************************************************
- * Name: zmr_eof
+ * Name: zmr_zeof
  *
  * Description:
  *   Received ZEOF packet. File is now complete
  *
  ****************************************************************************/
 
-static int zmr_eof(FAR struct zm_state_s *pzm)
+static int zmr_zeof(FAR struct zm_state_s *pzm)
 {
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s *)pzm;
 
@@ -1652,7 +1656,13 @@ int zmr_receive(ZMRHANDLE handle)
 {
   FAR struct zmr_state_s *pzmr = (FAR struct zmr_state_s*)handle;
 
-  /* The state machine data pump will do the entire job */
+  /* The first thing that should happen is to receive ZRQINIT from the
+   * remote sender.  This could take while so use a long timeout.
+   */
+
+  pzmr->cmn.timeout = CONFIG_SYSTEM_ZMODEM_CONNTIME;
+
+  /* Then the state machine data pump will do the rest of the job */
 
   return zm_datapump(&pzmr->cmn);
 }

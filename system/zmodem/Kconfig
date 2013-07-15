@@ -119,10 +119,18 @@ config SYSTEM_ZMODEM_SENDBRAK
 		Can not yet send BREAK
 
 config SYSTEM_ZMODEM_RESPTIME
-	bool "Response time"
+	int "Response time"
 	default 10
 	---help---
-		Response time for sender to respond to requests.
+		Response time for remote peer to respond to requests.
+
+config SYSTEM_ZMODEM_CONNTIME
+	int "Rz startup time"
+	default 30
+	---help---
+		When rz starts, it must wait a for the remote end to start the file
+		transfer.  This may take longer than the normal response time.  This
+		value may be set to tune that longer timeout value.
 
 config SYSTEM_ZMODEM_SERIALNO
 	int "Serial number"

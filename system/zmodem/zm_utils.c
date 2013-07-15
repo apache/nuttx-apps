@@ -246,23 +246,23 @@ ssize_t zm_write(int fd, FAR const uint8_t *buffer, size_t buflen)
 {
   ssize_t nwritten;
   size_t wrsize;
-  size_t total = 0;
+  size_t remaining;
 
   /* Read reading as necessary until the requested buffer is filled or until
    * an end of file indication or irrecoverable error is encountered.
    */
 
-  while (total < buflen)
+  for (remaining = buflen; remaining > 0; )
     {
 #if CONFIG_SYSTEM_ZMODEM_WRITESIZE > 0
-       if (buflen > CONFIG_SYSTEM_ZMODEM_WRITESIZE)
+       if (remaining > CONFIG_SYSTEM_ZMODEM_WRITESIZE)
          {
            wrsize = CONFIG_SYSTEM_ZMODEM_WRITESIZE;
          }
        else
 #endif
          {
-           wrsize = buflen;
+           wrsize = remaining;
          }
 
       /* Get the next gulp of data from the file */
@@ -287,13 +287,12 @@ ssize_t zm_write(int fd, FAR const uint8_t *buffer, size_t buflen)
         {
           /* Updates counts and pointers for the next read */
 
-          total  += nwritten;
-          buffer += nwritten;
-          buflen -= nwritten;
+          buffer    += nwritten;
+          remaining -= nwritten;
         }
     }
 
-  return (int)total;
+  return (int)(buflen - remaining);
 }
 
 /****************************************************************************
@@ -383,11 +382,24 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl)
                   nbytes  = 0;
                 }
 
-              if (ret == OK && !newline)
+              if (ret == OK)
                 {
-                  ret     = zm_write(fd, (FAR uint8_t *)"\n", 1);
-                  newline = true;
-                }
+                  /* Skip one char of \r\n? */
+
+                  if (newline)
+                    {
+                      /* Yes.. But don't skip if there is another */
+
+                      newline = false;
+                    }
+                  else
+                    {
+                      /* Write one newline and skip the follow \r or \n */
+
+                      ret     = zm_write(fd, (FAR uint8_t *)"\n", 1);
+                      newline = true;
+                    }
+               }
             }
           else
             {
@@ -401,7 +413,7 @@ int zm_writefile(int fd, FAR const uint8_t *buffer, size_t buflen, bool zcnl)
             }
         }
 
-      /* Write any trainling data that does not end with a newline */
+      /* Write any trailing data that does not end with a newline */
 
       if (ret == OK && nbytes > 0)
         {

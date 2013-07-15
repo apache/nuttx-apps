@@ -604,6 +604,9 @@
 	* apps/system/zmodem:  Add configuration support and a build framework
 	  for the Zmodem sz and rz command (which exist but have not yet been
 	  checked in) (2013-7-12).
-	* apps/system/zmodem:  The 'sz' command is not complete and seems
+	* apps/system/zmodem:  The 'sz' command is now complete and seems
 	  functional (given on light testing).  The rz command logic exists but
-	  is still untested and not yet checked in.
+	  is still untested and not yet checked in  (2013-7-13).
+	* apps/system/zmodem:  The 'rz' command is now complete and functional
+	  under certain conditaions.  There are, however, some data overrun
+	  issues that I am still uncertain how should be handled (2012-7-15).

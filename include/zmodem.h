@@ -135,6 +135,15 @@
 #  define CONFIG_SYSTEM_ZMODEM_RESPTIME 10
 #endif
 
+/* When rz starts, it must wait a for the remote end to start the file
+ * transfer.  This may take longer than the normal response time.  This
+ * value may be set to tune that longer timeout value.
+ */
+
+#ifndef CONFIG_SYSTEM_ZMODEM_CONNTIME
+#  define CONFIG_SYSTEM_ZMODEM_CONNTIME 30
+#endif
+
 /* Receiver serial number */
 
 #ifndef CONFIG_SYSTEM_ZMODEM_SERIALNO

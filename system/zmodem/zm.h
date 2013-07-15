@@ -183,7 +183,8 @@
 #define ZME_COMMAND   ZCOMMAND       /* Command, from sending program */
 #define ZME_STDERR    ZSTDERR        /* Output this message to stderr */
 
-#define ZME_OO        252            /* Received OO, termining the receiver */
+#define ZME_CANCEL    251            /* Received the cancelation sequence */
+#define ZME_OO        252            /* Received OO, terminating the receiver */
 #define ZME_DATARCVD  253            /* Data received */
 #define ZME_TIMEOUT   254            /* Timeout */
 #define ZME_ERROR     255            /* Protocol error */

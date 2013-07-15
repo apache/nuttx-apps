@@ -137,7 +137,7 @@ int rz_main(int argc, FAR char **argv)
   ret = zmr_receive(handle);
   if (ret < 0)
     {
-      fprintf(stderr, "File reception failed: %d\n", ret);
+      fprintf(stderr, "ERROR: File reception failed: %d\n", ret);
       goto errout_with_zmodem;
     }
 

@@ -784,10 +784,10 @@ static int zm_parse(FAR struct zm_state_s *pzm, size_t rcvlen)
         {
           if (++pzm->ncan >= 5)
             {
-              zmdbg("Remote end has cancelled");
+              zmdbg("Remote end has canceled\n");
               pzm->rcvlen = 0;
               pzm->rcvndx = 0;
-              return -EAGAIN;
+              return zm_event(pzm, ZME_CANCEL);
             }
         }
       else
