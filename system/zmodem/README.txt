@@ -65,7 +65,6 @@ Using NuttX Zmodem with a Linux Host
     using 9600 baud for the data transfers -- high rates may result in data
     overruns):
 
-      $ sudo stty -F /dev/ttyS0 raw      # Puts the TTY in raw transfer mode
       $ sudo stty -F /dev/ttyS0 9600     # Select 9600 BAUD
       $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking
       $ sudo stty -F /dev/ttyS0          # Show the TTY configuration
@@ -106,7 +105,6 @@ Using NuttX Zmodem with a Linux Host
     9600 baud for the data transfers -- high rates may result in data
     overruns):
 
-      $ sudo stty -F /dev/ttyS0 raw      # Puts the TTY in raw transfer mode
       $ sudo stty -F /dev/ttyS0 9600     # Select 9600 BAUD
       $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking
       $ sudo stty -F /dev/ttyS0          # Show the TTY configuration
@@ -178,7 +176,8 @@ Using NuttX Zmodem with a Linux Host
           Limit the transmit window size to N bytes (ZMODEM).
 
       UPDATE:  I have verified that with debug off and at lower serial
-      BAUD (1200), the transfers of large fails succeed without errors.
+      BAUD (2400), the transfers of large fails succeed without errors.
       You may need the Linux sz -O option to keep it from timing out
-      in these low BAUD transfers.
+      in these low BAUD transfers.  I do not consider this a "solution"
+      to the problem.
 
