@@ -112,8 +112,8 @@
  * in the code now!
  */
 
-#ifndef CONFIG_SYSTEM_ZMODEM_MOUNTPOINT
-#  warning CONFIG_SYSTEM_ZMODEM_RCVSAMPLE not yet support
+#ifdef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
+#  warning CONFIG_SYSTEM_ZMODEM_RCVSAMPLE not yet supported
 #  undef CONFIG_SYSTEM_ZMODEM_RCVSAMPLE
 #endif
 
@@ -124,8 +124,8 @@
  * in the code now!
  */
 
-#ifndef CONFIG_SYSTEM_ZMODEM_SENDATTN
-#  warning CONFIG_SYSTEM_ZMODEM_SENDATTN not yet support
+#ifdef CONFIG_SYSTEM_ZMODEM_SENDATTN
+#  warning CONFIG_SYSTEM_ZMODEM_SENDATTN not yet supported
 #  undef CONFIG_SYSTEM_ZMODEM_SENDATTN
 #endif
 

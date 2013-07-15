@@ -1065,8 +1065,8 @@ static int zms_sendpacket(FAR struct zm_state_s *pzm)
 
       /* And send the packet */
 
-      dbg("Sending %d bytes. New offset: %ld\n",
-          pktsize, (unsigned long)pzms->offset);
+      zmdbg("Sending %d bytes. New offset: %ld\n",
+            pktsize, (unsigned long)pzms->offset);
 
       nwritten = zm_remwrite(pzm->remfd, pzm->scratch, pktsize);
       if (nwritten < 0)

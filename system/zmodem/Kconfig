@@ -106,12 +106,6 @@ config SYSTEM_ZMODEM_SENDATTN
 	---help---
 		Send attention string not yet supported
 
-config SYSTEM_ZMODEM_FULLSTREAMING
-	bool "Full streaming"
-	default n
-	---help---
-		Full streaming is not yet supported
-
 config SYSTEM_ZMODEM_SENDBRAK
 	bool "Can break"
 	default n

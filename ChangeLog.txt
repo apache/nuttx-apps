@@ -610,3 +610,6 @@
 	* apps/system/zmodem:  The 'rz' command is now complete and functional
 	  under certain conditaions.  There are, however, some data overrun
 	  issues that I am still uncertain how should be handled (2012-7-15).
+	* apps/system/zmodem/Makefile.host and host/: The Zmodem utilities
+	  can now be built to execute on a Linux host.
+

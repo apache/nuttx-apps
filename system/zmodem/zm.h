@@ -50,6 +50,7 @@
 #include <stdint.h>
 #include <debug.h>
 
+#include <nuttx/compiler.h>
 #include <nuttx/ascii.h>
 
 #include <apps/zmodem.h>
