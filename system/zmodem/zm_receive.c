@@ -357,12 +357,6 @@ static int zmr_zsinit(FAR struct zm_state_s *pzm)
       pzm->flags |= ZM_FLAG_ESCCTRL;
     }
 
-  /* Enable hardware flow control if we will be streaming */
-
-#ifdef CONFIG_SYSTEM_ZMODEM_FULLSTREAMING
-  (void)zms_hwflowcontrol(pzmr->cmn.remfd, true);
-#endif
-
   /* Setup to receive a data packet.  Enter PSTATE_DATA */
 
   zm_readstate(pzm);
@@ -777,12 +771,15 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
              pzm->pstate, pzm->psubstate, PSTATE_IDLE, PIDLE_ZPAD);
       zmdbg("ZMR_STATE %d->%d\n",  pzm->state, ZMR_FINISH);
 
-      /* Revert to the IDLE stawte and send ZFERR */
+      /* Revert to the IDLE state, send ZFERR, and terminate the transfer
+       * with an error.
+       */
 
       pzm->state     = ZMR_FINISH;
       pzm->pstate    = PSTATE_IDLE;
       pzm->psubstate = PIDLE_ZPAD;
-      return zmr_fileerror(pzmr, ZFERR, (uint32_t)errorcode);
+      (void)zmr_fileerror(pzmr, ZFERR, (uint32_t)errorcode);
+      return -errorcode;
     }
 
   zmdbg("offset: %ld nchars: %d pkttype: %02x\n",

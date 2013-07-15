@@ -628,6 +628,8 @@ static int zm_header(FAR struct zm_state_s *pzm, uint8_t ch)
 
 static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
 {
+  int ret;
+
   /* ZDLE encountered in this state means that the following character is
    * escaped.  Escaped characters may appear anywhere within the data packet.
    */
@@ -713,7 +715,15 @@ static int zm_data(FAR struct zm_state_s *pzm, uint8_t ch)
      {
        /* We are at the end of the packet.  Check the CRC and post the event */
 
-       zm_dataevent(pzm);
+       ret = zm_dataevent(pzm);
+
+       /* The packet data has been processed.  Discard the old buffered
+        * packet data.
+        */
+
+       pzm->pktlen = 0;
+       pzm->ncrc   = 0;
+       return ret;
      }
    else if (pzm->ncrc > 1)
      {

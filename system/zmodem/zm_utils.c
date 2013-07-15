@@ -245,6 +245,7 @@ int zm_getc(int fd)
 ssize_t zm_write(int fd, FAR const uint8_t *buffer, size_t buflen)
 {
   ssize_t nwritten;
+  size_t wrsize;
   size_t total = 0;
 
   /* Read reading as necessary until the requested buffer is filled or until
@@ -253,10 +254,20 @@ ssize_t zm_write(int fd, FAR const uint8_t *buffer, size_t buflen)
 
   while (total < buflen)
     {
+#if CONFIG_SYSTEM_ZMODEM_WRITESIZE > 0
+       if (buflen > CONFIG_SYSTEM_ZMODEM_WRITESIZE)
+         {
+           wrsize = CONFIG_SYSTEM_ZMODEM_WRITESIZE;
+         }
+       else
+#endif
+         {
+           wrsize = buflen;
+         }
+
       /* Get the next gulp of data from the file */
 
-      nwritten = write(fd, buffer, buflen);
-
+      nwritten = write(fd, buffer, wrsize);
       if (nwritten < 0)
         {
           int errorcode = errno;

@@ -432,12 +432,6 @@ static int zms_zrinit(FAR struct zm_state_s *pzm)
       pzm->flags |= ZM_FLAG_ESCCTRL;
     }
 
-  /* Enable hardware flow control if we will be streaming */
-
-#ifdef CONFIG_SYSTEM_ZMODEM_FULLSTREAMING
-  (void)zms_hwflowcontrol(pzmr->cmn.remfd, true);
-#endif
-
   /* Check if the receiver supports full-duplex streaming
    *
    * ZCRCW:

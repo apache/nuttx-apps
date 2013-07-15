@@ -9,14 +9,22 @@ config SYSTEM_ZMODEM
 	---help---
 		This selection enables the 'sz' and 'rz' NSH commands.
 
+		NOTE:  Hardware flow control is required on the selected device in
+		order to throttle the rates of data transfer to fit within the
+		allocated buffers.  This cannot be checked here in the configuration
+		because the device that you use may be selected at runtime.
+
 if SYSTEM_ZMODEM
 
 config SYSTEM_ZMODEM_DEVNAME
 	string "Default Zmodem device"
 	default "/dev/console"
-	---help--
+	---help---
 		The default device used by the Zmodem commands if the -d option is
 		not provided on the sz or rz command line.  Default:  "/dev/console".
+
+		NOTE:  This device *MUST* support Hardware flow control in order to
+		throttle the rates of data transfer to fit within the allocated buffers.
 
 config SYSTEM_ZMODEM_RCVBUFSIZE
 	int "Receive buffer size"
@@ -127,6 +135,14 @@ config SYSTEM_ZMODEM_MAXERRORS
 	default 20
 	---help---
 		Max receive errors before canceling the transfer.
+
+config SYSTEM_ZMODEM_WRITESIZE
+	int "Write size limit"
+	default 0
+	---help---
+		Some MMC/SD drivers may fail if large transfers are attempted.
+		As a bug workaround, you can set the maximum write size with
+		this configuration.  The default value of 0 means no write limit.
 
 config DEBUG_ZMODEM
 	bool "Zmodem debug"

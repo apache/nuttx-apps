@@ -147,6 +147,23 @@
 #  define CONFIG_SYSTEM_ZMODEM_MAXERRORS 20
 #endif
 
+/* Some MMC/SD drivers may fail if large transfers are attempted. As a bug
+ * workaround, you can set the maximum write size with this configuration.
+ * The default value of 0 means no write limit.
+ */
+
+#ifndef CONFIG_SYSTEM_ZMODEM_WRITESIZE
+#  define CONFIG_SYSTEM_ZMODEM_WRITESIZE 0
+#endif
+
+/* Absolute pathes in received file names are not accepted.  This
+ * configuration value must be set to provide the path to the file storage
+ * directory (such as a mountpoint directory).
+ *
+ * Names of file send by the sz commond, on the other hand, must be absolute
+ * paths beginning with '/'.
+ */
+
 #ifndef CONFIG_SYSTEM_ZMODEM_MOUNTPOINT
 #  define CONFIG_SYSTEM_ZMODEM_MOUNTPOINT "/tmp"
 #endif
@@ -313,23 +330,6 @@ int zms_send(ZMSHANDLE handle, FAR const char *filename,
  ****************************************************************************/
 
 int zms_release(ZMSHANDLE handle);
-
-/****************************************************************************
- * Name: zms_hwflowcontrol
- *
- * Description:
- *   If CONFIG_SYSTEM_ZMODEM_FULLSTREAMING is defined, then the system
- *   must provide the following interface in order to enable/disable hardware
- *   flow control on the device used to communicate with the remote peer.
- *
- * Returned Value:
- *   Zero on success; a negated errno value on failure.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_SYSTEM_ZMODEM_FULLSTREAMING
-int zms_hwflowcontrol(int remfd, bool enable);
-#endif
 
 #undef EXTERN
 #if defined(__cplusplus)
