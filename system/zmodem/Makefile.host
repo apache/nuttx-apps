@@ -32,7 +32,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ############################################################################
-# TOPDIR and APPDIR must be defined on the make command line
+
+############################################################################
+# USAGE:
+#
+#   1. TOPDIR and APPDIR must be defined on the make command line:  TOPDIR
+#      is the full path to the nuttx/ directory; APPDIR is the full path to
+#      the apps/ directory.  For example:
+#
+#        make -f Makefile.host TOPDIR=/home/me/projects/nuttx
+#          APPDIR=/home/me/projects/apps
+#
+#   2. Add CONFIG_DEBUG=1 to the make command line to enable debug output
+#   3. Make sure to clean old target .o files before making new host .o
+#      files.
+#
+############################################################################
 
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs

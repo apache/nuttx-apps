@@ -1,6 +1,19 @@
 README
 ======
 
+Contents
+========
+
+  o Buffering Notes
+    - Hardware Flow Control
+    - RX Buffer Size
+    - Buffer Recommendations
+  o Using NuttX Zmodem with a Linux Host
+    - Sending Files from the Target to the Linux Host PC
+    - Receiving Files on the Target from the Linux Host PC
+  o Building the Zmodem Tools to Run Under Linux
+  o Status
+
 Buffering Notes
 ===============
 
@@ -135,49 +148,54 @@ Using NuttX Zmodem with a Linux Host
     If you don't have the az command on your Linux box, the package to
     install rzsz (or possibily lrzsz).
 
-    STATUS
-      2013-7-15:  I have tested with the configs/olimex-lpc1766stk
-        configuration.  I have been able to send large and small files with
-        the sz command.  I have been able to receive small files, but there
-        are problems receiving large files:  The Linux SZ does not obey the
-        buffering limits and continues to send data while rz is writing
-        the previously received data to the file and the serial driver's RX
-        buffer is overrun by a few bytes while the write is in progress.
-        As a result, when it reads the next buffer of data, a few bytes may
-        be missing (maybe 10).  The symptom of this missing data is a CRC check
-        failure.
+Building the Zmodem Tools to Run Under Linux
+============================================
 
-        Either (1) we need a more courteous host application, or (2) we
-        need to greatly improve the target side buffering capability!
-        Either (1) we need a more courteous host application, or (2) we
-        need to greatly improve the target side buffering capability!
+  Build support has been added so that the NuttX Zmodem implementation can be executed on a Linux host PC.  This can be done by
 
-        My thought now is to implement the NuttX sz and rz commands as
-        PC side applications as well.  Matching both sides and obeying
-        the handshaking will solve the issues.  Another option might be
-        to fix the serial driver hardware flow control somehow.
+    - Change to the apps/systems/zmodem directory
+    - Make using the special makefile, Makefile.host
 
-      sz has several command line options which one would think would
-      alleviate these problems.  But as of yet, I have not found a
-      combination of options that does so:
+  NOTES:
 
-      -L N, --packetlen N
-          Use ZMODEM sub-packets of length N. A larger N (32 <= N <= 1024)
-          gives slightly higher throughput, a smaller N speeds error
-          recovery. The default is 128 below 300 baud, 256 above 300 baud,
-          or 1024 above 2400 baud.
+  1. TOPDIR and APPDIR must be defined on the make command line:  TOPDIR is
+     the full path to the nuttx/ directory;  APPDIR is the full path to the
+     apps/ directory.  For example, if you installed nuttx at
+     /home/me/projects/nuttx and apps at /home/me/projects/apps, then the
+     correct make command line would be:
 
-      -l N, --framelen N
-          Wait for the receiver to acknowledge correct data every N
-          (32 <= N <= 1024) characters. This may be used to avoid network
-          overrun when XOFF flow control is lacking.
+       make -f Makefile.host TOPDIR=/home/me/projects/nuttx APPDIR=/home/me/projects/apps
 
-      -w N, --windowsize N
-          Limit the transmit window size to N bytes (ZMODEM).
+  2. Add CONFIG_DEBUG=1 to the make command line to enable debug output
+  3. Make sure to clean old target .o files before making new host .o files.
 
-      UPDATE:  I have verified that with debug off and at lower serial
-      BAUD (2400), the transfers of large fails succeed without errors.
-      You may need the Linux sz -O option to keep it from timing out
-      in these low BAUD transfers.  I do not consider this a "solution"
-      to the problem.
+  This build is untested as of 2013-7-16.
 
+Status
+======
+    2013-7-15:  I have tested with the configs/olimex-lpc1766stk
+      configuration.  I have been able to send large and small files with
+      the sz command.  I have been able to receive small files, but there
+      are problems receiving large files:  The Linux SZ does not obey the
+      buffering limits and continues to send data while rz is writing
+      the previously received data to the file and the serial driver's RX
+      buffer is overrun by a few bytes while the write is in progress.
+      As a result, when it reads the next buffer of data, a few bytes may
+      be missing.  The symptom of this missing data is a CRC check
+      failure.
+
+      Either (1) we need a more courteous host application, or (2) we
+      need to greatly improve the target side buffering capability!
+      Either (1) we need a more courteous host application, or (2) we
+      need to greatly improve the target side buffering capability!
+
+      My thought now is to implement the NuttX sz and rz commands as
+      PC side applications as well.  Matching both sides and obeying
+      the handshaking will solve the issues.  Another option might be
+      to fix the serial driver hardware flow control somehow.
+
+    2013-7-16: I have verified that with debug off and at lower serial
+      BAUD (2400), the transfers of large succeed without errors.  I do
+      not consider this a "solution" to the problem.  I also found that
+      the LPC17xx hardware flow control caused strange hangs; Zmodem
+      works better with hardware flow control disabled on the LPC17xx.
