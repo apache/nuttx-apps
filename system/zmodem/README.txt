@@ -79,8 +79,10 @@ Using NuttX Zmodem with a Linux Host
     overruns):
 
       $ sudo stty -F /dev/ttyS0 9600     # Select 9600 BAUD
-      $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking
+      $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking *
       $ sudo stty -F /dev/ttyS0          # Show the TTY configuration
+
+      * Only is hardware flow control is enabled.
 
     Start rz on the Linux host (using /dev/ttyS0 as an example):
 
@@ -113,14 +115,20 @@ Using NuttX Zmodem with a Linux Host
 
     Receiving Files on the Target from the Linux Host PC
     ----------------------------------------------------
+    NOTE:  There are issues with using the Linux sz command with the NuttX
+    rz command. See "Status" below.  It is recommended that you use the
+    NuttX sz command on Linux as described in the next paragraph.
+
     To send a file to the target, first make sure that the serial port on the
     host is configured to work with the board (Assuming that you are using
     9600 baud for the data transfers -- high rates may result in data
     overruns):
 
-      $ sudo stty -F /dev/ttyS0 9600     # Select 9600 BAUD
-      $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking
+      $ sudo stty -F /dev/ttyS0 9600     # Select 9600 (or other) BAUD
+      $ sudo stty -F /dev/ttyS0 crtscts  # Enables CTS/RTS handshaking *
       $ sudo stty -F /dev/ttyS0          # Show the TTY configuration
+
+     * Only is hardware flow control is enabled.
 
     Start rz on the on the target.  Here, in this example, we are using
     /dev/ttyS1 to perform the transfer
@@ -169,20 +177,24 @@ Building the Zmodem Tools to Run Under Linux
   2. Add CONFIG_DEBUG=1 to the make command line to enable debug output
   3. Make sure to clean old target .o files before making new host .o files.
 
-  This build is untested as of 2013-7-16.
+  This build is has been verified as of 2013-7-16 using Linux to transfer
+  files with an Olimex LPC1766STK board.  It works great and seems to solve
+  all of the problems found with the Linux sz/rz implementation.
 
 Status
 ======
-    2013-7-15:  I have tested with the configs/olimex-lpc1766stk
-      configuration.  I have been able to send large and small files with
-      the sz command.  I have been able to receive small files, but there
-      are problems receiving large files:  The Linux SZ does not obey the
-      buffering limits and continues to send data while rz is writing
-      the previously received data to the file and the serial driver's RX
-      buffer is overrun by a few bytes while the write is in progress.
-      As a result, when it reads the next buffer of data, a few bytes may
-      be missing.  The symptom of this missing data is a CRC check
-      failure.
+    2013-7-15: Testing against the Linux rz/sz commands.
+
+      I have tested with the configs/olimex-lpc1766stk configuration.  I
+      have been able to send large and small files with the target sz
+      command. I have been able to receive small files, but there are
+      problems receiving large files using the Linux sz command:  The
+      Linux SZ does not obey the buffering limits and continues to send
+      data while rz is writing the previously received data to the file
+      and the serial driver's RX buffer is overrun by a few bytes while
+      the write is in progress. As a result, when it reads the next
+      buffer of data, a few bytes may be missing.  The symptom of this
+      missing data is a CRC check failure.
 
       Either (1) we need a more courteous host application, or (2) we
       need to greatly improve the target side buffering capability!
@@ -194,8 +206,26 @@ Status
       the handshaking will solve the issues.  Another option might be
       to fix the serial driver hardware flow control somehow.
 
-    2013-7-16: I have verified that with debug off and at lower serial
-      BAUD (2400), the transfers of large succeed without errors.  I do
+    2013-7-16. More Testing against the Linux rz/sz commands.
+
+      I have verified that with debug off and at lower serial BAUD
+      (2400), the transfers of large files succeed without errors.  I do
       not consider this a "solution" to the problem.  I also found that
       the LPC17xx hardware flow control caused strange hangs; Zmodem
       works better with hardware flow control disabled on the LPC17xx.
+
+      At this lower BAUD, RX buffer sizes could probably be reduced; Or
+      perhaps the BAUD coud be increased.  My thought, however, is that
+      tuning in such an unhealthy situation is not the approach:  The
+      best thing to do would be to use the matching NuttX sz on the Linux
+      host side.
+
+    2013-7-16. More Testing against the NuttX rz/sz on Both Ends.
+
+      The NuttX sz/rz commands have been modified so that they can be
+      built and executed under Linux.  In this case, there are no
+      transfer problems at all in either direction and with large or
+      small files.  This configuration could probably run at much higher
+      serial speeds and with much smaller buffers (although that has not
+      been verified as of this writing).
+

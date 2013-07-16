@@ -121,6 +121,7 @@
 /* Unknown compiler *********************************************************/
 
 #else
+# warning Unknown Compiler
 
 # undef  CONFIG_CPP_HAVE_VARARGS
 # undef  CONFIG_CPP_HAVE_WARNING

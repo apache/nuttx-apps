@@ -94,10 +94,10 @@ $(HOSTAPPS)/zmodem.h: $(APPSINC)/zmodem.h
 	$(Q) cp $(APPSINC)/zmodem.h $(HOSTAPPS)/zmodem.h
 
 $(RZBIN): $(HOSTAPPS)/zmodem.h $(RZOBJS) $(CMNOBJS)
-	$(Q) $(HOSTCC) $(HOSTCFLAGS) -o $@ $(RZOBJS) $(CMNOBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) -o $@ $(RZOBJS) $(CMNOBJS) -lrt
 
 $(SZBIN): $(HOSTAPPS)/zmodem.h $(SZOBJS) $(CMNOBJS)
-	$(Q) $(HOSTCC) $(HOSTCFLAGS) -o $@ $(SZOBJS) $(CMNOBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) -o $@ $(SZOBJS) $(CMNOBJS) -lrt
 
 clean:
 ifneq ($(OBJEXT),)

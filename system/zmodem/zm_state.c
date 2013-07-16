@@ -832,7 +832,7 @@ static int zm_parse(FAR struct zm_state_s *pzm, size_t rcvlen)
 
           if (ret != OK)
             {
-              zmdbg("Aborting: %d\n", ret);
+              zmdbg("%s: %d\n", ret < 0 ? "Aborting" : "Done", ret);
               return ret;
             }
         }
