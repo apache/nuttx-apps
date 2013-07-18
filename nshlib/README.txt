@@ -261,6 +261,11 @@ o cd [<dir-path>|-|~|..]
        'home' directory is '/'.
     'cd ..' sets the current working directory to the parent directory.
 
+o cmp <path1> <path2>
+
+  Compare of the contents of the file at <file1> with the contents of
+  the file at <path2>.  Returns an indication only if the files differ.
+
 o cp <source-path> <dest-path>
 
   Copy of the contents of the file at <source-path> to the location

@@ -126,7 +126,7 @@
 
 #  ifndef CONFIG_USBDEV_TRACE
 #    undef CONFIG_NSH_USBDEV_TRACE
-#  endif 
+#  endif
 
 #  ifdef CONFIG_NSH_USBDEV_TRACE
 #    ifdef CONFIG_NSH_USBDEV_TRACEINIT
@@ -597,7 +597,7 @@ void nsh_usbtrace(void);
 #ifndef CONFIG_NSH_DISABLE_XD
   int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
-  
+
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   int cmd_test(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
   int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
@@ -615,6 +615,9 @@ void nsh_usbtrace(void);
 #  endif
 #  ifndef CONFIG_NSH_DISABLE_CP
       int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_CMP
+      int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
 #  ifndef CONFIG_NSH_DISABLE_DD
       int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

@@ -1288,3 +1288,115 @@ int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 }
 #endif
 #endif
+
+/****************************************************************************
+ * Name: cmd_cmp
+ ****************************************************************************/
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifndef CONFIG_NSH_DISABLE_CMP
+int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *path1 = NULL;
+  FAR char *path2 = NULL;
+  off_t total_read = 0;
+  int fd1 = -1;
+  int fd2 = -1;
+  int ret = ERROR;
+
+  /* Get the full path to the two files */
+
+  path1 = nsh_getfullpath(vtbl, argv[1]);
+  if (!path1)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      goto errout;
+    }
+
+  path2 = nsh_getfullpath(vtbl, argv[2]);
+  if (!path2)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      goto errout_with_path1;
+    }
+
+  /* Open the files for reading */
+
+  fd1 = open(path1, O_RDONLY);
+  if (fd1 < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+      goto errout_with_path2;
+    }
+
+  fd2 = open(path2, O_RDONLY);
+  if (fd2 < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+      goto errout_with_fd1;
+    }
+
+  /* The loop until we hit the end of file or find a difference in the two
+   * files.
+   */
+
+  for (;;)
+    {
+      char buf1[128];
+      char buf2[128];
+
+      /* Read the file data */
+
+      ssize_t nbytesread1 = read(fd1, buf1, sizeof(buf1));
+      ssize_t nbytesread2 = read(fd2, buf2, sizeof(buf2));
+
+      if (nbytesread1 < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
+          goto errout_with_fd2;
+        }
+
+      if (nbytesread2 < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
+          goto errout_with_fd2;
+        }
+
+      total_read += nbytesread1 > nbytesread2 ? nbytesread2 : nbytesread1;
+
+      /* Compare the file data */
+
+      if (nbytesread1 != nbytesread2 ||
+          memcmp(buf1, buf2, nbytesread1) != 0)
+        {
+          nsh_output(vtbl, "files differ: byte %u\n", total_read);
+          goto errout_with_fd2;
+        }
+
+      /* A partial read indicates the end of file (usually) */
+
+      if (nbytesread1 < sizeof(buf1))
+        {
+          break;
+        }
+    }
+
+  /* The files are the same, i.e., the end of file was encountered
+   * without finding any differences.
+   */
+
+  ret = OK;
+
+errout_with_fd2:
+  close(fd2);
+errout_with_fd1:
+  close(fd1);
+errout_with_path2:
+  nsh_freefullpath(path2);
+errout_with_path1:
+  nsh_freefullpath(path1);
+errout:
+  return ret;
+}
+#endif
+#endif
