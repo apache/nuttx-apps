@@ -614,4 +614,4 @@
 	  can now be built to execute on a Linux host.
 	* apps/nshlib/nsh_fscmds.c:  Add a 'cmp' command that can be used to
 	  compare two files for equivalence.  Returns an indication if the files
-	  differ.  Contributed by Andrew Twidgell (via Lorenz Meier) (2013-7-18).
+	  differ.  Contributed by Andrew Tridgell (via Lorenz Meier) (2013-7-18).
