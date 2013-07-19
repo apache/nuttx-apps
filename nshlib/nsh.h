@@ -384,7 +384,7 @@
 /* Stubs used when working directory is not supported */
 
 #if CONFIG_NFILE_DESCRIPTORS <= 0 || defined(CONFIG_DISABLE_ENVIRON)
-#  define nsh_getfullpath(v,p) ((char*)(p))
+#  define nsh_getfullpath(v,p) ((FAR char*)(p))
 #  define nsh_freefullpath(p)
 #endif
 
@@ -556,8 +556,9 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
 FAR const char *nsh_getcwd(void);
-char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl, const char *relpath);
-void nsh_freefullpath(char *relpath);
+FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
+                          FAR const char *relpath);
+void nsh_freefullpath(FAR char *fullpath);
 #endif
 
 /* Debug */

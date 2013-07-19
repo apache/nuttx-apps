@@ -157,7 +157,8 @@ FAR const char *nsh_getcwd(void)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
-char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl, const char *relpath)
+FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
+                          FAR const char *relpath)
 {
   const char *wd;
 
@@ -196,11 +197,11 @@ char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl, const char *relpath)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
-void nsh_freefullpath(char *relpath)
+void nsh_freefullpath(FAR char *fullpath)
 {
-  if (relpath)
+  if (fullpath)
     {
-      free(relpath);
+      free(fullpath);
     }
 }
 #endif
