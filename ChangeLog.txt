@@ -578,16 +578,16 @@
 	  of the build-as-an-NSH-application configuration settings
 	  (2013-6-12).
 
-6.29 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.29 2013-07-31 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/nsh, cxxtest, and helloxx:  C++ initializers should be
 	  set once and, preferably, in the context of the task that uses any C++
-	  statically initialized classes.  These only becomes an issue is cxxtest
+	  statically initialized classes.  These only becomes an issue if cxxtest
 	  or helloxx are built as NSH builtin applications.  Then you want the
 	  initialization done in cxxtext or helloxx and not in NSH (and certainly
 	  not twice).  Added configuration options to control who does the C++
 	  initialization.  NSH now does not do C++ initialization be default and
-	  must be configured to do otherwise.  Converserly, cxxtest and helloxx
+	  must be configured to do otherwise.  Converely, cxxtest and helloxx
 	  will do C++ initialization unless configured do otherwise (2013-6-21).
 	* apps/examples/cxxtext:  Add ostream test as provided by Michael
 	  (2013-6-21).
@@ -615,3 +615,5 @@
 	* apps/nshlib/nsh_fscmds.c:  Add a 'cmp' command that can be used to
 	  compare two files for equivalence.  Returns an indication if the files
 	  differ.  Contributed by Andrew Tridgell (via Lorenz Meier) (2013-7-18).
+
+6.30 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
