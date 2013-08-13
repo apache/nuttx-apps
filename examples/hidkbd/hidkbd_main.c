@@ -112,7 +112,7 @@ struct hidbkd_instream_s
  * Private Data
  ****************************************************************************/
 
-static struct usbhost_driver_s *g_drvr;
+static struct usbhost_connection_s *g_usbconn;
 
 /****************************************************************************
  * Private Functions
@@ -224,15 +224,21 @@ static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
 static int hidkbd_waiter(int argc, char *argv[])
 {
   bool connected = false;
-  int ret;
+  int rhpndx;
 
   printf("hidkbd_waiter: Running\n");
   for (;;)
     {
-      /* Wait for the device to change state */
+      /* Wait for the device to change state.
+       *
+       * REVISIT:  This will not handle USB implementations (such as the the
+       * SAMA5) which have multiple downstream, root hub ports.  In such cases,
+       * connected must be an array with dimension equal to the number of root
+       * hub ports.
+       */
 
-      ret = DRVR_WAIT(g_drvr, connected);
-      DEBUGASSERT(ret == OK);
+      rhpndx = CONN_WAIT(g_usbconn, &connected);
+      DEBUGASSERT(rhpndx == OK);
 
       connected = !connected;
       printf("hidkbd_waiter: %s\n", connected ? "connected" : "disconnected");
@@ -243,7 +249,7 @@ static int hidkbd_waiter(int argc, char *argv[])
         {
           /* Yes.. enumerate the newly connected device */
 
-          (void)DRVR_ENUMERATE(g_drvr);
+          (void)CONN_ENUMERATE(g_usbconn, rhpndx);
         }
     }
 
@@ -277,11 +283,17 @@ int hidkbd_main(int argc, char *argv[])
       printf("hidkbd_main: Failed to register the KBD class\n");
     }
 
-  /* Then get an instance of the USB host interface */
+  /* Then get an instance of the USB host interface.
+   *
+   * REVISIT:  This logic needs to be modified.  There must be a call-out to
+   * platform specific logic to get the connection hangle.  usbhost_initialize()
+   * is not longer common to all platforms and is no longer prototyped in
+   * include/nuttx/usb/usbhost.h.
+   */
 
   printf("hidkbd_main: Initialize USB host keyboard driver\n");
-  g_drvr = usbhost_initialize(0);
-  if (g_drvr)
+  g_usbconn = usbhost_initialize(0);
+  if (g_usbconn)
     {
       /* Start a thread to handle device connection. */
 
