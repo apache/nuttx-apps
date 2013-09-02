@@ -14,7 +14,6 @@ if EXAMPLES_USBMSC
 config EXAMPLES_USBMSC_NLUNS
 	int "Number of LUNs"
 	default 1
-	depends on EXAMPLES_USBMSC
 	---help---
 		Defines the number of logical units (LUNs) exported by the USB
 		storage driver.  Each LUN corresponds to one exported block driver
@@ -23,7 +22,6 @@ config EXAMPLES_USBMSC_NLUNS
 config EXAMPLES_USBMSC_DEVMINOR1
 	int "LUN1 Minor Device Number"
 	default 0
-	depends on EXAMPLES_USBMSC
 	---help---
 		The minor device number of the block driver for the first LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
@@ -32,7 +30,6 @@ config EXAMPLES_USBMSC_DEVMINOR1
 config EXAMPLES_USBMSC_DEVPATH1
 	string "LUN1 Device Path"
 	default "/dev/mmcsd0"
-	depends on EXAMPLES_USBMSC
 	---help---
 		The full path to the registered block driver.  Default is
 		"/dev/mmcsd0"
@@ -40,7 +37,6 @@ config EXAMPLES_USBMSC_DEVPATH1
 config EXAMPLES_USBMSC_DEVMINOR2
 	int "LUN2 Minor Device Number"
 	default 1
-	depends on EXAMPLES_USBMSC
 	---help---
 		The minor device number of the block driver for the second LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
@@ -49,7 +45,6 @@ config EXAMPLES_USBMSC_DEVMINOR2
 config EXAMPLES_USBMSC_DEVPATH2
 	string "LUN2 Device Path"
 	default "/dev/mmcsd1"
-	depends on EXAMPLES_USBMSC
 	---help---
 		The full path to the registered block driver.  Ignored if
 		EXAMPLES_USBMSC_NLUNS < 2. Default is "/dev/mmcsd1"
@@ -57,7 +52,6 @@ config EXAMPLES_USBMSC_DEVPATH2
 config EXAMPLES_USBMSC_DEVMINOR3
 	int "LUN3 Minor Device Number"
 	default 2
-	depends on EXAMPLES_USBMSC
 	---help---
 		The minor device number of the block driver for the third LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
@@ -66,7 +60,6 @@ config EXAMPLES_USBMSC_DEVMINOR3
 config EXAMPLES_USBMSC_DEVPATH3
 	string "LUN3 Device Path"
 	default "/dev/mmcsd2"
-	depends on EXAMPLES_USBMSC
 	---help---
 		The full path to the registered block driver.  Ignored if
 		EXAMPLES_USBMSC_NLUNS < 2. Default is "/dev/mmcsd2"
@@ -74,14 +67,13 @@ config EXAMPLES_USBMSC_DEVPATH3
 config EXAMPLES_USBMSC_DEBUGMM
 	bool "USB MSC MM Debug"
 	default n
-	depends on EXAMPLES_USBMSC
 	---help---
 		Enables some debug tests to check for memory usage and memory leaks.
 
 config EXAMPLES_USBMSC_TRACEINIT
 	bool "USB Trace Initialization"
 	default n
-	depends on EXAMPLES_USBMSC
+	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
@@ -91,7 +83,7 @@ config EXAMPLES_USBMSC_TRACEINIT
 config EXAMPLES_USBMSC_TRACECLASS
 	bool "USB Trace Class"
 	default n
-	depends on EXAMPLES_USBMSC
+	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
@@ -101,7 +93,7 @@ config EXAMPLES_USBMSC_TRACECLASS
 config EXAMPLES_USBMSC_TRACETRANSFERS
 	bool "USB Trace Transfers"
 	default n
-	depends on EXAMPLES_USBMSC
+	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
@@ -111,7 +103,7 @@ config EXAMPLES_USBMSC_TRACETRANSFERS
 config EXAMPLES_USBMSC_TRACECONTROLLER
 	bool "USB Trace Device Controller Events"
 	default n
-	depends on EXAMPLES_USBMSC
+	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
@@ -121,7 +113,7 @@ config EXAMPLES_USBMSC_TRACECONTROLLER
 config EXAMPLES_USBMSC_TRACEINTERRUPTS
 	bool "USB Trace Device Controller Interrupt Events"
 	default n
-	depends on EXAMPLES_USBMSC
+	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
