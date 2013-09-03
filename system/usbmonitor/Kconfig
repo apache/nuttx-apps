@@ -6,7 +6,7 @@
 config SYSTEM_USBMONITOR
 	bool "USB Monitor"
 	default n
-	depends on USBDEV && USBDEV_TRACE && SYSLOG
+	depends on USBDEV && USBDEV_TRACE
 	---help---
 		If USB device tracing is enabled (USBDEV_TRACE), then this option
 		will select the USB monitor.  The USB monitor is a daemon that will
