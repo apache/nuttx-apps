@@ -6,6 +6,7 @@
 source "$APPSDIR/examples/adc/Kconfig"
 source "$APPSDIR/examples/buttons/Kconfig"
 source "$APPSDIR/examples/can/Kconfig"
+source "$APPSDIR/examples/cc3000/Kconfig"
 source "$APPSDIR/examples/cdcacm/Kconfig"
 source "$APPSDIR/examples/composite/Kconfig"
 source "$APPSDIR/examples/cxxtest/Kconfig"

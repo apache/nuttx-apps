@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_CC3000BASIC
+	bool "A Basic Application to use CC3000 Module"
+	default n
+	---help---
+		Enable the CC3000BASIC example
+
+if EXAMPLES_CC3000BASIC
+endif
