@@ -94,12 +94,12 @@ Arduino pin -----> 560 Ohm --+--> 1K Ohm -----> GND
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
-#include <nuttx/cc3000/nvmem.h>
-#include <nuttx/cc3000/socket.h>
-#include <nuttx/cc3000/wlan.h>
-#include <nuttx/cc3000/hci.h>
-#include <nuttx/cc3000/security.h>
-#include <nuttx/cc3000/netapp.h>
+#include <nuttx/wireless/cc3000/nvmem.h>
+#include <nuttx/wireless/cc3000/socket.h>
+#include <nuttx/wireless/cc3000/wlan.h>
+#include <nuttx/wireless/cc3000/hci.h>
+#include <nuttx/wireless/cc3000/security.h>
+#include <nuttx/wireless/cc3000/netapp.h>
 
 void Initialize(void);
 void helpme(void);

@@ -26,9 +26,9 @@
 
 #include "board.h"
 #include <stdbool.h>
-#include <nuttx/cc3000/wlan.h>
-#include <nuttx/cc3000/hci.h>
-#include <nuttx/cc3000/spi.h>
+#include <nuttx/wireless/cc3000/wlan.h>
+#include <nuttx/wireless/cc3000/hci.h>
+#include <nuttx/wireless/cc3000/spi.h>
 #include <arch/board/kl_wifi.h>
 
 
