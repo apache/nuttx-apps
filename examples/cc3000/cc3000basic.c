@@ -90,6 +90,7 @@ Arduino pin -----> 560 Ohm --+--> 1K Ohm -----> GND
 #include "board.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
@@ -111,7 +112,7 @@ void ManualConnect(void);
 void ManualConnect(void);
 void ManualAddProfile(void);
 void ListAccessPoints(void);
-void PrintIPBytes(unsigned char *ipBytes);
+void PrintIPBytes(uint8_t *ipBytes);
 void ShowInformation(void);
 
 // When operations that take a long time (like Smart Config) are running, the
@@ -223,7 +224,7 @@ void execute(int cmd)
 void Initialize(void)
 {
 
-	unsigned char fancyBuffer[MAC_ADDR_LEN], i = 0;
+	uint8_t fancyBuffer[MAC_ADDR_LEN], i = 0;
 
 	if (isInitialized) {
 		printf("CC3000 already initialized. Shutting down and restarting...\n");
@@ -417,9 +418,9 @@ void StartSmartConfig(void) {
 
 void ManualConnect(void) {
 
-	char ssidName[] = "OpenNET";
-	char AP_KEY[] = "gargame1";
-	unsigned char rval;
+	char ssidName[] = "YourAP";
+	char AP_KEY[] = "yourpass";
+	uint8_t rval;
 
 	if (!isInitialized)
 	{
@@ -452,7 +453,7 @@ void ManualConnect(void) {
 				ssidName,
 				strlen(ssidName),
 				NULL,
-				(unsigned char *)AP_KEY,
+				(uint8_t *)AP_KEY,
 				strlen(AP_KEY));
 
 	if (rval==0) {
@@ -484,7 +485,7 @@ void ManualConnect(void) {
 void ManualAddProfile(void) {
 	char ssidName[] = "YourAP";
 	char AP_KEY[] = "yourpass";
-	unsigned char rval;
+	uint8_t rval;
 
 	if (!isInitialized)
 	{
@@ -500,14 +501,14 @@ void ManualAddProfile(void) {
 	printf("  Adding profile...\n");
 	rval = wlan_add_profile  (
 					WLAN_SEC_WPA2,		// WLAN_SEC_UNSEC, WLAN_SEC_WEP, WLAN_SEC_WPA or WLAN_SEC_WPA2
-					(unsigned char *)ssidName,
+					(uint8_t *)ssidName,
 					strlen(ssidName),
 					NULL,				// BSSID, TI always uses NULL
 					0,					// profile priority
 					0x18,				// key length for WEP security, undocumented why this needs to be 0x18
 					0x1e,				// key index, undocumented why this needs to be 0x1e
 					0x2,				// key management, undocumented why this needs to be 2
-					(unsigned char *)AP_KEY,	// WPA security key
+					(uint8_t *)AP_KEY,	// WPA security key
 					strlen(AP_KEY)		// WPA security key length
 					);
 
@@ -587,16 +588,16 @@ typedef struct scanResults {
 	unsigned rssi:7;
 	unsigned securityMode:2;
 	unsigned ssidLength:6;
-	unsigned short frameTime;
-	unsigned char ssid_name[32];
-	unsigned char bssid[6];
+	uint16_t frameTime;
+	uint8_t ssid_name[32];
+	uint8_t bssid[6];
 	} scanResults;
 
 #define NUM_CHANNELS	16
 
 void ListAccessPoints(void) {
 	unsigned long aiIntervalList[NUM_CHANNELS];
-	unsigned char rval;
+	uint8_t rval;
 	scanResults sr;
 	int apCounter, i;
 	char localB[33];
@@ -639,7 +640,7 @@ void ListAccessPoints(void) {
 	// actual # of APs currently seen. Get that # then loop through and print
 	// out what's found.
 	
-	if ((rval=wlan_ioctl_get_scan_results(2000, (unsigned char *)&sr))!=0) {
+	if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr))!=0) {
 		printf("  Got back unusual result from wlan_ioctl_get scan results, can't continue: %d\n", rval);
 		return;
 	}
@@ -672,7 +673,7 @@ void ListAccessPoints(void) {
 		}
 			
 		if (--apCounter>0) {
-			if ((rval=wlan_ioctl_get_scan_results(2000, (unsigned char *)&sr))!=0) {
+			if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr))!=0) {
 				printf("  Got back unusual result from wlan_ioctl_get scan, can't continue: %d\n", rval);
 				return;
 			}
@@ -684,7 +685,7 @@ void ListAccessPoints(void) {
 
 
 
-void PrintIPBytes(unsigned char *ipBytes) {
+void PrintIPBytes(uint8_t *ipBytes) {
 	printf("%d.%d.%d.%d\n", ipBytes[3], ipBytes[2], ipBytes[1], ipBytes[0]);
 }
 

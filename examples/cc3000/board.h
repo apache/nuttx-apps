@@ -18,15 +18,12 @@
 * 
 ****************************************************************************/
 
-
-
-
-
-
 /* 
 	Some things are different for the Teensy 3.0, so set a flag if we're using
 	that hardware.
 */
+
+#include <stdint.h>
 
 #if defined(__arm__) && defined(CORE_TEENSY) && defined(__MK20DX128__)
 #define TEENSY3   1
@@ -165,7 +162,7 @@
 #define ENABLE	(1)
 
 //AES key "smartconfigAES16"
-//const unsigned char smartconfigkey[] = {0x73,0x6d,0x61,0x72,0x74,0x63,0x6f,0x6e,0x66,0x69,0x67,0x41,0x45,0x53,0x31,0x36};
+//const uint8_t smartconfigkey[] = {0x73,0x6d,0x61,0x72,0x74,0x63,0x6f,0x6e,0x66,0x69,0x67,0x41,0x45,0x53,0x31,0x36};
 
 
 
@@ -202,9 +199,9 @@
 
 
 
-extern unsigned char asyncNotificationWaiting;
+extern uint8_t asyncNotificationWaiting;
 extern long lastAsyncEvent;
-extern unsigned char dhcpIPAddress[];
+extern uint8_t dhcpIPAddress[];
 
 
 
@@ -217,4 +214,4 @@ extern volatile unsigned long ulSmartConfigFinished,
 	OkToDoShutDown,
 	ulCC3000DHCP_configured;
 
-extern volatile unsigned char ucStopSmartConfig;
+extern volatile uint8_t ucStopSmartConfig;

@@ -38,7 +38,7 @@ volatile unsigned long ulSmartConfigFinished,
 	OkToDoShutDown,
 	ulCC3000DHCP_configured;
 
-volatile unsigned char ucStopSmartConfig;
+volatile uint8_t ucStopSmartConfig;
 
 
 
@@ -47,7 +47,7 @@ volatile unsigned char ucStopSmartConfig;
 #define CC3000_RX_BUFFER_OVERHEAD_SIZE (20)
 
 /*
-unsigned char pucCC3000_Rx_Buffer[CC3000_APP_BUFFER_SIZE + CC3000_RX_BUFFER_OVERHEAD_SIZE];
+uint8_t pucCC3000_Rx_Buffer[CC3000_APP_BUFFER_SIZE + CC3000_RX_BUFFER_OVERHEAD_SIZE];
 */
 
 
@@ -60,9 +60,9 @@ unsigned char pucCC3000_Rx_Buffer[CC3000_APP_BUFFER_SIZE + CC3000_RX_BUFFER_OVER
    So now we just set a flag and write to a string, and the master
    loop can deal with it when it wants.
 */   
-unsigned char asyncNotificationWaiting = false;
+uint8_t asyncNotificationWaiting = false;
 long lastAsyncEvent;
-unsigned char dhcpIPAddress[4];
+uint8_t dhcpIPAddress[4];
 
 
 /*-------------------------------------------------------------------
@@ -78,7 +78,7 @@ unsigned char dhcpIPAddress[4];
 ---------------------------------------------------------------------*/
 
 
-void CC3000_AsyncCallback(long lEventType, char * data, unsigned char length)
+void CC3000_AsyncCallback(long lEventType, char * data, uint8_t length)
 {
 
 	lastAsyncEvent = lEventType;
