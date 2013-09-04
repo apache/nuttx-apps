@@ -617,3 +617,7 @@
 	  differ.  Contributed by Andrew Tridgell (via Lorenz Meier) (2013-7-18).
 
 6.30 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/composite/:  SourceForge bug #19: Fix a typo that can
+	  cause a configuration error.  From CCTSAO (2013-9-4).
+
