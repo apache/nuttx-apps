@@ -620,4 +620,10 @@
 
 	* apps/examples/composite/:  SourceForge bug #19: Fix a typo that can
 	  cause a configuration error.  From CCTSAO (2013-9-4).
+	* apps/examples/cc3000.  Initial support for the TI CC3000 network module
+	  on the Freescale Freedom-KL25Z board from Alan Carvalho de Assis.
+	  Includes the test to verify the CC3000 (2013-9-3).
+	* apps/examples/usbmsc:  apps/examples/usbstorage renamed usbmsc.
+	  Change submitted by CCTSAO (2013-6-5).
+
 

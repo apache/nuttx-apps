@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usbstorage/composite_main.c
+ * examples/composite/composite_main.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

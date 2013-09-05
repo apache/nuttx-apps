@@ -1825,8 +1825,8 @@ examples/usbserial
     The host and target will exchange are variety of very small and very large
     serial messages.
 
-examples/usbstorage
-^^^^^^^^^^^^^^^^^^^
+examples/usbmsc
+^^^^^^^^^^^^^^^
 
   This example registers a block device driver, then exports the block
   the device using the USB storage class driver.  In order to use this
@@ -1834,7 +1834,7 @@ examples/usbstorage
 
     void usbmsc_archinitialize(void);
 
-  This function will be called by the example/usbstorage in order to
+  This function will be called by the example/usbmsc in order to
   do the actual registration of the block device drivers.  For examples
   of the implementation of usbmsc_archinitialize() see
   configs/mcu123-lpc124x/src/up_usbmsc.c or

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/usbstorage/Makefile
+# apps/examples/usbmsc/Makefile
 #
 #   Copyright (C) 2008, 2010-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usbstorage/usbmsc.h
+ * examples/usbmsc/usbmsc.h
  *
  *   Copyright (C) 2008-2009, 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
