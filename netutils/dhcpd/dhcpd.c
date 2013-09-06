@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/dhcpd/dhcpd.c
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -363,11 +363,11 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac, in_addr_t ipaddr, time_t expi
  * Name: dhcp_leaseipaddr
  ****************************************************************************/
 
-static inline in_addr_t dhcp_leaseipaddr( struct lease_s *lease)
+static inline in_addr_t dhcp_leaseipaddr(struct lease_s *lease)
 {
   /* Return IP address in host order */
 
-  return (g_state.ds_leases - lease)/sizeof(struct lease_s) + CONFIG_NETUTILS_DHCPD_STARTIP;
+  return (in_addr_t)(lease - g_state.ds_leases) + CONFIG_NETUTILS_DHCPD_STARTIP;
 }
 
 /****************************************************************************

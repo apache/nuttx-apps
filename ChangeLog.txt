@@ -626,4 +626,6 @@
 	* apps/examples/usbmsc:  apps/examples/usbstorage renamed usbmsc.
 	  Change submitted by CCTSAO (2013-6-5).
 	* apps/examples/pwm:  Clean-up some configuration confusion (2013-9-5).
+	* apps/netutils/dhcpd/dhcpd.c:  Fix calculation of the next lease
+	  address.  SourceForge bug #21 from Paolo Messina (2013-9-6).
 
