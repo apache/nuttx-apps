@@ -32,17 +32,19 @@ config EXAMPLES_PWM_DUTYPCT
 
 config EXAMPLES_PWM_DURATION
 	int "Default PWM duration"
-	default 5 if !EXAMPLES_PWM_PULSECOUNT
+	default 5
 	---help---
 		The default PWM pulse train duration in seconds.  Used only if the current
-		pulse count is zero (pulse countis only supported if PWM_PULSECOUNT
-		is defined). Default: 5 seconds
+		pulse count is zero (pulse count is only supported if PWM_PULSECOUNT
+		is not defined). Default: 5 seconds
 
 config EXAMPLES_PWM_PULSECOUNT
 	int "Default pulse count"
 	default 0
+	depends on PWM_PULSECOUNT
 	---help---
-	The initial PWM pulse count.  This option is only available if PWM_PULSECOUNT
-	is nonzero. Default: 0 (i.e., use the duration, not the count).
+		The initial PWM pulse count.  This option is only available if
+		PWM_PULSECOUNT is defined. Default: 0 (i.e., use the duration, not
+		the count).
 
 endif

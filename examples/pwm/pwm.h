@@ -84,8 +84,8 @@
 #  define CONFIG_EXAMPLES_PWM_DURATION 5
 #endif
 
-#ifndef CONFIG_EXAMPLES_PWM_COUNT
-#  define CONFIG_EXAMPLES_PWM_COUNT 0
+#ifndef CONFIG_EXAMPLES_PWM_PULSECOUNT
+#  define CONFIG_EXAMPLES_PWM_PULSECOUNT 0
 #endif
 
 /* Debug ********************************************************************/

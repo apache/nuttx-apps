@@ -123,16 +123,16 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
   message("  [-p devpath] selects the PWM device.  "
          "Default: %s Current: %s\n",
          CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
-  message("  [-f addr] selects the pulse frequency.  "
+  message("  [-f frequency] selects the pulse frequency.  "
          "Default: %d Hz Current: %d Hz\n",
          CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
-  message("  [-d duty] selcts the pulse duty as a percentage.  "
+  message("  [-d duty] selects the pulse duty as a percentage.  "
           "Default: %d %% Current: %d %%\n",
           CONFIG_EXAMPLES_PWM_DUTYPCT, pwm->duty);
 #ifdef CONFIG_PWM_PULSECOUNT
   message("  [-n count] selects the pulse count.  "
          "Default: %d Current: %d\n",
-         CONFIG_EXAMPLES_PWM_COUNT, pwm->count);
+         CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
 #endif
   message("  [-t duration] is the duration of the pulse train in seconds.  "
           "Default: %d Current: %d\n",
@@ -287,7 +287,7 @@ int pwm_main(int argc, char *argv[])
       g_pwmstate.freq        = CONFIG_EXAMPLES_PWM_FREQUENCY;
       g_pwmstate.duration    = CONFIG_EXAMPLES_PWM_DURATION;
 #ifdef CONFIG_PWM_PULSECOUNT
-      g_pwmstate.count       = CONFIG_EXAMPLES_PWM_COUNT;
+      g_pwmstate.count       = CONFIG_EXAMPLES_PWM_PULSECOUNT;
 #endif
       g_pwmstate.initialized = true;
     }
