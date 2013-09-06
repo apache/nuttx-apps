@@ -72,13 +72,21 @@
 #    ifndef CONFIG_EXAMPLES_USBMSC_DEVMINOR3
 #      error "CONFIG_EXAMPLES_USBMSC_DEVMINOR2 for LUN=3"
 #    endif
-#    ifndef CONFIG_EXAMPLES_USBMSC_DEVPATH2
-#      error "CONFIG_EXAMPLES_USBMSC_DEVPATH2 for LUN=3"
+#    ifndef CONFIG_EXAMPLES_USBMSC_DEVPATH3
+#      error "CONFIG_EXAMPLES_USBMSC_DEVPATH3 for LUN=3"
 #    endif
 #    if CONFIG_EXAMPLES_USBMSC_NLUNS > 3
 #      error "CONFIG_EXAMPLES_USBMSC_NLUNS must be {1,2,3}"
 #    endif
+#  else
+#    undef CONFIG_EXAMPLES_USBMSC_DEVMINOR3
+#    undef CONFIG_EXAMPLES_USBMSC_DEVPATH3
 #  endif
+#else
+#  undef CONFIG_EXAMPLES_USBMSC_DEVMINOR2
+#  undef CONFIG_EXAMPLES_USBMSC_DEVPATH2
+#  undef CONFIG_EXAMPLES_USBMSC_DEVMINOR3
+#  undef CONFIG_EXAMPLES_USBMSC_DEVPATH3
 #endif
 
 /* Debug ********************************************************************/
