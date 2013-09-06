@@ -196,7 +196,7 @@ static void final_memory_usage(FAR const char *msg)
  * Name: usbmsc_enumerate
  ****************************************************************************/
 
-#ifdef CONFIG_USBDEV_TRACE
+#ifdef CONFIG_EXAMPLES_USBMSC_TRACE
 static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
 {
   switch (trace->event)
@@ -423,8 +423,10 @@ int msconn_main(int argc, char *argv[])
 
   /* Initialize USB trace output IDs */
 
+#ifdef CONFIG_EXAMPLES_USBMSC_TRACE
   usbtrace_enable(TRACE_BITSET);
   check_test_memory_usage("After usbtrace_enable()");
+#endif
 
   /* Register block drivers (architecture-specific) */
 
@@ -513,9 +515,9 @@ int msconn_main(int argc, char *argv[])
       msgflush();
       sleep(5);
 
-#  ifdef CONFIG_USBDEV_TRACE
+#  ifdef CONFIG_EXAMPLES_USBMSC_TRACE
       message("\nmsconn_main: USB TRACE DATA:\n");
-      ret =  usbtrace_enumerate(usbmsc_enumerate, NULL);
+      ret = usbtrace_enumerate(usbmsc_enumerate, NULL);
       if (ret < 0)
         {
           message("msconn_main: usbtrace_enumerate failed: %d\n", -ret);

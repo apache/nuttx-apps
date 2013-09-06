@@ -628,4 +628,8 @@
 	* apps/examples/pwm:  Clean-up some configuration confusion (2013-9-5).
 	* apps/netutils/dhcpd/dhcpd.c:  Fix calculation of the next lease
 	  address.  SourceForge bug #21 from Paolo Messina (2013-9-6).
+	* apps/examples/usbmsc:  Don't try to control USB trace if we are
+	  an NSH built-in task.  In that case our attempts are inadequate
+	  and only interfere with with other logic that is attempting to
+	  to do the same thing (in NSH or in the USB monitor) (2013-9-6).
 
