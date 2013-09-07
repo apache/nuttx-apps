@@ -632,4 +632,13 @@
 	  an NSH built-in task.  In that case our attempts are inadequate
 	  and only interfere with with other logic that is attempting to
 	  to do the same thing (in NSH or in the USB monitor) (2013-9-6).
+	* apps/examples/usbmsc:  IMPORTANT bug fix: Change how the msconn
+	  works.  Because of recent changes the msconn command was hanging.
+	  This was because the USB MSC start-up logic creates a pthread;
+	  Now waitpid() will wait until all members of the task groupd
+	  exit.  So NSH was hanging in waitpid when msconn started even
+	  though msconn returned.  The USB MSC logic really should not use
+	  a pthread, but we are stuck with that for now.  The work-around
+	  is the msconn now daemonizes itself so that it so taht the pthread
+	  is created in a different task group (2013-8-6).
 
