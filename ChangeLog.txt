@@ -640,5 +640,5 @@
 	  though msconn returned.  The USB MSC logic really should not use
 	  a pthread, but we are stuck with that for now.  The work-around
 	  is the msconn now daemonizes itself so that it so taht the pthread
-	  is created in a different task group (2013-8-6).
+	  is created in a different task group (2013-9-7).
 
