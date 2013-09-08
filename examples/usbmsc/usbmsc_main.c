@@ -582,6 +582,8 @@ int msconn_main(int argc, char *argv[])
    * that the USB mass storage device is already configured).  There is
    * no handshaking so there is a race condition:  We will check again
    * when the daemon is started.
+   *
+   * REVISIT:  This might a good application for vfork();
    */
 
   if (g_usbmsc.mshandle)
