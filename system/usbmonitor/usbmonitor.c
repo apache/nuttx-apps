@@ -48,6 +48,7 @@
 #include <errno.h>
 
 #include <nuttx/usb/usbdev_trace.h>
+#include <nuttx/usb/usbhost_trace.h>
 
 #ifdef CONFIG_SYSTEM_USBMONITOR
 
@@ -71,45 +72,49 @@
 #  define CONFIG_SYSTEM_USBMONITOR_INTERVAL 2
 #endif
 
-#ifdef CONFIG_SYSTEM_USBMONITOR_TRACEINIT
-#  define TRACE_INIT_BITS       (TRACE_INIT_BIT)
-#else
-#  define TRACE_INIT_BITS       (0)
-#endif
+/* USB device trace selection */
 
-#define TRACE_ERROR_BITS        (TRACE_DEVERROR_BIT|TRACE_CLSERROR_BIT)
+#ifdef USBDEV_TRACE
+#  ifdef CONFIG_SYSTEM_USBMONITOR_TRACEINIT
+#    define TRACE_INIT_BITS       (TRACE_INIT_BIT)
+#  else
+#    define TRACE_INIT_BITS       (0)
+#  endif
 
-#ifdef CONFIG_SYSTEM_USBMONITOR_TRACECLASS
-#  define TRACE_CLASS_BITS      (TRACE_CLASS_BIT|TRACE_CLASSAPI_BIT|\
+#  define TRACE_ERROR_BITS        (TRACE_DEVERROR_BIT|TRACE_CLSERROR_BIT)
+
+#  ifdef CONFIG_SYSTEM_USBMONITOR_TRACECLASS
+#    define TRACE_CLASS_BITS      (TRACE_CLASS_BIT|TRACE_CLASSAPI_BIT|\
                                    TRACE_CLASSSTATE_BIT)
-#else
-#  define TRACE_CLASS_BITS      (0)
-#endif
+#  else
+#    define TRACE_CLASS_BITS      (0)
+#  endif
 
-#ifdef CONFIG_SYSTEM_USBMONITOR_TRACETRANSFERS
-#  define TRACE_TRANSFER_BITS   (TRACE_OUTREQQUEUED_BIT|TRACE_INREQQUEUED_BIT|\
-                                 TRACE_READ_BIT|TRACE_WRITE_BIT|\
-                                 TRACE_COMPLETE_BIT)
-#else
-#  define TRACE_TRANSFER_BITS   (0)
-#endif
+#  ifdef CONFIG_SYSTEM_USBMONITOR_TRACETRANSFERS
+#    define TRACE_TRANSFER_BITS   (TRACE_OUTREQQUEUED_BIT|TRACE_INREQQUEUED_BIT|\
+                                   TRACE_READ_BIT|TRACE_WRITE_BIT|\
+                                   TRACE_COMPLETE_BIT)
+#  else
+#    define TRACE_TRANSFER_BITS   (0)
+#  endif
 
-#ifdef CONFIG_SYSTEM_USBMONITOR_TRACECONTROLLER
-#  define TRACE_CONTROLLER_BITS (TRACE_EP_BIT|TRACE_DEV_BIT)
-#else
-#  define TRACE_CONTROLLER_BITS (0)
-#endif
+#  ifdef CONFIG_SYSTEM_USBMONITOR_TRACECONTROLLER
+#    define TRACE_CONTROLLER_BITS (TRACE_EP_BIT|TRACE_DEV_BIT)
+#  else
+#    define TRACE_CONTROLLER_BITS (0)
+#  endif
 
-#ifdef CONFIG_SYSTEM_USBMONITOR_TRACEINTERRUPTS
-#  define TRACE_INTERRUPT_BITS  (TRACE_INTENTRY_BIT|TRACE_INTDECODE_BIT|\
-                                 TRACE_INTEXIT_BIT)
-#else
-#  define TRACE_INTERRUPT_BITS  (0)
-#endif
+#  ifdef CONFIG_SYSTEM_USBMONITOR_TRACEINTERRUPTS
+#    define TRACE_INTERRUPT_BITS  (TRACE_INTENTRY_BIT|TRACE_INTDECODE_BIT|\
+                                   TRACE_INTEXIT_BIT)
+#  else
+#    define TRACE_INTERRUPT_BITS  (0)
+#  endif
 
-#define TRACE_BITSET            (TRACE_INIT_BITS|TRACE_ERROR_BITS|\
-                                 TRACE_CLASS_BITS|TRACE_TRANSFER_BITS|\
-                                 TRACE_CONTROLLER_BITS|TRACE_INTERRUPT_BITS)
+#  define TRACE_BITSET            (TRACE_INIT_BITS|TRACE_ERROR_BITS|\
+                                   TRACE_CLASS_BITS|TRACE_TRANSFER_BITS|\
+                                   TRACE_CONTROLLER_BITS|TRACE_INTERRUPT_BITS)
+#endif
 
 /****************************************************************************
  * Private Types
@@ -132,11 +137,13 @@ static struct usbmon_state_s g_usbmonitor;
  * Private Functions
  ****************************************************************************/
 
+#ifdef CONFIG_USBDEV_TRACE
 static int usbmonitor_tracecallback(struct usbtrace_s *trace, void *arg)
 {
   usbtrace_trprintf((trprintf_t)syslog, trace->event, trace->value);
   return 0;
 }
+#endif
 
 static int usbmonitor_daemon(int argc, char **argv)
 {
@@ -147,7 +154,12 @@ static int usbmonitor_daemon(int argc, char **argv)
   while (!g_usbmonitor.stop)
     {
       sleep(CONFIG_SYSTEM_USBMONITOR_INTERVAL);
+#ifdef CONFIG_USBDEV_TRACE
       (void)usbtrace_enumerate(usbmonitor_tracecallback, NULL);
+#endif
+#ifdef CONFIG_USBHOST_TRACE
+      (void)usbhost_trdump();
+#endif
     }
 
   /* Stopped */
@@ -174,9 +186,11 @@ int usbmonitor_start(int argc, char **argv)
 
       /* No.. start it now */
  
+#ifdef CONFIG_USBDEV_TRACE
       /* First, initialize any USB tracing options that were requested */
 
       usbtrace_enable(TRACE_BITSET);
+#endif
 
       /* Then start the USB monitoring daemon */
 
@@ -222,9 +236,11 @@ int usbmonitor_stop(int argc, char **argv)
       syslog(USBMON_PREFIX "Stopping: %d\n", g_usbmonitor.pid);
       g_usbmonitor.stop = true;
 
+#ifdef CONFIG_USBDEV_TRACE
       /* We may as well disable tracing since there is no listener */
 
       usbtrace_enable(0);
+#endif
     }
 
   syslog(USBMON_PREFIX "Stopped: %d\n", g_usbmonitor.pid);

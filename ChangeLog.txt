@@ -641,4 +641,6 @@
 	  a pthread, but we are stuck with that for now.  The work-around
 	  is the msconn now daemonizes itself so that it so taht the pthread
 	  is created in a different task group (2013-9-7).
+	* apps/system/usbmonitor:  The USB monitor has been extended so
+	  that it can be used with USB device or host trace data (2013-9-9).
 
