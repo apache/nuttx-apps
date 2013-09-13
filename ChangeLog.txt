@@ -643,4 +643,5 @@
 	  is created in a different task group (2013-9-7).
 	* apps/system/usbmonitor:  The USB monitor has been extended so
 	  that it can be used with USB device or host trace data (2013-9-9).
-
+	* apps/nshlib/nsh_fscmds.c:  Fix NSH listing output for the case
+	  of a single file.  Provied by Lorenz Meier (2013-9-13).
