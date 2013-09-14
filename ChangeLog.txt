@@ -616,7 +616,7 @@
 	  compare two files for equivalence.  Returns an indication if the files
 	  differ.  Contributed by Andrew Tridgell (via Lorenz Meier) (2013-7-18).
 
-6.30 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.30 2013-09-14 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/composite/:  SourceForge bug #19: Fix a typo that can
 	  cause a configuration error.  From CCTSAO (2013-9-4).
@@ -635,13 +635,15 @@
 	* apps/examples/usbmsc:  IMPORTANT bug fix: Change how the msconn
 	  works.  Because of recent changes the msconn command was hanging.
 	  This was because the USB MSC start-up logic creates a pthread;
-	  Now waitpid() will wait until all members of the task groupd
+	  Now waitpid() will wait until all members of the task group
 	  exit.  So NSH was hanging in waitpid when msconn started even
 	  though msconn returned.  The USB MSC logic really should not use
 	  a pthread, but we are stuck with that for now.  The work-around
-	  is the msconn now daemonizes itself so that it so taht the pthread
+	  is the msconn now daemonizes itself so that it so that the pthread
 	  is created in a different task group (2013-9-7).
 	* apps/system/usbmonitor:  The USB monitor has been extended so
 	  that it can be used with USB device or host trace data (2013-9-9).
 	* apps/nshlib/nsh_fscmds.c:  Fix NSH listing output for the case
-	  of a single file.  Provied by Lorenz Meier (2013-9-13).
+	  of a single file.  Provided by Lorenz Meier (2013-9-13).
+
+6.31 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
