@@ -572,7 +572,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *mask = NULL;
   FAR char *tmp = NULL;
   FAR char *hw = NULL;
+#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   FAR char *dns = NULL;
+#endif
   bool badarg = false;
   uint8_t mac[IFHWADDRLEN];
 #if defined(CONFIG_NSH_DHCPC)
@@ -638,7 +640,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
-              else if(!strcmp(tmp, "hw"))
+              else if (!strcmp(tmp, "hw"))
                 {
                   if (argc-1>=i+1)
                     {
@@ -651,7 +653,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
-              else if(!strcmp(tmp, "dns"))
+#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+              else if (!strcmp(tmp, "dns"))
                 {
                   if (argc-1 >= i+1)
                     {
@@ -663,6 +666,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
+#endif
             }
         }
     }

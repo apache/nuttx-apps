@@ -647,3 +647,7 @@
 	  of a single file.  Provided by Lorenz Meier (2013-9-13).
 
 6.31 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_netcmds.c:  Remove a warning when DHCP is not
+	  enabled (2013-9-17).
+
