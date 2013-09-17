@@ -650,4 +650,7 @@
 
 	* apps/nshlib/nsh_netcmds.c:  Remove a warning when DHCP is not
 	  enabled (2013-9-17).
+	* apps/nshlib/Kconfig:  Default IP address should be 0x0a000001
+	  (10.0.0.1), not 0xa0000001 (160.0.0.1).  Ditto for the gateway
+	  (2013-9017).
 

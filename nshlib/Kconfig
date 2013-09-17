@@ -636,7 +636,7 @@ config NSH_DHCPC
 
 config NSH_IPADDR
 	hex "Target IP address"
-	default 0xa0000002
+	default 0x0a000002
 	depends on NSH_LIBRARY && NET && !NSH_DHCPC
 	---help---
 		If NSH_DHCPC is NOT set, then the static IP address must be provided.
@@ -645,7 +645,7 @@ config NSH_IPADDR
 
 config NSH_DRIPADDR
 	hex "Router IP address"
-	default 0xa0000001
+	default 0x0a000001
 	depends on NSH_LIBRARY && NET && !NSH_DHCPC
 	---help---
 		Default router IP address (aka, Gateway).  This is a 32-bit integer
