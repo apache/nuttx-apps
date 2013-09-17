@@ -259,7 +259,7 @@ static int send_query(const char *name, struct sockaddr_in *addr)
 {
   return send_query_socket(g_sockfd, name, addr);
 }
-#endif 
+#endif
 
 /* Called when new UDP data arrives */
 
