@@ -6,6 +6,7 @@
 config EXAMPLES_CC3000BASIC
 	bool "A Basic Application to use CC3000 Module"
 	default n
+	depends on WL_CC3000
 	---help---
 		Enable the CC3000BASIC example
 
