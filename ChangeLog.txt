@@ -653,4 +653,8 @@
 	* apps/nshlib/Kconfig:  Default IP address should be 0x0a000001
 	  (10.0.0.1), not 0xa0000001 (160.0.0.1).  Ditto for the gateway
 	  (2013-9017).
+	* apps/examples/ostest/Kconfig:  Add configuration options for
+	  the FPU test.  There are still many OS test configuration
+	  optionst that do not appear in Kconfig (2013-9-18).
+
 

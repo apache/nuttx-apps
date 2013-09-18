@@ -59,4 +59,33 @@ config EXAMPLES_OSTEST_RR_RUNS
 		length of this test - it should last at least a few tens of seconds. Allowed
 		values [1; 32767], default 10
 
-endif
+if ARCH_FPU && SCHED_WAITPID && !DISABLE_SIGNALS
+
+config EXAMPLES_OSTEST_FPUTESTDISABLE
+	bool "Disable FPU test"
+	default n
+
+if !EXAMPLES_OSTEST_FPUTESTDISABLE
+
+config EXAMPLES_OSTEST_FPUSIZE
+	int "Size of floating point register save area"
+
+config EXAMPLES_OSTEST_FPULOOPS
+	int "Number of FPU test loops"
+	default 16
+
+config EXAMPLES_OSTEST_FPUMSDELAY
+	int "FPU test delay (MSec)"
+	default 750
+
+config EXAMPLES_OSTEST_FPUPRIORITY
+	int "FPU test thread priority"
+	default 100
+
+config EXAMPLES_OSTEST_FPUSTACKSIZE
+	int "FPU test thread stack size"
+	default 2048
+
+endif # !EXAMPLES_OSTEST_FPUTESTDISABLE
+endif # ARCH_FPU && SCHED_WAITPID && !DISABLE_SIGNALS
+endif # EXAMPLES_OSTEST
