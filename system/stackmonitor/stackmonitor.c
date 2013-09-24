@@ -91,6 +91,21 @@ static struct stkmon_state_s g_stackmonitor;
  * Private Functions
  ****************************************************************************/
 
+/****************************************************************************
+ * Name: stkmon_task
+ ****************************************************************************/
+
+static void stkmon_task(FAR struct tcb_s *tcb, FAR void *arg)
+{
+#if CONFIG_NAME_MAX > 0
+  syslog("%5d %6d %6d %s\n",
+         tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb), tcb->name);
+#else
+  syslog("%5d %6d %6d\n",
+         tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb));
+#endif
+}
+
 static int stackmonitor_daemon(int argc, char **argv)
 {
   syslog(STKMON_PREFIX "Running: %d\n", g_stackmonitor.pid);
@@ -100,6 +115,12 @@ static int stackmonitor_daemon(int argc, char **argv)
   while (!g_stackmonitor.stop)
     {
       sleep(CONFIG_SYSTEM_STACKMONITOR_INTERVAL);
+#if CONFIG_NAME_MAX > 0
+      syslog("%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
+#else
+      syslog("%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
+#endif
+      sched_foreach(stkmon_task, NULL);
     }
 
   /* Stopped */

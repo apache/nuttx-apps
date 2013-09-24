@@ -41,7 +41,7 @@ ifeq ($(WINTOOL),y)
 INCDIROPT	= -w
 endif
 
-# USB Monitor Application
+# Stack Monitor Application
 
 PRIORITY	= SCHED_PRIORITY_DEFAULT
 STACKSIZE	= 768
