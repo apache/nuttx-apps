@@ -47,6 +47,10 @@ menu "USB Monitor"
 source "$APPSDIR/system/usbmonitor/Kconfig"
 endmenu
 
+menu "Stack Monitor"
+source "$APPSDIR/system/stackmonitor/Kconfig"
+endmenu
+
 menu "Zmodem Commands"
 source "$APPSDIR/system/zmodem/Kconfig"
 endmenu

@@ -661,4 +661,6 @@
 	  this the CC3000 option on each 'make oldconfig' (2013-9-18).
 	* apps/system/usbmonitor/usbmonitor.c:  Fix some bad conditional
 	  compilation probably introduced on 2013-9-9 (2013-9-23).
+	* apps/system/stackmonitor:  Add a daemon that can be used to
+	  monitor stack usage by all threads (2013-9-24).
 

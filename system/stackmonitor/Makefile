@@ -1,8 +1,7 @@
 ############################################################################
-# apps/system/Make.defs
-# Adds selected applications to apps/ build
+# apps/system/stackmonitor/Makefile
 #
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,54 +33,85 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_FREE),y)
-CONFIGURED_APPS += system/free
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
+
+ifeq ($(WINTOOL),y)
+INCDIROPT	= -w
 endif
 
-ifeq ($(CONFIG_SYSTEM_I2CTOOL),y)
-CONFIGURED_APPS += system/i2c
+# USB Monitor Application
+
+PRIORITY	= SCHED_PRIORITY_DEFAULT
+STACKSIZE	= 768
+
+ASRCS		=
+CSRCS		= stackmonitor.c
+
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
+
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN		= ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN		= ..\\..\\libapps$(LIBEXT)
+else
+  BIN		= ../../libapps$(LIBEXT)
+endif
 endif
 
-ifeq ($(CONFIG_SYSTEM_INSTALL),y)
-CONFIGURED_APPS += system/install
+ROOTDEPPATH	= --dep-path .
+
+# Common build
+
+VPATH		= 
+
+all:	.built
+.PHONY: context depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
+
+# Register application
+
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)stackmonitor_start.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,"stkmon_start",$(PRIORITY),$(STACKSIZE),stackmonitor_start)
+
+$(BUILTIN_REGISTRY)$(DELIM)stackmonitor_stop.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,"stkmon_stop",$(PRIORITY),$(STACKSIZE),stackmonitor_stop)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)stackmonitor_start.bdat $(BUILTIN_REGISTRY)$(DELIM)stackmonitor_stop.bdat
+else
+context:
 endif
 
-ifeq ($(CONFIG_SYSTEM_FLASH_ERASEALL),y)
-CONFIGURED_APPS += system/flash_eraseall
-endif
+# Create dependencies
 
-ifeq ($(CONFIG_SYSTEM_RAMTEST),y)
-CONFIGURED_APPS += system/ramtest
-endif
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
-ifeq ($(CONFIG_SYSTEM_READLINE),y)
-CONFIGURED_APPS += system/readline
-endif
+depend: .depend
 
-ifeq ($(CONFIG_SYSTEM_POWEROFF),y)
-CONFIGURED_APPS += system/poweroff
-endif
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
 
-ifeq ($(CONFIG_SYSTEM_RAMTRON),y)
-CONFIGURED_APPS += system/ramtron
-endif
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
 
-ifeq ($(CONFIG_SYSTEM_SDCARD),y)
-CONFIGURED_APPS += system/sdcard
-endif
-
-ifeq ($(CONFIG_SYSTEM_SYSINFO),y)
-CONFIGURED_APPS += system/sysinfo
-endif
-
-ifeq ($(CONFIG_SYSTEM_USBMONITOR),y)
-CONFIGURED_APPS += system/usbmonitor
-endif
-
-ifeq ($(CONFIG_SYSTEM_STACKMONITOR),y)
-CONFIGURED_APPS += system/stackmonitor
-endif
-
-ifeq ($(CONFIG_SYSTEM_ZMODEM),y)
-CONFIGURED_APPS += system/zmodem
-endif
+-include Make.dep

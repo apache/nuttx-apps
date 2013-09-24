@@ -1,0 +1,39 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_STACKMONITOR
+	bool "Stack monitor"
+	default n
+	depends on DEBUG_STACK && !KERNEL_BUILD
+	---help---
+		If the stack debug feature is enabled (DEBUG_STACK) this option will
+		select the Stack Moitor.  The stack monitor is a daemon that will
+		periodically assess stack usage by all tasks and threads in the
+		system.  This feature depends on internal OS features and, hence, is
+		not available if the NuttX kernel build is selected.
+
+if SYSTEM_STACKMONITOR
+
+config SYSTEM_STACKMONITOR_STACKSIZE
+	int "Stack monitor daemon stack size"
+	default 2048
+	---help---
+		The stack size to use the the stack monitor daemon.  Default: 2048
+
+config SYSTEM_STACKMONITOR_PRIORITY
+	int "Stack monitor daemon priority"
+	default 50
+	---help---
+		The priority to use the the stack monitor daemon.  Default: 50
+
+config SYSTEM_STACKMONITOR_INTERVAL
+	int "Stack monitor dump frequency"
+	default 2
+	---help---
+		The rate in seconds that the stack monitor will wait before dumping
+		the next set stack usage information.  Default:  2 seconds.
+
+endif
+
