@@ -74,7 +74,7 @@
 
 /* USB device trace selection */
 
-#ifdef USBDEV_TRACE
+#ifdef CONFIG_USBDEV_TRACE
 #  ifdef CONFIG_SYSTEM_USBMONITOR_TRACEINIT
 #    define TRACE_INIT_BITS       (TRACE_INIT_BIT)
 #  else

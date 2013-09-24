@@ -659,4 +659,6 @@
 	* apps/examples/cc3000:  Condition the CC3000 example on having
 	  selected the CC3000 device.  Otherwise, you are prompted for
 	  this the CC3000 option on each 'make oldconfig' (2013-9-18).
+	* apps/system/usbmonitor/usbmonitor.c:  Fix some bad conditional
+	  compilation probably introduced on 2013-9-9 (2013-9-23).
 
