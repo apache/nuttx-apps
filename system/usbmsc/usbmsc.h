@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/usbmsc/usbmsc.h
  *
- *   Copyright (C) 2008-2009, 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_USBSTORAGE_USBMSC_H
-#define __EXAMPLES_USBSTORAGE_USBMSC_H
+#ifndef __SYSTEM_USBMSC_USBMSC_H
+#define __SYSTEM_USBMSC_USBMSC_H
 
 /****************************************************************************
  * Included Files
@@ -177,4 +177,4 @@ extern struct usbmsc_state_s g_usbmsc;
 
 extern int usbmsc_archinitialize(void);
 
-#endif /* __EXAMPLES_USBSTORAGE_USBMSC_H */
+#endif /* __SYSTEM_USBMSC_USBMSC_H */

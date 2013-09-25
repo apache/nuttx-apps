@@ -6,7 +6,7 @@
 config SYSTEM_USBMSC
 	bool "USB mass storage class controls"
 	default n
-	depends on USBMSC
+	depends on USBMSC && !KERNEL_BUILD
 	---help---
 		Enable the USB mass storage class controls.  These controls include:
 

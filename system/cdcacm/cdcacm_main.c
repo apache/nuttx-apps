@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/cdcacm/cdcacm_main.c
+ * system/cdcacm/cdcacm_main.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -57,7 +57,7 @@
  * Private Data
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
@@ -102,7 +102,7 @@ int sercon_main(int argc, char *argv[])
   /* Initialize the USB CDC/ACM serial driver */
 
   message("sercon: Registering CDC/ACM serial driver\n");
-  ret = cdcacm_initialize(CONFIG_EXAMPLES_CDCACM_DEVMINOR, &g_cdcacm.handle);
+  ret = cdcacm_initialize(CONFIG_SYSTEM_CDCACM_DEVMINOR, &g_cdcacm.handle);
   if (ret < 0)
     {
       message("sercon: ERROR: Failed to create the CDC/ACM serial device: %d\n", -ret);

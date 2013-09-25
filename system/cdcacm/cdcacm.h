@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/cdcacm/cdcacm.h
+ * system/cdcacm/cdcacm.h
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_CDCACM_CDCACM_H
-#define __EXAMPLES_CDCACM_CDCACM_H
+#ifndef __SYSTEM_CDCACM_CDCACM_H
+#define __SYSTEM_CDCACM_CDCACM_H
 
 /****************************************************************************
  * Included Files
@@ -61,18 +61,18 @@
 #endif
 
 #ifndef CONFIG_NSH_BUILTIN_APPS
-#  error "This example can only be built as an NSH built-in application"
+#  error "This add-on can only be built as an NSH built-in application"
 #endif
 
 /* Default configuration values */
 
-#ifndef CONFIG_EXAMPLES_CDCACM_DEVMINOR
-#  define CONFIG_EXAMPLES_CDCACM_DEVMINOR 0
+#ifndef CONFIG_SYSTEM_CDCACM_DEVMINOR
+#  define CONFIG_SYSTEM_CDCACM_DEVMINOR 0
 #endif
 
 /* Trace Configuration ******************************************************/
 
-#ifdef CONFIG_EXAMPLES_CDCACM_TRACEINIT
+#ifdef CONFIG_SYSTEM_CDCACM_TRACEINIT
 #  define TRACE_INIT_BITS       (TRACE_INIT_BIT)
 #else
 #  define TRACE_INIT_BITS       (0)
@@ -80,26 +80,26 @@
 
 #define TRACE_ERROR_BITS        (TRACE_DEVERROR_BIT|TRACE_CLSERROR_BIT)
 
-#ifdef CONFIG_EXAMPLES_CDCACM_TRACECLASS
+#ifdef CONFIG_SYSTEM_CDCACM_TRACECLASS
 #  define TRACE_CLASS_BITS      (TRACE_CLASS_BIT|TRACE_CLASSAPI_BIT|TRACE_CLASSSTATE_BIT)
 #else
 #  define TRACE_CLASS_BITS      (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_CDCACM_TRACETRANSFERS
+#ifdef CONFIG_SYSTEM_CDCACM_TRACETRANSFERS
 #  define TRACE_TRANSFER_BITS   (TRACE_OUTREQQUEUED_BIT|TRACE_INREQQUEUED_BIT|TRACE_READ_BIT|\
                                  TRACE_WRITE_BIT|TRACE_COMPLETE_BIT)
 #else
 #  define TRACE_TRANSFER_BITS   (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_CDCACM_TRACECONTROLLER
+#ifdef CONFIG_SYSTEM_CDCACM_TRACECONTROLLER
 #  define TRACE_CONTROLLER_BITS (TRACE_EP_BIT|TRACE_DEV_BIT)
 #else
 #  define TRACE_CONTROLLER_BITS (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_CDCACM_TRACEINTERRUPTS
+#ifdef CONFIG_SYSTEM_CDCACM_TRACEINTERRUPTS
 #  define TRACE_INTERRUPT_BITS  (TRACE_INTENTRY_BIT|TRACE_INTDECODE_BIT|TRACE_INTEXIT_BIT)
 #else
 #  define TRACE_INTERRUPT_BITS  (0)
@@ -132,14 +132,14 @@
  * Public Types
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
 struct cdcacm_state_s
 {
-  /* This is the handle that references to this particular USB storage driver
-   * instance.  It is only needed if the USB mass storage device example is
+  /* This is the handle that references to this particular USB CDC/ACM driver
+   * instance.  It is only needed if the USB CDC/ACM device add-on is
    * built using CONFIG_NSH_BUILTIN_APPS.  In this case, the value
    * of the driver handle must be remembered between the 'sercon' and 'msdis'
    * commands.
@@ -152,7 +152,7 @@ struct cdcacm_state_s
  * Public Data
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
@@ -162,4 +162,4 @@ extern struct cdcacm_state_s g_cdcacm;
  * Public Functions
  ****************************************************************************/
 
-#endif /* __EXAMPLES_CDCACM_CDCACM_H */
+#endif /* __SYSTEM_CDCACM_CDCACM_H */

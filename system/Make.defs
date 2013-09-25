@@ -34,6 +34,10 @@
 #
 ############################################################################
 
+ifeq ($(CONFIG_SYSTEM_CDCACM),y)
+CONFIGURED_APPS += system/cdcacm
+endif
+
 ifeq ($(CONFIG_SYSTEM_FREE),y)
 CONFIGURED_APPS += system/free
 endif

@@ -131,50 +131,6 @@ examples/cc3000
 
   This is a test for the TI CC3000 wireless networking module.
 
-examples/cdcacm
-^^^^^^^^^^^^^^^
-
-  This very simple example shows how a USB CDC/ACM serial can be dynamically
-  connected and disconnected from a host.  This example can only be used as
-  an NSH built-int command.  If built-in, then two new NSH commands will be
-  supported:
-
-    1. sercon - Connect the CDC/ACM serial device
-    2. serdis - Disconnect the CDC/ACM serial device
-
-  Configuration prequisites (not complete):
-
-    CONFIG_USBDEV=y                 : USB device support must be enabled
-    CONFIG_CDCACM=y                 : The CDC/ACM driver must be built
-    CONFIG_NSH_BUILTIN_APPS         : NSH built-in application support must be enabled
-
-  Configuration options specific to this example:
-
-    CONFIG_EXAMPLES_CDCACM_DEVMINOR : The minor number of the CDC/ACM device.
-                                    : i.e., the 'x' in /dev/ttyACMx
-
-  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB, or
-  CONFIG_USBDEV_TRACE), then the example code will also initialize the USB trace
-  output.  The amount of trace output can be controlled using:
-
-  CONFIG_EXAMPLES_CDCACM_TRACEINIT
-    Show initialization events
-  CONFIG_EXAMPLES_CDCACM_TRACECLASS
-    Show class driver events
-  CONFIG_EXAMPLES_CDCACM_TRACETRANSFERS
-    Show data transfer events
-  CONFIG_EXAMPLES_CDCACM_TRACECONTROLLER
-    Show controller events
-  CONFIG_EXAMPLES_CDCACM_TRACEINTERRUPTS
-    Show interrupt-related events.
-
-  Note:  This example is only enables or disable USB CDC/ACM via the NSH
-  'sercon' and 'serdis' command.  It will enable and disable tracing per
-  the settings before enabling and after disabling the CDC/ACM device. It
-  will not, however, monitor buffered trace data in the interim.  If
-  CONFIG_USBDEV_TRACE is defined (and the debug options are not), other
-  application logic will need to monitor the buffered trace data.
-
 examples/composite
 ^^^^^^^^^^^^^^^^^^
 

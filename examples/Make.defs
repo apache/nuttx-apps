@@ -50,10 +50,6 @@ ifeq ($(CONFIG_EXAMPLES_CC3000BASIC),y)
 CONFIGURED_APPS += examples/cc3000
 endif
 
-ifeq ($(CONFIG_EXAMPLES_CDCACM),y)
-CONFIGURED_APPS += examples/cdcacm
-endif
-
 ifeq ($(CONFIG_EXAMPLES_COMPOSITE),y)
 CONFIGURED_APPS += examples/composite
 endif

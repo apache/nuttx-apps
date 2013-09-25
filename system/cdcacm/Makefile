@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/cdcacm/Makefile
+# apps/system/cdcacm/Makefile
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# USB CDC/ACM serial mass storage example
+# USB CDC/ACM serial mass storage add-on
 
 ASRCS		=
 CSRCS		= cdcacm_main.c
