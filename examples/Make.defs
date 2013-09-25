@@ -270,10 +270,6 @@ ifeq ($(CONFIG_EXAMPLES_USBSERIAL),y)
 CONFIGURED_APPS += examples/usbserial
 endif
 
-ifeq ($(CONFIG_EXAMPLES_USBMSC),y)
-CONFIGURED_APPS += examples/usbmsc
-endif
-
 ifeq ($(CONFIG_EXAMPLES_USBTERM),y)
 CONFIGURED_APPS += examples/usbterm
 endif

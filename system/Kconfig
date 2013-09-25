@@ -51,6 +51,10 @@ menu "Stack Monitor"
 source "$APPSDIR/system/stackmonitor/Kconfig"
 endmenu
 
+menu "USB Mass Storage Class"
+source "$APPSDIR/system/usbmsc/Kconfig"
+endmenu
+
 menu "Zmodem Commands"
 source "$APPSDIR/system/zmodem/Kconfig"
 endmenu

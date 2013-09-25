@@ -82,6 +82,10 @@ ifeq ($(CONFIG_SYSTEM_STACKMONITOR),y)
 CONFIGURED_APPS += system/stackmonitor
 endif
 
+ifeq ($(CONFIG_SYSTEM_USBMSC),y)
+CONFIGURED_APPS += system/usbmsc
+endif
+
 ifeq ($(CONFIG_SYSTEM_ZMODEM),y)
 CONFIGURED_APPS += system/zmodem
 endif

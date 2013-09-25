@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/usbmsc/Makefile
+# apps/system/usbmsc/Makefile
 #
 #   Copyright (C) 2008, 2010-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# USB device mass storage example
+# USB device mass storage add-on
 
 ASRCS		=
 CSRCS		= usbmsc_main.c
@@ -62,16 +62,16 @@ ROOTDEPPATH	= --dep-path .
 
 # USB storage built-in application info
 
-CONFIG_EXAMPLES_USBMSC_CMD_STACKSIZE ?= 768
-CONFIG_EXAMPLES_USBMSC_CMD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE ?= 768
+CONFIG_SYSTEM_USBMSC_CMD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 
 APPNAME1	= msconn
-PRIORITY1	= $(CONFIG_EXAMPLES_USBMSC_CMD_PRIORITY)
-STACKSIZE1	= $(CONFIG_EXAMPLES_USBMSC_CMD_STACKSIZE)
+PRIORITY1	= $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
+STACKSIZE1	= $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
 
 APPNAME2	= msdis
-PRIORITY2	= $(CONFIG_EXAMPLES_USBMSC_CMD_PRIORITY)
-STACKSIZE2	= $(CONFIG_EXAMPLES_USBMSC_CMD_STACKSIZE)
+PRIORITY2	= $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
+STACKSIZE2	= $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
 
 # Common build
 

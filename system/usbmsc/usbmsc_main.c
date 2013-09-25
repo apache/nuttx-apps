@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usbmsc/usbmsc_main.c
+ * system/usbmsc/usbmsc_main.c
  *
  *   Copyright (C) 2008-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -54,7 +54,7 @@
  * Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACEINIT
+#ifdef CONFIG_SYSTEM_USBMSC_TRACEINIT
 #  define TRACE_INIT_BITS       (TRACE_INIT_BIT)
 #else
 #  define TRACE_INIT_BITS       (0)
@@ -62,26 +62,26 @@
 
 #define TRACE_ERROR_BITS        (TRACE_DEVERROR_BIT|TRACE_CLSERROR_BIT)
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACECLASS
+#ifdef CONFIG_SYSTEM_USBMSC_TRACECLASS
 #  define TRACE_CLASS_BITS      (TRACE_CLASS_BIT|TRACE_CLASSAPI_BIT|TRACE_CLASSSTATE_BIT)
 #else
 #  define TRACE_CLASS_BITS      (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACETRANSFERS
+#ifdef CONFIG_SYSTEM_USBMSC_TRACETRANSFERS
 #  define TRACE_TRANSFER_BITS   (TRACE_OUTREQQUEUED_BIT|TRACE_INREQQUEUED_BIT|TRACE_READ_BIT|\
                                  TRACE_WRITE_BIT|TRACE_COMPLETE_BIT)
 #else
 #  define TRACE_TRANSFER_BITS   (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACECONTROLLER
+#ifdef CONFIG_SYSTEM_USBMSC_TRACECONTROLLER
 #  define TRACE_CONTROLLER_BITS (TRACE_EP_BIT|TRACE_DEV_BIT)
 #else
 #  define TRACE_CONTROLLER_BITS (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACEINTERRUPTS
+#ifdef CONFIG_SYSTEM_USBMSC_TRACEINTERRUPTS
 #  define TRACE_INTERRUPT_BITS  (TRACE_INTENTRY_BIT|TRACE_INTDECODE_BIT|TRACE_INTEXIT_BIT)
 #else
 #  define TRACE_INTERRUPT_BITS  (0)
@@ -94,11 +94,11 @@
  * Private Data
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_SYSTEM_USBMSC_DEBUGMM)
 struct usbmsc_state_s g_usbmsc;
 #endif
 
@@ -110,7 +110,7 @@ struct usbmsc_state_s g_usbmsc;
  * Name: show_memory_usage
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_USBMSC_DEBUGMM
+#ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
 static void show_memory_usage(struct mallinfo *mmbefore,
                               struct mallinfo *mmafter)
 {
@@ -140,7 +140,7 @@ static void show_memory_usage(struct mallinfo *mmbefore,
  * Name: check_test_memory_usage
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_USBMSC_DEBUGMM
+#ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
 static void check_test_memory_usage(FAR const char *msg)
 {
   /* Get the current memory usage */
@@ -172,7 +172,7 @@ static void check_test_memory_usage(FAR const char *msg)
  * Name: check_test_memory_usage
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_USBMSC_DEBUGMM
+#ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
 static void final_memory_usage(FAR const char *msg)
 {
   /* Get the current memory usage */
@@ -196,7 +196,7 @@ static void final_memory_usage(FAR const char *msg)
  * Name: usbmsc_enumerate
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACE
+#ifdef CONFIG_SYSTEM_USBMSC_TRACE
 static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
 {
   switch (trace->event)
@@ -406,7 +406,7 @@ static int msconn_daemon(int argc, char *argv[])
     }
 #endif
 
-#ifdef CONFIG_EXAMPLES_USBMSC_DEBUGMM
+#ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
 #  ifdef CONFIG_CAN_PASS_STRUCTS
   g_usbmsc.mmstart    = mallinfo();
   g_usbmsc.mmprevious = g_usbmsc.mmstart;
@@ -418,7 +418,7 @@ static int msconn_daemon(int argc, char *argv[])
 
   /* Initialize USB trace output IDs */
 
-#ifdef CONFIG_EXAMPLES_USBMSC_TRACE
+#ifdef CONFIG_SYSTEM_USBMSC_TRACE
   usbtrace_enable(TRACE_BITSET);
   check_test_memory_usage("After usbtrace_enable()");
 #endif
@@ -436,8 +436,8 @@ static int msconn_daemon(int argc, char *argv[])
 
   /* Then exports the LUN(s) */
 
-  message("msconn_main: Configuring with NLUNS=%d\n", CONFIG_EXAMPLES_USBMSC_NLUNS);
-  ret = usbmsc_configure(CONFIG_EXAMPLES_USBMSC_NLUNS, &handle);
+  message("msconn_main: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_USBMSC_NLUNS);
+  ret = usbmsc_configure(CONFIG_SYSTEM_USBMSC_NLUNS, &handle);
   if (ret < 0)
     {
       message("msconn_main: usbmsc_configure failed: %d\n", -ret);
@@ -447,38 +447,38 @@ static int msconn_daemon(int argc, char *argv[])
   message("msconn_main: handle=%p\n", handle);
   check_test_memory_usage("After usbmsc_configure()");
 
-  message("msconn_main: Bind LUN=0 to %s\n", CONFIG_EXAMPLES_USBMSC_DEVPATH1);
-  ret = usbmsc_bindlun(handle, CONFIG_EXAMPLES_USBMSC_DEVPATH1, 0, 0, 0, false);
+  message("msconn_main: Bind LUN=0 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH1);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0, false);
   if (ret < 0)
     {
       message("msconn_main: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
-               CONFIG_EXAMPLES_USBMSC_DEVPATH1, -ret);
+               CONFIG_SYSTEM_USBMSC_DEVPATH1, -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
   check_test_memory_usage("After usbmsc_bindlun()");
 
-#if CONFIG_EXAMPLES_USBMSC_NLUNS > 1
+#if CONFIG_SYSTEM_USBMSC_NLUNS > 1
 
-  message("msconn_main: Bind LUN=1 to %s\n", CONFIG_EXAMPLES_USBMSC_DEVPATH2);
-  ret = usbmsc_bindlun(handle, CONFIG_EXAMPLES_USBMSC_DEVPATH2, 1, 0, 0, false);
+  message("msconn_main: Bind LUN=1 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH2);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0, false);
   if (ret < 0)
     {
       message("msconn_main: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
-               CONFIG_EXAMPLES_USBMSC_DEVPATH2, -ret);
+               CONFIG_SYSTEM_USBMSC_DEVPATH2, -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
   check_test_memory_usage("After usbmsc_bindlun() #2");
 
-#if CONFIG_EXAMPLES_USBMSC_NLUNS > 2
+#if CONFIG_SYSTEM_USBMSC_NLUNS > 2
 
-  message("msconn_main: Bind LUN=2 to %s\n", CONFIG_EXAMPLES_USBMSC_DEVPATH3);
-  ret = usbmsc_bindlun(handle, CONFIG_EXAMPLES_USBMSC_DEVPATH3, 2, 0, 0, false);
+  message("msconn_main: Bind LUN=2 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH3);
+  ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0, false);
   if (ret < 0)
     {
       message("msconn_main: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
-               CONFIG_EXAMPLES_USBMSC_DEVPATH3, -ret);
+               CONFIG_SYSTEM_USBMSC_DEVPATH3, -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
@@ -510,7 +510,7 @@ static int msconn_daemon(int argc, char *argv[])
       msgflush();
       sleep(5);
 
-#  ifdef CONFIG_EXAMPLES_USBMSC_TRACE
+#  ifdef CONFIG_SYSTEM_USBMSC_TRACE
       message("\nmsconn_main: USB TRACE DATA:\n");
       ret = usbtrace_enumerate(usbmsc_enumerate, NULL);
       if (ret < 0)
@@ -592,7 +592,7 @@ int msconn_main(int argc, char *argv[])
       return 1;
     }
 
-#ifndef CONFIG_EXAMPLES_USBMSC_DAEMON_PRIORITY
+#ifndef CONFIG_SYSTEM_USBMSC_DAEMON_PRIORITY
   /* Set the daemon to the same priority as this task */
 
   ret = sched_getparam(0, &param);
@@ -602,11 +602,11 @@ int msconn_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 #else
-  param.sched_priority = CONFIG_EXAMPLES_USBMSC_DAEMON_PRIORITY;
+  param.sched_priority = CONFIG_SYSTEM_USBMSC_DAEMON_PRIORITY;
 #endif
 
   ret = TASK_CREATE("msconn daemon", param.sched_priority,
-                   CONFIG_EXAMPLES_USBMSC_DAEMON_STACKSIZE,
+                   CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE,
                    msconn_daemon, newargv);
   if (ret < 0)
     {

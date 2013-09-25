@@ -663,4 +663,4 @@
 	  compilation probably introduced on 2013-9-9 (2013-9-23).
 	* apps/system/stackmonitor:  Add a daemon that can be used to
 	  monitor stack usage by all threads (2013-9-24).
-
+	* system/usbmsc:  Move examples/usbmsc to system/usbmsc (2013-9-25).

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/usbmsc/usbmsc.h
+ * system/usbmsc/usbmsc.h
  *
  *   Copyright (C) 2008-2009, 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -49,49 +49,49 @@
 
 /* Configuration ************************************************************/
 
-#ifndef CONFIG_EXAMPLES_USBMSC_NLUNS
-#  define CONFIG_EXAMPLES_USBMSC_NLUNS 1
+#ifndef CONFIG_SYSTEM_USBMSC_NLUNS
+#  define CONFIG_SYSTEM_USBMSC_NLUNS 1
 #endif
 
-#ifndef CONFIG_EXAMPLES_USBMSC_DEVMINOR1
-#  define CONFIG_EXAMPLES_USBMSC_DEVMINOR1 0
+#ifndef CONFIG_SYSTEM_USBMSC_DEVMINOR1
+#  define CONFIG_SYSTEM_USBMSC_DEVMINOR1 0
 #endif
 
-#ifndef CONFIG_EXAMPLES_USBMSC_DEVPATH1
-#  define CONFIG_EXAMPLES_USBMSC_DEVPATH1 "/dev/mmcsd0"
+#ifndef CONFIG_SYSTEM_USBMSC_DEVPATH1
+#  define CONFIG_SYSTEM_USBMSC_DEVPATH1 "/dev/mmcsd0"
 #endif
 
-#if CONFIG_EXAMPLES_USBMSC_NLUNS > 1
-#  ifndef CONFIG_EXAMPLES_USBMSC_DEVMINOR2
-#    error "CONFIG_EXAMPLES_USBMSC_DEVMINOR2 for LUN=2"
+#if CONFIG_SYSTEM_USBMSC_NLUNS > 1
+#  ifndef CONFIG_SYSTEM_USBMSC_DEVMINOR2
+#    error "CONFIG_SYSTEM_USBMSC_DEVMINOR2 for LUN=2"
 #  endif
-#  ifndef CONFIG_EXAMPLES_USBMSC_DEVPATH2
-#    error "CONFIG_EXAMPLES_USBMSC_DEVPATH2 for LUN=2"
+#  ifndef CONFIG_SYSTEM_USBMSC_DEVPATH2
+#    error "CONFIG_SYSTEM_USBMSC_DEVPATH2 for LUN=2"
 #  endif
-#  if CONFIG_EXAMPLES_USBMSC_NLUNS > 2
-#    ifndef CONFIG_EXAMPLES_USBMSC_DEVMINOR3
-#      error "CONFIG_EXAMPLES_USBMSC_DEVMINOR2 for LUN=3"
+#  if CONFIG_SYSTEM_USBMSC_NLUNS > 2
+#    ifndef CONFIG_SYSTEM_USBMSC_DEVMINOR3
+#      error "CONFIG_SYSTEM_USBMSC_DEVMINOR2 for LUN=3"
 #    endif
-#    ifndef CONFIG_EXAMPLES_USBMSC_DEVPATH3
-#      error "CONFIG_EXAMPLES_USBMSC_DEVPATH3 for LUN=3"
+#    ifndef CONFIG_SYSTEM_USBMSC_DEVPATH3
+#      error "CONFIG_SYSTEM_USBMSC_DEVPATH3 for LUN=3"
 #    endif
-#    if CONFIG_EXAMPLES_USBMSC_NLUNS > 3
-#      error "CONFIG_EXAMPLES_USBMSC_NLUNS must be {1,2,3}"
+#    if CONFIG_SYSTEM_USBMSC_NLUNS > 3
+#      error "CONFIG_SYSTEM_USBMSC_NLUNS must be {1,2,3}"
 #    endif
 #  else
-#    undef CONFIG_EXAMPLES_USBMSC_DEVMINOR3
-#    undef CONFIG_EXAMPLES_USBMSC_DEVPATH3
+#    undef CONFIG_SYSTEM_USBMSC_DEVMINOR3
+#    undef CONFIG_SYSTEM_USBMSC_DEVPATH3
 #  endif
 #else
-#  undef CONFIG_EXAMPLES_USBMSC_DEVMINOR2
-#  undef CONFIG_EXAMPLES_USBMSC_DEVPATH2
-#  undef CONFIG_EXAMPLES_USBMSC_DEVMINOR3
-#  undef CONFIG_EXAMPLES_USBMSC_DEVPATH3
+#  undef CONFIG_SYSTEM_USBMSC_DEVMINOR2
+#  undef CONFIG_SYSTEM_USBMSC_DEVPATH2
+#  undef CONFIG_SYSTEM_USBMSC_DEVMINOR3
+#  undef CONFIG_SYSTEM_USBMSC_DEVPATH3
 #endif
 
 #if defined(CONFIG_NSH_BUILTIN_APPS) && defined(CONFIG_SCHED_WAITPID)
-#  ifndef CONFIG_EXAMPLES_USBMSC_DAEMON_STACKSIZE
-#    define CONFIG_EXAMPLES_USBMSC_DAEMON_STACKSIZE 2048
+#  ifndef CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE
+#    define CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE 2048
 #  endif
 #endif
 
@@ -119,15 +119,15 @@
  * Public Types
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_SYSTEM_USBMSC_DEBUGMM)
 struct usbmsc_state_s
 {
   /* This is the handle that references to this particular USB storage driver
-   * instance.  It is only needed if the USB mass storage device example is
+   * instance.  It is only needed if the USB mass storage device add-on is
    * built using CONFIG_NSH_BUILTIN_APPS.  In this case, the value
    * of the driver handle must be remembered between the 'msconn' and 'msdis'
    * commands.
@@ -141,7 +141,7 @@ struct usbmsc_state_s
    * usage and for tracking down memoryh leaks.
    */
 
-#ifdef CONFIG_EXAMPLES_USBMSC_DEBUGMM
+#ifdef CONFIG_SYSTEM_USBMSC_DEBUGMM
   struct mallinfo mmstart;    /* Memory usage before the connection */
   struct mallinfo mmprevious; /* The last memory usage sample */
   struct mallinfo mmcurrent;  /* The current memory usage sample */
@@ -153,11 +153,11 @@ struct usbmsc_state_s
  * Public Data
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_USBMSC_DEBUGMM)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_SYSTEM_USBMSC_DEBUGMM)
 extern struct usbmsc_state_s g_usbmsc;
 #endif
 
@@ -171,7 +171,7 @@ extern struct usbmsc_state_s g_usbmsc;
  * Description:
  *   Perform architecture specific initialization.  This function must
  *   configure the block device to export via USB.  This function must be
- *   provided by architecture-specific logic in order to use this example.
+ *   provided by architecture-specific logic in order to use this add-on.
  *
  ****************************************************************************/
 

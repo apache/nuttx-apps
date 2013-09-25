@@ -3,15 +3,19 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config EXAMPLES_USBMSC
-	bool "USB mass storage class example"
+config SYSTEM_USBMSC
+	bool "USB mass storage class controls"
 	default n
+	depends on USBMSC
 	---help---
-		Enable the USB mass storage class example
+		Enable the USB mass storage class controls.  These controls include:
 
-if EXAMPLES_USBMSC
+		msconn:  Connect the mass storage device to the host
+		msdis :  Disconnect the mass storage device to the host
 
-config EXAMPLES_USBMSC_NLUNS
+if SYSTEM_USBMSC
+
+config SYSTEM_USBMSC_NLUNS
 	int "Number of LUNs"
 	default 1
 	---help---
@@ -19,7 +23,7 @@ config EXAMPLES_USBMSC_NLUNS
 		storage driver.  Each LUN corresponds to one exported block driver
 		(or partition of a block driver).  May be 1, 2, or 3.  Default is 1.
 
-config EXAMPLES_USBMSC_DEVMINOR1
+config SYSTEM_USBMSC_DEVMINOR1
 	int "LUN1 Minor Device Number"
 	default 0
 	---help---
@@ -27,110 +31,110 @@ config EXAMPLES_USBMSC_DEVMINOR1
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
 		Default is zero.
 
-config EXAMPLES_USBMSC_DEVPATH1
+config SYSTEM_USBMSC_DEVPATH1
 	string "LUN1 Device Path"
 	default "/dev/mmcsd0"
 	---help---
 		The full path to the registered block driver.  Default is
 		"/dev/mmcsd0"
 
-config EXAMPLES_USBMSC_DEVMINOR2
+config SYSTEM_USBMSC_DEVMINOR2
 	int "LUN2 Minor Device Number"
 	default 1
 	---help---
 		The minor device number of the block driver for the second LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
-		Ignored if EXAMPLES_USBMSC_NLUNS < 2. Default is one.
+		Ignored if SYSTEM_USBMSC_NLUNS < 2. Default is one.
 
-config EXAMPLES_USBMSC_DEVPATH2
+config SYSTEM_USBMSC_DEVPATH2
 	string "LUN2 Device Path"
 	default "/dev/mmcsd1"
 	---help---
 		The full path to the registered block driver.  Ignored if
-		EXAMPLES_USBMSC_NLUNS < 2. Default is "/dev/mmcsd1"
+		SYSTEM_USBMSC_NLUNS < 2. Default is "/dev/mmcsd1"
 
-config EXAMPLES_USBMSC_DEVMINOR3
+config SYSTEM_USBMSC_DEVMINOR3
 	int "LUN3 Minor Device Number"
 	default 2
 	---help---
 		The minor device number of the block driver for the third LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
-		Ignored if EXAMPLES_USBMSC_NLUNS < 2. Default is two.
+		Ignored if SYSTEM_USBMSC_NLUNS < 2. Default is two.
 
-config EXAMPLES_USBMSC_DEVPATH3
+config SYSTEM_USBMSC_DEVPATH3
 	string "LUN3 Device Path"
 	default "/dev/mmcsd2"
 	---help---
 		The full path to the registered block driver.  Ignored if
-		EXAMPLES_USBMSC_NLUNS < 2. Default is "/dev/mmcsd2"
+		SYSTEM_USBMSC_NLUNS < 2. Default is "/dev/mmcsd2"
 
-config EXAMPLES_USBMSC_DEBUGMM
+config SYSTEM_USBMSC_DEBUGMM
 	bool "USB MSC MM Debug"
 	default n
 	---help---
 		Enables some debug tests to check for memory usage and memory leaks.
 
-config EXAMPLES_USBMSC_TRACE
+config SYSTEM_USBMSC_TRACE
 	bool "Trace USB activity"
 	default n
 	depends on (USBDEV_TRACE || DEBUG_USB) && !NSH_BUILTIN_APPS
 	---help---
-		If this example is built as a standalone task and if USB device tracing is
-		enabled, then this example can be configured to unobtrusively monitor
+		If this add-on is built as a standalone task and if USB device tracing is
+		enabled, then this add-on can be configured to unobtrusively monitor
 		USB activity by selecting this option.
 
-if EXAMPLES_USBMSC_TRACE
+if SYSTEM_USBMSC_TRACE
 
-config EXAMPLES_USBMSC_TRACEINIT
+config SYSTEM_USBMSC_TRACEINIT
 	bool "USB Trace Initialization"
 	default n
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
-		then the example code will also manage the USB trace output.  The
+		then the add-on code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB initialization events
 
-config EXAMPLES_USBMSC_TRACECLASS
+config SYSTEM_USBMSC_TRACECLASS
 	bool "USB Trace Class"
 	default n
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
-		then the example code will also manage the USB trace output.  The
+		then the add-on code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB class driver events
 
-config EXAMPLES_USBMSC_TRACETRANSFERS
+config SYSTEM_USBMSC_TRACETRANSFERS
 	bool "USB Trace Transfers"
 	default n
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
-		then the example code will also manage the USB trace output.  The
+		then the add-on code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB data transfer events
 
-config EXAMPLES_USBMSC_TRACECONTROLLER
+config SYSTEM_USBMSC_TRACECONTROLLER
 	bool "USB Trace Device Controller Events"
 	default n
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
-		then the example code will also manage the USB trace output.  The
+		then the add-on code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB device controller events
 
-config EXAMPLES_USBMSC_TRACEINTERRUPTS
+config SYSTEM_USBMSC_TRACEINTERRUPTS
 	bool "USB Trace Device Controller Interrupt Events"
 	default n
 	---help---
 		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
-		then the example code will also manage the USB trace output.  The
+		then the add-on code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB device controller interrupt-related events.
 
-endif # EXAMPLES_USBMSC_TRACE
+endif # SYSTEM_USBMSC_TRACE
 
 if NSH_BUILTIN_APPS
 
-config EXAMPLES_USBMSC_CMD_STACKSIZE
+config SYSTEM_USBMSC_CMD_STACKSIZE
 	int "Stacksize of msconn and msdis commands"
 	default 768
 	---help---
@@ -138,13 +142,13 @@ config EXAMPLES_USBMSC_CMD_STACKSIZE
 		applications.  Warning, just because the applications are small,
 		the stack usage could still be deep!
 
-config EXAMPLES_USBMSC_CMD_PRIORITY
+config SYSTEM_USBMSC_CMD_PRIORITY
 	int "Priority of the msconn and msdis commands"
 	default 100
 	---help---
 		Priority of the small 'msconn' and 'msdis' command applications.
 
-config EXAMPLES_USBMSC_DAEMON_STACKSIZE
+config SYSTEM_USBMSC_DAEMON_STACKSIZE
 	int "Stacksize of msconn daemon"
 	default 2048
 	---help---
@@ -153,7 +157,7 @@ config EXAMPLES_USBMSC_DAEMON_STACKSIZE
 		to the NSH command line immediately.  This is the stack used for
 		that short-lived USB MSC initialization daemon.
 
-config EXAMPLES_USBMSC_DAEMON_PRIORITY
+config SYSTEM_USBMSC_DAEMON_PRIORITY
 	int "Priority of the msconn daemon"
 	default 100
 	---help---
@@ -163,5 +167,5 @@ config EXAMPLES_USBMSC_DAEMON_PRIORITY
 		that short-lived USB MSC initialization daemon.
 
 endif # NSH_BUILTIN_APPS
-endif # EXAMPLES_USBMSC
+endif # SYSTEM_USBMSC
 
