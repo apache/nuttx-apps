@@ -37,10 +37,10 @@
 
 # Sub-directories
 
-SUBDIRS  = adc buttons can cc3000 composite cxxtest dhcpd discover elf
-SUBDIRS += flash_test ftpc ftpd hello helloxx hidkbd igmp json keypadtest
-SUBDIRS += lcdrw mm modbus mount mtdpart nettest nrf24l01_term nsh null
-SUBDIRS += nx nxconsole nxffs nxflat nxhello nximage nxlines nxtext ostest 
+SUBDIRS  = adc buttons can cc3000 cxxtest dhcpd discover elf flash_test
+SUBDIRS += ftpc ftpd hello helloxx hidkbd igmp json keypadtest lcdrw
+SUBDIRS += mm modbus mount mtdpart nettest nrf24l01_term nsh null nx
+SUBDIRS += nxconsole nxffs nxflat nxhello nximage nxlines nxtext ostest 
 SUBDIRS += pashello pipe poll posix_spawn pwm qencoder relays rgmp romfs
 SUBDIRS += sendmail serloop slcd smart smart_test tcpecho telnetd thttpd tiff
 SUBDIRS += touchscreen udp uip usbserial usbterm watchdog wget wgetjson
@@ -53,8 +53,8 @@ SUBDIRS += xmlrpc
 CNTXTDIRS = pwm
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CNTXTDIRS += adc can cc3000 composite cxxtest dhcpd discover flash_test
-CNTXTDIRS += ftpd hello helloxx json keypadtestmodbus lcdrw mtdpart nettest
+CNTXTDIRS += adc can cc3000 cxxtest dhcpd discover flash_test ftpd
+CNTXTDIRS += hello helloxx json keypadtestmodbus lcdrw mtdpart nettest
 CNTXTDIRS += nx nxhello nximage nxlines nxtext nrf24l01_term ostest relays
 CNTXTDIRS += qencoder slcd smart_test tcpecho telnetd tiff touchscreen
 CNTXTDIRS += usbterm watchdog wgetjson

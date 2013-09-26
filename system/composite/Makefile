@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/composite/Makefile
+# apps/system/composite/Makefile
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# USB device mass storage example
+# USB device mass storage add-on
 
 ASRCS		=
 CSRCS		= composite_main.c

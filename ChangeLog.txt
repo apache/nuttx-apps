@@ -665,3 +665,5 @@
 	  monitor stack usage by all threads (2013-9-24).
 	* system/usbmsc:  Move examples/usbmsc to system/usbmsc (2013-9-25).
 	* system/cdcacm:  Move examples/cdcacm to system/cdcacm (2013-9-25).
+	* system/composite:  Move examples/composite to system/composite
+	  (2013-9-25).

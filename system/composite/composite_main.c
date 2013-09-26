@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/composite/composite_main.c
+ * system/composite/composite_main.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@
  * Private Data
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
@@ -77,7 +77,7 @@ struct composite_state_s g_composite;
  * Name: show_memory_usage
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_DEBUGMM
+#ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
 static void show_memory_usage(struct mallinfo *mmbefore,
                               struct mallinfo *mmafter)
 {
@@ -107,7 +107,7 @@ static void show_memory_usage(struct mallinfo *mmbefore,
  * Name: check_test_memory_usage
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_DEBUGMM
+#ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
 static void check_test_memory_usage(FAR const char *msg)
 {
   /* Get the current memory usage */
@@ -139,7 +139,7 @@ static void check_test_memory_usage(FAR const char *msg)
  * Name: check_test_memory_usage
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_DEBUGMM
+#ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
 static void final_memory_usage(FAR const char *msg)
 {
   /* Get the current memory usage */
@@ -382,12 +382,12 @@ static int open_serial(void)
   do
     {
       message("open_serial: Opening USB serial driver\n");
-      g_composite.outfd = open(CONFIG_EXAMPLES_COMPOSITE_SERDEV, O_WRONLY);
+      g_composite.outfd = open(CONFIG_SYSTEM_COMPOSITE_SERDEV, O_WRONLY);
       if (g_composite.outfd < 0)
         {
           errcode = errno;
           message("open_serial: ERROR: Failed to open %s for writing: %d\n",
-              CONFIG_EXAMPLES_COMPOSITE_SERDEV, errcode);
+              CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
 
           /* ENOTCONN means that the USB device is not yet connected */
 
@@ -421,12 +421,12 @@ static int open_serial(void)
 
   /* Open the USB serial device for reading (non-blocking) */
 
-  g_composite.infd = open(CONFIG_EXAMPLES_COMPOSITE_SERDEV, O_RDONLY|O_NONBLOCK);
+  g_composite.infd = open(CONFIG_SYSTEM_COMPOSITE_SERDEV, O_RDONLY|O_NONBLOCK);
   if (g_composite.infd < 0)
     {
       errcode = errno;
       message("open_serial: ERROR: Failed to open%s for reading: %d\n",
-              CONFIG_EXAMPLES_COMPOSITE_SERDEV, errcode);
+              CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
       close(g_composite.outfd);
       return -errcode;
     }
@@ -448,7 +448,7 @@ static int echo_serial(void)
 
   /* Read data */
 
-  bytesread = read(g_composite.infd, g_composite.serbuf, CONFIG_EXAMPLES_COMPOSITE_BUFSIZE);
+  bytesread = read(g_composite.infd, g_composite.serbuf, CONFIG_SYSTEM_COMPOSITE_BUFSIZE);
   if (bytesread < 0)
     {
       errcode = errno;
@@ -517,8 +517,8 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
 
   /* Configure the mass storage device */
 
-  message("board_mscclassobject: Configuring with NLUNS=%d\n", CONFIG_EXAMPLES_COMPOSITE_NLUNS);
-  ret = usbmsc_configure(CONFIG_EXAMPLES_COMPOSITE_NLUNS, &g_composite.mschandle);
+  message("board_mscclassobject: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_COMPOSITE_NLUNS);
+  ret = usbmsc_configure(CONFIG_SYSTEM_COMPOSITE_NLUNS, &g_composite.mschandle);
   if (ret < 0)
     {
       message("board_mscclassobject: usbmsc_configure failed: %d\n", -ret);
@@ -529,38 +529,38 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
 
   /* Bind the LUN(s) */
 
-  message("board_mscclassobject: Bind LUN=0 to %s\n", CONFIG_EXAMPLES_COMPOSITE_DEVPATH1);
-  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_EXAMPLES_COMPOSITE_DEVPATH1, 0, 0, 0, false);
+  message("board_mscclassobject: Bind LUN=0 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH1);
+  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH1, 0, 0, 0, false);
   if (ret < 0)
     {
       message("board_mscclassobject: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
-               CONFIG_EXAMPLES_COMPOSITE_DEVPATH1, -ret);
+               CONFIG_SYSTEM_COMPOSITE_DEVPATH1, -ret);
       usbmsc_uninitialize(g_composite.mschandle);
       return ret;
     }
   check_test_memory_usage("After usbmsc_bindlun()");
 
-#if CONFIG_EXAMPLES_COMPOSITE_NLUNS > 1
+#if CONFIG_SYSTEM_COMPOSITE_NLUNS > 1
 
-  message("board_mscclassobject: Bind LUN=1 to %s\n", CONFIG_EXAMPLES_COMPOSITE_DEVPATH2);
-  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_EXAMPLES_COMPOSITE_DEVPATH2, 1, 0, 0, false);
+  message("board_mscclassobject: Bind LUN=1 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH2);
+  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH2, 1, 0, 0, false);
   if (ret < 0)
     {
       message("board_mscclassobject: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
-               CONFIG_EXAMPLES_COMPOSITE_DEVPATH2, -ret);
+               CONFIG_SYSTEM_COMPOSITE_DEVPATH2, -ret);
       usbmsc_uninitialize(g_composite.mschandle);
       return ret;
     }
   check_test_memory_usage("After usbmsc_bindlun() #2");
 
-#if CONFIG_EXAMPLES_COMPOSITE_NLUNS > 2
+#if CONFIG_SYSTEM_COMPOSITE_NLUNS > 2
 
-  message("board_mscclassobject: Bind LUN=2 to %s\n", CONFIG_EXAMPLES_COMPOSITE_DEVPATH3);
-  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_EXAMPLES_COMPOSITE_DEVPATH3, 2, 0, 0, false);
+  message("board_mscclassobject: Bind LUN=2 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH3);
+  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH3, 2, 0, 0, false);
   if (ret < 0)
     {
       message("board_mscclassobject: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
-               CONFIG_EXAMPLES_COMPOSITE_DEVPATH3, -ret);
+               CONFIG_SYSTEM_COMPOSITE_DEVPATH3, -ret);
       usbmsc_uninitialize(g_composite.mschandle);
       return ret;
     }
@@ -629,7 +629,7 @@ int board_cdcclassobject(FAR struct usbdevclass_driver_s **classdev)
   /* Initialize the USB serial driver */
 
   message("board_cdcclassobject: Initializing USB serial driver\n");
-  ret = cdcacm_classobject(CONFIG_EXAMPLES_COMPOSITE_TTYUSB, classdev);
+  ret = cdcacm_classobject(CONFIG_SYSTEM_COMPOSITE_TTYUSB, classdev);
   if (ret < 0)
     {
       message("board_cdcclassobject: ERROR: Failed to create the USB serial device: %d\n", -ret);
@@ -692,7 +692,7 @@ int conn_main(int argc, char *argv[])
      }
 #endif
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_DEBUGMM
+#ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
 #  ifdef CONFIG_CAN_PASS_STRUCTS
   g_composite.mmstart    = mallinfo();
   g_composite.mmprevious = g_composite.mmstart;

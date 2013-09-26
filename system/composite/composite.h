@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/composite/composite.h
+ * system/composite/composite.h
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_COMPOSITE_COMPOSITE_H
-#define __EXAMPLES_COMPOSITE_COMPOSITE_H
+#ifndef __SYSTEM_COMPOSITE_COMPOSITE_H
+#define __SYSTEM_COMPOSITE_COMPOSITE_H
 
 /****************************************************************************
  * Included Files
@@ -73,67 +73,63 @@
 #  error "USB mass storage composite device support is not enabled (CONFIG_USBMSC_COMPOSITE)"
 #endif
 
-/* Example MSC default values */
+/* Add-on Mass Storagte Class default values */
 
-#ifndef CONFIG_EXAMPLES_COMPOSITE_NLUNS
-#  define CONFIG_EXAMPLES_COMPOSITE_NLUNS 1
+#ifndef CONFIG_SYSTEM_COMPOSITE_NLUNS
+#  define CONFIG_SYSTEM_COMPOSITE_NLUNS 1
 #endif
 
-#ifndef CONFIG_EXAMPLES_COMPOSITE_DEVMINOR1
-#  define CONFIG_EXAMPLES_COMPOSITE_DEVMINOR1 0
+#ifndef CONFIG_SYSTEM_COMPOSITE_DEVMINOR1
+#  define CONFIG_SYSTEM_COMPOSITE_DEVMINOR1 0
 #endif
 
-#ifndef CONFIG_EXAMPLES_COMPOSITE_DEVPATH1
-#  define CONFIG_EXAMPLES_COMPOSITE_DEVPATH1 "/dev/mmcsd0"
+#ifndef CONFIG_SYSTEM_COMPOSITE_DEVPATH1
+#  define CONFIG_SYSTEM_COMPOSITE_DEVPATH1 "/dev/mmcsd0"
 #endif
 
-#if CONFIG_EXAMPLES_COMPOSITE_NLUNS > 1
-#  ifndef CONFIG_EXAMPLES_COMPOSITE_DEVMINOR2
-#    error "CONFIG_EXAMPLES_COMPOSITE_DEVMINOR2 for LUN=2"
+#if CONFIG_SYSTEM_COMPOSITE_NLUNS > 1
+#  ifndef CONFIG_SYSTEM_COMPOSITE_DEVMINOR2
+#    error "CONFIG_SYSTEM_COMPOSITE_DEVMINOR2 for LUN=2"
 #  endif
-#  ifndef CONFIG_EXAMPLES_COMPOSITE_DEVPATH2
-#    error "CONFIG_EXAMPLES_COMPOSITE_DEVPATH2 for LUN=2"
+#  ifndef CONFIG_SYSTEM_COMPOSITE_DEVPATH2
+#    error "CONFIG_SYSTEM_COMPOSITE_DEVPATH2 for LUN=2"
 #  endif
-#  if CONFIG_EXAMPLES_COMPOSITE_NLUNS > 2
-#    ifndef CONFIG_EXAMPLES_COMPOSITE_DEVMINOR3
-#      error "CONFIG_EXAMPLES_COMPOSITE_DEVMINOR2 for LUN=3"
+#  if CONFIG_SYSTEM_COMPOSITE_NLUNS > 2
+#    ifndef CONFIG_SYSTEM_COMPOSITE_DEVMINOR3
+#      error "CONFIG_SYSTEM_COMPOSITE_DEVMINOR2 for LUN=3"
 #    endif
-#    ifndef CONFIG_EXAMPLES_COMPOSITE_DEVPATH2
-#      error "CONFIG_EXAMPLES_COMPOSITE_DEVPATH2 for LUN=3"
+#    ifndef CONFIG_SYSTEM_COMPOSITE_DEVPATH2
+#      error "CONFIG_SYSTEM_COMPOSITE_DEVPATH2 for LUN=3"
 #    endif
-#    if CONFIG_EXAMPLES_COMPOSITE_NLUNS > 3
-#      error "CONFIG_EXAMPLES_COMPOSITE_NLUNS must be {1,2,3}"
+#    if CONFIG_SYSTEM_COMPOSITE_NLUNS > 3
+#      error "CONFIG_SYSTEM_COMPOSITE_NLUNS must be {1,2,3}"
 #    endif
 #  endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_COMPOSITE_BUFLEN
-#  define CONFIG_EXAMPLES_COMPOSITE_BUFLEN 256
+/* Add-on CDC/ACM default values */
+
+#ifndef CONFIG_SYSTEM_COMPOSITE_TTYUSB
+#  define CONFIG_SYSTEM_COMPOSITE_TTYUSB 0
 #endif
 
-/* Example MSC default values */
-
-#ifndef CONFIG_EXAMPLES_COMPOSITE_TTYUSB
-#  define CONFIG_EXAMPLES_COMPOSITE_TTYUSB 0
-#endif
-
-#ifndef CONFIG_EXAMPLES_COMPOSITE_SERDEV
-#  if CONFIG_EXAMPLES_COMPOSITE_TTYUSB != 0
-#    error "Serial device unknown (CONFIG_EXAMPLES_COMPOSITE_SERDEV)"
+#ifndef CONFIG_SYSTEM_COMPOSITE_SERDEV
+#  if CONFIG_SYSTEM_COMPOSITE_TTYUSB != 0
+#    error "Serial device unknown (CONFIG_SYSTEM_COMPOSITE_SERDEV)"
 #  elif defined(CONFIG_CDCACM)
-#    define CONFIG_EXAMPLES_COMPOSITE_SERDEV "/dev/ttyACM0"
+#    define CONFIG_SYSTEM_COMPOSITE_SERDEV "/dev/ttyACM0"
 #  else
-#    define CONFIG_EXAMPLES_COMPOSITE_SERDEV "/dev/ttyUSB0"
+#    define CONFIG_SYSTEM_COMPOSITE_SERDEV "/dev/ttyUSB0"
 #  endif
 #endif
 
-#ifndef CONFIG_EXAMPLES_COMPOSITE_BUFSIZE
-#  define CONFIG_EXAMPLES_COMPOSITE_BUFSIZE 256
+#ifndef CONFIG_SYSTEM_COMPOSITE_BUFSIZE
+#  define CONFIG_SYSTEM_COMPOSITE_BUFSIZE 256
 #endif
 
 /* Trace initialization *****************************************************/
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_TRACEINIT
+#ifdef CONFIG_SYSTEM_COMPOSITE_TRACEINIT
 #  define TRACE_INIT_BITS       (TRACE_INIT_BIT)
 #else
 #  define TRACE_INIT_BITS       (0)
@@ -141,26 +137,26 @@
 
 #define TRACE_ERROR_BITS        (TRACE_DEVERROR_BIT|TRACE_CLSERROR_BIT)
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_TRACECLASS
+#ifdef CONFIG_SYSTEM_COMPOSITE_TRACECLASS
 #  define TRACE_CLASS_BITS      (TRACE_CLASS_BIT|TRACE_CLASSAPI_BIT|TRACE_CLASSSTATE_BIT)
 #else
 #  define TRACE_CLASS_BITS      (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_TRACETRANSFERS
+#ifdef CONFIG_SYSTEM_COMPOSITE_TRACETRANSFERS
 #  define TRACE_TRANSFER_BITS   (TRACE_OUTREQQUEUED_BIT|TRACE_INREQQUEUED_BIT|TRACE_READ_BIT|\
                                  TRACE_WRITE_BIT|TRACE_COMPLETE_BIT)
 #else
 #  define TRACE_TRANSFER_BITS   (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_TRACECONTROLLER
+#ifdef CONFIG_SYSTEM_COMPOSITE_TRACECONTROLLER
 #  define TRACE_CONTROLLER_BITS (TRACE_EP_BIT|TRACE_DEV_BIT)
 #else
 #  define TRACE_CONTROLLER_BITS (0)
 #endif
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_TRACEINTERRUPTS
+#ifdef CONFIG_SYSTEM_COMPOSITE_TRACEINTERRUPTS
 #  define TRACE_INTERRUPT_BITS  (TRACE_INTENTRY_BIT|TRACE_INTDECODE_BIT|TRACE_INTEXIT_BIT)
 #else
 #  define TRACE_INTERRUPT_BITS  (0)
@@ -193,16 +189,16 @@
  * Public Types
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
 struct composite_state_s
 {
-  /* This is the handle that references to this particular USB composite driver
-   * instance.  It is only needed if the example is built using
-    * CONFIG_NSH_BUILTIN_APPS.  In this case, the value of the driver handle
-    * must be remembered between the 'conn' and 'disconn' commands.
+  /* This is the handle that references to this particular USB composite
+   * driver instance.  It is only needed if the add-on is built using
+   * CONFIG_NSH_BUILTIN_APPS.  In this case, the value of the driver handle
+   * must be remembered between the 'conn' and 'disconn' commands.
    */
 
   FAR void *cmphandle;        /* Composite device handle */
@@ -219,7 +215,7 @@ struct composite_state_s
    * usage and for tracking down memoryh leaks.
    */
 
-#ifdef CONFIG_EXAMPLES_COMPOSITE_DEBUGMM
+#ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
   struct mallinfo mmstart;    /* Memory usage before the connection */
   struct mallinfo mmprevious; /* The last memory usage sample */
   struct mallinfo mmcurrent;  /* The current memory usage sample */
@@ -228,7 +224,7 @@ struct composite_state_s
   /* Serial I/O buffer */
 
 #if !defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_DISABLE_SIGNALS)
-  uint8_t serbuf[CONFIG_EXAMPLES_COMPOSITE_BUFSIZE];
+  uint8_t serbuf[CONFIG_SYSTEM_COMPOSITE_BUFSIZE];
 #endif
 };
 
@@ -236,7 +232,7 @@ struct composite_state_s
  * Public Data
  ****************************************************************************/
 
-/* All global variables used by this example are packed into a structure in
+/* All global variables used by this add-on are packed into a structure in
  * order to avoid name collisions.
  */
 
@@ -256,4 +252,4 @@ extern struct composite_state_s g_composite;
 
 extern int composite_archinitialize(void);
 
-#endif /* __EXAMPLES_COMPOSITE_COMPOSITE_H */
+#endif /* __SYSTEM_COMPOSITE_COMPOSITE_H */

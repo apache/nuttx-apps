@@ -3,8 +3,12 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-menu "USB CDC/ACM Class Commands"
+menu "USB CDC/ACM Device Commands"
 source "$APPSDIR/system/cdcacm/Kconfig"
+endmenu
+
+menu "USB Composite Device Commands"
+source "$APPSDIR/system/composite/Kconfig"
 endmenu
 
 menu "Custom Free Memory Command"
@@ -55,7 +59,7 @@ menu "Stack Monitor"
 source "$APPSDIR/system/stackmonitor/Kconfig"
 endmenu
 
-menu "USB Mass Storage Class Commands"
+menu "USB Mass Storage Device Commands"
 source "$APPSDIR/system/usbmsc/Kconfig"
 endmenu
 
