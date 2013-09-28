@@ -133,7 +133,7 @@ static inline int readline_rawgetc(int infd)
       nread = read(infd, &buffer, 1);
 
       /* Check for end-of-file. */
- 
+
       if (nread == 0)
         {
           /* Return EOF on end-of-file */
@@ -186,7 +186,7 @@ static inline void readline_consoleputc(int ch, int outfd)
       nwritten = write(outfd, &buffer, 1);
 
       /* Check for irrecoverable write errors. */
- 
+
       if (nwritten < 0 && errno != EINTR)
         {
           break;
@@ -264,8 +264,8 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream)
    * standard)
    */
 
-  infd   = instream->fs_filedes;
-  outfd  = outstream->fs_filedes;
+  infd   = instream->fs_fd;
+  outfd  = outstream->fs_fd;
 
   /* <esc>[K is the VT100 command that erases to the end of the line. */
 

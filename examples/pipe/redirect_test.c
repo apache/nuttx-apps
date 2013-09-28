@@ -79,7 +79,7 @@ static int redirect_reader(int argc, char *argv[])
   int fdout;
   int ret;
   int nbytes = 0;
- 
+
   printf("redirect_reader: started with fdin=%s\n", argv[1]);
 
   /* Convert the fdin to binary */
@@ -135,7 +135,7 @@ static int redirect_reader(int argc, char *argv[])
       nbytes += ret;
 
       /* Echo to stdout */
- 
+
       ret = write(1, buffer, ret);
       if (ret < 0)
         {
@@ -167,9 +167,9 @@ static int redirect_writer(int argc, char *argv[])
   int fdout;
   int nbytes = 0;
   int ret;
- 
+
   fprintf(stderr, "redirect_writer: started with fdout=%s\n", argv[2]);
- 
+
   /* Convert the fdout to binary */
 
   fdin  = atoi(argv[1]);
@@ -252,29 +252,29 @@ int redirection_test(void)
   char buffer2[8];
   int readerid;
   int writerid;
-  int filedes[2];
+  int fd[2];
   int ret;
 
   sem_init(&g_rddone, 0, 0);
 
     /* Create the pipe */
 
-  ret = pipe(filedes);
+  ret = pipe(fd);
   if (ret < 0)
     {
       fprintf(stderr, "redirection_test: pipe failed with errno=%d\n", errno);
       return 5;
     }
- 
-  sprintf(buffer1, "%d", filedes[0]);
+
+  sprintf(buffer1, "%d", fd[0]);
   argv[0] = buffer1;
-  sprintf(buffer2, "%d", filedes[1]);
+  sprintf(buffer2, "%d", fd[1]);
   argv[1] = buffer2;
   argv[2] = NULL;
 
   /* Start redirect_reader thread */
 
-  printf("redirection_test: Starting redirect_reader task with fd=%d\n", filedes[0]);
+  printf("redirection_test: Starting redirect_reader task with fd=%d\n", fd[0]);
   readerid = task_create("redirect_reader", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE, redirect_reader, argv);
   if (readerid < 0)
     {
@@ -284,7 +284,7 @@ int redirection_test(void)
 
   /* Start redirect_writer task */
 
-  printf("redirection_test: Starting redirect_writer task with fd=%d\n", filedes[1]);
+  printf("redirection_test: Starting redirect_writer task with fd=%d\n", fd[1]);
   writerid = task_create("redirect_writer", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE, redirect_writer, argv);
   if (writerid < 0)
     {
@@ -299,11 +299,11 @@ int redirection_test(void)
 
   /* We should be able to close the pipe file descriptors now. */
 
-  if (close(filedes[0]) != 0)
+  if (close(fd[0]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
-  if (close(filedes[1]) != 0)
+  if (close(fd[1]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }

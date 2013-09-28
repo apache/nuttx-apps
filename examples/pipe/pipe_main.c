@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/pipe/pipe_main.c
  *
- *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@
 
 int pipe_main(int argc, char *argv[])
 {
-  int filedes[2];
+  int fd[2];
   int ret;
 
   /* Test FIFO logic */
@@ -93,20 +93,20 @@ int pipe_main(int argc, char *argv[])
    * only on open for read-only (see interlock_test()).
    */
 
-  filedes[1] = open(FIFO_PATH1, O_WRONLY);
-  if (filedes[1] < 0)
+  fd[1] = open(FIFO_PATH1, O_WRONLY);
+  if (fd[1] < 0)
     {
       fprintf(stderr, "pipe_main: Failed to open FIFO %s for writing, errno=%d\n",
               FIFO_PATH1, errno);
       return 2;
     }
 
-  filedes[0] = open(FIFO_PATH1, O_RDONLY);
-  if (filedes[0] < 0)
+  fd[0] = open(FIFO_PATH1, O_RDONLY);
+  if (fd[0] < 0)
     {
       fprintf(stderr, "pipe_main: Failed to open FIFO %s for reading, errno=%d\n",
               FIFO_PATH1, errno);
-      if (close(filedes[1]) != 0)
+      if (close(fd[1]) != 0)
         {
           fprintf(stderr, "pipe_main: close failed: %d\n", errno);
         }
@@ -115,12 +115,12 @@ int pipe_main(int argc, char *argv[])
 
   /* Then perform the test using those file descriptors */
 
-  ret = transfer_test(filedes[0], filedes[1]);
-  if (close(filedes[0]) != 0)
+  ret = transfer_test(fd[0], fd[1]);
+  if (close(fd[0]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
-  if (close(filedes[1]) != 0)
+  if (close(fd[1]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
@@ -136,7 +136,7 @@ int pipe_main(int argc, char *argv[])
   /* Test PIPE logic */
 
   printf("\npipe_main: Performing pipe test\n");
-  ret = pipe(filedes);
+  ret = pipe(fd);
   if (ret < 0)
     {
       fprintf(stderr, "pipe_main: pipe failed with errno=%d\n", errno);
@@ -145,12 +145,12 @@ int pipe_main(int argc, char *argv[])
 
   /* Then perform the test using those file descriptors */
 
-  ret = transfer_test(filedes[0], filedes[1]);
-  if (close(filedes[0]) != 0)
+  ret = transfer_test(fd[0], fd[1]);
+  if (close(fd[0]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
-  if (close(filedes[1]) != 0)
+  if (close(fd[1]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
