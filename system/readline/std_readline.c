@@ -126,13 +126,13 @@ static void readline_write(FAR struct rl_common_s *vtbl,
  * Name: std_readline
  *
  *   readline() reads in at most one less than 'buflen' characters from
- *   'instream' and stores them into the buffer pointed to by 'buf'.
- *   Characters are echoed on 'outstream'.  Reading stops after an EOF or a
+ *   'stdin' and stores them into the buffer pointed to by 'buf'.
+ *   Characters are echoed on 'stdout'.  Reading stops after an EOF or a
  *   newline.  If a newline is read, it is stored into the buffer.  A null
  *   terminator is stored after the last character in the buffer.
  *
  *   This version of realine assumes that we are reading and writing to
- *   a VT100 console.  This will not work well if 'instream' or 'outstream'
+ *   a VT100 console.  This will not work well if 'stdin' or 'stdout'
  *   corresponds to a raw byte steam.
  *
  *   This function is inspired by the GNU readline but is an entirely
@@ -141,8 +141,6 @@ static void readline_write(FAR struct rl_common_s *vtbl,
  * Input Parameters:
  *   buf       - The user allocated buffer to be filled.
  *   buflen    - the size of the buffer.
- *   instream  - The stream to read characters from
- *   outstream - The stream to each characters to.
  *
  * Returned values:
  *   On success, the (positive) number of bytes transferred is returned.

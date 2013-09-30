@@ -98,11 +98,14 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
 /****************************************************************************
  * Name: std_readline
  *
- *   std_readline is requivalent to readline except that it uses only stdin
- *   and stdout.
+ *   readline() reads in at most one less than 'buflen' characters from
+ *   'stdin' and stores them into the buffer pointed to by 'buf'.
+ *   Characters are echoed on 'stdout'.  Reading stops after an EOF or a
+ *   newline.  If a newline is read, it is stored into the buffer.  A null
+ *   terminator is stored after the last character in the buffer.
  *
  *   This version of realine assumes that we are reading and writing to
- *   a VT100 console.  This will not work well if 'instream' or 'outstream'
+ *   a VT100 console.  This will not work well if 'stdin' or 'stdout'
  *   corresponds to a raw byte steam.
  *
  *   This function is inspired by the GNU readline but is an entirely
@@ -111,8 +114,6 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
  * Input Parameters:
  *   buf       - The user allocated buffer to be filled.
  *   buflen    - the size of the buffer.
- *   instream  - The stream to read characters from
- *   outstream - The stream to each characters to.
  *
  * Returned values:
  *   On success, the (positive) number of bytes transferred is returned.
