@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/system/readline/readline.c
+ * apps/system/readline/std_readline.c
  *
- *   Copyright (C) 2007-2008, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,12 +40,9 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <assert.h>
-
+#include <nuttx/arch.h>
 #include <apps/readline.h>
+
 #include "readline.h"
 
 /****************************************************************************
@@ -56,18 +53,14 @@
  * Private Type Declarations
  ****************************************************************************/
 
-struct readline_s
-{
-  struct rl_common_s vtbl;
-  int infd;
-#ifdef CONFIG_READLINE_ECHO
-  int outfd;
-#endif
-};
-
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
+
+static int  readline_getc(FAR struct rl_common_s *vtbl);
+static void readline_putc(FAR struct rl_common_s *vtbl, int ch);
+static void readline_write(FAR struct rl_common_s *vtbl,
+                           FAR const char *buffer, size_t buflen);
 
 /****************************************************************************
  * Public Data
@@ -76,6 +69,15 @@ struct readline_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+static const struct rl_common_s g_stdreadline =
+{
+  readline_getc
+#ifdef CONFIG_READLINE_ECHO
+  , readline_putc
+  , readline_write
+#endif
+};
 
 /****************************************************************************
  * Private Functions
@@ -87,53 +89,7 @@ struct readline_s
 
 static int readline_getc(FAR struct rl_common_s *vtbl)
 {
-  FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
-  char buffer;
-  ssize_t nread;
-
-  DEBUGASSERT(priv);
-
-  /* Loop until we successfully read a character (or until an unexpected
-   * error occurs).
-   */
-
-  do
-    {
-      /* Read one character from the incoming stream */
-
-      nread = read(priv->infd, &buffer, 1);
-
-      /* Check for end-of-file. */
-
-      if (nread == 0)
-        {
-          /* Return EOF on end-of-file */
-
-          return EOF;
-        }
-
-      /* Check if an error occurred */
-
-      else if (nread < 0)
-        {
-          /* EINTR is not really an error; it simply means that a signal we
-           * received while watiing for intput.
-           */
-
-          int errcode = errno;
-          if (errcode != EINTR)
-            {
-              /* Return EOF on any errors that we cannot handle */
-
-              return EOF;
-            }
-        }
-    }
-  while (nread < 1);
-
-  /* On success, return the character that was read */
-
-  return (int)buffer;
+  return up_getc();
 }
 
 /****************************************************************************
@@ -143,30 +99,7 @@ static int readline_getc(FAR struct rl_common_s *vtbl)
 #ifdef CONFIG_READLINE_ECHO
 static void readline_putc(FAR struct rl_common_s *vtbl, int ch)
 {
-  FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
-  char buffer = ch;
-  ssize_t nwritten;
-
-  DEBUGASSERT(priv);
-
-  /* Loop until we successfully write a character (or until an unexpected
-   * error occurs).
-   */
-
-  do
-    {
-      /* Write the character to the outgoing stream */
-
-      nwritten = write(priv->outfd, &buffer, 1);
-
-      /* Check for irrecoverable write errors. */
-
-      if (nwritten < 0 && errno != EINTR)
-        {
-          break;
-        }
-    }
-  while (nwritten < 1);
+  up_putc(ch);
 }
 #endif
 
@@ -178,19 +111,19 @@ static void readline_putc(FAR struct rl_common_s *vtbl, int ch)
 static void readline_write(FAR struct rl_common_s *vtbl,
                            FAR const char *buffer, size_t buflen)
 {
-  FAR struct readline_s *priv = (FAR struct readline_s *)vtbl;
-  DEBUGASSERT(priv && buffer && buflen > 0);
-
-  (void)write(priv->outfd, buffer, buflen);
+  for (; buflen > 0; buflen--)
+    {
+     up_putc(*buffer++);
+    }
 }
 #endif
 
 /****************************************************************************
- * Global Functions
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: readline
+ * Name: std_readline
  *
  *   readline() reads in at most one less than 'buflen' characters from
  *   'instream' and stores them into the buffer pointed to by 'buf'.
@@ -218,26 +151,8 @@ static void readline_write(FAR struct rl_common_s *vtbl,
  *
  **************************************************************************/
 
-ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream)
+ssize_t std_readline(FAR char *buf, int buflen)
 {
-  struct readline_s vtbl;
-
-  /* Sanity checks */
-
-  DEBUGASSERT(instream && outstream);
-
-  /* Set up the vtbl structure */
-
-  vtbl.vtbl.rl_getc  = readline_getc;
-  vtbl.infd          = instream->fs_fd;
-
-#ifdef CONFIG_READLINE_ECHO
-  vtbl.vtbl.rl_putc  = readline_putc;
-  vtbl.vtbl.rl_write = readline_write;
-  vtbl.outfd         = outstream->fs_fd;
-#endif
-
-  /* The let the common readline logic do the work */
-
-  return readline_common(&vtbl.vtbl, buf, buflen);
+  return readline_common((FAR struct rl_common_s *)&g_stdreadline,
+                         buf, buflen);
 }

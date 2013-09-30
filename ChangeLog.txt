@@ -667,3 +667,9 @@
 	* system/cdcacm:  Move examples/cdcacm to system/cdcacm (2013-9-25).
 	* system/composite:  Move examples/composite to system/composite
 	  (2013-9-25).
+	* apps/nshlib and apps/readline:  Numerous changes to get NSH
+	  working with no file system.  Basically this suppresses I/O
+	  redirection and replaces file I/O with calls to low-level
+	  console read/write functions.  Suggested by Alan Carvalho de Assis
+	  in a somewhat different form. (2013-9-30).
+

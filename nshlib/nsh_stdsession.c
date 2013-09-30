@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_session.c
+ * apps/nshlib/nsh_stdsession.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,9 +79,8 @@
  * Name: nsh_session
  *
  * Description:
- *   This is the common session logic or any NSH session.  This function
- *   return when an error reading from the input stream occurs, presumably
- *   signaling the end of the session.
+ *   This is the common session logic or an NSH session that uses only stdin
+ *   and stdout.
  *
  *   This function:
  *   - Executes the NSH logic script
@@ -93,7 +92,7 @@
  *   pstate - Abstracts the underlying session.
  *
  * Returned Values:
- *   EXIT_SUCESS or EXIT_FAILURE is returned.
+ *   EXIT_SUCESS only
  *
  ****************************************************************************/
 
@@ -105,14 +104,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
   /* Present a greeting */
 
-  fputs(g_nshgreeting, pstate->cn_outstream);
-  fflush(pstate->cn_outstream);
-
-  /* Execute the login script */
-
-#ifdef CONFIG_NSH_ROMFSRC
-  (void)nsh_loginscript(&pstate->cn_vtbl);
-#endif
+  printf("%s", g_nshgreeting);
 
   /* Then enter the command line parsing loop */
 
@@ -126,21 +118,18 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
       /* Display the prompt string */
 
-      fputs(g_nshprompt, pstate->cn_outstream);
-      fflush(pstate->cn_outstream);
+      printf("%s", g_nshprompt);
 
       /* Get the next line of input. readline() returns EOF on end-of-file
        * or any read failure.
        */
 
-      ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
-                     INSTREAM(pstate), OUTSTREAM(pstate));
+      ret = std_readline(pstate->cn_line, CONFIG_NSH_LINELEN);
       if (ret != EOF)
         {
           /* Parse process the command */
 
           (void)nsh_parse(&pstate->cn_vtbl, pstate->cn_line);
-          fflush(pstate->cn_outstream);
         }
 
       /* Readline normally returns the number of characters read,
@@ -150,9 +139,8 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 
       else
         {
-          fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_session",
-                  "readline", NSH_ERRNO_OF(-ret));
-          return ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+          printf(g_fmtcmdfailed, "nsh_session", "readline", NSH_ERRNO_OF(-ret));
+          return EXIT_SUCCESS;
         }
     }
 

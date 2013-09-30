@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_console.h
  *
- *   Copyright (C) 2007-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,16 +74,18 @@
 
 /* Are we using the NuttX console for I/O?  Or some other character device? */
 
-#ifdef CONFIG_NSH_CONDEV
-#  define INFD(p)      ((p)->cn_confd)
-#  define INSTREAM(p)  ((p)->cn_constream)
-#  define OUTFD(p)     ((p)->cn_confd)
-#  define OUTSTREAM(p) ((p)->cn_constream)
-#else
-#  define INFD(p)      0
-#  define INSTREAM(p)  stdin
-#  define OUTFD(p)     1
-#  define OUTSTREAM(p) stdout
+#if CONFIG_NFILE_STREAMS > 0
+#  ifdef CONFIG_NSH_CONDEV
+#    define INFD(p)      ((p)->cn_confd)
+#    define INSTREAM(p)  ((p)->cn_constream)
+#    define OUTFD(p)     ((p)->cn_confd)
+#    define OUTSTREAM(p) ((p)->cn_constream)
+#  else
+#    define INFD(p)      0
+#    define INSTREAM(p)  stdin
+#    define OUTFD(p)     1
+#    define OUTSTREAM(p) stdout
+#  endif
 #endif
 
 /****************************************************************************
@@ -107,8 +109,10 @@ struct nsh_vtbl_s
   ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer, size_t nbytes);
   int (*output)(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
+#if CONFIG_NFILE_DESCRIPTORS > 0
   void (*redirect)(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save);
   void (*undirect)(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save);
+#endif
   void (*exit)(FAR struct nsh_vtbl_s *vtbl, int exitstatus) noreturn_function;
 
   /* Parser state data */
@@ -128,6 +132,7 @@ struct console_stdio_s
 
   /* NSH input/output streams */
 
+#if CONFIG_NFILE_STREAMS > 0
 #ifdef CONFIG_NSH_CONDEV
   int    cn_confd;     /* Console I/O file descriptor */
 #endif
@@ -136,6 +141,7 @@ struct console_stdio_s
   FILE  *cn_constream; /* Console I/O stream (possibly redirected) */
 #endif
   FILE  *cn_outstream; /* Output stream */
+#endif
 
   /* Line input buffer */
 

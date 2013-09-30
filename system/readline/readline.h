@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/readline.h
+ * apps/system/readline/readline.h
  *
- *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,50 +33,85 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_READLINE_H
-#define __APPS_INCLUDE_READLINE_H
+#ifndef __APPS_SYSTEM_READLINE_READLINE_H
+#define __APPS_SYSTEM_READLINE_READLINE_H 1
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <stdio.h>
 
 /****************************************************************************
- * Pre-Processor Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
+/* In some systems, the underlying serial logic may automatically echo
+ * characters back to the console.  We will assume that that is not the case
+ & here
+ */
+
+#define CONFIG_READLINE_ECHO 1
+
+/* Some environments may return CR as end-of-line, others LF, and others
+ * both.  If not specified, the logic here assumes either (but not both) as
+ * the default.
+ */
+
+#if defined(CONFIG_EOL_IS_CR)
+#  undef  CONFIG_EOL_IS_LF
+#  undef  CONFIG_EOL_IS_BOTH_CRLF
+#  undef  CONFIG_EOL_IS_EITHER_CRLF
+#elif defined(CONFIG_EOL_IS_LF)
+#  undef  CONFIG_EOL_IS_CR
+#  undef  CONFIG_EOL_IS_BOTH_CRLF
+#  undef  CONFIG_EOL_IS_EITHER_CRLF
+#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#  undef  CONFIG_EOL_IS_CR
+#  undef  CONFIG_EOL_IS_LF
+#  undef  CONFIG_EOL_IS_EITHER_CRLF
+#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
+#  undef  CONFIG_EOL_IS_CR
+#  undef  CONFIG_EOL_IS_LF
+#  undef  CONFIG_EOL_IS_BOTH_CRLF
+#else
+#  undef  CONFIG_EOL_IS_CR
+#  undef  CONFIG_EOL_IS_LF
+#  undef  CONFIG_EOL_IS_BOTH_CRLF
+#  define CONFIG_EOL_IS_EITHER_CRLF 1
+#endif
+
+/* Helper macros */
+
+#define RL_GETC(v)      ((v)->rl_getc(v))
+#define RL_PUTC(v,ch)   ((v)->rl_putc(v,ch))
+#define RL_WRITE(v,b,s) ((v)->rl_write(v,b,s))
+
+/****************************************************************************
+ * Public Type Declarations
+ ****************************************************************************/
+
+struct rl_common_s
+{
+   int  (*rl_getc)(FAR struct rl_common_s *vtbl);
+#ifdef CONFIG_READLINE_ECHO
+   void (*rl_putc)(FAR struct rl_common_s *vtbl, int ch);
+   void (*rl_write)(FAR struct rl_common_s *vtbl, FAR const char *buffer,
+                    size_t buflen);
+#endif
+};
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
-
-#ifdef __cplusplus
-#define EXTERN extern "C"
-extern "C" {
-#else
-#define EXTERN extern
-#endif
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
- * Name: readline
+ * Name: readline_common
  *
- *   readline() reads in at most one less than 'buflen' characters from
- *   'instream' and stores them into the buffer pointed to by 'buf'.
- *   Characters are echoed on 'outstream'.  Reading stops after an EOF or a
- *   newline.  If a newline is read, it is stored into the buffer.  A null
- *   terminator is stored after the last character in the buffer.
- *
- *   This version of realine assumes that we are reading and writing to
- *   a VT100 console.  This will not work well if 'instream' or 'outstream'
- *   corresponds to a raw byte steam.
- *
- *   This function is inspired by the GNU readline but is an entirely
- *   different creature.
+ *   Common logic shared by readline and std_readline().
  *
  * Input Parameters:
  *   buf       - The user allocated buffer to be filled.
@@ -91,45 +126,6 @@ extern "C" {
  *
  **************************************************************************/
 
-#if CONFIG_NFILE_STREAMS > 0
-ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
-#endif
+ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen);
 
-/****************************************************************************
- * Name: std_readline
- *
- *   std_readline is requivalent to readline except that it uses only stdin
- *   and stdout.
- *
- *   This version of realine assumes that we are reading and writing to
- *   a VT100 console.  This will not work well if 'instream' or 'outstream'
- *   corresponds to a raw byte steam.
- *
- *   This function is inspired by the GNU readline but is an entirely
- *   different creature.
- *
- * Input Parameters:
- *   buf       - The user allocated buffer to be filled.
- *   buflen    - the size of the buffer.
- *   instream  - The stream to read characters from
- *   outstream - The stream to each characters to.
- *
- * Returned values:
- *   On success, the (positive) number of bytes transferred is returned.
- *   EOF is returned to indicate either an end of file condition or a
- *   failure.
- *
- **************************************************************************/
-
-#if CONFIG_NFILE_STREAMS > 0
-#  define std_readline(b,s) readline(b,s,stdin,stdout)
-#else
-ssize_t std_readline(FAR char *buf, int buflen);
-#endif
-
-#undef EXTERN
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __APPS_INCLUDE_READLINE_H */
+#endif /* __APPS_SYSTEM_READLINE_READLINE_H */

@@ -68,6 +68,12 @@
 #  endif
 #endif
 
+#if CONFIG_NFILE_STREAMS == 0
+#  undef CONFIG_NSH_TELNET
+#  undef CONFIG_NSH_FILE_APPS
+#  undef CONFIG_NSH_TELNET
+#endif
+
 /* Telnetd requires networking support */
 
 #ifndef CONFIG_NET
@@ -441,7 +447,9 @@ struct nsh_parser_s
 #ifndef CONFIG_NSH_DISABLEBG
   bool    np_bg;       /* true: The last command executed in background */
 #endif
+#if CONFIG_NFILE_STREAMS > 0
   bool    np_redirect; /* true: Output from the last command was re-directed */
+#endif
   bool    np_fail;     /* true: The last command failed */
 #ifndef CONFIG_NSH_DISABLESCRIPT
   uint8_t np_ndx;      /* Current index into np_st[] */

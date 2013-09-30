@@ -131,7 +131,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
     {
       /* The application was successfully started with pre-emption disabled.
        * In the simplest cases, the application will not have run because the
-       * the scheduler is locked.  But in the case where I/O was redirected, a 
+       * the scheduler is locked.  But in the case where I/O was redirected, a
        * proxy task ran and broke our lock.  As result, the application may
        * have aso ran if its priority was higher than than the priority of
        * this thread.
@@ -166,7 +166,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
            * do so.
            *
            * Also, if CONFIG_SCHED_HAVE_PARENT is defined waitpid() might fail
-           * even if task is still active:  If the I/O was re-directed by a 
+           * even if task is still active:  If the I/O was re-directed by a
            * proxy task, then the ask is a child of the proxy, and not this
            * task.  waitpid() fails with ECHILD in either case.
            */
@@ -200,7 +200,7 @@ int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           else
             {
               /* We can't return the exact status (nsh has nowhere to put it)
-               * so just pass back zero/nonzero in a fashion that doesn't look 
+               * so just pass back zero/nonzero in a fashion that doesn't look
                * like an error.
                */
 

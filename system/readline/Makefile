@@ -1,7 +1,7 @@
 ############################################################################
 # apps/system/readline/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,37 +38,43 @@
 include $(APPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
+INCDIROPT = -w
 endif
 
 # The Readline Library
 
-ASRCS		=
-CSRCS		= readline.c
+ASRCS =
+CSRCS = readline_common.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+ifeq ($(CONFIG_NFILE_STREAMS),0)
+CSRCS += std_readline.c
+else
+CSRCS += readline.c
+endif
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH =
 
-all:	.built
+all: .built
 .PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S

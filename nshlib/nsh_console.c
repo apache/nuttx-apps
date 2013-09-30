@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_serial.c
+ * apps/nshlib/nsh_console.c
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,11 +61,13 @@
  * Private Types
  ****************************************************************************/
 
+#if CONFIG_NFILE_STREAMS > 0
 struct serialsave_s
 {
   int    cn_outfd;     /* Re-directed output file descriptor */
   FILE  *cn_outstream; /* Re-directed output stream */
 };
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -80,10 +82,14 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
   FAR const char *fmt, ...);
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
 static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd,
   FAR uint8_t *save);
 static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
   FAR uint8_t *save);
+#endif
+
 static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
   noreturn_function;
 
@@ -103,6 +109,7 @@ static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
  * Name: nsh_openifnotopen
  ****************************************************************************/
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
 static int nsh_openifnotopen(struct console_stdio_s *pstate)
 {
   /* The stream is open in a lazy fashion.  This is done because the file
@@ -117,8 +124,10 @@ static int nsh_openifnotopen(struct console_stdio_s *pstate)
           return ERROR;
         }
     }
+
   return 0;
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_closeifnotclosed
@@ -128,6 +137,7 @@ static int nsh_openifnotopen(struct console_stdio_s *pstate)
  *
  ****************************************************************************/
 
+#if CONFIG_NFILE_STREAMS > 0
 static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
 {
   if (pstate->cn_outstream == OUTSTREAM(pstate))
@@ -151,6 +161,7 @@ static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
       pstate->cn_outstream = NULL;
     }
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_consolewrite
@@ -167,6 +178,7 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   ssize_t ret;
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
   /* The stream is open in a lazy fashion.  This is done because the file
    * descriptor may be opened on a different task than the stream.  The
    * actual open will then occur with the first output from the new task.
@@ -185,6 +197,10 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
       dbg("[%d] Failed to send buffer: %d\n", pstate->cn_outfd, errno);
     }
   return ret;
+#else
+  printf("%s", buffer);
+  return nbytes;
+#endif
 }
 
 /****************************************************************************
@@ -197,9 +213,10 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
 
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
 {
+#if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   va_list ap;
-  int     ret;
+  int ret;
 
   /* The stream is open in a lazy fashion.  This is done because the file
    * descriptor may be opened on a different task than the stream.  The
@@ -210,12 +227,21 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
    {
      return ERROR;
    }
- 
+
   va_start(ap, fmt);
   ret = vfprintf(pstate->cn_outstream, fmt, ap);
   va_end(ap);
- 
+
   return ret;
+#else
+  char dest[64 * 16];
+
+  va_start(ap, fmt);
+  vsprintf(dest, fmt, ap);
+  va_end(ap);
+
+  return printf(dest);
+#endif
 }
 
 /****************************************************************************
@@ -260,6 +286,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
   /* Close the output stream */
 
   nsh_closeifnotclosed(pstate);
@@ -268,6 +295,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 
 #ifdef CONFIG_NSH_CONDEV
   (void)fclose(pstate->cn_constream);
+#endif
 #endif
 
   /* Then release the vtable container */
@@ -292,7 +320,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
  *
  *      nsh_consolerelease() will perform the clean-up when the clone is
  *      destroyed.
- *        
+ *
  *   2) Redirected foreground commands of the form:  command > xyz.txt
  *
  *      In this case:
@@ -305,9 +333,10 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
  *
  ****************************************************************************/
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
 static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save)
 {
-  FAR struct console_stdio_s     *pstate = (FAR struct console_stdio_s *)vtbl;
+  FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   FAR struct serialsave_s *ssave  = (FAR struct serialsave_s *)save;
 
   /* Case 1: Redirected foreground commands */
@@ -321,7 +350,7 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t
 
       if (pstate->cn_outstream)
         {
-          fflush(pstate->cn_outstream);          
+          fflush(pstate->cn_outstream);
         }
 
       /* Save the current fd and stream values.  These will be restored
@@ -346,6 +375,7 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t
   pstate->cn_outfd     = fd;
   pstate->cn_outstream = NULL;
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_consoleundirect
@@ -355,6 +385,7 @@ static void nsh_consoleredirect(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t
  *
  ****************************************************************************/
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
 static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save)
 {
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
@@ -364,6 +395,7 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl, FAR uint8_t *save)
   pstate->cn_outfd     = ssave->cn_outfd;
   pstate->cn_outstream = ssave->cn_outstream;
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_consoleexit
@@ -403,9 +435,11 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       pstate->cn_vtbl.write      = nsh_consolewrite;
       pstate->cn_vtbl.output     = nsh_consoleoutput;
       pstate->cn_vtbl.linebuffer = nsh_consolelinebuffer;
+      pstate->cn_vtbl.exit       = nsh_consoleexit;
+
+#if CONFIG_NFILE_STREAMS > 0
       pstate->cn_vtbl.redirect   = nsh_consoleredirect;
       pstate->cn_vtbl.undirect   = nsh_consoleundirect;
-      pstate->cn_vtbl.exit       = nsh_consoleexit;
 
       /* (Re-) open the console input device */
 
@@ -432,6 +466,7 @@ FAR struct console_stdio_s *nsh_newconsole(void)
 
       pstate->cn_outfd           = OUTFD(pstate);
       pstate->cn_outstream       = OUTSTREAM(pstate);
+#endif
     }
   return pstate;
 }
