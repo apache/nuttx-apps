@@ -87,9 +87,15 @@ int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   (void)mallinfo(&mem);
 #endif
 
+#ifdef CONFIG_NOPRINTF_FIELDWIDTH
+  nsh_output(vtbl, "\ttotal\tused\tfree\tlargest\n");
+  nsh_output(vtbl, "Mem:\t%d\t%d\t%d\t%d\n",
+             mem.arena, mem.uordblks, mem.fordblks, mem.mxordblk);
+#else
   nsh_output(vtbl, "             total       used       free    largest\n");
   nsh_output(vtbl, "Mem:   %11d%11d%11d%11d\n",
              mem.arena, mem.uordblks, mem.fordblks, mem.mxordblk);
+#endif
 
   return OK;
 }

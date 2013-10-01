@@ -513,7 +513,11 @@ static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
       nsh_output(vtbl, "  ");
       for (j = 0, k = i; j < CMDS_PER_LINE && k < NUM_CMDS; j++, k += NUM_CMD_ROWS)
         {
+#ifdef CONFIG_NOPRINTF_FIELDWIDTH
+          nsh_output(vtbl, "%s\t", g_cmdmap[k].cmd);
+#else
           nsh_output(vtbl, "%-12s", g_cmdmap[k].cmd);
+#endif
         }
 
       nsh_output(vtbl, "\n");

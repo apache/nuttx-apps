@@ -174,7 +174,12 @@ int nsh_main(int argc, char *argv[])
    * is wrong.
    */
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
   fprintf(stderr, "ERROR: nsh_consolemain() returned: %d\n", ret);
+#else
+  printf("ERROR: nsh_consolemain() returned: %d\n", ret);
+#endif
+
   exitval = 1;
 #endif
 

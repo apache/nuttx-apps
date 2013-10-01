@@ -198,6 +198,8 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
     }
   return ret;
 #else
+  /* REVISIT: buffer may not be NUL-terminated */
+
   printf("%s", buffer);
   return nbytes;
 #endif
@@ -234,13 +236,30 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
 
   return ret;
 #else
-  char dest[64 * 16];
+  va_list ap;
+  char *str;
+  int ret;
+
+  /* Use avsprintf() to allocate a buffer and fill it with the formatted
+   * data
+   */
 
   va_start(ap, fmt);
-  vsprintf(dest, fmt, ap);
-  va_end(ap);
+  str = NULL;
+  (void)avsprintf(&str, fmt, ap);
 
-  return printf(dest);
+  /* Was a string allocated? */
+
+  if (str)
+    {
+      /* Yes.. Print then free the allocated string */
+
+      printf("%s", str);
+      free(str);
+    }
+
+  va_end(ap);
+  return 0;
 #endif
 }
 
