@@ -175,10 +175,10 @@ static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
 
 static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer, size_t nbytes)
 {
+#if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
   ssize_t ret;
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
   /* The stream is open in a lazy fashion.  This is done because the file
    * descriptor may be opened on a different task than the stream.  The
    * actual open will then occur with the first output from the new task.
@@ -238,7 +238,6 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
 #else
   va_list ap;
   char *str;
-  int ret;
 
   /* Use avsprintf() to allocate a buffer and fill it with the formatted
    * data

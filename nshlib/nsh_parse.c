@@ -1306,8 +1306,8 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
 #if CONFIG_NFILE_STREAMS > 0
   FAR char *redirfile = NULL;
   int       oflags = 0;
-#endif
   int       fd = -1;
+#endif
   int       argc;
   int       ret;
 
@@ -1654,9 +1654,9 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline)
   else
 #endif
     {
+#if CONFIG_NFILE_STREAMS > 0
       uint8_t save[SAVE_SIZE];
 
-#if CONFIG_NFILE_STREAMS > 0
       /* Handle redirection of output via a file descriptor */
 
       if (vtbl->np.np_redirect)
