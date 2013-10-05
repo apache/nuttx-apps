@@ -193,7 +193,7 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_DELROUTE)
-  { "delroute", cmd_addroute, 3, 3, "<target> <netmask>" },
+  { "delroute", cmd_delroute, 3, 3, "<target> <netmask>" },
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
