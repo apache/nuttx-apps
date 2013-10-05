@@ -273,7 +273,9 @@ int recv_response_socket(int sockfd, struct sockaddr_in *addr)
   char buffer[RECV_BUFFER_SIZE];
   struct dns_answer *ans;
   struct dns_hdr *hdr;
+#if 0 /* Not used */
   uint8_t nquestions;
+#endif
   uint8_t nanswers;
   int ret;
 
@@ -305,7 +307,9 @@ int recv_response_socket(int sockfd, struct sockaddr_in *addr)
    * and the extrarr are simply discarded.
    */
 
+#if 0 /* Not used */
   nquestions = htons(hdr->numquestions);
+#endif
   nanswers   = htons(hdr->numanswers);
 
   /* Skip the name in the question. XXX: This should really be
