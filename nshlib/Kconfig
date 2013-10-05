@@ -33,6 +33,10 @@ config NSH_FILE_APPS
 
 menu "Disable Individual commands"
 
+config NSH_DISABLE_ADDROUTE
+	bool "Disable addroute"
+	default n
+
 config NSH_DISABLE_BASE64DEC
 	bool "Disable base64dec"
 	default n
@@ -61,6 +65,10 @@ config NSH_DISABLE_CMP
 
 config NSH_DISABLE_DD
 	bool "Disable dd"
+	default n
+
+config NSH_DISABLE_DELROUTE
+	bool "Disable delroute"
 	default n
 
 config NSH_DISABLE_ECHO

@@ -154,6 +154,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "?",        cmd_help,     1, 1, NULL },
 #endif
 
+#if defined(CONFIG_NET) && defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_ADDROUTE)
+  { "addroute", cmd_addroute, 4, 4, "<target> <netmask> <router>" },
+#endif
+
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_BASE64)
 #  ifndef CONFIG_NSH_DISABLE_BASE64DEC
   { "base64dec", cmd_base64decode, 2, 4, "[-w] [-f] <string or filepath>" },
@@ -187,6 +191,10 @@ static const struct cmdmap_s g_cmdmap[] =
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_DD)
   { "dd",       cmd_dd,       3, 6, "if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]" },
 # endif
+
+#if defined(CONFIG_NET) && defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_DELROUTE)
+  { "delroute", cmd_addroute, 3, 3, "<target> <netmask>" },
+#endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF)

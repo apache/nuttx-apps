@@ -63,6 +63,9 @@ endif
 
 ifeq ($(CONFIG_NET),y)
 CSRCS += nsh_netinit.c nsh_netcmds.c
+ifeq ($(CONFIG_NET_ROUTE),y)
+CSRCS += nsh_routecmds.c
+endif
 endif
 
 ifeq ($(CONFIG_RTC),y)

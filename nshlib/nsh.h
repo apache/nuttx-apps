@@ -702,6 +702,17 @@ void nsh_usbtrace(void);
 #endif /* CONFIG_NFILE_DESCRIPTORS */
 
 #if defined(CONFIG_NET)
+#  if defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_ADDROUTE)
+      int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#  if defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_DELROUTE)
+      int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#  if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#    ifndef CONFIG_NSH_DISABLE_GET
+      int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
+#  endif
 #  ifndef CONFIG_NSH_DISABLE_IFCONFIG
       int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
@@ -709,32 +720,29 @@ void nsh_usbtrace(void);
       int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
       int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
-#if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#  ifndef CONFIG_NSH_DISABLE_GET
-      int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#  ifndef CONFIG_NSH_DISABLE_PUT
-      int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#endif
-#if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
-#  ifndef CONFIG_NSH_DISABLE_WGET
-      int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#endif
-#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
-#  ifndef CONFIG_NSH_DISABLE_PING
-      int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#endif
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-    defined(CONFIG_FS_READABLE) && defined(CONFIG_NFS)
-#  ifndef CONFIG_NSH_DISABLE_NFSMOUNT
+#  if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
+      defined(CONFIG_FS_READABLE) && defined(CONFIG_NFS)
+#    ifndef CONFIG_NSH_DISABLE_NFSMOUNT
       int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
 #  endif
-#endif
-#endif
+#  if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
+     !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
+#    ifndef CONFIG_NSH_DISABLE_PING
+        int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
+#  endif
+#  if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
+#    ifndef CONFIG_NSH_DISABLE_PUT
+      int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
+#  endif
+#  if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
+#    ifndef CONFIG_NSH_DISABLE_WGET
+        int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
+#  endif
+#endif /* CONFIG_NET */
 
 #ifndef CONFIG_DISABLE_ENVIRON
 #  ifndef CONFIG_NSH_DISABLE_SET

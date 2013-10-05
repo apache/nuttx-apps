@@ -235,6 +235,13 @@ o test <expression>
                       integer -gt integer | integer -le integer |
                       integer -lt integer | integer -ne integer
 
+o addroute <target> <netmask> <router>
+
+  This command adds an entry in the routing table.  The new entry
+  will map the IP address of a router on a local network(<router>)
+  to an external network characterized by the <target> IP address and
+  a network mask <netmask>
+
 o base64dec [-w] [-f] <string or filepath>
 
 o base64dec [-w] [-f] <string or filepath>
@@ -316,6 +323,13 @@ o dd if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]
      crw-rw-rw-       0 null
      brw-rw-rw-       0 ram0
     nsh> dd if=/dev/ram0 of=/dev/null
+
+o delroute <target> <netmask> <router>
+
+  This command removes an entry from the routing table.  The entry
+  removed will be the first entry in the routing table that matches
+  the external network characterized by the <target> IP address and
+  the network mask <netmask>
 
 o df
 
@@ -861,12 +875,14 @@ Command Dependencies on Configuration Settings
   Command    Depends on Configuration
   ---------- --------------------------
   [          !CONFIG_NSH_DISABLESCRIPT
+  addroute   CONFIG_NET && CONFIG_NET_ROUTE
   base64dec  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_BASE64
   base64enc  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_BASE64
   cat        CONFIG_NFILE_DESCRIPTORS > 0
   cd         !CONFIG_DISABLE_ENVIRON && CONFIG_NFILE_DESCRIPTORS > 0
   cp         CONFIG_NFILE_DESCRIPTORS > 0
   dd         CONFIG_NFILE_DESCRIPTORS > 0
+  delrout   CONFIG_NET && CONFIG_NET_ROUTE
   df         !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE (see note 3)
   echo       --
   exec       --
@@ -923,22 +939,23 @@ In addition, each NSH command can be individually disabled via one of the follow
 settings.  All of these settings make the configuration of NSH potentially complex but
 also allow it to squeeze into very small memory footprints.
 
-  CONFIG_NSH_DISABLE_BASE64DEC, CONFIG_NSH_DISABLE_BASE64ENC, CONFIG_NSH_DISABLE_CAT,
-  CONFIG_NSH_DISABLE_CD,        CONFIG_NSH_DISABLE_CP,        CONFIG_NSH_DISABLE_DD,
-  CONFIG_NSH_DISABLE_DF,        CONFIG_NSH_DISABLE_ECHO,      CONFIG_NSH_DISABLE_EXEC,
-  CONFIG_NSH_DISABLE_EXIT,      CONFIG_NSH_DISABLE_FREE,      CONFIG_NSH_DISABLE_GET,
-  CONFIG_NSH_DISABLE_HELP,      CONFIG_NSH_DISABLE_HEXDUMP,   CONFIG_NSH_DISABLE_IFCONFIG,
-  CONFIG_NSH_DISABLE_IFUPDOWN,  CONFIG_NSH_DISABLE_KILL,      CONFIG_NSH_DISABLE_LOSETUP,
-  CONFIG_NSH_DISABLE_LS,        CONFIG_NSH_DISABLE_MD5        CONFIG_NSH_DISABLE_MB,
-  CONFIG_NSH_DISABLE_MKDIR,     CONFIG_NSH_DISABLE_MKFATFS,   CONFIG_NSH_DISABLE_MKFIFO,
-  CONFIG_NSH_DISABLE_MKRD,      CONFIG_NSH_DISABLE_MH,        CONFIG_NSH_DISABLE_MOUNT,
-  CONFIG_NSH_DISABLE_MW,        CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,
-  CONFIG_NSH_DISABLE_PS,        CONFIG_NSH_DISABLE_PING,      CONFIG_NSH_DISABLE_PUT,
-  CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,
-  CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SLEEP,
-  CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,
-  CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USLEEP,
-  CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_ADDROUTE,  CONFIG_NSH_DISABLE_BASE64DEC, CONFIG_NSH_DISABLE_BASE64ENC,
+  CONFIG_NSH_DISABLE_CAT,       CONFIG_NSH_DISABLE_CD,        CONFIG_NSH_DISABLE_CP,
+  CONFIG_NSH_DISABLE_DD,        CONFIG_NSH_DISABLE_DELROUTE,  CONFIG_NSH_DISABLE_DF,
+  CONFIG_NSH_DISABLE_ECHO,      CONFIG_NSH_DISABLE_EXEC,      CONFIG_NSH_DISABLE_EXIT,
+  CONFIG_NSH_DISABLE_FREE,      CONFIG_NSH_DISABLE_GET,       CONFIG_NSH_DISABLE_HELP,
+  CONFIG_NSH_DISABLE_HEXDUMP,   CONFIG_NSH_DISABLE_IFCONFIG,  CONFIG_NSH_DISABLE_IFUPDOWN,
+  CONFIG_NSH_DISABLE_KILL,      CONFIG_NSH_DISABLE_LOSETUP,   CONFIG_NSH_DISABLE_LS,
+  CONFIG_NSH_DISABLE_MD5        CONFIG_NSH_DISABLE_MB,        CONFIG_NSH_DISABLE_MKDIR,
+  CONFIG_NSH_DISABLE_MKFATFS,   CONFIG_NSH_DISABLE_MKFIFO,    CONFIG_NSH_DISABLE_MKRD,
+  CONFIG_NSH_DISABLE_MH,        CONFIG_NSH_DISABLE_MOUNT,     CONFIG_NSH_DISABLE_MW,
+  CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,  CONFIG_NSH_DISABLE_PS,
+  CONFIG_NSH_DISABLE_PING,      CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,
+  CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_SET,
+  CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,
+  CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
+  CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,
+  CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.

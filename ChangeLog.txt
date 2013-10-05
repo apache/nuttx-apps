@@ -672,4 +672,6 @@
 	  redirection and replaces file I/O with calls to low-level
 	  console read/write functions.  Suggested by Alan Carvalho de Assis
 	  in a somewhat different form. (2013-9-30).
+	* apps/nshlib/nsm_routecmds.c:  Add addroute and delroute
+	  commands (2013-10-5).
 

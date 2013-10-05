@@ -74,7 +74,7 @@ endif # USBMSC_COMPOSITE
 if CDCACM_COMPOSITE
 
 config SYSTEM_COMPOSITE_TTYUSB
-	int "USB serial device minor number
+	int "USB serial device minor number"
 	default 0
 	---help---
 		The minor number of the USB serial device. Default is zero
@@ -153,4 +153,3 @@ config SYSTEM_COMPOSITE_DEBUGMM
 		Enables some debug tests to check for memory usage and memory leaks.
 
 endif
-
