@@ -242,6 +242,10 @@ o addroute <target> <netmask> <router>
   to an external network characterized by the <target> IP address and
   a network mask <netmask>
 
+  Example:
+
+    nsh> addroute 1.1.1.1 2.2.2.2 3.3.3.3
+
 o base64dec [-w] [-f] <string or filepath>
 
 o base64dec [-w] [-f] <string or filepath>
@@ -324,12 +328,16 @@ o dd if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]
      brw-rw-rw-       0 ram0
     nsh> dd if=/dev/ram0 of=/dev/null
 
-o delroute <target> <netmask> <router>
+o delroute <target> <netmask>
 
   This command removes an entry from the routing table.  The entry
   removed will be the first entry in the routing table that matches
   the external network characterized by the <target> IP address and
   the network mask <netmask>
+
+  Example:
+
+    nsh> delroute 1.1.1.1 2.2.2.2
 
 o df
 
