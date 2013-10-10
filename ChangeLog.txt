@@ -674,4 +674,6 @@
 	  in a somewhat different form. (2013-9-30).
 	* apps/nshlib/nsm_routecmds.c:  Add addroute and delroute
 	  commands (2013-10-5).
+	* apps/system/i2ctool/Kconfig:  Fix default I2C frequency:  400KHz
+	  instead of 4MHz.  Suggested by Max Kriegleder (2013-10-10).
 

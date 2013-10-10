@@ -50,9 +50,9 @@ config I2CTOOL_MAXREGADDR
 
 config I2CTOOL_DEFFREQ
 	int "Default I2C frequency"
-	default 4000000
+	default 400000
 	depends on SYSTEM_I2CTOOL
 	---help---
-		Default I2C frequency (default: 4000000)
+		Default I2C frequency (default: 400000)
 
 endif
