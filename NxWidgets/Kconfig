@@ -718,6 +718,17 @@ endif
 
 comment "Calibration display settings"
 
+config NXWM_CALIBRATION_MARGIN
+	int "Calibration Margin"
+	default 40
+	---help---
+		The Calbration display consists of a target press offset from the edges
+		of the display by this number of pixels (in the horizontal direction)
+		or rows (in the vertical).  The closer that you can comfortabley
+		position the press positions to the edge, the more accurate will be the
+		linear interpolation (provide that the hardware provides equally good
+		measurements near the edges).
+
 config NXWM_CALIBRATION_CUSTOM_COLORS
 	bool "Custom Calibration Colors"
 	default n
@@ -752,6 +763,35 @@ config NXWM_CALIBRATION_TOUCHEDCOLOR
 	---help---
 		The color of the circle in the touchscreen calibration display after
 		the touch is recorder.  Default: RGB(255, 255, 96) (very light yellow)
+endif
+
+config NXWM_CALIBRATION_MESSAGES
+	bool "Add Instructions in Center"
+	default n
+	---help---
+		By default, the calibration screen is clear excecpt for the
+		calibratino touchpoints.  If this options are enabled, then
+		instructions when to touch and when to release the touch will
+		be added in the center of the dislay 
+
+if NXWM_CALIBRATION_MESSAGES
+
+config NXWM_CALIBRATION_CUSTOM_FONTID
+	bool "Use a Custom Font in Calibration Display"
+	default n
+	---help---
+		Set to override the system default font id (NXFONT_DEFAULT).
+
+if NXWM_CALIBRATION_CUSTOM_FONTID
+
+config NXWM_CALIBRATION_FONTID
+	int "Calibration Font ID"
+	default 0
+	---help---
+		Use this default NxWidgets font ID instead of the system font ID
+		(NXFONT_DEFAULT).  Default: 0
+
+endif
 endif
 
 config NXWM_CUSTOM_CALIBRATION_ICON
