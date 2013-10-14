@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -119,7 +119,7 @@ CLabel::CLabel(CWidgetControl *pWidgetControl,
   m_vAlignment        = TEXT_ALIGNMENT_VERT_CENTER;
 
   // The border thickness is 1 pixel
-  
+
   m_borderSize.top    = 1;
   m_borderSize.right  = 1;
   m_borderSize.bottom = 1;
@@ -272,7 +272,7 @@ void CLabel::setFont(CNxFont *font)
  *
  * @see redraw()
  */
- 
+
 void CLabel::drawContents(CGraphicsPort *port)
 {
   // Get the drawing area (excluding the border)
@@ -318,7 +318,7 @@ void CLabel::drawContents(CGraphicsPort *port)
   CNxFont* font = getFont();
   int height = font->getHeight();
   int width = font->getStringWidth(m_text);
-    
+
   // Draw the background (excluding the border and the text area)
 
   port->drawFilledRect(rect.getX(), rect.getY(),
@@ -393,7 +393,7 @@ void CLabel::calculateTextPositionVertical(void)
     case TEXT_ALIGNMENT_VERT_TOP:
       m_align.y = 0;
       break;
- 
+
     case TEXT_ALIGNMENT_VERT_BOTTOM:
       m_align.y = height - getFont()->getHeight();
       break;
@@ -409,7 +409,7 @@ void CLabel::calculateTextPositionHorizontal(void)
 {
   CRect rect;
   getClientRect(rect);
-  
+
   nxgl_coord_t width = rect.getWidth();
 
   switch (m_hAlignment)

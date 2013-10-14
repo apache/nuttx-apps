@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -88,11 +88,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -150,7 +150,7 @@ namespace NXWidgets
      *
      * @see redraw()
      */
- 
+
     virtual void drawContents(CGraphicsPort *port);
 
     /**
@@ -240,7 +240,7 @@ namespace NXWidgets
      */
 
     virtual void setTextAlignmentVert(TextAlignmentVert alignment);
-    
+
     /**
      * Set the horizontal alignment of text within the label.
      *
@@ -262,7 +262,7 @@ namespace NXWidgets
     {
       return m_vAlignment;
     }
-    
+
     /**
      * Returns the string shown in the label.
      *

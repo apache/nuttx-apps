@@ -380,3 +380,8 @@
   Petteri Aimonen (2013-6-4).
 
 1.9 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM::CCalibration.cxx/hxx:  If CONFIG_NXWM_CALIBRATION_MESSAGES is
+  defined then CCalibration will provide some instructions in the center
+  of the display (2013-10-14).
+

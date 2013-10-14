@@ -32,7 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
- 
+
 #ifndef __INCLUDE_CCALIBRATION_HXX
 #define __INCLUDE_CCALIBRATION_HXX
 
@@ -48,6 +48,8 @@
 #include "cnxstring.hxx"
 #include "cwidgeteventhandler.hxx"
 #include "cwidgetcontrol.hxx"
+#include "clabel.hxx"
+#include "cnxfont.hxx"
 
 #include "ctaskbar.hxx"
 #include "iapplication.hxx"
@@ -146,6 +148,10 @@ namespace NxWM
     CTaskbar                  *m_taskbar;         /**< The taskbar (used to terminate calibration) */
     CFullScreenWindow         *m_window;          /**< The window for the calibration display */
     CTouchscreen              *m_touchscreen;     /**< The touchscreen device */
+#ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
+    NXWidgets::CLabel         *m_text;            /**< Calibration message */
+    NXWidgets::CNxFont        *m_font;            /**< The font used in the message */
+#endif
     pthread_t                  m_thread;          /**< The calibration thread ID */
     struct SCalibScreenInfo    m_screenInfo;      /**< Describes the current calibration display */
     struct nxgl_point_s        m_touchPos;        /**< This is the last touch position */

@@ -74,7 +74,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -122,7 +122,7 @@ namespace NXWidgets
   {
   private:
     friend class CStringIterator;
-    
+
     int m_stringLength;  /**< Number of characters in the string */
     int m_allocatedSize; /**< Number of bytes allocated for this string */
     int m_growAmount;    /**< Number of chars that the string grows by
