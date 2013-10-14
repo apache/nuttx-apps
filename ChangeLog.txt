@@ -676,4 +676,12 @@
 	  commands (2013-10-5).
 	* apps/system/i2ctool/Kconfig:  Fix default I2C frequency:  400KHz
 	  instead of 4MHz.  Suggested by Max Kriegleder (2013-10-10).
+	* apps/system/info/Kconfig and Makefile:  Increase stack size.
+	  Ken Petit reports that this simple command can exceed its 768
+	  stack size under certain conditions.  The size is marginal and
+	  has been increased to 1024 by default but is also now configurable
+	  (2013-10-14).
+	* apps/Makefile:  Need to include external/Make.defs if we want
+	  allow external applications to participate in the NuttX
+	  configuration.  Suggested by gdi@embedders.org (2013-10-14).
 
