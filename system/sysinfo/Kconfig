@@ -12,7 +12,7 @@ config SYSTEM_SYSINFO
 if SYSTEM_SYSINFO
 
 config SYSTEM_SYSINFO_STACKSIZE
-	int "NSHS sysinfo stack size"
+	int "NSH sysinfo stack size"
 	default 1024
 
 endif
