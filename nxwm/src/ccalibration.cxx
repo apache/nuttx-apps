@@ -41,6 +41,7 @@
 #include <cerrno>
 
 #include <sched.h>
+#include <limits.h>
 #include <assert.h>
 #include <debug.h>
 
@@ -79,9 +80,9 @@
 using namespace NxWM;
 
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-static const char g_touchmsg[] = "Touch";
-static const char g_againmsg[] = "Again";
-static const char g_okmsg[]    = "OK";
+static const char g_touchMsg[] = "Touch";
+static const char g_againMsg[] = "Again";
+static const char g_okMsg[]    = "OK";
 #endif
 
 /****************************************************************************
@@ -352,7 +353,7 @@ void CCalibration::touchscreenInput(struct touch_sample_s &sample)
             {
               m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_TOUCHEDCOLOR;
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-              m_text->setText(g_okmsg);
+              m_text->setText(g_okMsg);
 #endif
               showCalibration();
               m_touched = true;
@@ -401,6 +402,113 @@ void CCalibration::touchscreenInput(struct touch_sample_s &sample)
       m_touched = false;
     }
 }
+
+#ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
+/**
+ * Create widgets need by the calibration thread.
+ *
+ * @return True if the widgets were successfully created.
+ */
+
+bool CCalibration::createWidgets(void)
+{
+  // Select a font for the calculator
+
+  m_font = new NXWidgets::
+    CNxFont((nx_fontid_e)CONFIG_NXWM_CALIBRATION_FONTID,
+            CONFIG_NXWM_DEFAULT_FONTCOLOR, CONFIG_NXWM_TRANSPARENT_COLOR);
+  if (!m_font)
+    {
+      gdbg("ERROR failed to create font\n");
+      return false;
+    }
+
+  // Recover the window instance contained in the application window
+
+  NXWidgets::INxWindow *window = m_window->getWindow();
+
+  // Get the size of the window
+
+  struct nxgl_size_s windowSize;
+  if (!window->getSize(&windowSize))
+    {
+      gdbg("ERROR: Failed to get window size\n");
+      delete m_font;
+      m_font = (NXWidgets::CNxFont *)0;
+      return false;
+    }
+
+  // How big is the biggest string we might display?
+
+  nxgl_coord_t maxStringWidth = m_font->getStringWidth(g_touchMsg);
+  nxgl_coord_t altStringWidth = m_font->getStringWidth(g_againMsg);
+
+  if (altStringWidth > maxStringWidth)
+    {
+      maxStringWidth = altStringWidth;
+    }
+
+  // How big can the label be?
+
+  struct nxgl_size_s labelSize;
+  labelSize.w = maxStringWidth + 2*4;
+  labelSize.h = m_font->getHeight() + 2*4;
+
+  // Where should the label be?
+
+  struct nxgl_point_s labelPos;
+  labelPos.x = ((windowSize.w - labelSize.w) / 2);
+  labelPos.y = ((windowSize.h - labelSize.h) / 2);
+
+  // Get the widget control associated with the application window
+
+  NXWidgets::CWidgetControl *control = m_window->getWidgetControl();
+
+  // Create a label to show the calibration message.
+
+  m_text = new NXWidgets::
+    CLabel(control, labelPos.x, labelPos.y, labelSize.w, labelSize.h, "");
+
+  if (!m_text)
+    {
+      gdbg("ERROR: Failed to create CLabel\n");
+      delete m_font;
+      m_font = (NXWidgets::CNxFont *)0;
+      return false;
+    }
+
+  // No border
+
+  m_text->setBorderless(true);
+
+  // Center text
+
+  m_text->setTextAlignmentHoriz(NXWidgets::CLabel::TEXT_ALIGNMENT_HORIZ_CENTER);
+
+  // Disable drawing and events until we are asked to redraw the window
+
+  m_text->disableDrawing();
+  m_text->setRaisesEvents(false);
+
+  // Select the font
+
+  m_text->setFont(m_font);
+  return true;
+}
+
+/**
+ * Destroy widgets created for the calibration thread.
+ */
+
+void CCalibration::destroyWidgets(void)
+{
+  delete m_text;
+  m_text = (NXWidgets::CLabel *)0;
+
+  delete m_font;
+  m_font = (NXWidgets::CNxFont *)0;
+}
+#endif
 
 /**
  * Start the calibration thread.
@@ -463,77 +571,16 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
   // Create widgets that will be used in the calibration display
-  // Select a font for the calculator
 
-  This->m_font = new NXWidgets::
-    CNxFont((nx_fontid_e)CONFIG_NXWM_CALIBRATION_FONTID,
-            CONFIG_NXWM_DEFAULT_FONTCOLOR, CONFIG_NXWM_TRANSPARENT_COLOR);
-  if (!This->m_font)
+  if (!This->createWidgets())
     {
-      gdbg("ERROR failed to create font\n");
+      gdbg("ERROR failed to create widgets\n");
       return false;
     }
 
-  // Recover the window instance contained in the application window
+  // No samples have yet been collected
 
-  NXWidgets::INxWindow *window = This->m_window->getWindow();
-
-  // Get the size of the window
-
-  struct nxgl_size_s windowSize;
-  if (!window->getSize(&windowSize))
-    {
-      gdbg("ERROR: Failed to get window size\n");
-      delete This->m_font;
-      This->m_font = (NXWidgets::CNxFont *)0;
-      return false;
-    }
-
-  // How big can the label be?
-
-  struct nxgl_size_s labelSize;
-  labelSize.w = (windowSize.w - 2*CONFIG_NXWM_CALIBRATION_MARGIN - 20);
-  labelSize.h = This->m_font->getHeight() + 2*4;
-
-  // Where should the label be?
-
-  struct nxgl_point_s labelPos;
-  labelPos.x = ((windowSize.w - labelSize.w) / 2);
-  labelPos.y = ((windowSize.h - labelSize.h) / 2);
-
-  // Get the widget control associated with the application window
-
-  NXWidgets::CWidgetControl *control = This->m_window->getWidgetControl();
-
-  // Create a label to show the calibration message.
-
-  This->m_text = new NXWidgets::
-    CLabel(control, labelPos.x, labelPos.y, labelSize.w, labelSize.h, "");
-
-  if (!This->m_text)
-    {
-      gdbg("ERROR: Failed to create CLabel\n");
-      delete This->m_font;
-      This->m_font = (NXWidgets::CNxFont *)0;
-      return false;
-    }
-
-  // No border
-
-  This->m_text->setBorderless(true);
-
-  // Center text
-
-  This->m_text->setTextAlignmentHoriz(NXWidgets::CLabel::TEXT_ALIGNMENT_HORIZ_CENTER);
-
-  // Disable drawing and events until we are asked to redraw the window
-
-  This->m_text->disableDrawing();
-  This->m_text->setRaisesEvents(false);
-
-  // Select the font
-
-  This->m_text->setFont(This->m_font);
+  This->m_nsamples = 0;
 #endif
 
   // The calibration thread is now running
@@ -611,19 +658,124 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
   This->finishCalibration();
 
+#ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
   // Destroy widgets
 
-#ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-  delete This->m_text;
-  This->m_text = (NXWidgets::CLabel  *)0;
-
-  delete This->m_font;
-  This->m_font = (NXWidgets::CNxFont *)0;
+  This->destroyWidgets();
 #endif
 
   gvdbg("Terminated: m_calthread=%d\n", (int)This->m_calthread);
   return (FAR void *)0;
 }
+
+/**
+ * Accumulate and average touch sample data
+ *
+ * @param average.  When the averaged data is available, return it here
+ * @return True: Average data is available; False: Need to collect more samples
+ */
+
+#if CONFIG_NXWM_CALIBRATION_AVERAGE
+bool CCalibration::averageSamples(struct nxgl_point_s &average)
+{
+  // Have we started collecting sample data? */
+
+  // Save the sample data
+
+  gvdbg("Sample %d: Touch x: %d y: %d\n", m_nsamples+1, m_touchPos.x, m_touchPos.y);
+
+  m_sampleData[m_nsamples].x = m_touchPos.x;
+  m_sampleData[m_nsamples].y = m_touchPos.y;
+  m_nsamples++;
+
+  // Have all of the samples been collected?
+
+  if (m_nsamples <  CONFIG_NXWM_CALIBRATION_NSAMPLES)
+    {
+      // Not yet... return false
+
+      return false;
+    }
+
+  // Yes.. we have all of the samples
+#ifdef CONFIG_NXWM_CALIBRATION_NSAMPLES
+  // Discard the smallest X and Y values
+
+  int xValue = INT_MAX;
+  int xIndex = -1;
+
+  int yValue = INT_MAX;
+  int yIndex = -1;
+
+  for (int i = 0; i < CONFIG_NXWM_CALIBRATION_NSAMPLES; i++)
+    {
+      if ((int)m_sampleData[i].x < xValue)
+        {
+          xValue = (int)m_sampleData[i].x;
+          xIndex = i;
+        }
+
+      if ((int)m_sampleData[i].y < yValue)
+        {
+          yValue = (int)m_sampleData[i].y;
+          yIndex = i;
+        }
+    }
+
+  m_sampleData[xIndex].x = m_sampleData[CONFIG_NXWM_CALIBRATION_NSAMPLES-1].x;
+  m_sampleData[yIndex].y = m_sampleData[CONFIG_NXWM_CALIBRATION_NSAMPLES-1].y;
+
+  // Discard the largest X and Y values
+
+  xValue = -1;
+  xIndex = -1;
+
+  yValue = -1;
+  yIndex = -1;
+
+  for (int i = 0; i < CONFIG_NXWM_CALIBRATION_NSAMPLES-1; i++)
+    {
+      if ((int)m_sampleData[i].x > xValue)
+        {
+          xValue = (int)m_sampleData[i].x;
+          xIndex = i;
+        }
+
+      if ((int)m_sampleData[i].y > yValue)
+        {
+          yValue = (int)m_sampleData[i].y;
+          yIndex = i;
+        }
+    }
+
+  m_sampleData[xIndex].x = m_sampleData[CONFIG_NXWM_CALIBRATION_NSAMPLES-2].x;
+  m_sampleData[yIndex].y = m_sampleData[CONFIG_NXWM_CALIBRATION_NSAMPLES-2].y;
+#endif
+
+#if NXWM_CALIBRATION_NAVERAGE > 1
+  // Calculate the average of the remaining values
+
+  long xaccum = 0;
+  long yaccum = 0;
+
+  for (int i = 0; i < NXWM_CALIBRATION_NAVERAGE; i++)
+    {
+      xaccum += m_sampleData[i].x;
+      yaccum += m_sampleData[i].y;
+    }
+
+  average.x = xaccum / NXWM_CALIBRATION_NAVERAGE;
+  average.y = yaccum / NXWM_CALIBRATION_NAVERAGE;
+#else
+  average.x = m_sampleData[0].x;
+  average.y = m_sampleData[0].y;
+#endif
+
+  gvdbg("Average: Touch x: %d y: %d\n", average.x, average.y);
+  m_nsamples = 0;
+  return true;
+}
+#endif
 
 /**
  * This is the calibration state machine.  It is called initially and then
@@ -633,6 +785,43 @@ FAR void *CCalibration::calibration(FAR void *arg)
 void CCalibration::stateMachine(void)
 {
   gvdbg("Old m_calphase=%d\n", m_calphase);
+
+#if CONFIG_NXWM_CALIBRATION_AVERAGE
+  // Are we collecting samples?
+
+  struct nxgl_point_s average;
+
+  switch (m_calphase)
+    {
+      case CALPHASE_UPPER_LEFT:
+      case CALPHASE_UPPER_RIGHT:
+      case CALPHASE_LOWER_RIGHT:
+      case CALPHASE_LOWER_LEFT:
+        {
+          // Yes... Have all of the samples been collected?
+
+         if (!averageSamples(average))
+            {
+              // Not yet...  Show the calibration screen again with the circle
+              // in the normal color and an instruction to touch the circle again.
+
+              m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_CIRCLECOLOR;
+              m_text->setText(g_againMsg);
+              showCalibration();
+
+              // And wait for the next touch
+
+              return;
+            }
+        }
+        break;
+
+      // No... we are not collecting data now
+
+      default:
+        break;
+    }
+#endif
 
   // Recover the window instance contained in the full screen window
 
@@ -672,7 +861,7 @@ void CCalibration::stateMachine(void)
           m_screenInfo.lineColor       = CONFIG_NXWM_CALIBRATION_LINECOLOR;
           m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_CIRCLECOLOR;
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-          m_text->setText(g_touchmsg);
+          m_text->setText(g_touchMsg);
 #endif
           showCalibration();
 
@@ -687,8 +876,13 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_UPPER_LEFT state.
           // Save the touch data and set up the next calibration display
 
+#if CONFIG_NXWM_CALIBRATION_AVERAGE
+          m_calibData[CALIB_UPPER_LEFT_INDEX].x = average.x;
+          m_calibData[CALIB_UPPER_LEFT_INDEX].y = average.y;
+#else
           m_calibData[CALIB_UPPER_LEFT_INDEX].x = m_touchPos.x;
           m_calibData[CALIB_UPPER_LEFT_INDEX].y = m_touchPos.y;
+#endif
 
           // Clear the previous screen by re-drawing it using the background
           // color.  That is much faster than clearing the whole display
@@ -704,7 +898,7 @@ void CCalibration::stateMachine(void)
           m_screenInfo.lineColor       = CONFIG_NXWM_CALIBRATION_LINECOLOR;
           m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_CIRCLECOLOR;
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-          m_text->setText(g_touchmsg);
+          m_text->setText(g_touchMsg);
 #endif
           showCalibration();
 
@@ -719,8 +913,13 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_UPPER_RIGHT state.
           // Save the touch data and set up the next calibration display
 
+#if CONFIG_NXWM_CALIBRATION_AVERAGE
+          m_calibData[CALIB_UPPER_RIGHT_INDEX].x = average.x;
+          m_calibData[CALIB_UPPER_RIGHT_INDEX].y = average.y;
+#else
           m_calibData[CALIB_UPPER_RIGHT_INDEX].x = m_touchPos.x;
           m_calibData[CALIB_UPPER_RIGHT_INDEX].y = m_touchPos.y;
+#endif
 
           // Clear the previous screen by re-drawing it using the backgro9und
           // color.  That is much faster than clearing the whole display
@@ -736,7 +935,7 @@ void CCalibration::stateMachine(void)
           m_screenInfo.lineColor       = CONFIG_NXWM_CALIBRATION_LINECOLOR;
           m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_CIRCLECOLOR;
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-          m_text->setText(g_touchmsg);
+          m_text->setText(g_touchMsg);
 #endif
           showCalibration();
 
@@ -751,8 +950,13 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_LOWER_RIGHT state.
           // Save the touch data and set up the next calibration display
 
+#if CONFIG_NXWM_CALIBRATION_AVERAGE
+          m_calibData[CALIB_LOWER_RIGHT_INDEX].x = average.x;
+          m_calibData[CALIB_LOWER_RIGHT_INDEX].y = average.y;
+#else
           m_calibData[CALIB_LOWER_RIGHT_INDEX].x = m_touchPos.x;
           m_calibData[CALIB_LOWER_RIGHT_INDEX].y = m_touchPos.y;
+#endif
 
           // Clear the previous screen by re-drawing it using the backgro9und
           // color.  That is much faster than clearing the whole display
@@ -768,7 +972,7 @@ void CCalibration::stateMachine(void)
           m_screenInfo.lineColor       = CONFIG_NXWM_CALIBRATION_LINECOLOR;
           m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_CIRCLECOLOR;
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-          m_text->setText(g_touchmsg);
+          m_text->setText(g_touchMsg);
 #endif
           showCalibration();
 
@@ -783,8 +987,13 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_LOWER_LEFT state.
           // Save the touch data and set up the next calibration display
 
+#if CONFIG_NXWM_CALIBRATION_AVERAGE
+          m_calibData[CALIB_LOWER_LEFT_INDEX].x = average.x;
+          m_calibData[CALIB_LOWER_LEFT_INDEX].y = average.y;
+#else
           m_calibData[CALIB_LOWER_LEFT_INDEX].x = m_touchPos.x;
           m_calibData[CALIB_LOWER_LEFT_INDEX].y = m_touchPos.y;
+#endif
 
           // Clear the previous screen by re-drawing it using the backgro9und
           // color.  That is much faster than clearing the whole display
@@ -792,7 +1001,7 @@ void CCalibration::stateMachine(void)
           m_screenInfo.lineColor       = CONFIG_NXWM_CALIBRATION_BACKGROUNDCOLOR;
           m_screenInfo.circleFillColor = CONFIG_NXWM_CALIBRATION_BACKGROUNDCOLOR;
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
-          m_text->setText(g_touchmsg);
+          m_text->setText(g_touchMsg);
 #endif
           showCalibration();
 
@@ -844,17 +1053,17 @@ void CCalibration::showCalibration(void)
   port->drawFilledCircle(&m_screenInfo.pos, CALIBRATION_CIRCLE_RADIUS,
                           m_screenInfo.circleFillColor);
 
-  /* Draw horizontal line */
+  // Draw horizontal line
 
   port->drawFilledRect(0, m_screenInfo.pos.y, windowSize.w, CALIBRATION_LINE_THICKNESS,
                        m_screenInfo.lineColor);
 
-  /* Draw vertical line */
+  // Draw vertical line
 
   port->drawFilledRect(m_screenInfo.pos.x, 0, CALIBRATION_LINE_THICKNESS, windowSize.h,
                        m_screenInfo.lineColor);
 
-  /* Show the touchscreen message */
+  // Show the touchscreen message
 
 #ifdef CONFIG_NXWM_CALIBRATION_MESSAGES
   m_text->enableDrawing();

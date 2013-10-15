@@ -384,4 +384,7 @@
 * NxWM::CCalibration.cxx/hxx:  If CONFIG_NXWM_CALIBRATION_MESSAGES is
   defined then CCalibration will provide some instructions in the center
   of the display (2013-10-14).
+* NxWM::CCalibration.cxx/hxx:  Add options to collect and average
+  multiple samples at each location.  Also logic to discard the most
+  extreme samples before averaging (2013-10-14).
 
