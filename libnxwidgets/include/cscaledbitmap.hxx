@@ -1,7 +1,7 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cbitmap.hxx
+ * NxWidgets/libnxwidgets/include/cscaledbitmap.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,54 +31,23 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ****************************************************************************
- *
- * Portions of this package derive from Woopsi (http://woopsi.org/) and
- * portions are original efforts.  It is difficult to determine at this
- * point what parts are original efforts and which parts derive from Woopsi.
- * However, in any event, the work of  Antony Dzeryn will be acknowledged
- * in all NxWidget files.  Thanks Antony!
- *
- *   Copyright (c) 2007-2011, Antony Dzeryn
- *   All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- * * Neither the names "Woopsi", "Simian Zombie" nor the
- *   names of its contributors may be used to endorse or promote products
- *   derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY Antony Dzeryn ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL Antony Dzeryn BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CBITMAP_HXX
-#define __INCLUDE_CBITMAP_HXX
+#ifndef __INCLUDE_CSCALEDBITMAP_HXX
+#define __INCLUDE_CSCALEDBITMAP_HXX
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <fixedmath.h>
+#include <debug.h>
 
+#include <nuttx/rgbcolors.h>
 #include <nuttx/nx/nxglib.h>
 
 #include "nxconfig.hxx"
@@ -87,67 +56,86 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
 {
   /**
-   * Bitmap Structure
+   * Class for scaling layer for any bitmap that inherits from IBitMap
    */
 
-  struct SBitmap
-  {
-    uint8_t               bpp;    /**< Bits per pixel */
-    uint8_t               fmt;    /**< Color format */
-    nxgl_coord_t          width;  /**< Width in pixels */
-    nxgl_coord_t          height; /**< Height in rows */
-    uint16_t              stride; /**< Width in bytes */
-    FAR const void       *data;   /**< Pointer to the beginning of pixel data */
-  };
-
-  /**
-   * Class providing bitmap accessor for a bitmap represented by SBitmap.
-   */
-
-  class CBitmap : public IBitmap
+  class CScaledBitmap : public IBitmap
   {
   protected:
-    const struct SBitmap *m_bitmap;  /**< The bitmap that is being managed */
-    
+    FAR IBitmap       *m_bitmap;      /**< The bitmap that is being scaled */
+    struct nxgl_size_s m_size;        /**< Scaled size of the image */
+    FAR uint8_t       *m_rowCache[2]; /**< Two cached rows of the image */
+    unsigned int       m_row;         /**< Row number of the first cached row */
+    b16_t              m_xScale;      /**< X scale factor */
+    b16_t              m_yScale;      /**< Y scale factor */
+
+    /**
+     * Read two rows into the row cache
+     *
+     * @param row - The row number of the first row to cache
+     */
+
+    bool cacheRows(unsigned int row);
+
+    /**
+     * Given an two RGB colors and a fractional value, return the scaled
+     * value between the two colors.
+     *
+     * @param incolor1 - The first color to be used
+     * @param incolor2 - The second color to be used
+     * @param fraction - The fractional value
+     * @param outcolor - The returned, scaled color
+     */
+
+    bool scaleColor(FAR const struct rgbcolor_s &incolor1,
+                    FAR const struct rgbcolor_s &incolor2,
+                    b16_t fraction, FAR struct rgbcolor_s &outcolor);
+
+    /**
+     * Given an image row and a non-integer column offset, return the
+     * interpolated RGB color value corresponding to that position
+     *
+     * @param row - The pointer to the row in the row cache to use
+     * @param column - The non-integer column offset
+     * @param outcolor - The returned, interpolated color
+     * 
+     */
+
+    bool rowColor(FAR uint8_t *row, b16_t column,
+                  FAR struct rgbcolor_s &outcolor);
+
     /**
      * Copy constructor is protected to prevent usage.
      */
 
-    inline CBitmap(const CBitmap &bitmap) { }
+    inline CScaledBitmap(const CScaledBitmap &bitmap) { }
 
   public:
 
     /**
      * Constructor.
      *
-     * @param bitmap The bitmap structure being wrapped.
+     * @param bitmap The bitmap structure being scaled.
+     * @newSize The new, scaled size of the image
      */
 
-    CBitmap(const struct SBitmap *bitmap);
+    CScaledBitmap(IBitmap *bitmap, struct nxgl_size_s &newSize);
 
     /**
      * Destructor.
      */
 
-    inline ~CBitmap(void) {}
-
-    /**
-     * Get the bitmap's color format.
-     *
-     * @return The bitmap's width.
-     */
-
-    const uint8_t getColorFormat(void) const;
+    ~CScaledBitmap(void);
 
     /**
      * Get the bitmap's color format.
@@ -155,12 +143,20 @@ namespace NXWidgets
      * @return The bitmap's color format.
      */
 
+    const uint8_t getColorFormat(void) const;
+
+    /**
+     * Get the bitmap's color format.
+     *
+     * @return The bitmap's pixel depth.
+     */
+
     const uint8_t getBitsPerPixel(void) const;
 
     /**
      * Get the bitmap's width (in pixels/columns).
      *
-     * @return The bitmap's pixel depth.
+     * @return The bitmap's width (in pixels/columns).
      */
 
     const nxgl_coord_t getWidth(void) const;
@@ -168,15 +164,15 @@ namespace NXWidgets
     /**
      * Get the bitmap's height (in rows).
      *
-     * @return The bitmap's height.
+     * @return The bitmap's height (in rows).
      */
 
-    const nxgl_coord_t getHeight(void) const;
+    inline const nxgl_coord_t getHeight(void) const;
 
     /**
      * Get the bitmap's width (in bytes).
      *
-     * @return The bitmap's width.
+     * @return The bitmap's width (in bytes).
      */
 
     const size_t getStride(void) const;
@@ -210,4 +206,4 @@ namespace NXWidgets
 
 #endif // __cplusplus
 
-#endif // __INCLUDE_CBITMAP_HXX
+#endif // __INCLUDE_CSCALEDBITMAP_HXX

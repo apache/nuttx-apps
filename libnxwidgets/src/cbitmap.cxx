@@ -149,7 +149,7 @@ const nxgl_coord_t CBitmap::getHeight(void) const
  * @return The bitmap's width.
  */
 
-const nxgl_coord_t CBitmap::getStride(void) const
+const size_t CBitmap::getStride(void) const
 {
   return m_bitmap->stride;
 }
@@ -172,7 +172,7 @@ bool CBitmap::getRun(nxgl_coord_t x, nxgl_coord_t y, nxgl_coord_t width,
 {
   // Check ranges.  Casts to unsigned int are ugly but permit one-sided comparisons
 
-  if (((unsigned int)x           <  (unsigned int)width) &&
+  if (((unsigned int)x           <  (unsigned int)m_bitmap->width) &&
       ((unsigned int)(x + width) <= (unsigned int)m_bitmap->width) &&
       ((unsigned int)y           <  (unsigned int)m_bitmap->height))
     {

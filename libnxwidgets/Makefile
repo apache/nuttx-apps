@@ -1,7 +1,7 @@
 #################################################################################
 # NxWidgets/libnxwidgets/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ CXXSRCS  = cbitmap.cxx cbgwindow.cxx ccallback.cxx cgraphicsport.cxx
 CXXSRCS += clistdata.cxx clistdataitem.cxx cnxfont.cxx
 CXXSRCS += cnxserver.cxx cnxstring.cxx cnxtimer.cxx cnxwidget.cxx cnxwindow.cxx
 CXXSRCS += cnxtkwindow.cxx cnxtoolbar.cxx crect.cxx crlepalettebitmap.cxx
-CXXSRCS += cstringiterator.cxx ctext.cxx cwidgetcontrol.cxx  cwidgeteventhandlerlist.cxx
+CXXSRCS += cscaledbitmap.cxx cstringiterator.cxx ctext.cxx cwidgetcontrol.cxx  cwidgeteventhandlerlist.cxx
 CXXSRCS += cwindoweventhandlerlist.cxx singletons.cxx
 # Widget APIs
 CXXSRCS += cbutton.cxx cbuttonarray.cxx ccheckbox.cxx ccyclebutton.cxx

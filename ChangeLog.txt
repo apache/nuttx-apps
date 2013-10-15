@@ -387,4 +387,7 @@
 * NxWM::CCalibration.cxx/hxx:  Add options to collect and average
   multiple samples at each location.  Also logic to discard the most
   extreme samples before averaging (2013-10-14).
+* NxWidgets::CScaledImage:  This new class is a wrapper for an class
+  the exports IBitMap.  It will perform scaling via bi-linear interpolation
+  so that images can be scaled to any size desired (2013-10-15).
 

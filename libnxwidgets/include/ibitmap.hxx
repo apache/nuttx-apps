@@ -73,9 +73,10 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
+#include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -84,11 +85,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -114,7 +115,7 @@ namespace NXWidgets
     /**
      * Get the bitmap's color format.
      *
-     * @return The bitmap's width.
+     * @return The bitmap's color format.
      */
 
     virtual const uint8_t getColorFormat(void) const = 0;
@@ -130,7 +131,7 @@ namespace NXWidgets
     /**
      * Get the bitmap's width (in pixels/columns).
      *
-     * @return The bitmap's pixel depth.
+     * @return The bitmap's width (in pixels/columns).
      */
 
     virtual const nxgl_coord_t getWidth(void) const = 0;
@@ -138,7 +139,7 @@ namespace NXWidgets
     /**
      * Get the bitmap's height (in rows).
      *
-     * @return The bitmap's height.
+     * @return The bitmap's height (in rows).
      */
 
     virtual const nxgl_coord_t getHeight(void) const = 0;
@@ -149,7 +150,7 @@ namespace NXWidgets
      * @return The bitmap's width.
      */
 
-    virtual const nxgl_coord_t getStride(void) const = 0;
+    virtual const size_t getStride(void) const = 0;
 
     /**
      * Use the colors associated with a selected image.

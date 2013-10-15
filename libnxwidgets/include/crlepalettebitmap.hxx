@@ -235,7 +235,7 @@ namespace NXWidgets
      * @return The bitmap's width.
      */
 
-    const nxgl_coord_t getStride(void) const;
+    const size_t getStride(void) const;
 
     /**
      * Use the colors associated with a selected image.

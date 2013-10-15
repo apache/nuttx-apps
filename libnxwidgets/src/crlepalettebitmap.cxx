@@ -155,7 +155,7 @@ const nxgl_coord_t CRlePaletteBitmap::getHeight(void) const
  * @return The bitmap's width.
  */
 
-const nxgl_coord_t CRlePaletteBitmap::getStride(void) const
+const size_t CRlePaletteBitmap::getStride(void) const
 {
   // This only works if the bpp is an even multiple of 8-bit bytes
 
