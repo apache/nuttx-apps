@@ -772,7 +772,7 @@ config NXWM_CALIBRATION_MESSAGES
 		By default, the calibration screen is clear excecpt for the
 		calibratino touchpoints.  If this options are enabled, then
 		instructions when to touch and when to release the touch will
-		be added in the center of the dislay 
+		be added in the center of the display,
 
 if NXWM_CALIBRATION_MESSAGES
 
@@ -791,8 +791,36 @@ config NXWM_CALIBRATION_FONTID
 		Use this default NxWidgets font ID instead of the system font ID
 		(NXFONT_DEFAULT).  Default: 0
 
-endif
-endif
+endif # NXWM_CALIBRATION_CUSTOM_FONTID
+
+config NXWM_CALIBRATION_AVERAGE
+	bool "Average Samples"
+	default n
+	---help---
+		Collect multiple samples at each calibration position and use the
+		average of the samples.  NOTE that is option is not available if we are
+		not providing instructions on the display.  That is because it would
+		be impossible to know what to do if we are collecting multiple samples
+		at each position.
+
+if NXWM_CALIBRATION_AVERAGE
+
+config NXWM_CALIBRATION_NSAMPLES
+	int "Number of Samples in Average"
+	default 4
+	range 2 255
+	---help---
+		This is the number of samples to use in the average.
+
+config NXWM_CALIBRATION_DISCARD_MINMAX
+	bool "Discard minimum and maximum values"
+	default n
+	---help---
+		Discard the largest and smallest values before averaging.  This
+		setting is ignored if NXWM_CALIBRATION_NSAMPLES < 3.
+
+endif # NXWM_CALIBRATION_AVERAGE
+endif # NXWM_CALIBRATION_MESSAGES
 
 config NXWM_CUSTOM_CALIBRATION_ICON
 	bool "Custom Calibration Icon"
