@@ -147,6 +147,12 @@ namespace NXWidgets
     CText(CNxFont *font, const CNxString &text, nxgl_coord_t width);
 
     /**
+     * Destructor.
+     */
+
+    virtual ~CText(void) {}
+
+    /**
      * Set the text in the string.
      *
      * @param text Char array to use as the new data for this string.

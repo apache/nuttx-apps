@@ -66,7 +66,7 @@ CXXSRCS += cscrollingpanel.cxx cscrollingtextbox.cxx csliderhorizontal.cxx
 CXXSRCS += csliderhorizontalgrip.cxx cslidervertical.cxx csliderverticalgrip.cxx
 CXXSRCS += cstickybutton.cxx cstickybuttonarray.cxx ctabpanel.cxx ctextbox.cxx
 # Images
-CXXSRCS += glyph_nxlogo.cxx
+CXXSRCS += glyph_nxlogo160x160.cxx glyph_nxlogo320x320.cxx
 CXXSRCS += glyph_arrowdown.cxx glyph_checkboxon.cxx glyph_screendepthup.cxx
 CXXSRCS += glyph_arrowleft.cxx glyph_control.cxx glyph_screenflipdown.cxx
 CXXSRCS += glyph_arrowright.cxx glyph_cycle.cxx glyph_screenflipup.cxx

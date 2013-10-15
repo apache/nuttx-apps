@@ -179,6 +179,11 @@ const size_t CScaledBitmap::getStride(void) const
 /**
  * Get one row from the bit map image.
  *
+ *   REVISIT:  This algorithm is really intended to expand images.  Hence,
+ *   for example, interpolation is between row and row+1 and column and
+ *   column+1 in the original, unscaled image.  You would the interpolation
+ *   differently if you really wanted to sub-sample well.
+ *
  * @param x The offset into the row to get
  * @param y The row number to get
  * @param width The number of pixels to get from the row
@@ -580,6 +585,9 @@ bool CScaledBitmap::rowColor(FAR uint8_t *row, b16_t column,
       // between transparent and opaque regions.
 
       // Return the color closest to the requested position
+      //
+      // A fraction of < 0.5 would mean to use use mostly color1; a fraction
+      // greater than 0.5 would men to use mostly color2
 
       if (fraction < b16HALF)
         {

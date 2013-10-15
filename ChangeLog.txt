@@ -392,4 +392,7 @@
   so that images can be scaled to any size desired (2013-10-15).
 * NxWM::CTaskbar:: Can now be configured to scale taskbasr icons using
   NxWidgets::CScaledImage (2013-10-15)
+* NxWidgets/libnxwidgets/src/glyph_nxlogo320x320.cxx:  Add a big, 320x320
+  NuttX logo image.  The older, smaller NuttX logo was renamed from
+  nxlogo to nxlogo160x160 in all places (2015-10-15).
 
