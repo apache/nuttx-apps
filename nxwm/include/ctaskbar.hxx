@@ -92,8 +92,8 @@ namespace NxWM
 
     struct STaskbarSlot
     {
-      IApplication      *app;   /**< A reference to the icon */
-      NXWidgets::CImage *image; /**< The icon image that goes with the application */
+      IApplication      *app;    /**< A reference to the application */
+      NXWidgets::CImage *image;  /**< The icon image for the application */
     };
 
     /**

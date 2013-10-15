@@ -390,4 +390,6 @@
 * NxWidgets::CScaledImage:  This new class is a wrapper for an class
   the exports IBitMap.  It will perform scaling via bi-linear interpolation
   so that images can be scaled to any size desired (2013-10-15).
+* NxWM::CTaskbar:: Can now be configured to scale taskbasr icons using
+  NxWidgets::CScaledImage (2013-10-15)
 

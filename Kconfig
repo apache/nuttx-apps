@@ -420,6 +420,28 @@ config NXWM_TASKBAR_WIDTH
 		Task bar thickness (either vertical or horizontal).  Default: 25 + 2*2
 endif
 
+config NXWM_TASKBAR_ICONSCALE
+	bool "Scale Icons"
+	default n
+	---help---
+		Enable scaling of icons in the task bar
+
+if NXWM_TASKBAR_ICONSCALE
+
+config NXWM_TASKBAR_ICONWIDTH
+	int "Icon Width (pixels)"
+	default 50
+	---help---
+		Scaled width of each taskbar ICON in pixels.
+
+config NXWM_TASKBAR_ICONHEIGHT
+	int "Icon Height (rows)"
+	default 42
+	---help---
+		Scaled height of each taskbar ICON in pixels.
+
+endif #NXWM_TASKBAR_ICONSCALE
+
 config NXWM_DISABLE_MINIMIZE
 	bool "Disable Minimize Button"
 	default n

@@ -46,6 +46,7 @@
 #include "crect.hxx"
 #include "cwidgetcontrol.hxx"
 #include "cnxtkwindow.hxx"
+#include "cscaledbitmap.hxx"
 
 #include "cwindowmessenger.hxx"
 #include "ctaskbar.hxx"
@@ -456,12 +457,43 @@ bool CTaskbar::startApplication(IApplication *app, bool minimized)
 
   NXWidgets::IBitmap *bitmap = app->getIcon();
 
+#ifdef CONFIG_NXWM_TASKBAR_ICONSCALE
+  // Create a CScaledBitmap to scale the bitmap icon
+
+  NXWidgets::CScaledBitmap *scaler = (NXWidgets::CScaledBitmap *)0;
+  if (bitmap)
+    {
+      // Create a CScaledBitmap to scale the bitmap icon
+
+      struct nxgl_size_s iconSize;
+      iconSize.w = CONFIG_NXWM_TASKBAR_ICONWIDTH;
+      iconSize.h = CONFIG_NXWM_TASKBAR_ICONHEIGHT;
+
+      scaler = new NXWidgets::CScaledBitmap(bitmap, iconSize);
+      if (!scaler)
+        {
+          return false;
+        }
+    }
+#endif
+
   // Create a CImage instance to manage the applications icon.  Assume the
   // minimum size in case no bitmap is provided (bitmap == NULL)
 
   int w = 1;
   int h = 1;
 
+#ifdef CONFIG_NXWM_TASKBAR_ICONSCALE
+  if (scaler)
+    {
+      w = scaler->getWidth();
+      h = scaler->getHeight();
+    }
+
+  NXWidgets::CImage *image =
+    new NXWidgets::CImage(control, 0, 0, w, h, scaler, 0);
+
+#else
   if (bitmap)
     {
       w = bitmap->getWidth();
@@ -470,6 +502,8 @@ bool CTaskbar::startApplication(IApplication *app, bool minimized)
 
   NXWidgets::CImage *image =
     new NXWidgets::CImage(control, 0, 0, w, h, bitmap, 0);
+
+#endif
 
   if (!image)
     {
@@ -490,8 +524,8 @@ bool CTaskbar::startApplication(IApplication *app, bool minimized)
   // the task bar
 
   struct STaskbarSlot slot;
-  slot.app   = app;
-  slot.image = image;
+  slot.app    = app;
+  slot.image  = image;
   m_slots.push_back(slot);
 
   // Initialize the application states

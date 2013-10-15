@@ -81,16 +81,17 @@ CScaledBitmap::CScaledBitmap(IBitmap *bitmap, struct nxgl_size_s &newSize)
   // yImage = yRequested * oldHeight / newHeight
   //        = yRequested * yScale
 
-  m_xScale = itob16((uint32_t)m_bitmap->getHeight()) / newSize.h;
+  m_yScale = itob16((uint32_t)m_bitmap->getHeight()) / newSize.h;
 
   // Allocate and initialize the row cache
 
   size_t stride = bitmap->getStride();
-  m_rowCache[0] = new uint8_t(stride);
-  m_rowCache[1] = new uint8_t(stride);
+  m_rowCache[0] = new uint8_t[stride];
+  m_rowCache[1] = new uint8_t[stride];
 
   // Read the first two rows into the cache
 
+  m_row = m_bitmap->getWidth(); // Set to an impossible value
   cacheRows(0);
 }
 
@@ -100,6 +101,8 @@ CScaledBitmap::CScaledBitmap(IBitmap *bitmap, struct nxgl_size_s &newSize)
 
 CScaledBitmap::~CScaledBitmap(void)
 {
+  // Delete the allocated row cache memory
+
   if (m_rowCache[0])
     {
       delete m_rowCache[0];
@@ -108,6 +111,13 @@ CScaledBitmap::~CScaledBitmap(void)
   if (m_rowCache[1])
     {
       delete m_rowCache[1];
+   }
+
+  // We are also responsible for deleting the contained IBitmap
+
+  if (m_bitmap)
+    {
+      delete m_bitmap;
     }
 }
 
@@ -372,7 +382,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
           row = bitmapHeight - 1;
         }
 
-      if (!m_bitmap->getRun(0, row, bitmapWidth, &m_rowCache[1]))
+      if (!m_bitmap->getRun(0, row, bitmapWidth, m_rowCache[1]))
         {
           gdbg("Failed to read bitmap row %d\n", row);
           return false;
@@ -391,7 +401,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
           row = bitmapHeight - 1;
         }
 
-      if (!m_bitmap->getRun(0, row, bitmapWidth, &m_rowCache[0]))
+      if (!m_bitmap->getRun(0, row, bitmapWidth, m_rowCache[0]))
         {
           gdbg("Failed to read bitmap row %d\n", row);
           return false;
@@ -408,7 +418,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
           row = bitmapHeight - 1;
         }
 
-      if (!m_bitmap->getRun(0, row, bitmapWidth, &m_rowCache[1]))
+      if (!m_bitmap->getRun(0, row, bitmapWidth, m_rowCache[1]))
         {
           gdbg("Failed to read bitmap row %d\n", row);
           return false;
@@ -432,21 +442,33 @@ bool CScaledBitmap::scaleColor(FAR const struct rgbcolor_s &incolor1,
                                FAR const struct rgbcolor_s &incolor2,
                                b16_t fraction, FAR struct rgbcolor_s &outcolor)
 {
-  unsigned int red;
-  unsigned int green;
-  unsigned int blue;
-  b16_t remainder = b16ONE - fraction;
- 
-  red   = (unsigned int)incolor1.r * fraction + 
-          (unsigned int)incolor2.r * remainder;
-  green = (unsigned int)incolor1.g * fraction + 
-          (unsigned int)incolor2.g * remainder;
-  blue  = (unsigned int)incolor1.b * fraction + 
-          (unsigned int)incolor2.b * remainder;
+  uint8_t component;
+  b16_t red;
+  b16_t green;
+  b16_t blue;
 
-  outcolor.r = red   < 256 ? red   : 255;
-  outcolor.g = green < 256 ? green : 255;
-  outcolor.b = blue  < 256 ? blue  : 255;
+  // A fraction of < 0.5 would mean to use use mostly color1; a fraction
+  // greater than 0.5 would men to use mostly color2
+
+  b16_t remainder = b16ONE - fraction;
+
+  // Interpolate each color value  (converting to b15)
+
+  red   = (b16_t)incolor1.r * remainder + (b16_t)incolor2.r * fraction;
+  green = (b16_t)incolor1.g * remainder + (b16_t)incolor2.g * fraction;
+  blue  = (b16_t)incolor1.b * remainder + (b16_t)incolor2.b * fraction;
+
+  // Return the integer, interpolated values, clipping to the range of
+  // uint8_t
+
+  component  = b16toi(red);
+  outcolor.r = component < 256 ? component : 255;
+
+  component  = b16toi(green);
+  outcolor.g = component < 256 ? component : 255;
+
+  component  = b16toi(blue);
+  outcolor.b = component < 256 ? component : 255;
   return true;
 }
 

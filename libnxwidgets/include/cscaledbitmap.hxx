@@ -75,7 +75,7 @@ namespace NXWidgets
     FAR IBitmap       *m_bitmap;      /**< The bitmap that is being scaled */
     struct nxgl_size_s m_size;        /**< Scaled size of the image */
     FAR uint8_t       *m_rowCache[2]; /**< Two cached rows of the image */
-    unsigned int       m_row;         /**< Row number of the first cached row */
+    int                m_row;         /**< Row number of the first cached row */
     b16_t              m_xScale;      /**< X scale factor */
     b16_t              m_yScale;      /**< Y scale factor */
 
@@ -167,7 +167,7 @@ namespace NXWidgets
      * @return The bitmap's height (in rows).
      */
 
-    inline const nxgl_coord_t getHeight(void) const;
+    const nxgl_coord_t getHeight(void) const;
 
     /**
      * Get the bitmap's width (in bytes).

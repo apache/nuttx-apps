@@ -192,7 +192,7 @@ bool CRlePaletteBitmap::getRun(nxgl_coord_t x, nxgl_coord_t y, nxgl_coord_t widt
 {
   // Check ranges.  Casts to unsigned int are ugly but permit one-sided comparisons
 
-  if (((unsigned int)x           <  (unsigned int)width) &&
+  if (((unsigned int)x           <  (unsigned int)m_bitmap->width) &&
       ((unsigned int)(x + width) <= (unsigned int)m_bitmap->width))
     {
       // Seek to the requested row
