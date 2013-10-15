@@ -486,10 +486,11 @@ config NXWM_DISABLE_BACKGROUND_IMAGE
 
 config NXWM_BACKGROUND_IMAGE
 	string "Background Image"
+	default "NXWidgets::g_nuttxBitmap160x160"
 	depends on !NXWM_DISABLE_BACKGROUND_IMAGE
 	---help---
 		The name of the image to use in the background window.  Default:
-		NXWidgets::g_nuttxBitmap
+		"NXWidgets::g_nuttxBitmap160x160"
 
 comment "Application Window Configuration"
 

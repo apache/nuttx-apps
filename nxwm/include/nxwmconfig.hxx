@@ -270,11 +270,11 @@
 /* Background Image **********************************************************/
 /**
  * CONFIG_NXWM_BACKGROUND_IMAGE - The name of the image to use in the
- *   background window.  Default:NXWidgets::g_nuttxBitmap
+ *   background window.  Default:NXWidgets::g_nuttxBitmap160x160
  */
 
 #ifndef CONFIG_NXWM_BACKGROUND_IMAGE
-#  define CONFIG_NXWM_BACKGROUND_IMAGE NXWidgets::g_nuttxBitmap
+#  define CONFIG_NXWM_BACKGROUND_IMAGE NXWidgets::g_nuttxBitmap160x160
 #endif
 
 /* Start Window Configuration ***********************************************/
