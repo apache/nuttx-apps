@@ -531,7 +531,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
       x = (nxgl_coord_t)scaledX;
       y = (nxgl_coord_t)scaledY;
 
-      vdbg("raw: (%f6.2, %f6.2) scaled: (%f6.2, %f6.2) (%d, %d)\n",
+      vdbg("raw: (%6.2f, %6.2f) scaled: (%6.2f, %6.2f) (%d, %d)\n",
            rawX, rawY, scaledX, scaledY, x, y);
 #else
       // We have valid coordinates.  Get the raw touch

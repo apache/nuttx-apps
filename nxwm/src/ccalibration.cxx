@@ -1156,7 +1156,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.left.slope    = (bottomX - topX) / (bottomY - topY);
   data.left.offset   = topX - topY * data.left.slope;
 
-  idbg("Left slope: %f6.2 offset: %f6.2\n", data.left.slope, data.left.offset);
+  idbg("Left slope: %6.2f offset: %6.2f\n", data.left.slope, data.left.offset);
 
   topX               = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].x;
   bottomX            = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1167,7 +1167,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.right.slope   = (bottomX - topX) / (bottomY - topY);
   data.right.offset  = topX - topY * data.right.slope;
 
-  idbg("Right slope: %f6.2 offset: %f6.2\n", data.right.slope, data.right.offset);
+  idbg("Right slope: %6.2f offset: %6.2f\n", data.right.slope, data.right.offset);
 
   // Y lines:
   //
@@ -1185,7 +1185,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.top.slope     = (rightY - leftY) / (rightX - leftX);
   data.top.offset    = leftY - leftX * data.top.slope;
 
-  idbg("Top slope: %f6.2 offset: %f6.2\n", data.top.slope, data.top.offset);
+  idbg("Top slope: %6.2f offset: %6.2f\n", data.top.slope, data.top.offset);
 
   leftX              = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].x;
   rightX             = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1196,7 +1196,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.bottom.slope  = (rightY - leftY) / (rightX - leftX);
   data.bottom.offset = leftY - leftX * data.bottom.slope;
 
-  idbg("Bottom slope: %f6.2 offset: %f6.2\n", data.bottom.slope, data.bottom.offset);
+  idbg("Bottom slope: %6.2f offset: %6.2f\n", data.bottom.slope, data.bottom.offset);
 
   // Save also the calibration screen positions
 
