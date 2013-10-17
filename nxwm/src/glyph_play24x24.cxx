@@ -1,7 +1,7 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/glyph_play.cxx
+ * NxWidgets/nxwm/src/glyph_play24x24.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -243,7 +243,7 @@ static const struct NXWidgets::SRlePaletteBitmapEntry g_playRleEntries[] =
  * Public Bitmap Structure Defintions
  ********************************************************************************************/
 
-const struct NXWidgets::SRlePaletteBitmap NxWM::g_playBitmap =
+const struct NXWidgets::SRlePaletteBitmap NxWM::g_playBitmap24x24 =
 {
   CONFIG_NXWIDGETS_BPP,  // bpp    - Bits per pixel
   CONFIG_NXWIDGETS_FMT,  // fmt    - Color format

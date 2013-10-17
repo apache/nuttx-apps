@@ -73,6 +73,17 @@
 #define CALIBRATION_CIRCLE_RADIUS      16
 #define CALIBRATION_LINE_THICKNESS     2
 
+/* We want debug output from some logic in this file if either input/touchscreen
+ * or graphics debug is enabled.
+ */
+
+#ifndef CONFIG_DEBUG_INPUT
+#  undef  idbg
+#  define idbg gdbg
+#  undef  ivdbg
+#  define ivdbg gvdbg
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -341,7 +352,7 @@ void CCalibration::touchscreenInput(struct touch_sample_s &sample)
           m_touchPos.x = sample.point[0].x;
           m_touchPos.y = sample.point[0].y;
 
-          gvdbg("Touch id: %d flags: %02x x: %d y: %d h: %d w: %d pressure: %d\n",
+          ivdbg("Touch id: %d flags: %02x x: %d y: %d h: %d w: %d pressure: %d\n",
                 sample.point[0].id, sample.point[0].flags, sample.point[0].x,
                 sample.point[0].y,  sample.point[0].h,     sample.point[0].w,
                 sample.point[0].pressure);
@@ -379,7 +390,7 @@ void CCalibration::touchscreenInput(struct touch_sample_s &sample)
             {
               // Yes.. invoke the state machine.
 
-              gvdbg("State: %d Screen x: %d y: %d  Touch x: %d y: %d\n",
+              ivdbg("State: %d Screen x: %d y: %d  Touch x: %d y: %d\n",
                     m_calphase, m_screenInfo.pos.x, m_screenInfo.pos.y,
                     m_touchPos.x, m_touchPos.y);
 
@@ -682,7 +693,7 @@ bool CCalibration::averageSamples(struct nxgl_point_s &average)
 
   // Save the sample data
 
-  gvdbg("Sample %d: Touch x: %d y: %d\n", m_nsamples+1, m_touchPos.x, m_touchPos.y);
+  ivdbg("Sample %d: Touch x: %d y: %d\n", m_nsamples+1, m_touchPos.x, m_touchPos.y);
 
   m_sampleData[m_nsamples].x = m_touchPos.x;
   m_sampleData[m_nsamples].y = m_touchPos.y;
@@ -771,7 +782,7 @@ bool CCalibration::averageSamples(struct nxgl_point_s &average)
   average.y = m_sampleData[0].y;
 #endif
 
-  gvdbg("Average: Touch x: %d y: %d\n", average.x, average.y);
+  ivdbg("Average: Touch x: %d y: %d\n", average.x, average.y);
   m_nsamples = 0;
   return true;
 }
@@ -1016,7 +1027,7 @@ void CCalibration::stateMachine(void)
         break;
     }
 
-  gvdbg("New m_calphase=%d Screen x: %d y: %d\n",
+  ivdbg("New m_calphase=%d Screen x: %d y: %d\n",
         m_calphase, m_screenInfo.pos.x, m_screenInfo.pos.y);
 }
 
@@ -1145,7 +1156,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.left.slope    = (bottomX - topX) / (bottomY - topY);
   data.left.offset   = topX - topY * data.left.slope;
 
-  gdbg("Left slope: %f offset: %f\n", data.left.slope, data.left.offset);
+  idbg("Left slope: %f offset: %f\n", data.left.slope, data.left.offset);
 
   topX               = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].x;
   bottomX            = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1156,7 +1167,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.right.slope   = (bottomX - topX) / (bottomY - topY);
   data.right.offset  = topX - topY * data.right.slope;
 
-  gdbg("Right slope: %f offset: %f\n", data.right.slope, data.right.offset);
+  idbg("Right slope: %f offset: %f\n", data.right.slope, data.right.offset);
 
   // Y lines:
   //
@@ -1174,7 +1185,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.top.slope     = (rightY - leftY) / (rightX - leftX);
   data.top.offset    = leftY - leftX * data.top.slope;
 
-  gdbg("Top slope: %f offset: %f\n", data.top.slope, data.top.offset);
+  idbg("Top slope: %f offset: %f\n", data.top.slope, data.top.offset);
 
   leftX              = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].x;
   rightX             = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1185,7 +1196,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.bottom.slope  = (rightY - leftY) / (rightX - leftX);
   data.bottom.offset = leftY - leftX * data.bottom.slope;
 
-  gdbg("Bottom slope: %f offset: %f\n", data.bottom.slope, data.bottom.offset);
+  idbg("Bottom slope: %f offset: %f\n", data.bottom.slope, data.bottom.offset);
 
   // Save also the calibration screen positions
 
@@ -1213,7 +1224,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.xSlope  = b16divb16(itob16(CALIBRATION_RIGHTX - CALIBRATION_LEFTX), (rightX - leftX));
   data.xOffset = itob16(CALIBRATION_LEFTX) - b16mulb16(leftX, data.xSlope);
 
-  gdbg("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
+  idbg("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
 
   // Similarly for Y
   //
@@ -1234,7 +1245,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.ySlope  = b16divb16(itob16(CALIBRATION_BOTTOMY - CALIBRATION_TOPY), (bottomY - topY));
   data.yOffset = itob16(CALIBRATION_TOPY) - b16mulb16(topY, data.ySlope);
 
-  gdbg("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
+  idbg("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
 #endif
 
   return true;

@@ -579,7 +579,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
 
 #endif
 
-      gvdbg("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
+      vdbg("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
     }
 
   // Get the server handle and "inject the mouse data

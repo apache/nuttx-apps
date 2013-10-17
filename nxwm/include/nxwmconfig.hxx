@@ -312,7 +312,7 @@
  */
 
 #ifndef CONFIG_NXWM_STARTWINDOW_ICON
-#  define CONFIG_NXWM_STARTWINDOW_ICON NxWM::g_playBitmap
+#  define CONFIG_NXWM_STARTWINDOW_ICON NxWM::g_playBitmap24x24
 #endif
 
 /**

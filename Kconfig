@@ -567,15 +567,15 @@ config NXWM_CUSTOM_STARTWINDOW_ICON
 	bool "Custom Start Window Icon"
 	default n
 	---help---
-		Select to override the default Start Window Icon: NxWM::g_playBitmap
+		Select to override the default Start Window Icon: NxWM::g_playBitmap24x24
 
 if NXWM_CUSTOM_STARTWINDOW_ICON
 
 config NXWM_STARTWINDOW_ICON
 	string "StartWindow Icon"
-	default "NxWM::g_playBitmap"
+	default "NxWM::g_playBitmap24x24"
 	---help---
-		The glyph to use as the start window icon.  Default: NxWM::g_playBitmap
+		The glyph to use as the start window icon.  Default: NxWM::g_playBitmap24x24
 
 endif # NXWM_CUSTOM_STARTWINDOW_ICON
 
