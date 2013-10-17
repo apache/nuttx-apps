@@ -1128,6 +1128,72 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
       return false;
     }
 
+#ifdef CONFIG_NXWM_CALIBRATION_ANISOTROPIC
+  // X lines:
+  //
+  //   x2 = slope*y1 + offset
+  //
+  // slope  = (bottomY - topY) / (bottomX - topX)
+  // offset = (topY - topX * slope)
+
+  float topX         = (float)m_calibData[CALIB_UPPER_LEFT_INDEX].x;
+  float bottomX      = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].x;
+
+  float topY         = (float)m_calibData[CALIB_UPPER_LEFT_INDEX].y;
+  float bottomY      = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].y;
+
+  data.left.slope    = (bottomX - topX) / (bottomY - topY);
+  data.left.offset   = topX - topY * data.left.slope;
+
+  gdbg("Left slope: %f offset: %f\n", data.left.slope, data.left.offset);
+
+  topX               = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].x;
+  bottomX            = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
+
+  topY               = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].y;
+  bottomY            = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].y;
+
+  data.right.slope   = (bottomX - topX) / (bottomY - topY);
+  data.right.offset  = topX - topY * data.right.slope;
+
+  gdbg("Right slope: %f offset: %f\n", data.right.slope, data.right.offset);
+
+  // Y lines:
+  //
+  //   y2 = slope*x1 + offset
+  //
+  // slope  = (rightX - topX) / (rightY - leftY)
+  // offset = (topX - leftY * slope)
+
+  float leftX        = (float)m_calibData[CALIB_UPPER_LEFT_INDEX].x;
+  float rightX       = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].x;
+
+  float leftY        = (float)m_calibData[CALIB_UPPER_LEFT_INDEX].y;
+  float rightY       = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].y;
+
+  data.top.slope     = (rightY - leftY) / (rightX - leftX);
+  data.top.offset    = leftY - leftX * data.top.slope;
+
+  gdbg("Top slope: %f offset: %f\n", data.top.slope, data.top.offset);
+
+  leftX              = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].x;
+  rightX             = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
+
+  leftY              = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].y;
+  rightY             = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].y;
+
+  data.bottom.slope  = (rightY - leftY) / (rightX - leftX);
+  data.bottom.offset = leftY - leftX * data.bottom.slope;
+
+  gdbg("Bottom slope: %f offset: %f\n", data.bottom.slope, data.bottom.offset);
+
+  // Save also the calibration screen positions
+
+  data.leftX         = CALIBRATION_LEFTX;
+  data.rightX        = CALIBRATION_RIGHTX;
+  data.topY          = CALIBRATION_TOPY;
+  data.bottomY       = CALIBRATION_BOTTOMY;
+#else
   // Calculate the calibration parameters
   //
   // (scaledX - LEFTX) / (rawX - leftX) = (RIGHTX - LEFTX) / (rightX - leftX)
@@ -1169,6 +1235,8 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.yOffset = itob16(CALIBRATION_TOPY) - b16mulb16(topY, data.ySlope);
 
   gdbg("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
+#endif
+
   return true;
 }
 

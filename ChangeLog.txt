@@ -395,4 +395,6 @@
 * NxWidgets/libnxwidgets/src/glyph_nxlogo320x320.cxx:  Add a big, 320x320
   NuttX logo image.  The older, smaller NuttX logo was renamed from
   nxlogo to nxlogo160x160 in all places (2015-10-15).
-
+* NxWM::CCalibration and NxWM::CTouchscreen:  Add a complex touchscreen
+  scaling algorithm to handling the case where the measured X values also
+  vary with y position (and vice versa) (2013-10-17).

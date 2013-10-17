@@ -85,13 +85,35 @@ namespace NxWM
    * Touchscreen calibration data
    */
 
+#ifdef CONFIG_NXWM_CALIBRATION_ANISOTROPIC
+  struct SCalibrationLine
+  {
+    float slope;                     /**< The slope of a line */
+    float offset;                    /**< The offset of a line */
+  };
+
   struct SCalibrationData
   {
-    b16_t xSlope;   // X conversion: xSlope*(x) + xOffset
+    struct SCalibrationLine left;    /**< Describes Y values along left edge */
+    struct SCalibrationLine right;   /**< Describes Y values along right edge */
+    struct SCalibrationLine top;     /**< Describes X values along top */
+    struct SCalibrationLine bottom;  /**< Describes X values along bottom edge */
+    nxgl_coord_t leftX;              /**< Left X value used in calibration */
+    nxgl_coord_t rightX;             /**< Right X value used in calibration */
+    nxgl_coord_t topY;               /**< Top Y value used in calibration */
+    nxgl_coord_t bottomY;            /**< Bottom Y value used in calibration */
+  };
+
+#else
+  struct SCalibrationData
+  {
+    b16_t xSlope;                    /**< X conversion: xSlope*(x) + xOffset */
     b16_t xOffset;
-    b16_t ySlope;   // Y conversion: ySlope*(y) + yOffset
+    b16_t ySlope;                    /**< Y conversion: ySlope*(y) + yOffset */
     b16_t yOffset;
   };
+
+#endif
 
   /**
    * The CCalibration class provides the the calibration window and obtains

@@ -472,6 +472,66 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
     }
   else
     {
+#ifdef CONFIG_NXWM_CALIBRATION_ANISOTROPIC
+      // We have valid coordinates.  Get the raw touch
+      // position from the sample
+
+      float rawX = (float)sample->point[0].x;
+      float rawY = (float)sample->point[0].y;
+
+      // Create a line (varying in X) that have the same matching Y values
+      // X lines:
+      //
+      //   x2 = slope*y1 + offset
+      //
+      // X value calculated on the left side for the given value of y
+
+      float leftX  = rawY * m_calibData.left.slope + m_calibData.left.offset;
+
+      // X value calculated on the right side for the given value of y
+
+      float rightX = rawY * m_calibData.right.slope + m_calibData.right.offset;
+
+      // Line of X values between (m_calibData.leftX,leftX) and (m_calibData.rightX,rightX) the
+      // are possible solutions:
+      //
+      //  x2 = slope * x1 - offset
+
+      struct SCalibrationLine xLine;
+      xLine.slope  = (float)((int)m_calibData.rightX - (int)m_calibData.leftX) / (rightX - leftX);
+      xLine.offset = (float)m_calibData.leftX - leftX * xLine.slope;
+
+      // Create a line (varying in Y) that have the same matching X value
+      // X lines:
+      //
+      //   y2 = slope*x1 + offset
+      //
+      // Y value calculated on the top side for a given value of X
+
+      float topY = rawX * m_calibData.top.slope + m_calibData.top.offset;
+
+      // Y value calculated on the bottom side for a give value of X
+
+      float bottomY = rawX * m_calibData.bottom.slope + m_calibData.bottom.offset;
+
+      // Line of Y values between (topy,m_calibData.topY) and (bottomy,m_calibData.bottomY) that
+      // are possible solutions:
+      //
+      //  y2 = slope * y1 - offset
+
+      struct SCalibrationLine yLine;
+      yLine.slope  = (float)((int)m_calibData.bottomY - (int)m_calibData.topY) / (bottomY - topY);
+      yLine.offset = (float)m_calibData.topY - topY * yLine.slope;
+
+      // Then scale the raw x and y positions
+
+      float scaledX = rawX * xLine.slope + xLine.offset;
+      float scaledY = rawY * yLine.slope + yLine.offset;
+
+      x = (nxgl_coord_t)scaledX;
+      y = (nxgl_coord_t)scaledY;
+
+#else
       // We have valid coordinates.  Get the raw touch
       // position from the sample
 
@@ -517,7 +577,9 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
           y = (nxgl_coord_t)bigY;
         }
 
-      vdbg("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
+#endif
+
+      gvdbg("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
     }
 
   // Get the server handle and "inject the mouse data
