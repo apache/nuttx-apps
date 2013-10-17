@@ -103,7 +103,6 @@ void ShowFreeRAM(void);
 void Blinker(void);
 void StartSmartConfig(void);
 void ManualConnect(void);
-void ManualConnect(void);
 void ManualAddProfile(void);
 void ListAccessPoints(void);
 void PrintIPBytes(uint8_t *ipBytes);
