@@ -82,7 +82,7 @@ config EXAMPLES_NXTEXT_PUFONTCOLOR
 		The color of the fonts used in the pop-up window. Default
 		depends on config EXAMPLES_NXTEXT_BPP.
 
-endif
+endif # !EXAMPLES_NXTEXT_DEFAULT_COLORS
 
 comment "Example Font Configuration"
 
@@ -106,7 +106,7 @@ config EXAMPLES_NXTEXT_PUFONTID
 		Selects the font used in the pop-up window (see font ID numbers
 		in include/nuttx/nx/nxfonts.h)
 
-endif
+endif # !EXAMPLES_NXTEXT_DEFAULT_FONT
 
 config EXAMPLES_NXTEXT_EXTERNINIT
 	bool "External Device Initialization"
@@ -124,6 +124,7 @@ config EXAMPLES_NXTEXT_EXTERNINIT
 		#endif
 
 if NX_MULTIUSER
+
 comment "Multi-User Configuration Options"
 
 config EXAMPLES_NXTEXT_STACKSIZE
@@ -156,5 +157,5 @@ config EXAMPLES_NXTEXT_NOTIFYSIGNO
 	---help---
 		The signal number to use with nx_eventnotify().  Default: 4
 
-endif
-endif
+endif # NX_MULTIUSER
+endif # EXAMPLES_NXTEXT
