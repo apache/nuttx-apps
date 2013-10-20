@@ -41,10 +41,10 @@ SUBDIRS  = adc buttons can cc3000 cxxtest dhcpd discover elf flash_test
 SUBDIRS += ftpc ftpd hello helloxx hidkbd igmp json keypadtest lcdrw
 SUBDIRS += mm modbus mount mtdpart nettest nrf24l01_term nsh null nx
 SUBDIRS += nxconsole nxffs nxflat nxhello nximage nxlines nxtext ostest 
-SUBDIRS += pashello pipe poll posix_spawn pwm qencoder relays rgmp romfs
-SUBDIRS += sendmail serloop slcd smart smart_test tcpecho telnetd thttpd tiff
-SUBDIRS += touchscreen udp uip usbserial usbterm watchdog wget wgetjson
-SUBDIRS += xmlrpc
+SUBDIRS += pashello pipe poll posix_spawn pwm qencoder random relays rgmp
+SUBDIRS += romfs sendmail serloop slcd smart smart_test tcpecho telnetd
+SUBDIRS += thttpd tiff touchscreen udp uip usbserial usbterm watchdog
+SUBDIRS += wget wgetjson xmlrpc
 
 # Sub-directories that might need context setup.  Directories may need
 # context setup for a variety of reasons, but the most common is because
@@ -55,9 +55,9 @@ CNTXTDIRS = pwm
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cc3000 cxxtest dhcpd discover flash_test ftpd
 CNTXTDIRS += hello helloxx json keypadtestmodbus lcdrw mtdpart nettest
-CNTXTDIRS += nx nxhello nximage nxlines nxtext nrf24l01_term ostest relays
-CNTXTDIRS += qencoder slcd smart_test tcpecho telnetd tiff touchscreen
-CNTXTDIRS += usbterm watchdog wgetjson
+CNTXTDIRS += nx nxhello nximage nxlines nxtext nrf24l01_term ostest random
+CNTXTDIRS += relays qencoder slcd smart_test tcpecho telnetd tiff
+CNTXTDIRS += touchscreen usbterm watchdog wgetjson
 endif
 
 all: nothing

@@ -684,6 +684,7 @@
 	* apps/Makefile:  Need to include external/Make.defs if we want
 	  allow external applications to participate in the NuttX
 	  configuration.  Suggested by gdi@embedders.org (2013-10-14).
-	* apps/examplex/cc3300: Updates as part of larger re-organizaion
+	* apps/examples/cc3300: Updates as part of larger re-organizaion
 	  of CC3000 logic by David Sidrane (2013-10-16).
-
+	* apps/examples/random:  Add a simple test that dumps values from
+	  /dev/random (2013-10-20).
