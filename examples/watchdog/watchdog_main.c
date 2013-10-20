@@ -292,6 +292,7 @@ int wdog_main(int argc, char *argv[])
           message("wdog_main: ioctl(WDIOC_GETSTATUS) failed: %d\n", errno);
           goto errout_with_dev;
         }
+
       message("wdog_main: flags=%08x timeout=%d timeleft=%d\n",
               status.flags, status.timeout, status.timeleft);
 #endif
