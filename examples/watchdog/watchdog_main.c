@@ -148,7 +148,7 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **arg
   long value;
   int index;
   int nargs;
- 
+
   wdog->pingtime  = CONFIG_EXAMPLES_WATCHDOG_PINGTIME;
   wdog->pingdelay = CONFIG_EXAMPLES_WATCHDOG_PINGDELAY;
   wdog->timeout   = CONFIG_EXAMPLES_WATCHDOG_TIMEOUT;
@@ -203,7 +203,7 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **arg
           case 'h':
             wdog_help();
             exit(EXIT_SUCCESS);
-        
+
           default:
             message("Unsupported option: %s\n", ptr);
             wdog_help();
@@ -341,6 +341,10 @@ int wdog_main(int argc, char *argv[])
   ret = ioctl(fd, WDIOC_STOP, 0);
   if (ret < 0)
     {
+      /* NOTE:  This may not be an error.  Some watchdog hardware does not
+       * support stopping the watchdog once it has been started.
+       */
+
       message("wdog_main: ioctl(WDIOC_STOP) failed: %d\n", errno);
       goto errout_with_dev;
     }
