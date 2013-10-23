@@ -688,3 +688,6 @@
 	  of CC3000 logic by David Sidrane (2013-10-16).
 	* apps/examples/random:  Add a simple test that dumps values from
 	  /dev/random (2013-10-20).
+	* apps/examples/cc3000:  Extensions and enhancements from David
+	  Sidrane (2013-10-23).
+

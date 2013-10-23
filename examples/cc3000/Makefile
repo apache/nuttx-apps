@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/hello/Makefile
+# apps/examples/cc3000/Makefile
 #
 #   Copyright (C) 2008, 2010-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -41,12 +41,16 @@ include $(APPDIR)/Make.defs
 
 APPNAME		= c3b
 PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 4096
+STACKSIZE	= 2048
+
+APPNAME1	= shell
+PRIORITY1	= SCHED_PRIORITY_DEFAULT
+STACKSIZE1	= 2048
 
 # Hello, World! Example
 
 ASRCS		=
-CSRCS		= cc3000basic.c board.c
+CSRCS		= cc3000basic.c board.c shell.c telnetd_driver.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
@@ -68,7 +72,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: clean depend distclean
@@ -86,8 +90,9 @@ $(COBJS): %$(OBJEXT): %.c
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(APPNAME1)_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
 context:
 endif

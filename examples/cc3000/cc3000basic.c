@@ -6,6 +6,10 @@
 *  Version 1.0.1b
 *
 *  Copyright (C) 2013 Chris Magagna - cmagagna@yahoo.com
+*  Port to nuttx:
+*      Alan Carvalho de Assis <acassis@gmail.com>
+*      David Sidrane <david_s5@nscdg.com>
+*
 *
 *  Redistribution and use in source and binary forms, with or without
 *  modification, are permitted provided that the following conditions
@@ -81,6 +85,7 @@ Arduino pin -----> 560 Ohm --+--> 1K Ohm -----> GND
 
 ****************************************************************************/
 
+#include <nuttx/config.h>
 #include "board.h"
 #include <stdio.h>
 #include <string.h>
@@ -88,16 +93,18 @@ Arduino pin -----> 560 Ohm --+--> 1K Ohm -----> GND
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
+#include <arpa/inet.h>
 #include <nuttx/wireless/cc3000/nvmem.h>
 #include <nuttx/wireless/cc3000/include/sys/socket.h>
 #include <nuttx/wireless/cc3000/wlan.h>
 #include <nuttx/wireless/cc3000/hci.h>
 #include <nuttx/wireless/cc3000/security.h>
 #include <nuttx/wireless/cc3000/netapp.h>
+#include "shell.h"
 
 void Initialize(void);
 void helpme(void);
-void execute(int cmd);
+int execute(int cmd);
 void ShowBufferSize(void);
 void ShowFreeRAM(void);
 void Blinker(void);
@@ -112,11 +119,56 @@ void ShowInformation(void);
 // function Blinker() flashes this LED. It's not required for actual use.
 
 #define BLINKER_LED  6
+#define MS_PER_SEC 1000
+#define US_PER_MS 1000
+#define US_PER_SEC 1000000
 
 uint8_t isInitialized = false;
 
+bool wait(long timeoutMs, volatile unsigned long *what, volatile unsigned long is)
+{
+  long t_ms;
+  struct timeval end, start;
+
+  gettimeofday(&start, NULL);
+
+  while (*what != is)
+    {
+      Blinker();
+      usleep(10*US_PER_MS);
+      gettimeofday(&end, NULL);
+      t_ms = ((end.tv_sec - start.tv_sec) * MS_PER_SEC) + ((end.tv_usec - start.tv_usec) / US_PER_MS) ;
+      if (t_ms > timeoutMs)
+        {
+        return false;
+        }
+    }
+
+  return true;
+}
+
+bool wait_on(long timeoutMs, volatile unsigned long *what, volatile unsigned long is,char * msg)
+{
+  printf(msg);
+  printf("...");
+  fflush(stdout);
+  bool ret = wait(timeoutMs,what,is);
+  if (!ret)
+    {
+      printf(" FAILED:Timeout!\n");
+    }
+  else
+    {
+      printf(" Succeed\n");
+    }
+
+  fflush(stdout);
+  return ret;
+}
+
 void AsyncEventPrint(void)
 {
+  printf("\n");
   switch(lastAsyncEvent)
     {
       printf("CC3000 Async event: Simple config done\n");
@@ -161,26 +213,29 @@ void AsyncEventPrint(void)
 void helpme(void)
 {
   printf("\n+-------------------------------------------+\n");
-  printf("|      Arduino CC3000 Demo Program          |\n");
+  printf("|      Nuttx CC3000 Demo Program            |\n");
   printf("+-------------------------------------------+\n\n");
-  printf("  1 - Initialize the CC3000\n");
-  printf("  2 - Show RX & TX buffer sizes, & free RAM\n");
-  printf("  3 - Start Smart Config\n");
-  printf("  4 - Manually connect to AP\n");
-  printf("  5 - Manually add connection profile\n");
-  printf("  6 - List access points\n");
-  printf("  7 - Show CC3000 information\n");
-  printf("\n Type 1-7 to select above option or (q/Q) to quit: ");
+  printf("  01 - Initialize the CC3000\n");
+  printf("  02 - Show RX & TX buffer sizes, & free RAM\n");
+  printf("  03 - Start Smart Config\n");
+  printf("  04 - Manually connect to AP\n");
+  printf("  05 - Manually add connection profile\n");
+  printf("  06 - List access points\n");
+  printf("  07 - Show CC3000 information\n");
+  printf("  08 - Telnet\n");
+  printf("\n Type 01-07 to select above option: ");
 }
 
-void execute(int cmd)
+int execute(int cmd)
 {
+  int ret = 0;
   if (asyncNotificationWaiting)
     {
       asyncNotificationWaiting = false;
       AsyncEventPrint();
     }
 
+  printf("\n");
   switch(cmd)
     {
     case '1':
@@ -205,17 +260,24 @@ void execute(int cmd)
     case '7':
       ShowInformation();
       break;
+    case '8':
+      shell_main(0, 0);
+      break;
+    case 'q':
+    case 'Q':
+      ret = 1;
+      break;
     default:
       printf("**Unknown command \"%d\" **\n", cmd);
       break;
     }
 
-    return;
+    return ret;
 }
 
 void Initialize(void)
 {
-  uint8_t fancyBuffer[MAC_ADDR_LEN], i = 0;
+  uint8_t fancyBuffer[MAC_ADDR_LEN];
 
   if (isInitialized)
     {
@@ -285,7 +347,6 @@ void Blinker(void)
 {
 }
 
-
 /*
   Smart Config is TI's way to let you connect your device to your WiFi network
   without needing a keyboard and display to enter the network name, password,
@@ -312,74 +373,77 @@ char simpleConfigPrefix[] = {'T', 'T', 'T'};
 // that name into their phone or tablet when they run Smart Config.
 char device_name[]  = "CC3000";
 
-void StartSmartConfig(void) {
+void StartSmartConfig(void)
+{
   long rval;
-  double t_us;
-  struct timeval end, start;
 
-  if (!isInitialized) {
-    printf("CC3000 not initialized; can't run Smart Config.\n");
-    return;
-  }
+  if (!isInitialized)
+    {
+      printf("CC3000 not initialized; can't run Smart Config.\n");
+      return;
+    }
 
-  printf("Starting Smart Config...\n");
+  printf("Starting Smart Config\n");
 
-  printf("  Disabling auto-connect policy...\n");
-  if ((rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE))!=0) {
-    printf("    Setting auto connection policy failed, error: %X\n", rval);
-    return;
-  }
+  printf("  Disabling auto-connect policy...");
+  if ((rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE)) !=0 )
+    {
+      printf(" Failed!\n    Setting auto connection policy failed, error: %X\n", rval);
+      return;
+    }
 
-  printf("  Deleting all existing profiles...\n");
-  if ((rval = wlan_ioctl_del_profile(255))!=0) {
-    printf("    Deleting all profiles failed, error: %X\n", rval);
-    return;
-  }
+  printf(" Succeed\n");
+  printf("  Deleting all existing profiles...");
+  fflush(stdout);
 
-  printf("  Waiting until disconnected...\n");
-  while (ulCC3000Connected == 1) {
-    Blinker();
-  }
+  if ((rval = wlan_ioctl_del_profile(255)) !=0 )
+    {
+      printf(" Failed!\n    Deleting all profiles failed, error: %X\n", rval);
+      return;
+    }
 
-  printf("  Setting smart config prefix...\n");
-  if ((rval = wlan_smart_config_set_prefix(simpleConfigPrefix))!=0) {
-    printf("    Setting smart config prefix failed, error: %X", rval);
-    return;
-  }
+  printf(" Succeed\n");
+  wait_on(20*MS_PER_SEC, &ulCC3000Connected, 0, "  Waiting until disconnected");
 
+  printf("  Setting smart config prefix...");
+  fflush(stdout);
+
+  if ((rval = wlan_smart_config_set_prefix(simpleConfigPrefix)) !=0 )
+    {
+      printf(" Failed!\n    Setting smart config prefix failed, error: %X", rval);
+      return;
+    }
+
+  printf(" Succeed\n");
   printf("  Starting smart config...");
-  if ((rval = wlan_smart_config_start(0))!=0) {
-    printf("    Starting smart config failed, error: %X\n", rval);
-    return;
-  }
+  fflush(stdout);
 
-  // Wait for Smartconfig process complete, or 30 seconds, whichever
-  // comes first. The Uno isn't seeing the HCI_EVNT_WLAN_ASYNC_SIMPLE_CONFIG_DONE
-  // event and I can't figure out why (it works fine on the Teensy) so my
-  // temporary workaround is I just stop waiting after a while
-  gettimeofday(&start, NULL);
-  while (ulSmartConfigFinished == 0)
-  {
-    Blinker();
-    gettimeofday(&end, NULL);
-    t_us = ((end.tv_sec - start.tv_sec) * 1000*1000) + (end.tv_usec - start.tv_usec) ;
-    if (t_us > 3000000) //3s
+  if ((rval = wlan_smart_config_start(0)) !=0 )
+    {
+      printf(" Failed!\n    Starting smart config failed, error: %X\n", rval);
+      return;
+    }
+
+  printf(" Succeed\n");
+
+  if (!wait_on(30*MS_PER_SEC, &ulSmartConfigFinished, 1, "  Waiting on Starting smart config done"))
     {
       printf("    Timed out waiting for Smart Config to finish. Hopefully it did anyway\n");
-      break;
     }
-  }
 
-  printf("  Smart Config packet seen!\n");
+  printf("  Smart Config packet %s!\n",ulSmartConfigFinished ? "seen" : "NOT seen");
 
-  printf("  Enabling auto-connect policy...\n");
-  if ((rval=wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE))!=0)
-  {
-    printf("    Setting auto connection policy failed, error: %X\n", rval);
-    return;
-  }
+  printf("  Enabling auto-connect policy...");
+  fflush(stdout);
+  if ((rval=wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE)) !=0 )
+    {
+      printf(" Failed!\n    Setting auto connection policy failed, error: %X\n", rval);
+      return;
+    }
 
+  printf(" Succeed\n");
   printf("  Stopping CC3000...\n");
+  fflush(stdout);
   wlan_stop();  // no error returned here, so nothing to check
 
   printf("  Pausing for 2 seconds...\n");
@@ -388,26 +452,28 @@ void StartSmartConfig(void) {
   printf("  Restarting CC3000... \n");
   wlan_start(0);  // no error returned here, so nothing to check
 
-  printf("  Waiting for connection to AP...\n");
-  while (ulCC3000Connected!=1)
-  {
-    Blinker();
-  }
+  if (!wait_on(20*MS_PER_SEC, &ulCC3000Connected, 1, "  Waiting for connection to AP"))
+    {
+      printf("    Timed out waiting for connection to AP\n");
+      return;
+    }
 
-  printf("  Waiting for IP address from DHCP...\n");
-  while (ulCC3000DHCP!=1)
-  {
-    Blinker();
-  }
+  if (!wait_on(15*MS_PER_SEC, &ulCC3000DHCP, 1, "  Waiting for IP address from DHCP"))
+    {
+      printf("    Timed out waiting for IP address from DHCP\n");
+      return;
+    }
 
   printf("  Sending mDNS broadcast to signal we're done with Smart Config...\n");
+  fflush(stdout);
   mdnsAdvertiser(1,device_name,strlen(device_name)); // The API documentation says mdnsAdvertiser()
       // is supposed to return 0 on success and SOC_ERROR on failure, but it looks like
       // what it actually returns is the socket number it used. So we ignore it.
 
-  printf("  Smart Config finished!\n");
+  printf("  Smart Config finished Successfully!\n");
+  ShowInformation();
+  fflush(stdout);
 }
-
 
 /*
   This is an example of how you'd connect the CC3000 to an AP without using
@@ -417,17 +483,17 @@ void StartSmartConfig(void) {
   always going to connect to your network this way you wouldn't need it.
 */
 
-void ManualConnect(void) {
-
+void ManualConnect(void)
+{
   char ssidName[] = "YourAP";
   char AP_KEY[] = "yourpass";
   uint8_t rval;
 
   if (!isInitialized)
-  {
-    printf("CC3000 not initialized; can't run manual connect.\n");
-    return;
-  }
+    {
+      printf("CC3000 not initialized; can't run manual connect.\n");
+      return;
+    }
 
   printf("Starting manual connect...\n");
 
@@ -437,11 +503,7 @@ void ManualConnect(void) {
   printf("  Deleting all existing profiles...\n");
   rval = wlan_ioctl_del_profile(255);
 
-  printf("  Waiting until disconnected...\n");
-  while (ulCC3000Connected == 1)
-  {
-    usleep(100000); //delay 100ms in busy wait
-  }
+  wait_on(15*MS_PER_SEC, &ulCC3000Connected, 0, "    Waiting until disconnected");
 
   printf("  Manually connecting...\n");
 
@@ -450,6 +512,7 @@ void ManualConnect(void) {
   // Parameter 3 is the MAC adddress of the AP. All the TI examples
   //        use NULL. I suppose you would want to specify this
   //        if you were security paranoid.
+
   rval = wlan_connect(WLAN_SEC_WPA2,
         ssidName,
         strlen(ssidName),
@@ -457,12 +520,14 @@ void ManualConnect(void) {
         (uint8_t *)AP_KEY,
         strlen(AP_KEY));
 
-  if (rval==0) {
-    printf("  Manual connect success.\n");
-  }
-  else {
-    printf("  Unusual return value: %d\n", rval);
-  }
+  if (rval==0)
+    {
+      printf("  Manual connect success.\n");
+    }
+  else
+    {
+      printf("  Unusual return value: %d\n", rval);
+    }
 }
 
 /*
@@ -483,16 +548,17 @@ void ManualConnect(void) {
   manage multiple profiles you'll need to do that yourself.
 */
 
-void ManualAddProfile(void) {
+void ManualAddProfile(void)
+{
   char ssidName[] = "YourAP";
   char AP_KEY[] = "yourpass";
   uint8_t rval;
 
   if (!isInitialized)
-  {
-    printf("CC3000 not initialized; can't run manual add profile.");
-    return;
-  }
+    {
+      printf("CC3000 not initialized; can't run manual add profile.");
+      return;
+    }
 
   printf("Starting manual add profile...\n");
 
@@ -513,33 +579,32 @@ void ManualAddProfile(void) {
           strlen(AP_KEY)    // WPA security key length
           );
 
-  if (rval!=255) {
+  if (rval!=255)
+    {
+      // This code is lifted from http://e2e.ti.com/support/low_power_rf/f/851/p/180859/672551.aspx;
+      // the actual API documentation on wlan_add_profile doesn't specify any of this....
 
-    // This code is lifted from http://e2e.ti.com/support/low_power_rf/f/851/p/180859/672551.aspx;
-    // the actual API documentation on wlan_add_profile doesn't specify any of this....
+      printf("  Manual add profile success, stored in profile: %d\n", rval);
 
-    printf("  Manual add profile success, stored in profile: %d\n", rval);
+      printf("  Enabling auto connection...\n");
+      wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE);
 
-    printf("  Enabling auto connection...\n");
-    wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE);
+      printf("  Stopping CC3000...\n");
+      wlan_stop();
 
-    printf("  Stopping CC3000...\n");
-    wlan_stop();
+      printf("  Stopping for 5 seconds...\n");
+      usleep(5000000);
 
-    printf("  Stopping for 5 seconds...\n");
-    usleep(5000000);
+      printf("  Restarting CC3000...\n");
+      wlan_start(0);
 
-    printf("  Restarting CC3000...\n");
-    wlan_start(0);
-
-    printf("  Manual add profile done!");
-
-  }
-  else {
-    printf("  Manual add profile failured (all profiles full?).");
-  }
+      printf("  Manual add profile done!");
+    }
+  else
+    {
+      printf("  Manual add profile failured (all profiles full?).");
+    }
 }
-
 
 /*
   The call wlan_ioctl_get_scan_results returns this structure. I couldn't
@@ -582,7 +647,8 @@ void ManualAddProfile(void) {
   bssid - 6 bytes - the MAC address of this AP
 */
 
-typedef struct scanResults {
+typedef struct scanResults
+{
   unsigned long numNetworksFound;
   unsigned long results;
   unsigned isValid:1;
@@ -592,29 +658,32 @@ typedef struct scanResults {
   uint16_t frameTime;
   uint8_t ssid_name[32];
   uint8_t bssid[6];
-  } scanResults;
+} scanResults;
 
 #define NUM_CHANNELS  16
 
-void ListAccessPoints(void) {
+void ListAccessPoints(void)
+{
   unsigned long aiIntervalList[NUM_CHANNELS];
   uint8_t rval;
   scanResults sr;
   int apCounter, i;
   char localB[33];
 
-  if (!isInitialized) {
-    printf("CC3000 not initialized; can't list access points.\n");
-    return;
-  }
+  if (!isInitialized)
+    {
+      printf("CC3000 not initialized; can't list access points.\n");
+      return;
+    }
 
   printf("List visible access points\n");
 
   printf("  Setting scan paramters...\n");
 
-  for (i=0; i<NUM_CHANNELS; i++) {
-    aiIntervalList[i] = 2000;
-  }
+  for (i=0; i<NUM_CHANNELS; i++)
+    {
+      aiIntervalList[i] = 2000;
+    }
 
   rval = wlan_ioctl_set_scan_params(
       1000,  // enable start application scan
@@ -627,13 +696,15 @@ void ListAccessPoints(void) {
       205,  // probe TX power
       aiIntervalList  // table of scan intervals per channel
       );
-  if (rval!=0) {
-    printf("  Got back unusual result from wlan_ioctl_set_scan_params, can't continue: %d\n", rval);
-    return;
-  }
 
-  printf("  Sleeping 5 seconds to let the CC3000 discover APs...\n");
-  usleep(5000000);
+  if (rval!=0)
+    {
+      printf("  Got back unusual result from wlan_ioctl_set_scan_params, can't continue: %d\n", rval);
+      return;
+    }
+
+  //printf("  Sleeping 5 seconds to let the CC3000 discover APs...\n");
+  //usleep(5000000);
 
   printf("  Getting AP count...\n");
 
@@ -641,55 +712,61 @@ void ListAccessPoints(void) {
   // actual # of APs currently seen. Get that # then loop through and print
   // out what's found.
 
-  if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr))!=0) {
-    printf("  Got back unusual result from wlan_ioctl_get scan results, can't continue: %d\n", rval);
-    return;
-  }
+  if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr))!=0)
+    {
+      printf("  Got back unusual result from wlan_ioctl_get scan results, can't continue: %d\n", rval);
+      return;
+    }
 
   apCounter = sr.numNetworksFound;
   printf("  Number of APs found: %d\n", apCounter);
 
-  do {
-    if (sr.isValid) {
-      printf("    \n");
-      switch(sr.securityMode) {
-        case WLAN_SEC_UNSEC:  // 0
-          printf("OPEN ");
-          break;
-        case WLAN_SEC_WEP:    // 1
-          printf("WEP  ");
-          break;
-        case WLAN_SEC_WPA:    // 2
-          printf("WPA  ");
-          break;
-        case WLAN_SEC_WPA2:    // 3
-          printf("WPA2 ");
-          break;
-        }
-      sprintf(localB, "%3d  ", sr.rssi);
-      printf("%s", localB);
-      memset(localB, 0, 33);
-      memcpy(localB, sr.ssid_name, sr.ssidLength);
-      printf("%s", localB);
-    }
+  do
+    {
+      if (sr.isValid)
+        {
+          printf("    ");
+          switch(sr.securityMode)
+            {
+            case WLAN_SEC_UNSEC:  // 0
+              printf("OPEN ");
+              break;
+            case WLAN_SEC_WEP:    // 1
+              printf("WEP  ");
+              break;
+            case WLAN_SEC_WPA:    // 2
+              printf("WPA  ");
+              break;
+            case WLAN_SEC_WPA2:    // 3
+              printf("WPA2 ");
+              break;
+            }
 
-    if (--apCounter>0) {
-      if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr))!=0) {
-        printf("  Got back unusual result from wlan_ioctl_get scan, can't continue: %d\n", rval);
-        return;
-      }
+          sprintf(localB, "%3d  ", sr.rssi);
+          printf("%s", localB);
+          memset(localB, 0, 33);
+          memcpy(localB, sr.ssid_name, sr.ssidLength);
+          printf("%s\n", localB);
+        }
+
+      if (--apCounter>0)
+        {
+          if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr)) !=0 )
+            {
+              printf("  Got back unusual result from wlan_ioctl_get scan, can't continue: %d\n", rval);
+              return;
+            }
+        }
     }
-  } while (apCounter>0);
+  while (apCounter>0);
 
   printf("  Access Point list finished.\n");
 }
 
-
-
-void PrintIPBytes(uint8_t *ipBytes) {
+void PrintIPBytes(uint8_t *ipBytes)
+{
   printf("%d.%d.%d.%d\n", ipBytes[3], ipBytes[2], ipBytes[1], ipBytes[0]);
 }
-
 
 /*
   All the data in all the fields from netapp_ipconfig() are reversed,
@@ -701,16 +778,17 @@ void PrintIPBytes(uint8_t *ipBytes) {
   the right order etc.
 */
 
-void ShowInformation(void) {
-
+void ShowInformation(void)
+{
   tNetappIpconfigRetArgs inf;
   char localB[33];
   int i;
 
-  if (!isInitialized) {
-    printf("CC3000 not initialized; can't get information.\n");
-    return;
-  }
+  if (!isInitialized)
+    {
+      printf("CC3000 not initialized; can't get information.\n");
+      return;
+    }
 
   printf("CC3000 information:\n");
 
@@ -732,33 +810,35 @@ void ShowInformation(void) {
   PrintIPBytes(inf.aucDNSServer);
 
   printf("  MAC address: ");
-  for (i=(MAC_ADDR_LEN-1); i>=0; i--) {
-    if (i!=(MAC_ADDR_LEN-1)) {
-      printf(":");
+  for (i=(MAC_ADDR_LEN-1); i>=0; i--)
+    {
+      if (i!=(MAC_ADDR_LEN-1))
+        {
+        printf(":");
+      }
+      printf("%X", inf.uaMacAddr[i]);
     }
-    printf("%X", inf.uaMacAddr[i]);
-  }
+
   printf("\n");
 
-  memset(localB, 0, 32);
-  memcpy(localB, inf.uaSSID, 32);
+  memset(localB, 0, sizeof(localB));
+  strncpy(localB, (char*)inf.uaSSID,sizeof(localB));
 
-  printf("  Connected to SSID: %d\n", localB);
+  printf("  Connected to SSID: %s\n", localB);
 }
 
 int c3b_main(int argc, char *argv[])
 {
   char ch='0';
 
-  while(ch != 'q' && ch != 'Q')
-  {
-    helpme();
+  do
+    {
+      helpme();
 
-    ch = getchar();
+      ch = getchar();
 
-    execute(ch);
-  }
+    }
+  while(execute(ch) == 0);
 
   return 0;
 }
-

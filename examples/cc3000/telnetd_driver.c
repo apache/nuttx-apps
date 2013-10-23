@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/telnetd_driver.c
+ * apps/examples/cc3000/telnetd_driver.c
  *
  *   Copyright (C) 2007, 2009, 2011-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -45,7 +45,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <sys/socket.h>
+#include <nuttx/wireless/cc3000/include/sys/socket.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -62,7 +62,6 @@
 #include <nuttx/net/net.h>
 
 #include <apps/netutils/telnetd.h>
-#include <apps/netutils/uiplib.h>
 
 #include "telnetd.h"
 
@@ -109,7 +108,7 @@ struct telnetd_dev_s
   uint8_t            td_offset;  /* Offset to the valid, pending bytes in the rxbuffer */
   uint8_t            td_crefs;   /* The number of open references to the session */
   int                td_minor;   /* Minor device number */
-  FAR struct socket  td_psock;   /* A clone of the internal socket structure */
+  long               td_psock;   /* A clone of the internal socket structure */
   char td_rxbuffer[CONFIG_TELNETD_RXBUFFER_SIZE];
   char td_txbuffer[CONFIG_TELNETD_TXBUFFER_SIZE];
 };
@@ -136,7 +135,7 @@ static void    telnetd_sendopt(FAR struct telnetd_dev_s *priv, uint8_t option,
                  uint8_t value);
 
 /* Character driver methods */
- 
+
 static int     telnetd_open(FAR struct file *filep);
 static int     telnetd_close(FAR struct file *filep);
 static ssize_t telnetd_read(FAR struct file *, FAR char *, size_t);
@@ -181,7 +180,7 @@ static inline void telnetd_dumpbuffer(FAR const char *msg,
   /* CONFIG_DEBUG, CONFIG_DEBUG_VERBOSE, and CONFIG_DEBUG_NET have to be
   * defined or the following does nothing.
   */
-    
+
   nvdbgdumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
 }
 #endif
@@ -393,7 +392,7 @@ static void telnetd_sendopt(FAR struct telnetd_dev_s *priv, uint8_t option,
   optbuf[3] = 0;
 
   telnetd_dumpbuffer("Send optbuf", optbuf, 4);
-  if (psock_send(&priv->td_psock, optbuf, 4, 0) < 0)
+  if (send(priv->td_psock, optbuf, 4, 0) < 0)
     {
       nlldbg("Failed to send TELNET_IAC\n");
     }
@@ -513,7 +512,7 @@ static int telnetd_close(FAR struct file *filep)
 
       /* Close the socket */
 
-      psock_close(&priv->td_psock);
+      closesocket(priv->td_psock);
 
       /* Release the driver memory.  What if there are threads waiting on
        * td_exclsem?  They will never be awakened!  How could this happen?
@@ -568,7 +567,7 @@ static ssize_t telnetd_read(FAR struct file *filep, FAR char *buffer, size_t len
 
       else
         {
-          ret = psock_recv(&priv->td_psock, priv->td_rxbuffer,
+          ret = recv(priv->td_psock, priv->td_rxbuffer,
                           CONFIG_TELNETD_RXBUFFER_SIZE, 0);
 
           /* Did we receive anything? */
@@ -640,7 +639,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
         {
           /* Yes... send the data now */
 
-          ret = psock_send(&priv->td_psock, priv->td_txbuffer, ncopied, 0);
+          ret = send(priv->td_psock, priv->td_txbuffer, ncopied, 0);
           if (ret < 0)
             {
               nlldbg("psock_send failed '%s': %d\n", priv->td_txbuffer, ret);
@@ -657,7 +656,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
 
   if (ncopied > 0)
     {
-      ret = psock_send(&priv->td_psock, priv->td_txbuffer, ncopied, 0);
+      ret = send(priv->td_psock, priv->td_txbuffer, ncopied, 0);
       if (ret < 0)
         {
           nlldbg("psock_send failed '%s': %d\n", priv->td_txbuffer, ret);
@@ -733,14 +732,13 @@ static int telnetd_poll(FAR struct file *filep, FAR struct pollfd *fds,
  * Return:
  *   An allocated string represent the full path to the created driver.  The
  *   receiver of the string must de-allocate this memory when it is no longer
- *   needed.  NULL is returned on a failure. 
+ *   needed.  NULL is returned on a failure.
  *
  ****************************************************************************/
 
-FAR char *telnetd_driver(int sd, FAR struct telnetd_s *daemon)
+FAR char *telnetd_driver(long sd, FAR struct telnetd_s *daemon)
 {
   FAR struct telnetd_dev_s *priv;
-  FAR struct socket *psock;
   FAR char *devpath = NULL;
   int ret;
 
@@ -761,29 +759,8 @@ FAR char *telnetd_driver(int sd, FAR struct telnetd_s *daemon)
   priv->td_crefs   = 0;
   priv->td_pending = 0;
   priv->td_offset  = 0;
+  priv->td_psock = sd;
 
-  /* Clone the internal socket structure.  We do this so that it will be
-   * independent of threads and of socket descriptors (the original socket
-   * instance resided in the daemon's socket array).
-   */
-
-  psock = sockfd_socket(sd);
-  if (!psock)
-    {
-      nlldbg("Failed to convert sd=%d to a socket structure\n", sd);
-      goto errout_with_dev;
-    }
-
-  ret = net_clone(psock, &priv->td_psock);
-  if (ret < 0)
-    {
-      nlldbg("net_clone failed: %d\n", ret);
-      goto errout_with_dev;
-    }
-
-  /* And close the original */
-
-  psock_close(psock);
 
   /* Allocation a unique minor device number of the telnet drvier */
 
@@ -829,6 +806,3 @@ errout_with_dev:
   free(priv);
   return NULL;
 }
-
-
-
