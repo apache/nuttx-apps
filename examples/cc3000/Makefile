@@ -50,7 +50,7 @@ STACKSIZE1	= 2048
 # Hello, World! Example
 
 ASRCS		=
-CSRCS		= cc3000basic.c board.c shell.c telnetd_driver.c
+CSRCS		= cc3000basic.c board.c shell.c telnetd_driver.c telnetd_daemon.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
