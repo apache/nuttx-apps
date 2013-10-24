@@ -241,7 +241,7 @@ int can_main(int argc, char *argv[])
 #endif
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
-    message("  ID: %4d DLC: %d\n", rxmsg.cm_hdr.id, rxmsg.cm_hdr.dlc);
+    message("  ID: %4d DLC: %d\n", rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 #endif
 
     /* Verify that the received messages are the same */

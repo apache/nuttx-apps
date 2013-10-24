@@ -695,4 +695,6 @@
 	  From David Sidrane (2013-10-24).
 	* apps/examples/cc3000:  Updates from David Sidrane.  Plus
 	  some kruft removal (2013-10-24).
+	* apps/examples/can/can_main.c:  Correct an error in a debug
+	  statement.  From Martin Lederhilger (2013-10-24).
 
