@@ -690,4 +690,7 @@
 	  /dev/random (2013-10-20).
 	* apps/examples/cc3000:  Extensions and enhancements from David
 	  Sidrane (2013-10-23).
+	* apps/netutils/telnetd/telnetd_driver.c:  Missing argument to
+	  debug statement can cause crashes in certain error conditions.
+	  From David Sidrane (2013-10-24).
 

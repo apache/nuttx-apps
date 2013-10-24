@@ -505,7 +505,7 @@ static int telnetd_close(FAR struct file *filep)
           ret = unregister_driver(devpath);
           if (ret < 0)
             {
-              nlldbg("Failed to unregister the driver %s: %d\n", ret);
+              nlldbg("Failed to unregister the driver %s: %d\n", devpath, ret);
             }
 
           free(devpath);
