@@ -67,7 +67,7 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE
-#  define CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE 786
+#  define CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE 990
 #endif
 
 /* Other definitions ********************************************************/

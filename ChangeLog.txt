@@ -693,4 +693,6 @@
 	* apps/netutils/telnetd/telnetd_driver.c:  Missing argument to
 	  debug statement can cause crashes in certain error conditions.
 	  From David Sidrane (2013-10-24).
+	* apps/examples/cc3000:  Updates from David Sidrane.  Plus
+	  some kruft removal (2013-10-24).
 
