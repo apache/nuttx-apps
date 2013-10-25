@@ -697,4 +697,6 @@
 	  some kruft removal (2013-10-24).
 	* apps/examples/can/can_main.c:  Correct an error in a debug
 	  statement.  From Martin Lederhilger (2013-10-24).
+	* apps/examples/adc:  Add support so that a ADC driven by
+	  software triggering can be tested (2013-10-25).
 

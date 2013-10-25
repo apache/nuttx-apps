@@ -34,4 +34,15 @@ config EXAMPLES_ADC_GROUPSIZE
 	---help---
 		The number of samples to read at once. Default: 4
 
+config EXAMPLES_ADC_SWTRIG
+	bool "Use software trigger"
+	default n
+	---help---
+		Some ADCs may be configured so there is no automatic or periodic
+		conversion of samples.  Rather, the ADC sampling must be trigger by
+		software via an ioctl command.  Select this option only if
+		applicable for your ADC configuration.  In this case, the test will
+		issue the software trigger ioctl before attempting to read from the
+		ADC.
+
 endif
