@@ -51,6 +51,7 @@
 #include <apps/netutils/uiplib.h>
 
 #include "shell.h"
+#include <apps/nsh.h>
 
 /****************************************************************************
  * Definitions
@@ -121,6 +122,9 @@ static void shell_unknown(int argc, char **argv)
 static void shell_quit(int argc, char **argv)
 {
   printf("Bye!\n");
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+  stkmon_disp();
+#endif
   exit(0);
 }
 
@@ -163,6 +167,9 @@ int shell_session(int argc, char *argv[])
 
   printf("CC3000 command shell -- NuttX style\n");
   printf("Type '?' and return for help\n");
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+  stkmon_disp();
+#endif
 
   for(;;)
     {
@@ -210,7 +217,7 @@ int shell_main(int argc, char *argv[])
   config.d_stacksize = CONFIG_EXAMPLES_TELNETD_DAEMONSTACKSIZE;
   config.t_priority  = CONFIG_EXAMPLES_TELNETD_CLIENTPRIO;
   config.t_stacksize = CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE;
-  config.t_entry     = shell_session;
+  config.t_entry     = nsh_consolemain;
 
   /* Start the telnet daemon */
 

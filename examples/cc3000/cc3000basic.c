@@ -87,14 +87,17 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
 #include "board.h"
 #include <stdio.h>
 #include <string.h>
+#include <syslog.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
 #include <arpa/inet.h>
+#include <nuttx/arch.h>
 #include <nuttx/wireless/cc3000/nvmem.h>
 #include <nuttx/wireless/cc3000/include/sys/socket.h>
 #include <nuttx/wireless/cc3000/wlan.h>
@@ -127,16 +130,60 @@ void ShowInformation(void);
 #define US_PER_SEC 1000000
 
 /****************************************************************************
- * Public Variables
+ * Private Data
  ****************************************************************************/
 
-uint8_t isInitialized = false;
+static uint8_t isInitialized = false;
+
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+static struct mallinfo mmstart;
+static struct mallinfo mmprevious;
+#endif
 
 /****************************************************************************
- * Public Functions
+ *  Private Functions
  ****************************************************************************/
 
-bool wait(long timeoutMs, volatile unsigned long *what, volatile unsigned long is)
+#ifndef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+#  define stkmon_disp()
+#else
+static void show_memory_usage(struct mallinfo *mmbefore,
+                              struct mallinfo *mmafter)
+{
+  int diff;
+
+  printf("              total       used       free    largest\n");
+  printf("Before:%11d%11d%11d%11d\n",
+             mmbefore->arena, mmbefore->uordblks, mmbefore->fordblks, mmbefore->mxordblk);
+  printf("After: %11d%11d%11d%11d\n",
+             mmafter->arena, mmafter->uordblks, mmafter->fordblks, mmafter->mxordblk);
+
+  diff = mmbefore->uordblks - mmafter->uordblks;
+  if (diff < 0)
+    {
+      printf("Change:%11d allocated\n", -diff);
+    }
+  else if (diff > 0)
+    {
+      printf("Change:%11d freed\n", diff);
+    }
+
+  stkmon_disp();
+}
+
+static void _stkmon_disp(FAR struct tcb_s *tcb, FAR void *arg)
+{
+#if CONFIG_TASK_NAME_SIZE > 0
+  syslog("%5d %6d %6d %s\n",
+         tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb), tcb->name);
+#else
+  syslog("%5d %6d %6d\n",
+         tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb));
+#endif
+}
+
+static bool wait(long timeoutMs, volatile unsigned long *what,
+                 volatile unsigned long is)
 {
   long t_ms;
   struct timeval end, start;
@@ -157,7 +204,8 @@ bool wait(long timeoutMs, volatile unsigned long *what, volatile unsigned long i
   return true;
 }
 
-bool wait_on(long timeoutMs, volatile unsigned long *what, volatile unsigned long is,char * msg)
+static bool wait_on(long timeoutMs, volatile unsigned long *what,
+                    volatile unsigned long is, char * msg)
 {
   printf(msg);
   printf("...");
@@ -175,6 +223,21 @@ bool wait_on(long timeoutMs, volatile unsigned long *what, volatile unsigned lon
   fflush(stdout);
   return ret;
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void stkmon_disp(void)
+{
+#if CONFIG_TASK_NAME_SIZE > 0
+  syslog("%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
+#else
+  syslog("%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
+#endif
+  sched_foreach(_stkmon_disp, NULL);
+}
+#endif
 
 void AsyncEventPrint(void)
 {
@@ -283,7 +346,16 @@ int execute(int cmd)
        {
          Initialize();
        }
+
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+      mmprevious= mallinfo();
+      show_memory_usage(&mmstart,&mmprevious);
+#endif
       shell_main(0, 0);
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+      mmprevious= mallinfo();
+      show_memory_usage(&mmstart,&mmprevious);
+#endif
       break;
 
     case 'q':
@@ -301,6 +373,12 @@ int execute(int cmd)
 
 void Initialize(void)
 {
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+  mmstart = mallinfo();
+  memcpy(&mmprevious, &mmstart, sizeof(struct mallinfo));
+  show_memory_usage(&mmstart,&mmprevious);
+#endif
+
   uint8_t fancyBuffer[MAC_ADDR_LEN];
 
   if (isInitialized)
@@ -349,6 +427,11 @@ void Initialize(void)
     }
 #else
     isInitialized = true;
+#endif
+
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+    mmprevious = mallinfo();
+    show_memory_usage(&mmstart,&mmprevious);
 #endif
 }
 
@@ -486,7 +569,7 @@ void StartSmartConfig(void)
    * returns is the socket number it used. So we ignore it.
    */
 
-  mdnsAdvertiser(1,device_name,strlen(device_name));
+  mdnsadvertiser(1, device_name, strlen(device_name));
 
   printf("  Smart Config finished Successfully!\n");
   ShowInformation();
@@ -853,6 +936,7 @@ int c3b_main(int argc, char *argv[])
   do
     {
       helpme();
+      stkmon_disp();
 
       ch = getchar();
 

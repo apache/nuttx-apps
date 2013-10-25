@@ -699,4 +699,5 @@
 	  statement.  From Martin Lederhilger (2013-10-24).
 	* apps/examples/adc:  Add support so that a ADC driven by
 	  software triggering can be tested (2013-10-25).
+	* apps/examples/cc3000:  Updates from David Sidrane (2013-10-25).
 

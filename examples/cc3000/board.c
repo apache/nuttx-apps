@@ -169,7 +169,7 @@ void CC3000_Init(void)
        once = true;
      }
 
-  CC3000_wlan_init( CC3000_AsyncCallback,
+  cc3000_wlan_init( CC3000_AsyncCallback,
     SendFirmwarePatch,
     SendDriverPatch,
     SendBootloaderPatch);

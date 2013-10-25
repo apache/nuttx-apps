@@ -70,7 +70,7 @@
  * Public Data
  ****************************************************************************/
 
-/* This structure is used to passed information to telnet daemon when it 
+/* This structure is used to passed information to telnet daemon when it
  * started.
  */
 
@@ -159,15 +159,8 @@ static int telnetd_daemon(int argc, char *argv[])
       ndbg("listen failure %d\n", errno);
       goto errout_with_socket;
     }
-#if defined(CC3000_SOCKETS)
-  short nonBlocking=SOCK_OFF;
-   if (setsockopt(listensd, SOL_SOCKET, SOCKOPT_ACCEPT_NONBLOCK, &nonBlocking, sizeof(nonBlocking)) < 0)
-     {
-		  ndbg("setsockopt failure %d\n", errno);
-		  goto errout_with_socket;
-     }
-#endif
-   /* Now go silent.  Only the lldbg family of debug functions should
+
+  /* Now go silent.  Only the lldbg family of debug functions should
    * be used after this point because these do not depend on stdout
    * being available.
    */
@@ -259,10 +252,6 @@ static int telnetd_daemon(int argc, char *argv[])
       close(0);
       close(1);
       close(2);
-#if defined(CC3000_SOCKETS_ST)
-	/* We can not  do more then one accept in Single treaded version */
-      break;
-#endif
     }
 
 errout_with_acceptsd:
