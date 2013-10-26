@@ -144,9 +144,7 @@ static struct mallinfo mmprevious;
  *  Private Functions
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLE_CC3000_MEM_CHECK
-#  define stkmon_disp()
-#else
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
 static void show_memory_usage(struct mallinfo *mmbefore,
                               struct mallinfo *mmafter)
 {
@@ -181,6 +179,7 @@ static void _stkmon_disp(FAR struct tcb_s *tcb, FAR void *arg)
          tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb));
 #endif
 }
+#endif
 
 static bool wait(long timeoutMs, volatile unsigned long *what,
                  volatile unsigned long is)
@@ -228,6 +227,9 @@ static bool wait_on(long timeoutMs, volatile unsigned long *what,
  * Public Functions
  ****************************************************************************/
 
+#ifndef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+#  define stkmon_disp()
+#else
 void stkmon_disp(void)
 {
 #if CONFIG_TASK_NAME_SIZE > 0
