@@ -58,6 +58,10 @@ ifeq ($(CONFIG_SYSTEM_FLASH_ERASEALL),y)
 CONFIGURED_APPS += system/flash_eraseall
 endif
 
+ifeq ($(CONFIG_SYSTEM_NXPLAYER),y)
+CONFIGURED_APPS += system/nxplayer
+endif
+
 ifeq ($(CONFIG_SYSTEM_RAMTEST),y)
 CONFIGURED_APPS += system/ramtest
 endif

@@ -700,4 +700,6 @@
 	* apps/examples/adc:  Add support so that a ADC driven by
 	  software triggering can be tested (2013-10-25).
 	* apps/examples/cc3000:  Updates from David Sidrane (2013-10-25).
+	* apps/system/nxplayer:  Implements a command line media
+	  player.  From Ken Pettit (2013-10-27).
 

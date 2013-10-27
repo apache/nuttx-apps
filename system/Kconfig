@@ -27,6 +27,10 @@ menu "FLASH Erase-all Command"
 source "$APPSDIR/system/flash_eraseall/Kconfig"
 endmenu
 
+menu "NxPlayer media player library / command Line"
+source "$APPSDIR/system/nxplayer/Kconfig"
+endmenu
+
 menu "RAM test"
 source "$APPSDIR/system/ramtest/Kconfig"
 endmenu

@@ -37,9 +37,9 @@
 
 # Sub-directories containing system task
 
-SUBDIRS  = cdcacm composite flash_eraseall free i2c install poweroff
-SUBDIRS += ramtest ramtron readline sdcard stackmonitor sysinfo usbmonitor
-SUBDIRS += usbmsc zmodem
+SUBDIRS  = cdcacm composite flash_eraseall free i2c install nxplayer
+SUBDIRS += poweroff ramtest ramtron readline sdcard stackmonitor sysinfo
+SUBDIRS += usbmonitor usbmsc zmodem
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 
