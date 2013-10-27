@@ -96,12 +96,12 @@ typedef int (*nxplayer_func)(FAR struct nxplayer_s* pPlayer, char* pargs);
 /****************************************************************************
  * Name: nxplayer_create
  *
- *   Allocates and Initializes a NxPlayer context that is passed to all 
- *   nxplayer routines.  The player MUST be destroyed using the 
+ *   Allocates and Initializes a NxPlayer context that is passed to all
+ *   nxplayer routines.  The player MUST be destroyed using the
  *   nxplayer_destroy() routine since the context is reference counted.
  *   The context can be used in a mode where the caller creates the
  *   context, starts a file playing, and then forgets about the context
- *   and it will self free.  This is because the nxplayer_playfile 
+ *   and it will self free.  This is because the nxplayer_playfile
  *   will also create a reference to the context, so the client calling
  *   nxplayer_destroy() won't actually de-allocate anything.  The freeing
  *   will occur after the playthread has completed.
@@ -150,10 +150,10 @@ void nxplayer_reference(FAR struct nxplayer_s *pPlayer);
 /****************************************************************************
  * Name: nxplayer_setdevice
  *
- *   Sets the preferred Audio device to use with the instance of the 
+ *   Sets the preferred Audio device to use with the instance of the
  *   nxplayer.  Without a preferred device set, the nxplayer will search
- *   the audio subsystem to find a suitable device depending on the 
- *   type of audio operation requested (i.e. an MP3 decoder device when 
+ *   the audio subsystem to find a suitable device depending on the
+ *   type of audio operation requested (i.e. an MP3 decoder device when
  *   playing an MP3 file, a WAV decoder device for a WAV file, etc.).
  *
  * Input Parameters:
@@ -172,13 +172,13 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, char* device);
  *
  *   Plays the specified media file (from the filesystem) using the
  *   Audio system.  If a preferred device has been set, that device
- *   will be used for the playback, otherwise the first suitable device 
+ *   will be used for the playback, otherwise the first suitable device
  *   found in the /dev/audio directory will be used.
- *   
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   filename  - Pointer to pathname of the file to play
- *   filefmt   - Format of audio in filename if known, AUDIO_FMT_UNDEF 
+ *   filefmt   - Format of audio in filename if known, AUDIO_FMT_UNDEF
  *               to let nxplayer_playfile() determine automatically.
  *
  * Returned values:
@@ -193,7 +193,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* filename,
  * Name: nxplayer_stop
  *
  *   Stops current playback.
- *   
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
@@ -210,7 +210,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pPlayer);
  * Name: nxplayer_pause
  *
  *   Pauses current playback.
- *   
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
@@ -227,7 +227,7 @@ int nxplayer_pause(FAR struct nxplayer_s *pPlayer);
  * Name: nxplayer_resume
  *
  *   Resuems current playback.
- *   
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
@@ -245,8 +245,8 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
  *
  *   Sets the playback volume.  The volume is represented in 1/10th of a
  *   percent increments, so the range is 0-1000.  A value of 10 would mean
- *   1%.  
- *   
+ *   1%.
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   volume    - Volume level to set in 1/10th percent increments
@@ -265,8 +265,8 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume);
  *
  *   Sets the playback balance.  The balance is represented in 1/10th of a
  *   percent increments, so the range is 0-1000.  A value of 10 would mean
- *   1%.  
- *   
+ *   1%.
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   balance   - Balance level to set in 1/10th percent increments
@@ -300,8 +300,8 @@ inline void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer, char* mediadir)
  * Name: nxplayer_setbass
  *
  *   Sets the playback bass level.  The bass is represented in one percent
- *   increments, so the range is 0-100.  
- *   
+ *   increments, so the range is 0-100.
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   bass      - Bass level to set in one percent increments
@@ -319,8 +319,8 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t bass);
  * Name: nxplayer_settreble
  *
  *   Sets the playback treble level.  The bass is represented in one percent
- *   increments, so the range is 0-100.  
- *   
+ *   increments, so the range is 0-100.
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   treble    - Treble level to set in one percent increments
@@ -339,7 +339,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t treble);
  *
  *   Performs an audio system reset, including a hardware reset on all
  *   registered audio devices.
- *   
+ *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *

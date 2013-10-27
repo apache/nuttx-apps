@@ -53,7 +53,7 @@
 #include <apps/nxplayer.h>
 
 /****************************************************************************
- * Pre-processor Definitions 
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define	NXPLAYER_VER		"1.04"
@@ -123,7 +123,7 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char* parg);
  * Private Data
  ****************************************************************************/
 
-static struct mp_cmd_s g_nxplayer_cmds[] = 
+static struct mp_cmd_s g_nxplayer_cmds[] =
 {
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
@@ -213,7 +213,7 @@ static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char* parg)
 
   if (ret < 0)
     {
-      return ret;   
+      return ret;
     }
 
   /* File playing successfully */
@@ -490,7 +490,7 @@ static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char* parg)
 
   if (ret < 0)
     {
-      return ret;   
+      return ret;
     }
 
   /* Device set successfully */
@@ -564,8 +564,8 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char* parg)
  *   nxplayer() reads in commands from the console using the readline
  *   system add-in and implemets a command-line based media player that
  *   uses the NuttX audio system to play media files read in from the
- *   file system.  Commands are provided for setting volume, base and 
- *   other audio features, as well as for pausing and stoping the 
+ *   file system.  Commands are provided for setting volume, base and
+ *   other audio features, as well as for pausing and stoping the
  *   playback.
  *
  * Input Parameters:
@@ -602,7 +602,7 @@ int nxplayer_main(int argc, char *argv[])
     }
 
   /* Loop until the user exits */
-  
+
   running = TRUE;
   while (running)
     {
@@ -638,7 +638,7 @@ int nxplayer_main(int argc, char *argv[])
               if (strcmp(cmd, g_nxplayer_cmds[x].cmd) == 0)
               {
                 /* Command found.  Call it's handler if not NULL */
-                
+
                 if (g_nxplayer_cmds[x].pFunc != NULL)
                   g_nxplayer_cmds[x].pFunc(pPlayer, arg);
 

@@ -55,7 +55,7 @@ config NXPLAYER_FMT_FROM_EXT
 	---help---
 		Compiles in extra code to determine audio format based
 		on the filename extension for known file types.
-		This feature is used if the format is not manually 
+		This feature is used if the format is not manually
 		specified, and will take priority over the more lengthy
 		file content detection approach.
 
