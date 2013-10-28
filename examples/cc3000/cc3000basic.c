@@ -79,14 +79,29 @@
  *                              |
  *                              +---> CC3000 pin
  *
- *
  ****************************************************************************/
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
+/*
+ * Memory Analyses
+ *              total       used       free    largest
+ * Mem:         16560      11144       5416       5384
+ * PID   SIZE   USED   THREAD NAME
+ *     0      0      0 Idle Ta
+ *     1    796    772 init
+ *     2    660    644 c3b
+ *     3    332    316 <pthread0
+ *
+ *     8    460    436 <pthread0
+ *
+ *     9    292    268 <pthread
+ *    10    492    468 Telnet dd
+ *    11    960    940 Telnet sd
+ */
 
-#include <nuttx/config.h>
+ #include <nuttx/config.h>
 
 #include "board.h"
 #include <stdio.h>
@@ -128,6 +143,11 @@ void ShowInformation(void);
 #define MS_PER_SEC 1000
 #define US_PER_MS  1000
 #define US_PER_SEC 1000000
+
+/* Define to help debug stack size issues */
+
+#undef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+
 
 /****************************************************************************
  * Private Data
@@ -392,6 +412,9 @@ void Initialize(void)
 
   printf("Initializing CC3000...\n");
   CC3000_Init();
+#ifdef CONFIG_EXAMPLE_CC3000_MEM_CHECK
+  stkmon_disp();
+#endif
   printf("  CC3000 init complete.\n");
 
   if (nvmem_read_sp_version(fancyBuffer) == 0)
