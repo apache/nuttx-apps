@@ -180,6 +180,8 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, char* device);
  *   filename  - Pointer to pathname of the file to play
  *   filefmt   - Format of audio in filename if known, AUDIO_FMT_UNDEF
  *               to let nxplayer_playfile() determine automatically.
+ *   subfmt    - Sub-Format of audio in filename if known, AUDIO_FMT_UNDEF
+ *               to let nxplayer_playfile() determine automatically.
  *
  * Returned values:
  *   OK if file found, device found, and playback started.
@@ -187,7 +189,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, char* device);
  **************************************************************************/
 
 int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* filename,
-          int filefmt);
+          int filefmt, int subfmt);
 
 /****************************************************************************
  * Name: nxplayer_stop
@@ -353,4 +355,3 @@ int nxplayer_systemreset(FAR struct nxplayer_s *pPlayer);
 #endif
 
 #endif /* __APPS_SYSTEM_NXPLAYER_NXPLAYER_H */
-

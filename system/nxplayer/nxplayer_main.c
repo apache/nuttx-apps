@@ -187,7 +187,7 @@ static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char* parg)
 
   /* Try to play the file specified */
 
-  ret = nxplayer_playfile(pPlayer, parg, AUDIO_FMT_UNDEF);
+  ret = nxplayer_playfile(pPlayer, parg, AUDIO_FMT_UNDEF, AUDIO_FMT_UNDEF);
 
   /* Test if the device file exists */
 
@@ -507,7 +507,11 @@ static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char* parg)
 
 static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char* parg)
 {
-  /* Nothing to do */
+  /* Stop the playback if any */
+
+#ifndef CONFIG_AUDIO_EXCLUDE_STOP
+  nxplayer_stop(pPlayer);
+#endif
 
   return OK;
 }

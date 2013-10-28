@@ -646,7 +646,7 @@
 	* apps/nshlib/nsh_fscmds.c:  Fix NSH listing output for the case
 	  of a single file.  Provided by Lorenz Meier (2013-9-13).
 
-6.31 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.31 2013-10-28 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/nshlib/nsh_netcmds.c:  Remove a warning when DHCP is not
 	  enabled (2013-9-17).
@@ -655,7 +655,7 @@
 	  (2013-9017).
 	* apps/examples/ostest/Kconfig:  Add configuration options for
 	  the FPU test.  There are still many OS test configuration
-	  optionst that do not appear in Kconfig (2013-9-18).
+	  options that do not appear in Kconfig (2013-9-18).
 	* apps/examples/cc3000:  Condition the CC3000 example on having
 	  selected the CC3000 device.  Otherwise, you are prompted for
 	  this the CC3000 option on each 'make oldconfig' (2013-9-18).
@@ -702,4 +702,7 @@
 	* apps/examples/cc3000:  Updates from David Sidrane (2013-10-25).
 	* apps/system/nxplayer:  Implements a command line media
 	  player.  From Ken Pettit (2013-10-27).
+	* apps/system/nxplayer: Add logic to verify the audio sub-format.
+	  From Ken Pettit (2013-10-28).
 
+6.31 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>

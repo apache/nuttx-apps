@@ -81,12 +81,17 @@ struct nxplayer_ext_fmt_s
 {
   const char  *ext;
   uint16_t    format;
+  CODE int    (*getsubformat)(FAR FILE *fd);
 };
 #endif
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
+
+#ifdef CONFIG_AUDIO_FORMAT_MIDI
+int nxplayer_getmidisubformat(FAR FILE *fd);
+#endif
 
 /****************************************************************************
  * Private Data
@@ -95,26 +100,26 @@ struct nxplayer_ext_fmt_s
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
 static const struct nxplayer_ext_fmt_s g_known_ext[] = {
 #ifdef CONFIG_AUDIO_FORMAT_AC3
-  { "ac3",      AUDIO_FMT_AC3 },
+  { "ac3",      AUDIO_FMT_AC3, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_MP3
-  { "mp3",      AUDIO_FMT_MP3 },
+  { "mp3",      AUDIO_FMT_MP3, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_DTS
-  { "dts",      AUDIO_FMT_DTS },
+  { "dts",      AUDIO_FMT_DTS, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_WMA
-  { "wma",      AUDIO_FMT_WMA },
+  { "wma",      AUDIO_FMT_WMA, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_PCM
-  { "wav",      AUDIO_FMT_PCM },
+  { "wav",      AUDIO_FMT_PCM, NULL },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_MIDI
-  { "mid",      AUDIO_FMT_MIDI },
-  { "midi",     AUDIO_FMT_MIDI },
+  { "mid",      AUDIO_FMT_MIDI, nxplayer_getmidisubformat },
+  { "midi",     AUDIO_FMT_MIDI, nxplayer_getmidisubformat },
 #endif
 #ifdef CONFIG_AUDIO_FORMAT_OGG_VORBIS
-  { "ogg",      AUDIO_FMT_OGG_VORBIS }
+  { "ogg",      AUDIO_FMT_OGG_VORBIS, NULL }
 #endif
 };
 static const int g_known_ext_count = sizeof(g_known_ext) /
@@ -140,12 +145,15 @@ static const int g_known_ext_count = sizeof(g_known_ext) /
  *
  ****************************************************************************/
 
-static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format)
+static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
+    int subfmt)
 {
   struct dirent*        pDevice;
-  DIR*     		          dirp;
+  DIR*                  dirp;
   char                  path[64];
   struct audio_caps_s   caps;
+  uint8_t               supported = TRUE;
+  uint8_t               x;
 
   /* If we have a preferred device, then open it */
 
@@ -156,7 +164,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format)
        * format is specified by the device
        */
 
-      if (((pPlayer->prefformat & format) == 0) ||
+      if (((pPlayer->prefformat & (1 << (format - 1)) == 0) ||
           ((pPlayer->preftype & AUDIO_TYPE_OUTPUT) == 0))
         {
           /* Format not supported by the device */
@@ -223,19 +231,69 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format)
               caps.ac_len = sizeof(caps);
               caps.ac_type = AUDIO_TYPE_QUERY;
               caps.ac_subtype = AUDIO_TYPE_QUERY;
+
               if (ioctl(pPlayer->devFd, AUDIOIOC_GETCAPS, (unsigned long) &caps)
                   == caps.ac_len)
                 {
                   /* Test if this device supports the format we want */
 
                   int ac_format = caps.ac_format[0] | (caps.ac_format[1] << 8);
-                  if (((ac_format & format) != 0) &&
+                  if (((ac_format & (1 << (format - 1))) != 0) &&
                       (caps.ac_controls[0] & AUDIO_TYPE_OUTPUT))
                     {
-                      /* Yes, it supports this format.  Use this device */
+                      /* Do subformat detection */
 
-                      closedir(dirp);
-                      return OK;
+                      if (subfmt != AUDIO_FMT_UNDEF)
+                        {
+                          /* Prepare to get sub-formats for this main format */
+
+                          caps.ac_subtype = format;
+                          caps.ac_format[0] = 0;
+                          while (ioctl(pPlayer->devFd, AUDIOIOC_GETCAPS, 
+                              (unsigned long) &caps) == caps.ac_len)
+                            {
+                              /* Check the next set of 4 controls to find the subformat */
+                              for (x = 0; x < sizeof(caps.ac_controls); x++)
+                                {
+                                  if (caps.ac_controls[x] == subfmt)
+                                    {
+                                      /* Sub format supported! */
+
+                                      break;
+                                    }
+                                  else if (caps.ac_controls[x] == AUDIO_SUBFMT_END)
+                                    {
+                                      /* Sub format not supported */
+
+                                      supported = FALSE;
+                                      break;
+                                    }
+                                }
+
+                              /* If we reached the end of the subformat list, then
+                               * break out of the loop.
+                               */
+
+                              if (x != sizeof(caps.ac_controls))
+                                {
+                                  break;
+                                }
+
+                              /* Increment ac_format[0] to get next set of subformats */
+
+                              caps.ac_format[0]++;
+                            }
+                        }
+
+                      /* Test if subformat needed and detected */
+
+                      if (supported)
+                        {
+                          /* Yes, it supports this format.  Use this device */
+
+                          closedir(dirp);
+                          return OK;
+                        }
                     }
                 }
 
@@ -258,6 +316,47 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format)
 }
 
 /****************************************************************************
+ * Name: nxplayer_getmidisubformat
+ *
+ *   nxplayer_getmidisubformat() reads the MIDI header and determins the
+ *   MIDI format of the file.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_AUDIO_FORMAT_MIDI
+int nxplayer_getmidisubformat(FAR FILE *fd)
+{
+  char    type[2];
+  int     ret;
+
+  /* Seek to location 8 in the file (the format type) */
+
+  fseek(fd, 8, SEEK_SET);
+  fread(type, 1, 2, fd);
+
+  /* Set return value based on type */
+
+  switch (type[1])
+    {
+      case 0:
+        ret = AUDIO_SUBFMT_MIDI_0;
+        break;
+
+      case 1:
+        ret = AUDIO_SUBFMT_MIDI_1;
+        break;
+
+      case 2:
+        ret = AUDIO_SUBFMT_MIDI_2;
+        break;
+    }
+  fseek(fd, 0, SEEK_SET);
+
+  return ret;
+}
+#endif
+
+/****************************************************************************
  * Name: nxplayer_fmtfromextension
  *
  *   nxplayer_fmtfromextension() tries to determine the file format based
@@ -266,10 +365,12 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format)
  ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
-static int nxplayer_fmtfromextension(char* pFilename)
+static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pPlayer,
+    char* pFilename, int *subfmt)
 {
-  const char                *pExt;
-  int                       x, c;
+  const char  *pExt;
+  uint8_t      x;
+  uint8_t      c;
 
   /* Find the file extension, if any */
 
@@ -289,6 +390,14 @@ static int nxplayer_fmtfromextension(char* pFilename)
 
               if (strcasecmp(pExt, g_known_ext[c].ext) == 0)
                 {
+                  /* Test if we have a sub-format detection routine */
+
+                  if (subfmt && g_known_ext[c].getsubformat)
+                    {
+
+                      *subfmt = g_known_ext[c].getsubformat(pPlayer->fileFd);
+                    }
+
                   /* Return the format for this extension */
 
                   return g_known_ext[c].format;
@@ -1027,6 +1136,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pPlayer)
       sem_post(&pPlayer->sem);                  /* Release the semaphore */
       return OK;
     }
+
   sem_post(&pPlayer->sem);
 
   /* Notify the playback thread that it needs to cancel the playback */
@@ -1067,9 +1177,10 @@ int nxplayer_stop(FAR struct nxplayer_s *pPlayer)
  *
  ****************************************************************************/
 
-int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filefmt)
+int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filefmt,
+    int subfmt)
 {
-  int                 ret;
+  int                 ret, tmpsubfmt = AUDIO_FMT_UNDEF;
   struct mq_attr      attr;
   struct sched_param  sparam;
   pthread_attr_t      tattr;
@@ -1106,7 +1217,9 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filef
           /* File not found in the media dir.  Do a search */
 
           if (nxplayer_mediasearch(pPlayer, pFilename, path, sizeof(path)) != OK)
-            return -ENOENT;
+            {
+              return -ENOENT;
+            }
 #else
           return -ENOENT;
 #endif  /* CONFIG_NXPLAYER_MEDIA_SEARCH */
@@ -1121,14 +1234,14 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filef
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_EXT
   if (filefmt == AUDIO_FMT_UNDEF)
-    filefmt = nxplayer_fmtfromextension(pFilename);
+    filefmt = nxplayer_fmtfromextension(pPlayer, pFilename, &tmpsubfmt);
 #endif
 
   /* If type not identified, then test for known header types */
 
 #ifdef CONFIG_NXPLAYER_FMT_FROM_HEADER
   if (filefmt == AUDIO_FMT_UNDEF)
-    filefmt = nxplayer_fmtfromheader(pPlayer);
+    filefmt = nxplayer_fmtfromheader(pPlayer, &subfmt, &tmpsubfmt);
 #endif
 
   /* Test if we determined the file format */
@@ -1141,9 +1254,16 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filef
       goto err_out_nodev;
     }
 
+  /* Test if we have a sub format assignment from above */
+
+  if (subfmt == AUDIO_FMT_UNDEF)
+    {
+      subfmt = tmpsubfmt;
+    }
+
   /* Try to open the device */
 
-  ret = nxplayer_opendevice(pPlayer, filefmt);
+  ret = nxplayer_opendevice(pPlayer, filefmt, subfmt);
   if (ret < 0)
     {
       /* Error opening the device */
@@ -1224,12 +1344,14 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filef
 err_out:
   close(pPlayer->devFd);
   pPlayer->devFd = -1;
+
 err_out_nodev:
   if (pPlayer->fileFd != NULL)
     {
       fclose(pPlayer->fileFd);
       pPlayer->fileFd = NULL;
     }
+
   return ret;
 }
 
