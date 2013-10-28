@@ -379,7 +379,7 @@
   state due to e.g. powerdown or other manual intervention.  From
   Petteri Aimonen (2013-6-4).
 
-1.9 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.9 2013-10-28 Gregory Nutt <gnutt@nuttx.org>
 
 * NxWM::CCalibration.cxx/hxx:  If CONFIG_NXWM_CALIBRATION_MESSAGES is
   defined then CCalibration will provide some instructions in the center
@@ -398,3 +398,5 @@
 * NxWM::CCalibration and NxWM::CTouchscreen:  Add a complex touchscreen
   scaling algorithm to handling the case where the measured X values also
   vary with y position (and vice versa) (2013-10-17).
+
+1.10 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
