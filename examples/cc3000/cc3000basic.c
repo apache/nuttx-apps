@@ -86,17 +86,18 @@
  ****************************************************************************/
 /*
  * Memory Analyses
+ *
  *              total       used       free    largest
  * Mem:         16560      11144       5416       5384
  * PID   SIZE   USED   THREAD NAME
- *     0      0      0 Idle Ta
+ *     0      0      0 Idle Task
  *     1    796    772 init
  *     2    660    644 c3b
- *     3    332    316 <pthread0
+ *     3    332    316 <pthread0>
  *
- *     8    460    436 <pthread0
+ *     8    460    436 <pthread0>
  *
- *     9    292    268 <pthread
+ *     9    292    268 <pthread>
  *    10    492    468 Telnet dd
  *    11    960    940 Telnet sd
  */
@@ -147,7 +148,6 @@ void ShowInformation(void);
 /* Define to help debug stack size issues */
 
 #undef CONFIG_EXAMPLE_CC3000_MEM_CHECK
-
 
 /****************************************************************************
  * Private Data
