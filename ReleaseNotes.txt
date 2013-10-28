@@ -319,3 +319,34 @@ Bugfixes:
 * NxWidgets::CGlyphSliderHorizontal:  Fix a drawing error (from Ken Pettit).
 * Update the way that NSH the Unit Tests are registered as built-in NSH
   applications.
+
+NxWidgets-1.9
+=============
+
+The 10th release of the NxWidgets package was made on October 28, 2013.  This
+release depends on NuttX-6.26 or above and should not be used with older
+NuttX releases.
+
+Additional new features and extended functionality in Version 1.9:
+
+* NxWM::CCalibration.cxx/hxx:  If CONFIG_NXWM_CALIBRATION_MESSAGES is
+  defined then CCalibration will provide some instructions in the center
+  of the display.
+* NxWM::CCalibration.cxx/hxx:  Add options to collect and average
+  multiple samples at each location.  Also logic to discard the most
+  extreme samples before averaging.
+* NxWidgets::CScaledImage:  This new class is a wrapper for an class
+  the exports IBitMap.  It will perform scaling via bi-linear interpolation
+  so that images can be scaled to any size desired.
+* NxWM::CTaskbar:: Can now be configured to scale taskbar icons using
+  NxWidgets::CScaledImage.
+* NxWidgets/libnxwidgets/src/glyph_nxlogo320x320.cxx:  Add a big, 320x320
+  NuttX logo image.  The older, smaller NuttX logo was renamed from
+  nxlogo to nxlogo160x160 in all places.
+* NxWM::CCalibration and NxWM::CTouchscreen:  Add a complex touchscreen
+  scaling algorithm to handling the case where the measured X values also
+  vary with y position (and vice versa).
+
+Bugfixes:
+
+(There are not bugfixes recorded for this release).
