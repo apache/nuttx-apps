@@ -1,7 +1,8 @@
 ############################################################################
 # apps/Makefile
 #
-#   Copyright (C) 2011-2012 Uros Platise. All rights reserved.
+#   Copyright (C) 2011 Uros Platise. All rights reserved.
+#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
 #   Authors: Uros Platise <uros.platise@isotel.eu>
 #            Gregory Nutt <gnutt@nuttx.org>
 #
@@ -48,7 +49,8 @@ APPDIR = ${shell pwd}
 #   list can be extended by the .config file as well.
 
 CONFIGURED_APPS =
-SUBDIRS = examples graphics interpreters modbus builtin nshlib netutils system
+SUBDIRS  = examples graphics interpreters modbus builtin nshlib netutils
+SUBDIRS += platform system
 
 # There are two different mechanisms for obtaining the list of configured
 # directories:
@@ -78,6 +80,7 @@ include interpreters/Make.defs
 include modbus/Make.defs
 include netutils/Make.defs
 include nshlib/Make.defs
+include platform/Make.defs
 include system/Make.defs
 -include external/Make.defs
 

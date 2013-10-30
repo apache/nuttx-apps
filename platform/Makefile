@@ -1,10 +1,8 @@
 ############################################################################
-# apps/system/nxplayer/Makefile
+# apps/platform/Makefile
 #
-#   Copyright (C) 2013 Ken Pettit. All rights reserved.
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
-#   Author: Ken Pettit <pettitkd@gmail.com>
-#           Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -37,92 +35,101 @@
 
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+include $(APPDIR)$(DELIM)Make.defs
+
+# Platform-specific Appliction Support
+# Tool stuff
+
+ifeq ($(DIRLINK),)
+DIRLINK = $(TOPDIR)/tools/link.sh
+DIRUNLINK = $(TOPDIR)/tools/unlink.sh
+endif
 
 ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
+INCDIROPT = -w
 endif
 
-# NxPlayer Library
+# Directories
 
-ASRCS		=
-CSRCS		= nxplayer.c
+BINDIR      = $(APPDIR)$(DELIM)platform$(DELIM)bin
+PLATFORMDIR = $(APPDIR)$(DELIM)platform$(DELIM)board
+DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
+BOARDDIR    = $(APPDIR)$(DELIM)platform$(DELIM)$(CONFIG_ARCH_BOARD)
+LINKDIR     = $(if $(wildcard $(BOARDDIR)$(DELIM)Make.defs),$(BOARDDIR),$(DUMMYDIR))
 
-# NxPlayer Application
+VPATH       = $(PLATFORMDIR)
 
-APPNAME		= nxplayer
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 3100
+# Binaries
 
-ifeq ($(CONFIG_NXPLAYER_COMMAND_LINE),y)
-CSRCS   += nxplayer_main.c
-endif
+ASRCS =
+CSRCS =
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+-include $(PLATFORMDIR)$(DELIM)Make.defs
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
+# Build targets
 
-# Common build
+all: .built
+.PHONY: context .depend depend clean distclean
 
-VPATH		=
-
-all:	.built
-.PHONY: context depend clean distclean
-
+ifneq ($(AOBJS),)
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
+endif
 
+ifneq ($(COBJS),)
 $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
+endif
 
 .built: $(OBJS)
+ifneq ($(OBJS),)
 	$(call ARCHIVE, $(BIN), $(OBJS))
+endif
 	$(Q) touch .built
 
-# Register application
+# Build context setup
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-ifeq ($(CONFIG_NXPLAYER_COMMAND_LINE),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+$(PLATFORMDIR): $(TOPDIR)$(DELIM).config
+	@echo "LN: platform$(DELIM)board to $(LINKDIR)"
+	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
+	$(Q) $(DIRLINK) $(LINKDIR) $(PLATFORMDIR)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-else
-context:
-endif
+context: $(PLATFORMDIR)
 
-# Create dependencies
+# Dependencies
 
-.depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+.depend: Makefile $(SRCS) $(PLATFORMDIR)
+	$(Q) $(MKDEP) --obj-path bin --obj-suffix  $(OBJEXT) --dep-path $(PLATFORMDIR) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	$(Q) touch $@
 
 depend: .depend
 
-clean:
+# Clean targets
+
+clean: $(PLATFORMDIR)
 	$(call DELFILE, .built)
-	$(call CLEAN)
-	$(Q) rm -rf ..$(DELIM)..$(DELIM)builtin$(DELIM)registry$(DELIM)$(APPNAME)_main.*
+	$(MAKE) -C $(BINDIR) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 
 -include Make.dep
+

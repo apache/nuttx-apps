@@ -35,6 +35,10 @@ menu "NxWidgets/NxWM"
 source "$APPSDIR/NxWidgets/Kconfig"
 endmenu
 
+menu "Platform-specific Support"
+source "$APPSDIR/platform/Kconfig"
+endmenu
+
 menu "System NSH Add-Ons"
 source "$APPSDIR/system/Kconfig"
 endmenu

@@ -706,3 +706,8 @@
 	  From Ken Pettit (2013-10-28).
 
 6.31 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/platform:  A new home for board-specific application code
+	  (2013-10-30).
+
+
