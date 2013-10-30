@@ -741,6 +741,16 @@ config NXWM_TOUCHSCREEN_LISTENERSTACK
 	---help---
 		Touchscreen listener thread stack size.  Default 1024
 
+config NXWM_TOUSCHCREEN_CONFIGDATA
+	bool "Touchscreen configuration data"
+	default n
+	depends on PLATFORM_CONFIGDATA
+	---help---
+		If the architecture supports retention of configuration data, then
+		you may select this option to save touchscreen configuration data.
+		Otherwise, the touchscreen calibration must be performed each time
+		that you boot the system.
+
 endif # NXWM_TOUCHSCREEN
 endmenu # NxWM Touchscreen Configuration
 

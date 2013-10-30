@@ -400,3 +400,7 @@
   vary with y position (and vice versa) (2013-10-17).
 
 1.10 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* Kconfig and UnitTests/nxwm:  Add logic to enable saving a recovering
+  touchscreen calibration data.  This depends upon having platform-dependent
+  support for storate of configuration data (2013-10-30).

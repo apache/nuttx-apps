@@ -44,13 +44,17 @@
 #include <cstdlib>
 #include <cunistd>
 
+#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+#  include <arch/platform/configdata.h>
+#endif
+
 #include "ctaskbar.hxx"
 #include "cstartwindow.hxx"
 #include "cnxconsole.hxx"
 #include "chexcalculator.hxx"
 
 #ifdef CONFIG_NXWM_MEDIAPLAYER
-#include "cmediaplayer.hxx"
+#  include "cmediaplayer.hxx"
 #endif
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN
@@ -95,6 +99,7 @@ struct SNxWmTest
 #ifdef CONFIG_NXWM_TOUCHSCREEN
   NxWM::CTouchscreen *touchscreen;         // The touchscreen
   struct NxWM::SCalibrationData calibData; // Calibration data
+  bool                calibrated;          // True: Touchscreen has been calibrated
 #endif
 #ifdef CONFIG_NXWIDGET_MEMMONITOR
   unsigned int        mmInitial;           // Initial memory usage
@@ -491,17 +496,46 @@ static bool createCalibration(void)
     }
   showTestCaseMemory("createCalibration: After creating CCalibration");
 
-  // Call CTaskBar::startApplication to start the Calibration application.  Nothing
-  // will be displayed because the window manager has not yet been started.
+#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+  // Check if we have previously stored calibration data
 
-  printf("createCalibration: Start the calibration application\n");
-  if (!g_nxwmtest.taskbar->startApplication(calibration, false))
+  int ret = platform_getconfig(CONFIGDATA_TSCALIBRATION, 0,
+                               (FAR uint8_t *)&g_nxwmtest.calibData,
+                               sizeof(struct NxWM::SCalibrationData));
+  if (ret == OK)
     {
-      printf("createCalibration ERROR: Failed to start the calibration application\n");
-      delete calibration;
-      return false;
+      // We successfully got the calibration data from the platform-specific
+      // logic.  This might fail if (1) calibration data was never saved, or
+      // (2) if some failure occurred while trying to obtain the configuration
+      // data.  In either event, the appropriate thing to do is to perform
+      // the calibration.
+
+      // Provide the calibration data to the touchscreen thread
+
+      g_nxwmtest.touchscreen->setCalibrationData(g_nxwmtest.calibData);
+      g_nxwmtest.touchscreen->setEnabled(true);
+      g_nxwmtest.calibrated = true;
     }
-  showTestCaseMemory("createCalibration: After starting the start window application");
+  else
+#endif
+    {
+      // Call CTaskBar::startApplication to start the Calibration application.
+      // Nothing will be displayed because the window manager has not yet been
+      // started.
+
+      printf("createCalibration: Start the calibration application\n");
+      g_nxwmtest.calibrated = false;
+
+      if (!g_nxwmtest.taskbar->startApplication(calibration, false))
+        {
+          printf("createCalibration ERROR: Failed to start the calibration application\n");
+          delete calibration;
+          return false;
+        }
+
+      showTestCaseMemory("createCalibration: After starting the start window application");
+    }
+
   return true;
 }
 #endif
@@ -727,27 +761,54 @@ int nxwm_main(int argc, char *argv[])
     }
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN
-  // Since we started the touchscreen calibration program maximized, it will run
-  // immediately when we start the window manager.  There is no positive handshake
-  // to know whenthe touchscreen has been calibrated.  If we really want to know,
-  // we have to poll
+#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+  // There are two possibilies:  (1) We started the calibration earlier and now
+  // need to obtain the calibration data from the calibration process, or (2)
+  // We have already obtained stored calibration data in which case, the calibration
+  // process never ran.
 
-  printf("nxwm_main: Waiting for touchscreen calibration\n");
-  while (!g_nxwmtest.touchscreen->isCalibrated())
+  if (!g_nxwmtest.calibrated)
+#endif
     {
-      std::sleep(2);
+      // Since we started the touchscreen calibration program maximized, it will
+      // run immediately when we start the window manager.  There is no positive
+      // handshake to know whenthe touchscreen has been calibrated.  If we really
+      // want to know, we have to poll
+
+      printf("nxwm_main: Waiting for touchscreen calibration\n");
+      while (!g_nxwmtest.touchscreen->isCalibrated())
+        {
+          std::sleep(2);
+        }
+
+      // This is how we would then recover the calibration data.  After the
+      // calibration application creates the calibration data, it hands it to
+      // the touchscreen driver.  After the touchscreen driver gets it, it will
+      // report isCalibrated() == true and then we can read the calibration data
+      // from the touchscreen driver.
+
+      printf("nxwm_main: Getting calibration data from the touchscreen\n");
+      if (!g_nxwmtest.touchscreen->getCalibrationData(g_nxwmtest.calibData))
+        {
+          printf("nxwm_main: ERROR: Failed to get calibration data from the touchscreen\n");
+        }
+      else
+        {
+#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+          // Save the new calibration data so that we do not have to do this
+          // again the next time we start up.
+
+          int ret = platform_setconfig(CONFIGDATA_TSCALIBRATION, 0,
+                                       (FAR const uint8_t *)&g_nxwmtest.calibData,
+                                       sizeof(struct NxWM::SCalibrationData));
+          if (ret != 0)
+            {
+              printf("nxwm_main: ERROR: Failed to save calibration data\n");
+            }
+#endif
+          g_nxwmtest.calibrated = true;
+        }
     }
-
-  // This is how we would then recover the calibration data.  After the calibration
-  // application creates the calibration data, it hands it to the touchscreen driver
-  // After the touchscreen driver gets it, it will report isCalibrated() == true
-  // and then we can read the calibration data from the touchscreen driver.
-
-  printf("nxwm_main: Getting calibration data from the touchscreen\n");
-  if (!g_nxwmtest.touchscreen->getCalibrationData(g_nxwmtest.calibData))
-    {
-      printf("nxwm_main: ERROR: Failed to get calibration data from the touchscreen\n");    
-    } 
 #endif
 
   // Wait a little bit for the display to stabilize.  Then simulate pressing of
