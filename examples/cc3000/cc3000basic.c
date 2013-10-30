@@ -91,15 +91,15 @@
  * Mem:         16560      11144       5416       5384
  * PID   SIZE   USED   THREAD NAME
  *     0      0      0 Idle Task
- *     1    796    772 init
- *     2    660    644 c3b
- *     3    332    316 <pthread0>
+ *     1    876    772 init
+ *     2    604    588 c3b
+ *     3    236    220 <pthread0>
  *
- *     8    460    436 <pthread0>
+ *     8    364    348 <pthread0>
  *
- *     9    292    268 <pthread>
- *    10    492    468 Telnet dd
- *    11    960    940 Telnet sd
+ *     9    260    196 <pthread>
+ *    10    380    364 Telnet dd
+ *    11    860    844 Telnet sd
  */
 
  #include <nuttx/config.h>

@@ -712,3 +712,6 @@
 	* apps/include/platform/configdata.h:  Define an interface that can be
 	  used to manage platform-specific storage of configuration data
 	  (2013-10-30).
+	* apps/examples/cc3000: Fine tuning of memory usage from David Sidrane
+	  (2013-10-30).
+
