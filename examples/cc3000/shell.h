@@ -67,10 +67,8 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE
-#  define CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE 864
+#  define CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE 894
 #endif
-
-#undef CONFIG_EXAMPLE_CC3000_MEM_CHECK
 
 /* Other definitions ********************************************************/
 

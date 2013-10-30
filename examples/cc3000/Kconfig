@@ -11,4 +11,17 @@ config EXAMPLES_CC3000BASIC
 		Enable the CC3000BASIC example
 
 if EXAMPLES_CC3000BASIC
+
+config EXAMPLES_CC3000_MEM_CHECK
+	bool "Memory check instrumentation"
+	default n
+	---help---
+		Define to help debug memory issues
+
+config EXAMPLES_CC3000_STACK_CHECK
+	bool "Stack check instrumentation"
+	default n
+	---help---
+		Define to help debug stack size issues
+
 endif
