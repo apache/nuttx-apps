@@ -45,8 +45,8 @@
 #include <assert.h>
 #include <debug.h>
 
-#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
-#  include <arch/platform/configdata.h>
+#ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
+#  include <apps/platform/configdata.h>
 #endif
 
 #include "nxwmconfig.hxx"
@@ -1103,7 +1103,7 @@ void CCalibration::finishCalibration(void)
       struct SCalibrationData caldata;
       if (createCalibrationData(caldata))
         {
-#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+#ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
           // Save the new calibration data.  The saved calibration
           // data may be used to avoided recalibrating in the future.
 

@@ -44,8 +44,8 @@
 #include <cstdlib>
 #include <cunistd>
 
-#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
-#  include <arch/platform/configdata.h>
+#ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
+#  include <apps/platform/configdata.h>
 #endif
 
 #include "ctaskbar.hxx"
@@ -496,7 +496,7 @@ static bool createCalibration(void)
     }
   showTestCaseMemory("createCalibration: After creating CCalibration");
 
-#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+#ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
   // Check if we have previously stored calibration data
 
   int ret = platform_getconfig(CONFIGDATA_TSCALIBRATION, 0,
@@ -761,7 +761,7 @@ int nxwm_main(int argc, char *argv[])
     }
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN
-#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+#ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
   // There are two possibilies:  (1) We started the calibration earlier and now
   // need to obtain the calibration data from the calibration process, or (2)
   // We have already obtained stored calibration data in which case, the calibration
@@ -794,7 +794,7 @@ int nxwm_main(int argc, char *argv[])
         }
       else
         {
-#if 0 // ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA.  Done in CCalibration
+#if 0 // ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA.  Done in CCalibration
           // Save the new calibration data so that we do not have to do this
           // again the next time we start up.
 
