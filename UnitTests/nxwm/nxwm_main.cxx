@@ -794,7 +794,7 @@ int nxwm_main(int argc, char *argv[])
         }
       else
         {
-#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+#if 0 // ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA.  Done in CCalibration
           // Save the new calibration data so that we do not have to do this
           // again the next time we start up.
 

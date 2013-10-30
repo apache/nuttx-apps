@@ -405,3 +405,8 @@
   touchscreen calibration data.  This depends upon having platform-dependent
   support for storate of configuration data.  Portions suggested by
   Ken Pettit (2013-10-30).
+* NxWM:Calibration:  Saving of calibration data must be performed in
+  CCalibration, not in UnitTests/nxwm.  Why?  Because the touchscreen
+  calibration could also be initiated from other ways other than through
+  the one-time, start-up initialization logic (2013-10-30).
+

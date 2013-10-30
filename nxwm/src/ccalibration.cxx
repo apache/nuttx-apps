@@ -45,6 +45,10 @@
 #include <assert.h>
 #include <debug.h>
 
+#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+#  include <arch/platform/configdata.h>
+#endif
+
 #include "nxwmconfig.hxx"
 #include "nxwmglyphs.hxx"
 #include "ctouchscreen.hxx"
@@ -1099,7 +1103,20 @@ void CCalibration::finishCalibration(void)
       struct SCalibrationData caldata;
       if (createCalibrationData(caldata))
         {
-          // And provide this to the touchscreen, enabling touchscreen processing
+#ifdef CONFIG_NXWM_TOUCHCREEN_CONFIGDATA
+          // Save the new calibration data.  The saved calibration
+          // data may be used to avoided recalibrating in the future.
+
+          int ret = platform_setconfig(CONFIGDATA_TSCALIBRATION, 0,
+                                       (FAR const uint8_t *)&caldata,
+                                       sizeof(struct SCalibrationData));
+          if (ret != 0)
+            {
+              gdbg("ERROR: Failed to save calibration data\n");
+            }
+#endif
+          // And provide the calibration data to the touchscreen, enabling
+          // touchscreen processing
 
           m_touchscreen->setEnabled(false);
           m_touchscreen->setCalibrationData(caldata);
