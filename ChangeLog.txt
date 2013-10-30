@@ -714,4 +714,6 @@
 	  (2013-10-30).
 	* apps/examples/cc3000: Fine tuning of memory usage from David Sidrane
 	  (2013-10-30).
+	* apps/platform/mikroe-stm32f4: Now supports storage of configuration
+	  data.  From Ken Pettit (2013-10-30).
 

@@ -82,7 +82,7 @@ enum config_data_e
 #if defined(__cplusplus)
 #define EXTERN extern "C"
 extern "C" {
-#els
+#else
 
 #define EXTERN extern
 #endif
