@@ -403,4 +403,5 @@
 
 * Kconfig and UnitTests/nxwm:  Add logic to enable saving a recovering
   touchscreen calibration data.  This depends upon having platform-dependent
-  support for storate of configuration data (2013-10-30).
+  support for storate of configuration data.  Portions suggested by
+  Ken Pettit (2013-10-30).
