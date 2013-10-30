@@ -709,5 +709,6 @@
 
 	* apps/platform:  A new home for board-specific application code
 	  (2013-10-30).
-
-
+	* apps/include/platform/configdata.h:  Define an interface that can be
+	  used to manage platform-specific storage of configuration data
+	  (2013-10-30).
