@@ -245,7 +245,11 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_HEXDUMP
+#ifndef CONFIG_NSH_CMDOPT_HEXDUMP
   { "hexdump",  cmd_hexdump,  2, 2, "<file or device>" },
+#else
+  { "hexdump",  cmd_hexdump,  2, 4, "<file or device> [skip=<bytes>] [count=<bytes>]" },
+#endif
 #endif
 #endif
 

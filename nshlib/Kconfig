@@ -238,6 +238,10 @@ config NSH_CODECS_BUFSIZE
 	int "File buffer size used by CODEC commands"
 	default 128
 
+config NSH_CMDOPT_HEXDUMP
+	bool "hexdump: Enable 'skip' and 'count' parameters"
+	default n
+
 endmenu
 
 config NSH_FILEIOSIZE
