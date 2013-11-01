@@ -718,4 +718,5 @@
 	  data.  From Ken Pettit (2013-10-30).
 	* apps/nshlib/nsh_dbgcmds.c and others:  Add skip= and count=
 	  options to the hexdump command.  From Ken Pettit (2013-11-1).
-
+	* apps/platrorm/mikroe-stm32f4:  Now uses /dev/config for configuration
+	  data storage.  From Ken Pettit (2013-11-1).

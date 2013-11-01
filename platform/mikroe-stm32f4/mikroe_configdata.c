@@ -46,6 +46,8 @@
 #include <debug.h>
 
 #include <apps/platform/configdata.h>
+#include <nuttx/fs/ioctl.h>
+#include <nuttx/configdata.h>
 
 #ifdef CONFIG_PLATFORM_CONFIGDATA
 
@@ -108,6 +110,11 @@ int platform_setconfig(enum config_data_e id, int instance,
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
   FILE*   fd;
 #endif
+#if CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
+  struct config_data_s  config;
+  int                   ret;
+  int                   fd;
+#endif
 
   switch (id)
     {
@@ -137,9 +144,29 @@ int platform_setconfig(enum config_data_e id, int instance,
         fclose(fd);
         return OK;
 
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_PART 
-#  error This configuration not supported yet!
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM 
+#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
+
+        /* Try to open the /dev/config device file */
+
+        if ((fd = open("/dev/config", O_RDOK)) == -1)
+          {
+            /* Error opening the config device */
+
+            return -1;
+          }
+
+        /* Setup structure for the SETCONFIG ioctl */
+
+        config.id = (enum config_data_e)id;
+        config.instance = instance;
+        config.configdata = (FAR uint8_t *) configdata;
+        config.len = datalen;
+
+        ret = ioctl(fd, CFGDIOC_SETCONFIG, (unsigned long) &config);
+        close(fd);
+        return ret;
+
+#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
 
         /* We are reading from a read-only system, so nothing to do. */
 
@@ -194,11 +221,16 @@ int platform_getconfig(enum config_data_e id, int instance,
   size_t  bytes;
   enum    config_data_e saved_id;
   int     saved_instance;
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM 
+#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
   static const uint8_t touch_cal_data[] = {
-      0x9a, 0x2f, 0x00, 0x00, 
+      0x9a, 0x2f, 0x00, 0x00,
       0x40, 0xbc, 0x69, 0xfe, 0x70, 0x2e, 0x00,
       0x00, 0xb8, 0x2d, 0xdb, 0xff };
+#endif
+#if CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
+  struct config_data_s  config;
+  int                   ret;
+  int                   fd;
 #endif
 
   switch (id)
@@ -240,7 +272,29 @@ int platform_getconfig(enum config_data_e id, int instance,
 
         return OK;
 
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM 
+#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
+
+        /* Try to open the /dev/config device file */
+
+        if ((fd = open("/dev/config", O_RDOK)) == -1)
+          {
+            /* Error opening the config device */
+
+            return -1;
+          }
+
+        /* Setup structure for the SETCONFIG ioctl */
+
+        config.id = (enum config_data_e)id;
+        config.instance = instance;
+        config.configdata = configdata;
+        config.len = datalen;
+
+        ret = ioctl(fd, CFGDIOC_GETCONFIG, (unsigned long) &config);
+        close(fd);
+        return ret;
+
+#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
 
         memcpy(configdata, touch_cal_data, datalen);
         return OK;

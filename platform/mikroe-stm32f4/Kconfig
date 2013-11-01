@@ -12,7 +12,7 @@ choice
 	default MIKROE_STM32F4_CONFIGDATA_PART
 
 config MIKROE_STM32F4_CONFIGDATA_PART
-	bool "Dedicated FLASH partition"
+	bool "Dedicated FLASH partition using /dev/config"
 
 config MIKROE_STM32F4_CONFIGDATA_FS
 	bool "File system file"
@@ -29,14 +29,6 @@ config MIKROE_STM32F4_CONFIGDATA_FILENAME
 	---help---
 		Specifies the fully qualified filename where application configuration
 		data is stored on the filesystem.
-
-endif
-
-if MIKROE_STM32F4_CONFIGDATA_PART
-
-config MIKROE_STM32F4_CONFIGDATA_PART_SIZE
-	int "Size (in erase blocks) of configuration data partition"
-	default 2
 
 endif
 
