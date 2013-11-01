@@ -57,7 +57,7 @@ DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
 BOARDDIR    = $(APPDIR)$(DELIM)platform$(DELIM)$(CONFIG_ARCH_BOARD)
 LINKDIR     = $(if $(wildcard $(BOARDDIR)$(DELIM)Make.defs),$(BOARDDIR),$(DUMMYDIR))
 
-VPATH       = $(PLATFORMDIR)
+VPATH       = board
 
 # Binaries
 
@@ -124,7 +124,7 @@ depend: .depend
 
 clean: $(PLATFORMDIR)
 	$(call DELFILE, .built)
-	$(MAKE) -C $(BINDIR) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
+	$(Q) $(MAKE) -C $(BINDIR) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 
 distclean: clean
 	$(call DELFILE, Make.dep)
