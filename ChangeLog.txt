@@ -720,3 +720,6 @@
 	  options to the hexdump command.  From Ken Pettit (2013-11-1).
 	* apps/platrorm/mikroe-stm32f4:  Now uses /dev/config for configuration
 	  data storage.  From Ken Pettit (2013-11-1).
+	* apps/platform/Makefile:  Was not dealing with the bin sub-directory
+	  correctly (2013-11-2).
+

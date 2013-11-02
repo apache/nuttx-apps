@@ -51,7 +51,6 @@ endif
 
 # Directories
 
-BINDIR      = $(APPDIR)$(DELIM)platform$(DELIM)bin
 PLATFORMDIR = $(APPDIR)$(DELIM)platform$(DELIM)board
 DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
 BOARDDIR    = $(APPDIR)$(DELIM)platform$(DELIM)$(CONFIG_ARCH_BOARD)
@@ -66,8 +65,8 @@ CSRCS =
 
 -include $(PLATFORMDIR)$(DELIM)Make.defs
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))
+COBJS = $(patsubst %.c, bin$(DELIM)%$(OBJEXT), $(CSRCS))
 
 SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
@@ -87,18 +86,18 @@ endif
 all: .built
 .PHONY: context .depend depend clean distclean
 
-ifneq ($(AOBJS),)
-$(AOBJS): %$(OBJEXT): %.S
+ifneq ($(ASRCS),)
+$(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 endif
 
-ifneq ($(COBJS),)
-$(COBJS): %$(OBJEXT): %.c
+ifneq ($(CSRCS),)
+$(COBJS): bin$(DELIM)%$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 endif
 
 .built: $(OBJS)
-ifneq ($(OBJS),)
+ifneq ($(SRCS),)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 endif
 	$(Q) touch .built
@@ -124,7 +123,7 @@ depend: .depend
 
 clean: $(PLATFORMDIR)
 	$(call DELFILE, .built)
-	$(Q) $(MAKE) -C $(BINDIR) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
+	$(Q) $(MAKE) -C bin TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 
 distclean: clean
 	$(call DELFILE, Make.dep)

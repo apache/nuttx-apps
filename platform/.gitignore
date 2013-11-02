@@ -1,4 +1,5 @@
 /.built
-/Make.defs
+/.depend
+/Make.dep
 board
 
