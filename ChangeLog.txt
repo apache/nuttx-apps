@@ -724,4 +724,5 @@
 	  correctly (2013-11-2).
 	* apps/examples/configdata:  A unit test for the MTD configuration
 	  data drriver from Ken Pettit (2013-11-4).
-
+	* apps/platform/mikroe-stm32f4:  Updated to use new MTD configuration
+	  driver features.  From Ken Pettit (2013-11-1).

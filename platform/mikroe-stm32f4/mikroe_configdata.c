@@ -1,7 +1,7 @@
 /************************************************************************************
  * apps/platform/mikroe-stm32f4/mikroe_configdata.c
  *
- *   Copyright (C) 2012-2013 Ken Pettit. All rights reserved.
+ *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
+#include <sys/ioctl.h>
 
 #include <apps/platform/configdata.h>
 #include <nuttx/fs/ioctl.h>
@@ -114,7 +115,28 @@ int platform_setconfig(enum config_data_e id, int instance,
   struct config_data_s  config;
   int                   ret;
   int                   fd;
-#endif
+
+  /* Try to open the /dev/config device file */
+
+  if ((fd = open("/dev/config", O_RDOK)) == -1)
+    {
+      /* Error opening the config device */
+
+      return -1;
+    }
+
+  /* Setup structure for the SETCONFIG ioctl */
+
+  config.id = (enum config_data_e)id;
+  config.instance = instance;
+  config.configdata = (FAR uint8_t *) configdata;
+  config.len = datalen;
+
+  ret = ioctl(fd, CFGDIOC_SETCONFIG, (unsigned long) &config);
+  close(fd);
+  return ret;
+
+#else /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */
 
   switch (id)
     {
@@ -144,28 +166,6 @@ int platform_setconfig(enum config_data_e id, int instance,
         fclose(fd);
         return OK;
 
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
-
-        /* Try to open the /dev/config device file */
-
-        if ((fd = open("/dev/config", O_RDOK)) == -1)
-          {
-            /* Error opening the config device */
-
-            return -1;
-          }
-
-        /* Setup structure for the SETCONFIG ioctl */
-
-        config.id = (enum config_data_e)id;
-        config.instance = instance;
-        config.configdata = (FAR uint8_t *) configdata;
-        config.len = datalen;
-
-        ret = ioctl(fd, CFGDIOC_SETCONFIG, (unsigned long) &config);
-        close(fd);
-        return ret;
-
 #elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
 
         /* We are reading from a read-only system, so nothing to do. */
@@ -174,14 +174,17 @@ int platform_setconfig(enum config_data_e id, int instance,
 
 #else
         break;
-#endif
+#endif  /* CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM */
 
       default:
         break;
     }
 
+
   set_errno(ENOSYS);
   return -1;
+
+#endif /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */
 }
 
 /****************************************************************************
@@ -231,7 +234,28 @@ int platform_getconfig(enum config_data_e id, int instance,
   struct config_data_s  config;
   int                   ret;
   int                   fd;
-#endif
+
+  /* Try to open the /dev/config device file */
+
+  if ((fd = open("/dev/config", O_RDOK)) == -1)
+    {
+      /* Error opening the config device */
+
+      return -1;
+    }
+
+  /* Setup structure for the SETCONFIG ioctl */
+
+  config.id = (enum config_data_e)id;
+  config.instance = instance;
+  config.configdata = configdata;
+  config.len = datalen;
+
+  ret = ioctl(fd, CFGDIOC_GETCONFIG, (unsigned long) &config);
+  close(fd);
+  return ret;
+
+#else /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */
 
   switch (id)
     {
@@ -244,6 +268,7 @@ int platform_getconfig(enum config_data_e id, int instance,
         if ((fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "r")) == NULL)
           {
             /* Error opening the file */
+
             set_errno(ENOENT);
             return -1;
           }
@@ -258,6 +283,7 @@ int platform_getconfig(enum config_data_e id, int instance,
         if (bytes != sizeof(saved_id) + sizeof(saved_instance) + datalen)
           {
             /* Error!  Not enough data in the file */
+
             set_errno(EINVAL);
             fclose(fd);
             return -1;
@@ -271,28 +297,6 @@ int platform_getconfig(enum config_data_e id, int instance,
         /* Save config data in a file on the filesystem */
 
         return OK;
-
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
-
-        /* Try to open the /dev/config device file */
-
-        if ((fd = open("/dev/config", O_RDOK)) == -1)
-          {
-            /* Error opening the config device */
-
-            return -1;
-          }
-
-        /* Setup structure for the SETCONFIG ioctl */
-
-        config.id = (enum config_data_e)id;
-        config.instance = instance;
-        config.configdata = configdata;
-        config.len = datalen;
-
-        ret = ioctl(fd, CFGDIOC_GETCONFIG, (unsigned long) &config);
-        close(fd);
-        return ret;
 
 #elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
 
@@ -309,6 +313,8 @@ int platform_getconfig(enum config_data_e id, int instance,
 
   set_errno(ENOSYS);
   return -1;
+
+#endif /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */
 }
 
 #endif /* CONFIG_PLATFORM_CONFIGDATA */
