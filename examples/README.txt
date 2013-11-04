@@ -131,6 +131,11 @@ examples/cc3000
 
   This is a test for the TI CC3000 wireless networking module.
 
+examples/configdata
+^^^^^^^^^^^^^^^^^^^
+
+  This is a Unit Test for the MTD configuration data driver
+
 examples/cxxtest
 ^^^^^^^^^^^^^^^^
 
