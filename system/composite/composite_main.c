@@ -434,7 +434,6 @@ static int open_serial(void)
   message("open_serial: Successfully opened the serial driver\n");
   return OK;
 }
-#endif
 
 /****************************************************************************
  * Name: echo_serial
@@ -474,8 +473,10 @@ static int echo_serial(void)
       message("echo_serial: ERROR: read size: %d write size: %d\n",
               bytesread, byteswritten);
     }
+
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -577,6 +578,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
       message("board_mscclassobject: usbmsc_classobject failed: %d\n", -ret);
       usbmsc_uninitialize(g_composite.mschandle);
     }
+
   check_test_memory_usage("After usbmsc_classobject()");
   return ret;
 }
