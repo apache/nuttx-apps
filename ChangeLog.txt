@@ -728,4 +728,6 @@
 	  driver features.  From Ken Pettit (2013-11-1).
 	* apps/nshlib/nsh.h:  Allow USB trace wihtout a USB console. From
 	  David Sidrane (2013-11-06).
+	* apps/system/composite/composite_main.c:  The wrong handle was getting
+	  nullified.  From David Sidrane (2013-11-7).
 

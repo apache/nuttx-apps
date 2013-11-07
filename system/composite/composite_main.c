@@ -840,7 +840,7 @@ int disconn_main(int argc, char *argv[])
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
    composite_uninitialize(g_composite.cmphandle);
-   g_composite.mschandle = NULL;
+   g_composite.cmphandle = NULL;
    message("disconn_main: Disconnected\n");
    check_test_memory_usage("After composite_uninitialize()");
 
