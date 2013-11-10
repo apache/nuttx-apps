@@ -11,6 +11,12 @@ config SYSTEM_NXPLAYER
 
 if SYSTEM_NXPLAYER
 
+config NXPLAYER_PLAYTHREAD_STACKSIZE
+	int "NxPlayer thread stack size"
+	default 1500
+	---help---
+		Stack size to use with the NxPlayer play thread.
+
 config NXPLAYER_COMMAND_LINE
 	bool "Include nxplayer command line application"
 	default y

@@ -730,4 +730,6 @@
 	  David Sidrane (2013-11-06).
 	* apps/system/composite/composite_main.c:  The wrong handle was getting
 	  nullified.  From David Sidrane (2013-11-7).
-
+	* apps/system/nxplayer: Play thread stack size is now configurable.  All
+	  NxPlayer threads now have names assigned via pthread_setname_np().
+	  From Ken Pettit (2013-11-10).

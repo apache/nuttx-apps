@@ -52,7 +52,7 @@ CSRCS		= nxplayer.c
 
 APPNAME		= nxplayer
 PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 3100
+STACKSIZE	= 2048
 
 ifeq ($(CONFIG_NXPLAYER_COMMAND_LINE),y)
 CSRCS   += nxplayer_main.c

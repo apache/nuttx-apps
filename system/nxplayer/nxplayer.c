@@ -72,6 +72,10 @@
 #  define CONFIG_NXPLAYER_MSG_PRIO  1
 #endif
 
+#ifndef CONFIG_NXPLAYER_PLAYTHREAD_STACKSIZE
+#  define CONFIG_NXPLAYER_PLAYTHREAD_STACKSIZE    1500
+#endif
+
 /****************************************************************************
  * Private Type Declarations
  ****************************************************************************/
@@ -1323,7 +1327,8 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filef
 
   pthread_attr_init(&tattr);
   sparam.sched_priority = sched_get_priority_max(SCHED_FIFO) - 9;
-  pthread_attr_setschedparam(&tattr, &sparam);
+  (void)pthread_attr_setschedparam(&tattr, &sparam);
+  (void)pthread_attr_setstacksize(&tattr, CONFIG_NXPLAYER_PLAYTHREAD_STACKSIZE);
 
   /* Add a reference count to the player for the thread and start the
    * thread.  We increment for the thread to avoid thread start-up
@@ -1332,12 +1337,16 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* pFilename, int filef
 
   nxplayer_reference(pPlayer);
   ret = pthread_create(&pPlayer->playId, &tattr, nxplayer_playthread,
-      (pthread_addr_t) pPlayer);
+                       (pthread_addr_t) pPlayer);
   if (ret != OK)
     {
       auddbg("Error %d creating playthread\n", ret);
       goto err_out;
     }
+
+  /* Name the thread */
+
+  pthread_setname_np(pPlayer->playId, "playthread");
 
   return OK;
 
