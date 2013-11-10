@@ -94,6 +94,10 @@ ifeq ($(CONFIG_EXAMPLES_IGMP),y)
 CONFIGURED_APPS += examples/igmp
 endif
 
+ifeq ($(CONFIG_EXAMPLES_I2SCHAR),y)
+CONFIGURED_APPS += examples/i2schar
+endif
+
 ifeq ($(CONFIG_EXAMPLES_JSON),y)
 CONFIGURED_APPS += examples/json
 endif
