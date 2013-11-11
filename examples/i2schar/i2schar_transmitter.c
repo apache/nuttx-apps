@@ -96,6 +96,7 @@ pthread_addr_t i2schar_transmitter(pthread_addr_t arg)
   uint8_t *ptr;
   int bufsize;
   int nwritten;
+  int ret;
   int fd;
   int i;
   int j;
@@ -120,14 +121,16 @@ pthread_addr_t i2schar_transmitter(pthread_addr_t arg)
       desc.numbytes   = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
       desc.u.ppBuffer = &apb;
 
-      bufsize = apb_alloc(&desc);
-      if (bufsize < 0)
+      ret = apb_alloc(&desc);
+      if (ret < 0)
         {
            message("i2schar_transmitter: ERROR: failed to allocate buffer %d: %d\n",
-                   i+1, bufsize);
+                   i+1, ret);
            close(fd);
            pthread_exit(NULL);
         }
+
+      bufsize = sizeof(struct ap_buffer_s) + CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
 
       /* Fill the audio buffer with crap */
 
@@ -135,6 +138,8 @@ pthread_addr_t i2schar_transmitter(pthread_addr_t arg)
         {
           *ptr++ = crap++;
         }
+
+      apb->nbytes = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
 
       /* Then send the buffer */
 

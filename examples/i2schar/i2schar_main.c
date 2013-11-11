@@ -297,9 +297,12 @@ int i2schar_main(int argc, char *argv[])
   ret = pthread_create(&transmitter, &attr, i2schar_transmitter, NULL);
   if (ret != OK)
     {
+      sched_unlock();
       message("i2schar_main: ERROR: failed to Start transmitter thread: %d\n", ret);
       return EXIT_FAILURE;
     }
+
+   pthread_setname_np(transmitter, "transmitter");
 #endif
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
@@ -313,6 +316,7 @@ int i2schar_main(int argc, char *argv[])
   ret = pthread_create(&receiver, &attr, i2schar_receiver, NULL);
   if (ret != OK)
     {
+      sched_unlock();
       message("i2schar_main: ERROR: failed to Start receiver thread: %d\n", ret);
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
       message("i2schar_main: Waiting for the transmitter thread\n");
@@ -320,8 +324,11 @@ int i2schar_main(int argc, char *argv[])
 #endif
       return EXIT_FAILURE;
     }
+
+   pthread_setname_np(transmitter, "receiver");
 #endif
 
+   sched_unlock();
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
    message("i2schar_main: Waiting for the transmitter thread\n");
    ret = pthread_join(transmitter, &result);
