@@ -246,6 +246,9 @@ int i2schar_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
   pthread_t receiver;
 #endif
+#if defined(CONFIG_EXAMPLES_I2SCHAR_RX) & defined(CONFIG_EXAMPLES_I2SCHAR_TX)
+  struct sched_param param;
+#endif
   int ret;
 
   /* Check if we have initialized */
@@ -286,46 +289,66 @@ int i2schar_main(int argc, char *argv[])
 #endif
 
   sched_lock();
-#ifdef CONFIG_EXAMPLES_I2SCHAR_TX
-  /* Start the transmitter thread */
-
-  message("i2schar_main: Start transmitter thread\n");
-
-  pthread_attr_init(&attr);
-  (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_I2SCHAR_TXSTACKSIZE);
-
-  ret = pthread_create(&transmitter, &attr, i2schar_transmitter, NULL);
-  if (ret != OK)
-    {
-      sched_unlock();
-      message("i2schar_main: ERROR: failed to Start transmitter thread: %d\n", ret);
-      return EXIT_FAILURE;
-    }
-
-   pthread_setname_np(transmitter, "transmitter");
-#endif
-
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
   /* Start the receiver thread */
 
   message("i2schar_main: Start receiver thread\n");
-
   pthread_attr_init(&attr);
+
+#ifdef CONFIG_EXAMPLES_I2SCHAR_TX
+  /* Bump the receiver priority from the default so that it will be above
+   * the priority of transmitter.  This is important if a loopback test is
+   * being performed; it improves the changes that a receiving audio buffer
+   * is in place for each transmission.
+    */
+
+  (void)pthread_attr_getschedparam(&attr, &param);
+  param.sched_priority++;
+  (void)pthread_attr_setschedparam(&attr, &param);
+#endif
+
+  /* Set the receiver stack size */
+
   (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_I2SCHAR_RXSTACKSIZE);
+
+  /* Start the receiver */
 
   ret = pthread_create(&receiver, &attr, i2schar_receiver, NULL);
   if (ret != OK)
     {
       sched_unlock();
       message("i2schar_main: ERROR: failed to Start receiver thread: %d\n", ret);
+      return EXIT_FAILURE;
+    }
+
+   pthread_setname_np(receiver, "receiver");
+#endif
+
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
-      message("i2schar_main: Waiting for the transmitter thread\n");
-      (void)pthread_join(transmitter, &result);
+  /* Start the transmitter thread */
+
+  message("i2schar_main: Start transmitter thread\n");
+  pthread_attr_init(&attr);
+
+  /* Set the transmitter stack size */
+
+  (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_I2SCHAR_TXSTACKSIZE);
+
+  /* Start the transmitter */
+
+  ret = pthread_create(&transmitter, &attr, i2schar_transmitter, NULL);
+  if (ret != OK)
+    {
+      sched_unlock();
+      message("i2schar_main: ERROR: failed to Start transmitter thread: %d\n", ret);
+#ifdef CONFIG_EXAMPLES_I2SCHAR_RX
+      message("i2schar_main: Waiting for the receiver thread\n");
+      (void)pthread_join(receiver, &result);
 #endif
       return EXIT_FAILURE;
     }
 
-   pthread_setname_np(transmitter, "receiver");
+   pthread_setname_np(transmitter, "transmitter");
 #endif
 
    sched_unlock();
