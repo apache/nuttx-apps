@@ -957,7 +957,12 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* See if it is a single file */
 
-  if (stat(fullpath, &st) == 0 && !S_ISDIR(st.st_mode))
+  if (stat(fullpath, &st) < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "stat", NSH_ERRNO);
+      ret = ERROR;
+    }
+  else if (!S_ISDIR(st.st_mode))
     {
       /* Pass a null dirent to ls_handler to signify that this is a single
        * file
