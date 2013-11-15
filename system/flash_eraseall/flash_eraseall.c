@@ -44,7 +44,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <nuttx/mtd.h>
+#include <nuttx/mtd/mtd.h>
 
 /****************************************************************************
  * Pre-processor Definitions

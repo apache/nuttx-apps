@@ -52,7 +52,7 @@
 #include <crc32.h>
 #include <debug.h>
 
-#include <nuttx/mtd.h>
+#include <nuttx/mtd/mtd.h>
 #include <nuttx/fs/nxffs.h>
 
 /****************************************************************************
