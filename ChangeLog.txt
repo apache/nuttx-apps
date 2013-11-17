@@ -735,3 +735,5 @@
 	  From Ken Pettit (2013-11-10).
 	* apps/examples/i2schar:  The beginning of an I2C test based on the I2C
 	  character driver (2013-11-10).
+	* apps/nshlib/nsh_mntcmds.c:  Mount command updates from Ken Pettit
+	  (2013-11-17).
