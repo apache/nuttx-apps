@@ -737,3 +737,7 @@
 	  character driver (2013-11-10).
 	* apps/nshlib/nsh_mntcmds.c:  Mount command updates from Ken Pettit
 	  (2013-11-17).
+	* examples/hidkbd/hidkbd_main.c:  Now calls a function named
+	  arch_usbhost_initialize() that must be provided by the platform-
+	  specific code (2013-11-29).
+

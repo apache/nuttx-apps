@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/hidkbd/null_main.c
+ * examples/hidkbd/hidkbd_main.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@
 #endif
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 
@@ -112,7 +112,17 @@ struct hidbkd_instream_s
  * Private Data
  ****************************************************************************/
 
-static struct usbhost_connection_s *g_usbconn;
+static FAR struct usbhost_connection_s *g_usbconn;
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+/* The platform-specific code must provide a wrapper called
+ * arch_usbhost_initialize() that will perform the actual USB host
+ * initialization.
+ */
+
+FAR struct usbhost_connection_s *arch_usbhost_initialize(void);
 
 /****************************************************************************
  * Private Functions
@@ -283,16 +293,13 @@ int hidkbd_main(int argc, char *argv[])
       printf("hidkbd_main: Failed to register the KBD class\n");
     }
 
-  /* Then get an instance of the USB host interface.
-   *
-   * REVISIT:  This logic needs to be modified.  There must be a call-out to
-   * platform specific logic to get the connection hangle.  usbhost_initialize()
-   * is not longer common to all platforms and is no longer prototyped in
-   * include/nuttx/usb/usbhost.h.
+  /* Then get an instance of the USB host interface.  The platform-specific
+   * code must provide a wrapper called arch_usbhost_initialize() that will
+   * perform the actual USB host initialization.
    */
 
   printf("hidkbd_main: Initialize USB host keyboard driver\n");
-  g_usbconn = usbhost_initialize(0);
+  g_usbconn = arch_usbhost_initialize();
   if (g_usbconn)
     {
       /* Start a thread to handle device connection. */
