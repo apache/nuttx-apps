@@ -109,7 +109,7 @@ struct dd_s
 #ifndef CONFIG_DISABLE_MOUNTPOINT
   union
   {
-    FAR void *handle;  /* BCH lib handle for block device*/
+    FAR void *handle;  /* BCH lib handle for block device */
     int fd;            /* File descriptor of the character device */
   } inf;
 #else
@@ -119,7 +119,7 @@ struct dd_s
 #ifndef CONFIG_DISABLE_MOUNTPOINT
   union
   {
-    FAR void *handle;  /* BCH lib handle for block device*/
+    FAR void *handle;  /* BCH lib handle for block device */
     int fd;            /* File descriptor of the character device */
   } outf;
 #else
