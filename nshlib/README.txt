@@ -554,9 +554,14 @@ o mkdir <path>
      drw-rw-rw-       0 TMP/
     nsh>
 
-o mkfatfs <path>
+o mkfatfs [-F <fatsize>] <block-driver>
 
-  Format a fat file system on the block device specified by path.
+  Format a fat file system on the block device specified by <block-driver>
+  path.  The FAT size may be provided as an option.  Without the <fatsize>
+  option, mkfatfs will select either the FAT12 or FAT16 format.  For
+  historical reasons, if you want the FAT32 format, it must be explicitly
+  specified on the command line.
+
   NSH provides this command to access the mkfatfs() NuttX API.
   This block device must reside in the NuttX pseudo filesystem and
   must have been created by some call to register_blockdriver() (see

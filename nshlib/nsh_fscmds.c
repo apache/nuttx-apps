@@ -872,6 +872,7 @@ errout_with_paths:
     {
       free(filepath);
     }
+
   return ret;
 }
 #endif
@@ -1008,6 +1009,7 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mkdir", NSH_ERRNO);
         }
+
       nsh_freefullpath(fullpath);
     }
   return ret;
@@ -1024,18 +1026,80 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct fat_format_s fmt = FAT_FORMAT_INITIALIZER;
-  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  FAR char *fullpath;
+  bool badarg;
+  int option;
   int ret = ERROR;
 
-  if (fullpath)
+  /* mkfatfs [-F <fatsize>] <block-driver> */
+
+  badarg = false;
+  while ((option = getopt(argc, argv, ":F:")) != ERROR)
     {
-      ret = mkfatfs(fullpath, &fmt);
-      if (ret < 0)
+      switch (option)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mkfatfs", NSH_ERRNO);
+          case 'F':
+            fmt.ff_fattype = atoi(optarg);
+            if (fmt.ff_fattype != 0  && fmt.ff_fattype != 12 &&
+                fmt.ff_fattype != 16 && fmt.ff_fattype != 32)
+              {
+                nsh_output(vtbl, g_fmtargrange, argv[0]);
+                badarg = true;
+              }
+            break;
+
+         case ':':
+            nsh_output(vtbl, g_fmtargrequired, argv[0]);
+            badarg = true;
+            break;
+
+          case '?':
+          default:
+            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
         }
-      nsh_freefullpath(fullpath);
     }
+
+  /* If a bad argument was encountered, then return without processing the command */
+
+  if (badarg)
+    {
+      return ERROR;
+    }
+
+  /* There should be exactly one parameter left on the command-line */
+
+  if (optind == argc-1)
+    {
+      fullpath = nsh_getfullpath(vtbl, argv[optind]);
+      if (!fullpath)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_getfullpath",
+                     NSH_ERRNO);
+          return ERROR;
+        }
+    }
+  else if (optind >= argc)
+    {
+      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      return ERROR;
+    }
+  else
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+    }
+
+  /* Now format the FAT file system */
+
+  ret = mkfatfs(fullpath, &fmt);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mkfatfs", NSH_ERRNO);
+    }
+
+  nsh_freefullpath(fullpath);
   return ret;
 }
 #endif
@@ -1059,8 +1123,10 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mkfifo", NSH_ERRNO);
         }
+
       nsh_freefullpath(fullpath);
     }
+
   return ret;
 }
 #endif
@@ -1127,7 +1193,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-  /* There should be exactly on parameter left on the command-line */
+  /* There should be exactly one parameter left on the command-line */
 
   if (optind == argc-1)
     {
@@ -1167,6 +1233,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       free(buffer);
       return ERROR;
     }
+
   return ret;
 
 errout_with_fmt:
@@ -1289,8 +1356,10 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "unlink", NSH_ERRNO);
         }
+
       nsh_freefullpath(fullpath);
     }
+
   return ret;
 }
 #endif
@@ -1314,8 +1383,10 @@ int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "rmdir", NSH_ERRNO);
         }
+
       nsh_freefullpath(fullpath);
     }
+
   return ret;
 }
 #endif

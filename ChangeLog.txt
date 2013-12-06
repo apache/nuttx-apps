@@ -740,4 +740,6 @@
 	* examples/hidkbd/hidkbd_main.c:  Now calls a function named
 	  arch_usbhost_initialize() that must be provided by the platform-
 	  specific code (2013-11-29).
+	* apps/nshlib/nsh_fscmds.c:  Add an option to the mkfatfs command to
+	  specify FAT12, FAT16, or FAT32 (2013-12-5).
 
