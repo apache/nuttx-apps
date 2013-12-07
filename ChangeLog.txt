@@ -705,7 +705,7 @@
 	* apps/system/nxplayer: Add logic to verify the audio sub-format.
 	  From Ken Pettit (2013-10-28).
 
-6.31 2013-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.32 2013-12-07 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/platform:  A new home for board-specific application code
 	  (2013-10-30).
@@ -718,28 +718,29 @@
 	  data.  From Ken Pettit (2013-10-30).
 	* apps/nshlib/nsh_dbgcmds.c and others:  Add skip= and count=
 	  options to the hexdump command.  From Ken Pettit (2013-11-1).
-	* apps/platrorm/mikroe-stm32f4:  Now uses /dev/config for configuration
+	* apps/platform/mikroe-stm32f4:  Now uses /dev/config for configuration
 	  data storage.  From Ken Pettit (2013-11-1).
 	* apps/platform/Makefile:  Was not dealing with the bin sub-directory
 	  correctly (2013-11-2).
 	* apps/examples/configdata:  A unit test for the MTD configuration
-	  data drriver from Ken Pettit (2013-11-4).
+	  data driver from Ken Pettit (2013-11-4).
 	* apps/platform/mikroe-stm32f4:  Updated to use new MTD configuration
 	  driver features.  From Ken Pettit (2013-11-1).
-	* apps/nshlib/nsh.h:  Allow USB trace wihtout a USB console. From
+	* apps/nshlib/nsh.h:  Allow USB trace without a USB console. From
 	  David Sidrane (2013-11-06).
 	* apps/system/composite/composite_main.c:  The wrong handle was getting
 	  nullified.  From David Sidrane (2013-11-7).
 	* apps/system/nxplayer: Play thread stack size is now configurable.  All
 	  NxPlayer threads now have names assigned via pthread_setname_np().
 	  From Ken Pettit (2013-11-10).
-	* apps/examples/i2schar:  The beginning of an I2C test based on the I2C
+	* apps/examples/i2schar:  The beginning of an I2S test based on the I2S
 	  character driver (2013-11-10).
 	* apps/nshlib/nsh_mntcmds.c:  Mount command updates from Ken Pettit
 	  (2013-11-17).
-	* examples/hidkbd/hidkbd_main.c:  Now calls a function named
+	* apps/examples/hidkbd/hidkbd_main.c:  Now calls a function named
 	  arch_usbhost_initialize() that must be provided by the platform-
 	  specific code (2013-11-29).
 	* apps/nshlib/nsh_fscmds.c:  Add an option to the mkfatfs command to
 	  specify FAT12, FAT16, or FAT32 (2013-12-5).
 
+6.33 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
