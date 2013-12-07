@@ -349,4 +349,18 @@ Additional new features and extended functionality in Version 1.9:
 
 Bugfixes:
 
-(There are not bugfixes recorded for this release).
+(There are no bugfixes recorded for this release).
+
+NxWidgets-1.9
+=============
+
+The 11th release of the NxWidgets package was made on December 7, 2013.  This
+release depends on NuttX-6.26 or above and should not be used with older
+NuttX releases.
+
+Additional new features and extended functionality in Version 1.10:
+
+* NxWM:Calibration and UnitTests/nxwm:  Add logic to enable saving and
+  recovering touchscreen calibration data.  This depends upon having
+  platform-dependent support for storage of configuration data.  Portions
+  suggested by Ken Pettit.
