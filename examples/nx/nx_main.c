@@ -110,7 +110,7 @@ NXHANDLE g_fonthandle;
  * Public Data
  ****************************************************************************/
 
-/* The connecton handler */
+/* The connection handler */
 
 NXHANDLE g_hnx = NULL;
 
