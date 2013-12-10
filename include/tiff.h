@@ -298,7 +298,7 @@ struct tiff_info_s
    *
    * colorfmt  - Specifies the form of the color data that will be provided
    *             in the strip data.  These are the FB_FMT_* definitions
-   *             provided in include/nuttx/fb.h.  Only the following values
+   *             provided in include/nuttx/video/fb.h.  Only the following values
    *             are supported:
    *
    *             FB_FMT_Y1               BPP=1, monochrome, 0=black
@@ -316,7 +316,7 @@ struct tiff_info_s
   FAR const char *tmpfile1; /* Full path to first temporary file */
   FAR const char *tmpfile2; /* Full path to second temporary file */
 
-  uint8_t      colorfmt;    /* See FB_FMT_* definitions in include/nuttx/fb.h */
+  uint8_t      colorfmt;    /* See FB_FMT_* definitions in include/nuttx/video/fb.h */
   nxgl_coord_t rps;         /* TIFF RowsPerStrip */
   nxgl_coord_t imgwidth;    /* TIFF ImageWidth, Number of columns in the image */
   nxgl_coord_t imgheight;   /* TIFF ImageLength, Number of rows in the image */
