@@ -46,7 +46,7 @@
 #include <stdbool.h>
 #include <semaphore.h>
 
-#include <nuttx/rgbcolors.h>
+#include <nuttx/video/rgbcolors.h>
 
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
