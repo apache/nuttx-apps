@@ -78,7 +78,7 @@
 #include <stdbool.h>
 
 #include <nuttx/nx/nxglib.h>
-#include <nuttx/fb.h>
+#include <nuttx/video/fb.h>
 
 #include "nxconfig.hxx"
 #include "cbitmap.hxx"
