@@ -55,7 +55,7 @@
 #include <apps/netutils/uiplib.h>
 #include <apps/netutils/thttpd.h>
 
-#include <nuttx/ramdisk.h>
+#include <nuttx/fs/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
 #include <nuttx/binfmt/nxflat.h>
 #ifdef CONFIG_NET_SLIP
