@@ -45,7 +45,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <nuttx/rgbcolors.h>
+#include <nuttx/video/rgbcolors.h>
 #include <nuttx/nx/nxfonts.h>
 
 /****************************************************************************

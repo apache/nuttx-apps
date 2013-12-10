@@ -47,7 +47,7 @@
 #include <fixedmath.h>
 #include <debug.h>
 
-#include <nuttx/rgbcolors.h>
+#include <nuttx/video/rgbcolors.h>
 #include <nuttx/nx/nxglib.h>
 
 #include "nxconfig.hxx"

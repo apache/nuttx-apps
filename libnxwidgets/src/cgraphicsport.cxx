@@ -80,7 +80,7 @@
 #include <debug.h>
 
 #include <nuttx/nx/nxglib.h>
-#include <nuttx/rgbcolors.h>
+#include <nuttx/video/rgbcolors.h>
 
 #include "nxconfig.hxx"
 #include "inxwindow.hxx"

@@ -45,7 +45,7 @@
 
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/video/fb.h>
-#include <nuttx/rgbcolors.h>
+#include <nuttx/video/rgbcolors.h>
 
 #include "nxconfig.hxx"
 #include "crlepalettebitmap.hxx"
