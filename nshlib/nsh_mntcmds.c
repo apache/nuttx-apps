@@ -194,31 +194,34 @@ static int df_man_readable_handler(FAR const char *mountpoint,
   /* Find the label for size */
 
   which = 0;
-  while (size >= 9999 || (size & 0x3FF) == 0 && size)
+  while (size >= 9999 || (size & 0x3ff) == 0 && size)
     {
       which++;
       size >>= 10;
     }
+
   sizelabel = labels[which];
 
   /* Find the label for free */
 
   which = 0;
-  while (free >= 9999 || (free & 0x3FF) == 0 && size)
+  while (free >= 9999 || (free & 0x3ff) == 0 && free)
     {
       which++;
       free >>= 10;
     }
+
   freelabel = labels[which];
 
   /* Find the label for used */
 
   which = 0;
-  while (used >= 9999 || (used & 0x3FF) == 0 && size)
+  while (used >= 9999 || (used & 0x3ff) == 0 && used)
     {
       which++;
       used >>= 10;
     }
+
   usedlabel = labels[which];
 
 #ifndef CONFIG_NUTTX_KERNEL
