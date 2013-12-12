@@ -744,3 +744,8 @@
 	  specify FAT12, FAT16, or FAT32 (2013-12-5).
 
 6.33 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/nshlib/nsh_mntcmds.c:  Modified the df -h logic to eliminate
+	  truncating numbers in conversion (like 7900 -> 7M).  From Ken
+	  Pettit (2013-12-12).
+
