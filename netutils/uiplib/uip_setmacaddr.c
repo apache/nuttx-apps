@@ -84,6 +84,7 @@
 int uip_setmacaddr(const char *ifname, const uint8_t *macaddr)
 {
   int ret = ERROR;
+
   if (ifname && macaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
@@ -102,12 +103,13 @@ int uip_setmacaddr(const char *ifname, const uint8_t *macaddr)
           req.ifr_hwaddr.sa_family = AF_INETX;
           memcpy(&req.ifr_hwaddr.sa_data, macaddr, IFHWADDRLEN);
 
-          /* Perforom the ioctl to set the MAC address */
+          /* Perform the ioctl to set the MAC address */
 
           ret = ioctl(sockfd, SIOCSIFHWADDR, (unsigned long)&req);
           close(sockfd);
         }
     }
+
   return ret;
 }
 
