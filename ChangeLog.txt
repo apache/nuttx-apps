@@ -411,3 +411,9 @@
   the one-time, start-up initialization logic (2013-10-30).
 
 1.11 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* NxWidgets/Kconfig and NxWidgets::CNxServer:  Server initialization can
+  now be disabled in the configuration (in fact, it is disabled by default).
+  This is because in the kernel build mode, the NX server must be initialized
+  in kernel mode by the RTOS before applications using the server run in
+  user mode.

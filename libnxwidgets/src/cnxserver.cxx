@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cnxserver.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -156,7 +156,8 @@ bool CNxServer::connect(void)
   // Turn the LCD on at 75% power
 
   (void)m_hDevice->setpower(m_hDevice, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
+
+#else // CONFIG_NX_LCDDRIVER
   int ret;
 
   // Initialize the frame buffer device
@@ -175,7 +176,8 @@ bool CNxServer::connect(void)
              CONFIG_NXWIDGETS_VPLANE);
       return false;
     }
-#endif
+
+#endif // CONFIG_NX_LCDDRIVER
 
   // Then open NX
 
@@ -188,7 +190,7 @@ bool CNxServer::connect(void)
 
   return true;
 }
-#endif
+#endif // CONFIG_NX_MULTIUSER
 
 /**
  * Connect to the NX Server -- Multi user version
@@ -212,6 +214,7 @@ bool CNxServer::connect(void)
       return false;
     }
 
+#ifdef CONFIG_NXWIDGET_SERVERINIT
   // Start the server task
 
   gvdbg("CNxServer::connect: Starting server task\n");
@@ -226,6 +229,8 @@ bool CNxServer::connect(void)
   // Wait a bit to let the server get started
 
   usleep(50*1000);
+
+#endif // CONFIG_NXWIDGET_SERVERINIT
 
   // Connect to the server
 
@@ -286,7 +291,7 @@ bool CNxServer::connect(void)
 
   return true;
 }
-#endif
+#endif // CONFIG_NX_MULTIUSER
 
 /**
  * Disconnect to the NX Server -- Single user version
@@ -303,7 +308,7 @@ void CNxServer::disconnect(void)
       m_hNxServer = NULL;
     }
 }
-#endif
+#endif // CONFIG_NX_MULTIUSER
 
 /**
  * Disconnect to the NX Server -- Single user version
@@ -336,14 +341,14 @@ void CNxServer::disconnect(void)
       m_hNxServer = NULL;
     }
 }
-#endif
+#endif // CONFIG_NX_MULTIUSER
 
 /**
  * NX server thread.  This is the entry point into the server thread that
  * serializes the multi-threaded accesses to the display.
  */
 
-#ifdef CONFIG_NX_MULTIUSER
+#if defined(CONFIG_NX_MULTIUSER) && defined(CONFIG_NXWIDGET_SERVERINIT)
 int CNxServer::server(int argc, char *argv[])
 {
   FAR NX_DRIVERTYPE *dev;
@@ -381,7 +386,8 @@ int CNxServer::server(int argc, char *argv[])
   // Turn the LCD on at 75% power
 
   (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
+
+#else // CONFIG_NX_LCDDRIVER
   // Initialize the frame buffer device
 
   ret = up_fbinitialize();
@@ -397,7 +403,8 @@ int CNxServer::server(int argc, char *argv[])
       gdbg("up_fbgetvplane failed, vplane=%d\n", CONFIG_NXWIDGETS_VPLANE);
       return 2;
     }
-#endif
+
+#endif // CONFIG_NX_LCDDRIVER
 
   // Then start the server
 
@@ -405,7 +412,7 @@ int CNxServer::server(int argc, char *argv[])
   gvdbg("nx_run returned: %d\n", errno);
   return EXIT_FAILURE;
 }
-#endif
+#endif // CONFIG_NX_MULTIUSER && CONFIG_NXWIDGET_SERVERINIT
 
 /**
  * This is the entry point of a thread that listeners for and dispatches
@@ -458,4 +465,4 @@ FAR void *CNxServer::listener(FAR void *arg)
   sem_post(&This->m_connsem);
   return NULL;
 }
-#endif
+#endif // CONFIG_NX_MULTIUSER
