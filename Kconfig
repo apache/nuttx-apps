@@ -28,8 +28,7 @@ config NXWIDGETS_FLICKERFREE
 
 config NXWIDGETS_EXTERNINIT
 	bool "External display Initialization"
-	default 0
-	depends on NXWIDGET_SERVERINIT
+	default n
 	---help---
 		Define to support external display initialization.
 
@@ -44,6 +43,7 @@ config NXWIDGETS_DEVNO
 config NXWIDGETS_VPLANE
 	int "Plane Number"
 	default 0
+	depends on !NX_LCDDRIVER && !NXWIDGETS_EXTERNINIT
 	---help---
 		Only a single video plane is supported. Default: 0
 

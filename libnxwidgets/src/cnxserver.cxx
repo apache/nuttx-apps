@@ -201,7 +201,6 @@ bool CNxServer::connect(void)
 {
   struct sched_param param;
   pthread_t thread;
-  pid_t serverId;
   int ret;
 
   // Set the client task priority
@@ -218,8 +217,9 @@ bool CNxServer::connect(void)
   // Start the server task
 
   gvdbg("CNxServer::connect: Starting server task\n");
-  serverId = TASK_CREATE("NX Server", CONFIG_NXWIDGETS_SERVERPRIO,
-                         CONFIG_NXWIDGETS_SERVERSTACK, server, (FAR char * const *)0);
+  pid_t serverId = TASK_CREATE("NX Server", CONFIG_NXWIDGETS_SERVERPRIO,
+                               CONFIG_NXWIDGETS_SERVERSTACK, server,
+                               (FAR char * const *)0);
   if (serverId < 0)
     {
       gdbg("NxServer::connect: Failed to create nx_servertask task: %d\n", errno);
