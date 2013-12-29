@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -76,7 +76,7 @@ CNxServer::CNxServer(void)
 {
   // Initialize server instance state data
 
-  m_hDevice    = (FAR NX_DRIVERTYPE *)NULL;  // LCD/Framebuffer device handle 
+  m_hDevice    = (FAR NX_DRIVERTYPE *)NULL;  // LCD/Framebuffer device handle
   m_hNxServer  = (NXHANDLE)NULL;             // NX server handle
 #ifdef CONFIG_NX_MULTIUSER
   m_connected  = false;                      // True:  Connected to the server
@@ -89,7 +89,7 @@ CNxServer::CNxServer(void)
 
   m_nServers++;
 
-  // Create miscellaneous singleton instances.  Why is this done here? 
+  // Create miscellaneous singleton instances.  Why is this done here?
   // Because this needs to be done once before any widgets are created and we
   // don't want to rely on static constructors.
 
@@ -426,7 +426,7 @@ FAR void *CNxServer::listener(FAR void *arg)
 
   CNxServer *This = (CNxServer*)arg;
 
-  // Process events forever 
+  // Process events forever
 
   while (!This->m_stop)
     {
