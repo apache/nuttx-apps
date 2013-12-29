@@ -26,9 +26,17 @@ config NXWIDGETS_FLICKERFREE
 		lower-performance flicker-reductions measures where-ever thay may
 		be available.
 
+config NXWIDGETS_EXTERNINIT
+	bool "External display Initialization"
+	default 0
+	depends on NXWIDGET_SERVERINIT
+	---help---
+		Define to support external display initialization.
+
 config NXWIDGETS_DEVNO
 	int "LCD Device Number"
 	default 0
+	depends on NXWIDGETS_EXTERNINIT || NX_LCDDRIVER
 	---help---
 		LCD device number (in case there are more than one LCDs connected).
 		Default: 0
@@ -38,6 +46,22 @@ config NXWIDGETS_VPLANE
 	default 0
 	---help---
 		Only a single video plane is supported. Default: 0
+
+if NX_MULTIUSER
+
+config NXWIDGET_SERVERINIT
+	bool "Start server"
+	default y
+	depends on !NUTTX_KERNEL
+	---help---
+		If this option is selected, then the NxWidgets::CNxServer class will
+		bring up the NX server when it is initialized.  If this option is
+		not selected then the NxWidgets::CNxServer constructor
+		initialization logic will assume that the NX server has been started
+		by other, external logic and will simply attempt to connect to the
+		server.
+
+if NXWIDGET_SERVERINIT
 
 config NXWIDGETS_SERVERPRIO
 	int "NX Server priority"
@@ -56,6 +80,8 @@ config NXWIDGETS_SERVERSTACK
 	default 2048
 	---help---
 		NX server thread stack size (in multi-user mode).  Default 2048
+
+endif # NXWIDGET_SERVERINIT
 
 config NXWIDGETS_CLIENTPRIO
 	int "NX Client Priority"
@@ -78,10 +104,7 @@ config NXWIDGETS_LISTENERSTACK
 	---help---
 		NX listener thread stack size (in multi-user mode).  Default 2048
 
-config NXWIDGETS_EXTERNINIT
-	bool "Extern LCD Initialization"
-	---help---
-		Define to support external display initialization.
+endif # NX_MULTIUSER
 
 config NXWIDGET_EVENTWAIT
 	bool "Event Waiting"
