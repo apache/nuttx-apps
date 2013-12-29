@@ -748,4 +748,7 @@
 	* apps/nshlib/nsh_mntcmds.c:  Modified the df -h logic to eliminate
 	  truncating numbers in conversion (like 7900 -> 7M).  From Ken
 	  Pettit (2013-12-12).
+	* Moved configs/stm3240g-eval/src/up_cxxinitialize.c to
+	  apps/platform/stm3240g-eval/up_cxxinitialize.c:  Now it is available
+	  in user-space in the kernel mode build (2013-12-29).
 

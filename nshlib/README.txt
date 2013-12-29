@@ -48,8 +48,8 @@ Command Overview
   Where:
 
     <cmd>  is any one of the simple commands listed later.
-    <file> is the full or relative path to any writable object
-           in the filesystem name space (file or character driver).
+    <file> is the full or relative path to any writeable object
+           in the file system name space (file or character driver).
            Such objects will be referred to simply as files throughout
            this README.
 
@@ -68,7 +68,7 @@ Conditional Command Execution
   An if-then[-else]-fi construct is also supported in order to
   support conditional execution of commands.  This works from the
   command line but is primarily intended for use within NSH scripts
-  (see the sh commnd).  The syntax is as follows:
+  (see the sh command).  The syntax is as follows:
 
     if <cmd>
     then
@@ -120,14 +120,14 @@ In this default case, enabling CONFIG_NSH_ROMFSETC will cause
 NSH to behave as follows at NSH startup time:
 
 - NSH will create a read-only RAM disk (a ROM disk), containing a tiny
-  ROMFS filesystem containing the following:
+  ROMFS file system containing the following:
 
     |--init.d/
          `-- rcS
 
    Where rcS is the NSH start-up script
 
-- NSH will then mount the ROMFS filesystem at /etc, resulting in:
+- NSH will then mount the ROMFS file system at /etc, resulting in:
 
    |--dev/
    |   `-- ram0
@@ -198,7 +198,7 @@ NOTE:
 All of the startup-behavior is contained in rcS.template.  The
 role of mkromfsimg.sh is to (1) apply the specific configuration
 settings to rcS.template to create the final rcS, and (2) to
-generate the header file nsh_romfsimg.h containg the ROMFS
+generate the header file nsh_romfsimg.h containing the ROMFS
 file system image.
 
 Simple Commands
@@ -252,7 +252,7 @@ o base64dec [-w] [-f] <string or filepath>
 
 o cat <path> [<path> [<path> ...]]
 
-  This command copies and concatentates all of the files at <path>
+  This command copies and concatenates all of the files at <path>
   to the console (or to another file if the output is redirected).
 
 o cd [<dir-path>|-|~|..]
@@ -280,7 +280,7 @@ o cmp <path1> <path2>
 o cp <source-path> <dest-path>
 
   Copy of the contents of the file at <source-path> to the location
-  in the filesystem indicated by <path-path>
+  in the file system indicated by <path-path>
 
 o date [-s "MMM DD HH:MM:SS YYYY"]
 
@@ -399,7 +399,7 @@ o get [-b|-n] [-f <local-path>] -h <ip-address> <remote-path>
      The file will be saved relative to the current working directory
       unless <local-path> is provided.
   -b|-n
-      Selects either binary ("octect") or test ("netascii") transfer
+      Selects either binary ("octet") or test ("netascii") transfer
       mode.  Default: text.
 
 o help [-v] [<cmd>]
@@ -487,7 +487,7 @@ o losetup [-d <dev-path>] | [[-o <offset>] [-r] <ldev-path> <file-path>]
 o ls [-lRs] <dir-path>
 
   Show the contents of the directory at <dir-path>.  NOTE:
-  <dir-path> must refer to a directory and no other filesystem
+  <dir-path> must refer to a directory and no other file system
   object.
 
   Options:
@@ -539,10 +539,10 @@ o mkdir <path>
   except the final directory name must exist on a mounted file
   system; the final directory must not.
 
-  Recall that NuttX uses a pseudo filesystem for its root file system.
+  Recall that NuttX uses a pseudo file system for its root file system.
   The mkdir command can only be used to create directories in volumes
   set up with the mount command; it cannot be used to create directories
-  in the pseudo filesystem.
+  in the pseudo file system.
 
   Example:
   ^^^^^^^^
@@ -563,7 +563,7 @@ o mkfatfs [-F <fatsize>] <block-driver>
   specified on the command line.
 
   NSH provides this command to access the mkfatfs() NuttX API.
-  This block device must reside in the NuttX pseudo filesystem and
+  This block device must reside in the NuttX pseudo file system and
   must have been created by some call to register_blockdriver() (see
   include/nuttx/fs/fs.h).
 
@@ -650,14 +650,14 @@ o mount [-t <fstype> <block-device> <dir-path>]
       of this writing, vfat is the only supported value for <fstype>
 
     Block Device.  The <block-device> argument is the full or relative
-      path to a block driver inode in the pseudo filesystem.  By convention,
+      path to a block driver inode in the pseudo file system.  By convention,
       this is a name under the /dev sub-directory.  This <block-device>
       must have been previously formatted with the same file system
       type as specified by <fstype>
 
     Mount Point.  The mount point is the location in the pseudo file
       system where the mounted volume will appear.  This mount point
-      can only reside in the NuttX pseudo filesystem.  By convention, this
+      can only reside in the NuttX pseudo file system.  By convention, this
       mount point is a subdirectory under /mnt.  The mount command will
       create whatever pseudo directories that may be needed to complete
       the full path but the full path must not already exist.
@@ -697,7 +697,7 @@ o mount [-t <fstype> <block-device> <dir-path>]
 o mv <old-path> <new-path>
 
   Rename the file object at <old-path> to <new-path>.  Both paths must
-  reside in the same mounted filesystem.
+  reside in the same mounted file system.
 
 o nfsmount <server-address> <mount-point> <remote-path>
 
@@ -744,7 +744,7 @@ o put [-b|-n] [-f <remote-path>] -h <ip-address> <local-path>
      The file will be saved with the same name on the host unless
       unless <local-path> is provided.
   -b|-n
-      Selects either binary ("octect") or test ("netascii") transfer
+      Selects either binary ("octet") or test ("netascii") transfer
       mode.  Default: text.
 
 o pwd
@@ -765,10 +765,10 @@ o pwd
 o rm <file-path>
 
   Remove the specified <file-path> name from the mounted file system.
-  Recall that NuttX uses a pseudo filesystem for its root file system.
+  Recall that NuttX uses a pseudo file system for its root file system.
   The rm command can only be used to remove (unlink) files in volumes
   set up with the mount command; it cannot be used to remove names from
-  the pseudo filesystem.
+  the pseudo file system.
 
   Example:
   ^^^^^^^^
@@ -786,10 +786,10 @@ o rm <file-path>
 o rmdir <dir-path>
 
   Remove the specified <dir-path> directory from the mounted file system.
-  Recall that NuttX uses a pseudo filesystem for its root file system. The
+  Recall that NuttX uses a pseudo file system for its root file system. The
   rmdir command can only be used to remove directories from volumes set up
   with the mount command; it cannot be used to remove directories from the
-  pseudo filesystem.
+  pseudo file system.
 
   Example:
   ^^^^^^^^
@@ -940,13 +940,13 @@ Command Dependencies on Configuration Settings
 * NOTES:
   1. Because of hardware padding, the actual buffersize required for put and get
      operations size may be larger.
-  2. Special TFTP server start-up optionss will probably be required to permit
+  2. Special TFTP server start-up options will probably be required to permit
      creation of file for the correct operation of the put command.
   3. CONFIG_FS_READABLE is not a user configuration but is set automatically
-     if any readable filesystem is selected.  At present, this is either CONFIG_FS_FAT
+     if any readable file system is selected.  At present, this is either CONFIG_FS_FAT
      and CONFIG_FS_ROMFS.
   4. CONFIG_FS_WRITABLE is not a user configuration but is set automatically
-     if any writable filesystem is selected.  At present, this is only CONFIG_FS_FAT.
+     if any writeable file system is selected.  At present, this is only CONFIG_FS_FAT.
 
 In addition, each NSH command can be individually disabled via one of the following
 settings.  All of these settings make the configuration of NSH potentially complex but
@@ -986,7 +986,7 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NSH_FILEIOSIZE
       Size of a static I/O buffer used for file access (ignored if
-      there is no filesystem). Default is 1024.
+      there is no file system). Default is 1024.
 
   * CONFIG_NSH_STRERROR
       strerror(errno) makes more readable output but strerror() is
@@ -1023,7 +1023,7 @@ NSH-Specific Configuration Settings
       Default is zero.
 
   * CONFIG_NSH_ROMFSETC
-      Mount a ROMFS filesystem at /etc and provide a startup script
+      Mount a ROMFS file system at /etc and provide a startup script
       at /etc/init.d/rcS.  The default startup script will mount
       a FAT FS RAMDISK at /tmp but the logic is easily extensible.
 
