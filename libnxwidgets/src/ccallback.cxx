@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/ccallback.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ CCallback::CCallback(CWidgetControl *widgetControl)
   * @param arg User provided argument (see nx_openwindow, nx_requestbg,
   * nxtk_openwindow, or nxtk_opentoolbar).
   */
-     
+
 void CCallback::redraw(NXHANDLE hwnd,
                        FAR const struct nxgl_rect_s *rect,
                        bool bMore, FAR void *arg)
@@ -171,7 +171,7 @@ void CCallback::newMouseEvent(NXHANDLE hwnd,
                               FAR const struct nxgl_point_s *pos,
                               uint8_t buttons, FAR void *arg)
 {
-  gvdbg("hwnd=%p pos=(%d,%d) buttons=%02x arg=%p\n", 
+  gvdbg("hwnd=%p pos=(%d,%d) buttons=%02x arg=%p\n",
         hwnd, pos->x, pos->y, buttons, arg);
 
   // The argument must be the CCallback instance

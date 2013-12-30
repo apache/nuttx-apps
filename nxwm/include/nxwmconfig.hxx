@@ -85,10 +85,11 @@
 #endif
 
 /**
- * NxConsole support is (probably) required
+ * NxConsole support is (probably) required if CONFIG_NXWM_NXCONSOLE is
+ * selected
  */
 
-#ifndef CONFIG_NXCONSOLE
+#if defined(CONFIG_NXWM_NXCONSOLE) && !defined(CONFIG_NXCONSOLE)
 #  warning "NxConsole support may be needed (CONFIG_NXCONSOLE)"
 #endif
 
@@ -122,7 +123,7 @@
  *    Default: MKRGB(255,255,255)
  * CONFIG_NXWM_DEFAULT_SHADOWEDGECOLOR - Color of the shadowed edge of a border.
  *    Default: MKRGB(0,0,0)
- * CONFIG_NXWM_DEFAULT_FONTCOLOR - Default fong color.  Default:
+ * CONFIG_NXWM_DEFAULT_FONTCOLOR - Default font color.  Default:
  *    MKRGB(0,0,0)
  * CONFIG_NXWM_TRANSPARENT_COLOR - The "transparent" color.  Default:
  *    MKRGB(0,0,0)
@@ -172,7 +173,7 @@
 #  define CONFIG_NXWM_TRANSPARENT_COLOR  MKRGB(0,0,0)
 #endif
 
-/* Task Bar Configuation  ***************************************************/
+/* Task Bar Configuration  **************************************************/
 /**
  * Horizontal and vertical spacing of icons in the task bar.
  *
@@ -288,7 +289,7 @@
  *   Used to communicated from CWindowMessenger to the start window thread.
  *   Default: "/dev/nxwm"
  * CONFIG_NXWM_STARTWINDOW_MXMSGS - The maximum number of messages to queue
- *   before blocking.  Defualt 32
+ *   before blocking.  Default 32
  * CONFIG_NXWM_STARTWINDOW_MXMPRIO - The message priority. Default: 42.
  * CONFIG_NXWM_STARTWINDOW_PRIO - Priority of the StartWindoW task.  Default:
  *   SCHED_PRIORITY_DEFAULT.  NOTE:  This priority should be less than
@@ -368,37 +369,39 @@
  * CONFIG_NXWM_NXCONSOLE_ICON - The glyph to use as the NxConsole icon
  */
 
-#ifndef CONFIG_NXWM_NXCONSOLE_PRIO
-#  define CONFIG_NXWM_NXCONSOLE_PRIO  SCHED_PRIORITY_DEFAULT
-#endif
+#ifdef CONFIG_NXWM_NXCONSOLE
+#  ifndef CONFIG_NXWM_NXCONSOLE_PRIO
+#    define CONFIG_NXWM_NXCONSOLE_PRIO  SCHED_PRIORITY_DEFAULT
+#  endif
 
-#if CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_NXCONSOLE_PRIO
-#  warning "CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_NXCONSOLE_PRIO"
-#  warning" -- This can result in data overrun errors"
-#endif
+#  if CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_NXCONSOLE_PRIO
+#    warning "CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_NXCONSOLE_PRIO"
+#    warning" -- This can result in data overrun errors"
+#  endif
 
-#ifndef CONFIG_NXWM_NXCONSOLE_STACKSIZE
-#  define CONFIG_NXWM_NXCONSOLE_STACKSIZE  2048
-#endif
+#  ifndef CONFIG_NXWM_NXCONSOLE_STACKSIZE
+#    define CONFIG_NXWM_NXCONSOLE_STACKSIZE  2048
+#  endif
 
-#ifndef CONFIG_NXWM_NXCONSOLE_WCOLOR
-#  define CONFIG_NXWM_NXCONSOLE_WCOLOR  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
-#endif
+#  ifndef CONFIG_NXWM_NXCONSOLE_WCOLOR
+#    define CONFIG_NXWM_NXCONSOLE_WCOLOR  CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
+#  endif
 
-#ifndef CONFIG_NXWM_NXCONSOLE_FONTCOLOR
-#  define CONFIG_NXWM_NXCONSOLE_FONTCOLOR  CONFIG_NXWM_DEFAULT_FONTCOLOR
-#endif
+#  ifndef CONFIG_NXWM_NXCONSOLE_FONTCOLOR
+#    define CONFIG_NXWM_NXCONSOLE_FONTCOLOR  CONFIG_NXWM_DEFAULT_FONTCOLOR
+#  endif
 
-#ifndef CONFIG_NXWM_NXCONSOLE_FONTID
-#  define CONFIG_NXWM_NXCONSOLE_FONTID  CONFIG_NXWM_DEFAULT_FONTID
-#endif
+#  ifndef CONFIG_NXWM_NXCONSOLE_FONTID
+#    define CONFIG_NXWM_NXCONSOLE_FONTID  CONFIG_NXWM_DEFAULT_FONTID
+#  endif
 
-/**
- * The NxConsole window glyph
- */
+  /**
+   * The NxConsole window glyph
+   */
 
-#ifndef CONFIG_NXWM_NXCONSOLE_ICON
-#  define CONFIG_NXWM_NXCONSOLE_ICON NxWM::g_cmdBitmap
+#  ifndef CONFIG_NXWM_NXCONSOLE_ICON
+#    define CONFIG_NXWM_NXCONSOLE_ICON NxWM::g_cmdBitmap
+#  endif
 #endif
 
 /* Touchscreen device *******************************************************/
@@ -500,7 +503,7 @@
  * CONFIG_NXWM_CALIBRATION_MARGIN
  *   The Calbration display consists of a target press offset from the edges
  *   of the display by this number of pixels (in the horizontal direction)
- *   or rows (in the vertical).  The closer that you can comfortabley
+ *   or rows (in the vertical).  The closer that you can comfortably
  *   position the press positions to the edge, the more accurate will be the
  *   linear interpolation (provide that the hardware provides equally good
  *   measurements near the edges).

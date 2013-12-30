@@ -64,10 +64,14 @@ endif
 
 # Applications
 
-CXXSRCS += cstartwindow.cxx cnxconsole.cxx chexcalculator.cxx
+CXXSRCS += cstartwindow.cxx chexcalculator.cxx
 
 ifeq ($(CONFIG_NXWM_TOUCHSCREEN),y)
 CXXSRCS += ccalibration.cxx
+endif
+
+ifeq ($(CONFIG_NXWM_NXCONSOLE),y)
+CXXSRCS +=  cnxconsole.cxx
 endif
 
 # Images

@@ -50,7 +50,11 @@
 
 #include "ctaskbar.hxx"
 #include "cstartwindow.hxx"
-#include "cnxconsole.hxx"
+
+#ifdef CONFIG_NXWM_NXCONSOLE
+#  include "cnxconsole.hxx"
+#endif
+
 #include "chexcalculator.hxx"
 
 #ifdef CONFIG_NXWM_MEDIAPLAYER
@@ -544,6 +548,7 @@ static bool createCalibration(void)
 // Name: createNxConsole
 /////////////////////////////////////////////////////////////////////////////
 
+#ifdef CONFIG_NXWM_NXCONSOLE
 static bool createNxConsole(void)
 {
   // Add the NxConsole application to the start window
@@ -568,6 +573,7 @@ static bool createNxConsole(void)
   showTestCaseMemory("createNxConsole: After adding the NxConsole application");
   return true;
 }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Name: createHexCalculator
@@ -589,7 +595,7 @@ static bool createHexCalculator(void)
   printf("createHexCalculator: Adding the hex calculator application to the start window\n");
   if (!g_nxwmtest.startwindow->addApplication(calculator))
     {
-      printf("createHexCalculator: ERROR: Failed to add CNxConsoleFactory to the start window\n");
+      printf("createHexCalculator: ERROR: Failed to add CHexCalculatorFactory to the start window\n");
       delete calculator;
       return false;
     }
@@ -619,7 +625,7 @@ static bool createMediaPlayer(void)
   printf("createMediaPlayer: Adding the hex calculator application to the start window\n");
   if (!g_nxwmtest.startwindow->addApplication(mediaplayer))
     {
-      printf("createMediaPlayer: ERROR: Failed to add CNxConsoleFactory to the start window\n");
+      printf("createMediaPlayer: ERROR: Failed to add CMediaPlayerFactory to the start window\n");
       delete mediaplayer;
       return false;
     }
@@ -672,6 +678,7 @@ int nxwm_main(int argc, char *argv[])
 
   // Initialize the NSH library
 
+#ifdef CONFIG_NXWM_NXCONSOLE
   printf("nxwm_main: Initialize the NSH library\n");
   if (!NxWM::nshlibInitialize())
     {
@@ -679,6 +686,7 @@ int nxwm_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
   showTestCaseMemory("nxwm_main: After initializing the NSH library");
+#endif
 
   // Create the task bar.
 
@@ -728,11 +736,13 @@ int nxwm_main(int argc, char *argv[])
 
   // Create the NxConsole application and add it to the start window
 
+#ifdef CONFIG_NXWM_NXCONSOLE
   if (!createNxConsole())
     {
       printf("nxwm_main: ERROR: Failed to create the NxConsole application\n");
       testCleanUpAndExit(EXIT_FAILURE);
     }
+#endif
 
   // Create the hex calculator application and add it to the start window
 
@@ -822,7 +832,8 @@ int nxwm_main(int argc, char *argv[])
   showTestCaseMemory("nxwm_main: After clicking the start window icon");
 
   // Wait bit to see the result of the button press.  Then press the first icon
-  // in the start menu.  That should be the NxConsole icon.
+  // in the start menu.  That should be the NxConsole icon (if the NXCONSOLE
+  // is not disabled).
 
   sleep(2);
   g_nxwmtest.startwindow->clickIcon(0, true);

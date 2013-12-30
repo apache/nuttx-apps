@@ -640,7 +640,14 @@ config NXWM_STARTWINDOW_STACKSIZE
 
 endmenu # Start Window Configuration
 
-menu "NxConsole Window Configuration"
+menuconfig NXWM_NXCONSOLE
+	bool "NxConsole Window"
+	default y
+	---help---
+		Enable support for the NxConsole window which provides a text window
+		in which you can interact with NSH.
+
+if NXWM_NXCONSOLE
 
 config NXWM_NXCONSOLE_PRIO
 	int "NxConsole Task Priority"
@@ -716,8 +723,7 @@ config NXWM_NXCONSOLE_ICON
 		The glyph to use as the NxConsole icon.  Default: NxWM::g_cmdBitmap
 
 endif # NXWM_NXCONSOLE_ICON
-
-endmenu # NxConsole Window Configuration
+endif # NXWM_NXCONSOLE
 
 menu "NxWM Touchscreen Configuration"
 
@@ -1049,7 +1055,7 @@ endif # NXWM_HEXCALCULATOR_FONTID
 endmenu # NxWM Hex Calculator display settings
 
 config NXWM_MEDIAPLAYER
-	bool "Enable NxWM Media Player"
+	bool "NxWM Media Player"
 	default n
 	---help---
 		Enable support for the MP3 Media Player.  This features requires
