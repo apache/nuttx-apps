@@ -278,6 +278,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 
   vdbg("Listener started\n");
 
+#ifdef CONFIG_NXWM_TOUCHSCREEN_DEVINIT
   // Initialize the touchscreen device
 
   int ret = arch_tcinitialize(CONFIG_NXWM_TOUCHSCREEN_DEVNO);
@@ -288,6 +289,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
       sem_post(&This->m_waitSem);
       return (FAR void *)0;
     }
+#endif
 
   // Open the touchscreen device that we just created.
 
