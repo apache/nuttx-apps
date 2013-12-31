@@ -145,7 +145,6 @@ void CCallback::position(NXHANDLE hwnd,
         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y,
         arg);
 
-
   // The argument must be the CCallback instance
 
   CCallback *This = (CCallback *)arg;
