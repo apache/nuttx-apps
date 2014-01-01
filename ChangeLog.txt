@@ -751,4 +751,5 @@
 	* Moved configs/stm3240g-eval/src/up_cxxinitialize.c to
 	  apps/platform/stm3240g-eval/up_cxxinitialize.c:  Now it is available
 	  in user-space in the kernel mode build (2013-12-29).
+	* apps/examples/mount/Kconfig:  Fill in empty Kconfig file (2013-12-31).
 

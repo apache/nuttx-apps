@@ -219,6 +219,7 @@ static void show_directories(const char *path, int indent)
 /****************************************************************************
  * Name: fail_read_open
  ****************************************************************************/
+
 #ifdef CONFIG_EXAMPLES_MOUNT_DEVNAME
 static void fail_read_open(const char *path, int expectederror)
 {
