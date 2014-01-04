@@ -58,7 +58,7 @@ endif
 endif
 
 ROOTDEPPATH	= --dep-path .
-VPATH		= 
+VPATH		=
 
 # Build Targets
 
@@ -78,7 +78,7 @@ builtin_list.h: registry$(DELIM).updated
 	$(call DELFILE, builtin_list.h)
 	$(Q) touch builtin_list.h
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) for /f %%G in ('dir /b registry\*.bdat`) do ( type registry\%%G >> builtin_list.h )
+	$(Q) (for /f %%G in ('dir /b registry\*.bdat') do ( type registry\%%G >> builtin_list.h )) || echo ""
 else
 	$(Q) ( \
 		filelist=`ls registry/*.bdat 2>/dev/null || echo ""`; \
@@ -92,7 +92,7 @@ builtin_proto.h: registry$(DELIM).updated
 	$(call DELFILE, builtin_proto.h)
 	$(Q) touch builtin_proto.h
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) for /f %%G in ('dir /b registry\*.pdat`) do ( type registry\%%G >> builtin_proto.h )
+	$(Q) (for /f %%G in ('dir /b registry\*.pdat') do ( type registry\%%G >> builtin_proto.h )) || echo ""
 else
 	$(Q) ( \
 		filelist=`ls registry/*.pdat 2>/dev/null || echo ""`; \
