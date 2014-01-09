@@ -12,6 +12,7 @@ config NSH_LIBRARY
 		in order to implement the full NuttShell (NSH).
 
 if NSH_LIBRARY
+
 config NSH_BUILTIN_APPS
 	bool "Enable built-in applications"
 	default n
@@ -320,7 +321,7 @@ config NSH_ROMFSETC
 		at /etc/init.d/rcS.  The default startup script will mount
 		a FAT FS RAMDISK at /tmp but the logic is easily extensible.
 
-endif
+endif # NSH_LIBRARY
 
 if NSH_ROMFSETC
 
@@ -380,7 +381,6 @@ config NSH_ROMFSSECTSIZE
 config NSH_ARCHROMFS
 	bool "Architecture-specific ROMFS header"
 	default n
-	depends on NSH_ROMFSETC
 	---help---
 		Enable this option to provide an architecture-specific ROMFS
 		header at <arch/board/nsh_romfsimg.h>. Note that this header
@@ -424,9 +424,10 @@ config NSH_FATMOUNTPT
 		will mount a FAT FS under /tmp. This is the location where the FAT
 		FS will be mounted.  Default is "/tmp".
 
-endif
+endif # NSH_ROMFSETC
 
 if NSH_LIBRARY
+
 config NSH_CONSOLE
 	bool "Use console"
 	default y
@@ -478,6 +479,7 @@ config USBDEV_MINOR
 		minor number may also need to be provided. Default: 0
 
 comment "USB Trace Support"
+
 config NSH_USBDEV_TRACE
 	bool "Enable Builtin USB Trace Support"
 	default n
@@ -524,7 +526,7 @@ config NSH_USBDEV_TRACEINTERRUPTS
 	---help---
 		Show interrupt-related events
 
-endif
+endif # NSH_USBDEV_TRACE
 
 config NSH_CONDEV
 	bool "Default console device"
@@ -565,7 +567,7 @@ config NSH_TELNET
 		you may log into NuttX remotely using telnet in order to
 		access NSH.
 
-endif
+endif # NSH_LIBRARY
 
 if NSH_TELNET
 
@@ -634,8 +636,8 @@ config NSH_TELNET_FAILCOUNT
 	---help---
 		Number of login retry attempts.
 
-endif
-endif
+endif # NSH_TELNET_LOGIN
+endif # NSH_TELNET
 
 config NSH_DHCPC
 	bool "Use DHCP to get IP address"
@@ -702,4 +704,3 @@ config NSH_MAX_ROUNDTRIP
 	---help---
 		This is the maximum round trip for a response to a ICMP ECHO request.
 		It is in units of deciseconds.  The default is 20 (2 seconds).
-
