@@ -558,7 +558,7 @@ config NSH_ARCHINIT
 config NSH_TELNET
 	bool "Use Telnet console"
 	default n
-	depends on NET && NET_TCP
+	depends on NETUTILS_TELNETD
 	---help---
 		If NSH_TELNET is set to 'y', then a TELENET
 		server front-end is selected.  When this option is provided,
@@ -568,6 +568,7 @@ config NSH_TELNET
 endif
 
 if NSH_TELNET
+
 config NSH_TELNETD_PORT
 	int "Telnet port number"
 	default 23
@@ -639,7 +640,7 @@ endif
 config NSH_DHCPC
 	bool "Use DHCP to get IP address"
 	default n
-	depends on NSH_LIBRARY && NET && NET_UDP && NET_BROADCAST
+	depends on NSH_LIBRARY && NETUTILS_DHCPC
 	---help---
 		Obtain the IP address via DHCP.
 
@@ -674,7 +675,7 @@ config NSH_NETMASK
 config NSH_DNS
 	bool "Use DNS"
 	default n
-	depends on NSH_LIBRARY && NET && NET_UDP && NET_BROADCAST
+	depends on NSH_LIBRARY && NETUTILS_RESOLV
 	---help---
 		Configure to use a DNS.
 

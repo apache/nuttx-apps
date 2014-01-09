@@ -6,6 +6,7 @@
 config NETUTILS_DHCPC
 	bool "DHCP client"
 	default n
+	depends on NET && NET_UDP && NET_BROADCAST
 	---help---
 		Enable support for the DHCP client.
 

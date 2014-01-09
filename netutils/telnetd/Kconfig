@@ -6,6 +6,7 @@
 config NETUTILS_TELNETD
 	bool "Telet daemon"
 	default n
+	depends on NET && NET_TCP
 	---help---
 		Enable support for the Telnet daemon.
 
