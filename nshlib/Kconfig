@@ -269,6 +269,14 @@ config NSH_LINELEN
 		The maximum length of one command line and of one output line.
 		Default: 80
 
+config NSH_DISABLE_SEMICOLON
+	bool "Disable multiple commands per line"
+	default n
+	---help---
+		By default, you can enter multiple NSH commands on a line with each
+		command separated by a semicolon.  You can disable this feature to
+		save a little memory on FLASH challenged platforms.
+
 config NSH_MAXARGUMENTS
 	int "Maximum number of command arguments"
 	default 6

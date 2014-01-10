@@ -758,3 +758,9 @@
 	  apps/nshlib/Kconfig:  Refactor some configuration dependencies:  NSH
 	  features should debug on netutil selections; netutil selections
 	  should depend on networking selections. (2014-1-9).
+	* apps/nshlib/nsh_command.c:  Separate NSH command handling from NSH
+	  line parsing.  This re-partitioning simplifies the logic and will
+	  enable some things to come (2014-1-10).
+	* apps/nshlib/nsh_parse.c:  Will now support multiple commands on a
+	  command line, each separated with a semi-colon (2014-1-10).
+

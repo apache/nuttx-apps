@@ -62,6 +62,9 @@ Command Overview
   (more negative values) correspond to higher priorities.  The
   default niceness is 10.
 
+  Multiple commands per line.  NSH will accept multiple commands per
+  command line with each command separated with the semi-colon character (;).
+
 Conditional Command Execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -997,6 +1000,12 @@ NSH-Specific Configuration Settings
   * CONFIG_NSH_LINELEN
       The maximum length of one command line and of one output line.
       Default: 80
+
+  * CONFIG_NSH_DISABLE_SEMICOLON
+      By default, you can enter multiple NSH commands on a line with
+      each command separated by a semicolon. You can disable this
+      feature to save a little memory on FLASH challenged platforms.
+      Default: n
 
   * CONFIG_NSH_NESTDEPTH
       The maximum number of nested if-then[-else]-fi sequences that

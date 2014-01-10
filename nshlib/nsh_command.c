@@ -39,22 +39,11 @@
 
 #include <nuttx/config.h>
 
-#include <sys/stat.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <debug.h>
 
-#include <nuttx/version.h>
-
-#include <apps/nsh.h>
+#ifdef CONFIG_NSH_BUILTIN_APPS
+#  include <nuttx/binfmt/builtin.h>
+#endif
 
 #include "nsh.h"
 #include "nsh_console.h"

@@ -340,6 +340,24 @@
 # endif
 #endif
 
+/* Argument list size
+ *
+ *   argv[0]:      The command name.
+ *   argv[1]:      The beginning of argument (up to CONFIG_NSH_MAXARGUMENTS)
+ *   argv[argc-3]: Possibly '>' or '>>'
+ *   argv[argc-2]: Possibly <file>
+ *   argv[argc-1]: Possibly '&' (if pthreads are enabled)
+ *   argv[argc]:   NULL terminating pointer
+ *
+ * Maximum size is CONFIG_NSH_MAXARGUMENTS+5
+ */
+
+#ifndef CONFIG_NSH_DISABLEBG
+#  define MAX_ARGV_ENTRIES (CONFIG_NSH_MAXARGUMENTS+5)
+#else
+#  define MAX_ARGV_ENTRIES (CONFIG_NSH_MAXARGUMENTS+4)
+#endif
+
 /* strerror() produces much nicer output but is, however, quite large and
  * will only be used if CONFIG_NSH_STRERROR is defined.  Note that the strerror
  * interface must also have been enabled with CONFIG_LIBC_STRERROR.
@@ -487,6 +505,7 @@ extern const char g_loginfailure[];
 extern const char g_nshprompt[];
 extern const char g_nshsyntax[];
 extern const char g_fmtargrequired[];
+extern const char g_fmtnomatching[];
 extern const char g_fmtarginvalid[];
 extern const char g_fmtargrange[];
 extern const char g_fmtcmdnotfound[];
@@ -550,6 +569,8 @@ int nsh_session(FAR struct console_stdio_s *pstate);
 int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline);
 
 /* Application interface */
+
+int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[]);
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
 int nsh_builtin(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
