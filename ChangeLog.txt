@@ -763,4 +763,7 @@
 	  enable some things to come (2014-1-10).
 	* apps/nshlib/nsh_parse.c:  Will now support multiple commands on a
 	  command line, each separated with a semi-colon (2014-1-10).
+	* apps/nshlib/nsh_parse.c:  Put the logic that executes a command
+	  after parsing parameters into a separate file so that it can be
+	  reused (2014-1-10).
 
