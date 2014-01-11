@@ -45,6 +45,10 @@
 #include <errno.h>
 #include <debug.h>
 
+#ifdef CONFIG_NSH_CMDPARMS
+#  include <sys/stat.h>
+#endif
+
 #include <apps/nsh.h>
 
 #include "nsh.h"
@@ -53,6 +57,37 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* If CONFIG_NSH_CMDPARMS or CONFIG_NSH_ARGCAT is enabled, then we will need
+ * retain a list of memory allocations to be freed at the completion of
+ * command processing.
+ */
+
+#undef HAVE_MEMLIST
+#if defined(CONFIG_NSH_CMDPARMS) || defined(CONFIG_NSH_ARGCAT)
+#  define HAVE_MEMLIST 1
+#endif
+
+#if defined(HAVE_MEMLIST) && !defined(CONFIG_NSH_MAXALLOCS)
+#  ifdef CONFIG_NSH_ARGCAT
+#    define CONFIG_NSH_MAXALLOCS (2*CONFIG_NSH_MAXARGUMENTS)
+#  else
+#    define CONFIG_NSH_MAXALLOCS CONFIG_NSH_MAXARGUMENTS
+#  endif
+#endif
+
+/* Allocation list helper macros */
+
+#ifdef HAVE_MEMLIST
+#  define NSH_MEMLIST_TYPE      struct nsh_memlist_s
+#  define NSH_MEMLIST_INIT(m)   memset(&(m), 0, sizeof(struct nsh_memlist_s));
+#  define NSH_MEMLIST_ADD(m,a)  nsh_memlist_add(m,a)
+#  define NSH_MEMLIST_FREE(m)   nsh_memlist_free(m)
+#else
+#  define NSH_MEMLIST_TYPE      uint8_t
+#  define NSH_MEMLIST_INIT(m)   do { (m) = 0; } while (0)
+#  define NSH_MEMLIST_ADD(m,a)
+#  define NSH_MEMLIST_FREE(m,a)
+#endif
 
 /****************************************************************************
  * Private Types
@@ -70,9 +105,25 @@ struct cmdarg_s
 };
 #endif
 
+/* This structure describes the allocation list */
+
+#ifdef HAVE_MEMLIST
+struct nsh_memlist_s
+{
+  int nallocs;                      /* Number of allocations */
+  FAR char *allocations[CONFIG_NSH_MAXALLOCS];
+};
+#endif
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
+
+#ifdef HAVE_MEMLIST
+static void nsh_memlist_add(FAR struct nsh_memlist_s *memlist,
+              FAR char *address);
+static void nsh_memlist_free(FAR struct nsh_memlist_s *memlist);
+#endif
 
 #ifndef CONFIG_NSH_DISABLEBG
 static void nsh_releaseargs(struct cmdarg_s *arg);
@@ -85,20 +136,31 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result);
 static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                int argc, FAR char *argv[], FAR const char *redirfile,
                int oflags);
-static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr);
+
+#ifdef CONFIG_NSH_CMDPARMS
+static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
+               FAR const char *filename);
+static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+               FAR char **allocation);
+#endif
+#ifdef CONFIG_NSH_ARGCAT
+static int nsh_strcat(FAR char *s1, FAR const char *s2);
+#endif
+static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
+               FAR NSH_MEMLIST_TYPE *memlist);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl);
-static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl,
-               FAR char **ppcmd, FAR char **saveptr);
+static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+               FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
 #endif
 
 #ifndef CONFIG_NSH_DISABLEBG
 static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-               FAR char **saveptr);
+               FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
 #endif
 
-#ifdef CONFIG_NSH_FUNCPARMS
+#ifdef CONFIG_NSH_CMDPARMS
 static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR const char *redirfile);
 #endif
@@ -173,6 +235,48 @@ const char g_fmtsignalrecvd[]    = "nsh: %s: Interrupted by signal\n";
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: nsh_memlist_add
+ ****************************************************************************/
+
+#ifdef HAVE_MEMLIST
+static void nsh_memlist_add(FAR struct nsh_memlist_s *memlist,
+                            FAR char *address)
+{
+  if (memlist)
+    {
+      int index = memlist->nallocs;
+      if (index < CONFIG_NSH_MAXALLOCS)
+        {
+          memlist->allocations[index] = address;
+          memlist->nallocs = index + 1;
+        }
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_memlist_free
+ ****************************************************************************/
+
+#ifdef HAVE_MEMLIST
+static void nsh_memlist_free(FAR struct nsh_memlist_s *memlist)
+{
+  if (memlist)
+    {
+      int index;
+
+      for (index = 0; index < memlist->nallocs; index++)
+        {
+          free(memlist->allocations[index]);
+          memlist->allocations[index] = NULL;
+        }
+
+      memlist->nallocs = 0;
+    }
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_releaseargs
  ****************************************************************************/
 
@@ -204,6 +308,7 @@ static void nsh_releaseargs(struct cmdarg_s *arg)
     {
       free(arg->argv[i]);
     }
+
   free(arg);
 }
 #endif
@@ -559,14 +664,201 @@ errout:
 }
 
 /****************************************************************************
+ * Name: nsh_filecat
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_CMDPARMS
+static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
+                             FAR const char *filename)
+{
+  struct stat buf;
+  size_t s1size = 0;
+  size_t allocsize;
+  ssize_t nbytesread;
+  FAR char *argument;
+  int index;
+  int fd;
+  int ret;
+
+  /* Get the size of the string */
+
+  if (s1)
+    {
+      s1size = (size_t)strlen(s1);
+    }
+
+  /* Get the size of file */
+
+  ret = stat(filename, &buf);
+  if (ret != 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, "``", "stat", NSH_ERRNO);
+      return NULL;
+    }
+
+  /* Get the total allocation size */
+
+  allocsize = s1size + (size_t)buf.st_size + 1;
+  argument = (FAR char *)realloc(s1, allocsize);
+  if (!argument)
+    {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, "``");
+      return NULL;
+    }
+
+  /* Open the source file for reading */
+
+  fd = open(filename, O_RDONLY);
+  if (fd < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed,  "``", "open", NSH_ERRNO);
+      goto errout_with_alloc;
+    }
+
+  /* Now copy the file.  Loop until the entire file has been transferred to
+   * the allocated string (after the original contents of s1size bytes.
+   */
+
+  for (index = s1size; index < allocsize - 1; )
+    {
+      /* Loop until we successfully read something , we encounter the
+       * end-of-file, or until a read error occurs 
+       */
+      
+      do
+        {
+          nbytesread = read(fd, &argument[index], IOBUFFERSIZE);
+          if (nbytesread == 0)
+            {
+              /* Unexpected end of file -- Break out of the loop */
+
+              break;
+            }
+          else if (nbytesread < 0)
+            {
+              /* EINTR is not an error (but will still stop the copy) */
+
+#ifndef CONFIG_DISABLE_SIGNALS
+              if (errno == EINTR)
+                {
+                  nsh_output(vtbl, g_fmtsignalrecvd, "``");
+                }
+              else
+#endif
+                {
+                  /* Read error */
+
+                  nsh_output(vtbl, g_fmtcmdfailed, "``", "read", NSH_ERRNO);
+                }
+
+              goto errout_with_fd;
+            }
+        }
+      while (nbytesread <= 0);
+
+      /* Update the index based upon the number of bytes read */
+
+      index += nbytesread;
+    }
+
+  /* Make sure that the new string is null terminated */
+
+  argument[index] = '\0';
+  return argument;
+
+errout_with_fd:
+  close(fd);
+
+errout_with_alloc:
+  free(argument);
+  return NULL;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_cmdparm
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_CMDPARMS
+static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+                             FAR char **allocation)
+{
+  FAR char *tmpfile;
+  FAR char *argument;
+  int ret;
+
+  /* We cannot process the command argument if there is no allocation pointer */
+
+  if (!allocation)
+    {
+      return NULL;
+    }
+
+  /* Create a unique file name using the task ID */
+
+  tmpfile = NULL;
+  ret = asprintf(&tmpfile, "%s/TMP%d.dat", CONFIG_NSH_TMPDIR, getpid());
+  if (ret < 0 || !tmpfile)
+    {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, "``");
+      return NULL;
+    }
+
+  /* Execute the command that will re-direct the output of the command to
+   * the temporary file.  This is a simple command that can't handle most
+   * options.
+   */
+
+  ret = nsh_parse_funcparm(vtbl, cmdline, tmpfile);
+  if (ret != OK)
+    {
+      /* Report the failure */
+
+      nsh_output(vtbl, g_fmtcmdfailed, "``", "exec", NSH_ERRNO);
+      free(tmpfile);
+      return NULL;
+    }
+
+  /* Concatenate the file contents with the current allocation */
+
+  argument    = nsh_filecat(vtbl, *allocation, tmpfile);
+  *allocation = argument;
+
+  /* We can now unlink the tmpfile and free the tmpfile string */
+
+  ret = unlink(tmpfile);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, "``", "unlink", NSH_ERRNO);
+    }
+
+  free(tmpfile);
+  return argument;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_strcat
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_ARGCAT
+static int nsh_strcat(FAR char *s1, FAR const char *s2)
+{
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_argument
  ****************************************************************************/
 
-static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr)
+static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
+                              FAR NSH_MEMLIST_TYPE *memlist)
 {
-  FAR char *pbegin = *saveptr;
-  FAR char *pend   = NULL;
-  const char *term;
+  FAR char *pbegin     = *saveptr;
+  FAR char *pend       = NULL;
+  FAR char *allocation = NULL;
+  FAR char *argument   = NULL;
+  FAR const char *term;
 #ifndef CONFIG_DISABLE_ENVIRON
   bool quoted = false;
 #endif
@@ -614,17 +906,14 @@ static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr)
       pbegin   = NULL;
     }
 
-#ifdef CONFIG_NSH_FUNCPARMS
+#ifdef CONFIG_NSH_CMDPARMS
   /* Are we being asked to use the output from another command or program
    * as an input parameters for this command?
    */
 
   else if (*pbegin == '`')
     {
-      FAR char *tmpfile;
-      int ret;
-
-      /* Yes, find the terminated backquote */
+      /* Yes, find the terminating backquote */
 
       for (++pbegin, pend = pbegin; *pend && *pend != '`';  pend++);
 
@@ -645,51 +934,9 @@ static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr)
       *pend++ = '\0';
       *saveptr = pend;
 
-      /* Create a unique file name using the task ID */
+      /* Then execute the command to get the paramter value */
 
-      tmpfile = NULL;
-      ret = asprintf(&tmpfile, "%s/TMP%d.dat", CONFIG_NSH_TMPDIR, getpid());
-      if (ret < 0 || !tmpfile)
-        {
-          nsh_output(vtbl, g_fmtcmdoutofmemory, "``");
-          return NULL;
-        }
-
-      /* Execute the command that will re-direct the output of the command
-       * to the temporary file.  This is a simple command that can't handle
-       * most options.
-       */
-
-      ret = nsh_parse_funcparm(vtbl, pbegin, tmpfile);
-      if (ret != OK)
-        {
-          /* Report the failure */
-#warning Logic Missing
-
-          free(tmpfile);
-          return NULL;
-        }
-
-      /* mmap() the file contain the output from the command so that
-       * we can refer to it like any string.
-       */
-#warning Logic Missing
-
-      /* setup so that we can unmap the memory region and close the
-       * file after the command completes.
-       */
-#warning Logic Missing
-
-      /* We can not unlink the tmpfile and free the tmpfile string */
-
-      ret = unlink(tmpfile);
-      if (ret < 0)
-        {
-          nsh_output(vtbl, g_fmtcmdfailed, "``", "unlink", NSH_ERRNO);
-        }
-
-      free(tmpfile);
-      return "OH NO!";
+      argument = nsh_cmdparm(vtbl, pbegin, &allocation);
     }
 #endif
 
@@ -780,11 +1027,27 @@ static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr)
             }
         }
 #endif
+      /* The argument to be returned is simply the beginning of the
+       * delimited string.
+       */
+
+      argument = pbegin;
     }
 
-  /* Return the beginning of the token. */
 
-  return pbegin;
+  /* If any memory was allocated for this argument, make sure that it is
+   * added to the list of memory to be freed at the end of commend
+   * processing.
+   */
+
+  if (allocation)
+    {
+      NSH_MEMLIST_ADD(memlist, allocation);
+    }
+
+  /* Return the parsed argument. */
+
+  return argument;
 }
 
 /****************************************************************************
@@ -825,7 +1088,7 @@ static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                          FAR char **saveptr)
+                          FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
 {
   struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
@@ -839,7 +1102,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the if */
 
-          *ppcmd = nsh_argument(vtbl, saveptr);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (!*ppcmd)
             {
               nsh_output(vtbl, g_fmtarginvalid, "if");
@@ -876,7 +1139,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the then -- there shouldn't be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (*ppcmd)
             {
               nsh_output(vtbl, g_fmtarginvalid, "then");
@@ -896,7 +1159,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the else -- there shouldn't be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (*ppcmd)
             {
               nsh_output(vtbl, g_fmtarginvalid, "else");
@@ -916,7 +1179,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
         {
           /* Get the cmd following the fi -- there should be one */
 
-          *ppcmd = nsh_argument(vtbl, saveptr);
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (*ppcmd)
             {
               nsh_output(vtbl, g_fmtarginvalid, "fi");
@@ -965,7 +1228,7 @@ errout:
 
 #ifndef CONFIG_NSH_DISABLEBG
 static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                    FAR char **saveptr)
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
 {
   FAR char *cmd = *ppcmd;
 
@@ -984,10 +1247,10 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Get the cmd (or -d option of nice command) */
 
-          cmd = nsh_argument(vtbl, saveptr);
+          cmd = nsh_argument(vtbl, saveptr, memlist);
           if (cmd && strcmp(cmd, "-d") == 0)
             {
-              FAR char *val = nsh_argument(vtbl, saveptr);
+              FAR char *val = nsh_argument(vtbl, saveptr, memlist);
               if (val)
                 {
                   char *endptr;
@@ -998,7 +1261,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                       nsh_output(vtbl, g_fmtarginvalid, "nice");
                       return ERROR;
                     }
-                  cmd = nsh_argument(vtbl, saveptr);
+                  cmd = nsh_argument(vtbl, saveptr, memlist);
                 }
             }
 
@@ -1017,7 +1280,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
  *
  * Description:
  *   This function parses and executes a simple NSH command.  Output is
- *   always redirected.  Function function supports function paramers like
+ *   always redirected.  This function supports command parameters like
  *
  *     set FOO `hello`
  *
@@ -1026,10 +1289,11 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_FUNCPARMS
+#ifdef CONFIG_NSH_CMDPARMS
 static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                               FAR const char *redirfile)
 {
+  NSH_MEMLIST_TYPE memlist;
   FAR char *argv[MAX_ARGV_ENTRIES];
   FAR char *saveptr;
   FAR char *cmd;
@@ -1041,6 +1305,7 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   /* Initialize parser state */
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+  NSH_MEMLIST_INIT(memlist);
 
   /* If any options like nice, redirection, or backgrounding are attempted,
    * these will not be recognized and will just be passed through as
@@ -1048,7 +1313,7 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
    */
 
 #ifndef CONFIG_NSH_DISABLEBG
-  /* The function is never backgrounded .  Remember the current backgrouding
+  /* The command is never backgrounded .  Remember the current backgrounding
    * state
    */
 
@@ -1064,7 +1329,7 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   /* Parse out the command at the beginning of the line */
 
   saveptr = cmdline;
-  cmd = nsh_argument(vtbl, &saveptr);
+  cmd = nsh_argument(vtbl, &saveptr, &memlist);
 
   /* Check if any command was provided -OR- if command processing is
    * currently disabled.
@@ -1077,10 +1342,11 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 #endif
     {
       /* An empty line is not an error and an unprocessed command cannot
-       * generate an error, but neither should they change the last
-       * command status.
+       * generate an error, but neither should it change the last command
+       * status.
        */
 
+      NSH_MEMLIST_FREE(&memlist);
       return OK;
     }
 
@@ -1097,7 +1363,7 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   argv[0] = cmd;
   for (argc = 1; argc < MAX_ARGV_ENTRIES-1; argc++)
     {
-      argv[argc] = nsh_argument(vtbl, &saveptr);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist);
       if (!argv[argc])
         {
           break;
@@ -1123,6 +1389,8 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   vtbl->np.np_bg       = bgsave;
 #endif
   vtbl->np.np_redirect = redirsave;
+
+  NSH_MEMLIST_FREE(&memlist);
   return ret;
 }
 #endif
@@ -1137,6 +1405,7 @@ static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
 static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 {
+  NSH_MEMLIST_TYPE memlist;
   FAR char *argv[MAX_ARGV_ENTRIES];
   FAR char *saveptr;
   FAR char *cmd;
@@ -1150,6 +1419,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Initialize parser state */
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+  NSH_MEMLIST_INIT(memlist);
 
 #ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = false;
@@ -1162,13 +1432,14 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Parse out the command at the beginning of the line */
 
   saveptr = cmdline;
-  cmd = nsh_argument(vtbl, &saveptr);
+  cmd = nsh_argument(vtbl, &saveptr, &memlist);
 
   /* Handler if-then-else-fi */
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  if (nsh_ifthenelse(vtbl, &cmd, &saveptr) != 0)
+  if (nsh_ifthenelse(vtbl, &cmd, &saveptr, &memlist) != 0)
     {
+      NSH_MEMLIST_FREE(&memlist);
       return nsh_saveresult(vtbl, true);
     }
 #endif
@@ -1176,8 +1447,9 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Handle nice */
 
 #ifndef CONFIG_NSH_DISABLEBG
-  if (nsh_nice(vtbl, &cmd, &saveptr) != 0)
+  if (nsh_nice(vtbl, &cmd, &saveptr, &memlist) != 0)
     {
+      NSH_MEMLIST_FREE(&memlist);
       return nsh_saveresult(vtbl, true);
     }
 #endif
@@ -1193,10 +1465,11 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 #endif
     {
       /* An empty line is not an error and an unprocessed command cannot
-       * generate an error, but neither should they change the last
-       * command status.
+       * generate an error, but neither should it change the last command
+       * status.
        */
 
+      NSH_MEMLIST_FREE(&memlist);
       return OK;
     }
 
@@ -1216,7 +1489,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   argv[0] = cmd;
   for (argc = 1; argc < MAX_ARGV_ENTRIES-1; argc++)
     {
-      argv[argc] = nsh_argument(vtbl, &saveptr);
+      argv[argc] = nsh_argument(vtbl, &saveptr, &memlist);
       if (!argv[argc])
         {
           break;
@@ -1285,6 +1558,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
     }
 #endif
 
+  NSH_MEMLIST_FREE(&memlist);
   return ret;
 }
 

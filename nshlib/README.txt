@@ -65,6 +65,30 @@ Command Overview
   Multiple commands per line.  NSH will accept multiple commands per
   command line with each command separated with the semi-colon character (;).
 
+  If CONFIG_NSH_CMDPARMS is selected, then the output from commands, from
+  file applications, and from NSH built-in commands can be used as arguments
+  to other commands.  The entity to be executed is identified by enclosing
+  the command line in back quotes.  For example,
+
+    set FOO `myprogram $BAR`
+
+  Will execute the program named myprogram passing it the value of the
+  environment variable BAR.  The value of the environment variable FOO
+  is then set output of myprogram on stdout.  Because this feature commits
+  significant resources, it is disabled by default.
+
+  If CONFIG_NSH_ARGCAT is selected, the support concatenation of strings
+  with environment variables or command output.  For example:
+
+    set FOO XYZ
+    set BAR 123
+    set FOOBAR ABC_${FOO}_${BAR}
+
+  would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
+  to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
+  FLASH footprint results but then also only simple environment
+  variables like $FOO can be used on the command line.
+
 Conditional Command Execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1006,6 +1030,42 @@ NSH-Specific Configuration Settings
       each command separated by a semicolon. You can disable this
       feature to save a little memory on FLASH challenged platforms.
       Default: n
+
+  * CONFIG_NSH_CMDPARMS
+     If selected, then the output from commands, from file applications, and
+     from NSH built-in commands can be used as arguments to other
+     commands.  The entity to be executed is identified by enclosing the
+     command line in back quotes.  For example,
+
+       set FOO `myprogram $BAR`
+
+     Will execute the program named myprogram passing it the value of the
+     environment variable BAR.  The value of the environment variable FOO
+     is then set output of myprogram on stdout.  Because this feature commits
+     significant resources, it is disabled by default.
+
+  * CONFIG_NSH_TMPDIR
+     If CONFIG_NSH_CMDPARMS is selected, then function output will be retained
+     in a temporary file.  In that case, this string must be provided to
+     specify the full path to a directory where temporary files can be
+     created.  This would be a good application of RAM disk: To provide
+     temporary storage for function output.
+
+  * CONFIG_NSH_MAXARGUMENTS
+     The maximum number of NSH command arguments. Default: 6
+
+  * CONFIG_NSH_ARGCAT
+     Support concatenation of strings with environment variables or command
+     output.  For example:
+
+       set FOO XYZ
+       set BAR 123
+       set FOOBAR ABC_${FOO}_${BAR}
+
+     would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
+     to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
+     FLASH footprint results but then also only simple environment
+     variables like $FOO can be used on the command line.
 
   * CONFIG_NSH_NESTDEPTH
       The maximum number of nested if-then[-else]-fi sequences that

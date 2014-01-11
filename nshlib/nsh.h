@@ -72,14 +72,14 @@
 #  undef CONFIG_NSH_TELNET
 #  undef CONFIG_NSH_FILE_APPS
 #  undef CONFIG_NSH_TELNET
-#  undef CONFIG_NSH_FUNCPARMS
+#  undef CONFIG_NSH_CMDPARMS
 #endif
 
-/* If CONFIG_NSH_FUNCPARMS is selected, then the path to a directory to
+/* If CONFIG_NSH_CMDPARMS is selected, then the path to a directory to
  * hold temporary files must be provided.
  */
 
-#if defined(CONFIG_NSH_FUNCPARMS) && !defined(CONFIG_NSH_TMPDIR)
+#if defined(CONFIG_NSH_CMDPARMS) && !defined(CONFIG_NSH_TMPDIR)
 #  define CONFIG_NSH_TMPDIR "/tmp"
 #endif
 

@@ -277,11 +277,11 @@ config NSH_DISABLE_SEMICOLON
 		command separated by a semicolon.  You can disable this feature to
 		save a little memory on FLASH challenged platforms.
 
-config NSH_FUNCPARMS
-	bool "Enable function parameters"
+config NSH_CMDPARMS
+	bool "Enable commands as parameters"
 	default n
 	---help---
-		If selected, then the output from cmds, from file applications, and
+		If selected, then the output from commands, from file applications, and
 		from NSH built-in commands can be used as arguments to other
 		commands.  The entity to be executed is identified by enclosing the
 		command line in back quotes.  For example,
@@ -292,14 +292,15 @@ config NSH_FUNCPARMS
 		environment variable BAR.  The value of the environment variable FOO
 		is then set output of myprogram on stdout.
 
-		This feature is disabled by default.
+		Because this feature commits significant resourse, it is disabled by
+		default.
 
 config NSH_TMPDIR
 	string "Temporary file directory"
 	default "/tmp"
-	depends on NSH_FUNCPARMS
+	depends on NSH_CMDPARMS
 		---help---
-		If NSH_FUNCPARMS is selected, then function output will be retained
+		If NSH_CMDPARMS is selected, then function output will be retained
 		in a temporary file.  In that case, this string must be provided to
 		specify the full path to a directory where temporary files can be
 		created.  This would be a good application of RAM disk: To provide
@@ -312,21 +313,21 @@ config NSH_MAXARGUMENTS
 		The maximum number of NSH command arguments.
 		Default: 6
 
-config NSH_ENVCAT
-	bool "Concatenation of environment variables"
+config NSH_ARGCAT
+	bool "Concatenation of argument strings"
 	default n
 	---help---
-		Support concatenation of strings with environment variables.  For
-		example:
+		Support concatenation of strings with environment variables or command
+		output.  For example:
 
 			set FOO XYZ
 			set BAR 123
 			set FOOBAR ABC_${FOO}_${BAR}
 
 		would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
-		to ABC_XYZ_123.  If NSH_ENV, then a slightly small FLASH footprint
-		results but then also only simple environment variables like $FOO
-		can be used on the command line.
+		to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
+		FLASH footprint results but then also only simple environment
+		variables like $FOO can be used on the command line.
 
 config NSH_NESTDEPTH
 	int "Maximum command nesting"

@@ -769,4 +769,6 @@
 	* apps/nshlib/nsh_parse.c:  Add initial support of commands enclosed
 	  in back quotes as command arguments.  Functionality still incomplete
 	  on initial commit (2014-1-10).
+	* Logic to support commands enclosed in back quotes is functional
+	  but not thoroughly tested (2014-1-11).
 
