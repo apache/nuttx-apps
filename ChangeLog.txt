@@ -766,4 +766,7 @@
 	* apps/nshlib/nsh_parse.c:  Put the logic that executes a command
 	  after parsing parameters into a separate file so that it can be
 	  reused (2014-1-10).
+	* apps/nshlib/nsh_parse.c:  Add initial support of commands enclosed
+	  in back quotes as command arguments.  Functionality still incomplete
+	  on initial commit (2014-1-10).
 

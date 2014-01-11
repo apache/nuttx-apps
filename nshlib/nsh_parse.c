@@ -74,6 +74,36 @@ struct cmdarg_s
  * Private Function Prototypes
  ****************************************************************************/
 
+#ifndef CONFIG_NSH_DISABLEBG
+static void nsh_releaseargs(struct cmdarg_s *arg);
+static pthread_addr_t nsh_child(pthread_addr_t arg);
+static struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
+               int fd, int argc, char *argv[]);
+#endif
+
+static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result);
+static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
+               int argc, FAR char *argv[], FAR const char *redirfile,
+               int oflags);
+static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr);
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl);
+static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl,
+               FAR char **ppcmd, FAR char **saveptr);
+#endif
+
+#ifndef CONFIG_NSH_DISABLEBG
+static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+               FAR char **saveptr);
+#endif
+
+#ifdef CONFIG_NSH_FUNCPARMS
+static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+               FAR const char *redirfile);
+#endif
+static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -207,8 +237,8 @@ static pthread_addr_t nsh_child(pthread_addr_t arg)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLEBG
-static inline struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
-                                             int fd, int argc, char *argv[])
+static struct cmdarg_s *nsh_cloneargs(FAR struct nsh_vtbl_s *vtbl,
+                                      int fd, int argc, char *argv[])
 {
   struct cmdarg_s *ret = (struct cmdarg_s *)zalloc(sizeof(struct cmdarg_s));
   int i;
@@ -253,7 +283,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
 }
 
 /****************************************************************************
- * Name: nsh_argument
+ * Name: nsh_execute
  ****************************************************************************/
 
 static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
@@ -361,7 +391,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
 #endif
 
   /* Handle the case where the command is executed in background.
-   * However is app is to be started as builtin new process will
+   * However is app is to be started as built-in new process will
    * be created anyway, so skip this step.
    */
 
@@ -532,10 +562,10 @@ errout:
  * Name: nsh_argument
  ****************************************************************************/
 
-static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr)
+static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr)
 {
-  char *pbegin = *saveptr;
-  char *pend   = NULL;
+  FAR char *pbegin = *saveptr;
+  FAR char *pend   = NULL;
   const char *term;
 #ifndef CONFIG_DISABLE_ENVIRON
   bool quoted = false;
@@ -583,15 +613,101 @@ static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr)
       *saveptr = pbegin;
       pbegin   = NULL;
     }
+
+#ifdef CONFIG_NSH_FUNCPARMS
+  /* Are we being asked to use the output from another command or program
+   * as an input parameters for this command?
+   */
+
+  else if (*pbegin == '`')
+    {
+      FAR char *tmpfile;
+      int ret;
+
+      /* Yes, find the terminated backquote */
+
+      for (++pbegin, pend = pbegin; *pend && *pend != '`';  pend++);
+
+      /* pend either points to the end of the string or to the closing
+       * backquote.
+       */
+
+      if (!*pend)
+        {
+          nsh_output(vtbl, g_nshsyntax, "``");
+          return NULL;
+        }
+
+      /* Turn the closing backquote into a NUL terminator and save the
+       * pointer where we left off.
+       */
+
+      *pend++ = '\0';
+      *saveptr = pend;
+
+      /* Create a unique file name using the task ID */
+
+      tmpfile = NULL;
+      ret = asprintf(&tmpfile, "%s/TMP%d.dat", CONFIG_NSH_TMPDIR, getpid());
+      if (ret < 0 || !tmpfile)
+        {
+          nsh_output(vtbl, g_fmtcmdoutofmemory, "``");
+          return NULL;
+        }
+
+      /* Execute the command that will re-direct the output of the command
+       * to the temporary file.  This is a simple command that can't handle
+       * most options.
+       */
+
+      ret = nsh_parse_funcparm(vtbl, pbegin, tmpfile);
+      if (ret != OK)
+        {
+          /* Report the failure */
+#warning Logic Missing
+
+          free(tmpfile);
+          return NULL;
+        }
+
+      /* mmap() the file contain the output from the command so that
+       * we can refer to it like any string.
+       */
+#warning Logic Missing
+
+      /* setup so that we can unmap the memory region and close the
+       * file after the command completes.
+       */
+#warning Logic Missing
+
+      /* We can not unlink the tmpfile and free the tmpfile string */
+
+      ret = unlink(tmpfile);
+      if (ret < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, "``", "unlink", NSH_ERRNO);
+        }
+
+      free(tmpfile);
+      return "OH NO!";
+    }
+#endif
+
+  /* Otherwise, it is a normal string and we have to parse using the normal
+   * rules to find the end of the argument.
+   */
+
   else
     {
-      /* Otherwise, we are going to have to parse to find the end of
-       * the token.  Does the token begin with '"'?
+      /* However, the rules are a little different if the next argument is
+       * a quoted string.
        */
 
       if (*pbegin == '"')
         {
-          /* Yes.. then only another '"' can terminate the string */
+          /* A quoted string can only be terminated with another quotation
+           * mark.
+           */
 
           pbegin++;
           term = "\"";
@@ -612,13 +728,13 @@ static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr)
            *pend && strchr(term, *pend) == NULL;
            pend++);
 
-      /* pend either points to the end of the string or to
-       * the first delimiter after the string.
+      /* pend either points to the end of the string or to the first
+       * delimiter after the string.
        */
 
       if (*pend)
         {
-          /* Turn the delimiter into a null terminator */
+          /* Turn the delimiter into a NUL terminator */
 
           *pend++ = '\0';
         }
@@ -676,7 +792,7 @@ static char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static inline bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
+static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 {
   struct nsh_parser_s *np = &vtbl->np;
   bool ret = !np->np_st[np->np_ndx].ns_disabled;
@@ -708,8 +824,8 @@ static inline bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static inline int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl,
-                                 FAR char **ppcmd, FAR char **saveptr)
+static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+                          FAR char **saveptr)
 {
   struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
@@ -848,8 +964,8 @@ errout:
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLEBG
-static inline int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                           FAR char **saveptr)
+static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+                    FAR char **saveptr)
 {
   FAR char *cmd = *ppcmd;
 
@@ -897,6 +1013,121 @@ static inline int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 #endif
 
 /****************************************************************************
+ * Name: nsh_parse_funcparm
+ *
+ * Description:
+ *   This function parses and executes a simple NSH command.  Output is
+ *   always redirected.  Function function supports function paramers like
+ *
+ *     set FOO `hello`
+ *
+ *   which would set the environment variable FOO to the output from
+ *   the hello program
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_FUNCPARMS
+static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+                              FAR const char *redirfile)
+{
+  FAR char *argv[MAX_ARGV_ENTRIES];
+  FAR char *saveptr;
+  FAR char *cmd;
+  bool bgsave;
+  bool redirsave;
+  int argc;
+  int ret;
+
+  /* Initialize parser state */
+
+  memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+
+  /* If any options like nice, redirection, or backgrounding are attempted,
+   * these will not be recognized and will just be passed through as
+   * normal, invalid commands or parameters.
+   */
+
+#ifndef CONFIG_NSH_DISABLEBG
+  /* The function is never backgrounded .  Remember the current backgrouding
+   * state
+   */
+
+  bgsave = vtbl->np.np_bg;
+  vtbl->np.np_bg = false;
+#endif
+
+  /* Output is always redirected.  Remember the current redirection state */
+
+  redirsave = vtbl->np.np_redirect;
+  vtbl->np.np_redirect = true;
+
+  /* Parse out the command at the beginning of the line */
+
+  saveptr = cmdline;
+  cmd = nsh_argument(vtbl, &saveptr);
+
+  /* Check if any command was provided -OR- if command processing is
+   * currently disabled.
+   */
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  if (!cmd || !nsh_cmdenabled(vtbl))
+#else
+  if (!cmd)
+#endif
+    {
+      /* An empty line is not an error and an unprocessed command cannot
+       * generate an error, but neither should they change the last
+       * command status.
+       */
+
+      return OK;
+    }
+
+  /* Parse all of the arguments following the command name.  The form
+   * of argv is:
+   *
+   *   argv[0]:      The command name.
+   *   argv[1]:      The beginning of argument (up to CONFIG_NSH_MAXARGUMENTS)
+   *   argv[argc]:   NULL terminating pointer
+   *
+   * Maximum size is CONFIG_NSH_MAXARGUMENTS+1
+   */
+
+  argv[0] = cmd;
+  for (argc = 1; argc < MAX_ARGV_ENTRIES-1; argc++)
+    {
+      argv[argc] = nsh_argument(vtbl, &saveptr);
+      if (!argv[argc])
+        {
+          break;
+        }
+    }
+
+  argv[argc] = NULL;
+
+  /* Check if the maximum number of arguments was exceeded */
+
+  if (argc > CONFIG_NSH_MAXARGUMENTS)
+    {
+      nsh_output(vtbl, g_fmttoomanyargs, cmd);
+    }
+
+  /* Then execute the command */
+
+  ret = nsh_execute(vtbl, argc, argv, redirfile, O_WRONLY|O_CREAT|O_TRUNC);
+
+  /* Restore the backgrounding and redirection state */
+
+#ifndef CONFIG_NSH_DISABLEBG
+  vtbl->np.np_bg       = bgsave;
+#endif
+  vtbl->np.np_redirect = redirsave;
+  return ret;
+}
+#endif
+
+/****************************************************************************
  * Name: nsh_parse_command
  *
  * Description:
@@ -919,9 +1150,11 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   /* Initialize parser state */
 
   memset(argv, 0, MAX_ARGV_ENTRIES*sizeof(FAR char *));
+
 #ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = false;
 #endif
+
 #if CONFIG_NFILE_STREAMS > 0
   vtbl->np.np_redirect = false;
 #endif

@@ -72,6 +72,15 @@
 #  undef CONFIG_NSH_TELNET
 #  undef CONFIG_NSH_FILE_APPS
 #  undef CONFIG_NSH_TELNET
+#  undef CONFIG_NSH_FUNCPARMS
+#endif
+
+/* If CONFIG_NSH_FUNCPARMS is selected, then the path to a directory to
+ * hold temporary files must be provided.
+ */
+
+#if defined(CONFIG_NSH_FUNCPARMS) && !defined(CONFIG_NSH_TMPDIR)
+#  define CONFIG_NSH_TMPDIR "/tmp"
 #endif
 
 /* Telnetd requires networking support */
