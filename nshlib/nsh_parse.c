@@ -121,7 +121,7 @@ struct nsh_memlist_s
 
 #ifdef HAVE_MEMLIST
 static void nsh_memlist_add(FAR struct nsh_memlist_s *memlist,
-              FAR char *address);
+              FAR char *allocation);
 static void nsh_memlist_free(FAR struct nsh_memlist_s *memlist);
 #endif
 
@@ -144,8 +144,13 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR char **allocation);
 #endif
 #ifdef CONFIG_NSH_ARGCAT
-static int nsh_strcat(FAR char *s1, FAR const char *s2);
+static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
+               FAR const char *s2);
 #endif
+static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
+               FAR char *varname);
+static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+               FAR char **allocation);
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
                FAR NSH_MEMLIST_TYPE *memlist);
 
@@ -171,12 +176,18 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
  ****************************************************************************/
 
 static const char g_token_separator[] = " \t\n";
+#ifndef NSH_DISABLE_SEMICOLON
 static const char g_line_separator[]  = "\";\n";
+#endif
+#ifdef CONFIG_NSH_ARGCAT
+static const char g_arg_separator[]   = "`$";
+#endif
 static const char g_redirect1[]       = ">";
 static const char g_redirect2[]       = ">>";
-static const char g_exitstatus[]      = "$?";
+static const char g_exitstatus[]      = "?";
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
+static const char g_nullstring[]      = "";
 
 /****************************************************************************
  * Public Data
@@ -240,14 +251,14 @@ const char g_fmtsignalrecvd[]    = "nsh: %s: Interrupted by signal\n";
 
 #ifdef HAVE_MEMLIST
 static void nsh_memlist_add(FAR struct nsh_memlist_s *memlist,
-                            FAR char *address)
+                            FAR char *allocation)
 {
-  if (memlist)
+  if (memlist && allocation)
     {
       int index = memlist->nallocs;
       if (index < CONFIG_NSH_MAXALLOCS)
         {
-          memlist->allocations[index] = address;
+          memlist->allocations[index] = allocation;
           memlist->nallocs = index + 1;
         }
     }
@@ -722,9 +733,9 @@ static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
   for (index = s1size; index < allocsize - 1; )
     {
       /* Loop until we successfully read something , we encounter the
-       * end-of-file, or until a read error occurs 
+       * end-of-file, or until a read error occurs
        */
-      
+
       do
         {
           nbytesread = read(fd, &argument[index], IOBUFFERSIZE);
@@ -791,7 +802,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
   if (!allocation)
     {
-      return NULL;
+      return (FAR char *)g_nullstring;
     }
 
   /* Create a unique file name using the task ID */
@@ -801,7 +812,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   if (ret < 0 || !tmpfile)
     {
       nsh_output(vtbl, g_fmtcmdoutofmemory, "``");
-      return NULL;
+      return (FAR char *)g_nullstring;
     }
 
   /* Execute the command that will re-direct the output of the command to
@@ -816,7 +827,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
       nsh_output(vtbl, g_fmtcmdfailed, "``", "exec", NSH_ERRNO);
       free(tmpfile);
-      return NULL;
+      return (FAR char *)g_nullstring;
     }
 
   /* Concatenate the file contents with the current allocation */
@@ -842,8 +853,312 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_ARGCAT
-static int nsh_strcat(FAR char *s1, FAR const char *s2)
+static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
+                            FAR const char *s2)
 {
+  FAR char *argument;
+  int s1size = 0;
+  int allocsize;
+
+  /* Get the size of the first string... it might be NULL */
+
+  if (s1)
+    {
+      s1size = strlen(s1);
+    }
+
+  /* Then reallocate the first string so that it is large enough to hold
+   * both (including the NUL terminator).
+   */
+
+  allocsize = s1size + strlen(s2) + 1;
+  argument  = (FAR char *)realloc(s1, allocsize);
+  if (!argument)
+    {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, "$");
+      argument = s1;
+    }
+  else
+    {
+      argument[s1size] = '\0';  /* (In case s1 was NULL) */
+      strcat(argument, s2);
+    }
+
+  return argument;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_envexpand
+ ****************************************************************************/
+
+#ifndef CONFIG_DISABLE_ENVIRON
+static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
+                               FAR char *varname)
+{
+  /* Check for built-in variables */
+
+  if (strcmp(varname, g_exitstatus) == 0)
+    {
+      if (vtbl->np.np_fail)
+        {
+          return (FAR char *)g_failure;
+        }
+      else
+        {
+          return (FAR char *)g_success;
+        }
+    }
+
+  /* Not a built-in? Return the value of the environment variable with this
+   * name.
+   */
+
+  else
+    {
+      FAR char *value = getenv(varname);
+      if (value)
+        {
+          return value;
+        }
+      else
+        {
+          return (FAR char *)g_nullstring;
+        }
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_argexpand
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_ARGCAT) && defined(HAVE_MEMLIST)
+static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+                               FAR char **allocation)
+{
+  FAR char *working = cmdline;
+  FAR char *argument = NULL;
+  FAR char *ptr;
+  size_t len;
+
+  /* Loop until all of the commands on the command line have been processed */
+
+  for (;;)
+    {
+      /* Look for interesting things within the command string. */
+
+      len = strcspn(working, g_arg_separator);
+      ptr = working + len;
+
+      /* If ptr points to the NUL terminator, then there is nothing else
+       * interesting in the argument.
+       */
+
+      if (*ptr == '\0')
+        {
+          /* Was anything previously concatenated? */
+
+          if (argument)
+            {
+              /* Yes, then we probably need to add the last part of the argument
+               * beginning at the last working pointer to the concatenated
+               * argument.
+               *
+               * On failures to allocation memory, nsh_strcat will just return
+               * value value of argument
+               */
+
+              argument    = nsh_strcat(vtbl, argument, working);
+              *allocation = argument;
+              return argument;
+            }
+          else
+            {
+              /* No.. just return the original string from the command line. */
+
+              return cmdline;
+            }
+        }
+      else
+
+#ifdef CONFIG_NSH_CMDPARMS
+      /* Check for a backquoted command embedded within the argument string. */
+
+      if (*ptr == '`')
+        {
+          FAR char *tmpalloc;
+          FAR char *result;
+          FAR char *rptr;
+
+          /* Replace the backqutote with a NUL terminator and add the
+           * intervening character to the concatenated string.
+           */
+
+          *ptr++      = '\0';
+          argument    = nsh_strcat(vtbl, argument, working);
+          *allocation = argument;
+
+          /* Find the closing backquote */
+
+          rptr = strchr(ptr, '`');
+          if (!rptr)
+            {
+              nsh_output(vtbl, g_fmtnomatching, "`", "`");
+              return (FAR char *)g_nullstring;
+            }
+
+          /* Replace the final backquote with a NUL terminator */
+
+          *rptr = '\0';
+
+          /* Then execute the command to get the sub-string value.  On
+           * error, nsh_cmdparm may return g_nullstring but never NULL.
+           */
+
+          result = nsh_cmdparm(vtbl, ptr, &tmpalloc);
+
+          /* Concatenate the result of the operation with the accumulated
+           * string.  On failures to allocation memory, nsh_strcat will
+           * just return value value of argument
+           */
+
+          argument    = nsh_strcat(vtbl, argument, result);
+          *allocation = argument;
+          working     = rptr + 1;
+
+          /* And free any temporary allocations */
+
+          if (tmpalloc)
+            {
+              free(tmpalloc);
+            }
+        }
+      else
+#endif
+
+#ifndef CONFIG_DISABLE_ENVIRON
+      /* Check if we encountered a reference to an environment variable */
+
+      if (*ptr == '$')
+        {
+          FAR char *envstr;
+          FAR char *rptr;
+
+          /* Replace the dollar sign with a NUL terminator and add the
+           * intervening character to the concatenated string.
+           */
+
+          *ptr++      = '\0';
+          argument    = nsh_strcat(vtbl, argument, working);
+          *allocation = argument;
+
+          /* Find the end of the environment variable reference.  If the
+           * dollar sign ('$') is followed by a right bracket ('{') then the
+           * variable name is terminated with the left bracket character
+           * ('}').  Otherwise, the variable name goes to the end of the
+           * argument.
+           */
+
+          if (*ptr == '{')
+            {
+              /* Skip over the left bracket */
+
+              ptr++;
+
+              /* Find the closing right bracket */
+
+              rptr = strchr(ptr, '}');
+              if (!rptr)
+                {
+                  nsh_output(vtbl, g_fmtnomatching, "${", "}");
+                  return (FAR char *)g_nullstring;
+                }
+
+              /* Replace the right bracket with a NUL terminator and set the
+               * working pointer to the character after the bracket.
+               */
+
+              *rptr   = '\0';
+              working = rptr + 1;
+            }
+          else
+            {
+              /* Set working to the NUL terminator at the end of the string */
+
+              working = ptr + strlen(ptr);
+            }
+
+          /* Then get the value of the environment variable.  On errors,
+           * nsh_envexpand will return the NULL string.
+           */
+
+          envstr = nsh_envexpand(vtbl, ptr);
+
+          /* Concatenate the result of the operation with the accumulated
+           * string.  On failures to allocation memory, nsh_strcat will
+           * just return value value of argument
+           */
+
+          argument    = nsh_strcat(vtbl, argument, envstr);
+          *allocation = argument;
+        }
+#endif
+    }
+}
+
+#else
+static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+                               FAR char **allocation)
+{
+  FAR char *argument = (FAR char *)g_nullstring;
+
+#ifdef CONFIG_NSH_CMDPARMS
+  /* Are we being asked to use the output from another command or program
+   * as an input parameters for this command?
+   */
+
+  if (*cmdline == '`')
+    {
+      /* Verify that the final character is also a backquote */
+
+      FAR char *rptr = strchr(cmdline + 1, '`');
+      if (!rptr || rptr[1] != '\0')
+        {
+          nsh_output(vtbl, g_fmtnomatching, "`", "`");
+          return (FAR char *)g_nullstring;
+        }
+
+      /* Replace the final backquote with a NUL terminator */
+
+      *rptr = '\0';
+
+      /* Then execute the command to get the paramter value */
+
+      argument = nsh_cmdparm(vtbl, cmdline + 1, allocation);
+    }
+  else
+#endif
+
+#ifndef CONFIG_DISABLE_ENVIRON
+  /* Check for references to environment variables */
+
+  if (*cmdline == '$')
+    {
+      argument = nsh_envexpand(vtbl, cmdline + 1);
+    }
+  else
+#endif
+
+    {
+      /* The argument to be returned is simply the beginning of the
+       * delimited string.
+       */
+
+      argument = cmdline;
+    }
+
+  return argument;
 }
 #endif
 
@@ -859,8 +1174,8 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
   FAR char *allocation = NULL;
   FAR char *argument   = NULL;
   FAR const char *term;
-#ifndef CONFIG_DISABLE_ENVIRON
-  bool quoted = false;
+#ifdef CONFIG_NSH_CMDPARMS
+  bool backquote;
 #endif
 
   /* Find the beginning of the next token */
@@ -906,41 +1221,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
       pbegin   = NULL;
     }
 
-#ifdef CONFIG_NSH_CMDPARMS
-  /* Are we being asked to use the output from another command or program
-   * as an input parameters for this command?
-   */
-
-  else if (*pbegin == '`')
-    {
-      /* Yes, find the terminating backquote */
-
-      for (++pbegin, pend = pbegin; *pend && *pend != '`';  pend++);
-
-      /* pend either points to the end of the string or to the closing
-       * backquote.
-       */
-
-      if (!*pend)
-        {
-          nsh_output(vtbl, g_nshsyntax, "``");
-          return NULL;
-        }
-
-      /* Turn the closing backquote into a NUL terminator and save the
-       * pointer where we left off.
-       */
-
-      *pend++ = '\0';
-      *saveptr = pend;
-
-      /* Then execute the command to get the paramter value */
-
-      argument = nsh_cmdparm(vtbl, pbegin, &allocation);
-    }
-#endif
-
-  /* Otherwise, it is a normal string and we have to parse using the normal
+  /* Otherwise, it is a normal argument and we have to parse using the normal
    * rules to find the end of the argument.
    */
 
@@ -958,9 +1239,6 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
 
           pbegin++;
           term = "\"";
-#ifndef CONFIG_DISABLE_ENVIRON
-          quoted = true;
-#endif
         }
       else
         {
@@ -971,9 +1249,37 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
 
       /* Find the end of the string */
 
-      for (pend = pbegin + 1;
-           *pend && strchr(term, *pend) == NULL;
-           pend++);
+#ifdef CONFIG_NSH_CMDPARMS
+      /* Some special care must be exercised to make sure that we do not break up
+       * any backquote delimited substrings.  NOTE that the absence of a closing
+       * backquote is not detected;  That case should be detected later.
+       */
+
+      for (backquote = false, pend = pbegin; *pend; pend++)
+        {
+          /* Toggle the backquote flag when one is encountered? */
+
+          if (*pend == '`')
+            {
+              backquote = !backquote;
+            }
+
+          /* Check for a delimiting character only if we are not in a
+           * backquoted sub-string.
+           */
+
+          else if (!backquote && strchr(term, *pend) != NULL)
+            {
+              /* We found a delimiter outside of anybackqouted substring.
+               * Now we can break out of the loop.
+               */
+
+              break;
+            }
+        }
+#else
+      for (pend = pbegin + 1; *pend && strchr(term, *pend) == NULL; pend++);
+#endif
 
       /* pend either points to the end of the string or to the first
        * delimiter after the string.
@@ -990,60 +1296,17 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
 
       *saveptr = pend;
 
-#ifndef CONFIG_DISABLE_ENVIRON
-      /* Check for references to environment variables */
+      /* Perform expansions as necessary for the argument */
 
-      if (pbegin[0] == '$' && !quoted)
-        {
-          /* Check for built-in variables */
-
-          if (strcmp(pbegin, g_exitstatus) == 0)
-            {
-              if (vtbl->np.np_fail)
-                {
-                  return (char*)g_failure;
-                }
-              else
-                {
-                  return (char*)g_success;
-                }
-            }
-
-          /* Not a built-in? Return the value of the environment variable
-           * with this name.
-           */
-
-          else
-            {
-              char *value = getenv(pbegin+1);
-              if (value)
-                {
-                  return value;
-                }
-              else
-                {
-                  return (char*)"";
-                }
-            }
-        }
-#endif
-      /* The argument to be returned is simply the beginning of the
-       * delimited string.
-       */
-
-      argument = pbegin;
+      argument = nsh_argexpand(vtbl, pbegin, &allocation);
     }
-
 
   /* If any memory was allocated for this argument, make sure that it is
    * added to the list of memory to be freed at the end of commend
    * processing.
    */
 
-  if (allocation)
-    {
-      NSH_MEMLIST_ADD(memlist, allocation);
-    }
+  NSH_MEMLIST_ADD(memlist, allocation);
 
   /* Return the parsed argument. */
 
@@ -1651,18 +1914,18 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
         {
           /* Find the closing quotation mark */
 
-          FAR char *tmp = strchr(ptr, '"');
+          FAR char *tmp = strchr(ptr + 1, '"');
           if (!tmp)
             {
               /* No closing quotation mark! */
 
-              nsh_output(vtbl, g_fmtnomatching, "[\"]", "[\"]");
+              nsh_output(vtbl, g_fmtnomatching, "\"", "\"");
               return ERROR;
             }
 
           /* Otherwise, continue parsing after the closing quotation mark */
 
-          working = tmp++;
+          working = ++tmp;
         }
     }
 #endif

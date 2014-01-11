@@ -771,4 +771,7 @@
 	  on initial commit (2014-1-10).
 	* Logic to support commands enclosed in back quotes is functional
 	  but not thoroughly tested (2014-1-11).
+	* apps/nshlib/nsh_parse.c:  Can now handle arguments that are
+	  concatenations of constant strings, command return data, application
+	  return data, and environment variables (2014-1-11).
 
