@@ -166,7 +166,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 #endif
 
 #ifdef CONFIG_NSH_CMDPARMS
-static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR const char *redirfile);
 #endif
 static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
@@ -184,7 +184,9 @@ static const char g_arg_separator[]   = "`$";
 #endif
 static const char g_redirect1[]       = ">";
 static const char g_redirect2[]       = ">>";
+#ifndef CONFIG_DISABLE_ENVIRON
 static const char g_exitstatus[]      = "?";
+#endif
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
 static const char g_nullstring[]      = "";
@@ -775,6 +777,10 @@ static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
   /* Make sure that the new string is null terminated */
 
   argument[index] = '\0';
+
+  /* Close the temporary file and return the concatenated value */
+
+  close (fd);
   return argument;
 
 errout_with_fd:
@@ -820,7 +826,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
    * options.
    */
 
-  ret = nsh_parse_funcparm(vtbl, cmdline, tmpfile);
+  ret = nsh_parse_cmdparm(vtbl, cmdline, tmpfile);
   if (ret != OK)
     {
       /* Report the failure */
@@ -1539,7 +1545,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 #endif
 
 /****************************************************************************
- * Name: nsh_parse_funcparm
+ * Name: nsh_parse_cmdparm
  *
  * Description:
  *   This function parses and executes a simple NSH command.  Output is
@@ -1553,8 +1559,8 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_CMDPARMS
-static int nsh_parse_funcparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
-                              FAR const char *redirfile)
+static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
+                             FAR const char *redirfile)
 {
   NSH_MEMLIST_TYPE memlist;
   FAR char *argv[MAX_ARGV_ENTRIES];

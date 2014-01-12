@@ -774,4 +774,6 @@
 	* apps/nshlib/nsh_parse.c:  Can now handle arguments that are
 	  concatenations of constant strings, command return data, application
 	  return data, and environment variables (2014-1-11).
+	* apps/nshlib/nsh_parse.c:  Fix a memory leak ... forgot to close
+	  a temporary file (2013-1-12).
 
