@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/poll/poll_internal.h
  *
- *   Copyright (C) 2008, 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2009, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_PIPE_PIPE_H
-#define __EXAMPLES_PIPE_PIPE_H
+#ifndef __EXAMPLES_POLL_POLL_INTERNAL_H
+#define __EXAMPLES_POLL_POLL_INTERNAL_H
 
 /****************************************************************************
  * Compilation Switches
@@ -57,15 +57,15 @@
 /* Here are all of the configuration settings that must be met to have TCP/IP
  * poll/select support.  This kind of looks like overkill.
  *
- * CONFIG_NET                        - Network support must be enabled
- * CONFIG_NSOCKET_DESCRIPTORS        - Socket descriptors must be allocated
- * CONFIG_NET_TCP                    - Only support on TCP (because read-ahead
- *                                     ibuffering s not yet support for UDP)
- * CONFIG_NET_NTCP_READAHEAD_BUFFERS - TCP/IP read-ahead buffering must be enabled
+ * CONFIG_NET                  - Network support must be enabled
+ * CONFIG_NSOCKET_DESCRIPTORS  - Socket descriptors must be allocated
+ * CONFIG_NET_TCP              - Only support on TCP (because read-ahead
+ *                               buffering s not yet support for UDP)
+ * CONFIG_NET_TCP_READAHEAD    - TCP/IP read-ahead buffering must be enabled
  */
 
 #if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0 && \
-    defined(CONFIG_NET_TCP) && CONFIG_NET_NTCP_READAHEAD_BUFFERS > 0
+    defined(CONFIG_NET_TCP) && defined(CONFIG_NET_TCP_READAHEAD)
 #  define HAVE_NETPOLL 1
 #else
 #  undef HAVE_NETPOLL
@@ -125,4 +125,4 @@ extern void *select_listener(pthread_addr_t pvarg);
 extern void *net_listener(pthread_addr_t pvarg);
 extern void *net_reader(pthread_addr_t pvarg);
 #endif
-#endif /* __EXAMPLES_PIPE_PIPE_H */
+#endif /* __EXAMPLES_POLL_POLL_INTERNAL_H */
