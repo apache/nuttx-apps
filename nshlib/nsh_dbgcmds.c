@@ -188,6 +188,7 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           nsh_output(vtbl, "\n", *ptr);
         }
     }
+
   return ret;
 }
 #endif
@@ -241,6 +242,7 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           nsh_output(vtbl, "\n", *ptr);
         }
     }
+
   return ret;
 }
 #endif
@@ -286,6 +288,7 @@ int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           nsh_output(vtbl, "\n", *ptr);
         }
     }
+
   return ret;
 }
 #endif
@@ -327,6 +330,7 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
               sprintf(&line[strlen(line)], "%c", ch >= 0x20 && ch <= 0x7e ? ch : '.');
             }
         }
+
       nsh_output(vtbl, "%s\n", line);
     }
 }

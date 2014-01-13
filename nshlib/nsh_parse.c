@@ -143,14 +143,17 @@ static FAR char *nsh_filecat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
 static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR char **allocation);
 #endif
+
 #ifdef CONFIG_NSH_ARGCAT
 static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
                FAR const char *s2);
 #endif
+
 #ifndef CONFIG_DISABLE_ENVIRON
 static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *varname);
 #endif
+
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR char **allocation);
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
@@ -171,6 +174,7 @@ static int nsh_nice(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR const char *redirfile);
 #endif
+
 static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline);
 
 /****************************************************************************
@@ -1001,7 +1005,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
           FAR char *result;
           FAR char *rptr;
 
-          /* Replace the backqutote with a NUL terminator and add the
+          /* Replace the backquote with a NUL terminator and add the
            * intervening character to the concatenated string.
            */
 
