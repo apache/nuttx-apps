@@ -86,7 +86,7 @@
 #  define NSH_MEMLIST_TYPE      uint8_t
 #  define NSH_MEMLIST_INIT(m)   do { (m) = 0; } while (0)
 #  define NSH_MEMLIST_ADD(m,a)
-#  define NSH_MEMLIST_FREE(m,a)
+#  define NSH_MEMLIST_FREE(m)
 #endif
 
 /****************************************************************************
@@ -147,8 +147,10 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 static FAR char *nsh_strcat(FAR struct nsh_vtbl_s *vtbl, FAR char *s1,
                FAR const char *s2);
 #endif
+#ifndef CONFIG_DISABLE_ENVIRON
 static FAR char *nsh_envexpand(FAR struct nsh_vtbl_s *vtbl,
                FAR char *varname);
+#endif
 static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
                FAR char **allocation);
 static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
@@ -408,7 +410,9 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
                        int argc, FAR char *argv[],
                        FAR const char *redirfile, int oflags)
 {
+#if CONFIG_NFILE_STREAMS > 0 || !defined(CONFIG_NSH_DISABLEBG)
   int fd = -1;
+#endif
   int ret;
 
   /* Does this command correspond to an application filename?
@@ -1678,10 +1682,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   FAR char *argv[MAX_ARGV_ENTRIES];
   FAR char *saveptr;
   FAR char *cmd;
-#if CONFIG_NFILE_STREAMS > 0
   FAR char *redirfile = NULL;
   int       oflags = 0;
-#endif
   int       argc;
   int       ret;
 
