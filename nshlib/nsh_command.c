@@ -411,9 +411,9 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifndef CONFIG_NSH_DISABLE_HELP
 static inline void help_cmdlist(FAR struct nsh_vtbl_s *vtbl)
 {
-  int i;
-  int j;
-  int k;
+  unsigned int i;
+  unsigned int j;
+  unsigned int k;
 
   /* Print the command name in NUM_CMD_ROWS rows with CMDS_PER_LINE commands
    * on each line.

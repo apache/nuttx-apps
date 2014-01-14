@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_fscmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1491,7 +1491,7 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       /* A partial read indicates the end of file (usually) */
 
-      if (nbytesread1 < sizeof(buf1))
+      if (nbytesread1 < (size_t)sizeof(buf1))
         {
           break;
         }
@@ -1516,3 +1516,4 @@ errout:
 }
 #endif
 #endif
+

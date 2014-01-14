@@ -119,14 +119,14 @@ static void dumptrace(void)
 #endif
 
 /****************************************************************************
- * Name: dumptrace
+ * Name: usbterm_listener
  *
  * Description:
  *   Entry point for the listener thread.
  *
  ****************************************************************************/
 
-FAR void *usbterm_listener(FAR void *parameter)
+static FAR void *usbterm_listener(FAR void *parameter)
 {
   message("usbterm_listener: Waiting for remote input\n");
   for (;;)

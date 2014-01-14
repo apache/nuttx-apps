@@ -89,7 +89,7 @@ struct dbgmem_s
  * Name: mem_parse
  ****************************************************************************/
 
-int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
+static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
               struct dbgmem_s *mem)
 {
   char *pcvalue = strchr(argv[1], '=');
@@ -148,8 +148,8 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct dbgmem_s mem;
   volatile uint8_t *ptr;
+  unsigned int i;
   int ret;
-  int i;
 
   ret = mem_parse(vtbl, argc, argv, &mem);
   if (ret == 0)
@@ -202,15 +202,17 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct dbgmem_s mem;
   volatile uint16_t *ptr;
+  unsigned int i;
   int ret;
-  int i;
 
   ret = mem_parse(vtbl, argc, argv, &mem);
   if (ret == 0)
     {
       /* Loop for the number of requested bytes */
 
-      for (i = 0, ptr = (volatile uint16_t*)mem.dm_addr; i < mem.dm_count; i += 2, ptr++)
+      for (i = 0, ptr = (volatile uint16_t*)mem.dm_addr;
+           i < mem.dm_count;
+           i += 2, ptr++)
         {
           /* Print the value at the address */
 
@@ -256,8 +258,8 @@ int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct dbgmem_s mem;
   volatile uint32_t *ptr;
+  unsigned int i;
   int ret;
-  int i;
 
   ret = mem_parse(vtbl, argc, argv, &mem);
   if (ret == 0)

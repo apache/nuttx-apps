@@ -97,7 +97,7 @@ static struct fat_format_s g_fmt = FAT_FORMAT_INITIALIZER;
 
 int create_ramdisk(void)
 {
-  char *pbuffer;
+  FAR char *pbuffer;
   int ret;
 
   /* Allocate a buffer to hold the file system image. */
@@ -113,10 +113,10 @@ int create_ramdisk(void)
   /* Register a RAMDISK device to manage this RAM image */
 
   ret = ramdisk_register(CONFIG_EXAMPLES_MOUNT_RAMDEVNO,
-                    pbuffer,
-                    CONFIG_EXAMPLES_MOUNT_NSECTORS,
-                    CONFIG_EXAMPLES_MOUNT_SECTORSIZE,
-                    true);
+                         (FAR uint8_t *)pbuffer,
+                         CONFIG_EXAMPLES_MOUNT_NSECTORS,
+                         CONFIG_EXAMPLES_MOUNT_SECTORSIZE,
+                         true);
   if (ret < 0)
     {
       printf("create_ramdisk: Failed to register ramdisk at %s: %d\n",
