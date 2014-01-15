@@ -1,7 +1,7 @@
 ############################################################################
-# apps/system/Makefile
+# apps/system/initfile/Makefile
 #
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,46 +33,64 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories containing system task
+# I2C tool
 
-SUBDIRS  = cdcacm composite flash_eraseall free i2c inifile install
-SUBDIRS += nxplayer poweroff ramtest ramtron readline sdcard stackmonitor
-SUBDIRS += sysinfo usbmonitor usbmsc zmodem
+ASRCS =
+CSRCS = inifile.c
 
-# Create the list of installed runtime modules (INSTALLED_DIRS)
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-define ADD_DIRECTORY
-  INSTALLED_DIRS  += $(if $(wildcard .\$1\Makefile),$1,)
-endef
+  BIN = ..\..\libapps$(LIBEXT)
 else
-define ADD_DIRECTORY
-  INSTALLED_DIRS  += $(if $(wildcard ./$1/Makefile),$1,)
-endef
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
 endif
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call ADD_DIRECTORY,$(DIR))))
+ROOTDEPPATH = --dep-path .
+VPATH = 
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+# Build targets
 
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
+all: .built
+.PHONY: context .depend depend clean distclean
 
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
 
-nothing:
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
 
 context:
 
-depend: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_depend)
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
-clean: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_clean)
+depend: .depend
 
-distclean: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_distclean)
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+
+-include Make.dep
+

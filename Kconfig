@@ -39,6 +39,6 @@ menu "Platform-specific Support"
 source "$APPSDIR/platform/Kconfig"
 endmenu
 
-menu "System NSH Add-Ons"
+menu "System Libraries and NSH Add-Ons"
 source "$APPSDIR/system/Kconfig"
 endmenu

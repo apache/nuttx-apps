@@ -19,6 +19,10 @@ menu "I2C tool"
 source "$APPSDIR/system/i2c/Kconfig"
 endmenu
 
+menu "INI File Parser"
+source "$APPSDIR/system/inifile/Kconfig"
+endmenu
+
 menu "FLASH Program Installation"
 source "$APPSDIR/system/install/Kconfig"
 endmenu

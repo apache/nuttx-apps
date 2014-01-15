@@ -776,4 +776,6 @@
 	  return data, and environment variables (2014-1-11).
 	* apps/nshlib/nsh_parse.c:  Fix a memory leak ... forgot to close
 	  a temporary file (2013-1-12).
-
+	* apps/system/inifile:  A simple INI file parser (perhaps too simple).
+	  This is code that I wrote a long time ago and have used many time but
+	  is untested in its current incarnation (2014-1-15).

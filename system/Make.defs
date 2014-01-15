@@ -50,6 +50,10 @@ ifeq ($(CONFIG_SYSTEM_I2CTOOL),y)
 CONFIGURED_APPS += system/i2c
 endif
 
+ifeq ($(CONFIG_SYSTEM_INIFILE),y)
+CONFIGURED_APPS += system/inifile
+endif
+
 ifeq ($(CONFIG_SYSTEM_INSTALL),y)
 CONFIGURED_APPS += system/install
 endif
