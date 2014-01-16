@@ -122,7 +122,7 @@ static int  inifile_read_line(FAR struct inifile_state_s *priv);
 static int  inifile_read_noncomment_line(FAR struct inifile_state_s *priv);
 static bool inifile_seek_to_section(FAR struct inifile_state_s *priv,
               FAR const char *section);
-static int  inifile_read_variable(FAR struct inifile_state_s *priv,
+static bool inifile_read_variable(FAR struct inifile_state_s *priv,
               FAR struct inifile_var_s *varinfo);
 static FAR char *
             inifile_find_section_variable(FAR struct inifile_state_s *priv,
@@ -358,8 +358,8 @@ static bool inifile_seek_to_section(FAR struct inifile_state_s *priv,
  *
  ****************************************************************************/
 
-static int inifile_read_variable(FAR struct inifile_state_s *priv,
-                                 FAR struct inifile_var_s *varinfo)
+static bool inifile_read_variable(FAR struct inifile_state_s *priv,
+                                  FAR struct inifile_var_s *varinfo)
 {
   FAR char *ptr;
 
@@ -478,9 +478,9 @@ static FAR char *
  *
  ****************************************************************************/
 
-static char *inifile_find_variable(FAR struct inifile_state_s *priv,
-                                   FAR const char *section,
-                                   FAR const char *variable)
+static FAR char *inifile_find_variable(FAR struct inifile_state_s *priv,
+                                       FAR const char *section,
+                                       FAR const char *variable)
 {
   FAR char *ret = NULL;
 
@@ -532,7 +532,7 @@ INIHANDLE inifile_initialize(FAR char *inifile_name)
   if (!priv)
     {
       inidbg("ERROR: Failed to allocate state structure\n");
-      return NULL;
+      return (INIHANDLE)NULL;
     }
 
   /* Open the specified INI file for reading */
@@ -549,7 +549,7 @@ INIHANDLE inifile_initialize(FAR char *inifile_name)
   else
     {
       inidbg("ERROR: Could not open \"%s\"\n", inifile_name);
-      return NULL;
+      return (INIHANDLE)NULL;
     }
 }
 
@@ -659,10 +659,12 @@ long inifile_read_integer(INIHANDLE handle,
 
   if (value)
     {
-      /* Then convert the string to an integer value */
+      /* Then convert the string to an integer value (accept any base, and
+       * ignore all conversion errors.
+       */
 
       inivdbg("%s=\"%s\"\n", variable, value);
-      ret = strtol(value, NULL, 10);
+      ret = strtol(value, NULL, 0);
     }
 
   /* Return the value that we found. */
