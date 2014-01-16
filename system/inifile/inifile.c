@@ -153,7 +153,7 @@ static bool inifile_next_line(FAR struct inifile_state_s *priv)
       priv->nextch = getc(priv->instream);
     }
 
-  /* Re-prime the pump with the first character from the nextline.  NOTE:
+  /* Re-prime the pump with the first character from the next line.  NOTE:
    * this logic depends on the fact that getc() will return EOF repeatedly.
    */
 
@@ -306,7 +306,7 @@ static bool inifile_seek_to_section(FAR struct inifile_state_s *priv,
                * perform a conversion to lower case.
                */
 
-              while (*sectend != ']' && *sectend != '\0') 
+              while (*sectend != ']' && *sectend != '\0')
                 {
                   /* Perform the conversion to lower case, if appropriate */
 
@@ -382,7 +382,7 @@ static int inifile_read_variable(FAR struct inifile_state_s *priv,
          return false;
        }
 
-      /* Search for the '=' delimitor.  NOTE  the line is guaranteed to
+      /* Search for the '=' delimiter.  NOTE  the line is guaranteed to
        * be NULL terminated by inifile_read_noncomment_line().
        */
 
@@ -422,7 +422,7 @@ static int inifile_read_variable(FAR struct inifile_state_s *priv,
  * Name:  inifile_find_section_variable
  *
  * Description:
- *   Find the value string associated with the variable name.  This furnction
+ *   Find the value string associated with the variable name.  This function
  *   will return NULL on failure to find the variable.  It will return a
  *   pointer to an empty string is the variable is found, but not assigned a
  *   value.
@@ -526,7 +526,7 @@ INIHANDLE inifile_initialize(FAR char *inifile_name)
 {
   /* Allocate an INI file parser state structure */
 
-  FAR struct inifile_state_s *priv = 
+  FAR struct inifile_state_s *priv =
     (FAR struct inifile_state_s *)malloc(sizeof(struct inifile_state_s));
 
   if (!priv)
@@ -584,10 +584,10 @@ void inifile_uninitialize(INIHANDLE handle)
  * Name: inifile_read_string
  *
  * Description:
- *    Obtains the specified string value for the specified variable name
- *    within the specified section of the INI file.  The receiver of the
- *    value string should call inifile_free_string when it no longer needs
- *    the memory held by the value string.
+ *   Obtains the specified string value for the specified variable name
+ *   within the specified section of the INI file.  The receiver of the
+ *   value string should call inifile_free_string when it no longer needs
+ *   the memory held by the value string.
  *
  ****************************************************************************/
 
@@ -632,8 +632,8 @@ FAR char *inifile_read_string(INIHANDLE handle,
  * Name:  inifile_read_integer
  *
  * Description:
- *    Obtains the specified integer value for the specified variable name
- *    within the specified section of the INI file
+ *   Obtains the specified integer value for the specified variable name
+ *   within the specified section of the INI file
  *
  ****************************************************************************/
 

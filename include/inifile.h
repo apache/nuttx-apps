@@ -58,7 +58,7 @@ typedef FAR void *INIHANDLE;
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" 
+extern "C"
 {
 #else
 #define EXTERN extern
@@ -92,10 +92,10 @@ void inifile_uninitialize(INIHANDLE handle);
  * Name: inifile_read_string
  *
  * Description:
- *    Obtains the specified string value for the specified variable name
- *    within the specified section of the INI file.  The receiver of the
- *    value string should call inifile_free_string when it no longer needs
- *    the memory held by the value string.
+ *   Obtains the specified string value for the specified variable name
+ *   within the specified section of the INI file.  The receiver of the
+ *   value string should call inifile_free_string when it no longer needs
+ *   the memory held by the value string.
  *
  ****************************************************************************/
 
@@ -108,8 +108,8 @@ FAR char *inifile_read_string(INIHANDLE handle,
  * Name:  inifile_read_integer
  *
  * Description:
- *    Obtains the specified integer value for the specified variable name
- *    within the specified section of the INI file
+ *   Obtains the specified integer value for the specified variable name
+ *   within the specified section of the INI file
  *
  ****************************************************************************/
 
