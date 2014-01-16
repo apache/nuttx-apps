@@ -1216,12 +1216,12 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
       if (*(pbegin + 1) == '>')
         {
           *saveptr = pbegin + 2;
-          pbegin   = (char*)g_redirect2;
+          argument = (FAR char *)g_redirect2;
         }
       else
         {
           *saveptr = pbegin + 1;
-          pbegin   = (char*)g_redirect1;
+          argument = (FAR char *)g_redirect1;
         }
     }
 
@@ -1232,7 +1232,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
       /* Return NULL meaning that we are at the end of the line */
 
       *saveptr = pbegin;
-      pbegin   = NULL;
+      argument = NULL;
     }
 
   /* Otherwise, it is a normal argument and we have to parse using the normal

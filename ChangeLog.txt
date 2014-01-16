@@ -779,3 +779,5 @@
 	* apps/system/inifile:  A simple INI file parser (perhaps too simple).
 	  This is code that I wrote a long time ago and have used many time but
 	  is untested in its current incarnation (2014-1-15).
+	* aps/nshlib/nsh_parse.c:  Recent changes broke redirection of output
+	  (2014-1-14).
