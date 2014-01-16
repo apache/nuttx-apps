@@ -51,14 +51,14 @@ int main(int argc, char *argv[])
   stream = fopen("/tmp/file.ini", "w");
   fprintf(stream, "; Test INI file\n");
   fprintf(stream, "[section1]\n");
-  fprintf(stream, "VAR1=1\n");
-  fprintf(stream, "VAR2=2\n");
-  fprintf(stream, "VAR3=3\n");
+  fprintf(stream, "  VAR1=1\n");
+  fprintf(stream, "  VAR2=2\n");
+  fprintf(stream, "  VAR3=3\n");
   fprintf(stream, "\n");
   fprintf(stream, "[section2]\n");
-  fprintf(stream, "VAR4=4\n");
-  fprintf(stream, "VAR5=5\n");
-  fprintf(stream, "VAR6=6\n");
+  fprintf(stream, "  VAR4=4\n");
+  fprintf(stream, "  VAR5=5\n");
+  fprintf(stream,   "VAR6=6\n");
   fprintf(stream, "\n");
   fclose(stream);
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   printf("Section: %s Variable: %s Value: %ld\n", "section1", "VAR3", value);
 
   value = inifile_read_integer(handle, "section3", "VAR3", 0);
-  printf("Section: %s Variable: %s Value: %ld\n", "section3", "VAR3", value);
+  printf("Section: %s Variable: %s String: %ld\n", "section3", "VAR3", value);
 
   value = inifile_read_integer(handle, "section1", "VAR1", 0);
   printf("Section: %s Variable: %s Value: %ld\n", "section1", "VAR1", value);
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   printf("Section: %s Variable: %s Value: %ld\n", "section2", "VAR6", value);
 
   value = inifile_read_integer(handle, "section1", "VAR42", 0);
-  printf("Section: %s Variable: %s Value: %ld\n", "section1", "VAR42", value);
+  printf("Section: %s Variable: %s String: %ld\n", "section1", "VAR42", value);
 
   value = inifile_read_integer(handle, "section1", "VAR2", 0);
   printf("Section: %s Variable: %s Value: %ld\n", "section1", "VAR2", value);
