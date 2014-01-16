@@ -178,7 +178,7 @@ static int inifile_read_line(FAR struct inifile_state_s *priv)
 
   /* Assuming that the file pointer is correctly positioned at the beginning
    * of the next line, read until the end of line indication is found (or
-   * until the line buffer is full).
+   * until the line buffer is full).  This is basically fgets().
    */
 
   nbytes = 0;
@@ -299,37 +299,24 @@ static bool inifile_seek_to_section(FAR struct inifile_state_s *priv,
                * after the left bracket.
                */
 
-              FAR char *sectend = &priv->line[1];
+              FAR char *sectend;
 
-              /* The section name should extend to the right bracket.  While
-               * we are looking for the end of the section name, we'll also
-               * perform a conversion to lower case.
+              /* The section name should extend to the right bracket. */
+
+              sectend = strchr(&priv->line[1], ']');
+
+              /* Replace the right bracket (if found) with a NULL
+               * terminator.
                */
 
-              while (*sectend != ']' && *sectend != '\0')
+              if (sectend)
                 {
-                  /* Perform the conversion to lower case, if appropriate */
-
-                  int ch = (int)*sectend;
-                  if ((ch >= 'A') && ( ch <= 'Z'))
-                    {
-                      *sectend = (char)(ch - 'A' + 'a');
-                    }
-
-                  /* Skip to the next character */
-
-                  sectend++;
+                  *sectend = '\0';
                 }
-
-              /* Add NULL termination (This is unnecessary in the case where
-               * the line was truncated
-               */
-
-              *sectend = '\0';
 
               /* Then compare the section name to the one we are looking for */
 
-              if (strcmp(&priv->line[1], section) == 0)
+              if (strcasecmp(&priv->line[1], section) == 0)
                 {
                   /* The section names match!  Return success */
 
@@ -386,20 +373,11 @@ static bool inifile_read_variable(FAR struct inifile_state_s *priv,
        * be NULL terminated by inifile_read_noncomment_line().
        */
 
-      for (ptr = (char*)priv->line; *ptr && *ptr != '='; ptr++)
-        {
-          /* Force the variable name to lower case */
-
-          int ch = *ptr;
-          if ((ch >= 'A') && (ch <= 'Z'))
-            {
-              *ptr = (char)(ch - 'A' + 'a');
-            }
-        }
+      ptr = strchr(&priv->line[1], '=');
 
       /* If the delimiter was found, return success */
 
-      if (*ptr == '=')
+      if (ptr)
         {
           /* Put NUL termination between the variable name and the
            * variable value (replacing the equal sign).
@@ -459,9 +437,9 @@ static FAR char *
 
       /* Does the the variable name match the one we are looking for? */
 
-      if (strcmp(varinfo.variable, variable) == 0)
+      if (strcasecmp(varinfo.variable, variable) == 0)
         {
-          /* Yes... then we got it! */
+          /* Yes... then we have it! */
 
           inivdbg("Returning \"%s\"\n", varinfo.value);
           return varinfo.value;
@@ -495,7 +473,7 @@ static FAR char *inifile_find_variable(FAR struct inifile_state_s *priv,
        */
 
       FAR char *value = inifile_find_section_variable(priv, variable);
-      inivdbg("ariable_value=0x%p\n", value);
+      inivdbg("variable_value=0x%p\n", value);
 
       if (value && *value)
         {
