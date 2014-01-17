@@ -460,9 +460,9 @@ static inline void help_usage(FAR struct nsh_vtbl_s *vtbl)
 {
   nsh_output(vtbl, "NSH command forms:\n");
 #ifndef CONFIG_NSH_DISABLEBG
-  nsh_output(vtbl, "  [nice [-d <niceness>>]] <cmd> [> <file>|>> <file>] [&]\n");
+  nsh_output(vtbl, "  [nice [-d <niceness>>]] <cmd> [> <file>|>> <file>] [&]\n\n");
 #else
-  nsh_output(vtbl, "  <cmd> [> <file>|>> <file>]\n");
+  nsh_output(vtbl, "  <cmd> [> <file>|>> <file>]\n\n");
 #endif
 #ifndef CONFIG_NSH_DISABLESCRIPT
   nsh_output(vtbl, "OR\n");
@@ -472,6 +472,16 @@ static inline void help_usage(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "  else\n");
   nsh_output(vtbl, "    [sequence of <cmd>]\n");
   nsh_output(vtbl, "  fi\n\n");
+  nsh_output(vtbl, "OR\n");
+  nsh_output(vtbl, "  while <cmd>\n");
+  nsh_output(vtbl, "  do\n");
+  nsh_output(vtbl, "    [sequence of <cmd>]\n");
+  nsh_output(vtbl, "  done\n\n");
+  nsh_output(vtbl, "OR\n");
+  nsh_output(vtbl, "  until <cmd>\n");
+  nsh_output(vtbl, "  do\n");
+  nsh_output(vtbl, "    [sequence of <cmd>]\n");
+  nsh_output(vtbl, "  done\n\n");
 #endif
 }
 #endif

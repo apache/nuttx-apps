@@ -160,9 +160,13 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
                FAR NSH_MEMLIST_TYPE *memlist);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
+static bool nsh_loop_enabled(FAR struct nsh_vtbl_s *vtbl);
+static bool nsh_itef_enabled(FAR struct nsh_vtbl_s *vtbl);
 static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl);
-static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-               FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
 #endif
 
 #ifndef CONFIG_NSH_DISABLEBG
@@ -392,7 +396,41 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
   struct nsh_parser_s *np = &vtbl->np;
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  if (np->np_iestate[np->np_iendx].ie_state == NSH_PARSER_IF)
+  /* Check if we are waiting for the condition associated with a while
+   * token.
+   *
+   *   while <test-cmd>; do <cmd-sequence>; done
+   *
+   *  Execute <cmd-sequence> as long as <test-cmd> has an exit status of
+   *  zero.
+   */
+
+  if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE)
+    {
+      np->np_fail = false;
+      np->np_lpstate[np->np_lpndx].lp_enable = (result == OK);
+      return OK;
+    }
+
+  /* Check if we are waiting for the condition associated with an until
+   * token.
+   *
+   *   until <test-cmd>; do <cmd-sequence>; done
+   *
+   *  Execute <cmd-sequence> as long as <test-cmd> has a non-zero exit
+   * status.
+   */
+
+  else if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL)
+    {
+      np->np_fail = false;
+      np->np_lpstate[np->np_lpndx].lp_enable = (result != OK);
+      return OK;
+    }
+
+  /* Check if we are waiting for the condition associated with an if token */
+
+  else if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF)
     {
       np->np_fail = false;
       np->np_iestate[np->np_iendx].ie_ifcond = result;
@@ -1328,28 +1366,53 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
 }
 
 /****************************************************************************
- * Name: nsh_cmdenabled
+ * Name: nsh_loop_enabled
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
+static bool nsh_loop_enabled(FAR struct nsh_vtbl_s *vtbl)
 {
-  struct nsh_parser_s *np = &vtbl->np;
+  FAR struct nsh_parser_s *np = &vtbl->np;
+
+  /* If we are looping and the disable bit is set, then we are skipping
+   * all data until we next get to the 'done' token at the end of the
+   * loop.
+   */
+
+  if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_DO)
+    {
+      /* We have parsed 'do', looking for 'done' */
+
+      return (bool)np->np_lpstate[np->np_lpndx].lp_enable;
+    }
+
+  return true;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_itef_enabled
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static bool nsh_itef_enabled(FAR struct nsh_vtbl_s *vtbl)
+{
+  FAR struct nsh_parser_s *np = &vtbl->np;
   bool ret = !np->np_iestate[np->np_iendx].ie_disabled;
   if (ret)
     {
       switch (np->np_iestate[np->np_iendx].ie_state)
         {
-          case NSH_PARSER_NORMAL :
-          case NSH_PARSER_IF:
+          case NSH_ITEF_NORMAL:
+          case NSH_ITEF_IF:
           default:
             break;
 
-          case NSH_PARSER_THEN:
+          case NSH_ITEF_THEN:
             ret = !np->np_iestate[np->np_iendx].ie_ifcond;
             break;
 
-          case NSH_PARSER_ELSE:
+          case NSH_ITEF_ELSE:
             ret = np->np_iestate[np->np_iendx].ie_ifcond;
             break;
         }
@@ -1360,12 +1423,218 @@ static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 #endif
 
 /****************************************************************************
- * Name: nsh_ifthenelse
+ * Name: nsh_cmdenabled
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
-                          FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
+static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
+{
+  /* Return true if command processing is enabled on this pass through the
+   * loop AND if command processing is enabled in this part of the if-then-
+   * else-fi sequence.
+   */
+
+  return (nsh_loop_enabled(vtbl) && nsh_itef_enabled(vtbl));
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_loop
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
+{
+  FAR struct nsh_parser_s *np = &vtbl->np;
+  FAR char *cmd = *ppcmd;
+  long offset;
+  bool whilematch;
+  bool untilmatch;
+  bool enable;
+  int ret;
+
+  if (cmd)
+    {
+      /* Check if the command is preceded by "while" or "until" */
+
+      whilematch = strcmp(cmd, "while");
+      untilmatch = strcmp(cmd, "until");
+
+      if (whilematch == 0 || untilmatch == 0)
+        {
+          uint8_t state;
+
+          /* Get the cmd following the "while" or "until" */
+
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
+          if (!*ppcmd)
+            {
+              nsh_output(vtbl, g_fmtarginvalid, "if");
+              goto errout;
+            }
+
+          /* Verify that "while" or "until" is valid in this context */
+
+          if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF ||
+              np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE ||
+              np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL ||
+              np->np_stream == NULL || np->np_foffs < 0)
+            {
+              nsh_output(vtbl, g_fmtcontext, cmd);
+              goto errout;
+            }
+
+          /* Check if we have exceeded the maximum depth of nesting */
+
+          if (np->np_lpndx >= CONFIG_NSH_NESTDEPTH-1)
+            {
+              nsh_output(vtbl, g_fmtdeepnesting, cmd);
+              goto errout;
+            }
+
+          /* "Push" the old state and set the new state */
+
+          state  = whilematch == 0 ? NSH_LOOP_WHILE : NSH_LOOP_UNTIL;
+          enable = nsh_cmdenabled(vtbl);
+#ifdef NSH_DISABLE_SEMICOLON
+          offset = np->np_foffs;
+#else
+          offset = np->np_foffs + np->np_loffs;
+#endif
+
+#ifndef NSH_DISABLE_SEMICOLON
+          np->np_jump                             = false;
+#endif
+          np->np_lpndx++;
+          np->np_lpstate[np->np_lpndx].lp_state   = state;
+          np->np_lpstate[np->np_lpndx].lp_enable  = enable;
+          np->np_lpstate[np->np_lpndx].lp_topoffs = offset;
+        }
+
+      /* Check if the token is "do" */
+
+      else if (strcmp(cmd, "do") == 0)
+        {
+          /* Get the cmd following the "do" -- there shouldn't be one */
+
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
+          if (*ppcmd)
+            {
+              nsh_output(vtbl, g_fmtarginvalid, "do");
+              goto errout;
+            }
+
+          /* Verify that "do" is valid in this context */
+
+          if (np->np_lpstate[np->np_lpndx].lp_state != NSH_LOOP_WHILE &&
+              np->np_lpstate[np->np_lpndx].lp_state != NSH_LOOP_UNTIL)
+            {
+              nsh_output(vtbl, g_fmtcontext, "do");
+              goto errout;
+            }
+
+          np->np_lpstate[np->np_lpndx].lp_state = NSH_LOOP_DO;
+        }
+
+      /* Check if the token is "done" */
+
+      else if (strcmp(cmd, "done") == 0)
+        {
+          /* Get the cmd following the "done" -- there should be one */
+
+          *ppcmd = nsh_argument(vtbl, saveptr, memlist);
+          if (*ppcmd)
+            {
+              nsh_output(vtbl, g_fmtarginvalid, "done");
+              goto errout;
+            }
+
+          /* Verify that "done" is valid in this context */
+
+          if (np->np_lpstate[np->np_lpndx].lp_state != NSH_LOOP_DO)
+            {
+              nsh_output(vtbl, g_fmtcontext, "done");
+              goto errout;
+            }
+
+          if (np->np_lpndx < 1) /* Shouldn't happen */
+            {
+              nsh_output(vtbl, g_fmtinternalerror, "done");
+              goto errout;
+            }
+
+          /* Now what do we do?  We either:  Do go back to the top of the
+           * loop (if lp_enable == true) or continue past the end of the
+           * loop (if lp_enable == false)
+           */
+
+          if (np->np_lpstate[np->np_lpndx].lp_enable)
+            {
+               /* Set the new file position to the top of the loop offset */
+
+               ret = fseek(np->np_stream,
+                           np->np_lpstate[np->np_lpndx].lp_topoffs,
+                           SEEK_SET);
+               if (ret <  0)
+                {
+                  nsh_output(vtbl, g_fmtcmdfailed, "done", "fseek", NSH_ERRNO);
+                }
+
+#ifndef NSH_DISABLE_SEMICOLON
+               /* Signal nsh_parse that we need to stop processing the
+                * current line and jump back to the top of the loop.
+                */
+
+               np->np_jump = true;
+#endif
+            }
+          else
+            {
+              np->np_lpstate[np->np_lpndx].lp_enable = true;
+            }
+
+          /* "Pop" the previous state.  We do this no matter what we
+           * decided to do
+           */
+
+          np->np_lpstate[np->np_lpndx].lp_state = NSH_LOOP_NORMAL;
+          np->np_lpndx--;
+        }
+
+      /* If we just parsed "while" or "until", then nothing is acceptable
+       * other than "do"
+       */
+
+      else if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE ||
+               np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL)
+        {
+          nsh_output(vtbl, g_fmtcontext, cmd);
+          goto errout;
+        }
+    }
+
+  return OK;
+
+errout:
+#ifndef NSH_DISABLE_SEMICOLON
+  np->np_jump                  = false;
+#endif
+  np->np_lpndx                 = 0;
+  np->np_lpstate[0].lp_state   = NSH_LOOP_NORMAL;
+  np->np_lpstate[0].lp_enable  = true;
+  np->np_lpstate[0].lp_topoffs = 0;
+  return ERROR;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_itef
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
+                    FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
 {
   FAR struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
@@ -1388,9 +1657,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "if" is valid in this context */
 
-          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_NORMAL &&
-              np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_THEN &&
-              np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_ELSE)
+          if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF)
             {
               nsh_output(vtbl, g_fmtcontext, "if");
               goto errout;
@@ -1408,16 +1675,16 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           disabled                                 = !nsh_cmdenabled(vtbl);
           np->np_iendx++;
-          np->np_iestate[np->np_iendx].ie_state    = NSH_PARSER_IF;
+          np->np_iestate[np->np_iendx].ie_state    = NSH_ITEF_IF;
           np->np_iestate[np->np_iendx].ie_disabled = disabled;
           np->np_iestate[np->np_iendx].ie_ifcond   = false;
         }
 
-      /* Check if the command is "then" */
+      /* Check if the token is "then" */
 
       else if (strcmp(cmd, "then") == 0)
         {
-          /* Get the cmd following the then -- there shouldn't be one */
+          /* Get the cmd following the "then" -- there shouldn't be one */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (*ppcmd)
@@ -1428,20 +1695,20 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "then" is valid in this context */
 
-          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_IF)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_ITEF_IF)
             {
               nsh_output(vtbl, g_fmtcontext, "then");
               goto errout;
             }
 
-          np->np_iestate[np->np_iendx].ie_state = NSH_PARSER_THEN;
+          np->np_iestate[np->np_iendx].ie_state = NSH_ITEF_THEN;
         }
 
-      /* Check if the command is "else" */
+      /* Check if the token is "else" */
 
       else if (strcmp(cmd, "else") == 0)
         {
-          /* Get the cmd following the else -- there shouldn't be one */
+          /* Get the cmd following the "else" -- there shouldn't be one */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
           if (*ppcmd)
@@ -1452,16 +1719,16 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "else" is valid in this context */
 
-          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_THEN)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_ITEF_THEN)
             {
               nsh_output(vtbl, g_fmtcontext, "else");
               goto errout;
             }
 
-          np->np_iestate[np->np_iendx].ie_state = NSH_PARSER_ELSE;
+          np->np_iestate[np->np_iendx].ie_state = NSH_ITEF_ELSE;
         }
 
-      /* Check if the command is "fi" */
+      /* Check if the token is "fi" */
 
       else if (strcmp(cmd, "fi") == 0)
         {
@@ -1476,8 +1743,8 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "fi" is valid in this context */
 
-          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_THEN &&
-              np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_ELSE)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_ITEF_THEN &&
+              np->np_iestate[np->np_iendx].ie_state != NSH_ITEF_ELSE)
             {
               nsh_output(vtbl, g_fmtcontext, "fi");
               goto errout;
@@ -1494,9 +1761,9 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           np->np_iendx--;
         }
 
-      /* If we just parsed 'if', then nothing is acceptable other than 'then' */
+      /* If we just parsed "if", then nothing is acceptable other than "then" */
 
-      else if (np->np_iestate[np->np_iendx].ie_state == NSH_PARSER_IF)
+      else if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF)
         {
           nsh_output(vtbl, g_fmtcontext, cmd);
           goto errout;
@@ -1507,7 +1774,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
 errout:
   np->np_iendx                  = 0;
-  np->np_iestate[0].ie_state    = NSH_PARSER_NORMAL;
+  np->np_iestate[0].ie_state    = NSH_ITEF_NORMAL;
   np->np_iestate[0].ie_disabled = false;
   np->np_iestate[0].ie_ifcond   = false;
   return ERROR;
@@ -1724,10 +1991,18 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   saveptr = cmdline;
   cmd = nsh_argument(vtbl, &saveptr, &memlist);
 
-  /* Handler if-then-else-fi */
-
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  if (nsh_ifthenelse(vtbl, &cmd, &saveptr, &memlist) != 0)
+  /* Handle while-do-done and until-do-done loops */
+
+  if (nsh_loop(vtbl, &cmd, &saveptr, &memlist) != 0)
+    {
+      NSH_MEMLIST_FREE(&memlist);
+      return nsh_saveresult(vtbl, true);
+    }
+
+  /* Handle if-then-else-fi */
+
+  if (nsh_itef(vtbl, &cmd, &saveptr, &memlist) != 0)
     {
       NSH_MEMLIST_FREE(&memlist);
       return nsh_saveresult(vtbl, true);
@@ -1872,16 +2147,31 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   return nsh_parse_command(vtbl, cmdline);
 
 #else
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  FAR struct nsh_parser_s *np = &vtbl->np;
+#endif
   FAR char *start   = cmdline;
   FAR char *working = cmdline;
   FAR char *ptr;
   size_t len;
   int ret;
 
-  /* Loop until all of the commands on the command line have been processed */
+  /* Loop until all of the commands on the command line have been processed OR
+   * until the end-of-loop has been recountered and we need to reload the line
+   * at the top of the loop.
+   */
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  for (np->np_jump = false; !np->np_jump; )
+#else
   for (;;)
+#endif
     {
+#ifndef CONFIG_NSH_DISABLESCRIPT
+      /* Save the offset on the line to the start of the command */
+
+      np->np_loffs = (uint16_t)(working - cmdline);
+#endif
       /* A command may be terminated with a newline character, the end of the
        * line, or a semicolon.  NOTE that the set of delimiting characters
        * includes the quotation mark.  We need to handle quotation marks here
@@ -1955,5 +2245,9 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
           working = ++tmp;
         }
     }
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  return OK;
+#endif
 #endif
 }

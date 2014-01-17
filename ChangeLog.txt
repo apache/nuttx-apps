@@ -788,3 +788,7 @@
 	* apps/nshlib/nsh_script.c:  Now saves the FILE stream for the script
 	  file in the vtbl structure so that it can be accessed by forthcoming
 	  while and until logic (2014-1-17).
+	* apps/nshlib/nsh.h, nsh_command.c, nsh_parse.c, and nsh_script.c:  Add
+	  support for while-do-done and until-do-done loops.  These only work
+	  when executing a script file because they depend on the ability to seek
+	  in the file to implement the looping behaviors (2014-1-17).

@@ -104,6 +104,23 @@ Conditional Command Execution
       [sequence of <cmd>]
     fi
 
+Looping
+^^^^^^^
+
+  while-do-done and until-do-done looping constructs are also supported.
+  These works from the command line but are primarily intended for use
+  within NSH scripts (see the sh command).  The syntax is as follows:
+
+    while <test-cmd>; do <cmd-sequence>; done
+
+        Execute <cmd-sequence> as long as <test-cmd> has an exit status of
+        zero.
+
+     until <test-cmd>; do <cmd-sequence>; done
+
+        Execute <cmd-sequence> as long as <test-cmd> has a non-zero exit
+        status.
+
 Built-In Variables
 ^^^^^^^^^^^^^^^^^^
 

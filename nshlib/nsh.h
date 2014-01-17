@@ -455,22 +455,42 @@
  ****************************************************************************/
 /* State when parsing and if-then-else sequence */
 
-enum nsh_parser_e
+enum nsh_itef_e
 {
-   NSH_PARSER_NORMAL = 0,  /* Not in any special sequence */
-   NSH_PARSER_IF,          /* Just parsed 'if', expect condition */
-   NSH_PARSER_THEN,        /* Just parsed 'then', looking for 'else' or 'fi' */
-   NSH_PARSER_ELSE         /* Just parsed 'else', look for 'fi' */
+  NSH_ITEF_NORMAL = 0,         /* Not in an if-then-else sequence */
+  NSH_ITEF_IF,                 /* Just parsed 'if', expect condition */
+  NSH_ITEF_THEN,               /* Just parsed 'then', looking for 'else' or 'fi' */
+  NSH_ITEF_ELSE                /* Just parsed 'else', look for 'fi' */
 };
 
 /* All state data for parsing one if-then-else sequence */
 
-struct nsh_ifthenelse_s
+struct nsh_itef_s
 {
-  uint8_t   ie_ifcond   : 1; /* Value of command in 'if' statement */
-  uint8_t   ie_disabled : 1; /* TRUE: Unconditionally disabled */
+  uint8_t   ie_ifcond   : 1;   /* Value of command in 'if' statement */
+  uint8_t   ie_disabled : 1;   /* TRUE: Unconditionally disabled */
   uint8_t   ie_unused   : 4;
-  uint8_t   ie_state    : 2; /* Parser state (see enum nsh_parser_e) */
+  uint8_t   ie_state    : 2;   /* If-then-else state (see enum nsh_itef_e) */
+};
+
+/* State when parsing and while-do-done or until-do-done sequence */
+
+enum nsh_lp_e
+{
+  NSH_LOOP_NORMAL = 0,         /* Not in a while-do-done or until-do-done sequence */
+  NSH_LOOP_WHILE,              /* Just parsed 'while', expect condition */
+  NSH_LOOP_UNTIL,              /* Just parsed 'until', expect condition */
+  NSH_LOOP_DO                  /* Just parsed 'do', looking for 'done' */
+};
+
+/* All state data for parsing one while-do-done or until-do-done sequence */
+
+struct nsh_loop_s
+{
+  uint8_t   lp_enable   : 1;   /* Loop command processing is enabled */
+  uint8_t   lp_unused   : 5;
+  uint8_t   lp_state    : 2;   /* Loop state (see enume nsh_lp_e) */
+  long      lp_topoffs;        /* Top of loop file offset */
 };
 
 /* These structure provides the overall state of the parser */
@@ -478,23 +498,30 @@ struct nsh_ifthenelse_s
 struct nsh_parser_s
 {
 #ifndef CONFIG_NSH_DISABLEBG
-  bool    np_bg;       /* true: The last command executed in background */
+  bool     np_bg;       /* true: The last command executed in background */
 #endif
 #if CONFIG_NFILE_STREAMS > 0
-  bool    np_redirect; /* true: Output from the last command was re-directed */
+  bool     np_redirect; /* true: Output from the last command was re-directed */
 #endif
-  bool    np_fail;     /* true: The last command failed */
+  bool     np_fail;     /* true: The last command failed */
 #ifndef CONFIG_NSH_DISABLEBG
-  int     np_nice;     /* "nice" value applied to last background cmd */
+  int      np_nice;     /* "nice" value applied to last background cmd */
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  FILE   *np_stream;   /* Stream of current script */
-  uint8_t np_iendx;    /* Current index into np_iestate[] */
+  FILE    *np_stream;   /* Stream of current script */
+  long     np_foffs;    /* File offset to the beginning of a line */
+#ifndef NSH_DISABLE_SEMICOLON
+  uint16_t np_loffs;    /* Byte offset to the beginning of a command */
+  bool     np_jump;     /* "Jump" to the top of the loop */
+#endif
+  uint8_t  np_iendx;    /* Current index into np_iestate[] */
+  uint8_t  np_lpndx;    /* Current index into np_lpstate[] */
 
-  /* This is a stack of if-then-else state information. */
+  /* This is a stack of parser state information. */
 
-  struct nsh_ifthenelse_s np_iestate[CONFIG_NSH_NESTDEPTH];
+  struct nsh_itef_s np_iestate[CONFIG_NSH_NESTDEPTH];
+  struct nsh_loop_s np_lpstate[CONFIG_NSH_NESTDEPTH];
 #endif
 };
 

@@ -132,6 +132,23 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           /* Get the next line of input from the file */
 
           fflush(stdout);
+
+          /* Get the current file position.  This is used to control
+           * looping.  If a loop begins in the next line, then this file
+           * offset will be needed to locate the top of the loop in the
+           * script file.  Note that ftell will return -1 on failure.
+           */
+
+          vtbl->np.np_foffs = ftell(vtbl->np.np_stream);
+          vtbl->np.np_loffs = 0;
+
+          if (vtbl->np.np_foffs < 0)
+            {
+              nsh_output(vtbl, g_fmtcmdfailed, "loop", "ftell", NSH_ERRNO);
+            }
+
+          /* Now read the next line from the script file */
+
           pret = fgets(buffer, CONFIG_NSH_LINELEN, vtbl->np.np_stream);
           if (pret)
             {
