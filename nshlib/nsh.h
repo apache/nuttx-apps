@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh.h
  *
- *   Copyright (C) 2007-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -453,22 +453,27 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+/* State when parsing and if-then-else sequence */
 
 enum nsh_parser_e
 {
-   NSH_PARSER_NORMAL = 0,
-   NSH_PARSER_IF,
-   NSH_PARSER_THEN,
-   NSH_PARSER_ELSE
+   NSH_PARSER_NORMAL = 0,  /* Not in any special sequence */
+   NSH_PARSER_IF,          /* Just parsed 'if', expect condition */
+   NSH_PARSER_THEN,        /* Just parsed 'then', looking for 'else' or 'fi' */
+   NSH_PARSER_ELSE         /* Just parsed 'else', look for 'fi' */
 };
 
-struct nsh_state_s
+/* All state data for parsing one if-then-else sequence */
+
+struct nsh_ifthenelse_s
 {
-  uint8_t   ns_ifcond   : 1; /* Value of command in 'if' statement */
-  uint8_t   ns_disabled : 1; /* TRUE: Unconditionally disabled */
-  uint8_t   ns_unused   : 4;
-  uint8_t   ns_state    : 2; /* Parser state (see enum nsh_parser_e) */
+  uint8_t   ie_ifcond   : 1; /* Value of command in 'if' statement */
+  uint8_t   ie_disabled : 1; /* TRUE: Unconditionally disabled */
+  uint8_t   ie_unused   : 4;
+  uint8_t   ie_state    : 2; /* Parser state (see enum nsh_parser_e) */
 };
+
+/* These structure provides the overall state of the parser */
 
 struct nsh_parser_s
 {
@@ -479,19 +484,17 @@ struct nsh_parser_s
   bool    np_redirect; /* true: Output from the last command was re-directed */
 #endif
   bool    np_fail;     /* true: The last command failed */
-#ifndef CONFIG_NSH_DISABLESCRIPT
-  uint8_t np_ndx;      /* Current index into np_st[] */
-#endif
 #ifndef CONFIG_NSH_DISABLEBG
   int     np_nice;     /* "nice" value applied to last background cmd */
 #endif
 
-  /* This is a stack of parser state information.  It supports nested
-   * execution of commands that span multiple lines (like if-then-else-fi)
-   */
-
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  struct nsh_state_s np_st[CONFIG_NSH_NESTDEPTH];
+  FILE   *np_stream;   /* Stream of current script */
+  uint8_t np_iendx;    /* Current index into np_iestate[] */
+
+  /* This is a stack of if-then-else state information. */
+
+  struct nsh_ifthenelse_s np_iestate[CONFIG_NSH_NESTDEPTH];
 #endif
 };
 

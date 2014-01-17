@@ -781,3 +781,10 @@
 	  is untested in its current incarnation (2014-1-15).
 	* aps/nshlib/nsh_parse.c:  Recent changes broke redirection of output
 	  (2014-1-14).
+	* apps/nshlib/nsh_parse.c:  Add true and false commands (2014-1-17)
+	* apps/nshlib/nsh.h and nsh_parse.c:  Re-name and re-organize some
+	  if-then-else related structures to better support forthcoming until
+	  and while loops (2014-1-17).
+	* apps/nshlib/nsh_script.c:  Now saves the FILE stream for the script
+	  file in the vtbl structure so that it can be accessed by forthcoming
+	  while and until logic (2014-1-17).

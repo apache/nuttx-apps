@@ -392,10 +392,10 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
   struct nsh_parser_s *np = &vtbl->np;
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  if (np->np_st[np->np_ndx].ns_state == NSH_PARSER_IF)
+  if (np->np_iestate[np->np_iendx].ie_state == NSH_PARSER_IF)
     {
       np->np_fail = false;
-      np->np_st[np->np_ndx].ns_ifcond = result;
+      np->np_iestate[np->np_iendx].ie_ifcond = result;
       return OK;
     }
   else
@@ -1335,10 +1335,10 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
 static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 {
   struct nsh_parser_s *np = &vtbl->np;
-  bool ret = !np->np_st[np->np_ndx].ns_disabled;
+  bool ret = !np->np_iestate[np->np_iendx].ie_disabled;
   if (ret)
     {
-      switch (np->np_st[np->np_ndx].ns_state)
+      switch (np->np_iestate[np->np_iendx].ie_state)
         {
           case NSH_PARSER_NORMAL :
           case NSH_PARSER_IF:
@@ -1346,11 +1346,11 @@ static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
             break;
 
           case NSH_PARSER_THEN:
-            ret = !np->np_st[np->np_ndx].ns_ifcond;
+            ret = !np->np_iestate[np->np_iendx].ie_ifcond;
             break;
 
           case NSH_PARSER_ELSE:
-            ret = np->np_st[np->np_ndx].ns_ifcond;
+            ret = np->np_iestate[np->np_iendx].ie_ifcond;
             break;
         }
     }
@@ -1367,13 +1367,13 @@ static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
 static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                           FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
 {
-  struct nsh_parser_s *np = &vtbl->np;
+  FAR struct nsh_parser_s *np = &vtbl->np;
   FAR char *cmd = *ppcmd;
   bool disabled;
 
   if (cmd)
     {
-      /* Check if the command is preceeded by "if" */
+      /* Check if the command is preceded by "if" */
 
       if (strcmp(cmd, "if") == 0)
         {
@@ -1388,9 +1388,9 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "if" is valid in this context */
 
-          if (np->np_st[np->np_ndx].ns_state != NSH_PARSER_NORMAL &&
-              np->np_st[np->np_ndx].ns_state != NSH_PARSER_THEN &&
-              np->np_st[np->np_ndx].ns_state != NSH_PARSER_ELSE)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_NORMAL &&
+              np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_THEN &&
+              np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_ELSE)
             {
               nsh_output(vtbl, g_fmtcontext, "if");
               goto errout;
@@ -1398,7 +1398,7 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Check if we have exceeded the maximum depth of nesting */
 
-          if (np->np_ndx >= CONFIG_NSH_NESTDEPTH-1)
+          if (np->np_iendx >= CONFIG_NSH_NESTDEPTH-1)
             {
               nsh_output(vtbl, g_fmtdeepnesting, "if");
               goto errout;
@@ -1406,12 +1406,15 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* "Push" the old state and set the new state */
 
-          disabled                          = !nsh_cmdenabled(vtbl);
-          np->np_ndx++;
-          np->np_st[np->np_ndx].ns_state    = NSH_PARSER_IF;
-          np->np_st[np->np_ndx].ns_disabled = disabled;
-          np->np_st[np->np_ndx].ns_ifcond   = false;
+          disabled                                 = !nsh_cmdenabled(vtbl);
+          np->np_iendx++;
+          np->np_iestate[np->np_iendx].ie_state    = NSH_PARSER_IF;
+          np->np_iestate[np->np_iendx].ie_disabled = disabled;
+          np->np_iestate[np->np_iendx].ie_ifcond   = false;
         }
+
+      /* Check if the command is "then" */
+
       else if (strcmp(cmd, "then") == 0)
         {
           /* Get the cmd following the then -- there shouldn't be one */
@@ -1425,13 +1428,17 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "then" is valid in this context */
 
-          if (np->np_st[np->np_ndx].ns_state != NSH_PARSER_IF)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_IF)
             {
               nsh_output(vtbl, g_fmtcontext, "then");
               goto errout;
             }
-          np->np_st[np->np_ndx].ns_state = NSH_PARSER_THEN;
+
+          np->np_iestate[np->np_iendx].ie_state = NSH_PARSER_THEN;
         }
+
+      /* Check if the command is "else" */
+
       else if (strcmp(cmd, "else") == 0)
         {
           /* Get the cmd following the else -- there shouldn't be one */
@@ -1443,15 +1450,19 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
               goto errout;
             }
 
-          /* Verify that "then" is valid in this context */
+          /* Verify that "else" is valid in this context */
 
-          if (np->np_st[np->np_ndx].ns_state != NSH_PARSER_THEN)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_THEN)
             {
               nsh_output(vtbl, g_fmtcontext, "else");
               goto errout;
             }
-          np->np_st[np->np_ndx].ns_state = NSH_PARSER_ELSE;
+
+          np->np_iestate[np->np_iendx].ie_state = NSH_PARSER_ELSE;
         }
+
+      /* Check if the command is "fi" */
+
       else if (strcmp(cmd, "fi") == 0)
         {
           /* Get the cmd following the fi -- there should be one */
@@ -1465,14 +1476,14 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "fi" is valid in this context */
 
-          if (np->np_st[np->np_ndx].ns_state != NSH_PARSER_THEN &&
-              np->np_st[np->np_ndx].ns_state != NSH_PARSER_ELSE)
+          if (np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_THEN &&
+              np->np_iestate[np->np_iendx].ie_state != NSH_PARSER_ELSE)
             {
               nsh_output(vtbl, g_fmtcontext, "fi");
               goto errout;
             }
 
-          if (np->np_ndx < 1) /* Shouldn't happen */
+          if (np->np_iendx < 1) /* Shouldn't happen */
             {
               nsh_output(vtbl, g_fmtinternalerror, "if");
               goto errout;
@@ -1480,21 +1491,25 @@ static int nsh_ifthenelse(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* "Pop" the previous state */
 
-          np->np_ndx--;
+          np->np_iendx--;
         }
-      else if (np->np_st[np->np_ndx].ns_state == NSH_PARSER_IF)
+
+      /* If we just parsed 'if', then nothing is acceptable other than 'then' */
+
+      else if (np->np_iestate[np->np_iendx].ie_state == NSH_PARSER_IF)
         {
           nsh_output(vtbl, g_fmtcontext, cmd);
           goto errout;
         }
     }
+
   return OK;
 
 errout:
-  np->np_ndx               = 0;
-  np->np_st[0].ns_state    = NSH_PARSER_NORMAL;
-  np->np_st[0].ns_disabled = false;
-  np->np_st[0].ns_ifcond   = false;
+  np->np_iendx                  = 0;
+  np->np_iestate[0].ie_state    = NSH_PARSER_NORMAL;
+  np->np_iestate[0].ie_disabled = false;
+  np->np_iestate[0].ie_ifcond   = false;
   return ERROR;
 }
 #endif

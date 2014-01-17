@@ -81,9 +81,15 @@ struct cmdmap_s
 static int  cmd_help(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static int  cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+static int  cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_EXIT
 static int  cmd_exit(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
+
 static int  cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 
 /****************************************************************************
@@ -167,8 +173,13 @@ static const struct cmdmap_s g_cmdmap[] =
 #ifndef CONFIG_NSH_DISABLE_EXEC
   { "exec",     cmd_exec,     2, 3, "<hex-address>" },
 #endif
+
 #ifndef CONFIG_NSH_DISABLE_EXIT
   { "exit",     cmd_exit,     1, 1, NULL },
+#endif
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  { "false",     cmd_false,    1, 1, NULL },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_FREE
@@ -354,6 +365,10 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   { "test",     cmd_test,     3, CONFIG_NSH_MAXARGUMENTS, "<expression>" },
+#endif
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  { "true",     cmd_true,    1, 1, NULL },
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
@@ -643,6 +658,29 @@ static int cmd_unrecognized(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   nsh_output(vtbl, g_fmtcmdnotfound, argv[0]);
   return ERROR;
 }
+
+/****************************************************************************
+ * Name: cmd_true
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static int cmd_true(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  return OK;
+}
+
+#endif
+
+/****************************************************************************
+ * Name: cmd_false
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+static int cmd_false(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  return ERROR;
+}
+#endif
 
 /****************************************************************************
  * Name: cmd_exit

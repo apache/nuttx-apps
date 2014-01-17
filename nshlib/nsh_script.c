@@ -83,10 +83,10 @@
 int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                FAR const char *path)
 {
-  char *fullpath;
-  FILE *stream;
-  char *buffer;
-  char *pret;
+  FAR char *fullpath;
+  FAR FILE *savestream;
+  FAR char *buffer;
+  FAR char *pret;
   int ret = ERROR;
 
   /* The path to the script may be relative to the current working directory */
@@ -102,13 +102,24 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   buffer = nsh_linebuffer(vtbl);
   if (buffer)
     {
+      /* Save the parent stream in case of nested script processing */
+
+      savestream = vtbl->np.np_stream;
+
       /* Open the file containing the script */
 
-      stream = fopen(fullpath, "r");
-      if (!stream)
+      vtbl->np.np_stream = fopen(fullpath, "r");
+      if (!vtbl->np.np_stream)
         {
           nsh_output(vtbl, g_fmtcmdfailed, cmd, "fopen", NSH_ERRNO);
+
+          /* Free the allocated path */
+
           nsh_freefullpath(fullpath);
+
+          /* Restore the parent script stream */
+
+          vtbl->np.np_stream = savestream;
           return ERROR;
         }
 
@@ -121,7 +132,7 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
           /* Get the next line of input from the file */
 
           fflush(stdout);
-          pret = fgets(buffer, CONFIG_NSH_LINELEN, stream);
+          pret = fgets(buffer, CONFIG_NSH_LINELEN, vtbl->np.np_stream);
           if (pret)
             {
               /* Parse process the command.  NOTE:  this is recursive...
@@ -133,8 +144,17 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
             }
         }
       while (pret && ret == OK);
-      fclose(stream);
+
+      /* Close the script file */
+
+      fclose(vtbl->np.np_stream);
+
+      /* Restore the parent script stream */
+
+      vtbl->np.np_stream = savestream;
     }
+
+  /* Free the allocated path */
 
   nsh_freefullpath(fullpath);
   return ret;
