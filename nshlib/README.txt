@@ -117,12 +117,12 @@ Looping
         Execute <cmd-sequence> as long as <test-cmd> has an exit status of
         zero.
 
-     until <test-cmd>; do <cmd-sequence>; done
+    until <test-cmd>; do <cmd-sequence>; done
 
         Execute <cmd-sequence> as long as <test-cmd> has a non-zero exit
         status.
 
-  A break command is also supported.  The break command is only valid
+  A break command is also supported.  The break command is only meaningful
   within the body of the a while or until loop, between the do and done
   tokens. If the break command is executed within the body of a loop, the
   loop will immediately terminate and execution will continue with the
@@ -300,6 +300,14 @@ o addroute <target> <netmask> <router>
 o base64dec [-w] [-f] <string or filepath>
 
 o base64dec [-w] [-f] <string or filepath>
+
+o break
+
+  The break command is only meaningful within the body of the a while or
+  until loop, between the do and done tokens. Outside of a loop, break
+  command does nothing. If the break command is executed within the body
+  of a loop, the loop will immediately terminate and execution will
+  continue with the next command immediately following the done token. 
 
 o cat <path> [<path> [<path> ...]]
 
