@@ -119,6 +119,10 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
+  { "break",     cmd_break,   1, 1, NULL },
+#endif 
+
 #if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_CAT
   { "cat",      cmd_cat,      2, CONFIG_NSH_MAXARGUMENTS, "<path> [<path> [<path> ...]]" },
@@ -465,6 +469,7 @@ static inline void help_usage(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "  <cmd> [> <file>|>> <file>]\n\n");
 #endif
 #ifndef CONFIG_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLE_ITEF
   nsh_output(vtbl, "OR\n");
   nsh_output(vtbl, "  if <cmd>\n");
   nsh_output(vtbl, "  then\n");
@@ -472,6 +477,8 @@ static inline void help_usage(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "  else\n");
   nsh_output(vtbl, "    [sequence of <cmd>]\n");
   nsh_output(vtbl, "  fi\n\n");
+#endif
+#ifndef CONFIG_NSH_DISABLE_LOOPS
   nsh_output(vtbl, "OR\n");
   nsh_output(vtbl, "  while <cmd>\n");
   nsh_output(vtbl, "  do\n");
@@ -482,6 +489,7 @@ static inline void help_usage(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "  do\n");
   nsh_output(vtbl, "    [sequence of <cmd>]\n");
   nsh_output(vtbl, "  done\n\n");
+#endif
 #endif
 }
 #endif

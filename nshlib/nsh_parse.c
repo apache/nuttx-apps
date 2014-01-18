@@ -160,13 +160,21 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, char **saveptr,
                FAR NSH_MEMLIST_TYPE *memlist);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLE_LOOPS
 static bool nsh_loop_enabled(FAR struct nsh_vtbl_s *vtbl);
+#endif
+#ifndef CONFIG_NSH_DISABLE_ITEF
 static bool nsh_itef_enabled(FAR struct nsh_vtbl_s *vtbl);
+#endif
 static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl);
+#ifndef CONFIG_NSH_DISABLE_LOOPS
 static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                     FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+#endif
+#ifndef CONFIG_NSH_DISABLE_ITEF
 static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                     FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist);
+#endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLEBG
@@ -396,6 +404,7 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
   struct nsh_parser_s *np = &vtbl->np;
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLE_LOOPS
   /* Check if we are waiting for the condition associated with a while
    * token.
    *
@@ -421,22 +430,26 @@ static int nsh_saveresult(FAR struct nsh_vtbl_s *vtbl, bool result)
    * status.
    */
 
-  else if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL)
+   else if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL)
     {
       np->np_fail = false;
       np->np_lpstate[np->np_lpndx].lp_enable = (result != OK);
       return OK;
     }
+  else
+#endif
 
+#ifndef CONFIG_NSH_DISABLE_ITEF
   /* Check if we are waiting for the condition associated with an if token */
 
-  else if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF)
+  if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF)
     {
       np->np_fail = false;
       np->np_iestate[np->np_iendx].ie_ifcond = result;
       return OK;
     }
   else
+#endif
 #endif
     {
       np->np_fail = result;
@@ -1369,7 +1382,7 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
  * Name: nsh_loop_enabled
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
 static bool nsh_loop_enabled(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct nsh_parser_s *np = &vtbl->np;
@@ -1388,13 +1401,15 @@ static bool nsh_loop_enabled(FAR struct nsh_vtbl_s *vtbl)
 
   return true;
 }
+#else
+#  define nsh_loop_enabled(vtbl) true
 #endif
 
 /****************************************************************************
  * Name: nsh_itef_enabled
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_ITEF)
 static bool nsh_itef_enabled(FAR struct nsh_vtbl_s *vtbl)
 {
   FAR struct nsh_parser_s *np = &vtbl->np;
@@ -1420,6 +1435,8 @@ static bool nsh_itef_enabled(FAR struct nsh_vtbl_s *vtbl)
 
   return ret;
 }
+#else
+#  define nsh_itef_enabled(vtbl) true
 #endif
 
 /****************************************************************************
@@ -1442,7 +1459,7 @@ static bool nsh_cmdenabled(FAR struct nsh_vtbl_s *vtbl)
  * Name: nsh_loop
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
 static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                     FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
 {
@@ -1476,7 +1493,10 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
           /* Verify that "while" or "until" is valid in this context */
 
-          if (np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF ||
+          if (
+#ifndef CONFIG_NSH_DISABLE_ITEF
+              np->np_iestate[np->np_iendx].ie_state == NSH_ITEF_IF ||
+#endif
               np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_WHILE ||
               np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_UNTIL ||
               np->np_stream == NULL || np->np_foffs < 0)
@@ -1509,6 +1529,9 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
           np->np_lpndx++;
           np->np_lpstate[np->np_lpndx].lp_state   = state;
           np->np_lpstate[np->np_lpndx].lp_enable  = enable;
+#ifndef CONFIG_NSH_DISABLE_ITEF
+          np->np_lpstate[np->np_lpndx].lp_iendx   = np->np_iendx;
+#endif
           np->np_lpstate[np->np_lpndx].lp_topoffs = offset;
         }
 
@@ -1516,14 +1539,9 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
       else if (strcmp(cmd, "do") == 0)
         {
-          /* Get the cmd following the "do" -- there shouldn't be one */
+          /* Get the cmd following the "do" -- there may or may not be one */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-          if (*ppcmd)
-            {
-              nsh_output(vtbl, g_fmtarginvalid, "do");
-              goto errout;
-            }
 
           /* Verify that "do" is valid in this context */
 
@@ -1632,7 +1650,7 @@ errout:
  * Name: nsh_itef
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_ITEF)
 static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
                     FAR char **saveptr, FAR NSH_MEMLIST_TYPE *memlist)
 {
@@ -1982,6 +2000,7 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   cmd = nsh_argument(vtbl, &saveptr, &memlist);
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
+#ifndef CONFIG_NSH_DISABLE_LOOPS
   /* Handle while-do-done and until-do-done loops */
 
   if (nsh_loop(vtbl, &cmd, &saveptr, &memlist) != 0)
@@ -1989,7 +2008,9 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       NSH_MEMLIST_FREE(&memlist);
       return nsh_saveresult(vtbl, true);
     }
+#endif
 
+#ifndef CONFIG_NSH_DISABLE_ITEF
   /* Handle if-then-else-fi */
 
   if (nsh_itef(vtbl, &cmd, &saveptr, &memlist) != 0)
@@ -1997,6 +2018,8 @@ static int nsh_parse_command(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
       NSH_MEMLIST_FREE(&memlist);
       return nsh_saveresult(vtbl, true);
     }
+
+#endif
 #endif
 
   /* Handle nice */
@@ -2137,7 +2160,7 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
   return nsh_parse_command(vtbl, cmdline);
 
 #else
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   FAR struct nsh_parser_s *np = &vtbl->np;
 #endif
   FAR char *start   = cmdline;
@@ -2151,13 +2174,13 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
    * at the top of the loop.
    */
 
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   for (np->np_jump = false; !np->np_jump; )
 #else
   for (;;)
 #endif
     {
-#ifndef CONFIG_NSH_DISABLESCRIPT
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
       /* Save the offset on the line to the start of the command */
 
       np->np_loffs = (uint16_t)(working - cmdline);
@@ -2241,3 +2264,34 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline)
 #endif
 #endif
 }
+
+/****************************************************************************
+ * Name: cmd_break
+ ****************************************************************************/
+
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
+int cmd_break(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR struct nsh_parser_s *np = &vtbl->np;
+
+  /* Break outside of a loop is ignored */
+
+  if (np->np_lpstate[np->np_lpndx].lp_state == NSH_LOOP_DO)
+    {
+#ifndef CONFIG_NSH_DISABLE_ITEF
+      /* Yes... pop the original if-then-else-if state */
+
+      np->np_iendx = np->np_lpstate[np->np_lpndx].lp_iendx;
+#endif
+      /* Disable all command processing until 'done' is encountered.  */
+
+      np->np_lpstate[np->np_lpndx].lp_enable = false;
+    }
+
+  /* No syntax errors are detected(?).  Break is a nop everywhere except
+   * the supported context.
+   */
+
+  return OK;
+}
+#endif 

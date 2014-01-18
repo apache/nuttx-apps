@@ -7,6 +7,7 @@ apps/nshlib
   - Console/NSH Front End
   - Command Overview
   - Conditional Command Execution
+  - Looping
   - Built-In Variables
   - Current Working Directory
     Environment Variables
@@ -120,6 +121,12 @@ Looping
 
         Execute <cmd-sequence> as long as <test-cmd> has a non-zero exit
         status.
+
+  A break command is also supported.  The break command is only valid
+  within the body of the a while or until loop, between the do and done
+  tokens. If the break command is executed within the body of a loop, the
+  loop will immediately terminate and execution will continue with the
+  next command immediately following the done token.
 
 Built-In Variables
 ^^^^^^^^^^^^^^^^^^
@@ -1093,6 +1100,20 @@ NSH-Specific Configuration Settings
       setting disables the 'sh', 'test', and '[' commands and the
       if-then[-else]-fi construct.  This would only be set on systems
       where a minimal footprint is a necessity and scripting is not.
+
+  * CONFIG_NSH_DISABLE_ITEF
+
+     If scripting is enabled, then then this option can be selected to
+     suppress support for if-then-else-fi sequences in scripts.  This would
+     only be set on systems where some minimal scripting is required but
+     if-then-else-fi is not.
+
+  * CONFIG_NSH_DISABLE_LOOPS
+
+     If scripting is enabled, then then this option can be selected
+     suppress support for while-do-done and until-do-done sequences in
+     scripts.  This would only be set on systems where some minimal
+     scripting is required but looping is not.
 
   * CONFIG_NSH_DISABLEBG
       This can be set to 'y' to suppress support for background

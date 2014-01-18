@@ -453,6 +453,8 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_ITEF
 /* State when parsing and if-then-else sequence */
 
 enum nsh_itef_e
@@ -472,7 +474,9 @@ struct nsh_itef_s
   uint8_t   ie_unused   : 4;
   uint8_t   ie_state    : 2;   /* If-then-else state (see enum nsh_itef_e) */
 };
+#endif
 
+#ifndef CONFIG_NSH_DISABLE_LOOPS
 /* State when parsing and while-do-done or until-do-done sequence */
 
 enum nsh_lp_e
@@ -490,8 +494,12 @@ struct nsh_loop_s
   uint8_t   lp_enable   : 1;   /* Loop command processing is enabled */
   uint8_t   lp_unused   : 5;
   uint8_t   lp_state    : 2;   /* Loop state (see enume nsh_lp_e) */
+#ifndef CONFIG_NSH_DISABLE_ITEF
+  uint8_t   lp_iendx;          /* Saved if-then-else-fi index */
+#endif
   long      lp_topoffs;        /* Top of loop file offset */
 };
+#endif
 
 /* These structure provides the overall state of the parser */
 
@@ -510,18 +518,26 @@ struct nsh_parser_s
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
   FILE    *np_stream;   /* Stream of current script */
+#ifndef CONFIG_NSH_DISABLE_LOOPS
   long     np_foffs;    /* File offset to the beginning of a line */
 #ifndef NSH_DISABLE_SEMICOLON
   uint16_t np_loffs;    /* Byte offset to the beginning of a command */
   bool     np_jump;     /* "Jump" to the top of the loop */
 #endif
-  uint8_t  np_iendx;    /* Current index into np_iestate[] */
   uint8_t  np_lpndx;    /* Current index into np_lpstate[] */
+#endif
+#ifndef CONFIG_NSH_DISABLE_ITEF
+  uint8_t  np_iendx;    /* Current index into np_iestate[] */
+#endif
 
   /* This is a stack of parser state information. */
 
+#ifndef CONFIG_NSH_DISABLE_ITEF
   struct nsh_itef_s np_iestate[CONFIG_NSH_NESTDEPTH];
+#endif
+#ifndef CONFIG_NSH_DISABLE_LOOPS
   struct nsh_loop_s np_lpstate[CONFIG_NSH_NESTDEPTH];
+#endif
 #endif
 };
 
@@ -643,6 +659,9 @@ void nsh_usbtrace(void);
 
 /* Shell command handlers */
 
+#if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
+  int cmd_break(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif 
 #ifndef CONFIG_NSH_DISABLE_ECHO
   int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif

@@ -796,4 +796,9 @@
 	  a command to be on the same line as the then and else tokens like:
 	  "if true; then echo true; else echo false; fi".  Much more like bash!
 	  (2014-1-17).
-
+	* apps/nshlib/Kconfig, README.txt, nsh.h, nsh_command.c, and
+	  nsh_script.c:  Add an option to conditionally compile out support for
+	  loop and for if-then-else-fi sequence (2014-1-17).  
+	* apps/nshlib/nsh.h, nsh_command.c, and nsh_parse.c:  Add a break
+	  command that can be executed with a loop to terminate the loop
+	  immediately (2014-1-17).

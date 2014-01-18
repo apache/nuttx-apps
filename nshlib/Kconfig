@@ -345,6 +345,27 @@ config NSH_DISABLESCRIPT
 		if-then[-else]-fi construct.  This would only be set on systems
 		where a minimal footprint is a necessity and scripting is not.
 
+if !NSH_DISABLESCRIPT
+
+config NSH_DISABLE_ITEF
+	bool "Disable if-then-else-fi"
+	default n
+	---help---
+		This can be set to 'y' to suppress support for if-then-else-fi
+		sequences in scripts.  This would only be set on systems where
+		some minimal scripting is required but if-then-else-fi is not.
+
+config NSH_DISABLE_LOOPS
+	bool "Disable loops"
+	default n
+	---help---
+		This can be set to 'y' to suppress support for while-do-done and
+		until-do-done sequences in scripts.  This would only be set on
+		systems where some minimal scripting is required but looping
+		is not.
+
+endif # !NSH_DISABLESCRIPT
+
 config NSH_DISABLEBG
 	bool "Disable background commands"
 	default n
