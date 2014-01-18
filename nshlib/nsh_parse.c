@@ -1684,14 +1684,9 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
       else if (strcmp(cmd, "then") == 0)
         {
-          /* Get the cmd following the "then" -- there shouldn't be one */
+          /* Get the cmd following the "then" -- there may or may not be one */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-          if (*ppcmd)
-            {
-              nsh_output(vtbl, g_fmtarginvalid, "then");
-              goto errout;
-            }
 
           /* Verify that "then" is valid in this context */
 
@@ -1708,14 +1703,9 @@ static int nsh_itef(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
 
       else if (strcmp(cmd, "else") == 0)
         {
-          /* Get the cmd following the "else" -- there shouldn't be one */
+          /* Get the cmd following the "else" -- there may or may not be one */
 
           *ppcmd = nsh_argument(vtbl, saveptr, memlist);
-          if (*ppcmd)
-            {
-              nsh_output(vtbl, g_fmtarginvalid, "else");
-              goto errout;
-            }
 
           /* Verify that "else" is valid in this context */
 
