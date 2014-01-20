@@ -345,7 +345,8 @@ static const char g_revindex[]      = VT100_REVINDEX;
 static const char g_attriboff[]     = VT100_MODESOFF;
 static const char g_boldon[]        = VT100_BOLD;
 static const char g_reverseon[]     = VT100_REVERSE;
-static const char g_blinkon []      = VT100_BLINK;
+static const char g_blinkon[]       = VT100_BLINK;
+static const char g_fmtcursorpos[]  = VT100_FMT_CURSORPOS;
 
 /* Error format strings */
 
@@ -378,7 +379,7 @@ static void vi_write(FAR struct vi_s *vi, FAR const char *buffer,
   ssize_t nwritten;
   size_t  nremaining = buflen;
 
-  vivdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
+  //vivdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
 
   /* Loop until all bytes have been successuflly written (or until a
    * un-recoverable error is encountered)
@@ -565,18 +566,18 @@ static void vi_cursorhome(FAR struct vi_s *vi)
 
 static void vi_setcursor(FAR struct vi_s *vi, uint16_t row, uint16_t column)
 {
-  char buffer[6];
+  char buffer[16];
+  int len;
+
+  vivdbg("row=%d column=%d\n", row, column);
+
+  /* Format the cursor position command */
+
+  len = snprintf(buffer, 16, g_fmtcursorpos, row, column);
 
   /* Send the VT100 CURSORPOS command */
 
-  buffer[0] = ASCII_ESC;
-  buffer[1] = '[';
-  buffer[2] = row;
-  buffer[3] = ';';
-  buffer[4] = column;
-  buffer[5] = 'H';
-
-  vi_write(vi, buffer, 6);
+  vi_write(vi, buffer, len);
 }
 
 /****************************************************************************
@@ -1466,7 +1467,9 @@ static void vi_show(FAR struct vi_s *vi)
        pos < vi->textsize && row < endrow;
        row++)
     {
-      /* Get the last column on this row */
+      /* Get the last column on this row.  Avoid writing into the last byte
+       * on the screen which may trigger a scroll.
+       */
 
       endcol = vi->display.column;
       if (row >= vi->display.row - 1)
@@ -1505,13 +1508,21 @@ static void vi_show(FAR struct vi_s *vi)
           else if (vi->text[pos] == '\t')
             {
               tabcol = NEXT_TAB(column);
-              if (tabcol < vi->display.column - 1)
+              if (tabcol < endcol)
                 {
                   for (; column < tabcol; column++)
                     {
                       vi_putch(vi, ' ');
                     }
                 }
+              else
+               {
+                 /* Break out of the loop... there is nothing left on the
+                  * line but whitespace.
+                  */
+
+                 break;
+               }
             }
 
           /* Add the normal character to the display */
