@@ -44,9 +44,12 @@ endif
 # Hello Application
 # TODO: appname can be automatically extracted from the directory name
 
+CONFIG_SYSTEM_VI_STACKSIZE ?= 2048
+CONFIG_SYSTEM_VI_PRIORITY ?= 100
+
 APPNAME		= vi
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 1024
+PRIORITY	= $(CONFIG_SYSTEM_VI_PRIORITY)
+STACKSIZE	= $(CONFIG_SYSTEM_VI_STACKSIZE)
 
 ASRCS		=
 CSRCS		= vi.c
