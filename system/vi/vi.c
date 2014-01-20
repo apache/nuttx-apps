@@ -263,7 +263,7 @@ static off_t    vi_nextline(FAR struct vi_s *vi, off_t pos);
 
 /* Text buffer management */
 
-static bool     vi_extendtext(FAR struct vi_s *vi, off_t pos, 
+static bool     vi_extendtext(FAR struct vi_s *vi, off_t pos,
                   size_t increment);
 static void     vi_shrinkpos(off_t delpos, size_t delsize, FAR off_t *pos);
 static void     vi_shrinktext(FAR struct vi_s *vi, off_t pos, size_t size);
@@ -284,9 +284,10 @@ static void     vi_exitsubmode(FAR struct vi_s *vi, uint8_t mode);
 
 /* Display management */
 
-static uint16_t vi_wincolumn(FAR struct vi_s *vi, off_t start, off_t end);
+static void     vi_windowpos(FAR struct vi_s *vi, off_t start, off_t end,
+                  uint16_t *pcolumn, off_t *ppos);
 static void     vi_scrollcheck(FAR struct vi_s *vi);
-static void     vi_show(FAR struct vi_s *vi);
+static void     vi_showtext(FAR struct vi_s *vi);
 
 /* Command mode */
 
@@ -697,7 +698,7 @@ static void vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...)
   vi_attriboff(vi);
 
   /* Reposition the cursor */
- 
+
   vi_setcursor(vi, cursor.row, cursor.column);
 
   /* Remember that there is an error message on the last line of the display.
@@ -937,7 +938,7 @@ static void vi_shrinktext(FAR struct vi_s *vi, off_t pos, size_t size)
     }
 
   /* Adjust sizes and positions */
- 
+
   vi->textsize -= size;
   vi->modified  = true;
   vi_shrinkpos(pos, size, &vi->curpos);
@@ -1178,7 +1179,7 @@ static void vi_setsubmode(FAR struct vi_s *vi, uint8_t mode, char prompt,
   vi->cursave.column = vi->cursor.column;
 
   /* Set up for data entry on the final line */
- 
+
   vi->cursor.row     = vi->display.row - 1;
   vi->cursor.column  = 0;
   vi_setcursor(vi, vi->cursor.row, vi->cursor.column);
@@ -1221,18 +1222,19 @@ static void vi_exitsubmode(FAR struct vi_s *vi, uint8_t mode)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: vi_wincolumn
+ * Name: vi_windowpos
  *
  * Description:
  *   Based on the position of the cursor in the text buffer, determine the
- *   display cursor position, performing TAB expansion as necessary.
+ *   horizontal display cursor position, performing TAB expansion as necessary.
  *
  ****************************************************************************/
 
-static uint16_t vi_wincolumn(FAR struct vi_s *vi, off_t start, off_t end)
+static void vi_windowpos(FAR struct vi_s *vi, off_t start, off_t end,
+                         uint16_t *pcolumn, off_t *ppos)
 {
   uint16_t column;
-  off_t offset;
+  off_t pos;
 
   vivdbg("start=%ld end=%ld\n", (long)start, (long)end);
 
@@ -1245,24 +1247,24 @@ static uint16_t vi_wincolumn(FAR struct vi_s *vi, off_t start, off_t end)
       end = vi->textsize;
     }
 
-  /* Loop incrementing the text buffer offset while text buffer offset is
-   * within range.
+  /* Loop incrementing the text buffer position while text buffer position
+   * is within range.
    */
 
-  for (offset = start, column = 0; offset < end; offset++)
+  for (pos = start, column = 0; pos < end; pos++)
     {
-      /* Does this offset point to the newline terminator? */
+      /* Is there a newline terminator at this position? */
 
-      if (vi->text[offset] == '\n')
+      if (vi->text[pos] == '\n')
         {
           /* Yes... break out of the loop return the cursor column */
 
           break;
         }
 
-      /* No... does it refer to a TAB? */
+      /* No... Is there a TAB at this position? */
 
-      else if (vi->text[offset] == '\t')
+      else if (vi->text[pos] == '\t')
         {
           /* Yes.. expand the TAB */
 
@@ -1277,7 +1279,17 @@ static uint16_t vi_wincolumn(FAR struct vi_s *vi, off_t start, off_t end)
         }
     }
 
-  return column;
+  /* Now return the requested values */
+
+  if (ppos)
+    {
+      *ppos = pos;
+    }
+
+  if (pcolumn)
+    {
+      *pcolumn = column;
+    }
 }
 
 /****************************************************************************
@@ -1292,6 +1304,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 {
   off_t curline;
   off_t pos;
+  uint16_t tmp;
   int column;
   int nlines;
 
@@ -1328,19 +1341,20 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
       vi->winpos = vi_nextline(vi, vi->winpos);
     }
 
-  /* Check if the cursor column is on the display.  vi_wincolumn returns the
+  /* Check if the cursor column is on the display.  vi_windowpos returns the
    * unrestricted column number of cursor.  hscroll is the horizontal offset
    * in characters.
    */
 
-  column = (int)vi_wincolumn(vi, curline, vi->curpos) - (int)vi->hscroll;
+  vi_windowpos(vi, curline, vi->curpos, &tmp, NULL);
+  column = (int)tmp - (int)vi->hscroll;
 
   /* Force the cursor column to lie on the display.  First check if the
    * column lies to the left of the horizontal scrolling position.  If it
    * does, move the scroll position to the left by tabs until the cursor
    * lies on the display.
    */
-  
+
   while (column < 0)
     {
       column      += TABSIZE;
@@ -1395,7 +1409,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 
   else if (vi->winpos < vi->prevpos)
     {
-      
+
       for (nlines = 0, pos = vi->prevpos;
            pos != vi->winpos && nlines < vi->display.row;
            nlines++)
@@ -1421,7 +1435,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 }
 
 /****************************************************************************
- * Name: vi_show
+ * Name: vi_showtext
  *
  * Description:
  *   Update the display based on the last operation.  This function is
@@ -1430,7 +1444,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
  *
  ****************************************************************************/
 
-static void vi_show(FAR struct vi_s *vi)
+static void vi_showtext(FAR struct vi_s *vi)
 {
   off_t pos;
   uint16_t row;
@@ -1477,11 +1491,13 @@ static void vi_show(FAR struct vi_s *vi)
          endcol--;
         }
 
-      /* Get the offset into this line corresponding to column 0, accounting
-       * for horizontal scrolling and tab expansion.
+      /* Get the position into this line corresponding to display column 0,
+       * accounting for horizontal scrolling and tab expansion.  Add that to
+       * the line start offset to get the first offset to consider for
+       * display.
        */
 
-      pos = vi_wincolumn(vi, pos, pos + vi->hscroll);
+      vi_windowpos(vi, pos, pos + vi->hscroll, NULL, &pos);
 
       /* Set the cursor position to the beginning of this row and clear to
        * the end of the line.
@@ -1491,7 +1507,7 @@ static void vi_show(FAR struct vi_s *vi)
       vi_clrtoeol(vi);
 
       /* Loop for each column */
- 
+
       for (column = 0; pos < vi->textsize && column < endcol; pos++)
         {
           /* Break out of the loop if we encounter the newline before the
@@ -1579,7 +1595,7 @@ static void vi_cusorup(FAR struct vi_s *vi, int nlines)
   /* How many lines do we need to move?  Zero means 1 (so does 1) */
 
   remaining = (nlines == 0 ? 1 : nlines);
-  
+
   /* Get the offset to the start of the current line */
 
   start = vi_linebegin(vi, vi->curpos);
@@ -1588,10 +1604,15 @@ static void vi_cusorup(FAR struct vi_s *vi, int nlines)
 
   for (; remaining > 0; remaining--)
     {
-      pos   = vi_prevline(vi, start);
-      start = vi_linebegin(vi, pos);
-      end   = start + vi->cursor.column + vi->hscroll;
-      vi->curpos = vi_wincolumn(vi, start, end);
+      /* Get the start and end offset of the line */
+
+      pos        = vi_prevline(vi, start);
+      start      = vi_linebegin(vi, pos);
+      end        = start + vi->cursor.column + vi->hscroll;
+
+      /* Get the text buffer position to the horizontal cursor position */
+
+      vi_windowpos(vi, start, end, NULL, &vi->curpos);
     }
 }
 
@@ -1614,7 +1635,7 @@ static void vi_cursordown(FAR struct vi_s *vi, int nlines)
   /* How many lines do we need to move?  Zero means 1 (so does 1) */
 
   remaining = (nlines == 0 ? 1 : nlines);
-  
+
   /* Get the offset to the start of the current line */
 
   start = vi_linebegin(vi, vi->curpos);
@@ -1628,9 +1649,14 @@ static void vi_cursordown(FAR struct vi_s *vi, int nlines)
           break;
         }
 
+      /* Get the start and end offset of the line */
+
       start = vi_nextline(vi, start);
       end   = start + vi->cursor.column + vi->hscroll;
-      vi->curpos = vi_wincolumn(vi, start, end);
+
+      /* Get the text buffer position to the horizontal cursor position */
+
+      vi_windowpos(vi, start, end, NULL, &vi->curpos);
     }
 }
 
@@ -1836,7 +1862,7 @@ static void vi_paste(FAR struct vi_s *vi)
  * Name: vi_gotoline
  *
  * Description:
- *   
+ *
  *
  ****************************************************************************/
 
@@ -1897,7 +1923,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
     {
       /* Make sure that the display reflects the current state */
 
-      vi_show(vi);
+      vi_showtext(vi);
       vi_setcursor(vi, vi->cursor.row, vi->cursor.column);
 
       /* Get the next character from the input */
@@ -2147,7 +2173,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
         default:
           break;
         }
- 
+
       /* Any non-numeric input will reset the accumulated value (after it has
        * been used)
        */
@@ -2526,11 +2552,11 @@ static bool vi_findstring(FAR struct vi_s *vi)
       return false;
     }
 
-  /* Search from the current cursor position forward for a 
+  /* Search from the current cursor position forward for a
    * matching sub-string.  Stop loo
    */
 
-  for (pos = vi->curpos; 
+  for (pos = vi->curpos;
        pos + len <= vi->textsize;
        pos++)
     {
@@ -2881,7 +2907,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
     {
       /* Make sure that the display reflects the current state */
 
-      vi_show(vi);
+      vi_showtext(vi);
       vi_setcursor(vi, vi->cursor.row, vi->cursor.column);
 
       /* Get the next character from the input */
@@ -2996,7 +3022,7 @@ static void vi_replace_mode(FAR struct vi_s *vi)
     {
       /* Make sure that the display reflects the current state */
 
-      vi_show(vi);
+      vi_showtext(vi);
       vi_setcursor(vi, vi->cursor.row, vi->cursor.column);
 
       /* Get the next character from the input */
@@ -3215,14 +3241,14 @@ int vi_main(int argc, char **argv)
 
           case 'h':
             {
-              vi_showusage(vi, argv[0], EXIT_SUCCESS);              
+              vi_showusage(vi, argv[0], EXIT_SUCCESS);
             }
             break;
 
           case ':':
             {
               fprintf(stderr, "ERROR: Missing parameter argument\n");
-              vi_showusage(vi, argv[0], EXIT_FAILURE);              
+              vi_showusage(vi, argv[0], EXIT_FAILURE);
             }
             break;
 
@@ -3230,7 +3256,7 @@ int vi_main(int argc, char **argv)
           default:
             {
               fprintf(stderr, "ERROR: Unrecognized parameter\n");
-              vi_showusage(vi, argv[0], EXIT_FAILURE);              
+              vi_showusage(vi, argv[0], EXIT_FAILURE);
             }
             break;
         }
@@ -3249,7 +3275,7 @@ int vi_main(int argc, char **argv)
       vi->filename[MAX_STRING - 1] = '\0';
 
       /* Load the file into memory */
-      
+
       (void)vi_insertfile(vi, vi->filename);
 
       /* Skip over the filename argument.  There should nothing after this */
@@ -3260,7 +3286,7 @@ int vi_main(int argc, char **argv)
   if (optind != argc)
     {
       fprintf(stderr, "ERROR: Too many arguments\n");
-      vi_showusage(vi, argv[0], EXIT_FAILURE);              
+      vi_showusage(vi, argv[0], EXIT_FAILURE);
     }
 
   /* The editor loop */
