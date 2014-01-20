@@ -802,3 +802,5 @@
 	* apps/nshlib/nsh.h, nsh_command.c, and nsh_parse.c:  Add a break
 	  command that can be executed with a loop to terminate the loop
 	  immediately (2014-1-17).
+	* apps/system/vi:  Add support for a tiny, VI work-alike editor.  This
+	  is still very much a work-in-progress on initial check-in (2014-1-20).

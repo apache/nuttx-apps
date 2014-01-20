@@ -1,0 +1,56 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_VI
+	bool "Tiny VI work-alike text editor"
+	default n
+	---help---
+		Enable support for NuttX tiny VI work-alike editor.
+
+		Omitted features:
+			- No keypad cursor control support
+			- No word oriented operations.
+
+		Assumptions and Limitations:
+			- A VT100 host terminal is assumed.
+			- A fixed width character set (like Courier) is assumed
+			- Files are edited in memory so unless you have a lot of memory
+			  to spare, this editor will only be useful for very small files.
+
+if SYSTEM_VI
+
+config SYSTEM_VI_COLS
+	int "Display width (columns)"
+	default 64
+	---help---
+		The editor does not have the capability to query the display for
+		its width or height.  This setting provides the default width of
+		the display in columns.  The actually width can be overridden using
+		command line options.
+
+config SYSTEM_VI_ROWS
+	int "Display height (rows)"
+	default 16
+	---help---
+		The editor does not have the capability to query the display for
+		its width or height.  This setting provides the default height of
+		the display in rows.  The actually width can be overridden using
+		command line options.
+
+config SYSTEM_VI_DEBUGLEVEL
+	int "Debug level"
+	default 0
+	range 0 2
+	---help---
+		0=Debug off; 1=Print errors on console; 2=Print debug information
+		on the console.
+
+		Debug output is generated with syslog.  The editor works on
+		/dev/console.  In order to get both a usable display and also
+		readable debug output, syslog'ing should sent to some device other
+		than /dev/console (which is the default).
+
+endif
+

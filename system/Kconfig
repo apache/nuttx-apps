@@ -63,6 +63,10 @@ menu "USB Monitor"
 source "$APPSDIR/system/usbmonitor/Kconfig"
 endmenu
 
+menu "VI Work-Alike Editor"
+source "$APPSDIR/system/vi/Kconfig"
+endmenu
+
 menu "Stack Monitor"
 source "$APPSDIR/system/stackmonitor/Kconfig"
 endmenu
