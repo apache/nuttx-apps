@@ -66,6 +66,8 @@
 #undef  CTRL
 #define CTRL(a)         ((a) & 0x1f)
 
+#define VI_BEL(vi)      vi_putch(vi,CTRL('G'))
+
 /* Sizes of things */
 
 #define MAX_STRING      64   /* The maximum size of a filename or search string */
@@ -707,6 +709,7 @@ static void vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...)
    */
 
   vi->error = TRUE;
+  VI_BEL(vi);
 }
 
 /****************************************************************************
@@ -2171,6 +2174,9 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           break;
 
         default:
+          {
+            VI_BEL(vi);
+          }
           break;
         }
 
@@ -2518,6 +2524,10 @@ static void vi_cmd_submode(FAR struct vi_s *vi)
 
                   vi_cmdch(vi, ch);
                 }
+              else
+                {
+                  VI_BEL(vi);
+                }
             }
             break;
         }
@@ -2709,6 +2719,10 @@ static void vi_find_submode(FAR struct vi_s *vi)
 
                   vi_cmdch(vi, ch);
                 }
+              else
+                {
+                  VI_BEL(vi);
+                }
             }
             break;
         }
@@ -2843,7 +2857,14 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
             {
               /* Ignore all but printable characters and tab */
 
-              found = (isprint(ch) || ch == '\t');
+              if (isprint(ch)  || ch == '\t')
+                {
+                  found = true;
+                }
+              else
+                {
+                  VI_BEL(vi);
+                }
             }
             break;
         }
@@ -2995,6 +3016,10 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 
                   vi_insertch(vi, ch);
                 }
+              else
+                {
+                  VI_BEL(vi);
+                }
             }
             break;
         }
@@ -3100,6 +3125,10 @@ static void vi_replace_mode(FAR struct vi_s *vi)
                   /* Insert the filtered character into the text buffer */
 
                   vi_replacech(vi, '\n');
+                }
+              else
+                {
+                  VI_BEL(vi);
                 }
             }
             break;
