@@ -80,7 +80,8 @@
 #undef EXTERN
 #if defined(__cplusplus)
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -101,44 +102,45 @@ extern "C" {
  * Return: Non-zero If the IP address was parsed.
  */
 
-EXTERN bool uiplib_ipaddrconv(const char *addrstr, uint8_t *addr);
-EXTERN bool uiplib_hwmacconv(const char *hwstr, uint8_t *hw);
+bool uiplib_ipaddrconv(FAR const char *addrstr, uint8_t *addr);
+bool uiplib_hwmacconv(FAR const char *hwstr, uint8_t *hw);
 
 /* Get and set IP/MAC addresses (Ethernet L2 only) */
 
 #ifdef CONFIG_NET_ETHERNET
-EXTERN int uip_setmacaddr(const char *ifname, const uint8_t *macaddr);
-EXTERN int uip_getmacaddr(const char *ifname, uint8_t *macaddr);
+int uip_setmacaddr(FAR const char *ifname, const uint8_t *macaddr);
+int uip_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
 #endif
 
 /* IP address support */
 
 #ifdef CONFIG_NET_IPv6
-EXTERN int uip_gethostaddr(const char *ifname, struct in6_addr *addr);
-EXTERN int uip_sethostaddr(const char *ifname, const struct in6_addr *addr);
-EXTERN int uip_setdraddr(const char *ifname, const struct in6_addr *addr);
-EXTERN int uip_setnetmask(const char *ifname, const struct in6_addr *addr);
+int uip_gethostaddr(FAR const char *ifname, struct in6_addr *addr);
+int uip_sethostaddr(FAR const char *ifname, const struct in6_addr *addr);
+int uip_setdraddr(FAR const char *ifname, const struct in6_addr *addr);
+int uip_setnetmask(FAR const char *ifname, const struct in6_addr *addr);
 #else
-EXTERN int uip_gethostaddr(const char *ifname, struct in_addr *addr);
-EXTERN int uip_sethostaddr(const char *ifname, const struct in_addr *addr);
-EXTERN int uip_setdraddr(const char *ifname, const struct in_addr *addr);
-EXTERN int uip_setnetmask(const char *ifname, const struct in_addr *addr);
+int uip_gethostaddr(FAR const char *ifname, struct in_addr *addr);
+int uip_sethostaddr(FAR const char *ifname, const struct in_addr *addr);
+int uip_setdraddr(FAR const char *ifname, const struct in_addr *addr);
+int uip_setnetmask(FAR const char *ifname, const struct in_addr *addr);
 #endif
 
 /* HTTP support */
 
-EXTERN int  uip_parsehttpurl(const char *url, uint16_t *port,
-                             char *hostname, int hostlen,
-                             char *filename, int namelen);
+int  uip_parsehttpurl(FAR const char *url, uint16_t *port,
+                      FAR char *hostname, int hostlen,
+                      FAR char *filename, int namelen);
 
 /* Generic server logic */
 
-EXTERN int uip_listenon(uint16_t portno);
-EXTERN void uip_server(uint16_t portno, pthread_startroutine_t handler, int stacksize);
+int uip_listenon(uint16_t portno);
+void uip_server(uint16_t portno, pthread_startroutine_t handler,
+                int stacksize);
 
-EXTERN int uip_getifstatus(const char *ifname, bool *status);
-EXTERN int uip_ifup(const char *ifname);
-EXTERN int uip_ifdown(const char *ifname);
+int uip_getifstatus(FAR const char *ifname, FAR uint8_t *flags);
+int uip_ifup(FAR const char *ifname);
+int uip_ifdown(FAR const char *ifname);
 
 #undef EXTERN
 #ifdef __cplusplus

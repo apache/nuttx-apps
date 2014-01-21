@@ -804,3 +804,6 @@
 	  immediately (2014-1-17).
 	* apps/system/vi:  Add support for a tiny, VI work-alike editor.  This
 	  is still very much a work-in-progress on initial check-in (2014-1-20).
+	* apps/netutils/uiplib:  Support new definitions and state passing for
+	  network device status. From Maz Holtzberg (2014-1-21).
+

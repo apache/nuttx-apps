@@ -54,6 +54,7 @@
 #include <debug.h>
 
 #include <net/ethernet.h>
+#include <net/if.h>
 #include <netinet/ether.h>
 
 #include <nuttx/net/net.h>
@@ -225,9 +226,9 @@ static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "\n");
 
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, "  TCP       ACK: %04x SYN: %04x\n", 
+  nsh_output(vtbl, "  TCP       ACK: %04x SYN: %04x\n",
             uip_stat.tcp.ackerr, uip_stat.tcp.syndrop);
-  nsh_output(vtbl, "            RST: %04x %04x\n", 
+  nsh_output(vtbl, "            RST: %04x %04x\n",
             uip_stat.tcp.rst, uip_stat.tcp.synrst);
 #endif
 
@@ -282,18 +283,32 @@ int ifconfig_callback(FAR struct uip_driver_s *dev, void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
   struct in_addr addr;
-  bool is_running = false;
+  uint8_t iff;
+  const char *status;
   int ret;
 
-  ret = uip_getifstatus(dev->d_ifname,&is_running);
+  ret = uip_getifstatus(dev->d_ifname, &iff);
   if (ret != OK)
     {
       nsh_output(vtbl, "\tGet %s interface flags error: %d\n",
                  dev->d_ifname, ret);
     }
 
+  if (iff & IFF_RUNNING)
+    {
+      status = "RUNNING";
+    }
+  else if (iff & IFF_UP)
+    {
+      status = "UP";
+    }
+  else
+    {
+      status = "DOWN";
+    }
+
   nsh_output(vtbl, "%s\tHWaddr %s at %s\n",
-             dev->d_ifname, ether_ntoa(&dev->d_mac), (is_running)?"UP":"DOWN");
+             dev->d_ifname, ether_ntoa(&dev->d_mac), status);
 
   addr.s_addr = dev->d_ipaddr;
   nsh_output(vtbl, "\tIPaddr:%s ", inet_ntoa(addr));

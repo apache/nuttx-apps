@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/uiplib/uip_getifflag.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,14 +65,14 @@
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   status   interface flag ifup or ifdown status
+ *   flags    The interface flags returned by SIOCGIFFLAGS
  *
  * Return:
  *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
-int uip_getifstatus(const char *ifname, bool *status)
+int uip_getifstatus(const char *ifname, uint8_t *flags)
 {
   int ret = ERROR;
   if (ifname)
@@ -94,24 +94,13 @@ int uip_getifstatus(const char *ifname, bool *status)
           ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
           if (!ret)
             {
-              /* Return the ifup or ifdown status */
-
-              if ((req.ifr_flags & IF_FLAG_IFUP) == (req.ifr_flags & IF_FLAG_IFDOWN))
-                {
-                  ret = ERROR;
-                }
-              else if(req.ifr_flags & IF_FLAG_IFUP)
-                {
-                  *status = true;
-                }
-              else
-                {
-                  *status = false;
-                }
+              *flags = req.ifr_flags;
             }
+
           close(sockfd);
         }
     }
+
   return ret;
 }
 

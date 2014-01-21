@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/uiplib/uip_setifflag.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,12 +88,14 @@ int uip_ifup(const char *ifname)
           strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to ifup flag */
-          req.ifr_flags |= IF_FLAG_IFUP;
+
+          req.ifr_flags |= IFF_UP;
 
           ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
           close(sockfd);
         }
     }
+
   return ret;
 }
 
@@ -129,12 +131,14 @@ int uip_ifdown(const char *ifname)
           strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Perform the ioctl to ifup flag */
-          req.ifr_flags |= IF_FLAG_IFDOWN;
+
+          req.ifr_flags |= IFF_DOWN;
 
           ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
           close(sockfd);
         }
     }
+
   return ret;
 }
 
