@@ -72,7 +72,7 @@
  *
  ****************************************************************************/
 
-int uip_getifstatus(const char *ifname, uint8_t *flags)
+int uip_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
 {
   int ret = ERROR;
   if (ifname)

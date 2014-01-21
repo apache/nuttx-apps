@@ -766,7 +766,7 @@ static void vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...)
    * the error is cleared.
    */
 
-  vi->error = TRUE;
+  vi->error = true;
   VI_BEL(vi);
 }
 
@@ -2054,14 +2054,15 @@ static void vi_gotoline(FAR struct vi_s *vi)
 
 static void vi_cmd_mode(FAR struct vi_s *vi)
 {
-  int ch;
-
   vivdbg("Enter command mode\n");
 
   /* Loop while we are in command mode */
 
   while (vi->mode == MODE_COMMAND)
     {
+      bool preserve;
+      int ch;
+
       /* Make sure that the display reflects the current state */
 
       vi_showtext(vi);
@@ -2109,8 +2110,13 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           continue;
         }
 
-      /* Then handle the non-numeric character */
+      /* Then handle the non-numeric character.  Normally the accumulated
+       * value will be reset after processing the command.  There are a few
+       * exceptions; 'preserve' will be set to 'true' in those exceptional
+       * cases.
+       */
 
+      preserve = false;
       switch (ch)
         {
         case KEY_CMDMODE_UP: /* Move the cursor up one line */
@@ -2196,6 +2202,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
             else
               {
                 vi->delarm = true;
+                preserve = true;
               }
           }
           break;
@@ -2210,6 +2217,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
             else
               {
                 vi->yankarm = true;
+                preserve = true;
               }
           }
           break;
@@ -2223,6 +2231,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
         case KEY_CMDMODE_REPLACECH: /* Replace character(s) under cursor */
           {
             vi_setmode(vi, SUBMODE_REPLACECH, vi->value);
+            preserve = true;
           }
           break;
 
@@ -2326,11 +2335,17 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
         }
 
       /* Any non-numeric input will reset the accumulated value (after it has
-       * been used).  For the double character sequences, we need to retain
-       * the value until the next character is entered.
+       * been used).  There are a few exceptions:
+       *
+       * - For the double character sequences, we need to retain the value
+       *   until the next character is entered.
+       * - If we are changing modes, then we may need to preserve the 'value'
+       *   as well; in some cases settings are passed to the new mode in
+       *   'value' (vi_setmode() will have set or cleared 'value'
+       *   appropriately).
        */
 
-      if (!vi->delarm && !vi->yankarm)
+      if (!preserve)
         {
           vi->value = 0;
         }
@@ -3020,7 +3035,7 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
 
   /* Now replace with the character nchar times */
 
-  while (nchars > 0)
+  for (; nchars > 0; nchars--)
     {
       vi_replacech(vi, ch);
     }
@@ -3222,7 +3237,7 @@ static void vi_replace_mode(FAR struct vi_s *vi)
             {
               if (vi->curpos > start)
                 {
-                  vi_cursorleft(vi, vi->curpos, 1);
+                  vi->curpos = vi_cursorleft(vi, vi->curpos, 1);
                 }
             }
             break;
@@ -3272,7 +3287,7 @@ static void vi_replace_mode(FAR struct vi_s *vi)
                 {
                   /* Insert the filtered character into the text buffer */
 
-                  vi_replacech(vi, '\n');
+                  vi_replacech(vi, ch);
                 }
               else
                 {

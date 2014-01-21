@@ -806,4 +806,6 @@
 	  is still very much a work-in-progress on initial check-in (2014-1-20).
 	* apps/netutils/uiplib:  Support new definitions and state passing for
 	  network device status. From Maz Holtzberg (2014-1-21).
-
+	* apps/system/vi:  Tiny VI is basically functional.  All commands seem
+	  to work.  There are still some display artifacts and probably several
+	  untested conditions (2014-1-21).
