@@ -572,9 +572,9 @@ static void vi_setcursor(FAR struct vi_s *vi, uint16_t row, uint16_t column)
 
   vivdbg("row=%d column=%d\n", row, column);
 
-  /* Format the cursor position command */
+  /* Format the cursor position command.  The origin is (1,1). */
 
-  len = snprintf(buffer, 16, g_fmtcursorpos, row, column);
+  len = snprintf(buffer, 16, g_fmtcursorpos, row + 1, column + 1);
 
   /* Send the VT100 CURSORPOS command */
 
@@ -1557,7 +1557,7 @@ static void vi_showtext(FAR struct vi_s *vi)
 
   /* If there was not enough text to fill the display, clear the
    * remaining lines (except for any possible error line at the
-   & bottom of the display).
+   * bottom of the display).
    */
 
   for (; row < endrow; row++)
@@ -1676,7 +1676,7 @@ static off_t vi_cursorleft(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 
   vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
-  for (remaining = ncolumns < 1 ? 1 : ncolumns;
+  for (remaining = (ncolumns < 1 ? 1 : ncolumns);
        curpos > 0 && remaining > 0 && vi->text[curpos] != '\n';
        curpos--, remaining--);
 
@@ -1699,7 +1699,7 @@ static off_t vi_cursorright(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 
   vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
-  for (remaining = ncolumns < 1 ? 1 : ncolumns;
+  for (remaining = (ncolumns < 1 ? 1 : ncolumns);
        curpos < vi->textsize && remaining > 0 && vi->text[curpos] != '\n';
        curpos++, remaining--);
 
