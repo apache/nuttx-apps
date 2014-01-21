@@ -240,19 +240,27 @@ static void     vi_write(FAR struct vi_s *vi, FAR const char *buffer,
                   size_t buflen);
 static void     vi_putch(FAR struct vi_s *vi, char ch);
 static char     vi_getch(FAR struct vi_s *vi);
+#if 0 /* Not used */
 static void     vi_blinkon(FAR struct vi_s *vi);
+#endif
 static void     vi_attriboff(FAR struct vi_s *vi);
 static void     vi_boldon(FAR struct vi_s *vi);
 static void     vi_attriboff(FAR struct vi_s *vi);
 static void     vi_reverseon(FAR struct vi_s *vi);
 static void     vi_attriboff(FAR struct vi_s *vi);
+static void     vi_cursoron(FAR struct vi_s *vi);
+static void     vi_cursoroff(FAR struct vi_s *vi);
+#if 0 /* Not used */
 static void     vi_cursorhome(FAR struct vi_s *vi);
+#endif
 static void     vi_setcursor(FAR struct vi_s *vi, uint16_t row,
                   uint16_t column);
 static void     vi_clrtoeol(FAR struct vi_s *vi);
+#if 0 /* Not used */
 static void     vi_clrscreen(FAR struct vi_s *vi);
+#endif
 
-/* Error dispaly */
+/* Error display */
 
 static void     vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...);
 
@@ -340,15 +348,27 @@ static void     vi_showusage(FAR struct vi_s *vi, FAR const char *progname,
 
 /* VT100 escape sequences */
 
+static const char g_cursoron[]      = VT100_CURSORON;
+static const char g_cursoroff[]     = VT100_CURSOROFF;
+#if 0 /* Not used */
 static const char g_cursorhome[]    = VT100_CURSORHOME;
+#endif
 static const char g_erasetoeol[]    = VT100_CLEAREOL;
+#if 0 /* Not used */
 static const char g_clrscreen[]     = VT100_CLEARSCREEN;
+#endif
 static const char g_index[]         = VT100_INDEX;
 static const char g_revindex[]      = VT100_REVINDEX;
 static const char g_attriboff[]     = VT100_MODESOFF;
 static const char g_boldon[]        = VT100_BOLD;
 static const char g_reverseon[]     = VT100_REVERSE;
+#if 0 /* Not used */
 static const char g_blinkon[]       = VT100_BLINK;
+static const char g_boldoff[]       = VT100_BOLDOFF;
+static const char g_reverseoff[]    = VT100_REVERSEOFF;
+static const char g_blinkoff[]      = VT100_BLINKOFF;
+#endif 
+
 static const char g_fmtcursorpos[]  = VT100_FMT_CURSORPOS;
 
 /* Error format strings */
@@ -492,12 +512,14 @@ static char vi_getch(FAR struct vi_s *vi)
  *
  ****************************************************************************/
 
+#if 0 /* Not used */
 static void vi_blinkon(FAR struct vi_s *vi)
 {
   /* Send the VT100 BLINKON command */
 
   vi_write(vi, g_blinkon, sizeof(g_blinkon));
 }
+#endif
 
 /****************************************************************************
  * Name: vi_boldon
@@ -545,6 +567,36 @@ static void vi_attriboff(FAR struct vi_s *vi)
 }
 
 /****************************************************************************
+ * Name: vi_cursoron
+ *
+ * Description:
+ *   Turn on the cursor
+ *
+ ****************************************************************************/
+
+static void vi_cursoron(FAR struct vi_s *vi)
+{
+  /* Send the VT100 CURSORON command */
+
+  vi_write(vi, g_cursoron, sizeof(g_cursoron));
+}
+
+/****************************************************************************
+ * Name: vi_cursoroff
+ *
+ * Description:
+ *   Turn off the cursor
+ *
+ ****************************************************************************/
+
+static void vi_cursoroff(FAR struct vi_s *vi)
+{
+  /* Send the VT100 CURSOROFF command */
+
+  vi_write(vi, g_cursoroff, sizeof(g_cursoroff));
+}
+
+/****************************************************************************
  * Name: vi_cursorhome
  *
  * Description:
@@ -552,12 +604,14 @@ static void vi_attriboff(FAR struct vi_s *vi)
  *
  ****************************************************************************/
 
+#if 0 /* Not used */
 static void vi_cursorhome(FAR struct vi_s *vi)
 {
   /* Send the VT100 CURSORHOME command */
 
   vi_write(vi, g_cursorhome, sizeof(g_cursorhome));
 }
+#endif
 
 /****************************************************************************
  * Name: vi_setcursor
@@ -607,12 +661,14 @@ static void vi_clrtoeol(FAR struct vi_s *vi)
  *
  ****************************************************************************/
 
+#if 0 /* Not used */
 static void vi_clrscreen(FAR struct vi_s *vi)
 {
   /* Send the VT100 CLRSCREEN command */
 
   vi_write(vi, g_clrscreen, sizeof(g_clrscreen));
 }
+#endif
 
 /****************************************************************************
  * Name: vi_scrollup
@@ -1472,9 +1528,12 @@ static void vi_showtext(FAR struct vi_s *vi)
       endrow--;
     }
 
-  /* Make sure that all character attributes are disabled. */
+  /* Make sure that all character attributes are disabled; Turn off the
+   * cursor during the update.
+   */
 
   vi_attriboff(vi);
+  vi_cursoroff(vi);
 
   /* Write each line to the display, handling horizontal scrolling and
    * tab expansion.
@@ -1572,6 +1631,10 @@ static void vi_showtext(FAR struct vi_s *vi)
       vi_setcursor(vi, row, 0);
       vi_clrtoeol(vi);
     }
+
+  /* Turn the cursor back on */
+
+  vi_cursoron(vi);
 }
 
 /****************************************************************************
@@ -2035,10 +2098,6 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           }
           break;
 
-        case KEY_CMDMODE_REDRAW: /* Redraws the screen */
-        case KEY_CMDMODE_REDRAW2: /* Redraws the screen, removing deleted lines */
-          break; /* Not implemented */
-
         case KEY_CMDMODE_DEL: /* Delete N characters at the cursor */
         case ASCII_DEL:
           {
@@ -2084,9 +2143,6 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
             vi_paste(vi);
           }
           break;
-
-        case KEY_CMDMODE_MARK: /* Place a mark beginning at the current cursor position */
-          break; /* Not implemented */
 
         case KEY_CMDMODE_REPLACECH: /* Replace character(s) under cursor */
           {
@@ -2173,6 +2229,11 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           }
           break;
 
+        /* Uimplemented and invalid commands */
+
+        case KEY_CMDMODE_REDRAW:  /* Redraws the screen */
+        case KEY_CMDMODE_REDRAW2: /* Redraws the screen, removing deleted lines */
+        case KEY_CMDMODE_MARK:    /* Place a mark beginning at the current cursor position */
         default:
           {
             VI_BEL(vi);
