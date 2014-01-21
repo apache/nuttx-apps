@@ -309,6 +309,8 @@ static off_t    vi_cursorright(FAR struct vi_s *vi, off_t curpos,
                   int ncolumns);
 static void     vi_delforward(FAR struct vi_s *vi);
 static void     vi_delbackward(FAR struct vi_s *vi);
+static void     vi_linerange(FAR struct vi_s *vi, off_t *start, off_t *end);
+static void     vi_delline(FAR struct vi_s *vi);
 static void     vi_yank(FAR struct vi_s *vi);
 static void     vi_paste(FAR struct vi_s *vi);
 static void     vi_gotoline(FAR struct vi_s *vi);
@@ -367,7 +369,7 @@ static const char g_blinkon[]       = VT100_BLINK;
 static const char g_boldoff[]       = VT100_BOLDOFF;
 static const char g_reverseoff[]    = VT100_REVERSEOFF;
 static const char g_blinkoff[]      = VT100_BLINKOFF;
-#endif 
+#endif
 
 static const char g_fmtcursorpos[]  = VT100_FMT_CURSORPOS;
 
@@ -799,7 +801,7 @@ static off_t vi_linebegin(FAR struct vi_s *vi, off_t pos)
  * Name: vi_prevline
  *
  * Description:
- *   Search backward for the end of the previous line
+ *   Search backward for the beginning of the previous line
  *
  ****************************************************************************/
 
@@ -1375,10 +1377,10 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
 
   while (curline < vi->winpos)
     {
-      /* Yes.. move the window position up by one line and check again */
+      /* Yes.. move the window position up to the beginning of the previous
+       * line line and check again */
 
-      pos        = vi_prevline(vi, vi->winpos);
-      vi->winpos = vi_linebegin(vi, pos);
+      vi->winpos = vi_prevline(vi, vi->winpos);
     }
 
   /* Reset the cursor row position so that it is relative to the
@@ -1654,13 +1656,12 @@ static void vi_cusorup(FAR struct vi_s *vi, int nlines)
   int remaining;
   off_t start;
   off_t end;
-  off_t pos;
 
   vivdbg("nlines=%d\n", nlines);
 
   /* How many lines do we need to move?  Zero means 1 (so does 1) */
 
-  remaining = (nlines == 0 ? 1 : nlines);
+  remaining = (nlines < 1 ? 1 : nlines);
 
   /* Get the offset to the start of the current line */
 
@@ -1670,14 +1671,15 @@ static void vi_cusorup(FAR struct vi_s *vi, int nlines)
 
   for (; remaining > 0; remaining--)
     {
-      /* Get the start and end offset of the line */
+      /* Get the start position of the previous line */
 
-      pos        = vi_prevline(vi, start);
-      start      = vi_linebegin(vi, pos);
-      end        = start + vi->cursor.column + vi->hscroll;
+      start = vi_prevline(vi, start);
 
-      /* Get the text buffer position to the horizontal cursor position */
+      /* Find the cursor position on the next line corresponding to the
+       * cursor position on the current line.
+       */
 
+      end = start + vi->cursor.column + vi->hscroll;
       vi_windowpos(vi, start, end, NULL, &vi->curpos);
     }
 }
@@ -1700,7 +1702,7 @@ static void vi_cursordown(FAR struct vi_s *vi, int nlines)
 
   /* How many lines do we need to move?  Zero means 1 (so does 1) */
 
-  remaining = (nlines == 0 ? 1 : nlines);
+  remaining = (nlines < 1 ? 1 : nlines);
 
   /* Get the offset to the start of the current line */
 
@@ -1710,18 +1712,15 @@ static void vi_cursordown(FAR struct vi_s *vi, int nlines)
 
   for (; remaining > 0; remaining--)
     {
-      if (!vi_lineend(vi, vi->curpos) < vi->textsize)
-        {
-          break;
-        }
-
-      /* Get the start and end offset of the line */
+      /* Get the start of the next line. */
 
       start = vi_nextline(vi, start);
-      end   = start + vi->cursor.column + vi->hscroll;
 
-      /* Get the text buffer position to the horizontal cursor position */
+      /* Find the cursor position on the next line corresponding to the
+       * cursor position on the current line.
+       */
 
+      end = start + vi->cursor.column + vi->hscroll;
       vi_windowpos(vi, start, end, NULL, &vi->curpos);
     }
 }
@@ -1742,8 +1741,13 @@ static off_t vi_cursorleft(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 
   vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
+  /* Loop decrementing the cursor position for each repitition count.  Break
+   * out early if we hit either the beginning of the text buffer, or the end
+   * of the previous line.
+   */
+
   for (remaining = (ncolumns < 1 ? 1 : ncolumns);
-       curpos > 0 && remaining > 0 && vi->text[curpos] != '\n';
+       curpos > 0 && remaining > 0 && vi->text[curpos - 1] != '\n';
        curpos--, remaining--);
 
   return curpos;
@@ -1764,6 +1768,10 @@ static off_t vi_cursorright(FAR struct vi_s *vi, off_t curpos, int ncolumns)
   int remaining;
 
   vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
+
+  /* Loop incrementing the cursor position for each repitition count.  Break
+   * out early if we hit either the end of the text buffer, or the end of the line.
+   */
 
   for (remaining = (ncolumns < 1 ? 1 : ncolumns);
        curpos < vi->textsize && remaining > 0 && vi->text[curpos] != '\n';
@@ -1787,8 +1795,17 @@ static void vi_delforward(FAR struct vi_s *vi)
 
   vivdbg("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
 
+  /* Get the cursor position as if we would have move the cursor right N
+   * times (which might be <N characters).
+   */
+
   end  = vi_cursorright(vi, vi->curpos, vi->value);
-  size = end - vi->curpos - 1;
+
+  /* The difference from the current position then is the number of
+   * characters to be deleted.
+   */
+
+  size = end - vi->curpos;
   vi_shrinktext(vi, vi->curpos, size);
 }
 
@@ -1808,10 +1825,82 @@ static void vi_delbackward(FAR struct vi_s *vi)
 
   vivdbg("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
 
-  start = vi_cursorleft(vi, vi->curpos, 1);
-  end   = vi_cursorleft(vi, start, vi->value);
-  size  = end - start - 1;
+  /* Back up one character.  This is where the deletion will end */
+
+  end = vi_cursorleft(vi, vi->curpos, 1);
+
+  /* Get the cursor position as if we would have move the cursor left N
+   * times (which might be <N characters).
+   */
+
+  start = vi_cursorleft(vi, end, vi->value);
+
+  /* The difference from the current position then is the number of
+   * characters to be deleted.
+   */
+
+  size = end - start;
   vi_shrinktext(vi, start, size);
+}
+
+/****************************************************************************
+ * Name: vi_linerange
+ *
+ * Description:
+ *   Return the start and end positions for N lines int the text buffer,
+ *   beginning at the current line.  This is logic common to yanking and
+ *   deleting lines.
+ *
+ ****************************************************************************/
+
+static void vi_linerange(FAR struct vi_s *vi, off_t *start, off_t *end)
+{
+  off_t next;
+  int nlines;
+
+  /* Get the offset in the text buffer to the beginning of the current line */
+
+  *start = vi_linebegin(vi, vi->curpos);
+
+  /* Move one line unless a repetition count was provided */
+
+  nlines = (vi->value > 0 ? vi->value : 1);
+
+  /* Search ahead to find the end of the last line to yank */
+
+  for (next = *start; nlines > 1; nlines--)
+    {
+      next = vi_nextline(vi, next);
+    }
+
+  *end = vi_lineend(vi, next);
+}
+
+/****************************************************************************
+ * Name: vi_delline
+ *
+ * Description:
+ *   Delete N lines from the text buffer, beginning at the current line.
+ *
+ ****************************************************************************/
+
+static void vi_delline(FAR struct vi_s *vi)
+{
+  off_t delsize;
+  off_t start;
+  off_t end;
+
+  /* Get the offset in the text buffer corresponding to the range of lines to
+   * be deleted
+   */
+
+  vi_linerange(vi, &start, &end);
+  vivdbg("start=%ld end=%ld\n", (long)start, (long)end);
+
+  /* Remove the text from the text buffer */
+
+  delsize =  end - start + 1;
+  vi_shrinktext(vi, start, delsize);
 }
 
 /****************************************************************************
@@ -1827,27 +1916,13 @@ static void vi_yank(FAR struct vi_s *vi)
 {
   off_t start;
   off_t end;
-  off_t next;
-  int nlines;
 
-  /* Get the offset in the text buffer to the beginning of the current line */
+  /* Get the offset in the text buffer corresponding to the range of lines to
+   * be yanked
+   */
 
-  start = vi_linebegin(vi, vi->curpos);
-
-  /* Move one line unless a repetition count was provided */
-
-  nlines = (vi->value > 0 ? vi->value : 1);
-
-  vivdbg("start=%ld nlines=%d\n", (long)start, nlines);
-
-  /* Search ahead to find the end of the last line to yank */
-
-  for (next = start; nlines > 1; nlines--)
-    {
-      next = vi_nextline(vi, next);
-    }
-
-  end = vi_lineend(vi, next);
+  vi_linerange(vi, &start, &end);
+  vivdbg("start=%ld end=%ld\n", (long)start, (long)end);
 
   /* Free any previously yanked lines */
 
@@ -2115,8 +2190,8 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           {
             if (vi->delarm)
               {
-                off_t curline = vi_linebegin(vi, vi->curpos);
-                vi_shrinktext(vi, curline, vi_nextline(vi, curline) - curline);
+                vi_delline(vi);
+                vi->delarm = false;
               }
             else
               {
@@ -2130,6 +2205,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
             if (vi->yankarm)
               {
                 vi_yank(vi);
+                vi->yankarm = false;
               }
             else
               {
@@ -2158,6 +2234,10 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
 
         case KEY_CMDMODE_OPENBELOW: /* Enter insertion mode in new line below current */
           {
+            /* Go forward to the end of the current line */
+
+            vi->curpos = vi_lineend(vi, vi->curpos);
+
             /* Insert a newline to break the line.  The cursor now points
              * beginning of the new line.
              */
@@ -2172,12 +2252,16 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
 
         case KEY_CMDMODE_OPENABOVE: /* Enter insertion mode in new line above current */
           {
-            /* Insert a newline to break the line.  Backup the cursor so
-             * that it points to the end of the (previous) current line.
+            /* Back up to the beginning of the end of the previous line */
+
+            off_t pos  = vi_prevline(vi, vi->curpos);
+            vi->curpos = vi_lineend(vi, pos);
+
+            /* Insert a newline to open the line.  The cursor will now point to the
+             * beginning of newly openly line before the current line.
              */
 
             vi_insertch(vi, '\n');
-            vi->curpos = vi_prevline(vi, vi->curpos);
 
             /* Then enter insert mode */
 
@@ -2187,7 +2271,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
 
         case KEY_CMDMODE_APPEND: /* Enter insertion mode after the current cursor position */
           {
-            vi->curpos = vi_cursorleft(vi, vi->curpos, 1);
+            vi->curpos = vi_cursorright(vi, vi->curpos, 1);
             vi_setmode(vi, MODE_INSERT, 0);
           }
           break;
@@ -2242,10 +2326,14 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
         }
 
       /* Any non-numeric input will reset the accumulated value (after it has
-       * been used)
+       * been used).  For the double character sequences, we need to retain
+       * the value until the next character is entered.
        */
 
-      vi->value = 0;
+      if (!vi->delarm && !vi->yankarm)
+        {
+          vi->value = 0;
+        }
     }
 }
 
@@ -2836,7 +2924,7 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
   off_t end;
   long nchars;
   bool found = false;
-  int ch;
+  int ch = 0;
 
   /* Get the number of characters to replace */
 
@@ -2850,13 +2938,12 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
   if (vi->curpos + nchars > end)
     {
       vi_error(vi, g_fmtnotvalid);
-                    vi_exitsubmode(vi, MODE_COMMAND);
       vi_setmode(vi, MODE_COMMAND, 0);
     }
 
   /* Loop until we get the replacement character */
 
-  while (!found)
+  while (vi->mode == SUBMODE_REPLACECH && !found)
     {
       /* Get the next character from the input */
 
@@ -3023,7 +3110,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 
           case ASCII_BS:
             {
-              if (vi->curpos)
+              if (vi->curpos > 0)
                 {
                   vi_shrinktext(vi, --vi->curpos, 1);
                 }
