@@ -1210,7 +1210,7 @@ static void vi_setmode(FAR struct vi_s *vi, uint8_t mode, long value)
   vi->mode           = mode;
   vi->delarm         = false;
   vi->yankarm        = false;
-  vi->error          = false;
+//vi->error          = false; need to preserve until vi_showtext is called
   vi->value          = value;
   vi->cmdlen         = 0;
 }
