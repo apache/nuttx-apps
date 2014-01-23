@@ -568,6 +568,6 @@ int ostest_main(int argc, FAR char *argv[])
       printf("ostest_main: Started user_main at PID=%d\n", result);
     }
 
-  printf("ostest_main: Exitting\n");
+  printf("ostest_main: Exiting\n");
   return 0;
 }
