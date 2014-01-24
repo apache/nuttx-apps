@@ -422,7 +422,7 @@ int buttons_main(int argc, char *argv[])
 #ifdef CONFIG_ARCH_IRQBUTTONS
   for (i = CONFIG_EXAMPLES_IRQBUTTONS_MIN; i <= CONFIG_EXAMPLES_IRQBUTTONS_MAX; i++)
     {
-      xcpt_t oldhandler = up_irqbutton(i, g_buttoninfo[BUTTON_INDEX(i)].handler);
+      xcpt_t oldhandler = board_button_irq(i, g_buttoninfo[BUTTON_INDEX(i)].handler);
 
       /* Use lowsyslog() for compatibility with interrrupt handler output. */
 
@@ -491,7 +491,7 @@ int buttons_main(int argc, char *argv[])
 #if defined(CONFIG_ARCH_IRQBUTTONS) && defined(CONFIG_NSH_BUILTIN_APPS)
   for (i = CONFIG_EXAMPLES_IRQBUTTONS_MIN; i <= CONFIG_EXAMPLES_IRQBUTTONS_MAX; i++)
     {
-      (void)up_irqbutton(i, NULL);
+      (void)board_button_irq(i, NULL);
     }
 #endif
 
