@@ -42,10 +42,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include <stdarg.h>
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
@@ -213,7 +213,8 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
  *
  ****************************************************************************/
 
-static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl, const char *fmt, ...)
+static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
+                             FAR const char *fmt, ...)
 {
 #if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
