@@ -312,7 +312,7 @@ static void show_buttons(uint8_t oldset, uint8_t newset)
 #ifdef CONFIG_ARCH_IRQBUTTONS
 static void button_handler(int id, int irq)
 {
-  uint8_t newset = up_buttons();
+  uint8_t newset = board_buttons();
 
   lowsyslog("IRQ:%d Button %d:%s SET:%02x:\n",
             irq, id, g_buttoninfo[BUTTON_INDEX(id)].name, newset);
@@ -448,7 +448,7 @@ int buttons_main(int argc, char *argv[])
 
   /* Poll button state */
 
-  g_oldset = up_buttons();
+  g_oldset = board_buttons();
 #ifdef CONFIG_NSH_BUILTIN_APPS
   while (g_nbuttons < maxbuttons)
 #else
@@ -457,7 +457,7 @@ int buttons_main(int argc, char *argv[])
     {
       /* Get the set of pressed and release buttons. */
 
-      newset = up_buttons();
+      newset = board_buttons();
 
       /* Any changes from the last sample? */
 
