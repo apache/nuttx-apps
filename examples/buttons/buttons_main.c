@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/buttons/buttons_main.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,15 +45,16 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/arch.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <debug.h>
 
+#include <nuttx/arch.h>
+
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 
@@ -414,7 +415,7 @@ int buttons_main(int argc, char *argv[])
 
   /* Initialize the button GPIOs */
 
-  up_buttoninit();
+  board_button_initialize();
 
   /* Register to recieve button interrupts */
 
