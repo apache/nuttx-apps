@@ -743,7 +743,7 @@
 	* apps/nshlib/nsh_fscmds.c:  Add an option to the mkfatfs command to
 	  specify FAT12, FAT16, or FAT32 (2013-12-5).
 
-6.33 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+6.33 2014-01-30 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/nshlib/nsh_mntcmds.c:  Modified the df -h logic to eliminate
 	  truncating numbers in conversion (like 7900 -> 7M).  From Ken
@@ -756,7 +756,7 @@
 	  (2014-1-4).
 	* apps/netutils/dhcpc/Kconfig, resolv/Kconfig, telnetd/Kconfig, and
 	  apps/nshlib/Kconfig:  Refactor some configuration dependencies:  NSH
-	  features should debug on netutil selections; netutil selections
+	  features should depend on netutil selections; netutil selections
 	  should depend on networking selections. (2014-1-9).
 	* apps/nshlib/nsh_command.c:  Separate NSH command handling from NSH
 	  line parsing.  This re-partitioning simplifies the logic and will
@@ -809,3 +809,5 @@
 	* apps/system/vi:  Tiny VI is basically functional.  All commands seem
 	  to work.  There are still some display artifacts and probably several
 	  untested conditions (2014-1-21).
+
+6.34 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
