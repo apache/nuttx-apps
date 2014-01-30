@@ -351,8 +351,8 @@ Bugfixes:
 
 (There are no bugfixes recorded for this release).
 
-NxWidgets-1.9
-=============
+NxWidgets-1.10
+==============
 
 The 11th release of the NxWidgets package was made on December 7, 2013.  This
 release depends on NuttX-6.26 or above and should not be used with older
@@ -364,3 +364,17 @@ Additional new features and extended functionality in Version 1.10:
   recovering touchscreen calibration data.  This depends upon having
   platform-dependent support for storage of configuration data.  Portions
   suggested by Ken Pettit.
+
+NxWidgets-1.11
+==============
+
+The 12th release of the NxWidgets package was made on January 20, 2014.  This
+release depends on NuttX-6.33 or above and should not be used with older
+NuttX releases.
+
+Additional new features and extended functionality in Version 1.11:
+
+* Primarily changes associated with the NuttX kernel build where the
+  graphics application lies in user space and the graphics server lies in
+  protected kernel space.  This change is mostly a matter of repartitioning
+  functionality and should not cause in any functional differences.
