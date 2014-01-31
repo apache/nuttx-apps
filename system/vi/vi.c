@@ -81,6 +81,31 @@
 #define TABMASK         7    /* Mask for TAB alignment */
 #define NEXT_TAB(p)     (((p) + TABSIZE) & ~TABMASK)
 
+/* Parsed command action bits */
+
+#define CMD_READ        (1 << 0) /* Bit 0: Read */
+#define CMD_WRITE_MASK  (3 << 1) /* Bits 1-2: x1=Write operation */
+#  define CMD_WRITE     (1 << 1) /*           01=Write (without overwriting) */
+#  define CMD_OWRITE    (3 << 1) /*           11=Overwrite */
+#define CMD_QUIT_MASK   (3 << 3) /* Bits 3-4: x1=Quite operation */
+#  define CMD_QUIT      (1 << 3) /*           01=Quit if saved */
+#  define CMD_DISCARD   (3 << 3) /*           11=Quit without saving */
+
+#define CMD_NONE        (0)                     /* No command */
+#define CMD_WRITE_QUIT  (CMD_WRITE | CMD_QUIT)  /* Write file and quit command */
+#define CMD_OWRITE_QUIT (CMD_OWRITE | CMD_QUIT) /* Overwrite file and quit command */
+
+#define IS_READ(a)      (((uint8_t)(a) & CMD_READ) != 0)
+#define IS_WRITE(a)     (((uint8_t)(a) & CMD_WRITE) != 0)
+#define IS_OWRITE(a)    (((uint8_t)(a) & CMD_WRITE_MASK) == CMD_OWRITE)
+#define IS_NOWRITE(a)   (((uint8_t)(a) & CMD_WRITE_MASK) == CMD_WRITE)
+#define IS_QUIT(a)      (((uint8_t)(a) & CMD_QUIT) != 0)
+#define IS_DISCARD(a)   (((uint8_t)(a) & CMD_QUIT_MASK) == CMD_DISCARD)
+#define IS_NDISCARD(a)  (((uint8_t)(a) & CMD_QUIT_MASK) == CMD_QUIT)
+
+#define CMD_FILE_MASK   (CMD_READ | CMD_WRITE)
+#define USES_FILE(a)    (((uint8_t)(a) & CMD_FILE_MASK) != 0)
+
 /* Debug */
 
 #ifndef CONFIG_SYSTEM_VI_DEBUGLEVEL
@@ -167,6 +192,7 @@ enum vi_insmode_key_e
 
 enum vi_colonmode_key_e
 {
+  KEY_COLMODE_READ        = 'r',  /* Read file */
   KEY_COLMODE_QUIT        = 'q',  /* Quit vi */
   KEY_COLMODE_WRITE       = 'w',  /* Write file */
   KEY_COLMODE_FORCE       = '!',  /* Force operation */
@@ -280,10 +306,11 @@ static void     vi_shrinktext(FAR struct vi_s *vi, off_t pos, size_t size);
 
 /* File access */
 
-static bool     vi_insertfile(FAR struct vi_s *vi, FAR char *filename);
-static bool     vi_savetext(FAR struct vi_s *vi, FAR char *filename,
+static bool     vi_insertfile(FAR struct vi_s *vi, off_t pos,
+                  FAR const char *filename);
+static bool     vi_savetext(FAR struct vi_s *vi, FAR const char *filename,
                   off_t pos, size_t size);
-static bool     vi_checkfile(FAR struct vi_s *vi, FAR char *filename);
+static bool     vi_checkfile(FAR struct vi_s *vi, FAR const char *filename);
 
 /* Mode management */
 
@@ -381,6 +408,7 @@ static const char g_fmtnotfile[]    = "%s is not a regular file";
 static const char g_fmtfileexists[] = "File exists (add ! to override)";
 static const char g_fmtmodified[]   = "No write since last change (add ! to override)";
 static const char g_fmtnotvalid[]   = "Command not valid";
+static const char g_fmtnotcmd[]     = "Not an editor command: %s";
 
 /****************************************************************************
  * Private Functions
@@ -1037,7 +1065,8 @@ static void vi_shrinktext(FAR struct vi_s *vi, off_t pos, size_t size)
  *
  ****************************************************************************/
 
-static bool vi_insertfile(FAR struct vi_s *vi, FAR char *filename)
+static bool vi_insertfile(FAR struct vi_s *vi, off_t pos,
+                          FAR const char *filename)
 {
   struct stat buf;
   FILE *stream;
@@ -1046,7 +1075,7 @@ static bool vi_insertfile(FAR struct vi_s *vi, FAR char *filename)
   int result;
   bool ret;
 
-  vivdbg("filename=\"%s\"\n", filename);
+  vivdbg("pos=%ld filename=\"%s\"\n", (long)pos, filename);
 
   /* Get the size of the file  */
 
@@ -1079,19 +1108,19 @@ static bool vi_insertfile(FAR struct vi_s *vi, FAR char *filename)
    */
 
   ret = false;
-  if (vi_extendtext(vi, vi->curpos, filesize))
+  if (vi_extendtext(vi, pos, filesize))
     {
       /* Read the contents of the file into the text buffer at the
        * current cursor position.
        */
 
-      nread = fread(vi->text + vi->curpos, 1, filesize, stream);
+      nread = fread(vi->text + pos, 1, filesize, stream);
       if (nread < filesize)
         {
           /* Report the error (or partial read), EINTR is not handled */
 
           vi_error(vi, g_fmtcmdfail, "fread", errno);
-          vi_shrinktext(vi, vi->curpos, filesize);
+          vi_shrinktext(vi, pos, filesize);
         }
       else
         {
@@ -1111,8 +1140,8 @@ static bool vi_insertfile(FAR struct vi_s *vi, FAR char *filename)
  *
  ****************************************************************************/
 
-static bool vi_savetext(FAR struct vi_s *vi, FAR char *filename, off_t pos,
-                        size_t size)
+static bool vi_savetext(FAR struct vi_s *vi, FAR const char *filename,
+                        off_t pos, size_t size)
 {
   FILE *stream;
   size_t nwritten;
@@ -1154,7 +1183,7 @@ static bool vi_savetext(FAR struct vi_s *vi, FAR char *filename, off_t pos,
  *
  ****************************************************************************/
 
-static bool vi_checkfile(FAR struct vi_s *vi, FAR char *filename)
+static bool vi_checkfile(FAR struct vi_s *vi, FAR const char *filename)
 {
   struct stat buf;
   int ret;
@@ -1250,6 +1279,10 @@ static void vi_setsubmode(FAR struct vi_s *vi, uint8_t mode, char prompt,
   vi_boldon(vi);
   vi_putch(vi, prompt);
   vi_attriboff(vi);
+
+  /* Clear to the end of the line */
+
+  vi_clrtoeol(vi);
 
   /* Update the cursor position */
 
@@ -2434,15 +2467,12 @@ static void vi_cmdbackspace(FAR struct vi_s *vi)
 
 static void vi_parsecolon(FAR struct vi_s *vi)
 {
-  FAR char *filename = NULL;   /* May be replaced with new filename in scratch buffer */
-  bool dowrite       = false;  /* True: We need to write the text buffer to a file */
-  bool doquit        = false;  /* True: Exit vi */
-  bool forcewrite    = false;  /* True: Write even if the new file exists */
-  bool forcequit     = false;  /* True: Quite even if there are un-saved changes */
-  bool done          = false;  /* True: Terminates parsing loop */
-  int ch;
-  int lastch         = 0;
+  FAR const char *filename = NULL;
+  uint8_t cmd = CMD_NONE;
+  bool done = false;
+  bool forced;
   int col;
+  int ch;
 
   vivdbg("Parse: \"%s\"\n", vi->scratch);
 
@@ -2454,33 +2484,97 @@ static void vi_parsecolon(FAR struct vi_s *vi)
 
   for (col = 0; col < vi->cmdlen && !done; col++)
     {
+      /* Get the next command character from the scratch buffer */
+
       ch = vi->scratch[col];
+
+      /* Check if the next after that is KEY_COLMODE_FORCE */
+
+      forced = false;
+      if (col < vi->cmdlen &&  vi->scratch[col + 1] == KEY_COLMODE_FORCE)
+        {
+          /* Yes.. the operation is forced */
+
+          forced = true;
+          col++;
+        }
+
+      /* Then process the command character */
 
       switch (ch)
         {
+          case KEY_COLMODE_READ:
+            {
+              /* Reading a file should not be forced */
+
+              if (cmd == CMD_NONE && !forced)
+                {
+                  cmd = CMD_READ;
+                }
+              else
+                {
+                  /* The read operation is not compatible with writing or
+                   * quitting
+                   */
+
+                  goto errout_bad_command;
+                }
+            }
+            break;
+
           case KEY_COLMODE_WRITE:
             {
-              dowrite = true;
-              lastch  = ch;
+              /* Are we just writing?  Or writing then quitting? */
+
+              if (cmd == CMD_NONE)
+                {
+                  /* Just writing.. do we force overwriting? */
+
+                  cmd = (forced ? CMD_OWRITE : CMD_WRITE);
+                }
+              else if (cmd == CMD_QUIT)
+                {
+                  /* Both ... do we force overwriting the file? */
+
+                  cmd = (forced ? CMD_OWRITE_QUIT : CMD_WRITE_QUIT);
+                }
+              else
+                {
+                  /* Anything else, including a forced quit is a syntax error */
+
+                  goto errout_bad_command;
+                }
             }
             break;
 
           case KEY_COLMODE_QUIT:
             {
-              doquit  = true;
-              lastch  = ch;
-            }
-            break;
+              /* Are we just quitting?  Or writing then quitting? */
 
-          case KEY_COLMODE_FORCE:
-            {
-              if (lastch == KEY_COLMODE_WRITE)
+              if (cmd == CMD_NONE)
                 {
-                  forcewrite = true;
+                  /* Just quitting... should we discard any changes? */
+
+                  cmd = (forced ? CMD_DISCARD : CMD_QUIT);
                 }
-              else if (lastch == KEY_COLMODE_QUIT)
+
+              /* If we are also writing, then it makes no sense to force the
+               * quit operation.
+               */
+
+              else if (cmd == CMD_WRITE && !forced)
                 {
-                  forcequit = true;
+                  cmd = CMD_WRITE_QUIT;
+                }
+              else if (cmd == CMD_OWRITE && !forced)
+                {
+                  cmd = CMD_OWRITE_QUIT;
+                }
+              else
+                {
+                  /* Quit is not compatible with reading */
+
+                  goto errout_bad_command;
                 }
             }
             break;
@@ -2496,11 +2590,12 @@ static void vi_parsecolon(FAR struct vi_s *vi)
                   done = true;
 
                   /* If there is anything else on the line, then it must be
-                   * a file name.  If we are writing, then we need to copy
-                   * the file into the filename storage area.
+                   * a file name.  If we are writing (or reading with an
+                   * empty text buffer), then we will need to copy the file
+                   * into the filename storage area.
                    */
 
-                  if (ch != '\0' && dowrite)
+                  if (ch != '\0')
                     {
                       /* For now, just remember where the file is in the
                        * scratch buffer.
@@ -2514,40 +2609,94 @@ static void vi_parsecolon(FAR struct vi_s *vi)
         }
     }
 
+  /* Did we find any valid command?  A read command requires a filename.
+   * A filename where one is not needed is also an error.
+   */
+
+  vivdbg("cmd=%d filename=\"%s\"\n", cmd, vi->filename);
+
+  if (cmd == CMD_NONE || (IS_READ(cmd) && !filename) ||
+      (!USES_FILE(cmd) && filename))
+    {
+      goto errout_bad_command;
+    }
+
   /* Are we writing to a new filename?  If we are not forcing the write,
    * then we have to check if the file exists.
    */
 
-  vivdbg("dowrite=%d forcewrite=%d filename=\"%s\"\n",
-         dowrite, forcewrite, filename ? filename : vi->filename);
-
-  if (dowrite && filename && !forcewrite && vi_checkfile(vi, vi->filename))
+  if (filename && IS_NOWRITE(cmd))
     {
-      vi_error(vi, g_fmtfileexists);
-      dowrite = false;
-      doquit  = false;
+      /* Check if the file exists */
+
+      if (vi_checkfile(vi, filename))
+        {
+          /* It does... show an error and exit */
+
+          vi_error(vi, g_fmtfileexists);
+          goto errout;
+        }
     }
 
-  /* Check if we are trying to quit with un-saved changes.  The use must
+  /* Check if we are trying to quit with un-saved changes.  The user must
    * force quitting in this case.
    */
 
-  vivdbg("doquit=%d forcequit=%d modified=%d\n",
-         doquit, forcequit, vi->modified);
-
-  if (doquit && vi->modified && !forcequit)
+  if (vi->modified && IS_NDISCARD(cmd))
     {
+      /* Show an error and exit */
+
       vi_error(vi, g_fmtmodified);
-      dowrite = false;
-      doquit  = false;
+      goto errout;
     }
 
-  /* Are we now commit to writing the file? */
+  /* Are we now committed to reading the file? */
 
-  vivdbg("dowrite=%d filename=\"%s modified=%d\n",
-         dowrite, filename ? filename : vi->filename, vi->modified);
+  if (IS_READ(cmd))
+    {
+      /* Was the text buffer empty? */
 
-  if (dowrite)
+      bool empty = (vi->textsize == 0);
+
+      /* Yes.. get the cursor position of the beginning of the next line */
+
+      off_t pos = vi_nextline(vi, vi->curpos);
+
+      /* Then read the file into the text buffer at that position. */
+
+      if (vi_insertfile(vi, pos, filename))
+        {
+          /* Was the text buffer empty before we inserted the file? */
+
+          if (empty)
+            {
+              /* Yes.. then we want to save the filename and mark the text
+               * as unmodified.
+               */
+
+              strncpy(vi->filename, filename, MAX_STRING - 1);
+
+             /* Make sure that the (possibly truncated) file name is NUL
+              * terminated
+              */
+
+              vi->filename[MAX_STRING - 1] = '\0';
+              vi->modified = false;
+            }
+          else
+            {
+              /* No.. then we want to retain the filename and mark the text
+               * as modified.
+               */
+
+              vi->modified = true;
+            }
+        }
+    }
+
+  /* Are we now committed to writing the file? */
+
+  if (IS_WRITE(cmd))
     {
       /* If we are writing to a new file, then we need to copy the filename
        * from the scratch buffer to the filename buffer.
@@ -2572,23 +2721,26 @@ static void vi_parsecolon(FAR struct vi_s *vi)
         {
           /* Now, finally, we can save the file */
 
-          if (vi_savetext(vi, vi->filename, 0, vi->textsize) && !forcequit)
+          if (!vi_savetext(vi, vi->filename, 0, vi->textsize))
             {
               /* An error occurred while saving the file and we are
-               * not forcing the quit operation.  So cancel the
-               * quit.
+               * not forcing the quit operation.  So error out without
+               * quitting until the user decides what to do about
+               * the save failure.
                */
 
-              doquit = false;
+              goto errout;
             }
+
+          /* The text buffer contents are no longer modified */
+
+          vi->modified = false;
         }
     }
 
   /* Are we committed to exit-ing? */
 
-  vivdbg("doquit=%d\n", doquit);
-
-  if (doquit)
+  if (IS_QUIT(cmd))
     {
       /* Yes... free resources and exit */
 
@@ -2598,6 +2750,13 @@ static void vi_parsecolon(FAR struct vi_s *vi)
 
   /* Otherwise, revert to command mode */
 
+  vi_exitsubmode(vi, MODE_COMMAND);
+  return;
+
+errout_bad_command:
+  vi_error(vi, g_fmtnotcmd, vi->scratch);
+
+errout:
   vi_exitsubmode(vi, MODE_COMMAND);
 }
 
@@ -3468,7 +3627,7 @@ int vi_main(int argc, char **argv)
 
       /* Load the file into memory */
 
-      (void)vi_insertfile(vi, vi->filename);
+      (void)vi_insertfile(vi, 0, vi->filename);
 
       /* Skip over the filename argument.  There should nothing after this */
 
