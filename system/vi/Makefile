@@ -41,8 +41,7 @@ ifeq ($(WINTOOL),y)
 INCDIROPT	= -w
 endif
 
-# Hello Application
-# TODO: appname can be automatically extracted from the directory name
+# VI-Workalike Editor
 
 CONFIG_SYSTEM_VI_STACKSIZE ?= 2048
 CONFIG_SYSTEM_VI_PRIORITY ?= 100

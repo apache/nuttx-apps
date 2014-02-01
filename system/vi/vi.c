@@ -304,9 +304,7 @@ static char     vi_getch(FAR struct vi_s *vi);
 #if 0 /* Not used */
 static void     vi_blinkon(FAR struct vi_s *vi);
 #endif
-static void     vi_attriboff(FAR struct vi_s *vi);
 static void     vi_boldon(FAR struct vi_s *vi);
-static void     vi_attriboff(FAR struct vi_s *vi);
 static void     vi_reverseon(FAR struct vi_s *vi);
 static void     vi_attriboff(FAR struct vi_s *vi);
 static void     vi_cursoron(FAR struct vi_s *vi);
@@ -825,7 +823,7 @@ static void vi_error(FAR struct vi_s *vi, FAR const char *fmt, ...)
   vi_setcursor(vi, cursor.row, cursor.column);
 
   /* Remember that there is an error message on the last line of the display.
-   * When the dispaly is refreshed, the last line will not be altered until
+   * When the display is refreshed, the last line will not be altered until
    * the error is cleared.
    */
 
@@ -946,7 +944,7 @@ static off_t vi_nextline(FAR struct vi_s *vi, off_t pos)
  *
  * Description:
  *   Reallocate the in-memory file memory by (at least) 'increment' and make
- *   space for new text of size 'increment' at the current cursor position.
+ *   space for new text of size 'increment' at the specified cursor position.
  *
  ****************************************************************************/
 
@@ -1809,7 +1807,7 @@ static off_t vi_cursorleft(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 
   vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
-  /* Loop decrementing the cursor position for each repitition count.  Break
+  /* Loop decrementing the cursor position for each repetition count.  Break
    * out early if we hit either the beginning of the text buffer, or the end
    * of the previous line.
    */
@@ -1837,7 +1835,7 @@ static off_t vi_cursorright(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 
   vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
-  /* Loop incrementing the cursor position for each repitition count.  Break
+  /* Loop incrementing the cursor position for each repetition count.  Break
    * out early if we hit either the end of the text buffer, or the end of the line.
    */
 
@@ -2071,7 +2069,9 @@ static void vi_paste(FAR struct vi_s *vi)
  * Name: vi_gotoline
  *
  * Description:
- *
+ *   Position the the cursor at the line specified by vi->value.  If
+ *   vi->value is zero, then the cursor is position at the end of the text
+ *   buffer.
  *
  ****************************************************************************/
 
@@ -2390,7 +2390,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
           }
           break;
 
-        /* Uimplemented and invalid commands */
+        /* Unimplemented and invalid commands */
 
         case KEY_CMDMODE_REDRAW:  /* Redraws the screen */
         case KEY_CMDMODE_REDRAW2: /* Redraws the screen, removing deleted lines */
