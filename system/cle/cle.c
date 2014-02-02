@@ -198,16 +198,11 @@ static int      cle_editloop(FAR struct cle_s *priv);
 
 /* VT100 escape sequences */
 
-static const char g_cursoron[]      = VT100_CURSORON;
-static const char g_cursoroff[]     = VT100_CURSOROFF;
-static const char g_getcursor[]     = VT100_GETCURSOR;
-static const char g_erasetoeol[]    = VT100_CLEAREOL;
-static const char g_attriboff[]     = VT100_MODESOFF;
-static const char g_fmtcursorpos[]  = VT100_FMT_CURSORPOS;
-
-/* Error format strings */
-
-static const char g_fmtnotvalid[]   = "Command not valid";
+static const char g_cursoron[]     = VT100_CURSORON;
+static const char g_cursoroff[]    = VT100_CURSOROFF;
+static const char g_getcursor[]    = VT100_GETCURSOR;
+static const char g_erasetoeol[]   = VT100_CLEAREOL;
+static const char g_fmtcursorpos[] = VT100_FMT_CURSORPOS;
 
 /****************************************************************************
  * Private Functions
@@ -222,7 +217,7 @@ static const char g_fmtnotvalid[]   = "Command not valid";
  ****************************************************************************/
 
 static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
-                     uint16_t buflen)
+                      uint16_t buflen)
 {
   ssize_t nwritten;
   uint16_t  nremaining = buflen;
@@ -390,7 +385,7 @@ static void cle_setcursor(FAR struct cle_s *priv, uint16_t column)
  ****************************************************************************/
 
 static int cle_getcursor(FAR struct cle_s *priv, FAR uint16_t *prow,
-                        FAR uint16_t *pcolumn)
+                         FAR uint16_t *pcolumn)
 {
   uint32_t row;
   uint32_t column;
@@ -541,7 +536,8 @@ static void cle_clrtoeol(FAR struct cle_s *priv)
  *
  ****************************************************************************/
 
-static bool cle_opentext(FAR struct cle_s *priv, uint16_t pos, uint16_t increment)
+static bool cle_opentext(FAR struct cle_s *priv, uint16_t pos,
+                         uint16_t increment)
 {
   int i;
 
