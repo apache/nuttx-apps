@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_session.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <apps/readline.h>
+#ifdef CONFIG_NSH_CLE
+#  include <apps/cle.h>
+#else
+#  include <apps/readline.h>
+#endif
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -133,8 +137,13 @@ int nsh_session(FAR struct console_stdio_s *pstate)
        * or any read failure.
        */
 
+#ifdef CONFIG_NSH_CLE
+      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+                INSTREAM(pstate), OUTSTREAM(pstate));
+#else
       ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
                      INSTREAM(pstate), OUTSTREAM(pstate));
+#endif
       if (ret != EOF)
         {
           /* Parse process the command */

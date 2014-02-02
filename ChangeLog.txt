@@ -811,3 +811,10 @@
 	  untested conditions (2014-1-21).
 
 6.34 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/cle:  Add a EMACS-like command line editor.  This CLE,
+	  is really more like readline than the NuttX readline is!  Not fully
+	  fully on initial checkout (2014-02-02).
+	* apps/nshlib: Use of the standard tiney readline (about .25KB) is now
+	  an option and can be replaces with the EMACX-like CLE (about 2KB)
+	  (2014-02-02).

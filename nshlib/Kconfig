@@ -6,12 +6,36 @@
 config NSH_LIBRARY
 	bool "NSH Library"
 	default n
-	select SYSTEM_READLINE
 	---help---
-		Build the NSH support library.  This is used, for example, by examples/nsh
-		in order to implement the full NuttShell (NSH).
+		Build the NSH support library.  This is used, for example, by
+		examples/nsh in order to implement the full NuttShell (NSH).
 
 if NSH_LIBRARY
+
+choice
+	prompt "Command Line Editor"
+	default NSH_READLINE
+
+config NSH_READLINE
+	bool "Minimal readline()"
+	select SYSTEM_READLINE
+	---help---
+		Selects the minimal implementation of readline().  This minimal
+		implementation provides on backspace for command line editing.
+
+config NSH_CLE
+	bool "Command Line Editor"
+	select SYSTEM_CLE
+	---help---
+		Selects the more extensive, EMACS-like command line editor.
+		Select this option only if (1) you don't mind a modest increase
+		in the FLASH footprint, and (2) you work with a terminal that
+		support VT100 editing commands.
+
+		Selecting this option will add probably 1.5-2KB to the FLASH
+		footprint.
+
+endchoice
 
 config NSH_BUILTIN_APPS
 	bool "Enable built-in applications"

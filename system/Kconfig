@@ -63,6 +63,10 @@ menu "USB Monitor"
 source "$APPSDIR/system/usbmonitor/Kconfig"
 endmenu
 
+menu "EMACS-like Command Line Editor"
+source "$APPSDIR/system/cle/Kconfig"
+endmenu
+
 menu "VI Work-Alike Editor"
 source "$APPSDIR/system/vi/Kconfig"
 endmenu
