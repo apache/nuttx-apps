@@ -91,7 +91,7 @@
 #undef  CTRL
 #define CTRL(a)         ((a) & 0x1f)
 
-#define CLE_BEL(cle)    cle_putch(cle,CTRL('G'))
+#define CLE_BEL(priv)   cle_putch(priv,CTRL('G'))
 
 /* Sizes of things */
 
@@ -101,40 +101,35 @@
 
 /* Debug */
 
-#ifndef CONFIG_SYSEM_CLE_DEBUGLEVEL
-#  define CONFIG_SYSEM_CLE_DEBUGLEVEL 0
+#ifndef CONFIG_SYSTEM_CLE_DEBUGLEVEL
+#  define CONFIG_SYSTEM_CLE_DEBUGLEVEL 0
 #endif
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  if CONFIG_SYSEM_CLE_DEBUGLEVEL > 0
-#    define vidbg(format, arg...) \
+#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
+#    define cledbg(format, arg...) \
        syslog(EXTRA_FMT format EXTRA_ARG, ##arg)
-#    define vvidbg(format, ap) \
-       vsyslog(format, ap)
 #  else
-#    define vidbg(x...)
-#    define vvidbg(x...)
+#    define cledbg(x...)
 #  endif
 
-#  if CONFIG_SYSEM_CLE_DEBUGLEVEL > 1
-#    define vivdbg(format, arg...) \
+#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 1
+#    define clevdbg(format, arg...) \
        syslog(EXTRA_FMT format EXTRA_ARG, ##arg)
 #  else
-#    define vivdbg(x...)
+#    define clevdbg(x...)
 #  endif
 #else
-#  if CONFIG_SYSEM_CLE_DEBUGLEVEL > 0
-#    define vidbg  syslog
-#    define vvidbg vsyslog
+#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
+#    define cledbg  syslog
 #  else
-#    define vidbg  (void)
-#    define vvidbg (void)
+#    define cledbg  (void)
 #  endif
 
-#  if CONFIG_SYSEM_CLE_DEBUGLEVEL > 1
-#    define vivdbg syslog
+#  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 1
+#    define clevdbg syslog
 #  else
-#    define vivdbg (void)
+#    define clevdbg (void)
 #  endif
 #endif
 
@@ -162,7 +157,7 @@ struct cle_s
 {
   uint16_t curpos;          /* Current cursor position */
   uint16_t cursave;         /* Saved cursor position */
-  uint16_t row;             /* This is the row that we are editing iun */
+  uint16_t row;             /* This is the row that we are editing in */
   uint16_t coloffs;         /* Left cursor offset */
   uint16_t linelen;         /* Size of the line buffer */
   uint16_t nchars;          /* Size of data in the line buffer */
@@ -177,25 +172,25 @@ struct cle_s
 
 /* Low-level display and data entry functions */
 
-static void     cle_write(FAR struct cle_s *cle, FAR const char *buffer,
+static void     cle_write(FAR struct cle_s *priv, FAR const char *buffer,
                   uint16_t buflen);
-static void     cle_putch(FAR struct cle_s *cle, char ch);
-static int      cle_getch(FAR struct cle_s *cle);
-static void     cle_cursoron(FAR struct cle_s *cle);
-static void     cle_cursoroff(FAR struct cle_s *cle);
-static void     cle_setcursor(FAR struct cle_s *cle, uint16_t column);
-static int      cle_getcursor(FAR struct cle_s *cle, uint16_t *prow,
+static void     cle_putch(FAR struct cle_s *priv, char ch);
+static int      cle_getch(FAR struct cle_s *priv);
+static void     cle_cursoron(FAR struct cle_s *priv);
+static void     cle_cursoroff(FAR struct cle_s *priv);
+static void     cle_setcursor(FAR struct cle_s *priv, uint16_t column);
+static int      cle_getcursor(FAR struct cle_s *priv, uint16_t *prow,
                   uint16_t *pcolumn);
-static void     cle_clrtoeol(FAR struct cle_s *cle);
+static void     cle_clrtoeol(FAR struct cle_s *priv);
 
 /* Editor function */
 
-static bool     cle_opentext(FAR struct cle_s *cle, uint16_t pos,
+static bool     cle_opentext(FAR struct cle_s *priv, uint16_t pos,
                   uint16_t increment);
-static void     cle_closetext(FAR struct cle_s *cle, uint16_t pos, uint16_t size);
-static void     cle_showtext(FAR struct cle_s *cle);
-static void     cle_insertch(FAR struct cle_s *cle, char ch);
-static int      cle_editloop(FAR struct cle_s *cle);
+static void     cle_closetext(FAR struct cle_s *priv, uint16_t pos, uint16_t size);
+static void     cle_showtext(FAR struct cle_s *priv);
+static void     cle_insertch(FAR struct cle_s *priv, char ch);
+static int      cle_editloop(FAR struct cle_s *priv);
 
 /****************************************************************************
  * Private Data
@@ -219,10 +214,6 @@ static const char g_fmtnotvalid[]   = "Command not valid";
  ****************************************************************************/
 
 /****************************************************************************
- * Low-level display and data entry functions
- ****************************************************************************/
-
-/****************************************************************************
  * Name: cle_write
  *
  * Description:
@@ -230,13 +221,13 @@ static const char g_fmtnotvalid[]   = "Command not valid";
  *
  ****************************************************************************/
 
-static void cle_write(FAR struct cle_s *cle, FAR const char *buffer,
+static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
                      uint16_t buflen)
 {
   ssize_t nwritten;
   uint16_t  nremaining = buflen;
 
-  //vivdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
+  //clevdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
 
   /* Loop until all bytes have been successuflly written (or until a
    * un-recoverable error is encountered)
@@ -246,7 +237,7 @@ static void cle_write(FAR struct cle_s *cle, FAR const char *buffer,
     {
       /* Take the next gulp */
 
-      nwritten = write(cle->outfd, buffer, buflen);
+      nwritten = write(priv->outfd, buffer, buflen);
 
       /* Handle write errors.  write() should neve return 0. */
 
@@ -259,7 +250,7 @@ static void cle_write(FAR struct cle_s *cle, FAR const char *buffer,
           int errcode = errno;
           if (nwritten == 0 || errcode != EINTR)
             {
-              vidbg("ERROR: write to stdout failed: %d\n", errcode);
+              cledbg("ERROR: write to stdout failed: %d\n", errcode);
               return;
             }
         }
@@ -284,9 +275,9 @@ static void cle_write(FAR struct cle_s *cle, FAR const char *buffer,
  *
  ****************************************************************************/
 
-static void cle_putch(FAR struct cle_s *cle, char ch)
+static void cle_putch(FAR struct cle_s *priv, char ch)
 {
-  cle_write(cle, &ch, 1);
+  cle_write(priv, &ch, 1);
 }
 
 /****************************************************************************
@@ -297,7 +288,7 @@ static void cle_putch(FAR struct cle_s *cle, char ch)
  *
  ****************************************************************************/
 
-static int cle_getch(FAR struct cle_s *cle)
+static int cle_getch(FAR struct cle_s *priv)
 {
   char buffer;
   ssize_t nread;
@@ -310,7 +301,7 @@ static int cle_getch(FAR struct cle_s *cle)
     {
       /* Read one character from the incoming stream */
 
-      nread = read(cle->infd, &buffer, 1);
+      nread = read(priv->infd, &buffer, 1);
 
       /* Check for error or end-of-file. */
 
@@ -323,7 +314,7 @@ static int cle_getch(FAR struct cle_s *cle)
           int errcode = errno;
           if (nread == 0 || errcode != EINTR)
             {
-              vidbg("ERROR: read from stdin failed: %d\n", errcode);
+              cledbg("ERROR: read from stdin failed: %d\n", errcode);
               return -EIO;
             }
         }
@@ -332,7 +323,7 @@ static int cle_getch(FAR struct cle_s *cle)
 
   /* On success, return the character that was read */
 
-  vivdbg("Returning: %c[%02x]\n", isprint(buffer) ? buffer : '.', buffer);
+  clevdbg("Returning: %c[%02x]\n", isprint(buffer) ? buffer : '.', buffer);
   return buffer;
 }
 
@@ -344,11 +335,11 @@ static int cle_getch(FAR struct cle_s *cle)
  *
  ****************************************************************************/
 
-static void cle_cursoron(FAR struct cle_s *cle)
+static void cle_cursoron(FAR struct cle_s *priv)
 {
   /* Send the VT100 CURSORON command */
 
-  cle_write(cle, g_cursoron, sizeof(g_cursoron));
+  cle_write(priv, g_cursoron, sizeof(g_cursoron));
 }
 
 /****************************************************************************
@@ -359,11 +350,11 @@ static void cle_cursoron(FAR struct cle_s *cle)
  *
  ****************************************************************************/
 
-static void cle_cursoroff(FAR struct cle_s *cle)
+static void cle_cursoroff(FAR struct cle_s *priv)
 {
   /* Send the VT100 CURSOROFF command */
 
-  cle_write(cle, g_cursoroff, sizeof(g_cursoroff));
+  cle_write(priv, g_cursoroff, sizeof(g_cursoroff));
 }
 
 /****************************************************************************
@@ -374,20 +365,20 @@ static void cle_cursoroff(FAR struct cle_s *cle)
  *
  ****************************************************************************/
 
-static void cle_setcursor(FAR struct cle_s *cle, uint16_t column)
+static void cle_setcursor(FAR struct cle_s *priv, uint16_t column)
 {
   char buffer[16];
   int len;
 
-  vivdbg("row=%d column=%d\n", row, column);
+  clevdbg("row=%d column=%d offset=%d\n", priv->row, column, priv->coloffs);
 
   /* Format the cursor position command.  The origin is (1,1). */
 
-  len = snprintf(buffer, 16, g_fmtcursorpos, cle->row, column + cle->coloffs);
+  len = snprintf(buffer, 16, g_fmtcursorpos, priv->row, column + priv->coloffs);
 
   /* Send the VT100 CURSORPOS command */
 
-  cle_write(cle, buffer, len);
+  cle_write(priv, buffer, len);
 }
 
 /****************************************************************************
@@ -398,7 +389,7 @@ static void cle_setcursor(FAR struct cle_s *cle, uint16_t column)
  *
  ****************************************************************************/
 
-static int cle_getcursor(FAR struct cle_s *cle, FAR uint16_t *prow,
+static int cle_getcursor(FAR struct cle_s *priv, FAR uint16_t *prow,
                         FAR uint16_t *pcolumn)
 {
   uint32_t row;
@@ -408,16 +399,16 @@ static int cle_getcursor(FAR struct cle_s *cle, FAR uint16_t *prow,
 
   /* Send the VT100 GETCURSOR command */
 
-  cle_write(cle, g_getcursor, sizeof(g_getcursor));
+  cle_write(priv, g_getcursor, sizeof(g_getcursor));
 
-  /* We expect to get ESCv;hR where v is the row and h is the column */
+  /* We expect to get ESC[v;hR where v is the row and h is the column */
 
   nbad = 0;
   for (;;)
     {
       /* Get the next character from the input */
 
-      ch = cle_getch(cle);
+      ch = cle_getch(priv);
       if (ch == ASCII_ESC)
         {
           break;
@@ -434,14 +425,38 @@ static int cle_getcursor(FAR struct cle_s *cle, FAR uint16_t *prow,
         }
     }
 
-  /* Now we expect to see a numeric value terminated with ';' */
+  /* Have ESC, now we expect '[' */
+
+  nbad = 0;
+  for (;;)
+    {
+      /* Get the next character from the input */
+
+      ch = cle_getch(priv);
+      if (ch == '[')
+        {
+          break;
+        }
+      else if (ch < 0)
+        {
+          return -EIO;
+        }
+      else
+        {
+          /* We are probably talking to a non-VT100 terminal! */
+
+          return -EINVAL;
+        }
+    }
+
+  /* Have ESC'['.  Now we expect to see a numeric value terminated with ';' */
 
   row = 0;
   for (;;)
     {
       /* Get the next character from the input */
 
-      ch = cle_getch(cle);
+      ch = cle_getch(priv);
       if (isdigit(ch))
         {
           row = 10*row + (ch - '0');
@@ -460,14 +475,14 @@ static int cle_getcursor(FAR struct cle_s *cle, FAR uint16_t *prow,
         }
     }
 
-  /* Now we expect to see another numeric value terminated with 'R' */
+  /* Have ESC'['v';'.  Now we expect to see another numeric value terminated with 'R' */
 
   column = 0;
   for (;;)
     {
       /* Get the next character from the input */
 
-      ch = cle_getch(cle);
+      ch = cle_getch(priv);
       if (isdigit(ch))
         {
           column = 10*column + (ch - '0');
@@ -486,7 +501,7 @@ static int cle_getcursor(FAR struct cle_s *cle, FAR uint16_t *prow,
         }
     }
 
-  vivdbg("row=%ld column=%ld\n", row, column);
+  clevdbg("row=%ld column=%ld\n", row, column);
 
   /* Make sure that the values are within range */
 
@@ -509,11 +524,11 @@ static int cle_getcursor(FAR struct cle_s *cle, FAR uint16_t *prow,
  *
  ****************************************************************************/
 
-static void cle_clrtoeol(FAR struct cle_s *cle)
+static void cle_clrtoeol(FAR struct cle_s *priv)
 {
   /* Send the VT100 ERASETOEOL command */
 
-  cle_write(cle, g_erasetoeol, sizeof(g_erasetoeol));
+  cle_write(priv, g_erasetoeol, sizeof(g_erasetoeol));
 }
 
 /****************************************************************************
@@ -525,17 +540,17 @@ static void cle_clrtoeol(FAR struct cle_s *cle)
  *
  ****************************************************************************/
 
-static bool cle_opentext(FAR struct cle_s *cle, uint16_t pos, uint16_t increment)
+static bool cle_opentext(FAR struct cle_s *priv, uint16_t pos, uint16_t increment)
 {
   int i;
 
-  vivdbg("pos=%ld increment=%ld\n", (long)pos, (long)increment);
+  clevdbg("pos=%ld increment=%ld\n", (long)pos, (long)increment);
 
   /* Check if there is space in the line buffer to open up a region the size
    * of 'increment'
    */
 
-  if (cle->nchars + increment > cle->linelen)
+  if (priv->nchars + increment > priv->linelen)
     {
       return false;
     }
@@ -544,14 +559,14 @@ static bool cle_opentext(FAR struct cle_s *cle, uint16_t pos, uint16_t increment
    * cursor position
    */
 
-  for (i = cle->nchars - 1; i >= pos; i--)
+  for (i = priv->nchars - 1; i >= pos; i--)
     {
-      cle->line[i + increment] = cle->line[i];
+      priv->line[i + increment] = priv->line[i];
     }
 
   /* Adjust end of file position */
 
-  cle->nchars += increment;
+  priv->nchars += increment;
   return true;
 }
 
@@ -564,39 +579,39 @@ static bool cle_opentext(FAR struct cle_s *cle, uint16_t pos, uint16_t increment
  *
  ****************************************************************************/
 
-static void cle_closetext(FAR struct cle_s *cle, uint16_t pos, uint16_t size)
+static void cle_closetext(FAR struct cle_s *priv, uint16_t pos, uint16_t size)
 {
   int i;
 
-  vivdbg("pos=%ld size=%ld\n", (long)pos, (long)size);
+  clevdbg("pos=%ld size=%ld\n", (long)pos, (long)size);
 
   /* Close up the gap to remove 'size' characters at 'pos' */
 
-  for (i = pos + size; i < cle->nchars; i++)
+  for (i = pos + size; i < priv->nchars; i++)
     {
-      cle->line[i - size] = cle->line[i];
+      priv->line[i - size] = priv->line[i];
     }
 
   /* Adjust sizes and positions */
 
-  cle->nchars -= size;
+  priv->nchars -= size;
 
   /* Check if the cursor position is beyond the deleted region */
 
-  if (cle->curpos > pos + size)
+  if (priv->curpos > pos + size)
     {
       /* Yes... just subtract the size of the deleted region */
 
-      cle->curpos -= size;
+      priv->curpos -= size;
     }
 
   /* What if the position is within the deleted region?  Set it to the
    * beginning of the deleted region.
    */
 
-  else if (cle->curpos > pos)
+  else if (priv->curpos > pos)
     {
-      cle->curpos = pos;
+      priv->curpos = pos;
     }
 }
 
@@ -610,34 +625,34 @@ static void cle_closetext(FAR struct cle_s *cle, uint16_t pos, uint16_t size)
  *
  ****************************************************************************/
 
-static void cle_showtext(FAR struct cle_s *cle)
+static void cle_showtext(FAR struct cle_s *priv)
 {
   uint16_t column;
   uint16_t tabcol;
 
   /* Turn off the cursor during the update. */
 
-  cle_cursoroff(cle);
+  cle_cursoroff(priv);
 
   /* Set the cursor position to the beginning of this row */
 
-  cle_setcursor(cle, 0);
-  cle_clrtoeol(cle);
+  cle_setcursor(priv, 0);
+  cle_clrtoeol(priv);
 
   /* Loop for each column */
 
-  for (column = 0; column < cle->nchars && column < cle->linelen; column++)
+  for (column = 0; column < priv->nchars && column < priv->linelen; )
     {
       /* Perform TAB expansion */
 
-      if (cle->line[column] == '\t')
+      if (priv->line[column] == '\t')
         {
           tabcol = NEXT_TAB(column);
-          if (tabcol < cle->linelen)
+          if (tabcol < priv->linelen)
             {
               for (; column < tabcol; column++)
                 {
-                  cle_putch(cle, ' ');
+                  cle_putch(priv, ' ');
                 }
             }
           else
@@ -654,14 +669,14 @@ static void cle_showtext(FAR struct cle_s *cle)
 
       else
         {
-          cle_putch(cle, cle->line[column]);
+          cle_putch(priv, priv->line[column]);
           column++;
         }
     }
 
   /* Turn the cursor back on */
 
-  cle_cursoron(cle);
+  cle_cursoron(priv);
 }
 
 /****************************************************************************
@@ -672,17 +687,17 @@ static void cle_showtext(FAR struct cle_s *cle)
  *
  ****************************************************************************/
 
-static void cle_insertch(FAR struct cle_s *cle, char ch)
+static void cle_insertch(FAR struct cle_s *priv, char ch)
 {
-  vivdbg("curpos=%ld ch=%c[%02x]\n", cle->curpos, isprint(ch) ? ch : '.', ch);
+  clevdbg("curpos=%ld ch=%c[%02x]\n", priv->curpos, isprint(ch) ? ch : '.', ch);
 
   /* Make space in the buffer for the new character */
 
-  if (cle_opentext(cle, cle->curpos, 1))
+  if (cle_opentext(priv, priv->curpos, 1))
     {
       /* Add the new character to the buffer */
 
-      cle->line[cle->curpos++] = ch;
+      priv->line[priv->curpos++] = ch;
     }
 }
 
@@ -694,7 +709,7 @@ static void cle_insertch(FAR struct cle_s *cle, char ch)
  *
  ****************************************************************************/
 
-static int cle_editloop(FAR struct cle_s *cle)
+static int cle_editloop(FAR struct cle_s *priv)
 {
   /* Loop while we are in command mode */
 
@@ -704,12 +719,12 @@ static int cle_editloop(FAR struct cle_s *cle)
 
       /* Make sure that the display reflects the current state */
 
-      cle_showtext(cle);
-      cle_setcursor(cle, cle->curpos);
+      cle_showtext(priv);
+      cle_setcursor(priv, priv->curpos);
 
       /* Get the next character from the input */
 
-      ch = cle_getch(cle);
+      ch = cle_getch(priv);
       if (ch < 0)
         {
           return -EIO;
@@ -721,19 +736,19 @@ static int cle_editloop(FAR struct cle_s *cle)
         {
         case KEY_BEGINLINE: /* Move cursor to start of current line */
           {
-            cle->curpos = 0;
+            priv->curpos = 0;
           }
           break;
 
         case KEY_LEFT: /* Move the cursor left 1 character */
           {
-            if (cle->curpos > 0)
+            if (priv->curpos > 0)
               {
-                cle->curpos--;
+                priv->curpos--;
               }
             else
               {
-                CLE_BEL(cle);
+                CLE_BEL(priv);
               }
           }
           break;
@@ -741,39 +756,32 @@ static int cle_editloop(FAR struct cle_s *cle)
         case KEY_DEL: /* Delete 1 character at the cursor */
         case ASCII_DEL:
           {
-            if (cle->curpos < cle->nchars)
+            if (priv->curpos < priv->nchars)
               {
-                cle_closetext(cle, cle->curpos, 1);
+                cle_closetext(priv, priv->curpos, 1);
               }
             else
               {
-                CLE_BEL(cle);
+                CLE_BEL(priv);
               }
           }
           break;
 
         case KEY_ENDLINE: /* Move cursor to end of current line */
           {
-            if (cle->nchars > 0)
-              {
-                cle->curpos = cle->nchars - 1;
-              }
-            else
-              {
-                CLE_BEL(cle);
-              }
+            priv->curpos = priv->nchars;
           }
           break;
 
         case KEY_RIGHT: /* Move the cursor right one character */
           {
-            if (cle->curpos < cle->nchars)
+            if (priv->curpos < priv->nchars)
               {
-                cle->curpos++;
+                priv->curpos++;
               }
             else
               {
-                CLE_BEL(cle);
+                CLE_BEL(priv);
               }
           }
           break;
@@ -781,33 +789,33 @@ static int cle_editloop(FAR struct cle_s *cle)
         case KEY_DELLEFT: /* Delete 1 character before the cursor */
         //case ASCII_BS:
           {
-            if (cle->curpos > 0)
+            if (priv->curpos > 0)
               {
-                cle_closetext(cle, --cle->curpos, 1);
+                cle_closetext(priv, --priv->curpos, 1);
               }
             else
               {
-                CLE_BEL(cle);
+                CLE_BEL(priv);
               }
           }
           break;
 
         case KEY_DELEOL:  /* Delete to the end of the line */
           {
-            cle->nchars = (cle->nchars > 0 ? cle->curpos + 1 : 0);
+            priv->nchars = (priv->nchars > 0 ? priv->curpos + 1 : 0);
           }
           break;
 
         case KEY_DELLINE:  /* Delete to the end of the line */
           {
-            cle->nchars = 0;
-            cle->curpos = 0;
+            priv->nchars = 0;
+            priv->curpos = 0;
           }
           break;
 
         case KEY_QUOTE: /* Quoted character follows */
           {
-            ch = cle_getch(cle);
+            ch = cle_getch(priv);
             if (ch < 0)
               {
                 return -EIO;
@@ -815,7 +823,7 @@ static int cle_editloop(FAR struct cle_s *cle)
 
             /* Insert the next character unconditionally */
 
-            cle_insertch(cle, ch);
+            cle_insertch(priv, ch);
           }
           break;
 
@@ -859,11 +867,11 @@ static int cle_editloop(FAR struct cle_s *cle)
               {
                 /* Insert the filtered character into the buffer */
 
-                cle_insertch(cle, ch);
+                cle_insertch(priv, ch);
               }
             else
               {
-                CLE_BEL(cle);
+                CLE_BEL(priv);
               }
           }
           break;
@@ -892,23 +900,25 @@ static int cle_editloop(FAR struct cle_s *cle)
 
 int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream)
 {
-  FAR struct cle_s cle;
+  FAR struct cle_s priv;
   uint16_t column;
   int ret;
 
-  /* Initialize the cle state structure */
+  /* Initialize the CLE state structure */
 
-  cle.linelen  = linelen;
-  cle.line     = line;
+  memset(&priv, 0, sizeof(struct cle_s));
+
+  priv.linelen  = linelen;
+  priv.line     = line;
 
   /* REVISIT:  Non-standard, non-portable */
 
-  cle.infd     = instream->fs_fd;
-  cle.outfd    = outstream->fs_fd;
+  priv.infd     = instream->fs_fd;
+  priv.outfd    = outstream->fs_fd;
 
   /* Get the current cursor position */
 
-  ret = cle_getcursor(&cle, &cle.row, &column);
+  ret = cle_getcursor(&priv, &priv.row, &column);
   if (ret < 0)
     {
       return ret;
@@ -921,9 +931,11 @@ int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream)
       return -EINVAL;
     }
 
-  cle.coloffs = column - 1;
+  priv.coloffs = column - 1;
+
+  clevdbg("row=%d column=%d\n", priv.row, column);
 
   /* The editor loop */
 
-  return cle_editloop(&cle);
+  return cle_editloop(&priv);
 }
