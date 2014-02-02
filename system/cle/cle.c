@@ -536,7 +536,8 @@ static void cle_clrtoeol(FAR struct cle_s *priv)
  *
  * Description:
  *   Make space for new text of size 'increment' at the specified cursor
- *   position.
+ *   position.  This function will not allow text grow beyound (linelen - 1)
+ *   in size.
  *
  ****************************************************************************/
 
@@ -550,8 +551,9 @@ static bool cle_opentext(FAR struct cle_s *priv, uint16_t pos, uint16_t incremen
    * of 'increment'
    */
 
-  if (priv->nchars + increment > priv->linelen)
+  if (priv->nchars + increment >= priv->linelen)
     {
+      CLE_BEL(priv);
       return false;
     }
 
@@ -641,7 +643,7 @@ static void cle_showtext(FAR struct cle_s *priv)
 
   /* Loop for each column */
 
-  for (column = 0; column < priv->nchars && column < priv->linelen; )
+  for (column = 0; column < priv->nchars; )
     {
       /* Perform TAB expansion */
 
@@ -937,5 +939,10 @@ int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream)
 
   /* The editor loop */
 
-  return cle_editloop(&priv);
+  ret = cle_editloop(&priv);
+
+  /* Make sure that the line is NUL terminated */
+
+  line[priv.nchars] = '\0';
+  return ret;
 }
