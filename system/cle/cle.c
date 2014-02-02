@@ -212,7 +212,7 @@ static const char g_fmtcursorpos[] = VT100_FMT_CURSORPOS;
  * Name: cle_write
  *
  * Description:
- *   Write a sequence of bytes to the console device (stdout, fd = 1).
+ *   Write a sequence of bytes to the console output device.
  *
  ****************************************************************************/
 
@@ -224,8 +224,8 @@ static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
 
   //clevdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
 
-  /* Loop until all bytes have been successuflly written (or until a
-   * un-recoverable error is encountered)
+  /* Loop until all bytes have been successfully written (or until a
+   * unrecoverable error is encountered)
    */
 
   do
@@ -266,7 +266,7 @@ static void cle_write(FAR struct cle_s *priv, FAR const char *buffer,
  * Name: cle_putch
  *
  * Description:
- *   Write a single character to the console device.
+ *   Write a single character to the console output device.
  *
  ****************************************************************************/
 
@@ -279,7 +279,7 @@ static void cle_putch(FAR struct cle_s *priv, char ch)
  * Name: cle_getch
  *
  * Description:
- *   Get a single character from the console device (stdin, fd = 0).
+ *   Get a single character from the console input device.
  *
  ****************************************************************************/
 
@@ -531,7 +531,7 @@ static void cle_clrtoeol(FAR struct cle_s *priv)
  *
  * Description:
  *   Make space for new text of size 'increment' at the specified cursor
- *   position.  This function will not allow text grow beyound (linelen - 1)
+ *   position.  This function will not allow text grow beyond ('linelen' - 1)
  *   in size.
  *
  ****************************************************************************/
@@ -618,8 +618,7 @@ static void cle_closetext(FAR struct cle_s *priv, uint16_t pos, uint16_t size)
  *
  * Description:
  *   Update the display based on the last operation.  This function is
- *   called at the beginning of the processing loop in Command and Insert
- *   modes (and also in the continuous replace mode).
+ *   called at the beginning of the editor loop.
  *
  ****************************************************************************/
 
@@ -848,7 +847,7 @@ static int cle_editloop(FAR struct cle_s *priv)
 #endif
 
 #ifdef CONFIG_EOL_IS_EITHER_CRLF
-        case '\r': /* Ether CR or LF terminates line */
+        case '\r': /* Either CR or LF terminates line */
         case '\n':
           {
             return OK;

@@ -467,8 +467,8 @@ static void vi_write(FAR struct vi_s *vi, FAR const char *buffer,
 
   //vivdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
 
-  /* Loop until all bytes have been successuflly written (or until a
-   * un-recoverable error is encountered)
+  /* Loop until all bytes have been successfully written (or until a
+   * unrecoverable error is encountered)
    */
 
   do
@@ -1353,7 +1353,8 @@ static void vi_exitsubmode(FAR struct vi_s *vi, uint8_t mode)
  *
  * Description:
  *   Based on the position of the cursor in the text buffer, determine the
- *   horizontal display cursor position, performing TAB expansion as necessary.
+ *   horizontal display cursor position, performing TAB expansion as
+ *   necessary.
  *
  ****************************************************************************/
 
@@ -1913,7 +1914,7 @@ static void vi_delbackward(FAR struct vi_s *vi)
  * Name: vi_linerange
  *
  * Description:
- *   Return the start and end positions for N lines int the text buffer,
+ *   Return the start and end positions for N lines in the text buffer,
  *   beginning at the current line.  This is logic common to yanking and
  *   deleting lines.
  *
@@ -2864,7 +2865,7 @@ static void vi_cmd_submode(FAR struct vi_s *vi)
 #endif
 
 #ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Ether CR or LF terminates line */
+          case '\r': /* Either CR or LF terminates line */
           case '\n':
             {
               vi_parsecolon(vi);
@@ -3059,7 +3060,7 @@ static void vi_find_submode(FAR struct vi_s *vi)
 #endif
 
 #ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Ether CR or LF terminates line */
+          case '\r': /* Either CR or LF terminates line */
           case '\n':
             {
               vi_parsefind(vi);
@@ -3201,7 +3202,7 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
 #endif
 
 #ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Ether CR or LF terminates line */
+          case '\r': /* Either CR or LF terminates line */
           case '\n':
             {
               ch = '\n';
@@ -3355,7 +3356,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 #endif
 
 #ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Ether CR or LF terminates line */
+          case '\r': /* Either CR or LF terminates line */
           case '\n':
             {
               vi_insertch(vi, '\n');
@@ -3465,7 +3466,7 @@ static void vi_replace_mode(FAR struct vi_s *vi)
 #endif
 
 #ifdef CONFIG_EOL_IS_EITHER_CRLF
-          case '\r': /* Ether CR or LF terminates line */
+          case '\r': /* Either CR or LF terminates line */
           case '\n':
             {
               vi_replacech(vi, '\n');
