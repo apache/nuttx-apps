@@ -142,7 +142,7 @@ enum cle_key_e
 {
   KEY_BEGINLINE   = CTRL('A'),  /* Move cursor to start of current line */
   KEY_LEFT        = CTRL('B'),  /* Move left one character */
-  KEY_DEL         = CTRL('D'),  /* Delete a single character at the cursor position*/
+  KEY_DEL         = CTRL('D'),  /* Delete a single character at the cursor position */
   KEY_ENDLINE     = CTRL('E'),  /* Move cursor to end of current line */
   KEY_RIGHT       = CTRL('F'),  /* Move right one character */
   KEY_DELLEFT     = CTRL('H'),  /* Delete character, left (backspace)  */

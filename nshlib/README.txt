@@ -1039,6 +1039,19 @@ NSH-Specific Configuration Settings
   The behavior of NSH can be modified with the following settings in
   the configs/<board-name>/defconfig file:
 
+  * CONFIG_NSH_READLINE
+      Selects the minimal implementation of readline().  This minimal
+      implementation provides on backspace for command line editing.
+
+  * CONFIG_NSH_CLE
+      Selects the more extensive, EMACS-like command line editor.
+      Select this option only if (1) you don't mind a modest increase
+      in the FLASH footprint, and (2) you work with a terminal that
+      support VT100 editing commands.
+
+      Selecting this option will add probably 1.5-2KB to the FLASH
+      footprint.
+
   * CONFIG_NSH_BUILTIN_APPS
       Support external registered, "builtin" applications that can be
       executed from the NSH command line (see apps/README.txt for
