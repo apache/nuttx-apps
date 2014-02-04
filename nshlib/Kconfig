@@ -30,7 +30,7 @@ config NSH_CLE
 		Selects the more extensive, EMACS-like command line editor.
 		Select this option only if (1) you don't mind a modest increase
 		in the FLASH footprint, and (2) you work with a terminal that
-		support VT100 editing commands.
+		supports extensive VT100 editing commands.
 
 		Selecting this option will add probably 1.5-2KB to the FLASH
 		footprint.
