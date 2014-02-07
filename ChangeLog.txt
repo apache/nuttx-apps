@@ -817,3 +817,5 @@
 	* apps/nshlib: Use of the standard tiney readline (about .25KB) is now
 	  an option and can be replaces with the EMACX-like CLE (about 2KB)
 	  (2014-02-02).
+	* Several changes to restore Windows native build (2014-2-7)
+
