@@ -1168,7 +1168,11 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
           argument    = nsh_strcat(vtbl, argument, envstr);
           *allocation = argument;
         }
+      else
 #endif
+        {
+          /* Just to catch any dangling else clauses */
+        }
     }
 }
 
