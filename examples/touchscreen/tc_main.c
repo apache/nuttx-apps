@@ -197,6 +197,9 @@ int tc_main(int argc, char *argv[])
         message("   buttons : %02x\n", sample.buttons);
         message("         x : %d\n",   sample.x);
         message("         y : %d\n",   sample.y);
+#ifdef CONFIG_MOUSE_WHEEL
+        message("     wheel : %d\n",   sample.wheel);
+#endif
       }
 #else
     /* Read one sample */
