@@ -40,47 +40,47 @@
 include $(APPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
+INCDIROPT = -w
 endif
 
 # NxPlayer Library
 
-ASRCS		=
-CSRCS		= nxplayer.c
+ASRCS =
+CSRCS = nxplayer.c
 
 # NxPlayer Application
 
-APPNAME		= nxplayer
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 2048
+APPNAME = nxplayer
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
 
 ifeq ($(CONFIG_NXPLAYER_COMMAND_LINE),y)
 CSRCS   += nxplayer_main.c
 endif
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
-all:	.built
+all: .built
 .PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
@@ -119,7 +119,6 @@ depend: .depend
 clean:
 	$(call DELFILE, .built)
 	$(call CLEAN)
-	$(Q) rm -rf ..$(DELIM)..$(DELIM)builtin$(DELIM)registry$(DELIM)$(APPNAME)_main.*
 
 distclean: clean
 	$(call DELFILE, Make.dep)
