@@ -818,4 +818,5 @@
 	  an option and can be replaces with the EMACX-like CLE (about 2KB)
 	  (2014-02-02).
 	* Several changes to restore Windows native build (2014-2-7)
-
+	* apps/examples/touchscreen:  Can not be configured to work with a mouse
+	  interface as well (2014-2-10).

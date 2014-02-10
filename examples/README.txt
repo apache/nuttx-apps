@@ -1621,13 +1621,15 @@ examples/touchscreen
       corresponds to touchscreen device /dev/inputN.  Note this value must
       with CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH.  Default 0.
     CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH - The path to the touchscreen
-     device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
-     Default: "/dev/input0"
+      device.  This must be consistent with CONFIG_EXAMPLES_TOUCHSCREEN_MINOR.
+      Default: "/dev/input0"
     CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
-     is defined, then the number of samples is provided on the command line
-     and this value is ignored.  Otherwise, this number of samples is
-     collected and the program terminates.  Default:  Samples are collected
-     indefinitely.
+      is defined, then the number of samples is provided on the command line
+      and this value is ignored.  Otherwise, this number of samples is
+      collected and the program terminates.  Default:  Samples are collected
+      indefinitely.
+    CONFIG_EXAMPLES_TOUCHSCREEN_MOUSE - The touchscreen test can also be
+      configured to work with a mouse driver by setting this option.
 
   The following additional configurations must be set in the NuttX
   configuration file:
