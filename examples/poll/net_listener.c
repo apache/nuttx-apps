@@ -155,7 +155,7 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
                 {
                   if (errno != EINTR)
                     {
-                       message("net_listener: Send failed sd=%d: \n", sd, errno);
+                       message("net_listener: Send failed sd=%d: %d\n", sd, errno);
                        net_closeclient(nls, sd);
                        return false;
                     }

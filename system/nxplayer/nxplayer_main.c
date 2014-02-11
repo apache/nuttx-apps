@@ -237,7 +237,7 @@ static int nxplayer_cmd_volume(FAR struct nxplayer_s *pPlayer, char* parg)
 
   if (parg == NULL || *parg == '\0')
     {
-      printf("volume: %d%\n", pPlayer->volume / 10);
+      printf("volume: %d\n", pPlayer->volume / 10);
     }
   else
     {
@@ -328,7 +328,7 @@ static int nxplayer_cmd_balance(FAR struct nxplayer_s *pPlayer, char* parg)
 
   if (parg == NULL || *parg == '\0')
     {
-      printf("balance: %d%\n", pPlayer->volume / 10);
+      printf("balance: %d\n", pPlayer->volume / 10);
     }
   else
     {

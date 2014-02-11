@@ -350,7 +350,7 @@ int usbterm_main(int argc, char *argv[])
         }
       else
         {
-          printf("Still waiting for remote peer.  Please try again later.\n", ret);
+          printf("Still waiting for remote peer.  Please try again later.\n");
         }
 
       /* If USB tracing is enabled, then dump all collected trace data to stdout */

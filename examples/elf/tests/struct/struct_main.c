@@ -59,7 +59,7 @@ int dummy_scalar = DUMMY_SCALAR_VALUE2;
 
 int main(int argc, char **argv)
 {
-  const struct struct_s *mystruct = getstruct();
+  const struct struct_s *mystruct;
 
   printf("Calling getstruct()\n");
   mystruct = getstruct();

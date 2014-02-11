@@ -373,7 +373,7 @@ int pwm_main(int argc, char *argv[])
 
       /* Then stop the  pulse train */
 
-      message("pwm_main: stopping output\n", info.frequency, info.duty);
+      message("pwm_main: stopping output\n");
 
       ret = ioctl(fd, PWMIOC_STOP, 0);
       if (ret < 0)

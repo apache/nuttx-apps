@@ -820,3 +820,6 @@
 	* Several changes to restore Windows native build (2014-2-7)
 	* apps/examples/touchscreen:  Can now be configured to work with a mouse
 	  interface as well (2014-2-10).
+	* Several files changes based on complaints from the tool CppCheck.  Some
+	  latent bugs were fixed (and most likely some new typos were introduced)
+	  (2014-2-10).

@@ -120,7 +120,7 @@ void *select_listener(pthread_addr_t pvarg)
 
       if (ret < 0)
         {
-          message("select_listener: ERROR select failed: %d\n");
+          message("select_listener: ERROR select failed: %d\n", errno);
         }
       else if (ret == 0)
         {
@@ -131,7 +131,7 @@ void *select_listener(pthread_addr_t pvarg)
         {
           if (ret != 1)
             {
-              message("select_listener: ERROR poll reported: %d\n");
+              message("select_listener: ERROR poll reported: %d\n", ret);
             }
           else
             {
@@ -140,7 +140,7 @@ void *select_listener(pthread_addr_t pvarg)
 
           if (!FD_ISSET(fd, rfds))
             {
-              message("select_listener: ERROR fd=%d not in fd_set\n");
+              message("select_listener: ERROR fd=%d not in fd_set\n", fd);
             }
         }
 

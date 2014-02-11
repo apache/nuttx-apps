@@ -107,8 +107,8 @@ int flash_test_main(int argc, char *argv[])
     {
       /* Perform a low-level format */
 
-      ret = inode->u.i_bops->ioctl(inode, BIOC_LLFORMAT, 0);
-      ret = inode->u.i_bops->ioctl(inode, BIOC_GETFORMAT, (unsigned long) &fmt);
+      (void)inode->u.i_bops->ioctl(inode, BIOC_LLFORMAT, 0);
+      (void)inode->u.i_bops->ioctl(inode, BIOC_GETFORMAT, (unsigned long) &fmt);
     }
 
   if (!(fmt.flags & SMART_FMT_ISFORMATTED))
@@ -182,7 +182,7 @@ int flash_test_main(int argc, char *argv[])
       readwrite.offset = 0;
       readwrite.count = strlen(buffer) + 1;
       readwrite.buffer = (uint8_t *) buffer;
-      ret = inode->u.i_bops->ioctl(inode, BIOC_WRITESECT, (unsigned long)
+      (void)inode->u.i_bops->ioctl(inode, BIOC_WRITESECT, (unsigned long)
                                    &readwrite);
 
       /* Print the logical sector number */
@@ -241,7 +241,7 @@ int flash_test_main(int argc, char *argv[])
       readwrite.offset = 0;
       readwrite.count = strlen(buffer) + 1;
       readwrite.buffer = (uint8_t *) buffer;
-      ret = inode->u.i_bops->ioctl(inode, BIOC_WRITESECT, (unsigned long)
+      (void)inode->u.i_bops->ioctl(inode, BIOC_WRITESECT, (unsigned long)
                                    &readwrite);
 
       /* Print the logical sector number */
@@ -266,7 +266,7 @@ int flash_test_main(int argc, char *argv[])
       readwrite.offset = 64;
       readwrite.count = strlen(buffer) + 1;
       readwrite.buffer = (uint8_t *) buffer;
-      ret = inode->u.i_bops->ioctl(inode, BIOC_WRITESECT, (unsigned long)
+      (void)inode->u.i_bops->ioctl(inode, BIOC_WRITESECT, (unsigned long)
                                    &readwrite);
 
       /* Print the logical sector number */
@@ -284,7 +284,7 @@ int flash_test_main(int argc, char *argv[])
 
       if (sectors[x] != 0xFFFF)
         {
-          ret = inode->u.i_bops->ioctl(inode, BIOC_FREESECT, (unsigned long)
+          (void)inode->u.i_bops->ioctl(inode, BIOC_FREESECT, (unsigned long)
                                        sectors[x]);
         }
     }

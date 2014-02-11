@@ -626,10 +626,10 @@ void ManualConnect(void)
   printf("Starting manual connect...\n");
 
   printf("  Disabling auto-connect policy...\n");
-  rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE);
+  (void)wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE);
 
   printf("  Deleting all existing profiles...\n");
-  rval = wlan_ioctl_del_profile(255);
+  (void)wlan_ioctl_del_profile(255);
 
   wait_on(15*MS_PER_SEC, &ulCC3000Connected, 0, "    Waiting until disconnected");
 
@@ -649,7 +649,7 @@ void ManualConnect(void)
         (uint8_t *)AP_KEY,
         strlen(AP_KEY));
 
-  if (rval==0)
+  if (rval == 0)
     {
       printf("  Manual connect success.\n");
     }

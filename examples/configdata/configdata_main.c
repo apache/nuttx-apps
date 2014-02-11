@@ -706,9 +706,9 @@ int configdata_main(int argc, char *argv[])
        */
 
 #ifndef CONFIG_EXAMPLES_CONFIGDATA_SILENT
-      message("\n=== FILLING %d =============================\n", i);
+      message("\n=== FILLING %u =============================\n", i);
 #endif
-      ret = configdata_fillconfig();
+      (void)configdata_fillconfig();
 #ifndef CONFIG_EXAMPLES_CONFIGDATA_SILENT
       message("Filled /dev/config\n");
       message("  Number of entries: %d\n", g_nentries);
@@ -735,7 +735,7 @@ int configdata_main(int argc, char *argv[])
       /* Delete some entries */
 
 #ifndef CONFIG_EXAMPLES_CONFIGDATA_SILENT
-      message("\n=== DELETING %d ============================\n", i);
+      message("\n=== DELETING %u ============================\n", i);
 #endif
       ret = configdata_delentries();
       if (ret < 0)
@@ -785,7 +785,7 @@ int configdata_main(int argc, char *argv[])
 #else
       if ((i % EXAMPLES_CONFIGDATA_REPORT) == 0)
         {
-          message("%d\n", i);
+          message("%u\n", i);
           msgflush();
         }
 #endif

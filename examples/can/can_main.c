@@ -217,7 +217,7 @@ int can_main(int argc, char *argv[])
     nbytes = write(fd, &txmsg, msgsize);
     if (nbytes != msgsize)
       {
-        message("ERROR: write(%d) returned %d\n", msgsize, nbytes);
+        message("ERROR: write(%ld) returned %ld\n", (long)msgsize, (long)nbytes);
         errval = 3;
         goto errout_with_dev;
       }
@@ -234,7 +234,7 @@ int can_main(int argc, char *argv[])
     nbytes = read(fd, &rxmsg, msgsize);
     if (nbytes < CAN_MSGLEN(0) || nbytes > msgsize)
       {
-        message("ERROR: read(%d) returned %d\n", msgsize, nbytes);
+        message("ERROR: read(%ld) returned %ld\n", (long)msgsize, (long)nbytes);
         errval = 4;
         goto errout_with_dev;
       }
