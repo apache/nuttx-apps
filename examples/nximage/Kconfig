@@ -10,4 +10,74 @@ config EXAMPLES_NXIMAGE
 		Enable the X graphics image example
 
 if EXAMPLES_NXIMAGE
+
+config EXAMPLES_NXIMAGE_VPLANE
+        int "Video Plane"
+        default 0
+        ---help---
+                The plane to select from the framebuffer driver for use in the test.
+                Default: 0
+
+config EXAMPLES_NXIMAGE_DEVNO
+        int "Video Device Number"
+        default 0
+        ---help---
+                The LCD device to select from the LCD driver for use in the test:
+                Default: 0
+
+config EXAMPLES_NXIMAGE_BPP
+        int "Bits-Per-Pixel"
+        default 32
+        ---help---
+                Pixels per pixel to use.  Valid options include 1, 2, 4, 8, 16, 24,
+                and 32.  Default is 32.
+
+config EXAMPLES_NXIMAGE_XSCALEp5
+        bool "Scale X by 50%"
+        default n
+        ---help---
+                Reduce image scale by 50% of its original size.
+
+config EXAMPLES_NXIMAGE_XSCALE1p0
+        bool "Don't scale image."
+        default y
+        ---help---
+                Keep original image size.
+
+config EXAMPLES_NXIMAGE_XSCALE1p5
+        bool "Scale X by 150%"
+        default n
+        ---help---
+                Increase image scale by 50% of its original size.
+
+config EXAMPLES_NXIMAGE_XSCALE2p0
+        bool "Scale X by 200%"
+        default n
+        ---help---
+                Increase image scale by 200% of its original size.
+
+config EXAMPLES_NXIMAGE_YSCALEp5
+        bool "Scale Y by 50%"
+        default n
+        ---help---
+                Reduce image scale by 50% of its original size.
+
+config EXAMPLES_NXIMAGE_YSCALE1p0
+        bool "Don't scale image."
+        default y
+        ---help---
+                Keep original image size.
+
+config EXAMPLES_NXIMAGE_YSCALE1p5
+        bool "Scale Y by 150%"
+        default n
+        ---help---
+                Increase image scale by 50% of its original size.
+
+config EXAMPLES_NXIMAGE_YSCALE2p0
+        bool "Scale Y by 200%"
+        default n
+        ---help---
+                Increase image scale by 200% of its original size.
+
 endif

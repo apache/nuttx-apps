@@ -10,4 +10,31 @@ config EXAMPLES_UIP
 		Enable the uIP web server example
 
 if EXAMPLES_UIP
+
+config EXAMPLES_UIP_IPADDR
+	int "Device IP"
+	default 0x0a000002
+	---help---
+		This is the IP address of your board.
+
+
+config EXAMPLES_UIP_DRIPADDR
+	int "Default Router IP"
+	default 0x0a000001
+	---help---
+		This is the IP address of your router/gateway.
+
+config EXAMPLES_UIP_NETMASK
+	int "Network Mask"
+	default 0xffffff00
+	---help---
+		This is the network mask to use on this device.
+
+config EXAMPLES_UIP_NOMAC
+	bool "No hardware MAC"
+	default y
+	---help---
+		Some devices don't have hardware MAC then we need to define a
+		software MAC.
+
 endif

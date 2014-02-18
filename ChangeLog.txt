@@ -823,3 +823,6 @@
 	* Several files changes based on complaints from the tool CppCheck.  Some
 	  latent bugs were fixed (and most likely some new typos were introduced)
 	  (2014-2-10).
+	* apps/examples/nximage/Kconfig and apps/examples/uip/Kconfig: Incomplete
+	  Kconfig files fleshed out by Alan Carvalho de Assis (2014-2-18).
+
