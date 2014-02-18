@@ -12,20 +12,19 @@ config EXAMPLES_UIP
 if EXAMPLES_UIP
 
 config EXAMPLES_UIP_IPADDR
-	int "Device IP"
+	hex "Device IP"
 	default 0x0a000002
 	---help---
 		This is the IP address of your board.
 
-
 config EXAMPLES_UIP_DRIPADDR
-	int "Default Router IP"
+	hex "Default Router IP"
 	default 0x0a000001
 	---help---
 		This is the IP address of your router/gateway.
 
 config EXAMPLES_UIP_NETMASK
-	int "Network Mask"
+	hex "Network Mask"
 	default 0xffffff00
 	---help---
 		This is the network mask to use on this device.
