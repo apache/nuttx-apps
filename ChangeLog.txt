@@ -828,3 +828,6 @@
 	* apps/nshilib: rmdir can now be used in the pseudo-filesystem.  Hence,
 	  the command needs to be available even if there are no write-able
 	  filesystem enabled (2014-2-19).
+	* apps/nshilib: mkdir can now be used in the pseudo-filesystem.  Hence,
+	  the command needs to be available even if there are no write-able
+	  filesystem enabled (2014-2-19).
