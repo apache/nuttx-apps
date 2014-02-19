@@ -344,6 +344,9 @@ static const struct cmdmap_s g_cmdmap[] =
 # ifndef CONFIG_NSH_DISABLE_RM
   { "rm",       cmd_rm,       2, 2, "<file-path>" },
 # endif
+# endif
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_RMDIR
   { "rmdir",    cmd_rmdir,    2, 2, "<dir-path>" },
 # endif

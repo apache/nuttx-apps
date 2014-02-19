@@ -717,6 +717,9 @@ void nsh_usbtrace(void);
 #  ifndef CONFIG_NSH_DISABLE_LS
       int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
+#  ifndef CONFIG_NSH_DISABLE_RMDIR
+      int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
 #  if defined(CONFIG_SYSLOG) && defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
       int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
@@ -754,9 +757,6 @@ void nsh_usbtrace(void);
 #       endif
 #       ifndef CONFIG_NSH_DISABLE_RM
            int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#       endif
-#       ifndef CONFIG_NSH_DISABLE_RMDIR
-           int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #       endif
 #     endif /* CONFIG_FS_WRITABLE */
 #   endif /* CONFIG_FS_READABLE */

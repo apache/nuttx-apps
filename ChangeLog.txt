@@ -825,4 +825,6 @@
 	  (2014-2-10).
 	* apps/examples/nximage/Kconfig and apps/examples/uip/Kconfig: Incomplete
 	  Kconfig files fleshed out by Alan Carvalho de Assis (2014-2-18).
-
+	* apps/nshilib: rmdir can now be used in the pseudo-filesystem.  Hence,
+	  the command needs to be available even if there are no write-able
+	  filesystem enabled (2014-2-19).
