@@ -14,7 +14,8 @@ if NSH_LIBRARY
 
 choice
 	prompt "Command Line Editor"
-	default NSH_READLINE
+	default NSH_READLINE if DEFAULT_SMALL
+	default NSH_CLE if !DEFAULT_SMALL
 
 config NSH_READLINE
 	bool "Minimal readline()"
@@ -60,16 +61,19 @@ menu "Disable Individual commands"
 
 config NSH_DISABLE_ADDROUTE
 	bool "Disable addroute"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_BASE64DEC
 	bool "Disable base64dec"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_BASE64
 
 config NSH_DISABLE_BASE64ENC
 	bool "Disable base64enc"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_BASE64
 
 config NSH_DISABLE_CAT
@@ -86,15 +90,18 @@ config NSH_DISABLE_CP
 
 config NSH_DISABLE_CMP
 	bool "Disable cmp"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_DD
 	bool "Disable dd"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_DELROUTE
 	bool "Disable delroute"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_ECHO
 	bool "Disable echo"
@@ -102,11 +109,13 @@ config NSH_DISABLE_ECHO
 
 config NSH_DISABLE_EXEC
 	bool "Disable exec"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_EXIT
 	bool "Disable exit"
-	default n
+	default y if DEFAULT_SMALL && !NSH_TELNET
+	default n if !DEFAULT_SMALL || NSH_TELNET
 
 config NSH_DISABLE_FREE
 	bool "Disable free"
@@ -114,7 +123,8 @@ config NSH_DISABLE_FREE
 
 config NSH_DISABLE_GET
 	bool "Disable get"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_HELP
 	bool "Disable help"
@@ -122,7 +132,8 @@ config NSH_DISABLE_HELP
 
 config NSH_DISABLE_HEXDUMP
 	bool "Disable hexdump"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_IFCONFIG
 	bool "Disable ifconfig"
@@ -134,7 +145,8 @@ config NSH_DISABLE_KILL
 
 config NSH_DISABLE_LOSETUP
 	bool "Disable losetup"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_LS
 	bool "Disable ls"
@@ -146,7 +158,8 @@ config NSH_DISABLE_MB
 
 config NSH_DISABLE_MD5
 	bool "Disable md5"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_HASH_MD5
 
 config NSH_DISABLE_MKDIR
@@ -155,15 +168,19 @@ config NSH_DISABLE_MKDIR
 
 config NSH_DISABLE_MKFATFS
 	bool "Disable mkfatfs"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	depends on FS_FAT
 
 config NSH_DISABLE_MKFIFO
 	bool "Disable mkfifo"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_MKRD
 	bool "Disable mkrd"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_MH
 	bool "Disable mh"
@@ -180,18 +197,22 @@ config NSH_DISABLE_MW
 config NSH_DISABLE_NSFMOUNT
 	bool "Disable nfsmount"
 	default n
+	depends on NFS
 
 config NSH_DISABLE_PS
 	bool "Disable ps"
 	default n
+	depends on !NUTTX_KERNEL
 
 config NSH_DISABLE_PING
 	bool "Disable ping"
 	default n
+	depends on NET_ICMP
 
 config NSH_DISABLE_PUT
 	bool "Disable put"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_PWD
 	bool "Disable pwd"
@@ -231,12 +252,14 @@ config NSH_DISABLE_UNSET
 
 config NSH_DISABLE_URLDECODE
 	bool "Disable urldecode"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_URLCODE
 
 config NSH_DISABLE_URLENCODE
 	bool "Disable urlencode"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_URLCODE
 
 config NSH_DISABLE_USLEEP
@@ -245,11 +268,13 @@ config NSH_DISABLE_USLEEP
 
 config NSH_DISABLE_WGET
 	bool "Disable wget"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_XD
 	bool "Disable xd"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 endmenu
 
@@ -257,7 +282,8 @@ menu "Configure Command Options"
 
 config NSH_CMDOPT_DF_H
 	bool "df: Enable [-h] man-readable format"
-	default n
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
 
 config NSH_CODECS_BUFSIZE
 	int "File buffer size used by CODEC commands"
@@ -265,16 +291,18 @@ config NSH_CODECS_BUFSIZE
 
 config NSH_CMDOPT_HEXDUMP
 	bool "hexdump: Enable 'skip' and 'count' parameters"
-	default n
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
 
 endmenu
 
 config NSH_FILEIOSIZE
 	int "NSH I/O buffer size"
-	default 1024
+	default 512 if DEFAULT_SMALL
+	default 1024 if !DEFAULT_SMALL
 	---help---
 		Size of a static I/O buffer used for file access (ignored if
-		there is no filesystem). Default is 1024.
+		there is no filesystem). Default is 512/1024.
 
 config NSH_STRERROR
 	bool "Use strerror()"
@@ -288,14 +316,16 @@ config NSH_STRERROR
 
 config NSH_LINELEN
 	int "Max command line length"
-	default 80
+	default 64 if DEFAULT_SMALL
+	default 80 if !DEFAULT_SMALL
 	---help---
 		The maximum length of one command line and of one output line.
-		Default: 80
+		Default: 64/80
 
 config NSH_DISABLE_SEMICOLON
 	bool "Disable multiple commands per line"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	---help---
 		By default, you can enter multiple NSH commands on a line with each
 		command separated by a semicolon.  You can disable this feature to
@@ -303,7 +333,8 @@ config NSH_DISABLE_SEMICOLON
 
 config NSH_CMDPARMS
 	bool "Enable commands as parameters"
-	default n
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
 	depends on !DISABLE_MOUNTPOINT
 	---help---
 		If selected, then the output from commands, from file applications, and
@@ -340,7 +371,8 @@ config NSH_MAXARGUMENTS
 
 config NSH_ARGCAT
 	bool "Concatenation of argument strings"
-	default n
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
 	---help---
 		Support concatenation of strings with environment variables or command
 		output.  For example:
@@ -363,7 +395,8 @@ config NSH_NESTDEPTH
 
 config NSH_DISABLESCRIPT
 	bool "Disable script support"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	---help---
 		This can be set to 'y' to suppress support for scripting.  This
 		setting disables the 'sh', 'test', and '[' commands and the
@@ -374,7 +407,8 @@ if !NSH_DISABLESCRIPT
 
 config NSH_DISABLE_ITEF
 	bool "Disable if-then-else-fi"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	---help---
 		This can be set to 'y' to suppress support for if-then-else-fi
 		sequences in scripts.  This would only be set on systems where
@@ -382,7 +416,8 @@ config NSH_DISABLE_ITEF
 
 config NSH_DISABLE_LOOPS
 	bool "Disable loops"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	---help---
 		This can be set to 'y' to suppress support for while-do-done and
 		until-do-done sequences in scripts.  This would only be set on
@@ -393,7 +428,8 @@ endif # !NSH_DISABLESCRIPT
 
 config NSH_DISABLEBG
 	bool "Disable background commands"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	---help---
 		This can be set to 'y' to suppress support for background
 		commands.  This setting disables the 'nice' command prefix and
@@ -658,7 +694,8 @@ config NSH_ARCHINIT
 
 config NSH_TELNET
 	bool "Use Telnet console"
-	default n
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
 	depends on NETUTILS_TELNETD
 	---help---
 		If NSH_TELNET is set to 'y', then a TELENET

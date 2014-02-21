@@ -840,3 +840,6 @@
 	* CONFIG_DISABLE_PSEUDOFS_OPERATIONS: This new configuration setting
 	  basically backs out the recent changes to mv, rm, mkdir, and rmdir
 	  (2014-2-20).
+	* nshlib/Kconfig:  Use CONFIG_DEFAULT_SMALL in selecting default
+	  settings (2014-2-20).
+
