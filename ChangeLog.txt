@@ -798,7 +798,7 @@
 	  (2014-1-17).
 	* apps/nshlib/Kconfig, README.txt, nsh.h, nsh_command.c, and
 	  nsh_script.c:  Add an option to conditionally compile out support for
-	  loop and for if-then-else-fi sequence (2014-1-17).  
+	  loop and for if-then-else-fi sequence (2014-1-17).
 	* apps/nshlib/nsh.h, nsh_command.c, and nsh_parse.c:  Add a break
 	  command that can be executed with a loop to terminate the loop
 	  immediately (2014-1-17).
@@ -831,6 +831,12 @@
 	* apps/nshlib: 'mkdir' can now be used in the pseudo-filesystem.  Hence,
 	  the command needs to be available even if there are no write-able
 	  filesystem enabled (2014-2-19).
-	* apps/nshlib: 'rename' can now be used in the pseudo-filesystem.  Hence,
+	* apps/nshlib: 'mv' can now be used in the pseudo-filesystem.  Hence,
 	  the 'mv' command needs to be available even if there are no write-able
 	  filesystem enabled (2014-2-19).
+	* apps/nshlib: 'rm' can now be used to remove nodes frm the pseudo-
+	  filesystem.  Hence, the 'rm' command needs to be available even if there
+	  are no write-able filesystem enabled (2014-2-20).
+	* CONFIG_DISABLE_PSEUDOFS_OPERATIONS: This new configuration setting
+	  basically backs out the recent changes to mv, rm, mkdir, and rmdir
+	  (2014-2-20).

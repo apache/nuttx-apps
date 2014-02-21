@@ -2298,4 +2298,4 @@ int cmd_break(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   return OK;
 }
-#endif 
+#endif

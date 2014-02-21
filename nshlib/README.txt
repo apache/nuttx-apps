@@ -307,7 +307,7 @@ o break
   until loop, between the do and done tokens. Outside of a loop, break
   command does nothing. If the break command is executed within the body
   of a loop, the loop will immediately terminate and execution will
-  continue with the next command immediately following the done token. 
+  continue with the next command immediately following the done token.
 
 o cat <path> [<path> [<path> ...]]
 
@@ -955,7 +955,7 @@ Command Dependencies on Configuration Settings
   cd         !CONFIG_DISABLE_ENVIRON && CONFIG_NFILE_DESCRIPTORS > 0
   cp         CONFIG_NFILE_DESCRIPTORS > 0
   dd         CONFIG_NFILE_DESCRIPTORS > 0
-  delrout   CONFIG_NET && CONFIG_NET_ROUTE
+  delrout    CONFIG_NET && CONFIG_NET_ROUTE
   df         !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE (see note 3)
   echo       --
   exec       --
@@ -972,19 +972,19 @@ Command Dependencies on Configuration Settings
   ls         CONFIG_NFILE_DESCRIPTORS > 0
   md5        CONFIG_NETUTILS_CODECS && CONFIG_CODECS_HASH_MD5
   mb,mh,mw   ---
-  mkdir      CONFIG_NFILE_DESCRIPTORS > 0
+  mkdir      (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
   mkfatfs    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_FAT
   mkfifo     CONFIG_NFILE_DESCRIPTORS > 0
   mkrd       !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE (see note 4)
   mount      !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE (see note 3)
-  mv         !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE (see note 4)
+  mv         (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0) (see note 4)
   nfsmount   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET && CONFIG_NFS
   ping       CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_PING  && !CONFIG_DISABLE_CLOCK && !CONFIG_DISABLE_SIGNALS
   ps         --
   put        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET_BUFSIZE >= 558 (see note 1,2)
   pwd        !CONFIG_DISABLE_ENVIRON && CONFIG_NFILE_DESCRIPTORS > 0
-  rm         !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE (see note 4)
-  rmdir      CONFIG_NFILE_DESCRIPTORS > 0
+  rm         (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
+  rmdir      (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
   set        !CONFIG_DISABLE_ENVIRON
   sh         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
   sleep      !CONFIG_DISABLE_SIGNALS

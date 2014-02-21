@@ -75,6 +75,27 @@
 #  undef CONFIG_NSH_CMDPARMS
 #endif
 
+/* rmdir, mkdir, rm, and mv are only available if mountpoints are enabled
+ * AND there is a writeable file system OR if these operations on the
+ * pseudo-filesystem are not disabled.
+ */
+
+#undef NSH_HAVE_WRITABLE_MOUNTPOINT
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_WRITABLE) && \
+    CONFIG_NFILE_STREAMS > 0
+#  define NSH_HAVE_WRITABLE_MOUNTPOINT 1
+#endif
+
+#undef NSH_HAVE_PSEUDOFS_OPERATIONS
+#if !defined(CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_STREAMS > 0
+#  define NSH_HAVE_PSEUDOFS_OPERATIONS 1
+#endif
+
+#undef NSH_HAVE_DIROPTS
+#if defined(NSH_HAVE_WRITABLE_MOUNTPOINT) || defined(NSH_HAVE_PSEUDOFS_OPERATIONS)
+#  define NSH_HAVE_DIROPTS 1
+#endif
+
 /* If CONFIG_NSH_CMDPARMS is selected, then the path to a directory to
  * hold temporary files must be provided.
  */
@@ -661,7 +682,7 @@ void nsh_usbtrace(void);
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   int cmd_break(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#endif 
+#endif
 #ifndef CONFIG_NSH_DISABLE_ECHO
   int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
@@ -717,15 +738,6 @@ void nsh_usbtrace(void);
 #  ifndef CONFIG_NSH_DISABLE_LS
       int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
-#  ifndef CONFIG_NSH_DISABLE_MKDIR
-      int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#  ifndef CONFIG_NSH_DISABLE_MV
-      int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
-#  ifndef CONFIG_NSH_DISABLE_RMDIR
-      int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
 #  if defined(CONFIG_SYSLOG) && defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
       int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
@@ -734,6 +746,22 @@ void nsh_usbtrace(void);
        int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
 # endif  /* CONFIG_NFILE_STREAMS && !CONFIG_NSH_DISABLESCRIPT */
+
+# ifdef NSH_HAVE_DIROPTS
+#  ifndef CONFIG_NSH_DISABLE_MKDIR
+      int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_MV
+      int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_RM
+      int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_RMDIR
+      int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
+# endif /* CONFIG_NFILE_STREAMS && NSH_HAVE_DIROPTS */
+
 # ifndef CONFIG_DISABLE_MOUNTPOINT
 #   ifndef CONFIG_NSH_DISABLE_LOSETUP
        int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
@@ -754,9 +782,6 @@ void nsh_usbtrace(void);
 #     ifdef CONFIG_FS_WRITABLE
 #       ifndef CONFIG_NSH_DISABLE_MKRD
            int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#       endif
-#       ifndef CONFIG_NSH_DISABLE_RM
-           int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #       endif
 #     endif /* CONFIG_FS_WRITABLE */
 #   endif /* CONFIG_FS_READABLE */

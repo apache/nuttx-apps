@@ -121,7 +121,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   { "break",     cmd_break,   1, 1, NULL },
-#endif 
+#endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_CAT
@@ -252,7 +252,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_DIROPTS
 # ifndef CONFIG_NSH_DISABLE_MKDIR
   { "mkdir",    cmd_mkdir,    2, 2, "<path>" },
 # endif
@@ -270,7 +270,7 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
+#ifdef NSH_HAVE_WRITABLE_MOUNTPOINT
 # ifndef CONFIG_NSH_DISABLE_MKRD
   { "mkrd",     cmd_mkrd,     2, 6, "[-m <minor>] [-s <sector-size>] <nsectors>" },
 # endif
@@ -300,7 +300,7 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_DIROPTS
 #  ifndef CONFIG_NSH_DISABLE_MV
   { "mv",       cmd_mv,       3, 3, "<old-path> <new-path>" },
 #  endif
@@ -340,13 +340,13 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
+#ifdef NSH_HAVE_DIROPTS
 # ifndef CONFIG_NSH_DISABLE_RM
   { "rm",       cmd_rm,       2, 2, "<file-path>" },
 # endif
-# endif
+#endif
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_DIROPTS
 # ifndef CONFIG_NSH_DISABLE_RMDIR
   { "rmdir",    cmd_rmdir,    2, 2, "<dir-path>" },
 # endif

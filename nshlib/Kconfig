@@ -304,6 +304,7 @@ config NSH_DISABLE_SEMICOLON
 config NSH_CMDPARMS
 	bool "Enable commands as parameters"
 	default n
+	depends on !DISABLE_MOUNTPOINT
 	---help---
 		If selected, then the output from commands, from file applications, and
 		from NSH built-in commands can be used as arguments to other
@@ -316,7 +317,7 @@ config NSH_CMDPARMS
 		environment variable BAR.  The value of the environment variable FOO
 		is then set output of myprogram on stdout.
 
-		Because this feature commits significant resourse, it is disabled by
+		Because this feature commits significant resources, it is disabled by
 		default.
 
 config NSH_TMPDIR
@@ -464,7 +465,7 @@ config NSH_ROMFSDEVNO
 	int "ROMFS block device minor number"
 	default 0
 	---help---
-		This is the minor number of the ROMFS block device.  The default is 
+		This is the minor number of the ROMFS block device.  The default is
 		'0' corresponding to /dev/ram0.
 
 config NSH_ROMFSSECTSIZE

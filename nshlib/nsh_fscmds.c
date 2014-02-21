@@ -995,7 +995,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mkdir
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_DIROPTS
 #ifndef CONFIG_NSH_DISABLE_MKDIR
 int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1136,7 +1136,7 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mkrd
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
+#ifdef NSH_HAVE_WRITABLE_MOUNTPOINT
 #ifndef CONFIG_NSH_DISABLE_MKRD
 int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1298,7 +1298,7 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mv
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_DIROPTS
 #ifndef CONFIG_NSH_DISABLE_MV
 int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1342,7 +1342,7 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_rm
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_WRITABLE)
+#ifdef NSH_HAVE_DIROPTS
 #ifndef CONFIG_NSH_DISABLE_RM
 int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
@@ -1369,7 +1369,7 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_rmdir
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_DIROPTS
 #ifndef CONFIG_NSH_DISABLE_RMDIR
 int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
