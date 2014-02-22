@@ -842,4 +842,6 @@
 	  (2014-2-20).
 	* nshlib/Kconfig:  Use CONFIG_DEFAULT_SMALL in selecting default
 	  settings (2014-2-20).
+	* nshlib/nsh_telnetd.c:  Use strncpy vs strcpy to avoid overrun the
+	  username and password buffers.  From Bertold Van den Bergh (2014-2-22).
 
