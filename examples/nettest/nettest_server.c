@@ -134,10 +134,11 @@ void recv_server(void)
   /* Configure to "linger" until all data is sent when the socket is closed */
 
 #ifdef NETTEST_HAVE_SOLINGER
-    ling.l_onoff  = 1;
-    ling.l_linger = 30;     /* timeout is seconds */
-    if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
-      {
+  ling.l_onoff  = 1;
+  ling.l_linger = 30;     /* timeout is seconds */
+
+  if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
+    {
       message("server: setsockopt SO_LINGER failure: %d\n", errno);
       goto errout_with_acceptsd;
     }

@@ -51,6 +51,7 @@ config EXAMPLES_NETTEST_CLIENTIP
 		EXAMPLES_NETTEST_CLIENTIP should be the same as
 		EXAMPLES_NETTEST_IPADDR (default).  If the target is the server,
 		then the default value of EXAMPLES_NETTEST_CLIENTIP is set to the
-		gateway address, EXAMPLES_NETTEST_DRIPADDR.
+		host PC IP address (possibly the gateway address,
+		EXAMPLES_NETTEST_DRIPADDR?).
 
 endif
