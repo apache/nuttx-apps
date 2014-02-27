@@ -502,6 +502,17 @@ static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
         }
     }
 
+   /* Make sure that the following NSH prompt appears on a new line.  If the
+    * file ends in a newline, then this will print an extra blank line
+    * before the prompt, but that is preferable to the case where there is
+    * no newline and the NSH prompt appears on the same line as the cat'ed
+    * file.
+    */
+
+   nsh_output(vtbl, "\n");
+
+   /* Close the input file and return the result */
+
    (void)close(fd);
    return ret;
 }

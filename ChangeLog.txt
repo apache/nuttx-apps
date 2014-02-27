@@ -844,4 +844,10 @@
 	  settings (2014-2-20).
 	* nshlib/nsh_telnetd.c:  Use strncpy vs strcpy to avoid overrun the
 	  username and password buffers.  From Bertold Van den Bergh (2014-2-22).
-
+	* nshlib/Kconfig, nsh_proccmds.c:  If the CPU load feature and the procfs
+	  features are enabled, then show CPU load used by each thread in the
+	  'ps' command (2014-2-27).
+	* nshlib/nsh_fscmds.c:  Add a newline after printing the file in the
+	  'cat' command.  This prevents the NSH prompt from be in the same line
+	  as the final line of the file in the case where there is no newline
+	  at the end of the file (2014-2-27).
