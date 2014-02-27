@@ -98,6 +98,11 @@ config NSH_DISABLE_DD
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 
+config NSH_DISABLE_DF
+	bool "Disable df"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+
 config NSH_DISABLE_DELROUTE
 	bool "Disable delroute"
 	default y if DEFAULT_SMALL
@@ -284,6 +289,7 @@ config NSH_CMDOPT_DF_H
 	bool "df: Enable [-h] man-readable format"
 	default n if DEFAULT_SMALL
 	default y if !DEFAULT_SMALL
+	depends on !NSH_DISABLE_DF
 
 config NSH_CODECS_BUFSIZE
 	int "File buffer size used by CODEC commands"
@@ -293,6 +299,12 @@ config NSH_CMDOPT_HEXDUMP
 	bool "hexdump: Enable 'skip' and 'count' parameters"
 	default n if DEFAULT_SMALL
 	default y if !DEFAULT_SMALL
+	depends on !NSH_DISABLE_HEXDUMP
+
+config NSH_PROC_MOUNTPOUNT
+	string "procfs mountpoint"
+	default "/proc"
+	depends on FS_PROCFS
 
 endmenu
 
