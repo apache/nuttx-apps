@@ -23,9 +23,17 @@ config EXAMPLES_NXLINES_DEVNO
 	---help---
 		The LCD device to select from the LCD driver for use in the test: Default: 0
 
+config EXAMPLES_NXLINES_DEFAULT_COLORS
+	bool "Use default colors"
+	default y
+	---help---
+		Select this option to let the NXLINES example pick the colors.  Otherwise,
+		you may select the exact colors to use in hex format.
+
 config EXAMPLES_NXLINES_BGCOLOR
 	hex "Background Color"
 	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
 	---help---
 		The color of the background.  Default depends on EXAMPLES_NXLINES_BPP.
 
@@ -38,6 +46,7 @@ config EXAMPLES_NXLINES_LINEWIDTH
 config EXAMPLES_NXLINES_LINECOLOR
 	hex "Line Color"
 	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
 	---help---
 		The color of the central lines drawn in the background window. Default
 		depends on EXAMPLES_NXLINES_BPP (there really is no meaningful default).
@@ -51,6 +60,7 @@ config EXAMPLES_NXLINES_BORDERWIDTH
 config EXAMPLES_NXLINES_BORDERCOLOR
 	hex "Border Color"
 	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
 	---help---
 		The color of the circular border drawn in the background window. Default
 		depends on EXAMPLES_NXLINES_BPP (there really is no meaningful default).
@@ -58,6 +68,7 @@ config EXAMPLES_NXLINES_BORDERCOLOR
 config EXAMPLES_NXLINES_CIRCLECOLOR
 	hex "Circle Color"
 	default 0x00
+	depends on !EXAMPLES_NXLINES_DEFAULT_COLORS
 	---help---
 		The color of the circular region filled in the background window. Default
 		depends on EXAMPLES_NXLINES_BPP (there really is no meaningful default).
@@ -85,3 +96,4 @@ config EXAMPLES_NXLINES_EXTERNINIT
 		#endif
 
 endif
+
