@@ -82,6 +82,13 @@ config EXAMPLES_NX_RAWWINDOWS
 		Use raw windows;  Default is to use pretty, framed NXTK windows with
 		toolbars.
 
+config EXAMPLES_NX_TOOLBAR_HEIGHT
+	int "Tool bar height"
+	default 16
+	depends on !EXAMPLES_NX_RAWWINDOWS
+	---help---
+		The height of the toolbar in the NXTK framed windows
+
 config EXAMPLES_NX_EXTERNINIT
 	bool "External Device Initialization"
 	default n
