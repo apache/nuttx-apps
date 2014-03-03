@@ -851,3 +851,6 @@
 	  'cat' command.  This prevents the NSH prompt from be in the same line
 	  as the final line of the file in the case where there is no newline
 	  at the end of the file (2014-2-27).
+	* netutils/dhcpd/dhcpd.c: allocipaddr() should not call ntohl(), the
+	  returned IP address is already in host order.
+
