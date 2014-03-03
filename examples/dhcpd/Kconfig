@@ -10,5 +10,22 @@ config EXAMPLES_DHCPD
 		Enable the DHCP server example
 
 if EXAMPLES_DHCPD
+
+config EXAMPLES_DHCPD_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+
+config EXAMPLES_DHCPD_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_DHCPD_DRIPADDR
+	hex "Default Router IP address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_DHCPD_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
 endif
 
