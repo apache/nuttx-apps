@@ -853,4 +853,6 @@
 	  at the end of the file (2014-2-27).
 	* netutils/dhcpd/dhcpd.c: allocipaddr() should not call ntohl(), the
 	  returned IP address is already in host order.
+	* apps/netutils/dhcpd/Kconfig: Add missing DHCPD configuratino
+	  settings(2014-3-3).
 
