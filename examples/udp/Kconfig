@@ -10,4 +10,26 @@ config EXAMPLES_UDP
 		Enable the UDP example
 
 if EXAMPLES_UDP
-endif
+
+config EXAMPLES_UDP_SERVER
+	bool "Target is the server"
+	default n
+
+config EXAMPLES_UDP_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_UDP_DRIPADDR
+	hex "Target default router address (Gateway)"
+	default 0x0a000001
+
+config EXAMPLES_UDP_NETMASK
+	hex "Network mask"
+	default 0xffffff00
+
+config EXAMPLES_UDP_SERVERIP
+	hex "Server IP address"
+	default 0x0a000001 if EXAMPLES_UDP_SERVER
+	default 0x0a000002 if !EXAMPLES_UDP_SERVER
+
+endif # EXAMPLES_UDP
