@@ -194,7 +194,7 @@ static int df_man_readable_handler(FAR const char *mountpoint,
   /* Find the label for size */
 
   which = 0;
-  while (size >= 9999 || (size & 0x3ff) == 0 && size)
+  while (size >= 9999 || ((size & 0x3ff) == 0 && size != 0))
     {
       which++;
       size >>= 10;
@@ -205,7 +205,7 @@ static int df_man_readable_handler(FAR const char *mountpoint,
   /* Find the label for free */
 
   which = 0;
-  while (free >= 9999 || (free & 0x3ff) == 0 && free)
+  while (free >= 9999 || ((free & 0x3ff) == 0 && free != 0))
     {
       which++;
       free >>= 10;
@@ -216,7 +216,7 @@ static int df_man_readable_handler(FAR const char *mountpoint,
   /* Find the label for used */
 
   which = 0;
-  while (used >= 9999 || (used & 0x3ff) == 0 && used)
+  while (used >= 9999 || ((used & 0x3ff) == 0 && used != 0))
     {
       which++;
       used >>= 10;
