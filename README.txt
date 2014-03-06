@@ -95,36 +95,9 @@ after the NSH command.
 
 Application Configuration File
 ------------------------------
-The old-style NuttX configuration uses a special configuration file is
-used to configure which applications are to be included in the build.
-The source for this file is  configs/<board>/<configuration>/appconfig.
-The existence of the appconfig file in the board configuration directory
-is sufficient to enable building of applications.
-
-The appconfig file is copied into the apps/ directory as .config when
-NuttX is configured.  .config is included in the toplevel apps/Makefile.
-As a minimum, this configuration file must define files to add to the
-CONFIGURED_APPS list like:
-
-  CONFIGURED_APPS  += examples/hello system/poweroff
-
-The new NuttX configuration uses kconfig-frontends tools and only the
-NuttX .config file.  The new configuration is indicated by the existence
-of the definition CONFIG_NUTTX_NEWCONFIG=y in the NuttX .config file.
-If CONFIG_NUTTX_NEWCONFIG is defined, then the Makefile will:
-
-- Assume that there is no apps/.config file and will instead
-- Include Make.defs files from each of the subdirectories.
-
-When an application is enabled using the kconfig-frontends tool, then
-a new definition is added to the NuttX .config file.  For example, if
-you want to enable apps/examples/hello then the old apps/.config would
-have had:
-
-  CONFIGURED_APPS += examples/hello
-
-But in the new configuration there will be no apps/.config file and,
-instead, the NuttX .config will have:
+The NuttX configuration uses kconfig-frontends tools and the NuttX
+configuration file (.config) file.  For example, the NuttX .config
+may have:
 
   CONFIG_EXAMPLES_HELLO=y
 
@@ -138,43 +111,11 @@ This will select the apps/examples/hello in the following way:
   CONFIGURED_APPS += examples/hello
   endif
 
-Thus accomplishing the same thing with no apps/.config file.
-
 Example Built-In Application
 ----------------------------
 An example application skeleton can be found under the examples/hello
 sub-directory.  This example shows how a builtin application can be added
-to the project. One must define:
-
-Old configuration method:
-
- 1. Create sub-directory as: appname
-
- 2. In this directory there should be:
-
-    - A Makefile, and
-    - The application source code.
-
- 3. The application source code should provide the entry point:
-    appname_main()
-
- 4. Set the requirements in the file: Makefile, specially the lines:
-
-    APPNAME    = appname
-    PRIORITY   = SCHED_PRIORITY_DEFAULT
-    STACKSIZE  = 768
-    ASRCS      = asm source file list as a.asm b.asm ...
-    CSRCS      = C source file list as foo1.c foo2.c ..
-
-    Look at some of the other Makefiles for examples.  Note the
-    special registration logic needed for the context: target
-
- 5. Add the to the application to the CONFIGIURED_APPS in the
-    apps/.config file:
-
-    CONFIGURED_APPS += appname
-
-New Configuration Method:
+to the project. One must:
 
  1. Create sub-directory as: appname
 
@@ -253,10 +194,8 @@ A: Here are four:
 
          tools/configure.sh MyBoard/MyConfiguration
 
-         or simply by copying defconfig->nutt/.config,
-         setenv.sh->nuttx/setenv.sh, and Make.defs->nuttx/Make.defs
-         (and appconfig->apps/.config for the old-style, deprecated
-         configuration files).
+         or simply by copying defconfig->nuttx/.config,
+         setenv.sh->nuttx/setenv.sh, and Make.defs->nuttx/Make.defs.
 
       Using the 'external' link makes it especially easy to add a
       'built-in' application an existing configuration.
@@ -264,11 +203,11 @@ A: Here are four:
    4) Add any link to apps/
 
       a) Add symbolic links apps/ to as many other directories as you
-         want.
-      b) Then just add the (relative) paths to the links in your
-         appconfig file (that becomes the apps/.config file).
+         want,
+      b) Add the symbolic link to the list of candidate paths in the
+         top level apps/Makefile, and
+      b) Add the (relative) paths to the CONFIGURED_APPS list
+         in the Make.defs file in your new directory.
 
       That is basically the same as my option #3 but doesn't use the
-      magic 'external' link. The toplevel apps/Makefile will always
-      to build whatever in finds in the apps/.config file (plus the
-      external link if present).
+      magic 'external' link.

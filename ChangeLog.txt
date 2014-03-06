@@ -855,4 +855,7 @@
 	  returned IP address is already in host order.
 	* apps/netutils/dhcpd/Kconfig: Add missing DHCPD configuratino
 	  settings(2014-3-3).
+	* Support for the legacy configuration mechanism (using appconfig files)
+	  is removed.  Only the newer configuration using the kconfig-frontends
+	  tools is now supported (2014-3-6).
 

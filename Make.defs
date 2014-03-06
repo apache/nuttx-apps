@@ -36,11 +36,7 @@
 
 BUILTIN_REGISTRY = $(APPDIR)$(DELIM)builtin$(DELIM)registry
 
-ifeq ($(CONFIG_NUTTX_NEWCONFIG),y)
 DEPCONFIG = $(TOPDIR)$(DELIM).config
-else
-DEPCONFIG = $(TOPDIR)$(DELIM).config $(APPDIR)$(DELIM).config
-endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 define REGISTER

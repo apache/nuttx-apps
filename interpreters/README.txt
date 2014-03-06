@@ -60,15 +60,3 @@ pcode
 
       CONFIG_EXAMPLES_PASHELLO=y
       CONFIG_INTERPRETERS_PCODE=y
-
-    Old Style (deprecated).  In the older configuration files, you would have
-    used an appconfig file containing the following definitions in order to
-    accomplish the same thing:
-
-      # Path to example in apps/examples containing the passhello_main entry point
-
-      CONFIGURED_APPS += examples/pashello
-
-      # Path to the Pascal p-code runtime interpreter module
-
-      CONFIGURED_APPS += interpreters/pcode

@@ -351,11 +351,6 @@ The I2C tools requires the following in your NuttX configuration:
 
      CONFIG_SYSTEM_I2C=y
 
-   Deprecated.  In the older style configuration, there would have been
-   an appconfig file containing the path to the I2C tool directory like:
-
-     CONFIGURE_APPS += system/i2c
-
 2. Device-specific I2C support must be enabled.  The I2C tool will call the
    platform-specific function up_i2cinitialize() to get instances of the
    I2C interface and the platform-specific function up_i2cuninitialize()

@@ -24,21 +24,6 @@ examples
       "named" applications that can be executed from the NSH
       command line (see apps/README.txt for more information).
 
-  Older configurations.
-
-    Older, deprecated configuration files might use a variable called
-    CONFIGURED_APPS to selected examples.  Those CONFIGURED_APPS settings
-    where kept in files called appconfig.  For example, in those older
-    configuration files, the OS test example would have been selected with
-    an entry like the following in the appconfig file:
-
-      CONFIGURED_APPS += examples/ostest
-
-    appconfig files are not longer used in the current NuttX configuration
-    system.  And syntax like the above is being phased out (but is still
-    supported by the make system butonly until the last configuration is
-    converted to the newer style configuration files).
-
 examples/adc
 ^^^^^^^^^^^^
 

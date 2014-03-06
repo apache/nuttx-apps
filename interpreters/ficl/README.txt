@@ -34,14 +34,7 @@ information as "recommendations" -- not necessarily proven instructions.
 
      CONFIG_INTERPRETERS_FICL=y
 
-   Deprecated: In the older style configuration, you would have used
-   an appconfig file to include (1) the path to your application code,
-   and (2) the path to the Ficl build directory.  That latter would
-   have appeared as the following line in your appconfig file:
-
-     CONFIGURED_APPS += interpreters/ficl
-
- 6. Configure and build NuttX.  On successful completion, the Ficl objects
-    will be available in apps/libapps.a and that NuttX binary will be
-    linked against that file.  Of course, Ficl will do nothing unless
-    you have written some application code that uses it!
+6. Configure and build NuttX.  On successful completion, the Ficl objects
+   will be available in apps/libapps.a and that NuttX binary will be
+   linked against that file.  Of course, Ficl will do nothing unless
+   you have written some application code that uses it!
