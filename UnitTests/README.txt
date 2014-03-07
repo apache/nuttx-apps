@@ -11,8 +11,9 @@ Contents
       a) Configure NuttX
       b) Enable C++ Support
       c) Enable Debug Options
-      d) Other Possible nuttx/.config changes
-      e) Other Possible apps/.config changes
+      d) NxWM
+      e) Other Possible .config file changes
+      f) Other Possible .config file changes
     2. Configure in the Selected Unit Test
   o Work-Arounds
     1. Build Issues
@@ -65,7 +66,7 @@ Installing and Building the Unit Tests
    b) Enable C++ Support
  
    If you are not using the sim/nsh2 or stm3210e-eval, you will need to add
-   the following definitions to the nuttx configuration at nuttx/.config to
+   the following definitions to the NuttX configuration at nuttx/.config to
    enable C++ support:
 
      CONFIG_HAVE_CXX=y
@@ -74,7 +75,7 @@ Installing and Building the Unit Tests
    writing *ONLY* the sim/nsh2 and stm321-e-eval configurations have C++ support
    pre-enabled).
 
-   d) Enable Debug Options
+   c) Enable Debug Options
 
    If you are running on a simulated target, then you might also want to
    enable debug symbols:
@@ -84,12 +85,12 @@ Installing and Building the Unit Tests
    Then you can run the simulation using GDB or DDD which is a very powerful
    debugging environment!
 
-   e) Special configuration requirements for the nxwm unit test:
+   d) Special configuration requirements for the nxwm unit test:
  
      CONFIG_NXCONSOLE=y
      CONFIG_NX_MULTIUSER=y
 
-   f) Other nuttx/.config changes -- NSH configurations only.
+   e) Other .config file changes -- NSH configurations only.
  
    If the configuration that you are using supports NSH and NSH built-in tasks
    then all is well.  If it is an NSH configuration, then you will have to define
@@ -101,7 +102,7 @@ Installing and Building the Unit Tests
    to change anything further in the nuttx/.config file if you are using either
    of these configurations.
 
-   g) Other apps/.config changes -- NON-NSH configurations only.
+   f) Other .config file changes -- NON-NSH configurations only.
 
    Entry Point.  You will need to set the entry point in the .config file.
    For NSH configurations, the entry point will always be "nsh_main" and you
@@ -123,24 +124,23 @@ Installing and Building the Unit Tests
    etc.
 
    For non-NSH configurations (such as the sim/touchscreen) you will have to
-   remove the CONFIGURED_APPS seting that contains the user_start function so
-   that you use the user_start in the unit test code instead.  So, for example,
+   remove the configuration setting that provided the "main" function so
+   that you use the "main" in the unit test code instead.  So, for example,
    with the sim/touchscreen configuration you need to remove the following from
-   the apps/.config file:
+   the NuttX configuration file (.config):
 
-     CONFIGURED_APPS += examples/<example> ## REMOVE
+     CONFIG_EXAMPLES_TOUSCHCREEN=y ## REMOVE (provided "tc_main")
 
    The following step will then install the new, correct directory containing
    the user_start function for the selected unit test.  If you see that NSH
    is configured:
    
-     CONFIGURED_APPS += examples/nsh ## DO NOT REMOVE
+     CONFIG_EXAMPLES_NSH=y    ## DO NOT REMOVE
 
-   Then DO NOT REMOVE the CONFIGURED_APPS setting.  Go back and re-read c)
-   above.  Do either c) or d).  Don't do both!
+   Then go back and re-read e) above.
 
-   sim/nsh2 and stm3210e-eval/nsh2 both NSH configurations.  You do not need
-   to change anything further in the apps/.config file for any NSH configuration.
+   sim/nsh2 and stm3210e-eval/nsh2 are both NSH configurations.  You do not need
+   to change anything further in the .config file for any NSH configuration.
 
 2. Configure/Install the Selected Unit Test
 
@@ -321,7 +321,7 @@ Example
    $ ./configure.sh sim/nsh2
    $ cd -
 
-2. Edit nuttx/.config to enable C++ support
+2. Edit the NuttX .config file to enable C++ support
 
    Do nothing... sim/nsh2 already has C++ support enabled.
 
