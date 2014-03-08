@@ -1052,7 +1052,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
       if (*ptr == '`')
         {
-          FAR char *tmpalloc;
+          FAR char *tmpalloc = NULL;
           FAR char *result;
           FAR char *rptr;
 
