@@ -51,7 +51,7 @@
 #include "usbmsc.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifdef CONFIG_SYSTEM_USBMSC_TRACEINIT
@@ -432,6 +432,7 @@ static int msconn_daemon(int argc, char *argv[])
       message("msconn_main: usbmsc_archinitialize failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
+
   check_test_memory_usage("After usbmsc_archinitialize()");
 
   /* Then exports the LUN(s) */
@@ -444,6 +445,7 @@ static int msconn_daemon(int argc, char *argv[])
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
+
   message("msconn_main: handle=%p\n", handle);
   check_test_memory_usage("After usbmsc_configure()");
 
@@ -456,6 +458,7 @@ static int msconn_daemon(int argc, char *argv[])
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
+
   check_test_memory_usage("After usbmsc_bindlun()");
 
 #if CONFIG_SYSTEM_USBMSC_NLUNS > 1
@@ -469,6 +472,7 @@ static int msconn_daemon(int argc, char *argv[])
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
+
   check_test_memory_usage("After usbmsc_bindlun() #2");
 
 #if CONFIG_SYSTEM_USBMSC_NLUNS > 2
@@ -482,6 +486,7 @@ static int msconn_daemon(int argc, char *argv[])
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
+
   check_test_memory_usage("After usbmsc_bindlun() #3");
 
 #endif
@@ -494,6 +499,7 @@ static int msconn_daemon(int argc, char *argv[])
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
+
   check_test_memory_usage("After usbmsc_exportluns()");
 
   /* It this program was configued as an NSH command, then just exit now.
@@ -519,6 +525,7 @@ static int msconn_daemon(int argc, char *argv[])
           usbmsc_uninitialize(handle);
           return EXIT_FAILURE;
         }
+
       check_test_memory_usage("After usbtrace_enumerate()");
 #  else
       message("msconn_main: Still alive\n");
@@ -643,18 +650,19 @@ int msdis_main(int argc, char *argv[])
       message("msdis: ERROR: Not connected\n");
       return EXIT_FAILURE;
     }
-   check_test_memory_usage("Since MS connection");
+
+  check_test_memory_usage("Since MS connection");
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
-   usbmsc_uninitialize(g_usbmsc.mshandle);
-   g_usbmsc.mshandle = NULL;
-   message("msdis: Disconnected\n");
-   check_test_memory_usage("After usbmsc_uninitialize()");
+  usbmsc_uninitialize(g_usbmsc.mshandle);
+  g_usbmsc.mshandle = NULL;
+  message("msdis: Disconnected\n");
+  check_test_memory_usage("After usbmsc_uninitialize()");
 
-   /* Dump debug memory usage */
+  /* Dump debug memory usage */
 
-   final_memory_usage("Final memory usage");
-   return EXIT_SUCCESS;
+  final_memory_usage("Final memory usage");
+  return EXIT_SUCCESS;
 }
 #endif
