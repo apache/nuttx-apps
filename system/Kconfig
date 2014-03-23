@@ -3,24 +3,12 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-menu "USB CDC/ACM Device Commands"
-source "$APPSDIR/system/cdcacm/Kconfig"
-endmenu
-
-menu "USB Composite Device Commands"
-source "$APPSDIR/system/composite/Kconfig"
-endmenu
-
 menu "Custom Free Memory Command"
 source "$APPSDIR/system/free/Kconfig"
 endmenu
 
-menu "I2C tool"
-source "$APPSDIR/system/i2c/Kconfig"
-endmenu
-
-menu "INI File Parser"
-source "$APPSDIR/system/inifile/Kconfig"
+menu "EMACS-like Command Line Editor"
+source "$APPSDIR/system/cle/Kconfig"
 endmenu
 
 menu "FLASH Program Installation"
@@ -29,6 +17,14 @@ endmenu
 
 menu "FLASH Erase-all Command"
 source "$APPSDIR/system/flash_eraseall/Kconfig"
+endmenu
+
+menu "I2C tool"
+source "$APPSDIR/system/i2c/Kconfig"
+endmenu
+
+menu "INI File Parser"
+source "$APPSDIR/system/inifile/Kconfig"
 endmenu
 
 menu "NxPlayer media player library / command Line"
@@ -59,14 +55,6 @@ menu "Sysinfo"
 source "$APPSDIR/system/sysinfo/Kconfig"
 endmenu
 
-menu "USB Monitor"
-source "$APPSDIR/system/usbmonitor/Kconfig"
-endmenu
-
-menu "EMACS-like Command Line Editor"
-source "$APPSDIR/system/cle/Kconfig"
-endmenu
-
 menu "VI Work-Alike Editor"
 source "$APPSDIR/system/vi/Kconfig"
 endmenu
@@ -75,8 +63,20 @@ menu "Stack Monitor"
 source "$APPSDIR/system/stackmonitor/Kconfig"
 endmenu
 
+menu "USB CDC/ACM Device Commands"
+source "$APPSDIR/system/cdcacm/Kconfig"
+endmenu
+
+menu "USB Composite Device Commands"
+source "$APPSDIR/system/composite/Kconfig"
+endmenu
+
 menu "USB Mass Storage Device Commands"
 source "$APPSDIR/system/usbmsc/Kconfig"
+endmenu
+
+menu "USB Monitor"
+source "$APPSDIR/system/usbmonitor/Kconfig"
 endmenu
 
 menu "Zmodem Commands"
