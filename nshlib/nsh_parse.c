@@ -49,6 +49,7 @@
 #  include <sys/stat.h>
 #endif
 
+#include <nuttx/version.h>
 #include <apps/nsh.h>
 
 #include "nsh.h"
