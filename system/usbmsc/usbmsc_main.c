@@ -375,7 +375,7 @@ static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
 #endif
 
 /****************************************************************************
- * msconn_main
+ * msconn_daemon
  *
  * Description:
  *   This is the main program that configures the USB mass storage device
@@ -401,7 +401,7 @@ static int msconn_daemon(int argc, char *argv[])
 
   if (g_usbmsc.mshandle)
     {
-      message("msconn_main: ERROR: Already connected\n");
+      message("msconn_daemon: ERROR: Already connected\n");
       return EXIT_FAILURE;
     }
 #endif
@@ -425,11 +425,11 @@ static int msconn_daemon(int argc, char *argv[])
 
   /* Register block drivers (architecture-specific) */
 
-  message("msconn_main: Creating block drivers\n");
+  message("msconn_daemon: Creating block drivers\n");
   ret = usbmsc_archinitialize();
   if (ret < 0)
     {
-      message("msconn_main: usbmsc_archinitialize failed: %d\n", -ret);
+      message("msconn_daemon: usbmsc_archinitialize failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
@@ -437,23 +437,23 @@ static int msconn_daemon(int argc, char *argv[])
 
   /* Then exports the LUN(s) */
 
-  message("msconn_main: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_USBMSC_NLUNS);
+  message("msconn_daemon: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_USBMSC_NLUNS);
   ret = usbmsc_configure(CONFIG_SYSTEM_USBMSC_NLUNS, &handle);
   if (ret < 0)
     {
-      message("msconn_main: usbmsc_configure failed: %d\n", -ret);
+      message("msconn_daemon: usbmsc_configure failed: %d\n", -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
 
-  message("msconn_main: handle=%p\n", handle);
+  message("msconn_daemon: handle=%p\n", handle);
   check_test_memory_usage("After usbmsc_configure()");
 
-  message("msconn_main: Bind LUN=0 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH1);
+  message("msconn_daemon: Bind LUN=0 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH1);
   ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH1, 0, 0, 0, false);
   if (ret < 0)
     {
-      message("msconn_main: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
+      message("msconn_daemon: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
                CONFIG_SYSTEM_USBMSC_DEVPATH1, -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
@@ -463,11 +463,11 @@ static int msconn_daemon(int argc, char *argv[])
 
 #if CONFIG_SYSTEM_USBMSC_NLUNS > 1
 
-  message("msconn_main: Bind LUN=1 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH2);
+  message("msconn_daemon: Bind LUN=1 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH2);
   ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH2, 1, 0, 0, false);
   if (ret < 0)
     {
-      message("msconn_main: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
+      message("msconn_daemon: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
                CONFIG_SYSTEM_USBMSC_DEVPATH2, -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
@@ -477,11 +477,11 @@ static int msconn_daemon(int argc, char *argv[])
 
 #if CONFIG_SYSTEM_USBMSC_NLUNS > 2
 
-  message("msconn_main: Bind LUN=2 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH3);
+  message("msconn_daemon: Bind LUN=2 to %s\n", CONFIG_SYSTEM_USBMSC_DEVPATH3);
   ret = usbmsc_bindlun(handle, CONFIG_SYSTEM_USBMSC_DEVPATH3, 2, 0, 0, false);
   if (ret < 0)
     {
-      message("msconn_main: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
+      message("msconn_daemon: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
                CONFIG_SYSTEM_USBMSC_DEVPATH3, -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
@@ -495,7 +495,7 @@ static int msconn_daemon(int argc, char *argv[])
   ret = usbmsc_exportluns(handle);
   if (ret < 0)
     {
-      message("msconn_main: usbmsc_exportluns failed: %d\n", -ret);
+      message("msconn_daemon: usbmsc_exportluns failed: %d\n", -ret);
       usbmsc_uninitialize(handle);
       return EXIT_FAILURE;
     }
@@ -517,27 +517,27 @@ static int msconn_daemon(int argc, char *argv[])
       sleep(5);
 
 #  ifdef CONFIG_SYSTEM_USBMSC_TRACE
-      message("\nmsconn_main: USB TRACE DATA:\n");
+      message("\nmsconn_daemon: USB TRACE DATA:\n");
       ret = usbtrace_enumerate(usbmsc_enumerate, NULL);
       if (ret < 0)
         {
-          message("msconn_main: usbtrace_enumerate failed: %d\n", -ret);
+          message("msconn_daemon: usbtrace_enumerate failed: %d\n", -ret);
           usbmsc_uninitialize(handle);
           return EXIT_FAILURE;
         }
 
       check_test_memory_usage("After usbtrace_enumerate()");
 #  else
-      message("msconn_main: Still alive\n");
+      message("msconn_daemon: Still alive\n");
 #  endif
     }
 #elif defined(CONFIG_NSH_BUILTIN_APPS)
 
-  /* Return the USB mass storage device handle so it can be used by the 'misconn'
+  /* Return the USB mass storage device handle so it can be used by the 'msconn'
    * command.
    */
 
-  message("msconn_main: Connected\n");
+  message("msconn_daemon: Connected\n");
   g_usbmsc.mshandle = handle;
   check_test_memory_usage("After MS connection");
 
@@ -545,12 +545,13 @@ static int msconn_daemon(int argc, char *argv[])
 
   /* Just exit */
  
-  message("msconn_main: Exiting\n");
+  message("msconn_daemon: Exiting\n");
 
   /* Dump debug memory usage */
  
   final_memory_usage("Final memory usage");
 #endif
+
   return EXIT_SUCCESS;
 }
 
@@ -613,8 +614,8 @@ int msconn_main(int argc, char *argv[])
 #endif
 
   ret = TASK_CREATE("msconn daemon", param.sched_priority,
-                   CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE,
-                   msconn_daemon, newargv);
+                    CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE,
+                    msconn_daemon, newargv);
   if (ret < 0)
     {
       message("msconn_main: ERROR: TASK_CREATE failed: %d\n", ret);
@@ -633,7 +634,7 @@ int msconn_main(int argc, char *argv[])
  * msdis_main
  *
  * Description:
- *   This is a program entry point that will disconnet the USB mass storage
+ *   This is a program entry point that will disconnect the USB mass storage
  *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
