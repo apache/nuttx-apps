@@ -10,4 +10,21 @@ config EXAMPLES_IGMP
 		Enable the IGMP example
 
 if EXAMPLES_IGMP
+
+  config EXAMPLES_IGMP_IPADDR
+    hex "Target IP address"
+    default 0xc0a80a10
+
+  config EXAMPLES_IGMP_DRIPADDR
+    hex "Default Router IP address (Gateway)"
+    default 0xc0a80aFA
+
+  config EXAMPLES_IGMP_GRPADDR
+    hex "Group address"
+    default 0xE0000181
+
+  config EXAMPLES_IGMP_NETMASK
+    hex "Network Mask"
+    default 0xffffff00
+
 endif

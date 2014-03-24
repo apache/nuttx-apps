@@ -861,6 +861,8 @@
 
 7.2 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
-	* Fix NuttShell version number display in welcome message.  version.h
-	  was not being included (2014-3-23).
-
+	* apps/nshlib/nsh_parse.c: Fix NuttShell version number display in
+	  welcome message.  version.h was not being included (2014-3-23).
+	* apps/examples/igmp:  Fill out Kconfig file; update makefile so
+	  that the IGMP example can be used as an NSH built-in application.
+	  From Manuel Stühn (2014-3-24).
