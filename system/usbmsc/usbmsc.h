@@ -89,12 +89,6 @@
 #  undef CONFIG_SYSTEM_USBMSC_DEVPATH3
 #endif
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) && defined(CONFIG_SCHED_WAITPID)
-#  ifndef CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE
-#    define CONFIG_SYSTEM_USBMSC_DAEMON_STACKSIZE 2048
-#  endif
-#endif
-
 /* Debug ********************************************************************/
 
 #ifdef CONFIG_CPP_HAVE_VARARGS

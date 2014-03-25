@@ -148,24 +148,6 @@ config SYSTEM_USBMSC_CMD_PRIORITY
 	---help---
 		Priority of the small 'msconn' and 'msdis' command applications.
 
-config SYSTEM_USBMSC_DAEMON_STACKSIZE
-	int "Stacksize of msconn daemon"
-	default 2048
-	---help---
-		To avoid threading entanglements, the USB MSC class is initialized
-		on a daemon thread.  This permits the msconn application to return
-		to the NSH command line immediately.  This is the stack used for
-		that short-lived USB MSC initialization daemon.
-
-config SYSTEM_USBMSC_DAEMON_PRIORITY
-	int "Priority of the msconn daemon"
-	default 100
-	---help---
-		To avoid threading entanglements, the USB MSC class is initialized
-		on a daemon thread.  This permits the msconn application to return
-		to the NSH command line immediately.  This is the priority used for
-		that short-lived USB MSC initialization daemon.
-
 endif # NSH_BUILTIN_APPS
 endif # SYSTEM_USBMSC
 

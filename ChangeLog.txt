@@ -866,3 +866,5 @@
 	* apps/examples/igmp:  Fill out Kconfig file; update makefile so
 	  that the IGMP example can be used as an NSH built-in application.
 	  From Manuel Stühn (2014-3-24).
+	* apps/system/usbmsc:  Back out the USBMSC daemon... it is no longer
+	  needed with the recent fix to the USBMSC class driver (2014-3-25).
