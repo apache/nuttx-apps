@@ -329,6 +329,8 @@ int nsh_consolemain(int argc, char *argv[])
 #else
   ret = usbdev_serialinitialize(CONFIG_NSH_USBDEV_MINOR);
 #endif
+
+  (void)ret; /* Eliminate warning if not used */
   DEBUGASSERT(ret == OK);
 #endif
 
@@ -353,6 +355,8 @@ int nsh_consolemain(int argc, char *argv[])
        */
 
       ret = nsh_waitusbready();
+
+      (void)ret; /* Eliminate warning if not used */
       DEBUGASSERT(ret == OK);
 
       /* Execute the session */
