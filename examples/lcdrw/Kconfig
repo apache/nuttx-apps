@@ -6,8 +6,38 @@
 config EXAMPLES_LCDRW
 	bool "LCD read/write example"
 	default n
+	depends on NX && NX_LCDDRIVER
 	---help---
 		Enable the LCD read/write example
 
 if EXAMPLES_LCDRW
+
+config EXAMPLES_LDCRW_DEVNO
+	int "Video Device Number"
+	default 0
+	---help---
+		The LCD device to select from the LCD driver for use in the test:
+		Default: 0
+
+config EXAMPLES_LCDRW_BPP
+	int "Bits-Per-Pixel"
+	default 16
+	range 1 32
+	depends on EXPERIMENTAL
+	---help---
+		Pixels per pixel to use.  Valid options include 1, 2, 4, 8, 16, 24,
+		and 32.  Default is 16.
+
+config EXAMPLES_LDCRW_XRES
+	int "Horizontal display resolution (pixels)"
+	default 240
+	---help---
+		Horizontal resolution of the display in pixels.  Default 240.
+
+config EXAMPLES_LDCRW_YRES
+	int "Vertical display resolution (rows)"
+	default 320
+	---help---
+		Vertical resolution of the display in rows. Default 320.
+
 endif
