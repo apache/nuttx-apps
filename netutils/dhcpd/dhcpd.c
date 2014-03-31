@@ -84,7 +84,7 @@
 /* Option codes understood in this file                                     */
 /*                              Code    Data   Description                  */
 /*                                      Length                              */
-#define DHCP_OPTION_PAD           1  /*  1     Pad                          */
+#define DHCP_OPTION_PAD           0  /*  1     Pad                          */
 #define DHCP_OPTION_REQ_IPADDR   50  /*  4     Requested IP Address         */
 #define DHCP_OPTION_LEASE_TIME   51  /*  4     IP address lease time        */
 #define DHCP_OPTION_OVERLOAD     52  /*  1     Option overload              */
