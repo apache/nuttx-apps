@@ -59,7 +59,7 @@ int sysinfo_main(int argc, char *argv[])
 {
   printf("System Information:\n");
   printf("\tNuttX Version:\t" CONFIG_VERSION_STRING
-         " Build: %d\n", CONFIG_VERSION_BUILD);
+         " Build: %s\n", CONFIG_VERSION_BUILD);
   printf("\tSystem Time:\t%d [s] UTC "
 #ifdef CONFIG_RTC
         "Hardware RTC Support"
