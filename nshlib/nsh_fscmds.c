@@ -63,7 +63,7 @@
 #     include <nuttx/fs/nfs.h>
 #   endif
 #   ifdef CONFIG_RAMLOG_SYSLOG
-#     include <nuttx/ramlog.h>
+#     include <nuttx/syslog/ramlog.h>
 #   endif
 #endif
 #endif
