@@ -22,7 +22,7 @@ config EXAMPLES_DISCOVER_DHCPC
 	default n
 	depends on EXAMPLES_DISCOVER && !NSH_BUILTIN_APPS
 	select NETUTILS_DHCPC
-	select NETUTILS_RESOLV
+	select NETUTILS_DNSCLIENT
 
 config EXAMPLES_DISCOVER_NOMAC
 	bool "Use Canned MAC Address"

@@ -876,3 +876,5 @@
 	* apps/netutils/ntpclient/ and apps/include/netufils/ntpclient.h:  Add
 	  a very primitive NTP client.  The initial check-in is untested and
 	  probably incomplete (2014-4-10).
+	* apps/netutils/resolv:  Long needed major clean up for coding style
+	  and unification of naming conventions (resolv vs dns) (2014-4-11).

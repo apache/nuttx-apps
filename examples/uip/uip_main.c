@@ -154,7 +154,7 @@ int uip_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_UIP_DHCPC
   /* Set up the resolver */
 
-  resolv_init();
+  dns_bind();
 
   /* Get the MAC address of the NIC */
 
@@ -184,7 +184,7 @@ int uip_main(int argc, char *argv[])
           }
         if (ds.dnsaddr.s_addr != 0)
           {
-            resolv_conf(&ds.dnsaddr);
+            dns_setserver(&ds.dnsaddr);
           }
         dhcpc_close(handle);
         printf("IP: %s\n", inet_ntoa(ds.ipaddr));

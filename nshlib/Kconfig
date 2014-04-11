@@ -825,7 +825,7 @@ config NSH_NETMASK
 config NSH_DNS
 	bool "Use DNS"
 	default n
-	depends on NSH_LIBRARY && NETUTILS_RESOLV
+	depends on NSH_LIBRARY && NETUTILS_DNSCLIENT
 	---help---
 		Configure to use a DNS.
 

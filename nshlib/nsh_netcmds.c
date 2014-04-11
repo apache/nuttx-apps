@@ -320,7 +320,7 @@ int ifconfig_callback(FAR struct uip_driver_s *dev, void *arg)
   nsh_output(vtbl, "Mask:%s\n", inet_ntoa(addr));
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-  resolv_getserver(&addr);
+  dns_getserver(&addr);
   nsh_output(vtbl, "\tDNSaddr:%s\n", inet_ntoa(addr));
 #endif
 
@@ -770,7 +770,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       addr.s_addr = gip;
     }
 
-  resolv_conf(&addr);
+  dns_setserver(&addr);
 #endif
 
 #if defined(CONFIG_NSH_DHCPC)
@@ -807,7 +807,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (ds.dnsaddr.s_addr != 0)
             {
-              resolv_conf(&ds.dnsaddr);
+              dns_setserver(&ds.dnsaddr);
             }
 
           dhcpc_close(handle);

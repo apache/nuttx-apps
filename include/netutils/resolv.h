@@ -3,7 +3,7 @@
  * DNS resolver code header file.
  * Author Adam Dunkels <adam@dunkels.com>
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Inspired by/based on uIP logic by Adam Dunkels:
@@ -37,8 +37,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_NETUTILS_RESOLVE_H
-#define __APPS_INCLUDE_NETUTILS_RESOLVE_H
+#ifndef __APPS_INCLUDE_NETUTILS_DNSCLIENT_H
+#define __APPS_INCLUDE_NETUTILS_DNSCLIENT_H
 
 /****************************************************************************
  * Included Files
@@ -55,45 +55,144 @@
 #undef EXTERN
 #if defined(__cplusplus)
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
 
-/* Functions. */
+/****************************************************************************
+ * Name: dns_bind_sock
+ *
+ * Description:
+ *   Initialize the DNS resolver using the caller provided socket.
+ *
+ ****************************************************************************/
 
-EXTERN int resolv_init(void);
-EXTERN int resolv_create(int *sockfd);
-EXTERN int resolv_release(int *sockfd);
-EXTERN int resolv_gethostip_socket(int sockfd, const char *hostname, in_addr_t *ipaddr);
-EXTERN int resolv_gethostip(const char *hostname, in_addr_t *ipaddr);
+int dns_bind_sock(FAR int *sockfd);
+
+/****************************************************************************
+ * Name: dns_bind
+ *
+ * Description:
+ *   Initialize the DNS resolver using an internal, share-able socket.
+ *
+ ****************************************************************************/
+
+int dns_bind(void);
+
+/****************************************************************************
+ * Name: dns_free_sock
+ *
+ * Description:
+ *   Release the DNS resolver by closing the socket.
+ *
+ ****************************************************************************/
+
+int dns_free_sock(FAR int *sockfd);
+
+/****************************************************************************
+ * Name: dns_query_sock
+ *
+ * Description:
+ *   Using the DNS resolver socket (sockfd), look up the the 'hostname', and
+ *   return its IP address in 'ipaddr'
+ *
+ * Returned Value:
+ *   Returns zero (OK) if the query was successful.
+ *
+ ****************************************************************************/
+
+int dns_query_sock(int sockfd, FAR const char *hostname, FAR in_addr_t *ipaddr);
+
+/****************************************************************************
+ * Name: dns_query
+ *
+ * Description:
+ *   Using the internal DNS resolver socket, look up the the 'hostname', and
+ *   return its IP address in 'ipaddr'
+ *
+ * Returned Value:
+ *   Returns zero (OK) if the query was successful.
+ *
+ ****************************************************************************/
+
+int dns_query(FAR const char *hostname, FAR in_addr_t *ipaddr);
+
+/****************************************************************************
+ * Name: dns_setserver
+ *
+ * Description:
+ *   Configure which DNS server to use for queries
+ *
+ ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-EXTERN void resolv_conf(FAR const struct in6_addr *dnsserver);
-EXTERN void resolv_getserver(FAR const struct in_addr *dnsserver);
-EXTERN int  resolv_query(FAR const char *name, FAR struct sockaddr_in6 *addr);
-EXTERN int  resolv_query_socket(int sockfd, FAR const char *name, FAR struct sockaddr_in6 *addr);
+void dns_setserver(FAR const struct in6_addr *dnsserver);
 #else
-EXTERN void resolv_conf(FAR const struct in_addr *dnsserver);
-EXTERN void resolv_getserver(FAR struct in_addr *dnsserver);
-EXTERN int  resolv_query(FAR const char *name, FAR struct sockaddr_in *addr);
-EXTERN int  resolv_query_socket(int sockfd, FAR const char *name, FAR struct sockaddr_in *addr);
+void dns_setserver(FAR const struct in_addr *dnsserver);
 #endif
 
-EXTERN int  dns_gethostip(const char *hostname, in_addr_t *ipaddr);
+/****************************************************************************
+ * Name: dns_getserver
+ *
+ * Description:
+ *   Obtain the currently configured DNS server.
+ *
+ ****************************************************************************/
 
-#define dns_init        resolv_init
-#define dns_bind        resolv_create
-#define dns_query       resolv_gethostip_socket
-#define dns_free        resolv_release
+#ifdef CONFIG_NET_IPv6
+void dns_getserver(FAR const struct in_addr *dnsserver);
+#else
+void dns_getserver(FAR struct in_addr *dnsserver);
+#endif
 
-#define dns_setserver   resolv_conf
-#define dns_getserver   resolv_getserver
-#define dns_whois       resolv_query
+/****************************************************************************
+ * Name: dns_whois_socket
+ *
+ * Description:
+ *   Get the binding for 'name' using the DNS server accessed via 'sockfd'
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPv6
+int  dns_whois_socket(int sockfd, FAR const char *name,
+                      FAR struct sockaddr_in6 *addr);
+#else
+int  dns_whois_socket(int sockfd, FAR const char *name,
+                      FAR struct sockaddr_in *addr);
+#endif
+
+/****************************************************************************
+ * Name: dns_whois
+ *
+ * Description:
+ *   Get the binding for 'name' using the DNS server accessed via the DNS
+ *   resolvers internal socket.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPv6
+int dns_whois(FAR const char *name, FAR struct sockaddr_in6 *addr);
+#else
+int dns_whois(FAR const char *name, FAR struct sockaddr_in *addr);
+#endif
+
+/****************************************************************************
+ * Name: dns_gethostip
+ *
+ * Descriptions:
+ *   Combines the operations of dns_bind_sock(), dns_query_sock(), and
+ *   dns_free_sock() to obtain the the IP address ('ipaddr') associated with
+ *   the 'hostname' in one operation.
+ *
+ ****************************************************************************/
+
+int dns_gethostip(FAR const char *hostname, FAR in_addr_t *ipaddr);
 
 #undef EXTERN
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* __APPS_INCLUDE_NETUTILS_RESOLVE_H */
+#endif /* __APPS_INCLUDE_NETUTILS_DNSCLIENT_H */

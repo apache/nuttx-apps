@@ -23,7 +23,7 @@ config EXAMPLES_XMLRPC_DHCPC
 	default n
 	depends on EXAMPLES_XMLRPC && !NSH_BUILTIN_APPS
 	select NETUTILS_DHCPC
-	select NETUTILS_RESOLV
+	select NETUTILS_DNSCLIENT
 
 config EXAMPLES_XMLRPC_NOMAC
 	bool "Use Canned MAC Address"

@@ -31,7 +31,7 @@ config EXAMPLES_TCPECHO_DHCPC
 	default n
 	depends on EXAMPLES_TCPECHO && !NSH_BUILTIN_APPS
 	select NETUTILS_DHCPC
-	select NETUTILS_RESOLV
+	select NETUTILS_DNSCLIENT
 
 config EXAMPLES_TCPECHO_NOMAC
 	bool "Use Canned MAC Address"

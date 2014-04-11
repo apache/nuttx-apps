@@ -132,10 +132,10 @@ int nsh_netinit(void)
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   /* Set up the resolver */
 
-  resolv_init();
+  dns_bind();
 #if defined(CONFIG_NSH_DNS)
   addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
-  resolv_conf(&addr);
+  dns_setserver(&addr);
 #endif
 #endif
 
@@ -167,7 +167,7 @@ int nsh_netinit(void)
           }
         if (ds.dnsaddr.s_addr != 0)
           {
-            resolv_conf(&ds.dnsaddr);
+            dns_setserver(&ds.dnsaddr);
           }
         dhcpc_close(handle);
     }

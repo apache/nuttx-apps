@@ -3,25 +3,27 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config NETUTILS_RESOLV
-	bool "Name resolution"
+config NETUTILS_DNSCLIENT
+	bool "DNS Name resolution"
 	default n
 	depends on NET && NET_UDP && NET_BROADCAST
 	---help---
 		Enable support for the name resolution.
 
-config NET_RESOLV_ENTRIES
-	int "Number of resolver entries"
+if NETUTILS_DNSCLIENT
+
+config NETUTILS_DNSCLIENT_ENTRIES
+	int "Number of DNS resolver entries"
 	default 8
-	depends on NETUTILS_RESOLV
 	---help---
 		Number of resolver entries.  Default: 8
 
-config NET_RESOLV_MAXRESPONSE
+config NETUTILS_DNSCLIENT_MAXRESPONSE
 	int "Max response size"
 	default 96
-	depends on NETUTILS_RESOLV
 	---help---
-		This setting determines the maximum size of response message that can be
-		received by the DNS resolver.  The default is 96 but may need to be larger on
-		enterprise networks (perhaps 176).
+		This setting determines the maximum size of response message that
+		can be received by the DNS resolver.  The default is 96 but may
+		need to be larger on enterprise networks (perhaps 176).
+
+endif # NETUTILS_DNSCLIENT

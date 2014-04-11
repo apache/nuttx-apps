@@ -146,7 +146,7 @@ static int tcpecho_netsetup()
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC
   /* Set up the resolver */
 
-  resolv_init();
+  dns_bind();
 
   /* Get the MAC address of the NIC */
 
@@ -184,7 +184,7 @@ static int tcpecho_netsetup()
 
   if (ds.dnsaddr.s_addr != 0)
     {
-      resolv_conf(&ds.dnsaddr);
+      dns_setserver(&ds.dnsaddr);
     }
 
   dhcpc_close(handle);

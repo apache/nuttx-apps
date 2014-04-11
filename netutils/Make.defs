@@ -62,7 +62,7 @@ ifeq ($(CONFIG_NETUTILS_NTPCLIENT),y)
 CONFIGURED_APPS += netutils/ntpclient
 endif
 
-ifeq ($(CONFIG_NETUTILS_RESOLV),y)
+ifeq ($(CONFIG_NETUTILS_DNSCLIENT),y)
 CONFIGURED_APPS += netutils/resolv
 endif
 
