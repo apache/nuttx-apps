@@ -229,14 +229,12 @@ static void ntpc_settime(FAR uint8_t *timestamp)
     {
       t32++;
     }
-  else
-    {
-      t0 += t16;
-    }
+
+  t0 += t16;
 
   /* Get the second b16 term
    *
-   * b * 0x1d << 16)
+   * b * (0x1d << 16)
    */
 
   t16  = 0x001d * b0;
@@ -254,10 +252,8 @@ static void ntpc_settime(FAR uint8_t *timestamp)
     {
       t32++;
     }
-  else
-    {
-      t0 += t16;
-    }
+
+  t0 += t16;
 
   /* t32 and t0 represent the 64 bit product.  Now shift right by 23 bits to
    * accomplish the divide by by 2**23.
@@ -342,7 +338,7 @@ static int ntpc_daemon(int argc, char **argv)
    * client architecture.  A request is sent and then a NTP packet is received
    * and used to set the current time.
    *
-   * NOTE that the scheduler is locked whenever this function runs.  That
+   * NOTE that the scheduler is locked whenever this loop runs.  That
    * assures both:  (1) that there are no asynchronous stop requests and
    * (2) that we are not suspended while in critical moments when we about
    * to set the new time.  This sounds harsh, but this function is suspended
@@ -353,6 +349,8 @@ static int ntpc_daemon(int argc, char **argv)
   sched_lock();
   while (g_ntpc_daemon.state == NTP_STOP_REQUESTED)
     {
+      /* Format the transmit datagram */
+
       memset(&xmit, 0, sizeof(xmit));
       xmit.lvm = MKLVM(0, 3, NTP_VERSION);
 
@@ -364,6 +362,10 @@ static int ntpc_daemon(int argc, char **argv)
 
       if (ret < 0)
         {
+          /* Check if we received a signal.  That is not an error but
+           * other error events will terminate the client.
+           */
+
           int errval = errno;
           if (errval != EINTR)
             {
@@ -380,16 +382,41 @@ static int ntpc_daemon(int argc, char **argv)
           continue;
         }
 
-      /* Attempt to receive a packet (with a timeout) */
+      /* Attempt to receive a packet (with a timeout that was set up via
+       * setsockopt() above)
+       */
 
       socklen = sizeof(struct sockaddr_in);
       nbytes = recvfrom(sd, (void *)&recv, sizeof(struct ntp_datagram_s),
                         0, (FAR struct sockaddr *)&server, &socklen);
 
+      /* Check if the received message was long enough to be a valid NTP
+       * datagram.
+       */
+
       if (nbytes >= NTP_DATAGRAM_MINSIZE)
         {
           svdbg("Setting time\n");
           ntpc_settime(recv.recvtimestamp);
+        }
+
+      /* Check for errors.  Note that properly received, short datagrams
+       * are simply ignored.
+       */
+
+      else if (nbytes < 0)
+        {
+          /* Check if we received a signal.  That is not an error but
+           * other error events will terminate the client.
+           */
+
+          int errval = errno;
+          if (errval != EINTR)
+            {
+              ndbg("ERROR: recvfrom() failed: %d\n", errval);
+              exitcode = EXIT_FAILURE;
+              break;
+            }
         }
 
       /* A full implementation of an NTP client would require much more.  I
