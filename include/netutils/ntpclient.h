@@ -67,6 +67,10 @@
 #  define CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC 60
 #endif
 
+#ifndef CONFIG_NETUTILS_NTPCLIENT_SIGWAKEUP
+#  define CONFIG_NETUTILS_NTPCLIENT_SIGWAKEUP 18
+#endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -77,7 +81,8 @@
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -86,24 +91,34 @@ extern "C" {
  * Public Function Prototypes
  ****************************************************************************/
 /****************************************************************************
- * Name: ntpclient_start
+ * Name: ntpc_start
  *
  * Description:
  *   Start the NTP daemon
  *
+ * Returned Value:
+ *   On success, the non-negative task ID of the NTPC daemon is returned;
+ *   On failure, a negated errno value is returned.
+ *
  ****************************************************************************/
 
-int ntpclient_start(void);
+int ntpc_start(void);
 
 /****************************************************************************
- * Name: ntpclient_stop
+ * Name: ntpc_stop
  *
  * Description:
  *   Stop the NTP daemon
  *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.  The current
+ *   implementation only returns success.
+ *
  ****************************************************************************/
 
-int ntpclient_stop(void);
+#ifndef CONFIG_DISABLE_SIGNALS
+int ntpc_stop(void);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus

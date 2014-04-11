@@ -32,4 +32,9 @@ config NETUTILS_NTPCLIENT_POLLDELAYSEC
 	int "NTP client poll interval (seconds)"
 	default 60 
 
+config NETUTILS_NTPCLIENT_SIGWAKEUP
+	int "NTP client wakeup signal number"
+	default 18
+	depends on !DISABLE_SIGNALS
+
 endif # NETUTILS_NTPCLIENT

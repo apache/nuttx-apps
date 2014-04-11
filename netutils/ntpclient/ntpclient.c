@@ -68,7 +68,7 @@
  ****************************************************************************/
 /* This enumeration describes the state of the NTP daemon */
 
-enum ntpclient_daemon_e
+enum ntpc_daemon_e
 {
   NTP_NOT_RUNNING = 0,
   NTP_STARTED,
@@ -81,9 +81,9 @@ enum ntpclient_daemon_e
  * instance of the NTP daemon is permitted in this implementation.
  */
 
-struct ntpclient_daemon_s
+struct ntpc_daemon_s
 {
-  volatile uint8_t state; /* See enum ntpclient_daemon_e */
+  volatile uint8_t state; /* See enum ntpc_daemon_e */
   sem_t interlock;        /* Used to synchronize start and stop events */
   pid_t pid;              /* Task ID of the NTP daemon */
 };
@@ -97,20 +97,20 @@ struct ntpclient_daemon_s
  * limitation is due only to this global data structure.
  */
 
-static struct ntpclient_daemon_s g_ntpclient_daemon;
+static struct ntpc_daemon_s g_ntpc_daemon;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 /****************************************************************************
- * Name: ntpclient_getuint32
+ * Name: ntpc_getuint32
  *
  * Description:
  *   Return the big-endian, 4-byte value in network (big-endian) order.
  *
  ****************************************************************************/
 
-static inline uint32_t ntpclient_getuint32(FAR uint8_t *ptr)
+static inline uint32_t ntpc_getuint32(FAR uint8_t *ptr)
 {
   /* Network order is big-endian; host order is irrelevant */
 
@@ -121,14 +121,14 @@ static inline uint32_t ntpclient_getuint32(FAR uint8_t *ptr)
 }
 
 /****************************************************************************
- * Name: ntpclient_settime
+ * Name: ntpc_settime
  *
  * Description:
  *   Given the NTP time in seconds, set the system time
  *
  ****************************************************************************/
 
-static void ntpclient_settime(FAR uint8_t *timestamp)
+static void ntpc_settime(FAR uint8_t *timestamp)
 {
   struct timespec tp;
   time_t seconds;
@@ -158,7 +158,7 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
    *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    */
 
-  seconds = ntpclient_getuint32(timestamp);
+  seconds = ntpc_getuint32(timestamp);
 
   /* Translate seconds to account for the difference in the origin time */
 
@@ -175,7 +175,7 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
    *       = (f * 1,953,125) / 8,388,608
    */
 
-  frac = ntpclient_getuint32(timestamp + 4);
+  frac = ntpc_getuint32(timestamp + 4);
 #ifdef CONFIG_HAVE_LONG_LONG
   /* if we have 64-bit long long values, then the computation is easy */
 
@@ -207,14 +207,14 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
    */
 
   t32  = 0x001d * a16;
-  t0   = 0xcd65 * b0
+  t0   = 0xcd65 * b0;
 
   /* Get the first b16 term
    *
    * (a << 16) * 0xcd65
    */
 
-  t16  = 0xcd65 * a16
+  t16  = 0xcd65 * a16;
 
   /* Add the upper 16-bits to the b32 accumulator */
 
@@ -239,7 +239,7 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
    * b * 0x1d << 16)
    */
 
-  t16  = 0x001d * b
+  t16  = 0x001d * b0;
 
   /* Add the upper 16-bits to the b32 accumulator */
 
@@ -263,7 +263,7 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
    * accomplish the divide by by 2**23.
    */
 
-  nsec = (t32 << (32 - 23)) + (t0 >> 23)
+  nsec = (t32 << (32 - 23)) + (t0 >> 23);
 #endif
 
   /* Set the system time */
@@ -272,11 +272,11 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
   tp.tv_nsec = nsec;
   clock_settime(CLOCK_REALTIME, &tp);
 
-  svdbg("Set time to %ld seconds: %d\n", tp.tv_sec, ret);
+  svdbg("Set time to %lu seconds: %d\n", (unsigned long)tp.tv_sec, ret);
 }
 
 /****************************************************************************
- * Name: ntpclient_daemon
+ * Name: ntpc_daemon
  *
  * Description:
  *   This the the NTP client daemon.  This is a *very* minimal
@@ -285,7 +285,7 @@ static void ntpclient_settime(FAR uint8_t *timestamp)
  *
  ****************************************************************************/
 
-static int ntpclient_daemon(int argc, char **argv)
+static int ntpc_daemon(int argc, char **argv)
 {
   struct sockaddr_in server;
   struct ntp_datagram_s xmit;
@@ -299,8 +299,8 @@ static int ntpclient_daemon(int argc, char **argv)
 
   /* Indicate that we have started */
 
-  g_ntpclient_daemon.state = NTP_RUNNING;
-  sem_post(&g_ntpclient_daemon.interlock);
+  g_ntpc_daemon.state = NTP_RUNNING;
+  sem_post(&g_ntpc_daemon.interlock);
 
   /* Create a datagram socket  */
 
@@ -309,8 +309,8 @@ static int ntpclient_daemon(int argc, char **argv)
     {
       ndbg("ERROR: socket failed: %d\n", errno);
 
-      g_ntpclient_daemon.state = NTP_STOPPED;
-      sem_post(&g_ntpclient_daemon.interlock);
+      g_ntpc_daemon.state = NTP_STOPPED;
+      sem_post(&g_ntpc_daemon.interlock);
       return EXIT_FAILURE;
     }
 
@@ -324,8 +324,8 @@ static int ntpclient_daemon(int argc, char **argv)
     {
       ndbg("ERROR: setsockopt failed: %d\n", errno);
 
-      g_ntpclient_daemon.state = NTP_STOPPED;
-      sem_post(&g_ntpclient_daemon.interlock);
+      g_ntpc_daemon.state = NTP_STOPPED;
+      sem_post(&g_ntpc_daemon.interlock);
       return EXIT_FAILURE;
     }
 
@@ -344,7 +344,7 @@ static int ntpclient_daemon(int argc, char **argv)
    * access.
    */
 
-  while (g_ntpclient_daemon.state == NTP_STOP_REQUESTED)
+  while (g_ntpc_daemon.state == NTP_STOP_REQUESTED)
     {
       memset(&xmit, 0, sizeof(xmit));
       xmit.lvm = MKLVM(0, 3, NTP_VERSION);
@@ -356,8 +356,11 @@ static int ntpclient_daemon(int argc, char **argv)
                    sizeof(struct sockaddr_in));
       if (ret < 0)
         {
-          ndbg("ERROR: sendto() failed: %d\n", errno);
-          exitcode = EXIT_FAILURE;
+          if (g_ntpc_daemon.state != NTP_STOP_REQUESTED)
+            {
+              ndbg("ERROR: sendto() failed: %d\n", errno);
+              exitcode = EXIT_FAILURE;
+            }
           break;
         }
 
@@ -369,21 +372,26 @@ static int ntpclient_daemon(int argc, char **argv)
       if (nbytes >= NTP_DATAGRAM_MINSIZE)
         {
           svdbg("Setting time\n");
-          ntpclient_settime(recv.recvtimestamp);
+          ntpc_settime(recv.recvtimestamp);
         }
 
-      /* A full implementation of an NTP client would requireq much more.  I
-       * think we we can skip that here.
+      /* A full implementation of an NTP client would require much more.  I
+       * think we can skip most of that here.
        */
 
-      svdbg("Waiting for %d seconds\n", CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
-      (void)sleep(CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
+      if (g_ntpc_daemon.state == NTP_RUNNING)
+        {
+          svdbg("Waiting for %d seconds\n",
+                CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
+
+          (void)sleep(CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
+        }
     }
 
   /* The NTP client is terminating */
 
-  g_ntpclient_daemon.state = NTP_STOPPED;
-  sem_post(&g_ntpclient_daemon.interlock);
+  g_ntpc_daemon.state = NTP_STOPPED;
+  sem_post(&g_ntpc_daemon.interlock);
   return exitcode;
 }
 
@@ -391,46 +399,50 @@ static int ntpclient_daemon(int argc, char **argv)
  * Public Functions
  ****************************************************************************/
 /****************************************************************************
- * Name: ntpclient_start
+ * Name: ntpc_start
  *
  * Description:
  *   Start the NTP daemon
  *
+ * Returned Value:
+ *   On success, the non-negative task ID of the NTPC daemon is returned;
+ *   On failure, a negated errno value is returned.
+ *
  ****************************************************************************/
 
-int ntpclient_start(void)
+int ntpc_start(void)
 {
   /* Is the NTP in a non-running state? */
 
   sched_lock();
-  if (g_ntpclient_daemon.state == NTP_NOT_RUNNING ||
-      g_ntpclient_daemon.state == NTP_STOPPED)
+  if (g_ntpc_daemon.state == NTP_NOT_RUNNING ||
+      g_ntpc_daemon.state == NTP_STOPPED)
     {
       /* Is this the first time that the NTP daemon has been started? */
 
-      if (g_ntpclient_daemon.state == NTP_NOT_RUNNING)
+      if (g_ntpc_daemon.state == NTP_NOT_RUNNING)
         {
           /* Yes... then we will need to initialize the state structure */
 
-          sem_init(&g_ntpclient_daemon.interlock, 0, 0);
+          sem_init(&g_ntpc_daemon.interlock, 0, 0);
         }
 
       /* Start the NTP daemon */
 
-      g_ntpclient_daemon.state = NTP_STARTED;
-      g_ntpclient_daemon.pid =
+      g_ntpc_daemon.state = NTP_STARTED;
+      g_ntpc_daemon.pid =
         TASK_CREATE("NTP daemon", CONFIG_NETUTILS_NTPCLIENT_SERVERPRIO,
-                    CONFIG_NETUTILS_NTPCLIENT_STACKSIZE, ntpclient_daemon,
+                    CONFIG_NETUTILS_NTPCLIENT_STACKSIZE, ntpc_daemon,
                     NULL);
 
       /* Handle failures to start the NTP daemon */
 
-      if (g_ntpclient_daemon.pid < 0)
+      if (g_ntpc_daemon.pid < 0)
         {
           int errval = errno;
           DEBUGASSERT(errval > 0);
 
-          g_ntpclient_daemon.state = NTP_STOPPED;
+          g_ntpc_daemon.state = NTP_STOPPED;
           ndbg("ERROR: Failed to start the NTP daemon\n", errval);
           return -errval;
         }
@@ -439,44 +451,66 @@ int ntpclient_start(void)
 
       do
         {
-          (void)sem_wait(&g_ntpclient_daemon.interlock);
+          (void)sem_wait(&g_ntpc_daemon.interlock);
         }
-      while (g_ntpclient_daemon.state == NTP_STARTED);
+      while (g_ntpc_daemon.state == NTP_STARTED);
     }
 
   sched_unlock();
-  return OK;
+  return g_ntpc_daemon.pid;
 }
 
 /****************************************************************************
- * Name: ntpclient_stop
+ * Name: ntpc_stop
  *
  * Description:
  *   Stop the NTP daemon
  *
+ * Returned Value:
+ *   Zero on success; a negated errno value on failure.  The current
+ *   implementation only returns success.
+ *
  ****************************************************************************/
 
-int ntpclient_stop(void)
+#ifndef CONFIG_DISABLE_SIGNALS
+int ntpc_stop(void)
 {
+  int ret;
+
   /* Is the NTP in a running state? */
 
   sched_lock();
-  if (g_ntpclient_daemon.state == NTP_STARTED ||
-      g_ntpclient_daemon.state == NTP_RUNNING)
+  if (g_ntpc_daemon.state == NTP_STARTED ||
+      g_ntpc_daemon.state == NTP_RUNNING)
     {
       /* Yes.. request that the daemon stop. */
 
-      g_ntpclient_daemon.state = NTP_STOP_REQUESTED;
+      g_ntpc_daemon.state = NTP_STOP_REQUESTED;
 
       /* Wait for any daemon state change */
 
       do
         {
-          (void)sem_wait(&g_ntpclient_daemon.interlock);
+          /* Signal the NTP client */
+
+          ret = kill(g_ntpc_daemon.pid,
+                     CONFIG_NETUTILS_NTPCLIENT_SIGWAKEUP);
+
+          if (ret < 0)
+            {
+              ndbg("ERROR: kill pid %d failed: %d\n",
+                   g_ntpc_daemon.pid, errno);
+              break;
+            }
+
+          /* Wait for the NTP client to respond to the stop request */
+
+          (void)sem_wait(&g_ntpc_daemon.interlock);
         }
-      while (g_ntpclient_daemon.state == NTP_STOP_REQUESTED);
+      while (g_ntpc_daemon.state == NTP_STOP_REQUESTED);
     }
 
   sched_unlock();
   return OK;
 }
+#endif
