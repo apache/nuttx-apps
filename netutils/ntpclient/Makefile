@@ -1,15 +1,14 @@
 ############################################################################
-# apps/netutils/Make.defs
-# Adds selected applications to apps/ build
+# apps/netutils/ntpclient/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
-# Redistribution and use in include and binary forms, with or without
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
 #
-# 1. Redistributions of include code must retain the above copyright
+# 1. Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
 # 2. Redistributions in binary form must reproduce the above copyright
 #    notice, this list of conditions and the following disclaimer in
@@ -34,70 +33,68 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_NETUTILS_CODECS),y)
-CONFIGURED_APPS += netutils/codecs
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
+
+# NTP client daemon Library
+
+ASRCS =
+CSRCS = 
+
+ifeq ($(CONFIG_NET_UDP),y)
+CSRCS += ntpclient.c
 endif
 
-ifeq ($(CONFIG_NETUTILS_DHCPC),y)
-CONFIGURED_APPS += netutils/dhcpc
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN = ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
 endif
 
-ifeq ($(CONFIG_NETUTILS_DHCPD),y)
-CONFIGURED_APPS += netutils/dhcpd
-endif
+ROOTDEPPATH = --dep-path .
 
-ifeq ($(CONFIG_NETUTILS_FTPC),y)
-CONFIGURED_APPS += netutils/ftpc
-endif
+# Common build
 
-ifeq ($(CONFIG_NETUTILS_FTPD),y)
-CONFIGURED_APPS += netutils/ftpd
-endif
+VPATH = 
 
-ifeq ($(CONFIG_NETUTILS_JSON),y)
-CONFIGURED_APPS += netutils/json
-endif
+all: .built
+.PHONY: context depend clean distclean
 
-ifeq ($(CONFIG_NETUTILS_NTPCLIENT),y)
-CONFIGURED_APPS += netutils/ntpclient
-endif
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
 
-ifeq ($(CONFIG_NETUTILS_RESOLV),y)
-CONFIGURED_APPS += netutils/resolv
-endif
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
 
-ifeq ($(CONFIG_NETUTILS_SMTP),y)
-CONFIGURED_APPS += netutils/smtp
-endif
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
 
-ifeq ($(CONFIG_NETUTILS_TELNETD),y)
-CONFIGURED_APPS += netutils/telnetd
-endif
+context:
 
-ifeq ($(CONFIG_NETUTILS_TFTPC),y)
-CONFIGURED_APPS += netutils/tftpc
-endif
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
-ifeq ($(CONFIG_NETUTILS_THTTPD),y)
-CONFIGURED_APPS += netutils/thttpd
-endif
+depend: .depend
 
-ifeq ($(CONFIG_NETUTILS_UIPLIB),y)
-CONFIGURED_APPS += netutils/uiplib
-endif
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
 
-ifeq ($(CONFIG_NETUTILS_WEBCLIENT),y)
-CONFIGURED_APPS += netutils/webclient
-endif
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
 
-ifeq ($(CONFIG_NETUTILS_WEBSERVER),y)
-CONFIGURED_APPS += netutils/webserver
-endif
-
-ifeq ($(CONFIG_NETUTILS_DISCOVER),y)
-CONFIGURED_APPS += netutils/discover
-endif
-
-ifeq ($(CONFIG_NETUTILS_XMLRPC),y)
-CONFIGURED_APPS += netutils/xmlrpc
-endif
+-include Make.dep

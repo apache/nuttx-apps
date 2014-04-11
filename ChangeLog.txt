@@ -868,8 +868,11 @@
 	  From Manuel Stühn (2014-3-24).
 	* apps/system/usbmsc:  Back out the USBMSC daemon... it is no longer
 	  needed with the recent fix to the USBMSC class driver (2014-3-25).
-	* apps/examplex/lcdrw:  Fill out empty Kconfig file (2014-2-27).
+	* apps/examples/lcdrw:  Fill out empty Kconfig file (2014-2-27).
 	* apps/netutils/dhcpd/dhcpd.c:  The correct value of the PAD option
 	  is zero, not one.  From Brennan Ashton (2014-3-31).
 	* apps/sysinfo:   CONFIG_VERSION_BUILD is a string an needs to be
 	  printed with %s, not %d.  Noted by Librae (2014-4-8).
+	* apps/netutils/ntpclient/ and apps/include/netufils/ntpclient.h:  Add
+	  a very primitive NTP client.  The initial check-in is untested and
+	  probably incomplete (2014-4-10).

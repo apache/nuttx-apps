@@ -65,6 +65,8 @@ highly influenced by uIP) include:
               information.
   ftpd      - FTP server.   See apps/include/netutils/ftpd.h for interface
               information.
+  ntpclient - This is a fragmentary NTP client.  It neither well-tested
+              nor mature nor complete at this point in time.
   thttpd    - This is a port of Jef Poskanzer's THTTPD HTPPD server.
               See http://acme.com/software/thttpd/ for general THTTPD
               information.  See apps/include/netutils/thttpd.h
