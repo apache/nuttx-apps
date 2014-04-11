@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/netutils/dnsclient/dnsclient.c
+ * apps/netutils/dnsclient/dns_socket.c
  * DNS host name to IP address resolver.
  *
  * The uIP DNS resolver functions are used to lookup a hostname and
@@ -162,7 +162,6 @@ struct namemap
  ****************************************************************************/
 
 static uint8_t g_seqno;
-static int g_sockfd = -1;
 #ifdef CONFIG_NET_IPv6
 static struct sockaddr_in6 g_dnsserver;
 #else
@@ -174,14 +173,14 @@ static struct sockaddr_in g_dnsserver;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: parse_name
+ * Name: dns_parse_name
  *
  * Description:
  *   Walk through a compact encoded DNS name and return the end of it.
  *
  ****************************************************************************/
 
-static FAR unsigned char *parse_name(FAR unsigned char *query)
+static FAR unsigned char *dns_parse_name(FAR unsigned char *query)
 {
   unsigned char n;
 
@@ -201,7 +200,7 @@ static FAR unsigned char *parse_name(FAR unsigned char *query)
 }
 
 /****************************************************************************
- * Name: send_query_socket
+ * Name: dns_send_query
  *
  * Description:
  *   Runs through the list of names to see if there are any that have
@@ -210,11 +209,11 @@ static FAR unsigned char *parse_name(FAR unsigned char *query)
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-static int send_query_socket(int sockfd, FAR const char *name,
-                             FAR struct sockaddr_in6 *addr)
+static int dns_send_query(int sockfd, FAR const char *name,
+                           FAR struct sockaddr_in6 *addr)
 #else
-static int send_query_socket(int sockfd, FAR const char *name,
-                             FAR struct sockaddr_in *addr)
+static int dns_send_query(int sockfd, FAR const char *name,
+                           FAR struct sockaddr_in *addr)
 #endif
 {
   register FAR struct dns_hdr *hdr;
@@ -263,22 +262,7 @@ static int send_query_socket(int sockfd, FAR const char *name,
 }
 
 /****************************************************************************
- * Name: send_query
- ****************************************************************************/
-
-#if 0 /* Not used */
-#ifdef CONFIG_NET_IPv6
-static int send_query(FAR const char *name, FAR struct sockaddr_in6 *addr)
-#else
-static int send_query(FAR const char *name, FAR struct sockaddr_in *addr)
-#endif
-{
-  return send_query_socket(g_sockfd, name, addr);
-}
-#endif
-
-/****************************************************************************
- * Name: recv_response_socket
+ * Name: dns_recv_response
  *
  * Description:
  *   Called when new UDP data arrives
@@ -288,7 +272,7 @@ static int send_query(FAR const char *name, FAR struct sockaddr_in *addr)
 #ifdef CONFIG_NET_IPv6
 #  error "Not implemented"
 #else
-int recv_response_socket(int sockfd, FAR struct sockaddr_in *addr)
+static int dns_recv_response(int sockfd, FAR struct sockaddr_in *addr)
 #endif
 {
   FAR unsigned char *nameptr;
@@ -342,7 +326,7 @@ int recv_response_socket(int sockfd, FAR struct sockaddr_in *addr)
 #ifdef CONFIG_DEBUG_NET
   {
     int d = 64;
-    nameptr = parse_name((unsigned char *)buffer + 12) + 4;
+    nameptr = dns_parse_name((unsigned char *)buffer + 12) + 4;
 
     for (;;)
       {
@@ -360,7 +344,7 @@ int recv_response_socket(int sockfd, FAR struct sockaddr_in *addr)
   }
 #endif
 
-  nameptr = parse_name((unsigned char *)buffer + 12) + 4;
+  nameptr = dns_parse_name((unsigned char *)buffer + 12) + 4;
 
   for (; nanswers > 0; nanswers--)
     {
@@ -379,7 +363,7 @@ int recv_response_socket(int sockfd, FAR struct sockaddr_in *addr)
         {
           /* Not compressed name. */
 
-          nameptr = parse_name(nameptr);
+          nameptr = dns_parse_name(nameptr);
         }
 
       ans = (struct dns_answer *)nameptr;
@@ -419,19 +403,6 @@ int recv_response_socket(int sockfd, FAR struct sockaddr_in *addr)
 }
 
 /****************************************************************************
- * Name: recv_response
- ****************************************************************************/
-
-#ifdef CONFIG_NET_IPv6
-#  error "Not implemented"
-#else
-int recv_response(FAR struct sockaddr_in *addr)
-#endif
-{
-  return recv_response_socket(g_sockfd, addr);
-}
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -448,11 +419,19 @@ int dns_bind_sock(FAR int *sockfd)
   struct timeval tv;
   int ret;
 
-  if (*sockfd >= 0) dns_free_sock(sockfd);
+  /* If the socket is already open, then close it now */
+
+  if (*sockfd >= 0)
+    {
+      dns_free_sock(sockfd);
+    }
+
+  /* Create a new socket */
 
   *sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   if (*sockfd < 0)
     {
+      ndbg("ERROR: socket() failed: %d\n", errno);
       return ERROR;
     }
 
@@ -466,25 +445,13 @@ int dns_bind_sock(FAR int *sockfd)
 
   if (ret < 0)
     {
+      ndbg("ERROR: setsockopt() failed: %d\n", errno);
       close(*sockfd);
       *sockfd = -1;
       return ERROR;
     }
 
   return OK;
-}
-
-/****************************************************************************
- * Name: dns_bind
- *
- * Description:
- *   Initialize the DNS resolver using an internal, share-able socket.
- *
- ****************************************************************************/
-
-int dns_bind(void)
-{
-  return dns_bind_sock(&g_sockfd);
 }
 
 /****************************************************************************
@@ -571,23 +538,6 @@ int dns_query_sock(int sockfd, FAR const char *hostname, FAR in_addr_t *ipaddr)
 }
 
 /****************************************************************************
- * Name: dns_query
- *
- * Description:
- *   Using the internal DNS resolver socket, look up the the 'hostname', and
- *   return its IP address in 'ipaddr'
- *
- * Returned Value:
- *   Returns zero (OK) if the query was successful.
- *
- ****************************************************************************/
-
-int dns_query(FAR const char *hostname, FAR in_addr_t *ipaddr)
-{
-  return dns_query_sock(g_sockfd, hostname, ipaddr);
-}
-
-/****************************************************************************
  * Name: dns_setserver
  *
  * Description:
@@ -654,12 +604,13 @@ int dns_whois_socket(int sockfd, FAR const char *name,
 
   for (retries = 0; retries < 3; retries++)
     {
-      if (send_query_socket(sockfd, name, &g_dnsserver) < 0)
+      ret = dns_send_query(sockfd, name, &g_dnsserver);
+      if (ret < 0)
         {
           return ERROR;
         }
 
-      ret = recv_response_socket(sockfd, addr);
+      ret = dns_recv_response(sockfd, addr);
       if (ret >= 0)
         {
           /* Response received successfully */
@@ -677,47 +628,3 @@ int dns_whois_socket(int sockfd, FAR const char *name,
 
   return ERROR;
 }
-
-/****************************************************************************
- * Name: dns_whois
- *
- * Description:
- *   Get the binding for 'name' using the DNS server accessed via the DNS
- *   resolvers internal socket.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_NET_IPv6
-int dns_whois(FAR const char *name, FAR struct sockaddr_in6 *addr)
-#else
-int dns_whois(FAR const char *name, FAR struct sockaddr_in *addr)
-#endif
-{
-  return dns_whois_socket(g_sockfd, name, addr);
-}
-
-/****************************************************************************
- * Name: dns_gethostip
- *
- * Descriptions:
- *   Combines the operations of dns_bind_sock(), dns_query_sock(), and
- *   dns_free_sock() to obtain the the IP address ('ipaddr') associated with
- *   the 'hostname' in one operation.
- *
- ****************************************************************************/
-
-int dns_gethostip(FAR const char *hostname, FAR in_addr_t *ipaddr)
-{
-  int sockfd = -1;
-  int ret=ERROR;
-
-  dns_bind_sock(&sockfd);
-  if (sockfd >= 0)
-    {
-      ret = dns_query_sock(sockfd, hostname, ipaddr);
-      dns_free_sock(&sockfd);
-    }
-
-  return ret;
-}
-
