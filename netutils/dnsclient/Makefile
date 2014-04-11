@@ -1,5 +1,5 @@
 ############################################################################
-# apps/netutils/resolv/Makefile
+# apps/netutils/dnsclient/Makefile
 #
 #   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,13 +37,13 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# Resolver library
+# DNS Resolver library
 
 ASRCS		=
 CSRCS		= 
 
 ifeq ($(CONFIG_NET_UDP),y)
-CSRCS		= resolv.c
+CSRCS		= dnsclient.c
 endif
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))

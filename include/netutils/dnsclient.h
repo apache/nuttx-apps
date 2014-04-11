@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/netutils/resolv.h
+ * apps/include/netutils/dnsclient.h
  * DNS resolver code header file.
  * Author Adam Dunkels <adam@dunkels.com>
  *

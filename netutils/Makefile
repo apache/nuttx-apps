@@ -39,7 +39,7 @@
 
 SUBDIRS  = json codecs
 ifeq ($(CONFIG_NET),y)
-SUBDIRS += uiplib dhcpc dhcpd discover ftpc ftpd resolv smtp telnetd
+SUBDIRS += uiplib dhcpc dhcpd discover dnsclient ftpc ftpd smtp telnetd
 SUBDIRS += webclient webserver tftpc thttpd xmlrpc
 endif
 

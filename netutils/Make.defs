@@ -63,7 +63,7 @@ CONFIGURED_APPS += netutils/ntpclient
 endif
 
 ifeq ($(CONFIG_NETUTILS_DNSCLIENT),y)
-CONFIGURED_APPS += netutils/resolv
+CONFIGURED_APPS += netutils/dnsclient
 endif
 
 ifeq ($(CONFIG_NETUTILS_SMTP),y)

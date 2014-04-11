@@ -49,7 +49,7 @@
 #include <nuttx/net/uip/uip.h>
 
 #include <apps/netutils/uiplib.h>
-#include <apps/netutils/resolv.h>
+#include <apps/netutils/dnsclient.h>
 #include <apps/netutils/webclient.h>
 
 /****************************************************************************

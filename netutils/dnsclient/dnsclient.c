@@ -1,5 +1,5 @@
 /****************************************************************************
- * uip-resolv.c
+ * apps/netutils/dnsclient/dnsclient.c
  * DNS host name to IP address resolver.
  *
  * The uIP DNS resolver functions are used to lookup a hostname and
@@ -59,7 +59,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include <apps/netutils/resolv.h>
+#include <apps/netutils/dnsclient.h>
 #include <apps/netutils/uiplib.h>
 
 /****************************************************************************

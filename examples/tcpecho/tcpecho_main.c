@@ -70,7 +70,7 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC
-#  include <apps/netutils/resolv.h>
+#  include <apps/netutils/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 

@@ -878,3 +878,6 @@
 	  probably incomplete (2014-4-10).
 	* apps/netutils/resolv:  Long needed major clean up for coding style
 	  and unification of naming conventions (resolv vs dns) (2014-4-11).
+	* aps/netutils/dnsclient and include/netutils/dnsclient.h:  File name
+	  changes that are part of the overal resolv->dns renaming (2014-4-11).
+
