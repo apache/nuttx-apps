@@ -339,11 +339,18 @@ static int ntpc_daemon(int argc, char **argv)
   server.sin_addr.s_addr = htonl(CONFIG_NETUTILS_NTPCLIENT_SERVERIP);
 
   /* Here we do the communication with the NTP server.  This is a very simple
-   * client architecture.  A request is sent and then a NTP packet is received.
-   * The NTP packet received is decoded to the recv structure for easy
-   * access.
+   * client architecture.  A request is sent and then a NTP packet is received
+   * and used to set the current time.
+   *
+   * NOTE that the scheduler is locked whenever this function runs.  That
+   * assures both:  (1) that there are no asynchronous stop requests and
+   * (2) that we are not suspended while in critical moments when we about
+   * to set the new time.  This sounds harsh, but this function is suspended
+   * most of the time either: (1) send a datagram, (2) receiving a datagram,
+   * or (3) waiting for the next poll cycle.
    */
 
+  sched_lock();
   while (g_ntpc_daemon.state == NTP_STOP_REQUESTED)
     {
       memset(&xmit, 0, sizeof(xmit));
@@ -354,14 +361,23 @@ static int ntpc_daemon(int argc, char **argv)
       ret = sendto(sd, &xmit, sizeof(struct ntp_datagram_s),
                    0, (FAR struct sockaddr *)&server,
                    sizeof(struct sockaddr_in));
+
       if (ret < 0)
         {
-          if (g_ntpc_daemon.state != NTP_STOP_REQUESTED)
+          int errval = errno;
+          if (errval != EINTR)
             {
-              ndbg("ERROR: sendto() failed: %d\n", errno);
+              ndbg("ERROR: sendto() failed: %d\n", errval);
               exitcode = EXIT_FAILURE;
+              break;
             }
-          break;
+
+          /* Go back to the top of the loop if we were interrupted
+           * by a signal.  The signal might mean that we were
+           * requested to stop(?)
+           */
+
+          continue;
         }
 
       /* Attempt to receive a packet (with a timeout) */
@@ -369,6 +385,7 @@ static int ntpc_daemon(int argc, char **argv)
       socklen = sizeof(struct sockaddr_in);
       nbytes = recvfrom(sd, (void *)&recv, sizeof(struct ntp_datagram_s),
                         0, (FAR struct sockaddr *)&server, &socklen);
+
       if (nbytes >= NTP_DATAGRAM_MINSIZE)
         {
           svdbg("Setting time\n");
@@ -389,6 +406,8 @@ static int ntpc_daemon(int argc, char **argv)
     }
 
   /* The NTP client is terminating */
+
+  sched_unlock();
 
   g_ntpc_daemon.state = NTP_STOPPED;
   sem_post(&g_ntpc_daemon.interlock);
