@@ -171,7 +171,7 @@ int shell_session(int argc, char *argv[])
   stkmon_disp();
 #endif
 
-  for(;;)
+  for (;;)
     {
       printf(SHELL_PROMPT);
       fflush(stdout);

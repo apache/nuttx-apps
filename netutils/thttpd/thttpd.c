@@ -756,7 +756,7 @@ int thttpd_main(int argc, char **argv)
 
   nvdbg("Entering the main loop\n");
   (void)gettimeofday(&tv, NULL);
-  for(;;)
+  for (;;)
     {
       /* Do the fd watch */
 

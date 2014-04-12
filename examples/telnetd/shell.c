@@ -164,7 +164,7 @@ int shell_session(int argc, char *argv[])
   printf("uIP command shell -- NuttX style\n");
   printf("Type '?' and return for help\n");
 
-  for(;;)
+  for (;;)
     {
       printf(SHELL_PROMPT);
       fflush(stdout);

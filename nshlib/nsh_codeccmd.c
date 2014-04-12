@@ -391,7 +391,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           MD5Final(mac, &ctx);
           pSrc = (char *)&mac;
           pDest = buffer;
-          for(i=0;i<16;i++,pSrc++)
+          for (i = 0; i < 16; i++, pSrc++)
             {
               *pDest++ = hex_chars[(*pSrc) >> 4];
               *pDest++ = hex_chars[(*pSrc) & 0x0f];
@@ -427,7 +427,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
               MD5Final(mac, &ctx);
               pSrc = (char *)&mac;
               pDest = buffer;
-              for(i=0;i<16;i++,pSrc++)
+              for (i = 0; i < 16; i++, pSrc++)
                 {
                   *pDest++ = hex_chars[(*pSrc) >> 4];
                   *pDest++ = hex_chars[(*pSrc) & 0x0f];

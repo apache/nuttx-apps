@@ -123,7 +123,7 @@ int nsh_telnetlogin(struct console_stdio_s *pstate)
 
   /* Loop for the configured number of retries */
 
-  for(i = 0; i < CONFIG_NSH_TELNET_FAILCOUNT; i++)
+  for (i = 0; i < CONFIG_NSH_TELNET_FAILCOUNT; i++)
     {
       /* Ask for the login username */
 

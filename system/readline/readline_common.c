@@ -141,7 +141,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
   escape = 0;
   nch    = 0;
 
-  for(;;)
+  for (;;)
     {
       /* Get the next character. readline_rawgetc() returns EOF on any
        * errors or at the end of file.

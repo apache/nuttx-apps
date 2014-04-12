@@ -61,7 +61,7 @@ static void *thread_waiter(void *parameter)
 
   printf("waiter_thread: Started\n");
 
-  for(;;)
+  for (;;)
     {
       /* Take the mutex */
 

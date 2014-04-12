@@ -548,7 +548,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
       ws.state   = WEBCLIENT_STATE_STATUSLINE;
       redirected = false;
-      for(;;)
+      for (;;)
         {
           ws.datend = recv(sockfd, ws.buffer, ws.buflen, 0);
           if (ws.datend < 0)

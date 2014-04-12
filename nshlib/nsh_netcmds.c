@@ -619,7 +619,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (argc > 2)
     {
-      for(i = 0; i < argc; i++)
+      for (i = 0; i < argc; i++)
         {
           if (i == 1)
             {

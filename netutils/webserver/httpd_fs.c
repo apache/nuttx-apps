@@ -96,9 +96,9 @@ int httpd_fs_open(const char *name, struct httpd_fs_file *file)
 #endif
   struct httpd_fsdata_file_noconst *f;
 
-  for(f = (struct httpd_fsdata_file_noconst *)g_httpdfs_root;
-      f != NULL;
-      f = (struct httpd_fsdata_file_noconst *)f->next)
+  for (f = (struct httpd_fsdata_file_noconst *)g_httpdfs_root;
+       f != NULL;
+       f = (struct httpd_fsdata_file_noconst *)f->next)
     {
       if (httpd_fs_strcmp(name, f->name) == 0)
         {
@@ -123,7 +123,7 @@ void httpd_fs_init(void)
 
   count = (uint16_t*)malloc(g_httpd_numfiles * sizeof(uint16_t));
 
-  for(i = 0; i < g_httpd_numfiles; i++)
+  for (i = 0; i < g_httpd_numfiles; i++)
     {
       count[i] = 0;
     }
@@ -137,7 +137,7 @@ uint16_t httpd_fs_count(char *name)
   uint16_t i;
 
   i = 0;
-  for(f = (struct httpd_fsdata_file_noconst *)g_httpdfs_root;
+  for (f = (struct httpd_fsdata_file_noconst *)g_httpdfs_root;
       f != NULL;
       f = (struct httpd_fsdata_file_noconst *)f->next)
     {
