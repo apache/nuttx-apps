@@ -882,4 +882,6 @@
 	  changes that are part of the overal resolv->dns renaming (2014-4-11).
 	* apps/netutils/dnsclient:  Break the one big monolithic file into
 	  three smaller files (2014-4-11).
+	* apps/netutils/ntpclient/ntpclient.c: Corrections to the NTP client
+	  from Manuel Stuehn (2014-4-12).
 

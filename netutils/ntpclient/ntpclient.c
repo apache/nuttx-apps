@@ -114,10 +114,10 @@ static inline uint32_t ntpc_getuint32(FAR uint8_t *ptr)
 {
   /* Network order is big-endian; host order is irrelevant */
 
-  return (uint32_t)ptr[0] |          /* LS byte appears first in data stream */
-         ((uint32_t)ptr[1] << 8) |
-         ((uint32_t)ptr[2] << 16) |
-         ((uint32_t)ptr[3] << 24);
+  return (uint32_t)ptr[3] |          /* MS byte appears first in data stream */
+         ((uint32_t)ptr[2] << 8) |
+         ((uint32_t)ptr[1] << 16) |
+         ((uint32_t)ptr[0] << 24);
 }
 
 /****************************************************************************
@@ -347,7 +347,7 @@ static int ntpc_daemon(int argc, char **argv)
    */
 
   sched_lock();
-  while (g_ntpc_daemon.state == NTP_STOP_REQUESTED)
+  while (g_ntpc_daemon.state != NTP_STOP_REQUESTED)
     {
       /* Format the transmit datagram */
 
@@ -394,7 +394,7 @@ static int ntpc_daemon(int argc, char **argv)
        * datagram.
        */
 
-      if (nbytes >= NTP_DATAGRAM_MINSIZE)
+      if (nbytes >= (ssize_t)NTP_DATAGRAM_MINSIZE)
         {
           svdbg("Setting time\n");
           ntpc_settime(recv.recvtimestamp);
