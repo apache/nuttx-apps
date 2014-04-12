@@ -118,7 +118,7 @@ static int install_getstartpage(int startpage, int pagemargin, int desiredsize)
                       maxlen = 0;
                     }
 
-                  if(stpage < startpage)
+                  if (stpage < startpage)
                     {
                       stpage = startpage;
                     }

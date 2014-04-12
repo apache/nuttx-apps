@@ -644,7 +644,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
-              else if(!strcmp(tmp, "netmask"))
+              else if (!strcmp(tmp, "netmask"))
                 {
                   if (argc-1 >= i+1)
                     {

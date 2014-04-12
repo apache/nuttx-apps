@@ -82,7 +82,7 @@ bool uiplib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
               ++ipaddr;
               tmp = 0;
             }
-          else if(c >= '0' && c <= '9')
+          else if (c >= '0' && c <= '9')
             {
               tmp = (tmp * 10) + (c - '0');
             }
@@ -130,15 +130,15 @@ bool uiplib_hwmacconv(const char *hwstr, uint8_t *hw)
               ++hw;
               tmp = 0;
             }
-          else if(c >= '0' && c <= '9')
+          else if (c >= '0' && c <= '9')
             {
               tmp = (tmp << 4) + (c - '0');
             }
-          else if(c >= 'a' && c <= 'f')
+          else if (c >= 'a' && c <= 'f')
             {
               tmp = (tmp << 4) + (c - 'a' + 10);
             }
-          else if(c >= 'A' && c <= 'F')
+          else if (c >= 'A' && c <= 'F')
             {
               tmp = (tmp << 4) + (c - 'A' + 10);
             }
@@ -151,5 +151,6 @@ bool uiplib_hwmacconv(const char *hwstr, uint8_t *hw)
         }
       while(c != ':' && c != 0);
     }
+
   return true;
 }

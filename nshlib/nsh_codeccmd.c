@@ -348,7 +348,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
               ret = ERROR;
               goto exit;
             }
-          else if(ret==0)
+          else if (ret==0)
             {
               break;
             }
