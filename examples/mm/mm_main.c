@@ -47,7 +47,7 @@
 
 #define NTEST_ALLOCS 32
 
-/* #define STOP_ON_ERRORS do{}while(0) */
+/* #define STOP_ON_ERRORS do {} while (0) */
 #define STOP_ON_ERRORS exit(1)
 
 /* All other definitions derive from these two */

@@ -174,7 +174,7 @@ static int install_programflash(int startaddr, const char *source)
           startaddr += count;
           totalsize += count;
         }
-      while(count);
+      while (count);
     }
   else
     {
@@ -308,7 +308,7 @@ static int install_remove(const char *scriptname)
       progsize -= up_progmem_pagesize(page);
 
     }
-  while(progsize > 0);
+  while (progsize > 0);
 
   if (status < 0)
     {

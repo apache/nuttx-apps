@@ -338,7 +338,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
       buff_len = calc_codec_buffsize(src_buff_len+2, mode);
       buffer = malloc(buff_len);
-      while(true)
+      while (true)
         {
           memset(src_buffer, 0, src_buff_len+2);
           ret=read(fd, src_buffer, src_buff_len);

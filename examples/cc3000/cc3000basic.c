@@ -969,7 +969,7 @@ int c3b_main(int argc, char *argv[])
       ch = getchar();
 
     }
-  while(execute(ch) == 0);
+  while (execute(ch) == 0);
 
   return 0;
 }

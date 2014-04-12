@@ -92,8 +92,9 @@ bool uiplib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
             }
           ++addrstr;
         }
-      while(c != '.' && c != 0);
+      while (c != '.' && c != 0);
     }
+
   return true;
 }
 
@@ -149,7 +150,7 @@ bool uiplib_hwmacconv(const char *hwstr, uint8_t *hw)
 
           ++hwstr;
         }
-      while(c != ':' && c != 0);
+      while (c != ':' && c != 0);
     }
 
   return true;

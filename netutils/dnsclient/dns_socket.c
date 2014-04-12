@@ -188,13 +188,13 @@ static FAR unsigned char *dns_parse_name(FAR unsigned char *query)
     {
       n = *query++;
 
-      while(n > 0)
+      while (n > 0)
         {
           ++query;
           --n;
         }
     }
-  while(*query != 0);
+  while (*query != 0);
 
   return query + 1;
 }
@@ -247,7 +247,7 @@ static int dns_send_query(int sockfd, FAR const char *name,
 
      *nptr = n;
    }
-  while(*nameptr != 0);
+  while (*nameptr != 0);
 
   memcpy(query, endquery, 5);
 

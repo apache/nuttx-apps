@@ -246,7 +246,7 @@ static int tcpecho_server(void)
 
   maxi = 0;                     /* max index into client[] array */
 
-  while(!stop)
+  while (!stop)
     {
       nready = poll(client, maxi+1, TCPECHO_POLLTIMEOUT);
 

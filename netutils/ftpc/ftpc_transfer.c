@@ -426,7 +426,6 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
   /* Read remaining bytes from connection */
 
   while (stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
-  while(stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0)
 
   /* Get the ABORt reply */
  
