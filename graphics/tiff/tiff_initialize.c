@@ -58,7 +58,7 @@
  *
  *          Offset Description                 Contents/Notes
  * Header:    0    Byte Order                  "II" or "MM"
- *            2    Magic Number                42     
+ *            2    Magic Number                42
  *            4    1st IFD offset              10
  *            8    [2 bytes padding]
  * IFD:      10    Number of Directory Entries 13
@@ -110,7 +110,7 @@
 /* Greyscale Images have one additional IFD entry: BitsPerSample (4 or 8)
  *
  * Header:    0    Byte Order                  "II" or "MM"
- *            2    Magic Number                42     
+ *            2    Magic Number                42
  *            4    1st IFD offset              10
  *            8    [2 bytes padding]
  * IFD:      10    Number of Directory Entries 14
@@ -156,7 +156,7 @@
  * SamplesPerPixel (3):
  *
  * Header:    0    Byte Order                  "II" or "MM"
- *            2    Magic Number                42     
+ *            2    Magic Number                42
  *            4    1st IFD offset              10
  *            8    [2 bytes padding]
  * IFD:      10    Number of Directory Entries 15
@@ -397,7 +397,7 @@ static int tiff_putifdentry16(FAR struct tiff_info_s *info, uint16_t tag,
  *   Get the DateTime string
  *
  * Input Parameters:
- *   
+ *
  *
  * Returned Value:
  *   Zero (OK) on success.  A negated errno value on failure.
@@ -526,7 +526,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   /* Write the TIFF header data to the outfile:
    *
    * Header:    0    Byte Order                  "II" or "MM"
-   *            2    Magic Number                42     
+   *            2    Magic Number                42
    *            4    1st IFD offset              10
    *            8    [2 bytes padding]
    */
@@ -793,11 +793,11 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   tiff_offset(offset, 4);
 
   /* Now we begin the value section of the file */
-  
+
   tiff_checkoffs(offset, info->filefmt->valoffset);
 
   /* Write the XResolution and YResolution data:
-   * 
+   *
    * Bi-level Images: Offset 172 Count, Hard-coded to 300/1
    *                  Offset 180 Count, Hard-coded to 300/1
    * Greyscale:       Offset 184 Count, Hard-coded to 300/1
@@ -857,7 +857,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
    * Greyscale:       Offset 200, Hard-coded "NuttX"
    * RGB:             Offset 220, Hard-coded "NuttX"
    */
-   
+
   tiff_checkoffs(offset, info->filefmt->swoffset);
   ret = tiff_putstring(info->outfd, TIFF_SOFTWARE_STRING, TIFF_SOFTWARE_STRLEN);
   if (ret < 0)

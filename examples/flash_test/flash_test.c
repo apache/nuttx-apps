@@ -100,9 +100,9 @@ int flash_test_main(int argc, char *argv[])
       goto errout_with_driver;
     }
 
-  /* Test if the device is formatted.  If not, then we must do a 
+  /* Test if the device is formatted.  If not, then we must do a
    * low-level format first */
-  
+
   if (!(fmt.flags & SMART_FMT_ISFORMATTED))
     {
       /* Perform a low-level format */
@@ -160,16 +160,16 @@ int flash_test_main(int argc, char *argv[])
     {
       /* Allocate a new sector */
 
-      logsector = inode->u.i_bops->ioctl(inode, BIOC_ALLOCSECT, 
+      logsector = inode->u.i_bops->ioctl(inode, BIOC_ALLOCSECT,
                                          (unsigned long) -1);
       if (logsector < 0)
         {
           fprintf(stderr, "Error allocating sector: %d\n", logsector);
-          goto errout_with_driver; 
+          goto errout_with_driver;
         }
 
       /* Save the sector in our array */
-     
+
       sectors[x] = (uint16_t) logsector;
       seqs[x] = seq++;
 
@@ -190,7 +190,7 @@ int flash_test_main(int argc, char *argv[])
       printf("\r%d    ", sectors[x]);
     }
 
-  /* Now read the data back to validate everything was written and can 
+  /* Now read the data back to validate everything was written and can
    * be read. */
 
   printf("\nDoing read verify test\n");

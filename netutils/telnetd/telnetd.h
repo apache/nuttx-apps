@@ -63,7 +63,7 @@ struct telnetd_s
                                     * connection is accepted. */
 };
 
-/* This structure is used to passed information to telnet daemon when it 
+/* This structure is used to passed information to telnet daemon when it
  * started.  It contains global information visable to all telnet daemons.
  */
 
@@ -80,7 +80,7 @@ struct telnetd_common_s
  * Public Data
  ****************************************************************************/
 
-/* This structure is used to passed information to telnet daemon when it 
+/* This structure is used to passed information to telnet daemon when it
  * started.  It contains global information visable to all telnet daemons.
  */
 
@@ -105,7 +105,7 @@ extern struct telnetd_common_s g_telnetdcommon;
  * Return:
  *   An allocated string represent the full path to the created driver.  The
  *   receiver of the string must de-allocate this memory when it is no longer
- *   needed.  NULL is returned on a failure. 
+ *   needed.  NULL is returned on a failure.
  *
  ****************************************************************************/
 

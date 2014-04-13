@@ -60,7 +60,7 @@
 int rgmp_main(int argc, char *argv[])
 {
     // TODO: add your code here
-    
+
     return 0;
 }
 

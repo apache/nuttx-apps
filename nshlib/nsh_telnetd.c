@@ -136,7 +136,7 @@ int nsh_telnetlogin(struct console_stdio_s *pstate)
         }
 
       /* Ask for the login password */
-  
+
       fputs(g_passwordprompt, pstate->cn_outstream);
       fflush(pstate->cn_outstream);
       nsh_telnetecho(pstate, TELNET_NOTUSE_ECHO);
@@ -277,7 +277,7 @@ int nsh_telnetmain(int argc, char *argv[])
  * Returned Values:
  *   The task ID of the Telnet daemon was successfully started.  A negated
  *   errno value will be returned on failure.
- *  
+ *
  ****************************************************************************/
 
 int nsh_telnetstart(void)

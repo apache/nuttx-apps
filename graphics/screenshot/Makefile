@@ -72,7 +72,7 @@ STACKSIZE = 4096
 
 # Common build
 
-VPATH = 
+VPATH =
 
 all: .built
 .PHONY: clean depend distclean

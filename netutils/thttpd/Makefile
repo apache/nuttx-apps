@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # THTTPD Library
 
 ASRCS		=
-CSRCS		= 
+CSRCS		=
 
 ifeq ($(CONFIG_NET_TCP),y)
 CSRCS		+= thttpd.c libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c fdwatch.c tdate_parse.c

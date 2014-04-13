@@ -337,7 +337,7 @@ int nxcon_main(int argc, char **argv)
     }
 
   /* Sleep a little bit to allow the server to catch up */
- 
+
   sleep(2);
 
   /* NxConsole Configuration ************************************************/
@@ -388,7 +388,7 @@ int nxcon_main(int argc, char **argv)
    /* And start the console task.  It will inherit stdin, stdout, and stderr
     * from this task.
     */
- 
+
    g_nxcon_vars.pid = TASK_CREATE("NxConsole", CONFIG_EXAMPLES_NXCONSOLE_PRIO,
                                   CONFIG_EXAMPLES_NXCONSOLE_STACKSIZE,
                                   nxcon_task, NULL);

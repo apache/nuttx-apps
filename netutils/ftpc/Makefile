@@ -40,11 +40,11 @@ include $(APPDIR)/Make.defs
 # DHCP Daemn Library
 
 ASRCS		=
-CSRCS		= 
+CSRCS		=
 
 ifeq ($(CONFIG_NET_TCP),y)
 # FTP connection management
-CSRCS = ftpc_connect.c ftpc_disconnect.c 
+CSRCS = ftpc_connect.c ftpc_disconnect.c
 
 # FTP commands
 CSRCS += ftpc_cdup.c ftpc_chdir.c ftpc_chmod.c ftpc_filesize.c ftpc_filetime.c
@@ -82,7 +82,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: context depend clean distclean

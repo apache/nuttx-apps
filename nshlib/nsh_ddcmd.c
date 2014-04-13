@@ -113,7 +113,7 @@ struct dd_s
     int fd;            /* File descriptor of the character device */
   } inf;
 #else
-  int infd;            /* File descriptor of the input device */ 
+  int infd;            /* File descriptor of the input device */
 #endif
 
 #ifndef CONFIG_DISABLE_MOUNTPOINT
@@ -123,7 +123,7 @@ struct dd_s
     int fd;            /* File descriptor of the character device */
   } outf;
 #else
-  int outfd;           /* File descriptor of the output device */ 
+  int outfd;           /* File descriptor of the output device */
 #endif
 
   uint32_t nsectors;   /* Number of sectors to transfer */

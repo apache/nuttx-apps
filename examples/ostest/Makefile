@@ -77,9 +77,9 @@ endif # CONFIG_DISABLE_SIGNALS
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS		+= mqueue.c 
+CSRCS		+= mqueue.c
 ifneq ($(CONFIG_DISABLE_CLOCK),y)
-CSRCS		+= timedmqueue.c 
+CSRCS		+= timedmqueue.c
 endif # CONFIG_DISABLE_CLOCK
 endif # CONFIG_DISABLE_PTHREAD
 endif # CONFIG_DISABLE_MQUEUE
@@ -122,7 +122,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: clean depend distclean

@@ -146,7 +146,7 @@ int stackmonitor_start(int argc, char **argv)
       int ret;
 
       /* No.. start it now */
- 
+
       /* Then start the stack monitoring daemon */
 
       g_stackmonitor.started = true;

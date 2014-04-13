@@ -70,7 +70,7 @@ static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **a
 /****************************************************************************
  * Private Data
  ****************************************************************************/
- 
+
 struct i2ctool_s g_i2ctool;
 
 static const struct cmdmap_s g_i2ccmds[] =
@@ -379,7 +379,7 @@ int i2c_main(int argc, char *argv[])
     {
       g_i2ctool.freq = CONFIG_I2CTOOL_DEFFREQ;
     }
-  
+
   /* Parse process the command line */
 
   i2c_setup(&g_i2ctool);
@@ -406,7 +406,7 @@ int i2ctool_printf(FAR struct i2ctool_s *i2ctool, const char *fmt, ...)
   va_start(ap, fmt);
   ret = vfprintf(OUTSTREAM(i2ctool), fmt, ap);
   va_end(ap);
- 
+
   return ret;
 }
 

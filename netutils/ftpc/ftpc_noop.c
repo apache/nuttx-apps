@@ -74,7 +74,7 @@
  *   No operation command.  Using NOOP allows us to make sure that commands
  *   are passed over the control connection without changing the status of
  *   any data transaction or server status.  This is useful for (1)
- *   maintaining connections during long IDLE times and (2) It can also be 
+ *   maintaining connections during long IDLE times and (2) It can also be
  *   used as a harmless way of detecting timeouts.
  *
  ****************************************************************************/

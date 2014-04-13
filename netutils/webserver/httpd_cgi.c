@@ -60,7 +60,7 @@ struct httpd_cgi_call *cgi_calls = NULL;
 
 void httpd_cgi_register(struct httpd_cgi_call *cgi_call)
 {
-  if (cgi_calls == NULL) 
+  if (cgi_calls == NULL)
     {
       cgi_calls = cgi_call;
     }

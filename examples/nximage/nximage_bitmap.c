@@ -1075,7 +1075,7 @@ static const struct pix_run_s g_nuttx[] =
   { 77,   0},
   { 76,   0}, {  1,   5}, {  4,   4}, {  1,   5}, { 78,   0}                                       /* Row 159 */
  };
- 
+
 #elif CONFIG_EXAMPLES_NXIMAGE_BPP == 16
 
 static const struct pix_run_s g_nuttx[] =
@@ -3545,7 +3545,7 @@ nxgl_mxpixel_t nximage_avgcolor(nxgl_mxpixel_t color1, nxgl_mxpixel_t color2)
     {
       b1 = 0xff;
     }
- 
+
   /* Multiplex */
 
   color1 = r1 << 16 | g1 << 8 | b1;
@@ -3586,7 +3586,7 @@ nxgl_mxpixel_t nximage_avgcolor(nxgl_mxpixel_t color1, nxgl_mxpixel_t color2)
     {
       b1 = 0x1f;
     }
- 
+
   /* Multiplex */
 
   color1 = r1 << 11 | g1 << 5 | b1;
@@ -3629,7 +3629,7 @@ nxgl_mxpixel_t nximage_avgcolor(nxgl_mxpixel_t color1, nxgl_mxpixel_t color2)
     {
       b1 = 0x03;
     }
- 
+
   /* Multiplex */
 
   color1 = r1 << 5 | g1 << 2 | b1;

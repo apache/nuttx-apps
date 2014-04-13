@@ -40,7 +40,7 @@
 SUBDIRS  = adc buttons can cc3000 cxxtest dhcpd discover elf flash_test
 SUBDIRS += ftpc ftpd hello helloxx hidkbd igmp i2schar json keypadtest
 SUBDIRS += lcdrw mm modbus mount mtdpart nettest nrf24l01_term nsh null nx
-SUBDIRS += nxconsole nxffs nxflat nxhello nximage nxlines nxtext ostest 
+SUBDIRS += nxconsole nxffs nxflat nxhello nximage nxlines nxtext ostest
 SUBDIRS += pashello pipe poll posix_spawn pwm qencoder random relays rgmp
 SUBDIRS += romfs sendmail serloop slcd smart smart_test tcpecho telnetd
 SUBDIRS += thttpd tiff touchscreen udp uip usbserial usbterm watchdog

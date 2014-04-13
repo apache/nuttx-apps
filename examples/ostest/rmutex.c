@@ -64,7 +64,7 @@ static void thread_inner(int id, int level)
       printf("thread_inner[%d, %d]: Locked\n", id, level);
 
       /* Give the other threads a chance */
-      
+
       pthread_yield();
       thread_inner(id, level+1);
       pthread_yield();
@@ -127,7 +127,7 @@ void recursive_mutex_test(void)
     {
       printf("recursive_mutex_test: ERROR pthread_mutexattr_gettype return type=%d\n", type);
     }
-  
+
   /* Initialize the mutex */
 
   printf("recursive_mutex_test: Initializing mutex\n");

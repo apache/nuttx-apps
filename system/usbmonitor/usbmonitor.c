@@ -185,7 +185,7 @@ int usbmonitor_start(int argc, char **argv)
       int ret;
 
       /* No.. start it now */
- 
+
 #ifdef CONFIG_USBDEV_TRACE
       /* First, initialize any USB tracing options that were requested */
 

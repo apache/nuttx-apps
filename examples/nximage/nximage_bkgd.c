@@ -295,7 +295,7 @@ void nximage_image(NXWINDOW hwnd)
 
   dest.pt1.x = pos.x;
   dest.pt2.x = pos.x + SCALED_WIDTH - 1;
- 
+
   /* Now output the rows */
 
   for (row = 0; row < IMAGE_HEIGHT; row += NINPUT_ROWS)

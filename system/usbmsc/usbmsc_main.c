@@ -549,11 +549,11 @@ int msconn_main(int argc, char *argv[])
 #else /* defined(CONFIG_DISABLE_SIGNALS) */
 
   /* Just exit */
- 
+
   message("mcsonn_main: Exiting\n");
 
   /* Dump debug memory usage */
- 
+
   final_memory_usage("Final memory usage");
 #endif
 

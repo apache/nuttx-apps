@@ -102,7 +102,7 @@ static void *null_writer(pthread_addr_t pvarg)
       fprintf(stderr, "null_writer: close failed: %d\n", errno);
     }
   sleep(5);
-  
+
   printf("null_writer: Returning success\n");
   return (void*)0;
 }
@@ -143,7 +143,7 @@ int interlock_test(void)
       ret = 2;
       goto errout_with_fifo;
     }
- 
+
   /* Open one end of the FIFO for reading.  This open call should block until the
    * null_writer thread opens the other end of the FIFO for writing.
    */

@@ -222,7 +222,7 @@ static void parse_args(int argc, FAR char **argv)
           case 'h':
             qe_help();
             exit(EXIT_SUCCESS);
-        
+
           default:
             message("Unsupported option: %s\n", ptr);
             qe_help();

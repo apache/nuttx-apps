@@ -39,7 +39,7 @@ include $(APPDIR)/Make.defs
 
 # Basic TCP networking test
 
-TARG_ASRCS = 
+TARG_ASRCS =
 TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
 
 TARG_CSRCS = nettest.c
@@ -93,7 +93,7 @@ STACKSIZE = 2048
 
 # Common build
 
-VPATH = 
+VPATH =
 
 all: .built $(HOST_BIN)
 .PHONY: clean depend distclean

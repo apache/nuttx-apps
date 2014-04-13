@@ -281,7 +281,7 @@ static inline void smart_randname(FAR struct smart_filedesc_s *file)
     {
       file->name[i] = smart_randchar();
     }
- 
+
   file->name[alloclen] = '\0';
 }
 

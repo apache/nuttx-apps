@@ -75,7 +75,7 @@ STACKSIZE2	= $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: context clean depend distclean

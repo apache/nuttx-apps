@@ -123,7 +123,7 @@ class CHelloWorld
 // Define a statically constructed CHellowWorld instance if C++ static
 // initializers are supported by the platform
 
-#ifdef CONFIG_HAVE_CXXINITIALIZE 
+#ifdef CONFIG_HAVE_CXXINITIALIZE
 static CHelloWorld g_HelloWorld;
 #endif
 

@@ -69,7 +69,7 @@ $(BIN): $(BIN).r2
 	@echo "LD: $<"
 	$(Q) $(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
-clean: 
+clean:
 	$(call DELFILE, $(BIN))
 	$(call DELFILE, $(R2SRC))
 	$(call DELFILE, *.r1)

@@ -232,7 +232,7 @@
  * about tildes. Enabling both options is an error.
  *
  * Typical values, if they're defined, are "users" for CONFIG_THTTPD_TILDE_MAP1 and "public_html"
- * for CONFIG_THTTPD_TILDE_MAP2. 
+ * for CONFIG_THTTPD_TILDE_MAP2.
  */
 
 #  if defined(CONFIG_THTTPD_TILDE_MAP1) && defined(CONFIG_THTTPD_TILDE_MAP2)

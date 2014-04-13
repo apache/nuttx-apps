@@ -279,7 +279,7 @@ static inline void nxffs_randname(FAR struct nxffs_filedesc_s *file)
     {
       file->name[i] = nxffs_randchar();
     }
- 
+
   file->name[alloclen] = '\0';
 }
 

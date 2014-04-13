@@ -115,7 +115,7 @@ static int nhighpri_waiting(void)
 {
    int n = 0;
    int i;
- 
+
    for (i = 0; i < NHIGHPRI_THREADS; i++)
      {
        if (g_highstate[i] == WAITING)
@@ -134,7 +134,7 @@ static int nhighpri_running(void)
 {
    int n = 0;
    int i;
- 
+
    for (i = 0; i < NHIGHPRI_THREADS; i++)
      {
        if (g_highstate[i] != DONE)
@@ -268,7 +268,7 @@ static void *lowpri_thread(void *parameter)
       if (sparam.sched_priority != g_lowpri)
         {
           printf("               ERROR should have been %d\n", g_lowpri);
-        } 
+        }
     }
 
   g_lowstate[threadno-1] = WAITING;
@@ -378,14 +378,14 @@ static void *lowpri_thread(void *parameter)
       if (sparam.sched_priority != g_lowpri)
         {
           printf("               ERROR should have been %d\n", g_lowpri);
-        } 
+        }
     }
   sem_enumholders(&g_sem);
 
   printf("lowpri_thread-%d: Okay... I'm done!\n", threadno);
   FFLUSH();
   g_lowstate[threadno-1] = DONE;
-  return retval;  
+  return retval;
 }
 #endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_SIGNALS && !CONFIG_DISABLE_PTHREAD */
 

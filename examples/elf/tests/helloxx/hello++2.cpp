@@ -61,7 +61,7 @@ public:
       printf("CThingSayer::CThingSayer: I am!\n");
       szWhatToSay = (const char*)NULL;
     }
- 
+
   ~CThingSayer(void)
     {
       printf("CThingSayer::~CThingSayer: I cease to be\n");

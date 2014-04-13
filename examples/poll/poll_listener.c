@@ -249,7 +249,7 @@ void *poll_listener(pthread_addr_t pvarg)
             }
           while (nbytes > 0);
         }
- 
+
       /* Make sure that everything is displayed */
 
       msgflush();

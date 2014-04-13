@@ -226,7 +226,7 @@ FAR char *ftpc_dequote(FAR const char *str)
       if (allocstr)
         {
           /* Search the string */
- 
+
           ptr = allocstr;
           while (*str)
             {

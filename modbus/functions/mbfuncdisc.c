@@ -64,7 +64,7 @@ eMBFuncReadDiscreteInputs( uint8_t * pucFrame, uint16_t * usLen )
         usDiscreteCnt |= ( uint16_t )( pucFrame[MB_PDU_FUNC_READ_DISCCNT_OFF + 1] );
 
         /* Check if the number of registers to read is valid. If not
-         * return Modbus illegal data value exception. 
+         * return Modbus illegal data value exception.
          */
         if( ( usDiscreteCnt >= 1 ) &&
             ( usDiscreteCnt < MB_PDU_FUNC_READ_DISCCNT_MAX ) )
@@ -101,7 +101,7 @@ eMBFuncReadDiscreteInputs( uint8_t * pucFrame, uint16_t * usLen )
             else
             {
                 /* The response contains the function code, the starting address
-                 * and the quantity of registers. We reuse the old values in the 
+                 * and the quantity of registers. We reuse the old values in the
                  * buffer because they are still valid. */
                 *usLen += ucNBytes;;
             }

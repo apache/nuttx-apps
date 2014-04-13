@@ -222,7 +222,7 @@ extern "C" {
  * Public Functions
  ****************************************************************************/
 /* Low-level string management */
- 
+
 EXTERN void ftpc_stripcrlf(FAR char *str);
 EXTERN void ftpc_stripslash(FAR char *str);
 EXTERN FAR char *ftpc_dequote(FAR const char *hostname);

@@ -215,7 +215,7 @@ static int fpu_task(int argc, char *argv[])
       printf("FPU#%d: pass %d\n", id, i+1);
       fflush(stdout);
 
-      /* Set the FPU register save arrays to a known-but-illogical values so 
+      /* Set the FPU register save arrays to a known-but-illogical values so
        * that we can verify that reading of the registers actually occurs.
        */
 

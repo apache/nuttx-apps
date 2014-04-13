@@ -97,7 +97,7 @@ static int tiff_readifdentry(int fd, off_t offset,
     {
       return -errno;
     }
- 
+
   /* Then read the IFD entry.  Anything returned by tiff_read other than the
    * size of the IFD entry would be an error.
    */
@@ -179,8 +179,8 @@ static void tiff_cleanup(FAR struct tiff_info_s *info)
 
   /* And remove the temporary files */
 
-  (void)unlink(info->tmpfile1); 
-  (void)unlink(info->tmpfile2); 
+  (void)unlink(info->tmpfile1);
+  (void)unlink(info->tmpfile2);
 }
 
 /****************************************************************************
@@ -434,6 +434,6 @@ void tiff_abort(FAR struct tiff_info_s *info)
 
   /* But then delete the output file as well */
 
-  (void)unlink(info->outfile); 
+  (void)unlink(info->outfile);
 }
 

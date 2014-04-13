@@ -20,7 +20,7 @@ config NETUTILS_HTTPD_SINGLECONNECT
 	default y if DISABLE_PTHREAD
 	---help---
 		By default, the uIP web server will create a new, independent thread
-		for each connection.  This can, however, use a lot of stack space 
+		for each connection.  This can, however, use a lot of stack space
 		if there are many connections and that can be a problem is RAM is
 		limited.  If this option is selected, then a single thread will
 		service all HTTP requests and, in this case, only a single connection

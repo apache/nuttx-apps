@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
         "</div>\r\n"
         "<div class=\"contentblock\">\r\n");
   printf(
-        "<h2>Hello, World!</h2><p>Requested by: %s</p>\r\n", 
+        "<h2>Hello, World!</h2><p>Requested by: %s</p>\r\n",
         getenv("REMOTE_ADDR"));
   puts(
       "</body>\r\n"

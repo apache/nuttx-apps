@@ -77,7 +77,7 @@ static int leaf(int *some_arg)
 
   /* We should not get here */
 
-  return -ERROR; 
+  return -ERROR;
 }
 
 static int function(int some_arg)

@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # DHCP Daemn Library
 
 ASRCS		=
-CSRCS		= 
+CSRCS		=
 
 ifeq ($(CONFIG_NET_UDP),y)
 CSRCS		+= dhcpd.c
@@ -66,7 +66,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: context depend clean distclean

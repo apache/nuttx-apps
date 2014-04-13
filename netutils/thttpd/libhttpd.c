@@ -532,7 +532,7 @@ static void send_authenticate(httpd_conn *hc, char *realm)
   (void)snprintf(header, maxheader, "%s%s\"\r\n", headstr, realm);
   httpd_send_err(hc, 401, err401title, header, err401form, hc->encodedurl);
 
-  /* If the request was a POST then there might still be data to be read, so 
+  /* If the request was a POST then there might still be data to be read, so
    * we need to do a lingering close.
    */
 
@@ -1046,8 +1046,8 @@ static int vhost_map(httpd_conn *hc)
     {
       /* Skip dots in the hostname.  If we don't, then we get vhost
        * directories in higher level of filestructure if dot gets involved
-       * into path construction.  It's `while' used here instead of `if' for 
-       * it's possible to have a hostname formed with two dots at the end of 
+       * into path construction.  It's `while' used here instead of `if' for
+       * it's possible to have a hostname formed with two dots at the end of
        * it.
        */
 
@@ -1146,9 +1146,9 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
   if ((path[0] == '/' && strncmp(path, httpd_root, strlen(httpd_root)) != 0) || path[0] != '/')
     {
       /* Start out with httpd_root in checked.  Allow space in the reallocation
-       * include NULL terminator and possibly a '/' 
+       * include NULL terminator and possibly a '/'
        */
- 
+
       checkedlen = strlen(httpd_root);
       httpd_realloc_str(&checked, &maxchecked, checkedlen+2);
       strcpy(checked, httpd_root);
@@ -1175,7 +1175,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
       httpd_realloc_str(&checked, &maxchecked, 1);
       checked[0] = '\0';
       checkedlen = 0;
-    }       
+    }
 
   /* Copy the whole filename (minus the leading '.') into rest. */
 
@@ -1725,7 +1725,7 @@ static void ls_child(int argc, char **argv)
           break;
         }
 
-      /* Now the world permissions.  Owner and group permissions are 
+      /* Now the world permissions.  Owner and group permissions are
        * not of interest to web clients.
        */
 
@@ -2531,7 +2531,7 @@ int httpd_got_request(httpd_conn *hc)
               break;
             }
           break;
- 
+
        case CHST_LF:
           switch (c)
             {
@@ -2994,7 +2994,7 @@ int httpd_parse_request(httpd_conn *hc)
         }
     }
 
-  /* Ok, the request has been parsed.  Now we resolve stuff that may require 
+  /* Ok, the request has been parsed.  Now we resolve stuff that may require
    * the entire request.
    */
 
@@ -3169,7 +3169,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
     }
 
   /* Is it world-readable or world-executable? We check explicitly instead
-   * of just trying to open it, so that no one ever gets surprised by a file 
+   * of just trying to open it, so that no one ever gets surprised by a file
    * that's not set world-readable and yet somehow is readable by the HTTP
    * server and therefore the *whole* world.
    */
@@ -3374,7 +3374,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
     }
 #endif
 
-  /* It's not CGI.  If it's executable or there's pathinfo, someone's trying 
+  /* It's not CGI.  If it's executable or there's pathinfo, someone's trying
    * to either serve or run a non-CGI file as CGI.  Either case is
    * prohibited.
    */

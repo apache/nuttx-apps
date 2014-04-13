@@ -187,7 +187,7 @@ static int get_filename(char *vfilename, char *filename,
 
   /* Used for the various commands that accept a file name. These commands
    * accept two tags: virtual Gives a virtual path to a document on the
-   * server. file Gives a pathname relative to the current directory. ../ 
+   * server. file Gives a pathname relative to the current directory. ../
    * cannot be used in this pathname, nor can absolute paths be used.
    */
 
@@ -208,7 +208,7 @@ static int get_filename(char *vfilename, char *filename,
         {
           return -1;
         }
- 
+
       if (fl - vl + strlen(val) >= fnsize)
         {
           return -1;
@@ -403,7 +403,7 @@ static void do_config(FILE *instream, char *vfilename, char *filename,
    * strftime library call. g_sizefmt Determines the formatting to be used
    * when displaying the size of a file.  Valid choices are bytes, for a
    * formatted byte count (formatted as 1,234,567), or abbrev for an
-   * abbreviated version displaying the number of kilobytes or megabytes the 
+   * abbreviated version displaying the number of kilobytes or megabytes the
    * file occupies.
    */
 
@@ -495,7 +495,7 @@ static void do_include(FILE *instream, char *vfilename, char *filename,
   (void)fclose(instream2);
 }
 
-static void do_echo(FILE *instream, char *vfilename, char *filename, 
+static void do_echo(FILE *instream, char *vfilename, char *filename,
                      char *directive, char *tag, char *val)
 {
   char *cp;

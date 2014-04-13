@@ -12,7 +12,7 @@ NOTE:  This test uses internal OS interfaces and so is not available in the NUTT
 
 Usage:
     flash_test mtdblock_device
-    
+
 Additional options:
 
     --force                     to replace existing installation

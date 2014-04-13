@@ -455,7 +455,7 @@ int nxtext_main(int argc, char **argv)
       else if (popcnt == 5)
         {
           /* Destroy the pop-up window and restart the sequence */
- 
+
           message("nxtext_main: Close pop-up\n");
           (void)nxpu_close(hwnd);
           popcnt = 0;

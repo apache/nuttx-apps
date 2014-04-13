@@ -306,7 +306,7 @@ static int user_main(int argc, char *argv[])
 #endif
 
   /* Top of test loop */
-  
+
 #if CONFIG_EXAMPLES_OSTEST_LOOPS > 1
   for (i = 0; i < CONFIG_EXAMPLES_OSTEST_LOOPS; i++)
 #elif CONFIG_EXAMPLES_OSTEST_LOOPS == 0

@@ -398,7 +398,7 @@ static int expression(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
            goto errout_syntax;
          }
     }
-  return value; 
+  return value;
 
 errout_syntax:
   nsh_output(vtbl, g_nshsyntax, "test");

@@ -39,7 +39,7 @@ include $(APPDIR)/Make.defs
 
 # UDP Test
 
-TARG_ASRCS	= 
+TARG_ASRCS	=
 
 TARG_CSRCS	= target.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
@@ -84,7 +84,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY:	clean depend distclean

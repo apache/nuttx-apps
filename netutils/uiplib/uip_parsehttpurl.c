@@ -112,7 +112,7 @@ int uip_parsehttpurl(const char *url, uint16_t *port,
         {
           uint16_t accum = 0;
           src++; /* Skip over the colon */
- 
+
           while (*src >= '0' && *src <= '9')
             {
               accum = 10*accum + *src - '0';
@@ -141,7 +141,7 @@ int uip_parsehttpurl(const char *url, uint16_t *port,
   bytesleft--;
 
   /* The copy the rest of the file name to the user buffer */
- 
+
   strncpy(dest, src, namelen);
   filename[namelen-1] = '\0';
   return ret;

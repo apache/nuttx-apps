@@ -109,7 +109,7 @@ int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname
 
   newcopy = strdup(newname);
   ftpc_stripslash(newcopy);
-  
+
   /* A RNTO request asks the server to finish renaming a file. RNTO must
    * come immediately after RNFR; otherwise the server may reject RNTO with:
    *

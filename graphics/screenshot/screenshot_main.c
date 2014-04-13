@@ -88,17 +88,17 @@ static void replace_extension(FAR const char *filename, FAR const char *newext,
 {
   FAR char *p = strrchr(filename, '.');
   int len = strlen(filename);
-  
+
   if (p != NULL)
     {
       len = p - filename;
     }
-  
+
   if (len > size)
     {
       len = size - strlen(newext);
     }
-  
+
   strncpy(dest, filename, size);
   strncpy(dest + len, newext, size - len);
 }
@@ -133,25 +133,25 @@ int save_screenshot(FAR const char *filename)
   replace_extension(filename, ".tm2", tempf2, sizeof(tempf2));
 
   /* Connect to NX server */
-  
+
   server = nx_connect();
   if (!server)
   {
     perror("nx_connect");
     return 1;
   }
-  
+
   /* Wait for "connected" event */
-  
+
   if (nx_eventhandler(server) < 0)
   {
     perror("nx_eventhandler");
     nx_disconnect(server);
     return 1;
   }
-  
+
   /* Open invisible dummy window for communication */
-  
+
   window = nx_openwindow(server, &cb, NULL);
   if (!window)
   {
@@ -159,9 +159,9 @@ int save_screenshot(FAR const char *filename)
     nx_disconnect(server);
     return 1;
   }
-  
+
   nx_setsize(window, &size);
-  
+
   /* Configure the TIFF structure */
 
   memset(&info, 0, sizeof(struct tiff_info_s));
@@ -174,7 +174,7 @@ int save_screenshot(FAR const char *filename)
   info.imgheight = size.h;
   info.iobuffer  = (uint8_t *)malloc(300);
   info.iosize    = 300;
-  
+
   /* Initialize the TIFF library */
 
   ret = tiff_initialize(&info);
@@ -187,12 +187,12 @@ int save_screenshot(FAR const char *filename)
   /* Add each strip to the TIFF file */
 
   strip = malloc(size.w * 3);
-  
+
   for (int y = 0; y < size.h; y++)
   {
     struct nxgl_rect_s rect = {{0, y}, {size.w - 1, y}};
     nx_getrectangle(window, &rect, 0, strip, 0);
-    
+
     ret = tiff_addstrip(&info, strip);
     if (ret < 0)
       {
@@ -200,9 +200,9 @@ int save_screenshot(FAR const char *filename)
         break;
       }
   }
-  
+
   free(strip);
-  
+
   /* Then finalize the TIFF file */
 
   ret = tiff_finalize(&info);
@@ -210,11 +210,11 @@ int save_screenshot(FAR const char *filename)
     {
       printf("tiff_finalize() failed: %d\n", ret);
     }
-  
+
   free(info.iobuffer);
   nx_closewindow(window);
   nx_disconnect(server);
-  
+
   return 0;
 }
 
@@ -233,6 +233,6 @@ int screenshot_main(int argc, char *argv[])
       fprintf(stderr, "Usage: screenshot file.tif\n");
       return 1;
     }
-  
+
   return save_screenshot(argv[1]);
 }

@@ -144,7 +144,7 @@ int tiff_main(int argc, char *argv[])
         {
           *ptr++ = (green + blue) >> 1;
           *ptr++ = green;
-          *ptr++ = blue;          
+          *ptr++ = blue;
         }
 
       ret = tiff_addstrip(&info, strip);

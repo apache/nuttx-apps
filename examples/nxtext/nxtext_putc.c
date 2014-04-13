@@ -128,7 +128,7 @@ nxtext_allocglyph(FAR struct nxtext_state_s *st)
    * track of the least used glyph as well.  We need that if we have to replace
    * a glyph in the cache.
    */
- 
+
    for (i = 0; i < st->maxglyphs; i++)
     {
       /* Is this glyph in use? */
@@ -153,7 +153,7 @@ nxtext_allocglyph(FAR struct nxtext_state_s *st)
   /* If we get here, the glyph cache is full.  We replace the least used
    * glyph with the one we need now. (luglyph can't be NULL).
    */
-   
+
   luusecnt = luglyph->usecnt;
   nxtext_freeglyph(luglyph);
 
@@ -164,7 +164,7 @@ nxtext_allocglyph(FAR struct nxtext_state_s *st)
   if (luusecnt > 1)
     {
        uint8_t decr = luusecnt - 1;
- 
+
        for (i = 0; i < st->maxglyphs; i++)
         {
           /* Is this glyph in use? */

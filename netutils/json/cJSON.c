@@ -52,7 +52,7 @@
 /****************************************************************************
  * Private Data
  ****************************************************************************/
- 
+
 static const char *ep;
 
 static const unsigned char firstByteMark[7] =
@@ -75,7 +75,7 @@ static char *print_object(cJSON *item, int depth, int fmt);
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
- 
+
 static char *cJSON_strdup(const char *str)
 {
   size_t len;
@@ -168,7 +168,7 @@ static const char *parse_number(cJSON *item, const char *num)
       do
         {
           n = (n * 10.0) + (*num++ - '0'), scale--;
-        }        
+        }
       while (*num >= '0' && *num <= '9');
     }
 
@@ -652,7 +652,7 @@ static const char *parse_array(cJSON *item, const char *value)
 
   /* Skip any spacing, get the value. */
 
-  value = skip(parse_value(child, skip(value))); 
+  value = skip(parse_value(child, skip(value)));
   if (!value)
     {
       return 0;
@@ -845,7 +845,7 @@ static const char *parse_object(cJSON *item, const char *value)
 
    /* Skip any spacing, get the value. */
 
-  value = skip(parse_value(child, skip(value + 1))); 
+  value = skip(parse_value(child, skip(value + 1)));
   if (!value)
     {
       return 0;
@@ -1089,7 +1089,7 @@ static cJSON *create_reference(cJSON *item)
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
- 
+
 const char *cJSON_GetErrorPtr(void)
 {
   return ep;

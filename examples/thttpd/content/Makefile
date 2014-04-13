@@ -56,7 +56,7 @@ $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
 $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
 $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
 
-# Build program(s) in each sud-directory 
+# Build program(s) in each sud-directory
 
 build: $(foreach DIR, $(SUBDIRS), $(DIR)_build)
 

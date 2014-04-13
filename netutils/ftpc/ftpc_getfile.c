@@ -101,20 +101,20 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
   /* Handle the resume offset (caller is responsible for fseeking in the
    * file)
    */
- 
+
   if (offset > 0)
     {
       /* Send the REST command.  This command sets the offset where the
        * transfer should start.  This must come after PORT or PASV commands.
        */
- 
+
       ret = ftpc_cmd(session, "REST %ld", offset);
       if (ret < 0)
         {
           ndbg("REST command failed: %d\n", errno);
           return ERROR;
         }
- 
+
       session->size = offset;
     }
 
@@ -217,7 +217,7 @@ static int ftpc_recvbinary(FAR struct ftpc_session_s *session,
         }
 
       /* Increment the size of the file written */
- 
+
       session->size += nwritten;
     }
 }

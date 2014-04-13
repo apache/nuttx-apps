@@ -143,7 +143,7 @@ EXTERN int web_posts_strlen(FAR char **name, FAR char **value, int len);
  *
  * Returned Value:
  *   0: if the GET operation completed successfully;
- *  -1: On a failure with errno set appropriately 
+ *  -1: On a failure with errno set appropriately
  *
  ****************************************************************************/
 

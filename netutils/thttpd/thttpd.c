@@ -173,7 +173,7 @@ static int handle_newconnect(struct timeval *tv, int listen_fd)
   struct connect_s *conn;
   ClientData client_data;
 
-  /* This loops until the accept() fails, trying to start new connections as 
+  /* This loops until the accept() fails, trying to start new connections as
    * fast as possible so we don't overrun the listen queue.
    */
 
@@ -183,7 +183,7 @@ static int handle_newconnect(struct timeval *tv, int listen_fd)
       /* Get the next free connection from the free list */
 
       conn = free_connections;
-      
+
       /* Are there any free connections? */
 
       if (!conn)
@@ -234,7 +234,7 @@ static int handle_newconnect(struct timeval *tv, int listen_fd)
         }
 
       nvdbg("New connection fd %d\n", conn->hc->conn_fd);
- 
+
       /* Remove the connection entry from the free list */
 
       conn->conn_state        = CNST_READING;
@@ -246,7 +246,7 @@ static int handle_newconnect(struct timeval *tv, int listen_fd)
       conn->wakeup_timer      = NULL;
       conn->linger_timer      = NULL;
       conn->offset            = 0;
- 
+
       /* Set the connection file descriptor to no-delay mode */
 
       httpd_set_ndelay(conn->hc->conn_fd);
@@ -294,7 +294,7 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
         {
           return;
         }
- 
+
       ndbg("read(fd=%d) failed: %d\n", hc->conn_fd, errno);
       BADREQUEST("read");
       goto errout_with_400;
@@ -448,7 +448,7 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
           /* httpd_write does not return until all bytes have been sent
            * (or an error occurs).
            */
- 
+
           nwritten = httpd_write(hc->conn_fd, hc->buffer, hc->buflen);
           if (nwritten < 0)
             {
@@ -488,8 +488,8 @@ static void handle_linger(struct connect_s *conn, struct timeval *tv)
   httpd_conn *hc = conn->hc;
   int ret;
 
-    /* In lingering-close mode we just read and ignore bytes.  An error or EOF 
-   * ends things, otherwise we go until a timeout 
+    /* In lingering-close mode we just read and ignore bytes.  An error or EOF
+   * ends things, otherwise we go until a timeout
    */
 
   ret = read(conn->hc->conn_fd, hc->buffer, CONFIG_THTTPD_IOBUFFERSIZE);
@@ -533,7 +533,7 @@ static void clear_connection(struct connect_s *conn, struct timeval *tv)
    * this unless it's necessary, because it ties up a connection slot and
    * file descriptor which means our maximum connection-handling rateis
    * lower.  So, elsewhere we set a flag when we detect the few
-   * circumstances that make a lingering close necessary.  If the flag isn't 
+   * circumstances that make a lingering close necessary.  If the flag isn't
    * set we do the real close now.
    */
 
@@ -790,7 +790,7 @@ int thttpd_main(int argc, char **argv)
         {
           if (!handle_newconnect(&tv, hs->listen_fd))
             {
-              /* Go around the loop and do another fdwatch, rather than 
+              /* Go around the loop and do another fdwatch, rather than
                * dropping through and processing existing connections.  New
                * connections always get priority.
                */
@@ -820,7 +820,7 @@ int thttpd_main(int argc, char **argv)
                            */
 
                           if (conn->conn_state != CNST_SENDING)
-                            { 
+                            {
                               break;
                             }
                         }

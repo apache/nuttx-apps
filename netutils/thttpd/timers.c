@@ -293,7 +293,7 @@ void tmr_run(struct timeval *now)
         {
           next = tmr->next;
 
-          /* Since the lists are sorted, as soon as we find a timer  * that isn'tmr 
+          /* Since the lists are sorted, as soon as we find a timer  * that isn'tmr
            * ready yet, we can go on to the next list
            */
 

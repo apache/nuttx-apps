@@ -33,7 +33,7 @@
 #
 ############################################################################
 
-# TOPDIR must be defined on the make command line 
+# TOPDIR must be defined on the make command line
 
 -include $(TOPDIR)/Make.defs
 

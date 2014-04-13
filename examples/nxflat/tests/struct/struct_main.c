@@ -46,7 +46,7 @@
  * Public Data
  ****************************************************************************/
 
-const struct struct_dummy_s dummy_struct = 
+const struct struct_dummy_s dummy_struct =
 {
    DUMMY_SCALAR_VALUE3
 };

@@ -1,4 +1,4 @@
-/* 
+/*
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
@@ -38,7 +38,7 @@ PR_BEGIN_EXTERN_C
     eMBException eMBFuncReportSlaveID( uint8_t * pucFrame, uint16_t * usLen );
 #endif
 
-#ifdef CONFIG_MB_FUNC_READ_INPUT_ENABLED 
+#ifdef CONFIG_MB_FUNC_READ_INPUT_ENABLED
 eMBException    eMBFuncReadInputRegister( uint8_t * pucFrame, uint16_t * usLen );
 #endif
 

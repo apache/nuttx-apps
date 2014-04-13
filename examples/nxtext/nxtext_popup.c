@@ -137,7 +137,7 @@ static fb_coord_t nxpu_randpos(fb_coord_t value)
     {
       ndx = 0;
     }
- 
+
   return (fb_coord_t)(((uint32_t)value * (uint32_t)rand8) >> 8);
 }
 

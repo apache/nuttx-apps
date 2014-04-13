@@ -3,7 +3,7 @@
 *  This file is part of the ArduinoCC3000 library.
 
 *  Version 1.0.1b
-* 
+*
 *  Copyright (C) 2013 Chris Magagna - cmagagna@yahoo.com
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -15,10 +15,10 @@
 *
 *  This file is the main module for the Arduino CC3000 library.
 *  Your program must call CC3000_Init() before any other API calls.
-* 
+*
 ****************************************************************************/
 
-/* 
+/*
 	Some things are different for the Teensy 3.0, so set a flag if we're using
 	that hardware.
 */
@@ -39,7 +39,7 @@
    to send the bits manually. For the Uno, Nano, etc. you can probably leave
    this unchanged. If your Arduino can't talk to the CC3000 and you're sure
    your wiring is OK then try changing this. */
-   
+
 #ifdef TEENSY3
 #define USE_HARDWARE_SPI	false
 #else
@@ -54,7 +54,7 @@
 
 
 
-// These are the Arduino pins that connect to the CC3000 
+// These are the Arduino pins that connect to the CC3000
 // (in addition to standard SPI pins MOSI, MISO, and SCK)
 //
 // The WLAN_IRQ pin must be supported by attachInterrupt
@@ -95,7 +95,7 @@
 /*
 	The timing between setting the CS pin and reading the IRQ pin is very
 	tight on the CC3000, and sometimes the default Arduino digitalRead()
-	and digitalWrite() functions are just too slow. 
+	and digitalWrite() functions are just too slow.
 	
 	For many of the CC3000 library functions this isn't a big deal because the
 	IRQ pin is tied to an interrupt routine but some of them of them disable
@@ -170,26 +170,26 @@
 
 /* If you uncomment the line below the library will leave out a lot of the
    higher level functions but use a lot less memory. From:
-   
+
    http://processors.wiki.ti.com/index.php/Tiny_Driver_Support
-   
+
   CC3000's new driver has flexible memory compile options.
-  
+
   This feature comes in handy when we want to use a limited RAM size MCU.
-  
+
   Using The Tiny Driver Compilation option will create a tiny version of our
   host driver with lower data, stack and code consumption.
-  
+
   By enabling this feature, host driver's RAM consumption can be reduced to
   minimum of 251 bytes.
-  
+
   The Tiny host driver version will limit the host driver API to the most
   essential ones.
-  
+
   Code size depends on actual APIs used.
-  
+
   RAM size depends on the largest packet sent and received.
-  
+
   CC3000 can now be used with ultra low cost MCUs, consuming 251 byte of RAM
   and 2K to 6K byte of code size, depending on the API usage. */
 

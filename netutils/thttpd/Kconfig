@@ -218,7 +218,7 @@ choice
 		is an error.
 
 		Typical values, if they're defined, are "users" for THTTPD_TILDE_MAP1
-		and "public_html" for THTTPD_TILDE_MAP2. 
+		and "public_html" for THTTPD_TILDE_MAP2.
 
 config THTTPD_USE_TILDE_MAP1
 	bool "Tilde mapping 1"
@@ -244,7 +244,7 @@ config THTTPD_USE_TILDE_MAP2
 		the name of a subdirectory off of the user's actual home dir,
 		something like "public_html".
 
-		The typical value THTTPD_TILDE_MAP2 is "public_html". 
+		The typical value THTTPD_TILDE_MAP2 is "public_html".
 
 config THTTPD_TILDE_MAP_NONE
 	bool "No tilde mapping"
@@ -286,7 +286,7 @@ config THTTPD_TILDE_MAP2
 		the name of a subdirectory off of the user's actual home dir,
 		something like "public_html".
 
-		The typical value THTTPD_TILDE_MAP2 is "public_html". 
+		The typical value THTTPD_TILDE_MAP2 is "public_html".
 
 config THTTPD_GENERATE_INDICES
 	bool "Generate name indices"

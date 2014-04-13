@@ -216,7 +216,7 @@ int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip)
   /* Increment the size of tmp2file. */
 
   info->tmp2size += info->bps;
-  
+
   /* Pad tmpfile2 as necessary achieve word alignment */
 
   newsize = tiff_wordalign(info->tmp2fd, info->tmp2size);

@@ -235,7 +235,7 @@ void sem_test(void)
       printf("          Canceling waiter threads\n");
 
       pthread_cancel(waiter_thread1);
-      pthread_cancel(waiter_thread2); 
+      pthread_cancel(waiter_thread2);
     }
 
 #ifdef SDCC

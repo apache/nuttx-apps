@@ -18,7 +18,7 @@ config NETUTILS_NTPCLIENT_SERVERIP
 
 config NETUTILS_NTPCLIENT_PORTNO
 	int "NTP server port number"
-	default 123 
+	default 123
 
 config NETUTILS_NTPCLIENT_STACKSIZE
 	int "NTP client daemon stack stack size"
@@ -26,11 +26,11 @@ config NETUTILS_NTPCLIENT_STACKSIZE
 
 config NETUTILS_NTPCLIENT_SERVERPRIO
 	int "NTP client daemon priority"
-	default 100 
+	default 100
 
 config NETUTILS_NTPCLIENT_POLLDELAYSEC
 	int "NTP client poll interval (seconds)"
-	default 60 
+	default 60
 
 config NETUTILS_NTPCLIENT_SIGWAKEUP
 	int "NTP client wakeup signal number"

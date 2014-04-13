@@ -404,7 +404,7 @@ int spawn_main(int argc, char *argv[])
       err("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
-  
+
   mm_update(&g_mmstep, "after adding file_actions");
 
   /* If the binary loader does not support the PATH variable, then

@@ -70,7 +70,7 @@
  * Public Data
  ****************************************************************************/
 
-/* This structure is used to passed information to telnet daemon when it 
+/* This structure is used to passed information to telnet daemon when it
  * started.
  */
 

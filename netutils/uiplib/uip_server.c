@@ -104,7 +104,7 @@ void uip_server(uint16_t portno, pthread_startroutine_t handler, int stacksize)
   for (;;)
     {
       /* Accept the next connectin */
- 
+
       addrlen = sizeof(struct sockaddr_in);
       acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
       if (acceptsd < 0)

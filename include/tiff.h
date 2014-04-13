@@ -89,7 +89,7 @@
 #define IFD_TAG_IMAGEWIDTH        256 /* ImageLength, SHORT or LONG (Required) */
 #define IFD_TAG_IMAGELENGTH       257 /* ImageWidth, SHORT or LONG (Required) */
 #define IFD_TAG_BITSPERSAMPLE     258 /* BitsPerSample, SHORT (Required
-                                       * in greyscale and pallette-color image files) */ 
+                                       * in greyscale and pallette-color image files) */
 #define IFD_TAG_COMPRESSION       259 /* Compression, SHORT (Required) */
 #  define TAG_COMP_NONE             1 /*   No compression */
 #  define TAG_COMP_CCITT            2 /*   CCITT Group 3 1-Dimensional Modified Huffman
@@ -253,7 +253,7 @@ struct tiff_ifdentry_s
 #define SIZEOF_IFD_ENTRY 12
 
 /************************************************************************************/
-/* Structures needed to interface with the TIFF file creation library )and also 
+/* Structures needed to interface with the TIFF file creation library )and also
  * structures used only internally by the TIFF file creation library).
  */
 
@@ -349,7 +349,7 @@ struct tiff_info_s
   off_t        tmp2size;    /* Current size of tmpfile2 */
 
   /* Points to an internal constant structure of file offsets */
-  
+
   FAR const struct tiff_filefmt_s *filefmt;
 };
 

@@ -136,7 +136,7 @@ static void    telnetd_sendopt(FAR struct telnetd_dev_s *priv, uint8_t option,
                  uint8_t value);
 
 /* Character driver methods */
- 
+
 static int     telnetd_open(FAR struct file *filep);
 static int     telnetd_close(FAR struct file *filep);
 static ssize_t telnetd_read(FAR struct file *, FAR char *, size_t);
@@ -181,7 +181,7 @@ static inline void telnetd_dumpbuffer(FAR const char *msg,
   /* CONFIG_DEBUG, CONFIG_DEBUG_VERBOSE, and CONFIG_DEBUG_NET have to be
   * defined or the following does nothing.
   */
-    
+
   nvdbgdumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
 }
 #endif
@@ -741,7 +741,7 @@ static int telnetd_poll(FAR struct file *filep, FAR struct pollfd *fds,
  * Return:
  *   An allocated string represent the full path to the created driver.  The
  *   receiver of the string must de-allocate this memory when it is no longer
- *   needed.  NULL is returned on a failure. 
+ *   needed.  NULL is returned on a failure.
  *
  ****************************************************************************/
 

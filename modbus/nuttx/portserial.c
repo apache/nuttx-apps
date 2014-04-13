@@ -174,7 +174,7 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
            *     cfsetospeed(), and
            * (3) In NuttX, the input value to cfiset[i|o]speed is not
            *     encoded, but is the absolute baud value.  The following might
-           *     not be 
+           *     not be
            */
 
           if (cfsetispeed(&xNewTIO, ulBaudRate) != 0 /* || cfsetospeed(&xNewTIO, ulBaudRate) != 0 */)

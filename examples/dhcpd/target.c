@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -124,7 +124,7 @@ int dhcpd_main(int argc, char *argv[])
   uip_setnetmask("eth0", &addr);
 
   /* Then start the server */
-  
+
   dhcpd_run();
   return 0;
 }

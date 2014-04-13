@@ -286,7 +286,7 @@ int tiff_write(int fd, FAR const void *buffer, size_t count)
 int tiff_putint16(int fd, uint16_t value)
 {
   uint8_t bytes[2];
-  
+
   /* Write the two bytes to the output file */
 
   tiff_put16(bytes, value);
@@ -311,7 +311,7 @@ int tiff_putint16(int fd, uint16_t value)
 int tiff_putint32(int fd, uint32_t value)
 {
   uint8_t bytes[4];
-  
+
   /* Write the four bytes to the output file */
 
   tiff_put32(bytes, value);
@@ -375,7 +375,7 @@ ssize_t tiff_wordalign(int fd, size_t size)
         {
           return (ssize_t)ret;
         }
-      size += nbytes;  
+      size += nbytes;
     }
   return size;
 }

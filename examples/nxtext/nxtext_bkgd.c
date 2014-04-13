@@ -329,7 +329,7 @@ static inline void nxbg_scroll(NXWINDOW hwnd, int lineheight)
           bm->pos.y -= lineheight;
 
           /* We are keeping this one so increment to the next character */
- 
+
           i++;
         }
     }

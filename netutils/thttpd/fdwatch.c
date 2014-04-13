@@ -107,7 +107,7 @@
 static void fdwatch_dump(const char *msg, FAR struct fdwatch_s *fw)
 {
   int i;
- 
+
   fwvdbg("%s\n", msg);
   fwvdbg("nwatched: %d nfds: %d\n", fw->nwatched, fw->nfds);
   for (i = 0; i < fw->nwatched; i++)

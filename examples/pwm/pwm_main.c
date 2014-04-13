@@ -185,7 +185,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
   long value;
   int index;
   int nargs;
- 
+
   for (index = 1; index < argc; )
     {
       ptr = argv[index];
@@ -256,7 +256,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
           case 'h':
             pwm_help(pwm);
             exit(0);
-        
+
           default:
             message("Unsupported option: %s\n", ptr);
             pwm_help(pwm);
@@ -340,7 +340,7 @@ int pwm_main(int argc, char *argv[])
           info.frequency, info.duty);
 
 #endif
-  
+
   ret = ioctl(fd, PWMIOC_SETCHARACTERISTICS, (unsigned long)((uintptr_t)&info));
   if (ret < 0)
     {
@@ -362,7 +362,7 @@ int pwm_main(int argc, char *argv[])
   /* It a non-zero count was not specified, then wait for the selected
    * duration, then stop the PWM output.
    */
-  
+
 #ifdef CONFIG_PWM_PULSECOUNT
   if (info.count == 0)
 #endif

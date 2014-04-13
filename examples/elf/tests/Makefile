@@ -76,7 +76,7 @@ $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
 $(foreach DIR, $(ALL_SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))
 $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,install)))
 
-# Build program(s) in each sud-directory 
+# Build program(s) in each sud-directory
 
 build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 
@@ -103,7 +103,7 @@ $(ROMFS_IMG): populate
 $(ROMFS_HDR) : $(ROMFS_IMG)
 	$(Q) (cd $(TESTS_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
 
-# Create the dirlist.h header file from the romfs directory 
+# Create the dirlist.h header file from the romfs directory
 
 $(DIRLIST_HDR) : populate
 	$(Q) $(TESTS_DIR)/mkdirlist.sh $(ROMFS_DIR) >$@

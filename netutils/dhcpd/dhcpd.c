@@ -830,7 +830,7 @@ static inline int dhcpd_openresponder(void)
 static void dhcpd_initpacket(uint8_t mtype)
 {
   uint32_t nulladdr = 0;
-  
+
   /* Set up the generic parts of the DHCP server message */
 
   memset(&g_state.ds_outpacket, 0, sizeof(struct dhcpmsg_s));
@@ -889,7 +889,7 @@ static int dhcpd_sendpacket(int bbroadcast)
    * (1) If he caller know that it needs to multicast the response, it will set bbroadcast.
    * (2) Otherwise, if the client already has and address (ciaddr), then use that for uni-cast
    * (3) Broadcast if the client says it can't handle uni-cast (BOOTP_BROADCAST set)
-   * (4) Otherwise, the client claims it can handle the uni-casst response and we 
+   * (4) Otherwise, the client claims it can handle the uni-casst response and we
    *     will uni-cast to the offered address (yiaddr).
    *
    * NOTE: We really should also check the giaddr field.  If no zero, the server should
@@ -936,7 +936,7 @@ static int dhcpd_sendpacket(int bbroadcast)
       len = (g_state.ds_optend - (uint8_t*)&g_state.ds_outpacket) + 1;
       nvdbg("sendto %08lx:%04x len=%d\n",
             (long)ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port), len);
- 
+
       ret = sendto(sockfd, &g_state.ds_outpacket, len, 0,
                    (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
       close(sockfd);
@@ -1138,7 +1138,7 @@ static inline int dhcpd_request(void)
       if (g_state.ds_optserverip)
         {
           /* ACK if the serverip is correct and the requested IP address is the one
-           * already offered to the client. 
+           * already offered to the client.
            */
 
           if (g_state.ds_optserverip == ntohl(g_state.ds_serverip) &&

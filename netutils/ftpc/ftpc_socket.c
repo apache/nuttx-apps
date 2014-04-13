@@ -210,14 +210,14 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  *
  * Description:
  *   Accept a connection on the data socket.  This function is onlly used
- *   in active mode. 
+ *   in active mode.
  *
  *   In active mode FTP the client connects from a random port (N>1023) to the
  *   FTP server's command port, port 21. Then, the client starts listening to
  *   port N+1 and sends the FTP command PORT N+1 to the FTP server. The server
  *   will then connect back to the client's specified data port from its local
  *   data port, which is port 20. In passive mode FTP the client initiates
- *   both connections to the server, solving the problem of firewalls filtering 
+ *   both connections to the server, solving the problem of firewalls filtering
  *   the incoming data port connection to the client from the server. When
  *   opening an FTP connection, the client opens two random ports locally
  *   (N>1023 and N+1). The first port contacts the server on port 21, but
@@ -225,7 +225,7 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  *   back to its data port, the client will issue the PASV command. The result
  *   of this is that the server then opens a random unprivileged port (P >
  *   1023) and sends the PORT P command back to the client. The client then
- *   initiates the connection from port N+1 to port P on the server to transfer 
+ *   initiates the connection from port N+1 to port P on the server to transfer
  *   data.
  *
  ****************************************************************************/

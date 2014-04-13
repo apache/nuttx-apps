@@ -89,13 +89,13 @@ int httpd_mmap_open(const char *name, struct httpd_fs_file *file)
        return ERROR;
     }
 
-  if (S_ISDIR(st.st_mode)) 
+  if (S_ISDIR(st.st_mode))
     {
        errno = EISDIR;
        return ERROR;
     }
 
-  if (!S_ISREG(st.st_mode)) 
+  if (!S_ISREG(st.st_mode))
     {
        errno = ENOENT;
        return ERROR;

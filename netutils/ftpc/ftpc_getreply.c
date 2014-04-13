@@ -137,7 +137,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
       else if (ch == ISO_cr)
         {
           /* What follows the carriage return? */
- 
+
           ch = ftpc_sockgetc(&session->cmd);
           if (ch == '\0')
             {
@@ -184,7 +184,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
       if (ndx < CONFIG_FTP_MAXREPLY)
         {
           /* Yes.. put the character in the reply buffer */
- 
+
           session->reply[ndx++] = (char)ch;
         }
       else
@@ -212,7 +212,7 @@ int fptc_getreply(struct ftpc_session_s *session)
   int ret;
 
   /* Set up a timeout */
-  
+
   if (session->replytimeo)
     {
       ret = wd_start(session->wdog, session->replytimeo, ftpc_timeout, 1, session);
@@ -244,7 +244,7 @@ int fptc_getreply(struct ftpc_session_s *session)
       return ERROR;
     }
 
-  nvdbg("Reply: %s\n", session->reply);        
+  nvdbg("Reply: %s\n", session->reply);
 
   if (session->reply[3] == '-')
     {

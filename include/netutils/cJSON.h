@@ -53,13 +53,13 @@ extern "C"
 #define cJSON_String 4
 #define cJSON_Array  5
 #define cJSON_Object 6
-  
+
 #define cJSON_IsReference 256
 
 #define cJSON_AddNullToObject(object,name) \
   cJSON_AddItemToObject(object, name, cJSON_CreateNull())
 #define cJSON_AddTrueToObject(object,name) \
-  cJSON_AddItemToObject(object, name, cJSON_CreateTrue())cd 
+  cJSON_AddItemToObject(object, name, cJSON_CreateTrue())cd
 #define cJSON_AddFalseToObject(object,name) \
   cJSON_AddItemToObject(object, name, cJSON_CreateFalse())
 #define cJSON_AddNumberToObject(object,name,n) \
@@ -79,13 +79,13 @@ typedef struct cJSON
    * GetArraySize/GetArrayItem/GetObjectItem
    */
 
-  struct cJSON *next,*prev;  
+  struct cJSON *next,*prev;
 
   /* An array or object item will have a child pointer pointing to a chain
    * of the items in the array/object.
    */
 
-  struct cJSON *child;    
+  struct cJSON *child;
 
   int type;               /* The type of the item, as above. */
   char *valuestring;      /* The item's string, if type==cJSON_String */
@@ -155,7 +155,7 @@ cJSON *cJSON_GetObjectItem(cJSON *object, const char *string);
  */
 
 const char *cJSON_GetErrorPtr();
-  
+
 /* These calls create a cJSON item of the appropriate type. */
 
 cJSON *cJSON_CreateNull();
@@ -193,7 +193,7 @@ cJSON *cJSON_DetachItemFromArray(cJSON *array, int which);
 void cJSON_DeleteItemFromArray(cJSON *array, int which);
 cJSON *cJSON_DetachItemFromObject(cJSON *object, const char *string);
 void cJSON_DeleteItemFromObject(cJSON *object, const char *string);
-  
+
 /* Update array items. */
 
 void cJSON_ReplaceItemInArray(cJSON *array, int which, cJSON *newitem);

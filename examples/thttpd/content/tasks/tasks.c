@@ -64,15 +64,15 @@ static const char *g_statenames[] =
 {
   "INVALID ",
   "PENDING ",
-  "READY   ", 
-  "RUNNING ", 
-  "INACTIVE", 
-  "WAITSEM ", 
+  "READY   ",
+  "RUNNING ",
+  "INACTIVE",
+  "WAITSEM ",
 #ifndef CONFIG_DISABLE_MQUEUE
-  "WAITSIG ", 
+  "WAITSIG ",
 #endif
 #ifndef CONFIG_DISABLE_MQUEUE
-  "MQNEMPTY", 
+  "MQNEMPTY",
   "MQNFULL "
 #endif
 };

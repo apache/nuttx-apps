@@ -174,7 +174,7 @@ else
 		echo "* The external directory/link must be removed manually *"; \
 		echo "********************************************************"; \
 	   fi; \
-	) 
+	)
 endif
 
 

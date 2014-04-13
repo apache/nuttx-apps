@@ -159,7 +159,7 @@ struct httpd_cgi_call
  *   This macro is used for declaring a HTTPD CGI function. This function is
  *   then added to the list of HTTPD CGI functions with the httpd_cgi_register()
  *   function.
- 
+
  * Input Paramters:
  *
  *   name     The C variable name of the function

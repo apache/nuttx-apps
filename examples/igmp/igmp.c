@@ -89,7 +89,7 @@ int igmp_main(int argc, char *argv[])
 #endif
 
   message("Configuring Ethernet...\n");
-  
+
   /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_IGMP_NOMAC

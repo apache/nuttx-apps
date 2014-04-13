@@ -1,10 +1,10 @@
-h1 
+h1
 {
   text-align: center;
   font-size:14pt;
   font-family:arial,helvetica;
   font-weight:bold;
-  padding:10px; 
+  padding:10px;
 }
 
 body
@@ -24,7 +24,7 @@ body
   background-color: #fffcd2;
   text-align:left;
   font-size:9pt;
-  font-family:arial,helvetica;  
+  font-family:arial,helvetica;
 }
 
 div.menubox
@@ -36,14 +36,14 @@ div.menubox
 }
 
 .contentblock
-{  
+{
   margin: 4px;
   width:60%;
   padding:2px;
   border: 1px dotted;
   background-color: white;
   font-size:8pt;
-  font-family:arial,helvetica;  
+  font-family:arial,helvetica;
 }
 
 p.intro
@@ -51,20 +51,20 @@ p.intro
   margin-left:20px;
   margin-right:20px;
   font-size:10pt;
-  font-family:arial,helvetica;  
+  font-family:arial,helvetica;
 }
 
 p.clink
 {
   font-size:12pt;
-  font-family:courier,monospace;  
+  font-family:courier,monospace;
   text-align:center;
 }
 
 p.clink9
 {
   font-size:9pt;
-  font-family:courier,monospace;  
+  font-family:courier,monospace;
   text-align:center;
 }
 
@@ -75,6 +75,6 @@ p
 
 p.right
 {
-  text-align:right; 
+  text-align:right;
 }
 

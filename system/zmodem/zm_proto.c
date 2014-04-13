@@ -313,7 +313,7 @@ int zm_sendhexhdr(FAR struct zm_state_s *pzm, int type,
     }
 
   /* crc-1 crc-2 */
- 
+
   crc = crc16part(g_zeroes, 2, crc);
   ptr = zm_puthex8(ptr, (crc >> 8) & 0xff);
   ptr = zm_puthex8(ptr, crc & 0xff);
@@ -346,7 +346,7 @@ int zm_sendhexhdr(FAR struct zm_state_s *pzm, int type,
  *   16-bit binary header:
  *     ZPAD ZDLE ZBIN type f3/p0 f2/p1 f1/p2 f0/p3 crc-1 crc-2
  *     Payload length: 7 (type, 4 bytes data, 2 byte CRC)
- * 
+ *
  * Input Parameters:
  *   pzm    - Zmodem session state
  *   type   - Header type {ZSINIT, ZFILE, ZDATA, ZDATA}

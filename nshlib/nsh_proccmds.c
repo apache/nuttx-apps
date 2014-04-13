@@ -86,15 +86,15 @@ static const char *g_statenames[] =
 {
   "INVALID ",
   "PENDING ",
-  "READY   ", 
-  "RUNNING ", 
-  "INACTIVE", 
-  "WAITSEM ", 
+  "READY   ",
+  "RUNNING ",
+  "INACTIVE",
+  "WAITSEM ",
 #ifndef CONFIG_DISABLE_MQUEUE
-  "WAITSIG ", 
+  "WAITSIG ",
 #endif
 #ifndef CONFIG_DISABLE_MQUEUE
-  "MQNEMPTY", 
+  "MQNEMPTY",
   "MQNFULL "
 #endif
 };
@@ -182,7 +182,7 @@ static int readfile(FAR const char *filename, FAR char *buffer, size_t buflen)
       else
         {
           /* Successful read.  Make sure that the buffer is null terminated */
-          
+
           DEBUGASSERT(nread <= remaining);
           ntotal += nread;
           buffer[ntotal] = '\0';
@@ -200,7 +200,7 @@ static int readfile(FAR const char *filename, FAR char *buffer, size_t buflen)
   /* Close the file and return. */
 
   close(fd);
-  return ret;  
+  return ret;
 }
 #endif
 

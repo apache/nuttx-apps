@@ -297,7 +297,7 @@ static void show_buttons(uint8_t oldset, uint8_t newset)
             }
           else
             {
-              state = "released";            
+              state = "released";
             }
 
           /* Use lowsyslog() because we make be executing from an

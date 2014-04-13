@@ -133,7 +133,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
   int ret;
 
   /* Verify that we are still connecte to the server */
- 
+
   if (!ftpc_sockconnected(&session->cmd))
   {
     ndbg("Cmd channel si not connected\n");
@@ -169,7 +169,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
        }
 
       /* Get the response to the command */
- 
+
       ret = fptc_getreply(session);
       if (ret < 0)
         {

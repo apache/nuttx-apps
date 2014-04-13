@@ -59,7 +59,7 @@ endif
 endif
 
 ROOTDEPPATH	= --dep-path .
-VPATH		= 
+VPATH		=
 
 APPNAME		= i2c
 PRIORITY	= SCHED_PRIORITY_DEFAULT

@@ -18,7 +18,7 @@ config EXAMPLES_BUTTONS_MAX
 int "Highest Button Number"
 default 7
 
-if ARCH_IRQBUTTONS 
+if ARCH_IRQBUTTONS
 config EXAMPLES_IRQBUTTONS_MIN
 int "Lowest Interrupting Button Number"
 default 0

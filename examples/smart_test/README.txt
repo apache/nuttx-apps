@@ -11,7 +11,7 @@ append and seek-with-write operations.
 
 Usage:
     flash_test mtdblock_device
-    
+
 Additional options:
 
     --force                     to replace existing installation

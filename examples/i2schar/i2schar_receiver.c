@@ -114,7 +114,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
   for (i = 0; i < CONFIG_EXAMPLES_I2SCHAR_TXBUFFERS; i++)
     {
       /* Allocate an audio buffer of the configured size */
- 
+
       desc.numbytes   = CONFIG_EXAMPLES_I2SCHAR_BUFSIZE;
       desc.u.ppBuffer = &apb;
 

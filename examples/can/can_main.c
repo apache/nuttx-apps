@@ -250,9 +250,9 @@ int can_main(int argc, char *argv[])
     if (memcmp(&txmsg.cm_hdr, &rxmsg.cm_hdr, sizeof(struct can_hdr_s)) != 0)
       {
         message("ERROR: Sent header does not match received header:\n");
-        lib_dumpbuffer("Sent header", (FAR const uint8_t*)&txmsg.cm_hdr, 
+        lib_dumpbuffer("Sent header", (FAR const uint8_t*)&txmsg.cm_hdr,
                        sizeof(struct can_hdr_s));
-        lib_dumpbuffer("Received header", (FAR const uint8_t*)&rxmsg.cm_hdr, 
+        lib_dumpbuffer("Received header", (FAR const uint8_t*)&rxmsg.cm_hdr,
                        sizeof(struct can_hdr_s));
         errval = 4;
         goto errout_with_dev;
@@ -270,7 +270,7 @@ int can_main(int argc, char *argv[])
       }
 
     /* Report success */
-  
+
     message("  ID: %4d DLC: %d -- OK\n", msgid, msgdlc);
 #endif
 
@@ -278,7 +278,7 @@ int can_main(int argc, char *argv[])
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
     msgdata += msgdlc;
- 
+
     if (++msgid >= MAX_ID)
       {
         msgid = 1;

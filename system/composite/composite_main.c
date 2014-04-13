@@ -793,7 +793,7 @@ int conn_main(int argc, char *argv[])
 #endif
 
    /* Dump debug memory usage */
- 
+
    message("conn_main: Exiting\n");
 #if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
    close(g_composite.infd);

@@ -41,7 +41,7 @@ SUBDIRS = tiff screenshot
 
 # Sub-directories that might need context setup
 
-CNTXTDIRS = 
+CNTXTDIRS =
 
 all: nothing
 .PHONY: nothing context depend clean distclean

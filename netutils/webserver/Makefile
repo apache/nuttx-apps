@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # Web server library
 
 ASRCS		=
-CSRCS		= 
+CSRCS		=
 
 ifeq ($(CONFIG_NET_TCP),y)
 CSRCS		= httpd.c httpd_cgi.c
@@ -73,7 +73,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: context depend clean distclean

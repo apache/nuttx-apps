@@ -51,7 +51,7 @@ $(BIN): $(OBJS)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
 
-clean: 
+clean:
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 

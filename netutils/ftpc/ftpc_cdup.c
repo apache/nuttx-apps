@@ -74,7 +74,7 @@
  *   Make the parent of the current directory be the new current directory.
  *
  ****************************************************************************/
- 
+
 int ftpc_cdup(SESSION handle)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;

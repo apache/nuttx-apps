@@ -285,7 +285,7 @@ int usbterm_main(int argc, char *argv[])
   /* Start the USB term listener thread */
 
   message("usbterm_main: Starting the listener thread\n");
- 
+
   ret = pthread_attr_init(&attr);
   if (ret != OK)
     {

@@ -95,7 +95,7 @@
  *   This function does not normally return.  exit() is usually called to
  *   terminate the NSH session.  This function will return in the event of
  *   an error.  In that case, a nonzero value is returned (EXIT_FAILURE=1).
- *  
+ *
  ****************************************************************************/
 
 int nsh_consolemain(int argc, char *argv[])

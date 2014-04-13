@@ -61,14 +61,14 @@ endif
 ROOTDEPPATH	= --dep-path .
 
 # LCD R/W built-in application info
- 
+
 APPNAME		= lcdrw
 PRIORITY	= SCHED_PRIORITY_DEFAULT
 STACKSIZE	= 2048
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: .built
 .PHONY: clean depend distclean

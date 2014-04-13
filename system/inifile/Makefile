@@ -59,7 +59,7 @@ endif
 endif
 
 ROOTDEPPATH = --dep-path .
-VPATH = 
+VPATH =
 
 # Build targets
 

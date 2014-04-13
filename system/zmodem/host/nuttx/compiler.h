@@ -102,7 +102,7 @@
  */
 
 # define naked_function __attribute__ ((naked,no_instrument_function))
- 
+
 /* The inline_function attribute informs GCC that the function should always
  * be inlined, regardless of the level of optimization.  The noinline_function
  * indicates that the function should never be inlined.

@@ -1,4 +1,4 @@
-/* 
+/*
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
@@ -160,7 +160,7 @@ eMBInit( eMBMode eMode, uint8_t ucSlaveAddress, uint8_t ucPort, speed_t ulBaudRa
             eStatus = eMBRTUInit( ucMBAddress, ucPort, ulBaudRate, eParity );
             break;
 #endif
-#ifdef CONFIG_MB_ASCII_ENABLED 
+#ifdef CONFIG_MB_ASCII_ENABLED
         case MB_ASCII:
             pvMBFrameStartCur = eMBASCIIStart;
             pvMBFrameStopCur = eMBASCIIStop;

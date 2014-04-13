@@ -321,7 +321,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
    *
    * - "450 Requested file action not taken", "452 - Requested action not
    *   taken" or "553 Requested action not taken" without first responding
-   *   with a mark. 
+   *   with a mark.
    */
 
   /* In active mode, we need to accept a connection on the data socket

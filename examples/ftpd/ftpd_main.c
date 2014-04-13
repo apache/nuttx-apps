@@ -226,7 +226,7 @@ int ftpd_main(int s_argc, char **s_argv)
 
   if (!g_ftpdglob.initialized)
     {
-  
+
       /* Bring up the network */
 
       printf("Initializing the network\n");
@@ -256,7 +256,7 @@ int ftpd_main(int s_argc, char **s_argv)
     {
       printf("Starting the FTP daemon\n");
       g_ftpdglob.pid = TASK_CREATE("FTP daemon", CONFIG_EXAMPLES_FTPD_PRIO,
-                                   CONFIG_EXAMPLES_FTPD_STACKSIZE, 
+                                   CONFIG_EXAMPLES_FTPD_STACKSIZE,
                                    ftpd_daemon, NULL);
       if (g_ftpdglob.pid < 0)
         {

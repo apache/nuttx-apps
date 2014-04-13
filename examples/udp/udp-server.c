@@ -126,14 +126,14 @@ void recv_server(void)
     {
       message("server: %d. Receiving up 1024 bytes\n", offset);
       addrlen = sizeof(struct sockaddr_in);
-      nbytes = recvfrom(sockfd, inbuf, 1024, 0, 
+      nbytes = recvfrom(sockfd, inbuf, 1024, 0,
                         (struct sockaddr*)&client, &addrlen);
 
       tmpaddr = ntohl(client.sin_addr.s_addr);
       message("server: %d. Received %d bytes from %d.%d.%d.%d:%d\n",
-              offset, nbytes, 
-              tmpaddr >> 24, (tmpaddr >> 16) & 0xff, 
-              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff, 
+              offset, nbytes,
+              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
+              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
               ntohs(client.sin_port));
 
       if (nbytes < 0)

@@ -243,7 +243,7 @@ static int ftpc_execute(SESSION handle, int argc, char *argv[])
     */
 
    cmd = argv[0];
-   
+
    /* See if the command is one that we understand */
 
    for (cmdmap = g_cmdmap; cmdmap->cmd; cmdmap++)

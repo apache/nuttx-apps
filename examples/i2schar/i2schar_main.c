@@ -173,7 +173,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
   long value;
   int index;
   int nargs;
- 
+
   for (index = 1; index < argc; )
     {
       ptr = argv[index];
@@ -218,7 +218,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
           case 'h':
             i2schar_help(i2schar);
             exit(0);
-        
+
           default:
             message("Unsupported option: %s\n", ptr);
             i2schar_help(i2schar);

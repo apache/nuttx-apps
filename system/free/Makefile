@@ -72,7 +72,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all:	.built
 .PHONY: context depend clean distclean

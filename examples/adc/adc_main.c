@@ -176,7 +176,7 @@ static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
   long value;
   int index;
   int nargs;
- 
+
   for (index = 1; index < argc; )
     {
       ptr = argv[index];
@@ -209,7 +209,7 @@ static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
           case 'h':
             adc_help(adc);
             exit(0);
-        
+
           default:
             message("Unsupported option: %s\n", ptr);
             adc_help(adc);

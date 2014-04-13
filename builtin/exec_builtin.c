@@ -133,7 +133,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
 
   builtin = builtin_for_index(index);
   if (builtin == NULL)
-    { 
+    {
       ret = ENOENT;
       goto errout_with_errno;
     }

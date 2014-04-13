@@ -105,7 +105,7 @@ FAR char *ftpc_rpwd(SESSION handle)
       return NULL;
     }
   start++;
- 
+
   end = strchr(start, '\"');
   if (!end)
     {
@@ -120,7 +120,7 @@ FAR char *ftpc_rpwd(SESSION handle)
    *
    *   len = end - start + 1 = 11 (+ NUL terminator)
    */
- 
+
   len = end - start + 1;
   pwd = (char *)malloc(len + 1);
   if (!pwd)
@@ -128,7 +128,7 @@ FAR char *ftpc_rpwd(SESSION handle)
       ndbg("Failed to allocate string\n");
       return NULL;
     }
- 
+
   /* Copy the string into the allocated memory */
 
   memcpy(pwd, start, len);

@@ -231,7 +231,7 @@ int mtdpart_main(int argc, char *argv[])
   message("  blocksize:      %lu\n", (unsigned long)geo.blocksize);
   message("  erasesize:      %lu\n", (unsigned long)geo.erasesize);
   message("  neraseblocks:   %lu\n", (unsigned long)geo.neraseblocks);
-  
+
   /* Determine the size of each partition.  Make each partition an even
    * multiple of the erase block size (perhaps not using some space at the
    * end of the FLASH).

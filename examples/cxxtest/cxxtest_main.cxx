@@ -259,7 +259,7 @@ extern "C"
 #ifdef CONFIG_UCLIBCXX_EXCEPTION
     test_exception();
 #endif
-    
+
     return 0;
   }
 }

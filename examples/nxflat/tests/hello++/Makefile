@@ -162,7 +162,7 @@ $(BIN3): $(BIN3).r2
 #	@echo "LD: $<"
 #	$(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
 
-clean: 
+clean:
 	$(call DELFILE, $(BIN1))
 	$(call DELFILE, $(BIN2))
 	$(call DELFILE, $(BIN3))

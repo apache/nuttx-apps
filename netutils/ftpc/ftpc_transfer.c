@@ -85,7 +85,7 @@
  *   port N+1 and sends the FTP command PORT N+1 to the FTP server. The server
  *   will then connect back to the client's specified data port from its local
  *   data port, which is port 20. In passive mode FTP the client initiates
- *   both connections to the server, solving the problem of firewalls filtering 
+ *   both connections to the server, solving the problem of firewalls filtering
  *   the incoming data port connection to the client from the server. When
  *   opening an FTP connection, the client opens two random ports locally
  *   (N>1023 and N+1). The first port contacts the server on port 21, but
@@ -93,7 +93,7 @@
  *   back to its data port, the client will issue the PASV command. The result
  *   of this is that the server then opens a random unprivileged port (P >
  *   1023) and sends the PORT P command back to the client. The client then
- *   initiates the connection from port N+1 to port P on the server to transfer 
+ *   initiates the connection from port N+1 to port P on the server to transfer
  *   data.
  *
  ****************************************************************************/
@@ -137,7 +137,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
   /* The response is then 6 integer values:  four representing the
    * IP address and two representing the port number.
    */
- 
+
   nscan = sscanf(ptr, "%d,%d,%d,%d,%d,%d",
                  &tmpap[0], &tmpap[1], &tmpap[2],
                  &tmpap[3], &tmpap[4], &tmpap[5]);
@@ -149,7 +149,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
 
   /* Then copy the sscanf'ed values as bytes */
 
-  
+
   for (i = 0; i < 6; i++)
     {
       addrport[i] = (uint8_t)(tmpap[i] & 0xff);
@@ -185,7 +185,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
   if (relpath[0] == '~')
     {
       /* Is the relative path only '~' */
- 
+
       if (relpath[1] == '\0')
         {
           return strdup(homedir);
@@ -209,7 +209,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
   /* No tilde expansion.  Check for a path relative to the current
    * directory.
    */
-  
+
   else if (strncmp(relpath, "./", 2) == 0)
     {
       ret = asprintf(&ptr, "%s%s", curdir, relpath+1);
@@ -278,7 +278,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
   if (FTPC_IS_PASSIVE(session))
     {
       /* Yes.. going passive. */
-  
+
       ret = ftp_pasvmode(session, addrport);
       if (ret != OK)
         {
@@ -370,7 +370,7 @@ int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode)
        *
        *  The server accepts the TYPE request with code 200.
        */
-  
+
       ret = ftpc_cmd(session, "TYPE %c", xfrmode == FTPC_XFRMODE_ASCII ? 'A' : 'I');
       session->xfrmode = xfrmode;
     }
@@ -405,7 +405,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
   if (ret > 0)
   {
     /* Read data from command channel */
- 
+
     nvdbg("Flush cmd channel data\n");
     while (stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
     return OK;
@@ -428,7 +428,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
   while (stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
 
   /* Get the ABORt reply */
- 
+
   fptc_getreply(session);
 
   /* Expected replys are: "226 Closing data connection" or
@@ -448,7 +448,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
      /* Expected replys are:  or "225 Data connection open; no transfer in progress"
       * "226 Closing data connection"
       */
- 
+
      if (session->code != 226 && session->code != 225)
        {
          nvdbg("Expected 225 or 226 reply\n");
