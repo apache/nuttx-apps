@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -1048,7 +1048,7 @@ static const struct SRlePaletteBitmapEntry g_nuttxRleEntries[] =
   { 77,   0},
   { 76,   0}, {  1,   5}, {  4,   4}, {  1,   5}, { 78,   0}                                       /* Row 159 */
  };
- 
+
 #elif CONFIG_NXWIDGETS_BPP == 16
 
 static const struct SRlePaletteBitmapEntry g_nuttxRleEntries[] =
@@ -3443,7 +3443,7 @@ const struct SRlePaletteBitmap NXWidgets::g_nuttxBitmap160x160 =
   CONFIG_NXWIDGETS_BPP,  // bpp    - Bits per pixel
   CONFIG_NXWIDGETS_FMT,  // fmt    - Color format
   BITMAP_NLUTCODES,      // nlut   - Number of colors in the lLook-Up Table (LUT)
-  160,                   // width  - Width in pixels 
+  160,                   // width  - Width in pixels
   160,                   // height - Height in rows
   {                      // lut    - Pointer to the beginning of the Look-Up Table (LUT)
     g_nuttxLut,          //          Index 0: Unselected LUT

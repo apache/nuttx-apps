@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -206,7 +206,7 @@ void CText::setLineSpacing(uint8_t lineSpacing)
 }
 
 /**
- * Sets the pixel width of the text; text wider than 
+ * Sets the pixel width of the text; text wider than
  * this will automatically wrap.
  *
  * @param width Maximum pixel width of the text.
@@ -243,7 +243,7 @@ const int CText::getLineLength(const int lineNumber) const
     {
       return m_linePositions[lineNumber + 1] - m_linePositions[lineNumber];
     }
-  
+
   return getLength() - m_linePositions[lineNumber];
 }
 
@@ -258,11 +258,11 @@ const int CText::getLineLength(const int lineNumber) const
 const int CText::getLineTrimmedLength(const int lineNumber) const
 {
   nxgl_coord_t length = getLineLength(lineNumber);
-  
+
   // Loop through string until the end
 
   CStringIterator *iterator = newStringIterator();
-  
+
   // Get char at the end of the line
 
   if (iterator->moveTo(m_linePositions[lineNumber] + length - 1))
@@ -280,7 +280,7 @@ const int CText::getLineTrimmedLength(const int lineNumber) const
       delete iterator;
       return length;
     }
-  
+
   // May occur if data has been horribly corrupted somewhere
 
   delete iterator;
@@ -336,7 +336,7 @@ void CText::stripTopLines(const int lines)
   // Get the start point of the text we want to keep
 
   nxgl_coord_t textStart = 0;
-  
+
   for (int i = 0; i < lines; i++)
     {
       textStart += getLineLength(i);
@@ -345,7 +345,7 @@ void CText::stripTopLines(const int lines)
   // Remove the characters from the start of the string to the found location
 
   remove(0, textStart);
-  
+
   // Rewrap the text
 
   wrap();
@@ -375,12 +375,12 @@ void CText::wrap(int charIndex)
   int lineWidth;
   int breakIndex;
   bool endReached = false;
-  
+
   if (m_linePositions.size() == 0)
     {
       charIndex = 0;
     }
-  
+
   // If we're wrapping from an offset in the text, ensure that any existing data
   // after the offset gets removed
 
@@ -399,7 +399,7 @@ void CText::wrap(int charIndex)
         {
           m_longestLines.pop_back();
         }
-    
+
       // If there are any longest line records remaining, update the text pixel width
       // The last longest line record will always be the last valid longest line as
       // the vector is sorted by length
@@ -432,33 +432,33 @@ void CText::wrap(int charIndex)
   else
     {
       // Remove all wrapping data
-    
+
       // Wipe the width variable
 
       m_textPixelWidth = 0;
-    
+
       // Empty existing longest lines
 
       m_longestLines.clear();
-    
+
       // Empty existing line positions
 
       m_linePositions.clear();
-    
+
       // Push first line start into vector
 
       m_linePositions.push_back(0);
     }
-  
+
   // Loop through string until the end
 
   CStringIterator *iterator = newStringIterator();
-  
+
   while (!endReached)
     {
       breakIndex = 0;
       lineWidth = 0;
-    
+
       if (iterator->moveTo(pos))
         {
           // Search for line breaks and valid breakpoints until we
@@ -541,9 +541,9 @@ void CText::wrap(int charIndex)
                     }
                 }
             }
-      
+
           delete breakIterator;
-      
+
           // Add the start of the next line to the vector
 
           pos = breakIndex + 1;
@@ -574,7 +574,7 @@ void CText::wrap(int charIndex)
           m_linePositions.push_back(pos);
         }
     }
-  
+
   // Add marker indicating end of text
   // If we reached the end of the text, append the stopping point
 
@@ -584,11 +584,11 @@ void CText::wrap(int charIndex)
     }
 
   delete iterator;
-  
+
   // Calculate the total height of the text
 
   m_textPixelHeight = getLineCount() * (m_font->getHeight() + m_lineSpacing);
-  
+
   // Ensure height is always at least one row
 
   if (m_textPixelHeight == 0)
@@ -627,13 +627,13 @@ const int CText::getLineContainingCharIndex(const int index) const
   int bottom = 0;
   int top = m_linePositions.size() - 1;
   int mid;
-  
+
   while (bottom <= top)
     {
       // Standard binary search
 
       mid = (bottom + top) >> 1;
-    
+
       if (index < m_linePositions[mid])
         {
           // Index is somewhere in the lower search space
@@ -652,7 +652,7 @@ const int CText::getLineContainingCharIndex(const int index) const
 
           return mid;
         }
-    
+
       // Check to see if we've moved past the line that contains the index
       // We have to do this because the index we're looking for can be within
       // a line; it isn't necessarily the start of a line (which is what is

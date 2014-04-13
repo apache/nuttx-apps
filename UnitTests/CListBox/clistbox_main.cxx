@@ -297,7 +297,7 @@ int clistbox_main(int argc, char *argv[])
           message("clistbox_main: %s: %d options de-selected\n",
                   count == 5 ? "OK" : "ERROR", count);
           updateMemoryUsage(g_mmPrevious, "clistbox_main: After de-selecting options");
- 
+
           message("clistbox_main: Removing the selected options\n");
           for (int i = 0; i < 5; i++)
             {

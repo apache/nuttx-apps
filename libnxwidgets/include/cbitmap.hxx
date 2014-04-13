@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -87,11 +87,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -118,7 +118,7 @@ namespace NXWidgets
   {
   protected:
     const struct SBitmap *m_bitmap;  /**< The bitmap that is being managed */
-    
+
     /**
      * Copy constructor is protected to prevent usage.
      */

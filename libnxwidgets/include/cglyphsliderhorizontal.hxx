@@ -73,18 +73,18 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include "csliderhorizontal.hxx"
 #include "cglyphsliderhorizontalgrip.hxx"
 
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -111,7 +111,7 @@ namespace NXWidgets
     nxwidget_pixel_t m_fillColor;    /**< Fill color for left side of "fuel gague" */
     bool m_fill;                     /**< Set true if fill is active */
     uint32_t m_barThickness;         /**< Thickness (in pixels) of the bar */
-    
+
     /**
      * Get the maximum possible value that the slider can represent.  Useful when
      * using the slider as a scrollbar, as the height of the grip prevents the full
@@ -159,7 +159,7 @@ namespace NXWidgets
      */
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-    
+
     /**
      * Moves the grip towards the mouse.
      *

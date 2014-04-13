@@ -54,7 +54,7 @@ Installing and Building the Unit Tests
    Where:
 
     <nuttx-directory-path> is the full, absolute path to the NuttX build directory
- 
+
    If you are using the sim/nsh2 or stm3210e-eval configurations, then skip
    to step 2 (Hmmm.. better check 1d) too).
 
@@ -64,7 +64,7 @@ Installing and Building the Unit Tests
    "Unit Test Directories"
 
    b) Enable C++ Support
- 
+
    If you are not using the sim/nsh2 or stm3210e-eval, you will need to add
    the following definitions to the NuttX configuration at nuttx/.config to
    enable C++ support:
@@ -81,17 +81,17 @@ Installing and Building the Unit Tests
    enable debug symbols:
 
      CONFIG_DEBUG_SYMBOLS=y
- 
+
    Then you can run the simulation using GDB or DDD which is a very powerful
    debugging environment!
 
    d) Special configuration requirements for the nxwm unit test:
- 
+
      CONFIG_NXCONSOLE=y
      CONFIG_NX_MULTIUSER=y
 
    e) Other .config file changes -- NSH configurations only.
- 
+
    If the configuration that you are using supports NSH and NSH built-in tasks
    then all is well.  If it is an NSH configuration, then you will have to define
    the following in your nuttx/.config file as well (if it is not already defined):
@@ -134,7 +134,7 @@ Installing and Building the Unit Tests
    The following step will then install the new, correct directory containing
    the user_start function for the selected unit test.  If you see that NSH
    is configured:
-   
+
      CONFIG_EXAMPLES_NSH=y    ## DO NOT REMOVE
 
    Then go back and re-read e) above.
@@ -148,7 +148,7 @@ Installing and Building the Unit Tests
 
      cd <nxwidgets-directory>/tools
      ./install.sh <apps-directory-path> <test-sub-directory>
-     
+
    Where:
 
     <apps-directory-path> is the full, absolute path to the NuttX apps/ directory
@@ -209,7 +209,7 @@ Build Issues
               $(ARCHCPUFLAGSXX) $(ARCHINCLUDESXX) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
 
 2. Stack Size Issues with the X11 Simulation
- 
+
    When you run the NuttX simulation, it uses stacks allocated by NuttX from the
    NuttX heap.  The memory management model is exactly the same in the simulation
    as it is real, target system.  This is good because this produces a higher
@@ -375,7 +375,7 @@ Example
      ./nuttx
 
      NuttShell (NSH) NuttX-6.9
-     nsh> 
+     nsh>
 
    b. Execute NuttX
       Where: NSH command prompt
@@ -401,7 +401,7 @@ Example
       The I/O with the Linux/Cygwin simulation is blocking.  So while NSH is
       waiting for input nothing can run (see configs/sim/README.txt for more info).
       One way to make NSH stop asking for input is to sleep.
- 
+
       nsh> sleep 10
       sleep 10
 
@@ -433,7 +433,7 @@ Example
    In order to debug, you have to have build with CONFIG_DEBUG_SYMBOLS=y.
    This setting is preselected in the sim/nsh2 configuration so that
    you don't have to do anything.
-   
+
    Then under Linux or in a Cygwin X11 window, you can start the graphic
    debugger like:
 

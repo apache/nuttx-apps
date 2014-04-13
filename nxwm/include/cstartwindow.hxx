@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <debug.h>
@@ -91,7 +91,7 @@ namespace NxWM
    */
 
   extern FAR const char *g_startWindowMqName;
-  
+
   /**
    * This class is the the start window application.
    */
@@ -104,7 +104,7 @@ namespace NxWM
     /**
      * This structure represents an application and its associated icon image
      */
- 
+
     struct SStartWindowSlot
     {
       IApplicationFactory            *app;      /**< A reference to the icon */

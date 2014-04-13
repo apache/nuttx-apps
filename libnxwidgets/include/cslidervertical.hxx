@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -88,11 +88,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -293,7 +293,7 @@ namespace NXWidgets
      */
 
     void setValue(const nxgl_coord_t value);
-    
+
     /**
      * Set the value that of the slider.  This will reposition and redraw
      * the grip.  The supplied value should be bitshifted left 16 places.

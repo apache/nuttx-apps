@@ -155,7 +155,7 @@ static void clickButtons(CKeypadTest *test, CKeypad *keypad)
           int clickRow;
           if (keypad->isButtonClicked(clickColumn, clickRow))
             {
-              printf("clickButtons: %s: Button (%d, %d) is clicked\n", 
+              printf("clickButtons: %s: Button (%d, %d) is clicked\n",
                      clickColumn == i && clickRow == j ? "OK" : "ERROR",
                      clickColumn, clickRow);
             }
@@ -174,10 +174,10 @@ static void clickButtons(CKeypadTest *test, CKeypad *keypad)
           test->poll(keypad);
           if (keypad->isButtonClicked(clickColumn, clickRow))
             {
-              printf("clickButtons: ERROR: Button (%d, %d) is clicked\n", 
+              printf("clickButtons: ERROR: Button (%d, %d) is clicked\n",
                      clickColumn, clickRow);
             }
- 
+
           usleep(500*1000);
         }
     }

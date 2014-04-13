@@ -82,7 +82,7 @@ o NxConsole Issues
                will go to one NxConsole instance and the next character goes
                to a different instance.  That is correct behavior within the
                current design, but not very usable.  We need a mechanism to
-               assure that the top window is the one that receives all 
+               assure that the top window is the one that receives all
                eyboard input.  NX already provides this capability with its
                nx_kbdin interface(), but that is not currently used.  At present,
                NxConsoles get their input from /dev/console which is the serial
@@ -92,10 +92,10 @@ o NxConsole Issues
                SVN version 4755).  The fixed version is available in SVN but
                won't be in a released version until NxWidgets-1.2 is released.
   Priority:    Medium high, basically prohibits the use of multiple NSH windows.
-  
+
   Title:       CLOSING AN NxCONSOLE
   Description: If you open multiple NxConsole applications, they all receive
-               serial input (as noted in the previous bug).  However, if 
+               serial input (as noted in the previous bug).  However, if
                you close one of the NxConsoles, then the others no longer
                received input (or no long generate output -- that cannot be
                distinguished).

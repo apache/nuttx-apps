@@ -221,7 +221,7 @@ void CKeypadTest::setDisplaySize(void)
 
       m_buttonWidth = windowSize.w >> 2;
     }
-  
+
   // Lets aim for a height of 7*32 = 224.  But lets bump up the number of rows
   // to allow one for the text box.
 
@@ -340,7 +340,7 @@ void CKeypadTest::showKeypad(CKeypad *keypad)
   keypad->redraw();
 
   // Then redraw the text box
-  
+
   m_textbox->enable();        // Un-necessary, the widget is enabled by default
   m_textbox->enableDrawing();
   m_textbox->redraw();

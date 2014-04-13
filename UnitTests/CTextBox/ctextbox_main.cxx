@@ -129,7 +129,7 @@ int ctextbox_main(int argc, char *argv[])
 
   usleep(500*1000);
   test->injectChars(textbox, sizeof(string2), (FAR const uint8_t*)string2);
-  
+
   // Clean up and exit
 
   sleep(2);

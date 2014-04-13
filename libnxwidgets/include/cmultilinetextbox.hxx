@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -92,7 +92,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -100,7 +100,7 @@
 #if defined(__cplusplus)
 
 namespace NXWidgets
-{  
+{
   class CNxTimer;
 
   /**
@@ -112,7 +112,7 @@ namespace NXWidgets
    */
 
   class CMultiLineTextBox : public ITextBox, public CScrollingPanel,
-                            public CWidgetEventHandler 
+                            public CWidgetEventHandler
   {
   public:
 
@@ -281,7 +281,7 @@ namespace NXWidgets
      */
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-    
+
     /**
      * Starts the dragging system.
      *

@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -86,11 +86,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Abstract Base Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -218,7 +218,7 @@ namespace NXWidgets
      */
 
     virtual const CListBoxDataItem *getSelectedOption(void) const = 0;
-    
+
     /**
      * Sets whether multiple selections are possible or not.
      *

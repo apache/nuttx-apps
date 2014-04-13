@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -305,7 +305,7 @@ void CCycleButton::getPreferredDimensions(CRect &rect) const
 void CCycleButton::drawContents(CGraphicsPort *port)
 {
   // Get the drawing region (excluding any border)
- 
+
   CRect rect;
   getRect(rect);
 
@@ -393,12 +393,12 @@ void CCycleButton::drawOutline(CGraphicsPort *port)
     {
       return;
     }
-  
+
   // Work out which colors to use
 
   nxgl_coord_t color1;
   nxgl_coord_t color2;
-  
+
   if (isClicked())
     {
       // Bevelled into the screen
@@ -413,7 +413,7 @@ void CCycleButton::drawOutline(CGraphicsPort *port)
       color1 = getShineEdgeColor();
       color2 = getShadowEdgeColor();
     }
-  
+
   port->drawBevelledRect(getX(), getY(), getWidth(), getHeight(), color1, color2);
 }
 
@@ -447,7 +447,7 @@ void CCycleButton::onPreRelease(nxgl_coord_t x, nxgl_coord_t y)
     }
 
   redraw();
-  
+
   CButton::onPreRelease(x, y);
 }
 

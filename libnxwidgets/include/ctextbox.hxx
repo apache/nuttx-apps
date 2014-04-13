@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -90,11 +90,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -206,7 +206,7 @@ namespace NXWidgets
      */
 
     virtual nxgl_coord_t getCursorWidth(void) const;
-    
+
     /**
      * Calculate the horizontal position of the string based on its length
      * and the alignment options.  Alignment options are overridden if the

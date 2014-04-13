@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -87,11 +87,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -211,7 +211,7 @@ namespace NXWidgets
     void setStuckDown(bool stuckDown);
 
     /**
-     * Toggles the key's stuck down state. 
+     * Toggles the key's stuck down state.
      */
 
     inline void toggleStuckDown(void)

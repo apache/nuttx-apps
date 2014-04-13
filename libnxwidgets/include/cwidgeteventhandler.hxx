@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -84,11 +84,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -108,13 +108,13 @@ namespace NXWidgets
      */
 
     inline CWidgetEventHandler() { }
-    
+
     /**
      * Destructor.
      */
 
     virtual inline ~CWidgetEventHandler() { }
-    
+
     /**
      * Handle a mouse button click event.
      *
@@ -128,7 +128,7 @@ namespace NXWidgets
      *
      * @param e The event data.
      */
- 
+
     virtual void handleDragEvent(const CWidgetEventArgs &e) { }
 
     /**

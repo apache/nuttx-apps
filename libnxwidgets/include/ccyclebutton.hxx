@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -91,11 +91,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -111,7 +111,7 @@ namespace NXWidgets
    * through its available options.
    */
 
-  class CCycleButton : public CButton, public IListDataEventHandler 
+  class CCycleButton : public CButton, public IListDataEventHandler
   {
   protected:
 
@@ -153,7 +153,7 @@ namespace NXWidgets
      */
 
     virtual void onPreRelease(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Redraws the button.
      *
@@ -211,7 +211,7 @@ namespace NXWidgets
      */
 
     virtual ~CCycleButton(void) { }
-    
+
     /**
      * Add a new option to the widget.
      *

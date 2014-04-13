@@ -199,7 +199,7 @@ void CNxTimer::workQueueCallback(FAR void *arg)
     {
       This->start();
     }
-  
+
   // Raise the action event.
 
   This->m_widgetEventHandlers->raiseActionEvent();

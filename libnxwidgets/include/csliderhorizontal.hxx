@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -88,11 +88,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -119,7 +119,7 @@ namespace NXWidgets
     int32_t m_gutterWidth;           /**< Width of the gutter, taking into account
                                           any adjustments made to the width of the grip. */
     uint32_t m_contentSize;          /**< Number of values in the min/max range. */
-    
+
     /**
      * Get the maximum possible value that the slider can represent.  Useful when
      * using the slider as a scrollbar, as the height of the grip prevents the full
@@ -167,7 +167,7 @@ namespace NXWidgets
      */
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-    
+
     /**
      * Moves the grip towards the mouse.
      *

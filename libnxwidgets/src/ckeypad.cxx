@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -65,7 +65,7 @@
 using namespace NXWidgets;
 
 static FAR const char *g_alphaLabels[BUTTONARRAY_NCOLUMNS*BUTTONARRAY_NROWS] = {
- "=>", "A", "B", "<DEL", 
+ "=>", "A", "B", "<DEL",
  "C", "D", "E", "F",
  "G", "H", "I", "J",
  "K", "L", "M", "N",
@@ -75,7 +75,7 @@ static FAR const char *g_alphaLabels[BUTTONARRAY_NCOLUMNS*BUTTONARRAY_NROWS] = {
 };
 
 static FAR const char *g_numLabels[BUTTONARRAY_NCOLUMNS*BUTTONARRAY_NROWS] = {
- "=>", "0", "1", "<DEL", 
+ "=>", "0", "1", "<DEL",
  "2", "3", "4", "5",
  "6", "7", "8", "9",
  "-", "#", "*", "&",
@@ -211,4 +211,4 @@ void CKeypad::configureKeypadMode(void)
 
   onTextChange();
 }
- 
+

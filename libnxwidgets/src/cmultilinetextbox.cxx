@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -472,7 +472,7 @@ void CMultiLineTextBox::handleKeyPressEvent(const CWidgetEventArgs &e)
       // Not modifier; append value
 
       insertTextAtCursor(key);
-    } 
+    }
 }
 
 /**
@@ -502,10 +502,10 @@ void CMultiLineTextBox::getCursorCoordinates(nxgl_coord_t &x, nxgl_coord_t &y) c
       // start of the line
 
       uint8_t cursorLineOffset = m_cursorPos - m_text->getLineStartIndex(cursorRow);
-     
+
       CStringIterator *iterator = m_text->newStringIterator();
       iterator->moveTo(m_text->getLineStartIndex(cursorRow));
-      
+
       // Sum the width of each char in the row to find the x coordinate
 
       for (int i = 0; i < cursorLineOffset; ++i)

@@ -75,7 +75,7 @@ doxygen "${DOXYFILE}" || \
     {
         echo "Failed to run doxygen"; \
         exit 1;
-    
+
     }
 
 cp -rf html "${DOXYGENOUTPUT_DIR}" || \

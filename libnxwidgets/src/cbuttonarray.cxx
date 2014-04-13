@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -51,7 +51,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * CButtonArray Method Implementations
  ****************************************************************************/
@@ -79,7 +79,7 @@ CButtonArray::CButtonArray(CWidgetControl *pWidgetControl,
                            nxgl_coord_t buttonWidth, nxgl_coord_t buttonHeight,
                            CWidgetStyle *style)
 : CNxWidget(pWidgetControl, x, y,
-            buttonColumns * buttonWidth + 2, buttonRows * buttonHeight + 2,     
+            buttonColumns * buttonWidth + 2, buttonRows * buttonHeight + 2,
             0, style)
 {
   // Save configuration
@@ -367,7 +367,7 @@ void CButtonArray::drawContents(CGraphicsPort *port)
     {
       int column;
       int row;
- 
+
       // Just one.  Get the row/column indices from the last click
 
       (void)posToButton(m_clickX, m_clickY, column, row);
@@ -452,7 +452,7 @@ void CButtonArray::drawButton(CGraphicsPort *port, int column, int row, bool use
   if (useClicked || isCursorPosition(column, row))
     {
       // "Selected" text color on unique "Selected" background color
- 
+
       backColor    = getSelectedBackgroundColor();
       textColor    = getSelectedTextColor();
     }
@@ -465,7 +465,7 @@ void CButtonArray::drawButton(CGraphicsPort *port, int column, int row, bool use
     }
 
   // Pick the border colors.  Should we use the 'clicked' button style?
- 
+
   if (useClicked)
     {
       // Yes.. Bevelled into the screen

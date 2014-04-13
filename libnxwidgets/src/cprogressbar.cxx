@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -117,7 +117,7 @@ CProgressBar::CProgressBar(CWidgetControl *pWidgetControl,
 }
 
 /**
- * Set the value that of the progress bar. 
+ * Set the value that of the progress bar.
  *
  * @param value The new value.
  */
@@ -159,7 +159,7 @@ void CProgressBar::drawContents(CGraphicsPort *port)
   // Calculate ratio of pixels to value range (max fractional value of 255)
 
   uint32_t ratio = ((uint32_t)rect.getWidth() << 8) / (uint32_t)(m_maximumValue - m_minimumValue);
-  
+
   // Convert value using ratio, rounding up and shifting down
 
   int16_t barWidth = ((m_value * ratio) + 128) >> 8;
@@ -167,7 +167,7 @@ void CProgressBar::drawContents(CGraphicsPort *port)
   // Draw filled region
 
   port->drawFilledRect(rect.getX(), rect.getY(), barWidth, rect.getHeight(), getHighlightColor());
-  
+
   // Draw unfilled background
 
   if (barWidth < rect.getWidth())

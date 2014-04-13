@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -84,11 +84,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Abstract Base Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -99,7 +99,7 @@ namespace NXWidgets
    * Base IListDataEventHandler class, intended to be subclassed.  Any class
    * that needs to listen for CListData events should inherit from this class.
    */
- 
+
   class IListDataEventHandler
   {
   public:

@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -92,7 +92,7 @@
 namespace NXWidgets
 {
   class CNxString;
-  
+
   /**
    * Class used to efficiently iterate over the characters in a CNxString
    * object.  The CNxString is a Unicode string that uses the fixed-width
@@ -162,7 +162,7 @@ namespace NXWidgets
      */
 
     bool moveTo(int index);
-    
+
     /**
      * Get the current position of the iterator within the string.
      *

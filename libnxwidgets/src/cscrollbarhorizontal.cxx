@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -91,7 +91,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Method Implementation
  ****************************************************************************/
@@ -115,7 +115,7 @@ using namespace NXWidgets;
 CScrollbarHorizontal::CScrollbarHorizontal(CWidgetControl *pWidgetControl,
                                            nxgl_coord_t x, nxgl_coord_t y,
                                            nxgl_coord_t width, nxgl_coord_t height,
-                                           CWidgetStyle* style) 
+                                           CWidgetStyle* style)
 : CNxWidget(pWidgetControl, x, y, width, height, WIDGET_BORDERLESS, style)
 {
   m_buttonWidth = 10;
@@ -263,7 +263,7 @@ void CScrollbarHorizontal::setPageSize(nxgl_coord_t pageSize)
   m_slider->setPageSize(pageSize);
 }
 
-/**  
+/**
  * Process events fired by the grip.
  *
  * @param e The event details.

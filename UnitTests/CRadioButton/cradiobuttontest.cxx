@@ -212,7 +212,7 @@ CRadioButton *CRadioButtonTest::newRadioButton(void)
     {
       // Start the radio button group in the center of the upper, left
       // quadrant.  The initial size is 0,0 and the default style is used.
- 
+
       nxgl_coord_t groupX = windowSize.w >> 2;
       nxgl_coord_t groupY = windowSize.h >> 2;
 

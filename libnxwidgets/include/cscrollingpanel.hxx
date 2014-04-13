@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -88,11 +88,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -152,7 +152,7 @@ namespace NXWidgets
 
     virtual void onDrag(nxgl_coord_t x, nxgl_coord_t y,
                         nxgl_coord_t vX, nxgl_coord_t vY);
-    
+
     /**
      * Starts the dragging system.
      *
@@ -217,7 +217,7 @@ namespace NXWidgets
      */
 
     virtual void scroll(int32_t dx, int32_t dy);
-    
+
     /**
      * Reposition the panel's scrolling region to the specified coordinates.
      *
@@ -259,7 +259,7 @@ namespace NXWidgets
     {
       return m_canvasX;
     }
-    
+
     /**
      * Gets the y coordinate of the virtual canvas.
      *
@@ -281,7 +281,7 @@ namespace NXWidgets
     {
       return m_canvasWidth;
     }
-    
+
     /**
      * Gets the height of the virtual canvas.
      *
@@ -353,7 +353,7 @@ namespace NXWidgets
     {
       m_canvasWidth = width;
     }
-    
+
     /**
      * Sets the height of the virtual canvas.
      *

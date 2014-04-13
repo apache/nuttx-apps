@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -98,7 +98,7 @@ namespace NXWidgets
   class  CNxString;
   class  CRect;
   struct SBitmap;
-  
+
   /**
    * CGraphicsPort is the interface between a NXwidget and NX layer.
    */
@@ -158,7 +158,7 @@ namespace NXWidgets
      */
 
     const nxgl_coord_t getX(void) const;
-    
+
     /**
      * Return the absolute y coordinate of the upper left hand corner of the
      * underlying window.
@@ -363,7 +363,7 @@ namespace NXWidgets
     void drawText(struct nxgl_point_s *pos, CRect *bound, CNxFont *font,
                   const CNxString &string, int startIndex, int length,
                   nxgl_mxpixel_t color, nxgl_mxpixel_t background);
-    
+
     /**
      * Draw an opaque bitmap to the window.
      *
@@ -436,7 +436,7 @@ namespace NXWidgets
     void copy(nxgl_coord_t sourceX, nxgl_coord_t sourceY,
               nxgl_coord_t destX, nxgl_coord_t destY,
               nxgl_coord_t width, nxgl_coord_t height);
- 
+
     /**
      * Move a region by a specified distance in two dimensions.
      *

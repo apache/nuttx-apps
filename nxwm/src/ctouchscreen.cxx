@@ -108,7 +108,7 @@ CTouchscreen::CTouchscreen(NXWidgets::CNxServer *server, struct nxgl_size_s *win
   // Use the default touch data buffer
 
   m_touch       = &m_sample;
-  
+
   // Initialize the m_waitSem semaphore so that any waits for data will block
 
   sem_init(&m_waitSem, 0, 0);
@@ -138,7 +138,7 @@ CTouchscreen::~CTouchscreen(void)
     }
 
    // Destroy the semaphores that we created.
- 
+
    sem_destroy(&m_waitSem);
 }
 
@@ -209,10 +209,10 @@ void CTouchscreen::setCalibrationData(const struct SCalibrationData &caldata)
   // Save a copy of the calibration data
 
   m_calibData = caldata;
- 
+
   // Note that we have calibration data.  Data will now be scaled and forwarded
   // to NX (unless we are still in cpature mode)
- 
+
    m_calibrated = true;
 
   // Wake up the listener thread so that it will use our buffer

@@ -97,7 +97,7 @@ using namespace NXWidgets;
  *
  * @param widget The owning widget.
  */
- 
+
 CWidgetEventHandlerList::CWidgetEventHandlerList(CNxWidget *widget)
 {
   m_widget    = widget;
@@ -120,7 +120,7 @@ bool CWidgetEventHandlerList::isEnabled(void) const
  * all events raised by this object.
  * @param eventHandler A pointer to the event handler.
  */
- 
+
 void CWidgetEventHandlerList::addWidgetEventHandler(CWidgetEventHandler *eventHandler)
 {
   // Prevent insertion if the handler already exists
@@ -529,7 +529,7 @@ void CWidgetEventHandlerList::raiseScrollEvent(nxgl_coord_t vX, nxgl_coord_t vY)
   if (isEnabled())
     {
       CWidgetEventArgs e(m_widget, 0, 0, vX, vY, KEY_CODE_NONE);
-  
+
       for (int i = 0; i < m_widgetEventHandlers.size(); i++)
         {
           m_widgetEventHandlers.at(i)->handleScrollEvent(e);

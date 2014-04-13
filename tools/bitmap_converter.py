@@ -18,21 +18,21 @@ def get_palette(img, maxcolors = 255):
 
 def write_palette(outfile, palette):
   '''Write the palette (normal and hilight) to the output file.'''
-  
+
   outfile.write('static const NXWidgets::nxwidget_pixel_t palette[BITMAP_PALETTESIZE] =\n');
   outfile.write('{\n')
-  
+
   for i in range(0, len(palette), 4):
     outfile.write('  ');
     for r, g, b in palette[i:i+4]:
       outfile.write('MKRGB(%3d,%3d,%3d), ' % (r, g, b))
     outfile.write('\n');
-  
+
   outfile.write('};\n\n')
-  
+
   outfile.write('static const NXWidgets::nxwidget_pixel_t hilight_palette[BITMAP_PALETTESIZE] =\n');
   outfile.write('{\n')
-  
+
   for i in range(0, len(palette), 4):
     outfile.write('  ');
     for r, g, b in palette[i:i+4]:
@@ -41,9 +41,9 @@ def write_palette(outfile, palette):
       b = min(255, b + 50)
       outfile.write('MKRGB(%3d,%3d,%3d), ' % (r, g, b))
     outfile.write('\n');
-  
+
   outfile.write('};\n\n')
-  
+
 
 def quantize(color, palette):
   '''Return the color index to closest match in the palette.'''
@@ -53,7 +53,7 @@ def quantize(color, palette):
     # No exact match, search for the closest
     def distance(color2):
       return sum([(a - b)**2 for a, b in zip(color, color2)])
-    
+
     return palette.index(min(palette, key = distance));
 
 def encode_row(img, palette, y):
@@ -61,7 +61,7 @@ def encode_row(img, palette, y):
   entries = []
   color = None
   repeats = 0
-  
+
   for x in range(0, img.size[0]):
     c = quantize(img.getpixel((x, y)), palette)
     if c == color and repeats < 255:
@@ -69,13 +69,13 @@ def encode_row(img, palette, y):
     else:
       if color is not None:
         entries.append((repeats, color))
-      
+
       repeats = 1
       color = c
 
   if color is not None:
     entries.append((repeats, color))
-      
+
   return entries
 
 def write_image(outfile, img, palette):
@@ -83,7 +83,7 @@ def write_image(outfile, img, palette):
 
   outfile.write('static const NXWidgets::SRlePaletteBitmapEntry bitmap[] =\n');
   outfile.write('{\n');
-  
+
   for y in range(0, img.size[1]):
     entries = encode_row(img, palette, y)
     row = ""
@@ -91,17 +91,17 @@ def write_image(outfile, img, palette):
       if len(row) > 60:
         outfile.write('  ' + row + '\n')
         row = ""
-      
+
       row += '{%3d, %3d}, ' % (r, c)
-    
+
     row += ' ' * (73 - len(row))
     outfile.write('  ' + row + '/* Row %d */\n' % y)
-  
+
   outfile.write('};\n\n');
 
 def write_descriptor(outfile, name):
   '''Write the public descriptor structure for the image.'''
-  
+
   outfile.write('extern const struct NXWidgets::SRlePaletteBitmap g_%s =\n' % name)
   outfile.write('{\n')
   outfile.write('  CONFIG_NXWIDGETS_BPP,\n')
@@ -112,19 +112,19 @@ def write_descriptor(outfile, name):
   outfile.write('  {palette, hilight_palette},\n')
   outfile.write('  bitmap\n')
   outfile.write('};\n')
-  
+
 if __name__ == '__main__':
   import sys
   import os.path
-  
+
   if len(sys.argv) != 3:
     print "Usage: bitmap_converter.py source.png output.cxx"
     sys.exit(1)
-  
+
   img = Image.open(sys.argv[1]).convert("RGB")
   outfile = open(sys.argv[2], 'w')
   palette = get_palette(img)
-  
+
   outfile.write(
 '''
 /* Automatically NuttX bitmap file. */
@@ -142,7 +142,7 @@ if __name__ == '__main__':
   )
 
   name = os.path.splitext(os.path.basename(sys.argv[1]))[0]
-  
+
   write_palette(outfile, palette)
   write_image(outfile, img, palette)
   write_descriptor(outfile, name)

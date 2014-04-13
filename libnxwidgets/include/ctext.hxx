@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -90,7 +90,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -105,7 +105,7 @@ namespace NXWidgets
    * height in pixels, calculate the width of a row, etc.
    */
 
-  class CText : public CNxString 
+  class CText : public CNxString
   {
   private:
 
@@ -119,7 +119,7 @@ namespace NXWidgets
       int     index;
       uint8_t width;
     } LongestLine;
-    
+
     CNxFont              *m_font;            /**< Font to be used for output */
     TNxArray<int>         m_linePositions;   /**< Array containing start indexes
                                                   of each wrapped line */
@@ -209,7 +209,7 @@ namespace NXWidgets
      */
 
     virtual void remove(const int startIndex, const int count);
-    
+
     /**
      * Set the vertical spacing between rows of text.
      *
@@ -219,7 +219,7 @@ namespace NXWidgets
     void setLineSpacing(uint8_t lineSpacing);
 
     /**
-     * Sets the pixel width of the text; text wider than 
+     * Sets the pixel width of the text; text wider than
      * this will automatically wrap.
      *
      * @param width Maximum pixel width of the text.
@@ -344,7 +344,7 @@ namespace NXWidgets
      */
 
     void stripTopLines(const int lines);
-    
+
     /**
      * Wrap all of the text.
      */

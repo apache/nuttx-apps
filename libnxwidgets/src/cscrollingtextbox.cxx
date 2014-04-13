@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -125,7 +125,7 @@ CScrollingTextBox::CScrollingTextBox(CWidgetControl *pWidgetControl,
                                    0, 0, width - m_scrollbarWidth, height,
                                    text, flags, maxRows, &m_style);
   m_texbox->addWidgetEventHandler(this);
-  
+
   // Create scrollbar
 
   CRect rect;

@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -131,7 +131,7 @@ void NXWidgets::instantiateSingletons(void)
   if (!g_defaultWidgetStyle)
     {
       // Create the singleton
- 
+
       g_defaultWidgetStyle                   = new CWidgetStyle();
 
       // Default colors

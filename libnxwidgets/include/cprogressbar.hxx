@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -86,11 +86,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -191,7 +191,7 @@ namespace NXWidgets
 
     inline const int16_t getValue(void) const
     {
-      return m_value; 
+      return m_value;
     }
 
     /**
@@ -217,7 +217,7 @@ namespace NXWidgets
     }
 
     /**
-     * Set the value that of the progress bar. 
+     * Set the value that of the progress bar.
      *
      * @param value The new value.
      */

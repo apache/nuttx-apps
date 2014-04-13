@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -355,7 +355,7 @@ void CNxString::insert(const CNxString &text, int index)
 
       delete[] m_text;
 
-      // Swap pointers 
+      // Swap pointers
 
       m_stringLength = newLength;
       m_text         = newText;
@@ -374,7 +374,7 @@ void CNxString::insert(const CNxString &text, int index)
       // Insert the additional text into the new string
 
       dest = &m_text[index];
-      src  = text.getCharArray();      
+      src  = text.getCharArray();
       for (int i = 0; i < text.getLength(); i++)
         {
           *dest++ = *src++;
@@ -741,7 +741,7 @@ void CNxString::allocateMemory(int nChars, bool preserve)
 
   // Do we already have enough memory allocated to contain this new size?
   // If so, we can avoid deallocating and allocating new memory by re-using the old
-  
+
   if (nBytesNeeded > m_allocatedSize)
     {
       // Not enough space in existing memory; allocate new memory

@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -280,7 +280,7 @@ void CTextBox::handleKeyPressEvent(const CWidgetEventArgs &e)
       // Not modifier; append value
 
       insertTextAtCursor(key);
-    } 
+    }
 }
 
 /**
@@ -389,7 +389,7 @@ void CTextBox::drawContents(CGraphicsPort *port)
       pos.y = m_align.y;
 
       // Calculate the cursor width
- 
+
       struct nxgl_size_s size;
       size.w = getCursorWidth();
       size.h = getFont()->getHeight();
@@ -402,7 +402,7 @@ void CTextBox::drawContents(CGraphicsPort *port)
 
           pos.x += rect.getX();
           pos.y += rect.getY();
- 
+
           port->invert(pos.x, pos.y, size.w, size.h);
         }
     }
@@ -454,13 +454,13 @@ void CTextBox::moveCursorToClickLocation(nxgl_coord_t x, nxgl_coord_t y)
       while (charX < clickX)
         {
           charX += getFont()->getCharWidth(iterator->getChar());
-      
+
           if (!iterator->moveToNext())
             {
               break;
             }
         }
-    
+
       int index = iterator->getIndex();
 
       // Move back to the clicked character if we've moved past it
@@ -553,13 +553,13 @@ const nxgl_coord_t CTextBox::getCursorXPos(void) const
   nxgl_coord_t cursorX = 0;
 
   CStringIterator *iterator = m_text.newStringIterator();
-  
+
   for (nxgl_coord_t i = 0; i < m_cursorPos; i++)
     {
       cursorX += getFont()->getCharWidth(iterator->getChar());
       iterator->moveToNext();
     }
-  
+
   delete iterator;
   return cursorX;
 }
@@ -598,7 +598,7 @@ void CTextBox::calculateTextPositionHorizontal(void)
   // ignore alignment and align left
 
   nxgl_coord_t stringWidth = getFont()->getStringWidth(m_text);
-  
+
   // Add the width of a blank space to the width to ensure that we can
   // see the cursor
 
@@ -606,10 +606,10 @@ void CTextBox::calculateTextPositionHorizontal(void)
     {
       stringWidth += getFont()->getCharWidth(' ');
     }
-  
+
   CRect rect;
   getClientRect(rect);
-  
+
   // Use alignment options if cursor is hidden or string is smaller
   // than textbox
 

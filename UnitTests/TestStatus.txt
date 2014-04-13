@@ -25,21 +25,21 @@ tested:
   - CSliderVertical (and CSliderVerticalGrip)
   - CScrollBarHorizontal (except paging buttons)
   - CScrollBarVertical (except paging buttons)
- 
+
 The following components have unit test in place, but do not successfully
 pass the test:
- 
+
   - CListBox (and CListBoxDataItem) which also tests:
     o CText
     o CList and CListDataItem
     o CScrollingPanel
-    
+
 The following no unit tests (and, hence, are probably non-functional):
 
   Infrastructure (won't have their own unit tests)
   - CScrollBarPanel
 
-  Widgets that need unit tests:   
+  Widgets that need unit tests:
   - CCycleButton
   - CScrollingTextBox
   - CMultiLineTextBox
@@ -47,7 +47,7 @@ The following no unit tests (and, hence, are probably non-functional):
 
 There are things that require testing after all widgets complete their unit
 tests as well.  As examples:
-   
+
  - Need to verify that a screen with many widgets works correctly.  That
    focus is correctly handled when widgets are removed.  etc.
  - Need to verify that widget with many children work correctly together.

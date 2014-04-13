@@ -108,7 +108,7 @@ namespace NXWidgets
      * @param row - The pointer to the row in the row cache to use
      * @param column - The non-integer column offset
      * @param outcolor - The returned, interpolated color
-     * 
+     *
      */
 
     bool rowColor(FAR uint8_t *row, b16_t column,

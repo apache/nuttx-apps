@@ -53,11 +53,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -75,7 +75,7 @@ namespace NXWidgets
     /**
      * Return the index to the window event handler.
      */
- 
+
     bool findWindowEventHandler(CWindowEventHandler *eventHandler, int &index);
 
   public:
@@ -85,7 +85,7 @@ namespace NXWidgets
      *
      * @param widget The owning widget.
      */
- 
+
     CWindowEventHandlerList(void) { }
 
     /**
@@ -93,7 +93,7 @@ namespace NXWidgets
      */
 
     inline ~CWindowEventHandlerList(void) { }
-    
+
     /**
      * Get the event handler at the specified index.
      *
@@ -122,7 +122,7 @@ namespace NXWidgets
      * all events raised by this object.
      * @param eventHandler A pointer to the event handler.
      */
- 
+
     void addWindowEventHandler(CWindowEventHandler *eventHandler);
 
     /**

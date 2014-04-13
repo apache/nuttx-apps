@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -51,7 +51,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * CStickyButtonArray Method Implementations
  ****************************************************************************/
@@ -221,7 +221,7 @@ void CStickyButtonArray::drawContents(CGraphicsPort *port)
       drawButton(port, m_stickyColumn, m_stickyRow, useClicked);
     }
 
-  // Do we draw just one button (due to click or release)? 
+  // Do we draw just one button (due to click or release)?
 
   else if (m_redrawButton)
     {

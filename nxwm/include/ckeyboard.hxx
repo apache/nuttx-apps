@@ -32,7 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
- 
+
 #ifndef __INCLUDE_CKEYBOARD_HXX
 #define __INCLUDE_CKEYBOARD_HXX
 

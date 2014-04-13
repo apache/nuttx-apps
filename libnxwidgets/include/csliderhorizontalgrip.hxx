@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -86,11 +86,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -102,7 +102,7 @@ namespace NXWidgets
    * slider.
    */
 
-  class CSliderHorizontalGrip : public CNxWidget 
+  class CSliderHorizontalGrip : public CNxWidget
   {
   protected:
 
@@ -134,7 +134,7 @@ namespace NXWidgets
      */
 
     virtual void onClick(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Redraws the grip.
      *
@@ -143,7 +143,7 @@ namespace NXWidgets
      */
 
     virtual void onRelease(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Redraws the grip.
      *
@@ -152,7 +152,7 @@ namespace NXWidgets
      */
 
     virtual void onReleaseOutside(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Moves the grip to follow the mouse.
      *
@@ -173,7 +173,7 @@ namespace NXWidgets
     : CNxWidget(sliderHorizontalGrip) { }
 
   public:
-    
+
     /**
      * Constructor.
      *

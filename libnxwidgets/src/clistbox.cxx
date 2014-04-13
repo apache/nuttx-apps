@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -465,12 +465,12 @@ void CListBox::drawContents(CGraphicsPort *port)
   // Precalc values for option draw loop
 
   nxgl_coord_t optionHeight = getOptionHeight();
-  
+
   // Ensure that we subtract 1 from topOption to ensure that the option
   // above is drawn if it is partially visible
 
   int topOption = ((clipY - m_canvasY) / optionHeight) - 1;
-  
+
   // Ensure that we add 2 to the bottom option to ensure that the option
   // below is draw if it is partially visible - subbing 1 from topOption
   // means we need to add an additional 1 to compensate
@@ -503,7 +503,7 @@ void CListBox::drawContents(CGraphicsPort *port)
   while (i <= bottomOption)
     {
       item = (const CListBoxDataItem*)m_options.getItem(i);
-    
+
       // Is the option selected?
 
       if (item->isSelected())
@@ -516,13 +516,13 @@ void CListBox::drawContents(CGraphicsPort *port)
                                    rect.getWidth(), optionHeight,
                                    item->getSelectedBackColor());
             }
-    
+
           // Draw text
 
           struct nxgl_point_s pos;
           pos.x = rect.getX() + m_optionPadding;
           pos.y = rect.getY() + y + m_optionPadding;
- 
+
           if (isEnabled())
             {
               port->drawText(&pos, &rect, getFont(), item->getText(), 0,
@@ -551,7 +551,7 @@ void CListBox::drawContents(CGraphicsPort *port)
           struct nxgl_point_s pos;
           pos.x = rect.getX() + m_optionPadding;
           pos.y = rect.getY() + y + m_optionPadding;
- 
+
           if (isEnabled())
             {
               port->drawText(&pos, &rect, getFont(), item->getText(), 0,
@@ -602,8 +602,8 @@ void CListBox::onClick(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Calculate which option was clicked
 
-  m_lastSelectedIndex = (-m_canvasY + (y - getY())) / getOptionHeight();  
-  
+  m_lastSelectedIndex = (-m_canvasY + (y - getY())) / getOptionHeight();
+
   const CListBoxDataItem *item =
     (const CListBoxDataItem*)m_options.getItem(m_lastSelectedIndex);
 
@@ -637,7 +637,7 @@ void CListBox::onDoubleClick(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Calculate which option was clicked
 
-  int newSelectedIndex = (-m_canvasY + (y - getY())) / getOptionHeight();  
+  int newSelectedIndex = (-m_canvasY + (y - getY())) / getOptionHeight();
 
   // Double-click - select the item exclusively
 

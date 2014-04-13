@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -92,11 +92,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -136,7 +136,7 @@ namespace NXWidgets
      */
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-    
+
     /**
      * Destructor.
      */
@@ -298,7 +298,7 @@ namespace NXWidgets
     {
       return m_listbox->getSelectedOption();
     }
-    
+
     /**
      * Sets whether multiple selections are possible or not.
      *

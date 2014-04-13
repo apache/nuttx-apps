@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <nuttx/nx/nxglib.h>
@@ -99,7 +99,7 @@ namespace NXWidgets
      *
      * @return True if the window was successfully created.
      */
-     
+
     virtual bool open(void) = 0;
 
     /**
@@ -144,7 +144,7 @@ namespace NXWidgets
      * @param pPos The new position of the window.
      * @return True on success, false on failure.
      */
-     
+
     virtual bool setPosition(FAR const struct nxgl_point_s *pPos) = 0;
 
     /**
@@ -153,7 +153,7 @@ namespace NXWidgets
      * @param pSize The new size of the window.
      * @return OK on success; ERROR on failure with errno set appropriately.
      */
-    
+
     virtual bool setSize(FAR const struct nxgl_size_s *pSize) = 0;
 
     /**

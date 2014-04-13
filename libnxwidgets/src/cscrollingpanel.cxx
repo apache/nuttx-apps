@@ -216,9 +216,9 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
           m_canvasX += dx;
 
           // Move children but do not redraw.
-          
+
           scrollChildren(dx, dy, false);
-          
+
           if (revealedRects.size() > 0)
             {
               // Draw background to revealed sections
@@ -234,7 +234,7 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
                   port->drawFilledRect(rrect.getX(), rrect.getY(),
                                        rrect.getWidth(), rrect.getHeight(),
                                        getBackgroundColor());
-                  
+
                   // Check if any children intersect this region.
                   // If it does, it should be redrawn.
 
@@ -255,7 +255,7 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
 
           m_canvasY += dy;
           m_canvasX += dx;
-          
+
           // Scroll all child widgets and redraw them
 
           scrollChildren(dx, dy, true);
@@ -362,16 +362,16 @@ void CScrollingPanel::scrollChildren(int32_t dx, int32_t dy, bool do_redraw)
     {
       widget  = m_children[i];
       bool oldstate = widget->isDrawingEnabled();
-      
+
       if (!do_redraw)
         {
           widget->disableDrawing();
         }
-      
+
       widgetX = (widget->getX() - thisX) + dx;
       widgetY = (widget->getY() - thisY) + dy;
       widget->moveTo(widgetX, widgetY);
-      
+
       if (!do_redraw && oldstate)
         {
           widget->enableDrawing();

@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -140,12 +140,12 @@ void CButton::drawOutline(CGraphicsPort *port, bool useClicked)
     {
       return;
     }
-  
+
   // Work out which colors to use
 
   nxgl_coord_t color1;
   nxgl_coord_t color2;
-  
+
   if (useClicked)
     {
       // Bevelled into the screen
@@ -160,7 +160,7 @@ void CButton::drawOutline(CGraphicsPort *port, bool useClicked)
       color1 = getShineEdgeColor();
       color2 = getShadowEdgeColor();
     }
-  
+
   port->drawBevelledRect(getX(), getY(), getWidth(), getHeight(), color1, color2);
 }
 

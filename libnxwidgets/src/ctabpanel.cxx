@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -51,7 +51,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * CTabPanel Method Implementations
  ****************************************************************************/
@@ -73,7 +73,7 @@ CTabPanel::CTabPanel(CWidgetControl *pWidgetControl, uint8_t numPages,
                                       0);
   m_buttonbar->addWidgetEventHandler(this);
   this->addWidget(m_buttonbar);
-  
+
   for (int i = 0; i < numPages; i++)
     {
       CNxWidget *tabpage = new CNxWidget(pWidgetControl, x, y + buttonHeight,
@@ -83,7 +83,7 @@ CTabPanel::CTabPanel(CWidgetControl *pWidgetControl, uint8_t numPages,
       m_tabpages.push_back(tabpage);
       this->addWidget(tabpage);
     }
-  
+
   // Activate the first page
 
   showPage(0);
@@ -100,7 +100,7 @@ void CTabPanel::showPage(uint8_t index)
     {
       m_buttonbar->stickDown(index, 0);
     }
-  
+
   for (int i = 0; i < m_tabpages.size(); i++)
     {
       if (i == index)

@@ -375,7 +375,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
       FAR uint8_t *saveRow = m_rowCache[0];
       m_rowCache[0] = m_rowCache[1];
       m_rowCache[1] = saveRow;
-      
+
       // Save number of the first row that we have in the cache
 
       m_row = row;
@@ -484,7 +484,7 @@ bool CScaledBitmap::scaleColor(FAR const struct rgbcolor_s &incolor1,
  * @param row - The pointer to the row in the row cache to use
  * @param column - The non-integer column offset
  * @param outcolor - The returned, interpolated color
- * 
+ *
  */
 
 bool CScaledBitmap::rowColor(FAR uint8_t *row, b16_t column,

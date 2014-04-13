@@ -36,7 +36,7 @@
 /********************************************************************************************
  * Included Files
  ********************************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -248,7 +248,7 @@ const struct NXWidgets::SRlePaletteBitmap NxWM::g_playBitmap24x24 =
   CONFIG_NXWIDGETS_BPP,  // bpp    - Bits per pixel
   CONFIG_NXWIDGETS_FMT,  // fmt    - Color format
   BITMAP_NLUTCODES,      // nlut   - Number of colors in the lLook-Up Table (LUT)
-  BITMAP_NCOLUMNS,       // width  - Width in pixels 
+  BITMAP_NCOLUMNS,       // width  - Width in pixels
   BITMAP_NROWS,          // height - Height in rows
   {                      // lut    - Pointer to the beginning of the Look-Up Table (LUT)
     g_playNormalLut,     //          Index 0: Unselected LUT

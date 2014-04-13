@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -56,7 +56,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -101,14 +101,14 @@ namespace NXWidgets
      * @param widgetControl Controlling widget for this toolbar.
      * @param height The height of the toolbar.
      */
-  
+
     CNxToolbar(CNxTkWindow *pNxTkWindow, NXTKWINDOW hNxTkWindow,
                CWidgetControl *pWidgetControl, nxgl_coord_t height);
 
     /**
      * Destructor.
      */
-     
+
     ~CNxToolbar(void);
 
     /**
@@ -163,7 +163,7 @@ namespace NXWidgets
      * @param pPos The new position of the toolbar.
      * @return Always returns false.
      */
-     
+
     bool setPosition(FAR const struct nxgl_point_s *pPos);
 
     /**
@@ -173,7 +173,7 @@ namespace NXWidgets
      * @param pPos The new position of the toolbar.
      * @return Always returns false.
      */
-    
+
     bool setSize(FAR const struct nxgl_size_s *pSize);
 
     /**

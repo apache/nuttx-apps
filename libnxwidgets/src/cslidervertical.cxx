@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -156,14 +156,14 @@ void CSliderVertical::setValueWithBitshift(const int32_t value)
 {
   CRect rect;
   getClientRect(rect);
-  
+
   // Can the grip move?
 
   if ((rect.getHeight() > m_grip->getHeight()) && (m_maximumValue != m_minimumValue))
     {
       int32_t newValue = value;
       int32_t maxValue = getPhysicalMaximumValueWithBitshift();
-    
+
       // Limit to max/min values
 
       if (newValue > maxValue)
@@ -175,13 +175,13 @@ void CSliderVertical::setValueWithBitshift(const int32_t value)
         {
           newValue = m_minimumValue << 16;
         }
-    
+
       uint32_t scrollRatio = newValue / m_contentSize;
       int32_t newGripY     = m_gutterHeight * scrollRatio;
       newGripY            += newGripY & 0x8000;
       newGripY           >>= 16;
       newGripY            += rect.getY();
-    
+
      m_grip->moveTo(rect.getX(), newGripY);
 
       // Update stored value if necessary
@@ -397,6 +397,6 @@ void CSliderVertical::resizeGrip(void)
       // height) of the gutter.  Each position in the gutter needs to be
       // reduced in value.
     }
-  
+
   m_grip->resize(rect.getWidth(), gripSize);
 }

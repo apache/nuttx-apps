@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -88,7 +88,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -107,7 +107,7 @@ namespace NXWidgets
    * The mu state cannot be enabled by a user - it can only be set by the
    * developer.
    */
- 
+
   class CRadioButton : public CButton
   {
   public:
@@ -149,7 +149,7 @@ namespace NXWidgets
     /**
      * Destructor.
      */
- 
+
     virtual inline ~CRadioButton() { }
 
     /**

@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <sys/types.h>
@@ -150,14 +150,14 @@ nxgl_coord_t CNxFont::getStringWidth(const CNxString &text) const
   if (iter->moveToFirst())
     {
       // moveToFirst returns true if there is at least one character
-  
+
       do
         {
           // Add the width of the font bitmap for this character and
           // move the the next character
 
           nxwidget_char_t ch = iter->getChar();
-          
+
           width += getCharWidth(ch);
         }
       while (iter->moveToNext());
@@ -178,7 +178,7 @@ nxgl_coord_t CNxFont::getStringWidth(const CNxString &text) const
  * @param length The length of the substring in chars.
  * @return The width of the substring in pixels.
  */
- 
+
 nxgl_coord_t CNxFont::getStringWidth(const CNxString &text,
                                      int startIndex, int length) const
 {

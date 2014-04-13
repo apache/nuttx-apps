@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -56,11 +56,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -72,7 +72,7 @@ namespace NXWidgets
   class CWidgetControl;
   class CRect;
   class CStickyButtonArray;
-  
+
   /**
    * Tab panel, with tabs at the top and a panel at the bottom.
    */
@@ -82,12 +82,12 @@ namespace NXWidgets
   protected:
     TNxArray<CNxWidget*> m_tabpages;
     CLatchButtonArray *m_buttonbar;
-    
+
     virtual void handleActionEvent(const CWidgetEventArgs &e);
-    
+
     virtual void drawContents(CGraphicsPort* port) {}
     virtual void drawBorder(CGraphicsPort* port) {}
-  
+
   public:
     CTabPanel(CWidgetControl *pWidgetControl, uint8_t numPages,
               nxgl_coord_t x, nxgl_coord_t y,
@@ -95,11 +95,11 @@ namespace NXWidgets
               nxgl_coord_t buttonHeight,
               FAR const CWidgetStyle *style = (FAR const CWidgetStyle *)NULL
              );
-    
+
     inline CNxWidget &page(uint8_t index) { return *m_tabpages.at(index); }
-    
+
     void setPageName(uint8_t index, const CNxString &name);
-    
+
     void showPage(uint8_t index);
   };
 }

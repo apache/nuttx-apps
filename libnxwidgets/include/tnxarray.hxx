@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -84,11 +84,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 /**
@@ -104,7 +104,7 @@
  * the array with large amounts of data.  Adding new data to the linked list is
  * very inexpensive.
  */
- 
+
 template <class T>
 class TNxArray
 {
@@ -286,7 +286,7 @@ void TNxArray<T>::pop_back(void)
     {
       // We can just reduce the used size of the array, as the value
       // will get overwritten automatically
- 
+
       m_size--;
     }
 }

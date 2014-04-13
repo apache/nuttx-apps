@@ -311,7 +311,7 @@ void CNxConsole::stop(void)
       // Calling task_delete() will also invoke the on_exit() handler.  We se
       // m_pid = -1 before calling task_delete() to let the on_exit() handler,
       // CNxConsole::exitHandler(), know that it should not do anything
- 
+
       pid_t pid = m_pid;
       m_pid = -1;
 
@@ -319,7 +319,7 @@ void CNxConsole::stop(void)
 
       task_delete(pid);
     }
- 
+
   // Destroy the NX console device
 
   if (m_nxcon)

@@ -73,18 +73,18 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include "csliderhorizontalgrip.hxx"
 #include "cimage.hxx"
 
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -134,7 +134,7 @@ namespace NXWidgets
      */
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-    
+
     /**
      * Starts dragging the grip and redraws it.
      *
@@ -175,7 +175,7 @@ namespace NXWidgets
                         nxgl_coord_t vX, nxgl_coord_t vY);
 
   public:
-    
+
     /**
      * Constructor.
      *

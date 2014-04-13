@@ -67,7 +67,7 @@ static unsigned int g_mmPrevious;
 static unsigned int g_mmPeak;
 
 static FAR const char *g_buttonLabels[BUTTONARRAY_NCOLUMNS*BUTTONARRAY_NROWS] = {
- "=>", "A", "B", "<DEL", 
+ "=>", "A", "B", "<DEL",
  "C", "D", "E", "F",
  "G", "H", "I", "J",
  "K", "L", "M", "N",
@@ -285,7 +285,7 @@ int cbuttonarray_main(int argc, char *argv[])
           int clickRow;
           if (buttonArray->isButtonClicked(clickColumn, clickRow))
             {
-              printf("cbuttonarray_main: %s: Button (%d, %d) is clicked\n", 
+              printf("cbuttonarray_main: %s: Button (%d, %d) is clicked\n",
                      clickColumn == i && clickRow == j ? "OK" : "ERROR",
                      clickColumn, clickRow);
             }
@@ -304,10 +304,10 @@ int cbuttonarray_main(int argc, char *argv[])
           test->poll(buttonArray);
           if (buttonArray->isButtonClicked(clickColumn, clickRow))
             {
-              printf("cbuttonarray_main: ERROR: Button (%d, %d) is clicked\n", 
+              printf("cbuttonarray_main: ERROR: Button (%d, %d) is clicked\n",
                      clickColumn, clickRow);
             }
- 
+
           usleep(500*1000);
         }
     }

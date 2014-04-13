@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -84,11 +84,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -118,7 +118,7 @@ namespace NXWidgets
      */
 
     virtual const int32_t getCanvasX(void) const = 0;
-    
+
     /**
      * Gets the y coordinate of the virtual canvas.
      *
@@ -134,7 +134,7 @@ namespace NXWidgets
      */
 
     virtual const int32_t getCanvasWidth(void) const = 0;
-    
+
     /**
      * Gets the height of the virtual canvas.
      *
@@ -151,7 +151,7 @@ namespace NXWidgets
      */
 
     virtual void scroll(int32_t dx, int32_t dy) = 0;
-    
+
     /**
      * Repositions the virtual canvas to the specified coordinates.
      *
@@ -200,7 +200,7 @@ namespace NXWidgets
      */
 
     virtual void setCanvasWidth(const int32_t width) = 0;
-    
+
     /**
      * Sets the height of the virtual canvas.
      *

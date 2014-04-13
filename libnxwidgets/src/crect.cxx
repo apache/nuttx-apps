@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -188,7 +188,7 @@ CRect fromCoordinates(nxgl_coord_t x1, nxgl_coord_t y1,
  *
  * @param x2 The x coordinate of the rect's bottom-right corner.
  */
- 
+
 void CRect::setX2(nxgl_coord_t x2)
 {
   // Ensure that x contains the smaller value

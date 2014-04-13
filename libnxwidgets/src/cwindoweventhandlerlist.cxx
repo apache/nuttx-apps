@@ -57,7 +57,7 @@ using namespace NXWidgets;
  * all events raised by this object.
  * @param eventHandler A pointer to the event handler.
  */
- 
+
 void CWindowEventHandlerList::addWindowEventHandler(CWindowEventHandler *eventHandler)
 {
   // Make sure that the event handler does not already exist
@@ -93,7 +93,7 @@ void CWindowEventHandlerList::removeWindowEventHandler(CWindowEventHandler *even
 /**
  * Return the index to the window event handler.
  */
- 
+
 bool CWindowEventHandlerList::findWindowEventHandler(CWindowEventHandler *eventHandler, int &index)
 {
   for (int i = 0; i < m_eventHandlers.size(); ++i)

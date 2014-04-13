@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -92,11 +92,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -147,7 +147,7 @@ namespace NXWidgets
      */
 
     virtual void onClick(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Selects the clicked item and deselects all others.
      *
@@ -175,7 +175,7 @@ namespace NXWidgets
     inline CListBox(const CListBox &listBox) : CScrollingPanel(listBox) { }
 
   public:
-    
+
     /**
      * Constructor.
      *
@@ -309,7 +309,7 @@ namespace NXWidgets
      */
 
     virtual const CListBoxDataItem *getSelectedOption(void) const;
-    
+
     /**
      * Sets whether multiple selections are possible or not.
      *

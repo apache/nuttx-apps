@@ -101,7 +101,7 @@ STACKSIZE	= 2048
 
 # Common build
 
-VPATH		= 
+VPATH		=
 
 all: chkcxx chklibnxwidgets chklibnxwm .built
 .PHONY:	clean depend context disclean chkcxx chklibnxwidgets chklibnxwm

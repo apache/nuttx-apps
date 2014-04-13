@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -82,11 +82,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -103,7 +103,7 @@ namespace NXWidgets
     T m_source;          /**< The object that raised the event */
 
   public:
-    
+
     /**
      * Constructor.
      * @param source The object that raised the event.
@@ -119,7 +119,7 @@ namespace NXWidgets
      */
 
     virtual inline ~TEventArgs() { }
-    
+
     /**
      * Get the source object that raised the event.
      */

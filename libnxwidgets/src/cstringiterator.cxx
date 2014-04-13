@@ -70,7 +70,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -132,7 +132,7 @@ bool CStringIterator::moveToLast(void)
   int length = m_pString->getLength();
   if (length > 0)
     {
-      m_pCurrentChar = m_pString->getCharArray() + length - 1; 
+      m_pCurrentChar = m_pString->getCharArray() + length - 1;
       m_currentIndex = length - 1;
       return true;
     }
@@ -154,7 +154,7 @@ bool CStringIterator::moveToNext(void)
       m_currentIndex++;
       return true;
     }
-  
+
   return false;
 }
 

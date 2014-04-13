@@ -74,7 +74,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -89,11 +89,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -135,15 +135,15 @@ namespace NXWidgets
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
 
     virtual void handleClickEvent(const CWidgetEventArgs &e);
-    
+
     virtual void handleReleaseEvent(const CWidgetEventArgs &e);
 
     virtual void handleReleaseOutsideEvent(const CWidgetEventArgs &e);
-    
+
     virtual void handleActionEvent(const CWidgetEventArgs &e);
-    
+
     virtual void handleDragEvent(const CWidgetEventArgs &e);
-    
+
     /**
      * Copy constructor is protected to prevent usage.
      */
@@ -192,19 +192,19 @@ namespace NXWidgets
      */
 
     virtual void setFont(CNxFont *font);
-    
+
     inline int getValue() const { return m_value; }
     void setValue(int value);
-    
+
     inline int getMaximum() const { return m_maximum; }
     inline void setMaximum(int value) { m_maximum = value; setValue(m_value); }
-    
+
     inline int getMinimum() const { return m_minimum; }
     inline void setMinimum(int value) { m_minimum = value; setValue(m_value); }
-    
+
     inline int getIncrement() const { return m_increment; }
     inline void setIncrement(int value) { m_increment = value; setValue(m_value); }
-    
+
   };
 }
 

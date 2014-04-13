@@ -62,7 +62,7 @@ Kconfig
 libnxwidgets
 
   The source code, header files, and build environment for NxWidgets is
-  provided in this directory. 
+  provided in this directory.
 
 UnitTests
 

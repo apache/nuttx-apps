@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -90,7 +90,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -109,7 +109,7 @@ namespace NXWidgets
    * it is necessary to set the state via the radio button, not the group.
    */
 
-  class CRadioButtonGroup : public CNxWidget, public CWidgetEventHandler 
+  class CRadioButtonGroup : public CNxWidget, public CWidgetEventHandler
   {
   protected:
     CWidgetControl *m_pWidgetControl; /**< The controlling widget */

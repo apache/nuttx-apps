@@ -67,7 +67,7 @@ static unsigned int g_mmPrevious;
 static unsigned int g_mmPeak;
 
 static FAR const char *g_buttonLabels[BUTTONARRAY_NCOLUMNS*BUTTONARRAY_NROWS] = {
- "=>", "A", "B", "<DEL", 
+ "=>", "A", "B", "<DEL",
  "C", "D", "E", "F",
  "G", "H", "I", "J",
  "K", "L", "M", "N",
@@ -243,12 +243,12 @@ int clatchbuttonarray_main(int argc, char *argv[])
 
   bool clicked = false;
   bool latched = false;
- 
+
   for (int j = 0; j < BUTTONARRAY_NROWS; j++)
     {
       for (int i = 0; i < BUTTONARRAY_NCOLUMNS; i++)
         {
-          // Initially, this button should be neither clicked nor latched 
+          // Initially, this button should be neither clicked nor latched
 
           clicked = false;
           latched = false;
@@ -275,7 +275,7 @@ int clatchbuttonarray_main(int argc, char *argv[])
           // Poll for the mouse release event (of course this can hang if something fails)
 
           test->poll(buttonArray);
- 
+
           // Now it should be un-clicked and latched
 
           clicked = false;

@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -111,7 +111,7 @@ namespace NXWidgets
      *
      * @return The current drawing color.
      */
- 
+
     inline const nxgl_mxpixel_t getColor() const
     {
       return m_fontColor;
@@ -133,17 +133,17 @@ namespace NXWidgets
      * color.
      * @return The transparent background color.
      */
- 
+
     inline const nxgl_mxpixel_t getTransparentColor() const
     {
       return m_transparentColor;
     }
-    
+
     /**
      * Sets the transparent background color to a new value.
      * @param color The new background color.
      */
- 
+
     inline void setTransparentColor(const nxgl_mxpixel_t color)
     {
       m_transparentColor = color;
@@ -157,7 +157,7 @@ namespace NXWidgets
      */
 
     void drawChar(FAR SBitmap *bitmap, nxwidget_char_t letter);
-    
+
     /**
      * Get the width of a string in pixels when drawn with this font.
      *
@@ -176,7 +176,7 @@ namespace NXWidgets
      * @param length The length of the substring in chars.
      * @return The width of the substring in pixels.
      */
- 
+
     nxgl_coord_t getStringWidth(const CNxString& text,
                                 int startIndex, int length) const;
 
@@ -206,7 +206,7 @@ namespace NXWidgets
      * @param letter The letter to get the height of.
      * @return The height of the character in pixels.
      */
- 
+
     inline nxgl_coord_t getCharHeight(nxwidget_char_t letter) const;
 
     /**

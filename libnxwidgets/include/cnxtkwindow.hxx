@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -55,7 +55,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -118,7 +118,7 @@ namespace NXWidgets
     /**
      * Destructor.
      */
-     
+
     ~CNxTkWindow(void);
 
     /**
@@ -141,7 +141,7 @@ namespace NXWidgets
 
     /**
      * Open a toolbar on the framed window.  This method both instantiates
-     * the toolbar object AND calls the INxWindow::open() method to 
+     * the toolbar object AND calls the INxWindow::open() method to
      * create the toolbar.  The toolbar is ready for use upon return.
      *
      * @param height.  The height in rows of the tool bar
@@ -199,7 +199,7 @@ namespace NXWidgets
      * @param pos The new position of the window.
      * @return True on success, false on any failure.
      */
-     
+
     bool setPosition(FAR const struct nxgl_point_s *pos);
 
     /**
@@ -208,7 +208,7 @@ namespace NXWidgets
      * @param size The new size of the window.
      * @return True on success, false on any failure.
      */
-    
+
     bool setSize(FAR const struct nxgl_size_s *size);
 
     /**

@@ -61,7 +61,7 @@ using namespace NXWidgets;
  *
  * @param hNxServer Handle to the NX server.
  */
-  
+
 CNxWindow::CNxWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl)
   : CCallback(pWidgetControl), m_hNxServer(hNxServer), m_hNxWindow(0),
     m_widgetControl(pWidgetControl)
@@ -161,7 +161,7 @@ bool CNxWindow::getSize(FAR struct nxgl_size_s *pSize)
  * @param pPos The new position of the window.
  * @return True on success, false on any failure.
  */
-     
+
 bool CNxWindow::setPosition(FAR const struct nxgl_point_s *pPos)
 {
   // Set the window size and position
@@ -175,7 +175,7 @@ bool CNxWindow::setPosition(FAR const struct nxgl_point_s *pPos)
  * @param pSize The new size of the window.
  * @return True on success, false on any failure.
  */
-    
+
 bool CNxWindow::setSize(FAR const struct nxgl_size_s *pSize)
 {
   // Set the window size

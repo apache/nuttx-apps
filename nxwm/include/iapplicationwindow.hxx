@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include "inxwindow.hxx"
@@ -92,7 +92,7 @@ namespace NxWM
    * may be a contained, framed window or and unframed, fullscreen window.
    */
 
-  class IApplicationWindow 
+  class IApplicationWindow
   {
   public:
     /**

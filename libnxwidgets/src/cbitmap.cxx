@@ -84,7 +84,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Method Implementations
  ****************************************************************************/
@@ -180,7 +180,7 @@ bool CBitmap::getRun(nxgl_coord_t x, nxgl_coord_t y, nxgl_coord_t width,
       // is an even multiple of bytes).
 
       FAR uint8_t *start  = (FAR uint8_t*)m_bitmap->data +
-                             y * m_bitmap->stride + 
+                             y * m_bitmap->stride +
                              ((x * m_bitmap->bpp) >> 3);
 
       // Get the number of bytes to copy.

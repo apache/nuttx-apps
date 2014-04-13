@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -87,11 +87,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -116,7 +116,7 @@ namespace NXWidgets
      *
      * @param widget The owning widget.
      */
- 
+
     CWidgetEventHandlerList(CNxWidget *widget);
 
     /**
@@ -124,7 +124,7 @@ namespace NXWidgets
      */
 
     ~CWidgetEventHandlerList(void) { }
-    
+
     /**
      * Check if the object raises events or not.
      *
@@ -161,7 +161,7 @@ namespace NXWidgets
      * all events raised by this object.
      * @param eventHandler A pointer to the event handler.
      */
- 
+
     void addWidgetEventHandler(CWidgetEventHandler *eventHandler);
 
     /**

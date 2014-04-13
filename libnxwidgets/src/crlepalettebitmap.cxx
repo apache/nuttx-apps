@@ -304,7 +304,7 @@ bool CRlePaletteBitmap::skipPixels(nxgl_coord_t npixels)
 
   return true;
 }
- 
+
 /** Seek to the beginning of the next row
  *
  * @return False if this was the last row of the image

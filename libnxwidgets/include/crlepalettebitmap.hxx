@@ -54,11 +54,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -92,7 +92,7 @@ namespace NXWidgets
 
     FAR const struct SRlePaletteBitmapEntry *data;
   };
- 
+
   /**
    * Class providing bitmap accessor for a bitmap represented by SRlePaletteBitmap.
    */
@@ -141,7 +141,7 @@ namespace NXWidgets
      */
 
     bool skipPixels(nxgl_coord_t npixels);
- 
+
     /** Seek to the beginning of the next row
      *
      * @return False if this was the last row of the image

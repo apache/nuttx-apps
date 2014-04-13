@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -53,11 +53,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -140,7 +140,7 @@ namespace NXWidgets
      */
 
     virtual void onPreRelease(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Redraws the button.
      *
@@ -149,7 +149,7 @@ namespace NXWidgets
      */
 
     virtual void onRelease(nxgl_coord_t x, nxgl_coord_t y);
-    
+
     /**
      * Redraws the button.
      *

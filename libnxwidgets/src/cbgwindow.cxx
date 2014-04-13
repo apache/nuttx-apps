@@ -36,7 +36,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -63,7 +63,7 @@ using namespace NXWidgets;
  * @param hNxServer Handle to the NX server.
  * @param widgetControl Controlling widget for this window.
  */
-  
+
 CBgWindow::CBgWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl)
   : CCallback(pWidgetControl), m_hNxServer(hNxServer), m_hWindow(0),
     m_widgetControl(pWidgetControl)
@@ -76,7 +76,7 @@ CBgWindow::CBgWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl)
 /**
  * Destructor.  Returns the background window to the server.
  */
-     
+
 CBgWindow::~CBgWindow(void)
 {
   // Release the background.  We do not release the widget control
@@ -134,7 +134,7 @@ CWidgetControl *CBgWindow::getWidgetControl(void) const
  *
  * @return Always returns true.
  */
-     
+
 bool CBgWindow::requestPosition(void)
 {
   // The background window is always at {0,0} and the size never changes.
@@ -178,7 +178,7 @@ bool CBgWindow::getSize(FAR struct nxgl_size_s *pSize)
  * @param pPos The new position of the window.
  * @return Always returns false.
  */
-     
+
 bool CBgWindow::setPosition(FAR const struct nxgl_point_s *pPos)
 {
   // The position of the background cannot be changed
@@ -194,7 +194,7 @@ bool CBgWindow::setPosition(FAR const struct nxgl_point_s *pPos)
  * @param pSize The new size of the window.
  * @return Always returns false.
  */
-    
+
 bool CBgWindow::setSize(FAR const struct nxgl_size_s *pSize)
 {
   // The position of the background cannot be changed

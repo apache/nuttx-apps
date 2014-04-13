@@ -92,9 +92,9 @@ namespace NxWM
     KEY_PLUS,        // Additions
 
     // Special operations
- 
+
     KEY_EQUAL,       // Equal/Enter key
- 
+
     KEY_DECIMAL,     // Decimal mode
     KEY_HEXADECIMAL, // Hexadecimal mode
 
@@ -247,7 +247,7 @@ CHexCalculator::CHexCalculator(CTaskbar *taskbar, CApplicationWindow *window)
 
 CHexCalculator::~CHexCalculator(void)
 {
-  // Destroy widgets 
+  // Destroy widgets
 
   if (m_text)
     {
@@ -598,7 +598,7 @@ void CHexCalculator::labelKeypad(void)
             {
               label = "";
             }
-          
+
           // Set the text in the label
 
           m_keypad->setText(i, j, label);
@@ -848,7 +848,7 @@ void CHexCalculator::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
             break;
 
           // Special operations
- 
+
           case KEY_EQUAL:       // Equal/Enter key
             {
               // Is there a high precedence operation?
@@ -877,7 +877,7 @@ void CHexCalculator::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               result = true;
             }
             break;
- 
+
           case KEY_DECIMAL:     // Decimal mode
             {
               if (m_hexMode)

@@ -39,7 +39,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -55,7 +55,7 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
@@ -112,13 +112,13 @@ namespace NXWidgets
      * @param hNxServer Handle to the NX server.
      * @param widgetControl Controlling widget for this window.
      */
-  
+
     CNxWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl);
 
     /**
      * Destructor.
      */
-     
+
     ~CNxWindow(void);
 
     /**
@@ -172,7 +172,7 @@ namespace NXWidgets
      * @param pPos The new position of the window.
      * @return True on success, false on any failure.
      */
-     
+
     bool setPosition(FAR const struct nxgl_point_s *pPos);
 
     /**
@@ -181,7 +181,7 @@ namespace NXWidgets
      * @param pSize The new size of the window.
      * @return True on success, false on any failure.
      */
-    
+
     bool setSize(FAR const struct nxgl_size_s *pSize);
 
     /**

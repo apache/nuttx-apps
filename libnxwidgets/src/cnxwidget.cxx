@@ -188,7 +188,7 @@ CNxWidget::CNxWidget(CWidgetControl *pWidgetControl,
   m_doubleClickBounds   = DOUBLE_CLICK_BOUNDS;
 
   // Set border size to 1 line
-  
+
   m_borderSize.top      = 1;
   m_borderSize.right    = 1;
   m_borderSize.bottom   = 1;
@@ -294,7 +294,7 @@ nxgl_coord_t CNxWidget::getRelativeY(void) const
 /**
  * Has the widget been marked for deletion?  This function recurses up the widget
  * hierarchy and only returns true if all of the widgets in the ancestor
- * chain are not deleted.  
+ * chain are not deleted.
  *
  * Widgets marked for deletion are automatically deleted and should not be
  * interacted with.
@@ -495,7 +495,7 @@ void CNxWidget::redraw(void)
       m_flags.erased = false;
 
       // Draw the children of the widget
-      
+
       drawChildren();
     }
 }
@@ -555,7 +555,7 @@ void CNxWidget::close(void)
 
       m_flags.deleted = true;
       m_flags.drawingEnabled = false;
-    
+
       // Unset clicked widget if necessary
 
       CNxWidget *clickedWidget = m_widgetControl->getClickedWidget();
@@ -680,7 +680,7 @@ bool CNxWidget::click(nxgl_coord_t x, nxgl_coord_t y)
  * @param y Y coordinate of the click.
  * @return True if the click is a double-click.
  */
- 
+
 bool CNxWidget::isDoubleClick(nxgl_coord_t x, nxgl_coord_t y)
 {
   // Check for a double-click
@@ -858,7 +858,7 @@ bool CNxWidget::keyPress(nxwidget_char_t key)
     {
       return false;
     }
-    
+
   // Raise keypress for this widget
 
   m_widgetEventHandlers->raiseKeyPressEvent(key);
@@ -886,7 +886,7 @@ bool CNxWidget::cursorControl(ECursorControl control)
     {
       return false;
     }
-    
+
   // Raise cursor control for this widget
 
   m_widgetEventHandlers->raiseCursorControlEvent(control);
@@ -931,7 +931,7 @@ bool CNxWidget::focus(void)
   if (!hadFocus)
     {
       onFocus();
-    
+
       m_widgetEventHandlers->raiseFocusEvent();
       return true;
     }
@@ -967,7 +967,7 @@ bool CNxWidget::blur(void)
   if (hadFocus)
     {
       onBlur();
-    
+
       m_widgetEventHandlers->raiseBlurEvent();
       return true;
     }
@@ -1046,7 +1046,7 @@ bool CNxWidget::moveTo(nxgl_coord_t x, nxgl_coord_t y)
             }
         }
     }
-      
+
   // Perform move if necessary
 
   if ((m_rect.getX() != x) || (m_rect.getY() != y))

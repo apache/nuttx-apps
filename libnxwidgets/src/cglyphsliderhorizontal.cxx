@@ -105,10 +105,10 @@ using namespace NXWidgets;
  * @param height The height of the slider.
  */
 
-CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl * pWidgetControl, 
-        nxgl_coord_t x, nxgl_coord_t y, 
-        nxgl_coord_t width, nxgl_coord_t height, 
-        IBitmap * pGripBitmap, 
+CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl * pWidgetControl,
+        nxgl_coord_t x, nxgl_coord_t y,
+        nxgl_coord_t width, nxgl_coord_t height,
+        IBitmap * pGripBitmap,
         nxwidget_pixel_t fillColor, bool fill)
 :CNxWidget(pWidgetControl, x, y, width, height, WIDGET_DRAGGABLE)
 {
@@ -389,11 +389,11 @@ void CGlyphSliderHorizontal::drawBorder(CGraphicsPort * port)
       nxwidget_pixel_t shadow;
 
       y1 = getY() + (getHeight() >> 1) - (m_barThickness >> 1);
-      y2 = getY() + (getHeight() >> 1) + m_barThickness - 
+      y2 = getY() + (getHeight() >> 1) + m_barThickness -
           (m_barThickness >> 1) - 1;
 
       // To the Left of the grip.  Only draw if the icon isn't covering the
-      // edge of the bar 
+      // edge of the bar
 
       width = gripX - x - halfGripWidth;
       if (width > 0)
@@ -416,7 +416,7 @@ void CGlyphSliderHorizontal::drawBorder(CGraphicsPort * port)
         }
 
       // To the Right of the grip
-      // Only draw if the icon isn't covering the edge of the bar 
+      // Only draw if the icon isn't covering the edge of the bar
 
       width = getWidth() - (gripX - x + gripWidth) - 1 - halfGripWidth;
       if (width > 0)
@@ -434,7 +434,7 @@ void CGlyphSliderHorizontal::drawBorder(CGraphicsPort * port)
 
       if (gripX > x + halfGripWidth)
         {
-          port->drawVertLine(x + halfGripWidth, y1, m_barThickness, 
+          port->drawVertLine(x + halfGripWidth, y1, m_barThickness,
                 getShineEdgeColor());
         }
 
@@ -442,7 +442,7 @@ void CGlyphSliderHorizontal::drawBorder(CGraphicsPort * port)
 
       if (gripX + gripWidth < x + getWidth() - 1 - halfGripWidth)
         {
-          port->drawVertLine(x + getWidth() - 1 - halfGripWidth, 
+          port->drawVertLine(x + getWidth() - 1 - halfGripWidth,
                 y1, m_barThickness, getShadowEdgeColor());
         }
     }

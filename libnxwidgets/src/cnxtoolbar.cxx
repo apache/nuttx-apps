@@ -184,7 +184,7 @@ bool CNxToolbar::getSize(FAR struct nxgl_size_s *pSize)
  * @param pPos The new position of the toolbar.
  * @return Always returns false.
  */
-     
+
 bool CNxToolbar::setPosition(FAR const struct nxgl_point_s *pPos)
 {
   return false;
@@ -198,7 +198,7 @@ bool CNxToolbar::setPosition(FAR const struct nxgl_point_s *pPos)
  * @param pSize The new size of the toolbar.
  * @return Always returns false.
  */
-    
+
 bool CNxToolbar::setSize(FAR const struct nxgl_size_s *pSize)
 {
   return false;

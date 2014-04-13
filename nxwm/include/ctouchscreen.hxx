@@ -32,7 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
- 
+
 #ifndef __INCLUDE_CTOUCHSCREEN_HXX
 #define __INCLUDE_CTOUCHSCREEN_HXX
 
@@ -162,7 +162,7 @@ namespace NxWM
     {
       // Set the capture flag.  m_calibrated must also be set to get to normal
       // mode where touchscreen data is forwarded to NX.
- 
+
       m_enabled = enable;
     }
 

@@ -73,7 +73,7 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
- 
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -90,11 +90,11 @@
 /****************************************************************************
  * Pre-Processor Definitions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Implementation Classes
  ****************************************************************************/
- 
+
 #if defined(__cplusplus)
 
 namespace NXWidgets
@@ -134,7 +134,7 @@ namespace NXWidgets
      */
 
     virtual void onResize(nxgl_coord_t width, nxgl_coord_t height);
-    
+
     /**
      * Destructor.
      */
@@ -240,7 +240,7 @@ namespace NXWidgets
      */
 
     virtual void appendText(const CNxString &text);
-    
+
     /**
      * Remove all characters from the string from the start index onwards.
      *
@@ -336,7 +336,7 @@ namespace NXWidgets
      */
 
     virtual void insertText(const CNxString &text, const unsigned int index);
-    
+
     /**
      * Insert text at the current cursor position.
      *
@@ -368,7 +368,7 @@ namespace NXWidgets
      */
 
     virtual const int32_t getCanvasX(void) const;
-    
+
     /**
      * Gets the y coordinate of the virtual canvas.
      *
@@ -384,7 +384,7 @@ namespace NXWidgets
      */
 
     virtual const int32_t getCanvasWidth(void) const;
-    
+
     /**
      * Gets the height of the virtual canvas.
      *
@@ -401,7 +401,7 @@ namespace NXWidgets
      */
 
     virtual void scroll(int32_t dx, int32_t dy);
-    
+
     /**
      * Reposition the panel's scrolling region to the specified coordinates.
      *
@@ -434,7 +434,7 @@ namespace NXWidgets
      */
 
     virtual void setCanvasWidth(const int32_t width);
-    
+
     /**
      * Sets the height of the virtual canvas.
      *
