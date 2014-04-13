@@ -342,8 +342,20 @@ static int ntpc_daemon(int argc, char **argv)
    * assures both:  (1) that there are no asynchronous stop requests and
    * (2) that we are not suspended while in critical moments when we about
    * to set the new time.  This sounds harsh, but this function is suspended
-   * most of the time either: (1) send a datagram, (2) receiving a datagram,
+   * most of the time either: (1) sending a datagram, (2) receiving a datagram,
    * or (3) waiting for the next poll cycle.
+   *
+   * TODO: The first datagram that is sent is usually lost.  That is because
+   * the MAC address of the NTP server is not in the ARP table.  This is
+   * particularly bad here because the request will not be sent again until
+   * the long delay expires leaving the system with bad time for a long time
+   * initially.  Solutions:
+   *
+   * 1. Fix send logic so that it assures that the ARP request has been
+   *    sent and the entry is in the ARP table before sending the packet
+   *    (best).
+   * 2. Add some ad hoc logic here so that there is no delay until at least
+   *    one good time is received.
    */
 
   sched_lock();
