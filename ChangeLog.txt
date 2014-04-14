@@ -884,4 +884,5 @@
 	  three smaller files (2014-4-11).
 	* apps/netutils/ntpclient/ntpclient.c: Corrections to the NTP client
 	  from Manuel Stuehn (2014-4-12).
-
+	* apps/examples/touchscreen:  Add a configuration option to indicate if
+	  architecture-specific initialized is required, yes or no (2014-4-14).

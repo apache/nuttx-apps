@@ -43,4 +43,25 @@ config EXAMPLES_TOUCHSCREEN_MOUSE
 		The touchscreen test can also be configured to work with a mouse
 		driver by setting this option.
 
+config EXAMPLES_TOUCHSCREEN_ARCHINIT
+	bool "Architecture-specific initialization"
+	default y
+	---help---
+		By default, the touchscreen example will call arch_tcinitialize() to
+		register the touchscreen device before it attempts to open it.
+		Similarly, it will call arch_tcuninitialize() to unregister the
+		touchscreen device when it is finished.
+
+		This works well for the typical touchscreen controller but there are
+		other devices that cannot be initialized and uninitialized in this
+		fashion.  Consider a USB mouse, fo example.  The USB mouse will be
+		registered when the mouse is connected and unregistered when the
+		mouse is disconnected.
+
+		So, in cases like this, there are two options:  (1) provide dummy
+		arch_tcinitialize() and arch_tcuninitialize() just to satisfy the
+		linking requirements or, (2) select this option.  if this option is
+		de-selected, then the arch_tcinitialize() and arch_tcuninitialize() will
+		never be called.
+
 endif

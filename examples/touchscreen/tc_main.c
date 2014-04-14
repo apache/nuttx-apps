@@ -118,6 +118,7 @@ int tc_main(int argc, char *argv[])
   message("tc_main: nsamples: %d\n", CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES);
 #endif
 
+#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
   /* Initialization of the touchscreen hardware is performed by logic
    * external to this test.
    */
@@ -130,6 +131,7 @@ int tc_main(int argc, char *argv[])
       errval = 1;
       goto errout;
     }
+#endif
 
   /* Open the touchscreen device for reading */
 
@@ -249,8 +251,12 @@ int tc_main(int argc, char *argv[])
 
 errout_with_dev:
   close(fd);
+
 errout_with_tc:
+#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
   arch_tcuninitialize();
+#endif
+
 errout:
   message("Terminating!\n");
   msgflush();
