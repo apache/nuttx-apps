@@ -101,7 +101,9 @@ int tc_main(int argc, char *argv[])
 #endif
   int fd;
   int errval = 0;
+#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
   int ret;
+#endif
 
   /* If this example is configured as an NX add-on, then limit the number of
    * samples that we collect before returning.  Otherwise, we never return
@@ -255,9 +257,9 @@ errout_with_dev:
 errout_with_tc:
 #ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
   arch_tcuninitialize();
-#endif
 
 errout:
+#endif
   message("Terminating!\n");
   msgflush();
   return errval;
