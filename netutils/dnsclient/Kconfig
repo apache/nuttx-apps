@@ -6,7 +6,7 @@
 config NETUTILS_DNSCLIENT
 	bool "DNS Name resolution"
 	default n
-	depends on NET && NET_UDP && NET_BROADCAST
+	depends on NET && NET_UDP
 	---help---
 		Enable support for the name resolution.
 
