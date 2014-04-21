@@ -46,11 +46,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
-#ifdef CONFIG_STM32_SDIO
-#  include <nuttx/sdio.h>
-#  include <nuttx/mmcsd.h>
-#endif
+#include <nuttx/sdio.h>
+#include <nuttx/mmcsd.h>
 
 /****************************************************************************
  * Public Function Prototypes
