@@ -886,3 +886,6 @@
 	  from Manuel Stuehn (2014-4-12).
 	* apps/examples/touchscreen:  Add a configuration option to indicate if
 	  architecture-specific initialized is required, yes or no (2014-4-14).
+	* apps/system/nxplayer/nxplayer.c:  Complilation failure in one
+	  configuration reported by Manuel Stuhn (2014-4-21).
+

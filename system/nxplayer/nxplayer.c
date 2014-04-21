@@ -169,7 +169,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
        */
 
       if (((pPlayer->prefformat & (1 << (format - 1)) == 0) ||
-          ((pPlayer->preftype & AUDIO_TYPE_OUTPUT) == 0))
+          ((pPlayer->preftype & AUDIO_TYPE_OUTPUT) == 0)))
         {
           /* Format not supported by the device */
 
