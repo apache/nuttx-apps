@@ -7,7 +7,7 @@ config EXAMPLES_SERIALRX
 	bool "Serial Rx example"
 	default n
 	---help---
-		Enable the serial rx example
+		Enable the serial RX example
 
 if EXAMPLES_SERIALRX
 endif

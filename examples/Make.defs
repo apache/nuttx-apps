@@ -230,6 +230,10 @@ ifeq ($(CONFIG_EXAMPLES_SERIALBLASTER),y)
 CONFIGURED_APPS += examples/serialblaster
 endif
 
+ifeq ($(CONFIG_EXAMPLES_SERIALRX),y)
+CONFIGURED_APPS += examples/serialrx
+endif
+
 ifeq ($(CONFIG_EXAMPLES_SERLOOP),y)
 CONFIGURED_APPS += examples/serloop
 endif

@@ -51,9 +51,14 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#undef BUFFERED_IO
+#define CHUNK 960
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+static int count = 0;
 
 /****************************************************************************
  * Public Functions
@@ -63,12 +68,9 @@
  * serloop_main
  ****************************************************************************/
 
-//#define BUFFERED_IO
-#define CHUNK 960
-static int count = 0;
 int serialrx_main(int argc, char *argv[])
 {
-  FAR char *buf = (char *)malloc(CHUNK*3);
+  FAR char *buf = (FAR char *)malloc(CHUNK*3);
   FAR FILE *f;
   printf("Reading from %s\n", argv[1]);
   f = fopen(argv[1], "r");
@@ -89,7 +91,5 @@ int serialrx_main(int argc, char *argv[])
     }
 
   free(buf);
-
   return 0;
 }
-

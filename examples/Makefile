@@ -42,8 +42,8 @@ SUBDIRS += flash_test ftpc ftpd hello helloxx hidkbd igmp i2schar json
 SUBDIRS += keypadtest lcdrw mm modbus mount mtdpart nettest nrf24l01_term
 SUBDIRS += nsh null nx nxconsole nxffs nxflat nxhello nximage nxlines
 SUBDIRS += nxtext ostest pashello pipe poll posix_spawn pwm qencoder random
-SUBDIRS += relays rgmp romfs sendmail serialblaster serloop slcd smart
-SUBDIRS += smart_test tcpecho telnetd thttpd tiff touchscreen udp uip
+SUBDIRS += relays rgmp romfs sendmail serialblaster serloop serialrx slcd
+SUBDIRS += smart smart_test tcpecho telnetd thttpd tiff touchscreen udp uip
 SUBDIRS += usbserial usbterm watchdog wget wgetjson xmlrpc
 
 
@@ -57,8 +57,9 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CNTXTDIRS += adc can cc3000 cpuhog cxxtest dhcpd discover flash_test ftpd
 CNTXTDIRS += hello helloxx i2schar json keypadtestmodbus lcdrw mtdpart
 CNTXTDIRS += nettest nx nxhello nximage nxlines nxtext nrf24l01_term
-CNTXTDIRS += ostest random relays qencoder serialblasterslcd smart_test
-CNTXTDIRS += tcpecho telnetd tiff touchscreen usbterm watchdog wgetjson
+CNTXTDIRS += ostest random relays qencoder serialblasterslcd serialrx
+CNTXTDIRS += smart_test tcpecho telnetd tiff touchscreen usbterm watchdog
+CNTXTDIRS += wgetjson
 endif
 
 all: nothing

@@ -18,4 +18,3 @@ while(True):
     #sleep(0.050)
   sys.stdout.write(".")
   sys.stdout.flush()
-
