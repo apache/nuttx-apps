@@ -35,6 +35,31 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Example usage:
+ *
+ * NuttShell (NSH)
+ * nsh> cpuhog > /dev/ttyS1 &
+ * cpuhog [5:50]
+ * nsh> cpuhog > /dev/ttyS2 &
+ * cpuhog [7:50]
+ * nsh> cpuhog &
+ * cpuhog [8:50]
+ * nsh> cpuhog 2
+ * ps
+ * PID   PRI SCHD TYPE   NP STATE    CPU    NAME
+ *     0   0 FIFO TASK      READY      0.9% Idle Task()
+ *     1 192 FIFO KTHREAD   WAITSIG    0.0% work()
+ *     2 200 FIFO KTHREAD   WAITSIG    0.0% wdog()
+ *     3 100 FIFO TASK      RUNNING    0.0% init()
+ *     5  50 RR   TASK      WAITSEM   27.7% cpuhog(20009c70, 20009c80)
+ *     7  50 RR   TASK      WAITSEM   30.3% cpuhog(20008c00, 20008c10)
+ *     8  50 RR   TASK      READY     41.7% cpuhog()
+ * nsh>
+ *
+ ****************************************************************************/
+
+
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -158,6 +183,8 @@ int cpuhog_main(int argc, char *argv[])
 
           up_udelay(3000);
         }
+
+      fflush(stdout);
     }
 
   return 0;
