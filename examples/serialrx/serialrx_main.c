@@ -51,8 +51,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#undef BUFFERED_IO
-#define CHUNK 960
+#define BUFFERED_IO
+#define CHUNK 11520
 
 /****************************************************************************
  * Private Data
@@ -70,7 +70,7 @@ static int count = 0;
 
 int serialrx_main(int argc, char *argv[])
 {
-  FAR char *buf = (FAR char *)malloc(CHUNK*3);
+  FAR char *buf = (FAR char *)malloc(CHUNK);
   FAR FILE *f;
   printf("Reading from %s\n", argv[1]);
   f = fopen(argv[1], "r");
@@ -78,14 +78,15 @@ int serialrx_main(int argc, char *argv[])
   while(1)
     {
 #ifdef BUFFERED_IO
-      int ret = fread(&buf[CHUNK], 1, CHUNK, f);   
+      int ret = fread(buf, 1, CHUNK, f);
 #else
-      int ret = read(f->fs_fd, buf, CHUNK); 
+      int ret = read(f->fs_fd, buf, CHUNK);
 #endif
       count += ret;
       if (count >= CHUNK)
         {
           printf("-");
+          fflush(stdout);
           count -= CHUNK;
         }
     }

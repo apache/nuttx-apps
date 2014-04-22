@@ -484,7 +484,7 @@ static int nsh_execute(FAR struct nsh_vtbl_s *vtbl,
    *               indicates that the application task was spawned successfully
    *               but returned failure exit status.
    *
-   * Note the priority if not effected by nice-ness.
+   * Note the priority is not effected by nice-ness.
    */
 
 #ifdef CONFIG_NSH_FILE_APPS

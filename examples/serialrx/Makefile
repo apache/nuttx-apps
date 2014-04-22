@@ -63,7 +63,7 @@ ROOTDEPPATH = --dep-path .
 # Built-in application info
 
 APPNAME = serialrx
-PRIORITY = SCHED_PRIORITY_DEFAULT
+PRIORITY = SCHED_PRIORITY_LOW
 STACKSIZE = 2048
 
 # Common build
