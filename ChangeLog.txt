@@ -892,3 +892,5 @@
 	  (2014-4-21).
 	* apps/nshlib: malloc/free IOBUFFER for 'cat' and 'hexdump' commands
 	  instead of using the stack.  From Bob Doiron (2014-4-21).
+	* apps/examples/cpuhog and serialblaster:  Stress test examples added
+	  by Bob Doiron (2014-4-22).

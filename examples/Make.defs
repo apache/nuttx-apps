@@ -54,6 +54,10 @@ ifeq ($(CONFIG_EXAMPLES_CONFIGDATA),y)
 CONFIGURED_APPS += examples/configdata
 endif
 
+ifeq ($(CONFIG_EXAMPLES_CPUHOG),y)
+CONFIGURED_APPS += examples/cpuhog
+endif
+
 ifeq ($(CONFIG_EXAMPLES_CXXTEST),y)
 CONFIGURED_APPS += examples/cxxtest
 endif
@@ -220,6 +224,10 @@ endif
 
 ifeq ($(CONFIG_EXAMPLES_SENDMAIL),y)
 CONFIGURED_APPS += examples/sendmail
+endif
+
+ifeq ($(CONFIG_EXAMPLES_SERIALBLASTER),y)
+CONFIGURED_APPS += examples/serialblaster
 endif
 
 ifeq ($(CONFIG_EXAMPLES_SERLOOP),y)
