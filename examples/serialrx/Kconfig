@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_SERIALRX
+	bool "Serial Rx example"
+	default n
+	---help---
+		Enable the serial rx example
+
+if EXAMPLES_SERIALRX
+endif
