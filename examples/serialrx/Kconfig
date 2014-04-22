@@ -10,4 +10,13 @@ config EXAMPLES_SERIALRX
 		Enable the serial RX example
 
 if EXAMPLES_SERIALRX
+
+config EXAMPLES_SERIALRX_STACKSIZE
+	int "Serial Rx stack size"
+	default 2048
+
+config EXAMPLES_SERIALRX_PRIORITY
+	int "Serial Rx task priority"
+	default 50
+
 endif

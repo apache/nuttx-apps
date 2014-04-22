@@ -68,13 +68,16 @@ static const char s[] = "abcdefghijklmnopqrstuvwxyz";
 
 int serialblaster_main(int argc, char *argv[])
 {
-  while(1)
+  int ret;
+
+  while (1)
     {
 #ifdef BUFFERED_IO
-      int ret = fputs(s, stdout);
+      ret = fputs(s, stdout);
 #else
-      int ret = write(1, s, sizeof(s)-1);
+      ret = write(1, s, sizeof(s)-1);
 #endif
+      UNUSED(ret);
     }
 
   return 0;
