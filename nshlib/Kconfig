@@ -676,7 +676,7 @@ config NSH_USBDEV_TRACEINTERRUPTS
 endif # NSH_USBDEV_TRACE
 
 config NSH_CONDEV
-	bool "Default console device"
+	string "Default console device"
 	default "/dev/console"
 	depends on NSH_CONSOLE && !NSH_USBCONSOLE
 	---help---
