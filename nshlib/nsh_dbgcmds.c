@@ -373,7 +373,7 @@ int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_HEXDUMP
 int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  uint8_t buffer[IOBUFFERSIZE];
+  FAR uint8_t *buffer;
   char msg[32];
   off_t position;
   int fd;
@@ -391,6 +391,13 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (fd < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, "hexdump", "open", NSH_ERRNO);
+      return ERROR;
+    }
+
+  buffer = (FAR uint8_t *)malloc(IOBUFFERSIZE);
+  if(buffer == NULL)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, "hexdump", "malloc", NSH_ERRNO);
       return ERROR;
     }
 
@@ -489,6 +496,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 
   (void)close(fd);
+  free(buffer);
   return ret;
 }
 #endif

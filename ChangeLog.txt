@@ -889,4 +889,6 @@
 	* apps/system/nxplayer/nxplayer.c:  Complilation failure in one
 	  configuration reported by Manuel Stuhn (2014-4-21).
 	* apps/system/sdcard:  Remove an STM32 dependency.  From Bob Doiron
-	  (2014-4-21)
+	  (2014-4-21).
+	* apps/nshlib: malloc/free IOBUFFER for 'cat' and 'hexdump' commands
+	  instead of using the stack.  From Bob Doiron (2014-4-21).
