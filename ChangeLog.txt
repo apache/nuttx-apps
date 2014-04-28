@@ -894,3 +894,7 @@
 	  instead of using the stack.  From Bob Doiron (2014-4-21).
 	* apps/examples/cpuhog, serialblaster, and serialrx:  Stress test
 	  examples added by Bob Doiron (2014-4-22).
+	* apps/examples/telnetd:  Naming is confused.  In someplaces 'telnetd',
+	  and in others 'shell.'  All changes to telnetd.  Noted by Pelle
+	  Windestam (2014-4-38).
+

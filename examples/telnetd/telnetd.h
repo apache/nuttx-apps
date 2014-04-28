@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/telnetd/shell.h
+ * apps/examples/telnetd/telnetd.h
  * Interface for the Contiki shell.
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
@@ -32,8 +32,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_TELNETD_SHELL_H
-#define __APPS_EXAMPLES_TELNETD_SHELL_H
+#ifndef __APPS_EXAMPLES_TELNETD_TELNETL_H
+#define __APPS_EXAMPLES_TELNETD_TELNETL_H
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -89,4 +89,4 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_EXAMPLES_TELNETD_SHELL_H */
+#endif /* __APPS_EXAMPLES_TELNETD_TELNETL_H */

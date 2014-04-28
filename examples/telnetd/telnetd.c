@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/telnetd/shell.c
+ * examples/telnetd/telnetd.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -50,7 +50,7 @@
 #include <apps/netutils/telnetd.h>
 #include <apps/netutils/uiplib.h>
 
-#include "shell.h"
+#include "telnetd.h"
 
 /****************************************************************************
  * Definitions
@@ -70,10 +70,10 @@ struct ptentry_s
  * Private Function Prototypes
  ****************************************************************************/
 
-static void shell_help(int argc, char **argv);
-static void shell_quit(int argc, char **argv);
-static void shell_unknown(int argc, char **argv);
-static void shell_parse(FAR char *line, int len);
+static void telnetd_help(int argc, char **argv);
+static void telnetd_quit(int argc, char **argv);
+static void telnetd_unknown(int argc, char **argv);
+static void telnetd_parse(FAR char *line, int len);
 
 /****************************************************************************
  * Private Data
@@ -81,10 +81,10 @@ static void shell_parse(FAR char *line, int len);
 
 static struct ptentry_s g_parsetab[] =
 {
-  {"help",  shell_help},
-  {"exit",  shell_quit},
-  {"?",     shell_help},
-  {NULL,    shell_unknown}
+  {"help",  telnetd_help},
+  {"exit",  telnetd_quit},
+  {"?",     telnetd_help},
+  {NULL,    telnetd_unknown}
 };
 
 /****************************************************************************
@@ -92,10 +92,10 @@ static struct ptentry_s g_parsetab[] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name:  shell_help
+ * Name:  telnetd_help
  ****************************************************************************/
 
-static void shell_help(int argc, char **argv)
+static void telnetd_help(int argc, char **argv)
 {
   printf("Available commands:\n");
   printf("  help, ? - show help\n");
@@ -103,10 +103,10 @@ static void shell_help(int argc, char **argv)
 }
 
 /****************************************************************************
- * Name:  shell_help
+ * Name:  telnetd_help
  ****************************************************************************/
 
-static void shell_unknown(int argc, char **argv)
+static void telnetd_unknown(int argc, char **argv)
 {
   if (argv[0])
     {
@@ -115,20 +115,20 @@ static void shell_unknown(int argc, char **argv)
 }
 
 /****************************************************************************
- * Name: shell_quit
+ * Name: telnetd_quit
  ****************************************************************************/
 
-static void shell_quit(int argc, char **argv)
+static void telnetd_quit(int argc, char **argv)
 {
   printf("Bye!\n");
   exit(0);
 }
 
 /****************************************************************************
- * Name: shell_parse
+ * Name: telnetd_parse
  ****************************************************************************/
 
-static void shell_parse(FAR char *line, int len)
+static void telnetd_parse(FAR char *line, int len)
 {
   struct ptentry_s *entry;
   FAR char *cmd;
@@ -154,10 +154,10 @@ static void shell_parse(FAR char *line, int len)
 }
 
 /****************************************************************************
- * Name: shell_session
+ * Name: telnetd_session
  ****************************************************************************/
 
-int shell_session(int argc, char *argv[])
+int telnetd_session(int argc, char *argv[])
 {
   char line[128];
 
@@ -174,17 +174,17 @@ int shell_session(int argc, char *argv[])
           break;
         }
 
-      shell_parse(line, 128);
+      telnetd_parse(line, 128);
     }
 
   return 0;
 }
 
 /****************************************************************************
- * Name: shell_netinit
+ * Name: telnetd_netinit
  ****************************************************************************/
 
-static void shell_netinit(void)
+static void telnetd_netinit(void)
 {
   struct in_addr addr;
 #ifdef CONFIG_EXAMPLES_TELNETD_NOMAC
@@ -223,15 +223,15 @@ static void shell_netinit(void)
  * Public Functions
  ****************************************************************************/
 
-int shell_main(int argc, char *argv[])
+int telnetd_main(int argc, char *argv[])
 {
   struct telnetd_config_s config;
   int ret;
 
   /* Configure the network */
 
-  printf("shell_main: Initializing the network\n");
-  shell_netinit();
+  printf("telnetd_main: Initializing the network\n");
+  telnetd_netinit();
 
   /* Configure the telnet daemon */
 
@@ -240,17 +240,17 @@ int shell_main(int argc, char *argv[])
   config.d_stacksize = CONFIG_EXAMPLES_TELNETD_DAEMONSTACKSIZE;
   config.t_priority  = CONFIG_EXAMPLES_TELNETD_CLIENTPRIO;
   config.t_stacksize = CONFIG_EXAMPLES_TELNETD_CLIENTSTACKSIZE;
-  config.t_entry     = shell_session;
+  config.t_entry     = telnetd_session;
 
   /* Start the telnet daemon */
 
-  printf("shell_main: Starting the Telnet daemon\n");
+  printf("telnetd_main: Starting the Telnet daemon\n");
   ret = telnetd_start(&config);
   if (ret < 0)
     {
       printf("Failed to tart the Telnet daemon\n");
     }
 
-  printf("shell_main: Exiting\n");
+  printf("telnetd_main: Exiting\n");
   return 0;
 }

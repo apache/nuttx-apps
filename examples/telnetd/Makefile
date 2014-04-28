@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # Hello, World! Example
 
 ASRCS		=
-CSRCS		= shell.c
+CSRCS		= telnetd.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
