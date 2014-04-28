@@ -859,7 +859,7 @@
 	  is removed.  Only the newer configuration using the kconfig-frontends
 	  tools is now supported (2014-3-6).
 
-7.2 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.2 2014-04-29 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/nshlib/nsh_parse.c: Fix NuttShell version number display in
 	  welcome message.  version.h was not being included (2014-3-23).
@@ -886,7 +886,7 @@
 	  from Manuel Stuehn (2014-4-12).
 	* apps/examples/touchscreen:  Add a configuration option to indicate if
 	  architecture-specific initialized is required, yes or no (2014-4-14).
-	* apps/system/nxplayer/nxplayer.c:  Complilation failure in one
+	* apps/system/nxplayer/nxplayer.c:  Compilation failure in one
 	  configuration reported by Manuel Stuhn (2014-4-21).
 	* apps/system/sdcard:  Remove an STM32 dependency.  From Bob Doiron
 	  (2014-4-21).
@@ -898,3 +898,4 @@
 	  and in others 'shell.'  All changes to telnetd.  Noted by Pelle
 	  Windestam (2014-4-38).
 
+7.3 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
