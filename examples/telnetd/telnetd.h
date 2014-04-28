@@ -32,8 +32,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_TELNETD_TELNETL_H
-#define __APPS_EXAMPLES_TELNETD_TELNETL_H
+#ifndef __APPS_EXAMPLES_TELNETD_TELNETD_H
+#define __APPS_EXAMPLES_TELNETD_TELNETD_H
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -89,4 +89,4 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_EXAMPLES_TELNETD_TELNETL_H */
+#endif /* __APPS_EXAMPLES_TELNETD_TELNETD_H */
