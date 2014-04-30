@@ -10,4 +10,13 @@ config EXAMPLES_SERIALBLASTER
         Enable the serial blaster example
 
 if EXAMPLES_SERIALBLASTER
+
+config EXAMPLES_SERIALBLASTER_STACKSIZE
+	int "CPU hog stack size"
+	default 2048
+
+config EXAMPLES_SERIALBLASTER_PRIORITY
+	int "CPU hog task priority"
+	default 50
+
 endif

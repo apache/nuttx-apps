@@ -899,3 +899,7 @@
 	  Windestam (2014-4-38).
 
 7.3 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/serialblaster:  Update configuration an make logic in
+	  order to select that the serial blaster task priority and stack size.
+	  From Bob Doiron (2014-4-30).
