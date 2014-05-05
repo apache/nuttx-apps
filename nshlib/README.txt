@@ -1211,21 +1211,27 @@ NSH-Specific Configuration Settings
       CONFIG_NSH_USBDEV_TRACEINTERRUPTS
         Show interrupt-related events.
 
-  * CONFIG_NSH_CONDEV
-      If CONFIG_NSH_CONSOLE is set to 'y', then CONFIG_NSH_CONDEV
-      may also be set to select the serial device used to support
-      the NSH console.   This should be set to the quoted name of a
-      readable/write-able character driver such as:
-      CONFIG_NSH_CONDEV="/dev/ttyS1". This is useful, for example,
-      to separate the NSH command line from the system console when
-      the system console is used to provide debug output.  Default:
-      stdin and stdout (probably "/dev/console")
+  * CONFIG_NSH_ALTCONDEV and CONFIG_NSH_CONDEV
+      If CONFIG_NSH_CONSOLE is set to 'y', then CONFIG_NSH_ALTCONDEV may also
+      be selected to enable use of an alternate character device to support
+      the NSH console.  If CONFIG_NSH_ALTCONDEV is selected, then
+      CONFIG_NSH_CONDEV holds the quoted name of a readable/write-able
+      character driver such as: CONFIG_NSH_CONDEV="/dev/ttyS1".  This is
+      useful, for example, to separate the NSH command line from the system
+      console when the system console is used to provide debug output.
+      Default:  stdin and stdout (probably "/dev/console")
 
-      NOTE: When any other device other than /dev/console is used
-      for a user interface, (1) linefeeds (\n) will not be expanded to
-      carriage return / linefeeds (\r\n).  You will need to set
-      your terminal program to account for this.  And (2) input is
-      not automatically echoed so you will have to turn local echo on.
+      NOTE 1: When any other device other than /dev/console is used for a
+      user interface, (1) linefeeds (\n) will not be expanded to carriage
+      return / linefeeds (\r\n).  You will need to configure your terminal
+      program to account for this.  And (2) input is not automatically
+      echoed so you will have to turn local echo on.
+
+      NOTE 2:  This option forces the console of all sessions to use
+      NSH_CONDEV.  Hence, this option only makes sense for a system that
+      supports only a single session.  This option is, in particular,
+      incompatible with Telnet sessions because each Telnet session must
+      use a different console device.
 
   * CONFIG_NSH_TELNET
       If CONFIG_NSH_TELNET is set to 'y', then a TELENET

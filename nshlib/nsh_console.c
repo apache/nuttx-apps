@@ -312,7 +312,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl)
 
   /* Close the console stream */
 
-#ifdef CONFIG_NSH_CONDEV
+#ifdef CONFIG_NSH_ALTCONDEV
   (void)fclose(pstate->cn_constream);
 #endif
 #endif
@@ -462,7 +462,7 @@ FAR struct console_stdio_s *nsh_newconsole(void)
 
       /* (Re-) open the console input device */
 
-#ifdef CONFIG_NSH_CONDEV
+#ifdef CONFIG_NSH_ALTCONDEV
       pstate->cn_confd           = open(CONFIG_NSH_CONDEV, O_RDWR);
       if (pstate->cn_confd < 0)
         {

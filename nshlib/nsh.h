@@ -134,7 +134,7 @@
 #    define HAVE_USB_CONSOLE 1
 
 /* Check for a generic USB console.  In this case, the USB console device
- * must be provided in CONFIG_NSH_CONDEV.
+ * must be provided in CONFIG_NSH_USBCONDEV.
  */
 
 #  elif defined(CONFIG_NSH_USBCONSOLE)

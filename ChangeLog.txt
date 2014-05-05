@@ -903,3 +903,8 @@
 	* apps/examples/serialblaster:  Update configuration an make logic in
 	  order to select that the serial blaster task priority and stack size.
 	  From Bob Doiron (2014-4-30).
+	* apps/nshlib/Kconfig and other NSH files:  The alternate console device
+	  CONFIG_NSH_CONDEV must not be defined unconditionally.  This causes errors
+	  when using Telnet sessions.  This was solved by adding CONFIG_NSH_ALTCONDEV:
+	  CONFIG_NSH_ALTCONDEV enables or disables the feature then, if enabled,
+	  CONFIG_NSH_CONDEV provides the alternative console device name (2014-5-5).
