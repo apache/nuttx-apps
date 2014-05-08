@@ -86,10 +86,6 @@
 #  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
 #endif
 
-#ifdef CONFIG_BINFMT_DISABLE
-#  error "You must not disable loadable modules via CONFIG_BINFMT_DISABLE in your configuration file"
-#endif
-
 /* Describe the ROMFS file system */
 
 #define SECTORSIZE   512
