@@ -164,7 +164,8 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
       if (ret == OK)
         {
           i2ctool_printf(i2ctool, "READ Bus: %d Addr: %02x Subaddr: %02x Value: ",
-                         i2ctool->bus, i2ctool->addr, i2ctool->regaddr);
+                         i2ctool->bus, i2ctool->addr, regaddr);
+
           if (i2ctool->width == 8)
             {
               i2ctool_printf(i2ctool, "%02x\n", result);

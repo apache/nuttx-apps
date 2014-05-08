@@ -908,3 +908,6 @@
 	  when using Telnet sessions.  This was solved by adding CONFIG_NSH_ALTCONDEV:
 	  CONFIG_NSH_ALTCONDEV enables or disables the feature then, if enabled,
 	  CONFIG_NSH_CONDEV provides the alternative console device name (2014-5-5).
+	* apps/system/i2c/i2c_get.c:  Fix to show the updated register address on
+	  each fetch (vs. showing the same starting address each time).  From
+	  Ryan VanSickle (2014-5-8).
