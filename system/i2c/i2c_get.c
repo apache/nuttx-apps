@@ -46,7 +46,7 @@
 #include "i2ctool.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -108,6 +108,7 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
         {
           return ERROR;
         }
+
       argndx += nargs;
     }
 
@@ -217,6 +218,7 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_dev_s *dev,
 
   msg[1].addr   = i2ctool->addr;
   msg[1].flags  = I2C_M_READ;
+
   if (i2ctool->width == 8)
     {
       msg[1].buffer = &u.data8;
@@ -254,5 +256,6 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_dev_s *dev,
           *result =  u.data16;
         }
     }
+
   return ret;
 }
