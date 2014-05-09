@@ -48,8 +48,19 @@ CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
   "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)include" \
   "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)insn$(DELIM)include"}
 
+CONFIG_SYSTEM_PEXEC_STACKSIZE ?= 1536
+CONFIG_SYSTEM_PEXEC_PRIORITY ?= 100
+
+APPNAME = pexec
+PRIORITY = $(CONFIG_SYSTEM_PEXEC_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_PEXEC_STACKSIZE)
+
 ASRCS =
 CSRCS = prun.c
+
+ifeq ($(CONFIG_SYSTEM_PEXEC),y)
+CSRCS += pexec_main.c
+endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -86,7 +97,18 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+ifeq ($(CONFIG_SYSTEM_PEXEC),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
 context:
+endif
+else
+context:
+endif
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep

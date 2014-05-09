@@ -67,7 +67,7 @@ CONFIGURED_APPS += system/nxplayer
 endif
 
 ifeq ($(CONFIG_SYSTEM_PRUN),y)
-CONFIGURED_APPS += sysem/prun
+CONFIGURED_APPS += system/prun
 endif
 
 ifeq ($(CONFIG_SYSTEM_RAMTEST),y)

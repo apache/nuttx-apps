@@ -914,3 +914,8 @@
 	* apps/interpreters/prun and apps/include/interpreters/prun.h:  Broke out
 	  the P-code execution logic from apps/examples/pashello and moved it to
 	  these directorit where it can be used more generally (2014-5-9).
+	* apps/system/prun and apps/include/interpreters/pexec_main.c:  Move the
+	  P-Code execution logic from apps/interpreters/prun to
+	  apps/system/prun; Add pexec_main.c which is an NSH built-in
+	  application that can be used to run P-Code programs from the NSH
+	  command line (2014-5-9).
