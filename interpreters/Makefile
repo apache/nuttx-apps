@@ -37,7 +37,7 @@
 
 # Sub-directories containing interpreter runtime
 
-SUBDIRS = pcode ficl
+SUBDIRS = pcode prun ficl
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 

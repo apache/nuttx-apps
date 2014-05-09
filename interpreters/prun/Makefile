@@ -1,8 +1,7 @@
 ############################################################################
-# apps/interpreters/Make.defs
-# Adds selected applications to apps/ build
+# apps/interpreters/prun/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,14 +33,73 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
-CONFIGURED_APPS += interpreters/pcode
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
+
+# Pascal P-Code interpreter / Virtual machine
+
+ifeq ($(WINTOOL),y)
+INCDIROPT = -w
 endif
 
-ifeq ($(CONFIG_INTERPRETERS_PRUN),y)
-CONFIGURED_APPS += interpreters/prun
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
+  "." \
+  "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)include" \
+  "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)insn$(DELIM)include"}
+
+ASRCS =
+CSRCS = prun.c
+
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN = ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
 endif
 
-ifeq ($(CONFIG_INTERPRETERS_FICL),y)
-CONFIGURED_APPS += interpreters/ficl
-endif
+ROOTDEPPATH = --dep-path .
+
+# Common build
+
+VPATH =
+
+all: .built
+.PHONY: clean depend distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	@touch .built
+
+context:
+
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
+
+depend: .depend
+
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+
+-include Make.dep

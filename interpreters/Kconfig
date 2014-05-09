@@ -15,5 +15,6 @@ config INTERPRETERS_PCODE
 		Pascal run-time code.
 
 if INTERPRETERS_PCODE
+source "$APPSDIR/interpreters/prun/Kconfig"
 endif
 

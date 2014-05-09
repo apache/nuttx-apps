@@ -50,6 +50,6 @@
 
 /* Defined in device.c */
 
-extern void hello_register(void);
+void hello_register(void);
 
 #endif /* __EXAMPLES_PASHELLO_H */

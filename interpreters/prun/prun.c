@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/pashello/pashello.c
+ * apps/system/prun/prun.c
  *
- *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,21 +41,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <debug.h>
 
 #include <apps/interpreters/prun.h>
 
+#include "pexec.h"
+#include "pedefs.h"
+#include "prun.h"
+
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
-
-#ifndef CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE
-# define CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE 1024
-#endif
-
-#ifndef CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE
-# define CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE 128
-#endif
 
 /****************************************************************************
  * Private Data
@@ -70,29 +67,64 @@
  ****************************************************************************/
 
 /****************************************************************************
- * pashello_main
+ * Name: prun
+ *
+ * Description:
+ *   Execute/interpret a P-Code file.  This function does not return until
+ *   the P-code program terminates or until a fatal error occurs.
+ *
+ * Input Parameters:
+ *   exepath - The full path to the P-Code binary.
+ *   varsize - Size of the P-Code variable stack
+ *   strsize - the size of the P-Code string stack.
+ *
+ * Returned Value:
+ *   OK if the P-Code program successfully terminated; A negated errno value
+ *   is returned on the event of any failure.
+ *
  ****************************************************************************/
 
-int pashello_main(int argc, FAR char *argv[])
+int prun(FAR char *exepath, size_t varsize, size_t strsize)
 {
   FAR struct pexec_s *st;
-  int exitcode = EXIT_SUCCESS;
-  int ret;
+  int errcode;
+  int ret = OK;
 
-  /* Register the /dev/hello driver */
+  /* Load the POFF file into memory */
 
-  hello_register();
-
-  /* Execute the POFF file */
-
-  ret = prun("/dev/hello", CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE,
-             CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE);
-  if (ret < 0)
+  st = pload(exepath, varsize, varsize);
+  if (!st)
     {
-      fprintf(stderr, "pashello_main: ERROR: Execution failed\n");
-      exitcode = EXIT_FAILURE;
+      bdbg("ERROR: Could not load %s\n", exepath);
+      return -ENOEXEC;
     }
 
-  printf("pashello_main: Interpreter terminated");
-  return exitcode;
+  bvdbg("Loaded %s\n", exepath);
+
+  /* Execute the P-Code program until a stopping condition occurs */
+
+  for (;;)
+    {
+      /* Execute the instruction; Check for exceptional conditions */
+
+      errcode = pexec(st);
+      if (errcode != eNOERROR)
+        {
+          break;
+        }
+    }
+
+  if (errcode != eEXIT)
+    {
+      /* REVISIT: Select a more appropriated return errocode */
+
+      bdbg("ERROR: Runtime error 0x%02x -- Execution Stopped\n", errcode);
+      ret = -ENOEXEC;
+    }
+
+  /* Clean up resources used by the interpreter */
+
+  bvdbg("Execution terminated\n");
+  pexec_release(st);
+  return ret;
 }

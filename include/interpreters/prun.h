@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/pashello/pashello.c
+ * apps/include/interpreters/prun.h
  *
- *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,66 +33,58 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INCLUDE_INTERPRETERS_PRUN_H
+#define __APPS_INCLUDE_INTERPRETERS_PRUN_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <debug.h>
-
-#include <apps/interpreters/prun.h>
-
 /****************************************************************************
- * Definitions
- ****************************************************************************/
-
-#ifndef CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE
-# define CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE 1024
-#endif
-
-#ifndef CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE
-# define CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE 128
-#endif
-
-/****************************************************************************
- * Private Data
+ * Pre-Processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
+ * Public Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * pashello_main
- ****************************************************************************/
-
-int pashello_main(int argc, FAR char *argv[])
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
 {
-  FAR struct pexec_s *st;
-  int exitcode = EXIT_SUCCESS;
-  int ret;
+#else
+#define EXTERN extern
+#endif
 
-  /* Register the /dev/hello driver */
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-  hello_register();
+/****************************************************************************
+ * Name: prun
+ *
+ * Description:
+ *   Execute/interpret a P-Code file.  This function does not return until
+ *   the P-code program terminates or until a fatal error occurs.
+ *
+ * Input Parameters:
+ *   exepath - The full path to the P-Code binary.
+ *   varsize - Size of the P-Code variable stack
+ *   strsize - the size of the P-Code string stack.
+ *
+ * Returned Value:
+ *   OK if the P-Code program successfully terminated; A negated errno value
+ *   is returned on the event of any failure.
+ *
+ ****************************************************************************/
 
-  /* Execute the POFF file */
+int prun(FAR char *exepath, size_t varsize, size_t strsize);
 
-  ret = prun("/dev/hello", CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE,
-             CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE);
-  if (ret < 0)
-    {
-      fprintf(stderr, "pashello_main: ERROR: Execution failed\n");
-      exitcode = EXIT_FAILURE;
-    }
-
-  printf("pashello_main: Interpreter terminated");
-  return exitcode;
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* __APPS_INCLUDE_INTERPRETERS_PRUN_H */

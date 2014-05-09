@@ -60,3 +60,8 @@ pcode
 
       CONFIG_EXAMPLES_PASHELLO=y
       CONFIG_INTERPRETERS_PCODE=y
+
+prun
+
+  This directory holds some simple, convenience functions to simplify and
+  standardize the interaction with the P-Code library.

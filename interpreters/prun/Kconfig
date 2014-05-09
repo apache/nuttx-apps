@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config INTERPRETERS_PRUN
+	bool "Pascal P-Code interpreter"
+	default n
+	depends on INTERPRETERS_PCODE
+	---help---
+		Build the Pascal P-Code interpreter / Virtual machine
+
+if INTERPRETERS_PRUN
+endif

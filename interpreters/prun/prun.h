@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/pashello/pashello.c
+ * examples/prun/prun.h
  *
- *   Copyright (C) 2008-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,66 +33,23 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_PASHELLO_H
+#define __EXAMPLES_PASHELLO_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
-
-#include <nuttx/config.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <debug.h>
-
-#include <apps/interpreters/prun.h>
 
 /****************************************************************************
  * Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE
-# define CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE 1024
-#endif
-
-#ifndef CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE
-# define CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE 128
-#endif
-
 /****************************************************************************
- * Private Data
+ * Public Function Prototypes
  ****************************************************************************/
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+/* Defined in device.c */
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
+extern void hello_register(void);
 
-/****************************************************************************
- * pashello_main
- ****************************************************************************/
-
-int pashello_main(int argc, FAR char *argv[])
-{
-  FAR struct pexec_s *st;
-  int exitcode = EXIT_SUCCESS;
-  int ret;
-
-  /* Register the /dev/hello driver */
-
-  hello_register();
-
-  /* Execute the POFF file */
-
-  ret = prun("/dev/hello", CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE,
-             CONFIG_EXAMPLES_PASHELLO_STRSTACKSIZE);
-  if (ret < 0)
-    {
-      fprintf(stderr, "pashello_main: ERROR: Execution failed\n");
-      exitcode = EXIT_FAILURE;
-    }
-
-  printf("pashello_main: Interpreter terminated");
-  return exitcode;
-}
+#endif /* __EXAMPLES_PASHELLO_H */
