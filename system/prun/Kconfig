@@ -3,12 +3,20 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config INTERPRETERS_PRUN
+config SYSTEM_PRUN
 	bool "Pascal P-Code interpreter"
 	default n
 	depends on INTERPRETERS_PCODE
 	---help---
 		Build the Pascal P-Code interpreter / Virtual machine
 
-if INTERPRETERS_PRUN
+if SYSTEM_PRUN
+
+config SYSTEM_PEXEC
+	bool "Pascal P-Code command"
+	default n
+	---help---
+		Generates an NSH built-in task that may be used to execute P-Code
+		from the NSH command line.
+
 endif

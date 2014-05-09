@@ -44,7 +44,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/interpreters/prun.h>
+#include <apps/prun.h>
 
 #include "pexec.h"
 #include "pedefs.h"

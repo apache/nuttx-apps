@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/interpreters/prun.h
+ * apps/include/prun.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_INTERPRETERS_PRUN_H
-#define __APPS_INCLUDE_INTERPRETERS_PRUN_H
+#ifndef __APPS_INCLUDE_PRUN_H
+#define __APPS_INCLUDE_PRUN_H
 
 /****************************************************************************
  * Included Files
@@ -87,4 +87,4 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_INTERPRETERS_PRUN_H */
+#endif /* __APPS_INCLUDE_PRUN_H */

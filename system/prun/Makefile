@@ -1,5 +1,5 @@
 ############################################################################
-# apps/interpreters/prun/Makefile
+# apps/system/prun/Makefile
 #
 #   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

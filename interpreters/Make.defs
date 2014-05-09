@@ -38,10 +38,6 @@ ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
 CONFIGURED_APPS += interpreters/pcode
 endif
 
-ifeq ($(CONFIG_INTERPRETERS_PRUN),y)
-CONFIGURED_APPS += interpreters/prun
-endif
-
 ifeq ($(CONFIG_INTERPRETERS_FICL),y)
 CONFIGURED_APPS += interpreters/ficl
 endif

@@ -39,6 +39,10 @@ menu "readline()"
 source "$APPSDIR/system/readline/Kconfig"
 endmenu
 
+menu "P-Code Support"
+source "$APPSDIR/system/prun/Kconfig"
+endmenu
+
 menu "Power Off"
 source "$APPSDIR/system/poweroff/Kconfig"
 endmenu
