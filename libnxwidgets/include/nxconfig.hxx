@@ -284,9 +284,9 @@
 #  endif
 #  define CONFIG_NXWIDGETS_FMT FB_FMT_RGB8_332
 #  define MKRGB                RGBTO8
-#  define RGB2RED              RBG8RED
-#  define RGB2GREEN            RBG8GREEN
-#  define RGB2BLUE             RBG8BLUE
+#  define RGB2RED              RGB8RED
+#  define RGB2GREEN            RGB8GREEN
+#  define RGB2BLUE             RGB8BLUE
 #  define FONT_RENDERER        nxf_convert_8bpp
 #elif CONFIG_NXWIDGETS_BPP == 16
 #  ifdef CONFIG_NX_DISABLE_16BPP
@@ -294,9 +294,9 @@
 #  endif
 #  define CONFIG_NXWIDGETS_FMT FB_FMT_RGB16_565
 #  define MKRGB                RGBTO16
-#  define RGB2RED              RBG16RED
-#  define RGB2GREEN            RBG16GREEN
-#  define RGB2BLUE             RBG16BLUE
+#  define RGB2RED              RGB16RED
+#  define RGB2GREEN            RGB16GREEN
+#  define RGB2BLUE             RGB16BLUE
 #  define FONT_RENDERER        nxf_convert_16bpp
 #elif CONFIG_NXWIDGETS_BPP == 24
 #  ifdef CONFIG_NX_DISABLE_24BPP
@@ -304,9 +304,9 @@
 #  endif
 #  define CONFIG_NXWIDGETS_FMT FB_FMT_RGB24
 #  define MKRGB                RGBTO24
-#  define RGB2RED              RBG24RED
-#  define RGB2GREEN            RBG24GREEN
-#  define RGB2BLUE             RBG24BLUE
+#  define RGB2RED              RGB24RED
+#  define RGB2GREEN            RGB24GREEN
+#  define RGB2BLUE             RGB24BLUE
 #  define FONT_RENDERER        nxf_convert_24bpp
 #elif CONFIG_NXWIDGETS_BPP == 32
 #  ifdef CONFIG_NX_DISABLE_32BPP
@@ -314,9 +314,9 @@
 #  endif
 #  define CONFIG_NXWIDGETS_FMT FB_FMT_RGB32
 #  define MKRGB                RGBTO24
-#  define RGB2RED              RBG24RED
-#  define RGB2GREEN            RBG24GREEN
-#  define RGB2BLUE             RBG24BLUE
+#  define RGB2RED              RGB24RED
+#  define RGB2GREEN            RGB24GREEN
+#  define RGB2BLUE             RGB24BLUE
 #  define FONT_RENDERER        nxf_convert_32bpp
 #else
 #  error "Pixel depth not supported (CONFIG_NXWIDGETS_BPP)"

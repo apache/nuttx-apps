@@ -511,32 +511,32 @@ bool CScaledBitmap::rowColor(FAR uint8_t *row, b16_t column,
 
 #if CONFIG_NXWIDGETS_FMT == FB_FMT_RGB8_332
   uint8_t color = row[col1];
-  color1.r = RBG8RED(color);
-  color1.g = RBG8GREEN(color);
-  color1.b = RBG8BLUE(color);
+  color1.r = RGB8RED(color);
+  color1.g = RGB8GREEN(color);
+  color1.b = RGB8BLUE(color);
 
   transparent1 = (color == CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
 
   color = row[col2];
-  color2.r = RBG8RED(color);
-  color2.g = RBG8GREEN(color);
-  color2.b = RBG8BLUE(color);
+  color2.r = RGB8RED(color);
+  color2.g = RGB8GREEN(color);
+  color2.b = RGB8BLUE(color);
 
   transparent2 = (color == CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
 
 #elif CONFIG_NXWIDGETS_FMT == FB_FMT_RGB16_565
   FAR uint16_t *row16 = (FAR uint16_t*)row;
   uint16_t color = row16[col1];
-  color1.r = RBG16RED(color);
-  color1.g = RBG16GREEN(color);
-  color1.b = RBG16BLUE(color);
+  color1.r = RGB16RED(color);
+  color1.g = RGB16GREEN(color);
+  color1.b = RGB16BLUE(color);
 
   transparent1 = (color == CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
 
   color = row16[col2];
-  color2.r = RBG16RED(color);
-  color2.g = RBG16GREEN(color);
-  color2.b = RBG16BLUE(color);
+  color2.r = RGB16RED(color);
+  color2.g = RGB16GREEN(color);
+  color2.b = RGB16BLUE(color);
 
   transparent2 = (color == CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
 
@@ -560,16 +560,16 @@ bool CScaledBitmap::rowColor(FAR uint8_t *row, b16_t column,
 #elif CONFIG_NXWIDGETS_FMT == FB_FMT_RGB32
   FAR uint32_t *row32 = (FAR uint32_t*)row;
   uint32_t color = row32[col1];
-  color1.r = RBG24RED(color);
-  color1.g = RBG24GREEN(color);
-  color1.b = RBG24BLUE(color);
+  color1.r = RGB24RED(color);
+  color1.g = RGB24GREEN(color);
+  color1.b = RGB24BLUE(color);
 
   transparent1 = (color == CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
 
   color    = row32[col2];
-  color2.r = RBG24RED(color);
-  color2.g = RBG24GREEN(color);
-  color2.b = RBG24BLUE(color);
+  color2.r = RGB24RED(color);
+  color2.g = RGB24GREEN(color);
+  color2.b = RGB24BLUE(color);
 
   transparent2 = (color == CONFIG_NXWIDGETS_TRANSPARENT_COLOR);
 

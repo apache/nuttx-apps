@@ -427,3 +427,6 @@
 
 1.12 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
+* libnxwidgets/include/nxconfig.hxx and libnxwidgets/src/cscaledbitmap.cxx:
+  Fix typo RBG -> RGB.  This makes NxWidgets incompatible with versions of
+  NuttX 7.2 and below.
