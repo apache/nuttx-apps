@@ -919,3 +919,8 @@
 	  apps/system/prun; Add pexec_main.c which is an NSH built-in
 	  application that can be used to run P-Code programs from the NSH
 	  command line (2014-5-9).
+	* Several files: Convert all old-style variadic macros to the C99 form.
+	  Recent GCC changes tightens up that behavior and can cause some problems
+	  (at least for the IAR compiler for some reason).  See
+	  https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros.
+	  Noted by Bob Grimes (2014-5-22).
