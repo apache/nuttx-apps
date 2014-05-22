@@ -149,8 +149,8 @@
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 0
-#    define vidbg(format, arg...) \
-       syslog(EXTRA_FMT format EXTRA_ARG, ##arg)
+#    define vidbg(format, ...) \
+       syslog(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #    define vvidbg(format, ap) \
        vsyslog(format, ap)
 #  else
@@ -159,8 +159,8 @@
 #  endif
 
 #  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 1
-#    define vivdbg(format, arg...) \
-       syslog(EXTRA_FMT format EXTRA_ARG, ##arg)
+#    define vivdbg(format, ...) \
+       syslog(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define vivdbg(x...)
 #  endif

@@ -63,7 +63,7 @@
 #define nsh_exit(v,s)          (v)->exit(v,s)
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-# define nsh_output(v, fmt...) (v)->output(v, ##fmt)
+# define nsh_output(v, ...)    (v)->output(v, ##__VA_ARGS__)
 #else
 # define nsh_output            vtbl->output
 #endif

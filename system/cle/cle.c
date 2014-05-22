@@ -107,15 +107,15 @@
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 0
-#    define cledbg(format, arg...) \
-       syslog(EXTRA_FMT format EXTRA_ARG, ##arg)
+#    define cledbg(format, ...) \
+       syslog(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define cledbg(x...)
 #  endif
 
 #  if CONFIG_SYSTEM_CLE_DEBUGLEVEL > 1
-#    define clevdbg(format, arg...) \
-       syslog(EXTRA_FMT format EXTRA_ARG, ##arg)
+#    define clevdbg(format, ...) \
+       syslog(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define clevdbg(x...)
 #  endif

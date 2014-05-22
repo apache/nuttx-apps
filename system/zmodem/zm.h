@@ -229,16 +229,16 @@
  */
 
 #ifdef CONFIG_DEBUG_ZMODEM
-#  define zmprintf(format, arg...) fprintf(stderr, format, ##arg)
-#  define zmdbg(format, arg...)    fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##arg)
+#  define zmprintf(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
+#  define zmdbg(format, ...)    fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #else
 #  undef CONFIG_SYSTEM_ZMODEM_DUMPBUFFER
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #     define zmprintf(x...)
 #     define zmdbg(x...)
 #  else
-#     define zmprintf              (void)
-#     define zmdbg                 (void)
+#     define zmprintf           (void)
+#     define zmdbg              (void)
 #  endif
 #endif
 

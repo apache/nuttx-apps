@@ -124,9 +124,9 @@
 /* Output is via printf but can be changed using this macro */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-# define i2c_output(v, fmt...) printf(v, ##fmt)
+# define i2c_output(v, ...) printf(v, ##__VA_ARGS__)
 #else
-# define i2c_output            printf
+# define i2c_output         printf
 #endif
 
 /****************************************************************************
