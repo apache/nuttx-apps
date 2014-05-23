@@ -829,6 +829,9 @@ static int cle_editloop(FAR struct cle_s *priv)
 #if defined(CONFIG_EOL_IS_CR)
         case '\r': /* CR terminates line */
           {
+            /* Add the newline character to the buffer */
+
+            cle_insertch(priv, '\n');
             return OK;
           }
           break;
@@ -841,6 +844,9 @@ static int cle_editloop(FAR struct cle_s *priv)
 #if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
         case '\n': /* LF terminates line */
           {
+            /* Add the newline character to the buffer */
+
+            cle_insertch(priv, '\n');
             return OK;
           }
           break;
@@ -850,6 +856,9 @@ static int cle_editloop(FAR struct cle_s *priv)
         case '\r': /* Either CR or LF terminates line */
         case '\n':
           {
+            /* Add the newline character to the buffer */
+
+            cle_insertch(priv, '\n');
             return OK;
           }
           break;
