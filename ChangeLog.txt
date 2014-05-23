@@ -913,7 +913,7 @@
 	  Ryan VanSickle (2014-5-8).
 	* apps/interpreters/prun and apps/include/interpreters/prun.h:  Broke out
 	  the P-code execution logic from apps/examples/pashello and moved it to
-	  these directorit where it can be used more generally (2014-5-9).
+	  these directory where it can be used more generally (2014-5-9).
 	* apps/system/prun and apps/include/interpreters/pexec_main.c:  Move the
 	  P-Code execution logic from apps/interpreters/prun to
 	  apps/system/prun; Add pexec_main.c which is an NSH built-in
@@ -924,3 +924,6 @@
 	  (at least for the IAR compiler for some reason).  See
 	  https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros.
 	  Noted by Bob Grimes (2014-5-22).
+	* apps/system/cle:  CLE was not returning the terminating newline character.
+	  But reported by Max kriegleder; work-around reported by Lorenz Meier
+	  (2015-5-23).
