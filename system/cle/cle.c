@@ -824,45 +824,31 @@ static int cle_editloop(FAR struct cle_s *priv)
           }
           break;
 
-        /* Newline terminates editing */
+        /* Newline terminates editing.  But what is a newline? */
 
-#if defined(CONFIG_EOL_IS_CR)
+#if defined(CONFIG_EOL_IS_CR) || defined(CONFIG_EOL_IS_EITHER_CRLF)
         case '\r': /* CR terminates line */
-          {
-            /* Add the newline character to the buffer */
 
+#elif defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF) || \
+      defined(CONFIG_EOL_IS_EITHER_CRLF)
+
+        case '\n': /* LF terminates line */
+#endif
+          {
+            /* Add the newline character to the buffer at the end of the line */
+
+            priv->curpos = priv->nchars;
             cle_insertch(priv, '\n');
+            cle_putch(priv, '\n');
             return OK;
           }
           break;
 
-#elif defined(CONFIG_EOL_IS_BOTH_CRLF)
+#if defined(CONFIG_EOL_IS_BOTH_CRLF)
         case '\r': /* Wait for the LF */
           break;
 #endif
 
-#if defined(CONFIG_EOL_IS_LF) || defined(CONFIG_EOL_IS_BOTH_CRLF)
-        case '\n': /* LF terminates line */
-          {
-            /* Add the newline character to the buffer */
-
-            cle_insertch(priv, '\n');
-            return OK;
-          }
-          break;
-#endif
-
-#ifdef CONFIG_EOL_IS_EITHER_CRLF
-        case '\r': /* Either CR or LF terminates line */
-        case '\n':
-          {
-            /* Add the newline character to the buffer */
-
-            cle_insertch(priv, '\n');
-            return OK;
-          }
-          break;
-#endif
         /* Text to insert or unimplemented/invalid keypresses */
 
         default:
