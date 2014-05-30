@@ -927,3 +927,5 @@
 	* apps/system/cle:  CLE was not returning the terminating newline character.
 	  But reported by Max kriegleder; work-around reported by Lorenz Meier
 	  (2015-5-23).
+	* Misc changes due to moving nuttx/net/uip/uip-arp.h to nuttx/net/arp.h
+	  (2015-5-30).
