@@ -929,3 +929,5 @@
 	  (2015-5-23).
 	* Misc changes due to moving nuttx/net/uip/uip-arp.h to nuttx/net/arp.h
 	  (2015-5-30).
+	* apps/examples/netpkt/:  A "raw" socket test from Lazlo Sitzer
+	  (2014-6-12).
