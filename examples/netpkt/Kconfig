@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt
+#
+
+config EXAMPLES_NETPKT
+	bool "Network packet socket example"
+	default n
+	depends on NET_PKT
+	---help---
+		Enable the network packet socket example
+
+if EXAMPLES_NETPKT
+endif

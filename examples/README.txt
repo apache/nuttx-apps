@@ -658,6 +658,11 @@ examples/mtdpart
   * CONFIG_EXAMPLES_MTDPART_NEBLOCKS - This value gives the nubmer of erase
     blocks in MTD RAM device.
 
+examples/netpkt
+^^^^^^^^^^^^^^^
+
+  A test of AF_PACKET, "raw" sockets.  Contributed by Lazlo Sitzer.
+
 examples/nettest
 ^^^^^^^^^^^^^^^^
 
