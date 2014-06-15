@@ -1,0 +1,53 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_HEX2BIN
+	bool "Intel HEX Convertion"
+	default n
+	---help---
+		Enable support for a logic to convert Intel HEX format to binary.
+
+if SYSTEM_HEX2BIN
+
+config SYSTEM_HEX2BIN_BUILTIN
+	bool "NSH Built-In"
+	default n
+	depends on NSH_BUILTIN_APPS
+	---help---
+		By default, a flexible hex2bin library function built.  An NSH
+		builtin function can also be generated to convert Intel HEX file
+		to binary files.
+
+if SYSTEM_HEX2BIN_BUILTIN
+
+config SYSTEM_HEX2BIN_BASEADDR
+	hex "Binary base address"
+	default 0x00000000
+	---help---
+		The default value of the base address argument.  Saves typing.
+
+config SYSTEM_HEX2BIN_ENDPADDR
+	hex "Binary base address"
+	default 0x00000000
+	---help---
+		The default value of the end (plus 1) address argument.  Saves typing.
+
+config SYSTEM_HEX2BIN_SWAP
+	int "Binary base address"
+	default 0
+	range 0 2
+	---help---
+		The default value of the swap argument.  (0) No swap, (1) swap bytes
+		in 16-bit values, or (2) swap tbytes in 32-bit values.
+
+endif # SYSTEM_HEX2BIN_BUILTIN
+
+config SYSTEM_HEX2BIN_DEBUG
+	bool "Hex2bin detailed error output"
+	default n
+	---help---
+		Enable extended error output.
+
+endif # SYSTEM_HEX2BIN

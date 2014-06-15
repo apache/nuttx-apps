@@ -1,7 +1,7 @@
 ############################################################################
-# apps/system/Makefile
+# apps/system/hex2bin/Makefile
 #
-#   Copyright (C) 2011-2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,46 +33,76 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories containing system task
+# I2C tool
 
-SUBDIRS  = cdcacm cle composite flash_eraseall free i2c hex2bin inifile
-SUBDIRS += install nxplayer poweroff ramtest ramtron readline sdcard
-SUBDIRS += stackmonitor sysinfo usbmonitor usbmsc vi zmodem
+ASRCS =
+CSRCS = hex2bin.c hex2bin_main.c
 
-# Create the list of installed runtime modules (INSTALLED_DIRS)
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-define ADD_DIRECTORY
-  INSTALLED_DIRS  += $(if $(wildcard .\$1\Makefile),$1,)
-endef
+  BIN = ..\..\libapps$(LIBEXT)
 else
-define ADD_DIRECTORY
-  INSTALLED_DIRS  += $(if $(wildcard ./$1/Makefile),$1,)
-endef
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
 endif
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call ADD_DIRECTORY,$(DIR))))
+ROOTDEPPATH = --dep-path .
+VPATH =
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 768
 
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
+# Build targets
 
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+all: .built
+.PHONY: context .depend depend clean distclean
 
-nothing:
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
 
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
+
+# Register application
+
+ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTINS),y)
+$(BUILTIN_REGISTRY)$(DELIM)hex2bin.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,"hex2bin",$(PRIORITY),$(STACKSIZE),hex2bin_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)hex2bin.bdat
+else
 context:
+endif
 
-depend: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_depend)
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
-clean: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_clean)
+depend: .depend
 
-distclean: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_distclean)
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+
+-include Make.dep
+
