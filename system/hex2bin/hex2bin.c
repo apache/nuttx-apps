@@ -249,17 +249,18 @@ int data2bin(FAR uint8_t* dest, FAR const uint8_t *src, int nbytes)
 static int readstream(FAR struct lib_instream_s *instream,
                       FAR uint8_t *line, unsigned int lineno)
 {
-  int ch = instream->get(instream);
   int nbytes = 0;
+  int ch;
 
   /* Skip until the beginning of line start code is encountered */
 
+  ch = instream->get(instream);
   while (ch != RECORD_STARTCODE && ch != EOF)
     {
       ch = instream->get(instream);
     }
 
-  /* Skip over the start code */
+  /* Skip over the startcode */
 
   if (ch != EOF)
     {
@@ -313,6 +314,10 @@ static int readstream(FAR struct lib_instream_s *instream,
                         lineno, isprint(ch) ? ch : '.', ch);
           break;
         }
+
+      /* Read the next character from the input stream */
+
+      ch = instream->get(instream);
     }
 
   /* Some error occurred: Unexpected EOF, line too long, or bad character in

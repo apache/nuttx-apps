@@ -43,7 +43,6 @@
 #include <nuttx/config.h>
 
 #include <stdint.h>
-#include <debug.h>
 
 #ifdef CONFIG_SYSTEM_HEX2BIN
 
@@ -96,8 +95,7 @@
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  ifdef CONFIG_SYSTEM_HEX2BIN_DEBUG
-#    define hex2bin_debug(format, ...) \
-       fprintf(stderr, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+#    define hex2bin_debug(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 #  else
 #    define lldbg(x...)
 #  endif
