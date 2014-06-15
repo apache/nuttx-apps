@@ -931,3 +931,6 @@
 	  (2015-5-30).
 	* apps/examples/netpkt/:  A "raw" socket test from Lazlo Sitzer
 	  (2014-6-12).
+	* apps/system/hex2bin/:  A logic and built-in task to convert from Intel
+	  HEX to binary format.  Untested on initial commit (2014-6-15).
+
