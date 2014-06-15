@@ -40,7 +40,11 @@ include $(APPDIR)/Make.defs
 # I2C tool
 
 ASRCS =
-CSRCS = hex2bin.c hex2bin_main.c
+CSRCS = hex2bin.c
+
+ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTIN),y)
+CSRCS += hex2bin_main.c
+endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -81,7 +85,7 @@ $(COBJS): %$(OBJEXT): %.c
 
 # Register application
 
-ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTINS),y)
+ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTIN),y)
 $(BUILTIN_REGISTRY)$(DELIM)hex2bin.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"hex2bin",$(PRIORITY),$(STACKSIZE),hex2bin_main)
 
