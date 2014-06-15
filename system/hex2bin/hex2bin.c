@@ -259,7 +259,14 @@ static int readstream(FAR struct lib_instream_s *instream,
       ch = instream->get(instream);
     }
 
-  /* Read until the end of line is encountered */
+  /* Skip over the start code */
+
+  if (ch != EOF)
+    {
+      ch = instream->get(instream);
+    }
+
+  /* Then read, verify, and buffer until the end of line is encountered */
 
   while (ch != EOF && nbytes < (MAXRECORD_ASCSIZE-1))
     {
