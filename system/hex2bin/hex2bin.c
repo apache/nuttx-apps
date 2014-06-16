@@ -338,31 +338,31 @@ static int readstream(FAR struct lib_instream_s *instream,
  * Name: hex2bin_swap16 and hex2bin_swap32
  ****************************************************************************/
 
-static inline void hex2bin_swap16(FAR uint8_t *bin, int bytecount)
+static inline void hex2bin_swap16(FAR uint8_t *data, int bytecount)
 {
   for (; bytecount > 0; bytecount -= 2)
     {
-      uint8_t b0 = bin[0];
-      uint8_t b1 = bin[1];
+      uint8_t b0 = data[0];
+      uint8_t b1 = data[1];
 
-      *bin++ = b1;
-      *bin++ = b0;
+      *data++ = b1;
+      *data++ = b0;
     }
 }
 
-static inline void hex2bin_swap32(FAR uint8_t *bin, int bytecount)
+static inline void hex2bin_swap32(FAR uint8_t *data, int bytecount)
 {
   for (; bytecount > 0; bytecount -= 4)
     {
-      uint8_t b0 = bin[0];
-      uint8_t b1 = bin[1];
-      uint8_t b2 = bin[2];
-      uint8_t b3 = bin[3];
+      uint8_t b0 = data[0];
+      uint8_t b1 = data[1];
+      uint8_t b2 = data[2];
+      uint8_t b3 = data[3];
 
-      *bin++ = b3;
-      *bin++ = b2;
-      *bin++ = b1;
-      *bin++ = b0;
+      *data++ = b3;
+      *data++ = b2;
+      *data++ = b1;
+      *data++ = b0;
     }
 }
 
@@ -371,11 +371,11 @@ static inline void hex2bin_swap32(FAR uint8_t *bin, int bytecount)
  ****************************************************************************/
 
 static inline void writedata(FAR struct lib_sostream_s *outstream,
-                             FAR uint8_t *bin, int bytecount)
+                             FAR uint8_t *data, int bytecount)
 {
   for (; bytecount > 0; bytecount--)
     {
-      outstream->put(outstream, *bin++);
+      outstream->put(outstream, *data++);
     }
 }
 
@@ -423,6 +423,7 @@ int hex2bin(FAR struct lib_instream_s *instream,
   int nbytes;
   int bytecount;
   uint32_t address;
+  uint32_t endaddr;
   uint32_t expected;
   uint16_t extension;
   uint16_t address16;
@@ -550,7 +551,7 @@ int hex2bin(FAR struct lib_instream_s *instream,
 
                   /* Do the byte swap */
 
-                  hex2bin_swap16(bin, bytecount);
+                  hex2bin_swap16(&bin[DATA_BINNDX], bytecount);
                 }
                 break;
 
@@ -565,7 +566,7 @@ int hex2bin(FAR struct lib_instream_s *instream,
 
                   /* Do the byte swap */
 
-                  hex2bin_swap32(bin, bytecount);
+                  hex2bin_swap32(&bin[DATA_BINNDX], bytecount);
                 }
                 break;
 
@@ -579,7 +580,9 @@ int hex2bin(FAR struct lib_instream_s *instream,
             /* Get and verify the full 32-bit address */
 
             address = ((uint32_t)extension << 16) | (uint32_t)address16;
-            if (address < baseaddr || (endpaddr != 0 && address >= endpaddr))
+            endaddr = address + bytecount;
+
+            if (address < baseaddr || (endpaddr != 0 && endaddr >= endpaddr))
               {
                 hex2bin_debug("Line %d ERROR: Extended address %08lx is out of range\n", 
                               lineno, (unsigned long)address);
@@ -602,7 +605,7 @@ int hex2bin(FAR struct lib_instream_s *instream,
 
             /* Transfer data to the OUT stream */
 
-            writedata(outstream, bin, bytecount);
+            writedata(outstream, &bin[DATA_BINNDX], bytecount);
           }
           break;
 
@@ -632,16 +635,17 @@ int hex2bin(FAR struct lib_instream_s *instream,
            * 0.
            */
 
-          if (bytecount != 2 || address16 != 0 || bin[1] != 0)
+          if (bytecount != 2 || address16 != 0 || bin[DATA_BINNDX+1] != 0)
             {
               hex2bin_debug("Line %u ERROR: Invalid segment address\n",
                             lineno);
               hex2bin_debug("  bytecount=%d address=%04x segment=%02x%02x\n",
-                            bytecount, address16, bin[0], bin[1]);
+                            bytecount, address16, bin[DATA_BINNDX],
+                            bin[DATA_BINNDX+1]);
               goto errout_with_einval;
             }
 
-          extension = (uint16_t)bin[0];
+          extension = (uint16_t)bin[DATA_BINNDX];
           break;
 
         case RECORD_START_SEGADDR: /* Start segment address record */
@@ -674,7 +678,8 @@ int hex2bin(FAR struct lib_instream_s *instream,
               goto errout_with_einval;
             }
 
-          extension = (uint16_t)bin[0] << 8 | (uint16_t)bin[1];
+          extension = (uint16_t)bin[DATA_BINNDX] << 8 |
+                      (uint16_t)bin[DATA_BINNDX+1];
           break;
 
         case RECORD_START_LINADDR: /* Start linear address record */
