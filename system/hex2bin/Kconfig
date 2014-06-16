@@ -22,6 +22,18 @@ config SYSTEM_HEX2BIN_BUILTIN
 
 if SYSTEM_HEX2BIN_BUILTIN
 
+config SYSTEM_HEX2BIN_STACKSIZE
+	int "Program stack size"
+	default 1536
+	---help---
+		The size of stack allocated for the hex2bin task.
+
+config SYSTEM_HEX2BIN_PRIORITY
+	int "Program priority"
+	default 100
+	---help---
+		The priority of the hex2bin task.
+
 config SYSTEM_HEX2BIN_BASEADDR
 	hex "Binary base address"
 	default 0x00000000
