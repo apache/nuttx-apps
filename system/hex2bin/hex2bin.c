@@ -589,7 +589,9 @@ int hex2bin(FAR struct lib_instream_s *instream,
                 goto errout_with_einval;
               }
 
-            /* Seek to the correct position in the OUT stream */
+            /* Seek to the correct position in the OUT stream if we have
+             * made an unexpected jump in the data address.
+             */
 
             if (address != expected)
               {
@@ -606,6 +608,10 @@ int hex2bin(FAR struct lib_instream_s *instream,
             /* Transfer data to the OUT stream */
 
             writedata(outstream, &bin[DATA_BINNDX], bytecount);
+
+            /* This is the next data address that we expect to see */
+
+            expected = address + bytecount;
           }
           break;
 
