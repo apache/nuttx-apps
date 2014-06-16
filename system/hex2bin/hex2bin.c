@@ -1,9 +1,13 @@
 /****************************************************************************
  * apps/system/hex2bin.c
- * Reference: http://en.wikipedia.org/wiki/Intel_HEX
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * References:
+ *   - http://en.wikipedia.org/wiki/Intel_HEX
+ *   - Hexadecimal Object File Format Specification, Revision A January 6,
+ *     1988, Intel
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -93,8 +97,8 @@
 #define TRAILER_BINSIZE        CHECKSUM_BINSIZE
 
 #define RECORD_BINSIZE(n)      (HEADER_BINSIZE + TRAILER_BINSIZE + (n))
-#define MAXRECORD_BINSIZE      RECORD_ASCSIZE(MAXDATA_BINSIZE)
-#define MINRECORD_BKINSIZE     RECORD_ASCSIZE(0)
+#define MAXRECORD_BINSIZE      RECORD_BINSIZE(MAXDATA_BINSIZE)
+#define MINRECORD_BKINSIZE     RECORD_BINSIZE(0)
 #define BIN_ALLOC              MAXRECORD_BINSIZE
 
 /* Record start code */
@@ -208,13 +212,13 @@ static int word2bin(FAR const char *ascii)
  * Name: data2bin
  ****************************************************************************/
 
-int data2bin(FAR uint8_t* dest, FAR const uint8_t *src, int nbytes)
+int data2bin(FAR uint8_t* dest, FAR const uint8_t *src, int nsrcbytes)
 {
   int byte;
 
   /* An even number of source bytes is expected */
 
-  if ((nbytes & 1) != 0)
+  if ((nsrcbytes & 1) != 0)
     {
       return -EINVAL;
     }
@@ -222,7 +226,7 @@ int data2bin(FAR uint8_t* dest, FAR const uint8_t *src, int nbytes)
   /* Convert src bytes in groups of 2, writing one byte to the output on each
    * pass through the loop. */
 
-  while (nbytes-- > 0)
+  while (nsrcbytes > 0)
     {
       /* Get the MS nibble (big endian order) */
 
@@ -237,6 +241,7 @@ int data2bin(FAR uint8_t* dest, FAR const uint8_t *src, int nbytes)
       /* And write the byte to the destination */
 
       *dest++ = byte;
+      nsrcbytes -= 2;
     }
 
   return OK;
@@ -308,7 +313,7 @@ static int readstream(FAR struct lib_instream_s *instream,
           *line++ = ch;
           nbytes++;
         }
-      else
+      else if (!isspace(ch)) /* Not expected */
         {
           hex2bin_debug("Line %u ERROR: Unexpected character %c[%02x] in stream\n",
                         lineno, isprint(ch) ? ch : '.', ch);
@@ -491,7 +496,7 @@ int hex2bin(FAR struct lib_instream_s *instream,
        * the start code and the checksum at the end of the line itself)
        */
 
-      ret = data2bin(line, bin, nbytes);
+      ret = data2bin(bin, line, nbytes);
       if (ret < 0)
         {
           hex2bin_debug("Line %u ERROR: Failed to convert line to binary: %d\n",
@@ -501,8 +506,10 @@ int hex2bin(FAR struct lib_instream_s *instream,
 
       /* Calculate and verify the checksum over all of the data */
 
+      nbytes >>= 1;  /* Number of bytes in bin[] */
       checksum = 0;
-      for (i = 0; i < bytecount; i++)
+
+      for (i = 0; i < nbytes; i++)
         {
           checksum += bin[i];
         }
@@ -691,7 +698,7 @@ errout_with_einval:
 errout_with_buffers:
 exit_with_buffers:
   free(alloc);
-  return -ret;
+  return ret;
 }
 
 #endif /* CONFIG_SYSTEM_HEX2BIN */
