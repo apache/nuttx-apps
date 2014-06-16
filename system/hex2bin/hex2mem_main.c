@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/hex2bin_main.c
+ * apps/system/hex2mem_main.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -47,7 +47,7 @@
 #include <nuttx/streams.h>
 #include <apps/hex2bin.h>
 
-#ifdef CONFIG_SYSTEM_HEX2BIN_BUILTIN
+#ifdef CONFIG_SYSTEM_HEX2MEM_BUILTIN
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -67,34 +67,29 @@
 
 static void show_usage(FAR const char *progname, int exitcode)
 {
-#ifdef CONFIG_SYSTEM_HEX2BIN_USAGE
+#ifdef CONFIG_SYSTEM_HEX2MEM_USAGE
   fprintf(stderr, "Usage:\n");
-  fprintf(stderr, "\t%s [OPTIONS] <hexfile> <binfile>\n", progname);
+  fprintf(stderr, "\t%s [OPTIONS] <hexfile>\n", progname);
   fprintf(stderr, "\t%s -h\n", progname);
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t<hexfile>:\n");
   fprintf(stderr, "\t\tThe file containing the Intel HEX data to be converted.\n");
-  fprintf(stderr, "\t<binfile>:\n");
-  fprintf(stderr, "\t\tThe output file to be created contained the converted\n");
-  fprintf(stderr, "\t\tbinary data.\n");
   fprintf(stderr, "\t-h:\n");
   fprintf(stderr, "\t\tPrints this message and exits\n");
   fprintf(stderr, "And [OPTIONS] include:\n");
   fprintf(stderr, "\t-s <start address>\n");
-  fprintf(stderr, "\t\tSets the start address of the binary output.  This value\n");
-  fprintf(stderr, "\t\tis used to (1) calculate offsets into the output stream,\n");
-  fprintf(stderr, "\t\tand (2) for error checking.  Default: 0x%08x\n",
-          CONFIG_SYSTEM_HEX2BIN_BASEADDR);
+  fprintf(stderr, "\t\tSets the start memory address for the binary output.  Hex\n");
+  fprintf(stderr, "\t\tdata is written to memory relative to this address. Default:\n");
+  fprintf(stderr, "\t\t0x%08x\n", CONFIG_SYSTEM_HEX2MEM_BASEADDR);
   fprintf(stderr, "\t-e <end address>\n");
-  fprintf(stderr, "\t\tSets the maximum address (plus 1) of the binary output.\n");
-  fprintf(stderr, "\t\tThis value is used to only for error checking.  The value\n");
-  fprintf(stderr, "\t\tzero disables error checking.  Default: 0x%08x\n",
-          CONFIG_SYSTEM_HEX2BIN_ENDPADDR);
-  fprintf(stderr, "\t\tno error checking\n");
+  fprintf(stderr, "\t\tSets the maximum memory address (plus 1).  This value is\n");
+  fprintf(stderr, "\t\tused to assure that the program does not write past the end\n");
+  fprintf(stderr, "\t\tof memory.  The value zero disables error checking.\n");
+  fprintf(stderr, "\t\tDefault: 0x%08x\n", CONFIG_SYSTEM_HEX2MEM_ENDPADDR);
   fprintf(stderr, "\t-w <swap code>\n");
   fprintf(stderr, "\t\t(0) No swap, (1) swap bytes in 16-bit values, or (3) swap\n");
   fprintf(stderr, "\t\tbytes in 32-bit values.  Default: %d\n",
-          CONFIG_SYSTEM_HEX2BIN_SWAP);
+          CONFIG_SYSTEM_HEX2MEM_SWAP);
 #endif
   exit(exitcode);
 }
@@ -108,10 +103,10 @@ static void show_usage(FAR const char *progname, int exitcode)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: hex2bin_main
+ * Name: hex2mem_main
  *
  * Description:
- *   Main entry point when hex2bin is built as an NSH built-in task.
+ *   Main entry point when hex2mem is built as an NSH built-in task.
  *
  * Input Parameters:
  *   Standard task inputs
@@ -121,15 +116,13 @@ static void show_usage(FAR const char *progname, int exitcode)
  * 
  ****************************************************************************/
 
-int hex2bin_main(int argc, char **argv)
+int hex2mem_main(int argc, char **argv)
 {
   struct lib_stdinstream_s stdinstream;
-  struct lib_stdsostream_s stdoutstream;
+  struct lib_memsostream_s memoutstream;
   FAR const char *hexfile;
-  FAR const char *binfile;
   FAR char *endptr;
   FAR FILE *instream;
-  FAR FILE *outstream;
   unsigned long baseaddr;
   unsigned long endpaddr;
   unsigned long swap;
@@ -138,9 +131,9 @@ int hex2bin_main(int argc, char **argv)
 
   /* Parse the command line options */
 
-  baseaddr = CONFIG_SYSTEM_HEX2BIN_BASEADDR;
-  endpaddr = CONFIG_SYSTEM_HEX2BIN_ENDPADDR;
-  swap     = CONFIG_SYSTEM_HEX2BIN_SWAP;
+  baseaddr = CONFIG_SYSTEM_HEX2MEM_BASEADDR;
+  endpaddr = CONFIG_SYSTEM_HEX2MEM_ENDPADDR;
+  swap     = CONFIG_SYSTEM_HEX2MEM_SWAP;
 
   while ((option = getopt(argc, argv, ":hs:e:w:")) != ERROR)
     {
@@ -194,25 +187,24 @@ int hex2bin_main(int argc, char **argv)
 
   if (optind >= argc)
     {
-      printf("ERROR: Missing required <hexfile> and <binfile> arguments\n");
+      printf("ERROR: Missing required <hexfile> argument\n");
       show_usage(argv[0], EXIT_FAILURE);
     }
 
   hexfile = argv[optind];
   optind++;
 
-  if (optind >= argc)
-    {
-      printf("ERROR: Missing required <binfile> argument\n");
-      show_usage(argv[0], EXIT_FAILURE);
-    }
-
-  binfile = argv[optind];
-  optind++;
-
   if (optind < argc)
     {
       printf("ERROR: Garbage at end of command line\n");
+      show_usage(argv[0], EXIT_FAILURE);
+    }
+
+  /* Check memory addresses */
+
+  if (endpaddr <= baseaddr)
+    {
+      printf("ERROR: Memory end (+1) address must be AFTER memory base address\n");
       show_usage(argv[0], EXIT_FAILURE);
     }
 
@@ -229,28 +221,16 @@ int hex2bin_main(int argc, char **argv)
       return -errcode;
     }
 
-  /* Open the BIN file for reading */
-
-  outstream = fopen(binfile, "wb");
-  if (outstream == NULL)
-    {
-      int errcode = errno;
-      DEBUGASSERT(errcode > 0);
-
-      fprintf(stderr, "ERROR: Failed to open \"%s\" for writing: %d\n",
-              binfile, errcode);
-      fclose(instream);
-      return -errcode;
-    }
-
-  /* Wrap the FILE streams as standard streams */
+  /* Wrap the FILE stream as standard streams; wrap the memory as a memory
+   * stream.
+   */
 
   lib_stdinstream(&stdinstream, instream);
-  lib_stdsostream(&stdoutstream, outstream);
+  lib_memsostream(&memoutstream, (FAR char *)baseaddr, (int)(endpaddr - baseaddr));
 
   /* And do the deed */
 
-  ret = hex2bin(&stdinstream.public, &stdoutstream.public,
+  ret = hex2bin(&stdinstream.public, &memoutstream.public,
                 (uint32_t)baseaddr, (uint32_t)endpaddr,
                 (enum hex2bin_swap_e)swap);
   if (ret < 0)
@@ -262,8 +242,7 @@ int hex2bin_main(int argc, char **argv)
   /* Clean up and return */
 
   fclose(instream);
-  fclose(outstream);
   return ret < 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
-#endif /* CONFIG_SYSTEM_HEX2BIN_BUILTIN */
+#endif /* CONFIG_SYSTEM_HEX2MEM_BUILTIN */

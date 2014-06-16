@@ -46,6 +46,10 @@ ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTIN),y)
 CSRCS += hex2bin_main.c
 endif
 
+ifeq ($(CONFIG_SYSTEM_HEX2MEM_BUILTIN),y)
+CSRCS += hex2mem_main.c
+endif
+
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
 
@@ -68,8 +72,14 @@ VPATH =
 CONFIG_SYSTEM_HEX2BIN_STACKSIZE ?= 1536
 CONFIG_SYSTEM_HEX2BIN_PRIORITY ?= 100
 
-STACKSIZE = $(CONFIG_SYSTEM_HEX2BIN_STACKSIZE)
-PRIORITY = $(CONFIG_SYSTEM_HEX2BIN_PRIORITY)
+HEX2BIN_STACKSIZE = $(CONFIG_SYSTEM_HEX2BIN_STACKSIZE)
+HEX2BIN_PRIORITY = $(CONFIG_SYSTEM_HEX2BIN_PRIORITY)
+
+CONFIG_SYSTEM_HEX2MEM_STACKSIZE ?= 1536
+CONFIG_SYSTEM_HEX2MEM_PRIORITY ?= 100
+
+HEX2MEM_STACKSIZE = $(CONFIG_SYSTEM_HEX2MEM_STACKSIZE)
+HEX2MEM_PRIORITY = $(CONFIG_SYSTEM_HEX2MEM_PRIORITY)
 
 # Build targets
 
@@ -86,16 +96,27 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
-# Register application
+# Register application(s)
 
 ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTIN),y)
 $(BUILTIN_REGISTRY)$(DELIM)hex2bin.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,"hex2bin",$(PRIORITY),$(STACKSIZE),hex2bin_main)
+	$(call REGISTER,"hex2bin",$(HEX2BIN_PRIORITY),$(HEX2BIN_STACKSIZE),hex2bin_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)hex2bin.bdat
+rhex2bin: $(BUILTIN_REGISTRY)$(DELIM)hex2bin.bdat
 else
-context:
+rhex2bin:
 endif
+
+ifeq ($(CONFIG_SYSTEM_HEX2MEM_BUILTIN),y)
+$(BUILTIN_REGISTRY)$(DELIM)hex2mem.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,"hex2mem",$(HEX2MEM_PRIORITY),$(HEX2MEM_STACKSIZE),hex2mem_main)
+
+rhex2mem: $(BUILTIN_REGISTRY)$(DELIM)hex2mem.bdat
+else
+rhex2mem:
+endif
+
+context: rhex2bin rhex2mem
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
