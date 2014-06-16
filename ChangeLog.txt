@@ -933,4 +933,9 @@
 	  (2014-6-12).
 	* apps/system/hex2bin/:  A logic and built-in task to convert from Intel
 	  HEX to binary format.  Untested on initial commit (2014-6-15).
+	* apps/system/hex2bin/: Appears to be functional but testing is still
+	  light (2014-6-16).
+	* apps/system/hex2bin/hex2mem_main: Add a variant application that will
+	  write Intel HEX files directly to memory (2014-6-16).
+
 
