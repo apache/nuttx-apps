@@ -95,11 +95,7 @@ static void show_usage(FAR const char *progname, int exitcode)
 }
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: 
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -113,7 +109,7 @@ static void show_usage(FAR const char *progname, int exitcode)
  *
  * Returned Value
  *   EXIT_SUCESS on success; EXIT_FAILURE on failure
- * 
+ *
  ****************************************************************************/
 
 int hex2mem_main(int argc, char **argv)
@@ -139,9 +135,11 @@ int hex2mem_main(int argc, char **argv)
     {
       switch (option)
         {
+#ifdef CONFIG_SYSTEM_HEX2MEM_USAGE
         case 'h':
           show_usage(argv[0], EXIT_SUCCESS);
           break;
+#endif
 
         case 's':
           baseaddr = strtoul(optarg, &endptr, 16);
@@ -221,12 +219,13 @@ int hex2mem_main(int argc, char **argv)
       return -errcode;
     }
 
-  /* Wrap the FILE stream as standard streams; wrap the memory as a memory
+  /* Wrap the FILE stream as a standard stream; wrap the memory as a memory
    * stream.
    */
 
   lib_stdinstream(&stdinstream, instream);
-  lib_memsostream(&memoutstream, (FAR char *)baseaddr, (int)(endpaddr - baseaddr));
+  lib_memsostream(&memoutstream, (FAR char *)baseaddr,
+                  (int)(endpaddr - baseaddr));
 
   /* And do the deed */
 

@@ -100,11 +100,7 @@ static void show_usage(FAR const char *progname, int exitcode)
 }
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: 
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -118,7 +114,7 @@ static void show_usage(FAR const char *progname, int exitcode)
  *
  * Returned Value
  *   EXIT_SUCESS on success; EXIT_FAILURE on failure
- * 
+ *
  ****************************************************************************/
 
 int hex2bin_main(int argc, char **argv)
@@ -146,9 +142,11 @@ int hex2bin_main(int argc, char **argv)
     {
       switch (option)
         {
+#ifdef CONFIG_SYSTEM_HEX2BIN_USAGE
         case 'h':
           show_usage(argv[0], EXIT_SUCCESS);
           break;
+#endif
 
         case 's':
           baseaddr = strtoul(optarg, &endptr, 16);
@@ -261,6 +259,7 @@ int hex2bin_main(int argc, char **argv)
 
   /* Clean up and return */
 
+  fflush(outstream);
   fclose(instream);
   fclose(outstream);
   return ret < 0 ? EXIT_FAILURE : EXIT_SUCCESS;

@@ -410,7 +410,7 @@ static inline void writedata(FAR struct lib_sostream_s *outstream,
  * Returned Value
  *   Zero (OK) is returned on success; a negated errno value is returned on
  *   failure.
- * 
+ *
  ****************************************************************************/
 
 int hex2bin(FAR struct lib_instream_s *instream,
@@ -584,7 +584,7 @@ int hex2bin(FAR struct lib_instream_s *instream,
 
             if (address < baseaddr || (endpaddr != 0 && endaddr >= endpaddr))
               {
-                hex2bin_debug("Line %d ERROR: Extended address %08lx is out of range\n", 
+                hex2bin_debug("Line %d ERROR: Extended address %08lx is out of range\n",
                               lineno, (unsigned long)address);
                 goto errout_with_einval;
               }

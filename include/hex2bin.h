@@ -164,7 +164,7 @@ extern "C"
  * Returned Value
  *   Zero (OK) is returned on success; a negated errno value is returned on
  *   failure.
- * 
+ *
  ****************************************************************************/
 
 struct lib_instream_s;
@@ -172,6 +172,60 @@ struct lib_sostream_s;
 int hex2bin(FAR struct lib_instream_s *instream,
             FAR struct lib_sostream_s *outstream, uint32_t baseaddr,
             uint32_t endpaddr, enum hex2bin_swap_e swap);
+
+/****************************************************************************
+ * Name hex2mem
+ *
+ * Description:
+ *   Read the Intel HEX ASCII data provided on the file descriptor 'fd' and
+ *   write the binary to memory.
+ *
+ *   If, for example, fd is zero (corresponding to stdin), then the HEX
+ *   ASCII data would be taken from the console and written to memory.
+ *
+ * Input Parameters:
+ *   fd        - The file descriptor from which Intel HEX data will be
+ *               received.
+ *   baseaddr  - The base address of the memory region stream.
+ *   endpaddr  - The end address (plus 1) of the memory region.
+ *   swap      - Controls byte ordering.  See enum hex2bin_swap_e for
+ *               description of the values.
+ *
+ * Returned Value
+ *   Zero (OK) is returned on success; a negated errno value is returned on
+ *   failure.
+ *
+ ****************************************************************************/
+
+int hex2mem(int fd, uint32_t baseaddr, uint32_t endpaddr,
+            enum hex2bin_swap_e swap);
+
+/****************************************************************************
+ * Name fhex2mem
+ *
+ * Description:
+ *   Read the Intel HEX ASCII data provided on the standard stream
+ *   'instream' and write the binary to memory.
+ *
+ *   If, for example, instream is stdin, then the HEX ASCII data would be
+ *   taken from the console and written to memory.
+ *
+ * Input Parameters:
+ *   instream  - The incoming standard stream from which Intel HEX data
+ *               will be received.
+ *   baseaddr  - The base address of the memory region stream.
+ *   endpaddr  - The end address (plus 1) of the memory region.
+ *   swap      - Controls byte ordering.  See enum hex2bin_swap_e for
+ *               description of the values.
+ *
+ * Returned Value
+ *   Zero (OK) is returned on success; a negated errno value is returned on
+ *   failure.
+ *
+ ****************************************************************************/
+
+int fhex2mem(FAR FILE *instream, uint32_t baseaddr, uint32_t endpaddr,
+             enum hex2bin_swap_e swap);
 
 /****************************************************************************
  * Name: hex2bin_main
@@ -184,14 +238,30 @@ int hex2bin(FAR struct lib_instream_s *instream,
  *
  * Returned Value
  *   EXIT_SUCESS on success; EXIT_FAILURE on failure
- * 
+ *
  ****************************************************************************/
 
 #ifdef CONFIG_SYSTEM_HEX2BIN_BUILTIN
-
 int hex2bin_main(int argc, char **argv);
-
 #endif /* CONFIG_SYSTEM_HEX2BIN_BUILTIN */
+
+/****************************************************************************
+ * Name: hex2mem_main
+ *
+ * Description:
+ *   Main entry point when hex2mem is built as an NSH built-in task.
+ *
+ * Input Parameters:
+ *   Standard task inputs
+ *
+ * Returned Value
+ *   EXIT_SUCESS on success; EXIT_FAILURE on failure
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SYSTEM_HEX2MEM_BUILTIN
+int hex2mem_main(int argc, char **argv);
+#endif /* CONFIG_SYSTEM_HEX2MEM_BUILTIN */
 
 #undef EXTERN
 #ifdef __cplusplus

@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # I2C tool
 
 ASRCS =
-CSRCS = hex2bin.c
+CSRCS = hex2bin.c hex2mem.c fhex2mem.c
 
 ifeq ($(CONFIG_SYSTEM_HEX2BIN_BUILTIN),y)
 CSRCS += hex2bin_main.c
