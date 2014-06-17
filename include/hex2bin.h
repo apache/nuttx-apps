@@ -116,7 +116,7 @@
 
 enum hex2bin_swap_e
 {
-  HEX2BIN_NOSWAP = 0, /* No swap, stream is the correct byte order */
+  HEX2BIN_NOSWAP = 0, /* No swap, stream is in the correct byte order */
   HEX2BIN_SWAP16 = 1, /* Swap bytes in 16-bit values */
   HEX2BIN_SWAP32 = 2  /* Swap bytes in 32-bit values */
 };
