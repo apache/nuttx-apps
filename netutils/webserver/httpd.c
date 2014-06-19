@@ -246,7 +246,7 @@ static int handle_script(struct httpd_state *pstate)
 
               send(pstate->ht_sockfd, pstate->ht_file.data, pstate->ht_file.len, 0);
 
-              httpd_close(&pstate->ht_file);
+              (void)httpd_close(&pstate->ht_file);
             }
           else
             {
@@ -306,6 +306,7 @@ static int handle_script(struct httpd_state *pstate)
           pstate->ht_file.len  -= len;
         }
     }
+
   return OK;
 }
 #endif
@@ -460,7 +461,7 @@ static int httpd_senderror(struct httpd_state *pstate, int status)
       ret = send_chunk(pstate, pstate->ht_file.data, pstate->ht_file.len);
 #endif
 
-      (void) httpd_close(&pstate->ht_file);
+      (void)httpd_close(&pstate->ht_file);
     }
 
   return ret;
@@ -514,7 +515,6 @@ static int httpd_sendfile(struct httpd_state *pstate)
         }
 
       ret = handle_script(pstate);
-
       goto done;
     }
 #endif
@@ -531,9 +531,7 @@ static int httpd_sendfile(struct httpd_state *pstate)
 #endif
 
 done:
-
   (void)httpd_close(&pstate->ht_file);
-
   return ret;
 }
 
@@ -831,7 +829,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
 
       /* Handle the request. This blocks until complete. */
 
-      (void) httpd_handler((void*)acceptsd);
+      (void)httpd_handler((void*)acceptsd);
     }
 }
 #endif
