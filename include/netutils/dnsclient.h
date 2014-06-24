@@ -44,7 +44,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/net/uip/uipopt.h>
+#include <nuttx/net/netconfig.h>
 
 #include <netinet/in.h>
 

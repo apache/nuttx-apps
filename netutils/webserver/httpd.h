@@ -46,7 +46,7 @@
 
 #include <nuttx/config.h>
 #include <stdint.h>
-#include <nuttx/net/uip/uipopt.h>
+#include <nuttx/net/netconfig.h>
 
 /****************************************************************************
  * Public Types
