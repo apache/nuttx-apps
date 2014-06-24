@@ -44,7 +44,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/net/uip/uip.h>
+#include <nuttx/net/uip.h>
 
 #include <stdint.h>
 #include <stdbool.h>

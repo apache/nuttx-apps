@@ -48,7 +48,7 @@
 #include <string.h>
 #include <debug.h>
 
-#include <nuttx/net/uip/uip.h>
+#include <nuttx/net/uip.h>
 #include <apps/netutils/uiplib.h>
 
 
