@@ -60,7 +60,7 @@
 #include <nuttx/net/net.h>
 #include <nuttx/clock.h>
 #include <nuttx/net/uip/uip.h>
-#include <nuttx/net/uip/uip-arch.h>
+#include <nuttx/net/netdev.h>
 
 #ifdef CONFIG_NET_STATISTICS
 #  include <nuttx/net/uip/uip.h>

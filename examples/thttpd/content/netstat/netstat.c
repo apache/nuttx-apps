@@ -45,7 +45,7 @@
 
 #include <netinet/ether.h>
 #include <nuttx/net/netconfig.h>
-#include <nuttx/net/uip/uip-arch.h>
+#include <nuttx/net/netdev.h>
 
 /****************************************************************************
  * Pre-processor Definitions
