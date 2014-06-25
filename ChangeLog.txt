@@ -639,7 +639,7 @@
 	  exit.  So NSH was hanging in waitpid when msconn started even
 	  though msconn returned.  The USB MSC logic really should not use
 	  a pthread, but we are stuck with that for now.  The work-around
-	  is the msconn now daemonizes itself so that it so that the pthread
+	  is that msconn now daemonizes itself so that it so that the pthread
 	  is created in a different task group (2013-9-7).
 	* apps/system/usbmonitor:  The USB monitor has been extended so
 	  that it can be used with USB device or host trace data (2013-9-9).
@@ -898,7 +898,7 @@
 	  and in others 'shell.'  All changes to telnetd.  Noted by Pelle
 	  Windestam (2014-4-38).
 
-7.3 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.3 2014-06-25 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/serialblaster:  Update configuration an make logic in
 	  order to select that the serial blaster task priority and stack size.
@@ -931,8 +931,8 @@
 	  (2015-5-30).
 	* apps/examples/netpkt/:  A "raw" socket test from Lazlo Sitzer
 	  (2014-6-12).
-	* apps/system/hex2bin/:  A logic and built-in task to convert from Intel
-	  HEX to binary format.  Untested on initial commit (2014-6-15).
+	* apps/system/hex2bin/:  A library and built-in task to convert from
+	  Intel HEX to binary format.  Untested on initial commit (2014-6-15).
 	* apps/system/hex2bin/: Appears to be functional but testing is still
 	  light (2014-6-16).
 	* apps/system/hex2bin/hex2mem_main: Add a variant application that will
@@ -940,3 +940,4 @@
 	* netutils/webserver: httpd_fs_open() should return OK on success and
 	  ERROR on failure, not 1 and 0 (2014-6-23)
 
+7.4 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
