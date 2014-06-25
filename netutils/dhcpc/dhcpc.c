@@ -122,13 +122,13 @@ struct dhcp_msg
 
 struct dhcpc_state_s
 {
-  struct uip_udp_conn *ds_conn;
-  const void          *ds_macaddr;
-  int                  ds_maclen;
-  int                  sockfd;
-  struct in_addr       ipaddr;
-  struct in_addr       serverid;
-  struct dhcp_msg      packet;
+  struct udp_conn_s *ds_conn;
+  const void        *ds_macaddr;
+  int                ds_maclen;
+  int                sockfd;
+  struct in_addr     ipaddr;
+  struct in_addr     serverid;
+  struct dhcp_msg    packet;
 };
 
 /****************************************************************************
