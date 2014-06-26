@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_HEX2BIN
-	bool "Intel HEX Convertion"
+	bool "Intel HEX Conversion"
 	default n
 	---help---
 		Enable support for a logic to convert Intel HEX format to binary.

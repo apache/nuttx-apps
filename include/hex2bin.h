@@ -97,7 +97,7 @@
 #  ifdef CONFIG_SYSTEM_HEX2BIN_DEBUG
 #    define hex2bin_debug(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 #  else
-#    define lldbg(x...)
+#    define hex2bin_debug(x...)
 #  endif
 #else
 #  ifdef CONFIG_SYSTEM_HEX2BIN_DEBUG
