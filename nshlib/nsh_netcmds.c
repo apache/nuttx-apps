@@ -61,6 +61,7 @@
 #include <nuttx/clock.h>
 #include <nuttx/net/uip.h>
 #include <nuttx/net/netdev.h>
+#include <nuttx/net/netstats.h>
 
 #ifdef CONFIG_NET_STATISTICS
 #  include <nuttx/net/uip.h>
@@ -162,11 +163,11 @@ static inline uint16_t ping_newid(void)
 #endif
 
 /****************************************************************************
- * Name: uip_statistics
+ * Name: net_statistics
  ****************************************************************************/
 
 #if defined(CONFIG_NET_STATISTICS) && !defined(CONFIG_NSH_DISABLE_IFCONFIG)
-static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
+static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 {
   nsh_output(vtbl, "uIP         IP ");
 #ifdef CONFIG_NET_TCP
@@ -182,43 +183,43 @@ static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
 
   /* Received packets */
 
-  nsh_output(vtbl, "Received    %04x",uip_stat.ip.recv);
+  nsh_output(vtbl, "Received    %04x", g_netstats.ip.recv);
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x",uip_stat.tcp.recv);
+  nsh_output(vtbl, " %04x", g_netstats.tcp.recv);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x",uip_stat.udp.recv);
+  nsh_output(vtbl, " %04x", g_netstats.udp.recv);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x",uip_stat.icmp.recv);
+  nsh_output(vtbl, " %04x", g_netstats.icmp.recv);
 #endif
   nsh_output(vtbl, "\n");
 
   /* Dropped packets */
 
-  nsh_output(vtbl, "Dropped     %04x",uip_stat.ip.drop);
+  nsh_output(vtbl, "Dropped     %04x", g_netstats.ip.drop);
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x",uip_stat.tcp.drop);
+  nsh_output(vtbl, " %04x", g_netstats.tcp.drop);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x",uip_stat.udp.drop);
+  nsh_output(vtbl, " %04x", g_netstats.udp.drop);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x",uip_stat.icmp.drop);
+  nsh_output(vtbl, " %04x", g_netstats.icmp.drop);
 #endif
   nsh_output(vtbl, "\n");
 
   nsh_output(vtbl, "  IP        VHL: %04x HBL: %04x\n",
-             uip_stat.ip.vhlerr, uip_stat.ip.hblenerr);
+             g_netstats.ip.vhlerr, g_netstats.ip.hblenerr);
   nsh_output(vtbl, "            LBL: %04x Frg: %04x\n",
-             uip_stat.ip.lblenerr, uip_stat.ip.fragerr);
+             g_netstats.ip.lblenerr, g_netstats.ip.fragerr);
 
-  nsh_output(vtbl, "  Checksum  %04x",uip_stat.ip.chkerr);
+  nsh_output(vtbl, "  Checksum  %04x",g_netstats.ip.chkerr);
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x",uip_stat.tcp.chkerr);
+  nsh_output(vtbl, " %04x", g_netstats.tcp.chkerr);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x",uip_stat.udp.chkerr);
+  nsh_output(vtbl, " %04x", g_netstats.udp.chkerr);
 #endif
 #ifdef CONFIG_NET_ICMP
   nsh_output(vtbl, " ----");
@@ -227,12 +228,12 @@ static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
 
 #ifdef CONFIG_NET_TCP
   nsh_output(vtbl, "  TCP       ACK: %04x SYN: %04x\n",
-            uip_stat.tcp.ackerr, uip_stat.tcp.syndrop);
+            g_netstats.tcp.ackerr, g_netstats.tcp.syndrop);
   nsh_output(vtbl, "            RST: %04x %04x\n",
-            uip_stat.tcp.rst, uip_stat.tcp.synrst);
+            g_netstats.tcp.rst, g_netstats.tcp.synrst);
 #endif
 
-  nsh_output(vtbl, "  Type      %04x",uip_stat.ip.protoerr);
+  nsh_output(vtbl, "  Type      %04x", g_netstats.ip.protoerr);
 #ifdef CONFIG_NET_TCP
   nsh_output(vtbl, " ----");
 #endif
@@ -240,26 +241,26 @@ static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, " ----");
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x",uip_stat.icmp.typeerr);
+  nsh_output(vtbl, " %04x", g_netstats.icmp.typeerr);
 #endif
   nsh_output(vtbl, "\n");
 
   /* Sent packets */
 
-  nsh_output(vtbl, "Sent        ----",uip_stat.ip.sent);
+  nsh_output(vtbl, "Sent        ----", g_netstats.ip.sent);
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x",uip_stat.tcp.sent);
+  nsh_output(vtbl, " %04x", g_netstats.tcp.sent);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x",uip_stat.udp.sent);
+  nsh_output(vtbl, " %04x", g_netstats.udp.sent);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x",uip_stat.icmp.sent);
+  nsh_output(vtbl, " %04x", g_netstats.icmp.sent);
 #endif
   nsh_output(vtbl, "\n");
 
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, "  Rexmit    ---- %04x",uip_stat.tcp.rexmit);
+  nsh_output(vtbl, "  Rexmit    ---- %04x", g_netstats.tcp.rexmit);
 #ifdef CONFIG_NET_UDP
   nsh_output(vtbl, " ----");
 #endif
@@ -271,9 +272,8 @@ static inline void uip_statistics(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "\n");
 }
 #else
-# define uip_statistics(vtbl)
+# define net_statistics(vtbl)
 #endif
-
 
 /****************************************************************************
  * Name: ifconfig_callback
@@ -607,7 +607,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (argc <= 2)
     {
       netdev_foreach(ifconfig_callback, vtbl);
-      uip_statistics(vtbl);
+      net_statistics(vtbl);
       return OK;
     }
 

@@ -40,6 +40,7 @@
 #include <string.h>
 #include <sys/socket.h>
 
+#include <nuttx/net/netstats.h>
 #include <apps/netutils/httpd.h>
 
 #include "cgi.h"
@@ -70,9 +71,9 @@ static void net_stats(struct httpd_state *pstate, char *ptr)
   char buffer[16];
   int i;
 
-  for (i = 0; i < sizeof(uip_stat) / sizeof(uip_stats_t); i++)
+  for (i = 0; i < sizeof(g_netstats) / sizeof(net_stats_t); i++)
     {
-      snprintf(buffer, 16, "%5u\n", ((uip_stats_t *)&uip_stat)[i]);
+      snprintf(buffer, 16, "%5u\n", ((net_stats_t *)&g_netstats)[i]);
       send(pstate->ht_sockfd, buffer, strlen(buffer), 0);
     }
 }
