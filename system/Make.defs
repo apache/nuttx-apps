@@ -74,6 +74,10 @@ ifeq ($(CONFIG_SYSTEM_PRUN),y)
 CONFIGURED_APPS += system/prun
 endif
 
+ifeq ($(CONFIG_SYSTEM_MDIO),y)
+CONFIGURED_APPS += system/mdio
+endif
+
 ifeq ($(CONFIG_SYSTEM_RAMTEST),y)
 CONFIGURED_APPS += system/ramtest
 endif

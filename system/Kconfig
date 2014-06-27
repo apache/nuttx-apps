@@ -47,6 +47,10 @@ menu "P-Code Support"
 source "$APPSDIR/system/prun/Kconfig"
 endmenu
 
+menu "PHY Tool"
+source "$APPSDIR/system/mdio/Kconfig"
+endmenu
+
 menu "Power Off"
 source "$APPSDIR/system/poweroff/Kconfig"
 endmenu
