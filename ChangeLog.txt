@@ -941,3 +941,6 @@
 	  ERROR on failure, not 1 and 0 (2014-6-23)
 
 7.4 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/mdio:  PHY tool from Daniel Lazlo Sizter (2014-6-27).
+
