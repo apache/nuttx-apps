@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netcmds.c
  *
- *   Copyright (C) 2007-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -307,8 +307,12 @@ int ifconfig_callback(FAR struct uip_driver_s *dev, void *arg)
       status = "DOWN";
     }
 
+#ifdef CONFIG_NET_ETHERNET
+  /* REVISIT: How will we handle Ethernet and SLIP networks together? */
+
   nsh_output(vtbl, "%s\tHWaddr %s at %s\n",
              dev->d_ifname, ether_ntoa(&dev->d_mac), status);
+#endif
 
   addr.s_addr = dev->d_ipaddr;
   nsh_output(vtbl, "\tIPaddr:%s ", inet_ntoa(addr));
@@ -587,7 +591,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *gwip = NULL;
   FAR char *mask = NULL;
   FAR char *tmp = NULL;
+#ifndef CONFIG_NET_SLIP
   FAR char *hw = NULL;
+#endif
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   FAR char *dns = NULL;
 #endif
@@ -656,6 +662,10 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
+
+#ifndef CONFIG_NET_SLIP
+              /* REVISIT: How will we handle Ethernet and SLIP networks together? */
+
               else if (!strcmp(tmp, "hw"))
                 {
                   if (argc-1>=i+1)
@@ -669,6 +679,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
+#endif
+
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
               else if (!strcmp(tmp, "dns"))
                 {
@@ -693,13 +705,16 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
+#ifndef CONFIG_NET_SLIP
   /* Set Hardware Ethernet MAC address */
+  /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
   if (hw)
     {
       ndbg("HW MAC: %s\n", hw);
       uip_setmacaddr(intf, mac);
     }
+#endif
 
 #if defined(CONFIG_NSH_DHCPC)
   if (!strcmp(hostip, "dhcp"))

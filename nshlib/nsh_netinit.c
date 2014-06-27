@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netinit.c
  *
- *   Copyright (C) 2010-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This is influenced by similar logic from uIP:
@@ -64,6 +64,22 @@
 #  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
 #endif
 
+/* SLIP-specific configuration
+ *
+ * REVISIT: How will we handle Ethernet and SLIP networks together?  In the
+ * future, NSH will need to be extended to handle multiple networks with
+ * mixed transports.
+ */
+
+#ifdef CONFIG_NET_SLIP
+#  define NET_DEVNAME "sl0"
+#  ifndef CONFIG_NSH_NOMAC
+#    error "CONFIG_NSH_NOMAC must be defined for SLIP"
+#  endif
+#else
+#  define NET_DEVNAME "eth0"
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -94,20 +110,20 @@ int nsh_netinit(void)
 #if defined(CONFIG_NSH_DHCPC)
  FAR void *handle;
 #endif
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)
+#if (defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)) && !defined(CONFIG_NET_SLIP)
  uint8_t mac[IFHWADDRLEN];
 #endif
 
 /* Many embedded network interfaces must have a software assigned MAC */
 
-#ifdef CONFIG_NSH_NOMAC
+#if defined(CONFIG_NSH_NOMAC) && !defined(CONFIG_NET_SLIP)
   mac[0] = 0x00;
   mac[1] = 0xe0;
   mac[2] = 0xde;
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  uip_setmacaddr("eth0", mac);
+  uip_setmacaddr(NET_DEVNAME, mac);
 #endif
 
   /* Set up our host address */
@@ -117,17 +133,17 @@ int nsh_netinit(void)
 #else
   addr.s_addr = 0;
 #endif
-  uip_sethostaddr("eth0", &addr);
+  uip_sethostaddr(NET_DEVNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_NSH_DRIPADDR);
-  uip_setdraddr("eth0", &addr);
+  uip_setdraddr(NET_DEVNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_NSH_NETMASK);
-  uip_setnetmask("eth0", &addr);
+  uip_setnetmask(NET_DEVNAME, &addr);
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   /* Set up the resolver */
@@ -142,7 +158,7 @@ int nsh_netinit(void)
 #if defined(CONFIG_NSH_DHCPC)
   /* Get the MAC address of the NIC */
 
-  uip_getmacaddr("eth0", mac);
+  uip_getmacaddr(NET_DEVNAME, mac);
 
   /* Set up the DHCPC modules */
 
@@ -156,19 +172,23 @@ int nsh_netinit(void)
     {
         struct dhcpc_state ds;
         (void)dhcpc_request(handle, &ds);
-        uip_sethostaddr("eth0", &ds.ipaddr);
+        uip_sethostaddr(NET_DEVNAME, &ds.ipaddr);
+
         if (ds.netmask.s_addr != 0)
           {
-            uip_setnetmask("eth0", &ds.netmask);
+            uip_setnetmask(NET_DEVNAME, &ds.netmask);
           }
+
         if (ds.default_router.s_addr != 0)
           {
-            uip_setdraddr("eth0", &ds.default_router);
+            uip_setdraddr(NET_DEVNAME, &ds.default_router);
           }
+
         if (ds.dnsaddr.s_addr != 0)
           {
             dns_setserver(&ds.dnsaddr);
           }
+
         dhcpc_close(handle);
     }
 #endif
