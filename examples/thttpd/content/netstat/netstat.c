@@ -81,7 +81,7 @@
  *    dangerous to reference global variables in the callback function.
  */
 
-/* static */ int netdev_callback(FAR struct uip_driver_s *dev, void *arg)
+/* static */ int netdev_callback(FAR struct net_driver_s *dev, void *arg)
 {
   struct in_addr addr;
 

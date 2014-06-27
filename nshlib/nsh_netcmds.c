@@ -279,7 +279,7 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
  * Name: ifconfig_callback
  ****************************************************************************/
 
-int ifconfig_callback(FAR struct uip_driver_s *dev, void *arg)
+int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
   struct in_addr addr;
