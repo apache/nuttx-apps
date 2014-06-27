@@ -943,4 +943,5 @@
 7.4 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/system/mdio:  PHY tool from Daniel Lazlo Sizter (2014-6-27).
-
+	* apps/nshlib:  Networking logic modified to handler the case of SLIP
+	  transport.  From Max Neklyudov (2014-6-27).
