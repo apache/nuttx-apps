@@ -82,12 +82,9 @@ int initialize_socket(void)
   /* Verify socket creation */
 
   if (!(g_listen_fd > 0))
-  {
-//    printf("call to %s() failed (fd = %d)!\n", "socket", g_listen_fd);
-    return -1;
-  } else {
-//    printf("got socket with fd %d\n", g_listen_fd);
-  }
+    {
+      return -1;
+    }
 
   return 0;
 }
@@ -107,10 +104,10 @@ int get_phy_id(void)
   printf("call to %s() ", "ioctl");
 
   if (ret != 0)
-  {
-    printf("failed! (value %d, errno %d)\n", ret, errno);
-    return -1;
-  }
+    {
+      printf("failed! (value %d, errno %d)\n", ret, errno);
+      return -1;
+    }
 
   phy_id = ifr.ifr_mii_phy_id;
 
@@ -130,9 +127,9 @@ int get_phy_reg(uint16_t phy_id, uint16_t reg_num, uint16_t *val)
   ret = ioctl(g_listen_fd, SIOCGMIIREG, (unsigned long) &ifr);
 
   if(ret == OK)
-  {
-    *val = ifr.ifr_mii_val_out;
-  }
+    {
+      *val = ifr.ifr_mii_val_out;
+    }
 
   return ret;
 }
@@ -175,63 +172,73 @@ int mdio_main(int argc, char *argv[])
 
   /*--- SETUP --------------------------------------------------------------*/
 
-  if (argc == 1) {
-    printf("usage:\n");
-    printf("\n");
-    printf("  %s phy_id reg_no          -- read register\n", argv[0]);
-    printf("  %s phy_id reg_no value    -- write register\n", argv[0]);
-    printf("\n");
-    return -1;
-  }
+  if (argc == 1)
+    {
+      printf("usage:\n");
+      printf("\n");
+      printf("  %s phy_id reg_no          -- read register\n", argv[0]);
+      printf("  %s phy_id reg_no value    -- write register\n", argv[0]);
+      printf("\n");
+      return -1;
+    }
 
   initialize_socket();
 
   if (argc == 4) /* Write to register */
-  {
-    phy_id = strtol(argv[1], NULL, 16);
-    reg_num = strtol(argv[2], NULL, 16);
-    val_in = strtol(argv[3], NULL, 16);
+    {
+      phy_id = strtol(argv[1], NULL, 16);
+      reg_num = strtol(argv[2], NULL, 16);
+      val_in = strtol(argv[3], NULL, 16);
 
-    ret = set_phy_reg(phy_id, reg_num, val_in);
-    if (ret != 0)
-      printf("%s() returned %d\n", "set_phy_reg", ret);
-  }
+      ret = set_phy_reg(phy_id, reg_num, val_in);
+      if (ret != 0)
+        {
+          printf("%s() returned %d\n", "set_phy_reg", ret);
+        }
+    }
   else if (argc == 3) /* Read from register */
-  {
-    phy_id = strtol(argv[1], NULL, 16);
-    reg_num = strtol(argv[2], NULL, 16);
+    {
+      phy_id = strtol(argv[1], NULL, 16);
+      reg_num = strtol(argv[2], NULL, 16);
 
-    ret = get_phy_reg(phy_id, reg_num, &val_out);
-    if (ret != 0)
-      printf("%s() returned %d\n", "get_phy_reg", ret);
-    else
-      printf("0x%4x\n", val_out);
-  }
+      ret = get_phy_reg(phy_id, reg_num, &val_out);
+      if (ret != 0)
+        {
+          printf("%s() returned %d\n", "get_phy_reg", ret);
+        }
+      else
+        {
+          printf("0x%4x\n", val_out);
+        }
+    }
   else if (argc == 2)
-  {
-    phy_id = strtol(argv[1], NULL, 16);
-
-    for(i = 0; i < 32; i++)
     {
-      ret = get_phy_reg(phy_id, i, &val_out);
+      phy_id = strtol(argv[1], NULL, 16);
 
-      printf("phy[%d][%d] = 0x%4x\n", phy_id, i, val_out);
+      for (i = 0; i < 32; i++)
+        {
+          ret = get_phy_reg(phy_id, i, &val_out);
+
+          printf("phy[%d][%d] = 0x%4x\n", phy_id, i, val_out);
+        }
     }
-  }
   else
-  {
-    /* Read the PHY address */
-
-    phy_id = get_phy_id();
-
-    if(phy_id < 1)
     {
-      /* failed (can not be negative) */
-      printf("getting phy id failed\n");
-    } else {
-      printf("phy_id = %d\n", phy_id);
+      /* Read the PHY address */
+
+      phy_id = get_phy_id();
+
+      if (phy_id < 1)
+        {
+          /* failed (can not be negative) */
+
+          printf("getting phy id failed\n");
+        }
+      else
+        {
+          printf("phy_id = %d\n", phy_id);
+        }
     }
-  }
 
   return 0;
 }
