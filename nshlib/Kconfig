@@ -536,7 +536,7 @@ config NSH_ARCHROMFS
 
 config NSH_FATDEVNO
 	int "FAT block device minor number"
-	default 0
+	default 1
 	depends on FS_FAT
 	---help---
 		When the default rcS file used when NSH_ROMFSETC is selected, it

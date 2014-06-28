@@ -211,7 +211,7 @@ Modifying the ROMFS Image
 
 The contents of the /etc directory are retained in the file
 apps/nshlib/nsh_romfsimg.h (OR, if CONFIG_NSH_ARCHROMFS
-is defined, include/arch/board/rcs.template).  In order to modify
+is defined, include/arch/board/rcS.template).  In order to modify
 the start-up behavior, there are three things to study:
 
 1. Configuration Options.
