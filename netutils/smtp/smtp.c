@@ -288,7 +288,7 @@ void smtp_configure(FAR void *handle, FAR const char *lhostname,
 {
   FAR struct smtp_state *psmtp = (FAR struct smtp_state *)handle;
   psmtp->localhostname = lhostname;
-  uip_ipaddr_copy(psmtp->smtpserver, paddr);
+  net_ipaddr_copy(psmtp->smtpserver, paddr);
 }
 
 /* Send an e-mail.

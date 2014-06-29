@@ -144,7 +144,7 @@ int sendmail_main(int argc, char *argv[])
 
   /* Then send the mail */
 
-  uip_ipaddr(addr.s_addr, 127, 0, 0, 1);
+  net_ipaddr(addr.s_addr, 127, 0, 0, 1);
   handle = smtp_open();
   if (handle)
     {
