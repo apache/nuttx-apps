@@ -845,7 +845,7 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR const char *fmt = g_fmtarginvalid;
   const char *staddr;
-  uip_ipaddr_t ipaddr;
+  net_ipaddr_t ipaddr;
   uint32_t start;
   uint32_t next;
   uint32_t dsec = 10;

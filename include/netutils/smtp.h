@@ -52,23 +52,28 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Data
  ****************************************************************************/
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
 
-EXTERN void *smtp_open(void);
-EXTERN void  smtp_configure(void *handle, const char *localhostname,
-                            const uip_ipaddr_t *paddr);
-EXTERN int   smtp_send(void *handle, const char *to, const char *cc,
-                       const char *from, const char *subject,
-                       const char *msg, int msglen);
-EXTERN void  smtp_close(void *handle);
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+void *smtp_open(void);
+void  smtp_configure(FAR void *handle, FAR const char *localhostname,
+                     FAR const net_ipaddr_t *paddr);
+int   smtp_send(FAR void *handle, FAR const char *to, FAR const char *cc,
+                FAR const char *from, FAR const char *subject,
+                FAR const char *msg, int msglen);
+void  smtp_close(FAR void *handle);
 
 #undef EXTERN
 #ifdef __cplusplus
