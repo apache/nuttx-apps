@@ -336,8 +336,9 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
 {
   const char *mime;
   const char *ptr;
-  char cl[32];
-  char s[128];
+  char contentlen[HTTPD_MAX_CONTENTLEN];
+  char header[HTTPD_MAX_HEADERLEN];
+  int hdrlen;
   int i;
 
   static const struct
@@ -381,7 +382,8 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
 
   if (len >= 0)
     {
-      (void) snprintf(cl, sizeof cl, "Content-Length: %d\r\n", len);
+      (void)snprintf(contentlen, HTTPD_MAX_CONTENTLEN,
+                     "Content-Length: %d\r\n", len);
     }
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
   else
@@ -395,26 +397,32 @@ static int send_headers(struct httpd_state *pstate, int status, int len)
       /* TODO: here we "SHOULD" include a Retry-After header */
     }
 
-  i = snprintf(s, sizeof s,
-    "HTTP/1.0 %d %s\r\n"
-#ifndef CONFIG_NETUTILS_HTTPD_SERVERHEADER_DISABLE
-    "Server: uIP/NuttX http://nuttx.org/\r\n"
-#endif
-    "Connection: %s\r\n"
-    "Content-type: %s\r\n"
-    "%s"
-    "\r\n",
-    status,
-    status >= 400 ? "Error" : "OK",
-#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
-    pstate->ht_keepalive ? "keep-alive" : "close",
-#else
-    "close",
-#endif
-    mime,
-    len >= 0 ? cl : "");
+  /* Construct the header.
+   *
+   * REVISIT:  Wouldn't asprintf be a better option than a large stack
+   * array?
+   */
 
-  return send_chunk(pstate, s, i);
+  hdrlen = snprintf(header, HTTPD_MAX_HEADERLEN,
+                    "HTTP/1.0 %d %s\r\n"
+#ifndef CONFIG_NETUTILS_HTTPD_SERVERHEADER_DISABLE
+                    "Server: uIP/NuttX http://nuttx.org/\r\n"
+#endif
+                    "Connection: %s\r\n"
+                    "Content-type: %s\r\n"
+                    "%s"
+                    "\r\n",
+                    status,
+                    status >= 400 ? "Error" : "OK",
+#ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
+                    pstate->ht_keepalive ? "keep-alive" : "close",
+#else
+                    "close",
+#endif
+                    mime,
+                    len >= 0 ? contentlen : "");
+
+  return send_chunk(pstate, header, hdrlen);
 }
 
 static int httpd_senderror(struct httpd_state *pstate, int status)

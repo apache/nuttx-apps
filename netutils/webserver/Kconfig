@@ -33,6 +33,15 @@ config NETUTILS_HTTPD_SCRIPT_DISABLE
 	---help---
 		This option, if selected, will elide the %! scripting
 
+config NETUTILS_HTTPD_MAXPATH
+	bool "Maximum size of a path"
+	default 64
+	---help---
+		This is the maximum size of a PATH used in the web server.  This setting
+		is the logically the same as the PATH_MAX setting that (and in fact, if
+		not defined, the MAX_PATH setting will be used).  This setting allows
+		more conservative memory allocation.
+
 config NETUTILS_HTTPD_CGIPATH
 	bool "URL/CGI function mapping"
 	default n

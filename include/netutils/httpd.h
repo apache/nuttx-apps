@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/netutils/httpd.h
  *
- *   Copyright (C) 2007, 2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011-2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based on uIP which also has a BSD style license:
@@ -44,21 +44,16 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/net/tcp.h>
 #include <nuttx/net/uip.h>
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#ifdef __cplusplus
-#  define EXTERN extern "C"
-extern "C" {
-#else
-#  define EXTERN extern
-#endif
 
 /* As threads are created to handle each request, a stack must be allocated
  * for the thread.  Use a default if the user provided no stacksize.
@@ -89,11 +84,18 @@ extern "C" {
 
 /* This is the maximum size of a file path */
 
-#if defined(CONFIG_NETUTILS_HTTPD_MMAP) || defined(CONFIG_NETUTILS_HTTPD_SENDFILE)
-#define HTTPD_MAX_FILENAME PATH_MAX
-#else
-#define HTTPD_MAX_FILENAME  20
+#ifndef CONFIG_NETUTILS_HTTPD_MAXPATH
+#  define CONFIG_NETUTILS_HTTPD_MAXPATH PATH_MAX
 #endif
+
+#define HTTPD_MAX_FILENAME CONFIG_HTTPD_MAXPATH
+
+/* Other tunable values.  If you need to change these values, please create
+ * new configurations in apps/netutils/webserver/Kconfig
+ */
+
+#defien HTTPD_MAX_CONTENTLEN  32
+#defien HTTPD_MAX_HEADERLEN   180
 
 /****************************************************************************
  * Public types
@@ -160,7 +162,7 @@ struct httpd_cgi_call
  *   then added to the list of HTTPD CGI functions with the httpd_cgi_register()
  *   function.
 
- * Input Paramters:
+ * Input Parameters:
  *
  *   name     The C variable name of the function
  *   str      The string name of the function, used in the script file
@@ -172,16 +174,28 @@ static void function(struct httpd_state *, char *); \
 static struct httpd_cgi_call name = {NULL, str, function}
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef __cplusplus
+#  define EXTERN extern "C"
+extern "C"
+{
+#else
+#  define EXTERN extern
+#endif
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-EXTERN void httpd_init(void);
-EXTERN int httpd_listen(void);
-EXTERN void httpd_cgi_register(struct httpd_cgi_call *cgi_call);
-EXTERN uint16_t httpd_fs_count(char *name);
+void httpd_init(void);
+int httpd_listen(void);
+void httpd_cgi_register(struct httpd_cgi_call *cgi_call);
+uint16_t httpd_fs_count(char *name);
 
-EXTERN const struct httpd_fsdata_file g_httpdfs_root[];
-EXTERN const int g_httpd_numfiles;
+const struct httpd_fsdata_file g_httpdfs_root[];
+const int g_httpd_numfiles;
 
 #undef EXTERN
 #ifdef __cplusplus
