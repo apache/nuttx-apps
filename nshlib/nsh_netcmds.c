@@ -169,7 +169,7 @@ static inline uint16_t ping_newid(void)
 #if defined(CONFIG_NET_STATISTICS) && !defined(CONFIG_NSH_DISABLE_IFCONFIG)
 static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 {
-  nsh_output(vtbl, "uIP         IP ");
+  nsh_output(vtbl, "            IP ");
 #ifdef CONFIG_NET_TCP
   nsh_output(vtbl, "  TCP");
 #endif

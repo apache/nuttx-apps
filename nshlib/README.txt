@@ -483,8 +483,8 @@ o ifconfig [nic_name [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask 
     eth0    HWaddr 00:18:11:80:10:06
             IPaddr:10.0.0.2 DRaddr:10.0.0.1 Mask:255.255.255.0
 
-  if uIP statistics are enabled (CONFIG_NET_STATISTICS), then
-  this command will also show the detailed state of uIP.
+  if networking statistics are enabled (CONFIG_NET_STATISTICS), then
+  this command will also show the detailed state of transfers by protocol.
 
 o ifdown <nic-name>
 
