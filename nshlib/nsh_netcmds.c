@@ -952,7 +952,7 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       /* Send the ECHO request and wait for the response */
 
       next  = clock_systimer();
-      seqno = uip_ping(ipaddr, id, i, DEFAULT_PING_DATALEN, maxwait);
+      seqno = icmp_ping(ipaddr, id, i, DEFAULT_PING_DATALEN, maxwait);
 
       /* Was any response returned? We can tell if a non-negative sequence
        * number was returned.
