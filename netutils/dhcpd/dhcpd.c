@@ -270,15 +270,15 @@ static struct dhcpd_state_s g_state;
 #ifndef CONFIG_NETUTILS_DHCPD_HOST
 static inline void dhcpd_arpupdate(uint16_t *pipaddr, uint8_t *phwaddr)
 {
-  uip_lock_t flags;
+  net_lock_t flags;
 
   /* Disable interrupts and update the ARP table -- very non-portable hack.
    * REVISIT -- switch to the SIOCSARP ioctl call if/when it is implemented.
    */
 
-  flags = uip_lock();
+  flags = net_lock();
   arp_update(pipaddr, phwaddr);
-  uip_unlock(flags);
+  net_unlock(flags);
 }
 #else
 #  define dhcpd_arpupdate(pipaddr,phwaddr)
