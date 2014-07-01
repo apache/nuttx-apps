@@ -945,3 +945,6 @@
 	* apps/system/mdio:  PHY tool from Daniel Lazlo Sizter (2014-6-27).
 	* apps/nshlib:  Networking logic modified to handler the case of SLIP
 	  transport.  From Max Neklyudov (2014-6-27).
+	* apps/nshlib:  if # appears on line, need to comment ignore additional
+	  commands on the line (2014-7-1).
+
