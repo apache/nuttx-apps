@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_gethostaddr.c
+ * netutils/netlib/netlib_gethostaddr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -61,7 +61,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_gethostaddr
+ * Name: netlib_gethostaddr
  *
  * Description:
  *   Get the network driver IP address
@@ -76,9 +76,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-int uip_gethostaddr(const char *ifname, struct in6_addr *addr)
+int netlib_gethostaddr(const char *ifname, struct in6_addr *addr)
 #else
-int uip_gethostaddr(const char *ifname, struct in_addr *addr)
+int netlib_gethostaddr(const char *ifname, struct in_addr *addr)
 #endif
 {
   int ret = ERROR;

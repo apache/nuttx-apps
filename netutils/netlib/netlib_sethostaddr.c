@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_sethostaddr.c
+ * netutils/netlib/netlib_sethostaddr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -57,7 +57,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_sethostaddr
+ * Name: netlib_sethostaddr
  *
  * Description:
  *   Set the network driver IP address
@@ -72,9 +72,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-int uip_sethostaddr(const char *ifname, const struct in6_addr *addr)
+int netlib_sethostaddr(const char *ifname, const struct in6_addr *addr)
 #else
-int uip_sethostaddr(const char *ifname, const struct in_addr *addr)
+int netlib_sethostaddr(const char *ifname, const struct in_addr *addr)
 #endif
 {
   int ret = ERROR;

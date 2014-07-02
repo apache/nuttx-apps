@@ -304,23 +304,23 @@ static void net_configure(void)
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  uip_setmacaddr("eth0", mac);
+  netlib_setmacaddr("eth0", mac);
 #endif
 
   /* Set up our host address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_POLL_IPADDR);
-  uip_sethostaddr("eth0", &addr);
+  netlib_sethostaddr("eth0", &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_POLL_DRIPADDR);
-  uip_setdraddr("eth0", &addr);
+  netlib_setdraddr("eth0", &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_POLL_NETMASK);
-  uip_setnetmask("eth0", &addr);
+  netlib_setnetmask("eth0", &addr);
 }
 
 /****************************************************************************

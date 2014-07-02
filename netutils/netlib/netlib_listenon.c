@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_listenon.c
+ * netutils/netlib/netlib_listenon.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -59,7 +59,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_listenon
+ * Name: netlib_listenon
  *
  * Description:
  *   Implement basic server listening
@@ -72,7 +72,7 @@
  *
  ****************************************************************************/
 
-int uip_listenon(uint16_t portno)
+int netlib_listenon(uint16_t portno)
 {
   struct sockaddr_in myaddr;
   int listensd;

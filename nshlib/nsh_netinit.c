@@ -123,7 +123,7 @@ int nsh_netinit(void)
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  uip_setmacaddr(NET_DEVNAME, mac);
+  netlib_setmacaddr(NET_DEVNAME, mac);
 #endif
 
   /* Set up our host address */
@@ -133,17 +133,17 @@ int nsh_netinit(void)
 #else
   addr.s_addr = 0;
 #endif
-  uip_sethostaddr(NET_DEVNAME, &addr);
+  netlib_sethostaddr(NET_DEVNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_NSH_DRIPADDR);
-  uip_setdraddr(NET_DEVNAME, &addr);
+  netlib_setdraddr(NET_DEVNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_NSH_NETMASK);
-  uip_setnetmask(NET_DEVNAME, &addr);
+  netlib_setnetmask(NET_DEVNAME, &addr);
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   /* Set up the resolver */
@@ -158,7 +158,7 @@ int nsh_netinit(void)
 #if defined(CONFIG_NSH_DHCPC)
   /* Get the MAC address of the NIC */
 
-  uip_getmacaddr(NET_DEVNAME, mac);
+  netlib_getmacaddr(NET_DEVNAME, mac);
 
   /* Set up the DHCPC modules */
 
@@ -172,16 +172,16 @@ int nsh_netinit(void)
     {
         struct dhcpc_state ds;
         (void)dhcpc_request(handle, &ds);
-        uip_sethostaddr(NET_DEVNAME, &ds.ipaddr);
+        netlib_sethostaddr(NET_DEVNAME, &ds.ipaddr);
 
         if (ds.netmask.s_addr != 0)
           {
-            uip_setnetmask(NET_DEVNAME, &ds.netmask);
+            netlib_setnetmask(NET_DEVNAME, &ds.netmask);
           }
 
         if (ds.default_router.s_addr != 0)
           {
-            uip_setdraddr(NET_DEVNAME, &ds.default_router);
+            netlib_setdraddr(NET_DEVNAME, &ds.default_router);
           }
 
         if (ds.dnsaddr.s_addr != 0)

@@ -200,24 +200,24 @@ int thttp_main(int argc, char *argv[])
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  uip_setmacaddr(NET_DEVNAME, mac);
+  netlib_setmacaddr(NET_DEVNAME, mac);
 #endif
 
   /* Set up our host address */
 
   message("Setup network addresses\n");
   addr.s_addr = HTONL(CONFIG_THTTPD_IPADDR);
-  uip_sethostaddr(NET_DEVNAME, &addr);
+  netlib_sethostaddr(NET_DEVNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_THTTPD_DRIPADDR);
-  uip_setdraddr(NET_DEVNAME, &addr);
+  netlib_setdraddr(NET_DEVNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_THTTPD_NETMASK);
-  uip_setnetmask(NET_DEVNAME, &addr);
+  netlib_setnetmask(NET_DEVNAME, &addr);
 
   /* Initialize the NXFLAT binary loader */
 

@@ -347,7 +347,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
                    * retain the current location.
                    */
 
-                  (void)uip_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
+                  (void)netlib_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
                                          ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
                                          ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
                   nvdbg("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
@@ -423,7 +423,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
   /* Parse the hostname (with optional port number) and filename from the URL */
 
-  ret = uip_parsehttpurl(url, &ws.port,
+  ret = netlib_parsehttpurl(url, &ws.port,
                          ws.hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
                          ws.filename, CONFIG_WEBCLIENT_MAXFILENAME);
   if (ret != 0)

@@ -37,7 +37,7 @@ WD			= ${shell pwd}
 TOPDIR		= $(WD)/../..
 -include $(TOPDIR)/Make.defs
 
-OBJS		= host.o1 webclient.o1 uip_parsehttpurl.o1
+OBJS		= host.o1 webclient.o1 netlib_parsehttpurl.o1
 BIN			= wget
 
 HOSTCFLAGS	+= -DCONFIG_WEBCLIENT_HOST=1

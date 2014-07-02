@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_getmacaddr.c
+ * netutils/netlib/netlib_getmacaddr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -57,7 +57,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_getmacaddr
+ * Name: netlib_getmacaddr
  *
  * Description:
  *   Get the network driver IP address
@@ -71,7 +71,7 @@
  *
  ****************************************************************************/
 
-int uip_getmacaddr(const char *ifname, uint8_t *macaddr)
+int netlib_getmacaddr(const char *ifname, uint8_t *macaddr)
 {
   int ret = ERROR;
   if (ifname && macaddr)

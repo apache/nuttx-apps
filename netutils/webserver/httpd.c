@@ -788,7 +788,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
   struct timeval tv;
 #endif
 
-  listensd = uip_listenon(portno);
+  listensd = netlib_listenon(portno);
   if (listensd < 0)
     {
       return;
@@ -861,7 +861,7 @@ int httpd_listen(void)
 #ifdef CONFIG_NETUTILS_HTTPD_SINGLECONNECT
   single_server(HTONS(80), httpd_handler, CONFIG_NETUTILS_HTTPDSTACKSIZE);
 #else
-  uip_server(HTONS(80), httpd_handler, CONFIG_NETUTILS_HTTPDSTACKSIZE);
+  netlib_server(HTONS(80), httpd_handler, CONFIG_NETUTILS_HTTPDSTACKSIZE);
 #endif
 
   /* the server accept loop only returns on errors */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_getifflag.c
+ * netutils/netlib/netlib_getifflag.c
  *
  *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -58,7 +58,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_getifstatus
+ * Name: netlib_getifstatus
  *
  * Description:
  *   Get the network driver ifup/ifdown status
@@ -72,7 +72,7 @@
  *
  ****************************************************************************/
 
-int uip_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
+int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
 {
   int ret = ERROR;
   if (ifname)

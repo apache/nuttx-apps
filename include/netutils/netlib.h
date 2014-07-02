@@ -108,39 +108,39 @@ bool netlib_hwmacconv(FAR const char *hwstr, uint8_t *hw);
 /* Get and set IP/MAC addresses (Ethernet L2 only) */
 
 #ifdef CONFIG_NET_ETHERNET
-int uip_setmacaddr(FAR const char *ifname, const uint8_t *macaddr);
-int uip_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
+int netlib_setmacaddr(FAR const char *ifname, const uint8_t *macaddr);
+int netlib_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
 #endif
 
 /* IP address support */
 
 #ifdef CONFIG_NET_IPv6
-int uip_gethostaddr(FAR const char *ifname, struct in6_addr *addr);
-int uip_sethostaddr(FAR const char *ifname, const struct in6_addr *addr);
-int uip_setdraddr(FAR const char *ifname, const struct in6_addr *addr);
-int uip_setnetmask(FAR const char *ifname, const struct in6_addr *addr);
+int netlib_gethostaddr(FAR const char *ifname, struct in6_addr *addr);
+int netlib_sethostaddr(FAR const char *ifname, const struct in6_addr *addr);
+int netlib_setdraddr(FAR const char *ifname, const struct in6_addr *addr);
+int netlib_setnetmask(FAR const char *ifname, const struct in6_addr *addr);
 #else
-int uip_gethostaddr(FAR const char *ifname, struct in_addr *addr);
-int uip_sethostaddr(FAR const char *ifname, const struct in_addr *addr);
-int uip_setdraddr(FAR const char *ifname, const struct in_addr *addr);
-int uip_setnetmask(FAR const char *ifname, const struct in_addr *addr);
+int netlib_gethostaddr(FAR const char *ifname, struct in_addr *addr);
+int netlib_sethostaddr(FAR const char *ifname, const struct in_addr *addr);
+int netlib_setdraddr(FAR const char *ifname, const struct in_addr *addr);
+int netlib_setnetmask(FAR const char *ifname, const struct in_addr *addr);
 #endif
 
 /* HTTP support */
 
-int  uip_parsehttpurl(FAR const char *url, uint16_t *port,
+int  netlib_parsehttpurl(FAR const char *url, uint16_t *port,
                       FAR char *hostname, int hostlen,
                       FAR char *filename, int namelen);
 
 /* Generic server logic */
 
-int uip_listenon(uint16_t portno);
-void uip_server(uint16_t portno, pthread_startroutine_t handler,
+int netlib_listenon(uint16_t portno);
+void netlib_server(uint16_t portno, pthread_startroutine_t handler,
                 int stacksize);
 
-int uip_getifstatus(FAR const char *ifname, FAR uint8_t *flags);
-int uip_ifup(FAR const char *ifname);
-int uip_ifdown(FAR const char *ifname);
+int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags);
+int netlib_ifup(FAR const char *ifname);
+int netlib_ifdown(FAR const char *ifname);
 
 #undef EXTERN
 #ifdef __cplusplus

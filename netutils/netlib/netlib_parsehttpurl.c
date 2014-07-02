@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_parsehttpurl.c
+ * netutils/netlib/netlib_parsehttpurl.c
  *
  *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -57,10 +57,10 @@ const char g_http[] = "http://";
  *****************************************************************************/
 
 /****************************************************************************
- * Name: uip_parsehttpurl
+ * Name: netlib_parsehttpurl
  ****************************************************************************/
 
-int uip_parsehttpurl(const char *url, uint16_t *port,
+int netlib_parsehttpurl(const char *url, uint16_t *port,
                      char *hostname, int hostlen,
                      char *filename, int namelen)
 {

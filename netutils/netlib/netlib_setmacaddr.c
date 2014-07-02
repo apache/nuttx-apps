@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/uip_setmacaddr.c
+ * netutils/netlib/netlib_setmacaddr.c
  *
  *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -67,7 +67,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_setmacaddr
+ * Name: netlib_setmacaddr
  *
  * Description:
  *   Set the network driver MAC address
@@ -81,7 +81,7 @@
  *
  ****************************************************************************/
 
-int uip_setmacaddr(const char *ifname, const uint8_t *macaddr)
+int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
 {
   int ret = ERROR;
 

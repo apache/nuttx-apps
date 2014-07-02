@@ -42,7 +42,7 @@ include $(APPDIR)/Make.defs
 ASRCS  =
 CSRCS  = netlib.c netlib_sethostaddr.c netlib_gethostaddr.c
 CSRCS += netlib_setdraddr.c netlib_setnetmask.c netlib_parsehttpurl.c
-CSRCS += netlib_setifflag.c netlib_getifflag.c
+CSRCS += netlib_setifstatus.c netlib_getifstatus.c
 
 # These require TCP support
 
