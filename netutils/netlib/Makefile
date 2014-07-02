@@ -1,7 +1,7 @@
 ############################################################################
 # apps/netutils/netlib/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,50 +39,50 @@ include $(APPDIR)/Make.defs
 
 # UIP Library
 
-ASRCS		=
-CSRCS		= netlib.c uip_sethostaddr.c uip_gethostaddr.c uip_setdraddr.c \
-		  uip_setnetmask.c uip_parsehttpurl.c uip_setifflag.c \
-		  uip_getifflag.c
+ASRCS  =
+CSRCS  = netlib.c netlib_sethostaddr.c netlib_gethostaddr.c
+CSRCS += netlib_setdraddr.c netlib_setnetmask.c netlib_parsehttpurl.c
+CSRCS += netlib_setifflag.c netlib_getifflag.c
 
 # These require TCP support
 
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS		+= uip_server.c uip_listenon.c
+CSRCS += netlib_server.c netlib_listenon.c
 endif
 
 # No MAC address support for SLIP (Ethernet only)
 
 ifneq ($(CONFIG_NET_SLIP),y)
-CSRCS		+= uip_setmacaddr.c uip_getmacaddr.c
+CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
 endif
 
 # IGMP support
 
 ifeq ($(CONFIG_NET_IGMP),y)
-CSRCS		+= uip_ipmsfilter.c
+CSRCS += netlib_ipmsfilter.c
 endif
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
 .PHONY: context depend clean distclean
