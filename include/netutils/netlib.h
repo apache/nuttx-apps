@@ -6,9 +6,7 @@
  *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
- * Some of these APIs derive from uIP but all of them use the uip_ prefix
- * to identify them as members of this library.  uIP also has a BSD style
- * license:
+ * Some of these APIs derive from uIP.  uIP also has a BSD style license:
  *
  *   Author: Adam Dunkels <adam@sics.se>
  *   Copyright (c) 2002, Adam Dunkels.
