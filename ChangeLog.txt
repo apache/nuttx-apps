@@ -947,4 +947,8 @@
 	  transport.  From Max Neklyudov (2014-6-27).
 	* apps/nshlib:  if # appears on line, need to comment ignore additional
 	  commands on the line (2014-7-1).
+	* apps/netlib: Renamed all occurrences of uiplib to netlib.  Renamed
+	  files under netutils/uiplib/uip_*.c to netutils/netlib/netlib_*.c.
+	  Renamed all functions defined in netutils/netlib/ to begin with netlib_,
+	  instead of uip_. (2014-7-2).
 
