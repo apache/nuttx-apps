@@ -52,7 +52,7 @@
 #include <netinet/ether.h>
 
 #include <nuttx/net/arp.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/thttpd.h>
 
 #include <nuttx/fs/ramdisk.h>

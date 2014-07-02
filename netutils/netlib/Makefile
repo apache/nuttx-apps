@@ -1,5 +1,5 @@
 ############################################################################
-# apps/netutils/uiplib/Makefile
+# apps/netutils/netlib/Makefile
 #
 #   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # UIP Library
 
 ASRCS		=
-CSRCS		= uiplib.c uip_sethostaddr.c uip_gethostaddr.c uip_setdraddr.c \
+CSRCS		= netlib.c uip_sethostaddr.c uip_gethostaddr.c uip_setdraddr.c \
 		  uip_setnetmask.c uip_parsehttpurl.c uip_setifflag.c \
 		  uip_getifflag.c
 

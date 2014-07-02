@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/uiplib/uip_parsehttpurl.c
+ * netutils/netlib/uip_parsehttpurl.c
  *
  *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -43,7 +43,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Private Data

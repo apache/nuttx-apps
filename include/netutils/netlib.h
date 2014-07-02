@@ -1,5 +1,5 @@
 /****************************************************************************
- *  apps/include/netutils/uiplib.h
+ *  apps/include/netutils/netlib.h
  * Various non-standard APIs to support netutils.  All non-standard and
  * intended only for internal use.
  *
@@ -42,8 +42,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_NETUTILS_UIPLIB_H
-#define __APPS_INCLUDE_NETUTILS_UIPLIB_H
+#ifndef __APPS_INCLUDE_NETUTILS_NETLIB_H
+#define __APPS_INCLUDE_NETUTILS_NETLIB_H
 
 /****************************************************************************
  * Included Files
@@ -68,9 +68,9 @@
  */
 
 #ifdef CONFIG_NET_UDP
-# define UIPLIB_SOCK_IOCTL SOCK_DGRAM
+# define NETLIB_SOCK_IOCTL SOCK_DGRAM
 #else
-# define UIPLIB_SOCK_IOCTL SOCK_STREAM
+# define NETLIB_SOCK_IOCTL SOCK_STREAM
 #endif
 
 /****************************************************************************
@@ -102,8 +102,8 @@ extern "C"
  * Return: Non-zero If the IP address was parsed.
  */
 
-bool uiplib_ipaddrconv(FAR const char *addrstr, uint8_t *addr);
-bool uiplib_hwmacconv(FAR const char *hwstr, uint8_t *hw);
+bool netlib_ipaddrconv(FAR const char *addrstr, uint8_t *addr);
+bool netlib_hwmacconv(FAR const char *hwstr, uint8_t *hw);
 
 /* Get and set IP/MAC addresses (Ethernet L2 only) */
 
@@ -147,4 +147,4 @@ int uip_ifdown(FAR const char *ifname);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_NETUTILS_UIPLIB_H */
+#endif /* __APPS_INCLUDE_NETUTILS_NETLIB_H */

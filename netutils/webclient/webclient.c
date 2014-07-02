@@ -72,7 +72,7 @@
 #include <netinet/in.h>
 
 #include <nuttx/version.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/webclient.h>
 
 #if defined(CONFIG_NETUTILS_CODECS)

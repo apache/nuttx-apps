@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/uiplib/uip_setdraddr.c
+ * netutils/netlib/uip_getifflag.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,8 @@
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-
+#include <stdint.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -50,66 +51,56 @@
 #include <netinet/in.h>
 #include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_setdraddr
+ * Name: uip_getifstatus
  *
  * Description:
- *   Set the default router IP address
+ *   Get the network driver ifup/ifdown status
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   ipaddr   The address to set
+ *   flags    The interface flags returned by SIOCGIFFLAGS
  *
  * Return:
  *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
-int uip_setdraddr(const char *ifname, const struct in6_addr *addr)
-#else
-int uip_setdraddr(const char *ifname, const struct in_addr *addr)
-#endif
+int uip_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
 {
   int ret = ERROR;
-  if (ifname && addr)
+  if (ifname)
     {
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+      /* Get a socket (only so that we get access to the INET subsystem) */
+
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
-#ifdef CONFIG_NET_IPv6
-          struct sockaddr_in6 *inaddr;
-#else
-          struct sockaddr_in  *inaddr;
-#endif
-          /* Add the device name to the request */
+          memset (&req, 0, sizeof(struct ifreq));
+
+          /* Put the driver name into the request */
 
           strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
-          /* Add the INET address to the request */
+          /* Perform the ioctl to ifup or ifdown status */
 
-#ifdef CONFIG_NET_IPv6
-          inaddr             = (struct sockaddr_in6 *)&req.ifr_addr;
-          inaddr->sin_family = AF_INET6;
-          inaddr->sin_port   = 0;
-          memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
-#else
-          inaddr             = (struct sockaddr_in *)&req.ifr_addr;
-          inaddr->sin_family = AF_INET;
-          inaddr->sin_port   = 0;
-          memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
-#endif
-          ret = ioctl(sockfd, SIOCSIFDSTADDR, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
+          if (!ret)
+            {
+              *flags = req.ifr_flags;
+            }
+
           close(sockfd);
         }
     }
+
   return ret;
 }
 

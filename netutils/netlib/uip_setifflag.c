@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/uiplib/uip_setmultiaddr.c
+ * netutils/netlib/uip_setifflag.c
  *
- *   Copyright (C) 2010-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,79 +38,108 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <errno.h>
-#include <debug.h>
 
 #include <netinet/in.h>
-#include <sys/sockio.h>
+#include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
-#include <apps/netutils/ipmsfilter.h>
-
-#ifdef CONFIG_NET_IGMP
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ipmsfilter
+ * Name: uip_ifup
  *
  * Description:
- *   Add or remove an IP address from a multicast filter set.
+ *   Set the network interface UP
  *
  * Parameters:
- *   ifname     The name of the interface to use, size must less than IMSFNAMSIZ
- *   multiaddr  Multicast group address to add/remove (network byte order)
- *   fmode      MCAST_INCLUDE: Add multicast address
- *              MCAST_EXCLUDE: Remove multicast address
+ *   ifname   The name of the interface to use
  *
  * Return:
- *   0 on sucess; Negated errno on failure
+ *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
-int ipmsfilter(FAR const char *ifname, FAR const struct in_addr *multiaddr,
-               uint32_t fmode)
+int uip_ifup(const char *ifname)
 {
   int ret = ERROR;
-
-  nvdbg("ifname: %s muliaddr: %08x fmode: %ld\n", ifname, *multiaddr, fmode);
-  if (ifname && multiaddr)
+  if (ifname)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          struct ip_msfilter imsf;
+          struct ifreq req;
+          memset (&req, 0, sizeof(struct ifreq));
 
           /* Put the driver name into the request */
 
-          strncpy(imsf.imsf_name, ifname, IMSFNAMSIZ);
+          strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
-          /* Put the new address into the request */
+          /* Perform the ioctl to ifup flag */
 
-          imsf.imsf_multiaddr.s_addr = multiaddr->s_addr;
+          req.ifr_flags |= IFF_UP;
 
-          /* Perforom the ioctl to set the MAC address */
-
-          imsf.imsf_fmode = fmode;
-          ret = ioctl(sockfd, SIOCSIPMSFILTER, (unsigned long)&imsf);
+          ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
           close(sockfd);
         }
     }
+
   return ret;
 }
 
-#endif /* CONFIG_NET_IGM */
+/****************************************************************************
+ * Name: uip_ifdown
+ *
+ * Description:
+ *   Set the network interface DOWN
+ *
+ * Parameters:
+ *   ifname   The name of the interface to use
+ *
+ * Return:
+ *   0 on sucess; -1 on failure
+ *
+ ****************************************************************************/
+
+int uip_ifdown(const char *ifname)
+{
+  int ret = ERROR;
+  if (ifname)
+    {
+      /* Get a socket (only so that we get access to the INET subsystem) */
+
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      if (sockfd >= 0)
+        {
+          struct ifreq req;
+          memset (&req, 0, sizeof(struct ifreq));
+
+          /* Put the driver name into the request */
+
+          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+
+          /* Perform the ioctl to ifup flag */
+
+          req.ifr_flags |= IFF_DOWN;
+
+          ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+          close(sockfd);
+        }
+    }
+
+  return ret;
+}
+
+#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */

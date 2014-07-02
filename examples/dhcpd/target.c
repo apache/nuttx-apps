@@ -44,7 +44,7 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/dhcpd.h>
 
 /****************************************************************************

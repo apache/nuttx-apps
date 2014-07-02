@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/uiplib/uip_setnetmask.c
+ * netutils/netlib/uip_setdraddr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -42,6 +42,7 @@
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -49,17 +50,17 @@
 #include <netinet/in.h>
 #include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_setnetmask
+ * Name: uip_setdraddr
  *
  * Description:
- *   Set the netmask
+ *   Set the default router IP address
  *
  * Parameters:
  *   ifname   The name of the interface to use
@@ -71,15 +72,15 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-int uip_setnetmask(const char *ifname, const struct in6_addr *addr)
+int uip_setdraddr(const char *ifname, const struct in6_addr *addr)
 #else
-int uip_setnetmask(const char *ifname, const struct in_addr *addr)
+int uip_setdraddr(const char *ifname, const struct in_addr *addr)
 #endif
 {
   int ret = ERROR;
   if (ifname && addr)
     {
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
@@ -105,7 +106,7 @@ int uip_setnetmask(const char *ifname, const struct in_addr *addr)
           inaddr->sin_port   = 0;
           memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
 #endif
-          ret = ioctl(sockfd, SIOCSIFNETMASK, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCSIFDSTADDR, (unsigned long)&req);
           close(sockfd);
         }
     }

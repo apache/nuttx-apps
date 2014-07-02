@@ -49,7 +49,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/webclient.h>
 #include <apps/netutils/cJSON.h>
 

@@ -51,7 +51,7 @@
 #include <nuttx/net/uip.h>
 #include <nuttx/net/arp.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/discover.h>
 
 #ifdef CONFIG_EXAMPLES_DISCOVER_DHCPC

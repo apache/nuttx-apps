@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/uiplib/uip_getmacaddr.c
+ * netutils/netlib/uip_setmacaddr.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,63 +43,73 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <stdint.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 
 #include <netinet/in.h>
 #include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPv6
+# define AF_INETX AF_INET6
+#else
+# define AF_INETX AF_INET
+#endif
 
 /****************************************************************************
  * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_getmacaddr
+ * Name: uip_setmacaddr
  *
  * Description:
- *   Get the network driver IP address
+ *   Set the network driver MAC address
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   macaddr  The location to return the MAC address
+ *   macaddr  MAC address to set, size must be IFHWADDRLEN
  *
  * Return:
  *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
-int uip_getmacaddr(const char *ifname, uint8_t *macaddr)
+int uip_setmacaddr(const char *ifname, const uint8_t *macaddr)
 {
   int ret = ERROR;
+
   if (ifname && macaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
 
           /* Put the driver name into the request */
 
           strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
-          /* Perform the ioctl to get the MAC address */
+          /* Put the new MAC address into the request */
 
-          ret = ioctl(sockfd, SIOCGIFHWADDR, (unsigned long)&req);
-          if (!ret)
-            {
-              /* Return the MAC address */
+          req.ifr_hwaddr.sa_family = AF_INETX;
+          memcpy(&req.ifr_hwaddr.sa_data, macaddr, IFHWADDRLEN);
 
-              memcpy(macaddr, &req.ifr_hwaddr.sa_data, IFHWADDRLEN);
-            }
+          /* Perform the ioctl to set the MAC address */
+
+          ret = ioctl(sockfd, SIOCSIFHWADDR, (unsigned long)&req);
           close(sockfd);
         }
     }
+
   return ret;
 }
 

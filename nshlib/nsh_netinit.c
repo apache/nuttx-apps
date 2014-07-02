@@ -46,7 +46,7 @@
 
 #include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
 #  include <apps/netutils/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>

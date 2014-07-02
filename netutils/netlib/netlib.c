@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/uiplib/uiplib.c
+ * netutils/netlib/netlib.c
  * Various uIP library functions.
  *
  *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
@@ -49,14 +49,14 @@
 #include <debug.h>
 
 #include <nuttx/net/uip.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-bool uiplib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
+bool netlib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
 {
   unsigned char tmp;
   char c;
@@ -98,7 +98,7 @@ bool uiplib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
   return true;
 }
 
-bool uiplib_hwmacconv(const char *hwstr, uint8_t *hw)
+bool netlib_hwmacconv(const char *hwstr, uint8_t *hw)
 {
   unsigned char tmp;
   char c;

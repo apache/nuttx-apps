@@ -54,7 +54,7 @@
 
 #include <nuttx/net/uip.h>
 #include <apps/netutils/dhcpc.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Definitions

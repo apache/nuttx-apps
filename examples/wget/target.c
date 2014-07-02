@@ -48,7 +48,7 @@
 
 #include <nuttx/net/uip.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/dnsclient.h>
 #include <apps/netutils/webclient.h>
 

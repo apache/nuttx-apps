@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/uiplib/uip_getifflag.c
+ * netutils/netlib/uip_listenon.c
  *
- *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
+ * 3. Neither the name Gregory Nutt nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -38,70 +38,94 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <stdio.h>
 #include <unistd.h>
-#include <string.h>
 #include <errno.h>
-
+#include <debug.h>
 #include <netinet/in.h>
-#include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
- * Global Functions
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_getifstatus
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: uip_listenon
  *
  * Description:
- *   Get the network driver ifup/ifdown status
+ *   Implement basic server listening
  *
  * Parameters:
- *   ifname   The name of the interface to use
- *   flags    The interface flags returned by SIOCGIFFLAGS
+ *   portno    The port to listen on (in network byte order)
  *
  * Return:
- *   0 on sucess; -1 on failure
+ *   A valid listening socket or -1 on error.
  *
  ****************************************************************************/
 
-int uip_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
+int uip_listenon(uint16_t portno)
 {
-  int ret = ERROR;
-  if (ifname)
+  struct sockaddr_in myaddr;
+  int listensd;
+#ifdef CONFIG_NET_HAVE_REUSEADDR
+  int optval;
+#endif
+
+  /* Create a new TCP socket to use to listen for connections */
+
+  listensd = socket(PF_INET, SOCK_STREAM, 0);
+  if (listensd < 0)
     {
-      /* Get a socket (only so that we get access to the INET subsystem) */
-
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
-
-          /* Put the driver name into the request */
-
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
-
-          /* Perform the ioctl to ifup or ifdown status */
-
-          ret = ioctl(sockfd, SIOCGIFFLAGS, (unsigned long)&req);
-          if (!ret)
-            {
-              *flags = req.ifr_flags;
-            }
-
-          close(sockfd);
-        }
+      ndbg("socket failure: %d\n", errno);
+      return ERROR;
     }
 
-  return ret;
-}
+  /* Set socket to reuse address */
 
-#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */
+#ifdef CONFIG_NET_HAVE_REUSEADDR
+  optval = 1;
+  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
+    {
+      ndbg("setsockopt SO_REUSEADDR failure: %d\n", errno);
+      goto errout_with_socket;
+    }
+#endif
+
+  /* Bind the socket to a local address */
+
+  myaddr.sin_family      = AF_INET;
+  myaddr.sin_port        = portno;
+  myaddr.sin_addr.s_addr = INADDR_ANY;
+
+  if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+    {
+      ndbg("bind failure: %d\n", errno);
+      goto errout_with_socket;
+    }
+
+  /* Listen for connections on the bound TCP socket */
+
+  if (listen(listensd, 5) < 0)
+    {
+      ndbg("listen failure %d\n", errno);
+      goto errout_with_socket;
+    }
+
+  /* Begin accepting connections */
+
+  nvdbg("Accepting connections on port %d\n", ntohs(portno));
+  return listensd;
+
+errout_with_socket:
+  close(listensd);
+  return ERROR;
+}

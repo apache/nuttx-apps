@@ -43,7 +43,7 @@
 #include <string.h>
 #include <net/route.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -108,7 +108,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* We need to have a socket (any socket) in order to perform the ioctl */
 
-  sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+  sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
   if (sockfd < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
@@ -236,7 +236,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* We need to have a socket (any socket) in order to perform the ioctl */
 
-  sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+  sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
   if (sockfd < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);

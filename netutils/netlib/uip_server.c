@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/uiplib/uip_server.c
+ * netutils/netlib/uip_server.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -51,7 +51,7 @@
 
 #include <netinet/in.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Public Functions

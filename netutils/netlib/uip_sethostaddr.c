@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/uiplib/uip_listenon.c
+ * netutils/netlib/uip_sethostaddr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name Gregory Nutt nor the names of its contributors may be
+ * 3. Neither the name NuttX nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -38,94 +38,79 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <stdint.h>
-#include <stdio.h>
+#include <sys/ioctl.h>
+
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
-#include <debug.h>
+
 #include <netinet/in.h>
+#include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
- * Public Functions
+ * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: uip_listenon
+ * Name: uip_sethostaddr
  *
  * Description:
- *   Implement basic server listening
+ *   Set the network driver IP address
  *
  * Parameters:
- *   portno    The port to listen on (in network byte order)
+ *   ifname   The name of the interface to use
+ *   ipaddr   The address to set
  *
  * Return:
- *   A valid listening socket or -1 on error.
+ *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
-int uip_listenon(uint16_t portno)
+#ifdef CONFIG_NET_IPv6
+int uip_sethostaddr(const char *ifname, const struct in6_addr *addr)
+#else
+int uip_sethostaddr(const char *ifname, const struct in_addr *addr)
+#endif
 {
-  struct sockaddr_in myaddr;
-  int listensd;
-#ifdef CONFIG_NET_HAVE_REUSEADDR
-  int optval;
+  int ret = ERROR;
+  if (ifname && addr)
+    {
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      if (sockfd >= 0)
+        {
+          struct ifreq req;
+#ifdef CONFIG_NET_IPv6
+          struct sockaddr_in6 *inaddr;
+#else
+          struct sockaddr_in  *inaddr;
 #endif
+          /* Add the device name to the request */
 
-  /* Create a new TCP socket to use to listen for connections */
+          strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
-  listensd = socket(PF_INET, SOCK_STREAM, 0);
-  if (listensd < 0)
-    {
-      ndbg("socket failure: %d\n", errno);
-      return ERROR;
-    }
+          /* Add the INET address to the request */
 
-  /* Set socket to reuse address */
-
-#ifdef CONFIG_NET_HAVE_REUSEADDR
-  optval = 1;
-  if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
-    {
-      ndbg("setsockopt SO_REUSEADDR failure: %d\n", errno);
-      goto errout_with_socket;
-    }
+#ifdef CONFIG_NET_IPv6
+          inaddr             = (struct sockaddr_in6 *)&req.ifr_addr;
+          inaddr->sin_family = AF_INET6;
+          inaddr->sin_port   = 0;
+          memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
+#else
+          inaddr             = (struct sockaddr_in *)&req.ifr_addr;
+          inaddr->sin_family = AF_INET;
+          inaddr->sin_port   = 0;
+          memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
 #endif
-
-  /* Bind the socket to a local address */
-
-  myaddr.sin_family      = AF_INET;
-  myaddr.sin_port        = portno;
-  myaddr.sin_addr.s_addr = INADDR_ANY;
-
-  if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
-    {
-      ndbg("bind failure: %d\n", errno);
-      goto errout_with_socket;
+          ret = ioctl(sockfd, SIOCSIFADDR, (unsigned long)&req);
+          close(sockfd);
+        }
     }
-
-  /* Listen for connections on the bound TCP socket */
-
-  if (listen(listensd, 5) < 0)
-    {
-      ndbg("listen failure %d\n", errno);
-      goto errout_with_socket;
-    }
-
-  /* Begin accepting connections */
-
-  nvdbg("Accepting connections on port %d\n", ntohs(portno));
-  return listensd;
-
-errout_with_socket:
-  close(listensd);
-  return ERROR;
+  return ret;
 }
+
+#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */

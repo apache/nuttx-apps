@@ -66,7 +66,7 @@
 #include <nuttx/net/uip.h>
 #include <nuttx/net/arp.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/xmlrpc.h>
 
 #ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC

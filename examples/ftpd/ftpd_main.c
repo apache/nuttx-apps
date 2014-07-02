@@ -45,7 +45,7 @@
 
 #include <netinet/in.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/ftpd.h>
 
 #include "ftpd.h"

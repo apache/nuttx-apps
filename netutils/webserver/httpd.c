@@ -62,7 +62,7 @@
 #endif
 
 #include <nuttx/net/uip.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/httpd.h>
 
 #include "httpd.h"

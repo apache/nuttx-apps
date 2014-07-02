@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/uiplib/uip_setifflag.c
+ * netutils/netlib/uip_gethostaddr.c
  *
- *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,103 +42,65 @@
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <stdint.h>
+
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <netinet/in.h>
 #include <net/if.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 /****************************************************************************
  * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: uip_ifup
+ * Name: uip_gethostaddr
  *
  * Description:
- *   Set the network interface UP
+ *   Get the network driver IP address
  *
  * Parameters:
  *   ifname   The name of the interface to use
+ *   ipaddr   The location to return the IP address
  *
  * Return:
  *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
-int uip_ifup(const char *ifname)
+#ifdef CONFIG_NET_IPv6
+int uip_gethostaddr(const char *ifname, struct in6_addr *addr)
+#else
+int uip_gethostaddr(const char *ifname, struct in_addr *addr)
+#endif
 {
   int ret = ERROR;
-  if (ifname)
+  if (ifname && addr)
     {
-      /* Get a socket (only so that we get access to the INET subsystem) */
-
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
-
-          /* Put the driver name into the request */
-
           strncpy(req.ifr_name, ifname, IFNAMSIZ);
-
-          /* Perform the ioctl to ifup flag */
-
-          req.ifr_flags |= IFF_UP;
-
-          ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
+          if (!ret)
+            {
+#ifdef CONFIG_NET_IPv6
+              memcpy(addr, &req.ifr_addr, sizeof(struct in6_addr));
+#else
+              memcpy(addr, &req.ifr_addr, sizeof(struct in_addr));
+#endif
+            }
           close(sockfd);
         }
     }
-
-  return ret;
-}
-
-/****************************************************************************
- * Name: uip_ifdown
- *
- * Description:
- *   Set the network interface DOWN
- *
- * Parameters:
- *   ifname   The name of the interface to use
- *
- * Return:
- *   0 on sucess; -1 on failure
- *
- ****************************************************************************/
-
-int uip_ifdown(const char *ifname)
-{
-  int ret = ERROR;
-  if (ifname)
-    {
-      /* Get a socket (only so that we get access to the INET subsystem) */
-
-      int sockfd = socket(PF_INET, UIPLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          struct ifreq req;
-          memset (&req, 0, sizeof(struct ifreq));
-
-          /* Put the driver name into the request */
-
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
-
-          /* Perform the ioctl to ifup flag */
-
-          req.ifr_flags |= IFF_DOWN;
-
-          ret = ioctl(sockfd, SIOCSIFFLAGS, (unsigned long)&req);
-          close(sockfd);
-        }
-    }
-
   return ret;
 }
 

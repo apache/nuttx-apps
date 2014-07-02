@@ -75,7 +75,7 @@ highly influenced by uIP) include:
               defconfig file to select the appropriate netutils
               libraries:
 
-                CONFIG_NETUTILS_UIPLIB=y
+                CONFIG_NETUTILS_NETLIB=y
                 CONFIG_NETUTILS_THTTPD=y
 
   xmlrpc    - The Embeddable Lightweight XML-RPC Server discussed at
@@ -92,7 +92,7 @@ Telnetd into your custom applications.
 To enable and link the Telnetd daemon, you need to include the following in
 in your defconfig file:
 
-  CONFIG_NETUTILS_UIPLIB=y
+  CONFIG_NETUTILS_NETLIB=y
   CONFIG_NETUTILS_TELNETD=y
 
 Also if the Telnet console is enabled, make sure that you have the following

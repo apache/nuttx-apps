@@ -42,7 +42,7 @@ BIN			= wget
 
 HOSTCFLAGS	+= -DCONFIG_WEBCLIENT_HOST=1
 HOSTCFLAGS	+= -I. -include hostdefs.h
-VPATH		= $(TOPDIR)/netutils/webclient:$(TOPDIR)/netutils/uiplib:.
+VPATH		= $(TOPDIR)/netutils/webclient:$(TOPDIR)/netutils/netlib:.
 
 all: $(BIN)
 .PHONY: clean context clean_context distclean
@@ -56,8 +56,8 @@ apps/netutils:
 apps/netutils/webclient.h: apps/netutils $(TOPDIR)/include/apps/netutils/webclient.h
 	@cp -a $(TOPDIR)/include/apps/netutils/webclient.h apps/netutils/.
 
-apps/netutils/uiplib.h: apps/netutils $(TOPDIR)/include/apps/netutils/uiplib.h
-	@cp -a $(TOPDIR)/include/apps/netutils/uiplib.h apps/netutils/.
+apps/netutils/netlib.h: apps/netutils $(TOPDIR)/include/apps/netutils/netlib.h
+	@cp -a $(TOPDIR)/include/apps/netutils/netlib.h apps/netutils/.
 
 nuttx:
 	@mkdir nuttx
@@ -65,7 +65,7 @@ nuttx:
 nuttx/config.h: nuttx
 	@touch nuttx/config.h
 
-headers: apps/netutils/webclient.h apps/netutils/uiplib.h nuttx/config.h
+headers: apps/netutils/webclient.h apps/netutils/netlib.h nuttx/config.h
 
 $(BIN): headers $(OBJS)
 	$(HOSTCC) $(HOSTLDFLAGS) $(OBJS) -o $@

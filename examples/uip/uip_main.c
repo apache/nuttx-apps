@@ -57,7 +57,7 @@
 #include <nuttx/net/uip.h>
 #include <nuttx/net/arp.h>
 
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 #ifdef CONFIG_EXAMPLES_UIP_DHCPC
 #include <arpa/inet.h>

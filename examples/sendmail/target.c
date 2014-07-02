@@ -45,7 +45,7 @@
 #include <errno.h>
 
 #include <net/if.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 #include <apps/netutils/smtp.h>
 
 /****************************************************************************

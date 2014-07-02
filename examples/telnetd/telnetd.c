@@ -48,7 +48,7 @@
 #include <arpa/inet.h>
 
 #include <apps/netutils/telnetd.h>
-#include <apps/netutils/uiplib.h>
+#include <apps/netutils/netlib.h>
 
 #include "telnetd.h"
 

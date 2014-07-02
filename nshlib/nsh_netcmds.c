@@ -69,18 +69,18 @@
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
-#  include <apps/netutils/uiplib.h>
+#  include <apps/netutils/netlib.h>
 #  include <apps/netutils/dnsclient.h>
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#  include <apps/netutils/uiplib.h>
+#  include <apps/netutils/netlib.h>
 #  include <apps/netutils/tftp.h>
 #endif
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
 #  ifndef CONFIG_NSH_DISABLE_WGET
-#    include <apps/netutils/uiplib.h>
+#    include <apps/netutils/netlib.h>
 #    include <apps/netutils/webclient.h>
 #  endif
 #endif
@@ -364,7 +364,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
             break;
 
           case 'h':
-            if (!uiplib_ipaddrconv(optarg, (FAR unsigned char*)&args->ipaddr))
+            if (!netlib_ipaddrconv(optarg, (FAR unsigned char*)&args->ipaddr))
               {
                 nsh_output(vtbl, g_fmtarginvalid, argv[0]);
                 badarg = true;
@@ -672,7 +672,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     {
                       hw = argv[i+1];
                       i++;
-                      badarg = !uiplib_hwmacconv(hw, mac);
+                      badarg = !netlib_hwmacconv(hw, mac);
                     }
                   else
                     {

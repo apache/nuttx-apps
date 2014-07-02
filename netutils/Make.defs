@@ -82,8 +82,8 @@ ifeq ($(CONFIG_NETUTILS_THTTPD),y)
 CONFIGURED_APPS += netutils/thttpd
 endif
 
-ifeq ($(CONFIG_NETUTILS_UIPLIB),y)
-CONFIGURED_APPS += netutils/uiplib
+ifeq ($(CONFIG_NETUTILS_NETLIB),y)
+CONFIGURED_APPS += netutils/netlib
 endif
 
 ifeq ($(CONFIG_NETUTILS_WEBCLIENT),y)

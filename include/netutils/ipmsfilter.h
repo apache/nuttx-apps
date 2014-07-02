@@ -75,7 +75,7 @@ extern "C" {
  *
  * Description:
  *   Add or remove an IP address from a multicast filter set.
- *   (See netutils/uiplib/uip_ipmsfilter.c)
+ *   (See netutils/netlib/uip_ipmsfilter.c)
  *
  * Parameters:
  *   ifname     The name of the interface to use, size must less than IMSFNAMSIZ

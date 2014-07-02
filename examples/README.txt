@@ -182,7 +182,7 @@ examples/dhcpd
                                      (as well as various other UDP-related
                                      configuration settings)
     CONFIG_NET_BROADCAST=y         - UDP broadcast support is needed.
-    CONFIG_NETUTILS_UIPLIB=y       - The UIP library is needed
+    CONFIG_NETUTILS_NETLIB=y       - The UIP library is needed
 
     CONFIG_EXAMPLES_DHCPD_NOMAC     - (May be defined to use software assigned MAC)
     CONFIG_EXAMPLES_DHCPD_IPADDR    - Target IP address
@@ -394,7 +394,7 @@ examples/ftpd
   The following netutils libraries should be enabled in your defconfig
   file:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_TELNED=y
 
 examples/hello
@@ -489,7 +489,7 @@ examples/igmp
       Network mask
   * CONFIG_EXAMPLES_IGMP_GRPADDR
       Multicast group address
-  * CONFIG_EXAMPLES_UIPLIB
+  * CONFIG_EXAMPLES_NETLIB
       The UIP library is needed
 
 examples/adc
@@ -670,7 +670,7 @@ examples/nettest
   functionality in a TCP/IP connection.
 
     CONFIG_EXAMPLES_NETTEST=y - Enables the nettest example
-    CONFIG_EXAMPLES_UIPLIB=y  - The UIP livrary in needed.
+    CONFIG_EXAMPLES_NETLIB=y  - The UIP livrary in needed.
 
   See also examples/tcpecho
 
@@ -713,7 +713,7 @@ examples/nsh
 
   And if networking is included:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_DHCPC=y
     CONFIG_NETUTILS_DNSCLIENT=y
     CONFIG_NETUTILS_TFTPC=y
@@ -1220,7 +1220,7 @@ examples/poll
   provide the following definition in the defconfig file to enable the
   UIP library:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
 
 examples/posix_spawn
 ^^^^^^^^^^^^^^^^^^^^
@@ -1451,7 +1451,7 @@ examples/sendmail
   Applications using this example will need to enble the following
   netutils libraries in their defconfig file:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_SMTP=y
 
 examples/serialblaster
@@ -1552,7 +1552,7 @@ examples/telnetd
   tiny shell and also supports telnetd.
 
     CONFIG_EXAMPLES_TELNETD - Enable the Telnetd example
-    CONFIG_NETUTILS_UIPLIB, CONFIG_NETUTILS_TELNED - Enable netutils
+    CONFIG_NETUTILS_NETLIB, CONFIG_NETUTILS_TELNED - Enable netutils
       libraries needed by the Telnetd example.
     CONFIG_EXAMPLES_TELNETD_DAEMONPRIO - Priority of the Telnet daemon.
       Default: SCHED_PRIORITY_DEFAULT
@@ -1590,7 +1590,7 @@ examples/thttpd
   Applications using this example will need to enable the following
   netutils libraries in the defconfig file:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_THTTPD=y
 
 examples/tiff
@@ -1668,7 +1668,7 @@ examples/udp
   Applications using this example will need to enabled the following
   netutils libraries in the defconfig file:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
 
 examples/uip
 ^^^^^^^^^^^^
@@ -1707,7 +1707,7 @@ examples/uip
   Applications using this example will need to enable the following
   netutils libraries in their defconfig file:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_DHCPC=y
     CONFIG_NETUTILS_DNSCLIENT=y
     CONFIG_NETUTILS_WEBSERVER=y
@@ -1930,7 +1930,7 @@ examples/wget
   Applications using this example will need to enable the following netutils
   libraries in the defconfig file:
 
-    CONFIG_NETUTILS_UIPLIB=y
+    CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_DNSCLIENT=y
     CONFIG_NETUTILS_WEBCLIENT=y
 
