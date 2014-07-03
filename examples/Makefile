@@ -44,7 +44,7 @@ SUBDIRS += nrf24l01_term nsh null nx nxconsole nxffs nxflat nxhello nximage
 SUBDIRS += nxlines nxtext ostest pashello pipe poll posix_spawn pwm qencoder
 SUBDIRS += random relays rgmp romfs sendmail serialblaster serloop serialrx
 SUBDIRS += slcd smart smart_test tcpecho telnetd thttpd tiff touchscreen udp
-SUBDIRS += uip usbserial usbterm watchdog wget wgetjson xmlrpc
+SUBDIRS += usbserial usbterm watchdog webserver wget wgetjson xmlrpc
 
 # Sub-directories that might need context setup.  Directories may need
 # context setup for a variety of reasons, but the most common is because

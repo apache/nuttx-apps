@@ -3,33 +3,33 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config EXAMPLES_UIP
+config EXAMPLES_WEBSERVER
 	bool "uIP web server example"
 	default n
 	---help---
 		Enable the uIP web server example
 
-if EXAMPLES_UIP
+if EXAMPLES_WEBSERVER
 
-config EXAMPLES_UIP_IPADDR
+config EXAMPLES_WEBSERVER_IPADDR
 	hex "Device IP"
 	default 0x0a000002
 	---help---
 		This is the IP address of your board.
 
-config EXAMPLES_UIP_DRIPADDR
+config EXAMPLES_WEBSERVER_DRIPADDR
 	hex "Default Router IP"
 	default 0x0a000001
 	---help---
 		This is the IP address of your router/gateway.
 
-config EXAMPLES_UIP_NETMASK
+config EXAMPLES_WEBSERVER_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
 	---help---
 		This is the network mask to use on this device.
 
-config EXAMPLES_UIP_NOMAC
+config EXAMPLES_WEBSERVER_NOMAC
 	bool "No hardware MAC"
 	default y
 	---help---

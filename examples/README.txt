@@ -182,7 +182,7 @@ examples/dhcpd
                                      (as well as various other UDP-related
                                      configuration settings)
     CONFIG_NET_BROADCAST=y         - UDP broadcast support is needed.
-    CONFIG_NETUTILS_NETLIB=y       - The UIP library is needed
+    CONFIG_NETUTILS_NETLIB=y       - The networking library is needed
 
     CONFIG_EXAMPLES_DHCPD_NOMAC     - (May be defined to use software assigned MAC)
     CONFIG_EXAMPLES_DHCPD_IPADDR    - Target IP address
@@ -490,7 +490,7 @@ examples/igmp
   * CONFIG_EXAMPLES_IGMP_GRPADDR
       Multicast group address
   * CONFIG_EXAMPLES_NETLIB
-      The UIP library is needed
+      The networking library is needed
 
 examples/adc
 ^^^^^^^^^^^^
@@ -670,7 +670,7 @@ examples/nettest
   functionality in a TCP/IP connection.
 
     CONFIG_EXAMPLES_NETTEST=y - Enables the nettest example
-    CONFIG_EXAMPLES_NETLIB=y  - The UIP livrary in needed.
+    CONFIG_EXAMPLES_NETLIB=y  - The networking library in needed.
 
   See also examples/tcpecho
 
@@ -1218,7 +1218,7 @@ examples/poll
 
   If networking is enabled, applications using this example will need to
   provide the following definition in the defconfig file to enable the
-  UIP library:
+  networking library:
 
     CONFIG_NETUTILS_NETLIB=y
 
@@ -1670,52 +1670,6 @@ examples/udp
 
     CONFIG_NETUTILS_NETLIB=y
 
-examples/uip
-^^^^^^^^^^^^
-
-  This is a port of uIP tiny webserver example application.  Settings
-  specific to this example include:
-
-    CONFIG_EXAMPLES_UIP_NOMAC     - (May be defined to use software assigned MAC)
-    CONFIG_EXAMPLES_UIP_IPADDR    - Target IP address
-    CONFIG_EXAMPLES_UIP_DRIPADDR  - Default router IP addess
-    CONFIG_EXAMPLES_UIP_NETMASK   - Network mask
-    CONFIG_EXAMPLES_UIP_DHCPC     - Select to get IP address via DHCP
-
-  If you use DHCPC, then some special configuration network options are
-  required.  These include:
-
-    CONFIG_NET=y                 - Of course
-    CONFIG_NSOCKET_DESCRIPTORS   - And, of course, you must allocate some
-                                   socket descriptors.
-    CONFIG_NET_UDP=y             - UDP support is required for DHCP
-                                   (as well as various other UDP-related
-                                   configuration settings).
-    CONFIG_NET_BROADCAST=y       - UDP broadcast support is needed.
-    CONFIG_NET_BUFSIZE=650       - Per RFC2131 (p. 9), the DHCP client must be
-    (or larger)                    prepared to receive DHCP messages of up to
-                                   576 bytes (excluding Ethernet, IP, or UDP
-                                   headers and FCS).
-
-  Other configuration items apply also to the selected webserver net utility.
-  Additional relevant settings for the uIP webserver net utility are:
-
-    CONFIG_NETUTILS_HTTPDSTACKSIZE
-    CONFIG_NETUTILS_HTTPDFILESTATS
-    CONFIG_NETUTILS_HTTPDNETSTATS
-
-  Applications using this example will need to enable the following
-  netutils libraries in their defconfig file:
-
-    CONFIG_NETUTILS_NETLIB=y
-    CONFIG_NETUTILS_DHCPC=y
-    CONFIG_NETUTILS_DNSCLIENT=y
-    CONFIG_NETUTILS_WEBSERVER=y
-
-  NOTE:  This example does depend on the perl script at
-  nuttx/tools/mkfsdata.pl.  You must have perl installed on your
-  development system at /usr/bin/perl.
-
 examples/usbserial
 ^^^^^^^^^^^^^^^^^^
 
@@ -1893,6 +1847,52 @@ examples/watchdog
     CONFIG_EXAMPLES_WATCHDOG_TIMEOUT - The watchdog timeout value in
       milliseconds before the watchdog timer expires.  Default:  2000
       milliseconds.
+
+examples/webserver
+^^^^^^^^^^^^^^^^^^
+
+  This is a port of uIP tiny webserver example application.  Settings
+  specific to this example include:
+
+    CONFIG_EXAMPLES_WEBSERVER_NOMAC     - (May be defined to use software assigned MAC)
+    CONFIG_EXAMPLES_WEBSERVER_IPADDR    - Target IP address
+    CONFIG_EXAMPLES_WEBSERVER_DRIPADDR  - Default router IP addess
+    CONFIG_EXAMPLES_WEBSERVER_NETMASK   - Network mask
+    CONFIG_EXAMPLES_WEBSERVER_DHCPC     - Select to get IP address via DHCP
+
+  If you use DHCPC, then some special configuration network options are
+  required.  These include:
+
+    CONFIG_NET=y                 - Of course
+    CONFIG_NSOCKET_DESCRIPTORS   - And, of course, you must allocate some
+                                   socket descriptors.
+    CONFIG_NET_UDP=y             - UDP support is required for DHCP
+                                   (as well as various other UDP-related
+                                   configuration settings).
+    CONFIG_NET_BROADCAST=y       - UDP broadcast support is needed.
+    CONFIG_NET_BUFSIZE=650       - Per RFC2131 (p. 9), the DHCP client must be
+    (or larger)                    prepared to receive DHCP messages of up to
+                                   576 bytes (excluding Ethernet, IP, or UDP
+                                   headers and FCS).
+
+  Other configuration items apply also to the selected webserver net utility.
+  Additional relevant settings for the uIP webserver net utility are:
+
+    CONFIG_NETUTILS_HTTPDSTACKSIZE
+    CONFIG_NETUTILS_HTTPDFILESTATS
+    CONFIG_NETUTILS_HTTPDNETSTATS
+
+  Applications using this example will need to enable the following
+  netutils libraries in their defconfig file:
+
+    CONFIG_NETUTILS_NETLIB=y
+    CONFIG_NETUTILS_DHCPC=y
+    CONFIG_NETUTILS_DNSCLIENT=y
+    CONFIG_NETUTILS_WEBSERVER=y
+
+  NOTE:  This example does depend on the perl script at
+  nuttx/tools/mkfsdata.pl.  You must have perl installed on your
+  development system at /usr/bin/perl.
 
 examples/wget
 ^^^^^^^^^^^^^

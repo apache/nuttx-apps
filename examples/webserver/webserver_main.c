@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/uip/uip_main.c
+ * examples/webserver/webserver_main.c
  *
  *   Copyright (C) 2007, 2009-2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -59,7 +59,7 @@
 
 #include <apps/netutils/netlib.h>
 
-#ifdef CONFIG_EXAMPLES_UIP_DHCPC
+#ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
 #include <arpa/inet.h>
 #endif
 
@@ -69,7 +69,7 @@
 
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
-#ifdef CONFIG_EXAMPLES_UIP_DHCPC
+#ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
 # include <apps/netutils/dnsclient.h>
 # include <apps/netutils/dhcpc.h>
 #endif
@@ -107,22 +107,22 @@
  ****************************************************************************/
 
 /****************************************************************************
- * uip_main
+ * webserver_main
  ****************************************************************************/
 
-int uip_main(int argc, char *argv[])
+int webserver_main(int argc, char *argv[])
 {
   struct in_addr addr;
-#if defined(CONFIG_EXAMPLES_UIP_DHCPC) || defined(CONFIG_EXAMPLES_UIP_NOMAC)
+#if defined(CONFIG_EXAMPLES_WEBSERVER_DHCPC) || defined(CONFIG_EXAMPLES_WEBSERVER_NOMAC)
   uint8_t mac[IFHWADDRLEN];
 #endif
-#ifdef CONFIG_EXAMPLES_UIP_DHCPC
+#ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
   void *handle;
 #endif
 
 /* Many embedded network interfaces must have a software assigned MAC */
 
-#ifdef CONFIG_EXAMPLES_UIP_NOMAC
+#ifdef CONFIG_EXAMPLES_WEBSERVER_NOMAC
   mac[0] = 0x00;
   mac[1] = 0xe0;
   mac[2] = 0xde;
@@ -134,24 +134,24 @@ int uip_main(int argc, char *argv[])
 
   /* Set up our host address */
 
-#ifdef CONFIG_EXAMPLES_UIP_DHCPC
+#ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
   addr.s_addr = 0;
 #else
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_UIP_IPADDR);
+  addr.s_addr = HTONL(CONFIG_EXAMPLES_WEBSERVER_IPADDR);
 #endif
   netlib_sethostaddr("eth0", &addr);
 
   /* Set up the default router address */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_UIP_DRIPADDR);
+  addr.s_addr = HTONL(CONFIG_EXAMPLES_WEBSERVER_DRIPADDR);
   netlib_setdraddr("eth0", &addr);
 
   /* Setup the subnet mask */
 
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_UIP_NETMASK);
+  addr.s_addr = HTONL(CONFIG_EXAMPLES_WEBSERVER_NETMASK);
   netlib_setnetmask("eth0", &addr);
 
-#ifdef CONFIG_EXAMPLES_UIP_DHCPC
+#ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
   /* Set up the resolver */
 
   dns_bind();
@@ -205,7 +205,7 @@ int uip_main(int argc, char *argv[])
   while (1)
     {
       sleep(3);
-      printf("uip_main: Still running\n");
+      printf("webserver_main: Still running\n");
 #if CONFIG_NFILE_DESCRIPTORS > 0
       fflush(stdout);
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/uip/cgi.c
+ * apps/examples/webserver/cgi.c
  * Web server script interface
  * Author: Adam Dunkels <adam@sics.se>
  *

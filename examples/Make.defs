@@ -282,8 +282,8 @@ ifeq ($(CONFIG_EXAMPLES_UDP),y)
 CONFIGURED_APPS += examples/udp
 endif
 
-ifeq ($(CONFIG_EXAMPLES_UIP),y)
-CONFIGURED_APPS += examples/uip
+ifeq ($(CONFIG_EXAMPLES_WEBSERVER),y)
+CONFIGURED_APPS += examples/webserver
 endif
 
 ifeq ($(CONFIG_EXAMPLES_USBSERIAL),y)

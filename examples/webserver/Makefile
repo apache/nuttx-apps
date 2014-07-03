@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/uip/Makefile
+# apps/examples/webserver/Makefile
 #
 #   Copyright (C) 2007-2008, 2010-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # uIP very tiny web server example
 
 ASRCS		=
-CSRCS		= uip_main.c cgi.c httpd_fsdata.c
+CSRCS		= webserver_main.c cgi.c httpd_fsdata.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))

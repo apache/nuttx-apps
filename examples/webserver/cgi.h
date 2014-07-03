@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/uip/cgi.c
+ * apps/examples/webserver/cgi.h
  * Web server script interface header file
  * Author: Adam Dunkels <adam@sics.se>
  *
@@ -31,8 +31,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 
-#ifndef __HTTPD_CGI_H__
-#define __HTTPD_CGI_H__
+#ifndef __EXAMPLES_WEBSERVER_CGI_H
+#define __EXAMPLES_WEBSERVER_CGI_H
 
 /****************************************************************************
  * Public Function Prototypes
@@ -40,4 +40,4 @@
 
 void cgi_register(void);
 
-#endif /* __HTTPD_CGI_H__ */
+#endif /* __EXAMPLES_WEBSERVER_CGI_H */
