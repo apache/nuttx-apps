@@ -597,33 +597,59 @@ config NSH_CONSOLE
 		serial device as the NSH console (not necessarily dev/console).
 
 config NSH_USBCONSOLE
-	bool "Use a USB console"
+	bool "Use a USB serial console"
 	default n
-	depends on NSH_CONSOLE && USBDEV
+	depends on NSH_CONSOLE && USBDEV && (CDCACM || PL2303)
 	---help---
-		If defined, then the an arbitrary USB device may be used
-		to as the NSH console.  In this case, NSH_USBCONDEV must
-		be defined to indicate which USB device to use as the
-		console.
+		If defined, then the an arbitrary USB serial device may be used
+		to as the NSH console.  In this case, NSH_USBCONDEV must be defined
+		to indicate which USB serial device to use as the console.
+
+if NSH_USBCONSOLE
 
 config NSH_USBCONDEV
-	string "USB console device"
-	default "/dev/ttyACM0"
-	depends on NSH_USBCONSOLE
+	string "USB serial console device"
+	default "/dev/ttyACM0" if CDCACM
+	default "/dev/ttyUSB0" if !CDCACM
 	---help---
 		If NSH_USBCONSOLE is set to 'y', then NSH_USBCONDEV must
 		also be set to select the USB device used to support the
 		NSH console.   This should be set to the quoted name of a
-		readable/write-able USB driver such as:
-		NSH_USBCONDEV="/dev/ttyACM0".
+		read-/write-able USB driver.  Default: "/dev/ttyACM0".
 
 config USBDEV_MINOR
-	int "USB console device minor number"
+	int "USB serial console device minor number"
 	default 0
-	depends on NSH_USBCONSOLE
 	---help---
 		If there are more than one USB devices, then a USB device
 		minor number may also need to be provided. Default: 0
+
+endif # NSH_USBCONSOLE
+
+config NSH_USBKBD
+	bool "Use a USB keyboard input"
+	default n
+	depends on NSH_CONSOLE && USBHOST_HIDKBD && !NSH_USBCONSOLE
+	---help---
+		Normally NSH uses the same device for stdin, stdout, and stderr.  By
+		default, that device is /dev/console.  If this option is selected,
+		then NSH will use a USB HID keyboard for stdin.  In this case, the
+		keyboard is connected directly to the target (via a USB host
+		interface) and the data from the keyboard will drive NSH.  NSH
+		output (stdout and stderr) will still go to /dev/console.
+
+if NSH_USBKBD
+
+config NSH_USBKBD_DEVNAME
+	string "USB keyboard device"
+	default "/dev/kbda"
+	---help---
+		If NSH_USBKBD is set to 'y', then NSH_USBKBD_DEVNAME must also be
+		set to select the USB keyboard device used to support the NSH
+		console input.   This should be set to the quoted name of a read-
+		able keyboard driver. Default: "/dev/kbda".
+
+endif #NSH_USBKBD
 
 comment "USB Trace Support"
 

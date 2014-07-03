@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_consolemain.c
+ * apps/nshlib/nsh_usbkeyboard.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name Gregory Nutt nor the names of its contributors may be
+ * 3. Neither the name NuttX nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -40,18 +40,22 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <assert.h>
+#include <debug.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
 
-#if !defined(HAVE_USB_CONSOLE) && !defined(HAVE_USB_KEYBOARD)
+#if defined(HAVE_USB_KEYBOARD) && !defined(HAVE_USB_CONSOLE)
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/****************************************************************************
+ /****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -72,44 +76,110 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: nsh_wait_usbready
+ *
+ * Description:
+ *   Wait for the USB keyboard device to be ready
+ *
+ ****************************************************************************/
+
+static int nsh_wait_usbready(FAR const char *msg)
+{
+  int fd;
+
+  /* Don't start the NSH console until the keyboard device is ready.  Chances
+   * are, we get here with no functional stdin.  The USB keyboard device will
+   * not be available until the device is connected to the host and enumerated.
+   */
+
+  /* Open the USB keyboard device for read-only access */
+
+  do
+    {
+      /* Try to open the console */
+
+      fd = open(NSH_USBKBD_DEVNAME, O_RDONLY);
+      if (fd < 0)
+        {
+          /* ENOENT means that the USB device is not yet connected and,
+           * hence, has no entry under /dev.  Anything else would be bad.
+           */
+
+          DEBUGASSERT(errno == ENOENT);
+
+          /* Let the user know that we are waiting */
+
+          if (msg)
+            {
+              /* Show the waiting message only one time after the failure
+               * to open the keyboard device.
+               */
+
+              puts(msg);
+              fflush(stdout);
+              msg = NULL;
+            }
+
+          /* Sleep a bit and try again */
+
+          sleep(2);
+        }
+    }
+  while (fd < 0);
+
+  /* Okay.. we have successfully opened a keyboard device
+   *
+   * Close standard fd 0.  Unbeknownst to stdin.
+   * NOTE: This might not be portable behavior!
+   */
+
+  (void)close(0);
+
+  /* Dup the fd to create standard fd 0.  stdin should not know */
+
+  (void)dup2(fd, 0);
+
+  /* Close the keyboard device that we just opened */
+
+  close(fd);
+  return OK;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_consolemain (Normal character device version)
+ * Name: nsh_consolemain (USB console version)
  *
  * Description:
  *   This interfaces maybe to called or started with task_start to start a
  *   single an NSH instance that operates on stdin and stdout.  This
- *   function does not normally return (see below).
+ *   function does not return.
  *
- *   This version of nsh_consolmain handles generic /dev/console character
- *   devices (see nsh_usbconsole.c and usb_usbkeyboard for other versions
- *   for special USB console devices).
-  *
+ *   This function handles generic /dev/console character devices for output
+ *   but uses a special USB keyboard device for input.  The USB keyboard
+ *   requires some special operations to handle the cases where the session
+ *   input is lost when the USB keyboard is unplugged and restarted when the
+ *   USB keyboard is plugged in again.
+ *
  * Input Parameters:
  *   Standard task start-up arguments.  These are not used.  argc may be
  *   zero and argv may be NULL.
  *
  * Returned Values:
- *   This function does not normally return.  exit() is usually called to
- *   terminate the NSH session.  This function will return in the event of
- *   an error.  In that case, a nonzero value is returned (EXIT_FAILURE=1).
+ *   This function does not return nor does it ever exit (unless the user
+ *   executes the NSH exit command).
  *
  ****************************************************************************/
 
 int nsh_consolemain(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
+  FAR const char *msg;
   int ret;
 
   DEBUGASSERT(pstate);
-
-  /* Execute the start-up script */
-
-#ifdef CONFIG_NSH_ROMFSETC
-  (void)nsh_initscript(&pstate->cn_vtbl);
-#endif
 
   /* Initialize any USB tracing options that were requested */
 
@@ -117,14 +187,36 @@ int nsh_consolemain(int argc, char *argv[])
   usbtrace_enable(TRACE_BITSET);
 #endif
 
-  /* Execute the session */
+  /* Execute the one-time start-up script.  Any output will go to /dev/console. */
 
-  ret = nsh_session(pstate);
+#ifdef CONFIG_NSH_ROMFSETC
+  (void)nsh_initscript(&pstate->cn_vtbl);
+#endif
 
-  /* Exit upon return */
+  /* Now loop, executing creating a session for each USB connection */
 
-  nsh_exit(&pstate->cn_vtbl, ret);
-  return ret;
+  msg = "Waiting for keyboard to be connected...\n";
+  for (;;)
+    {
+      /* Wait for the USB to be connected to the host and switch
+       * standard I/O to the USB serial device.
+       */
+
+      ret = nsh_wait_usbready(msg);
+
+      (void)ret; /* Eliminate warning if not used */
+      DEBUGASSERT(ret == OK);
+
+      /* Execute the session */
+
+      (void)nsh_session(pstate);
+
+      /* We lost the connection.  Wait for the keyboard to
+       * be re-connected.
+       */
+
+      msg = "Please re-connect the keyboard...\n";
+    }
 }
 
-#endif /* !HAVE_USB_CONSOLE && !HAVE_USB_KEYBOARD */
+#endif /* HAVE_USB_KEYBOARD && !HAVE_USB_CONSOLE */

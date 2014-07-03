@@ -1183,14 +1183,27 @@ NSH-Specific Configuration Settings
         If CONFIG_NSH_USBCONSOLE is set to 'y', then CONFIG_NSH_USBCONDEV
         must also be set to select the USB device used to support
         the NSH console.   This should be set to the quoted name of a
-        readable/write-able USB driver such as:
-        CONFIG_NSH_USBCONDEV="/dev/ttyACM0".
+        read-/write-able USB driver.  Default: "/dev/ttyACM0".
 
       If there are more than one USB devices, then a USB device
       minor number may also need to be provided:
 
       CONFIG_NSH_USBDEV_MINOR
         The minor device number of the USB device.  Default: 0
+
+      CONFIG_NSH_USBKBD
+        Normally NSH uses the same device for stdin, stdout, and stderr.  By
+        default, that device is /dev/console.  If this option is selected,
+        then NSH will use a USB HID keyboard for stdin.  In this case, the
+        keyboard is connected directly to the target (via a USB host
+        interface) and the data from the keyboard will drive NSH.  NSH
+        output (stdout and stderr) will still go to /dev/console.
+
+      CONFIG_NSH_USBKBD_DEVNAME
+        If NSH_USBKBD is set to 'y', then NSH_USBKBD_DEVNAME must also be
+        set to select the USB keyboard device used to support the NSH
+        console input.   This should be set to the quoted name of a read-
+        able keyboard driver. Default: "/dev/kbda".
 
       CONFIG_NSH_USBDEV_TRACE
         If USB tracing is enabled (CONFIG_USBDEV_TRACE), then NSH can

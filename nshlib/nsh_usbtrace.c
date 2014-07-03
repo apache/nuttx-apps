@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_consolemain.c
+ * apps/nshlib/nsh_usbtrace.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name Gregory Nutt nor the names of its contributors may be
+ * 3. Neither the name NuttX nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -40,16 +40,27 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
-#include <assert.h>
+#include <debug.h>
 
-#include "nsh.h"
-#include "nsh_console.h"
+#include <nuttx/usb/usbdev_trace.h>
 
-#if !defined(HAVE_USB_CONSOLE) && !defined(HAVE_USB_KEYBOARD)
+#ifdef CONFIG_NSH_USBDEV_TRACE
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* Output USB trace data to the console device using printf() unless (1)
+ * debug is enabled, then we want to keep the trace output in sync with the
+ * debug output by using syslog()we are using a USB console.  In that case,
+ * we don't want the trace output on the USB console; let's try sending it
+ * a SYSLOG device (hopefully one is set up!)
+ */
+
+#if defined(CONFIG_DEBUG) || defined(HAVE_USB_CONSOLE)
+#  define trmessage syslog
+#else
+#  define trmessage printf
+#endif
 
 /****************************************************************************
  * Private Types
@@ -72,59 +83,45 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: nsh_tracecallback
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: nsh_tracecallback
+ *
+ * Description:
+ *   This is part of the USB trace logic
+ *
+ ****************************************************************************/
+
+static int nsh_tracecallback(struct usbtrace_s *trace, void *arg)
+{
+  usbtrace_trprintf((trprintf_t)trmessage, trace->event, trace->value);
+  return 0;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_consolemain (Normal character device version)
+ * Name: nsh_usbtrace
  *
  * Description:
- *   This interfaces maybe to called or started with task_start to start a
- *   single an NSH instance that operates on stdin and stdout.  This
- *   function does not normally return (see below).
+ *   The function is called from the nsh_session() to dump USB data to the
+ *   SYSLOG device.
  *
- *   This version of nsh_consolmain handles generic /dev/console character
- *   devices (see nsh_usbconsole.c and usb_usbkeyboard for other versions
- *   for special USB console devices).
-  *
  * Input Parameters:
- *   Standard task start-up arguments.  These are not used.  argc may be
- *   zero and argv may be NULL.
+ *   None
  *
  * Returned Values:
- *   This function does not normally return.  exit() is usually called to
- *   terminate the NSH session.  This function will return in the event of
- *   an error.  In that case, a nonzero value is returned (EXIT_FAILURE=1).
+ *   None
  *
  ****************************************************************************/
 
-int nsh_consolemain(int argc, char *argv[])
+void nsh_usbtrace(void)
 {
-  FAR struct console_stdio_s *pstate = nsh_newconsole();
-  int ret;
-
-  DEBUGASSERT(pstate);
-
-  /* Execute the start-up script */
-
-#ifdef CONFIG_NSH_ROMFSETC
-  (void)nsh_initscript(&pstate->cn_vtbl);
-#endif
-
-  /* Initialize any USB tracing options that were requested */
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-  usbtrace_enable(TRACE_BITSET);
-#endif
-
-  /* Execute the session */
-
-  ret = nsh_session(pstate);
-
-  /* Exit upon return */
-
-  nsh_exit(&pstate->cn_vtbl, ret);
-  return ret;
+  (void)usbtrace_enumerate(nsh_tracecallback, NULL);
 }
 
-#endif /* !HAVE_USB_CONSOLE && !HAVE_USB_KEYBOARD */
+#endif /* CONFIG_NSH_USBDEV_TRACE */

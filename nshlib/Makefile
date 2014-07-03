@@ -90,7 +90,15 @@ CSRCS += nsh_test.c
 endif
 
 ifeq ($(CONFIG_USBDEV),y)
-CSRCS += nsh_usbdev.c
+CSRCS += nsh_usbconsole.c
+endif
+
+ifeq ($(CONFIG_USBHOST),y)
+CSRCS += nsh_usbkeyboard.c
+endif
+
+ifeq ($(CONFIG_NSH_USBDEV_TRACE),y)
+CSRCS += nsh_usbtrace.c
 endif
 
 ifeq ($(CONFIG_NETUTILS_CODECS),y)

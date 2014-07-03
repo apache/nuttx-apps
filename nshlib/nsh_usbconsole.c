@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_usbdev.c
+ * apps/nshlib/nsh_usbconsole.c
  *
- *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,23 +57,13 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
+#ifdef HAVE_USB_CONSOLE
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-/* Output USB trace data to the console device using printf() unless (1)
- * debug is enabled, then we want to keep the trace output in sync with the
- * debug output by using syslog()we are using a USB console.  In that case,
- * we don't want the trace output on the USB console; let's try sending it
- * a SYSLOG device (hopefully one is set up!)
- */
 
-#if defined(CONFIG_DEBUG) || defined(HAVE_USB_CONSOLE)
-#  define trmessage syslog
-#else
-#  define trmessage printf
-#endif
-
-/****************************************************************************
+ /****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -94,26 +84,6 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_tracecallback
- ****************************************************************************/
-
-/****************************************************************************
- * Name: nsh_tracecallback
- *
- * Description:
- *   This is part of the USB trace logic
- *
- ****************************************************************************/
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-static int nsh_tracecallback(struct usbtrace_s *trace, void *arg)
-{
-  usbtrace_trprintf((trprintf_t)trmessage, trace->event, trace->value);
-  return 0;
-}
-#endif
-
-/****************************************************************************
  * Name: nsh_configstdio
  *
  * Description:
@@ -121,7 +91,6 @@ static int nsh_tracecallback(struct usbtrace_s *trace, void *arg)
  *
  ****************************************************************************/
 
-#ifdef HAVE_USB_CONSOLE
 static void nsh_configstdio(int fd)
 {
   /* Make sure the stdin, stdout, and stderr are closed */
@@ -149,7 +118,6 @@ static void nsh_configstdio(int fd)
   (void)fdopen(1, "a");
   (void)fdopen(2, "a");
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_nullstdio
@@ -159,7 +127,6 @@ static void nsh_configstdio(int fd)
  *
  ****************************************************************************/
 
-#ifdef HAVE_USB_CONSOLE
 static int nsh_nullstdio(void)
 {
   int fd;
@@ -187,7 +154,6 @@ static int nsh_nullstdio(void)
 
   return fd;
 }
-#endif
 
 /****************************************************************************
  * Name: nsh_waitusbready
@@ -197,7 +163,6 @@ static int nsh_nullstdio(void)
  *
  ****************************************************************************/
 
-#ifdef HAVE_USB_CONSOLE
 static int nsh_waitusbready(void)
 {
   char inch;
@@ -277,7 +242,6 @@ static int nsh_waitusbready(void)
 
   return OK;
 }
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -307,7 +271,6 @@ static int nsh_waitusbready(void)
  *
  ****************************************************************************/
 
-#ifdef HAVE_USB_CONSOLE
 int nsh_consolemain(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
@@ -330,7 +293,7 @@ int nsh_consolemain(int argc, char *argv[])
   ret = usbdev_serialinitialize(CONFIG_NSH_USBDEV_MINOR);
 #endif
 
-  (void)ret; /* Eliminate warning if not used */
+  UNUSED(ret); /* Eliminate warning if not used */
   DEBUGASSERT(ret == OK);
 #endif
 
@@ -370,26 +333,5 @@ int nsh_consolemain(int argc, char *argv[])
       (void)nsh_nullstdio();
     }
 }
-#endif
 
-/****************************************************************************
- * Name: nsh_usbtrace
- *
- * Description:
- *   The function is called from the nsh_session() to dump USB data to the
- *   SYSLOG device.
- *
- * Input Parameters:
- *   None
- *
- * Returned Values:
- *   None
- *
- ****************************************************************************/
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-void nsh_usbtrace(void)
-{
-  (void)usbtrace_enumerate(nsh_tracecallback, NULL);
-}
-#endif
+#endif /* HAVE_USB_CONSOLE */
