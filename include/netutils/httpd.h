@@ -88,14 +88,14 @@
 #  define CONFIG_NETUTILS_HTTPD_MAXPATH PATH_MAX
 #endif
 
-#define HTTPD_MAX_FILENAME CONFIG_HTTPD_MAXPATH
+#define HTTPD_MAX_FILENAME CONFIG_NETUTILS_HTTPD_MAXPATH
 
 /* Other tunable values.  If you need to change these values, please create
  * new configurations in apps/netutils/webserver/Kconfig
  */
 
-#defien HTTPD_MAX_CONTENTLEN  32
-#defien HTTPD_MAX_HEADERLEN   180
+#define HTTPD_MAX_CONTENTLEN  32
+#define HTTPD_MAX_HEADERLEN   180
 
 /****************************************************************************
  * Public types
