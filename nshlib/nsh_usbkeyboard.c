@@ -92,6 +92,16 @@ static int nsh_wait_usbready(FAR const char *msg)
    * not be available until the device is connected to the host and enumerated.
    */
 
+  /* Close standard fd 0.  Unbeknownst to stdin.  We do this here in case we
+   * had the USB keyboard device open.  In that case, the driver will exist
+   * we will get an ENODEV error when we try to open it (instead of ENOENT).
+   *
+   * NOTE: This might not be portable behavior!
+   */
+
+  (void)close(0);
+  sleep(1);
+
   /* Open the USB keyboard device for read-only access */
 
   do
@@ -101,11 +111,18 @@ static int nsh_wait_usbready(FAR const char *msg)
       fd = open(NSH_USBKBD_DEVNAME, O_RDONLY);
       if (fd < 0)
         {
+#ifdef CONFIG_DEBUG
+          int errcode = errno;
+
           /* ENOENT means that the USB device is not yet connected and,
-           * hence, has no entry under /dev.  Anything else would be bad.
+           * hence, has no entry under /dev.  If the USB driver still
+           * exists under(because other threads still have the driver
+           * open), then we might also get ENODEV.  Anything else would
+           * be really bad.
            */
 
-          DEBUGASSERT(errno == ENOENT);
+          DEBUGASSERT(errcode == ENOENT || errcode == ENODEV);
+#endif
 
           /* Let the user know that we are waiting */
 
@@ -127,21 +144,21 @@ static int nsh_wait_usbready(FAR const char *msg)
     }
   while (fd < 0);
 
-  /* Okay.. we have successfully opened a keyboard device
-   *
-   * Close standard fd 0.  Unbeknownst to stdin.
-   * NOTE: This might not be portable behavior!
+  /* Okay.. we have successfully opened a keyboard device.  Did
+   * we just re-open fd 0?
    */
 
-  (void)close(0);
+  if (fd != 0)
+    {
+       /* No..  Dup the fd to create standard fd 0.  stdin should not know. */
 
-  /* Dup the fd to create standard fd 0.  stdin should not know */
+      (void)dup2(fd, 0);
 
-  (void)dup2(fd, 0);
+      /* Close the keyboard device that we just opened */
 
-  /* Close the keyboard device that we just opened */
+      close(fd);
+    }
 
-  close(fd);
   return OK;
 }
 
@@ -195,7 +212,7 @@ int nsh_consolemain(int argc, char *argv[])
 
   /* Now loop, executing creating a session for each USB connection */
 
-  msg = "Waiting for keyboard to be connected...\n";
+  msg = "Waiting for a keyboard...\n";
   for (;;)
     {
       /* Wait for the USB to be connected to the host and switch
@@ -204,8 +221,8 @@ int nsh_consolemain(int argc, char *argv[])
 
       ret = nsh_wait_usbready(msg);
 
-      (void)ret; /* Eliminate warning if not used */
       DEBUGASSERT(ret == OK);
+      UNUSED(ret);
 
       /* Execute the session */
 
