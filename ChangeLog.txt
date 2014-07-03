@@ -951,4 +951,6 @@
 	  files under netutils/uiplib/uip_*.c to netutils/netlib/netlib_*.c.
 	  Renamed all functions defined in netutils/netlib/ to begin with netlib_,
 	  instead of uip_. (2014-7-2).
+	* apps/nshlib/nsh_usbkeyboard.c:  Add a configuration to use a USB
+	  keyboard for the stdin device (2014-7-3).
 
