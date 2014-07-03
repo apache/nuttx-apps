@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/hidkbd/hidkbd_main.c
  *
- *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -314,6 +314,7 @@ int hidkbd_main(int argc, char *argv[])
       pid = task_create("usbhost", CONFIG_EXAMPLES_HIDKBD_DEFPRIO,
                         (main_t)hidkbd_waiter, (FAR char * const *)NULL);
 #endif
+      UNUSED(pid);
 
       /* Now just sleep.  Eventually logic here will open the kbd device and
        * perform the HID keyboard test.
