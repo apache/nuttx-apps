@@ -282,10 +282,6 @@ ifeq ($(CONFIG_EXAMPLES_UDP),y)
 CONFIGURED_APPS += examples/udp
 endif
 
-ifeq ($(CONFIG_EXAMPLES_WEBSERVER),y)
-CONFIGURED_APPS += examples/webserver
-endif
-
 ifeq ($(CONFIG_EXAMPLES_USBSERIAL),y)
 CONFIGURED_APPS += examples/usbserial
 endif
@@ -296,6 +292,10 @@ endif
 
 ifeq ($(CONFIG_EXAMPLES_WATCHDOG),y)
 CONFIGURED_APPS += examples/watchdog
+endif
+
+ifeq ($(CONFIG_EXAMPLES_WEBSERVER),y)
+CONFIGURED_APPS += examples/webserver
 endif
 
 ifeq ($(CONFIG_EXAMPLES_WGET),y)
