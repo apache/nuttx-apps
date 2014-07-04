@@ -63,7 +63,6 @@
 #include <unistd.h>
 
 #include <net/if.h>
-#include <nuttx/net/uip.h>
 #include <nuttx/net/arp.h>
 
 #include <apps/netutils/netlib.h>

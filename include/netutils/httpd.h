@@ -45,7 +45,6 @@
  ****************************************************************************/
 
 #include <nuttx/net/tcp.h>
-#include <nuttx/net/uip.h>
 
 #include <stdint.h>
 #include <stdbool.h>

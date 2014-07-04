@@ -52,7 +52,6 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/net/uip.h>
 #include <apps/netutils/dhcpc.h>
 #include <apps/netutils/netlib.h>
 

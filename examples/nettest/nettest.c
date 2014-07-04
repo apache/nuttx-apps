@@ -44,7 +44,6 @@
 #include <debug.h>
 
 #include <net/if.h>
-#include <nuttx/net/uip.h>
 #include <apps/netutils/netlib.h>
 
 #include "nettest.h"
