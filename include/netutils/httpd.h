@@ -80,7 +80,7 @@
  * buffer be sufficiently large to contain the entire GET request.
  */
 
-#define HTTPD_IOBUFFER_SIZE (3*UIP_TCP_MSS)
+#define HTTPD_IOBUFFER_SIZE (3*TCP_MSS)
 
 /* This is the maximum size of a file path */
 
