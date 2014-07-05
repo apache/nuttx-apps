@@ -123,7 +123,6 @@ struct dhcp_msg
 
 struct dhcpc_state_s
 {
-  struct udp_conn_s *ds_conn;
   const void        *ds_macaddr;
   int                ds_maclen;
   int                sockfd;
