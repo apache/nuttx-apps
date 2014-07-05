@@ -44,8 +44,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <arpa/inet.h>
+
 /****************************************************************************
- * Preprocessor Defintiions
+ * Pre-processor Definitions
  *****************************************************************************/
 
 #define HTONS(a) htons(a)

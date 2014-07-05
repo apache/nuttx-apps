@@ -45,6 +45,8 @@
 #include <debug.h>
 
 #include <net/if.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <apps/netutils/netlib.h>
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)

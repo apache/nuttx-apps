@@ -61,6 +61,8 @@
 #  include <pthread.h>
 #endif
 
+#include <arpa/inet.h>
+
 #include <apps/netutils/netlib.h>
 #include <apps/netutils/httpd.h>
 

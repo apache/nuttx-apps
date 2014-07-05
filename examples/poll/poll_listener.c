@@ -51,6 +51,8 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <arpa/inet.h>
+
 #include "poll_internal.h"
 
 /****************************************************************************

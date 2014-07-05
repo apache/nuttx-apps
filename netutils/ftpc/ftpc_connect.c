@@ -45,6 +45,8 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <arpa/inet.h>
+
 #include <apps/ftpc.h>
 
 #include "ftpc_internal.h"

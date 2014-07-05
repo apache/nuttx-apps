@@ -54,8 +54,9 @@
 #include <unistd.h>
 
 #include <net/if.h>
-#include <nuttx/net/arp.h>
+#include <netinet/in.h>
 
+#include <nuttx/net/arp.h>
 #include <apps/netutils/netlib.h>
 
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC

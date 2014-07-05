@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/nettest.c
+ * examples/udp/target.c
  *
  *   Copyright (C) 2007, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,6 +40,9 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <debug.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <apps/netutils/netlib.h>
 

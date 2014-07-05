@@ -45,6 +45,8 @@
 #include <debug.h>
 #include <string.h>
 
+#include <arpa/inet.h>
+
 #include <apps/netutils/telnetd.h>
 
 #include "nsh.h"

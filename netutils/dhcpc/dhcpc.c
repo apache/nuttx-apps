@@ -52,6 +52,8 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <arpa/inet.h>
+
 #include <apps/netutils/dhcpc.h>
 #include <apps/netutils/netlib.h>
 

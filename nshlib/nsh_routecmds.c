@@ -43,6 +43,9 @@
 #include <string.h>
 #include <net/route.h>
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <apps/netutils/netlib.h>
 
 #include "nsh.h"

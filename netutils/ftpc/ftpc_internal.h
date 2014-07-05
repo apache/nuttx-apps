@@ -51,6 +51,8 @@
 #include <time.h>
 #include <wdog.h>
 
+#include <netinet/in.h>
+
 #include <apps/ftpc.h>
 
 /****************************************************************************

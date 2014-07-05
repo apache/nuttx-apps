@@ -50,6 +50,7 @@
 #include <debug.h>
 
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <nuttx/net/netconfig.h>
 #include <apps/netutils/tftp.h>

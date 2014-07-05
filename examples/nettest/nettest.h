@@ -40,6 +40,8 @@
  * Included Files
  ****************************************************************************/
 
+#include <arpa/inet.h>
+
 #ifdef NETTEST_HOST
 #else
 # include <debug.h>

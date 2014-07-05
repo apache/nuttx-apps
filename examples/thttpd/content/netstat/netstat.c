@@ -43,7 +43,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <netinet/in.h>
 #include <netinet/ether.h>
+
 #include <nuttx/net/netconfig.h>
 #include <nuttx/net/netdev.h>
 

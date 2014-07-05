@@ -48,6 +48,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/socket.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -55,8 +56,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <semaphore.h>
-#include <sys/socket.h>
 
+#include <arpa/inet.h>
+
+#include <nuttx/net/ip.h>
 #include <apps/netutils/smtp.h>
 
 /****************************************************************************

@@ -44,7 +44,10 @@
 #include <unistd.h>
 #include <debug.h>
 
+#include <arpa/inet.h>
 #include <net/if.h>
+#include <netinet/in.h>
+
 #include <apps/netutils/netlib.h>
 #include <apps/netutils/ipmsfilter.h>
 

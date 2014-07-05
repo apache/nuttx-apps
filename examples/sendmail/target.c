@@ -45,6 +45,10 @@
 #include <errno.h>
 
 #include <net/if.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
+#include <nuttx/net/ip.h>
 #include <apps/netutils/netlib.h>
 #include <apps/netutils/smtp.h>
 

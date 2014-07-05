@@ -43,6 +43,9 @@
 #include <string.h>
 #include <errno.h>
 
+#include <netinet/in.h>
+
+#include <nuttx/net/ip.h>
 #include <apps/netutils/smtp.h>
 
 /****************************************************************************
@@ -99,5 +102,6 @@ int main(int argc, char **argv, char **envp)
                 g_msg_body, strlen(g_msg_body));
       smtp_close(handle);
     }
+
   return 0;
 }

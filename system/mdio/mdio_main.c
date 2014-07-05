@@ -49,6 +49,7 @@
 #include <netinet/in.h>
 
 #include <net/if.h>
+#include <arpa/inet.h>
 
 /****************************************************************************
  * Definitions

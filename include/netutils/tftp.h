@@ -57,13 +57,14 @@
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
 
-EXTERN int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary);
-EXTERN int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary);
+int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary);
+int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary);
 
 #undef EXTERN
 #ifdef __cplusplus

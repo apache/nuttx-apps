@@ -50,6 +50,9 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <nuttx/fs/nfs.h>
 
 #include "nsh.h"

@@ -45,6 +45,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <arpa/inet.h>
+
 #include "udp-internal.h"
 
 /****************************************************************************

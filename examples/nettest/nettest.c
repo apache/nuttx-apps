@@ -44,6 +44,9 @@
 #include <debug.h>
 
 #include <net/if.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
 #include <apps/netutils/netlib.h>
 
 #include "nettest.h"

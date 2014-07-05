@@ -58,6 +58,7 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <apps/netutils/dnsclient.h>
 #include <apps/netutils/netlib.h>

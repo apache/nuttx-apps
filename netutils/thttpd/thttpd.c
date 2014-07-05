@@ -53,6 +53,8 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <arpa/inet.h>
+
 #include <nuttx/compiler.h>
 #include <nuttx/binfmt/symtab.h>
 #include <apps/netutils/thttpd.h>

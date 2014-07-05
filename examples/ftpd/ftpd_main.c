@@ -44,6 +44,7 @@
 #include <debug.h>
 
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <apps/netutils/netlib.h>
 #include <apps/netutils/ftpd.h>
