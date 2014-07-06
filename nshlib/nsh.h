@@ -171,18 +171,26 @@
  */
 
 #undef HAVE_USB_KEYBOARD
-#if defined(CONFIG_USBHOST) && !defined(HAVE_USB_CONSOLE)
+
+/* Check pre-requisites */
+
+#if !defined(CONFIG_USBHOST) || !defined(CONFIG_USBHOST_HIDKBD) || \
+    defined(HAVE_USB_CONSOLE)
+#  undef CONFIG_NSH_USBKBD
+#endif
+
+/* Check default settings */
+
+#if defined(CONFIG_NSH_USBKBD)
 
 /* Check for a USB HID keyboard in the configuration */
 
-#  ifdef CONFIG_USBHOST_HIDKBD
-#    define HAVE_USB_KEYBOARD 1
+#  define HAVE_USB_KEYBOARD 1
 
 /* The default keyboard device is /dev/kbda */
 
-#    ifndef NSH_USBKBD_DEVNAME
-#      define NSH_USBKBD_DEVNAME "/dev/kbda"
-#    endif
+#  ifndef NSH_USBKBD_DEVNAME
+#    define NSH_USBKBD_DEVNAME "/dev/kbda"
 #  endif
 #endif /* HAVE_USB_KEYBOARD */
 
