@@ -695,7 +695,7 @@ o mkrd [-m <minor>] [-s <sector-size>] <nsectors>
 o mount [-t <fstype> <block-device> <dir-path>]
 
   The mount command performs one of two different operations.  If no
-  paramters are provided on the command line after the mount command,
+  parameters are provided on the command line after the mount command,
   then the 'mount' command will enumerate all of the current
   mountpoints on the console.
 

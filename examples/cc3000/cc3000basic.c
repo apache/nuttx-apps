@@ -806,7 +806,7 @@ void ListAccessPoints(void)
 
   printf("List visible access points\n");
 
-  printf("  Setting scan paramters...\n");
+  printf("  Setting scan parameters...\n");
 
   for (i=0; i<NUM_CHANNELS; i++)
     {

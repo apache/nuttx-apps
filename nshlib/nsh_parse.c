@@ -1203,7 +1203,7 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
       *rptr = '\0';
 
-      /* Then execute the command to get the paramter value */
+      /* Then execute the command to get the parameter value */
 
       argument = nsh_cmdparm(vtbl, cmdline + 1, allocation);
     }
