@@ -410,6 +410,7 @@ int buttons_main(int argc, char *argv[])
     {
       maxbuttons = strtol(argv[1], NULL, 10);
     }
+
   lowsyslog("maxbuttons: %d\n", maxbuttons);
 #endif
 
