@@ -953,4 +953,6 @@
 	  instead of uip_. (2014-7-2).
 	* apps/nshlib/nsh_usbkeyboard.c:  Add a configuration to use a USB
 	  keyboard for the stdin device (2014-7-3).
+	* apps/neturils/webclient/webclient.c:  Fix to offset caculation from
+	  Rony Xln.  Prevents 0x0a at the beginning of lines (2014-7-7).
 
