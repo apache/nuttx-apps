@@ -364,7 +364,7 @@ NXWINDOW nxpu_open(void)
 
   /* Set the position for the pop-up window */
 
-  message("nxpu_open: Set pop-up postion to (%d,%d)\n", pt.x, pt.y);
+  message("nxpu_open: Set pop-up position to (%d,%d)\n", pt.x, pt.y);
   ret = nxpu_setposition(hwnd, &pt);
   if (ret < 0)
     {

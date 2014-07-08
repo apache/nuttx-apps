@@ -901,7 +901,7 @@ config NXWM_CALIBRATION_MESSAGES
 	default n
 	---help---
 		By default, the calibration screen is clear excecpt for the
-		calibratino touchpoints.  If this options are enabled, then
+		calibration touchpoints.  If this options are enabled, then
 		instructions when to touch and when to release the touch will
 		be added in the center of the display,
 
