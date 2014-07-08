@@ -296,7 +296,7 @@ namespace NXWidgets
      *
      * @param column The column of the button to check.
      * @param row The row of the button to check.
-     * @return True if this button is at the cursor postion and highlighted.
+     * @return True if this button is at the cursor position and highlighted.
      */
 
     virtual bool isCursorPosition(int column, int row) const;
