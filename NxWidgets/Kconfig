@@ -277,7 +277,7 @@ config NXWIDGETS_DOUBLECLICK_TIME
 		Default: 350
 
 config NXWIDGETS_KBDBUFFER_SIZE
-	int "Keybard Buffer Size"
+	int "Keyboard Buffer Size"
 	default 16
 	---help---
 		Size of incoming character buffer, i.e., the maximum number of
