@@ -192,11 +192,8 @@ void CGraphicsPort::drawHorizLine(nxgl_coord_t x, nxgl_coord_t y,
                                   nxgl_coord_t width, nxgl_mxpixel_t color)
 {
   FAR struct nxgl_rect_s dest;
-  nxgl_coord_t halfwidth;
 
   // Express the line as a rectangle
-
-  halfwidth = width >> 1;
 
   dest.pt1.x = x;
   dest.pt1.y = y;
