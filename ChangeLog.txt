@@ -955,4 +955,8 @@
 	  keyboard for the stdin device (2014-7-3).
 	* apps/neturils/webclient/webclient.c:  Fix to offset caculation from
 	  Rony Xln.  Prevents 0x0a at the beginning of lines (2014-7-7).
+	* netutils/webserver (and other files):  Fix some configuration usage:
+	  CONFIG_NETUTILS_HTTPD_SENDFILE was missing from Kconfig; CONFIG_NET_HAVE_SOLINGER
+	  should be CONFIG_NET_SOLINGER; Type of CONFIG_NET_HTTPD_MAXPATH was wrong
+	  in Kconfig file.  From Max (2014-7-11).
 
