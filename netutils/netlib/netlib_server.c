@@ -81,7 +81,7 @@
 void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksize)
 {
   struct sockaddr_in myaddr;
-#ifdef CONFIG_NET_HAVE_SOLINGER
+#ifdef CONFIG_NET_SOLINGER
   struct linger ling;
 #endif
   pthread_t child;
@@ -119,7 +119,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
        * closed.
        */
 
-#ifdef CONFIG_NET_HAVE_SOLINGER
+#ifdef CONFIG_NET_SOLINGER
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
 

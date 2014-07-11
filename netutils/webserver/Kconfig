@@ -34,7 +34,7 @@ config NETUTILS_HTTPD_SCRIPT_DISABLE
 		This option, if selected, will elide the %! scripting
 
 config NETUTILS_HTTPD_MAXPATH
-	bool "Maximum size of a path"
+	int "Maximum size of a path"
 	default 64
 	---help---
 		This is the maximum size of a PATH used in the web server.  This setting
@@ -112,7 +112,7 @@ config NETUTILS_HTTPD_MMAP
 		approach.  NOTE, however, that since files are copied into memory,
 		this limits solution to small files that will fit into available RAM.
 
-config NETUTILS_HTTPD_MMAP
+config NETUTILS_HTTPD_SENDFILE
 	bool "sendfile()"
 	select NETUTILS_HTTPD_SCRIPT_DISABLE
 	---help---
