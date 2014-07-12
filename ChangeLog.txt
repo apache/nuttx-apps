@@ -430,3 +430,7 @@
 * libnxwidgets/include/nxconfig.hxx and libnxwidgets/src/cscaledbitmap.cxx:
   Fix typo RBG -> RGB.  This makes NxWidgets incompatible with versions of
   NuttX 7.2 and below.
+* nxwm/src/glyph_*.c: Rename all ICON glyph files to include the size of the
+  ICON as part of the file name.  This is in preparation for supporting a
+  set of larger ICONs (2014-7-12).
+
