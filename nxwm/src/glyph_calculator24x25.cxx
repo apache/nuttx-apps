@@ -173,7 +173,7 @@ static const struct NXWidgets::SRlePaletteBitmapEntry g_calculatorRleEntries[] =
 };
 
 /********************************************************************************************
- * Public Bitmap Structure Defintions
+ * Public Bitmap Structure Definitions
  ********************************************************************************************/
 
 const struct NXWidgets::SRlePaletteBitmap NxWM::g_calculatorBitmap =

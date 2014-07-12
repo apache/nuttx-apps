@@ -163,7 +163,7 @@ static const struct NXWidgets::SRlePaletteBitmapEntry g_cmdRleEntries[] =
 };
 
 /********************************************************************************************
- * Public Bitmap Structure Defintions
+ * Public Bitmap Structure Definitions
  ********************************************************************************************/
 
 const struct NXWidgets::SRlePaletteBitmap NxWM::g_cmdBitmap =

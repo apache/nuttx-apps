@@ -3435,7 +3435,7 @@ static const struct SRlePaletteBitmapEntry g_nuttxRleEntries[] =
 #endif
 
 /****************************************************************************
- * Public Bitmap Structure Defintions
+ * Public Bitmap Structure Definitions
  ****************************************************************************/
 
 const struct SRlePaletteBitmap NXWidgets::g_nuttxBitmap160x160 =

@@ -138,7 +138,7 @@ static const uint32_t g_radioButtonMuGlyph[] =
 #endif
 
 /****************************************************************************
- * Public Bitmap Structure Defintions
+ * Public Bitmap Structure Definitions
  ****************************************************************************/
 
 const struct SBitmap NXWidgets::g_radioButtonMu =
