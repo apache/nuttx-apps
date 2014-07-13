@@ -188,7 +188,8 @@
  * CONFIG_NXWM_TASKBAR_RIGHT - Task bar is on the right side of the display
  *
  * CONFIG_NXWM_TASKBAR_WIDTH - Task bar thickness (either vertical or
- *   horizontal).  Default: 25 + 2*spacing
+ *   horizontal).  Default: 25 + 2*spacing unless large icons are selected. 
+ *   Then the default is 50 *spacing
  */
 
 /**
@@ -226,7 +227,7 @@
 
 // Taskbar ICON scaling
 
-#ifdef CONFIG_NXWM_TASKBAR_ICONSCALE
+#if defined(CONFIG_NXWM_TASKBAR_ICONSCALE)
 #  ifndef CONFIG_NXWM_TASKBAR_ICONWIDTH
 #    error Scaling requires CONFIG_NXWM_TASKBAR_ICONWIDTH
 #    define CONFIG_NXWM_TASKBAR_ICONWIDTH  50
@@ -235,11 +236,16 @@
 #    error Scaling requires CONFIG_NXWM_TASKBAR_ICONHEIGHT
 #    define CONFIG_NXWM_TASKBAR_ICONHEIGHT 42
 #  endif
+#elif defined(CONFIG_NXWM_LARGE_ICONS)
+#  undef CONFIG_NXWM_TASKBAR_ICONWIDTH
+#  define CONFIG_NXWM_TASKBAR_ICONWIDTH  50
+#  undef CONFIG_NXWM_TASKBAR_ICONHEIGHT
+#  define CONFIG_NXWM_TASKBAR_ICONHEIGHT 42
 #else
 #  undef CONFIG_NXWM_TASKBAR_ICONWIDTH
-#  define CONFIG_NXWM_TASKBAR_ICONWIDTH  25 // Used below
+#  define CONFIG_NXWM_TASKBAR_ICONWIDTH  25
 #  undef CONFIG_NXWM_TASKBAR_ICONHEIGHT
-#  define CONFIG_NXWM_TASKBAR_ICONHEIGHT 21 // Used below (NOT)
+#  define CONFIG_NXWM_TASKBAR_ICONHEIGHT 21
 #endif
 
 /**
@@ -260,12 +266,14 @@
 /* Tool Bar Configuration ***************************************************/
 /**
  * CONFIG_NXWM_TOOLBAR_HEIGHT.  The height of the tool bar in each
- *   application window. At present, all icons are 21 pixels in height and,
- *   hence require a task bar of at least that size.
+ *   application window. At present, all icons are 21 or 42 pixels in height
+ *   (depending on the setting of CONFIG_NXWM_LARGE_ICONS) and, hence require
+ *   a task bar of at least that size.
  */
 
 #ifndef CONFIG_NXWM_TOOLBAR_HEIGHT
-#    define CONFIG_NXWM_TOOLBAR_HEIGHT (21+2*CONFIG_NXWM_TASKBAR_HSPACING)
+#    define CONFIG_NXWM_TOOLBAR_HEIGHT \
+       (CONFIG_NXWM_TASKBAR_ICONHEIGHT + 2*CONFIG_NXWM_TASKBAR_HSPACING)
 #endif
 
 /* Background Image **********************************************************/

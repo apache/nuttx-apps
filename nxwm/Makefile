@@ -1,7 +1,7 @@
 #################################################################################
 # NxWidgets/nxwm/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -75,8 +75,15 @@ CXXSRCS +=  cnxconsole.cxx
 endif
 
 # Images
+
+
+ifeq ($(CONFIG_NXWM_LARGE_ICONS),y)
+CXXSRCS += glyph_calculator47x49.cxx glyph_calibration48x42.cxx glyph_cmd49x43.cxx
+CXXSRCS += glyph_minimize42x42.cxx glyph_play48x48.cxx glyph_stop42x42.cxx
+else
 CXXSRCS += glyph_calculator24x25.cxx glyph_calibration24x21.cxx glyph_cmd25x22.cxx
 CXXSRCS += glyph_minimize21x21.cxx glyph_play24x24.cxx glyph_stop21x21.cxx
+endif
 
 ifeq ($(CONFIG_NXWM_MEDIAPLAYER),y)
 CXXSRCS += glyph_mediaplayer24x24.cxx cmediaplayer.cxx glyph_mplayer_controls32x32.cxx

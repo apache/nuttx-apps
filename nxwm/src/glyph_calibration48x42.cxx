@@ -108,7 +108,7 @@ static const uint32_t g_calibrationBrightlLut[BITMAP_NLUTCODES] =
 static const uint16_t g_calibrationNormalLut[BITMAP_NLUTCODES] =
 {
   CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR,                                   /* Code 0 */
-  0x0000, 0xbdf7, 0xad55, 0x8410, 0x39e7, 0xab62, 0x81e2,  /* Codes 1-6 */
+  0xbdf7, 0xad55, 0x8410, 0x39e7, 0xab62, 0x81e2                         /* Codes 1-6 */
 };
 
 static const uint16_t g_calibrationBrightlLut[BITMAP_NLUTCODES] =
@@ -301,14 +301,14 @@ static const struct NXWidgets::SRlePaletteBitmapEntry g_calibrationRleEntries[] 
 
 const struct NXWidgets::SRlePaletteBitmap NxWM::g_calibrationBitmap =
 {
-  CONFIG_NXWIDGETS_BPP,    // bpp    - Bits per pixel
-  CONFIG_NXWIDGETS_FMT,    // fmt    - Color format
-  BITMAP_NLUTCODES,        // nlut   - Number of colors in the lLook-Up Table (LUT)
-  BITMAP_NCOLUMNS,         // width  - Width in pixels
-  BITMAP_NROWS,            // height - Height in rows
-  {                       // lut    - Pointer to the beginning of the Look-Up Table (LUT)
-    g_minimizeNormalLut,  //          Index 0: Unselected LUT
-    g_minimizeBrightlLut, //          Index 1: Selected LUT
+  CONFIG_NXWIDGETS_BPP,      // bpp    - Bits per pixel
+  CONFIG_NXWIDGETS_FMT,      // fmt    - Color format
+  BITMAP_NLUTCODES,          // nlut   - Number of colors in the lLook-Up Table (LUT)
+  BITMAP_NCOLUMNS,           // width  - Width in pixels
+  BITMAP_NROWS,              // height - Height in rows
+  {                          // lut    - Pointer to the beginning of the Look-Up Table (LUT)
+    g_calibrationNormalLut,  //          Index 0: Unselected LUT
+    g_calibrationBrightlLut, //          Index 1: Selected LUT
   },
-  g_minimizeRleEntries    // data   - Pointer to the beginning of the RLE data
+  g_calibrationRleEntries    // data   - Pointer to the beginning of the RLE data
 };

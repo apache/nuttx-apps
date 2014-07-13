@@ -78,7 +78,7 @@ static const uint32_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x1b368a, 0x3651a5, 0x001b8a, 0x001ba5, 0x1b1b6f, 0x00008a, 0xbdbdbd, 0xa5bdbd  /* Codes 0-7 */
 };
 
-static const uint32_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x2448b8, 0x486cdc, 0x0024b8, 0x0024dc, 0x242494, 0x0000b8, 0xfcfcfc, 0xdcfcfc  /* Codes 0-7 */
 };
@@ -90,7 +90,7 @@ static const uint32_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x2448b8, 0x486cdc, 0x0024b8, 0x0024dc, 0x242494, 0x0000b8, 0xfcfcfc, 0xdcfcfc  /* Codes 0-7 */
 };
 
-static const uint32_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x2d5ae6, 0x5a87ff, 0x002de6, 0x002dff, 0x2d2db9, 0x0000e6, 0xffffff, 0xffffff  /* Codes 0-7 */
 };
@@ -106,7 +106,7 @@ static const uint16_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x19b1, 0x3294, 0x00d1, 0x00d4, 0x18cd, 0x0011, 0xbdf7, 0xa5f7  /* Codes 0-7 */
 };
 
-static const uint16_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x2257, 0x4b7b, 0x0137, 0x013b, 0x2132, 0x0017, 0xffff, 0xdfff  /* Codes 0-7 */
 };
@@ -118,7 +118,7 @@ static const uint16_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x2257, 0x4b7b, 0x0137, 0x013b, 0x2132, 0x0017, 0xffff, 0xdfff  /* Codes 0-7 */
 };
 
-static const uint16_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x2adc, 0x5c3f, 0x017c, 0x017f, 0x2977, 0x001c, 0xffff, 0xffff  /* Codes 0-7 */
 };
@@ -144,7 +144,7 @@ static const uint8_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x37, 0x52, 0x1f, 0x22, 0x24, 0x0f, 0xbd, 0xb5  /* Codes 0-7 */
 };
 
-static const uint8_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x4a, 0x6e, 0x2a, 0x2e, 0x30, 0x14, 0xfc, 0xf2  /* Codes 0-7 */
 };
@@ -156,7 +156,7 @@ static const uint8_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x4a, 0x6e, 0x2a, 0x2e, 0x30, 0x14, 0xfc, 0xf2  /* Codes 0-7 */
 };
 
-static const uint8_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x5c, 0x87, 0x34, 0x37, 0x3c, 0x1a, 0xff, 0xff  /* Codes 0-7 */
 };
@@ -174,7 +174,7 @@ static const nxgl_mxpixel_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x06, 0x2a, 0x02, 0x02, 0x01, 0x02, 0xb6, 0xb6  /* Codes 0-7 */
 };
 
-static const nxgl_mxpixel_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x2a, 0x4f, 0x06, 0x07, 0x26, 0x02, 0xff, 0xdf  /* Codes 0-7 */
 };
@@ -186,7 +186,7 @@ static const nxgl_mxpixel_t g_minimizeNormalLut[BITMAP_NLUTCODES] =
   0x2a, 0x4f, 0x06, 0x07, 0x26, 0x02, 0xff, 0xdf  /* Codes 0-7 */
 };
 
-static const nxgl_mxpixel_t g_minimizeBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_minimizeBrightLut[BITMAP_NLUTCODES] =
 {
   0x2b, 0x53, 0x07, 0x07, 0x26, 0x03, 0xff, 0xff  /* Codes 0-7 */
 };
@@ -249,11 +249,11 @@ static const struct NXWidgets::SRlePaletteBitmapEntry g_minimizeRleEntries[] =
 
 const struct NXWidgets::SRlePaletteBitmap NxWM::g_minimizeBitmap =
 {
-  CONFIG_NXWIDGETS_BPP, // bpp    - Bits per pixel
-  CONFIG_NXWIDGETS_FMT, // fmt    - Color format
-  BITMAP_NLUTCODES,     // nlut   - Number of colors in the lLook-Up Table (LUT)
-  BITMAP_NCOLUMNS,      // width  - Width in pixels
-  BITMAP_NROWS,         // height - Height in rows
+  CONFIG_NXWIDGETS_BPP,  // bpp    - Bits per pixel
+  CONFIG_NXWIDGETS_FMT,  // fmt    - Color format
+  BITMAP_NLUTCODES,      // nlut   - Number of colors in the lLook-Up Table (LUT)
+  BITMAP_NCOLUMNS,       // width  - Width in pixels
+  BITMAP_NROWS,          // height - Height in rows
   {                      // lut    - Pointer to the beginning of the Look-Up Table (LUT)
     g_minimizeNormalLut, //          Index 0: Unselected LUT
     g_minimizeBrightLut, //          Index 1: Selected LUT

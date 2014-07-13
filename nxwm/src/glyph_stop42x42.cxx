@@ -78,7 +78,7 @@ static const uint32_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xa5a5a5, 0xa50000, 0xbd0000, 0x6f1b1b, 0xbdbdbd, 0xa5bdbd, 0x8a0000, 0xbda5a5 /* Codes 0-7 */
 };
 
-static const uint32_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xdcdcdc, 0xdc0000, 0xfc0000, 0x942424, 0xfcfcfc, 0xdcfcfc, 0xb80000, 0xfcdcdc /* Codes 0-7 */
 };
@@ -90,7 +90,7 @@ static const uint32_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xdcdcdc, 0xdc0000, 0xfc0000, 0x942424, 0xfcfcfc, 0xdcfcfc, 0xb80000, 0xfcdcdc /* Codes 0-7 */
 };
 
-static const uint32_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xffffff, 0xff0000, 0xff0000, 0xb92d2d, 0xffffff, 0xffffff, 0xe60000, 0xffffff /* Codes 0-7 */
 };
@@ -106,7 +106,7 @@ static const uint16_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xa534, 0xa000, 0xb800, 0x68c3, 0xbdf7, 0xa5f7, 0x8800, 0xbd34 /* Codes 0-7 */
 };
 
-static const uint16_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xdefb, 0xd800, 0xf800, 0x9124, 0xffff, 0xdfff, 0xb800, 0xfefb /* Codes 0-7 */
 };
@@ -118,7 +118,7 @@ static const uint16_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xdefb, 0xd800, 0xf800, 0x9124, 0xffff, 0xdfff, 0xb800, 0xfefb /* Codes 0-7 */
 };
 
-static const uint16_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xffff, 0xf800, 0xf800, 0xb965, 0xffff, 0xffff, 0xe000, 0xffff /* Codes 0-7 */
 };
@@ -144,7 +144,7 @@ static const uint8_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xa5, 0x31, 0x38, 0x34, 0xbd, 0xb5, 0x29, 0xac /* Codes 0-7 */
 };
 
-static const uint8_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xdc, 0x41, 0x4b, 0x45, 0xfc, 0xf2, 0x37, 0xe5 /* Codes 0-7 */
 };
@@ -156,7 +156,7 @@ static const uint8_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xdc, 0x41, 0x4b, 0x45, 0xfc, 0xf2, 0x37, 0xe5 /* Codes 0-7 */
 };
 
-static const uint8_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xff, 0x4c, 0x4c, 0x56, 0xff, 0xff, 0x44, 0xff /* Codes 0-7 */
 };
@@ -174,7 +174,7 @@ static const nxgl_mxpixel_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xb6, 0xa0, 0xa0, 0x60, 0xb6, 0xb6, 0x80, 0xb6 /* Codes 0-7 */
 };
 
-static const nxgl_mxpixel_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xdb, 0xc0, 0xe0, 0x84, 0xff, 0xdf, 0xa0, 0xfb /* Codes 0-7 */
 };
@@ -186,7 +186,7 @@ static const nxgl_mxpixel_t g_stopNormalLut[BITMAP_NLUTCODES] =
   0xdb, 0xc0, 0xe0, 0x84, 0xff, 0xdf, 0xa0, 0xfb /* Codes 0-7 */
 };
 
-static const nxgl_mxpixel_t g_stopBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_stopBrightLut[BITMAP_NLUTCODES] =
 {
   0xff, 0xe0, 0xe0, 0xa4, 0xff, 0xff, 0xe0, 0xff /* Codes 0-7 */
 };
