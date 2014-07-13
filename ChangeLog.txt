@@ -434,4 +434,6 @@
   ICON as part of the file name.  This is in preparation for supporting a
   set of larger ICONs (2014-7-12).
 * nxwm/src/glyph_play48x48.cxx:  Add a larger NxWM play icon (2014-7-12).
+* nxwm/src/glyph_caclulator47x49.cxx:  Add a larger NxWM calculator icon
+  (2014-7-13).
 
