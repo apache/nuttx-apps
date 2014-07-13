@@ -70,7 +70,6 @@ namespace NxWM
 #endif
   extern const struct NXWidgets::SRlePaletteBitmap g_minimizeBitmap;
   extern const struct NXWidgets::SRlePaletteBitmap g_playBitmap;
-  extern const struct NXWidgets::SRlePaletteBitmap g_startBitmap;
   extern const struct NXWidgets::SRlePaletteBitmap g_stopBitmap;
 }
 
