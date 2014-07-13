@@ -76,8 +76,8 @@ endif
 
 # Images
 CXXSRCS += glyph_calculator24x25.cxx glyph_calibration24x21.cxx glyph_cmd25x22.cxx
-CXXSRCS += glyph_minimize21x21.cxx glyph_nsh25x25.cxx glyph_play24x24.cxx
-CXXSRCS += glyph_start25x25.cxx glyph_stop21x21.cxx
+CXXSRCS += glyph_minimize21x21.cxx glyph_play24x24.cxx glyph_start25x25.cxx
+CXXSRCS += glyph_stop21x21.cxx
 
 ifeq ($(CONFIG_NXWM_MEDIAPLAYER),y)
 CXXSRCS += glyph_mediaplayer24x24.cxx cmediaplayer.cxx glyph_mplayer_controls32x32.cxx
