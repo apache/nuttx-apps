@@ -439,4 +439,6 @@
 * nxwm/src/glyph_cmd49x43.cxx: Add a larger NxWM NxConsole icon (2014-7-13).
 * nxwm/src/glyph_calibration48x42.cxx:  Add a larger NxWM Calibration icon
   (2014-7-13).
+*  nxwm/src/glyph_minimize42x42.cxx: Add a larger NxWM minimize icon
+  (2014-8-13).
 
