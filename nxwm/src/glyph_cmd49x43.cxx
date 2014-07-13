@@ -60,7 +60,7 @@
 #define BITMAP_NCOLUMNS  49
 #define BITMAP_NLUTCODES 11
 
-#define __DARK_ICON   1
+#define DARK_CMD_ICON    1
 
 /********************************************************************************************
  * Private Bitmap Data
@@ -71,7 +71,7 @@ using namespace NxWM;
 /* RGB24 (8-8-8) Colors */
 
 #if CONFIG_NXWIDGETS_BPP == 24 ||  CONFIG_NXWIDGETS_BPP == 32
-#  ifdef __DARK_ICON
+#  ifdef DARK_CMD_ICON
 
 static const uint32_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -85,7 +85,7 @@ static const uint32_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0xfcfcfc, 0x545454, 0x000000                                                     /* Codes 8-10 */
 };
 
-#  else /* __DARK_ICON */
+#  else /* DARK_CMD_ICON */
 
 static const uint32_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -98,12 +98,12 @@ static const uint32_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0xfafafa, 0x8c8c8c, 0x464646, 0xd7d7d7, 0x0023d7, 0xff0000, 0x0023ff, 0xff0000,  /* Codes 0-7 */
   0xffffff, 0x696969, 0x000000                                                     /* Codes 8-10 */
 };
-#  endif /* __DARK_ICON */
+#  endif /* DARK_CMD_ICON */
 
 /* RGB16 (565) Colors */
 
 #elif CONFIG_NXWIDGETS_BPP == 16
-#  ifdef __DARK_ICON
+#  ifdef DARK_CMD_ICON
 
 static const uint16_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -117,7 +117,7 @@ static const uint16_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0x0000                                                                           /* Codes 10-10 */
 };
 
-#  else /* __DARK_ICON */
+#  else /* DARK_CMD_ICON */
 
 static const uint16_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -131,7 +131,7 @@ static const uint16_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0x0000                                                                           /* Codes 10-10 */
 };
 
-#  endif /* __DARK_ICON */
+#  endif /* DARK_CMD_ICON */
 
 /* 8-bit color lookups.  NOTE:  This is really dumb!  The lookup index is 8-bits and it used
  * to lookup an 8-bit value.  There is no savings in that!  It would be better to just put
@@ -145,7 +145,7 @@ static const uint16_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
 
 /* 8-bit Greyscale */
 
-#    ifdef __DARK_ICON
+#    ifdef DARK_CMD_ICON
 
 static const uint8_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -157,7 +157,7 @@ static const uint8_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0xc8, 0x70, 0x38, 0xac, 0x24, 0x44, 0x2a, 0x4b, 0xfc, 0x54, 0x00  /* Codes 0-10 */
 };
 
-#    else /* __DARK_ICON */
+#    else /* DARK_CMD_ICON */
 
 static const uint8_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -169,13 +169,13 @@ static const uint8_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0xfa, 0x8c, 0x46, 0xd7, 0x2d, 0x4c, 0x31, 0x4c, 0xff, 0x69, 0x00  /* Codes 0-10 */
 };
 
-#    endif /* __DARK_ICON */
+#    endif /* DARK_CMD_ICON */
 
 #  else /* CONFIG_NXWIDGETS_GREYSCALE */
 
 /* RGB8 (332) Colors */
 
-#    ifdef __DARK_ICON
+#    ifdef DARK_CMD_ICON
 
 static const nxgl_mxpixel_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -187,7 +187,7 @@ static const nxgl_mxpixel_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0xdb, 0x6d, 0x24, 0xb6, 0x02, 0xe0, 0x03, 0xe0, 0xff, 0x49, 0x00  /* Codes 0-10 */
 };
 
-#    else /* __DARK_ICON */
+#    else /* DARK_CMD_ICON */
 
 static const nxgl_mxpixel_t g_cmdNormalLut[BITMAP_NLUTCODES] =
 {
@@ -199,7 +199,7 @@ static const nxgl_mxpixel_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
   0xff, 0x92, 0x49, 0xdb, 0x07, 0xe0, 0x07, 0xe0, 0xff, 0x6d, 0x00  /* Codes 0-10 */
 };
 
-#    endif /* __DARK_ICON */
+#    endif /* DARK_CMD_ICON */
 #  endif /* CONFIG_NXWIDGETS_GREYSCALE */
 #else
 # error Unsupported pixel format

@@ -56,11 +56,11 @@
  * Pre-Processor Definitions
  ********************************************************************************************/
 
-#define BITMAP_NROWS     49
-#define BITMAP_NCOLUMNS  47
-#define BITMAP_NLUTCODES 22
+#define BITMAP_NROWS         49
+#define BITMAP_NCOLUMNS      47
+#define BITMAP_NLUTCODES     22
 
-#define DARK_CALCULATOR_ICON   1
+#define DARK_CALCULATOR_ICON 1
 
 /********************************************************************************************
  * Private Bitmap Data
