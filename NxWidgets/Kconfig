@@ -313,13 +313,27 @@ if NXWM
 
 menu "NxWM General settings"
 
-config NXWM_SYSTEM_CUSTOM_FONTID
+config NXWM_LARGE_ICONS
+	bool "Use large icons"
+	default n
+	---help---
+		The default icons are nominally 25x25 pixels for a small
+		resolution/display, this is a good selection.  For example, a
+		320x240 display that is 4.5cm x 3.375 would have a resolution of
+		about 71 dots per cm.  In this case, the icon would be 0.35cm.
+
+		If you use a larger display, these smaller icons may seem
+		inappropriately small.  In this case, you have two options:  (1)
+		Enable image scaling which will make the icons "fuzzy" looking, or
+		(2) select this option to enable use of larger icons.
+
+config NXWM_CUSTOM_FONTID
 	bool "Use Custom Default Font"
 	default n
 	---help---
 		Set to override the system default font id (NXFONT_DEFAULT).
 
-if NXWM_SYSTEM_CUSTOM_FONTID
+if NXWM_CUSTOM_FONTID
 
 config NXWM_DEFAULT_FONTID
 	int "Font ID"
@@ -328,7 +342,7 @@ config NXWM_DEFAULT_FONTID
 		Use this NxWM default font ID instead of the system font ID
 		(NXFONT_DEFAULT).  Default: 0
 
-endif # NXWM_SYSTEM_CUSTOM_FONTID
+endif # NXWM_CUSTOM_FONTID
 
 config NXWM_UNITTEST
 	bool "NxWM Unit Test"
