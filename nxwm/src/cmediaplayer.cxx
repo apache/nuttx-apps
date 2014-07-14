@@ -364,62 +364,115 @@ bool CMediaPlayer::createPlayer(void)
 
   m_text->setFont(m_font);
 
-  // Create the Play Image
+  // Create all bitmaps
 
   NXWidgets::CRlePaletteBitmap *playBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PLAY_ICON);
 
-  uint32_t playControlX = (m_windowSize.w >> 1) - (playBitmap->getWidth() >> 1);
-  uint32_t controlY     = (180 * m_windowSize.h) >> 8;
-
-  m_playPause = new NXWidgets::
-      CImage(control, (nxgl_coord_t)playControlX, (nxgl_coord_t)controlY,
-             playBitmap->getWidth(), playBitmap->getHeight(),
-             playBitmap);
-
-  m_playPause->setBorderless(true);
-
-  // Create the Rewind Image
-
   NXWidgets::CRlePaletteBitmap *rewBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
 
-  uint32_t rewControlX = playControlX - rewBitmap->getWidth() - 16;
+  NXWidgets::CRlePaletteBitmap *fwdBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
+
+  // Button widths will depend on if the buttons will be bordered or not
+
+  nxgl_coord_t playButtonW;
+  nxgl_coord_t rewButtonW;
+  nxgl_coord_t fwdButtonW;
+
+#ifdef CONFIG_NXWM_MEDIAPLAYER_BORDERS
+  // With the widest button
+
+  nxgl_coord_t buttonW = playBitmap->getWidth();
+
+  if (buttonW < rewBitmap->getWidth())
+    {
+      buttonW = rewBitmap->getWidth();
+    }
+
+  if (buttonW < fwdBitmap->getWidth())
+    {
+      buttonW = fwdBitmap->getWidth();
+    }
+
+  // Add little space around the bitmap and use this width for all buttons
+
+  buttonW    += 8;
+  playButtonW = buttonW;
+  rewButtonW  = buttonW;
+  fwdButtonW  = buttonW;
+
+#else
+  // Use the bitmap image widths for the button widths (plus a bit)
+
+  playButtonW = playBitmap->getWidth() + 8;
+  rewButtonW  = rewBitmap->getWidth()  + 8;
+  fwdButtonW  = fwdBitmap->getWidth()  + 8;
+#endif
+
+  // Use the same height for all buttons
+
+  nxgl_coord_t buttonH = playBitmap->getHeight();
+
+  if (buttonH < rewBitmap->getHeight())
+    {
+      buttonH = rewBitmap->getHeight();
+    }
+
+  if (buttonH < fwdBitmap->getHeight())
+    {
+      buttonH = fwdBitmap->getHeight();
+    }
+
+  buttonH += 8;
+
+  // Create the Play Image
+
+  nxgl_coord_t playControlX = (m_windowSize.w >> 1) - (playButtonW >> 1);
+  uint32_t controlY         = (180 * m_windowSize.h) >> 8;
+
+  m_playPause = new NXWidgets::
+      CImage(control, playControlX, (nxgl_coord_t)controlY,
+             playButtonW, buttonH, playBitmap);
+
+  // Create the Rewind Image
+
+  nxgl_coord_t rewControlX = playControlX - rewButtonW -
+                             CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_rew = new NXWidgets::
-      CImage(control, (nxgl_coord_t)rewControlX, (nxgl_coord_t)controlY,
-             rewBitmap->getWidth(), rewBitmap->getHeight(),
-             rewBitmap);
-
-  m_rew->setBorderless(true);
+      CImage(control, rewControlX, (nxgl_coord_t)controlY,
+             rewButtonW, buttonH, rewBitmap);
 
   // Create the Forward Image
 
-  NXWidgets::CRlePaletteBitmap *fwdBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
-
-  fwdBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
-
-  uint32_t fwdControlX = playControlX + fwdBitmap->getWidth() + 16;
+  nxgl_coord_t fwdControlX = playControlX + playButtonW +
+                             CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_fwd = new NXWidgets::
-      CImage(control, (nxgl_coord_t)fwdControlX, (nxgl_coord_t)controlY,
-             fwdBitmap->getWidth(), fwdBitmap->getHeight(),
-             fwdBitmap);
+      CImage(control, fwdControlX, (nxgl_coord_t)controlY,
+             fwdButtonW, buttonH, fwdBitmap);
 
+#ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
+  // Make the images boarder-less if that is how we are configured
+
+  m_playPause->setBorderless(true);
+  m_rew->setBorderless(true);
   m_fwd->setBorderless(true);
+#else
+  m_playPause->setBorderless(false);
+  m_rew->setBorderless(false);
+  m_fwd->setBorderless(false);
+#endif
 
   // Create the Volume control
 
   NXWidgets::CRlePaletteBitmap *volBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_VOL_ICON);
 
   uint32_t volumeControlX = (9 * m_windowSize.w) >> 8;
   uint32_t volumeControlY = (232 * m_windowSize.h) >> 8;
-
-  volBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_VOL_ICON);
 
   m_volume = new NXWidgets::
       CGlyphSliderHorizontal(control,

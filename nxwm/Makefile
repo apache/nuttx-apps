@@ -88,7 +88,8 @@ endif
 ifeq ($(CONFIG_NXWM_MEDIAPLAYER),y)
 CXXSRCS += cmediaplayer.cxx
 ifeq ($(CONFIG_NXWM_LARGE_ICONS),y)
-CXXSRCS += glyph_mediaplayer44x50.cxx glyph_mplayer_controls32x32.cxx
+CXXSRCS += glyph_mediaplayer44x50.cxx glyph_mplayer_controls43x41.cxx
+CXXSRCS += glyph_mediagrip30x30.cxx
 else
 CXXSRCS += glyph_mediaplayer24x24.cxx glyph_mplayer_controls32x32.cxx
 endif
