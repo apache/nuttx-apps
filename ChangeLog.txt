@@ -446,3 +446,6 @@
   (2014-7-14).
 * Kconfig, nxwm/include/nxwmconfig.hxx, nxwm/src/capplicationwindow.cxx:
   Toolbar font ID can now be separately configured (2014-7-14).
+* nxwm/src/cmediaplayer.cxx: Will not dynamically position player controls
+  based on the display and image sizes (2014-7-14).
+
