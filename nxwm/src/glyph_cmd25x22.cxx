@@ -75,7 +75,7 @@ static const uint32_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x909090, 0x000000, 0xb4fcfc, 0xb4d8fc, 0x6cb4fc, 0x6c6c6c, 0xfcfcfc, 0x484848
 };
 
-static const uint32_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xababab, 0x3f3f3f, 0xc6fcfc, 0xc6e1fc, 0x90c6fc, 0x909090, 0xfcfcfc, 0x757575
 };
@@ -88,7 +88,7 @@ static const uint16_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x9492, 0x0000, 0xb7ff, 0xb6df, 0x6dbf, 0x6b6d, 0xffff, 0x4a49
 };
 
-static const uint16_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xad55, 0x39e7, 0xc7ff, 0xc71f, 0x963f, 0x9492, 0xffff, 0x73ae
 };
@@ -110,7 +110,7 @@ static const uint8_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x90, 0x00, 0xe6, 0xd1, 0xa6, 0x6c, 0xfc, 0x48
 };
 
-static const uint8_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xab, 0x3f, 0xeb, 0xdc, 0xbc, 0x90, 0xfc, 0x75
 };
@@ -124,7 +124,7 @@ static const nxgl_mxpixel_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x92, 0x00, 0xbf, 0xbb, 0x77, 0x6d, 0xff, 0x49
 };
 
-static const nxgl_mxpixel_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xb6, 0x24, 0xdf, 0xdf, 0x9b, 0x92, 0xff, 0x6d
 };
@@ -175,7 +175,7 @@ const struct NXWidgets::SRlePaletteBitmap NxWM::g_cmdBitmap =
   BITMAP_NROWS,          // height - Height in rows
   {                      // lut    - Pointer to the beginning of the Look-Up Table (LUT)
     g_cmdNormalLut,      //          Index 0: Unselected LUT
-    g_cmdBrightlLut,     //          Index 1: Selected LUT
+    g_cmdBrightLut,      //          Index 1: Selected LUT
   },
-  g_cmdRleEntries      // data   - Pointer to the beginning of the RLE data
+  g_cmdRleEntries        // data   - Pointer to the beginning of the RLE data
 };

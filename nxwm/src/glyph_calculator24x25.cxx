@@ -75,7 +75,7 @@ static const uint32_t g_calculatorNormalLut[BITMAP_NLUTCODES] =
   0xfcfcfc, 0xb8bcbc, 0xf8f8f8, 0x6890c8, 0x384c80, 0xe8e8e8, 0x646464, 0x909090  /* Codes 0-7 */
 };
 
-static const uint32_t g_calculatorBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_calculatorBrightLut[BITMAP_NLUTCODES] =
 {
   0xffffff, 0xc9cccc, 0xf9f9f9, 0x8dabd5, 0x69789f, 0xededed, 0x8a8a8a, 0xababab  /* Codes 0-7 */
 };
@@ -89,7 +89,7 @@ static const uint16_t g_calculatorNormalLut[BITMAP_NLUTCODES] =
   0xffff, 0xbdf7, 0xffdf, 0x6c99, 0x3a70, 0xef5d, 0x632c, 0x9492  /* Codes 0-7 */
 };
 
-static const uint16_t g_calculatorBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_calculatorBrightLut[BITMAP_NLUTCODES] =
 {
   0xffff, 0xce79, 0xffdf, 0x8d5a, 0x6bd3, 0xef7d, 0x8c51, 0xad55  /* Codes 0-7 */
 };
@@ -109,7 +109,7 @@ static const uint8_t g_calculatorNormalLut[BITMAP_NLUTCODES] =
   0xfc, 0xba, 0xf8, 0x8a, 0x4b, 0xe8, 0x64, 0x90  /* Codes 0-7 */
 };
 
-static const uint8_t g_calculatorBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_calculatorBrightLut[BITMAP_NLUTCODES] =
 {
   0xff, 0xcb, 0xf9, 0xa6, 0x77, 0xed, 0x8a, 0xab  /* Codes 0-7 */
 };
@@ -121,7 +121,7 @@ static const nxgl_mxpixel_t g_calculatorNormalLut[BITMAP_NLUTCODES] =
   0xff, 0xb7, 0xff, 0x73, 0x2a, 0xff, 0x6d, 0x92  /* Codes 0-7 */
 };
 
-static const nxgl_mxpixel_t g_calculatorBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_calculatorBrightLut[BITMAP_NLUTCODES] =
 {
   0xff, 0xdb, 0xff, 0x97, 0x6e, 0xff, 0x92, 0xb6  /* Codes 0-7 */
 };
@@ -185,7 +185,7 @@ const struct NXWidgets::SRlePaletteBitmap NxWM::g_calculatorBitmap =
   BITMAP_NROWS,             // height - Height in rows
   {                         // lut    - Pointer to the beginning of the Look-Up Table (LUT)
     g_calculatorNormalLut,  //          Index 0: Unselected LUT
-    g_calculatorBrightlLut, //          Index 1: Selected LUT
+    g_calculatorBrightLut,  //          Index 1: Selected LUT
   },
   g_calculatorRleEntries    // data   - Pointer to the beginning of the RLE data
 };

@@ -79,7 +79,7 @@ static const uint32_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0xbdbdbd, 0x3f3f3f                                                               /* Codes 8-9 */
 };
 
-static const uint32_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xc8c8c8, 0x707070, 0x383838, 0xacacac, 0x001cac, 0xe40000, 0x001ce4, 0xfc0000,  /* Codes 0-7 */
   0xfcfcfc, 0x545454                                                               /* Codes 8-9 */
@@ -93,7 +93,7 @@ static const uint32_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0xfcfcfc, 0x545454                                                               /* Codes 8-9 */
 };
 
-static const uint32_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint32_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xfafafa, 0x8c8c8c, 0x464646, 0xd7d7d7, 0x0023d7, 0xff0000, 0x0023ff, 0xff0000,  /* Codes 0-7 */
   0xffffff, 0x696969                                                               /* Codes 8-9 */
@@ -110,7 +110,7 @@ static const uint16_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x94b2, 0x52aa, 0x2945, 0x8410, 0x00b0, 0xa800, 0x00b5, 0xb800, 0xbdf7, 0x39e7   /* Codes 0-9 */
 };
 
-static const uint16_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xce59, 0x738e, 0x39c7, 0xad75, 0x00f5, 0xe000, 0x00fc, 0xf800, 0xffff, 0x52aa   /* Codes 0-9 */
 };
@@ -122,7 +122,7 @@ static const uint16_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0xce59, 0x738e, 0x39c7, 0xad75, 0x00f5, 0xe000, 0x00fc, 0xf800, 0xffff, 0x52aa   /* Codes 0-9 */
 };
 
-static const uint16_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint16_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xffdf, 0x8c71, 0x4228, 0xd6ba, 0x011a, 0xf800, 0x011f, 0xf800, 0xffff, 0x6b4d   /* Codes 0-9 */
 };
@@ -148,7 +148,7 @@ static const uint8_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x96, 0x54, 0x2a, 0x81, 0x1b, 0x33, 0x1f, 0x38, 0xbd, 0x3f  /* Codes 0-9 */
 };
 
-static const uint8_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xc8, 0x70, 0x38, 0xac, 0x24, 0x44, 0x2a, 0x4b, 0xfc, 0x54  /* Codes 0-9 */
 };
@@ -160,7 +160,7 @@ static const uint8_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0xc8, 0x70, 0x38, 0xac, 0x24, 0x44, 0x2a, 0x4b, 0xfc, 0x54  /* Codes 0-9 */
 };
 
-static const uint8_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const uint8_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xfa, 0x8c, 0x46, 0xd7, 0x2d, 0x4c, 0x31, 0x4c, 0xff, 0x69  /* Codes 0-9 */
 };
@@ -178,7 +178,7 @@ static const nxgl_mxpixel_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0x92, 0x49, 0x24, 0x92, 0x02, 0xa0, 0x02, 0xa0, 0xb6, 0x24  /* Codes 0-9 */
 };
 
-static const nxgl_mxpixel_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xdb, 0x6d, 0x24, 0xb6, 0x02, 0xe0, 0x03, 0xe0, 0xff, 0x49  /* Codes 0-9 */
 };
@@ -190,7 +190,7 @@ static const nxgl_mxpixel_t g_cmdNormalLut[BITMAP_NLUTCODES] =
   0xdb, 0x6d, 0x24, 0xb6, 0x02, 0xe0, 0x03, 0xe0, 0xff, 0x49  /* Codes 0-9 */
 };
 
-static const nxgl_mxpixel_t g_cmdBrightlLut[BITMAP_NLUTCODES] =
+static const nxgl_mxpixel_t g_cmdBrightLut[BITMAP_NLUTCODES] =
 {
   0xff, 0x92, 0x49, 0xdb, 0x07, 0xe0, 0x07, 0xe0, 0xff, 0x6d  /* Codes 0-9 */
 };
@@ -272,9 +272,9 @@ const struct NXWidgets::SRlePaletteBitmap NxWM::g_cmdBitmap =
   BITMAP_NLUTCODES,     // nlut   - Number of colors in the lLook-Up Table (LUT)
   BITMAP_NCOLUMNS,      // width  - Width in pixels
   BITMAP_NROWS,         // height - Height in rows
-  {                      // lut    - Pointer to the beginning of the Look-Up Table (LUT)
+  {                     // lut    - Pointer to the beginning of the Look-Up Table (LUT)
     g_cmdNormalLut,     //          Index 0: Unselected LUT
-    g_cmdBrightlLut,    //          Index 1: Selected LUT
+    g_cmdBrightLut,     //          Index 1: Selected LUT
   },
-  g_cmdRleEntries        // data   - Pointer to the beginning of the RLE data
+  g_cmdRleEntries       // data   - Pointer to the beginning of the RLE data
 };
