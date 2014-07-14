@@ -364,56 +364,70 @@ bool CMediaPlayer::createPlayer(void)
 
   m_text->setFont(m_font);
 
-  // Create button for rewind
-
-  uint32_t playControlX = (m_windowSize.w >> 1) - 64;
-  uint32_t playControlY = (180 * m_windowSize.h) >> 8;
-
-  // Create the Rewind Image
-
-  NXWidgets::CRlePaletteBitmap *pRewBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
-
-  m_rew = new NXWidgets::
-      CImage(control, playControlX, playControlY,
-             32, 32, pRewBitmap, 0);
-
-  m_rew->setBorderless(true);
-
   // Create the Play Image
 
-  pRewBitmap = new NXWidgets::
+  NXWidgets::CRlePaletteBitmap *playBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PLAY_ICON);
 
+  uint32_t playControlX = (m_windowSize.w >> 1) - (playBitmap->getWidth() >> 1);
+  uint32_t controlY     = (180 * m_windowSize.h) >> 8;
+
   m_playPause = new NXWidgets::
-      CImage(control, playControlX + 32 + 16, playControlY,
-             32, 32, pRewBitmap, 0);
+      CImage(control, (nxgl_coord_t)playControlX, (nxgl_coord_t)controlY,
+             playBitmap->getWidth(), playBitmap->getHeight(),
+             playBitmap);
 
   m_playPause->setBorderless(true);
 
+  // Create the Rewind Image
+
+  NXWidgets::CRlePaletteBitmap *rewBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
+
+  uint32_t rewControlX = playControlX - rewBitmap->getWidth() - 16;
+
+  m_rew = new NXWidgets::
+      CImage(control, (nxgl_coord_t)rewControlX, (nxgl_coord_t)controlY,
+             rewBitmap->getWidth(), rewBitmap->getHeight(),
+             rewBitmap);
+
+  m_rew->setBorderless(true);
+
   // Create the Forward Image
 
-  pRewBitmap = new NXWidgets::
+  NXWidgets::CRlePaletteBitmap *fwdBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
+
+  fwdBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
 
+  uint32_t fwdControlX = playControlX + fwdBitmap->getWidth() + 16;
+
   m_fwd = new NXWidgets::
-      CImage(control, playControlX + 32*3, playControlY,
-             32, 32, pRewBitmap, 0);
+      CImage(control, (nxgl_coord_t)fwdControlX, (nxgl_coord_t)controlY,
+             fwdBitmap->getWidth(), fwdBitmap->getHeight(),
+             fwdBitmap);
 
   m_fwd->setBorderless(true);
 
   // Create the Volume control
 
+  NXWidgets::CRlePaletteBitmap *volBitmap = new NXWidgets::
+      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
+
   uint32_t volumeControlX = (9 * m_windowSize.w) >> 8;
   uint32_t volumeControlY = (232 * m_windowSize.h) >> 8;
 
-  pRewBitmap = new NXWidgets::
+  volBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_VOL_ICON);
 
   m_volume = new NXWidgets::
-      CGlyphSliderHorizontal(control, volumeControlX, volumeControlY,
-                             m_windowSize.w - 2 * volumeControlX, 26,
-                             pRewBitmap, MKRGB( 63, 90,192));
+      CGlyphSliderHorizontal(control,
+                             (nxgl_coord_t)volumeControlX,
+                             (nxgl_coord_t)volumeControlY,
+                             (nxgl_coord_t)(m_windowSize.w - 2 * volumeControlX),
+                             volBitmap->getHeight() + 4, volBitmap,
+                             MKRGB(63, 90,192));
 
   m_volume->setMinimumValue(0);
   m_volume->setMaximumValue(100);
