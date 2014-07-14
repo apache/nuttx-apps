@@ -86,7 +86,12 @@ CXXSRCS += glyph_minimize21x21.cxx glyph_play24x24.cxx glyph_stop21x21.cxx
 endif
 
 ifeq ($(CONFIG_NXWM_MEDIAPLAYER),y)
-CXXSRCS += glyph_mediaplayer24x24.cxx cmediaplayer.cxx glyph_mplayer_controls32x32.cxx
+CXXSRCS += cmediaplayer.cxx
+ifeq ($(CONFIG_NXWM_LARGE_ICONS),y)
+CXXSRCS += glyph_mediaplayer44x50.cxx glyph_mplayer_controls32x32.cxx
+else
+CXXSRCS += glyph_mediaplayer24x24.cxx glyph_mplayer_controls32x32.cxx
+endif
 endif
 
 SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
