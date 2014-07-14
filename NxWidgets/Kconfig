@@ -1121,7 +1121,7 @@ if NXWM_MEDIAPLAYER
 
 config NXWM_MEDIAPLAYER_XSPACING
 	int "Media Player Button Spacing"
-	default 16
+	default 12
 	---help---
 		This is the space between play, forward, and reverse buttons in
 		units of pixels.
