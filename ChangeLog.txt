@@ -444,4 +444,5 @@
 * nxwm/src/glyph_stop42x42.cxx: Add a larger NxWM close icon (2014-8-13).
 * nxwm/src/glyph_mediaplayer44x50.cxx: Add a larger NxWM media player icon
   (2014-7-14).
-
+* Kconfig, nxwm/include/nxwmconfig.hxx, nxwm/src/capplicationwindow.cxx:
+  Toolbar font ID can now be separately configured (2014-7-14).
