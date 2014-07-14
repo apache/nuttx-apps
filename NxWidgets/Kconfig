@@ -494,7 +494,8 @@ if NXWM_CUSTOM_TASKBAR_WIDTH
 
 config NXWM_TASKBAR_WIDTH
 	int "Taskbar Width"
-	default 29
+	default 29 if !NXWM_LARGE_ICONS
+	default 54 if !NXWM_LARGE_ICONS
 	---help---
 		Task bar thickness (either vertical or horizontal).  Default: 25 + 2*2
 
@@ -546,18 +547,38 @@ config NXWM_CUSTOM_TOOLBAR_HEIGHT
 	---help---
 		Set to override the default tooldar height The default depends on
 		the selected horizontal or vertical spacing. Default: 21 + 2*spacing
+		or 42 + 2*spacing if large icons are selected
 
 if NXWM_CUSTOM_TOOLBAR_HEIGHT
 
 config NXWM_TOOLBAR_HEIGHT
 	int "Toolbar Height"
-	default 25
+	default 25 if !NXWM_LARGE_ICONS
+	default 46 if NXWM_LARGE_ICONS
 	---help---
 		The height of the tool bar in each application window. At present,
 		all icons are 21 pixels in height and, hence, require a task bar of
-		at least that size.  Default:  21 + 2*2
+		at least that size.  Default:  21 + 2*2or 42 + 2*spacing if large
+		icons are selected
 
 endif # NXWM_CUSTOM_TOOLBAR_HEIGHT
+
+config NXWM_TOOLBAR_CUSTOM_FONTID
+	bool "Use Custom Toolbar Font"
+	default n
+	---help---
+		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
+
+if NXWM_TOOLBAR_CUSTOM_FONTID
+
+config NXWM_TOOLBAR_FONTID
+	int "Toolbar Font ID"
+	default 0
+	---help---
+		Use this default font ID in the NxConsole window instead of the
+		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0 (maybe invalid)
+
+endif # NXWM_TOOLBAR_CUSTOM_FONTID
 endmenu # NxWM Toolbar Configuration
 
 menu "NxWM Application Window Configuration"
@@ -709,7 +730,7 @@ config NXWM_NXCONSOLE_CUSTOM_FONTID
 	bool "Use Custom Default Font"
 	default n
 	---help---
-		Set to override the system default font id (NXWM_DEFAULT_FONTID).
+		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
 
 if NXWM_NXCONSOLE_CUSTOM_FONTID
 
@@ -1070,7 +1091,7 @@ config NXWM_HEXCALCULATOR_CUSTOM_FONTID
 	bool "Use Custom Default Font"
 	default n
 	---help---
-		Set to override the system default font id (NXWM_DEFAULT_FONTID).
+		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
 
 if NXWM_HEXCALCULATOR_CUSTOM_FONTID
 
