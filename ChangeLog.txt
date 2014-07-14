@@ -440,5 +440,8 @@
 * nxwm/src/glyph_calibration48x42.cxx:  Add a larger NxWM Calibration icon
   (2014-7-13).
 * nxwm/src/glyph_minimize42x42.cxx: Add a larger NxWM minimize icon
-  (2014-8-13).
+  (2014-7-13).
 * nxwm/src/glyph_stop42x42.cxx: Add a larger NxWM close icon (2014-8-13).
+* nxwm/src/glyph_mediaplayer44x50.cxx: Add a larger NxWM media player icon
+  (2014-7-14).
+
