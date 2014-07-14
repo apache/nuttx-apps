@@ -1117,4 +1117,22 @@ config NXWM_MEDIAPLAYER
 		NOTE:  This application is currently under development and just
 		a shell of an app which will be developed soon.
 
+if NXWM_MEDIAPLAYER
+
+config NXWM_MEDIAPLAYER_XSPACING
+	int "Media Player Button Spacing"
+	default 16
+	---help---
+		This is the space between play, forward, and reverse buttons in
+		units of pixels.
+
+config NXWM_MEDIAPLAYER_BORDERS
+	bool "Media Player Button Borders"
+	default n
+	---help---
+		If you have nice graphics, then borderless would probably be the
+		better choice.  If you graphics is really more of a button label,
+		then have buttons with boarders might make more sense.
+
+endif # NXWM_MEDIAPLAYER
 endif # NXWM
