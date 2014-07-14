@@ -189,7 +189,7 @@
  *
  * CONFIG_NXWM_TASKBAR_WIDTH - Task bar thickness (either vertical or
  *   horizontal).  Default: 25 + 2*spacing unless large icons are selected. 
- *   Then the default is 50 *spacing
+ *   Then the default is 50 + 2*spacing.
  */
 
 /**
