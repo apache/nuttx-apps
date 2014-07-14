@@ -448,4 +448,7 @@
   Toolbar font ID can now be separately configured (2014-7-14).
 * nxwm/src/cmediaplayer.cxx: Will not dynamically position player controls
   based on the display and image sizes (2014-7-14).
-
+* nxwm/src/glyph_mediagrip30x30.cxx and glyph_mplayer_controls43x41.cxx: Add
+  larger images for the media player (2014-7-14).
+* Kconfig, nxwm/src/cmediaplayer.cxx: Add options to manage spacing of media
+  player buttons and borders vs. borderless buttons (2014-7-14).
