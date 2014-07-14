@@ -244,7 +244,7 @@ void CMediaPlayer::redraw(void)
 {
   char buffer[24];
 
-  snprintf(buffer, 24, "Comming soon!");
+  snprintf(buffer, 24, "Coming soon!");
 
   // setText will perform the redraw as well
 
@@ -292,7 +292,7 @@ bool CMediaPlayer::isFullScreen(void) const
 }
 
 /**
- * Select the geometry of the calculator given the current window size.
+ * Select the geometry of the media player given the current window size.
  */
 
 void CMediaPlayer::setGeometry(void)
@@ -317,15 +317,13 @@ void CMediaPlayer::setGeometry(void)
 }
 
 /**
- * Create the calculator widgets.  Only start as part of the applicaiton
+ * Create the media player widgets.  Only start as part of the application
  * start method.
  */
 
 bool CMediaPlayer::createPlayer(void)
 {
-  int   playControlX, playControlY;
-
-  // Select a font for the calculator
+  // Select a font for the media player
 
   m_font = new NXWidgets::CNxFont((nx_fontid_e)CONFIG_NXWM_MEDIAPLAYER_FONTID,
                                   CONFIG_NXWM_DEFAULT_FONTCOLOR,
@@ -368,47 +366,55 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create button for rewind
 
-  playControlX = (m_windowSize.w >> 1) - 64;
-  playControlY = m_windowSize.h - 64;
+  uint32_t playControlX = (m_windowSize.w >> 1) - 64;
+  uint32_t playControlY = (180 * m_windowSize.h) >> 8;
 
   // Create the Rewind Image
 
   NXWidgets::CRlePaletteBitmap *pRewBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
-  m_rew = new NXWidgets::CImage(control,
-                                playControlX, playControlY,
-                                32, 32,
-                                pRewBitmap, 0);
+
+  m_rew = new NXWidgets::
+      CImage(control, playControlX, playControlY,
+             32, 32, pRewBitmap, 0);
+
   m_rew->setBorderless(true);
 
   // Create the Play Image
 
   pRewBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PLAY_ICON);
-  m_playPause = new NXWidgets::CImage(control,
-                                      playControlX + 32 + 16, playControlY,
-                                      32, 32,
-                                      pRewBitmap, 0);
+
+  m_playPause = new NXWidgets::
+      CImage(control, playControlX + 32 + 16, playControlY,
+             32, 32, pRewBitmap, 0);
+
   m_playPause->setBorderless(true);
 
   // Create the Forward Image
 
   pRewBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
-  m_fwd = new NXWidgets::CImage(control,
-                                playControlX + 32*3, playControlY,
-                                32, 32,
-                                pRewBitmap, 0);
+
+  m_fwd = new NXWidgets::
+      CImage(control, playControlX + 32*3, playControlY,
+             32, 32, pRewBitmap, 0);
+
   m_fwd->setBorderless(true);
 
   // Create the Volume control
 
+  uint32_t volumeControlX = (9 * m_windowSize.w) >> 8;
+  uint32_t volumeControlY = (232 * m_windowSize.h) >> 8;
+
   pRewBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_VOL_ICON);
-  m_volume = new NXWidgets::CGlyphSliderHorizontal(control,
-                                                   10, m_windowSize.h - 30,
-                                                   m_windowSize.w - 20, 26,
-                                                   pRewBitmap, MKRGB( 63, 90,192));
+
+  m_volume = new NXWidgets::
+      CGlyphSliderHorizontal(control, volumeControlX, volumeControlY,
+                             m_windowSize.w - 2 * volumeControlX, 26,
+                             pRewBitmap, MKRGB( 63, 90,192));
+
   m_volume->setMinimumValue(0);
   m_volume->setMaximumValue(100);
   m_volume->setValue(15);
@@ -443,7 +449,7 @@ void CMediaPlayer::close(void)
 
 void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  /* Nothing here yet!  Comming soon! */
+  /* Nothing here yet!  Coming soon! */
 }
 
 /**

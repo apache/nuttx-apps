@@ -116,9 +116,9 @@ namespace NxWM
      * in memory.  If you are pinched for memory, get rid of these.
      */
 
-    struct nxgl_size_s       m_windowSize; /**< The size of the calculator window */
-    struct nxgl_size_s       m_textSize;   /**< The size of the calculator textbox */
-    struct nxgl_point_s      m_textPos;    /**< The position of the calculator textbox */
+    struct nxgl_size_s       m_windowSize; /**< The size of the media player window */
+    struct nxgl_size_s       m_textSize;   /**< The size of the media player textbox */
+    struct nxgl_point_s      m_textPos;    /**< The position of the media player textbox */
 
     /**
     * Select the geometry of the media player given the current window size.
