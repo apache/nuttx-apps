@@ -562,6 +562,23 @@ config NXWM_TOOLBAR_HEIGHT
 		icons are selected
 
 endif # NXWM_CUSTOM_TOOLBAR_HEIGHT
+
+config NXWM_TOOLBAR_CUSTOM_FONTID
+	bool "Use Custom Toolbar Font"
+	default n
+	---help---
+		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
+
+if NXWM_TOOLBAR_CUSTOM_FONTID
+
+config NXWM_TOOLBAR_FONTID
+	int "Toolbar Font ID"
+	default 0
+	---help---
+		Use this default font ID in the NxConsole window instead of the
+		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0 (maybe invalid)
+
+endif # NXWM_TOOLBAR_CUSTOM_FONTID
 endmenu # NxWM Toolbar Configuration
 
 menu "NxWM Application Window Configuration"
@@ -713,7 +730,7 @@ config NXWM_NXCONSOLE_CUSTOM_FONTID
 	bool "Use Custom Default Font"
 	default n
 	---help---
-		Set to override the system default font id (NXWM_DEFAULT_FONTID).
+		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
 
 if NXWM_NXCONSOLE_CUSTOM_FONTID
 
@@ -1074,7 +1091,7 @@ config NXWM_HEXCALCULATOR_CUSTOM_FONTID
 	bool "Use Custom Default Font"
 	default n
 	---help---
-		Set to override the system default font id (NXWM_DEFAULT_FONTID).
+		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
 
 if NXWM_HEXCALCULATOR_CUSTOM_FONTID
 

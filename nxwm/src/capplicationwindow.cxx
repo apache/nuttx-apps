@@ -307,7 +307,7 @@ bool CApplicationWindow::open(void)
   // The rest of the toolbar will hold the left-justified application label
   // Create the default font instance
 
-  m_windowFont = new NXWidgets::CNxFont(CONFIG_NXWM_DEFAULT_FONTID,
+  m_windowFont = new NXWidgets::CNxFont((nx_fontid_e)CONFIG_NXWM_TOOLBAR_FONTID,
                                         CONFIG_NXWM_DEFAULT_FONTCOLOR,
                                         CONFIG_NXWM_TRANSPARENT_COLOR);
   if (!m_windowFont)

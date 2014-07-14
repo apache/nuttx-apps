@@ -276,6 +276,12 @@
        (CONFIG_NXWM_TASKBAR_ICONHEIGHT + 2*CONFIG_NXWM_TASKBAR_HSPACING)
 #endif
 
+/* CONFIG_NXWM_TOOLBAR_FONTID overrides the default NxWM font selection */
+
+#ifndef CONFIG_NXWM_TOOLBAR_FONTID
+#  define CONFIG_NXWM_TOOLBAR_FONTID  CONFIG_NXWM_DEFAULT_FONTID
+#endif
+
 /* Background Image **********************************************************/
 /**
  * CONFIG_NXWM_BACKGROUND_IMAGE - The name of the image to use in the
