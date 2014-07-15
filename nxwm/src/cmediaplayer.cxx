@@ -460,8 +460,8 @@ bool CMediaPlayer::createPlayer(void)
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_rew = new NXWidgets::
-      CImage(control, rewControlX, (nxgl_coord_t)controlY,
-             rewButtonW, buttonH, rewBitmap);
+      CStickyImage(control, rewControlX, (nxgl_coord_t)controlY,
+                   rewButtonW, buttonH, rewBitmap);
 
   // Configure the Rewind image
 
@@ -483,9 +483,8 @@ bool CMediaPlayer::createPlayer(void)
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_fwd = new NXWidgets::
-      CImage(control, fwdControlX, (nxgl_coord_t)controlY,
-             fwdButtonW, buttonH, fwdBitmap);
-
+      CStickyImage(control, fwdControlX, (nxgl_coord_t)controlY,
+                   fwdButtonW, buttonH, fwdBitmap);
 
   // Configure the Forward image
 
@@ -564,6 +563,8 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
     {
       printf("Play/pause clicked\n");
 
+      // Playing or pausing?
+
       if (m_state == MPLAYER_PLAYING)
         {
           printf("Media player is now paused\n");
@@ -576,6 +577,11 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           m_state     = MPLAYER_PLAYING;
           m_prevState = MPLAYER_PLAYING;
         }
+
+      // In any case, we are certainly no longer fast forwarding or rewinding
+
+      m_rew->setStuckSelection(false);
+      m_fwd->setStuckSelection(false);
     }
 
   if (m_rew->isClicked())
@@ -587,12 +593,20 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           // Or increase rewind speed?
           printf("Reverting to previous Play/Pause state\n");
           m_state = m_prevState;
+
+          // Show that we are no longer rewinding
+
+          m_rew->setStuckSelection(false);
         }
       else
         {
           printf("Rewinding...\n");
           m_state = MPLAYER_FREWIND;
         }
+
+      // In any case, we are certainly no longer fast forwarding
+
+      m_fwd->setStuckSelection(false);
     }
 
   if (m_fwd->isClicked())
@@ -604,12 +618,20 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           // Or increase fast forward speed?
           printf("Reverting to previous Play/Pause state\n");
           m_state = m_prevState;
+
+          // Show that we are no longer fast forwarding
+
+          m_fwd->setStuckSelection(false);
         }
       else
         {
           printf("Fast forwarding...\n");
           m_state = MPLAYER_FFORWARD;
         }
+
+      // In any case, we are certainly no longer rewinding
+
+      m_rew->setStuckSelection(false);
     }
 
   if (m_volume->isClicked())
