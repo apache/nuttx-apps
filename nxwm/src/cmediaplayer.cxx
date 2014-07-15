@@ -246,39 +246,12 @@ void CMediaPlayer::hide(void)
 
 void CMediaPlayer::redraw(void)
 {
-  char buffer[24];
+  // Redraw widgets (only)
 
-  snprintf(buffer, 24, "Coming soon!");
-
-  // setText will perform the redraw as well
-
-  m_text->setText(buffer);
-
-  // Get the widget control associated with the application window
-
-  NXWidgets::CWidgetControl *control = m_window->getWidgetControl();
-
-  // Get the CCGraphicsPort instance for this window
-
-  NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
-
-  // Fill the entire window with the background color
-
-  port->drawFilledRect(0, 0, m_windowSize.w, m_windowSize.h,
-                       CONFIG_NXWM_MEDIAPLAYER_BACKGROUNDCOLOR);
-
-  // Enable and redraw widgets
-
-  m_text->enableDrawing();
   m_text->redraw();
-
-  m_rew->enableDrawing();
-  m_rew->redraw();
-  m_playPause->enableDrawing();
   m_playPause->redraw();
-  m_fwd->enableDrawing();
+  m_rew->redraw();
   m_fwd->redraw();
-  m_volume->enableDrawing();
   m_volume->redraw();
 }
 
@@ -368,6 +341,10 @@ bool CMediaPlayer::createPlayer(void)
 
   m_text->setFont(m_font);
 
+  // Add some dummy text for now
+
+  m_text->setText("Coming soon...");
+
   // Create all bitmaps
 
   NXWidgets::CRlePaletteBitmap *playBitmap = new NXWidgets::
@@ -442,6 +419,7 @@ bool CMediaPlayer::createPlayer(void)
 
   // Configure the Play image
 
+  m_playPause->disableDrawing();
   m_playPause->alignHorizontalCenter();
   m_playPause->alignVerticalCenter();
 #ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
@@ -465,6 +443,7 @@ bool CMediaPlayer::createPlayer(void)
 
   // Configure the Rewind image
 
+  m_rew->disableDrawing();
   m_rew->alignHorizontalCenter();
   m_rew->alignVerticalCenter();
 #ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
@@ -488,6 +467,7 @@ bool CMediaPlayer::createPlayer(void)
 
   // Configure the Forward image
 
+  m_fwd->disableDrawing();
   m_fwd->alignHorizontalCenter();
   m_fwd->alignVerticalCenter();
 #ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
@@ -518,6 +498,7 @@ bool CMediaPlayer::createPlayer(void)
 
   // Configure the volume control
 
+  m_volume->disableDrawing();
   m_volume->setMinimumValue(0);
   m_volume->setMaximumValue(100);
   m_volume->setValue(15);
@@ -525,6 +506,32 @@ bool CMediaPlayer::createPlayer(void)
   // Register to get events from the mouse clicks on the Forward image
 
   m_volume->addWidgetEventHandler(this);
+
+  // Make sure that all widgets are setup for the STOPPED state
+
+  setMediaPlayerState(MPLAYER_STOPPED);
+
+  // Redraw the background once only
+  // Get the CCGraphicsPort instance for this window
+
+  NXWidgets::CGraphicsPort *port = control->getGraphicsPort();
+
+  // Fill the entire window with the background color
+
+  port->drawFilledRect(0, 0, m_windowSize.w, m_windowSize.h,
+                       CONFIG_NXWM_MEDIAPLAYER_BACKGROUNDCOLOR);
+
+  // Enable drawing of all widgets
+
+  m_text->enableDrawing();
+  m_playPause->enableDrawing();
+  m_rew->enableDrawing();
+  m_fwd->enableDrawing();
+  m_volume->enableDrawing();
+
+  // And redraw them
+
+  redraw();
 
   return true;
 }
@@ -548,6 +555,105 @@ void CMediaPlayer::close(void)
 }
 
 /**
+ * Transition to a new media player state.
+ *
+ * @param state The new state to enter.
+ */
+
+void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
+{
+  // Handle according to the new state
+
+  switch (state)
+    {
+    case MPLAYER_STOPPED:    // Initial state.  Also the state after playing completes
+      m_state = MPLAYER_STOPPED;
+
+      m_text->enable();
+
+      m_playPause->enable();
+
+      m_fwd->disable();
+      m_fwd->setStuckSelection(false);
+
+      m_rew->disable();
+      m_rew->setStuckSelection(false);
+
+      m_volume->enable();
+      break;
+
+    case MPLAYER_PLAYING:    // Playing a media file
+      m_state     = MPLAYER_PLAYING;
+      m_prevState = MPLAYER_PLAYING;
+
+      m_text->disable();
+
+      m_playPause->enable();
+
+      m_fwd->enable();
+      m_fwd->setStuckSelection(false);
+
+      m_rew->enable();
+      m_rew->setStuckSelection(false);
+
+      m_volume->enable();
+      break;
+
+    case MPLAYER_PAUSED:     // Playing a media file but paused
+      m_state     = MPLAYER_PAUSED;
+      m_prevState = MPLAYER_PAUSED;
+
+      m_text->enable();
+
+      m_playPause->enable();
+
+      m_fwd->enable();
+      m_fwd->setStuckSelection(false);
+
+      m_rew->enable();
+      m_rew->setStuckSelection(false);
+
+      m_volume->enable();
+      break;
+
+    case MPLAYER_FFORWARD:   // Fast forwarding through a media file */
+      m_state  = MPLAYER_FFORWARD;
+
+      m_text->disable();
+
+      m_playPause->enable();
+
+      m_fwd->enable();
+      m_fwd->setStuckSelection(true);
+
+      m_rew->enable();
+      m_rew->setStuckSelection(false);
+
+      m_volume->enable();
+      break;
+
+    case MPLAYER_FREWIND:    // Rewinding a media file
+      m_state  = MPLAYER_FREWIND;
+
+      m_text->disable();
+
+      m_playPause->enable();
+
+      m_fwd->enable();
+      m_fwd->setStuckSelection(false);
+
+      m_rew->enable();
+      m_rew->setStuckSelection(true);
+
+      m_volume->enable();
+      break;
+
+    default:
+      break;
+    }
+}
+
+/**
  * Handle a widget action event.  For CButtonArray, this is a button pre-
  * release event.
  *
@@ -556,87 +662,88 @@ void CMediaPlayer::close(void)
 
 void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Check is a media file has been selected.  Do nothing if there is
-  // no media file.
+  // Check if the Play/Pause button was clicked
 
   if (m_playPause->isClicked())
     {
-      printf("Play/pause clicked\n");
-
-      // Playing or pausing?
+      // Were we playing before?
 
       if (m_state == MPLAYER_PLAYING)
         {
-          printf("Media player is now paused\n");
-          m_state     = MPLAYER_PAUSED;
-          m_prevState = MPLAYER_PAUSED;
+          // Yes.. then now we are now paused
+
+          setMediaPlayerState(MPLAYER_PAUSED);
         }
+
+      // Were we paused or stopped before?
+
+      else if (m_state == MPLAYER_STOPPED || m_state == MPLAYER_PAUSED)
+        {
+          // Yes... then now we are playing
+
+          setMediaPlayerState(MPLAYER_PLAYING);
+        }
+
+      // If the play/pause button was pressed while were were fast
+      // forwarding or rewinding, then revert back to the previous
+      // play/pause state.
+
+
       else
         {
-          printf("Media player is now playing\n");
-          m_state     = MPLAYER_PLAYING;
-          m_prevState = MPLAYER_PLAYING;
+          setMediaPlayerState(m_prevState);
         }
-
-      // In any case, we are certainly no longer fast forwarding or rewinding
-
-      m_rew->setStuckSelection(false);
-      m_fwd->setStuckSelection(false);
     }
+
+  // Check if the rewind button was clicked
 
   if (m_rew->isClicked())
     {
-      printf("Rewind clicked\n");
+      // Were we already rewinding?
 
       if (m_state == MPLAYER_FREWIND)
         {
-          // Or increase rewind speed?
-          printf("Reverting to previous Play/Pause state\n");
-          m_state = m_prevState;
+          // Yes.. then revert to the previous play/pause state
+          // REVISIT: Or just increase rewind speed?
 
-          // Show that we are no longer rewinding
-
-          m_rew->setStuckSelection(false);
+          setMediaPlayerState(m_prevState);
         }
-      else
+
+      // We should not be stopped here, but let's check anyway
+
+      else if (m_state != MPLAYER_STOPPED)
         {
-          printf("Rewinding...\n");
-          m_state = MPLAYER_FREWIND;
+          // Start rewinding
+
+          setMediaPlayerState(MPLAYER_FREWIND);
         }
-
-      // In any case, we are certainly no longer fast forwarding
-
-      m_fwd->setStuckSelection(false);
     }
 
   if (m_fwd->isClicked())
     {
-      printf("Forward clicked\n");
+      // Were we already fast forwarding?
 
       if (m_state == MPLAYER_FFORWARD)
         {
-          // Or increase fast forward speed?
-          printf("Reverting to previous Play/Pause state\n");
-          m_state = m_prevState;
+          // Yes.. then revert to the previous play/pause state
+          // REVISIT: Or just increase fast forward  speed?
 
-          // Show that we are no longer fast forwarding
-
-          m_fwd->setStuckSelection(false);
+          setMediaPlayerState(m_prevState);
         }
-      else
+
+      // We should not be stopped here, but let's check anyway
+
+      else if (m_state != MPLAYER_STOPPED)
         {
-          printf("Fast forwarding...\n");
-          m_state = MPLAYER_FFORWARD;
+          // Start fast forwarding
+
+          setMediaPlayerState(MPLAYER_FFORWARD);
         }
-
-      // In any case, we are certainly no longer rewinding
-
-      m_rew->setStuckSelection(false);
     }
 
   if (m_volume->isClicked())
     {
-      printf("Volume clicked\n");
+printf("Volume clicked\n"); // REMOVE ME
     }
 }
 

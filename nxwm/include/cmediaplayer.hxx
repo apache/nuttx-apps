@@ -164,6 +164,14 @@ namespace NxWM
     void close(void);
 
     /**
+     * Transition to a new media player state.
+     *
+     * @param state The new state to enter.
+     */
+
+    void setMediaPlayerState(enum EMediaPlayerState state);
+
+    /**
      * Handle a widget action event.  This includes a button pre/release
      * release events and volume slider change events.
      *
