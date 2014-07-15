@@ -452,3 +452,5 @@
   larger images for the media player (2014-7-14).
 * Kconfig, nxwm/src/cmediaplayer.cxx: Add options to manage spacing of media
   player buttons and borders vs. borderless buttons (2014-7-14).
+* CNxWidgets::CImage: Fix setImageLeft and setImageTop methods. (2014-7-14).
+
