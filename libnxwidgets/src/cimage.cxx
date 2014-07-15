@@ -122,7 +122,7 @@ CImage::CImage(CWidgetControl *pWidgetControl, nxgl_coord_t x, nxgl_coord_t y,
 
   m_highlighted = false;
 
-  // Position the top/lef corner of the bitmap in the top/left corner of the display
+  // Position the top/left corner of the bitmap in the top/left corner of the display
 
   m_origin.x    = 0;
   m_origin.y    = 0;
@@ -203,73 +203,79 @@ void CImage::drawContents(CGraphicsPort *port)
 
   m_bitmap->setSelected(isClicked() || m_highlighted);
 
-  // This is the number of rows that we can draw at the top of the display
+  // This is the end row + 1 that we can write into
 
-  nxgl_coord_t nTopRows = m_bitmap->getHeight() - m_origin.y;
-  if (nTopRows > rect.getHeight())
+  nxgl_coord_t bottomRow = m_bitmap->getHeight() + m_origin.y;
+  if (bottomRow > rect.getHeight())
     {
-      nTopRows = rect.getHeight();
-    }
-  else if (nTopRows < 0)
-    {
-      nTopRows = 0;
+      bottomRow = rect.getHeight();
     }
 
-  // This the starting row in the bitmap image where we will begin drawing.
+  // Apply padding entire line buffer.
 
-  nxgl_coord_t imageRow = m_origin.y;
+  FAR nxwidget_pixel_t *ptr       = buffer;
+  nxwidget_pixel_t      backColor = getBackgroundColor();
+
+  for (int column = 0; column < rect.getWidth(); column++)
+    {
+      *ptr++ = backColor;
+    }
 
   // This the starting row in the display image where we will begin drawing.
 
-  nxgl_coord_t displayRow = rect.getY();
+  nxgl_coord_t destRow = rect.getY();
+
+  // Draw any padded rows at the top of the widget before this
+
+  for (int padRow = 0; padRow < m_origin.y; padRow++, destRow++)
+    {
+      // Put the padded row on the display
+
+      if (isEnabled())
+        {
+          port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
+                           &bitmap, 0, 0);
+        }
+      else
+        {
+          port->drawBitmapGreyScale(rect.getX(), destRow, rect.getWidth(),
+                                    1, &bitmap, 0, 0);
+        }
+    }
+
+  // This is the number of rows that we can draw at the top of the display
+
+  nxgl_coord_t nTopRows = bottomRow - m_origin.y;
 
   // Are we going to draw any rows at the top of the display?
 
   if (nTopRows > 0)
     {
+      // This is the end column + 1 that we can write into
+
+      nxgl_coord_t rightColumn = m_bitmap->getWidth() + m_origin.x;
+      if (rightColumn > rect.getWidth())
+        {
+          rightColumn = rect.getWidth();
+        }
+
       // This is the number of columns that we can draw on the left side of
-      // the display
+      // the display at the offset m_origin.x.
 
-      nxgl_coord_t nLeftPixels = m_bitmap->getWidth() - m_origin.x;
+      nxgl_coord_t nLeftPixels = rightColumn - m_origin.x;
 
-      // This is the number of rows that we have to pad on the right if the display
-      // width is wider than the image width
+      // This is the row number of the first row that we cannot draw into
 
-#if 0 // Not used
-      nxgl_coord_t nRightPad;
-      if (nLeftPixels >= rect.getWidth())
+      nxgl_coord_t lastTopRow = nTopRows + destRow;
+
+      for (int srcRow = 0; destRow < lastTopRow; srcRow++, destRow++)
         {
-          nRightPad = 0;
-        }
-      else
-        {
-          nRightPad = rect.getWidth() - nLeftPixels;
-        }
-#endif
+          // Read the graphics data for the left hand side of this row and
+          // place it in the row buffer at offset origin.x.
 
-      // Apply the padding to the right hand side
-
-      FAR nxwidget_pixel_t *ptr       = &buffer[nLeftPixels];
-      nxwidget_pixel_t      backColor = getBackgroundColor();
-
-      for (int column = nLeftPixels; column < rect.getWidth(); column++)
-        {
-          *ptr++ = backColor;
-        }
-
-      // The is the row number of the first row that we cannot draw into
-
-      nxgl_coord_t lastTopRow = nTopRows + m_origin.y;
-
-      // Now draw the rows from the offset position
-
-      for (; imageRow < lastTopRow; imageRow++, displayRow++)
-        {
-          // Get the graphics data for the right hand side of this row
-
-          if (!m_bitmap->getRun(m_origin.x, imageRow, nLeftPixels, buffer))
+          if (!m_bitmap->getRun(0, srcRow, nLeftPixels, &buffer[m_origin.x]))
             {
-              gvdbg("IBitmap::getRun failed at image row\n", imageRow);
+              gvdbg("IBitmap::getRun failed at image row\n", srcRow);
               delete buffer;
               return;
             }
@@ -277,7 +283,7 @@ void CImage::drawContents(CGraphicsPort *port)
           // Replace any transparent pixels with the background color.
           // Then we can use the faster opaque drawBitmap() function.
 
-          ptr = buffer;
+          ptr = &buffer[m_origin.x];
           for (int i = 0; i < nLeftPixels; i++, ptr++)
             {
               if (*ptr == CONFIG_NXWIDGETS_TRANSPARENT_COLOR)
@@ -290,14 +296,13 @@ void CImage::drawContents(CGraphicsPort *port)
 
           if (isEnabled())
             {
-              port->drawBitmap(rect.getX(), displayRow, rect.getWidth(), 1,
+              port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
                                &bitmap, 0, 0);
             }
           else
             {
-              port->drawBitmapGreyScale(rect.getX(), displayRow,
-                                       rect.getWidth(), 1,
-                                       &bitmap, 0, 0);
+              port->drawBitmapGreyScale(rect.getX(), destRow,
+                                       rect.getWidth(), 1, &bitmap, 0, 0);
             }
         }
     }
@@ -308,9 +313,7 @@ void CImage::drawContents(CGraphicsPort *port)
     {
       // Pad the entire row
 
-      FAR nxwidget_pixel_t *ptr      = buffer;
-      nxwidget_pixel_t      backColor = getBackgroundColor();
-
+      ptr  = buffer;
       for (int column = 0; column < rect.getWidth(); column++)
         {
           *ptr++ = backColor;
@@ -318,21 +321,19 @@ void CImage::drawContents(CGraphicsPort *port)
 
       // Now draw the rows from the offset position
 
-      for (; displayRow < rect.getHeight(); displayRow++)
+      for (; destRow < rect.getHeight(); destRow++)
         {
           // Put the padded row on the display
 
           if (isEnabled())
             {
-              port->drawBitmap(rect.getX(), displayRow,
-                               rect.getWidth(), 1,
+              port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
                                &bitmap, 0, 0);
             }
           else
             {
-              port->drawBitmapGreyScale(rect.getX(),displayRow,
-                                       rect.getWidth(), 1,
-                                       &bitmap, 0, 0);
+              port->drawBitmapGreyScale(rect.getX(), destRow,
+                                        rect.getWidth(), 1, &bitmap, 0, 0);
             }
         }
     }
@@ -445,14 +446,16 @@ void CImage::onReleaseOutside(nxgl_coord_t x, nxgl_coord_t y)
 
 /**
  * Set the horizontal position of the bitmap.  Zero is the left edge
- * of the bitmap and values >0 will move the bit map to the right.
+ * of the bitmap and values > 0 will move the bit map to the right.
  * This method is useful for horizontal scrolling a large bitmap
  * within a smaller window
+ *
+ * REVISIT: m_origin.x should be permitted to go negative.
  */
 
 void CImage::setImageLeft(nxgl_coord_t column)
 {
-  if (m_bitmap && column > 0 && column <= m_bitmap->getWidth())
+  if (m_bitmap && column >= 0 && column < getWidth())
     {
       m_origin.x = column;
     }
@@ -463,13 +466,15 @@ void CImage::setImageLeft(nxgl_coord_t column)
  * of the bitmap and values >0 will move the bit map down.
  * This method is useful for vertical scrolling a large bitmap
  * within a smaller window
+ *
+ * REVISIT: m_origin.y should be permitted to go negative.
  */
 
 void CImage::setImageTop(nxgl_coord_t row)
 {
-  if (m_bitmap && row > 0 && row <= m_bitmap->getHeight())
+  if (m_bitmap && row >= 0 && row < getHeight())
     {
-      m_origin.x = row;
+      m_origin.y = row;
     }
 }
 
