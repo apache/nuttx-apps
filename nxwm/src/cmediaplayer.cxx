@@ -382,7 +382,7 @@ bool CMediaPlayer::createPlayer(void)
   nxgl_coord_t fwdButtonW;
 
 #ifdef CONFIG_NXWM_MEDIAPLAYER_BORDERS
-  // With the widest button
+  // Set the width to the widest button
 
   nxgl_coord_t buttonW = playBitmap->getWidth();
 
@@ -436,6 +436,14 @@ bool CMediaPlayer::createPlayer(void)
       CImage(control, playControlX, (nxgl_coord_t)controlY,
              playButtonW, buttonH, playBitmap);
 
+  m_playPause->alignHorizontalCenter();
+  m_playPause->alignVerticalCenter();
+#ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
+  m_playPause->setBorderless(true);
+#else
+  m_playPause->setBorderless(false);
+#endif
+
   // Create the Rewind Image
 
   nxgl_coord_t rewControlX = playControlX - rewButtonW -
@@ -444,6 +452,14 @@ bool CMediaPlayer::createPlayer(void)
   m_rew = new NXWidgets::
       CImage(control, rewControlX, (nxgl_coord_t)controlY,
              rewButtonW, buttonH, rewBitmap);
+
+  m_rew->alignHorizontalCenter();
+  m_rew->alignVerticalCenter();
+#ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
+  m_rew->setBorderless(true);
+#else
+  m_rew->setBorderless(false);
+#endif
 
   // Create the Forward Image
 
@@ -454,15 +470,12 @@ bool CMediaPlayer::createPlayer(void)
       CImage(control, fwdControlX, (nxgl_coord_t)controlY,
              fwdButtonW, buttonH, fwdBitmap);
 
-#ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
-  // Make the images boarder-less if that is how we are configured
 
-  m_playPause->setBorderless(true);
-  m_rew->setBorderless(true);
+  m_fwd->alignHorizontalCenter();
+  m_fwd->alignVerticalCenter();
+#ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
   m_fwd->setBorderless(true);
 #else
-  m_playPause->setBorderless(false);
-  m_rew->setBorderless(false);
   m_fwd->setBorderless(false);
 #endif
 
