@@ -90,6 +90,10 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
   m_text    = (NXWidgets::CLabel       *)0;
   m_font    = (NXWidgets::CNxFont      *)0;
 
+  // Initial state is stopped
+
+  m_state   = MPLAYER_STOPPED;
+
   // Add our personalized window label
 
   NXWidgets::CNxString myName = getName();
@@ -427,7 +431,7 @@ bool CMediaPlayer::createPlayer(void)
 
   buttonH += 8;
 
-  // Create the Play Image
+  // Create the Play image
 
   nxgl_coord_t playControlX = (m_windowSize.w >> 1) - (playButtonW >> 1);
   uint32_t controlY         = (180 * m_windowSize.h) >> 8;
@@ -435,6 +439,8 @@ bool CMediaPlayer::createPlayer(void)
   m_playPause = new NXWidgets::
       CImage(control, playControlX, (nxgl_coord_t)controlY,
              playButtonW, buttonH, playBitmap);
+
+  // Configure the Play image
 
   m_playPause->alignHorizontalCenter();
   m_playPause->alignVerticalCenter();
@@ -444,7 +450,11 @@ bool CMediaPlayer::createPlayer(void)
   m_playPause->setBorderless(false);
 #endif
 
-  // Create the Rewind Image
+  // Register to get events from the mouse clicks on the Play image
+
+  m_playPause->addWidgetEventHandler(this);
+
+  // Create the Rewind image
 
   nxgl_coord_t rewControlX = playControlX - rewButtonW -
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
@@ -453,6 +463,8 @@ bool CMediaPlayer::createPlayer(void)
       CImage(control, rewControlX, (nxgl_coord_t)controlY,
              rewButtonW, buttonH, rewBitmap);
 
+  // Configure the Rewind image
+
   m_rew->alignHorizontalCenter();
   m_rew->alignVerticalCenter();
 #ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
@@ -460,6 +472,10 @@ bool CMediaPlayer::createPlayer(void)
 #else
   m_rew->setBorderless(false);
 #endif
+
+  // Register to get events from the mouse clicks on the Rewind image
+
+  m_rew->addWidgetEventHandler(this);
 
   // Create the Forward Image
 
@@ -471,6 +487,8 @@ bool CMediaPlayer::createPlayer(void)
              fwdButtonW, buttonH, fwdBitmap);
 
 
+  // Configure the Forward image
+
   m_fwd->alignHorizontalCenter();
   m_fwd->alignVerticalCenter();
 #ifndef CONFIG_NXWM_MEDIAPLAYER_BORDERS
@@ -478,6 +496,10 @@ bool CMediaPlayer::createPlayer(void)
 #else
   m_fwd->setBorderless(false);
 #endif
+
+  // Register to get events from the mouse clicks on the Forward image
+
+  m_fwd->addWidgetEventHandler(this);
 
   // Create the Volume control
 
@@ -495,9 +517,15 @@ bool CMediaPlayer::createPlayer(void)
                              volBitmap->getHeight() + 4, volBitmap,
                              MKRGB(63, 90,192));
 
+  // Configure the volume control
+
   m_volume->setMinimumValue(0);
   m_volume->setMaximumValue(100);
   m_volume->setValue(15);
+
+  // Register to get events from the mouse clicks on the Forward image
+
+  m_volume->addWidgetEventHandler(this);
 
   return true;
 }
@@ -529,7 +557,65 @@ void CMediaPlayer::close(void)
 
 void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  /* Nothing here yet!  Coming soon! */
+  // Check is a media file has been selected.  Do nothing if there is
+  // no media file.
+
+  if (m_playPause->isClicked())
+    {
+      printf("Play/pause clicked\n");
+
+      if (m_state == MPLAYER_PLAYING)
+        {
+          printf("Media player is now paused\n");
+          m_state     = MPLAYER_PAUSED;
+          m_prevState = MPLAYER_PAUSED;
+        }
+      else
+        {
+          printf("Media player is now playing\n");
+          m_state     = MPLAYER_PLAYING;
+          m_prevState = MPLAYER_PLAYING;
+        }
+    }
+
+  if (m_rew->isClicked())
+    {
+      printf("Rewind clicked\n");
+
+      if (m_state == MPLAYER_FREWIND)
+        {
+          // Or increase rewind speed?
+          printf("Reverting to previous Play/Pause state\n");
+          m_state = m_prevState;
+        }
+      else
+        {
+          printf("Rewinding...\n");
+          m_state = MPLAYER_FREWIND;
+        }
+    }
+
+  if (m_fwd->isClicked())
+    {
+      printf("Forward clicked\n");
+
+      if (m_state == MPLAYER_FFORWARD)
+        {
+          // Or increase fast forward speed?
+          printf("Reverting to previous Play/Pause state\n");
+          m_state = m_prevState;
+        }
+      else
+        {
+          printf("Fast forwarding...\n");
+          m_state = MPLAYER_FFORWARD;
+        }
+    }
+
+  if (m_volume->isClicked())
+    {
+      printf("Volume clicked\n");
+    }
 }
 
 /**

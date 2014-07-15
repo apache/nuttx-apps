@@ -80,18 +80,34 @@ namespace NxWM
   {
   private:
     /**
+     * This enumeration identifies the state of the media player
+     */
+
+    enum EMediaPlayerState
+    {
+      MPLAYER_STOPPED = 0,                 /**< No media file has been selected */
+      MPLAYER_PLAYING,                     /**< Playing a media file */
+      MPLAYER_PAUSED,                      /**< Playing a media file but paused */
+      MPLAYER_FFORWARD,                    /**< Fast forwarding through a media file */
+      MPLAYER_FREWIND,                     /**< Rewinding a media file */
+    };
+
+    /**
      * The structure defines a pending operation.
      */
 
     struct SPendingOperation
     {
-      int64_t value;       /**< Accumulated value */
-      uint8_t operation;   /**< Identifies the operations */
+      int64_t value;                       /**< Accumulated value */
+      uint8_t operation;                   /**< Identifies the operations */
     };
 
     /**
      * Media player state data.
      */
+
+    enum EMediaPlayerState   m_state;      /**< Media player current state */
+    enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
 
     /**
      * Cached constructor parameters.
@@ -147,8 +163,8 @@ namespace NxWM
     void close(void);
 
     /**
-     * Handle a widget action event.  For CImage, this is a button pre-
-     * release event.
+     * Handle a widget action event.  This includes a button pre/release
+     * release events and volume slider change events.
      *
      * @param e The event data.
      */
