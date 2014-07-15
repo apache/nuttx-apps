@@ -459,3 +459,6 @@
   in buttons (2014-7-14).
 * NxWidgets::CStickyImage:  A version of CImage that sticks in the selected
   state when clicked (2014-7-15).
+* NxMW::CMediaPlayer: Now supports a pause button.  Initial check-in is not
+  rock solid (2014-7-15).
+
