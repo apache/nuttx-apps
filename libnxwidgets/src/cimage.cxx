@@ -165,13 +165,14 @@ void CImage::getPreferredDimensions(CRect &rect) const
 
 /**
  * Draw the area of this widget that falls within the clipping region.
- * Called by the redraw() function to draw all visible regions.
+ * Called by the drawContents(port) and by classes that inherit from
+ * CImage.
  *
  * @param port The CGraphicsPort to draw to.
  * @see redraw()
  */
 
-void CImage::drawContents(CGraphicsPort *port)
+void CImage::drawContents(CGraphicsPort *port, bool selected)
 {
   if (!m_bitmap)
     {
@@ -201,7 +202,7 @@ void CImage::drawContents(CGraphicsPort *port)
 
   // Select the correct colorization
 
-  m_bitmap->setSelected(isClicked() || m_highlighted);
+  m_bitmap->setSelected(selected || m_highlighted);
 
   // This is the end row + 1 that we can write into
 
@@ -349,7 +350,20 @@ void CImage::drawContents(CGraphicsPort *port)
  * @see redraw()
  */
 
-void CImage::drawBorder(CGraphicsPort *port)
+void CImage::drawContents(CGraphicsPort *port)
+{
+  drawContents(port, isClicked());
+}
+
+/**
+ * Draw the border of this widget.  Called by the indirectly via
+ * drawBoard(port) and also by classes that inherit from CImage.
+ *
+ * @param port The CGraphicsPort to draw to.
+ * @see redraw()
+ */
+
+void CImage::drawBorder(CGraphicsPort *port, bool selected)
 {
   // Stop drawing if the widget indicates it should not have an outline
 
@@ -363,7 +377,7 @@ void CImage::drawBorder(CGraphicsPort *port)
   nxgl_coord_t color1;
   nxgl_coord_t color2;
 
-  if (isClicked())
+  if (selected)
     {
       // Bevelled into the screen
 
@@ -379,6 +393,19 @@ void CImage::drawBorder(CGraphicsPort *port)
     }
 
   port->drawBevelledRect(getX(), getY(), getWidth(), getHeight(), color1, color2);
+}
+
+/**
+ * Draw the border of this widget. Called by the redraw() function to draw
+ * all visible regions.
+ *
+ * @param port The CGraphicsPort to draw to.
+ * @see redraw()
+ */
+
+void CImage::drawBorder(CGraphicsPort *port)
+{
+  drawBorder(port, isClicked());
 }
 
 /**

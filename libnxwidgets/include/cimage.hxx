@@ -115,6 +115,17 @@ namespace NXWidgets
 
     /**
      * Draw the area of this widget that falls within the clipping region.
+     * Called by the drawContents(port) and by classes that inherit from
+     * CImage.
+     *
+     * @param port The CGraphicsPort to draw to.
+     * @see redraw()
+     */
+
+    void drawContents(CGraphicsPort *port, bool selected);
+
+    /**
+     * Draw the area of this widget that falls within the clipping region.
      * Called by the redraw() function to draw all visible regions.
      *
      * @param port The CGraphicsPort to draw to.
@@ -124,8 +135,18 @@ namespace NXWidgets
     virtual void drawContents(CGraphicsPort *port);
 
     /**
-     * Draw the area of this widget that falls within the clipping region.
-     * Called by the redraw() function to draw all visible regions.
+     * Draw the border of this widget.  Called by the indirectly via
+     * drawBoard(port) and also by classes that inherit from CImage.
+     *
+     * @param port The CGraphicsPort to draw to.
+     * @see redraw()
+     */
+
+    void drawBorder(CGraphicsPort *port, bool selected);
+
+    /**
+     * Draw the border of this widget. Called by the redraw() function to draw
+     * all visible regions.
      *
      * @param port The CGraphicsPort to draw to.
      * @see redraw()

@@ -1,7 +1,7 @@
 #################################################################################
 # NxWidgets/libnxwidgets/Makefile
 #
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,8 @@ CXXSRCS += cprogressbar.cxx cradiobutton.cxx cradiobuttongroup.cxx cscrollbarhor
 CXXSRCS += cscrollbarpanel.cxx cscrollbarvertical.cxx cscrollinglistbox.cxx
 CXXSRCS += cscrollingpanel.cxx cscrollingtextbox.cxx csliderhorizontal.cxx
 CXXSRCS += csliderhorizontalgrip.cxx cslidervertical.cxx csliderverticalgrip.cxx
-CXXSRCS += cstickybutton.cxx cstickybuttonarray.cxx ctabpanel.cxx ctextbox.cxx
+CXXSRCS += cstickybutton.cxx cstickybuttonarray.cxx cstickyimage.cxx ctabpanel.cxx
+CXXSRCS += ctextbox.cxx
 # Images
 CXXSRCS += glyph_nxlogo160x160.cxx glyph_nxlogo320x320.cxx
 CXXSRCS += glyph_arrowdown.cxx glyph_checkboxon.cxx glyph_screendepthup.cxx
