@@ -123,9 +123,10 @@ namespace NxWM
 
     NXWidgets::CLabel       *m_text;       /**< Some text in the app for now */
     NXWidgets::CNxFont      *m_font;       /**< The font used in the media player */
-    NXWidgets::CStickyImage *m_rew;        /**< Rewind control */
-    NXWidgets::CImage       *m_playPause;  /**< Play/Pause control */
-    NXWidgets::CStickyImage *m_fwd;        /**< Forward control */
+    NXWidgets::CImage       *m_play;       /**< Play control */
+    NXWidgets::CImage       *m_pause;      /**< Pause control */
+    NXWidgets::CStickyImage *m_rewind;     /**< Rewind control */
+    NXWidgets::CStickyImage *m_fforward;   /**< Fast forward control */
     NXWidgets::CGlyphSliderHorizontal *m_volume; /**< Volume control */
 
     /**

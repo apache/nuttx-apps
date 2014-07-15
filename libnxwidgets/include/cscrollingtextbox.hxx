@@ -109,7 +109,7 @@ namespace NXWidgets
    */
 
   class CScrollingTextBox : public ITextBox, public CNxWidget,
-                           public IScrollable, public CWidgetEventHandler
+                            public IScrollable, public CWidgetEventHandler
   {
   protected:
     CMultiLineTextBox  *m_texbox;         /**< Pointer to the textbox */
