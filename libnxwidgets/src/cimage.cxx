@@ -455,10 +455,55 @@ void CImage::onReleaseOutside(nxgl_coord_t x, nxgl_coord_t y)
 
 void CImage::setImageLeft(nxgl_coord_t column)
 {
-  if (m_bitmap && column >= 0 && column < getWidth())
+  // Get the the drawable region
+
+  CRect rect;
+  getRect(rect);
+
+  if (m_bitmap && column >= 0 && column < rect.getWidth())
     {
       m_origin.x = column;
     }
+}
+
+/**
+ * Align the image at the left of the widget region.
+ *
+ * NOTE: The CImage widget does not support any persistent alignment
+ * attribute (at least not at the moment).  As a result, this alignment
+ * can be lost if the image is changed or if the widget is resized.
+ */
+
+void CImage::alignHorizontalCenter(void)
+{
+  // Get the the drawable region
+
+  CRect rect;
+  getRect(rect);
+
+  // Center the image
+
+  setImageLeft((rect.getWidth() - m_bitmap->getWidth()) >> 1);
+}
+
+/**
+ * Align the image at the left of the widget region.
+ *
+ * NOTE: The CImage widget does not support any persistent alignment
+ * attribute (at least not at the moment).  As a result, this alignment
+ * can be lost if the image is changed or if the widget is resized.
+ */
+
+void CImage::alignHorizontalRight(void)
+{
+  // Get the the drawable region
+
+  CRect rect;
+  getRect(rect);
+
+  // Position the image at the right of the widget region
+
+  setImageLeft(rect.getWidth() - m_bitmap->getWidth());
 }
 
 /**
@@ -472,9 +517,55 @@ void CImage::setImageLeft(nxgl_coord_t column)
 
 void CImage::setImageTop(nxgl_coord_t row)
 {
-  if (m_bitmap && row >= 0 && row < getHeight())
+  // Get the the drawable region
+
+  CRect rect;
+  getRect(rect);
+
+  // Check the attempted Y position
+
+  if (m_bitmap && row >= 0 && row < rect.getHeight())
     {
       m_origin.y = row;
     }
 }
 
+/**
+ * Align the image at the middle of the widget region.
+ *
+ * NOTE: The CImage widget does not support any persistent alignment
+ * attribute (at least not at the moment).  As a result, this alignment
+ * can be lost if the image is changed or if the widget is resized.
+ */
+
+void CImage::alignVerticalCenter(void)
+{
+  // Get the the drawable region
+
+  CRect rect;
+  getRect(rect);
+
+  // Center the image
+
+  setImageTop((rect.getHeight() - m_bitmap->getHeight()) >> 1);
+}
+
+/**
+ * Align the image at the left of the widget region.
+ *
+ * NOTE: The CImage widget does not support any persistent alignment
+ * attribute (at least not at the moment).  As a result, this alignment
+ * can be lost if the image is changed or if the widget is resized.
+ */
+
+void CImage::alignVerticalBottom(void)
+{
+  // Get the the drawable region
+
+  CRect rect;
+  getRect(rect);
+
+  // Position the image at the bottom of the widget region
+
+  setImageTop(rect.getHeight() - m_bitmap->getHeight());
+}

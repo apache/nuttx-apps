@@ -233,6 +233,39 @@ namespace NXWidgets
     void setImageLeft(nxgl_coord_t column);
 
     /**
+     * Align the image at the left of the widget region.
+     *
+     * NOTE: The CImage widget does not support any persistent alignment
+     * attribute (at least not at the moment).  As a result, this alignment
+     * can be lost if the image is changed or if the widget is resized.
+     */
+
+    inline void alignHorizontalLeft(void)
+    {
+      setImageLeft(0);
+    }
+
+    /**
+     * Align the image at the left of the widget region.
+     *
+     * NOTE: The CImage widget does not support any persistent alignment
+     * attribute (at least not at the moment).  As a result, this alignment
+     * can be lost if the image is changed or if the widget is resized.
+     */
+
+    void alignHorizontalCenter(void);
+
+    /**
+     * Align the image at the left of the widget region.
+     *
+     * NOTE: The CImage widget does not support any persistent alignment
+     * attribute (at least not at the moment).  As a result, this alignment
+     * can be lost if the image is changed or if the widget is resized.
+     */
+
+    void alignHorizontalRight(void);
+
+    /**
      * Set the vertical position of the bitmap.  Zero is the top edge
      * of the bitmap and values >0 will move the bit map down.
      * This method is useful for vertical scrolling a large bitmap
@@ -240,6 +273,39 @@ namespace NXWidgets
      */
 
     void setImageTop(nxgl_coord_t row);
+
+    /**
+     * Align the image at the top of the widget region.
+     *
+     * NOTE: The CImage widget does not support any persistent alignment
+     * attribute (at least not at the moment).  As a result, this alignment
+     * can be lost if the image is changed or if the widget is resized.
+     */
+
+    inline void alignVerticalTop(void)
+    {
+      setImageTop(0);
+    }
+
+    /**
+     * Align the image at the middle of the widget region.
+     *
+     * NOTE: The CImage widget does not support any persistent alignment
+     * attribute (at least not at the moment).  As a result, this alignment
+     * can be lost if the image is changed or if the widget is resized.
+     */
+
+    void alignVerticalCenter(void);
+
+    /**
+     * Align the image at the left of the widget region.
+     *
+     * NOTE: The CImage widget does not support any persistent alignment
+     * attribute (at least not at the moment).  As a result, this alignment
+     * can be lost if the image is changed or if the widget is resized.
+     */
+
+    void alignVerticalBottom(void);
 
     /**
      * Control the highlight state.
