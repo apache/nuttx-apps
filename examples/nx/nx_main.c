@@ -141,7 +141,7 @@ nxgl_mxpixel_t g_tbcolor[CONFIG_NX_NPLANES];
  * Name: nxeg_drivemouse
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxeg_drivemouse(void)
 {
   nxgl_coord_t x;
@@ -825,7 +825,7 @@ int nx_main(int argc, char *argv[])
 
   /* Put mouse left-button clicks all over the screen and see who responds */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   nxeg_drivemouse();
 
   /* Sleep a bit */
@@ -862,7 +862,7 @@ int nx_main(int argc, char *argv[])
 
   /* Put mouse left-button clicks all over the screen and see who responds */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   nxeg_drivemouse();
 #endif
 

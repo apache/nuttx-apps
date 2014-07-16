@@ -71,7 +71,7 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg);
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxbg_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg);
 #endif
@@ -99,7 +99,7 @@ const struct nx_callback_s g_nxtextcb =
 {
   nxbg_redraw,   /* redraw */
   nxbg_position  /* position */
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   , nxbg_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
@@ -199,7 +199,7 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
  * Name: nxbg_mousein
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxbg_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {

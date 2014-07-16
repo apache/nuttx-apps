@@ -1113,6 +1113,7 @@ menu "NxWM Media Player Display Settings"
 config NXWM_MEDIAPLAYER
 	bool "NxWM Media Player"
 	default n
+	depends on FS_READABLE
 	---help---
 		Enable support for the MP3 Media Player.  This features requires
 		a board that includes an MP3 Codec chip, such as the Mikromedia

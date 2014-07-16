@@ -69,7 +69,7 @@ static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg);
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxeg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg);
 #endif
@@ -81,7 +81,7 @@ static void nxeg_tbposition(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_point_s *pos,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg);
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                             uint8_t buttons, FAR void *arg);
 #endif
@@ -99,7 +99,7 @@ const struct nx_callback_s g_nxcb =
 {
   nxeg_redraw,   /* redraw */
   nxeg_position  /* position */
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   , nxeg_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
@@ -112,7 +112,7 @@ const struct nx_callback_s g_tbcb =
 {
   nxeg_tbredraw,   /* redraw */
   nxeg_tbposition  /* position */
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   , nxeg_tbmousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
@@ -224,7 +224,7 @@ static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
  * Name: nxeg_mousein
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxeg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
@@ -276,7 +276,7 @@ static void nxeg_tbposition(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                           uint8_t buttons, FAR void *arg)
 {

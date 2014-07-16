@@ -74,7 +74,7 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                           FAR const struct nxgl_point_s *pos,
                           FAR const struct nxgl_rect_s *bounds,
                           FAR void *arg);
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg);
 #endif
@@ -98,7 +98,7 @@ const struct nx_callback_s g_nxlinescb =
 {
   nxlines_redraw,   /* redraw */
   nxlines_position  /* position */
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   , nxlines_mousein /* mousein */
 #endif
 #ifdef CONFIG_NX_KBD
@@ -160,7 +160,7 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
  * Name: nxlines_mousein
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
