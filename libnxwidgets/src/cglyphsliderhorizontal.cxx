@@ -3,6 +3,7 @@
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
+ *           Gregory Nutt <gnutt@nuttx.org> (updates to Ken's fundamental work)
  *
  *   Based on and copied from csliderhorizontal.cxx written by Gregory Nutt
  *

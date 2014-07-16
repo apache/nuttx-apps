@@ -76,8 +76,8 @@
 
 #include <nuttx/config.h>
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 
 #include <nuttx/nx/nxglib.h>
 

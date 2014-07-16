@@ -462,7 +462,7 @@ void CListBox::drawContents(CGraphicsPort *port)
   nxgl_coord_t clipY      = rect.getY();
   nxgl_coord_t clipHeight = rect.getHeight();
 
-  // Precalc values for option draw loop
+  // Precalculate values for option draw loop
 
   nxgl_coord_t optionHeight = getOptionHeight();
 
@@ -607,7 +607,7 @@ void CListBox::onClick(nxgl_coord_t x, nxgl_coord_t y)
   const CListBoxDataItem *item =
     (const CListBoxDataItem*)m_options.getItem(m_lastSelectedIndex);
 
-  // Are we setting or unsetting?
+  // Are we selecting or de-selecting?
 
   if (item->isSelected())
     {
