@@ -460,4 +460,9 @@
 * NxWidgets::CStickyImage:  A version of CImage that sticks in the selected
   state when clicked (2014-7-15).
 * NxMW::CMediaPlayer: Now supports a pause button (2014-7-15).
+* NxMW::CMediaPlayer: Fix some memory leaks (2014-7-16).
+* NxMW::CMediaPlayer: Change spacing, make text region big enough to support
+  a multi-line, scrollable region (2014-7-16).
+* NxMW::CMediaPlayer: Correctly catch the volume level change event
+  (2014-7-16).
 
