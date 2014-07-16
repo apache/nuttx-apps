@@ -465,4 +465,6 @@
   a multi-line, scrollable region (2014-7-16).
 * NxMW::CMediaPlayer: Correctly catch the volume level change event
   (2014-7-16).
-
+* NxMW::CMediaPlayer: Concert CLabel to a CListBox to support selection of
+  one of many media files to play.  This should be a CScrollingTextBox to
+  support an indefinitely large number of media files (2014-7-16).
