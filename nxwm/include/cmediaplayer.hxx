@@ -138,6 +138,18 @@ namespace NxWM
     NXWidgets::CGlyphSliderHorizontal *m_volume; /**< Volume control */
 
     /**
+     * Bitmaps
+     *
+     * These are retained only so that they can be released when the media
+     * is closed player
+     */
+
+    NXWidgets::CRlePaletteBitmap *m_playBitmap;     /**< Bitmap for the play control */
+    NXWidgets::CRlePaletteBitmap *m_pauseBitmap;    /**< Bitmap for the pause control */
+    NXWidgets::CRlePaletteBitmap *m_rewindBitmap;   /**< Bitmap for the rewind control */
+    NXWidgets::CRlePaletteBitmap *m_fforwardBitmap; /**< Bitmap for the fast forward control */
+
+    /**
      * Calculator geometry.  This stuff does not really have to be retained
      * in memory.  If you are pinched for memory, get rid of these.
      */

@@ -83,19 +83,31 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
 {
   // Save the constructor data
 
-  m_taskbar   = taskbar;
-  m_window    = window;
+  m_taskbar        = taskbar;
+  m_window         = window;
 
   // Nullify widgets that will be instantiated when the window is started
 
-  m_text      = (NXWidgets::CLabel  *)0;
-  m_font      = (NXWidgets::CNxFont *)0;
+  m_text           = (NXWidgets::CLabel       *)0;
+  m_font           = (NXWidgets::CNxFont      *)0;
+  m_play           = (NXWidgets::CImage       *)0;
+  m_pause          = (NXWidgets::CImage       *)0;
+  m_rewind         = (NXWidgets::CStickyImage *)0;
+  m_fforward       = (NXWidgets::CStickyImage *)0;
+  m_volume         = (NXWidgets::CGlyphSliderHorizontal *)0;
+
+  // Nullify bitmaps that will be instantiated when the window is started
+
+  m_playBitmap     = (NXWidgets::CRlePaletteBitmap *)0;
+  m_pauseBitmap    = (NXWidgets::CRlePaletteBitmap *)0;
+  m_rewindBitmap   = (NXWidgets::CRlePaletteBitmap *)0;
+  m_fforwardBitmap = (NXWidgets::CRlePaletteBitmap *)0;
 
   // Initial state is stopped
 
-  m_state     = MPLAYER_STOPPED;
-  m_prevState = MPLAYER_STOPPED;
-  m_pending   = PENDING_NONE;
+  m_state          = MPLAYER_STOPPED;
+  m_prevState      = MPLAYER_STOPPED;
+  m_pending        = PENDING_NONE;
 
   // Add our personalized window label
 
@@ -129,6 +141,53 @@ CMediaPlayer::~CMediaPlayer(void)
   if (m_font)
     {
       delete m_font;
+    }
+
+  if (m_play)
+    {
+      delete m_play;
+    }
+
+  if (m_pause)
+    {
+      delete m_pause;
+    }
+
+  if (m_rewind)
+    {
+      delete m_rewind;
+    }
+
+  if (m_fforward)
+    {
+      delete m_fforward;
+    }
+
+  if (m_volume)
+    {
+      delete m_volume;
+    }
+
+  // Destroy bitmaps
+
+  if (m_playBitmap)
+    {
+      delete m_playBitmap;
+    }
+
+  if (m_pauseBitmap)
+    {
+      delete m_pauseBitmap;
+    }
+
+  if (m_rewindBitmap)
+    {
+      delete m_rewindBitmap;
+    }
+
+  if (m_fforwardBitmap)
+    {
+      delete m_fforwardBitmap;
     }
 
   // Although we didn't create it, we are responsible for deleting the
@@ -352,103 +411,91 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create all bitmaps
 
-  NXWidgets::CRlePaletteBitmap *playBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PLAY_ICON);
-
-  NXWidgets::CRlePaletteBitmap *pauseBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PAUSE_ICON);
-
-  NXWidgets::CRlePaletteBitmap *rewBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
-
-  NXWidgets::CRlePaletteBitmap *fwdBitmap = new NXWidgets::
-      CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
+  m_playBitmap     = new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PLAY_ICON);
+  m_pauseBitmap    = new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_PAUSE_ICON);
+  m_rewindBitmap   = new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_REW_ICON);
+  m_fforwardBitmap = new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
 
   // Image widths will depend on if the images will be bordered or not
 
-  nxgl_coord_t playImageW;
-  nxgl_coord_t pauseImageW;
-  nxgl_coord_t rewindImageW;
-  nxgl_coord_t fforwardImageW;
+  nxgl_coord_t playControlW;
+  nxgl_coord_t rewindControlW;
+  nxgl_coord_t fforwardControlW;
 
 #ifdef CONFIG_NXWM_MEDIAPLAYER_BORDERS
   // Set the width to the widest image
 
-  nxgl_coord_t imageW = playBitmap->getWidth();
+  nxgl_coord_t imageW = m_playBitmap->getWidth();
 
-  if (imageW < pauseBitmap->getWidth())
+  if (imageW < m_pauseBitmap->getWidth())
     {
-      imageW = pauseBitmap->getWidth();
+      imageW = m_pauseBitmap->getWidth();
     }
 
-  if (imageW < rewBitmap->getWidth())
+  if (imageW < m_rewindBitmap->getWidth())
     {
-      imageW = rewBitmap->getWidth();
+      imageW = m_rewindBitmap->getWidth();
     }
 
-  if (imageW < fwdBitmap->getWidth())
+  if (imageW < m_fforwardBitmap->getWidth())
     {
-      imageW = fwdBitmap->getWidth();
+      imageW = m_fforwardBitmap->getWidth();
     }
 
   // Add little space around the bitmap and use this width for all images
 
-  imageW        += 8;
-  playImageW     = imageW;
-  pauseImageW    = imageW;
-  rewindImageW   = imageW;
-  fforwardImageW = imageW;
+  imageW          += 8;
+  playControlW     = imageW;
+  rewindControlW   = imageW;
+  fforwardControlW = imageW;
 
 #else
+
   // Use the bitmap image widths for the image widths (plus a bit)
 
-  playImageW     = playBitmap->getWidth() + 8;
-  pauseImageW    = pauseBitmap->getWidth() + 8;
-  rewindImageW   = rewBitmap->getWidth()  + 8;
-  fforwardImageW = fwdBitmap->getWidth()  + 8;
+  playControlW     = m_playBitmap->getWidth() + 8;
+  rewindControlW   = m_rewindBitmap->getWidth()  + 8;
+  fforwardControlW = m_fforwardBitmap->getWidth()  + 8;
 
   // The Play and Pause images should be the same width.  But just
   // in case, pick the larger width.
 
-  if (playImageW < pauseImageW)
+  nxgl_coord_t pauseControlW = m_pauseBitmap->getWidth() + 8;
+  if (playControlW < pauseControlW)
     {
-      playImageW = pauseImageW;
-    }
-  else
-    {
-      pauseImageW = playImageW;
+      playControlW = pauseControlW;
     }
 #endif
 
   // Use the same height for all images
 
-  nxgl_coord_t imageH = playBitmap->getHeight();
+  nxgl_coord_t controlH = m_playBitmap->getHeight();
 
-  if (imageH < pauseBitmap->getHeight())
+  if (controlH < m_pauseBitmap->getHeight())
     {
-      imageH = pauseBitmap->getHeight();
+      controlH = m_pauseBitmap->getHeight();
     }
 
-  if (imageH < rewBitmap->getHeight())
+  if (controlH < m_rewindBitmap->getHeight())
     {
-      imageH = rewBitmap->getHeight();
+      controlH = m_rewindBitmap->getHeight();
     }
 
-  if (imageH < fwdBitmap->getHeight())
+  if (controlH < m_fforwardBitmap->getHeight())
     {
-      imageH = fwdBitmap->getHeight();
+      controlH = m_fforwardBitmap->getHeight();
     }
 
-  imageH += 8;
+  controlH += 8;
 
   // Create the Play image
 
-  nxgl_coord_t playControlX = (m_windowSize.w >> 1) - (playImageW >> 1);
+  nxgl_coord_t playControlX = (m_windowSize.w >> 1) - (playControlW >> 1);
   uint32_t controlY         = (180 * m_windowSize.h) >> 8;
 
   m_play = new NXWidgets::
       CImage(control, playControlX, (nxgl_coord_t)controlY,
-             playImageW, imageH, playBitmap);
+             playControlW, controlH, m_playBitmap);
 
   // Configure the Play image
 
@@ -469,7 +516,7 @@ bool CMediaPlayer::createPlayer(void)
 
   m_pause = new NXWidgets::
       CImage(control, playControlX, (nxgl_coord_t)controlY,
-             playImageW, imageH, pauseBitmap);
+             playControlW, controlH, m_pauseBitmap);
 
   // Configure the Pause image (hidden and disabled initially)
 
@@ -488,12 +535,12 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create the Rewind image
 
-  nxgl_coord_t rewControlX = playControlX - rewindImageW -
+  nxgl_coord_t rewControlX = playControlX - rewindControlW -
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_rewind = new NXWidgets::
       CStickyImage(control, rewControlX, (nxgl_coord_t)controlY,
-                   rewindImageW, imageH, rewBitmap);
+                   rewindControlW, controlH, m_rewindBitmap);
 
   // Configure the Rewind image
 
@@ -512,12 +559,12 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create the Forward Image
 
-  nxgl_coord_t fwdControlX = playControlX + playImageW +
+  nxgl_coord_t fwdControlX = playControlX + playControlW +
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_fforward = new NXWidgets::
       CStickyImage(control, fwdControlX, (nxgl_coord_t)controlY,
-                   fforwardImageW, imageH, fwdBitmap);
+                   fforwardControlW, controlH, m_fforwardBitmap);
 
   // Configure the Forward image
 
