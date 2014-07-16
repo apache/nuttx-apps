@@ -94,7 +94,7 @@ namespace NXWidgets
      * @param e The event data.
      */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
     virtual void handleMouseEvent(void) { }
 #endif
 

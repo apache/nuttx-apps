@@ -91,7 +91,7 @@ CWindowMessenger::~CWindowMessenger(void)
  * @param e The event data.
  */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 void CWindowMessenger::handleMouseEvent(void)
 {
   // The logic path here is tortuous but flexible:

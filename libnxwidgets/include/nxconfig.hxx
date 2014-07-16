@@ -57,7 +57,7 @@
  *
  * CONFIG_HAVE_CXX=y   : C++ support is required
  * CONFIG_NX=y         : NX graphics support must be enabled
- * CONFIG_NX_MOUSE=y   : Required to enable NX mouse/touchscreen support
+ * CONFIG_NX_XYINPUT=y : Required to enable NX mouse/touchscreen support
  * CONFIG_NX_KBD=y     : Required to enabled NX keyboard support
  * CONFIG_NX_NPLANES=1 : Only a single video plane is supported
  *
@@ -160,8 +160,8 @@
  * Required to enable NX mouse/touchscreen support
  */
 
-#ifndef CONFIG_NX_MOUSE
-#  warning "NX mouse/touchscreen support is required (CONFIG_NX_MOUSE)"
+#ifndef CONFIG_NX_XYINPUT
+#  warning "NX mouse/touchscreen support is required (CONFIG_NX_XYINPUT)"
 #endif
 
 /**

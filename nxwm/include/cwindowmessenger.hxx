@@ -103,7 +103,7 @@ namespace NxWM
      * @param e The event data.
      */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
     void handleMouseEvent(void);
 #endif
 

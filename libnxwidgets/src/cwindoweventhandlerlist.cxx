@@ -136,7 +136,7 @@ void CWindowEventHandlerList::raiseGeometryEvent(void)
  * Raise an NX mouse window input event.
  */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 void CWindowEventHandlerList::raiseMouseEvent(void)
 {
   for (int i = 0; i < m_eventHandlers.size(); ++i)

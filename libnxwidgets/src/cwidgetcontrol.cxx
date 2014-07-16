@@ -448,7 +448,7 @@ void CWidgetControl::redrawEvent(FAR const struct nxgl_rect_s *nxRect, bool more
  * @param buttons See NX_MOUSE_* definitions.
  */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t buttons)
 {
   // Save the mouse X/Y position

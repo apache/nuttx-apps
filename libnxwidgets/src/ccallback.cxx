@@ -77,7 +77,7 @@ CCallback::CCallback(CWidgetControl *widgetControl)
 
   m_callbacks.redraw   = redraw;
   m_callbacks.position = position;
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
   m_callbacks.mousein  = newMouseEvent;
 #endif
 #ifdef CONFIG_NX_KBD
@@ -165,7 +165,7 @@ void CCallback::position(NXHANDLE hwnd,
   * nxtk_openwindow, or nxtk_opentoolbar).
   */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
 void CCallback::newMouseEvent(NXHANDLE hwnd,
                               FAR const struct nxgl_point_s *pos,
                               uint8_t buttons, FAR void *arg)
@@ -181,7 +181,7 @@ void CCallback::newMouseEvent(NXHANDLE hwnd,
 
   This->m_widgetControl->newMouseEvent(pos, buttons);
 }
-#endif /* CONFIG_NX_MOUSE */
+#endif /* CONFIG_NX_XYINPUT */
 
 /**
  * New keyboard/keypad data is available for the window.  The new keyboard

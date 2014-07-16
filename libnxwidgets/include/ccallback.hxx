@@ -158,11 +158,11 @@ namespace NXWidgets
      * nxtk_openwindow, or nxtk_opentoolbar).
      */
 
-#ifdef CONFIG_NX_MOUSE
+#ifdef CONFIG_NX_XYINPUT
     static void newMouseEvent(NXHANDLE hwnd,
                               FAR const struct nxgl_point_s *pos,
                               uint8_t buttons, FAR void *arg);
-#endif /* CONFIG_NX_MOUSE */
+#endif /* CONFIG_NX_XYINPUT */
 
     /**
      * New keyboard/keypad data is available for the window.  The new
