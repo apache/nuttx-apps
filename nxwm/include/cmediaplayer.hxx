@@ -93,6 +93,13 @@ namespace NxWM
       MPLAYER_FREWIND,                     /**< Rewinding a media file */
     };
 
+    enum EPendingRelease
+    {
+      PENDING_NONE = 0,                    /**< Nothing is pending */
+      PENDING_PLAY_RELEASE,                /**< Expect play image to be released */
+      PENDING_PAUSE_RELEASE                /**< Expect pause image to be released */
+    };
+
     /**
      * The structure defines a pending operation.
      */
@@ -109,6 +116,7 @@ namespace NxWM
 
     enum EMediaPlayerState   m_state;      /**< Media player current state */
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
+    enum EPendingRelease     m_pending;    /**< Pending image release event */
 
     /**
      * Cached constructor parameters.
@@ -180,6 +188,21 @@ namespace NxWM
      */
 
     void handleActionEvent(const NXWidgets::CWidgetEventArgs &e);
+
+    /**
+     * Handle a widget release event.  Only the play and pause image release
+     * are of interest.
+     */
+
+    void handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e);
+
+    /**
+     * Handle a widget release event when the widget WAS dragged outside of
+     * its original bounding box.  Only the play and pause image release
+     * are of interest.
+     */
+
+    void handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e);
 
   public:
     /**

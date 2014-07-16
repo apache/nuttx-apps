@@ -3,6 +3,7 @@
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
+ *           Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -82,17 +83,19 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
 {
   // Save the constructor data
 
-  m_taskbar = taskbar;
-  m_window  = window;
+  m_taskbar   = taskbar;
+  m_window    = window;
 
   // Nullify widgets that will be instantiated when the window is started
 
-  m_text    = (NXWidgets::CLabel       *)0;
-  m_font    = (NXWidgets::CNxFont      *)0;
+  m_text      = (NXWidgets::CLabel  *)0;
+  m_font      = (NXWidgets::CNxFont *)0;
 
   // Initial state is stopped
 
-  m_state   = MPLAYER_STOPPED;
+  m_state     = MPLAYER_STOPPED;
+  m_prevState = MPLAYER_STOPPED;
+  m_pending   = PENDING_NONE;
 
   // Add our personalized window label
 
@@ -832,7 +835,11 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
   if (m_play->isClicked() && m_state != MPLAYER_PLAYING)
     {
-      setMediaPlayerState(MPLAYER_PLAYING);
+      // Just arm the state change now, but don't do anything until the
+      // release occurs.  Trying to do the state change before the NxWidgets
+      // release processing completes causes issues.
+
+      m_pending = PENDING_PLAY_RELEASE;
     }
 
   // These only make sense in non-STOPPED states
@@ -843,9 +850,11 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
       if (m_pause->isClicked() && m_state != MPLAYER_PAUSED)
         {
-          // Yes... then now we are playing
+         // Just arm the state change now, but don't do anything until the
+         // release occurs.  Trying to do the state change before the NxWidgets
+         // release processing completes causes issues.
 
-          setMediaPlayerState(MPLAYER_PAUSED);
+          m_pending = PENDING_PAUSE_RELEASE;
         }
 
       // Check if the rewind image was clicked
@@ -901,6 +910,45 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
     {
 printf("Volume clicked\n"); // REMOVE ME
     }
+}
+
+/**
+ * Handle a widget release event.  Only the play and pause image release
+ * are of interest.
+ */
+
+void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  // Check if the Play image was released
+
+  if (m_pending == PENDING_PLAY_RELEASE && !m_play->isClicked())
+    {
+      // Now perform the delayed state change
+
+      setMediaPlayerState(MPLAYER_PLAYING);
+      m_pending = PENDING_NONE;
+    }
+
+  // Check if the Pause image was released
+
+  else if (m_pending == PENDING_PAUSE_RELEASE && !m_pause->isClicked())
+    {
+      // Now perform the delayed state change
+
+      setMediaPlayerState(MPLAYER_PAUSED);
+      m_pending = PENDING_NONE;
+    }
+}
+
+/**
+ * Handle a widget release event when the widget WAS dragged outside of
+ * its original bounding box.  Only the play and pause image release
+ * are of interest.
+ */
+
+void CMediaPlayer::handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e)
+{
+  handleReleaseEvent(e);
 }
 
 /**
