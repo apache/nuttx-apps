@@ -73,8 +73,8 @@
 
 #include <nuttx/config.h>
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 
 #include "cnxwidget.hxx"
 #include "cgraphicsport.hxx"

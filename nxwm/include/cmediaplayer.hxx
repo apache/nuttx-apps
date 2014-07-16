@@ -46,10 +46,11 @@
 #include <nuttx/nx/nxtk.h>
 #include <nuttx/nx/nxconsole.h>
 
+#include "cnxfont.hxx"
 #include "cimage.hxx"
 #include "cstickyimage.hxx"
-#include "clabel.hxx"
-#include "cnxfont.hxx"
+#include "clistbox.hxx"
+#include "clistboxdataitem.hxx"
 #include "cglyphsliderhorizontal.hxx"
 
 #include "iapplication.hxx"
@@ -117,7 +118,14 @@ namespace NxWM
     enum EMediaPlayerState   m_state;      /**< Media player current state */
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
-    unsigned int             m_level;      /**< Current volume level */
+    int                      m_level;      /**< Current volume level */
+    int                      m_fileIndex;  /**< Index to selected file in the list box */
+
+    /**
+     * Media player geometry.
+     */
+
+    struct nxgl_size_s       m_windowSize; /**< The size of the media player window */
 
     /**
      * Cached constructor parameters.
@@ -130,7 +138,7 @@ namespace NxWM
      * Widgets
      */
 
-    NXWidgets::CLabel       *m_text;       /**< Some text in the app for now */
+    NXWidgets::CListBox     *m_listbox;    /**< List box containing media files selections */
     NXWidgets::CNxFont      *m_font;       /**< The font used in the media player */
     NXWidgets::CImage       *m_play;       /**< Play control */
     NXWidgets::CImage       *m_pause;      /**< Pause control */
@@ -152,19 +160,31 @@ namespace NxWM
     NXWidgets::CRlePaletteBitmap *m_volumeBitmap;   /**< Volume control grip bitmap */
 
     /**
-     * Calculator geometry.  This stuff does not really have to be retained
-     * in memory.  If you are pinched for memory, get rid of these.
+     * Open a media file for playing.  Called after a file has been selected
+     * from the list box.
      */
 
-    struct nxgl_size_s       m_windowSize; /**< The size of the media player window */
-    struct nxgl_size_s       m_textSize;   /**< The size of the media player textbox */
+    inline bool openMediaFile(const NXWidgets::CListBoxDataItem *item);
 
     /**
-    * Select the geometry of the media player given the current window size.
-    * Only called as part of construction.
-    */
+     * Close media file.  Called when a new media file is selected, when a
+     * media file is de-selected, or when destroying the media player instance.
+     */
 
-   inline void setGeometry(void);
+     inline void closeMediaFile(void);
+
+    /**
+     * Select the geometry of the media player given the current window size.
+     * Only called as part of construction.
+     */
+
+    inline void setGeometry(void);
+
+    /**
+     * Load media files into the list box.
+     */
+
+    inline bool showMediaFiles(const char *mediaPath);
 
     /**
      * Create the Media Player controls.  Only start as part of the application

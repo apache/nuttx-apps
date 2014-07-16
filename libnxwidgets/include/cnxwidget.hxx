@@ -801,6 +801,7 @@ namespace NXWidgets
      *
      * @return Const pointer to CWidgetStyle stored inside this widget.
      */
+
     inline const CWidgetStyle *getWidgetStyle() const { return &m_style; }
 
     /**
@@ -865,6 +866,17 @@ namespace NXWidgets
     inline void removeWidgetEventHandler(CWidgetEventHandler* eventHandler)
     {
       m_widgetEventHandlers->removeWidgetEventHandler(eventHandler);
+    }
+
+   /**
+     * Return the number of registered event handlers
+     *
+     * @return The number of registered event handlers
+     */
+
+    inline int nWidgetEventHandlers(void) const
+    {
+      return m_widgetEventHandlers->size();
     }
 
     /**

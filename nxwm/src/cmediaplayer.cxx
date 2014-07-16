@@ -88,7 +88,7 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
 
   // Nullify widgets that will be instantiated when the window is started
 
-  m_text           = (NXWidgets::CLabel       *)0;
+  m_listbox        = (NXWidgets::CListBox     *)0;
   m_font           = (NXWidgets::CNxFont      *)0;
   m_play           = (NXWidgets::CImage       *)0;
   m_pause          = (NXWidgets::CImage       *)0;
@@ -109,6 +109,7 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
   m_state          = MPLAYER_STOPPED;
   m_prevState      = MPLAYER_STOPPED;
   m_pending        = PENDING_NONE;
+  m_fileIndex      = -1;
 
   // Add our personalized window label
 
@@ -134,9 +135,9 @@ CMediaPlayer::~CMediaPlayer(void)
 {
   // Destroy widgets
 
-  if (m_text)
+  if (m_listbox)
     {
-      delete m_text;
+      delete m_listbox;
     }
 
   if (m_font)
@@ -249,7 +250,7 @@ bool CMediaPlayer::run(void)
 {
   // Create the widgets (if we have not already done so)
 
-  if (!m_text)
+  if (!m_listbox)
     {
       // Create the widgets
 
@@ -271,7 +272,7 @@ void CMediaPlayer::stop(void)
 {
   // Just disable further drawing on all widgets
 
-  m_text->disableDrawing();
+  m_listbox->disableDrawing();
   m_play->disableDrawing();
   m_pause->disableDrawing();
   m_rewind->disableDrawing();
@@ -351,6 +352,26 @@ bool CMediaPlayer::isFullScreen(void) const
 }
 
 /**
+ * Open a media file for playing.  Called after a file has been selected
+ * from the list box.
+ */
+
+bool CMediaPlayer::openMediaFile(const NXWidgets::CListBoxDataItem *item)
+{
+#warning Missing logic
+  return true;
+}
+
+/**
+ * Close media file.  Called when a new media file is selected, when a media file is de-selected, or when destroying the media player instance.
+    */
+
+void CMediaPlayer::closeMediaFile(void)
+{
+#warning Missing logic
+}
+
+/**
  * Select the geometry of the media player given the current window size.
  */
 
@@ -363,6 +384,44 @@ void CMediaPlayer::setGeometry(void)
   // Get the size of the window
 
   (void)window->getSize(&m_windowSize);
+}
+
+/**
+ * Load media files into the list box.
+ */
+
+inline bool CMediaPlayer::showMediaFiles(const char *mediaPath)
+{
+  // Remove any filenames already in the list box
+
+  m_listbox->removeAllOptions();
+
+#if 0
+  // Open the media path directory
+  // Read each directory entry
+  // Add the directory entry to the list box
+  // Close the directory
+#else
+#  warning "Missing Logic"
+
+  // Just add a couple of dummy files for testing
+
+  m_listbox->addOption("File 1", 0,
+                      CONFIG_NXWIDGETS_DEFAULT_ENABLEDTEXTCOLOR,
+                      CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR,
+                      CONFIG_NXWIDGETS_DEFAULT_SELECTEDTEXTCOLOR,
+                      CONFIG_NXWM_DEFAULT_SELECTEDBACKGROUNDCOLOR);
+  m_listbox->addOption("File 2", 1,
+                      CONFIG_NXWIDGETS_DEFAULT_ENABLEDTEXTCOLOR,
+                      CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR,
+                      CONFIG_NXWIDGETS_DEFAULT_SELECTEDTEXTCOLOR,
+                      CONFIG_NXWM_DEFAULT_SELECTEDBACKGROUNDCOLOR);
+#endif
+
+  // Sort the file names in alphabetical order
+
+  m_listbox->sort();
+  return true;
 }
 
 /**
@@ -440,37 +499,34 @@ bool CMediaPlayer::createPlayer(void)
   // The list box will then end just above the controls.  The end of the
   // list box is the same as its height because the origin is zero.
 
-  nxgl_coord_t textHeight = controlTop - CONFIG_NXWM_MEDIAPLAYER_YSPACING;
+  nxgl_coord_t listHeight = controlTop - CONFIG_NXWM_MEDIAPLAYER_YSPACING;
 
-  // Create a label to show some text.
+  // Create a list box to show media file selections.
   // Note that the list box will extend all of the way to the edges of the
   // display and is only limited at the bottom by the player controls.
+  // REVISIT: This should be a scrollable list box
 
-  m_text = new NXWidgets::
-    CLabel(control, 0, 0,  m_windowSize.w, textHeight, "0");
-
-  if (!m_text)
+  m_listbox = new NXWidgets::CListBox(control, 0, 0,  m_windowSize.w, listHeight);
+  if (!m_listbox)
     {
-      gdbg("ERROR: Failed to create CLabel\n");
+      gdbg("ERROR: Failed to create CListBox\n");
       return false;
     }
 
-  // Align text on the left
+  // Configure the list box
 
-  m_text->setTextAlignmentHoriz(NXWidgets::CLabel::TEXT_ALIGNMENT_HORIZ_RIGHT);
+  m_listbox->disableDrawing();
+  m_listbox->setAllowMultipleSelections(false);
+  m_listbox->setFont(m_font);
+  m_listbox->setBorderless(false);
 
-  // Disable drawing and events until we are asked to redraw the window
+  // Register to get events when a new file is selected from the list box
 
-  m_text->disableDrawing();
-  m_text->setRaisesEvents(false);
+  m_listbox->addWidgetEventHandler(this);
 
-  // Select the font
+  // Show the media files that are available for playing
 
-  m_text->setFont(m_font);
-
-  // Add some dummy text for now
-
-  m_text->setText("Coming soon...");
+  showMediaFiles(CONFIG_NXWM_MEDIAPLAYER_MEDIAPATH);
 
   // Control image widths.
   // Image widths will depend on if the images will be bordered or not
@@ -678,9 +734,9 @@ bool CMediaPlayer::createPlayer(void)
 
   setVolumeLevel();
 
-  // Enable drawing in the text, rewind, fast-forward and drawing widgets.
+  // Enable drawing in the list box, rewind, fast-forward and drawing widgets.
 
-  m_text->enableDrawing();
+  m_listbox->enableDrawing();
   m_rewind->enableDrawing();
   m_fforward->enableDrawing();
   m_volume->enableDrawing();
@@ -721,8 +777,8 @@ void CMediaPlayer::redrawWidgets(void)
   // Redraw widgets.  We have to re-enable drawing all all widgets since
   // drawing was disabled by the hide() method.
 
-  m_text->enableDrawing();
-  m_text->redraw();
+  m_listbox->enableDrawing();
+  m_listbox->redraw();
 
   // Only one of the Play and Pause images should have drawing enabled.
 
@@ -777,9 +833,9 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       m_state     = MPLAYER_STOPPED;
       m_prevState = MPLAYER_PLAYING;
 
-      // Text box is enabled and ready for text entry
+      // List box is enabled and ready for file selection
 
-      m_text->enable();
+      m_listbox->enable();
 
       // Play image enabled and ready to start playing
       // REVISIT:  Really only available if there is a selected file in the list box
@@ -809,9 +865,9 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       m_state     = MPLAYER_PLAYING;
       m_prevState = MPLAYER_PLAYING;
 
-      // Text box is not available while playing
+      // List box is not available while playing
 
-      m_text->disable();
+      m_listbox->disable();
 
       // Play image hidden and disabled
 
@@ -838,9 +894,9 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       m_state     = MPLAYER_PAUSED;
       m_prevState = MPLAYER_PAUSED;
 
-      // Text box is enabled a ready for text entry
+      // List box is enabled a ready for file selection
 
-      m_text->enable();
+      m_listbox->enable();
 
       // Play image enabled and ready to resume playing
 
@@ -864,9 +920,9 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
     case MPLAYER_FFORWARD:   // Fast forwarding through a media file */
       m_state = MPLAYER_FFORWARD;
 
-      // Text box is not available while fast forwarding
+      // List box is not available while fast forwarding
 
-      m_text->disable();
+      m_listbox->disable();
 
       if (m_prevState == MPLAYER_PLAYING)
         {
@@ -905,9 +961,9 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
     case MPLAYER_FREWIND:    // Rewinding a media file
       m_state = MPLAYER_FREWIND;
 
-      // Text box is not available while rewinding
+      // List box is not available while rewinding
 
-      m_text->disable();
+      m_listbox->disable();
 
       if (m_prevState == MPLAYER_PLAYING)
         {
@@ -1049,6 +1105,63 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
             }
         }
     }
+
+  // Check for new file selections from the list box
+
+  int newFileIndex = m_listbox->getSelectedIndex();
+
+  // Check if anything is selected
+
+  if (newFileIndex < 0)
+    {
+      // Nothing is selected.. If we are not stopped, then stop now
+
+      if (m_state != MPLAYER_STOPPED)
+        {
+          closeMediaFile();
+          setMediaPlayerState(MPLAYER_STOPPED);
+        }
+    }
+
+  // A media file is selected.  Were stopped before?
+
+  else if (m_state == MPLAYER_STOPPED)
+    {
+      // Yes.. open the new media file and go to the PAUSE state
+
+      if (!openMediaFile(m_listbox->getSelectedOption()))
+        {
+          m_fileIndex = -1;
+          gdbg("openMediaFile failed\m");
+        }
+      else
+        {
+          m_fileIndex = newFileIndex;
+          setMediaPlayerState(MPLAYER_PAUSED);
+        }
+    }
+
+  // We already have a media file loaded.  Is it the same file?
+
+  else if (m_fileIndex != newFileIndex)
+    {
+      // No.. It is a new file.  Close that media file, load the newly
+      // selected file, and make sure that we are in the paused state
+      // (that should already be the case)
+
+      closeMediaFile();
+      if (!openMediaFile(m_listbox->getSelectedOption()))
+        {
+          gdbg("openMediaFile failed\m");
+          m_fileIndex = -1;
+          setMediaPlayerState(MPLAYER_STOPPED);
+        }
+      else
+        {
+          m_fileIndex = newFileIndex;
+          setMediaPlayerState(MPLAYER_PAUSED);
+        }
+    }
 }
 
 /**
@@ -1098,7 +1211,7 @@ void CMediaPlayer::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
 {
   setVolumeLevel();
 }
-    
+
 /**
  * CMediaPlayerFactory Constructor
  *

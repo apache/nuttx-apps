@@ -151,7 +151,7 @@ namespace NXWidgets
      * @return The size of the array.
      */
 
-    inline nxgl_coord_t size(void) const
+    inline int size(void) const
     {
       return m_widgetEventHandlers.size();
     }
