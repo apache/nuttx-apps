@@ -621,7 +621,7 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
   switch (state)
     {
     case MPLAYER_STOPPED:    // Initial state.  Also the state after playing completes
-      m_state = MPLAYER_STOPPED;
+      m_state     = MPLAYER_STOPPED;
       m_prevState = MPLAYER_PLAYING;
 
       // Text box is enabled and ready for text entry
@@ -728,20 +728,6 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       if (m_prevState == MPLAYER_PLAYING)
         {
-          // Play image enabled and ready to resume playing
-
-          m_play->enable();
-          m_play->show();
-          m_play->enableDrawing();
-
-          // Pause image is hidden and disabled
-
-          m_pause->disableDrawing();
-          m_pause->disable();
-          m_pause->hide();
-        }
-      else
-        {
           // Play image hidden and disabled
 
           m_play->disableDrawing();
@@ -753,6 +739,20 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
           m_pause->enable();
           m_pause->show();
           m_pause->enableDrawing();
+        }
+      else
+        {
+          // Play image enabled and ready to stop fast forwarding
+
+          m_play->enable();
+          m_play->show();
+          m_play->enableDrawing();
+
+          // Pause image is hidden and disabled
+
+          m_pause->disableDrawing();
+          m_pause->disable();
+          m_pause->hide();
         }
 
       // Fast forward image is enabled, highlighted and ready for use
@@ -777,7 +777,21 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       if (m_prevState == MPLAYER_PLAYING)
         {
-          // Play image enabled and ready to resume playing
+          // Play image hidden and disabled
+
+          m_play->disableDrawing();
+          m_play->disable();
+          m_play->hide();
+
+          // Pause image enabled and ready to stop rewinding
+
+          m_pause->enable();
+          m_pause->show();
+          m_pause->enableDrawing();
+        }
+      else
+        {
+          // Play image enabled and ready to stop rewinding
 
           m_play->enable();
           m_play->show();
@@ -788,20 +802,6 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
           m_pause->disableDrawing();
           m_pause->disable();
           m_pause->hide();
-        }
-      else
-        {
-          // Play image hidden and disabled
-
-          m_play->disableDrawing();
-          m_play->disable();
-          m_play->hide();
-
-          // Pause image enabled and ready to stop fast forwarding
-
-          m_pause->enable();
-          m_pause->show();
-          m_pause->enableDrawing();
         }
 
       // Fast forward image is enabled and ready for use
