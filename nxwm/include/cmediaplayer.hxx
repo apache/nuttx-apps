@@ -146,14 +146,14 @@ namespace NxWM
    inline void setGeometry(void);
 
     /**
-     * Create the Media Player conrols.  Only start as part of the applicaiton
+     * Create the Media Player controls.  Only start as part of the application
      * start method.
      */
 
    inline bool createPlayer(void);
 
     /**
-     * Called when the window minimize button is pressed.
+     * Called when the window minimize image is pressed.
      */
 
     void minimize(void);
@@ -173,7 +173,7 @@ namespace NxWM
     void setMediaPlayerState(enum EMediaPlayerState state);
 
     /**
-     * Handle a widget action event.  This includes a button pre/release
+     * Handle a widget action event.  This includes a image pre/release
      * release events and volume slider change events.
      *
      * @param e The event data.

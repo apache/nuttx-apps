@@ -246,7 +246,7 @@ void CMediaPlayer::hide(void)
 
 void CMediaPlayer::redraw(void)
 {
-  // Redraw widgets (only).  Only one of the Play and Pause buttons should
+  // Redraw widgets (only).  Only one of the Play and Pause images should
   // have drawing enabled.
 
   m_text->redraw();
@@ -361,91 +361,91 @@ bool CMediaPlayer::createPlayer(void)
   NXWidgets::CRlePaletteBitmap *fwdBitmap = new NXWidgets::
       CRlePaletteBitmap(&CONFIG_NXWM_MPLAYER_FWD_ICON);
 
-  // Button widths will depend on if the buttons will be bordered or not
+  // Image widths will depend on if the images will be bordered or not
 
-  nxgl_coord_t playButtonW;
-  nxgl_coord_t pauseButtonW;
-  nxgl_coord_t rewButtonW;
-  nxgl_coord_t fwdButtonW;
+  nxgl_coord_t playImageW;
+  nxgl_coord_t pauseImageW;
+  nxgl_coord_t rewindImageW;
+  nxgl_coord_t fforwardImageW;
 
 #ifdef CONFIG_NXWM_MEDIAPLAYER_BORDERS
-  // Set the width to the widest button
+  // Set the width to the widest image
 
-  nxgl_coord_t buttonW = playBitmap->getWidth();
+  nxgl_coord_t imageW = playBitmap->getWidth();
 
-  if (buttonW < pauseBitmap->getWidth())
+  if (imageW < pauseBitmap->getWidth())
     {
-      buttonW = pauseBitmap->getWidth();
+      imageW = pauseBitmap->getWidth();
     }
 
-  if (buttonW < rewBitmap->getWidth())
+  if (imageW < rewBitmap->getWidth())
     {
-      buttonW = rewBitmap->getWidth();
+      imageW = rewBitmap->getWidth();
     }
 
-  if (buttonW < fwdBitmap->getWidth())
+  if (imageW < fwdBitmap->getWidth())
     {
-      buttonW = fwdBitmap->getWidth();
+      imageW = fwdBitmap->getWidth();
     }
 
-  // Add little space around the bitmap and use this width for all buttons
+  // Add little space around the bitmap and use this width for all images
 
-  buttonW     += 8;
-  playButtonW  = buttonW;
-  pauseButtonW = buttonW;
-  rewButtonW   = buttonW;
-  fwdButtonW   = buttonW;
+  imageW        += 8;
+  playImageW     = imageW;
+  pauseImageW    = imageW;
+  rewindImageW   = imageW;
+  fforwardImageW = imageW;
 
 #else
-  // Use the bitmap image widths for the button widths (plus a bit)
+  // Use the bitmap image widths for the image widths (plus a bit)
 
-  playButtonW  = playBitmap->getWidth() + 8;
-  pauseButtonW = pauseBitmap->getWidth() + 8;
-  rewButtonW   = rewBitmap->getWidth()  + 8;
-  fwdButtonW   = fwdBitmap->getWidth()  + 8;
+  playImageW     = playBitmap->getWidth() + 8;
+  pauseImageW    = pauseBitmap->getWidth() + 8;
+  rewindImageW   = rewBitmap->getWidth()  + 8;
+  fforwardImageW = fwdBitmap->getWidth()  + 8;
 
-  // The Play and Pause buttons should be the same width.  But just
+  // The Play and Pause images should be the same width.  But just
   // in case, pick the larger width.
 
-  if (playButtonW < pauseButtonW)
+  if (playImageW < pauseImageW)
     {
-      playButtonW = pauseButtonW;
+      playImageW = pauseImageW;
     }
   else
     {
-      pauseButtonW = playButtonW;
+      pauseImageW = playImageW;
     }
 #endif
 
-  // Use the same height for all buttons
+  // Use the same height for all images
 
-  nxgl_coord_t buttonH = playBitmap->getHeight();
+  nxgl_coord_t imageH = playBitmap->getHeight();
 
-  if (buttonH < pauseBitmap->getHeight())
+  if (imageH < pauseBitmap->getHeight())
     {
-      buttonH = pauseBitmap->getHeight();
+      imageH = pauseBitmap->getHeight();
     }
 
-  if (buttonH < rewBitmap->getHeight())
+  if (imageH < rewBitmap->getHeight())
     {
-      buttonH = rewBitmap->getHeight();
+      imageH = rewBitmap->getHeight();
     }
 
-  if (buttonH < fwdBitmap->getHeight())
+  if (imageH < fwdBitmap->getHeight())
     {
-      buttonH = fwdBitmap->getHeight();
+      imageH = fwdBitmap->getHeight();
     }
 
-  buttonH += 8;
+  imageH += 8;
 
   // Create the Play image
 
-  nxgl_coord_t playControlX = (m_windowSize.w >> 1) - (playButtonW >> 1);
+  nxgl_coord_t playControlX = (m_windowSize.w >> 1) - (playImageW >> 1);
   uint32_t controlY         = (180 * m_windowSize.h) >> 8;
 
   m_play = new NXWidgets::
       CImage(control, playControlX, (nxgl_coord_t)controlY,
-             playButtonW, buttonH, playBitmap);
+             playImageW, imageH, playBitmap);
 
   // Configure the Play image
 
@@ -466,7 +466,7 @@ bool CMediaPlayer::createPlayer(void)
 
   m_pause = new NXWidgets::
       CImage(control, playControlX, (nxgl_coord_t)controlY,
-             playButtonW, buttonH, pauseBitmap);
+             playImageW, imageH, pauseBitmap);
 
   // Configure the Pause image (hidden and disabled initially)
 
@@ -485,12 +485,12 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create the Rewind image
 
-  nxgl_coord_t rewControlX = playControlX - rewButtonW -
+  nxgl_coord_t rewControlX = playControlX - rewindImageW -
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_rewind = new NXWidgets::
       CStickyImage(control, rewControlX, (nxgl_coord_t)controlY,
-                   rewButtonW, buttonH, rewBitmap);
+                   rewindImageW, imageH, rewBitmap);
 
   // Configure the Rewind image
 
@@ -509,12 +509,12 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create the Forward Image
 
-  nxgl_coord_t fwdControlX = playControlX + playButtonW +
+  nxgl_coord_t fwdControlX = playControlX + playImageW +
                              CONFIG_NXWM_MEDIAPLAYER_XSPACING;
 
   m_fforward = new NXWidgets::
       CStickyImage(control, fwdControlX, (nxgl_coord_t)controlY,
-                   fwdButtonW, buttonH, fwdBitmap);
+                   fforwardImageW, imageH, fwdBitmap);
 
   // Configure the Forward image
 
@@ -588,7 +588,7 @@ bool CMediaPlayer::createPlayer(void)
 }
 
 /**
- * Called when the window minimize button is pressed.
+ * Called when the window minimize image is pressed.
  */
 
 void CMediaPlayer::minimize(void)
@@ -597,7 +597,7 @@ void CMediaPlayer::minimize(void)
 }
 
 /**
- * Called when the window close button is pressed.
+ * Called when the window close image is pressed.
  */
 
 void CMediaPlayer::close(void)
@@ -625,24 +625,24 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       m_text->enable();
 
-      // Play button enabled and ready to start playing
+      // Play image enabled and ready to start playing
 
       m_play->enable();
       m_play->show();
       m_play->enableDrawing();
 
-      // Pause button is disabled and hidden
+      // Pause image is disabled and hidden
 
       m_pause->disableDrawing();
       m_pause->disable();
       m_pause->hide();
 
-      // Fast forward button is disabled
+      // Fast forward image is disabled
 
       m_fforward->disable();
       m_fforward->setStuckSelection(false);
 
-      // Rewind button is disabled
+      // Rewind image is disabled
 
       m_rewind->disable();
       m_rewind->setStuckSelection(false);
@@ -658,24 +658,24 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       m_text->disable();
 
-      // Play button hidden and disabled
+      // Play image hidden and disabled
 
       m_play->disableDrawing();
       m_play->disable();
       m_play->hide();
 
-      // Pause button enabled and ready to pause playing
+      // Pause image enabled and ready to pause playing
 
       m_pause->enable();
       m_pause->show();
       m_pause->enableDrawing();
 
-      // Fast forward button is enabled and ready for use
+      // Fast forward image is enabled and ready for use
 
       m_fforward->enable();
       m_fforward->setStuckSelection(false);
 
-      // Rewind button is enabled and ready for use
+      // Rewind image is enabled and ready for use
 
       m_rewind->enable();
       m_rewind->setStuckSelection(false);
@@ -691,24 +691,24 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       m_text->enable();
 
-      // Play button enabled and ready to resume playing
+      // Play image enabled and ready to resume playing
 
       m_play->enable();
       m_play->show();
       m_play->enableDrawing();
 
-      // Pause button is disabled and hidden
+      // Pause image is disabled and hidden
 
       m_pause->disableDrawing();
       m_pause->disable();
       m_pause->hide();
 
-      // Fast forward button is enabled and ready for use
+      // Fast forward image is enabled and ready for use
 
       m_fforward->enable();
       m_fforward->setStuckSelection(false);
 
-      // Rewind button is enabled and ready for use
+      // Rewind image is enabled and ready for use
 
       m_rewind->enable();
       m_rewind->setStuckSelection(false);
@@ -717,7 +717,7 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       break;
 
     case MPLAYER_FFORWARD:   // Fast forwarding through a media file */
-      m_state  = MPLAYER_FFORWARD;
+      m_state = MPLAYER_FFORWARD;
 
       // Text box is not available while fast forwarding
 
@@ -725,13 +725,13 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       if (m_prevState == MPLAYER_PLAYING)
         {
-          // Play button enabled and ready to resume playing
+          // Play image enabled and ready to resume playing
 
           m_play->enable();
           m_play->show();
           m_play->enableDrawing();
 
-          // Pause button is hidden and disabled
+          // Pause image is hidden and disabled
 
           m_pause->disableDrawing();
           m_pause->disable();
@@ -739,20 +739,20 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
         }
       else
         {
-          // Play button hidden and disabled
+          // Play image hidden and disabled
 
           m_play->disableDrawing();
           m_play->disable();
           m_play->hide();
 
-          // Pause button button enabled and ready to stop fast forwarding
+          // Pause image enabled and ready to stop fast forwarding
 
           m_pause->enable();
           m_pause->show();
           m_pause->enableDrawing();
         }
 
-      // Fast forward button is enabled, highlighted and ready for use
+      // Fast forward image is enabled, highlighted and ready for use
 
       m_fforward->enable();
       m_fforward->setStuckSelection(true);
@@ -766,7 +766,7 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       break;
 
     case MPLAYER_FREWIND:    // Rewinding a media file
-      m_state  = MPLAYER_FREWIND;
+      m_state = MPLAYER_FREWIND;
 
       // Text box is not available while rewinding
 
@@ -774,13 +774,13 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       if (m_prevState == MPLAYER_PLAYING)
         {
-          // Play button enabled and ready to resume playing
+          // Play image enabled and ready to resume playing
 
           m_play->enable();
           m_play->show();
           m_play->enableDrawing();
 
-          // Pause button is hidden and disabled
+          // Pause image is hidden and disabled
 
           m_pause->disableDrawing();
           m_pause->disable();
@@ -788,25 +788,25 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
         }
       else
         {
-          // Play button hidden and disabled
+          // Play image hidden and disabled
 
           m_play->disableDrawing();
           m_play->disable();
           m_play->hide();
 
-          // Pause button button enabled and ready to stop fast forwarding
+          // Pause image enabled and ready to stop fast forwarding
 
           m_pause->enable();
           m_pause->show();
           m_pause->enableDrawing();
         }
 
-      // Fast forward button is enabled and ready for use
+      // Fast forward image is enabled and ready for use
 
       m_fforward->enable();
       m_fforward->setStuckSelection(false);
 
-      // Rewind button is enabled, highlighted, and ready for use
+      // Rewind image is enabled, highlighted, and ready for use
 
       m_rewind->enable();
       m_rewind->setStuckSelection(true);
@@ -820,20 +820,18 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 }
 
 /**
- * Handle a widget action event.  For CButtonArray, this is a button pre-
- * release event.
+ * Handle a widget action event.  This includes a image pre/release
+ * release events and volume slider change events.
  *
  * @param e The event data.
  */
 
 void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 {
-  // Check if the Play button was clicked
+  // Check if the Play image was clicked
 
   if (m_play->isClicked() && m_state != MPLAYER_PLAYING)
     {
-      // Yes... then now we are playing
-
       setMediaPlayerState(MPLAYER_PLAYING);
     }
 
@@ -841,7 +839,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
   if (m_state != MPLAYER_STOPPED)
     {
-      // Check if the Pause button was clicked
+      // Check if the Pause image was clicked
 
       if (m_pause->isClicked() && m_state != MPLAYER_PAUSED)
         {
@@ -850,7 +848,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           setMediaPlayerState(MPLAYER_PAUSED);
         }
 
-      // Check if the rewind button was clicked
+      // Check if the rewind image was clicked
 
       if (m_rewind->isClicked())
         {
@@ -874,7 +872,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
             }
         }
 
-      // Check if the fast forward button was clicked
+      // Check if the fast forward image was clicked
 
       if (m_fforward->isClicked())
         {

@@ -220,7 +220,7 @@ namespace NXWidgets
 
     /**
      * Get the cursor control that generated the event.  Applies only
-     * to the curso control event.
+     * to the cursor control event.
      *
      * @return The cursor control that generated the event.
      */

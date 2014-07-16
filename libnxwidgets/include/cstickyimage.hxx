@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/libnxwidgets/include/cimagebutton.hxx
+ * NxWidgets/libnxwidgets/include/cstickyimage.hxx
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -127,7 +127,7 @@ namespace NXWidgets
      * Copy constructor is protected to prevent usage.
      */
 
-    inline CStickyImage(const CStickyImage &button) : CImage(button) { }
+    inline CStickyImage(const CStickyImage &image) : CImage(image) { }
 
   public:
 
@@ -141,7 +141,7 @@ namespace NXWidgets
      * @param height The height of the image box.
      * @param bitmap The source bitmap image.
      * @param style The style that the widget should use.  If this is not
-     *        specified, the button will use the global default widget
+     *        specified, the image will use the global default widget
      *        style.
      */
 
@@ -175,7 +175,7 @@ namespace NXWidgets
    /**
      * Returns the stuck selection state.
      *
-     * @return True is the button is in the stuck selection state.
+     * @return True if the image is in the stuck selection state.
      */
 
     inline const bool isStuckSelection(void) const

@@ -781,7 +781,7 @@ bool CNxWidget::release(nxgl_coord_t x, nxgl_coord_t y)
 
   onPreRelease(x, y);
 
-  // Now mark the widget as NOT clicked and stop draggin actions.
+  // Now mark the widget as NOT clicked and stop dragging actions.
 
   m_flags.clicked = false;
   stopDragging(x, y);

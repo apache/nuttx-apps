@@ -68,7 +68,7 @@ using namespace NXWidgets;
  * @param height The height of the image box.
  * @param bitmap The source bitmap image.
  * @param style The style that the widget should use.  If this is not
- *        specified, the button will use the global default widget
+ *        specified, the image will use the global default widget
  *        style.
  */
 
