@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/nxwm/include/nxwmconfig.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -628,12 +628,20 @@
  *   Default: CONFIG_NXWM_DEFAULT_FONTID
  */
 
+#ifndef CONFIG_NXWM_MEDIAPLAYER_MEDIAPATH
+#  define CONFIG_NXWM_MEDIAPLAYER_MEDIAPATH "/mnt/sdcard"
+#endif
+
 #ifndef CONFIG_NXWM_MEDIAPLAYER_BACKGROUNDCOLOR
 #  define CONFIG_NXWM_MEDIAPLAYER_BACKGROUNDCOLOR CONFIG_NXWM_DEFAULT_BACKGROUNDCOLOR
 #endif
 
 #ifndef CONFIG_NXWM_MEDIAPLAYER_XSPACING
-#  define CONFIG_NXWM_MEDIAPLAYER_XSPACING 16
+#  define CONFIG_NXWM_MEDIAPLAYER_XSPACING 12
+#endif
+
+#ifndef CONFIG_NXWM_MEDIAPLAYER_YSPACING
+#  define CONFIG_NXWM_MEDIAPLAYER_YSPACING 8
 #endif
 
 #ifndef CONFIG_NXWM_MEDIAPLAYER_ICON

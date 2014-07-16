@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/csliderhorizontal.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -137,7 +137,7 @@ CSliderHorizontal::CSliderHorizontal(CWidgetControl *pWidgetControl,
  * @param value The new value.
  */
 
-void CSliderHorizontal::setValue(const nxgl_coord_t value)
+void CSliderHorizontal::setValue(const int value)
 {
   setValueWithBitshift((int32_t)value << 16);
 }

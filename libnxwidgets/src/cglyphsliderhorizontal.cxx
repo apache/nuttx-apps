@@ -1,4 +1,3 @@
-
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cglyphsliderhorizontal.cxx
  *
@@ -142,20 +141,19 @@ CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl * pWidgetControl,
 }
 
 /**
- * Set the value that of the slider.  This will reposition
- * and redraw the grip.
+ * Set the value of the slider.  This will reposition and redraw the grip.
  *
  * @param value The new value.
  */
 
-void CGlyphSliderHorizontal::setValue(const nxgl_coord_t value)
+void CGlyphSliderHorizontal::setValue(const int value)
 {
-  setValueWithBitshift((int32_t) value << 16);
+  setValueWithBitshift((int32_t)value << 16);
 }
 
 /**
  * Set the value that of the slider.  This will reposition and redraw
- * the grip.  The supplied value should be bitshifted left 16 places.
+ * the grip.  The supplied value should be shifted left 16 places.
  * This ensures greater accuracy than the standard setValue() method if
  * the slider is being used as a scrollbar.
  *
@@ -260,7 +258,7 @@ nxgl_coord_t CGlyphSliderHorizontal::getMinimumStep(void) const
  * Get the maximum possible value that the slider can represent.  Useful when
  * using the slider as a scrollbar, as the height of the grip prevents the full
  * range of values being accessed (intentionally).
- * The returned value is bitshfted left 16 places for more accuracy in fixed-point
+ * The returned value is shifted left 16 places for more accuracy in fixed-point
  * calculations.
  *
  * @return The maximum possible value that the slider can represent.
@@ -499,5 +497,6 @@ void CGlyphSliderHorizontal::onClick(nxgl_coord_t x, nxgl_coord_t y)
 
       setValueWithBitshift(m_value - (m_pageSize << 16));
     }
+
   redraw();
 }

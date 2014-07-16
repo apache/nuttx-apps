@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cscrollbarhorizontal.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -160,7 +160,7 @@ CScrollbarVertical::CScrollbarVertical(CWidgetControl *pWidgetControl,
  * @return The smallest value.
  */
 
-const nxgl_coord_t CScrollbarVertical::getMinimumValue(void) const
+const int CScrollbarVertical::getMinimumValue(void) const
 {
   return m_slider->getMinimumValue();
 }
@@ -171,7 +171,7 @@ const nxgl_coord_t CScrollbarVertical::getMinimumValue(void) const
  * @return The largest value.
  */
 
-const nxgl_coord_t CScrollbarVertical::getMaximumValue(void) const
+const int CScrollbarVertical::getMaximumValue(void) const
 {
   return m_slider->getMaximumValue();
 }
@@ -182,7 +182,7 @@ const nxgl_coord_t CScrollbarVertical::getMaximumValue(void) const
  * @return The current slider value.
  */
 
-const nxgl_coord_t CScrollbarVertical::getValue(void) const
+const int CScrollbarVertical::getValue(void) const
 {
   return m_slider->getValue();
 }
@@ -207,7 +207,7 @@ const nxgl_coord_t CScrollbarVertical::getPageSize(void) const
  * @param value The smallest value.
  */
 
-void CScrollbarVertical::setMinimumValue(const nxgl_coord_t value)
+void CScrollbarVertical::setMinimumValue(const int value)
 {
   m_slider->setMinimumValue(value);
 }
@@ -218,7 +218,7 @@ void CScrollbarVertical::setMinimumValue(const nxgl_coord_t value)
  * @param value The largest value.
  */
 
-void CScrollbarVertical::setMaximumValue(const nxgl_coord_t value)
+void CScrollbarVertical::setMaximumValue(const int value)
 {
   m_slider->setMaximumValue(value);
 }
@@ -230,7 +230,7 @@ void CScrollbarVertical::setMaximumValue(const nxgl_coord_t value)
  * @param value The new value.
  */
 
-void CScrollbarVertical::setValue(const nxgl_coord_t value)
+void CScrollbarVertical::setValue(const int value)
 {
   m_slider->setValue(value);
 }
@@ -381,7 +381,7 @@ void CScrollbarVertical::onResize(nxgl_coord_t width, nxgl_coord_t height)
 {
   // Remember current values
 
-  nxgl_coord_t value = getValue();
+  int value = getValue();
   bool events = raisesEvents();
 
   // Disable event raising

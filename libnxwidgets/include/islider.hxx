@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/islider.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@ namespace NXWidgets
      * @return The smallest value.
      */
 
-    virtual const nxgl_coord_t getMinimumValue(void) const = 0;
+    virtual const int getMinimumValue(void) const = 0;
 
     /**
      * Get the largest value that the slider can represent.
@@ -122,7 +122,7 @@ namespace NXWidgets
      * @return The largest value.
      */
 
-    virtual const nxgl_coord_t getMaximumValue(void) const = 0;
+    virtual const int getMaximumValue(void) const = 0;
 
     /**
      * Get the current value of the slider.
@@ -130,7 +130,7 @@ namespace NXWidgets
      * return The current slider value.
      */
 
-    virtual const nxgl_coord_t getValue(void) const = 0;
+    virtual const int getValue(void) const = 0;
 
     /**
      * Get the value represented by the height of the grip.
@@ -149,7 +149,7 @@ namespace NXWidgets
      * @param value The smallest value.
      */
 
-    virtual void setMinimumValue(const nxgl_coord_t value) = 0;
+    virtual void setMinimumValue(const int value) = 0;
 
     /**
      * Set the largest value that the slider can represent.
@@ -157,7 +157,7 @@ namespace NXWidgets
      * @param value The largest value.
      */
 
-    virtual void setMaximumValue(const nxgl_coord_t value) = 0;
+    virtual void setMaximumValue(const int value) = 0;
 
     /**
      * Set the value that of the slider.  This will reposition
@@ -166,7 +166,7 @@ namespace NXWidgets
      * @param value The new value.
      */
 
-    virtual void setValue(const nxgl_coord_t value) = 0;
+    virtual void setValue(const int value) = 0;
 
     /**
      * Set the value that of the slider.  This will reposition and redraw

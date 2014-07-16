@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cscrollbarhorizontal.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,7 +171,7 @@ namespace NXWidgets
      * @return The smallest value.
      */
 
-    const nxgl_coord_t getMinimumValue(void) const;
+    const int getMinimumValue(void) const;
 
     /**
      * Get the largest value that the slider can represent.
@@ -179,7 +179,7 @@ namespace NXWidgets
      * @return The largest value.
      */
 
-    const nxgl_coord_t getMaximumValue(void) const;
+    const int getMaximumValue(void) const;
 
     /**
      * Get the current value of the slider.
@@ -187,7 +187,7 @@ namespace NXWidgets
      * @return The current slider value.
      */
 
-    const nxgl_coord_t getValue(void) const;
+    const int getValue(void) const;
 
     /**
      * Get the value represented by the height of the grip.
@@ -206,7 +206,7 @@ namespace NXWidgets
      * @param value The smallest value.
      */
 
-    void setMinimumValue(const nxgl_coord_t value);
+    void setMinimumValue(const int value);
 
     /**
      * Set the largest value that the slider can represent.
@@ -214,7 +214,7 @@ namespace NXWidgets
      * @param value The largest value.
      */
 
-    void setMaximumValue(const nxgl_coord_t value);
+    void setMaximumValue(const int value);
 
     /**
      * Set the value that of the slider.  This will reposition
@@ -223,7 +223,7 @@ namespace NXWidgets
      * @param value The new value.
      */
 
-    void setValue(const nxgl_coord_t value);
+    void setValue(const int value);
 
     /**
      * Set the value that of the slider.  This will reposition and redraw

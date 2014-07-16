@@ -117,6 +117,7 @@ namespace NxWM
     enum EMediaPlayerState   m_state;      /**< Media player current state */
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
+    unsigned int             m_level;      /**< Current volume level */
 
     /**
      * Cached constructor parameters.
@@ -148,6 +149,7 @@ namespace NxWM
     NXWidgets::CRlePaletteBitmap *m_pauseBitmap;    /**< Bitmap for the pause control */
     NXWidgets::CRlePaletteBitmap *m_rewindBitmap;   /**< Bitmap for the rewind control */
     NXWidgets::CRlePaletteBitmap *m_fforwardBitmap; /**< Bitmap for the fast forward control */
+    NXWidgets::CRlePaletteBitmap *m_volumeBitmap;   /**< Volume control grip bitmap */
 
     /**
      * Calculator geometry.  This stuff does not really have to be retained
@@ -156,7 +158,6 @@ namespace NxWM
 
     struct nxgl_size_s       m_windowSize; /**< The size of the media player window */
     struct nxgl_size_s       m_textSize;   /**< The size of the media player textbox */
-    struct nxgl_point_s      m_textPos;    /**< The position of the media player textbox */
 
     /**
     * Select the geometry of the media player given the current window size.
@@ -185,6 +186,15 @@ namespace NxWM
     void close(void);
 
     /**
+     * Redraw all widgets.  Called from redraw() and also on any state
+     * change.
+     *
+     * @param state The new state to enter.
+     */
+
+    void redrawWidgets(void);
+
+    /**
      * Transition to a new media player state.
      *
      * @param state The new state to enter.
@@ -193,8 +203,14 @@ namespace NxWM
     void setMediaPlayerState(enum EMediaPlayerState state);
 
     /**
-     * Handle a widget action event.  This includes a image pre/release
-     * release events and volume slider change events.
+     * Set the new volume level based on the position of the volume slider.
+     */
+
+    void setVolumeLevel(void);
+
+    /**
+     * Handle a widget action event.  For this application, that means image
+     * pre-release events.
      *
      * @param e The event data.
      */
@@ -215,6 +231,12 @@ namespace NxWM
      */
 
     void handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e);
+
+    /**
+     * Handle changes in the volume level.
+     */
+
+    void handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e);
 
   public:
     /**

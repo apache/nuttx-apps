@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cimage.hxx
  *
- *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -218,6 +218,9 @@ namespace NXWidgets
 
     /**
      * Destructor.
+     *
+     * NOTE: That the contained bitmap image is not destroyed when the image
+     * container is destroyed.
      */
 
     virtual inline ~CImage() { }
