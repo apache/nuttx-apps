@@ -311,7 +311,7 @@ config NXWM
 
 if NXWM
 
-menu "NxWM General settings"
+menu "NxWM General Settings"
 
 config NXWM_LARGE_ICONS
 	bool "Use large icons"
@@ -675,7 +675,9 @@ config NXWM_STARTWINDOW_STACKSIZE
 
 endmenu # Start Window Configuration
 
-menuconfig NXWM_NXCONSOLE
+menu "NxConsole Window Settings"
+
+config NXWM_NXCONSOLE
 	bool "NxConsole Window"
 	default y
 	---help---
@@ -759,6 +761,7 @@ config NXWM_NXCONSOLE_ICON
 
 endif # NXWM_NXCONSOLE_ICON
 endif # NXWM_NXCONSOLE
+endmenu # NxConsole Window Settings
 
 menu "NxWM Touchscreen Configuration"
 
@@ -771,7 +774,7 @@ config NXWM_TOUCHSCREEN
 
 if NXWM_TOUCHSCREEN
 
-comment "Touchscreen device settings"
+comment "Touchscreen Device Settings"
 
 config NXWM_TOUCHSCREEN_DEVINIT
 	bool "Touchscreen Device Initialization"
@@ -844,7 +847,7 @@ config NXWM_KEYBOARD
 
 if NXWM_KEYBOARD
 
-comment "Keyboard device settings"
+comment "Keyboard Device Settings"
 
 config NXWM_KEYBOARD_DEVPATH
 	string "Keyboard Device Path"
@@ -880,7 +883,7 @@ config NXWM_KEYBOARD_LISTENERSTACK
 endif # NXWM_KEYBOARD
 endmenu # NxWM Keyboard Configuration
 
-menu "NxWM Calibration display settings"
+menu "NxWM Calibration Display Settings"
 
 config NXWM_CALIBRATION_MARGIN
 	int "Calibration Margin"
@@ -1045,9 +1048,9 @@ config NXWM_CALIBRATION_LISTENERSTACK
 	---help---
 		Calibration listener thread stack size.  Default 2048
 
-endmenu # NxWM Calibration display settings
+endmenu # NxWM Calibration Display Settings
 
-menu "NxWM Hex Calculator display settings"
+menu "NxWM Hex Calculator Display Settings"
 
 config NXWM_HEXCALCULATOR_CUSTOM_COLORS
 	bool "Custom Hex Calculator Colors"
@@ -1103,7 +1106,9 @@ config NXWM_HEXCALCULATOR_FONTID
 		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0
 
 endif # NXWM_HEXCALCULATOR_FONTID
-endmenu # NxWM Hex Calculator display settings
+endmenu # NxWM Hex Calculator Display Dettings
+
+menu "NxWM Media Player Display Settings"
 
 config NXWM_MEDIAPLAYER
 	bool "NxWM Media Player"
@@ -1119,12 +1124,27 @@ config NXWM_MEDIAPLAYER
 
 if NXWM_MEDIAPLAYER
 
+config NXWM_MEDIAPLAYER_MEDIAPATH
+	string "Path to media"
+	default "/mnt/sdcard"
+	---help---
+		This is the full path to the mount point of the storage device
+		containing all of the media files accessible by the media player.
+
 config NXWM_MEDIAPLAYER_XSPACING
-	int "Media Player Button Spacing"
+	int "Media Player Horizontal Spacing"
 	default 12
 	---help---
-		This is the space between play, forward, and reverse buttons in
+		This is the space between play, forward, and reverse controls in
 		units of pixels.
+
+config NXWM_MEDIAPLAYER_YSPACING
+	int "Media Player Vertical Spacing"
+	default 8
+	---help---
+		This is the space between vertical element: (1) list box, (2) play,
+		forward, and reverse controls, and the volume slider in units of
+		lines.
 
 config NXWM_MEDIAPLAYER_BORDERS
 	bool "Media Player Button Borders"
@@ -1135,4 +1155,6 @@ config NXWM_MEDIAPLAYER_BORDERS
 		then have buttons with boarders might make more sense.
 
 endif # NXWM_MEDIAPLAYER
+endmenu # NxWM Media Player Display Settings
+
 endif # NXWM
