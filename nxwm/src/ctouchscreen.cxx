@@ -363,10 +363,12 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 #endif
         }
 
-      // On a truly success read, the size of the returned data will
-      // be exactly the size of one touchscreen sample
+      // On a truly successful read, the size of the returned data will
+      // be greater than or equal to size of one touchscreen sample.  It
+      // be greater only in the case of a multi-touch touchscreen device
+      // when multi-touches are reported.
 
-      else if (nbytes == sizeof(struct touch_sample_s))
+      else if (nbytes >= (ssize_t)sizeof(struct touch_sample_s))
         {
           // Looks like good touchscreen input... process it
 
@@ -375,7 +377,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
       else
         {
           dbg("ERROR Unexpected read size=%d, expected=%d\n",
-                nbytes, sizeof(struct touch_sample_s));
+              nbytes, sizeof(struct touch_sample_s));
         }
     }
 

@@ -68,7 +68,7 @@
  * CONFIG_NXWIDGETS_VPLANE - Only a single video plane is supported. Default: 0
  * CONFIG_NXWIDGETS_SERVERPRIO - Priority of the NX server.  This applies
  *   only if NX is configured in multi-user mode (CONFIG_NX_MULTIUSER=y).
- *   Default: SCHED_PRIORITY_DEFAULT+1.  NOTE:  Of the three priority
+ *   Default: (SCHED_PRIORITY_DEFAULT+10).  NOTE:  Of the three priority
  *   definitions here, CONFIG_NXWIDGETS_SERVERPRIO should have the highest
  *   priority to avoid data overrun race conditions. Such errors would most
  *   likely appear as duplicated rows of data on the display.
@@ -214,7 +214,7 @@
  */
 
 #ifndef CONFIG_NXWIDGETS_SERVERPRIO
-#  define CONFIG_NXWIDGETS_SERVERPRIO (SCHED_PRIORITY_DEFAULT+1)
+#  define CONFIG_NXWIDGETS_SERVERPRIO (SCHED_PRIORITY_DEFAULT+10)
 #endif
 
 #ifndef CONFIG_NXWIDGETS_CLIENTPRIO
