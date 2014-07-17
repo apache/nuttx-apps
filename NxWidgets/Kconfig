@@ -1153,6 +1153,29 @@ config NXWM_MEDIAPLAYER_VOLUMESTEP
 	---help---
 		This increment in volume, up or down, when the volume bar is clicked.
 
+config NXWM_MEDIAPLAYER_MINVOLUMEHEIGHT
+	int "Minimum Player Volume Minimum Height"
+	default 6
+	---help---
+		The height of the slider is automatically calculated from the height
+		of the grip image.  However, we will not let the height of the grip
+		get smaller than this value.
+
+		NOTE: This width includes the size of the slider upper and lower
+		borders.
+
+config NXWM_MEDIAPLAYER_CUSTOM_COLORS
+	bool "Select Custom Media Player Colors"
+	default n
+
+if NXWM_MEDIAPLAYER_CUSTOM_COLORS
+
+	config NXWM_MEDIAPLAYER_VOLUMECOLOR
+	hex "Media Volume Slide Color
+	default 0x0
+
+endif # NXWM_MEDIAPLAYER_CUSTOM_COLORS
+
 config NXWM_MEDIAPLAYER_BORDERS
 	bool "Media Player Button Borders"
 	default n
