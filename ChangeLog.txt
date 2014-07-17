@@ -476,3 +476,7 @@
 * NxWM::CMediaPlayer:  Fix some state-related bugs introduced yesterday.
   Improved state-related button displayes.  Now correctly catches and
   handles file selection events (2014-7-17).
+* NxWidgets::CImage:  Cannot use NxWidgets::CGraphicsPort:drawBitmapGreyScale()
+  because it does not respect transparent or background colors in its current
+  form.  The end result is that makes the image background grey as well as the
+  image (2014-7-17).
