@@ -591,5 +591,3 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
   (void)nx_mousein(handle, x, y, buttons);
 }
 
-
-
