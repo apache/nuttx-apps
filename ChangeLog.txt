@@ -488,3 +488,6 @@
   (2014-7-17).
 * NxWM::CMediaPlayer:  Now calculates the volume slider height from the grip
   image height (2014-7-17).
+* NxWM::CApplicationWindow:  Created the custom font for the toolbar title,
+  but never used it! (2014-7-17).
+  
