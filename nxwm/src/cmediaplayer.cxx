@@ -720,6 +720,7 @@ bool CMediaPlayer::createPlayer(void)
   m_volume->setMinimumValue(0);
   m_volume->setMaximumValue(100);
   m_volume->setValue(15);
+  m_volume->setPageSize(CONFIG_NXWM_MEDIAPLAYER_VOLUMESTEP);
 
   // Register to get events from the value changes in the volume slider
 
@@ -1014,12 +1015,19 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
 void CMediaPlayer::setVolumeLevel(void)
 {
-  // Current volume level values.  This is already pre-scaled in the range 0-100
+  // Get the current volume level value.  This is already pre-scaled in the
+  // range 0-100
 
-  m_level = m_volume->getValue();
+  int newLevel =  m_volume->getValue();
 
-  // Now, provide the new volume setting to the NX Player
+  // Has the volume level changed?
+
+  if (m_level != newLevel)
+    {
+      // Yes.. provide the new volume setting to the NX Player
 #warning Missing logic
+      m_level = newLevel;
+    }
 }
 
 /**

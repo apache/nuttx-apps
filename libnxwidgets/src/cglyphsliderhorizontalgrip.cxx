@@ -167,7 +167,7 @@ void CGlyphSliderHorizontalGrip::onReleaseOutside(nxgl_coord_t x, nxgl_coord_t y
  */
 
 void CGlyphSliderHorizontalGrip::onDrag(nxgl_coord_t x, nxgl_coord_t y,
-                                   nxgl_coord_t vX, nxgl_coord_t vY)
+                                       nxgl_coord_t vX, nxgl_coord_t vY)
 {
   // Work out where we're moving to
 

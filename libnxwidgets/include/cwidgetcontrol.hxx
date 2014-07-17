@@ -102,9 +102,16 @@ namespace NXWidgets
      * NX mouse callback
      */
 
-    struct SMouse
+#ifdef CONFIG_NX_XYINPUT
+    struct SXYInput
     {
+      // A touchscreen has no buttons.  However, the convention is that
+      // touchscreen contacts are reported with the LEFT button pressed.
+      // The loss of contct is reported with no buttons pressed.
+
 #if 0 // Center and right buttons are not used
+      // But only a mouse has center and right buttons
+
       uint16_t        leftPressed      : 1;  /**< Left button pressed (or
                                                   touchscreen contact) */
       uint16_t        centerPressed    : 1;  /**< Center button pressed (not
@@ -143,6 +150,9 @@ namespace NXWidgets
       uint8_t         doubleClick      : 1;  /**< Left button double click */
       uint8_t         unused           : 3;  /**< Padding bits */
 #endif
+
+      // These are attributes common to both touchscreen and mouse input devices
+
       nxgl_coord_t    x;                     /**< Current X coordinate of
                                                   the mouse/touch */
       nxgl_coord_t    y;                     /**< Current Y coordinate of
@@ -156,6 +166,7 @@ namespace NXWidgets
       struct timespec leftReleaseTime;       /**< Time the left button was
                                                   released */
     };
+#endif
 
     /**
      * State data
@@ -181,8 +192,10 @@ namespace NXWidgets
      * I/O
      */
 
-    struct SMouse               m_mouse;          /**< Current pointer
+#ifdef CONFIG_NX_XYINPUT
+    struct SXYInput             m_xyinput;        /**< Current XY input
                                                        device state */
+#endif
     CNxWidget                  *m_clickedWidget;  /**< Pointer to the widget
                                                        that is clicked. */
     CNxWidget                  *m_focusedWidget;  /**< Pointer to the widget
@@ -357,11 +370,13 @@ namespace NXWidgets
       giveBoundsSem();
     }
 
+#ifdef CONFIG_NX_XYINPUT
     /**
      * Clear all mouse events
      */
 
     void clearMouseEvents(void);
+#endif
 
   public:
 
@@ -553,7 +568,7 @@ namespace NXWidgets
 
     inline bool doubleClick(void)
     {
-      return (bool)m_mouse.doubleClick;
+      return (bool)m_xyinput.doubleClick;
     }
 
     /**

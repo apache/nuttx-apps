@@ -122,7 +122,6 @@ void CWindowMessenger::handleMouseEvent(void)
 
   work_state_t *state = new work_state_t;
   state->windowMessenger = this;
-
   int ret = work_queue(USRWORK, &state->work, &inputWorkCallback, state, 0);
   if (ret < 0)
     {

@@ -76,8 +76,8 @@
 
 #include <nuttx/config.h>
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 
 #include "cwidgetcontrol.hxx"
 #include "cglyphsliderhorizontal.hxx"
@@ -112,25 +112,25 @@ CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl * pWidgetControl,
         nxwidget_pixel_t fillColor, bool fill)
 :CNxWidget(pWidgetControl, x, y, width, height, WIDGET_DRAGGABLE)
 {
-  m_minimumValue = 0;
-  m_maximumValue = 0;
-  m_contentSize = 0;
-  m_value = 0;
-  m_minimumGripWidth = 10;
-  m_pageSize = 1;
-  m_fillColor = fillColor;
-  m_fill = fill;
-  m_barThickness = 8;
+  m_minimumValue          = 0;
+  m_maximumValue          = 0;
+  m_contentSize           = 0;
+  m_value                 = 0;
+  m_minimumGripWidth      = 10;
+  m_pageSize              = 1;
+  m_fillColor             = fillColor;
+  m_fill                  = fill;
+  m_barThickness          = 8;
 
-  m_flags.permeable = false;
-  m_flags.borderless = false;
+  m_flags.permeable       = false;
+  m_flags.borderless      = false;
   m_flags.doubleClickable = false;
 
   // Create grip
 
   CRect rect;
   getClientRect(rect);
-  m_gutterWidth = rect.getWidth();
+  m_gutterWidth           = rect.getWidth();
 
   // Create grip
 
@@ -214,7 +214,7 @@ void CGlyphSliderHorizontal::handleDragEvent(const CWidgetEventArgs & e)
 {
   // Handle grip events
 
-  if ((e.getSource() == m_grip) && (e.getSource() != NULL))
+  if (e.getSource() == m_grip && e.getSource() != NULL)
     {
       int32_t newValue = getGripValue() >> 16;
 

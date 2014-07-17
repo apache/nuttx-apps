@@ -100,7 +100,7 @@ using namespace NXWidgets;
 /**
  * Constructor.
  *
- * @param pWidgetControl The controllwing widget for the display
+ * @param pWidgetControl The controlling widget for the display
  * @param x The x coordinate of the widget.
  * @param y The y coordinate of the widget.
  * @param width The width of the widget.
@@ -831,9 +831,9 @@ bool CNxWidget::release(nxgl_coord_t x, nxgl_coord_t y)
 
 bool CNxWidget::drag(nxgl_coord_t x, nxgl_coord_t y, nxgl_coord_t vX, nxgl_coord_t vY)
 {
-  if ((isEnabled()) && (m_flags.dragging))
+  if (isEnabled() && m_flags.dragging)
     {
-      if ((vX != 0) || (vY != 0))
+      if (vX != 0 || vY != 0)
         {
           onDrag(x, y, vX, vY);
           m_widgetEventHandlers->raiseDragEvent(x, y, vX, vY);

@@ -447,7 +447,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
   // Was the button up or down?
 
   uint8_t buttons;
-  if ((sample->point[0].flags & (TOUCH_DOWN|TOUCH_MOVE)) != 0)
+  if ((sample->point[0].flags & (TOUCH_DOWN | TOUCH_MOVE)) != 0)
     {
       buttons = NX_MOUSE_LEFTBUTTON;
     }

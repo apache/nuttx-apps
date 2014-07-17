@@ -1147,6 +1147,12 @@ config NXWM_MEDIAPLAYER_YSPACING
 		forward, and reverse controls, and the volume slider in units of
 		lines.
 
+config NXWM_MEDIAPLAYER_VOLUMESTEP
+	int "Media Player Volume Step"
+	default 5
+	---help---
+		This increment in volume, up or down, when the volume bar is clicked.
+
 config NXWM_MEDIAPLAYER_BORDERS
 	bool "Media Player Button Borders"
 	default n

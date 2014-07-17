@@ -39,10 +39,10 @@
 
 #include <nuttx/config.h>
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 #include <cstring>
-#include <sched.h>
+#include <csched>
 #include <cerrno>
 
 #include "nxconfig.hxx"
@@ -101,7 +101,9 @@ CWidgetControl::CWidgetControl(FAR const CWidgetStyle *style)
 
   // Initialize the mouse/touchscreen event and keyboard data structures
 
-  memset(&m_mouse, 0, sizeof(struct SMouse));
+#ifdef CONFIG_NX_XYINPUT
+  memset(&m_xyinput, 0, sizeof(struct SXYInput));
+#endif
   m_nCh                = 0;
   m_nCc                = 0;
 
@@ -453,8 +455,8 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
 {
   // Save the mouse X/Y position
 
-  m_mouse.x = pos->x;
-  m_mouse.y = pos->y;
+  m_xyinput.x = pos->x;
+  m_xyinput.y = pos->y;
 
   // Update button press states
 
@@ -465,41 +467,41 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
       // Handle left button press events.  leftHeld means that the left mouse
       // button was pressed on the previous sample as well.
 
-      if (m_mouse.leftHeld)
+      if (m_xyinput.leftHeld)
         {
-          m_mouse.leftDrag = 1;
+          m_xyinput.leftDrag = 1;
         }
       else
         {
           // New left button press
 
-          m_mouse.leftPressed = 1;
+          m_xyinput.leftPressed = 1;
 
-          (void)clock_gettime(CLOCK_REALTIME, &m_mouse.leftPressTime);
+          (void)clock_gettime(CLOCK_REALTIME, &m_xyinput.leftPressTime);
 
           // Check for double click event
 
-          if (elapsedTime(&m_mouse.leftReleaseTime) <= CONFIG_NXWIDGETS_DOUBLECLICK_TIME)
+          if (elapsedTime(&m_xyinput.leftReleaseTime) <= CONFIG_NXWIDGETS_DOUBLECLICK_TIME)
             {
-              m_mouse.doubleClick = 1;
+              m_xyinput.doubleClick = 1;
             }
         }
 
-      m_mouse.leftHeld = 1;
+      m_xyinput.leftHeld = 1;
     }
   else
     {
       // Handle left button release events
 
-      if (m_mouse.leftHeld)
+      if (m_xyinput.leftHeld)
         {
           // New left button release
 
-          m_mouse.leftReleased  = 1;
-          (void)clock_gettime(CLOCK_REALTIME, &m_mouse.leftReleaseTime);
+          m_xyinput.leftReleased  = 1;
+          (void)clock_gettime(CLOCK_REALTIME, &m_xyinput.leftReleaseTime);
         }
 
-      m_mouse.leftHeld = 0;
+      m_xyinput.leftHeld = 0;
     }
 
 #if 0 // Center and right buttons not used
@@ -508,31 +510,31 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
       // Handle center button press events.  centerHeld means that the center mouse
       // button was pressed on the previous sample as well.
 
-      if (m_mouse.centerHeld)
+      if (m_xyinput.centerHeld)
         {
-          m_mouse.centerDrag = 1;
+          m_xyinput.centerDrag = 1;
         }
       else
         {
           // New center button press
 
-          m_mouse.centerPressed = 1;
+          m_xyinput.centerPressed = 1;
         }
 
-      m_mouse.centerHeld = 1;
+      m_xyinput.centerHeld = 1;
     }
   else
     {
       // Handle center button release events
 
-      if (m_mouse.centerHeld)
+      if (m_xyinput.centerHeld)
         {
           // New center button release
 
-          m_mouse.centerReleased = 1;
+          m_xyinput.centerReleased = 1;
         }
 
-      m_mouse.centerHeld = 0;
+      m_xyinput.centerHeld = 0;
     }
 
   if ((buttons & NX_MOUSE_RIGHTBUTTON) != 0)
@@ -540,31 +542,31 @@ void CWidgetControl::newMouseEvent(FAR const struct nxgl_point_s *pos, uint8_t b
       // Handle right button press events.  rightHeld means that the right mouse
       // button was pressed on the previous sample as well.
 
-      if (m_mouse.rightHeld)
+      if (m_xyinput.rightHeld)
         {
-          m_mouse.rightDrag = 1;
+          m_xyinput.rightDrag = 1;
         }
       else
         {
           // New right button press
 
-          m_mouse.rightPressed = 1;
+          m_xyinput.rightPressed = 1;
         }
 
-      m_mouse.rightHeld = 1;
+      m_xyinput.rightHeld = 1;
     }
   else
     {
       // Handle right button release events
 
-      if (m_mouse.rightHeld)
+      if (m_xyinput.rightHeld)
         {
           // New right button release
 
-          m_mouse.rightReleased = 1;
+          m_xyinput.rightReleased = 1;
         }
 
-      m_mouse.rightHeld = 0;
+      m_xyinput.rightHeld = 0;
     }
 #endif
 
@@ -646,7 +648,7 @@ void CWidgetControl::newCursorControlEvent(ECursorControl cursorControl)
  *    that inherits from INxWindow.
  * 3) The call this method with the static_cast to INxWindow to,
  *    finally, create the CGraphicsPort for this window.
- * 4) After that, the fully smartend CWidgetControl instance can
+ * 4) After that, the fully smartened CWidgetControl instance can
  *    be used to generate additional widgets.
  *
  * @param window The instance of INxWindow needed to construct the
@@ -684,7 +686,7 @@ void CWidgetControl::copyWidgetStyle(CWidgetStyle *dest, const CWidgetStyle *src
 }
 
 /**
- * Return the elapsed time in millisconds
+ * Return the elapsed time in milliseconds
  *
  * @param tp A time in the past from which to compute the elapsed time.
  * @return The elapsed time since tp
@@ -791,17 +793,18 @@ void CWidgetControl::processDeleteQueue(void)
 
 bool CWidgetControl::pollMouseEvents(CNxWidget *widget)
 {
+#ifdef CONFIG_NX_XYINPUT
   bool mouseEvent = true;  // Assume that an interesting mouse event occurred
 
   // All widgets
 
-  if (m_mouse.leftPressed)
+  if (m_xyinput.leftPressed)
     {
        // Handle a new left button press event
 
-       handleLeftClick(m_mouse.x, m_mouse.y, widget);
+       handleLeftClick(m_xyinput.x, m_xyinput.y, widget);
     }
-  else if (m_mouse.leftDrag)
+  else if (m_xyinput.leftDrag)
     {
       // The left button is still being held down
 
@@ -809,16 +812,16 @@ bool CWidgetControl::pollMouseEvents(CNxWidget *widget)
         {
           // Handle a mouse drag event
 
-          m_clickedWidget->drag(m_mouse.x, m_mouse.y,
-                                m_mouse.x - m_mouse.lastX,
-                                m_mouse.y - m_mouse.lastY);
+          m_clickedWidget->drag(m_xyinput.x, m_xyinput.y,
+                                m_xyinput.x - m_xyinput.lastX,
+                                m_xyinput.y - m_xyinput.lastY);
         }
     }
   else if (m_clickedWidget != (CNxWidget *)NULL)
     {
       // Mouse left button release event
 
-      m_clickedWidget->release(m_mouse.x, m_mouse.y);
+      m_clickedWidget->release(m_xyinput.x, m_xyinput.y);
     }
   else
     {
@@ -833,9 +836,12 @@ bool CWidgetControl::pollMouseEvents(CNxWidget *widget)
 
   // Save the mouse position for the next poll
 
-  m_mouse.lastX = m_mouse.x;
-  m_mouse.lastY = m_mouse.y;
+  m_xyinput.lastX = m_xyinput.x;
+  m_xyinput.lastY = m_xyinput.y;
   return mouseEvent;
+#else
+  return false;
+#endif
 }
 
 /**
@@ -940,23 +946,25 @@ void CWidgetControl::takeBoundsSem(void)
  * Clear all mouse events
  */
 
+#ifdef CONFIG_NX_XYINPUT
 void CWidgetControl::clearMouseEvents(void)
 {
   // Clear all press and release events once they have been processed
 
-  m_mouse.leftPressed    = 0;
-  m_mouse.leftReleased   = 0;
-  m_mouse.leftDrag       = 0;
+  m_xyinput.leftPressed    = 0;
+  m_xyinput.leftReleased   = 0;
+  m_xyinput.leftDrag       = 0;
 
 #if 0 // Center and right buttons are not used
-  m_mouse.centerPressed  = 0;
-  m_mouse.centerReleased = 0;
-  m_mouse.centerDrag     = 0;
+  m_xyinput.centerPressed  = 0;
+  m_xyinput.centerReleased = 0;
+  m_xyinput.centerDrag     = 0;
 
-  m_mouse.rightPressed   = 0;
-  m_mouse.rightReleased  = 0;
-  m_mouse.rightDrag      = 0;
+  m_xyinput.rightPressed   = 0;
+  m_xyinput.rightReleased  = 0;
+  m_xyinput.rightDrag      = 0;
 #endif
 
-  m_mouse.doubleClick    = 0;
+  m_xyinput.doubleClick    = 0;
 }
+#endif
