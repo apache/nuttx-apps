@@ -531,6 +531,11 @@ void CGraphicsPort::drawBitmapGreyScale(nxgl_coord_t x, nxgl_coord_t y,
   // Working buffer.  Holds one converted row from the bitmap
 
   FAR nxwidget_pixel_t *run = new nxwidget_pixel_t[width];
+  if (!run)
+    {
+      gvdbg("ERROR: Failed to allocated run buffer\n");
+      return;
+    }
 
   // Pointer to the beginning of the first source row
 
@@ -539,8 +544,8 @@ void CGraphicsPort::drawBitmapGreyScale(nxgl_coord_t x, nxgl_coord_t y,
   // Setup non-changing blit parameters
 
   struct nxgl_point_s origin;
-  origin.x   = 0;
-  origin.y   = 0;
+  origin.x   = x;
+  origin.y   = y;
 
   struct nxgl_rect_s dest;
   dest.pt1.x = x;
@@ -562,9 +567,9 @@ void CGraphicsPort::drawBitmapGreyScale(nxgl_coord_t x, nxgl_coord_t y,
           // Get the next RGB pixel and break out the individual components
 
           nxwidget_pixel_t rgb = *runSrc++;
-          nxwidget_pixel_t r = RGB2RED(rgb);
-          nxwidget_pixel_t g = RGB2GREEN(rgb);
-          nxwidget_pixel_t b = RGB2BLUE(rgb);
+          nxwidget_pixel_t r   = RGB2RED(rgb);
+          nxwidget_pixel_t g   = RGB2GREEN(rgb);
+          nxwidget_pixel_t b   = RGB2BLUE(rgb);
 
           // A truly accurate greyscale conversion would be complex.  Let's
           // just average.
@@ -575,11 +580,12 @@ void CGraphicsPort::drawBitmapGreyScale(nxgl_coord_t x, nxgl_coord_t y,
 
       // Now blit the single row
 
-      (void)m_pNxWnd->bitmap(&dest, (FAR void *)bitmap->data, &origin, bitmap->stride);
+      (void)m_pNxWnd->bitmap(&dest, run, &origin, bitmap->stride);
 
        // Setup for the next source row
 
        y++;
+       origin.y   = y;
        dest.pt1.y = y;
        dest.pt2.y = y;
 
