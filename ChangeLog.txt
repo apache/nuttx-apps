@@ -480,3 +480,5 @@
   because it does not respect transparent or background colors in its current
   form.  The end result is that makes the image background grey as well as the
   image (2014-7-17).
+* NxWM::CMediaPlayer:  State variable was left in a bad state and caused some
+  problems down the road (2014-7-17).
