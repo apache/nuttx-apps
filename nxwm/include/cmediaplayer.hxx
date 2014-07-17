@@ -229,6 +229,12 @@ namespace NxWM
     void setVolumeLevel(void);
 
     /**
+     * Check if a new file has been selected (or de-selected) in the list box
+     */
+
+    inline void checkFileSelection(void);
+
+    /**
      * Handle a widget action event.  For this application, that means image
      * pre-release events.
      *

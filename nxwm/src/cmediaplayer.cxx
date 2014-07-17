@@ -799,16 +799,13 @@ void CMediaPlayer::redrawWidgets(void)
       m_play->redraw();
     }
 
-  // Rewind and play buttons are only shown if we are not STOPPED
+  // Rewind and play buttons
 
-  if (m_state != MPLAYER_STOPPED)
-    {
-      m_rewind->enableDrawing();
-      m_rewind->redraw();
+  m_rewind->enableDrawing();
+  m_rewind->redraw();
 
-      m_fforward->enableDrawing();
-      m_fforward->redraw();
-    }
+  m_fforward->enableDrawing();
+  m_fforward->redraw();
 
   m_volume->enableDrawing();
   m_volume->redraw();
@@ -838,10 +835,18 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       m_listbox->enable();
 
-      // Play image enabled and ready to start playing
-      // REVISIT:  Really only available if there is a selected file in the list box
+      // Play image is visible, but enabled and ready to start playing only
+      // if a file is selected
 
-      m_play->enable();
+      if (m_fileIndex < 0)
+        {
+          m_play->disable();
+        }
+      else
+        {
+          m_play->enable();
+        }
+
       m_play->show();
 
       // Pause image is disabled and hidden
@@ -1031,6 +1036,83 @@ void CMediaPlayer::setVolumeLevel(void)
 }
 
 /**
+ * Check if a new file has been selected (or de-selected) in the list box
+ */
+
+void CMediaPlayer::checkFileSelection(void)
+{
+  // Check for new file selections from the list box
+
+  int newFileIndex = m_listbox->getSelectedIndex();
+
+  // Check if anything is selected
+
+  if (newFileIndex < 0)
+    {
+      // No file is selected
+
+      m_fileIndex = -1;
+
+      // Nothing is selected.. If we are not stopped, then stop now
+
+      if (m_state != MPLAYER_STOPPED)
+        {
+          closeMediaFile();
+          setMediaPlayerState(MPLAYER_STOPPED);
+        }
+    }
+
+  // A media file is selected.  Were stopped before?
+
+  else if (m_state == MPLAYER_STOPPED)
+    {
+      // Yes.. open the new media file and go to the PAUSE state
+
+      if (!openMediaFile(m_listbox->getSelectedOption()))
+        {
+          // Remain in the stopped state if we fail to open the file
+
+          m_fileIndex = -1;
+          gdbg("openMediaFile failed\m");
+        }
+      else
+        {
+          // And go to the PAUSED state (enabling the PLAY button)
+
+          m_fileIndex = newFileIndex;
+          setMediaPlayerState(MPLAYER_PAUSED);
+        }
+    }
+
+  // We already have a media file loaded.  Is it the same file?
+
+  else if (m_fileIndex != newFileIndex)
+    {
+      // No.. It is a new file.  Close that media file, load the newly
+      // selected file, and make sure that we are in the paused state
+      // (that should already be the case)
+
+      closeMediaFile();
+      if (!openMediaFile(m_listbox->getSelectedOption()))
+        {
+          // Go to the STOPPED state on a failure to open the media file
+          // The play button will be disable because m_fileIndex == -1.
+
+          gdbg("openMediaFile failed\m");
+          m_fileIndex = -1;
+          setMediaPlayerState(MPLAYER_STOPPED);
+        }
+      else
+        {
+          // And go to the PAUSED state (enabling the PLAY button)
+
+          m_fileIndex = newFileIndex;
+          setMediaPlayerState(MPLAYER_PAUSED);
+        }
+    }
+}
+
+/**
  * Handle a widget action event.  For this application, that means image
  * pre-release events.
  *
@@ -1113,63 +1195,6 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
             }
         }
     }
-
-  // Check for new file selections from the list box
-
-  int newFileIndex = m_listbox->getSelectedIndex();
-
-  // Check if anything is selected
-
-  if (newFileIndex < 0)
-    {
-      // Nothing is selected.. If we are not stopped, then stop now
-
-      if (m_state != MPLAYER_STOPPED)
-        {
-          closeMediaFile();
-          setMediaPlayerState(MPLAYER_STOPPED);
-        }
-    }
-
-  // A media file is selected.  Were stopped before?
-
-  else if (m_state == MPLAYER_STOPPED)
-    {
-      // Yes.. open the new media file and go to the PAUSE state
-
-      if (!openMediaFile(m_listbox->getSelectedOption()))
-        {
-          m_fileIndex = -1;
-          gdbg("openMediaFile failed\m");
-        }
-      else
-        {
-          m_fileIndex = newFileIndex;
-          setMediaPlayerState(MPLAYER_PAUSED);
-        }
-    }
-
-  // We already have a media file loaded.  Is it the same file?
-
-  else if (m_fileIndex != newFileIndex)
-    {
-      // No.. It is a new file.  Close that media file, load the newly
-      // selected file, and make sure that we are in the paused state
-      // (that should already be the case)
-
-      closeMediaFile();
-      if (!openMediaFile(m_listbox->getSelectedOption()))
-        {
-          gdbg("openMediaFile failed\m");
-          m_fileIndex = -1;
-          setMediaPlayerState(MPLAYER_STOPPED);
-        }
-      else
-        {
-          m_fileIndex = newFileIndex;
-          setMediaPlayerState(MPLAYER_PAUSED);
-        }
-    }
 }
 
 /**
@@ -1183,20 +1208,49 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
   if (m_pending == PENDING_PLAY_RELEASE && !m_play->isClicked())
     {
-      // Now perform the delayed state change
+      // Yes.. Now perform the delayed state change
+      //
+      // If we were previously STOPPED or PAUSED, then enter the PLAYING
+      // state.
 
-      setMediaPlayerState(MPLAYER_PLAYING);
-      m_pending = PENDING_NONE;
+      if (m_state == MPLAYER_STOPPED || m_state == MPLAYER_PAUSED)
+        {
+          setMediaPlayerState(MPLAYER_PLAYING);
+        }
+
+      // Ignore the event if we are already in the PLAYING state
+
+      else if (m_state != MPLAYER_PLAYING)
+        {
+          // Otherwise, we must be fast forwarding or rewinding.  In these
+          // cases, stop the action and return to the previous state
+
+          setMediaPlayerState(m_prevState);
+        }
     }
 
   // Check if the Pause image was released
 
   else if (m_pending == PENDING_PAUSE_RELEASE && !m_pause->isClicked())
     {
-      // Now perform the delayed state change
+      // Yes.. Now perform the delayed state change
+      //
+      // If we were previously PLAYING, then enter the PAUSED state.
 
-      setMediaPlayerState(MPLAYER_PAUSED);
-      m_pending = PENDING_NONE;
+      if (m_state == MPLAYER_PLAYING)
+        {
+          setMediaPlayerState(MPLAYER_PAUSED);
+        }
+
+      // Ignore the event if we are already in the PAUSED or STOPPED states
+
+      else if (m_state != MPLAYER_STOPPED && m_state != MPLAYER_PAUSED)
+        {
+          // Otherwise, we must be fast forwarding or rewinding.  In these
+          // cases, stop the action and return to the previous state
+
+          setMediaPlayerState(m_prevState);
+        }
     }
 }
 
@@ -1212,12 +1266,14 @@ void CMediaPlayer::handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &
 }
 
 /**
- * Handle changes in the volume level.
+ * Handle value changes.  This will get events when there is a change in the
+ * volume level or a file is selected or deselected.
  */
 
 void CMediaPlayer::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
 {
   setVolumeLevel();
+  checkFileSelection();
 }
 
 /**
