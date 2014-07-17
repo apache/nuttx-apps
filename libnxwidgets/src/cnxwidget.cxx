@@ -466,6 +466,8 @@ void CNxWidget::setBorderless(bool borderless)
  * Sets the font.
  *
  * @param font A pointer to the font to use.
+ *
+ * NOTE: This font is not deleted when the widget is destroyed!
  */
 
 void CNxWidget::setFont(CNxFont *font)
@@ -1408,6 +1410,7 @@ const CNxWidget *CNxWidget::getChild(int index) const
     {
       return m_children[index];
     }
+
   return (CNxWidget *)NULL;
 }
 

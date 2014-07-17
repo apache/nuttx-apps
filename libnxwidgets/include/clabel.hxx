@@ -333,6 +333,8 @@ namespace NXWidgets
      * Sets the font.
      *
      * @param font A pointer to the font to use.
+     *
+     * NOTE: This font is not deleted when the widget is destroyed!
      */
 
     virtual void setFont(CNxFont *font);

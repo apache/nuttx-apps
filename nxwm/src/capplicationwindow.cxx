@@ -334,6 +334,7 @@ bool CApplicationWindow::open(void)
 
   // Configure the label
 
+  m_windowLabel->setFont(m_windowFont);
   m_windowLabel->setBorderless(true);
   m_windowLabel->setTextAlignmentHoriz(NXWidgets::CLabel::TEXT_ALIGNMENT_HORIZ_LEFT);
   m_windowLabel->setTextAlignmentVert(NXWidgets::CLabel::TEXT_ALIGNMENT_VERT_CENTER);

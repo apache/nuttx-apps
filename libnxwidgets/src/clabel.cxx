@@ -252,6 +252,8 @@ void CLabel::getPreferredDimensions(CRect &rect) const
  * Sets the font.
  *
  * @param font A pointer to the font to use.
+ *
+ * NOTE: This font is not deleted when the widget is destroyed!
  */
 
 void CLabel::setFont(CNxFont *font)
