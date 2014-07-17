@@ -170,7 +170,7 @@ namespace NXWidgets
 
   protected:
     CWidgetControl *m_widgetControl;  /**< The controlling widget for the display */
-    CRect m_rect;                     /**< Rectange bounding the widget. */
+    CRect m_rect;                     /**< Rectangle bounding the widget. */
 
     // Dragging variables
 

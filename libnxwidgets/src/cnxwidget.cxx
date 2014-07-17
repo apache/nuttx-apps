@@ -158,10 +158,10 @@ CNxWidget::CNxWidget(CWidgetControl *pWidgetControl,
 
   // Dragging values
 
-  m_grabPointX          = 0;
-  m_grabPointY          = 0;
-  m_newX                = 0;
-  m_newY                = 0;
+  m_grabPointX            = 0;
+  m_grabPointY            = 0;
+  m_newX                  = 0;
+  m_newY                  = 0;
 
   // Set initial flag values
 
@@ -177,24 +177,24 @@ CNxWidget::CNxWidget(CWidgetControl *pWidgetControl,
 
   // Set hierarchy pointers
 
-  m_parent              = (CNxWidget *)NULL;
-  m_focusedChild        = (CNxWidget *)NULL;
+  m_parent                = (CNxWidget *)NULL;
+  m_focusedChild          = (CNxWidget *)NULL;
 
   // Double-click
 
   clock_gettime(CLOCK_REALTIME, &m_lastClickTime);
-  m_lastClickX          = 0;
-  m_lastClickY          = 0;
-  m_doubleClickBounds   = DOUBLE_CLICK_BOUNDS;
+  m_lastClickX            = 0;
+  m_lastClickY            = 0;
+  m_doubleClickBounds     = DOUBLE_CLICK_BOUNDS;
 
   // Set border size to 1 line
 
-  m_borderSize.top      = 1;
-  m_borderSize.right    = 1;
-  m_borderSize.bottom   = 1;
-  m_borderSize.left     = 1;
+  m_borderSize.top        = 1;
+  m_borderSize.right      = 1;
+  m_borderSize.bottom     = 1;
+  m_borderSize.left       = 1;
 
-  m_widgetEventHandlers = new CWidgetEventHandlerList(this);
+  m_widgetEventHandlers   = new CWidgetEventHandlerList(this);
 }
 
 /**

@@ -174,16 +174,19 @@ namespace NXWidgets
     /**
      * Constructor.
      *
-     * @param pWidgetControl The widget control instance for the window.
+     * @param control The widget control instance for the window.
      * @param x The x coordinate of the slider, relative to its parent.
      * @param y The y coordinate of the slider, relative to its parent.
      * @param width The width of the slider.
-     * @param height The height of the slider.
+     * @param thickness The thickness of the slider.
+     * @param gripBitmap The slider grip image
+     * @param fillColor The color to use when filling the grip
+     * @param fill True: The grip will be filled with fillColor
      */
 
-    CGlyphSliderHorizontal(CWidgetControl *pWidgetControl,
+    CGlyphSliderHorizontal(CWidgetControl *control,
                            nxgl_coord_t x, nxgl_coord_t y, nxgl_coord_t width,
-                           nxgl_coord_t height, IBitmap *pGripBitmap,
+                           nxgl_coord_t thickness, IBitmap *gripBitmap,
                            nxwidget_pixel_t fillColor, bool fill = true);
 
     /**

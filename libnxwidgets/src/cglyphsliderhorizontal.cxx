@@ -79,6 +79,7 @@
 #include <cstdint>
 #include <cstdbool>
 
+#include "ibitmap.hxx"
 #include "cwidgetcontrol.hxx"
 #include "cglyphsliderhorizontal.hxx"
 #include "cglyphsliderhorizontalgrip.hxx"
@@ -98,20 +99,24 @@ using namespace NXWidgets;
 /**
  * Constructor.
  *
- * @param pWidgetControl The controlling widget for the display
+ * @param control The widget control instance for the window.
  * @param x The x coordinate of the slider, relative to its parent.
  * @param y The y coordinate of the slider, relative to its parent.
  * @param width The width of the slider.
- * @param height The height of the slider.
+ * @param thickness The thickness of the slider.
+ * @param gripBitmap The slider grip image
+ * @param fillColor The color to use when filling the grip
+ * @param fill True: The grip will be filled with fillColor
  */
 
-CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl * pWidgetControl,
-        nxgl_coord_t x, nxgl_coord_t y,
-        nxgl_coord_t width, nxgl_coord_t height,
-        IBitmap * pGripBitmap,
-        nxwidget_pixel_t fillColor, bool fill)
-:CNxWidget(pWidgetControl, x, y, width, height, WIDGET_DRAGGABLE)
+CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl *control,
+                           nxgl_coord_t x, nxgl_coord_t y, nxgl_coord_t width,
+                           nxgl_coord_t thickness, IBitmap *gripBitmap,
+                           nxwidget_pixel_t fillColor, bool fill)
+:CNxWidget(control, x, y, width, thickness, WIDGET_DRAGGABLE)
 {
+  // Initialize state data
+
   m_minimumValue          = 0;
   m_maximumValue          = 0;
   m_contentSize           = 0;
@@ -120,22 +125,39 @@ CGlyphSliderHorizontal::CGlyphSliderHorizontal(CWidgetControl * pWidgetControl,
   m_pageSize              = 1;
   m_fillColor             = fillColor;
   m_fill                  = fill;
-  m_barThickness          = 8;
+  m_barThickness          = thickness;
+
+  // Correct the height of the widget.  The widget height was initially set
+  // to the thickness of the grip.  But the grip image is normally a little
+  // taller than the slider is thick.
+  //
+  // Do use the resize method here; we are not ready for the resize events.
+
+  nxgl_coord_t gripHeight = gripBitmap->getHeight() + 4;
+  if (gripHeight > thickness)
+    {
+      // Reset the widget height to the height of the grip image
+
+      m_rect.setHeight(gripHeight);
+    }
+
+  // Set widget attributes
 
   m_flags.permeable       = false;
   m_flags.borderless      = false;
   m_flags.doubleClickable = false;
 
-  // Create grip
+  // Set the "gutter" width
 
   CRect rect;
   getClientRect(rect);
   m_gutterWidth           = rect.getWidth();
 
-  // Create grip
+  // Create the grip
 
-  m_grip = new CGlyphSliderHorizontalGrip(pWidgetControl, x, y,
-                                          width, height, pGripBitmap);
+  m_grip = new CGlyphSliderHorizontalGrip(control, x, y,
+                                          gripBitmap->getWidth() + 4,
+                                          gripHeight, gripBitmap);
   m_grip->setBorderless(true);
   m_grip->addWidgetEventHandler(this);
   addWidget(m_grip);
