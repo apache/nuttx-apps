@@ -1073,7 +1073,7 @@ void CMediaPlayer::checkFileSelection(void)
           // Remain in the stopped state if we fail to open the file
 
           m_fileIndex = -1;
-          gdbg("openMediaFile failed\m");
+          gdbg("openMediaFile failed\n");
         }
       else
         {
@@ -1098,7 +1098,7 @@ void CMediaPlayer::checkFileSelection(void)
           // Go to the STOPPED state on a failure to open the media file
           // The play button will be disable because m_fileIndex == -1.
 
-          gdbg("openMediaFile failed\m");
+          gdbg("openMediaFile failed\n");
           m_fileIndex = -1;
           setMediaPlayerState(MPLAYER_STOPPED);
         }
@@ -1227,6 +1227,10 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
           setMediaPlayerState(m_prevState);
         }
+
+      // No longer any action pending the PLAY image release
+
+      m_pending = PENDING_NONE;
     }
 
   // Check if the Pause image was released
@@ -1251,6 +1255,10 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
           setMediaPlayerState(m_prevState);
         }
+
+      // No longer any action pending the PAUSE image release
+
+      m_pending = PENDING_NONE;
     }
 }
 
