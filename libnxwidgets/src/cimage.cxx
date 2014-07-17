@@ -230,18 +230,10 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
 
   for (int padRow = 0; padRow < m_origin.y; padRow++, destRow++)
     {
-      // Put the padded row on the display
+      // Put the padded row on the display (never greyscale)
 
-      if (isEnabled())
-        {
-          port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
-                           &bitmap, 0, 0);
-        }
-      else
-        {
-          port->drawBitmapGreyScale(rect.getX(), destRow, rect.getWidth(),
-                                    1, &bitmap, 0, 0);
-        }
+      port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
+                       &bitmap, 0, 0);
     }
 
   // This is the number of rows that we can draw at the top of the display
@@ -303,7 +295,7 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
           else
             {
               port->drawBitmapGreyScale(rect.getX(), destRow,
-                                       rect.getWidth(), 1, &bitmap, 0, 0);
+                                        rect.getWidth(), 1, &bitmap, 0, 0);
             }
         }
     }
@@ -324,18 +316,10 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
 
       for (; destRow < rect.getHeight(); destRow++)
         {
-          // Put the padded row on the display
+          // Put the padded row on the display (never greyscale)
 
-          if (isEnabled())
-            {
-              port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
-                               &bitmap, 0, 0);
-            }
-          else
-            {
-              port->drawBitmapGreyScale(rect.getX(), destRow,
-                                        rect.getWidth(), 1, &bitmap, 0, 0);
-            }
+          port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
+                           &bitmap, 0, 0);
         }
     }
 
