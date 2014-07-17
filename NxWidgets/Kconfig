@@ -814,9 +814,11 @@ config NXWM_TOUCHSCREEN_SIGNO
 
 config NXWM_TOUCHSCREEN_LISTENERPRIO
 	int "Touchscreen Listener Task Priority"
-	default 100
+	default 120
 	---help---
-		Priority of the touchscreen listener thread.  Default: 100
+		Priority of the touchscreen listener thread.  This listener should
+		have a higher priority than most display-related tsks otherwise it
+		may miss touchscreen events. Default: 120
 
 config NXWM_TOUCHSCREEN_LISTENERSTACK
 	int "Touchscreen Listener Task Stack Size"
@@ -870,9 +872,12 @@ config NXWM_KEYBOARD_BUFSIZE
 
 config NXWM_KEYBOARD_LISTENERPRIO
 	int "Keyboard Listener Task Priority"
-	default 100
+	default 120
 	---help---
-		Priority of the touchscreen listener thread.  Default: 100
+		Priority of the touchscreen listener thread.This listener should
+		have a higher priority than most display-related tsks otherwise it
+		may miss touchscreen events (not really very likely because keyboard
+		input is relatively slow).   Default: 120
 
 config NXWM_KEYBOARD_LISTENERSTACK
 	int "Keyboard Listener Task Stack Size"
