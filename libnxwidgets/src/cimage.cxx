@@ -273,30 +273,47 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
               return;
             }
 
-          // Replace any transparent pixels with the background color.
-          // Then we can use the faster opaque drawBitmap() function.
+          // Pre-process special pixel values... Then we can use the faster
+          // opaque drawBitmap() function.
 
           ptr = &buffer[m_origin.x];
           for (int i = 0; i < nLeftPixels; i++, ptr++)
             {
+              // Replace any transparent pixels with the background color.
+
               if (*ptr == CONFIG_NXWIDGETS_TRANSPARENT_COLOR)
                 {
                   *ptr = backColor;
+                }
+
+              // Convert pixels (other than the background color) to grey
+              // scale if the image is disabled.  We can't use
+              // CGraphicsPort::drawBitmapGreyColor because it does not
+              // (yet) understand transparent pixels and has no idea what it
+              // should do with background colors.
+
+              else if (*ptr != backColor && !isEnabled())
+                {
+                  // Get the next RGB pixel and break out the individual
+                  // components
+
+                  nxwidget_pixel_t rgb = *ptr;
+                  nxwidget_pixel_t r   = RGB2RED(rgb);
+                  nxwidget_pixel_t g   = RGB2GREEN(rgb);
+                  nxwidget_pixel_t b   = RGB2BLUE(rgb);
+
+                  // A truly accurate greyscale conversion would be complex.
+                  // Let's just average.
+
+                  nxwidget_pixel_t avg = (r + g + b) / 3;
+                  *ptr = MKRGB(avg, avg, avg);
                 }
             }
 
           // And put these on the display
 
-          if (isEnabled())
-            {
-              port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
-                               &bitmap, 0, 0);
-            }
-          else
-            {
-              port->drawBitmapGreyScale(rect.getX(), destRow,
-                                        rect.getWidth(), 1, &bitmap, 0, 0);
-            }
+          port->drawBitmap(rect.getX(), destRow, rect.getWidth(), 1,
+                           &bitmap, 0, 0);
         }
     }
 
