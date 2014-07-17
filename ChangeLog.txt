@@ -482,3 +482,9 @@
   image (2014-7-17).
 * NxWM::CMediaPlayer:  State variable was left in a bad state and caused some
   problems down the road (2014-7-17).
+* NxWidgets::CGlyphSliderHorizontal: No longer uses a hard-coded slider
+  height; the slider height is now provided as a parameter, replacing the
+  widget height which is now calculated from the glip image height
+  (2014-7-17).
+* NxWM::CMediaPlayer:  Now calculates the volume slider height from the grip
+  image height (2014-7-17).
