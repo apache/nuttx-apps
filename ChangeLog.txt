@@ -468,3 +468,11 @@
 * NxMW::CMediaPlayer: Concert CLabel to a CListBox to support selection of
   one of many media files to play.  This should be a CScrollingTextBox to
   support an indefinitely large number of media files (2014-7-16).
+* NxWidgets::CGraphicsPort:  Fix drawBitmapGreyScale method.  Actually drew
+  nothing because of several errors in positioning and buffer usage
+  (2014-7-17)
+* NxWidgets::CImage:  Should not attempt to draw the "empty" regions at the
+  top and the bottom of the image box in greyscale (2014-7-17).
+* NxWM::CMediaPlayer:  Fix some state-related bugs introduced yesterday.
+  Improved state-related button displayes.  Now correctly catches and
+  handles file selection events (2014-7-17).
