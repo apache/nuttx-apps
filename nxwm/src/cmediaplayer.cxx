@@ -698,15 +698,21 @@ bool CMediaPlayer::createPlayer(void)
 
   // Create the Volume control
 
-  uint32_t volumeControlX = (9 * m_windowSize.w) >> 8;
+  uint32_t volumeControlX     = (9 * (uint32_t)m_windowSize.w) >> 8;
+  nxgl_coord_t volumeControlW = (nxgl_coord_t)(m_windowSize.w - 2 * volumeControlX);
+  nxgl_coord_t volumeControlH = m_volumeBitmap->getHeight() - 4;
+
+  // Don't let the height of the volume control get too small
+
+  if (volumeControlH < CONFIG_NXWM_MEDIAPLAYER_MINVOLUMEHEIGHT)
+    {
+      volumeControlH = CONFIG_NXWM_MEDIAPLAYER_MINVOLUMEHEIGHT;
+    }
 
   m_volume = new NXWidgets::
-      CGlyphSliderHorizontal(control,
-                             (nxgl_coord_t)volumeControlX,
-                             volumeTop,
-                             (nxgl_coord_t)(m_windowSize.w - 2 * volumeControlX),
-                             m_volumeBitmap->getHeight() + 4, m_volumeBitmap,
-                             MKRGB(63, 90,192));
+      CGlyphSliderHorizontal(control, (nxgl_coord_t)volumeControlX, volumeTop,
+                             volumeControlW, volumeControlH, m_volumeBitmap,
+                             CONFIG_NXWM_MEDIAPLAYER_VOLUMECOLOR);
 
   if (!m_volume)
     {
