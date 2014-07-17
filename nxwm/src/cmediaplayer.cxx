@@ -1102,7 +1102,7 @@ void CMediaPlayer::checkFileSelection(void)
       if (!openMediaFile(m_listbox->getSelectedOption()))
         {
           // Go to the STOPPED state on a failure to open the media file
-          // The play button will be disable because m_fileIndex == -1.
+          // The play button will be disabled because m_fileIndex == -1.
 
           gdbg("openMediaFile failed\n");
           m_fileIndex = -1;

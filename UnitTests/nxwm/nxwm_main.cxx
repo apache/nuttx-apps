@@ -772,7 +772,7 @@ int nxwm_main(int argc, char *argv[])
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
-  // There are two possibilies:  (1) We started the calibration earlier and now
+  // There are two possibilities:  (1) We started the calibration earlier and now
   // need to obtain the calibration data from the calibration process, or (2)
   // We have already obtained stored calibration data in which case, the calibration
   // process never ran.
@@ -782,7 +782,7 @@ int nxwm_main(int argc, char *argv[])
     {
       // Since we started the touchscreen calibration program maximized, it will
       // run immediately when we start the window manager.  There is no positive
-      // handshake to know whenthe touchscreen has been calibrated.  If we really
+      // handshake to know when the touchscreen has been calibrated.  If we really
       // want to know, we have to poll
 
       printf("nxwm_main: Waiting for touchscreen calibration\n");
