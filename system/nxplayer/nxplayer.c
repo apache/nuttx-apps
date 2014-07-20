@@ -152,13 +152,6 @@ static const int g_known_ext_count = sizeof(g_known_ext) /
 static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
     int subfmt)
 {
-  struct dirent*        pDevice;
-  DIR*                  dirp;
-  char                  path[64];
-  struct audio_caps_s   caps;
-  uint8_t               supported = TRUE;
-  uint8_t               x;
-
   /* If we have a preferred device, then open it */
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
@@ -168,8 +161,8 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
        * format is specified by the device
        */
 
-      if (((pPlayer->prefformat & (1 << (format - 1)) == 0) ||
-          ((pPlayer->preftype & AUDIO_TYPE_OUTPUT) == 0)))
+      if ((pPlayer->prefformat & (1 << (format - 1))) == 0 ||
+          (pPlayer->preftype & AUDIO_TYPE_OUTPUT) == 0)
         {
           /* Format not supported by the device */
 
@@ -195,6 +188,13 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_DEVICE_SEARCH
     {
+      struct audio_caps_s caps;
+      FAR struct dirent *pDevice;
+      FAR DIR *dirp;
+      char path[64];
+      uint8_t supported = TRUE;
+      uint8_t x;
+
       /* Search for a device in the audio device directory */
 
 #ifdef CONFIG_AUDIO_CUSTOM_DEV_PATH
@@ -257,6 +257,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
                               (unsigned long) &caps) == caps.ac_len)
                             {
                               /* Check the next set of 4 controls to find the subformat */
+
                               for (x = 0; x < sizeof(caps.ac_controls); x++)
                                 {
                                   if (caps.ac_controls[x] == subfmt)
