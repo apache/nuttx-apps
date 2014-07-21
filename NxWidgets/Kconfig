@@ -1176,7 +1176,7 @@ config NXWM_MEDIAPLAYER_CUSTOM_COLORS
 if NXWM_MEDIAPLAYER_CUSTOM_COLORS
 
 	config NXWM_MEDIAPLAYER_VOLUMECOLOR
-	hex "Media Volume Slide Color
+	hex "Media Volume Slide Color"
 	default 0x0
 
 endif # NXWM_MEDIAPLAYER_CUSTOM_COLORS
