@@ -490,4 +490,16 @@
   image height (2014-7-17).
 * NxWM::CApplicationWindow:  Created the custom font for the toolbar title,
   but never used it! (2014-7-17).
-  
+* NxWidgets::CNxString:  Make destructor virtual.  From Petteri Aimonen
+  (2014-7-22).
+* NxWidgets::CTaskbar:  Fix type of return value fromopenRawWindow()
+  method.  From Petteri Aimonen (2014-7-22).
+* NxWidgets::CTabPanel:  Modify behavior in showPage() method.  Eliminate a
+  duplicate redraw that caused flickering; re-order some logic so that
+  widgets are hidden before operated on.  From Petteri Aimonen (2014-7-22).
+* NxWidgets:CTabPanel:  Make CTabPanel raise action event when tab is
+  changed.  Also add a function for getting the currently selected tab
+  index.  From Petteri Aimonen (2014-7-22).
+* NxWidgets::CNxTimer:  Make CNxTimer stop itself before destruction.
+  Otherwise a call to an invalid work queue entry may occur.  From Petteri
+  Aimonen (2014-7-22).
