@@ -129,6 +129,7 @@ CNxTimer::CNxTimer(CWidgetControl *pWidgetControl, uint32_t timeout, bool repeat
 
 CNxTimer::~CNxTimer(void)
 {
+  stop();
 }
 
 /**
