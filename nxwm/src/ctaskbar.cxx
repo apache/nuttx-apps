@@ -818,7 +818,7 @@ NXWidgets::CNxWindow *CTaskbar::openRawWindow(void)
   if (!window)
     {
       delete control;
-      return false;
+      return NULL;
     }
 
   // Open (and initialize) the window
@@ -828,7 +828,7 @@ NXWidgets::CNxWindow *CTaskbar::openRawWindow(void)
     {
       delete window;
       window = (NXWidgets::CNxWindow *)0;
-      return false;
+      return NULL;
     }
 
   return window;
