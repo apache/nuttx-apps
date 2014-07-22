@@ -103,18 +103,15 @@ void CTabPanel::showPage(uint8_t index)
 
   for (int i = 0; i < m_tabpages.size(); i++)
     {
-      if (i == index)
-        {
-          m_tabpages.at(i)->enable();
-          m_tabpages.at(i)->show();
-          m_tabpages.at(i)->redraw();
-        }
-      else
+      if (i != index)
         {
           m_tabpages.at(i)->hide();
           m_tabpages.at(i)->disable();
         }
     }
+
+  m_tabpages.at(index)->enable();
+  m_tabpages.at(index)->show();
 }
 
 void CTabPanel::handleActionEvent(const CWidgetEventArgs &e)
