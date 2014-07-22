@@ -220,7 +220,7 @@ namespace NXWidgets
      * Destructor.
      */
 
-    inline ~CNxString()
+    virtual inline ~CNxString()
     {
       delete[] m_text;
       m_text = (FAR nxwidget_char_t *)NULL;
