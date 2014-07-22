@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/ctabpanel.hxx
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
  *   Author: Petteri Aimonen <jpa@kapsi.fi>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,8 +123,14 @@ void CTabPanel::handleActionEvent(const CWidgetEventArgs &e)
 
       m_buttonbar->isAnyButtonStuckDown(x, y);
       showPage(x);
+      m_widgetEventHandlers->raiseActionEvent();
     }
 }
 
-
-
+uint8_t CTabPanel::getCurrentPageIndex() const
+{
+  int x = 0;
+  int y = 0;
+  m_buttonbar->isAnyButtonStuckDown(x, y);
+  return x;
+}

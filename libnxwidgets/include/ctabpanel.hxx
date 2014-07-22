@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/ctabpanel.hxx
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
  *   Author: Petteri Aimonen <jpa@kapsi.fi>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,6 +101,8 @@ namespace NXWidgets
     void setPageName(uint8_t index, const CNxString &name);
 
     void showPage(uint8_t index);
+    
+    uint8_t getCurrentPageIndex() const;
   };
 }
 
