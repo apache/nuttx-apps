@@ -960,5 +960,5 @@
 	  should be CONFIG_NET_SOLINGER; Type of CONFIG_NET_HTTPD_MAXPATH was wrong
 	  in Kconfig file.  From Max (2014-7-11).
 	* apps/system/nxplayer/nxplayer.c:  Check for file read errors and end-of-file
-	  with zero bytes read (2014-7-22).
+	  with zero bytes read (2014-7-23).
 
