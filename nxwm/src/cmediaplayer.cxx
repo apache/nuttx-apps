@@ -41,6 +41,8 @@
 #include <nuttx/config.h>
 
 #include <cstdio>
+#include <cstring>
+#include <dirent.h>
 #include <debug.h>
 
 #include "cwidgetcontrol.hxx"
@@ -396,27 +398,86 @@ inline bool CMediaPlayer::showMediaFiles(const char *mediaPath)
 
   m_listbox->removeAllOptions();
 
-#if 0
   // Open the media path directory
+
+  FAR DIR *dirp = opendir(CONFIG_NXWM_MEDIAPLAYER_MEDIAPATH);
+  if (!dirp)
+    {
+       m_listbox->addOption("Media volume is not mounted", 0,
+                            MKRGB(192, 0, 0),
+                            CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR,
+                            MKRGB(255, 0, 0),
+                            CONFIG_NXWM_DEFAULT_SELECTEDBACKGROUNDCOLOR);
+       return false;
+    }
+
   // Read each directory entry
-  // Add the directory entry to the list box
-  // Close the directory
-#else
-#  warning "Missing Logic"
 
-  // Just add a couple of dummy files for testing
+  FAR struct dirent *direntry;
+  int index;
 
-  m_listbox->addOption("File 1", 0,
-                      CONFIG_NXWIDGETS_DEFAULT_ENABLEDTEXTCOLOR,
-                      CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR,
-                      CONFIG_NXWIDGETS_DEFAULT_SELECTEDTEXTCOLOR,
-                      CONFIG_NXWM_DEFAULT_SELECTEDBACKGROUNDCOLOR);
-  m_listbox->addOption("File 2", 1,
-                      CONFIG_NXWIDGETS_DEFAULT_ENABLEDTEXTCOLOR,
-                      CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR,
-                      CONFIG_NXWIDGETS_DEFAULT_SELECTEDTEXTCOLOR,
-                      CONFIG_NXWM_DEFAULT_SELECTEDBACKGROUNDCOLOR);
+  for (direntry = readdir(dirp), index = 0;
+       direntry;
+       direntry = readdir(dirp))
+    {
+      // TODO: Recursively examine files in all sub-directories
+      // Ignore directory entries beginning with '.'
+
+      if (direntry->d_name[0] == '.')
+        {
+          continue;
+        }
+
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER)
+      // Filter files by extension
+
+      FAR const char *extension = std::strchr(direntry->d_name, '.');
+      if (!extension || (true
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_AC3
+          && std::strcmp(extension, ".ac3") != 0
 #endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_DTS
+          && std::strcmp(extension, ".dts") != 0
+#endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_WAV
+          && std::strcmp(extension, ".wav") != 0
+#endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_PCM
+          && std::strcmp(extension, ".pcm") != 0
+#endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_MP3
+          && std::strcmp(extension, ".mp3") != 0
+#endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_MIDI
+          && sstd::trcmp(extension, ".mid") != 0
+#endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_WMA
+          && std::strcmp(extension, ".wma") != 0
+#endif
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_OGGVORBIS
+          && std::strcmp(extension, ".ogg") != 0
+#endif
+         ))
+        {
+          // File does not match any configured extension
+
+          continue;
+        }
+#endif
+
+      // Add the directory entry to the list box
+
+       m_listbox->addOption(direntry->d_name, index,
+                            CONFIG_NXWIDGETS_DEFAULT_ENABLEDTEXTCOLOR,
+                            CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR,
+                            CONFIG_NXWIDGETS_DEFAULT_SELECTEDTEXTCOLOR,
+                            CONFIG_NXWM_DEFAULT_SELECTEDBACKGROUNDCOLOR);
+       index++;
+    }
+
+  // Close the directory
+
+  (void)closedir(dirp);
 
   // Sort the file names in alphabetical order
 
@@ -526,7 +587,7 @@ bool CMediaPlayer::createPlayer(void)
 
   // Show the media files that are available for playing
 
-  showMediaFiles(CONFIG_NXWM_MEDIAPLAYER_MEDIAPATH);
+  (void)showMediaFiles(CONFIG_NXWM_MEDIAPLAYER_MEDIAPATH);
 
   // Control image widths.
   // Image widths will depend on if the images will be bordered or not
