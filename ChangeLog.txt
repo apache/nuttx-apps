@@ -959,4 +959,6 @@
 	  CONFIG_NETUTILS_HTTPD_SENDFILE was missing from Kconfig; CONFIG_NET_HAVE_SOLINGER
 	  should be CONFIG_NET_SOLINGER; Type of CONFIG_NET_HTTPD_MAXPATH was wrong
 	  in Kconfig file.  From Max (2014-7-11).
+	* apps/system/nxplayer/nxplayer.c:  Check for file read errors and end-of-file
+	  with zero bytes read (2014-7-22).
 
