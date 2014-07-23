@@ -166,7 +166,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
         {
           /* Format not supported by the device */
 
-          auddbg("ERROR: Format not supported by device: %d\n");
+          auddbg("ERROR: Format not supported by device: %d\n", format);
           return -ENODEV;
         }
 
@@ -200,7 +200,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
       FAR struct dirent *pDevice;
       FAR DIR *dirp;
       char path[64];
-      uint8_t supported = TRUE;
+      uint8_t supported = true;
       uint8_t x;
 
       /* Search for a device in the audio device directory */
@@ -256,6 +256,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
                   /* Test if this device supports the format we want */
 
                   int ac_format = caps.ac_format[0] | (caps.ac_format[1] << 8);
+
                   if (((ac_format & (1 << (format - 1))) != 0) &&
                       (caps.ac_controls[0] & AUDIO_TYPE_OUTPUT))
                     {
@@ -267,6 +268,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
 
                           caps.ac_subtype = format;
                           caps.ac_format[0] = 0;
+
                           while (ioctl(pPlayer->devFd, AUDIOIOC_GETCAPS,
                               (unsigned long) &caps) == caps.ac_len)
                             {
@@ -284,7 +286,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
                                     {
                                       /* Sub format not supported */
 
-                                      supported = FALSE;
+                                      supported = false;
                                       break;
                                     }
                                 }
@@ -537,8 +539,8 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   struct audio_buf_desc_s     buf_desc;
   int                         prio;
   ssize_t                     size;
-  uint8_t                     running = TRUE;
-  uint8_t                     playing = TRUE;
+  uint8_t                     running = true;
+  uint8_t                     playing = true;
   int                         x, ret;
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   struct ap_buffer_info_s     buf_info;
@@ -568,7 +570,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
       /* Error allocating memory for buffer storage! */
 
       ret = -ENOMEM;
-      running = FALSE;
+      running = false;
       goto err_out;
     }
 
@@ -604,7 +606,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Buffer alloc Operation not supported or error allocating! */
 
           auddbg("nxplayer_playthread: can't alloc buffer %d\n", x);
-          running = FALSE;
+          running = false;
           goto err_out;
         }
     }
@@ -625,9 +627,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Error encoding initial buffers or file is small */
 
           if (x == 0)
-            running = FALSE;
+            running = false;
           else
-            playing = FALSE;
+            playing = false;
 
           break;
         }
@@ -645,7 +647,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
     {
       /* Error starting the audio stream!  */
 
-      running = FALSE;
+      running = false;
     }
 
   /* Indicate we are playing a file */
@@ -706,7 +708,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
                      * trying to play more data.
                      */
 
-                    playing = FALSE;
+                    playing = false;
                   }
               }
             break;
@@ -723,15 +725,15 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 #else
             ioctl(pPlayer->devFd, AUDIOIOC_STOP, 0);
 #endif
-            playing = FALSE;
-            running = FALSE;
+            playing = false;
+            running = false;
             break;
 
           /* Message indicating the playback is complete */
 
           case AUDIO_MSG_COMPLETE:
 
-            running = FALSE;
+            running = false;
             break;
 
           /* Unknown / unsupported message ID */
