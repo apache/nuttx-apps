@@ -1118,7 +1118,7 @@ menu "NxWM Media Player Display Settings"
 config NXWM_MEDIAPLAYER
 	bool "NxWM Media Player"
 	default n
-	depends on FS_READABLE
+	depends on FS_READABLE && SYSTEM_NXPLAYER
 	---help---
 		Enable support for the MP3 Media Player.  This features requires
 		a board that includes an MP3 Codec chip, such as the Mikromedia
@@ -1130,12 +1130,69 @@ config NXWM_MEDIAPLAYER
 
 if NXWM_MEDIAPLAYER
 
+menu "Media File Configuration"
+
 config NXWM_MEDIAPLAYER_MEDIAPATH
 	string "Path to media"
 	default "/mnt/sdcard"
 	---help---
 		This is the full path to the mount point of the storage device
 		containing all of the media files accessible by the media player.
+
+config NXWM_MEDIAPLAYER_NOFILTER
+	bool "Disable filtering by file name extension
+	default y
+
+config NXWM_MEDIAPLAYER_FILTER
+	bool
+	default n
+
+if !NXWM_MEDIAPLAYER_NOFILTER
+
+config NXWM_MEDIAPLAYER_FILTER_AC3
+	bool "Accept .ac3 extension"
+	default n
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_DTS
+	bool "Accept .dts extension"
+	default n
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_WAV
+	bool "Accept .wav extension"
+	default y
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_PCM
+	bool "Accept .pcm extension"
+	default y
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_MP3
+	bool "Accept .mp3 extension"
+	default n
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_MIDI
+	bool "Accept .mid extension"
+	default n
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_WMA
+	bool "Accept .wma extension"
+	default n
+	select NXWM_MEDIAPLAYER_FILTER
+
+config NXWM_MEDIAPLAYER_FILTER_OGGVORBIS
+	bool "Accept .ogg extension"
+	default n
+	select NXWM_MEDIAPLAYER_FILTER
+
+endif # !NXWM_MEDIAPLAYER_NOFILTER
+endmenu # Media File Configuration
+
+menu "General Look and Feel"
 
 config NXWM_MEDIAPLAYER_XSPACING
 	int "Media Player Horizontal Spacing"
@@ -1151,23 +1208,6 @@ config NXWM_MEDIAPLAYER_YSPACING
 		This is the space between vertical element: (1) list box, (2) play,
 		forward, and reverse controls, and the volume slider in units of
 		lines.
-
-config NXWM_MEDIAPLAYER_VOLUMESTEP
-	int "Media Player Volume Step"
-	default 5
-	---help---
-		This increment in volume, up or down, when the volume bar is clicked.
-
-config NXWM_MEDIAPLAYER_MINVOLUMEHEIGHT
-	int "Minimum Player Volume Minimum Height"
-	default 6
-	---help---
-		The height of the slider is automatically calculated from the height
-		of the grip image.  However, we will not let the height of the grip
-		get smaller than this value.
-
-		NOTE: This width includes the size of the slider upper and lower
-		borders.
 
 config NXWM_MEDIAPLAYER_CUSTOM_COLORS
 	bool "Select Custom Media Player Colors"
@@ -1189,6 +1229,28 @@ config NXWM_MEDIAPLAYER_BORDERS
 		better choice.  If you graphics is really more of a button label,
 		then have buttons with boarders might make more sense.
 
+endmenu # General Look and Feel
+
+menu "Volume Control Configuration"
+
+config NXWM_MEDIAPLAYER_VOLUMESTEP
+	int "Media Player Volume Step"
+	default 5
+	---help---
+		This increment in volume, up or down, when the volume bar is clicked.
+
+config NXWM_MEDIAPLAYER_MINVOLUMEHEIGHT
+	int "Minimum Player Volume Minimum Height"
+	default 6
+	---help---
+		The height of the slider is automatically calculated from the height
+		of the grip image.  However, we will not let the height of the grip
+		get smaller than this value.
+
+		NOTE: This width includes the size of the slider upper and lower
+		borders.
+
+endmenu # Volume Configuration"
 endif # NXWM_MEDIAPLAYER
 endmenu # NxWM Media Player Display Settings
 
