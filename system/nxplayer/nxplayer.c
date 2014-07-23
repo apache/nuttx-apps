@@ -480,54 +480,81 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pPlayer,
  *
  ****************************************************************************/
 
-static int nxplayer_enqueuebuffer(struct nxplayer_s *pPlayer,
-    struct ap_buffer_s* pBuf)
+static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
+                                  FAR struct ap_buffer_s* pBuf)
 {
   struct audio_buf_desc_s bufdesc;
-  int     ret;
+  int ret;
 
   //auddbg("Entry: %p\n", pBuf);
 
   /* Validate the file is still open */
 
   if (pPlayer->fileFd == NULL)
-    return OK;
+    {
+      return OK;
+    }
 
   /* Read data into the buffer. */
 
   pBuf->nbytes = fread(&pBuf->samp, 1, pBuf->nmaxbytes, pPlayer->fileFd);
   if (pBuf->nbytes < pBuf->nmaxbytes)
     {
+      /* End of file or read error.. We are finished with this file in any
+       * event.
+       */
+
       fclose(pPlayer->fileFd);
       pPlayer->fileFd = NULL;
+
+      /* Was this a file read error */
+
+      if (ferror(pPlayer->fileFd))
+        {
+          int errcode = errno;
+          DEBUGASSERT(errcode > 0);
+
+          auddbg("ERROR: fread failed: %d\n", errcode);
+          return errcode;
+        }
     }
 
-  /* Now enqueue the buffer with the audio device.  If the number of bytes
-   * in the file happens to be an exact multiple of the audio buffer size,
-   * then we will receive the last buffer size = 0.  We encode this buffer
-   * also so the audio system knows its the end of the file and can do
-   * proper cleanup.
-   */
+  /* Do nothing more if this was the end-of-file with nothing read */
+
+  if (pBuf->nbytes > 0)
+    {
+      /* Now enqueue the buffer with the audio device.  If the number of
+       * bytes in the file happens to be an exact multiple of the audio
+       * buffer size, then we will receive the last buffer size = 0.  We
+       * encode this buffer also so the audio system knows its the end of
+       * the file and can do proper clean-up.
+       */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  bufdesc.session = pPlayer->session;
+      bufdesc.session   = pPlayer->session;
 #endif
-  bufdesc.numbytes = pBuf->nbytes;
-  bufdesc.u.pBuffer = pBuf;
-  ret = ioctl(pPlayer->devFd, AUDIOIOC_ENQUEUEBUFFER, (unsigned long)
-      &bufdesc);
-  if (ret >= 0)
-    ret = OK;
-  else
-    ret = errno;
+      bufdesc.numbytes  = pBuf->nbytes;
+      bufdesc.u.pBuffer = pBuf;
 
-  return ret;
+      ret = ioctl(pPlayer->devFd, AUDIOIOC_ENQUEUEBUFFER,
+                  (unsigned long)&bufdesc);
+      if (ret < 0)
+        {
+          int errcode = errno;
+          DEBUGASSERT(errcode > 0);
+
+          auddbg("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
+          return errcode;
+        }
+    }
+
+  return OK;
 }
 
 /****************************************************************************
  * Name: nxplayer_thread_playthread
  *
- *  This is the thread that reads the audio file file and enqueue's /
+ *  This is the thread that reads the audio file file and enqueues /
  *  dequeues buffers to the selected and opened audio device.
  *
  ****************************************************************************/
@@ -627,9 +654,13 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Error encoding initial buffers or file is small */
 
           if (x == 0)
-            running = false;
+            {
+              running = false;
+            }
           else
-            playing = false;
+            {
+              playing = false;
+            }
 
           break;
         }
@@ -639,7 +670,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
   ret = ioctl(pPlayer->devFd, AUDIOIOC_START,
-      (unsigned long) pPlayer->session);
+              (unsigned long) pPlayer->session);
 #else
   ret = ioctl(pPlayer->devFd, AUDIOIOC_START, 0);
 #endif
