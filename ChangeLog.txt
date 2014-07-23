@@ -503,3 +503,7 @@
 * NxWidgets::CNxTimer:  Make CNxTimer stop itself before destruction.
   Otherwise a call to an invalid work queue entry may occur.  From Petteri
   Aimonen (2014-7-22).
+* NxWidgets/Kconfig: Add configuration options to filter CMediaPlayer files
+  based on extension (2014-7-23)
+* NxWM::CMediaPlayer:  Add logic to read files from the media mountpoint,
+  filter them by extension, and display the file names in the listbox (2014-7-23).
