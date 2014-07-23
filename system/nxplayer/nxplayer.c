@@ -500,6 +500,9 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
   pBuf->nbytes = fread(&pBuf->samp, 1, pBuf->nmaxbytes, pPlayer->fileFd);
   if (pBuf->nbytes < pBuf->nmaxbytes)
     {
+      int errcode   = errno;
+      int readerror = ferror(pPlayer->fileFd);
+
       /* End of file or read error.. We are finished with this file in any
        * event.
        */
@@ -509,9 +512,8 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 
       /* Was this a file read error */
 
-      if (ferror(pPlayer->fileFd))
+      if (pBuf->nbytes == 0 && readerror)
         {
-          int errcode = errno;
           DEBUGASSERT(errcode > 0);
 
           auddbg("ERROR: fread failed: %d\n", errcode);
