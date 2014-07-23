@@ -433,29 +433,29 @@ inline bool CMediaPlayer::showMediaFiles(const char *mediaPath)
 
       FAR const char *extension = std::strchr(direntry->d_name, '.');
       if (!extension || (true
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_AC3
-          && std::strcmp(extension, ".ac3") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_AC3)
+          && std::strcasecmp(extension, ".ac3") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_DTS
-          && std::strcmp(extension, ".dts") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_DTS)
+          && std::strcasecmp(extension, ".dts") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_WAV
-          && std::strcmp(extension, ".wav") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_WAV)
+          && std::strcasecmp(extension, ".wav") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_PCM
-          && std::strcmp(extension, ".pcm") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_PCM)
+          && std::strcasecmp(extension, ".pcm") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_MP3
-          && std::strcmp(extension, ".mp3") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_MP3)
+          && std::strcasecmp(extension, ".mp3") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_MIDI
-          && sstd::trcmp(extension, ".mid") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_MIDI)
+          && std::strcasecmp(extension, ".mid") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_WMA
-          && std::strcmp(extension, ".wma") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_WMA)
+          && std::strcasecmp(extension, ".wma") != 0
 #endif
-#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_OGGVORBIS
-          && std::strcmp(extension, ".ogg") != 0
+#if defined(CONFIG_NXWM_MEDIAPLAYER_FILTER_OGGVORBIS)
+          && std::strcasecmp(extension, ".ogg") != 0
 #endif
          ))
         {
