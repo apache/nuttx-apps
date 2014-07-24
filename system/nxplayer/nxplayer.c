@@ -1120,7 +1120,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
  ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
-int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, char* pDevice)
+int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *pDevice)
 {
   int                   tempFd;
   struct audio_caps_s   caps;

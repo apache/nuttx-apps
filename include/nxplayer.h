@@ -90,6 +90,18 @@ typedef int (*nxplayer_func)(FAR struct nxplayer_s* pPlayer, char* pargs);
  ****************************************************************************/
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
@@ -165,7 +177,7 @@ void nxplayer_reference(FAR struct nxplayer_s *pPlayer);
  *
  **************************************************************************/
 
-int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, char* device);
+int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *device);
 
 /****************************************************************************
  * Name: nxplayer_playfile
@@ -188,8 +200,8 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, char* device);
  *
  **************************************************************************/
 
-int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, char* filename,
-          int filefmt, int subfmt);
+int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, FAR char *filename,
+                      int filefmt, int subfmt);
 
 /****************************************************************************
  * Name: nxplayer_stop
@@ -296,7 +308,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance);
  *
  **************************************************************************/
 
-inline void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer, char* mediadir);
+void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer, FAR char *mediadir);
 
 /****************************************************************************
  * Name: nxplayer_setbass
@@ -352,6 +364,11 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t treble);
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
 int nxplayer_systemreset(FAR struct nxplayer_s *pPlayer);
+#endif
+
+#undef EXTERN
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __APPS_SYSTEM_NXPLAYER_NXPLAYER_H */

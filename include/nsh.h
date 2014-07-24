@@ -97,7 +97,7 @@ extern "C"
  * Name: nsh_initialize
  *
  * Description:
- *   This nterfaces is used to initialize the NuttShell (NSH).
+ *   This interface is used to initialize the NuttShell (NSH).
  *   nsh_initialize() should be called one during application start-up prior
  *   to executing either nsh_consolemain() or nsh_telnetstart().
  *
@@ -132,7 +132,7 @@ void nsh_initialize(void);
  * Returned Values:
  *   This function does not normally return.  exit() is usually called to
  *   terminate the NSH session.  This function will return in the event of
- *   an error.  In that case, a nonzero value is returned (EXIT_FAILURE=1).
+ *   an error.  In that case, a non-zero value is returned (EXIT_FAILURE=1).
  *
  ****************************************************************************/
 
