@@ -1154,7 +1154,7 @@ config NXWM_MEDIAPLAYER_MEDIAPATH
 		containing all of the media files accessible by the media player.
 
 config NXWM_MEDIAPLAYER_NOFILTER
-	bool "Disable filtering by file name extension
+	bool "Disable filtering by file name extension"
 	default y
 
 config NXWM_MEDIAPLAYER_FILTER

@@ -143,10 +143,11 @@ namespace NxWM
     enum EMediaPlayerState   m_state;      /**< Media player current state */
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
+    NXWidgets::CNxString     m_filePath;   /**< The full path to the selected file */
+    bool                     m_fileReady;  /**< True: Ready to play */
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-    int                      m_level;      /**< Current volume level */
+    uint8_t                  m_level;      /**< Current volume level, range 0-100 */
 #endif
-    int                      m_fileIndex;  /**< Index to selected file in the list box */
 
     /**
      * Media player geometry.
@@ -187,18 +188,26 @@ namespace NxWM
     NXWidgets::CRlePaletteBitmap *m_volumeBitmap;   /**< Volume control grip bitmap */
 
     /**
-     * Open a media file for playing.  Called after a file has been selected
-     * from the list box.
+     * Get the full media file path and make ready for playing.  Called
+     * after a file has been selected from the list box.
      */
 
-    inline bool openMediaFile(const NXWidgets::CListBoxDataItem *item);
+    bool getMediaFile(const NXWidgets::CListBoxDataItem *item);
 
     /**
-     * Close media file.  Called when a new media file is selected, when a
-     * media file is de-selected, or when destroying the media player instance.
+     * Get the full media file path and make ready for playing.  Called
+     * after a file has been selected from the list box.
      */
 
-     inline void closeMediaFile(void);
+    bool openMediaFile(const NXWidgets::CListBoxDataItem *item);
+
+    /**
+     * Stop playing the current file.  Called when a new media file is selected,
+     * when a media file is de-selected, or when destroying the media player
+     * instance.
+     */
+
+    void stopPlaying(void);
 
     /**
      * Select the geometry of the media player given the current window size.
