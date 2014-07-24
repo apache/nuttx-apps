@@ -961,4 +961,5 @@
 	  in Kconfig file.  From Max (2014-7-11).
 	* apps/system/nxplayer/nxplayer.c:  Check for file read errors and end-of-file
 	  with zero bytes read (2014-7-23).
-
+	* apps/system/nxplayer: Misc changes to better integrate with
+	  NxWM::CMediaPlayer (2014-7-23).
