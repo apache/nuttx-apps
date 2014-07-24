@@ -42,8 +42,11 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cerrno>
 #include <dirent.h>
 #include <debug.h>
+
+#include <apps/nxplayer.h>
 
 #include "cwidgetcontrol.hxx"
 
@@ -108,6 +111,7 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
 
   // Initial state is stopped
 
+  m_player         = (FAR struct nxplayer_s   *)0;
   m_state          = MPLAYER_STOPPED;
   m_prevState      = MPLAYER_STOPPED;
   m_pending        = PENDING_NONE;
@@ -199,6 +203,13 @@ CMediaPlayer::~CMediaPlayer(void)
       delete m_volumeBitmap;
     }
 
+  // Release the NxPlayer
+
+  if (m_player)
+    {
+      nxplayer_release(m_player);
+    }
+
   // Although we didn't create it, we are responsible for deleting the
   // application window
 
@@ -250,10 +261,19 @@ NXWidgets::CNxString CMediaPlayer::getName(void)
 
 bool CMediaPlayer::run(void)
 {
-  // Create the widgets (if we have not already done so)
+  // Configure the NxPlayer and create the widgets (if we have not already
+  // done so)
 
-  if (!m_listbox)
+  if (!m_player)
     {
+      // Configure the NxPlayer library and player thread
+
+      if (!configureNxPlayer())
+        {
+          gdbg("ERROR: Failed to configure NxPlayer\n");
+          return false;
+        }
+
       // Create the widgets
 
       if (!createPlayer())
@@ -486,6 +506,92 @@ inline bool CMediaPlayer::showMediaFiles(const char *mediaPath)
 }
 
 /**
+ * Set the preferred audio device for playback
+ */
+
+#ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
+bool CMediaPlayer::setDevice(FAR const char *devPath)
+{
+  // First try to open the file using the device name as provided
+
+  int ret = nxplayer_setdevice(m_player, devPath);
+  if (ret == -ENOENT)
+    {
+      char path[32];
+
+      // Append the device path and try again
+
+#ifdef CONFIG_AUDIO_CUSTOM_DEV_PATH
+#ifdef CONFIG_AUDIO_DEV_ROOT
+      std::snprintf(path, sizeof(path), "/dev/%s", devPath);
+#else
+      std::snprintf(path, sizeof(path), CONFIG_AUDIO_DEV_PATH "/%s", devPath);
+#endif
+#else
+      std::snprintf(path, sizeof(path), "/dev/audio/%s", devPath);
+#endif
+      ret = nxplayer_setdevice(m_player, path);
+    }
+
+  // Test if the device file exists
+
+  if (ret == -ENOENT)
+    {
+      // Device doesn't exit.  Report an error
+
+      gdbg("ERROR: Device %s not found\n", devPath);
+      return false;
+    }
+
+  // Test if is is an audio device
+
+  if (ret == -ENODEV)
+    {
+      gdbg("ERROR: Device %s is not an audio device\n", devPath);
+      return false;
+    }
+
+  if (ret < 0)
+    {
+      gdbg("ERROR: Error selecting device %s\n", devPath);
+      return false;
+    }
+
+  // Device set successfully
+
+  return true;
+}
+#endif
+
+/**
+ * Configure the NxPlayer.
+ */
+
+bool CMediaPlayer::configureNxPlayer(void)
+{
+  // Get the NxPlayer handle
+
+  m_player = nxplayer_create();
+  if (!m_player)
+    {
+      gdbg("ERROR: Failed get NxPlayer handle\n");
+      return false;
+    }
+
+#ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
+  // Set the NxPlayer audio device
+
+  if (!setDevice(CONFIG_NXWM_MEDIAPLAYER_PREFERRED_DEVICE))
+    {
+      gdbg("ERROR: Failed select NxPlayer audio device\n");
+      return false;
+    }
+#endif
+
+  return true;
+}
+
+/**
  * Create the media player widgets.  Only start as part of the application
  * start method.
  */
@@ -499,7 +605,7 @@ bool CMediaPlayer::createPlayer(void)
                                   CONFIG_NXWM_TRANSPARENT_COLOR);
   if (!m_font)
     {
-      gdbg("ERROR failed to create font\n");
+      gdbg("ERROR: Failed to create font\n");
       return false;
     }
 

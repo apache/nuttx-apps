@@ -1130,6 +1130,20 @@ config NXWM_MEDIAPLAYER
 
 if NXWM_MEDIAPLAYER
 
+menu "NxPlayer Integration"
+
+config NXWM_MEDIAPLAYER_PREFERRED_DEVICE
+	string "Preferred audio device"
+	default "pcm0"
+	depends on NXPLAYER_INCLUDE_PREFERRED_DEVICE
+	---help---
+		NxPlayer expects us to specify a preferred audio device.  This
+		selection allows us to identify that preferred audio device.  This
+		device is identified by a simple name string that corresponds to an
+		audio device that can be found under /dev/audio.
+
+endmenu # NxPlayer Integration
+
 menu "Media File Configuration"
 
 config NXWM_MEDIAPLAYER_MEDIAPATH
@@ -1166,7 +1180,7 @@ config NXWM_MEDIAPLAYER_FILTER_WAV
 
 config NXWM_MEDIAPLAYER_FILTER_PCM
 	bool "Accept .pcm extension"
-	default y
+	default n
 	select NXWM_MEDIAPLAYER_FILTER
 
 config NXWM_MEDIAPLAYER_FILTER_MP3

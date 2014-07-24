@@ -115,6 +115,7 @@ namespace NxWM
      * Media player state data.
      */
 
+    FAR struct nxplayer_s   *m_player;     /**< NxPlayer handle */
     enum EMediaPlayerState   m_state;      /**< Media player current state */
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
@@ -184,7 +185,21 @@ namespace NxWM
      * Load media files into the list box.
      */
 
-    inline bool showMediaFiles(const char *mediaPath);
+    inline bool showMediaFiles(FAR const char *mediaPath);
+
+#ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
+    /**
+     * Set the preferred audio device for playback
+     */
+
+    inline bool setDevice(FAR const char *devPath);
+#endif
+
+    /**
+     * Configure the NxPlayer.
+     */
+
+   inline bool configureNxPlayer(void);
 
     /**
      * Create the Media Player controls.  Only start as part of the application
