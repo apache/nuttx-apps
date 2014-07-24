@@ -4,6 +4,10 @@
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
  *
+ * With updates, enhancements, and modifications by:
+ *
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -49,6 +53,20 @@
 /****************************************************************************
  * Public Type Declarations
  ****************************************************************************/
+/* Fast-forward and rewind by sub-sampling may be supported.  If so, then
+ * this enumeration specifies the sub-sampling:
+ */
+
+enum nxplayer_subsample_e
+{
+  SUBSAMPLE_1X = 0,           /* Normal speed (no direction change) */
+  SUBSAMPLE_2X,
+  SUBSAMPLE_4X,
+  SUBSAMPLE_8X,
+  SUBSAMPLE_16X
+};
+
+/* This structure describes the internal state of the NxPlayer */
 
 struct nxplayer_s
 {
@@ -89,10 +107,6 @@ typedef int (*nxplayer_func)(FAR struct nxplayer_s* pPlayer, char* pargs);
  * Public Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
 #ifdef __cplusplus
 #define EXTERN extern "C"
 extern "C"
@@ -123,7 +137,7 @@ extern "C"
  *
  * Input Parameters:    None
  *
- * Returned values:
+ * Returned Value:
  *   Pointer to created NxPlayer context or NULL if error.
  *
  **************************************************************************/
@@ -139,7 +153,8 @@ FAR struct nxplayer_s *nxplayer_create(void);
  * Input Parameters:
  *   pPlayer    Pointer to the NxPlayer context
  *
- * Returned values:   None
+ * Returned Value:
+ *   None
  *
  **************************************************************************/
 
@@ -153,7 +168,8 @@ void nxplayer_release(FAR struct nxplayer_s *pPlayer);
  * Input Parameters:
  *   pPlayer    Pointer to the NxPlayer context
  *
- * Returned values:   None
+ * Returned Value:
+ *   None
  *
  **************************************************************************/
 
@@ -172,7 +188,7 @@ void nxplayer_reference(FAR struct nxplayer_s *pPlayer);
  *   pPlayer   - Pointer to the context to initialize
  *   device    - Pointer to pathname of the preferred device
  *
- * Returned values:
+ * Returned Value:
  *   OK if context initialized successfully, error code otherwise.
  *
  **************************************************************************/
@@ -195,7 +211,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *device);
  *   subfmt    - Sub-Format of audio in filename if known, AUDIO_FMT_UNDEF
  *               to let nxplayer_playfile() determine automatically.
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/
@@ -211,7 +227,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, FAR char *filename,
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/
@@ -228,7 +244,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pPlayer);
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/
@@ -240,18 +256,89 @@ int nxplayer_pause(FAR struct nxplayer_s *pPlayer);
 /****************************************************************************
  * Name: nxplayer_resume
  *
- *   Resuems current playback.
+ *   Resumes current playback.
  *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
+#endif
+
+/****************************************************************************
+ * Name: nxplayer_fforward
+ *
+ *   Selects to fast forward in the audio data stream.  The fast forward
+ *   operation can be cancelled by simply selected no sub-sampling with
+ *   the SUBSAMPLE_1X argument returning to normal 1x forward play.
+ *
+ *   The preferred way to cancel a fast forward operation is via
+ *   nxplayer_cancel_motion() that provides the option to also return to
+ *   paused, non-playing state.
+ *
+ * Input Parameters:
+ *   pPlayer   - Pointer to the context to initialize
+ *   subsample - Identifies the fast forward rate (in terms of sub-sampling,
+ *               but does not explicitly require sub-sampling)
+ *
+ * Returned Value:
+ *   OK if fast forward operation successful.
+ *
+ **************************************************************************/
+
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
+int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
+                      enum nxplayer_subsample_e subsample);
+#endif
+
+/****************************************************************************
+ * Name: nxplayer_rewind
+ *
+ *   Selects to rewind in the audio data stream.  The rewind operation must
+ *   be cancelled with nxplayer_cancel_motion.
+ *
+ *   NOTE that cancellation of the rewind operation differs from
+ *   cancellation of the fast forward operation because we must both restore
+ *   the sub-sampling rate to 1x and also return to forward play.
+ *
+ * Input Parameters:
+ *   pPlayer   - Pointer to the context to initialize
+ *   subsample - Identifies the rewind rate (in terms of sub-sampling, but
+ *               does not explicitly require sub-sampling)
+ *
+ * Returned Value:
+ *   OK if rewind operation successfully initiated.
+ *
+ **************************************************************************/
+
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
+int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
+                    enum nxplayer_subsample_e subsample);
+#endif
+
+/****************************************************************************
+ * Name: nxplayer_cancel_motion
+ *
+ *   Cancel a rewind or fast forward operation and return to either the
+ *   paused state or to the normal, forward play state.
+ *
+ * Input Parameters:
+ *   pPlayer - Pointer to the context to initialize
+ *   paused  - True: return to the paused state, False: return to the 1X
+ *             forward play state.
+ *
+ * Returned Value:
+ *   OK if rewind operation successfully cancelled.
+ *
+ **************************************************************************/
+
+#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
+int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused);
 #endif
 
 /****************************************************************************
@@ -265,7 +352,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
  *   pPlayer   - Pointer to the context to initialize
  *   volume    - Volume level to set in 1/10th percent increments
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/
@@ -285,7 +372,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume);
  *   pPlayer   - Pointer to the context to initialize
  *   balance   - Balance level to set in 1/10th percent increments
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/
@@ -305,10 +392,35 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance);
  *   pPlayer   - Pointer to the context to initialize
  *   mediadir  - Pointer to pathname of the media directory
  *
+ * Returned Value:
+ *   None
  *
  **************************************************************************/
 
 void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer, FAR char *mediadir);
+
+/****************************************************************************
+ * Name: nxplayer_setequalization
+ *
+ *   Sets the level on each band of an equalizer.  Each band setting is
+ *   represented in one percent increments, so the range is 0-100.
+ *
+ * Input Parameters:
+ *   pPlayer      - Pointer to the context to initialize
+ *   equalization - Pointer to array of equalizer settings of size
+ *                  CONFIG_AUDIO_EQUALIZER_NBANDS bytes.  Each byte
+ *                  represents the setting for one band in the range of
+ *                  0-100.
+ *
+ * Returned Value:
+ *   OK if equalization was set correctly.
+ *
+ **************************************************************************/
+
+#ifndef CONFIG_AUDIO_EXCLUDE_EQUALIZER
+int nxplayer_setequalization(FAR struct nxplayer_s *pPlayer,
+                             FAR uint8_t *equalization);
+#endif
 
 /****************************************************************************
  * Name: nxplayer_setbass
@@ -320,8 +432,8 @@ void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer, FAR char *mediadir);
  *   pPlayer   - Pointer to the context to initialize
  *   bass      - Bass level to set in one percent increments
  *
- * Returned values:
- *   OK if file found, device found, and playback started.
+ * Returned Value:
+ *   OK if the bass level was set successfully
  *
  **************************************************************************/
 
@@ -339,8 +451,8 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t bass);
  *   pPlayer   - Pointer to the context to initialize
  *   treble    - Treble level to set in one percent increments
  *
- * Returned values:
- *   OK if file found, device found, and playback started.
+ * Returned Value:
+ *   OK if the treble level was set successfully
  *
  **************************************************************************/
 
@@ -357,7 +469,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t treble);
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *
- * Returned values:
+ * Returned Value:
  *   OK if file found, device found, and playback started.
  *
  **************************************************************************/

@@ -905,6 +905,33 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
 #endif  /* CONFIG_AUDIO_EXCLUDE_VOLUME */
 
 /****************************************************************************
+ * Name: nxplayer_setequalization
+ *
+ *   Sets the level on each band of an equalizer.  Each band setting is
+ *   represented in one percent increments, so the range is 0-100.
+ *
+ * Input Parameters:
+ *   pPlayer      - Pointer to the context to initialize
+ *   equalization - Pointer to array of equalizer settings of size
+ *                  CONFIG_AUDIO_EQUALIZER_NBANDS bytes.  Each byte
+ *                  represents the setting for one band in the range of
+ *                  0-100.
+ *
+ * Returned Value:
+ *   OK if equalization was set correctly.
+ *
+ **************************************************************************/
+
+#ifndef CONFIG_AUDIO_EXCLUDE_EQUALIZER
+int nxplayer_setequalization(FAR struct nxplayer_s *pPlayer,
+                             FAR uint8_t *equalization)
+{
+#warning Missing logic
+  return -ENOSYS;
+}
+#endif
+
+/****************************************************************************
  * Name: nxplayer_setbass
  *
  *   nxplayer_setbass() sets the bass level and range.
@@ -1110,6 +1137,89 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
   return ret;
 }
 #endif  /* CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME */
+
+/****************************************************************************
+ * Name: nxplayer_fforward
+ *
+ *   Selects to fast forward in the audio data stream.  The fast forward
+ *   operation can be cancelled by simply selected no sub-sampling with
+ *   the SUBSAMPLE_1X argument returning to normal 1x forward play.
+ *
+ *   The preferred way to cancel a fast forward operation is via
+ *   nxplayer_cancel_motion() that provides the option to also return to
+ *   paused, non-playing state.
+ *
+ * Input Parameters:
+ *   pPlayer   - Pointer to the context to initialize
+ *   subsample - Identifies the fast forward rate (in terms of sub-sampling,
+ *               but does not explicitly require sub-sampling)
+ *
+ * Returned Value:
+ *   OK if fast forward operation successful.
+ *
+ **************************************************************************/
+
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
+int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
+                      enum nxplayer_subsample_e subsample)
+{
+#warning Missing logic
+  return -ENOSYS;
+}
+#endif
+
+/****************************************************************************
+ * Name: nxplayer_rewind
+ *
+ *   Selects to rewind in the audio data stream.  The rewind operation must
+ *   be cancelled with nxplayer_cancel_motion.
+ *
+ *   NOTE that cancellation of the rewind operation differs from
+ *   cancellation of the fast forward operation because we must both restore
+ *   the sub-sampling rate to 1x and also return to forward play.
+ *
+ * Input Parameters:
+ *   pPlayer   - Pointer to the context to initialize
+ *   subsample - Identifies the rewind rate (in terms of sub-sampling, but
+ *               does not explicitly require sub-sampling)
+ *
+ * Returned Value:
+ *   OK if rewind operation successfully initiated.
+ *
+ **************************************************************************/
+
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
+int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
+                    enum nxplayer_subsample_e subsample)
+{
+#warning Missing logic
+  return -ENOSYS;
+}
+#endif
+
+/****************************************************************************
+ * Name: nxplayer_cancel_motion
+ *
+ *   Cancel a rewind or fast forward operation and return to either the
+ *   paused state or to the normal, forward play state.
+ *
+ * Input Parameters:
+ *   pPlayer - Pointer to the context to initialize
+ *   paused  - True: return to the paused state, False: return to the 1X
+ *             forward play state.
+ *
+ * Returned Value:
+ *   OK if rewind operation successfully cancelled.
+ *
+ **************************************************************************/
+
+#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
+int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused)
+{
+#warning Missing logic
+  return -ENOSYS;
+}
+#endif
 
 /****************************************************************************
  * Name: nxplayer_setdevice
