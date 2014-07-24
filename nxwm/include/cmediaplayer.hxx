@@ -143,7 +143,9 @@ namespace NxWM
     enum EMediaPlayerState   m_state;      /**< Media player current state */
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
     int                      m_level;      /**< Current volume level */
+#endif
     int                      m_fileIndex;  /**< Index to selected file in the list box */
 
     /**
@@ -261,11 +263,13 @@ namespace NxWM
 
     void setMediaPlayerState(enum EMediaPlayerState state);
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
     /**
      * Set the new volume level based on the position of the volume slider.
      */
 
     void setVolumeLevel(void);
+#endif
 
     /**
      * Check if a new file has been selected (or de-selected) in the list box
@@ -298,7 +302,8 @@ namespace NxWM
     void handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &e);
 
     /**
-     * Handle changes in the volume level.
+     * Handle value changes.  This will get events when there is a change in the
+     * volume level or a file is selected or deselected.
      */
 
     void handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e);

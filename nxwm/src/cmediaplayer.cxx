@@ -129,6 +129,9 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
   m_state          = MPLAYER_STOPPED;
   m_prevState      = MPLAYER_STOPPED;
   m_pending        = PENDING_NONE;
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
+  m_level          = 0;
+#endif
   m_fileIndex      = -1;
 
   // Add our personalized window label
@@ -843,9 +846,11 @@ bool CMediaPlayer::createPlayer(void)
   m_rewind->setBorderless(false);
 #endif
 
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
   // Register to get events from the mouse clicks on the Rewind image
 
   m_rewind->addWidgetEventHandler(this);
+#endif
 
   // Create the Forward Image
 
@@ -873,9 +878,11 @@ bool CMediaPlayer::createPlayer(void)
   m_fforward->setBorderless(false);
 #endif
 
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
   // Register to get events from the mouse clicks on the Forward image
 
   m_fforward->addWidgetEventHandler(this);
+#endif
 
   // Create the Volume control
 
@@ -909,18 +916,22 @@ bool CMediaPlayer::createPlayer(void)
   m_volume->setValue(15);
   m_volume->setPageSize(CONFIG_NXWM_MEDIAPLAYER_VOLUMESTEP);
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
   // Register to get events from the value changes in the volume slider
 
   m_volume->addWidgetEventHandler(this);
+#endif
 
   // Make sure that all widgets are setup for the STOPPED state.  Among other this,
   // this will enable drawing in the play widget (only)
 
   setMediaPlayerState(MPLAYER_STOPPED);
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
   // Set the volume level
 
   setVolumeLevel();
+#endif
 
   // Enable drawing in the list box, rewind, fast-forward and drawing widgets.
 
@@ -1051,7 +1062,9 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       m_rewind->disable();
       m_rewind->setStuckSelection(false);
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
       m_volume->enable();
+#endif
       break;
 
     case MPLAYER_PLAYING:    // Playing a media file
@@ -1072,15 +1085,19 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       m_pause->enable();
       m_pause->show();
 
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
       // Fast forward image is enabled and ready for use
 
       m_fforward->enable();
       m_fforward->setStuckSelection(false);
+#endif
 
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
       // Rewind image is enabled and ready for use
 
       m_rewind->enable();
       m_rewind->setStuckSelection(false);
+#endif
       break;
 
     case MPLAYER_PAUSED:     // Playing a media file but paused
@@ -1101,16 +1118,21 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
       m_pause->disable();
       m_pause->hide();
 
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
       // Fast forward image is enabled and ready for use
 
       m_fforward->setStuckSelection(false);
+#endif
 
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
       // Rewind image is enabled and ready for use
 
       m_rewind->setStuckSelection(false);
+#endif
       break;
 
     case MPLAYER_FFORWARD:   // Fast forwarding through a media file */
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
       m_state = MPLAYER_FFORWARD;
 
       // List box is not available while fast forwarding
@@ -1146,12 +1168,16 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       m_fforward->setStuckSelection(true);
 
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
       // Rewind is enabled and ready for use
 
       m_rewind->setStuckSelection(false);
+#endif
+#endif
       break;
 
     case MPLAYER_FREWIND:    // Rewinding a media file
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
       m_state = MPLAYER_FREWIND;
 
       // List box is not available while rewinding
@@ -1183,13 +1209,16 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
           m_pause->hide();
         }
 
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
       // Fast forward image is enabled and ready for use
 
       m_fforward->setStuckSelection(false);
+#endif
 
       // Rewind image is enabled, highlighted, and ready for use
 
       m_rewind->setStuckSelection(true);
+#endif
       break;
 
     default:
@@ -1205,6 +1234,7 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
  * Set the new volume level based on the position of the volume slider.
  */
 
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
 void CMediaPlayer::setVolumeLevel(void)
 {
   // Get the current volume level value.  This is already pre-scaled in the
@@ -1221,6 +1251,7 @@ void CMediaPlayer::setVolumeLevel(void)
       m_level = newLevel;
     }
 }
+#endif
 
 /**
  * Check if a new file has been selected (or de-selected) in the list box
@@ -1334,6 +1365,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
           m_pending = PENDING_PAUSE_RELEASE;
         }
 
+#ifndef CONFIG_AUDIO_EXCLUDE_REWIND
       // Check if the rewind image was clicked
 
       if (m_rewind->isClicked())
@@ -1357,7 +1389,9 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               setMediaPlayerState(MPLAYER_FREWIND);
             }
         }
+#endif
 
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
       // Check if the fast forward image was clicked
 
       if (m_fforward->isClicked())
@@ -1381,6 +1415,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               setMediaPlayerState(MPLAYER_FFORWARD);
             }
         }
+#endif
     }
 }
 
@@ -1467,7 +1502,9 @@ void CMediaPlayer::handleReleaseOutsideEvent(const NXWidgets::CWidgetEventArgs &
 
 void CMediaPlayer::handleValueChangeEvent(const NXWidgets::CWidgetEventArgs &e)
 {
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
   setVolumeLevel();
+#endif
   checkFileSelection();
 }
 
