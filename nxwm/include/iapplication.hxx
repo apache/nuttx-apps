@@ -219,6 +219,15 @@ namespace NxWM
   {
   public:
     /**
+     * A virtual destructor is required in order to override the IApplicationFactory
+     * destructor.  We do this because if we delete IApplicationFactory, we want the
+     * destructor of the class that inherits from IApplication to run, not this
+     * one.
+     */
+
+    virtual ~IApplicationFactory(void) { }
+
+    /**
      * Create a new instance of an application.
      */
 
