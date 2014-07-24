@@ -510,3 +510,9 @@
 * NxWM::CMediaPlayer:  Beginning integration of NxPlayer into Nxwm::MediaPlayer.
   Gets handle, sets device, and releases handle.  Lots more to be done
   (2014-7-23).
+* NxWidgets::CNxString: Add a getAllocSize() method to make it easier to
+  convert CNxStrings to NUL-terminated C strings (2014-7-24).
+* NxWM::IApplicationFactory: dd a do-nothing, virtual destructor to
+  eliminate a warning (2014-7-24).
+* NxWM::CMediaPlayer: Lots of changes to integrate with Ken's NxPlayer
+  (2014-7-24).
