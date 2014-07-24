@@ -507,3 +507,6 @@
   based on extension (2014-7-23)
 * NxWM::CMediaPlayer:  Add logic to read files from the media mountpoint,
   filter them by extension, and display the file names in the listbox (2014-7-23).
+* NxWM::CMediaPlayer:  Beginning integration of NxPlayer into Nxwm::MediaPlayer.
+  Gets handle, sets device, and releases handle.  Lots more to be done
+  (2014-7-23).
