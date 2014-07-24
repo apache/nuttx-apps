@@ -239,9 +239,9 @@ namespace NXWidgets
     /**
      * Copy the internal array to the supplied buffer.  The buffer must be
      * large enough to contain the full text in the string.  The
-     * getByteCount() method can be used to obtain the length of the string.
+     * getAllocSize() method can be used to obtain the length of the string.
      * Unlike the CNxString class, the char array is null-terminated.
-     * The buffer must be (getByteCount() + 1) bytes long, in order to
+     * The buffer must be (getAllocSize() + 1) bytes long, in order to
      * accommodate the terminator.
      *
      * @param buffer Buffer to copy the internal char array to.
@@ -322,10 +322,22 @@ namespace NXWidgets
      * @return The length of the string.
      */
 
-    inline const int getLength(void) const
+    inline const unsigned int getLength(void) const
     {
       return m_stringLength;
     };
+
+    /**
+     * Get the size of a buffer (in bytes) required in order to copy the
+     * internal string into an the array.  This is normally used in
+     * conjunction with copyToCharArray().  Note that the returned size
+     * includes additional byte(s) to hold NUL termination.
+     */
+
+    inline const unsigned int getAllocSize(void) const
+    {
+      return sizeof(nxwidget_char_t) * (m_stringLength + 1);
+    }
 
     /**
      * Get the character at the specified index.  This function is useful
@@ -463,7 +475,7 @@ namespace NXWidgets
      * @return This string.
      */
 
-    CNxString& operator=(nxwidget_char_t letter);
+    CNxString &operator=(nxwidget_char_t letter);
 
     /**
      * Compares this string to the argument.

@@ -161,9 +161,9 @@ CStringIterator *CNxString::newStringIterator() const
 /**
  * Copy the internal array to the supplied buffer.  The buffer must be
  * large enough to contain the full text in the string.  The
- * getByteCount() method can be used to obtain the length of the string.
+ * getAllocSize() method can be used to obtain the length of the string.
  * Unlike the CNxString class, the char array is null-terminated.
- * The buffer must be (getByteCount() + 2) bytes long, in order to
+ * The buffer must be (getAllocSize() + 2) bytes long, in order to
  * accommodate the terminator.
  *
  * @param buffer Buffer to copy the internal char array to.
@@ -677,6 +677,7 @@ CNxString& CNxString::operator=(const CNxString &string)
     {
       setText(string);
     }
+
   return *this;
 }
 
@@ -688,7 +689,7 @@ CNxString& CNxString::operator=(const CNxString &string)
  * @return This string.
  */
 
-CNxString& CNxString::operator=(const char *string)
+CNxString& CNxString::operator=(FAR const char *string)
 {
   setText(string);
   return *this;
