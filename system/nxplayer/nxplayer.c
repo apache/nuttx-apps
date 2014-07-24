@@ -605,13 +605,17 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   /* Create our audio pipeline buffers to use for queueing up data */
 
   for (x = 0; x < buf_info.nbuffers; x++)
+    {
       pBuffers[x] = NULL;
+    }
 
   for (x = 0; x < buf_info.nbuffers; x++)
 #else /* CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFER */
 
   for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
+    {
       pBuffers[x] = NULL;
+    }
 
   for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
 #endif /* CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFER */
@@ -725,7 +729,6 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* An audio buffer is being dequeued by the driver */
 
           case AUDIO_MSG_DEQUEUE:
-
             /* Read data from the file directly into this buffer
              * and re-enqueue it.
              */
@@ -748,7 +751,6 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Someone wants to stop the playback. */
 
           case AUDIO_MSG_STOP:
-
             /* Send a stop message to the device */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
@@ -764,7 +766,6 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Message indicating the playback is complete */
 
           case AUDIO_MSG_COMPLETE:
-
             running = false;
             break;
 
