@@ -963,3 +963,6 @@
 	  with zero bytes read (2014-7-23).
 	* apps/system/nxplayer: Misc changes to better integrate with
 	  NxWM::CMediaPlayer (2014-7-23).
+	* apps/system/nxplayer/nxplayer.c and apps/include/nxplayer.h: Add hooks
+	  for fast-forward and rewind needed by CMediaPlayer; add hooks for
+	  equalizer settings needed by the WM8904  (2014-7-24).
