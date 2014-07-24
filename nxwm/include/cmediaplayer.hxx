@@ -83,6 +83,20 @@ namespace NxWM
   private:
     /**
      * This enumeration identifies the state of the media player
+     *
+     *                         State Transition Table
+     * ---------+----------+----------+----------+----------+----------+----------+
+     *          |   FILE   |   FILE   |          |          |   FAST   |          |
+     * STATE    | SELECTED |DESELECTED|   PLAY   |   PAUSE  |  FORWARD |  REWIND  |
+     * ---------+----------+----------+----------+----------+----------+----------+
+     * STOPPED  |  PAUSED  |    X     |     X    |     X    |    X     |    X     |
+     * PAUSED   |  PAUSED  | STOPPED  |  PLAYING |     X    |FFORWARD1 | REWIND1  |
+     * PLAYING  |    X     |    X     |     X    |  PAUSED  |FFORWARD2 | REWIND2  |
+     * FFORWARD1|    X     |    X     |  PAUSED  |     X    |  PAUSED  | REWIND1  |
+     * REWIND1  |    X     |    X     |  PAUSED  |     X    |FFORWARD1 |  PAUSED  |
+     * FFORWARD2|    X     |    X     |     X    |  PLAYING | PLAYING  | REWIND1  |
+     * REWIND2  |    X     |    X     |     X    |  PLAYING |FFORWARD1 | PLAYING  |
+     * ---------+----------+----------+----------+----------+----------+----------+
      */
 
     enum EMediaPlayerState

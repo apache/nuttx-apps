@@ -58,6 +58,20 @@
  * Pre-Processor Definitions
  ********************************************************************************************/
 
+/* We want debug output from this file if either audio or graphics debug is enabled. */
+
+#if !defined(CONFIG_DEBUG_AUDIO) && !defined(CONFIG_DEBUG_GRAPHICS)
+#  undef dbg
+#  undef vdbg
+#  ifdef CONFIG_CPP_HAVE_VARARGS
+#    define dbg(x...)
+#    define vdbg(x...)
+#  else
+#    define dbg  (void)
+#    define vdbg (void)
+#  endif
+#endif
+
 /********************************************************************************************
  * Private Types
  ********************************************************************************************/
@@ -270,7 +284,7 @@ bool CMediaPlayer::run(void)
 
       if (!configureNxPlayer())
         {
-          gdbg("ERROR: Failed to configure NxPlayer\n");
+          dbg("ERROR: Failed to configure NxPlayer\n");
           return false;
         }
 
@@ -278,7 +292,7 @@ bool CMediaPlayer::run(void)
 
       if (!createPlayer())
         {
-          gdbg("ERROR: Failed to create widgets\n");
+          dbg("ERROR: Failed to create widgets\n");
           return false;
         }
     }
@@ -539,7 +553,7 @@ bool CMediaPlayer::setDevice(FAR const char *devPath)
     {
       // Device doesn't exit.  Report an error
 
-      gdbg("ERROR: Device %s not found\n", devPath);
+      dbg("ERROR: Device %s not found\n", devPath);
       return false;
     }
 
@@ -547,13 +561,13 @@ bool CMediaPlayer::setDevice(FAR const char *devPath)
 
   if (ret == -ENODEV)
     {
-      gdbg("ERROR: Device %s is not an audio device\n", devPath);
+      dbg("ERROR: Device %s is not an audio device\n", devPath);
       return false;
     }
 
   if (ret < 0)
     {
-      gdbg("ERROR: Error selecting device %s\n", devPath);
+      dbg("ERROR: Error selecting device %s\n", devPath);
       return false;
     }
 
@@ -574,7 +588,7 @@ bool CMediaPlayer::configureNxPlayer(void)
   m_player = nxplayer_create();
   if (!m_player)
     {
-      gdbg("ERROR: Failed get NxPlayer handle\n");
+      dbg("ERROR: Failed get NxPlayer handle\n");
       return false;
     }
 
@@ -583,7 +597,7 @@ bool CMediaPlayer::configureNxPlayer(void)
 
   if (!setDevice(CONFIG_NXWM_MEDIAPLAYER_PREFERRED_DEVICE))
     {
-      gdbg("ERROR: Failed select NxPlayer audio device\n");
+      dbg("ERROR: Failed select NxPlayer audio device\n");
       return false;
     }
 #endif
@@ -605,7 +619,7 @@ bool CMediaPlayer::createPlayer(void)
                                   CONFIG_NXWM_TRANSPARENT_COLOR);
   if (!m_font)
     {
-      gdbg("ERROR: Failed to create font\n");
+      dbg("ERROR: Failed to create font\n");
       return false;
     }
 
@@ -626,7 +640,7 @@ bool CMediaPlayer::createPlayer(void)
   if (!m_playBitmap || !m_pauseBitmap || !m_rewindBitmap ||
       !m_fforwardBitmap || !m_volumeBitmap)
     {
-      gdbg("ERROR: Failed to one or more bitmaps\n");
+      dbg("ERROR: Failed to one or more bitmaps\n");
       return false;
     }
 
@@ -676,7 +690,7 @@ bool CMediaPlayer::createPlayer(void)
   m_listbox = new NXWidgets::CListBox(control, 0, 0,  m_windowSize.w, listHeight);
   if (!m_listbox)
     {
-      gdbg("ERROR: Failed to create CListBox\n");
+      dbg("ERROR: Failed to create CListBox\n");
       return false;
     }
 
@@ -757,7 +771,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_play)
     {
-      gdbg("ERROR: Failed to create play control\n");
+      dbg("ERROR: Failed to create play control\n");
       return false;
     }
 
@@ -784,7 +798,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_pause)
     {
-      gdbg("ERROR: Failed to create pause control\n");
+      dbg("ERROR: Failed to create pause control\n");
       return false;
     }
 
@@ -814,7 +828,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_rewind)
     {
-      gdbg("ERROR: Failed to create rewind control\n");
+      dbg("ERROR: Failed to create rewind control\n");
       return false;
     }
 
@@ -844,7 +858,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_fforward)
     {
-      gdbg("ERROR: Failed to create fast forward control\n");
+      dbg("ERROR: Failed to create fast forward control\n");
       return false;
     }
 
@@ -883,7 +897,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_volume)
     {
-      gdbg("ERROR: Failed to create volume control\n");
+      dbg("ERROR: Failed to create volume control\n");
       return false;
     }
 
@@ -1246,7 +1260,7 @@ void CMediaPlayer::checkFileSelection(void)
           // Remain in the stopped state if we fail to open the file
 
           m_fileIndex = -1;
-          gdbg("openMediaFile failed\n");
+          dbg("ERROR: openMediaFile failed\n");
         }
       else
         {
@@ -1271,7 +1285,7 @@ void CMediaPlayer::checkFileSelection(void)
           // Go to the STOPPED state on a failure to open the media file
           // The play button will be disabled because m_fileIndex == -1.
 
-          gdbg("openMediaFile failed\n");
+          dbg("ERROR: openMediaFile failed\n");
           m_fileIndex = -1;
           setMediaPlayerState(MPLAYER_STOPPED);
         }
@@ -1480,7 +1494,7 @@ IApplication *CMediaPlayerFactory::create(void)
   CApplicationWindow *window = m_taskbar->openApplicationWindow();
   if (!window)
     {
-      gdbg("ERROR: Failed to create CApplicationWindow\n");
+      dbg("ERROR: Failed to create CApplicationWindow\n");
       return (IApplication *)0;
     }
 
@@ -1488,7 +1502,7 @@ IApplication *CMediaPlayerFactory::create(void)
 
   if (!window->open())
     {
-      gdbg("ERROR: Failed to open CApplicationWindow\n");
+      dbg("ERROR: Failed to open CApplicationWindow\n");
       delete window;
       return (IApplication *)0;
     }
@@ -1499,7 +1513,7 @@ IApplication *CMediaPlayerFactory::create(void)
   CMediaPlayer *mediaPlayer = new CMediaPlayer(m_taskbar, window);
   if (!mediaPlayer)
     {
-      gdbg("ERROR: Failed to instantiate CMediaPlayer\n");
+      dbg("ERROR: Failed to instantiate CMediaPlayer\n");
       delete window;
       return (IApplication *)0;
     }
