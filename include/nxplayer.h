@@ -193,7 +193,8 @@ void nxplayer_reference(FAR struct nxplayer_s *pPlayer);
  *
  **************************************************************************/
 
-int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *device);
+int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer,
+                       FAR const char *device);
 
 /****************************************************************************
  * Name: nxplayer_playfile
@@ -216,8 +217,8 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *device);
  *
  **************************************************************************/
 
-int nxplayer_playfile(FAR struct nxplayer_s *pPlayer, FAR char *filename,
-                      int filefmt, int subfmt);
+int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
+                      FAR const char *filename, int filefmt, int subfmt);
 
 /****************************************************************************
  * Name: nxplayer_stop
@@ -397,7 +398,8 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance);
  *
  **************************************************************************/
 
-void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer, FAR char *mediadir);
+void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer,
+                          FAR const char *mediadir);
 
 /****************************************************************************
  * Name: nxplayer_setequalization
