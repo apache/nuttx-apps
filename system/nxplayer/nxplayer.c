@@ -255,10 +255,8 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
                 {
                   /* Test if this device supports the format we want */
 
-                  int ac_format = caps.ac_format[0] | (caps.ac_format[1] << 8);
-
-                  if (((ac_format & (1 << (format - 1))) != 0) &&
-                      (caps.ac_controls[0] & AUDIO_TYPE_OUTPUT))
+                  if (((caps.ac_format.hw & (1 << (format - 1))) != 0) &&
+                      (caps.ac_controls.b[0] & AUDIO_TYPE_OUTPUT))
                     {
                       /* Do subformat detection */
 
@@ -267,7 +265,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
                           /* Prepare to get sub-formats for this main format */
 
                           caps.ac_subtype = format;
-                          caps.ac_format[0] = 0;
+                          caps.ac_format.b[0] = 0;
 
                           while (ioctl(pPlayer->devFd, AUDIOIOC_GETCAPS,
                               (unsigned long) &caps) == caps.ac_len)
@@ -276,13 +274,13 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
 
                               for (x = 0; x < sizeof(caps.ac_controls); x++)
                                 {
-                                  if (caps.ac_controls[x] == subfmt)
+                                  if (caps.ac_controls.b[x] == subfmt)
                                     {
                                       /* Sub format supported! */
 
                                       break;
                                     }
-                                  else if (caps.ac_controls[x] == AUDIO_SUBFMT_END)
+                                  else if (caps.ac_controls.b[x] == AUDIO_SUBFMT_END)
                                     {
                                       /* Sub format not supported */
 
@@ -300,9 +298,9 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
                                   break;
                                 }
 
-                              /* Increment ac_format[0] to get next set of subformats */
+                              /* Increment ac_format.b[0] to get next set of subformats */
 
-                              caps.ac_format[0]++;
+                              caps.ac_format.b[0]++;
                             }
                         }
 
@@ -887,10 +885,10 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
 #ifdef CONFIG_AUDIO_MULTI_SESSION
       cap_desc.session= pPlayer->session;
 #endif
-      cap_desc.caps.ac_len = sizeof(struct audio_caps_s);
-      cap_desc.caps.ac_type = AUDIO_TYPE_FEATURE;
-      *((uint16_t *) cap_desc.caps.ac_format) = AUDIO_FU_VOLUME;
-      *((uint16_t *) cap_desc.caps.ac_controls) = volume;
+      cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
+      cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
+      cap_desc.caps.ac_format.hw      = AUDIO_FU_VOLUME;
+      cap_desc.caps.ac_controls.hw[0] = volume;
       ioctl(pPlayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
@@ -966,10 +964,10 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t level)
 #ifdef CONFIG_AUDIO_MULTI_SESSION
       cap_desc.session= pPlayer->session;
 #endif
-      cap_desc.caps.ac_len = sizeof(struct audio_caps_s);
-      cap_desc.caps.ac_type = AUDIO_TYPE_FEATURE;
-      *((uint16_t *) cap_desc.caps.ac_format) = AUDIO_FU_BASS;
-      cap_desc.caps.ac_controls[0] = level;
+      cap_desc.caps.ac_len           = sizeof(struct audio_caps_s);
+      cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
+      cap_desc.caps.ac_format.hw     = AUDIO_FU_BASS;
+      cap_desc.caps.ac_controls.b[0] = level;
       ioctl(pPlayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
@@ -1018,10 +1016,10 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t level)
 #ifdef CONFIG_AUDIO_MULTI_SESSION
       cap_desc.session= pPlayer->session;
 #endif
-      cap_desc.caps.ac_len = sizeof(struct audio_caps_s);
-      cap_desc.caps.ac_type = AUDIO_TYPE_FEATURE;
-      *((uint16_t *) cap_desc.caps.ac_format) = AUDIO_FU_TREBLE;
-      cap_desc.caps.ac_controls[0] = level;
+      cap_desc.caps.ac_len           = sizeof(struct audio_caps_s);
+      cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
+      cap_desc.caps.ac_format.hw     = AUDIO_FU_TREBLE;
+      cap_desc.caps.ac_controls.b[0] = level;
       ioctl(pPlayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
@@ -1065,10 +1063,10 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance)
 #ifdef CONFIG_AUDIO_MULTI_SESSION
       cap_desc.session= pPlayer->session;
 #endif
-      cap_desc.caps.ac_len = sizeof(struct audio_caps_s);
-      cap_desc.caps.ac_type = AUDIO_TYPE_FEATURE;
-      *((uint16_t *) cap_desc.caps.ac_format) = AUDIO_FU_BALANCE;
-      *((uint16_t *) cap_desc.caps.ac_controls) = balance;
+      cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
+      cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
+      cap_desc.caps.ac_format.hw      = AUDIO_FU_BALANCE;
+      cap_desc.caps.ac_controls.hw[0] = balance;
       ioctl(pPlayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
     }
 
@@ -1268,8 +1266,8 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *pDevice)
   /* Save the path and format capabilities of the preferred device */
 
   strncpy(pPlayer->prefdevice, pDevice, sizeof(pPlayer->prefdevice));
-  pPlayer->prefformat = caps.ac_format[0] | (caps.ac_format[1] << 8);
-  pPlayer->preftype = caps.ac_controls[0];
+  pPlayer->prefformat = caps.ac_format.b[0] | (caps.ac_format.b[1] << 8);
+  pPlayer->preftype = caps.ac_controls.b[0];
 
   return OK;
 }
