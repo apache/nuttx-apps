@@ -97,6 +97,16 @@ namespace NxWM
      * FFORWARD2|    X     |    X     |     X    |  PLAYING | PLAYING  | REWIND1  |
      * REWIND2  |    X     |    X     |     X    |  PLAYING |FFORWARD1 | PLAYING  |
      * ---------+----------+----------+----------+----------+----------+----------+
+     *
+     * Configuration Dependencies.  States in the above state transition table may
+     * not be supported if any of the following features are excluded from the
+     * configuration:
+     *
+     *   CONFIG_AUDIO_EXCLUDE_STOP
+     *   CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
+     *   CONFIG_AUDIO_EXCLUDE_VOLUME
+     *   CONFIG_AUDIO_EXCLUDE_FFORWARD
+     *   CONFIG_AUDIO_EXCLUDE_REWIND
      */
 
     enum EMediaPlayerState
