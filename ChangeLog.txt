@@ -966,3 +966,5 @@
 	* apps/system/nxplayer/nxplayer.c and apps/include/nxplayer.h: Add hooks
 	  for fast-forward and rewind needed by CMediaPlayer; add hooks for
 	  equalizer settings needed by the WM8904  (2014-7-24).
+	* apps/include/nxplayer.h and apps/system/nxplayer/nxplayer.c: Changes to
+	  integrate with Ken's NxWM::CMediaPlayer (2014-7-24).
