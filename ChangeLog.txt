@@ -516,3 +516,6 @@
   eliminate a warning (2014-7-24).
 * NxWM::CMediaPlayer: Lots of changes to integrate with Ken's NxPlayer
   (2014-7-24).
+* NxWM::CMediaPlayer: Revise state logic.  We need an additional state for
+  the case where a file is selected, but playing has not yet start.  Several
+  other state-related fixes (2014-7-25).
