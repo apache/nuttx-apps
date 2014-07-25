@@ -89,9 +89,10 @@ namespace NxWM
      *          |   FILE   |   FILE   |          |          |   FAST   |          |
      * STATE    | SELECTED |DESELECTED|   PLAY   |   PAUSE  |  FORWARD |  REWIND  |
      * ---------+----------+----------+----------+----------+----------+----------+
-     * STOPPED  |  PAUSED  |    X     |     X    |     X    |    X     |    X     |
-     * PAUSED   |  PAUSED  | STOPPED  |  PLAYING |     X    |FFORWARD1 | REWIND1  |
+     * STOPPED  |  STAGED  |    X     |     X    |     X    |    X     |    X     |
+     * STAGED   |  STAGED  | STOPPED  |  PLAYING |     X    |    X     |    X     |
      * PLAYING  |    X     |    X     |     X    |  PAUSED  |FFORWARD2 | REWIND2  |
+     * PAUSED   |  STAGED  | STOPPED  |  PLAYING |     X    |FFORWARD1 | REWIND1  |
      * FFORWARD1|    X     |    X     |  PAUSED  |     X    |  PAUSED  | REWIND1  |
      * REWIND1  |    X     |    X     |  PAUSED  |     X    |FFORWARD1 |  PAUSED  |
      * FFORWARD2|    X     |    X     |     X    |  PLAYING | PLAYING  | REWIND1  |
@@ -112,11 +113,18 @@ namespace NxWM
     enum EMediaPlayerState
     {
       MPLAYER_STOPPED = 0,                 /**< No media file has been selected */
+      MPLAYER_STAGED,                      /**< Media file selected, not playing */
       MPLAYER_PLAYING,                     /**< Playing a media file */
       MPLAYER_PAUSED,                      /**< Playing a media file but paused */
       MPLAYER_FFORWARD,                    /**< Fast forwarding through a media file */
       MPLAYER_FREWIND,                     /**< Rewinding a media file */
     };
+
+    /**
+     * Describes the state of an image touch.  Some image touch cannot be
+     * processed until the image contact is lost.  This enumeration arms and
+     * manages those cases.
+     */
 
     enum EPendingRelease
     {

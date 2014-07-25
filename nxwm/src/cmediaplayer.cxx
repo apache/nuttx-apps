@@ -2,6 +2,7 @@
  * NxWidgets/nxwm/src/cmediaplayer.cxx
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
  *           Gregory Nutt <gnutt@nuttx.org>
  *
@@ -1057,8 +1058,12 @@ void CMediaPlayer::redrawWidgets(void)
   m_listbox->redraw();
 
   // Only one of the Play and Pause images should have drawing enabled.
+  // Play should be visible if we are in any STOPPED state of if we
+  // are fast forward or rewind state that came from the PAUSED state
 
-  if (m_state != MPLAYER_STOPPED && m_prevState == MPLAYER_PLAYING)
+  if (m_state != MPLAYER_STOPPED &&    // Stopped states
+      m_state != MPLAYER_STAGED &&
+      m_prevState == MPLAYER_PLAYING)  // Previously playing
     {
       // Playing... show the pause button
       // REVISIT:  Really only available if there is a selected file in the list box
@@ -1104,24 +1109,16 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
     {
     case MPLAYER_STOPPED:    // Initial state.  Also the state after playing completes
       m_state     = MPLAYER_STOPPED;
-      m_prevState = MPLAYER_PLAYING;
+      m_prevState = MPLAYER_STOPPED;
 
       // List box is enabled and ready for file selection
 
       m_listbox->enable();
 
-      // Play image is visible, but enabled and ready to start playing only
-      // if a file is selected
+      // Play image is visible, but disabled.  It will not enabled until
+      // we enter the MPLAYER_STAGED state after a file is selected
 
-      if (m_fileReady)
-        {
-          m_play->disable();
-        }
-      else
-        {
-          m_play->enable();
-        }
-
+      m_play->disable();
       m_play->show();
 
       // Pause image is disabled and hidden
@@ -1138,6 +1135,43 @@ void CMediaPlayer::setMediaPlayerState(enum EMediaPlayerState state)
 
       m_rewind->disable();
       m_rewind->setStuckSelection(false);
+
+      // Volume slider is available
+
+#ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
+      m_volume->enable();
+#endif
+      break;
+
+    case MPLAYER_STAGED:     // Media file selected, not playing
+      m_state     = MPLAYER_STAGED;
+      m_prevState = MPLAYER_STOPPED;
+
+      // List box is still enabled a ready for file selection
+
+      m_listbox->enable();
+
+      // Play image enabled and ready to start playing
+
+      m_play->enable();
+      m_play->show();
+
+      // Pause image is disabled and hidden
+
+      m_pause->disable();
+      m_pause->hide();
+
+      // Fast forward image is disabled
+
+      m_fforward->disable();
+      m_fforward->setStuckSelection(false);
+
+      // Rewind image is disabled
+
+      m_rewind->disable();
+      m_rewind->setStuckSelection(false);
+
+      // Volume slider is available
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
       m_volume->enable();
@@ -1372,53 +1406,47 @@ void CMediaPlayer::checkFileSelection(void)
 
       if (m_state != MPLAYER_STOPPED)
         {
+          // Stop playing.  Should be okay if m_state == MPLAYER_STAGED.
+          // We are not really playing yet, but NxPlayer should be able
+          // to handle that.
+
           stopPlaying();
+
+          // Then go to the STOPPED state
+
           setMediaPlayerState(MPLAYER_STOPPED);
         }
     }
-
-  // A media file is selected.  Were we stopped before?
-
-  else if (m_state == MPLAYER_STOPPED)
+  else
     {
-      // Yes.. Get the new media file path and go to the PAUSE state
+      // A media file is selected.  Were we in a STOPPED state before?
+      // Make sure that we are not already playing.  Should be okay if
+      // are in a STOPPED or STAGED state. We are not really playing
+      // yet those cases, but NxPlayer should be able to handle any
+      // spurious stops.
+
+      stopPlaying();
+
+      // Get the path to the newly selected file
 
       if (!getMediaFile(m_listbox->getSelectedOption()))
         {
-          // Remain in the stopped state if we fail to open the file
+          // Go to the STOPPED state on a failure to open the media file
+          // The play button will be disabled because m_fileReady is false.
+          // No harm done if we were already STOPPED.
 
           dbg("ERROR: getMediaFile failed\n");
+          setMediaPlayerState(MPLAYER_STOPPED);
         }
       else
         {
-          // And go to the PAUSED state (enabling the PLAY button)
+          // We have the file.  Go to the STAGED state (enabling the PLAY
+          // button).  NOTE that if for some reason this is the same file
+          // that we were already and playing, then playing will be
+          // restarted.
 
-          setMediaPlayerState(MPLAYER_PAUSED);
+          setMediaPlayerState(MPLAYER_STAGED);
         }
-    }
-
-  // Make sure that we are not already playing,
-
-  stopPlaying();
-
-  // Get the path to the newly selected file, and make sure that we are
-  // in the paused state (that should already be the case).  NOTE that if
-  // for some reason this is the same file that we were already playing,
-  // then playing will be restarted.
-
-  if (!getMediaFile(m_listbox->getSelectedOption()))
-    {
-      // Go to the STOPPED state on a failure to open the media file
-      // The play button will be disabled because m_fileReady is false.
-
-      dbg("ERROR: getMediaFile failed\n");
-      setMediaPlayerState(MPLAYER_STOPPED);
-    }
-  else
-    {
-      // And go to the PAUSED state (enabling the PLAY button)
-
-      setMediaPlayerState(MPLAYER_PAUSED);
     }
 }
 
@@ -1444,7 +1472,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
   // These only make sense in non-STOPPED states
 
-  if (m_state != MPLAYER_STOPPED)
+  if (m_state != MPLAYER_STOPPED && m_state != MPLAYER_STAGED)
     {
       // Check if the Pause image was clicked
 
@@ -1480,9 +1508,9 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                 }
             }
 
-          // We should not be stopped here, but let's check anyway
+          // We should not be in a STOPPED state here, but let's check anyway
 
-          else if (m_state != MPLAYER_STOPPED)
+          else if (m_state != MPLAYER_STOPPED && m_state != MPLAYER_STAGED)
             {
               // Start rewinding
 
@@ -1511,7 +1539,6 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               // Yes.. then revert to the previous play/pause state
               // REVISIT: Or just increase fast forward  speed?
 
-
               int ret = nxplayer_cancel_motion(m_player, m_prevState == MPLAYER_PAUSED);
               if (ret < 0)
                 {
@@ -1523,9 +1550,9 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
                 }
             }
 
-          // We should not be stopped here, but let's check anyway
+          // We should not be in a STOPPED state here, but let's check anyway
 
-          else if (m_state != MPLAYER_STOPPED)
+          else if (m_state != MPLAYER_STOPPED && m_state != MPLAYER_STAGED)
             {
               // Start fast forwarding
 
@@ -1576,9 +1603,9 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
               setMediaPlayerState(MPLAYER_PLAYING);
             }
         }
-      else if (m_state == MPLAYER_STOPPED)
+      else if (m_state == MPLAYER_STAGED)
 #else
-      if (m_state == MPLAYER_STOPPED || m_state == MPLAYER_PAUSED)
+      if (m_state == MPLAYER_STAGED || m_state == MPLAYER_PAUSED)
 #endif
         {
           // Has a file been selected?  If not the ignore the event
@@ -1615,13 +1642,16 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
             }
         }
 
-#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
-      // Ignore the event if we are already in the PLAYING state
+      // Ignore the event if (1) we are already in the PLAYING state, or (2)
+      // we are still in the STOPPED state (with no file selected).
 
-      else if (m_state != MPLAYER_PLAYING)
+#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
+      // The remaining cases include only the FFORWARD and REWIND states
+
+      else if (m_state == MPLAYER_FFORWARD || m_state == MPLAYER_FREWIND)
         {
-          // Otherwise, we must be fast forwarding or rewinding.  In these
-          // cases, stop the action and return to the previous state
+          // In these states, stop the fast motion action and return to the
+          // previous state
 
           int ret = nxplayer_cancel_motion(m_player, m_prevState == MPLAYER_PAUSED);
           if (ret < 0)
@@ -1667,7 +1697,9 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 #if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
       // Ignore the event if we are already in the PAUSED or STOPPED states
 
-      else if (m_state != MPLAYER_STOPPED && m_state != MPLAYER_PAUSED)
+      else if (m_state != MPLAYER_STOPPED &&
+               m_state != MPLAYER_STAGED &&
+               m_state != MPLAYER_PAUSED)
         {
           // Otherwise, we must be fast forwarding or rewinding.  In these
           // cases, stop the action and return to the previous state
