@@ -413,7 +413,7 @@ bool CMediaPlayer::getMediaFile(const NXWidgets::CListBoxDataItem *item)
       // Get the path to the file as a regular C-style string
 
       NXWidgets::nxwidget_char_t *filePath =
-        new NXWidgets::nxwidget_char_t[m_filePath.getAllocSize() + 1];
+        new NXWidgets::nxwidget_char_t[newFilePath.getAllocSize()];
 
       if (!filePath)
         {
@@ -421,20 +421,21 @@ bool CMediaPlayer::getMediaFile(const NXWidgets::CListBoxDataItem *item)
           return false;
         }
 
-      m_filePath.copyToCharArray(filePath);
+      newFilePath.copyToCharArray(filePath);
 
       // Verify that the file of this name exists and that it is a not
       // something weird (like a directory or a block device).
+      //
       // REVISIT: Should check if read-able as well.
 
       struct stat buf;
       int ret = stat((FAR const char *)filePath, &buf);
-      delete filePath;
+      delete[] filePath;
 
       if (ret < 0)
         {
           int errcode = errno;
-          dbg("ERROR: Could not stat file: %d\n", errcode);
+          dbg("ERROR: Could not stat file %s: %d\n", filePath, errcode);
 
           // Make sure there is no previous file information
 
@@ -1587,7 +1588,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
               // Get the path to the file as a regular C-style string
 
               NXWidgets::nxwidget_char_t *filePath =
-                new NXWidgets::nxwidget_char_t[m_filePath.getAllocSize() + 1];
+                new NXWidgets::nxwidget_char_t[m_filePath.getAllocSize()];
 
               if (!filePath)
                 {
@@ -1603,14 +1604,14 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
                                           AUDIO_FMT_UNDEF, AUDIO_FMT_UNDEF);
               if (ret < 0)
                 {
-                  dbg("ERROR: nxplayer_playfile failed: %d\n", ret);
+                  dbg("ERROR: nxplayer_playfile %s failed: %d\n", filePath, ret);
                 }
               else
                 {
                   setMediaPlayerState(MPLAYER_PLAYING);
                 }
 
-              delete filePath;
+              delete[] filePath;
             }
         }
 
