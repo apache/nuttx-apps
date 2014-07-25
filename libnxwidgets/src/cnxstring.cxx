@@ -274,7 +274,8 @@ void CNxString::append(const CNxString &text)
 
   FAR nxwidget_char_t       *dest = &m_text[m_stringLength];
   FAR const nxwidget_char_t *src  = text.getCharArray();
-  for (int i = 0; i <  text.getLength(); i++)
+
+  for (unsigned int i = 0; i < text.getLength(); i++)
     {
       *dest++ = *src++;
     }
@@ -328,6 +329,7 @@ void CNxString::insert(const CNxString &text, int index)
 
       FAR nxwidget_char_t       *dest = newText;
       FAR const nxwidget_char_t *src  = m_text;
+
       for (int i = 0; i < index; i++)
         {
           *dest++ = *src++;
@@ -336,7 +338,8 @@ void CNxString::insert(const CNxString &text, int index)
       // Insert the additional text into the new string
 
       src = text.getCharArray();
-      for (int i = 0; i < text.getLength(); i++)
+
+      for (unsigned int i = 0; i < text.getLength(); i++)
         {
           *dest++ = *src++;
         }
@@ -344,6 +347,7 @@ void CNxString::insert(const CNxString &text, int index)
       // Copy the end of the existing text the the newly allocated string
 
       src = &m_text[index];
+
       for (int i = index; i < m_stringLength; i++)
         {
           *dest++ = *src++;
@@ -375,7 +379,8 @@ void CNxString::insert(const CNxString &text, int index)
 
       dest = &m_text[index];
       src  = text.getCharArray();
-      for (int i = 0; i < text.getLength(); i++)
+
+      for (unsigned int i = 0; i < text.getLength(); i++)
         {
           *dest++ = *src++;
         }
@@ -436,6 +441,7 @@ void CNxString::remove(const int startIndex, const int count)
 
   FAR nxwidget_char_t       *dest = &m_text[startIndex];
   FAR const nxwidget_char_t *src  = &m_text[endIndex];
+
   for (int i = m_stringLength - endIndex; i > 0; i--)
     {
       *dest++ = *src++;
