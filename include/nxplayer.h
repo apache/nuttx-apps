@@ -263,7 +263,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
  *
  *   Selects to fast forward in the audio data stream.  The fast forward
  *   operation can be cancelled by simply selected no sub-sampling with
- *   the SUBSAMPLE_1X argument returning to normal 1x forward play.
+ *   the AUDIO_SUBSAMPLE_NONE argument returning to normal 1x forward play.
  *
  *   The preferred way to cancel a fast forward operation is via
  *   nxplayer_cancel_motion() that provides the option to also return to
@@ -272,7 +272,8 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   subsample - Identifies the fast forward rate (in terms of sub-sampling,
- *               but does not explicitly require sub-sampling)
+ *               but does not explicitly require sub-sampling).  See
+ *               AUDIO_SUBSAMPLE_* definitions.
  *
  * Returned Value:
  *   OK if fast forward operation successful.
@@ -280,24 +281,26 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
  **************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
-int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
-                      enum audio_subsample_e subsample);
+int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample);
 #endif
 
 /****************************************************************************
  * Name: nxplayer_rewind
  *
  *   Selects to rewind in the audio data stream.  The rewind operation must
- *   be cancelled with nxplayer_cancel_motion.
+ *   be cancelled with nxplayer_cancel_motion.  This function may be called
+ *   multiple times to change rewind rate.
  *
  *   NOTE that cancellation of the rewind operation differs from
  *   cancellation of the fast forward operation because we must both restore
  *   the sub-sampling rate to 1x and also return to forward play.
+ *   AUDIO_SUBSAMPLE_NONE is not a valid argument to this function.
  *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   subsample - Identifies the rewind rate (in terms of sub-sampling, but
- *               does not explicitly require sub-sampling)
+ *               does not explicitly require sub-sampling).  See
+ *               AUDIO_SUBSAMPLE_* definitions.
  *
  * Returned Value:
  *   OK if rewind operation successfully initiated.
@@ -305,8 +308,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
  **************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_REWIND
-int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
-                    enum audio_subsample_e subsample);
+int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample);
 #endif
 
 /****************************************************************************

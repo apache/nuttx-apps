@@ -1054,7 +1054,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t level)
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
 int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance)
 {
-  struct audio_caps_desc_s  cap_desc;
+  struct audio_caps_desc_s cap_desc;
 
   /* Thread sync using the semaphore */
 
@@ -1072,7 +1072,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session                = pPlayer->session;
 #endif
       cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
@@ -1112,7 +1112,9 @@ int nxplayer_pause(FAR struct nxplayer_s *pPlayer)
       ret = ioctl(pPlayer->devFd, AUDIOIOC_PAUSE, 0);
 #endif
       if (ret == OK)
-        pPlayer->state = NXPLAYER_STATE_PAUSED;
+        {
+          pPlayer->state = NXPLAYER_STATE_PAUSED;
+        }
     }
 
   return ret;
@@ -1129,7 +1131,7 @@ int nxplayer_pause(FAR struct nxplayer_s *pPlayer)
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
 {
-  int   ret = OK;
+  int ret = OK;
 
   if (pPlayer->state == NXPLAYER_STATE_PAUSED)
     {
@@ -1140,7 +1142,9 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
       ret = ioctl(pPlayer->devFd, AUDIOIOC_RESUME, 0);
 #endif
       if (ret == OK)
-        pPlayer->state = NXPLAYER_STATE_PLAYING;
+        {
+          pPlayer->state = NXPLAYER_STATE_PLAYING;
+        }
     }
 
   return ret;
@@ -1152,7 +1156,8 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
  *
  *   Selects to fast forward in the audio data stream.  The fast forward
  *   operation can be cancelled by simply selected no sub-sampling with
- *   the SUBSAMPLE_1X argument returning to normal 1x forward play.
+ *   the AUDIO_SUBSAMPLE_NONE argument returning to normal 1x forward play.
+ *   This function may be called multiple times to change fast forward rate.
  *
  *   The preferred way to cancel a fast forward operation is via
  *   nxplayer_cancel_motion() that provides the option to also return to
@@ -1161,7 +1166,8 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   subsample - Identifies the fast forward rate (in terms of sub-sampling,
- *               but does not explicitly require sub-sampling)
+ *               but does not explicitly require sub-sampling).  See
+ *               AUDIO_SUBSAMPLE_* definitions.
  *
  * Returned Value:
  *   OK if fast forward operation successful.
@@ -1169,11 +1175,35 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
  **************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
-int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
-                      enum audio_subsample_e subsample)
+int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
 {
-#warning Missing logic
-  return -ENOSYS;
+  struct audio_caps_desc_s cap_desc;
+  int ret;
+
+  DEBUGASSERT(pPlayer && subsample >= AUDIO_SUBSAMPLE_NONE &&
+              subsample <= AUDIO_SUBSAMPLE_MAX);
+
+  /* Send a CONFIGURE ioctl to the device to set the forward rate */
+
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+  cap_desc.session                = pPlayer->session;
+#endif
+  cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
+  cap_desc.caps.ac_type           = AUDIO_TYPE_PROCESSING;
+  cap_desc.caps.ac_format.hw      = AUDIO_PU_SUBSAMPLE_FORWARD;
+  cap_desc.caps.ac_controls.b[0]  = subsample;
+
+  ret = ioctl(pPlayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      DEBUGASSERT(errcode > 0);
+
+      auddbg("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
+      ret = -errcode;
+    }
+
+  return ret;
 }
 #endif
 
@@ -1181,16 +1211,19 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
  * Name: nxplayer_rewind
  *
  *   Selects to rewind in the audio data stream.  The rewind operation must
- *   be cancelled with nxplayer_cancel_motion.
+ *   be cancelled with nxplayer_cancel_motion.  This function may be called
+ *   multiple times to change rewind rate.
  *
  *   NOTE that cancellation of the rewind operation differs from
  *   cancellation of the fast forward operation because we must both restore
  *   the sub-sampling rate to 1x and also return to forward play.
+ *   AUDIO_SUBSAMPLE_NONE is not a valid argument to this function.
  *
  * Input Parameters:
  *   pPlayer   - Pointer to the context to initialize
  *   subsample - Identifies the rewind rate (in terms of sub-sampling, but
- *               does not explicitly require sub-sampling)
+ *               does not explicitly require sub-sampling).  See
+ *               AUDIO_SUBSAMPLE_* definitions.
  *
  * Returned Value:
  *   OK if rewind operation successfully initiated.
@@ -1198,11 +1231,35 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
  **************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_REWIND
-int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
-                    enum audio_subsample_e subsample)
+int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
 {
-#warning Missing logic
-  return -ENOSYS;
+  struct audio_caps_desc_s cap_desc;
+  int ret;
+
+  DEBUGASSERT(pPlayer && subsample >= AUDIO_SUBSAMPLE_MIN &&
+              subsample <= AUDIO_SUBSAMPLE_MAX);
+
+  /* Send a CONFIGURE ioctl to the device to set the forward rate */
+
+#ifdef CONFIG_AUDIO_MULTI_SESSION
+  cap_desc.session= pPlayer->session;
+#endif
+  cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
+  cap_desc.caps.ac_type           = AUDIO_TYPE_PROCESSING;
+  cap_desc.caps.ac_format.hw      = AUDIO_PU_SUBSAMPLE_REWIND;
+  cap_desc.caps.ac_controls.b[0]  = subsample;
+
+  ret = ioctl(pPlayer->devFd, AUDIOIOC_CONFIGURE, (unsigned long) &cap_desc);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      DEBUGASSERT(errcode > 0);
+
+      auddbg("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
+      ret = -errcode;
+    }
+
+  return ret;
 }
 #endif
 
@@ -1225,8 +1282,35 @@ int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
 #if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
 int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused)
 {
-#warning Missing logic
-  return -ENOSYS;
+  int ret;
+
+  /* I think this is equivalent to calling nxplayer_fforward with the
+   * argument AUDIO_SUBSAMPLE_NONE:  Forward motion with no sub-sampling.
+   *
+   * REVISIT: There is no way at present to cancel sub-sampling and return
+   * to pause atomically.
+   */
+
+  ret = nxplayer_fforward(pPlayer, AUDIO_SUBSAMPLE_NONE);
+  if (ret < 0)
+    {
+      auddbg("ERROR: nxplayer_fforward failed: %d\n", ret);
+      return ret;
+    }
+
+#ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
+  if (paused)
+    {
+      ret = nxplayer_pause(pPlayer);
+      if (ret < 0)
+        {
+          auddbg("ERROR: nxplayer_pause failed: %d\n", ret);
+          return ret;
+        }
+    }
+#endif
+
+  return OK;
 }
 #endif
 
@@ -1259,8 +1343,8 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *pDevice)
 
   /* Validate it's an Audio device by issuing an AUDIOIOC_GETCAPS ioctl */
 
-  caps.ac_len = sizeof(caps);
-  caps.ac_type = AUDIO_TYPE_QUERY;
+  caps.ac_len     = sizeof(caps);
+  caps.ac_type    = AUDIO_TYPE_QUERY;
   caps.ac_subtype = AUDIO_TYPE_QUERY;
   if (ioctl(tempFd, AUDIOIOC_GETCAPS, (unsigned long) &caps) != caps.ac_len)
     {
