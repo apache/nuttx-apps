@@ -38,18 +38,19 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/audio/audio.h>
-#include <debug.h>
 
 #include <sys/types.h>
+#include <sys/ioctl.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <errno.h>
 #include <dirent.h>
+#include <debug.h>
 
+#include <nuttx/audio/audio.h>
 #include <apps/nxplayer.h>
 
 /****************************************************************************
@@ -1169,7 +1170,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
 
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
 int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
-                      enum nxplayer_subsample_e subsample)
+                      enum audio_subsample_e subsample)
 {
 #warning Missing logic
   return -ENOSYS;
@@ -1198,7 +1199,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
 
 #ifndef CONFIG_AUDIO_EXCLUDE_REWIND
 int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
-                    enum nxplayer_subsample_e subsample)
+                    enum audio_subsample_e subsample)
 {
 #warning Missing logic
   return -ENOSYS;

@@ -53,19 +53,6 @@
 /****************************************************************************
  * Public Type Declarations
  ****************************************************************************/
-/* Fast-forward and rewind by sub-sampling may be supported.  If so, then
- * this enumeration specifies the sub-sampling:
- */
-
-enum nxplayer_subsample_e
-{
-  SUBSAMPLE_1X = 0,           /* Normal speed (no direction change) */
-  SUBSAMPLE_2X,
-  SUBSAMPLE_4X,
-  SUBSAMPLE_8X,
-  SUBSAMPLE_16X
-};
-
 /* This structure describes the internal state of the NxPlayer */
 
 struct nxplayer_s
@@ -294,7 +281,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
 
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
 int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
-                      enum nxplayer_subsample_e subsample);
+                      enum audio_subsample_e subsample);
 #endif
 
 /****************************************************************************
@@ -319,7 +306,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer,
 
 #ifndef CONFIG_AUDIO_EXCLUDE_REWIND
 int nxplayer_rewind(FAR struct nxplayer_s *pPlayer,
-                    enum nxplayer_subsample_e subsample);
+                    enum audio_subsample_e subsample);
 #endif
 
 /****************************************************************************
