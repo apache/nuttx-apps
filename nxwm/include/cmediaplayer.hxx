@@ -2,7 +2,9 @@
  * NxWidgets/nxwm/include/cmediaplayer.hxx
  *
  *   Copyright (C) 2013 Ken Pettit. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
+ *           Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -93,8 +95,8 @@ namespace NxWM
      * STAGED   |  STAGED  | STOPPED  |  PLAYING |     X    |    X     |    X     |
      * PLAYING  |    X     |    X     |     X    |  PAUSED  |FFORWARD2 | REWIND2  |
      * PAUSED   |  STAGED  | STOPPED  |  PLAYING |     X    |FFORWARD1 | REWIND1  |
-     * FFORWARD1|    X     |    X     |  PAUSED  |     X    |  PAUSED  | REWIND1  |
-     * REWIND1  |    X     |    X     |  PAUSED  |     X    |FFORWARD1 |  PAUSED  |
+     * FFORWARD1|    X     |    X     |  PAUSED  |     X    |FFORWARD1 | REWIND1  |
+     * REWIND1  |    X     |    X     |  PAUSED  |     X    |FFORWARD1 | REWIND1  |
      * FFORWARD2|    X     |    X     |     X    |  PLAYING | PLAYING  | REWIND1  |
      * REWIND2  |    X     |    X     |     X    |  PLAYING |FFORWARD1 | PLAYING  |
      * ---------+----------+----------+----------+----------+----------+----------+
@@ -152,10 +154,13 @@ namespace NxWM
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
     NXWidgets::CNxString     m_filePath;   /**< The full path to the selected file */
-    unsigned int             m_fileIndex;  /**< Last selected text box selection */
+    int                      m_fileIndex;  /**< Last selected text box selection */
     bool                     m_fileReady;  /**< True: Ready to play */
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
     uint8_t                  m_level;      /**< Current volume level, range 0-100 */
+#endif
+#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
+    uint8_t                  m_subSample;  /**< Current FFFORWARD subsampling */
 #endif
 
     /**
