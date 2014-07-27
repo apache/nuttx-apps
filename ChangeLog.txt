@@ -968,3 +968,6 @@
 	  equalizer settings needed by the WM8904  (2014-7-24).
 	* apps/include/nxplayer.h and apps/system/nxplayer/nxplayer.c: Changes to
 	  integrate with Ken's NxWM::CMediaPlayer (2014-7-24).
+	* apps/include/nxplayer.h: Move subsampling rate definitions from nxplayer.h
+	  to audio.h *2014-7-27).
+
