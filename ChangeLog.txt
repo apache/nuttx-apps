@@ -519,3 +519,6 @@
 * NxWM::CMediaPlayer: Revise state logic.  We need an additional state for
   the case where a file is selected, but playing has not yet start.  Several
   other state-related fixes (2014-7-25).
+* NxWM::CMediaPlayer:  Need to remember last text box selection or else each
+  new Value Change event from the volume slider is confused with a new file
+  selection (2014-7-27).
