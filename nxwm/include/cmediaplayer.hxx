@@ -152,6 +152,7 @@ namespace NxWM
     enum EMediaPlayerState   m_prevState;  /**< Media player previous state */
     enum EPendingRelease     m_pending;    /**< Pending image release event */
     NXWidgets::CNxString     m_filePath;   /**< The full path to the selected file */
+    unsigned int             m_fileIndex;  /**< Last selected text box selection */
     bool                     m_fileReady;  /**< True: Ready to play */
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
     uint8_t                  m_level;      /**< Current volume level, range 0-100 */

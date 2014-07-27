@@ -133,6 +133,7 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
   m_state          = MPLAYER_STOPPED;
   m_prevState      = MPLAYER_STOPPED;
   m_pending        = PENDING_NONE;
+  m_fileIndex      = -1;
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
   m_level          = 0;
 #endif
@@ -1401,6 +1402,7 @@ void CMediaPlayer::checkFileSelection(void)
       // No file is selected
 
       m_fileReady = false;
+      m_fileIndex = -1;
 
       // Nothing is selected.. If we are not stopped, then stop now
 
@@ -1417,8 +1419,16 @@ void CMediaPlayer::checkFileSelection(void)
           setMediaPlayerState(MPLAYER_STOPPED);
         }
     }
-  else
+
+  // Ignore the file selection if it is the same file that was selected
+  // last time.
+
+  else if (newFileIndex != m_fileIndex)
     {
+      // Remember the file selection
+
+      m_fileIndex = newFileIndex;
+
       // A media file is selected.  Were we in a STOPPED state before?
       // Make sure that we are not already playing.  Should be okay if
       // are in a STOPPED or STAGED state. We are not really playing
