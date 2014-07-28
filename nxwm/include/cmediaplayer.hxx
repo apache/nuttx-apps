@@ -51,6 +51,7 @@
 #include "cnxfont.hxx"
 #include "cimage.hxx"
 #include "cstickyimage.hxx"
+#include "clabel.hxx"
 #include "clistbox.hxx"
 #include "clistboxdataitem.hxx"
 #include "cglyphsliderhorizontal.hxx"
@@ -159,7 +160,7 @@ namespace NxWM
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
     uint8_t                  m_level;      /**< Current volume level, range 0-100 */
 #endif
-#ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
+#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
     uint8_t                  m_subSample;  /**< Current FFFORWARD subsampling index */
 #endif
 
@@ -187,6 +188,9 @@ namespace NxWM
     NXWidgets::CStickyImage *m_rewind;     /**< Rewind control */
     NXWidgets::CStickyImage *m_fforward;   /**< Fast forward control */
     NXWidgets::CGlyphSliderHorizontal *m_volume; /**< Volume control */
+#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
+    NXWidgets::CLabel       *m_speed;      /**< FForward/rewind speed */
+#endif
 
     /**
      * Bitmaps
@@ -299,6 +303,15 @@ namespace NxWM
      */
 
     inline void checkFileSelection(void);
+
+#if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
+    /**
+     * Update fast forward/rewind speed indicator.  Called on each state
+     * change and after each change in the speed of motion.
+     */
+
+    void updateMotionIndicator(void);
+#endif
 
     /**
      * Handle a widget action event.  For this application, that means image
