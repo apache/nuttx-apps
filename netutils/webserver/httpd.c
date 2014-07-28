@@ -816,7 +816,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
       if (acceptsd < 0)
         {
           ndbg("accept failure: %d\n", errno);
-          break;;
+          break;
         }
 
       nvdbg("Connection accepted -- serving sd=%d\n", acceptsd);
@@ -851,6 +851,11 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
 
       (void)httpd_handler((void*)acceptsd);
     }
+
+  /* Close the sockets */
+
+  close(acceptsd);
+  close(listensd);
 }
 #endif
 
