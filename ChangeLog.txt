@@ -973,3 +973,5 @@
 	* apps/system/nxplayer/nxplayer.c: NxPlayer needs to set curbyte field to
 	  zero before enqueuing a buffer.  Otherwise, it looks like beginning of
 	  the buffer has already been consumed. (2014-7-27).
+	* apps/netutils/webserver/httpd.c:  Missing logic to close sockets on loop
+	  termination.  From Max (2014-7-28).
