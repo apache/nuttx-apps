@@ -496,7 +496,9 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 
   /* Read data into the buffer. */
 
-  pBuf->nbytes = fread(&pBuf->samp, 1, pBuf->nmaxbytes, pPlayer->fileFd);
+  pBuf->nbytes  = fread(&pBuf->samp, 1, pBuf->nmaxbytes, pPlayer->fileFd);
+  pBuf->curbyte = 0;
+
   if (pBuf->nbytes < pBuf->nmaxbytes)
     {
       int errcode   = errno;
