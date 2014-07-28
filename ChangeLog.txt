@@ -524,3 +524,6 @@
   selection (2014-7-27).
 * NxWM::CMediaPlayer: Correct handling of increments to sub-sampling rate
   (2014-7-27).
+* XWidgets::CNxWidget: Remove an unused bit field (2014-7-28).
+* NxWM::CMediaPlayer: Add a CLabel that show the current fast forward/rewind
+  speed (2014-7-28).
