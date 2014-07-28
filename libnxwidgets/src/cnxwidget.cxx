@@ -165,15 +165,14 @@ CNxWidget::CNxWidget(CWidgetControl *pWidgetControl,
 
   // Set initial flag values
 
-  m_flags.clicked                   = false;
-  m_flags.dragging                  = false;
-  m_flags.hasFocus                  = false;
-  m_flags.deleted                   = false;
-  m_flags.drawingEnabled            = false;
-  m_flags.enabled                   = true;
-  m_flags.erased                    = true;
-  m_flags.visibleRegionCacheInvalid = true;
-  m_flags.hidden                    = false;
+  m_flags.clicked         = false;
+  m_flags.dragging        = false;
+  m_flags.hasFocus        = false;
+  m_flags.deleted         = false;
+  m_flags.drawingEnabled  = false;
+  m_flags.enabled         = true;
+  m_flags.erased          = true;
+  m_flags.hidden          = false;
 
   // Set hierarchy pointers
 
@@ -329,14 +328,16 @@ bool CNxWidget::isDrawingEnabled(void) const
     {
       if (m_parent->isDrawingEnabled())
         {
-          // Drawing is enabled if the widget is drawable and not deleted
+          // Drawing is enabled if the widget is drawable, not deleted, and not hidden
 
-          return (m_flags.drawingEnabled && (!m_flags.deleted) && (!m_flags.hidden));
+          return (m_flags.drawingEnabled && !m_flags.deleted && !m_flags.hidden);
         }
     }
   else
     {
-      return (m_flags.drawingEnabled && (!m_flags.deleted) && (!m_flags.hidden));
+      // Drawing is enabled if the widget is drawable, not deleted, and not hidden
+
+      return (m_flags.drawingEnabled && !m_flags.deleted && !m_flags.hidden);
     }
 
   return false;

@@ -141,19 +141,18 @@ namespace NXWidgets
 
     typedef struct
     {
-      uint8_t clicked         : 1;       /**< True if the widget is currently clicked. */
-      uint8_t hasFocus        : 1;       /**< True if the widget has focus. */
-      uint8_t dragging        : 1;       /**< True if the widget is being dragged. */
-      uint8_t deleted         : 1;       /**< True if the widget has been deleted. */
-      uint8_t borderless      : 1;       /**< True if the widget is borderless. */
-      uint8_t draggable       : 1;       /**< True if the widget can be dragged. */
-      uint8_t drawingEnabled  : 1;       /**< True if the widget can be drawn. */
-      uint8_t enabled         : 1;       /**< True if the widget is enabled. */
-      uint8_t permeable       : 1;       /**< True if the widget's children can exceed its dimensions. */
-      uint8_t erased          : 1;       /**< True if the widget is currently erased from the frame buffer. */
-      uint8_t visibleRegionCacheInvalid : 1;  /**< True if the region cache is invalid. */
-      uint8_t hidden          : 1;       /**< True if the widget is hidden. */
-      uint8_t doubleClickable : 1;       /**< True if the widget can be double-clicked. */
+      uint8_t clicked         : 1;    /**< True if the widget is currently clicked. */
+      uint8_t hasFocus        : 1;    /**< True if the widget has focus. */
+      uint8_t dragging        : 1;    /**< True if the widget is being dragged. */
+      uint8_t deleted         : 1;    /**< True if the widget has been deleted. */
+      uint8_t borderless      : 1;    /**< True if the widget is borderless. */
+      uint8_t draggable       : 1;    /**< True if the widget can be dragged. */
+      uint8_t drawingEnabled  : 1;    /**< True if the widget can be drawn. */
+      uint8_t enabled         : 1;    /**< True if the widget is enabled. */
+      uint8_t permeable       : 1;    /**< True if the widget's children can exceed its dimensions. */
+      uint8_t erased          : 1;    /**< True if the widget is currently erased from the frame buffer. */
+      uint8_t hidden          : 1;    /**< True if the widget is hidden. */
+      uint8_t doubleClickable : 1;    /**< True if the widget can be double-clicked. */
     } Flags;
 
     /**
