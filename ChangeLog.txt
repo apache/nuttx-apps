@@ -970,4 +970,6 @@
 	  integrate with Ken's NxWM::CMediaPlayer (2014-7-24).
 	* apps/include/nxplayer.h: Move subsampling rate definitions from nxplayer.h
 	  to audio.h *2014-7-27).
-
+	* apps/system/nxplayer/nxplayer.c: NxPlayer needs to set curbyte field to
+	  zero before enqueuing a buffer.  Otherwise, it looks like beginning of
+	  the buffer has already been consumed. (2014-7-27).
