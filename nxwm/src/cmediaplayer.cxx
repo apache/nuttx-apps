@@ -76,6 +76,8 @@
 #  endif
 #endif
 
+#define AUDIO_NSUBSAMPLES 4
+
 /********************************************************************************************
  * Private Types
  ********************************************************************************************/
@@ -83,6 +85,11 @@
 /********************************************************************************************
  * Private Data
  ********************************************************************************************/
+
+static const uint8_t g_motionSteps[AUDIO_NSUBSAMPLES] =
+{
+  AUDIO_SUBSAMPLE_2X, AUDIO_SUBSAMPLE_4X, AUDIO_SUBSAMPLE_8X, AUDIO_SUBSAMPLE_16X
+};
 
 /********************************************************************************************
  * Private Functions
@@ -138,7 +145,7 @@ CMediaPlayer::CMediaPlayer(CTaskbar *taskbar, CApplicationWindow *window)
   m_level          = 0;
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
-  m_subSample      = AUDIO_SUBSAMPLE_NONE;
+  m_subSample      = 0;
 #endif
   m_fileReady      = false;
 
@@ -1510,16 +1517,13 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               // Yes.. then just increase rewind rate (by specifying a
               // higher level of sub-sampling)
 
-              if (m_subSample >= AUDIO_SUBSAMPLE_MAX)
+              m_subSample++;
+              if (m_subSample >= AUDIO_NSUBSAMPLES)
                 {
-                  m_subSample = AUDIO_SUBSAMPLE_MIN;
-                }
-              else
-                {
-                  m_subSample++;
+                  m_subSample = 0;
                 }
 
-              int ret = nxplayer_rewind(m_player, m_subSample);
+              int ret = nxplayer_rewind(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
                   dbg("ERROR: nxplayer_rewind failed: %d\n", ret);
@@ -1536,9 +1540,9 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
             {
               // Start rewinding at the minimum rate
 
-              m_subSample = AUDIO_SUBSAMPLE_MIN;
+              m_subSample = 0;
 
-              int ret = nxplayer_rewind(m_player, m_subSample);
+              int ret = nxplayer_rewind(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
                   dbg("ERROR: nxplayer_rewind failed: %d\n", ret);
@@ -1563,16 +1567,13 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               // Yes.. then just increase fast forward rate (by specifying a
               // level level of sub-sampling)
 
-              if (m_subSample >= AUDIO_SUBSAMPLE_MAX)
+              m_subSample++;
+              if (m_subSample >= AUDIO_NSUBSAMPLES)
                 {
-                  m_subSample = AUDIO_SUBSAMPLE_MIN;
-                }
-              else
-                {
-                  m_subSample++;
+                  m_subSample = 0;
                 }
 
-              int ret = nxplayer_fforward(m_player, m_subSample);
+              int ret = nxplayer_fforward(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
                   dbg("ERROR: nxplayer_fforward failed: %d\n", ret);
@@ -1585,9 +1586,9 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
             {
               // Start fast forwarding at the minimum rate
 
-              m_subSample = AUDIO_SUBSAMPLE_MIN;
+              m_subSample = 0;
 
-              int ret = nxplayer_fforward(m_player, m_subSample);
+              int ret = nxplayer_fforward(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
                   dbg("ERROR: nxplayer_fforward failed: %d\n", ret);
@@ -1684,7 +1685,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
           // In these states, stop the fast motion action and return to the
           // previous state
 
-          m_subSample = AUDIO_SUBSAMPLE_NONE;
+          m_subSample = 0;
 
           int ret = nxplayer_cancel_motion(m_player, m_prevState == MPLAYER_PAUSED);
           if (ret < 0)
@@ -1737,7 +1738,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
           // Otherwise, we must be fast forwarding or rewinding.  In these
           // cases, stop the action and return to the previous state
 
-          m_subSample = AUDIO_SUBSAMPLE_NONE;
+          m_subSample = 0;
 
           int ret = nxplayer_cancel_motion(m_player, m_prevState == MPLAYER_PAUSED);
           if (ret < 0)

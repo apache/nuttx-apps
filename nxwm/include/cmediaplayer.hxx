@@ -160,7 +160,7 @@ namespace NxWM
     uint8_t                  m_level;      /**< Current volume level, range 0-100 */
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
-    uint8_t                  m_subSample;  /**< Current FFFORWARD subsampling */
+    uint8_t                  m_subSample;  /**< Current FFFORWARD subsampling index */
 #endif
 
     /**
