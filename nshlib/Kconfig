@@ -627,7 +627,7 @@ config USBDEV_MINOR
 endif # NSH_USBCONSOLE
 
 config NSH_USBKBD
-	bool "Use a USB keyboard input"
+	bool "Use USB keyboard input"
 	default n
 	depends on NSH_CONSOLE && USBHOST_HIDKBD && !NSH_USBCONSOLE
 	---help---
