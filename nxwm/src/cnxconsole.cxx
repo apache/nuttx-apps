@@ -1,7 +1,7 @@
 /********************************************************************************************
  * NxWidgets/nxwm/src/cnxconsole.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012. 2104 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,11 @@
 /********************************************************************************************
  * Pre-Processor Definitions
  ********************************************************************************************/
+/* Configuration ****************************************************************************/
+
+#ifdef CONFIG_NSH_USBKBD
+#  warning You probably do not really want CONFIG_NSH_USBKBD, try CONFIG_NXWM_KEYBOARD_USBHOST
+#endif
 
 /********************************************************************************************
  * Private Types

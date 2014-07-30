@@ -156,9 +156,166 @@ bool CKeyboard::start(void)
   return m_state == LISTENER_RUNNING;
 }
 
- /**
- * The keyboard listener thread.  This is the entry point of a thread that
- * listeners for and dispatches keyboard events to the NX server.
+/**
+ * Open the keyboard device.  Not very interesting for the case of
+ * standard device but much more interesting for a USB keyboard device
+ * that may disappear when the keyboard is disconnect but later reappear
+ * when the keyboard is reconnected.  In this case, this function will
+ * not return until the keyboard device was successfully opened (or
+ * until an irrecoverable error occurs.
+ *
+ * Opens the keyboard device specified by CONFIG_NXWM_KEYBOARD_DEVPATH.
+ *
+ * @return On success, then method returns a valid file descriptor that
+ * can be used to redirect stdin.  A negated errno value is returned
+ * if an irrecoverable error occurs.
+ */
+
+int CKeyboard::open(void)
+{
+  int fd;
+
+  // Loop until we have successfully opened the USB keyboard (or until some
+  // irrecoverable error occurs).
+
+  do
+    {
+      // Try to open the keyboard device
+
+      fd = std::open(CONFIG_NXWM_KEYBOARD_DEVPATH, O_RDONLY);
+      if (fd < 0)
+        {
+          int errcode = errno;
+          DEBUGASSERT(errcode > 0);
+
+          // EINTR should be ignored because it is not really an error at
+          // all.  We should retry immediately
+
+          if (errcode != EINTR)
+            {
+#ifdef CONFIG_NXWM_KEYBOARD_USBHOST
+              // ENOENT means that the USB device is not yet connected and,
+              // hence, has no entry under /dev.  If the USB driver still
+              // exists under /dev (because other threads still have the driver
+              // open), then we might also get ENODEV.
+
+              if (errcode == ENOENT || errcode == ENODEV)
+                {
+                  // REVIST: Can we inject a constant string here to let the
+                  // user know that we are waiting for a USB keyboard to be
+                  // connected?
+
+                  // Sleep a bit and try again
+
+                  gvdbg("WAITING for a USB device\n");
+                  std::sleep(2);
+                }
+
+              // Anything else would be really bad.
+
+              else
+#endif
+                {
+                  // Let the top-level logic decide what it wants to do
+                  // about all really bad things
+
+                  gdbg("ERROR: Failed to open %s for reading: %d\n",
+                       CONFIG_NXWM_KEYBOARD_DEVPATH, errcode);
+                  return -errcode;
+                }
+            }
+        }
+    }
+  while (fd < 0);
+
+  return fd;
+}
+
+/**
+ * This is the heart of the keyboard listener thread.  It contains the
+ * actual logic that listeners for and dispatches keyboard events to the
+ * NX server.
+ *
+ * @return  If the session terminates gracefully (i.e., because >m_state
+ * is no longer equal to  LISTENER_RUNNING), then method returns OK.  A
+ * negated errno value is returned if an error occurs while reading from
+ * the keyboard device.  A read error, depending upon the type of the
+ * error, may simply indicate that a USB keyboard was removed and we
+ * should wait for the keyboard to be connected.
+ */
+
+int CKeyboard::session(void)
+{
+  gvdbg("Session started\n");
+
+  // Loop, reading and dispatching keyboard data
+
+  while (m_state == LISTENER_RUNNING)
+    {
+      // Read one keyboard sample
+
+      gvdbg("Listening for keyboard input\n");
+
+      uint8_t rxbuffer[CONFIG_NXWM_KEYBOARD_BUFSIZE];
+      ssize_t nbytes = read(m_kbdFd, rxbuffer,
+                            CONFIG_NXWM_KEYBOARD_BUFSIZE);
+
+      // Check for errors
+
+      if (nbytes < 0)
+        {
+          int errcode = errno;
+          DEBUGASSERT(errcode > 0);
+
+          // EINTR is not really an error, it simply means that something is
+          // trying to get our attention.  We need to check m_state to see
+          // if we were asked to terminate
+
+          if (errcode != EINTR)
+            {
+              // Let the top-level listener logic decide what to do about
+              // the read failure.
+
+              gdbg("ERROR: read %s failed: %d\n",
+                   CONFIG_NXWM_KEYBOARD_DEVPATH, errcode);
+              return -errcode;
+            }
+
+          fdbg("Awakened with EINTR\n");
+        }
+
+      // Give the keyboard input to NX
+
+      else if (nbytes > 0)
+        {
+          // Looks like good keyboard input... process it.
+          // First, get the server handle
+
+          NXHANDLE handle = m_server->getServer();
+
+          // Then inject the keyboard input into NX
+
+          int ret = nx_kbdin(handle, (uint8_t)nbytes, rxbuffer);
+          if (ret < 0)
+            {
+              gdbg("ERROR: nx_kbdin failed: %d\n", ret);
+              //break;  ignore the error
+            }
+        }
+    }
+
+  return OK;
+}
+
+/**
+ * The keyboard listener thread.  This is the entry point of a thread
+ * that listeners for and dispatches keyboard events to the NX server.
+ * It simply opens the keyboard device (using CKeyboard::open()) and
+ * executes the session (via CKeyboard::session()).
+ *
+ * If an errors while reading from the keyboard device AND we are
+ * configured to use a USB keyboard, then this function will wait for
+ * the USB keyboard to be re-connected.
  *
  * @param arg.  The CKeyboard 'this' pointer cast to a void*.
  * @return This function normally does not return but may return NULL on
@@ -171,68 +328,66 @@ FAR void *CKeyboard::listener(FAR void *arg)
 
   gvdbg("Listener started\n");
 
-  // Open the keyboard device
-
-  This->m_kbdFd = std::open(CONFIG_NXWM_KEYBOARD_DEVPATH, O_RDONLY);
-  if (This->m_kbdFd < 0)
-    {
-      gdbg("ERROR Failed to open %s for reading: %d\n",
-           CONFIG_NXWM_KEYBOARD_DEVPATH, errno);
-      This->m_state = LISTENER_FAILED;
-      sem_post(&This->m_waitSem);
-      return (FAR void *)0;
-    }
-
-  // Indicate that we have successfully initialized
+#ifdef CONFIG_NXWM_KEYBOARD_USBHOST
+  // Indicate that we have successfully started.  We might be stuck waiting
+  // for a USB keyboard to be connected, but we are technically running
 
   This->m_state = LISTENER_RUNNING;
   sem_post(&This->m_waitSem);
 
-  // Now loop, reading and dispatching keyboard data
+  // Loop until we are told to quit
 
   while (This->m_state == LISTENER_RUNNING)
-    {
-      // Read one keyboard sample
-
-      gvdbg("Listening for keyboard input\n");
-
-      uint8_t rxbuffer[CONFIG_NXWM_KEYBOARD_BUFSIZE];
-      ssize_t nbytes = read(This->m_kbdFd, rxbuffer, CONFIG_NXWM_KEYBOARD_BUFSIZE);
-
-      // Check for errors
-
-      if (nbytes < 0)
-        {
-          // The only expect error is to be interrupt by a signal
-#ifdef CONFIG_DEBUG
-          int errval = errno;
-
-          gdbg("ERROR: read %s failed: %d\n", CONFIG_NXWM_KEYBOARD_DEVPATH, errval);
-          DEBUGASSERT(errval == EINTR);
 #endif
-        }
+    {
+      // Open/Re-open the keyboard device
 
-      // Give the keyboard input to NX
-
-      else if (nbytes > 0)
+      This->m_kbdFd = This->open();
+      if (This->m_kbdFd < 0)
         {
-          // Looks like good keyboard input... process it.
-          // First, get the server handle
-
-          NXHANDLE handle = This->m_server->getServer();
-
-          // Then inject the keyboard input into NX
-
-          int ret = nx_kbdin(handle, (uint8_t)nbytes, rxbuffer);
-          if (ret < 0)
-            {
-              gdbg("ERROR: nx_kbdin failed\n");
-            }
+          gdbg("ERROR: open failed: %d\n", This->m_kbdFd);
+          This->m_state = LISTENER_FAILED;
+          sem_post(&This->m_waitSem);
+          return (FAR void *)0;
         }
+
+#ifndef CONFIG_NXWM_KEYBOARD_USBHOST
+      // Indicate that we have successfully initialized
+
+      This->m_state = LISTENER_RUNNING;
+      sem_post(&This->m_waitSem);
+#endif
+
+      // Now execute the session.  The session will run until either (1) we
+      // were asked to terminate gracefully (with m_state !=LISTENER_RUNNING),
+      // of if an error occurred while reading from the keyboard device.  If
+      // we are configured to use a USB keyboard, then this error, depending
+      // upon what the error is, may indicate that the USB keyboard has been
+      // removed.  In that case, we need to continue looping and, hopefully,
+      // the USB keyboard will be reconnected.
+
+      int ret = This->session();
+#ifdef CONFIG_NXWM_KEYBOARD_USBHOST
+      if (ret < 0)
+        {
+          fdbg("ERROR: CKeyboard::session() returned %d\n", ret);
+        }
+#else
+      // No errors from session() are expected
+
+      DEBUGASSERT(ret == OK);
+      UNUSED(ret);
+#endif
+
+      // Close the keyboard device
+
+      (void)std::close(This->m_kbdFd);
+      This->m_kbdFd = -1;
     }
 
   // We should get here only if we were asked to terminate via
-  // m_state = LISTENER_STOPREQUESTED
+  // m_state = LISTENER_STOPREQUESTED (or perhaps if some irrecoverable
+  // error has occurred).
 
   gvdbg("Listener exiting\n");
   This->m_state = LISTENER_TERMINATED;

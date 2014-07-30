@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/nxwm/include/keyboard.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CKEYBOARD_HXX
-#define __INCLUDE_CKEYBOARD_HXX
+#ifndef __NXWM_INCLUDE_CKEYBOARD_HXX
+#define __NXWM_INCLUDE_CKEYBOARD_HXX
 
 /****************************************************************************
  * Included Files
@@ -93,8 +93,46 @@ namespace NxWM
     sem_t                        m_waitSem; /**< Used to synchronize with the listener thread */
 
     /**
-     * The keyboard listener thread.  This is the entry point of a thread that
-     * listeners for and dispatches keyboard events to the NX server.
+     * Open the keyboard device.  Not very interesting for the case of
+     * standard device but much more interesting for a USB keyboard device
+     * that may disappear when the keyboard is disconnect but later reappear
+     * when the keyboard is reconnected.  In this case, this function will
+     * not return until the keyboard device was successfully opened (or
+     * until an irrecoverable error occurs.
+     *
+     * Opens the keyboard device specified by CONFIG_NXWM_KEYBOARD_DEVPATH.
+     *
+     * @return On success, then method returns a valid file descriptor that
+     * can be used to redirect stdin.  A negated errno value is returned
+     * if an irrecoverable error occurs.
+     */
+
+    inline int open(void);
+
+    /**
+     * This is the heart of the keyboard listener thread.  It contains the
+     * actual logic that listeners for and dispatches keyboard events to the
+     * NX server.
+     *
+     * @return  If the session terminates gracefully (i.e., because >m_state
+     * is no longer equal to  LISTENER_RUNNING, then method returns OK.  A
+     * negated errno value is returned if an error occurs while reading from
+     * the keyboard device.  A read error, depending upon the type of the
+     * error, may simply indicate that a USB keyboard was removed and we
+     * should wait for the keyboard to be connected.
+     */
+
+    inline int session(void);
+
+    /**
+     * The keyboard listener thread.  This is the entry point of a thread
+     * that listeners for and dispatches keyboard events to the NX server.
+     * It simply opens the keyboard device (using CKeyboard::open()) and
+     * executes the session (via CKeyboard::session()).
+     *
+     * If an errors while reading from the keyboard device AND we are
+     * configured to use a USB keyboard, then this function will wait for
+     * the USB keyboard to be re-connected.
      *
      * @param arg.  The CKeyboard 'this' pointer cast to a void*.
      * @return This function normally does not return but may return NULL on
@@ -130,4 +168,4 @@ namespace NxWM
   };
 }
 
-#endif // __INCLUDE_CKEYBOARD_HXX
+#endif // __NXWM_INCLUDE_CKEYBOARD_HXX
