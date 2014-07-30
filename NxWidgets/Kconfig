@@ -855,13 +855,24 @@ config NXWM_KEYBOARD_DEVPATH
 	string "Keyboard Device Path"
 	default "/dev/console"
 	---help---
-		The full path to the touchscreen device. Default: "/dev/console"
+		The full path to the keyboard device. Default: "/dev/console"
+
+config NXWM_KEYBOARD_USBHOST
+	bool "USB Keyboard Device"
+	default n
+	---help---
+		This setting indicates that NXWM_KEYBOARD_DEVPATH is a USB keyboard.
+		A USB Keyboard is a removable device. When it is inserted, then
+		device at NXWM_KEYBOARD_DEVPATH will appear; when it removed,
+		keyboard reads will fail and the device at NXWM_KEYBOARD_DEVPATH
+		will disappear.  Selecting this option builds addtional logic into
+		the keyboard listener thread in order to handle this case.
 
 config NXWM_KEYBOARD_SIGNO
 	int "Keyboard Task Signal Number"
 	default 6
 	---help---
-		The realtime signal used to wake up the touchscreen listener thread.
+		The realtime signal used to wake up the keyboard listener thread.
 		Default: 6
 
 config NXWM_KEYBOARD_BUFSIZE
@@ -874,10 +885,10 @@ config NXWM_KEYBOARD_LISTENERPRIO
 	int "Keyboard Listener Task Priority"
 	default 120
 	---help---
-		Priority of the touchscreen listener thread.This listener should
-		have a higher priority than most display-related tsks otherwise it
-		may miss touchscreen events (not really very likely because keyboard
-		input is relatively slow).   Default: 120
+		Priority of the keyboard listener thread. This listener should
+		have a higher priority than most display-related tasks otherwise it
+		may miss keyboard input (not really very likely because keyboard
+		input is relatively slow). Default: 120
 
 config NXWM_KEYBOARD_LISTENERSTACK
 	int "Keyboard Listener Task Stack Size"

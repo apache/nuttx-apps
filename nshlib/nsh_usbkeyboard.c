@@ -116,7 +116,7 @@ static int nsh_wait_usbready(FAR const char *msg)
 
           /* ENOENT means that the USB device is not yet connected and,
            * hence, has no entry under /dev.  If the USB driver still
-           * exists under(because other threads still have the driver
+           * exists under /dev (because other threads still have the driver
            * open), then we might also get ENODEV.  Anything else would
            * be really bad.
            */
