@@ -527,3 +527,7 @@
 * XWidgets::CNxWidget: Remove an unused bit field (2014-7-28).
 * NxWM::CMediaPlayer: Add a CLabel that show the current fast forward/rewind
   speed (2014-7-28).
+* NxWM::CKeyboard: Add support for a USB keyboard as the NxConsole and text
+  widget input.  Not fully functional as of this initial check-in.  Basic
+  functionality is there, but there are conditions were the keyboard gets
+  lost (2014-7-30).
