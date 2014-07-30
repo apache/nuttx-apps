@@ -14,10 +14,19 @@ NxWidgets
   Status:       Open
   Priority:     Low for now
 
+  Title:        MESSAGE BOX
+  Description:  Need the moral equivalent of a Windows message box:  A
+                simple, model window that provides a message a button to
+                dismiss the message.  This would be helpful, for example,
+                to handle behaviors on errors instead of just failing
+                quietly.
+  Status:       Open
+  Priority:     Low.  Nothing depends on this now.
+
 NxWM
 ----
 
- (4) General Issues
+ (4) General NxWMIssues
  (0) NxConsole Issues
  (0) CHexCalculator Issues
  (3) CMediaPlayer Issues
@@ -30,7 +39,7 @@ o General NxWM Issues
 
   Title:       DISPLAY INTIALIZATION
   Description: During the initialization of the display, the basic frame of the
-               start window is drawn momentarily.  The is just the empty window
+               start window is drawn momentarily.  This is just the empty window
                frame.  This is a consequence of how NX creates windows:  The
                are enabled all of the time so the windows are visible when they
                are being created. The solution would be to add some disable
@@ -60,17 +69,6 @@ o General NxWM Issues
                more about the appropriate context to do the autoraise.
   Status:      Open
   Priority:    Medium low
-
-  Title:       THREAD SAFETY
-  Description: I am not sure how thread-safe the NxWidgets are.  There is
-               is very little multi-thread in the widgets now.  The "NX listener"
-               thread interacts to update mouse (and keyboard) data but all
-               of the heavy work is done on the "start window" thread.  I think
-               everything is okay now, but it may be necessary in the future
-               to introduce some semaphore protection in theCWidgetControl methods
-               to make them thread safe.
-  Status:      Open
-  Priority:    Low
 
   Title:       COMBINE CTouchscreen AND CKeyboard THREADS
   Description: Right now, two separate threads handle touchscreen and keyboard/
@@ -117,7 +115,7 @@ o Platform specific Issues
   ------------------------
 
   Title:       BUGS WHEN CANNOT READ FROM LCD
-  Description: There is a kludge in there to handle the case where we cannot
+  Description: There is a kludge in the code to handle the case where we cannot
                read the background data because the LCD does not support read
                operations.  You cannot read from the STM3240G-EVAL LCD right
                now (it might be possible, but I have not figured out how yet).
