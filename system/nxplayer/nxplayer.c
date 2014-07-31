@@ -489,7 +489,7 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pPlayer,
  ****************************************************************************/
 
 static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
-                                  FAR struct ap_buffer_s* pBuf)
+                                  FAR struct ap_buffer_s* apb)
 {
   struct audio_buf_desc_s bufdesc;
   int ret;
@@ -510,10 +510,11 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 
   /* Read data into the buffer. */
 
-  pBuf->nbytes  = fread(&pBuf->samp, 1, pBuf->nmaxbytes, pPlayer->fileFd);
-  pBuf->curbyte = 0;
+  apb->nbytes  = fread(&apb->samp, 1, apb->nmaxbytes, pPlayer->fileFd);
+  apb->curbyte = 0;
+  apb->flags   = 0;
 
-  if (pBuf->nbytes < pBuf->nmaxbytes)
+  if (apb->nbytes < apb->nmaxbytes)
     {
       int errcode   = errno;
       int readerror = ferror(pPlayer->fileFd);
@@ -523,14 +524,18 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
        */
 
       audvdbg("Closing audio file, nbytes=%d readerr=%d\n",
-              pBuf->nbytes, readerror);
+              apb->nbytes, readerror);
 
       fclose(pPlayer->fileFd);
       pPlayer->fileFd = NULL;
 
+      /* Set a flag to indicate that this is the final buffer in the stream */
+
+      apb->flags |= AUDIO_APB_FINAL;
+
       /* Was this a file read error */
 
-      if (pBuf->nbytes == 0 && readerror)
+      if (apb->nbytes == 0 && readerror)
         {
           DEBUGASSERT(errcode > 0);
 
@@ -541,7 +546,7 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 
   /* Do nothing more if this was the end-of-file with nothing read */
 
-  if (pBuf->nbytes > 0)
+  if (apb->nbytes > 0)
     {
       /* Now enqueue the buffer with the audio device.  If the number of
        * bytes in the file happens to be an exact multiple of the audio
@@ -553,8 +558,8 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 #ifdef CONFIG_AUDIO_MULTI_SESSION
       bufdesc.session   = pPlayer->session;
 #endif
-      bufdesc.numbytes  = pBuf->nbytes;
-      bufdesc.u.pBuffer = pBuf;
+      bufdesc.numbytes  = apb->nbytes;
+      bufdesc.u.pBuffer = apb;
 
       ret = ioctl(pPlayer->devFd, AUDIOIOC_ENQUEUEBUFFER,
                   (unsigned long)&bufdesc);
