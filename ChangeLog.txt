@@ -975,3 +975,6 @@
 	  the buffer has already been consumed. (2014-7-27).
 	* apps/netutils/webserver/httpd.c:  Missing logic to close sockets on loop
 	  termination.  From Max (2014-7-28).
+	* apps/system/nxplayer/nxplayer.c:  Fix some error handling, update
+	  comments, more debug output (2014-7-31).
+
