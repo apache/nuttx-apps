@@ -516,15 +516,17 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 
   if (apb->nbytes < apb->nmaxbytes)
     {
+#ifdef CONFIG_DEBUG
       int errcode   = errno;
       int readerror = ferror(pPlayer->fileFd);
+
+      audvdbg("Closing audio file, nbytes=%d readerr=%d\n",
+              apb->nbytes, readerror);
+#endif
 
       /* End of file or read error.. We are finished with this file in any
        * event.
        */
-
-      audvdbg("Closing audio file, nbytes=%d readerr=%d\n",
-              apb->nbytes, readerror);
 
       fclose(pPlayer->fileFd);
       pPlayer->fileFd = NULL;
@@ -533,55 +535,59 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
 
       apb->flags |= AUDIO_APB_FINAL;
 
+#ifdef CONFIG_DEBUG
       /* Was this a file read error */
 
       if (apb->nbytes == 0 && readerror)
         {
           DEBUGASSERT(errcode > 0);
-
           auddbg("ERROR: fread failed: %d\n", errcode);
-          return -errcode;
+          UNUSED(errcode);
         }
+#endif
     }
 
-  /* Do nothing more if this was the end-of-file with nothing read */
+  /* We get here either on a successful read or a read error.
+   *
+   * We will have a zero length buffer (with the AUDIO_APB_FINAL set) if a
+   * read error occurs or in the event that the file was an exact multiple
+   * of the nmaxbytes size of the audio buffer.  In that latter case, we
+   * have an end of file with no bytes read.
+   *
+   * These infrequency zero length buffers have to be passed through because
+   * the include the AUDIO_APB_FINAL flag that is needed to terminate the
+   * audio stream.
+   */
 
-  if (apb->nbytes > 0)
-    {
-      /* Now enqueue the buffer with the audio device.  If the number of
-       * bytes in the file happens to be an exact multiple of the audio
-       * buffer size, then we will receive the last buffer size = 0.  We
-       * encode this buffer also so the audio system knows its the end of
-       * the file and can do proper clean-up.
-       */
+  /* Now enqueue the buffer with the audio device.  If the number of
+   * bytes in the file happens to be an exact multiple of the audio
+   * buffer size, then we will receive the last buffer size = 0.  We
+   * encode this buffer also so the audio system knows its the end of
+   * the file and can do proper clean-up.
+   */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      bufdesc.session   = pPlayer->session;
+  bufdesc.session   = pPlayer->session;
 #endif
-      bufdesc.numbytes  = apb->nbytes;
-      bufdesc.u.pBuffer = apb;
+  bufdesc.numbytes  = apb->nbytes;
+  bufdesc.u.pBuffer = apb;
 
-      ret = ioctl(pPlayer->devFd, AUDIOIOC_ENQUEUEBUFFER,
-                  (unsigned long)&bufdesc);
-      if (ret < 0)
-        {
-          int errcode = errno;
-          DEBUGASSERT(errcode > 0);
+  ret = ioctl(pPlayer->devFd, AUDIOIOC_ENQUEUEBUFFER,
+              (unsigned long)&bufdesc);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      DEBUGASSERT(errcode > 0);
 
-          auddbg("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
-          return -errcode;
-        }
-
-      /* Return OK to indicate that we successfully read data from the file
-       * (and we are not yet at the end of file)
-       */
-
-      return OK;
+      auddbg("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
+      return -errcode;
     }
 
-  /* Return -ENODATA if we are at the end of file */
+  /* Return OK to indicate that we successfully read data from the file
+   * (and we are not yet at the end of file)
+   */
 
-  return -ENODATA;
+  return OK;
 }
 
 /****************************************************************************
