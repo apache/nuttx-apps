@@ -984,3 +984,7 @@
 	  the size of the buffer so that all buffers only partially filled by the
 	  time they get to the leaf.  Now, a flag is set in the audio buffer
 	  flags set to indicate the final buffer in the stream (2014-7-31).
+	* apps/system/nxplayer/nxplayer.c: Fix an error I introduced:  Need to
+	  pass through final buffer even if is it zero length because it containsi
+	  the end of audio stream flag (2014-8-1).
+
