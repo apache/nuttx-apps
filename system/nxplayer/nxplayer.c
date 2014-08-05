@@ -49,6 +49,8 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -481,19 +483,16 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pPlayer,
 #endif
 
 /****************************************************************************
- * Name: nxplayer_enqueuebuffer
+ * Name: nxplayer_readbuffer
  *
- *  Reads the next block of data from the media file into the specified
- *  buffer and enqueues it to the audio device.
+ *  Read the next block of data from the media file into the specified
+ *  buffer.
  *
  ****************************************************************************/
 
-static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
-                                  FAR struct ap_buffer_s* apb)
+static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
+                               FAR struct ap_buffer_s* apb)
 {
-  struct audio_buf_desc_s bufdesc;
-  int ret;
-
   /* Validate the file is still open.  It will be closed automatically when
    * we encounter the end of file (or, perhaps, a read error that we cannot
    * handle.
@@ -542,22 +541,42 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
         {
           DEBUGASSERT(errcode > 0);
           auddbg("ERROR: fread failed: %d\n", errcode);
-          UNUSED(errcode);
         }
 #endif
     }
 
-  /* We get here either on a successful read or a read error.
-   *
-   * We will have a zero length buffer (with the AUDIO_APB_FINAL set) if a
-   * read error occurs or in the event that the file was an exact multiple
-   * of the nmaxbytes size of the audio buffer.  In that latter case, we
-   * have an end of file with no bytes read.
-   *
-   * These infrequency zero length buffers have to be passed through because
-   * the include the AUDIO_APB_FINAL flag that is needed to terminate the
-   * audio stream.
+  /* Return OK to indicate that the buffer should be passed through to the
+   * audio device.  This does not necessarily indicate that data was read
+   * correctly.
    */
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name: nxplayer_enqueuebuffer
+ *
+ * Description:
+ *   Enqueue the audio buffer in the downstream device.  Normally we are
+ *   called with a buffer of data to be enqueued in the audio stream.
+ *
+ *   Be we may also receive an empty length buffer (with only the
+ *   AUDIO_APB_FINAL set) in the event of certin read error occurs or in the
+ *   event that the file was an exact multiple of the nmaxbytes size of the
+ *   audio buffer.  In that latter case, we have an end of file with no bytes
+ *   read.
+ *
+ *   These infrequent zero length buffers have to be passed through because
+ *   the include the AUDIO_APB_FINAL flag that is needed to terminate the
+ *   audio stream.
+ *
+ ****************************************************************************/
+
+static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
+                                  FAR struct ap_buffer_s* apb)
+{
+  struct audio_buf_desc_s bufdesc;
+  int ret;
 
   /* Now enqueue the buffer with the audio device.  If the number of
    * bytes in the file happens to be an exact multiple of the audio
@@ -604,13 +623,17 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   struct audio_msg_s          msg;
   struct audio_buf_desc_s     buf_desc;
   ssize_t                     size;
-  uint8_t                     running = true;
-  uint8_t                     streaming = true;
+  bool                        running = true;
+  bool                        streaming = true;
+  bool                        failed = false;
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   struct ap_buffer_info_s     buf_info;
   FAR struct ap_buffer_s**    pBuffers;
 #else
   FAR struct ap_buffer_s*     pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
+#endif
+#ifdef CONFIG_DEBUG
+  int                         outstanding = 0;
 #endif
   int                         prio;
   int                         x;
@@ -692,25 +715,71 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
 #endif
     {
-      /* Enqueue next buffer */
+      /* Read the next buffer of data */
 
-      ret = nxplayer_enqueuebuffer(pPlayer, pBuffers[x]);
+      ret = nxplayer_readbuffer(pPlayer, pBuffers[x]);
       if (ret != OK)
         {
-          /* Error encoding initial buffers or file is small */
+          /* nxplayer_readbuffer will return an error if there is no further
+           * data to be read from the file.  This can happen normally if the
+           * file is very small (less than will fit in
+           * CONFIG_AUDIO_NUM_BUFFERS) or if an error occurs trying to read
+           * from the file.
+           */
+
+          /* We are no longer streaming data from the file */
+
+          streaming = false;
 
           if (x == 0)
             {
+              /* No buffers read?  Should never really happen.  Even in the
+               * case of a read failure, one empty buffer containing the
+               * AUDIO_APB_FINAL indication will be returned.
+               */
+
               running = false;
             }
+        }
+
+      /* Enqueue buffer by sending it to the audio driver */
+
+      else
+        {
+          ret = nxplayer_enqueuebuffer(pPlayer, pBuffers[x]);
+          if (ret != OK)
+            {
+              /* Failed to enqueue the buffer.  The driver is not happy with
+               * the buffer.  Perhaps a decoder has detected something that it
+               * does not like in the stream and has stopped streaming.  This
+               * would happen normally if we send a file in the incorrect format
+               * to an audio decoder.
+               *
+               * We must stop streaming as gracefully as possible.  Close the
+               * file so that no further data is read.
+               */
+
+              fclose(pPlayer->fileFd);
+              pPlayer->fileFd = NULL;
+
+              /* We are no longer streaming data from the file.  Be we will
+               * need to wait for any outstanding buffers to be recovered.  We
+               * also still expect the audio driver to send a AUDIO_MSG_COMPLETE
+               * message after all queued buffers have been returned.
+               */
+
+               streaming = false;
+               failed = true;
+               break;
+            }
+#ifdef CONFIG_DEBUG
           else
             {
-              /* We are no longer streaming data from the file */
+              /* The audio driver has one more buffer */
 
-              streaming = false;
+              outstanding++;
             }
-
-          break;
+#endif
         }
     }
 
@@ -719,46 +788,65 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
   /* Start the audio device */
 
+  if (running && !failed)
+    {
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  ret = ioctl(pPlayer->devFd, AUDIOIOC_START,
-              (unsigned long) pPlayer->session);
+      ret = ioctl(pPlayer->devFd, AUDIOIOC_START,
+                  (unsigned long) pPlayer->session);
 #else
-  ret = ioctl(pPlayer->devFd, AUDIOIOC_START, 0);
+      ret = ioctl(pPlayer->devFd, AUDIOIOC_START, 0);
 #endif
 
-  if (ret < 0)
-    {
-      /* Error starting the audio stream!  */
+      if (ret < 0)
+        {
+          /* Error starting the audio stream!  We need to continue running
+           * in order to recover the audio buffers that have already been
+           * queued.
+           */
 
-      running = false;
+          failed = true;
+        }
     }
 
-  /* Indicate we are playing a file */
+  if (running && !failed)
+    {
+      /* Indicate we are playing a file */
 
-  pPlayer->state = NXPLAYER_STATE_PLAYING;
+      pPlayer->state = NXPLAYER_STATE_PLAYING;
 
-  /* Set initial parameters such as volume, bass, etc.
-   * REVISIT:  Shouldn't this actually be done BEFORE we start playing?
-   */
+      /* Set initial parameters such as volume, bass, etc.
+       * REVISIT:  Shouldn't this actually be done BEFORE we start playing?
+       */
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-  (void)nxplayer_setvolume(pPlayer, pPlayer->volume);
+      (void)nxplayer_setvolume(pPlayer, pPlayer->volume);
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
-  nxplayer_setbalance(pPlayer, pPlayer->balance);
+      nxplayer_setbalance(pPlayer, pPlayer->balance);
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
-  nxplayer_setbass(pPlayer, pPlayer->bass);
-  nxplayer_settreble(pPlayer, pPlayer->treble);
+      nxplayer_setbass(pPlayer, pPlayer->bass);
+      nxplayer_settreble(pPlayer, pPlayer->treble);
 #endif
+    }
 
   /* Loop until we specifically break.  running == true means that we are
    * still looping waiting for the playback to complete.  All of the file
    * data may have been sent (if streaming == false), but the playback is
    * not complete until we get the AUDIO_MSG_COMPLETE (or AUDIO_MSG_STOP)
    * message
+   *
+   * The normal protocol for streaming errors detected by the audio driver
+   * is as follows:
+   *
+   * (1) The audio driver will indicated the error by returning a negated
+   *     error value when the next buffer is enqueued.  The upper level
+   *     then knows that this buffer was not queue.
+   * (2) The audio driver must return all queued buffers using the
+   *     AUDIO_MSG_DEQUEUE message, and
+   * (3) Terminate playing by sending the AUDIO_MSG_COMPLETE message.
    */
 
   audvdbg("%s\n", running ? "Playing..." : "Not runnning");
@@ -787,6 +875,15 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* An audio buffer is being dequeued by the driver */
 
           case AUDIO_MSG_DEQUEUE:
+#ifdef CONFIG_DEBUG
+            /* Make sure that we believe that the audio driver has at
+             * least one buffer.
+             */
+
+            DEBUGASSERT(msg.u.pPtr && outstanding > 0);
+            outstanding--;
+#endif
+
             /* Read data from the file directly into this buffer and
              * re-enqueue it.  streaming == true means that we have
              * not yet hit the end-of-file.
@@ -794,7 +891,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
             if (streaming)
               {
-                ret = nxplayer_enqueuebuffer(pPlayer, msg.u.pPtr);
+                /* Read the next buffer of data */
+
+                ret = nxplayer_readbuffer(pPlayer, msg.u.pPtr);
                 if (ret != OK)
                   {
                     /* Out of data.  Stay in the loop until the device sends
@@ -804,6 +903,41 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 
                     streaming = false;
                   }
+
+                /* Enqueue buffer by sending it to the audio driver */
+
+                else
+                  {
+                    ret = nxplayer_enqueuebuffer(pPlayer, msg.u.pPtr);
+                    if (ret != OK)
+                      {
+                        /* There is some issue from the audio driver.
+                         * Perhaps a problem in the file format?
+                         *
+                         * We must stop streaming as gracefully as possible.
+                         * Close the file so that no further data is read.
+                         */
+
+                        fclose(pPlayer->fileFd);
+                        pPlayer->fileFd = NULL;
+
+                        /* Stop streaming and wait for buffers to be
+                         * returned and to receive the AUDIO_MSG_COMPLETE
+                         * indication.
+                         */
+
+                        streaming = false;
+                        failed = true;
+                      }
+#ifdef CONFIG_DEBUG
+                    else
+                      {
+                        /* The audio driver has one more buffer */
+
+                        outstanding++;
+                      }
+#endif
+                  }
               }
             break;
 
@@ -812,22 +946,27 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           case AUDIO_MSG_STOP:
             /* Send a stop message to the device */
 
-            audvdbg("Stopping!\n");
+            audvdbg("Stopping! outstanding=%d\n", outstanding);
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
             ioctl(pPlayer->devFd, AUDIOIOC_STOP,
-                (unsigned long) pPlayer->session);
+                 (unsigned long) pPlayer->session);
 #else
             ioctl(pPlayer->devFd, AUDIOIOC_STOP, 0);
 #endif
+            /* Stay in the running loop (without sending more data).
+             * we will need to recover our audio buffers.  We will
+             * loop until AUDIO_MSG_COMPLETE is received.
+             */
+
             streaming = false;
-            running = false;
             break;
 
           /* Message indicating the playback is complete */
 
           case AUDIO_MSG_COMPLETE:
-            audvdbg("Play complete\n");
+            audvdbg("Play complete.  outstanding=%d\n", outstanding);
+            DEBUGASSERT(outstanding == 0);
             running = false;
             break;
 
@@ -897,6 +1036,7 @@ err_out:
       fclose(pPlayer->fileFd);            /* Close the file */
       pPlayer->fileFd = NULL;             /* Clear out the FD */
     }
+
   close(pPlayer->devFd);                  /* Close the device */
   pPlayer->devFd = -1;                    /* Mark device as closed */
   mq_close(pPlayer->mq);                  /* Close the message queue */
