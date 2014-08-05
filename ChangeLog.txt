@@ -985,6 +985,10 @@
 	  time they get to the leaf.  Now, a flag is set in the audio buffer
 	  flags set to indicate the final buffer in the stream (2014-7-31).
 	* apps/system/nxplayer/nxplayer.c: Fix an error I introduced:  Need to
-	  pass through final buffer even if is it zero length because it containsi
+	  pass through final buffer even if is it zero length because it contains
 	  the end of audio stream flag (2014-8-1).
-
+	* apps/system/nxplayer/nxplayer.c: Break reading and enqueueing of audio
+	  buffers into two steps so that errors in enqueueing can be
+	  distinguished from errors in reading.  Errors in enqueueing signal a
+	  downstream decoder error.  Add logic to gracefully recover from
+	  downstream decoder errors (2014-8-5).
