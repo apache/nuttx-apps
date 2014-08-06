@@ -992,3 +992,7 @@
 	  distinguished from errors in reading.  Errors in enqueueing signal a
 	  downstream decoder error.  Add logic to gracefully recover from
 	  downstream decoder errors (2014-8-5).
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c: Software assigned MAC
+	  address is now configurable. From Lazlo (2014-8-6).
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c: Also add an option to
+	  let platform-specific logic select the MAC address (2014-8-5).
