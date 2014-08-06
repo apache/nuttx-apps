@@ -101,4 +101,3 @@ void nsh_initialize(void)
 
   (void)nsh_netinit();
 }
-

@@ -777,6 +777,49 @@ config NSH_ARCHINIT
 menu "Networking Configuration"
 	depends on NET
 
+config NSH_NETINIT_THREAD
+	bool "Network initialization thread"
+	default n
+	depends on !DISABLE_PTHREAD
+	---help---
+		NSH is brought up through a series of sequential initialization
+		steps.  This includes networking. If the network is available on
+		reset, then there is really no issue.  Negotiating the link will
+		take only a second or so and the delay to the NSH prompt is
+		normally acceptable.
+
+		But if there is no network connected, then the start-up delay can
+		be very long depending upon things like the particular PHY, driver
+		timeout delay times, and numbers of retries.  A failed negotiation
+		can potentially take a very long time, perhaps as much as a
+		minute... Long enough that you might think that the board would
+		never come up!
+
+		One solution is to enabled by this option.  If NSH_NETINIT_THREAD
+		is selected, the network bring-up will all occur in parallel with
+		NSH on a separate thread.  In this case, the NSH prompt will occur
+		immediately with the network becoming available some time layer (if
+		if all).  This thread will terminate once it successfully initializes
+		the network
+
+		NOTES:  If no network is connected, the network bring-up will fail
+		and the network initialization thread will simply exit.  There are
+		no retries and no mechanism to know if the network initialization
+		was successful.  Furthermore, there is currently no support for
+		detecting loss of network connection.  Lots of things to do!
+
+if NSH_NETINIT_THREAD
+
+config NSH_NETINIT_THREAD_STACKSIZE
+	int "Network initialization thread stack size"
+	default 1568
+
+config NSH_NETINIT_THREAD_PRIORITY
+	int "Network initialization thread priority"
+	default 100
+
+endif # NSH_NETINIT_THREAD
+
 config NSH_DHCPC
 	bool "Use DHCP to get IP address"
 	default n

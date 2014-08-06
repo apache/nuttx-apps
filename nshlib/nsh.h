@@ -104,7 +104,9 @@
 #  define CONFIG_NSH_TMPDIR "/tmp"
 #endif
 
-/* Networking support */
+/* Networking support.  Make sure that all non-boolean configuration
+ * settings have some value.
+ */
 
 #ifndef CONFIG_NSH_IPADDR
 #  define CONFIG_NSH_IPADDR    0x0a000002
@@ -124,6 +126,14 @@
 
 #ifndef CONFIG_NSH_MACADDR
 #  define CONFIG_NSH_MACADDR   0x00e0deadbeef
+#endif
+
+#ifndef CONFIG_NSH_NETINIT_THREAD_STACKSIZE
+#  define CONFIG_NSH_NETINIT_THREAD_STACKSIZE 1568
+#endif
+
+#ifndef CONFIG_NSH_NETINIT_THREAD_PRIORITY
+#  define CONFIG_NSH_NETINIT_THREAD_PRIORITY   100
 #endif
 
 #ifndef CONFIG_NET
