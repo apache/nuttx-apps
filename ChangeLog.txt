@@ -996,3 +996,8 @@
 	  address is now configurable. From Lazlo (2014-8-6).
 	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c: Also add an option to
 	  let platform-specific logic select the MAC address (2014-8-5).
+	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c:  There is now a
+	  configuration option that will bring up the network on an separate
+	  thread.  Since the network bring-up is asynchronous, there are not
+	  serial console start-up delays due to the network negotiation time
+	  (2014-8-6).
