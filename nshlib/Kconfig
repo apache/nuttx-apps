@@ -12,6 +12,8 @@ config NSH_LIBRARY
 
 if NSH_LIBRARY
 
+menu "Command Line Configuration"
+
 choice
 	prompt "Command Line Editor"
 	default NSH_READLINE if DEFAULT_SMALL
@@ -37,6 +39,98 @@ config NSH_CLE
 		footprint.
 
 endchoice
+
+config NSH_LINELEN
+	int "Max command line length"
+	default 64 if DEFAULT_SMALL
+	default 80 if !DEFAULT_SMALL
+	---help---
+		The maximum length of one command line and of one output line.
+		Default: 64/80
+
+config NSH_DISABLE_SEMICOLON
+	bool "Disable multiple commands per line"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	---help---
+		By default, you can enter multiple NSH commands on a line with each
+		command separated by a semicolon.  You can disable this feature to
+		save a little memory on FLASH challenged platforms.
+
+config NSH_CMDPARMS
+	bool "Enable commands as parameters"
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
+	depends on !DISABLE_MOUNTPOINT
+	---help---
+		If selected, then the output from commands, from file applications, and
+		from NSH built-in commands can be used as arguments to other
+		commands.  The entity to be executed is identified by enclosing the
+		command line in back quotes.  For example,
+
+			set FOO `myprogram $BAR`
+
+		Will execute the program named myprogram passing it the value of the
+		environment variable BAR.  The value of the environment variable FOO
+		is then set output of myprogram on stdout.
+
+		Because this feature commits significant resources, it is disabled by
+		default.
+
+config NSH_TMPDIR
+	string "Temporary file directory"
+	default "/tmp"
+	depends on NSH_CMDPARMS
+		---help---
+		If NSH_CMDPARMS is selected, then function output will be retained
+		in a temporary file.  In that case, this string must be provided to
+		specify the full path to a directory where temporary files can be
+		created.  This would be a good application of RAM disk: To provide
+		temporary storage for function output.
+
+config NSH_MAXARGUMENTS
+	int "Maximum number of command arguments"
+	default 6
+	---help---
+		The maximum number of NSH command arguments.
+		Default: 6
+
+config NSH_ARGCAT
+	bool "Concatenation of argument strings"
+	default n if DEFAULT_SMALL
+	default y if !DEFAULT_SMALL
+	---help---
+		Support concatenation of strings with environment variables or command
+		output.  For example:
+
+			set FOO XYZ
+			set BAR 123
+			set FOOBAR ABC_${FOO}_${BAR}
+
+		would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
+		to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
+		FLASH footprint results but then also only simple environment
+		variables like $FOO can be used on the command line.
+
+config NSH_NESTDEPTH
+	int "Maximum command nesting"
+	default 3
+	---help---
+		The maximum number of nested if-then[-else]-fi sequences that
+		are permissable.  Default: 3
+
+config NSH_DISABLEBG
+	bool "Disable background commands"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	---help---
+		This can be set to 'y' to suppress support for background
+		commands.  This setting disables the 'nice' command prefix and
+		the '&' command suffix.  This would only be set on systems
+		where a minimal footprint is a necessity and background command
+		execution is not.
+
+endmenu # Command Line Configuration
 
 config NSH_BUILTIN_APPS
 	bool "Enable built-in applications"
@@ -326,84 +420,7 @@ config NSH_STRERROR
 		This setting depends upon the strerror() having been enabled
 		with LIBC_STRERROR.
 
-config NSH_LINELEN
-	int "Max command line length"
-	default 64 if DEFAULT_SMALL
-	default 80 if !DEFAULT_SMALL
-	---help---
-		The maximum length of one command line and of one output line.
-		Default: 64/80
-
-config NSH_DISABLE_SEMICOLON
-	bool "Disable multiple commands per line"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
-	---help---
-		By default, you can enter multiple NSH commands on a line with each
-		command separated by a semicolon.  You can disable this feature to
-		save a little memory on FLASH challenged platforms.
-
-config NSH_CMDPARMS
-	bool "Enable commands as parameters"
-	default n if DEFAULT_SMALL
-	default y if !DEFAULT_SMALL
-	depends on !DISABLE_MOUNTPOINT
-	---help---
-		If selected, then the output from commands, from file applications, and
-		from NSH built-in commands can be used as arguments to other
-		commands.  The entity to be executed is identified by enclosing the
-		command line in back quotes.  For example,
-
-			set FOO `myprogram $BAR`
-
-		Will execute the program named myprogram passing it the value of the
-		environment variable BAR.  The value of the environment variable FOO
-		is then set output of myprogram on stdout.
-
-		Because this feature commits significant resources, it is disabled by
-		default.
-
-config NSH_TMPDIR
-	string "Temporary file directory"
-	default "/tmp"
-	depends on NSH_CMDPARMS
-		---help---
-		If NSH_CMDPARMS is selected, then function output will be retained
-		in a temporary file.  In that case, this string must be provided to
-		specify the full path to a directory where temporary files can be
-		created.  This would be a good application of RAM disk: To provide
-		temporary storage for function output.
-
-config NSH_MAXARGUMENTS
-	int "Maximum number of command arguments"
-	default 6
-	---help---
-		The maximum number of NSH command arguments.
-		Default: 6
-
-config NSH_ARGCAT
-	bool "Concatenation of argument strings"
-	default n if DEFAULT_SMALL
-	default y if !DEFAULT_SMALL
-	---help---
-		Support concatenation of strings with environment variables or command
-		output.  For example:
-
-			set FOO XYZ
-			set BAR 123
-			set FOOBAR ABC_${FOO}_${BAR}
-
-		would set the environment variable FOO to XYZ, BAR to 123 and FOOBAR
-		to ABC_XYZ_123.  If NSH_ARGCAT is not selected, then a slightly small
-		FLASH footprint results but then also only simple environment
-		variables like $FOO can be used on the command line.
-
-config NSH_NESTDEPTH
-	int "Maximum command nesting"
-	default 3
-	---help---
-		The maximum number of nested if-then[-else]-fi sequences that
-		are permissable.  Default: 3
+menu "Scripting Support"
 
 config NSH_DISABLESCRIPT
 	bool "Disable script support"
@@ -438,17 +455,6 @@ config NSH_DISABLE_LOOPS
 
 endif # !NSH_DISABLESCRIPT
 
-config NSH_DISABLEBG
-	bool "Disable background commands"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
-	---help---
-		This can be set to 'y' to suppress support for background
-		commands.  This setting disables the 'nice' command prefix and
-		the '&' command suffix.  This would only be set on systems
-		where a minimal footprint is a necessity and background command
-		execution is not.
-
 config NSH_MMCSDMINOR
 	int "MMC/SD minor device number"
 	default 0
@@ -467,8 +473,6 @@ config NSH_ROMFSETC
 		Mount a ROMFS filesystem at /etc and provide a startup script
 		at /etc/init.d/rcS.  The default startup script will mount
 		a FAT FS RAMDISK at /tmp but the logic is easily extensible.
-
-endif # NSH_LIBRARY
 
 if NSH_ROMFSETC
 
@@ -572,8 +576,9 @@ config NSH_FATMOUNTPT
 		FS will be mounted.  Default is "/tmp".
 
 endif # NSH_ROMFSETC
+endmenu # Scripting Support
 
-if NSH_LIBRARY
+menu "Console Configuration"
 
 config NSH_CONSOLE
 	bool "Use console"
@@ -625,81 +630,6 @@ config USBDEV_MINOR
 		minor number may also need to be provided. Default: 0
 
 endif # NSH_USBCONSOLE
-
-config NSH_USBKBD
-	bool "Use USB keyboard input"
-	default n
-	depends on NSH_CONSOLE && USBHOST_HIDKBD && !NSH_USBCONSOLE
-	---help---
-		Normally NSH uses the same device for stdin, stdout, and stderr.  By
-		default, that device is /dev/console.  If this option is selected,
-		then NSH will use a USB HID keyboard for stdin.  In this case, the
-		keyboard is connected directly to the target (via a USB host
-		interface) and the data from the keyboard will drive NSH.  NSH
-		output (stdout and stderr) will still go to /dev/console.
-
-if NSH_USBKBD
-
-config NSH_USBKBD_DEVNAME
-	string "USB keyboard device"
-	default "/dev/kbda"
-	---help---
-		If NSH_USBKBD is set to 'y', then NSH_USBKBD_DEVNAME must also be
-		set to select the USB keyboard device used to support the NSH
-		console input.   This should be set to the quoted name of a read-
-		able keyboard driver. Default: "/dev/kbda".
-
-endif #NSH_USBKBD
-
-comment "USB Trace Support"
-
-config NSH_USBDEV_TRACE
-	bool "Enable Builtin USB Trace Support"
-	default n
-	depends on USBDEV && (DEBUG || USBDEV_TRACE)
-	---help---
-		Enable builtin USB trace support in NSH.  If selected, buffered USB
-		trace data will be presented each time a command is provided to NSH.
-		The USB trace data will be sent to the console unless DEBUG set or
-		unless you are using a USB console.  In those cases, the trace data
-		will go to the SYSLOG device.
-
-		If not enabled, the USB trace support can be provided by external
-		logic such as apps/system/usbmonitor.
-
-if NSH_USBDEV_TRACE
-
-config NSH_USBDEV_TRACEINIT
-	bool "Show initialization events"
-	default n
-	---help---
-		Show initialization events
-
-config NSH_USBDEV_TRACECLASS
-	bool "Show class driver events"
-	default n
-	---help---
-		Show class driver events
-
-config NSH_USBDEV_TRACETRANSFERS
-	bool "Show data transfer events"
-	default n
-	---help---
-		Show data transfer events
-
-config NSH_USBDEV_TRACECONTROLLER
-	bool "Show controller events"
-	default n
-	---help---
-		Show controller events
-
-config NSH_USBDEV_TRACEINTERRUPTS
-	bool "Show interrupt-related events"
-	default n
-	---help---
-		Show interrupt-related events
-
-endif # NSH_USBDEV_TRACE
 
 config NSH_ALTCONDEV
 	bool "Alternative console device"
@@ -758,6 +688,83 @@ config NSH_CONDEV
 
 endif # NSH_ALTCONDEV
 
+config NSH_USBKBD
+	bool "Use USB keyboard input"
+	default n
+	depends on NSH_CONSOLE && USBHOST_HIDKBD && !NSH_USBCONSOLE
+	---help---
+		Normally NSH uses the same device for stdin, stdout, and stderr.  By
+		default, that device is /dev/console.  If this option is selected,
+		then NSH will use a USB HID keyboard for stdin.  In this case, the
+		keyboard is connected directly to the target (via a USB host
+		interface) and the data from the keyboard will drive NSH.  NSH
+		output (stdout and stderr) will still go to /dev/console.
+
+if NSH_USBKBD
+
+config NSH_USBKBD_DEVNAME
+	string "USB keyboard device"
+	default "/dev/kbda"
+	---help---
+		If NSH_USBKBD is set to 'y', then NSH_USBKBD_DEVNAME must also be
+		set to select the USB keyboard device used to support the NSH
+		console input.   This should be set to the quoted name of a read-
+		able keyboard driver. Default: "/dev/kbda".
+
+endif #NSH_USBKBD
+endmenu # Console Configuration
+
+menu "USB Device Trace Support"
+	depends on USBDEV && (DEBUG || USBDEV_TRACE)
+
+config NSH_USBDEV_TRACE
+	bool "Enable Builtin USB Trace Support"
+	default n
+	---help---
+		Enable builtin USB trace support in NSH.  If selected, buffered USB
+		trace data will be presented each time a command is provided to NSH.
+		The USB trace data will be sent to the console unless DEBUG set or
+		unless you are using a USB console.  In those cases, the trace data
+		will go to the SYSLOG device.
+
+		If not enabled, the USB trace support can be provided by external
+		logic such as apps/system/usbmonitor.
+
+if NSH_USBDEV_TRACE
+
+config NSH_USBDEV_TRACEINIT
+	bool "Show initialization events"
+	default n
+	---help---
+		Show initialization events
+
+config NSH_USBDEV_TRACECLASS
+	bool "Show class driver events"
+	default n
+	---help---
+		Show class driver events
+
+config NSH_USBDEV_TRACETRANSFERS
+	bool "Show data transfer events"
+	default n
+	---help---
+		Show data transfer events
+
+config NSH_USBDEV_TRACECONTROLLER
+	bool "Show controller events"
+	default n
+	---help---
+		Show controller events
+
+config NSH_USBDEV_TRACEINTERRUPTS
+	bool "Show interrupt-related events"
+	default n
+	---help---
+		Show interrupt-related events
+
+endif # NSH_USBDEV_TRACE
+endmenu # USB Device Trace Support
+
 config NSH_ARCHINIT
 	bool "Have architecture-specific initialization"
 	default n
@@ -766,6 +773,122 @@ config NSH_ARCHINIT
 		via the board-specific function nsh_archinitialize().  This
 		function will be called early in NSH initialization to allow
 		board logic to do such things as configure MMC/SD slots.
+
+menu "Networking Configuration"
+	depends on NET
+
+config NSH_DHCPC
+	bool "Use DHCP to get IP address"
+	default n
+	depends on NSH_LIBRARY && NETUTILS_DHCPC
+	---help---
+		Obtain the IP address via DHCP.
+
+		Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
+		messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
+
+config NSH_IPADDR
+	hex "Target IP address"
+	default 0x0a000002
+	depends on NSH_LIBRARY && NET && !NSH_DHCPC
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be provided.
+		This is a 32-bit integer value in host order.  So, as an example,
+		0x10000002 would be 10.0.0.2.
+
+config NSH_DRIPADDR
+	hex "Router IP address"
+	default 0x0a000001
+	depends on NSH_LIBRARY && NET
+	---help---
+		Default router IP address (aka, Gateway).  This is a 32-bit integer
+		value in host order.  So, as an example, 0x10000001 would be 10.0.0.1.
+
+config NSH_NETMASK
+	hex "Network mask"
+	default 0xffffff00
+	depends on NSH_LIBRARY && NET
+	---help---
+		Network mask.  This is a 32-bit integer value in host order.  So, as
+		an example, 0xffffff00 would be 255.255.255.0.
+
+config NSH_DNS
+	bool "Use DNS"
+	default n
+	depends on NSH_LIBRARY && NETUTILS_DNSCLIENT
+	---help---
+		Configure to use a DNS.
+
+config NSH_DNSIPADDR
+	hex "DNS IP address"
+	default 0xa0000001
+	depends on NSH_DNS
+	---help---
+		Configure the DNS address.  This is a 32-bit integer value in host
+		order.  So, as an example, 0xa0000001 would be 10.0.0.1.
+
+config NSH_NOMAC
+	bool "Hardware has no MAC address"
+	default n
+	depends on NSH_LIBRARY && NET
+	---help---
+		Set if your Ethernet hardware has no built-in MAC address.
+		If set, a bogus MAC will be assigned.
+
+if NSH_NOMAC
+
+choice
+	prompt "MAC address selection"
+	default NSH_SWMAC
+	---help---
+		If the hardware as no MAC address, then NSH must assign an address
+		to the hardware before it brings the network up.  This choice allows
+		you select the source of that MAC address.
+
+config NSH_SWMAC
+	bool "Fixed address"
+	---help---
+		With this choice, you can assign a fixed MAC address determined by
+		a NuttX configuration option.
+
+config NSH_ARCHMAC
+	bool "Platform-specific"
+	---help---
+		This selection will enable a call to an interface exported by
+		platform-specific code to determine the MAC address.  If this option
+		is selected, the the platform-specific code must provide the
+		function nsh_arch_macaddress() that will be called by the NSH
+		initialize logic to obtain the MAC address.
+
+		This option might be useful, as an example, if MAC addresses are
+		retained in Serial FLASH. Such address might be assigned during the
+		manufacturing process so that each board has a unique MAC address.
+
+endchoice # MAC address selection
+
+config NSH_MACADDR
+	hex "Fixed MAC address"
+	default 0x00e0deadbeef
+	depends on NSH_SWMAC
+	---help---
+		If the hardware has no built-in MAC address and if the NSH_SWMAC
+		option is selected, then the fixed, software-assigned MAC address
+		MAC address must provided with this selection.
+
+endif # NSH_NOMAC
+
+config NSH_MAX_ROUNDTRIP
+	int "Max Ping Round-Trip (DSEC)"
+	default 20
+	depends on NSH_LIBRARY && NET && !NSH_DISABLE_PING
+	---help---
+		This is the maximum round trip for a response to a ICMP ECHO request.
+		It is in units of deciseconds.  The default is 20 (2 seconds).
+
+endmenu # Networking Configuration"
+
+menu "Telnet Configuration"
+	depends on NETUTILS_TELNETD
 
 config NSH_TELNET
 	bool "Use Telnet console"
@@ -777,8 +900,6 @@ config NSH_TELNET
 		server front-end is selected.  When this option is provided,
 		you may log into NuttX remotely using telnet in order to
 		access NSH.
-
-endif # NSH_LIBRARY
 
 if NSH_TELNET
 
@@ -849,77 +970,5 @@ config NSH_TELNET_FAILCOUNT
 
 endif # NSH_TELNET_LOGIN
 endif # NSH_TELNET
-
-config NSH_DHCPC
-	bool "Use DHCP to get IP address"
-	default n
-	depends on NSH_LIBRARY && NETUTILS_DHCPC
-	---help---
-		Obtain the IP address via DHCP.
-
-		Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
-		messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
-
-config NSH_IPADDR
-	hex "Target IP address"
-	default 0x0a000002
-	depends on NSH_LIBRARY && NET && !NSH_DHCPC
-	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be provided.
-		This is a 32-bit integer value in host order.  So, as an example,
-		0x10000002 would be 10.0.0.2.
-
-config NSH_DRIPADDR
-	hex "Router IP address"
-	default 0x0a000001
-	depends on NSH_LIBRARY && NET
-	---help---
-		Default router IP address (aka, Gateway).  This is a 32-bit integer
-		value in host order.  So, as an example, 0x10000001 would be 10.0.0.1.
-
-config NSH_NETMASK
-	hex "Network mask"
-	default 0xffffff00
-	depends on NSH_LIBRARY && NET
-	---help---
-		Network mask.  This is a 32-bit integer value in host order.  So, as
-		an example, 0xffffff00 would be 255.255.255.0.
-
-config NSH_DNS
-	bool "Use DNS"
-	default n
-	depends on NSH_LIBRARY && NETUTILS_DNSCLIENT
-	---help---
-		Configure to use a DNS.
-
-config NSH_DNSIPADDR
-	hex "DNS IP address"
-	default 0xa0000001
-	depends on NSH_DNS
-	---help---
-		Configure the DNS address.  This is a 32-bit integer value in host
-		order.  So, as an example, 0xa0000001 would be 10.0.0.1.
-
-config NSH_NOMAC
-	bool "Hardware has no MAC address"
-	default n
-	depends on NSH_LIBRARY && NET
-	---help---
-		Set if your ethernet hardware has no built-in MAC address.
-		If set, a bogus MAC will be assigned.
-
-config NSH_MACADDR
-	hex "Software assigned MAC address"
-	default 0x00e0deadbeef
-	depends on NSH_NOMAC
-	---help---
-		Use this option to specific the software-assigned MAC address
-		to be used, in case the hardware has no built-in MAC address.
-
-config NSH_MAX_ROUNDTRIP
-	int "Max Ping Round-Trip (DSEC)"
-	default 20
-	depends on NSH_LIBRARY && NET && !NSH_DISABLE_PING
-	---help---
-		This is the maximum round trip for a response to a ICMP ECHO request.
-		It is in units of deciseconds.  The default is 20 (2 seconds).
+endmenu # Telnet Configuration
+endif # NSH_LIBRARY

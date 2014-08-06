@@ -126,6 +126,10 @@
 #  define CONFIG_NSH_MACADDR   0x00e0deadbeef
 #endif
 
+#ifndef CONFIG_NET
+#  undef CONFIG_NSH_ARCHMAC
+#endif
+
 /* Telnetd requires networking support */
 
 #ifndef CONFIG_NET
@@ -692,6 +696,10 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 int nsh_archinitialize(void);
 #else
 #  define nsh_archinitialize() (-ENOSYS)
+#endif
+
+#ifdef CONFIG_NSH_ARCHMAC
+int nsh_arch_macaddress(uint8_t *mac);
 #endif
 
 /* Basic session and message handling */
