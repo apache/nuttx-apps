@@ -104,6 +104,28 @@
 #  define CONFIG_NSH_TMPDIR "/tmp"
 #endif
 
+/* Networking support */
+
+#ifndef CONFIG_NSH_IPADDR
+#  define CONFIG_NSH_IPADDR    0x0a000002
+#endif
+
+#ifndef CONFIG_NSH_DRIPADDR
+#  define CONFIG_NSH_DRIPADDR  0x0a000001
+#endif
+
+#ifndef CONFIG_NSH_NETMASK
+#  define CONFIG_NSH_NETMASK   0xffffff00
+#endif
+
+#ifndef CONFIG_NSH_DNSIPADDR
+#  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
+#endif
+
+#ifndef CONFIG_NSH_MACADDR
+#  define CONFIG_NSH_MACADDR   0x00e0deadbeef
+#endif
+
 /* Telnetd requires networking support */
 
 #ifndef CONFIG_NET

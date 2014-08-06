@@ -908,6 +908,14 @@ config NSH_NOMAC
 		Set if your ethernet hardware has no built-in MAC address.
 		If set, a bogus MAC will be assigned.
 
+config NSH_MACADDR
+	hex "Software assigned MAC address"
+	default 0x00e0deadbeef
+	depends on NSH_NOMAC
+	---help---
+		Use this option to specific the software-assigned MAC address
+		to be used, in case the hardware has no built-in MAC address.
+
 config NSH_MAX_ROUNDTRIP
 	int "Max Ping Round-Trip (DSEC)"
 	default 20

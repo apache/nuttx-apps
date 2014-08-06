@@ -119,12 +119,12 @@ int nsh_netinit(void)
 /* Many embedded network interfaces must have a software assigned MAC */
 
 #if defined(CONFIG_NSH_NOMAC) && !defined(CONFIG_NET_SLIP)
-  mac[0] = 0x00;
-  mac[1] = 0xe0;
-  mac[2] = 0xde;
-  mac[3] = 0xad;
-  mac[4] = 0xbe;
-  mac[5] = 0xef;
+  mac[0] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
+  mac[1] = (CONFIG_NSH_MACADDR >> (8 * 4)) & 0xff;
+  mac[2] = (CONFIG_NSH_MACADDR >> (8 * 3)) & 0xff;
+  mac[3] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
+  mac[4] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
+  mac[5] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
   netlib_setmacaddr(NET_DEVNAME, mac);
 #endif
 
