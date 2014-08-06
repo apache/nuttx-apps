@@ -664,6 +664,7 @@ bool NxWM::nshlibInitialize(void)
       return false;
    }
 #endif
+
   return true;
 }
 
