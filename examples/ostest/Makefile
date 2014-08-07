@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/ostest/Makefile
 #
-#   Copyright (C) 2007-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -69,18 +69,13 @@ endif # CONFIG_DISABLE_PTHREAD
 ifneq ($(CONFIG_DISABLE_SIGNALS),y)
 CSRCS		+= sighand.c
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-ifneq ($(CONFIG_DISABLE_CLOCK),y)
 CSRCS		+= timedwait.c
-endif # CONFIG_DISABLE_CLOCK
 endif # CONFIG_DISABLE_PTHREAD
 endif # CONFIG_DISABLE_SIGNALS
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS		+= mqueue.c
-ifneq ($(CONFIG_DISABLE_CLOCK),y)
-CSRCS		+= timedmqueue.c
-endif # CONFIG_DISABLE_CLOCK
+CSRCS		+= mqueue.c timedmqueue.c
 endif # CONFIG_DISABLE_PTHREAD
 endif # CONFIG_DISABLE_MQUEUE
 

@@ -66,7 +66,7 @@
 #include <nuttx/net/ip.h>
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
+   !defined(CONFIG_DISABLE_SIGNALS)
 #  include <apps/netutils/netlib.h>
 #  include <apps/netutils/dnsclient.h>
 #endif
@@ -133,7 +133,7 @@ struct tftpc_args_s
  ****************************************************************************/
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
+   !defined(CONFIG_DISABLE_SIGNALS)
 static uint16_t g_pingid = 0;
 #endif
 
@@ -150,7 +150,7 @@ static uint16_t g_pingid = 0;
  ****************************************************************************/
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
+   !defined(CONFIG_DISABLE_SIGNALS)
 static inline uint16_t ping_newid(void)
 {
   irqstate_t save = irqsave();
@@ -837,7 +837,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
+   !defined(CONFIG_DISABLE_SIGNALS)
 #ifndef CONFIG_NSH_DISABLE_PING
 int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {

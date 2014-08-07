@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/dbg_timcmds.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@
  * Private Data
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_NSH_DISABLE_DATE)
+#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
 static FAR const char * const g_datemontab[] =
 {
   "jan", "feb", "mar", "apr", "may", "jun",
@@ -85,7 +85,7 @@ static FAR const char * const g_datemontab[] =
  * Name: date_month
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_NSH_DISABLE_DATE)
+#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
 static inline int date_month(FAR const char *abbrev)
 {
   int i;
@@ -105,7 +105,7 @@ static inline int date_month(FAR const char *abbrev)
  * Name: date_gettime
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_NSH_DISABLE_DATE)
+#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
 static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
 {
   static const char format[] = "%b %d %H:%M:%S %Y";
@@ -139,7 +139,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
  * Name: date_settime
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_NSH_DISABLE_DATE)
+#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
 static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
                                FAR char *newtime)
 {
@@ -267,7 +267,7 @@ errout_bad_parm:
  * Name: cmd_date
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_NSH_DISABLE_DATE)
+#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
 int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *newtime = NULL;

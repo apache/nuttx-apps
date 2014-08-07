@@ -787,10 +787,8 @@ void nsh_usbtrace(void);
   int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
-#ifndef CONFIG_DISABLE_CLOCK
-#  if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
-   int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
+#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+  int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
@@ -906,7 +904,7 @@ void nsh_usbtrace(void);
 #    endif
 #  endif
 #  if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-     !defined(CONFIG_DISABLE_CLOCK) && !defined(CONFIG_DISABLE_SIGNALS)
+     !defined(CONFIG_DISABLE_SIGNALS)
 #    ifndef CONFIG_NSH_DISABLE_PING
         int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #    endif
