@@ -189,5 +189,5 @@ void restart_test(void)
       sleep(1);
     }
 
-  printf("restart_main: Exitting\n");
+  printf("restart_main: Exiting\n");
 }

@@ -322,7 +322,7 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #ifdef  CONFIG_ARCH_FPU
-  /* Check that the FPU is properly supported during context switching */
+      /* Check that the FPU is properly supported during context switching */
 
       printf("\nuser_main: FPU test\n");
       fpu_test();
