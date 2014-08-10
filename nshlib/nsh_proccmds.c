@@ -440,6 +440,7 @@ int cmd_sleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        nsh_output(vtbl, g_fmtarginvalid, argv[0]);
        return ERROR;
     }
+
   sleep(secs);
   return OK;
 }
