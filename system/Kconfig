@@ -63,6 +63,10 @@ menu "SD Card"
 source "$APPSDIR/system/sdcard/Kconfig"
 endmenu
 
+menu "Sudoku"
+source "$APPSDIR/system/sudoku/Kconfig"
+endmenu
+
 menu "Sysinfo"
 source "$APPSDIR/system/sysinfo/Kconfig"
 endmenu

@@ -52,7 +52,7 @@ SUBDIRS  = examples graphics interpreters modbus builtin nshlib netutils
 SUBDIRS += platform system
 
 # The list of configured directories is derived from NuttX configuration
-# file:  The selected applications are enabled settings in the confuration
+# file:  The selected applications are enabled settings in the configuration
 # file.  For example,
 #
 #   CONFIG_EXAMPLES_HELLO=y

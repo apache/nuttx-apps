@@ -98,6 +98,10 @@ ifeq ($(CONFIG_SYSTEM_SDCARD),y)
 CONFIGURED_APPS += system/sdcard
 endif
 
+ifeq ($(CONFIG_SYSTEM_SUDOKU),y)
+CONFIGURED_APPS += system/sudoku
+endif
+
 ifeq ($(CONFIG_SYSTEM_SYSINFO),y)
 CONFIGURED_APPS += system/sysinfo
 endif
