@@ -1001,3 +1001,5 @@
 	  thread.  Since the network bring-up is asynchronous, there are not
 	  serial console start-up delays due to the network negotiation time
 	  (2014-8-6).
+	* apps/system/sudoku:  Add a sudoku game (2014-8-11).
+
