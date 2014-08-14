@@ -446,7 +446,7 @@
   (2014-7-14).
 * Kconfig, nxwm/include/nxwmconfig.hxx, nxwm/src/capplicationwindow.cxx:
   Toolbar font ID can now be separately configured (2014-7-14).
-* nxwm/src/cmediaplayer.cxx: Will not dynamically position player controls
+* nxwm/src/cmediaplayer.cxx: Will now dynamically position player controls
   based on the display and image sizes (2014-7-14).
 * nxwm/src/glyph_mediagrip30x30.cxx and glyph_mplayer_controls43x41.cxx: Add
   larger images for the media player (2014-7-14).
@@ -465,7 +465,7 @@
   a multi-line, scrollable region (2014-7-16).
 * NxMW::CMediaPlayer: Correctly catch the volume level change event
   (2014-7-16).
-* NxMW::CMediaPlayer: Concert CLabel to a CListBox to support selection of
+* NxMW::CMediaPlayer: Convert CLabel to a CListBox to support selection of
   one of many media files to play.  This should be a CScrollingTextBox to
   support an indefinitely large number of media files (2014-7-16).
 * NxWidgets::CGraphicsPort:  Fix drawBitmapGreyScale method.  Actually drew

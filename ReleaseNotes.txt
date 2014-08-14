@@ -378,3 +378,74 @@ Additional new features and extended functionality in Version 1.11:
   graphics application lies in user space and the graphics server lies in
   protected kernel space.  This change is mostly a matter of repartitioning
   functionality and should not cause in any functional differences.
+
+NxWidgets-1.12
+==============
+
+The 13th release of the NxWidgets package was made on August 14, 2014.  This
+release depends on NuttX-7.3 or above and should not be used with older
+NuttX releases.
+
+Additional new features and extended functionality in Version 1.12:
+
+* NxWM: Rename all ICON glyph files to include the size of the ICON as part
+  of the file name.  This allows us to support different sizes for the same
+  ICON
+* NxWM: Add larger versions (approx 50x50) versions of all ICONs.
+* NxWM::CToolBar:  Toolbar font ID can now be separately configured.
+* NxWM::CMediaPlayer:  Will now dynamically position player controls
+  based on the display and image sizes.
+* NxWM::CMediaPlayer:  Add options to manage spacing of media player
+  buttons and borders vs. borderless buttons.
+* NxWidget::CImage: Now includes methods to align images in the widget
+  region.
+* NxWM::CMediaPlayer now uses the new CImage methods to align media controls
+  in buttons.
+* NxWidgets::CStickyImage:  A version of CImage that sticks in the selected
+  state when clicked.
+* NxMW::CMediaPlayer: Now supports a pause button.
+* NxMW::CMediaPlayer: Convert CLabel to a CListBox to support selection of
+  one of many media files to play.  This should be a CScrollingTextBox to
+  support an indefinitely large number of media files.
+* NxWidgets::CGlyphSliderHorizontal: No longer uses a hard-coded slider
+  height; the slider height is now provided as a parameter, replacing the
+  widget height which is now calculated from the glip image height.
+* NxWM::CMediaPlayer:  Now calculates the volume slider height from the grip
+  image height.
+* NxWidgets:CTabPanel:  Make CTabPanel raise action event when tab is
+  changed.  Also add a function for getting the currently selected tab
+  index.  From Petteri Aimonen.
+* NxWidgets/Kconfig: Add configuration options to filter CMediaPlayer files
+  based on extension.
+* NxWM::CMediaPlayer:  Add logic to read files from the media mountpoint,
+  filter them by extension, and display the file names in the listbox.
+* NxWM::CMediaPlayer:  Now integrated with the NxPlayer library.
+* NxWidgets::CNxString: Add a getAllocSize() method to make it easier to
+  convert CNxStrings to NUL-terminated C strings.
+* NxWM::CMediaPlayer: Add a CLabel that show the current fast forward/rewind
+  speed.
+* NxWM::CKeyboard: Add support for a USB keyboard as the NxConsole and text
+  widget input.
+
+Bugfixes:
+
+* NxWidgets:  Fix typo RBG -> RGB.  This makes NxWidgets incompatible with
+  versions of NuttX 7.2 and below.
+* NxWidgets::CImage: Fix setImageLeft and setImageTop methods
+* NxMW::CMediaPlayer: Correctly catch the volume level change event.
+* NxWidgets::CGraphicsPort:  Fix drawBitmapGreyScale method.  Actually drew
+  nothing because of several errors in positioning and buffer usage.
+* NxWidgets::CImage:  Should not attempt to draw the "empty" regions at the
+  top and the bottom of the image box in greyscale.
+* NxWidgets::CNxString:  Make destructor virtual.  From Petteri Aimonen.
+* NxWidgets::CTaskbar:  Fix type of return value from openRawWindow()
+  method.  From Petteri Aimonen.
+* NxWidgets::CTabPanel:  Modify behavior in showPage() method.  Eliminate a
+  duplicate redraw that caused flickering; re-order some logic so that
+  widgets are hidden before operated on.  From Petteri Aimonen.
+* NxWidgets::CNxTimer:  Make CNxTimer stop itself before destruction.
+  Otherwise a call to an invalid work queue entry may occur.  From Petteri
+  Aimonen.
+* NxWM::IApplicationFactory: Add a do-nothing, virtual destructor to
+  eliminate a warning.
+* XWidgets::CNxWidget: Remove an unused bit field.
