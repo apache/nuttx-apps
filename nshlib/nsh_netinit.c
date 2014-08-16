@@ -228,7 +228,6 @@ int nsh_netinit(void)
   struct sched_param  sparam;
   pthread_attr_t      attr;
   pthread_t           tid;
-  void               *value;
   int                 ret;
 
   /* Start the network initialization thread to perform the network bring-up
