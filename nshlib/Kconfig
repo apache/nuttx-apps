@@ -813,7 +813,7 @@ if NSH_NETINIT_THREAD
 config NSH_NETINIT_MONITOR
 	bool "Monitor link state"
 	default n
-	depends on ARCH_PHY_INTERRUPT && NET_UDP && !DISABLE_SIGNALS && EXPERIMENTAL
+	depends on ARCH_PHY_INTERRUPT && NETDEV_PHY_IOCTL && NET_UDP && !DISABLE_SIGNALS && EXPERIMENTAL
 	---help---
 		By default the net initialization thread will bring-up the network
 		then exit, freeing all of the resources that it required.  This is a
