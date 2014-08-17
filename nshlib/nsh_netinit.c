@@ -327,30 +327,29 @@ static int nsh_netinit_monitor(void)
       goto errout_with_socket;
     }
 
-  /* Configure to receive a signal on changes in link status */
-
-  strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
-  ifr.ifr_mii_notify_pid   = 0; /* PID=0 means this task */
-  ifr.ifr_mii_notify_signo = CONFIG_NSH_NETINIT_SIGNO;
-  ifr.ifr_mii_notify_arg   = NULL;
-
-  ret = ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
-  if (ret < 0)
-    {
-      ret = -errno;
-      DEBUGASSERT(ret < 0);
-
-      ndbg("ERROR: ioctl(SIOCMIINOTIFY) failed: %d\n", ret);
-      goto errout_with_sigaction;
-    }
-
   /* Now loop, waiting for changes in link status */
 
   for (;;)
     {
-      /* Does the driver think that the link is up or down? */
+      /* Configure to receive a signal on changes in link status */
 
       strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
+
+      ifr.ifr_mii_notify_pid   = 0; /* PID=0 means this task */
+      ifr.ifr_mii_notify_signo = CONFIG_NSH_NETINIT_SIGNO;
+      ifr.ifr_mii_notify_arg   = NULL;
+
+      ret = ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
+      if (ret < 0)
+        {
+          ret = -errno;
+          DEBUGASSERT(ret < 0);
+
+          ndbg("ERROR: ioctl(SIOCMIINOTIFY) failed: %d\n", ret);
+          goto errout_with_sigaction;
+        }
+
+      /* Does the driver think that the link is up or down? */
 
       ret = ioctl(sd, SIOCGIFFLAGS, (unsigned long)&ifr);
       if (ret < 0)
@@ -483,7 +482,7 @@ static int nsh_netinit_monitor(void)
           abstime.tv_nsec -= 1000000000;
         }
 
-      DEBUGVERIFY(sem_timedwait(&g_notify_sem, &abstime));
+      (void)sem_timedwait(&g_notify_sem, &abstime);
       sched_unlock();
     }
 
