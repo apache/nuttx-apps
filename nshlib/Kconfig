@@ -810,6 +810,43 @@ config NSH_NETINIT_THREAD
 
 if NSH_NETINIT_THREAD
 
+config NSH_NETINIT_MONITOR
+	bool "Monitor link state"
+	default n
+	depends on ARCH_PHY_INTERRUPT && NET_UDP && !DISABLE_SIGNALS && EXPERIMENTAL
+	---help---
+		By default the net initialization thread will bring-up the network
+		then exit, freeing all of the resources that it required.  This is a
+		good behavior for systems with limited memory.
+
+		If this option is selected, however, then the network initialization
+		thread will persist forever; it will monitor the network status.  In
+		the event that the network goes down (for example, if a cable is
+		removed), then the the thread will monitor the link status and
+		attempt to bring the network back up.  In this case the resources
+		required for network initialization are never released.
+
+config NSH_NETINIT_SIGNO
+	int "Notification signal number"
+	default 18
+	---help---
+		The network monitor logic will receive signals when there is any
+		change in the link status.  This setting may be used to customize
+		that signal number in order to avoid conflicts.
+
+if NSH_NETINIT_MONITOR
+
+config NSH_NETINIT_RETRYMSEC
+	int "Network bring-up retry period (msec)"
+	default 2000
+	---help---
+		When the network is down, the initialization thread will periodically
+		try to bring the network up.  This can be a time consuming operation
+		so is done only periodically with that period specified by this
+		selection in milliseconds.
+
+endif # NSH_NETINIT_MONITOR
+
 config NSH_NETINIT_THREAD_STACKSIZE
 	int "Network initialization thread stack size"
 	default 1568
@@ -819,6 +856,18 @@ config NSH_NETINIT_THREAD_PRIORITY
 	default 100
 
 endif # NSH_NETINIT_THREAD
+
+config NSH_NETINIT_DEBUG
+	bool "Network init debug"
+	default n
+	depends on DEBUG
+	---help---
+		Normally debug output is controlled by DEBUG_NET.  However, that
+		will generate a LOT of debug output, especially if DEBUG_VERBOSE is
+		also selected.  This option is intended to force VERVOSE debug
+		output from the NSH network initialization logic even if DEBUG_NET
+		or DEBUG_VERBOSE are not selected.  This allows for focused, unit-
+		level debug of the NSH network initialization logic.
 
 config NSH_DHCPC
 	bool "Use DHCP to get IP address"
