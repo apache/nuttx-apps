@@ -110,6 +110,7 @@ int netlib_setdraddr(const char *ifname, const struct in_addr *addr)
           close(sockfd);
         }
     }
+
   return ret;
 }
 
