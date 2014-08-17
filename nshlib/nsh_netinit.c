@@ -54,10 +54,11 @@
 #include <sys/ioctl.h>
 
 #include <stdint.h>
-#include <unistd.h>
 #include <string.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <signal.h>
+#include <assert.h>
 #include <debug.h>
 
 #include <net/if.h>
@@ -77,7 +78,7 @@
 #ifdef CONFIG_NET
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
@@ -105,12 +106,20 @@
  * signal indicating a change in network status.
  */
 
-#define A_REALLY_LONG_TIME  (60*60) /* One hour in seconds */
-#define A_SHORT_TIME        (2)     /* 2 seconds */
+#define LONG_TIME_SEC    (60*60) /* One hour in seconds */
+#define SHORT_TIME_SEC   (2)     /* 2 seconds */
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_NETINIT_MONITOR
+static sem_t g_notify_sem;
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -246,11 +255,19 @@ static void nsh_netinit_configure(void)
 static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
                                FAR void * context)
 {
-  volatile bool *event = (volatile bool *)siginfo->si_value.sival_ptr;
+  int semcount;
+  int ret;
 
-  nlldbg("Entry: event=%p\n", event);
-  DEBUGASSERT(event);
-  *event = true;
+  /* What is the count on the semaphore?  Don't over-post */
+
+  ret = sem_getvalue(&g_notify_sem, &semcount);
+  nlldbg("Entry: semcount=%d\n", semcount);
+
+  if (ret == OK && semcount <= 0)
+    {
+      sem_post(&g_notify_sem);
+    }
+
   nllvdbg("Exit\n");
 }
 #endif
@@ -267,14 +284,19 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
 #ifdef CONFIG_NSH_NETINIT_MONITOR
 static int nsh_netinit_monitor(void)
 {
+  struct timespec abstime;
+  struct timespec reltime;
   struct ifreq ifr;
   struct sigaction act;
-  volatile bool event;
   bool devup;
   int ret;
   int sd;
 
   nvdbg("Entry\n");
+
+  /* Initialize the notification semaphore */
+
+  DEBUGVERIFY(sem_init(&g_notify_sem, 0, 0));
 
   /* Get a socket descriptor that we can use to communicate with the network
    * interface driver.
@@ -310,7 +332,7 @@ static int nsh_netinit_monitor(void)
   strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
   ifr.ifr_mii_notify_pid   = 0; /* PID=0 means this task */
   ifr.ifr_mii_notify_signo = CONFIG_NSH_NETINIT_SIGNO;
-  ifr.ifr_mii_notify_arg   = (FAR void *)&event;
+  ifr.ifr_mii_notify_arg   = NULL;
 
   ret = ioctl(sd, SIOCMIINOTIFY, (unsigned long)&ifr);
   if (ret < 0)
@@ -326,10 +348,6 @@ static int nsh_netinit_monitor(void)
 
   for (;;)
     {
-      /* This should catch any events that occur while we are not listening */
-
-      event = false;
-
       /* Does the driver think that the link is up or down? */
 
       strncpy(ifr.ifr_name, NET_DEVNAME, IFNAMSIZ);
@@ -409,13 +427,15 @@ static int nsh_netinit_monitor(void)
                * link status again soon.
                */
 
-              sleep(A_SHORT_TIME);
+              reltime.tv_sec  = SHORT_TIME_SEC;
+              reltime.tv_nsec = 0;
             }
           else
             {
               /* The link is still up.  Take a long, well-deserved rest */
 
-              sleep(A_REALLY_LONG_TIME);
+              reltime.tv_sec  = LONG_TIME_SEC;
+              reltime.tv_nsec = 0;
             }
         }
       else
@@ -444,14 +464,30 @@ static int nsh_netinit_monitor(void)
 
           /* In either case, wait for the short, configurable delay */
 
-          usleep(1000*CONFIG_NSH_NETINIT_RETRYMSEC);
+          reltime.tv_sec  = CONFIG_NSH_NETINIT_RETRYMSEC / 1000;
+          reltime.tv_nsec = (CONFIG_NSH_NETINIT_RETRYMSEC % 1000) * 1000000;
         }
+
+      /* Now wait for either the semaphore to be posted for a timed-out to
+       * occur.
+       */
+
+      sched_lock();
+      DEBUGVERIFY(clock_gettime(CLOCK_REALTIME, &abstime));
+
+      abstime.tv_sec  += reltime.tv_sec;
+      abstime.tv_nsec += reltime.tv_nsec;
+      if (abstime.tv_nsec > 1000000000)
+        {
+          abstime.tv_sec++;
+          abstime.tv_nsec -= 1000000000;
+        }
+
+      DEBUGVERIFY(sem_timedwait(&g_notify_sem, &abstime));
+      sched_unlock();
     }
 
-  /* TODO: Stop the PHY notifications and remove the signal handler.  This
-   * is important because the 'event' value is on the stack it is about to
-   * disappear!
-   */
+  /* TODO: Stop the PHY notifications and remove the signal handler. */
 
 errout_with_notification:
 #  warning Missing logic
