@@ -813,7 +813,7 @@ if NSH_NETINIT_THREAD
 config NSH_NETINIT_MONITOR
 	bool "Monitor link state"
 	default n
-	depends on ARCH_PHY_INTERRUPT && NETDEV_PHY_IOCTL && NET_UDP && !DISABLE_SIGNALS && EXPERIMENTAL
+	depends on ARCH_PHY_INTERRUPT && NETDEV_PHY_IOCTL && NET_UDP && !DISABLE_SIGNALS
 	---help---
 		By default the net initialization thread will bring-up the network
 		then exit, freeing all of the resources that it required.  This is a
@@ -822,9 +822,11 @@ config NSH_NETINIT_MONITOR
 		If this option is selected, however, then the network initialization
 		thread will persist forever; it will monitor the network status.  In
 		the event that the network goes down (for example, if a cable is
-		removed), then the the thread will monitor the link status and
+		removed), then the thread will monitor the link status and
 		attempt to bring the network back up.  In this case the resources
 		required for network initialization are never released.
+
+if NSH_NETINIT_MONITOR
 
 config NSH_NETINIT_SIGNO
 	int "Notification signal number"
@@ -833,8 +835,6 @@ config NSH_NETINIT_SIGNO
 		The network monitor logic will receive signals when there is any
 		change in the link status.  This setting may be used to customize
 		that signal number in order to avoid conflicts.
-
-if NSH_NETINIT_MONITOR
 
 config NSH_NETINIT_RETRYMSEC
 	int "Network bring-up retry period (msec)"
