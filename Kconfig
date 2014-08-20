@@ -845,7 +845,7 @@ config NXWM_KEYBOARD
 	bool "Keyboard Support"
 	default n
 	---help---
-		Define to build in touchscreen support.
+		Define to build in keyboard support.
 
 if NXWM_KEYBOARD
 
