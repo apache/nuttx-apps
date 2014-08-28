@@ -1011,3 +1011,6 @@
 	  the link goes down, the code will attempt to gracefully put the
 	  Ethernet driver in a down state; When the link comes back, the code
 	  will attempt to bring the network back up (2014-8-17).
+	* apps/system/free/free.c and install/install.c: STM32 FLASH fixes:
+	  use size_t instead of uint16_t, make interface more generic.  From
+	  Freddie Chopin (2014-8-28).
