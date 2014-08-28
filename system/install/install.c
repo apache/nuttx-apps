@@ -87,11 +87,11 @@ static const char *install_script_exec =
 
 static int install_getstartpage(int startpage, int pagemargin, int desiredsize)
 {
-  uint16_t page = 0, stpage = 0xffff;
-  uint16_t pagesize = 0;
+  size_t   page = 0, stpage = 0xffff;
+  size_t   pagesize = 0;
   int      maxlen = -1;
   int      maxlen_start = 0xffff;
-  int      status;
+  ssize_t  status;
 
   for (status=0, page=0; status >= 0; page++)
     {
@@ -148,11 +148,11 @@ static int install_getstartpage(int startpage, int pagemargin, int desiredsize)
 
 static int install_programflash(int startaddr, const char *source)
 {
-  int  status;
-  int  count;
-  int  totalsize = 0;
-  char *buf;
-  FILE *fp;
+  ssize_t status;
+  size_t  count;
+  ssize_t totalsize = 0;
+  char    *buf;
+  FILE    *fp;
 
   if ((buf = malloc(INSTALL_PROGRAMBLOCKSIZE)) == NULL)
     {
@@ -265,7 +265,7 @@ static int install_remove(const char *scriptname)
 {
   FILE    *fp;
   int      progsize, addr, freedsize;
-  uint16_t page;
+  ssize_t  page;
   int      status = 0;
 
   /* Parse script */
