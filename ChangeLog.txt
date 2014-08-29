@@ -1014,3 +1014,8 @@
 	* apps/system/free/free.c and install/install.c: STM32 FLASH fixes:
 	  use size_t instead of uint16_t, make interface more generic.  From
 	  Freddie Chopin (2014-8-28).
+	* apps/examples/elf:  The ELF test/example has been extended so the
+	  individual ELF test programs can link against the SYSCALL library
+	  (if it is available) or against the C library to eliminate or
+	  minimize the need for symbol tables (2014-8-29).
+
