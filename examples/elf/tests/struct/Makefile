@@ -56,7 +56,7 @@ endif
 
 LIBS =
 ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
-ifeq ($(CONFIG_NUTTX_KERNEL),y)
+ifeq ($(CONFIG_BUILD_PROTECTED),y)
 LIBS += -luc
 else
 LIBS += -lc

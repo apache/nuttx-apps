@@ -88,7 +88,7 @@
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
-#ifndef CONFIG_NUTTX_KERNEL
+#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
 static const char* get_fstype(FAR struct statfs *statbuf)
 {
   FAR const char *fstype;
@@ -227,7 +227,7 @@ static int df_man_readable_handler(FAR const char *mountpoint,
 
   usedlabel = labels[which];
 
-#ifndef CONFIG_NUTTX_KERNEL
+#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
   nsh_output(vtbl, "%-10s %6ld%c %8ld%c  %8ld%c %s\n", get_fstype(statbuf),
              size, sizelabel, used, usedlabel, free, freelabel,
              mountpoint);
@@ -249,7 +249,7 @@ static int df_man_readable_handler(FAR const char *mountpoint,
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
-#ifndef CONFIG_NUTTX_KERNEL
+#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
 static int mount_handler(FAR const char *mountpoint,
                          FAR struct statfs *statbuf, FAR void *arg)
 {
@@ -274,7 +274,7 @@ static int mount_handler(FAR const char *mountpoint,
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
-#ifndef CONFIG_NUTTX_KERNEL
+#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
 static inline int mount_show(FAR struct nsh_vtbl_s *vtbl, FAR const char *progname)
 {
   return foreach_mountpoint(mount_handler, (FAR void *)vtbl);
@@ -297,7 +297,7 @@ int cmd_df(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef CONFIG_NSH_CMDOPT_DF_H
   if (argc > 1 && strcmp(argv[1], "-h") == 0)
     {
-#ifndef CONFIG_NUTTX_KERNEL
+#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
       nsh_output(vtbl, "Filesystem    Size      Used  Available Mounted on\n");
 #else
       nsh_output(vtbl, "Size      Used  Available Mounted on\n");
@@ -333,7 +333,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* The mount command behaves differently if no parameters are provided */
 
-#ifndef CONFIG_NUTTX_KERNEL
+#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
   if (argc < 2)
     {
       return mount_show(vtbl, argv[0]);

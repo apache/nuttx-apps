@@ -546,11 +546,11 @@
 #    define IOBUFFERSIZE (PATH_MAX + 1)
 #endif
 
-/* Certain commands are not availalbe in a kernel build because they depend
+/* Certain commands are not available in a kernel builds because they depend
  * on interfaces that are not exported by the kernel.
  */
 
-#ifdef CONFIG_NUTTX_KERNEL
+#if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
 #  undef CONFIG_NSH_DISABLE_DF
 #  define CONFIG_NSH_DISABLE_DF 1
 #endif

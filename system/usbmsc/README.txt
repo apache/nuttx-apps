@@ -73,4 +73,5 @@ system/usbmsc
   NOTE 2: This add-on used internal USB device driver interfaces.  As such,
   it relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this add-on cannot be used if a
-  NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+  NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
+  or CONFIG_BUILD_KERNEL).

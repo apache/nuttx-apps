@@ -321,11 +321,14 @@ errout:
  *
  ****************************************************************************/
 
-#if !defined(CONFIG_NSH_DISABLE_DELROUTE) && !defined(CONFIG_NUTTX_KERNEL)
+#if !defined(CONFIG_NSH_DISABLE_DELROUTE) && \
+    !defined(CONFIG_BUILD_PROTECTED) && \
+    !defined(CONFIG_BUILD_KERNEL)
+
 /* Perhaps... someday.  This would current depend on using the internal
- * OS interface net_foreachroute and internal OS data structrues defined
+ * OS interface net_foreachroute and internal OS data structures defined
  * in nuttx/net/net_route.h
  */
-#endif /* !CONFIG_NSH_DISABLE_DELROUTE && !CONFIG_NUTTX_KERNEL */
+#endif /* !CONFIG_NSH_DISABLE_DELROUTE && !CONFIG_BUILD_PROTECTED && !CONFIG_BUILD_KERNEL */
 
 #endif /* CONFIG_NET && CONFIG_NET_ROUTE */

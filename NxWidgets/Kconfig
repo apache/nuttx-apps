@@ -52,7 +52,7 @@ if NX_MULTIUSER
 config NXWIDGET_SERVERINIT
 	bool "Start server"
 	default y
-	depends on !NUTTX_KERNEL
+	depends on !BUILD_PROTECTED && !BUILD_KERNEL
 	---help---
 		If this option is selected, then the NxWidgets::CNxServer class will
 		bring up the NX server when it is initialized.  If this option is
@@ -779,7 +779,7 @@ comment "Touchscreen Device Settings"
 config NXWM_TOUCHSCREEN_DEVINIT
 	bool "Touchscreen Device Initialization"
 	default y
-	depends on !NUTTX_KERNEL
+	depends on !BUILD_PROTECTED && !BUILD_KERNEL
 	---help---
 		It this option is selected, then the NxWM:CTouchscreen listener
 		thread will call a function arch_tcinitialize(NXWM_TOUCHSCREEN_DEVNO)

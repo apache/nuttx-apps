@@ -75,7 +75,8 @@ examples/buttons
   NOTE: This test exercises internal button driver interfaces.  As such, it
   relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
-  NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+  NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
+  or CONFIG_BUILD_KERNEL).
 
 examples/can
 ^^^^^^^^^^^^
@@ -291,8 +292,9 @@ examples/flash_test
     * CONFIG_MTD_SMART=y - SMART block driver support
     * CONFIG_NSH_BUILTIN_APPS=y - This example can only be built as an NSH
       command
-    * CONFIG_NUTTX_KERNEL=n - This test uses internal OS interfaces and so
-      is not available in the NUTTX kernel build
+    * CONFIG_BUILD_PROTECTED=n and CONFIG_BUILD_KERNEL=n- This test uses
+      internal OS interfaces and so is not available in the NUTTX kernel
+      builds
 
 examples/ftpc
 ^^^^^^^^^^^^^
@@ -582,7 +584,8 @@ examples/lcdrw
   NOTE: This test exercises internal lcd driver interfaces.  As such, it
   relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
-  NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+  NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
+  or CONFIG_BUILD_KERNEL).
 
 examples/mm
 ^^^^^^^^^^^
@@ -1387,7 +1390,8 @@ examples/relays
   NOTE: This test exercises internal relay driver interfaces.  As such, it
   relies on internal OS interfaces that are not normally available to a
   user-space program.  As a result, this example cannot be used if a
-  NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+  NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
+  or CONFIG_BUILD_KERNEL).
 
 examples/rgmp
 ^^^^^^^^^^^^^

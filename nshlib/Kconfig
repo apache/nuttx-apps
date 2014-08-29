@@ -301,7 +301,7 @@ config NSH_DISABLE_NSFMOUNT
 config NSH_DISABLE_PS
 	bool "Disable ps"
 	default n
-	depends on !NUTTX_KERNEL
+	depends on !BUILD_PROTECTED && !BUILD_KERNEL
 
 config NSH_DISABLE_PING
 	bool "Disable ping"

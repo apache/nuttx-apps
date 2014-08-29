@@ -361,7 +361,8 @@ The I2C tools requires the following in your NuttX configuration:
    NOTE 2: This I2C tool uses direct I2C device interfaces.  As such, it
    relies on internal OS interfaces that are not normally available to a
    user-space program.  As a result, the I2C tool cannot be used if a
-   NuttX is built as a protected, supervisor kernel (CONFIG_NUTTX_KERNEL).
+   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
+   or CONFIG_BUILD_KERNEL).
 
 3. I2C driver configuration
 
