@@ -1,7 +1,7 @@
 ############################################################################
 # examples/elf/tests/pthread/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,36 @@
 
 -include $(TOPDIR)/Make.defs
 
+ifeq ($(WINTOOL),y)
+NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)lib}"
+else
+NUTTXLIB = "$(TOPDIR)$(DELIM)lib"
+endif
+
+LIBPATH =
+ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
+LDELFFLAGS += -Bstatic
+LIBPATH += -L $(NUTTXLIB)
+else
+ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
+LDELFFLAGS += -Bstatic
+LIBPATH +=  -L $(NUTTXLIB)
+endif
+endif
+
+LIBS =
+ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
+ifeq ($(CONFIG_NUTTX_KERNEL),y)
+LIBS += -luc
+else
+LIBS += -lc
+endif
+endif
+
+ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
+LIBS += -lproxies
+endif
+
 BIN = pthread
 
 SRCS = $(BIN).c
@@ -48,7 +78,7 @@ $(OBJS): %.o: %.c
 
 $(BIN): $(OBJS)
 	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
+	$(Q) $(LD) $(LDELFFLAGS) $(LIBPATH) -o $@ $^ $(LIBS)
 
 clean:
 	$(call DELFILE, $(BIN))

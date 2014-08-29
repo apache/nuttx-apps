@@ -11,6 +11,32 @@ config EXAMPLES_ELF
 
 if EXAMPLES_ELF
 
+config EXAMPLES_ELF_SYSCALL
+	bool "Link with SYSCALL library"
+	default n
+	depends on LIB_SYSCALL
+	---help---
+		Link with the SYCALL library.  By default, all undefined symbols
+		must be provided via a symbol table.  But if this option is
+		selected, then each ELF test program will link with the SYSCALL
+		library and will interface with the OS system calls.  In this case,
+		those symbols will not be undefined.  If the SYSCALL library is
+		available then you probably will want to select this option.
+
+config EXAMPLES_ELF_LIBC
+	bool "Link with LIBC"
+	default n
+	---help---
+		Link with the C library (and also math library if it was built).
+		By default, all undefined symbols must be provided via a symbol
+		table.  But if this option is selected, then each ELF test program
+		will link with the SYSCALL library and will interface with the OS
+		system calls.  You probably will NOT want this option, however,
+		because it will substantially increase the size of code.  For
+		example, a separate copy of printf() would be linked with every
+		program greatly increasing the total code size.  This option is
+		primarily intended only for testing.
+
 config EXAMPLES_ELF_DEVMINOR
 	int "ROMFS Minor Device Number"
 	default 0

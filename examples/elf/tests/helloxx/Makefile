@@ -1,7 +1,7 @@
 ############################################################################
 # examples/elf/tests/helloxx/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,36 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
+
+ifeq ($(WINTOOL),y)
+NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)lib}"
+else
+NUTTXLIB = "$(TOPDIR)$(DELIM)lib"
+endif
+
+LIBPATH =
+ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
+LDELFFLAGS += -Bstatic
+LIBPATH += -L $(NUTTXLIB)
+else
+ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
+LDELFFLAGS += -Bstatic
+LIBPATH +=  -L $(NUTTXLIB)
+endif
+endif
+
+LIBS =
+ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
+ifeq ($(CONFIG_NUTTX_KERNEL),y)
+LIBS += -luc
+else
+LIBS += -lc
+endif
+endif
+
+ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
+LIBS += -lproxies
+endif
 
 BIN1 = hello++1
 BIN2 = hello++2
@@ -82,18 +112,18 @@ $(LIBSTDC_STUBS_LIB):
 
 $(BIN1): $(OBJS1)
 	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
+	$(Q) $(LD) $(LDELFFLAGS) $(LIBPATH) -o $@ $^ $(LIBS)
 
 $(BIN2): $(OBJS2)
 	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
+	$(Q) $(LD) $(LDELFFLAGS) $(LIBPATH) -o $@ $^ $(LIBS)
 
 # BIN3 is equivalent to BIN2 except that is uses static initializers
 
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 $(BIN3): $(OBJS3)
 	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
+	$(Q) $(LD) $(LDELFFLAGS) $(LIBPATH) -o $@ $^ $(LIBS)
 endif
 
 # BIN4 is similar to BIN3 except that it uses the streams code from libstdc++
@@ -102,7 +132,7 @@ endif
 #
 #$(BIN4): $(OBJS4)
 #	@echo "LD: $<"
-#	$(Q) $(LD) $(LDELFFLAGS) -o $@ $^
+#	$(Q) $(LD) $(LDELFFLAGS) $(LIBPATH) -o $@ $^ $(LIBS)
 
 clean:
 	$(call DELFILE, $(BIN1))
