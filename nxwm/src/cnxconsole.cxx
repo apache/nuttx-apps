@@ -250,7 +250,7 @@ bool CNxConsole::run(void)
   g_nxconvars.nxcon   = 0;
 
   sched_lock();
-  m_pid = TASK_CREATE("NxConsole", CONFIG_NXWM_NXCONSOLE_PRIO,
+  m_pid = task_create("NxConsole", CONFIG_NXWM_NXCONSOLE_PRIO,
                       CONFIG_NXWM_NXCONSOLE_STACKSIZE, nxconsole,
                       (FAR char * const *)0);
 
