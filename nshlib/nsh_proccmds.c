@@ -290,16 +290,16 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
       if (ttcb->argv[1])
         {
           nsh_output(vtbl, "%p", ttcb->argv[1]);
-        }
 
-      /* Then any additional arguments */
+          /* Then any additional arguments */
 
 #if CONFIG_MAX_TASK_ARGS > 2
-      for (i = 2; i <= CONFIG_MAX_TASK_ARGS && ttcb->argv[i]; i++)
-        {
-          nsh_output(vtbl, ", %p", ttcb->argv[i]);
-         }
+          for (i = 2; i <= CONFIG_MAX_TASK_ARGS && ttcb->argv[i]; i++)
+            {
+              nsh_output(vtbl, ", %p", ttcb->argv[i]);
+            }
 #endif
+        }
     }
 
   nsh_output(vtbl, ")\n");
