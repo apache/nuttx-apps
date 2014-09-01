@@ -152,7 +152,7 @@ int stackmonitor_start(int argc, char **argv)
       g_stackmonitor.started = true;
       g_stackmonitor.stop    = false;
 
-      ret = TASK_CREATE("Stack Monitor", CONFIG_SYSTEM_STACKMONITOR_PRIORITY,
+      ret = task_create("Stack Monitor", CONFIG_SYSTEM_STACKMONITOR_PRIORITY,
                         CONFIG_SYSTEM_STACKMONITOR_STACKSIZE,
                         (main_t)stackmonitor_daemon, (FAR char * const *)NULL);
       if (ret < 0)

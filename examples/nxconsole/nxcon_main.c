@@ -389,7 +389,7 @@ int nxcon_main(int argc, char **argv)
     * from this task.
     */
 
-   g_nxcon_vars.pid = TASK_CREATE("NxConsole", CONFIG_EXAMPLES_NXCONSOLE_PRIO,
+   g_nxcon_vars.pid = task_create("NxConsole", CONFIG_EXAMPLES_NXCONSOLE_PRIO,
                                   CONFIG_EXAMPLES_NXCONSOLE_STACKSIZE,
                                   nxcon_task, NULL);
    ASSERT(g_nxcon_vars.pid > 0);

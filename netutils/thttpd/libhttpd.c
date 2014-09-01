@@ -1865,14 +1865,9 @@ static int ls(httpd_conn *hc)
       snprintf(arg, 16, "%p", hc); /* task_create doesn't handle binary arguments. */
       argv[0] = arg;
 
-#ifndef CONFIG_CUSTOM_STACK
       child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
                           CONFIG_THTTPD_CGI_STACKSIZE,
                           (main_t)ls_child, (FAR char * const *)argv);
-#else
-      child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
-                          (main_t)ls_child, (FAR char * const *)argv);
-#endif
       if (child < 0)
         {
           ndbg("task_create: %d\n", errno);

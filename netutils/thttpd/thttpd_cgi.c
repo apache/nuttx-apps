@@ -1021,14 +1021,9 @@ int cgi(httpd_conn *hc)
       argv[0] = arg;
       argv[1] = NULL;
 
-#ifndef CONFIG_CUSTOM_STACK
       child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
                           CONFIG_THTTPD_CGI_STACKSIZE,
                           (main_t)cgi_child, (FAR char * const *)argv);
-#else
-      child = task_create("CGI child", CONFIG_THTTPD_CGI_PRIORITY,
-                          (main_t)cgi_child, (FAR char * const *)argv);
-#endif
       if (child < 0)
         {
           ndbg("task_create: %d\n", errno);

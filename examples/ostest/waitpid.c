@@ -84,7 +84,7 @@ static void waitpid_start_children(void)
 
   for (i = 0; i < NCHILDREN; i++)
     {
-      ret = TASK_CREATE("waitpid", PRIORITY, STACKSIZE, waitpid_main, NULL);
+      ret = task_create("waitpid", PRIORITY, STACKSIZE, waitpid_main, NULL);
       if (ret < 0)
         {
           printf("waitpid_start_child: ERROR Failed to start waitpid_main\n");

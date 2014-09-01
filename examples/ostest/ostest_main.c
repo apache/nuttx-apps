@@ -552,13 +552,8 @@ int ostest_main(int argc, FAR char *argv[])
 
   /* Verify that we can spawn a new task */
 
-#ifndef CONFIG_CUSTOM_STACK
   result = task_create("ostest", PRIORITY, STACKSIZE, user_main,
                        (FAR char * const *)g_argv);
-#else
-  result = task_create("ostest", PRIORITY, user_main,
-                       (FAR char * const *)g_argv);
-#endif
   if (result == ERROR)
     {
       printf("ostest_main: ERROR Failed to start user_main\n");

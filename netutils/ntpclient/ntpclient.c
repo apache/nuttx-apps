@@ -491,7 +491,7 @@ int ntpc_start(void)
 
       g_ntpc_daemon.state = NTP_STARTED;
       g_ntpc_daemon.pid =
-        TASK_CREATE("NTP daemon", CONFIG_NETUTILS_NTPCLIENT_SERVERPRIO,
+        task_create("NTP daemon", CONFIG_NETUTILS_NTPCLIENT_SERVERPRIO,
                     CONFIG_NETUTILS_NTPCLIENT_STACKSIZE, ntpc_daemon,
                     NULL);
 

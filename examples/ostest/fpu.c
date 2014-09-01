@@ -308,7 +308,7 @@ void fpu_test(void)
 
   g_fpuno = 0;
   printf("Starting task FPU#1\n");
-  task1 = TASK_CREATE("FPU#1", CONFIG_EXAMPLES_OSTEST_FPUPRIORITY, CONFIG_EXAMPLES_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
+  task1 = task_create("FPU#1", CONFIG_EXAMPLES_OSTEST_FPUPRIORITY, CONFIG_EXAMPLES_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
   if (task1 < 0)
     {
       printf("fpu_test: ERROR Failed to start task FPU#1\n");
@@ -321,7 +321,7 @@ void fpu_test(void)
   usleep(250);
 
   printf("Starting task FPU#2\n");
-  task2 = TASK_CREATE("FPU#2", CONFIG_EXAMPLES_OSTEST_FPUPRIORITY, CONFIG_EXAMPLES_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
+  task2 = task_create("FPU#2", CONFIG_EXAMPLES_OSTEST_FPUPRIORITY, CONFIG_EXAMPLES_OSTEST_FPUSTACKSIZE, fpu_task, NULL);
   if (task2 < 0)
     {
       printf("fpu_test: ERROR Failed to start task FPU#1\n");

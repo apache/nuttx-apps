@@ -452,7 +452,7 @@ int discover_start(struct discover_info_s *info)
 
   /* Then start the new daemon */
 
-  pid = TASK_CREATE("Discover daemon", CONFIG_DISCOVER_PRIORITY,
+  pid = task_create("Discover daemon", CONFIG_DISCOVER_PRIORITY,
                     CONFIG_DISCOVER_STACK_SIZE, discover_daemon, NULL);
   if (pid < 0)
     {

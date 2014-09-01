@@ -166,7 +166,7 @@ void restart_test(void)
 
   /* Start the task */
 
-  ret = TASK_CREATE("ostest", PRIORITY, STACKSIZE, restart_main, g_argv);
+  ret = task_create("ostest", PRIORITY, STACKSIZE, restart_main, g_argv);
   if (ret < 0)
     {
       printf("restart_main: ERROR Failed to start restart_main\n");

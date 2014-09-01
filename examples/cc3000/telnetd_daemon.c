@@ -239,7 +239,7 @@ static int telnetd_daemon(int argc, char *argv[])
        */
 
       nllvdbg("Starting the telnet session\n");
-      pid = TASK_CREATE("Telnet session", daemon->priority, daemon->stacksize,
+      pid = task_create("Telnet session", daemon->priority, daemon->stacksize,
                          daemon->entry, NULL);
       if (pid < 0)
         {
@@ -319,7 +319,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
   /* Then start the new daemon */
 
   g_telnetdcommon.daemon = daemon;
-  pid = TASK_CREATE("Telnet daemon", config->d_priority, config->d_stacksize,
+  pid = task_create("Telnet daemon", config->d_priority, config->d_stacksize,
                     telnetd_daemon, NULL);
   if (pid < 0)
     {
