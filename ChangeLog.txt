@@ -1020,4 +1020,6 @@
 	  minimize the need for symbol tables (2014-8-29).
 	* apps/nshlib/nsh_proccmds.c: Fix NSH PS command:  If there are no
 	  arguments, it would print garbage for argument list (2014-9-1).
-
+	* apps/import/, apps/tools/, apps/Makefile: Beginning of logic that
+	  will, hopefully, all me to build applications against a NuttX export
+	  package (vs. the nuttx/ source tree) (2014-9-4).
