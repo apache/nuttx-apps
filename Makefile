@@ -48,8 +48,8 @@ APPDIR = ${shell pwd}
 #   list can be extended by the .config file as well.
 
 CONFIGURED_APPS =
-SUBDIRS  = examples graphics interpreters modbus builtin nshlib netutils
-SUBDIRS += platform system
+SUBDIRS  = examples graphics interpreters modbus builtin import nshlib
+SUBDIRS += netutils platform system
 
 # The list of configured directories is derived from NuttX configuration
 # file:  The selected applications are enabled settings in the configuration
