@@ -2,7 +2,7 @@
 # apps/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2014 Gregory Nutt. All rights reserved.
 #   Authors: Uros Platise <uros.platise@isotel.eu>
 #            Gregory Nutt <gnutt@nuttx.org>
 #
@@ -106,12 +106,15 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: $(INSTALLED_APPS) context depend clean distclean
+.PHONY: $(INSTALLED_APPS) import context depend clean distclean
 
 $(INSTALLED_APPS):
 	$(Q) $(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-$(BIN):	$(INSTALLED_APPS)
+$(BIN): $(INSTALLED_APPS)
+
+import:
+	$(Q) $(MAKE) TOPDIR="$(APPDIR)/import"
 
 context:
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
