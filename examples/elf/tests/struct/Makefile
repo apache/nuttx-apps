@@ -43,28 +43,26 @@ else
 NUTTXLIB = "$(TOPDIR)$(DELIM)lib"
 endif
 
-LIBPATH =
 ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
 LDELFFLAGS += -Bstatic
-LIBPATH += -L $(NUTTXLIB)
+LDLIBPATH += -L $(NUTTXLIB)
 else
 ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
 LDELFFLAGS += -Bstatic
-LIBPATH +=  -L $(NUTTXLIB)
+LDLIBPATH +=  -L $(NUTTXLIB)
 endif
 endif
 
-LIBS =
 ifeq ($(CONFIG_EXAMPLES_ELF_LIBC),y)
 ifeq ($(CONFIG_BUILD_PROTECTED),y)
-LIBS += -luc
+LDLIBS += -luc
 else
-LIBS += -lc
+LDLIBS += -lc
 endif
 endif
 
 ifeq ($(CONFIG_EXAMPLES_ELF_SYSCALL),y)
-LIBS += -lproxies
+LDLIBS += -lproxies
 endif
 
 BIN  = struct
@@ -79,7 +77,7 @@ $(OBJS): %.o: %.c
 
 $(BIN): $(OBJS)
 	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) $(LIBPATH) -o $@ $^ $(LIBS)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $^ $(LDLIBS)
 
 clean:
 	$(call DELFILE, $(BIN))

@@ -149,6 +149,7 @@ endef
 endif
 
 # Tool related definitions
+# Compiler
 
 ifeq ($(WINTOOL),y)
   # Windows-native toolchains
@@ -166,5 +167,19 @@ CPICFLAGS = $(ARCHPICFLAGS) $(CFLAGS)
 CXXFLAGS = $(ARCHCXXFLAGS) $(ARCHWARNINGSXX) $(ARCHOPTIMIZATION) $(ARCHXXINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
 CXXPICFLAGS = $(ARCHPICFLAGS) $(CXXFLAGS)
 
+# C Pre-processor
+
 CPPFLAGS = $(ARCHINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES)
 AFLAGS = $(CFLAGS) -D__ASSEMBLY__
+
+# Linker
+
+ifeq ($(WINTOOL),y)
+  # Windows-native toolchains
+  LDLIBPATH = -L "${shell cygpath -w ${APPDIR}}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
+else
+  # Linux/Cygwin-native toolchain
+  LDLIBPATH = -L ${APPDIR} -L $(TOPDIR)$(DELIM)libs
+endif
+
+LDLIBS = -lnuttx
