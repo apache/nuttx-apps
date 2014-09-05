@@ -51,30 +51,99 @@ export Q := @
 endif
 endif
 
-# Environment-specific settings
+# Some defaults just to prohibit some bad behavior if for some reason they
+# are not defined
+
+OBJEXT ?= .o
+LIBEXT ?= .a
+
+# Common default defintions
 #
-#   DELIM   - Environment-specific file path separator
-#   DELFILE - Delete one file
-#   DELDIR  - Delete one directory
+#   PREPROCESS - Default macro to run the C pre-processor
+#   COMPILE    - Default macro to compile one C file
+#   COMPILEXX  - Default macro to compile one C++ file
+#   ASSEMBLE   - Default macro to assemble one assembly language file
+
+define PREPROCESS
+	@echo "CPP: $1->$2"
+	$(Q) $(CPP) $(CPPFLAGS) $1 -o $2
+endef
+
+define COMPILE
+	@echo "CC: $1"
+	$(Q) $(CC) -c $(CFLAGS) $1 -o $2
+endef
+
+define COMPILEXX
+	@echo "CXX: $1"
+	$(Q) $(CXX) -c $(CXXFLAGS) $1 -o $2
+endef
+
+define ASSEMBLE
+	@echo "AS: $1"
+	$(Q) $(CC) -c $(AFLAGS) $1 -o $2
+endef
+
+# Environment-specific definitions
+#
+#   DELIM    - Environment-specific file path separator
+#   ARCHIVE  - Add a list of files to an archive
+#   DELFILE  - Delete one file
+#   DELDIR   - Delete one directory
+#   MOVEFILE - Move one file
+#   CLEAN    - Default clean target
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 
 DELIM = $(strip \)
+
+define ARCHIVE
+	@echo AR: $2
+	$(Q) $(AR) $1 $(2)
+endef
+
 define DELFILE
 	$(Q) if exist $1 (del /f /q $1)
 endef
+
 define DELDIR
   $(Q) if exist $(1) (rmdir /q /s $(1))
+endef
+
+define MOVEFILE
+	$(Q) if exist $1 (move /Y $1 $2)
+endef
+
+define CLEAN
+	$(Q) if exist *$(OBJEXT) (del /f /q *$(OBJEXT))
+	$(Q) if exist *$(LIBEXT) (del /f /q *$(LIBEXT))
+	$(Q) if exist *~ (del /f /q *~)
+	$(Q) if exist (del /f /q  .*.swp)
 endef
 
 else
 
 DELIM = $(strip /)
+
+define ARCHIVE
+	@echo "AR: $2"
+	$(Q) $(AR) $1 $(2) || { echo "$(AR) $1 FAILED!" ; exit 1 ; }
+endef
+
 define DELFILE
 	$(Q) rm -f $1
 endef
+
 define DELDIR
   $(Q) rm -rf $(1)
+endef
+
+define MOVEFILE
+	$(Q) mv -f $1 $2
+endef
+
+define CLEAN
+	$(Q) rm -f *$(OBJEXT) *$(LIBEXT) *~ .*.swp
 endef
 
 endif
