@@ -40,14 +40,21 @@ Q ?= @
 # Sub-directories from the NuttX export package
 
 SUBDIRS = arch build include libs startup tmp
+FILES   = .config
 
 # DELDIR - Delete one directory
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+define DELFILE
+	$(Q) if exist $1 (del /f /q $1)
+endef
 define DELDIR
   $(Q) if exist $(1) (rmdir /q /s $(1))
 endef
 else
+define DELFILE
+	$(Q) rm -f $1
+endef
 define DELDIR
   $(Q) rm -rf $(1)
 endef
@@ -66,3 +73,5 @@ clean:
 
 distclean:
 	$(foreach SDIR, $(SUBDIRS), $(call DELDIR, $(SDIR)))
+	$(foreach FILE, $(FILES), $(call DELFILE, $(FILE)))
+
