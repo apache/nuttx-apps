@@ -1032,3 +1032,4 @@
 	  build (2014-9-5).
 	* apps/Makefile, examples/elf/Kconfig, and import/Make.defs: Copy more
 	  logic from nuttx/tools/Config.mk into the Make.defs file (2014-9-5).
+	* apps/import/Make.defs: Also need to define CFLAGS (2014-9-5)
