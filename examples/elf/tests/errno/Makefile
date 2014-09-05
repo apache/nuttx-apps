@@ -66,17 +66,17 @@ endif
 BIN = errno
 
 SRCS = $(BIN).c
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:.c=$(OBJEXT))
 
 all: $(BIN)
 
-$(OBJS): %.o: %.c
+$(OBJS): %$(OBJEXT): %.c
 	@echo "CC: $<"
 	$(Q) $(CC) -c $(CELFFLAGS) $< -o $@
 
 $(BIN): $(OBJS)
 	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $^ $(LDLIBS)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 
 clean:
 	$(call DELFILE, $(BIN))
@@ -85,4 +85,3 @@ clean:
 install:
 	$(Q) mkdir -p $(ROMFS_DIR)
 	$(Q) install $(BIN) $(ROMFS_DIR)/$(BIN)
-

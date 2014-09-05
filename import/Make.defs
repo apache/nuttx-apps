@@ -155,10 +155,12 @@ ifeq ($(WINTOOL),y)
   # Windows-native toolchains
   ARCHINCLUDES = -I. -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include}"
   ARCHXXINCLUDES = -I. -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include}" -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include$(DELIM)cxx}"
+  ARCHCRT0OBJ = "${shell cygpath -w $(TOPDIR)$(DELIM)startup$(DELIM)crt0$(OBJEXT)}"
 else
   # Linux/Cygwin-native toolchain
   ARCHINCLUDES = -I. -isystem $(TOPDIR)$(DELIM)include
   ARCHXXINCLUDES = -I. -isystem $(TOPDIR)$(DELIM)include -isystem $(TOPDIR)$(DELIM)include$(DELIM)cxx
+  ARCHCRT0OBJ = $(TOPDIR)$(DELIM)startup$(DELIM)crt0$(OBJEXT)
 endif
 
 CFLAGS = $(ARCHCFLAGS) $(ARCHWARNINGS) $(ARCHOPTIMIZATION) $(ARCHCPUFLAGS) $(ARCHINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
@@ -166,6 +168,11 @@ CPICFLAGS = $(ARCHPICFLAGS) $(CFLAGS)
 
 CXXFLAGS = $(ARCHCXXFLAGS) $(ARCHWARNINGSXX) $(ARCHOPTIMIZATION) $(ARCHXXINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
 CXXPICFLAGS = $(ARCHPICFLAGS) $(CXXFLAGS)
+
+# ELF module definitions
+
+CELFFLAGS = $(CFLAGS) -mlong-calls # --target1-abs
+CXXELFFLAGS = $(CXXFLAGS) -mlong-calls # --target1-abs
 
 # C Pre-processor
 
@@ -191,4 +198,13 @@ LIBGCC = "${shell "$(CC)" $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
 ifneq ($(LIBGCC),)
   LDLIBPATH += -L ${shell dirname $(LIBGCC)}
   LDLIBS += -lgcc
+endif
+
+# ELF module definitions
+
+LDELFFLAGS = -r -e _start -Bstatic
+ifeq ($(WINTOOL),y)
+  LDELFFLAGS += -T "${shell cygpath -w $(TOPDIR)/scripts/gnu-elf.ld}"
+else
+  LDELFFLAGS += -T $(TOPDIR)/scripts/gnu-elf.ld
 endif
