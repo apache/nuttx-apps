@@ -1023,3 +1023,10 @@
 	* apps/import/, apps/tools/, apps/Makefile: Beginning of logic that
 	  will, hopefully, all me to build applications against a NuttX export
 	  package (vs. the nuttx/ source tree) (2014-9-4).
+	* apps/tools/mkimport.sh and apps/import/Makefile: Add .config file to
+	  export package (2014-9-5).
+	* apps/Makefile: Add a 'make import' target.  More is needed before
+	  it will be usable (2014-9-5).
+	* apps/import/Make.defs and .gitignore: Added mostly empty Make.defs
+	  file.  Something like this will be bee needed for the 'make import'
+	  build (2014-9-5).
