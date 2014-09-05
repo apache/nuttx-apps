@@ -34,4 +34,47 @@
 ############################################################################
 
 include ${TOPDIR}/.config
+include ${TOPDIR}/build/Make.defs
 
+# Control build verbosity
+#
+#   V=1,2: Enable echo of commands
+#   V=2:   Enable bug/verbose options in tools and scripts
+
+ifeq ($(V),1)
+export Q :=
+else
+ifeq ($(V),2)
+export Q :=
+else
+export Q := @
+endif
+endif
+
+# Environment-specific settings
+#
+#   DELIM   - Environment-specific file path separator
+#   DELFILE - Delete one file
+#   DELDIR  - Delete one directory
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+
+DELIM = $(strip \)
+define DELFILE
+	$(Q) if exist $1 (del /f /q $1)
+endef
+define DELDIR
+  $(Q) if exist $(1) (rmdir /q /s $(1))
+endef
+
+else
+
+DELIM = $(strip /)
+define DELFILE
+	$(Q) rm -f $1
+endef
+define DELDIR
+  $(Q) rm -rf $(1)
+endef
+
+endif

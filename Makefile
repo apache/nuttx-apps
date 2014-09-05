@@ -99,6 +99,10 @@ EXTERNAL_DIR := $(dir $(wildcard external$(DELIM)Makefile))
 INSTALLED_APPS += $(EXTERNAL_DIR)
 SUBDIRS += $(EXTERNAL_DIR)
 
+# Library path
+
+LIBPATH ?= $(TOPDIR)/libs
+
 # The final build target
 
 BIN = libapps$(LIBEXT)
