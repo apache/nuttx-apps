@@ -165,6 +165,16 @@ fi
 mv ${SALLDIRS} ${IMPORTDIR}/. || \
 	{ echo "ERROR: Failed to move ${SALLDIRS} to ${IMPORTDIR}"; exit 1; }
 
+# Move the .config file in place in the import directory
+
+SFILES=".config"
+for file in ${SFILES}; do
+	if [ -f "${EXPORTDIR}/${file}" ]; then
+		cp -a ${EXPORTDIR}/${file} ${IMPORTDIR}/${file} || \
+			{ echo "ERROR: Failed to copy ${EXPORTDIR}/${file} to ${IMPORTDIR}/${file}"; exit 1; }
+	fi
+done
+
 # Finally, remove the temporary directory
 
 cd ${WD} || { echo "ERROR: Failed to cd to ${WD}"; exit 1; }
