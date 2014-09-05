@@ -57,7 +57,7 @@ endif
 OBJEXT ?= .o
 LIBEXT ?= .a
 
-# Common default defintions
+# Common default definitions
 #
 #   PREPROCESS - Default macro to run the C pre-processor
 #   COMPILE    - Default macro to compile one C file
@@ -147,3 +147,24 @@ define CLEAN
 endef
 
 endif
+
+# Tool related definitions
+
+ifeq ($(WINTOOL),y)
+  # Windows-native toolchains
+  ARCHINCLUDES = -I. -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include}"
+  ARCHXXINCLUDES = -I. -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include}" -isystem "${shell cygpath -w $(TOPDIR)$(DELIM)include$(DELIM)cxx}"
+else
+  # Linux/Cygwin-native toolchain
+  ARCHINCLUDES = -I. -isystem $(TOPDIR)$(DELIM)include
+  ARCHXXINCLUDES = -I. -isystem $(TOPDIR)$(DELIM)include -isystem $(TOPDIR)$(DELIM)include$(DELIM)cxx
+endif
+
+CFLAGS = $(ARCHCFLAGS) $(ARCHWARNINGS) $(ARCHOPTIMIZATION) $(ARCHCPUFLAGS) $(ARCHINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
+CPICFLAGS = $(ARCHPICFLAGS) $(CFLAGS)
+
+CXXFLAGS = $(ARCHCXXFLAGS) $(ARCHWARNINGSXX) $(ARCHOPTIMIZATION) $(ARCHXXINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
+CXXPICFLAGS = $(ARCHPICFLAGS) $(CXXFLAGS)
+
+CPPFLAGS = $(ARCHINCLUDES) $(ARCHDEFINES) $(EXTRADEFINES)
+AFLAGS = $(CFLAGS) -D__ASSEMBLY__
