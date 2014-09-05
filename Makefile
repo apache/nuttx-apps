@@ -35,17 +35,17 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
 APPDIR = ${shell pwd}
+TOPDIR ?= $(APPDIR)/import
+
+-include $(TOPDIR)/Make.defs
 
 # Application Directories
 
 # CONFIGURED_APPS is the list of all configured built-in directories/built
 #   action.
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
-#   only for cleaning. builtin must always be the first in the list.  This
-#   list can be extended by the .config file as well.
+#   only for cleaning. builtin must always be the first in the list.
 
 CONFIGURED_APPS =
 SUBDIRS  = examples graphics interpreters modbus builtin import nshlib
