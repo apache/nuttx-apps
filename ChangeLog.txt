@@ -1030,3 +1030,5 @@
 	* apps/import/Make.defs and .gitignore: Added mostly empty Make.defs
 	  file.  Something like this will be bee needed for the 'make import'
 	  build (2014-9-5).
+	* apps/Makefile, examples/elf/Kconfig, and import/Make.defs: Copy more
+	  logic from nuttx/tools/Config.mk into the Make.defs file (2014-9-5).
