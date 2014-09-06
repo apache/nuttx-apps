@@ -1038,6 +1038,7 @@
 	* All Makefiles:  Add an install target to all makefiles.  For the
 	  import build, the top-level Makefile now does two passes: (1) builds
 	  libapp.a, then (2) installs the programs (not yet finished) (2014-9-6).
-	* MAny files:  With kernel build (CONFIG_BUILD_KERNEL), entry point to
-	  all tasks is main, not some xyz_main (2014-9-).
-
+	* Many files:  With kernel build (CONFIG_BUILD_KERNEL), entry point to
+	  all tasks is main, not some xyz_main (2014-9-6).
+	* Many Makefiles: Add program installation for CONFIG_BUILD_KERNEL in
+	  all Makefiles that build a main() (2014-9-6).
