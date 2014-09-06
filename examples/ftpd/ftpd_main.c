@@ -222,7 +222,7 @@ int ftpd_daemon(int s_argc, char **s_argv)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int ftpd_main(int s_argc, char **s_argv)
 #endif

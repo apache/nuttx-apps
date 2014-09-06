@@ -105,7 +105,7 @@
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int tiff_main(int argc, char *argv[])
 #endif

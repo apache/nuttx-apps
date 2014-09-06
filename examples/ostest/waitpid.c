@@ -68,7 +68,7 @@ static int g_waitpids[NCHILDREN];
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 static int waitpid_main(int argc, char *argv[])
 #endif

@@ -395,7 +395,7 @@ static int button7_handler(int irq, FAR void *context)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int buttons_main(int argc, char *argv[])
 #endif

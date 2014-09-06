@@ -80,7 +80,7 @@ struct cdcacm_state_s g_cdcacm;
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int sercon_main(int argc, char *argv[])
 #endif

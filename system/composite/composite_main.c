@@ -674,7 +674,7 @@ void board_cdcuninitialize(FAR struct usbdevclass_driver_s *classdev)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int conn_main(int argc, char *argv[])
 #endif

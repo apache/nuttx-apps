@@ -352,7 +352,7 @@ static void i2c_teardown(FAR struct i2ctool_s *i2ctool)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int i2c_main(int argc, char *argv[])
 #endif

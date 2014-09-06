@@ -390,7 +390,7 @@ static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int msconn_main(int argc, char *argv[])
 #endif

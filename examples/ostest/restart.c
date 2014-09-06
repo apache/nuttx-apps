@@ -77,7 +77,7 @@ static bool g_restarted;
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 static int restart_main(int argc, char *argv[])
 #endif

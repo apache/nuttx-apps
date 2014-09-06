@@ -501,7 +501,7 @@ static inline void count_cells(void)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int sudoku_main(int argc, char **argv, char **envp)
 #endif

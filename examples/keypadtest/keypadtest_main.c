@@ -194,7 +194,7 @@ static void keypad_decode(FAR char *buffer, ssize_t nbytes)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int keypadtest_main(int argc, char *argv[])
 #endif

@@ -76,7 +76,7 @@
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int pashello_main(int argc, FAR char *argv[])
 #endif

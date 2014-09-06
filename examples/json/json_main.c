@@ -237,7 +237,7 @@ static void create_objects(void)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int json_main(int argc, const char *argv[])
 #endif

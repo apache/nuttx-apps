@@ -328,7 +328,7 @@ static int smart_seek_with_write_test(char *filename)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int smart_test_main(int argc, char *argv[])
 #endif

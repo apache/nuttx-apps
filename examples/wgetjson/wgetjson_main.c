@@ -290,7 +290,7 @@ static int wgetjson_json_parse(char *text)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int wgetjson_main(int argc, char *argv[])
 #endif

@@ -227,7 +227,7 @@ int save_screenshot(FAR const char *filename)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int screenshot_main(int argc, char *argv[])
 #endif

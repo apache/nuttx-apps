@@ -156,7 +156,7 @@ static inline int lcdrw_initialize(FAR struct lcdrw_instance_s *inst)
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char **argv)
+int main(int argc, FAR char *argv[])
 #else
 int lcdrw_main(int argc, char *argv[])
 #endif
