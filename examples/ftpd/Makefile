@@ -78,6 +78,8 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+install:
+
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)ftpd_start.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,ftpd_start,SCHED_PRIORITY_DEFAULT,2048,ftpd_main)
@@ -85,12 +87,8 @@ $(BUILTIN_REGISTRY)$(DELIM)ftpd_start.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)ftpd_stop.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,ftpd_stop,SCHED_PRIORITY_DEFAULT,2048,ftpd_stop)
 
-install:
-
 context: $(BUILTIN_REGISTRY)$(DELIM)ftpd_start.bdat $(BUILTIN_REGISTRY)$(DELIM)ftpd_stop.bdat
 else
-install:
-
 context:
 endif
 

@@ -87,6 +87,8 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
+install:
+
 # Register application
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
@@ -96,12 +98,8 @@ $(BUILTIN_REGISTRY)$(DELIM)sz.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)rz.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"rz",$(PRIORITY),$(STACKSIZE),rz_main)
 
-install:
-
 context: $(BUILTIN_REGISTRY)$(DELIM)sz.bdat $(BUILTIN_REGISTRY)$(DELIM)rz.bdat
 else
-install:
-
 context:
 endif
 
