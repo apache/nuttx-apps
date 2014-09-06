@@ -58,6 +58,15 @@ else
 endif
 endif
 
+ifeq ($(WINTOOL),y)
+  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+else
+  INSTALL_DIR = $(BIN_DIR)
+endif
+
+CONFIG_XYZ_PROGNAME ?= xyz$(EXEEXT)
+PROGNAME = $(CONFIG_XYZ_PROGNAME)
+
 ROOTDEPPATH	= --dep-path .
 
 # DHCPD built-in application info

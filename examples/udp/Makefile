@@ -80,6 +80,15 @@ endif
 HOST_OBJS	= $(HOST_SRCS:.c=.o)
 HOST_BIN	= host
 
+ifeq ($(WINTOOL),y)
+  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+else
+  INSTALL_DIR = $(BIN_DIR)
+endif
+
+CONFIG_XYZ_PROGNAME ?= xyz$(EXEEXT)
+PROGNAME = $(CONFIG_XYZ_PROGNAME)
+
 ROOTDEPPATH	= --dep-path .
 
 # Common build
