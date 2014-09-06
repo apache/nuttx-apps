@@ -64,7 +64,7 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_XYZ_PROGNAME ?= xyz$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= posix_spawn$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 ROOTDEPPATH	= --dep-path . --dep-path filesystem

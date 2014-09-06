@@ -64,7 +64,7 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_XYZ_PROGNAME ?= xyz$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= serialblaster$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 ROOTDEPPATH = --dep-path .
