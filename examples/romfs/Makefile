@@ -93,7 +93,16 @@ romfs_testdir.h : testdir.img
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(INSTALL_DIR)/$(PROGNAME): $(OBJS)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+
+install: $(INSTALL_DIR)/$(PROGNAME)
+
 install:
+
+endif
 
 context:
 

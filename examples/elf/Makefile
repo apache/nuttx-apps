@@ -86,7 +86,16 @@ really_build: $(OBJS)
 	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	@$(MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" really_build
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(INSTALL_DIR)/$(PROGNAME): $(OBJS)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+
+install: $(INSTALL_DIR)/$(PROGNAME)
+
 install:
+
+endif
 
 context:
 

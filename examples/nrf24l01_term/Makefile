@@ -87,7 +87,16 @@ $(COBJS): %$(OBJEXT): %.c
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(INSTALL_DIR)/$(PROGNAME): $(OBJS)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+
+install: $(INSTALL_DIR)/$(PROGNAME)
+
 install:
+
+endif
 
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 #else

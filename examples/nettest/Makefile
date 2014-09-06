@@ -116,7 +116,16 @@ $(HOST_BIN): $(HOST_OBJS)
 	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
 	@touch .built
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(INSTALL_DIR)/$(PROGNAME): $(OBJS)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+
+install: $(INSTALL_DIR)/$(PROGNAME)
+
 install:
+
+endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile

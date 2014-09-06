@@ -85,7 +85,16 @@ build:
 	@$(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	@$(MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" build_lib
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(INSTALL_DIR)/$(PROGNAME): $(OBJS)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+
+install: $(INSTALL_DIR)/$(PROGNAME)
+
 install:
+
+endif
 
 context:
 
