@@ -148,7 +148,11 @@ extern FAR struct mtd_dev_s *mtdpart_archinitialize(void);
  * Name: mtdpart_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int mtdpart_main(int argc, char *argv[])
+#endif
 {
   FAR struct mtd_dev_s *master;
   FAR struct mtd_dev_s *part[CONFIG_EXAMPLES_MTDPART_NPARTITIONS];

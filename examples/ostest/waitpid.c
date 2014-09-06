@@ -67,7 +67,11 @@ static int g_waitpids[NCHILDREN];
  * Priviate Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 static int waitpid_main(int argc, char *argv[])
+#endif
 {
   pid_t me = getpid();
 

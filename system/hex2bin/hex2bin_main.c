@@ -117,7 +117,11 @@ static void show_usage(FAR const char *progname, int exitcode)
  *
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int hex2bin_main(int argc, char **argv)
+#endif
 {
   struct lib_stdinstream_s stdinstream;
   struct lib_stdsostream_s stdoutstream;

@@ -67,7 +67,11 @@ static const char s[] = "abcdefghijklmnopqrstuvwxyz";
  * serloop_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int serialblaster_main(int argc, char *argv[])
+#endif
 {
   int ret;
 

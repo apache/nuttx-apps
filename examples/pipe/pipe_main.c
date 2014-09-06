@@ -72,7 +72,11 @@
  * Name: pipe_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int pipe_main(int argc, char *argv[])
+#endif
 {
   int fd[2];
   int ret;

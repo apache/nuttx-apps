@@ -591,7 +591,11 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char* parg)
  *
  **************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int nxplayer_main(int argc, char *argv[])
+#endif
 {
   char                    buffer[64];
   int                     len, x, running;

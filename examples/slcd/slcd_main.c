@@ -246,7 +246,11 @@ static void slcd_puts(FAR struct lib_outstream_s *outstream,
  * slcd_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int slcd_main(int argc, char *argv[])
+#endif
 {
   FAR struct slcd_test_s *priv = &g_slcdtest;
   FAR const char *str = g_slcdhello;

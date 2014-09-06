@@ -673,7 +673,11 @@ void board_cdcuninitialize(FAR struct usbdevclass_driver_s *classdev)
  *
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int conn_main(int argc, char *argv[])
+#endif
 {
   int ret;
 
@@ -822,10 +826,14 @@ errout:
  *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
+#ifdef CONFIG_BUILD_KERNEL
  *
+int main(int argc, FAR char **argv)
  ****************************************************************************/
+#else
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
+#endif
 int disconn_main(int argc, char *argv[])
 {
   /* First check if the USB mass storage device is already connected */

@@ -222,7 +222,11 @@ static inline void testheader(FAR const char *progname)
  * Name: spawn_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int spawn_main(int argc, char *argv[])
+#endif
 {
   posix_spawn_file_actions_t file_actions;
   posix_spawnattr_t attr;

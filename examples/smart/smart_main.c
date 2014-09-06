@@ -796,7 +796,11 @@ static int smart_directory(void)
  * Name: smart_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int smart_main(int argc, char *argv[])
+#endif
 {
   FAR struct mtd_dev_s *mtd;
   unsigned int i;

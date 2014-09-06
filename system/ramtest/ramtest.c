@@ -556,7 +556,11 @@ static void addr_in_addr(FAR struct ramtest_s *info)
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int ramtest_main(int argc, char **argv)
+#endif
 {
   struct ramtest_s info;
 

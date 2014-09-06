@@ -394,7 +394,11 @@ static int button7_handler(int irq, FAR void *context)
  * buttons_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int buttons_main(int argc, char *argv[])
+#endif
 {
   uint8_t newset;
   irqstate_t flags;

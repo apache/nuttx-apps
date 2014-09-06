@@ -61,7 +61,11 @@
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int flash_test_main(int argc, char *argv[])
+#endif
 {
   struct inode* inode;
   int           ret;

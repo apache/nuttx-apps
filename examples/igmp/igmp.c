@@ -83,7 +83,11 @@
  * igmp_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int igmp_main(int argc, char *argv[])
+#endif
 {
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_IGMP_NOMAC)

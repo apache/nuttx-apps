@@ -81,7 +81,11 @@ static void show_usage(FAR const char *progname, int errcode)
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int pexec_main(int argc, FAR char **argv)
+#endif
 {
   FAR char *filename = NULL;
   FAR char *endptr;

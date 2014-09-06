@@ -203,7 +203,11 @@ static inline int nxlines_initialize(void)
  * Name: nxlines_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int nxlines_main(int argc, char *argv[])
+#endif
 {
   nxgl_mxpixel_t color;
   int ret;

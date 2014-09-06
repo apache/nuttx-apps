@@ -389,7 +389,11 @@ static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
  *
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int msconn_main(int argc, char *argv[])
+#endif
 {
   FAR void *handle;
   int ret;
@@ -568,10 +572,14 @@ int msconn_main(int argc, char *argv[])
  *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
+#ifdef CONFIG_BUILD_KERNEL
  *
+int main(int argc, FAR char **argv)
  ****************************************************************************/
+#else
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
+#endif
 int msdis_main(int argc, char *argv[])
 {
   /* First check if the USB mass storage device is already connected */

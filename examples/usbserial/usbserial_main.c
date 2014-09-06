@@ -201,7 +201,11 @@ static void dumptrace(void)
  * usbserial_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int usbserial_main(int argc, char *argv[])
+#endif
 {
 #ifndef CONFIG_EXAMPLES_USBSERIAL_INONLY
   int infd;

@@ -76,7 +76,11 @@
  * rand_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int rand_main(int argc, char *argv[])
+#endif
 {
   uint32_t buffer[CONFIG_EXAMPLES_MAXSAMPLES];
   int nsamples = CONFIG_EXAMPLES_NSAMPLES;

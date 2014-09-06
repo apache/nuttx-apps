@@ -57,7 +57,11 @@
  * rgmp_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int rgmp_main(int argc, char *argv[])
+#endif
 {
     // TODO: add your code here
 

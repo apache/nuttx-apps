@@ -367,7 +367,11 @@ static int tcpecho_server(void)
  * discover_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int tcpecho_main(int argc, char *argv[])
+#endif
 {
   int ret;
 

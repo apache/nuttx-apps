@@ -106,7 +106,11 @@ static const char g_msg_body[]  = CONFIG_EXAMPLES_SENDMAIL_BODY "\r\n";
  * sendmail_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int sendmail_main(int argc, char *argv[])
+#endif
 {
   struct in_addr addr;
 #if defined(CONFIG_EXAMPLES_SENDMAIL_NOMAC)

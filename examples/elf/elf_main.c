@@ -215,7 +215,11 @@ static inline void testheader(FAR const char *progname)
  * Name: elf_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int elf_main(int argc, char *argv[])
+#endif
 {
   struct binary_s bin;
   int ret;

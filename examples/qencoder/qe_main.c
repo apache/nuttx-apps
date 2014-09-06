@@ -240,7 +240,11 @@ static void parse_args(int argc, FAR char **argv)
  * Name: qe_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int qe_main(int argc, char *argv[])
+#endif
 {
   int32_t position;
   int fd;

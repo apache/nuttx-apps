@@ -104,7 +104,11 @@ static int sdcard_start(int slotno)
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int sdcard_main(int argc, char *argv[])
+#endif
 {
   int slotno = 0;
 

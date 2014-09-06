@@ -276,7 +276,11 @@ static int hidkbd_waiter(int argc, char *argv[])
  * Name: hidkbd_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int hidkbd_main(int argc, char *argv[])
+#endif
 {
   char buffer[256];
   pid_t pid;

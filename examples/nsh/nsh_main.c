@@ -116,7 +116,11 @@ const struct symtab_s CONFIG_EXECFUNCS_SYMTAB[1];
  * Name: nsh_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int nsh_main(int argc, char *argv[])
+#endif
 {
   int exitval = 0;
   int ret;

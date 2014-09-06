@@ -43,7 +43,11 @@
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int poweroff_main(int argc, char *argv[])
+#endif
 {
   /* TODO:
    *  - replace this by sending general system signal to shutdown, where i.e. nsh

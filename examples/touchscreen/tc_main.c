@@ -88,7 +88,11 @@
  * Name: tc_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int tc_main(int argc, char *argv[])
+#endif
 {
 #ifdef CONFIG_EXAMPLES_TOUCHSCREEN_MOUSE
   struct mouse_report_s sample;

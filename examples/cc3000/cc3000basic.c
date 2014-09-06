@@ -957,7 +957,11 @@ void ShowInformation(void)
   printf("  Connected to SSID: %s\n", localB);
 }
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int c3b_main(int argc, char *argv[])
+#endif
 {
   char ch='0';
 

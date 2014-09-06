@@ -359,7 +359,11 @@ static void modbus_showusage(FAR const char *progname, int exitcode)
  *
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int modbus_main(int argc, char *argv[])
+#endif
 {
   int option;
   int ret;

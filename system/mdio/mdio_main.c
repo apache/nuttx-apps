@@ -159,7 +159,11 @@ int set_phy_reg(uint16_t phy_id, uint16_t reg_num, uint16_t val)
  * mdio_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int mdio_main(int argc, char *argv[])
+#endif
 {
   int ret;
   int i;

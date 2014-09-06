@@ -455,7 +455,11 @@ static void checkdirectories(struct node_s *entry)
  * Name: romfs_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int romfs_main(int argc, char *argv[])
+#endif
 {
    int  ret;
 

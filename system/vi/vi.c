@@ -3569,7 +3569,11 @@ static void vi_showusage(FAR struct vi_s *vi, FAR const char *progname,
  *
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int vi_main(int argc, char **argv)
+#endif
 {
   FAR struct vi_s *vi;
   int option;

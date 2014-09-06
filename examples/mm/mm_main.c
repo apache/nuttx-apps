@@ -281,7 +281,11 @@ static void do_frees(void **mem, const int *size, const int *seq, int n)
  * Name: mm_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int mm_main(int argc, char *argv[])
+#endif
 {
   mm_showmallinfo();
 

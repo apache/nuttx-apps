@@ -104,7 +104,11 @@
  * Name: can_main
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int can_main(int argc, char *argv[])
+#endif
 {
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
   struct can_msg_s txmsg;

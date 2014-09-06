@@ -224,7 +224,11 @@ static void telnetd_netinit(void)
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int telnetd_main(int argc, char *argv[])
+#endif
 {
   struct telnetd_config_s config;
   int ret;
