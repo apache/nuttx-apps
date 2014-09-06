@@ -78,11 +78,11 @@ $(COBJS): %$(OBJEXT): %.c
 	@touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(INSTALL_DIR)/$(PROGNAME): $(OBJS)
-	@echo "LD: $<"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS)
+	@echo "LD: $(PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(LDLIBS)
 
-install: $(INSTALL_DIR)/$(PROGNAME)
+install: $(BIN_DIR)$(DELIM)$(PROGNAME)
 
 else
 install:

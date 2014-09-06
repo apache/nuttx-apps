@@ -91,7 +91,7 @@ $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(LDLIBS)
 
-install: $(BIN_DIR)/$(PROGNAME)
+install: $(BIN_DIR)$(DELIM)$(PROGNAME)
 
 else
 install:
