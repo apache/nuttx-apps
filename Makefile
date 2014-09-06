@@ -153,6 +153,7 @@ depend: .depend
 
 clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(BIN))
+	$(call DELDIR, $(BIN_DIR))
 	$(call CLEAN)
 
 distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
