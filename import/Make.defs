@@ -33,8 +33,8 @@
 #
 ############################################################################
 
-include ${TOPDIR}/.config
-include ${TOPDIR}/build/Make.defs
+include $(TOPDIR)/.config
+include $(TOPDIR)/build/Make.defs
 
 # Control build verbosity
 #
@@ -183,10 +183,10 @@ AFLAGS = $(CFLAGS) -D__ASSEMBLY__
 
 ifeq ($(WINTOOL),y)
   # Windows-native toolchains
-  LDLIBPATH = -L "${shell cygpath -w ${APPDIR}}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
+  LDLIBPATH = -L "${shell cygpath -w $(APPDIR)}" -L "${shell cygpath -w $(TOPDIR)$(DELIM)libs}"
 else
   # Linux/Cygwin-native toolchain
-  LDLIBPATH = -L ${APPDIR} -L $(TOPDIR)$(DELIM)libs
+  LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)libs
 endif
 
 LDLIBS = -lnuttx
