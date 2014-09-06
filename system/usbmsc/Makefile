@@ -97,7 +97,7 @@ $(INSTALL_DIR)/$(PROGNAME): $(OBJS)
 
 install: $(INSTALL_DIR)/$(PROGNAME)
 
-#else
+else
 install:
 
 endif

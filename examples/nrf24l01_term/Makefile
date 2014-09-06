@@ -94,13 +94,13 @@ $(INSTALL_DIR)/$(PROGNAME): $(OBJS)
 
 install: $(INSTALL_DIR)/$(PROGNAME)
 
-#else
+else
 install:
 
 endif
 
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-#else
+else
 #context:
 #endif
 
