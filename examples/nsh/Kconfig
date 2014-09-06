@@ -13,6 +13,14 @@ config EXAMPLES_NSH
 
 if EXAMPLES_NSH
 
+config EXAMPLES_NSH_PROGNAME
+	string "Program name"
+	default "nsh"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
 config EXAMPLES_NSH_CXXINITIALIZE
 	bool "C++ Initialization"
 	default n
