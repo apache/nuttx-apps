@@ -125,8 +125,8 @@ $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
 $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
 $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
+$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
 $(BIN): $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_all)
 
@@ -151,11 +151,11 @@ context: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_context)
 
 depend: .depend
 
-clean: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_clean)
+clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 
-distclean: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_distclean)
+distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 	$(Q) ( if exist  external ( \
 		echo ********************************************************" \
@@ -171,6 +171,6 @@ else
 	)
 endif
 	$(call DELFILE, .depend)
-	$(call DELDIR, bin)
+	$(call DELDIR, $(INSTALL_DIR))
 
 

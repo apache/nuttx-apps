@@ -139,8 +139,7 @@ clean:
 	$(call DELFILE, $(BIN4))
 	$(call CLEAN)
 
-install:
- $(ALL_BIN)
+install: $(ALL_BIN)
 	$(Q) mkdir -p $(ROMFS_DIR)
 	$(Q) install $(BIN1) $(ROMFS_DIR)/$(BIN1)
 	$(Q) install $(BIN2) $(ROMFS_DIR)/$(BIN2)

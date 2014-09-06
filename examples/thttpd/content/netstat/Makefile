@@ -77,6 +77,5 @@ clean:
 	$(call CLEAN)
 
 install:
-
 	$(Q) install -m 0755 -D $(BIN) $(CGI_DIR)/$(BIN)
 
