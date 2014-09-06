@@ -99,6 +99,8 @@ debug:
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
+install:
+
 context:
 
 .depend: debug Makefile $(SRCS)

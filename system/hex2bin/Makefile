@@ -116,6 +116,8 @@ else
 rhex2mem:
 endif
 
+install:
+
 context: rhex2bin rhex2mem
 
 .depend: Makefile $(SRCS)

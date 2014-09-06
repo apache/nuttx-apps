@@ -56,5 +56,6 @@ clean:
 	$(call CLEAN)
 
 install:
+
 	$(Q) mkdir -p $(ROMFS_DIR)
 	$(Q) install -m 0755 $(BIN) $(ROMFS_DIR)/$(BIN)

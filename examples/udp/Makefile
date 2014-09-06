@@ -107,6 +107,8 @@ $(HOST_BIN): $(HOST_OBJS)
 .built: $(TARG_BIN) $(HOST_BIN)
 	@touch .built
 
+install:
+
 context:
 
 .depend: Makefile $(TARG_SRCS)

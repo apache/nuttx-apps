@@ -86,6 +86,8 @@ really_build: $(OBJS)
 	@$(MAKE) -C tests TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	@$(MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" really_build
 
+install:
+
 context:
 
 # We can't make dependencies in this directory because the required

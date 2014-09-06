@@ -93,8 +93,12 @@ $(BUILTIN_REGISTRY)$(DELIM)stackmonitor_start.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)stackmonitor_stop.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"stkmon_stop",$(PRIORITY),$(STACKSIZE),stackmonitor_stop)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)stackmonitor_start.bdat $(BUILTIN_REGISTRY)$(DELIM)stackmonitor_stop.bdat
 else
+install:
+
 context:
 endif
 

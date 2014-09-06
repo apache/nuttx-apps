@@ -93,6 +93,8 @@ romfs_testdir.h : testdir.img
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+install:
+
 context:
 
 .depend: Makefile $(SRCS)

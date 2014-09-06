@@ -93,8 +93,12 @@ $(BUILTIN_REGISTRY)$(DELIM)usbmonitor_start.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)usbmonitor_stop.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"usbmon_stop",$(PRIORITY),$(STACKSIZE),usbmonitor_stop)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)usbmonitor_start.bdat $(BUILTIN_REGISTRY)$(DELIM)usbmonitor_stop.bdat
 else
+install:
+
 context:
 endif
 

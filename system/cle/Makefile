@@ -81,6 +81,8 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
+install:
+
 context:
 
 # Create dependencies

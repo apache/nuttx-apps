@@ -85,6 +85,8 @@ build:
 	@$(MAKE) -C filesystem TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	@$(MAKE) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" build_lib
 
+install:
+
 context:
 
 # We can't make dependencies in this directory because the required

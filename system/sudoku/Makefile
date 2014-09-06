@@ -93,8 +93,12 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)sudoku.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"sudoku",$(PRIORITY),$(STACKSIZE),sudoku_main)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)sudoku.bdat
 else
+install:
+
 context:
 endif
 

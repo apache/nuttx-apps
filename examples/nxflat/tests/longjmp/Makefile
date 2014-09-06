@@ -77,5 +77,6 @@ clean:
 	$(call CLEAN)
 
 install:
+
 	$(Q) install -D $(BIN) $(ROMFS_DIR)/$(BIN)
 

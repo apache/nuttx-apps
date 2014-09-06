@@ -89,6 +89,8 @@ $(COBJS): %$(OBJEXT): %.c
 
 # Context build phase target
 
+install:
+
 context:
 
 # Dependency build phase target

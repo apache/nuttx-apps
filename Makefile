@@ -110,72 +110,53 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: $(INSTALLED_APPS) import context depend clean distclean
+.PHONY: import install context .depdirs depend clean distclean
+
+define SDIR_template
+$(1)_$(2):
+	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+endef
 
 $(INSTALLED_APPS):
 	$(Q) $(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
-$(BIN): $(INSTALLED_APPS)
+$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
+$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
+$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
+$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
+$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),clean)))
+$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+
+$(BIN): $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_all)
+
+install: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_install) 
+
+.import: $(BIN) install
 
 import:
-	$(Q) $(MAKE) TOPDIR="$(APPDIR)/import"
+	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)/import"
 
-context:
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) for %%G in ($(INSTALLED_APPS)) do ( \
-		$(MAKE) -C %%G TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" context \
-	)
-else
-	$(Q) for dir in $(INSTALLED_APPS) ; do \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" context ; \
-	done
-endif
+context: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_context)
 
-.depend: context Makefile $(SRCS)
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) for %%G in ($(INSTALLED_APPS)) do ( \
-		if exist %%G\.depend del /f /q %%G\.depend \
-		$(MAKE) -C %%G TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" depend \
-	)
-else
-	$(Q) for dir in $(INSTALLED_APPS) ; do \
-		rm -f $$dir/.depend ; \
-		$(MAKE) -C $$dir TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" depend ; \
-	done
-endif
+.depdirs: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_depend)
+
+.depend: context Makefile .depdirs
 	$(Q) touch $@
 
 depend: .depend
 
-clean:
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) for %%G in ($(SUBDIRS)) do ( \
-		$(MAKE) -C %%G clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" \
-	)
-else
-	$(Q) for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
-endif
+clean: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_clean)
 	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 
-distclean:
+distclean: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_distclean)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) for %%G in ($(SUBDIRS)) do ( \
-		$(MAKE) -C %%G distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" \
-	)
-	$(call DELFILE, .depend)
 	$(Q) ( if exist  external ( \
 		echo ********************************************************" \
 		echo * The external directory/link must be removed manually *" \
 		echo ********************************************************" \
 	)
 else
-	$(Q) for dir in $(SUBDIRS) ; do \
-		$(MAKE) -C $$dir distclean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"; \
-	done
-	$(call DELFILE, .depend)
 	$(Q) ( if [ -e external ]; then \
 		echo "********************************************************"; \
 		echo "* The external directory/link must be removed manually *"; \
@@ -183,5 +164,6 @@ else
 	   fi; \
 	)
 endif
+	$(call DELFILE, .depend)
 
 

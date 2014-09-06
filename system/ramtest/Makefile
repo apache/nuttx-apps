@@ -90,8 +90,12 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)ramtest.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"ramtest",$(PRIORITY),$(STACKSIZE),ramtest_main)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)ramtest.bdat
 else
+install:
+
 context:
 endif
 

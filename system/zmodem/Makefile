@@ -96,8 +96,12 @@ $(BUILTIN_REGISTRY)$(DELIM)sz.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)rz.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,"rz",$(PRIORITY),$(STACKSIZE),rz_main)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)sz.bdat $(BUILTIN_REGISTRY)$(DELIM)rz.bdat
 else
+install:
+
 context:
 endif
 

@@ -76,6 +76,8 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+install:
+
 context:
 
 .depend: Makefile $(SRCS)

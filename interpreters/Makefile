@@ -67,6 +67,8 @@ $(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),distclean
 
 nothing:
 
+install:
+
 context:
 
 depend: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_depend)

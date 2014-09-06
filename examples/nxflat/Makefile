@@ -80,6 +80,8 @@ headers:
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+install:
+
 context:
 
 # We can't make dependencies in this directory because the required

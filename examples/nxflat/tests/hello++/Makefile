@@ -175,7 +175,8 @@ clean:
 	$(call DELFILE, *.r2)
 	$(call CLEAN)
 
-install: $(ALL_BIN)
+install:
+ $(ALL_BIN)
 	$(Q) install -D $(BIN1) $(ROMFS_DIR)/$(BIN1)
 	$(Q) install -D $(BIN2) $(ROMFS_DIR)/$(BIN2)
 	$(Q) install -D $(BIN3) $(ROMFS_DIR)/$(BIN3)

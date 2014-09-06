@@ -46,6 +46,8 @@ all: nothing
 
 nothing:
 
+install:
+
 context:
 
 depend:

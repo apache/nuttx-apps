@@ -96,6 +96,8 @@ ifeq ($(CONFIG_MODBUS),y)
 	$(Q) touch .built
 endif
 
+install:
+
 context:
 
 .depend: Makefile $(SRCS)

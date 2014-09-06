@@ -63,7 +63,8 @@ build: $(foreach DIR, $(SUBDIRS), $(DIR)_build)
 
 # Install each program in the romfs directory
 
-install: $(foreach DIR, $(SUBDIRS), $(DIR)_install)
+install:
+ $(foreach DIR, $(SUBDIRS), $(DIR)_install)
 
 # Create the romfs directory
 

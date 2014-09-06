@@ -48,6 +48,8 @@ all:
 
 # This must run before any other context target
 
+install:
+
 context: .updated
 
 depend:

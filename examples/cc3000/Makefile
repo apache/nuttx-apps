@@ -92,8 +92,12 @@ $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(APPNAME1)_main)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
+install:
+
 context:
 endif
 

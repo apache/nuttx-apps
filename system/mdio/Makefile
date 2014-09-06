@@ -87,8 +87,12 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 
+install:
+
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
+install:
+
 context:
 endif
 

@@ -80,6 +80,8 @@ $(COBJS): %$(OBJEXT): %.c
 httpd_fsdata.c: httpd-fs/*
 	$(TOPDIR)/tools/mkfsdata.pl
 
+install:
+
 context:
 
 .depend: Makefile $(SRCS)
