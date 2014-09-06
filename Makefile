@@ -103,6 +103,10 @@ SUBDIRS += $(EXTERNAL_DIR)
 
 LIBPATH ?= $(TOPDIR)/libs
 
+# The install path
+
+INSTALL_DIR = $(APPDIR)/bin
+
 # The final build target
 
 BIN = libapps$(LIBEXT)
@@ -114,11 +118,8 @@ all: $(BIN)
 
 define SDIR_template
 $(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" INSTALL_DIR="$(INSTALL_DIR)"
 endef
-
-$(INSTALLED_APPS):
-	$(Q) $(MAKE) -C $@ TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
 $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
@@ -129,7 +130,12 @@ $(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),distclean
 
 $(BIN): $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_all)
 
-install: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_install) 
+.install: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_install)
+
+$(INSTALL_DIR):
+	mkdir -p $(INSTALL_DIR)
+
+install: $(INSTALL_DIR) .install
 
 .import: $(BIN) install
 
@@ -165,5 +171,6 @@ else
 	)
 endif
 	$(call DELFILE, .depend)
+	$(call DELDIR, bin)
 
 
