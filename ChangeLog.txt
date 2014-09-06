@@ -1035,4 +1035,7 @@
 	* apps/import/Make.defs: Also need to define CFLAGS (2015-9-5)
 	* apps/import/scripts/gnu-elf.ld:  Add GCC linker script for ELF
 	  import builds (2014-9-5).
+	* All Makefiles:  Add an install target to all makefiles.  For the
+	  import build, the top-level Makefile now does two passes: (1) builds
+	  libapp.a, then (2) installs the programs (not yet finished) (2014-9-6).
 
