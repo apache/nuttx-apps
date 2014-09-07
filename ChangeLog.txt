@@ -1045,3 +1045,9 @@
 	* Many Makefiles.  For kernel build, the object file containing main
 	  cannot go into library because of name collisions.  The object file
 	  must be handled as a special case in every Makefile (2014-9-7).
+	* apps/import/Make.defs: libapps.a needs to be added to the list of
+	  libraries to link against (2014-9-7).
+	* apps/nshlib/nsh.h and nsh_ddcmd.c: Several commands must be disabled
+	  in the kernel build because they depend on interfaces that are not
+	  available outside of the kernel: dd, df, losetup, mkfatfs, mkdr, and
+	  ps (2014-9-7).
