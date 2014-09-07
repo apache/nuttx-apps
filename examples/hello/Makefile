@@ -46,13 +46,19 @@ STACKSIZE = 2048
 # Hello, World! Example
 
 ASRCS =
-CSRCS = hello_main.c
+CSRCS =
+MAINSRC = hello_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS += $(MAINOBJ)
+endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   BIN = ..\..\libapps$(LIBEXT)
@@ -93,9 +99,10 @@ $(COBJS): %$(OBJEXT): %.c
 	@touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(LDLIBS)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
 
 install: $(BIN_DIR)$(DELIM)$(PROGNAME)
 
