@@ -38,40 +38,40 @@
 include $(APPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
+INCDIROPT = -w
 endif
 
 # USB Monitor Application
 
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 768
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 768
 
-ASRCS		=
-CSRCS		= usbmonitor.c
+ASRCS =
+CSRCS = usbmonitor.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
-all:	.built
+all: .built
 .PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S

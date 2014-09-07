@@ -43,38 +43,39 @@
 include $(APPDIR)/Make.defs
 
 ifeq ($(WINTOOL),y)
-INCDIROPT	= -w
+INCDIROPT = -w
 endif
 
 # NSH sysinfo command
 
 CONFIG_SYSTEM_SYSINFO_STACKSIZE ?= 1024
 
-APPNAME		= sysinfo
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= $(CONFIG_SYSTEM_SYSINFO_STACKSIZE)
+APPNAME = sysinfo
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = $(CONFIG_SYSTEM_SYSINFO_STACKSIZE)
 
-ASRCS		=
-CSRCS		= sysinfo.c
+ASRCS =
+CSRCS =
+MAINSRC = sysinfo.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -87,13 +88,13 @@ endif
 CONFIG_XYZ_PROGNAME ?= sysinfo$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
-all:	.built
+all: .built
 .PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S

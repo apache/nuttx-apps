@@ -54,8 +54,12 @@ APPNAME = nxplayer
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+MAINSRC = nxplayer_main.c
+else
 ifeq ($(CONFIG_NXPLAYER_COMMAND_LINE),y)
-CSRCS   += nxplayer_main.c
+MAINSRC = nxplayer_main.c
+endif
 endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

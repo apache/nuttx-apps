@@ -48,19 +48,21 @@ STACKSIZE = 1536
 
 ASRCS  =
 
-CSRCS  = sz_main.c zm_send.c
-CSRCS += rz_main.c zm_receive.c
-CSRCS += zm_state.c zm_proto.c zm_watchdog.c zm_utils.c zm_dumpbuffer.c
+CSRCS  = zm_send.c zm_receive.c zm_state.c zm_proto.c zm_watchdog.c
+CSRCS += zm_utils.c zm_dumpbuffer.c
+SZ_MAINSRC = sz_main.c
+RZ_MAINSRC = rz_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
+SZ_MAINOBJ = $(SZ_MAINSRC:.c=$(OBJEXT))
+RZ_MAINOBJ = $(RZ_MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+SRCS = $(ASRCS) $(CSRCS) $(SZ_MAINSRC) $(RZ_MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
+  OBJS += $(SZ_MAINOBJ) $(RZ_MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -79,8 +81,11 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_XYZ_PROGNAME ?= zmodem$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_SYSTEM_SZPROGNAME ?= sz$(EXEEXT)
+SZ_PROGNAME = $(CONFIG_SYSTEM_SZPROGNAME)
+
+CONFIG_SYSTEM_RZPROGNAME ?= rz$(EXEEXT)
+RZ_PROGNAME = $(CONFIG_SYSTEM_RZPROGNAME)
 
 ROOTDEPPATH = --dep-path .
 
@@ -102,12 +107,17 @@ $(COBJS): %$(OBJEXT): %.c
 	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+$(BIN_DIR)$(DELIM)$(SZ_PROGNAME): $(OBJS) $(SZ_MAINOBJ)
+	@echo "LD: $(SZ_PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(SZ_PROGNAME) $(ARCHCRT0OBJ) $(SZ_MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(SZ_PROGNAME)
 
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+$(BIN_DIR)$(DELIM)$(RZ_PROGNAME): $(OBJS) $(RZ_MAINOBJ)
+	@echo "LD: $(RZ_PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(RZ_PROGNAME) $(ARCHCRT0OBJ) $(RZ_MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(RZ_PROGNAME)
+
+install: $(BIN_DIR)$(DELIM)$(SZ_PROGNAME) $(BIN_DIR)$(DELIM)$(RZ_PROGNAME)
 
 else
 install:

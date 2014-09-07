@@ -39,27 +39,28 @@ include $(APPDIR)/Make.defs
 
 # USB device mass storage add-on
 
-ASRCS		=
-CSRCS		= composite_main.c
+ASRCS =
+CSRCS =
+MAINSRC = composite_main.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -72,21 +73,21 @@ endif
 CONFIG_XYZ_PROGNAME ?= composite$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # USB storage built-in application info
 
-APPNAME1	= conn
-PRIORITY1	= SCHED_PRIORITY_DEFAULT
-STACKSIZE1	= 2048
+APPNAME1 = conn
+PRIORITY1 = SCHED_PRIORITY_DEFAULT
+STACKSIZE1 = 2048
 
-APPNAME2	= disconn
-PRIORITY2	= SCHED_PRIORITY_DEFAULT
-STACKSIZE2	= 2048
+APPNAME2 = disconn
+PRIORITY2 = SCHED_PRIORITY_DEFAULT
+STACKSIZE2 = 2048
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
 .PHONY: context clean depend distclean

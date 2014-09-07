@@ -39,27 +39,28 @@ include $(APPDIR)/Make.defs
 
 # USB device mass storage add-on
 
-ASRCS		=
-CSRCS		= usbmsc_main.c
+ASRCS =
+CSRCS =
+MAINSRC = usbmsc_main.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -72,24 +73,24 @@ endif
 CONFIG_XYZ_PROGNAME ?= usbmsc$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # USB storage built-in application info
 
 CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE ?= 768
 CONFIG_SYSTEM_USBMSC_CMD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 
-APPNAME1	= msconn
-PRIORITY1	= $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
-STACKSIZE1	= $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
+APPNAME1 = msconn
+PRIORITY1 = $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
+STACKSIZE1 = $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
 
-APPNAME2	= msdis
-PRIORITY2	= $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
-STACKSIZE2	= $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
+APPNAME2 = msdis
+PRIORITY2 = $(CONFIG_SYSTEM_USBMSC_CMD_PRIORITY)
+STACKSIZE2 = $(CONFIG_SYSTEM_USBMSC_CMD_STACKSIZE)
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
 .PHONY: context clean depend distclean
