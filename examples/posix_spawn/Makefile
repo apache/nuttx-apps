@@ -48,6 +48,10 @@ COBJS = $(CSRCS:.c=$(OBJEXT))
 SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS += $(MAINOBJ)
+endif
+
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   BIN		= ..\..\libapps$(LIBEXT)
 else
