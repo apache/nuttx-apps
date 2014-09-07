@@ -39,27 +39,28 @@ include $(APPDIR)/Make.defs
 
 # NuttX NX Graphics Example.
 
-ASRCS		=
-CSRCS		= nxhello_main.c nxhello_bkgd.c
+ASRCS =
+CSRCS = nxhello_bkgd.c
+MAINSRC = nxhello_main.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -72,17 +73,17 @@ endif
 CONFIG_XYZ_PROGNAME ?= nxhello$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # NXHELLO built-in application info
 
-APPNAME		= nxhello
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 2048
+APPNAME = nxhello
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
 .PHONY: context clean depend distclean

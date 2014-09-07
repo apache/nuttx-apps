@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # CONFIGDATA Unit Test
 
 ASRCS =
-CSRCS = configdata_main.c
+CSRCS =
+MAINSRC = configdata_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

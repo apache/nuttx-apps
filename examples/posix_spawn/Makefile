@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # ELF Example
 
 ASRCS =
-CSRCS = spawn_main.c symtab.c
+CSRCS = symtab.c
+MAINSRC = spawn_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

@@ -46,7 +46,8 @@ STACKSIZE = 2048
 # MDIO tool
 
 ASRCS =
-CSRCS = netpkt_main.c
+CSRCS =
+MAINSRC = netpkt_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

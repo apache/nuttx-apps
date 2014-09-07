@@ -39,27 +39,28 @@ include $(APPDIR)/Make.defs
 
 # ROMFS File System Example
 
-ASRCS		=
-CSRCS		= romfs_main.c
+ASRCS =
+CSRCS =
+MAINSRC = romfs_main.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -72,14 +73,14 @@ endif
 CONFIG_XYZ_PROGNAME ?= romfs$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
-.PHONY:	checkgenromfs clean depend distclean
+.PHONY: checkgenromfs clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -89,9 +90,9 @@ $(COBJS): %$(OBJEXT): %.c
 
 checkgenromfs:
 	@genromfs -h 1>/dev/null 2>&1 || { \
-		echo "Host executable genromfs not available in PATH"; \
-		echo "You may need to download in from http://romfs.sourceforge.net/"; \
-		exit 1; \
+ echo "Host executable genromfs not available in PATH"; \
+ echo "You may need to download in from http://romfs.sourceforge.net/"; \
+ exit 1; \
 	}
 
 testdir : testdir.tar.gz

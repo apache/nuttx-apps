@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # relays Example
 
 ASRCS =
-CSRCS = relays_main.c
+CSRCS =
+MAINSRC = relays_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

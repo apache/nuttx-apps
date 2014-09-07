@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # do nothing loop to use up cpu time
 
 ASRCS =
-CSRCS = cpuhog_main.c
+CSRCS =
+MAINSRC = cpuhog_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

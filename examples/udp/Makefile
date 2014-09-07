@@ -39,46 +39,52 @@ include $(APPDIR)/Make.defs
 
 # UDP Test
 
-TARG_ASRCS	=
+TARG_ASRCS =
 
-TARG_CSRCS	= target.c
+TARG_CSRCS =
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
-TARG_CSRCS	+= udp-server.c
+TARG_CSRCS += udp-server.c
 else
-TARG_CSRCS	+= udp-client.c
+TARG_CSRCS += udp-client.c
 endif
+TARG_MAINSRC = target.c
 
-TARG_AOBJS	= $(TARG_ASRCS:.S=$(OBJEXT))
-TARG_COBJS	= $(TARG_CSRCS:.c=$(OBJEXT))
+TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
+TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
+TARG_MAINOBJ = $(TARG_MAINSRC:.c=$(OBJEXT))
 
-TARG_SRCS	= $(TARG_ASRCS) $(TARG_CSRCS)
-TARG_OBJS	= $(TARG_AOBJS) $(TARG_COBJS)
+TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(TARG_CSRCS)
+TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  TARG_OBJS += $(TARG_MAINOBJ)
+endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  TARG_BIN	= ..\..\libapps$(LIBEXT)
+  TARG_BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  TARG_BIN	= ..\\..\\libapps$(LIBEXT)
+  TARG_BIN = ..\\..\\libapps$(LIBEXT)
 else
-  TARG_BIN	= ../../libapps$(LIBEXT)
+  TARG_BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-HOSTCFLAGS	+= -DCONFIG_EXAMPLES_UDP_HOST=1
+HOSTCFLAGS += -DCONFIG_EXAMPLES_UDP_HOST=1
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
-HOSTCFLAGS	+= -DCONFIG_EXAMPLES_UDP_SERVER=1 \
-		   -DCONFIG_EXAMPLES_UDP_SERVERIP="$(CONFIG_EXAMPLES_UDP_SERVERIP)"
+HOSTCFLAGS += -DCONFIG_EXAMPLES_UDP_SERVER=1 \
+              -DCONFIG_EXAMPLES_UDP_SERVERIP="$(CONFIG_EXAMPLES_UDP_SERVERIP)"
 endif
 
-HOST_SRCS	= host.c
+HOST_SRCS = host.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
-HOST_SRCS	+= udp-client.c
+HOST_SRCS += udp-client.c
 else
-HOST_SRCS	+= udp-server.c
+HOST_SRCS += udp-server.c
 endif
 
-HOST_OBJS	= $(HOST_SRCS:.c=.o)
-HOST_BIN	= host
+HOST_OBJS = $(HOST_SRCS:.c=.o)
+HOST_BIN = host
 
 ifeq ($(WINTOOL),y)
   INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
@@ -89,14 +95,14 @@ endif
 CONFIG_XYZ_PROGNAME ?= udp$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
-.PHONY:	clean depend distclean
+.PHONY: clean depend distclean
 
 $(TARG_AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -117,9 +123,10 @@ $(HOST_BIN): $(HOST_OBJS)
 	@touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(TARG_MAINOBJ)
 	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(LDLIBS)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(TARG_MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
 
 install: $(BIN_DIR)$(DELIM)$(PROGNAME)
 

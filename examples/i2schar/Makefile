@@ -40,13 +40,14 @@ include $(APPDIR)/Make.defs
 # I2S character driver test
 
 ASRCS =
-CSRCS = i2schar_main.c
+CSRCS =
 ifeq ($(CONFIG_EXAMPLES_I2SCHAR_TX),y)
 CSRCS += i2schar_transmitter.c
 endif
 ifeq ($(CONFIG_EXAMPLES_I2SCHAR_RX),y)
 CSRCS += i2schar_receiver.c
 endif
+MAINSRC = i2schar_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

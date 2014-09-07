@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # NuttShell (NSH) Example
 
 ASRCS =
-CSRCS = nsh_main.c
+CSRCS =
+MAINSRC = nsh_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

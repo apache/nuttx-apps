@@ -48,7 +48,8 @@ CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" \
   "$(APPDIR)$(DELIM)interpreters$(DELIM)pcode$(DELIM)insn$(DELIM)include"}
 
 ASRCS =
-CSRCS = pashello.c device.c
+CSRCS = device.c
+MAINSRC = pashello.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

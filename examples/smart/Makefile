@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # SMART file system stress test
 
 ASRCS =
-CSRCS = smart_main.c
+CSRCS =
+MAINSRC = smart_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

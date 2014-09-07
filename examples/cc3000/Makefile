@@ -39,37 +39,44 @@ include $(APPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
-APPNAME		= c3b
-PRIORITY	= SCHED_PRIORITY_DEFAULT
-STACKSIZE	= 608
+APPNAME = c3b
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 608
 
-APPNAME1	= shell
-PRIORITY1	= SCHED_PRIORITY_DEFAULT
-STACKSIZE1	= 980
+APPNAME1 = shell
+PRIORITY1 = SCHED_PRIORITY_DEFAULT
+STACKSIZE1 = 980
 
 # Hello, World! Example
 
-ASRCS		=
-CSRCS		= cc3000basic.c board.c shell.c telnetd_driver.c telnetd_daemon.c
+ASRCS =
+CSRCS = board.c telnetd_driver.c telnetd_daemon.c
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+CC3000SRC = cc3000basic.c
+SHELLSRC = shell.c
+MAINSRC = $(CC3000SRC) $(SHELLSRC)
+
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+CC3000OBJ = $(CC3000SRC:.c=$(OBJEXT))
+SHELLOBJ = $(SHELLSRC:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -79,14 +86,17 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_XYZ_PROGNAME ?= cc3000$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_XYZ_PROGNAME1 ?= cc3000$(EXEEXT)
+PROGNAME1 = $(CONFIG_XYZ_PROGNAME1)
 
-ROOTDEPPATH	= --dep-path .
+CONFIG_XYZ_PROGNAME2 ?= shell$(EXEEXT)
+PROGNAME2 = $(CONFIG_XYZ_PROGNAME2)
+
+ROOTDEPPATH = --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
 .PHONY: clean depend distclean
@@ -102,12 +112,17 @@ $(COBJS): %$(OBJEXT): %.c
 	@touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+$(BIN_DIR)$(DELIM)$(PROGNAME1): $(OBJS) $(CC3000OBJ)
+	@echo "LD: $(PROGNAME1)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME1) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME1)
 
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+$(BIN_DIR)$(DELIM)$(PROGNAME2): $(OBJS) $(SHELLOBJ)
+	@echo "LD: $(PROGNAME2)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME2) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME2)
+
+install: $(BIN_DIR)$(DELIM)$(PROGNAME1)  $(BIN_DIR)$(DELIM)$(PROGNAME2)
 
 else
 install:

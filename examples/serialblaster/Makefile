@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # For testing: Blast canned characters at a designated serial port
 
 ASRCS =
-CSRCS = serialblaster_main.c
+CSRCS =
+MAINSRC = serialblaster_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

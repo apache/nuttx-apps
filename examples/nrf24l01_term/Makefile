@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # Basic nRF24L01+ terminal demonstration
 
 ASRCS =
-CSRCS = nrf24l01_term.c
+CSRCS =
+MAINSRC = nrf24l01_term.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

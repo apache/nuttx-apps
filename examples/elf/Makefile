@@ -40,7 +40,8 @@ include $(APPDIR)/Make.defs
 # ELF Example
 
 ASRCS =
-CSRCS = elf_main.c symtab.c
+CSRCS = symtab.c
+MAINSRC = elf_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -54,12 +55,12 @@ ifneq ($(CONFIG_BUILD_KERNEL),y)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -72,7 +73,7 @@ endif
 CONFIG_XYZ_PROGNAME ?= discover$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path . --dep-path tests
+ROOTDEPPATH = --dep-path . --dep-path tests
 
 # Build targets
 
