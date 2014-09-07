@@ -59,7 +59,7 @@
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_DD)
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* If no sector size is specified wity BS=, then the following default value
