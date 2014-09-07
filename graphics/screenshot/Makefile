@@ -44,7 +44,8 @@ endif
 # TIFF Screenshot utility
 
 ASRCS =
-CSRCS = screenshot_main.c
+CSRCS =
+MAINSRC = screenshot_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
