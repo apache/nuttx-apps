@@ -94,7 +94,7 @@ httpd_fsdata.c: httpd-fs/*
 	$(TOPDIR)/tools/mkfsdata.pl
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(LDLIBS)
 
