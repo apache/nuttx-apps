@@ -109,7 +109,7 @@ $(CXXOBJS): %$(OBJEXT): %.cxx
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
-feq ($(CONFIG_BUILD_KERNEL),y)
+ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)

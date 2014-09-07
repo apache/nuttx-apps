@@ -189,7 +189,7 @@ else
   LDLIBPATH = -L $(APPDIR) -L $(TOPDIR)$(DELIM)libs
 endif
 
-LDLIBS = -lnuttx
+LDLIBS = -lapps -lnuttx
 
 # Try to get the path to libgcc.a.  Of course, this only works for GCC
 # toolchains.
