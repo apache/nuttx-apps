@@ -41,14 +41,20 @@ include $(APPDIR)/Make.defs
 
 ASRCS		=
 CSRCS		=
-CXXSRCS		= helloxx_main.cxx
+CXXSRCS		=
+MAINSRC		= helloxx_main.cxx
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
 CXXOBJS		= $(CXXSRCS:.cxx=$(OBJEXT))
+MAINOBJ		= $(MAINSRC:.cxx=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(CXXSRCS)
+SRCS		= $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS) $(CXXOBJS)
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS		+= $(MAINOBJ)
+endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   BIN		= ..\..\libapps$(LIBEXT)
@@ -59,6 +65,9 @@ else
   BIN		= ../../libapps$(LIBEXT)
 endif
 endif
+
+CONFIG_EXAMPLES_HELLOXX_PROGNAME ?= helloxx$(EXEEXT)
+PROGNAME	= $(CONFIG_EXAMPLES_HELLOXX_PROGNAME)
 
 ROOTDEPPATH	= --dep-path .
 
@@ -100,7 +109,18 @@ $(CXXOBJS): %$(OBJEXT): %.cxx
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+feq ($(CONFIG_BUILD_KERNEL),y)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
+	@echo "LD: $(PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+
+install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+
+else
 install:
+
+endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile

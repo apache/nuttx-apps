@@ -45,7 +45,7 @@ CSRCS	= i2c_bus.c i2c_common.c i2c_dev.c i2c_get.c i2c_main.c i2c_set.c i2c_verf
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS)
+SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
