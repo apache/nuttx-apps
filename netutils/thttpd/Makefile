@@ -39,31 +39,32 @@ include $(APPDIR)/Make.defs
 
 # THTTPD Library
 
-ASRCS		=
-CSRCS		=
+ASRCS =
+CSRCS =
 
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS		+= thttpd.c libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c fdwatch.c tdate_parse.c
+CSRCS += libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c fdwatch.c tdate_parse.c
+MAINSRC += thttpd.c
 endif
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -76,19 +77,19 @@ endif
 CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH	= --dep-path .
+ROOTDEPPATH = --dep-path .
 
 # CGI binaries (examples only, not used in the build)
 
-CGIBINDIR	= $(APPDIR)/netutils/thttpd/cgi-bin
+CGIBINDIR = $(APPDIR)/netutils/thttpd/cgi-bin
 
-SUBDIRS		=
+SUBDIRS =
 ifeq ($(CONFIG_NXFLAT),y)
-SUBDIRS		= cgi-src
-SUBDIR_BIN1	= phf
-SUBDIR_BIN2	= redirect
-SUBDIR_BIN3	= ssi
-SUBDIR_BIN	+= cgi-bin/$(SUBDIR_BIN1) cgi-bin/$(SUBDIR_BIN2)  cgi-bin/$(SUBDIR_BIN3)
+SUBDIRS = cgi-src
+SUBDIR_BIN1 = phf
+SUBDIR_BIN2 = redirect
+SUBDIR_BIN3 = ssi
+SUBDIR_BIN += cgi-bin/$(SUBDIR_BIN1) cgi-bin/$(SUBDIR_BIN2)  cgi-bin/$(SUBDIR_BIN3)
 endif
 
 all: $(SUBDIR_BIN) .built
