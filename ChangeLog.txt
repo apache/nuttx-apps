@@ -1042,3 +1042,6 @@
 	  all tasks is main, not some xyz_main (2014-9-6).
 	* Many Makefiles: Add program installation for CONFIG_BUILD_KERNEL in
 	  all Makefiles that build a main() (2014-9-6).
+	* Many Makefiles.  For kernel build, the object file containing main
+	  cannot go into library because of name collisions.  The object file
+	  must be handled as a special case in every Makefile (2014-9-7).
