@@ -44,6 +44,7 @@ CSRCS		= pipe_main.c transfer_test.c interlock_test.c redirect_test.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
 SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS)

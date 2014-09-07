@@ -44,6 +44,7 @@ CSRCS		= nximage_main.c nximage_bkgd.c nximage_bitmap.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
 SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS)

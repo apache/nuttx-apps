@@ -44,6 +44,7 @@ CSRCS		= webserver_main.c cgi.c httpd_fsdata.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
 SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS)

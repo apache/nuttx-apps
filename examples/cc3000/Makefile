@@ -54,6 +54,7 @@ CSRCS		= cc3000basic.c board.c shell.c telnetd_driver.c telnetd_daemon.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
 SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS)

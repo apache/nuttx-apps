@@ -44,6 +44,7 @@ CSRCS		= nxcon_main.c nxcon_toolbar.c nxcon_wndo.c nxcon_server.c
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
 SRCS		= $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS		= $(AOBJS) $(COBJS)
