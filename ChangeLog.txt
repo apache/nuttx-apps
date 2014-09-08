@@ -1051,3 +1051,6 @@
 	  in the kernel build because they depend on interfaces that are not
 	  available outside of the kernel: dd, df, losetup, mkfatfs, mkdr, and
 	  ps (2014-9-7).
+	* apps/import/Make.defs: ELF build reuires -fno-common in CFLAGS
+	  (2014-9-8).
+
