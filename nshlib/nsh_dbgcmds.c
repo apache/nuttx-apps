@@ -395,6 +395,7 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   buffer = (FAR uint8_t *)malloc(IOBUFFERSIZE);
   if(buffer == NULL)
     {
+      (void)close(fd);
       nsh_output(vtbl, g_fmtcmdfailed, "hexdump", "malloc", NSH_ERRNO);
       return ERROR;
     }
