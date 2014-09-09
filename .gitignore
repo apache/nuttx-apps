@@ -4,3 +4,5 @@
 /.config
 /.depend
 /*.lib
+/romfs.img
+/boot_romfsimg.h
