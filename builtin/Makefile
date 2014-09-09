@@ -72,7 +72,7 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 registry$(DELIM).updated:
-	$(V) $(MAKE) -C registry .updated TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) -C registry .updated TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 builtin_list.h: registry$(DELIM).updated
 	$(call DELFILE, builtin_list.h)
