@@ -1053,4 +1053,6 @@
 	  ps (2014-9-7).
 	* apps/import/Make.defs: ELF build reuires -fno-common in CFLAGS
 	  (2014-9-8).
+	* apps/tools/mkromfsimg.sh:  Add a script to create a BOOT ROMFS
+	  fileysystem image (2014-9-9).
 
