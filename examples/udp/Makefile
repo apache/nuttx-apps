@@ -107,7 +107,7 @@ all: .built
 $(TARG_AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(TARG_COBJS): %$(OBJEXT): %.c
+$(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 $(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
