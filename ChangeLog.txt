@@ -1055,4 +1055,6 @@
 	  (2014-9-8).
 	* apps/tools/mkromfsimg.sh:  Add a script to create a BOOT ROMFS
 	  fileysystem image (2014-9-9).
-
+	* Many makefiles:  All makefiles that have separated the MAINOBJ
+	  need to include MAINOBJ in list of C objects to be compiled.
+	  SourceForge tick #31 from Aton (2014-9-11).
