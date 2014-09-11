@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/udp/Makefile
 #
-#   Copyright (C) 2007-2008, 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2008, 2011-2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
 TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
 TARG_MAINOBJ = $(TARG_MAINSRC:.c=$(OBJEXT))
 
-TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(TARG_CSRCS)
+TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(TARG_MAINSRC)
 TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
@@ -110,7 +110,7 @@ $(TARG_AOBJS): %$(OBJEXT): %.S
 $(TARG_COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-"$(TARG_BIN)": $(TARG_OBJS) $(HOST_BIN)
+$(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
 	$(call ARCHIVE, $@, $(TARG_OBJS))
 
 $(HOST_OBJS): %.o: %.c
