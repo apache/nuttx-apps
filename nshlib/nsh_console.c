@@ -487,5 +487,6 @@ FAR struct console_stdio_s *nsh_newconsole(void)
       pstate->cn_outstream       = OUTSTREAM(pstate);
 #endif
     }
+
   return pstate;
 }
