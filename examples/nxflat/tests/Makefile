@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/nxflat/tests/Makefile
 #
-#   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2009, 2011, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,15 @@
 
 # Most of these do no build yet
 #SUBDIRS	= errno hello hello++ longjmp mutex pthread signal task struct
-SUBDIRS		= errno hello mutex pthread task struct
+SUBDIRS		= errno hello struct
+
+ifneq ($(CONFIG_DISABLE_PTHREAD),y)
+BUILD_SUBDIRS += mutex pthread
+endif
+
+ifneq ($(CONFIG_ARCH_ADDRENV),y)
+BUILD_SUBDIRS += task
+endif
 
 NXFLAT_DIR	= $(APPDIR)/examples/nxflat
 TESTS_DIR	= $(NXFLAT_DIR)/tests

@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/elf/tests/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
 include $(APPDIR)/Make.defs
 
 ALL_SUBDIRS = errno hello helloxx longjmp mutex pthread signal task struct
-BUILD_SUBDIRS = errno hello task struct
+BUILD_SUBDIRS = errno hello struct
 
 ifeq ($(CONFIG_HAVE_CXX),y)
 BUILD_SUBDIRS += helloxx
@@ -54,6 +54,10 @@ endif
 
 ifneq ($(CONFIG_DISABLE_SIGNALS),y)
 BUILD_SUBDIRS += signal
+endif
+
+ifneq ($(CONFIG_ARCH_ADDRENV),y)
+BUILD_SUBDIRS += task
 endif
 
 ELF_DIR = $(APPDIR)/examples/elf
