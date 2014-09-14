@@ -1058,3 +1058,6 @@
 	* Many makefiles:  All makefiles that have separated the MAINOBJ
 	  need to include MAINOBJ in list of C objects to be compiled.
 	  SourceForge tick #31 from Aton (2014-9-11).
+	* apps/examples/elf/tests/Makefile and nxflat/tests/Makefile: Do
+	  not build test cases that use task_create is there is an address
+	  environment (2014-9-14).
