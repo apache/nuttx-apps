@@ -1061,3 +1061,5 @@
 	* apps/examples/elf/tests/Makefile and nxflat/tests/Makefile: Do
 	  not build test cases that use task_create is there is an address
 	  environment (2014-9-14).
+	* apps/xamples/null/null_main.c:  Need to include config.h it order know
+	  if this is or is not a kernel build (2014-9-16).
