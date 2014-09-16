@@ -508,6 +508,7 @@ errout:
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NSH_NETINIT_THREAD
 static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
 {
   nvdbg("Entry\n");
@@ -525,6 +526,7 @@ static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
   nvdbg("Exit\n");
   return NULL;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -579,6 +581,7 @@ int nsh_netinit(void)
   /* Perform network initialization sequentially */
 
   nsh_netinit_configure();
+  return OK;
 #endif
 }
 
