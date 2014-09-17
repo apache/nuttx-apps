@@ -99,10 +99,10 @@ endif
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
+$(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-$(CXXOBJS): %$(OBJEXT): %.cxx
+$(CXXOBJS) $(MAINOBJ): %$(OBJEXT): %.cxx
 	$(call COMPILEXX, $<, $@)
 
 .built: chkcxx $(OBJS)
