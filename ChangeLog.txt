@@ -1063,3 +1063,5 @@
 	  environment (2014-9-14).
 	* apps/xamples/null/null_main.c:  Need to include config.h it order know
 	  if this is or is not a kernel build (2014-9-16).
+	* Change all occurrences of NxConsole to NxTerm (2014-9-20).
+
