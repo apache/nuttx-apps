@@ -864,9 +864,9 @@ examples/nxconsole
     CONFIG_EXAMPLES_NXCON_DEVNAME -- The quoated, full path to the
       NX console device corresponding to CONFIG_EXAMPLES_NXCON_MINOR.
       Default: "/dev/nxcon0"
-    CONFIG_EXAMPLES_NXCONSOLE_PRIO - Priority of the NxConsole task.
+    CONFIG_EXAMPLES_NXTERM_PRIO - Priority of the NxConsole task.
       Default: SCHED_PRIORITY_DEFAULT
-    CONFIG_EXAMPLES_NXCONSOLE_STACKSIZE - Stack size allocated for the
+    CONFIG_EXAMPLES_NXTERM_STACKSIZE - Stack size allocated for the
       NxConsole task. Default: 2048
 
   The following configuration settings determine how to set up the NX

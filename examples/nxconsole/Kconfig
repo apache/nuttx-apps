@@ -3,11 +3,11 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config EXAMPLES_NXCONSOLE
+config EXAMPLES_NXTERM
 	bool "NxConsole example"
 	default n
 	---help---
 		Enable the NxConsole example
 
-if EXAMPLES_NXCONSOLE
+if EXAMPLES_NXTERM
 endif

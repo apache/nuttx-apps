@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NXCONSOLE_NXCON_INTERNAL_H
-#define __EXAMPLES_NXCONSOLE_NXCON_INTERNAL_H
+#ifndef __EXAMPLES_NXTERM_NXCON_INTERNAL_H
+#define __EXAMPLES_NXTERM_NXCON_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -227,12 +227,12 @@
 
 /* NxConsole task */
 
-#ifndef CONFIG_EXAMPLES_NXCONSOLE_PRIO
-#  define CONFIG_EXAMPLES_NXCONSOLE_PRIO SCHED_PRIORITY_DEFAULT
+#ifndef CONFIG_EXAMPLES_NXTERM_PRIO
+#  define CONFIG_EXAMPLES_NXTERM_PRIO SCHED_PRIORITY_DEFAULT
 #endif
 
-#ifndef CONFIG_EXAMPLES_NXCONSOLE_STACKSIZE
-#  define CONFIG_EXAMPLES_NXCONSOLE_STACKSIZE 2048
+#ifndef CONFIG_EXAMPLES_NXTERM_STACKSIZE
+#  define CONFIG_EXAMPLES_NXTERM_STACKSIZE 2048
 #endif
 
 /* Debug ********************************************************************/
@@ -307,4 +307,4 @@ extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
 extern int nxcon_server(int argc, char *argv[]);
 extern FAR void *nxcon_listener(FAR void *arg);
 
-#endif /* __EXAMPLES_NXCONSOLE_NXCON_INTERNAL_H */
+#endif /* __EXAMPLES_NXTERM_NXCON_INTERNAL_H */
