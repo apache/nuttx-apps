@@ -278,7 +278,7 @@ bool CNxConsole::run(void)
           // Re-direct NX keyboard input to the new NxConsole driver
 
           DEBUGASSERT(g_nxconvars.nxcon != 0);
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
           window->redirectNxConsole(g_nxconvars.nxcon);
 #endif
           // Save the handle to use in the stop method
@@ -331,7 +331,7 @@ void CNxConsole::stop(void)
     {
       // Re-store NX keyboard input routing
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
       NXWidgets::INxWindow *window = m_window->getWindow();
       window->redirectNxConsole((NXCONSOLE)0);
 #endif
@@ -455,7 +455,7 @@ int CNxConsole::nxconsole(int argc, char *argv[])
 
   // Open the NxConsole driver
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
   fd = open(devname, O_RDWR);
 #else
   fd = open(devname, O_WRONLY);
@@ -474,19 +474,19 @@ int CNxConsole::nxconsole(int argc, char *argv[])
   (void)std::fflush(stdout);
   (void)std::fflush(stderr);
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
   (void)std::fclose(stdin);
 #endif
   (void)std::fclose(stdout);
   (void)std::fclose(stderr);
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
   (void)std::dup2(fd, 0);
 #endif
   (void)std::dup2(fd, 1);
   (void)std::dup2(fd, 2);
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
   (void)std::fdopen(0, "r");
 #endif
   (void)std::fdopen(1, "w");

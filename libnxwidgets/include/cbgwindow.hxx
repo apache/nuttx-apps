@@ -220,7 +220,7 @@ namespace NXWidgets
      *    directed to the widgets within the window.
      */
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
     inline void redirectNxConsole(NXCONSOLE handle)
     {
       setNxConsole(handle);

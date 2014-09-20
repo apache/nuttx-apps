@@ -44,7 +44,7 @@
 #include <stdbool.h>
 #include <debug.h>
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
 #  include <nuttx/nx/nxconsole.h>
 #endif
 
@@ -87,7 +87,7 @@ CCallback::CCallback(CWidgetControl *widgetControl)
 
   // Keyboard input is initially direct to the widgets within the window
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
   m_nxconsole          = (NXCONSOLE)0;
 #endif
 }
@@ -209,7 +209,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
   // (default) OR is NX keyboard input being re-directed to an NxConsole
   // driver?
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
   if (This->m_nxconsole)
     {
       // Keyboard input is going to an NxConsole

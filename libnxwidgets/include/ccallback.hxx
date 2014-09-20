@@ -49,7 +49,7 @@
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nx.h>
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
 #  include <nuttx/nx/nxconsole.h>
 #endif
 
@@ -93,7 +93,7 @@ namespace NXWidgets
   private:
     CWidgetControl      *m_widgetControl; /**< The widget control instance for this window */
     struct nx_callback_s m_callbacks;     /**< C-callable vtable of callback function pointers */
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
     NXCONSOLE            m_nxconsole;      /**< The NxConsole handle for redirection of keyboard input */
 #endif
 
@@ -257,7 +257,7 @@ namespace NXWidgets
      *    directed to the widgets within the window.
      */
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
     inline void setNxConsole(NXCONSOLE handle)
     {
       m_nxconsole = handle;

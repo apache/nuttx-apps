@@ -47,7 +47,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
 #  include <nuttx/nx/nxconsole.h>
 #endif
 
@@ -186,7 +186,7 @@ namespace NXWidgets
      *    directed to the widgets within the window.
      */
 
-#ifdef CONFIG_NXCONSOLE_NXKBDIN
+#ifdef CONFIG_NXTERM_NXKBDIN
     virtual void redirectNxConsole(NXCONSOLE handle) = 0;
 #endif
 

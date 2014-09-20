@@ -188,8 +188,8 @@
  * reducing the AND of these three conditions to a single condition.
  */
 
-#if !defined(CONFIG_NX_KBD) || !defined(CONFIG_NXCONSOLE)
-#  undef CONFIG_NXCONSOLE_NXKBDIN
+#if !defined(CONFIG_NX_KBD) || !defined(CONFIG_NXTERM)
+#  undef CONFIG_NXTERM_NXKBDIN
 #endif
 
 /* NX Server/Device Configuration *******************************************/

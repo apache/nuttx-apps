@@ -57,7 +57,7 @@
  * CONFIG_HAVE_CXX        : C++ support is required
  * CONFIG_NX              : NX must enabled
  * CONFIG_NX_MULTIUSER=y  : NX must be configured in multiuse mode
- * CONFIG_NXCONSOLE=y     : For NxConsole support
+ * CONFIG_NXTERM=y     : For NxConsole support
  * CONFIG_SCHED_ONEXIT    : Support for on_exit()
  *
  * General settings:
@@ -89,8 +89,8 @@
  * selected
  */
 
-#if defined(CONFIG_NXWM_NXCONSOLE) && !defined(CONFIG_NXCONSOLE)
-#  warning "NxConsole support may be needed (CONFIG_NXCONSOLE)"
+#if defined(CONFIG_NXWM_NXCONSOLE) && !defined(CONFIG_NXTERM)
+#  warning "NxConsole support may be needed (CONFIG_NXTERM)"
 #endif
 
 /**
