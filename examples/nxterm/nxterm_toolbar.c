@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nxconsole/nxcon_toolbar.c
+ * examples/nxterm/nxterm_toolbar.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -51,7 +51,7 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxcon_internal.h"
+#include "nxterm_internal.h"
 
 /****************************************************************************
  * Definitions

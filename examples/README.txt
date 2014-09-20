@@ -808,11 +808,11 @@ examples/nx
     CONFIG_DISABLE_PTHREAD=n
     CONFIG_NX_BLOCKING=y
 
-examples/nxconsole
+examples/nxterm
 ^^^^^^^^^^^^^^^^^^
 
   This directory contains yet another version of the NuttShell (NSH).  This
-  version uses the NX console device defined in include/nuttx/nx/nxconsole.h
+  version uses the NX console device defined in include/nuttx/nx/nxterm.h
   for output.  the result is that the NSH input still come from the standard
   console input (probably a serial console).  But the text output will go to
   an NX winbdow.  Prerequisite configuration settings for this test include:
@@ -864,10 +864,10 @@ examples/nxconsole
     CONFIG_EXAMPLES_NXCON_DEVNAME -- The quoated, full path to the
       NX console device corresponding to CONFIG_EXAMPLES_NXCON_MINOR.
       Default: "/dev/nxcon0"
-    CONFIG_EXAMPLES_NXTERM_PRIO - Priority of the NxConsole task.
+    CONFIG_EXAMPLES_NXTERM_PRIO - Priority of the NxTerm task.
       Default: SCHED_PRIORITY_DEFAULT
     CONFIG_EXAMPLES_NXTERM_STACKSIZE - Stack size allocated for the
-      NxConsole task. Default: 2048
+      NxTerm task. Default: 2048
 
   The following configuration settings determine how to set up the NX
   server (CONFIG_NX_MULTIUSER):

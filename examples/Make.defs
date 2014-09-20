@@ -155,7 +155,7 @@ CONFIGURED_APPS += examples/nx
 endif
 
 ifeq ($(CONFIG_EXAMPLES_NXTERM),y)
-CONFIGURED_APPS += examples/nxconsole
+CONFIGURED_APPS += examples/nxterm
 endif
 
 ifeq ($(CONFIG_EXAMPLES_NXFFS),y)

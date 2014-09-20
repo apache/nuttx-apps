@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nxconsole/nxcon_wndo.c
+ * examples/nxterm/nxterm_wndo.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -52,7 +52,7 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxfonts.h>
 
-#include "nxcon_internal.h"
+#include "nxterm_internal.h"
 
 /****************************************************************************
  * Definitions
@@ -92,7 +92,7 @@ static void nxwndo_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 /* Background window call table */
 
-const struct nx_callback_s g_nxconcb =
+const struct nx_callback_s g_nxtermcb =
 {
   nxwndo_redraw,   /* redraw */
   nxwndo_position  /* position */
@@ -123,11 +123,11 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
 
   /* Don't attempt to redraw if the driver has not yet been opened */
 
-  if (g_nxcon_vars.hdrvr)
+  if (g_nxterm_vars.hdrvr)
     {
       /* Inform the NX console of the redraw request */
 
-      nxcon_redraw(g_nxcon_vars.hdrvr, rect, more);
+      nxterm_redraw(g_nxterm_vars.hdrvr, rect, more);
     }
   else
     {
@@ -155,25 +155,25 @@ static void nxwndo_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Have we picked off the window bounds yet? */
 
-  if (!g_nxcon_vars.haveres)
+  if (!g_nxterm_vars.haveres)
     {
       /* Save the background window handle */
 
-      g_nxcon_vars.hwnd = hwnd;
+      g_nxterm_vars.hwnd = hwnd;
 
       /* Save the background window size */
 
-      g_nxcon_vars.wndo.wsize.w = size->w;
-      g_nxcon_vars.wndo.wsize.h = size->h;
+      g_nxterm_vars.wndo.wsize.w = size->w;
+      g_nxterm_vars.wndo.wsize.h = size->h;
 
       /* Save the window limits (these should be the same for all places and all windows */
 
-      g_nxcon_vars.xres = bounds->pt2.x + 1;
-      g_nxcon_vars.yres = bounds->pt2.y + 1;
+      g_nxterm_vars.xres = bounds->pt2.x + 1;
+      g_nxterm_vars.yres = bounds->pt2.y + 1;
 
-      g_nxcon_vars.haveres = true;
-      sem_post(&g_nxcon_vars.eventsem);
-      gvdbg("Have xres=%d yres=%d\n", g_nxcon_vars.xres, g_nxcon_vars.yres);
+      g_nxterm_vars.haveres = true;
+      sem_post(&g_nxterm_vars.eventsem);
+      gvdbg("Have xres=%d yres=%d\n", g_nxterm_vars.xres, g_nxterm_vars.yres);
     }
 }
 

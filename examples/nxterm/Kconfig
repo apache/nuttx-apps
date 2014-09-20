@@ -4,10 +4,10 @@
 #
 
 config EXAMPLES_NXTERM
-	bool "NxConsole example"
+	bool "NxTerm example"
 	default n
 	---help---
-		Enable the NxConsole example
+		Enable the NxTerm example
 
 if EXAMPLES_NXTERM
 endif

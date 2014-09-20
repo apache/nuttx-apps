@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nxconsole/nxcon_internal.h
+ * examples/nxterm/nxterm_internal.h
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -51,7 +51,7 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxconsole.h>
+#include <nuttx/nx/nxterm.h>
 
 /****************************************************************************
  * Definitions
@@ -63,13 +63,13 @@
 #  error "NX is not enabled (CONFIG_NX=y)"
 #endif
 
-/* Can't do the NxConsole example if the NxConsole driver is not built */
+/* Can't do the NxTerm example if the NxTerm driver is not built */
 
 #ifndef CONFIG_NXTERM
-#  error "NxConsole is not enabled (CONFIG_NXTERM=y)"
+#  error "NxTerm is not enabled (CONFIG_NXTERM=y)"
 #endif
 
-/* NxConsole requires NX Multi-user mode */
+/* NxTerm requires NX Multi-user mode */
 
 #ifndef CONFIG_NX_MULTIUSER
 #  error "Multi-user NX support is required (CONFIG_NX_MULTIUSER=y)"
@@ -222,10 +222,10 @@
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXCON_DEVNAME
-#  define CONFIG_EXAMPLES_NXCON_DEVNAME "/dev/nxcon0"
+#  define CONFIG_EXAMPLES_NXCON_DEVNAME "/dev/nxterm0"
 #endif
 
-/* NxConsole task */
+/* NxTerm task */
 
 #ifndef CONFIG_EXAMPLES_NXTERM_PRIO
 #  define CONFIG_EXAMPLES_NXTERM_PRIO SCHED_PRIORITY_DEFAULT
@@ -263,20 +263,20 @@
  * the chance of name collisions.
  */
 
-struct nxcon_state_s
+struct nxterm_state_s
 {
-  volatile bool         haveres;   /* True: Have screen resolution */
-  volatile bool         connected; /* True: Connected to server */
-  sem_t                 eventsem;  /* Control waiting for display events */
-  pid_t                 pid;       /* Console task ID */
-  NXHANDLE              hnx;       /* The connection handler */
-  NXTKWINDOW            hwnd;      /* The window */
-  NXCONSOLE             hdrvr;     /* The console driver */
-  struct nxcon_window_s wndo;      /* Describes the window */
-  nxgl_coord_t          xres;      /* Screen X resolution */
-  nxgl_coord_t          yres;      /* Screen Y resolution */
-  struct nxgl_size_s    wsize;     /* Window size */
-  struct nxgl_point_s   wpos;      /* Window position */
+  volatile bool          haveres;   /* True: Have screen resolution */
+  volatile bool          connected; /* True: Connected to server */
+  sem_t                  eventsem;  /* Control waiting for display events */
+  pid_t                  pid;       /* Console task ID */
+  NXHANDLE               hnx;       /* The connection handler */
+  NXTKWINDOW             hwnd;      /* The window */
+  NXTERM                 hdrvr;     /* The console driver */
+  struct nxterm_window_s wndo;      /* Describes the window */
+  nxgl_coord_t           xres;      /* Screen X resolution */
+  nxgl_coord_t           yres;      /* Screen Y resolution */
+  struct nxgl_size_s     wsize;     /* Window size */
+  struct nxgl_point_s    wpos;      /* Window position */
 };
 
 /****************************************************************************
@@ -286,11 +286,11 @@ struct nxcon_state_s
  * the chance of name collisions.
  */
 
-extern struct nxcon_state_s g_nxcon_vars;
+extern struct nxterm_state_s g_nxterm_vars;
 
 /* NX callback vtables */
 
-extern const struct nx_callback_s g_nxconcb;
+extern const struct nx_callback_s g_nxtermcb;
 extern const struct nx_callback_s g_nxtoolcb;
 
 /****************************************************************************
@@ -304,7 +304,7 @@ extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
 
 /* Server thread support */
 
-extern int nxcon_server(int argc, char *argv[]);
-extern FAR void *nxcon_listener(FAR void *arg);
+extern int nxterm_server(int argc, char *argv[]);
+extern FAR void *nxterm_listener(FAR void *arg);
 
 #endif /* __EXAMPLES_NXTERM_NXCON_INTERNAL_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nxconsole/nxcon_main.c
+ * examples/nxterm/nxterm_main.c
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -61,11 +61,11 @@
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxfonts.h>
-#include <nuttx/nx/nxconsole.h>
+#include <nuttx/nx/nxterm.h>
 
 #include <apps/nsh.h>
 
-#include "nxcon_internal.h"
+#include "nxterm_internal.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -91,17 +91,17 @@
  * the chance of name collisions.
  */
 
-struct nxcon_state_s g_nxcon_vars;
+struct nxterm_state_s g_nxterm_vars;
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxcon_initialize
+ * Name: nxterm_initialize
  ****************************************************************************/
 
-static int nxcon_initialize(void)
+static int nxterm_initialize(void)
 {
   struct sched_param param;
   pthread_t thread;
@@ -114,18 +114,18 @@ static int nxcon_initialize(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      message("nxcon_initialize: sched_setparam failed: %d\n" , ret);
+      message("nxterm_initialize: sched_setparam failed: %d\n" , ret);
       return ERROR;
     }
 
   /* Start the server task */
 
-  message("nxcon_initialize: Starting nxcon_server task\n");
+  message("nxterm_initialize: Starting nxterm_server task\n");
   servrid = task_create("NX Server", CONFIG_EXAMPLES_NXCON_SERVERPRIO,
-                        CONFIG_EXAMPLES_NXCON_STACKSIZE, nxcon_server, NULL);
+                        CONFIG_EXAMPLES_NXCON_STACKSIZE, nxterm_server, NULL);
   if (servrid < 0)
     {
-      message("nxcon_initialize: Failed to create nxcon_server task: %d\n", errno);
+      message("nxterm_initialize: Failed to create nxterm_server task: %d\n", errno);
       return ERROR;
     }
 
@@ -135,8 +135,8 @@ static int nxcon_initialize(void)
 
   /* Connect to the server */
 
-  g_nxcon_vars.hnx = nx_connect();
-  if (g_nxcon_vars.hnx)
+  g_nxterm_vars.hnx = nx_connect();
+  if (g_nxterm_vars.hnx)
     {
        pthread_attr_t attr;
 
@@ -150,37 +150,37 @@ static int nxcon_initialize(void)
        (void)pthread_attr_setschedparam(&attr, &param);
        (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXCON_STACKSIZE);
 
-       ret = pthread_create(&thread, &attr, nxcon_listener, NULL);
+       ret = pthread_create(&thread, &attr, nxterm_listener, NULL);
        if (ret != 0)
          {
-            printf("nxcon_initialize: pthread_create failed: %d\n", ret);
+            printf("nxterm_initialize: pthread_create failed: %d\n", ret);
             return ERROR;
          }
 
        /* Don't return until we are connected to the server */
 
-       while (!g_nxcon_vars.connected)
+       while (!g_nxterm_vars.connected)
          {
            /* Wait for the listener thread to wake us up when we really
             * are connected.
             */
 
-           (void)sem_wait(&g_nxcon_vars.eventsem);
+           (void)sem_wait(&g_nxterm_vars.eventsem);
          }
     }
   else
     {
-      message("nxcon_initialize: nx_connect failed: %d\n", errno);
+      message("nxterm_initialize: nx_connect failed: %d\n", errno);
       return ERROR;
     }
   return OK;
 }
 
 /****************************************************************************
- * Name: nxcon_task
+ * Name: nxterm_task
  ****************************************************************************/
 
-static int nxcon_task(int argc, char **argv)
+static int nxterm_task(int argc, char **argv)
 {
   /* If the console front end is selected, then run it on this thread */
 
@@ -188,16 +188,16 @@ static int nxcon_task(int argc, char **argv)
   (void)nsh_consolemain(0, NULL);
 #endif
 
-  printf("nxcon_task: Unregister the NX console device\n");
-  (void)nxcon_unregister(g_nxcon_vars.hdrvr);
+  printf("nxterm_task: Unregister the NX console device\n");
+  (void)nxterm_unregister(g_nxterm_vars.hdrvr);
 
-  printf("nxcon_task: Close the window\n");
-  (void)nxtk_closewindow(g_nxcon_vars.hwnd);
+  printf("nxterm_task: Close the window\n");
+  (void)nxtk_closewindow(g_nxterm_vars.hwnd);
 
   /* Disconnect from the server */
 
-  printf("nxcon_task: Disconnect from the server\n");
-  nx_disconnect(g_nxcon_vars.hnx);
+  printf("nxterm_task: Disconnect from the server\n");
+  nx_disconnect(g_nxterm_vars.hnx);
 
   return EXIT_SUCCESS;
 }
@@ -207,13 +207,13 @@ static int nxcon_task(int argc, char **argv)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxcon_main
+ * Name: nxterm_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int nxcon_main(int argc, char **argv)
+int nxterm_main(int argc, char **argv)
 #endif
 {
   nxgl_mxpixel_t color;
@@ -223,8 +223,8 @@ int nxcon_main(int argc, char **argv)
   /* General Initialization *************************************************/
   /* Reset all global data */
 
-  message("nxcon_main: Started\n");
-  memset(&g_nxcon_vars, 0, sizeof(struct nxcon_state_s));
+  message("nxterm_main: Started\n");
+  memset(&g_nxterm_vars, 0, sizeof(struct nxterm_state_s));
 
   /* Call all C++ static constructors */
 
@@ -235,7 +235,7 @@ int nxcon_main(int argc, char **argv)
   /* NSH Initialization *****************************************************/
   /* Initialize the NSH library */
 
-  message("nxcon_main: Initialize NSH\n");
+  message("nxterm_main: Initialize NSH\n");
   nsh_initialize();
 
   /* If the Telnet console is selected as a front-end, then start the
@@ -256,87 +256,87 @@ int nxcon_main(int argc, char **argv)
   /* NX Initialization ******************************************************/
   /* Initialize NX */
 
-  message("nxcon_main: Initialize NX\n");
-  ret = nxcon_initialize();
-  message("nxcon_main: NX handle=%p\n", g_nxcon_vars.hnx);
-  if (!g_nxcon_vars.hnx || ret < 0)
+  message("nxterm_main: Initialize NX\n");
+  ret = nxterm_initialize();
+  message("nxterm_main: NX handle=%p\n", g_nxterm_vars.hnx);
+  if (!g_nxterm_vars.hnx || ret < 0)
     {
-      message("nxcon_main: Failed to get NX handle: %d\n", errno);
+      message("nxterm_main: Failed to get NX handle: %d\n", errno);
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  message("nxcon_main: Set background color=%d\n", CONFIG_EXAMPLES_NXCON_BGCOLOR);
+  message("nxterm_main: Set background color=%d\n", CONFIG_EXAMPLES_NXCON_BGCOLOR);
   color = CONFIG_EXAMPLES_NXCON_BGCOLOR;
-  ret = nx_setbgcolor(g_nxcon_vars.hnx, &color);
+  ret = nx_setbgcolor(g_nxterm_vars.hnx, &color);
   if (ret < 0)
     {
-      message("nxcon_main: nx_setbgcolor failed: %d\n", errno);
+      message("nxterm_main: nx_setbgcolor failed: %d\n", errno);
       goto errout_with_nx;
     }
 
   /* Window Configuration ***************************************************/
   /* Create a window */
 
-  message("nxcon_main: Create window\n");
-  g_nxcon_vars.hwnd = nxtk_openwindow(g_nxcon_vars.hnx, &g_nxconcb, NULL);
-  if (!g_nxcon_vars.hwnd)
+  message("nxterm_main: Create window\n");
+  g_nxterm_vars.hwnd = nxtk_openwindow(g_nxterm_vars.hnx, &g_nxtermcb, NULL);
+  if (!g_nxterm_vars.hwnd)
     {
-      message("nxcon_main: nxtk_openwindow failed: %d\n", errno);
+      message("nxterm_main: nxtk_openwindow failed: %d\n", errno);
       goto errout_with_nx;
     }
-  message("nxcon_main: hwnd=%p\n", g_nxcon_vars.hwnd);
+  message("nxterm_main: hwnd=%p\n", g_nxterm_vars.hwnd);
 
   /* Wait until we have the screen resolution.  We'll have this immediately
    * unless we are dealing with the NX server.
    */
 
-  while (!g_nxcon_vars.haveres)
+  while (!g_nxterm_vars.haveres)
     {
-      (void)sem_wait(&g_nxcon_vars.eventsem);
+      (void)sem_wait(&g_nxterm_vars.eventsem);
     }
-  message("nxcon_main: Screen resolution (%d,%d)\n", g_nxcon_vars.xres, g_nxcon_vars.yres);
+  message("nxterm_main: Screen resolution (%d,%d)\n", g_nxterm_vars.xres, g_nxterm_vars.yres);
 
   /* Determine the size and position of the window */
 
-  g_nxcon_vars.wndo.wsize.w = g_nxcon_vars.xres / 2 + g_nxcon_vars.xres / 4;
-  g_nxcon_vars.wndo.wsize.h = g_nxcon_vars.yres / 2 + g_nxcon_vars.yres / 4;
+  g_nxterm_vars.wndo.wsize.w = g_nxterm_vars.xres / 2 + g_nxterm_vars.xres / 4;
+  g_nxterm_vars.wndo.wsize.h = g_nxterm_vars.yres / 2 + g_nxterm_vars.yres / 4;
 
-  g_nxcon_vars.wpos.x       = g_nxcon_vars.xres / 8;
-  g_nxcon_vars.wpos.y       = g_nxcon_vars.yres / 8;
+  g_nxterm_vars.wpos.x       = g_nxterm_vars.xres / 8;
+  g_nxterm_vars.wpos.y       = g_nxterm_vars.yres / 8;
 
   /* Set the window position */
 
-  message("nxcon_main: Set window position to (%d,%d)\n",
-          g_nxcon_vars.wpos.x, g_nxcon_vars.wpos.y);
+  message("nxterm_main: Set window position to (%d,%d)\n",
+          g_nxterm_vars.wpos.x, g_nxterm_vars.wpos.y);
 
-  ret = nxtk_setposition(g_nxcon_vars.hwnd, &g_nxcon_vars.wpos);
+  ret = nxtk_setposition(g_nxterm_vars.hwnd, &g_nxterm_vars.wpos);
   if (ret < 0)
     {
-      message("nxcon_main: nxtk_setposition failed: %d\n", errno);
+      message("nxterm_main: nxtk_setposition failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
   /* Set the window size */
 
-  message("nxcon_main: Set window size to (%d,%d)\n",
-          g_nxcon_vars.wndo.wsize.w, g_nxcon_vars.wndo.wsize.h);
+  message("nxterm_main: Set window size to (%d,%d)\n",
+          g_nxterm_vars.wndo.wsize.w, g_nxterm_vars.wndo.wsize.h);
 
-  ret = nxtk_setsize(g_nxcon_vars.hwnd, &g_nxcon_vars.wndo.wsize);
+  ret = nxtk_setsize(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo.wsize);
   if (ret < 0)
     {
-      message("nxcon_main: nxtk_setsize failed: %d\n", errno);
+      message("nxterm_main: nxtk_setsize failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
   /* Open the toolbar */
 
-  message("nxcon_main: Add toolbar to window\n");
-  ret = nxtk_opentoolbar(g_nxcon_vars.hwnd, CONFIG_EXAMPLES_NXCON_TOOLBAR_HEIGHT, &g_nxtoolcb, NULL);
+  message("nxterm_main: Add toolbar to window\n");
+  ret = nxtk_opentoolbar(g_nxterm_vars.hwnd, CONFIG_EXAMPLES_NXCON_TOOLBAR_HEIGHT, &g_nxtoolcb, NULL);
   if (ret < 0)
     {
-      message("nxcon_main: nxtk_opentoolbar failed: %d\n", errno);
+      message("nxterm_main: nxtk_opentoolbar failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
@@ -344,26 +344,26 @@ int nxcon_main(int argc, char **argv)
 
   sleep(2);
 
-  /* NxConsole Configuration ************************************************/
+  /* NxTerm Configuration ************************************************/
   /* Use the window to create an NX console */
 
-  g_nxcon_vars.wndo.wcolor[0] = CONFIG_EXAMPLES_NXCON_WCOLOR;
-  g_nxcon_vars.wndo.fcolor[0] = CONFIG_EXAMPLES_NXCON_FONTCOLOR;
-  g_nxcon_vars.wndo.fontid    = CONFIG_EXAMPLES_NXCON_FONTID;
+  g_nxterm_vars.wndo.wcolor[0] = CONFIG_EXAMPLES_NXCON_WCOLOR;
+  g_nxterm_vars.wndo.fcolor[0] = CONFIG_EXAMPLES_NXCON_FONTCOLOR;
+  g_nxterm_vars.wndo.fontid    = CONFIG_EXAMPLES_NXCON_FONTID;
 
-  g_nxcon_vars.hdrvr = nxtk_register(g_nxcon_vars.hwnd, &g_nxcon_vars.wndo, CONFIG_EXAMPLES_NXCON_MINOR);
-  if (!g_nxcon_vars.hdrvr)
+  g_nxterm_vars.hdrvr = nxtk_register(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo, CONFIG_EXAMPLES_NXCON_MINOR);
+  if (!g_nxterm_vars.hdrvr)
     {
-      message("nxcon_main: nxtk_register failed: %d\n", errno);
+      message("nxterm_main: nxtk_register failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
-  /* Open the NxConsole driver */
+  /* Open the NxTerm driver */
 
   fd = open(CONFIG_EXAMPLES_NXCON_DEVNAME, O_WRONLY);
   if (fd < 0)
     {
-      message("nxcon_main: open %s read-only failed: %d\n",
+      message("nxterm_main: open %s read-only failed: %d\n",
               CONFIG_EXAMPLES_NXCON_DEVNAME, errno);
       goto errout_with_driver;
     }
@@ -373,7 +373,7 @@ int nxcon_main(int argc, char **argv)
    * Note that stdin is retained (file descriptor 0, probably the the serial console).
     */
 
-   message("nxcon_main: Starting the console task\n");
+   message("nxterm_main: Starting the console task\n");
    msgflush();
 
   (void)fflush(stdout);
@@ -393,24 +393,24 @@ int nxcon_main(int argc, char **argv)
     * from this task.
     */
 
-   g_nxcon_vars.pid = task_create("NxConsole", CONFIG_EXAMPLES_NXTERM_PRIO,
+   g_nxterm_vars.pid = task_create("NxTerm", CONFIG_EXAMPLES_NXTERM_PRIO,
                                   CONFIG_EXAMPLES_NXTERM_STACKSIZE,
-                                  nxcon_task, NULL);
-   ASSERT(g_nxcon_vars.pid > 0);
+                                  nxterm_task, NULL);
+   ASSERT(g_nxterm_vars.pid > 0);
    return EXIT_SUCCESS;
 
   /* Error Exits ************************************************************/
 
 errout_with_driver:
-  (void)nxcon_unregister(g_nxcon_vars.hdrvr);
+  (void)nxterm_unregister(g_nxterm_vars.hdrvr);
 
 errout_with_hwnd:
-  (void)nxtk_closewindow(g_nxcon_vars.hwnd);
+  (void)nxtk_closewindow(g_nxterm_vars.hwnd);
 
 errout_with_nx:
   /* Disconnect from the server */
 
-  nx_disconnect(g_nxcon_vars.hnx);
+  nx_disconnect(g_nxterm_vars.hnx);
 errout:
   return EXIT_FAILURE;
 }

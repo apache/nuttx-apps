@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/nxconsole/Makefile
+# apps/examples/nxterm/Makefile
 #
 #   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,8 +40,8 @@ include $(APPDIR)/Make.defs
 # NuttX NX Console Example.
 
 ASRCS =
-CSRCS = nxcon_toolbar.c nxcon_wndo.c nxcon_server.c
-MAINSRC = nxcon_main.c
+CSRCS = nxterm_toolbar.c nxterm_wndo.c nxterm_server.c
+MAINSRC = nxterm_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -70,7 +70,7 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_XYZ_PROGNAME ?= nxconsole$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= nxterm$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 ROOTDEPPATH = --dep-path .
