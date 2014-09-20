@@ -677,16 +677,16 @@ endmenu # Start Window Configuration
 
 menu "NxConsole Window Settings"
 
-config NXWM_NXCONSOLE
+config NXWM_NXTERM
 	bool "NxConsole Window"
 	default y
 	---help---
 		Enable support for the NxConsole window which provides a text window
 		in which you can interact with NSH.
 
-if NXWM_NXCONSOLE
+if NXWM_NXTERM
 
-config NXWM_NXCONSOLE_PRIO
+config NXWM_NXTERM_PRIO
 	int "NxConsole Task Priority"
 	default 100
 	---help---
@@ -696,14 +696,14 @@ config NXWM_NXCONSOLE_PRIO
 		else there may be data overrun errors. Such errors would most likely
 		appear as duplicated rows of data on the display.
 
-config NXWM_NXCONSOLE_STACKSIZE
+config NXWM_NXTERM_STACKSIZE
 	int "NxConsole Task Stack Size"
 	default 2048
 	---help---
 		The stack size to use when starting the NxConsole task.  Default:
 		2048 bytes.
 
-config NXWM_NXCONSOLE_CUSTOM_COLORS
+config NXWM_NXTERM_CUSTOM_COLORS
 	bool "Custom NxConsole Colors"
 	default n
 	---help---
@@ -712,55 +712,55 @@ config NXWM_NXCONSOLE_CUSTOM_COLORS
 		(there are no default colors because the hexadecimal representation
 		of the default colors depend on the pixel depth). Default: n
 
-if NXWM_NXCONSOLE_CUSTOM_COLORS
+if NXWM_NXTERM_CUSTOM_COLORS
 
-config NXWM_NXCONSOLE_WCOLOR
+config NXWM_NXTERM_WCOLOR
 	hex "NxConsole Background Color"
 	---help---
 		The color of the NxConsole window background. Default:
 		RGB(192,192,192)
 
-config NXWM_NXCONSOLE_FONTCOLOR
+config NXWM_NXTERM_FONTCOLOR
 	hex "NxConsole Font Color"
 	---help---
 		The color of the fonts to use in the NxConsole window.
 		Default: RGB(0,0,0)
 
-endif # NXWM_NXCONSOLE_CUSTOM_COLORS
+endif # NXWM_NXTERM_CUSTOM_COLORS
 
-config NXWM_NXCONSOLE_CUSTOM_FONTID
+config NXWM_NXTERM_CUSTOM_FONTID
 	bool "Use Custom Default Font"
 	default n
 	---help---
 		Set to override the NxWM default font id (NXWM_DEFAULT_FONTID).
 
-if NXWM_NXCONSOLE_CUSTOM_FONTID
+if NXWM_NXTERM_CUSTOM_FONTID
 
-config NXWM_NXCONSOLE_FONTID
+config NXWM_NXTERM_FONTID
 	int "NxConsole Font ID"
 	default 0
 	---help---
 		Use this default font ID in the NxConsole window instead of the
 		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0
 
-endif # NXWM_NXCONSOLE_CUSTOM_FONTID
+endif # NXWM_NXTERM_CUSTOM_FONTID
 
-config NXWM_CUSTOM_NXCONSOLE_ICON
+config NXWM_CUSTOM_NXTERM_ICON
 	bool "Custom NxConsole Icon"
 	default n
 	---help---
 		Select to override the default NxConsole Window Icon: NxWM::g_cmdBitmap
 
-if NXWM_CUSTOM_NXCONSOLE_ICON
+if NXWM_CUSTOM_NXTERM_ICON
 
-config NXWM_NXCONSOLE_ICON
+config NXWM_NXTERM_ICON
 	string "NxConsole Icon"
 	default "NxWM::g_cmdBitmap"
 	---help---
 		The glyph to use as the NxConsole icon.  Default: NxWM::g_cmdBitmap
 
-endif # NXWM_NXCONSOLE_ICON
-endif # NXWM_NXCONSOLE
+endif # NXWM_NXTERM_ICON
+endif # NXWM_NXTERM
 endmenu # NxConsole Window Settings
 
 menu "NxWM Touchscreen Configuration"

@@ -417,7 +417,7 @@
   This is because in the kernel build mode, the NX server must be initialized
   in kernel mode by the RTOS before applications using the server run in
   user mode.
-* NxWm: Added CONFIG_NXWM_NXCONSOLE that can be used to disable the NxConsole
+* NxWm: Added CONFIG_NXWM_NXTERM that can be used to disable the NxConsole
   window (2013-12-30).
 * NxWm::CTouchscreen: Added CONFIG_NXWM_TOUCHSCREEN_DEVINIT that can be used
   to suppress calls to initialize the touchscreen device from the listener

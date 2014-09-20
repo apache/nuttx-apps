@@ -51,7 +51,7 @@
 #include "ctaskbar.hxx"
 #include "cstartwindow.hxx"
 
-#ifdef CONFIG_NXWM_NXCONSOLE
+#ifdef CONFIG_NXWM_NXTERM
 #  include "cnxconsole.hxx"
 #endif
 
@@ -548,7 +548,7 @@ static bool createCalibration(void)
 // Name: createNxConsole
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef CONFIG_NXWM_NXCONSOLE
+#ifdef CONFIG_NXWM_NXTERM
 static bool createNxConsole(void)
 {
   // Add the NxConsole application to the start window
@@ -678,7 +678,7 @@ int nxwm_main(int argc, char *argv[])
 
   // Initialize the NSH library
 
-#ifdef CONFIG_NXWM_NXCONSOLE
+#ifdef CONFIG_NXWM_NXTERM
   printf("nxwm_main: Initialize the NSH library\n");
   if (!NxWM::nshlibInitialize())
     {
@@ -736,7 +736,7 @@ int nxwm_main(int argc, char *argv[])
 
   // Create the NxConsole application and add it to the start window
 
-#ifdef CONFIG_NXWM_NXCONSOLE
+#ifdef CONFIG_NXWM_NXTERM
   if (!createNxConsole())
     {
       printf("nxwm_main: ERROR: Failed to create the NxConsole application\n");

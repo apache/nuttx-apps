@@ -179,7 +179,7 @@ IApplicationWindow *CNxConsole::getWindow(void) const
 NXWidgets::IBitmap *CNxConsole::getIcon(void)
 {
   NXWidgets::CRlePaletteBitmap *bitmap =
-    new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXCONSOLE_ICON);
+    new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXTERM_ICON);
 
   return bitmap;
 }
@@ -235,9 +235,9 @@ bool CNxConsole::run(void)
 
   // Describe the NxConsole
 
-  g_nxconvars.wndo.wcolor[0] = CONFIG_NXWM_NXCONSOLE_WCOLOR;
-  g_nxconvars.wndo.fcolor[0] = CONFIG_NXWM_NXCONSOLE_FONTCOLOR;
-  g_nxconvars.wndo.fontid    = CONFIG_NXWM_NXCONSOLE_FONTID;
+  g_nxconvars.wndo.wcolor[0] = CONFIG_NXWM_NXTERM_WCOLOR;
+  g_nxconvars.wndo.fcolor[0] = CONFIG_NXWM_NXTERM_FONTCOLOR;
+  g_nxconvars.wndo.fontid    = CONFIG_NXWM_NXTERM_FONTID;
 
   // Get the size of the window
 
@@ -250,8 +250,8 @@ bool CNxConsole::run(void)
   g_nxconvars.nxcon   = 0;
 
   sched_lock();
-  m_pid = task_create("NxConsole", CONFIG_NXWM_NXCONSOLE_PRIO,
-                      CONFIG_NXWM_NXCONSOLE_STACKSIZE, nxconsole,
+  m_pid = task_create("NxConsole", CONFIG_NXWM_NXTERM_PRIO,
+                      CONFIG_NXWM_NXTERM_STACKSIZE, nxconsole,
                       (FAR char * const *)0);
 
   // Did we successfully start the NxConsole task?
@@ -629,7 +629,7 @@ IApplication *CNxConsoleFactory::create(void)
 NXWidgets::IBitmap *CNxConsoleFactory::getIcon(void)
 {
   NXWidgets::CRlePaletteBitmap *bitmap =
-    new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXCONSOLE_ICON);
+    new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXTERM_ICON);
 
   return bitmap;
 }
