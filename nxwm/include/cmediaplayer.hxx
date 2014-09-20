@@ -46,7 +46,7 @@
 
 #include <sys/types.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxconsole.h>
+#include <nuttx/nx/nxterm.h>
 
 #include "cnxfont.hxx"
 #include "cimage.hxx"

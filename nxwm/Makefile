@@ -71,7 +71,7 @@ CXXSRCS += ccalibration.cxx
 endif
 
 ifeq ($(CONFIG_NXWM_NXTERM),y)
-CXXSRCS +=  cnxconsole.cxx
+CXXSRCS +=  cnxterm.cxx
 endif
 
 # Images

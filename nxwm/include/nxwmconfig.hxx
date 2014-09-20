@@ -57,7 +57,7 @@
  * CONFIG_HAVE_CXX        : C++ support is required
  * CONFIG_NX              : NX must enabled
  * CONFIG_NX_MULTIUSER=y  : NX must be configured in multiuse mode
- * CONFIG_NXTERM=y     : For NxConsole support
+ * CONFIG_NXTERM=y     : For NxTerm support
  * CONFIG_SCHED_ONEXIT    : Support for on_exit()
  *
  * General settings:
@@ -85,12 +85,12 @@
 #endif
 
 /**
- * NxConsole support is (probably) required if CONFIG_NXWM_NXTERM is
+ * NxTerm support is (probably) required if CONFIG_NXWM_NXTERM is
  * selected
  */
 
 #if defined(CONFIG_NXWM_NXTERM) && !defined(CONFIG_NXTERM)
-#  warning "NxConsole support may be needed (CONFIG_NXTERM)"
+#  warning "NxTerm support may be needed (CONFIG_NXTERM)"
 #endif
 
 /**
@@ -363,24 +363,24 @@
 #  define CONFIG_NXWM_STARTWINDOW_STACKSIZE  2048
 #endif
 
-/* NxConsole Window *********************************************************/
+/* NxTerm Window *********************************************************/
 /**
- * NxConsole Window Configuration
+ * NxTerm Window Configuration
  *
- * CONFIG_NXWM_NXTERM_PRIO - Priority of the NxConsole task.  Default:
+ * CONFIG_NXWM_NXTERM_PRIO - Priority of the NxTerm task.  Default:
  *   SCHED_PRIORITY_DEFAULT.  NOTE:  This priority should be less than
  *   CONFIG_NXWIDGETS_SERVERPRIO or else there may be data overrun errors.
  *   Such errors would most likely appear as duplicated rows of data on the
  *   display.
  * CONFIG_NXWM_NXTERM_STACKSIZE - The stack size to use when starting the
- *   NxConsole task.  Default: 2048 bytes.
- * CONFIG_NXWM_NXTERM_WCOLOR - The color of the NxConsole window background.
+ *   NxTerm task.  Default: 2048 bytes.
+ * CONFIG_NXWM_NXTERM_WCOLOR - The color of the NxTerm window background.
  *   Default:  MKRGB(192,192,192)
  * CONFIG_NXWM_NXTERM_FONTCOLOR - The color of the fonts to use in the
- *   NxConsole window.  Default: MKRGB(0,0,0)
- * CONFIG_NXWM_NXTERM_FONTID - The ID of the font to use in the NxConsole
+ *   NxTerm window.  Default: MKRGB(0,0,0)
+ * CONFIG_NXWM_NXTERM_FONTID - The ID of the font to use in the NxTerm
  *   window.  Default: CONFIG_NXWM_DEFAULT_FONTID
- * CONFIG_NXWM_NXTERM_ICON - The glyph to use as the NxConsole icon
+ * CONFIG_NXWM_NXTERM_ICON - The glyph to use as the NxTerm icon
  */
 
 #ifdef CONFIG_NXWM_NXTERM
@@ -410,7 +410,7 @@
 #  endif
 
   /**
-   * The NxConsole window glyph
+   * The NxTerm window glyph
    */
 
 #  ifndef CONFIG_NXWM_NXTERM_ICON

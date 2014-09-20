@@ -46,7 +46,7 @@
 
 #include <nuttx/wqueue.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxconsole.h>
+#include <nuttx/nx/nxterm.h>
 
 #include "cwindoweventhandler.hxx"
 #include "cwidgetstyle.hxx"

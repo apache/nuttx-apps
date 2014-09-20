@@ -1,5 +1,5 @@
 /****************************************************************************
- * NxWidgets/nxwm/include/cnxconsole.hxx
+ * NxWidgets/nxwm/include/cnxterm.hxx
  *
  *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_CNXCONSOLE_HXX
-#define __INCLUDE_CNXCONSOLE_HXX
+#ifndef __INCLUDE_CNXTERM_HXX
+#define __INCLUDE_CNXTERM_HXX
 
 /****************************************************************************
  * Included Files
@@ -44,7 +44,7 @@
 
 #include <sys/types.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxconsole.h>
+#include <nuttx/nx/nxterm.h>
 
 #include "iapplication.hxx"
 #include "capplicationwindow.hxx"
@@ -72,27 +72,27 @@ namespace NxWM
   bool nshlibInitialize(void);
 
   /**
-   * This class implements the NxConsole application.
+   * This class implements the NxTerm application.
    */
 
-  class CNxConsole : public IApplication, private IApplicationCallback
+  class CNxTerm : public IApplication, private IApplicationCallback
   {
   private:
     CTaskbar            *m_taskbar;   /**< Reference to the "parent" taskbar */
     CApplicationWindow  *m_window;    /**< Reference to the application window */
-    NXCONSOLE            m_nxcon;     /**< NxConsole handle */
-    pid_t                m_pid;       /**< Task ID of the NxConsole thread */
+    NXTERMi              m_nxcon;     /**< NxTerm handle */
+    pid_t                m_pid;       /**< Task ID of the NxTerm thread */
 
     /**
-     * This is the NxConsole task.  This function first redirects output to the
+     * This is the NxTerm task.  This function first redirects output to the
      * console window then calls to start the NSH logic.
      */
 
-    static int nxconsole(int argc, char *argv[]);
+    static int nxterm(int argc, char *argv[]);
 
     /**
-     * This is the NxConsole task exit handler.  It is registered with on_exit()
-     * and called automatically when the nxconsole task exits.
+     * This is the NxTerm task exit handler.  It is registered with on_exit()
+     * and called automatically when the nxterm task exits.
      */
 
     static void exitHandler(int code, FAR void *arg);
@@ -111,7 +111,7 @@ namespace NxWM
 
   public:
     /**
-     * CNxConsole constructor
+     * CNxTerm constructor
      *
      * @param window.  The application window
      *
@@ -119,13 +119,13 @@ namespace NxWM
      * @param window.  The window to be used by this application.
      */
 
-    CNxConsole(CTaskbar *taskbar, CApplicationWindow *window);
+    CNxTerm(CTaskbar *taskbar, CApplicationWindow *window);
 
     /**
-     * CNxConsole destructor
+     * CNxTerm destructor
      */
 
-    ~CNxConsole(void);
+    ~CNxTerm(void);
 
     /**
      * Each implementation of IApplication must provide a method to recover
@@ -203,28 +203,28 @@ namespace NxWM
     bool isFullScreen(void) const;
   };
 
-  class CNxConsoleFactory : public IApplicationFactory
+  class CNxTermFactory : public IApplicationFactory
   {
   private:
     CTaskbar *m_taskbar;  /**< The taskbar */
 
   public:
     /**
-     * CNxConsoleFactory Constructor
+     * CNxTermFactory Constructor
      *
      * @param taskbar.  The taskbar instance used to terminate calibration
      */
 
-    CNxConsoleFactory(CTaskbar *taskbar);
+    CNxTermFactory(CTaskbar *taskbar);
 
     /**
-     * CNxConsoleFactory Destructor
+     * CNxTermFactory Destructor
      */
 
-    inline ~CNxConsoleFactory(void) { }
+    inline ~CNxTermFactory(void) { }
 
     /**
-     * Create a new instance of an CNxConsole (as IApplication).
+     * Create a new instance of an CNxTerm (as IApplication).
      */
 
     IApplication *create(void);
@@ -242,4 +242,4 @@ namespace NxWM
 }
 #endif // __cplusplus
 
-#endif // __INCLUDE_CNXCONSOLE_HXX
+#endif // __INCLUDE_CNXTERM_HXX

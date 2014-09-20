@@ -973,7 +973,7 @@ CHexCalculatorFactory::CHexCalculatorFactory(CTaskbar *taskbar)
 IApplication *CHexCalculatorFactory::create(void)
 {
   // Call CTaskBar::openFullScreenWindow to create a application window for
-  // the NxConsole application
+  // the NxTerm application
 
   CApplicationWindow *window = m_taskbar->openApplicationWindow();
   if (!window)

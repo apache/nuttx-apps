@@ -44,7 +44,7 @@
 
 #include <sys/types.h>
 #include <nuttx/nx/nxtk.h>
-#include <nuttx/nx/nxconsole.h>
+#include <nuttx/nx/nxterm.h>
 
 #include "cbuttonarray.hxx"
 #include "clabel.hxx"
@@ -70,7 +70,7 @@
 namespace NxWM
 {
   /**
-   * This class implements the NxConsole application.
+   * This class implements the NxTerm application.
    */
 
   class CHexCalculator : public  IApplication,

@@ -1,5 +1,5 @@
 /********************************************************************************************
- * NxWidgets/nxwm/src/cnxconsole.cxx
+ * NxWidgets/nxwm/src/cnxterm.cxx
  *
  *   Copyright (C) 2012. 2104 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -55,7 +55,7 @@
 
 #include "nxwmconfig.hxx"
 #include "nxwmglyphs.hxx"
-#include "cnxconsole.hxx"
+#include "cnxterm.hxx"
 
 /********************************************************************************************
  * Pre-Processor Definitions
@@ -73,19 +73,19 @@
 namespace NxWM
 {
     /**
-     * This structure is used to pass start up parameters to the NxConsole task and to assure the
-     * the NxConsole is successfully started.
+     * This structure is used to pass start up parameters to the NxTerm task and to assure the
+     * the NxTerm is successfully started.
      */
 
-    struct SNxConsole
+    struct SNxTerm
     {
       FAR void             *console;  /**< The console 'this' pointer use with on_exit() */
       sem_t                 exclSem;  /**< Sem that gives exclusive access to this structure */
       sem_t                 waitSem;  /**< Sem that posted when the task is initialized */
       NXTKWINDOW            hwnd;     /**< Window handle */
-      NXCONSOLE             nxcon;    /**< NxConsole handle */
+      NXTERM             nxcon;    /**< NxTerm handle */
       int                   minor;    /**< Next device minor number */
-      struct nxcon_window_s wndo;     /**< Describes the NxConsole window */
+      struct nxcon_window_s wndo;     /**< Describes the NxTerm window */
       bool                  result;   /**< True if successfully initialized */
     };
 
@@ -94,11 +94,11 @@ namespace NxWM
  ********************************************************************************************/
 
   /**
-   * This global data structure is used to pass start parameters to NxConsole task and to
-   * assure that the NxConsole is successfully started.
+   * This global data structure is used to pass start parameters to NxTerm task and to
+   * assure that the NxTerm is successfully started.
    */
 
-  static struct SNxConsole g_nxconvars;
+  static struct SNxTerm g_nxconvars;
 }
 
 /********************************************************************************************
@@ -106,25 +106,25 @@ namespace NxWM
  ********************************************************************************************/
 
 /********************************************************************************************
- * CNxConsole Method Implementations
+ * CNxTerm Method Implementations
  ********************************************************************************************/
 
 using namespace NxWM;
 
 /**
- * CNxConsole constructor
+ * CNxTerm constructor
  *
  * @param window.  The application window
  */
 
-CNxConsole::CNxConsole(CTaskbar *taskbar, CApplicationWindow *window)
+CNxTerm::CNxTerm(CTaskbar *taskbar, CApplicationWindow *window)
 {
   // Save the constructor data
 
   m_taskbar = taskbar;
   m_window  = window;
 
-  // The NxConsole is not runing
+  // The NxTerm is not runing
 
   m_pid    = -1;
   m_nxcon   = 0;
@@ -140,14 +140,14 @@ CNxConsole::CNxConsole(CTaskbar *taskbar, CApplicationWindow *window)
 }
 
 /**
- * CNxConsole destructor
+ * CNxTerm destructor
  *
  * @param window.  The application window
  */
 
-CNxConsole::~CNxConsole(void)
+CNxTerm::~CNxTerm(void)
 {
-  // There would be a problem if we were stopped with the NxConsole task
+  // There would be a problem if we were stopped with the NxTerm task
   // running... that should never happen but we'll check anyway:
 
   stop();
@@ -163,7 +163,7 @@ CNxConsole::~CNxConsole(void)
  * the contained CApplicationWindow instance.
  */
 
-IApplicationWindow *CNxConsole::getWindow(void) const
+IApplicationWindow *CNxTerm::getWindow(void) const
 {
   return static_cast<IApplicationWindow*>(m_window);
 }
@@ -176,7 +176,7 @@ IApplicationWindow *CNxConsole::getWindow(void) const
  *   be deleted by the caller when it is no long needed.
  */
 
-NXWidgets::IBitmap *CNxConsole::getIcon(void)
+NXWidgets::IBitmap *CNxTerm::getIcon(void)
 {
   NXWidgets::CRlePaletteBitmap *bitmap =
     new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXTERM_ICON);
@@ -190,7 +190,7 @@ NXWidgets::IBitmap *CNxConsole::getIcon(void)
  * @return A copy if CNxString that contains the name of the application.
  */
 
-NXWidgets::CNxString CNxConsole::getName(void)
+NXWidgets::CNxString CNxTerm::getName(void)
 {
   return NXWidgets::CNxString("NuttShell");
 }
@@ -201,7 +201,7 @@ NXWidgets::CNxString CNxConsole::getName(void)
  * @return True if the application was successfully started.
  */
 
-bool CNxConsole::run(void)
+bool CNxTerm::run(void)
 {
   // Some sanity checking
 
@@ -233,7 +233,7 @@ bool CNxConsole::run(void)
 
   g_nxconvars.hwnd = control->getWindowHandle();
 
-  // Describe the NxConsole
+  // Describe the NxTerm
 
   g_nxconvars.wndo.wcolor[0] = CONFIG_NXWM_NXTERM_WCOLOR;
   g_nxconvars.wndo.fcolor[0] = CONFIG_NXWM_NXTERM_FONTCOLOR;
@@ -243,23 +243,23 @@ bool CNxConsole::run(void)
 
   (void)window->getSize(&g_nxconvars.wndo.wsize);
 
-  // Start the NxConsole task
+  // Start the NxTerm task
 
   g_nxconvars.console = (FAR void *)this;
   g_nxconvars.result  = false;
   g_nxconvars.nxcon   = 0;
 
   sched_lock();
-  m_pid = task_create("NxConsole", CONFIG_NXWM_NXTERM_PRIO,
-                      CONFIG_NXWM_NXTERM_STACKSIZE, nxconsole,
+  m_pid = task_create("NxTerm", CONFIG_NXWM_NXTERM_PRIO,
+                      CONFIG_NXWM_NXTERM_STACKSIZE, nxterm,
                       (FAR char * const *)0);
 
-  // Did we successfully start the NxConsole task?
+  // Did we successfully start the NxTerm task?
 
   bool result = true;
   if (m_pid < 0)
     {
-      gdbg("ERROR: Failed to create the NxConsole task\n");
+      gdbg("ERROR: Failed to create the NxTerm task\n");
       result = false;
     }
   else
@@ -275,11 +275,11 @@ bool CNxConsole::run(void)
 
       if (ret == OK && g_nxconvars.result)
         {
-          // Re-direct NX keyboard input to the new NxConsole driver
+          // Re-direct NX keyboard input to the new NxTerm driver
 
           DEBUGASSERT(g_nxconvars.nxcon != 0);
 #ifdef CONFIG_NXTERM_NXKBDIN
-          window->redirectNxConsole(g_nxconvars.nxcon);
+          window->redirectNxTerm(g_nxconvars.nxcon);
 #endif
           // Save the handle to use in the stop method
 
@@ -287,10 +287,10 @@ bool CNxConsole::run(void)
         }
       else
         {
-          // sem_timedwait failed OR the NxConsole task reported a
+          // sem_timedwait failed OR the NxTerm task reported a
           // failure.  Stop the application
 
-          gdbg("ERROR: Failed start the NxConsole task\n");
+          gdbg("ERROR: Failed start the NxTerm task\n");
           stop();
           result = false;
         }
@@ -304,18 +304,18 @@ bool CNxConsole::run(void)
  * Stop the application.
  */
 
-void CNxConsole::stop(void)
+void CNxTerm::stop(void)
 {
-  // Delete the NxConsole task if it is still running (this could strand
+  // Delete the NxTerm task if it is still running (this could strand
   // resources). If we get here due to CTaskbar::stopApplication() processing
-  // initialed by CNxConsole::exitHandler, then do *not* delete the task (it
+  // initialed by CNxTerm::exitHandler, then do *not* delete the task (it
   // is already being deleted).
 
   if (m_pid >= 0)
     {
       // Calling task_delete() will also invoke the on_exit() handler.  We se
       // m_pid = -1 before calling task_delete() to let the on_exit() handler,
-      // CNxConsole::exitHandler(), know that it should not do anything
+      // CNxTerm::exitHandler(), know that it should not do anything
 
       pid_t pid = m_pid;
       m_pid = -1;
@@ -333,10 +333,10 @@ void CNxConsole::stop(void)
 
 #ifdef CONFIG_NXTERM_NXKBDIN
       NXWidgets::INxWindow *window = m_window->getWindow();
-      window->redirectNxConsole((NXCONSOLE)0);
+      window->redirectNxTerm((NXTERM)0);
 #endif
 
-      // Unregister the NxConsole driver
+      // Unregister the NxTerm driver
 
       nxcon_unregister(m_nxcon);
       m_nxcon = 0;
@@ -352,7 +352,7 @@ void CNxConsole::stop(void)
  * will, finally, safely delete the application.
  */
 
-void CNxConsole::destroy(void)
+void CNxTerm::destroy(void)
 {
   // Block any further window messages
 
@@ -368,7 +368,7 @@ void CNxConsole::destroy(void)
  * maximized, but not at the top of the hierarchy
  */
 
-void CNxConsole::hide(void)
+void CNxTerm::hide(void)
 {
   // Disable drawing and events
 }
@@ -379,7 +379,7 @@ void CNxConsole::hide(void)
  * CTaskbar when the application window must be displayed
  */
 
-void CNxConsole::redraw(void)
+void CNxTerm::redraw(void)
 {
   // Recover the NXTK window instance contained in the application window
 
@@ -390,7 +390,7 @@ void CNxConsole::redraw(void)
   struct nxgl_size_s windowSize;
   (void)window->getSize(&windowSize);
 
-  // Redraw the entire NxConsole window
+  // Redraw the entire NxTerm window
 
   struct nxgl_rect_s rect;
   rect.pt1.x = 0;
@@ -409,17 +409,17 @@ void CNxConsole::redraw(void)
  * @return True if this is a full screen window.
  */
 
-bool CNxConsole::isFullScreen(void) const
+bool CNxTerm::isFullScreen(void) const
 {
   return m_window->isFullScreen();
 }
 
 /**
- * This is the NxConsole task.  This function first redirects output to the
+ * This is the NxTerm task.  This function first redirects output to the
  * console window then calls to start the NSH logic.
  */
 
-int CNxConsole::nxconsole(int argc, char *argv[])
+int CNxTerm::nxterm(int argc, char *argv[])
 {
   // To stop compiler complaining about "jump to label crosses initialization
   // of 'int fd'
@@ -453,7 +453,7 @@ int CNxConsole::nxconsole(int argc, char *argv[])
 
   g_nxconvars.minor++;
 
-  // Open the NxConsole driver
+  // Open the NxTerm driver
 
 #ifdef CONFIG_NXTERM_NXKBDIN
   fd = open(devname, O_RDWR);
@@ -469,7 +469,7 @@ int CNxConsole::nxconsole(int argc, char *argv[])
   // Now re-direct stdout and stderr so that they use the NX console driver.
   // Notes: (1) stdin is retained (file descriptor 0, probably the the serial
   // console).  (2) Don't bother trying to put debug instrumentation in the
-  // following becaue it will end up in the NxConsole window.
+  // following becaue it will end up in the NxTerm window.
 
   (void)std::fflush(stdout);
   (void)std::fflush(stderr);
@@ -524,27 +524,27 @@ errout:
 }
 
 /**
- * This is the NxConsole task exit handler.  It registered with on_exit()
- * and called automatically when the nxconsole task exits.
+ * This is the NxTerm task exit handler.  It registered with on_exit()
+ * and called automatically when the nxterm task exits.
  */
 
-void CNxConsole::exitHandler(int code, FAR void *arg)
+void CNxTerm::exitHandler(int code, FAR void *arg)
 {
-  CNxConsole *This = (CNxConsole *)arg;
+  CNxTerm *This = (CNxTerm *)arg;
 
-  // If we got here because of the task_delete() call in CNxConsole::stop(),
+  // If we got here because of the task_delete() call in CNxTerm::stop(),
   // then m_pid will be set to -1 to let us know that we do not need to do
   // anything
 
   if (This->m_pid >= 0)
     {
-      // Set m_pid to -1 to prevent calling detlete_task() in CNxConsole::stop().
-      // CNxConsole::stop() is called by the processing initiated by the following
+      // Set m_pid to -1 to prevent calling detlete_task() in CNxTerm::stop().
+      // CNxTerm::stop() is called by the processing initiated by the following
       // call to CTaskbar::stopApplication()
 
       This->m_pid = -1;
 
-      // Remove the NxConsole application from the taskbar
+      // Remove the NxTerm application from the taskbar
 
       This->m_taskbar->stopApplication(This);
     }
@@ -554,7 +554,7 @@ void CNxConsole::exitHandler(int code, FAR void *arg)
  * Called when the window minimize button is pressed.
  */
 
-void CNxConsole::minimize(void)
+void CNxTerm::minimize(void)
 {
   m_taskbar->minimizeApplication(static_cast<IApplication*>(this));
 }
@@ -563,30 +563,30 @@ void CNxConsole::minimize(void)
  * Called when the window close button is pressed.
  */
 
-void CNxConsole::close(void)
+void CNxTerm::close(void)
 {
   m_taskbar->stopApplication(static_cast<IApplication*>(this));
 }
 
 /**
- * CNxConsoleFactory Constructor
+ * CNxTermFactory Constructor
  *
  * @param taskbar.  The taskbar instance used to terminate the console
  */
 
-CNxConsoleFactory::CNxConsoleFactory(CTaskbar *taskbar)
+CNxTermFactory::CNxTermFactory(CTaskbar *taskbar)
 {
   m_taskbar = taskbar;
 }
 
 /**
- * Create a new instance of an CNxConsole (as IApplication).
+ * Create a new instance of an CNxTerm (as IApplication).
  */
 
-IApplication *CNxConsoleFactory::create(void)
+IApplication *CNxTermFactory::create(void)
 {
   // Call CTaskBar::openFullScreenWindow to create a full screen window for
-  // the NxConsole application
+  // the NxTerm application
 
   CApplicationWindow *window = m_taskbar->openApplicationWindow();
   if (!window)
@@ -607,15 +607,15 @@ IApplication *CNxConsoleFactory::create(void)
   // Instantiate the application, providing the window to the application's
   // constructor
 
-  CNxConsole *nxconsole = new CNxConsole(m_taskbar, window);
-  if (!nxconsole)
+  CNxTerm *nxterm = new CNxTerm(m_taskbar, window);
+  if (!nxterm)
     {
-      gdbg("ERROR: Failed to instantiate CNxConsole\n");
+      gdbg("ERROR: Failed to instantiate CNxTerm\n");
       delete window;
       return (IApplication *)0;
     }
 
-  return static_cast<IApplication*>(nxconsole);
+  return static_cast<IApplication*>(nxterm);
 }
 
 /**
@@ -626,7 +626,7 @@ IApplication *CNxConsoleFactory::create(void)
  *   be deleted by the caller when it is no long needed.
  */
 
-NXWidgets::IBitmap *CNxConsoleFactory::getIcon(void)
+NXWidgets::IBitmap *CNxTermFactory::getIcon(void)
 {
   NXWidgets::CRlePaletteBitmap *bitmap =
     new NXWidgets::CRlePaletteBitmap(&CONFIG_NXWM_NXTERM_ICON);
