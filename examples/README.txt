@@ -818,7 +818,7 @@ examples/nxconsole
   an NX winbdow.  Prerequisite configuration settings for this test include:
 
     CONFIG_NX=y              -- NX graphics must be enabled
-    CONFIG_NXCONSOLE=y       -- The NX console driver must be built
+    CONFIG_NXTERM=y       -- The NX console driver must be built
     CONFIG_NX_MULTIUSER=y    -- NX multi-user support must be enabled.
     CONFIG_DISABLE_MQUEUE=n  -- Message queue support must be available.
     CONFIG_DISABLE_SIGNALS=n -- Signals are needed

@@ -65,8 +65,8 @@
 
 /* Can't do the NxConsole example if the NxConsole driver is not built */
 
-#ifndef CONFIG_NXCONSOLE
-#  error "NxConsole is not enabled (CONFIG_NXCONSOLE=y)"
+#ifndef CONFIG_NXTERM
+#  error "NxConsole is not enabled (CONFIG_NXTERM=y)"
 #endif
 
 /* NxConsole requires NX Multi-user mode */
@@ -111,7 +111,7 @@
 #  elif !defined(CONFIG_NX_DISABLE_16BPP)
 #    define CONFIG_EXAMPLES_NXCON_BPP 16
 //#elif !defined(CONFIG_NX_DISABLE_24BPP)
-//#    define CONFIG_NXCONSOLE_BPP 24
+//#    define CONFIG_NXTERM_BPP 24
 #  elif !defined(CONFIG_NX_DISABLE_32BPP)
 #    define CONFIG_EXAMPLES_NXCON_BPP 32
 #  else
