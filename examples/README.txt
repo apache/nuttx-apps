@@ -860,10 +860,10 @@ examples/nxterm
       #endif
 
     CONFIG_EXAMPLES_NXCON_MINOR -- The NX console device minor number.
-      Default is 0 corresponding to /dev/nxcon0
+      Default is 0 corresponding to /dev/nxterm0
     CONFIG_EXAMPLES_NXCON_DEVNAME -- The quoated, full path to the
       NX console device corresponding to CONFIG_EXAMPLES_NXCON_MINOR.
-      Default: "/dev/nxcon0"
+      Default: "/dev/nxterm0"
     CONFIG_EXAMPLES_NXTERM_PRIO - Priority of the NxTerm task.
       Default: SCHED_PRIORITY_DEFAULT
     CONFIG_EXAMPLES_NXTERM_STACKSIZE - Stack size allocated for the
