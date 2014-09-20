@@ -393,7 +393,7 @@ int CNxServer::server(int argc, char *argv[])
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      gdbg("nxcon_server: up_fbinitialize failed: %d\n", -ret);
+      gdbg("nxterm_server: up_fbinitialize failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
 

@@ -214,7 +214,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
     {
       // Keyboard input is going to an NxTerm
 
-      nxcon_kbdin(This->m_nxterm, str, nCh);
+      nxterm_kbdin(This->m_nxterm, str, nCh);
     }
   else
 #endif

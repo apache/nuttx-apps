@@ -79,14 +79,14 @@ namespace NxWM
 
     struct SNxTerm
     {
-      FAR void             *console;  /**< The console 'this' pointer use with on_exit() */
-      sem_t                 exclSem;  /**< Sem that gives exclusive access to this structure */
-      sem_t                 waitSem;  /**< Sem that posted when the task is initialized */
-      NXTKWINDOW            hwnd;     /**< Window handle */
-      NXTERM             nxcon;    /**< NxTerm handle */
-      int                   minor;    /**< Next device minor number */
-      struct nxcon_window_s wndo;     /**< Describes the NxTerm window */
-      bool                  result;   /**< True if successfully initialized */
+      FAR void              *console; /**< The console 'this' pointer use with on_exit() */
+      sem_t                  exclSem; /**< Sem that gives exclusive access to this structure */
+      sem_t                  waitSem; /**< Sem that posted when the task is initialized */
+      NXTKWINDOW             hwnd;    /**< Window handle */
+      NXTERM                 nxterm;  /**< NxTerm handle */
+      int                    minor;   /**< Next device minor number */
+      struct nxterm_window_s wndo;    /**< Describes the NxTerm window */
+      bool                   result;  /**< True if successfully initialized */
     };
 
 /********************************************************************************************
@@ -98,7 +98,7 @@ namespace NxWM
    * assure that the NxTerm is successfully started.
    */
 
-  static struct SNxTerm g_nxconvars;
+  static struct SNxTerm g_nxtermvars;
 }
 
 /********************************************************************************************
@@ -127,7 +127,7 @@ CNxTerm::CNxTerm(CTaskbar *taskbar, CApplicationWindow *window)
   // The NxTerm is not runing
 
   m_pid    = -1;
-  m_nxcon   = 0;
+  m_nxterm = 0;
 
   // Add our personalized window label
 
@@ -205,7 +205,7 @@ bool CNxTerm::run(void)
 {
   // Some sanity checking
 
-  if (m_pid >= 0 || m_nxcon != 0)
+  if (m_pid >= 0 || m_nxterm != 0)
     {
       gdbg("ERROR: All ready running or connected\n");
       return false;
@@ -213,7 +213,7 @@ bool CNxTerm::run(void)
 
   // Get exclusive access to the global data structure
 
-  if (sem_wait(&g_nxconvars.exclSem) != 0)
+  if (sem_wait(&g_nxtermvars.exclSem) != 0)
     {
       // This might fail if a signal is received while we are waiting.
 
@@ -231,23 +231,23 @@ bool CNxTerm::run(void)
 
   // Get the window handle from the widget control
 
-  g_nxconvars.hwnd = control->getWindowHandle();
+  g_nxtermvars.hwnd = control->getWindowHandle();
 
   // Describe the NxTerm
 
-  g_nxconvars.wndo.wcolor[0] = CONFIG_NXWM_NXTERM_WCOLOR;
-  g_nxconvars.wndo.fcolor[0] = CONFIG_NXWM_NXTERM_FONTCOLOR;
-  g_nxconvars.wndo.fontid    = CONFIG_NXWM_NXTERM_FONTID;
+  g_nxtermvars.wndo.wcolor[0] = CONFIG_NXWM_NXTERM_WCOLOR;
+  g_nxtermvars.wndo.fcolor[0] = CONFIG_NXWM_NXTERM_FONTCOLOR;
+  g_nxtermvars.wndo.fontid    = CONFIG_NXWM_NXTERM_FONTID;
 
   // Get the size of the window
 
-  (void)window->getSize(&g_nxconvars.wndo.wsize);
+  (void)window->getSize(&g_nxtermvars.wndo.wsize);
 
   // Start the NxTerm task
 
-  g_nxconvars.console = (FAR void *)this;
-  g_nxconvars.result  = false;
-  g_nxconvars.nxcon   = 0;
+  g_nxtermvars.console = (FAR void *)this;
+  g_nxtermvars.result  = false;
+  g_nxtermvars.nxterm   = 0;
 
   sched_lock();
   m_pid = task_create("NxTerm", CONFIG_NXWM_NXTERM_PRIO,
@@ -270,20 +270,20 @@ bool CNxTerm::run(void)
       clock_gettime(CLOCK_REALTIME, &abstime);
       abstime.tv_sec += 2;
 
-      int ret = sem_timedwait(&g_nxconvars.waitSem, &abstime);
+      int ret = sem_timedwait(&g_nxtermvars.waitSem, &abstime);
       sched_unlock();
 
-      if (ret == OK && g_nxconvars.result)
+      if (ret == OK && g_nxtermvars.result)
         {
           // Re-direct NX keyboard input to the new NxTerm driver
 
-          DEBUGASSERT(g_nxconvars.nxcon != 0);
+          DEBUGASSERT(g_nxtermvars.nxterm != 0);
 #ifdef CONFIG_NXTERM_NXKBDIN
-          window->redirectNxTerm(g_nxconvars.nxcon);
+          window->redirectNxTerm(g_nxtermvars.nxterm);
 #endif
           // Save the handle to use in the stop method
 
-          m_nxcon = g_nxconvars.nxcon;
+          m_nxterm = g_nxtermvars.nxterm;
         }
       else
         {
@@ -296,7 +296,7 @@ bool CNxTerm::run(void)
         }
     }
 
-  sem_post(&g_nxconvars.exclSem);
+  sem_post(&g_nxtermvars.exclSem);
   return result;
 }
 
@@ -327,7 +327,7 @@ void CNxTerm::stop(void)
 
   // Destroy the NX console device
 
-  if (m_nxcon)
+  if (m_nxterm)
     {
       // Re-store NX keyboard input routing
 
@@ -338,8 +338,8 @@ void CNxTerm::stop(void)
 
       // Unregister the NxTerm driver
 
-      nxcon_unregister(m_nxcon);
-      m_nxcon = 0;
+      nxterm_unregister(m_nxterm);
+      m_nxterm = 0;
     }
 }
 
@@ -398,7 +398,7 @@ void CNxTerm::redraw(void)
   rect.pt2.x = windowSize.w - 1;
   rect.pt2.y = windowSize.h - 1;
 
-  nxcon_redraw(m_nxcon, &rect, false);
+  nxterm_redraw(m_nxterm, &rect, false);
 }
 
 /**
@@ -428,7 +428,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Set up an on_exit() event that will be called when this task exits
 
-  if (on_exit(exitHandler, g_nxconvars.console) != 0)
+  if (on_exit(exitHandler, g_nxtermvars.console) != 0)
     {
       gdbg("ERROR: on_exit failed\n");
       goto errout;
@@ -436,9 +436,9 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Use the window handle to create the NX console
 
-  g_nxconvars.nxcon = nxtk_register(g_nxconvars.hwnd, &g_nxconvars.wndo,
-                                    g_nxconvars.minor);
-  if (!g_nxconvars.nxcon)
+  g_nxtermvars.nxterm = nxtk_register(g_nxtermvars.hwnd, &g_nxtermvars.wndo,
+                                    g_nxtermvars.minor);
+  if (!g_nxtermvars.nxterm)
     {
       gdbg("ERROR: Failed register the console device\n");
       goto errout;
@@ -447,11 +447,11 @@ int CNxTerm::nxterm(int argc, char *argv[])
   // Construct the driver name using this minor number
 
   char devname[32];
-  snprintf(devname, 32, "/dev/nxcon%d", g_nxconvars.minor);
+  snprintf(devname, 32, "/dev/nxterm%d", g_nxtermvars.minor);
 
   // Increment the minor number while it is protect by the semaphore
 
-  g_nxconvars.minor++;
+  g_nxtermvars.minor++;
 
   // Open the NxTerm driver
 
@@ -463,7 +463,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
   if (fd < 0)
     {
       gdbg("ERROR: Failed open the console device\n");
-      goto errout_with_nxcon;
+      goto errout_with_nxterm;
     }
 
   // Now re-direct stdout and stderr so that they use the NX console driver.
@@ -498,8 +498,8 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   // Inform the parent thread that we successfully initialized
 
-  g_nxconvars.result = true;
-  sem_post(&g_nxconvars.waitSem);
+  g_nxtermvars.result = true;
+  sem_post(&g_nxtermvars.waitSem);
 
   // Run the NSH console
 
@@ -513,13 +513,13 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   return EXIT_SUCCESS;
 
-errout_with_nxcon:
-  nxcon_unregister(g_nxconvars.nxcon);
+errout_with_nxterm:
+  nxterm_unregister(g_nxtermvars.nxterm);
 
 errout:
-  g_nxconvars.nxcon  = 0;
-  g_nxconvars.result = false;
-  sem_post(&g_nxconvars.waitSem);
+  g_nxtermvars.nxterm = 0;
+  g_nxtermvars.result = false;
+  sem_post(&g_nxtermvars.waitSem);
   return EXIT_FAILURE;
 }
 
@@ -645,8 +645,8 @@ bool NxWM::nshlibInitialize(void)
 {
   // Initialize the global data structure
 
-  sem_init(&g_nxconvars.exclSem, 0, 1);
-  sem_init(&g_nxconvars.waitSem, 0, 0);
+  sem_init(&g_nxtermvars.exclSem, 0, 1);
+  sem_init(&g_nxtermvars.waitSem, 0, 0);
 
   // Initialize the NSH library
 

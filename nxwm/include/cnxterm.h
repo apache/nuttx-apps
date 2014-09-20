@@ -80,7 +80,7 @@ namespace NxWM
   private:
     CTaskbar            *m_taskbar;   /**< Reference to the "parent" taskbar */
     CApplicationWindow  *m_window;    /**< Reference to the application window */
-    NXTERMi              m_nxcon;     /**< NxTerm handle */
+    NXTERMi              m_nxterm;    /**< NxTerm handle */
     pid_t                m_pid;       /**< Task ID of the NxTerm thread */
 
     /**
