@@ -575,7 +575,7 @@ config NXWM_TOOLBAR_FONTID
 	int "Toolbar Font ID"
 	default 0
 	---help---
-		Use this default font ID in the NxConsole window instead of the
+		Use this default font ID in the NxTerm window instead of the
 		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0 (maybe invalid)
 
 endif # NXWM_TOOLBAR_CUSTOM_FONTID
@@ -675,55 +675,55 @@ config NXWM_STARTWINDOW_STACKSIZE
 
 endmenu # Start Window Configuration
 
-menu "NxConsole Window Settings"
+menu "NxTerm Window Settings"
 
 config NXWM_NXTERM
-	bool "NxConsole Window"
+	bool "NxTerm Window"
 	default y
 	---help---
-		Enable support for the NxConsole window which provides a text window
+		Enable support for the NxTerm window which provides a text window
 		in which you can interact with NSH.
 
 if NXWM_NXTERM
 
 config NXWM_NXTERM_PRIO
-	int "NxConsole Task Priority"
+	int "NxTerm Task Priority"
 	default 100
 	---help---
-		Priority of the NxConsole task.  Default:  100.
+		Priority of the NxTerm task.  Default:  100.
 
 		NOTE:  This priority should be less than NXWIDGETS_SERVERPRIO or
 		else there may be data overrun errors. Such errors would most likely
 		appear as duplicated rows of data on the display.
 
 config NXWM_NXTERM_STACKSIZE
-	int "NxConsole Task Stack Size"
+	int "NxTerm Task Stack Size"
 	default 2048
 	---help---
-		The stack size to use when starting the NxConsole task.  Default:
+		The stack size to use when starting the NxTerm task.  Default:
 		2048 bytes.
 
 config NXWM_NXTERM_CUSTOM_COLORS
-	bool "Custom NxConsole Colors"
+	bool "Custom NxTerm Colors"
 	default n
 	---help---
-		Select custom default colors for the NxConsole window.  If defined,
-		the hexadecimal values for all NxConsole colors must be provided
+		Select custom default colors for the NxTerm window.  If defined,
+		the hexadecimal values for all NxTerm colors must be provided
 		(there are no default colors because the hexadecimal representation
 		of the default colors depend on the pixel depth). Default: n
 
 if NXWM_NXTERM_CUSTOM_COLORS
 
 config NXWM_NXTERM_WCOLOR
-	hex "NxConsole Background Color"
+	hex "NxTerm Background Color"
 	---help---
-		The color of the NxConsole window background. Default:
+		The color of the NxTerm window background. Default:
 		RGB(192,192,192)
 
 config NXWM_NXTERM_FONTCOLOR
-	hex "NxConsole Font Color"
+	hex "NxTerm Font Color"
 	---help---
-		The color of the fonts to use in the NxConsole window.
+		The color of the fonts to use in the NxTerm window.
 		Default: RGB(0,0,0)
 
 endif # NXWM_NXTERM_CUSTOM_COLORS
@@ -737,31 +737,31 @@ config NXWM_NXTERM_CUSTOM_FONTID
 if NXWM_NXTERM_CUSTOM_FONTID
 
 config NXWM_NXTERM_FONTID
-	int "NxConsole Font ID"
+	int "NxTerm Font ID"
 	default 0
 	---help---
-		Use this default font ID in the NxConsole window instead of the
+		Use this default font ID in the NxTerm window instead of the
 		NxWM font ID (NXWM_DEFAULT_FONTID).  Default: 0
 
 endif # NXWM_NXTERM_CUSTOM_FONTID
 
 config NXWM_CUSTOM_NXTERM_ICON
-	bool "Custom NxConsole Icon"
+	bool "Custom NxTerm Icon"
 	default n
 	---help---
-		Select to override the default NxConsole Window Icon: NxWM::g_cmdBitmap
+		Select to override the default NxTerm Window Icon: NxWM::g_cmdBitmap
 
 if NXWM_CUSTOM_NXTERM_ICON
 
 config NXWM_NXTERM_ICON
-	string "NxConsole Icon"
+	string "NxTerm Icon"
 	default "NxWM::g_cmdBitmap"
 	---help---
-		The glyph to use as the NxConsole icon.  Default: NxWM::g_cmdBitmap
+		The glyph to use as the NxTerm icon.  Default: NxWM::g_cmdBitmap
 
 endif # NXWM_NXTERM_ICON
 endif # NXWM_NXTERM
-endmenu # NxConsole Window Settings
+endmenu # NxTerm Window Settings
 
 menu "NxWM Touchscreen Configuration"
 

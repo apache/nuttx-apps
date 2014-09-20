@@ -230,21 +230,21 @@ namespace NXWidgets
     /**
      * Each window implementation also inherits from CCallback.  CCallback,
      * by default, forwards NX keyboard input to the various widgets residing
-     * in the window. But NxConsole is a different usage model; In this case,
-     * keyboard input needs to be directed to the NxConsole character driver.
+     * in the window. But NxTerm is a different usage model; In this case,
+     * keyboard input needs to be directed to the NxTerm character driver.
      * This method can be used to enable (or disable) redirection of NX
-     * keyboard input from the window widgets to the NxConsole
+     * keyboard input from the window widgets to the NxTerm
      *
-     * @param handle.  The NXCONSOLE handle.  If non-NULL, NX keyboard
-     *    input will be directed to the NxConsole driver using this
+     * @param handle.  The NXTERM handle.  If non-NULL, NX keyboard
+     *    input will be directed to the NxTerm driver using this
      *    handle;  If NULL (the default), NX keyboard input will be
      *    directed to the widgets within the window.
      */
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-    inline void redirectNxConsole(NXCONSOLE handle)
+    inline void redirectNxTerm(NXTERM handle)
     {
-      setNxConsole(handle);
+      setNxTerm(handle);
     }
 #endif
 

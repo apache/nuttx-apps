@@ -184,7 +184,7 @@
 #  error "Only a single color plane is supported (CONFIG_NX_NPLANES)"
 #endif
 
-/* NxConsole checks.  This just simplifies the conditional compilation by
+/* NxTerm checks.  This just simplifies the conditional compilation by
  * reducing the AND of these three conditions to a single condition.
  */
 

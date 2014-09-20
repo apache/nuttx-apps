@@ -50,7 +50,7 @@
 #include <nuttx/nx/nx.h>
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-#  include <nuttx/nx/nxconsole.h>
+#  include <nuttx/nx/nxterm.h>
 #endif
 
 #include "crect.hxx"
@@ -94,7 +94,7 @@ namespace NXWidgets
     CWidgetControl      *m_widgetControl; /**< The widget control instance for this window */
     struct nx_callback_s m_callbacks;     /**< C-callable vtable of callback function pointers */
 #ifdef CONFIG_NXTERM_NXKBDIN
-    NXCONSOLE            m_nxconsole;      /**< The NxConsole handle for redirection of keyboard input */
+    NXTERM               m_nxterm;      /**< The NxTerm handle for redirection of keyboard input */
 #endif
 
     // Methods in the callback vtable
@@ -245,22 +245,22 @@ namespace NXWidgets
 
     /**
      * By default, NX keyboard input is given to the various widgets
-     * residing in the window. But NxConsole is a different usage model;
-     * In this case, keyboard input needs to be directed to the NxConsole
+     * residing in the window. But NxTerm is a different usage model;
+     * In this case, keyboard input needs to be directed to the NxTerm
      * character driver.  This method can be used to enable (or disable)
      * redirection of NX keyboard input from the window widgets to the
-     * NxConsole
+     * NxTerm
      *
-     * @param handle.  The NXCONSOLE handle.  If non-NULL, NX keyboard
-     *    input will be directed to the NxConsole driver using this
+     * @param handle.  The NXTERM handle.  If non-NULL, NX keyboard
+     *    input will be directed to the NxTerm driver using this
      *    handle;  If NULL (the default), NX keyboard input will be
      *    directed to the widgets within the window.
      */
 
 #ifdef CONFIG_NXTERM_NXKBDIN
-    inline void setNxConsole(NXCONSOLE handle)
+    inline void setNxTerm(NXTERM handle)
     {
-      m_nxconsole = handle;
+      m_nxterm = handle;
     }
 #endif
   };

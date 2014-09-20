@@ -52,7 +52,7 @@
 #include "cstartwindow.hxx"
 
 #ifdef CONFIG_NXWM_NXTERM
-#  include "cnxconsole.hxx"
+#  include "cnxterm.hxx"
 #endif
 
 #include "chexcalculator.hxx"
@@ -545,32 +545,32 @@ static bool createCalibration(void)
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
-// Name: createNxConsole
+// Name: createNxTerm
 /////////////////////////////////////////////////////////////////////////////
 
 #ifdef CONFIG_NXWM_NXTERM
-static bool createNxConsole(void)
+static bool createNxTerm(void)
 {
-  // Add the NxConsole application to the start window
+  // Add the NxTerm application to the start window
 
-  printf("createNxConsole: Creating the NxConsole application\n");
-  NxWM::CNxConsoleFactory *console = new  NxWM::CNxConsoleFactory(g_nxwmtest.taskbar);
+  printf("createNxTerm: Creating the NxTerm application\n");
+  NxWM::CNxTermFactory *console = new  NxWM::CNxTermFactory(g_nxwmtest.taskbar);
   if (!console)
     {
-      printf("createNxConsole: ERROR: Failed to instantiate CNxConsoleFactory\n");
+      printf("createNxTerm: ERROR: Failed to instantiate CNxTermFactory\n");
       return false;
     }
-  showTestCaseMemory("createNxConsole: After creating the NxConsole application");
+  showTestCaseMemory("createNxTerm: After creating the NxTerm application");
 
-  printf("createNxConsole: Adding the NxConsole application to the start window\n");
+  printf("createNxTerm: Adding the NxTerm application to the start window\n");
   if (!g_nxwmtest.startwindow->addApplication(console))
     {
-      printf("createNxConsole: ERROR: Failed to add CNxConsoleFactory to the start window\n");
+      printf("createNxTerm: ERROR: Failed to add CNxTermFactory to the start window\n");
       delete console;
       return false;
     }
 
-  showTestCaseMemory("createNxConsole: After adding the NxConsole application");
+  showTestCaseMemory("createNxTerm: After adding the NxTerm application");
   return true;
 }
 #endif
@@ -734,12 +734,12 @@ int nxwm_main(int argc, char *argv[])
     }
 #endif
 
-  // Create the NxConsole application and add it to the start window
+  // Create the NxTerm application and add it to the start window
 
 #ifdef CONFIG_NXWM_NXTERM
-  if (!createNxConsole())
+  if (!createNxTerm())
     {
-      printf("nxwm_main: ERROR: Failed to create the NxConsole application\n");
+      printf("nxwm_main: ERROR: Failed to create the NxTerm application\n");
       testCleanUpAndExit(EXIT_FAILURE);
     }
 #endif
@@ -832,14 +832,14 @@ int nxwm_main(int argc, char *argv[])
   showTestCaseMemory("nxwm_main: After clicking the start window icon");
 
   // Wait bit to see the result of the button press.  Then press the first icon
-  // in the start menu.  That should be the NxConsole icon (if the NXCONSOLE
+  // in the start menu.  That should be the NxTerm icon (if the NxTerm
   // is not disabled).
 
   sleep(2);
   g_nxwmtest.startwindow->clickIcon(0, true);
   usleep(500*1000);
   g_nxwmtest.startwindow->clickIcon(0, false);
-  showTestCaseMemory("nxwm_main: After clicking the NxConsole icon");
+  showTestCaseMemory("nxwm_main: After clicking the NxTerm icon");
 #endif
 
   // Wait bit to see the result of the button press.

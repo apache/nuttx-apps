@@ -27,7 +27,7 @@ NxWM
 ----
 
  (4) General NxWMIssues
- (0) NxConsole Issues
+ (0) NxTerm Issues
  (0) CHexCalculator Issues
  (3) CMediaPlayer Issues
  (1) Platform specific Issues
@@ -83,7 +83,7 @@ o General NxWM Issues
                to be productized, this change should be done in order to reduce
                stack memory consumption.
 
-o NxConsole Issues
+o NxTerm Issues
   ----------------
 
 o CHexCalculator Issues

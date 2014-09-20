@@ -533,3 +533,6 @@
   lost (2014-7-30).
 
 1.13 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* Change all references to NxConsole to NxTerm.  This introduces an
+  incompatibility with versions prior to NuttX-7.5 (2014-9-20).

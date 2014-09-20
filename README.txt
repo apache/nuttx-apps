@@ -91,7 +91,7 @@ nxwm
 
   There is a base class that defines an add-on application and an
   interface that supports incorporation of new application.  The only
-  application that is provided is NxConsole.  This is an  NSH session
+  application that is provided is NxTerm.  This is an  NSH session
   running in a window.  You should be able to select the NX icon in the start
   menu and create as many NSH sessions in windows as you want. (keybard input
   still comes through serial).
