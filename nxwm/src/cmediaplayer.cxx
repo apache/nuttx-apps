@@ -461,6 +461,7 @@ bool CMediaPlayer::getMediaFile(const NXWidgets::CListBoxDataItem *item)
         {
           int errcode = errno;
           dbg("ERROR: Could not stat file %s: %d\n", filePath, errcode);
+          UNUSED(errcode);
 
           // Make sure there is no previous file information
 
