@@ -158,8 +158,6 @@ int mtdrwb_main(int argc, char *argv[])
   ssize_t nbytes;
   off_t nblocks;
   off_t offset;
-  off_t check;
-  off_t sectoff;
   off_t seekpos;
   unsigned int blkpererase;
   int fd;
@@ -280,7 +278,7 @@ int mtdrwb_main(int argc, char *argv[])
           for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
             {
               buffer[k] = offset;
-              offset += 4;
+              offset += sizeof(uint32_t);
             }
 
           /* And write it using the character driver */
@@ -297,9 +295,9 @@ int mtdrwb_main(int argc, char *argv[])
 
   close(fd);
 
-  /* Open the MTD character driver for writing */
+  /* Open the MTD character driver for reading */
 
-  fd = open("/dev/mtd0", O_RDWR);
+  fd = open("/dev/mtd0", O_RDONLY);
   if (fd < 0)
     {
       message("ERROR: open /dev/mtd0 failed: %d\n", errno);
@@ -309,21 +307,16 @@ int mtdrwb_main(int argc, char *argv[])
 
   /* Now verify the offset in every block */
 
-  check = offset;
-  sectoff = 0;
-
+  offset  = 0;
   for (j = 0; j < nblocks; j++)
     {
-#if 0 /* Too much */
-      message("  block=%u offset=%lu\n", j, (unsigned long) check);
-#endif
       /* Seek to the next read position */
 
-      seekpos = lseek(fd, sectoff, SEEK_SET);
-      if (seekpos != sectoff)
+      seekpos = lseek(fd, offset, SEEK_SET);
+      if (seekpos != offset)
         {
           message("ERROR: lseek to offset %ld failed: %d\n",
-                   (unsigned long)sectoff, errno);
+                   (unsigned long)offset, errno);
           msgflush();
           exit(10);
         }
@@ -356,17 +349,17 @@ int mtdrwb_main(int argc, char *argv[])
        * indication.
        */
 
-     else if (nbytes == 0)
+      else if (nbytes == 0)
         {
           message("ERROR: Unexpected end of file on /dev/mtd0\n");
           msgflush();
-          exit(14);
+         exit(14);
         }
 
-     /* This is not expected at all */
+      /* This is not expected at all */
 
-     else if (nbytes != geo.blocksize)
-       {
+      else if (nbytes != geo.blocksize)
+        {
           message("ERROR: Short read from /dev/mtd0 failed: %lu\n",
                   (unsigned long)nbytes);
           msgflush();
@@ -377,53 +370,16 @@ int mtdrwb_main(int argc, char *argv[])
 
       for (k = 0; k < geo.blocksize / sizeof(uint32_t); k++)
         {
-          if (buffer[k] != check)
+          if (buffer[k] != offset)
             {
               message("ERROR: Bad offset %lu, expected %lu\n",
-                      (long)buffer[k], (long)check);
+                      (long)buffer[k], (long)offset);
               msgflush();
               exit(16);
             }
 
-          /* Invert the value to indicate that we have verified
-           * this value.
-           */
-
-          buffer[k] = ~check;
-          check += sizeof(uint32_t);
+          offset += sizeof(uint32_t);
         }
-
-      /* Seek to the next write position */
-
-      seekpos = lseek(fd, sectoff, SEEK_SET);
-      if (seekpos != sectoff)
-        {
-          message("ERROR: lseek to offset %ld failed: %d\n",
-                  (unsigned long)sectoff, errno);
-          msgflush();
-          exit(17);
-        }
-
-      /* Now write the block back to FLASH with the modified value */
-
-      nbytes = write(fd, buffer, geo.blocksize);
-      if (nbytes < 0)
-        {
-          message("ERROR: write to /dev/mtd0 failed: %d\n", errno);
-          msgflush();
-          exit(18);
-        }
-      else if (nbytes != geo.blocksize)
-        {
-          message("ERROR: Unexpected write size to /dev/mtd0 : %ld\n",
-                  (unsigned long)nbytes);
-          msgflush();
-          exit(19);
-        }
-
-      /* Get the offset to the next block */
-
-      sectoff += geo.blocksize;
     }
 
   /* Try reading one more time.  We should get the end of file */
