@@ -1064,4 +1064,5 @@
 	* apps/xamples/null/null_main.c:  Need to include config.h it order know
 	  if this is or is not a kernel build (2014-9-16).
 	* Change all occurrences of NxConsole to NxTerm (2014-9-20).
-
+	* apps/examples/Konfig, Makefile, README.txt and all of mdrwb/: Add an
+	example to test MTD R/W buffering (2014-9-25).
