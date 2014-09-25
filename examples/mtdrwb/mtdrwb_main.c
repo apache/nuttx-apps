@@ -240,6 +240,12 @@ int mtdrwb_main(int argc, char *argv[])
   message("  erasesize:      %lu\n", (unsigned long)geo.erasesize);
   message("  neraseblocks:   %lu\n", (unsigned long)geo.neraseblocks);
 
+  blkpererase = geo.erasesize / geo.blocksize;
+  message("  blkpererase:    %u\n", blkpererase);
+
+  nblocks = geo.neraseblocks * blkpererase;
+  message("  nblocks:        %lu\n", (unsigned long)nblocks);
+
   /* Allocate a buffer */
 
   buffer = (FAR uint32_t *)malloc(geo.blocksize);
