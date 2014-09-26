@@ -1065,4 +1065,6 @@
 	  if this is or is not a kernel build (2014-9-16).
 	* Change all occurrences of NxConsole to NxTerm (2014-9-20).
 	* apps/examples/Konfig, Makefile, README.txt and all of mdrwb/: Add an
-	example to test MTD R/W buffering (2014-9-25).
+	  example to test MTD R/W buffering (2014-9-25).
+	* apps/examples/ostest:  Add a trivial test of sem_timedwait (2014-9-16).
+
