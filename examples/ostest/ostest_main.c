@@ -377,6 +377,11 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: semaphore test\n");
       sem_test();
       check_test_memory_usage();
+
+      printf("\nuser_main: timed semaphore test\n");
+      semtimed_test();
+      check_test_memory_usage();
+
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD

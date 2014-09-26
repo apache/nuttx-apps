@@ -58,7 +58,7 @@ CSRCS += waitpid.c
 endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS += cancel.c cond.c mutex.c sem.c barrier.c
+CSRCS += cancel.c cond.c mutex.c sem.c semtimed.c barrier.c
 ifneq ($(CONFIG_RR_INTERVAL),0)
 CSRCS += roundrobin.c
 endif # CONFIG_RR_INTERVAL

@@ -133,6 +133,10 @@ void recursive_mutex_test(void);
 
 void sem_test(void);
 
+/* semtimed.c ***************************************************************/
+
+void semtimed_test(void);
+
 /* cond.c *******************************************************************/
 
 void cond_test(void);
