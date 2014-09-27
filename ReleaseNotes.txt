@@ -453,11 +453,11 @@ Bugfixes:
 NxWidgets-1.13
 ==============
 
-The 14th release of the NxWidgets package was made on September 17, 2014.  This
+The 14th release of the NxWidgets package was made on September 28, 2014.  This
 release depends on NuttX-7.5 or above and should not be used with older
 NuttX releases.
 
-Additional new features and extended functionality in Version 1.12:
+Additional new features and extended functionality in Version 1.13:
 
 * There are no new features in this release.  This release simply updates
   some naming that is necessary for NxWidgets to build successfully with
