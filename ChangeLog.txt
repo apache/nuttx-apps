@@ -1021,7 +1021,7 @@
 	* apps/nshlib/nsh_proccmds.c: Fix NSH PS command:  If there are no
 	  arguments, it would print garbage for argument list (2014-9-1).
 	* apps/import/, apps/tools/, apps/Makefile: Beginning of logic that
-	  will, hopefully, all me to build applications against a NuttX export
+	  will, hopefully, allow me to build applications against a NuttX export
 	  package (vs. the nuttx/ source tree) (2014-9-4).
 	* apps/tools/mkimport.sh and apps/import/Makefile: Add .config file to
 	  export package (2014-9-5).
@@ -1051,17 +1051,17 @@
 	  in the kernel build because they depend on interfaces that are not
 	  available outside of the kernel: dd, df, losetup, mkfatfs, mkdr, and
 	  ps (2014-9-7).
-	* apps/import/Make.defs: ELF build reuires -fno-common in CFLAGS
+	* apps/import/Make.defs: ELF build requires -fno-common in CFLAGS
 	  (2014-9-8).
 	* apps/tools/mkromfsimg.sh:  Add a script to create a BOOT ROMFS
-	  fileysystem image (2014-9-9).
+	  filesystem image (2014-9-9).
 	* Many makefiles:  All makefiles that have separated the MAINOBJ
 	  need to include MAINOBJ in list of C objects to be compiled.
 	  SourceForge tick #31 from Aton (2014-9-11).
 	* apps/examples/elf/tests/Makefile and nxflat/tests/Makefile: Do
-	  not build test cases that use task_create is there is an address
+	  not build test cases that use task_create if there is an address
 	  environment (2014-9-14).
-	* apps/xamples/null/null_main.c:  Need to include config.h it order know
+	* apps/examples/null/null_main.c:  Need to include config.h it order know
 	  if this is or is not a kernel build (2014-9-16).
 	* Change all occurrences of NxConsole to NxTerm (2014-9-20).
 	* apps/examples/Konfig, Makefile, README.txt and all of mdrwb/: Add an
