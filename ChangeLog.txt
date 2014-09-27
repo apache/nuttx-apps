@@ -1003,7 +1003,7 @@
 	  (2014-8-6).
 	* apps/system/sudoku:  Add a sudoku game (2014-8-11).
 
-7.5 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.5 2014-09-28 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/nshlib/Kconfig, nsh.h, and nsh_netinit.c:  Extend the NSH network
 	  initialization logic.  There is now an option that will create a
@@ -1067,4 +1067,6 @@
 	* apps/examples/Konfig, Makefile, README.txt and all of mdrwb/: Add an
 	  example to test MTD R/W buffering (2014-9-25).
 	* apps/examples/ostest:  Add a trivial test of sem_timedwait (2014-9-16).
+
+7.6 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
