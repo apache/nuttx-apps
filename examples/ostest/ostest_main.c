@@ -382,6 +382,12 @@ static int user_main(int argc, char *argv[])
       semtimed_test();
       check_test_memory_usage();
 
+#ifdef CONFIG_FS_NAMED_SEMAPHORES
+      printf("\nuser_main: Named semaphore test\n");
+      nsem_test();
+      check_test_memory_usage();
+
+#endif
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD
