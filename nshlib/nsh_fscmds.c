@@ -284,6 +284,10 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
             {
               details[0]='b';
             }
+          else
+            {
+              details[0]='?';
+            }
 
           if ((buf.st_mode & S_IRUSR) != 0)
             {
