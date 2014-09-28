@@ -1070,3 +1070,6 @@
 
 7.6 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
+	* apps/examples/ostest:  Add a simple test of named semaphores
+	  (2014-9-23).
+
