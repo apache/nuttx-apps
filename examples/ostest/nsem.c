@@ -38,9 +38,12 @@
  ***********************************************************************/
 
 #include <stdio.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <sched.h>
+#include <errno.h>
+
 #include "ostest.h"
 
 #ifdef CONFIG_FS_NAMED_SEMAPHORES
@@ -64,7 +67,7 @@
  * Private Functions
  ***********************************************************************/
 
-static void *nsem_peer(void *parameter)
+static FAR void *nsem_peer(void *parameter)
 {
   FAR sem_t *sem1;
   FAR sem_t *sem2;
@@ -85,7 +88,7 @@ static void *nsem_peer(void *parameter)
   /* Open semaphore 2.  We will create that one */
 
   printf("nsem_peer: Create semaphore 2 with value == 0\n");
-  sem2 = sem_open(SEM2_NAME, O_CREATE|O_EXCL, 0644, 0);
+  sem2 = sem_open(SEM2_NAME, O_CREAT|O_EXCL, 0644, 0);
   if (sem1 == (FAR sem_t*)ERROR)
     {
       int errcode = errno;
@@ -130,12 +133,12 @@ void nsem_test(void)
   /* Open semaphore 2.  We will create that one */
 
   printf("nsem_test: Create semaphore 1 with value == 0\n");
-  sem2 = sem_open(SEM1_NAME, O_CREATE|O_EXCL, 0644, 0);
+  sem1 = sem_open(SEM1_NAME, O_CREAT|O_EXCL, 0644, 0);
   if (sem1 == (FAR sem_t*)ERROR)
     {
       int errcode = errno;
       printf("nsem_peer: ERROR: sem_open(1) failed: %d\n", errcode);
-      return NULL;
+      return;
     }
 
   /* Start the peer thread */
@@ -171,6 +174,7 @@ void nsem_test(void)
 
   /* Wait for the peer to post semaphore 1 */
 
+  printf("nsem_test: Wait on semaphore 1\n");
   status = sem_wait(sem1);
   if (status < 0)
     {
@@ -182,6 +186,7 @@ void nsem_test(void)
 
   /* Close sem1.  It should already have been unlinked by the nsem_peer */
 
+  printf("nsem_test: Close semaphore 1\n");
   sem_close(sem1);
 
   /* Open semaphore 2.  This should have already been created by
@@ -189,18 +194,19 @@ void nsem_test(void)
    */
 
   printf("nsem_test: Open semaphore 2\n");
-  sem1 = sem_open(SEM2_NAME, 0);
-  if (sem1 == (FAR sem_t*)ERROR)
+  sem2 = sem_open(SEM2_NAME, 0);
+  if (sem2 == (FAR sem_t*)ERROR)
     {
       int errcode = errno;
       printf("nsem_test: ERROR: sem_open(2) failed: %d\n", errcode);
       pthread_cancel(peer);
-      return NULL;
+      return;
     }
 
   /* Wait for the peer to post semaphore 2 */
 
-  status = sem_wait(sem1);
+  printf("nsem_test: Wait on semaphore 2\n");
+  status = sem_wait(sem2);
   if (status < 0)
     {
       int errcode = errno;
@@ -211,7 +217,8 @@ void nsem_test(void)
 
   /* Close and unlink semaphore 2 */
 
-  sem_close(sem1);
+  printf("nsem_test: Close and unlink semaphore 2\n");
+  sem_close(sem2);
   sem_unlink(SEM2_NAME);
 
 #ifdef SDCC
