@@ -130,7 +130,7 @@ static void *sender_thread(void *arg)
    */
 
   g_send_mqfd = mq_open("mqueue", O_WRONLY|O_CREAT, 0666, &attr);
-  if (g_send_mqfd < 0)
+  if (g_send_mqfd == (mqd_t)-1)
     {
       printf("sender_thread: ERROR mq_open failed\n");
       pthread_exit((pthread_addr_t)1);
@@ -435,7 +435,7 @@ void mqueue_test(void)
 
   if (g_send_mqfd)
     {
-      printf("mqueue_test: ERROR receive mqd_t left open\n");
+      printf("mqueue_test: ERROR receiver mqd_t left open\n");
       if (mq_close(g_send_mqfd) < 0)
         {
           printf("sender_thread: ERROR mq_close failed\n");
