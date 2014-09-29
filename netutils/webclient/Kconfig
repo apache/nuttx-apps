@@ -12,7 +12,11 @@ config NETUTILS_WEBCLIENT
 if NETUTILS_WEBCLIENT
 
 config NSH_WGET_USERAGENT
-	string "wget Usert Agent"
+	string "wget User Agent"
 	default "NuttX/6.xx.x (; http://www.nuttx.org/)"
+
+config WEBCLIENT_TIMEOUT
+	int "Request and receive timeouts"
+	default 10
 
 endif

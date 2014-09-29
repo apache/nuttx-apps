@@ -102,7 +102,9 @@
  * Definitions
  ****************************************************************************/
 
-#define WEBCLIENT_TIMEOUT          100
+#ifndef CONFIG_WEBCLIENT_TIMEOUT
+#  define CONFIG_WEBCLIENT_TIMEOUT 10
+#endif
 
 #define WEBCLIENT_STATE_STATUSLINE 0
 #define WEBCLIENT_STATE_HEADERS    1
@@ -335,7 +337,8 @@ static inline int wget_parseheaders(struct wget_s *ws)
                   if (dest != NULL)
                     {
                       *dest = 0;
-                   }
+                    }
+
                   strncpy(ws->mimetype, ws->line + strlen(g_httpcontenttype), sizeof(ws->mimetype));
                 }
               else
@@ -364,6 +367,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
         {
           ndx++;
         }
+
       offset++;
     }
 
@@ -408,6 +412,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 {
   struct sockaddr_in server;
   struct wget_s ws;
+  struct timeval tv;
   bool redirected;
   char *dest,post_size[8];
   int sockfd;
@@ -424,11 +429,11 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
   /* Parse the hostname (with optional port number) and filename from the URL */
 
   ret = netlib_parsehttpurl(url, &ws.port,
-                         ws.hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
-                         ws.filename, CONFIG_WEBCLIENT_MAXFILENAME);
+                            ws.hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
+                            ws.filename, CONFIG_WEBCLIENT_MAXFILENAME);
   if (ret != 0)
     {
-      ndbg("Malformed HTTP URL: %s\n", url);
+      ndbg("ERROR: Malformed HTTP URL: %s\n", url);
       set_errno(-ret);
       return ERROR;
     }
@@ -456,11 +461,21 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* socket failed.  It will set the errno appropriately */
 
-          ndbg("socket failed: %d\n", errno);
+          ndbg("ERROR: socket failed: %d\n", errno);
           return ERROR;
         }
 
-      /* Get the server adddress from the host name */
+      /* Set send and receive timeout values */
+
+      tv.tv_sec  = CONFIG_WEBCLIENT_TIMEOUT;
+      tv.tv_usec = 0;
+
+      (void)setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
+                       sizeof(struct timeval));
+      (void)setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
+                       sizeof(struct timeval));
+
+      /* Get the server address from the host name */
 
       server.sin_family = AF_INET;
       server.sin_port   = htons(ws.port);
@@ -469,7 +484,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* Could not resolve host (or malformed IP address) */
 
-          ndbg("Failed to resolve hostname\n");
+          ndbg("ERROR: Failed to resolve hostname\n");
           ret = -EHOSTUNREACH;
           goto errout_with_errno;
         }
@@ -482,7 +497,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ret = connect(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in));
       if (ret < 0)
         {
-          ndbg("connect failed: %d\n", errno);
+          ndbg("ERROR: connect failed: %d\n", errno);
           goto errout;
         }
 
@@ -537,7 +552,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ret = send(sockfd, buffer, len, 0);
       if (ret < 0)
         {
-          ndbg("send failed: %d\n", errno);
+          ndbg("ERROR: send failed: %d\n", errno);
           goto errout;
         }
 
@@ -553,7 +568,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
           ws.datend = recv(sockfd, ws.buffer, ws.buflen, 0);
           if (ws.datend < 0)
             {
-              ndbg("recv failed: %d\n", errno);
+              ndbg("ERROR: recv failed: %d\n", errno);
               ret = ws.datend;
               goto errout_with_errno;
             }
@@ -607,6 +622,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         }
     }
   while (redirected);
+
   return OK;
 
 errout_with_errno:
