@@ -1074,4 +1074,6 @@
 	  (2014-9-23).
 	* apps/netutils/webclient/Kconfig and webclient.c: Add implementation of
 	  timeouts for the apps/netutils/webclient.  From Brennan Ashton
-	  (2014-9-29).
+	* apps/nshlib/Kconfig and nsh_romfsetc.c: Add support for a custom NSH
+	  ROMFS startup image header file location.  From Martin Lederhilger
+	  (2014-9-30).
