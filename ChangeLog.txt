@@ -1077,3 +1077,5 @@
 	* apps/nshlib/Kconfig and nsh_romfsetc.c: Add support for a custom NSH
 	  ROMFS startup image header file location.  From Martin Lederhilger
 	  (2014-9-30).
+	* apps/nshlib/nsh_fscmds.c:  Fix ls -l output for regular files (14-9-30).
+
