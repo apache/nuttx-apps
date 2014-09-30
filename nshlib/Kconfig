@@ -529,14 +529,45 @@ config NSH_ROMFSSECTSIZE
 		increased if the ROMFS volume were to be become large.  Any value
 		selected must be a power of 2.
 
+choice
+	prompt "ROMFS header location"
+	default NSH_DEFAULTROMFS
+
+config NSH_DEFAULTROMFS
+	bool "Default ROMFS header path"
+	---help---
+		Selects the default header located in the source directory of the
+		NSH library.
+
 config NSH_ARCHROMFS
-	bool "Architecture-specific ROMFS header"
-	default n
+	bool "Architecture-specific ROMFS path"
 	---help---
 		Enable this option to provide an architecture-specific ROMFS
-		header at <arch/board/nsh_romfsimg.h>. Note that this header
-		will be copied from nuttx/configs/<boardname>/include and should
-		be stored at this location.
+		header at arch/<boardname>/nsh_romfsimg.h.  Note that this header
+		will be linked (or copied) from nuttx/configs/<boardname>/include
+		and should be stored at that location in the nuttx configs/
+		sub-directory.
+
+config NSH_CUSTOMROMFS
+	bool "Custom ROMFS header path"
+	---help---
+		Enable this option to provide a custom ROMFS header. The path to
+		the header file can be specified in the option "Custom ROMFS header
+		file".
+
+endchoice
+
+if NSH_CUSTOMROMFS
+
+config NSH_CUSTOMROMFS_HEADER
+	string "Custom ROMFS header file path"
+	default ""
+	---help---
+		Specifies the path to the custom ROMFS header file.  This must be
+		either a full path or a path relative to one of the include file
+		search paths provided in your CFLAGS.
+
+endif #NSH_CUSTOMROMFS
 
 config NSH_FATDEVNO
 	int "FAT block device minor number"

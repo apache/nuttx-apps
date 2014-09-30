@@ -55,7 +55,9 @@
 
 #ifdef CONFIG_NSH_ARCHROMFS
 #  include <arch/board/nsh_romfsimg.h>
-#else
+#elif defined(CONFIG_NSH_CUSTOMROMFS)
+#  include CONFIG_NSH_CUSTOMROMFS_HEADER
+#else /* if defined(CONFIG_NSH_DEFAULTROMFS) */
 #  include "nsh_romfsimg.h"
 #endif
 
