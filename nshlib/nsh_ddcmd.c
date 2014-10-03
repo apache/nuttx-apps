@@ -621,10 +621,10 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = OK;
 
 errout_with_outf:
-  DD_INCLOSE(&dd);
+  DD_OUTCLOSE(&dd);
 
 errout_with_inf:
-  DD_OUTCLOSE(&dd);
+  DD_INCLOSE(&dd);
   free(dd.buffer);
 
 errout_with_paths:
