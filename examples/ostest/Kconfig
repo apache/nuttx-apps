@@ -32,6 +32,25 @@ config EXAMPLES_OSTEST_NBARRIER_THREADS
 		is 8 but a smaller number may be needed on systems without sufficient memory
 		to start so many threads.
 
+config EXAMPLES_OSTEST_AIO
+	bool "Asynchronous I/O Tests"
+	default n
+	depends on LIBC_AIO && FS_WRITABLE
+	---help---
+		Enables test of asynchronous I/O.  You must have a mounted, writable
+		directory in place to use this test.
+
+if EXAMPLES_OSTEST_AIO
+
+config EXAMPLES_OSTEST_AIOPATH
+	bool "Scratch file path"
+	default "/tmp"
+	---help---
+		This is the location of a directory in a mounted file system that
+		the AIO test can write into.
+
+endif
+
 config EXAMPLES_OSTEST_RR_RANGE
 	int "Round-robin test - end of search range"
 	default 10000

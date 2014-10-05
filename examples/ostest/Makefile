@@ -53,6 +53,10 @@ ifeq ($(CONFIG_ARCH_FPU),y)
 CSRCS += fpu.c
 endif
 
+ifeq ($(CONFIG_EXAMPLES_OSTEST_AIO),y)
+CSRCS += aio.c
+endif
+
 ifeq ($(CONFIG_SCHED_WAITPID),y)
 CSRCS += waitpid.c
 endif
