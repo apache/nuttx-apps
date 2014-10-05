@@ -111,6 +111,12 @@ int dev_null(void);
 
 void fpu_test(void);
 
+/* aio.c ********************************************************************/
+
+#ifdef CONFIG_LIBC_AIO
+void aio_test(void);
+#endif
+
 /* restart.c ****************************************************************/
 
 void restart_test(void);

@@ -42,8 +42,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
+#include <string.h>
 #include <fcntl.h>
 #include <aio.h>
+#include <errno.h>
 
 #include "ostest.h"
 
@@ -77,9 +80,9 @@ static struct aiocb g_aiocbs[AIO_NCTRLBLKS-1];
 static struct aiocb *g_aiocb[AIO_NCTRLBLKS] =
 {
   &g_aiocbs[0], &g_aiocbs[1], &g_aiocbs[2], NULL, &g_aiocbs[3]
-}
+};
 
-static const FAR void *g_buffers[AIO_NCTRLBLKS] =
+static FAR void * const g_buffers[AIO_NCTRLBLKS] =
 {
   (FAR void *)g_wrbuffer1,
   (FAR void *)NULL,
@@ -123,11 +126,13 @@ static void init_aiocb(bool signal)
 
   for (i = 0; i < AIO_NCTRLBLKS; i++)
     {
-      aiocbp               = &g_aiocbp[i];
+      aiocbp = g_aiocb[i];
       if (aiocbp)
         {
-          aiocbp->sigev_notify   = signal ? SIGEV_SIGNAL : SIGEV_NONE;
-          aiocbp->aio_buf        = g_buffer[i];
+          aiocbp->aio_sigevent.sigev_notify = signal ? SIGEV_SIGNAL : SIGEV_NONE;
+          aiocbp->aio_sigevent.sigev_signo  = SIGUSR1;
+
+          aiocbp->aio_buf        = g_buffers[i];
           aiocbp->aio_offset     = (off_t)g_offsets[i];
           aiocbp->aio_nbytes     = (size_t)g_nbytes[i];
           aiocbp->aio_fildes     = g_fildes;
@@ -185,7 +190,7 @@ static int check_done(void)
  * Public Functions
  ****************************************************************************/
 
-int aio_test(void)
+void aio_test(void)
 {
   int ret;
 
@@ -195,16 +200,16 @@ int aio_test(void)
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
   if (g_fildes < 0)
     {
-      printf(aio_test: Failed to open %s: %d\n", AIO_FILEPATH, errno);
-      return ERROR;
+      printf("aio_test: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      return;
     }
 
   init_aiocb(false);
   ret = lio_listio(LIO_NOWAIT, g_aiocb, AIO_NCTRLBLKS, NULL);
   if (ret < 0)
     {
-      printf(aio_test: lio_listio failed: %d\n", errno);
-      return ERROR;
+      printf("aio_test: lio_listio failed: %d\n", errno);
+      return;
     }
 
   do
@@ -222,6 +227,7 @@ int aio_test(void)
 
   /* Case 3: Use individual signals */
   /* REVISIT: Not yet implemented */
+
 
 }
 

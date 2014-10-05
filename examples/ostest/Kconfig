@@ -43,7 +43,7 @@ config EXAMPLES_OSTEST_AIO
 if EXAMPLES_OSTEST_AIO
 
 config EXAMPLES_OSTEST_AIOPATH
-	bool "Scratch file path"
+	string "Scratch file path"
 	default "/tmp"
 	---help---
 		This is the location of a directory in a mounted file system that
