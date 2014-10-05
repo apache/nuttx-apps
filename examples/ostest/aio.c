@@ -62,7 +62,7 @@
 
 #define AIO_NCTRLBLKS      5
 
-#define AIO_FILEPATH "EXAMPLES_OSTEST_AIOPATH" "/aio_test.dat"
+#define AIO_FILEPATH CONFIG_EXAMPLES_OSTEST_AIOPATH "/aio_test.dat"
 
 /****************************************************************************
  * Private Data
@@ -121,7 +121,7 @@ static void init_aiocb(bool signal)
   FAR struct aiocb *aiocbp;
   int i;
 
-  memset(g_aiocb, 0xff, AIO_NCTRLBLKS*sizeof(struct aiocb));
+  memset(g_aiocbs, 0xff, (AIO_NCTRLBLKS-1)*sizeof(struct aiocb));
   memset(g_rdbuffer, 0xff, AIO_RDBUFFER_SIZE);
 
   for (i = 0; i < AIO_NCTRLBLKS; i++)
@@ -145,10 +145,7 @@ static void init_aiocb(bool signal)
 static int check_done(void)
 {
   FAR struct aiocb *aiocbp;
-  int ret;
   int i;
-
-  ret = OK; /* Assume success */
 
   /* Check each entry in the list.  Break out of the loop if any entry
    * has not completed.
@@ -163,20 +160,20 @@ static int check_done(void)
         {
           /* Check if the I/O has completed */
 
-          printf("%d. result = %d\n", aiocbp->aio_result);
+          printf("%d. result = %d\n", i, aiocbp->aio_result);
           if (aiocbp->aio_result == -EINPROGRESS)
             {
               /* No.. return -EINPROGRESS */
 
-              printf("--- NOT finished ---\n");
+              printf("   --- NOT finished ---\n");
               return -EINPROGRESS;
             }
 
           /* Check for an I/O error */
 
-          else if (aiocbp->aio_result < 0 && ret == OK)
+          else if (aiocbp->aio_result < 0)
             {
-              printf("--- ERROR ---\n");
+              printf("   --- Failed I/O transfer ---\n");
             }
         }
     }
