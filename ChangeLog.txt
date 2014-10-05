@@ -1080,4 +1080,5 @@
 	* apps/nshlib/nsh_fscmds.c:  Fix ls -l output for regular files (14-9-30).
 	* apps/nshlib/nsh_ddcmd.c: Fix reversed in/out file closing when an
 	  error occurs.  From Ken Pettit (2014-10-2).
-
+	* apps/examples/ostest/aio.c, Kconfig, Makefile, and ostest_main.c: Add
+	  AIO test case in OS test (2014-10-5).
