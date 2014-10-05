@@ -35,7 +35,7 @@ config EXAMPLES_OSTEST_NBARRIER_THREADS
 config EXAMPLES_OSTEST_AIO
 	bool "Asynchronous I/O Tests"
 	default n
-	depends on LIBC_AIO && FS_WRITABLE
+	depends on FS_AIO && FS_WRITABLE
 	---help---
 		Enables test of asynchronous I/O.  You must have a mounted, writable
 		directory in place to use this test.
