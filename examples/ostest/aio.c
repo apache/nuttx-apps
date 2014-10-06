@@ -61,6 +61,7 @@
 #define AIO_WRBUFFER2_SIZE sizeof(g_wrbuffer2)
 
 #define AIO_NCTRLBLKS      5
+#define AIO_NXFRS          3
 
 #define AIO_FILEPATH CONFIG_EXAMPLES_OSTEST_AIOPATH "/aio_test.dat"
 
@@ -98,7 +99,7 @@ static const FAR uint8_t g_offsets[AIO_NCTRLBLKS] =
 
 static const FAR uint8_t g_nbytes[AIO_NCTRLBLKS] =
 {
-  AIO_WRBUFFER1_SIZE, 0, AIO_WRBUFFER1_SIZE, 0, AIO_RDBUFFER_SIZE
+  AIO_WRBUFFER1_SIZE, 0, AIO_WRBUFFER2_SIZE, 0, AIO_RDBUFFER_SIZE
 };
 
 static const FAR uint8_t g_opcode[AIO_NCTRLBLKS] =
@@ -160,12 +161,16 @@ static int check_done(void)
         {
           /* Check if the I/O has completed */
 
-          printf("%d. result = %d\n", i, aiocbp->aio_result);
-          if (aiocbp->aio_result == -EINPROGRESS)
+          printf("  %d. result = %d\n", i, aiocbp->aio_result);
+          if (aiocbp->aio_lio_opcode == LIO_NOP)
+            {
+              printf("     NO operation\n");
+            }
+          else if (aiocbp->aio_result == -EINPROGRESS)
             {
               /* No.. return -EINPROGRESS */
 
-              printf("   --- NOT finished ---\n");
+              printf("     NOT finished\n");
               return -EINPROGRESS;
             }
 
@@ -173,14 +178,85 @@ static int check_done(void)
 
           else if (aiocbp->aio_result < 0)
             {
-              printf("   --- Failed I/O transfer ---\n");
+              printf("     Failed I/O transfer\n");
             }
+
+          /* Successful completion r */
+
+          else
+            {
+              printf("     Successful completion\n");
+            }
+        }
+      else
+        {
+          printf("  %d. NULL\n", i);
         }
     }
 
   /* All of the I/Os have completed */
 
   return OK;
+}
+
+static int remove_done(void)
+{
+  FAR struct aiocb *aiocbp;
+  int ret = OK;
+  int i;
+
+  /* Check each entry in the list.  Break out of the loop if any entry
+   * has not completed.
+   */
+
+  for (i = 0; i < AIO_NCTRLBLKS; i++)
+    {
+      /* Skip over NULL entries */
+
+      aiocbp = g_aiocb[i];
+      if (aiocbp)
+        {
+          /* Check if the I/O has completed */
+
+          printf("  %d. result = %d\n", i, aiocbp->aio_result);
+          if (aiocbp->aio_lio_opcode == LIO_NOP)
+            {
+              printf("     NO operation\n");
+              g_aiocb[i] = NULL;
+            }
+          else if (aiocbp->aio_result == -EINPROGRESS)
+            {
+              /* No.. return -EINPROGRESS */
+
+              printf("     NOT finished\n");
+              ret = -EINPROGRESS;
+            }
+
+          /* Check for an I/O error */
+
+          else if (aiocbp->aio_result < 0)
+            {
+              printf("     Failed I/O transfer\n");
+              g_aiocb[i] = NULL;
+            }
+
+          /* Successful completion r */
+
+          else
+            {
+              printf("     Successful completion\n");
+              g_aiocb[i] = NULL;
+            }
+        }
+      else
+        {
+          printf("  %d. NULL\n", i);
+        }
+    }
+
+  /* All of the I/Os have completed */
+
+  return ret;
 }
 
 /****************************************************************************
@@ -190,6 +266,7 @@ static int check_done(void)
 void aio_test(void)
 {
   int ret;
+  int i;
 
   /* Case 1: Poll for transfer complete */
 
@@ -197,7 +274,7 @@ void aio_test(void)
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
   if (g_fildes < 0)
     {
-      printf("aio_test: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      printf("aio_test: ERROR: Failed to open %s: %d\n", AIO_FILEPATH, errno);
       return;
     }
 
@@ -205,7 +282,7 @@ void aio_test(void)
   ret = lio_listio(LIO_NOWAIT, g_aiocb, AIO_NCTRLBLKS, NULL);
   if (ret < 0)
     {
-      printf("aio_test: lio_listio failed: %d\n", errno);
+      printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
       return;
     }
 
@@ -219,10 +296,74 @@ void aio_test(void)
   close(g_fildes);
   g_fildes = -1;
 
-  /* Case 2: Use aio_suspend() until complete */
-  /* REVISIT: Not yet implemented */
+  /* Case 2: Wait in lio_listio */
 
-  /* Case 3: Use individual signals */
+  printf("AIO test case 2: Use LIO_WAIT for transfer complete\n");
+  g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
+  if (g_fildes < 0)
+    {
+      printf("aio_test: ERROR: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      return;
+    }
+
+  init_aiocb(false);
+  ret = lio_listio(LIO_WAIT, g_aiocb, AIO_NCTRLBLKS, NULL);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      return;
+    }
+
+  ret = check_done();
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: Not done\n");
+      return;
+    }
+
+  close(g_fildes);
+  g_fildes = -1;
+
+  /* Case 3: Use aio_suspend() until complete */
+
+  printf("AIO test case 2: Use aio_suspend for transfer complete\n");
+  g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
+  if (g_fildes < 0)
+    {
+      printf("aio_test: ERROR: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      return;
+    }
+
+  init_aiocb(false);
+  ret = lio_listio(LIO_NOWAIT, g_aiocb, AIO_NCTRLBLKS, NULL);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      return;
+    }
+
+  for (i = 0; i < AIO_NXFRS; i++)
+    {
+      printf("  Calling aio_suspend #%d\n", i);
+      ret = aio_suspend((FAR const struct aiocb *const *)g_aiocb, AIO_NCTRLBLKS, NULL);
+      if (ret < 0)
+        {
+          printf("aio_test: ERROR: aio_suspend failed: %d\n", errno);
+          return;
+        }
+
+      ret = remove_done();
+      if (ret >= 0)
+        {
+          break;
+        }
+    }
+
+  close(g_fildes);
+  g_fildes = -1;
+
+
+  /* Case 4: Use individual signals */
   /* REVISIT: Not yet implemented */
 
 
