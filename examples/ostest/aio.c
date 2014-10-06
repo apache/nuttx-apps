@@ -78,10 +78,13 @@ static char g_rdbuffer[AIO_RDBUFFER_SIZE];
 
 
 static struct aiocb g_aiocbs[AIO_NCTRLBLKS-1];
-static struct aiocb *g_aiocb[AIO_NCTRLBLKS] =
+static struct aiocb *g_aiocb[AIO_NCTRLBLKS];
+
+static struct aiocb * const g_aiocb_init[AIO_NCTRLBLKS] =
 {
   &g_aiocbs[0], &g_aiocbs[1], &g_aiocbs[2], NULL, &g_aiocbs[3]
 };
+
 
 static FAR void * const g_buffers[AIO_NCTRLBLKS] =
 {
@@ -127,7 +130,9 @@ static void init_aiocb(bool signal)
 
   for (i = 0; i < AIO_NCTRLBLKS; i++)
     {
-      aiocbp = g_aiocb[i];
+      aiocbp     = g_aiocb_init[i];
+      g_aiocb[i] = aiocbp;
+
       if (aiocbp)
         {
           aiocbp->aio_sigevent.sigev_notify = signal ? SIGEV_SIGNAL : SIGEV_NONE;
@@ -172,6 +177,12 @@ static int check_done(void)
 
               printf("     NOT finished\n");
               return -EINPROGRESS;
+            }
+          else if (aiocbp->aio_result == -ECANCELED)
+            {
+              /* No.. return -EINPROGRESS */
+
+              printf("     Cancelled\n");
             }
 
           /* Check for an I/O error */
@@ -230,6 +241,13 @@ static int remove_done(void)
 
               printf("     NOT finished\n");
               ret = -EINPROGRESS;
+            }
+          else if (aiocbp->aio_result == -ECANCELED)
+            {
+              /* No.. return -EINPROGRESS */
+
+              printf("     Cancelled\n");
+              g_aiocb[i] = NULL;
             }
 
           /* Check for an I/O error */
@@ -326,7 +344,7 @@ void aio_test(void)
 
   /* Case 3: Use aio_suspend() until complete */
 
-  printf("AIO test case 2: Use aio_suspend for transfer complete\n");
+  printf("AIO test case 3: Use aio_suspend for transfer complete\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
   if (g_fildes < 0)
     {
@@ -364,8 +382,88 @@ void aio_test(void)
 
 
   /* Case 4: Use individual signals */
+
+  printf("AIO test case 4: Use individual signals for transfer complete\n");
   /* REVISIT: Not yet implemented */
 
+  /* Case 5: Use list complete signal */
+
+  printf("AIO test case 5: Use list complete signal for transfer complete\n");
+  /* REVISIT: Not yet implemented */
+
+  /* Case 6: Cancel I/O by AIO control block */
+
+  printf("AIO test case 6: Cancel I/O by AIO control block\n");
+  g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
+  if (g_fildes < 0)
+    {
+      printf("aio_test: ERROR: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      return;
+    }
+
+  init_aiocb(false);
+  ret = lio_listio(LIO_NOWAIT, g_aiocb, AIO_NCTRLBLKS, NULL);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      return;
+    }
+
+  ret = aio_cancel(g_fildes, g_aiocb[2]);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: aio_cancel failed: %d\n", errno);
+      return;
+    }
+
+  printf("  aio_cancel return %d\n");
+
+  do
+    {
+      sleep(1);
+      ret = check_done();
+    }
+  while (ret < 0);
+
+  close(g_fildes);
+  g_fildes = -1;
+
+  /* Case 6: Cancel I/O by file descriptor */
+
+  printf("AIO test case 6:Cancel I/O by file descriptor\n");
+  g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
+  if (g_fildes < 0)
+    {
+      printf("aio_test: ERROR: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      return;
+    }
+
+  init_aiocb(false);
+  ret = lio_listio(LIO_NOWAIT, g_aiocb, AIO_NCTRLBLKS, NULL);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      return;
+    }
+
+  ret = aio_cancel(g_fildes, NULL);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: aio_cancel failed: %d\n", errno);
+      return;
+    }
+
+  printf("  aio_cancel return %d\n");
+
+  do
+    {
+      sleep(1);
+      ret = check_done();
+    }
+  while (ret < 0);
+
+  close(g_fildes);
+  g_fildes = -1;
 
 }
 
