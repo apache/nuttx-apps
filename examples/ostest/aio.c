@@ -189,7 +189,7 @@ static int check_done(void)
 
           else if (aiocbp->aio_result < 0)
             {
-              printf("     Failed I/O transfer\n");
+              printf("     ERROR: Failed I/O transfer\n");
             }
 
           /* Successful completion r */
@@ -213,6 +213,7 @@ static int check_done(void)
 static int remove_done(void)
 {
   FAR struct aiocb *aiocbp;
+  int completed = 0;
   int ret = OK;
   int i;
 
@@ -220,6 +221,7 @@ static int remove_done(void)
    * has not completed.
    */
 
+  completed = 0;
   for (i = 0; i < AIO_NCTRLBLKS; i++)
     {
       /* Skip over NULL entries */
@@ -234,13 +236,13 @@ static int remove_done(void)
             {
               printf("     NO operation\n");
               g_aiocb[i] = NULL;
+              completed++;
             }
           else if (aiocbp->aio_result == -EINPROGRESS)
             {
               /* No.. return -EINPROGRESS */
 
               printf("     NOT finished\n");
-              ret = -EINPROGRESS;
             }
           else if (aiocbp->aio_result == -ECANCELED)
             {
@@ -248,14 +250,16 @@ static int remove_done(void)
 
               printf("     Cancelled\n");
               g_aiocb[i] = NULL;
+              completed++;
             }
 
           /* Check for an I/O error */
 
           else if (aiocbp->aio_result < 0)
             {
-              printf("     Failed I/O transfer\n");
+              printf("     ERROR: Failed I/O transfer\n");
               g_aiocb[i] = NULL;
+              completed++;
             }
 
           /* Successful completion r */
@@ -264,6 +268,7 @@ static int remove_done(void)
             {
               printf("     Successful completion\n");
               g_aiocb[i] = NULL;
+              completed++;
             }
         }
       else
@@ -274,7 +279,7 @@ static int remove_done(void)
 
   /* All of the I/Os have completed */
 
-  return ret;
+  return completed;
 }
 
 /****************************************************************************
@@ -286,6 +291,8 @@ void aio_test(void)
   struct sigevent sig;
   sigset_t oset;
   sigset_t set;
+  int completed;
+  int total;
   int ret;
   int i;
 
@@ -304,6 +311,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
@@ -332,6 +340,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
@@ -339,6 +348,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: Not done\n");
+      close(g_fildes);
       return;
     }
 
@@ -360,24 +370,44 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
-  for (i = 0; i < AIO_NXFRS; i++)
+  total = 1; /* One entry was initially NULL */
+  for (i = 1; i <= AIO_NCTRLBLKS; i++)
     {
       printf("  Calling aio_suspend #%d\n", i);
       ret = aio_suspend((FAR const struct aiocb *const *)g_aiocb, AIO_NCTRLBLKS, NULL);
       if (ret < 0)
         {
           printf("aio_test: ERROR: aio_suspend failed: %d\n", errno);
+          close(g_fildes);
           return;
         }
 
-      ret = remove_done();
-      if (ret >= 0)
+      completed = remove_done();
+      if (completed < 1)
+        {
+          printf("aio_test: ERROR: Signalled, but no I/O completed\n");
+          close(g_fildes);
+          return;
+        }
+
+      total += completed;
+      printf("  Completed=%d\n", total);
+
+      if (total >= AIO_NCTRLBLKS)
         {
           break;
         }
+    }
+
+  if (total != AIO_NCTRLBLKS)
+    {
+       printf("aio_test: ERROR: Total is %d, should be %d\n", total, AIO_NCTRLBLKS);
+       close(g_fildes);
+       return;        
     }
 
   close(g_fildes);
@@ -418,6 +448,7 @@ void aio_test(void)
     {
       printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
       (void)sigprocmask(SIG_SETMASK, &oset, NULL);
+      close(g_fildes);
       return;
     }
 
@@ -438,6 +469,7 @@ void aio_test(void)
                 {
                   printf("aio_test: ERROR: sigwaitinfo failed: %d\n", errcode);
                  (void)sigprocmask(SIG_SETMASK, &oset, NULL);
+                  close(g_fildes);
                   return;
                 }
           }
@@ -464,6 +496,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
@@ -471,6 +504,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: aio_cancel failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
@@ -501,6 +535,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
@@ -508,6 +543,7 @@ void aio_test(void)
   if (ret < 0)
     {
       printf("aio_test: ERROR: aio_cancel failed: %d\n", errno);
+      close(g_fildes);
       return;
     }
 
