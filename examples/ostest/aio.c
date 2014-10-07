@@ -283,6 +283,9 @@ static int remove_done(void)
 
 void aio_test(void)
 {
+  struct sigevent sig;
+  sigset_t oset;
+  sigset_t set;
   int ret;
   int i;
 
@@ -380,7 +383,6 @@ void aio_test(void)
   close(g_fildes);
   g_fildes = -1;
 
-
   /* Case 4: Use individual signals */
 
   printf("AIO test case 4: Use individual signals for transfer complete\n");
@@ -389,7 +391,63 @@ void aio_test(void)
   /* Case 5: Use list complete signal */
 
   printf("AIO test case 5: Use list complete signal for transfer complete\n");
-  /* REVISIT: Not yet implemented */
+  g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
+  if (g_fildes < 0)
+    {
+      printf("aio_test: ERROR: Failed to open %s: %d\n", AIO_FILEPATH, errno);
+      return;
+    }
+
+  init_aiocb(false);
+
+  sigemptyset(&set);
+  sigaddset(&set, SIGUSR1);
+
+  /* Block all signals except for SIGUSR1 */
+
+  sigfillset(&set);
+  sigdelset(&set, SIGUSR1);
+  (void)sigprocmask(SIG_SETMASK, &set, &oset);
+
+  sig.sigev_notify = SIGEV_SIGNAL;
+  sig.sigev_signo = SIGUSR1;
+  sig.sigev_value.sival_ptr = NULL;
+
+  ret = lio_listio(LIO_NOWAIT, g_aiocb, AIO_NCTRLBLKS, &sig);
+  if (ret < 0)
+    {
+      printf("aio_test: ERROR: lio_listio failed: %d\n", errno);
+      (void)sigprocmask(SIG_SETMASK, &oset, NULL);
+      return;
+    }
+
+  do
+    {
+      ret = check_done();
+      if (ret < 0)
+        {
+          int status = sigwaitinfo(&set, NULL);
+          if (status < 0)
+            {
+              int errcode = errno;
+              if (errcode == EINTR)
+                {
+                  printf("aio_test: Interrupted by a signal)\n");
+                }
+              else
+                {
+                  printf("aio_test: ERROR: sigwaitinfo failed: %d\n", errcode);
+                 (void)sigprocmask(SIG_SETMASK, &oset, NULL);
+                  return;
+                }
+          }
+        }
+    }
+  while (ret < 0);
+
+  close(g_fildes);
+  g_fildes = -1;
+  (void)sigprocmask(SIG_SETMASK, &oset, NULL);
 
   /* Case 6: Cancel I/O by AIO control block */
 
