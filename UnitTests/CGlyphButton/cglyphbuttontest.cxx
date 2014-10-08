@@ -105,7 +105,7 @@ bool CGlyphButtonTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CGLYPHBUTTONTEST_BGCOLOR))
         {
-          message("CGlyphButtonTest::connect: setBackgroundColor failed\n");
+          printf("CGlyphButtonTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -159,7 +159,7 @@ bool CGlyphButtonTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CGlyphButtonTest::createGraphics: Failed to create CBgWindow instance\n");
+      printf("CGlyphButtonTest::createGraphics: Failed to create CBgWindow instance\n");
       delete m_widgetControl;
       return false;
     }
@@ -169,7 +169,7 @@ bool CGlyphButtonTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CGlyphButtonTest::createGraphics: Failed to open background window\n");
+      printf("CGlyphButtonTest::createGraphics: Failed to open background window\n");
       delete m_bgWindow;
       m_bgWindow = (CBgWindow*)0;
       return false;
@@ -188,7 +188,7 @@ CGlyphButton *CGlyphButtonTest::createButton(FAR const struct SBitmap *clickGlyp
   struct nxgl_size_s windowSize;
   if (!m_bgWindow->getSize(&windowSize))
     {
-      message("CGlyphButtonTest::createGraphics: Failed to get window size\n");
+      printf("CGlyphButtonTest::createGraphics: Failed to get window size\n");
       return (CGlyphButton *)NULL;
     }
 

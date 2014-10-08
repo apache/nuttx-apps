@@ -103,7 +103,7 @@ bool CLatchButtonArrayTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CLATCHBUTTONARRAYTEST_BGCOLOR))
         {
-          message("CLatchButtonArrayTest::connect: setBackgroundColor failed\n");
+          printf("CLatchButtonArrayTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -157,7 +157,7 @@ bool CLatchButtonArrayTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CLatchButtonArrayTest::createGraphics: Failed to create CBgWindow instance\n");
+      printf("CLatchButtonArrayTest::createGraphics: Failed to create CBgWindow instance\n");
       delete m_widgetControl;
       return false;
     }
@@ -167,7 +167,7 @@ bool CLatchButtonArrayTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CLatchButtonArrayTest::createGraphics: Failed to open background window\n");
+      printf("CLatchButtonArrayTest::createGraphics: Failed to open background window\n");
       delete m_bgWindow;
       m_bgWindow = (CBgWindow*)0;
       return false;
@@ -185,7 +185,7 @@ CLatchButtonArray *CLatchButtonArrayTest::createButtonArray(void)
   struct nxgl_size_s windowSize;
   if (!m_bgWindow->getSize(&windowSize))
     {
-      message("CLatchButtonArrayTest::createGraphics: Failed to get window size\n");
+      printf("CLatchButtonArrayTest::createGraphics: Failed to get window size\n");
       return (CLatchButtonArray *)NULL;
     }
 

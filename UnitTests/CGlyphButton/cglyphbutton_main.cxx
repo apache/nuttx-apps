@@ -97,9 +97,9 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
-  message("  Before: %8d After: %8d Change: %8d\n\n",
-          previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("\n%s:\n", msg);
+  printf("  Before: %8d After: %8d Change: %8d\n\n",
+         previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -142,16 +142,16 @@ int cglyphbutton_main(int argc, char *argv[])
 
   // Create an instance of the font test
 
-  message("cglyphbutton_main: Create CGlyphButtonTest instance\n");
+  printf("cglyphbutton_main: Create CGlyphButtonTest instance\n");
   CGlyphButtonTest *test = new CGlyphButtonTest();
   updateMemoryUsage(g_mmprevious, "After creating CGlyphButtonTest");
 
   // Connect the NX server
 
-  message("cglyphbutton_main: Connect the CGlyphButtonTest instance to the NX server\n");
+  printf("cglyphbutton_main: Connect the CGlyphButtonTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("cglyphbutton_main: Failed to connect the CGlyphButtonTest instance to the NX server\n");
+      printf("cglyphbutton_main: Failed to connect the CGlyphButtonTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -159,10 +159,10 @@ int cglyphbutton_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("cglyphbutton_main: Create a Window\n");
+  printf("cglyphbutton_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("cglyphbutton_main: Failed to create a window\n");
+      printf("cglyphbutton_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -173,7 +173,7 @@ int cglyphbutton_main(int argc, char *argv[])
   CGlyphButton *button = test->createButton(&g_arrowDown, &g_arrowUp);
   if (!button)
     {
-      message("cglyphbutton_main: Failed to create a button\n");
+      printf("cglyphbutton_main: Failed to create a button\n");
       delete test;
       return 1;
     }
@@ -181,21 +181,21 @@ int cglyphbutton_main(int argc, char *argv[])
 
   // Show the button
 
-  message("cglyphbutton_main: Show the button\n");
+  printf("cglyphbutton_main: Show the button\n");
   test->showButton(button);
   updateMemoryUsage(g_mmprevious, "After showing the glyph button");
 
   // Wait two seconds, then perform a simulated mouse click on the button
 
   sleep(2);
-  message("cglyphbutton_main: Click the button\n");
+  printf("cglyphbutton_main: Click the button\n");
   test->click();
   updateMemoryUsage(g_mmprevious, "After clicking glyph button");
 
   // Poll for the mouse click event (of course this can hang if something fails)
 
   bool clicked = test->poll(button);
-  message("cglyphbutton_main: Button is %s\n", clicked ? "clicked" : "released");
+  printf("cglyphbutton_main: Button is %s\n", clicked ? "clicked" : "released");
 
   // Wait a second, then release the mouse buttone
 
@@ -206,7 +206,7 @@ int cglyphbutton_main(int argc, char *argv[])
   // Poll for the mouse release event (of course this can hang if something fails)
 
   clicked = test->poll(button);
-  message("cglyphbutton_main: Button is %s\n", clicked ? "clicked" : "released");
+  printf("cglyphbutton_main: Button is %s\n", clicked ? "clicked" : "released");
 
   // Wait a few more seconds so that the tester can ponder the result
 
@@ -214,7 +214,7 @@ int cglyphbutton_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("cglyphbutton_main: Clean-up and exit\n");
+  printf("cglyphbutton_main: Clean-up and exit\n");
   delete button;
   updateMemoryUsage(g_mmprevious, "After deleting the glyph button");
   delete test;

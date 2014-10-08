@@ -105,7 +105,7 @@ bool CListBoxTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CLISTBOXTEST_BGCOLOR))
         {
-          message("CListBoxTest::connect: setBackgroundColor failed\n");
+          printf("CListBoxTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -161,7 +161,7 @@ bool CListBoxTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CListBoxTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CListBoxTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -171,7 +171,7 @@ bool CListBoxTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CListBoxTest::createWindow: Failed to open background window\n");
+      printf("CListBoxTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }

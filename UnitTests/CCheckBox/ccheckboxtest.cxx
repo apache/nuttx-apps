@@ -108,7 +108,7 @@ bool CCheckBoxTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CCHECKBOXTEST_BGCOLOR))
         {
-          message("CCheckBoxTest::connect: setBackgroundColor failed\n");
+          printf("CCheckBoxTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -172,7 +172,7 @@ bool CCheckBoxTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CCheckBoxTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CCheckBoxTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -182,7 +182,7 @@ bool CCheckBoxTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CCheckBoxTest::createWindow: Failed to open background window\n");
+      printf("CCheckBoxTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }
@@ -282,16 +282,16 @@ void CCheckBoxTest::showCheckBoxState(void)
   switch (state)
     {
       case CCheckBox::CHECK_BOX_STATE_OFF: // Checkbox is unticked
-        message("CCheckBoxTest::showCheckBoxState Checkbox is in the unticked state\n");
+        printf("CCheckBoxTest::showCheckBoxState Checkbox is in the unticked state\n");
         break;
 
       case CCheckBox::CHECK_BOX_STATE_ON:  // Checkbox is ticked
-        message("CCheckBoxTest::showCheckBoxState Check is in the ticked state\n");
+        printf("CCheckBoxTest::showCheckBoxState Check is in the ticked state\n");
         break;
 
       default:
       case CCheckBox::CHECK_BOX_STATE_MU:  // Checkbox is in the third state
-        message("CCheckBoxTest::showCheckBoxState Checkbox is in the 3rd state\n");
+        printf("CCheckBoxTest::showCheckBoxState Checkbox is in the 3rd state\n");
         break;
     }
 }

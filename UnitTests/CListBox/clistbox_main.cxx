@@ -133,8 +133,8 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("%s: Before: %8d After: %8d Change: %8d\n",
-           msg, previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("%s: Before: %8d After: %8d Change: %8d\n",
+         msg, previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -182,16 +182,16 @@ int clistbox_main(int argc, char *argv[])
 
   // Create an instance of the listbox test
 
-  message("clistbox_main: Create CListBoxTest instance\n");
+  printf("clistbox_main: Create CListBoxTest instance\n");
   CListBoxTest *test = new CListBoxTest();
   updateMemoryUsage(g_mmPrevious, "After creating CListBoxTest");
 
   // Connect the NX server
 
-  message("clistbox_main: Connect the CListBoxTest instance to the NX server\n");
+  printf("clistbox_main: Connect the CListBoxTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("clistbox_main: Failed to connect the CListBoxTest instance to the NX server\n");
+      printf("clistbox_main: Failed to connect the CListBoxTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -199,10 +199,10 @@ int clistbox_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("clistbox_main: Create a Window\n");
+  printf("clistbox_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("clistbox_main: Failed to create a window\n");
+      printf("clistbox_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -210,11 +210,11 @@ int clistbox_main(int argc, char *argv[])
 
   // Create a listbox
 
-  message("clistbox_main: Create a ListBox\n");
+  printf("clistbox_main: Create a ListBox\n");
   CListBox *listbox = test->createListBox();
   if (!listbox)
     {
-      message("clistbox_main: Failed to create a listbox\n");
+      printf("clistbox_main: Failed to create a listbox\n");
       delete test;
       return 1;
     }
@@ -228,12 +228,12 @@ int clistbox_main(int argc, char *argv[])
 
   // Now add items to the list box (in reverse alphabetical order)
 
-  message("clistbox_main: Add options to the ListBox\n");
+  printf("clistbox_main: Add options to the ListBox\n");
   for (int i = NOPTIONS - 1; i >= 0; i--)
     {
       listbox->addOption(g_options[i],i);
       test->showListBox(listbox);
-      message("clistbox_main: %d. New option %s\n", i, g_options[i]);
+      printf("clistbox_main: %d. New option %s\n", i, g_options[i]);
       usleep(500000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After adding the listbox items");
@@ -241,7 +241,7 @@ int clistbox_main(int argc, char *argv[])
 
   // Sort the list box
 
-  message("clistbox_main: Sort the ListBox\n");
+  printf("clistbox_main: Sort the ListBox\n");
   listbox->sort();
   test->showListBox(listbox);
   updateMemoryUsage(g_mmPrevious, "clistbox_main: After sorting the listbox");
@@ -253,16 +253,16 @@ int clistbox_main(int argc, char *argv[])
   int nOptions;
   while ((nOptions = listbox->getOptionCount()) > 0)
     {
-      message("clistbox_main: Option count: %d\n", nOptions);
+      printf("clistbox_main: Option count: %d\n", nOptions);
       if (nOptions <= 5)
         {
-          message("clistbox_main: Selecting all remaining options\n");
+          printf("clistbox_main: Selecting all remaining options\n");
           listbox->selectAllOptions();
           test->showListBox(listbox);
           updateMemoryUsage(g_mmPrevious, "clistbox_main: After selecting all options");
           sleep(1);
 
-          message("clistbox_main: Removing all remaining options\n");
+          printf("clistbox_main: Removing all remaining options\n");
           listbox->removeAllOptions();
           updateMemoryUsage(g_mmPrevious, "clistbox_main: After removing all options");
           test->showListBox(listbox);
@@ -271,37 +271,37 @@ int clistbox_main(int argc, char *argv[])
         {
           int selected[5];
 
-          message("clistbox_main: Selecting five options\n");
+          printf("clistbox_main: Selecting five options\n");
           for (int i = 0; i < 5; i++)
             {
               selected[i] = ((nOptions - 1) * rand()) / MAX_RAND;
-              message("clistbox_main: Selecting option %d\n", selected[i]);
+              printf("clistbox_main: Selecting option %d\n", selected[i]);
               listbox->removeOption(selected[i]);
               test->showListBox(listbox);
               usleep(500000);
             }
           updateMemoryUsage(g_mmPrevious, "clistbox_main: After selecting five options");
 
-          message("clistbox_main: De-selecting options\n");
+          printf("clistbox_main: De-selecting options\n");
           int index;
           int count = 0;
           while ((index = listbox->getSelectedIndex()) >= 0)
             {
-              message("clistbox_main: De-selecting option %d\n", index);
+              printf("clistbox_main: De-selecting option %d\n", index);
               listbox->deselectOption(index);
               test->showListBox(listbox);
               count++;
               usleep(500000);
             }
 
-          message("clistbox_main: %s: %d options de-selected\n",
+          printf("clistbox_main: %s: %d options de-selected\n",
                   count == 5 ? "OK" : "ERROR", count);
           updateMemoryUsage(g_mmPrevious, "clistbox_main: After de-selecting options");
 
-          message("clistbox_main: Removing the selected options\n");
+          printf("clistbox_main: Removing the selected options\n");
           for (int i = 0; i < 5; i++)
             {
-              message("clistbox_main: Removing option %d\n", selected[i]);
+              printf("clistbox_main: Removing option %d\n", selected[i]);
               listbox->removeOption(selected[i]);
               test->showListBox(listbox);
               usleep(500000);
@@ -315,13 +315,13 @@ int clistbox_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("clistbox_main: Clean-up and exit\n");
+  printf("clistbox_main: Clean-up and exit\n");
   delete listbox;
   updateMemoryUsage(g_mmPrevious, "After deleting the listbox");
   delete test;
   updateMemoryUsage(g_mmPrevious, "After deleting the test");
   updateMemoryUsage(g_mmInitial, "Final memory usage");
-  message("Peak memory usage: %8d\n", g_mmPeak - g_mmInitial);
+  printf("Peak memory usage: %8d\n", g_mmPeak - g_mmInitial);
   return 0;
 }
 

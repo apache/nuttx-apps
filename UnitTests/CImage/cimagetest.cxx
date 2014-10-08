@@ -104,7 +104,7 @@ bool CImageTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CIMAGETEST_BGCOLOR))
         {
-          message("CImageTest::connect: setBackgroundColor failed\n");
+          printf("CImageTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -158,7 +158,7 @@ bool CImageTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CImageTest::createGraphics: Failed to create CBgWindow instance\n");
+      printf("CImageTest::createGraphics: Failed to create CBgWindow instance\n");
       delete m_widgetControl;
       return false;
     }
@@ -168,7 +168,7 @@ bool CImageTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CImageTest::createGraphics: Failed to open background window\n");
+      printf("CImageTest::createGraphics: Failed to open background window\n");
       delete m_bgWindow;
       m_bgWindow = (CBgWindow*)0;
       return false;
@@ -186,7 +186,7 @@ CImage *CImageTest::createImage(IBitmap *bitmap)
   struct nxgl_size_s windowSize;
   if (!m_bgWindow->getSize(&windowSize))
     {
-      message("CImageTest::createGraphics: Failed to get window size\n");
+      printf("CImageTest::createGraphics: Failed to get window size\n");
       return (CImage *)NULL;
     }
 

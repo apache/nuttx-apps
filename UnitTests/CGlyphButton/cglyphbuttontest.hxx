@@ -76,15 +76,6 @@
 #  define CONFIG_CGLYPHBUTTONTEST_FONTCOLOR CONFIG_NXWIDGETS_DEFAULT_FONTCOLOR
 #endif
 
-// If debug is enabled, use the debug function, syslog() instead
-// of printf() so that the output is synchronized.
-
-#ifdef CONFIG_DEBUG
-#  define message lowsyslog
-#else
-#  define message printf
-#endif
-
 // Helper macros
 
 #ifndef MAX

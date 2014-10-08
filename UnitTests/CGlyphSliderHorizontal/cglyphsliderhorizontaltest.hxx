@@ -69,15 +69,6 @@
 #  define CONFIG_CGLYPHSLIDERHORIZONTALTEST_BGCOLOR CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR
 #endif
 
-// If debug is enabled, use the debug function, syslog() instead
-// of printf() so that the output is synchronized.
-
-#ifdef CONFIG_DEBUG
-#  define message lowsyslog
-#else
-#  define message printf
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 // Public Classes
 /////////////////////////////////////////////////////////////////////////////

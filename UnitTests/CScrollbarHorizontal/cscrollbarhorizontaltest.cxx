@@ -105,7 +105,7 @@ bool CScrollbarHorizontalTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CSCROLLBARHORIZONTALTEST_BGCOLOR))
         {
-          message("CScrollbarHorizontalTest::connect: setBackgroundColor failed\n");
+          printf("CScrollbarHorizontalTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -161,7 +161,7 @@ bool CScrollbarHorizontalTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CScrollbarHorizontalTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CScrollbarHorizontalTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -171,7 +171,7 @@ bool CScrollbarHorizontalTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CScrollbarHorizontalTest::createWindow: Failed to open background window\n");
+      printf("CScrollbarHorizontalTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }

@@ -103,7 +103,7 @@ bool CButtonArrayTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CBUTTONARRAYTEST_BGCOLOR))
         {
-          message("CButtonArrayTest::connect: setBackgroundColor failed\n");
+          printf("CButtonArrayTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -157,7 +157,7 @@ bool CButtonArrayTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CButtonArrayTest::createGraphics: Failed to create CBgWindow instance\n");
+      printf("CButtonArrayTest::createGraphics: Failed to create CBgWindow instance\n");
       delete m_widgetControl;
       return false;
     }
@@ -167,7 +167,7 @@ bool CButtonArrayTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CButtonArrayTest::createGraphics: Failed to open background window\n");
+      printf("CButtonArrayTest::createGraphics: Failed to open background window\n");
       delete m_bgWindow;
       m_bgWindow = (CBgWindow*)0;
       return false;
@@ -185,7 +185,7 @@ CButtonArray *CButtonArrayTest::createButtonArray(void)
   struct nxgl_size_s windowSize;
   if (!m_bgWindow->getSize(&windowSize))
     {
-      message("CButtonArrayTest::createGraphics: Failed to get window size\n");
+      printf("CButtonArrayTest::createGraphics: Failed to get window size\n");
       return (CButtonArray *)NULL;
     }
 

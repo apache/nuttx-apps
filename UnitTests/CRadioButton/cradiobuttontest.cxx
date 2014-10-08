@@ -112,7 +112,7 @@ bool CRadioButtonTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CRADIOBUTTONTEST_BGCOLOR))
         {
-          message("CRadioButtonTest::connect: setBackgroundColor failed\n");
+          printf("CRadioButtonTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -174,7 +174,7 @@ bool CRadioButtonTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CRadioButtonTest::createGraphics: Failed to create CBgWindow instance\n");
+      printf("CRadioButtonTest::createGraphics: Failed to create CBgWindow instance\n");
       delete m_widgetControl;
       return false;
     }
@@ -184,7 +184,7 @@ bool CRadioButtonTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CRadioButtonTest::createGraphics: Failed to open background window\n");
+      printf("CRadioButtonTest::createGraphics: Failed to open background window\n");
       delete m_bgWindow;
       m_bgWindow = (CBgWindow*)0;
       return false;
@@ -202,7 +202,7 @@ CRadioButton *CRadioButtonTest::newRadioButton(void)
   struct nxgl_size_s windowSize;
   if (!m_bgWindow->getSize(&windowSize))
     {
-      message("CRadioButtonTest::newRadioButton: Failed to get window size\n");
+      printf("CRadioButtonTest::newRadioButton: Failed to get window size\n");
       return (CRadioButton *)NULL;
     }
 
@@ -219,7 +219,7 @@ CRadioButton *CRadioButtonTest::newRadioButton(void)
       m_radioButtonGroup = new CRadioButtonGroup(m_widgetControl, groupX, groupY);
       if (!m_radioButtonGroup)
         {
-          message("CRadioButtonTest::newRadioButton: Failed to create the radio button group\n");
+          printf("CRadioButtonTest::newRadioButton: Failed to create the radio button group\n");
           return (CRadioButton *)NULL;
         }
     }
@@ -296,10 +296,10 @@ void CRadioButtonTest::showButtonState(void)
   int index = m_radioButtonGroup->getSelectedIndex();
   if (index < 0)
     {
-      message("CRadioButtonTest::showButtonState No button is pressed\n");
+      printf("CRadioButtonTest::showButtonState No button is pressed\n");
     }
   else
     {
-      message("CRadioButtonTest::showButtonState button%d is selected\n", index+1);
+      printf("CRadioButtonTest::showButtonState button%d is selected\n", index+1);
     }
 }

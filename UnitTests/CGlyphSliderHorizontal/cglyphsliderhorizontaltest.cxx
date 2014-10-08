@@ -151,7 +151,7 @@ bool CGlyphSliderHorizontalTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CGLYPHSLIDERHORIZONTALTEST_BGCOLOR))
         {
-          message("CGlyphSliderHorizontalTest::connect: setBackgroundColor failed\n");
+          printf("CGlyphSliderHorizontalTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -207,7 +207,7 @@ bool CGlyphSliderHorizontalTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CGlyphSliderHorizontalTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CGlyphSliderHorizontalTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -217,7 +217,7 @@ bool CGlyphSliderHorizontalTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CGlyphSliderHorizontalTest::createWindow: Failed to open background window\n");
+      printf("CGlyphSliderHorizontalTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }

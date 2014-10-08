@@ -75,15 +75,6 @@
 #  define CONFIG_CBUTTONARRAYTEST_FONTCOLOR CONFIG_NXWIDGETS_DEFAULT_FONTCOLOR
 #endif
 
-// If debug is enabled, use the debug function, syslog() instead
-// of printf() so that the output is synchronized.
-
-#ifdef CONFIG_DEBUG
-#  define message lowsyslog
-#else
-#  define message printf
-#endif
-
 // The geometry of the button array
 
 #define BUTTONARRAY_NCOLUMNS      4

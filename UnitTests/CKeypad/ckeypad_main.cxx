@@ -97,8 +97,8 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("%s: Before: %8d After: %8d Change: %8d\n",
-           msg, previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("%s: Before: %8d After: %8d Change: %8d\n",
+         msg, previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -268,7 +268,7 @@ int ckeypad_main(int argc, char *argv[])
   delete test;
   updateMemoryUsage(g_mmPrevious, "After deleting the test");
   updateMemoryUsage(g_mmInitial, "Final memory usage");
-  message("Peak memory usage: %8d\n", g_mmPeak - g_mmInitial);
+  printf("Peak memory usage: %8d\n", g_mmPeak - g_mmInitial);
   return 0;
 }
 

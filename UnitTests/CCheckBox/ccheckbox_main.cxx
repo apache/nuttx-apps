@@ -98,9 +98,9 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
-  message("  Before: %8d After: %8d Change: %8d\n\n",
-          previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("\n%s:\n", msg);
+  printf("  Before: %8d After: %8d Change: %8d\n\n",
+         previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -143,16 +143,16 @@ int ccheckbox_main(int argc, char *argv[])
 
   // Create an instance of the checkbox test
 
-  message("ccheckbox_main: Create CCheckBoxTest instance\n");
+  printf("ccheckbox_main: Create CCheckBoxTest instance\n");
   CCheckBoxTest *test = new CCheckBoxTest();
   updateMemoryUsage(g_mmprevious, "After creating CCheckBoxTest");
 
   // Connect the NX server
 
-  message("ccheckbox_main: Connect the CCheckBoxTest instance to the NX server\n");
+  printf("ccheckbox_main: Connect the CCheckBoxTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("ccheckbox_main: Failed to connect the CCheckBoxTest instance to the NX server\n");
+      printf("ccheckbox_main: Failed to connect the CCheckBoxTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -160,10 +160,10 @@ int ccheckbox_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("ccheckbox_main: Create a Window\n");
+  printf("ccheckbox_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("ccheckbox_main: Failed to create a window\n");
+      printf("ccheckbox_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -177,21 +177,21 @@ int ccheckbox_main(int argc, char *argv[])
 
   // Now click the checkbox
 
-  message("ccheckbox_main: Click 1\n");
+  printf("ccheckbox_main: Click 1\n");
   test->clickCheckBox();
   usleep(500*1000);
   test->showCheckBoxState();
   updateMemoryUsage(g_mmprevious, "After click 1");
   usleep(500*1000);
 
-  message("ccheckbox_main: Click 2\n");
+  printf("ccheckbox_main: Click 2\n");
   test->clickCheckBox();
   usleep(500*1000);
   test->showCheckBoxState();
   updateMemoryUsage(g_mmprevious, "After click 2");
   usleep(500*1000);
 
-  message("ccheckbox_main: Click 3\n");
+  printf("ccheckbox_main: Click 3\n");
   test->clickCheckBox();
   usleep(500*1000);
   test->showCheckBoxState();
@@ -200,10 +200,9 @@ int ccheckbox_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("ccheckbox_main: Clean-up and exit\n");
+  printf("ccheckbox_main: Clean-up and exit\n");
   delete test;
   updateMemoryUsage(g_mmprevious, "After deleting the test");
   updateMemoryUsage(g_mmInitial, "Final memory usage");
   return 0;
 }
-

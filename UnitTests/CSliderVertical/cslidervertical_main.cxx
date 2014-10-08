@@ -98,9 +98,9 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
-  message("  Before: %8d After: %8d Change: %8d\n\n",
-          previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("\n%s:\n", msg);
+  printf("  Before: %8d After: %8d Change: %8d\n\n",
+         previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -143,16 +143,16 @@ int cslidervertical_main(int argc, char *argv[])
 
   // Create an instance of the checkbox test
 
-  message("cslidervertical_main: Create CSliderVerticalTest instance\n");
+  printf("cslidervertical_main: Create CSliderVerticalTest instance\n");
   CSliderVerticalTest *test = new CSliderVerticalTest();
   updateMemoryUsage(g_mmprevious, "After creating CSliderVerticalTest");
 
   // Connect the NX server
 
-  message("cslidervertical_main: Connect the CSliderVerticalTest instance to the NX server\n");
+  printf("cslidervertical_main: Connect the CSliderVerticalTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("cslidervertical_main: Failed to connect the CSliderVerticalTest instance to the NX server\n");
+      printf("cslidervertical_main: Failed to connect the CSliderVerticalTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -160,10 +160,10 @@ int cslidervertical_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("cslidervertical_main: Create a Window\n");
+  printf("cslidervertical_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("cslidervertical_main: Failed to create a window\n");
+      printf("cslidervertical_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -171,11 +171,11 @@ int cslidervertical_main(int argc, char *argv[])
 
   // Create a slider
 
-  message("cslidervertical_main: Create a Slider\n");
+  printf("cslidervertical_main: Create a Slider\n");
   CSliderVertical *slider = test->createSlider();
   if (!slider)
     {
-      message("cslidervertical_main: Failed to create a slider\n");
+      printf("cslidervertical_main: Failed to create a slider\n");
       delete test;
       return 1;
     }
@@ -186,9 +186,9 @@ int cslidervertical_main(int argc, char *argv[])
   slider->setMinimumValue(0);
   slider->setMaximumValue(MAX_SLIDER);
   slider->setValue(0);
-  message("cslidervertical_main: Slider range %d->%d Initial value %d\n",
-          slider->getMinimumValue(), slider->getMaximumValue(),
-          slider->getValue());
+  printf("cslidervertical_main: Slider range %d->%d Initial value %d\n",
+         slider->getMinimumValue(), slider->getMaximumValue(),
+         slider->getValue());
 
   // Show the initial state of the checkbox
 
@@ -201,7 +201,7 @@ int cslidervertical_main(int argc, char *argv[])
     {
       slider->setValue(i);
       test->showSlider(slider);
-      message("cslidervertical_main: %d. New value %d\n", i, slider->getValue());
+      printf("cslidervertical_main: %d. New value %d\n", i, slider->getValue());
       usleep(1000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmprevious, "cslidervertical_main: After moving the slider up");
@@ -212,7 +212,7 @@ int cslidervertical_main(int argc, char *argv[])
     {
       slider->setValue(i);
       test->showSlider(slider);
-      message("cslidervertical_main: %d. New value %d\n", i, slider->getValue());
+      printf("cslidervertical_main: %d. New value %d\n", i, slider->getValue());
       usleep(1000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmprevious, "cslidervertical_main: After moving the slider down");
@@ -220,7 +220,7 @@ int cslidervertical_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("cslidervertical_main: Clean-up and exit\n");
+  printf("cslidervertical_main: Clean-up and exit\n");
   delete slider;
   updateMemoryUsage(g_mmprevious, "After deleting the slider");
   delete test;

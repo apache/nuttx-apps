@@ -86,13 +86,13 @@ extern "C" int cimage_main(int argc, char *argv[]);
 static void showMemoryUsage(FAR struct mallinfo *mmbefore,
                             FAR struct mallinfo *mmafter)
 {
-  message("VARIABLE  BEFORE   AFTER\n");
-  message("======== ======== ========\n");
-  message("arena    %8d %8d\n", mmbefore->arena,    mmafter->arena);
-  message("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
-  message("mxordblk %8d %8d\n", mmbefore->mxordblk, mmafter->mxordblk);
-  message("uordblks %8d %8d\n", mmbefore->uordblks, mmafter->uordblks);
-  message("fordblks %8d %8d\n", mmbefore->fordblks, mmafter->fordblks);
+  printf("VARIABLE  BEFORE   AFTER\n");
+  printf("======== ======== ========\n");
+  printf("arena    %8d %8d\n", mmbefore->arena,    mmafter->arena);
+  printf("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
+  printf("mxordblk %8d %8d\n", mmbefore->mxordblk, mmafter->mxordblk);
+  printf("uordblks %8d %8d\n", mmbefore->uordblks, mmafter->uordblks);
+  printf("fordblks %8d %8d\n", mmbefore->fordblks, mmafter->fordblks);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ static void updateMemoryUsage(FAR struct mallinfo *previous,
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
+  printf("\n%s:\n", msg);
   showMemoryUsage(previous, &mmcurrent);
 
   /* Set up for the next test */
@@ -157,16 +157,16 @@ int cimage_main(int argc, char *argv[])
 
   // Create an instance of the font test
 
-  message("cimage_main: Create CImageTest instance\n");
+  printf("cimage_main: Create CImageTest instance\n");
   CImageTest *test = new CImageTest();
   updateMemoryUsage(&g_mmprevious, "After creating CImageTest");
 
   // Connect the NX server
 
-  message("cimage_main: Connect the CImageTest instance to the NX server\n");
+  printf("cimage_main: Connect the CImageTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("cimage_main: Failed to connect the CImageTest instance to the NX server\n");
+      printf("cimage_main: Failed to connect the CImageTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -174,10 +174,10 @@ int cimage_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("cimage_main: Create a Window\n");
+  printf("cimage_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("cimage_main: Failed to create a window\n");
+      printf("cimage_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -193,7 +193,7 @@ int cimage_main(int argc, char *argv[])
   CImage *image = test->createImage(static_cast<IBitmap*>(nuttxBitmap));
   if (!image)
     {
-      message("cimage_main: Failed to create a image\n");
+      printf("cimage_main: Failed to create a image\n");
       delete test;
       return 1;
     }
@@ -207,7 +207,7 @@ int cimage_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("cimage_main: Clean-up and exit\n");
+  printf("cimage_main: Clean-up and exit\n");
   delete image;
   updateMemoryUsage(&g_mmprevious, "After deleting CImage");
 

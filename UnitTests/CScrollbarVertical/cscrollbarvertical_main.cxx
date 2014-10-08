@@ -98,9 +98,9 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
-  message("  Before: %8d After: %8d Change: %8d\n\n",
-          previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("\n%s:\n", msg);
+  printf("  Before: %8d After: %8d Change: %8d\n\n",
+         previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -143,16 +143,16 @@ int cscrollbarvertical_main(int argc, char *argv[])
 
   // Create an instance of the checkbox test
 
-  message("cscrollbarvertical_main: Create CScrollbarVerticalTest instance\n");
+  printf("cscrollbarvertical_main: Create CScrollbarVerticalTest instance\n");
   CScrollbarVerticalTest *test = new CScrollbarVerticalTest();
   updateMemoryUsage(g_mmprevious, "After creating CScrollbarVerticalTest");
 
   // Connect the NX server
 
-  message("cscrollbarvertical_main: Connect the CScrollbarVerticalTest instance to the NX server\n");
+  printf("cscrollbarvertical_main: Connect the CScrollbarVerticalTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("cscrollbarvertical_main: Failed to connect the CScrollbarVerticalTest instance to the NX server\n");
+      printf("cscrollbarvertical_main: Failed to connect the CScrollbarVerticalTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -160,10 +160,10 @@ int cscrollbarvertical_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("cscrollbarvertical_main: Create a Window\n");
+  printf("cscrollbarvertical_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("cscrollbarvertical_main: Failed to create a window\n");
+      printf("cscrollbarvertical_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -171,11 +171,11 @@ int cscrollbarvertical_main(int argc, char *argv[])
 
   // Create a scrollbar
 
-  message("cscrollbarvertical_main: Create a Scrollbar\n");
+  printf("cscrollbarvertical_main: Create a Scrollbar\n");
   CScrollbarVertical *scrollbar = test->createScrollbar();
   if (!scrollbar)
     {
-      message("cscrollbarvertical_main: Failed to create a scrollbar\n");
+      printf("cscrollbarvertical_main: Failed to create a scrollbar\n");
       delete test;
       return 1;
     }
@@ -186,9 +186,9 @@ int cscrollbarvertical_main(int argc, char *argv[])
   scrollbar->setMinimumValue(0);
   scrollbar->setMaximumValue(MAX_SCROLLBAR);
   scrollbar->setValue(0);
-  message("cscrollbarvertical_main: Scrollbar range %d->%d Initial value %d\n",
-          scrollbar->getMinimumValue(), scrollbar->getMaximumValue(),
-          scrollbar->getValue());
+  printf("cscrollbarvertical_main: Scrollbar range %d->%d Initial value %d\n",
+         scrollbar->getMinimumValue(), scrollbar->getMaximumValue(),
+         scrollbar->getValue());
 
   // Show the initial state of the checkbox
 
@@ -201,7 +201,7 @@ int cscrollbarvertical_main(int argc, char *argv[])
     {
       scrollbar->setValue(i);
       test->showScrollbar(scrollbar);
-      message("cscrollbarvertical_main: %d. New value %d\n", i, scrollbar->getValue());
+      printf("cscrollbarvertical_main: %d. New value %d\n", i, scrollbar->getValue());
       usleep(1000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmprevious, "cscrollbarvertical_main: After moving the scrollbar up");
@@ -212,7 +212,7 @@ int cscrollbarvertical_main(int argc, char *argv[])
     {
       scrollbar->setValue(i);
       test->showScrollbar(scrollbar);
-      message("cscrollbarvertical_main: %d. New value %d\n", i, scrollbar->getValue());
+      printf("cscrollbarvertical_main: %d. New value %d\n", i, scrollbar->getValue());
       usleep(5000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmprevious, "cscrollbarvertical_main: After moving the scrollbar down");
@@ -220,7 +220,7 @@ int cscrollbarvertical_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("cscrollbarvertical_main: Clean-up and exit\n");
+  printf("cscrollbarvertical_main: Clean-up and exit\n");
   delete scrollbar;
   updateMemoryUsage(g_mmprevious, "After deleting the scrollbar");
   delete test;

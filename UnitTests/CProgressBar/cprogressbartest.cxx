@@ -105,7 +105,7 @@ bool CProgressBarTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CPROGRESSBARTEST_BGCOLOR))
         {
-          message("CProgressBarTest::connect: setBackgroundColor failed\n");
+          printf("CProgressBarTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -161,7 +161,7 @@ bool CProgressBarTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CProgressBarTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CProgressBarTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -171,7 +171,7 @@ bool CProgressBarTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CProgressBarTest::createWindow: Failed to open background window\n");
+      printf("CProgressBarTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }

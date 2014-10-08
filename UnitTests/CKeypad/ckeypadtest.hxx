@@ -72,15 +72,6 @@
 #  define CONFIG_CKEYPADTEST_BGCOLOR CONFIG_NXWIDGETS_DEFAULT_BACKGROUNDCOLOR
 #endif
 
-// If debug is enabled, use the debug function, syslog() instead
-// of printf() so that the output is synchronized.
-
-#ifdef CONFIG_DEBUG
-#  define message lowsyslog
-#else
-#  define message printf
-#endif
-
 // This is the size of the keypad
 
 #define KEYPAD_NROWS    7

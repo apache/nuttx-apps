@@ -98,9 +98,9 @@ static void updateMemoryUsage(unsigned int previous,
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
-  message("  Before: %8d After: %8d Change: %8d\n\n",
-          previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
+  printf("\n%s:\n", msg);
+  printf("  Before: %8d After: %8d Change: %8d\n\n",
+         previous, mmcurrent.uordblks, mmcurrent.uordblks - previous);
 
   /* Set up for the next test */
 
@@ -143,16 +143,16 @@ int csliderhorizontal_main(int argc, char *argv[])
 
   // Create an instance of the checkbox test
 
-  message("csliderhorizontal_main: Create CSliderHorizontalTest instance\n");
+  printf("csliderhorizontal_main: Create CSliderHorizontalTest instance\n");
   CSliderHorizontalTest *test = new CSliderHorizontalTest();
   updateMemoryUsage(g_mmprevious, "After creating CSliderHorizontalTest");
 
   // Connect the NX server
 
-  message("csliderhorizontal_main: Connect the CSliderHorizontalTest instance to the NX server\n");
+  printf("csliderhorizontal_main: Connect the CSliderHorizontalTest instance to the NX server\n");
   if (!test->connect())
     {
-      message("csliderhorizontal_main: Failed to connect the CSliderHorizontalTest instance to the NX server\n");
+      printf("csliderhorizontal_main: Failed to connect the CSliderHorizontalTest instance to the NX server\n");
       delete test;
       return 1;
     }
@@ -160,10 +160,10 @@ int csliderhorizontal_main(int argc, char *argv[])
 
   // Create a window to draw into
 
-  message("csliderhorizontal_main: Create a Window\n");
+  printf("csliderhorizontal_main: Create a Window\n");
   if (!test->createWindow())
     {
-      message("csliderhorizontal_main: Failed to create a window\n");
+      printf("csliderhorizontal_main: Failed to create a window\n");
       delete test;
       return 1;
     }
@@ -171,11 +171,11 @@ int csliderhorizontal_main(int argc, char *argv[])
 
   // Create a slider
 
-  message("csliderhorizontal_main: Create a Slider\n");
+  printf("csliderhorizontal_main: Create a Slider\n");
   CSliderHorizontal *slider = test->createSlider();
   if (!slider)
     {
-      message("csliderhorizontal_main: Failed to create a slider\n");
+      printf("csliderhorizontal_main: Failed to create a slider\n");
       delete test;
       return 1;
     }
@@ -186,9 +186,9 @@ int csliderhorizontal_main(int argc, char *argv[])
   slider->setMinimumValue(0);
   slider->setMaximumValue(MAX_SLIDER);
   slider->setValue(0);
-  message("csliderhorizontal_main: Slider range %d->%d Initial value %d\n",
-          slider->getMinimumValue(), slider->getMaximumValue(),
-          slider->getValue());
+  printf("csliderhorizontal_main: Slider range %d->%d Initial value %d\n",
+         slider->getMinimumValue(), slider->getMaximumValue(),
+         slider->getValue());
 
   // Show the initial state of the checkbox
 
@@ -201,7 +201,7 @@ int csliderhorizontal_main(int argc, char *argv[])
     {
       slider->setValue(i);
       test->showSlider(slider);
-      message("csliderhorizontal_main: %d. New value %d\n", i, slider->getValue());
+      printf("csliderhorizontal_main: %d. New value %d\n", i, slider->getValue());
       usleep(1000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmprevious, "csliderhorizontal_main: After moving the slider up");
@@ -212,7 +212,7 @@ int csliderhorizontal_main(int argc, char *argv[])
     {
       slider->setValue(i);
       test->showSlider(slider);
-      message("csliderhorizontal_main: %d. New value %d\n", i, slider->getValue());
+      printf("csliderhorizontal_main: %d. New value %d\n", i, slider->getValue());
       usleep(1000); // The simulation needs this to let the X11 event loop run
     }
   updateMemoryUsage(g_mmprevious, "csliderhorizontal_main: After moving the slider down");
@@ -220,7 +220,7 @@ int csliderhorizontal_main(int argc, char *argv[])
 
   // Clean up and exit
 
-  message("csliderhorizontal_main: Clean-up and exit\n");
+  printf("csliderhorizontal_main: Clean-up and exit\n");
   delete slider;
   updateMemoryUsage(g_mmprevious, "After deleting the slider");
   delete test;

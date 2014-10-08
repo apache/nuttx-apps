@@ -105,7 +105,7 @@ bool CScrollbarVerticalTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CSCROLLBARVERTICALTEST_BGCOLOR))
         {
-          message("CScrollbarVerticalTest::connect: setBackgroundColor failed\n");
+          printf("CScrollbarVerticalTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -161,7 +161,7 @@ bool CScrollbarVerticalTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CScrollbarVerticalTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CScrollbarVerticalTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -171,7 +171,7 @@ bool CScrollbarVerticalTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CScrollbarVerticalTest::createWindow: Failed to open background window\n");
+      printf("CScrollbarVerticalTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }

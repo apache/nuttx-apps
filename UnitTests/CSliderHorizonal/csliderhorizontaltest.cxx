@@ -105,7 +105,7 @@ bool CSliderHorizontalTest::connect(void)
 
       if (!setBackgroundColor(CONFIG_CSLIDERHORIZONTALTEST_BGCOLOR))
         {
-          message("CSliderHorizontalTest::connect: setBackgroundColor failed\n");
+          printf("CSliderHorizontalTest::connect: setBackgroundColor failed\n");
         }
     }
 
@@ -161,7 +161,7 @@ bool CSliderHorizontalTest::createWindow(void)
   m_bgWindow = getBgWindow(m_widgetControl);
   if (!m_bgWindow)
     {
-      message("CSliderHorizontalTest::createWindow: Failed to create CBgWindow instance\n");
+      printf("CSliderHorizontalTest::createWindow: Failed to create CBgWindow instance\n");
       disconnect();
       return false;
     }
@@ -171,7 +171,7 @@ bool CSliderHorizontalTest::createWindow(void)
   bool success = m_bgWindow->open();
   if (!success)
     {
-      message("CSliderHorizontalTest::createWindow: Failed to open background window\n");
+      printf("CSliderHorizontalTest::createWindow: Failed to open background window\n");
       disconnect();
       return false;
     }
