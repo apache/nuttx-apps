@@ -538,3 +538,8 @@
   incompatibility with versions prior to NuttX-7.5 (2014-9-20).
 
 1.14 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* Fix all UnitTest/ files to account for the corrected syslog() prototype.
+  This change to the NuttX syslog introduces an incompatibility between
+  NuttX 7.6 and previous verisions of the UnitTest code.
+ 
