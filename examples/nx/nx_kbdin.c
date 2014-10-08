@@ -127,7 +127,7 @@ static void nxeg_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                                   (unsigned int)bm->glyph->stride);
           if (ret < 0)
             {
-              message("nxeg_fillchar: nxtk_bitmapwindow failed: %d\n", errno);
+              printf("nxeg_fillchar: nxtk_bitmapwindow failed: %d\n", errno);
             }
 #else
           ret = nx_bitmap((NXWINDOW)hwnd, &intersection, &src,
@@ -135,7 +135,7 @@ static void nxeg_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                           (unsigned int)bm->glyph->stride);
           if (ret < 0)
             {
-              message("nxeg_fillchar: nx_bitmapwindow failed: %d\n", errno);
+              printf("nxeg_fillchar: nx_bitmapwindow failed: %d\n", errno);
             }
 #endif
         }
@@ -162,7 +162,7 @@ nxeg_renderglyph(FAR struct nxeg_state_s *st,
 
   /* Make sure that there is room for another glyph */
 
-  message("nxeg_renderglyph: ch=%02x\n", ch);
+  printf("nxeg_renderglyph: ch=%02x\n", ch);
   if (st->nglyphs < NXTK_MAXKBDCHARS)
     {
       /* Allocate the glyph */
@@ -242,7 +242,7 @@ nxeg_renderglyph(FAR struct nxeg_state_s *st,
             {
               /* Actually, the RENDERER never returns a failure */
 
-              message("nxeg_renderglyph: RENDERER failed\n");
+              printf("nxeg_renderglyph: RENDERER failed\n");
               free(glyph->bitmap);
               glyph->bitmap = NULL;
               glyph         = NULL;
@@ -428,7 +428,7 @@ void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                 FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
-  message("nxeg_kbdin%d: hwnd=%p nch=%d\n", st->wnum, hwnd, nch);
+  printf("nxeg_kbdin%d: hwnd=%p nch=%d\n", st->wnum, hwnd, nch);
   nxeg_addchars(hwnd, st, nch, ch);
 }
 
@@ -440,8 +440,8 @@ void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
-  message("nxeg_tbkbdin: ERROR -- toolbar should not received keyboard input\n");
-  message("nxeg_tbkbdin%d: hwnd=%p nch=%d\n", st->wnum, hwnd, nch);
+  printf("nxeg_tbkbdin: ERROR -- toolbar should not received keyboard input\n");
+  printf("nxeg_tbkbdin%d: hwnd=%p nch=%d\n", st->wnum, hwnd, nch);
 }
 #endif
 

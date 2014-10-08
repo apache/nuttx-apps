@@ -121,12 +121,12 @@ static inline int nxlines_initialize(void)
 #if defined(CONFIG_EXAMPLES_NXLINES_EXTERNINIT)
   /* Use external graphics driver initialization */
 
-  message("nxlines_initialize: Initializing external graphics device\n");
+  printf("nxlines_initialize: Initializing external graphics device\n");
   dev = up_nxdrvinit(CONFIG_EXAMPLES_NXLINES_DEVNO);
   if (!dev)
     {
-      message("nxlines_initialize: up_nxdrvinit failed, devno=%d\n",
-              CONFIG_EXAMPLES_NXLINES_DEVNO);
+      printf("nxlines_initialize: up_nxdrvinit failed, devno=%d\n",
+             CONFIG_EXAMPLES_NXLINES_DEVNO);
       g_nxlines.code = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
@@ -136,11 +136,11 @@ static inline int nxlines_initialize(void)
 
   /* Initialize the LCD device */
 
-  message("nxlines_initialize: Initializing LCD\n");
+  printf("nxlines_initialize: Initializing LCD\n");
   ret = up_lcdinitialize();
   if (ret < 0)
     {
-      message("nxlines_initialize: up_lcdinitialize failed: %d\n", -ret);
+      printf("nxlines_initialize: up_lcdinitialize failed: %d\n", -ret);
       g_nxlines.code = NXEXIT_LCDINITIALIZE;
       return ERROR;
     }
@@ -150,7 +150,7 @@ static inline int nxlines_initialize(void)
   dev = up_lcdgetdev(CONFIG_EXAMPLES_NXLINES_DEVNO);
   if (!dev)
     {
-      message("nxlines_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXLINES_DEVNO);
+      printf("nxlines_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXLINES_DEVNO);
       g_nxlines.code = NXEXIT_LCDGETDEV;
       return ERROR;
     }
@@ -163,11 +163,11 @@ static inline int nxlines_initialize(void)
 
   /* Initialize the frame buffer device */
 
-  message("nxlines_initialize: Initializing framebuffer\n");
+  printf("nxlines_initialize: Initializing framebuffer\n");
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      message("nxlines_initialize: up_fbinitialize failed: %d\n", -ret);
+      printf("nxlines_initialize: up_fbinitialize failed: %d\n", -ret);
       g_nxlines.code = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
@@ -175,7 +175,7 @@ static inline int nxlines_initialize(void)
   dev = up_fbgetvplane(CONFIG_EXAMPLES_NXLINES_VPLANE);
   if (!dev)
     {
-      message("nxlines_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXLINES_VPLANE);
+      printf("nxlines_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXLINES_VPLANE);
       g_nxlines.code = NXEXIT_FBGETVPLANE;
       return ERROR;
     }
@@ -183,11 +183,11 @@ static inline int nxlines_initialize(void)
 
   /* Then open NX */
 
-  message("nxlines_initialize: Open NX\n");
+  printf("nxlines_initialize: Open NX\n");
   g_nxlines.hnx = nx_open(dev);
   if (!g_nxlines.hnx)
     {
-      message("nxlines_initialize: nx_open failed: %d\n", errno);
+      printf("nxlines_initialize: nx_open failed: %d\n", errno);
       g_nxlines.code = NXEXIT_NXOPEN;
       return ERROR;
     }
@@ -215,24 +215,24 @@ int nxlines_main(int argc, char *argv[])
   /* Initialize NX */
 
   ret = nxlines_initialize();
-  message("nxlines_main: NX handle=%p\n", g_nxlines.hnx);
+  printf("nxlines_main: NX handle=%p\n", g_nxlines.hnx);
   if (!g_nxlines.hnx || ret < 0)
     {
-      message("nxlines_main: Failed to get NX handle: %d\n", errno);
+      printf("nxlines_main: Failed to get NX handle: %d\n", errno);
       g_nxlines.code = NXEXIT_NXOPEN;
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  message("nxlines_main: Set background color=%d\n",
-          CONFIG_EXAMPLES_NXLINES_BGCOLOR);
+  printf("nxlines_main: Set background color=%d\n",
+         CONFIG_EXAMPLES_NXLINES_BGCOLOR);
 
   color = CONFIG_EXAMPLES_NXLINES_BGCOLOR;
   ret = nx_setbgcolor(g_nxlines.hnx, &color);
   if (ret < 0)
     {
-      message("nxlines_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxlines_main: nx_setbgcolor failed: %d\n", errno);
       g_nxlines.code = NXEXIT_NXSETBGCOLOR;
       goto errout_with_nx;
     }
@@ -242,7 +242,7 @@ int nxlines_main(int argc, char *argv[])
   ret = nx_requestbkgd(g_nxlines.hnx, &g_nxlinescb, NULL);
   if (ret < 0)
     {
-      message("nxlines_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxlines_main: nx_setbgcolor failed: %d\n", errno);
       g_nxlines.code = NXEXIT_NXREQUESTBKGD;
       goto errout_with_nx;
     }
@@ -255,7 +255,7 @@ int nxlines_main(int argc, char *argv[])
     {
       (void)sem_wait(&g_nxlines.sem);
     }
-  message("nxlines_main: Screen resolution (%d,%d)\n", g_nxlines.xres, g_nxlines.yres);
+  printf("nxlines_main: Screen resolution (%d,%d)\n", g_nxlines.xres, g_nxlines.yres);
 
   /* Now, say perform the lines (these test does not return so the remaining
    * logic is cosmetic).
@@ -270,7 +270,7 @@ int nxlines_main(int argc, char *argv[])
   /* Close NX */
 
 errout_with_nx:
-  message("nxlines_main: Close NX\n");
+  printf("nxlines_main: Close NX\n");
   nx_close(g_nxlines.hnx);
 errout:
   return g_nxlines.code;

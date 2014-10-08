@@ -125,24 +125,6 @@
 #define ROMFSDEV     "/dev/ram0"
 #define MOUNTPT      CONFIG_THTTPD_PATH
 
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG
-#    define message(...) lowsyslog(__VA_ARGS__)
-#    define msgflush()
-#  else
-#    define message(...) printf(__VA_ARGS__)
-#    define msgflush()   fflush(stdout)
-#  endif
-#else
-#  ifdef CONFIG_DEBUG
-#    define message      lowsyslog
-#    define msgflush()
-#  else
-#    define message      printf
-#    define msgflush()   fflush(stdout)
-#  endif
-#endif
-
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -190,7 +172,7 @@ int thttp_main(int argc, char *argv[])
   ret = slip_initialize(SLIP_DEVNO, CONFIG_NET_SLIPTTY);
   if (ret < 0)
     {
-      message("ERROR: SLIP initialization failed: %d\n", ret);
+      printf("ERROR: SLIP initialization failed: %d\n", ret);
       exit(1);
     }
 #endif
@@ -198,7 +180,7 @@ int thttp_main(int argc, char *argv[])
 /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_THTTPD_NOMAC
-  message("Assigning MAC\n");
+  printf("Assigning MAC\n");
 
   mac[0] = 0x00;
   mac[1] = 0xe0;
@@ -211,7 +193,7 @@ int thttp_main(int argc, char *argv[])
 
   /* Set up our host address */
 
-  message("Setup network addresses\n");
+  printf("Setup network addresses\n");
   addr.s_addr = HTONL(CONFIG_THTTPD_IPADDR);
   netlib_sethostaddr(NET_DEVNAME, &addr);
 
@@ -227,35 +209,35 @@ int thttp_main(int argc, char *argv[])
 
   /* Initialize the NXFLAT binary loader */
 
-  message("Initializing the NXFLAT binary loader\n");
+  printf("Initializing the NXFLAT binary loader\n");
   ret = nxflat_initialize();
   if (ret < 0)
     {
-      message("ERROR: Initialization of the NXFLAT loader failed: %d\n", ret);
+      printf("ERROR: Initialization of the NXFLAT loader failed: %d\n", ret);
       exit(2);
     }
 
   /* Create a ROM disk for the ROMFS filesystem */
 
-  message("Registering romdisk\n");
+  printf("Registering romdisk\n");
   ret = romdisk_register(0, (uint8_t*)romfs_img, NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      message("ERROR: romdisk_register failed: %d\n", ret);
+      printf("ERROR: romdisk_register failed: %d\n", ret);
       nxflat_uninitialize();
       exit(1);
     }
 
   /* Mount the file system */
 
-  message("Mounting ROMFS filesystem at target=%s with source=%s\n",
+  printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, ROMFSDEV);
 
   ret = mount(ROMFSDEV, MOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      message("ERROR: mount(%s,%s,romfs) failed: %s\n",
-              ROMFSDEV, MOUNTPT, errno);
+      printf("ERROR: mount(%s,%s,romfs) failed: %s\n",
+             ROMFSDEV, MOUNTPT, errno);
       nxflat_uninitialize();
     }
 
@@ -264,10 +246,10 @@ int thttp_main(int argc, char *argv[])
   g_thttpdsymtab   = exports;
   g_thttpdnsymbols = NEXPORTS;
 
-  message("Starting THTTPD\n");
-  msgflush();
+  printf("Starting THTTPD\n");
+  fflush(stdout);
   thttpd_main(1, &thttpd_argv);
-  message("THTTPD terminated\n");
-  msgflush();
+  printf("THTTPD terminated\n");
+  fflush(stdout);
   return 0;
 }

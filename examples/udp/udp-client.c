@@ -88,7 +88,7 @@ void send_client(void)
   sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
-      message("client socket failure %d\n", errno);
+      printf("client socket failure %d\n", errno);
       exit(1);
     }
 
@@ -106,21 +106,21 @@ void send_client(void)
       server.sin_port        = HTONS(PORTNO);
       server.sin_addr.s_addr = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
 
-      message("client: %d. Sending %d bytes\n", offset, SENDSIZE);
+      printf("client: %d. Sending %d bytes\n", offset, SENDSIZE);
       nbytes = sendto(sockfd, outbuf, SENDSIZE, 0,
                       (struct sockaddr*)&server, sizeof(struct sockaddr_in));
-      message("client: %d. Sent %d bytes\n", offset, nbytes);
+      printf("client: %d. Sent %d bytes\n", offset, nbytes);
 
       if (nbytes < 0)
         {
-          message("client: %d. sendto failed: %d\n", offset, errno);
+          printf("client: %d. sendto failed: %d\n", offset, errno);
           close(sockfd);
           exit(-1);
         }
       else if (nbytes != SENDSIZE)
         {
-          message("client: %d. Bad send length: %d Expected: %d\n",
-                  offset, nbytes, SENDSIZE);
+          printf("client: %d. Bad send length: %d Expected: %d\n",
+                 offset, nbytes, SENDSIZE);
           close(sockfd);
           exit(-1);
         }

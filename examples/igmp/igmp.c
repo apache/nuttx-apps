@@ -94,7 +94,7 @@ int igmp_main(int argc, char *argv[])
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  message("Configuring Ethernet...\n");
+  printf("Configuring Ethernet...\n");
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
@@ -126,23 +126,23 @@ int igmp_main(int argc, char *argv[])
   /* Not much of a test for now */
   /* Join the group */
 
-  message("Join group...\n");
+  printf("Join group...\n");
   addr.s_addr = HTONL(CONFIG_EXAMPLES_IGMP_GRPADDR);
   ipmsfilter("eth0", &addr, MCAST_INCLUDE);
 
   /* Wait a while */
 
-  message("Wait for timeout...\n");
+  printf("Wait for timeout...\n");
   sleep(5);
 
   /* Leave the group */
 
-  message("Leave group...\n");
+  printf("Leave group...\n");
   ipmsfilter("eth0", &addr, MCAST_EXCLUDE);
 
   /* Wait a while */
 
   sleep(5);
-  message("Exiting...\n");
+  printf("Exiting...\n");
   return 0;
 }

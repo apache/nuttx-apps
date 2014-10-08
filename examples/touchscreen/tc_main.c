@@ -119,9 +119,9 @@ int tc_main(int argc, char *argv[])
     {
       nsamples = strtol(argv[1], NULL, 10);
     }
-  message("tc_main: nsamples: %d\n", nsamples);
+  printf("tc_main: nsamples: %d\n", nsamples);
 #elif CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
-  message("tc_main: nsamples: %d\n", CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES);
+  printf("tc_main: nsamples: %d\n", CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES);
 #endif
 
 #ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
@@ -129,11 +129,11 @@ int tc_main(int argc, char *argv[])
    * external to this test.
    */
 
-  message("tc_main: Initializing external touchscreen device\n");
+  printf("tc_main: Initializing external touchscreen device\n");
   ret = arch_tcinitialize(CONFIG_EXAMPLES_TOUCHSCREEN_MINOR);
   if (ret != OK)
     {
-      message("tc_main: arch_tcinitialize failed: %d\n", ret);
+      printf("tc_main: arch_tcinitialize failed: %d\n", ret);
       errval = 1;
       goto errout;
     }
@@ -141,11 +141,11 @@ int tc_main(int argc, char *argv[])
 
   /* Open the touchscreen device for reading */
 
-  message("tc_main: Opening %s\n", CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH);
+  printf("tc_main: Opening %s\n", CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH);
   fd = open(CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, O_RDONLY);
   if (fd < 0)
     {
-      message("tc_main: open %s failed: %d\n",
+      printf("tc_main: open %s failed: %d\n",
               CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, errno);
       errval = 2;
       goto errout_with_tc;
@@ -167,7 +167,7 @@ int tc_main(int argc, char *argv[])
      * through the loop.
      */
 
-    msgflush();
+    fflush(stdout);
 
 #ifdef CONFIG_EXAMPLES_TOUCHSCREEN_MOUSE
     /* Read one sample */
@@ -183,30 +183,30 @@ int tc_main(int argc, char *argv[])
         errval = errno;
         if (errval != EINTR)
           {
-            message("tc_main: read %s failed: %d\n",
-                    CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, errval);
+            printf("tc_main: read %s failed: %d\n",
+                   CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, errval);
             errval = 3;
             goto errout_with_dev;
           }
 
-        message("tc_main: Interrupted read...\n");
+        printf("tc_main: Interrupted read...\n");
       }
     else if (nbytes != sizeof(struct mouse_report_s))
       {
-        message("tc_main: Unexpected read size=%d, expected=%d, Ignoring\n",
-                nbytes, sizeof(struct mouse_report_s));
+        printf("tc_main: Unexpected read size=%d, expected=%d, Ignoring\n",
+               nbytes, sizeof(struct mouse_report_s));
       }
 
     /* Print the sample data on successful return */
 
     else
       {
-        message("Sample     :\n");
-        message("   buttons : %02x\n", sample.buttons);
-        message("         x : %d\n",   sample.x);
-        message("         y : %d\n",   sample.y);
+        printf("Sample     :\n");
+        printf("   buttons : %02x\n", sample.buttons);
+        printf("         x : %d\n",   sample.x);
+        printf("         y : %d\n",   sample.y);
 #ifdef CONFIG_MOUSE_WHEEL
-        message("     wheel : %d\n",   sample.wheel);
+        printf("     wheel : %d\n",   sample.wheel);
 #endif
       }
 #else
@@ -223,34 +223,34 @@ int tc_main(int argc, char *argv[])
         errval = errno;
         if (errval != EINTR)
           {
-            message("tc_main: read %s failed: %d\n",
-                    CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, errval);
+            printf("tc_main: read %s failed: %d\n",
+                   CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, errval);
             errval = 3;
             goto errout_with_dev;
           }
 
-        message("tc_main: Interrupted read...\n");
+        printf("tc_main: Interrupted read...\n");
       }
     else if (nbytes != sizeof(struct touch_sample_s))
       {
-        message("tc_main: Unexpected read size=%d, expected=%d, Ignoring\n",
-                nbytes, sizeof(struct touch_sample_s));
+        printf("tc_main: Unexpected read size=%d, expected=%d, Ignoring\n",
+               nbytes, sizeof(struct touch_sample_s));
       }
 
     /* Print the sample data on successful return */
 
     else
       {
-        message("Sample     :\n");
-        message("   npoints : %d\n",   sample.npoints);
-        message("Point 1    :\n");
-        message("        id : %d\n",   sample.point[0].id);
-        message("     flags : %02x\n", sample.point[0].flags);
-        message("         x : %d\n",   sample.point[0].x);
-        message("         y : %d\n",   sample.point[0].y);
-        message("         h : %d\n",   sample.point[0].h);
-        message("         w : %d\n",   sample.point[0].w);
-        message("  pressure : %d\n",   sample.point[0].pressure);
+        printf("Sample     :\n");
+        printf("   npoints : %d\n",   sample.npoints);
+        printf("Point 1    :\n");
+        printf("        id : %d\n",   sample.point[0].id);
+        printf("     flags : %02x\n", sample.point[0].flags);
+        printf("         x : %d\n",   sample.point[0].x);
+        printf("         y : %d\n",   sample.point[0].y);
+        printf("         h : %d\n",   sample.point[0].h);
+        printf("         w : %d\n",   sample.point[0].w);
+        printf("  pressure : %d\n",   sample.point[0].pressure);
       }
 #endif
   }
@@ -264,7 +264,7 @@ errout_with_tc:
 
 errout:
 #endif
-  message("Terminating!\n");
-  msgflush();
+  printf("Terminating!\n");
+  fflush(stdout);
   return errval;
 }

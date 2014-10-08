@@ -116,28 +116,28 @@ static void pwm_devpath(FAR struct pwm_state_s *pwm, FAR const char *devpath)
 
 static void pwm_help(FAR struct pwm_state_s *pwm)
 {
-  message("Usage: pwm [OPTIONS]\n");
-  message("\nArguments are \"sticky\".  For example, once the PWM frequency is\n");
-  message("specified, that frequency will be re-used until it is changed.\n");
-  message("\n\"sticky\" OPTIONS include:\n");
-  message("  [-p devpath] selects the PWM device.  "
-         "Default: %s Current: %s\n",
-         CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
-  message("  [-f frequency] selects the pulse frequency.  "
-         "Default: %d Hz Current: %d Hz\n",
-         CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
-  message("  [-d duty] selects the pulse duty as a percentage.  "
-          "Default: %d %% Current: %d %%\n",
-          CONFIG_EXAMPLES_PWM_DUTYPCT, pwm->duty);
+  printf("Usage: pwm [OPTIONS]\n");
+  printf("\nArguments are \"sticky\".  For example, once the PWM frequency is\n");
+  printf("specified, that frequency will be re-used until it is changed.\n");
+  printf("\n\"sticky\" OPTIONS include:\n");
+  printf("  [-p devpath] selects the PWM device.  "
+        "Default: %s Current: %s\n",
+        CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
+  printf("  [-f frequency] selects the pulse frequency.  "
+        "Default: %d Hz Current: %d Hz\n",
+        CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
+  printf("  [-d duty] selects the pulse duty as a percentage.  "
+         "Default: %d %% Current: %d %%\n",
+         CONFIG_EXAMPLES_PWM_DUTYPCT, pwm->duty);
 #ifdef CONFIG_PWM_PULSECOUNT
-  message("  [-n count] selects the pulse count.  "
-         "Default: %d Current: %d\n",
-         CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
+  printf("  [-n count] selects the pulse count.  "
+        "Default: %d Current: %d\n",
+        CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
 #endif
-  message("  [-t duration] is the duration of the pulse train in seconds.  "
-          "Default: %d Current: %d\n",
-         CONFIG_EXAMPLES_PWM_DURATION, pwm->duration);
-  message("  [-h] shows this message and exits\n");
+  printf("  [-t duration] is the duration of the pulse train in seconds.  "
+         "Default: %d Current: %d\n",
+        CONFIG_EXAMPLES_PWM_DURATION, pwm->duration);
+  printf("  [-h] shows this message and exits\n");
 }
 
 /****************************************************************************
@@ -191,7 +191,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
       ptr = argv[index];
       if (ptr[0] != '-')
         {
-          message("Invalid options format: %s\n", ptr);
+          printf("Invalid options format: %s\n", ptr);
           exit(0);
         }
 
@@ -201,7 +201,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             nargs = arg_decimal(&argv[index], &value);
             if (value < 1)
               {
-                message("Frequency out of range: %ld\n", value);
+                printf("Frequency out of range: %ld\n", value);
                 exit(1);
               }
 
@@ -213,7 +213,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             nargs = arg_decimal(&argv[index], &value);
             if (value < 1 || value > 99)
               {
-                message("Duty out of range: %ld\n", value);
+                printf("Duty out of range: %ld\n", value);
                 exit(1);
               }
 
@@ -226,7 +226,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             nargs = arg_decimal(&argv[index], &value);
             if (value < 0)
               {
-                message("Count must be non-negative: %ld\n", value);
+                printf("Count must be non-negative: %ld\n", value);
                 exit(1);
               }
 
@@ -245,7 +245,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             nargs = arg_decimal(&argv[index], &value);
             if (value < 1 || value > INT_MAX)
               {
-                message("Duration out of range: %ld\n", value);
+                printf("Duration out of range: %ld\n", value);
                 exit(1);
               }
 
@@ -258,7 +258,7 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             exit(0);
 
           default:
-            message("Unsupported option: %s\n", ptr);
+            printf("Unsupported option: %s\n", ptr);
             pwm_help(pwm);
             exit(1);
         }
@@ -316,7 +316,7 @@ int pwm_main(int argc, char *argv[])
   ret = pwm_devinit();
   if (ret != OK)
     {
-      message("pwm_main: pwm_devinit failed: %d\n", ret);
+      printf("pwm_main: pwm_devinit failed: %d\n", ret);
       goto errout;
     }
 
@@ -325,7 +325,7 @@ int pwm_main(int argc, char *argv[])
   fd = open(g_pwmstate.devpath, O_RDONLY);
   if (fd < 0)
     {
-      message("pwm_main: open %s failed: %d\n", g_pwmstate.devpath, errno);
+      printf("pwm_main: open %s failed: %d\n", g_pwmstate.devpath, errno);
       goto errout;
     }
 
@@ -336,19 +336,19 @@ int pwm_main(int argc, char *argv[])
 #ifdef CONFIG_PWM_PULSECOUNT
   info.count     = g_pwmstate.count;
 
-  message("pwm_main: starting output with frequency: %d duty: %08x count: %d\n",
-          info.frequency, info.duty, info.count);
+  printf("pwm_main: starting output with frequency: %d duty: %08x count: %d\n",
+         info.frequency, info.duty, info.count);
 
 #else
-  message("pwm_main: starting output with frequency: %d duty: %08x\n",
-          info.frequency, info.duty);
+  printf("pwm_main: starting output with frequency: %d duty: %08x\n",
+         info.frequency, info.duty);
 
 #endif
 
   ret = ioctl(fd, PWMIOC_SETCHARACTERISTICS, (unsigned long)((uintptr_t)&info));
   if (ret < 0)
     {
-      message("pwm_main: ioctl(PWMIOC_SETCHARACTERISTICS) failed: %d\n", errno);
+      printf("pwm_main: ioctl(PWMIOC_SETCHARACTERISTICS) failed: %d\n", errno);
       goto errout_with_dev;
     }
 
@@ -359,7 +359,7 @@ int pwm_main(int argc, char *argv[])
   ret = ioctl(fd, PWMIOC_START, 0);
   if (ret < 0)
     {
-      message("pwm_main: ioctl(PWMIOC_START) failed: %d\n", errno);
+      printf("pwm_main: ioctl(PWMIOC_START) failed: %d\n", errno);
       goto errout_with_dev;
     }
 
@@ -377,23 +377,23 @@ int pwm_main(int argc, char *argv[])
 
       /* Then stop the  pulse train */
 
-      message("pwm_main: stopping output\n");
+      printf("pwm_main: stopping output\n");
 
       ret = ioctl(fd, PWMIOC_STOP, 0);
       if (ret < 0)
         {
-          message("pwm_main: ioctl(PWMIOC_STOP) failed: %d\n", errno);
+          printf("pwm_main: ioctl(PWMIOC_STOP) failed: %d\n", errno);
           goto errout_with_dev;
         }
     }
 
  close(fd);
- msgflush();
+ fflush(stdout);
  return OK;
 
 errout_with_dev:
   close(fd);
 errout:
-  msgflush();
+  fflush(stdout);
   return ERROR;
 }

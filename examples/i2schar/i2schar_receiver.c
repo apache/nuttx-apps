@@ -104,7 +104,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
   if (fd < 0)
     {
       int errcode = errno;
-      message("i2schar_receiver: ERROR: failed to open %s: %d\n",
+      printf("i2schar_receiver: ERROR: failed to open %s: %d\n",
               g_i2schar.devpath, errcode);
       pthread_exit(NULL);
     }
@@ -121,7 +121,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
       ret = apb_alloc(&desc);
       if (ret < 0)
         {
-           message("i2schar_receiver: ERROR: failed to allocate buffer %d: %d\n",
+           printf("i2schar_receiver: ERROR: failed to allocate buffer %d: %d\n",
                    i+1, ret);
            close(fd);
            pthread_exit(NULL);
@@ -135,7 +135,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
         {
           /* Flush any output before reading */
 
-          msgflush();
+          fflush(stdout);
 
           /* Read the buffer to the I2S character driver */
 
@@ -145,7 +145,7 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
               int errcode = errno;
               if (errcode != EINTR)
                 {
-                  message("i2schar_receiver: ERROR: read failed: %d\n",
+                  printf("i2schar_receiver: ERROR: read failed: %d\n",
                           errcode);
                   close(fd);
                   pthread_exit(NULL);
@@ -153,14 +153,14 @@ pthread_addr_t i2schar_receiver(pthread_addr_t arg)
             }
           else if (nread != bufsize)
             {
-              message("i2schar_receiver: ERROR: partial read: %d\n",
+              printf("i2schar_receiver: ERROR: partial read: %d\n",
                       nread);
               close(fd);
               pthread_exit(NULL);
             }
           else
             {
-              message("i2schar_receiver: Received buffer %d\n", i+1);
+              printf("i2schar_receiver: Received buffer %d\n", i+1);
             }
         }
       while (nread != bufsize);

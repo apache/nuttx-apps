@@ -43,16 +43,8 @@
 #include <debug.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
-
-/* Used syslog() so that there is no confusion from buffered IO */
-
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  define message(...) syslog(__VA_ARGS__)
-#else
-#  define message syslog
-#endif
 
 /****************************************************************************
  * Public Function Prototypes

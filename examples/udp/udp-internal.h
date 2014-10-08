@@ -56,25 +56,6 @@
 
 #  define HTONS(a)       htons(a)
 #  define HTONL(a)       htonl(a)
-
-   /* Used printf for debug output */
-
-#  define message(...)   printf(__VA_ARGS__)
-
-   /* Have SO_LINGER */
-
-#else
-
-   /* If debug is enabled, use the synchronous lowsyslog so that the
-    * program output does not get disassociated in the debug output.
-    */
-
-#  ifdef CONFIG_DEBUG
-#    define message(...) lowsyslog(__VA_ARGS__)
-#  else
-#    define message(...) printf(__VA_ARGS__)
-#  endif
-
 #endif
 
 #define PORTNO     5471

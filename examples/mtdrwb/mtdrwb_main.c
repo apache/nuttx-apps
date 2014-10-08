@@ -95,15 +95,6 @@
 
 #endif
 
-/* Debug ********************************************************************/
-#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_FS)
-#  define message    syslog
-#  define msgflush()
-#else
-#  define message    printf
-#  define msgflush() fflush(stdout);
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -175,8 +166,8 @@ int mtdrwb_main(int argc, char *argv[])
 #endif
   if (!mtdraw)
     {
-      message("ERROR: Failed to create RAM MTD instance\n");
-      msgflush();
+      printf("ERROR: Failed to create RAM MTD instance\n");
+      fflush(stdout);
       exit(1);
     }
 
@@ -185,7 +176,7 @@ int mtdrwb_main(int argc, char *argv[])
   ret = mtdraw->ioctl(mtdraw, MTDIOC_BULKERASE, 0);
   if (ret < 0)
     {
-      message("ERROR: MTDIOC_BULKERASE ioctl failed: %d\n", ret);
+      printf("ERROR: MTDIOC_BULKERASE ioctl failed: %d\n", ret);
     }
 
   /* Initialize to support buffering on the MTD device */
@@ -193,8 +184,8 @@ int mtdrwb_main(int argc, char *argv[])
   mtdrwb = mtd_rwb_initialize(mtdraw);
   if (!mtdrwb)
     {
-      message("ERROR: Failed to create RAM MTD R/W buffering\n");
-      msgflush();
+      printf("ERROR: Failed to create RAM MTD R/W buffering\n");
+      fflush(stdout);
       exit(2);
     }
 
@@ -209,8 +200,8 @@ int mtdrwb_main(int argc, char *argv[])
   ret = ftl_initialize(0, mtdrwb);
   if (ret < 0)
     {
-      message("ERROR: ftl_initialize /dev/mtdblock0 failed: %d\n", ret);
-      msgflush();
+      printf("ERROR: ftl_initialize /dev/mtdblock0 failed: %d\n", ret);
+      fflush(stdout);
       exit(3);
     }
 
@@ -219,8 +210,8 @@ int mtdrwb_main(int argc, char *argv[])
   ret = bchdev_register("/dev/mtdblock0", "/dev/mtd0", false);
   if (ret < 0)
     {
-      message("ERROR: bchdev_register /dev/mtd0 failed: %d\n", ret);
-      msgflush();
+      printf("ERROR: bchdev_register /dev/mtd0 failed: %d\n", ret);
+      fflush(stdout);
       exit(4);
     }
 
@@ -233,24 +224,24 @@ int mtdrwb_main(int argc, char *argv[])
       exit(5);
     }
 
-  message("Flash Geometry:\n");
-  message("  blocksize:      %lu\n", (unsigned long)geo.blocksize);
-  message("  erasesize:      %lu\n", (unsigned long)geo.erasesize);
-  message("  neraseblocks:   %lu\n", (unsigned long)geo.neraseblocks);
+  printf("Flash Geometry:\n");
+  printf("  blocksize:      %lu\n", (unsigned long)geo.blocksize);
+  printf("  erasesize:      %lu\n", (unsigned long)geo.erasesize);
+  printf("  neraseblocks:   %lu\n", (unsigned long)geo.neraseblocks);
 
   blkpererase = geo.erasesize / geo.blocksize;
-  message("  blkpererase:    %u\n", blkpererase);
+  printf("  blkpererase:    %u\n", blkpererase);
 
   nblocks = geo.neraseblocks * blkpererase;
-  message("  nblocks:        %lu\n", (unsigned long)nblocks);
+  printf("  nblocks:        %lu\n", (unsigned long)nblocks);
 
   /* Allocate a buffer */
 
   buffer = (FAR uint32_t *)malloc(geo.blocksize);
   if (!buffer)
     {
-      message("ERROR: failed to allocate a sector buffer\n");
-      msgflush();
+      printf("ERROR: failed to allocate a sector buffer\n");
+      fflush(stdout);
       exit(6);
     }
 
@@ -259,14 +250,14 @@ int mtdrwb_main(int argc, char *argv[])
   fd = open("/dev/mtd0", O_WRONLY);
   if (fd < 0)
     {
-      message("ERROR: open /dev/mtd0 failed: %d\n", errno);
-      msgflush();
+      printf("ERROR: open /dev/mtd0 failed: %d\n", errno);
+      fflush(stdout);
       exit(7);
     }
 
   /* Now write the offset into every block */
 
-  message("Initializing media:\n");
+  printf("Initializing media:\n");
 
   offset = 0;
   for (i = 0; i < geo.neraseblocks; i++)
@@ -286,8 +277,8 @@ int mtdrwb_main(int argc, char *argv[])
           nbytes = write(fd, buffer, geo.blocksize);
           if (nbytes < 0)
             {
-              message("ERROR: write to /dev/mtd0 failed: %d\n", errno);
-              msgflush();
+              printf("ERROR: write to /dev/mtd0 failed: %d\n", errno);
+              fflush(stdout);
               exit(8);
             }
         }
@@ -300,8 +291,8 @@ int mtdrwb_main(int argc, char *argv[])
   fd = open("/dev/mtd0", O_RDONLY);
   if (fd < 0)
     {
-      message("ERROR: open /dev/mtd0 failed: %d\n", errno);
-      msgflush();
+      printf("ERROR: open /dev/mtd0 failed: %d\n", errno);
+      fflush(stdout);
       exit(9);
     }
 
@@ -315,9 +306,9 @@ int mtdrwb_main(int argc, char *argv[])
       seekpos = lseek(fd, offset, SEEK_SET);
       if (seekpos != offset)
         {
-          message("ERROR: lseek to offset %ld failed: %d\n",
-                   (unsigned long)offset, errno);
-          msgflush();
+          printf("ERROR: lseek to offset %ld failed: %d\n",
+                 (unsigned long)offset, errno);
+          fflush(stdout);
           exit(10);
         }
 
@@ -326,21 +317,21 @@ int mtdrwb_main(int argc, char *argv[])
       nbytes = read(fd, buffer, geo.blocksize);
       if (nbytes < 0)
         {
-          message("ERROR: read from /dev/mtd0 failed: %d\n", errno);
-          msgflush();
+          printf("ERROR: read from /dev/mtd0 failed: %d\n", errno);
+          fflush(stdout);
           exit(11);
         }
       else if (nbytes == 0)
         {
-          message("ERROR: Unexpected end-of file in /dev/mtd0\n");
-          msgflush();
+          printf("ERROR: Unexpected end-of file in /dev/mtd0\n");
+          fflush(stdout);
           exit(12);
         }
       else if (nbytes != geo.blocksize)
         {
-          message("ERROR: Unexpected read size from /dev/mtd0 : %ld\n",
-                  (unsigned long)nbytes);
-          msgflush();
+          printf("ERROR: Unexpected read size from /dev/mtd0 : %ld\n",
+                 (unsigned long)nbytes);
+          fflush(stdout);
           exit(13);
         }
 
@@ -351,8 +342,8 @@ int mtdrwb_main(int argc, char *argv[])
 
       else if (nbytes == 0)
         {
-          message("ERROR: Unexpected end of file on /dev/mtd0\n");
-          msgflush();
+          printf("ERROR: Unexpected end of file on /dev/mtd0\n");
+          fflush(stdout);
          exit(14);
         }
 
@@ -360,9 +351,9 @@ int mtdrwb_main(int argc, char *argv[])
 
       else if (nbytes != geo.blocksize)
         {
-          message("ERROR: Short read from /dev/mtd0 failed: %lu\n",
-                  (unsigned long)nbytes);
-          msgflush();
+          printf("ERROR: Short read from /dev/mtd0 failed: %lu\n",
+                 (unsigned long)nbytes);
+          fflush(stdout);
           exit(15);
         }
 
@@ -372,9 +363,9 @@ int mtdrwb_main(int argc, char *argv[])
         {
           if (buffer[k] != offset)
             {
-              message("ERROR: Bad offset %lu, expected %lu\n",
-                      (long)buffer[k], (long)offset);
-              msgflush();
+              printf("ERROR: Bad offset %lu, expected %lu\n",
+                     (long)buffer[k], (long)offset);
+              fflush(stdout);
               exit(16);
             }
 
@@ -387,9 +378,9 @@ int mtdrwb_main(int argc, char *argv[])
   nbytes = read(fd, buffer, geo.blocksize);
   if (nbytes != 0)
     {
-      message("ERROR: Expected end-of-file from /dev/mtd0 failed: %d %d\n",
-              nbytes, errno);
-      msgflush();
+      printf("ERROR: Expected end-of-file from /dev/mtd0 failed: %d %d\n",
+             nbytes, errno);
+      fflush(stdout);
       exit(20);
     }
 
@@ -397,8 +388,8 @@ int mtdrwb_main(int argc, char *argv[])
 
   /* And exit without bothering to clean up */
 
-  message("PASS: Everything looks good\n");
-  msgflush();
+  printf("PASS: Everything looks good\n");
+  fflush(stdout);
   return 0;
 }
 

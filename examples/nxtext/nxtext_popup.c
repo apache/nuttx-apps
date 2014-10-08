@@ -150,7 +150,7 @@ static inline int nxpu_setsize(NXWINDOW hwnd, FAR struct nxgl_size_s *size)
   int ret = nx_setsize(hwnd, size);
   if (ret < 0)
     {
-      message("nxpu_setsize: nx_setsize failed: %d\n", errno);
+      printf("nxpu_setsize: nx_setsize failed: %d\n", errno);
       g_exitcode = NXEXIT_NXSETSIZE;
     }
   return ret;
@@ -165,7 +165,7 @@ static inline int nxpu_setposition(NXWINDOW hwnd, FAR struct nxgl_point_s *pos)
   int ret = nx_setposition(hwnd, pos);
   if (ret < 0)
     {
-      message("nxpu_setposition: nx_setposition failed: %d\n", errno);
+      printf("nxpu_setposition: nx_setposition failed: %d\n", errno);
       g_exitcode = NXEXIT_NXSETPOSITION;
     }
   return ret;
@@ -185,7 +185,7 @@ static inline void nxpu_fillwindow(NXWINDOW hwnd,
   ret = nx_fill(hwnd, rect, st->wcolor);
   if (ret < 0)
     {
-      message("nxpu_fillwindow: nx_fill failed: %d\n", errno);
+      printf("nxpu_fillwindow: nx_fill failed: %d\n", errno);
     }
 
   /* Fill each character on the display (Only the characters within rect
@@ -250,8 +250,8 @@ static void nxpu_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 static void nxpu_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  message("nxpu_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
-          hwnd,  pos->x, pos->y, buttons);
+  printf("nxpu_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
+         hwnd,  pos->x, pos->y, buttons);
 }
 #endif
 
@@ -339,7 +339,7 @@ NXWINDOW nxpu_open(void)
 
   /* Create a pop-up window */
 
-  message("nxpu_open: Create pop-up\n");
+  printf("nxpu_open: Create pop-up\n");
   nxpu_initstate();
 
   hwnd = nx_openwindow(g_hnx, &g_pucb, (FAR void *)&g_pustate);
@@ -347,7 +347,7 @@ NXWINDOW nxpu_open(void)
 
   if (!hwnd)
     {
-      message("nxpu_open: nx_openwindow failed: %d\n", errno);
+      printf("nxpu_open: nx_openwindow failed: %d\n", errno);
       g_exitcode = NXEXIT_NXOPENWINDOW;
       goto errout_with_state;
     }
@@ -364,7 +364,7 @@ NXWINDOW nxpu_open(void)
 
   /* Set the position for the pop-up window */
 
-  message("nxpu_open: Set pop-up position to (%d,%d)\n", pt.x, pt.y);
+  printf("nxpu_open: Set pop-up position to (%d,%d)\n", pt.x, pt.y);
   ret = nxpu_setposition(hwnd, &pt);
   if (ret < 0)
     {
@@ -400,7 +400,7 @@ int nxpu_close(NXWINDOW hwnd)
   ret = nx_closewindow(hwnd);
   if (ret < 0)
     {
-      message("nxpu_close: nx_closewindow failed: %d\n", errno);
+      printf("nxpu_close: nx_closewindow failed: %d\n", errno);
       g_exitcode = NXEXIT_NXCLOSEWINDOW;
       return ret;
     }

@@ -91,11 +91,11 @@ int nx_servertask(int argc, char *argv[])
 #if defined(CONFIG_EXAMPLES_NX_EXTERNINIT)
   /* Use external graphics driver initialization */
 
-  message("nxeg_initialize: Initializing external graphics device\n");
+  printf("nxeg_initialize: Initializing external graphics device\n");
   dev = up_nxdrvinit(CONFIG_EXAMPLES_NX_DEVNO);
   if (!dev)
     {
-      message("nxeg_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nxeg_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
@@ -103,11 +103,11 @@ int nx_servertask(int argc, char *argv[])
 #elif defined(CONFIG_NX_LCDDRIVER)
   /* Initialize the LCD device */
 
-  message("nx_servertask: Initializing LCD\n");
+  printf("nx_servertask: Initializing LCD\n");
   ret = up_lcdinitialize();
   if (ret < 0)
     {
-      message("nx_servertask: up_lcdinitialize failed: %d\n", -ret);
+      printf("nx_servertask: up_lcdinitialize failed: %d\n", -ret);
       return 1;
     }
 
@@ -116,7 +116,7 @@ int nx_servertask(int argc, char *argv[])
   dev = up_lcdgetdev(CONFIG_EXAMPLES_NX_DEVNO);
   if (!dev)
     {
-      message("nx_servertask: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nx_servertask: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
       return 2;
     }
 
@@ -126,18 +126,18 @@ int nx_servertask(int argc, char *argv[])
 #else
   /* Initialize the frame buffer device */
 
-  message("nx_servertask: Initializing framebuffer\n");
+  printf("nx_servertask: Initializing framebuffer\n");
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      message("nx_servertask: up_fbinitialize failed: %d\n", -ret);
+      printf("nx_servertask: up_fbinitialize failed: %d\n", -ret);
       return 1;
     }
 
   dev = up_fbgetvplane(CONFIG_EXAMPLES_NX_VPLANE);
   if (!dev)
     {
-      message("nx_servertask: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NX_VPLANE);
+      printf("nx_servertask: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NX_VPLANE);
       return 2;
     }
 #endif
@@ -145,7 +145,7 @@ int nx_servertask(int argc, char *argv[])
   /* Then start the server */
 
   ret = nx_run(dev);
-  message("nx_servertask: nx_run returned: %d\n", errno);
+  printf("nx_servertask: nx_run returned: %d\n", errno);
   return 3;
 }
 

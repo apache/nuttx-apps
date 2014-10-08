@@ -69,7 +69,7 @@ static inline int check_buffer(unsigned char *buf)
         }
       if (buf[j] != ch)
         {
-          message("server: Buffer content error for offset=%d, index=%d\n", offset, j);
+          printf("server: Buffer content error for offset=%d, index=%d\n", offset, j);
           ret = 0;
         }
     }
@@ -97,7 +97,7 @@ void recv_server(void)
   sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
-      message("server: socket failure: %d\n", errno);
+      printf("server: socket failure: %d\n", errno);
       exit(1);
     }
 
@@ -106,7 +106,7 @@ void recv_server(void)
   optval = 1;
   if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      message("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       exit(1);
     }
 
@@ -118,7 +118,7 @@ void recv_server(void)
 
   if (bind(sockfd, (struct sockaddr*)&server, sizeof(struct sockaddr_in)) < 0)
     {
-      message("server: bind failure: %d\n", errno);
+      printf("server: bind failure: %d\n", errno);
       exit(1);
     }
 
@@ -126,47 +126,47 @@ void recv_server(void)
 
   for (offset = 0; offset < 256; offset++)
     {
-      message("server: %d. Receiving up 1024 bytes\n", offset);
+      printf("server: %d. Receiving up 1024 bytes\n", offset);
       addrlen = sizeof(struct sockaddr_in);
       nbytes = recvfrom(sockfd, inbuf, 1024, 0,
                         (struct sockaddr*)&client, &addrlen);
 
       tmpaddr = ntohl(client.sin_addr.s_addr);
-      message("server: %d. Received %d bytes from %d.%d.%d.%d:%d\n",
-              offset, nbytes,
-              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
-              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
-              ntohs(client.sin_port));
+      printf("server: %d. Received %d bytes from %d.%d.%d.%d:%d\n",
+             offset, nbytes,
+             tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
+             (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+             ntohs(client.sin_port));
 
       if (nbytes < 0)
         {
-          message("server: %d. recv failed: %d\n", offset, errno);
+          printf("server: %d. recv failed: %d\n", offset, errno);
           close(sockfd);
           exit(-1);
         }
 
       if (nbytes != SENDSIZE)
         {
-          message("server: %d. recv size incorrect: %d vs %d\n", offset, nbytes, SENDSIZE);
+          printf("server: %d. recv size incorrect: %d vs %d\n", offset, nbytes, SENDSIZE);
           close(sockfd);
           exit(-1);
         }
 
       if (offset < inbuf[0])
         {
-          message("server: %d. %d packets lost, resetting offset\n", offset, inbuf[0] - offset);
+          printf("server: %d. %d packets lost, resetting offset\n", offset, inbuf[0] - offset);
           offset = inbuf[0];
         }
       else if (offset > inbuf[0])
         {
-          message("server: %d. Bad offset in buffer: %d\n", offset, inbuf[0]);
+          printf("server: %d. Bad offset in buffer: %d\n", offset, inbuf[0]);
           close(sockfd);
           exit(-1);
         }
 
       if (!check_buffer(inbuf))
         {
-          message("server: %d. Bad buffer contents\n", offset);
+          printf("server: %d. Bad buffer contents\n", offset);
           close(sockfd);
           exit(-1);
         }

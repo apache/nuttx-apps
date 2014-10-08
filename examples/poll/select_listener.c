@@ -90,12 +90,12 @@ void *select_listener(pthread_addr_t pvarg)
 
   /* Open the FIFO for non-blocking read */
 
-  message("select_listener: Opening %s for non-blocking read\n", FIFO_PATH2);
+  printf("select_listener: Opening %s for non-blocking read\n", FIFO_PATH2);
   fd = open(FIFO_PATH2, O_RDONLY|O_NONBLOCK);
   if (fd < 0)
     {
-      message("select_listener: ERROR Failed to open FIFO %s: %d\n",
-              FIFO_PATH2, errno);
+      printf("select_listener: ERROR Failed to open FIFO %s: %d\n",
+             FIFO_PATH2, errno);
       (void)close(fd);
       return (void*)-1;
     }
@@ -104,7 +104,7 @@ void *select_listener(pthread_addr_t pvarg)
 
   for (;;)
     {
-      message("select_listener: Calling select()\n");
+      printf("select_listener: Calling select()\n");
 
       FD_ZERO(&rfds);
       FD_SET(fd, &rfds);
@@ -116,22 +116,22 @@ void *select_listener(pthread_addr_t pvarg)
       ready      = false;
 
       ret = select(fd+1, (FAR fd_set*)&rfds, (FAR fd_set*)NULL, (FAR fd_set*)NULL, &tv);
-      message("\nselect_listener: select returned: %d\n", ret);
+      printf("\nselect_listener: select returned: %d\n", ret);
 
       if (ret < 0)
         {
-          message("select_listener: ERROR select failed: %d\n", errno);
+          printf("select_listener: ERROR select failed: %d\n", errno);
         }
       else if (ret == 0)
         {
-          message("select_listener: Timeout\n");
+          printf("select_listener: Timeout\n");
           timeout = true;
         }
       else
         {
           if (ret != 1)
             {
-              message("select_listener: ERROR poll reported: %d\n", ret);
+              printf("select_listener: ERROR poll reported: %d\n", ret);
             }
           else
             {
@@ -140,7 +140,7 @@ void *select_listener(pthread_addr_t pvarg)
 
           if (!FD_ISSET(fd, rfds))
             {
-              message("select_listener: ERROR fd=%d not in fd_set\n", fd);
+              printf("select_listener: ERROR fd=%d not in fd_set\n", fd);
             }
         }
 
@@ -155,12 +155,12 @@ void *select_listener(pthread_addr_t pvarg)
                 {
                   if (ready)
                     {
-                      message("select_listener: ERROR no read data\n");
+                      printf("select_listener: ERROR no read data\n");
                     }
                 }
               else if (errno != EINTR)
                 {
-                  message("select_listener: read failed: %d\n", errno);
+                  printf("select_listener: read failed: %d\n", errno);
                 }
               nbytes = 0;
             }
@@ -168,12 +168,12 @@ void *select_listener(pthread_addr_t pvarg)
             {
               if (timeout)
                 {
-                  message("select_listener: ERROR? Poll timeout, but data read\n");
-                  message("               (might just be a race condition)\n");
+                  printf("select_listener: ERROR? Poll timeout, but data read\n");
+                  printf("               (might just be a race condition)\n");
                 }
 
               buffer[nbytes] = '\0';
-              message("select_listener: Read '%s' (%d bytes)\n", buffer, nbytes);
+              printf("select_listener: Read '%s' (%d bytes)\n", buffer, nbytes);
             }
 
           timeout = false;
@@ -183,7 +183,7 @@ void *select_listener(pthread_addr_t pvarg)
 
       /* Make sure that everything is displayed */
 
-      msgflush();
+      fflush(stdout);
     }
 
   /* Won't get here */

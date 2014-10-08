@@ -164,9 +164,9 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  message("nxlines_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
-          hwnd,  pos->x, pos->y, buttons);
-}
+  printf("nxlines_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
+         hwnd,  pos->x, pos->y, buttons);
+
 #endif
 
 /****************************************************************************
@@ -183,7 +183,7 @@ static void nxlines_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
     * expected.
     */
 
-   message("nxlines_kbdin: Unexpected keyboard callback\n");
+   printf("nxlines_kbdin: Unexpected keyboard callback\n");
 }
 #endif
 
@@ -225,7 +225,7 @@ void nxlines_test(NXWINDOW hwnd)
   ret = nx_fillcircle((NXWINDOW)hwnd, &center, radius, color);
   if (ret < 0)
     {
-      message("nxlines_test: nx_fillcircle failed: %d\n", ret);
+      printf("nxlines_test: nx_fillcircle failed: %d\n", ret);
     }
 
   /* Draw the circular border */
@@ -235,7 +235,7 @@ void nxlines_test(NXWINDOW hwnd)
                       CONFIG_EXAMPLES_NXLINES_BORDERWIDTH, color);
   if (ret < 0)
     {
-      message("nxlines_test: nx_fillcircle failed: %d\n", ret);
+      printf("nxlines_test: nx_fillcircle failed: %d\n", ret);
     }
 
   /* Back off the radius to account for the thickness of border line
@@ -287,8 +287,8 @@ void nxlines_test(NXWINDOW hwnd)
       vector.pt2.x = center.x - halfx;
       vector.pt2.y = center.y - halfy;
 
-      message("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
-              angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
+      printf("Angle: %08x vector: (%d,%d)->(%d,%d)\n",
+             angle, vector.pt1.x, vector.pt1.y, vector.pt2.x, vector.pt2.y);
 
       /* Clear the previous line by overwriting it with the circle color */
 
@@ -296,7 +296,7 @@ void nxlines_test(NXWINDOW hwnd)
       ret = nx_drawline((NXWINDOW)hwnd, &previous, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
       if (ret < 0)
         {
-          message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
+          printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
         }
 
       /* Draw the new line */
@@ -305,7 +305,7 @@ void nxlines_test(NXWINDOW hwnd)
       ret = nx_drawline((NXWINDOW)hwnd, &vector, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
       if (ret < 0)
         {
-          message("nxlines_test: nx_drawline failed clearing: %d\n", ret);
+          printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
         }
 
       /* Set up for the next time through the loop then sleep for a bit. */

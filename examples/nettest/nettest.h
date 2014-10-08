@@ -57,31 +57,16 @@
 #  define HTONS(a)       htons(a)
 #  define HTONL(a)       htonl(a)
 
-   /* Used printf for debug output */
-
-#  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define message(...) printf(__VA_ARGS__)
-#  else
-#    define message printf
-#  endif
-
    /* Have SO_LINGER */
 
 #  define NETTEST_HAVE_SOLINGER 1
 
 #else
-
-   /* Used syslog() so that there is not confusion from buffered IO */
-
-#  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define message(...) syslog(__VA_ARGS__)
+#  ifdef CONFIG_NET_SOLINGER
+#    define NETTEST_HAVE_SOLINGER 1
 #  else
-#    define message syslog
+#    undef NETTEST_HAVE_SOLINGER
 #  endif
-
-   /* At present, uIP does only abortive disconnects */
-
-#  undef NETTEST_HAVE_SOLINGER
 #endif
 
 #define PORTNO     5471

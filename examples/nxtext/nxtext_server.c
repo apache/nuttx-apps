@@ -91,11 +91,11 @@ int nxtext_server(int argc, char *argv[])
 #if defined(CONFIG_EXAMPLES_NXTEXT_EXTERNINIT)
   /* Use external graphics driver initialization */
 
-  message("nxtext_server: Initializing external graphics device\n");
+  printf("nxtext_server: Initializing external graphics device\n");
   dev = up_nxdrvinit(CONFIG_EXAMPLES_NXTEXT_DEVNO);
   if (!dev)
     {
-      message("nxtext_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
+      printf("nxtext_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
@@ -103,11 +103,11 @@ int nxtext_server(int argc, char *argv[])
 #elif defined(CONFIG_NX_LCDDRIVER)
   /* Initialize the LCD device */
 
-  message("nxtext_server: Initializing LCD\n");
+  printf("nxtext_server: Initializing LCD\n");
   ret = up_lcdinitialize();
   if (ret < 0)
     {
-      message("nxtext_server: up_lcdinitialize failed: %d\n", -ret);
+      printf("nxtext_server: up_lcdinitialize failed: %d\n", -ret);
       return 1;
     }
 
@@ -116,7 +116,7 @@ int nxtext_server(int argc, char *argv[])
   dev = up_lcdgetdev(CONFIG_EXAMPLES_NXTEXT_DEVNO);
   if (!dev)
     {
-      message("nxtext_server: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
+      printf("nxtext_server: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
       return 2;
     }
 
@@ -126,18 +126,18 @@ int nxtext_server(int argc, char *argv[])
 #else
   /* Initialize the frame buffer device */
 
-  message("nxtext_server: Initializing framebuffer\n");
+  printf("nxtext_server: Initializing framebuffer\n");
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      message("nxtext_server: up_fbinitialize failed: %d\n", -ret);
+      printf("nxtext_server: up_fbinitialize failed: %d\n", -ret);
       return 1;
     }
 
   dev = up_fbgetvplane(CONFIG_EXAMPLES_NXTEXT_VPLANE);
   if (!dev)
     {
-      message("nxtext_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
+      printf("nxtext_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
       return 2;
     }
 #endif
@@ -176,7 +176,7 @@ FAR void *nxtext_listener(FAR void *arg)
            * the server.
            */
 
-          message("nxtext_listener: Lost server connection: %d\n", errno);
+          printf("nxtext_listener: Lost server connection: %d\n", errno);
           exit(NXEXIT_LOSTSERVERCONN);
         }
 
@@ -186,7 +186,7 @@ FAR void *nxtext_listener(FAR void *arg)
         {
           g_connected = true;
           sem_post(&g_semevent);
-          message("nxtext_listener: Connected\n");
+          printf("nxtext_listener: Connected\n");
         }
     }
 }

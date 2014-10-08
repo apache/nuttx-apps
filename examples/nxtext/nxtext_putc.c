@@ -313,7 +313,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
         {
           /* Actually, the RENDERER never returns a failure */
 
-          message("nxtext_renderglyph: RENDERER failed\n");
+          printf("nxtext_renderglyph: RENDERER failed\n");
           nxtext_freeglyph(glyph);
           glyph = NULL;
         }
@@ -591,7 +591,7 @@ void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                       &bm->pos, (unsigned int)glyph->stride);
       if (ret < 0)
         {
-          message("nxtext_fillchar: nx_bitmapwindow failed: %d\n", errno);
+          printf("nxtext_fillchar: nx_bitmapwindow failed: %d\n", errno);
         }
     }
 }

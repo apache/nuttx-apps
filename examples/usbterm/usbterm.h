@@ -97,26 +97,6 @@
 #  define USBTERM_DEVNAME "/dev/ttyUSB0"
 #endif
 
-/* Debug ********************************************************************/
-
-#ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG
-#    define message(...) syslog(__VA_ARGS__)
-#    define trmessage    syslog
-#  else
-#    define message(...) printf(__VA_ARGS__)
-#    define trmessage    printf
-#  endif
-#else
-#  ifdef CONFIG_DEBUG
-#    define message      lowsyslog
-#    define trmessage    lowsyslog
-#  else
-#    define message      printf
-#    define trmessage    printf
-#  endif
-#endif
-
 #define IOBUFFER_SIZE 256
 
 /****************************************************************************

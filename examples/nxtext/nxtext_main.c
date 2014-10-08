@@ -167,11 +167,11 @@ static inline int nxtext_suinitialize(void)
 #if defined(CONFIG_EXAMPLES_NXTEXT_EXTERNINIT)
   /* Use external graphics driver initialization */
 
-  message("nxtext_initialize: Initializing external graphics device\n");
+  printf("nxtext_initialize: Initializing external graphics device\n");
   dev = up_nxdrvinit(CONFIG_EXAMPLES_NXTEXT_DEVNO);
   if (!dev)
     {
-      message("nxtext_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
+      printf("nxtext_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
@@ -181,11 +181,11 @@ static inline int nxtext_suinitialize(void)
 
   /* Initialize the LCD device */
 
-  message("nxtext_initialize: Initializing LCD\n");
+  printf("nxtext_initialize: Initializing LCD\n");
   ret = up_lcdinitialize();
   if (ret < 0)
     {
-      message("nxtext_initialize: up_lcdinitialize failed: %d\n", -ret);
+      printf("nxtext_initialize: up_lcdinitialize failed: %d\n", -ret);
       g_exitcode = NXEXIT_LCDINITIALIZE;
       return ERROR;
     }
@@ -195,7 +195,7 @@ static inline int nxtext_suinitialize(void)
   dev = up_lcdgetdev(CONFIG_EXAMPLES_NXTEXT_DEVNO);
   if (!dev)
     {
-      message("nxtext_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
+      printf("nxtext_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
       g_exitcode = NXEXIT_LCDGETDEV;
       return ERROR;
     }
@@ -208,11 +208,11 @@ static inline int nxtext_suinitialize(void)
 
   /* Initialize the frame buffer device */
 
-  message("nxtext_initialize: Initializing framebuffer\n");
+  printf("nxtext_initialize: Initializing framebuffer\n");
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      message("nxtext_initialize: up_fbinitialize failed: %d\n", -ret);
+      printf("nxtext_initialize: up_fbinitialize failed: %d\n", -ret);
       g_exitcode = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
@@ -220,7 +220,7 @@ static inline int nxtext_suinitialize(void)
   dev = up_fbgetvplane(CONFIG_EXAMPLES_NXTEXT_VPLANE);
   if (!dev)
     {
-      message("nxtext_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
+      printf("nxtext_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
       g_exitcode = NXEXIT_FBGETVPLANE;
       return ERROR;
     }
@@ -228,11 +228,11 @@ static inline int nxtext_suinitialize(void)
 
   /* Then open NX */
 
-  message("nxtext_initialize: Open NX\n");
+  printf("nxtext_initialize: Open NX\n");
   g_hnx = nx_open(dev);
   if (!g_hnx)
     {
-      message("nxtext_initialize: nx_open failed: %d\n", errno);
+      printf("nxtext_initialize: nx_open failed: %d\n", errno);
       g_exitcode = NXEXIT_NXOPEN;
       return ERROR;
     }
@@ -258,19 +258,19 @@ static inline int nxtext_muinitialize(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      message("nxtext_initialize: sched_setparam failed: %d\n" , ret);
+      printf("nxtext_initialize: sched_setparam failed: %d\n" , ret);
       g_exitcode = NXEXIT_SCHEDSETPARAM;
       return ERROR;
     }
 
   /* Start the server task */
 
-  message("nxtext_initialize: Starting nxtext_server task\n");
+  printf("nxtext_initialize: Starting nxtext_server task\n");
   servrid = task_create("NX Server", CONFIG_EXAMPLES_NXTEXT_SERVERPRIO,
                         CONFIG_EXAMPLES_NXTEXT_STACKSIZE, nxtext_server, NULL);
   if (servrid < 0)
     {
-      message("nxtext_initialize: Failed to create nxtext_server task: %d\n", errno);
+      printf("nxtext_initialize: Failed to create nxtext_server task: %d\n", errno);
       g_exitcode = NXEXIT_TASKCREATE;
       return ERROR;
     }
@@ -317,7 +317,7 @@ static inline int nxtext_muinitialize(void)
     }
   else
     {
-      message("nxtext_initialize: nx_connect failed: %d\n", errno);
+      printf("nxtext_initialize: nx_connect failed: %d\n", errno);
       g_exitcode = NXEXIT_NXCONNECT;
       return ERROR;
     }
@@ -362,10 +362,10 @@ int nxtext_main(int argc, char **argv)
   /* Initialize NX */
 
   ret = nxtext_initialize();
-  message("nxtext_main: NX handle=%p\n", g_hnx);
+  printf("nxtext_main: NX handle=%p\n", g_hnx);
   if (!g_hnx || ret < 0)
     {
-      message("nxtext_main: Failed to get NX handle: %d\n", errno);
+      printf("nxtext_main: Failed to get NX handle: %d\n", errno);
       g_exitcode = NXEXIT_NXOPEN;
       goto errout;
     }
@@ -375,7 +375,7 @@ int nxtext_main(int argc, char **argv)
   g_bghfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXTEXT_BGFONTID);
   if (!g_bghfont)
     {
-      message("nxtext_main: Failed to get background font handle: %d\n", errno);
+      printf("nxtext_main: Failed to get background font handle: %d\n", errno);
       g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
@@ -383,19 +383,19 @@ int nxtext_main(int argc, char **argv)
   g_puhfont = nxf_getfonthandle(CONFIG_EXAMPLES_NXTEXT_PUFONTID);
   if (!g_puhfont)
     {
-      message("nxtext_main: Failed to get pop-up font handle: %d\n", errno);
+      printf("nxtext_main: Failed to get pop-up font handle: %d\n", errno);
       g_exitcode = NXEXIT_FONTOPEN;
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  message("nxtext_main: Set background color=%d\n", CONFIG_EXAMPLES_NXTEXT_BGCOLOR);
+  printf("nxtext_main: Set background color=%d\n", CONFIG_EXAMPLES_NXTEXT_BGCOLOR);
   color = CONFIG_EXAMPLES_NXTEXT_BGCOLOR;
   ret = nx_setbgcolor(g_hnx, &color);
   if (ret < 0)
     {
-      message("nxtext_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxtext_main: nx_setbgcolor failed: %d\n", errno);
       g_exitcode = NXEXIT_NXSETBGCOLOR;
       goto errout_with_nx;
     }
@@ -406,7 +406,7 @@ int nxtext_main(int argc, char **argv)
   ret = nx_requestbkgd(g_hnx, &g_nxtextcb, bgstate);
   if (ret < 0)
     {
-      message("nxtext_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxtext_main: nx_setbgcolor failed: %d\n", errno);
       g_exitcode = NXEXIT_NXREQUESTBKGD;
       goto errout_with_nx;
     }
@@ -419,7 +419,7 @@ int nxtext_main(int argc, char **argv)
     {
       (void)sem_wait(&g_semevent);
     }
-  message("nxtext_main: Screen resolution (%d,%d)\n", g_xres, g_yres);
+  printf("nxtext_main: Screen resolution (%d,%d)\n", g_xres, g_yres);
 
   /* Now loop, adding text to the background and periodically presenting
    * a pop-up window.
@@ -447,11 +447,11 @@ int nxtext_main(int argc, char **argv)
           /* Give keyboard input to the top window (which should be the pop-up) */
 
 #ifdef CONFIG_NX_KBD
-          message("nxtext_main: Send keyboard input: %s\n", g_pumsg);
+          printf("nxtext_main: Send keyboard input: %s\n", g_pumsg);
           ret = nx_kbdin(g_hnx, strlen((FAR const char *)g_pumsg), g_pumsg);
           if (ret < 0)
            {
-             message("nxtext_main: nx_kbdin failed: %d\n", errno);
+             printf("nxtext_main: nx_kbdin failed: %d\n", errno);
              goto errout_with_hwnd;
            }
 #endif
@@ -460,7 +460,7 @@ int nxtext_main(int argc, char **argv)
         {
           /* Destroy the pop-up window and restart the sequence */
 
-          message("nxtext_main: Close pop-up\n");
+          printf("nxtext_main: Close pop-up\n");
           (void)nxpu_close(hwnd);
           popcnt = 0;
         }
@@ -482,7 +482,7 @@ int nxtext_main(int argc, char **argv)
 errout_with_hwnd:
   if (popcnt >= 3)
     {
-      message("nxtext_main: Close pop-up\n");
+      printf("nxtext_main: Close pop-up\n");
      (void)nxpu_close(hwnd);
     }
 
@@ -493,12 +493,12 @@ errout_with_nx:
 #ifdef CONFIG_NX_MULTIUSER
   /* Disconnect from the server */
 
-  message("nxtext_main: Disconnect from the server\n");
+  printf("nxtext_main: Disconnect from the server\n");
   nx_disconnect(g_hnx);
 #else
   /* Close the server */
 
-  message("nxtext_main: Close NX\n");
+  printf("nxtext_main: Close NX\n");
   nx_close(g_hnx);
 #endif
 errout:

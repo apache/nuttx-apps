@@ -235,8 +235,8 @@ static void nximage_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 static void nximage_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  message("nximage_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
-          hwnd,  pos->x, pos->y, buttons);
+  printf("nximage_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
+         hwnd,  pos->x, pos->y, buttons);
 }
 #endif
 
@@ -258,7 +258,7 @@ static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
     * expected.
     */
 
-   message("nximage_kbdin: Unexpected keyboard callback\n");
+   printf("nximage_kbdin: Unexpected keyboard callback\n");
 }
 #endif
 
@@ -323,7 +323,7 @@ void nximage_image(NXWINDOW hwnd)
       ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos, SCALED_WIDTH*sizeof(nxgl_mxpixel_t));
       if (ret < 0)
         {
-          message("nximage_image: nx_bitmapwindow failed: %d\n", errno);
+          printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);
         }
 
       /* Increment the vertical position */
@@ -365,7 +365,7 @@ void nximage_image(NXWINDOW hwnd)
       ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos, SCALED_WIDTH*sizeof(nxgl_mxpixel_t));
       if (ret < 0)
         {
-          message("nximage_image: nx_bitmapwindow failed: %d\n", errno);
+          printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);
         }
 
       /* Increment the vertical position */
@@ -386,7 +386,7 @@ void nximage_image(NXWINDOW hwnd)
       ret = nx_bitmap((NXWINDOW)hwnd, &dest, src, &pos, SCALED_WIDTH*sizeof(nxgl_mxpixel_t));
       if (ret < 0)
         {
-          message("nximage_image: nx_bitmapwindow failed: %d\n", errno);
+          printf("nximage_image: nx_bitmapwindow failed: %d\n", errno);
         }
 
       /* Increment the vertical position */

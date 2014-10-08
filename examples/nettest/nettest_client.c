@@ -80,7 +80,7 @@ void send_client(void)
   if (!outbuf)
 #endif
     {
-      message("client: failed to allocate buffers\n");
+      printf("client: failed to allocate buffers\n");
       exit(1);
     }
 
@@ -89,7 +89,7 @@ void send_client(void)
   sockfd = socket(PF_INET, SOCK_STREAM, 0);
   if (sockfd < 0)
     {
-      message("client socket failure %d\n", errno);
+      printf("client socket failure %d\n", errno);
       goto errout_with_buffers;
     }
 
@@ -103,13 +103,13 @@ void send_client(void)
   myaddr.sin_addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
 #endif
 
-  message("client: Connecting...\n");
+  printf("client: Connecting...\n");
   if (connect( sockfd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
-      message("client: connect failure: %d\n", errno);
+      printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
     }
-  message("client: Connected\n");
+  printf("client: Connected\n");
 
   /* Initialize the buffer */
 
@@ -131,64 +131,64 @@ void send_client(void)
       nbytessent = send(sockfd, outbuf, SENDSIZE, 0);
       if (nbytessent < 0)
         {
-          message("client: send failed: %d\n", errno);
+          printf("client: send failed: %d\n", errno);
           goto errout_with_socket;
         }
       else if (nbytessent != SENDSIZE)
         {
-          message("client: Bad send length=%d: %d of \n",
+          printf("client: Bad send length=%d: %d of \n",
                   nbytessent, SENDSIZE);
           goto errout_with_socket;
         }
-      message("Sent %d bytes\n", nbytessent);
+      printf("Sent %d bytes\n", nbytessent);
     }
 #else
   /* Then send and receive one message */
 
-  message("client: Sending %d bytes\n", SENDSIZE);
+  printf("client: Sending %d bytes\n", SENDSIZE);
   nbytessent = send(sockfd, outbuf, SENDSIZE, 0);
-  message("client: Sent %d bytes\n", nbytessent);
+  printf("client: Sent %d bytes\n", nbytessent);
 
   if (nbytessent < 0)
     {
-      message("client: send failed: %d\n", errno);
+      printf("client: send failed: %d\n", errno);
       goto errout_with_socket;
     }
   else if (nbytessent != SENDSIZE)
     {
-      message("client: Bad send length: %d Expected: %d\n", nbytessent, SENDSIZE);
+      printf("client: Bad send length: %d Expected: %d\n", nbytessent, SENDSIZE);
       goto errout_with_socket;
     }
 
   totalbytesrecvd = 0;
   do
     {
-      message("client: Receiving...\n");
+      printf("client: Receiving...\n");
       nbytesrecvd = recv(sockfd, &inbuf[totalbytesrecvd], SENDSIZE - totalbytesrecvd, 0);
 
       if (nbytesrecvd < 0)
         {
-          message("client: recv failed: %d\n", errno);
+          printf("client: recv failed: %d\n", errno);
           goto errout_with_socket;
         }
       else if (nbytesrecvd == 0)
         {
-          message("client: The server closed the connection\n");
+          printf("client: The server closed the connection\n");
           goto errout_with_socket;
         }
       totalbytesrecvd += nbytesrecvd;
-      message("client: Received %d of %d bytes\n", totalbytesrecvd, SENDSIZE);
+      printf("client: Received %d of %d bytes\n", totalbytesrecvd, SENDSIZE);
     }
   while (totalbytesrecvd < SENDSIZE);
 
   if (totalbytesrecvd != SENDSIZE)
     {
-      message("client: Bad recv length: %d Expected: %d\n", totalbytesrecvd, SENDSIZE);
+      printf("client: Bad recv length: %d Expected: %d\n", totalbytesrecvd, SENDSIZE);
       goto errout_with_socket;
     }
   else if (memcmp(inbuf, outbuf, SENDSIZE) != 0)
     {
-      message("client: Received buffer does not match sent buffer\n");
+      printf("client: Received buffer does not match sent buffer\n");
       goto errout_with_socket;
     }
 

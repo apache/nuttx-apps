@@ -113,16 +113,16 @@ static void adc_devpath(FAR struct adc_state_s *adc, FAR const char *devpath)
 #ifdef CONFIG_NSH_BUILTIN_APPS
 static void adc_help(FAR struct adc_state_s *adc)
 {
-  message("Usage: adc [OPTIONS]\n");
-  message("\nArguments are \"sticky\".  For example, once the ADC device is\n");
-  message("specified, that device will be re-used until it is changed.\n");
-  message("\n\"sticky\" OPTIONS include:\n");
-  message("  [-p devpath] selects the ADC device.  "
+  printf("Usage: adc [OPTIONS]\n");
+  printf("\nArguments are \"sticky\".  For example, once the ADC device is\n");
+  printf("specified, that device will be re-used until it is changed.\n");
+  printf("\n\"sticky\" OPTIONS include:\n");
+  printf("  [-p devpath] selects the ADC device.  "
          "Default: %s Current: %s\n",
          CONFIG_EXAMPLES_ADC_DEVPATH, g_adcstate.devpath ? g_adcstate.devpath : "NONE");
-  message("  [-n count] selects the samples to collect.  "
+  printf("  [-n count] selects the samples to collect.  "
          "Default: 1 Current: %d\n", adc->count);
-  message("  [-h] shows this message and exits\n");
+  printf("  [-h] shows this message and exits\n");
 }
 #endif
 
@@ -182,7 +182,7 @@ static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
       ptr = argv[index];
       if (ptr[0] != '-')
         {
-          message("Invalid options format: %s\n", ptr);
+          printf("Invalid options format: %s\n", ptr);
           exit(0);
         }
 
@@ -192,7 +192,7 @@ static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
             nargs = arg_decimal(&argv[index], &value);
             if (value < 0)
               {
-                message("Count must be non-negative: %ld\n", value);
+                printf("Count must be non-negative: %ld\n", value);
                 exit(1);
               }
 
@@ -211,7 +211,7 @@ static void parse_args(FAR struct adc_state_s *adc, int argc, FAR char **argv)
             exit(0);
 
           default:
-            message("Unsupported option: %s\n", ptr);
+            printf("Unsupported option: %s\n", ptr);
             adc_help(adc);
             exit(1);
         }
@@ -249,11 +249,11 @@ int adc_main(int argc, char *argv[])
        * this test.
        */
 
-      message("adc_main: Initializing external ADC device\n");
+      printf("adc_main: Initializing external ADC device\n");
       ret = adc_devinit();
       if (ret != OK)
         {
-          message("adc_main: adc_devinit failed: %d\n", ret);
+          printf("adc_main: adc_devinit failed: %d\n", ret);
           errval = 1;
           goto errout;
         }
@@ -281,18 +281,18 @@ int adc_main(int argc, char *argv[])
    */
 
 #if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_ADC_NSAMPLES > 0
-  message("adc_main: g_adcstate.count: %d\n", g_adcstate.count);
+  printf("adc_main: g_adcstate.count: %d\n", g_adcstate.count);
 #endif
 
   /* Open the ADC device for reading */
 
-  message("adc_main: Hardware initialized. Opening the ADC device: %s\n",
+  printf("adc_main: Hardware initialized. Opening the ADC device: %s\n",
           g_adcstate.devpath);
 
   fd = open(g_adcstate.devpath, O_RDONLY);
   if (fd < 0)
     {
-      message("adc_main: open %s failed: %d\n", g_adcstate.devpath, errno);
+      printf("adc_main: open %s failed: %d\n", g_adcstate.devpath, errno);
       errval = 2;
       goto errout;
     }
@@ -313,7 +313,7 @@ int adc_main(int argc, char *argv[])
      * through the loop.
      */
 
-    msgflush();
+    fflush(stdout);
 
 #ifdef CONFIG_EXAMPLES_ADC_SWTRIG
     /* Issue the software trigger to start ADC conversion */
@@ -322,7 +322,7 @@ int adc_main(int argc, char *argv[])
     if (ret < 0)
       {
         int errcode = errno;
-        message("adc_main: ANIOC_TRIGGER ioctl failed: %d\n", errcode);
+        printf("adc_main: ANIOC_TRIGGER ioctl failed: %d\n", errcode);
       }
 #endif
 
@@ -338,17 +338,17 @@ int adc_main(int argc, char *argv[])
         errval = errno;
         if (errval != EINTR)
           {
-            message("adc_main: read %s failed: %d\n",
+            printf("adc_main: read %s failed: %d\n",
                     g_adcstate.devpath, errval);
             errval = 3;
             goto errout_with_dev;
           }
 
-        message("adc_main: Interrupted read...\n");
+        printf("adc_main: Interrupted read...\n");
       }
     else if (nbytes == 0)
       {
-        message("adc_main: No data read, Ignoring\n");
+        printf("adc_main: No data read, Ignoring\n");
       }
 
     /* Print the sample data on successful return */
@@ -358,15 +358,15 @@ int adc_main(int argc, char *argv[])
         int nsamples = nbytes / sizeof(struct adc_msg_s);
         if (nsamples * sizeof(struct adc_msg_s) != nbytes)
           {
-            message("adc_main: read size=%d is not a multiple of sample size=%d, Ignoring\n",
+            printf("adc_main: read size=%d is not a multiple of sample size=%d, Ignoring\n",
                     nbytes, sizeof(struct adc_msg_s));
           }
         else
           {
-            message("Sample:\n");
+            printf("Sample:\n");
             for (i = 0; i < nsamples ; i++)
               {
-                message("%d: channel: %d value: %d\n",
+                printf("%d: channel: %d value: %d\n",
                         i+1, sample[i].am_channel, sample[i].am_data);
               }
           }
@@ -382,7 +382,7 @@ errout_with_dev:
   close(fd);
 
 errout:
-  message("Terminating!\n");
-  msgflush();
+  printf("Terminating!\n");
+  fflush(stdout);
   return errval;
 }

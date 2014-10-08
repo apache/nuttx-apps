@@ -104,12 +104,12 @@ void *poll_listener(pthread_addr_t pvarg)
 
   /* Open the FIFO for non-blocking read */
 
-  message("poll_listener: Opening %s for non-blocking read\n", FIFO_PATH1);
+  printf("poll_listener: Opening %s for non-blocking read\n", FIFO_PATH1);
   fd = open(FIFO_PATH1, O_RDONLY|O_NONBLOCK);
   if (fd < 0)
     {
-      message("poll_listener: ERROR Failed to open FIFO %s: %d\n",
-              FIFO_PATH1, errno);
+      printf("poll_listener: ERROR Failed to open FIFO %s: %d\n",
+             FIFO_PATH1, errno);
       (void)close(fd);
       return (void*)-1;
     }
@@ -118,7 +118,7 @@ void *poll_listener(pthread_addr_t pvarg)
 
   for (;;)
     {
-      message("poll_listener: Calling poll()\n");
+      printf("poll_listener: Calling poll()\n");
 
       memset(fds, 0, sizeof(struct pollfd)*NPOLLFDS);
 #ifdef HAVE_CONSOLE
@@ -135,19 +135,19 @@ void *poll_listener(pthread_addr_t pvarg)
 
       ret = poll(fds, NPOLLFDS, POLL_LISTENER_DELAY);
 
-      message("\npoll_listener: poll returned: %d\n", ret);
+      printf("\npoll_listener: poll returned: %d\n", ret);
       if (ret < 0)
         {
-          message("poll_listener: ERROR poll failed: %d\n", errno);
+          printf("poll_listener: ERROR poll failed: %d\n", errno);
         }
       else if (ret == 0)
         {
-          message("poll_listener: Timeout\n");
+          printf("poll_listener: Timeout\n");
           timeout = true;
         }
       else if (ret > NPOLLFDS)
         {
-          message("poll_listener: ERROR poll reported: %d\n", errno);
+          printf("poll_listener: ERROR poll reported: %d\n", errno);
         }
       else
         {
@@ -157,13 +157,13 @@ void *poll_listener(pthread_addr_t pvarg)
       nevents = 0;
       for (i = 0; i < NPOLLFDS; i++)
         {
-          message("poll_listener: FIFO revents[%d]=%02x\n", i, fds[i].revents);
+          printf("poll_listener: FIFO revents[%d]=%02x\n", i, fds[i].revents);
           if (timeout)
             {
               if (fds[i].revents != 0)
                 {
-                  message("poll_listener: ERROR? expected revents=00, received revents[%d]=%02x\n",
-                          fds[i].revents, i);
+                  printf("poll_listener: ERROR? expected revents=00, received revents[%d]=%02x\n",
+                         fds[i].revents, i);
                 }
             }
           else if (pollin)
@@ -174,15 +174,15 @@ void *poll_listener(pthread_addr_t pvarg)
                  }
                else if (fds[i].revents != 0)
                 {
-                   message("poll_listener: ERROR unexpected revents[%d]=%02x\n",
-                           i, fds[i].revents);
+                   printf("poll_listener: ERROR unexpected revents[%d]=%02x\n",
+                          i, fds[i].revents);
                  }
             }
         }
 
       if (pollin && nevents != ret)
         {
-           message("poll_listener: ERROR found %d events, poll reported %d\n", nevents, ret);
+           printf("poll_listener: ERROR found %d events, poll reported %d\n", nevents, ret);
         }
 
       /* In any event, read until the pipe/serial  is empty */
@@ -224,12 +224,12 @@ void *poll_listener(pthread_addr_t pvarg)
                     {
                       if ((fds[i].revents & POLLIN) != 0)
                         {
-                          message("poll_listener: ERROR no read data[%d]\n", i);
+                          printf("poll_listener: ERROR no read data[%d]\n", i);
                         }
                     }
                   else if (errno != EINTR)
                     {
-                      message("poll_listener: read[%d] failed: %d\n", i, errno);
+                      printf("poll_listener: read[%d] failed: %d\n", i, errno);
                     }
                   nbytes = 0;
                 }
@@ -237,12 +237,12 @@ void *poll_listener(pthread_addr_t pvarg)
                 {
                   if (timeout)
                     {
-                      message("poll_listener: ERROR? Poll timeout, but data read[%d]\n", i);
-                      message("               (might just be a race condition)\n");
+                      printf("poll_listener: ERROR? Poll timeout, but data read[%d]\n", i);
+                      printf("               (might just be a race condition)\n");
                     }
 
                   buffer[nbytes] = '\0';
-                  message("poll_listener: Read[%d] '%s' (%d bytes)\n", i, buffer, nbytes);
+                  printf("poll_listener: Read[%d] '%s' (%d bytes)\n", i, buffer, nbytes);
                 }
 
               /* Suppress error report if no read data on the next time through */
@@ -254,7 +254,7 @@ void *poll_listener(pthread_addr_t pvarg)
 
       /* Make sure that everything is displayed */
 
-      msgflush();
+      fflush(stdout);
     }
 
   /* Won't get here */

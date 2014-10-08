@@ -139,13 +139,13 @@ static inline void nxeg_fillwindow(NXEGWINDOW hwnd,
   ret = nx_fill(hwnd, rect, st->color);
   if (ret < 0)
     {
-      message("nxeg_fillwindow: nx_fill failed: %d\n", errno);
+      printf("nxeg_fillwindow: nx_fill failed: %d\n", errno);
     }
 #else
   ret = nxtk_fillwindow(hwnd, rect, st->color);
   if (ret < 0)
     {
-      message("nxeg_fillwindow: nxtk_fillwindow failed: %d\n", errno);
+      printf("nxeg_fillwindow: nxtk_fillwindow failed: %d\n", errno);
     }
 #endif
 #ifdef CONFIG_NX_KBD
@@ -167,7 +167,7 @@ static inline void nxeg_filltoolbar(NXTKWINDOW htb,
   ret = nxtk_filltoolbar(htb, rect, color);
   if (ret < 0)
     {
-      message("nxeg_filltoolbar: nxtk_filltoolbar failed: %d\n", errno);
+      printf("nxeg_filltoolbar: nxtk_filltoolbar failed: %d\n", errno);
     }
 }
 #endif
@@ -180,10 +180,10 @@ static void nxeg_redraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
-  message("nxeg_redraw%d: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
-           st->wnum, hwnd,
-           rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
-           more ? "true" : "false");
+  printf("nxeg_redraw%d: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+         st->wnum, hwnd,
+         rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
+         more ? "true" : "false");
 
   nxeg_fillwindow(hwnd, rect, st);
 }
@@ -201,9 +201,9 @@ static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  message("nxeg_position%d: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
-           st->wnum, hwnd, size->w, size->h, pos->x, pos->y,
-           bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
+  printf("nxeg_position%d: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+         st->wnum, hwnd, size->w, size->h, pos->x, pos->y,
+         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
   /* Have we picked off the window bounds yet? */
 
@@ -216,7 +216,7 @@ static void nxeg_position(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
       b_haveresolution = true;
       sem_post(&g_semevent);
-      message("nxeg_position2: Have xres=%d yres=%d\n", g_xres, g_yres);
+      printf("nxeg_position2: Have xres=%d yres=%d\n", g_xres, g_yres);
     }
 }
 
@@ -229,8 +229,8 @@ static void nxeg_mousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
-  message("nxeg_mousein%d: hwnd=%p pos=(%d,%d) button=%02x\n",
-           st->wnum, hwnd,  pos->x, pos->y, buttons);
+  printf("nxeg_mousein%d: hwnd=%p pos=(%d,%d) button=%02x\n",
+         st->wnum, hwnd,  pos->x, pos->y, buttons);
 }
 #endif
 
@@ -243,10 +243,10 @@ static void nxeg_tbredraw(NXEGWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                           bool more, FAR void *arg)
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
-  message("nxeg_tbredraw%d: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
-           st->wnum, hwnd,
-           rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
-           more ? "true" : "false");
+  printf("nxeg_tbredraw%d: hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+         st->wnum, hwnd,
+         rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
+         more ? "true" : "false");
   nxeg_filltoolbar(hwnd, rect, g_tbcolor);
 }
 #endif
@@ -265,9 +265,9 @@ static void nxeg_tbposition(NXEGWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  message("nxeg_ptbosition%d: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
-           st->wnum, hwnd, size->w, size->h, pos->x, pos->y,
-           bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
+  printf("nxeg_ptbosition%d: hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+         st->wnum, hwnd, size->w, size->h, pos->x, pos->y,
+         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 }
 #endif
 
@@ -282,8 +282,8 @@ static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 {
   FAR struct nxeg_state_s *st = (FAR struct nxeg_state_s *)arg;
 
-  message("nxeg_tbmousein%d: hwnd=%p pos=(%d,%d) button=%02x\n",
-           st->wnum, hwnd,  pos->x, pos->y, buttons);
+  printf("nxeg_tbmousein%d: hwnd=%p pos=(%d,%d) button=%02x\n",
+         st->wnum, hwnd,  pos->x, pos->y, buttons);
 }
 #endif
 #endif
@@ -320,7 +320,7 @@ FAR void *nx_listenerthread(FAR void *arg)
            * the server.
            */
 
-          message("nx_listenerthread: Lost server connection: %d\n", errno);
+          printf("nx_listenerthread: Lost server connection: %d\n", errno);
           exit(NXEXIT_LOSTSERVERCONN);
         }
 
@@ -330,7 +330,7 @@ FAR void *nx_listenerthread(FAR void *arg)
         {
           g_connected = true;
           sem_post(&g_semevent);
-          message("nx_listenerthread: Connected\n");
+          printf("nx_listenerthread: Connected\n");
         }
     }
 }

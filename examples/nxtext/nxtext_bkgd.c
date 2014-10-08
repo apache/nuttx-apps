@@ -127,7 +127,7 @@ static void nxbg_redrawrect(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect)
   ret = nx_fill(hwnd, rect, g_bgstate.wcolor);
   if (ret < 0)
     {
-      message("nxbg_redrawrect: nx_fill failed: %d\n", errno);
+      printf("nxbg_redrawrect: nx_fill failed: %d\n", errno);
     }
 
   /* Fill each character on the display (Only the characters within rect
@@ -203,8 +203,8 @@ static void nxbg_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 static void nxbg_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  message("nxbg_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
-          hwnd,  pos->x, pos->y, buttons);
+  printf("nxbg_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
+         hwnd,  pos->x, pos->y, buttons);
 }
 #endif
 
@@ -260,7 +260,7 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
       ret = nx_fill(hwnd, &rect, g_bgstate.wcolor);
       if (ret < 0)
         {
-          message("nxbg_movedisplay: nx_fill failed: %d\n", errno);
+          printf("nxbg_movedisplay: nx_fill failed: %d\n", errno);
         }
 
       /* Fill each character that might lie within in the bounding box */
@@ -283,7 +283,7 @@ static inline void nxbg_movedisplay(NXWINDOW hwnd, int bottom, int lineheight)
   ret = nx_fill(hwnd, &rect, g_bgstate.wcolor);
   if (ret < 0)
     {
-      message("nxbg_movedisplay: nx_fill failed: %d\n", errno);
+      printf("nxbg_movedisplay: nx_fill failed: %d\n", errno);
     }
 }
 

@@ -102,24 +102,24 @@ static void i2schar_devpath(FAR struct i2schar_state_s *i2schar,
 #ifdef CONFIG_NSH_BUILTIN_APPS
 static void i2schar_help(FAR struct i2schar_state_s *i2schar)
 {
-  message("Usage: i2schar [OPTIONS]\n");
-  message("\nArguments are \"sticky\".  For example, once the I2C character device is\n");
-  message("specified, that device will be re-used until it is changed.\n");
-  message("\n\"sticky\" OPTIONS include:\n");
-  message("  [-p devpath] selects the I2C character device path.  "
+  printf("Usage: i2schar [OPTIONS]\n");
+  printf("\nArguments are \"sticky\".  For example, once the I2C character device is\n");
+  printf("specified, that device will be re-used until it is changed.\n");
+  printf("\n\"sticky\" OPTIONS include:\n");
+  printf("  [-p devpath] selects the I2C character device path.  "
          "Default: %s Current: %s\n",
          CONFIG_EXAMPLES_I2SCHAR_DEVPATH, g_i2schar.devpath ? g_i2schar.devpath : "NONE");
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
-  message("  [-t count] selects the number of audio buffers to send.  "
+  printf("  [-t count] selects the number of audio buffers to send.  "
          "Default: %d Current: %d\n",
          CONFIG_EXAMPLES_I2SCHAR_TXBUFFERS, i2schar->txcount);
 #endif
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
-  message("  [-r count] selects the number of audio buffers to receive.  "
+  printf("  [-r count] selects the number of audio buffers to receive.  "
          "Default: %d Current: %d\n",
          CONFIG_EXAMPLES_I2SCHAR_RXBUFFERS, i2schar->txcount);
 #endif
-  message("  [-h] shows this message and exits\n");
+  printf("  [-h] shows this message and exits\n");
 }
 #endif
 
@@ -179,7 +179,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
       ptr = argv[index];
       if (ptr[0] != '-')
         {
-          message("Invalid options format: %s\n", ptr);
+          printf("Invalid options format: %s\n", ptr);
           exit(0);
         }
 
@@ -195,7 +195,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
             nargs = arg_decimal(&argv[index], &value);
             if (value < 0)
               {
-                message("Count must be non-negative: %ld\n", value);
+                printf("Count must be non-negative: %ld\n", value);
                 exit(1);
               }
 
@@ -207,7 +207,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
             nargs = arg_decimal(&argv[index], &value);
             if (value < 0)
               {
-                message("Count must be non-negative: %ld\n", value);
+                printf("Count must be non-negative: %ld\n", value);
                 exit(1);
               }
 
@@ -220,7 +220,7 @@ static void parse_args(FAR struct i2schar_state_s *i2schar, int argc, FAR char *
             exit(0);
 
           default:
-            message("Unsupported option: %s\n", ptr);
+            printf("Unsupported option: %s\n", ptr);
             i2schar_help(i2schar);
             exit(1);
         }
@@ -264,11 +264,11 @@ int i2schar_main(int argc, char *argv[])
        * external to this test.
        */
 
-      message("i2schar_main: Initializing external I2C character device\n");
+      printf("i2schar_main: Initializing external I2C character device\n");
       ret = i2schar_devinit();
       if (ret != OK)
         {
-          message("i2schar_main: i2schar_devinit failed: %d\n", ret);
+          printf("i2schar_main: i2schar_devinit failed: %d\n", ret);
           return EXIT_FAILURE;
         }
 #endif
@@ -296,7 +296,7 @@ int i2schar_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
   /* Start the receiver thread */
 
-  message("i2schar_main: Start receiver thread\n");
+  printf("i2schar_main: Start receiver thread\n");
   pthread_attr_init(&attr);
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
@@ -321,7 +321,7 @@ int i2schar_main(int argc, char *argv[])
   if (ret != OK)
     {
       sched_unlock();
-      message("i2schar_main: ERROR: failed to Start receiver thread: %d\n", ret);
+      printf("i2schar_main: ERROR: failed to Start receiver thread: %d\n", ret);
       return EXIT_FAILURE;
     }
 
@@ -331,7 +331,7 @@ int i2schar_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
   /* Start the transmitter thread */
 
-  message("i2schar_main: Start transmitter thread\n");
+  printf("i2schar_main: Start transmitter thread\n");
   pthread_attr_init(&attr);
 
   /* Set the transmitter stack size */
@@ -344,9 +344,9 @@ int i2schar_main(int argc, char *argv[])
   if (ret != OK)
     {
       sched_unlock();
-      message("i2schar_main: ERROR: failed to Start transmitter thread: %d\n", ret);
+      printf("i2schar_main: ERROR: failed to Start transmitter thread: %d\n", ret);
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
-      message("i2schar_main: Waiting for the receiver thread\n");
+      printf("i2schar_main: Waiting for the receiver thread\n");
       (void)pthread_join(receiver, &result);
 #endif
       return EXIT_FAILURE;
@@ -357,20 +357,20 @@ int i2schar_main(int argc, char *argv[])
 
    sched_unlock();
 #ifdef CONFIG_EXAMPLES_I2SCHAR_TX
-   message("i2schar_main: Waiting for the transmitter thread\n");
+   printf("i2schar_main: Waiting for the transmitter thread\n");
    ret = pthread_join(transmitter, &result);
    if (ret != OK)
      {
-       message("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
+       printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
      }
 #endif
 
 #ifdef CONFIG_EXAMPLES_I2SCHAR_RX
-   message("i2schar_main: Waiting for the receiver thread\n");
+   printf("i2schar_main: Waiting for the receiver thread\n");
    ret = pthread_join(receiver, &result);
    if (ret != OK)
      {
-       message("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
+       printf("i2schar_main: ERROR: pthread_join failed: %d\n", ret);
      }
 #endif
 

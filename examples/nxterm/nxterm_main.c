@@ -114,18 +114,18 @@ static int nxterm_initialize(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      message("nxterm_initialize: sched_setparam failed: %d\n" , ret);
+      printf("nxterm_initialize: sched_setparam failed: %d\n" , ret);
       return ERROR;
     }
 
   /* Start the server task */
 
-  message("nxterm_initialize: Starting nxterm_server task\n");
+  printf("nxterm_initialize: Starting nxterm_server task\n");
   servrid = task_create("NX Server", CONFIG_EXAMPLES_NXCON_SERVERPRIO,
                         CONFIG_EXAMPLES_NXCON_STACKSIZE, nxterm_server, NULL);
   if (servrid < 0)
     {
-      message("nxterm_initialize: Failed to create nxterm_server task: %d\n", errno);
+      printf("nxterm_initialize: Failed to create nxterm_server task: %d\n", errno);
       return ERROR;
     }
 
@@ -170,7 +170,7 @@ static int nxterm_initialize(void)
     }
   else
     {
-      message("nxterm_initialize: nx_connect failed: %d\n", errno);
+      printf("nxterm_initialize: nx_connect failed: %d\n", errno);
       return ERROR;
     }
   return OK;
@@ -223,7 +223,7 @@ int nxterm_main(int argc, char **argv)
   /* General Initialization *************************************************/
   /* Reset all global data */
 
-  message("nxterm_main: Started\n");
+  printf("nxterm_main: Started\n");
   memset(&g_nxterm_vars, 0, sizeof(struct nxterm_state_s));
 
   /* Call all C++ static constructors */
@@ -235,7 +235,7 @@ int nxterm_main(int argc, char **argv)
   /* NSH Initialization *****************************************************/
   /* Initialize the NSH library */
 
-  message("nxterm_main: Initialize NSH\n");
+  printf("nxterm_main: Initialize NSH\n");
   nsh_initialize();
 
   /* If the Telnet console is selected as a front-end, then start the
@@ -256,37 +256,37 @@ int nxterm_main(int argc, char **argv)
   /* NX Initialization ******************************************************/
   /* Initialize NX */
 
-  message("nxterm_main: Initialize NX\n");
+  printf("nxterm_main: Initialize NX\n");
   ret = nxterm_initialize();
-  message("nxterm_main: NX handle=%p\n", g_nxterm_vars.hnx);
+  printf("nxterm_main: NX handle=%p\n", g_nxterm_vars.hnx);
   if (!g_nxterm_vars.hnx || ret < 0)
     {
-      message("nxterm_main: Failed to get NX handle: %d\n", errno);
+      printf("nxterm_main: Failed to get NX handle: %d\n", errno);
       goto errout;
     }
 
   /* Set the background to the configured background color */
 
-  message("nxterm_main: Set background color=%d\n", CONFIG_EXAMPLES_NXCON_BGCOLOR);
+  printf("nxterm_main: Set background color=%d\n", CONFIG_EXAMPLES_NXCON_BGCOLOR);
   color = CONFIG_EXAMPLES_NXCON_BGCOLOR;
   ret = nx_setbgcolor(g_nxterm_vars.hnx, &color);
   if (ret < 0)
     {
-      message("nxterm_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxterm_main: nx_setbgcolor failed: %d\n", errno);
       goto errout_with_nx;
     }
 
   /* Window Configuration ***************************************************/
   /* Create a window */
 
-  message("nxterm_main: Create window\n");
+  printf("nxterm_main: Create window\n");
   g_nxterm_vars.hwnd = nxtk_openwindow(g_nxterm_vars.hnx, &g_nxtermcb, NULL);
   if (!g_nxterm_vars.hwnd)
     {
-      message("nxterm_main: nxtk_openwindow failed: %d\n", errno);
+      printf("nxterm_main: nxtk_openwindow failed: %d\n", errno);
       goto errout_with_nx;
     }
-  message("nxterm_main: hwnd=%p\n", g_nxterm_vars.hwnd);
+  printf("nxterm_main: hwnd=%p\n", g_nxterm_vars.hwnd);
 
   /* Wait until we have the screen resolution.  We'll have this immediately
    * unless we are dealing with the NX server.
@@ -296,7 +296,7 @@ int nxterm_main(int argc, char **argv)
     {
       (void)sem_wait(&g_nxterm_vars.eventsem);
     }
-  message("nxterm_main: Screen resolution (%d,%d)\n", g_nxterm_vars.xres, g_nxterm_vars.yres);
+  printf("nxterm_main: Screen resolution (%d,%d)\n", g_nxterm_vars.xres, g_nxterm_vars.yres);
 
   /* Determine the size and position of the window */
 
@@ -308,35 +308,35 @@ int nxterm_main(int argc, char **argv)
 
   /* Set the window position */
 
-  message("nxterm_main: Set window position to (%d,%d)\n",
-          g_nxterm_vars.wpos.x, g_nxterm_vars.wpos.y);
+  printf("nxterm_main: Set window position to (%d,%d)\n",
+         g_nxterm_vars.wpos.x, g_nxterm_vars.wpos.y);
 
   ret = nxtk_setposition(g_nxterm_vars.hwnd, &g_nxterm_vars.wpos);
   if (ret < 0)
     {
-      message("nxterm_main: nxtk_setposition failed: %d\n", errno);
+      printf("nxterm_main: nxtk_setposition failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
   /* Set the window size */
 
-  message("nxterm_main: Set window size to (%d,%d)\n",
-          g_nxterm_vars.wndo.wsize.w, g_nxterm_vars.wndo.wsize.h);
+  printf("nxterm_main: Set window size to (%d,%d)\n",
+         g_nxterm_vars.wndo.wsize.w, g_nxterm_vars.wndo.wsize.h);
 
   ret = nxtk_setsize(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo.wsize);
   if (ret < 0)
     {
-      message("nxterm_main: nxtk_setsize failed: %d\n", errno);
+      printf("nxterm_main: nxtk_setsize failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
   /* Open the toolbar */
 
-  message("nxterm_main: Add toolbar to window\n");
+  printf("nxterm_main: Add toolbar to window\n");
   ret = nxtk_opentoolbar(g_nxterm_vars.hwnd, CONFIG_EXAMPLES_NXCON_TOOLBAR_HEIGHT, &g_nxtoolcb, NULL);
   if (ret < 0)
     {
-      message("nxterm_main: nxtk_opentoolbar failed: %d\n", errno);
+      printf("nxterm_main: nxtk_opentoolbar failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
@@ -354,7 +354,7 @@ int nxterm_main(int argc, char **argv)
   g_nxterm_vars.hdrvr = nxtk_register(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo, CONFIG_EXAMPLES_NXCON_MINOR);
   if (!g_nxterm_vars.hdrvr)
     {
-      message("nxterm_main: nxtk_register failed: %d\n", errno);
+      printf("nxterm_main: nxtk_register failed: %d\n", errno);
       goto errout_with_hwnd;
     }
 
@@ -363,8 +363,8 @@ int nxterm_main(int argc, char **argv)
   fd = open(CONFIG_EXAMPLES_NXCON_DEVNAME, O_WRONLY);
   if (fd < 0)
     {
-      message("nxterm_main: open %s read-only failed: %d\n",
-              CONFIG_EXAMPLES_NXCON_DEVNAME, errno);
+      printf("nxterm_main: open %s read-only failed: %d\n",
+             CONFIG_EXAMPLES_NXCON_DEVNAME, errno);
       goto errout_with_driver;
     }
 
@@ -373,8 +373,8 @@ int nxterm_main(int argc, char **argv)
    * Note that stdin is retained (file descriptor 0, probably the the serial console).
     */
 
-   message("nxterm_main: Starting the console task\n");
-   msgflush();
+   printf("nxterm_main: Starting the console task\n");
+   fflush(stdout);
 
   (void)fflush(stdout);
   (void)fflush(stderr);

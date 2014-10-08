@@ -89,7 +89,7 @@ int main(int argc, char **argv, char **envp)
   sockfd = socket(PF_INET, SOCK_STREAM, 0);
   if (sockfd < 0)
     {
-      message("client socket failure %d\n", errno);
+      printf("client socket failure %d\n", errno);
       goto errout_with_outbufs;
     }
 
@@ -99,13 +99,13 @@ int main(int argc, char **argv, char **envp)
   myaddr.sin_port        = htons(LISTENER_PORT);
   myaddr.sin_addr.s_addr = inet_addr(TARGETIP);
 
-  message("client: Connecting to %s...\n", TARGETIP);
+  printf("client: Connecting to %s...\n", TARGETIP);
   if (connect( sockfd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
-      message("client: connect failure: %d\n", errno);
+      printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
     }
-  message("client: Connected\n");
+  printf("client: Connected\n");
 
   /* Then send and receive messages */
 
@@ -114,50 +114,50 @@ int main(int argc, char **argv, char **envp)
       sprintf(outbuf, "Remote message %d", i);
       len = strlen(outbuf);
 
-      message("client: Sending '%s' (%d bytes)\n", outbuf, len);
+      printf("client: Sending '%s' (%d bytes)\n", outbuf, len);
       nbytessent = send(sockfd, outbuf, len, 0);
-      message("client: Sent %d bytes\n", nbytessent);
+      printf("client: Sent %d bytes\n", nbytessent);
 
       if (nbytessent < 0)
         {
-          message("client: send failed: %d\n", errno);
+          printf("client: send failed: %d\n", errno);
           goto errout_with_socket;
         }
       else if (nbytessent != len)
         {
-          message("client: Bad send length: %d Expected: %d\n", nbytessent, len);
+          printf("client: Bad send length: %d Expected: %d\n", nbytessent, len);
           goto errout_with_socket;
         }
 
-      message("client: Receiving...\n");
+      printf("client: Receiving...\n");
       nbytesrecvd = recv(sockfd, inbuf, IOBUFFER_SIZE, 0);
 
       if (nbytesrecvd < 0)
         {
-          message("client: recv failed: %d\n", errno);
+          printf("client: recv failed: %d\n", errno);
           goto errout_with_socket;
         }
       else if (nbytesrecvd == 0)
         {
-          message("client: The server broke the connections\n");
+          printf("client: The server broke the connections\n");
           goto errout_with_socket;
         }
 
       inbuf[nbytesrecvd] = '\0';
-      message("client: Received '%s' (%d bytes)\n", inbuf, nbytesrecvd);
+      printf("client: Received '%s' (%d bytes)\n", inbuf, nbytesrecvd);
 
       if (nbytesrecvd != len)
         {
-          message("client: Bad recv length: %d Expected: %d\n", nbytesrecvd, len);
+          printf("client: Bad recv length: %d Expected: %d\n", nbytesrecvd, len);
           goto errout_with_socket;
         }
       else if (memcmp(inbuf, outbuf, len) != 0)
         {
-          message("client: Received outbuf does not match sent outbuf\n");
+          printf("client: Received outbuf does not match sent outbuf\n");
           goto errout_with_socket;
         }
 
-      message("client: Sleeping\n");
+      printf("client: Sleeping\n");
       sleep(8);
     }
 

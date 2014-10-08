@@ -94,7 +94,7 @@ struct net_listener_s
 
 static bool net_closeclient(struct net_listener_s *nls, int sd)
 {
-  message("net_listener: Closing host side connection sd=%d\n", sd);
+  printf("net_listener: Closing host side connection sd=%d\n", sd);
   close(sd);
   FD_CLR(sd, &nls->master);
 
@@ -123,13 +123,13 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
   for (;;)
 #endif
     {
-      message("net_listener: Read data from sd=%d\n", sd);
+      printf("net_listener: Read data from sd=%d\n", sd);
       ret = recv(sd, nls->buffer, IOBUFFER_SIZE, 0);
       if (ret < 0)
         {
           if (errno != EINTR)
             {
-              message("net_listener: recv failed sd=%d: %d\n", sd, errno);
+              printf("net_listener: recv failed sd=%d: %d\n", sd, errno);
               if (errno != EAGAIN)
                 {
                   net_closeclient(nls, sd);
@@ -139,14 +139,14 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
         }
       else if (ret == 0)
         {
-          message("net_listener: Client connection lost sd=%d\n", sd);
+          printf("net_listener: Client connection lost sd=%d\n", sd);
           net_closeclient(nls, sd);
           return false;
         }
       else
         {
           nls->buffer[ret]='\0';
-          message("poll_listener: Read '%s' (%d bytes)\n", nls->buffer, ret);
+          printf("poll_listener: Read '%s' (%d bytes)\n", nls->buffer, ret);
 
           /* Echo the data back to the client */
 
@@ -157,7 +157,7 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
                 {
                   if (errno != EINTR)
                     {
-                       message("net_listener: Send failed sd=%d: %d\n", sd, errno);
+                       printf("net_listener: Send failed sd=%d: %d\n", sd, errno);
                        net_closeclient(nls, sd);
                        return false;
                     }
@@ -187,12 +187,12 @@ static inline bool net_connection(struct net_listener_s *nls)
   for (;;)
 #endif
     {
-      message("net_listener: Accepting new connection on sd=%d\n", nls->listensd);
+      printf("net_listener: Accepting new connection on sd=%d\n", nls->listensd);
 
       sd = accept(nls->listensd, NULL, NULL);
       if (sd < 0)
         {
-          message("net_listener: accept failed: %d\n", errno);
+          printf("net_listener: accept failed: %d\n", errno);
 
           if (errno != EINTR)
             {
@@ -203,7 +203,7 @@ static inline bool net_connection(struct net_listener_s *nls)
         {
           /* Add the new connection to the master set */
 
-          message("net_listener: Connection accepted for sd=%d\n", sd);
+          printf("net_listener: Connection accepted for sd=%d\n", sd);
 
           FD_SET(sd, &nls->master);
           if (sd > nls->mxsd)
@@ -227,11 +227,11 @@ static inline bool net_mksocket(struct net_listener_s *nls)
 
   /* Create a listening socket */
 
-  message("net_listener: Initializing listener socket\n");
+  printf("net_listener: Initializing listener socket\n");
   nls->listensd = socket(AF_INET, SOCK_STREAM, 0);
   if (nls->listensd < 0)
     {
-      message("net_listener: socket failed: %d\n", errno);
+      printf("net_listener: socket failed: %d\n", errno);
       return false;
     }
 
@@ -241,7 +241,7 @@ static inline bool net_mksocket(struct net_listener_s *nls)
   ret = setsockopt(nls->listensd, SOL_SOCKET,  SO_REUSEADDR, (char*)&value, sizeof(int));
   if (ret < 0)
     {
-      message("net_listener: setsockopt failed: %d\n", errno);
+      printf("net_listener: setsockopt failed: %d\n", errno);
       close(nls->listensd);
       return false;
     }
@@ -252,7 +252,7 @@ static inline bool net_mksocket(struct net_listener_s *nls)
   ret = ioctl(nls->listensd, FIONBIO, (char *)&value);
   if (ret < 0)
     {
-      message("net_listener: ioctl failed: %d\n", errno);
+      printf("net_listener: ioctl failed: %d\n", errno);
       close(nls->listensd);
       return false;
     }
@@ -267,7 +267,7 @@ static inline bool net_mksocket(struct net_listener_s *nls)
   ret = bind(nls->listensd, (struct sockaddr *)&nls->addr, sizeof(struct sockaddr_in));
   if (ret < 0)
     {
-      message("net_listener: bind failed: %d\n", errno);
+      printf("net_listener: bind failed: %d\n", errno);
       close(nls->listensd);
       return false;
     }
@@ -277,7 +277,7 @@ static inline bool net_mksocket(struct net_listener_s *nls)
   ret = listen(nls->listensd, 32);
   if (ret < 0)
     {
-      message("net_listener: bind failed: %d\n", errno);
+      printf("net_listener: bind failed: %d\n", errno);
       close(nls->listensd);
       return false;
     }
@@ -372,12 +372,12 @@ void *net_listener(pthread_addr_t pvarg)
     {
       /* Wait on select */
 
-      message("net_listener: Calling select(), listener sd=%d\n", nls.listensd);
+      printf("net_listener: Calling select(), listener sd=%d\n", nls.listensd);
       memcpy(&nls.working, &nls.master, sizeof(fd_set));
       ret = select(nls.mxsd + 1, (FAR fd_set*)&nls.working, (FAR fd_set*)NULL, (FAR fd_set*)NULL, &timeout);
       if (ret < 0)
         {
-          message("net_listener: select failed: %d\n", errno);
+          printf("net_listener: select failed: %d\n", errno);
           break;
         }
 
@@ -385,7 +385,7 @@ void *net_listener(pthread_addr_t pvarg)
 
       if (ret == 0)
         {
-          message("net_listener: Timeout\n");
+          printf("net_listener: Timeout\n");
           continue;
         }
 
@@ -400,7 +400,7 @@ void *net_listener(pthread_addr_t pvarg)
             {
               /* Yes, is it our listener? */
 
-              message("net_listener: Activity on sd=%d\n", i);
+              printf("net_listener: Activity on sd=%d\n", i);
 
               nsds--;
               if (i == nls.listensd)

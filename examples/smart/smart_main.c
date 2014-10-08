@@ -116,14 +116,6 @@
 #  define CONFIG_EXAMPLES_SMART_VERBOSE 0
 #endif
 
-#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_FS)
-#  define message    syslog
-#  define msgflush()
-#else
-#  define message    printf
-#  define msgflush() fflush(stdout);
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -174,13 +166,13 @@ extern FAR struct mtd_dev_s *smart_archinitialize(void);
 static void smart_showmemusage(struct mallinfo *mmbefore,
                                struct mallinfo *mmafter)
 {
-  message("VARIABLE  BEFORE   AFTER\n");
-  message("======== ======== ========\n");
-  message("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
-  message("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
-  message("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
-  message("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
-  message("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+  printf("VARIABLE  BEFORE   AFTER\n");
+  printf("======== ======== ========\n");
+  printf("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
+  printf("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
+  printf("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
+  printf("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
+  printf("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
 }
 
 /****************************************************************************
@@ -199,7 +191,7 @@ static void smart_loopmemusage(void)
 
   /* Show the change from the previous loop */
 
-  message("\nEnd of loop memory usage:\n");
+  printf("\nEnd of loop memory usage:\n");
   smart_showmemusage(&g_mmprevious, &g_mmafter);
 
   /* Set up for the next test */
@@ -222,7 +214,7 @@ static void smart_endmemusage(void)
 #else
   (void)mallinfo(&g_mmafter);
 #endif
-  message("\nFinal memory usage:\n");
+  printf("\nFinal memory usage:\n");
   smart_showmemusage(&g_mmbefore, &g_mmafter);
 }
 
@@ -271,8 +263,8 @@ static inline void smart_randname(FAR struct smart_filedesc_s *file)
   file->name = (FAR char*)malloc(alloclen + 1);
   if (!file->name)
     {
-      message("ERROR: Failed to allocate name, length=%d\n", namelen);
-      msgflush();
+      printf("ERROR: Failed to allocate name, length=%d\n", namelen);
+      fflush(stdout);
       exit(5);
     }
 
@@ -339,9 +331,9 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
 
       if (errno != ENOSPC)
         {
-          message("ERROR: Failed to open file for writing: %d\n", errno);
-          message("  File name: %s\n", file->name);
-          message("  File size: %d\n", file->len);
+          printf("ERROR: Failed to open file for writing: %d\n", errno);
+          printf("  File name: %s\n", file->name);
+          printf("  File size: %d\n", file->len);
         }
 
       smart_freefile(file);
@@ -372,11 +364,11 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
 
           if (err != ENOSPC)
             {
-              message("ERROR: Failed to write file: %d\n", err);
-              message("  File name:    %s\n", file->name);
-              message("  File size:    %d\n", file->len);
-              message("  Write offset: %ld\n", (long)offset);
-              message("  Write size:   %ld\n", (long)nbytestowrite);
+              printf("ERROR: Failed to write file: %d\n", err);
+              printf("  File name:    %s\n", file->name);
+              printf("  File size:    %d\n", file->len);
+              printf("  Write offset: %ld\n", (long)offset);
+              printf("  Write size:   %ld\n", (long)nbytestowrite);
               ret = ERROR;
             }
           close(fd);
@@ -386,12 +378,12 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
           ret = unlink(file->name);
           if (ret < 0)
             {
-              message("  Failed to remove partial file\n");
+              printf("  Failed to remove partial file\n");
             }
           else
             {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-              message("  Successfully removed partial file\n");
+              printf("  Successfully removed partial file\n");
 #endif
             }
 
@@ -400,12 +392,12 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
         }
       else if (nbyteswritten != nbytestowrite)
         {
-          message("ERROR: Partial write:\n");
-          message("  File name:    %s\n", file->name);
-          message("  File size:    %d\n", file->len);
-          message("  Write offset: %ld\n", (long)offset);
-          message("  Write size:   %ld\n", (long)nbytestowrite);
-          message("  Written:      %ld\n", (long)nbyteswritten);
+          printf("ERROR: Partial write:\n");
+          printf("  File name:    %s\n", file->name);
+          printf("  File size:    %d\n", file->len);
+          printf("  Write offset: %ld\n", (long)offset);
+          printf("  Write size:   %ld\n", (long)nbytestowrite);
+          printf("  Written:      %ld\n", (long)nbyteswritten);
         }
 
       offset += nbyteswritten;
@@ -436,13 +428,13 @@ static int smart_fillfs(void)
           if (ret < 0)
             {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-              message("ERROR: Failed to write file %d\n", i);
+              printf("ERROR: Failed to write file %d\n", i);
 #endif
               return ERROR;
             }
 
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-         message("  Created file %s\n", file->name);
+         printf("  Created file %s\n", file->name);
 #endif
          g_nfiles++;
         }
@@ -469,32 +461,32 @@ static ssize_t smart_rdblock(int fd, FAR struct smart_filedesc_s *file,
   nbytesread = read(fd, &g_fileimage[offset], len);
   if (nbytesread < 0)
     {
-      message("ERROR: Failed to read file: %d\n", errno);
-      message("  File name:    %s\n", file->name);
-      message("  File size:    %d\n", file->len);
-      message("  Read offset:  %ld\n", (long)offset);
-      message("  Read size:    %ld\n", (long)len);
+      printf("ERROR: Failed to read file: %d\n", errno);
+      printf("  File name:    %s\n", file->name);
+      printf("  File size:    %d\n", file->len);
+      printf("  Read offset:  %ld\n", (long)offset);
+      printf("  Read size:    %ld\n", (long)len);
       return ERROR;
     }
   else if (nbytesread == 0)
     {
 #if 0 /* No... we do this on purpose sometimes */
-      message("ERROR: Unexpected end-of-file:\n");
-      message("  File name:    %s\n", file->name);
-      message("  File size:    %d\n", file->len);
-      message("  Read offset:  %ld\n", (long)offset);
-      message("  Read size:    %ld\n", (long)len);
+      printf("ERROR: Unexpected end-of-file:\n");
+      printf("  File name:    %s\n", file->name);
+      printf("  File size:    %d\n", file->len);
+      printf("  Read offset:  %ld\n", (long)offset);
+      printf("  Read size:    %ld\n", (long)len);
 #endif
       return ERROR;
     }
   else if (nbytesread != len)
     {
-      message("ERROR: Partial read:\n");
-      message("  File name:    %s\n", file->name);
-      message("  File size:    %d\n", file->len);
-      message("  Read offset:  %ld\n", (long)offset);
-      message("  Read size:    %ld\n", (long)len);
-      message("  Bytes read:   %ld\n", (long)nbytesread);
+      printf("ERROR: Partial read:\n");
+      printf("  File name:    %s\n", file->name);
+      printf("  File size:    %d\n", file->len);
+      printf("  Read offset:  %ld\n", (long)offset);
+      printf("  Read size:    %ld\n", (long)len);
+      printf("  Bytes read:   %ld\n", (long)nbytesread);
     }
 
   return nbytesread;
@@ -518,9 +510,9 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
     {
       if (!file->deleted)
         {
-          message("ERROR: Failed to open file for reading: %d\n", errno);
-          message("  File name: %s\n", file->name);
-          message("  File size: %d\n", file->len);
+          printf("ERROR: Failed to open file for reading: %d\n", errno);
+          printf("  File name: %s\n", file->name);
+          printf("  File size: %d\n", file->len);
         }
 
       return ERROR;
@@ -545,9 +537,9 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      message("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
-      message("  File name: %s\n", file->name);
-      message("  File size: %d\n", file->len);
+      printf("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      printf("  File name: %s\n", file->name);
+      printf("  File size: %d\n", file->len);
       close(fd);
       return ERROR;
     }
@@ -557,10 +549,10 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
   nbytesread = smart_rdblock(fd, file, ntotalread, 1024) ;
   if (nbytesread > 0)
     {
-      message("ERROR: Read past the end of file\n");
-      message("  File name:  %s\n", file->name);
-      message("  File size:  %d\n", file->len);
-      message("  Bytes read: %d\n", nbytesread);
+      printf("ERROR: Read past the end of file\n");
+      printf("  File name:  %s\n", file->name);
+      printf("  File size:  %d\n", file->len);
+      printf("  Bytes read: %d\n", nbytesread);
       close(fd);
       return ERROR;
     }
@@ -592,7 +584,7 @@ static int smart_verifyfs(void)
               if (file->deleted)
                 {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-                  message("Deleted file %d OK\n", i);
+                  printf("Deleted file %d OK\n", i);
 #endif
                   smart_freefile(file);
                   g_ndeleted--;
@@ -600,9 +592,9 @@ static int smart_verifyfs(void)
                 }
               else
                 {
-                  message("ERROR: Failed to read a file: %d\n", i);
-                  message("  File name: %s\n", file->name);
-                  message("  File size: %d\n", file->len);
+                  printf("ERROR: Failed to read a file: %d\n", i);
+                  printf("  File name: %s\n", file->name);
+                  printf("  File size: %d\n", file->len);
                   return ERROR;
                 }
             }
@@ -611,9 +603,9 @@ static int smart_verifyfs(void)
               if (file->deleted)
                 {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-                  message("Succesffully read a deleted file\n");
-                  message("  File name: %s\n", file->name);
-                  message("  File size: %d\n", file->len);
+                  printf("Succesffully read a deleted file\n");
+                  printf("  File name: %s\n", file->name);
+                  printf("  File size: %d\n", file->len);
 #endif
                   smart_freefile(file);
                   g_ndeleted--;
@@ -623,7 +615,7 @@ static int smart_verifyfs(void)
               else
                 {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-                  message("  Verifed file %s\n", file->name);
+                  printf("  Verifed file %s\n", file->name);
 #endif
                 }
             }
@@ -675,15 +667,15 @@ static int smart_delfiles(void)
               ret = unlink(file->name);
               if (ret < 0)
                 {
-                  message("ERROR: Unlink %d failed: %d\n", i+1, errno);
-                  message("  File name:  %s\n", file->name);
-                  message("  File size:  %d\n", file->len);
-                  message("  File index: %d\n", j);
+                  printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+                  printf("  File name:  %s\n", file->name);
+                  printf("  File size:  %d\n", file->len);
+                  printf("  File index: %d\n", j);
                 }
               else
                 {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-                  message("  Deleted file %s\n", file->name);
+                  printf("  Deleted file %s\n", file->name);
 #endif
                   file->deleted = true;
                   g_ndeleted++;
@@ -722,15 +714,15 @@ static int smart_delallfiles(void)
           ret = unlink(file->name);
           if (ret < 0)
             {
-               message("ERROR: Unlink %d failed: %d\n", i+1, errno);
-               message("  File name:  %s\n", file->name);
-               message("  File size:  %d\n", file->len);
-               message("  File index: %d\n", i);
+               printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
+               printf("  File name:  %s\n", file->name);
+               printf("  File size:  %d\n", file->len);
+               printf("  File index: %d\n", i);
             }
           else
             {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-              message("  Deleted file %s\n", file->name);
+              printf("  Deleted file %s\n", file->name);
 #endif
               smart_freefile(file);
             }
@@ -760,24 +752,24 @@ static int smart_directory(void)
     {
       /* Failed to open the directory */
 
-      message("ERROR: Failed to open directory '%s': %d\n",
-              CONFIG_EXAMPLES_SMART_MOUNTPT, errno);
+      printf("ERROR: Failed to open directory '%s': %d\n",
+             CONFIG_EXAMPLES_SMART_MOUNTPT, errno);
       return ERROR;
     }
 
   /* Read each directory entry */
 
-  message("Directory:\n");
+  printf("Directory:\n");
   number = 1;
   do
     {
       entryp = readdir(dirp);
       if (entryp)
         {
-          message("%2d. Type[%d]: %s Name: %s\n",
-                  number, entryp->d_type,
-                  entryp->d_type == DTYPE_FILE ? "File " : "Error",
-                  entryp->d_name);
+          printf("%2d. Type[%d]: %s Name: %s\n",
+                 number, entryp->d_type,
+                 entryp->d_type == DTYPE_FILE ? "File " : "Error",
+                 entryp->d_name);
         }
 
       number++;
@@ -819,8 +811,8 @@ int smart_main(int argc, char *argv[])
 #endif
   if (!mtd)
     {
-      message("ERROR: Failed to create RAM MTD instance\n");
-      msgflush();
+      printf("ERROR: Failed to create RAM MTD instance\n");
+      fflush(stdout);
       exit(1);
     }
 
@@ -830,8 +822,8 @@ int smart_main(int argc, char *argv[])
   ret = smart_initialize(1, mtd);
   if (ret < 0)
     {
-      message("ERROR: SMART initialization failed: %d\n", -ret);
-      msgflush();
+      printf("ERROR: SMART initialization failed: %d\n", -ret);
+      fflush(stdout);
       exit(2);
     }
 
@@ -844,8 +836,8 @@ int smart_main(int argc, char *argv[])
   ret = mount("/dev/smart1", CONFIG_EXAMPLES_SMART_MOUNTPT, "smartfs", 0, NULL);
   if (ret < 0)
     {
-      message("ERROR: Failed to mount the SMART volume: %d\n", errno);
-      msgflush();
+      printf("ERROR: Failed to mount the SMART volume: %d\n", errno);
+      fflush(stdout);
       exit(3);
     }
 
@@ -875,11 +867,11 @@ int smart_main(int argc, char *argv[])
        * (hopefully that the file system is full)
        */
 
-      message("\n=== FILLING %u =============================\n", i);
+      printf("\n=== FILLING %u =============================\n", i);
       (void)smart_fillfs();
-      message("Filled file system\n");
-      message("  Number of files: %d\n", g_nfiles);
-      message("  Number deleted:  %d\n", g_ndeleted);
+      printf("Filled file system\n");
+      printf("  Number of files: %d\n", g_nfiles);
+      printf("  Number deleted:  %d\n", g_ndeleted);
 
       /* Directory listing */
 
@@ -890,34 +882,34 @@ int smart_main(int argc, char *argv[])
       ret = smart_verifyfs();
       if (ret < 0)
         {
-          message("ERROR: Failed to verify files\n");
-          message("  Number of files: %d\n", g_nfiles);
-          message("  Number deleted:  %d\n", g_ndeleted);
+          printf("ERROR: Failed to verify files\n");
+          printf("  Number of files: %d\n", g_nfiles);
+          printf("  Number deleted:  %d\n", g_ndeleted);
         }
       else
         {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-          message("Verified!\n");
-          message("  Number of files: %d\n", g_nfiles);
-          message("  Number deleted:  %d\n", g_ndeleted);
+          printf("Verified!\n");
+          printf("  Number of files: %d\n", g_nfiles);
+          printf("  Number deleted:  %d\n", g_ndeleted);
 #endif
         }
 
       /* Delete some files */
 
-      message("\n=== DELETING %u ============================\n", i);
+      printf("\n=== DELETING %u ============================\n", i);
       ret = smart_delfiles();
       if (ret < 0)
         {
-          message("ERROR: Failed to delete files\n");
-          message("  Number of files: %d\n", g_nfiles);
-          message("  Number deleted:  %d\n", g_ndeleted);
+          printf("ERROR: Failed to delete files\n");
+          printf("  Number of files: %d\n", g_nfiles);
+          printf("  Number deleted:  %d\n", g_ndeleted);
         }
       else
         {
-          message("Deleted some files\n");
-          message("  Number of files: %d\n", g_nfiles);
-          message("  Number deleted:  %d\n", g_ndeleted);
+          printf("Deleted some files\n");
+          printf("  Number of files: %d\n", g_nfiles);
+          printf("  Number deleted:  %d\n", g_ndeleted);
         }
 
       /* Directory listing */
@@ -929,30 +921,30 @@ int smart_main(int argc, char *argv[])
       ret = smart_verifyfs();
       if (ret < 0)
         {
-          message("ERROR: Failed to verify files\n");
-          message("  Number of files: %d\n", g_nfiles);
-          message("  Number deleted:  %d\n", g_ndeleted);
+          printf("ERROR: Failed to verify files\n");
+          printf("  Number of files: %d\n", g_nfiles);
+          printf("  Number deleted:  %d\n", g_ndeleted);
         }
       else
         {
 #if CONFIG_EXAMPLES_SMART_VERBOSE != 0
-          message("Verified!\n");
-          message("  Number of files: %d\n", g_nfiles);
-          message("  Number deleted:  %d\n", g_ndeleted);
+          printf("Verified!\n");
+          printf("  Number of files: %d\n", g_nfiles);
+          printf("  Number deleted:  %d\n", g_ndeleted);
 #endif
         }
 
       /* Show memory usage */
 
       smart_loopmemusage();
-      msgflush();
+      fflush(stdout);
     }
 
   /* Delete all files then show memory usage again */
 
   smart_delallfiles();
   smart_endmemusage();
-  msgflush();
+  fflush(stdout);
   return 0;
 }
 

@@ -89,22 +89,22 @@ int nxterm_server(int argc, char *argv[])
 #if defined(CONFIG_EXAMPLES_NXCON_EXTERNINIT)
   /* Use external graphics driver initialization */
 
-  message("nxterm_server: Initializing external graphics device\n");
+  printf("nxterm_server: Initializing external graphics device\n");
   dev = up_nxdrvinit(CONFIG_EXAMPLES_NXCON_DEVNO);
   if (!dev)
     {
-      message("nxterm_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXCON_DEVNO);
+      printf("nxterm_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXCON_DEVNO);
       return ERROR;
     }
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   /* Initialize the LCD device */
 
-  message("nxterm_server: Initializing LCD\n");
+  printf("nxterm_server: Initializing LCD\n");
   ret = up_lcdinitialize();
   if (ret < 0)
     {
-      message("nxterm_server: up_lcdinitialize failed: %d\n", -ret);
+      printf("nxterm_server: up_lcdinitialize failed: %d\n", -ret);
       return 1;
     }
 
@@ -113,7 +113,7 @@ int nxterm_server(int argc, char *argv[])
   dev = up_lcdgetdev(CONFIG_EXAMPLES_NXCON_DEVNO);
   if (!dev)
     {
-      message("nxterm_server: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXCON_DEVNO);
+      printf("nxterm_server: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXCON_DEVNO);
       return 2;
     }
 
@@ -123,18 +123,18 @@ int nxterm_server(int argc, char *argv[])
 #else
   /* Initialize the frame buffer device */
 
-  message("nxterm_server: Initializing framebuffer\n");
+  printf("nxterm_server: Initializing framebuffer\n");
   ret = up_fbinitialize();
   if (ret < 0)
     {
-      message("nxterm_server: up_fbinitialize failed: %d\n", -ret);
+      printf("nxterm_server: up_fbinitialize failed: %d\n", -ret);
       return 1;
     }
 
   dev = up_fbgetvplane(CONFIG_EXAMPLES_NXCON_VPLANE);
   if (!dev)
     {
-      message("nxterm_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXCON_VPLANE);
+      printf("nxterm_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXCON_VPLANE);
       return 2;
     }
 #endif
@@ -173,7 +173,7 @@ FAR void *nxterm_listener(FAR void *arg)
            * the server.
            */
 
-          message("nxterm_listener: Lost server connection: %d\n", errno);
+          printf("nxterm_listener: Lost server connection: %d\n", errno);
           exit(EXIT_FAILURE);
         }
 
@@ -183,7 +183,7 @@ FAR void *nxterm_listener(FAR void *arg)
         {
           g_nxterm_vars.connected = true;
           sem_post(&g_nxterm_vars.eventsem);
-          message("nxterm_listener: Connected\n");
+          printf("nxterm_listener: Connected\n");
         }
     }
 }

@@ -78,7 +78,7 @@ void recv_server(void)
   buffer = (char*)malloc(2*SENDSIZE);
   if (!buffer)
     {
-      message("server: failed to allocate buffer\n");
+      printf("server: failed to allocate buffer\n");
       exit(1);
     }
 
@@ -88,7 +88,7 @@ void recv_server(void)
   listensd = socket(PF_INET, SOCK_STREAM, 0);
   if (listensd < 0)
     {
-      message("server: socket failure: %d\n", errno);
+      printf("server: socket failure: %d\n", errno);
       goto errout_with_buffer;
     }
 
@@ -97,7 +97,7 @@ void recv_server(void)
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      message("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
+      printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_listensd;
     }
 
@@ -109,7 +109,7 @@ void recv_server(void)
 
   if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
-      message("server: bind failure: %d\n", errno);
+      printf("server: bind failure: %d\n", errno);
       goto errout_with_listensd;
     }
 
@@ -117,21 +117,21 @@ void recv_server(void)
 
   if (listen(listensd, 5) < 0)
     {
-      message("server: listen failure %d\n", errno);
+      printf("server: listen failure %d\n", errno);
       goto errout_with_listensd;
     }
 
   /* Accept only one connection */
 
-  message("server: Accepting connections on port %d\n", PORTNO);
+  printf("server: Accepting connections on port %d\n", PORTNO);
   addrlen = sizeof(struct sockaddr_in);
   acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
   if (acceptsd < 0)
     {
-      message("server: accept failure: %d\n", errno);
+      printf("server: accept failure: %d\n", errno);
       goto errout_with_listensd;
     }
-  message("server: Connection accepted -- receiving\n");
+  printf("server: Connection accepted -- receiving\n");
 
   /* Configure to "linger" until all data is sent when the socket is closed */
 
@@ -141,7 +141,7 @@ void recv_server(void)
 
   if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
     {
-      message("server: setsockopt SO_LINGER failure: %d\n", errno);
+      printf("server: setsockopt SO_LINGER failure: %d\n", errno);
       goto errout_with_acceptsd;
     }
 #endif
@@ -154,15 +154,15 @@ void recv_server(void)
       nbytesread = recv(acceptsd, buffer, 2*SENDSIZE, 0);
       if (nbytesread < 0)
         {
-          message("server: recv failed: %d\n", errno);
+          printf("server: recv failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
       else if (nbytesread == 0)
         {
-          message("server: The client broke the connection\n");
+          printf("server: The client broke the connection\n");
           goto errout_with_acceptsd;
         }
-      message("Received %d bytes\n", nbytesread);
+      printf("Received %d bytes\n", nbytesread);
     }
 #else
   /* Receive canned message */
@@ -170,28 +170,28 @@ void recv_server(void)
   totalbytesread = 0;
   while (totalbytesread < SENDSIZE)
     {
-      message("server: Reading...\n");
+      printf("server: Reading...\n");
       nbytesread = recv(acceptsd, &buffer[totalbytesread], 2*SENDSIZE - totalbytesread, 0);
       if (nbytesread < 0)
         {
-          message("server: recv failed: %d\n", errno);
+          printf("server: recv failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
       else if (nbytesread == 0)
         {
-          message("server: The client broke the connection\n");
+          printf("server: The client broke the connection\n");
           goto errout_with_acceptsd;
         }
 
       totalbytesread += nbytesread;
-      message("server: Received %d of %d bytes\n", totalbytesread, SENDSIZE);
+      printf("server: Received %d of %d bytes\n", totalbytesread, SENDSIZE);
     }
 
   /* Verify the message */
 
   if (totalbytesread != SENDSIZE)
     {
-      message("server: Received %d / Expected %d bytes\n", totalbytesread, SENDSIZE);
+      printf("server: Received %d / Expected %d bytes\n", totalbytesread, SENDSIZE);
       goto errout_with_acceptsd;
     }
 
@@ -200,7 +200,7 @@ void recv_server(void)
     {
       if (buffer[i] != ch)
         {
-          message("server: Byte %d is %02x / Expected %02x\n", i, buffer[i], ch);
+          printf("server: Byte %d is %02x / Expected %02x\n", i, buffer[i], ch);
           goto errout_with_acceptsd;
         }
 
@@ -212,21 +212,21 @@ void recv_server(void)
 
   /* Then send the same data back to the client */
 
-  message("server: Sending %d bytes\n", totalbytesread);
+  printf("server: Sending %d bytes\n", totalbytesread);
   nbytessent = send(acceptsd, buffer, totalbytesread, 0);
   if (nbytessent <= 0)
     {
-      message("server: send failed: %d\n", errno);
+      printf("server: send failed: %d\n", errno);
       goto errout_with_acceptsd;
     }
-  message("server: Sent %d bytes\n", nbytessent);
+  printf("server: Sent %d bytes\n", nbytessent);
 
   /* If this platform only does abortive disconnects, then wait a bit to get the
    * client side a change to receive the data.
    */
 
 #if 1 /* Do it for all platforms */
-  message("server: Wait before closing\n");
+  printf("server: Wait before closing\n");
   sleep(60);
 #endif
 
