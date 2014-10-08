@@ -50,7 +50,7 @@
 #include "cdcacm.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -93,7 +93,7 @@ int sercon_main(int argc, char *argv[])
 
   if (g_cdcacm.handle)
     {
-      message("sercon:: ERROR: Already connected\n");
+      printf("sercon:: ERROR: Already connected\n");
       return EXIT_FAILURE;
     }
 
@@ -105,15 +105,15 @@ int sercon_main(int argc, char *argv[])
 
   /* Initialize the USB CDC/ACM serial driver */
 
-  message("sercon: Registering CDC/ACM serial driver\n");
+  printf("sercon: Registering CDC/ACM serial driver\n");
   ret = cdcacm_initialize(CONFIG_SYSTEM_CDCACM_DEVMINOR, &g_cdcacm.handle);
   if (ret < 0)
     {
-      message("sercon: ERROR: Failed to create the CDC/ACM serial device: %d\n", -ret);
+      printf("sercon: ERROR: Failed to create the CDC/ACM serial device: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
-  message("sercon: Successfully registered the CDC/ACM serial driver\n");
+  printf("sercon: Successfully registered the CDC/ACM serial driver\n");
   return EXIT_SUCCESS;
 }
 
@@ -136,7 +136,7 @@ int serdis_main(int argc, char *argv[])
 
   if (!g_cdcacm.handle)
     {
-      message("serdis: ERROR: Not connected\n");
+      printf("serdis: ERROR: Not connected\n");
       return EXIT_FAILURE;
     }
 
@@ -150,6 +150,6 @@ int serdis_main(int argc, char *argv[])
 
    cdcacm_uninitialize(g_cdcacm.handle);
    g_cdcacm.handle = NULL;
-   message("serdis: Disconnected\n");
+   printf("serdis: Disconnected\n");
    return EXIT_SUCCESS;
 }

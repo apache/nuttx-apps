@@ -195,10 +195,10 @@ static void _stkmon_disp(FAR struct tcb_s *tcb, FAR void *arg)
 #if CONFIG_TASK_NAME_SIZE > 0
   strncpy(buff,tcb->name,CONFIG_TASK_NAME_SIZE);
   buff[CONFIG_TASK_NAME_SIZE] = '\0';
-  syslog("%5d %6d %6d %s\n",
+  syslog(LOG_INFO, "%5d %6d %6d %s\n",
          tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb), buff);
 #else
-  syslog("%5d %6d %6d\n",
+  syslog(LOG_INFO, "%5d %6d %6d\n",
          tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb));
 #endif
 }
@@ -256,9 +256,9 @@ static bool wait_on(long timeoutMs, volatile unsigned long *what,
 void stkmon_disp(void)
 {
 #if CONFIG_TASK_NAME_SIZE > 0
-  syslog("%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
+  syslog(LOG_INFO, "%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
 #else
-  syslog("%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
+  syslog(LOG_INFO, "%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
 #endif
   sched_foreach(_stkmon_disp, NULL);
 }

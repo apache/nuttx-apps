@@ -83,20 +83,22 @@ static void show_memory_usage(struct mallinfo *mmbefore,
 {
   int diff;
 
-  message("              total       used       free    largest\n");
-  message("Before:%11d%11d%11d%11d\n",
-             mmbefore->arena, mmbefore->uordblks, mmbefore->fordblks, mmbefore->mxordblk);
-  message("After: %11d%11d%11d%11d\n",
-             mmafter->arena, mmafter->uordblks, mmafter->fordblks, mmafter->mxordblk);
+  printf("              total       used       free    largest\n");
+  printf("Before:%11d%11d%11d%11d\n",
+         mmbefore->arena, mmbefore->uordblks, mmbefore->fordblks,
+         mmbefore->mxordblk);
+  printf("After: %11d%11d%11d%11d\n",
+         mmafter->arena, mmafter->uordblks, mmafter->fordblks,
+         mmafter->mxordblk);
 
   diff = mmbefore->uordblks - mmafter->uordblks;
   if (diff < 0)
     {
-      message("Change:%11d allocated\n", -diff);
+      printf("Change:%11d allocated\n", -diff);
     }
   else if (diff > 0)
     {
-      message("Change:%11d freed\n", diff);
+      printf("Change:%11d freed\n", diff);
     }
 }
 #else
@@ -120,7 +122,7 @@ static void check_test_memory_usage(FAR const char *msg)
 
   /* Show the change from the previous time */
 
-  message("\%s:\n", msg);
+  printf("\%s:\n", msg);
   show_memory_usage(&g_composite.mmprevious, &g_composite.mmcurrent);
 
   /* Set up for the next test */
@@ -152,7 +154,7 @@ static void final_memory_usage(FAR const char *msg)
 
   /* Show the change from the previous time */
 
-  message("\n%s:\n", msg);
+  printf("\n%s:\n", msg);
   show_memory_usage(&g_composite.mmstart, &g_composite.mmcurrent);
 }
 #else
@@ -169,171 +171,184 @@ static int composite_enumerate(struct usbtrace_s *trace, void *arg)
   switch (trace->event)
     {
     case TRACE_DEVINIT:
-      message("USB controller initialization: %04x\n", trace->value);
+      printf("USB controller initialization: %04x\n", trace->value);
       break;
 
     case TRACE_DEVUNINIT:
-      message("USB controller un-initialization: %04x\n", trace->value);
+      printf("USB controller un-initialization: %04x\n", trace->value);
       break;
 
     case TRACE_DEVREGISTER:
-      message("usbdev_register(): %04x\n", trace->value);
+      printf("usbdev_register(): %04x\n", trace->value);
       break;
 
     case TRACE_DEVUNREGISTER:
-      message("usbdev_unregister(): %04x\n", trace->value);
+      printf("usbdev_unregister(): %04x\n", trace->value);
       break;
 
     case TRACE_EPCONFIGURE:
-      message("Endpoint configure(): %04x\n", trace->value);
+      printf("Endpoint configure(): %04x\n", trace->value);
       break;
 
     case TRACE_EPDISABLE:
-      message("Endpoint disable(): %04x\n", trace->value);
+      printf("Endpoint disable(): %04x\n", trace->value);
       break;
 
     case TRACE_EPALLOCREQ:
-      message("Endpoint allocreq(): %04x\n", trace->value);
+      printf("Endpoint allocreq(): %04x\n", trace->value);
       break;
 
     case TRACE_EPFREEREQ:
-      message("Endpoint freereq(): %04x\n", trace->value);
+      printf("Endpoint freereq(): %04x\n", trace->value);
       break;
 
     case TRACE_EPALLOCBUFFER:
-      message("Endpoint allocbuffer(): %04x\n", trace->value);
+      printf("Endpoint allocbuffer(): %04x\n", trace->value);
       break;
 
     case TRACE_EPFREEBUFFER:
-      message("Endpoint freebuffer(): %04x\n", trace->value);
+      printf("Endpoint freebuffer(): %04x\n", trace->value);
       break;
 
     case TRACE_EPSUBMIT:
-      message("Endpoint submit(): %04x\n", trace->value);
+      printf("Endpoint submit(): %04x\n", trace->value);
       break;
 
     case TRACE_EPCANCEL:
-      message("Endpoint cancel(): %04x\n", trace->value);
+      printf("Endpoint cancel(): %04x\n", trace->value);
       break;
 
     case TRACE_EPSTALL:
-      message("Endpoint stall(true): %04x\n", trace->value);
+      printf("Endpoint stall(true): %04x\n", trace->value);
       break;
 
     case TRACE_EPRESUME:
-      message("Endpoint stall(false): %04x\n", trace->value);
+      printf("Endpoint stall(false): %04x\n", trace->value);
       break;
 
     case TRACE_DEVALLOCEP:
-      message("Device allocep(): %04x\n", trace->value);
+      printf("Device allocep(): %04x\n", trace->value);
       break;
 
     case TRACE_DEVFREEEP:
-      message("Device freeep(): %04x\n", trace->value);
+      printf("Device freeep(): %04x\n", trace->value);
       break;
 
     case TRACE_DEVGETFRAME:
-      message("Device getframe(): %04x\n", trace->value);
+      printf("Device getframe(): %04x\n", trace->value);
       break;
 
     case TRACE_DEVWAKEUP:
-      message("Device wakeup(): %04x\n", trace->value);
+      printf("Device wakeup(): %04x\n", trace->value);
       break;
 
     case TRACE_DEVSELFPOWERED:
-      message("Device selfpowered(): %04x\n", trace->value);
+      printf("Device selfpowered(): %04x\n", trace->value);
       break;
 
     case TRACE_DEVPULLUP:
-      message("Device pullup(): %04x\n", trace->value);
+      printf("Device pullup(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSBIND:
-      message("Class bind(): %04x\n", trace->value);
+      printf("Class bind(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSUNBIND:
-      message("Class unbind(): %04x\n", trace->value);
+      printf("Class unbind(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSDISCONNECT:
-      message("Class disconnect(): %04x\n", trace->value);
+      printf("Class disconnect(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSSETUP:
-      message("Class setup(): %04x\n", trace->value);
+      printf("Class setup(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSSUSPEND:
-      message("Class suspend(): %04x\n", trace->value);
+      printf("Class suspend(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSRESUME:
-      message("Class resume(): %04x\n", trace->value);
+      printf("Class resume(): %04x\n", trace->value);
       break;
 
     case TRACE_CLASSRDCOMPLETE:
-      message("Class RD request complete: %04x\n", trace->value);
+      printf("Class RD request complete: %04x\n", trace->value);
       break;
 
     case TRACE_CLASSWRCOMPLETE:
-      message("Class WR request complete: %04x\n", trace->value);
+      printf("Class WR request complete: %04x\n", trace->value);
       break;
 
     default:
       switch (TRACE_ID(trace->event))
         {
         case TRACE_CLASSAPI_ID:        /* Other class driver system API calls */
-          message("Class API call %d: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Class API call %d: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_CLASSSTATE_ID:      /* Track class driver state changes */
-          message("Class state %d: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Class state %d: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_INTENTRY_ID:        /* Interrupt handler entry */
-          message("Interrrupt %d entry: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Interrupt %d entry: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_INTDECODE_ID:       /* Decoded interrupt trace->event */
-          message("Interrrupt decode %d: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Interrupt decode %d: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_INTEXIT_ID:         /* Interrupt handler exit */
-          message("Interrrupt %d exit: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Interrupt %d exit: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_OUTREQQUEUED_ID:    /* Request queued for OUT endpoint */
-          message("EP%d OUT request queued: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("EP%d OUT request queued: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_INREQQUEUED_ID:     /* Request queued for IN endpoint */
-          message("EP%d IN request queued: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("EP%d IN request queued: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_READ_ID:            /* Read (OUT) action */
-          message("EP%d OUT read: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("EP%d OUT read: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_WRITE_ID:           /* Write (IN) action */
-          message("EP%d IN write: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("EP%d IN write: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_COMPLETE_ID:        /* Request completed */
-          message("EP%d request complete: %04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("EP%d request complete: %04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_DEVERROR_ID:        /* USB controller driver error event */
-          message("Controller error: %02x:%04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Controller error: %02x:%04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         case TRACE_CLSERROR_ID:        /* USB class driver error event */
-          message("Class error: %02x:%04x\n", TRACE_DATA(trace->event), trace->value);
+          printf("Class error: %02x:%04x\n",
+                 TRACE_DATA(trace->event), trace->value);
           break;
 
         default:
-          message("Unrecognized event: %02x:%02x:%04x\n",
-                  TRACE_ID(trace->event) >> 8, TRACE_DATA(trace->event), trace->value);
+          printf("Unrecognized event: %02x:%02x:%04x\n",
+                  TRACE_ID(trace->event) >> 8,
+                  TRACE_DATA(trace->event), trace->value);
           break;
         }
     }
@@ -357,7 +372,7 @@ static int dumptrace(void)
   ret =  usbtrace_enumerate(composite_enumerate, NULL);
   if (ret < 0)
     {
-      message("dumptrace: usbtrace_enumerate failed: %d\n", -ret);
+      printf("dumptrace: usbtrace_enumerate failed: %d\n", -ret);
     }
   return ret;
 }
@@ -381,26 +396,26 @@ static int open_serial(void)
 
   do
     {
-      message("open_serial: Opening USB serial driver\n");
+      printf("open_serial: Opening USB serial driver\n");
       g_composite.outfd = open(CONFIG_SYSTEM_COMPOSITE_SERDEV, O_WRONLY);
       if (g_composite.outfd < 0)
         {
           errcode = errno;
-          message("open_serial: ERROR: Failed to open %s for writing: %d\n",
+          printf("open_serial: ERROR: Failed to open %s for writing: %d\n",
               CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
 
           /* ENOTCONN means that the USB device is not yet connected */
 
           if (errcode == ENOTCONN)
             {
-              message("open_serial:        Not connected. Wait and try again.\n");
+              printf("open_serial:        Not connected. Wait and try again.\n");
               sleep(5);
             }
           else
             {
               /* Give up on other errors */
 
-              message("open_serial:        Aborting\n");
+              printf("open_serial:        Aborting\n");
               return -errcode;
             }
         }
@@ -425,13 +440,13 @@ static int open_serial(void)
   if (g_composite.infd < 0)
     {
       errcode = errno;
-      message("open_serial: ERROR: Failed to open%s for reading: %d\n",
+      printf("open_serial: ERROR: Failed to open%s for reading: %d\n",
               CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
       close(g_composite.outfd);
       return -errcode;
     }
 
-  message("open_serial: Successfully opened the serial driver\n");
+  printf("open_serial: Successfully opened the serial driver\n");
   return OK;
 }
 
@@ -453,7 +468,7 @@ static int echo_serial(void)
       errcode = errno;
       if (errcode != EAGAIN)
         {
-          message("echo_serial: ERROR: read failed: %d\n", errcode);
+          printf("echo_serial: ERROR: read failed: %d\n", errcode);
           return -errcode;
         }
       return OK;
@@ -465,12 +480,12 @@ static int echo_serial(void)
   if (byteswritten < 0)
     {
       errcode = errno;
-      message("echo_serial: ERROR: write failed: %d\n", errcode);
+      printf("echo_serial: ERROR: write failed: %d\n", errcode);
       return -errcode;
     }
   else if (byteswritten != bytesread)
     {
-      message("echo_serial: ERROR: read size: %d write size: %d\n",
+      printf("echo_serial: ERROR: read size: %d write size: %d\n",
               bytesread, byteswritten);
     }
 
@@ -518,53 +533,57 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
 
   /* Configure the mass storage device */
 
-  message("board_mscclassobject: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_COMPOSITE_NLUNS);
+  printf("board_mscclassobject: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_COMPOSITE_NLUNS);
   ret = usbmsc_configure(CONFIG_SYSTEM_COMPOSITE_NLUNS, &g_composite.mschandle);
   if (ret < 0)
     {
-      message("board_mscclassobject: usbmsc_configure failed: %d\n", -ret);
+      printf("board_mscclassobject: usbmsc_configure failed: %d\n", -ret);
       return ret;
     }
-  message("board_mscclassobject: MSC handle=%p\n", g_composite.mschandle);
+
+  printf("board_mscclassobject: MSC handle=%p\n", g_composite.mschandle);
   check_test_memory_usage("After usbmsc_configure()");
 
   /* Bind the LUN(s) */
 
-  message("board_mscclassobject: Bind LUN=0 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH1);
+  printf("board_mscclassobject: Bind LUN=0 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH1);
   ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH1, 0, 0, 0, false);
   if (ret < 0)
     {
-      message("board_mscclassobject: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
+      printf("board_mscclassobject: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
                CONFIG_SYSTEM_COMPOSITE_DEVPATH1, -ret);
       usbmsc_uninitialize(g_composite.mschandle);
       return ret;
     }
+
   check_test_memory_usage("After usbmsc_bindlun()");
 
 #if CONFIG_SYSTEM_COMPOSITE_NLUNS > 1
 
-  message("board_mscclassobject: Bind LUN=1 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH2);
+  printf("board_mscclassobject: Bind LUN=1 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH2);
   ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH2, 1, 0, 0, false);
   if (ret < 0)
     {
-      message("board_mscclassobject: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
+      printf("board_mscclassobject: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
                CONFIG_SYSTEM_COMPOSITE_DEVPATH2, -ret);
       usbmsc_uninitialize(g_composite.mschandle);
       return ret;
     }
+
   check_test_memory_usage("After usbmsc_bindlun() #2");
 
 #if CONFIG_SYSTEM_COMPOSITE_NLUNS > 2
 
-  message("board_mscclassobject: Bind LUN=2 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH3);
+  printf("board_mscclassobject: Bind LUN=2 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH3);
   ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH3, 2, 0, 0, false);
   if (ret < 0)
     {
-      message("board_mscclassobject: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
+      printf("board_mscclassobject: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
                CONFIG_SYSTEM_COMPOSITE_DEVPATH3, -ret);
       usbmsc_uninitialize(g_composite.mschandle);
       return ret;
     }
+
   check_test_memory_usage("After usbmsc_bindlun() #3");
 
 #endif
@@ -575,7 +594,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
   ret = usbmsc_classobject(g_composite.mschandle, classdev);
   if (ret < 0)
     {
-      message("board_mscclassobject: usbmsc_classobject failed: %d\n", -ret);
+      printf("board_mscclassobject: usbmsc_classobject failed: %d\n", -ret);
       usbmsc_uninitialize(g_composite.mschandle);
     }
 
@@ -630,12 +649,13 @@ int board_cdcclassobject(FAR struct usbdevclass_driver_s **classdev)
 
   /* Initialize the USB serial driver */
 
-  message("board_cdcclassobject: Initializing USB serial driver\n");
+  printf("board_cdcclassobject: Initializing USB serial driver\n");
   ret = cdcacm_classobject(CONFIG_SYSTEM_COMPOSITE_TTYUSB, classdev);
   if (ret < 0)
     {
-      message("board_cdcclassobject: ERROR: Failed to create the USB serial device: %d\n", -ret);
+      printf("board_cdcclassobject: ERROR: Failed to create the USB serial device: %d\n", -ret);
     }
+
   return ret;
 }
 
@@ -693,7 +713,7 @@ int conn_main(int argc, char *argv[])
 
    if (g_composite.cmphandle)
      {
-       message("conn_main: ERROR: Already connected\n");
+       printf("conn_main: ERROR: Already connected\n");
        return 1;
      }
 #endif
@@ -710,13 +730,14 @@ int conn_main(int argc, char *argv[])
 
   /* Perform architecture-specific initialization */
 
-  message("conn_main: Performing architecture-specific intialization\n");
+  printf("conn_main: Performing architecture-specific intialization\n");
   ret = composite_archinitialize();
   if (ret < 0)
     {
-      message("conn_main: composite_archinitialize failed: %d\n", -ret);
+      printf("conn_main: composite_archinitialize failed: %d\n", -ret);
       return 1;
     }
+
   check_test_memory_usage("After composite_archinitialize()");
 
   /* Initialize the USB composite device device */
@@ -724,9 +745,10 @@ int conn_main(int argc, char *argv[])
   g_composite.cmphandle = composite_initialize();
   if (!g_composite.cmphandle)
     {
-      message("conn_main: composite_initialize failed\n");
+      printf("conn_main: composite_initialize failed\n");
       return 1;
     }
+
   check_test_memory_usage("After composite_initialize()");
 
 #if CONFIG_USBDEV_TRACE && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
@@ -765,7 +787,7 @@ int conn_main(int argc, char *argv[])
     {
       /* Sleep for a bit */
 
-      msgflush();
+      fflush(stdout);
       sleep(5);
 
       /* Echo any serial data */
@@ -779,26 +801,27 @@ int conn_main(int argc, char *argv[])
       /* Dump trace data */
 
 #  ifdef CONFIG_USBDEV_TRACE
-      message("\n" "conn_main: USB TRACE DATA:\n");
+      printf("\n" "conn_main: USB TRACE DATA:\n");
       ret = dumptrace();
       if (ret < 0)
         {
           goto errout;
         }
+
       check_test_memory_usage("After usbtrace_enumerate()");
 #  else
-      message("conn_main: Still alive\n");
+      printf("conn_main: Still alive\n");
 #  endif
     }
 #else
 
-   message("conn_main: Connected\n");
+   printf("conn_main: Connected\n");
    check_test_memory_usage("After composite device connection");
 #endif
 
    /* Dump debug memory usage */
 
-   message("conn_main: Exiting\n");
+   printf("conn_main: Exiting\n");
 #if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
    close(g_composite.infd);
    close(g_composite.outfd);
@@ -840,16 +863,17 @@ int disconn_main(int argc, char *argv[])
 
   if (!g_composite.cmphandle)
     {
-      message("disconn_main: ERROR: Not connected\n");
+      printf("disconn_main: ERROR: Not connected\n");
       return 1;
     }
+
    check_test_memory_usage("Since MS connection");
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
    composite_uninitialize(g_composite.cmphandle);
    g_composite.cmphandle = NULL;
-   message("disconn_main: Disconnected\n");
+   printf("disconn_main: Disconnected\n");
    check_test_memory_usage("After composite_uninitialize()");
 
    /* Dump debug memory usage */

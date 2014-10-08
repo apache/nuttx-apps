@@ -49,18 +49,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-/* Output USB trace data to the console device using printf() unless (1)
- * debug is enabled, then we want to keep the trace output in sync with the
- * debug output by using syslog()we are using a USB console.  In that case,
- * we don't want the trace output on the USB console; let's try sending it
- * a SYSLOG device (hopefully one is set up!)
- */
-
-#if defined(CONFIG_DEBUG) || defined(HAVE_USB_CONSOLE)
-#  define trmessage syslog
-#else
-#  define trmessage printf
-#endif
 
 /****************************************************************************
  * Private Types
@@ -94,9 +82,30 @@
  *
  ****************************************************************************/
 
+static int usbtrace_syslog(FAR const char *fmt, ...)
+{
+  va_list ap;
+  int ret;
+
+  /* Let vsyslog do the real work */
+
+  va_start(ap, fmt);
+  ret = vsyslog(LOG_INFO, fmt, ap);
+  va_end(ap);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: nsh_tracecallback
+ *
+ * Description:
+ *   This is part of the USB trace logic
+ *
+ ****************************************************************************/
+
 static int nsh_tracecallback(struct usbtrace_s *trace, void *arg)
 {
-  usbtrace_trprintf((trprintf_t)trmessage, trace->event, trace->value);
+  usbtrace_trprintf(usbtrace_syslog, trace->event, trace->value);
   return 0;
 }
 

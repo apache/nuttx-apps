@@ -41,6 +41,7 @@
 #include <nuttx/progmem.h>
 
 #include <sys/types.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <sched.h>
@@ -138,16 +139,29 @@ static struct usbmon_state_s g_usbmonitor;
  ****************************************************************************/
 
 #ifdef CONFIG_USBDEV_TRACE
+static int usbtrace_syslog(FAR const char *fmt, ...)
+{
+  va_list ap;
+  int ret;
+
+  /* Let vsyslog do the real work */
+
+  va_start(ap, fmt);
+  ret = vsyslog(LOG_INFO, fmt, ap);
+  va_end(ap);
+  return ret;
+}
+
 static int usbmonitor_tracecallback(struct usbtrace_s *trace, void *arg)
 {
-  usbtrace_trprintf((trprintf_t)syslog, trace->event, trace->value);
+  usbtrace_trprintf(usbtrace_syslog, trace->event, trace->value);
   return 0;
 }
 #endif
 
 static int usbmonitor_daemon(int argc, char **argv)
 {
-  syslog(USBMON_PREFIX "Running: %d\n", g_usbmonitor.pid);
+  syslog(LOG_INFO, USBMON_PREFIX "Running: %d\n", g_usbmonitor.pid);
 
   /* Loop until we detect that there is a request to stop. */
 
@@ -166,7 +180,7 @@ static int usbmonitor_daemon(int argc, char **argv)
 
   g_usbmonitor.stop    = false;
   g_usbmonitor.started = false;
-  syslog(USBMON_PREFIX "Stopped: %d\n", g_usbmonitor.pid);
+  syslog(LOG_INFO, USBMON_PREFIX "Stopped: %d\n", g_usbmonitor.pid);
 
   return 0;
 }
@@ -203,14 +217,15 @@ int usbmonitor_start(int argc, char **argv)
       if (ret < 0)
         {
           int errcode = errno;
-          syslog(USBMON_PREFIX
+          syslog(LOG_INFO, USBMON_PREFIX
                  "ERROR: Failed to start the USB monitor: %d\n",
                  errcode);
         }
       else
         {
           g_usbmonitor.pid = ret;
-          syslog(USBMON_PREFIX "Started: %d\n", g_usbmonitor.pid);
+          syslog(LOG_INFO, USBMON_PREFIX "Started: %d\n",
+                 g_usbmonitor.pid);
         }
 
       sched_unlock();
@@ -218,7 +233,7 @@ int usbmonitor_start(int argc, char **argv)
     }
 
   sched_unlock();
-  syslog(USBMON_PREFIX "%s: %d\n",
+  syslog(LOG_INFO, USBMON_PREFIX "%s: %d\n",
          g_usbmonitor.stop ? "Stopping" : "Running", g_usbmonitor.pid);
   return 0;
 }
@@ -233,7 +248,7 @@ int usbmonitor_stop(int argc, char **argv)
        * it will see the the stop indication and will exist.
        */
 
-      syslog(USBMON_PREFIX "Stopping: %d\n", g_usbmonitor.pid);
+      syslog(LOG_INFO, USBMON_PREFIX "Stopping: %d\n", g_usbmonitor.pid);
       g_usbmonitor.stop = true;
 
 #ifdef CONFIG_USBDEV_TRACE
@@ -243,7 +258,7 @@ int usbmonitor_stop(int argc, char **argv)
 #endif
     }
 
-  syslog(USBMON_PREFIX "Stopped: %d\n", g_usbmonitor.pid);
+  syslog(LOG_INFO, USBMON_PREFIX "Stopped: %d\n", g_usbmonitor.pid);
   return 0;
 }
 
