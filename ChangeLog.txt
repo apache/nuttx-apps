@@ -1082,5 +1082,7 @@
 	  error occurs.  From Ken Pettit (2014-10-2).
 	* apps/examples/ostest/aio.c, Kconfig, Makefile, and ostest_main.c: Add
 	  AIO test case in OS test (2014-10-5).
-	* apps/examples:  Remove non-portable uses of syslog (014-10-8).
-
+	* apps/examples and system:  Remove non-portable uses of syslog
+	  (014-10-8).
+	* apps/: Correct everything under apps to use the corrected syslog
+	  interfaces (2014-10-8).
