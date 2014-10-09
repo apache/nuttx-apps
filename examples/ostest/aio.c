@@ -322,7 +322,7 @@ void aio_test(void)
 
   do
     {
-      sleep(1);
+      usleep(500*1000);
       ret = check_done();
     }
   while (ret < 0);
@@ -336,7 +336,7 @@ void aio_test(void)
    * task end of the last test case -- especially the dangling SIGPOLL.
    */
 
-  sleep(1);
+  usleep(500*1000);
 
   printf("AIO test case 2: Use LIO_WAIT for transfer complete\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
@@ -370,7 +370,7 @@ void aio_test(void)
    * task end of the last test case -- especially the dangling SIGPOLL.
    */
 
-  sleep(1);
+  usleep(500*1000);
 
   printf("AIO test case 3: Use aio_suspend for transfer complete\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
@@ -430,7 +430,7 @@ void aio_test(void)
    * task end of the last test case -- especially the dangling SIGPOLL.
    */
 
-  sleep(1);
+  usleep(500*1000);
 
   printf("AIO test case 4: Use individual signals for transfer complete\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
@@ -488,7 +488,7 @@ void aio_test(void)
    * task end of the last test case -- especially the dangling SIGPOLL.
    */
 
-  sleep(1);
+  usleep(500*1000);
 
   printf("AIO test case 5: Use list complete signal for transfer complete\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
@@ -546,7 +546,7 @@ void aio_test(void)
    * task end of the last test case -- especially the dangling SIGPOLL.
    */
 
-  sleep(1);
+  usleep(500*1000);
 
   printf("AIO test case 6: Cancel I/O by AIO control block\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
@@ -575,7 +575,7 @@ void aio_test(void)
 
   do
     {
-      sleep(1);
+      usleep(500*1000);
       ret = check_done();
     }
   while (ret < 0);
@@ -589,7 +589,7 @@ void aio_test(void)
    * task end of the last test case -- especially the dangling SIGPOLL.
    */
 
-  sleep(1);
+  usleep(500*1000);
 
   printf("AIO test case 7:Cancel I/O by file descriptor\n");
   g_fildes = open(AIO_FILEPATH, O_RDWR|O_CREAT|O_TRUNC);
@@ -618,7 +618,7 @@ void aio_test(void)
 
   do
     {
-      sleep(1);
+      usleep(500*1000);
       ret = check_done();
     }
   while (ret < 0);
