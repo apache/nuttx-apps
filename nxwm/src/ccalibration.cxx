@@ -1010,7 +1010,7 @@ void CCalibration::stateMachine(void)
           m_calibData[CALIB_LOWER_LEFT_INDEX].y = m_touchPos.y;
 #endif
 
-          // Clear the previous screen by re-drawing it using the backgro9und
+          // Clear the previous screen by re-drawing it using the background
           // color.  That is much faster than clearing the whole display
 
           m_screenInfo.lineColor       = CONFIG_NXWM_CALIBRATION_BACKGROUNDCOLOR;
@@ -1289,7 +1289,7 @@ CCalibrationFactory::CCalibrationFactory(CTaskbar *taskbar, CTouchscreen *touchs
 IApplication *CCalibrationFactory::create(void)
 {
   // Call CTaskBar::openFullScreenWindow to create a full screen window for
-  // the calibation application
+  // the calibration application
 
   CFullScreenWindow *window = m_taskbar->openFullScreenWindow();
   if (!window)

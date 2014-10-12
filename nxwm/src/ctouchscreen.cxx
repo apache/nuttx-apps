@@ -228,7 +228,7 @@ void CTouchscreen::setCalibrationData(const struct SCalibrationData &caldata)
  * This function is not re-entrant:  There may be only one thread waiting for
  * raw touchscreen data.
  *
- * @return True if the raw touchscreen data was sucessfully obtained
+ * @return True if the raw touchscreen data was successfully obtained
  */
 
 bool CTouchscreen::waitRawTouchData(struct touch_sample_s *touch)
@@ -265,7 +265,7 @@ bool CTouchscreen::waitRawTouchData(struct touch_sample_s *touch)
 
 /**
  * The touchscreen listener thread.  This is the entry point of a thread that
- * listeners for and dispatches touchscreens events to the NX server.
+ * listeners for and dispatches touchscreen events to the NX server.
  *
  * @param arg.  The CTouchscreen 'this' pointer cast to a void*.
  * @return This function normally does not return but may return NULL on
@@ -320,7 +320,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
       // 3. Normal operation, reading touchscreen data and forwarding it to NX
 
       // Check if we need to collect touchscreen data.  That is, that we are enabled,
-      // AND have calibratation data OR if we need to collect data for the calbration
+      // AND have calibration data OR if we need to collect data for the calibration
       // process.
 
       while ((!This->m_enabled || !This->m_calibrated) && !This->m_capture)
@@ -431,7 +431,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
 
   DEBUGASSERT(sample == &m_sample);
 
-  // Check if normal processing of touchscreen data is enaable.  Check if
+  // Check if normal processing of touchscreen data is enabled.  Check if
   // we have been given calibration data.
 
   if (!m_enabled || !m_calibrated)
@@ -443,7 +443,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
     }
 
   // Now we will inject the touchscreen into NX as mouse input.  First
-  // massage the data a litle so that it behaves a little more like a
+  // massage the data a little so that it behaves a little more like a
   // mouse with only a left button
   //
   // Was the button up or down?
@@ -592,4 +592,3 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
   NXHANDLE handle = m_server->getServer();
   (void)nx_mousein(handle, x, y, buttons);
 }
-
