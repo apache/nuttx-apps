@@ -1086,3 +1086,6 @@
 	  (014-10-8).
 	* apps/: Correct everything under apps to use the corrected syslog
 	  interfaces (2014-10-8).
+	* apps/netutils/netlib/netlib_gethostaddr.c: Fix memcpy of host address
+	  in netlib_gethostaddr().  From Brennan Ashton (2014-10-17).
+
