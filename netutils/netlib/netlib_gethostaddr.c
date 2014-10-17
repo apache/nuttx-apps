@@ -71,7 +71,7 @@
  *   ipaddr   The location to return the IP address
  *
  * Return:
- *   0 on sucess; -1 on failure
+ *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
@@ -93,14 +93,20 @@ int netlib_gethostaddr(const char *ifname, struct in_addr *addr)
           if (!ret)
             {
 #ifdef CONFIG_NET_IPv6
-              memcpy(addr, &req.ifr_addr, sizeof(struct in6_addr));
+              FAR struct sockaddr_in6 *req_addr;
+              req_addr = (FAR struct sockaddr_in6 *)&req.ifr_addr;
+              memcpy(addr, &req_addr->sin6_addr, sizeof(struct in6_addr));
 #else
-              memcpy(addr, &req.ifr_addr, sizeof(struct in_addr));
+              FAR struct sockaddr_in *req_addr;
+              req_addr = (struct sockaddr_in*)&req.ifr_addr;
+              memcpy(addr, &req_addr->sin_addr, sizeof(struct in_addr));
 #endif
             }
+
           close(sockfd);
         }
     }
+
   return ret;
 }
 
