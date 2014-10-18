@@ -98,7 +98,7 @@ int netlib_gethostaddr(const char *ifname, struct in_addr *addr)
               memcpy(addr, &req_addr->sin6_addr, sizeof(struct in6_addr));
 #else
               FAR struct sockaddr_in *req_addr;
-              req_addr = (struct sockaddr_in*)&req.ifr_addr;
+              req_addr = (FAR struct sockaddr_in*)&req.ifr_addr;
               memcpy(addr, &req_addr->sin_addr, sizeof(struct in_addr));
 #endif
             }
