@@ -97,8 +97,8 @@ static struct stkmon_state_s g_stackmonitor;
 
 static void stkmon_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
-#if CONFIG_NAME_MAX > 0
-  syslog(LOG_INFO, ("%5d %6d %6d %s\n",
+#if CONFIG_TASK_NAME_SIZE > 0
+  syslog(LOG_INFO, "%5d %6d %6d %s\n",
          tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb), tcb->name);
 #else
   syslog(LOG_INFO, ("%5d %6d %6d\n",
@@ -108,17 +108,17 @@ static void stkmon_task(FAR struct tcb_s *tcb, FAR void *arg)
 
 static int stackmonitor_daemon(int argc, char **argv)
 {
-  syslog(LOG_INFO, (STKMON_PREFIX "Running: %d\n", g_stackmonitor.pid);
+  syslog(LOG_INFO, STKMON_PREFIX "Running: %d\n", g_stackmonitor.pid);
 
   /* Loop until we detect that there is a request to stop. */
 
   while (!g_stackmonitor.stop)
     {
       sleep(CONFIG_SYSTEM_STACKMONITOR_INTERVAL);
-#if CONFIG_NAME_MAX > 0
-      syslog(LOG_INFO, ("%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
+#if CONFIG_TASK_NAME_SIZE > 0
+      syslog(LOG_INFO, "%-5s %-6s %-6s %s\n", "PID", "SIZE", "USED", "THREAD NAME");
 #else
-      syslog(LOG_INFO, ("%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
+      syslog(LOG_INFO, "%-5s %-6s %-6s\n", "PID", "SIZE", "USED");
 #endif
       sched_foreach(stkmon_task, NULL);
     }
@@ -127,7 +127,7 @@ static int stackmonitor_daemon(int argc, char **argv)
 
   g_stackmonitor.stop    = false;
   g_stackmonitor.started = false;
-  syslog(LOG_INFO, (STKMON_PREFIX "Stopped: %d\n", g_stackmonitor.pid);
+  syslog(LOG_INFO, STKMON_PREFIX "Stopped: %d\n", g_stackmonitor.pid);
 
   return 0;
 }
@@ -158,14 +158,14 @@ int stackmonitor_start(int argc, char **argv)
       if (ret < 0)
         {
           int errcode = errno;
-          syslog(LOG_INFO, (STKMON_PREFIX
+          syslog(LOG_INFO, STKMON_PREFIX
                  "ERROR: Failed to start the stack monitor: %d\n",
                  errcode);
         }
       else
         {
           g_stackmonitor.pid = ret;
-          syslog(LOG_INFO, (STKMON_PREFIX "Started: %d\n", g_stackmonitor.pid);
+          syslog(LOG_INFO, STKMON_PREFIX "Started: %d\n", g_stackmonitor.pid);
         }
 
       sched_unlock();
@@ -173,7 +173,7 @@ int stackmonitor_start(int argc, char **argv)
     }
 
   sched_unlock();
-  syslog(LOG_INFO, (STKMON_PREFIX "%s: %d\n",
+  syslog(LOG_INFO, STKMON_PREFIX "%s: %d\n",
          g_stackmonitor.stop ? "Stopping" : "Running", g_stackmonitor.pid);
   return 0;
 }
@@ -188,11 +188,11 @@ int stackmonitor_stop(int argc, char **argv)
        * it will see the the stop indication and will exist.
        */
 
-      syslog(LOG_INFO, (STKMON_PREFIX "Stopping: %d\n", g_stackmonitor.pid);
+      syslog(LOG_INFO, STKMON_PREFIX "Stopping: %d\n", g_stackmonitor.pid);
       g_stackmonitor.stop = true;
     }
 
-  syslog(LOG_INFO, (STKMON_PREFIX "Stopped: %d\n", g_stackmonitor.pid);
+  syslog(LOG_INFO, STKMON_PREFIX "Stopped: %d\n", g_stackmonitor.pid);
   return 0;
 }
 
