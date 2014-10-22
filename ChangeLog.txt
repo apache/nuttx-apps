@@ -1088,4 +1088,8 @@
 	  interfaces (2014-10-8).
 	* apps/netutils/netlib/netlib_gethostaddr.c: Fix memcpy of host address
 	  in netlib_gethostaddr().  From Brennan Ashton (2014-10-17).
-
+	* apps/system/stackmonitor.c and stackmonitor/Makefile: Fix compile
+	  problems introduced when the syslog() prototype changed; Also update
+	  Makefile for kernel build From Radoslaw Adamczyk (2014-10-23).
+	* apps/examples/nxterm/Makefile: Update makefile for kernel-build
+	  issues. From Radoslaw Adamczyk (2014-10-23).
