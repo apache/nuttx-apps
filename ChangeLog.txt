@@ -1093,3 +1093,5 @@
 	  Makefile for kernel build From Radoslaw Adamczyk (2014-10-23).
 	* apps/examples/nxterm/Makefile: Update makefile for kernel-build
 	  issues. From Radoslaw Adamczyk (2014-10-23).
+	* apps/examples/keypadtest/keypadtest_main.c: Fixes to keypadtest from
+	  Pierre-Noel Bouteville (2014-10-23).
