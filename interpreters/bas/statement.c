@@ -1,6 +1,7 @@
 /* #includes */ /*{{{C}}}*//*{{{*/
 #include "config.h"
 
+#include <unistd.h>
 #ifdef HAVE_GETTEXT
 #include <libintl.h>
 #define _(String) gettext(String)
