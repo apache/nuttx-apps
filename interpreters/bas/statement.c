@@ -1,4 +1,5 @@
 /* #includes */ /*{{{C}}}*//*{{{*/
+#include <unistd.h>
 #include "config.h"
 
 #include <unistd.h>
@@ -571,7 +572,7 @@ struct Value *stmt_DISPLAY(struct Value *value) /*{{{*/
   if (eval(value,_("file name"))->type==V_ERROR || (pass!=DECLARE && Value_retype(value,V_STRING)->type==V_ERROR)) return value;
   if (pass==INTERPRET && cat(value->u.string.character)==-1)
   {
-    char *msg=strerror(errno);
+    const char *msg=strerror(errno);
 
     Value_destroy(value);
     pc=statementpc;
@@ -1356,7 +1357,7 @@ struct Value *stmt_KILL(struct Value *value) /*{{{*/
   if (eval(value,_("file name"))->type==V_ERROR || (pass!=DECLARE && Value_retype(value,V_STRING)->type==V_ERROR)) return value;
   if (pass==INTERPRET && unlink(value->u.string.character)==-1)
   {
-    char *msg=strerror(errno);
+    const char *msg=strerror(errno);
 
     Value_destroy(value);
     pc=statementpc;

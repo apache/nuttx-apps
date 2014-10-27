@@ -1,5 +1,6 @@
 /* Global variables and functions. */
 /* #includes */ /*{{{C}}}*//*{{{*/
+#include <nuttx/config.h>
 #include "config.h"
 
 #include <sys/times.h>
@@ -38,7 +39,13 @@
 #endif
 /*}}}*/
 
+#ifndef CONFIG_INTERPRETER_BAS_HAVE_ENVIRON
 extern char **environ;
+#endif
+
+#ifndef RAND_MAX
+#  define RAND_MAX 32767
+#endif
 
 static int wildcardmatch(const char *a, const char *pattern) /*{{{*/
 {
@@ -1337,7 +1344,11 @@ static struct Value *fn_tan(struct Value *v, struct Auto *stack) /*{{{*/
 /*}}}*/
 static struct Value *fn_timei(struct Value *v, struct Auto *stack) /*{{{*/
 {
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SYSCFG
   return Value_new_INTEGER(v,(unsigned long)(times((struct tms*)0)/(sysconf(_SC_CLK_TCK)/100.0)));
+#else
+  return Value_new_INTEGER(v,(unsigned long)(times((struct tms*)0)/(CLK_TCK/100.0)));
+#endif
 }
 /*}}}*/
 static struct Value *fn_times(struct Value *v, struct Auto *stack) /*{{{*/

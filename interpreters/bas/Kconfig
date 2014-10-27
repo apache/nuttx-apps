@@ -31,4 +31,33 @@ config INTERPRETERS_BAS
 		- Set CONFIG_LIBM=y in your .config file
 
 if INTERPRETERS_BAS
+
+config INTERPRETER_BAS_HAVE_ENVIRON
+	bool
+	default n
+	depends on EXPERIMENTAL
+	---help---
+		NuttX does not support the environ variable
+
+config INTERPRETER_BAS_HAVE_SYSCFG
+	bool
+	default n
+	depends on EXPERIMENTAL
+	---help---
+		NuttX does not support the syscfg() function
+
+config INTERPRETER_BAS_HAVE_SIGINT
+	bool
+	default n
+	depends on EXPERIMENTAL
+	---help---
+		NuttX does not support the SIGINT signal
+
+config INTERPRETER_BAS_HAVE_SIGQUIT
+	bool
+	default n
+	depends on EXPERIMENTAL
+	---help---
+		NuttX does not support the SIGQUIT signal
+
 endif

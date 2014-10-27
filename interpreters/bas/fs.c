@@ -1,5 +1,6 @@
 /* BASIC file system interface. */
 /* #includes */ /*{{{C}}}*//*{{{*/
+#include <nuttx/config.h>
 #include "config.h"
 
 #include <sys/time.h>
@@ -45,7 +46,12 @@ static int capacity;
 static int used;
 static struct termios origMode,rawMode;
 static const int open_mode[4]={ 0, O_RDONLY, O_WRONLY, O_RDWR };
-static struct sigaction old_sigint, old_sigquit;
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
+static struct sigaction old_sigint;
+#endif
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT
+static struct sigaction old_sigquit;
+#endif
 static int termchannel;
 
 const char *FS_errmsg;
@@ -381,12 +387,14 @@ static void carriage_return(int chn) /*{{{*/
 }
 /*}}}*/
 #endif
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
 static void sigintr(int sig) /*{{{*/
 {
   FS_intr=1;
   FS_allowIntr(0);
 }
 /*}}}*/
+#endif
 
 int FS_opendev(int chn, int infd, int outfd) /*{{{*/
 {
@@ -782,21 +790,33 @@ int FS_truncate(int chn) /*{{{*/
 /*}}}*/
 void FS_shellmode(int dev) /*{{{*/
 {
+#if defined(CONFIG_INTERPRETER_BAS_HAVE_SIGINT) || defined(CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT)
   struct sigaction interrupt;
+#endif
 
   if (file[dev]->tty) tcsetattr(file[dev]->infd,TCSADRAIN,&origMode);
+#if defined(CONFIG_INTERPRETER_BAS_HAVE_SIGINT) || defined(CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT)
   interrupt.sa_flags=0;
   sigemptyset(&interrupt.sa_mask);
   interrupt.sa_handler=SIG_IGN;
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
   sigaction(SIGINT,&interrupt,&old_sigint);
+#endif
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT
   sigaction(SIGQUIT,&interrupt,&old_sigquit);
+#endif
+#endif
 }
 /*}}}*/
 void FS_fsmode(int chn) /*{{{*/
 {
   if (file[chn]->tty) tcsetattr(file[chn]->infd,TCSADRAIN,&rawMode);
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
   sigaction(SIGINT,&old_sigint,(struct sigaction *)0);
+#endif
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT
   sigaction(SIGQUIT,&old_sigquit,(struct sigaction *)0);
+#endif
 }
 /*}}}*/
 void FS_xonxoff(int chn, int on) /*{{{*/
@@ -1421,6 +1441,7 @@ int FS_memOutput(int address, int value) /*{{{*/
 /*}}}*/
 void FS_allowIntr(int on) /*{{{*/
 {
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
   struct sigaction breakact;
 
   breakact.sa_handler=on ? sigintr : SIG_IGN;
@@ -1428,5 +1449,6 @@ void FS_allowIntr(int on) /*{{{*/
   sigaddset(&breakact.sa_mask,SIGINT);
   breakact.sa_flags=0;
   sigaction(SIGINT,&breakact,(struct sigaction *)0);
+#endif
 }
 /*}}}*/
