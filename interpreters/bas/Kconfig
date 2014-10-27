@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config INTERPRETERS_BAS
+	bool "Basic Interpreter support"
+	default n
+	---help---
+		This is a Basic interpreter written by Michael Haardt
+
+if INTERPRETERS_BAS
+endif

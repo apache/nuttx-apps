@@ -1,0 +1,1103 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-10-25 20:16+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: auto.c:145
+msgid "Called"
+msgstr ""
+
+#: auto.c:155
+msgid "Proc Called"
+msgstr ""
+
+#: bas.c:181
+msgid "index"
+msgstr ""
+
+#: bas.c:277
+msgid "actual parameter"
+msgstr ""
+
+#: bas.c:651
+msgid "operand"
+msgstr ""
+
+#: bas.c:847
+msgid "binary operand"
+msgstr ""
+
+#: bas.c:898
+msgid "unary operand"
+msgstr ""
+
+#: bas.c:988
+msgid "parenthetic"
+msgstr ""
+
+#: bas.c:1133
+msgid "program"
+msgstr ""
+
+#: bas.c:1137
+msgid "`if' branch"
+msgstr ""
+
+#: bas.c:1138
+msgid "`do' loop"
+msgstr ""
+
+#: bas.c:1139
+msgid "`do while' or `do until' loop"
+msgstr ""
+
+#: bas.c:1140
+msgid "`else' branch"
+msgstr ""
+
+#: bas.c:1141
+msgid "`for' loop"
+msgstr ""
+
+#: bas.c:1142
+msgid "`while' loop"
+msgstr ""
+
+#: bas.c:1143
+msgid "`repeat' loop"
+msgstr ""
+
+#: bas.c:1144
+msgid "`select case' control structure"
+msgstr ""
+
+#: bas.c:1145
+msgid "function or procedure"
+msgstr ""
+
+#: bas.c:1180 global.c:179 global.c:208 global.c:955
+msgid "position"
+msgstr ""
+
+#: bas.c:1187 bas.c:1189 global.c:180 global.c:196 global.c:209 global.c:242
+#: global.c:841 global.c:863 global.c:886 global.c:1048 global.c:1071
+#: global.c:1185 global.c:1240 global.c:1289 global.c:1299 global.c:1318
+msgid "length"
+msgstr ""
+
+#: bas.c:1197 bas.c:1242 statement.c:1671
+msgid "rhs"
+msgstr ""
+
+#: bas.c:1367 bas.c:1415
+msgid "Error: "
+msgstr ""
+
+#: bas.c:1435 bas.c:1440 bas.c:1448 bas.c:1453 statement.c:503 statement.c:511
+msgid "dimension"
+msgstr ""
+
+#: bas.c:1476 bas.c:1479 statement.c:413 value.c:56
+msgid "integer"
+msgstr ""
+
+#: bas.c:1480 bas.c:1496
+msgid "converted value"
+msgstr ""
+
+#: bas.c:1492 bas.c:1495 statement.c:414 value.c:57
+msgid "real"
+msgstr ""
+
+#: bas.c:1597
+msgid "bas: Executing `"
+msgstr ""
+
+#: bas.c:1599
+msgid "' failed ("
+msgstr ""
+
+#: bas.c:1601
+msgid ").\n"
+msgstr ""
+
+#: bas.c:1645
+msgid "This is free software with ABSOLUTELY NO WARRANTY.\n"
+msgstr ""
+
+#: bas.c:1663
+msgid ""
+"\n"
+"Break\n"
+msgstr ""
+
+#: bas.c:1701 error.h:95
+msgid "Use `renum' to number program first"
+msgstr ""
+
+#: bas.c:1711
+msgid "END program\n"
+msgstr ""
+
+#: bas.c:1717
+msgid "Invalid line\n"
+msgstr ""
+
+#: error.h:15
+msgid "Formal parameter already declared"
+msgstr ""
+
+#: error.h:16
+msgid "Variable already declared as `local'"
+msgstr ""
+
+#: error.h:17
+#, c-format
+msgid "Identifier can not be declared as %s"
+msgstr ""
+
+#: error.h:18
+msgid "Ranges must be constructed from single letter identifiers"
+msgstr ""
+
+#: error.h:19
+#, c-format
+msgid "Missing line number at the beginning of text line %d"
+msgstr ""
+
+#: error.h:20
+msgid "Invalid unary operand"
+msgstr ""
+
+#: error.h:21
+msgid "Invalid binary operand"
+msgstr ""
+
+#: error.h:22
+msgid "Missing `as'"
+msgstr ""
+
+#: error.h:23
+msgid "Missing colon `:'"
+msgstr ""
+
+#: error.h:24
+msgid "Missing comma `,'"
+msgstr ""
+
+#: error.h:25
+msgid "Missing right parenthesis `)'"
+msgstr ""
+
+#: error.h:26
+msgid "Missing `data' input"
+msgstr ""
+
+#: error.h:27
+msgid "Missing `dec'/`inc' variable identifier"
+msgstr ""
+
+#: error.h:28
+msgid "Missing equal sign `='"
+msgstr ""
+
+#: error.h:29
+#, c-format
+msgid "Expected %s expression"
+msgstr ""
+
+#: error.h:30
+msgid "Missing `file'"
+msgstr ""
+
+#: error.h:31
+msgid "Missing `goto' or `gosub'"
+msgstr ""
+
+#: error.h:32
+msgid "Missing variable identifier"
+msgstr ""
+
+#: error.h:33
+msgid "Missing procedure identifier"
+msgstr ""
+
+#: error.h:34
+msgid "Missing function identifier"
+msgstr ""
+
+#: error.h:35
+msgid "Missing array variable identifier"
+msgstr ""
+
+#: error.h:36
+msgid "Missing string variable identifier"
+msgstr ""
+
+#: error.h:37
+msgid "Missing loop variable identifier"
+msgstr ""
+
+#: error.h:38
+msgid "Missing formal parameter identifier"
+msgstr ""
+
+#: error.h:39
+msgid "Missing `read' variable identifier"
+msgstr ""
+
+#: error.h:40
+msgid "Missing `swap' variable identifier"
+msgstr ""
+
+#: error.h:41
+msgid "Missing matrix variable identifier"
+msgstr ""
+
+#: error.h:42
+msgid "Missing line increment"
+msgstr ""
+
+#: error.h:43
+msgid "Missing `len'"
+msgstr ""
+
+#: error.h:44
+msgid "Missing line number"
+msgstr ""
+
+#: error.h:45
+msgid "Missing left parenthesis `('"
+msgstr ""
+
+#: error.h:46
+msgid "Missing semicolon `;'"
+msgstr ""
+
+#: error.h:47
+msgid "Missing semicolon `;' or comma `,'"
+msgstr ""
+
+#: error.h:48
+msgid "Missing star `*'"
+msgstr ""
+
+#: error.h:49
+msgid "Missing statement"
+msgstr ""
+
+#: error.h:50
+msgid "Missing `then'"
+msgstr ""
+
+#: error.h:51
+msgid "Missing `to'"
+msgstr ""
+
+#: error.h:52
+msgid "Nested definition"
+msgstr ""
+
+#: error.h:53
+msgid "No program"
+msgstr ""
+
+#: error.h:54
+msgid "No such `data' line"
+msgstr ""
+
+#: error.h:55
+msgid "No such line"
+msgstr ""
+
+#: error.h:56
+msgid "Redeclaration as different kind of symbol"
+msgstr ""
+
+#: error.h:57
+msgid "`case' without `select case'"
+msgstr ""
+
+#: error.h:58
+msgid "`do' without `loop'"
+msgstr ""
+
+#: error.h:59
+msgid "`do while' or `do until' without `loop'"
+msgstr ""
+
+#: error.h:60
+msgid "`else' without `if'"
+msgstr ""
+
+#: error.h:61
+msgid "`else' without `end if'"
+msgstr ""
+
+#: error.h:62
+msgid "`end if' without multiline `if' or `else'"
+msgstr ""
+
+#: error.h:63
+#, c-format
+msgid "`subend', `end sub' or `endproc' without `sub' or `def proc' inside %s"
+msgstr ""
+
+#: error.h:64
+#, c-format
+msgid "`subexit' without `sub' inside %s"
+msgstr ""
+
+#: error.h:65
+msgid "`end select' without `select case'"
+msgstr ""
+
+#: error.h:66
+msgid "`end function' without `def fn' or `function'"
+msgstr ""
+
+#: error.h:67
+msgid "`=' returning from function without `def fn'"
+msgstr ""
+
+#: error.h:68
+msgid "`exit do' without `do'"
+msgstr ""
+
+#: error.h:69
+msgid "`exit for' without `for'"
+msgstr ""
+
+#: error.h:70
+msgid "`fnend' without `def fn'"
+msgstr ""
+
+#: error.h:71
+msgid "`exit function' outside function declaration"
+msgstr ""
+
+#: error.h:72
+msgid "`fnreturn' without `def fn'"
+msgstr ""
+
+#: error.h:73
+msgid "`for' without `next'"
+msgstr ""
+
+#: error.h:74
+msgid "Function/procedure declaration without end"
+msgstr ""
+
+#: error.h:75
+msgid "`if' without `end if'"
+msgstr ""
+
+#: error.h:76
+msgid "`local' without `def fn' or `def proc'"
+msgstr ""
+
+#: error.h:77
+msgid "`loop' without `do'"
+msgstr ""
+
+#: error.h:78
+msgid "`loop until' without `do'"
+msgstr ""
+
+#: error.h:79
+#, c-format
+msgid "`next' without `for' inside %s"
+msgstr ""
+
+#: error.h:80
+msgid "`repeat' without `until'"
+msgstr ""
+
+#: error.h:81
+msgid "`select case' without `end select'"
+msgstr ""
+
+#: error.h:82
+msgid "`until' without `repeat'"
+msgstr ""
+
+#: error.h:83
+#, c-format
+msgid "`wend' without `while' inside %s"
+msgstr ""
+
+#: error.h:84
+msgid "`while' without `wend'"
+msgstr ""
+
+#: error.h:85
+msgid "Syntax"
+msgstr ""
+
+#: error.h:86
+msgid "Too few parameters"
+msgstr ""
+
+#: error.h:87
+msgid "Too many parameters"
+msgstr ""
+
+#: error.h:88
+#, c-format
+msgid "Type mismatch (has %s, need %s)"
+msgstr ""
+
+#: error.h:89
+#, c-format
+msgid "Type mismatch of argument %d"
+msgstr ""
+
+#: error.h:90
+#, c-format
+msgid "%s of argument %d"
+msgstr ""
+
+#: error.h:91
+msgid "Type mismatch (need string variable)"
+msgstr ""
+
+#: error.h:92
+msgid "Type mismatch (need numeric variable)"
+msgstr ""
+
+#: error.h:93
+msgid "Type mismatch (need numeric value)"
+msgstr ""
+
+#: error.h:94
+msgid "Undeclared function or variable"
+msgstr ""
+
+#: error.h:96
+msgid "Line out of scope"
+msgstr ""
+
+#: error.h:97
+msgid "Procedures do not return values"
+msgstr ""
+
+#: error.h:98
+msgid "Unreachable statement"
+msgstr ""
+
+#: error.h:99
+msgid "Wrong access mode"
+msgstr ""
+
+#: error.h:100
+msgid "`next' variable does not match `for' variable"
+msgstr ""
+
+#: error.h:101
+msgid "No such `image' line"
+msgstr ""
+
+#: error.h:102
+msgid "Missing `image' format"
+msgstr ""
+
+#: error.h:103
+msgid "Missing relational operator"
+msgstr ""
+
+#: error.h:107
+msgid "Missing `input' data"
+msgstr ""
+
+#: error.h:108
+msgid "Missing character after underscore `_' in format string"
+msgstr ""
+
+#: error.h:109
+msgid "Not allowed in interactive mode"
+msgstr ""
+
+#: error.h:110
+msgid "Not allowed in program mode"
+msgstr ""
+
+#: error.h:111
+msgid "Break"
+msgstr ""
+
+#: error.h:112
+#, c-format
+msgid "%s is undefined"
+msgstr ""
+
+#: error.h:113
+#, c-format
+msgid "%s is out of range"
+msgstr ""
+
+#: error.h:114
+msgid "`resume' without exception"
+msgstr ""
+
+#: error.h:115
+msgid "`return' without `gosub'"
+msgstr ""
+
+#: error.h:116
+#, c-format
+msgid "Bad %s conversion"
+msgstr ""
+
+#: error.h:117
+#, c-format
+msgid "Input/Output error (%s)"
+msgstr ""
+
+#: error.h:118
+#, c-format
+msgid "Input/Output error (Creating `%s' failed: %s)"
+msgstr ""
+
+#: error.h:119
+#, c-format
+msgid "Input/Output error (Closing `%s' failed: %s)"
+msgstr ""
+
+#: error.h:120
+#, c-format
+msgid "Input/Output error (Opening `%s' failed: %s)"
+msgstr ""
+
+#: error.h:121
+#, c-format
+msgid "Setting environment variable failed (%s)"
+msgstr ""
+
+#: error.h:122
+msgid "Trying to redimension existing array"
+msgstr ""
+
+#: error.h:123
+#, c-format
+msgid "Forking child process failed (%s)"
+msgstr ""
+
+#: error.h:124
+msgid "Invalid mode"
+msgstr ""
+
+#: error.h:125
+msgid "end of `data'"
+msgstr ""
+
+#: error.h:126
+msgid "Dimension mismatch"
+msgstr ""
+
+#: error.h:127
+#, c-format
+msgid "Variable dimension must be 2 (is %d), base must be 0 or 1 (is %d)"
+msgstr ""
+
+#: error.h:128
+msgid "Singular matrix"
+msgstr ""
+
+#: error.h:129
+msgid "Syntax error in print format"
+msgstr ""
+
+#: error.h:130
+msgid "Out of memory"
+msgstr ""
+
+#: error.h:131
+msgid "Restricted"
+msgstr ""
+
+#: fs.c:80
+#, c-format
+msgid "channel #%d not open"
+msgstr ""
+
+#: fs.c:90
+#, c-format
+msgid "channel #%d not opened for writing"
+msgstr ""
+
+#: fs.c:96
+#, c-format
+msgid "channel #%d not opened for reading"
+msgstr ""
+
+#: fs.c:102
+#, c-format
+msgid "channel #%d not opened for random access"
+msgstr ""
+
+#: fs.c:108
+#, c-format
+msgid "channel #%d not opened for binary access"
+msgstr ""
+
+#: fs.c:114
+#, c-format
+msgid "channel #%d not opened for random or binary access"
+msgstr ""
+
+#: fs.c:241
+msgid "environment variable TERM is not set"
+msgstr ""
+
+#: fs.c:248
+msgid "reading terminal description failed"
+msgstr ""
+
+#: fs.c:253
+#, c-format
+msgid "unknown terminal type %s"
+msgstr ""
+
+#: fs.c:281
+#, c-format
+msgid "terminal type %s can not clear the screen"
+msgstr ""
+
+#: fs.c:294
+#, c-format
+msgid "terminal type %s can not position the cursor"
+msgstr ""
+
+#: fs.c:356 fs.c:362 fs.c:368
+msgid "This installation does not support terminal handling"
+msgstr ""
+
+#: fs.c:396 fs.c:477 fs.c:550 fs.c:599 fs.c:632
+msgid "channel already open"
+msgstr ""
+
+#: fs.c:669 fs.c:692 fs.c:736 fs.c:768 fs.c:1338
+msgid "channel not open"
+msgstr ""
+
+#: fs.c:924 fs.c:940 fs.c:956
+msgid "End of file"
+msgstr ""
+
+#: fs.c:1010
+msgid "negative width"
+msgstr ""
+
+#: fs.c:1022
+msgid "non-positive zone width"
+msgstr ""
+
+#: fs.c:1037 fs.c:1054 fs.c:1071
+msgid "not a terminal"
+msgstr ""
+
+#: fs.c:1400 fs.c:1412
+msgid "Direct port access not available"
+msgstr ""
+
+#: fs.c:1406 fs.c:1418
+msgid "Direct memory access not available"
+msgstr ""
+
+#: getopt.c:681
+#, c-format
+msgid "%s: option `%s' is ambiguous\n"
+msgstr ""
+
+#: getopt.c:705
+#, c-format
+msgid "%s: option `--%s' doesn't allow an argument\n"
+msgstr ""
+
+#: getopt.c:710
+#, c-format
+msgid "%s: option `%c%s' doesn't allow an argument\n"
+msgstr ""
+
+#: getopt.c:727 getopt.c:900
+#, c-format
+msgid "%s: option `%s' requires an argument\n"
+msgstr ""
+
+#. --option
+#: getopt.c:756
+#, c-format
+msgid "%s: unrecognized option `--%s'\n"
+msgstr ""
+
+#. +option or -option
+#: getopt.c:760
+#, c-format
+msgid "%s: unrecognized option `%c%s'\n"
+msgstr ""
+
+#. 1003.2 specifies the format of this message.
+#: getopt.c:786
+#, c-format
+msgid "%s: illegal option -- %c\n"
+msgstr ""
+
+#: getopt.c:789
+#, c-format
+msgid "%s: invalid option -- %c\n"
+msgstr ""
+
+#. 1003.2 specifies the format of this message.
+#: getopt.c:819 getopt.c:949
+#, c-format
+msgid "%s: option requires an argument -- %c\n"
+msgstr ""
+
+#: getopt.c:866
+#, c-format
+msgid "%s: option `-W %s' is ambiguous\n"
+msgstr ""
+
+#: getopt.c:884
+#, c-format
+msgid "%s: option `-W %s' doesn't allow an argument\n"
+msgstr ""
+
+#: global.c:197
+msgid "code"
+msgstr ""
+
+#: global.c:258
+msgid "variable number"
+msgstr ""
+
+#: global.c:283
+msgid "`asc' or `code' of empty string"
+msgstr ""
+
+#: global.c:303 global.c:318 global.c:338 global.c:424 global.c:434
+#: global.c:552 global.c:614 global.c:652 global.c:670 global.c:690
+#: global.c:707
+msgid "number"
+msgstr ""
+
+#: global.c:328 global.c:340 global.c:680 global.c:692
+msgid "digits"
+msgstr ""
+
+#: global.c:348 global.c:1279 global.c:1301
+msgid "character code"
+msgstr ""
+
+#: global.c:383 global.c:399
+msgid "argument number"
+msgstr ""
+
+#: global.c:748 global.c:778
+msgid "time"
+msgstr ""
+
+#: global.c:763 global.c:780 statement.c:179 statement.c:1036 statement.c:1208
+#: statement.c:1387 statement.c:1590 statement.c:1793 statement.c:2142
+#: statement.c:2262 statement.c:2477 statement.c:2808 statement.c:2815
+#: statement.c:2887 statement.c:3035 statement.c:3825 statement.c:3947
+#: statement.c:3981 statement.c:4040
+msgid "channel"
+msgstr ""
+
+#: global.c:813 global.c:825 global.c:851 global.c:861 global.c:1033
+#: global.c:1058 global.c:1069
+msgid "start"
+msgstr ""
+
+#: global.c:911 global.c:918 global.c:925
+msgid "Logarithm of negative value"
+msgstr ""
+
+#: global.c:1208 statement.c:2608
+msgid "limit"
+msgstr ""
+
+#: global.c:1249
+msgid "Square root argument"
+msgstr ""
+
+#: global.c:1307 global.c:1319
+msgid "`string$' of empty string"
+msgstr ""
+
+#: main.c:76
+msgid "Usage: bas [-b] [-l file] [-r] [-u] [program [argument ...]]\n"
+msgstr ""
+
+#: main.c:77 main.c:87
+msgid ""
+"       bas [--backslash-colon] [--lp file] [--restricted] [--uppercase] "
+"[program [argument ...]]\n"
+msgstr ""
+
+#: main.c:78 main.c:88
+msgid "       bas -h|--help\n"
+msgstr ""
+
+#: main.c:79 main.c:89
+msgid "       bas --version\n"
+msgstr ""
+
+#: main.c:81
+msgid "Try `bas -h' or `bas --help' for more information.\n"
+msgstr ""
+
+#: main.c:86
+msgid "Usage: bas [-b] [-l file] [-u] [program [argument ...]]\n"
+msgstr ""
+
+#: main.c:91
+msgid "BASIC interpreter.\n"
+msgstr ""
+
+#: main.c:93
+msgid "-b, --backslash-colon  convert backslashs to colons\n"
+msgstr ""
+
+#: main.c:94
+msgid "-l, --lp               write LPRINT output to file\n"
+msgstr ""
+
+#: main.c:95
+msgid "-r, --restricted       forbid SHELL\n"
+msgstr ""
+
+#: main.c:96
+msgid "-u, --uppercase        output all tokens in uppercase\n"
+msgstr ""
+
+#: main.c:97
+msgid "-h, --help             display this help and exit\n"
+msgstr ""
+
+#: main.c:98
+msgid "    --version          output version information and exit\n"
+msgstr ""
+
+#: main.c:100
+msgid "Report bugs to <michael@moria.de>.\n"
+msgstr ""
+
+#: main.c:105
+#, c-format
+msgid "bas: Opening `%s' for line printer output failed (%s).\n"
+msgstr ""
+
+#: program.c:295
+#, c-format
+msgid " in line %ld at:\n"
+msgstr ""
+
+#: program.c:302
+msgid " at: end of program\n"
+msgstr ""
+
+#: program.c:307
+msgid " at: "
+msgstr ""
+
+#: program.c:309
+msgid "end of line\n"
+msgstr ""
+
+#: program.c:744
+msgid "Function Referenced in line\n"
+msgstr ""
+
+#: program.c:753
+msgid "Variable Referenced in line\n"
+msgstr ""
+
+#: program.c:762
+msgid "Gosub    Referenced in line\n"
+msgstr ""
+
+#: program.c:771
+msgid "Goto     Referenced in line\n"
+msgstr ""
+
+#: statement.c:136
+msgid "directory"
+msgstr ""
+
+#: statement.c:224
+msgid "foreground colour"
+msgstr ""
+
+#: statement.c:239
+msgid "background colour"
+msgstr ""
+
+#: statement.c:256
+msgid "border colour"
+msgstr ""
+
+#: statement.c:415 value.c:58
+msgid "string"
+msgstr ""
+
+#: statement.c:570 statement.c:1355 statement.c:1483 statement.c:2547
+#: statement.c:2555 statement.c:2818 statement.c:3427
+msgid "file name"
+msgstr ""
+
+#: statement.c:674
+msgid "generating temporary file name failed"
+msgstr ""
+
+#: statement.c:890
+msgid "environment variable"
+msgstr ""
+
+#: statement.c:956
+msgid "return"
+msgstr ""
+
+#: statement.c:1050 statement.c:1056
+msgid "field width"
+msgstr ""
+
+#: statement.c:1187
+msgid "implicit STEP 1:"
+msgstr ""
+
+#: statement.c:1227
+msgid "record number"
+msgstr ""
+
+#: statement.c:1245
+msgid "`put'/`get' data"
+msgstr ""
+
+#: statement.c:1420 statement.c:1828 statement.c:2198
+msgid "end of file"
+msgstr ""
+
+#: statement.c:1556 statement.c:1562
+msgid "row"
+msgstr ""
+
+#: statement.c:1567 statement.c:1573
+msgid "column"
+msgstr ""
+
+#: statement.c:1628 statement.c:1728 statement.c:3855 statement.c:3915
+msgid "condition"
+msgstr ""
+
+#: statement.c:1901
+msgid "Too much input data\n"
+msgstr ""
+
+#: statement.c:1990
+msgid "factor"
+msgstr ""
+
+#. }}}
+#: statement.c:2130
+msgid "matrix"
+msgstr ""
+
+#: statement.c:2284 statement.c:3057
+msgid "format string"
+msgstr ""
+
+#: statement.c:2614
+msgid "step"
+msgstr ""
+
+#: statement.c:2695 statement.c:3464
+msgid "selector"
+msgstr ""
+
+#: statement.c:2785
+msgid "mode or file"
+msgstr ""
+
+#: statement.c:2828 statement.c:2840 statement.c:2913 statement.c:2925
+msgid "record length"
+msgstr ""
+
+#: statement.c:2967
+msgid "array subscript base"
+msgstr ""
+
+#: statement.c:3003 statement.c:3876
+msgid "address"
+msgstr ""
+
+#: statement.c:3008
+msgid "output value"
+msgstr ""
+
+#: statement.c:3125
+msgid "count"
+msgstr ""
+
+#: statement.c:3196
+msgid "random number generator seed"
+msgstr ""
+
+#: statement.c:3239
+msgid "source file"
+msgstr ""
+
+#: statement.c:3252
+msgid "destination file"
+msgstr ""
+
+#: statement.c:3691 statement.c:3698
+msgid "pause"
+msgstr ""
+
+#: statement.c:3778
+msgid "Quit without saving? (y/n) "
+msgstr ""
+
+#: statement.c:3785
+msgid "yes"
+msgstr ""
+
+#: statement.c:3881
+msgid "mask"
+msgstr ""
+
+#: statement.c:3887
+msgid "select"
+msgstr ""
+
+#. }}}
+#: statement.c:3963 statement.c:4046
+msgid "zone width"
+msgstr ""
+
+#: value.c:59
+msgid "void"
+msgstr ""
+
+#: value.c:1289
+msgid "unpaired \\ in format"
+msgstr ""
+
+#: var.c:100
+msgid "array index"
+msgstr ""

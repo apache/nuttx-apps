@@ -1,0 +1,1189 @@
+' t
+.TH BAS 1 "@UPDATED@" "" "User commands"
+.SH NAME \"{{{roff}}}\"{{{
+bas \- BASIC interpreter
+.\"}}}
+.SH SYNOPSIS \"{{{
+.ad l
+.B bas
+.RB [ \-b ]
+.RB [ \-l
+.IR file ]
+.RB [ \-r ]
+.RB [ \-u ]
+.RI [ "program " [ argument "...]]"
+.br
+.B bas
+.RB [ \-\-backslash\-colon ]
+.RB [ \-\-lp
+.IR file ]
+.RB [ \-\-restricted ]
+.RB [ \-\-uppercase ]
+.RI [ "program " [ argument "...]]"
+.br
+.B bas
+.BR \-h | \-\-help
+.br
+.B bas
+.BR \-\-version
+.ad b
+.\"}}}
+.SH DESCRIPTION \"{{{
+.SS "Introduction" \"{{{
+.B Bas
+is an interpreter for the classic dialect of the programming language
+BASIC, as typically found on microcomputers of the eighties.  If no
+file is given, it reads optionally numbered lines from standard input.
+Non-numbered lines are executed immediatly (direct mode), numbered
+lines are stored in ascending order.  The line number must be a positive
+integer.  All statements are compiled before the program is run, which
+catches syntactic and other errors.  Keywords and variable names are
+not case sensitive.
+.PP
+If a program with unnumbered lines is loaded, storing or deleting
+numbered lines in direct mode is not possible.  You must use \fBrenum\fP
+to renumber the program first or \fBedit\fP to modify the entire program
+inside an editor.  If a numbered program is loaded, typing a line number
+with an otherwise empty line deletes that line same the \fBdelete\fP does.
+.PP
+If a \fIprogram\fP is given, it is loaded, compiled and run; \fBbas\fP
+will exit if program execution \fBstop\fPs, \fBend\fPs or just hits the
+end of the program.  If the
+first line of a program file begins with \fB#!\fP, it is ignored by
+the interpreter.
+.\"}}}
+.SS "Statements" \"{{{
+Each line of a BASIC program contains one or more of the statements below.
+Multiple statements are grouped by a colon (\fB:\fP) in between them.
+Brackets (\fB[\fP and \fB]\fP) are converted to parentheses when loading
+a program for compatibility with dialects that use them e.g. to indicate
+array indices.
+.IP "[\fBcall\fP] \fIfunction\fP[\fB(\fP\fIargument\fP{\fB,\fP \fIargument\fP\fB)\fP]" \"{{{
+Call the \fIfunction\fP or procedure.  The ANSI syntax requires the
+keyword \fBcall\fP, whereas other BASIC dialects don't.  In \fBbas\fP,
+\fBcall\fP is optional.
+.\"}}}
+.IP "\fBchdir\fP \fIdirectory$\fP" \"{{{
+Change the current directory to \fIdirectory$\fP.
+.\"}}}
+.IP "\fBclear\fP" \"{{{
+Set all numerical variables to 0 and all string variables to the empty string.
+All arrays lose their dimension and geometry.  All files are closed.
+.\"}}}
+.IP "\fBclose\fP [\fB#\fP\fIchannel%\fP{\fB,#\fP\fIchannel%\fP}]" \"{{{
+Close the specified channels.  If no channels are given, all channels
+but the standard input/output channel \fB#0\fP are closed.
+.\"}}}
+.IP "\fBcls\fP" \"{{{
+Clear the screen.  Not all terminals support this.  The rarely used keyword
+\fBhome\fP will be converted to \fBcls\fP when loading a program.
+.\"}}}
+.IP "\fBcolor\fP [\fIforeground\fP\fB][\fB,\fP[\fP\fIbackground\fP][\fB,\fP[\fIborder\fP]]]" \"{{{
+All parameters must be between 0 and 15.  If your terminal type supports
+ANSI colour codes, the foreground colour will be set to the given value.
+The background colour can only be set to one of the lower 8 colours,
+selecting a higher colour silently uses the matching lower colour
+(e.g. red instead of light red).  The border colour is always ignored.
+The following colours are available: black (0), blue (1), green (2), cyan
+(3), red (4), magenta (5), brown (6), white (7), grey (8), light blue
+(9), light green (10), light cyan (11), light red (12), light magenta
+(13), yellow (14), bright white (15).
+.\"}}}
+.IP "\fBcopy\fP \fIfrom$\fP \fBto\fP \fIto$\fP" \"{{{
+Copy a file.
+.\"}}}
+.IP "\fBdata\fP \fIinput-data\fP{\fB,\fP\fIinput-data\fP}" \"{{{
+Store data to be accessed by \fBread\fP.  The \fIinput-data\fP has the
+same format as data that is read by \fBinput\fP statements.
+Data can not be stored in direct mode.  This statement is ignored
+during execution.  Abbreviation: \fBd.\fP
+.\"}}}
+.IP "\fBdec\fP \fIlvalue\fP{\fB,\fP\fIlvalue\fP}" \"{{{
+Decrement \fIlvalue\fP.
+.\"}}}
+.IP "\fBdef fn\fP\fIfunction\fP[\fB(\fP\fIparameter\fP[\fB,\fP\fIparameter\fP...]\fB)\fP]" \"{{{
+Define a function.  Function identifiers always start with \fBfn\fP.
+A function ends and returns its value using \fB=\fP\fIexpression\fP.
+Additionally, a function may return a value using \fBfnreturn\fP
+\fIexpression\fP before reaching its end.  Functions can not be declared
+in direct mode.  Note: Multi line functions are not supported by all
+BASIC dialects.  Some dialects allow white space between the \fBfn\fP
+and the rest of the identifier, because they use \fBfn\fP as token
+to mark function identifiers for both declaration and function call.
+\fBBas\fP removes that space when loading a program.
+.\"}}}
+.IP "\fBdefdbl\fP \fIvariable\fP[\fB\-\fP\fIvariable\fP]" \"{{{
+Declare the global \fIvariable\fP as real.  Only unqualified variables (no
+type extension) can be declared.  Variable ranges can only be built from
+single letter variables.  Declaration is done at compile time.
+.\"}}}
+.IP "\fBdefint\fP \fIvariable\fP[\fB\-\fP\fIvariable\fP]" \"{{{
+Declare the global \fIvariable\fP as integer.
+.\"}}}
+.IP "\fBdefstr\fP \fIvariable\fP[\fB\-\fP\fIvariable\fP]" \"{{{
+Declare the global \fIvariable\fP as string.
+.\"}}}
+.IP "\fBdef proc\fP\fIfunction\fP[\fB(\fP\fIparameter\fP[\fB,\fP\fIparameter\fP...]\fB)\fP]" \"{{{
+Define a procedure (function that does not return a value).  Procedure
+identifiers always start with \fBproc\fP if defined this way.  A procedure
+ends with \fBend proc\fP.  This is the BBC BASIC syntax.  Procedures can
+not be declared in direct mode.
+.\"}}}
+.IP "\fBdelete\fP [\fIfrom\fP][\fB\-\fP|\fB,\fP][\fIto\fP]" \"{{{
+Delete the specified line or range of lines.  Unlike \fBlist\fP, the lines
+must exist.
+.\"}}}
+.IP "\fBdim\fP \fIvariable\fP\|\fB(\fP\fIdimension%\fP{\fB,\fP\fIdimension%\fP}\fB)\fP" \"{{{
+Dimension the array \fIvariable\fP.  If the array variable already exists,
+it must first be \fBerase\fPd.  The \fIdimension%\fP specifies the upper
+index of the last element, not the number of elements! The lower index
+is specified by \fBoption base\fP, it is zero by default.
+.\"}}}
+.IP "\fBdisplay\fP \fIfilename$\fP" \"{{{
+Display the contents of \fIfilename$\fP on standard output, like
+.IR cat (1)
+does.
+.\"}}}
+.IP "\fBdo\fP" \"{{{
+.IP "\fBexit do\fP"
+.IP "\fBloop\fP"
+Repeat the loop body in between \fBdo\fP and \fBloop\fP until \fBexit
+do\fP ends looping.
+.\"}}}
+.IP "\fBdo until\fP \fIcondition\fP" \"{{{
+.IP "\fBexit do\fP"
+.IP "\fBloop\fP"
+Unless the \fIcondition\fP is true or \fBexit do\fP ends looping,
+repeat the loop body in between \fBdo while\fP and \fBloop\fP.
+This is equivalent to \fBwhile not\fP/\fBwend\fP.
+.\"}}}
+.IP "\fBdo while\fP \fIcondition\fP" \"{{{
+.IP "\fBexit do\fP"
+.IP "\fBloop\fP"
+While the \fIcondition\fP is true or \fBexit do\fP ends looping,
+repeat the loop body in between \fBdo while\fP and \fBloop\fP.
+This is equivalent to \fBwhile\fP/\fBwend\fP.
+.\"}}}
+.IP "\fBdo\fP" \"{{{
+.IP "\fBexit do\fP"
+.IP "\fBloop until\fP \fIcondition\fP"
+Repeat the loop body in between \fBdo\fP and \fBloop until\fP until the
+\fIcondition\fP is true or until \fBexit do\fP ends looping.  This is
+equivalent to \fBrepeat\fP/\fBuntil\fP.
+.\"}}}
+.IP "\fBedit\fP [\fIline\fP]" \"{{{
+Save the program to a temporary file, start an external editor on that
+file and load the program again from the file.  If a \fIline\fP is given,
+the editor is told to start on that line.  \fBBas\fP knows the calling
+conventions for a number of common editors, but if your favourite is not
+among them or does not support that feature, the line will be ignored.
+The editor is specified by the environment variable \fBVISUAL\fP, or
+\fBEDITOR\fP if \fBVISUAL\fP is not set.  If that is not set as well,
+\fIvi\fP(1) is used.
+.\"}}}
+.IP "\fBend\fP" \"{{{
+End program execution.  If the program was started from direct mode,
+return to direct mode, otherwise the interpreter terminates.  Although
+allowed by BASIC itself, \fBbas\fP only allows \fBreturn\fP statements
+to be followed by a colon and a comment, because anything else would
+be unreachable.  In interactive mode, a diagnostic message is printed
+to indicate the program did not just terminated after the last line.
+.\"}}}
+.IP "\fBenviron\fP \fIentry$\fP" \"{{{
+Modify or add an environment \fIentry$\fP of the form
+\fIvariable\fP\fB=\fP\fIvalue\fP.
+.\"}}}
+.IP "\fBerase\fP \fIvariable\fP{\fB,\fP\fIvariable\fP}" \"{{{
+Erase the array \fIvariable\fP.
+.\"}}}
+.IP "\fBfunction\fP \fIfunction\fP[\fB(\fP\fIparameter\fP[\fB,\fP\fIparameter\fP...]\fB)\fP]" \"{{{
+Define a function (ANSI BASIC style).  A function ends using \fBend function\fP.
+The name of the function is a local variable inside the function and its
+value is returned as function result when program execution reaches the
+end of the function.  Functions can not be declared in direct mode.
+.\"}}}
+.IP "\fBfield\fP [\fB#\fP]\fIchannel%\fP\fB,\fP\fIwidth\fP \fBas\fP \fIlvalue$\fP {\fB,\fP\fIwidth\fP \fBas\fP \fIlvalue$\fP}" \"{{{
+Allocate \fIwidth\fP bytes in the record buffer to the \fIlvalue$\fP.
+The total number of allocated bytes must not exceed the record length.
+The same record buffer can be allocated to different lvalues
+by using multiple field statements.  Fielded lvalues must be set
+with \fBlset\fP and \fBrset\fP.  Simple assignments to them will cause
+different storage to be allocated to them, thus not effecting the random
+access buffer.
+.\"}}}
+.IP "\fBfor\fP \fIlvalue\fP \fB=\fP \fIexpression\fP \fBto\fP \fIexpression\fP [\fBstep\fP \fIexpression\fP]" \"{{{
+.IP "\fBnext\fP \fIlvalue\fP{\fB,\fP\fIlvalue\fP}"
+The \fBfor\fP loop performs the initial variable assignment and then
+executes the statements inside the loop, if the variable is lower or equal
+than the limit (or greater than for negative steps).  The \fBnext\fP
+statement verifies if the variable already reached the value of the
+\fBto\fP \fIexpression\fP.  If not, it increments if by the value of
+the \fBstep\fP \fIexpression\fP and causes a new repetition.  A missing
+\fBstep\fP \fIexpression\fP is treated as \fBstep 1\fP.  The \fBnext\fP
+statement may be followed by a list of lvalues.  Due to the dynamic variable
+geometry, the lvalues themselves
+are only checked for belonging to the same variable as those in \fBfor\fP.
+If no lvalues are given, the
+innermost loop is terminated.  For loops can be left by \fBexit for\fP.
+Note: That statement is not offered by all BASIC dialects and most restrict
+loop variables to scalar variables.
+.\"}}}
+.IP "\fBget\fP [\fB#\fP]\fIchannel%\fP [\fB,\fP\fIrecord\fP]" \"{{{
+Read the record buffer of \fIchannel%\fP from the file it is connected to,
+which must be opened in \fBrandom\fP mode.  If a \fIrecord\fP number is
+given, the record is read there instead of being read from the current
+record position.  The first record is 1.
+.\"}}}
+.IP "\fBget\fP [\fB#\fP]\fIchannel%\fP\fB,\fP[\fIposition\fP]\fB,\fP\fIlvalue\fP" \"{{{
+Read the \fIlvalue\fP from the specified channel, which must be opened in
+\fBbinary\fP mode.  If a \fIposition\fP is given, the data is read there
+instead of being read from the current position.  The first position is 1.
+.\"}}}
+.IP "\fBgoto\fP \fIinteger\fP" \"{{{
+Continue execution at the specified line.  If used from direct mode, the
+program will first be compiled.  The older two word \fBgo to\fP will be
+converted into the newer \fBgoto\fP.  Although allowed by BASIC itself,
+\fBbas\fP only allows \fBgoto\fP statements to be followed by a colon
+and a comment, because anything else would be unreachable.  This also
+concerns assigned \fBgoto\fP statements.
+.\"}}}
+.IP "\fBgosub\fP \fIinteger\fP" \"{{{
+Execute the subroutine at the specified line.  The older two word \fBgo
+sub\fP will be converted into the newer \fBgosub\fP.  If used from direct
+mode, the program will first be compiled.  The \fBreturn\fP statement
+returns from subroutines.  Abbreviation: \fBr.\fP Although allowed by
+BASIC itself, \fBbas\fP only allows \fBreturn\fP statements to be followed
+by a colon and a comment, because anything else would be unreachable.
+.\"}}}
+.IP "\fBif\fP \fIcondition\fP [\fBthen\fP] \fIstatements\fP [\fBelse\fP \fIstatements\fP]" \"{{{
+If the \fIcondition\fP evaluates to a non-zero number of a non-empty
+string, the statements after \fBthen\fP are executed.  Otherwise,
+the statements after \fBelse\fP are executed.  If the \fBthen\fP or
+\fBelse\fP statements are directly followed by an integer, \fBbas\fP
+inserts a \fBgoto\fP statement before the number and if the condition
+is directly followed by a \fBgoto\fP statement, a \fBthen\fP is inserted.
+.IP "\fBif\fP \fIcondition\fP \fBthen\fP"
+.IP "\fBelseif\fP \fIcondition\fP \fBthen\fP"
+.IP "\fBelse\fP"
+.IP "\fBend if\fP"
+If the \fBthen\fP statement is at the end of a line, it introduces
+a multi-line construct that ends with the \fBend if\fP statement (note
+the white space between \fBend\fP and \fBif\fP).  This form can not
+be used in direct mode, where only one line can be entered at a time.
+Abbreviations for \fBthen\fP and \fBelse\fP: \fBth.\fP and \fBel.\fP
+.\"}}}
+.IP "\fBimage\fP \fIformat\fP \"{{{
+Define a format for \fBprint using\fP.  Instead of using string
+variables, print formats can be defined this way and referred to by the
+line number.  The \fIformat\fP can be given as a string literal, which
+allows leading and trailing space, or without enclosing double quotes.
+\fBBas\fP converts the second form to a quoted string.  This statement is
+ignored during execution.  \fBNote\fP: No two dialects share the syntax
+and semantics for numbered print formats, but many offer it one way or
+another.  This statement allows you to adapt much existing code with small
+changes, but probably differs from most dialects in one way or another.
+.\"}}}
+.IP "\fBinc\fP \fIlvalue\fP{\fB,\fP\fIlvalue\fP}" \"{{{
+Increment \fIlvalue\fP.
+.\"}}}
+.IP "\fBinput\fP [\fB#\fP\fIchannel%\fP\fB,\fP][\fB;\fP][\fIstring\fP[\fB;\fP|\fB,\fP|\fB:\fP]]\fIlvalue\fP{\fB,\fP\fIlvalue\fP}" \"{{{
+The \fBinput\fP statement prints the optional prompt \fIstring\fP and
+a trailing question mark (\fB?\fP).  After, it reads comma separated
+values and assigns them to the given variables.  If too few values are
+typed in, missing values will be requested with the prompt \fB??\fP.
+An empty value for a numeric variable means zero.  If too much input
+data is given, a warning is printed.  If a channel other
+than \fB#0\fP is specified, no question marks or error messages will be
+printed, instead an error is returned.  A semicolon before the prompt
+will not move the cursor to a new line after pressing RETURN.  If the
+prompt is followed by a comma, colon or no punctuation at all, no question mark will
+be printed after the prompt.  \fBNote\fP: Some dialects allow a string
+expression instead of the \fIstring\fP.
+.\"}}}
+.IP "\fBkill\fP \fIfilename$\fP" \"{{{
+Delete a file.
+.\"}}}
+.IP "[\fBlet\fP] \fIlvalue\fP{\fB,\fP\fIlvalue\fP} \fB=\fP \fIexpression\fP" \"{{{
+Evaluate the \fIexpression\fP and assign its value to each \fIlvalue\fP,
+converting it, if needed.
+\fILvalues\fP are variables or array variable elements.  All assignments
+are performed independently of each other.
+.\"}}}
+.IP "\fBline input\fP [\fB#\fP\fIchannel%\fP\fB,\fP][\fIstring\fP\fB;\fP|\fB,\fP]\fIlvalue$\fP" \"{{{
+The \fBline input\fP statement prints the optional prompt \fIstring\fP,
+reads one line of input and assigns unmodified it to the \fIlvalue$\fP.
+Using a comma instead of a semicolon makes no difference with this
+statement.
+.\"}}}
+.IP "[\fBl\fP]\fBlist\fP [\fIfrom\fP][\fB\-\fP|\fB,\fP][\fIto\fP]" \"{{{
+List (part of) the program text.  Control structures will automatically
+be indented.  If the parameter \fIfrom\fP is given, the listing starts
+at the given line instead of the beginning.  Similarly, \fIto\fP causes
+the listing to end at line \fIto\fP instead of the end of the program.
+The given line numbers do not have to exist, there are merely a numeric
+range.  The syntax variant using a minus sign as separator requires that
+the first line is given as a literal number.  This statement may also
+be used inside programs, e.g. for \fBlist erl\fP.  \fBllist\fP writes
+the listing to the lp channel.
+.\"}}}
+.IP "\fBload\fP [\fIfile$\fP]" \"{{{
+Load the program \fIfile$\fP (direct mode only).  The name may
+be omitted to load a program of the name used by a previous \fBload\fP
+or \fBsave\fP statement.
+.\"}}}
+.IP "\fBlocal\fP \fIvariable\fP{\fB,\fP\fIvariable\fP}" \"{{{
+Declare a variable local to the current function.  The scope ranges
+from the declaration to the end of the function.
+.\"}}}
+.IP "\fBlocate\fP \fIline\fP,\fIcolumn\fP" \"{{{
+Locate the cursor at the given \fIline\fP and \fIcolumn\fP.  The first
+line and column is 1.  Not all terminals support this.
+.\"}}}
+.IP "\fBlock\fP [\fB#\fP]\fIchannel%\fP" \"{{{
+Wait for an exclusive lock on the file associated with the \fIchannel%\fP
+to be granted.
+.\"}}}
+.IP "\fBlset\fP \fIvariable$\fP\fB=\fP\fIexpression\fP" \"{{{
+Store the left adjusted \fIexpression\fP value in the storage
+currently occupied by the \fIvariable$\fP.  If the storage does not suffice,
+the \fIexpression\fP value is truncated, if its capacity exceeds the length
+of the \fIexpression\fP value, it is padded with spaces.
+.\"}}}
+.IP "\fBrset\fP \fIvariable$\fP\fB=\fP\fIexpression\fP" \"{{{
+Store the right adjusted \fIexpression\fP value in the storage currently
+occupied by the \fIvariable$\fP, padding with spaces from the right if
+the storage capacity exceeds the length of the \fIexpression\fP value.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=\fP\fImatrixVariable\fP" \"{{{
+Matrix variables are one or two-dimensional array variables, but the elements
+at index 0 in each dimension are unused.  The \fIvariable\fP does not
+have to be dimensioned.  Note: If it is, some BASIC dialects require
+that its number of elements must be equal or greater than that of
+the \fImatrixVariable\fP, which is valid for all matrix assignments.
+The \fIvariable\fP will be (re)dimensioned to the geometry of the
+\fImatrixVariable\fP and all elements (starting at index 1, not 0)
+of the \fImatrixVariable\fP will be copied to \fIvariable\fP.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=\fP\fImatrixVariable\fP[\fB+\fP|\fB\-\fP|\fB*\fP \fImatrixVariable\fP]" \"{{{
+The \fIvariable\fP will be (re)dimensioned as for matrix assignments
+and the matrix sum (difference, product) will be assigned to it.  Note:
+Some BASIC dialects require that result matrix \fIvariable\fP must not
+be a factor of the product, e.g. \fBa=a*a\fP is illegal in those dialects.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=(\fP\fIfactor\fP\fB)*\fP\fImatrixVariable\fP" \"{{{
+Assign the scalar product of the \fIfactor\fP and the \fImatrixVariable\fP to
+\fIvariable\fP.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=con\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]" \"{{{
+Assign a matrix whose elements are all \fB1\fP to \fIvariable\fP.
+If dimensions are specified, the matrix \fIvariable\fP will be
+(re)dimensioned.  A missing number of \fIcolumns\fP (re)dimensions the
+variable with 2 columns, including column 0.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=idn\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]" \"{{{
+Assign a matrix whose diagonal elements are \fB1\fP and remaining
+elements are \fB0\fP to \fIvariable\fP.  Some dialects can only
+generate square matrices and use only one argument to specify both
+rows and columns.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=inv(\fP\fImatrixVariable\fP\fB)\fP" \"{{{
+Assign the inverse of the \fImatrixVariable\fP to \fIvariable\fP,
+(re)dimensioning it if needed.  Only two-dimensional square matrixes can be inverted.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=trn(\fP\fImatrixVariable\fP\fB)\fP" \"{{{
+Assign the transposed elements of \fImatrixVariable\fP to \fIvariable\fP,
+(re)dimensioning it if needed.  Note: Some BASIC dialects require that
+\fIvariable\fP and \fImatrixVariable\fP are different.  Only two-dimensional
+matrixes can be transposed.
+.\"}}}
+.IP "\fBmat\fP \fIvariable\fP\fB=zer\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]" \"{{{
+Assign a matrix whose elements are all \fB0\fP to \fIvariable\fP.
+.\"}}}
+.IP "\fBmat input\fP [\fB#\fP\fIchannel%\fP\fB,\fP]\fIvariable\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]{\fB,\fP \fIvariable\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]}" \"{{{
+This statement reads all elements of a matrix \fIvariable\fP without row
+or column 0 from the specified channel (or standard input, if no channel
+is given).  For two-dimensional matrices, the elements are read in row order.
+Elements are separated with a comma.
+If the channel is \fB#0\fP, the prompt \fB?\fP is printed until all elements are read.
+.\"}}}
+.IP "\fBmat print\fP [\fB#\fP\fIchannel%\fP[\fB,\fP]][\fBusing\fP \fIformat\fP\fB;\fP]\fImatrixVariable\fP{\fB;\fP|\fB,\fP \fImatrixVariable\fP}[\fB;\fP|\fB,\fP]" \"{{{
+Print the given \fImatrixVariable\fP, optionally using the \fBusing\fP
+format string or line (see \fBprint using\fP below) for
+formatting the matrix elements.  If no format string is used, a following
+comma prints the elements in zoned format (default), whereas a semicolon
+prints them without extra space between them.  The output starts on a new
+line, unless the output position is already at the beginning of a new line.
+A blank line is printed between matrix variables.
+.\"}}}
+.IP "\fBmat read\fP \fIvariable\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]{\fB,\fP \fIvariable\fP[\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP]}" \"{{{
+Read constants from \fBdata\fP statemets and assign them to the elements
+of the matrix \fIvariable\fP.
+.\"}}}
+.IP "\fBmat redim\fP \fIvariable\fP\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP{\fB,\fP \fIvariable\fP\fB(\fP\fIrows\fP[\fB,\fP\fIcolumns\fP]\fB)\fP}" \"{{{
+Resize a matrix \fIvariable\fP.  The matrix must not exist before, in
+which case it will be created.  If it does exist, it must be of the same
+dimension, but it may be smaller or larger.  Truncated elements will be
+permanently lost, new elements will be set to \fB0\fP for numeric and
+\fB""\fP for string variables.  Identical positions in the old and the
+new matrix keep their value.  Note: Some BASIC dialects require that
+the matrix variable must exist before, some only forbid to grow matrix
+variables beyond their original dimension and some keep the values at
+the same storage position, which appears as if they got shuffled around
+when changing the size and as if previously lost values reappear.
+.\"}}}
+.IP "\fBmat write\fP [\fB#\fP\fIchannel%\fP[\fB,\fP]]\fImatrixVariable\fP{\fB;\fP|\fB,\fP \fImatrixVariable\fP}[\fB;\fP|\fB,\fP]" \"{{{
+Write the values of the given \fImatrixVariable\fP to the specified channel or
+to standard output if no channel is given.  Different values are
+separated by commas and a newline is written at the end of a line.
+Strings will be written enclosed in double quotes and positive numbers
+are not written with a heading blank.
+.\"}}}
+.IP "\fBmid$(\fP\fIlvalue$\fP\fB,\fP\fIposition%\fP[\fB,\fP\fIlength%\fP]\fB)=\fP\fIvalue$\fP" \"{{{
+Replace the characters starting at the given \fIposition%\fP inside
+\fIlvalue$\fP with the characters from \fIvalue$\fP.  An optional
+\fIlength%\fP limits how many characters of \fIlvalue$\fP are replaced.
+The replacement will not go beyond the length of \fIlvalue$\fP.  Note:
+Not all BASIC dialects support this statement.
+.\"}}}
+.IP "\fBmkdir\fP \fIdirectory$\fP" \"{{{
+Create a \fIdirectory$\fP.
+.\"}}}
+.IP "\fBname\fP \fIoldname$\fP \fBas\fP \fInewname$\fP" \"{{{
+Rename the file \fIoldname$\fP to \fInewname$\fP.
+.\"}}}
+.IP "\fBnew\fP" \"{{{
+Erase the program to write a new one (direct mode only).
+All files are closed and all variables removed.
+.\"}}}
+.IP "\fBon\fP \fIchoice%\fP \fBgoto\fP \fIline\fP{\fB,\fP\fIline\fP}" \"{{{
+If the integral value of \fIchoice\fP is 1, execution continues at the
+first specified \fIline\fP, if 2, on the second, etc.  If the value falls
+outside the range for which lines are given, execution continues at the
+next statement.
+.\"}}}
+.IP "\fBon\fP \fIchoice%\fP \fBgosub\fP \fIline\fP{\fB,\fP\fIline\fP}" \"{{{
+This is similar to \fBon goto\fP, but a \fBgosub\fP is executed instead
+of the \fBgoto\fP.
+.\"}}}
+.IP "\fBon error goto 0\fP" \"{{{
+If executed in the context of an exception handler, re-throw the last
+exception that happened.  Otherwise disable exception handling.
+.\"}}}
+.IP "\fBon error\fP \fIstatements\fP" \"{{{
+Register the \fIstatements\fP as exception handler to catch any thrown
+exceptions.  Exception handlers inside procedures are always local:
+If a procedure aborts by an unhandled exception, that exception may be
+caught by its caller.  If the \fIstatements\fP do not abort the program
+or jump elsewhere, execution continues at the next line.  Note: This
+more general form differs from traditional interpreters that require
+\fBon error goto\fP.
+.\"}}}
+.IP "\fBon error off\fP" \"{{{
+Disable exception handling.
+.\"}}}
+.IP "\fBopen\fP \fImode$\fP\fB,\fP[\fB#\fP]\fIchannel%\fP\fB,\fP\fIfile$\fP[\fB,\fP\fIlength\fP]" \"{{{
+Open the \fIfile$\fP through the \fIchannel%\fP.  The mode must be
+\fB"i"\fP for input, \fB"o"\fP for output, \fB"a"\fP for appending
+output or \fB"r"\fP for random access.  Opening the file for random
+access requires the record \fIlength\fP to be specified.  This syntax
+is used by MBASIC and some other interpreters.
+.\"}}}
+.IP "\fBopen\fP \fIfile$\fP [\fBfor\fP \fBinput\fP|\fBoutput\fP|\fBappend\fP|\fBrandom\fP|\fBbinary\fP] [\fBaccess\fP \fBread\fP|\fBwrite\fP|\fBread write\fP] [\fBshared\fP|\fBlock read\fP|\fBlock write\fP] \fBas file\fP [\fB#\fP]\fIchannel%\fP [\fBlen=\fP\fIlength%\fP]" \"{{{
+Open the \fIfile$\fP through the \fIchannel%\fP.  Files opened in
+\fBinput\fP mode must already exist, whereas the other methods create
+them as needed.  If the file is opened for random access and no record
+\fIlength\fP is specified, a record length of 1 is used.  This is the
+ANSI BASIC syntax found in more modern programs.  The \fBbinary\fP mode
+is similar to \fBrandom\fP mode, but there is no fixed record length:
+Data is read and written directly using \fBget\fP and \fBput\fP without
+using \fBfield\fP.  If no open method is specified, the file is opened
+as \fIrandom\fP.  Optionally, a file access mode can be specified.
+.IP
+The file locking implementations vary greatly between dialects: Some
+implementations offer independent locks for reading and writing,
+others offer shared locks (usually used for many readers) and
+exclusive locks (usually used for writers).  Additionally, locks may
+be advisory/cooperative or mandatory.  Most dialects use exclusive
+locks of highest protection by default.  \fBBas\fP implements POSIX
+shared/exclusive locks, which are usually advisory, and offers the
+following:
+.RS
+.IP \fBshared\fP
+any process can read or write file
+.IP "\fBlock read\fP"
+shared lock, \fBopen\fP fails if file is locked exclusively
+.IP "\fBlock write\fP
+exclusive lock
+.IP "default"
+no lock is taken, same as \fBshared\fP
+.RE
+.IP
+Programs using locks may fail if the dialect they were written for
+had different lock semantics!
+.\"}}}
+.IP "\fBoption base\fP \fIbase\fP" \"{{{
+Specify the lowest array index for \fBdim\fP (zero by default).  Note:
+Many BASIC dialects enforce the base to be 0 or 1, further they require
+the base to be specified only once and before creating any arrays.
+\fBBas\fP allows to set an individual base for any array, but all
+\fBmat\fP functions require the bases of their operands to be equal and
+to be 0 or 1.
+.\"}}}
+.IP "\fBoption run\fP" \"{{{
+Ignore terminal interrupts (usually control c) and XON/XOFF flow control (control s/control q).
+.\"}}}
+.IP "\fBoption stop\fP" \"{{{
+Accept terminal interrupts (usually control c) to stop a program and
+XON/XOFF flow control (control s/control q) to stop and resume terminal
+output.
+.\"}}}
+.IP "\fBout\fP \fIaddress\fP\fB,\fP\fIvalue\fP" \"{{{
+Write the \fPvalue\fP to the I/O port \fIaddress\fP.  Direct port
+access is not available in the portable version.
+.\"}}}
+.IP "\fBpoke\fP \fIaddress\fP\fB,\fP\fIvalue\fP" \"{{{
+Write the \fPvalue\fP to the memory \fIaddress\fP.  Direct memory
+access is not available in the portable version.
+.\"}}}
+.IP "[\fBl\fP]\fBprint\fP [\fB#\fP\fIchannel%\fP[\fB,\fP]][\fBusing\fP \fIformat\fP\fB;\fP]{\fIexpression\fP|\fBtab(\fP\fIposition\fP\fB)\fP|\fBspc(\fP\fIlength\fP\fB)\fP|\fB;\fP|\fB,\fP}" \"{{{
+Evaluate the expressions and print their values to the integral
+expression \fIchannel%\fP.  If no channel is given, the standard output
+channel \fB#0\fP will be used.  The statement \fBlprint\fP prints to the
+printer channel and no other channel can be specified.  The \fBusing\fP
+format string or line may contain the following characters:
+.RS
+.IP "\fB_\fP"
+Print the following character instead of interpreting it as formatting
+command.
+.IP "\fB!\fP"
+Print the first character of a string.
+.IP "\fB\e\fP"
+Print two more characters of a string as there are
+spaces between the backslashes.
+.IP "\fB&\fP"
+Print a string without any formatting.  Note: Some BASIC dialects use
+\fB&\fP characters to specify the string width.  A single \fB&\fP would
+only print the first character in those dialects.  In other dialects,
+an ampersand represents one digit of the numeric format, padding the
+number with zeroes.
+.IP "\fB+\fP"
+A plus at the beginning or end of a numeric format causes the sign to
+be printed at the beginning or the end.
+.IP "\fB\-\fP"
+A minus at the end of a numeric format prints a trailing minus after
+negative numbers and a space else.
+.IP "\fB,\fP"
+A comma inside the integral part of a numeric format inserts a comma
+before each three-digit group of the integral part of the number.
+It also represents one digit in the format.  Although one comma suffices,
+it makes formats more readable to insert a comma every three digits.
+.IP "\fB#\fP"
+Each hash sign represents one digit of the numeric format.  If there
+are fewer digits in the integral part of the value, it is preceded by
+spaces.
+.IP "\fB^\fP"
+Each caret represents one digit of the exponent.  At least three carets
+are required, because the exponent is leaded by an \fBE\fP and the
+epxonent sign is always printed.  The number is printed in the numeric
+format asked for by hash signs with the exponent adjusted accordingly,
+e.g. printing \fB5\fP using \fB###.##^^^^^\fP results in \fB500.00E-002\fP.
+.IP "\fB*\fP"
+Like a hash sign, but the number will not be preceded by spaces, but
+by asterisks.
+.IP "\fB0\fP"
+Like a hash sign, but the number will not be preceded by spaces, but
+by zeroes.
+.IP "\fB.\fP"
+The dot specifies the position of the decimal point between a
+pound/asterisk sign group for the integral value and an optional pound
+sign group for the precision of the fractional part.
+.IP "\fB$\fP"
+A dollar sign prefixes the number with a dollar.  Further dollar signs
+increase the numeric width like \fB#\fP and \fB*\fP.  If the dollar sign
+stands in front of all padding, it will precede it, otherwise it will be
+printed after any padding.
+.IP "any other character"
+Any other character is printed literally and separates different numeric
+fields of a multi-field format.
+.RE
+.IP
+If no format is given, positive values are printed with a heading space,
+negative values are printed with a heading minus, the precision is set
+as required and the number is followed by a space.  \fBprint\fP without
+\fBusing\fP will advance to the next line if the value of the expression
+no longer fits into the current line.
+.IP
+A semicolon concatenates the output while a comma puts the values in
+columns.  A trailing semicolon suppresses printing a trailing newline.
+The pseudo function \fBtab\fP, which must only be used within \fBprint\fP
+statements, spaces to the specified print position (column) with 0 being
+the leftmost position.  If the current print position is already beyond
+\fIvalue\fP, it does nothing.  If \fIvalue\fP is beyond the output width,
+advancing the position stops there.  The pseudo function \fBspc\fP is similar
+to \fBtab\fP, but it prints as many spaces as specified by its argument.
+Abbreviation: \fB?\fP or \fBp.\fP
+.\"}}}
+.IP "\fBput\fP [\fB#\fP]\fIchannel%\fP [\fB,\fP\fIrecord\fP]" \"{{{
+Write the record buffer of \fIchannel%\fP to the file it is connected to,
+which must be opened in \fBrandom\fP mode.  If a \fIrecord\fP number
+is given, the record is written there instead of being written to the
+current record position.
+.\"}}}
+.IP "\fBput\fP [\fB#\fP]\fIchannel%\fP\fB,\fP[\fIposition\fP]\fB,\fP\fIvalue\fP" \"{{{
+Write the \fIvalue\fP to the specified channel, which must be opened
+in \fBbinary\fP mode.  If a \fIrecord\fP number is given, the data is
+written there instead of being written to the current position.
+.\"}}}
+.IP "\fBrandomize\fP [\fInumber%\fP]" \"{{{
+Seed the random number generator.  If no argument is given, it will be
+initialised with a random number.
+.\"}}}
+.IP "\fBread\fP \fIlvalue\fP{\fB,\fP\fIlvalue\fP}" \"{{{
+Read constants from \fBdata\fP statements and assign them to the
+\fIlvalue\fPs.
+.\"}}}
+.IP "\fBrem\fP \fIarbitrary text\fP" \"{{{
+This statement introduces comments.
+.\"}}}
+.IP "\fBrename\fP \fIfrom$\fP \fBto\fP \fIto$\fP" \"{{{
+Rename a file.
+.\"}}}
+.IP "\fB'\fP \fIarbitrary text\fP" \"{{{
+This is an alternative form of comments, which can directly follow
+statements without a colon.  An exclamation mark instead of the
+quotation mark is also recognised and converted to a quotation mark.
+.\"}}}
+.IP "\fBrenum\fP [\fIfirst\fP[\fB,\fP\fIincrement\fP]]" \"{{{
+Renumber the program.  The \fIfirst\fP line number and the line number
+\fIincrement\fP can be optionally given.  If omitted, a value of 10 will
+be used for both.
+.\"}}}
+.IP "\fBrepeat\fP" \"{{{
+.IP "\fBuntil\fP \fIcondition\fP"
+Execute the loop body and repeat doing so if the \fIcondition\fP is
+not zero.  The loop body will be executed at least once.  Abbreviation:
+\fBrep.\fP
+.\"}}}
+.IP "\fBrestore\fP [\fIline\fP]" \"{{{
+Restore the data pointer to the first \fBdata\fP statement for reading
+data again.  An optional line number restores the pointer to the first
+\fBdata\fP statement in that line.  Abbreviation: \fBres.\fP  Note: Some
+BASIC dialects allow to specify a line without a \fBdata\fP statement
+and search beginning from that line for one.  This implementation
+does not allow that, because it is more often an error than used as
+a feature.
+.\"}}}
+.IP "\fBresume\fP \fIline\fP" \"{{{
+End an exception handler and continue execution at the specified line.
+This is only needed if you intend to re-throw exceptions by on \fBon error
+goto 0\fP.
+Although allowed by BASIC itself, \fBbas\fP
+only allows \fBresume\fP statements to be followed by a colon and a comment,
+because anything else would be unreachable.
+.\"}}}
+.IP "\fBrun\fP [\fIline\fP|\fIfile$\fP]" \"{{{
+Compile the program, clear all variables, close all files and start program execution.
+If a file is specified, the file is loaded first and run from the
+beginning.  If a line is specified, execution starts at the given
+line.
+.\"}}}
+.IP "\fBsave\fP [\fIfile$\fP]" \"{{{
+Save the program to the given \fIfile$\fP (direct mode only).  The name may
+be omitted to save the program under the name used by a previous \fBload\fP
+or \fBsave\fP statement.
+.\"}}}
+.IP "\fBselect case\fP \fIselector\fP" \"{{{
+.IP "\fBcase\fP \fImatch\fP{\fB,\fP \fImatch\fP}"
+.IP "\fImatch\fP = \fIexpression\fP [\fBto\fP \fIexpression\fP] | \fBis\fP \fIrelop\fP \fIexpression\fP"
+.IP "\fBcase else\fP"
+.IP "\fBend select\fP"
+Execute the statements after the first \fBcase\fP statement that
+matches the \fIselector\fP expression, then skip to the \fIend select\fP
+statement.  A single \fIexpression\fP matches its value, \fBto\fP matches
+the range between the first and the second \fIexpression\fP including the
+limits, and \fBis\fP compares the \fIselector\fP using the relational
+operator with the \fIexpression\fP.  The \fIcase else\fP branch always
+matches if none of the above did.  If the \fIselector\fP does not match
+any branch, control passes to the statement following \fBend select\fP.
+\fBNote\fP: Some BASIC dialects treat this case as an error.
+.\"}}}
+.IP "\fBshell\fP [\fIcommand$\fP]" \"{{{
+If a \fIcommand$\fP is given, it is executed as child process of
+\fBbas\fP as bourne shell command.  If used without a \fIcommand$\fP,
+the shell specified by the environment variable \fBSHELL\fP (defaults
+to the bourne shell if not set) is started without arguments.
+.\"}}}
+.IP "\fBsleep\fP \fIpause\fP" \"{{{
+The program pauses for \fIpause\fP seconds.  If your system allows it,
+fractional seconds can be used.
+.\"}}}
+.IP "\fBstop\fP" \"{{{
+Stop the program.  Apart from printing where the program stopped, this
+is identical to \fBend\fP.
+.\"}}}
+.IP "\fBsub\fP\fIfunction\fP[\fB(\fP\fIparameter\fP[\fB,\fP\fIparameter\fP...]\fB)\fP]" \"{{{
+Define a procedure (function that does not return a value).  A procedure
+ends with \fBsubend\fP; the alternative forms \fBsub end\fP and \fBend
+sub\fP are converted to \fBsubend\fP when loading programs.  A procedure
+can be left by \fBsubexit\fP; again the alternative forms \fBsub exit\fP and
+\fBexit sub\fP and converted to \fBsubexit\fP when loading programs.
+Procedures can not be declared in direct
+mode.  This is the ANSI syntax.
+.\"}}}
+.IP "\fBswap\fP \fIlvalue1\fP\fB,\fP\fIlvalue2\fP" \"{{{
+Swap the contents of \fIlvalue1\fP and \fIlvalue2\fP.  Both must
+be of identical type.
+.\"}}}
+.IP "\fBsystem\fP" \"{{{
+Exit from \fBbas\fP.  Alternatively, \fBbye\fP may be used.
+.\"}}}
+.IP "\fBtron\fP" \"{{{
+Enable tracing by printing the line number of each executed program line.
+.\"}}}
+.IP "\fBtroff\fP" \"{{{
+Disable program tracing.
+.\"}}}
+.IP "\fBtruncate\fP [\fB#\fP]\fIchannel%\fP" \"{{{
+Truncate the file after the current position.  The file must be opened with
+write access.
+.\"}}}
+.IP "\fBunlock\fP [\fB#\fP]\fIchannel%\fP" \"{{{
+Release any locks on the file associated with the \fIchannel%\fP.
+.\"}}}
+.IP "\fBunnum\fP" \"{{{
+Remove all line numbers that are not needed, which is the the opposite
+to \fBrenum\fP.  This command is specific to \fBbas\fP, although a
+similar command is found in Bytewater BASIC.
+.\"}}}
+.IP "\fBwait\fP \fIaddress\fP\fB,\fP\fImask\fP\fB,\fP\fIselect\fP" \"{{{
+Wait until the I/O port \fIaddress\fP (XORed with \fIselect\fP, if specified)
+masked out using \fImask\fP is not equal zero.  Direct port access is not
+available in the portable version.
+.\"}}}
+.IP "\fBwhile\fP \fIexpression\fP" \"{{{
+.IP "\fBwend\fP"
+While the \fIexpression\fP is not zero, the loop body, ended by \fBwend\fP,
+will be repeatedly executed.
+.\"}}}
+.IP "\fBwidth\fP [\fB#\fP\fIchannel%\fP[\fB,\fP]] [[\fIwidth%\fP][\fB,\fP\fIzone%\fP]]" \"{{{
+Set the channel \fIwidth%\fP.  After \fIwidth%\fP characters have been
+printed to the channel, a newline character is automatically sent to it
+for starting a new line.  A \fIwidth%\fP of zero sets the channel width
+to infinite.  Optionally, the \fIzone\fP width can be specified.  Note: Some
+dialects use this, others use the \fBzone\fP statement.
+.\"}}}
+.IP "\fBwrite\fP [\fB#\fP\fIchannel%\fP[\fB,\fP]]{\fIexpression\fP|\fB,\fP|\fB;\fP}" \"{{{
+Write the values of the given expressions to the specified channel or
+to standard output if no channel is given.  Different expressions are
+separated by commas and a newline is written at the end of the list.
+Strings will be written enclosed in double quotes and positive numbers
+are not written with a heading blank.
+.\"}}}
+.IP "\fBxref\fP" \"{{{
+Output a list of all functions, global variables, \fBGOSUB\fP and \fBGOTO\fP
+statements and the line numbers where they are referenced.
+.\"}}}
+.IP "\fBzone\fP [\fB#\fP\fIchannel%\fP[\fB,\fP]]\fIwidth%\fP" \"{{{
+Set the channel zone \fIwidth%\fP.  A comma in PRINT advances to the
+next print zone, similar to a tabulator.
+.\"}}}
+.\"}}}
+.SS "Expressions and Functions" \"{{{
+Expressions consist of operators or functions that act on integer,
+real (floating point) or string values.  Beside decimal notation,
+integer values can be written as hexadecimal values by prefixing them
+with \fB&h\fP and as octal values by prefixing them with \fB&o\fP.
+String constants may contain paired double quotes to specify double quote
+characters inside strings.  If the constant is terminated by the end of
+the line, the trailing double quote can be omitted.  Numeric constants
+with the suffix \fB#\fP or \fB!\fP are always regarded as floating point
+constants, \fBbas\fP ignores the precision specification, because it
+does not offer different precisions.  Integer constants may be followed
+by the suffix \fB%\fP.  If an integer literal is outside the integer
+value range, it is treated as a floating point literal.
+.PP
+The table below shows the available operators with decreasing priority.
+The operator \fB=>\fP is converted to \fB>=\fP, \fB=<\fP is converted
+to \fB<=\fP and \fB><\fP is converted to \fB<>\fP when programs are loaded.
+.PP
+.TS
+box,center;
+c l
+cfB l.
+operator	meaning
+_
+^	exponentiation
+_
+\-	unary negation
++	unary plus
+_
+*	multiplication
+/	floating-point division
+\e	integer division (equal to fix(a/b))
+mod	modulo
+_
++	addition, string concatenation
+\-	substraction
+_
+>	greater than
+>=	greater than or equal to
+\&=	equal to
+<>	not equal to
+<=	less than or equal to
+<	less than
+_
+not	binary complement
+_
+and	binary and
+_
+or	binary or
+xor	binary exclusive or
+eqv	binary equivalent
+imp	binary implication
+.TE
+.sp .5v
+.PP
+Besides operators, various builtin functions can be used in expressions.
+The dollar character (\fB$\fP) denotes that the argument must be of
+the type string.  The actual parameters of functions, both builtin
+and user-defined, as well as subroutines, are passed by value.  Note:
+Modern (not old) ANSI BASIC passes actual parameters by reference.
+Many classic dialects don't offer call by reference and \fBbas\fP
+follows that direction.  Arguments to functions and subroutines must
+be enclosed in parentheses.  Note: Some dialects allow to omit them,
+which introduces ambiguity in some cases.
+.IP "\fBabs(\fP\fIx\fP\fB)\fP"
+Return the absolute value of \fIn\fP.
+.IP "\fBasc(\fP\fIstring$\fP\fB)\fP"
+Return the numeric value of the first character of the \fIstring\fP.
+.IP "\fBatn(\fP\fIx\fP\fB)\fP"
+Return the arctangent value of \fIx\fP.
+.IP "\fBbin$(\fP\fIn%\fP\fB)\fP"
+Return a string containing the binary conversion of \fIn%\fP.
+.IP "\fBbin$(\fP\fIn%\fP\fB,\fP\fIdigits%\fP\fB)\fP"
+Return a string containing the binary conversion of \fIn%\fP
+with the specified number of \fIdigits%\fP.
+.IP "\fBchr$(\fP\fIvalue%\fP\fB)\fP"
+Return a string of length 1 that contains the character with the given
+\fIvalue%\fP.
+.IP "\fBcint(\fP\fIx\fP\fB)\fP"
+Return the integral value value nearest to \fIx\fP (rounded upwards).
+.IP "\fBcode(\fP\fIstring$\fP\fB)\fP"
+Return the numeric value of the first character of the \fIstring\fP.
+This is the same as \fBasc(\fP\fIstring\fP\fB)\fP, used by dialects
+that took non-ASCII systems into consideration.
+.IP "\fBcommand$\fP"
+Return extra command line arguments after the program name, separated
+by spaces.  The program name is not part of the return value.  Note:
+This function is implemented for compatibility and does not deal with
+arguments with embedded spaces.
+.IP "\fBcommand$(\fP\fIn%\fP\fB)\fP"
+Return the \fIn%\fPth argument passed to the program, starting with 1.
+The first returned argument (index 0) is the program name.
+.IP "\fBcos(\fP\fIx_rad\fP\fB)\fP"
+Return the cosine value of \fIx_rad\fP.
+.IP "\fBcvd(\fP\fIx$\fP\fB)\fP"
+Convert a string value generated by \fBmkd$(\fP\fIx\fP\fB)\fP back to
+a floating point value.  The string characters contain the bytes of a
+C double precision value.  The string length and the byte encoding is
+machine dependent and not portable.
+.IP "\fBcvs(\fP\fIx$\fP\fB)\fP"
+Convert a string value generated by \fBmks$(\fP\fIx\fP\fB)\fP back to
+a floating point value.  The string characters contain the bytes of a
+C single precision value.  The string length and the byte encoding is
+machine dependent and not portable.
+.IP "\fBcvi(\fP\fIx$\fP\fB)\fP"
+Convert a string value back to an integral value.
+The string characters contain the bytes of a signed little endian number
+and the sign bit of the last byte determines the sign of the resulting
+number.
+.IP "\fBdate$\fP"
+Return the date as a 10-character string in the form
+\fImm\fP\fB\-\fP\fIdd\fP\fB\-\fP\fIyyyy\fP.
+.IP "\fBdec$(\fP\fIx\fP,\fBformat$\fP\fB)\fP"
+Convert \fIx\fP to a string according to the \fBprint using\fP \fIformat$\fP.
+.IP "\fBdeg(\fP\fIradians\fP\fB)\fP"
+Convert radians to degrees.
+.IP "\fBdet\fP"
+Return the determinant of the last matrix inverted.
+.IP "\fBedit$(\fP\fIstring$\fP\fB,\fP\fIcode%\fP\fB)\fP"
+Return the result of editing the \fIstring$\fP as indicated by the \fIcode%\fP.
+The following editing codes are available:
+.RS
+.IP 1
+discard parity bit
+.IP 2
+discard all spaces and tabs
+.IP 4
+discard all carriage returns, line feeds, form feeds,
+deletes, escapes and nulls
+.IP 8
+discard leading spaces and tabs
+.IP 16
+convert multiple spaces and tabs to one space
+.IP 32
+convert lower case to upper case
+.IP 64
+convert left brackets to left parentheses and right
+brackes to right parentheses
+.IP 128
+discard trailing spaces and tabs
+.IP 256
+suppress all editing for characters within matching
+single or double quotes.  If the matching quote is missing,
+suppress all editing up to the end of the string.
+.RE
+.IP
+The codes can be added for combined editing operations.
+.IP "\fBenviron$(\fP\fIn%\fP\fB)\fP"
+Return the \fIn%\fPth environment entry in the form
+\fIvariable\fP\fB=\fP\fIvalue\fP, starting with 1.  If \fIn%\fP is larger
+than the number of entries, an empty string is returned.
+.IP "\fBenviron$(\fP\fIvariable$\fP\fB)\fP"
+Return the value of the specified environment \fIvariable$\fP.  If there
+is no such variable, an empty string is returned.
+.IP "\fBeof(\fP\fIchannel%\fP\fB)\fP"
+Return true if the end of the channel has been reached.  This must be
+used to avoid that \fBinput\fP tries to read past the end of a file.
+.IP "\fBerl\fP"
+Return the number of the line where the last exception was thrown.
+.IP "\fBerr\fP"
+Return a numeric code for the last exception that was thrown.  The use
+of this function is not portable.
+.IP "\fBexp(\fP\fIx\fP\fB)\fP"
+Return the value of e raised to the power of \fIx\fP.
+.IP "\fBfalse\fP"
+Return 0.
+.IP "\fBfind$(\fP\fIpattern$\fP[\fB,\fP\fInth%\fP]\fB)\fP
+Return the first (or \fInth%\fP, starting from 0, if specified) filename
+that matches the given pattern or the empty string, if no filename
+matches the pattern.  This function is usually used to check for the
+existance of a file.  The pattern may use the wildcards \fB*\fP to match
+an arbitrary number of characters and \fB?\fP to match a single character.
+Note: On some systems, the star does not match a dot inside a filename.
+In this implementation, the star matches everything and \fB*.*\fP only
+matches files with a dot in their name, not files without an extension.
+Some systems also encode file attributes in the eigth bit of the
+file name and programs strip that bit from the output of \fBfind$\fP.
+It is recommended to use only 7-bit file names with applications using
+this function.
+.IP "\fBfix(\fP\fIx\fP\fB)\fP"
+Return the integral part of a floating point value.
+.IP "\fBfp(\fP\fIx\fP\fB)\fP"
+Return the fractional part of a floating point value.
+.IP "\fBfrac(\fP\fIx\fP\fB)\fP"
+Return the fractional part of a floating point value; same as \fBfp\fP.
+.IP "\fBfreefile\fP"
+Return the first free file handle.
+.IP "\fBhex$(\fP\fIn%\fP\fB)\fP"
+Return a string containing the hexadecimal conversion of \fIn%\fP.
+.IP "\fBhex$(\fP\fIn%\fP\fB,\fP\fIdigits%\fP\fB)\fP"
+Return a string containing the hexadecimal conversion of \fIn%\fP
+with the specified number of \fIdigits%\fP.
+.IP "\fBinkey$\fP[\fB(\fP\fItimeout%\fP[\fB,\fP\fIchannel\fP]\fB)\fP]"
+Wait at most \fItimeout\fP hundredths of a second for a character to
+be read from the terminal.  If a character could be read, return it,
+otherwise return the empty string.  Omitting the \fItimeout%\fP will
+return immediatly if no character is available.  Note: Some BASIC
+dialects wait until a character is available if no timeout is given
+instead of returning an empty string.  Convert those programs by using
+\fBinput$(1)\fP instead.
+.IP "\fBinp(\fP\fIaddress\fP\fB)\fP"
+Return the value of the I/O port \fIaddress\fP.  Direct port access is
+not available in the portable version.
+.IP "\fBinput$(\fP\fIlength\fP[\fB,\fP\fIchannel\fP]\fB)\fP"
+Read a string of \fIlength\fP characters from standard input or from
+the specified \fIchannel\fP.  The characters will not be echoed.
+.IP "\fBinstr(\fP\fIhaystack$\fP\fB,\fP\fIneedle$\fP\fB)\fP"
+Return the position of \fIneedle$\fP in \fIhaystack$\fP.  If \fIneedle$\fP
+is not found, then 0 is returned.
+.IP "\fBinstr(\fP\fIstart%\fP\fB,\fP\fIhaystack$\fP\fB,\fP\fIneedle$\fP\fB)\fP"
+As above, but start searching at position \fIstart%\fP (first position is 1).
+.IP "\fBinstr(\fP\fIhaystack$\fP\fB,\fP\fIneedle$\fP\fB,\fP\fIstart%\fP\fB)\fP"
+As above, but some BASIC dialects have this order of parameters.
+.IP "\fBinstr(\fP\fIhaystack$\fP\fB,\fP\fIneedle$\fP\fB,\fP\fIstart%\fP\fB,\fP\fIlength%\fP\fB)\fP"
+As above, but only limit search to the first \fIlength%\fP characters
+starting at position \fIstart%\fP.
+.IP "\fBint(\fP\fIx\fP\fB)\fP"
+Return the integral value nearest to \fIx\fP (rounded downwards).
+.IP "\fBint%(\fP\fIx\fP\fB)\fP"
+Same as \fBint\fP, but return an integer.
+.IP "\fBip(\fP\fIx\fP\fB)\fP"
+Return the integral part of a floating point value; same as \fBfix\fP.
+.IP "\fBlcase$(\fP\fIstring$\fP\fB)\fP"
+Return the string with all characters changed to lower case.
+.IP "\fBlower$(\fP\fIstring$\fP\fB)\fP"
+Same as \fBlcase\fP, some dialects call it this way.
+.IP "\fBleft$(\fP\fIstring$\fP\fB,\fP\fIn%\fP\fB)\fP"
+Return the first \fIn%\fP characters of the \fIstring\fP.  If \fIn\fP is
+greater than the number of characters in the string, the whole
+string is returned.
+.IP "\fBlen(\fP\fIstring$\fP\fB)\fP"
+Return the length (number of characters) of the \fIstring\fP.
+.IP "\fBloc(\fP\fIchannel%\fP\fB)\fP"
+If used on random-access files, the number of the last accessed record
+is returned.  For sequential files, the current read/write position is
+returned.  Note: Some BASIC dialects return the record position in bytes
+and the read/write position in pseudo-records.
+.IP "\fBlof(\fP\fIchannel%\fP\fB)\fP"
+Return the size of the file that is attached to the channel (bytes
+for sequential or binary files, records for random-access files).
+This may not work correctly for files with sizes that exceed the range
+of integer numbers.  Note: Some BASIC dialects return the number of
+bytes even for random-access files.
+.IP "\fBlog(\fP\fIx\fP\fB)\fP"
+Return the natural logarithm of \fIx\fP.
+.IP "\fBlog10(\fP\fIx\fP\fB)\fP"
+Return the base-10 logarithm of \fIx\fP.
+.IP "\fBlog2(\fP\fIx\fP\fB)\fP"
+Return the base-2 logarithm of \fIx\fP.
+.IP "\fBmatch(\fP\fIneedle$\fP\fB,\fP\fIhaystack$\fP\fB,\fP\fIstart%\fP\fB)\fP"
+Return the first position of \fIneedle$\fP in \fIhaystack$\fP that
+is greater than or equal \fIstart%\fP.  If the search fails or if
+\fIstart%\fP exceeds the length of \fIhaystack$\fP, 0 will be returned.
+The following characters in \fIneedle$\fP have a special meaning:
+\fB!\fP matches any letter, \fB#\fP matches any digit, \fB?\fP matches
+any character and \fB\e\fP quotes the next character, e.g. \fB\e?\fP
+matches a question mark.
+.IP "\fBmax(\fP\fIx\fP\fB,\fP\fIy\fP\fB)\fP"
+Return the maximum of \fIx\fP and \fIy\fP.
+.IP "\fBltrim$(\fP\fIstring$\fP\fB)\fP"
+Return the string without leading spaces.
+.IP "\fBmid$(\fP\fIstring$\fP\fB,\fP\fIposition%\fP[\fB,\fP\fIlen%\fP]\fB)\fP"
+Return the substring of \fIstring\fP that begins at the given
+\fIposition%\fP (the first character is at position 1).  If \fIstring\fP
+is too short for a substring of \fIlen%\fP characters, fewer characters
+will be returned.
+.IP "\fBmin(\fP\fIx\fP\fB,\fP\fIy\fP\fB)\fP"
+Return the minimum of \fIx\fP and \fIy\fP.
+.IP "\fBmkd$(\fP\fIx\fP\fB)\fP"
+Return a string whose characters contain the bytes of a C double precision
+number.  The string length and byte encoding depends of the machine type
+and is not portable.
+.IP "\fBmks$(\fP\fIx\fP\fB)\fP"
+Return a string whose characters contain the bytes of a C single precision
+number.  The string length and byte encoding depends of the machine type
+and is not portable.
+.IP "\fBmki$(\fP\fIx\fP\fB)\fP"
+Return a string whose characters contain the bytes of a little endian
+integral value.  The string length depends of the machine type, but
+the little endian encoding allows to store only e.g. the first two bytes
+if the value does not exceed the range of a signed 16 bit number.
+.IP "\fBoct$(\fP\fIn%\fP\fB)\fP"
+Return a string containing the octal conversion of \fIn%\fP.
+.IP "\fBpeek(\fP\fIaddress\fP\fB)\fP"
+Return the value of the memory \fIaddress\fP.  Direct memory access is
+not available in the portable version.
+.IP "\fBpi\fP"
+Return the constant pi.
+.IP "\fBpos(\fP\fIdummy\fP\fB)\fP"
+Return the current cursor position, starting with 1 as the leftmost
+position.  The numeric \fIdummy\fP argument is needed, because old BASIC
+implementations did not allow functions without arguments.
+.IP "\fBpos(\fP\fIhaystack$\fP\fB,\fP\fIneedle$\fP\fB,\fP\fIstart%\fP\fB)\fP"
+Same as \fBinstr$\fP, some dialects use this function name.
+.IP "\fBrad(\fP\fIdegrees\fP\fB)\fP"
+Convert degrees to radians.
+.IP "\fBright$(\fP\fIstring$\fP\fB,\fP\fIn%\fP\fB)\fP"
+Return the last \fIn\fP characters of the \fIstring\fP.  If \fIn%\fP is
+greater than the number of characters in the string, the whole
+string is returned.
+.IP "\fBrnd(\fP[\fIx%\fP]\fB)\fP"
+Return a random integer number between 1 and \fIx%\fP.  If \fIx%\fP is zero,
+one or missing, a real number between 0.0 and 1.0 is returned.  If \fIx%\fP is
+negative, the random number generator will be seeded with \fB-\fP\fIx%\fP
+and the functions returns a value as if \fB-\fP\fIx%\fP had been passed
+to it.
+.IP "\fBrtrim$(\fP\fIstring$\fP\fB)\fP"
+Return the string without trailing spaces.
+.IP "\fBseg$(\fP\fIstring$\fP\fB,\fP\fIposition%\fP\fB,\fP\fIlen%\fP\fB)\fP"
+Same as \fBmid$\fP, some dialects use this function name.
+.IP "\fBsgn(\fP\fIx\fP\fB)\fP"
+Return the sign \fIx\fP: \-1 for negative numbers, 0 for 0 and 1 for
+positive numbers.
+.IP "\fBsin(\fP\fIx_rad\fP\fB)\fP"
+Return the sine value of \fIx_rad\fP.
+.IP "\fBspace$(\fP\fIlength%\fP\fB)\fP"
+Return a string containing \fIlength%\fP spaces.
+.IP "\fBsqr(\fP\fIx\fP\fB)\fP"
+Return the square root of \fIx\fP.
+.IP "\fBstr$(\fP\fIx\fP\fB)\fP"
+Return a string that contains the decimal represantation of \fIx\fP.
+.IP "\fBstring$(\fP\fIlength\fP\fB,\fP\fIx\fP\fB)\fP"
+Return a string of size \fIlength\fP whose characters have the decimal
+code \fIx\fP.
+.IP "\fBstring$(\fP\fIlength%\fP\fB,\fP\fIx$\fP\fB)\fP"
+Return a string of size \fIlength%\fP whose characters are the first
+character of \fIx$\fP.
+.IP "\fBstrip$(\fP\fIstring\fP\fB)\fP"
+Return the string with the eighth bit of each character cleared.
+.IP "\fBtan(\fP\fIx_rad\fP\fB)\fP"
+Return the tangent of \fIx_rad\fP.
+.IP "\fBtime\fP"
+Return the current value of the centisecond counter.
+.IP "\fBtime$\fP"
+Return the time as a 8-character string in the form
+\fIhh\fP\fB\-\fP\fImm\fP\fB\-\fP\fIss\fP.
+.IP "\fBtimer\fP
+Return the number of seconds elapsed since midnight local time.
+.IP "\fBtrue\fP"
+Return \-1.
+.IP "\fBucase$(\fP\fIstring$\fP\fB)\fP"
+Return the string with all characters changed to upper case.
+.IP "\fBupper$(\fP\fIstring$\fP\fB)\fP"
+Same as \fBucase$\fP, some dialects call it this way.
+.IP "\fBval(\fP\fIstring$\fP\fB)\fP"
+If possible, then convert the \fIstring$\fP into an integer or floating
+point value, ignoring trailing junk.  Otherwise, return 0.0.  Like
+anywhere else, hexadecimal values are specified by a leading \fB&h\fP.
+.\"}}}
+.\"}}}
+.SH OPTIONS \"{{{
+.IP "\fB\-b\fP, \fB\-\-backslash\-colon\fP"
+Convert backslashs to colons.  By default, a backslash is the operator
+for integer division, but in some BASIC dialects it forms compound
+statements as the colon does.
+.IP "\fB\-l\fP \fIfile\fP, \fB\-\-lp\fP \fIfile\fP"
+Write \fBLLIST\fP and \fBLPRINT\fP output to \fIfile\fP.  By default,
+that output will be written to \fB/dev/null\fP.
+.IP "\fB\-r\fP, \fB\-\-restricted\fP"
+Restricted operation which does not allow to fork a shell.
+.IP "\fB\-u\fP, \fB\-\-uppercase\fP"
+Output all tokens in uppercase.  By default, they are lowercase,
+which is easier to read, but some BASIC dialects require uppercase.
+This option allows to save programs for those dialects.
+.IP "\fB\-h\fP, \fB\-\-help\fP"
+Output usage and exit.
+.IP "\fB\-v\fP, \fB\-\-version\fP"
+Display version information and exit.
+.\"}}}
+.SH AUTHOR \"{{{
+This program is copyright 1999\(en2014 Michael Haardt
+<michael@moria.de>.
+.PP
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+.PP
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+.PP
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+.\"}}}
+.SH HISTORY \"{{{
+There has been a \fIbas\fP(1) command in UNIX v7, but its syntax
+was strongly influenced by C, unlike common classic BASIC dialects, and
+thus not compatible with this implementation.
+.\"}}}
+.SH "SEE ALSO" \"{{{
+The Usenet group comp.lang.basic.misc discusses the classic BASIC dialect.
+.\"}}}

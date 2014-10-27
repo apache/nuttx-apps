@@ -1,6 +1,5 @@
 ############################################################################
-# apps/interpreters/Make.defs
-# Adds selected applications to apps/ build
+# apps/bas/Makefile
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,14 +33,89 @@
 #
 ############################################################################
 
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
+
+# BAS Library
+
+ASRCS =
+CSRCS =
+
 ifeq ($(CONFIG_INTERPRETERS_BAS),y)
-CONFIGURED_APPS += interpreters/bas
+
+CSRCS += auto.c  bas.c  fs.c  getopt1.c  getopt.c  global.c  main.c  program.c  statement.c  str.c  value.c  var.c
+DEPPATH = --dep-path .
+VPATH = .
+
+ifeq ($(WINTOOL),y)
+INCDIROPT = -w
 endif
 
-ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
-CONFIGURED_APPS += interpreters/pcode
+##include ascii/Make.defs
+##include functions/Make.defs
+##include nuttx/Make.defs
+##include rtu/Make.defs
+##include tcp/Make.defs
+
 endif
 
-ifeq ($(CONFIG_INTERPRETERS_FICL),y)
-CONFIGURED_APPS += interpreters/ficl
+AOBJS		= $(ASRCS:.S=$(OBJEXT))
+COBJS		= $(CSRCS:.c=$(OBJEXT))
+
+SRCS		= $(ASRCS) $(CSRCS)
+OBJS		= $(AOBJS) $(COBJS)
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN		= ..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN		= ..\\libapps$(LIBEXT)
+else
+  BIN		= ../libapps$(LIBEXT)
 endif
+endif
+
+# Build targets
+
+all:	.built
+.PHONY: context .depend depend clean distclean
+
+ifeq ($(CONFIG_BAS),y)
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+endif
+
+.built: $(OBJS)
+ifeq ($(CONFIG_BAS),y)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
+endif
+
+install:
+
+context:
+
+.depend: Makefile $(SRCS)
+ifeq ($(CONFIG_BAS),y)
+	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
+endif
+
+depend: .depend
+
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+
+
+-include Make.dep
+

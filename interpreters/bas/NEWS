@@ -1,0 +1,15 @@
+Changes compared to version 2.3
+
+o  Matrix inversion on integer arrays with option base 1 fixed
+o  PRINT USING behaviour for ! fixed
+o  PRINT , separator should advance to the next zone, even if the current
+   position is at the start of a zone
+o  Added ip(), frac(), fp(), log10(), log2(), min() and max()
+o  Fixed NEXT checking the variable case sensitive
+o  Use terminfo capability cr to make use of its padding
+o  LET segmentation fault fixed
+o  PRINT now uses print items
+o  -r for restricted operation
+o  MAT INPUT does not drop excess arguments, but uses them for the
+   next row
+o  License changed to MIT

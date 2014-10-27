@@ -4,6 +4,7 @@
 #
 
 source "$APPSDIR/interpreters/ficl/Kconfig"
+source "$APPSDIR/interpreters/bas/Kconfig"
 
 config INTERPRETERS_PCODE
 	bool "Pascal p-code interpreter"
