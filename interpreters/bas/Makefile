@@ -44,19 +44,15 @@ CSRCS =
 
 ifeq ($(CONFIG_INTERPRETERS_BAS),y)
 
-CSRCS += auto.c  bas.c  fs.c  getopt1.c  getopt.c  global.c  main.c  program.c  statement.c  str.c  value.c  var.c
+CSRCS += auto.c bas.c fs.c getopt1.c getopt.c global.c main.c program.c
+CSRCS += str.c value.c var.c
+
 DEPPATH = --dep-path .
 VPATH = .
 
 ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
-
-##include ascii/Make.defs
-##include functions/Make.defs
-##include nuttx/Make.defs
-##include rtu/Make.defs
-##include tcp/Make.defs
 
 endif
 

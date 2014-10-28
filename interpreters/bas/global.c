@@ -39,7 +39,7 @@
 #endif
 /*}}}*/
 
-#ifndef CONFIG_INTERPRETER_BAS_HAVE_ENVIRON
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_ENVIRON
 extern char **environ;
 #endif
 
