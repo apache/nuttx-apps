@@ -14,7 +14,6 @@
 #else
 #define _(String) String
 #endif
-#include <locale.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -57,8 +56,6 @@ int bas_main(int argc, char *argv[])
   };
   /*}}}*/
 
-  setlocale(LC_MESSAGES,"");
-  setlocale(LC_CTYPE,"");
 #ifdef HAVE_GETTEXT
   bindtextdomain("bas",LOCALEDIR);
   textdomain("bas");
