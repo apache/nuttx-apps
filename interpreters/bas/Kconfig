@@ -6,6 +6,9 @@
 config INTERPRETERS_BAS
 	bool "Basic Interpreter support"
 	default n
+	select SCHED_WAITPID
+	select LIBC_EXECFUNCS
+	depends on FS_READABLE
 	---help---
 		This is a Basic interpreter written by Michael Haardt
 

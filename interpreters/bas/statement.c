@@ -1,6 +1,4 @@
 /* #includes */ /*{{{C}}}*//*{{{*/
-#include <sys/wait.h>
-#include <unistd.h>
 #include "config.h"
 
 #ifdef HAVE_GETTEXT
