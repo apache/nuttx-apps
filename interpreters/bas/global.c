@@ -3,7 +3,6 @@
 #include <nuttx/config.h>
 #include "config.h"
 
-#include <sys/times.h>
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -1345,9 +1344,9 @@ static struct Value *fn_tan(struct Value *v, struct Auto *stack) /*{{{*/
 static struct Value *fn_timei(struct Value *v, struct Auto *stack) /*{{{*/
 {
 #ifdef CONFIG_INTERPRETER_BAS_HAVE_SYSCFG
-  return Value_new_INTEGER(v,(unsigned long)(times((struct tms*)0)/(sysconf(_SC_CLK_TCK)/100.0)));
+  return Value_new_INTEGER(v,(unsigned long)(clock_systimer()/(sysconf(_SC_CLK_TCK)/100.0)));
 #else
-  return Value_new_INTEGER(v,(unsigned long)(times((struct tms*)0)/(CLK_TCK/100.0)));
+  return Value_new_INTEGER(v,(unsigned long)(clock_systimer()/(CLK_TCK/100.0)));
 #endif
 }
 /*}}}*/
