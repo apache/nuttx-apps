@@ -184,7 +184,7 @@ static nsh_telnettoken(FAR struct console_stdio_s *pstate, FAR char *buffer,
 
   /* Replace terminating character with a NUL terminator */
 
-  *endp1 = '/0';
+  *endp1 = '\0';
 
   /* Copied the token into the buffer */
 
