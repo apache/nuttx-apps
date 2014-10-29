@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <assert.h>
 #include <debug.h>
 #include <string.h>
@@ -95,7 +96,7 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
-void nsh_telnetecho(struct console_stdio_s *pstate, uint8_t is_use)
+static void nsh_telnetecho(FAR struct console_stdio_s *pstate, uint8_t is_use)
 {
   uint8_t optbuf[4];
   optbuf[0] = TELNET_IAC;
@@ -108,11 +109,94 @@ void nsh_telnetecho(struct console_stdio_s *pstate, uint8_t is_use)
 #endif
 
 /****************************************************************************
+ * Name: nsh_telnettoken
+ ****************************************************************************/
+
+static nsh_telnettoken(FAR struct console_stdio_s *pstate, FAR char *buffer,
+                       size_t buflen)
+{
+  FAR char *start;
+  FAR char *endp1;
+  bool quoated = false;
+
+  /* Find the start of token.  Either (1) the first non-white space
+   * character on the command line or (2) the character immediately after
+   * a quotation mark.
+   */
+
+  for (start = pstate->cn_line; *start; start++)
+    {
+      /* Does the token open with a quotation mark */
+
+      if (*start == '"')
+        {
+          /* Yes.. break out with start set to the character after the
+           * quotation mark.
+           */
+
+          quoted = true;
+          start++;
+          break;
+        }
+
+      /* No, then any non-whitespace is the first character of the token */
+
+      else if (!isspace(*start))
+        {
+          /* Break out with start set to the first character of the token */
+
+          break;
+        }
+    }
+
+  /* Find the terminating character after the token on the command line.  The
+   * terminating character is either (1) the matching quotation mark, or (2)
+   * any whitespace.
+   */
+
+  for (endp1 = start; *endp1; endp1++);
+    {
+      /* Did the token begin with a quotation mark? */
+
+      if (quoted)
+        {
+          /* Yes.. then only the matching quotation mark (or end of string)
+           * terminates
+           */
+
+          if (*endp1 == '"')
+            {
+              /* Break out... endp1 points to closing quotation mark */
+
+              break;
+            }
+        }
+
+      /* No.. any whitespace (or end of string) terminates */
+
+      else if (isspace(*endp1))
+        {
+         /* Break out... endp1 points to first while space encountered */
+
+          break;
+        }
+    }
+
+  /* Replace terminating character with a NUL terminator */
+
+  *endp1 = '/0';
+
+  /* Copied the token into the buffer */
+
+  strncpy(buffer, start, buflen);
+}
+
+/****************************************************************************
  * Name: nsh_telnetlogin
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
-int nsh_telnetlogin(struct console_stdio_s *pstate)
+static int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 {
   char username[16];
   char password[16];
@@ -133,8 +217,9 @@ int nsh_telnetlogin(struct console_stdio_s *pstate)
       fflush(pstate->cn_outstream);
       if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
         {
-          strncpy(username, pstate->cn_line, sizeof(username));
-          username[sizeof(username) - 1] = 0;
+          /* Parse out the username */
+
+          nsh_telnettoken(pstate, username, sizeof(username));
         }
 
       /* Ask for the login password */
@@ -144,10 +229,11 @@ int nsh_telnetlogin(struct console_stdio_s *pstate)
       nsh_telnetecho(pstate, TELNET_NOTUSE_ECHO);
       if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
         {
-          /* Verify the username and password */
+          /* Parse out the password */
 
-          strncpy(password, pstate->cn_line, sizeof(password));
-          password[sizeof(password) - 1] = 0;
+          nsh_telnettoken(pstate, password, sizeof(password));
+
+          /* Verify the username and password */
 
           if (strcmp(password, CONFIG_NSH_TELNET_PASSWORD) == 0 &&
               strcmp(username, CONFIG_NSH_TELNET_USERNAME) == 0)
