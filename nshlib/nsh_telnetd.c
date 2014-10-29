@@ -112,12 +112,13 @@ static void nsh_telnetecho(FAR struct console_stdio_s *pstate, uint8_t is_use)
  * Name: nsh_telnettoken
  ****************************************************************************/
 
-static nsh_telnettoken(FAR struct console_stdio_s *pstate, FAR char *buffer,
-                       size_t buflen)
+#ifdef CONFIG_NSH_TELNET_LOGIN
+static void nsh_telnettoken(FAR struct console_stdio_s *pstate,
+                            FAR char *buffer, size_t buflen)
 {
   FAR char *start;
   FAR char *endp1;
-  bool quoated = false;
+  bool quoted = false;
 
   /* Find the start of token.  Either (1) the first non-white space
    * character on the command line or (2) the character immediately after
@@ -154,7 +155,7 @@ static nsh_telnettoken(FAR struct console_stdio_s *pstate, FAR char *buffer,
    * any whitespace.
    */
 
-  for (endp1 = start; *endp1; endp1++);
+  for (endp1 = start; *endp1; endp1++)
     {
       /* Did the token begin with a quotation mark? */
 
@@ -190,6 +191,7 @@ static nsh_telnettoken(FAR struct console_stdio_s *pstate, FAR char *buffer,
 
   strncpy(buffer, start, buflen);
 }
+#endif
 
 /****************************************************************************
  * Name: nsh_telnetlogin
