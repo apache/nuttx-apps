@@ -1,7 +1,7 @@
 ############################################################################
 # apps/bas/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -63,12 +63,12 @@ SRCS		= $(ASRCS) $(CSRCS)
 OBJS		= $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\libapps$(LIBEXT)
+  BIN		= ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\libapps$(LIBEXT)
+  BIN		= ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../libapps$(LIBEXT)
+  BIN		= ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -77,30 +77,23 @@ endif
 all:	.built
 .PHONY: context .depend depend clean distclean
 
-ifeq ($(CONFIG_BAS),y)
-
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
 $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
-endif
 
 .built: $(OBJS)
-ifeq ($(CONFIG_BAS),y)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
-endif
 
 install:
 
 context:
 
 .depend: Makefile $(SRCS)
-ifeq ($(CONFIG_BAS),y)
 	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	$(Q) touch $@
-endif
 
 depend: .depend
 
