@@ -72,6 +72,12 @@ else
 endif
 endif
 
+# BAS built-in application info
+
+APPNAME = bas
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+
 # Build targets
 
 all:	.built
@@ -89,7 +95,14 @@ $(COBJS): %$(OBJEXT): %.c
 
 install:
 
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
 context:
+endif
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
