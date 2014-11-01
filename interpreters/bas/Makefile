@@ -44,8 +44,8 @@ CSRCS =
 
 ifeq ($(CONFIG_INTERPRETERS_BAS),y)
 
-CSRCS += auto.c bas.c fs.c getopt1.c getopt.c global.c main.c program.c
-CSRCS += str.c token.c value.c var.c
+CSRCS += auto.c bas.c fs.c global.c main.c program.c str.c token.c value.c
+CSRCS += var.c
 
 DEPPATH = --dep-path .
 VPATH = .
