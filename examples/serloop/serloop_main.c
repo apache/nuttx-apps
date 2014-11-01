@@ -79,6 +79,7 @@ int serloop_main(int argc, char *argv[])
         {
           ch = '.';
         }
+
       putchar(ch);
     }
 #else
@@ -96,6 +97,7 @@ int serloop_main(int argc, char *argv[])
         {
           ch = '.';
         }
+
       ret = write(1, &ch, 1);
     }
 #endif
