@@ -4228,8 +4228,8 @@ static void yy_load_buffer_state  (void)
  * This function is sometimes called more than once on the same buffer,
  * such as during a yyrestart() or at EOF.
  */
-    static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
 
+static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
 {
   int oerrno = errno;
 
