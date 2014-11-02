@@ -1284,7 +1284,7 @@ struct Value *Value_toStringUsing(struct Value *this, struct String *s, struct S
           goto work;
         }
         else
-        {   
+        {
           Value_destroy(this);
           return Value_new_ERROR(this,IOERROR,_("unpaired \\ in format"));
         }
@@ -1340,17 +1340,17 @@ struct Value *Value_toStringUsing(struct Value *this, struct String *s, struct S
           }
         }
         if (*usingpos<using->length && using->character[*usingpos]=='-' )
-        {  
+        {
           ++(*usingpos);
           if (headingsign==0) headingsign=2;
           trailingsign=-1;
-        }  
+        }
         else if (*usingpos<using->length && using->character[*usingpos]=='+')
-        {  
+        {
           ++(*usingpos);
           if (headingsign==0) headingsign=2;
           trailingsign=1;
-        }  
+        }
         while (*usingpos<using->length && using->character[*usingpos]=='^')
         {
           ++(*usingpos);
@@ -1405,7 +1405,7 @@ struct String *Value_toWrite(struct Value *this, struct String *s) /*{{{*/
   switch (this->type)
   {
     case V_INTEGER: String_appendPrintf(s,"%ld",this->u.integer); break;
-    case V_REAL: 
+    case V_REAL:
     {
       double x;
       int p=DBL_DIG;
@@ -1427,7 +1427,7 @@ struct String *Value_toWrite(struct Value *this, struct String *s) /*{{{*/
     {
       size_t l=this->u.string.length;
       char *data=this->u.string.character;
-      
+
       String_appendChar(s,'"');
       while (l--)
       {

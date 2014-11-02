@@ -323,7 +323,7 @@ struct Value *Program_merge(struct Program *this, int dev, struct Value *value) 
     struct Token *line;
 
     ++l;
-    if (l!=1 || s.character[0]!='#') 
+    if (l!=1 || s.character[0]!='#')
     {
       line=Token_newCode(s.character);
       if (line->type==T_INTEGER && line->u.integer>0) Program_store(this,line,this->numbered?line->u.integer:0);

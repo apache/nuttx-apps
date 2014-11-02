@@ -54,7 +54,7 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
     *nextcasevalue=pc;
     if (pass==COMPILE) pc.token->u.casevalue->endselect=selectcase->token->u.selectcase->endselect;
     pc.token->u.casevalue->nextcasevalue.line=-1;
-    ++pc.token; 
+    ++pc.token;
     switch (statementpc.token->type)
     {
       case T_CASEELSE: break;
@@ -85,7 +85,7 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
               pc=exprpc;
               return value;
             }
-            Value_destroy(value);        
+            Value_destroy(value);
           }
           /*}}}*/
           else /* value or range */ /*{{{*/
@@ -556,7 +556,7 @@ struct Value *stmt_DIM(struct Value *value) /*{{{*/
       *var=newarray;
       free(geometry);
     }
-    if (pc.token->type==T_COMMA) ++pc.token; /* advance to next var */ 
+    if (pc.token->type==T_COMMA) ++pc.token; /* advance to next var */
     else break;
   }
   return (struct Value*)0;
@@ -655,7 +655,7 @@ struct Value *stmt_EDIT(struct Value *value) /*{{{*/
       { "joe", "+%ld " },
       { "modeori", "-l%ld " },
       { "origami", "-l%ld " },
-      { "vi", "-c%ld " }, 
+      { "vi", "-c%ld " },
       { "vim", "+%ld " },
       { "xemacs", "+%ld " }
     };
@@ -789,7 +789,7 @@ struct Value *stmt_END(struct Value *value) /*{{{*/
       struct Token *eol;
 
       for (eol=pc.token; eol->type!=T_EOL; ++eol);
-      
+
       pc.token->u.endpc=pc;
       pc.token->u.endpc.token=eol;
       ++pc.token;
@@ -1202,7 +1202,7 @@ struct Value *stmt_GET_PUT(struct Value *value) /*{{{*/
   int put=pc.token->type==T_PUT;
   long int chn;
   struct Pc errpc;
-      
+
   ++pc.token;
   if (pc.token->type==T_CHANNEL) ++pc.token;
   if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -1556,7 +1556,7 @@ struct Value *stmt_LOCATE(struct Value *value) /*{{{*/
   if (eval(value,_("row"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
   line=value->u.integer;
   Value_destroy(value);
-  if (pass==INTERPRET && line<1) 
+  if (pass==INTERPRET && line<1)
   {
     pc=argpc;
     return Value_new_ERROR(value,OUTOFRANGE,_("row"));
@@ -1567,7 +1567,7 @@ struct Value *stmt_LOCATE(struct Value *value) /*{{{*/
   if (eval(value,_("column"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
   column=value->u.integer;
   Value_destroy(value);
-  if (pass==INTERPRET && column<1) 
+  if (pass==INTERPRET && column<1)
   {
     pc=argpc;
     return Value_new_ERROR(value,OUTOFRANGE,_("column"));
@@ -1716,7 +1716,7 @@ struct Value *stmt_IDENTIFIER(struct Value *value) /*{{{*/
       if (pass!=INTERPRET) Value_destroy(value);
     }
   }
-  
+
   return (struct Value*)0;
 }
 /*}}}*/
@@ -2796,7 +2796,7 @@ struct Value *stmt_OPEN(struct Value *value) /*{{{*/
       }
     }
     Value_destroy(value);
-    if (pass==INTERPRET && inout==-1) 
+    if (pass==INTERPRET && inout==-1)
     {
       pc=errpc;
       return Value_new_ERROR(value,BADMODE);
@@ -3042,7 +3042,7 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
   {
     struct Pc usingpc;
 
-    usingpc=pc;    
+    usingpc=pc;
     printusing=1;
     ++pc.token;
     if (pc.token->type==T_INTEGER)
@@ -3386,7 +3386,7 @@ struct Value *stmt_RUN(struct Value *value) /*{{{*/
       if (Program_beginning(&program,&begin)==(struct Pc*)0)
       {
         return Value_new_ERROR(value,NOPROGRAM);
-      } 
+      }
     }
     else Value_destroy(value);
   }
@@ -3986,7 +3986,7 @@ struct Value *stmt_WRITE(struct Value *value) /*{{{*/
   /*}}}*/
   while (1)
   {
-    if (eval(value,(const char*)0)) 
+    if (eval(value,(const char*)0))
     {
       if (value->type==V_ERROR) return value;
       if (pass==INTERPRET)

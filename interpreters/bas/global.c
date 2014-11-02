@@ -100,7 +100,7 @@ static struct Value *bin(struct Value *v, unsigned long int value, long int digi
 {
   char buf[sizeof(long int)*8+1];
   char *s;
-  
+
   Value_new_STRING(v);
   s=buf+sizeof(buf);
   *--s='\0';
@@ -133,7 +133,7 @@ static struct Value *find(struct Value *v, struct String *pattern, long int occu
   struct dirent *ent;
   int currentdir;
   int found=0;
-  
+
   Value_new_STRING(v);
   String_new(&dirname);
   String_new(&basename);
@@ -418,7 +418,7 @@ static struct Value *fn_cvi(struct Value *v, struct Auto *stack) /*{{{*/
   struct String *s=stringValue(stack,0);
   long int n=(s->length && s->character[s->length-1]<0) ? -1 : 0;
   int i;
-  
+
   for (i=s->length-1; i>=0; --i) n=(n<<8)|(s->character[i]&0xff);
   return Value_new_INTEGER(v,n);
 }
@@ -508,7 +508,7 @@ static struct Value *fn_edit(struct Value *v, struct Auto *stack) /*{{{*/
     if ((code&16) && ((*rd==' ') || (*rd=='\t')))
     {
       *wr++=' ';
-      while (rd<end && (*rd==' ' || *rd=='\t')) ++rd; 
+      while (rd<end && (*rd==' ' || *rd=='\t')) ++rd;
       continue;
     }
 
@@ -1377,7 +1377,7 @@ static struct Value *fn_timer(struct Value *v, struct Auto *stack) /*{{{*/
 static struct Value *fn_tl(struct Value *v, struct Auto *stack) /*{{{*/
 {
   struct String *s=stringValue(stack,0);
-  
+
   Value_new_STRING(v);
   if (s->length)
   {
@@ -1408,7 +1408,7 @@ static struct Value *fn_val(struct Value *v, struct Auto *stack) /*{{{*/
   char *end;
   long int i;
   int overflow;
-  
+
   if (s->character==(char*)0) return Value_new_REAL(v,0.0);
   i=Value_vali(s->character,&end,&overflow);
   if (*end=='\0') return Value_new_INTEGER(v,i);
