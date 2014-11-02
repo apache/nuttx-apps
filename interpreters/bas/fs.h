@@ -67,7 +67,13 @@ extern int FS_openbinaryChn(int chn, const char *name, int mode);
 extern int FS_freechn(void);
 extern int FS_flush(int dev);
 extern int FS_close(int dev);
+
+#ifdef CONFIG_SERIAL_TERMIOS
 extern int FS_istty(int chn);
+#else
+#  define FS_istty(chn) (1)
+#endif
+
 extern int FS_lock(int chn, off_t offset, off_t length, int mode, int w);
 extern int FS_truncate(int chn);
 extern void FS_shellmode(int chn);

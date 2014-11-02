@@ -111,7 +111,10 @@
 static struct FileStream **file;
 static int capacity;
 static int used;
-static struct termios origMode, rawMode;
+#ifdef CONFIG_SERIAL_TERMIOS
+static struct termios origMode;
+#endif
+static struct termios rawMode;
 static const int open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
 
 #ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
@@ -120,7 +123,9 @@ static struct sigaction old_sigint;
 #ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT
 static struct sigaction old_sigquit;
 #endif
+#ifdef CONFIG_SERIAL_TERMIOS
 static int termchannel;
+#endif
 
 const char *FS_errmsg;
 static char FS_errmsgbuf[80];
@@ -362,6 +367,7 @@ static int edit(int chn, int onl)
   return 0;
 }
 
+#if defined(HAVE_TGETENT) || defined(CONFIG_SERIAL_TERMIOS)
 static int outc(int ch)
 {
   struct FileStream *f;
@@ -381,6 +387,7 @@ static int outc(int ch)
   FS_errmsg = (const char *)0;
   return ch;
 }
+#endif
 
 #ifdef HAVE_TGETENT
 static int mytputs(const char *str, int affcnt, int (*out) (int))
@@ -393,6 +400,7 @@ static int mytputs(const char *str, int affcnt, int (*out) (int))
 #  endif
 }
 
+#ifdef CONFIG_SERIAL_TERMIOS
 static int initTerminal(int chn)
 {
   static int init = 0;
@@ -444,133 +452,139 @@ static int initTerminal(int chn)
       init = 1;
     }
 
-          return 0;
+  return 0;
+}
+#endif /* CONFIG_SERIAL_TERMIOS */
+
+static int cls(int chn)
+{
+  if (cl == (char *)0)
+    {
+      sprintf(FS_errmsgbuf,
+              _("terminal type %s can not clear the screen"), term);
+      FS_errmsg = FS_errmsgbuf;
+      return -1;
+    }
+
+  if (mytputs(cl, 0, outc) == -1)
+    {
+      return -1;
+    }
+
+  return 0;
+}
+
+static int locate(int chn, int line, int column)
+{
+  termchannel = chn;
+  if (cm == (char *)0)
+    {
+      sprintf(FS_errmsgbuf,
+              _("terminal type %s can not position the cursor"), term);
+      FS_errmsg = FS_errmsgbuf;
+      return -1;
+    }
+
+  if (mytputs(tgoto(cm, column - 1, line - 1), 0, outc) == -1)
+    {
+      return -1;
+    }
+
+  return 0;
+}
+
+static int colour(int chn, int foreground, int background)
+{
+  if (AF && AB && Co >= 8)
+    {
+      static int map[8] = { 0, 4, 2, 6, 1, 5, 3, 7 };
+
+      if (foreground != -1)
+        {
+          if (md && me && !(NC & 32))
+            {
+              if (foreground > 7 && file[chn]->outforeground <= 7)
+                {
+                  if (mytputs(md, 0, outc) == -1)
+                    {
+                      return -1;
+                    }
+
+                  /* all attributes are gone now, need to set background
+                   * again */
+
+                  if (background == -1)
+                    {
+                      background = file[chn]->outbackground;
+                    }
+                }
+              else if (foreground <= 7 && file[chn]->outforeground > 7)
+                {
+                  if (mytputs(me, 0, outc) == -1)
+                    {
+                      return -1;
+                    }
+                }
+            }
+
+          if (mytputs(tgoto(AF, 0, map[foreground & 7]), 0, outc) == -1)
+            {
+              return -1;
+            }
         }
 
-      static int cls(int chn)
-      {
-        if (cl == (char *)0)
-          {
-            sprintf(FS_errmsgbuf,
-                    _("terminal type %s can not clear the screen"), term);
-            FS_errmsg = FS_errmsgbuf;
-            return -1;
-          }
+      if (background != -1)
+        {
+          if (mytputs(tgoto(AB, 0, map[background & 7]), 0, outc) == -1)
+            {
+              return -1;
+            }
+        }
+    }
 
-        if (mytputs(cl, 0, outc) == -1)
-          {
-            return -1;
-          }
+  return 0;
+}
 
-        return 0;
-      }
+static int resetcolour(int chn)
+{
+  if (me)
+    {
+      mytputs(me, 0, outc);
+    }
 
-      static int locate(int chn, int line, int column)
-      {
-        termchannel = chn;
-        if (cm == (char *)0)
-          {
-            sprintf(FS_errmsgbuf,
-                    _("terminal type %s can not position the cursor"), term);
-            FS_errmsg = FS_errmsgbuf;
-            return -1;
-          }
+  if (ce)
+    {
+      mytputs(ce, 0, outc);
+    }
 
-        if (mytputs(tgoto(cm, column - 1, line - 1), 0, outc) == -1)
-          {
-            return -1;
-          }
+  return 0;
+}
 
-        return 0;
-      }
+#ifdef CONFIG_SERIAL_TERMIOS
+static void carriage_return(int chn)
+{
+  if (cr)
+    {
+      mytputs(cr, 0, outc);
+    }
+  else
+    {
+      outc('\r');
+    }
 
-      static int colour(int chn, int foreground, int background)
-      {
-        if (AF && AB && Co >= 8)
-          {
-            static int map[8] = { 0, 4, 2, 6, 1, 5, 3, 7 };
+  outc('\n');
+}
+#endif /* CONFIG_SERIAL_TERMIOS */
 
-            if (foreground != -1)
-              {
-                if (md && me && !(NC & 32))
-                  {
-                    if (foreground > 7 && file[chn]->outforeground <= 7)
-                      {
-                        if (mytputs(md, 0, outc) == -1)
-                          {
-                            return -1;
-                          }
+#else /* HAVE_TGETENT */
 
-                        /* all attributes are gone now, need to set background
-                         * again */
-
-                        if (background == -1)
-                          {
-                            background = file[chn]->outbackground;
-                          }
-                      }
-                    else if (foreground <= 7 && file[chn]->outforeground > 7)
-                      {
-                        if (mytputs(me, 0, outc) == -1)
-                          {
-                            return -1;
-                          }
-                      }
-                  }
-
-                if (mytputs(tgoto(AF, 0, map[foreground & 7]), 0, outc) == -1)
-                  {
-                    return -1;
-                  }
-              }
-
-            if (background != -1)
-              {
-                if (mytputs(tgoto(AB, 0, map[background & 7]), 0, outc) == -1)
-                  {
-                    return -1;
-                  }
-              }
-          }
-
-        return 0;
-      }
-
-      static int resetcolour(int chn)
-      {
-        if (me)
-          {
-            mytputs(me, 0, outc);
-          }
-
-        if (ce)
-          {
-            mytputs(ce, 0, outc);
-          }
-
-        return 0;
-      }
-
-      static void carriage_return(int chn)
-      {
-        if (cr)
-          {
-            mytputs(cr, 0, outc);
-          }
-        else
-          {
-            outc('\r');
-          }
-
-        outc('\n');
-      }
-
-#else
+#ifdef CONFIG_SERIAL_TERMIOS
 static int initTerminal(int chn)
 {
   termchannel = chn;
   return 0;
 }
+#endif /* CONFIG_SERIAL_TERMIOS */
 
 static int cls(int chn)
 {
@@ -595,13 +609,16 @@ static int resetcolour(int chn)
   return 0;
 }
 
+#ifdef CONFIG_SERIAL_TERMIOS
 static void carriage_return(int chn)
 {
   outc('\r');
   outc('\n');
 }
+#endif /* CONFIG_SERIAL_TERMIOS */
 
-#endif
+#endif /* HAVE_TGETENT */
+
 #ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
 static void sigintr(int sig)
 {
@@ -630,6 +647,8 @@ int FS_opendev(int chn, int infd, int outfd)
 
   file[chn] = malloc(sizeof(struct FileStream));
   file[chn]->dev = 1;
+
+#ifdef CONFIG_SERIAL_TERMIOS
   if ((file[chn]->tty = (infd == 0 ? isatty(infd) && isatty(outfd) : 0)))
     {
       if (tcgetattr(infd, &origMode) == -1)
@@ -656,6 +675,9 @@ int FS_opendev(int chn, int infd, int outfd)
 
       initTerminal(chn);
     }
+#else
+  file[chn]->tty = 1;
+#endif
 
   file[chn]->recLength = 1;
   file[chn]->infd = infd;
@@ -1017,10 +1039,12 @@ int FS_close(int dev)
       close(file[dev]->binaryfd);
     }
 
+#ifdef CONFIG_SERIAL_TERMIOS
   if (file[dev]->tty)
     {
       tcsetattr(file[dev]->infd, TCSADRAIN, &origMode);
     }
+#endif
 
   if (file[dev]->infd >= 0)
     {
@@ -1039,10 +1063,12 @@ int FS_close(int dev)
   return 0;
 }
 
+#ifdef CONFIG_SERIAL_TERMIOS
 int FS_istty(int chn)
 {
   return (file[chn] && file[chn]->tty);
 }
+#endif
 
 int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
 {
@@ -1137,10 +1163,12 @@ void FS_shellmode(int dev)
   struct sigaction interrupt;
 #endif
 
+#ifdef CONFIG_SERIAL_TERMIOS
   if (file[dev]->tty)
     {
       tcsetattr(file[dev]->infd, TCSADRAIN, &origMode);
     }
+#endif
 
 #if defined(CONFIG_INTERPRETER_BAS_HAVE_SIGINT) || defined(CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT)
   interrupt.sa_flags = 0;
@@ -1157,10 +1185,12 @@ void FS_shellmode(int dev)
 
 void FS_fsmode(int chn)
 {
+#ifdef CONFIG_SERIAL_TERMIOS
   if (file[chn]->tty)
     {
       tcsetattr(file[chn]->infd, TCSADRAIN, &rawMode);
     }
+#endif
 
 #ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
   sigaction(SIGINT, &old_sigint, (struct sigaction *)0);
@@ -1172,6 +1202,7 @@ void FS_fsmode(int chn)
 
 void FS_xonxoff(int chn, int on)
 {
+#ifdef CONFIG_SERIAL_TERMIOS
   if (file[chn]->tty)
     {
       if (on)
@@ -1185,6 +1216,7 @@ void FS_xonxoff(int chn, int on)
 
       tcsetattr(file[chn]->infd, TCSADRAIN, &rawMode);
     }
+#endif
 }
 
 int FS_put(int chn)
@@ -1244,11 +1276,13 @@ int FS_putChar(int dev, char ch)
 
   if (f->outLineWidth && f->outPos == f->outLineWidth)
     {
+#ifdef CONFIG_SERIAL_TERMIOS
       if (FS_istty(dev))
         {
           carriage_return(dev);
         }
       else
+#endif
         {
           f->outBuf[f->outSize++] = '\n';
         }
@@ -1256,11 +1290,13 @@ int FS_putChar(int dev, char ch)
       f->outPos = 0;
     }
 
+#ifdef CONFIG_SERIAL_TERMIOS
   if (FS_istty(dev) && ch == '\n')
     {
       carriage_return(dev);
     }
   else
+#endif
     {
       f->outBuf[f->outSize++] = ch;
     }
@@ -1727,7 +1763,7 @@ int FS_inkeyChar(int dev, int ms)
 #ifdef USE_SELECT
   fd_set just_infd;
   struct timeval timeout;
-#else
+#elif defined(CONFIG_SERIAL_TERMIOS)
   struct termios timedread;
 #endif
 
@@ -1775,6 +1811,7 @@ int FS_inkeyChar(int dev, int ms)
   return 0;
 
 #else
+#ifdef CONFIG_SERIAL_TERMIOS
   timedread = rawMode;
   timedread.c_cc[VMIN] = 0;
   timedread.c_cc[VTIME] = (ms ? ms : 100) / 100;
@@ -1783,10 +1820,15 @@ int FS_inkeyChar(int dev, int ms)
       FS_errmsg = strerror(errno);
       return -1;
     }
+#endif
 
   FS_errmsg = (const char *)0;
   len = read(f->infd, &c, 1);
+
+#ifdef CONFIG_SERIAL_TERMIOS
   tcsetattr(f->infd, TCSADRAIN, &rawMode);
+#endif
+
   if (len == -1)
     {
       FS_errmsg = strerror(errno);
