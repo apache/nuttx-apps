@@ -1,4 +1,4 @@
-/* #includes */ /*{{{C}}}*//*{{{*/
+/* #includes */ /*{{{C}}}*/
 #include "config.h"
 
 #ifdef HAVE_GETTEXT
@@ -13,9 +13,9 @@
 #ifdef USE_DMALLOC
 #include "dmalloc.h"
 #endif
-/*}}}*/
 
-struct Value *stmt_CALL(struct Value *value) /*{{{*/
+
+struct Value *stmt_CALL(struct Value *value)
 {
   ++pc.token;
   if (pc.token->type!=T_IDENTIFIER) return Value_new_ERROR(value,MISSINGPROCIDENT);
@@ -40,8 +40,8 @@ struct Value *stmt_CALL(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_CASE(struct Value *value) /*{{{*/
+
+struct Value *stmt_CASE(struct Value *value)
 {
   struct Pc statementpc=pc;
 
@@ -64,7 +64,7 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
 
         do
         {
-          if (pc.token->type==T_IS) /*{{{*/
+          if (pc.token->type==T_IS)
           {
             ++pc.token;
             switch (pc.token->type)
@@ -87,8 +87,8 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
             }
             Value_destroy(value);
           }
-          /*}}}*/
-          else /* value or range */ /*{{{*/
+
+          else /* value or range */
           {
             exprpc=pc;
             if (eval(value,"`case'")->type==V_ERROR) return value;
@@ -98,7 +98,7 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
               return value;
             }
             Value_destroy(value);
-            if (pc.token->type==T_TO) /*{{{*/
+            if (pc.token->type==T_TO)
             {
               ++pc.token;
               exprpc=pc;
@@ -110,9 +110,9 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
               }
               Value_destroy(value);
             }
-            /*}}}*/
+
           }
-          /*}}}*/
+
           if (pc.token->type==T_COMMA) ++pc.token;
           else break;
         } while (1);
@@ -124,8 +124,8 @@ struct Value *stmt_CASE(struct Value *value) /*{{{*/
   else pc=pc.token->u.casevalue->endselect;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_CHDIR_MKDIR(struct Value *value) /*{{{*/
+
+struct Value *stmt_CHDIR_MKDIR(struct Value *value)
 {
   int res=-1,err=-1;
   struct Pc dirpc;
@@ -152,8 +152,8 @@ struct Value *stmt_CHDIR_MKDIR(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_CLEAR(struct Value *value) /*{{{*/
+
+struct Value *stmt_CLEAR(struct Value *value)
 {
   if (pass==INTERPRET)
   {
@@ -163,8 +163,8 @@ struct Value *stmt_CLEAR(struct Value *value) /*{{{*/
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_CLOSE(struct Value *value) /*{{{*/
+
+struct Value *stmt_CLOSE(struct Value *value)
 {
   int hasargs=0;
   struct Pc chnpc;
@@ -193,8 +193,8 @@ struct Value *stmt_CLOSE(struct Value *value) /*{{{*/
   if (!hasargs && pass==INTERPRET) FS_closefiles();
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_CLS(struct Value *value) /*{{{*/
+
+struct Value *stmt_CLS(struct Value *value)
 {
   struct Pc statementpc=pc;
 
@@ -206,8 +206,8 @@ struct Value *stmt_CLS(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_COLOR(struct Value *value) /*{{{*/
+
+struct Value *stmt_COLOR(struct Value *value)
 {
   int foreground=-1,background=-1;
   struct Pc statementpc=pc;
@@ -262,8 +262,8 @@ struct Value *stmt_COLOR(struct Value *value) /*{{{*/
   if (pass==INTERPRET) FS_colour(STDCHANNEL,foreground,background);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DATA(struct Value *value) /*{{{*/
+
+struct Value *stmt_DATA(struct Value *value)
 {
   if (DIRECTMODE) return Value_new_ERROR(value,NOTINDIRECTMODE);
   if (pass==DECLARE)
@@ -281,8 +281,8 @@ struct Value *stmt_DATA(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value) /*{{{*/
+
+struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value)
 {
   if (pass==DECLARE || pass==COMPILE)
   {
@@ -308,7 +308,7 @@ struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value) /*{{{*/
       return Value_new_ERROR(value,NESTEDDEFINITION);
     }
     Auto_variable(&stack,fn);
-    if (pc.token->type==T_OP) /* arguments */ /*{{{*/
+    if (pc.token->type==T_OP) /* arguments */
     {
       ++pc.token;
       while (1)
@@ -335,7 +335,7 @@ struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value) /*{{{*/
       }
       ++pc.token;
     }
-    /*}}}*/
+
     if (pass==DECLARE)
     {
       enum ValueType *t=args ? malloc(args*sizeof(enum ValueType)) : (enum ValueType*)0;
@@ -357,8 +357,8 @@ struct Value *stmt_DEFFN_DEFPROC_FUNCTION_SUB(struct Value *value) /*{{{*/
   else pc=(pc.token+1)->u.identifier->sym->u.sub.u.def.scope.end;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DEC_INC(struct Value *value) /*{{{*/
+
+struct Value *stmt_DEC_INC(struct Value *value)
 {
   int step;
 
@@ -390,8 +390,8 @@ struct Value *stmt_DEC_INC(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DEFINT_DEFDBL_DEFSTR(struct Value *value) /*{{{*/
+
+struct Value *stmt_DEFINT_DEFDBL_DEFSTR(struct Value *value)
 {
   enum ValueType dsttype=V_NIL;
 
@@ -437,8 +437,8 @@ struct Value *stmt_DEFINT_DEFDBL_DEFSTR(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DELETE(struct Value *value) /*{{{*/
+
+struct Value *stmt_DELETE(struct Value *value)
 {
   struct Pc from,to;
   int f=0,t=0;
@@ -473,8 +473,8 @@ struct Value *stmt_DELETE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DIM(struct Value *value) /*{{{*/
+
+struct Value *stmt_DIM(struct Value *value)
 {
   ++pc.token;
   while (1)
@@ -505,29 +505,29 @@ struct Value *stmt_DIM(struct Value *value) /*{{{*/
         if (capacity) free(geometry);
         return value;
       }
-      if (pass==INTERPRET && value->u.integer<optionbase) /* error */ /*{{{*/
+      if (pass==INTERPRET && value->u.integer<optionbase) /* error */
       {
         Value_destroy(value);
         Value_new_ERROR(value,OUTOFRANGE,_("dimension"));
       }
-      /*}}}*/
-      if (value->type==V_ERROR) /* abort */ /*{{{*/
+
+      if (value->type==V_ERROR) /* abort */
       {
         if (capacity) free(geometry);
         pc=dimpc;
         return value;
       }
-      /*}}}*/
+
       if (pass==INTERPRET)
       {
-        if (dim==capacity) /* enlarge geometry */ /*{{{*/
+        if (dim==capacity) /* enlarge geometry */
         {
           unsigned int *more;
 
           more=realloc(geometry,sizeof(unsigned int)*(capacity?(capacity*=2):(capacity=3)));
           geometry=more;
         }
-        /*}}}*/
+
         geometry[dim]=value->u.integer-optionbase+1;
         ++dim;
       }
@@ -535,12 +535,12 @@ struct Value *stmt_DIM(struct Value *value) /*{{{*/
       if (pc.token->type==T_COMMA) ++pc.token;
       else break;
     }
-    if (pc.token->type!=T_CP) /* abort */ /*{{{*/
+    if (pc.token->type!=T_CP) /* abort */
     {
       if (capacity) free(geometry);
       return Value_new_ERROR(value,MISSINGCP);
     }
-    /*}}}*/
+
     ++pc.token;
     if (pass==INTERPRET)
     {
@@ -561,8 +561,8 @@ struct Value *stmt_DIM(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DISPLAY(struct Value *value) /*{{{*/
+
+struct Value *stmt_DISPLAY(struct Value *value)
 {
   struct Pc statementpc=pc;
 
@@ -579,15 +579,15 @@ struct Value *stmt_DISPLAY(struct Value *value) /*{{{*/
   else Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DO(struct Value *value) /*{{{*/
+
+struct Value *stmt_DO(struct Value *value)
 {
   if (pass==DECLARE || pass==COMPILE) pushLabel(L_DO,&pc);
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_DOcondition(struct Value *value) /*{{{*/
+
+struct Value *stmt_DOcondition(struct Value *value)
 {
   struct Pc dowhilepc=pc;
   int negate=(pc.token->type==T_DOUNTIL);
@@ -606,9 +606,10 @@ struct Value *stmt_DOcondition(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_EDIT(struct Value *value) /*{{{*/
+
+struct Value *stmt_EDIT(struct Value *value)
 {
+#ifdef CONFIG_ARCH_HAVE_VFORK
   long int line;
   struct Pc statementpc=pc;
 
@@ -633,7 +634,7 @@ struct Value *stmt_EDIT(struct Value *value) /*{{{*/
   else line=1;
   if (pass==INTERPRET)
   {
-    /* variables */ /*{{{*/
+    /* variables */
     char *name;
     int chn;
     struct Program newProgram;
@@ -661,7 +662,7 @@ struct Value *stmt_EDIT(struct Value *value) /*{{{*/
     };
     unsigned int i;
     pid_t pid;
-    /*}}}*/
+
 
     if (!DIRECTMODE)
     {
@@ -749,9 +750,12 @@ struct Value *stmt_EDIT(struct Value *value) /*{{{*/
     unlink(name);
   }
   return (struct Value*)0;
+#else
+  return Value_new_ERROR(value,FORKFAILED,strerror(ENOSYS));
+#endif
 }
-/*}}}*/
-struct Value *stmt_ELSE_ELSEIFELSE(struct Value *value) /*{{{*/
+
+struct Value *stmt_ELSE_ELSEIFELSE(struct Value *value)
 {
   if (pass==INTERPRET)
   {
@@ -773,8 +777,8 @@ struct Value *stmt_ELSE_ELSEIFELSE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_END(struct Value *value) /*{{{*/
+
+struct Value *stmt_END(struct Value *value)
 {
   if (pass==INTERPRET)
   {
@@ -800,8 +804,8 @@ struct Value *stmt_END(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ENDIF(struct Value *value) /*{{{*/
+
+struct Value *stmt_ENDIF(struct Value *value)
 {
   if (pass==DECLARE || pass==COMPILE)
   {
@@ -820,8 +824,8 @@ struct Value *stmt_ENDIF(struct Value *value) /*{{{*/
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ENDFN(struct Value *value) /*{{{*/
+
+struct Value *stmt_ENDFN(struct Value *value)
 {
   struct Pc *curfn=(struct Pc*)0;
   struct Pc eqpc=pc;
@@ -840,8 +844,8 @@ struct Value *stmt_ENDFN(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ENDPROC_SUBEND(struct Value *value) /*{{{*/
+
+struct Value *stmt_ENDPROC_SUBEND(struct Value *value)
 {
   struct Pc *curfn=(struct Pc*)0;
 
@@ -862,8 +866,8 @@ struct Value *stmt_ENDPROC_SUBEND(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ENDSELECT(struct Value *value) /*{{{*/
+
+struct Value *stmt_ENDSELECT(struct Value *value)
 {
   struct Pc statementpc=pc;
 
@@ -881,8 +885,8 @@ struct Value *stmt_ENDSELECT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ENVIRON(struct Value *value) /*{{{*/
+
+struct Value *stmt_ENVIRON(struct Value *value)
 {
   struct Pc epc=pc;
 
@@ -900,8 +904,8 @@ struct Value *stmt_ENVIRON(struct Value *value) /*{{{*/
   Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_FNEXIT(struct Value *value) /*{{{*/
+
+struct Value *stmt_FNEXIT(struct Value *value)
 {
   struct Pc *curfn=(struct Pc*)0;
 
@@ -916,19 +920,19 @@ struct Value *stmt_FNEXIT(struct Value *value) /*{{{*/
   if (pass==INTERPRET) return Value_clone(value,Var_value(Auto_local(&stack,0),0,(int*)0,(struct Value*)0));
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_COLON_EOL(struct Value *value) /*{{{*/
+
+struct Value *stmt_COLON_EOL(struct Value *value)
 {
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_QUOTE_REM(struct Value *value) /*{{{*/
+
+struct Value *stmt_QUOTE_REM(struct Value *value)
 {
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_EQ_FNRETURN_FNEND(struct Value *value) /*{{{*/
+
+struct Value *stmt_EQ_FNRETURN_FNEND(struct Value *value)
 {
   struct Pc *curfn=(struct Pc*)0;
   struct Pc eqpc=pc;
@@ -971,8 +975,8 @@ struct Value *stmt_EQ_FNRETURN_FNEND(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ERASE(struct Value *value) /*{{{*/
+
+struct Value *stmt_ERASE(struct Value *value)
 {
   ++pc.token;
   while (1)
@@ -992,8 +996,8 @@ struct Value *stmt_ERASE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_EXITDO(struct Value *value) /*{{{*/
+
+struct Value *stmt_EXITDO(struct Value *value)
 {
   if (pass==INTERPRET) pc=pc.token->u.exitdo;
   else
@@ -1009,8 +1013,8 @@ struct Value *stmt_EXITDO(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_EXITFOR(struct Value *value) /*{{{*/
+
+struct Value *stmt_EXITFOR(struct Value *value)
 {
   if (pass==INTERPRET) pc=pc.token->u.exitfor;
   else
@@ -1026,8 +1030,8 @@ struct Value *stmt_EXITFOR(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_FIELD(struct Value *value) /*{{{*/
+
+struct Value *stmt_FIELD(struct Value *value)
 {
   long int chn,offset,recLength=-1;
 
@@ -1076,8 +1080,8 @@ struct Value *stmt_FIELD(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_FOR(struct Value *value) /*{{{*/
+
+struct Value *stmt_FOR(struct Value *value)
 {
   struct Pc forpc=pc;
   struct Pc varpc;
@@ -1098,7 +1102,7 @@ struct Value *stmt_FOR(struct Value *value) /*{{{*/
     }
     Value_retype(&limit,value->type);
     assert(limit.type!=V_ERROR);
-    if (pc.token->type==T_STEP) /* STEP x */ /*{{{*/
+    if (pc.token->type==T_STEP) /* STEP x */
     {
       struct Pc stepPc;
 
@@ -1114,13 +1118,13 @@ struct Value *stmt_FOR(struct Value *value) /*{{{*/
       Value_retype(&stepValue,value->type);
       assert(stepValue.type!=V_ERROR);
     }
-    /*}}}*/
-    else /* implicit numeric STEP */ /*{{{*/
+
+    else /* implicit numeric STEP */
     {
       if (value->type==V_INTEGER) VALUE_NEW_INTEGER(&stepValue,1);
       else VALUE_NEW_REAL(&stepValue,1.0);
     }
-    /*}}}*/
+
     if (Value_exitFor(value,&limit,&stepValue)) pc=forpc.token->u.exitfor;
     Value_destroy(&limit);
     Value_destroy(&stepValue);
@@ -1162,7 +1166,7 @@ struct Value *stmt_FOR(struct Value *value) /*{{{*/
       }
     }
     Value_destroy(&limit);
-    if (pc.token->type==T_STEP) /* STEP x */ /*{{{*/
+    if (pc.token->type==T_STEP) /* STEP x */
     {
       struct Pc stepPc;
 
@@ -1176,8 +1180,8 @@ struct Value *stmt_FOR(struct Value *value) /*{{{*/
         return value;
       }
     }
-    /*}}}*/
-    else /* implicit numeric STEP */ /*{{{*/
+
+    else /* implicit numeric STEP */
     {
       VALUE_NEW_INTEGER(&stepValue,1);
       if (pass!=DECLARE && VALUE_RETYPE(&stepValue,value->type)->type==V_ERROR)
@@ -1188,15 +1192,15 @@ struct Value *stmt_FOR(struct Value *value) /*{{{*/
         return value;
       }
     }
-    /*}}}*/
+
     pushLabel(L_FOR_BODY,&pc);
     Value_destroy(&stepValue);
     Value_destroy(value);
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_GET_PUT(struct Value *value) /*{{{*/
+
+struct Value *stmt_GET_PUT(struct Value *value)
 {
   struct Pc statementpc=pc;
   int put=pc.token->type==T_PUT;
@@ -1212,7 +1216,7 @@ struct Value *stmt_GET_PUT(struct Value *value) /*{{{*/
   {
     ++pc.token;
     errpc=pc;
-    if (eval(value,(const char*)0)) /* process record number/position */ /*{{{*/
+    if (eval(value,(const char*)0)) /* process record number/position */
     {
       int rec;
 
@@ -1233,9 +1237,9 @@ struct Value *stmt_GET_PUT(struct Value *value) /*{{{*/
         }
       }
     }
-    /*}}}*/
+
   }
-  if (pc.token->type==T_COMMA) /* BINARY mode get/put */ /*{{{*/
+  if (pc.token->type==T_COMMA) /* BINARY mode get/put */
   {
     int res=-1;
 
@@ -1289,7 +1293,7 @@ struct Value *stmt_GET_PUT(struct Value *value) /*{{{*/
       return Value_new_ERROR(value,IOERROR,FS_errmsg);
     }
   }
-  /*}}}*/
+
   else if (pass==INTERPRET && ((put ? FS_put : FS_get)(chn))==-1)
   {
     pc=statementpc;
@@ -1297,8 +1301,8 @@ struct Value *stmt_GET_PUT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_GOSUB(struct Value *value) /*{{{*/
+
+struct Value *stmt_GOSUB(struct Value *value)
 {
   if (pass==INTERPRET)
   {
@@ -1320,8 +1324,8 @@ struct Value *stmt_GOSUB(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_RESUME_GOTO(struct Value *value) /*{{{*/
+
+struct Value *stmt_RESUME_GOTO(struct Value *value)
 {
   if (pass==INTERPRET)
   {
@@ -1346,8 +1350,8 @@ struct Value *stmt_RESUME_GOTO(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_KILL(struct Value *value) /*{{{*/
+
+struct Value *stmt_KILL(struct Value *value)
 {
   struct Pc statementpc=pc;
 
@@ -1364,8 +1368,8 @@ struct Value *stmt_KILL(struct Value *value) /*{{{*/
   else Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LET(struct Value *value) /*{{{*/
+
+struct Value *stmt_LET(struct Value *value)
 {
   ++pc.token;
   if (pc.token->type!=T_IDENTIFIER) return Value_new_ERROR(value,MISSINGVARIDENT);
@@ -1373,15 +1377,15 @@ struct Value *stmt_LET(struct Value *value) /*{{{*/
   if (pass!=INTERPRET) Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LINEINPUT(struct Value *value) /*{{{*/
+
+struct Value *stmt_LINEINPUT(struct Value *value)
 {
   int channel=0;
   struct Pc lpc;
   struct Value *l;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -1390,8 +1394,8 @@ struct Value *stmt_LINEINPUT(struct Value *value) /*{{{*/
     if (pc.token->type!=T_COMMA) return Value_new_ERROR(value,MISSINGCOMMA);
     else ++pc.token;
   }
-  /*}}}*/
-  /* prompt */ /*{{{*/
+
+  /* prompt */
   if (pc.token->type==T_STRING)
   {
     if (pass==INTERPRET && channel==0) FS_putString(channel,pc.token->u.string);
@@ -1400,7 +1404,7 @@ struct Value *stmt_LINEINPUT(struct Value *value) /*{{{*/
     ++pc.token;
   }
   if (pass==INTERPRET && channel==0) FS_flush(channel);
-  /*}}}*/
+
   if (pc.token->type!=T_IDENTIFIER) return Value_new_ERROR(value,MISSINGVARIDENT);
   if (pass==DECLARE && Global_variable(&globals,pc.token->u.identifier,pc.token->u.identifier->defaultType,(pc.token+1)->type==T_OP?GLOBALARRAY:GLOBALVAR,0)==0)
   {
@@ -1425,8 +1429,8 @@ struct Value *stmt_LINEINPUT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LIST_LLIST(struct Value *value) /*{{{*/
+
+struct Value *stmt_LIST_LLIST(struct Value *value)
 {
   struct Pc from,to;
   int f=0,t=0,channel;
@@ -1472,8 +1476,8 @@ struct Value *stmt_LIST_LLIST(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LOAD(struct Value *value) /*{{{*/
+
+struct Value *stmt_LOAD(struct Value *value)
 {
   struct Pc loadpc;
 
@@ -1510,8 +1514,8 @@ struct Value *stmt_LOAD(struct Value *value) /*{{{*/
   else Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LOCAL(struct Value *value) /*{{{*/
+
+struct Value *stmt_LOCAL(struct Value *value)
 {
   struct Pc *curfn=(struct Pc*)0;
 
@@ -1544,8 +1548,8 @@ struct Value *stmt_LOCAL(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LOCATE(struct Value *value) /*{{{*/
+
+struct Value *stmt_LOCATE(struct Value *value)
 {
   long int line,column;
   struct Pc argpc;
@@ -1579,8 +1583,8 @@ struct Value *stmt_LOCATE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LOCK_UNLOCK(struct Value *value) /*{{{*/
+
+struct Value *stmt_LOCK_UNLOCK(struct Value *value)
 {
   int lock=pc.token->type==T_LOCK;
   int channel;
@@ -1599,8 +1603,8 @@ struct Value *stmt_LOCK_UNLOCK(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LOOP(struct Value *value) /*{{{*/
+
+struct Value *stmt_LOOP(struct Value *value)
 {
   struct Pc looppc=pc;
   struct Pc *dopc;
@@ -1618,8 +1622,8 @@ struct Value *stmt_LOOP(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LOOPUNTIL(struct Value *value) /*{{{*/
+
+struct Value *stmt_LOOPUNTIL(struct Value *value)
 {
   struct Pc loopuntilpc=pc;
   struct Pc *dopc;
@@ -1639,8 +1643,8 @@ struct Value *stmt_LOOPUNTIL(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_LSET_RSET(struct Value *value) /*{{{*/
+
+struct Value *stmt_LSET_RSET(struct Value *value)
 {
   struct Value *l;
   struct Pc tmppc;
@@ -1677,8 +1681,8 @@ struct Value *stmt_LSET_RSET(struct Value *value) /*{{{*/
   Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_IDENTIFIER(struct Value *value) /*{{{*/
+
+struct Value *stmt_IDENTIFIER(struct Value *value)
 {
   struct Pc here=pc;
 
@@ -1719,8 +1723,8 @@ struct Value *stmt_IDENTIFIER(struct Value *value) /*{{{*/
 
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_IF_ELSEIFIF(struct Value *value) /*{{{*/
+
+struct Value *stmt_IF_ELSEIFIF(struct Value *value)
 {
   struct Pc ifpc=pc;
 
@@ -1744,7 +1748,7 @@ struct Value *stmt_IF_ELSEIFIF(struct Value *value) /*{{{*/
     {
       pushLabel(L_IF,&ifpc);
     }
-    else /* compile single line IF THEN ELSE recursively */ /*{{{*/
+    else /* compile single line IF THEN ELSE recursively */
     {
       if (statements(value)->type==V_ERROR) return value;
       Value_destroy(value);
@@ -1765,20 +1769,20 @@ struct Value *stmt_IF_ELSEIFIF(struct Value *value) /*{{{*/
         if (ifpc.token->type==T_ELSEIFIF) (ifpc.token-1)->u.elsepc=pc;
       }
     }
-    /*}}}*/
+
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_IMAGE(struct Value *value) /*{{{*/
+
+struct Value *stmt_IMAGE(struct Value *value)
 {
   ++pc.token;
   if (pc.token->type!=T_STRING) return Value_new_ERROR(value,MISSINGFMT);
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_INPUT(struct Value *value) /*{{{*/
+
+struct Value *stmt_INPUT(struct Value *value)
 {
   int channel=STDCHANNEL;
   int nl=1;
@@ -1787,7 +1791,7 @@ struct Value *stmt_INPUT(struct Value *value) /*{{{*/
   struct Pc lvaluepc;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -1796,14 +1800,14 @@ struct Value *stmt_INPUT(struct Value *value) /*{{{*/
     if (pc.token->type!=T_COMMA) return Value_new_ERROR(value,MISSINGCOMMA);
     else ++pc.token;
   }
-  /*}}}*/
-  if (pc.token->type==T_SEMICOLON) /*{{{*/
+
+  if (pc.token->type==T_SEMICOLON)
   {
     nl=0;
     ++pc.token;
   }
-  /*}}}*/
-  /* prompt */ /*{{{*/
+
+  /* prompt */
   if (pc.token->type==T_STRING)
   {
     if (pass==INTERPRET && channel==STDCHANNEL) FS_putString(STDCHANNEL,pc.token->u.string);
@@ -1816,9 +1820,9 @@ struct Value *stmt_INPUT(struct Value *value) /*{{{*/
   {
     FS_putChars(STDCHANNEL,"? ");
   }
-  /*}}}*/
+
   retry:
-  if (pass==INTERPRET) /* read input line and tokenise it */ /*{{{*/
+  if (pass==INTERPRET) /* read input line and tokenise it */
   {
     struct String s;
 
@@ -1829,7 +1833,7 @@ struct Value *stmt_INPUT(struct Value *value) /*{{{*/
     inputdata=t=Token_newData(s.character);
     String_destroy(&s);
   }
-  /*}}}*/
+
   while (1)
   {
     struct Value *l;
@@ -1903,8 +1907,8 @@ struct Value *stmt_INPUT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_MAT(struct Value *value) /*{{{*/
+
+struct Value *stmt_MAT(struct Value *value)
 {
   struct Var *var1,*var2,*var3=(struct Var*)0;
   struct Pc oppc;
@@ -1922,7 +1926,7 @@ struct Value *stmt_MAT(struct Value *value) /*{{{*/
   ++pc.token;
   if (pc.token->type!=T_EQ) return Value_new_ERROR(value,MISSINGEQ);
   ++pc.token;
-  if (pc.token->type==T_IDENTIFIER) /* a = b [ +|-|* c ] */ /*{{{*/
+  if (pc.token->type==T_IDENTIFIER) /* a = b [ +|-|* c ] */
   {
     if (pass==COMPILE)
     {
@@ -1982,8 +1986,8 @@ struct Value *stmt_MAT(struct Value *value) /*{{{*/
       }
     }
   }
-  /*}}}*/
-  else if (pc.token->type==T_OP) /*{{{*/
+
+  else if (pc.token->type==T_OP)
   {
     if (var1->type==V_STRING) return Value_new_ERROR(value,TYPEMISMATCH5);
     ++pc.token;
@@ -2029,8 +2033,8 @@ struct Value *stmt_MAT(struct Value *value) /*{{{*/
     Value_destroy(value);
     ++pc.token;
   }
-  /*}}}*/
-  else if (pc.token->type==T_CON || pc.token->type==T_ZER || pc.token->type==T_IDN) /*{{{*/
+
+  else if (pc.token->type==T_CON || pc.token->type==T_ZER || pc.token->type==T_IDN)
   {
     op=pc.token->type;
     if (pass==COMPILE && Value_commonType[var1->type][V_INTEGER]==V_ERROR) return Value_new_typeError(value,V_INTEGER,var1->type);
@@ -2094,8 +2098,8 @@ struct Value *stmt_MAT(struct Value *value) /*{{{*/
       }
     }
   }
-  /*}}}*/
-  else if (pc.token->type==T_TRN || pc.token->type==T_INV) /*{{{*/
+
+  else if (pc.token->type==T_TRN || pc.token->type==T_INV)
   {
     op=pc.token->type;
     ++pc.token;
@@ -2126,17 +2130,17 @@ struct Value *stmt_MAT(struct Value *value) /*{{{*/
     if (pc.token->type!=T_CP) return Value_new_ERROR(value,MISSINGCP);
     ++pc.token;
   }
-  /*}}}*/
+
   else return Value_new_ERROR(value,MISSINGEXPR,_("matrix"));
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_MATINPUT(struct Value *value) /*{{{*/
+
+struct Value *stmt_MATINPUT(struct Value *value)
 {
   int channel=STDCHANNEL;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -2145,7 +2149,7 @@ struct Value *stmt_MATINPUT(struct Value *value) /*{{{*/
     if (pc.token->type!=T_COMMA) return Value_new_ERROR(value,MISSINGCOMMA);
     else ++pc.token;
   }
-  /*}}}*/
+
   while (1)
   {
     struct Pc lvaluepc;
@@ -2245,8 +2249,8 @@ struct Value *stmt_MATINPUT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_MATPRINT(struct Value *value) /*{{{*/
+
+struct Value *stmt_MATPRINT(struct Value *value)
 {
   int chn=STDCHANNEL;
   int printusing=0;
@@ -2256,7 +2260,7 @@ struct Value *stmt_MATPRINT(struct Value *value) /*{{{*/
   int notfirst=0;
 
   ++pc.token;
-  if (chn==STDCHANNEL && pc.token->type==T_CHANNEL) /*{{{*/
+  if (chn==STDCHANNEL && pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -2264,8 +2268,8 @@ struct Value *stmt_MATPRINT(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pc.token->type==T_COMMA) ++pc.token;
   }
-  /*}}}*/
-  if (pc.token->type==T_USING) /*{{{*/
+
+  if (pc.token->type==T_USING)
   {
     struct Pc usingpc;
 
@@ -2295,7 +2299,7 @@ struct Value *stmt_MATPRINT(struct Value *value) /*{{{*/
     }
     ++pc.token;
   }
-  /*}}}*/
+
   else
   {
     Value_new_STRING(&usingval);
@@ -2372,8 +2376,8 @@ struct Value *stmt_MATPRINT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_MATREAD(struct Value *value) /*{{{*/
+
+struct Value *stmt_MATREAD(struct Value *value)
 {
   ++pc.token;
   while (1)
@@ -2438,8 +2442,8 @@ struct Value *stmt_MATREAD(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_MATREDIM(struct Value *value) /*{{{*/
+
+struct Value *stmt_MATREDIM(struct Value *value)
 {
   ++pc.token;
   while (1)
@@ -2463,15 +2467,15 @@ struct Value *stmt_MATREDIM(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_MATWRITE(struct Value *value) /*{{{*/
+
+struct Value *stmt_MATWRITE(struct Value *value)
 {
   int chn=STDCHANNEL;
   int notfirst=0;
   int comma=0;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -2479,7 +2483,7 @@ struct Value *stmt_MATWRITE(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pc.token->type==T_COMMA) ++pc.token;
   }
-  /*}}}*/
+
   while (1)
   {
     struct Var *var;
@@ -2536,8 +2540,8 @@ struct Value *stmt_MATWRITE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_NAME(struct Value *value) /*{{{*/
+
+struct Value *stmt_NAME(struct Value *value)
 {
   struct Pc namepc=pc;
   struct Value old;
@@ -2571,8 +2575,8 @@ struct Value *stmt_NAME(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_NEW(struct Value *value) /*{{{*/
+
+struct Value *stmt_NEW(struct Value *value)
 {
   if (pass==INTERPRET)
   {
@@ -2582,13 +2586,13 @@ struct Value *stmt_NEW(struct Value *value) /*{{{*/
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_NEXT(struct Value *value) /*{{{*/
+
+struct Value *stmt_NEXT(struct Value *value)
 {
   struct Next **next=&pc.token->u.next;
   int level=0;
 
-  if (pass==INTERPRET) /*{{{*/
+  if (pass==INTERPRET)
   {
     struct Value *l,inc;
     struct Pc savepc;
@@ -2596,13 +2600,13 @@ struct Value *stmt_NEXT(struct Value *value) /*{{{*/
     ++pc.token;
     while (1)
     {
-      /* get variable lvalue */ /*{{{*/
+      /* get variable lvalue */
       savepc=pc;
       pc=(*next)[level].var;
       if ((l=lvalue(value))->type==V_ERROR) return value;
       pc=savepc;
-      /*}}}*/
-      /* get limit value and increment */ /*{{{*/
+
+      /* get limit value and increment */
       savepc=pc;
       pc=(*next)[level].limit;
       if (eval(value,_("limit"))->type==V_ERROR) return value;
@@ -2622,7 +2626,7 @@ struct Value *stmt_NEXT(struct Value *value) /*{{{*/
       VALUE_RETYPE(&inc,l->type);
       assert(inc.type!=V_ERROR);
       pc=savepc;
-      /*}}}*/
+
       Value_add(l,&inc,1);
       if (Value_exitFor(l,value,&inc))
       {
@@ -2645,8 +2649,8 @@ struct Value *stmt_NEXT(struct Value *value) /*{{{*/
       }
     }
   }
-  /*}}}*/
-  else /*{{{*/
+
+  else
   {
     struct Pc *body;
 
@@ -2683,11 +2687,11 @@ struct Value *stmt_NEXT(struct Value *value) /*{{{*/
     }
     while (level>=0) (*next)[level--].fr.token->u.exitfor=pc;
   }
-  /*}}}*/
+
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ON(struct Value *value) /*{{{*/
+
+struct Value *stmt_ON(struct Value *value)
 {
   struct On *on=&pc.token->u.on;
 
@@ -2732,8 +2736,8 @@ struct Value *stmt_ON(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ONERROR(struct Value *value) /*{{{*/
+
+struct Value *stmt_ONERROR(struct Value *value)
 {
   if (DIRECTMODE) return Value_new_ERROR(value,NOTINDIRECTMODE);
   ++pc.token;
@@ -2745,8 +2749,8 @@ struct Value *stmt_ONERROR(struct Value *value) /*{{{*/
   }
   else return &more_statements;
 }
-/*}}}*/
-struct Value *stmt_ONERRORGOTO0(struct Value *value) /*{{{*/
+
+struct Value *stmt_ONERRORGOTO0(struct Value *value)
 {
   if (DIRECTMODE) return Value_new_ERROR(value,NOTINDIRECTMODE);
   if (pass==INTERPRET)
@@ -2761,16 +2765,16 @@ struct Value *stmt_ONERRORGOTO0(struct Value *value) /*{{{*/
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ONERROROFF(struct Value *value) /*{{{*/
+
+struct Value *stmt_ONERROROFF(struct Value *value)
 {
   if (DIRECTMODE) return Value_new_ERROR(value,NOTINDIRECTMODE);
   if (pass==INTERPRET) stack.onerror.line=-1;
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_OPEN(struct Value *value) /*{{{*/
+
+struct Value *stmt_OPEN(struct Value *value)
 {
   int inout=-1,append=0;
   int mode=FS_ACCESS_NONE,lock=FS_LOCK_NONE;
@@ -2783,7 +2787,7 @@ struct Value *stmt_OPEN(struct Value *value) /*{{{*/
   ++pc.token;
   errpc=pc;
   if (eval(value,_("mode or file"))->type==V_ERROR || Value_retype(value,V_STRING)->type==V_ERROR) return value;
-  if (pc.token->type==T_COMMA) /* parse MBASIC syntax */ /*{{{*/
+  if (pc.token->type==T_COMMA) /* parse MBASIC syntax */
   {
     if (value->u.string.length>=1)
     {
@@ -2841,8 +2845,8 @@ struct Value *stmt_OPEN(struct Value *value) /*{{{*/
       }
     }
   }
-  /*}}}*/
-  else /* parse ANSI syntax */ /*{{{*/
+
+  else /* parse ANSI syntax */
   {
     struct Value channelValue;
     int newMode;
@@ -2928,8 +2932,8 @@ struct Value *stmt_OPEN(struct Value *value) /*{{{*/
       else recLength=1;
     }
   }
-  /*}}}*/
-  /* open file with name value */ /*{{{*/
+
+  /* open file with name value */
   if (pass==INTERPRET)
   {
     int res=-1;
@@ -2956,12 +2960,12 @@ struct Value *stmt_OPEN(struct Value *value) /*{{{*/
       }
     }
   }
-  /*}}}*/
+
   Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_OPTIONBASE(struct Value *value) /*{{{*/
+
+struct Value *stmt_OPTIONBASE(struct Value *value)
 {
   ++pc.token;
   if (eval(value,_("array subscript base"))->type==V_ERROR || (pass!=DECLARE && Value_retype(value,V_INTEGER)->type==V_ERROR)) return value;
@@ -2969,8 +2973,8 @@ struct Value *stmt_OPTIONBASE(struct Value *value) /*{{{*/
   Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_OPTIONRUN(struct Value *value) /*{{{*/
+
+struct Value *stmt_OPTIONRUN(struct Value *value)
 {
   ++pc.token;
   if (pass==INTERPRET)
@@ -2980,8 +2984,8 @@ struct Value *stmt_OPTIONRUN(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_OPTIONSTOP(struct Value *value) /*{{{*/
+
+struct Value *stmt_OPTIONSTOP(struct Value *value)
 {
   ++pc.token;
   if (pass==INTERPRET)
@@ -2991,8 +2995,8 @@ struct Value *stmt_OPTIONSTOP(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_OUT_POKE(struct Value *value) /*{{{*/
+
+struct Value *stmt_OUT_POKE(struct Value *value)
 {
   int out,address,val;
   struct Pc lpc;
@@ -3018,8 +3022,8 @@ struct Value *stmt_OUT_POKE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
+
+struct Value *stmt_PRINT_LPRINT(struct Value *value)
 {
   int nl=1;
   int chn=(pc.token->type==T_PRINT?STDCHANNEL:LPCHANNEL);
@@ -3029,7 +3033,7 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
   size_t usingpos=0;
 
   ++pc.token;
-  if (chn==STDCHANNEL && pc.token->type==T_CHANNEL) /*{{{*/
+  if (chn==STDCHANNEL && pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -3037,8 +3041,8 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pc.token->type==T_COMMA) ++pc.token;
   }
-  /*}}}*/
-  if (pc.token->type==T_USING) /*{{{*/
+
+  if (pc.token->type==T_USING)
   {
     struct Pc usingpc;
 
@@ -3068,7 +3072,7 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
     }
     ++pc.token;
   }
-  /*}}}*/
+
   else
   {
     Value_new_STRING(&usingval);
@@ -3079,7 +3083,7 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
     struct Pc valuepc;
 
     valuepc=pc;
-    if (eval(value,(const char*)0)) /*{{{*/
+    if (eval(value,(const char*)0))
     {
       if (value->type==V_ERROR)
       {
@@ -3110,8 +3114,8 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
       Value_destroy(value);
       nl=1;
     }
-    /*}}}*/
-    else if (pc.token->type==T_TAB || pc.token->type==T_SPC) /*{{{*/
+
+    else if (pc.token->type==T_TAB || pc.token->type==T_SPC)
     {
       int tab=pc.token->type==T_TAB;
 
@@ -3150,20 +3154,20 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
       ++pc.token;
       nl=1;
     }
-    /*}}}*/
-    else if (pc.token->type==T_SEMICOLON) /*{{{*/
+
+    else if (pc.token->type==T_SEMICOLON)
     {
       ++pc.token;
       nl=0;
     }
-    /*}}}*/
-    else if (pc.token->type==T_COMMA) /*{{{*/
+
+    else if (pc.token->type==T_COMMA)
     {
       ++pc.token;
       if (pass==INTERPRET && !printusing) FS_nextcol(chn);
       nl=0;
     }
-    /*}}}*/
+
     else break;
     if (pass==INTERPRET && FS_flush(chn)==-1)
     {
@@ -3179,8 +3183,8 @@ struct Value *stmt_PRINT_LPRINT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_RANDOMIZE(struct Value *value) /*{{{*/
+
+struct Value *stmt_RANDOMIZE(struct Value *value)
 {
   struct Pc argpc;
 
@@ -3201,8 +3205,8 @@ struct Value *stmt_RANDOMIZE(struct Value *value) /*{{{*/
   else srand(getpid()^time((time_t*)0));
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_READ(struct Value *value) /*{{{*/
+
+struct Value *stmt_READ(struct Value *value)
 {
   ++pc.token;
   while (1)
@@ -3227,8 +3231,8 @@ struct Value *stmt_READ(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_COPY_RENAME(struct Value *value) /*{{{*/
+
+struct Value *stmt_COPY_RENAME(struct Value *value)
 {
   struct Pc argpc;
   struct Value from;
@@ -3281,8 +3285,8 @@ struct Value *stmt_COPY_RENAME(struct Value *value) /*{{{*/
   Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_RENUM(struct Value *value) /*{{{*/
+
+struct Value *stmt_RENUM(struct Value *value)
 {
   int first=10,inc=10;
 
@@ -3306,15 +3310,15 @@ struct Value *stmt_RENUM(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_REPEAT(struct Value *value) /*{{{*/
+
+struct Value *stmt_REPEAT(struct Value *value)
 {
   if (pass==DECLARE || pass==COMPILE) pushLabel(L_REPEAT,&pc);
   ++pc.token;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_RESTORE(struct Value *value) /*{{{*/
+
+struct Value *stmt_RESTORE(struct Value *value)
 {
   struct Token *restorepc=pc.token;
 
@@ -3328,8 +3332,8 @@ struct Value *stmt_RESTORE(struct Value *value) /*{{{*/
   else if (pass==COMPILE) restorepc->u.restore=stack.begindata;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_RETURN(struct Value *value) /*{{{*/
+
+struct Value *stmt_RETURN(struct Value *value)
 {
   if (pass==DECLARE || pass==COMPILE) ++pc.token;
   if (pass==INTERPRET)
@@ -3339,8 +3343,8 @@ struct Value *stmt_RETURN(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_RUN(struct Value *value) /*{{{*/
+
+struct Value *stmt_RUN(struct Value *value)
 {
   struct Pc argpc,begin;
 
@@ -3408,8 +3412,8 @@ struct Value *stmt_RUN(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_SAVE(struct Value *value) /*{{{*/
+
+struct Value *stmt_SAVE(struct Value *value)
 {
   struct Pc loadpc;
   int name;
@@ -3454,8 +3458,8 @@ struct Value *stmt_SAVE(struct Value *value) /*{{{*/
   else if (name) Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
+
+struct Value *stmt_SELECTCASE(struct Value *value)
 {
   struct Pc statementpc=pc;
 
@@ -3478,7 +3482,7 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
       ++pc.token;
       switch (casevaluepc.token->type)
       {
-        case T_CASEVALUE: /*{{{*/
+        case T_CASEVALUE:
         {
           do
           {
@@ -3499,7 +3503,7 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
               }
               Value_retype(&casevalue1,statementpc.token->u.selectcase->type);
               assert(casevalue1.type!=V_ERROR);
-              if (!match) /*{{{*/
+              if (!match)
               {
                 struct Value cmp;
 
@@ -3518,7 +3522,7 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
                 match=cmp.u.integer;
                 Value_destroy(&cmp);
               }
-              /*}}}*/
+
               Value_destroy(&casevalue1);
             }
             else
@@ -3531,7 +3535,7 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
               }
               Value_retype(&casevalue1,statementpc.token->u.selectcase->type);
               assert(casevalue1.type!=V_ERROR);
-              if (pc.token->type==T_TO) /* match range */ /*{{{*/
+              if (pc.token->type==T_TO) /* match range */
               {
                 struct Value casevalue2;
 
@@ -3561,8 +3565,8 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
                 }
                 Value_destroy(&casevalue2);
               }
-              /*}}}*/
-              else /* match value */ /*{{{*/
+
+              else /* match value */
               {
                 if (!match)
                 {
@@ -3575,7 +3579,7 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
                   Value_destroy(&cmp);
                 }
               }
-              /*}}}*/
+
               Value_destroy(&casevalue1);
             }
             if (pc.token->type==T_COMMA) ++pc.token;
@@ -3583,13 +3587,13 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
           } while (1);
           break;
         }
-        /*}}}*/
-        case T_CASEELSE: /*{{{*/
+
+        case T_CASEELSE:
         {
           match=1;
           break;
         }
-        /*}}}*/
+
         default: assert(0);
       }
       if (!match)
@@ -3609,9 +3613,10 @@ struct Value *stmt_SELECTCASE(struct Value *value) /*{{{*/
   Value_destroy(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_SHELL(struct Value *value) /*{{{*/
+
+struct Value *stmt_SHELL(struct Value *value)
 {
+#ifdef CONFIG_ARCH_HAVE_VFORK
   pid_t pid;
   int status;
 
@@ -3683,9 +3688,12 @@ struct Value *stmt_SHELL(struct Value *value) /*{{{*/
     }
   }
   return (struct Value*)0;
+#else
+  return Value_new_ERROR(value,FORKFAILED,strerror(ENOSYS));
+#endif
 }
-/*}}}*/
-struct Value *stmt_SLEEP(struct Value *value) /*{{{*/
+
+struct Value *stmt_SLEEP(struct Value *value)
 {
   ++pc.token;
   if (eval(value,_("pause"))->type==V_ERROR || Value_retype(value,V_REAL)->type==V_ERROR) return value;
@@ -3701,8 +3709,8 @@ struct Value *stmt_SLEEP(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_STOP(struct Value *value) /*{{{*/
+
+struct Value *stmt_STOP(struct Value *value)
 {
   if (pass==INTERPRET) FS_intr=1;
   else
@@ -3711,8 +3719,8 @@ struct Value *stmt_STOP(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_SUBEXIT(struct Value *value) /*{{{*/
+
+struct Value *stmt_SUBEXIT(struct Value *value)
 {
   struct Pc *curfn=(struct Pc*)0;
 
@@ -3727,8 +3735,8 @@ struct Value *stmt_SUBEXIT(struct Value *value) /*{{{*/
   if (pass==INTERPRET) return Value_new_VOID(value);
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_SWAP(struct Value *value) /*{{{*/
+
+struct Value *stmt_SWAP(struct Value *value)
 {
   struct Value *l1,*l2;
   struct Pc lvaluepc;
@@ -3765,8 +3773,8 @@ struct Value *stmt_SWAP(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_SYSTEM(struct Value *value) /*{{{*/
+
+struct Value *stmt_SYSTEM(struct Value *value)
 {
   ++pc.token;
   if (pass==INTERPRET)
@@ -3797,22 +3805,22 @@ struct Value *stmt_SYSTEM(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_TROFF(struct Value *value) /*{{{*/
+
+struct Value *stmt_TROFF(struct Value *value)
 {
   ++pc.token;
   program.trace=0;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_TRON(struct Value *value) /*{{{*/
+
+struct Value *stmt_TRON(struct Value *value)
 {
   ++pc.token;
   program.trace=1;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_TRUNCATE(struct Value *value) /*{{{*/
+
+struct Value *stmt_TRUNCATE(struct Value *value)
 {
   struct Pc chnpc;
   int chn;
@@ -3834,8 +3842,8 @@ struct Value *stmt_TRUNCATE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_UNNUM(struct Value *value) /*{{{*/
+
+struct Value *stmt_UNNUM(struct Value *value)
 {
   ++pc.token;
   if (pass==INTERPRET)
@@ -3845,8 +3853,8 @@ struct Value *stmt_UNNUM(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_UNTIL(struct Value *value) /*{{{*/
+
+struct Value *stmt_UNTIL(struct Value *value)
 {
   struct Pc untilpc=pc;
   struct Pc *repeatpc;
@@ -3865,8 +3873,8 @@ struct Value *stmt_UNTIL(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_WAIT(struct Value *value) /*{{{*/
+
+struct Value *stmt_WAIT(struct Value *value)
 {
   int address,mask,sel=-1,usesel;
   struct Pc lpc;
@@ -3905,8 +3913,8 @@ struct Value *stmt_WAIT(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_WHILE(struct Value *value) /*{{{*/
+
+struct Value *stmt_WHILE(struct Value *value)
 {
   struct Pc whilepc=pc;
 
@@ -3920,8 +3928,8 @@ struct Value *stmt_WHILE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_WEND(struct Value *value) /*{{{*/
+
+struct Value *stmt_WEND(struct Value *value)
 {
   if (pass==DECLARE || pass==COMPILE)
   {
@@ -3935,13 +3943,13 @@ struct Value *stmt_WEND(struct Value *value) /*{{{*/
   else pc=*pc.token->u.whilepc;
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_WIDTH(struct Value *value) /*{{{*/
+
+struct Value *stmt_WIDTH(struct Value *value)
 {
   int chn=STDCHANNEL,width;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -3949,7 +3957,7 @@ struct Value *stmt_WIDTH(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pc.token->type==T_COMMA) ++pc.token;
   }
-  /*}}}*/
+
   if (eval(value,(const char*)0))
   {
     if (value->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -3957,7 +3965,7 @@ struct Value *stmt_WIDTH(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pass==INTERPRET && FS_width(chn,width)==-1) return Value_new_ERROR(value,IOERROR,FS_errmsg);
   }
-  if (pc.token->type==T_COMMA) /*{{{*/
+  if (pc.token->type==T_COMMA)
   {
     ++pc.token;
     if (eval(value,_("zone width"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -3965,17 +3973,17 @@ struct Value *stmt_WIDTH(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pass==INTERPRET && FS_zone(chn,width)==-1) return Value_new_ERROR(value,IOERROR,FS_errmsg);
   }
-  /*}}}*/
+
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_WRITE(struct Value *value) /*{{{*/
+
+struct Value *stmt_WRITE(struct Value *value)
 {
   int chn=STDCHANNEL;
   int comma=0;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -3983,7 +3991,7 @@ struct Value *stmt_WRITE(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pc.token->type==T_COMMA) ++pc.token;
   }
-  /*}}}*/
+
   while (1)
   {
     if (eval(value,(const char*)0))
@@ -4016,8 +4024,8 @@ struct Value *stmt_WRITE(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_XREF(struct Value *value) /*{{{*/
+
+struct Value *stmt_XREF(struct Value *value)
 {
   stack.resumeable=0;
   ++pc.token;
@@ -4028,13 +4036,13 @@ struct Value *stmt_XREF(struct Value *value) /*{{{*/
   }
   return (struct Value*)0;
 }
-/*}}}*/
-struct Value *stmt_ZONE(struct Value *value) /*{{{*/
+
+struct Value *stmt_ZONE(struct Value *value)
 {
   int chn=STDCHANNEL,width;
 
   ++pc.token;
-  if (pc.token->type==T_CHANNEL) /*{{{*/
+  if (pc.token->type==T_CHANNEL)
   {
     ++pc.token;
     if (eval(value,_("channel"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
@@ -4042,11 +4050,11 @@ struct Value *stmt_ZONE(struct Value *value) /*{{{*/
     Value_destroy(value);
     if (pc.token->type==T_COMMA) ++pc.token;
   }
-  /*}}}*/
+
   if (eval(value,_("zone width"))->type==V_ERROR || Value_retype(value,V_INTEGER)->type==V_ERROR) return value;
   width=value->u.integer;
   Value_destroy(value);
   if (pass==INTERPRET && FS_zone(chn,width)==-1) return Value_new_ERROR(value,IOERROR,FS_errmsg);
   return (struct Value*)0;
 }
-/*}}}*/
+
