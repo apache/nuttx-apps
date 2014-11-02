@@ -1343,7 +1343,7 @@ struct String *Value_toString(struct Value *this, struct String *s, char pad,
           case -1:
             {
               ++totalwidth;
-              String_appendChar(&buf, sign = = -1 ? '-' : ' ');
+              String_appendChar(&buf, sign == -1 ? '-' : ' ');
               break;
             }
           case 0:
