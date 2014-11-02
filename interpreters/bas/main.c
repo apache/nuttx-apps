@@ -156,12 +156,10 @@ int bas_main(int argc, char *argv[])
     {
       fputs(_("Usage: bas [-b] [-l file] [-r] [-u] [program [argument ...]]\n"),
             stderr);
-      fputs(_("       bas [--backslash-colon] [--lp file] [--restricted] [--uppercase] [program [argument ...]]\n"),
-            stderr);
-      fputs(_("       bas -h|--help\n"), stderr);
-      fputs(_("       bas --version\n"), stderr);
+      fputs(_("       bas -h\n"), stderr);
+      fputs(_("       bas -V\n"), stderr);
       fputs("\n", stderr);
-      fputs(_("Try `bas -h' or `bas --help' for more information.\n"), stderr);
+      fputs(_("Try `bas -h' for more information.\n"), stderr);
       exit(1);
     }
 
@@ -169,23 +167,19 @@ int bas_main(int argc, char *argv[])
     {
       fputs(_("Usage: bas [-b] [-l file] [-u] [program [argument ...]]\n"),
             stdout);
-      fputs(_("       bas [--backslash-colon] [--lp file] [--restricted] [--uppercase] [program [argument ...]]\n"),
-            stdout);
-      fputs(_("       bas -h|--help\n"), stdout);
-      fputs(_("       bas --version\n"), stdout);
+      fputs(_("       bas -h\n"), stdout);
+      fputs(_("       bas -V\n"), stdout);
       fputs("\n", stdout);
       fputs(_("BASIC interpreter.\n"), stdout);
       fputs("\n", stdout);
-      fputs(_("-b, --backslash-colon  convert backslashs to colons\n"), stdout);
-      fputs(_("-l, --lp               write LPRINT output to file\n"), stdout);
-      fputs(_("-r, --restricted       forbid SHELL\n"), stdout);
-      fputs(_("-u, --uppercase        output all tokens in uppercase\n"),
+      fputs(_("-b  Convert backslashs to colons\n"), stdout);
+      fputs(_("-l  Write LPRINT output to file\n"), stdout);
+      fputs(_("-r  Forbid SHELL\n"), stdout);
+      fputs(_("-u  Output all tokens in uppercase\n"),
             stdout);
-      fputs(_("-h, --help             display this help and exit\n"), stdout);
-      fputs(_("    --version          output version information and exit\n"),
+      fputs(_("-h  Display this help and exit\n"), stdout);
+      fputs(_("-V  Ooutput version information and exit\n"),
             stdout);
-      fputs("\n", stdout);
-      fputs(_("Report bugs to <michael@moria.de>.\n"), stdout);
       exit(0);
     }
 
