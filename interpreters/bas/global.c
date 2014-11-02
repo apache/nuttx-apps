@@ -28,10 +28,6 @@
 #include "global.h"
 #include "var.h"
 
-#ifdef USE_DMALLOC
-#include "dmalloc.h"
-#endif
-
 #include <nuttx/clock.h>
 
 #ifndef M_PI

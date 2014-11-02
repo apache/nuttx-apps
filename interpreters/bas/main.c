@@ -80,10 +80,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef USE_DMALLOC
-#  include "dmalloc.h"
-#endif
-
 #include "bas.h"
 
 /****************************************************************************

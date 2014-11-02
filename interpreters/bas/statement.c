@@ -10,11 +10,6 @@
 
 #include "statement.h"
 
-#ifdef USE_DMALLOC
-#include "dmalloc.h"
-#endif
-
-
 struct Value *stmt_CALL(struct Value *value)
 {
   ++pc.token;

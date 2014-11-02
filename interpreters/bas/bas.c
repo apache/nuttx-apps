@@ -36,10 +36,6 @@
 #include "value.h"
 #include "var.h"
 
-#ifdef USE_DMALLOC
-#  include "dmalloc.h"
-#endif
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/

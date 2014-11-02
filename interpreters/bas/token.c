@@ -1402,11 +1402,6 @@ char *yytext;
 #include "token.h"
 #include "statement.h"
 
-#ifdef DMALLOC
-#include "dmalloc.h"
-#endif
-/*}}}*/
-
 static int matchdata;
 static int backslash_colon;
 static int uppercase;

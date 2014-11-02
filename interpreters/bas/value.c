@@ -100,10 +100,6 @@ extern long int lrint(double x);
 #include "error.h"
 #include "value.h"
 
-#ifdef USE_DMALLOC
-#  include "dmalloc.h"
-#endif
-
 /****************************************************************************
  * Private Data
  ****************************************************************************/

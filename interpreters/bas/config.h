@@ -26,9 +26,6 @@
 /* What does tputs return? */
 /* #undef TPUTS_RETURNS_VOID */
 
-/* Define as 1 if you use dmalloc. */
-/* #undef USE_DMALLOC */
-
 /* Define as 1 if you want LR0 parser. */
 /* #undef USE_LR0 */
 
