@@ -4243,7 +4243,7 @@ static void yy_load_buffer_state  (void)
    * In that case, we don't want to reset the lineno or column.
    */
 
- if (b != YY_CURRENT_BUFFER
+ if (b != YY_CURRENT_BUFFER)
    {
       b->yy_bs_lineno = 1;
       b->yy_bs_column = 0;

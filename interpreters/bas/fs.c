@@ -168,7 +168,9 @@ static int size(int dev)
 
       file = n;
       for (i = capacity; i <= dev; ++i)
-        file[i] = (struct FileStream *)0;
+        {
+          file[i] = (struct FileStream *)0;
+        }
 
       capacity = dev + 1;
     }
