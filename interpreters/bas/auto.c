@@ -61,11 +61,6 @@
  * Included Files
  ****************************************************************************/
 
-#undef  _POSIX_SOURCE
-#define _POSIX_SOURCE   1
-#undef  _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 2
-
 #include "config.h"
 
 #include <assert.h>

@@ -107,29 +107,6 @@ static struct Value *eval(struct Value *value, const char *desc);
  * Private Functions
  ****************************************************************************/
 
-static char *mytmpnam(void)
-{
-  static char buf[_POSIX_PATH_MAX];
-  const char *tmpdir;
-  unsigned int i;
-  int fd = -1;
-
-  if ((tmpdir = getenv("TMPDIR")) == (char *)0)
-    tmpdir = "/tmp";
-  if ((strlen(tmpdir) + 1 + 8 + 1) >= _POSIX_PATH_MAX)
-    return (char *)0;
-  i = getpid();
-  while (i < 0xffffffff &&
-         (snprintf(buf, sizeof(buf), "%s/%08x", tmpdir, i),
-          (fd = open(buf, O_RDWR | O_CREAT | O_EXCL, 0600))) == -1 &&
-         errno == EEXIST)
-    ++i;
-  if (fd == -1)
-    return (char *)0;
-  close(fd);
-  return buf;
-}
-
 static int cat(const char *filename)
 {
   int fd;

@@ -1,4 +1,3 @@
-/* #includes */ /*{{{C}}}*/
 #include "config.h"
 
 #ifdef HAVE_GETTEXT
