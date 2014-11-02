@@ -1,5 +1,61 @@
-
-/* BASIC file system interface. */
+/****************************************************************************
+ * apps/examples/interpreters/bas/value.c
+ * BASIC file system interface.
+ *
+ *   Copyright (c) 1999-2014 Michael Haardt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Adapted to NuttX and re-released under a 3-clause BSD license:
+ *
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Authors: Alan Carvalho de Assis <Alan Carvalho de Assis>
+ *            Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
 
 /****************************************************************************
  * Included Files
@@ -71,9 +127,19 @@ static char FS_errmsgbuf[80];
 volatile int FS_intr;
 
 #ifdef HAVE_TGETENT
-static char *term, entrybuf[2048], *cap;
-static char *cl, *cm, *ce, *cr, *md, *me, *AF, *AB;
-static int Co, NC;
+static char *term;
+static char entrybuf[2048];
+static char *cap;
+static char *cl;
+static char *cm;
+static char *ce;
+static char *cr;
+static char *md;
+static char *me;
+static char *AF;
+static char *AB;
+static int Co;
+static int NC;
 #endif
 
 /****************************************************************************
@@ -87,7 +153,8 @@ static int size(int dev)
       int i;
       struct FileStream **n;
 
-      n = (struct FileStream **)realloc(file, (dev + 1) * sizeof(struct FileStream *));
+      n = (struct FileStream **)
+        realloc(file, (dev + 1) * sizeof(struct FileStream *));
       if (n == (struct FileStream **)0)
         {
           FS_errmsg = strerror(errno);
@@ -117,7 +184,9 @@ static int opened(int dev, int mode)
     }
 
   if (mode == -1)
-    return 0;
+    {
+      return 0;
+    }
 
   switch (mode)
     {
@@ -125,45 +194,60 @@ static int opened(int dev, int mode)
       {
         fd = file[dev]->outfd;
         if (fd == -1)
-          snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
-                   _("channel #%d not opened for writing"), dev);
+          {
+            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+                     _("channel #%d not opened for writing"), dev);
+          }
         break;
       }
+
     case 1:
       {
         fd = file[dev]->infd;
         if (fd == -1)
-          snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
-                   _("channel #%d not opened for reading"), dev);
+          {
+            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+                     _("channel #%d not opened for reading"), dev);
+          }
         break;
       }
+
     case 2:
       {
         fd = file[dev]->randomfd;
         if (fd == -1)
-          snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
-                   _("channel #%d not opened for random access"), dev);
+          {
+            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+                     _("channel #%d not opened for random access"), dev);
+          }
         break;
       }
+
     case 3:
       {
         fd = file[dev]->binaryfd;
         if (fd == -1)
-          snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
-                   _("channel #%d not opened for binary access"), dev);
+          {
+            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+                     _("channel #%d not opened for binary access"), dev);
+          }
         break;
       }
+
     case 4:
       {
         fd =
           (file[dev]->randomfd !=
            -1 ? file[dev]->randomfd : file[dev]->binaryfd);
         if (fd == -1)
-          snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
-                   _("channel #%d not opened for random or binary access"),
-                   dev);
+          {
+            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+                     _("channel #%d not opened for random or binary access"),
+                     dev);
+          }
         break;
       }
+
     default:
       assert(0);
     }
@@ -174,7 +258,9 @@ static int opened(int dev, int mode)
       return -1;
     }
   else
-    return 0;
+    {
+      return 0;
+    }
 }
 
 static int refill(int dev)
@@ -213,7 +299,9 @@ static int edit(int chn, int onl)
           FS_putChar(chn, *buf ? (*buf + 'a' - 1) : '@');
         }
       else
-        FS_putChar(chn, *buf);
+        {
+          FS_putChar(chn, *buf);
+        }
     }
   do
     {
@@ -236,9 +324,14 @@ static int edit(int chn, int onl)
             {
               if (f->inBuf[f->inCapacity - 1] >= '\0' &&
                   f->inBuf[f->inCapacity - 1] < ' ')
-                FS_putChars(chn, "\b\b  \b\b");
+                {
+                  FS_putChars(chn, "\b\b  \b\b");
+                }
               else
-                FS_putChars(chn, "\b \b");
+                {
+                  FS_putChars(chn, "\b \b");
+                }
+
               --f->inCapacity;
             }
         }
@@ -252,10 +345,15 @@ static int edit(int chn, int onl)
                   FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
                 }
               else
-                FS_putChar(chn, ch);
+                {
+                  FS_putChar(chn, ch);
+                }
             }
           else if (onl)
-            FS_putChar(chn, '\n');
+            {
+              FS_putChar(chn, '\n');
+            }
+
           f->inBuf[f->inCapacity++] = ch;
         }
     }
@@ -269,11 +367,15 @@ static int outc(int ch)
   struct FileStream *f;
 
   if (opened(termchannel, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[termchannel];
   if (f->outSize + 1 >= f->outCapacity && FS_flush(termchannel) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f->outBuf[f->outSize++] = ch;
   FS_errmsg = (const char *)0;
@@ -311,12 +413,14 @@ static int initTerminal(int chn)
             FS_errmsg = _("reading terminal description failed");
             return -1;
           }
+
         case 0:
           {
             sprintf(FS_errmsgbuf, _("unknown terminal type %s"), term);
             FS_errmsg = FS_errmsgbuf;
             return -1;
           }
+
         case 1:
           {
             cl = tgetstr("cl", &cap);
@@ -329,7 +433,9 @@ static int initTerminal(int chn)
             AB = tgetstr("AB", &cap);
             Co = tgetnum("Co");
             if ((NC = tgetnum("NC")) == -1)
-              NC = 0;
+              {
+                NC = 0;
+              }
 
             return 0;
           }
@@ -337,100 +443,127 @@ static int initTerminal(int chn)
 
       init = 1;
     }
-  return 0;
-}
 
-static int cls(int chn)
-{
-  if (cl == (char *)0)
-    {
-      sprintf(FS_errmsgbuf, _("terminal type %s can not clear the screen"),
-              term);
-      FS_errmsg = FS_errmsgbuf;
-      return -1;
-    }
-
-  if (mytputs(cl, 0, outc) == -1)
-    return -1;
-
-  return 0;
-}
-
-static int locate(int chn, int line, int column)
-{
-  termchannel = chn;
-  if (cm == (char *)0)
-    {
-      sprintf(FS_errmsgbuf, _("terminal type %s can not position the cursor"),
-              term);
-      FS_errmsg = FS_errmsgbuf;
-      return -1;
-    }
-
-  if (mytputs(tgoto(cm, column - 1, line - 1), 0, outc) == -1)
-    return -1;
-
-  return 0;
-}
-
-static int colour(int chn, int foreground, int background)
-{
-  if (AF && AB && Co >= 8)
-    {
-      static int map[8] = { 0, 4, 2, 6, 1, 5, 3, 7 };
-
-      if (foreground != -1)
-        {
-          if (md && me && !(NC & 32))
-            {
-              if (foreground > 7 && file[chn]->outforeground <= 7)
-                {
-                  if (mytputs(md, 0, outc) == -1)
-                    return -1;
-                  /* all attributes are gone now, need to set background again */
-                  if (background == -1)
-                    background = file[chn]->outbackground;
-                }
-              else if (foreground <= 7 && file[chn]->outforeground > 7)
-                {
-                  if (mytputs(me, 0, outc) == -1)
-                    return -1;
-                }
-            }
-
-          if (mytputs(tgoto(AF, 0, map[foreground & 7]), 0, outc) == -1)
-            return -1;
+          return 0;
         }
 
-      if (background != -1)
-        {
-          if (mytputs(tgoto(AB, 0, map[background & 7]), 0, outc) == -1)
+      static int cls(int chn)
+      {
+        if (cl == (char *)0)
+          {
+            sprintf(FS_errmsgbuf,
+                    _("terminal type %s can not clear the screen"), term);
+            FS_errmsg = FS_errmsgbuf;
             return -1;
-        }
-    }
+          }
 
-  return 0;
-}
+        if (mytputs(cl, 0, outc) == -1)
+          {
+            return -1;
+          }
 
-static int resetcolour(int chn)
-{
-  if (me)
-    mytputs(me, 0, outc);
-  if (ce)
-    mytputs(ce, 0, outc);
+        return 0;
+      }
 
-  return 0;
-}
+      static int locate(int chn, int line, int column)
+      {
+        termchannel = chn;
+        if (cm == (char *)0)
+          {
+            sprintf(FS_errmsgbuf,
+                    _("terminal type %s can not position the cursor"), term);
+            FS_errmsg = FS_errmsgbuf;
+            return -1;
+          }
 
-static void carriage_return(int chn)
-{
-  if (cr)
-    mytputs(cr, 0, outc);
-  else
-    outc('\r');
+        if (mytputs(tgoto(cm, column - 1, line - 1), 0, outc) == -1)
+          {
+            return -1;
+          }
 
-  outc('\n');
-}
+        return 0;
+      }
+
+      static int colour(int chn, int foreground, int background)
+      {
+        if (AF && AB && Co >= 8)
+          {
+            static int map[8] = { 0, 4, 2, 6, 1, 5, 3, 7 };
+
+            if (foreground != -1)
+              {
+                if (md && me && !(NC & 32))
+                  {
+                    if (foreground > 7 && file[chn]->outforeground <= 7)
+                      {
+                        if (mytputs(md, 0, outc) == -1)
+                          {
+                            return -1;
+                          }
+
+                        /* all attributes are gone now, need to set background
+                         * again */
+
+                        if (background == -1)
+                          {
+                            background = file[chn]->outbackground;
+                          }
+                      }
+                    else if (foreground <= 7 && file[chn]->outforeground > 7)
+                      {
+                        if (mytputs(me, 0, outc) == -1)
+                          {
+                            return -1;
+                          }
+                      }
+                  }
+
+                if (mytputs(tgoto(AF, 0, map[foreground & 7]), 0, outc) == -1)
+                  {
+                    return -1;
+                  }
+              }
+
+            if (background != -1)
+              {
+                if (mytputs(tgoto(AB, 0, map[background & 7]), 0, outc) == -1)
+                  {
+                    return -1;
+                  }
+              }
+          }
+
+        return 0;
+      }
+
+      static int resetcolour(int chn)
+      {
+        if (me)
+          {
+            mytputs(me, 0, outc);
+          }
+
+        if (ce)
+          {
+            mytputs(ce, 0, outc);
+          }
+
+        return 0;
+      }
+
+      static void carriage_return(int chn)
+      {
+        if (cr)
+          {
+            mytputs(cr, 0, outc);
+          }
+        else
+          {
+            outc('\r');
+          }
+
+        outc('\n');
+      }
 
 #else
 static int initTerminal(int chn)
@@ -485,7 +618,9 @@ static void sigintr(int sig)
 int FS_opendev(int chn, int infd, int outfd)
 {
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (file[chn] != (struct FileStream *)0)
     {
@@ -552,11 +687,17 @@ int FS_openin(const char *name)
     }
 
   for (chn = 0; chn < capacity; ++chn)
-    if (file[chn] == (struct FileStream *)0)
-      break;
+    {
+      if (file[chn] == (struct FileStream *)0)
+        {
+          break;
+        }
+    }
 
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   file[chn] = malloc(sizeof(struct FileStream));
   file[chn]->recLength = 1;
@@ -579,7 +720,9 @@ int FS_openinChn(int chn, const char *name, int mode)
   mode_t fl;
 
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (file[chn] != (struct FileStream *)0)
     {
@@ -589,9 +732,9 @@ int FS_openinChn(int chn, const char *name, int mode)
 
   fl = open_mode[mode];
 
-  /* Serial devices on Linux should be opened non-blocking, otherwise the */
-  /* open() may block already.  Named pipes can not be opened non-blocking */
-  /* in write-only mode, so first try non-blocking, then blocking.  */
+  /* Serial devices on Linux should be opened non-blocking, otherwise the
+   * open() may block already.  Named pipes can not be opened non-blocking in
+   * write-only mode, so first try non-blocking, then blocking. */
 
   if ((fd = open(name, fl | O_NONBLOCK)) == -1)
     {
@@ -634,11 +777,17 @@ int FS_openout(const char *name)
     }
 
   for (chn = 0; chn < capacity; ++chn)
-    if (file[chn] == (struct FileStream *)0)
-      break;
+    {
+      if (file[chn] == (struct FileStream *)0)
+        {
+          break;
+        }
+    }
 
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   file[chn] = malloc(sizeof(struct FileStream));
   file[chn]->recLength = 1;
@@ -664,7 +813,9 @@ int FS_openoutChn(int chn, const char *name, int mode, int append)
   mode_t fl;
 
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (file[chn] != (struct FileStream *)0)
     {
@@ -679,7 +830,7 @@ int FS_openoutChn(int chn, const char *name, int mode, int append)
   /* in write-only mode, so first try non-blocking, then blocking.  */
 
   fd = open(name, fl | O_CREAT | (append ? 0 : O_TRUNC) | O_NONBLOCK, 0666);
-  if (fd ==  -1)
+  if (fd == -1)
     {
       if (errno != ENXIO ||
           (fd = open(name, fl | O_CREAT | (append ? 0 : O_TRUNC), 0666)) == -1)
@@ -721,7 +872,9 @@ int FS_openrandomChn(int chn, const char *name, int mode, int recLength)
   assert(name != (const char *)0);
   assert(recLength > 0);
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (file[chn] != (struct FileStream *)0)
     {
@@ -758,7 +911,9 @@ int FS_openbinaryChn(int chn, const char *name, int mode)
   assert(chn >= 0);
   assert(name != (const char *)0);
   if (size(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (file[chn] != (struct FileStream *)0)
     {
@@ -790,7 +945,9 @@ int FS_freechn(void)
 
   for (i = 0; i < capacity && file[i]; ++i);
   if (size(i) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   return i;
 }
@@ -818,7 +975,9 @@ int FS_flush(int dev)
           return -1;
         }
       else
-        offset += written;
+        {
+          offset += written;
+        }
     }
 
   file[dev]->outSize = 0;
@@ -838,7 +997,10 @@ int FS_close(int dev)
     {
       if (file[dev]->tty &&
           (file[dev]->outforeground != -1 || file[dev]->outbackground != -1))
-        resetcolour(dev);
+        {
+          resetcolour(dev);
+        }
+
       FS_flush(dev);
       close(file[dev]->outfd);
     }
@@ -856,10 +1018,14 @@ int FS_close(int dev)
     }
 
   if (file[dev]->tty)
-    tcsetattr(file[dev]->infd, TCSADRAIN, &origMode);
+    {
+      tcsetattr(file[dev]->infd, TCSADRAIN, &origMode);
+    }
 
   if (file[dev]->infd >= 0)
-    close(file[dev]->infd);
+    {
+      close(file[dev]->infd);
+    }
 
   free(file[dev]);
   file[dev] = (struct FileStream *)0;
@@ -890,10 +1056,16 @@ int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
     }
 
   if ((fd = file[chn]->infd) == -1)
-    if ((fd = file[chn]->outfd) == -1)
-      if ((fd = file[chn]->randomfd) == -1)
-        if ((fd = file[chn]->binaryfd) == -1)
-          assert(0);
+    {
+      if ((fd = file[chn]->outfd) == -1)
+        {
+          if ((fd = file[chn]->randomfd) == -1)
+            {
+              if ((fd = file[chn]->binaryfd) == -1)
+                assert(0);
+            }
+        }
+    }
 
   recordLock.l_whence = SEEK_SET;
   recordLock.l_start = offset;
@@ -903,12 +1075,15 @@ int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
     case FS_LOCK_SHARED:
       recordLock.l_type = F_RDLCK;
       break;
+
     case FS_LOCK_EXCLUSIVE:
       recordLock.l_type = F_WRLCK;
       break;
+
     case FS_LOCK_NONE:
       recordLock.l_type = F_UNLCK;
       break;
+
     default:
       assert(0);
     }
@@ -934,10 +1109,18 @@ int FS_truncate(int chn)
     }
 
   if ((fd = file[chn]->infd) == -1)
-    if ((fd = file[chn]->outfd) == -1)
-      if ((fd = file[chn]->randomfd) == -1)
-        if ((fd = file[chn]->binaryfd) == -1)
-          assert(0);
+    {
+      if ((fd = file[chn]->outfd) == -1)
+        {
+          if ((fd = file[chn]->randomfd) == -1)
+            {
+              if ((fd = file[chn]->binaryfd) == -1)
+                {
+                  assert(0);
+                }
+            }
+        }
+    }
 
   if ((o = lseek(fd, 0, SEEK_CUR)) == (off_t) - 1 || ftruncate(fd, o + 1) == -1)
     {
@@ -955,7 +1138,9 @@ void FS_shellmode(int dev)
 #endif
 
   if (file[dev]->tty)
-    tcsetattr(file[dev]->infd, TCSADRAIN, &origMode);
+    {
+      tcsetattr(file[dev]->infd, TCSADRAIN, &origMode);
+    }
 
 #if defined(CONFIG_INTERPRETER_BAS_HAVE_SIGINT) || defined(CONFIG_INTERPRETER_BAS_HAVE_SIGQUIT)
   interrupt.sa_flags = 0;
@@ -973,7 +1158,9 @@ void FS_shellmode(int dev)
 void FS_fsmode(int chn)
 {
   if (file[chn]->tty)
-    tcsetattr(file[chn]->infd, TCSADRAIN, &rawMode);
+    {
+      tcsetattr(file[chn]->infd, TCSADRAIN, &rawMode);
+    }
 
 #ifdef CONFIG_INTERPRETER_BAS_HAVE_SIGINT
   sigaction(SIGINT, &old_sigint, (struct sigaction *)0);
@@ -988,9 +1175,13 @@ void FS_xonxoff(int chn, int on)
   if (file[chn]->tty)
     {
       if (on)
-        rawMode.c_iflag |= (IXON | IXOFF);
+        {
+          rawMode.c_iflag |= (IXON | IXOFF);
+        }
       else
-        rawMode.c_iflag &= ~(IXON | IXOFF);
+        {
+          rawMode.c_iflag &= ~(IXON | IXOFF);
+        }
 
       tcsetattr(file[chn]->infd, TCSADRAIN, &rawMode);
     }
@@ -1001,7 +1192,9 @@ int FS_put(int chn)
   ssize_t offset, written;
 
   if (opened(chn, 2) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   offset = 0;
   while (offset < file[chn]->recLength)
@@ -1015,7 +1208,9 @@ int FS_put(int chn)
           return -1;
         }
       else
-        offset += written;
+        {
+          offset += written;
+        }
     }
 
   FS_errmsg = (const char *)0;
@@ -1027,35 +1222,53 @@ int FS_putChar(int dev, char ch)
   struct FileStream *f;
 
   if (opened(dev, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[dev];
   if (ch == '\n')
-    f->outPos = 0;
+    {
+      f->outPos = 0;
+    }
 
   if (ch == '\b' && f->outPos)
-    --f->outPos;
+    {
+      --f->outPos;
+    }
 
   if (f->outSize + 2 >= f->outCapacity && FS_flush(dev) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (f->outLineWidth && f->outPos == f->outLineWidth)
     {
       if (FS_istty(dev))
-        carriage_return(dev);
+        {
+          carriage_return(dev);
+        }
       else
-        f->outBuf[f->outSize++] = '\n';
+        {
+          f->outBuf[f->outSize++] = '\n';
+        }
 
       f->outPos = 0;
     }
 
   if (FS_istty(dev) && ch == '\n')
-    carriage_return(dev);
+    {
+      carriage_return(dev);
+    }
   else
-    f->outBuf[f->outSize++] = ch;
+    {
+      f->outBuf[f->outSize++] = ch;
+    }
 
   if (ch != '\n' && ch != '\b')
-    ++f->outPos;
+    {
+      ++f->outPos;
+    }
 
   FS_errmsg = (const char *)0;
   return 0;
@@ -1064,8 +1277,12 @@ int FS_putChar(int dev, char ch)
 int FS_putChars(int dev, const char *chars)
 {
   while (*chars)
-    if (FS_putChar(dev, *chars++) == -1)
-      return -1;
+    {
+      if (FS_putChar(dev, *chars++) == -1)
+        {
+          return -1;
+        }
+    }
 
   return 0;
 }
@@ -1076,10 +1293,16 @@ int FS_putString(int dev, const struct String *s)
   const char *c = s->character;
 
   while (len)
-    if (FS_putChar(dev, *c++) == -1)
-      return -1;
-    else
-      --len;
+    {
+      if (FS_putChar(dev, *c++) == -1)
+        {
+          return -1;
+        }
+      else
+        {
+          --len;
+        }
+    }
 
   return 0;
 }
@@ -1089,11 +1312,15 @@ int FS_putItem(int dev, const struct String *s)
   struct FileStream *f;
 
   if (opened(dev, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[dev];
   if (f->outPos && f->outPos + s->length > f->outLineWidth)
-    FS_nextline(dev);
+    {
+      FS_nextline(dev);
+    }
 
   return FS_putString(dev, s);
 }
@@ -1101,7 +1328,9 @@ int FS_putItem(int dev, const struct String *s)
 int FS_putbinaryString(int chn, const struct String *s)
 {
   if (opened(chn, 3) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (s->length &&
       write(file[chn]->binaryfd, s->character, s->length) != s->length)
@@ -1119,10 +1348,14 @@ int FS_putbinaryInteger(int chn, long int x)
   int i;
 
   if (opened(chn, 3) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   for (i = 0; i < sizeof(x); ++i, x >>= 8)
-    s[i] = (x & 0xff);
+    {
+      s[i] = (x & 0xff);
+    }
 
   if (write(file[chn]->binaryfd, s, sizeof(s)) != sizeof(s))
     {
@@ -1136,7 +1369,9 @@ int FS_putbinaryInteger(int chn, long int x)
 int FS_putbinaryReal(int chn, double x)
 {
   if (opened(chn, 3) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (write(file[chn]->binaryfd, &x, sizeof(x)) != sizeof(x))
     {
@@ -1152,15 +1387,21 @@ int FS_getbinaryString(int chn, struct String *s)
   ssize_t len;
 
   if (opened(chn, 3) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (s->length &&
       (len = read(file[chn]->binaryfd, s->character, s->length)) != s->length)
     {
       if (len == -1)
-        FS_errmsg = strerror(errno);
+        {
+          FS_errmsg = strerror(errno);
+        }
       else
-        FS_errmsg = _("End of file");
+        {
+          FS_errmsg = _("End of file");
+        }
 
       return -1;
     }
@@ -1175,21 +1416,29 @@ int FS_getbinaryInteger(int chn, long int *x)
   ssize_t len;
 
   if (opened(chn, 3) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if ((len = read(file[chn]->binaryfd, s, sizeof(s))) != sizeof(s))
     {
       if (len == -1)
-        FS_errmsg = strerror(errno);
+        {
+          FS_errmsg = strerror(errno);
+        }
       else
-        FS_errmsg = _("End of file");
+        {
+          FS_errmsg = _("End of file");
+        }
 
       return -1;
     }
 
   *x = (s[sizeof(x) - 1] < 0) ? -1 : 0;
   for (i = sizeof(s) - 1; i >= 0; --i)
-    *x = (*x << 8) | (s[i] & 0xff);
+    {
+      *x = (*x << 8) | (s[i] & 0xff);
+    }
 
   return 0;
 }
@@ -1199,14 +1448,20 @@ int FS_getbinaryReal(int chn, double *x)
   ssize_t len;
 
   if (opened(chn, 3) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if ((len = read(file[chn]->binaryfd, x, sizeof(*x))) != sizeof(*x))
     {
       if (len == -1)
-        FS_errmsg = strerror(errno);
+        {
+          FS_errmsg = strerror(errno);
+        }
       else
-        FS_errmsg = _("End of file");
+        {
+          FS_errmsg = _("End of file");
+        }
 
       return -1;
     }
@@ -1219,7 +1474,9 @@ int FS_nextcol(int dev)
   struct FileStream *f;
 
   if (opened(dev, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[dev];
   if (f->outPos % f->outColWidth
@@ -1230,11 +1487,17 @@ int FS_nextcol(int dev)
     }
 
   if (!(f->outPos % f->outColWidth) && FS_putChar(dev, ' ') == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   while (f->outPos % f->outColWidth)
-    if (FS_putChar(dev, ' ') == -1)
-      return -1;
+    {
+      if (FS_putChar(dev, ' ') == -1)
+        {
+          return -1;
+        }
+    }
 
   return 0;
 }
@@ -1244,11 +1507,15 @@ int FS_nextline(int dev)
   struct FileStream *f;
 
   if (opened(dev, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[dev];
   if (f->outPos && FS_putChar(dev, '\n') == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   return 0;
 }
@@ -1258,11 +1525,17 @@ int FS_tab(int dev, int position)
   struct FileStream *f = file[dev];
 
   if (f->outLineWidth && position >= f->outLineWidth)
-    position = f->outLineWidth - 1;
+    {
+      position = f->outLineWidth - 1;
+    }
 
   while (f->outPos < (position - 1))
-    if (FS_putChar(dev, ' ') == -1)
-      return -1;
+    {
+      if (FS_putChar(dev, ' ') == -1)
+        {
+          return -1;
+        }
+    }
 
   return 0;
 }
@@ -1270,7 +1543,9 @@ int FS_tab(int dev, int position)
 int FS_width(int dev, int width)
 {
   if (opened(dev, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (width < 0)
     {
@@ -1285,7 +1560,9 @@ int FS_width(int dev, int width)
 int FS_zone(int dev, int zone)
 {
   if (opened(dev, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (zone <= 0)
     {
@@ -1302,7 +1579,9 @@ int FS_cls(int chn)
   struct FileStream *f;
 
   if (opened(chn, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[chn];
   if (!f->tty)
@@ -1312,10 +1591,14 @@ int FS_cls(int chn)
     }
 
   if (cls(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (FS_flush(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f->outPos = 0;
   return 0;
@@ -1326,7 +1609,9 @@ int FS_locate(int chn, int line, int column)
   struct FileStream *f;
 
   if (opened(chn, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[chn];
   if (!f->tty)
@@ -1336,10 +1621,14 @@ int FS_locate(int chn, int line, int column)
     }
 
   if (locate(chn, line, column) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (FS_flush(chn) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f->outPos = column - 1;
   return 0;
@@ -1350,7 +1639,9 @@ int FS_colour(int chn, int foreground, int background)
   struct FileStream *f;
 
   if (opened(chn, 0) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[chn];
   if (!f->tty)
@@ -1360,7 +1651,9 @@ int FS_colour(int chn, int foreground, int background)
     }
 
   if (colour(chn, foreground, background) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f->outforeground = foreground;
   f->outbackground = background;
@@ -1372,11 +1665,15 @@ int FS_getChar(int dev)
   struct FileStream *f;
 
   if (opened(dev, 1) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[dev];
   if (f->inSize == f->inCapacity && refill(dev) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   FS_errmsg = (const char *)0;
   if (f->inSize + 1 == f->inCapacity)
@@ -1387,7 +1684,9 @@ int FS_getChar(int dev)
       return ch;
     }
   else
-    return f->inBuf[f->inSize++];
+    {
+      return f->inBuf[f->inSize++];
+    }
 }
 
 int FS_get(int chn)
@@ -1395,7 +1694,9 @@ int FS_get(int chn)
   ssize_t offset, rd;
 
   if (opened(chn, 2) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   offset = 0;
   while (offset < file[chn]->recLength)
@@ -1409,7 +1710,9 @@ int FS_get(int chn)
           return -1;
         }
       else
-        offset += rd;
+        {
+          offset += rd;
+        }
     }
 
   FS_errmsg = (const char *)0;
@@ -1429,11 +1732,15 @@ int FS_inkeyChar(int dev, int ms)
 #endif
 
   if (opened(dev, 1) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[dev];
   if (f->inSize < f->inCapacity)
-    return f->inBuf[f->inSize++];
+    {
+      return f->inBuf[f->inSize++];
+    }
 
 #ifdef USE_SELECT
   FD_ZERO(&just_infd);
@@ -1448,16 +1755,19 @@ int FS_inkeyChar(int dev, int ms)
         len = read(f->infd, &c, 1);
         return (len == 1 ? c : -1);
       }
+
     case 0:
       {
         FS_errmsg = (const char *)0;
         return -1;
       }
+
     case -1:
       {
         FS_errmsg = strerror(errno);
         return -1;
       }
+
     default:
       assert(0);
     }
@@ -1506,11 +1816,15 @@ int FS_eof(int chn)
   struct FileStream *f;
 
   if (opened(chn, 1) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   f = file[chn];
   if (f->inSize == f->inCapacity && refill(chn) == -1)
-    return 1;
+    {
+      return 1;
+    }
 
   return 0;
 }
@@ -1521,7 +1835,9 @@ long int FS_loc(int chn)
   off_t cur, offset = 0;
 
   if (opened(chn, -1) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   if (file[chn]->infd != -1)
     {
@@ -1534,9 +1850,13 @@ long int FS_loc(int chn)
       offset = file[chn]->outSize;
     }
   else if (file[chn]->randomfd != -1)
-    fd = file[chn]->randomfd;
+    {
+      fd = file[chn]->randomfd;
+    }
   else
-    fd = file[chn]->binaryfd;
+    {
+      fd = file[chn]->binaryfd;
+    }
 
   assert(fd != -1);
   if ((cur = lseek(fd, 0, SEEK_CUR)) == -1)
@@ -1554,15 +1874,26 @@ long int FS_lof(int chn)
   int fd;
 
   if (opened(chn, -1) == -1)
-    return -1;
+    {
+      return -1;
+    }
+
   if (file[chn]->infd != -1)
-    fd = file[chn]->infd;
+    {
+      fd = file[chn]->infd;
+    }
   else if (file[chn]->outfd != -1)
-    fd = file[chn]->outfd;
+    {
+      fd = file[chn]->outfd;
+    }
   else if (file[chn]->randomfd != -1)
-    fd = file[chn]->randomfd;
+    {
+      fd = file[chn]->randomfd;
+    }
   else
-    fd = file[chn]->binaryfd;
+    {
+      fd = file[chn]->binaryfd;
+    }
 
   assert(fd != -1);
   if (fstat(fd, &buf) == -1)
@@ -1577,7 +1908,9 @@ long int FS_lof(int chn)
 long int FS_recLength(int chn)
 {
   if (opened(chn, 2) == -1)
-    return -1;
+    {
+      return -1;
+    }
 
   return file[chn]->recLength;
 }
@@ -1595,14 +1928,18 @@ int FS_seek(int chn, long int record)
       if (lseek
           (file[chn]->randomfd, (off_t) record * file[chn]->recLength,
            SEEK_SET) != -1)
-        return 0;
+        {
+          return 0;
+        }
 
       FS_errmsg = strerror(errno);
     }
   else if (opened(chn, 4) != -1)
     {
       if (lseek(file[chn]->binaryfd, (off_t) record, SEEK_SET) != -1)
-        return 0;
+        {
+          return 0;
+        }
 
       FS_errmsg = strerror(errno);
     }
@@ -1620,7 +1957,9 @@ int FS_appendToString(int chn, struct String *s, int onl)
   if (f->tty && f->inSize == f->inCapacity)
     {
       if (edit(chn, onl) == -1)
-        return (FS_errmsg ? -1 : 0);
+        {
+          return (FS_errmsg ? -1 : 0);
+        }
     }
 
   do
@@ -1629,10 +1968,15 @@ int FS_appendToString(int chn, struct String *s, int onl)
       while (1)
         {
           if (n == f->inBuf + f->inCapacity)
-            break;
+            {
+              break;
+            }
+
           c = *n++;
           if (c == '\n')
-            break;
+            {
+              break;
+            }
         }
 
       new = n - (f->inBuf + f->inSize);
@@ -1651,7 +1995,9 @@ int FS_appendToString(int chn, struct String *s, int onl)
           if (*(n - 1) == '\n')
             {
               if (f->inSize == f->inCapacity)
-                f->inSize = f->inCapacity = 0;
+                {
+                  f->inSize = f->inCapacity = 0;
+                }
 
               if (s->length >= 2 && s->character[s->length - 2] == '\r')
                 {
@@ -1664,7 +2010,9 @@ int FS_appendToString(int chn, struct String *s, int onl)
         }
 
       if ((c = FS_getChar(chn)) >= 0)
-        String_appendChar(s, c);
+        {
+          String_appendChar(s, c);
+        }
 
       if (c == '\n')
         {
@@ -1687,8 +2035,12 @@ void FS_closefiles(void)
   int i;
 
   for (i = 0; i < capacity; ++i)
-    if (file[i] && !file[i]->dev)
-      FS_close(i);
+    {
+      if (file[i] && !file[i]->dev)
+        {
+          FS_close(i);
+        }
+    }
 }
 
 int FS_charpos(int chn)
