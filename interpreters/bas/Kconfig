@@ -35,25 +35,5 @@ config INTERPRETERS_BAS
 
 if INTERPRETERS_BAS
 
-config INTERPRETER_BAS_HAVE_ENVIRON
-	bool
-	default n
-	depends on EXPERIMENTAL
-	---help---
-		NuttX does not support the environ variable
-
-config INTERPRETER_BAS_HAVE_FSTAT
-	bool
-	default n
-	depends on EXPERIMENTAL
-	---help---
-		NuttX does not support the fstat() function
-
-config INTERPRETER_BAS_HAVE_SYSCFG
-	bool
-	default n
-	depends on EXPERIMENTAL
-	---help---
-		NuttX does not support the syscfg() function
 
 endif

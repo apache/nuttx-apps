@@ -66,27 +66,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <float.h>
-
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
-
 #include <limits.h>
 #include <math.h>
-
-/* Buggy on some systems */
-
-#if 0
-#  ifdef HAVE_TGMATH_H
-#    include <tgmath.h>
-#  endif
-#else
-extern long int lrint(double x);
-#endif
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,6 +75,18 @@ extern long int lrint(double x);
 
 #include "error.h"
 #include "value.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define _(String) String
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+extern long int lrint(double x);
 
 /****************************************************************************
  * Private Data

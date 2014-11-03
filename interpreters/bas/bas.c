@@ -11,12 +11,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
 #include <limits.h>
 #include <math.h>
 #include <string.h>
@@ -41,9 +35,7 @@
  ****************************************************************************/
 
 #define DIRECTMODE (pc.line== -1)
-#ifndef __GNUC__
-#  define inline
-#endif
+#define _(String) String
 
 /****************************************************************************
  * Private Types
@@ -1862,10 +1854,6 @@ more:
 
 void bas_init(int backslash_colon, int restricted, int uppercase, int lpfd)
 {
-#ifdef HAVE_GETTEXT
-  bindtextdomain("bas", LOCALEDIR);
-  textdomain("bas");
-#endif
   stack.begindata.line = -1;
   Token_init(backslash_colon, uppercase);
   Global_new(&globals);

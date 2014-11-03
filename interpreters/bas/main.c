@@ -65,17 +65,17 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "bas.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define _(String) String
 
 /****************************************************************************
  * Public Functions
@@ -95,11 +95,6 @@ int bas_main(int argc, char *argv[])
   int uppercase = 0;
   int restricted = 0;
   int lpfd;
-
-#ifdef HAVE_GETTEXT
-  bindtextdomain("bas", LOCALEDIR);
-  textdomain("bas");
-#endif
 
   /* parse arguments */
 

@@ -1,14 +1,7 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-//#include "config.h"
-
-#ifdef HAVE_GETTEXT
-#include <libintl.h>
-#define _(String) gettext(String)
-#else
 #define _(String) String
-#endif
 
 #define STATIC 100
 

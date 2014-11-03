@@ -5,17 +5,17 @@
 #include "config.h"
 
 #include <assert.h>
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
 #include <math.h>
 #include <stdlib.h>
 
 #include "error.h"
 #include "var.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define _(String) String
 
 /****************************************************************************
  * Public Functions

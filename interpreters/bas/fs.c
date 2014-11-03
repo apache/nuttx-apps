@@ -67,21 +67,9 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#ifdef CONFIG_INTERPRETER_BAS_HAVE_FSTAT
-#  include <sys/stat.h>
-#endif
-
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
-
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
-
 #include <math.h>
 #include <signal.h>
 #include <stdio.h>
@@ -89,12 +77,6 @@
 #include <string.h>
 #include <termios.h>
 #include <time.h>
-#ifdef HAVE_TERMCAP_H
-#  include <termcap.h>
-#endif
-#ifdef HAVE_CURSES_H
-#  include <curses.h>
-#endif
 #include <unistd.h>
 
 #include "fs.h"
@@ -105,6 +87,8 @@
 
 #define LINEWIDTH 80
 #define COLWIDTH  14
+
+#define _(String) String
 
 /****************************************************************************
  * Private Data
@@ -1532,12 +1516,8 @@ long int FS_loc(int chn)
 
 long int FS_lof(int chn)
 {
-#ifdef CONFIG_INTERPRETER_BAS_HAVE_FSTAT
-  struct stat buf;
-#else
   off_t curpos;
   off_t endpos;
-#endif
   int fd;
 
   if (opened(chn, -1) == -1)
@@ -1565,16 +1545,6 @@ long int FS_lof(int chn)
   assert(fd != -1);
 
   /* Get the size of the file */
-
-#ifdef CONFIG_INTERPRETER_BAS_HAVE_FSTAT
-  if (fstat(fd, &buf) == -1)
-    {
-      FS_errmsg = strerror(errno);
-      return -1;
-    }
-
-  return (long int)(buf.st_size / file[chn]->recLength);
-#else
   /* Save the current file position */
 
   curpos = lseek(fd, 0, SEEK_CUR);
@@ -1603,7 +1573,6 @@ long int FS_lof(int chn)
     }
 
  return (long int)(endpos / file[chn]->recLength);
-#endif
 }
 
 long int FS_recLength(int chn)

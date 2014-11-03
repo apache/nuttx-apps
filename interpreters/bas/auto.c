@@ -65,12 +65,6 @@
 
 #include <assert.h>
 #include <ctype.h>
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -81,6 +75,7 @@
  ****************************************************************************/
 
 #define INCREASE_STACK 16
+#define _(String) String
 
 /****************************************************************************
  * Public Functions

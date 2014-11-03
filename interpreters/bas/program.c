@@ -65,12 +65,6 @@
 
 #include <assert.h>
 #include <errno.h>
-#ifdef HAVE_GETTEXT
-#  include <libintl.h>
-#  define _(String) gettext(String)
-#else
-#  define _(String) String
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -79,6 +73,12 @@
 #include "error.h"
 #include "fs.h"
 #include "program.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#define _(String) String
 
 /****************************************************************************
  * Private Types

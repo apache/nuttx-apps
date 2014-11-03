@@ -1,13 +1,8 @@
 #include "config.h"
 
-#ifdef HAVE_GETTEXT
-#include <libintl.h>
-#define _(String) gettext(String)
-#else
-#define _(String) String
-#endif
-
 #include "statement.h"
+
+#define _(String) String
 
 struct Value *stmt_CALL(struct Value *value)
 {
