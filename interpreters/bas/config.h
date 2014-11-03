@@ -5,9 +5,6 @@
 /* The package name. */
 #define PACKAGE "bas"
 
-/* Do you have tgetent()? */
-/* #undef HAVE_TGETENT */
-
 /* Should we need to include termcap.h? */
 /* #undef HAVE_TERMCAP_H */
 

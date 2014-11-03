@@ -1553,7 +1553,6 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
               lastdata = &stack.begindata;
             }
           optionbase = 0;
-          FS_intr = 0;
           stopped = 0;
           program.runnable = 1;
           pc = begin;
@@ -1614,7 +1613,6 @@ static void runline(struct Token *line)
       pc.line = -1;
       pc.token = line;
       optionbase = 0;
-      FS_intr = 0;
       stopped = 0;
       statements(&value);
       if (value.type != V_ERROR && pc.token->type != T_EOL)
@@ -1656,7 +1654,7 @@ static void runline(struct Token *line)
   nextdata.line = -1;
   Value_destroy(&value);
   pass = INTERPRET;
-  FS_allowIntr(1);
+
   do
     {
       assert(pass == INTERPRET);
@@ -1698,7 +1696,6 @@ static void runline(struct Token *line)
     }
   while (pc.token->type != T_EOL ||
          Program_skipEOL(&program, &pc, STDCHANNEL, 1));
-  FS_allowIntr(0);
 }
 
 static struct Value *evalGeometry(struct Value *value, unsigned int *dim, unsigned int geometry[])
@@ -1843,12 +1840,7 @@ more:
   else
     return Value_new_ERROR(value, MISSINGSTATEMENT);
 
-  if (FS_intr)
-    {
-      stopped = 1;
-      return Value_new_ERROR(value, BREAK);
-    }
-  else if (pc.token->type == T_COLON && (pc.token + 1)->type == T_ELSE)
+  if (pc.token->type == T_COLON && (pc.token + 1)->type == T_ELSE)
     ++pc.token;
   else if ((pc.token->type == T_COLON && (pc.token + 1)->type != T_ELSE) ||
            pc.token->type == T_QUOTE)
@@ -1951,9 +1943,7 @@ void bas_interpreter(void)
       struct Token *line;
       struct String s;
 
-      FS_intr = 0;
       stopped = 0;
-      FS_allowIntr(1);
       FS_nextline(STDCHANNEL);
       if (FS_istty(STDCHANNEL))
         FS_putChars(STDCHANNEL, "> ");
@@ -1961,20 +1951,10 @@ void bas_interpreter(void)
       String_new(&s);
       if (FS_appendToString(STDCHANNEL, &s, 1) == -1)
         {
-          if (FS_intr)
-            {
-              FS_putChars(STDCHANNEL, _("\nBreak\n"));
-              FS_flush(STDCHANNEL);
-              String_destroy(&s);
-              continue;
-            }
-          else
-            {
-              FS_putChars(STDCHANNEL, FS_errmsg);
-              FS_flush(STDCHANNEL);
-              String_destroy(&s);
-              break;
-            }
+          FS_putChars(STDCHANNEL, FS_errmsg);
+          FS_flush(STDCHANNEL);
+          String_destroy(&s);
+          break;
         }
       if (s.length == 0)
         {
@@ -2029,7 +2009,6 @@ void bas_interpreter(void)
       else
         Token_destroy(line);
     }
-  FS_allowIntr(0);
 }
 
 void bas_exit(void)

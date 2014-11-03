@@ -2972,10 +2972,10 @@ struct Value *stmt_OPTIONRUN(struct Value *value)
 {
   ++pc.token;
   if (pass==INTERPRET)
-  {
-    FS_allowIntr(0);
-    FS_xonxoff(STDCHANNEL,0);
-  }
+    {
+      FS_xonxoff(STDCHANNEL,0);
+    }
+
   return (struct Value*)0;
 }
 
@@ -2983,10 +2983,10 @@ struct Value *stmt_OPTIONSTOP(struct Value *value)
 {
   ++pc.token;
   if (pass==INTERPRET)
-  {
-    FS_allowIntr(1);
-    FS_xonxoff(STDCHANNEL,1);
-  }
+    {
+      FS_xonxoff(STDCHANNEL,1);
+    }
+
   return (struct Value*)0;
 }
 
@@ -3706,11 +3706,11 @@ struct Value *stmt_SLEEP(struct Value *value)
 
 struct Value *stmt_STOP(struct Value *value)
 {
-  if (pass==INTERPRET) FS_intr=1;
-  else
-  {
-    ++pc.token;
-  }
+  if (pass!=INTERPRET)
+    {
+      ++pc.token;
+    }
+
   return (struct Value*)0;
 }
 

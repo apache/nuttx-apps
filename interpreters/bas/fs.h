@@ -55,7 +55,6 @@ struct FileStream
 #define FS_LOCK_EXCLUSIVE       2
 
 extern const char *FS_errmsg;
-extern volatile int FS_intr;
 
 extern int FS_opendev(int dev, int infd, int outfd);
 extern int FS_openin(const char *name);
@@ -116,6 +115,5 @@ extern int FS_portInput(int address);
 extern int FS_memInput(int address);
 extern int FS_portOutput(int address, int value);
 extern int FS_memOutput(int address, int value);
-extern void FS_allowIntr(int on);
 
 #endif
