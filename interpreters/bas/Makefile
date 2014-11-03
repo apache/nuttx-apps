@@ -39,12 +39,8 @@ include $(APPDIR)/Make.defs
 
 # BAS Library
 
-ASRCS =
-CSRCS =
-
-ifeq ($(CONFIG_INTERPRETERS_BAS),y)
-
-CSRCS += auto.c bas.c fs.c global.c main.c program.c str.c token.c value.c
+ASRCS  =
+CSRCS  = auto.c bas.c fs.c global.c main.c program.c str.c token.c value.c
 CSRCS += var.c
 
 DEPPATH = --dep-path .
@@ -52,8 +48,6 @@ VPATH = .
 
 ifeq ($(WINTOOL),y)
 INCDIROPT = -w
-endif
-
 endif
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
@@ -118,6 +112,4 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
-
 -include Make.dep
-

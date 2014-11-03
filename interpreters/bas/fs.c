@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/interpreters/bas/value.c
+ * apps/examples/interpreters/bas/fs.c
  * BASIC file system interface.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
@@ -77,8 +77,6 @@
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
-
-#include <nuttx/ascii.h>
 
 #include "fs.h"
 
@@ -281,68 +279,32 @@ static int edit(int chn, int onl)
           return -1;
         }
 
-      /* Check for the backspace charactor */
-
-      if (ch == ASCII_BS)
-        {
-          if (f->inCapacity)
-            {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
-              /* REVISIT: Use VT100 commands to erase: Move cursor back and erase to the end of the line */
+      /* REVISIT: Use VT100 commands to erase */
 #warning Missing Logic
 #else
-              /* Use backspace to erase */
-
-              if (f->inBuf[f->inCapacity - 1] >= '\0' &&
-                  f->inBuf[f->inCapacity - 1] < ' ')
-                {
-                  FS_putChars(chn, "\b\b  \b\b");
-                }
-              else
-                {
-                  FS_putChars(chn, "\b \b");
-                }
-#endif
-              --f->inCapacity;
-            }
-        }
-
-      /* Is there space for another character in the buffer? */
-
-      else if ((f->inCapacity + 1) < sizeof(f->inBuf))
+      if ((f->inCapacity + 1) < sizeof(f->inBuf))
         {
-          /* Yes.. Was this a new line character? */
-
           if (ch != '\n')
             {
-              /* No.. was this an ASCII control character? */
-
               if (ch >= '\0' && ch < ' ')
                 {
-                  /* Yes.. Echo control characters as escape sequences */
-
                   FS_putChar(chn, '^');
                   FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
                 }
               else
                 {
-                  /* No.. Just echo the character */
-
                   FS_putChar(chn, ch);
                 }
             }
-
-          /* Should we echo newline characters? */
-
           else if (onl)
             {
               FS_putChar(chn, '\n');
             }
 
-          /* Put the raw character into the buffer in any event */
-
           f->inBuf[f->inCapacity++] = ch;
         }
+#endif
     }
   while (ch != '\n');
 
