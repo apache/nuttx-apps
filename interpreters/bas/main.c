@@ -60,7 +60,7 @@
  * Included Files
  ****************************************************************************/
 
-#include "config.h"
+#include <nuttx/config.h>
 
 #include <unistd.h>
 #include <errno.h>
@@ -119,7 +119,7 @@ int bas_main(int argc, char *argv[])
           break;
 
         case 'V':
-          printf("bas %s\n", VERSION);
+          printf("bas %s\n", CONFIG_INTERPRETER_BAS_VERSION);
           exit(0);
           break;
 

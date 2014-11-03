@@ -1,7 +1,6 @@
 /* Global variables and functions. */
 
 #include <nuttx/config.h>
-#include "config.h"
 
 #include <assert.h>
 #include <ctype.h>

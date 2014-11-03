@@ -35,5 +35,18 @@ config INTERPRETERS_BAS
 
 if INTERPRETERS_BAS
 
+config INTERPRETER_BAS_VERSION
+	string "Version number"
+	default "2.4"
+
+config INTERPRETER_BAS_USE_LR0
+	bool "LR0 parser"
+	default n
+	---help---
+		Select if you want LR0 parser.
+
+config INTERPRETER_BAS_USE_SELECT
+	bool "Use select()"
+	default n
 
 endif

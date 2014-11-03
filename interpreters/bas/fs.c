@@ -62,7 +62,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include "config.h"
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -1381,7 +1380,7 @@ int FS_inkeyChar(int dev, int ms)
   struct FileStream *f;
   char c;
   ssize_t len;
-#ifdef USE_SELECT
+#ifdef CONFIG_INTERPRETER_BAS_USE_SELECT
   fd_set just_infd;
   struct timeval timeout;
 #endif
@@ -1397,7 +1396,7 @@ int FS_inkeyChar(int dev, int ms)
       return f->inBuf[f->inSize++];
     }
 
-#ifdef USE_SELECT
+#ifdef CONFIG_INTERPRETER_BAS_USE_SELECT
   FD_ZERO(&just_infd);
   FD_SET(f->infd, &just_infd);
   timeout.tv_sec = ms / 1000;
@@ -1445,16 +1444,12 @@ int FS_inkeyChar(int dev, int ms)
 
 void FS_sleep(double s)
 {
-#ifdef HAVE_NANOSLEEP
   struct timespec p;
 
   p.tv_sec = floor(s);
   p.tv_nsec = 1000000000 * (s - floor(s));
 
   nanosleep(&p, (struct timespec *)0);
-#else
-  sleep((int)s);
-#endif
 }
 
 int FS_eof(int chn)

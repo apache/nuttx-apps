@@ -2,7 +2,7 @@
  * Included Files
  ****************************************************************************/
 
-#include "config.h"
+#include <nuttx/config.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -18,8 +18,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-
-#include "getopt.h"
 
 #include "auto.h"
 #include "bas.h"
@@ -475,7 +473,7 @@ static struct Value *func(struct Value *value)
   return value;
 }
 
-#ifdef USE_LR0
+#ifdef CONFIG_INTERPRETER_BAS_USE_LR0
 
 /* Grammar with LR(0) sets */
 /*
@@ -1920,10 +1918,9 @@ void bas_interpreter(void)
 {
   if (FS_istty(STDCHANNEL))
     {
-      // FS_putChars(STDCHANNEL,"bas " VERSION "\n"); //acassis: fix it
+      FS_putChars(STDCHANNEL, "bas " CONFIG_INTERPRETER_BAS_VERSION "\n");
       FS_putChars(STDCHANNEL, "Copyright 1999-2014 Michael Haardt.\n");
-      FS_putChars(STDCHANNEL,
-                  _("This is free software with ABSOLUTELY NO WARRANTY.\n"));
+      FS_putChars(STDCHANNEL, "This is free software with ABSOLUTELY NO WARRANTY.\n");
     }
   new();
   while (1)

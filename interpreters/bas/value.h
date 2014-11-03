@@ -46,9 +46,7 @@ extern const enum ValueType Value_commonType[V_VOID+1][V_VOID+1];
   (this)->type=0;
 
 
-#ifndef HAVE_LRINT
 extern long int lrint(double d);
-#endif
 extern double Value_trunc(double d);
 extern double Value_round(double d);
 extern long int Value_toi(double d, int *overflow);

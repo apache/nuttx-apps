@@ -60,7 +60,7 @@
  * Included Files
  ****************************************************************************/
 
-#include "config.h"
+#include <nuttx/config.h>
 
 #include <assert.h>
 #include <ctype.h>
@@ -81,12 +81,6 @@
  ****************************************************************************/
 
 #define _(String) String
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-extern long int lrint(double x);
 
 /****************************************************************************
  * Private Data
@@ -115,13 +109,6 @@ const enum ValueType Value_commonType[V_VOID + 1][V_VOID + 1] =
   { 0, V_ERROR, V_ERROR,   V_ERROR, V_ERROR, V_STRING, V_ERROR },
   { 0, V_ERROR, V_ERROR,   V_ERROR, V_ERROR, V_ERROR,  V_ERROR }
 };
-
-#ifndef HAVE_LRINT
-long int lrint(double d)
-{
-  return d;
-}
-#endif
 
 /****************************************************************************
  * Private Functions
@@ -2102,4 +2089,9 @@ struct Value *Value_nullValue(enum ValueType type)
     }
 
   return (struct Value *)0;
+}
+
+long int lrint(double d)
+{
+  return d;
 }

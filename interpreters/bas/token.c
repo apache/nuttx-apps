@@ -1387,7 +1387,7 @@ char *yytext;
 /* Tokens and token sequence arrays. */
 #line 3 "token.l"
 /* #includes */ /*{{{C}}}*//*{{{*/
-#include "config.h"
+#include <nuttx/config.h>
 
 #include <assert.h>
 #include <ctype.h>
