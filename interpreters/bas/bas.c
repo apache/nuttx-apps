@@ -1,4 +1,62 @@
 /****************************************************************************
+ * apps/examples/interpreters/bas/bas.c
+ *
+ *   Copyright (c) 1999-2014 Michael Haardt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Adapted to NuttX and re-released under a 3-clause BSD license:
+ *
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Authors: Alan Carvalho de Assis <Alan Carvalho de Assis>
+ *            Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -70,8 +128,14 @@ static struct LabelStack *labelStack;
 static struct Pc *lastdata;
 static struct Pc curdata;
 static struct Pc nextdata;
+
 static enum
-  { DECLARE, COMPILE, INTERPRET } pass;
+  {
+    DECLARE,
+    COMPILE,
+    INTERPRET
+  } pass;
+
 static int stopped;
 static int optionbase;
 static struct Pc pc;
@@ -79,6 +143,10 @@ static struct Auto stack;
 static struct Program program;
 static struct Global globals;
 static int run_restricted;
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 int bas_argc;
 char *bas_argv0;
@@ -105,7 +173,10 @@ static int cat(const char *filename)
   int err;
 
   if ((fd = open(filename, O_RDONLY)) == -1)
-    return -1;
+    {
+      return -1;
+    }
+
   while ((l = read(fd, buf, sizeof(buf))) > 0)
     {
       ssize_t off, w;
@@ -120,9 +191,11 @@ static int cat(const char *filename)
               errno = err;
               return -1;
             }
+
           off += w;
         }
     }
+
   if (l == -1)
     {
       err = errno;
@@ -130,6 +203,7 @@ static int cat(const char *filename)
       errno = err;
       return -1;
     }
+
   close(fd);
   return 0;
 }
@@ -142,6 +216,7 @@ static struct Value *lvalue(struct Value *value)
   sym = pc.token->u.identifier->sym;
   assert(pass == DECLARE || sym->type == GLOBALVAR || sym->type == GLOBALARRAY
          || sym->type == LOCALVAR);
+
   if ((pc.token + 1)->type == T_OP)
     {
       struct Pc idxpc;
@@ -168,6 +243,7 @@ static struct Value *lvalue(struct Value *value)
                     free(idx);
                   return Value_new_ERROR(value, OUTOFMEMORY);
                 }
+
               idx = more;
             }
 
@@ -176,51 +252,71 @@ static struct Value *lvalue(struct Value *value)
               VALUE_RETYPE(value, V_INTEGER)->type == V_ERROR)
             {
               if (capacity)
-                free(idx);
+                {
+                  free(idx);
+                }
+
               pc = idxpc;
               return value;
             }
+
           if (pass == INTERPRET)
             {
               idx[dim] = value->u.integer;
               ++dim;
             }
+
           Value_destroy(value);
           if (pc.token->type == T_COMMA)
-            ++pc.token;
+            {
+              ++pc.token;
+            }
           else
-            break;
+            {
+              break;
+            }
         }
+
       if (pc.token->type != T_CP)
         {
           assert(pass != INTERPRET);
           return Value_new_ERROR(value, MISSINGCP);
         }
       else
-        ++pc.token;
+        {
+          ++pc.token;
+        }
+
       switch (pass)
         {
         case INTERPRET:
           {
             if ((value =
                  Var_value(&(sym->u.var), dim, idx, value))->type == V_ERROR)
-              pc = lvpc;
+              {
+                pc = lvpc;
+              }
+
             free(idx);
             return value;
           }
+
         case DECLARE:
           {
             return Value_nullValue(V_INTEGER);
           }
+
         case COMPILE:
           {
             return Value_nullValue(sym->type ==
-                                   GLOBALARRAY ? sym->u.var.
-                                   type : Auto_varType(&stack, sym));
+                                   GLOBALARRAY ? sym->u.
+                                   var.type : Auto_varType(&stack, sym));
           }
+
         default:
           assert(0);
         }
+
       return (struct Value *)0;
     }
   else
@@ -231,18 +327,21 @@ static struct Value *lvalue(struct Value *value)
         case INTERPRET:
           return VAR_SCALAR_VALUE(sym->type ==
                                   GLOBALVAR ? &(sym->u.var) : Auto_local(&stack,
-                                                                         sym->u.
-                                                                         local.
-                                                                         offset));
+                                                                         sym->
+                                                                         u.local.offset));
+
         case DECLARE:
           return Value_nullValue(V_INTEGER);
+
         case COMPILE:
           return Value_nullValue(sym->type ==
-                                 GLOBALVAR ? sym->u.var.
-                                 type : Auto_varType(&stack, sym));
+                                 GLOBALVAR ? sym->u.
+                                 var.type : Auto_varType(&stack, sym));
+
         default:
           assert(0);
         }
+
       return (struct Value *)0;
     }
 }
@@ -256,19 +355,25 @@ static struct Value *func(struct Value *value)
   struct Symbol *sym;
 
   assert(pc.token->type == T_IDENTIFIER);
-  /*
-   * Evaluating a function in direct mode may start a program, so it needs to
+
+  /* Evaluating a function in direct mode may start a program, so it needs to
    * be compiled.  If in direct mode, programs will be compiled after the
    * direct mode pass DECLARE, but errors are ignored at that point, because
    * the program may not be needed.  If the program is fine, its symbols will
    * be available during the compile phase already.  If not and we need it at
-   * this point, compile it again to get the error and abort. */
+   * this point, compile it again to get the error and abort.
+   */
+
   if (DIRECTMODE && !program.runnable && pass != DECLARE)
     {
       if (compileProgram(value, 0)->type == V_ERROR)
-        return value;
+        {
+          return value;
+        }
+
       Value_destroy(value);
     }
+
   ident = pc.token->u.identifier;
   assert(pass == DECLARE || ident->sym->type == BUILTINFUNCTION ||
          ident->sym->type == USERFUNCTION);
@@ -283,52 +388,74 @@ static struct Value *func(struct Value *value)
           Var_new(v, ident->sym->u.sub.retType, 0, (const unsigned int *)0, 0);
         }
     }
+
   if (pc.token->type == T_OP)   /* push arguments to stack */
     {
       ++pc.token;
       if (pc.token->type != T_CP)
-        while (1)
-          {
-            if (pass == DECLARE)
-              {
-                if (eval(value, _("actual parameter"))->type == V_ERROR)
-                  return value;
-                Value_destroy(value);
-              }
-            else
-              {
-                struct Var *v = Auto_pushArg(&stack);
-
-                Var_new_scalar(v);
-                if (eval(v->value, (const char *)0)->type == V_ERROR)
-                  {
-                    Value_clone(value, v->value);
-                    while (stack.stackPointer > firstslot)
-                      Var_destroy(&stack.slot[--stack.stackPointer].var);
-                    return value;
-                  }
-                v->type = v->value->type;
-              }
-            ++args;
-            if (pc.token->type == T_COMMA)
-              ++pc.token;
-            else
-              break;
-          }
-      if (pc.token->type != T_CP)
         {
-          if (pass != DECLARE)
+          while (1)
             {
-              while (stack.stackPointer > firstslot)
-                Var_destroy(&stack.slot[--stack.stackPointer].var);
+              if (pass == DECLARE)
+                {
+                  if (eval(value, _("actual parameter"))->type == V_ERROR)
+                    {
+                      return value;
+                    }
+
+                  Value_destroy(value);
+                }
+              else
+                {
+                  struct Var *v = Auto_pushArg(&stack);
+
+                  Var_new_scalar(v);
+                  if (eval(v->value, (const char *)0)->type == V_ERROR)
+                    {
+                      Value_clone(value, v->value);
+                      while (stack.stackPointer > firstslot)
+                        {
+                          Var_destroy(&stack.slot[--stack.stackPointer].var);
+                        }
+
+                      return value;
+                    }
+
+                  v->type = v->value->type;
+                }
+
+              ++args;
+              if (pc.token->type == T_COMMA)
+                {
+                  ++pc.token;
+                }
+              else
+                {
+                  break;
+                }
             }
-          return Value_new_ERROR(value, MISSINGCP);
+
+          if (pc.token->type != T_CP)
+            {
+              if (pass != DECLARE)
+                {
+                  while (stack.stackPointer > firstslot)
+                    {
+                      Var_destroy(&stack.slot[--stack.stackPointer].var);
+                    }
+                }
+
+              return Value_new_ERROR(value, MISSINGCP);
+            }
+
+          ++pc.token;
         }
-      ++pc.token;
     }
 
   if (pass == DECLARE)
-    Value_new_null(value, ident->defaultType);
+    {
+      Value_new_null(value, ident->defaultType);
+    }
   else
     {
       int i;
@@ -345,6 +472,7 @@ static struct Value *func(struct Value *value)
                       (const unsigned int *)0, 0);
             }
         }
+
       Auto_pushFuncRet(&stack, firstslot, &pc);
 
       sym = ident->sym;
@@ -358,17 +486,22 @@ static struct Value *func(struct Value *value)
           if (args < sym->u.sub.argLength)
             {
               if (nomore)
-                Value_new_ERROR(value, TOOFEW);
+                {
+                  Value_new_ERROR(value, TOOFEW);
+                }
+
               argerr = 1;
             }
 
           else if (args > sym->u.sub.argLength)
             {
               if (nomore)
-                Value_new_ERROR(value, TOOMANY);
+                {
+                  Value_new_ERROR(value, TOOMANY);
+                }
+
               argerr = 1;
             }
-
           else
             {
               for (i = 0; i < args; ++i)
@@ -382,7 +515,10 @@ static struct Value *func(struct Value *value)
                       if (arg->type != sym->u.sub.argTypes[i])
                         {
                           if (nomore)
-                            Value_new_ERROR(value, TYPEMISMATCH2, i + 1);
+                            {
+                              Value_new_ERROR(value, TYPEMISMATCH2, i + 1);
+                            }
+
                           argerr = 1;
                           break;
                         }
@@ -391,8 +527,11 @@ static struct Value *func(struct Value *value)
                            V_ERROR)
                     {
                       if (nomore)
-                        Value_new_ERROR(value, TYPEMISMATCH3, arg->u.error.msg,
-                                        i + 1);
+                        {
+                          Value_new_ERROR(value, TYPEMISMATCH3,
+                                          arg->u.error.msg, i + 1);
+                        }
+
                       argerr = 1;
                       break;
                     }
@@ -408,20 +547,27 @@ static struct Value *func(struct Value *value)
                   return value;
                 }
               else
-                sym = sym->u.sub.u.bltin.next;
+                {
+                  sym = sym->u.sub.u.bltin.next;
+                }
             }
         }
       while (argerr);
+
       ident->sym = sym;
       if (sym->type == BUILTINFUNCTION)
         {
           if (pass == INTERPRET)
             {
               if (sym->u.sub.u.bltin.call(value, &stack)->type == V_ERROR)
-                pc = funcpc;
+                {
+                  pc = funcpc;
+                }
             }
           else
-            Value_new_null(value, sym->u.sub.retType);
+            {
+              Value_new_null(value, sym->u.sub.retType);
+            }
         }
       else if (sym->type == USERFUNCTION)
         {
@@ -431,9 +577,14 @@ static struct Value *func(struct Value *value)
 
               pc = sym->u.sub.u.def.scope.start;
               if (pc.token->type == T_COLON)
-                ++pc.token;
+                {
+                  ++pc.token;
+                }
               else
-                Program_skipEOL(&program, &pc, STDCHANNEL, 1);
+                {
+                  Program_skipEOL(&program, &pc, STDCHANNEL, 1);
+                }
+
               do
                 {
                   if (statements(value)->type == V_ERROR)
@@ -445,6 +596,7 @@ static struct Value *func(struct Value *value)
                                         value);
                           Program_PCtoError(&program, &pc, value);
                         }
+
                       if (stack.onerror.line != -1)
                         {
                           stack.resumeable = 1;
@@ -457,90 +609,99 @@ static struct Value *func(struct Value *value)
                         }
                     }
                   else if (value->type != V_NIL)
-                    break;
+                    {
+                      break;
+                    }
+
                   Value_destroy(value);
                 }
               while ((r = Program_skipEOL(&program, &pc, STDCHANNEL, 1)));
+
               if (!r)
-                Value_new_VOID(value);
+                {
+                  Value_new_VOID(value);
+                }
             }
           else
-            Value_new_null(value, sym->u.sub.retType);
+            {
+              Value_new_null(value, sym->u.sub.retType);
+            }
         }
+
       Auto_funcReturn(&stack, pass == INTERPRET &&
                       value->type != V_ERROR ? &pc : (struct Pc *)0);
     }
+
   return value;
 }
 
 #ifdef CONFIG_INTERPRETER_BAS_USE_LR0
 
 /* Grammar with LR(0) sets */
-/*
-Grammar:
 
-1 EV -> E
-2 E  -> E op E
-3 E  -> op E
-4 E  -> ( E )
-5 E  -> value
-
-i0:
-EV -> . E                goto(0,E)=5
-E  -> . E op E           goto(0,E)=5
-E  -> . op E      +,-    shift 2
-E  -> . ( E )     (      shift 3
-E  -> . value     value  shift 4
-
-i5:
-EV -> E .         else   accept
-E  -> E . op E    op     shift 1
-
-i2:
-E  -> op . E             goto(2,E)=6
-E  -> . E op E           goto(2,E)=6
-E  -> . op E      +,-    shift 2
-E  -> . ( E )     (      shift 3
-E  -> . value     value  shift 4
-
-i3:
-E  -> ( . E )            goto(3,E)=7
-E  -> . E op E           goto(3,E)=7
-E  -> . op E      +,-    shift 2
-E  -> . ( E )     (      shift 3
-E  -> . value     value  shift 4
-
-i4:
-E  -> value .            reduce 5
-
-i1:
-E  -> E op . E           goto(1,E)=8
-E  -> . E op E           goto(1,E)=8
-E  -> . op E      +,-    shift 2
-E  -> . ( E )     (      shift 3
-E  -> . value     value  shift 4
-
-i6:
-E  -> op E .             reduce 3
-E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of unary lower priority
-
-i7:
-E  -> ( E . )     )      shift 9
-E  -> E . op E    op     shift 1
-
-i8:
-E  -> E op E .           reduce 2
-E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of lower priority or if
-                                   if it is of equal priority and right associative
-
-i9:
-E  -> ( E ) .            reduce 4
-
-*/
+/* Grammar:
+ *
+ *   1 EV -> E
+ *   2 E  -> E op E
+ *   3 E  -> op E
+ *   4 E  -> ( E )
+ *   5 E  -> value
+ *
+ *   i0:
+ *   EV -> . E                goto(0,E)=5
+ *   E  -> . E op E           goto(0,E)=5
+ *   E  -> . op E      +,-    shift 2
+ *   E  -> . ( E )     (      shift 3
+ *   E  -> . value     value  shift 4
+ *
+ *   i5:
+ *   EV -> E .         else   accept
+ *   E  -> E . op E    op     shift 1
+ *
+ *   i2:
+ *   E  -> op . E             goto(2,E)=6
+ *   E  -> . E op E           goto(2,E)=6
+ *   E  -> . op E      +,-    shift 2
+ *   E  -> . ( E )     (      shift 3
+ *   E  -> . value     value  shift 4
+ *
+ *   i3:
+ *   E  -> ( . E )            goto(3,E)=7
+ *   E  -> . E op E           goto(3,E)=7
+ *   E  -> . op E      +,-    shift 2
+ *   E  -> . ( E )     (      shift 3
+ *   E  -> . value     value  shift 4
+ *
+ *   i4:
+ *   E  -> value .            reduce 5
+ *
+ *   i1:
+ *   E  -> E op . E           goto(1,E)=8
+ *   E  -> . E op E           goto(1,E)=8
+ *   E  -> . op E      +,-    shift 2
+ *   E  -> . ( E )     (      shift 3
+ *   E  -> . value     value  shift 4
+ *
+ *   i6:
+ *   E  -> op E .             reduce 3
+ *   E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of unary lower priority
+ *
+ *   i7:
+ *   E  -> ( E . )     )      shift 9
+ *   E  -> E . op E    op     shift 1
+ *
+ *   i8:
+ *   E  -> E op E .           reduce 2
+ *   E  -> E . op E    op*    shift 1 *=if stack[-2] contains op of lower priority or if
+ *                                      if it is of equal priority and right associative
+ *   i9:
+ *   E  -> ( E ) .            reduce 4
+ */
 
 static struct Value *eval(struct Value *value, const char *desc)
 {
-  /* variables */
+  /* Variables */
+
   static const int gotoState[10] = { 5, 8, 6, 7, -1, -1, -1, -1, -1, -1 };
   int capacity = 10;
   struct Pdastack
@@ -568,18 +729,20 @@ static struct Value *eval(struct Value *value, const char *desc)
           capacity += 10;
           stackEnd = pdastack + capacity - 1;
         }
+
       ip = pc.token->type;
       switch (sp->state)
         {
         case 0:
         case 1:
         case 2:
-        case 3: /* including 4 */
+        case 3:                /* including 4 */
           {
             if (ip == T_IDENTIFIER)
               {
                 /* printf("state %d: shift 4\n",sp->state); */
                 /* printf("state 4: reduce E -> value\n"); */
+
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 if (pass == COMPILE)
@@ -593,6 +756,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                         goto error;
                       }
                   }
+
                 if (pass != DECLARE &&
                     (pc.token->u.identifier->sym->type == GLOBALVAR ||
                      pc.token->u.identifier->sym->type == GLOBALARRAY ||
@@ -621,6 +785,7 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: shift 4\n",sp->state); */
                 /* printf("state 4: reduce E -> value\n"); */
+
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 VALUE_NEW_INTEGER(&sp->u.value, pc.token->u.integer);
@@ -630,6 +795,7 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: shift 4\n",sp->state); */
                 /* printf("state 4: reduce E -> value\n"); */
+
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 VALUE_NEW_REAL(&sp->u.value, pc.token->u.real);
@@ -638,6 +804,7 @@ static struct Value *eval(struct Value *value, const char *desc)
             else if (TOKEN_ISUNARYOPERATOR(ip))
               {
                 /* printf("state %d: shift 2\n",sp->state); */
+
                 ++sp;
                 sp->state = 2;
                 sp->u.token = ip;
@@ -647,6 +814,7 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: shift 4\n",sp->state); */
                 /* printf("state 4: reduce E -> value\n"); */
+
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 VALUE_NEW_INTEGER(&sp->u.value, pc.token->u.hexinteger);
@@ -656,6 +824,7 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: shift 4\n",sp->state); */
                 /* printf("state 4: reduce E -> value\n"); */
+
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 VALUE_NEW_INTEGER(&sp->u.value, pc.token->u.octinteger);
@@ -664,6 +833,7 @@ static struct Value *eval(struct Value *value, const char *desc)
             else if (ip == T_OP)
               {
                 /* printf("state %d: shift 3\n",sp->state); */
+
                 ++sp;
                 sp->state = 3;
                 sp->u.token = T_OP;
@@ -673,6 +843,7 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: shift 4\n",sp->state); */
                 /* printf("state 4: reduce E -> value\n"); */
+
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
                 Value_new_STRING(&sp->u.value);
@@ -687,14 +858,22 @@ static struct Value *eval(struct Value *value, const char *desc)
                 if (state == 0)
                   {
                     if (desc)
-                      Value_new_ERROR(value, MISSINGEXPR, desc);
+                      {
+                        Value_new_ERROR(value, MISSINGEXPR, desc);
+                      }
                     else
-                      value = (struct Value *)0;
+                      {
+                        value = (struct Value *)0;
+                      }
                   }
                 else
-                  Value_new_ERROR(value, MISSINGEXPR, _("operand"));
+                  {
+                    Value_new_ERROR(value, MISSINGEXPR, _("operand"));
+                  }
+
                 goto error;
               }
+
             break;
           }
 
@@ -703,6 +882,7 @@ static struct Value *eval(struct Value *value, const char *desc)
             if (TOKEN_ISBINARYOPERATOR(ip))
               {
                 /* printf("state %d: shift 1\n",sp->state); */
+
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
@@ -716,6 +896,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 free(pdastack);
                 return value;
               }
+
             break;
           }
 
@@ -726,8 +907,9 @@ static struct Value *eval(struct Value *value, const char *desc)
                 TOKEN_BINARYPRIORITY(ip))
               {
                 assert(TOKEN_ISUNARYOPERATOR((sp - 1)->u.token));
-                /* printf("state %d: shift 1 (not reducing E -> op
-                 * E)\n",sp->state); */
+
+                /* printf("state %d: shift 1 (not reducing E -> op E)\n", sp->state); */
+
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
@@ -738,6 +920,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 enum TokenType op;
 
                 /* printf("reduce E -> op E\n"); */
+
                 --sp;
                 op = sp->u.token;
                 sp->u.value = (sp + 1)->u.value;
@@ -745,15 +928,19 @@ static struct Value *eval(struct Value *value, const char *desc)
                   {
                   case T_PLUS:
                     break;
+
                   case T_MINUS:
                     Value_uneg(&sp->u.value, pass == INTERPRET);
                     break;
+
                   case T_NOT:
                     Value_unot(&sp->u.value, pass == INTERPRET);
                     break;
+
                   default:
                     assert(0);
                   }
+
                 sp->state = gotoState[(sp - 1)->state];
                 if (sp->u.value.type == V_ERROR)
                   {
@@ -762,14 +949,16 @@ static struct Value *eval(struct Value *value, const char *desc)
                     goto error;
                   }
               }
+
             break;
           }
 
-        case 7: /* including 9 */
+        case 7:                /* including 9 */
           {
             if (TOKEN_ISBINARYOPERATOR(ip))
               {
                 /* printf("state %d: shift 1\n"sp->state); */
+
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
@@ -779,6 +968,7 @@ static struct Value *eval(struct Value *value, const char *desc)
               {
                 /* printf("state %d: shift 9\n",sp->state); */
                 /* printf("state 9: reduce E -> ( E )\n"); */
+
                 --sp;
                 sp->state = gotoState[(sp - 1)->state];
                 sp->u.value = (sp + 1)->u.value;
@@ -789,6 +979,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 Value_new_ERROR(value, MISSINGCP);
                 goto error;
               }
+
             break;
           }
 
@@ -804,6 +995,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                  (p1 == p2 && TOKEN_ISRIGHTASSOCIATIVE((sp - 1)->u.token))))
               {
                 /* printf("state %d: shift 1\n",sp->state); */
+
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
@@ -812,6 +1004,7 @@ static struct Value *eval(struct Value *value, const char *desc)
             else
               {
                 /* printf("state %d: reduce E -> E op E\n",sp->state); */
+
                 if (Value_commonType[(sp - 2)->u.value.type][sp->u.value.type]
                     == V_ERROR)
                   {
@@ -823,83 +1016,103 @@ static struct Value *eval(struct Value *value, const char *desc)
                     goto error;
                   }
                 else
-                  switch ((sp - 1)->u.token)
-                    {
-                    case T_LT:
-                      Value_lt(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_LE:
-                      Value_le(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_EQ:
-                      Value_eq(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_GE:
-                      Value_ge(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_GT:
-                      Value_gt(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_NE:
-                      Value_ne(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_PLUS:
-                      Value_add(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_MINUS:
-                      Value_sub(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_MULT:
-                      Value_mult(&(sp - 2)->u.value, &sp->u.value,
+                  {
+                    switch ((sp - 1)->u.token)
+                      {
+                      case T_LT:
+                        Value_lt(&(sp - 2)->u.value, &sp->u.value,
                                  pass == INTERPRET);
-                      break;
-                    case T_DIV:
-                      Value_div(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_IDIV:
-                      Value_idiv(&(sp - 2)->u.value, &sp->u.value,
+                        break;
+
+                      case T_LE:
+                        Value_le(&(sp - 2)->u.value, &sp->u.value,
                                  pass == INTERPRET);
-                      break;
-                    case T_MOD:
-                      Value_mod(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_POW:
-                      Value_pow(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_AND:
-                      Value_and(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_OR:
-                      Value_or(&(sp - 2)->u.value, &sp->u.value,
-                               pass == INTERPRET);
-                      break;
-                    case T_XOR:
-                      Value_xor(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_EQV:
-                      Value_eqv(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    case T_IMP:
-                      Value_imp(&(sp - 2)->u.value, &sp->u.value,
-                                pass == INTERPRET);
-                      break;
-                    default:
-                      assert(0);
-                    }
+                        break;
+
+                      case T_EQ:
+                        Value_eq(&(sp - 2)->u.value, &sp->u.value,
+                                 pass == INTERPRET);
+                        break;
+
+                      case T_GE:
+                        Value_ge(&(sp - 2)->u.value, &sp->u.value,
+                                 pass == INTERPRET);
+                        break;
+
+                      case T_GT:
+                        Value_gt(&(sp - 2)->u.value, &sp->u.value,
+                                 pass == INTERPRET);
+                        break;
+
+                      case T_NE:
+                        Value_ne(&(sp - 2)->u.value, &sp->u.value,
+                                 pass == INTERPRET);
+                        break;
+
+                      case T_PLUS:
+                        Value_add(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+                      case T_MINUS:
+                        Value_sub(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_MULT:
+                        Value_mult(&(sp - 2)->u.value, &sp->u.value,
+                                   pass == INTERPRET);
+                        break;
+
+                      case T_DIV:
+                        Value_div(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_IDIV:
+                        Value_idiv(&(sp - 2)->u.value, &sp->u.value,
+                                   pass == INTERPRET);
+                        break;
+
+                      case T_MOD:
+                        Value_mod(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_POW:
+                        Value_pow(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_AND:
+                        Value_and(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_OR:
+                        Value_or(&(sp - 2)->u.value, &sp->u.value,
+                                 pass == INTERPRET);
+                        break;
+
+                      case T_XOR:
+                        Value_xor(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_EQV:
+                        Value_eqv(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      case T_IMP:
+                        Value_imp(&(sp - 2)->u.value, &sp->u.value,
+                                  pass == INTERPRET);
+                        break;
+
+                      default:
+                        assert(0);
+                      }
+                  }
+
                 Value_destroy(&sp->u.value);
                 sp -= 2;
                 sp->state = gotoState[(sp - 1)->state];
@@ -910,9 +1123,9 @@ static struct Value *eval(struct Value *value, const char *desc)
                     goto error;
                   }
               }
+
             break;
           }
-
         }
     }
 
@@ -935,22 +1148,34 @@ error:
 }
 
 #else
-static inline struct Value *binarydown(struct Value *value, struct Value *(level) (struct Value * value), const int prio)
+static inline struct Value *binarydown(struct Value *value,
+                                       struct Value *(level) (struct Value *
+                                                              value),
+                                       const int prio)
 {
   enum TokenType op;
   struct Pc oppc;
 
   if (level(value) == (struct Value *)0)
-    return (struct Value *)0;
+    {
+      return (struct Value *)0;
+    }
+
   if (value->type == V_ERROR)
-    return value;
+    {
+      return value;
+    }
+
   do
     {
       struct Value x;
 
       op = pc.token->type;
       if (!TOKEN_ISBINARYOPERATOR(op) || TOKEN_BINARYPRIORITY(op) != prio)
-        return value;
+        {
+          return value;
+        }
+
       oppc = pc;
       ++pc.token;
       if (level(&x) == (struct Value *)0)
@@ -958,12 +1183,14 @@ static inline struct Value *binarydown(struct Value *value, struct Value *(level
           Value_destroy(value);
           return Value_new_ERROR(value, MISSINGEXPR, _("binary operand"));
         }
+
       if (x.type == V_ERROR)
         {
           Value_destroy(value);
           *value = x;
           return value;
         }
+
       if (Value_commonType[value->type][x.type] == V_ERROR)
         {
           Value_destroy(value);
@@ -971,114 +1198,149 @@ static inline struct Value *binarydown(struct Value *value, struct Value *(level
           return Value_new_ERROR(value, INVALIDOPERAND);
         }
       else
-        switch (op)
-          {
-          case T_LT:
-            Value_lt(value, &x, pass == INTERPRET);
-            break;
-          case T_LE:
-            Value_le(value, &x, pass == INTERPRET);
-            break;
-          case T_EQ:
-            Value_eq(value, &x, pass == INTERPRET);
-            break;
-          case T_GE:
-            Value_ge(value, &x, pass == INTERPRET);
-            break;
-          case T_GT:
-            Value_gt(value, &x, pass == INTERPRET);
-            break;
-          case T_NE:
-            Value_ne(value, &x, pass == INTERPRET);
-            break;
-          case T_PLUS:
-            Value_add(value, &x, pass == INTERPRET);
-            break;
-          case T_MINUS:
-            Value_sub(value, &x, pass == INTERPRET);
-            break;
-          case T_MULT:
-            Value_mult(value, &x, pass == INTERPRET);
-            break;
-          case T_DIV:
-            Value_div(value, &x, pass == INTERPRET);
-            break;
-          case T_IDIV:
-            Value_idiv(value, &x, pass == INTERPRET);
-            break;
-          case T_MOD:
-            Value_mod(value, &x, pass == INTERPRET);
-            break;
-          case T_POW:
-            Value_pow(value, &x, pass == INTERPRET);
-            break;
-          case T_AND:
-            Value_and(value, &x, pass == INTERPRET);
-            break;
-          case T_OR:
-            Value_or(value, &x, pass == INTERPRET);
-            break;
-          case T_XOR:
-            Value_xor(value, &x, pass == INTERPRET);
-            break;
-          case T_EQV:
-            Value_eqv(value, &x, pass == INTERPRET);
-            break;
-          case T_IMP:
-            Value_imp(value, &x, pass == INTERPRET);
-            break;
-          default:
-            assert(0);
-          }
+        {
+          switch (op)
+            {
+            case T_LT:
+              Value_lt(value, &x, pass == INTERPRET);
+              break;
+
+            case T_LE:
+              Value_le(value, &x, pass == INTERPRET);
+              break;
+
+            case T_EQ:
+              Value_eq(value, &x, pass == INTERPRET);
+              break;
+
+            case T_GE:
+              Value_ge(value, &x, pass == INTERPRET);
+              break;
+
+            case T_GT:
+              Value_gt(value, &x, pass == INTERPRET);
+              break;
+
+            case T_NE:
+              Value_ne(value, &x, pass == INTERPRET);
+              break;
+
+            case T_PLUS:
+              Value_add(value, &x, pass == INTERPRET);
+              break;
+
+            case T_MINUS:
+              Value_sub(value, &x, pass == INTERPRET);
+              break;
+
+            case T_MULT:
+              Value_mult(value, &x, pass == INTERPRET);
+              break;
+
+            case T_DIV:
+              Value_div(value, &x, pass == INTERPRET);
+              break;
+
+            case T_IDIV:
+              Value_idiv(value, &x, pass == INTERPRET);
+              break;
+
+            case T_MOD:
+              Value_mod(value, &x, pass == INTERPRET);
+              break;
+
+            case T_POW:
+              Value_pow(value, &x, pass == INTERPRET);
+              break;
+
+            case T_AND:
+              Value_and(value, &x, pass == INTERPRET);
+              break;
+
+            case T_OR:
+              Value_or(value, &x, pass == INTERPRET);
+              break;
+
+            case T_XOR:
+              Value_xor(value, &x, pass == INTERPRET);
+              break;
+
+            case T_EQV:
+              Value_eqv(value, &x, pass == INTERPRET);
+              break;
+
+            case T_IMP:
+              Value_imp(value, &x, pass == INTERPRET);
+              break;
+
+            default:
+              assert(0);
+            }
+        }
 
       Value_destroy(&x);
     }
   while (value->type != V_ERROR);
 
   if (value->type == V_ERROR)
-    pc = oppc;
+    {
+      pc = oppc;
+    }
 
   return value;
 }
 
-
-static inline struct Value *unarydown(struct Value *value, struct Value *(level) (struct Value * value), const int prio)
+static inline struct Value *unarydown(struct Value *value,
+                                      struct Value *(level) (struct Value *
+                                                             value),
+                                      const int prio)
 {
   enum TokenType op;
   struct Pc oppc;
 
   op = pc.token->type;
   if (!TOKEN_ISUNARYOPERATOR(op) || TOKEN_UNARYPRIORITY(op) != prio)
-    return level(value);
+    {
+      return level(value);
+    }
+
   oppc = pc;
   ++pc.token;
   if (unarydown(value, level, prio) == (struct Value *)0)
-    return Value_new_ERROR(value, MISSINGEXPR, _("unary operand"));
+    {
+      return Value_new_ERROR(value, MISSINGEXPR, _("unary operand"));
+    }
 
   if (value->type == V_ERROR)
-    return value;
+    {
+      return value;
+    }
 
   switch (op)
     {
     case T_PLUS:
       Value_uplus(value, pass == INTERPRET);
       break;
+
     case T_MINUS:
       Value_uneg(value, pass == INTERPRET);
       break;
+
     case T_NOT:
       Value_unot(value, pass == INTERPRET);
       break;
+
     default:
       assert(0);
     }
 
   if (value->type == V_ERROR)
-    pc = oppc;
+    {
+      pc = oppc;
+    }
 
   return value;
 }
-
 
 static struct Value *eval8(struct Value *value)
 {
@@ -1098,6 +1360,7 @@ static struct Value *eval8(struct Value *value)
                             (pc.token + 1)->type == T_OP) == 0)
               return Value_new_ERROR(value, UNDECLARED);
           }
+
         assert(pass == DECLARE || pc.token->u.identifier->sym);
         if (pass != DECLARE &&
             (pc.token->u.identifier->sym->type == GLOBALVAR ||
@@ -1105,7 +1368,10 @@ static struct Value *eval8(struct Value *value)
              pc.token->u.identifier->sym->type == LOCALVAR))
           {
             if ((l = lvalue(value))->type == V_ERROR)
-              return value;
+              {
+                return value;
+              }
+
             Value_clone(value, l);
           }
         else
@@ -1118,6 +1384,7 @@ static struct Value *eval8(struct Value *value)
                 return Value_new_ERROR(value, VOIDVALUE);
               }
           }
+
         break;
       }
 
@@ -1162,12 +1429,16 @@ static struct Value *eval8(struct Value *value)
       {
         ++pc.token;
         if (eval(value, _("parenthetic"))->type == V_ERROR)
-          return value;
+          {
+            return value;
+          }
+
         if (pc.token->type != T_CP)
           {
             Value_destroy(value);
             return Value_new_ERROR(value, MISSINGCP);
           }
+
         ++pc.token;
         break;
       }
@@ -1176,7 +1447,6 @@ static struct Value *eval8(struct Value *value)
       {
         return (struct Value *)0;
       }
-
     }
 
   return value;
@@ -1219,7 +1489,8 @@ static struct Value *eval1(struct Value *value)
 
 static struct Value *eval(struct Value *value, const char *desc)
 {
-  /* avoid function calls for atomic expression */
+  /* Avoid function calls for atomic expression */
+
   switch (pc.token->type)
     {
     case T_STRING:
@@ -1230,19 +1501,29 @@ static struct Value *eval(struct Value *value, const char *desc)
     case T_IDENTIFIER:
       if (!TOKEN_ISBINARYOPERATOR((pc.token + 1)->type) &&
           (pc.token + 1)->type != T_OP)
-        return eval7(value);
+        {
+          return eval7(value);
+        }
+
     default:
       break;
     }
+
   if (binarydown(value, eval1, 0) == (struct Value *)0)
     {
       if (desc)
-        return Value_new_ERROR(value, MISSINGEXPR, desc);
+        {
+          return Value_new_ERROR(value, MISSINGEXPR, desc);
+        }
       else
-        return (struct Value *)0;
+        {
+          return (struct Value *)0;
+        }
     }
   else
-    return value;
+    {
+      return value;
+    }
 }
 #endif
 
@@ -1279,9 +1560,13 @@ static void pushLabel(enum LabelType type, struct Pc *patch)
 static struct Pc *popLabel(enum LabelType type)
 {
   if (labelStackPointer == 0 || labelStack[labelStackPointer - 1].type != type)
-    return (struct Pc *)0;
+    {
+      return (struct Pc *)0;
+    }
   else
-    return &labelStack[--labelStackPointer].patch;
+    {
+      return &labelStack[--labelStackPointer].patch;
+    }
 }
 
 static struct Pc *findLabel(enum LabelType type)
@@ -1289,8 +1574,13 @@ static struct Pc *findLabel(enum LabelType type)
   int i;
 
   for (i = labelStackPointer - 1; i >= 0; --i)
-    if (labelStack[i].type == type)
-      return &labelStack[i].patch;
+    {
+      if (labelStack[i].type == type)
+        {
+          return &labelStack[i].patch;
+        }
+    }
+
   return (struct Pc *)0;
 }
 
@@ -1303,33 +1593,42 @@ static void labelStackError(struct Value *v)
     case L_IF:
       Value_new_ERROR(v, STRAYIF);
       break;
+
     case L_DO:
       Value_new_ERROR(v, STRAYDO);
       break;
+
     case L_DOcondition:
       Value_new_ERROR(v, STRAYDOcondition);
       break;
+
     case L_ELSE:
       Value_new_ERROR(v, STRAYELSE2);
       break;
+
     case L_FOR_BODY:
       {
         Value_new_ERROR(v, STRAYFOR);
         pc = *findLabel(L_FOR);
         break;
       }
+
     case L_WHILE:
       Value_new_ERROR(v, STRAYWHILE);
       break;
+
     case L_REPEAT:
       Value_new_ERROR(v, STRAYREPEAT);
       break;
+
     case L_SELECTCASE:
       Value_new_ERROR(v, STRAYSELECTCASE);
       break;
+
     case L_FUNC:
       Value_new_ERROR(v, STRAYFUNC);
       break;
+
     default:
       assert(0);
     }
@@ -1341,30 +1640,42 @@ static const char *topLabelDescription(void)
     {
       return _("program");
     }
+
   switch (labelStack[labelStackPointer - 1].type)
     {
     case L_IF:
       return _("`if' branch");
+
     case L_DO:
       return _("`do' loop");
+
     case L_DOcondition:
       return _("`do while' or `do until' loop");
+
     case L_ELSE:
       return _("`else' branch");
+
     case L_FOR_BODY:
       return _("`for' loop");
+
     case L_WHILE:
       return _("`while' loop");
+
     case L_REPEAT:
       return _("`repeat' loop");
+
     case L_SELECTCASE:
       return _("`select case' control structure");
+
     case L_FUNC:
       return _("function or procedure");
+
     default:
       assert(0);
     }
+
   /* NOTREACHED */
+
   return (const char *)0;
 }
 
@@ -1372,18 +1683,23 @@ static struct Value *assign(struct Value *value)
 {
   struct Pc expr;
 
-  if (strcasecmp(pc.token->u.identifier->name, "mid$") == 0)    /* mid$(a$,n,m)=b$
-     */
+  if (strcasecmp(pc.token->u.identifier->name, "mid$") == 0)
     {
       long int n, m;
       struct Value *l;
 
       ++pc.token;
       if (pc.token->type != T_OP)
-        return Value_new_ERROR(value, MISSINGOP);
+        {
+          return Value_new_ERROR(value, MISSINGOP);
+        }
+
       ++pc.token;
       if (pc.token->type != T_IDENTIFIER)
-        return Value_new_ERROR(value, MISSINGSTRIDENT);
+        {
+          return Value_new_ERROR(value, MISSINGSTRIDENT);
+        }
+
       if (pass == DECLARE)
         {
           if (((pc.token + 1)->type == T_OP ||
@@ -1396,46 +1712,83 @@ static struct Value *assign(struct Value *value)
               return Value_new_ERROR(value, REDECLARATION);
             }
         }
+
       if ((l = lvalue(value))->type == V_ERROR)
-        return value;
+        {
+          return value;
+        }
+
       if (pass == COMPILE && l->type != V_STRING)
-        return Value_new_ERROR(value, TYPEMISMATCH4);
+        {
+          return Value_new_ERROR(value, TYPEMISMATCH4);
+        }
+
       if (pc.token->type != T_COMMA)
-        return Value_new_ERROR(value, MISSINGCOMMA);
+        {
+          return Value_new_ERROR(value, MISSINGCOMMA);
+        }
+
       ++pc.token;
       if (eval(value, _("position"))->type == V_ERROR ||
           Value_retype(value, V_INTEGER)->type == V_ERROR)
-        return value;
+        {
+          return value;
+        }
+
       n = value->u.integer;
       Value_destroy(value);
       if (pass == INTERPRET && n < 1)
-        return Value_new_ERROR(value, OUTOFRANGE, "position");
+        {
+          return Value_new_ERROR(value, OUTOFRANGE, "position");
+        }
+
       if (pc.token->type == T_COMMA)
         {
           ++pc.token;
           if (eval(value, _("length"))->type == V_ERROR ||
               Value_retype(value, V_INTEGER)->type == V_ERROR)
-            return value;
+            {
+              return value;
+            }
+
           m = value->u.integer;
           if (pass == INTERPRET && m < 0)
-            return Value_new_ERROR(value, OUTOFRANGE, _("length"));
+            {
+              return Value_new_ERROR(value, OUTOFRANGE, _("length"));
+            }
+
           Value_destroy(value);
         }
       else
-        m = -1;
+        {
+          m = -1;
+        }
+
       if (pc.token->type != T_CP)
-        return Value_new_ERROR(value, MISSINGCP);
+        {
+          return Value_new_ERROR(value, MISSINGCP);
+        }
+
       ++pc.token;
       if (pc.token->type != T_EQ)
-        return Value_new_ERROR(value, MISSINGEQ);
+        {
+          return Value_new_ERROR(value, MISSINGEQ);
+        }
+
       ++pc.token;
       if (eval(value, _("rhs"))->type == V_ERROR ||
           Value_retype(value, V_STRING)->type == V_ERROR)
-        return value;
+        {
+          return value;
+        }
+
       if (pass == INTERPRET)
         {
           if (m == -1)
-            m = value->u.string.length;
+            {
+              m = value->u.string.length;
+            }
+
           String_set(&l->u.string, n - 1, &value->u.string, m);
         }
     }
@@ -1466,25 +1819,41 @@ static struct Value *assign(struct Value *value)
                                   T_OP ? GLOBALARRAY : GLOBALVAR, 0) == 0)
                 {
                   if (capacity)
-                    free(l);
+                    {
+                      free(l);
+                    }
+
                   return Value_new_ERROR(value, REDECLARATION);
                 }
             }
+
           if ((l[used] = lvalue(value))->type == V_ERROR)
-            return value;
+            {
+              return value;
+            }
+
           ++used;
           if (pc.token->type == T_COMMA)
-            ++pc.token;
+            {
+              ++pc.token;
+            }
           else
-            break;
+            {
+              break;
+            }
         }
 
       if (pc.token->type != T_EQ)
-        return Value_new_ERROR(value, MISSINGEQ);
+        {
+          return Value_new_ERROR(value, MISSINGEQ);
+        }
+
       ++pc.token;
       expr = pc;
       if (eval(value, _("rhs"))->type == V_ERROR)
-        return value;
+        {
+          return value;
+        }
 
       for (i = 0; i < used; ++i)
         {
@@ -1498,6 +1867,7 @@ static struct Value *assign(struct Value *value)
               *value = retyped_value;
               return value;
             }
+
           if (pass == INTERPRET)
             {
               Value_destroy(l[i]);
@@ -1513,7 +1883,6 @@ static struct Value *assign(struct Value *value)
   return value;
 }
 
-
 static struct Value *compileProgram(struct Value *v, int clearGlobals)
 {
   struct Pc begin;
@@ -1525,7 +1894,9 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
       Global_new(&globals);
     }
   else
-    Global_clearFunctions(&globals);
+    {
+      Global_clearFunctions(&globals);
+    }
 
   if (Program_beginning(&program, &begin))
     {
@@ -1542,6 +1913,7 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
               stack.begindata.line = -1;
               lastdata = &stack.begindata;
             }
+
           optionbase = 0;
           stopped = 0;
           program.runnable = 1;
@@ -1550,7 +1922,10 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
             {
               statements(v);
               if (v->type == V_ERROR)
-                break;
+                {
+                  break;
+                }
+
               Value_destroy(v);
               if (!Program_skipEOL(&program, &pc, 0, 0))
                 {
@@ -1558,28 +1933,37 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
                   break;
                 }
             }
+
           if (v->type != V_ERROR && labelStackPointer > 0)
             {
               Value_destroy(v);
               labelStackError(v);
             }
+
           if (v->type == V_ERROR)
             {
               labelStackPointer = 0;
               Program_norun(&program);
               if (stack.cur)
-                Auto_funcEnd(&stack);   /* Always correct? */
+                {
+                  Auto_funcEnd(&stack); /* Always correct? */
+                }
+
               pass = savepass;
               return v;
             }
         }
+
       pc = begin;
       if (Program_analyse(&program, &pc, v))
         {
           labelStackPointer = 0;
           Program_norun(&program);
           if (stack.cur)
-            Auto_funcEnd(&stack);       /* Always correct? */
+            {
+              Auto_funcEnd(&stack);     /* Always correct? */
+            }
+
           pass = savepass;
           return v;
         }
@@ -1610,11 +1994,13 @@ static void runline(struct Token *line)
           Value_destroy(&value);
           Value_new_ERROR(&value, SYNTAX);
         }
+
       if (value.type != V_ERROR && labelStackPointer > 0)
         {
           Value_destroy(&value);
           labelStackError(&value);
         }
+
       if (value.type == V_ERROR)
         {
           struct String s;
@@ -1630,6 +2016,7 @@ static void runline(struct Token *line)
           String_destroy(&s);
           return;
         }
+
       if (!program.runnable && pass == COMPILE)
         {
           Value_destroy(&value);
@@ -1658,6 +2045,7 @@ static void runline(struct Token *line)
                             &value);
               Program_PCtoError(&program, &pc, &value);
             }
+
           if (stack.onerror.line != -1)
             {
               stack.resumeable = 1;
@@ -1673,6 +2061,7 @@ static void runline(struct Token *line)
                   stopped = 0;
                   FS_putChars(STDCHANNEL, _("Error: "));
                 }
+
               Auto_frameToError(&stack, &program, &value);
               Value_toString(&value, &s, ' ', -1, 0, 0, 0, 0, -1, 0, 0);
               while (Auto_gosubReturn(&stack, (struct Pc *)0));
@@ -1682,25 +2071,31 @@ static void runline(struct Token *line)
               break;
             }
         }
+
       Value_destroy(&value);
     }
   while (pc.token->type != T_EOL ||
          Program_skipEOL(&program, &pc, STDCHANNEL, 1));
 }
 
-static struct Value *evalGeometry(struct Value *value, unsigned int *dim, unsigned int geometry[])
+static struct Value *evalGeometry(struct Value *value, unsigned int *dim,
+                                  unsigned int geometry[])
 {
   struct Pc exprpc = pc;
 
   if (eval(value, _("dimension"))->type == V_ERROR ||
       (pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
-    return value;
+    {
+      return value;
+    }
+
   if (pass == INTERPRET && value->u.integer < optionbase)
     {
       Value_destroy(value);
       pc = exprpc;
       return Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
     }
+
   geometry[0] = value->u.integer - optionbase + 1;
   Value_destroy(value);
   if (pc.token->type == T_COMMA)
@@ -1709,27 +2104,40 @@ static struct Value *evalGeometry(struct Value *value, unsigned int *dim, unsign
       exprpc = pc;
       if (eval(value, _("dimension"))->type == V_ERROR ||
           (pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
-        return value;
+        {
+          return value;
+        }
+
       if (pass == INTERPRET && value->u.integer < optionbase)
         {
           Value_destroy(value);
           pc = exprpc;
           return Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
         }
+
       geometry[1] = value->u.integer - optionbase + 1;
       Value_destroy(value);
       *dim = 2;
     }
   else
-    *dim = 1;
+    {
+      *dim = 1;
+    }
+
   if (pc.token->type == T_CP)
-    ++pc.token;
+    {
+      ++pc.token;
+    }
   else
-    return Value_new_ERROR(value, MISSINGCP);
+    {
+      return Value_new_ERROR(value, MISSINGCP);
+    }
+
   return (struct Value *)0;
 }
 
-static struct Value *convert(struct Value *value, struct Value *l, struct Token *t)
+static struct Value *convert(struct Value *value, struct Value *l,
+                             struct Token *t)
 {
   switch (l->type)
     {
@@ -1741,17 +2149,27 @@ static struct Value *convert(struct Value *value, struct Value *l, struct Token 
         int overflow;
 
         if (t->type != T_DATAINPUT)
-          return Value_new_ERROR(value, BADCONVERSION, _("integer"));
+          {
+            return Value_new_ERROR(value, BADCONVERSION, _("integer"));
+          }
+
         datainput = t->u.datainput;
         v = Value_vali(datainput, &end, &overflow);
         if (end == datainput || (*end != '\0' && *end != ' ' && *end != '\t'))
-          return Value_new_ERROR(value, BADCONVERSION, _("integer"));
+          {
+            return Value_new_ERROR(value, BADCONVERSION, _("integer"));
+          }
+
         if (overflow)
-          return Value_new_ERROR(value, OUTOFRANGE, _("converted value"));
+          {
+            return Value_new_ERROR(value, OUTOFRANGE, _("converted value"));
+          }
+
         Value_destroy(l);
         VALUE_NEW_INTEGER(l, v);
         break;
       }
+
     case V_REAL:
       {
         char *datainput;
@@ -1760,13 +2178,22 @@ static struct Value *convert(struct Value *value, struct Value *l, struct Token 
         int overflow;
 
         if (t->type != T_DATAINPUT)
-          return Value_new_ERROR(value, BADCONVERSION, _("real"));
+          {
+            return Value_new_ERROR(value, BADCONVERSION, _("real"));
+          }
+
         datainput = t->u.datainput;
         v = Value_vald(datainput, &end, &overflow);
         if (end == datainput || (*end != '\0' && *end != ' ' && *end != '\t'))
-          return Value_new_ERROR(value, BADCONVERSION, _("real"));
+          {
+            return Value_new_ERROR(value, BADCONVERSION, _("real"));
+          }
+
         if (overflow)
-          return Value_new_ERROR(value, OUTOFRANGE, _("converted value"));
+          {
+            return Value_new_ERROR(value, OUTOFRANGE, _("converted value"));
+          }
+
         Value_destroy(l);
         VALUE_NEW_REAL(l, v);
         break;
@@ -1776,14 +2203,21 @@ static struct Value *convert(struct Value *value, struct Value *l, struct Token 
         Value_destroy(l);
         Value_new_STRING(l);
         if (t->type == T_STRING)
-          String_appendString(&l->u.string, t->u.string);
+          {
+            String_appendString(&l->u.string, t->u.string);
+          }
         else
-          String_appendChars(&l->u.string, t->u.datainput);
+          {
+            String_appendChars(&l->u.string, t->u.datainput);
+          }
+
         break;
       }
+
     default:
       assert(0);
     }
+
   return (struct Value *)0;
 }
 
@@ -1793,20 +2227,28 @@ static struct Value *dataread(struct Value *value, struct Value *l)
     {
       return Value_new_ERROR(value, ENDOFDATA);
     }
+
   if (curdata.token->type == T_DATA)
     {
       nextdata = curdata.token->u.nextdata;
       ++curdata.token;
     }
+
   if (convert(value, l, curdata.token))
     {
       return value;
     }
+
   ++curdata.token;
   if (curdata.token->type == T_COMMA)
-    ++curdata.token;
+    {
+      ++curdata.token;
+    }
   else
-    curdata = nextdata;
+    {
+      curdata = nextdata;
+    }
+
   return (struct Value *)0;
 }
 
@@ -1822,16 +2264,24 @@ more:
       if ((v = pc.token->statement(value)))
         {
           if (v == &more_statements)
-            goto more;
+            {
+              goto more;
+            }
           else
-            return value;
+            {
+              return value;
+            }
         }
     }
   else
-    return Value_new_ERROR(value, MISSINGSTATEMENT);
+    {
+      return Value_new_ERROR(value, MISSINGSTATEMENT);
+    }
 
   if (pc.token->type == T_COLON && (pc.token + 1)->type == T_ELSE)
-    ++pc.token;
+    {
+      ++pc.token;
+    }
   else if ((pc.token->type == T_COLON && (pc.token + 1)->type != T_ELSE) ||
            pc.token->type == T_QUOTE)
     {
@@ -1843,6 +2293,7 @@ more:
     {
       return Value_new_ERROR(value, MISSINGCOLON);
     }
+
   return Value_new_NIL(value);
 }
 
@@ -1920,8 +2371,10 @@ void bas_interpreter(void)
     {
       FS_putChars(STDCHANNEL, "bas " CONFIG_INTERPRETER_BAS_VERSION "\n");
       FS_putChars(STDCHANNEL, "Copyright 1999-2014 Michael Haardt.\n");
-      FS_putChars(STDCHANNEL, "This is free software with ABSOLUTELY NO WARRANTY.\n");
+      FS_putChars(STDCHANNEL,
+                  "This is free software with ABSOLUTELY NO WARRANTY.\n");
     }
+
   new();
   while (1)
     {
@@ -1931,7 +2384,10 @@ void bas_interpreter(void)
       stopped = 0;
       FS_nextline(STDCHANNEL);
       if (FS_istty(STDCHANNEL))
-        FS_putChars(STDCHANNEL, "> ");
+        {
+          FS_putChars(STDCHANNEL, "> ");
+        }
+
       FS_flush(STDCHANNEL);
       String_new(&s);
       if (FS_appendToString(STDCHANNEL, &s, 1) == -1)
@@ -1941,11 +2397,13 @@ void bas_interpreter(void)
           String_destroy(&s);
           break;
         }
+
       if (s.length == 0)
         {
           String_destroy(&s);
           break;
         }
+
       line = Token_newCode(s.character);
       String_destroy(&s);
       if (line->type != T_EOL)
@@ -1960,13 +2418,20 @@ void bas_interpreter(void)
 
                       if (Program_goLine(&program, line->u.integer, &where) ==
                           (struct Pc *)0)
-                        FS_putChars(STDCHANNEL, (NOSUCHLINE));
+                        {
+                          FS_putChars(STDCHANNEL, (NOSUCHLINE));
+                        }
                       else
-                        Program_delete(&program, &where, &where);
+                        {
+                          Program_delete(&program, &where, &where);
+                        }
+
                       Token_destroy(line);
                     }
                   else
-                    Program_store(&program, line, line->u.integer);
+                    {
+                      Program_store(&program, line, line->u.integer);
+                    }
                 }
               else
                 {
@@ -1992,7 +2457,9 @@ void bas_interpreter(void)
             }
         }
       else
-        Token_destroy(line);
+        {
+          Token_destroy(line);
+        }
     }
 }
 
@@ -2002,7 +2469,10 @@ void bas_exit(void)
   Global_destroy(&globals);
   Program_destroy(&program);
   if (labelStack)
-    free(labelStack);
+    {
+      free(labelStack);
+    }
+
   FS_closefiles();
   FS_close(LPCHANNEL);
   FS_close(STDCHANNEL);
