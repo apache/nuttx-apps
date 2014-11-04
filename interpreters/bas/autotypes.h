@@ -56,8 +56,14 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_AUTOTYPES_H
-#define __APPS_EXAMPLES_BAS_AUTOTYPES_H
+/* REVISIT:  Why is this?  If the following is __APPS_EXAMPLES_BAS_AUTOTYPES_H
+ * then there are compile errors!  Those compile errors occur because this
+ * function defines some of the same structures as does auto.h.  BUT, the
+ * definitions ARE NOT THE SAME.  What is up with this?
+ */
+
+#ifndef __APPS_EXAMPLES_BAS_AUTO_H
+#define __APPS_EXAMPLES_BAS_AUTO_H
 
 /****************************************************************************
  * Included Files
@@ -98,4 +104,4 @@ union AutoSlot
   struct Var var;
 };
 
-#endif /* __APPS_EXAMPLES_BAS_AUTOTYPES_H */
+#endif /* __APPS_EXAMPLES_BAS_AUTO_H */
