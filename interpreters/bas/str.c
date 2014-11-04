@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/interpreters/bas/value.c
+ * apps/interpreters/bas/value.c
  * Dynamic strings.
  *
  *   Copyright (c) 1999-2014 Michael Haardt

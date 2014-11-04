@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/interpreters/bas/fs.c
+ * apps/interpreters/bas/fs.c
  * BASIC file system interface.
  *
  *   Copyright (c) 1999-2014 Michael Haardt

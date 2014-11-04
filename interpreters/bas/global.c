@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/interpreters/bas/global.c
+ * apps/interpreters/bas/global.c
  * Global variables and functions.
  *
  *   Copyright (c) 1999-2014 Michael Haardt

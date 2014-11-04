@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/interpreters/bas/main.c
+ * apps/interpreters/bas/main.c
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *

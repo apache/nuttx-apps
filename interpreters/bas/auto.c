@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/interpreters/bas/auto.c
+ * apps/interpreters/bas/auto.c
  * BASIC file system interface.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
