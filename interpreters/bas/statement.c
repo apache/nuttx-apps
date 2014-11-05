@@ -62,6 +62,8 @@
 
 #include <nuttx/config.h>
 
+#include <stdlib.h>
+
 #include "statement.h"
 
 /****************************************************************************
@@ -1159,7 +1161,7 @@ struct Value *stmt_EDIT(struct Value *value)
           return Value_new_ERROR(value, NOTINPROGRAMMODE);
         }
 
-      if ((name = mytmpnam()) == (char *)0)
+      if ((name = tmpnam(NULL)) == (char *)0)
         {
           pc = statementpc;
           return Value_new_ERROR(value, IOERROR,
