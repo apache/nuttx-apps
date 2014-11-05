@@ -874,7 +874,7 @@ static FAR char *nsh_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   /* Create a unique file name using the task ID */
 
   tmpfile = NULL;
-  ret = asprintf(&tmpfile, "%s/TMP%d.dat", CONFIG_NSH_TMPDIR, getpid());
+  ret = asprintf(&tmpfile, "%s/TMP%d.dat", CONFIG_LIBC_TMPDIR, getpid());
   if (ret < 0 || !tmpfile)
     {
       nsh_output(vtbl, g_fmtcmdoutofmemory, "``");

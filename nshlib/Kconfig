@@ -77,17 +77,6 @@ config NSH_CMDPARMS
 		Because this feature commits significant resources, it is disabled by
 		default.
 
-config NSH_TMPDIR
-	string "Temporary file directory"
-	default "/tmp"
-	depends on NSH_CMDPARMS
-		---help---
-		If NSH_CMDPARMS is selected, then function output will be retained
-		in a temporary file.  In that case, this string must be provided to
-		specify the full path to a directory where temporary files can be
-		created.  This would be a good application of RAM disk: To provide
-		temporary storage for function output.
-
 config NSH_MAXARGUMENTS
 	int "Maximum number of command arguments"
 	default 6
