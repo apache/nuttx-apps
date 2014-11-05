@@ -100,8 +100,8 @@
  * hold temporary files must be provided.
  */
 
-#if defined(CONFIG_NSH_CMDPARMS) && !defined(CONFIG_NSH_TMPDIR)
-#  define CONFIG_NSH_TMPDIR "/tmp"
+#if defined(CONFIG_NSH_CMDPARMS) && !defined(CONFIG_LIBC_TMPDIR)
+#  define CONFIG_LIBC_TMPDIR "/tmp"
 #endif
 
 /* Networking support.  Make sure that all non-boolean configuration
