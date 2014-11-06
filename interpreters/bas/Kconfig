@@ -52,7 +52,7 @@ config INTERPRETER_BAS_USE_SELECT
 config INTERPRETER_BAS_HAVE_FTRUNCATE
 	bool
 	default n
-	---help--
+	---help---
 		NuttX does not currently support the ftruncate interface
 
 
