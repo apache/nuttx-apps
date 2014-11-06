@@ -49,4 +49,11 @@ config INTERPRETER_BAS_USE_SELECT
 	bool "Use select()"
 	default n
 
+config INTERPRETER_BAS_HAVE_FTRUNCATE
+	bool
+	default n
+	---help--
+		NuttX does not currently support the ftruncate interface
+
+
 endif

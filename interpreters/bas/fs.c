@@ -813,6 +813,7 @@ int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
 
 int FS_truncate(int chn)
 {
+#ifdef CONFIG_INTERPRETER_BAS_HAVE_FTRUNCATE
   int fd;
   off_t o;
 
@@ -843,6 +844,10 @@ int FS_truncate(int chn)
     }
 
   return 0;
+#else
+  FS_errmsg = strerror(ENOSYS);
+  return -1;
+#endif
 }
 
 void FS_shellmode(int dev)
