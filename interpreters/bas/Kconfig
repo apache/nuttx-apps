@@ -39,6 +39,18 @@ config INTERPRETER_BAS_VERSION
 	string "Version number"
 	default "2.4"
 
+config INTERPRETER_BAS_PRIORITY
+	int "Basic interpreter priority"
+	default 100
+	---help---
+		Task priority of the Basic interpreter main task
+
+config INTERPRETER_BAS_STACKSIZE
+	int "Basic interpreter stack size"
+	default 4096
+	---help---
+		Size of the stack allocated for the Basic interpreter main task
+
 config INTERPRETER_BAS_USE_LR0
 	bool "LR0 parser"
 	default n
