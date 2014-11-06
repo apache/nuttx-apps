@@ -1239,7 +1239,7 @@ struct Value *stmt_EDIT(struct Value *value)
           {
             /* Wait for the editor to complete */
 
-            while (waitpid((pid, &status, 0) < 0 && errno != EINTR);
+            while (waitpid(pid, &status, 0) < 0 && errno != EINTR);
           }
         }
 
