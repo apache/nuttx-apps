@@ -285,15 +285,21 @@ static int edit(int chn, int onl)
 #else
       if ((f->inCapacity + 1) < sizeof(f->inBuf))
         {
-          /* Ignore carriage returns that may accompany a CRLF sequence.
-           * REVISIT:  Some environments may have other line termination rules
-           */
+#ifdef CONFIG_EOL_IS_BOTH_CRLF
+          /* Ignore carriage returns that may accompany a CRLF sequence. */
 
           if (ch != '\r')
+#endif
             {
               /* Is this a new line character */
 
+#ifdef CONFIG_EOL_IS_CR
+              if (ch != '\r')
+#elif defined(CONFIG_EOL_IS_LF)
               if (ch != '\n')
+#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
+              if (ch != '\n' && ch != '\r' )
+#endif
                 {
                   /* No.. escape control characters other than newline and
                    * carriage return
@@ -313,11 +319,26 @@ static int edit(int chn, int onl)
                     }
                 }
 
-              /* Echo the newline (or not) */
+              /* It is a newline */
 
-              else if (onl)
+              else
                 {
-                  FS_putChar(chn, '\n');
+                  /* Echo the newline (or not).  We always use newline
+                   * termination when talking to the host.
+                   */
+
+                  if (onl)
+                    {
+                      FS_putChar(chn, '\n');
+                    }
+
+#if defined(CONFIG_EOL_IS_CR) || defined(CONFIG_EOL_IS_EITHER_CRLF)
+                  /* If the host is talking to us with CR line terminations,
+                   * switch to use LF internally.
+                   */
+
+                  ch = '\n';
+#endif
                 }
 
               f->inBuf[f->inCapacity++] = ch;
