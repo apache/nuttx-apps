@@ -1074,6 +1074,7 @@ struct Value *stmt_EDIT(struct Value *value)
 #ifdef CONFIG_ARCH_HAVE_VFORK
   long int line;
   struct Pc statementpc = pc;
+  int status;
 
   ++pc.token;
   if (pc.token->type == T_INTEGER)
@@ -1236,9 +1237,9 @@ struct Value *stmt_EDIT(struct Value *value)
 
         default:
           {
-            pid_t r;
+            /* Wait for the editor to complete */
 
-            while ((r = wait((int *)0)) != -1 && r != pid);
+            while (waitpid((pid, &status, 0) < 0 && errno != EINTR);
           }
         }
 
@@ -5721,7 +5722,9 @@ struct Value *stmt_SHELL(struct Value *value)
 
             default:
               {
-                while (waitpid(pid, &status, 0) == -1 && errno != EINTR);
+                /* Wait for the shell to complete */
+
+                while (waitpid(pid, &status, 0) < 0 && errno != EINTR);
               }
             }
 
@@ -5766,7 +5769,9 @@ struct Value *stmt_SHELL(struct Value *value)
 
             default:
               {
-                while (waitpid(pid, &status, 0) == -1 && errno != EINTR);
+                /* Wait for the shell to complete */
+
+                while (waitpid(pid, &status, 0) < 0 && errno != EINTR);
               }
             }
 
