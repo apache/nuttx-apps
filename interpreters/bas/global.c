@@ -2057,7 +2057,7 @@ static void builtin(struct Global *this, const char *ident, enum ValueType type,
   va_start(ap, argLength);
   for (i = 0; i < argLength; ++i)
     {
-      s->u.sub.argTypes[i] = va_arg(ap, enum ValueType);
+      s->u.sub.argTypes[i] = (enum ValueType)va_arg(ap, int);
     }
 
   va_end(ap);
@@ -2070,155 +2070,158 @@ static void builtin(struct Global *this, const char *ident, enum ValueType type,
 
 struct Global *Global_new(struct Global *this)
 {
-  builtin(this, "abs", V_REAL, fn_abs, 1, V_REAL);
-  builtin(this, "asc", V_INTEGER, fn_asc, 1, V_STRING);
-  builtin(this, "atn", V_REAL, fn_atn, 1, V_REAL);
-  builtin(this, "bin$", V_STRING, fn_bini, 1, V_INTEGER);
-  builtin(this, "bin$", V_STRING, fn_bind, 1, V_REAL);
-  builtin(this, "bin$", V_STRING, fn_binii, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "bin$", V_STRING, fn_bindi, 2, V_REAL, V_INTEGER);
-  builtin(this, "bin$", V_STRING, fn_binid, 2, V_INTEGER, V_REAL);
-  builtin(this, "bin$", V_STRING, fn_bindd, 2, V_REAL, V_REAL);
-  builtin(this, "chr$", V_STRING, fn_chr, 1, V_INTEGER);
-  builtin(this, "cint", V_REAL, fn_cint, 1, V_REAL);
-  builtin(this, "code", V_INTEGER, fn_asc, 1, V_STRING);
+  builtin(this, "abs", V_REAL, fn_abs, 1, (int)V_REAL);
+  builtin(this, "asc", V_INTEGER, fn_asc, 1, (int)V_STRING);
+  builtin(this, "atn", V_REAL, fn_atn, 1, (int)V_REAL);
+  builtin(this, "bin$", V_STRING, fn_bini, 1, (int)V_INTEGER);
+  builtin(this, "bin$", V_STRING, fn_bind, 1, (int)V_REAL);
+  builtin(this, "bin$", V_STRING, fn_binii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "bin$", V_STRING, fn_bindi, 2, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "bin$", V_STRING, fn_binid, 2, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "bin$", V_STRING, fn_bindd, 2, (int)V_REAL, (int)V_REAL);
+  builtin(this, "chr$", V_STRING, fn_chr, 1, (int)V_INTEGER);
+  builtin(this, "cint", V_REAL, fn_cint, 1, (int)V_REAL);
+  builtin(this, "code", V_INTEGER, fn_asc, 1, (int)V_STRING);
   builtin(this, "command$", V_STRING, fn_command, 0);
-  builtin(this, "command$", V_STRING, fn_commandi, 1, V_INTEGER);
-  builtin(this, "command$", V_STRING, fn_commandd, 1, V_REAL);
-  builtin(this, "cos", V_REAL, fn_cos, 1, V_REAL);
-  builtin(this, "cvi", V_INTEGER, fn_cvi, 1, V_STRING);
-  builtin(this, "cvs", V_REAL, fn_cvs, 1, V_STRING);
-  builtin(this, "cvd", V_REAL, fn_cvd, 1, V_STRING);
+  builtin(this, "command$", V_STRING, fn_commandi, 1, (int)V_INTEGER);
+  builtin(this, "command$", V_STRING, fn_commandd, 1, (int)V_REAL);
+  builtin(this, "cos", V_REAL, fn_cos, 1, (int)V_REAL);
+  builtin(this, "cvi", V_INTEGER, fn_cvi, 1, (int)V_STRING);
+  builtin(this, "cvs", V_REAL, fn_cvs, 1, (int)V_STRING);
+  builtin(this, "cvd", V_REAL, fn_cvd, 1, (int)V_STRING);
   builtin(this, "date$", V_STRING, fn_date, 0);
-  builtin(this, "dec$", V_STRING, fn_dec, 2, V_REAL, V_STRING);
-  builtin(this, "dec$", V_STRING, fn_dec, 2, V_INTEGER, V_STRING);
-  builtin(this, "dec$", V_STRING, fn_dec, 2, V_STRING, V_STRING);
-  builtin(this, "deg", V_REAL, fn_deg, 1, V_REAL);
+  builtin(this, "dec$", V_STRING, fn_dec, 2, (int)V_REAL, (int)V_STRING);
+  builtin(this, "dec$", V_STRING, fn_dec, 2, (int)V_INTEGER, (int)V_STRING);
+  builtin(this, "dec$", V_STRING, fn_dec, 2, (int)V_STRING, (int)V_STRING);
+  builtin(this, "deg", V_REAL, fn_deg, 1, (int)V_REAL);
   builtin(this, "det", V_REAL, fn_det, 0);
-  builtin(this, "edit$", V_STRING, fn_edit, 2, V_STRING, V_INTEGER);
-  builtin(this, "environ$", V_STRING, fn_environi, 1, V_INTEGER);
-  builtin(this, "environ$", V_STRING, fn_environd, 1, V_REAL);
-  builtin(this, "environ$", V_STRING, fn_environs, 1, V_STRING);
-  builtin(this, "eof", V_INTEGER, fn_eof, 1, V_INTEGER);
+  builtin(this, "edit$", V_STRING, fn_edit, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "environ$", V_STRING, fn_environi, 1, (int)V_INTEGER);
+  builtin(this, "environ$", V_STRING, fn_environd, 1, (int)V_REAL);
+  builtin(this, "environ$", V_STRING, fn_environs, 1, (int)V_STRING);
+  builtin(this, "eof", V_INTEGER, fn_eof, 1, (int)V_INTEGER);
   builtin(this, "erl", V_INTEGER, fn_erl, 0);
   builtin(this, "err", V_INTEGER, fn_err, 0);
-  builtin(this, "exp", V_REAL, fn_exp, 1, V_REAL);
+  builtin(this, "exp", V_REAL, fn_exp, 1, (int)V_REAL);
   builtin(this, "false", V_INTEGER, fn_false, 0);
-  builtin(this, "find$", V_STRING, fn_find, 1, V_STRING);
-  builtin(this, "find$", V_STRING, fn_findi, 2, V_STRING, V_INTEGER);
-  builtin(this, "find$", V_STRING, fn_findd, 2, V_STRING, V_REAL);
-  builtin(this, "fix", V_REAL, fn_fix, 1, V_REAL);
-  builtin(this, "frac", V_REAL, fn_frac, 1, V_REAL);
+  builtin(this, "find$", V_STRING, fn_find, 1, (int)V_STRING);
+  builtin(this, "find$", V_STRING, fn_findi, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "find$", V_STRING, fn_findd, 2, (int)V_STRING, (int)V_REAL);
+  builtin(this, "fix", V_REAL, fn_fix, 1, (int)V_REAL);
+  builtin(this, "frac", V_REAL, fn_frac, 1, (int)V_REAL);
   builtin(this, "freefile", V_INTEGER, fn_freefile, 0);
-  builtin(this, "fp", V_REAL, fn_frac, 1, V_REAL);
-  builtin(this, "hex$", V_STRING, fn_hexi, 1, V_INTEGER);
-  builtin(this, "hex$", V_STRING, fn_hexd, 1, V_REAL);
-  builtin(this, "hex$", V_STRING, fn_hexii, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "hex$", V_STRING, fn_hexdi, 2, V_REAL, V_INTEGER);
-  builtin(this, "hex$", V_STRING, fn_hexid, 2, V_INTEGER, V_REAL);
-  builtin(this, "hex$", V_STRING, fn_hexdd, 2, V_REAL, V_REAL);
+  builtin(this, "fp", V_REAL, fn_frac, 1, (int)V_REAL);
+  builtin(this, "hex$", V_STRING, fn_hexi, 1, (int)V_INTEGER);
+  builtin(this, "hex$", V_STRING, fn_hexd, 1, (int)V_REAL);
+  builtin(this, "hex$", V_STRING, fn_hexii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "hex$", V_STRING, fn_hexdi, 2, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "hex$", V_STRING, fn_hexid, 2, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "hex$", V_STRING, fn_hexdd, 2, (int)V_REAL, (int)V_REAL);
   builtin(this, "inkey$", V_STRING, fn_inkey, 0);
-  builtin(this, "inkey$", V_STRING, fn_inkeyi, 1, V_INTEGER);
-  builtin(this, "inkey$", V_STRING, fn_inkeyd, 1, V_REAL);
-  builtin(this, "inkey$", V_STRING, fn_inkeyii, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "inkey$", V_STRING, fn_inkeyid, 2, V_INTEGER, V_REAL);
-  builtin(this, "inkey$", V_STRING, fn_inkeydi, 2, V_REAL, V_INTEGER);
-  builtin(this, "inkey$", V_STRING, fn_inkeydd, 2, V_REAL, V_REAL);
-  builtin(this, "inp", V_INTEGER, fn_inp, 1, V_INTEGER);
-  builtin(this, "input$", V_STRING, fn_input1, 1, V_INTEGER);
-  builtin(this, "input$", V_STRING, fn_input2, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr2, 2, V_STRING, V_STRING);
-  builtin(this, "instr", V_INTEGER, fn_instr3iss, 3, V_INTEGER, V_STRING,
+  builtin(this, "inkey$", V_STRING, fn_inkeyi, 1, (int)V_INTEGER);
+  builtin(this, "inkey$", V_STRING, fn_inkeyd, 1, (int)V_REAL);
+  builtin(this, "inkey$", V_STRING, fn_inkeyii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "inkey$", V_STRING, fn_inkeyid, 2, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "inkey$", V_STRING, fn_inkeydi, 2, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "inkey$", V_STRING, fn_inkeydd, 2, (int)V_REAL, (int)V_REAL);
+  builtin(this, "inp", V_INTEGER, fn_inp, 1, (int)V_INTEGER);
+  builtin(this, "input$", V_STRING, fn_input1, 1, (int)V_INTEGER);
+  builtin(this, "input$", V_STRING, fn_input2, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "instr", V_INTEGER, fn_instr2, 2, (int)V_STRING, (int)V_STRING);
+  builtin(this, "instr", V_INTEGER, fn_instr3iss, 3, (int)V_INTEGER, (int)V_STRING,
           V_STRING);
-  builtin(this, "instr", V_INTEGER, fn_instr3ssi, 3, V_STRING, V_STRING,
+  builtin(this, "instr", V_INTEGER, fn_instr3ssi, 3, (int)V_STRING, (int)V_STRING,
           V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr3dss, 3, V_REAL, V_STRING,
+  builtin(this, "instr", V_INTEGER, fn_instr3dss, 3, (int)V_REAL, (int)V_STRING,
           V_STRING);
-  builtin(this, "instr", V_INTEGER, fn_instr3ssd, 3, V_STRING, V_STRING,
+  builtin(this, "instr", V_INTEGER, fn_instr3ssd, 3, (int)V_STRING, (int)V_STRING,
           V_REAL);
-  builtin(this, "instr", V_INTEGER, fn_instr4ii, 4, V_STRING, V_STRING,
-          V_INTEGER, V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr4id, 4, V_STRING, V_STRING,
-          V_INTEGER, V_REAL);
-  builtin(this, "instr", V_INTEGER, fn_instr4di, 4, V_STRING, V_STRING, V_REAL,
+  builtin(this, "instr", V_INTEGER, fn_instr4ii, 4, (int)V_STRING, (int)V_STRING,
+          (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "instr", V_INTEGER, fn_instr4id, 4, (int)V_STRING, (int)V_STRING,
+          (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "instr", V_INTEGER, fn_instr4di, 4, (int)V_STRING, (int)V_STRING,
+          (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "instr", V_INTEGER, fn_instr4dd, 4, (int)V_STRING, (int)V_STRING,
+          (int)V_REAL, (int)V_REAL);
+  builtin(this, "int", V_REAL, fn_int, 1, (int)V_REAL);
+  builtin(this, "int%", V_INTEGER, fn_intp, 1, (int)V_REAL);
+  builtin(this, "ip", V_REAL, fn_fix, 1, (int)V_REAL);
+  builtin(this, "lcase$", V_STRING, fn_lcase, 1, (int)V_STRING);
+  builtin(this, "lower$", V_STRING, fn_lcase, 1, (int)V_STRING);
+  builtin(this, "left$", V_STRING, fn_left, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "len", V_INTEGER, fn_len, 1, (int)V_STRING);
+  builtin(this, "loc", V_INTEGER, fn_loc, 1, (int)V_INTEGER);
+  builtin(this, "lof", V_INTEGER, fn_lof, 1, (int)V_INTEGER);
+  builtin(this, "log", V_REAL, fn_log, 1, (int)V_REAL);
+  builtin(this, "log10", V_REAL, fn_log10, 1, (int)V_REAL);
+  builtin(this, "log2", V_REAL, fn_log2, 1, (int)V_REAL);
+  builtin(this, "ltrim$", V_STRING, fn_ltrim, 1, (int)V_STRING);
+  builtin(this, "match", V_INTEGER, fn_match, 3, (int)V_STRING, (int)V_STRING,
+          (int)V_INTEGER);
+  builtin(this, "max", V_INTEGER, fn_maxii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "max", V_REAL, fn_maxdi, 2, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "max", V_REAL, fn_maxid, 2, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "max", V_REAL, fn_maxdd, 2, (int)V_REAL, (int)V_REAL);
+  builtin(this, "mid$", V_STRING, fn_mid2i, 2, (int)V_STRING, (int)V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid2d, 2, (int)V_STRING, (int)V_REAL);
+  builtin(this, "mid$", V_STRING, fn_mid3ii, 3, (int)V_STRING, (int)V_INTEGER,
           V_INTEGER);
-  builtin(this, "instr", V_INTEGER, fn_instr4dd, 4, V_STRING, V_STRING, V_REAL,
-          V_REAL);
-  builtin(this, "int", V_REAL, fn_int, 1, V_REAL);
-  builtin(this, "int%", V_INTEGER, fn_intp, 1, V_REAL);
-  builtin(this, "ip", V_REAL, fn_fix, 1, V_REAL);
-  builtin(this, "lcase$", V_STRING, fn_lcase, 1, V_STRING);
-  builtin(this, "lower$", V_STRING, fn_lcase, 1, V_STRING);
-  builtin(this, "left$", V_STRING, fn_left, 2, V_STRING, V_INTEGER);
-  builtin(this, "len", V_INTEGER, fn_len, 1, V_STRING);
-  builtin(this, "loc", V_INTEGER, fn_loc, 1, V_INTEGER);
-  builtin(this, "lof", V_INTEGER, fn_lof, 1, V_INTEGER);
-  builtin(this, "log", V_REAL, fn_log, 1, V_REAL);
-  builtin(this, "log10", V_REAL, fn_log10, 1, V_REAL);
-  builtin(this, "log2", V_REAL, fn_log2, 1, V_REAL);
-  builtin(this, "ltrim$", V_STRING, fn_ltrim, 1, V_STRING);
-  builtin(this, "match", V_INTEGER, fn_match, 3, V_STRING, V_STRING,
-          V_INTEGER);
-  builtin(this, "max", V_INTEGER, fn_maxii, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "max", V_REAL, fn_maxdi, 2, V_REAL, V_INTEGER);
-  builtin(this, "max", V_REAL, fn_maxid, 2, V_INTEGER, V_REAL);
-  builtin(this, "max", V_REAL, fn_maxdd, 2, V_REAL, V_REAL);
-  builtin(this, "mid$", V_STRING, fn_mid2i, 2, V_STRING, V_INTEGER);
-  builtin(this, "mid$", V_STRING, fn_mid2d, 2, V_STRING, V_REAL);
-  builtin(this, "mid$", V_STRING, fn_mid3ii, 3, V_STRING, V_INTEGER,
-          V_INTEGER);
-  builtin(this, "mid$", V_STRING, fn_mid3id, 3, V_STRING, V_INTEGER, V_REAL);
-  builtin(this, "mid$", V_STRING, fn_mid3di, 3, V_STRING, V_REAL, V_INTEGER);
-  builtin(this, "mid$", V_STRING, fn_mid3dd, 3, V_STRING, V_REAL, V_REAL);
-  builtin(this, "min", V_INTEGER, fn_minii, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "min", V_REAL, fn_mindi, 2, V_REAL, V_INTEGER);
-  builtin(this, "min", V_REAL, fn_minid, 2, V_INTEGER, V_REAL);
-  builtin(this, "min", V_REAL, fn_mindd, 2, V_REAL, V_REAL);
-  builtin(this, "mki$", V_STRING, fn_mki, 1, V_INTEGER);
-  builtin(this, "mks$", V_STRING, fn_mks, 1, V_REAL);
-  builtin(this, "mkd$", V_STRING, fn_mkd, 1, V_REAL);
-  builtin(this, "oct$", V_STRING, fn_oct, 1, V_INTEGER);
-  builtin(this, "peek", V_INTEGER, fn_peek, 1, V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid3id, 3, (int)V_STRING, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "mid$", V_STRING, fn_mid3di, 3, (int)V_STRING, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "mid$", V_STRING, fn_mid3dd, 3, (int)V_STRING, (int)V_REAL, (int)V_REAL);
+  builtin(this, "min", V_INTEGER, fn_minii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "min", V_REAL, fn_mindi, 2, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "min", V_REAL, fn_minid, 2, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "min", V_REAL, fn_mindd, 2, (int)V_REAL, (int)V_REAL);
+  builtin(this, "mki$", V_STRING, fn_mki, 1, (int)V_INTEGER);
+  builtin(this, "mks$", V_STRING, fn_mks, 1, (int)V_REAL);
+  builtin(this, "mkd$", V_STRING, fn_mkd, 1, (int)V_REAL);
+  builtin(this, "oct$", V_STRING, fn_oct, 1, (int)V_INTEGER);
+  builtin(this, "peek", V_INTEGER, fn_peek, 1, (int)V_INTEGER);
   builtin(this, "pi", V_REAL, fn_pi, 0);
-  builtin(this, "pos", V_INTEGER, fn_pos, 1, V_INTEGER);
-  builtin(this, "pos", V_INTEGER, fn_pos, 1, V_REAL);
-  builtin(this, "pos", V_INTEGER, fn_instr3ssi, 3, V_STRING, V_STRING,
-          V_INTEGER);
-  builtin(this, "pos", V_INTEGER, fn_instr3ssd, 3, V_STRING, V_STRING,
-          V_REAL);
-  builtin(this, "rad", V_REAL, fn_rad, 1, V_REAL);
-  builtin(this, "right$", V_STRING, fn_right, 2, V_STRING, V_INTEGER);
+  builtin(this, "pos", V_INTEGER, fn_pos, 1, (int)V_INTEGER);
+  builtin(this, "pos", V_INTEGER, fn_pos, 1, (int)V_REAL);
+  builtin(this, "pos", V_INTEGER, fn_instr3ssi, 3, (int)V_STRING, (int)V_STRING,
+          (int)V_INTEGER);
+  builtin(this, "pos", V_INTEGER, fn_instr3ssd, 3, (int)V_STRING, (int)V_STRING,
+          (int)V_REAL);
+  builtin(this, "rad", V_REAL, fn_rad, 1, (int)V_REAL);
+  builtin(this, "right$", V_STRING, fn_right, 2, (int)V_STRING, (int)V_INTEGER);
   builtin(this, "rnd", V_INTEGER, fn_rnd, 0);
-  builtin(this, "rnd", V_INTEGER, fn_rndd, 1, V_REAL);
-  builtin(this, "rnd", V_INTEGER, fn_rndi, 1, V_INTEGER);
-  builtin(this, "rtrim$", V_STRING, fn_rtrim, 1, V_STRING);
-  builtin(this, "seg$", V_STRING, fn_mid3ii, 3, V_STRING, V_INTEGER,
-          V_INTEGER);
-  builtin(this, "seg$", V_STRING, fn_mid3id, 3, V_STRING, V_INTEGER, V_REAL);
-  builtin(this, "seg$", V_STRING, fn_mid3di, 3, V_STRING, V_REAL, V_INTEGER);
-  builtin(this, "seg$", V_STRING, fn_mid3dd, 3, V_STRING, V_REAL, V_REAL);
-  builtin(this, "sgn", V_INTEGER, fn_sgn, 1, V_REAL);
-  builtin(this, "sin", V_REAL, fn_sin, 1, V_REAL);
-  builtin(this, "space$", V_STRING, fn_space, 1, V_INTEGER);
-  builtin(this, "sqr", V_REAL, fn_sqr, 1, V_REAL);
-  builtin(this, "str$", V_STRING, fn_str, 1, V_REAL);
-  builtin(this, "str$", V_STRING, fn_str, 1, V_INTEGER);
-  builtin(this, "string$", V_STRING, fn_stringii, 2, V_INTEGER, V_INTEGER);
-  builtin(this, "string$", V_STRING, fn_stringid, 2, V_INTEGER, V_REAL);
-  builtin(this, "string$", V_STRING, fn_stringdi, 2, V_REAL, V_INTEGER);
-  builtin(this, "string$", V_STRING, fn_stringdd, 2, V_REAL, V_REAL);
-  builtin(this, "string$", V_STRING, fn_stringis, 2, V_INTEGER, V_STRING);
-  builtin(this, "string$", V_STRING, fn_stringds, 2, V_REAL, V_STRING);
-  builtin(this, "strip$", V_STRING, fn_strip, 1, V_STRING);
-  builtin(this, "tan", V_REAL, fn_tan, 1, V_REAL);
+  builtin(this, "rnd", V_INTEGER, fn_rndd, 1, (int)V_REAL);
+  builtin(this, "rnd", V_INTEGER, fn_rndi, 1, (int)V_INTEGER);
+  builtin(this, "rtrim$", V_STRING, fn_rtrim, 1, (int)V_STRING);
+  builtin(this, "seg$", V_STRING, fn_mid3ii, 3, (int)V_STRING, (int)V_INTEGER,
+          (int)V_INTEGER);
+  builtin(this, "seg$", V_STRING, fn_mid3id, 3, (int)V_STRING, (int)V_INTEGER,
+          (int)V_REAL);
+  builtin(this, "seg$", V_STRING, fn_mid3di, 3, (int)V_STRING, (int)V_REAL,
+          (int)V_INTEGER);
+  builtin(this, "seg$", V_STRING, fn_mid3dd, 3, (int)V_STRING, (int)V_REAL,
+          (int)V_REAL);
+  builtin(this, "sgn", V_INTEGER, fn_sgn, 1, (int)V_REAL);
+  builtin(this, "sin", V_REAL, fn_sin, 1, (int)V_REAL);
+  builtin(this, "space$", V_STRING, fn_space, 1, (int)V_INTEGER);
+  builtin(this, "sqr", V_REAL, fn_sqr, 1, (int)V_REAL);
+  builtin(this, "str$", V_STRING, fn_str, 1, (int)V_REAL);
+  builtin(this, "str$", V_STRING, fn_str, 1, (int)V_INTEGER);
+  builtin(this, "string$", V_STRING, fn_stringii, 2, (int)V_INTEGER, (int)V_INTEGER);
+  builtin(this, "string$", V_STRING, fn_stringid, 2, (int)V_INTEGER, (int)V_REAL);
+  builtin(this, "string$", V_STRING, fn_stringdi, 2, (int)V_REAL, (int)V_INTEGER);
+  builtin(this, "string$", V_STRING, fn_stringdd, 2, (int)V_REAL, (int)V_REAL);
+  builtin(this, "string$", V_STRING, fn_stringis, 2, (int)V_INTEGER, (int)V_STRING);
+  builtin(this, "string$", V_STRING, fn_stringds, 2, (int)V_REAL, (int)V_STRING);
+  builtin(this, "strip$", V_STRING, fn_strip, 1, (int)V_STRING);
+  builtin(this, "tan", V_REAL, fn_tan, 1, (int)V_REAL);
   builtin(this, "time", V_INTEGER, fn_timei, 0);
   builtin(this, "time$", V_STRING, fn_times, 0);
   builtin(this, "timer", V_REAL, fn_timer, 0);
-  builtin(this, "tl$", V_STRING, fn_tl, 1, V_STRING);
+  builtin(this, "tl$", V_STRING, fn_tl, 1, (int)V_STRING);
   builtin(this, "true", V_INTEGER, fn_true, 0);
-  builtin(this, "ucase$", V_STRING, fn_ucase, 1, V_STRING);
-  builtin(this, "upper$", V_STRING, fn_ucase, 1, V_STRING);
-  builtin(this, "val", V_REAL, fn_val, 1, V_STRING);
+  builtin(this, "ucase$", V_STRING, fn_ucase, 1, (int)V_STRING);
+  builtin(this, "upper$", V_STRING, fn_ucase, 1, (int)V_STRING);
+  builtin(this, "val", V_REAL, fn_val, 1, (int)V_STRING);
   return this;
 }
 
