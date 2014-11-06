@@ -285,24 +285,43 @@ static int edit(int chn, int onl)
 #else
       if ((f->inCapacity + 1) < sizeof(f->inBuf))
         {
-          if (ch != '\n')
-            {
-              if (ch >= '\0' && ch < ' ')
-                {
-                  FS_putChar(chn, '^');
-                  FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
-                }
-              else
-                {
-                  FS_putChar(chn, ch);
-                }
-            }
-          else if (onl)
-            {
-              FS_putChar(chn, '\n');
-            }
+          /* Ignore carriage returns that may accompnay a CRLF sequence.
+           * REVISIT:  Some environments may have other line termination rules
+           */
 
-          f->inBuf[f->inCapacity++] = ch;
+          if (ch != '\r')
+            {
+              /* Is this a new line character */
+
+              if (ch != '\n')
+                {
+                  /* No.. escape control characters other than newline and
+                   * carriage return
+                   */
+
+                  if (ch >= '\0' && ch < ' ')
+                    {
+                      FS_putChar(chn, '^');
+                      FS_putChar(chn, ch ? (ch + 'a' - 1) : '@');
+                    }
+
+                  /* Output normal, printable characters */
+
+                  else
+                    {
+                      FS_putChar(chn, ch);
+                    }
+                }
+
+              /* Echo the newline (or not) */
+
+              else if (onl)
+                {
+                  FS_putChar(chn, '\n');
+                }
+
+              f->inBuf[f->inCapacity++] = ch;
+            }
         }
 #endif
     }
@@ -813,7 +832,6 @@ int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
 
 int FS_truncate(int chn)
 {
-#ifdef CONFIG_INTERPRETER_BAS_HAVE_FTRUNCATE
   int fd;
   off_t o;
 
@@ -844,10 +862,6 @@ int FS_truncate(int chn)
     }
 
   return 0;
-#else
-  FS_errmsg = strerror(ENOSYS);
-  return -1;
-#endif
 }
 
 void FS_shellmode(int dev)
@@ -1667,12 +1681,6 @@ int FS_appendToString(int chn, struct String *s, int onl)
               if (f->inSize == f->inCapacity)
                 {
                   f->inSize = f->inCapacity = 0;
-                }
-
-              if (s->length >= 2 && s->character[s->length - 2] == '\r')
-                {
-                  s->character[s->length - 2] = '\n';
-                  --s->length;
                 }
 
               return 0;
