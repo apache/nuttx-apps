@@ -1,8 +1,3 @@
-#!/bin/sh
-
-echo -n $0: 'FOR loops... '
-
-cat >test.bas <<eof
  10 for i=0 to 10
  20   print i
  30   if i=5 then exit for
@@ -19,38 +14,3 @@ cat >test.bas <<eof
 140 for i$="" to "aaaaaaaaaa" step "a"
 150   print i$
 160 next
-eof
-
-cat >test.ref <<eof
- 0 
- 1 
- 2 
- 3 
- 4 
- 5 
- 0 
- 1 
- 0 
-
-a
-aa
-aaa
-aaaa
-aaaaa
-aaaaaa
-aaaaaaa
-aaaaaaaa
-aaaaaaaaa
-aaaaaaaaaa
-eof
-
-sh ./test/runbas test.bas >test.data
-
-if cmp test.ref test.data
-then
-  rm -f test.*
-  echo passed
-else
-  echo failed
-  exit 1
-fi

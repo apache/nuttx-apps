@@ -1,8 +1,3 @@
-#!/bin/sh
-
-echo -n $0: 'FIELD, PUT and GET... '
-
-cat >test.bas <<'eof'
 a$="a"
 open "r",1,"test.dat",128
 print "before field a$=";a$
@@ -20,22 +15,4 @@ get #2
 print "after get b$=";b$
 close #2
 kill "test.dat"
-eof
 
-cat >test.ref <<eof
-before field a$=a
-a$=hi      ya
-after close a$=
-after get b$=hi      ya
-eof
-
-sh ./test/runbas test.bas >test.data
-
-if cmp test.ref test.data
-then
-  rm -f test.*
-  echo passed
-else
-  echo failed
-  exit 1
-fi

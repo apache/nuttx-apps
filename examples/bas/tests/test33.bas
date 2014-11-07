@@ -1,8 +1,3 @@
-#!/bin/sh
-
-echo -n $0: 'OPEN FOR BINARY... '
-
-cat >test.bas <<'eof'
 open "test.out" for binary as 1
 put 1,1,"xy"
 put 1,3,"z!"
@@ -19,21 +14,4 @@ print s$
 print x
 print n%
 kill "test.out"
-eof
 
-cat >test.ref <<'eof'
-xyz!
- 0.333333 
- 9999 
-eof
-
-sh ./test/runbas test.bas >test.data
-
-if cmp test.ref test.data
-then
-  rm -f test.*
-  echo passed
-else
-  echo failed
-  exit 1
-fi

@@ -1,8 +1,3 @@
-#!/bin/sh
-
-echo -n $0: 'OPTION BASE... '
-
-cat >test.bas <<'eof'
 option base 3
 dim a(3,5)
 a(3,3)=1
@@ -20,24 +15,4 @@ print a(3,3)
 print a(3,5)
 print b(-2,-2)
 print b(-1,2)
-eof
 
-cat >test.ref <<'eof'
- 1 
- 2 
- 1 
- 2 
- 10 
- 20 
-eof
-
-sh ./test/runbas test.bas >test.data
-
-if cmp test.ref test.data
-then
-  rm -f test.*
-  echo passed
-else
-  echo failed
-  exit 1
-fi

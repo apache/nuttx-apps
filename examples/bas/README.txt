@@ -23,7 +23,7 @@ hello
  2e-06 
  2e-07 
 
-test01.bas
+test02.bas
 ==========
 Array variable assignment
 
@@ -43,7 +43,7 @@ Expected Result
  11 
  12 
 
-test01.bas
+test03.bas
 ==========
 FOR loops
 
@@ -89,7 +89,7 @@ aaaaaaaa
 aaaaaaaaa
 aaaaaaaaaa
 
-test01.bas
+test04.bas
 ==========
 REPEAT UNTIL loop
 
@@ -113,7 +113,7 @@ Expected Result
  8 
  9 
 
-test01.bas
+test05.bas
 ==========
 GOSUB RETURN subroutines
 
@@ -134,7 +134,7 @@ hello, world
 hello, world
 hello, world
 
-test01.bas
+test06.bas
 ==========
 Recursive function without arguments
 
@@ -166,7 +166,7 @@ Expected Result
  1 
  0 
 
-test01.bas
+test07.bas
 ==========
 Recursive function with arguments
 
@@ -181,7 +181,7 @@ Expected Result
 ---------------
  5040 
 
-test01.bas
+test08.bas
 ==========
 DATA, READ and RESTORE
 
@@ -205,7 +205,7 @@ Error: end of `data' in line 80 at:
 80 read j$,k$
         ^
 
-test01.bas
+test09.bas
 ==========
 LOCAL variables
 
@@ -226,7 +226,7 @@ Expected Result
  5 
  3 
 
-test01.bas
+test10.bas
 ==========
 PRINT USING
 
@@ -296,7 +296,7 @@ aSbaTb
 aSb
 aSbTc
 
-test01.bas
+test11.bas
 ==========
 OPEN and LINE INPUT
 
@@ -316,7 +316,7 @@ Expected Result
 40 print a$
 50 wend
 
-test01.bas
+test12.bas
 ==========
 Exception handling
 
@@ -354,7 +354,7 @@ Expected Result
 a
 c
 
-test01.bas
+test14.bas
 ==========
 SELECT CASE
 
@@ -586,7 +586,7 @@ i after case else
  9             9 
 i after case else
 
-test01.bas
+test15.bas
 ==========
 FIELD, PUT and GET
 
@@ -617,7 +617,7 @@ a$=hi      ya
 after close a$=
 after get b$=hi      ya
 
-test01.bas
+test16.bas
 ==========
 SWAP
 
@@ -640,7 +640,7 @@ a= 2 b= 1
 a$(1,0)=ab$(0,1)=b
 a$(1,0)=bb$(0,1)=a
 
-test01.bas
+test17.bas
 ==========
 DO, EXIT DO, LOOP
 
@@ -670,7 +670,7 @@ i is 9
 i is 10 
 loop ended
 
-test01.bas
+test18.bas
 ==========
 DO WHILE, LOOP
 
@@ -703,7 +703,7 @@ y$ is
 y$ is b
 loop ended
 
-test01.bas
+test19.bas
 ==========
 ELSEIF
 
@@ -738,7 +738,7 @@ Expected Result
 2b
 3b
 
-test01.bas
+test20.bas
 ==========
 Caller trace
 
@@ -774,7 +774,7 @@ Called in line 10 at:
 10 gosub 20
            ^
 
-test01.bas
+test21.bas
 ==========
 Matrix assignment
 
@@ -807,7 +807,7 @@ Expected Result
  0  21  22  23  24 
  0  31  32  33  34 
 
-test01.bas
+test22.bas
 ==========
 MAT PRINT
 
@@ -837,7 +837,7 @@ Expected Result
  11.00 12.00
  21.00 22.00
 
-test01.bas
+test23.bas
 ==========
 Matrix addition and subtraction
 
@@ -867,7 +867,7 @@ hi
                             
 hihi                        
 
-test01.bas
+test24.bas
 ==========
 Matrix multiplication
 
@@ -893,7 +893,7 @@ Expected Result
  14            13           
  10            11           
 
-test01.bas
+test25.bas
 ==========
 Matrix scalar multiplication
 
@@ -933,7 +933,7 @@ Expected Result
  254          
  99.9998      
 
-test01.bas
+test26.bas
 ==========
 MAT READ
 
@@ -949,7 +949,7 @@ Expected Result
  5             5             5            
  8             8             8            
 
-test01.bas
+test27.bas
 ==========
 Matrix inversion
 
@@ -972,7 +972,7 @@ Expected Result
  1             0            
  0             1            
 
-test01.bas
+test28.bas
 ==========
 TDL BASIC FNRETURN/FNEND
 
@@ -988,7 +988,7 @@ Expected Result
 ---------------
  3628800 
 
-test01.bas
+test29.bas
 ==========
 TDL INSTR
 
@@ -1010,7 +1010,7 @@ Expected Result
  0  = 0?
  8  = 8?
 
-test01.bas
+test30.bas
 ==========
 Type mismatch check
 
@@ -1022,7 +1022,7 @@ Expected Result
 ---------------
 Error: Invalid binary operand at: end of program
 
-test01.bas
+test31.bas
 ==========
 PRINT default format
 
@@ -1055,7 +1055,7 @@ Expected Result
  1.333333e+07                1e+07 
  1.333333e+08                1e+08 
 
-test01.bas
+test032.bas
 ==========
 SUB routines
 
@@ -1073,7 +1073,7 @@ Expected Result
 ---------------
 abc
 
-test01.bas
+test33.bas
 ==========
 OPEN FOR BINARY
 
@@ -1102,7 +1102,7 @@ xyz!
  0.333333 
  9999 
 
-test01.bas
+test34.bas
 ==========
 OPTION BASE
 
@@ -1135,7 +1135,7 @@ Expected Result
  10 
  20 
 
-test01.bas
+test35.bas
 ==========
 Real to integer conversion
 
@@ -1157,7 +1157,7 @@ Expected Result
  0 
 -1 
 
-test01.bas
+test36.bas
 ==========
 OPEN file locking
 
@@ -1178,7 +1178,7 @@ open succeeded
 opening file
 open failed
 
-test01.bas
+test37.bas
 ==========
 LINE INPUT reaching EOF
 
@@ -1194,7 +1194,7 @@ Result
 ------
   Output should match test.ref
 
-test01.bas
+test38.bas
 ==========
 MAT REDIM
 
@@ -1241,7 +1241,7 @@ Expected Result
  0            
  0            
 
-test01.bas
+test39.bas
 ==========
 Nested function and procedure calls
 
@@ -1263,7 +1263,7 @@ Expected Result
 ---------------
  6 
 
-test01.bas
+test40.bas
 ==========
 IMAGE
 
@@ -1279,7 +1279,7 @@ Expected Result
 3.1
 3.10
 
-test01.bas
+test41.bas
 ==========
 EXIT FUNCTION
 
@@ -1301,7 +1301,7 @@ f running
 f running
  42 
 
-test01.bas
+test42.bas
 ==========
 Arithmetic
 
@@ -1327,7 +1327,7 @@ Expected Result
 -0.3 
  0.3 
 
-test01.bas
+test43.bas
 ==========
 Matrix multiplication size checks
 
@@ -1358,7 +1358,7 @@ Error: Dimension mismatch in line 14 at:
 mat c=a*b
        ^
 
-test01.bas
+test44.bas
 ==========
 DELETE
 
@@ -1374,7 +1374,6 @@ Test File
 
 Usage
 -----
-
 load "test.bas"
 delete -20
 delete 60-
@@ -1387,7 +1386,7 @@ Expected Result
 Error: No such line at: 15
 50 print 50
 
-test01.bas
+test45.bas
 ==========
 MID$ on left side
 
@@ -1408,7 +1407,7 @@ Expected Result
 01234ABCD9
 01234ABCD9
 
-test01.bas
+test46.bas
 ==========
 END used without program
 
@@ -1420,7 +1419,7 @@ Expected Result
 ---------------
  1  2  3  4  5  6  7  8  9  10 
 
-test01.bas
+test47.bas
 ==========
 MAT WRITE
 
@@ -1446,7 +1445,7 @@ Expected Result
 21,22,23,24
 31,32,33,34
 
-test01.bas
+test48.bas
 ==========
 Multi assignment
 
@@ -1466,7 +1465,7 @@ Expected Result
  2             0             2 
 test          test
 
-test01.bas
+test49.bas
 ==========
 Matrix determinant
 
@@ -1510,7 +1509,7 @@ Expected Result
                9.650995e+07               
  1 
 
-test01.bas
+test50.bas
 ==========
 Min and max function
 
@@ -1536,7 +1535,7 @@ Expected Result
  0.3 
  4 
 
-test01.bas
+test51.bas
 ==========
 Print items
 
@@ -1549,7 +1548,7 @@ Expected Result
 Line 1                                                                       
  1.234568 
 
-test01.bas
+test52.bas
 ==========
 MAT INPUT
 

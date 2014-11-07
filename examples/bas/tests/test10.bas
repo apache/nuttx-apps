@@ -1,8 +1,3 @@
-#!/bin/sh
-
-echo -n $0: 'PRINT USING... '
-
-cat >test.bas <<'eof'
  10 print using "!";"abcdef"
  20 print using "\ \";"abcdef"
  30 print using "###-";-1
@@ -33,48 +28,4 @@ cat >test.bas <<'eof'
 280 print using "a!b";"S","T"
 290 print using "a!b!c";"S"
 300 print using "a!b!c";"S","T"
-eof
 
-cat >test.ref <<'eof'
-a
-abc
-  1-
-  0 
-  1 
-  1-
-  0+
-  1+
- 1,000
-*1,000.00
- +1.00
- +1.23
-+123.46
-+123.
-+123
-abc def   1.30 efg
-500.00E-002
-100.00E+01
-.50E+01
-23E-10
-.23E-08
-2.3E-09
--.1147E+005
-$***3,729,825.24
-$**3729825.24
-$456.78
-aSb
-aSbaTb
-aSb
-aSbTc
-eof
-
-sh ./test/runbas test.bas >test.data
-
-if cmp test.ref test.data
-then
-  rm -f test.*
-  echo passed
-else
-  echo failed
-  exit 1
-fi
