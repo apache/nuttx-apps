@@ -38,7 +38,12 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/mount.h>
 #include <stdio.h>
+#include <errno.h>
+
+#include <nuttx/fs/ramdisk.h>
 
 #include "romfs.h"
 
@@ -93,6 +98,8 @@ int main(int argc, FAR char *argv[])
 int bastest_main(int argc, char *argv[])
 #endif
 {
+  int ret;
+
   /* Create a ROM disk for the ROMFS filesystem */
 
   printf("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_BASTEST_DEVMINOR);
@@ -100,19 +107,19 @@ int bastest_main(int argc, char *argv[])
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      err("ERROR: romdisk_register failed: %d\n", ret);
+      fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
       return 1;
     }
 
   /* Mount the file system */
 
-  message("Mounting ROMFS filesystem at target=%s with source=%s\n",
+  printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, CONFIG_EXAMPLES_BASTEST_DEVPATH);
 
   ret = mount(CONFIG_EXAMPLES_BASTEST_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      err("ERROR: mount(%s,%s,romfs) failed: %s\n",
+      fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
               CONFIG_EXAMPLES_BASTEST_DEVPATH, MOUNTPT, errno);
       return 1;
     }

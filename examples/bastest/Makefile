@@ -78,8 +78,8 @@ endif
 
 BASTEST_DIR = $(APPDIR)$(DELIM)examples$(DELIM)bastest
 TESTS_DIR = $(BASTEST_DIR)$(DELIM)tests
-ROMFS_IMG = $(BASTEST_DIR)$(DELIM)romfs.img
-ROMFS_HDR = $(BASTEST_DIR)$(DELIM)romfs.h
+ROMFS_IMG = romfs.img
+ROMFS_HDR = romfs.h
 
 PROGNAME = bastest$(EXEEXT)
 
@@ -98,15 +98,19 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
-
 # Create the romfs.h header file from the tests/ directory
 
+$(ROMFS_IMG) :
+	$(Q) genromfs -f $@ -d $(TESTS_DIR) -V "BASTEST"
+
 $(ROMFS_HDR) : $(ROMFS_IMG)
-        $(Q) genromfs -f $@ -d $(TESTS_DIR) -V "BASTEST"
-        $(Q) (xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+	$(Q) (xxd -i $(ROMFS_IMG) | sed -e "s/^unsigned/static const unsigned/g" >$@)
+
+# Add the BASTEST object to the archive
+
+.built: $(ROMFS_HDR) $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	@touch .built
 
 # Link and install the program binary
 
@@ -123,7 +127,7 @@ install:
 
 endif
 
-# Register the NSH builtin appliation
+# Register the NSH builtin application
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
@@ -147,6 +151,8 @@ clean:
 	$(call CLEAN)
 
 distclean: clean
+	$(call DELFILE, $(ROMFS_HDR))
+	$(call DELFILE, $(ROMFS_IMG))
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 

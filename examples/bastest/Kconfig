@@ -8,7 +8,7 @@ config EXAMPLES_BASTEST
 	default n
 	depends on INTERPRETERS_BAS
 	---help---
-		Mount the ROMFS file system containing the BAS test files.
+		Mount the ROMFS file system containing the BAS test files at /mnt/romfs.
 
 if EXAMPLES_BASTEST
 

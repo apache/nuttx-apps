@@ -1,6 +1,8 @@
 /Make.dep
 /.depend
 /.built
+/romfs.img
+/romfs.h
 /*.asm
 /*.obj
 /*.rel
