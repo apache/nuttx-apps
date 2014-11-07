@@ -1097,3 +1097,9 @@
 	  Pierre-Noel Bouteville (2014-10-23).
 	* apps/nshlib/nsh_parse.c, nsh.h, and Kconfig: Move CONFIG_NSH_TMPDIR
 	  to CONFIG_LIBC_TMPDIR (2014-11-05).
+	* apps/interpreter/bas:  Merged in the Michael Haardt's BAS 2.4 adapted
+	  for use by NuttX by Alan Carvalho de Assis.  The bas24 branch was merged
+	  into the master branch on this date (2014-11-7).
+	* apps/examples/bastest:  This is a special version of Michael
+	  Haardt's BAS 2.4 test files adapted for use by NuttX on a ROMFS file
+	  system (2014-11-7).
