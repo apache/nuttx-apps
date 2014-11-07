@@ -43,6 +43,10 @@ ASRCS  =
 CSRCS  = auto.c bas.c fs.c global.c main.c program.c str.c token.c value.c
 CSRCS += var.c
 
+ifeq ($(CONFIG_INTERPREPTER_BAS_VT100),y)
+CSRCS += vt100.c
+endif
+
 DEPPATH = --dep-path .
 VPATH = .
 

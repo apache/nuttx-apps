@@ -78,6 +78,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "vt100.h"
 #include "fs.h"
 
 /****************************************************************************
@@ -279,11 +280,33 @@ static int edit(int chn, int onl)
           return -1;
         }
 
+      if (ch == '\b')
+        {
+          if (f->inCapacity)
+            {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
-      /* REVISIT: Use VT100 commands to erase */
-#warning Missing Logic
-#else
-      if ((f->inCapacity + 1) < sizeof(f->inBuf))
+              /* Could use vt100_clrtoeol */
+#endif
+              /* Is the previous character in the buffer 2 character escape sequence? */
+
+              if (f->inBuf[f->inCapacity - 1] >= '\0' &&
+                  f->inBuf[f->inCapacity - 1] < ' ')
+                {
+                  /* Yes.. erase two characters */
+
+                  FS_putChars(chn, "\b\b  \b\b");
+                }
+              else
+                 {
+                  /* Yes.. erase one characters */
+
+                  FS_putChars(chn, "\b \b");
+                }
+
+              --f->inCapacity;
+            }
+        }
+      else if ((f->inCapacity + 1) < sizeof(f->inBuf))
         {
 #ifdef CONFIG_EOL_IS_BOTH_CRLF
           /* Ignore carriage returns that may accompany a CRLF sequence. */
@@ -344,7 +367,6 @@ static int edit(int chn, int onl)
               f->inBuf[f->inCapacity++] = ch;
             }
         }
-#endif
     }
   while (ch != '\n');
 
@@ -354,21 +376,23 @@ static int edit(int chn, int onl)
 static int cls(int chn)
 {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
-      /* REVISIT: Use VT100 commands to clear the screen */
-#warning Missing Logic
-#endif
+  vt100_clrscreen(chn);
+  return 0;
+#else
   FS_errmsg = _("Clear screen operation not implemented");
   return -1;
+#endif
 }
 
 static int locate(int chn, int line, int column)
 {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
-      /* REVISIT: Use VT100 commands to set the cursor position */
-#warning Missing Logic
-#endif
+  vt100_setcursor(chn, line, column);
+  return 0;
+#else
   FS_errmsg = _("Set cursor position operation not implement");
   return -1;
+#endif
 }
 
 static int colour(int chn, int foreground, int background)
