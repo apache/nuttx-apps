@@ -254,6 +254,7 @@ int String_appendChar(struct String *this, char ch)
     {
       String_leaveField(this);
     }
+
   if (String_size(this, this->length + 1) == -1)
     {
       return -1;

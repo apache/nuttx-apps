@@ -1719,6 +1719,7 @@ struct String *Value_toString(struct Value *this, struct String *s, char pad,
           {
             s->character[oldlength] = '$';
           }
+
         String_destroy(&buf);
         break;
       }

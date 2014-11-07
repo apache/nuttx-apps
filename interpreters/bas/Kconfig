@@ -8,6 +8,7 @@ config INTERPRETERS_BAS
 	default n
 	select SCHED_WAITPID
 	select LIBC_EXECFUNCS
+	select LIBC_FLOATINGPOINT
 	depends on FS_READABLE
 	---help---
 		This is a Basic interpreter written by Michael Haardt
