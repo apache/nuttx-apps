@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_BASTEST
+	bool "Setup Test Files for BAS"
+	default n
+	depends on INTERPRETERS_BAS
+	---help---
+		Mount the ROMFS file system containing the BAS test files.
+
+if EXAMPLES_BASTEST
+
+config EXAMPLES_BASTEST_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the BASIC files to be tested.  Default: 0
+
+config EXAMPLES_BASTEST_DEVPATH
+	string "ROMFS Device Path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device.  This must match EXAMPLES_BASTEST_DEVMINOR.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the BASIC files to be tested.  Default: "/dev/ram0"
+
+endif

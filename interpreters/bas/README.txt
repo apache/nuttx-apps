@@ -1,8 +1,8 @@
 README
 ======
 
-Introductions
-=============
+Introduction
+============
   Bas is an interpreter for the classic dialect of the programming language
   BASIC.  It is pretty compatible to typical BASIC interpreters of the 1980s,
   unlike some other UNIX BASIC interpreters, that implement a different
@@ -17,9 +17,6 @@ Introductions
   increases efficiency and catches syntax errors, type errors and references
   to variables that are never initialised.  Bas is written in ANSI C for
   UNIX systems.
-
-  Please do "make check" after compiling bas to run a couple regression
-  tests.
 
 License
 =======
