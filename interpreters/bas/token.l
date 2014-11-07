@@ -1,7 +1,7 @@
 /* Tokens and token sequence arrays. */
 %{
 /* #includes */ /*{{{C}}}*//*{{{*/
-#include "config.h"
+#include <nuttx/config.h>
 
 #include <assert.h>
 #include <ctype.h>
