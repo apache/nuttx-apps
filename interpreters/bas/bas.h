@@ -60,6 +60,12 @@
 #define __APPS_EXAMPLES_BAS_BAS_H
 
 /****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <stdbool.h>
+
+/****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
@@ -70,10 +76,10 @@
  * Public Data
  ****************************************************************************/
 
-extern int bas_argc;
-extern char *bas_argv0;
-extern char **bas_argv;
-extern int bas_end;
+extern int g_bas_argc;
+extern char *g_bas_argv0;
+extern char **g_bas_argv;
+extern bool g_bas_end;
 
 /****************************************************************************
  * Public Function Prototypes

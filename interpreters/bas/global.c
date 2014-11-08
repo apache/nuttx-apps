@@ -600,14 +600,14 @@ static struct Value *fn_command(struct Value *v, struct Auto *stack)
   int i;
 
   Value_new_STRING(v);
-  for (i = 0; i < bas_argc; ++i)
+  for (i = 0; i < g_bas_argc; ++i)
     {
       if (i)
         {
           String_appendChar(&v->u.string, ' ');
         }
 
-      String_appendChars(&v->u.string, bas_argv[i]);
+      String_appendChars(&v->u.string, g_bas_argv[i]);
     }
 
   return v;
@@ -626,14 +626,14 @@ static struct Value *fn_commandi(struct Value *v, struct Auto *stack)
   Value_new_STRING(v);
   if (a == 0)
     {
-      if (bas_argv0 != (char *)0)
+      if (g_bas_argv0 != (char *)0)
         {
-          String_appendChars(&v->u.string, bas_argv0);
+          String_appendChars(&v->u.string, g_bas_argv0);
         }
     }
-  else if (a <= bas_argc)
+  else if (a <= g_bas_argc)
     {
-      String_appendChars(&v->u.string, bas_argv[a - 1]);
+      String_appendChars(&v->u.string, g_bas_argv[a - 1]);
     }
 
   return v;
@@ -653,14 +653,14 @@ static struct Value *fn_commandd(struct Value *v, struct Auto *stack)
   Value_new_STRING(v);
   if (a == 0)
     {
-      if (bas_argv0 != (char *)0)
+      if (g_bas_argv0 != (char *)0)
         {
-          String_appendChars(&v->u.string, bas_argv0);
+          String_appendChars(&v->u.string, g_bas_argv0);
         }
     }
-  else if (a <= bas_argc)
+  else if (a <= g_bas_argc)
     {
-      String_appendChars(&v->u.string, bas_argv[a - 1]);
+      String_appendChars(&v->u.string, g_bas_argv[a - 1]);
     }
 
   return v;

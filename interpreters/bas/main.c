@@ -177,9 +177,10 @@ int bas_main(int argc, char *argv[])
       exit(2);
     }
 
-  bas_argc = argc - optind;
-  bas_argv = &argv[optind];
-  bas_argv0 = runFile;
+  g_bas_argc  = argc - optind;
+  g_bas_argv  = &argv[optind];
+  g_bas_argv0 = runFile;
+  g_bas_end   = false;
 
   bas_init(backslash_colon, restricted, uppercase, lpfd);
   if (runFile)

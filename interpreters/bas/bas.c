@@ -65,6 +65,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -72,8 +76,6 @@
 #include <limits.h>
 #include <math.h>
 #include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -149,10 +151,10 @@ static int g_run_restricted;
  * Public Data
  ****************************************************************************/
 
-int bas_argc;
-char *bas_argv0;
-char **bas_argv;
-int bas_end;
+int g_bas_argc;
+char *g_bas_argv0;
+char **g_bas_argv;
+bool g_bas_end;
 
 /****************************************************************************
  * Private Function Prototypes
@@ -2445,10 +2447,10 @@ void bas_interpreter(void)
             {
               runline(line + 1);
               Token_destroy(line);
-              if (FS_istty(STDCHANNEL) && bas_end > 0)
+              if (FS_istty(STDCHANNEL) && g_bas_end)
                 {
                   FS_putChars(STDCHANNEL, _("END program\n"));
-                  bas_end = 0;
+                  g_bas_end = false;
                 }
             }
           else

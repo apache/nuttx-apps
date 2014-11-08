@@ -1315,8 +1315,8 @@ struct Value *stmt_END(struct Value *value)
 {
   if (g_pass == INTERPRET)
     {
-      g_pc = g_pc.token->u.endpc;
-      bas_end = 1;
+      g_pc      = g_pc.token->u.endpc;
+      g_bas_end = true;
     }
 
   if (g_pass == DECLARE || g_pass == COMPILE)
