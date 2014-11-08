@@ -1397,6 +1397,7 @@ char *yytext;
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
 
 #include "auto.h"
 #include "token.h"
