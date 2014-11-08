@@ -140,7 +140,7 @@ static enum
   } g_pass;
 
 static int g_stopped;
-static int optionbase;
+static int g_optionbase;
 static struct Pc g_pc;
 static struct Auto g_stack;
 static struct Program g_program;
@@ -1539,7 +1539,7 @@ static void new(void)
   Program_destroy(&g_program);
   Program_new(&g_program);
   FS_closefiles();
-  optionbase = 0;
+  g_optionbase = 0;
 }
 
 static void pushLabel(enum labeltype_e type, struct Pc *patch)
@@ -1917,7 +1917,7 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
               g_lastdata = &g_stack.begindata;
             }
 
-          optionbase = 0;
+          g_optionbase = 0;
           g_stopped = 0;
           g_program.runnable = 1;
           g_pc = begin;
@@ -1989,7 +1989,7 @@ static void runline(struct Token *line)
       g_curdata.line = -1;
       g_pc.line = -1;
       g_pc.token = line;
-      optionbase = 0;
+      g_optionbase = 0;
       g_stopped = 0;
       statements(&value);
       if (value.type != V_ERROR && g_pc.token->type != T_EOL)
@@ -2029,7 +2029,7 @@ static void runline(struct Token *line)
 
   g_pc.line = -1;
   g_pc.token = line;
-  optionbase = 0;
+  g_optionbase = 0;
   g_curdata = g_stack.begindata;
   g_nextdata.line = -1;
   Value_destroy(&value);
@@ -2092,14 +2092,14 @@ static struct Value *evalGeometry(struct Value *value, unsigned int *dim,
       return value;
     }
 
-  if (g_pass == INTERPRET && value->u.integer < optionbase)
+  if (g_pass == INTERPRET && value->u.integer < g_optionbase)
     {
       Value_destroy(value);
       g_pc = exprpc;
       return Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
     }
 
-  geometry[0] = value->u.integer - optionbase + 1;
+  geometry[0] = value->u.integer - g_optionbase + 1;
   Value_destroy(value);
   if (g_pc.token->type == T_COMMA)
     {
@@ -2111,14 +2111,14 @@ static struct Value *evalGeometry(struct Value *value, unsigned int *dim,
           return value;
         }
 
-      if (g_pass == INTERPRET && value->u.integer < optionbase)
+      if (g_pass == INTERPRET && value->u.integer < g_optionbase)
         {
           Value_destroy(value);
           g_pc = exprpc;
           return Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
         }
 
-      geometry[1] = value->u.integer - optionbase + 1;
+      geometry[1] = value->u.integer - g_optionbase + 1;
       Value_destroy(value);
       *dim = 2;
     }

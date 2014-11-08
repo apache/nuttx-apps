@@ -71,11 +71,11 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define TOKEN_ISBINARYOPERATOR(t)   (Token_property[t]&1)
-#define TOKEN_ISUNARYOPERATOR(t)    (Token_property[t]&(1<<1))
-#define TOKEN_BINARYPRIORITY(t)     ((Token_property[t]>>2)&7)
-#define TOKEN_UNARYPRIORITY(t)      ((Token_property[t]>>5)&7)
-#define TOKEN_ISRIGHTASSOCIATIVE(t) (Token_property[t]&(1<<8))
+#define TOKEN_ISBINARYOPERATOR(t)   (g_token_property[t]&1)
+#define TOKEN_ISUNARYOPERATOR(t)    (g_token_property[t]&(1<<1))
+#define TOKEN_BINARYPRIORITY(t)     ((g_token_property[t]>>2)&7)
+#define TOKEN_UNARYPRIORITY(t)      ((g_token_property[t]>>5)&7)
+#define TOKEN_ISRIGHTASSOCIATIVE(t) (g_token_property[t]&(1<<8))
 
 /****************************************************************************
  * Public Types
@@ -530,7 +530,7 @@ struct Token
  * Public Data
  ****************************************************************************/
 
-extern int Token_property[];
+extern int g_token_property[];
 
 /****************************************************************************
  * Public Function Prototypes

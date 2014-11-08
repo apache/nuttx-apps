@@ -907,7 +907,7 @@ struct Value *stmt_DIM(struct Value *value)
               return value;
             }
 
-          if (g_pass == INTERPRET && value->u.integer < optionbase)       /* error */
+          if (g_pass == INTERPRET && value->u.integer < g_optionbase)       /* error */
             {
               Value_destroy(value);
               Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
@@ -937,7 +937,7 @@ struct Value *stmt_DIM(struct Value *value)
                   geometry = more;
                 }
 
-              geometry[dim] = value->u.integer - optionbase + 1;
+              geometry[dim] = value->u.integer - g_optionbase + 1;
               ++dim;
             }
 
@@ -968,7 +968,7 @@ struct Value *stmt_DIM(struct Value *value)
           struct Var newarray;
 
           assert(capacity);
-          if (Var_new(&newarray, vartype, dim, geometry, optionbase) ==
+          if (Var_new(&newarray, vartype, dim, geometry, g_optionbase) ==
               (struct Var *)0)
             {
               free(geometry);
@@ -3296,7 +3296,7 @@ struct Value *stmt_MAT(struct Value *value)
           if (g_pass == INTERPRET)
             {
               Var_destroy(var1);
-              Var_new(var1, vartype, dim, geometry, optionbase);
+              Var_new(var1, vartype, dim, geometry, g_optionbase);
             }
         }
 
@@ -3529,7 +3529,7 @@ struct Value *stmt_MATINPUT(struct Value *value)
           if (g_pass == INTERPRET)
             {
               Var_destroy(var);
-              Var_new(var, vartype, dim, geometry, optionbase);
+              Var_new(var, vartype, dim, geometry, g_optionbase);
             }
         }
 
@@ -3859,7 +3859,7 @@ struct Value *stmt_MATREAD(struct Value *value)
           if (g_pass == INTERPRET)
             {
               Var_destroy(var);
-              Var_new(var, vartype, dim, geometry, optionbase);
+              Var_new(var, vartype, dim, geometry, g_optionbase);
             }
         }
 
@@ -4796,7 +4796,7 @@ struct Value *stmt_OPTIONBASE(struct Value *value)
 
   if (g_pass == INTERPRET)
     {
-      optionbase = value->u.integer;
+      g_optionbase = value->u.integer;
     }
 
   Value_destroy(value);

@@ -1403,11 +1403,11 @@ char *yytext;
 #include "token.h"
 #include "statement.h"
 
-static int matchdata;
-static int backslash_colon;
-static int uppercase;
-int yylex(void);
+static int g_matchdata;
+static int g_backslash_colon;
+static int g_uppercase;
 static struct Token *cur;
+int yylex(void);
 
 static void string(const char *text) /*{{{*/
 {
@@ -1673,7 +1673,7 @@ YY_DECL
 #line 102 "token.l"
 
  /* flex rules */ /*{{{*/
-  if (matchdata) BEGIN(DATAINPUT);
+  if (g_matchdata) BEGIN(DATAINPUT);
 
 #line 1683 "<stdout>"
 
@@ -1872,7 +1872,7 @@ case 15:
 YY_RULE_SETUP
 #line 180 "token.l"
 {
-                          if (backslash_colon)
+                          if (g_backslash_colon)
                           {
                             if (cur) cur->statement=stmt_COLON_EOL;
                             return T_COLON;
@@ -4674,7 +4674,7 @@ void yyfree (void * ptr )
 
 
 
-int Token_property[T_LASTTOKEN];
+int g_token_property[T_LASTTOKEN];
 
 struct Token *Token_newCode(const char *ln) /*{{{*/
 {
@@ -4685,7 +4685,7 @@ struct Token *Token_newCode(const char *ln) /*{{{*/
   cur=(struct Token*)0;
   buf=yy_scan_string(ln);
   /* determine number of tokens */ /*{{{*/
-  matchdata=sawif=0;
+  g_matchdata=sawif=0;
   for (lasttok=T_EOL,l=1; (thistok=yylex()); ++l)
   {
     if (l==1 && thistok!=T_INTEGER) { addNumber=1; ++l; }
@@ -4706,7 +4706,7 @@ struct Token *Token_newCode(const char *ln) /*{{{*/
   }
   buf=yy_scan_string(ln);
   lasttok=T_EOL;
-  matchdata=sawif=0;
+  g_matchdata=sawif=0;
   while (cur->statement=NULL,(cur->type=yylex()))
   {
     if (cur->type==T_IF) sawif=1;
@@ -4747,12 +4747,12 @@ struct Token *Token_newData(const char *ln) /*{{{*/
 
   cur=(struct Token*)0;
   buf=yy_scan_string(ln);
-  matchdata=1;
+  g_matchdata=1;
   for (l=1; yylex(); ++l);
   yy_delete_buffer(buf);
   cur=result=malloc(sizeof(struct Token)*l);
   buf=yy_scan_string(ln);
-  matchdata=1;
+  g_matchdata=1;
   while (cur->statement=NULL,(cur->type=yylex())) ++cur;
   cur->type=T_EOL;
   cur->statement=stmt_COLON_EOL;
@@ -5317,7 +5317,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
         if ((token->u.real<((double)LONG_MIN)) || (token->u.real>((double)LONG_MAX))) String_appendChar(s,'!');
         break;
       }
-      case T_REM: String_appendPrintf(s,"%s%s",uppercase?"REM":"rem",token->u.rem); break;
+      case T_REM: String_appendPrintf(s,"%s%s",g_uppercase?"REM":"rem",token->u.rem); break;
       case T_QUOTE: String_appendPrintf(s,"'%s",token->u.rem); break;
       case T_STRING: /*{{{*/
       {
@@ -5337,7 +5337,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
       /*}}}*/
       default:
       {
-        if (uppercase)
+        if (g_uppercase)
         {
           struct String u;
 
@@ -5360,10 +5360,10 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
 void Token_init(int b_c, int uc) /*{{{*/
 {
 #define PROPERTY(t,assoc,unary_priority,binary_priority,is_unary,is_binary) \
-  Token_property[t]=(assoc<<8)|(unary_priority<<5)|(binary_priority<<2)|(is_unary<<1)|is_binary
+  g_token_property[t]=(assoc<<8)|(unary_priority<<5)|(binary_priority<<2)|(is_unary<<1)|is_binary
 
-  backslash_colon=b_c;
-  uppercase=uc;
+  g_backslash_colon=b_c;
+  g_uppercase=uc;
   PROPERTY(T_POW,  1,0,7,0,1);
   PROPERTY(T_MULT, 0,0,5,0,1);
   PROPERTY(T_DIV,  0,0,5,0,1);
