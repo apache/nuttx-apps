@@ -94,9 +94,9 @@
  * Private Data
  ****************************************************************************/
 
-static struct FileStream **file;
-static int capacity;
-static int used;
+static struct FileStream **g_file;
+static int g_capacity;
+static int g_used;
 static const int open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
 
 const char *FS_errmsg;
@@ -108,26 +108,26 @@ static char FS_errmsgbuf[80];
 
 static int size(int dev)
 {
-  if (dev >= capacity)
+  if (dev >= g_capacity)
     {
       int i;
       struct FileStream **n;
 
       n = (struct FileStream **)
-        realloc(file, (dev + 1) * sizeof(struct FileStream *));
+        realloc(g_file, (dev + 1) * sizeof(struct FileStream *));
       if (n == (struct FileStream **)0)
         {
           FS_errmsg = strerror(errno);
           return -1;
         }
 
-      file = n;
-      for (i = capacity; i <= dev; ++i)
+      g_file = n;
+      for (i = g_capacity; i <= dev; ++i)
         {
-          file[i] = (struct FileStream *)0;
+          g_file[i] = (struct FileStream *)0;
         }
 
-      capacity = dev + 1;
+      g_capacity = dev + 1;
     }
 
   return 0;
@@ -137,7 +137,7 @@ static int opened(int dev, int mode)
 {
   int fd = -1;
 
-  if (dev < 0 || dev >= capacity || file[dev] == (struct FileStream *)0)
+  if (dev < 0 || dev >= g_capacity || g_file[dev] == (struct FileStream *)0)
     {
       snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf), _("channel #%d not open"),
                dev);
@@ -154,7 +154,7 @@ static int opened(int dev, int mode)
     {
     case 0:
       {
-        fd = file[dev]->outfd;
+        fd = g_file[dev]->outfd;
         if (fd == -1)
           {
             snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
@@ -165,7 +165,7 @@ static int opened(int dev, int mode)
 
     case 1:
       {
-        fd = file[dev]->infd;
+        fd = g_file[dev]->infd;
         if (fd == -1)
           {
             snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
@@ -176,7 +176,7 @@ static int opened(int dev, int mode)
 
     case 2:
       {
-        fd = file[dev]->randomfd;
+        fd = g_file[dev]->randomfd;
         if (fd == -1)
           {
             snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
@@ -187,7 +187,7 @@ static int opened(int dev, int mode)
 
     case 3:
       {
-        fd = file[dev]->binaryfd;
+        fd = g_file[dev]->binaryfd;
         if (fd == -1)
           {
             snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
@@ -198,9 +198,7 @@ static int opened(int dev, int mode)
 
     case 4:
       {
-        fd =
-          (file[dev]->randomfd !=
-           -1 ? file[dev]->randomfd : file[dev]->binaryfd);
+        fd = (g_file[dev]->randomfd != -1 ? g_file[dev]->randomfd : g_file[dev]->binaryfd);
         if (fd == -1)
           {
             snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
@@ -230,7 +228,7 @@ static int refill(int dev)
   struct FileStream *f;
   ssize_t len;
 
-  f = file[dev];
+  f = g_file[dev];
   f->inSize = 0;
   len = read(f->infd, f->inBuf, sizeof(f->inBuf));
   if (len <= 0)
@@ -248,7 +246,7 @@ static int refill(int dev)
 
 static int edit(int chn, int onl)
 {
-  struct FileStream *f = file[chn];
+  struct FileStream *f = g_file[chn];
   char *buf = f->inBuf;
   char ch;
   int r;
@@ -425,35 +423,35 @@ int FS_opendev(int chn, int infd, int outfd)
       return -1;
     }
 
-  if (file[chn] != (struct FileStream *)0)
+  if (g_file[chn] != (struct FileStream *)0)
     {
       FS_errmsg = _("channel already open");
       return -1;
     }
 
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->dev = 1;
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->dev = 1;
 #ifdef CONFIG_SERIAL_TERMIOS
-  file[chn]->tty = (infd == 0 ? isatty(infd) && isatty(outfd) : 0);
+  g_file[chn]->tty = (infd == 0 ? isatty(infd) && isatty(outfd) : 0);
 #else
-  file[chn]->tty = 1;
+  g_file[chn]->tty = 1;
 #endif
-  file[chn]->recLength = 1;
-  file[chn]->infd = infd;
-  file[chn]->inSize = 0;
-  file[chn]->inCapacity = 0;
-  file[chn]->outfd = outfd;
-  file[chn]->outPos = 0;
-  file[chn]->outLineWidth = LINEWIDTH;
-  file[chn]->outColWidth = COLWIDTH;
-  file[chn]->outCapacity = sizeof(file[chn]->outBuf);
-  file[chn]->outSize = 0;
-  file[chn]->outforeground = -1;
-  file[chn]->outbackground = -1;
-  file[chn]->randomfd = -1;
-  file[chn]->binaryfd = -1;
+  g_file[chn]->recLength = 1;
+  g_file[chn]->infd = infd;
+  g_file[chn]->inSize = 0;
+  g_file[chn]->inCapacity = 0;
+  g_file[chn]->outfd = outfd;
+  g_file[chn]->outPos = 0;
+  g_file[chn]->outLineWidth = LINEWIDTH;
+  g_file[chn]->outColWidth = COLWIDTH;
+  g_file[chn]->outCapacity = sizeof(g_file[chn]->outBuf);
+  g_file[chn]->outSize = 0;
+  g_file[chn]->outforeground = -1;
+  g_file[chn]->outbackground = -1;
+  g_file[chn]->randomfd = -1;
+  g_file[chn]->binaryfd = -1;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return 0;
 }
 
@@ -467,9 +465,9 @@ int FS_openin(const char *name)
       return -1;
     }
 
-  for (chn = 0; chn < capacity; ++chn)
+  for (chn = 0; chn < g_capacity; ++chn)
     {
-      if (file[chn] == (struct FileStream *)0)
+      if (g_file[chn] == (struct FileStream *)0)
         {
           break;
         }
@@ -480,18 +478,18 @@ int FS_openin(const char *name)
       return -1;
     }
 
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->recLength = 1;
-  file[chn]->dev = 0;
-  file[chn]->tty = 0;
-  file[chn]->infd = fd;
-  file[chn]->inSize = 0;
-  file[chn]->inCapacity = 0;
-  file[chn]->outfd = -1;
-  file[chn]->randomfd = -1;
-  file[chn]->binaryfd = -1;
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->recLength = 1;
+  g_file[chn]->dev = 0;
+  g_file[chn]->tty = 0;
+  g_file[chn]->infd = fd;
+  g_file[chn]->inSize = 0;
+  g_file[chn]->inCapacity = 0;
+  g_file[chn]->outfd = -1;
+  g_file[chn]->randomfd = -1;
+  g_file[chn]->binaryfd = -1;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return chn;
 }
 
@@ -505,7 +503,7 @@ int FS_openinChn(int chn, const char *name, int mode)
       return -1;
     }
 
-  if (file[chn] != (struct FileStream *)0)
+  if (g_file[chn] != (struct FileStream *)0)
     {
       FS_errmsg = _("channel already open");
       return -1;
@@ -532,18 +530,18 @@ int FS_openinChn(int chn, const char *name, int mode)
       return -1;
     }
 
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->recLength = 1;
-  file[chn]->dev = 0;
-  file[chn]->tty = 0;
-  file[chn]->infd = fd;
-  file[chn]->inSize = 0;
-  file[chn]->inCapacity = 0;
-  file[chn]->outfd = -1;
-  file[chn]->randomfd = -1;
-  file[chn]->binaryfd = -1;
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->recLength = 1;
+  g_file[chn]->dev = 0;
+  g_file[chn]->tty = 0;
+  g_file[chn]->infd = fd;
+  g_file[chn]->inSize = 0;
+  g_file[chn]->inCapacity = 0;
+  g_file[chn]->outfd = -1;
+  g_file[chn]->randomfd = -1;
+  g_file[chn]->binaryfd = -1;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return chn;
 }
 
@@ -557,9 +555,9 @@ int FS_openout(const char *name)
       return -1;
     }
 
-  for (chn = 0; chn < capacity; ++chn)
+  for (chn = 0; chn < g_capacity; ++chn)
     {
-      if (file[chn] == (struct FileStream *)0)
+      if (g_file[chn] == (struct FileStream *)0)
         {
           break;
         }
@@ -570,21 +568,21 @@ int FS_openout(const char *name)
       return -1;
     }
 
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->recLength = 1;
-  file[chn]->dev = 0;
-  file[chn]->tty = 0;
-  file[chn]->infd = -1;
-  file[chn]->outfd = fd;
-  file[chn]->outPos = 0;
-  file[chn]->outLineWidth = LINEWIDTH;
-  file[chn]->outColWidth = COLWIDTH;
-  file[chn]->outSize = 0;
-  file[chn]->outCapacity = sizeof(file[chn]->outBuf);
-  file[chn]->randomfd = -1;
-  file[chn]->binaryfd = -1;
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->recLength = 1;
+  g_file[chn]->dev = 0;
+  g_file[chn]->tty = 0;
+  g_file[chn]->infd = -1;
+  g_file[chn]->outfd = fd;
+  g_file[chn]->outPos = 0;
+  g_file[chn]->outLineWidth = LINEWIDTH;
+  g_file[chn]->outColWidth = COLWIDTH;
+  g_file[chn]->outSize = 0;
+  g_file[chn]->outCapacity = sizeof(g_file[chn]->outBuf);
+  g_file[chn]->randomfd = -1;
+  g_file[chn]->binaryfd = -1;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return chn;
 }
 
@@ -598,7 +596,7 @@ int FS_openoutChn(int chn, const char *name, int mode, int append)
       return -1;
     }
 
-  if (file[chn] != (struct FileStream *)0)
+  if (g_file[chn] != (struct FileStream *)0)
     {
       FS_errmsg = _("channel already open");
       return -1;
@@ -627,21 +625,21 @@ int FS_openoutChn(int chn, const char *name, int mode, int append)
       return -1;
     }
 
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->recLength = 1;
-  file[chn]->dev = 0;
-  file[chn]->tty = 0;
-  file[chn]->infd = -1;
-  file[chn]->outfd = fd;
-  file[chn]->outPos = 0;
-  file[chn]->outLineWidth = LINEWIDTH;
-  file[chn]->outColWidth = COLWIDTH;
-  file[chn]->outSize = 0;
-  file[chn]->outCapacity = sizeof(file[chn]->outBuf);
-  file[chn]->randomfd = -1;
-  file[chn]->binaryfd = -1;
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->recLength = 1;
+  g_file[chn]->dev = 0;
+  g_file[chn]->tty = 0;
+  g_file[chn]->infd = -1;
+  g_file[chn]->outfd = fd;
+  g_file[chn]->outPos = 0;
+  g_file[chn]->outLineWidth = LINEWIDTH;
+  g_file[chn]->outColWidth = COLWIDTH;
+  g_file[chn]->outSize = 0;
+  g_file[chn]->outCapacity = sizeof(g_file[chn]->outBuf);
+  g_file[chn]->randomfd = -1;
+  g_file[chn]->binaryfd = -1;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return chn;
 }
 
@@ -657,7 +655,7 @@ int FS_openrandomChn(int chn, const char *name, int mode, int recLength)
       return -1;
     }
 
-  if (file[chn] != (struct FileStream *)0)
+  if (g_file[chn] != (struct FileStream *)0)
     {
       FS_errmsg = _("channel already open");
       return -1;
@@ -669,19 +667,19 @@ int FS_openrandomChn(int chn, const char *name, int mode, int recLength)
       return -1;
     }
 
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->recLength = recLength;
-  file[chn]->dev = 0;
-  file[chn]->tty = 0;
-  file[chn]->infd = -1;
-  file[chn]->outfd = -1;
-  file[chn]->randomfd = fd;
-  file[chn]->recBuf = malloc(recLength);
-  memset(file[chn]->recBuf, 0, recLength);
-  StringField_new(&file[chn]->field);
-  file[chn]->binaryfd = -1;
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->recLength = recLength;
+  g_file[chn]->dev = 0;
+  g_file[chn]->tty = 0;
+  g_file[chn]->infd = -1;
+  g_file[chn]->outfd = -1;
+  g_file[chn]->randomfd = fd;
+  g_file[chn]->recBuf = malloc(recLength);
+  memset(g_file[chn]->recBuf, 0, recLength);
+  StringField_new(&g_file[chn]->field);
+  g_file[chn]->binaryfd = -1;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return chn;
 }
 
@@ -696,7 +694,7 @@ int FS_openbinaryChn(int chn, const char *name, int mode)
       return -1;
     }
 
-  if (file[chn] != (struct FileStream *)0)
+  if (g_file[chn] != (struct FileStream *)0)
     {
       FS_errmsg = _("channel already open");
       return -1;
@@ -707,16 +705,17 @@ int FS_openbinaryChn(int chn, const char *name, int mode)
       FS_errmsg = strerror(errno);
       return -1;
     }
-  file[chn] = malloc(sizeof(struct FileStream));
-  file[chn]->recLength = 1;
-  file[chn]->dev = 0;
-  file[chn]->tty = 0;
-  file[chn]->infd = -1;
-  file[chn]->outfd = -1;
-  file[chn]->randomfd = -1;
-  file[chn]->binaryfd = fd;
+
+  g_file[chn] = malloc(sizeof(struct FileStream));
+  g_file[chn]->recLength = 1;
+  g_file[chn]->dev = 0;
+  g_file[chn]->tty = 0;
+  g_file[chn]->infd = -1;
+  g_file[chn]->outfd = -1;
+  g_file[chn]->randomfd = -1;
+  g_file[chn]->binaryfd = fd;
   FS_errmsg = (const char *)0;
-  ++used;
+  ++g_used;
   return chn;
 }
 
@@ -724,7 +723,7 @@ int FS_freechn(void)
 {
   int i;
 
-  for (i = 0; i < capacity && file[i]; ++i);
+  for (i = 0; i < g_capacity && g_file[i]; ++i);
   if (size(i) == -1)
     {
       return -1;
@@ -738,18 +737,18 @@ int FS_flush(int dev)
   ssize_t written;
   size_t offset;
 
-  if (file[dev] == (struct FileStream *)0)
+  if (g_file[dev] == (struct FileStream *)0)
     {
       FS_errmsg = _("channel not open");
       return -1;
     }
 
   offset = 0;
-  while (offset < file[dev]->outSize)
+  while (offset < g_file[dev]->outSize)
     {
       written =
-        write(file[dev]->outfd, file[dev]->outBuf + offset,
-              file[dev]->outSize - offset);
+        write(g_file[dev]->outfd, g_file[dev]->outBuf + offset,
+              g_file[dev]->outSize - offset);
       if (written == -1)
         {
           FS_errmsg = strerror(errno);
@@ -761,55 +760,56 @@ int FS_flush(int dev)
         }
     }
 
-  file[dev]->outSize = 0;
+  g_file[dev]->outSize = 0;
   FS_errmsg = (const char *)0;
   return 0;
 }
 
 int FS_close(int dev)
 {
-  if (file[dev] == (struct FileStream *)0)
+  if (g_file[dev] == (struct FileStream *)0)
     {
       FS_errmsg = _("channel not open");
       return -1;
     }
 
-  if (file[dev]->outfd >= 0)
+  if (g_file[dev]->outfd >= 0)
     {
-      if (file[dev]->tty &&
-          (file[dev]->outforeground != -1 || file[dev]->outbackground != -1))
+      if (g_file[dev]->tty &&
+          (g_file[dev]->outforeground != -1 || g_file[dev]->outbackground != -1))
         {
           resetcolour(dev);
         }
 
       FS_flush(dev);
-      close(file[dev]->outfd);
+      close(g_file[dev]->outfd);
     }
 
-  if (file[dev]->randomfd >= 0)
+  if (g_file[dev]->randomfd >= 0)
     {
-      StringField_destroy(&file[dev]->field);
-      free(file[dev]->recBuf);
-      close(file[dev]->randomfd);
+      StringField_destroy(&g_file[dev]->field);
+      free(g_file[dev]->recBuf);
+      close(g_file[dev]->randomfd);
     }
 
-  if (file[dev]->binaryfd >= 0)
+  if (g_file[dev]->binaryfd >= 0)
     {
-      close(file[dev]->binaryfd);
+      close(g_file[dev]->binaryfd);
     }
 
-  if (file[dev]->infd >= 0)
+  if (g_file[dev]->infd >= 0)
     {
-      close(file[dev]->infd);
+      close(g_file[dev]->infd);
     }
 
-  free(file[dev]);
-  file[dev] = (struct FileStream *)0;
+  free(g_file[dev]);
+  g_file[dev] = (struct FileStream *)0;
   FS_errmsg = (const char *)0;
-  if (--used == 0)
+  if (--g_used == 0)
     {
-      free(file);
-      capacity = 0;
+      free(g_file);
+      g_file     = (struct FileStream **)0;
+      g_capacity = 0;
     }
 
   return 0;
@@ -818,7 +818,7 @@ int FS_close(int dev)
 #ifdef CONFIG_SERIAL_TERMIOS
 int FS_istty(int chn)
 {
-  return (file[chn] && file[chn]->tty);
+  return (g_file[chn] && g_file[chn]->tty);
 }
 #endif
 
@@ -827,19 +827,19 @@ int FS_lock(int chn, off_t offset, off_t length, int mode, int w)
   int fd;
   struct flock recordLock;
 
-  if (file[chn] == (struct FileStream *)0)
+  if (g_file[chn] == (struct FileStream *)0)
     {
       FS_errmsg = _("channel not open");
       return -1;
     }
 
-  if ((fd = file[chn]->infd) == -1)
+  if ((fd = g_file[chn]->infd) == -1)
     {
-      if ((fd = file[chn]->outfd) == -1)
+      if ((fd = g_file[chn]->outfd) == -1)
         {
-          if ((fd = file[chn]->randomfd) == -1)
+          if ((fd = g_file[chn]->randomfd) == -1)
             {
-              if ((fd = file[chn]->binaryfd) == -1)
+              if ((fd = g_file[chn]->binaryfd) == -1)
                 assert(0);
             }
         }
@@ -881,19 +881,19 @@ int FS_truncate(int chn)
   int fd;
   off_t o;
 
-  if (file[chn] == (struct FileStream *)0)
+  if (g_file[chn] == (struct FileStream *)0)
     {
       FS_errmsg = _("channel not open");
       return -1;
     }
 
-  if ((fd = file[chn]->infd) == -1)
+  if ((fd = g_file[chn]->infd) == -1)
     {
-      if ((fd = file[chn]->outfd) == -1)
+      if ((fd = g_file[chn]->outfd) == -1)
         {
-          if ((fd = file[chn]->randomfd) == -1)
+          if ((fd = g_file[chn]->randomfd) == -1)
             {
-              if ((fd = file[chn]->binaryfd) == -1)
+              if ((fd = g_file[chn]->binaryfd) == -1)
                 {
                   assert(0);
                 }
@@ -937,11 +937,11 @@ int FS_put(int chn)
     }
 
   offset = 0;
-  while (offset < file[chn]->recLength)
+  while (offset < g_file[chn]->recLength)
     {
       written =
-        write(file[chn]->randomfd, file[chn]->recBuf + offset,
-              file[chn]->recLength - offset);
+        write(g_file[chn]->randomfd, g_file[chn]->recBuf + offset,
+              g_file[chn]->recLength - offset);
       if (written == -1)
         {
           FS_errmsg = strerror(errno);
@@ -966,7 +966,7 @@ int FS_putChar(int dev, char ch)
       return -1;
     }
 
-  f = file[dev];
+  f = g_file[dev];
   if (ch == '\n')
     {
       f->outPos = 0;
@@ -1041,7 +1041,7 @@ int FS_putItem(int dev, const struct String *s)
       return -1;
     }
 
-  f = file[dev];
+  f = g_file[dev];
   if (f->outPos && f->outPos + s->length > f->outLineWidth)
     {
       FS_nextline(dev);
@@ -1058,7 +1058,7 @@ int FS_putbinaryString(int chn, const struct String *s)
     }
 
   if (s->length &&
-      write(file[chn]->binaryfd, s->character, s->length) != s->length)
+      write(g_file[chn]->binaryfd, s->character, s->length) != s->length)
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -1082,7 +1082,7 @@ int FS_putbinaryInteger(int chn, long int x)
       s[i] = (x & 0xff);
     }
 
-  if (write(file[chn]->binaryfd, s, sizeof(s)) != sizeof(s))
+  if (write(g_file[chn]->binaryfd, s, sizeof(s)) != sizeof(s))
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -1098,7 +1098,7 @@ int FS_putbinaryReal(int chn, double x)
       return -1;
     }
 
-  if (write(file[chn]->binaryfd, &x, sizeof(x)) != sizeof(x))
+  if (write(g_file[chn]->binaryfd, &x, sizeof(x)) != sizeof(x))
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -1117,7 +1117,7 @@ int FS_getbinaryString(int chn, struct String *s)
     }
 
   if (s->length &&
-      (len = read(file[chn]->binaryfd, s->character, s->length)) != s->length)
+      (len = read(g_file[chn]->binaryfd, s->character, s->length)) != s->length)
     {
       if (len == -1)
         {
@@ -1125,7 +1125,7 @@ int FS_getbinaryString(int chn, struct String *s)
         }
       else
         {
-          FS_errmsg = _("End of file");
+          FS_errmsg = _("End of g_file");
         }
 
       return -1;
@@ -1145,7 +1145,7 @@ int FS_getbinaryInteger(int chn, long int *x)
       return -1;
     }
 
-  if ((len = read(file[chn]->binaryfd, s, sizeof(s))) != sizeof(s))
+  if ((len = read(g_file[chn]->binaryfd, s, sizeof(s))) != sizeof(s))
     {
       if (len == -1)
         {
@@ -1177,7 +1177,7 @@ int FS_getbinaryReal(int chn, double *x)
       return -1;
     }
 
-  if ((len = read(file[chn]->binaryfd, x, sizeof(*x))) != sizeof(*x))
+  if ((len = read(g_file[chn]->binaryfd, x, sizeof(*x))) != sizeof(*x))
     {
       if (len == -1)
         {
@@ -1203,7 +1203,7 @@ int FS_nextcol(int dev)
       return -1;
     }
 
-  f = file[dev];
+  f = g_file[dev];
   if (f->outPos % f->outColWidth
       && f->outLineWidth
       && ((f->outPos / f->outColWidth + 2) * f->outColWidth) > f->outLineWidth)
@@ -1236,7 +1236,7 @@ int FS_nextline(int dev)
       return -1;
     }
 
-  f = file[dev];
+  f = g_file[dev];
   if (f->outPos && FS_putChar(dev, '\n') == -1)
     {
       return -1;
@@ -1247,7 +1247,7 @@ int FS_nextline(int dev)
 
 int FS_tab(int dev, int position)
 {
-  struct FileStream *f = file[dev];
+  struct FileStream *f = g_file[dev];
 
   if (f->outLineWidth && position >= f->outLineWidth)
     {
@@ -1278,7 +1278,7 @@ int FS_width(int dev, int width)
       return -1;
     }
 
-  file[dev]->outLineWidth = width;
+  g_file[dev]->outLineWidth = width;
   return 0;
 }
 
@@ -1295,7 +1295,7 @@ int FS_zone(int dev, int zone)
       return -1;
     }
 
-  file[dev]->outColWidth = zone;
+  g_file[dev]->outColWidth = zone;
   return 0;
 }
 
@@ -1308,7 +1308,7 @@ int FS_cls(int chn)
       return -1;
     }
 
-  f = file[chn];
+  f = g_file[chn];
   if (!f->tty)
     {
       FS_errmsg = _("not a terminal");
@@ -1338,7 +1338,7 @@ int FS_locate(int chn, int line, int column)
       return -1;
     }
 
-  f = file[chn];
+  f = g_file[chn];
   if (!f->tty)
     {
       FS_errmsg = _("not a terminal");
@@ -1368,7 +1368,7 @@ int FS_colour(int chn, int foreground, int background)
       return -1;
     }
 
-  f = file[chn];
+  f = g_file[chn];
   if (!f->tty)
     {
       FS_errmsg = _("not a terminal");
@@ -1394,7 +1394,7 @@ int FS_getChar(int dev)
       return -1;
     }
 
-  f = file[dev];
+  f = g_file[dev];
   if (f->inSize == f->inCapacity && refill(dev) == -1)
     {
       return -1;
@@ -1424,11 +1424,11 @@ int FS_get(int chn)
     }
 
   offset = 0;
-  while (offset < file[chn]->recLength)
+  while (offset < g_file[chn]->recLength)
     {
       rd =
-        read(file[chn]->randomfd, file[chn]->recBuf + offset,
-             file[chn]->recLength - offset);
+        read(g_file[chn]->randomfd, g_file[chn]->recBuf + offset,
+             g_file[chn]->recLength - offset);
       if (rd == -1)
         {
           FS_errmsg = strerror(errno);
@@ -1459,7 +1459,7 @@ int FS_inkeyChar(int dev, int ms)
       return -1;
     }
 
-  f = file[dev];
+  f = g_file[dev];
   if (f->inSize < f->inCapacity)
     {
       return f->inBuf[f->inSize++];
@@ -1530,7 +1530,7 @@ int FS_eof(int chn)
       return -1;
     }
 
-  f = file[chn];
+  f = g_file[chn];
   if (f->inSize == f->inCapacity && refill(chn) == -1)
     {
       return 1;
@@ -1549,23 +1549,23 @@ long int FS_loc(int chn)
       return -1;
     }
 
-  if (file[chn]->infd != -1)
+  if (g_file[chn]->infd != -1)
     {
-      fd = file[chn]->infd;
-      offset = -file[chn]->inCapacity + file[chn]->inSize;
+      fd = g_file[chn]->infd;
+      offset = -g_file[chn]->inCapacity + g_file[chn]->inSize;
     }
-  else if (file[chn]->outfd != -1)
+  else if (g_file[chn]->outfd != -1)
     {
-      fd = file[chn]->outfd;
-      offset = file[chn]->outSize;
+      fd = g_file[chn]->outfd;
+      offset = g_file[chn]->outSize;
     }
-  else if (file[chn]->randomfd != -1)
+  else if (g_file[chn]->randomfd != -1)
     {
-      fd = file[chn]->randomfd;
+      fd = g_file[chn]->randomfd;
     }
   else
     {
-      fd = file[chn]->binaryfd;
+      fd = g_file[chn]->binaryfd;
     }
 
   assert(fd != -1);
@@ -1575,7 +1575,7 @@ long int FS_loc(int chn)
       return -1;
     }
 
-  return (cur + offset) / file[chn]->recLength;
+  return (cur + offset) / g_file[chn]->recLength;
 }
 
 long int FS_lof(int chn)
@@ -1589,21 +1589,21 @@ long int FS_lof(int chn)
       return -1;
     }
 
-  if (file[chn]->infd != -1)
+  if (g_file[chn]->infd != -1)
     {
-      fd = file[chn]->infd;
+      fd = g_file[chn]->infd;
     }
-  else if (file[chn]->outfd != -1)
+  else if (g_file[chn]->outfd != -1)
     {
-      fd = file[chn]->outfd;
+      fd = g_file[chn]->outfd;
     }
-  else if (file[chn]->randomfd != -1)
+  else if (g_file[chn]->randomfd != -1)
     {
-      fd = file[chn]->randomfd;
+      fd = g_file[chn]->randomfd;
     }
   else
     {
-      fd = file[chn]->binaryfd;
+      fd = g_file[chn]->binaryfd;
     }
 
   assert(fd != -1);
@@ -1636,7 +1636,7 @@ long int FS_lof(int chn)
       return -1;
     }
 
- return (long int)(endpos / file[chn]->recLength);
+ return (long int)(endpos / g_file[chn]->recLength);
 }
 
 long int FS_recLength(int chn)
@@ -1646,13 +1646,13 @@ long int FS_recLength(int chn)
       return -1;
     }
 
-  return file[chn]->recLength;
+  return g_file[chn]->recLength;
 }
 
 void FS_field(int chn, struct String *s, long int position, long int length)
 {
-  assert(file[chn]);
-  String_joinField(s, &file[chn]->field, file[chn]->recBuf + position, length);
+  assert(g_file[chn]);
+  String_joinField(s, &g_file[chn]->field, g_file[chn]->recBuf + position, length);
 }
 
 int FS_seek(int chn, long int record)
@@ -1660,7 +1660,7 @@ int FS_seek(int chn, long int record)
   if (opened(chn, 2) != -1)
     {
       if (lseek
-          (file[chn]->randomfd, (off_t) record * file[chn]->recLength,
+          (g_file[chn]->randomfd, (off_t) record * g_file[chn]->recLength,
            SEEK_SET) != -1)
         {
           return 0;
@@ -1670,7 +1670,7 @@ int FS_seek(int chn, long int record)
     }
   else if (opened(chn, 4) != -1)
     {
-      if (lseek(file[chn]->binaryfd, (off_t) record, SEEK_SET) != -1)
+      if (lseek(g_file[chn]->binaryfd, (off_t) record, SEEK_SET) != -1)
         {
           return 0;
         }
@@ -1685,7 +1685,7 @@ int FS_appendToString(int chn, struct String *s, int onl)
 {
   size_t new;
   char *n;
-  struct FileStream *f = file[chn];
+  struct FileStream *f = g_file[chn];
   int c;
 
   if (f->tty && f->inSize == f->inCapacity)
@@ -1762,10 +1762,16 @@ void FS_closefiles(void)
 {
   int i;
 
-  for (i = 0; i < capacity; ++i)
+  /* Example each entry in the g_files[] arrary */
+
+  for (i = 0; i < g_capacity; ++i)
     {
-      if (file[i] && !file[i]->dev)
+      /* Has this entry been allocated?  Is it a file?  Or a device? */
+
+      if (g_file[i] && !g_file[i]->dev)
         {
+          /* It is an open file, close it */
+
           FS_close(i);
         }
     }
@@ -1773,13 +1779,13 @@ void FS_closefiles(void)
 
 int FS_charpos(int chn)
 {
-  if (file[chn] == (struct FileStream *)0)
+  if (g_file[chn] == (struct FileStream *)0)
     {
       FS_errmsg = _("channel not open");
       return -1;
     }
 
-  return (file[chn]->outPos);
+  return (g_file[chn]->outPos);
 }
 
 int FS_copy(const char *from, const char *to)
