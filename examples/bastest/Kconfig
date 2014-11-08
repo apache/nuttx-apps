@@ -7,6 +7,7 @@ config EXAMPLES_BASTEST
 	bool "Setup Test Files for BAS"
 	default n
 	depends on INTERPRETERS_BAS
+	select FS_ROMFS
 	---help---
 		Mount the ROMFS file system containing the BAS test files at /mnt/romfs.
 
