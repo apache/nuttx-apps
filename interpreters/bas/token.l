@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
 
 #include "auto.h"
 #include "token.h"
@@ -1173,7 +1174,7 @@ end[ \t]+function	{
                 	  {
                 	    cur->statement=stmt_QUOTE_REM;
                 	    strcpy(cur->u.rem=malloc(strlen(yytext+1)+1),yytext+1);
-                          }	    
+                          }	
                 	  return T_QUOTE;
                 	}
 {LINEINPUT}		{
@@ -1740,7 +1741,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
           ++thisnotindent; ++nextindent;
         }
         break;
-      }       
+      } 
       case T_SELECTCASE: thisnotindent+=2; nextindent+=2; break;
       case T_EQ:
       {

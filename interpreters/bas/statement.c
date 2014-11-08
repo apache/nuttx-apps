@@ -907,8 +907,7 @@ struct Value *stmt_DIM(struct Value *value)
               return value;
             }
 
-          if (pass == INTERPRET && value->u.integer < optionbase)       /* error 
-                                                                         */
+          if (pass == INTERPRET && value->u.integer < optionbase)       /* error */
             {
               Value_destroy(value);
               Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
@@ -2840,8 +2839,7 @@ struct Value *stmt_IF_ELSEIFIF(struct Value *value)
         {
           pushLabel(L_IF, &ifpc);
         }
-      else                      /* compile single line IF THEN ELSE recursively 
-                                 */
+      else                      /* compile single line IF THEN ELSE recursively */
         {
           if (statements(value)->type == V_ERROR)
             {
