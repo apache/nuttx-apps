@@ -90,14 +90,14 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define DIRECTMODE (pc.line== -1)
+#define DIRECTMODE (g_pc.line== -1)
 #define _(String) String
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
-enum LabelType
+enum labeltype_e
   {
     L_IF = 1,
     L_ELSE,
@@ -113,9 +113,9 @@ enum LabelType
     L_FUNC
   };
 
-struct LabelStack
+struct labelstack_s
   {
-    enum LabelType type;
+    enum labeltype_e type;
     struct Pc patch;
   };
 
@@ -123,26 +123,27 @@ struct LabelStack
  * Private Data
  ****************************************************************************/
 
-static unsigned int labelStackPointer, labelStackCapacity;
-static struct LabelStack *labelStack;
-static struct Pc *lastdata;
-static struct Pc curdata;
-static struct Pc nextdata;
+static unsigned int g_labelstack_index;
+static unsigned int g_labelstack_capacity;
+static struct labelstack_s *g_labelstack;
+static struct Pc *g_lastdata;
+static struct Pc g_curdata;
+static struct Pc g_nextdata;
 
 static enum
   {
     DECLARE,
     COMPILE,
     INTERPRET
-  } pass;
+  } g_pass;
 
-static int stopped;
+static int g_stopped;
 static int optionbase;
-static struct Pc pc;
-static struct Auto stack;
-static struct Program program;
-static struct Global globals;
-static int run_restricted;
+static struct Pc g_pc;
+static struct Auto g_stack;
+static struct Program g_program;
+static struct Global g_globals;
+static int g_run_restricted;
 
 /****************************************************************************
  * Public Data
@@ -211,25 +212,25 @@ static int cat(const char *filename)
 static struct Value *lvalue(struct Value *value)
 {
   struct Symbol *sym;
-  struct Pc lvpc = pc;
+  struct Pc lvpc = g_pc;
 
-  sym = pc.token->u.identifier->sym;
-  assert(pass == DECLARE || sym->type == GLOBALVAR || sym->type == GLOBALARRAY
+  sym = g_pc.token->u.identifier->sym;
+  assert(g_pass == DECLARE || sym->type == GLOBALVAR || sym->type == GLOBALARRAY
          || sym->type == LOCALVAR);
 
-  if ((pc.token + 1)->type == T_OP)
+  if ((g_pc.token + 1)->type == T_OP)
     {
       struct Pc idxpc;
       unsigned int dim, capacity;
       int *idx;
 
-      pc.token += 2;
+      g_pc.token += 2;
       dim = 0;
       capacity = 0;
       idx = (int *)0;
       while (1)
         {
-          if (dim == capacity && pass == INTERPRET)     /* enlarge idx */
+          if (dim == capacity && g_pass == INTERPRET)     /* enlarge idx */
             {
               int *more;
 
@@ -247,7 +248,7 @@ static struct Value *lvalue(struct Value *value)
               idx = more;
             }
 
-          idxpc = pc;
+          idxpc = g_pc;
           if (eval(value, _("index"))->type == V_ERROR ||
               VALUE_RETYPE(value, V_INTEGER)->type == V_ERROR)
             {
@@ -256,20 +257,20 @@ static struct Value *lvalue(struct Value *value)
                   free(idx);
                 }
 
-              pc = idxpc;
+              g_pc = idxpc;
               return value;
             }
 
-          if (pass == INTERPRET)
+          if (g_pass == INTERPRET)
             {
               idx[dim] = value->u.integer;
               ++dim;
             }
 
           Value_destroy(value);
-          if (pc.token->type == T_COMMA)
+          if (g_pc.token->type == T_COMMA)
             {
-              ++pc.token;
+              ++g_pc.token;
             }
           else
             {
@@ -277,24 +278,24 @@ static struct Value *lvalue(struct Value *value)
             }
         }
 
-      if (pc.token->type != T_CP)
+      if (g_pc.token->type != T_CP)
         {
-          assert(pass != INTERPRET);
+          assert(g_pass != INTERPRET);
           return Value_new_ERROR(value, MISSINGCP);
         }
       else
         {
-          ++pc.token;
+          ++g_pc.token;
         }
 
-      switch (pass)
+      switch (g_pass)
         {
         case INTERPRET:
           {
             if ((value =
                  Var_value(&(sym->u.var), dim, idx, value))->type == V_ERROR)
               {
-                pc = lvpc;
+                g_pc = lvpc;
               }
 
             free(idx);
@@ -310,7 +311,7 @@ static struct Value *lvalue(struct Value *value)
           {
             return Value_nullValue(sym->type ==
                                    GLOBALARRAY ? sym->u.
-                                   var.type : Auto_varType(&stack, sym));
+                                   var.type : Auto_varType(&g_stack, sym));
           }
 
         default:
@@ -321,12 +322,12 @@ static struct Value *lvalue(struct Value *value)
     }
   else
     {
-      ++pc.token;
-      switch (pass)
+      ++g_pc.token;
+      switch (g_pass)
         {
         case INTERPRET:
           return VAR_SCALAR_VALUE(sym->type ==
-                                  GLOBALVAR ? &(sym->u.var) : Auto_local(&stack,
+                                  GLOBALVAR ? &(sym->u.var) : Auto_local(&g_stack,
                                                                          sym->
                                                                          u.local.offset));
 
@@ -336,7 +337,7 @@ static struct Value *lvalue(struct Value *value)
         case COMPILE:
           return Value_nullValue(sym->type ==
                                  GLOBALVAR ? sym->u.
-                                 var.type : Auto_varType(&stack, sym));
+                                 var.type : Auto_varType(&g_stack, sym));
 
         default:
           assert(0);
@@ -349,12 +350,12 @@ static struct Value *lvalue(struct Value *value)
 static struct Value *func(struct Value *value)
 {
   struct Identifier *ident;
-  struct Pc funcpc = pc;
+  struct Pc funcpc = g_pc;
   int firstslot = -99;
   int args = 0;
   struct Symbol *sym;
 
-  assert(pc.token->type == T_IDENTIFIER);
+  assert(g_pc.token->type == T_IDENTIFIER);
 
   /* Evaluating a function in direct mode may start a program, so it needs to
    * be compiled.  If in direct mode, programs will be compiled after the
@@ -364,7 +365,7 @@ static struct Value *func(struct Value *value)
    * this point, compile it again to get the error and abort.
    */
 
-  if (DIRECTMODE && !program.runnable && pass != DECLARE)
+  if (DIRECTMODE && !g_program.runnable && g_pass != DECLARE)
     {
       if (compileProgram(value, 0)->type == V_ERROR)
         {
@@ -374,29 +375,29 @@ static struct Value *func(struct Value *value)
       Value_destroy(value);
     }
 
-  ident = pc.token->u.identifier;
-  assert(pass == DECLARE || ident->sym->type == BUILTINFUNCTION ||
+  ident = g_pc.token->u.identifier;
+  assert(g_pass == DECLARE || ident->sym->type == BUILTINFUNCTION ||
          ident->sym->type == USERFUNCTION);
-  ++pc.token;
-  if (pass != DECLARE)
+  ++g_pc.token;
+  if (g_pass != DECLARE)
     {
-      firstslot = stack.stackPointer;
+      firstslot = g_stack.stackPointer;
       if (ident->sym->type == USERFUNCTION &&
           ident->sym->u.sub.retType != V_VOID)
         {
-          struct Var *v = Auto_pushArg(&stack);
+          struct Var *v = Auto_pushArg(&g_stack);
           Var_new(v, ident->sym->u.sub.retType, 0, (const unsigned int *)0, 0);
         }
     }
 
-  if (pc.token->type == T_OP)   /* push arguments to stack */
+  if (g_pc.token->type == T_OP)   /* push arguments to stack */
     {
-      ++pc.token;
-      if (pc.token->type != T_CP)
+      ++g_pc.token;
+      if (g_pc.token->type != T_CP)
         {
           while (1)
             {
-              if (pass == DECLARE)
+              if (g_pass == DECLARE)
                 {
                   if (eval(value, _("actual parameter"))->type == V_ERROR)
                     {
@@ -407,15 +408,15 @@ static struct Value *func(struct Value *value)
                 }
               else
                 {
-                  struct Var *v = Auto_pushArg(&stack);
+                  struct Var *v = Auto_pushArg(&g_stack);
 
                   Var_new_scalar(v);
                   if (eval(v->value, (const char *)0)->type == V_ERROR)
                     {
                       Value_clone(value, v->value);
-                      while (stack.stackPointer > firstslot)
+                      while (g_stack.stackPointer > firstslot)
                         {
-                          Var_destroy(&stack.slot[--stack.stackPointer].var);
+                          Var_destroy(&g_stack.slot[--g_stack.stackPointer].var);
                         }
 
                       return value;
@@ -425,9 +426,9 @@ static struct Value *func(struct Value *value)
                 }
 
               ++args;
-              if (pc.token->type == T_COMMA)
+              if (g_pc.token->type == T_COMMA)
                 {
-                  ++pc.token;
+                  ++g_pc.token;
                 }
               else
                 {
@@ -435,24 +436,24 @@ static struct Value *func(struct Value *value)
                 }
             }
 
-          if (pc.token->type != T_CP)
+          if (g_pc.token->type != T_CP)
             {
-              if (pass != DECLARE)
+              if (g_pass != DECLARE)
                 {
-                  while (stack.stackPointer > firstslot)
+                  while (g_stack.stackPointer > firstslot)
                     {
-                      Var_destroy(&stack.slot[--stack.stackPointer].var);
+                      Var_destroy(&g_stack.slot[--g_stack.stackPointer].var);
                     }
                 }
 
               return Value_new_ERROR(value, MISSINGCP);
             }
 
-          ++pc.token;
+          ++g_pc.token;
         }
     }
 
-  if (pass == DECLARE)
+  if (g_pass == DECLARE)
     {
       Value_new_null(value, ident->defaultType);
     }
@@ -463,24 +464,24 @@ static struct Value *func(struct Value *value)
       int argerr;
       int overloaded;
 
-      if (pass == INTERPRET && ident->sym->type == USERFUNCTION)
+      if (g_pass == INTERPRET && ident->sym->type == USERFUNCTION)
         {
           for (i = 0; i < ident->sym->u.sub.u.def.localLength; ++i)
             {
-              struct Var *v = Auto_pushArg(&stack);
+              struct Var *v = Auto_pushArg(&g_stack);
               Var_new(v, ident->sym->u.sub.u.def.localTypes[i], 0,
                       (const unsigned int *)0, 0);
             }
         }
 
-      Auto_pushFuncRet(&stack, firstslot, &pc);
+      Auto_pushFuncRet(&g_stack, firstslot, &g_pc);
 
       sym = ident->sym;
-      overloaded = (pass == COMPILE && sym->type == BUILTINFUNCTION &&
+      overloaded = (g_pass == COMPILE && sym->type == BUILTINFUNCTION &&
                     sym->u.sub.u.bltin.next);
       do
         {
-          nomore = (pass == COMPILE &&
+          nomore = (g_pass == COMPILE &&
                     !(sym->type == BUILTINFUNCTION && sym->u.sub.u.bltin.next));
           argerr = 0;
           if (args < sym->u.sub.argLength)
@@ -507,7 +508,7 @@ static struct Value *func(struct Value *value)
               for (i = 0; i < args; ++i)
                 {
                   struct Value *arg =
-                    Var_value(Auto_local(&stack, i), 0, (int *)0, value);
+                    Var_value(Auto_local(&g_stack, i), 0, (int *)0, value);
 
                   assert(arg->type != V_ERROR);
                   if (overloaded)
@@ -542,8 +543,8 @@ static struct Value *func(struct Value *value)
             {
               if (nomore)
                 {
-                  Auto_funcReturn(&stack, (struct Pc *)0);
-                  pc = funcpc;
+                  Auto_funcReturn(&g_stack, (struct Pc *)0);
+                  g_pc = funcpc;
                   return value;
                 }
               else
@@ -557,11 +558,11 @@ static struct Value *func(struct Value *value)
       ident->sym = sym;
       if (sym->type == BUILTINFUNCTION)
         {
-          if (pass == INTERPRET)
+          if (g_pass == INTERPRET)
             {
-              if (sym->u.sub.u.bltin.call(value, &stack)->type == V_ERROR)
+              if (sym->u.sub.u.bltin.call(value, &g_stack)->type == V_ERROR)
                 {
-                  pc = funcpc;
+                  g_pc = funcpc;
                 }
             }
           else
@@ -571,18 +572,18 @@ static struct Value *func(struct Value *value)
         }
       else if (sym->type == USERFUNCTION)
         {
-          if (pass == INTERPRET)
+          if (g_pass == INTERPRET)
             {
               int r = 1;
 
-              pc = sym->u.sub.u.def.scope.start;
-              if (pc.token->type == T_COLON)
+              g_pc = sym->u.sub.u.def.scope.start;
+              if (g_pc.token->type == T_COLON)
                 {
-                  ++pc.token;
+                  ++g_pc.token;
                 }
               else
                 {
-                  Program_skipEOL(&program, &pc, STDCHANNEL, 1);
+                  Program_skipEOL(&g_program, &g_pc, STDCHANNEL, 1);
                 }
 
               do
@@ -591,20 +592,20 @@ static struct Value *func(struct Value *value)
                     {
                       if (strchr(value->u.error.msg, '\n') == (char *)0)
                         {
-                          Auto_setError(&stack,
-                                        Program_lineNumber(&program, &pc), &pc,
+                          Auto_setError(&g_stack,
+                                        Program_lineNumber(&g_program, &g_pc), &g_pc,
                                         value);
-                          Program_PCtoError(&program, &pc, value);
+                          Program_PCtoError(&g_program, &g_pc, value);
                         }
 
-                      if (stack.onerror.line != -1)
+                      if (g_stack.onerror.line != -1)
                         {
-                          stack.resumeable = 1;
-                          pc = stack.onerror;
+                          g_stack.resumeable = 1;
+                          g_pc = g_stack.onerror;
                         }
                       else
                         {
-                          Auto_frameToError(&stack, &program, value);
+                          Auto_frameToError(&g_stack, &g_program, value);
                           break;
                         }
                     }
@@ -615,7 +616,7 @@ static struct Value *func(struct Value *value)
 
                   Value_destroy(value);
                 }
-              while ((r = Program_skipEOL(&program, &pc, STDCHANNEL, 1)));
+              while ((r = Program_skipEOL(&g_program, &g_pc, STDCHANNEL, 1)));
 
               if (!r)
                 {
@@ -628,8 +629,8 @@ static struct Value *func(struct Value *value)
             }
         }
 
-      Auto_funcReturn(&stack, pass == INTERPRET &&
-                      value->type != V_ERROR ? &pc : (struct Pc *)0);
+      Auto_funcReturn(&g_stack, g_pass == INTERPRET &&
+                      value->type != V_ERROR ? &g_pc : (struct Pc *)0);
     }
 
   return value;
@@ -730,7 +731,7 @@ static struct Value *eval(struct Value *value, const char *desc)
           stackEnd = pdastack + capacity - 1;
         }
 
-      ip = pc.token->type;
+      ip = g_pc.token->type;
       switch (sp->state)
         {
         case 0:
@@ -745,22 +746,22 @@ static struct Value *eval(struct Value *value, const char *desc)
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
-                if (pass == COMPILE)
+                if (g_pass == COMPILE)
                   {
-                    if (((pc.token + 1)->type == T_OP ||
-                         Auto_find(&stack, pc.token->u.identifier) == 0) &&
-                        Global_find(&globals, pc.token->u.identifier,
-                                    (pc.token + 1)->type == T_OP) == 0)
+                    if (((g_pc.token + 1)->type == T_OP ||
+                         Auto_find(&g_stack, g_pc.token->u.identifier) == 0) &&
+                        Global_find(&g_globals, g_pc.token->u.identifier,
+                                    (g_pc.token + 1)->type == T_OP) == 0)
                       {
                         Value_new_ERROR(value, UNDECLARED);
                         goto error;
                       }
                   }
 
-                if (pass != DECLARE &&
-                    (pc.token->u.identifier->sym->type == GLOBALVAR ||
-                     pc.token->u.identifier->sym->type == GLOBALARRAY ||
-                     pc.token->u.identifier->sym->type == LOCALVAR))
+                if (g_pass != DECLARE &&
+                    (g_pc.token->u.identifier->sym->type == GLOBALVAR ||
+                     g_pc.token->u.identifier->sym->type == GLOBALARRAY ||
+                     g_pc.token->u.identifier->sym->type == LOCALVAR))
                   {
                     struct Value *l;
 
@@ -770,12 +771,12 @@ static struct Value *eval(struct Value *value, const char *desc)
                   }
                 else
                   {
-                    struct Pc var = pc;
+                    struct Pc var = g_pc;
 
                     func(&sp->u.value);
                     if (sp->u.value.type == V_VOID)
                       {
-                        pc = var;
+                        g_pc = var;
                         Value_new_ERROR(value, VOIDVALUE);
                         goto error;
                       }
@@ -788,8 +789,8 @@ static struct Value *eval(struct Value *value, const char *desc)
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
-                VALUE_NEW_INTEGER(&sp->u.value, pc.token->u.integer);
-                ++pc.token;
+                VALUE_NEW_INTEGER(&sp->u.value, g_pc.token->u.integer);
+                ++g_pc.token;
               }
             else if (ip == T_REAL)
               {
@@ -798,8 +799,8 @@ static struct Value *eval(struct Value *value, const char *desc)
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
-                VALUE_NEW_REAL(&sp->u.value, pc.token->u.real);
-                ++pc.token;
+                VALUE_NEW_REAL(&sp->u.value, g_pc.token->u.real);
+                ++g_pc.token;
               }
             else if (TOKEN_ISUNARYOPERATOR(ip))
               {
@@ -808,7 +809,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 ++sp;
                 sp->state = 2;
                 sp->u.token = ip;
-                ++pc.token;
+                ++g_pc.token;
               }
             else if (ip == T_HEXINTEGER)
               {
@@ -817,8 +818,8 @@ static struct Value *eval(struct Value *value, const char *desc)
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
-                VALUE_NEW_INTEGER(&sp->u.value, pc.token->u.hexinteger);
-                ++pc.token;
+                VALUE_NEW_INTEGER(&sp->u.value, g_pc.token->u.hexinteger);
+                ++g_pc.token;
               }
             else if (ip == T_OCTINTEGER)
               {
@@ -827,8 +828,8 @@ static struct Value *eval(struct Value *value, const char *desc)
 
                 ++sp;
                 sp->state = gotoState[(sp - 1)->state];
-                VALUE_NEW_INTEGER(&sp->u.value, pc.token->u.octinteger);
-                ++pc.token;
+                VALUE_NEW_INTEGER(&sp->u.value, g_pc.token->u.octinteger);
+                ++g_pc.token;
               }
             else if (ip == T_OP)
               {
@@ -837,7 +838,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 ++sp;
                 sp->state = 3;
                 sp->u.token = T_OP;
-                ++pc.token;
+                ++g_pc.token;
               }
             else if (ip == T_STRING)
               {
@@ -848,8 +849,8 @@ static struct Value *eval(struct Value *value, const char *desc)
                 sp->state = gotoState[(sp - 1)->state];
                 Value_new_STRING(&sp->u.value);
                 String_destroy(&sp->u.value.u.string);
-                String_clone(&sp->u.value.u.string, pc.token->u.string);
-                ++pc.token;
+                String_clone(&sp->u.value.u.string, g_pc.token->u.string);
+                ++g_pc.token;
               }
             else
               {
@@ -886,7 +887,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
-                ++pc.token;
+                ++g_pc.token;
                 break;
               }
             else
@@ -913,7 +914,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
-                ++pc.token;
+                ++g_pc.token;
               }
             else
               {
@@ -930,11 +931,11 @@ static struct Value *eval(struct Value *value, const char *desc)
                     break;
 
                   case T_MINUS:
-                    Value_uneg(&sp->u.value, pass == INTERPRET);
+                    Value_uneg(&sp->u.value, g_pass == INTERPRET);
                     break;
 
                   case T_NOT:
-                    Value_unot(&sp->u.value, pass == INTERPRET);
+                    Value_unot(&sp->u.value, g_pass == INTERPRET);
                     break;
 
                   default:
@@ -962,7 +963,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
-                ++pc.token;
+                ++g_pc.token;
               }
             else if (ip == T_CP)
               {
@@ -972,7 +973,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 --sp;
                 sp->state = gotoState[(sp - 1)->state];
                 sp->u.value = (sp + 1)->u.value;
-                ++pc.token;
+                ++g_pc.token;
               }
             else
               {
@@ -999,7 +1000,7 @@ static struct Value *eval(struct Value *value, const char *desc)
                 ++sp;
                 sp->state = 1;
                 sp->u.token = ip;
-                ++pc.token;
+                ++g_pc.token;
               }
             else
               {
@@ -1021,91 +1022,91 @@ static struct Value *eval(struct Value *value, const char *desc)
                       {
                       case T_LT:
                         Value_lt(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_LE:
                         Value_le(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_EQ:
                         Value_eq(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_GE:
                         Value_ge(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_GT:
                         Value_gt(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_NE:
                         Value_ne(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_PLUS:
                         Value_add(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
                       case T_MINUS:
                         Value_sub(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_MULT:
                         Value_mult(&(sp - 2)->u.value, &sp->u.value,
-                                   pass == INTERPRET);
+                                   g_pass == INTERPRET);
                         break;
 
                       case T_DIV:
                         Value_div(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_IDIV:
                         Value_idiv(&(sp - 2)->u.value, &sp->u.value,
-                                   pass == INTERPRET);
+                                   g_pass == INTERPRET);
                         break;
 
                       case T_MOD:
                         Value_mod(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_POW:
                         Value_pow(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_AND:
                         Value_and(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_OR:
                         Value_or(&(sp - 2)->u.value, &sp->u.value,
-                                 pass == INTERPRET);
+                                 g_pass == INTERPRET);
                         break;
 
                       case T_XOR:
                         Value_xor(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_EQV:
                         Value_eqv(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       case T_IMP:
                         Value_imp(&(sp - 2)->u.value, &sp->u.value,
-                                  pass == INTERPRET);
+                                  g_pass == INTERPRET);
                         break;
 
                       default:
@@ -1170,14 +1171,14 @@ static inline struct Value *binarydown(struct Value *value,
     {
       struct Value x;
 
-      op = pc.token->type;
+      op = g_pc.token->type;
       if (!TOKEN_ISBINARYOPERATOR(op) || TOKEN_BINARYPRIORITY(op) != prio)
         {
           return value;
         }
 
-      oppc = pc;
-      ++pc.token;
+      oppc = g_pc;
+      ++g_pc.token;
       if (level(&x) == (struct Value *)0)
         {
           Value_destroy(value);
@@ -1202,75 +1203,75 @@ static inline struct Value *binarydown(struct Value *value,
           switch (op)
             {
             case T_LT:
-              Value_lt(value, &x, pass == INTERPRET);
+              Value_lt(value, &x, g_pass == INTERPRET);
               break;
 
             case T_LE:
-              Value_le(value, &x, pass == INTERPRET);
+              Value_le(value, &x, g_pass == INTERPRET);
               break;
 
             case T_EQ:
-              Value_eq(value, &x, pass == INTERPRET);
+              Value_eq(value, &x, g_pass == INTERPRET);
               break;
 
             case T_GE:
-              Value_ge(value, &x, pass == INTERPRET);
+              Value_ge(value, &x, g_pass == INTERPRET);
               break;
 
             case T_GT:
-              Value_gt(value, &x, pass == INTERPRET);
+              Value_gt(value, &x, g_pass == INTERPRET);
               break;
 
             case T_NE:
-              Value_ne(value, &x, pass == INTERPRET);
+              Value_ne(value, &x, g_pass == INTERPRET);
               break;
 
             case T_PLUS:
-              Value_add(value, &x, pass == INTERPRET);
+              Value_add(value, &x, g_pass == INTERPRET);
               break;
 
             case T_MINUS:
-              Value_sub(value, &x, pass == INTERPRET);
+              Value_sub(value, &x, g_pass == INTERPRET);
               break;
 
             case T_MULT:
-              Value_mult(value, &x, pass == INTERPRET);
+              Value_mult(value, &x, g_pass == INTERPRET);
               break;
 
             case T_DIV:
-              Value_div(value, &x, pass == INTERPRET);
+              Value_div(value, &x, g_pass == INTERPRET);
               break;
 
             case T_IDIV:
-              Value_idiv(value, &x, pass == INTERPRET);
+              Value_idiv(value, &x, g_pass == INTERPRET);
               break;
 
             case T_MOD:
-              Value_mod(value, &x, pass == INTERPRET);
+              Value_mod(value, &x, g_pass == INTERPRET);
               break;
 
             case T_POW:
-              Value_pow(value, &x, pass == INTERPRET);
+              Value_pow(value, &x, g_pass == INTERPRET);
               break;
 
             case T_AND:
-              Value_and(value, &x, pass == INTERPRET);
+              Value_and(value, &x, g_pass == INTERPRET);
               break;
 
             case T_OR:
-              Value_or(value, &x, pass == INTERPRET);
+              Value_or(value, &x, g_pass == INTERPRET);
               break;
 
             case T_XOR:
-              Value_xor(value, &x, pass == INTERPRET);
+              Value_xor(value, &x, g_pass == INTERPRET);
               break;
 
             case T_EQV:
-              Value_eqv(value, &x, pass == INTERPRET);
+              Value_eqv(value, &x, g_pass == INTERPRET);
               break;
 
             case T_IMP:
-              Value_imp(value, &x, pass == INTERPRET);
+              Value_imp(value, &x, g_pass == INTERPRET);
               break;
 
             default:
@@ -1284,7 +1285,7 @@ static inline struct Value *binarydown(struct Value *value,
 
   if (value->type == V_ERROR)
     {
-      pc = oppc;
+      g_pc = oppc;
     }
 
   return value;
@@ -1298,14 +1299,14 @@ static inline struct Value *unarydown(struct Value *value,
   enum TokenType op;
   struct Pc oppc;
 
-  op = pc.token->type;
+  op = g_pc.token->type;
   if (!TOKEN_ISUNARYOPERATOR(op) || TOKEN_UNARYPRIORITY(op) != prio)
     {
       return level(value);
     }
 
-  oppc = pc;
-  ++pc.token;
+  oppc = g_pc;
+  ++g_pc.token;
   if (unarydown(value, level, prio) == (struct Value *)0)
     {
       return Value_new_ERROR(value, MISSINGEXPR, _("unary operand"));
@@ -1319,15 +1320,15 @@ static inline struct Value *unarydown(struct Value *value,
   switch (op)
     {
     case T_PLUS:
-      Value_uplus(value, pass == INTERPRET);
+      Value_uplus(value, g_pass == INTERPRET);
       break;
 
     case T_MINUS:
-      Value_uneg(value, pass == INTERPRET);
+      Value_uneg(value, g_pass == INTERPRET);
       break;
 
     case T_NOT:
-      Value_unot(value, pass == INTERPRET);
+      Value_unot(value, g_pass == INTERPRET);
       break;
 
     default:
@@ -1336,7 +1337,7 @@ static inline struct Value *unarydown(struct Value *value,
 
   if (value->type == V_ERROR)
     {
-      pc = oppc;
+      g_pc = oppc;
     }
 
   return value;
@@ -1344,28 +1345,28 @@ static inline struct Value *unarydown(struct Value *value,
 
 static struct Value *eval8(struct Value *value)
 {
-  switch (pc.token->type)
+  switch (g_pc.token->type)
     {
     case T_IDENTIFIER:
       {
         struct Pc var;
         struct Value *l;
 
-        var = pc;
-        if (pass == COMPILE)
+        var = g_pc;
+        if (g_pass == COMPILE)
           {
-            if (((pc.token + 1)->type == T_OP ||
-                 Auto_find(&stack, pc.token->u.identifier) == 0) &&
-                Global_find(&globals, pc.token->u.identifier,
-                            (pc.token + 1)->type == T_OP) == 0)
+            if (((g_pc.token + 1)->type == T_OP ||
+                 Auto_find(&g_stack, g_pc.token->u.identifier) == 0) &&
+                Global_find(&g_globals, g_pc.token->u.identifier,
+                            (g_pc.token + 1)->type == T_OP) == 0)
               return Value_new_ERROR(value, UNDECLARED);
           }
 
-        assert(pass == DECLARE || pc.token->u.identifier->sym);
-        if (pass != DECLARE &&
-            (pc.token->u.identifier->sym->type == GLOBALVAR ||
-             pc.token->u.identifier->sym->type == GLOBALARRAY ||
-             pc.token->u.identifier->sym->type == LOCALVAR))
+        assert(g_pass == DECLARE || g_pc.token->u.identifier->sym);
+        if (g_pass != DECLARE &&
+            (g_pc.token->u.identifier->sym->type == GLOBALVAR ||
+             g_pc.token->u.identifier->sym->type == GLOBALARRAY ||
+             g_pc.token->u.identifier->sym->type == LOCALVAR))
           {
             if ((l = lvalue(value))->type == V_ERROR)
               {
@@ -1380,7 +1381,7 @@ static struct Value *eval8(struct Value *value)
             if (value->type == V_VOID)
               {
                 Value_destroy(value);
-                pc = var;
+                g_pc = var;
                 return Value_new_ERROR(value, VOIDVALUE);
               }
           }
@@ -1390,15 +1391,15 @@ static struct Value *eval8(struct Value *value)
 
     case T_INTEGER:
       {
-        VALUE_NEW_INTEGER(value, pc.token->u.integer);
-        ++pc.token;
+        VALUE_NEW_INTEGER(value, g_pc.token->u.integer);
+        ++g_pc.token;
         break;
       }
 
     case T_REAL:
       {
-        VALUE_NEW_REAL(value, pc.token->u.real);
-        ++pc.token;
+        VALUE_NEW_REAL(value, g_pc.token->u.real);
+        ++g_pc.token;
         break;
       }
 
@@ -1406,40 +1407,40 @@ static struct Value *eval8(struct Value *value)
       {
         Value_new_STRING(value);
         String_destroy(&value->u.string);
-        String_clone(&value->u.string, pc.token->u.string);
-        ++pc.token;
+        String_clone(&value->u.string, g_pc.token->u.string);
+        ++g_pc.token;
         break;
       }
 
     case T_HEXINTEGER:
       {
-        VALUE_NEW_INTEGER(value, pc.token->u.hexinteger);
-        ++pc.token;
+        VALUE_NEW_INTEGER(value, g_pc.token->u.hexinteger);
+        ++g_pc.token;
         break;
       }
 
     case T_OCTINTEGER:
       {
-        VALUE_NEW_INTEGER(value, pc.token->u.octinteger);
-        ++pc.token;
+        VALUE_NEW_INTEGER(value, g_pc.token->u.octinteger);
+        ++g_pc.token;
         break;
       }
 
     case T_OP:
       {
-        ++pc.token;
+        ++g_pc.token;
         if (eval(value, _("parenthetic"))->type == V_ERROR)
           {
             return value;
           }
 
-        if (pc.token->type != T_CP)
+        if (g_pc.token->type != T_CP)
           {
             Value_destroy(value);
             return Value_new_ERROR(value, MISSINGCP);
           }
 
-        ++pc.token;
+        ++g_pc.token;
         break;
       }
 
@@ -1491,7 +1492,7 @@ static struct Value *eval(struct Value *value, const char *desc)
 {
   /* Avoid function calls for atomic expression */
 
-  switch (pc.token->type)
+  switch (g_pc.token->type)
     {
     case T_STRING:
     case T_REAL:
@@ -1499,8 +1500,8 @@ static struct Value *eval(struct Value *value, const char *desc)
     case T_HEXINTEGER:
     case T_OCTINTEGER:
     case T_IDENTIFIER:
-      if (!TOKEN_ISBINARYOPERATOR((pc.token + 1)->type) &&
-          (pc.token + 1)->type != T_OP)
+      if (!TOKEN_ISBINARYOPERATOR((g_pc.token + 1)->type) &&
+          (g_pc.token + 1)->type != T_OP)
         {
           return eval7(value);
         }
@@ -1529,55 +1530,55 @@ static struct Value *eval(struct Value *value, const char *desc)
 
 static void new(void)
 {
-  Global_destroy(&globals);
-  Global_new(&globals);
-  Auto_destroy(&stack);
-  Auto_new(&stack);
-  Program_destroy(&program);
-  Program_new(&program);
+  Global_destroy(&g_globals);
+  Global_new(&g_globals);
+  Auto_destroy(&g_stack);
+  Auto_new(&g_stack);
+  Program_destroy(&g_program);
+  Program_new(&g_program);
   FS_closefiles();
   optionbase = 0;
 }
 
-static void pushLabel(enum LabelType type, struct Pc *patch)
+static void pushLabel(enum labeltype_e type, struct Pc *patch)
 {
-  if (labelStackPointer == labelStackCapacity)
+  if (g_labelstack_index == g_labelstack_capacity)
     {
-      struct LabelStack *more;
+      struct labelstack_s *more;
 
       more =
-        realloc(labelStack,
-                sizeof(struct LabelStack) *
-                (labelStackCapacity ? (labelStackCapacity *= 2) : (32)));
-      labelStack = more;
+        realloc(g_labelstack,
+                sizeof(struct labelstack_s) *
+                (g_labelstack_capacity ? (g_labelstack_capacity *= 2) : (32)));
+      g_labelstack = more;
     }
 
-  labelStack[labelStackPointer].type = type;
-  labelStack[labelStackPointer].patch = *patch;
-  ++labelStackPointer;
+  g_labelstack[g_labelstack_index].type = type;
+  g_labelstack[g_labelstack_index].patch = *patch;
+  ++g_labelstack_index;
 }
 
-static struct Pc *popLabel(enum LabelType type)
+static struct Pc *popLabel(enum labeltype_e type)
 {
-  if (labelStackPointer == 0 || labelStack[labelStackPointer - 1].type != type)
+  if (g_labelstack_index == 0 || g_labelstack[g_labelstack_index - 1].type != type)
     {
       return (struct Pc *)0;
     }
   else
     {
-      return &labelStack[--labelStackPointer].patch;
+      return &g_labelstack[--g_labelstack_index].patch;
     }
 }
 
-static struct Pc *findLabel(enum LabelType type)
+static struct Pc *findLabel(enum labeltype_e type)
 {
   int i;
 
-  for (i = labelStackPointer - 1; i >= 0; --i)
+  for (i = g_labelstack_index - 1; i >= 0; --i)
     {
-      if (labelStack[i].type == type)
+      if (g_labelstack[i].type == type)
         {
-          return &labelStack[i].patch;
+          return &g_labelstack[i].patch;
         }
     }
 
@@ -1586,9 +1587,9 @@ static struct Pc *findLabel(enum LabelType type)
 
 static void labelStackError(struct Value *v)
 {
-  assert(labelStackPointer);
-  pc = labelStack[labelStackPointer - 1].patch;
-  switch (labelStack[labelStackPointer - 1].type)
+  assert(g_labelstack_index);
+  g_pc = g_labelstack[g_labelstack_index - 1].patch;
+  switch (g_labelstack[g_labelstack_index - 1].type)
     {
     case L_IF:
       Value_new_ERROR(v, STRAYIF);
@@ -1609,7 +1610,7 @@ static void labelStackError(struct Value *v)
     case L_FOR_BODY:
       {
         Value_new_ERROR(v, STRAYFOR);
-        pc = *findLabel(L_FOR);
+        g_pc = *findLabel(L_FOR);
         break;
       }
 
@@ -1636,12 +1637,12 @@ static void labelStackError(struct Value *v)
 
 static const char *topLabelDescription(void)
 {
-  if (labelStackPointer == 0)
+  if (g_labelstack_index == 0)
     {
       return _("program");
     }
 
-  switch (labelStack[labelStackPointer - 1].type)
+  switch (g_labelstack[g_labelstack_index - 1].type)
     {
     case L_IF:
       return _("`if' branch");
@@ -1683,30 +1684,30 @@ static struct Value *assign(struct Value *value)
 {
   struct Pc expr;
 
-  if (strcasecmp(pc.token->u.identifier->name, "mid$") == 0)
+  if (strcasecmp(g_pc.token->u.identifier->name, "mid$") == 0)
     {
       long int n, m;
       struct Value *l;
 
-      ++pc.token;
-      if (pc.token->type != T_OP)
+      ++g_pc.token;
+      if (g_pc.token->type != T_OP)
         {
           return Value_new_ERROR(value, MISSINGOP);
         }
 
-      ++pc.token;
-      if (pc.token->type != T_IDENTIFIER)
+      ++g_pc.token;
+      if (g_pc.token->type != T_IDENTIFIER)
         {
           return Value_new_ERROR(value, MISSINGSTRIDENT);
         }
 
-      if (pass == DECLARE)
+      if (g_pass == DECLARE)
         {
-          if (((pc.token + 1)->type == T_OP ||
-               Auto_find(&stack, pc.token->u.identifier) == 0) &&
-              Global_variable(&globals, pc.token->u.identifier,
-                              pc.token->u.identifier->defaultType,
-                              (pc.token + 1)->type ==
+          if (((g_pc.token + 1)->type == T_OP ||
+               Auto_find(&g_stack, g_pc.token->u.identifier) == 0) &&
+              Global_variable(&g_globals, g_pc.token->u.identifier,
+                              g_pc.token->u.identifier->defaultType,
+                              (g_pc.token + 1)->type ==
                               T_OP ? GLOBALARRAY : GLOBALVAR, 0) == 0)
             {
               return Value_new_ERROR(value, REDECLARATION);
@@ -1718,17 +1719,17 @@ static struct Value *assign(struct Value *value)
           return value;
         }
 
-      if (pass == COMPILE && l->type != V_STRING)
+      if (g_pass == COMPILE && l->type != V_STRING)
         {
           return Value_new_ERROR(value, TYPEMISMATCH4);
         }
 
-      if (pc.token->type != T_COMMA)
+      if (g_pc.token->type != T_COMMA)
         {
           return Value_new_ERROR(value, MISSINGCOMMA);
         }
 
-      ++pc.token;
+      ++g_pc.token;
       if (eval(value, _("position"))->type == V_ERROR ||
           Value_retype(value, V_INTEGER)->type == V_ERROR)
         {
@@ -1737,14 +1738,14 @@ static struct Value *assign(struct Value *value)
 
       n = value->u.integer;
       Value_destroy(value);
-      if (pass == INTERPRET && n < 1)
+      if (g_pass == INTERPRET && n < 1)
         {
           return Value_new_ERROR(value, OUTOFRANGE, "position");
         }
 
-      if (pc.token->type == T_COMMA)
+      if (g_pc.token->type == T_COMMA)
         {
-          ++pc.token;
+          ++g_pc.token;
           if (eval(value, _("length"))->type == V_ERROR ||
               Value_retype(value, V_INTEGER)->type == V_ERROR)
             {
@@ -1752,7 +1753,7 @@ static struct Value *assign(struct Value *value)
             }
 
           m = value->u.integer;
-          if (pass == INTERPRET && m < 0)
+          if (g_pass == INTERPRET && m < 0)
             {
               return Value_new_ERROR(value, OUTOFRANGE, _("length"));
             }
@@ -1764,25 +1765,25 @@ static struct Value *assign(struct Value *value)
           m = -1;
         }
 
-      if (pc.token->type != T_CP)
+      if (g_pc.token->type != T_CP)
         {
           return Value_new_ERROR(value, MISSINGCP);
         }
 
-      ++pc.token;
-      if (pc.token->type != T_EQ)
+      ++g_pc.token;
+      if (g_pc.token->type != T_EQ)
         {
           return Value_new_ERROR(value, MISSINGEQ);
         }
 
-      ++pc.token;
+      ++g_pc.token;
       if (eval(value, _("rhs"))->type == V_ERROR ||
           Value_retype(value, V_STRING)->type == V_ERROR)
         {
           return value;
         }
 
-      if (pass == INTERPRET)
+      if (g_pass == INTERPRET)
         {
           if (m == -1)
             {
@@ -1809,13 +1810,13 @@ static struct Value *assign(struct Value *value)
               l = more;
             }
 
-          if (pass == DECLARE)
+          if (g_pass == DECLARE)
             {
-              if (((pc.token + 1)->type == T_OP ||
-                   Auto_find(&stack, pc.token->u.identifier) == 0) &&
-                  Global_variable(&globals, pc.token->u.identifier,
-                                  pc.token->u.identifier->defaultType,
-                                  (pc.token + 1)->type ==
+              if (((g_pc.token + 1)->type == T_OP ||
+                   Auto_find(&g_stack, g_pc.token->u.identifier) == 0) &&
+                  Global_variable(&g_globals, g_pc.token->u.identifier,
+                                  g_pc.token->u.identifier->defaultType,
+                                  (g_pc.token + 1)->type ==
                                   T_OP ? GLOBALARRAY : GLOBALVAR, 0) == 0)
                 {
                   if (capacity)
@@ -1833,9 +1834,9 @@ static struct Value *assign(struct Value *value)
             }
 
           ++used;
-          if (pc.token->type == T_COMMA)
+          if (g_pc.token->type == T_COMMA)
             {
-              ++pc.token;
+              ++g_pc.token;
             }
           else
             {
@@ -1843,13 +1844,13 @@ static struct Value *assign(struct Value *value)
             }
         }
 
-      if (pc.token->type != T_EQ)
+      if (g_pc.token->type != T_EQ)
         {
           return Value_new_ERROR(value, MISSINGEQ);
         }
 
-      ++pc.token;
-      expr = pc;
+      ++g_pc.token;
+      expr = g_pc;
       if (eval(value, _("rhs"))->type == V_ERROR)
         {
           return value;
@@ -1858,17 +1859,17 @@ static struct Value *assign(struct Value *value)
       for (i = 0; i < used; ++i)
         {
           Value_clone(&retyped_value, value);
-          if (pass != DECLARE &&
+          if (g_pass != DECLARE &&
               VALUE_RETYPE(&retyped_value, (l[i])->type)->type == V_ERROR)
             {
-              pc = expr;
+              g_pc = expr;
               free(l);
               Value_destroy(value);
               *value = retyped_value;
               return value;
             }
 
-          if (pass == INTERPRET)
+          if (g_pass == INTERPRET)
             {
               Value_destroy(l[i]);
               *(l[i]) = retyped_value;
@@ -1887,37 +1888,37 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
 {
   struct Pc begin;
 
-  stack.resumeable = 0;
+  g_stack.resumeable = 0;
   if (clearGlobals)
     {
-      Global_destroy(&globals);
-      Global_new(&globals);
+      Global_destroy(&g_globals);
+      Global_new(&g_globals);
     }
   else
     {
-      Global_clearFunctions(&globals);
+      Global_clearFunctions(&g_globals);
     }
 
-  if (Program_beginning(&program, &begin))
+  if (Program_beginning(&g_program, &begin))
     {
       struct Pc savepc;
       int savepass;
 
-      savepc = pc;
-      savepass = pass;
-      Program_norun(&program);
-      for (pass = DECLARE; pass != INTERPRET; ++pass)
+      savepc = g_pc;
+      savepass = g_pass;
+      Program_norun(&g_program);
+      for (g_pass = DECLARE; g_pass != INTERPRET; ++g_pass)
         {
-          if (pass == DECLARE)
+          if (g_pass == DECLARE)
             {
-              stack.begindata.line = -1;
-              lastdata = &stack.begindata;
+              g_stack.begindata.line = -1;
+              g_lastdata = &g_stack.begindata;
             }
 
           optionbase = 0;
-          stopped = 0;
-          program.runnable = 1;
-          pc = begin;
+          g_stopped = 0;
+          g_program.runnable = 1;
+          g_pc = begin;
           while (1)
             {
               statements(v);
@@ -1927,14 +1928,14 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
                 }
 
               Value_destroy(v);
-              if (!Program_skipEOL(&program, &pc, 0, 0))
+              if (!Program_skipEOL(&g_program, &g_pc, 0, 0))
                 {
                   Value_new_NIL(v);
                   break;
                 }
             }
 
-          if (v->type != V_ERROR && labelStackPointer > 0)
+          if (v->type != V_ERROR && g_labelstack_index > 0)
             {
               Value_destroy(v);
               labelStackError(v);
@@ -1942,35 +1943,35 @@ static struct Value *compileProgram(struct Value *v, int clearGlobals)
 
           if (v->type == V_ERROR)
             {
-              labelStackPointer = 0;
-              Program_norun(&program);
-              if (stack.cur)
+              g_labelstack_index = 0;
+              Program_norun(&g_program);
+              if (g_stack.cur)
                 {
-                  Auto_funcEnd(&stack); /* Always correct? */
+                  Auto_funcEnd(&g_stack); /* Always correct? */
                 }
 
-              pass = savepass;
+              g_pass = savepass;
               return v;
             }
         }
 
-      pc = begin;
-      if (Program_analyse(&program, &pc, v))
+      g_pc = begin;
+      if (Program_analyse(&g_program, &g_pc, v))
         {
-          labelStackPointer = 0;
-          Program_norun(&program);
-          if (stack.cur)
+          g_labelstack_index = 0;
+          Program_norun(&g_program);
+          if (g_stack.cur)
             {
-              Auto_funcEnd(&stack);     /* Always correct? */
+              Auto_funcEnd(&g_stack);     /* Always correct? */
             }
 
-          pass = savepass;
+          g_pass = savepass;
           return v;
         }
 
-      curdata = stack.begindata;
-      pc = savepc;
-      pass = savepass;
+      g_curdata = g_stack.begindata;
+      g_pc = savepc;
+      g_pass = savepass;
     }
 
   return Value_new_NIL(v);
@@ -1981,21 +1982,21 @@ static void runline(struct Token *line)
   struct Value value;
 
   FS_flush(STDCHANNEL);
-  for (pass = DECLARE; pass != INTERPRET; ++pass)
+  for (g_pass = DECLARE; g_pass != INTERPRET; ++g_pass)
     {
-      curdata.line = -1;
-      pc.line = -1;
-      pc.token = line;
+      g_curdata.line = -1;
+      g_pc.line = -1;
+      g_pc.token = line;
       optionbase = 0;
-      stopped = 0;
+      g_stopped = 0;
       statements(&value);
-      if (value.type != V_ERROR && pc.token->type != T_EOL)
+      if (value.type != V_ERROR && g_pc.token->type != T_EOL)
         {
           Value_destroy(&value);
           Value_new_ERROR(&value, SYNTAX);
         }
 
-      if (value.type != V_ERROR && labelStackPointer > 0)
+      if (value.type != V_ERROR && g_labelstack_index > 0)
         {
           Value_destroy(&value);
           labelStackError(&value);
@@ -2005,9 +2006,9 @@ static void runline(struct Token *line)
         {
           struct String s;
 
-          Auto_setError(&stack, Program_lineNumber(&program, &pc), &pc, &value);
-          Program_PCtoError(&program, &pc, &value);
-          labelStackPointer = 0;
+          Auto_setError(&g_stack, Program_lineNumber(&g_program, &g_pc), &g_pc, &value);
+          Program_PCtoError(&g_program, &g_pc, &value);
+          g_labelstack_index = 0;
           FS_putChars(STDCHANNEL, _("Error: "));
           String_new(&s);
           Value_toString(&value, &s, ' ', -1, 0, 0, 0, 0, -1, 0, 0);
@@ -2017,54 +2018,54 @@ static void runline(struct Token *line)
           return;
         }
 
-      if (!program.runnable && pass == COMPILE)
+      if (!g_program.runnable && g_pass == COMPILE)
         {
           Value_destroy(&value);
           (void)compileProgram(&value, 0);
         }
     }
 
-  pc.line = -1;
-  pc.token = line;
+  g_pc.line = -1;
+  g_pc.token = line;
   optionbase = 0;
-  curdata = stack.begindata;
-  nextdata.line = -1;
+  g_curdata = g_stack.begindata;
+  g_nextdata.line = -1;
   Value_destroy(&value);
-  pass = INTERPRET;
+  g_pass = INTERPRET;
 
   do
     {
-      assert(pass == INTERPRET);
+      assert(g_pass == INTERPRET);
       statements(&value);
-      assert(pass == INTERPRET);
+      assert(g_pass == INTERPRET);
       if (value.type == V_ERROR)
         {
           if (strchr(value.u.error.msg, '\n') == (char *)0)
             {
-              Auto_setError(&stack, Program_lineNumber(&program, &pc), &pc,
+              Auto_setError(&g_stack, Program_lineNumber(&g_program, &g_pc), &g_pc,
                             &value);
-              Program_PCtoError(&program, &pc, &value);
+              Program_PCtoError(&g_program, &g_pc, &value);
             }
 
-          if (stack.onerror.line != -1)
+          if (g_stack.onerror.line != -1)
             {
-              stack.resumeable = 1;
-              pc = stack.onerror;
+              g_stack.resumeable = 1;
+              g_pc = g_stack.onerror;
             }
           else
             {
               struct String s;
 
               String_new(&s);
-              if (!stopped)
+              if (!g_stopped)
                 {
-                  stopped = 0;
+                  g_stopped = 0;
                   FS_putChars(STDCHANNEL, _("Error: "));
                 }
 
-              Auto_frameToError(&stack, &program, &value);
+              Auto_frameToError(&g_stack, &g_program, &value);
               Value_toString(&value, &s, ' ', -1, 0, 0, 0, 0, -1, 0, 0);
-              while (Auto_gosubReturn(&stack, (struct Pc *)0));
+              while (Auto_gosubReturn(&g_stack, (struct Pc *)0));
               FS_putString(STDCHANNEL, &s);
               String_destroy(&s);
               Value_destroy(&value);
@@ -2074,44 +2075,44 @@ static void runline(struct Token *line)
 
       Value_destroy(&value);
     }
-  while (pc.token->type != T_EOL ||
-         Program_skipEOL(&program, &pc, STDCHANNEL, 1));
+  while (g_pc.token->type != T_EOL ||
+         Program_skipEOL(&g_program, &g_pc, STDCHANNEL, 1));
 }
 
 static struct Value *evalGeometry(struct Value *value, unsigned int *dim,
                                   unsigned int geometry[])
 {
-  struct Pc exprpc = pc;
+  struct Pc exprpc = g_pc;
 
   if (eval(value, _("dimension"))->type == V_ERROR ||
-      (pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
+      (g_pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
     {
       return value;
     }
 
-  if (pass == INTERPRET && value->u.integer < optionbase)
+  if (g_pass == INTERPRET && value->u.integer < optionbase)
     {
       Value_destroy(value);
-      pc = exprpc;
+      g_pc = exprpc;
       return Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
     }
 
   geometry[0] = value->u.integer - optionbase + 1;
   Value_destroy(value);
-  if (pc.token->type == T_COMMA)
+  if (g_pc.token->type == T_COMMA)
     {
-      ++pc.token;
-      exprpc = pc;
+      ++g_pc.token;
+      exprpc = g_pc;
       if (eval(value, _("dimension"))->type == V_ERROR ||
-          (pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
+          (g_pass != DECLARE && Value_retype(value, V_INTEGER)->type == V_ERROR))
         {
           return value;
         }
 
-      if (pass == INTERPRET && value->u.integer < optionbase)
+      if (g_pass == INTERPRET && value->u.integer < optionbase)
         {
           Value_destroy(value);
-          pc = exprpc;
+          g_pc = exprpc;
           return Value_new_ERROR(value, OUTOFRANGE, _("dimension"));
         }
 
@@ -2124,9 +2125,9 @@ static struct Value *evalGeometry(struct Value *value, unsigned int *dim,
       *dim = 1;
     }
 
-  if (pc.token->type == T_CP)
+  if (g_pc.token->type == T_CP)
     {
-      ++pc.token;
+      ++g_pc.token;
     }
   else
     {
@@ -2223,30 +2224,30 @@ static struct Value *convert(struct Value *value, struct Value *l,
 
 static struct Value *dataread(struct Value *value, struct Value *l)
 {
-  if (curdata.line == -1)
+  if (g_curdata.line == -1)
     {
       return Value_new_ERROR(value, ENDOFDATA);
     }
 
-  if (curdata.token->type == T_DATA)
+  if (g_curdata.token->type == T_DATA)
     {
-      nextdata = curdata.token->u.nextdata;
-      ++curdata.token;
+      g_nextdata = g_curdata.token->u.nextdata;
+      ++g_curdata.token;
     }
 
-  if (convert(value, l, curdata.token))
+  if (convert(value, l, g_curdata.token))
     {
       return value;
     }
 
-  ++curdata.token;
-  if (curdata.token->type == T_COMMA)
+  ++g_curdata.token;
+  if (g_curdata.token->type == T_COMMA)
     {
-      ++curdata.token;
+      ++g_curdata.token;
     }
   else
     {
-      curdata = nextdata;
+      g_curdata = g_nextdata;
     }
 
   return (struct Value *)0;
@@ -2257,11 +2258,11 @@ static struct Value more_statements;
 static struct Value *statements(struct Value *value)
 {
 more:
-  if (pc.token->statement)
+  if (g_pc.token->statement)
     {
       struct Value *v;
 
-      if ((v = pc.token->statement(value)))
+      if ((v = g_pc.token->statement(value)))
         {
           if (v == &more_statements)
             {
@@ -2278,18 +2279,18 @@ more:
       return Value_new_ERROR(value, MISSINGSTATEMENT);
     }
 
-  if (pc.token->type == T_COLON && (pc.token + 1)->type == T_ELSE)
+  if (g_pc.token->type == T_COLON && (g_pc.token + 1)->type == T_ELSE)
     {
-      ++pc.token;
+      ++g_pc.token;
     }
-  else if ((pc.token->type == T_COLON && (pc.token + 1)->type != T_ELSE) ||
-           pc.token->type == T_QUOTE)
+  else if ((g_pc.token->type == T_COLON && (g_pc.token + 1)->type != T_ELSE) ||
+           g_pc.token->type == T_QUOTE)
     {
-      ++pc.token;
+      ++g_pc.token;
       goto more;
     }
-  else if ((pass == DECLARE || pass == COMPILE) && pc.token->type != T_EOL &&
-           pc.token->type != T_ELSE)
+  else if ((g_pass == DECLARE || g_pass == COMPILE) && g_pc.token->type != T_EOL &&
+           g_pc.token->type != T_ELSE)
     {
       return Value_new_ERROR(value, MISSINGCOLON);
     }
@@ -2303,14 +2304,14 @@ more:
 
 void bas_init(int backslash_colon, int restricted, int uppercase, int lpfd)
 {
-  stack.begindata.line = -1;
+  g_stack.begindata.line = -1;
   Token_init(backslash_colon, uppercase);
-  Global_new(&globals);
-  Auto_new(&stack);
-  Program_new(&program);
+  Global_new(&g_globals);
+  Auto_new(&g_stack);
+  Program_new(&g_program);
   FS_opendev(STDCHANNEL, 0, 1);
   FS_opendev(LPCHANNEL, -1, lpfd);
-  run_restricted = restricted;
+  g_run_restricted = restricted;
 }
 
 void bas_runFile(const char *runFile)
@@ -2329,7 +2330,7 @@ void bas_runFile(const char *runFile)
       FS_putChars(0, errmsg);
       FS_putChars(0, _(").\n"));
     }
-  else if (Program_merge(&program, dev, &value))
+  else if (Program_merge(&g_program, dev, &value))
     {
       struct String s;
 
@@ -2345,7 +2346,7 @@ void bas_runFile(const char *runFile)
     {
       struct Token line[2];
 
-      Program_setname(&program, runFile);
+      Program_setname(&g_program, runFile);
       line[0].type = T_RUN;
       line[0].statement = stmt_RUN;
       line[1].type = T_EOL;
@@ -2381,7 +2382,7 @@ void bas_interpreter(void)
       struct Token *line;
       struct String s;
 
-      stopped = 0;
+      g_stopped = 0;
       FS_nextline(STDCHANNEL);
       if (FS_istty(STDCHANNEL))
         {
@@ -2410,27 +2411,27 @@ void bas_interpreter(void)
         {
           if (line->type == T_INTEGER && line->u.integer > 0)
             {
-              if (program.numbered)
+              if (g_program.numbered)
                 {
                   if ((line + 1)->type == T_EOL)
                     {
                       struct Pc where;
 
-                      if (Program_goLine(&program, line->u.integer, &where) ==
+                      if (Program_goLine(&g_program, line->u.integer, &where) ==
                           (struct Pc *)0)
                         {
                           FS_putChars(STDCHANNEL, (NOSUCHLINE));
                         }
                       else
                         {
-                          Program_delete(&program, &where, &where);
+                          Program_delete(&g_program, &where, &where);
                         }
 
                       Token_destroy(line);
                     }
                   else
                     {
-                      Program_store(&program, line, line->u.integer);
+                      Program_store(&g_program, line, line->u.integer);
                     }
                 }
               else
@@ -2465,12 +2466,13 @@ void bas_interpreter(void)
 
 void bas_exit(void)
 {
-  Auto_destroy(&stack);
-  Global_destroy(&globals);
-  Program_destroy(&program);
-  if (labelStack)
+  Auto_destroy(&g_stack);
+  Global_destroy(&g_globals);
+  Program_destroy(&g_program);
+  if (g_labelstack)
     {
-      free(labelStack);
+      free(g_labelstack);
+      g_labelstack = (struct labelstack_s *)0;
     }
 
   FS_closefiles();

@@ -97,10 +97,14 @@
 static struct FileStream **g_file;
 static int g_capacity;
 static int g_used;
-static const int open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
+static const int g_open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
+static char g_errmsgbuf[80];
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
 const char *FS_errmsg;
-static char FS_errmsgbuf[80];
 
 /****************************************************************************
  * Private Functions
@@ -139,9 +143,9 @@ static int opened(int dev, int mode)
 
   if (dev < 0 || dev >= g_capacity || g_file[dev] == (struct FileStream *)0)
     {
-      snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf), _("channel #%d not open"),
+      snprintf(g_errmsgbuf, sizeof(g_errmsgbuf), _("channel #%d not open"),
                dev);
-      FS_errmsg = FS_errmsgbuf;
+      FS_errmsg = g_errmsgbuf;
       return -1;
     }
 
@@ -157,7 +161,7 @@ static int opened(int dev, int mode)
         fd = g_file[dev]->outfd;
         if (fd == -1)
           {
-            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+            snprintf(g_errmsgbuf, sizeof(g_errmsgbuf),
                      _("channel #%d not opened for writing"), dev);
           }
         break;
@@ -168,7 +172,7 @@ static int opened(int dev, int mode)
         fd = g_file[dev]->infd;
         if (fd == -1)
           {
-            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+            snprintf(g_errmsgbuf, sizeof(g_errmsgbuf),
                      _("channel #%d not opened for reading"), dev);
           }
         break;
@@ -179,7 +183,7 @@ static int opened(int dev, int mode)
         fd = g_file[dev]->randomfd;
         if (fd == -1)
           {
-            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+            snprintf(g_errmsgbuf, sizeof(g_errmsgbuf),
                      _("channel #%d not opened for random access"), dev);
           }
         break;
@@ -190,7 +194,7 @@ static int opened(int dev, int mode)
         fd = g_file[dev]->binaryfd;
         if (fd == -1)
           {
-            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+            snprintf(g_errmsgbuf, sizeof(g_errmsgbuf),
                      _("channel #%d not opened for binary access"), dev);
           }
         break;
@@ -201,7 +205,7 @@ static int opened(int dev, int mode)
         fd = (g_file[dev]->randomfd != -1 ? g_file[dev]->randomfd : g_file[dev]->binaryfd);
         if (fd == -1)
           {
-            snprintf(FS_errmsgbuf, sizeof(FS_errmsgbuf),
+            snprintf(g_errmsgbuf, sizeof(g_errmsgbuf),
                      _("channel #%d not opened for random or binary access"),
                      dev);
           }
@@ -214,7 +218,7 @@ static int opened(int dev, int mode)
 
   if (fd == -1)
     {
-      FS_errmsg = FS_errmsgbuf;
+      FS_errmsg = g_errmsgbuf;
       return -1;
     }
   else
@@ -509,7 +513,7 @@ int FS_openinChn(int chn, const char *name, int mode)
       return -1;
     }
 
-  fl = open_mode[mode];
+  fl = g_open_mode[mode];
 
   /* Serial devices on Linux should be opened non-blocking, otherwise the
    * open() may block already.  Named pipes can not be opened non-blocking in
@@ -602,7 +606,7 @@ int FS_openoutChn(int chn, const char *name, int mode, int append)
       return -1;
     }
 
-  fl = open_mode[mode] | (append ? O_APPEND : 0);
+  fl = g_open_mode[mode] | (append ? O_APPEND : 0);
 
   /* Serial devices on Linux should be opened non-blocking, otherwise the */
   /* open() may block already.  Named pipes can not be opened non-blocking */
@@ -661,7 +665,7 @@ int FS_openrandomChn(int chn, const char *name, int mode, int recLength)
       return -1;
     }
 
-  if ((fd = open(name, open_mode[mode] | O_CREAT, 0666)) == -1)
+  if ((fd = open(name, g_open_mode[mode] | O_CREAT, 0666)) == -1)
     {
       FS_errmsg = strerror(errno);
       return -1;
@@ -700,7 +704,7 @@ int FS_openbinaryChn(int chn, const char *name, int mode)
       return -1;
     }
 
-  if ((fd = open(name, open_mode[mode] | O_CREAT, 0666)) == -1)
+  if ((fd = open(name, g_open_mode[mode] | O_CREAT, 0666)) == -1)
     {
       FS_errmsg = strerror(errno);
       return -1;
