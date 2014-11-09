@@ -78,6 +78,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <nuttx/ascii.h>
+
 #include "vt100.h"
 #include "fs.h"
 
@@ -282,7 +284,16 @@ static int edit(int chn, int onl)
           return -1;
         }
 
-      if (ch == '\b')
+      /* Check for backspace
+       *
+       * There are several notions of backspace, for an elaborate summary see
+       * http://www.ibb.net/~anne/keyboard.html. There is no clean solution.
+       * Here both DEL and backspace are treated like backspace here.  The
+       * Unix/Linux screen terminal by default outputs  DEL (0x7f) when the
+       * backspace key is pressed.
+       */
+
+      if (ch == ASCII_BS || ch == ASCII_DEL)
         {
           if (f->inCapacity)
             {
