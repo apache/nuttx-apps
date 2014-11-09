@@ -192,6 +192,12 @@ int bas_main(int argc, char *argv[])
       bas_interpreter();
     }
 
+  /* Terminate the output stream with a newline BEFORE closing devices */
+
+  FS_putChar(STDCHANNEL, '\n');
+
+  /* Release resouces and close files and devices */
+
   bas_exit();
-  return (0);
+  return 0;
 }
