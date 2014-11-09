@@ -69,11 +69,17 @@ Test File
 
 Expected Result
 ---------------
- 1 
+ 1
 hello
- 0.0002 
- 2e-06 
- 2e-07 
+ 0.0002
+ 0.000
+ 0.0000020
+ 0.0000002
+
+Notes
+-----
+  Output would differ on other platforms NttX does not use scientific
+  notation in floating point output.
 
 test02.bas
 ==========
@@ -91,9 +97,9 @@ Test File
 
 Expected Result
 ---------------
- 10 
- 11 
- 12 
+ 10
+ 11
+ 12
 
 test03.bas
 ==========
@@ -120,15 +126,15 @@ Test File
 
 Expected Result
 ---------------
- 0 
- 1 
- 2 
- 3 
- 4 
- 5 
- 0 
- 1 
- 0 
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5
+ 0
+ 1
+ 0
 
 a
 aa
@@ -148,22 +154,22 @@ REPEAT UNTIL loop
 Test File
 ---------
 10 a=1
-20 repeat 
+20 repeat
 30   print a
 40   a=a+1
 50 until a=10
 
 Expected Result
 ---------------
- 1 
- 2 
- 3 
- 4 
- 5 
- 6 
- 7 
- 8 
- 9 
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
 
 test05.bas
 ==========
@@ -206,17 +212,17 @@ Test File
 
 Expected Result
 ---------------
- 10 
- 9 
- 8 
- 7 
- 6 
- 5 
- 4 
- 3 
- 2 
- 1 
- 0 
+ 10
+ 9
+ 8
+ 7
+ 6
+ 5
+ 4
+ 3
+ 2
+ 1
+ 0
 
 test07.bas
 ==========
@@ -231,7 +237,7 @@ Test File
 
 Expected Result
 ---------------
- 5040 
+ 5040
 
 test08.bas
 ==========
@@ -274,9 +280,9 @@ Test File
 
 Expected Result
 ---------------
- 3 
- 5 
- 3 
+ 3
+ 5
+ 3
 
 test10.bas
 ==========
@@ -320,8 +326,8 @@ Expected Result
 a
 abc
   1-
-  0 
-  1 
+  0
+  1
   1-
   0+
   1+
@@ -386,9 +392,9 @@ Test File
 
 Expected Result
 ---------------
-global handler 1 caught error in line  20 
-local handler caught error in line 60 
-global handler 2 caught error in line  90 
+global handler 1 caught error in line  20
+local handler caught error in line 60
+global handler 2 caught error in line  90
 
 test01.bas
 ==========
@@ -436,206 +442,206 @@ Test File
 
 Expected Result
 ---------------
- 0             0 
+ 0             0
 i after case 0
- 0             1 
+ 0             1
 i after case 0
- 0             2 
+ 0             2
 i after case 0
- 0             3 
+ 0             3
 i after case 0
- 0             4 
+ 0             4
 i after case 0
- 0             5 
+ 0             5
 i after case 0
- 0             6 
+ 0             6
 i after case 0
- 0             7 
+ 0             7
 i after case 0
- 0             8 
+ 0             8
 i after case 0
- 0             9 
+ 0             9
 i after case 0
- 1             0 
+ 1             0
 i after case 1
 j after case 0
- 1             1 
+ 1             1
 i after case 1
- 1             2 
+ 1             2
 i after case 1
- 1             3 
+ 1             3
 i after case 1
- 1             4 
+ 1             4
 i after case 1
- 1             5 
+ 1             5
 i after case 1
- 1             6 
+ 1             6
 i after case 1
- 1             7 
+ 1             7
 i after case 1
- 1             8 
+ 1             8
 i after case 1
- 1             9 
+ 1             9
 i after case 1
- 2             0 
+ 2             0
 is after case is <9
- 2             1 
+ 2             1
 is after case is <9
- 2             2 
+ 2             2
 is after case is <9
- 2             3 
+ 2             3
 is after case is <9
- 2             4 
+ 2             4
 is after case is <9
- 2             5 
+ 2             5
 is after case is <9
- 2             6 
+ 2             6
 is after case is <9
- 2             7 
+ 2             7
 is after case is <9
- 2             8 
+ 2             8
 is after case is <9
- 2             9 
+ 2             9
 is after case is <9
- 3             0 
+ 3             0
 i after case 3 to 5, 7
- 3             1 
+ 3             1
 i after case 3 to 5, 7
- 3             2 
+ 3             2
 i after case 3 to 5, 7
- 3             3 
+ 3             3
 i after case 3 to 5, 7
- 3             4 
+ 3             4
 i after case 3 to 5, 7
- 3             5 
+ 3             5
 i after case 3 to 5, 7
- 3             6 
+ 3             6
 i after case 3 to 5, 7
- 3             7 
+ 3             7
 i after case 3 to 5, 7
- 3             8 
+ 3             8
 i after case 3 to 5, 7
- 3             9 
+ 3             9
 i after case 3 to 5, 7
- 4             0 
+ 4             0
 i after case 3 to 5, 7
- 4             1 
+ 4             1
 i after case 3 to 5, 7
- 4             2 
+ 4             2
 i after case 3 to 5, 7
- 4             3 
+ 4             3
 i after case 3 to 5, 7
- 4             4 
+ 4             4
 i after case 3 to 5, 7
- 4             5 
+ 4             5
 i after case 3 to 5, 7
- 4             6 
+ 4             6
 i after case 3 to 5, 7
- 4             7 
+ 4             7
 i after case 3 to 5, 7
- 4             8 
+ 4             8
 i after case 3 to 5, 7
- 4             9 
+ 4             9
 i after case 3 to 5, 7
- 5             0 
+ 5             0
 i after case 3 to 5, 7
- 5             1 
+ 5             1
 i after case 3 to 5, 7
- 5             2 
+ 5             2
 i after case 3 to 5, 7
- 5             3 
+ 5             3
 i after case 3 to 5, 7
- 5             4 
+ 5             4
 i after case 3 to 5, 7
- 5             5 
+ 5             5
 i after case 3 to 5, 7
- 5             6 
+ 5             6
 i after case 3 to 5, 7
- 5             7 
+ 5             7
 i after case 3 to 5, 7
- 5             8 
+ 5             8
 i after case 3 to 5, 7
- 5             9 
+ 5             9
 i after case 3 to 5, 7
- 6             0 
+ 6             0
 is after case is <9
- 6             1 
+ 6             1
 is after case is <9
- 6             2 
+ 6             2
 is after case is <9
- 6             3 
+ 6             3
 is after case is <9
- 6             4 
+ 6             4
 is after case is <9
- 6             5 
+ 6             5
 is after case is <9
- 6             6 
+ 6             6
 is after case is <9
- 6             7 
+ 6             7
 is after case is <9
- 6             8 
+ 6             8
 is after case is <9
- 6             9 
+ 6             9
 is after case is <9
- 7             0 
+ 7             0
 i after case 3 to 5, 7
- 7             1 
+ 7             1
 i after case 3 to 5, 7
- 7             2 
+ 7             2
 i after case 3 to 5, 7
- 7             3 
+ 7             3
 i after case 3 to 5, 7
- 7             4 
+ 7             4
 i after case 3 to 5, 7
- 7             5 
+ 7             5
 i after case 3 to 5, 7
- 7             6 
+ 7             6
 i after case 3 to 5, 7
- 7             7 
+ 7             7
 i after case 3 to 5, 7
- 7             8 
+ 7             8
 i after case 3 to 5, 7
- 7             9 
+ 7             9
 i after case 3 to 5, 7
- 8             0 
+ 8             0
 is after case is <9
- 8             1 
+ 8             1
 is after case is <9
- 8             2 
+ 8             2
 is after case is <9
- 8             3 
+ 8             3
 is after case is <9
- 8             4 
+ 8             4
 is after case is <9
- 8             5 
+ 8             5
 is after case is <9
- 8             6 
+ 8             6
 is after case is <9
- 8             7 
+ 8             7
 is after case is <9
- 8             8 
+ 8             8
 is after case is <9
- 8             9 
+ 8             9
 is after case is <9
- 9             0 
+ 9             0
 i after case else
- 9             1 
+ 9             1
 i after case else
- 9             2 
+ 9             2
 i after case else
- 9             3 
+ 9             3
 i after case else
- 9             4 
+ 9             4
 i after case else
- 9             5 
+ 9             5
 i after case else
- 9             6 
+ 9             6
 i after case else
- 9             7 
+ 9             7
 i after case else
- 9             8 
+ 9             8
 i after case else
- 9             9 
+ 9             9
 i after case else
 
 test15.bas
@@ -687,8 +693,8 @@ print "a$(1,0)=";a$(1,0);"b$(0,1)=";b$(0,1)
 
 Expected Result
 ---------------
-a= 1 b= 2 
-a= 2 b= 1 
+a= 1 b= 2
+a= 2 b= 1
 a$(1,0)=ab$(0,1)=b
 a$(1,0)=bb$(0,1)=a
 
@@ -710,16 +716,16 @@ print "loop ended"
 Expected Result
 ---------------
 loop started
-i is 1 
-i is 2 
-i is 3 
-i is 4 
-i is 5 
-i is 6 
-i is 7 
-i is 8 
-i is 9 
-i is 10 
+i is 1
+i is 2
+i is 3
+i is 4
+i is 5
+i is 6
+i is 7
+i is 8
+i is 9
+i is 10
 loop ended
 
 test18.bas
@@ -744,14 +750,14 @@ print "loop ended"
 Expected Result
 ---------------
 loop started
-x$ is 
-y$ is 
+x$ is
+y$ is
 y$ is b
 x$ is a
-y$ is 
+y$ is
 y$ is b
 x$ is aa
-y$ is 
+y$ is
 y$ is b
 loop ended
 
@@ -850,14 +856,14 @@ next
 
 Expected Result
 ---------------
- 0  1  2  3  4 
- 10  11  12  13  14 
- 20  21  22  23  24 
- 30  31  32  33  34 
- 0  0  0  0  0 
- 0  11  12  13  14 
- 0  21  22  23  24 
- 0  31  32  33  34 
+ 0  1  2  3  4
+ 10  11  12  13  14
+ 20  21  22  23  24
+ 30  31  32  33  34
+ 0  0  0  0  0
+ 0  11  12  13  14
+ 0  21  22  23  24
+ 0  31  32  33  34
 
 test22.bas
 ==========
@@ -910,14 +916,14 @@ mat print c$
 
 Expected Result
 ---------------
- 0             0            
- 0             2.5          
- 0             0            
- 0            -0.5          
-                            
-hi                          
-                            
-hihi                        
+ 0             0
+ 0             2.5
+ 0             0
+ 0            -0.5
+
+hi
+
+hihi
 
 test24.bas
 ==========
@@ -935,15 +941,15 @@ Test File
 
 Expected Result
 ---------------
- 1             2             3            
- 3             2             1            
+ 1             2             3
+ 3             2             1
 
- 1             2            
- 2             1            
- 3             3            
+ 1             2
+ 2             1
+ 3             3
 
- 14            13           
- 10            11           
+ 14            13
+ 10            11
 
 test25.bas
 ==========
@@ -960,30 +966,30 @@ Test File
 60 data 1,2,3,4,5,6,7,8,9
 80 dim inch_array(5,1),cm_array(5,1)
 90 mat read inch_array
-100 data 1,12,36,100,39.37 
+100 data 1,12,36,100,39.37
 110 mat print inch_array
 120 mat cm_array=(2.54)*inch_array
 130 mat print cm_array
 
 Expected Result
 ---------------
- 1             2             3            
- 4             5             6            
- 7             8             9            
+ 1             2             3
+ 4             5             6
+ 7             8             9
 
- 3             6             9            
- 12            15            18           
- 21            24            27           
- 1            
- 12           
- 36           
- 100          
- 39.37        
- 2.54         
- 30.48        
- 91.44        
- 254          
- 99.9998      
+ 3             6             9
+ 12            15            18
+ 21            24            27
+ 1
+ 12
+ 36
+ 100
+ 39.37
+ 2.54
+ 30.48
+ 91.44
+ 254
+ 99.9998
 
 test26.bas
 ==========
@@ -998,8 +1004,8 @@ mat print a
 
 Expected Result
 ---------------
- 5             5             5            
- 8             8             8            
+ 5             5             5
+ 8             8             8
 
 test27.bas
 ==========
@@ -1017,12 +1023,12 @@ mat print c
 
 Expected Result
 ---------------
- 1             2            
- 3             4            
--2             1            
- 1.5          -0.5          
- 1             0            
- 0             1            
+ 1             2
+ 3             4
+-2             1
+ 1.5          -0.5
+ 1             0
+ 0             1
 
 test28.bas
 ==========
@@ -1038,7 +1044,7 @@ print fnfac(10)
 
 Expected Result
 ---------------
- 3628800 
+ 3628800
 
 test29.bas
 ==========
@@ -1089,23 +1095,28 @@ Test File
 
 Expected Result
 ---------------
- 1.333333e-08                1e-08 
- 1.333333e-07                1e-07 
- 1.333333e-06                1e-06 
- 1.333333e-05                1e-05 
- 0.000133      0.0001 
- 0.001333      0.001 
- 0.013333      0.01 
- 0.133333      0.1 
- 1.333333      1 
- 13.33333      10 
- 133.3333      100 
- 1333.333      1000 
- 13333.33      10000 
- 133333.3      100000 
- 1333333       1000000 
- 1.333333e+07                1e+07 
- 1.333333e+08                1e+08 
+ 0.0000000     0.0000000
+ 0.0000001     0.0000001
+ 0.0000013     0.0000010
+ 0.0000133     0.0000100
+ 0.000133      0.0001
+ 0.001333      0.001
+ 0.013333      0.01
+ 0.133333      0.1
+ 1.333333      1
+ 13.33333      10
+ 133.3333      100
+ 1333.333      1000
+ 13333.33      10000
+ 133333.3      100000
+ 1333333       1000000
+ 13333333.3333333            10000000.0000000
+ 133333333.3333333           100000000.0000000
+
+Notes
+-----
+  Output would differ on other platforms NttX does not use scientific
+  notation in floating point output.
 
 test032.bas
 ==========
@@ -1131,13 +1142,13 @@ OPEN FOR BINARY
 
 Test File
 ---------
-open "test.out" for binary as 1
+open "/tmp/test.out" for binary as 1
 put 1,1,"xy"
 put 1,3,"z!"
 put 1,10,1/3
 put 1,20,9999
 close 1
-open "test.out" for binary as 1
+open "/tmp/test.out" for binary as 1
 s$="    "
 get 1,1,s$
 get 1,10,x
@@ -1146,13 +1157,19 @@ close
 print s$
 print x
 print n%
-kill "test.out"
+kill "/tmp/test.out"
 
 Expected Result
 ---------------
 xyz!
- 0.333333 
- 9999 
+ 0.333333
+ 9999
+
+Notes
+-----
+  The logic in this test will fail if there is no writable file system
+  mount at /tmp.
+
 
 test34.bas
 ==========
@@ -1180,12 +1197,12 @@ print b(-1,2)
 
 Expected Result
 ---------------
- 1 
- 2 
- 1 
- 2 
- 10 
- 20 
+ 1
+ 2
+ 1
+ 2
+ 10
+ 20
 
 test35.bas
 ==========
@@ -1204,10 +1221,10 @@ print a%
 
 Expected Result
 ---------------
- 1 
- 2 
- 0 
--1 
+ 1
+ 2
+ 0
+-1
 
 test36.bas
 ==========
@@ -1217,7 +1234,7 @@ Test File
 ---------
 on error goto 10
 print "opening file"
-open "test.out" for output lock write as #1
+open "/tmp/test.out" for output lock write as #1
 print "open succeeded"
 if command$<>"enough" then shell "sh ./test/runbas test.bas enough"
 end
@@ -1230,21 +1247,31 @@ open succeeded
 opening file
 open failed
 
+Notes
+-----
+  The logic in this test will fail if there is no writable file system
+  mount at /tmp.
+
+
 test37.bas
 ==========
 LINE INPUT reaching EOF
 
 Test File
 ---------
-10 open "i",1,"test.ref"
+10 open "i",1,"/mnt/romfs/test37.dat"
 20 while not eof(1)
 30 line input #1,a$
 40 if a$="abc" then print a$; else print "def"
 50 wend
 
+Data file (/mnt/romfs/test37.dat)
+-------------------------------
+abc
+
 Result
 ------
-  Output should match test.ref
+abc
 
 test38.bas
 ==========
@@ -1263,35 +1290,35 @@ data 1,2,3,4,5,6,7,8,9,10
 
 Expected Result
 ---------------
- 1            
- 2            
- 3            
- 4            
- 5            
- 6            
- 7            
- 8            
- 9            
- 10           
- 1            
- 2            
- 3            
- 4            
- 5            
- 6            
- 7            
- 1            
- 2            
- 3            
- 4            
- 5            
- 6            
- 7            
- 0            
- 0            
- 0            
- 0            
- 0            
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+ 10
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 0
+ 0
+ 0
+ 0
+ 0
 
 test39.bas
 ==========
@@ -1313,7 +1340,7 @@ proc_a(2)
 
 Expected Result
 ---------------
- 6 
+ 6
 
 test40.bas
 ==========
@@ -1349,9 +1376,9 @@ print f(1)
 Expected Result
 ---------------
 f running
- 43 
+ 43
 f running
- 42 
+ 42
 
 test42.bas
 ==========
@@ -1370,14 +1397,14 @@ Test File
 
 Expected Result
 ---------------
- 1 
--2 
--3 
- 2 
--2 
- 2 
--0.3 
- 0.3 
+ 1
+-2
+-3
+ 2
+-2
+ 2
+-0.3
+ 0.3
 
 test43.bas
 ==========
@@ -1403,9 +1430,9 @@ MAT PRINT c
 
 Expected Result
 ---------------
- 17           
- 47           
- 77           
+ 17
+ 47
+ 77
 Error: Dimension mismatch in line 14 at:
 mat c=a*b
        ^
@@ -1469,7 +1496,7 @@ for i=1 to 10:print i;:next i:end
 
 Expected Result
 ---------------
- 1  2  3  4  5  6  7  8  9  10 
+ 1  2  3  4  5  6  7  8  9  10
 
 test47.bas
 ==========
@@ -1489,10 +1516,10 @@ mat write a
 
 Expected Result
 ---------------
- 0  1  2  3  4 
- 10  11  12  13  14 
- 20  21  22  23  24 
- 30  31  32  33  34 
+ 0  1  2  3  4
+ 10  11  12  13  14
+ 20  21  22  23  24
+ 30  31  32  33  34
 11,12,13,14
 21,22,23,24
 31,32,33,34
@@ -1513,8 +1540,8 @@ print a$,b$
 
 Expected Result
 ---------------
- 10            10 
- 2             0             2 
+ 10            10
+ 2             0             2
 test          test
 
 test49.bas
@@ -1541,25 +1568,31 @@ print det
 
 Expected Result
 ---------------
- 58  71  67  36  35  19  60 
- 50  71  71  56  45  20  52 
- 64  40  84  50  51  43  69 
- 31  28  41  54  31  18  33 
- 45  23  46  38  50  43  50 
- 41  10  28  17  33  41  46 
- 66  72  71  38  40  27  69 
+ 58  71  67  36  35  19  60
+ 50  71  71  56  45  20  52
+ 64  40  84  50  51  43  69
+ 31  28  41  54  31  18  33
+ 45  23  46  38  50  43  50
+ 41  10  28  17  33  41  46
+ 66  72  71  38  40  27  69
 
- 9.636025e+07                320206       -537449        2323650      -1.135486e+07                3.019632e+07         
-              -9.650941e+07               
- 4480          15           -25            108          -528           1404         -4487         
--39436        -131           220          -951           4647         -12358         39497        
- 273240        908          -1524          6589         -32198         85625        -273663       
--1846174      -6135          10297        -44519         217549       -578534        1849032      
- 1.315035e+07                43699        -73346         317110       -1549606       4120912      -1.31707e+07 
+ 9.636025e+07                320206       -537449        2323650      -1.135486e+07                3.019632e+07
+              -9.650941e+07
+ 4480          15           -25            108          -528           1404         -4487
+-39436        -131           220          -951           4647         -12358         39497
+ 273240        908          -1524          6589         -32198         85625        -273663
+-1846174      -6135          10297        -44519         217549       -578534        1849032
+ 1.315035e+07                43699        -73346         317110       -1549606       4120912      -1.31707e+07
 
--9.636079e+07               -320208        537452       -2323663       1.135493e+07               -3.019649e+07         
-               9.650995e+07               
- 1 
+-9.636079e+07               -320208        537452       -2323663       1.135493e+07               -3.019649e+07
+               9.650995e+07
+ 1
+
+Notes
+-----
+  Output will differ because NuttX does not use scientific notation in
+  output.  Some minor rounding differences may also be expected.
+
 
 test50.bas
 ==========
@@ -1578,14 +1611,14 @@ print max(-0.3,4)
 
 Expected Result
 ---------------
- 1 
- 1 
--0.3 
--0.3 
- 2 
- 2 
- 0.3 
- 4 
+ 1
+ 1
+-0.3
+-0.3
+ 2
+ 2
+ 0.3
+ 4
 
 test51.bas
 ==========
@@ -1597,8 +1630,7 @@ PRINT "Line 1";TAB(78);1.23456789
 
 Expected Result
 ---------------
-Line 1                                                                       
- 1.234568 
+Line 1                                                                        1.234568
 
 test52.bas
 ==========
@@ -1620,9 +1652,9 @@ Test File
 
 Expected Result
 ---------------
-? 
- 1             2            
- 3             4            
-? ? 
- 1             0            
- 3             4            
+?
+ 1             2
+ 3             4
+? ?
+ 1             0
+ 3             4
