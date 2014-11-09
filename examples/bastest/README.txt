@@ -1249,9 +1249,15 @@ open failed
 
 Notes
 -----
-  The logic in this test will fail if there is no writable file system
-  mount at /tmp.
+1. The logic in this test will fail opening the test.out file if there is no
+   writable file system mount at /tmp.
+2. This test will still currently fail when try to fork the shell because
+   support for that feature is not implemented.  The following error message
+   should be received:
 
+Error: Forking child process failed (Unknown error) in line 5 at:
+if command$<>"enough" then shell "sh ./test/runbas test.bas enough"
+                           ^
 
 test37.bas
 ==========
