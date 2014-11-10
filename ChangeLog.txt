@@ -1103,3 +1103,5 @@
 	* apps/examples/bastest:  This is a special version of Michael
 	  Haardt's BAS 2.4 test files adapted for use by NuttX on a ROMFS file
 	  system (2014-11-7).
+	* apps/interpreter/bas: Add VT100 support for color command (2014-11-10).
+
