@@ -79,6 +79,7 @@
 #include <unistd.h>
 
 #include <nuttx/ascii.h>
+#include <nuttx/vt100.h>
 
 #include "vt100.h"
 #include "fs.h"
@@ -101,6 +102,14 @@ static int g_capacity;
 static int g_used;
 static const int g_open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
 static char g_errmsgbuf[80];
+
+#ifdef CONFIG_INTERPREPTER_BAS_VT100
+static const uint8_t g_vt100_colormap[8] =
+{
+  VT100_BLACK, VT100_BLUE,   VT100_GREEN,  VT100_CYAN,
+  VT100_RED,  VT100_MAGENTA, VT100_YELLOW, VT100_WHITE
+};
+#endif
 
 /****************************************************************************
  * Public Data
@@ -411,18 +420,28 @@ static int locate(int chn, int line, int column)
 static int colour(int chn, int foreground, int background)
 {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
-      /* REVISIT: Use VT100 commands to color */
-#warning Missing Logic
-#endif
+  if (foreground >= 0)
+    {
+      vt100_foreground_color(chn, foreground);
+    }
+
+  if (background >= 0)
+    {
+      vt100_background_color(chn, background);
+    }
+
+  return 0;
+#else
   FS_errmsg = _("Set color operation no implemented");
   return -1;
+#endif
 }
 
 static int resetcolour(int chn)
 {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
-      /* REVISIT: Use VT100 commands to reset color */
-#warning Missing Logic
+  vt100_foreground_color(chn, VT100_DEFAULT);
+  vt100_background_color(chn, VT100_DEFAULT);
 #endif
   return 0;
 }

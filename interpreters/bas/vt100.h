@@ -209,6 +209,26 @@ void vt100_scrollup(int chn, uint16_t nlines);
 void vt100_scrolldown(int chn, uint16_t nlines);
 #endif
 
+/****************************************************************************
+ * Name: vt100_foreground_color
+ *
+ * Description:
+ *   Set the foreground color
+ *
+ ****************************************************************************/
+
+void vt100_foreground_color(int chn, uint8_t color);
+
+/****************************************************************************
+ * Name: vt100_background_color
+ *
+ * Description:
+ *   Set the background color
+ *
+ ****************************************************************************/
+
+void vt100_background_color(int chn, uint8_t color);
+
 #undef EXTERN
 #ifdef __cplusplus
 }

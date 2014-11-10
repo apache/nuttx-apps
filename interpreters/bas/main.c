@@ -69,6 +69,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "fs.h"
 #include "bas.h"
 
 /****************************************************************************

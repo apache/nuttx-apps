@@ -75,7 +75,9 @@ static const char g_reverseoff[]    = VT100_REVERSEOFF;
 static const char g_blinkoff[]      = VT100_BLINKOFF;
 #endif
 
-static const char g_fmtcursorpos[]  = VT100_FMT_CURSORPOS;
+static const char g_fmt_cursorpos[] = VT100_FMT_CURSORPOS;
+static const char g_fmt_forecolor[] = VT100_FMT_FORE_COLOR;
+static const char g_fmt_backcolor[] = VT100_FMT_BACK_COLOR;
 
 /****************************************************************************
  * Private Functions
@@ -235,7 +237,7 @@ void vt100_setcursor(int chn, uint16_t row, uint16_t column)
 
   /* Format the cursor position command.  The origin is (1,1). */
 
-  len = snprintf(buffer, 16, g_fmtcursorpos, row + 1, column + 1);
+  len = snprintf(buffer, 16, g_fmt_cursorpos, row + 1, column + 1);
 
   /* Send the VT100 CURSORPOS command */
 
@@ -317,3 +319,49 @@ void vt100_scrolldown(int chn, uint16_t nlines)
       vt100_write(chn, g_revindex, sizeof(g_revindex));
     }
 #endif
+
+/****************************************************************************
+ * Name: vt100_foreground_color
+ *
+ * Description:
+ *   Set the foreground color
+ *
+ ****************************************************************************/
+
+void vt100_foreground_color(int chn, uint8_t color)
+{
+  char buffer[16];
+  int len;
+
+  /* Format the foreground color command. */
+
+  DEBUGASSERT(color < 10);
+  len = snprintf(buffer, 16, g_fmt_forecolor, color);
+
+  /* Send the VT100 foreground color command */
+
+  vt100_write(chn, buffer, len);
+}
+
+/****************************************************************************
+ * Name: vt100_background_color
+ *
+ * Description:
+ *   Set the background color
+ *
+ ****************************************************************************/
+
+void vt100_background_color(int chn, uint8_t color)
+{
+  char buffer[16];
+  int len;
+
+  /* Format the background color command. */
+
+  DEBUGASSERT(color < 10);
+  len = snprintf(buffer, 16, g_fmt_backcolor, color);
+
+  /* Send the VT100 background color command */
+
+  vt100_write(chn, buffer, len);
+}
