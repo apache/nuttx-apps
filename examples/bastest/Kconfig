@@ -6,11 +6,12 @@
 config EXAMPLES_BASTEST
 	bool "Setup Test Files for BAS"
 	default n
-	depends on INTERPRETERS_BAS
-	select FS_ROMFS
+	depends on FS_ROMFS && INTERPRETERS_BAS
 	---help---
 		Mount the ROMFS file system containing the BAS test files at
-		/mnt/romfs.
+		/mnt/romfs.  This selection depends both on INTERPRETER_BAS to provide
+		the BASIC interpreter and and upon FS_ROMFS to provide support for the
+		ROMFS file system.
 
 		The logic in certain tests (test33.bas and test36.bas will also fail
 		if there is no writable file system mount at /tmp.
