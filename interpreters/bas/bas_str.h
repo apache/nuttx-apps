@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/auto.h
+ * apps/interpreters/bas/bas_str.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,78 +56,60 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_AUTO_H
-#define __APPS_EXAMPLES_BAS_AUTO_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_STR_H
+#define __APPS_EXAMPLES_BAS_BAS_STR_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "programtypes.h"
-#include "var.h"
+#include <sys/types.h>
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-struct Auto
+struct String
 {
-  long int stackPointer;
-  long int stackCapacity;
-  long int framePointer;
-  long int frameSize;
-  struct Pc onerror;
-  union AutoSlot *slot;
-  long int erl;
-  struct Pc erpc;
-  struct Value err;
-  struct Value lastdet;
-  struct Pc begindata;
-  int resumeable;
-  struct Symbol *cur,*all; /* should be hung off the funcs/procs */
+  size_t length;
+  char *character;
+  struct StringField *field;
 };
 
-struct AutoFrameSlot
+struct StringField
 {
-  long int framePointer;
-  long int frameSize;
-  struct Pc pc;
+  struct String **refStrings;
+  int refCount;
 };
-
-struct AutoExceptionSlot
-{
-  struct Pc onerror;
-  int resumeable;
-};
-
-union AutoSlot
-{
-  struct AutoFrameSlot retFrame;
-  struct AutoExceptionSlot retException;
-  struct Var var;
-};
-
-#include "token.h"
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-struct Auto *Auto_new(struct Auto *this);
-void Auto_destroy(struct Auto *this);
-struct Var *Auto_pushArg(struct Auto *this);
-void Auto_pushFuncRet(struct Auto *this, int firstarg, struct Pc *pc);
-void Auto_pushGosubRet(struct Auto *this, struct Pc *pc);
-struct Var *Auto_local(struct Auto *this, int l);
-int Auto_funcReturn(struct Auto *this, struct Pc *pc);
-int Auto_gosubReturn(struct Auto *this, struct Pc *pc);
-void Auto_frameToError(struct Auto *this, struct Program *program, struct Value *v);
-void Auto_setError(struct Auto *this, long int line, struct Pc *pc, struct Value *v);
+int cistrcmp(const char *s, const char *r);
 
-int Auto_find(struct Auto *this, struct Identifier *ident);
-int Auto_variable(struct Auto *this, const struct Identifier *ident);
-enum ValueType Auto_argType(const struct Auto *this, int l);
-enum ValueType Auto_varType(const struct Auto *this, struct Symbol *sym);
-void Auto_funcEnd(struct Auto *this);
+struct String *String_new(struct String *this);
+void String_destroy(struct String *this);
+int String_joinField(struct String *this, struct StringField *field,
+                     char *character, size_t length);
+void String_leaveField(struct String *this);
+struct String *String_clone(struct String *this, const struct String *clon);
+int String_appendString(struct String *this, const struct String *app);
+int String_appendChar(struct String *this, char ch);
+int String_appendChars(struct String *this, const char *ch);
+int String_appendPrintf(struct String *this, const char *fmt, ...);
+int String_insertChar(struct String *this, size_t where, char ch);
+int String_delete(struct String *this, size_t where, size_t len);
+void String_ucase(struct String *this);
+void String_lcase(struct String *this);
+int String_size(struct String *this, size_t length);
+int String_cmp(const struct String *this, const struct String *s);
+void String_lset(struct String *this, const struct String *s);
+void String_rset(struct String *this, const struct String *s);
+void String_set(struct String *this, size_t pos, const struct String *s,
+                size_t length);
 
-#endif /* __APPS_EXAMPLES_BAS_AUTO_H */
+struct StringField *StringField_new(struct StringField *this);
+void StringField_destroy(struct StringField *this);
+
+#endif /* __APPS_EXAMPLES_BAS_BAS_STR_H */

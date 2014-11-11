@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/fs.c
+ * apps/interpreters/bas/bas_fs.c
  * BASIC file system interface.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
@@ -81,8 +81,8 @@
 #include <nuttx/ascii.h>
 #include <nuttx/vt100.h>
 
-#include "vt100.h"
-#include "fs.h"
+#include "bas_vt100.h"
+#include "bas_fs.h"
 
 /****************************************************************************
  * Pre-processor Definitions

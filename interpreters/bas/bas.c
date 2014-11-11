@@ -79,14 +79,14 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "auto.h"
+#include "bas_auto.h"
 #include "bas.h"
-#include "error.h"
-#include "fs.h"
-#include "global.h"
-#include "program.h"
-#include "value.h"
-#include "var.h"
+#include "bas_error.h"
+#include "bas_fs.h"
+#include "bas_global.h"
+#include "bas_program.h"
+#include "bas_value.h"
+#include "bas_var.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -2256,7 +2256,7 @@ static struct Value *dataread(struct Value *value, struct Value *l)
 }
 
 static struct Value more_statements;
-#include "statement.c"
+#include "bas_statement.c"
 static struct Value *statements(struct Value *value)
 {
 more:

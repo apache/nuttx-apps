@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/vt100.c
+ * apps/interpreters/bas/bas_vt100.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,76 +33,39 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INTERPRETERS_BAS_BAS_VT100_H
+#define __APPS_INTERPRETERS_BAS_BAS_VT100_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
-#include <sys/stat.h>
-#include <stdio.h>
-
-#include <nuttx/vt100.h>
-
-#include "fs.h"
+#include <stdint.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/* VT100 escape sequences */
-
-#if 0 /* Not used */
-static const char g_cursoron[]      = VT100_CURSORON;
-static const char g_cursoroff[]     = VT100_CURSOROFF;
-#endif
-static const char g_cursorhome[]    = VT100_CURSORHOME;
-#if 0 /* Not used */
-static const char g_erasetoeol[]    = VT100_CLEAREOL;
-#endif
-static const char g_clrscreen[]     = VT100_CLEARSCREEN;
-#if 0 /* Not used */
-static const char g_index[]         = VT100_INDEX;
-static const char g_revindex[]      = VT100_REVINDEX;
-static const char g_attriboff[]     = VT100_MODESOFF;
-static const char g_boldon[]        = VT100_BOLD;
-static const char g_reverseon[]     = VT100_REVERSE;
-static const char g_blinkon[]       = VT100_BLINK;
-static const char g_boldoff[]       = VT100_BOLDOFF;
-static const char g_reverseoff[]    = VT100_REVERSEOFF;
-static const char g_blinkoff[]      = VT100_BLINKOFF;
-#endif
-
-static const char g_fmt_cursorpos[] = VT100_FMT_CURSORPOS;
-static const char g_fmt_forecolor[] = VT100_FMT_FORE_COLOR;
-static const char g_fmt_backcolor[] = VT100_FMT_BACK_COLOR;
-
-/****************************************************************************
- * Private Functions
+ * Public Types
  ****************************************************************************/
 
 /****************************************************************************
- * Name: vt100_write
- *
- * Description:
- *   Write a sequence of bytes to the channel device
- *
+ * Public Data
  ****************************************************************************/
 
-static void vt100_write(int chn, FAR const char *buffer, size_t buflen)
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
 {
-  for (; buflen > 0; buflen--)
-    {
-      FS_putChar(chn, *buffer++);
-    }
-}
+#else
+#define EXTERN extern
+#endif
 
 /****************************************************************************
- * Public Functions
+ * Public Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
@@ -114,12 +77,7 @@ static void vt100_write(int chn, FAR const char *buffer, size_t buflen)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_blinkon(int chn)
-{
-  /* Send the VT100 BLINKON command */
-
-  vt100_write(chn, g_blinkon, sizeof(g_blinkon));
-}
+void vt100_blinkon(int chn);
 #endif
 
 /****************************************************************************
@@ -131,12 +89,7 @@ void vt100_blinkon(int chn)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_boldon(int chn)
-{
-  /* Send the VT100 BOLDON command */
-
-  vt100_write(chn, g_boldon, sizeof(g_boldon));
-}
+void vt100_boldon(int chn);
 #endif
 
 /****************************************************************************
@@ -148,12 +101,7 @@ void vt100_boldon(int chn)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_reverseon(int chn)
-{
-  /* Send the VT100 REVERSON command */
-
-  vt100_write(chn, g_reverseon, sizeof(g_reverseon));
-}
+void vt100_reverseon(int chn);
 #endif
 
 /****************************************************************************
@@ -165,12 +113,7 @@ void vt100_reverseon(int chn)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_attriboff(int chn)
-{
-  /* Send the VT100 ATTRIBOFF command */
-
-  vt100_write(chn, g_attriboff, sizeof(g_attriboff));
-}
+void vt100_attriboff(int chn);
 #endif
 
 /****************************************************************************
@@ -182,12 +125,7 @@ void vt100_attriboff(int chn)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_cursoron(int chn)
-{
-  /* Send the VT100 CURSORON command */
-
-  vt100_write(chn, g_cursoron, sizeof(g_cursoron));
-}
+void vt100_cursoron(int chn);
 #endif
 
 /****************************************************************************
@@ -199,12 +137,7 @@ void vt100_cursoron(int chn)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_cursoroff(int chn)
-{
-  /* Send the VT100 CURSOROFF command */
-
-  vt100_write(chn, g_cursoroff, sizeof(g_cursoroff));
-}
+void vt100_cursoroff(int chn);
 #endif
 
 /****************************************************************************
@@ -215,12 +148,7 @@ void vt100_cursoroff(int chn)
  *
  ****************************************************************************/
 
-void vt100_cursorhome(int chn)
-{
-  /* Send the VT100 CURSORHOME command */
-
-  vt100_write(chn, g_cursorhome, sizeof(g_cursorhome));
-}
+void vt100_cursorhome(int chn);
 
 /****************************************************************************
  * Name: vt100_setcursor
@@ -230,19 +158,7 @@ void vt100_cursorhome(int chn)
  *
  ****************************************************************************/
 
-void vt100_setcursor(int chn, uint16_t row, uint16_t column)
-{
-  char buffer[16];
-  int len;
-
-  /* Format the cursor position command.  The origin is (1,1). */
-
-  len = snprintf(buffer, 16, g_fmt_cursorpos, row + 1, column + 1);
-
-  /* Send the VT100 CURSORPOS command */
-
-  vt100_write(chn, buffer, len);
-}
+void vt100_setcursor(int chn, uint16_t row, uint16_t column);
 
 /****************************************************************************
  * Name: vt100_clrtoeol
@@ -254,12 +170,7 @@ void vt100_setcursor(int chn, uint16_t row, uint16_t column)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_clrtoeol(int chn)
-{
-  /* Send the VT100 ERASETOEOL command */
-
-  vt100_write(chn, g_erasetoeol, sizeof(g_erasetoeol));
-}
+void vt100_clrtoeol(int chn);
 #endif
 
 /****************************************************************************
@@ -270,12 +181,7 @@ void vt100_clrtoeol(int chn)
  *
  ****************************************************************************/
 
-void vt100_clrscreen(int chn)
-{
-  /* Send the VT100 CLRSCREEN command */
-
-  vt100_write(chn, g_clrscreen, sizeof(g_clrscreen));
-}
+void vt100_clrscreen(int chn);
 
 /****************************************************************************
  * Name: vt100_scrollup
@@ -286,17 +192,7 @@ void vt100_clrscreen(int chn)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_scrollup(int chn, uint16_t nlines)
-{
-  /* Scroll for the specified number of lines */
-
-  for (; nlines; nlines--)
-    {
-      /* Send the VT100 INDEX command */
-
-      vt100_write(chn, g_index, sizeof(g_index));
-    }
-}
+void vt100_scrollup(int chn, uint16_t nlines);
 #endif
 
 /****************************************************************************
@@ -308,16 +204,7 @@ void vt100_scrollup(int chn, uint16_t nlines)
  ****************************************************************************/
 
 #if 0 /* Not used */
-void vt100_scrolldown(int chn, uint16_t nlines)
-{
-  /* Scroll for the specified number of lines */
-
-  for (; nlines; nlines--)
-    {
-      /* Send the VT100 REVINDEX command */
-
-      vt100_write(chn, g_revindex, sizeof(g_revindex));
-    }
+void vt100_scrolldown(int chn, uint16_t nlines);
 #endif
 
 /****************************************************************************
@@ -328,20 +215,7 @@ void vt100_scrolldown(int chn, uint16_t nlines)
  *
  ****************************************************************************/
 
-void vt100_foreground_color(int chn, uint8_t color)
-{
-  char buffer[16];
-  int len;
-
-  /* Format the foreground color command. */
-
-  DEBUGASSERT(color < 10);
-  len = snprintf(buffer, 16, g_fmt_forecolor, color);
-
-  /* Send the VT100 foreground color command */
-
-  vt100_write(chn, buffer, len);
-}
+void vt100_foreground_color(int chn, uint8_t color);
 
 /****************************************************************************
  * Name: vt100_background_color
@@ -351,17 +225,11 @@ void vt100_foreground_color(int chn, uint8_t color)
  *
  ****************************************************************************/
 
-void vt100_background_color(int chn, uint8_t color)
-{
-  char buffer[16];
-  int len;
+void vt100_background_color(int chn, uint8_t color);
 
-  /* Format the background color command. */
-
-  DEBUGASSERT(color < 10);
-  len = snprintf(buffer, 16, g_fmt_backcolor, color);
-
-  /* Send the VT100 background color command */
-
-  vt100_write(chn, buffer, len);
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* __APPS_INTERPRETERS_BAS_BAS_VT100_H */

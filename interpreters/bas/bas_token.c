@@ -1383,9 +1383,9 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "token.l"
+#line 1 "bas_token.l"
 /* Tokens and token sequence arrays. */
-#line 3 "token.l"
+#line 3 "bas_token.l"
 /* #includes */ /*{{{C}}}*//*{{{*/
 #include <nuttx/config.h>
 
@@ -1399,9 +1399,9 @@ char *yytext;
 #include <string.h>
 #include <termios.h>
 
-#include "auto.h"
-#include "token.h"
-#include "statement.h"
+#include "bas_auto.h"
+#include "bas_token.h"
+#include "bas_statement.h"
 
 static int g_matchdata;
 static int g_backslash_colon;
@@ -1670,7 +1670,7 @@ YY_DECL
     }
 
   {
-#line 102 "token.l"
+#line 102 "bas_token.l"
 
  /* flex rules */ /*{{{*/
   if (g_matchdata) BEGIN(DATAINPUT);
@@ -1734,12 +1734,12 @@ do_action:  /* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 106 "token.l"
+#line 106 "bas_token.l"
 return T_CHANNEL;
   YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 107 "token.l"
+#line 107 "bas_token.l"
 {
         int overflow;
         double d;
@@ -1757,7 +1757,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 121 "token.l"
+#line 121 "bas_token.l"
 {
         int overflow;
         long int n;
@@ -1783,7 +1783,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 143 "token.l"
+#line 143 "bas_token.l"
 {
         int overflow;
         long int n;
@@ -1801,7 +1801,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 157 "token.l"
+#line 157 "bas_token.l"
 {
         int overflow;
         long int n;
@@ -1820,7 +1820,7 @@ YY_RULE_SETUP
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 171 "token.l"
+#line 171 "bas_token.l"
 string(yytext); return T_STRING;
   YY_BREAK
 case 7:
@@ -1830,47 +1830,47 @@ YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 172 "token.l"
+#line 172 "bas_token.l"
 string2(); return T_STRING;
   YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 173 "token.l"
+#line 173 "bas_token.l"
 return T_OP;
   YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 174 "token.l"
+#line 174 "bas_token.l"
 return T_CP;
   YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 175 "token.l"
+#line 175 "bas_token.l"
 return T_MULT;
   YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 176 "token.l"
+#line 176 "bas_token.l"
 return T_PLUS;
   YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 177 "token.l"
+#line 177 "bas_token.l"
 return T_MINUS;
   YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 178 "token.l"
+#line 178 "bas_token.l"
 return T_COMMA;
   YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 179 "token.l"
+#line 179 "bas_token.l"
 return T_DIV;
   YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 180 "token.l"
+#line 180 "bas_token.l"
 {
                           if (g_backslash_colon)
                           {
@@ -1882,7 +1882,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 188 "token.l"
+#line 188 "bas_token.l"
 {
                           if (cur)
                           {
@@ -1893,32 +1893,32 @@ YY_RULE_SETUP
   YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 195 "token.l"
+#line 195 "bas_token.l"
 return T_SEMICOLON;
   YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 196 "token.l"
+#line 196 "bas_token.l"
 return T_LT;
   YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 197 "token.l"
+#line 197 "bas_token.l"
 return T_LE;
   YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 198 "token.l"
+#line 198 "bas_token.l"
 return T_LE;
   YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 199 "token.l"
+#line 199 "bas_token.l"
 return T_NE;
   YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 200 "token.l"
+#line 200 "bas_token.l"
 {
                           if (cur)
                           {
@@ -1929,52 +1929,52 @@ YY_RULE_SETUP
   YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 207 "token.l"
+#line 207 "bas_token.l"
 return T_GT;
   YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 208 "token.l"
+#line 208 "bas_token.l"
 return T_GE;
   YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 209 "token.l"
+#line 209 "bas_token.l"
 return T_GE;
   YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 210 "token.l"
+#line 210 "bas_token.l"
 return T_POW;
   YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 211 "token.l"
+#line 211 "bas_token.l"
 return T_ACCESS_READ;
   YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 212 "token.l"
+#line 212 "bas_token.l"
 return T_ACCESS_READ_WRITE;
   YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 213 "token.l"
+#line 213 "bas_token.l"
 return T_ACCESS_WRITE;
   YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 214 "token.l"
+#line 214 "bas_token.l"
 return T_AND;
   YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 215 "token.l"
+#line 215 "bas_token.l"
 return T_AS;
   YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 216 "token.l"
+#line 216 "bas_token.l"
 {
                           if (cur)
                           {
@@ -1985,7 +1985,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 223 "token.l"
+#line 223 "bas_token.l"
 {
         if (cur)
         {
@@ -1997,7 +1997,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 231 "token.l"
+#line 231 "bas_token.l"
 {
         if (cur)
         {
@@ -2009,7 +2009,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 239 "token.l"
+#line 239 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2020,7 +2020,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 246 "token.l"
+#line 246 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2031,7 +2031,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 253 "token.l"
+#line 253 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2045,7 +2045,7 @@ case 38:
 (yy_c_buf_p) = yy_cp = yy_bp + 5;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 260 "token.l"
+#line 260 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2056,7 +2056,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 267 "token.l"
+#line 267 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2067,7 +2067,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 274 "token.l"
+#line 274 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2078,12 +2078,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 281 "token.l"
+#line 281 "bas_token.l"
 return T_CON;
   YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 282 "token.l"
+#line 282 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2094,7 +2094,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 289 "token.l"
+#line 289 "bas_token.l"
 {
                           BEGIN(DATAINPUT);
                           if (cur)
@@ -2107,7 +2107,7 @@ YY_RULE_SETUP
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 297 "token.l"
+#line 297 "bas_token.l"
 string(yytext); return T_STRING;
   YY_BREAK
 case 45:
@@ -2117,17 +2117,17 @@ YY_LINENO_REWIND_TO(yy_cp - 1);
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 298 "token.l"
+#line 298 "bas_token.l"
 string2(); return T_STRING;
   YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 299 "token.l"
+#line 299 "bas_token.l"
 return T_COMMA;
   YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 300 "token.l"
+#line 300 "bas_token.l"
 {
                     if (cur) cur->u.datainput=strcpy(malloc(strlen(yytext)+1),yytext);
         return T_DATAINPUT;
@@ -2135,23 +2135,23 @@ YY_RULE_SETUP
   YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 304 "token.l"
+#line 304 "bas_token.l"
 
   YY_BREAK
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 305 "token.l"
+#line 305 "bas_token.l"
 BEGIN(INITIAL);
   YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 306 "token.l"
+#line 306 "bas_token.l"
 BEGIN(INITIAL); return T_COLON;
   YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 307 "token.l"
+#line 307 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2162,7 +2162,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 314 "token.l"
+#line 314 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2173,7 +2173,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 321 "token.l"
+#line 321 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2184,7 +2184,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 328 "token.l"
+#line 328 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2198,7 +2198,7 @@ case 55:
 (yy_c_buf_p) = yy_cp = yy_bp + 3;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 335 "token.l"
+#line 335 "bas_token.l"
 {
                     if (cur)
                     {
@@ -2213,7 +2213,7 @@ case 56:
 (yy_c_buf_p) = yy_cp = yy_bp + 3;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 343 "token.l"
+#line 343 "bas_token.l"
 {
                     if (cur)
                     {
@@ -2225,7 +2225,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 351 "token.l"
+#line 351 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2236,7 +2236,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 358 "token.l"
+#line 358 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2247,7 +2247,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 365 "token.l"
+#line 365 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2258,7 +2258,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 372 "token.l"
+#line 372 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2269,7 +2269,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 379 "token.l"
+#line 379 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2280,7 +2280,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 386 "token.l"
+#line 386 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2291,7 +2291,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 393 "token.l"
+#line 393 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2302,7 +2302,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 400 "token.l"
+#line 400 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2316,7 +2316,7 @@ case 65:
 (yy_c_buf_p) = yy_cp = yy_bp + 4;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 407 "token.l"
+#line 407 "bas_token.l"
 {
                           BEGIN(ELSEIF);
                           if (cur)
@@ -2328,7 +2328,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 415 "token.l"
+#line 415 "bas_token.l"
 {
                           BEGIN(INITIAL);
                           if (cur)
@@ -2340,7 +2340,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 423 "token.l"
+#line 423 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2351,7 +2351,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 430 "token.l"
+#line 430 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2362,7 +2362,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 437 "token.l"
+#line 437 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2373,7 +2373,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 444 "token.l"
+#line 444 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2384,7 +2384,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 451 "token.l"
+#line 451 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2395,7 +2395,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 458 "token.l"
+#line 458 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2406,7 +2406,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 465 "token.l"
+#line 465 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2417,7 +2417,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 472 "token.l"
+#line 472 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2428,12 +2428,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 479 "token.l"
+#line 479 "bas_token.l"
 return T_EQV;
   YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 480 "token.l"
+#line 480 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2444,7 +2444,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 487 "token.l"
+#line 487 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2455,7 +2455,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 494 "token.l"
+#line 494 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2466,7 +2466,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 501 "token.l"
+#line 501 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2477,7 +2477,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 508 "token.l"
+#line 508 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2491,7 +2491,7 @@ case 81:
 (yy_c_buf_p) = yy_cp = yy_bp + 5;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 515 "token.l"
+#line 515 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2502,7 +2502,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 522 "token.l"
+#line 522 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2513,7 +2513,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 529 "token.l"
+#line 529 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2524,7 +2524,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 536 "token.l"
+#line 536 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2535,32 +2535,32 @@ YY_RULE_SETUP
   YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 543 "token.l"
+#line 543 "bas_token.l"
 return T_FOR_INPUT;
   YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 544 "token.l"
+#line 544 "bas_token.l"
 return T_FOR_OUTPUT;
   YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 545 "token.l"
+#line 545 "bas_token.l"
 return T_FOR_APPEND;
   YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 546 "token.l"
+#line 546 "bas_token.l"
 return T_FOR_RANDOM;
   YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 547 "token.l"
+#line 547 "bas_token.l"
 return T_FOR_BINARY;
   YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 548 "token.l"
+#line 548 "bas_token.l"
 {
                     if (cur)
                     {
@@ -2572,7 +2572,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 556 "token.l"
+#line 556 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2586,7 +2586,7 @@ case 92:
 (yy_c_buf_p) = yy_cp = yy_bp + 3;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 563 "token.l"
+#line 563 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2597,7 +2597,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 570 "token.l"
+#line 570 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2608,7 +2608,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 577 "token.l"
+#line 577 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2619,12 +2619,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 584 "token.l"
+#line 584 "bas_token.l"
 return T_IDN;
   YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 585 "token.l"
+#line 585 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2638,7 +2638,7 @@ case 97:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 592 "token.l"
+#line 592 "bas_token.l"
 {
         BEGIN(IMAGEFMT);
                     if (cur)
@@ -2653,7 +2653,7 @@ case 98:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 600 "token.l"
+#line 600 "bas_token.l"
 {
         BEGIN(INITIAL);
                     if (cur)
@@ -2670,7 +2670,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 99:
 YY_RULE_SETUP
-#line 613 "token.l"
+#line 613 "bas_token.l"
 {
                     if (cur)
                     {
@@ -2681,12 +2681,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 100:
 YY_RULE_SETUP
-#line 620 "token.l"
+#line 620 "bas_token.l"
 return T_IMP;
   YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 621 "token.l"
+#line 621 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2697,7 +2697,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 102:
 YY_RULE_SETUP
-#line 628 "token.l"
+#line 628 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2711,7 +2711,7 @@ case 103:
 (yy_c_buf_p) = yy_cp = yy_bp + 5;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 635 "token.l"
+#line 635 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2722,17 +2722,17 @@ YY_RULE_SETUP
   YY_BREAK
 case 104:
 YY_RULE_SETUP
-#line 642 "token.l"
+#line 642 "bas_token.l"
 return T_INV;
   YY_BREAK
 case 105:
 YY_RULE_SETUP
-#line 643 "token.l"
+#line 643 "bas_token.l"
 return T_IS;
   YY_BREAK
 case 106:
 YY_RULE_SETUP
-#line 644 "token.l"
+#line 644 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2743,7 +2743,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 107:
 YY_RULE_SETUP
-#line 651 "token.l"
+#line 651 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2754,7 +2754,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 108:
 YY_RULE_SETUP
-#line 658 "token.l"
+#line 658 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2765,7 +2765,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 109:
 YY_RULE_SETUP
-#line 665 "token.l"
+#line 665 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2776,7 +2776,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 110:
 YY_RULE_SETUP
-#line 672 "token.l"
+#line 672 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2787,7 +2787,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 111:
 YY_RULE_SETUP
-#line 679 "token.l"
+#line 679 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2798,7 +2798,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 112:
 YY_RULE_SETUP
-#line 686 "token.l"
+#line 686 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2809,7 +2809,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 113:
 YY_RULE_SETUP
-#line 693 "token.l"
+#line 693 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2820,17 +2820,17 @@ YY_RULE_SETUP
   YY_BREAK
 case 114:
 YY_RULE_SETUP
-#line 700 "token.l"
+#line 700 "bas_token.l"
 return T_LOCK_READ;
   YY_BREAK
 case 115:
 YY_RULE_SETUP
-#line 701 "token.l"
+#line 701 "bas_token.l"
 return T_LOCK_WRITE;
   YY_BREAK
 case 116:
 YY_RULE_SETUP
-#line 702 "token.l"
+#line 702 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2841,7 +2841,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 117:
 YY_RULE_SETUP
-#line 709 "token.l"
+#line 709 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2852,7 +2852,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 118:
 YY_RULE_SETUP
-#line 716 "token.l"
+#line 716 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2863,7 +2863,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 119:
 YY_RULE_SETUP
-#line 723 "token.l"
+#line 723 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2874,7 +2874,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 120:
 YY_RULE_SETUP
-#line 730 "token.l"
+#line 730 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2885,7 +2885,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 121:
 YY_RULE_SETUP
-#line 737 "token.l"
+#line 737 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2896,7 +2896,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 122:
 YY_RULE_SETUP
-#line 744 "token.l"
+#line 744 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2907,7 +2907,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 123:
 YY_RULE_SETUP
-#line 751 "token.l"
+#line 751 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2918,7 +2918,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 124:
 YY_RULE_SETUP
-#line 758 "token.l"
+#line 758 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2929,7 +2929,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 125:
 YY_RULE_SETUP
-#line 765 "token.l"
+#line 765 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2940,7 +2940,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 126:
 YY_RULE_SETUP
-#line 772 "token.l"
+#line 772 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2951,12 +2951,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 127:
 YY_RULE_SETUP
-#line 779 "token.l"
+#line 779 "bas_token.l"
 return T_MOD;
   YY_BREAK
 case 128:
 YY_RULE_SETUP
-#line 780 "token.l"
+#line 780 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2967,7 +2967,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 129:
 YY_RULE_SETUP
-#line 787 "token.l"
+#line 787 "bas_token.l"
 {
                           if (cur)
                           {
@@ -2978,7 +2978,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 130:
 YY_RULE_SETUP
-#line 794 "token.l"
+#line 794 "bas_token.l"
 {
                       if (cur)
                       {
@@ -2990,12 +2990,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 131:
 YY_RULE_SETUP
-#line 802 "token.l"
+#line 802 "bas_token.l"
 return T_NOT;
   YY_BREAK
 case 132:
 YY_RULE_SETUP
-#line 803 "token.l"
+#line 803 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3006,7 +3006,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 133:
 YY_RULE_SETUP
-#line 810 "token.l"
+#line 810 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3017,7 +3017,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 134:
 YY_RULE_SETUP
-#line 817 "token.l"
+#line 817 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3028,7 +3028,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 135:
 YY_RULE_SETUP
-#line 824 "token.l"
+#line 824 "bas_token.l"
 {
         if (cur)
         {
@@ -3041,7 +3041,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 136:
 YY_RULE_SETUP
-#line 833 "token.l"
+#line 833 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3052,7 +3052,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 137:
 YY_RULE_SETUP
-#line 840 "token.l"
+#line 840 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3063,7 +3063,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 138:
 YY_RULE_SETUP
-#line 847 "token.l"
+#line 847 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3074,7 +3074,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 139:
 YY_RULE_SETUP
-#line 854 "token.l"
+#line 854 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3085,12 +3085,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 140:
 YY_RULE_SETUP
-#line 861 "token.l"
+#line 861 "bas_token.l"
 return T_OR;
   YY_BREAK
 case 141:
 YY_RULE_SETUP
-#line 862 "token.l"
+#line 862 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3101,7 +3101,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 142:
 YY_RULE_SETUP
-#line 869 "token.l"
+#line 869 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3115,7 +3115,7 @@ case 143:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 876 "token.l"
+#line 876 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3126,7 +3126,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 144:
 YY_RULE_SETUP
-#line 883 "token.l"
+#line 883 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3137,7 +3137,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 145:
 YY_RULE_SETUP
-#line 890 "token.l"
+#line 890 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3151,7 +3151,7 @@ case 146:
 (yy_c_buf_p) = yy_cp = yy_bp + 3;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 897 "token.l"
+#line 897 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3162,7 +3162,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 147:
 YY_RULE_SETUP
-#line 904 "token.l"
+#line 904 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3173,7 +3173,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 148:
 YY_RULE_SETUP
-#line 911 "token.l"
+#line 911 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3184,7 +3184,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 149:
 YY_RULE_SETUP
-#line 918 "token.l"
+#line 918 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3195,7 +3195,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 150:
 YY_RULE_SETUP
-#line 925 "token.l"
+#line 925 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3206,7 +3206,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 151:
 YY_RULE_SETUP
-#line 932 "token.l"
+#line 932 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3217,7 +3217,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 152:
 YY_RULE_SETUP
-#line 939 "token.l"
+#line 939 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3228,7 +3228,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 153:
 YY_RULE_SETUP
-#line 946 "token.l"
+#line 946 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3239,7 +3239,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 154:
 YY_RULE_SETUP
-#line 953 "token.l"
+#line 953 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3250,7 +3250,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 155:
 YY_RULE_SETUP
-#line 960 "token.l"
+#line 960 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3261,7 +3261,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 156:
 YY_RULE_SETUP
-#line 967 "token.l"
+#line 967 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3272,7 +3272,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 157:
 YY_RULE_SETUP
-#line 974 "token.l"
+#line 974 "bas_token.l"
 {
         if (cur)
         {
@@ -3284,12 +3284,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 158:
 YY_RULE_SETUP
-#line 982 "token.l"
+#line 982 "bas_token.l"
 return T_SHARED;
   YY_BREAK
 case 159:
 YY_RULE_SETUP
-#line 983 "token.l"
+#line 983 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3300,7 +3300,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 160:
 YY_RULE_SETUP
-#line 990 "token.l"
+#line 990 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3311,17 +3311,17 @@ YY_RULE_SETUP
   YY_BREAK
 case 161:
 YY_RULE_SETUP
-#line 997 "token.l"
+#line 997 "bas_token.l"
 return T_SPC;
   YY_BREAK
 case 162:
 YY_RULE_SETUP
-#line 998 "token.l"
+#line 998 "bas_token.l"
 return T_STEP;
   YY_BREAK
 case 163:
 YY_RULE_SETUP
-#line 999 "token.l"
+#line 999 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3332,7 +3332,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 164:
 YY_RULE_SETUP
-#line 1006 "token.l"
+#line 1006 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3343,7 +3343,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 165:
 YY_RULE_SETUP
-#line 1013 "token.l"
+#line 1013 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3354,7 +3354,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 166:
 YY_RULE_SETUP
-#line 1020 "token.l"
+#line 1020 "bas_token.l"
 {
                     if (cur)
                     {
@@ -3366,7 +3366,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 167:
 YY_RULE_SETUP
-#line 1028 "token.l"
+#line 1028 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3377,7 +3377,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 168:
 YY_RULE_SETUP
-#line 1035 "token.l"
+#line 1035 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3388,27 +3388,27 @@ YY_RULE_SETUP
   YY_BREAK
 case 169:
 YY_RULE_SETUP
-#line 1042 "token.l"
+#line 1042 "bas_token.l"
 return T_THEN;
   YY_BREAK
 case 170:
 YY_RULE_SETUP
-#line 1043 "token.l"
+#line 1043 "bas_token.l"
 return T_TAB;
   YY_BREAK
 case 171:
 YY_RULE_SETUP
-#line 1044 "token.l"
+#line 1044 "bas_token.l"
 return T_TO;
   YY_BREAK
 case 172:
 YY_RULE_SETUP
-#line 1045 "token.l"
+#line 1045 "bas_token.l"
 return T_TRN;
   YY_BREAK
 case 173:
 YY_RULE_SETUP
-#line 1046 "token.l"
+#line 1046 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3419,7 +3419,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 174:
 YY_RULE_SETUP
-#line 1053 "token.l"
+#line 1053 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3430,7 +3430,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 175:
 YY_RULE_SETUP
-#line 1060 "token.l"
+#line 1060 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3441,7 +3441,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 176:
 YY_RULE_SETUP
-#line 1067 "token.l"
+#line 1067 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3452,7 +3452,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 177:
 YY_RULE_SETUP
-#line 1074 "token.l"
+#line 1074 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3463,7 +3463,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 178:
 YY_RULE_SETUP
-#line 1081 "token.l"
+#line 1081 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3474,12 +3474,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 179:
 YY_RULE_SETUP
-#line 1088 "token.l"
+#line 1088 "bas_token.l"
 return T_USING;
   YY_BREAK
 case 180:
 YY_RULE_SETUP
-#line 1089 "token.l"
+#line 1089 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3490,7 +3490,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 181:
 YY_RULE_SETUP
-#line 1096 "token.l"
+#line 1096 "bas_token.l"
 {
                     if (cur)
                     {
@@ -3502,7 +3502,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 182:
 YY_RULE_SETUP
-#line 1104 "token.l"
+#line 1104 "bas_token.l"
 {
                     if (cur)
                     {
@@ -3514,7 +3514,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 183:
 YY_RULE_SETUP
-#line 1112 "token.l"
+#line 1112 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3528,7 +3528,7 @@ case 184:
 (yy_c_buf_p) = yy_cp = yy_bp + 5;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 1119 "token.l"
+#line 1119 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3539,7 +3539,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 185:
 YY_RULE_SETUP
-#line 1126 "token.l"
+#line 1126 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3553,7 +3553,7 @@ case 186:
 (yy_c_buf_p) = yy_cp = yy_bp + 5;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 1133 "token.l"
+#line 1133 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3564,12 +3564,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 187:
 YY_RULE_SETUP
-#line 1140 "token.l"
+#line 1140 "bas_token.l"
 return T_XOR;
   YY_BREAK
 case 188:
 YY_RULE_SETUP
-#line 1141 "token.l"
+#line 1141 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3580,12 +3580,12 @@ YY_RULE_SETUP
   YY_BREAK
 case 189:
 YY_RULE_SETUP
-#line 1148 "token.l"
+#line 1148 "bas_token.l"
 return T_ZER;
   YY_BREAK
 case 190:
 YY_RULE_SETUP
-#line 1149 "token.l"
+#line 1149 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3596,7 +3596,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 191:
 YY_RULE_SETUP
-#line 1156 "token.l"
+#line 1156 "bas_token.l"
 {
                     if (cur)
                     {
@@ -3608,7 +3608,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 192:
 YY_RULE_SETUP
-#line 1164 "token.l"
+#line 1164 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3619,7 +3619,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 193:
 YY_RULE_SETUP
-#line 1171 "token.l"
+#line 1171 "bas_token.l"
 {
                     if (cur)
                     {
@@ -3631,7 +3631,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 194:
 YY_RULE_SETUP
-#line 1179 "token.l"
+#line 1179 "bas_token.l"
 {
                           if (cur)
                           {
@@ -3642,7 +3642,7 @@ YY_RULE_SETUP
   YY_BREAK
 case 195:
 YY_RULE_SETUP
-#line 1186 "token.l"
+#line 1186 "bas_token.l"
 {
         if (cur)
         {
@@ -3686,12 +3686,12 @@ YY_RULE_SETUP
 case 196:
 /* rule 196 can match eol */
 YY_RULE_SETUP
-#line 1225 "token.l"
+#line 1225 "bas_token.l"
 
   YY_BREAK
 case 197:
 YY_RULE_SETUP
-#line 1226 "token.l"
+#line 1226 "bas_token.l"
 {
         if (cur) cur->u.junk=yytext[0];
         return T_JUNK;
@@ -3700,7 +3700,7 @@ YY_RULE_SETUP
 /*}}}*/
 case 198:
 YY_RULE_SETUP
-#line 1231 "token.l"
+#line 1231 "bas_token.l"
 ECHO;
   YY_BREAK
 #line 3711 "<stdout>"
@@ -4574,7 +4574,7 @@ void yyset_debug (int  bdebug )
 
 static int yy_init_globals (void)
 {
-        /* Initialization is the same as for the non-reentrant scanner.
+    /* Initialization is the same as for the non-reentrant scanner.
      * This function is called from yylex_destroy(), so don't allocate here.
      */
 
@@ -4585,7 +4585,7 @@ static int yy_init_globals (void)
     (yy_init) = 0;
     (yy_start) = 0;
 
-/* Defined in main.c */
+    /* Defined in bas_main.c */
 #ifdef YY_STDINIT
     yyin = stdin;
     yyout = stdout;
@@ -4670,7 +4670,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 1230 "token.l"
+#line 1230 "bas_token.l"
 
 
 

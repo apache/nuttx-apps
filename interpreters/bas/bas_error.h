@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/error.h
+ * apps/interpreters/bas/bas_error.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,8 +56,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_ERROR_H
-#define __APPS_EXAMPLES_BAS_ERROR_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_ERROR_H
+#define __APPS_EXAMPLES_BAS_BAS_ERROR_H
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -185,4 +185,4 @@
 #define OUTOFMEMORY        RUNTIME+20,_("Out of memory")
 #define RESTRICTED         RUNTIME+21,_("Restricted")
 
-#endif /* __APPS_EXAMPLES_BAS_ERROR_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_ERROR_H */

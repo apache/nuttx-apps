@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/program.h
+ * apps/interpreters/bas/bas_autotypes.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,59 +56,52 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_PROGRAM_H
-#define __APPS_EXAMPLES_BAS_PROGRAM_H
+/* REVISIT:  Why is this?  If the following is __APPS_EXAMPLES_BAS_BAS_AUTO_H
+ * then there are compile errors!  Those compile errors occur because this
+ * function defines some of the same structures as does bas_auto.h.  BUT, the
+ * definitions ARE NOT THE SAME.  What is up with this?
+ */
+
+#ifndef __APPS_EXAMPLES_BAS_BAS_AUTO_H
+#define __APPS_EXAMPLES_BAS_BAS_AUTO_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "programtypes.h"
-#include "token.h"
+#include "bas_program.h"
+#include "bas_var.h"
+#include "bas_token.h"
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Types
  ****************************************************************************/
 
-struct Program *Program_new(struct Program *this);
-void Program_destroy(struct Program *this);
-void Program_norun(struct Program *this);
-void Program_store(struct Program *this, struct Token *line,
-                   long int where);
-void Program_delete(struct Program *this, const struct Pc *from,
-                    const struct Pc *to);
-void Program_addScope(struct Program *this, struct Scope *scope);
-struct Pc *Program_goLine(struct Program *this, long int line,
-                          struct Pc *pc);
-struct Pc *Program_fromLine(struct Program *this, long int line,
-                            struct Pc *pc);
-struct Pc *Program_toLine(struct Program *this, long int line,
-                          struct Pc *pc);
-int Program_scopeCheck(struct Program *this, struct Pc *pc, struct Pc *fn);
-struct Pc *Program_dataLine(struct Program *this, long int line,
-                            struct Pc *pc);
-struct Pc *Program_imageLine(struct Program *this, long int line,
-                             struct Pc *pc);
-long int Program_lineNumber(const struct Program *this,
-                            const struct Pc *pc);
-struct Pc *Program_beginning(struct Program *this, struct Pc *pc);
-struct Pc *Program_end(struct Program *this, struct Pc *pc);
-struct Pc *Program_nextLine(struct Program *this, struct Pc *pc);
-int Program_skipEOL(struct Program *this, struct Pc *pc, int dev, int tr);
-void Program_trace(struct Program *this, struct Pc *pc, int dev, int tr);
-void Program_PCtoError(struct Program *this, struct Pc *pc,
-                       struct Value *v);
-struct Value *Program_merge(struct Program *this, int dev,
-                            struct Value *value);
-int Program_lineNumberWidth(struct Program *this);
-struct Value *Program_list(struct Program *this, int dev, int watchIntr,
-                           struct Pc *from, struct Pc *to,
-                           struct Value *value);
-struct Value *Program_analyse(struct Program *this, struct Pc *pc,
-                              struct Value *value);
-void Program_renum(struct Program *this, int first, int inc);
-void Program_unnum(struct Program *this);
-int Program_setname(struct Program *this, const char *filename);
-void Program_xref(struct Program *this, int chn);
+struct Auto
+{
+  long int stackPointer;
+  long int stackCapacity;
+  long int framePointer;
+  long int frameSize;
+  struct Pc onerror;
+  union AutoSlot *slot;
+  long int erl;
+  struct Pc erpc;
+  struct Value err;
+  int resumeable;
 
-#endif /* __APPS_EXAMPLES_BAS_PROGRAM_H */
+  struct Symbol *cur,*all;
+};
+
+union AutoSlot
+{
+  struct
+  {
+    long int framePointer;
+    long int frameSize;
+    struct Pc pc;
+  } ret;
+  struct Var var;
+};
+
+#endif /* __APPS_EXAMPLES_BAS_BAS_AUTO_H */

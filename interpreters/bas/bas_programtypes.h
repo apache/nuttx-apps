@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/global.h
+ * apps/interpreters/bas/bas_programtypes.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,56 +56,44 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_GLOBAL_H
-#define __APPS_EXAMPLES_BAS_GLOBAL_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_PROGRAMTYPES_H
+#define __APPS_EXAMPLES_BAS_BAS_PROGRAMTYPES_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "token.h"
-#include "value.h"
-#include "var.h"
+#include "bas_str.h"
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Types
  ****************************************************************************/
 
-#define GLOBAL_HASHSIZE 31
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-struct GlobalFunctionChain
+struct Pc
 {
-  struct Pc begin,end;
-  struct GlobalFunctionChain *next;
+  int line;
+  struct Token *token;
 };
 
-struct Global
+struct Scope
 {
-  struct String command;
-  struct Symbol *table[GLOBAL_HASHSIZE];
-  struct GlobalFunctionChain *chain;
+  struct Pc start;
+  struct Pc begin;
+  struct Pc end;
+  struct Scope *next;
 };
 
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
+struct Program
+{
+  int trace;
+  int numbered;
+  int size;
+  int capacity;
+  int runnable;
+  int unsaved;
+  struct String name;
+  struct Token **code;
+  struct Scope *scope;
+};
 
-struct Global *Global_new(struct Global *this);
-void Global_destroy(struct Global *this);
-void Global_clear(struct Global *this);
-void Global_clearFunctions(struct Global *this);
-int Global_find(struct Global *this, struct Identifier *ident, int oparen);
-int Global_function(struct Global *this, struct Identifier *ident,
-                    enum ValueType type, struct Pc *deffn, struct Pc *begin,
-                    int argTypesLength, enum ValueType *argTypes);
-void Global_endfunction(struct Global *this, struct Identifier *ident,
-                        struct Pc *end);
-int Global_variable(struct Global *this, struct Identifier *ident,
-                    enum ValueType type, enum SymbolType symbolType,
-                    int redeclare);
-
-#endif /* __APPS_EXAMPLES_BAS_GLOBAL_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_PROGRAMTYPES_H */

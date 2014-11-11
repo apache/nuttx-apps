@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/value.c
+ * apps/interpreters/bas/bas_str.c
  * Dynamic strings.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
@@ -71,7 +71,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "str.h"
+#include "bas_str.h"
 
 /****************************************************************************
  * Public Functions

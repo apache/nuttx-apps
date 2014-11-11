@@ -1,6 +1,5 @@
 /* Tokens and token sequence arrays. */
 %{
-/* #includes */ /*{{{C}}}*//*{{{*/
 #include <nuttx/config.h>
 
 #include <assert.h>
@@ -13,14 +12,9 @@
 #include <string.h>
 #include <termios.h>
 
-#include "auto.h"
-#include "token.h"
-#include "statement.h"
-
-#ifdef DMALLOC
-#include "dmalloc.h"
-#endif
-/*}}}*/
+#include "bas_auto.h"
+#include "bas_token.h"
+#include "bas_statement.h"
 
 static int g_matchdata;
 static int g_backslash_colon;
@@ -28,7 +22,7 @@ static int g_uppercase;
 int yylex(void);
 static struct Token *g_cur;
 
-static void string(const char *text) /*{{{*/
+static void string(const char *text)
 {
   if (g_cur)
   {
@@ -49,8 +43,8 @@ static void string(const char *text) /*{{{*/
     }
   }
 }
-/*}}}*/
-static void string2(void) /*{{{*/
+
+static void string2(void)
 {
   if (g_cur)
   {
@@ -70,9 +64,9 @@ static void string2(void) /*{{{*/
     }
   }
 }
-/*}}}*/
+
 %}
- /* flex options and definitions */ /*{{{*/
+ /* flex options and definitions */
 %option noyywrap
 %option nounput
 %x DATAINPUT ELSEIF IMAGEFMT
@@ -99,9 +93,9 @@ ONERROR		on[ \t]+error
 ONERROROFF	on[ \t]+error[ \t]+off
 ONERRORGOTO0	on[ \t]+error[ \t]+goto[ \t]+0
 SELECTCASE	select[ \t]+case
- /*}}}*/
+
 %%
- /* flex rules */ /*{{{*/
+ /* flex rules */
   if (g_matchdata) BEGIN(DATAINPUT);
 
 "#"			return T_CHANNEL;
@@ -1228,12 +1222,12 @@ end[ \t]+function	{
 			  if (g_cur) g_cur->u.junk=yytext[0];
 			  return T_JUNK;
 			}
- /*}}}*/
+
 %%
 
 int g_token_property[T_LASTTOKEN];
 
-struct Token *Token_newCode(const char *ln) /*{{{*/
+struct Token *Token_newCode(const char *ln)
 {
   int l,lasttok,thistok,addNumber=0,sawif;
   struct Token *result;
@@ -1241,7 +1235,7 @@ struct Token *Token_newCode(const char *ln) /*{{{*/
 
   g_cur=(struct Token*)0;
   buf=yy_scan_string(ln);
-  /* determine number of tokens */ /*{{{*/
+  /* determine number of tokens */
   g_matchdata=sawif=0;
   for (lasttok=T_EOL,l=1; (thistok=yylex()); ++l)
   {
@@ -1253,7 +1247,7 @@ struct Token *Token_newCode(const char *ln) /*{{{*/
     lasttok=thistok;
   }
   if (l==1) { addNumber=1; ++l; }
-  /*}}}*/
+
   yy_delete_buffer(buf);
   g_cur=result=malloc(sizeof(struct Token)*l);
   if (addNumber)
@@ -1295,8 +1289,8 @@ struct Token *Token_newCode(const char *ln) /*{{{*/
   yy_delete_buffer(buf);
   return result;
 }
-/*}}}*/
-struct Token *Token_newData(const char *ln) /*{{{*/
+
+struct Token *Token_newData(const char *ln)
 {
   int l;
   struct Token *result;
@@ -1316,8 +1310,8 @@ struct Token *Token_newData(const char *ln) /*{{{*/
   yy_delete_buffer(buf);
   return result;
 }
-/*}}}*/
-void Token_destroy(struct Token *token) /*{{{*/
+
+void Token_destroy(struct Token *token)
 {
   struct Token *r=token;
 
@@ -1506,8 +1500,8 @@ void Token_destroy(struct Token *token) /*{{{*/
   } while ((r++)->type!=T_EOL);
   free(token);
 }
-/*}}}*/
-struct String *Token_toString(struct Token *token, struct Token *spaceto, struct String *s, int *indent, int width) /*{{{*/
+
+struct String *Token_toString(struct Token *token, struct Token *spaceto, struct String *s, int *indent, int width)
 {
   int ns=0,infn=0;
   int thisindent=0,thisnotindent=0,nextindent=0;
@@ -1699,7 +1693,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
     /* T_ZONE               */ {"zone",1},
   };
 
-  /* precompute indentation */ /*{{{*/
+  /* precompute indentation */
   if (indent) thisindent=nextindent=*indent;
   t=token;
   do
@@ -1825,7 +1819,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
       default: break;
     }
   } while (t++->type!=T_EOL);
-  /*}}}*/
+
   if (width>=0) /* whole line */
   {
     if (width) /* nicely formatted listing */
@@ -1876,7 +1870,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
       }
       case T_REM: String_appendPrintf(s,"%s%s",g_uppercase?"REM":"rem",token->u.rem); break;
       case T_QUOTE: String_appendPrintf(s,"'%s",token->u.rem); break;
-      case T_STRING: /*{{{*/
+      case T_STRING:
       {
         size_t l=token->u.string->length;
         char *data=token->u.string->character;
@@ -1891,7 +1885,7 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
         String_appendPrintf(s,"\"");
         break;
       }
-      /*}}}*/
+
       default:
       {
         if (g_uppercase)
@@ -1913,8 +1907,8 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto, struct
   if (spaceto && s->length>oldlength) memset(s->character+oldlength,' ',s->length-oldlength);
   return s;
 }
-/*}}}*/
-void Token_init(int b_c, int uc) /*{{{*/
+
+void Token_init(int b_c, int uc)
 {
 #define PROPERTY(t,assoc,unary_priority,binary_priority,is_unary,is_binary) \
   g_token_property[t]=(assoc<<8)|(unary_priority<<5)|(binary_priority<<2)|(is_unary<<1)|is_binary
@@ -1941,4 +1935,4 @@ void Token_init(int b_c, int uc) /*{{{*/
   PROPERTY(T_EQV,  0,0,0,0,1);
   PROPERTY(T_IMP,  0,0,0,0,1);
 }
-/*}}}*/
+

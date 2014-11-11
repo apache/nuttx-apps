@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/auto.c
+ * apps/interpreters/bas/bas_auto.c
  * BASIC file system interface.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
@@ -68,7 +68,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "auto.h"
+#include "bas_auto.h"
 
 /****************************************************************************
  * Pre-processor Definitions

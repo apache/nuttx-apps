@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/fs.h
+ * apps/interpreters/bas/bas.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *

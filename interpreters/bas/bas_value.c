@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/value.c
+ * apps/interpreters/bas/bas_value.c
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -73,8 +73,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "error.h"
-#include "value.h"
+#include "bas_error.h"
+#include "bas_value.h"
 
 /****************************************************************************
  * Pre-processor Definitions

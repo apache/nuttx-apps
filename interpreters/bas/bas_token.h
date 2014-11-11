@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/token.h
+ * apps/interpreters/bas/bas_token.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,16 +56,16 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_TOKEN_H
-#define __APPS_EXAMPLES_BAS_TOKEN_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_TOKEN_H
+#define __APPS_EXAMPLES_BAS_BAS_TOKEN_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "autotypes.h"
-#include "value.h"
-#include "var.h"
+#include "bas_autotypes.h"
+#include "bas_value.h"
+#include "bas_var.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -126,8 +126,8 @@ struct Symbol
   struct Symbol *next;
 };
 
-#include "program.h"
-#include "str.h"
+#include "bas_program.h"
+#include "bas_str.h"
 
 struct Identifier
 {
@@ -543,4 +543,4 @@ struct String *Token_toString(struct Token *token, struct Token *spaceto,
                               struct String *s, int *indent, int full);
 void Token_init(int backslash_colon, int uppercase);
 
-#endif /* __APPS_EXAMPLES_BAS_TOKEN_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_TOKEN_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/var.h
+ * apps/interpreters/bas/bas_global.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,60 +56,56 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_VAR_H
-#define __APPS_EXAMPLES_BAS_VAR_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_GLOBAL_H
+#define __APPS_EXAMPLES_BAS_BAS_GLOBAL_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "value.h"
+#include "bas_token.h"
+#include "bas_value.h"
+#include "bas_var.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define VAR_SCALAR_VALUE(this) ((this)->value)
+#define GLOBAL_HASHSIZE 31
 
 /****************************************************************************
- * Public Types
+ * Public Data
  ****************************************************************************/
 
-struct Var
+struct GlobalFunctionChain
 {
-  unsigned int dim;
-  unsigned int *geometry;
-  struct Value *value;
-  unsigned int size;
-  enum ValueType type;
-  char base;
+  struct Pc begin,end;
+  struct GlobalFunctionChain *next;
+};
+
+struct Global
+{
+  struct String command;
+  struct Symbol *table[GLOBAL_HASHSIZE];
+  struct GlobalFunctionChain *chain;
 };
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-struct Var *Var_new(struct Var *this, enum ValueType type, unsigned int dim,
-                    const unsigned int *geometry, int base);
-struct Var *Var_new_scalar(struct Var *this);
-void Var_destroy(struct Var *this);
-void Var_retype(struct Var *this, enum ValueType type);
-struct Value *Var_value(struct Var *this, unsigned int dim, int idx[],
-                        struct Value *value);
-void Var_clear(struct Var *this);
-struct Value *Var_mat_assign(struct Var *this, struct Var *x,
-                             struct Value *err, int work);
-struct Value *Var_mat_addsub(struct Var *this, struct Var *x, struct Var *y,
-                             int add, struct Value *err, int work);
-struct Value *Var_mat_mult(struct Var *this, struct Var *x, struct Var *y,
-                           struct Value *err, int work);
-struct Value *Var_mat_scalarMult(struct Var *this, struct Value *factor,
-                                 struct Var *x, int work);
-void Var_mat_transpose(struct Var *this, struct Var *x);
-struct Value *Var_mat_invert(struct Var *this, struct Var *x,
-                             struct Value *det, struct Value *err);
-struct Value *Var_mat_redim(struct Var *this, unsigned int dim,
-                            const unsigned int *geometry,
-                            struct Value *err);
+struct Global *Global_new(struct Global *this);
+void Global_destroy(struct Global *this);
+void Global_clear(struct Global *this);
+void Global_clearFunctions(struct Global *this);
+int Global_find(struct Global *this, struct Identifier *ident, int oparen);
+int Global_function(struct Global *this, struct Identifier *ident,
+                    enum ValueType type, struct Pc *deffn, struct Pc *begin,
+                    int argTypesLength, enum ValueType *argTypes);
+void Global_endfunction(struct Global *this, struct Identifier *ident,
+                        struct Pc *end);
+int Global_variable(struct Global *this, struct Identifier *ident,
+                    enum ValueType type, enum SymbolType symbolType,
+                    int redeclare);
 
-#endif /* __APPS_EXAMPLES_BAS_VAR_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_GLOBAL_H */

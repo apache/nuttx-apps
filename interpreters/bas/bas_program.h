@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/str.h
+ * apps/interpreters/bas/bas_program.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,60 +56,59 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_STR_H
-#define __APPS_EXAMPLES_BAS_STR_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_PROGRAM_H
+#define __APPS_EXAMPLES_BAS_BAS_PROGRAM_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <sys/types.h>
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-struct String
-{
-  size_t length;
-  char *character;
-  struct StringField *field;
-};
-
-struct StringField
-{
-  struct String **refStrings;
-  int refCount;
-};
+#include "bas_programtypes.h"
+#include "bas_token.h"
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int cistrcmp(const char *s, const char *r);
+struct Program *Program_new(struct Program *this);
+void Program_destroy(struct Program *this);
+void Program_norun(struct Program *this);
+void Program_store(struct Program *this, struct Token *line,
+                   long int where);
+void Program_delete(struct Program *this, const struct Pc *from,
+                    const struct Pc *to);
+void Program_addScope(struct Program *this, struct Scope *scope);
+struct Pc *Program_goLine(struct Program *this, long int line,
+                          struct Pc *pc);
+struct Pc *Program_fromLine(struct Program *this, long int line,
+                            struct Pc *pc);
+struct Pc *Program_toLine(struct Program *this, long int line,
+                          struct Pc *pc);
+int Program_scopeCheck(struct Program *this, struct Pc *pc, struct Pc *fn);
+struct Pc *Program_dataLine(struct Program *this, long int line,
+                            struct Pc *pc);
+struct Pc *Program_imageLine(struct Program *this, long int line,
+                             struct Pc *pc);
+long int Program_lineNumber(const struct Program *this,
+                            const struct Pc *pc);
+struct Pc *Program_beginning(struct Program *this, struct Pc *pc);
+struct Pc *Program_end(struct Program *this, struct Pc *pc);
+struct Pc *Program_nextLine(struct Program *this, struct Pc *pc);
+int Program_skipEOL(struct Program *this, struct Pc *pc, int dev, int tr);
+void Program_trace(struct Program *this, struct Pc *pc, int dev, int tr);
+void Program_PCtoError(struct Program *this, struct Pc *pc,
+                       struct Value *v);
+struct Value *Program_merge(struct Program *this, int dev,
+                            struct Value *value);
+int Program_lineNumberWidth(struct Program *this);
+struct Value *Program_list(struct Program *this, int dev, int watchIntr,
+                           struct Pc *from, struct Pc *to,
+                           struct Value *value);
+struct Value *Program_analyse(struct Program *this, struct Pc *pc,
+                              struct Value *value);
+void Program_renum(struct Program *this, int first, int inc);
+void Program_unnum(struct Program *this);
+int Program_setname(struct Program *this, const char *filename);
+void Program_xref(struct Program *this, int chn);
 
-struct String *String_new(struct String *this);
-void String_destroy(struct String *this);
-int String_joinField(struct String *this, struct StringField *field,
-                     char *character, size_t length);
-void String_leaveField(struct String *this);
-struct String *String_clone(struct String *this, const struct String *clon);
-int String_appendString(struct String *this, const struct String *app);
-int String_appendChar(struct String *this, char ch);
-int String_appendChars(struct String *this, const char *ch);
-int String_appendPrintf(struct String *this, const char *fmt, ...);
-int String_insertChar(struct String *this, size_t where, char ch);
-int String_delete(struct String *this, size_t where, size_t len);
-void String_ucase(struct String *this);
-void String_lcase(struct String *this);
-int String_size(struct String *this, size_t length);
-int String_cmp(const struct String *this, const struct String *s);
-void String_lset(struct String *this, const struct String *s);
-void String_rset(struct String *this, const struct String *s);
-void String_set(struct String *this, size_t pos, const struct String *s,
-                size_t length);
-
-struct StringField *StringField_new(struct StringField *this);
-void StringField_destroy(struct StringField *this);
-
-#endif /* __APPS_EXAMPLES_BAS_STR_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_PROGRAM_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/value.c
+ * apps/interpreters/bas/bas_program.c
  * Program storage.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
@@ -69,10 +69,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "auto.h"
-#include "error.h"
-#include "fs.h"
-#include "program.h"
+#include "bas_auto.h"
+#include "bas_error.h"
+#include "bas_fs.h"
+#include "bas_program.h"
 
 /****************************************************************************
  * Pre-processor Definitions

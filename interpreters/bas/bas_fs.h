@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/fs.h
+ * apps/interpreters/bas/bas_fs.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,15 +56,15 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_FS_H
-#define __APPS_EXAMPLES_BAS_FS_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_FS_H
+#define __APPS_EXAMPLES_BAS_BAS_FS_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <sys/types.h>
-#include "str.h"
+#include "bas_str.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -195,4 +195,4 @@ int FS_memInput(int address);
 int FS_portOutput(int address, int value);
 int FS_memOutput(int address, int value);
 
-#endif /* __APPS_EXAMPLES_BAS_FS_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_FS_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/programtypes.h
+ * apps/interpreters/bas/bas_auto.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,44 +56,78 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_PROGRAMTYPES_H
-#define __APPS_EXAMPLES_BAS_PROGRAMTYPES_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_AUTO_H
+#define __APPS_EXAMPLES_BAS_BAS_AUTO_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "str.h"
+#include "bas_programtypes.h"
+#include "bas_var.h"
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-struct Pc
+struct Auto
 {
-  int line;
-  struct Token *token;
+  long int stackPointer;
+  long int stackCapacity;
+  long int framePointer;
+  long int frameSize;
+  struct Pc onerror;
+  union AutoSlot *slot;
+  long int erl;
+  struct Pc erpc;
+  struct Value err;
+  struct Value lastdet;
+  struct Pc begindata;
+  int resumeable;
+  struct Symbol *cur,*all; /* should be hung off the funcs/procs */
 };
 
-struct Scope
+struct AutoFrameSlot
 {
-  struct Pc start;
-  struct Pc begin;
-  struct Pc end;
-  struct Scope *next;
+  long int framePointer;
+  long int frameSize;
+  struct Pc pc;
 };
 
-struct Program
+struct AutoExceptionSlot
 {
-  int trace;
-  int numbered;
-  int size;
-  int capacity;
-  int runnable;
-  int unsaved;
-  struct String name;
-  struct Token **code;
-  struct Scope *scope;
+  struct Pc onerror;
+  int resumeable;
 };
 
-#endif /* __APPS_EXAMPLES_BAS_PROGRAMTYPES_H */
+union AutoSlot
+{
+  struct AutoFrameSlot retFrame;
+  struct AutoExceptionSlot retException;
+  struct Var var;
+};
+
+#include "bas_token.h"
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+struct Auto *Auto_new(struct Auto *this);
+void Auto_destroy(struct Auto *this);
+struct Var *Auto_pushArg(struct Auto *this);
+void Auto_pushFuncRet(struct Auto *this, int firstarg, struct Pc *pc);
+void Auto_pushGosubRet(struct Auto *this, struct Pc *pc);
+struct Var *Auto_local(struct Auto *this, int l);
+int Auto_funcReturn(struct Auto *this, struct Pc *pc);
+int Auto_gosubReturn(struct Auto *this, struct Pc *pc);
+void Auto_frameToError(struct Auto *this, struct Program *program, struct Value *v);
+void Auto_setError(struct Auto *this, long int line, struct Pc *pc, struct Value *v);
+
+int Auto_find(struct Auto *this, struct Identifier *ident);
+int Auto_variable(struct Auto *this, const struct Identifier *ident);
+enum ValueType Auto_argType(const struct Auto *this, int l);
+enum ValueType Auto_varType(const struct Auto *this, struct Symbol *sym);
+void Auto_funcEnd(struct Auto *this);
+
+#endif /* __APPS_EXAMPLES_BAS_BAS_AUTO_H */

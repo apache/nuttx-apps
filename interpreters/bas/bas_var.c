@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/var.c
+ * apps/interpreters/bas/bas_var.c
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -66,8 +66,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "error.h"
-#include "var.h"
+#include "bas_error.h"
+#include "bas_var.h"
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/var.c
+ * apps/interpreters/bas/bas_statement.c
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -64,7 +64,7 @@
 
 #include <stdlib.h>
 
-#include "statement.h"
+#include "bas_statement.h"
 
 /****************************************************************************
  * Pre-processor Definitions

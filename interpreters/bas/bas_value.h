@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/value.h
+ * apps/interpreters/bas/bas_value.h
  *
  *   Copyright (c) 1999-2014 Michael Haardt
  *
@@ -56,14 +56,14 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_BAS_VALUE_H
-#define __APPS_EXAMPLES_BAS_VALUE_H
+#ifndef __APPS_EXAMPLES_BAS_BAS_VALUE_H
+#define __APPS_EXAMPLES_BAS_BAS_VALUE_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "str.h"
+#include "bas_str.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -179,4 +179,4 @@ struct Value *Value_toStringUsing(struct Value *this, struct String *s,
 struct String *Value_toWrite(struct Value *this, struct String *s);
 struct Value *Value_nullValue(enum ValueType type);
 
-#endif /* __APPS_EXAMPLES_BAS_VALUE_H */
+#endif /* __APPS_EXAMPLES_BAS_BAS_VALUE_H */

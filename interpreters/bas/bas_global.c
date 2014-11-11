@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/interpreters/bas/global.c
+ * apps/interpreters/bas/bas_global.c
  * Global variables and functions.
  *
  *   Copyright (c) 1999-2014 Michael Haardt
@@ -75,12 +75,12 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "auto.h"
+#include "bas_auto.h"
 #include "bas.h"
-#include "error.h"
-#include "fs.h"
-#include "global.h"
-#include "var.h"
+#include "bas_error.h"
+#include "bas_fs.h"
+#include "bas_global.h"
+#include "bas_var.h"
 
 #include <nuttx/clock.h>
 
