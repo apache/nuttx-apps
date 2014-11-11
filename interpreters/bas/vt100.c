@@ -59,7 +59,9 @@
 #if 0 /* Not used */
 static const char g_cursoron[]      = VT100_CURSORON;
 static const char g_cursoroff[]     = VT100_CURSOROFF;
+#endif
 static const char g_cursorhome[]    = VT100_CURSORHOME;
+#if 0 /* Not used */
 static const char g_erasetoeol[]    = VT100_CLEAREOL;
 #endif
 static const char g_clrscreen[]     = VT100_CLEARSCREEN;
@@ -213,14 +215,12 @@ void vt100_cursoroff(int chn)
  *
  ****************************************************************************/
 
-#if 0 /* Not used */
 void vt100_cursorhome(int chn)
 {
   /* Send the VT100 CURSORHOME command */
 
   vt100_write(chn, g_cursorhome, sizeof(g_cursorhome));
 }
-#endif
 
 /****************************************************************************
  * Name: vt100_setcursor

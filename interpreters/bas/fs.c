@@ -399,6 +399,7 @@ static int cls(int chn)
 {
 #ifdef CONFIG_INTERPREPTER_BAS_VT100
   vt100_clrscreen(chn);
+  vt100_cursorhome(chn);
   return 0;
 #else
   FS_errmsg = _("Clear screen operation not implemented");
