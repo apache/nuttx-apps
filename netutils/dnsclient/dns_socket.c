@@ -252,12 +252,6 @@ static int dns_send_query(int sockfd, FAR const char *name,
 
   memcpy(query, endquery, 5);
 
-#ifdef CONFIG_NET_IPv6
-  DEBUGASSERT(((struct sockaddr *)addr)->sa_family == AF_INET6);
-#else
-  DEBUGASSERT(((struct sockaddr *)addr)->sa_family == AF_INET);
-#endif
-
   return sendto(sockfd, buffer, query + 5 - buffer,
                 0, (struct sockaddr*)addr, ADDRLEN);
 }
