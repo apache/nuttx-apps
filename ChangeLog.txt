@@ -1104,4 +1104,10 @@
 	  Haardt's BAS 2.4 test files adapted for use by NuttX on a ROMFS file
 	  system (2014-11-7).
 	* apps/interpreter/bas: Add VT100 support for color command (2014-11-10).
+	* nshlib/: Remove use of CONFIG_MAX_TASKS in ps command and in range
+	  checkout (2014-11-13).
+	* netutils/thttpd:  Remove use of CONFIG_MAX_TASKS in in 'task' CGI
+	  example (2014-11-13).
+	* sysm/i2c: Remove use of CONFIG_MAX_TASKS for maximum arguement I2C
+	  tool size (2014-11-13).
 
