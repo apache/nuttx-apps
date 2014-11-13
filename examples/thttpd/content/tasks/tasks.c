@@ -152,12 +152,11 @@ static const char *g_ttypenames[4] =
 
       /* Then any additional arguments */
 
-#if CONFIG_MAX_TASK_ARGS > 2
-      for (i = 2; i <= CONFIG_MAX_TASK_ARGS && ttcb->argv[i]; i++)
+      for (i = 2; ttcb->argv[i]; i++)
         {
           printf(", %p", ttcb->argv[i]);
          }
-#endif
+
       printf(")\n");
     }
 }
