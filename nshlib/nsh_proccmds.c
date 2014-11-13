@@ -236,9 +236,7 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
   char buffer[8];
   int ret;
 #endif
-#if CONFIG_MAX_TASK_ARGS > 2
   int i;
-#endif
 
   /* Show task status */
 
@@ -293,12 +291,10 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
 
           /* Then any additional arguments */
 
-#if CONFIG_MAX_TASK_ARGS > 2
-          for (i = 2; i <= CONFIG_MAX_TASK_ARGS && ttcb->argv[i]; i++)
+          for (i = 2; ttcb->argv[i]; i++)
             {
               nsh_output(vtbl, ", %p", ttcb->argv[i]);
             }
-#endif
         }
     }
 

@@ -454,12 +454,6 @@
 # endif
 #endif
 
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_NSH_FILE_APPS)
-#  if CONFIG_NSH_MAXARGUMENTS > CONFIG_MAX_TASK_ARGS
-#    warning Number of built-in and file task arguments will be truncated to CONFIG_MAX_TASK_ARGS
-#  endif
-#endif
-
 /* Argument list size
  *
  *   argv[0]:      The command name.
