@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/i2c/i2ctool.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,11 +93,12 @@
 #endif
 
 /* This is the maximum number of arguments that will be accepted for a
- * command.  The only real limit is in the OS configuration that limits
- * the number of parameters passed to a task.
+ * command.  This is only used for sizing a hardcoded array and is set
+ * to be sufficiently large to support all possible I2C tool arguments and
+ * then some.
  */
 
-#define MAX_ARGUMENTS (CONFIG_MAX_TASK_ARGS-1)
+#define MAX_ARGUMENTS 12
 
 /* Maximum size of one command line */
 
