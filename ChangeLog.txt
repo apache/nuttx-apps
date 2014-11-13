@@ -1110,4 +1110,8 @@
 	  example (2014-11-13).
 	* sysm/i2c: Remove use of CONFIG_MAX_TASKS for maximum arguement I2C
 	  tool size (2014-11-13).
-
+	* apps/netutils/dnsclient/dns_socket.c:  Right now if you make a DNS
+	  request before the dns address it set you will get an assertion. The
+	  state of the IP setting is not something the application should be
+	  aware of, it should only be concerned with whether or not the name
+	  was resolved.  From Brennan Ashtoni (2014-11-13).
