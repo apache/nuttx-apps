@@ -84,15 +84,20 @@
 #define TFTP_ERRHEADERSIZE  4
 #define TFTP_DATAHEADERSIZE 4
 
-/* The maximum size for TFTP data is determined by the configured uIP packet
- * size (but cannot exceed 512 + sizeof(TFTP_DATA header).
+/* The maximum size for TFTP data is determined by the configured UDP packet
+ * payload size (UDP_MSS), but cannot exceed 512 + sizeof(TFTP_DATA header).
+ *
+ * In the case where there are multiple network devices with different
+ * link layer protocols (CONFIG_NET_MULTILINK), each network device
+ * may support a different UDP MSS value.  Here we arbitrarily select
+ * the minimum MSS for that case.
  */
 
 #define TFTP_DATAHEADERSIZE 4
 #define TFTP_MAXPACKETSIZE  (TFTP_DATAHEADERSIZE+512)
 
-#if UDP_MSS < TFTP_MAXPACKETSIZE
-#  define TFTP_PACKETSIZE   UDP_MSS
+#if MIN_UDP_MSS < TFTP_MAXPACKETSIZE
+#  define TFTP_PACKETSIZE   MIN_UDP_MSS
 #  ifdef CONFIG_CPP_HAVE_WARNING
 #    warning "uIP MSS is too small for TFTP"
 #  endif

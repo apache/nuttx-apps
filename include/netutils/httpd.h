@@ -77,9 +77,14 @@
 /* For efficiency reasons, the size of the IO buffer should be a multiple
  * of the TCP MSS value.  Also, the current design requires that the IO
  * buffer be sufficiently large to contain the entire GET request.
+ *
+ * In the case where there are multiple network devices with different
+ * link layer protocols (CONFIG_NET_MULTILINK), each network device
+ * may support a different TCP MSS value.  Here we arbitrarily select
+ * the minimum MSS for that case.
  */
 
-#define HTTPD_IOBUFFER_SIZE (3*TCP_MSS)
+#define HTTPD_IOBUFFER_SIZE (3*MIN_TCP_MSS)
 
 /* This is the maximum size of a file path */
 
