@@ -92,13 +92,23 @@
  * mixed transports.
  */
 
-#ifdef CONFIG_NET_SLIP
+#ifdef CONFIG_NET_MULILINK
+#  warning REVISIT: CONFIG_NET_MULILINK multilink support incomplete
+#endif
+
+/* If both SLIP and Ethernet interfaces are present, only the Ethernet
+ * interface will be initialized.
+ */
+
+#if defined(CONFIG_NET_ETHERNET)
+#  define NET_DEVNAME "eth0"
+#elif defined(CONFIG_NET_SLIP)
 #  define NET_DEVNAME "sl0"
 #  ifndef CONFIG_NSH_NOMAC
 #    error "CONFIG_NSH_NOMAC must be defined for SLIP"
 #  endif
 #else
-#  define NET_DEVNAME "eth0"
+#  error ERROR: No link layer protocol defined
 #endif
 
 /* While the network is up, the network monitor really does nothing.  It
@@ -143,7 +153,8 @@ static void nsh_netinit_configure(void)
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
 #endif
-#if (defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)) && !defined(CONFIG_NET_SLIP)
+#if (defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)) && \
+    defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
@@ -151,7 +162,7 @@ static void nsh_netinit_configure(void)
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
-#if defined(CONFIG_NSH_NOMAC) && !defined(CONFIG_NET_SLIP)
+#if defined(CONFIG_NSH_NOMAC) && defined(CONFIG_NET_ETHERNET)
 #ifdef CONFIG_NSH_ARCHMAC
   /* Let platform-specific logic assign the MAC address. */
 

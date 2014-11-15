@@ -52,7 +52,7 @@ endif
 
 # No MAC address support for SLIP (Ethernet only)
 
-ifneq ($(CONFIG_NET_SLIP),y)
+ifeq ($(CONFIG_NET_ETHERNET),y)
 CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
 endif
 

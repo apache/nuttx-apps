@@ -95,13 +95,24 @@
 #  error "You must not disable loadable modules via CONFIG_BINFMT_DISABLE in your configuration file"
 #endif
 
+/* Ethernet specific configuration */
+
+#ifdef CONFIG_NET_ETHERNET
+
+   /* Otherwise, use the standard Ethernet device name */
+
+#  define NET_DEVNAME "eth0"
+
+#else
+
+   /* No Ethernet -> No MAC address operations */
+
+#  undef CONFIG_EXAMPLES_THTTPD_NOMAC
+#endif
+
 /* SLIP-specific configuration */
 
 #ifdef CONFIG_NET_SLIP
-
-   /* No MAC address operations */
-
-#  undef CONFIG_EXAMPLES_THTTPD_NOMAC
 
    /* TTY device to use */
 
@@ -110,12 +121,10 @@
 #  endif
 
 #  define SLIP_DEVNO 0
-#  define NET_DEVNAME "sl0"
-#else
 
-   /* Otherwise, use the standard ethernet device name */
-
-#  define NET_DEVNAME "eth0"
+#  ifndef NET_DEVNAME
+#    define NET_DEVNAME "sl0"
+#  endif
 #endif
 
 /* Describe the ROMFS file system */

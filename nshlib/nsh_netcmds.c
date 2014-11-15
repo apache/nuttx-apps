@@ -589,7 +589,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *gwip = NULL;
   FAR char *mask = NULL;
   FAR char *tmp = NULL;
-#ifndef CONFIG_NET_SLIP
+#ifdef CONFIG_NET_ETHERNET
   FAR char *hw = NULL;
 #endif
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
@@ -661,7 +661,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     }
                 }
 
-#ifndef CONFIG_NET_SLIP
+#ifdef CONFIG_NET_ETHERNET
               /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
               else if (!strcmp(tmp, "hw"))
@@ -703,7 +703,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-#ifndef CONFIG_NET_SLIP
+#ifdef CONFIG_NET_ETHERNET
   /* Set Hardware Ethernet MAC address */
   /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
