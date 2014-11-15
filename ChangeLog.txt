@@ -1115,3 +1115,6 @@
 	  state of the IP setting is not something the application should be
 	  aware of, it should only be concerned with whether or not the name
 	  was resolved.  From Brennan Ashtoni (2014-11-13).
+	* apps/nshlib/, apps/netutils, and apps/include/netutils:  Misc
+	  changes to support multiple networks with different link layers.  For
+	  example, ETHERNET + SLIP (2014-11-15).
