@@ -176,6 +176,8 @@ static int nsh_waitusbready(void)
    * host-side application opens the connection.
    */
 
+restart:
+
   /* Open the USB serial device for read/write access */
 
   do
@@ -225,6 +227,17 @@ static int nsh_waitusbready(void)
           /* No.. Reset the count.  We need to see 3 in a row to continue. */
 
           nlc = 0;
+
+          /* If a read error occurred (nbytes < 0) or an end-of-file was
+           * encountered (nbytes == 0), then close the driver and start
+           * over.
+           */
+
+          if (nbytes <= 0)
+            {
+              (void)close(fd);
+              goto restart;
+            }
         }
     }
   while (nlc < 3);
