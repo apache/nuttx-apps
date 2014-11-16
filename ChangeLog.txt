@@ -1118,3 +1118,9 @@
 	* apps/nshlib/, apps/netutils, and apps/include/netutils:  Misc
 	  changes to support multiple networks with different link layers.  For
 	  example, ETHERNET + SLIP (2014-11-15).
+	* apps/nshlib/nsh_usbconsole.c:  Add logic to restart the console wait
+	  if an error occurs while reading from the console.In USB console
+	  startup, the logic must be able to open the USB serial and receive 3
+	  newlines.  However, it the USB driver is disconnected or otherwise
+	  fails before the 3 newlines are received, the receive loop becomes a
+	  killer, infinite loop, CPU hog.  Noted by spasbyspas (2014-11-16).
