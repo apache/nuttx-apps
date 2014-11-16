@@ -1124,3 +1124,7 @@
 	  newlines.  However, it the USB driver is disconnected or otherwise
 	  fails before the 3 newlines are received, the receive loop becomes a
 	  killer, infinite loop, CPU hog.  Noted by spasbyspas (2014-11-16).
+	* examples/, netutils/, nshlib/, various files:  Rename
+	  CONFIG_NET_BUFSIZE to CONFIG_NET_ETH_MTU; Add CONFIG_NET_SLIP_MTU.
+	  Modify logic to handle different MTUs when both Ethernet and SLIP
+	  are enabled (2014-11-16).
