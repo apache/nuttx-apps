@@ -961,7 +961,7 @@ Command Dependencies on Configuration Settings
   exec       --
   exit       --
   free       --
-  get        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET_BUFSIZE >= 558  (see note 1)
+  get        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && MTU >= 558  (see note 1)
   help       --
   hexdump    CONFIG_NFILE_DESCRIPTORS > 0
   ifconfig   CONFIG_NET
@@ -981,7 +981,7 @@ Command Dependencies on Configuration Settings
   nfsmount   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET && CONFIG_NFS
   ping       CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_PING && !CONFIG_DISABLE_SIGNALS
   ps         --
-  put        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET_BUFSIZE >= 558 (see note 1,2)
+  put        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && MTU >= 558 (see note 1,2)
   pwd        !CONFIG_DISABLE_ENVIRON && CONFIG_NFILE_DESCRIPTORS > 0
   rm         (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
   rmdir      (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
@@ -998,7 +998,7 @@ Command Dependencies on Configuration Settings
   xd         ---
 
 * NOTES:
-  1. Because of hardware padding, the actual buffersize required for put and get
+  1. Because of hardware padding, the actual MTU required for put and get
      operations size may be larger.
   2. Special TFTP server start-up options will probably be required to permit
      creation of file for the correct operation of the put command.
@@ -1331,9 +1331,11 @@ NSH-Specific Configuration Settings
   * CONFIG_NET_BROADCAST=y
       UDP broadcast support is needed.
 
-  * CONFIG_NET_BUFSIZE=650 (or larger)
+  * CONFIG_NET_ETH_MTU=650 (or larger)
       Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
       messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
+      NOTE: Note that the actual MTU setting will depend upon the specific
+      link protocol.  Here Ethernet is indicated.
 
   If CONFIG_NSH_ROMFSETC is selected, then the following additional
   configuration setting apply:
