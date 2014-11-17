@@ -105,13 +105,13 @@ config EXAMPLES_BRIDGE_NET2_IFNAME
 
 config EXAMPLES_BRIDGE_NET2_RECVPORT
 	int "UDP receive port"
-	default 5471
+	default 5473
 	---help---
 		Network 1 listen port number
 
 config EXAMPLES_BRIDGE_NET2_SNDPORT
 	int "UDP send port"
-	default 5472
+	default 5474
 	---help---
 		Network 2 send port number
 
