@@ -170,7 +170,7 @@ static int tcpecho_netsetup()
       return ERROR;
     }
 
-  netlib_sethostaddr("eth1", &ds.ipaddr);
+  netlib_sethostaddr("eth0", &ds.ipaddr);
 
   if (ds.netmask.s_addr != 0)
     {
@@ -364,7 +364,7 @@ static int tcpecho_server(void)
  ****************************************************************************/
 
 /****************************************************************************
- * discover_main
+ * tcpecho_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL

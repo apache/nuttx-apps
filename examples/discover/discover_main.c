@@ -157,7 +157,7 @@ int discover_main(int argc, char *argv[])
     {
       struct dhcpc_state ds;
       (void)dhcpc_request(handle, &ds);
-      netlib_sethostaddr("eth1", &ds.ipaddr);
+      netlib_sethostaddr("eth0", &ds.ipaddr);
 
       if (ds.netmask.s_addr != 0)
         {
