@@ -6,6 +6,7 @@
 config SYSTEM_NXPLAYER
 	bool "NxPlayer library / command line support"
 	default n
+	depends on AUDIO
 	---help---
 		Enable support for the command line media player
 
