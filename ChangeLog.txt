@@ -1131,3 +1131,8 @@
 	* apps/examples/discover, tcpecho, webserver, xmlrpc:  These examples
 	  all set the IP address of eth1 but the netmask and gateway of eth0
 	  if DHCP is enabled.  That can't be right???? (2014-11-17).
+	* apps/examples/bridge:  Add a simple UDP relay bridge for testing
+	  configurations with multiple networks.  Initial checkin is not
+	  very usuable because it lacks a host-side test driver for the
+	  bridge (2014-11-17).
+
