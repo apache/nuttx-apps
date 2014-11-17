@@ -1108,7 +1108,7 @@
 	  checkout (2014-11-13).
 	* netutils/thttpd:  Remove use of CONFIG_MAX_TASKS in in 'task' CGI
 	  example (2014-11-13).
-	* sysm/i2c: Remove use of CONFIG_MAX_TASKS for maximum arguement I2C
+	* sysm/i2c: Remove use of CONFIG_MAX_TASKS for maximum argument I2C
 	  tool size (2014-11-13).
 	* apps/netutils/dnsclient/dns_socket.c:  Right now if you make a DNS
 	  request before the dns address it set you will get an assertion. The
@@ -1128,3 +1128,6 @@
 	  CONFIG_NET_BUFSIZE to CONFIG_NET_ETH_MTU; Add CONFIG_NET_SLIP_MTU.
 	  Modify logic to handle different MTUs when both Ethernet and SLIP
 	  are enabled (2014-11-16).
+	* apps/examples/discover, tcpecho, webserver, xmlrpc:  These examples
+	  all set the IP address of eth1 but the netmask and gateway of eth0
+	  if DHCP is enabled.  That can't be right???? (2014-11-17).
