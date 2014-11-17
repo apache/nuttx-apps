@@ -83,7 +83,7 @@ void send_client(void)
   int nbytes;
   int offset;
 
-  /* Create a new TCP socket */
+  /* Create a new UDP socket */
 
   sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
