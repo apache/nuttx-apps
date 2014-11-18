@@ -756,31 +756,6 @@ static int dhcpd_addoption32(uint8_t code, uint32_t value)
 }
 
 /****************************************************************************
- * Name: dhcpd_addoption_n
- ****************************************************************************/
-
-#if HAVE_DNSIP
-static int dhcpd_addoption_n(uint8_t code, uint8_t *value, uint8_t len)
-{
-  /* REVISIT: This form may not be supported by older compilers.  It may
-   * need to be replaced with malloc() and free() for portability.
-   */
-
-  uint8_t option[len+2];
-
-  /* Construct the option sequence */
-
-  option[DHCPD_OPTION_CODE]   = code;
-  option[DHCPD_OPTION_LENGTH] = len;
-  memcpy(&option[DHCPD_OPTION_DATA], value, len);
-
-  /* Add the option sequence to the response */
-
-  return dhcpd_addoption(option);
-}
-#endif
-
-/****************************************************************************
  * Name: dhcpd_soclet
  ****************************************************************************/
 
@@ -1024,7 +999,7 @@ static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
   dhcpd_addoption32(DHCP_OPTION_ROUTER, htonl(CONFIG_NETUTILS_DHCPD_ROUTERIP));
 #endif
 #if HAVE_DNSIP
-  dhcpd_addoption_n(DHCP_OPTION_DNS_SERVER, (uint8_t*)&dnsaddr, DHCP_OPTION_DNS_SERVER_L);
+  dhcpd_addoption32(DHCP_OPTION_DNS_SERVER, (uint8_t*)&dnsaddr);
 #endif
 
   /* Send the offer response */
@@ -1086,7 +1061,7 @@ int dhcpd_sendack(in_addr_t ipaddr)
   dhcpd_addoption32(DHCP_OPTION_ROUTER, htonl(CONFIG_NETUTILS_DHCPD_ROUTERIP));
 #endif
 #if HAVE_DNSIP
-  dhcpd_addoption_n(DHCP_OPTION_DNS_SERVER, (uint8_t*)&dnsaddr, DHCP_OPTION_DNS_SERVER_L);
+  dhcpd_addoption32(DHCP_OPTION_DNS_SERVER, (uint8_t*)&dnsaddr);
 #endif
 
 #ifdef CONFIG_NETUTILS_DHCPD_IGNOREBROADCAST
