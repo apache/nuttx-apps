@@ -61,6 +61,18 @@ config NETUTILS_DHCPD_STARTIP
 	hex "First IP address"
 	default 0x0a000002
 
+config NETUTILS_DHCPD_ROUTERIP
+	hex "Router IP (0 to disable)"
+	default 0x0a000001
+
+config NETUTILS_DHCPD_NETMASK
+	hex "Netmask (0 to disable)"
+	default 0xffffff00
+
+config NETUTILS_DHCPD_DNSIP
+	hex "DNS (0 to disable)"
+	default 0x08080808
+
 config NETUTILS_DHCPD_OFFERTIME
 	int "Offer time (seconds)"
 	default 3600
