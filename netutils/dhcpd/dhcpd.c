@@ -89,7 +89,6 @@
 #define DHCP_OPTION_SUBNET_MASK   1  /*  1     Subnet Mask                  */
 #define DHCP_OPTION_ROUTER        3  /*  4     Router                       */
 #define DHCP_OPTION_DNS_SERVER    6  /*  4N    DNS                          */
-#define DHCP_OPTION_DNS_SERVER_L  4  /*        DNS Length                   */
 #define DHCP_OPTION_REQ_IPADDR   50  /*  4     Requested IP Address         */
 #define DHCP_OPTION_LEASE_TIME   51  /*  4     IP address lease time        */
 #define DHCP_OPTION_OVERLOAD     52  /*  1     Option overload              */
