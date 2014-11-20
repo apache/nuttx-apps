@@ -1135,4 +1135,6 @@
 	  configurations with multiple networks.  Initial checkin is not
 	  very usuable because it lacks a host-side test driver for the
 	  bridge (2014-11-17).
+	* apps/netutils/codecs/md5.c: Fix md5 hashing when digest[$i] lower
+	  that 16. From Sergey (2015-11-20).
 
