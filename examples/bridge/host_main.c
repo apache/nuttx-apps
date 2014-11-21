@@ -74,9 +74,10 @@ static uint8_t g_rdbuffer[EXAMPLES_BRIDGE_SEND_IOBUFIZE];
 
 int main(int argc, char *argv[])
 {
-  struct sockaddr_in recvaddr;
-  struct sockaddr_in listenaddr;
-  struct sockaddr_in sendaddr;
+  struct sockaddr_in receiver;
+  struct sockaddr_in sender;
+  struct sockaddr_in toaddr;
+  struct sockaddr_in fromaddr;
   socklen_t addrlen;
   in_addr_t tmpaddr;
   ssize_t nrecvd;
@@ -89,7 +90,8 @@ int main(int argc, char *argv[])
 
   /* Create a UDP send socket */
 
-  printf(LABEL "Create send socket\n");
+  printf(LABEL "Create send socket: IPHOST=%08x PORT=INPORT_ANY\n",
+         EXAMPLES_BRIDGE_SEND_IPHOST);
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -109,11 +111,11 @@ int main(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  sendaddr.sin_family      = AF_INET;
-  sendaddr.sin_port        = htons(EXAMPLES_BRIDGE_SEND_SNDPORT);
-  sendaddr.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_SEND_IPHOST);
+  sender.sin_family      = AF_INET;
+  sender.sin_port        = 0;
+  sender.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_SEND_IPHOST);
 
-  if (bind(sndsd, (struct sockaddr*)&sendaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(sndsd, (struct sockaddr*)&sender, sizeof(struct sockaddr_in)) < 0)
     {
       printf(LABEL "bind failure: %d\n", errno);
       goto errout_with_sendsd;
@@ -121,7 +123,8 @@ int main(int argc, char *argv[])
 
   /* Create a UDP receive socket */
 
-  printf(LABEL "Create receive socket\n");
+  printf(LABEL "Create receive socket: IPHOST=%08x RECVPORT=%d\n",
+         EXAMPLES_BRIDGE_RECV_IPHOST, EXAMPLES_BRIDGE_SEND_SNDPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
@@ -141,21 +144,28 @@ int main(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  listenaddr.sin_family      = AF_INET;
-  listenaddr.sin_port        = htons(EXAMPLES_BRIDGE_RECV_RECVPORT);
-  listenaddr.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_RECV_IPHOST);
+  receiver.sin_family      = AF_INET;
+  receiver.sin_port        = htons(EXAMPLES_BRIDGE_SEND_SNDPORT);
+  receiver.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_RECV_IPHOST);
 
-  if (bind(recvsd, (struct sockaddr*)&listenaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
     {
       fprintf(stderr, LABEL "ERROR: bind failure: %d\n", errno);
       goto errout_with_recvsd;
     }
 
-   /* Send a packet */
+  /* Send a packet */
 
-   printf(LABEL "Sending %lu bytes\n", sizeof(g_sndmessage));
+  printf(LABEL "Sending %lu bytes: IPTARGET=%08x PORT=%d\n",
+         sizeof(g_sndmessage),
+         CONFIG_EXAMPLES_BRIDGE_NET1_IPADDR, CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
+
+  toaddr.sin_family      = AF_INET;
+  toaddr.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
+  toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET1_IPADDR);
+
    nsent = sendto(sndsd, g_sndmessage,  sizeof(g_sndmessage), 0,
-                 (struct sockaddr*)&sendaddr, sizeof(struct sockaddr_in));
+                 (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));
 
   /* Check for send errors */
 
@@ -166,7 +176,7 @@ int main(int argc, char *argv[])
     }
   else if (nsent != sizeof(g_sndmessage))
     {
-      fprintf(stderr, LABEL "ERROR: Bad send length: %ld Expected: %d\n",
+      fprintf(stderr, LABEL "ERROR: Bad send length: %ld Expected: %lu\n",
               (long)nsent, sizeof(g_sndmessage));
       goto errout_with_recvsd;
     }
@@ -179,14 +189,14 @@ int main(int argc, char *argv[])
 
   addrlen = sizeof(struct sockaddr_in);
   nrecvd = recvfrom(recvsd, g_rdbuffer, EXAMPLES_BRIDGE_SEND_IOBUFIZE, 0,
-                    (struct sockaddr*)&recvaddr, &addrlen);
+                    (struct sockaddr*)&fromaddr, &addrlen);
 
-  tmpaddr = ntohl(recvaddr.sin_addr.s_addr);
+  tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
   printf(LABEL "Received %ld bytes from %d.%d.%d.%d:%d\n",
          (long)nrecvd,
          tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
          (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
-         ntohs(recvaddr.sin_port));
+         ntohs(fromaddr.sin_port));
 
   /* Check for a receive error or zero bytes received.  The negative
    * return value indicates a receive error; Zero would mean that the
