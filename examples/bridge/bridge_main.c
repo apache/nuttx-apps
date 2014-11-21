@@ -63,9 +63,6 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define BRIDGE_MAXLINE 64
-#define BRIDGE_POLLTIMEOUT 10000
-
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -192,6 +189,13 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
   g_net1_ipaddr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET1_IPADDR);
 
 #endif /* CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC */
+
+#else /* CONFIG_NSH_BUILTIN_APPS */
+  /* Hmmm.. there is an issue here.  Where do we get the IP address if we
+   * are a builtin in application?
+   */
+#  warning Missing logic
+
 #endif /* CONFIG_NSH_BUILTIN_APPS */
 
   return OK;
@@ -310,6 +314,13 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
   g_net2_ipaddr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET2_IPADDR);
 
 #endif /* CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC */
+
+#else /* CONFIG_NSH_BUILTIN_APPS */
+  /* Hmmm.. there is an issue here.  Where do we get the IP address if we
+   * are a builtin in application?
+   */
+#  warning Missing logic
+
 #endif /* CONFIG_NSH_BUILTIN_APPS */
 
   return OK;

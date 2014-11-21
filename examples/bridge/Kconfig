@@ -74,6 +74,8 @@ config EXAMPLES_BRIDGE_NET1_IPADDR
 	hex "IP address"
 	default 0x0a000002
 	depends on !EXAMPLES_BRIDGE_NET1_DHCPC
+	---help---
+		IP address of network 1 for the target
 
 config EXAMPLES_BRIDGE_NET1_DRIPADDR
 	hex "Default Router IP address (Gateway)"
@@ -84,6 +86,12 @@ config EXAMPLES_BRIDGE_NET1_NETMASK
 	default 0xffffff00
 
 endif # !NSH_BUILTIN_APPS
+
+config EXAMPLES_BRIDGE_NET1_IPHOST
+	hex "Host IP address"
+	default 0x0a000001
+	---help---
+		IP address of network 1 for the host
 
 config EXAMPLES_BRIDGE_NET1_STACKSIZE
 	int "Network 1 daemon stacksize"
@@ -148,6 +156,8 @@ config EXAMPLES_BRIDGE_NET2_IPADDR
 	hex "IP address"
 	default 0x0a000003
 	depends on !EXAMPLES_BRIDGE_NET2_DHCPC
+	---help---
+		IP address of network 2 for the target
 
 config EXAMPLES_BRIDGE_NET2_DRIPADDR
 	hex "Default Router IP address (Gateway)"
@@ -158,6 +168,12 @@ config EXAMPLES_BRIDGE_NET2_NETMASK
 	default 0xffffff00
 
 endif # !NSH_BUILTIN_APPS
+
+config EXAMPLES_BRIDGE_NET2_IPHOST
+	hex "Host IP address"
+	default 0x0a000001
+	---help---
+		IP address of network 2 for the host
 
 config EXAMPLES_BRIDGE_NET2_STACKSIZE
 	int "Network 2 daemon stacksize"

@@ -40,43 +40,54 @@ include $(APPDIR)/Make.defs
 
 # Discover built-in application info
 
-APPNAME = bridge
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
+TARG_APPNAME = bridge
+TARG_PRIORITY = SCHED_PRIORITY_DEFAULT
+TARG_STACKSIZE = 2048
 
-ASRCS =
-CSRCS =
+TARG_ASRCS =
+TARG_CSRCS =
 MAINSRC = bridge_main.c
 
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
+TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
+TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
+TARG_MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
+TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(MAINSRC)
+TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
+  TARG_OBJS += $(TARG_MAINOBJ)
 endif
+
+HOST_SRCS1 = host_net1.c
+HOST_SRCS2 = host_net2.c
+HOST_SRCS  = $(HOST_SRCS1) $(HOST_SRCS2)
+
+HOST_OBJS1 = $(HOST_SRCS1:.c=.o)
+HOST_OBJS2 = $(HOST_SRCS2:.c=.o)
+HOST_OBJS  = $(HOST_OBJS1) $(HOST_OBJS2)
+
+HOST_BIN1 = host1
+HOST_BIN2 = host2
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
+  TARG_BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
+  TARG_BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN = ../../libapps$(LIBEXT)
+  TARG_BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
 ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+  TARG_INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
 else
-  INSTALL_DIR = $(BIN_DIR)
+  TARG_INSTALL_DIR = $(BIN_DIR)
 endif
 
 CONFIG_EXAMPLE_BRIDGE_PROGNAME ?= bridge$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLE_BRIDGE_PROGNAME)
+TARG_PROGNAME = $(CONFIG_EXAMPLE_BRIDGE_PROGNAME)
 
 ROOTDEPPATH = --dep-path .
 
@@ -87,23 +98,37 @@ VPATH =
 all: .built
 .PHONY: clean depend distclean
 
-$(AOBJS): %$(OBJEXT): %.S
+$(TARG_AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
+$(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-.built: $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
+$(HOST_OBJS): %.o: %.c
+	$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+
+$(TARG_BIN): $(TARG_OBJS)
+	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
+
+bridge_config.h: $(TOPDIR)/include/nuttx/config.h
+	cp $(TOPDIR)/include/nuttx/config.h bridge_config.h
+
+$(HOST_BIN1): bridge_config.h $(HOST_OBJS1)
+	$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS1) -o $@
+
+$(HOST_BIN2): bridge_config.h $(HOST_OBJS2)
+	$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS2) -o $@
+
+.built: $(TARG_BIN) $(HOST_BIN1) $(HOST_BIN2)
 	@touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+$(BIN_DIR)$(DELIM)$(TARG_PROGNAME): $(TARG_OBJS) $(TARG_MAINOBJ)
+	@echo "LD: $(TARG_PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(TARG_INSTALL_DIR)$(DELIM)$(TARG_PROGNAME) $(ARCHCRT0OBJ) $(TARG_MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(TARG_INSTALL_DIR)$(DELIM)$(TARG_PROGNAME)
 
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+install: $(BIN_DIR)$(DELIM)$(TARG_PROGNAME)
 
 else
 install:
@@ -111,26 +136,29 @@ install:
 endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+$(BUILTIN_REGISTRY)$(DELIM)$(TARG_APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(TARG_APPNAME),$(TARG_PRIORITY),$(TARG_STACKSIZE),$(TARG_APPNAME)_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+context: $(BUILTIN_REGISTRY)$(DELIM)$(TARG_APPNAME)_main.bdat
 else
 context:
 endif
 
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+.depend: Makefile $(TARG_SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep
 	@touch $@
 
 depend: .depend
 
 clean:
 	$(call DELFILE, .built)
+	$(call DELFILE, $(HOST_BIN1))
+	$(call DELFILE, $(HOST_BIN2))
 	$(call CLEAN)
 
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(call DELFILE, bridge_config.h)
 
 -include Make.dep
