@@ -1137,4 +1137,6 @@
 	  bridge (2014-11-17).
 	* apps/netutils/codecs/md5.c: Fix md5 hashing when digest[$i] lower
 	  that 16. From Sergey (2015-11-20).
+	* apps/examples/bridge/host_main.c, host_net1.c, host_net2.c, Kconfig,
+	  and Makefile:  Add host-side test driver (2014-11-21).
 
