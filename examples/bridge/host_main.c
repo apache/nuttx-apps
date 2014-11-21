@@ -76,8 +76,8 @@ int main(int argc, char *argv[])
 {
   struct sockaddr_in receiver;
   struct sockaddr_in sender;
-  struct sockaddr_in toaddr;
   struct sockaddr_in fromaddr;
+  struct sockaddr_in toaddr;
   socklen_t addrlen;
   in_addr_t tmpaddr;
   ssize_t nrecvd;
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   /* Create a UDP receive socket */
 
   printf(LABEL "Create receive socket: IPHOST=%08x RECVPORT=%d\n",
-         EXAMPLES_BRIDGE_RECV_IPHOST, EXAMPLES_BRIDGE_SEND_SNDPORT);
+         EXAMPLES_BRIDGE_RECV_IPHOST, EXAMPLES_BRIDGE_SEND_HOSTPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
   /* Bind the socket to a local address */
 
   receiver.sin_family      = AF_INET;
-  receiver.sin_port        = htons(EXAMPLES_BRIDGE_SEND_SNDPORT);
+  receiver.sin_port        = htons(EXAMPLES_BRIDGE_SEND_HOSTPORT);
   receiver.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_RECV_IPHOST);
 
   if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
@@ -158,11 +158,11 @@ int main(int argc, char *argv[])
 
   printf(LABEL "Sending %lu bytes: IPTARGET=%08x PORT=%d\n",
          sizeof(g_sndmessage),
-         CONFIG_EXAMPLES_BRIDGE_NET1_IPADDR, CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
+         EXAMPLES_BRIDGE_RECV_IPADDR, EXAMPLES_BRIDGE_RECV_RECVPORT);
 
   toaddr.sin_family      = AF_INET;
-  toaddr.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
-  toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET1_IPADDR);
+  toaddr.sin_port        = htons(EXAMPLES_BRIDGE_RECV_RECVPORT);
+  toaddr.sin_addr.s_addr = htonl(EXAMPLES_BRIDGE_RECV_IPADDR);
 
    nsent = sendto(sndsd, g_sndmessage,  sizeof(g_sndmessage), 0,
                  (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));

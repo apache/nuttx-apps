@@ -332,9 +332,10 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 
 static int bridge_net1_worker(int argc, char *argv[])
 {
-  struct sockaddr_in recvaddr;
-  struct sockaddr_in listenaddr;
-  struct sockaddr_in sendaddr;
+  struct sockaddr_in receiver;
+  struct sockaddr_in sender;
+  struct sockaddr_in fromaddr;
+  struct sockaddr_in toaddr;
   socklen_t addrlen;
   in_addr_t tmpaddr;
   ssize_t nrecvd;
@@ -347,7 +348,11 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Create a UDP receive socket on network 1 */
 
-  printf("NET1: Create receive socket\n");
+  tmpaddr = ntohl(g_net1_ipaddr);
+  printf("NET1: Create receive socket: %d.%d.%d.%d:%d\n",
+         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
+         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
@@ -367,11 +372,11 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  listenaddr.sin_family      = AF_INET;
-  listenaddr.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
-  listenaddr.sin_addr.s_addr = g_net1_ipaddr;
+  receiver.sin_family      = AF_INET;
+  receiver.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET1_RECVPORT);
+  receiver.sin_addr.s_addr = g_net1_ipaddr;
 
-  if (bind(recvsd, (struct sockaddr*)&listenaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
     {
       fprintf(stderr, "NET1 ERROR: bind failure: %d\n", errno);
       goto errout_with_recvsd;
@@ -379,7 +384,10 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Create a UDP send socket on network 2 */
 
-  printf("NET1: Create send socket\n");
+  tmpaddr = ntohl(g_net2_ipaddr);
+  printf("NET1: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
+         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
+         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff);
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -399,11 +407,11 @@ static int bridge_net1_worker(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  sendaddr.sin_family      = AF_INET;
-  sendaddr.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET1_SNDPORT);
-  sendaddr.sin_addr.s_addr = g_net2_ipaddr;
+  sender.sin_family      = AF_INET;
+  sender.sin_port        = 0;
+  sender.sin_addr.s_addr = g_net2_ipaddr;
 
-  if (bind(sndsd, (struct sockaddr*)&sendaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(sndsd, (struct sockaddr*)&sender, sizeof(struct sockaddr_in)) < 0)
     {
       printf("NET1: bind failure: %d\n", errno);
       goto errout_with_sendsd;
@@ -420,14 +428,14 @@ static int bridge_net1_worker(int argc, char *argv[])
 
       addrlen = sizeof(struct sockaddr_in);
       nrecvd = recvfrom(recvsd, g_net1_buffer, CONFIG_EXAMPLES_BRIDGE_NET1_IOBUFIZE, 0,
-                        (FAR struct sockaddr*)&recvaddr, &addrlen);
+                        (FAR struct sockaddr*)&fromaddr, &addrlen);
 
-      tmpaddr = ntohl(recvaddr.sin_addr.s_addr);
+      tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
       printf("NET1: Received %d bytes from %d.%d.%d.%d:%d\n",
              nrecvd,
              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
-             ntohs(recvaddr.sin_port));
+             ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
        * return value indicates a receive error; Zero would mean that the
@@ -452,9 +460,20 @@ static int bridge_net1_worker(int argc, char *argv[])
 
       /* Send the newly received packet out network 2 */
 
-      printf("NET1: Sending %d bytes on network 2\n", nrecvd);
+      printf("NET1: Sending %d bytes on network 2: %d.%d.%d.%d:%d\n",
+             nrecvd,
+             CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 24,
+             (CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 16) & 0xff,
+             (CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 8) & 0xff,
+             CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST & 0xff,
+             CONFIG_EXAMPLES_BRIDGE_NET2_HOSTPORT);
+
+      toaddr.sin_family      = AF_INET;
+      toaddr.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET2_HOSTPORT);
+      toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST);
+
       nsent = sendto(sndsd, g_net1_buffer, nrecvd, 0,
-                      (struct sockaddr*)&sendaddr, sizeof(struct sockaddr_in));
+                      (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));
 
       /* Check for send errors */
 
@@ -488,9 +507,10 @@ errout_with_recvsd:
 
 static int bridge_net2_worker(int argc, char *argv[])
 {
-  struct sockaddr_in recvaddr;
-  struct sockaddr_in listenaddr;
-  struct sockaddr_in sendaddr;
+  struct sockaddr_in receiver;
+  struct sockaddr_in sender;
+  struct sockaddr_in fromaddr;
+  struct sockaddr_in toaddr;
   socklen_t addrlen;
   in_addr_t tmpaddr;
   ssize_t nrecvd;
@@ -503,7 +523,11 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Create a UDP receive socket on network 2 */
 
-  printf("NET2: Create receive socket\n");
+  tmpaddr = ntohl(g_net2_ipaddr);
+  printf("NET2: Create receive socket: %d.%d.%d.%d:%d\n",
+         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
+         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
+         CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
 
   recvsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (recvsd < 0)
@@ -523,11 +547,11 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  listenaddr.sin_family      = AF_INET;
-  listenaddr.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
-  listenaddr.sin_addr.s_addr = g_net2_ipaddr;
+  receiver.sin_family      = AF_INET;
+  receiver.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET2_RECVPORT);
+  receiver.sin_addr.s_addr = g_net2_ipaddr;
 
-  if (bind(recvsd, (struct sockaddr*)&listenaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(recvsd, (struct sockaddr*)&receiver, sizeof(struct sockaddr_in)) < 0)
     {
       fprintf(stderr, "NET2 ERROR: bind failure: %d\n", errno);
       goto errout_with_recvsd;
@@ -535,7 +559,10 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Create a UDP send socket on network 1 */
 
-  printf("NET2: Create send socket\n");
+  tmpaddr = ntohl(g_net1_ipaddr);
+  printf("NET2: Create send socket: %d.%d.%d.%d:INPORT_ANY\n",
+         tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
+         (tmpaddr >> 8) & 0xff, tmpaddr & 0xff);
 
   sndsd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sndsd < 0)
@@ -555,11 +582,11 @@ static int bridge_net2_worker(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  sendaddr.sin_family      = AF_INET;
-  sendaddr.sin_port        = HTONS(CONFIG_EXAMPLES_BRIDGE_NET2_SNDPORT);
-  sendaddr.sin_addr.s_addr = g_net1_ipaddr;
+  sender.sin_family      = AF_INET;
+  sender.sin_port        = 0;
+  sender.sin_addr.s_addr = g_net1_ipaddr;
 
-  if (bind(sndsd, (struct sockaddr*)&sendaddr, sizeof(struct sockaddr_in)) < 0)
+  if (bind(sndsd, (struct sockaddr*)&sender, sizeof(struct sockaddr_in)) < 0)
     {
       printf("NET2: bind failure: %d\n", errno);
       goto errout_with_sendsd;
@@ -576,14 +603,14 @@ static int bridge_net2_worker(int argc, char *argv[])
 
       addrlen = sizeof(struct sockaddr_in);
       nrecvd = recvfrom(recvsd, g_net2_buffer, CONFIG_EXAMPLES_BRIDGE_NET2_IOBUFIZE, 0,
-                        (FAR struct sockaddr*)&recvaddr, &addrlen);
+                        (FAR struct sockaddr*)&fromaddr, &addrlen);
 
-      tmpaddr = ntohl(recvaddr.sin_addr.s_addr);
+      tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
       printf("NET2: Received %d bytes from %d.%d.%d.%d:%d\n",
              nrecvd,
              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
-             ntohs(recvaddr.sin_port));
+             ntohs(fromaddr.sin_port));
 
       /* Check for a receive error or zero bytes received.  The negative
        * return value indicates a receive error; Zero would mean that the
@@ -609,8 +636,20 @@ static int bridge_net2_worker(int argc, char *argv[])
       /* Send the newly received packet out network 1 */
 
       printf("NET2: Sending %d bytes on network 1\n", nrecvd);
+      printf("NET1: Sending %d bytes on network 1: %d.%d.%d.%d:%d\n",
+             nrecvd,
+             CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 24,
+             (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 16) & 0xff,
+             (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 8) & 0xff,
+             CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST & 0xff,
+             CONFIG_EXAMPLES_BRIDGE_NET1_HOSTPORT);
+
+      toaddr.sin_family      = AF_INET;
+      toaddr.sin_port        = htons(CONFIG_EXAMPLES_BRIDGE_NET1_HOSTPORT);
+      toaddr.sin_addr.s_addr = htonl(CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST);
+
       nsent = sendto(sndsd, g_net2_buffer, nrecvd, 0,
-                      (struct sockaddr*)&sendaddr, sizeof(struct sockaddr_in));
+                      (struct sockaddr*)&toaddr, sizeof(struct sockaddr_in));
 
       /* Check for send errors */
 

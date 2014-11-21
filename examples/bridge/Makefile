@@ -105,19 +105,23 @@ $(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 $(HOST_OBJS): %.o: %.c
-	$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+	@echo "CC: $<"
+	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 
 $(TARG_BIN): $(TARG_OBJS)
 	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
 
 bridge_config.h: $(TOPDIR)/include/nuttx/config.h
-	cp $(TOPDIR)/include/nuttx/config.h bridge_config.h
+	@echo "CP: brigetconfig.h"
+	$(Q) cp $(TOPDIR)/include/nuttx/config.h bridge_config.h
 
 $(HOST_BIN1): bridge_config.h $(HOST_OBJS1)
-	$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS1) -o $@
+	@echo "LD: $@"
+	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS1) -o $@
 
 $(HOST_BIN2): bridge_config.h $(HOST_OBJS2)
-	$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS2) -o $@
+	@echo "LD: $@"
+	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS2) -o $@
 
 .built: $(TARG_BIN) $(HOST_BIN1) $(HOST_BIN2)
 	@touch .built
