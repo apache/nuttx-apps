@@ -635,8 +635,7 @@ static int bridge_net2_worker(int argc, char *argv[])
 
       /* Send the newly received packet out network 1 */
 
-      printf("NET2: Sending %d bytes on network 1\n", nrecvd);
-      printf("NET1: Sending %d bytes on network 1: %d.%d.%d.%d:%d\n",
+      printf("NET2: Sending %d bytes on network 1: %d.%d.%d.%d:%d\n",
              nrecvd,
              CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 24,
              (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 16) & 0xff,
