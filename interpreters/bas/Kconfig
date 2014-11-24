@@ -6,8 +6,6 @@
 config INTERPRETERS_BAS
 	bool "Basic Interpreter support"
 	default n
-	select SCHED_WAITPID
-	select LIBC_EXECFUNCS
 	select LIBC_FLOATINGPOINT
 	depends on FS_READABLE
 	---help---
@@ -76,15 +74,16 @@ config EXAMPLES_BAS_SHELL
 	bool "Shell support"
 	default n
 	depends on ARCH_HAVE_VFORK && EXPERIMENTAL
+	select LIBC_EXECFUNCS
+	select SCHED_WAITPID
 	---help---
 		Support execution of shell commands from BASIC.
 
 config EXAMPLES_BAS_EDITOR
 	bool "Editor support"
 	default n
-	depends on EXAMPLES_BAS_SHELL && ARCH_HAVE_VFORK && EXPERIMENTAL
+	depends on EXAMPLES_BAS_SHELL
 	---help---
 		Support execution of an editor from BASIC.
-
 
 endif
