@@ -1070,7 +1070,7 @@ struct Value *stmt_DOcondition(struct Value *value)
 
 struct Value *stmt_EDIT(struct Value *value)
 {
-#ifdef CONFIG_ARCH_HAVE_VFORK
+#if defined(CONFIG_EXAMPLES_BAS_EDITOR) && defined(CONFIG_EXAMPLES_BAS_SHELL) && defined(CONFIG_ARCH_HAVE_VFORK)
   long int line;
   struct Pc statementpc = g_pc;
   int status;
@@ -1268,7 +1268,7 @@ struct Value *stmt_EDIT(struct Value *value)
 
   return (struct Value *)0;
 #else
-  return Value_new_ERROR(value, FORKFAILED, strerror(ENOSYS));
+  return Value_new_ERROR(value, NOTAVAILABLE, strerror(ENOSYS));
 #endif
 }
 
@@ -5680,7 +5680,7 @@ struct Value *stmt_SELECTCASE(struct Value *value)
 
 struct Value *stmt_SHELL(struct Value *value)
 {
-#ifdef CONFIG_ARCH_HAVE_VFORK
+#if defined(CONFIG_EXAMPLES_BAS_SHELL) && defined(CONFIG_ARCH_HAVE_VFORK)
   pid_t pid;
   int status;
 
@@ -5779,7 +5779,7 @@ struct Value *stmt_SHELL(struct Value *value)
 
   return (struct Value *)0;
 #else
-  return Value_new_ERROR(value, FORKFAILED, strerror(ENOSYS));
+  return Value_new_ERROR(value, NOTAVAILABLE, strerror(ENOSYS));
 #endif
 }
 

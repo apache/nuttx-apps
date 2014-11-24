@@ -72,5 +72,19 @@ config INTERPRETER_BAS_HAVE_FTRUNCATE
 	---help---
 		NuttX does not currently support the ftruncate interface
 
+config EXAMPLES_BAS_SHELL
+	bool "Shell support"
+	default n
+	depends on ARCH_HAVE_VFORK && EXPERIMENTAL
+	---help---
+		Support execution of shell commands from BASIC.
+
+config EXAMPLES_BAS_EDITOR
+	bool "Editor support"
+	default n
+	depends on EXAMPLES_BAS_SHELL && ARCH_HAVE_VFORK && EXPERIMENTAL
+	---help---
+		Support execution of an editor from BASIC.
+
 
 endif

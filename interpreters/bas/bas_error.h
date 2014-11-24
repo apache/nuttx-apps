@@ -184,5 +184,6 @@
 #define BADFORMAT          RUNTIME+19,_("Syntax error in print format")
 #define OUTOFMEMORY        RUNTIME+20,_("Out of memory")
 #define RESTRICTED         RUNTIME+21,_("Restricted")
+#define NOTAVAILABLE       RUNTIME+22,_("Feature not available")
 
 #endif /* __APPS_EXAMPLES_BAS_BAS_ERROR_H */
