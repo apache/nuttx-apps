@@ -670,7 +670,7 @@ static int zmr_filename(FAR struct zm_state_s *pzm)
   bremaining = 0;
   filetype   = 0;
 
-  sscanf((FAR char *)pktptr, "%ld %lo %o %o %d %ld %d",
+  sscanf((FAR char *)pktptr, "%lu %lo %o %o %d %lu %d",
          &filesize, &timestamp, &mode, &serialno, &fremaining, &bremaining,
          &filetype);
 

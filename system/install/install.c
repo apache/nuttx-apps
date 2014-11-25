@@ -357,9 +357,9 @@ int install_main(int argc, char *argv[])
 
   /* Parse arguments */
 
-  for (i=1; i<argc; i++)
+  for (i = 1; i < argc; i++)
     {
-      if (argv[i][0]=='-' && argv[i][1]=='-' && i<=argc)
+      if (i <= argc && argv[i][0]=='-' && argv[i][1]=='-')
         {
           if (strcmp(argv[i]+2, "stack")==0)
             {

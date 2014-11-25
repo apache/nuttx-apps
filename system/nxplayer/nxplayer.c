@@ -993,7 +993,7 @@ err_out:
 
   /* Cleanup */
 
-  while (sem_wait(&pPlayer->sem) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     ;
 
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
@@ -1076,7 +1076,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
 
   /* Thread sync using the semaphore */
 
-  while (sem_wait(&pPlayer->sem) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     ;
 
   /* If we are currently playing, then we need to post a message to
@@ -1162,7 +1162,7 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t level)
 
   /* Thread sync using the semaphore */
 
-  while (sem_wait(&pPlayer->sem) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     ;
 
   /* If we are currently playing, then we need to post a message to
@@ -1214,7 +1214,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t level)
 
   /* Thread sync using the semaphore */
 
-  while (sem_wait(&pPlayer->sem) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     ;
 
   /* If we are currently playing, then we need to post a message to
@@ -1261,7 +1261,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance)
 
   /* Thread sync using the semaphore */
 
-  while (sem_wait(&pPlayer->sem) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     ;
 
   /* If we are currently playing, then we need to post a message to
@@ -1767,7 +1767,9 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
   attr.mq_curmsgs = 0;
   attr.mq_flags   = 0;
 
-  snprintf(pPlayer->mqname, sizeof(pPlayer->mqname), "/tmp/%0X", pPlayer);
+  snprintf(pPlayer->mqname, sizeof(pPlayer->mqname), "/tmp/%0lx",
+           (unsigned long)((uintptr_t)pPlayer));
+
   pPlayer->mq = mq_open(pPlayer->mqname, O_RDWR | O_CREAT, 0644, &attr);
   if (pPlayer->mq == NULL)
     {
@@ -1929,12 +1931,12 @@ FAR struct nxplayer_s *nxplayer_create(void)
 
 void nxplayer_release(FAR struct nxplayer_s* pPlayer)
 {
-  int         refcount, ret;
+  int         refcount;
   FAR void*   value;
 
   /* Grab the semaphore */
 
-  while ((ret = sem_wait(&pPlayer->sem)) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     {
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
@@ -1954,7 +1956,7 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
       pthread_join(pPlayer->playId, &value);
       pPlayer->playId = 0;
 
-      while ((ret = sem_wait(&pPlayer->sem)) != OK)
+      while (sem_wait(&pPlayer->sem) < 0)
         {
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
@@ -1975,7 +1977,9 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
   /* If the ref count *was* one, then free the context */
 
   if (refcount == 1)
-    free(pPlayer);
+    {
+      free(pPlayer);
+    }
 }
 
 /****************************************************************************
@@ -1992,11 +1996,9 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
 
 void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
 {
-  int     ret;
-
   /* Grab the semaphore */
 
-  while ((ret = sem_wait(&pPlayer->sem)) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     {
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
@@ -2031,11 +2033,9 @@ void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
 void nxplayer_detach(FAR struct nxplayer_s* pPlayer)
 {
 #if 0
-  int     ret;
-
   /* Grab the semaphore */
 
-  while ((ret = sem_wait(&pPlayer->sem)) != OK)
+  while (sem_wait(&pPlayer->sem) < 0)
     {
       int errcode = errno;
       DEBUGASSERT(errcode > 0);

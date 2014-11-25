@@ -222,8 +222,7 @@ int mdio_main(int argc, char *argv[])
 
       for (i = 0; i < 32; i++)
         {
-          ret = get_phy_reg(phy_id, i, &val_out);
-
+          (void)get_phy_reg(phy_id, i, &val_out);
           printf("phy[%d][%d] = 0x%4x\n", phy_id, i, val_out);
         }
     }

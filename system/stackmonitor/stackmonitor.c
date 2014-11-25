@@ -101,7 +101,7 @@ static void stkmon_task(FAR struct tcb_s *tcb, FAR void *arg)
   syslog(LOG_INFO, "%5d %6d %6d %s\n",
          tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb), tcb->name);
 #else
-  syslog(LOG_INFO, ("%5d %6d %6d\n",
+  syslog(LOG_INFO, "%5d %6d %6d\n",
          tcb->pid, tcb->adj_stack_size, up_check_tcbstack(tcb));
 #endif
 }

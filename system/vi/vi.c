@@ -3636,7 +3636,7 @@ int vi_main(int argc, char **argv)
                 }
               else
                 {
-                  fprintf(stderr, "ERROR: Column value out of range: %ld\n",
+                  fprintf(stderr, "ERROR: Column value out of range: %lu\n",
                           value);
                   vi_showusage(vi, argv[0], EXIT_FAILURE);
                 }
@@ -3652,7 +3652,7 @@ int vi_main(int argc, char **argv)
                 }
               else
                 {
-                  fprintf(stderr, "ERROR: Row value out of range: %ld\n",
+                  fprintf(stderr, "ERROR: Row value out of range: %lu\n",
                           value);
                   vi_showusage(vi, argv[0], EXIT_FAILURE);
                 }

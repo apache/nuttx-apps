@@ -257,8 +257,7 @@ int hex2bin_main(int argc, char **argv)
                 (enum hex2bin_swap_e)swap);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: Failed to convert \"%s\" to binary: %d\n",
-              ret);
+      fprintf(stderr, "ERROR: Failed to convert to binary: %d\n", ret);
     }
 
   /* Clean up and return */
