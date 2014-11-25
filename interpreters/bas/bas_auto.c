@@ -240,7 +240,7 @@ void Auto_frameToError(struct Auto *this, struct Program *program, struct Value 
 {
   struct Pc p;
   int framePointer;
-  int frameSize,;
+  int frameSize;
   int retFrame;
   int i = this->stackPointer;
 
