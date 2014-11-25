@@ -81,7 +81,6 @@ int main(int argc, FAR char *argv[])
 int pashello_main(int argc, FAR char *argv[])
 #endif
 {
-  FAR struct pexec_s *st;
   int exitcode = EXIT_SUCCESS;
   int ret;
 

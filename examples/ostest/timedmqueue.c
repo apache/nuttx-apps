@@ -124,7 +124,7 @@ static void *sender_thread(void *arg)
    */
 
   g_send_mqfd = mq_open("timedmq", O_WRONLY|O_CREAT, 0666, &attr);
-  if (g_send_mqfd < 0)
+  if (g_send_mqfd == (mqd_t)-1)
     {
         printf("sender_thread: ERROR mq_open failed\n");
         pthread_exit((pthread_addr_t)1);
@@ -221,7 +221,7 @@ static void *receiver_thread(void *arg)
    */
 
    g_recv_mqfd = mq_open("timedmq", O_RDONLY|O_CREAT, 0666, &attr);
-   if (g_recv_mqfd < 0)
+   if (g_recv_mqfd == (mqd_t)-1)
      {
        printf("receiver_thread: ERROR mq_open failed\n");
        pthread_exit((pthread_addr_t)1);

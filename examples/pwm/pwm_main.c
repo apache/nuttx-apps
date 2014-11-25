@@ -124,14 +124,14 @@ static void pwm_help(FAR struct pwm_state_s *pwm)
         "Default: %s Current: %s\n",
         CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
   printf("  [-f frequency] selects the pulse frequency.  "
-        "Default: %d Hz Current: %d Hz\n",
+        "Default: %d Hz Current: %u Hz\n",
         CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
   printf("  [-d duty] selects the pulse duty as a percentage.  "
          "Default: %d %% Current: %d %%\n",
          CONFIG_EXAMPLES_PWM_DUTYPCT, pwm->duty);
 #ifdef CONFIG_PWM_PULSECOUNT
   printf("  [-n count] selects the pulse count.  "
-        "Default: %d Current: %d\n",
+        "Default: %d Current: %u\n",
         CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
 #endif
   printf("  [-t duration] is the duration of the pulse train in seconds.  "
@@ -336,11 +336,11 @@ int pwm_main(int argc, char *argv[])
 #ifdef CONFIG_PWM_PULSECOUNT
   info.count     = g_pwmstate.count;
 
-  printf("pwm_main: starting output with frequency: %d duty: %08x count: %d\n",
+  printf("pwm_main: starting output with frequency: %u duty: %08x count: %u\n",
          info.frequency, info.duty, info.count);
 
 #else
-  printf("pwm_main: starting output with frequency: %d duty: %08x\n",
+  printf("pwm_main: starting output with frequency: %u duty: %08x\n",
          info.frequency, info.duty);
 
 #endif

@@ -305,7 +305,7 @@ void AsyncEventPrint(void)
       break;
 
     default:
-      printf("AsyncCallback called with unhandled event! (0x%lx)\n", \
+      printf("AsyncCallback called with unhandled event! (0x%lx)\n",
              (unsigned long)lastAsyncEvent);
       break;
     }

@@ -98,7 +98,6 @@ int relays_main(int argc, char *argv[])
   uint32_t r_stat;
   int option;
   int n = -1;
-  int ret = -1;
   int i;
 
   while ((option = getopt(argc, argv, ":n:")) != ERROR)

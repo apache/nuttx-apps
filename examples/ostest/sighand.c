@@ -204,7 +204,7 @@ static int waiter_main(int argc, char *argv[])
   /* Detach the signal handler */
 
   act.sa_sigaction = SIG_DFL;
-  status = sigaction(WAKEUP_SIGNAL, &act, &oact);
+  (void)sigaction(WAKEUP_SIGNAL, &act, &oact);
 
   printf("waiter_main: done\n" );
   FFLUSH();
@@ -223,7 +223,6 @@ void sighand_test(void)
   struct sched_param param;
   union sigval sigvalue;
   pid_t waiterpid;
-  int policy;
   int status;
 
   printf("sighand_test: Initializing semaphore to 0\n" );
@@ -263,13 +262,6 @@ void sighand_test(void)
     {
       printf("sighand_test: ERROR sched_getparam() failed\n" );
       param.sched_priority = PTHREAD_DEFAULT_PRIORITY;
-    }
-
-  policy = sched_getscheduler(0);
-  if (policy == ERROR)
-    {
-      printf("sighand_test: ERROR sched_getscheduler() failed\n" );
-      policy = SCHED_FIFO;
     }
 
   waiterpid = task_create("waiter", param.sched_priority,
@@ -326,7 +318,7 @@ void sighand_test(void)
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
   act.sa_sigaction = SIG_DFL;
-  status = sigaction(SIGCHLD, &act, &oact);
+  (void)sigaction(SIGCHLD, &act, &oact);
 #endif
 
   printf("sighand_test: done\n" );

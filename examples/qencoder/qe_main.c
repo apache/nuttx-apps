@@ -315,7 +315,7 @@ int qe_main(int argc, char *argv[])
    */
 
 #if defined(CONFIG_NSH_BUILTIN_APPS)
-  printf("qe_main: Number of samples: %d\n", g_qeexample.nloops);
+  printf("qe_main: Number of samples: %u\n", g_qeexample.nloops);
   for (nloops = 0; nloops < g_qeexample.nloops; nloops++)
 #elif defined(CONFIG_EXAMPLES_QENCODER_NSAMPLES)
   printf("qe_main: Number of samples: %d\n", CONFIG_EXAMPLES_QENCODER_NSAMPLES);

@@ -403,7 +403,7 @@ void mqueue_test(void)
   pthread_join(receiver, &result);
   if (result != expected)
     {
-      printf("mqueue_test: ERROR receiver thread should have exited with %d\n",
+      printf("mqueue_test: ERROR receiver thread should have exited with %p\n",
              expected);
       printf("             ERROR Instead exited with nerrors=%d\n",
              (int)result);
