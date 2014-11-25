@@ -242,7 +242,8 @@ void *poll_listener(pthread_addr_t pvarg)
                     }
 
                   buffer[nbytes] = '\0';
-                  printf("poll_listener: Read[%d] '%s' (%d bytes)\n", i, buffer, nbytes);
+                  printf("poll_listener: Read[%d] '%s' (%ld bytes)\n",
+                         i, buffer, (long)nbytes);
                 }
 
               /* Suppress error report if no read data on the next time through */

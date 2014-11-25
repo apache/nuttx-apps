@@ -352,7 +352,7 @@ int usbserial_main(int argc, char *argv[])
           close(outfd);
           return 4;
         }
-      printf("usbserial_main: %d bytes sent\n", nbytes);
+      printf("usbserial_main: %ld bytes sent\n", (long)nbytes);
 #endif /* CONFIG_EXAMPLES_USBSERIAL_OUTONLY */
 
       /* Test OUT (host-to-device) messages */
@@ -380,7 +380,7 @@ int usbserial_main(int argc, char *argv[])
             }
           else
             {
-              printf("usbserial_main: Received %d bytes:\n", nbytes);
+              printf("usbserial_main: Received l%d bytes:\n", (long)nbytes);
               if (nbytes > 0)
                 {
                   for (j = 0; j < nbytes; j += 16)

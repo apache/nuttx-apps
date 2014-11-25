@@ -248,7 +248,7 @@ int main(int argc, char **argv, char **envp)
         }
 
       g_iobuffer[nbytes] = '\0';
-      printf("main: Received %d bytes:\n", nbytes);
+      printf("main: Received %ld bytes:\n", (long)nbytes);
       printf("      \"%s\"\n", g_iobuffer);
 #else
       printf("main: Waiting...\n");
@@ -287,7 +287,7 @@ int main(int argc, char **argv, char **envp)
           close(fd);
           return 2;
         }
-      printf("main: %d bytes sent\n", nbytes);
+      printf("main: %ld bytes sent\n", (long)nbytes);
 #endif /* CONFIG_EXAMPLES_USBSERIAL_INONLY */
     }
 

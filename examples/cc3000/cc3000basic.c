@@ -512,7 +512,7 @@ void StartSmartConfig(void)
   printf("Starting Smart Config\n");
 
   printf("  Disabling auto-connect policy...");
-  if ((rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE)) !=0 )
+  if ((rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE)) !=0)
     {
       printf(" Failed!\n    Setting auto connection policy failed, error: %lx\n",
              (unsigned long)rval);
@@ -523,7 +523,7 @@ void StartSmartConfig(void)
   printf("  Deleting all existing profiles...");
   fflush(stdout);
 
-  if ((rval = wlan_ioctl_del_profile(255)) !=0 )
+  if ((rval = wlan_ioctl_del_profile(255)) !=0)
     {
       printf(" Failed!\n    Deleting all profiles failed, error: %lx\n",
              (unsigned long)rval);
@@ -536,7 +536,7 @@ void StartSmartConfig(void)
   printf("  Setting smart config prefix...");
   fflush(stdout);
 
-  if ((rval = wlan_smart_config_set_prefix(simpleConfigPrefix)) !=0 )
+  if ((rval = wlan_smart_config_set_prefix(simpleConfigPrefix)) !=0)
     {
       printf(" Failed!\n    Setting smart config prefix failed, error: %lx",
              (unsigned long)rval);
@@ -547,7 +547,7 @@ void StartSmartConfig(void)
   printf("  Starting smart config...");
   fflush(stdout);
 
-  if ((rval = wlan_smart_config_start(0)) !=0 )
+  if ((rval = wlan_smart_config_start(0)) !=0)
     {
       printf(" Failed!\n    Starting smart config failed, error: %lx\n",
              (unsigned long)rval);
@@ -565,9 +565,11 @@ void StartSmartConfig(void)
 
   printf("  Enabling auto-connect policy...");
   fflush(stdout);
-  if ((rval=wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE)) !=0 )
+
+  if ((rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE)) !=0)
     {
-      printf(" Failed!\n    Setting auto connection policy failed, error: %x\n", rval);
+      printf(" Failed!\n    Setting auto connection policy failed, error: %lx\n",
+             (unsigned long)rval);
       return;
     }
 
@@ -887,7 +889,7 @@ void ListAccessPoints(void)
 
       if (--apCounter>0)
         {
-          if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr)) !=0 )
+          if ((rval=wlan_ioctl_get_scan_results(2000, (uint8_t *)&sr)) !=0)
             {
               printf("  Got back unusual result from wlan_ioctl_get scan, can't continue: %d\n", rval);
               return;

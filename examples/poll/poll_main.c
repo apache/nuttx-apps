@@ -199,7 +199,8 @@ int poll_main(int argc, char *argv[])
           goto errout;
         }
 
-      printf("\npoll_main: Sent '%s' (%d bytes)\n", buffer, nbytes);
+      printf("\npoll_main: Sent '%s' (%ld bytes)\n",
+             buffer, (long)nbytes);
       fflush(stdout);
 
       /* Wait awhile.  This delay should be long enough that the

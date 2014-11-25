@@ -156,7 +156,7 @@ void recursive_mutex_test(void)
     {
       printf("recursive_mutex_test: Waiting for thread %d\n", i+1);
 #ifdef SDCC
-      pthread_join(thread[i], &result1);
+      pthread_join(thread[i], &result[i]);
 #else
       pthread_join(thread[i], NULL);
 #endif

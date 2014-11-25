@@ -571,7 +571,7 @@ void aio_test(void)
       goto errout_with_fildes;
     }
 
-  printf("  aio_cancel return %d\n");
+  printf("  aio_cancel return %d\n", ret);
 
   do
     {
@@ -614,7 +614,7 @@ void aio_test(void)
       goto errout_with_fildes;
     }
 
-  printf("  aio_cancel return %d\n");
+  printf("  aio_cancel return %d\n", ret);
 
   do
     {

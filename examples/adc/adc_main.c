@@ -358,8 +358,8 @@ int adc_main(int argc, char *argv[])
         int nsamples = nbytes / sizeof(struct adc_msg_s);
         if (nsamples * sizeof(struct adc_msg_s) != nbytes)
           {
-            printf("adc_main: read size=%d is not a multiple of sample size=%d, Ignoring\n",
-                    nbytes, sizeof(struct adc_msg_s));
+            printf("adc_main: read size=%ld is not a multiple of sample size=%d, Ignoring\n",
+                   (long)nbytes, sizeof(struct adc_msg_s));
           }
         else
           {

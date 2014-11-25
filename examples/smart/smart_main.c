@@ -552,7 +552,7 @@ static inline int smart_rdfile(FAR struct smart_filedesc_s *file)
       printf("ERROR: Read past the end of file\n");
       printf("  File name:  %s\n", file->name);
       printf("  File size:  %d\n", file->len);
-      printf("  Bytes read: %d\n", nbytesread);
+      printf("  Bytes read: %ld\n", (long)nbytesread);
       close(fd);
       return ERROR;
     }

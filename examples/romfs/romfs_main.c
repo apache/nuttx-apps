@@ -307,7 +307,8 @@ static void checkfile(const char *path, struct node_s *node)
     }
   else if (nbytesread != node->size)
     {
-      printf("  -- ERROR: Read %d bytes, expected %d\n", nbytesread, node->size);
+      printf("  -- ERROR: Read %ld bytes, expected %lu\n",
+             (long)nbytesread, (unsigned long)node->size);
       g_nerrors++;
     }
   else if (memcmp(g_scratchbuffer, node->u.filecontent, node->size) != 0)

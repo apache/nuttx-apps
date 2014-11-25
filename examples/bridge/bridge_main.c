@@ -484,8 +484,8 @@ static int bridge_net1_worker(int argc, char *argv[])
         }
       else if (nsent != nrecvd)
         {
-          fprintf(stderr, "NET1 ERROR: Bad send length: %d Expected: %ld\n",
-                  nsent, (long)nrecvd);
+          fprintf(stderr, "NET1 ERROR: Bad send length: %ld Expected: %ld\n",
+                  (long)nsent, (long)nrecvd);
           goto errout_with_sendsd;
         }
     }
