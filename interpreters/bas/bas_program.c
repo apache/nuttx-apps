@@ -1121,6 +1121,5 @@ void Program_xref(struct Program *this, int chn)
       FS_putChars(chn, _("Goto     Referenced in line\n"));
       Xref_print(goto_, printLine, this, chn);
       Xref_destroy(goto_);
-      nl = 1;
     }
 }

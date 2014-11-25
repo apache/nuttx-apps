@@ -190,7 +190,9 @@ struct Var *Auto_local(struct Auto *this, int l)
 
 int Auto_funcReturn(struct Auto *this, struct Pc *pc)
 {
-  int i, retFrame, retException;
+  int retException;
+  int retFrame;
+  int i;
 
   if (this->stackPointer == 0)
     {
@@ -236,8 +238,11 @@ int Auto_gosubReturn(struct Auto *this, struct Pc *pc)
 
 void Auto_frameToError(struct Auto *this, struct Program *program, struct Value *v)
 {
-  int i = this->stackPointer, framePointer, frameSize, retFrame;
   struct Pc p;
+  int framePointer;
+  int frameSize,;
+  int retFrame;
+  int i = this->stackPointer;
 
   framePointer = this->framePointer;
   frameSize = this->frameSize;
@@ -251,10 +256,7 @@ void Auto_frameToError(struct Auto *this, struct Program *program, struct Value 
   if (i)
     {
       retFrame = framePointer + frameSize - 1;
-      i = framePointer;
       p = this->slot[retFrame].retFrame.pc;
-      frameSize = this->slot[retFrame].retFrame.frameSize;
-      framePointer = this->slot[retFrame].retFrame.framePointer;
       Value_errorSuffix(v, _("Proc Called"));
       Program_PCtoError(program, &p, v);
     }

@@ -836,7 +836,7 @@ struct Value *stmt_DELETE(struct Value *value)
   else if (f == 1)
     {
       to = from;
-      t = 1;
+      t  = 1;
     }
 
   if (!f && !t)
@@ -2415,7 +2415,7 @@ struct Value *stmt_LIST_LLIST(struct Value *value)
   else if (f == 1)
     {
       to = from;
-      t = 1;
+      t  = 1;
     }
 
   if (g_pass == INTERPRET)

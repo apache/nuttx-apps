@@ -119,8 +119,7 @@ int save_screenshot(FAR const char *filename)
 {
   struct tiff_info_s info;
   FAR uint8_t *strip;
-  int x;
-  int y;
+  int row;
   int ret;
   char tempf1[64];
   char tempf2[64];
@@ -188,15 +187,15 @@ int save_screenshot(FAR const char *filename)
 
   strip = malloc(size.w * 3);
 
-  for (int y = 0; y < size.h; y++)
+  for (row = 0; row < size.h; row++)
   {
-    struct nxgl_rect_s rect = {{0, y}, {size.w - 1, y}};
+    struct nxgl_rect_s rect = {{0, row}, {size.w - 1, row}};
     nx_getrectangle(window, &rect, 0, strip, 0);
 
     ret = tiff_addstrip(&info, strip);
     if (ret < 0)
       {
-        printf("tiff_addstrip() #%d failed: %d\n", y, ret);
+        printf("tiff_addstrip() #%d failed: %d\n", row, ret);
         break;
       }
   }
