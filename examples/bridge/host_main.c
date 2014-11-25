@@ -219,11 +219,6 @@ int main(int argc, char *argv[])
       goto errout_with_recvsd;
     }
 
-  if (nrecvd != nrecvd)
-    {
-      fprintf(stderr, LABEL "ERROR: Number of bytes received differs from number sent\n");
-    }
-
   /* Dump the received packet */
 
   for (i = 0, j = 0; i < nrecvd; i++)

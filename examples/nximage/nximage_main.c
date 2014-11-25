@@ -237,7 +237,7 @@ int nximage_main(int argc, char *argv[])
   /* Set the background to the configured background color */
 
   color =  nximage_bgcolor();
-  printf("nximage_main: Set background color=%d\n", color);
+  printf("nximage_main: Set background color=%u\n", color);
 
   ret = nx_setbgcolor(g_nximage.hnx, &color);
   if (ret < 0)

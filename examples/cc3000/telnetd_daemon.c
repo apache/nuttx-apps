@@ -201,7 +201,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
       nllvdbg("Creating the telnet driver\n");
       devpath = telnetd_driver(acceptsd, daemon);
-      if (devpath < 0)
+      if (devpath == NULL)
         {
           nlldbg("telnetd_driver failed\n");
           goto errout_with_acceptsd;

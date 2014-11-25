@@ -329,7 +329,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
         {
           printf("ERROR: Failed to open file for writing: %d\n", errno);
           printf("  File name: %s\n", file->name);
-          printf("  File size: %d\n", file->len);
+          printf("  File size: %lu\n", (unsigned long)file->len);
         }
       nxffs_freefile(file);
       return ERROR;
@@ -361,7 +361,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
             {
               printf("ERROR: Failed to write file: %d\n", err);
               printf("  File name:    %s\n", file->name);
-              printf("  File size:    %d\n", file->len);
+              printf("  File size:    %lu\n", (unsigned long)file->len);
               printf("  Write offset: %ld\n", (long)offset);
               printf("  Write size:   %ld\n", (long)nbytestowrite);
               ret = ERROR;
@@ -390,7 +390,7 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
         {
           printf("ERROR: Partial write:\n");
           printf("  File name:    %s\n", file->name);
-          printf("  File size:    %d\n", file->len);
+          printf("  File size:    %lu\n", (unsigned long)file->len);
           printf("  Write offset: %ld\n", (long)offset);
           printf("  Write size:   %ld\n", (long)nbytestowrite);
           printf("  Written:      %ld\n", (long)nbyteswritten);
@@ -459,7 +459,7 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
     {
       printf("ERROR: Failed to read file: %d\n", errno);
       printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
+      printf("  File size:    %lu\n", (unsigned long)file->len);
       printf("  Read offset:  %ld\n", (long)offset);
       printf("  Read size:    %ld\n", (long)len);
       return ERROR;
@@ -479,7 +479,7 @@ static ssize_t nxffs_rdblock(int fd, FAR struct nxffs_filedesc_s *file,
     {
       printf("ERROR: Partial read:\n");
       printf("  File name:    %s\n", file->name);
-      printf("  File size:    %d\n", file->len);
+      printf("  File size:    %lu\n", (unsigned long)file->len);
       printf("  Read offset:  %ld\n", (long)offset);
       printf("  Read size:    %ld\n", (long)len);
       printf("  Bytes read:   %ld\n", (long)nbytesread);
@@ -507,7 +507,7 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
         {
           printf("ERROR: Failed to open file for reading: %d\n", errno);
           printf("  File name: %s\n", file->name);
-          printf("  File size: %d\n", file->len);
+          printf("  File size: %lu\n", (unsigned long)file->len);
         }
       return ERROR;
     }
@@ -531,9 +531,10 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
   crc = crc32(g_fileimage, file->len);
   if (crc != file->crc)
     {
-      printf("ERROR: Bad CRC: %d vs %d\n", crc, file->crc);
+      printf("ERROR: Bad CRC: %u vs %u\n",
+             (unsigned int)crc, (unsigned int)file->crc);
       printf("  File name: %s\n", file->name);
-      printf("  File size: %d\n", file->len);
+      printf("  File size: %lu\n", (unsigned long)file->len);
       close(fd);
       return ERROR;
     }
@@ -545,8 +546,8 @@ static inline int nxffs_rdfile(FAR struct nxffs_filedesc_s *file)
     {
       printf("ERROR: Read past the end of file\n");
       printf("  File name:  %s\n", file->name);
-      printf("  File size:  %d\n", file->len);
-      printf("  Bytes read: %d\n", nbytesread);
+      printf("  File size:  %lu\n", (unsigned long)file->len);
+      printf("  Bytes read: %ld\n", (long)nbytesread);
       close(fd);
       return ERROR;
     }
@@ -588,7 +589,7 @@ static int nxffs_verifyfs(void)
                 {
                   printf("ERROR: Failed to read a file: %d\n", i);
                   printf("  File name: %s\n", file->name);
-                  printf("  File size: %d\n", file->len);
+                  printf("  File size: %lu\n", (unsigned long)file->len);
                   return ERROR;
                 }
             }
@@ -663,7 +664,7 @@ static int nxffs_delfiles(void)
                 {
                   printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
                   printf("  File name:  %s\n", file->name);
-                  printf("  File size:  %d\n", file->len);
+                  printf("  File size:  %lu\n", (unsigned long)file->len);
                   printf("  File index: %d\n", j);
                 }
               else
@@ -710,7 +711,7 @@ static int nxffs_delallfiles(void)
             {
                printf("ERROR: Unlink %d failed: %d\n", i+1, errno);
                printf("  File name:  %s\n", file->name);
-               printf("  File size:  %d\n", file->len);
+               printf("  File size:  %lu\n", (unsigned long)file->len);
                printf("  File index: %d\n", i);
             }
           else

@@ -180,7 +180,9 @@ static inline void nxpu_fillwindow(NXWINDOW hwnd,
                                    FAR struct nxtext_state_s *st)
 {
   int ret;
+#ifdef CONFIG_NX_KBD
   int i;
+#endif
 
   ret = nx_fill(hwnd, rect, st->wcolor);
   if (ret < 0)

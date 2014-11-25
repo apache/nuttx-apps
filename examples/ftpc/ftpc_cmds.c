@@ -181,7 +181,7 @@ int cmd_rrename(SESSION handle, int argc, char **argv)
 int cmd_rsize(SESSION handle, int argc, char **argv)
 {
   off_t size = ftpc_filesize(handle, argv[1]);
-  printf("SIZE: %lu\n", size);
+  printf("SIZE: %lu\n", (unsigned long)size);
   return OK;
 }
 

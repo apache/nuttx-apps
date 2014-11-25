@@ -76,29 +76,29 @@ void thread_func(void *parameter)
   for (i = 0; i < 20 && !bendoftest; i++);
     {
       if ((pthread_mutex_lock(&mut)) != 0)
-	{
-	  printf("ERROR thread %d: pthread_mutex_lock failed\n", my_id);
-	}
+        {
+          printf("ERROR thread %d: pthread_mutex_lock failed\n", my_id);
+        }
 
       if (my_mutex == 1)
-	{
-	  printf("ERROR thread=%d: "
-		 "my_mutex should be zero, instead my_mutex=%d\n",
-		 my_id, my_mutex);
-	  nerrors[my_ndx]++;
-	}
+        {
+          printf("ERROR thread=%d: "
+                 "my_mutex should be zero, instead my_mutex=%d\n",
+                 my_id, my_mutex);
+          nerrors[my_ndx]++;
+        }
 
       my_mutex = 1;
       usleep(100000);
       my_mutex = 0;
-	
+
       if ((pthread_mutex_unlock(&mut)) != 0)
-	{
-	  printf("ERROR thread %d: pthread_mutex_unlock failed\n", my_id);
-	}
+        {
+          printf("ERROR thread %d: pthread_mutex_unlock failed\n", my_id);
+        }
 
       nloops[my_ndx]++;
-    }	
+    }
 }
 
 /****************************************************************************
@@ -141,9 +141,8 @@ int main(int argc, char **argv)
   pthread_join(thread2, NULL);
 
   printf("\tThread1\tThread2\n");
-  printf("Loops\t%ld\t%ld\n", nloops[0], nloops[1]);
-  printf("Errors\t%ld\t%ld\n", nerrors[0], nerrors[1]);
+  printf("Loops\t%lu\t%lu\n", nloops[0], nloops[1]);
+  printf("Errors\t%lu\t%lu\n", nerrors[0], nerrors[1]);
 
   return 0;
 }
-

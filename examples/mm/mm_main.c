@@ -126,16 +126,16 @@ static void mm_showmallinfo(void)
 {
   alloc_info = mallinfo();
   printf("     mallinfo:\n");
-  printf("       Total space allocated from system = %ld\n",
-         alloc_info.arena);
-  printf("       Number of non-inuse chunks        = %ld\n",
-         alloc_info.ordblks);
-  printf("       Largest non-inuse chunk           = %ld\n",
-         alloc_info.mxordblk);
-  printf("       Total allocated space             = %ld\n",
-         alloc_info.uordblks);
-  printf("       Total non-inuse space             = %ld\n",
-         alloc_info.fordblks);
+  printf("       Total space allocated from system = %lu\n",
+         (unsigned long)alloc_info.arena);
+  printf("       Number of non-inuse chunks        = %lu\n",
+         (unsigned long)alloc_info.ordblks);
+  printf("       Largest non-inuse chunk           = %lu\n",
+         (unsigned long)alloc_info.mxordblk);
+  printf("       Total allocated space             = %lu\n",
+         (unsigned long)alloc_info.uordblks);
+  printf("       Total non-inuse space             = %lu\n",
+         (unsigned long)alloc_info.fordblks);
 }
 
 static void do_mallocs(void **mem, const int *size, const int *seq, int n)
@@ -160,11 +160,13 @@ static void do_mallocs(void **mem, const int *size, const int *seq, int n)
               fprintf(stderr, "(%d)malloc failed for allocsize=%d\n", i, allocsize);
               if (allocsize > alloc_info.mxordblk)
                 {
-                   fprintf(stderr, "   Normal, largest free block is only %ld\n", alloc_info.mxordblk);
+                   fprintf(stderr, "   Normal, largest free block is only %lu\n",
+                           (unsigned long)alloc_info.mxordblk);
                 }
               else
                 {
-                  fprintf(stderr, "   ERROR largest free block is %ld\n", alloc_info.mxordblk);
+                  fprintf(stderr, "   ERROR largest free block is %lu\n",
+                          (unsigned long)alloc_info.mxordblk);
                   exit(1);
                 }
             }
@@ -199,11 +201,13 @@ static void do_reallocs(void **mem, const int *oldsize, const int *newsize, cons
           fprintf(stderr, "(%d)realloc failed for allocsize=%d\n", i, allocsize);
           if (allocsize > alloc_info.mxordblk)
             {
-              fprintf(stderr, "   Normal, largest free block is only %ld\n", alloc_info.mxordblk);
+              fprintf(stderr, "   Normal, largest free block is only %lu\n",
+                      (unsigned long)alloc_info.mxordblk);
             }
           else
             {
-              fprintf(stderr, "   ERROR largest free block is %ld\n", alloc_info.mxordblk);
+              fprintf(stderr, "   ERROR largest free block is %lu\n",
+                      (unsigned long)alloc_info.mxordblk);
               exit(1);
             }
         }
@@ -237,11 +241,13 @@ static void do_memaligns(void **mem, const int *size, const int *align, const in
           fprintf(stderr, "(%d)memalign failed for allocsize=%d\n", i, allocsize);
           if (allocsize > alloc_info.mxordblk)
             {
-              fprintf(stderr, "   Normal, largest free block is only %ld\n", alloc_info.mxordblk);
+              fprintf(stderr, "   Normal, largest free block is only %lu\n",
+                      (unsigned long)alloc_info.mxordblk);
             }
           else
             {
-              fprintf(stderr, "   ERROR largest free block is %ld\n", alloc_info.mxordblk);
+              fprintf(stderr, "   ERROR largest free block is %lu\n",
+                      (unsigned long)alloc_info.mxordblk);
               exit(1);
             }
         }

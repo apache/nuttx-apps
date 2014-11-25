@@ -404,7 +404,9 @@ int buttons_main(int argc, char *argv[])
 {
   uint8_t newset;
   irqstate_t flags;
+#ifdef CONFIG_ARCH_IRQBUTTONS
   int i;
+#endif
 
   /* If this example is configured as an NX add-on, then limit the number of
    * samples that we collect before returning.  Otherwise, we never return
@@ -425,7 +427,7 @@ int buttons_main(int argc, char *argv[])
 
   board_button_initialize();
 
-  /* Register to recieve button interrupts */
+  /* Register to receive button interrupts */
 
 #ifdef CONFIG_ARCH_IRQBUTTONS
   for (i = CONFIG_EXAMPLES_IRQBUTTONS_MIN; i <= CONFIG_EXAMPLES_IRQBUTTONS_MAX; i++)
@@ -496,7 +498,7 @@ int buttons_main(int argc, char *argv[])
 
   /* Un-register button handlers */
 
-#if defined(CONFIG_ARCH_IRQBUTTONS) && defined(CONFIG_NSH_BUILTIN_APPS)
+#ifdef CONFIG_ARCH_IRQBUTTONS
   for (i = CONFIG_EXAMPLES_IRQBUTTONS_MIN; i <= CONFIG_EXAMPLES_IRQBUTTONS_MAX; i++)
     {
       (void)board_button_irq(i, NULL);
