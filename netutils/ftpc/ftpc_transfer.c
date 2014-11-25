@@ -171,7 +171,6 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
                               FAR const char *curdir)
 {
   FAR char *ptr = NULL;
-  int ret = OK;
 
   /* If no relative path was provide, then use the current working directory */
 
@@ -195,7 +194,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
 
       else if (relpath[1] == '/')
         {
-          ret = asprintf(&ptr, "%s%s", homedir, &relpath[1]);
+          (void)asprintf(&ptr, "%s%s", homedir, &relpath[1]);
         }
 
       /* Hmmm... this pretty much guaranteed to fail */
@@ -212,7 +211,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
 
   else if (strncmp(relpath, "./", 2) == 0)
     {
-      ret = asprintf(&ptr, "%s%s", curdir, relpath+1);
+      (void)asprintf(&ptr, "%s%s", curdir, relpath+1);
     }
 
   /* Check for an absolute path */
@@ -226,7 +225,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
 
   else
     {
-      ret = asprintf(&ptr, "%s/%s", curdir, relpath);
+      (void)asprintf(&ptr, "%s/%s", curdir, relpath);
     }
 
   return ptr;

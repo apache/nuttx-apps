@@ -87,11 +87,10 @@ FAR char *ftpc_rpwd(SESSION handle)
   FAR char *pwd;
   FAR char *ptr;
   int len;
-  int ret;
 
   /* Send the PWD command */
 
-  ret = ftpc_cmd(session, "PWD");
+  (void)ftpc_cmd(session, "PWD");
 
   /* Response is like: 257 "/home/gnutt" (from vsftpd).
    *
@@ -147,5 +146,6 @@ FAR char *ftpc_rpwd(SESSION handle)
           *ptr = '/';
         }
     }
+
   return pwd;
 }

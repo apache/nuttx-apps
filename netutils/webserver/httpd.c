@@ -736,8 +736,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 static void *httpd_handler(void *arg)
 {
   struct httpd_state *pstate = (struct httpd_state *)malloc(sizeof(struct httpd_state));
-  int                 sockfd = (int)arg;
-  int                 ret    = ERROR;
+  int sockfd = (int)arg;
 
   nvdbg("[%d] Started\n", sockfd);
 
@@ -762,11 +761,11 @@ static void *httpd_handler(void *arg)
           status = httpd_parse(pstate);
           if (status >= 400)
             {
-              ret = httpd_senderror(pstate, status);
+              (void)httpd_senderror(pstate, status);
             }
           else
             {
-              ret = httpd_sendfile(pstate);
+              (void) httpd_sendfile(pstate);
             }
 
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE

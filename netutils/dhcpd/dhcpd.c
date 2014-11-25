@@ -478,8 +478,10 @@ static inline bool dhcpd_parseoptions(void)
 {
   uint32_t tmp;
   uint8_t *ptr;
+#ifndef CONFIG_NET_DHCP_LIGHT
   uint8_t overloaded;
   uint8_t currfield;
+#endif
   int optlen = 0;
   int remaining;
 
@@ -498,8 +500,10 @@ static inline bool dhcpd_parseoptions(void)
 
   ptr       += 4;
   remaining  = DHCPD_OPTIONS_SIZE - 4;
+#ifndef CONFIG_NET_DHCP_LIGHT
   overloaded = DHCPD_OPTION_FIELD;
   currfield  = DHCPD_OPTION_FIELD;
+#endif
 
   /* Set all options to the default value */
 
@@ -637,8 +641,7 @@ static inline bool dhcpd_verifyreqip(void)
 
   /* Verify that the requested IP address is within the supported lease range */
 
-  if (g_state.ds_optreqip > 0 &&
-      g_state.ds_optreqip >= CONFIG_NETUTILS_DHCPD_STARTIP &&
+  if (g_state.ds_optreqip >= CONFIG_NETUTILS_DHCPD_STARTIP &&
       g_state.ds_optreqip <= CONFIG_NETUTILS_DHCP_OPTION_ENDIP)
     {
       /* And verify that the lease has not already been taken or offered

@@ -378,11 +378,11 @@ static void show_size(off_t size)
         {
           (void)printf("%ld", (long)size);
         }
-      else if (size < 1024)
+      else if (size < 1024 * 1024)
         {
           (void)printf("%ldK", (long)size / 1024L);
         }
-      else if (size < 1024 * 1024)
+      else if (size < 1024 * 1024 * 1024)
         {
           (void)printf("%ldM", (long)size / (1024L * 1024L));
         }

@@ -2400,7 +2400,7 @@ static int ftpd_list(FAR struct ftpd_session_s *session, unsigned int opton)
       free(abspath);
     }
 
-  return OK;
+  return ret;
 }
 
 /****************************************************************************
@@ -2768,7 +2768,7 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
   left = 0;
   right = strlen(session->param);
 
-  if (right <= 0)
+  if (right < 1)
     {
       /* no message ? */
 
@@ -2789,7 +2789,7 @@ static int ftpd_command_eprt(FAR struct ftpd_session_s *session)
       left++;
     }
 
-  if (right <= 0 || left > right)
+  if (right < 1 || left > right)
     {
       /* Invalid format */
 
