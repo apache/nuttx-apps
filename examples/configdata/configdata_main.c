@@ -385,7 +385,7 @@ static inline int configdata_rdentry(FAR struct configdata_entrydesc_s *entry)
   crc = crc32(g_entryimage, entry->len);
   if (crc != entry->crc)
     {
-      printf("ERROR: Bad CRC: %d vs %d\n", crc, entry->crc);
+      printf("ERROR: Bad CRC: %u vs %u\n", crc, entry->crc);
       printf("  Entry id:   %04X\n", entry->id);
       printf("  Entry size: %d\n", entry->len);
       return ERROR;

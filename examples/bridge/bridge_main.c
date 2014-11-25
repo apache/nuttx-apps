@@ -431,8 +431,8 @@ static int bridge_net1_worker(int argc, char *argv[])
                         (FAR struct sockaddr*)&fromaddr, &addrlen);
 
       tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
-      printf("NET1: Received %d bytes from %d.%d.%d.%d:%d\n",
-             nrecvd,
+      printf("NET1: Received %ld bytes from %d.%d.%d.%d:%d\n",
+             (long)nrecvd,
              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
              ntohs(fromaddr.sin_port));
@@ -460,8 +460,8 @@ static int bridge_net1_worker(int argc, char *argv[])
 
       /* Send the newly received packet out network 2 */
 
-      printf("NET1: Sending %d bytes on network 2: %d.%d.%d.%d:%d\n",
-             nrecvd,
+      printf("NET1: Sending %ld bytes on network 2: %d.%d.%d.%d:%d\n",
+             (long)nrecvd,
              CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 24,
              (CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 16) & 0xff,
              (CONFIG_EXAMPLES_BRIDGE_NET2_IPHOST >> 8) & 0xff,
@@ -484,8 +484,8 @@ static int bridge_net1_worker(int argc, char *argv[])
         }
       else if (nsent != nrecvd)
         {
-          fprintf(stderr, "NET1 ERROR: Bad send length: %d Expected: %d\n",
-                 nsent, nrecvd);
+          fprintf(stderr, "NET1 ERROR: Bad send length: %d Expected: %ld\n",
+                  nsent, (long)nrecvd);
           goto errout_with_sendsd;
         }
     }
@@ -606,8 +606,8 @@ static int bridge_net2_worker(int argc, char *argv[])
                         (FAR struct sockaddr*)&fromaddr, &addrlen);
 
       tmpaddr = ntohl(fromaddr.sin_addr.s_addr);
-      printf("NET2: Received %d bytes from %d.%d.%d.%d:%d\n",
-             nrecvd,
+      printf("NET2: Received %ld bytes from %d.%d.%d.%d:%d\n",
+             (long)nrecvd,
              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
              ntohs(fromaddr.sin_port));
@@ -635,8 +635,8 @@ static int bridge_net2_worker(int argc, char *argv[])
 
       /* Send the newly received packet out network 1 */
 
-      printf("NET2: Sending %d bytes on network 1: %d.%d.%d.%d:%d\n",
-             nrecvd,
+      printf("NET2: Sending %ld bytes on network 1: %d.%d.%d.%d:%d\n",
+             (long)nrecvd,
              CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 24,
              (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 16) & 0xff,
              (CONFIG_EXAMPLES_BRIDGE_NET1_IPHOST >> 8) & 0xff,
@@ -659,8 +659,8 @@ static int bridge_net2_worker(int argc, char *argv[])
         }
       else if (nsent != nrecvd)
         {
-          fprintf(stderr, "NET2 ERROR: Bad send length: %d Expected: %d\n",
-                 nsent, nrecvd);
+          fprintf(stderr, "NET2 ERROR: Bad send length: %ld Expected: %ld\n",
+                  (long)nsent, (long)nrecvd);
           goto errout_with_sendsd;
         }
     }

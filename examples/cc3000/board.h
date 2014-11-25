@@ -12,7 +12,6 @@
 *
 *  Don't sue me if my code blows up your board and burns down your house
 *
-*
 *  This file is the main module for the Arduino CC3000 library.
 *  Your program must call CC3000_Init() before any other API calls.
 *
@@ -29,11 +28,6 @@
 #define TEENSY3   1
 #endif
 
-
-
-
-
-
 /* I used the Teensy 3.0 to get the Arduino CC3000 library working but the
    Teensy's hardware SPI and the CC3000's SPI didn't like each other so I had
    to send the bits manually. For the Uno, Nano, etc. you can probably leave
@@ -45,14 +39,6 @@
 #else
 #define USE_HARDWARE_SPI	true
 #endif
-
-
-
-
-
-
-
-
 
 // These are the Arduino pins that connect to the CC3000
 // (in addition to standard SPI pins MOSI, MISO, and SCK)
@@ -81,16 +67,6 @@
 #define WLAN_EN			30
 
 #endif
-
-
-
-
-
-
-
-
-
-
 
 /*
 	The timing between setting the CS pin and reading the IRQ pin is very
@@ -135,38 +111,12 @@
 
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #define MAC_ADDR_LEN	6
-
-
-
 #define DISABLE	(0)
-
 #define ENABLE	(1)
 
 //AES key "smartconfigAES16"
 //const uint8_t smartconfigkey[] = {0x73,0x6d,0x61,0x72,0x74,0x63,0x6f,0x6e,0x66,0x69,0x67,0x41,0x45,0x53,0x31,0x36};
-
-
-
-
 
 /* If you uncomment the line below the library will leave out a lot of the
    higher level functions but use a lot less memory. From:
@@ -195,23 +145,14 @@
 
 //#define CC3000_TINY_DRIVER	1
 
-
-
-
-
 extern uint8_t asyncNotificationWaiting;
 extern long lastAsyncEvent;
 extern uint8_t dhcpIPAddress[];
-
-
-
-extern void CC3000_Init(void);
-
-
-extern volatile unsigned long ulSmartConfigFinished,
-	ulCC3000Connected,
-	ulCC3000DHCP,
-	OkToDoShutDown,
-	ulCC3000DHCP_configured;
-
+extern volatile unsigned long ulSmartConfigFinished;
+extern volatile unsigned long ulCC3000Connected;
+extern volatile unsigned long ulCC3000DHCP;
+extern volatile unsigned long OkToDoShutDown;
+extern volatile unsigned long ulCC3000DHCP_configured;
 extern volatile uint8_t ucStopSmartConfig;
+
+void CC3000_Init(void);

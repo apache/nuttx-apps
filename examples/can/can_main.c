@@ -146,7 +146,8 @@ int can_main(int argc, char *argv[])
     {
       nmsgs = strtol(argv[1], NULL, 10);
     }
-  printf("can_main: nmsgs: %d\n", nmsgs);
+
+  printf("can_main: nmsgs: %ld\n", nmsgs);
 #elif defined(CONFIG_EXAMPLES_CAN_NMSGS)
   printf("can_main: nmsgs: %d\n", CONFIG_EXAMPLES_CAN_NMSGS);
 #endif
@@ -228,7 +229,7 @@ int can_main(int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_EXAMPLES_CAN_WRITEONLY
-    printf("  ID: %4d DLC: %d\n", msgid, msgdlc);
+    printf("  ID: %4u DLC: %d\n", msgid, msgdlc);
 #endif
 
     /* Read the RX message */
@@ -245,7 +246,7 @@ int can_main(int argc, char *argv[])
 #endif
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
-    printf("  ID: %4d DLC: %d\n", rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
+    printf("  ID: %4u DLC: %u\n", rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 #endif
 
     /* Verify that the received messages are the same */
@@ -275,7 +276,7 @@ int can_main(int argc, char *argv[])
 
     /* Report success */
 
-    printf("  ID: %4d DLC: %d -- OK\n", msgid, msgdlc);
+    printf("  ID: %4u DLC: %d -- OK\n", msgid, msgdlc);
 #endif
 
     /* Set up for the next pass */

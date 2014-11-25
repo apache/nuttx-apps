@@ -267,7 +267,7 @@ void stkmon_disp(void)
 void AsyncEventPrint(void)
 {
   printf("\n");
-  switch(lastAsyncEvent)
+  switch (lastAsyncEvent)
     {
       printf("CC3000 Async event: Simple config done\n");
       break;
@@ -305,7 +305,8 @@ void AsyncEventPrint(void)
       break;
 
     default:
-      printf("AsyncCallback called with unhandled event! (0x%X)\n", lastAsyncEvent);
+      printf("AsyncCallback called with unhandled event! (0x%lx)\n", \
+             (unsigned long)lastAsyncEvent);
       break;
     }
 }
@@ -443,7 +444,7 @@ void Initialize(void)
             {
               printf(":");
             }
-          printf("%X", fancyBuffer[i]);
+          printf("%x", fancyBuffer[i]);
         }
 
       printf("\n");
@@ -513,7 +514,8 @@ void StartSmartConfig(void)
   printf("  Disabling auto-connect policy...");
   if ((rval = wlan_ioctl_set_connection_policy(DISABLE, DISABLE, DISABLE)) !=0 )
     {
-      printf(" Failed!\n    Setting auto connection policy failed, error: %X\n", rval);
+      printf(" Failed!\n    Setting auto connection policy failed, error: %lx\n",
+             (unsigned long)rval);
       return;
     }
 
@@ -523,7 +525,8 @@ void StartSmartConfig(void)
 
   if ((rval = wlan_ioctl_del_profile(255)) !=0 )
     {
-      printf(" Failed!\n    Deleting all profiles failed, error: %X\n", rval);
+      printf(" Failed!\n    Deleting all profiles failed, error: %lx\n",
+             (unsigned long)rval);
       return;
     }
 
@@ -535,7 +538,8 @@ void StartSmartConfig(void)
 
   if ((rval = wlan_smart_config_set_prefix(simpleConfigPrefix)) !=0 )
     {
-      printf(" Failed!\n    Setting smart config prefix failed, error: %X", rval);
+      printf(" Failed!\n    Setting smart config prefix failed, error: %lx",
+             (unsigned long)rval);
       return;
     }
 
@@ -545,7 +549,8 @@ void StartSmartConfig(void)
 
   if ((rval = wlan_smart_config_start(0)) !=0 )
     {
-      printf(" Failed!\n    Starting smart config failed, error: %X\n", rval);
+      printf(" Failed!\n    Starting smart config failed, error: %lx\n",
+             (unsigned long)rval);
       return;
     }
 
@@ -562,7 +567,7 @@ void StartSmartConfig(void)
   fflush(stdout);
   if ((rval=wlan_ioctl_set_connection_policy(DISABLE, DISABLE, ENABLE)) !=0 )
     {
-      printf(" Failed!\n    Setting auto connection policy failed, error: %X\n", rval);
+      printf(" Failed!\n    Setting auto connection policy failed, error: %x\n", rval);
       return;
     }
 
@@ -857,7 +862,7 @@ void ListAccessPoints(void)
       if (sr.isValid)
         {
           printf("    ");
-          switch(sr.securityMode)
+          switch (sr.securityMode)
             {
             case WLAN_SEC_UNSEC:  /* 0 */
               printf("OPEN ");
@@ -873,7 +878,7 @@ void ListAccessPoints(void)
               break;
             }
 
-          sprintf(localB, "%3d  ", sr.rssi);
+          sprintf(localB, "%3u  ", sr.rssi);
           printf("%s", localB);
           memset(localB, 0, 33);
           memcpy(localB, sr.ssid_name, sr.ssidLength);
@@ -946,7 +951,7 @@ void ShowInformation(void)
         {
         printf(":");
       }
-      printf("%X", inf.uaMacAddr[i]);
+      printf("%x", inf.uaMacAddr[i]);
     }
 
   printf("\n");
