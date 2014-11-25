@@ -173,7 +173,7 @@ void *select_listener(pthread_addr_t pvarg)
                 }
 
               buffer[nbytes] = '\0';
-              printf("select_listener: Read '%s' (%d bytes)\n", buffer, nbytes);
+              printf("select_listener: Read '%s' (%ld bytes)\n", buffer, (long)nbytes);
             }
 
           timeout = false;

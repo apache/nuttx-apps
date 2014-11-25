@@ -1230,6 +1230,7 @@ static bool vi_savetext(FAR struct vi_s *vi, FAR const char *filename,
       /* Report the error (or partial write).  EINTR is not handled. */
 
       vi_error(vi, g_fmtcmdfail, "fwrite", errno);
+      (void)fclose(stream);
       return false;
     }
 
