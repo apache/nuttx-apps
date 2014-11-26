@@ -537,9 +537,10 @@
 * Change all references to NxConsole to NxTerm.  This introduces an
   incompatibility with versions prior to NuttX-7.5 (2014-9-20).
 
-1.14 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.14 2014-11-26 Gregory Nutt <gnutt@nuttx.org>
 
 * Fix all UnitTest/ files to account for the corrected syslog() prototype.
   This change to the NuttX syslog introduces an incompatibility between
-  NuttX 7.6 and previous verisions of the UnitTest code.
- 
+  NuttX 7.6 and previous versions of the UnitTest code.
+
+1.15 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>

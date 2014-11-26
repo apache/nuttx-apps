@@ -466,3 +466,21 @@ Additional new features and extended functionality in Version 1.13:
 Bugfixes:
 
 * There are no new bug fixes in this release.
+
+NxWidgets-1.14
+==============
+
+The 15th release of the NxWidgets package was made on November 26, 2014.  This
+release depends on NuttX-7.6 or above and should not be used with older
+NuttX releases.
+
+Additional new features and extended functionality in Version 1.14:
+
+* There are no new features in this release.  This release simply correct
+  all UnitTest/ files to account for the corrected syslog() prototype in
+  NuttX 7.6.  That change introduced an incompatibility between NuttX 7.6
+  and previous versions of the UnitTest code.
+
+Bugfixes:
+
+* There are no new bug fixes in this release.
