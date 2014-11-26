@@ -1068,7 +1068,7 @@
 	  example to test MTD R/W buffering (2014-9-25).
 	* apps/examples/ostest:  Add a trivial test of sem_timedwait (2014-9-16).
 
-7.6 2014-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.6 2014-11-26 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/ostest:  Add a simple test of named semaphores
 	  (2014-9-23).
@@ -1114,7 +1114,7 @@
 	  request before the dns address it set you will get an assertion. The
 	  state of the IP setting is not something the application should be
 	  aware of, it should only be concerned with whether or not the name
-	  was resolved.  From Brennan Ashtoni (2014-11-13).
+	  was resolved.  From Brennan Ashton (2014-11-13).
 	* apps/nshlib/, apps/netutils, and apps/include/netutils:  Misc
 	  changes to support multiple networks with different link layers.  For
 	  example, ETHERNET + SLIP (2014-11-15).
@@ -1140,3 +1140,4 @@
 	* apps/examples/bridge/host_main.c, host_net1.c, host_net2.c, Kconfig,
 	  and Makefile:  Add host-side test driver (2014-11-21).
 
+7.7 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
