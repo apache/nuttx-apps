@@ -1141,3 +1141,6 @@
 	  and Makefile:  Add host-side test driver (2014-11-21).
 
 7.7 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/romfs/Makefile: fix romfs example builtin app registry
+	  issue.  From Librae (2014-11-27).
