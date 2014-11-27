@@ -37,6 +37,12 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
+# ROMFS built-in application info
+
+APPNAME = romfs
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+
 # ROMFS File System Example
 
 ASRCS =
@@ -121,13 +127,20 @@ install:
 
 endif
 
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+	@echo "LIBRAE IS HERE!" $@
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
 context:
+endif
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
-# Register application
 depend: .depend
 
 clean:
