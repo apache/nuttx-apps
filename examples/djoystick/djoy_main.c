@@ -152,6 +152,10 @@ int djoy_main(int argc, char *argv[])
   int ret;
   int err = EXIT_FAILURE;
 
+  /* Reset some globals that might been been left in a bad state */
+
+  g_djoylast = 0;
+
   /* Open the djoystick device */
 
   fd = open(CONFIG_EXAMPLES_DJOYSTICK_DEVNAME, O_RDONLY);
