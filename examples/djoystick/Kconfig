@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_DJOYSTICK
+	bool "Discrete joystick example"
+	default n
+	depends on DJOYSTICK && !DISABLE_SIGNALS
+	---help---
+		Enable the discrete joystick example
+
+if EXAMPLES_DJOYSTICK
+
+config EXAMPLES_DJOYSTICK_DEVNAME
+	string "Joystick device name"
+	default "/dev/djoy0"
+
+config EXAMPLES_DJOYSTICK_SIGNO
+	int "Joystick signal"
+	default 13
+
+endif
