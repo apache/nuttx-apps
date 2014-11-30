@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_graphics.h
+ * apps/graphics/traveler/include/trv_world.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_GRAPHICS_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_GRAPHICS_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_WORLD_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_WORLD_H
 
 /****************************************************************************
  * Included Files
@@ -46,37 +46,24 @@
  * Public Types
  ****************************************************************************/
 
-struct trv_palette_s
-{
-  int ncolors;                  /* Number of colors in the look-up table */
-  FAR nxgl_mxpixel_t *lut;      /* Color lookup table */
-};
+/* The following structure contains all information necessary to define
+ * a point-of-view.
+ */
 
-struct trv_graphics_info_s
+struct trv_camera_s
 {
-  nxgl_coord_t width;           /* Image width */
-  nxgl_coord_t height;          /* Image height */
-  struct trv_palette_s palette; /* Color palette */
-  FAR nxgl_mxpixel_t *buffer;   /* Hardware framebuffer */
-};
-
-struct trv_framebuffer_s
-{
-  nxgl_coord_t width;           /* Image width */
-  nxgl_coord_t height;          /* Image height */
-  FAR trv_pixel_t *buffer;      /* Software render buffer */
+  nxgl_coord_t x;      /* Camera X position */
+  nxgl_coord_t y;      /* Camera Y position */
+  nxgl_coord_t z;      /* Camera Z position */
+  int16_t      yaw;    /* Camera yaw orientation */
+  int16_t      pitch;  /* Camera pitch orientation */
 };
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int trv_graphics_initialize(uint16_t width, uint16_t height,
-                            uint8_t scale_factor,
-                            FAR struct trv_graphics_info_s *ginfo);
-void trv_graphics_terminate(void);
-trv_pixel_t trv_graphics_index2pixel(int index);
-void trv_display_update(struct trv_framebuffer_s *fb);
-trv_pixel_t *trv_get_renderbuffer(uint16_t width, uint16_t height);
+int  trv_world_create(FAR const char *mapfile);
+void trv_world_destroy(void);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_GRAPHICS_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_WORLD_H */

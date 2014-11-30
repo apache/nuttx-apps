@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_color.h
+ * apps/graphics/traveler/include/trv_color.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_COLOR_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_COLOR_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
 
 /****************************************************************************
  * Included Files
@@ -76,4 +76,4 @@ trv_pixel_t trv_color_rgb2pixel(FAR struct trv_color_rgb_s *pixel);
 void trv_color_pixel2lum(trv_pixel_t pixel, FAR struct trv_color_lum_s *lum);
 trv_pixel_t trv_color_lum2pixel(FAR struct trv_color_lum_s *lum);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_COLOR_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_world.h
+ * apps/graphics/traveler/include/trv_pov.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,37 +33,29 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_WORLD_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_WORLD_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_POV_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_POV_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_world.h"
 
 /****************************************************************************
- * Public Types
+ * Public Data
  ****************************************************************************/
 
-/* The following structure contains all information necessary to define
- * a point-of-view.
- */
+/* This structure defines the current camera position of the player's eyes */
 
-struct trv_camera_s
-{
-  nxgl_coord_t x;      /* Camera X position */
-  nxgl_coord_t y;      /* Camera Y position */
-  nxgl_coord_t z;      /* Camera Z position */
-  int16_t      yaw;    /* Camera yaw orientation */
-  int16_t      pitch;  /* Camera pitch orientation */
-};
+extern struct trv_camera_s g_trv_player;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int  trv_world_create(FAR const char *mapfile);
-void trv_world_destroy(void);
+void trv_pov_reset(void);
+void trv_pov_new(void);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_WORLD_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_POV_H */

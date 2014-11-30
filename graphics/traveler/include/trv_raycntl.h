@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_rayrend.h
+ * apps/graphics/traveler/include/trv_raycntl.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,15 +33,14 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_RAYEND_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_RAYEND_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCNTL_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCNTL_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_world.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -55,6 +54,10 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-void trv_rend_backdrop (struct trv_camera_s *camera);
+extern uint8_t *trv_raycaster_initialize(uint16_t screen_width,
+                                         uint16_t screen_height,
+                                         uint8_t scale_factor,
+                                         FAR uint8_t *screen_buffer);
+extern void trv_raycaster(FAR struct trv_camera_s *player);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_RAYEND_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCNTL_H */

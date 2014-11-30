@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/traveller/Makefile
+# apps/graphics/traveler/Makefile
 #
 #   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -39,7 +39,7 @@ include $(APPDIR)/Make.defs
 
 # Hello, World! built-in application info
 
-APPNAME = traveller
+APPNAME = traveler
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
@@ -83,7 +83,7 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/traveller/include}
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/traveler/include}
 
 DEPPATH = --dep-path src
 VPATH = src

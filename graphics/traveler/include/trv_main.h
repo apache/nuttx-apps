@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_bitmaps.h
+ * apps/graphics/traveler/include/trv_main.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_BITMAPS_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_BITMAPS_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MAIN_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MAIN_H
 
 /****************************************************************************
  * Included Files
@@ -47,11 +47,15 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Public Types
+ * Public Data
  ****************************************************************************/
+
+extern bool g_trv_terminate;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_BITMAPS_H */
+void trv_abort(FAR char *format, ...);
+
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MAIN_H */

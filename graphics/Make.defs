@@ -43,5 +43,5 @@ CONFIGURED_APPS += graphics/screenshot
 endif
 
 ifeq ($(CONFIG_GRAPHICS_TRAVELER),y)
-CONFIGURED_APPS += graphics/traveller
+CONFIGURED_APPS += graphics/traveler
 endif

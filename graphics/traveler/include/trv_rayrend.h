@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_doors.h
+ * apps/graphics/traveler/include/trv_rayrend.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,20 +33,28 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DOORS_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DOORS_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYEND_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYEND_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_world.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-void trv_door_initialize(void);
-void trv_door_animate(void);
+void trv_rend_backdrop (struct trv_camera_s *camera);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DOORS_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYEND_H */

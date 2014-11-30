@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_debug.h
+ * apps/graphics/traveler/include/trv_debug.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DEBUG_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DEBUG_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_DEBUG_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_DEBUG_H
 
 /****************************************************************************
  * Included Files
@@ -50,11 +50,11 @@
 
 /* Feature Selection Switches
  *
- * CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL == 3 turns off sound and video and
+ * CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 3 turns off sound and video and
  *   enables verbose debug messages on stdout.
- * CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL == 2 turns off sound and video and
+ * CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 2 turns off sound and video and
  *   enables normal debug output
- * CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL == 1 turns off sound and enables
+ * CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 1 turns off sound and enables
  *   normal debug output
  * OTHERWISE, all debugging features are disabled.
  */
@@ -63,16 +63,16 @@
 #define ENABLE_VIDEO 1
 #undef  TRV_VERBOSE
 
-#ifndef CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL
-#  define CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL 0
-#ielf (CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL == 3)
+#ifndef CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL
+#  define CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL 0
+#ielf (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 3)
 #  undef ENABLE_SOUND
 #  undef ENABLE_VIDEO
 #  define TRV_VERBOSE  1
-#elif (CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL == 2)
+#elif (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 2)
 #  undef ENABLE_SOUND
 #  undef ENABLE_VIDEO
-#elif (CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL == 1)
+#elif (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 1)
 #  undef ENABLE_SOUND
 #endif
 
@@ -83,7 +83,7 @@
 /* Debug output macros */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  if (CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL > 0)
+#  if (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL > 0)
 
 #    define trv_debug(format, ...) \
       printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
@@ -106,7 +106,7 @@
 
   /* Variadic macros NOT supported */
 
-#  if (CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL > 0)
+#  if (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL > 0)
 #    ifdef TRV_VERBOSE
 #      define trv_vdebug trv_debug
 #    else
@@ -132,8 +132,8 @@
  * arguments, then this additional interface will be built.
  */
 
-#ifndef CONFIG_CPP_HAVE_VARARGS && (CONFIG_GRAPHICS_TRAVELLER_DEBUG_LEVEL > 0)
+#ifndef CONFIG_CPP_HAVE_VARARGS && (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL > 0)
 int trv_debug(FAR const char *format, ...);
 #endif
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DEBUG_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_DEBUG_H */

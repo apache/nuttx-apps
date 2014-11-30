@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_input.h
+ * apps/graphics/traveler/include/trv_input.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_INPUT_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_INPUT_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_INPUT_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_INPUT_H
 
 /****************************************************************************
  * Included Files
@@ -50,4 +50,4 @@ void trv_input_initialize(void);
 void trv_input_read(void);
 void trv_input_terminate(void);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_INPUT_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_INPUT_H */
