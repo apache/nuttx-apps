@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_types.h
+ * apps/graphics/traveller/include/trv_doors.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,40 +33,20 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
+#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DOORS_H
+#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DOORS_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <nuttx/nx/nxglib.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* The maximum size of a line (for example, in the .INI file) */
-
-#define TRV_MAX_LINE   256
-
-/* Size of one (internal) pixel */
-
-#define TRV_PIXEL_MAX  UINT8_MAX
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-typedef uint8_t trv_pixel_t;
+#include "trv_types.h"
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H */
+void trv_door_initialize(void);
+void trv_door_animate(void);
+
+#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_DOORS_H */

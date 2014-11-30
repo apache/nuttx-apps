@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_types.h
+ * apps/graphics/traveller/include/trv_color.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,40 +33,47 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
+#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_COLOR_H
+#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_COLOR_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <nuttx/nx/nxglib.h>
+#include "trv_types.h"
+#include "trv_graphics.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* The maximum size of a line (for example, in the .INI file) */
-
-#define TRV_MAX_LINE   256
-
-/* Size of one (internal) pixel */
-
-#define TRV_PIXEL_MAX  UINT8_MAX
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-typedef uint8_t trv_pixel_t;
+struct trv_color_rgb_s
+{
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
+};
+
+struct trv_color_lum_s
+{
+  float red;
+  float green;
+  float blue;
+  float luminance;
+};
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H */
+bool trv_color_allocate(FAR struct trv_palette_s *pinfo);
+void trv_color_endmapping(void);
+trv_pixel_t trv_color_rgb2pixel(FAR struct trv_color_rgb_s *pixel);
+void trv_color_pixel2lum(trv_pixel_t pixel, FAR struct trv_color_lum_s *lum);
+trv_pixel_t trv_color_lum2pixel(FAR struct trv_color_lum_s *lum);
+
+#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_COLOR_H */

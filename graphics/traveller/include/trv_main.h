@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_types.h
+ * apps/graphics/traveller/include/trv_main.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,40 +33,29 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
+#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_MAIN_H
+#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_MAIN_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <nuttx/nx/nxglib.h>
+#include "trv_types.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* The maximum size of a line (for example, in the .INI file) */
-
-#define TRV_MAX_LINE   256
-
-/* Size of one (internal) pixel */
-
-#define TRV_PIXEL_MAX  UINT8_MAX
-
 /****************************************************************************
- * Public Types
+ * Public Data
  ****************************************************************************/
 
-typedef uint8_t trv_pixel_t;
+extern bool g_trv_terminate;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H */
+void trv_abort(FAR char *format, ...);
+
+#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_MAIN_H */
