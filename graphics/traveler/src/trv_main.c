@@ -149,7 +149,11 @@ static double trv_current_time(void)
  * Description:
  ****************************************************************************/
 
-int main(int argc, char *argv[])
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int traveler_main(int argc, char *argv[])
+#endif
 {
   FAR struct trv_graphics_info_s ginfo;
   struct trv_framebuffer_s frame;

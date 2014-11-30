@@ -8,6 +8,7 @@ if GRAPHICS_TRAVELER
 config GRAPHICS_TRAVELER_PERFMON
 	bool "Performance monitor game"
 	default y
+	depends on NX && FS_READABLE && !NX_LCDDRIVER
 	---help---
 		Enable or disable performance monitoring instrumentation and output.
 
