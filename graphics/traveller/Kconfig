@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config GRAPHICS_TRAVELER
+	bool "Traveller game"
+	default n
+	select SYSTEM_INIFILE
+	---help---
+		Enable or disable the graphic Traveller game
+
+if GRAPHICS_TRAVELER
+
+config GRAPHICS_TRAVELER_DEBUG_LEVEL
+	int "Debug output level"
+	default 0
+	range 0 3
+	---help---
+		DEBUG_LEVEL == 3 turns off sound and video and enables verbose debug
+			messages on stdout.
+		DEBUG_LEVEL == 2 turns off sound and video and enables normal debug
+			output
+		DEBUG_LEVEL == 1 turns off sound and enables normal debug output
+		OTHERWISE, all debugging features are disabled.
+
+endif # GRAPHICS_TRAVELER
