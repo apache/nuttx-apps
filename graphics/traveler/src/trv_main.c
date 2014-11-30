@@ -1,6 +1,6 @@
 /****************************************************************************
- * apps/graphics/traveller/trv_debug.h
- * This file contains the main logic for the NuttX version of Traveller
+ * apps/graphics/traveler/trv_debug.h
+ * This file contains the main logic for the NuttX version of Traveler
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

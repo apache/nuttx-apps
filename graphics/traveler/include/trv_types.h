@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_pov.h
+ * apps/graphics/traveler/include/trv_types.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,29 +33,40 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_POV_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_POV_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TYPES_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TYPES_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "trv_types.h"
-#include "trv_world.h"
+#include <nuttx/config.h>
+
+#include <stdint.h>
+#include <stdbool.h>
+
+#include <nuttx/nx/nxglib.h>
 
 /****************************************************************************
- * Public Data
+ * Pre-processor Definitions
  ****************************************************************************/
 
-/* This structure defines the current camera position of the player's eyes */
+/* The maximum size of a line (for example, in the .INI file) */
 
-extern struct trv_camera_s g_trv_player;
+#define TRV_MAX_LINE   256
+
+/* Size of one (internal) pixel */
+
+#define TRV_PIXEL_MAX  UINT8_MAX
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+typedef uint8_t trv_pixel_t;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-void trv_pov_reset(void);
-void trv_pov_new(void);
-
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_POV_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TYPES_H */

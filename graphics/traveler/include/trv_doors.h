@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_raycntl.h
+ * apps/graphics/traveler/include/trv_doors.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_RAYCNTL_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_RAYCNTL_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_DOORS_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_DOORS_H
 
 /****************************************************************************
  * Included Files
@@ -43,21 +43,10 @@
 #include "trv_types.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-extern uint8_t *trv_raycaster_initialize(uint16_t screen_width,
-                                         uint16_t screen_height,
-                                         uint8_t scale_factor,
-                                         FAR uint8_t *screen_buffer);
-extern void trv_raycaster(FAR struct trv_camera_s *player);
+void trv_door_initialize(void);
+void trv_door_animate(void);
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_RAYCNTL_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_DOORS_H */

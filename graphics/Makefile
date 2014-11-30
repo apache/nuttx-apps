@@ -37,7 +37,7 @@
 
 # Sub-directories
 
-SUBDIRS = tiff screenshot traveller
+SUBDIRS = tiff screenshot traveler
 
 # Sub-directories that might need context setup
 
