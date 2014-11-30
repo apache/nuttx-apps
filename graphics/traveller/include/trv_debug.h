@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/trv_debug.h
+ * apps/graphics/traveller/include/trv_debug.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

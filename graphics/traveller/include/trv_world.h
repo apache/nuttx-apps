@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveller/include/trv_types.h
+ * apps/graphics/traveller/include/trv_world.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,40 +33,37 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
-#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H
+#ifndef __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_WORLD_H
+#define __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_WORLD_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <nuttx/nx/nxglib.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* The maximum size of a line (for example, in the .INI file) */
-
-#define TRV_MAX_LINE   256
-
-/* Size of one (internal) pixel */
-
-#define TRV_PIXEL_MAX  UINT8_MAX
+#include "trv_types.h"
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-typedef uint8_t trv_pixel_t;
+/* The following structure contains all information necessary to define
+ * a point-of-view.
+ */
+
+struct trv_camera_s
+{
+  nxgl_coord_t x;      /* Camera X position */
+  nxgl_coord_t y;      /* Camera Y position */
+  nxgl_coord_t z;      /* Camera Z position */
+  int16_t      yaw;    /* Camera yaw orientation */
+  int16_t      pitch;  /* Camera pitch orientation */
+};
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_TYPES_H */
+int  trv_world_create(FAR const char *mapfile);
+void trv_world_destroy(void);
+
+#endif /* __APPS_GRAPHICS_TRAVELLER_INCLUDE_TRV_WORLD_H */

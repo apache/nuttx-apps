@@ -3,14 +3,13 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config GRAPHICS_TRAVELER
-	bool "Traveller game"
-	default n
-	select SYSTEM_INIFILE
-	---help---
-		Enable or disable the graphic Traveller game
-
 if GRAPHICS_TRAVELER
+
+config GRAPHICS_TRAVELER_PERFMON
+	bool "Performance monitor game"
+	default y
+	---help---
+		Enable or disable performance monitoring instrumentation and output.
 
 config GRAPHICS_TRAVELER_DEBUG_LEVEL
 	int "Debug output level"
