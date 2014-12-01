@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_color.h
+ * apps/graphics/traveler/trv_nxlistener.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,47 +33,82 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_graphics.h"
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <sched.h>
+#include <errno.h>
+
+#include <nuttx/arch.h>
+#include <nuttx/nx/nx.h>
+#include <nuttx/video/fb.h>
+
+#ifdef CONFIG_NX_MULTIUSER
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Types
+ * Private Types
  ****************************************************************************/
-
-struct trv_color_rgb_s
-{
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
-};
-
-struct trv_color_lum_s
-{
-  float red;
-  float green;
-  float blue;
-  float luminance;
-};
 
 /****************************************************************************
- * Public Function Prototypes
+ * Private Data
  ****************************************************************************/
 
-bool trv_color_allocate(FAR struct trv_palette_s *pinfo);
-void trv_color_free(FAR struct trv_palette_s *pinfo);
-trv_pixel_t trv_color_rgb2pixel(FAR struct trv_color_rgb_s *pixel);
-void trv_color_pixel2lum(trv_pixel_t pixel, FAR struct trv_color_lum_s *lum);
-trv_pixel_t trv_color_lum2pixel(FAR struct trv_color_lum_s *lum);
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H */
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: trv_nxlistener
+ ****************************************************************************/
+
+FAR void *trv_nxlistener(FAR void *arg)
+{
+  int ret;
+
+  /* Process events forever */
+
+  for (;;)
+    {
+      /* Handle the next event.  If we were configured blocking, then
+       * we will stay right here until the next event is received.  Since
+       * we have dedicated a while thread to servicing events, it would
+       * be most natural to also select CONFIG_NX_BLOCKING -- if not, the
+       * following would be a tight infinite loop (unless we added addition
+       * logic with nx_eventnotify and sigwait to pace it).
+       */
+
+      ret = nx_eventhandler(g_hnx);
+      if (ret < 0)
+        {
+          /* An error occurred... assume that we have lost connection with
+           * the server.
+           */
+
+          trv_abort("Lost server connection: %d\n", errno);
+        }
+
+      /* If we received a message, we must be connected */
+
+      if (!g_trv_nxrconnected)
+        {
+          g_trv_nxrconnected = true;
+          sem_post(&g_trv_nxevent);
+          trv_debug("Connected to server\n");
+        }
+    }
+}
+
+#endif /* CONFIG_NX_MULTIUSER */

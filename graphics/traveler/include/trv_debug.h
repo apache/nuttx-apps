@@ -93,13 +93,13 @@
        printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 
 #    else
-#      define vdbg(x...)
+#      define trv_vdebug(x...)
 #    endif
 
 #  else
 
-#    define dbg(x...)
-#    define vdbg(x...)
+#    define trv_debug(x...)
+#    define trv_vdebug(x...)
 
 #  endif
 #else
@@ -132,7 +132,7 @@
  * arguments, then this additional interface will be built.
  */
 
-#ifndef CONFIG_CPP_HAVE_VARARGS && (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL > 0)
+#if !defined(CONFIG_CPP_HAVE_VARARGS) && CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL > 0
 int trv_debug(FAR const char *format, ...);
 #endif
 

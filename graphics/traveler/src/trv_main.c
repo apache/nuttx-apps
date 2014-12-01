@@ -52,7 +52,7 @@
 #include "trv_rayrend.h"
 #include "trv_input.h"
 #include "trv_graphics.h"
-#include "trv_color.h"
+#include "trv_debug.h"
 #include "trv_main.h"
 
 #if CONFIG_GRAPHICS_TRAVELER_PERFMON
@@ -78,10 +78,21 @@ static double trv_current_time(void);
 bool g_trv_terminate;
 
 /****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static void trv_exit(int exitcode) noreturn_function;
+static void trv_usage(char *execname);
+#ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
+static double trv_current_time(void);
+#endif
+
+/****************************************************************************
  * Private Data
  *************************************************************************/
 
 static const char g_default_worldfile[] = "transfrm.wld";
+static FAR struct trv_graphics_info_s g_trv_ginfo;
 
 /****************************************************************************
  * Private Functions
@@ -93,7 +104,7 @@ static const char g_default_worldfile[] = "transfrm.wld";
  * Description:
  ****************************************************************************/
 
-static void trv_exit(int exitCode)
+static void trv_exit(int exitcode)
 {
   /* Release memory held by the ray casting engine */
 
@@ -102,9 +113,9 @@ static void trv_exit(int exitCode)
   /* Close off input */
 
   trv_input_terminate();
-  trv_graphics_terminate();
+  trv_graphics_terminate(&g_trv_ginfo);
 
-  exit(exitCode);
+  exit(exitcode);
 }
 
 /****************************************************************************
@@ -117,7 +128,6 @@ static void trv_usage(char *execname)
 {
   fprintf(stderr, "Usage: %s [-b] [-p<path>] [world]\n", execname);
   fprintf(stderr, "Where:\n");
-  fprintf(stderr, "  -b       Selects 640x400 window (default is 320x200)\n");
   fprintf(stderr, "  -p<path> Selects the path to the world data file\n");
   fprintf(stderr, "  world    Selects the world file name\n");
   exit(EXIT_FAILURE);
@@ -155,10 +165,7 @@ int main(int argc, FAR char *argv[])
 int traveler_main(int argc, char *argv[])
 #endif
 {
-  FAR struct trv_graphics_info_s ginfo;
-  struct trv_framebuffer_s frame;
   FAR const char *world_filename;
-  uint8_t scale_factor = 1;
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
   int32_t frame_count = 0;
   double elapsed_time = 0.0;
@@ -178,10 +185,6 @@ int traveler_main(int argc, char *argv[])
           ptr++;
           switch (*ptr)
             {
-            case 'b':
-              scale_factor = 2;
-              break;
-
             case 'p' :
               ptr++;
               printf("World data path = %s\n", ptr);
@@ -204,30 +207,20 @@ int traveler_main(int argc, char *argv[])
         }
     }
 
-  printf("World data file = %s\n", world_filename);
+  trv_debug("World data file = %s\n", world_filename);
 
   /* Initialize the graphics interface */
 
-  ret = trv_graphics_initialize(320, 200, scale_factor, &ginfo);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: trv_graphics_initialize failed: %d\n", ret);
-      trv_exit(EXIT_FAILURE);
-    }
+  trv_graphics_initialize(&g_trv_ginfo);
 
   /* Load the word data structures */
 
   ret = trv_world_create(world_filename);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: %d loading world file %s: %d\n",
-              world_filename, ret);
-      trv_exit(EXIT_FAILURE);
+      trv_abort("ERROR: %d loading world file %s: %d\n",
+                world_filename, ret);
     }
-
-  /* We can now release any color mapping tables */
-
-  trv_color_endmapping();
 
   /* Set the player's POV in the new world */
 
@@ -236,19 +229,6 @@ int traveler_main(int argc, char *argv[])
   /* Initialize the world's door */
 
   trv_door_initialize();
-
-  /* Initialize the ray cast engine */
-
-  frame.width  = ginfo.width;
-  frame.height = ginfo.height;
-  frame.buffer = trv_get_renderbuffer(ginfo.width, ginfo.height);
-
-  if (!trv_raycaster_initialize(frame.width, frame.height,
-                                scale_factor, frame.buffer))
-    {
-      fprintf(stderr, "Error:  Initializing ray cast engine.\n");
-      trv_exit(EXIT_FAILURE);
-    }
 
   /* Set up to receive input */
 
@@ -276,11 +256,11 @@ int traveler_main(int argc, char *argv[])
 
       /* Render the 3-D view */
 
-      trv_raycaster(&g_trv_player);
+      trv_raycaster(&g_trv_player, &g_trv_ginfo);
 
       /* Display the world. */
 
-      trv_display_update(&frame);
+      trv_display_update(&g_trv_ginfo);
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
       frame_count++;
       elapsed_time += trv_current_time() - start_time;

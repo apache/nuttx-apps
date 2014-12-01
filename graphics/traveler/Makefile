@@ -46,8 +46,15 @@ STACKSIZE = 2048
 # Hello, World! Example
 
 ASRCS =
-CSRCS =
+CSRCS = trv_mem.c trv_graphics.c
 MAINSRC = trv_main.c
+
+ifeq ($(CONFIG_NX),y)
+CSRCS += trv_nxbkgd.c
+ifeq ($(CONFIG_NX),y)
+CSRCS += trv_nxserver.c
+endif
+endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

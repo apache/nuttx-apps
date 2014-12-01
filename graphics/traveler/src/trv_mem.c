@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_color.h
+ * apps/graphics/traveler/src/trv_mem.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,47 +33,53 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_graphics.h"
+#include "trv_main.h"
+#include "trv_mem.h"
+
+#include <stdlib.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Types
+ * Name: trv_malloc
+ *
+ * Description:
  ****************************************************************************/
 
-struct trv_color_rgb_s
+FAR void *trv_malloc(size_t size)
 {
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
-};
+  FAR void *memory;
 
-struct trv_color_lum_s
-{
-  float red;
-  float green;
-  float blue;
-  float luminance;
-};
+  memory = malloc(size);
+  if (memory == NULL)
+    {
+      trv_abort("Out of memory (trv_malloc %x bytes)", size);
+    }
+
+  return memory;
+}
 
 /****************************************************************************
- * Public Function Prototypes
+ * Name: trv_free
+ *
+ * Description:
  ****************************************************************************/
 
-bool trv_color_allocate(FAR struct trv_palette_s *pinfo);
-void trv_color_free(FAR struct trv_palette_s *pinfo);
-trv_pixel_t trv_color_rgb2pixel(FAR struct trv_color_rgb_s *pixel);
-void trv_color_pixel2lum(trv_pixel_t pixel, FAR struct trv_color_lum_s *lum);
-trv_pixel_t trv_color_lum2pixel(FAR struct trv_color_lum_s *lum);
-
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H */
+void trv_free(void *memory)
+{
+  if (memory == NULL)
+    {
+      trv_abort("Freeing NULL");
+    }
+  else
+    {
+      free(memory);
+    }
+}
