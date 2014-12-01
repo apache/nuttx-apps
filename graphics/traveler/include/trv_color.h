@@ -47,6 +47,44 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#if defined(CONFIG_GRAPHICS_TRAVELER_RGB16_565)
+/* This macro creates RGB16 (5:6:5)
+ *
+ *   R[7:3] -> RGB[15:11]
+ *   G[7:2] -> RGB[10:5]
+ *   B[7:3] -> RGB[4:0]
+ */
+
+#  define TRV_MKRGB(r,g,b) \
+  ((((uint16_t)(r) << 8) & 0xf800) | (((uint16_t)(g) << 3) & 0x07e0) | (((uint16_t)(b) >> 3) & 0x001f))
+
+/* And these macros perform the inverse transformation */
+
+#  define RGB2RED(rgb)   (((rgb) >> 8) & 0xf8)
+#  define RGB2GREEN(rgb) (((rgb) >> 3) & 0xfc)
+#  define RGB2BLUE(rgb)  (((rgb) << 3) & 0xf8)
+
+#elif defined(CONFIG_GRAPHICS_TRAVELER_RGB32_888)
+/* This macro creates RGB24 (8:8:8)
+ *
+ *   R[7:3] -> RGB[15:11]
+ *   G[7:2] -> RGB[10:5]
+ *   B[7:3] -> RGB[4:0]
+ */
+
+#  define TRV_MKRGB(r,g,b) \
+  ((uint32_t)((r) & 0xff) << 16 | (uint32_t)((g) & 0xff) << 8 | (uint32_t)((b) & 0xff))
+
+/* And these macros perform the inverse transformation */
+
+#  define RGB2RED(rgb)   (((rgb) >> 16) & 0xff)
+#  define RGB2GREEN(rgb) (((rgb) >> 8)  & 0xff)
+#  define RGB2BLUE(rgb)  ( (rgb)        & 0xff)
+
+#else
+#  error No color format defined
+#endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/

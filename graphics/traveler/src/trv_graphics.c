@@ -386,7 +386,6 @@ int trv_graphics_initialize(FAR struct trv_graphics_info_s *ginfo)
   int swwidth;
   int swheight;
   int scale;
-  int ret;
 
   /* Initialize the graphics device and get information about the display */
 
