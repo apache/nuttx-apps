@@ -459,12 +459,7 @@ int trv_graphics_initialize(FAR struct trv_graphics_info_s *ginfo)
 
   /* Allocate color mapping information */
 
-  ret = trv_color_allocate(&ginfo->palette);
-  if (ret < 0)
-    {
-      trv_abort("ERROR trv_color_allocate failed: %d");
-    }
-
+  trv_color_allocate(&ginfo->palette);
   trv_vdebug("%d colors allocated\n", ginfo->palette.ncolors);
   return OK;
 }

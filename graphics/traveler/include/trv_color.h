@@ -70,7 +70,8 @@ struct trv_color_lum_s
  * Public Function Prototypes
  ****************************************************************************/
 
-bool trv_color_allocate(FAR struct trv_palette_s *pinfo);
+void trv_color_allocate(FAR struct trv_palette_s *pinfo);
+void trv_color_endmapping(void);
 void trv_color_free(FAR struct trv_palette_s *pinfo);
 trv_pixel_t trv_color_rgb2pixel(FAR struct trv_color_rgb_s *pixel);
 void trv_color_pixel2lum(trv_pixel_t pixel, FAR struct trv_color_lum_s *lum);
