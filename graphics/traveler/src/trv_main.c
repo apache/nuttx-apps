@@ -52,6 +52,7 @@
 #include "trv_rayrend.h"
 #include "trv_input.h"
 #include "trv_graphics.h"
+#include "trv_color.h"
 #include "trv_debug.h"
 #include "trv_main.h"
 
