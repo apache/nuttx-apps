@@ -222,6 +222,10 @@ int traveler_main(int argc, char *argv[])
                 world_filename, ret);
     }
 
+  /* Release color mapping tables */
+
+  trv_color_endmapping();
+
   /* Set the player's POV in the new world */
 
   trv_pov_reset();
