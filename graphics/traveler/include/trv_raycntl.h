@@ -41,6 +41,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_graphics.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -54,10 +55,7 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-extern uint8_t *trv_raycaster_initialize(uint16_t screen_width,
-                                         uint16_t screen_height,
-                                         uint8_t scale_factor,
-                                         FAR uint8_t *screen_buffer);
-extern void trv_raycaster(FAR struct trv_camera_s *player);
+void trv_raycaster(FAR struct trv_camera_s *player,
+                   FAR struct trv_graphics_info_s *ginfo);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCNTL_H */

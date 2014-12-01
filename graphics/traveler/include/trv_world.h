@@ -52,11 +52,11 @@
 
 struct trv_camera_s
 {
-  nxgl_coord_t x;      /* Camera X position */
-  nxgl_coord_t y;      /* Camera Y position */
-  nxgl_coord_t z;      /* Camera Z position */
-  int16_t      yaw;    /* Camera yaw orientation */
-  int16_t      pitch;  /* Camera pitch orientation */
+  trv_coord_t x;      /* Camera X position */
+  trv_coord_t y;      /* Camera Y position */
+  trv_coord_t z;      /* Camera Z position */
+  int16_t     yaw;    /* Camera yaw orientation */
+  int16_t     pitch;  /* Camera pitch orientation */
 };
 
 /****************************************************************************

@@ -41,11 +41,11 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+#include <nuttx/compiler.h>
 
+#include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
-
-#include <nuttx/nx/nxglib.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -63,7 +63,8 @@
  * Public Types
  ****************************************************************************/
 
-typedef uint8_t trv_pixel_t;
+typedef uint8_t trv_pixel_t;  /* Width of one pixel in rendering phase */
+typedef int16_t trv_coord_t;  /* Contains one display coordinate */
 
 /****************************************************************************
  * Public Function Prototypes

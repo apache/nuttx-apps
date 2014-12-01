@@ -56,6 +56,6 @@ extern bool g_trv_terminate;
  * Public Function Prototypes
  ****************************************************************************/
 
-void trv_abort(FAR char *format, ...);
+void trv_abort(FAR char *format, ...) noreturn_function;
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MAIN_H */

@@ -5,10 +5,22 @@
 
 if GRAPHICS_TRAVELER
 
+choice
+	prompt "Color format"
+	default GRAPHICS_TRAVELER_RGB16_565
+
+config GRAPHICS_TRAVELER_RGB16_565
+	bool "RGB16 565"
+
+config GRAPHICS_TRAVELER_RGB32_888
+	bool "RGB32 888 (no transparency)"
+
+endchoice # Color format
+
 config GRAPHICS_TRAVELER_PERFMON
-	bool "Performance monitor game"
+	bool "Performance monitor"
 	default y
-	depends on NX && FS_READABLE && !NX_LCDDRIVER
+	depends on FS_READABLE
 	---help---
 		Enable or disable performance monitoring instrumentation and output.
 

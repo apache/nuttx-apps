@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_color.h
+ * apps/graphics/traveler/include/trv_mem.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,47 +33,20 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MEM_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MEM_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_graphics.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-struct trv_color_rgb_s
-{
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
-};
-
-struct trv_color_lum_s
-{
-  float red;
-  float green;
-  float blue;
-  float luminance;
-};
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-bool trv_color_allocate(FAR struct trv_palette_s *pinfo);
-void trv_color_free(FAR struct trv_palette_s *pinfo);
-trv_pixel_t trv_color_rgb2pixel(FAR struct trv_color_rgb_s *pixel);
-void trv_color_pixel2lum(trv_pixel_t pixel, FAR struct trv_color_lum_s *lum);
-trv_pixel_t trv_color_lum2pixel(FAR struct trv_color_lum_s *lum);
+FAR void *trv_malloc(size_t size);
+void trv_free(FAR void *memory);
 
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_COLOR_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_MEM_H */
