@@ -384,7 +384,7 @@ config NSH_CMDOPT_HEXDUMP
 	default y if !DEFAULT_SMALL
 	depends on !NSH_DISABLE_HEXDUMP
 
-config NSH_PROC_MOUNTPOUNT
+config NSH_PROC_MOUNTPOINT
 	string "procfs mountpoint"
 	default "/proc"
 	depends on FS_PROCFS

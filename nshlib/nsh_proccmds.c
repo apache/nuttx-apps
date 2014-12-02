@@ -53,8 +53,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_NSH_PROC_MOUNTPOUNT
-#  define CONFIG_NSH_PROC_MOUNTPOUNT "/proc"
+#ifndef CONFIG_NSH_PROC_MOUNTPOINT
+#  define CONFIG_NSH_PROC_MOUNTPOINT "/proc"
 #endif
 
 #undef HAVE_CPULOAD
@@ -215,7 +215,7 @@ static int loadavg(pid_t pid, FAR char *buffer, size_t buflen)
 
   /* Form the full path to the 'loadavg' pseudo-file */
 
-  snprintf(path, sizeof(path), CONFIG_NSH_PROC_MOUNTPOUNT "/%d/loadavg",
+  snprintf(path, sizeof(path), CONFIG_NSH_PROC_MOUNTPOINT "/%d/loadavg",
            (int)pid);
 
   /* Read the 'loadavg' pseudo-file into the user buffer */

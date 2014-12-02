@@ -188,7 +188,7 @@ NSH to behave as follows at NSH startup time:
 
 - By default, the contents of rcS script are:
 
-    # Create a RAMDISK and mount it at XXXRDMOUNTPOUNTXXX
+    # Create a RAMDISK and mount it at XXXRDMOUNTPOINTXXX
 
     mkrd -m 1 -s 512 1024
     mkfatfs /dev/ram1
