@@ -46,18 +46,23 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Number of units player moves forward or backward. */
+
+#define STEP_DISTANCE 15
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
 struct trv_input_s
 {
   int16_t fwdrate;    /* Forward motion rate.  Negative is backward */
   int16_t leftrate;   /* Left motion rate.  Negative is right */
   int16_t yawrate;    /* Yaw turn rate.  Positive is to the left */
   int16_t pitchrate;  /* Pitch turn rate.  Positive is upward */
+  int16_t stepheight; /* Size a a vertical step, if applicable */
   bool    dooropen;   /* True: Open a door */
 };
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
 
 /****************************************************************************
  * Public Data

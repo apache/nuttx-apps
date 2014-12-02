@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_world.h
+ * apps/graphics/traveler/include/trv_trigtbl.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_WORLD_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_WORLD_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TRIGTBL_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TRIGTBL_H
 
 /****************************************************************************
  * Included Files
@@ -43,48 +43,33 @@
 #include "trv_types.h"
 
 /****************************************************************************
- * Public Types
+ * Pre-processor Definitions
  ****************************************************************************/
 
-/* The following structure contains all information necessary to define
- * a point-of-view.
- */
+/* These are definitions of commonly used angles. */
 
-struct trv_camera_s
-{
-  trv_coord_t x;      /* Camera X position */
-  trv_coord_t y;      /* Camera Y position */
-  trv_coord_t z;      /* Camera Z position */
-  int16_t     yaw;    /* Camera yaw orientation */
-  int16_t     pitch;  /* Camera pitch orientation */
-};
+#define TWOPI       1920
+#define PI           960
+#define HALFPI       480
+#define QTRPI        240
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-/* This is the starting position and orientation of the camera in the world */
+/* Here are definitions for those who prefer degrees */
+/* NOTE:  ANGLE_60 and ANGLE_30 are special values.  They were */
+/* chosen to match the horizontal screen resolution of 320 pixels. */
+/* These, in fact, drive the entire angular measurement system */
 
-extern struct trv_camera_s g_initial_camera;
-
-/* This is the height of player (distance from the camera Z position to
- * the position of the player's "feet"
- */
-
-extern trv_coord_t g_player_height;
-
-/* This is size of something that the player can step over when "walking" */
-
-extern trv_coord_t g_walk_stepheight;
-
-/* This is size of something that the player can step over when "running" */
-
-extern trv_coord_t g_run_stepheight;
+#define ANGLE_0        0
+#define ANGLE_6       32
+#define ANGLE_9       48
+#define ANGLE_30     160
+#define ANGLE_60     320
+#define ANGLE_90     480
+#define ANGLE_180    960
+#define ANGLE_270   1440
+#define ANGLE_360   1920
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int  trv_world_create(FAR const char *mapfile);
-void trv_world_destroy(void);
-
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_WORLD_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TRIGTBL_H */

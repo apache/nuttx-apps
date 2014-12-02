@@ -39,6 +39,8 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_world.h"
+#include "trv_trigtbl.h"
 #include "trv_input.h"
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
@@ -46,6 +48,7 @@
 #  include <errno.h>
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
+#  include <fixedmath.h>
 #  include <nuttx/input/ajoystick.h>
 #elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
 #  include <nuttx/input/djoystick.h>
@@ -68,11 +71,11 @@ struct trv_input_info_s
   int fd;                   /* Open driver descriptor */
 #ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
   int16_t centerx;          /* Center X position */
-  int16_t maxleft;          /* Maximum left X position */
-  int16_t maxright;         /* Maximum right x position */
+  b16_t leftslope;          /* Slope for left of center */
+  b16_t rightslope;         /* Slope for left of center */
   int16_t centery;          /* Center Y position */
-  int16_t maxforward;       /* Maximum forward Y position */
-  int16_t maxback;          /* Maximum backward Y position */
+  b16_t fwdslope;           /* Slope for forward from center */
+  b16_t backslope;          /* Slope for backward from center */
 #endif
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
   trv_coord_t xpos;         /* Reported X position */
@@ -169,6 +172,8 @@ void trv_input_read(void)
 #if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
   struct ajoy_sample_s sample;
+  int16_t move_rate;
+  int16_t turn_rate;
   ssize_t nread;
 
   /* Read data from the analog joystick */
@@ -187,25 +192,131 @@ void trv_input_read(void)
 #warning Missing logic
 
 #elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
-  struct djoy_sample_s sample;
+  struct djoy_buttonset_t buttonset;
   ssize_t nread;
 
   /* Read data from the discrete joystick */
 
-  nread = read(g_trv_input_info.fd, &sample, sizeof(struct djoy_sample_s));
+  nread = read(g_trv_input_info.fd, &buttonset, sizeof(djoy_buttonset_t));
   if (nread < 0)
     {
       trv_abort("ERROR: Joystick read error: %d\n", errno);
     }
-  else if (nread != sizeof(struct djoy_sample_s))
+  else if (nread != sizeof(struct djoy_buttonset_t))
     {
       trv_abort("ERROR: Unexpected joystick read size: %ld\n", (long)nread);
     }
 
   /* Determine the input data to return to the POV logic */
-#warning Missing logic
 
-#endif
+  if ((buttonset & DJOY_BUTTON_RUN_BIT) != 0)
+    {
+      /* Run faster/step higher */
+
+      g_trv_input.stepheight = g_run_step_height;
+      move_rate              = 2 * STEP_DISTANCE;
+      turn_rate              = ANGLE_9;
+    }
+  else
+    {
+      /* Normal walking rate and stepping height */
+
+      g_trv_input.stepheight = g_walk_step_height;
+      move_rate              = STEP_DISTANCE;
+      turn_rate              = ANGLE_6;
+    }
+
+  /* Move forward or backward OR look up or down */
+
+  g_trv_input.pitchrate = 0;
+  g_trv_input.fwdrate   = 0;
+
+  switch (buttonset & (DJOY_UP_BIT | DJOY_DOWN_BIT))
+    {
+      case 0:
+      case (DJOY_UP_BIT | DJOY_DOWN_BIT):
+        /* Don't move, don't nod */
+
+        break;
+
+      case DJOY_UP_BIT:
+        if ((buttonset & DJOY_BUTTON_FIRE_BIT) != 0)
+          {
+            /* Look upward */
+
+            g_trv_input.pitchrate = turn_rate;
+          }
+        else
+          {
+            /* Move forward */
+
+            g_trv_input.fwdrate   = move_rate;
+          }
+        break;
+
+      case DJOY_DOWN_BIT:
+        if ((buttonset & DJOY_BUTTON_FIRE_BIT) != 0)
+          {
+            /* Look downward */
+
+            g_trv_input.pitchrate = -turn_rate;
+          }
+        else
+          {
+            /* Move Backward */
+
+            g_trv_input.fwdrate = -move_rate;
+          }
+        break;
+    }
+
+  /* Move forward or backward OR look up or down */
+
+  g_trv_input.yawrate  = 0;
+  g_trv_input.leftrate = 0;
+
+  switch (buttonset & (DJOY_LEFT_BIT | DJOY_RIGHT_BIT))
+    {
+      case 0:
+      case (DJOY_LEFT_BIT | DJOY_RIGHT_BIT):
+        /* Don't move, don't nod */
+
+        break;
+
+      case DJOY_LEFT_BIT:
+        if ((buttonset & DJOY_BUTTON_FIRE_BIT) != 0)
+          {
+            /* Turn left */
+
+            g_trv_input.yawrate = turn_rate;
+          }
+        else
+          {
+            /* Move left */
+
+            g_trv_input.leftrate   = move_rate;
+          }
+        break;
+
+      case DJOY_RIGHT_BIT:
+        if ((buttonset & DJOY_BUTTON_FIRE_BIT) != 0)
+          {
+            /* Turn right */
+
+            g_trv_input.yawrate = -turn_rate;
+          }
+        else
+          {
+            /* Move right */
+
+            g_trv_input.leftrate = -move_rate;
+          }
+        break;
+    }
+
+  g_trv_input.leftrate = ((buttonset & DJOY_BUTTON_SELECT) != 0);
+
+#endif /* CONFIG_GRAPHICS_TRAVELER_DJOYSTICK */
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
   /* Make position decision based on last sampled X/Y input data */
 #warning Missing logic
