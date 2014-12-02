@@ -46,7 +46,7 @@ STACKSIZE = 2048
 # Hello, World! Example
 
 ASRCS =
-CSRCS = trv_color.c trv_graphics.c trv_mem.c
+CSRCS = trv_color.c trv_graphics.c trv_input.c trv_mem.c
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)

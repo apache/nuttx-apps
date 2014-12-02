@@ -1,5 +1,5 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_graphics.c
+ * apps/graphics/traveler/src/trv_color.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
