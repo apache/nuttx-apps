@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_trigtbl.h
+ * apps/graphics/traveler/include/trv_rayavoid.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,44 +33,35 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TRIGTBL_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TRIGTBL_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYAVOID_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYAVOID_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_world.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* These are definitions of commonly used angles. */
-
-#define TWOPI       1920
-#define PI           960
-#define HALFPI       480
-#define QTRPI        240
-
-/* Here are definitions for those who prefer degrees */
-/* NOTE:  ANGLE_60 and ANGLE_30 are special values.  They were */
-/* chosen to match the horizontal screen resolution of 320 pixels. */
-/* These, in fact, drive the entire angular measurement system */
-
-#define ANGLE_0        0
-#define ANGLE_6       32
-#define ANGLE_9       48
-#define ANGLE_30     160
-#define ANGLE_45     240
-#define ANGLE_60     320
-#define ANGLE_90     480
-#define ANGLE_180    960
-#define ANGLE_270   1440
-#define ANGLE_360   1920
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_TRIGTBL_H */
+extern trv_coord_t trv_rayclip_player_xmotion(FAR struct trv_camera_s *pov,
+                                              trv_coord_t dist, int16_t yaw,
+                                              trv_coord_t height);
+extern trv_coord_t trv_rayclip_player_ymotion(FAR struct trv_camera_s *pov,
+                                              trv_coord_t dist, int16_t yaw,
+                                              trv_coord_t height);
+extern trv_coord_t trv_ray_adjust_zpos(FAR struct trv_camera_s *pov,
+                                       trv_coord_t height);
+
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYAVOID_H */
