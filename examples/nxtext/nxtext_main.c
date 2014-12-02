@@ -406,7 +406,7 @@ int nxtext_main(int argc, char **argv)
   ret = nx_requestbkgd(g_hnx, &g_nxtextcb, bgstate);
   if (ret < 0)
     {
-      printf("nxtext_main: nx_setbgcolor failed: %d\n", errno);
+      printf("nxtext_main: nx_requestbkgd failed: %d\n", errno);
       g_exitcode = NXEXIT_NXREQUESTBKGD;
       goto errout_with_nx;
     }

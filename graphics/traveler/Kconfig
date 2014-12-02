@@ -1,0 +1,71 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+if GRAPHICS_TRAVELER
+
+choice
+	prompt "Color format"
+	default GRAPHICS_TRAVELER_RGB16_565
+
+config GRAPHICS_TRAVELER_RGB16_565
+	bool "RGB16 565"
+
+config GRAPHICS_TRAVELER_RGB32_888
+	bool "RGB32 888 (no transparency)"
+
+endchoice # Color format
+
+config GRAPHICS_TRAVELER_JOYSTICK
+	bool
+	default n
+
+choice
+	prompt "Input device"
+	default GRAPHICS_TRAVELER_AJOYSTICK if CONFIG_AJOYSTICK
+	default GRAPHICS_TRAVELER_DJOYSTICK if CONFIG_DJOYSTICK && !CONFIG_AJOYSTICK
+	default GRAPHICS_TRAVELER_NX_XYINPUT if CONFIG_NX_XYINPUT && !CONFIG_AJOYSTICK && !CONFIG_DJOYSTICK
+
+config GRAPHICS_TRAVELER_AJOYSTICK
+	bool "Analog joystick"
+	depends on CONFIG_AJOYSTICK
+	select GRAPHICS_TRAVELER_JOYSTICK
+
+config GRAPHICS_TRAVELER_DJOYSTICK
+	bool "Discrete joystick"
+	depends on CONFIG_DJOYSTICK
+	select GRAPHICS_TRAVELER_JOYSTICK
+
+config GRAPHICS_TRAVELER_NX_XYINPUT
+	bool "NX X/Y input"
+	depends on CONFIG_NX_XYINPUT
+
+endchoice # Input device
+
+config GRAPHICS_TRAVELER_JOYDEV
+	string "Joystick device name"
+	default "/dev/ajoy0" if GRAPHICS_TRAVELER_AJOYSTICK
+	default "/dev/djoy0" if GRAPHICS_TRAVELER_DJOYSTICK
+	depends on GRAPHICS_TRAVELER_JOYSTICK
+
+config GRAPHICS_TRAVELER_PERFMON
+	bool "Performance monitor"
+	default y
+	depends on FS_READABLE
+	---help---
+		Enable or disable performance monitoring instrumentation and output.
+
+config GRAPHICS_TRAVELER_DEBUG_LEVEL
+	int "Debug output level"
+	default 0
+	range 0 3
+	---help---
+		DEBUG_LEVEL == 3 turns off sound and video and enables verbose debug
+			messages on stdout.
+		DEBUG_LEVEL == 2 turns off sound and video and enables normal debug
+			output
+		DEBUG_LEVEL == 1 turns off sound and enables normal debug output
+		OTHERWISE, all debugging features are disabled.
+
+endif # GRAPHICS_TRAVELER

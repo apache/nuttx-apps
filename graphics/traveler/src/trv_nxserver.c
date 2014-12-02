@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/nxtext/nxtext_server.c
+ * apps/graphics/traveler/trv_nxlistener.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,25 +37,16 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "trv_types.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sched.h>
 #include <errno.h>
-#include <debug.h>
 
 #include <nuttx/arch.h>
 #include <nuttx/nx/nx.h>
-
-#ifdef CONFIG_NX_LCDDRIVER
-#  include <nuttx/lcd/lcd.h>
-#else
-#  include <nuttx/video/fb.h>
-#endif
-
-#include "nxtext_internal.h"
+#include <nuttx/video/fb.h>
 
 #ifdef CONFIG_NX_MULTIUSER
 
@@ -80,80 +71,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxtext_server
+ * Name: trv_nxlistener
  ****************************************************************************/
 
-int nxtext_server(int argc, char *argv[])
-{
-  FAR NX_DRIVERTYPE *dev;
-  int ret;
-
-#if defined(CONFIG_EXAMPLES_NXTEXT_EXTERNINIT)
-  /* Use external graphics driver initialization */
-
-  printf("nxtext_server: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXTEXT_DEVNO);
-  if (!dev)
-    {
-      printf("nxtext_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
-      g_exitcode = NXEXIT_EXTINITIALIZE;
-      return ERROR;
-    }
-
-#elif defined(CONFIG_NX_LCDDRIVER)
-  /* Initialize the LCD device */
-
-  printf("nxtext_server: Initializing LCD\n");
-  ret = up_lcdinitialize();
-  if (ret < 0)
-    {
-      printf("nxtext_server: up_lcdinitialize failed: %d\n", -ret);
-      return 1;
-    }
-
-  /* Get the device instance */
-
-  dev = up_lcdgetdev(CONFIG_EXAMPLES_NXTEXT_DEVNO);
-  if (!dev)
-    {
-      printf("nxtext_server: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
-      return 2;
-    }
-
-  /* Turn the LCD on at 75% power */
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
-  /* Initialize the frame buffer device */
-
-  printf("nxtext_server: Initializing framebuffer\n");
-  ret = up_fbinitialize();
-  if (ret < 0)
-    {
-      printf("nxtext_server: up_fbinitialize failed: %d\n", -ret);
-      return 1;
-    }
-
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXTEXT_VPLANE);
-  if (!dev)
-    {
-      printf("nxtext_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
-      return 2;
-    }
-#endif
-
-  /* Then start the server */
-
-  ret = nx_run(dev);
-  gvdbg("nx_run returned: %d\n", errno);
-  return 3;
-}
-
-/****************************************************************************
- * Name: nxtext_listener
- ****************************************************************************/
-
-FAR void *nxtext_listener(FAR void *arg)
+FAR void *trv_nxlistener(FAR void *arg)
 {
   int ret;
 
@@ -176,17 +97,16 @@ FAR void *nxtext_listener(FAR void *arg)
            * the server.
            */
 
-          printf("nxtext_listener: Lost server connection: %d\n", errno);
-          exit(NXEXIT_LOSTSERVERCONN);
+          trv_abort("Lost server connection: %d\n", errno);
         }
 
       /* If we received a message, we must be connected */
 
-      if (!g_connected)
+      if (!g_trv_nxrconnected)
         {
-          g_connected = true;
-          sem_post(&g_semevent);
-          printf("nxtext_listener: Connected\n");
+          g_trv_nxrconnected = true;
+          sem_post(&g_trv_nxevent);
+          trv_debug("Connected to server\n");
         }
     }
 }
