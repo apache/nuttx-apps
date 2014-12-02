@@ -1,5 +1,6 @@
 /****************************************************************************
- * apps/graphics/traveler/src/trv_mem.c
+ * apps/graphics/traveler/trv_input.c
+ * This file contains the main logic for the NuttX version of Traveler
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -38,48 +39,72 @@
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_main.h"
-#include "trv_mem.h"
+#include "trv_input.h"
 
-#include <stdlib.h>
+/****************************************************************************
+ * Public Data
+ *************************************************************************/
+
+extern enum trv_move_event_e g_move_event;
+extern enum trv_turn_event_e g_turn_event;
+extern enum trv_door_event_e g_door_event;
+extern trv_coord_t g_trv_move_rate;
+extern trv_coord_t g_trv_turn_rate;
+
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
+
+/****************************************************************************
+ * Private Data
+ *************************************************************************/
+
+static const char g_default_worldfile[] = "transfrm.wld";
+static FAR struct trv_graphics_info_s g_trv_ginfo;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: trv_malloc
+ * Name: trv_input_initialize
  *
  * Description:
+ *   Initialize the selected input device
+ *
  ****************************************************************************/
 
-FAR void *trv_malloc(size_t size)
+void trv_input_initialize(void)
 {
-  FAR void *memory;
-
-  memory = malloc(size);
-  if (memory == NULL)
-    {
-      trv_abort("Out of memory (trv_malloc %x bytes)", size);
-    }
-
-  return memory;
+#warning Missing Logic
 }
 
 /****************************************************************************
- * Name: trv_free
+ * Name: trv_input_read
  *
  * Description:
+ *   Read the next input froom the input device
+ *
  ****************************************************************************/
 
-void trv_free(void *memory)
+void trv_input_read(void)
 {
-  if (memory == NULL)
-    {
-      trv_abort("Freeing NULL");
-    }
-  else
-    {
-      free(memory);
-    }
+#warning Missing Logic
+}
+
+/****************************************************************************
+ * Name: trv_input_terminate
+ *
+ * Description:
+ *   Terminate input and free resources
+ *
+ ****************************************************************************/
+
+void trv_input_terminate(void)
+{
+#warning Missing Logic
 }

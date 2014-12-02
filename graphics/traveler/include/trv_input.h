@@ -43,6 +43,49 @@
 #include "trv_types.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+/* INPUT */
+
+enum trv_move_event_e
+{
+  INPUT_MOVE_NONE = 0,
+  INPUT_MOVE_FORWARD,
+  INPUT_MOVE_BACKWARD,
+  INPUT_MOVE_LEFT,
+  INPUT_MOVE_RIGHT
+};
+
+enum trv_turn_event_e
+{
+  INPUT_TURN_NONE = 0,
+  INPUT_TURN_UP,
+  INPUT_TURN_DOWN,
+  INPUT_TURN_LEFT,
+  INPUT_TURN_RIGHT,
+};
+
+enum trv_door_event_e
+{
+  INPUT_DOOR_NONE = 0,
+  INPUT_DOOR_OPEN,
+};
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+extern enum trv_move_event_e g_move_event;
+extern enum trv_turn_event_e g_turn_event;
+extern enum trv_door_event_e g_door_event;
+extern trv_coord_t g_trv_move_rate;
+extern trv_coord_t g_trv_turn_rate;
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
