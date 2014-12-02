@@ -46,44 +46,26 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+struct trv_input_s
+{
+  int16_t fwdrate;    /* Forward motion rate.  Negative is backward */
+  int16_t leftrate;   /* Left motion rate.  Negative is right */
+  int16_t yawrate;    /* Yaw turn rate.  Positive is to the left */
+  int16_t pitchrate;  /* Pitch turn rate.  Positive is upward */
+  bool    dooropen;   /* True: Open a door */
+};
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
-/* INPUT */
-
-enum trv_move_event_e
-{
-  INPUT_MOVE_NONE = 0,
-  INPUT_MOVE_FORWARD,
-  INPUT_MOVE_BACKWARD,
-  INPUT_MOVE_LEFT,
-  INPUT_MOVE_RIGHT
-};
-
-enum trv_turn_event_e
-{
-  INPUT_TURN_NONE = 0,
-  INPUT_TURN_UP,
-  INPUT_TURN_DOWN,
-  INPUT_TURN_LEFT,
-  INPUT_TURN_RIGHT,
-};
-
-enum trv_door_event_e
-{
-  INPUT_DOOR_NONE = 0,
-  INPUT_DOOR_OPEN,
-};
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-extern enum trv_move_event_e g_move_event;
-extern enum trv_turn_event_e g_turn_event;
-extern enum trv_door_event_e g_door_event;
-extern trv_coord_t g_trv_move_rate;
-extern trv_coord_t g_trv_turn_rate;
+/* Report positional inputs */
+
+extern struct trv_input_s g_trv_input;
 
 /****************************************************************************
  * Public Function Prototypes
@@ -92,5 +74,8 @@ extern trv_coord_t g_trv_turn_rate;
 void trv_input_initialize(void);
 void trv_input_read(void);
 void trv_input_terminate(void);
+#ifdef CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT
+void trv_input_xyinput(trv_coord_t xpos, trv_coord_t xpos, uint8_t buttons);
+#endif
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_INPUT_H */

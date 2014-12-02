@@ -38,6 +38,9 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#ifdef CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT
+#  include "trv_input.h"
+#endif
 
 #include <string.h>
 #include <semaphore.h>
@@ -122,7 +125,7 @@ static void trv_nxposition(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+  trv_vdebug("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
         hwnd, size->w, size->h, pos->x, pos->y,
         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
@@ -141,7 +144,7 @@ static void trv_nxposition(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
       g_trv_nxresolution = true;
       sem_post(&g_trv_nxevent);
-      gvdbg("Have width=%d height=%d\n", ginfo->width, ginfo->height);
+      trv_vdebug("Have width=%d height=%d\n", ginfo->width, ginfo->height);
     }
 }
 
@@ -153,8 +156,12 @@ static void trv_nxposition(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 static void trv_nxmousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                          uint8_t buttons, FAR void *arg)
 {
-  printf("trv_nxmousein: hwnd=%p pos=(%d,%d) button=%02x\n",
+  trv_vdebug("trv_nxmousein: hwnd=%p pos=(%d,%d) button=%02x\n",
          hwnd,  pos->x, pos->y, buttons);
+
+#ifdef CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT
+  trv_input_xyinput((trv_coord_t)pos->x,(trv_coord_t) pos->y, buttons);
+#endif
 }
 #endif
 
@@ -166,7 +173,7 @@ static void trv_nxmousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 static void trv_nxkbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                        FAR void *arg)
 {
-  gvdbg("hwnd=%p nch=%d\n", hwnd, nch);
+  trv_vdebug("hwnd=%p nch=%d\n", hwnd, nch);
 }
 #endif
 
