@@ -112,10 +112,10 @@ static b16_t   g_ybslope;
 
 /* Joystick button names */
 
-static const char *g_ajoynames[AJOY_NBUTTONS] = 
+static const char *g_ajoynames[AJOY_NBUTTONS] =
 {
- "SELECT",   "FIRE",     "JUMP",     "BUTTON 3",
- "BUTTON 4", "BUTTON 5", "BUTTON 6", "BUTTON 7", 
+ "SELECT",   "FIRE",     "JUMP",     "BUTTON 4",
+ "BUTTON 5", "BUTTON 6", "BUTTON 7", "BUTTON 8",
 };
 
 /****************************************************************************
@@ -178,7 +178,7 @@ static void show_joystick(FAR const struct ajoy_sample_s *sample)
         {
            x = tmp * g_xrslope;
         }
-          
+
       tmp = sample->as_y - g_ycenter;
       if ((g_fispositive && tmp >= 0) ||
           (!g_fispositive && tmp < 0))
@@ -205,14 +205,14 @@ static int ajoy_wait(int fd, FAR const struct timespec *timeout)
 
   (void)sigemptyset(&sigset);
   (void)sigaddset(&sigset, CONFIG_EXAMPLES_AJOYSTICK_SIGNO);
-  ret = sigwaitinfo(&sigset, &value);
+  ret = sigtimedwait(&sigset, &value, timeout);
   if (ret < 0)
     {
       int errcode = errno;
 
       if (!timeout || errcode != EAGAIN)
         {
-          fprintf(stderr, "ERROR: sigwaitinfo() failed: %d\n", errcode);
+          fprintf(stderr, "ERROR: sigtimedwait() failed: %d\n", errcode);
           return -errcode;
         }
 
@@ -250,7 +250,7 @@ static int ajoy_read(int fd, FAR struct ajoy_sample_s *sample)
               (long)nread, sizeof(struct ajoy_sample_s));
       return -EIO;
     }
-      
+
   /* Show the joystick position and set buttons accompanying the signal */
   /* Show the set of joystick buttons that we just read */
 
@@ -324,7 +324,7 @@ static int ajoy_calibrate(int fd)
 
   g_lispositive = (sample.as_x > g_xcenter);
   g_xlslope = ajoy_slope(sample.as_x - g_xcenter, FULL_RANGE);
-  
+
   printf("Move the joystick to the far LEFT and press any button\n");
   ret = ajoy_waitread(fd, NULL, &sample);
   if (ret < 0)
@@ -347,7 +347,7 @@ static int ajoy_calibrate(int fd)
 
   g_fispositive = (sample.as_y > g_ycenter);
   g_yfslope = ajoy_slope(sample.as_y - g_ycenter, FULL_RANGE);
-  
+
   printf("Move the joystick to the far BACKWARD and press any button\n");
   ret = ajoy_waitread(fd, NULL, &sample);
   if (ret < 0)
@@ -357,7 +357,7 @@ static int ajoy_calibrate(int fd)
     }
 
   g_ybslope = ajoy_slope(sample.as_y - g_ycenter, -FULL_RANGE);
-  
+
   printf("Calibrated:\n");
   g_calibrated = true;
 
