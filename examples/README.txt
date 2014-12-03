@@ -48,6 +48,24 @@ examples/adc
     CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
       Default: 4
 
+examples/adjoystick
+^^^^^^^^^^^^^^^^^^
+
+  This is a simple test of the analog joystick driver.  See details about
+  this driver in nuttx/include/nuttx/input/adjoystick.h.
+
+  Configuration Pre-requisites:
+
+    CONFIG_DISABLE_SIGNALS - Must *NOT* be selected
+    CONFIG_AJOYSTICK - The analog joystick driver
+
+  Example Configuration:
+    CONFIG_EXAMPLES_AJOYSTICK - Enabled the analog joystick example
+    CONFIG_EXAMPLES_AJOYSTICK_DEVNAME - Joystick device name.  Default
+      "/dev/adjoy0"
+    CONFIG_EXAMPLES_AJOYSTICK_SIGNO - Signal used to signal the test
+      application.  Default 13.
+
 examples/bastest
 ^^^^^^^^^^^^^^^^
   This directory contains a small program that will mount a ROMFS file system
@@ -273,7 +291,7 @@ examples/discover
     CONFIG_EXAMPLES_DISCOVER_DRIPADDR - Router IP address
     CONFIG_EXAMPLES_DISCOVER_NETMASK - Network Mask
 
-examples/djoystick
+examples/adjoystick
 ^^^^^^^^^^^^^^^^^^
 
   This is a simple test of the discrete joystick driver.  See details about

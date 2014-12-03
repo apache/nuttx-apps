@@ -1144,5 +1144,7 @@
 
 	* apps/examples/romfs/Makefile: fix romfs example builtin app registry
 	  issue.  From Librae (2014-11-27).
-	* apps/examples/djoystick and support file:  Add a test of the discrete
+	* apps/examples/djoystick and support files:  Add a test of the discrete
 	  joystick driver (2014-11-28).
+	* apps/examples/ajoystick and support files:  Add a test of the analog
+	  joystick driver (2014-12-03).
