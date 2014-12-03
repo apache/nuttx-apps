@@ -38,6 +38,10 @@ ifeq ($(CONFIG_EXAMPLES_ADC),y)
 CONFIGURED_APPS += examples/adc
 endif
 
+ifeq ($(CONFIG_EXAMPLES_AJOYSTICK),y)
+CONFIGURED_APPS += examples/ajoystick
+endif
+
 ifeq ($(CONFIG_EXAMPLES_BASTEST),y)
 CONFIGURED_APPS += examples/bastest
 endif

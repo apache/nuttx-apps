@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_AJOYSTICK
+	bool "Analog joystick example"
+	default n
+	depends on AJOYSTICK && !DISABLE_SIGNALS
+	---help---
+		Enable the analog joystick example
+
+if EXAMPLES_AJOYSTICK
+
+config EXAMPLES_AJOYSTICK_DEVNAME
+	string "Joystick device name"
+	default "/dev/ajoy0"
+
+config EXAMPLES_AJOYSTICK_SIGNO
+	int "Joystick signal"
+	default 13
+
+endif

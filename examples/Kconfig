@@ -4,6 +4,7 @@
 #
 
 source "$APPSDIR/examples/adc/Kconfig"
+source "$APPSDIR/examples/ajoystick/Kconfig"
 source "$APPSDIR/examples/bastest/Kconfig"
 source "$APPSDIR/examples/bridge/Kconfig"
 source "$APPSDIR/examples/buttons/Kconfig"
