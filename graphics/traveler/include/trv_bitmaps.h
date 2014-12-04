@@ -1,5 +1,6 @@
 /****************************************************************************
  * apps/graphics/traveler/include/trv_bitmaps.h
+ * This file contains definitions for the texture bitmaps
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

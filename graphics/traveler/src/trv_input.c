@@ -1,6 +1,5 @@
 /****************************************************************************
  * apps/graphics/traveler/trv_input.c
- * This file contains the main logic for the NuttX version of Traveler
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

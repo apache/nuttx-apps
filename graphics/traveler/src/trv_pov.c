@@ -1,5 +1,6 @@
 /****************************************************************************
  * apps/graphics/traveler/trv_pov.c
+ * This file contains the logic which manages player's point-of-view (POV)
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

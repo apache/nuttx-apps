@@ -1,5 +1,6 @@
 /****************************************************************************
  * apps/graphics/traveler/trv_nxbkgd.c
+ * NX background window callback handlers
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
