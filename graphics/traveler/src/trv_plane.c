@@ -1,6 +1,7 @@
-/****************************************************************************
- * apps/graphics/traveler/include/trv_bitmaps.h
- * This file contains definitions for the texture bitmaps
+/*******************************************************************************
+ * apps/graphics/traveler/src/trv_bitmaps.c
+ * This file contains the global variable declarations needed by the world
+ * plane management logic.
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,69 +35,25 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H
-
 /****************************************************************************
- * Included Files
+ * Included files
  ****************************************************************************/
 
 #include "trv_types.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#define BITMAP_WIDTH  64
-#define BITMAP_HEIGHT 64
-#define BITMAP_LOG2H   6
-#define BITMAP_SIZE   (BITMAP_WIDTH * BITMAP_HEIGHT)
-#define BITMAP_IMASK  (BITMAP_HEIGHT-1)
-#define BITMAP_JMASK  (BITMAP_WIDTH-1)
-#define BITMAP_JSHIFT  6
-#define BMICLIP(i)    ((i) & BITMAP_IMASK)
-#define BMJCLIP(i)    ((i) & BITMAP_JMASK)
-#define BMOFFSET(i,j) (((i) << BITMAP_JSHIFT) | (j))
-#define MAX_BITMAPS   256
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-struct trv_bitmap_s
-{
-  uint16_t w;
-  uint16_t h;
-  uint8_t log2h;
-  FAR trv_pixel_t *bm;
-};
+#include "trv_plane.h"
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-/* These point to the (allocated) bit map buffers for the even and odd
- * bitmaps
+/* The is the world!!! The world is described by lists of rectangles, one
+ * for each of the X, Y, and Z planes.
  */
 
-extern FAR struct trv_bitmap_s *g_even_bitmaps[MAX_BITMAPS];
-#ifndef WEDIT
-extern FAR struct trv_bitmap_s *g_odd_bitmaps[MAX_BITMAPS];
-#endif
+struct trv_rect_head_s  g_xplane;  /* list of X=plane rectangles */
+struct trv_rect_head_s  g_yplane;  /* list of Y=plane rectangles */
+struct trv_rect_head_s  g_zplane;  /* list of Z=plane rectangles */
 
-/* This is the maximum value + 1 of a texture code */
+/* "Deallocated" planes are retained in a free list */
 
-extern uint16_t g_trv_nbitmaps;
-
-/* These are the colors from the worldPalette which should used to rend
- * the sky and ground
- */
-
-extern trv_pixel_t g_sky_color;
-extern trv_pixel_t g_ground_color;
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H */
+struct trv_rect_list_s *g_rect_freelist;
