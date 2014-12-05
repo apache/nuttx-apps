@@ -42,6 +42,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include <stdio.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -137,5 +138,24 @@ extern struct trv_rect_list_s *g_rect_freelist;
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+uint8_t trv_initialize_planes(void);
+void    trv_release_planes(void);
+uint8_t trv_load_planefile(FAR const char *wldfile);
+uint8_t trv_load_planes(FAR FILE *fp);
+uint8_t trv_save_planes(const char *wldfile);
+FAR struct trv_rect_list_s *trv_new_plance(void);
+void    trv_add_plane(FAR struct trv_rect_list_s *rect,
+                      FAR struct trv_rect_head_s *list);
+void    trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
+                             FAR struct trv_rect_head_s *inlist);
+void    trv_remove_plane(FAR struct trv_rect_list_s *rect,
+                         FAR struct trv_rect_head_s *list);
+void    trv_move_plane(FAR struct trv_rect_list_s *rect,
+                       FAR struct trv_rect_head_s *destlist,
+                       FAR struct trv_rect_head_s *srclist);
+struct trv_rect_list_s *trv_find_plane(trv_coord_t h, trv_coord_t v,
+                                       trv_coord_t plane,
+                                       FAR struct trv_rect_head_s *list);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_PLANE_H */

@@ -48,7 +48,7 @@ STACKSIZE = 2048
 ASRCS   =
 CSRCS   = trv_bitmaps.c trv_color.c trv_doors.c trv_graphics.c trv_input.c
 CSRCS  += trv_mem.c trv_plane.c trv_pov.c trv_rayavoid.c trv_raycast.c
-CSRCS  += trv_raycntl.c trv_rayrend.c trv_trigtbl.c
+CSRCS  += trv_raycntl.c trv_rayprune.c trv_rayrend.c trv_trigtbl.c
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)
