@@ -45,6 +45,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* Angles *******************************************************************/
 
 /* These are definitions of commonly used angles. */
 
@@ -68,6 +69,63 @@
 #define ANGLE_180    960
 #define ANGLE_270   1440
 #define ANGLE_360   1920
+
+/* Fixed precision definitions **********************************************/
+
+/* SMALL precision (6 bits past binary point) */
+/* This occurs frequently because each CELL is 64x64 */
+
+#define sUNITY   64
+#define sHALF    32
+#define sQUARTER 16
+#define sSHIFT    6
+#define sMASK    63
+
+#define sTRUNC(a) ((a) >> sSHIFT)
+#define sROUND(a) (((a) + sHALF) >> sSHIFT)
+#define sFIX(a)   ((a) << sSHIFT)
+#define sSNAP(a)  ((a) & (~sMASK))
+#define sFRAC(a)  ((a) & sMASK)
+
+#define sMUL(a,b) (((int32_t)(a) * (int32_t)(b)) >> sSHIFT )
+#define sDIV(a,b) (((int32_t)(a) << sSHIFT) / (b))
+#define sFLOAT(a) ((float)(a) / (float)sUNITY)
+
+/* DOUBLE precision (12 bits past binary point) */
+/* This precision results when two SMALL precision numbers are multiplied */
+
+#define dUNITY 4096
+#define dHALF  2048
+#define dSHIFT   12
+#define dMASK  4095
+
+#define dTRUNC(a) ((a) >> dSHIFT)
+#define dROUND(a) (((a) + dHALF) >> dSHIFT)
+#define dFIX(a)   ((a) << dSHIFT)
+#define dSNAP(a)  ((a) & (~dMASK))
+#define dFRAC(a)  ((a) & dMASK)
+
+/* TRIPLE precision (18 bits past binary point) */
+/* This precision results when a SMALL and a DOUBLE precision number
+ * are multiplied
+ */
+
+#define tSHIFT     18
+
+/* QUAD precision (24 bits past binary point) */
+/* This precision results when two DOUBLE precision numbers are multiplied */
+
+#define qSHIFT     24
+
+/* BIG precision (16 bits past binary point) */
+/* This is convenient precision because it is easy to extract the integer
+ * portion without shifting or masking
+ */
+
+#define bUNITY 65536
+#define bHALF  32768
+#define bSHIFT    16
+#define bMASK  65535
 
 /****************************************************************************
  * Public Function Prototypes

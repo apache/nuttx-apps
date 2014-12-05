@@ -37,16 +37,17 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# Traveler built-in application info
 
 APPNAME = traveler
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-# Hello, World! Example
+# Traveler files
 
-ASRCS =
-CSRCS = trv_color.c trv_doors.c trv_graphics.c trv_input.c trv_mem.c trv_pov.c
+ASRCS  =
+CSRCS  = trv_color.c trv_doors.c trv_graphics.c trv_input.c trv_mem.c trv_pov.c
+CSRCS += trv_rayrend.c
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)

@@ -64,5 +64,6 @@ struct trv_graphics_info_s;
 
 void trv_raycaster(FAR struct trv_camera_s *player,
                    FAR struct trv_graphics_info_s *ginfo);
+uint8_t trv_get_texture(uint8_t row, uint8_t col);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCNTL_H */
