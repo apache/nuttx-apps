@@ -119,6 +119,22 @@ struct trv_planefile_header_s
 #define SIZEOF_TRVPLANEFILEHEADER_T 6
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* The is the world!!! The world is described by lists of rectangles, one
+ * for each of the X, Y, and Z planes.
+ */
+
+extern struct trv_rect_head_s g_xplane;  /* list of X=plane rectangles */
+extern struct trv_rect_head_s g_yplane;  /* list of Y=plane rectangles */
+extern struct trv_rect_head_s g_zplane;  /* list of Z=plane rectangles */
+
+/* "Deallocated" planes are retained in a free list */
+
+extern struct trv_rect_list_s *g_rect_freelist;
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 

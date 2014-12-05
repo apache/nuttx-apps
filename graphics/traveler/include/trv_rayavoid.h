@@ -63,11 +63,11 @@ trv_coord_t trv_rayclip_player_ymotion(FAR struct trv_camera_s *pov,
                                        trv_coord_t height);
 trv_coord_t trv_ray_adjust_zpos(FAR struct trv_camera_s *pov,
                                 trv_coord_t height);
-FAR struct trv_rect_data_s *trv_test_xplane(FAR struct trv_camera_s *pov,
-                                            trv_coord_t dist, int16_t yaw,
-                                            trv_coord_t height);
-FAR struct trv_rect_data_s *trv_test_yplane(FAR struct trv_camera_s *pov,
-                                            trv_coord_t dist, int16_t yaw,
-                                            trv_coord_t height);
+FAR struct trv_rect_data_s *trv_ray_test_xplane(FAR struct trv_camera_s *pov,
+                                                trv_coord_t dist, int16_t yaw,
+                                                trv_coord_t height);
+FAR struct trv_rect_data_s *trv_ray_test_yplane(FAR struct trv_camera_s *pov,
+                                                trv_coord_t dist, int16_t yaw,
+                                                trv_coord_t height);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYAVOID_H */
