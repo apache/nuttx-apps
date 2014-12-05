@@ -1,5 +1,7 @@
 /****************************************************************************
  * apps/graphics/traveler/include/trv_trigtbl.h
+ * This file defines the fixed precision math environment and look-up tables
+ * for trigonometric functions.
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -70,6 +72,12 @@
 #define ANGLE_270   1440
 #define ANGLE_360   1920
 
+/* This is the angular change made with each column of the ray caster */
+/* This is (2048/360 units/degree) * 59.94 (degrees) / (320 columns) */
+
+#define VIDEO_COLUMN_ANGLE 1
+#define VIDEO_ROW_ANGLE    1
+
 /* Fixed precision definitions **********************************************/
 
 /* SMALL precision (6 bits past binary point) */
@@ -126,6 +134,63 @@
 #define bHALF  32768
 #define bSHIFT    16
 #define bMASK  65535
+
+/* Conversions between SMALL, DOUBLE, TRIPLE and BIG precision */
+
+#define sTOd(a)   ((a) << (dSHIFT-sSHIFT))
+#define sTOb(a)   ((a) << (bSHIFT-sSHIFT))
+#define dTOs(a)   ((a) >> (dSHIFT-sSHIFT))
+#define dTOb(a)   ((a) << (bSHIFT-dSHIFT))
+#define tTOs(a)   ((a) >> (tSHIFT-sSHIFT))
+#define tTOd(a)   ((a) >> (tSHIFT-dSHIFT))
+#define tTOb(a)   ((a) >> (tSHIFT-bSHIFT))
+#define qTOd(a)   ((a) >> (qSHIFT-dSHIFT))
+#define qTOb(a)   ((a) >> (qSHIFT-bSHIFT))
+#define bTOs(a)   ((a) >> (bSHIFT-sSHIFT))
+
+/* These are general math macros that have nothing to do with fixed precision */
+
+#define ABS(a)    ((a) < 0 ? -(a) : (a))
+#define MIN(a,b)  ((a) < (b) ? (a) : (b))
+#define MAX(a,b)  ((a) > (b) ? (a) : (b))
+
+/* Trigonometry *************************************************************/
+/* Because COS(x) = SIN(x + HALFPI) and COT(x) = TAN(90-x), the following
+ * provide fast conversions to get cosines from the g_sin_table's and
+ * cotangents form the g_tan_table.
+ */
+
+#define g_cot_table(x) g_tan_table[PI+HALFPI-(x)]
+#define g_cos_table    ((int16_t*)&g_sin_table[HALFPI])
+#define g_sec_table    ((int32_t*)&g_csc_table[HALFPI])
+
+/* Here are some MACROs to make life easier */
+/* The following extend the range of the table to all positive angles */
+
+#define TAN(x) ((x)>=(PI+HALFPI) ? g_tan_table[(x)-PI] : g_tan_table[x])
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+/* This structure is useful for manipulating BIG precision types from
+ * C code (NOTE: The following union assumes LITTLE ENDIAN!).
+ */
+
+struct trv_bigfp_s
+{
+  uint16_t f;
+  int16_t i;
+};
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* Here are declarations for the trig tables */
+
+extern const int32_t g_tan_table[PI+HALFPI+1];
+extern const int16_t g_sin_table[TWOPI+HALFPI+1];
+extern const int32_t g_csc_table[TWOPI+HALFPI+1];
 
 /****************************************************************************
  * Public Function Prototypes

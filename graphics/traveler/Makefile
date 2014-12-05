@@ -39,21 +39,21 @@ include $(APPDIR)/Make.defs
 
 # Traveler built-in application info
 
-APPNAME = traveler
-PRIORITY = SCHED_PRIORITY_DEFAULT
+APPNAME   = traveler
+PRIORITY  = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
 # Traveler files
 
-ASRCS  =
-CSRCS  = trv_color.c trv_doors.c trv_graphics.c trv_input.c trv_mem.c trv_pov.c
-CSRCS += trv_rayrend.c
+ASRCS   =
+CSRCS   = trv_color.c trv_doors.c trv_graphics.c trv_input.c trv_mem.c trv_pov.c
+CSRCS  += trv_rayrend.c trv_trigtbl.c
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)
-CSRCS += trv_nxbkgd.c
+CSRCS  += trv_nxbkgd.c
 ifeq ($(CONFIG_NX),y)
-CSRCS += trv_nxserver.c
+CSRCS  += trv_nxserver.c
 endif
 endif
 
