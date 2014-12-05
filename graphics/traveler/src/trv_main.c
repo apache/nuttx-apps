@@ -257,11 +257,11 @@ int traveler_main(int argc, char *argv[])
 
       /* Paint the back drop */
 
-      trv_rend_backdrop(&g_trv_player, &g_trv_ginfo);
+      trv_rend_backdrop(&g_player, &g_trv_ginfo);
 
       /* Render the 3-D view */
 
-      trv_raycaster(&g_trv_player, &g_trv_ginfo);
+      trv_raycaster(&g_player, &g_trv_ginfo);
 
       /* Display the world. */
 

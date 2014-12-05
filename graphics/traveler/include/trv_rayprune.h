@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_pov.h
+ * apps/graphics/traveler/include/trv_rayprune.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,29 +33,22 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_POV_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_POV_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYPRUNE_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYPRUNE_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_world.h"
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/* This structure defines the current camera position of the player's eyes */
-
-extern struct trv_camera_s g_player;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-void trv_pov_reset(void);
-void trv_pov_new(void);
+void trv_ray_yawprune(int16_t yawstart, int16_t yawend);
+void trv_ray_pitchprune(int16_t pitchstart, int16_t pitchend);
+void trv_ray_pitchunprune(void);
+void trv_ray_yawunprune(void);
 
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_POV_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYPRUNE_H */

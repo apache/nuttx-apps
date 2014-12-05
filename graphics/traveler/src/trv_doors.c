@@ -124,8 +124,8 @@ static void trv_door_startopen (void)
       /* Test if there is a door within three steps in front of the player */
       /* Try the X planes first */
 
-      rect = trv_ray_test_xplane(&g_trv_player, 3*STEP_DISTANCE,
-                                 g_trv_player.yaw, g_player_height);
+      rect = trv_ray_test_xplane(&g_player, 3*STEP_DISTANCE,
+                                 g_player.yaw, g_player_height);
 
       /* If there is no X door in front of the player, then try the Y Planes
        * (it is assumed that there would not be doors this close in both
@@ -134,8 +134,8 @@ static void trv_door_startopen (void)
 
       if (!rect || !IS_DOOR(rect))
         {
-          rect = trv_ray_test_yplane(&g_trv_player, 3*STEP_DISTANCE,
-                                     g_trv_player.yaw, g_player_height);
+          rect = trv_ray_test_yplane(&g_player, 3*STEP_DISTANCE,
+                                     g_player.yaw, g_player_height);
         }
 
       /* Check if we found a door in either the X or Y plane. */
@@ -183,7 +183,7 @@ static void trv_door_animation(void)
        * say that the door is open
        */
 
-      if (g_opendoor.zbottom > g_trv_player.z)
+      if (g_opendoor.zbottom > g_player.z)
         {
           g_opendoor.rect->attribute |= OPEN_DOOR_PLANE;
         }
@@ -235,7 +235,7 @@ static void trv_door_animation(void)
            * will say that the door is closed
            */
 
-          if (g_opendoor.zbottom <= g_trv_player.z)
+          if (g_opendoor.zbottom <= g_player.z)
             {
               g_opendoor.rect->attribute &= ~OPEN_DOOR_PLANE;
             }
@@ -254,7 +254,7 @@ static void trv_door_animation(void)
        * say that the door is closed
        */
 
-      if (g_opendoor.zbottom <= g_trv_player.z)
+      if (g_opendoor.zbottom <= g_player.z)
         {
           g_opendoor.rect->attribute &= ~OPEN_DOOR_PLANE;
         }
