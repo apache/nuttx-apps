@@ -576,7 +576,7 @@ trv_coord_t trv_rayclip_player_ymotion(FAR struct trv_camera_s *pov,
  *   Make sure that the player is standing on something!
  *
  ****************************************************************************/
- 
+
 trv_coord_t trv_ray_adjust_zpos(FAR struct trv_camera_s *pov,
                                 trv_coord_t height)
 {

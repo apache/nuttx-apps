@@ -163,7 +163,7 @@ extern struct trv_camera_s g_camera;
  * Public Function Prototypes
  ****************************************************************************/
 
-void trv_raycast(int16_t pitchangle, int16_t yawangle, int16_t screenyaw,
+void trv_raycast(int16_t pitch, int16_t yaw, int16_t screenyaw,
                  FAR struct trv_raycast_s *result);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCAST_H */

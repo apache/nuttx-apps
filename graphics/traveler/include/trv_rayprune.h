@@ -43,6 +43,14 @@
 #include "trv_types.h"
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+extern struct trv_rect_head_s g_ray_xplane;  /* List of X=plane rectangles */
+extern struct trv_rect_head_s g_ray_yplane;  /* List of Y=plane rectangles */
+extern struct trv_rect_head_s g_ray_zplane;  /* List of Z=plane rectangles */
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 

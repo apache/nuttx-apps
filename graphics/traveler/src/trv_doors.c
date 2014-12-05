@@ -69,20 +69,6 @@ enum trv_door_state_e
   DOOR_CLOSING,     /* A door is closing */
 };
 
-/* This structure describes the characteristics of the door which currently
- * being opened.
- */
-
-struct trv_opendoor_s
-{
-  FAR struct trv_rect_data_s *rect; /* Points to the current door rectangle */
-  uint8_t       state;              /* State of the door being opened */
-  trv_coord_t   zbottom;            /* Z-Coordinate of the bottom of the door */
-  trv_coord_t   zdistance;          /* Distance which the door has moved */
-  int16_t       clock;              /* This is clock which counts down the time
-                                     * remaining to keep the door open */
-};
-
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -146,10 +132,10 @@ static void trv_door_startopen (void)
            * in motion
            */
 
-          g_opendoor.rect      = rect;
-          g_opendoor.state     = DOOR_OPENING;
-          g_opendoor.zbottom   = rect->vstart;
-          g_opendoor.zdistance = 0;
+          g_opendoor.rect    = rect;
+          g_opendoor.state   = DOOR_OPENING;
+          g_opendoor.zbottom = rect->vstart;
+          g_opendoor.zdist   = 0;
 
           /* Mark the door's attribute to indicate that it is in motion */
 
@@ -176,8 +162,8 @@ static void trv_door_animation(void)
 
       /* Raise the door a little */
 
-      g_opendoor.zbottom   += DOOR_ZSTEP;
-      g_opendoor.zdistance += DOOR_ZSTEP;
+      g_opendoor.zbottom += DOOR_ZSTEP;
+      g_opendoor.zdist   += DOOR_ZSTEP;
 
       /* When the bottom of the door is above the player's head, we will
        * say that the door is open
@@ -195,7 +181,7 @@ static void trv_door_animation(void)
           /* Make sure that the door does not open wider than it is tall */
 
           g_opendoor.zbottom = g_opendoor.rect->vend;
-          g_opendoor.zdistance = g_opendoor.rect->vend - g_opendoor.rect->vstart;
+          g_opendoor.zdist   = g_opendoor.rect->vend - g_opendoor.rect->vstart;
 
           /* The door is done opening, the next state is the DOOR_OPEN state
            * where we will hold the door open a while
@@ -229,7 +215,7 @@ static void trv_door_animation(void)
           /* Lower the door a little */
 
           g_opendoor.zbottom -= DOOR_ZSTEP;
-          g_opendoor.zdistance -= DOOR_ZSTEP;
+          g_opendoor.zdist   -= DOOR_ZSTEP;
 
           /* When the bottom of the door is below the player's head, we
            * will say that the door is closed
@@ -248,7 +234,7 @@ static void trv_door_animation(void)
       /* Lower the door a little */
 
       g_opendoor.zbottom -= DOOR_ZSTEP;
-      g_opendoor.zdistance -= DOOR_ZSTEP;
+      g_opendoor.zdist   -= DOOR_ZSTEP;
 
       /* When the bottom of the door is below the player's head, we will
        * say that the door is closed
@@ -261,7 +247,7 @@ static void trv_door_animation(void)
 
       /* Check if the door is fully closed */
 
-      if (g_opendoor.zdistance <= 0)
+      if (g_opendoor.zdist <= 0)
         {
           /* Indicate that the door is no longer in motion */
 
