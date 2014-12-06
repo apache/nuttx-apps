@@ -139,6 +139,8 @@ extern struct trv_rect_list_s *g_rect_freelist;
  * Public Function Prototypes
  ****************************************************************************/
 
+/* Plane list management */
+
 int trv_initialize_planes(void);
 void trv_add_plane(FAR struct trv_rect_list_s *rect,
                    FAR struct trv_rect_head_s *list);
@@ -149,9 +151,13 @@ void trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
                           FAR struct trv_rect_head_s *inlist);
 void trv_release_planes(void);
 
-int  trv_load_planefile(FAR const char *wldfile);
-int  trv_load_planes(FAR FILE *fp);
-int  trv_save_planes(const char *wldfile);
+/* Plane memory management */
+
 FAR struct trv_rect_list_s *trv_new_plane(void);
+
+/* Plane file management */
+
+int  trv_load_planefile(FAR const char *wldfile);
+int  trv_save_planes(const char *wldfile);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_PLANE_H */

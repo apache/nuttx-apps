@@ -1,6 +1,6 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_loadplanes.c
- * This file contains the logic to load the world data from the opened file
+ * apps/graphics/traveler/src/trv_planefiles.c
+ * This file contains the logic to manage the world data files
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -45,7 +45,7 @@
 #include <errno.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -104,16 +104,12 @@ static int trv_load_worldplane(FAR FILE *fp, FAR struct trv_rect_head_s *head,
 }
 
 /****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Function: trv_load_planes
  * Description:
  * This function loads the world data from the opened file
  ***************************************************************************/
 
-int trv_load_planes(FAR FILE *fp)
+static int trv_load_planes(FAR FILE *fp)
 {
   struct trv_planefile_header_s header;
   int ret;
@@ -145,3 +141,43 @@ int trv_load_planes(FAR FILE *fp)
 
   return ret;
 }
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: trv_load_planefile
+ *
+ * Description:
+ *
+ * This function opens the input file and loads the world plane data from it
+ *
+ ***************************************************************************/
+
+int trv_load_planefile(FAR const char *wldfile)
+{
+  FAR FILE *fp;
+  int ret;
+
+  /* Open the map file which contains the description of the world */
+
+  fp = fopen(wldfile, "rb");
+  if (fp == NULL)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: Could not open plane file=\"%s\": %d\n",
+              wldfile, errcode);
+      return -errcode;
+    }
+
+  /* Load the world data from the file */
+
+  ret = trv_load_planes(fp);
+
+  /* Close the file */
+
+  fclose(fp);
+  return ret;
+}
+

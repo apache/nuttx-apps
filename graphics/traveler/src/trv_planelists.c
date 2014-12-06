@@ -1,7 +1,6 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_plane.c
- * This file contains the global variable declarations needed by the world
- * plane management logic.
+ * apps/graphics/traveler/src/trv_planelist.c
+ * This file contains the logic to manage world plane lists.
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,6 +39,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_mem.h"
 #include "trv_plane.h"
 
 /****************************************************************************
@@ -56,7 +56,7 @@ struct trv_rect_head_s  g_zplane;  /* list of Z=plane rectangles */
 
 /* "Deallocated" planes are retained in a free list */
 
-struct trv_rect_list_s *g_rect_freelist;
+FAR struct trv_rect_list_s *g_rect_freelist;
 
 /****************************************************************************
  * Public Functions
@@ -297,4 +297,35 @@ void trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
 
   inlist->head = NULL;
   inlist->tail = NULL;
+}
+
+/*************************************************************************
+ * Function: trv_new_plane
+ *
+ * Description:
+ *   This function allocates memory for a new plane rectangle.
+ *
+ ************************************************************************/
+
+FAR struct trv_rect_list_s *trv_new_plane(void)
+{
+  FAR struct trv_rect_list_s *rect;
+
+  /* Try to get the new structure from the free list */
+
+  rect = g_rect_freelist;
+  if (rect)
+    {
+      /* Got get... remove it from the g_rect_freelist; */
+
+      g_rect_freelist = rect->flink;
+    }
+  else
+    {
+      /* Nothing on the free list.  Allocate a new one */
+
+      rect = (FAR struct trv_rect_list_s*)trv_malloc(sizeof(struct trv_rect_list_s));
+    }
+
+  return rect;
 }
