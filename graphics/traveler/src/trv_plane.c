@@ -1,5 +1,5 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_bitmaps.c
+ * apps/graphics/traveler/src/trv_plane.c
  * This file contains the global variable declarations needed by the world
  * plane management logic.
  *
@@ -61,6 +61,26 @@ struct trv_rect_list_s *g_rect_freelist;
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: trv_initialize_planes
+ *
+ * Description:
+ *
+ ***************************************************************************/
+
+int trv_initialize_planes(void)
+{
+  g_xplane.head   = NULL;
+  g_xplane.tail   = NULL;
+  g_yplane.head   = NULL;
+  g_yplane.tail   = NULL;
+  g_zplane.head   = NULL;
+  g_zplane.tail   = NULL;
+  g_rect_freelist = NULL;
+
+  return OK;
+}
 
 /****************************************************************************
  * Name: trv_add_plane
@@ -221,7 +241,7 @@ void trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
       if (!outrect)
         {
           /* No rectangle with plane larger than the one to be added
-           * was found in the list.  The inrect goes at the end of
+           * was found in the list.  The 'inrect' goes at the end of
            * the list.
            */
 

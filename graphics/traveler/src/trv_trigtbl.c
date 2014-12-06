@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/src/trv_trigtable.c
+ * apps/graphics/traveler/src/trv_trigtbl.c
  * Provides look-up tables for trigonometric functions.
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.

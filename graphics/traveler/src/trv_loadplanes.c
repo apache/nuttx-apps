@@ -1,6 +1,6 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_bitmaps.c
- * This file contains the global variables use by the texture bitmap logic
+ * apps/graphics/traveler/src/trv_loadplanes.c
+ * This file contains the logic to load the world data from the opened file
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -39,59 +39,109 @@
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_bitmaps.h"
+#include "trv_plane.h"
+
+#include <stdio.h>
+#include <errno.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Data
+ * Private Type Declarations
+ ***************************************************************************/
+
+/****************************************************************************
+ * Private Functions
  ****************************************************************************/
 
-/* These point to the (allocated) bit map buffers for the even and odd
- * bitmaps
- */
+/****************************************************************************
+ * Name: trv_load_worldplane
+ *
+ * Description:
+ *
+ *   This function loads the world data for one plane
+ *
+ ***************************************************************************/
 
-FAR struct trv_bitmap_s *g_even_bitmaps[MAX_BITMAPS];
-#ifndef WEDIT
-FAR struct trv_bitmap_s *g_odd_bitmaps[MAX_BITMAPS];
-#endif
+static int trv_load_worldplane(FAR FILE *fp, FAR struct trv_rect_head_s *head,
+                               uint8_t nrects)
+{
+  FAR struct trv_rect_list_s *rect;
+  int ret;
+  int i;
 
-/* This is the maximum value + 1 of a texture code. */
+  for (i = 0; i < nrects; i++)
+    {
+      /* Allocate space for the next rectangle */
 
-uint16_t g_trv_nbitmaps;
+      rect = trv_new_plane();
+      if (!rect)
+        {
+          return -ENOMEM;
+        }
 
-/* These are the colors from the world palette which should used to rend
- * the sky and ground
- */
+      /* Read the next rectangle from the input file */
 
-trv_pixel_t g_sky_color;
-trv_pixel_t g_ground_color;
+      ret = fread((char*)&rect->d, RESIZEOF_TRVRECTDATA_T, 1, fp);
+      if (ret != 1)
+        {
+          int errcode = errno;
+          fprintf(stderr, "Error: read of rectangle %d (of %d) failed\n",
+                  i, nrects);
+          fprintf(stderr, "feof=%d ferror=%d errno=%d\n",
+                  feof(fp), ferror(fp), errcode);
+          return -errcode;
+        }
+
+      /* Put the new rectangle into the plane list */
+
+      trv_add_plane(rect, head);
+    }
+
+  return OK;
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: trv_initialize_bitmaps
- *
+ * Function: trv_load_planes
  * Description:
- *
+ * This function loads the world data from the opened file
  ***************************************************************************/
 
-int trv_initialize_bitmaps(void)
+int trv_load_planes(FAR FILE *fp)
 {
-  int i;
+  struct trv_planefile_header_s header;
+  int ret;
 
-  for (i = 0; i < MAX_BITMAPS; i++)
+  /* Read the plane file header */
+
+  ret = fread((char*)&header, SIZEOF_TRVPLANEFILEHEADER_T, 1, fp);
+  if (ret != 1)
     {
-      g_even_bitmaps[i] = NULL;
-#ifndef WEDIT
-      g_odd_bitmaps[i]  = NULL;
-#endif
+      int errcode = errno;
+      fprintf(stderr, "Error: Failed to read of file header\n");
+      fprintf(stderr, "feof=%d ferror=%d errno=%d\n",
+              feof(fp), ferror(fp), errcode);
+      return -errcode;
     }
 
-  g_trv_nbitmaps = 0;
-  return OK;
+  /* Then load each grid, performing run length (rle) decoding */
+
+  ret = trv_load_worldplane(fp, &g_xplane, header.nxrects);
+  if (ret == OK)
+    {
+      ret = trv_load_worldplane(fp, &g_yplane, header.nyrects);
+    }
+
+  if (ret == OK)
+    {
+      ret = trv_load_worldplane(fp, &g_zplane, header.nzrects);
+    }
+
+  return ret;
 }

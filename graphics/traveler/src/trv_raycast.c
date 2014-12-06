@@ -1,5 +1,5 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_bitmaps.c
+ * apps/graphics/traveler/src/trv_raycast.c
  * This file contains the low-level ray casting logic
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
