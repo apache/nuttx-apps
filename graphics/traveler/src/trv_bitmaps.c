@@ -1,6 +1,6 @@
 /*******************************************************************************
  * apps/graphics/traveler/src/trv_bitmaps.c
- * This file contains the global variables use by the texture bitmap logic
+ * This file contains low-level texture bitmap logic
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -39,6 +39,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_mem.h"
 #include "trv_bitmaps.h"
 
 /****************************************************************************
@@ -70,6 +71,28 @@ trv_pixel_t g_sky_color;
 trv_pixel_t g_ground_color;
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/*************************************************************************
+ * Name: trv_free_texture
+ *
+ * Description:
+ *   Free both the bitmap and the bitmap container
+ *
+ ************************************************************************/
+
+static void trv_free_texture(FAR struct trv_bitmap_s *bitmap)
+{
+  if (bitmap->bm)
+    {
+      trv_free(bitmap->bm);
+    }
+
+  trv_free(bitmap);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -94,4 +117,36 @@ int trv_initialize_bitmaps(void)
 
   g_trv_nbitmaps = 0;
   return OK;
+}
+
+/*************************************************************************
+ * Name: trv_free_bitmaps
+ *
+ * Description:
+ *   This function deallocates all bitmaps.
+ *
+ ************************************************************************/
+
+void trv_free_bitmaps(void)
+{
+  int i;
+
+  for (i = 0; i < MAX_BITMAPS; i++)
+    {
+      if (g_even_bitmaps[i])
+        {
+          trv_free_texture(g_even_bitmaps[i]);
+          g_even_bitmaps[i] = NULL;
+        }
+
+#ifndef WEDIT
+      if (g_odd_bitmaps[i])
+        {
+          trv_free_texture(g_odd_bitmaps[i]);
+          g_odd_bitmaps[i] = NULL;
+        }
+#endif
+    }
+
+  g_trv_nbitmaps = 0;
 }

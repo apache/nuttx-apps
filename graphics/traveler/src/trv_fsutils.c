@@ -1,6 +1,6 @@
-/****************************************************************************
- * apps/graphics/traveler/include/trv_bitmaps.h
- * This file contains definitions for the texture bitmaps
+/*******************************************************************************
+ * apps/graphics/traveler/src/trv_fsutils.c
+ * Miscellaneous file access utilities
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,74 +34,64 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H
-
 /****************************************************************************
- * Included Files
+ * Included files
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_fsutils.h"
+
+#include <stdio.h>
+#include <ctype.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Functions
  ****************************************************************************/
-
-#define BITMAP_WIDTH  64
-#define BITMAP_HEIGHT 64
-#define BITMAP_LOG2H   6
-#define BITMAP_SIZE   (BITMAP_WIDTH * BITMAP_HEIGHT)
-#define BITMAP_IMASK  (BITMAP_HEIGHT-1)
-#define BITMAP_JMASK  (BITMAP_WIDTH-1)
-#define BITMAP_JSHIFT  6
-#define BMICLIP(i)    ((i) & BITMAP_IMASK)
-#define BMJCLIP(i)    ((i) & BITMAP_JMASK)
-#define BMOFFSET(i,j) (((i) << BITMAP_JSHIFT) | (j))
-#define MAX_BITMAPS   256
 
 /****************************************************************************
- * Public Types
- ****************************************************************************/
+ * Name: trv_read_decimal
+ *
+ * Description:
+ *   Read a decimal number from the steam 'fp'
+ *
+ ***************************************************************************/
 
-struct trv_bitmap_s
+int16_t trv_read_decimal(FAR FILE *fp)
 {
-  uint16_t w;
-  uint16_t h;
-  uint8_t log2h;
-  FAR trv_pixel_t *bm;
-};
+  int16_t value = 0;
+  bool negative = false;
+  int ch;
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+  /* Skip over any leading whitespace  */
 
-/* These point to the (allocated) bit map buffers for the even and odd
- * bitmaps
- */
+  do
+    {
+      ch = getc(fp);
+    }
+  while (isspace(ch));
 
-extern FAR struct trv_bitmap_s *g_even_bitmaps[MAX_BITMAPS];
-#ifndef WEDIT
-extern FAR struct trv_bitmap_s *g_odd_bitmaps[MAX_BITMAPS];
-#endif
+  /* if the first character is '-', then its a negative number */
 
-/* This is the maximum value + 1 of a texture code */
+  if (ch == '-')
+    {
+      negative = true;
+      ch = getc(fp);
+    }
 
-extern uint16_t g_trv_nbitmaps;
+  /* Now get the unsigned portion of the number */
 
-/* These are the colors from the worldPalette which should used to rend
- * the sky and ground
- */
+  while (ch >= '0' && ch <= '9')
+    {
+      value = 10  *value + (ch - (int)'0');
+      ch = getc(fp);
+    }
 
-extern trv_pixel_t g_sky_color;
-extern trv_pixel_t g_ground_color;
+  /* Apply the negation, if appropriate */
 
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
+  if (negative)
+    {
+      value = -value;
+    }
 
-int trv_initialize_bitmaps(void);
-void trv_free_bitmaps(void);
-int trv_load_bitmapfile(FAR const char *bitmapfile);
-FAR struct trv_bitmap_s *trv_read_texture(FAR char *filename);
-
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H */
+  return value;
+}
