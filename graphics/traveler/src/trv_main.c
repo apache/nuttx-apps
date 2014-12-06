@@ -219,7 +219,7 @@ int traveler_main(int argc, char *argv[])
   ret = trv_world_create(world_filename);
   if (ret < 0)
     {
-      trv_abort("ERROR: %d loading world file %s: %d\n",
+      trv_abort("ERROR: Failed to load world file %s: %d\n",
                 world_filename, ret);
     }
 

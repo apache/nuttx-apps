@@ -79,4 +79,6 @@ extern trv_pixel_t *g_paltable[NUM_ZONES];
  * Public Function Prototypes
  ****************************************************************************/
 
+int trv_load_paltable(FAR const char *file);
+
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_PALTABLE_H */

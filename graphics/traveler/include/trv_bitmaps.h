@@ -99,4 +99,7 @@ extern trv_pixel_t g_ground_color;
  * Public Function Prototypes
  ****************************************************************************/
 
+int trv_initialize_bitmaps(void);
+int trv_load_bitmapfile(FAR const char *bitmapfile);
+
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H */
