@@ -57,3 +57,224 @@ struct trv_rect_head_s  g_zplane;  /* list of Z=plane rectangles */
 /* "Deallocated" planes are retained in a free list */
 
 struct trv_rect_list_s *g_rect_freelist;
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: trv_add_plane
+ *
+ * Description:
+ *   This function adds a plane to a world plane list
+ *
+ ***************************************************************************/
+
+void trv_add_plane(FAR struct trv_rect_list_s *rect,
+                   FAR struct trv_rect_head_s *list)
+{
+  struct trv_rect_list_s *next;
+  struct trv_rect_list_s *prev;
+
+  /* Search the list to find the location to insert the new rectangle. Each
+   * is list is maintained in ascending plane order.
+   */
+
+  for (next = list->head;
+       ((next) && (next->d.plane < rect->d.plane));
+       next = next->flink);
+
+  /* Add the 'rect' to the spot found in the list.  Check if the 'rect' lies
+   * at the end of the list.
+   */
+
+  if (!next)
+    {
+      /* No rectangle with plane larger than the one to be added was found
+       * in the list.  The 'rect' goes at the end of the list.
+       */
+
+      prev = list->tail;
+      if (!prev)
+        {
+          /* Special case:  The list is empty */
+
+          rect->flink = NULL;
+          rect->blink = NULL;
+          list->head  = rect;
+          list->tail  = rect;
+        }
+      else
+        {
+          rect->flink = NULL;
+          rect->blink = prev;
+          prev->flink = rect;
+          list->tail  = rect;
+        }
+    }
+  else
+    {
+      /* The 'rect' goes just before 'next' */
+
+      prev = next->blink;
+      if (!prev)
+        {
+          /* Special case:  Insert at the head of the list */
+
+          rect->flink = next;
+          rect->blink = NULL;
+          next->blink = rect;
+          list->head  = rect;
+        }
+      else
+        {
+          /* Insert in the middle of the list */
+
+          rect->flink = next;
+          rect->blink = prev;
+          prev->flink = rect;
+          next->blink = rect;
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: trv_move_plane
+ *
+ * Description:
+ *
+ *   This function removes the specified plane from the world plane srclist
+ *   then adds it to the world plane destlist
+ *
+ ***************************************************************************/
+
+void trv_move_plane(FAR struct trv_rect_list_s *rect,
+                    FAR struct trv_rect_head_s *destlist,
+                    FAR struct trv_rect_head_s *srclist)
+{
+  /* Un-hook the backward link to the rect */
+
+  if (rect->flink)
+    {
+      rect->flink->blink = rect->blink;
+    }
+  else
+    {
+      srclist->tail = rect->blink;
+    }
+
+  /* Un-hook the forward link to the rect */
+
+  if (rect->blink)
+    {
+      rect->blink->flink = rect->flink;
+    }
+  else
+    {
+      srclist->head = rect->flink;
+    }
+
+  /* Then add the rect to the specified list */
+
+  trv_add_plane(rect, destlist);
+}
+
+/****************************************************************************
+ * Name: trv_merge_planelists
+ *
+ * Description:
+ *   This function concatenates two world plane lists
+ *
+ ***************************************************************************/
+
+void trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
+                          FAR struct trv_rect_head_s *inlist)
+{
+  struct trv_rect_list_s *inrect;
+  struct trv_rect_list_s *nextin;
+  struct trv_rect_list_s *outrect;
+  struct trv_rect_list_s *prevout;
+
+  /* Initialize the inner plane search loop */
+
+  outrect = outlist->head;
+
+  /* Process every plane in the input plane list */
+
+  for (inrect = inlist->head; (inrect); inrect = nextin)
+    {
+      nextin = inrect->flink;
+
+      /* Search the output plane list to find the location to insert the
+       * input rectangle. Each is list is maintained in ascending plane
+       * order.
+       */
+
+      for (;
+           outrect && outrect->d.plane < inrect->d.plane;
+           outrect = outrect->flink);
+
+      /* Add the 'inrect' to the spot found in the list.  Check if the
+       * 'inrect' goes at the one of the ends of the list.
+       */
+
+      if (!outrect)
+        {
+          /* No rectangle with plane larger than the one to be added
+           * was found in the list.  The inrect goes at the end of
+           * the list.
+           */
+
+          prevout = outlist->tail;
+          if (!prevout)
+            {
+              /* Special case:  The list is empty */
+
+              inrect->flink  = NULL;
+              inrect->blink  = NULL;
+              outlist->head  = inrect;
+              outlist->tail  = inrect;
+            }
+          else
+            {
+              inrect->flink  = NULL;
+              inrect->blink  = prevout;
+              prevout->flink = inrect;
+              outlist->tail  = inrect;
+            }
+        }
+      else
+        {
+          /* The 'inrect' goes just before 'outrect' */
+
+          prevout = outrect->blink;
+          if (!prevout)
+            {
+              /* Special case:  Insert at the head of the list */
+
+              inrect->flink  = outrect;
+              inrect->blink  = NULL;
+              outrect->blink = inrect;
+              outlist->head  = inrect;
+            }
+          else
+            {
+              /* Insert in the middle of the list */
+
+              inrect->flink  = outrect;
+              inrect->blink  = prevout;
+              prevout->flink = inrect;
+              outrect->blink = inrect;
+            }
+        }
+
+      /* Set up for the next time through */
+
+      outrect = inrect;
+    }
+
+  /* Mark the input list empty */
+
+  inlist->head = NULL;
+  inlist->tail = NULL;
+}
