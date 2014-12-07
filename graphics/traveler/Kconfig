@@ -4,6 +4,7 @@
 #
 
 if GRAPHICS_TRAVELER
+comment "Color configuration"
 
 choice
 	prompt "Color format"
@@ -16,6 +17,16 @@ config GRAPHICS_TRAVELER_RGB32_888
 	bool "RGB32 888 (no transparency)"
 
 endchoice # Color format
+
+config GRAPHICS_TRAVELER_PALRANGES
+	bool "Use ranged palette"
+	default y
+	---help---
+		If this option is false, then the whole palette table is loaded from
+		the graphics file.  Otherwise, the palette table will be calculated
+		from a range table.  Default y, this is a good thing.
+
+comment "Input device selection"
 
 config GRAPHICS_TRAVELER_JOYSTICK
 	bool
@@ -48,6 +59,8 @@ config GRAPHICS_TRAVELER_JOYDEV
 	default "/dev/ajoy0" if GRAPHICS_TRAVELER_AJOYSTICK
 	default "/dev/djoy0" if GRAPHICS_TRAVELER_DJOYSTICK
 	depends on GRAPHICS_TRAVELER_JOYSTICK
+
+comment "Debug options"
 
 config GRAPHICS_TRAVELER_PERFMON
 	bool "Performance monitor"
