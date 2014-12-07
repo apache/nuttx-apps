@@ -1,5 +1,6 @@
 /****************************************************************************
- * apps/graphics/traveler/include/trv_graphicfile.h
+ * apps/graphics/traveler/include/trv_pcx.h
+ * This is the header file associated with trv_pcx.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,32 +34,43 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_GRAPHICFILE_H
-#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_GRAPHICFILE_H
+#ifndef __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_PCX_H
+#define __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_PCX_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_color.h"
+
+#include <stdio.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define SIZEOF_PCX_HEADER 128
+
 /****************************************************************************
  * Public Type Definitions
  ****************************************************************************/
 
-struct trv_graphicfile_s
+struct pcx_header_s
 {
-  uint16_t height;
-  uint16_t width;
-  int palette_entries;
-  long transparent_entry;
-  FAR struct trv_color_rgb_s *palette;
-  FAR uint8_t *bitmap;
+  char manufacturer;
+  char version;
+  char encoding;
+  char bits_per_pixel;
+  int16_t x, y;
+  int16_t width, height;
+  int16_t horz_res;
+  int16_t vert_res;
+  char ega_palette[48];
+  char reserved;
+  char num_color_planes;
+  int16_t bytes_per_line;
+  int16_t palette_type;
+  char padding[58];
 };
 
 /****************************************************************************
@@ -69,10 +81,7 @@ struct trv_graphicfile_s
  * Public Function Prototypes
  ****************************************************************************/
 
-FAR struct trv_graphicfile_s *trv_graphicfile_new(void);
-void trv_graphicfile_free(struct trv_graphicfile_s *gfile);
-struct trv_color_rgb_s
-  trv_graphicfile_pixel(FAR struct trv_graphicfile_s *gfile, int x, int y);
-struct trv_graphicfile_s *tvr_graphicfile_read(FAR char *filename);
+FAR struct trv_graphicfile_s *trv_load_pcx(FAR FILE *fp,
+                                           FAR const char *filename);
 
-#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_GRAPHICFILE_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_PCX_H */
