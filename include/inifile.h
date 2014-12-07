@@ -76,7 +76,7 @@ extern "C"
  *
  ****************************************************************************/
 
-INIHANDLE inifile_initialize(FAR char *inifile_name);
+INIHANDLE inifile_initialize(FAR const char *inifile_name);
 
 /****************************************************************************
  * Name:  inifile_uninitialize

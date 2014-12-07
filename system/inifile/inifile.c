@@ -500,7 +500,7 @@ static FAR char *inifile_find_variable(FAR struct inifile_state_s *priv,
  *
  ****************************************************************************/
 
-INIHANDLE inifile_initialize(FAR char *inifile_name)
+INIHANDLE inifile_initialize(FAR const char *inifile_name)
 {
   /* Allocate an INI file parser state structure */
 
