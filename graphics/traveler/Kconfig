@@ -62,10 +62,25 @@ config GRAPHICS_TRAVELER_JOYDEV
 
 comment "Debug options"
 
+config GRAPHICS_TRAVELER_ROMFSDEMO
+	bool "Build ROMFS demo world"
+	default y
+	depends on FS_ROMFS
+	---help---
+		The traveller code will do nothing unless you also provide a world
+		data set for it to work on.  The world/ sub-directory contains a
+		demo world suitable for testing.  If this option is selected, then
+		the demo world is build as a mountable ROMFS file system.  This new
+		function is then exported that can be used to mount the demo world:
+
+			int trv_mount_world(int minor, FAR const char *mountpoint)
+
+		This function must be called somewhere in your board-specific start-
+		up logic in order to mount the world at 'mountpoint'
+
 config GRAPHICS_TRAVELER_PERFMON
 	bool "Performance monitor"
 	default y
-	depends on FS_READABLE
 	---help---
 		Enable or disable performance monitoring instrumentation and output.
 

@@ -1,6 +1,8 @@
 /Make.dep
 /.depend
 /.built
+/trv_romfs.h
+/trv_romfs.img
 /*.asm
 /*.rel
 /*.lst

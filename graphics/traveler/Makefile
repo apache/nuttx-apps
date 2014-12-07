@@ -37,6 +37,13 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
+# Directories
+
+TRAVELER_DIR  = $(APPDIR)/graphics/traveler
+TRAVELER_SRC  = $(TRAVELER_DIR)/src
+TRAVELER_INC  = $(TRAVELER_DIR)/include
+TRAVELER_DEMO = $(TRAVELER_DIR)/world
+
 # Traveler built-in application info
 
 APPNAME   = traveler
@@ -52,6 +59,11 @@ CSRCS  += trv_mem.c trv_paltbl.c trv_pcx.c trv_planefiles.c trv_planelists.c
 CSRCS  += trv_pov.c trv_rayavoid.c trv_raycast.c trv_raycntl.c
 CSRCS  += trv_rayprune.c trv_rayrend.c trv_texturefile.c trv_trigtbl.c
 CSRCS  += trv_world.c
+
+ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
+CSRCS += trv_romfs.c
+endif
+
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)
@@ -70,6 +82,11 @@ OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
+endif
+
+ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
+ROMFS_IMG = trv_romfs.img
+ROMFS_HDR = trv_romfs.h
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -95,10 +112,10 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/traveler/include}
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(TRAVELER_INC)}
 
-DEPPATH = --dep-path src
-VPATH = src
+DEPPATH = --dep-path . --dep-path src
+VPATH = .:src
 
 # Common build
 
@@ -111,7 +128,15 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-.built: $(OBJS)
+ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
+$(ROMFS_IMG):
+	$(Q) genromfs -f $@ -d $(TRAVELER_DEMO) -V "DemoWorld"
+
+$(ROMFS_HDR): $(ROMFS_IMG)
+	$(Q) (xxd -i $< | sed -e "s/^unsigned/static const unsigned/g" >$@)
+endif
+
+.built: $(ROMFS_HDR) $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
@@ -145,6 +170,8 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
+	$(call DELFILE, $(ROMFS_IMG))
+	$(call DELFILE, $(ROMFS_HDR))
 	$(call CLEAN)
 
 distclean: clean
