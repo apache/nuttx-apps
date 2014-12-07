@@ -135,7 +135,7 @@ static int trv_load_bitmaps(FAR FILE *fp)
 
   /* Discard any bitmaps that we may currently have buffered */
 
-  trv_free_bitmaps();
+  trv_release_bitmaps();
 
   /* Get the number of bitmaps in the bitmap file */
 
@@ -221,7 +221,7 @@ int trv_load_bitmapfile(FAR const char *bitmapfile)
   ret = trv_load_bitmaps(fp);
   if (ret < 0)
     {
-      trv_free_bitmaps();
+      trv_release_bitmaps();
     }
 
   /* We are all done with the file, so close it */

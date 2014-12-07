@@ -100,7 +100,7 @@ extern trv_pixel_t g_ground_color;
  ****************************************************************************/
 
 int trv_initialize_bitmaps(void);
-void trv_free_bitmaps(void);
+void trv_release_bitmaps(void);
 int trv_load_bitmapfile(FAR const char *bitmapfile);
 FAR struct trv_bitmap_s *trv_read_texture(FAR char *filename);
 

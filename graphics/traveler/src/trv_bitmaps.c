@@ -120,14 +120,14 @@ int trv_initialize_bitmaps(void)
 }
 
 /*************************************************************************
- * Name: trv_free_bitmaps
+ * Name: trv_release_bitmaps
  *
  * Description:
  *   This function deallocates all bitmaps.
  *
  ************************************************************************/
 
-void trv_free_bitmaps(void)
+void trv_release_bitmaps(void)
 {
   int i;
 

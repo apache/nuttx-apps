@@ -46,11 +46,12 @@ STACKSIZE = 2048
 # Traveler files
 
 ASRCS   =
-CSRCS   = trv_bitmapfile.c trv_bitmaps.c trv_color.c trv_createworld.c
-CSRCS  += trv_doors.c trv_fsutils.c trv_graphicfile.c trv_graphics.c
-CSRCS  += trv_input.c trv_mem.c trv_pcx.c trv_planefiles.c trv_planelists.c
+CSRCS   = trv_bitmapfile.c trv_bitmaps.c trv_color.c trv_doors.c
+CSRCS  += trv_fsutils.c trv_graphicfile.c trv_graphics.c trv_input.c
+CSRCS  += trv_mem.c trv_pcx.c trv_planefiles.c trv_planelists.c
 CSRCS  += trv_pov.c trv_rayavoid.c trv_raycast.c trv_raycntl.c
 CSRCS  += trv_rayprune.c trv_rayrend.c trv_texturefile.c trv_trigtbl.c
+CSRCS  += trv_world.c
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)

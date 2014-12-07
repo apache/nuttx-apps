@@ -1,6 +1,6 @@
 /*******************************************************************************
- * apps/graphics/traveler/src/trv_createworld.c
- * This file contains the logic that creates the world.
+ * apps/graphics/traveler/src/trv_world.c
+ * This file contains the logic that creates and destroys the world.
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -451,4 +451,19 @@ int trv_world_create(FAR const char *wldfile)
 
   inifile_uninitialize(inihandle);
   return ret;
+}
+
+/****************************************************************************
+ * Name: trv_world_destroy
+ *
+ * Description:
+ *   Destroy the world and release all of its resources
+ *
+ ***************************************************************************/
+
+void trv_world_destroy(void)
+{
+  trv_release_planes();
+  trv_release_bitmaps();
+  trv_release_paltable();
 }

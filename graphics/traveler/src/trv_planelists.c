@@ -59,6 +59,30 @@ struct trv_rect_head_s  g_zplane;  /* list of Z=plane rectangles */
 FAR struct trv_rect_list_s *g_rect_freelist;
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: trv_release_worldplane
+ *
+ * Description:
+ *   This function deallocates one plane of the world
+ *
+ ***************************************************************************/
+
+static void trv_release_worldplane(FAR struct trv_rect_list_s *rect)
+{
+  FAR struct trv_rect_list_s *next;
+
+  while (rect)
+    {
+      next = rect->flink;
+      trv_free((void *) rect);
+      rect = next;
+    }
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -328,4 +352,27 @@ FAR struct trv_rect_list_s *trv_new_plane(void)
     }
 
   return rect;
+}
+
+/*************************************************************************
+ * Name: trv_release_planes
+ *
+ * Description:
+ *
+ *   This function deallocates the entire world.
+ *
+ ************************************************************************/
+
+void trv_release_planes(void)
+{
+  /* Release all world planes */
+
+  trv_release_worldplane(g_xplane.head);
+  trv_release_worldplane(g_yplane.head);
+  trv_release_worldplane(g_zplane.head);
+  trv_release_worldplane(g_rect_freelist);
+
+  /* Re-initialize the world plane lists */
+
+  trv_initialize_planes();
 }
