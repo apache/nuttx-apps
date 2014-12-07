@@ -86,14 +86,15 @@ struct trv_graphics_info_s
   NXHANDLE hnx;                 /* The connection handle */
   NXHANDLE bgwnd;               /* Background window handle */
 #else
-  trv_coord_t stride;           /* Length of a line in bytes */
+  trv_coord_t xoffset;          /* Horizontal offset to start of data (pixels) */
+  trv_coord_t yoffset;          /* Vertical offset to start of data (rows) */
+  trv_coord_t stride;           /* Length of a line (bytes) */
 #endif
-  trv_coord_t hwwidth;          /* Display width (pixels) */
-  trv_coord_t hwheight;         /* Display height (rows) */
-  trv_coord_t swwidth;          /* Software render width (pixels) */
-  trv_coord_t swheight;         /* Software render height height (rows) */
-  uint8_t vscale;               /* Log2 vertical image scale factor */
-  uint8_t hscale;               /* Log2 horizontal image scale factor */
+  trv_coord_t xres;             /* Physical display width (pixels) */
+  trv_coord_t yres;             /* Physical display height (rows) */
+  trv_coord_t imgwidth;         /* Width of visible display region (bytes) */
+  uint8_t xscale;               /* Horizontal image scale factor */
+  uint8_t yscale;               /* Vertical image scale factor */
   struct trv_palette_s palette; /* Color palette */
   FAR dev_pixel_t *hwbuffer;    /* Hardware frame buffer */
   FAR trv_pixel_t *swbuffer;    /* Software render buffer */

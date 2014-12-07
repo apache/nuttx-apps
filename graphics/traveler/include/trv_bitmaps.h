@@ -1,5 +1,6 @@
 /****************************************************************************
  * apps/graphics/traveler/include/trv_bitmaps.h
+ * This file contains definitions for the texture bitmaps
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -46,12 +47,61 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define BITMAP_WIDTH  64
+#define BITMAP_HEIGHT 64
+#define BITMAP_LOG2H   6
+#define BITMAP_SIZE   (BITMAP_WIDTH * BITMAP_HEIGHT)
+#define BITMAP_IMASK  (BITMAP_HEIGHT-1)
+#define BITMAP_JMASK  (BITMAP_WIDTH-1)
+#define BITMAP_JSHIFT  6
+#define BMICLIP(i)    ((i) & BITMAP_IMASK)
+#define BMJCLIP(i)    ((i) & BITMAP_JMASK)
+#define BMOFFSET(i,j) (((i) << BITMAP_JSHIFT) | (j))
+#define MAX_BITMAPS   256
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
+struct trv_bitmap_s
+{
+  uint16_t w;
+  uint16_t h;
+  uint8_t log2h;
+  FAR trv_pixel_t *bm;
+};
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* These point to the (allocated) bit map buffers for the even and odd
+ * bitmaps
+ */
+
+extern FAR struct trv_bitmap_s *g_even_bitmaps[MAX_BITMAPS];
+#ifndef WEDIT
+extern FAR struct trv_bitmap_s *g_odd_bitmaps[MAX_BITMAPS];
+#endif
+
+/* This is the maximum value + 1 of a texture code */
+
+extern uint16_t g_trv_nbitmaps;
+
+/* These are the colors from the worldPalette which should used to rend
+ * the sky and ground
+ */
+
+extern trv_pixel_t g_sky_color;
+extern trv_pixel_t g_ground_color;
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+int trv_initialize_bitmaps(void);
+void trv_release_bitmaps(void);
+int trv_load_bitmapfile(FAR const char *bitmapfile);
+FAR struct trv_bitmap_s *trv_read_texture(FAR char *filename);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_BITMAPS_H */

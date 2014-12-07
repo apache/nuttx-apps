@@ -49,7 +49,7 @@
 
 /* This structure defines the current camera position of the player's eyes */
 
-extern struct trv_camera_s g_trv_player;
+extern struct trv_camera_s g_player;
 
 /****************************************************************************
  * Public Function Prototypes

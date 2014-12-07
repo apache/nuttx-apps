@@ -4,6 +4,7 @@
 #
 
 if GRAPHICS_TRAVELER
+comment "Color configuration"
 
 choice
 	prompt "Color format"
@@ -16,6 +17,16 @@ config GRAPHICS_TRAVELER_RGB32_888
 	bool "RGB32 888 (no transparency)"
 
 endchoice # Color format
+
+config GRAPHICS_TRAVELER_PALRANGES
+	bool "Use ranged palette"
+	default y
+	---help---
+		If this option is false, then the whole palette table is loaded from
+		the graphics file.  Otherwise, the palette table will be calculated
+		from a range table.  Default y, this is a good thing.
+
+comment "Input device selection"
 
 config GRAPHICS_TRAVELER_JOYSTICK
 	bool
@@ -49,10 +60,27 @@ config GRAPHICS_TRAVELER_JOYDEV
 	default "/dev/djoy0" if GRAPHICS_TRAVELER_DJOYSTICK
 	depends on GRAPHICS_TRAVELER_JOYSTICK
 
+comment "Debug options"
+
+config GRAPHICS_TRAVELER_ROMFSDEMO
+	bool "Build ROMFS demo world"
+	default y
+	depends on FS_ROMFS
+	---help---
+		The traveller code will do nothing unless you also provide a world
+		data set for it to work on.  The world/ sub-directory contains a
+		demo world suitable for testing.  If this option is selected, then
+		the demo world is build as a mountable ROMFS file system.  This new
+		function is then exported that can be used to mount the demo world:
+
+			int trv_mount_world(int minor, FAR const char *mountpoint)
+
+		This function must be called somewhere in your board-specific start-
+		up logic in order to mount the world at 'mountpoint'
+
 config GRAPHICS_TRAVELER_PERFMON
 	bool "Performance monitor"
 	default y
-	depends on FS_READABLE
 	---help---
 		Enable or disable performance monitoring instrumentation and output.
 

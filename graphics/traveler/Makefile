@@ -37,22 +37,39 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# Directories
 
-APPNAME = traveler
-PRIORITY = SCHED_PRIORITY_DEFAULT
+TRAVELER_DIR  = $(APPDIR)/graphics/traveler
+TRAVELER_SRC  = $(TRAVELER_DIR)/src
+TRAVELER_INC  = $(TRAVELER_DIR)/include
+TRAVELER_DEMO = $(TRAVELER_DIR)/world
+
+# Traveler built-in application info
+
+APPNAME   = traveler
+PRIORITY  = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 
-# Hello, World! Example
+# Traveler files
 
-ASRCS =
-CSRCS = trv_color.c trv_graphics.c trv_input.c trv_mem.c trv_pov.c
+ASRCS   =
+CSRCS   = trv_bitmapfile.c trv_bitmaps.c trv_color.c trv_doors.c
+CSRCS  += trv_fsutils.c trv_graphicfile.c trv_graphics.c trv_input.c
+CSRCS  += trv_mem.c trv_paltbl.c trv_pcx.c trv_planefiles.c trv_planelists.c
+CSRCS  += trv_pov.c trv_rayavoid.c trv_raycast.c trv_raycntl.c
+CSRCS  += trv_rayprune.c trv_rayrend.c trv_texturefile.c trv_trigtbl.c
+CSRCS  += trv_world.c
+
+ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
+CSRCS += trv_romfs.c
+endif
+
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)
-CSRCS += trv_nxbkgd.c
+CSRCS  += trv_nxbkgd.c
 ifeq ($(CONFIG_NX),y)
-CSRCS += trv_nxserver.c
+CSRCS  += trv_nxserver.c
 endif
 endif
 
@@ -65,6 +82,11 @@ OBJS = $(AOBJS) $(COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
+endif
+
+ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
+ROMFS_IMG = trv_romfs.img
+ROMFS_HDR = trv_romfs.h
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -90,10 +112,10 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/graphics/traveler/include}
+CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(TRAVELER_INC)}
 
-DEPPATH = --dep-path src
-VPATH = src
+DEPPATH = --dep-path . --dep-path src
+VPATH = .:src
 
 # Common build
 
@@ -106,7 +128,15 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-.built: $(OBJS)
+ifeq ($(CONFIG_GRAPHICS_TRAVELER_ROMFSDEMO),y)
+$(ROMFS_IMG):
+	$(Q) genromfs -f $@ -d $(TRAVELER_DEMO) -V "DemoWorld"
+
+$(ROMFS_HDR): $(ROMFS_IMG)
+	$(Q) (xxd -i $< | sed -e "s/^unsigned/static const unsigned/g" >$@)
+endif
+
+.built: $(ROMFS_HDR) $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
@@ -140,6 +170,8 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
+	$(call DELFILE, $(ROMFS_IMG))
+	$(call DELFILE, $(ROMFS_HDR))
 	$(call CLEAN)
 
 distclean: clean

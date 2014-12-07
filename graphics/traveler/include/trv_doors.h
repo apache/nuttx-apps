@@ -43,6 +43,32 @@
 #include "trv_types.h"
 
 /****************************************************************************
+ * Public Type Definitions
+ ****************************************************************************/
+
+/* This structure describes the characteristics of the door which currently
+ * being opened.
+ */
+
+struct trv_opendoor_s
+{
+  FAR struct trv_rect_data_s *rect; /* Points to the current door rectangle */
+  uint8_t       state;              /* State of the door being opened */
+  trv_coord_t   zbottom;            /* Z-Coordinate of the bottom of the door */
+  trv_coord_t   zdist;              /* Distance which the door has moved */
+  int16_t       clock;              /* This is clock which counts down the time
+                                     * remaining to keep the door open */
+};
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* This structure describes the door which is currently opening */
+
+struct trv_opendoor_s g_opendoor;
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 

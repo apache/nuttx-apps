@@ -65,6 +65,7 @@
 
 typedef uint8_t trv_pixel_t;  /* Width of one pixel in rendering phase */
 typedef int16_t trv_coord_t;  /* Contains one display coordinate */
+                              /* Max world size is +/- 65536/64 = 1024 */
 
 /****************************************************************************
  * Public Function Prototypes

@@ -91,9 +91,9 @@
 
 struct trv_color_rgb_s
 {
-  uint8_t red;
-  uint8_t green;
-  uint8_t blue;
+  uint8_t red;    /* red   component of color 0-63 */
+  uint8_t green;  /* green component of color 0-63 */
+  uint8_t blue;   /* blue  component of color 0-63 */
 };
 
 struct trv_color_lum_s

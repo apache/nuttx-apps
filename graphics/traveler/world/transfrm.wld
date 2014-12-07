@@ -1,0 +1,16 @@
+[camera]
+InitialCameraX=1056
+InitialCameraY=1328
+InitialCameraZ=928
+InitialCameraYaw=0
+InitialCamerPitch=1893
+
+[player]
+PlayerHeight=352
+PlayerWalkStepHeight=126
+PlayerRunStepHeight=224
+
+[world]
+WorldMap=transfrm.pll
+WorldPalette=transfrm.par
+WorldImages=transfrm.bml

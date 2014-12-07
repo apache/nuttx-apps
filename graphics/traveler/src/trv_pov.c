@@ -1,5 +1,6 @@
 /****************************************************************************
  * apps/graphics/traveler/trv_pov.c
+ * This file contains the logic which manages player's point-of-view (POV)
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -53,7 +54,7 @@
 
 /* This structure defines the current camera position of the player's eyes */
 
-struct trv_camera_s g_trv_player;
+struct trv_camera_s g_player;
 
 /****************************************************************************
  * Private Data
@@ -77,17 +78,17 @@ static void trv_new_viewangle(void)
     {
       /* Determine the amount to rotate on this cycle */
 
-      g_trv_player.yaw += g_trv_input.yawrate;
+      g_player.yaw += g_trv_input.yawrate;
 
       /* Make sure that yaw is still within range */
 
-      if (g_trv_player.yaw >= ANGLE_360)
+      if (g_player.yaw >= ANGLE_360)
         {
-          g_trv_player.yaw -= ANGLE_360;
+          g_player.yaw -= ANGLE_360;
         }
-      else if (g_trv_player.yaw < ANGLE_0)
+      else if (g_player.yaw < ANGLE_0)
         {
-          g_trv_player.yaw += ANGLE_360;
+          g_player.yaw += ANGLE_360;
         }
     }
 
@@ -95,33 +96,33 @@ static void trv_new_viewangle(void)
 
   if (g_trv_input.pitchrate != 0)
     {
-      g_trv_player.pitch += g_trv_input.pitchrate;
+      g_player.pitch += g_trv_input.pitchrate;
 
       /* Make sure that pitch is still within range */
 
-      if (g_trv_player.pitch >= ANGLE_360)
+      if (g_player.pitch >= ANGLE_360)
         {
-          g_trv_player.pitch -= ANGLE_360;
+          g_player.pitch -= ANGLE_360;
         }
-      else if (g_trv_player.pitch < ANGLE_0)
+      else if (g_player.pitch < ANGLE_0)
         {
-          g_trv_player.pitch += ANGLE_360;
+          g_player.pitch += ANGLE_360;
         }
 
      /* Don't let the player look up more than thirty degrees */
 
-     if (g_trv_player.pitch > ANGLE_30 &&
-         g_trv_player.pitch < ANGLE_180)
+     if (g_player.pitch > ANGLE_30 &&
+         g_player.pitch < ANGLE_180)
        {
-          g_trv_player.pitch = ANGLE_30;
+          g_player.pitch = ANGLE_30;
         }
 
       /* Don't let the player look down more than thirty degrees */
 
-      else if (g_trv_player.pitch < (ANGLE_360 - ANGLE_30) &&
-               g_trv_player.pitch > ANGLE_180)
+      else if (g_player.pitch < (ANGLE_360 - ANGLE_30) &&
+               g_player.pitch > ANGLE_180)
         {
-          g_trv_player.pitch = (ANGLE_360 - ANGLE_30);
+          g_player.pitch = (ANGLE_360 - ANGLE_30);
         }
     }
 }
@@ -144,7 +145,7 @@ static void trv_new_playerposition(void)
 
   /* Assume that we are moving forward */
 
-  move_angle    = g_trv_player.yaw;
+  move_angle    = g_player.yaw;
   left_angle    = ANGLE_90;
   fwd_distance  = g_trv_input.fwdrate;
   left_distance = g_trv_input.leftrate;
@@ -179,12 +180,12 @@ static void trv_new_playerposition(void)
 
   if (left_distance > 0)
     {
-      move_angle = g_trv_player.yaw - left_angle;
+      move_angle = g_player.yaw - left_angle;
     }
   else if (left_distance < 0)
     {
       left_distance = -left_distance;
-      move_angle = g_trv_player.yaw + left_angle;
+      move_angle = g_player.yaw + left_angle;
     }
 
   if (move_angle < ANGLE_0)
@@ -211,18 +212,18 @@ static void trv_new_playerposition(void)
    * and clip these components to avoid collisions with walls and objects
    */
 
-  g_trv_player.x +=
-    trv_rayclip_player_xmotion(&g_trv_player, move_distance,
+  g_player.x +=
+    trv_rayclip_player_xmotion(&g_player, move_distance,
                                move_angle, g_trv_input.stepheight);
-  g_trv_player.y +=
-    trv_rayclip_player_ymotion(&g_trv_player, move_distance,
+  g_player.y +=
+    trv_rayclip_player_ymotion(&g_player, move_distance,
                                move_angle, g_trv_input.stepheight);
 
   /* Adjust the player's vertical position (he may have fallen down or
    * stepped up something.
    */
 
-  g_trv_player.z += trv_ray_adjust_zpos(&g_trv_player, g_player_height);
+  g_player.z += trv_ray_adjust_zpos(&g_player, g_player_height);
 }
 
 /****************************************************************************
@@ -239,7 +240,7 @@ static void trv_new_playerposition(void)
 
 void trv_pov_reset(void)
 {
-  g_trv_player = g_initial_camera;
+  g_player = g_initial_camera;
 }
 
 /****************************************************************************

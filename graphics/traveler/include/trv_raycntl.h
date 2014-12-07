@@ -41,11 +41,15 @@
  ****************************************************************************/
 
 #include "trv_types.h"
-#include "trv_graphics.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* This is the size of the buffer supported by the ray caster */
+
+#define TRV_SCREEN_WIDTH  320
+#define TRV_SCREEN_HEIGHT 200
 
 /****************************************************************************
  * Public Types
@@ -55,7 +59,11 @@
  * Public Function Prototypes
  ****************************************************************************/
 
+struct trv_camera_s;
+struct trv_graphics_info_s;
+
 void trv_raycaster(FAR struct trv_camera_s *player,
                    FAR struct trv_graphics_info_s *ginfo);
+uint8_t trv_get_texture(uint8_t row, uint8_t col);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_RAYCNTL_H */

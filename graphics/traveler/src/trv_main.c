@@ -219,7 +219,7 @@ int traveler_main(int argc, char *argv[])
   ret = trv_world_create(world_filename);
   if (ret < 0)
     {
-      trv_abort("ERROR: %d loading world file %s: %d\n",
+      trv_abort("ERROR: Failed to load world file %s: %d\n",
                 world_filename, ret);
     }
 
@@ -257,11 +257,11 @@ int traveler_main(int argc, char *argv[])
 
       /* Paint the back drop */
 
-      trv_rend_backdrop(&g_trv_player);
+      trv_rend_backdrop(&g_player, &g_trv_ginfo);
 
       /* Render the 3-D view */
 
-      trv_raycaster(&g_trv_player, &g_trv_ginfo);
+      trv_raycaster(&g_player, &g_trv_ginfo);
 
       /* Display the world. */
 

@@ -1,5 +1,6 @@
 /****************************************************************************
- * apps/graphics/traveler/trv_nxlistener.c
+ * apps/graphics/traveler/trv_nxserver.c
+ * NX server logic
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
