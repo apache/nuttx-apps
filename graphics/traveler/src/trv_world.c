@@ -449,7 +449,8 @@ int trv_world_create(FAR const char *wldpath, FAR const char *wldfile)
 
   if (!inihandle)
     {
-      fprintf(stderr, "ERROR:  Could not open INI file=\"%s\"\n", fullpath);
+      fprintf(stderr, "ERROR: Could not open INI file=\"%s/%s\"\n",
+			  wldpath, wldfile);
       return -ENOENT;
     }
 
