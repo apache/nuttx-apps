@@ -352,7 +352,7 @@ void trv_row_update(struct trv_graphics_info_s *ginfo,
 }
 
 /****************************************************************************
- * Name: trv_row_tranfer
+ * Name: trv_row_transfer
  *
  * Description:
  *   Transfer one line from the line buffer to the NX window.
@@ -544,7 +544,7 @@ void trv_display_update(struct trv_graphics_info_s *ginfo)
 #ifdef CONFIG_NX
       /* Transfer the row buffer to the NX window */
 
-      trv_row_tranfer(ginfo, dest, destrow);
+      trv_row_transfer(ginfo, dest, destrow);
       destrow++;
 #else
       first = dest;
@@ -558,7 +558,7 @@ void trv_display_update(struct trv_graphics_info_s *ginfo)
 #ifdef CONFIG_NX
           /* Transfer the row buffer to the NX window */
 
-          trv_row_tranfer(ginfo, dest, destrow);
+          trv_row_transfer(ginfo, dest, destrow);
           destrow++;
 #else
           /* Point to the next row in the frame buffer */

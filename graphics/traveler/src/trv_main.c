@@ -56,7 +56,8 @@
 #include "trv_debug.h"
 #include "trv_main.h"
 
-#if CONFIG_GRAPHICS_TRAVELER_PERFMON
+#if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
+    defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
 #  include <sys/types.h>
 #  include <sys/time.h>
 #endif
@@ -70,15 +71,13 @@
 #  define CONFIG_GRAPHICS_TRAVELER_DEFPATH "/mnt/world"
 #endif
 
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
+/* Frame rate governer */
 
-static void trv_exit(int exitcode) noreturn_function;
-static void trv_usage(char *execname);
-#ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
-static double trv_current_time(void);
+#ifdef CONFIG_GRAPHICS_TRAVELER_MAXFPS
+#  define CONFIG_GRAPHICS_TRAVELER_MAXFPS 30
 #endif
+
+#define MIN_FRAME_TIME (1.0 / (double)CONFIG_GRAPHICS_TRAVELER_MAXFPS)
 
 /****************************************************************************
  * Public Data
@@ -104,6 +103,7 @@ static FAR struct trv_graphics_info_s g_trv_ginfo;
  * Description:
  ****************************************************************************/
 
+static void trv_exit(int exitcode) noreturn_function;
 static void trv_exit(int exitcode)
 {
   /* Release memory held by the ray casting engine */
@@ -139,7 +139,8 @@ static void trv_usage(char *execname)
  * Description:
  ****************************************************************************/
 
-#ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
+#if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
+    defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
 static double trv_current_time(void)
 {
   struct timeval tv;
@@ -167,9 +168,17 @@ int traveler_main(int argc, char *argv[])
 {
   FAR const char *wldpath;
   FAR const char *wldfile;
+#if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
+    defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
   int32_t frame_count = 0;
   double start_time;
+  double now;
+#endif
+#ifdef CONFIG_GRAPHICS_TRAVELER_LIMITFPS
+  double frame_start;
+#endif
+  double elapsed;
 #endif
   int ret;
   int i;
@@ -237,12 +246,21 @@ int traveler_main(int argc, char *argv[])
 
   trv_input_initialize();
 
+#ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
+  /* Get the start time for performance monitoring */
+
+  start_time = trv_current_time();
+#endif
+
   g_trv_terminate = false;
   while (!g_trv_terminate)
     {
-#ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
-      start_time = trv_current_time();
+#ifdef CONFIG_GRAPHICS_TRAVELER_LIMITFPS
+      /* Get the start time from frame rate limiting */
+
+      frame_start = trv_current_time();
 #endif
+
       trv_input_read();
 
       /* Select the POV to use on this viewing cycle */
@@ -265,14 +283,26 @@ int traveler_main(int argc, char *argv[])
 
       trv_display_update(&g_trv_ginfo);
 
+#ifdef CONFIG_GRAPHICS_TRAVELER_LIMITFPS
+       /* In the unlikely event that we are running "too" fast, we can delay
+        * here to enforce a maixmum frame rate.
+        */
+
+      elapsed = trv_current_time() - frame_start;
+      if (elapsed < MIN_FRAME_TIME)
+        {
+           usleep(1000000 * (elapsed - MIN_FRAME_TIME));
+        }
+#endif
+
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
-      /* Show the frame rate */
+      /* Show the realized frame rate */
 
       frame_count++;
-      if (frame_count == 100)
+      if (frame_count >= 100)
         {
-          double now     = trv_current_time();
-          double elapsed = now - start_time;
+          now     = trv_current_time();
+          elapsed = now - start_time;
 
           fprintf(stderr, "fps = %3.2f\n", (double)frame_count / elapsed);
 

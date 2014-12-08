@@ -54,7 +54,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
 /* Everything related to the camera POV is defined in the camera section. */
 
 #define CAMERA_SECTION_NAME    "camera"

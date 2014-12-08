@@ -26,6 +26,27 @@ config GRAPHICS_TRAVELER_DEFPATH
 		can be found.  The default world file name is transfrom.wld (not
 		configurable).
 
+config GRAPHICS_TRAVELER_LIMITFPS
+	bool "Limit frame rate"
+	default y if ARCH_SIM
+	default n if !ARCH_SIM
+	---help---
+		In the UNLIKELY event that the frame rate is too high, this option
+		may to selected to limit the frame rate to upper limit.  This is
+		most likely not something that you either want or need to do.
+		However, in the special case of the PC-based simulation environment,
+		it turns out to be necessary to limit the frame rate in order to
+		allow other processing to occur.  This is a consequence of the low
+		fidelity timing in the simulation.
+
+config GRAPHICS_TRAVELER_MAXFPS
+	int "Max frame rate"
+	default 30
+	depends on GRAPHICS_TRAVELER_LIMITFPS
+	---help---
+		if GRAPHICS_TRAVELER_LIMITFPS is selected, then this is the maximum
+		frame rate that will be permitted.
+
 
 config GRAPHICS_TRAVELER_PALRANGES
 	bool "Use ranged palette"
