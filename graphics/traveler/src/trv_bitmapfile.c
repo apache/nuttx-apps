@@ -45,6 +45,7 @@
 #include "trv_fsutils.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
 
@@ -127,8 +128,9 @@ static int trv_read_filename(FAR FILE  *fp, FAR char *filename)
  *
  ***************************************************************************/
 
-static int trv_load_bitmaps(FAR FILE *fp)
+static int trv_load_bitmaps(FAR FILE *fp, FAR const char *wldpath)
 {
+  FAR char *fullpath;
   char filename[FILENAME_MAX];
   int mapndx;
   int ret = OK;
@@ -163,7 +165,15 @@ static int trv_load_bitmaps(FAR FILE *fp)
           return ret;
         }
 
-      g_even_bitmaps[mapndx] = trv_read_texture(filename);
+      /* Get the full path to the even bit map file */
+
+      fullpath = trv_fullpath(wldpath, filename);
+
+      /* Read the bitmap texture file */
+
+      g_even_bitmaps[mapndx] = trv_read_texture(fullpath);
+      free(fullpath);
+
       if (!g_even_bitmaps[mapndx])
         {
           return -EIO;
@@ -179,7 +189,15 @@ static int trv_load_bitmaps(FAR FILE *fp)
         }
 
 #ifndef WEDIT
-      g_odd_bitmaps[mapndx] = trv_read_texture(filename);
+      /* Get the full path to the even bit map file */
+
+      fullpath = trv_fullpath(wldpath, filename);
+
+      /* Read the bitmap texture file */
+
+      g_odd_bitmaps[mapndx] = trv_read_texture(fullpath);
+      free(fullpath);
+
       if (!g_odd_bitmaps[mapndx])
         {
           return -EIO;
@@ -202,7 +220,7 @@ static int trv_load_bitmaps(FAR FILE *fp)
  *
  ***************************************************************************/
 
-int trv_load_bitmapfile(FAR const char *bitmapfile)
+int trv_load_bitmapfile(FAR const char *bitmapfile, FAR const char *wldpath)
 {
   FAR FILE *fp;
   int ret;
@@ -218,7 +236,7 @@ int trv_load_bitmapfile(FAR const char *bitmapfile)
 
   /* Load all of the bitmaps */
 
-  ret = trv_load_bitmaps(fp);
+  ret = trv_load_bitmaps(fp, wldpath);
   if (ret < 0)
     {
       trv_release_bitmaps();

@@ -169,7 +169,6 @@ int traveler_main(int argc, char *argv[])
   FAR const char *wldfile;
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
   int32_t frame_count = 0;
-  double elapsed_time = 0.0;
   double start_time;
 #endif
   int ret;
@@ -265,14 +264,20 @@ int traveler_main(int argc, char *argv[])
       /* Display the world. */
 
       trv_display_update(&g_trv_ginfo);
+
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
+      /* Show the frame rate */
+
       frame_count++;
-      elapsed_time += trv_current_time() - start_time;
       if (frame_count == 100)
         {
-          fprintf(stderr, "fps = %3.2f\n", (double) frame_count / elapsed_time);
+          double now     = trv_current_time();
+          double elapsed = now - start_time;
+
+          fprintf(stderr, "fps = %3.2f\n", (double)frame_count / elapsed);
+
           frame_count = 0;
-          elapsed_time = 0.0;
+          start_time  = now;
         }
 #endif
     }

@@ -178,7 +178,7 @@ static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
  *
  ***************************************************************************/
 
-FAR struct trv_bitmap_s *trv_read_texture(char *filename)
+FAR struct trv_bitmap_s *trv_read_texture(FAR const char *filename)
 {
   FAR struct trv_graphicfile_s *gfile;
   FAR struct trv_bitmap_s *bitmap;
@@ -186,7 +186,7 @@ FAR struct trv_bitmap_s *trv_read_texture(char *filename)
   gfile = tvr_graphicfile_read(filename);
   if (gfile == NULL)
     {
-      fprintf(stderr, "Error reading texture %s.", filename);
+      fprintf(stderr, "ERROR: Read failed for texture %s\n", filename);
       return NULL;
     }
 

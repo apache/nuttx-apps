@@ -415,7 +415,7 @@ static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldpath)
       return ret;
     }
 
-  ret = trv_load_bitmapfile(filename);
+  ret = trv_load_bitmapfile(filename, wldpath);
   free(filename);
 
   return ret;
