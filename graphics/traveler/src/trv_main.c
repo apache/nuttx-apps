@@ -59,24 +59,16 @@
 #if CONFIG_GRAPHICS_TRAVELER_PERFMON
 #  include <sys/types.h>
 #  include <sys/time.h>
-#  include <unistd.h>
 #endif
 
 /****************************************************************************
- * Private Function Prototypes
+ * Pre-processor Definitions
  ****************************************************************************/
+/* Configuration ************************************************************/
 
-static void trv_exit(int exitCode);
-static void trv_usage(char *execname);
-#if CONFIG_GRAPHICS_TRAVELER_PERFMON
-static double trv_current_time(void);
+#ifndef CONFIG_GRAPHICS_TRAVELER_DEFPATH
+#  define CONFIG_GRAPHICS_TRAVELER_DEFPATH "/mnt/world"
 #endif
-
-/****************************************************************************
- * Public Data
- *************************************************************************/
-
-bool g_trv_terminate;
 
 /****************************************************************************
  * Private Function Prototypes
@@ -89,10 +81,17 @@ static double trv_current_time(void);
 #endif
 
 /****************************************************************************
+ * Public Data
+ *************************************************************************/
+
+bool g_trv_terminate;
+
+/****************************************************************************
  * Private Data
  *************************************************************************/
 
 static const char g_default_worldfile[] = "transfrm.wld";
+static const char g_default_worldpath[] = CONFIG_GRAPHICS_TRAVELER_DEFPATH;
 static FAR struct trv_graphics_info_s g_trv_ginfo;
 
 /****************************************************************************
@@ -166,7 +165,8 @@ int main(int argc, FAR char *argv[])
 int traveler_main(int argc, char *argv[])
 #endif
 {
-  FAR const char *world_filename;
+  FAR const char *wldpath;
+  FAR const char *wldfile;
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
   int32_t frame_count = 0;
   double elapsed_time = 0.0;
@@ -175,9 +175,13 @@ int traveler_main(int argc, char *argv[])
   int ret;
   int i;
 
+  /* Defaults */
+
+  wldpath = g_default_worldpath;
+  wldfile = g_default_worldfile;
+
   /* Check for command line arguments */
 
-  world_filename = g_default_worldfile;
   for (i = 1; i < argc; i++)
     {
       FAR char *ptr = argv[i];
@@ -187,13 +191,7 @@ int traveler_main(int argc, char *argv[])
           switch (*ptr)
             {
             case 'p' :
-              ptr++;
-              printf("World data path = %s\n", ptr);
-              if (chdir(ptr))
-                {
-                  fprintf(stderr, "Bad path name\n");
-                  trv_usage(argv[0]);
-                }
+			  wldpath = ptr++;
               break;
 
             default:
@@ -204,11 +202,12 @@ int traveler_main(int argc, char *argv[])
         }
       else
         {
-          world_filename = ptr;
+          wldfile = ptr;
         }
     }
 
-  trv_debug("World data file = %s\n", world_filename);
+  trv_debug("World data file: %s\n", wldfile);
+  trv_debug("World data path: %s\n", wldpath);
 
   /* Initialize the graphics interface */
 
@@ -216,11 +215,11 @@ int traveler_main(int argc, char *argv[])
 
   /* Load the word data structures */
 
-  ret = trv_world_create(world_filename);
+  ret = trv_world_create(wldpath, wldfile);
   if (ret < 0)
     {
       trv_abort("ERROR: Failed to load world file %s: %d\n",
-                world_filename, ret);
+                wldfile, ret);
     }
 
   /* Release color mapping tables */

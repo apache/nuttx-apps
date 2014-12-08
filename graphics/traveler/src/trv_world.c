@@ -39,12 +39,15 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_main.h"
+#include "trv_fsutils.h"
 #include "trv_paltable.h"
 #include "trv_world.h"
 #include "trv_plane.h"
 #include "trv_bitmaps.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <apps/inifile.h>
 
@@ -101,9 +104,10 @@ static int trv_ini_short(INIHANDLE inihandle, FAR int16_t *value,
 static int trv_ini_long(INIHANDLE inihandle, FAR  long *value,
                         FAR const char *section, FAR const char *name);
 #endif
-static int trv_ini_filename(INIHANDLE inihandle, FAR char **filename,
-                            FAR const char *section, FAR const char *name);
-static int trv_manage_wldfile(INIHANDLE inihandle);
+static int trv_ini_filename(INIHANDLE inihandle, FAR const char *wldpath,
+                            FAR const char *section, FAR const char *name,
+                            FAR char **filename);
+static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldfile);
 
 /****************************************************************************
  * Public Data
@@ -239,8 +243,9 @@ static uint8_t trv_ini_long(INIHANDLE inihandle, FAR long *value,
  *
  ***************************************************************************/
 
-static int trv_ini_filename(INIHANDLE inihandle, FAR char **filename,
-                            FAR const char *section, FAR const char *name)
+static int trv_ini_filename(INIHANDLE inihandle, FAR const char *path,
+                            FAR const char *section, FAR const char *name,
+                            FAR char **filename)
 {
   /* Read the string from the .INI file.  We supply the default value of
    * NULL.  If this value is returned, we assume that that is evidence that
@@ -264,7 +269,8 @@ static int trv_ini_filename(INIHANDLE inihandle, FAR char **filename,
     }
   else
     {
-      *filename = value;
+      *filename = trv_fullpath(path, value);
+       inifile_free_string(value);
       return OK;
     }
 }
@@ -277,7 +283,7 @@ static int trv_ini_filename(INIHANDLE inihandle, FAR char **filename,
  *
  ***************************************************************************/
 
-static int trv_manage_wldfile(INIHANDLE inihandle)
+static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldpath)
 {
   FAR char *filename;
   int ret;
@@ -348,8 +354,8 @@ static int trv_manage_wldfile(INIHANDLE inihandle)
 
   /* Get the name of the file containing the world map */
 
-  ret = trv_ini_filename(inihandle, &filename,
-                         g_world_section_name, g_world_map_name);
+  ret = trv_ini_filename(inihandle, wldpath, g_world_section_name,
+                         g_world_map_name, &filename);
   if (ret < 0)
     {
       return ret;
@@ -369,14 +375,14 @@ static int trv_manage_wldfile(INIHANDLE inihandle)
       return ret;
     }
 
-  inifile_free_string(filename);
+  free(filename);
 
   /* Get the name of the file containing the palette table which is used
    * to adjust the lighting with distance.
    */
 
-  ret = trv_ini_filename(inihandle, &filename,
-                         g_world_section_name, g_world_palette_name);
+  ret = trv_ini_filename(inihandle,wldpath, g_world_section_name,
+                         g_world_palette_name, &filename);
   if (ret < 0)
     {
       return ret;
@@ -390,12 +396,12 @@ static int trv_manage_wldfile(INIHANDLE inihandle)
       return ret;
     }
 
-  inifile_free_string(filename);
+  free(filename);
 
   /* Get the name of the file containing the texture data */
 
-  ret = trv_ini_filename(inihandle, &filename,
-                         g_world_section_name, g_world_images_name);
+  ret = trv_ini_filename(inihandle, wldpath, g_world_section_name,
+                         g_world_images_name, &filename);
   if (ret < 0)
     {
       return ret;
@@ -410,7 +416,7 @@ static int trv_manage_wldfile(INIHANDLE inihandle)
     }
 
   ret = trv_load_bitmapfile(filename);
-  inifile_free_string(filename);
+  free(filename);
 
   return ret;
 }
@@ -427,8 +433,9 @@ static int trv_manage_wldfile(INIHANDLE inihandle)
  *
  ***************************************************************************/
 
-int trv_world_create(FAR const char *wldfile)
+int trv_world_create(FAR const char *wldpath, FAR const char *wldfile)
 {
+  FAR char *fullpath;
   INIHANDLE inihandle;
   int ret;
 
@@ -436,16 +443,19 @@ int trv_world_create(FAR const char *wldfile)
    * need to construct the world
    */
 
-  inihandle = inifile_initialize(wldfile);
+  fullpath = trv_fullpath(wldpath, wldfile);
+  inihandle = inifile_initialize(fullpath);
+  free(fullpath);
+
   if (!inihandle)
     {
-      fprintf(stderr, "ERROR:  Could not open INI file=\"%s\"\n", wldfile);
+      fprintf(stderr, "ERROR:  Could not open INI file=\"%s\"\n", fullpath);
       return -ENOENT;
     }
 
   /* Load the world file data */
 
-  ret = trv_manage_wldfile(inihandle);
+  ret = trv_manage_wldfile(inihandle, wldfile);
 
   /* Close the INI file and return */
 

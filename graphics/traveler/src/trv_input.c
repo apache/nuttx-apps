@@ -118,7 +118,7 @@ static struct trv_input_info_s g_trv_input_info;
 #ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
 static void trv_joystick_calibrate(void)
 {
-#warning Missing logic"
+#warning Missing logic
 }
 #endif
 

@@ -49,5 +49,6 @@
  ****************************************************************************/
 
 int16_t trv_read_decimal(FAR FILE *fp);
+FAR char *trv_fullpath(FAR const char *path, FAR const char *name);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_FSUTILS_H */

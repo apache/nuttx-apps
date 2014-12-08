@@ -18,6 +18,15 @@ config GRAPHICS_TRAVELER_RGB32_888
 
 endchoice # Color format
 
+config GRAPHICS_TRAVELER_DEFPATH
+	string "Default path to world data"
+	default "/mnt/world"
+	---help---
+		This is the default path to the directory where the world file data
+		can be found.  The default world file name is transfrom.wld (not
+		configurable).
+
+
 config GRAPHICS_TRAVELER_PALRANGES
 	bool "Use ranged palette"
 	default y

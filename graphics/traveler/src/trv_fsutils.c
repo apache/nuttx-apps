@@ -95,3 +95,26 @@ int16_t trv_read_decimal(FAR FILE *fp)
 
   return value;
 }
+
+/****************************************************************************
+ * Name: trv_fullpath
+ *
+ * Description:
+ *   Concatenate a filename and a path to produce the full, absolute path
+ *   to the file.  The pointer returned by this function is allocated and
+ *   must be freed by the caller.
+ *
+ ***************************************************************************/
+
+FAR char *trv_fullpath(FAR const char *path, FAR const char *name)
+{
+  FAR char *fullpath = NULL;
+
+  (void)asprintf(&fullpath, "%s/%s", path, name);
+  if (!fullpath)
+    {
+      trv_abort("ERROR: Failured to created full path\n");
+    }
+
+  return fullpath;
+}
