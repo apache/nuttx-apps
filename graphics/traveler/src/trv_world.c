@@ -456,7 +456,7 @@ int trv_world_create(FAR const char *wldpath, FAR const char *wldfile)
 
   /* Load the world file data */
 
-  ret = trv_manage_wldfile(inihandle, wldfile);
+  ret = trv_manage_wldfile(inihandle, wldpath);
 
   /* Close the INI file and return */
 
