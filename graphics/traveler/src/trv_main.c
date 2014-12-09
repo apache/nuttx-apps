@@ -291,7 +291,7 @@ int traveler_main(int argc, char *argv[])
       elapsed = trv_current_time() - frame_start;
       if (elapsed < MIN_FRAME_TIME)
         {
-           usleep(1000000 * (elapsed - MIN_FRAME_TIME));
+           usleep(1000000 * (MIN_FRAME_TIME - elapsed));
         }
 #endif
 
