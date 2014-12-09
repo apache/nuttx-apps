@@ -62,6 +62,8 @@
 #  include <sys/time.h>
 #endif
 
+#include <errno.h>
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -77,7 +79,7 @@
 #  define CONFIG_GRAPHICS_TRAVELER_MAXFPS 30
 #endif
 
-#define MIN_FRAME_TIME (1.0 / (double)CONFIG_GRAPHICS_TRAVELER_MAXFPS)
+#define MIN_FRAME_USEC (1000000 / CONFIG_GRAPHICS_TRAVELER_MAXFPS)
 
 /****************************************************************************
  * Public Data
@@ -141,12 +143,94 @@ static void trv_usage(char *execname)
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
     defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
-static double trv_current_time(void)
+static void trv_current_time(FAR struct timespec *tp)
 {
-  struct timeval tv;
+  int ret;
 
-  gettimeofday(&tv, NULL);
-  return (double) tv.tv_sec + (double) tv.tv_usec / 1000000.0;
+#ifdef CONFIG_CLOCK_MONOTONIC
+  ret = clock_gettime(CLOCK_MONOTONIC, tp);
+#else
+  ret = clock_gettime(CLOCK_REALTIME, tp);
+#endif
+
+  if (ret < 0)
+    {
+      trv_abort("ERROR: clock_gettime failed: %d\n", errno);
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: trv_timespec2usec
+ *
+ * Description:
+ ****************************************************************************/
+
+#if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
+    defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
+static uint32_t trv_timespec2usec(FAR const struct timespec *tp)
+{
+  uint64_t usec = (uint64_t)tp->tv_sec * 1000*1000 + (uint64_t)(tp->tv_nsec / 1000);
+  if (usec > UINT32_MAX)
+    {
+      trv_abort("ERROR: Time difference out of range: %llu\n", usec);
+    }
+
+  return (uint32_t)usec;
+}
+#endif
+
+/****************************************************************************
+ * Name: trv_current_time
+ *
+ * Description:
+ ****************************************************************************/
+
+#if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
+    defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
+static uint32_t trv_elapsed_time(FAR struct timespec *now,
+                                 FAR const struct timespec *then)
+{
+  struct timespec elapsed;
+
+  /* Get the current time */
+
+  trv_current_time(now);
+
+  /* Get the seconds part of the difference */
+
+  if (now->tv_sec < then->tv_sec)
+    {
+      goto errout;
+    }
+
+  elapsed.tv_sec  = now->tv_sec - then->tv_sec;
+
+  /* Get the nanoseconds part of the difference, handling borrow from
+   * seconds
+   */
+
+  elapsed.tv_nsec = 0;
+  if (now->tv_nsec < then->tv_nsec)
+    {
+      if (elapsed.tv_sec <= 0)
+        {
+          goto errout;
+        }
+
+      elapsed.tv_sec--;
+      elapsed.tv_nsec = 1000*1000*1000;
+    }
+
+  elapsed.tv_nsec = elapsed.tv_nsec + now->tv_nsec - then->tv_nsec;
+
+  /* And return the time differenc in microsecond */
+
+  return trv_timespec2usec(&elapsed);
+
+errout:
+  trv_abort("ERROR: Bad time difference\n");
+  return 0;
 }
 #endif
 
@@ -171,14 +255,14 @@ int traveler_main(int argc, char *argv[])
 #if defined(CONFIG_GRAPHICS_TRAVELER_PERFMON) || \
     defined(CONFIG_GRAPHICS_TRAVELER_LIMITFPS)
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
-  int32_t frame_count = 0;
-  double start_time;
-  double now;
+  struct timespec start_time;
+  uint32_t frame_count = 0;
 #endif
 #ifdef CONFIG_GRAPHICS_TRAVELER_LIMITFPS
-  double frame_start;
+  struct timespec frame_start;
 #endif
-  double elapsed;
+  struct timespec now;
+  uint32_t elapsed_usec;
 #endif
   int ret;
   int i;
@@ -249,7 +333,7 @@ int traveler_main(int argc, char *argv[])
 #ifdef CONFIG_GRAPHICS_TRAVELER_PERFMON
   /* Get the start time for performance monitoring */
 
-  start_time = trv_current_time();
+  trv_current_time(&start_time);
 #endif
 
   g_trv_terminate = false;
@@ -258,7 +342,7 @@ int traveler_main(int argc, char *argv[])
 #ifdef CONFIG_GRAPHICS_TRAVELER_LIMITFPS
       /* Get the start time from frame rate limiting */
 
-      frame_start = trv_current_time();
+      trv_current_time(&frame_start);
 #endif
 
       trv_input_read();
@@ -288,10 +372,10 @@ int traveler_main(int argc, char *argv[])
         * here to enforce a maixmum frame rate.
         */
 
-      elapsed = trv_current_time() - frame_start;
-      if (elapsed < MIN_FRAME_TIME)
+      elapsed_usec = trv_elapsed_time(&now, &frame_start);
+      if (elapsed_usec < MIN_FRAME_USEC)
         {
-           usleep(1000000 * (MIN_FRAME_TIME - elapsed));
+           usleep(MIN_FRAME_USEC - elapsed_usec);
         }
 #endif
 
@@ -301,13 +385,13 @@ int traveler_main(int argc, char *argv[])
       frame_count++;
       if (frame_count >= 100)
         {
-          now     = trv_current_time();
-          elapsed = now - start_time;
+          elapsed_usec = trv_elapsed_time(&now, &start_time);
 
-          fprintf(stderr, "fps = %3.2f\n", (double)frame_count / elapsed);
+          fprintf(stderr, "fps = %3.2f\n", (double)(frame_count * 1000000) / (double)elapsed_usec);
 
-          frame_count = 0;
-          start_time  = now;
+          frame_count        = 0;
+          start_time.tv_sec  = now.tv_sec;
+          start_time.tv_nsec = now.tv_nsec;
         }
 #endif
     }
