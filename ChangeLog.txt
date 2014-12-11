@@ -1148,3 +1148,6 @@
 	  joystick driver (2014-11-28).
 	* apps/examples/ajoystick and support files:  Add a test of the analog
 	  joystick driver (2014-12-03).
+	* apps/nshlib/nsh_netcmds.c: NSH TFTP get command:  Wrong file namei
+	  used for the destination.  From Lazlo (2014-12-10).
+
