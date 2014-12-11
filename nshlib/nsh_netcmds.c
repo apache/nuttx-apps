@@ -504,7 +504,7 @@ int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the full path to the local file */
 
-  fullpath = nsh_getfullpath(vtbl, args.srcpath);
+  fullpath = nsh_getfullpath(vtbl, args.destpath);
 
   /* Then perform the TFTP get operation */
 

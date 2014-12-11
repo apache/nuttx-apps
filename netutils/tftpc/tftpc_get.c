@@ -145,11 +145,12 @@ static inline int tftp_parsedatapacket(const uint8_t *packet,
  *
  ****************************************************************************/
 
-int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary)
+int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
+            bool binary)
 {
   struct sockaddr_in server;  /* The address of the TFTP server */
   struct sockaddr_in from;    /* The address the last UDP message recv'd from */
-  uint8_t *packet;            /* Allocated memory to hold one packet */
+  FAR uint8_t *packet;        /* Allocated memory to hold one packet */
   uint16_t blockno = 0;       /* The current transfer block number */
   uint16_t opcode;            /* Received opcode */
   uint16_t rblockno;          /* Received block number */
@@ -164,7 +165,7 @@ int tftpget(const char *remote, const char *local, in_addr_t addr, bool binary)
 
   /* Allocate the buffer to used for socket/disk I/O */
 
-  packet = (uint8_t*)zalloc(TFTP_IOBUFSIZE);
+  packet = (FAR uint8_t*)zalloc(TFTP_IOBUFSIZE);
   if (!packet)
     {
       ndbg("packet memory allocation failure\n");
