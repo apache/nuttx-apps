@@ -1150,4 +1150,13 @@
 	  joystick driver (2014-12-03).
 	* apps/nshlib/nsh_netcmds.c: NSH TFTP get command:  Wrong file namei
 	  used for the destination.  From Lazlo (2014-12-10).
+	* apps/system/cu: Add a minimalist implementation  of the 'cu' terminal
+	  program (part of Taylor UUCP for ages). Using it, you can simply open
+	  a serial port and interact with it. Using '~.' you can leave the
+	  terminal program and drop back to nsh.  This  might come in handy for
+	  people that have e.g. GSM modems, GPS receivers or other devices with
+	  text based serial communications attached to their Nuttx systems. From
+	  Harald Welte (2014-12-13).
 
+
+    This might  come in handy for other people that have e.g. GSM modems, GPS receivers or other devices with text based serial commu
