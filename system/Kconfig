@@ -11,6 +11,10 @@ menu "EMACS-like Command Line Editor"
 source "$APPSDIR/system/cle/Kconfig"
 endmenu
 
+menu "CU Minimal Terminal"
+source "$APPSDIR/system/cu/Kconfig"
+endmenu
+
 menu "FLASH Program Installation"
 source "$APPSDIR/system/install/Kconfig"
 endmenu

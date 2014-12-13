@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/cu/Makefile
+# apps/sysem/cu/Makefile
 #
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# USB terminal example
+# Minimal CU terminal
 
 ASRCS =
 CSRCS =
@@ -77,9 +77,12 @@ ROOTDEPPATH = --dep-path .
 
 # Built-in application info
 
+CONFIG_SYSTEM_CUTERM_STACKSIZE ?= 2048
+CONFIG_SYSTEM_CUTERM_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+
 APPNAME  = cu
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
+PRIORITY = $(CONFIG_SYSTEM_CUTERM_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_CUTERM_STACKSIZE)
 
 # Common build
 

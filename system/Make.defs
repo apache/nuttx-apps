@@ -42,6 +42,10 @@ ifeq ($(CONFIG_SYSTEM_COMPOSITE),y)
 CONFIGURED_APPS += system/composite
 endif
 
+ifeq ($(CONFIG_SYSTEM_CUTERM),y)
+CONFIGURED_APPS += system/cu
+endif
+
 ifeq ($(CONFIG_SYSTEM_FREE),y)
 CONFIGURED_APPS += system/free
 endif

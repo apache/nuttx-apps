@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/cu/cu_main.c
+ * system/cu/cu_main.c
  *
  *   Copyright (C) 2014 sysmocom - s.f.m.c. GmbH. All rights reserved.
  *   Author: Harald Welte <hwelte@sysmocom.de>
@@ -313,7 +313,7 @@ int cu_main(int argc, FAR char *argv[])
           case 'r':
             rtscts = 0;
             break;
-            
+
           case '?':
             print_help();
             return EXIT_SUCCESS;

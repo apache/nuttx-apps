@@ -15,3 +15,19 @@ config SYSTEM_CUTERM
 		This terminal might come in handy for other people that have e.g. GS
 		modems, GPS receivers or other devices with text based serial
 		communications attached to their Nuttx systems.
+
+if SYSTEM_CUTERM
+
+config SYSTEM_CUTERM_STACKSIZE
+	int "CU terminal stack size"
+	default 2048
+	---help---
+		This is the stack size that will be used when starting the CU terminal.
+
+config SYSTEM_CUTERM_PRIORITY
+	int "CU terminal priority"
+	default 100
+	---help---
+		This is the task priority that will be used when starting the CU terminal.
+
+endif # SYSTEM_CUTERM
