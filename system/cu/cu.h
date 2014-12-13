@@ -49,6 +49,15 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* Configuration ***********************************************************/
+
+#ifndef CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE
+#  define CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE "/dev/ttyS0"
+#endif
+
+#ifndef CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD
+#  define CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD 115200
+#endif
 
 /****************************************************************************
  * Public Types

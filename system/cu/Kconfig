@@ -18,6 +18,21 @@ config SYSTEM_CUTERM
 
 if SYSTEM_CUTERM
 
+config SYSTEM_CUTERM_DEFAULT_DEVICE
+	string "Default serial device"
+	default "/dev/ttyS0"
+	---help---
+		Normally, the serial device to be used is provided on the command line.
+		If no device is provided then this is the default device that will be\
+		used.
+
+config SYSTEM_CUTERM_DEFAULT_BAUD
+	int "Default serial baud"
+	default 115200
+	---help---
+		Normally, the BAUD to be used is provided on the command line.  If no
+		BAUD is provided then this is the default device that will be used.
+
 config SYSTEM_CUTERM_STACKSIZE
 	int "CU terminal stack size"
 	default 2048

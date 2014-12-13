@@ -217,12 +217,14 @@ static int set_baudrate(int fd, int rate, enum parity_mode parity, int rtscts)
 static void print_help(void)
 {
   printf("Usage: cu [options]\n"
-         " -l: Use named device (e.g. /dev/ttyS1)\n"
+         " -l: Use named device (default %s)\n"
          " -e: Set even parity\n"
          " -o: Set odd parity\n"
-         " -s: Use given speed\n"
+         " -s: Use given speed (default %d)\n"
          " -r: Disable RTS/CTS flow control (default: on)\n"
-         " -?: This help\n");
+         " -?: This help\n",
+		 CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE,
+         CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD);
 }
 
 static void print_escape_help(void)
@@ -269,14 +271,15 @@ int cu_main(int argc, FAR char *argv[])
 {
   pthread_attr_t attr;
   struct sigaction sa;
-  FAR char *devname = NULL;
-  int baudrate = 0;
+  FAR char *devname = CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE;
+  int baudrate = CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD;
   enum parity_mode parity = PARITY_NONE;
   int rtscts = 1;
   int option;
   int ret;
   int bcmd;
   int start_of_line = 1;
+  int exitval = EXIT_FAILURE;
 
   /* Initialize global data */
 
@@ -378,7 +381,7 @@ int cu_main(int argc, FAR char *argv[])
 
       if (start_of_line == 1 && ch == '~')
         {
-          /* we've seen and escape (~) character, echo it to local
+          /* We've seen and escape (~) character, echo it to local
            * terminal and read the next char from serial
            */
 
@@ -418,6 +421,7 @@ int cu_main(int argc, FAR char *argv[])
 
   pthread_cancel(g_cu.listener);
   pthread_attr_destroy(&attr);
+  exitval = EXIT_SUCCESS;
 
   /* Error exits */
 
@@ -426,5 +430,5 @@ errout_with_fds:
 errout_with_outfd:
   close(g_cu.outfd);
 errout_with_devinit:
-  return EXIT_FAILURE;
+  return exitval;
 }
