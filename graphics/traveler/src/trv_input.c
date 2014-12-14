@@ -149,7 +149,7 @@ static int trv_joystick_wait(void)
     {
       int errcode = errno;
 
-	  fprintf(stderr, "ERROR: sigwaitinfo() failed: %d\n", errcode);
+      fprintf(stderr, "ERROR: sigwaitinfo() failed: %d\n", errcode);
       return -errcode;
     }
 
@@ -158,7 +158,7 @@ static int trv_joystick_wait(void)
 #endif
 
 /****************************************************************************
- * Name: trv_joystick_sample
+ * Name: trv_joystick_read
  *
  * Description:
  *   Read one sample from the analog joystick
@@ -524,18 +524,14 @@ void trv_input_read(void)
 #if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
   struct ajoy_sample_s sample;
-  ssize_t nread;
+  int ret;
 
   /* Read data from the analog joystick */
 
-  nread = trv_joystick_read(&sample);
-  if (nread < 0)
+  ret = trv_joystick_read(&sample);
+  if (ret < 0)
     {
-      trv_abort("ERROR: Joystick read error: %d\n", errno);
-    }
-  else if (nread != sizeof(struct ajoy_sample_s))
-    {
-      trv_abort("ERROR: Unexpected joystick read size: %ld\n", (long)nread);
+      trv_abort("ERROR: trv_joystick_read() failed: %d\n", ret);
     }
 
   /* Determine the input data to return to the POV logic */
