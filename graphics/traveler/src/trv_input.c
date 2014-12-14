@@ -358,7 +358,8 @@ static int trv_scale_input_x(FAR const struct ajoy_sample_s *sample)
        x16 = tmp * g_trv_joystick.rightslope;
     }
 
-  x= b16round(x16);
+  x = b16toi(x16 + b16HALF);
+
   trv_vdebug("  Calibrated: X=%d\n", x);
   return x;
 }
@@ -381,7 +382,7 @@ static int trv_scale_input_y(FAR const struct ajoy_sample_s *sample)
        y16 = tmp * g_trv_joystick.backslope;
     }
 
-  y = b16round(y16);
+  y = b16toi(y16 + b16HALF);
   trv_vdebug("  Calibrated: Y=%d\n", y);
   return y;
 }
@@ -404,7 +405,7 @@ static int trv_scale_input_yaw(FAR const struct ajoy_sample_s *sample)
        yaw16 = tmp * g_trv_joystick.rturnslope;
     }
 
-  yaw = b16round(yaw16);
+  yaw = -b16toi(yaw16 + b16HALF);
   trv_vdebug("  Calibrated: pitch=%d\n", yaw);
   return yaw;
 }
@@ -427,7 +428,7 @@ static int trv_scale_input_pitch(FAR const struct ajoy_sample_s *sample)
        pitch16 = tmp * g_trv_joystick.dturnslope;
     }
 
-  pitch = b16round(pitch16);
+  pitch = b16toi(pitch16 + b16HALF);
   trv_vdebug("  Calibrated: pitch=%d\n", pitch);
   return pitch;
 }
@@ -557,9 +558,9 @@ void trv_input_read(void)
 
   if ((sample.as_buttons & AJOY_BUTTON_FIRE_BIT) != 0)
     {
-      /* Turn left/right */
+      /* Move left/rignt */
 
-      g_trv_input.yawrate = trv_scale_input_yaw(&sample);
+      g_trv_input.leftrate = trv_scale_input_x(&sample);
 
       /* Look upward/downward */
 
@@ -567,13 +568,13 @@ void trv_input_read(void)
     }
    else
     {
+      /* Turn left/right */
+
+      g_trv_input.yawrate = trv_scale_input_yaw(&sample);
+
       /* Move forward/backward */
 
-      g_trv_input.fwdrate = trv_scale_input_x(&sample);
-
-      /* Move left/rignt */
-
-      g_trv_input.leftrate  = trv_scale_input_y(&sample);
+      g_trv_input.fwdrate = trv_scale_input_y(&sample);
 
       /* If we are moving fast, we can just higher */
 
