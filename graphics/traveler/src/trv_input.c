@@ -599,8 +599,7 @@ void trv_input_read(void)
         }
     }
 
-  g_trv_input.dooropen = ((sample.as_buttons & AJOY_BUTTON_SELECT) != 0);
-
+  g_trv_input.dooropen = ((sample.as_buttons & AJOY_BUTTON_SELECT_BIT) != 0);
 
 #elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
   struct djoy_buttonset_t buttonset;
@@ -727,7 +726,7 @@ void trv_input_read(void)
         break;
     }
 
-  g_trv_input.dooropen = ((buttonset & DJOY_BUTTON_SELECT) != 0);
+  g_trv_input.dooropen = ((buttonset & DJOY_BUTTON_SELECT_BIT) != 0);
 
 #endif /* CONFIG_GRAPHICS_TRAVELER_DJOYSTICK */
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
