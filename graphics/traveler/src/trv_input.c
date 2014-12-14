@@ -64,7 +64,15 @@
 
 /****************************************************************************
  * Pre-processor Definitions
- *************************************************************************/
+ ****************************************************************************/
+
+#define RUN_RATE     (2 * STEP_DISTANCE)
+#define WALK_RATE    (STEP_DISTANCE)
+#define MAX_RATE     RUN_RATE
+
+#define SLOW_TURN    ANGLE_6
+#define FAST_TURN    ANGLE_9
+#define MAX_TURN     ANGLE_12
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
 #  define BUTTON_SET (AJOY_BUTTON_SELECT_BIT | AJOY_BUTTON_FIRE_BIT)
@@ -75,7 +83,7 @@
 
 /****************************************************************************
  * Private Types
- *************************************************************************/
+ ****************************************************************************/
 
 struct trv_joystick_s
 {
@@ -104,7 +112,7 @@ struct trv_joystick_s
 
 /****************************************************************************
  * Public Data
- *************************************************************************/
+ ****************************************************************************/
 
 /* Report positional inputs */
 
@@ -112,7 +120,7 @@ struct trv_input_s g_trv_input;
 
 /****************************************************************************
  * Private Function Prototypes
- ****************************************************************************/
+ *****************************************************************************/
 
 #ifdef CONFIG_GRAPHICS_TRAVELER_JOYSTICK
 static struct trv_joystick_s g_trv_joystick;
@@ -120,7 +128,7 @@ static struct trv_joystick_s g_trv_joystick;
 
 /****************************************************************************
  * Private Data
- *************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -281,8 +289,8 @@ static int trv_joystick_calibrate(void)
     }
 
   g_trv_joystick.lplus      = (sample.as_x > g_trv_joystick.centerx);
-  g_trv_joystick.leftslope  = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, 3 * STEP_DISTANCE);
-  g_trv_joystick.lturnslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, ANGLE_12);
+  g_trv_joystick.leftslope  = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, MAX_RATE);
+  g_trv_joystick.lturnslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, MAX_TURN);
 
   printf("Move the joystick to the far LEFT and press any button\n");
   ret = trv_joystick_sample(&sample);
@@ -292,8 +300,8 @@ static int trv_joystick_calibrate(void)
       return ret;
     }
 
-  g_trv_joystick.rightslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, -3 * STEP_DISTANCE);
-  g_trv_joystick.rturnslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, -ANGLE_12);
+  g_trv_joystick.rightslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, -MAX_RATE);
+  g_trv_joystick.rturnslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, -MAX_TURN);
 
   /* Get the forward/backward calibration data */
 
@@ -306,8 +314,8 @@ static int trv_joystick_calibrate(void)
     }
 
   g_trv_joystick.fplus      = (sample.as_y > g_trv_joystick.centery);
-  g_trv_joystick.fwdslope   = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, 3 * STEP_DISTANCE);
-  g_trv_joystick.uturnslope = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, ANGLE_12);
+  g_trv_joystick.fwdslope   = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, MAX_RATE);
+  g_trv_joystick.uturnslope = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, MAX_TURN);
 
   printf("Move the joystick to the far BACKWARD and press any button\n");
   ret = trv_joystick_sample(&sample);
@@ -317,8 +325,8 @@ static int trv_joystick_calibrate(void)
       return ret;
     }
 
-  g_trv_joystick.backslope  = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, -3 * STEP_DISTANCE);
-  g_trv_joystick.dturnslope = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, -ANGLE_12);
+  g_trv_joystick.backslope  = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, -MAX_RATE);
+  g_trv_joystick.dturnslope = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, -MAX_TURN);
 
   printf("Calibrated:\n");
   trv_debug("  X: center=%d, R-slope=%08lx L-slope=%08lx\n",
@@ -565,6 +573,13 @@ void trv_input_read(void)
       /* Look upward/downward */
 
       g_trv_input.pitchrate = trv_scale_input_pitch(&sample);
+
+      /* If we are moving faster than a walk, we can jump higher */
+
+      if (g_trv_input.leftrate < -WALK_RATE || g_trv_input.leftrate > WALK_RATE)
+        {
+          g_trv_input.stepheight = g_run_stepheight;
+        }
     }
    else
     {
@@ -576,12 +591,9 @@ void trv_input_read(void)
 
       g_trv_input.fwdrate = trv_scale_input_y(&sample);
 
-      /* If we are moving fast, we can just higher */
+      /* If we are moving faster than a walk, we can jump higher */
 
-      if (g_trv_input.fwdrate  <= -2 * STEP_DISTANCE ||
-          g_trv_input.fwdrate  >=  2 * STEP_DISTANCE ||
-          g_trv_input.leftrate <= -2 * STEP_DISTANCE ||
-          g_trv_input.leftrate >=  2 * STEP_DISTANCE)
+      if (g_trv_input.fwdrate < -WALK_RATE || g_trv_input.fwdrate > WALK_RATE)
         {
           g_trv_input.stepheight = g_run_stepheight;
         }
@@ -615,7 +627,7 @@ void trv_input_read(void)
       /* Run faster/step higher */
 
       g_trv_joystick.stepheight = g_run_stepheight;
-      move_rate              = 2 * STEP_DISTANCE;
+      move_rate              = RUN_RATE;
       turn_rate              = ANGLE_9;
     }
   else
@@ -623,7 +635,7 @@ void trv_input_read(void)
       /* Normal walking rate and stepping height */
 
       g_trv_joystick.stepheight = g_walk_stepheight;
-      move_rate              = STEP_DISTANCE;
+      move_rate              = WALK_RATE;
       turn_rate              = ANGLE_6;
     }
 
