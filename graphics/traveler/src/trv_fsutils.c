@@ -39,6 +39,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_main.h"
 #include "trv_fsutils.h"
 
 #include <stdio.h>

@@ -64,6 +64,7 @@
 #define ANGLE_0        0
 #define ANGLE_6       32
 #define ANGLE_9       48
+#define ANGLE_12      64
 #define ANGLE_30     160
 #define ANGLE_45     240
 #define ANGLE_60     320

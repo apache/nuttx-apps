@@ -64,25 +64,35 @@ config GRAPHICS_TRAVELER_JOYSTICK
 
 choice
 	prompt "Input device"
-	default GRAPHICS_TRAVELER_AJOYSTICK if CONFIG_AJOYSTICK
-	default GRAPHICS_TRAVELER_DJOYSTICK if CONFIG_DJOYSTICK && !CONFIG_AJOYSTICK
-	default GRAPHICS_TRAVELER_NX_XYINPUT if CONFIG_NX_XYINPUT && !CONFIG_AJOYSTICK && !CONFIG_DJOYSTICK
+	default GRAPHICS_TRAVELER_AJOYSTICK if AJOYSTICK
+	default GRAPHICS_TRAVELER_DJOYSTICK if DJOYSTICK && !AJOYSTICK
+	default GRAPHICS_TRAVELER_NX_XYINPUT if NX_XYINPUT && !AJOYSTICK && !DJOYSTICK
 
 config GRAPHICS_TRAVELER_AJOYSTICK
 	bool "Analog joystick"
-	depends on CONFIG_AJOYSTICK
+	depends on AJOYSTICK
 	select GRAPHICS_TRAVELER_JOYSTICK
 
 config GRAPHICS_TRAVELER_DJOYSTICK
 	bool "Discrete joystick"
-	depends on CONFIG_DJOYSTICK
+	depends on DJOYSTICK
 	select GRAPHICS_TRAVELER_JOYSTICK
 
 config GRAPHICS_TRAVELER_NX_XYINPUT
 	bool "NX X/Y input"
-	depends on CONFIG_NX_XYINPUT
+	depends on NX_XYINPUT
 
 endchoice # Input device
+
+if GRAPHICS_TRAVELER_AJOYSTICK || GRAPHICS_TRAVELER_DJOYSTICK
+
+config GRAPHICS_TRAVELER_JOYSTICK_SIGNO
+	int "Joystick signal"
+	default 13
+	---help---
+		Signal number used by joystick driver to signal button events.
+
+endif
 
 config GRAPHICS_TRAVELER_JOYDEV
 	string "Joystick device name"

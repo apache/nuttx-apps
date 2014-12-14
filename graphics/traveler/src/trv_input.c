@@ -38,12 +38,18 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include "trv_main.h"
 #include "trv_world.h"
 #include "trv_trigtbl.h"
+#include "trv_debug.h"
 #include "trv_input.h"
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
+#  include <sys/ioctl.h>
+#  include <stdio.h>
+#  include <unistd.h>
 #  include <fcntl.h>
+#  include <signal.h>
 #  include <errno.h>
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
@@ -60,21 +66,33 @@
  * Pre-processor Definitions
  *************************************************************************/
 
+#if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
+#  define BUTTON_SET (AJOY_BUTTON_SELECT | AJOY_BUTTON_FIRE)
+#elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
+#  define BUTTON_SET (DJOY_BUTTON_SELECT | DJOY_BUTTON_FIRE | DJOY_BUTTON_RUN)
+#endif
+
 /****************************************************************************
  * Private Types
  *************************************************************************/
 
-struct trv_input_info_s
+struct trv_joystick_s
 {
 #if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
   int fd;                   /* Open driver descriptor */
 #ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+  bool lplus;               /* Left is positive */
+  bool fplus;               /* Forward is positive */
   int16_t centerx;          /* Center X position */
-  b16_t leftslope;          /* Slope for left of center */
-  b16_t rightslope;         /* Slope for left of center */
+  b16_t leftslope;          /* Slope for movement left of center (x) */
+  b16_t lturnslope;         /* Slope for turning to the left (yaw) */
+  b16_t rightslope;         /* Slope for movement right of center (x) */
+  b16_t rturnslope;         /* Slope for turning to the right (yaw) */
   int16_t centery;          /* Center Y position */
-  b16_t fwdslope;           /* Slope for forward from center */
-  b16_t backslope;          /* Slope for backward from center */
+  b16_t fwdslope;           /* Slope for movement forward from center (y) */
+  b16_t uturnslope;         /* Slope for nodding upward (pitch) */
+  b16_t backslope;          /* Slope for backward from center (y) */
+  b16_t dturnslope;         /* Slope for nodding downward (pitch) */
 #endif
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
   trv_coord_t xpos;         /* Reported X position */
@@ -95,8 +113,8 @@ struct trv_input_s g_trv_input;
  * Private Function Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT
-static struct trv_input_info_s g_trv_input_info;
+#ifdef CONFIG_GRAPHICS_TRAVELER_JOYSTICK
+static struct trv_joystick_s g_trv_joystick;
 #endif
 
 /****************************************************************************
@@ -108,6 +126,121 @@ static struct trv_input_info_s g_trv_input_info;
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: trv_joystick_wait
+ *
+ * Description:
+ *   Wait for any joystick button to be pressed
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+static int trv_joystick_wait(void)
+{
+  sigset_t sigset;
+  struct siginfo value;
+  int ret;
+
+  /* Wait for a signal */
+
+  (void)sigemptyset(&sigset);
+  (void)sigaddset(&sigset, CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO);
+  ret = sigwaitinfo(&sigset, &value);
+  if (ret < 0)
+    {
+      int errcode = errno;
+
+	  fprintf(stderr, "ERROR: sigwaitinfo() failed: %d\n", errcode);
+      return -errcode;
+    }
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: trv_joystick_sample
+ *
+ * Description:
+ *   Read one sample from the analog joystick
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+static int trv_joystick_read(FAR struct ajoy_sample_s *sample)
+{
+  ssize_t nread;
+
+  /* Read the joystack sample */
+
+  nread = read(g_trv_joystick.fd, sample, sizeof(struct ajoy_sample_s));
+  if (nread < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: read() failed: %d\n", errcode);
+      return -errcode;
+    }
+  else if (nread != sizeof(struct ajoy_sample_s))
+    {
+      fprintf(stderr, "ERROR: read() unexpected size: %ld vs %d\n",
+              (long)nread, sizeof(struct ajoy_sample_s));
+      return -EIO;
+    }
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: trv_joystick_sample
+ *
+ * Description:
+ *   Wait for a button to be pressed on the joystick
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+static int trv_joystick_sample(FAR struct ajoy_sample_s *sample)
+{
+  int ret;
+
+  /* Wait for a signal */
+
+  ret = trv_joystick_wait();
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_wait() failed: %d\n", ret);
+      return ret;
+    }
+
+  /* Read the joystick sample */
+
+  ret = trv_joystick_read(sample);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_read() failed: %d\n", ret);
+      return ret;
+    }
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: trv_joystick_slope
+ *
+ * Description:
+ *   Calculate the slope to calibrate one axis.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+static b16_t trv_joystick_slope(int16_t value, int32_t full_range)
+{
+  return itob16(full_range) / (int32_t)value;
+}
+#endif
+
+/****************************************************************************
  * Name: trv_joystick_calibrate
  *
  * Description:
@@ -116,11 +249,181 @@ static struct trv_input_info_s g_trv_input_info;
  ****************************************************************************/
 
 #ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
-static void trv_joystick_calibrate(void)
+static int trv_joystick_calibrate(void)
 {
-#warning Missing logic
+  struct ajoy_sample_s sample;
+  int ret;
+
+  printf("Calibrating the joystick...\n");
+
+  /* Get the center position */
+
+  printf("Center the joystick and press any button\n");
+  ret = trv_joystick_sample(&sample);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_sample() failed: %d\n", errno);
+      return ret;
+    }
+
+  g_trv_joystick.centerx = sample.as_x;
+  g_trv_joystick.centery = sample.as_y;
+
+  /* Get the left/right calibration data */
+
+  printf("Move the joystick to the far RIGHT and press any button\n");
+  ret = trv_joystick_sample(&sample);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_sample() failed: %d\n", errno);
+      return ret;
+    }
+
+  g_trv_joystick.lplus      = (sample.as_x > g_trv_joystick.centerx);
+  g_trv_joystick.leftslope  = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, 3 * STEP_DISTANCE);
+  g_trv_joystick.lturnslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, ANGLE_12);
+
+  printf("Move the joystick to the far LEFT and press any button\n");
+  ret = trv_joystick_sample(&sample);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_sample() failed: %d\n", errno);
+      return ret;
+    }
+
+  g_trv_joystick.rightslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, -3 * STEP_DISTANCE);
+  g_trv_joystick.rturnslope = trv_joystick_slope(sample.as_x - g_trv_joystick.centerx, -ANGLE_12);
+
+  /* Get the forward/backward calibration data */
+
+  printf("Move the joystick to the far FORWARD and press any button\n");
+  ret = trv_joystick_sample(&sample);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_sample() failed: %d\n", errno);
+      return ret;
+    }
+
+  g_trv_joystick.fplus      = (sample.as_y > g_trv_joystick.centery);
+  g_trv_joystick.fwdslope   = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, 3 * STEP_DISTANCE);
+  g_trv_joystick.uturnslope = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, ANGLE_12);
+
+  printf("Move the joystick to the far BACKWARD and press any button\n");
+  ret = trv_joystick_sample(&sample);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: trv_joystick_sample() failed: %d\n", errno);
+      return ret;
+    }
+
+  g_trv_joystick.backslope  = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, -3 * STEP_DISTANCE);
+  g_trv_joystick.dturnslope = trv_joystick_slope(sample.as_y - g_trv_joystick.centery, -ANGLE_12);
+
+  printf("Calibrated:\n");
+  trv_debug("  X: center=%d, R-slope=%08lx L-slope=%08lx\n",
+            g_trv_joystick.centerx, g_trv_joystick.rightslope,
+            g_trv_joystick.leftslope);
+  trv_debug("  Y: center=%d, F-slope=%08lx B-slope=%08lx\n",
+            g_trv_joystick.centery, g_trv_joystick.fwdslope,
+            g_trv_joystick.backslope);
+  return OK;
 }
 #endif
+
+/****************************************************************************
+ * Name: trv_scale_input_{x,y,pitch, yaw}
+ *
+ * Description:
+ *   Calibrate the joystick
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+static int trv_scale_input_x(FAR const struct ajoy_sample_s *sample)
+{
+  int tmp;
+  int x;
+
+  trv_vdebug("  RAW: X=%d\n", sample->as_x);
+
+  tmp = sample->as_x - g_trv_joystick.centerx;
+  if ((g_trv_joystick.lplus && tmp >= 0) || (!g_trv_joystick.lplus && tmp < 0))
+    {
+       x = tmp *  g_trv_joystick.leftslope;
+    }
+  else
+    {
+       x = tmp *  g_trv_joystick.rightslope;
+    }
+
+  trv_vdebug("  Calibrated: X=%d\n", x);
+  return x;
+}
+
+static int trv_scale_input_y(FAR const struct ajoy_sample_s *sample)
+{
+  int tmp;
+  int y;
+
+  trv_vdebug("  RAW: Y=%d\n", sample->as_y);
+
+  tmp = sample->as_y - g_trv_joystick.centery;
+  if ((g_trv_joystick.fplus && tmp >= 0) || (!g_trv_joystick.fplus && tmp < 0))
+    {
+       y = tmp * g_trv_joystick.fwdslope;
+    }
+  else
+    {
+       y = tmp * g_trv_joystick.backslope;
+    }
+
+  trv_vdebug("  Calibrated: Y=%d\n", y);
+  return y;
+}
+
+static int trv_scale_input_yaw(FAR const struct ajoy_sample_s *sample)
+{
+  int tmp;
+  int yaw;
+
+  trv_vdebug("  RAW: X=%d\n", sample->as_x);
+
+  tmp = sample->as_x - g_trv_joystick.centerx;
+  if ((g_trv_joystick.lplus && tmp >= 0) || (!g_trv_joystick.lplus && tmp < 0))
+    {
+       yaw = tmp *  g_trv_joystick.lturnslope;
+    }
+  else
+    {
+       yaw = tmp *  g_trv_joystick.rturnslope;
+    }
+
+  trv_vdebug("  Calibrated: pitch=%d\n", yaw);
+  return yaw;
+}
+
+static int trv_scale_input_pitch(FAR const struct ajoy_sample_s *sample)
+{
+  int tmp;
+  int pitch;
+
+  trv_vdebug("  RAW: Y=%d\n", sample->as_y);
+
+  tmp = sample->as_y - g_trv_joystick.centery;
+  if ((g_trv_joystick.fplus && tmp >= 0) || (!g_trv_joystick.fplus && tmp < 0))
+    {
+       pitch = tmp * g_trv_joystick.uturnslope;
+    }
+  else
+    {
+       pitch = tmp * g_trv_joystick.dturnslope;
+    }
+
+  trv_vdebug("  Calibrated: pitch=%d\n", pitch);
+  return pitch;
+}
+#endif
+
 
 /****************************************************************************
  * Public Functions
@@ -136,21 +439,71 @@ static void trv_joystick_calibrate(void)
 
 void trv_input_initialize(void)
 {
-#if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
+#if defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
+  struct djoy_notify_s notify;
+
   /* Open the joy stick device */
 
-  g_trv_input_info.fd = open(CONFIG_GRAPHICS_TRAVELER_JOYDEV, O_RDONLY);
-  if (g_trv_input_info.fd < 0)
+  g_trv_joystick.fd = open(CONFIG_GRAPHICS_TRAVELER_JOYDEV, O_RDONLY);
+  if (g_trv_joystick.fd < 0)
     {
       trv_abort("ERROR: Failed to open %s: %d\n",
                 CONFIG_GRAPHICS_TRAVELER_JOYDEV, errno);
     }
 
-#ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
+  /* Register to receive a signal on any change in the joystick buttons. */
+
+  notify.dn_press   = BUTTON_SET;
+  notify.dn_release = BUTTON_SET;
+  notify.dn_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
+
+  ret = ioctl(g_trv_joystick.fd, DJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: ioctl(DJOYIOC_REGISTER) failed: %d\n", errno);
+      goto errout_with_fd;
+    }
+
+#elif defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
+  struct ajoy_notify_s notify;
+  int ret;
+
+  /* Open the joy stick device */
+
+  g_trv_joystick.fd = open(CONFIG_GRAPHICS_TRAVELER_JOYDEV, O_RDONLY);
+  if (g_trv_joystick.fd < 0)
+    {
+      trv_abort("ERROR: Failed to open %s: %d\n",
+                CONFIG_GRAPHICS_TRAVELER_JOYDEV, errno);
+    }
+
+  /* Register to receive a signal on any change in the joystick buttons. */
+
+  notify.an_press   = BUTTON_SET;
+  notify.an_release = BUTTON_SET;
+  notify.an_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
+
+  ret = ioctl(g_trv_joystick.fd, AJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: ioctl(AJOYIOC_REGISTER) failed: %d\n", errno);
+      goto errout_with_fd;
+    }
+
   /* Calibrate the analog joystick device */
 
-  trv_joystick_calibrate();
-#endif
+  ret = trv_joystick_calibrate();
+  if (ret < 0)
+    {
+      trv_abort("ERROR: Failed to calibrte joystick: %d\n", ret);
+      goto errout_with_fd;
+    }
+
+  return;
+
+errout_with_fd:
+  close(g_trv_joystick.fd);
+  g_trv_joystick.fd = -1;
 
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
   /* Set the position to the center of the display at eye-level */
@@ -171,13 +524,11 @@ void trv_input_read(void)
 #if defined(CONFIG_GRAPHICS_TRAVELER_JOYSTICK)
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
   struct ajoy_sample_s sample;
-  int16_t move_rate;
-  int16_t turn_rate;
   ssize_t nread;
 
   /* Read data from the analog joystick */
 
-  nread = read(g_trv_input_info.fd, &sample, sizeof(struct ajoy_sample_s));
+  nread = trv_joystick_read(&sample);
   if (nread < 0)
     {
       trv_abort("ERROR: Joystick read error: %d\n", errno);
@@ -188,15 +539,62 @@ void trv_input_read(void)
     }
 
   /* Determine the input data to return to the POV logic */
-#warning Missing logic
+  /* Assuming moving slowing so we cannot step over tall things */
+
+  g_trv_input.stepheight = g_walk_stepheight;
+
+
+  /* Move forward or backward OR look up or down */
+
+  g_trv_input.leftrate  = 0;
+  g_trv_input.yawrate   = 0;
+  g_trv_input.pitchrate = 0;
+  g_trv_input.fwdrate   = 0;
+
+  if ((sample.as_buttons & AJOY_BUTTON_FIRE_BIT) != 0)
+    {
+      /* Turn left/right */
+
+      g_trv_input.yawrate = trv_scale_input_yaw(&sample);
+
+      /* Look upward/downward */
+
+      g_trv_input.pitchrate = trv_scale_input_pitch(&sample);
+    }
+   else
+    {
+      /* Move forward/backward */
+
+      g_trv_input.fwdrate = trv_scale_input_x(&sample);
+
+      /* Move left/rignt */
+
+      g_trv_input.leftrate  = trv_scale_input_y(&sample);
+
+      /* If we are moving fast, we can just higher */
+
+      if (g_trv_input.fwdrate  <= -2 * STEP_DISTANCE ||
+          g_trv_input.fwdrate  >=  2 * STEP_DISTANCE ||
+          g_trv_input.leftrate <= -2 * STEP_DISTANCE ||
+          g_trv_input.leftrate >=  2 * STEP_DISTANCE)
+        {
+          g_trv_input.stepheight = g_run_stepheight;
+        }
+    }
+
+
+  g_trv_input.leftrate = ((sample.as_buttons & AJOY_BUTTON_SELECT) != 0);
+
 
 #elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
   struct djoy_buttonset_t buttonset;
   ssize_t nread;
+  int16_t move_rate;
+  int16_t turn_rate;
 
   /* Read data from the discrete joystick */
 
-  nread = read(g_trv_input_info.fd, &buttonset, sizeof(djoy_buttonset_t));
+  nread = read(g_trv_joystick.fd, &buttonset, sizeof(djoy_buttonset_t));
   if (nread < 0)
     {
       trv_abort("ERROR: Joystick read error: %d\n", errno);
@@ -212,7 +610,7 @@ void trv_input_read(void)
     {
       /* Run faster/step higher */
 
-      g_trv_input.stepheight = g_run_step_height;
+      g_trv_joystick.stepheight = g_run_stepheight;
       move_rate              = 2 * STEP_DISTANCE;
       turn_rate              = ANGLE_9;
     }
@@ -220,15 +618,15 @@ void trv_input_read(void)
     {
       /* Normal walking rate and stepping height */
 
-      g_trv_input.stepheight = g_walk_step_height;
+      g_trv_joystick.stepheight = g_walk_stepheight;
       move_rate              = STEP_DISTANCE;
       turn_rate              = ANGLE_6;
     }
 
   /* Move forward or backward OR look up or down */
 
-  g_trv_input.pitchrate = 0;
-  g_trv_input.fwdrate   = 0;
+  g_trv_joystick.pitchrate = 0;
+  g_trv_joystick.fwdrate   = 0;
 
   switch (buttonset & (DJOY_UP_BIT | DJOY_DOWN_BIT))
     {
@@ -243,13 +641,13 @@ void trv_input_read(void)
           {
             /* Look upward */
 
-            g_trv_input.pitchrate = turn_rate;
+            g_trv_joystick.pitchrate = turn_rate;
           }
         else
           {
             /* Move forward */
 
-            g_trv_input.fwdrate   = move_rate;
+            g_trv_joystick.fwdrate   = move_rate;
           }
         break;
 
@@ -258,21 +656,21 @@ void trv_input_read(void)
           {
             /* Look downward */
 
-            g_trv_input.pitchrate = -turn_rate;
+            g_trv_joystick.pitchrate = -turn_rate;
           }
         else
           {
             /* Move Backward */
 
-            g_trv_input.fwdrate = -move_rate;
+            g_trv_joystick.fwdrate = -move_rate;
           }
         break;
     }
 
-  /* Move forward or backward OR look up or down */
+  /* Move or loook left or right */
 
-  g_trv_input.yawrate  = 0;
-  g_trv_input.leftrate = 0;
+  g_trv_joystick.yawrate  = 0;
+  g_trv_joystick.leftrate = 0;
 
   switch (buttonset & (DJOY_LEFT_BIT | DJOY_RIGHT_BIT))
     {
@@ -287,13 +685,13 @@ void trv_input_read(void)
           {
             /* Turn left */
 
-            g_trv_input.yawrate = turn_rate;
+            g_trv_joystick.yawrate = turn_rate;
           }
         else
           {
             /* Move left */
 
-            g_trv_input.leftrate   = move_rate;
+            g_trv_joystick.leftrate   = move_rate;
           }
         break;
 
@@ -302,18 +700,18 @@ void trv_input_read(void)
           {
             /* Turn right */
 
-            g_trv_input.yawrate = -turn_rate;
+            g_trv_joystick.yawrate = -turn_rate;
           }
         else
           {
             /* Move right */
 
-            g_trv_input.leftrate = -move_rate;
+            g_trv_joystick.leftrate = -move_rate;
           }
         break;
     }
 
-  g_trv_input.leftrate = ((buttonset & DJOY_BUTTON_SELECT) != 0);
+  g_trv_joystick.leftrate = ((buttonset & DJOY_BUTTON_SELECT) != 0);
 
 #endif /* CONFIG_GRAPHICS_TRAVELER_DJOYSTICK */
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
@@ -333,8 +731,11 @@ void trv_input_read(void)
 void trv_input_terminate(void)
 {
 #ifdef CONFIG_GRAPHICS_TRAVELER_JOYSTICK
+  if (g_trv_joystick.fd > 0)
+    {
+      close(g_trv_joystick.fd);
+    }
 #endif
-#warning Missing Logic
 }
 
 /****************************************************************************
@@ -352,8 +753,8 @@ void trv_input_xyinput(trv_coord_t xpos, trv_coord_t xpos, uint8_t buttons)
    * decide what to do with the data when we are polled for new input.
    */
 
-  g_trv_input_info.xpos    = xpos;
-  g_trv_input_info.ypos    = ypos;
-  g_trv_input_info.buttons = buttons;
+  g_trv_joystick.xpos    = xpos;
+  g_trv_joystick.ypos    = ypos;
+  g_trv_joystick.buttons = buttons;
 }
 #endif

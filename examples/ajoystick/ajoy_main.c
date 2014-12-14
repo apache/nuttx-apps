@@ -271,7 +271,7 @@ static int ajoy_waitread(int fd, FAR const struct timespec *timeout,
   ret = ajoy_wait(fd, timeout);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: ajoy_wait() failed: %d\n", errno);
+      fprintf(stderr, "ERROR: ajoy_wait() failed: %d\n", ret);
       return ret;
     }
 
@@ -280,7 +280,7 @@ static int ajoy_waitread(int fd, FAR const struct timespec *timeout,
   ret = ajoy_read(fd, sample);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: ajoy_read() failed: %d\n", errno);
+      fprintf(stderr, "ERROR: ajoy_read() failed: %d\n", ret);
       return ret;
     }
 
