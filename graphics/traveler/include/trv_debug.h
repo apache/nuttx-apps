@@ -42,6 +42,7 @@
 
 #include "trv_types.h"
 
+#include <stdio.h>
 #include <debug.h>
 
 /****************************************************************************
@@ -65,7 +66,7 @@
 
 #ifndef CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL
 #  define CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL 0
-#ielf (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 3)
+#elif (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL == 3)
 #  undef ENABLE_SOUND
 #  undef ENABLE_VIDEO
 #  define TRV_VERBOSE  1
@@ -86,7 +87,7 @@
 #  if (CONFIG_GRAPHICS_TRAVELER_DEBUG_LEVEL > 0)
 
 #    define trv_debug(format, ...) \
-      printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
+       printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 
 #    ifdef TRV_VERBOSE
 #      define trv_vdebug(format, ...) \

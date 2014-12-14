@@ -67,9 +67,10 @@
  *************************************************************************/
 
 #if defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
-#  define BUTTON_SET (AJOY_BUTTON_SELECT | AJOY_BUTTON_FIRE)
+#  define BUTTON_SET (AJOY_BUTTON_SELECT_BIT | AJOY_BUTTON_FIRE_BIT)
 #elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
-#  define BUTTON_SET (DJOY_BUTTON_SELECT | DJOY_BUTTON_FIRE | DJOY_BUTTON_RUN)
+#  define BUTTON_SET (DJOY_BUTTON_SELECT_BIT | DJOY_BUTTON_FIRE_BIT | \
+                      DJOY_BUTTON_RUN_BIT)
 #endif
 
 /****************************************************************************
@@ -342,6 +343,7 @@ static int trv_joystick_calibrate(void)
 static int trv_scale_input_x(FAR const struct ajoy_sample_s *sample)
 {
   int tmp;
+  b16_t x16;
   int x;
 
   trv_vdebug("  RAW: X=%d\n", sample->as_x);
@@ -349,13 +351,14 @@ static int trv_scale_input_x(FAR const struct ajoy_sample_s *sample)
   tmp = sample->as_x - g_trv_joystick.centerx;
   if ((g_trv_joystick.lplus && tmp >= 0) || (!g_trv_joystick.lplus && tmp < 0))
     {
-       x = tmp *  g_trv_joystick.leftslope;
+       x16 = tmp * g_trv_joystick.leftslope;
     }
   else
     {
-       x = tmp *  g_trv_joystick.rightslope;
+       x16 = tmp * g_trv_joystick.rightslope;
     }
 
+  x= b16round(x16);
   trv_vdebug("  Calibrated: X=%d\n", x);
   return x;
 }
@@ -363,6 +366,7 @@ static int trv_scale_input_x(FAR const struct ajoy_sample_s *sample)
 static int trv_scale_input_y(FAR const struct ajoy_sample_s *sample)
 {
   int tmp;
+  b16_t y16;
   int y;
 
   trv_vdebug("  RAW: Y=%d\n", sample->as_y);
@@ -370,13 +374,14 @@ static int trv_scale_input_y(FAR const struct ajoy_sample_s *sample)
   tmp = sample->as_y - g_trv_joystick.centery;
   if ((g_trv_joystick.fplus && tmp >= 0) || (!g_trv_joystick.fplus && tmp < 0))
     {
-       y = tmp * g_trv_joystick.fwdslope;
+       y16 = tmp * g_trv_joystick.fwdslope;
     }
   else
     {
-       y = tmp * g_trv_joystick.backslope;
+       y16 = tmp * g_trv_joystick.backslope;
     }
 
+  y = b16round(y16);
   trv_vdebug("  Calibrated: Y=%d\n", y);
   return y;
 }
@@ -384,6 +389,7 @@ static int trv_scale_input_y(FAR const struct ajoy_sample_s *sample)
 static int trv_scale_input_yaw(FAR const struct ajoy_sample_s *sample)
 {
   int tmp;
+  b16_t yaw16;
   int yaw;
 
   trv_vdebug("  RAW: X=%d\n", sample->as_x);
@@ -391,13 +397,14 @@ static int trv_scale_input_yaw(FAR const struct ajoy_sample_s *sample)
   tmp = sample->as_x - g_trv_joystick.centerx;
   if ((g_trv_joystick.lplus && tmp >= 0) || (!g_trv_joystick.lplus && tmp < 0))
     {
-       yaw = tmp *  g_trv_joystick.lturnslope;
+       yaw16 = tmp * g_trv_joystick.lturnslope;
     }
   else
     {
-       yaw = tmp *  g_trv_joystick.rturnslope;
+       yaw16 = tmp * g_trv_joystick.rturnslope;
     }
 
+  yaw = b16round(yaw16);
   trv_vdebug("  Calibrated: pitch=%d\n", yaw);
   return yaw;
 }
@@ -405,6 +412,7 @@ static int trv_scale_input_yaw(FAR const struct ajoy_sample_s *sample)
 static int trv_scale_input_pitch(FAR const struct ajoy_sample_s *sample)
 {
   int tmp;
+  b16_t pitch16;
   int pitch;
 
   trv_vdebug("  RAW: Y=%d\n", sample->as_y);
@@ -412,13 +420,14 @@ static int trv_scale_input_pitch(FAR const struct ajoy_sample_s *sample)
   tmp = sample->as_y - g_trv_joystick.centery;
   if ((g_trv_joystick.fplus && tmp >= 0) || (!g_trv_joystick.fplus && tmp < 0))
     {
-       pitch = tmp * g_trv_joystick.uturnslope;
+       pitch16 = tmp * g_trv_joystick.uturnslope;
     }
   else
     {
-       pitch = tmp * g_trv_joystick.dturnslope;
+       pitch16 = tmp * g_trv_joystick.dturnslope;
     }
 
+  pitch = b16round(pitch16);
   trv_vdebug("  Calibrated: pitch=%d\n", pitch);
   return pitch;
 }
@@ -451,19 +460,6 @@ void trv_input_initialize(void)
                 CONFIG_GRAPHICS_TRAVELER_JOYDEV, errno);
     }
 
-  /* Register to receive a signal on any change in the joystick buttons. */
-
-  notify.dn_press   = BUTTON_SET;
-  notify.dn_release = BUTTON_SET;
-  notify.dn_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
-
-  ret = ioctl(g_trv_joystick.fd, DJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: ioctl(DJOYIOC_REGISTER) failed: %d\n", errno);
-      goto errout_with_fd;
-    }
-
 #elif defined(CONFIG_GRAPHICS_TRAVELER_AJOYSTICK)
   struct ajoy_notify_s notify;
   int ret;
@@ -480,7 +476,7 @@ void trv_input_initialize(void)
   /* Register to receive a signal on any change in the joystick buttons. */
 
   notify.an_press   = BUTTON_SET;
-  notify.an_release = BUTTON_SET;
+  notify.an_release = 0;
   notify.an_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
 
   ret = ioctl(g_trv_joystick.fd, AJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
@@ -495,7 +491,20 @@ void trv_input_initialize(void)
   ret = trv_joystick_calibrate();
   if (ret < 0)
     {
-      trv_abort("ERROR: Failed to calibrte joystick: %d\n", ret);
+      trv_abort("ERROR: Failed to calibrate joystick: %d\n", ret);
+      goto errout_with_fd;
+    }
+
+  /* Disable any further button events. */
+
+  notify.an_press   = 0;
+  notify.an_release = 0;
+  notify.an_signo   = CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO;
+
+  ret = ioctl(g_trv_joystick.fd, AJOYIOC_REGISTER, (unsigned long)((uintptr_t)&notify));
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: ioctl(AJOYIOC_REGISTER) failed: %d\n", errno);
       goto errout_with_fd;
     }
 
@@ -539,7 +548,6 @@ void trv_input_read(void)
 
   g_trv_input.stepheight = g_walk_stepheight;
 
-
   /* Move forward or backward OR look up or down */
 
   g_trv_input.leftrate  = 0;
@@ -578,8 +586,7 @@ void trv_input_read(void)
         }
     }
 
-
-  g_trv_input.leftrate = ((sample.as_buttons & AJOY_BUTTON_SELECT) != 0);
+  g_trv_input.dooropen = ((sample.as_buttons & AJOY_BUTTON_SELECT) != 0);
 
 
 #elif defined(CONFIG_GRAPHICS_TRAVELER_DJOYSTICK)
@@ -637,13 +644,13 @@ void trv_input_read(void)
           {
             /* Look upward */
 
-            g_trv_joystick.pitchrate = turn_rate;
+            g_trv_input.pitchrate = turn_rate;
           }
         else
           {
             /* Move forward */
 
-            g_trv_joystick.fwdrate   = move_rate;
+            g_trv_input.fwdrate   = move_rate;
           }
         break;
 
@@ -652,21 +659,21 @@ void trv_input_read(void)
           {
             /* Look downward */
 
-            g_trv_joystick.pitchrate = -turn_rate;
+            g_trv_input.pitchrate = -turn_rate;
           }
         else
           {
             /* Move Backward */
 
-            g_trv_joystick.fwdrate = -move_rate;
+            g_trv_input.fwdrate = -move_rate;
           }
         break;
     }
 
   /* Move or loook left or right */
 
-  g_trv_joystick.yawrate  = 0;
-  g_trv_joystick.leftrate = 0;
+  g_trv_input.yawrate  = 0;
+  g_trv_input.leftrate = 0;
 
   switch (buttonset & (DJOY_LEFT_BIT | DJOY_RIGHT_BIT))
     {
@@ -681,13 +688,13 @@ void trv_input_read(void)
           {
             /* Turn left */
 
-            g_trv_joystick.yawrate = turn_rate;
+            g_trv_input.yawrate = turn_rate;
           }
         else
           {
             /* Move left */
 
-            g_trv_joystick.leftrate   = move_rate;
+            g_trv_input.leftrate   = move_rate;
           }
         break;
 
@@ -696,18 +703,18 @@ void trv_input_read(void)
           {
             /* Turn right */
 
-            g_trv_joystick.yawrate = -turn_rate;
+            g_trv_input.yawrate = -turn_rate;
           }
         else
           {
             /* Move right */
 
-            g_trv_joystick.leftrate = -move_rate;
+            g_trv_input.leftrate = -move_rate;
           }
         break;
     }
 
-  g_trv_joystick.leftrate = ((buttonset & DJOY_BUTTON_SELECT) != 0);
+  g_trv_input.dooropen = ((buttonset & DJOY_BUTTON_SELECT) != 0);
 
 #endif /* CONFIG_GRAPHICS_TRAVELER_DJOYSTICK */
 #elif defined(CONFIG_GRAPHICS_TRAVELER_NX_XYINPUT)
