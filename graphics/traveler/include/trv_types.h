@@ -40,8 +40,10 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-#include <nuttx/compiler.h>
+#ifndef __HOST_BUILD__
+#  include <nuttx/config.h>
+#  include <nuttx/compiler.h>
+#endif
 
 #include <sys/types.h>
 #include <stdint.h>
