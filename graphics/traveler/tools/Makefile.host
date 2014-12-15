@@ -70,16 +70,19 @@ endif
 PLL2TXT_SRCS = pll2txt.c
 PLL2TXT_OBJS = $(PLL2TXT_SRCS:.c=$(OBJEXT))
 
-OBJS = $(PLL2TXT_OBJS)
+TXT2PLL_SRCS = txt2pll.c
+TXT2PLL_OBJS = $(TXT2PLL_SRCS:.c=$(OBJEXT))
+
+OBJS = $(PLL2TXT_OBJS) $(TXT2PLL_OBJS)
 
 # Targets
 
-all: pll2txt$(HOSTEXEEXT)
+all: pll2txt$(HOSTEXEEXT) txt2pll$(HOSTEXEEXT)
 
 default: all
 
 ifdef HOSTEXEEXT
-.PHONY: pll2txt clean
+.PHONY: pll2txt txt2pll clean
 else
 .PHONY: clean
 endif
@@ -96,8 +99,18 @@ ifdef HOSTEXEEXT
 pll2txt: pll2txt$(HOSTEXEEXT)
 endif
 
+# txt2pll - Convert a text file into a world plane file
+
+txt2pll$(HOSTEXEEXT): $(TXT2PLL_OBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
+ifdef HOSTEXEEXT
+txt2pll: txt2pll$(HOSTEXEEXT)
+endif
+
 clean:
 	$(call DELFILE, pll2txt$(HOSTEXEEXT))
+	$(call DELFILE, txt2pll$(HOSTEXEEXT))
 ifneq ($(CONFIG_WINDOWS_NATIVE),y)
 	$(Q) rm -rf *.dSYM
 endif
