@@ -73,16 +73,19 @@ PLL2TXT_OBJS = $(PLL2TXT_SRCS:.c=$(OBJEXT))
 TXT2PLL_SRCS = txt2pll.c
 TXT2PLL_OBJS = $(TXT2PLL_SRCS:.c=$(OBJEXT))
 
-OBJS = $(PLL2TXT_OBJS) $(TXT2PLL_OBJS)
+MKTRIG_SRCS = mktrig.c
+MKTRIG_OBJS = $(MKTRIG_SRCS:.c=$(OBJEXT))
+
+OBJS = $(PLL2TXT_OBJS) $(TXT2PLL_OBJS) $(MKTRIG_OBJS)
 
 # Targets
 
-all: pll2txt$(HOSTEXEEXT) txt2pll$(HOSTEXEEXT)
+all: pll2txt$(HOSTEXEEXT) txt2pll$(HOSTEXEEXT) mktrig$(HOSTEXEEXT)
 
 default: all
 
 ifdef HOSTEXEEXT
-.PHONY: pll2txt txt2pll clean
+.PHONY: pll2txt txt2pll mktrig clean
 else
 .PHONY: clean
 endif
@@ -108,9 +111,19 @@ ifdef HOSTEXEEXT
 txt2pll: txt2pll$(HOSTEXEEXT)
 endif
 
+# mktrig - Regenerate trigonometry look-up tables
+
+mktrig$(HOSTEXEEXT): $(MKTRIG_OBJS)
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@
+
+ifdef HOSTEXEEXT
+mktrig: mktrig$(HOSTEXEEXT)
+endif
+
 clean:
 	$(call DELFILE, pll2txt$(HOSTEXEEXT))
 	$(call DELFILE, txt2pll$(HOSTEXEEXT))
+	$(call DELFILE, mktrig$(HOSTEXEEXT))
 ifneq ($(CONFIG_WINDOWS_NATIVE),y)
 	$(Q) rm -rf *.dSYM
 endif

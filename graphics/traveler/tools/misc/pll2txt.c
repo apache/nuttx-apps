@@ -1,6 +1,5 @@
 /*******************************************************************************
  * apps/graphics/traveler/tools/misc/pll2txt.c
- * This file contains low-level texture bitmap logic
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
