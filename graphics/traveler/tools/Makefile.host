@@ -114,7 +114,7 @@ endif
 # mktrig - Regenerate trigonometry look-up tables
 
 mktrig$(HOSTEXEEXT): $(MKTRIG_OBJS)
-	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) -lm $< -o $@
 
 ifdef HOSTEXEEXT
 mktrig: mktrig$(HOSTEXEEXT)
@@ -124,6 +124,7 @@ clean:
 	$(call DELFILE, pll2txt$(HOSTEXEEXT))
 	$(call DELFILE, txt2pll$(HOSTEXEEXT))
 	$(call DELFILE, mktrig$(HOSTEXEEXT))
+	$(call DELFILE, trigtbl.tmp)
 ifneq ($(CONFIG_WINDOWS_NATIVE),y)
 	$(Q) rm -rf *.dSYM
 endif

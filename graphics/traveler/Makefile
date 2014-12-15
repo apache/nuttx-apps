@@ -39,10 +39,11 @@ include $(APPDIR)/Make.defs
 
 # Directories
 
-TRAVELER_DIR  = $(APPDIR)/graphics/traveler
-TRAVELER_SRC  = $(TRAVELER_DIR)/src
-TRAVELER_INC  = $(TRAVELER_DIR)/include
-TRAVELER_DEMO = $(TRAVELER_DIR)/world
+TRAVELER_DIR   = $(APPDIR)/graphics/traveler
+TRAVELER_SRC   = $(TRAVELER_DIR)/src
+TRAVELER_INC   = $(TRAVELER_DIR)/include
+TRAVELER_DEMO  = $(TRAVELER_DIR)/world
+TRAVELER_TOOLS = $(TRAVELER_DIR)/tools
 
 # Traveler built-in application info
 
@@ -119,8 +120,8 @@ VPATH = .:src
 
 # Common build
 
-all: .built
-.PHONY: clean depend distclean
+all: .built tools
+.PHONY: tools clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -139,6 +140,9 @@ endif
 .built: $(ROMFS_HDR) $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
+
+tools:
+	$(Q) $(MAKE) -C  $(TRAVELER_TOOLS) -f Makefile.host TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
