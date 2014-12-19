@@ -1157,6 +1157,5 @@
 	  people that have e.g. GSM modems, GPS receivers or other devices with
 	  text based serial communications attached to their Nuttx systems. From
 	  Harald Welte (2014-12-13).
-
-
-    This might  come in handy for other people that have e.g. GSM modems, GPS receivers or other devices with text based serial commu
+	* apps/examples/ltdc and build-related file: Add ltdc test example. From
+	  Marco Krahl (2014-14-19).
