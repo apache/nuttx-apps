@@ -37,14 +37,17 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
+#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
-#include <nuttx/config.h>
+#include <debug.h>
+
 #include <nuttx/video/rgbcolors.h>
 #include <nuttx/video/fb.h>
-#include <nuttx/video/ltdc.h>
-#include <sys/types.h>
-#include <debug.h>
+
+#include <arch/chip/ltdc.h>
 
 /****************************************************************************
  * Pre-processor Definitions
