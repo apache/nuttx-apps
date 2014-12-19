@@ -680,6 +680,17 @@ examples/lcdrw
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
   or CONFIG_BUILD_KERNEL).
 
+examples/ltdc
+^^^^^^^^^^^^^
+
+  STM32 LTDC framebuffer example.  Depends on:
+
+  * CONFIG_STM32_LTDC
+
+  Enabled with:
+
+  * CONFIG_EXAMPLES_LTDC
+
 examples/mm
 ^^^^^^^^^^^
 

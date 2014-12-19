@@ -130,6 +130,10 @@ ifeq ($(CONFIG_EXAMPLES_LCDRW),y)
 CONFIGURED_APPS += examples/lcdrw
 endif
 
+ifeq ($(CONFIG_EXAMPLES_LTDC),y)
+CONFIGURED_APPS += examples/ltdc
+endif
+
 ifeq ($(CONFIG_EXAMPLES_MM),y)
 CONFIGURED_APPS += examples/mm
 endif

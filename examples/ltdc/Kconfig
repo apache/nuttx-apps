@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_LTDC
+	bool "STM32 LTDC framebuffer example"
+	default n
+	depends on STM32_LTDC
+	---help---
+		Enable the LTDC example
