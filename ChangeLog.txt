@@ -1158,4 +1158,6 @@
 	  text based serial communications attached to their Nuttx systems. From
 	  Harald Welte (2014-12-13).
 	* apps/examples/ltdc and build-related file: Add ltdc test example. From
-	  Marco Krahl (2014-14-19).
+	  Marco Krahl (2014-12-19).
+	* apps/system/cdcacm and usbmsc:  Fix some strangely placed conditional
+	  compilation.  Looks like an automated update gone awry (2014-12-28).
