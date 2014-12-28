@@ -587,15 +587,15 @@ int msconn_main(int argc, char *argv[])
  *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
-#ifdef CONFIG_BUILD_KERNEL
  *
-int main(int argc, FAR char **argv)
  ****************************************************************************/
-#else
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#endif
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int msdis_main(int argc, char *argv[])
+#endif
 {
   /* First check if the USB mass storage device is already connected */
 
