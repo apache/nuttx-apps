@@ -685,7 +685,7 @@ static void ltdc_color_test(void)
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer, should be black outside the white rectangle\n");
+  dbg("Update the layer, should be black outside the colorful rectangle\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -693,7 +693,7 @@ static void ltdc_color_test(void)
 
   /* Default Color red */
 
-  dbg("Update the layer, should be red outside the white rectangle\n");
+  dbg("Update the layer, should be red outside the colorful rectangle\n");
 
   sur->layer->setcolor(sur->layer, 0xffff0000);
 
@@ -705,7 +705,7 @@ static void ltdc_color_test(void)
 
   /* Default Color green */
 
-  dbg("Update the layer, should be green outside the white rectangle\n");
+  dbg("Update the layer, should be green outside the colorful rectangle\n");
 
   sur->layer->setcolor(sur->layer, 0xff00ff00);
 
@@ -717,7 +717,7 @@ static void ltdc_color_test(void)
 
   /* Default Color blue */
 
-  dbg("Update the layer, should be blue outside the white rectangle\n");
+  dbg("Update the layer, should be blue outside the colorful rectangle\n");
 
   sur->layer->setcolor(sur->layer, 0xff0000ff);
 
