@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/composite/composite_main.c
  *
- *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@
 #include "composite.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -509,7 +509,7 @@ static int echo_serial(void)
  *   board_mscclassobject() is called from the composite driver.  It must
  *   encapsulate the instantiation and configuration of the mass storage
  *   class and the return the mass storage device's class driver instance
- *   to the composite dirver.
+ *   to the composite driver.
  *
  * Input Parameters:
  *   classdev - The location to return the mass storage class' device
@@ -845,19 +845,19 @@ errout:
  * disconn_main
  *
  * Description:
- *   This is a program entry point that will disconnet the USB mass storage
+ *   This is a program entry point that will disconnect the USB mass storage
  *   device.  This program is only available if CONFIG_NSH_BUILTIN_APPS
  *   is defined in the NuttX configuration.  In that case, this program can
  *   be executed by entering the "msdis" command at the NSH console.
-#ifdef CONFIG_BUILD_KERNEL
  *
-int main(int argc, FAR char **argv)
  ****************************************************************************/
-#else
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-#endif
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char **argv)
+#else
 int disconn_main(int argc, char *argv[])
+#endif
 {
   /* First check if the USB mass storage device is already connected */
 
