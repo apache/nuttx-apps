@@ -1159,5 +1159,6 @@
 	  Harald Welte (2014-12-13).
 	* apps/examples/ltdc and build-related file: Add ltdc test example. From
 	  Marco Krahl (2014-12-19).
-	* apps/system/cdcacm and usbmsc:  Fix some strangely placed conditional
-	  compilation.  Looks like an automated update gone awry (2014-12-28).
+	* apps/system/cdcacm, composite and usbmsc:  Fix some strangely placed
+	  conditional compilation.  Looks like an automated update gone awry
+	  (2014-12-28).
