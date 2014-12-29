@@ -1162,3 +1162,5 @@
 	* apps/system/cdcacm, composite and usbmsc:  Fix some strangely placed
 	  conditional compilation.  Looks like an automated update gone awry
 	  (2014-12-28).
+	* apps/examples/ltdc/ltdc_main.c:  Clean up documentation, some formatting
+	  improvements.  From Marco Krahl (2014-12-29).
