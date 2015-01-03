@@ -56,9 +56,9 @@
 #include <string.h>
 #include <poll.h>
 #include <errno.h>
-#include <nuttx/fs/fs.h>
 #include <debug.h>
 
+#include <nuttx/fs/fs.h>
 #include <nuttx/net/net.h>
 
 #include <apps/netutils/telnetd.h>
@@ -496,7 +496,7 @@ static int telnetd_close(FAR struct file *filep)
       ret = asprintf(&devpath, TELNETD_DEVFMT, priv->td_minor);
       if (ret < 0)
         {
-          nlldbg("Failed to allocate the driver path\n");
+          nlldbg("ERROR: Failed to allocate the driver path\n");
         }
       else
         {
@@ -512,8 +512,11 @@ static int telnetd_close(FAR struct file *filep)
                * the final session terminates.
                */
 
-              nlldbg("Failed to unregister the driver %s: %d\n",
-                     devpath, ret);
+              if (ret != -EBUSY)
+                {
+                  nlldbg("Failed to unregister the driver %s: %d\n",
+                         devpath, ret);
+                }
             }
 
           free(devpath);
