@@ -1,0 +1,41 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_LM75
+	bool "Temperature"
+	default n
+	depends on I2C_LM75
+	---help---
+		Enable support for the NSH temp command.  This command will read the
+		current temperature from an LM-75 (or compatible) temperature sensor
+		and show the temperature on stdout.
+
+if SYSTEM_LM75
+
+config SYSTEM_LM75_DEVNAME
+	string "Temperature sensing device"
+	default "/dev/temp"
+
+choice
+	prompt "Temperature units"
+	default SYSTEM_LM75_FAHRENHEIT
+
+config SYSTEM_LM75_FAHRENHEIT
+	bool "Fahrenheit"
+
+config SYSTEM_LM75_CENTIGRADE
+	bool "Centigrade"
+
+endchoice
+
+config SYSTEM_LM75_STACKSIZE
+	int "Stack size (bytes)"
+	default 1024
+
+config SYSTEM_LM75_PRIORITY
+	int "Command priority"
+	default 100
+
+endif

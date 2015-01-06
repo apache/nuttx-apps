@@ -75,6 +75,10 @@ menu "Sysinfo"
 source "$APPSDIR/system/sysinfo/Kconfig"
 endmenu
 
+menu "Temperature"
+source "$APPSDIR/system/lm75/Kconfig"
+endmenu
+
 menu "VI Work-Alike Editor"
 source "$APPSDIR/system/vi/Kconfig"
 endmenu
