@@ -55,7 +55,7 @@
 
 #ifndef CONFIG_SYSTEM_LM75_DEVNAME
 #  warning CONFIG_SYSTEM_LM75_DEVNAME is not defined
-#  define CONFIG_SYSTEM_LM75_DEVNAME"/dev/temp"
+#  define CONFIG_SYSTEM_LM75_DEVNAME "/dev/temp"
 #endif
 
 #if !defined(CONFIG_SYSTEM_LM75_FAHRENHEIT) && !defined(CONFIG_SYSTEM_LM75_CENTIGRADE)
@@ -137,13 +137,16 @@ int lm75_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
+  /* Print the current temperature on stdout */
+
 #ifdef CONFIG_LIBC_FLOATINGPOINT
-  temp = (double)temp16 / 65536.0
+  temp = (double)temp16 / 65536.0;
 #ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
   printf("%3.2f degrees Fahrenheit\n", temp);
 #else
   printf("%3.2f degrees Centigrade\n", temp);
 #endif
+
 #else
 #ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
   printf("0x%04x.%04x degrees Fahrenheit\n", temp16 >> 16, temp16 & 0xffff);
