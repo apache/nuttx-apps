@@ -1164,3 +1164,7 @@
 	  (2014-12-28).
 	* apps/examples/ltdc/ltdc_main.c:  Clean up documentation, some formatting
 	  improvements.  From Marco Krahl (2014-12-29).
+	* apps/system/lm75 and build-related files:  Add a tiny application to
+	  read the temperature from an LM-75 (or compatible) temperature sensor
+	  (2015-01-06).
+
