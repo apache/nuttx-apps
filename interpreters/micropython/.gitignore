@@ -1,3 +1,5 @@
+/micropython-*
+/v*.tar.gz
 /Make.dep
 /.depend
 /.built
