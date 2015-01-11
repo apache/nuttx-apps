@@ -50,8 +50,9 @@ WGET ?= wget
 MICROPYTHON_UNPACKNAME = micropython-$(MICROPYTHON_VERSION)
 UNPACK ?= tar -zxf
 
-MICROPYTHON_PATH = $(WD)/$(MICROPYTHON_UNPACKNAME)/py
--include $(MICROPYTHON_PATH)/mkenv.mk
+MICROPYTHON_UNPACKDIR =  $(WD)/$(MICROPYTHON_UNPACKNAME)
+MICROPTHYON_SRCDIR = $(MICROPYTHON_UNPACKDIR)/py
+-include $(MICROPTHYON_SRCDIR)/mkenv.mk
 
 # qstr definitions (must come before including py.mk)
 
@@ -59,13 +60,13 @@ QSTR_DEFS = qstrdefsport.h
 
 # include py core make definitions
 
--include $(MICROPYTHON_PATH)/py.mk
+-include $(MICROPTHYON_SRCDIR)/py.mk
 
 # c99 is needed for micropython
 
 CFLAGS+=-std=c99 -Wno-shadow -Wno-strict-prototypes
 
-INC =  -I. -I$(WD) -I$(PY_SRC) -I$(BUILD)
+INC =  -I. -I$(WD) -I$(MICROPYTHON_UNPACKDIR) -I$(PY_SRC) -I$(BUILD)
 
 CFLAGS +=$(INC)
 
@@ -160,5 +161,5 @@ distclean: clean
 	$(call DELFILE, .downloaded)
 	$(call DELFILE, .$(MICROPYTHON_TARBALL))
 
--include $(MICROPYTHON_PATH)/mkrules.mk
+-include $(MICROPTHYON_SRCDIR)/mkrules.mk
 -include Make.dep

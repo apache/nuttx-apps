@@ -41,7 +41,6 @@
  ****************************************************************************/
 
 #include <stdint.h>
-#include <wchar_t.h>
 
 /* We need to provide a declaration/definition of alloca() */
 
@@ -100,6 +99,7 @@
  * Public Types
  ****************************************************************************/
 
+typedef int wint_t;                      /* For newlib's math.h. See wchar_t */
 typedef int32_t mp_int_t;                /* must be pointer size */
 typedef uint32_t mp_uint_t;              /* must be pointer size */
 typedef void *machine_ptr_t;             /* must be of pointer size */
