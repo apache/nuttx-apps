@@ -37,7 +37,7 @@
 
 # Sub-directories containing interpreter runtime
 
-SUBDIRS = pcode prun ficl bas
+SUBDIRS = bas ficl micropython pcode prun
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 

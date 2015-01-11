@@ -38,10 +38,14 @@ ifeq ($(CONFIG_INTERPRETERS_BAS),y)
 CONFIGURED_APPS += interpreters/bas
 endif
 
-ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
-CONFIGURED_APPS += interpreters/pcode
-endif
-
 ifeq ($(CONFIG_INTERPRETERS_FICL),y)
 CONFIGURED_APPS += interpreters/ficl
+endif
+
+ifeq ($(CONFIG_INTERPRETERS_MICROPYTHON),y)
+CONFIGURED_APPS += interpreters/micropython
+endif
+
+ifeq ($(CONFIG_INTERPRETERS_PCODE),y)
+CONFIGURED_APPS += interpreters/pcode
 endif

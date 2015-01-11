@@ -12,6 +12,25 @@ ficl
   is not in that directory, only an environment and instructions that will
   let you build Ficl under NuttX.  The rest is up to you.
 
+micropython
+-----------
+
+  This is a port of a build environment for Micro Python:
+
+    https://micropython.org/
+
+  NOTE that Micro Python is not included in this directory.  Before building
+  this example, you must first download Micro Python from:
+
+    https://micropython.org/download/
+
+  Or clone from the GIT repository:
+
+    https://github.com/micropython/
+
+  This port was contributed by Dave Marples using Micro Python circu
+  1.3.8.  It may not be compatible with other versions.
+
 pcode
 -----
 
