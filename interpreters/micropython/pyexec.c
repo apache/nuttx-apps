@@ -1,5 +1,5 @@
 /****************************************************************************
- * interpreters/micropython/py_readline.c
+ * interpreters/micropython/pyexec.c
  *
  * This file was part of the Micro Python project, http://micropython.org/
  * and has been integrated into Nuttx by Dave Marples (dave@marples.net)
