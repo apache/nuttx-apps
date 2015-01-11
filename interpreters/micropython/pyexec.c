@@ -37,7 +37,13 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "py/mpconfig.h"
+#include "py/misc.h"
+#include "py/qstr.h"
+#include "py/obj.h"
 #include "py/nlr.h"
+#include "py/lexer.h"
+#include "py/parse.h"
 #include "py/parsehelper.h"
 #include "py/compile.h"
 #include "py/runtime.h"
@@ -291,9 +297,7 @@ int pyexec_friendly_repl(void)
   vstr_init(&line, 32);
 
 friendly_repl_reset:
-  fprintf(stdout,
-          "Micro Python " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE
-          "; NuttX with " CONFIG_ARCH_FAMILY " " CONFIG_ARCH_CHIP "\r\n");
+  fprintf(stdout, "Micro Python " MICROPY_GIT_TAG " on " MICROPY_BUILD_DATE "\n");
   fprintf(stdout, "Type \"help()\" for more information.\r\n");
 
   for (;;)
