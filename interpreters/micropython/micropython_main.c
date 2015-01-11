@@ -187,7 +187,7 @@ float truncf(float x)
       return x;
     }
 
-  FORCE_EVAL(x + 0x1 p120f);
+  FORCE_EVAL(x + 0x1p120f);
   u.i &= ~m;
   return u.f;
 }
