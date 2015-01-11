@@ -19,6 +19,22 @@ micropython
 
     https://micropython.org/
 
+  Configuration Options:
+
+    CONFIG_INTERPRETERS_MICROPYTHON - Enables support for the Micro Python
+      interpreter
+    CONFIG_INTERPRETERS_MICROPYTHON_URL - URL where Micro Python can be
+      downloaded. default "https://github.com/micropython/micropython/archive"
+    CONFIG_INTERPRETERS_MICROPYTHON_VERSION - Version number. Default "1.3.8"
+    CONFIG_INTERPRETERS_MICROPYTHON_APPNAME - Executable name.  Only needed
+      if CONFIG_NSH_BUILTIN_APPS=y.  Default: "micropython"
+    CONFIG_INTERPRETERS_MICROPYTHON_STACKSIZE - Interpreter stack size.  Only
+      needed if CONFIG_NSH_BUILTIN_APPS=y.  Default: 2048
+    CONFIG_INTERPRETERS_MICROPYTHON_PRIORITY - Interpreter priority.  Only
+      needed if CONFIG_NSH_BUILTIN_APPS=y.  Default: 100
+    CONFIG_INTERPRETERS_MICROPYTHON_PROGNAME - Program name.  Only needed
+      if CONFIG_BUILD_KERNEL=y.  Default: "micropython"
+
   NOTE that Micro Python is not included in this directory.  Be default,
   it will be downloaded at build time from the github .  You can avoid
   this download by pre-installing Micro Python.  Before building, just
@@ -32,8 +48,13 @@ micropython
     https://github.com/micropython/
     https://github.com/micropython/micropython
 
-  The Micro Python code should reside in directory should be
-  apps/interpreters/micropython/micropython-$(CONFIG_INTERPRETERS_MICROPYTHON_VERSION)
+  The Micro Python should be provided as a tarbll name:
+
+    apps/interpreters/micropython/v$(CONFIG_INTERPRETERS_MICROPYTHON_VERSION).tar.gz
+
+  and the unpacked code should reside in directory at:
+
+    apps/interpreters/micropython/micropython-$(CONFIG_INTERPRETERS_MICROPYTHON_VERSION)
 
   This port was contributed by Dave Marples using Micro Python circa
   1.3.8.  It may not be compatible with other versions.
