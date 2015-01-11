@@ -34,13 +34,24 @@
 #
 ###########################################################################
 
-TOP ?= ../../../../micropython
-TOPDIR ?= ../../../nuttx
-APPDIR ?= ../../../apps
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-MICROPYTHON_DIR = $(TOP)/py
+WD := ${shell pwd | sed -e 's/ /\\ /g'}
 
-include $(MICROPYTHON_DIR)/mkenv.mk
+CONFIG_INTERPRETERS_MICROPYTHON_URL ?= "https://github.com/micropython/micropython/archive"
+CONFIG_INTERPRETERS_MICROPYTHON_VERSION ?= "1.3.8"
+MICROPYTHON_VERSION = $(patsubst "%",%,$(strip $(CONFIG_INTERPRETERS_MICROPYTHON_VERSION)))
+
+MICROPYTHON_TARBALL = v$(MICROPYTHON_VERSION).tar.gz
+WGET ?= wget
+
+MICROPYTHON_UNPACKNAME = micropython-$(MICROPYTHON_VERSION)
+UNPACK ?= tar -zxf
+
+MICROPYTHON_PATH = $(WD)/$(MICROPYTHON_UNPACKNAME)/py
+-include $(MICROPYTHON_PATH)/mkenv.mk
 
 # qstr definitions (must come before including py.mk)
 
@@ -48,17 +59,13 @@ QSTR_DEFS = qstrdefsport.h
 
 # include py core make definitions
 
-include $(MICROPYTHON_DIR)/py.mk
-
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+-include $(MICROPYTHON_PATH)/py.mk
 
 # c99 is needed for micropython
 
 CFLAGS+=-std=c99 -Wno-shadow -Wno-strict-prototypes
 
-INC =  -I. -I$(TOP) -I$(PY_SRC) -I$(BUILD)
+INC =  -I. -I$(WD) -I$(PY_SRC) -I$(BUILD)
 
 CFLAGS +=$(INC)
 
@@ -105,12 +112,21 @@ ROOTDEPPATH = --dep-path .
 
 all: .built
 
-.built: $(OBJ)
+$(MICROPYTHON_TARBALL):
+	@echo "Downloading: $(MICROPYTHON_TARBALL)"
+	$(Q) $(WGET) $(CONFIG_INTERPRETERS_MICROPYTHON_URL)/$(MICROPYTHON_TARBALL)
+
+$(MICROPYTHON_UNPACKNAME): $(MICROPYTHON_TARBALL)
+	@echo "Unpacking: $(MICROPYTHON_TARBALL) -> $(MICROPYTHON_UNPACKNAME)"
+	$(Q) $(UNPACK) $(MICROPYTHON_TARBALL)
+	@touch $(MICROPYTHON_UNPACKNAME)
+
+.built: $(MICROPYTHON_UNPACKNAME) $(OBJ)
 	$(call ARCHIVE, $(BIN), $(OBJ))
 	@touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJ) $(MAINOBJ)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(MICROPYTHON_UNPACKNAME) $(OBJ) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
 	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
@@ -124,7 +140,7 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),micropython_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+context: $(MICROPYTHON_UNPACKNAME) $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
 context:
 endif
@@ -135,9 +151,14 @@ endif
 
 depend: .depend
 
+clean:
+
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(call DELDIR, $(MICROPYTHON_UNPACKNAME))
+	$(call DELFILE, .downloaded)
+	$(call DELFILE, .$(MICROPYTHON_TARBALL))
 
-include $(MICROPYTHON_DIR)/mkrules.mk
+-include $(MICROPYTHON_PATH)/mkrules.mk
 -include Make.dep

@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-source "$APPSDIR/interpreters/ficl/Kconfig"
 source "$APPSDIR/interpreters/bas/Kconfig"
+source "$APPSDIR/interpreters/ficl/Kconfig"
 
 config INTERPRETERS_PCODE
 	bool "Pascal p-code interpreter"
@@ -17,3 +17,5 @@ config INTERPRETERS_PCODE
 
 if INTERPRETERS_PCODE
 endif
+
+source "$APPSDIR/interpreters/micropython/Kconfig"

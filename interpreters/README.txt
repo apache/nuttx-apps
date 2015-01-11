@@ -19,17 +19,29 @@ micropython
 
     https://micropython.org/
 
-  NOTE that Micro Python is not included in this directory.  Before building
-  this example, you must first download Micro Python from:
+  NOTE that Micro Python is not included in this directory.  Be default,
+  it will be downloaded at build time from the github .  You can avoid
+  this download by pre-installing Micro Python.  Before building, just
+  download Micro Python from:
 
     https://micropython.org/download/
+    https://github.com/micropython/micropython/releases
 
-  Or clone from the GIT repository:
+  Or clone from the GIT repository at:
 
     https://github.com/micropython/
+    https://github.com/micropython/micropython
 
-  This port was contributed by Dave Marples using Micro Python circu
+  The Micro Python code should reside in directory should be
+  apps/interpreters/micropython/micropython-$(CONFIG_INTERPRETERS_MICROPYTHON_VERSION)
+
+  This port was contributed by Dave Marples using Micro Python circa
   1.3.8.  It may not be compatible with other versions.
+
+  NOTE: Right now, Micro Python will not build on Windows with a Windows
+  native toolchain due to usage of POSIX paths in the Micro Python build
+  system.  It should build correctly on Linux or under Cygwin with the
+  NuttX buildroot tools.
 
 pcode
 -----
