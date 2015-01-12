@@ -24,7 +24,8 @@ micropython
     CONFIG_INTERPRETERS_MICROPYTHON - Enables support for the Micro Python
       interpreter
     CONFIG_INTERPRETERS_MICROPYTHON_URL - URL where Micro Python can be
-      downloaded. default "https://github.com/micropython/micropython/archive"
+      downloaded. default "https://github.com/micropython/micropython/archive".
+      There are more recent snapshots at https://micropython.org/download/
     CONFIG_INTERPRETERS_MICROPYTHON_VERSION - Version number. Default "1.3.8"
     CONFIG_INTERPRETERS_MICROPYTHON_APPNAME - Executable name.  Only needed
       if CONFIG_NSH_BUILTIN_APPS=y.  Default: "micropython"
