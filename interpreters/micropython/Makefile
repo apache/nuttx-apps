@@ -162,7 +162,7 @@ distclean: clean
 	$(call DELFILE, .depend)
 	$(call DELDIR, $(MICROPYTHON_UNPACKNAME))
 	$(call DELFILE, .downloaded)
-	$(call DELFILE, .$(MICROPYTHON_TARBALL))
+	$(call DELFILE, $(MICROPYTHON_TARBALL))
 
 -include $(MICROPTHYON_SRCDIR)/mkrules.mk
 -include Make.dep
