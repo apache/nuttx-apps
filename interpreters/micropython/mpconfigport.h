@@ -80,7 +80,7 @@
 #define MICROPY_PY_STRUCT              (0)
 #define MICROPY_PY_SYS                 (0)
 #define MICROPY_CPYTHON_COMPAT         (0)
-#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_MPL)
+#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_MPZ)
 #define MICROPY_FLOAT_IMPL             (MICROPY_FLOAT_IMPL_FLOAT)
 
 /* type definitions for the specific machine */

@@ -60,10 +60,26 @@ micropython
   This port was contributed by Dave Marples using Micro Python circa
   1.3.8.  It may not be compatible with other versions.
 
-  NOTE: Right now, Micro Python will not build on Windows with a Windows
-  native toolchain due to usage of POSIX paths in the Micro Python build
-  system.  It should build correctly on Linux or under Cygwin with the
-  NuttX buildroot tools.
+  NOTES:
+
+  1. Micro Python will not build on Windows with a Windows native toolchain
+     due to use of POSIX paths in the Micro Python build system.  It should build
+     correctly on Linux or under Cygwin with the NuttX buildroot tools.
+
+  2. Micro Python will not run correctly on a 64-bit target (such as the NuttX
+     simulation on a 64-bit platfform).  In that case it generates assertions
+     like:
+
+       OverflowError: long int not supported in this build
+
+     This change to mpconfigport.h is a partial work-around but does not solve
+     all issues:
+
+       -#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_MPL)
+       +#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_LONGLONG)
+
+     Someday it will probably be necessary to autogenerate the mpconfigport.h
+     header file with the correct properties for the target system.\
 
 pcode
 -----
