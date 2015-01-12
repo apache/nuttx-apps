@@ -153,6 +153,9 @@ endif
 depend: .depend
 
 clean:
+	$(call DELDIR, build)
+	$(call DELFILE, .built)
+	$(call CLEAN)
 
 distclean: clean
 	$(call DELFILE, Make.dep)

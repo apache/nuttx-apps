@@ -100,8 +100,8 @@
  ****************************************************************************/
 
 typedef int wint_t;                      /* For newlib's math.h. See wchar_t */
-typedef int32_t mp_int_t;                /* must be pointer size */
-typedef uint32_t mp_uint_t;              /* must be pointer size */
+typedef intptr_t mp_int_t;               /* must be pointer size */
+typedef uintptr_t mp_uint_t;             /* must be pointer size */
 typedef void *machine_ptr_t;             /* must be of pointer size */
 typedef const void *machine_const_ptr_t; /* must be of pointer size */
 typedef long mp_off_t;
