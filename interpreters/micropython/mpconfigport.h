@@ -99,7 +99,6 @@
  * Public Types
  ****************************************************************************/
 
-typedef int wint_t;                      /* For newlib's math.h. See wchar_t */
 typedef intptr_t mp_int_t;               /* must be pointer size */
 typedef uintptr_t mp_uint_t;             /* must be pointer size */
 typedef void *machine_ptr_t;             /* must be of pointer size */
