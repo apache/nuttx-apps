@@ -1169,4 +1169,6 @@
 	  (2015-01-06).
 	* apps/interpreters/micropython:  A port of Micro Python to NuttX.
 	  Contributed by Dave Marples (2015-01-11).
+	* apps/examples/timer:  Add a trivial test of the timer driver
+	  (2015-01-13).
 
