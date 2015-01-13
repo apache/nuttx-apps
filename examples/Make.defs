@@ -298,6 +298,10 @@ ifeq ($(CONFIG_EXAMPLES_TIFF),y)
 CONFIGURED_APPS += examples/tiff
 endif
 
+ifeq ($(CONFIG_EXAMPLES_TIMER),y)
+CONFIGURED_APPS += examples/timer
+endif
+
 ifeq ($(CONFIG_EXAMPLES_TOUCHSCREEN),y)
 CONFIGURED_APPS += examples/touchscreen
 endif

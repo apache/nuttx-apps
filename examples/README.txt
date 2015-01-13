@@ -1750,6 +1750,31 @@ examples/tiff
     CONFIG_EXAMPLES_TIFF=y
     CONFIG_GRAPHICS_TIFF=y
 
+examples/timer
+^^^^^^^^^^^^^^
+
+  This is a simple test of the timer driver (see include/nuttx/timer.h).
+
+  Dependencies:
+    CONFIG_TIMER - The timer driver must be selected
+
+  Example configuration:
+
+    CONFIG_EXAMPLE_TIMER_DEVNAME - This is the name of the timer device that
+      will be tested.  Default: "/dev/timer0"
+    CONFIG_EXAMPLE_TIMER_INTERVAL - This is the timer interval in
+      microseconds.  Default: 1000000
+    CONFIG_EXAMPLE_TIMER_DELAY - This is the delay between timer samples in
+      microseconds.  Default: 10000
+    CONFIG_EXAMPLES_TIMER_APPNAME - This is the name of the built-in
+      application:  Default:  "timer"
+    CONFIG_EXAMPLES_TIMER_STACKSIZE - This is the stack size allocated when
+      the timer task runs.  Default: 2048
+    CONFIG_EXAMPLES_TIMER_PRIORITY - This is the priority of the timer task:
+      Default: 100
+    CONFIG_EXAMPLES_TIMER_PROGNAME - This is the name of the program that
+      will be use when the NSH ELF program is installed.  Default: "timer"
+
 examples/touchscreen
 ^^^^^^^^^^^^^^^^^^^^
 
