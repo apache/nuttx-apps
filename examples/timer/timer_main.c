@@ -72,6 +72,21 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * timer_handler
+ ****************************************************************************/
+
+static bool timer_handler(FAR uint32_t *next_interval_us)
+{
+  /* This handler may:
+   *
+   * (1) Modify the timeout value to change the frequency dynamically, or
+   * (2) Return false to stop the timer.
+   */
+
+  return true;
+}
+
+/****************************************************************************
  * timer_status
  ****************************************************************************/
 
@@ -111,6 +126,7 @@ int main(int argc, FAR char *argv[])
 int timer_main(int argc, char *argv[])
 #endif
 {
+  struct timer_sethandler_s handler;
   int ret;
   int fd;
   int i;
@@ -140,6 +156,28 @@ int timer_main(int argc, char *argv[])
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: Failed to set the timer interval: %d\n", errno);
+      close(fd);
+      return EXIT_FAILURE;
+    }
+
+  /* Show the timer status before attaching the timer handler */
+
+  timer_status(fd);
+
+  /* Attach the timer handler
+   *
+   * NOTE: If no handler is attached, the timer stop at the first interrupt.
+   */
+
+  printf("Attach timer handler\n");
+
+  handler.newhandler = timer_handler;
+  handler.oldhandler = NULL;
+
+  ret = ioctl(fd, TCIOC_SETHANDLER, (unsigned long)((uintptr_t)&handler));
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to set the timer handler: %d\n", errno);
       close(fd);
       return EXIT_FAILURE;
     }
