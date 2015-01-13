@@ -75,11 +75,16 @@ micropython
      This change to mpconfigport.h is a partial work-around but does not solve
      all issues:
 
-       -#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_MPL)
+       -#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_MPZ)
        +#define MICROPY_LONGINT_IMPL           (MICROPY_LONGINT_IMPL_LONGLONG)
 
      Someday it will probably be necessary to autogenerate the mpconfigport.h
      header file with the correct properties for the target system.\
+
+  3. Can't fine alloca.h?  With GCC compilers you may be able replace the
+     inclusion of alloca.h in mkconfigport.h with:
+
+       #define alloca(a) __builtin_alloca(a)
 
 pcode
 -----
