@@ -34,9 +34,13 @@
 #
 ###########################################################################
 
+# Standard includes
+
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
+
+# Set up build configuration and environment
 
 WD := ${shell pwd | sed -e 's/ /\\ /g'}
 
@@ -50,10 +54,15 @@ WGET ?= wget
 MICROPYTHON_UNPACKNAME = micropython-$(MICROPYTHON_VERSION)
 UNPACK ?= tar -zxf
 
-CROSS_COMPILE ?= $(CROSSDEV)
-
 MICROPYTHON_UNPACKDIR =  $(WD)/$(MICROPYTHON_UNPACKNAME)
 MICROPTHYON_SRCDIR = $(MICROPYTHON_UNPACKDIR)/py
+
+# Get the Micro Python build environment.  mkenv.mk has these dependencies
+#
+#  V             - Enable verbose output (same meaning as in NuttX)
+#  CROSS_COMPILE - Tool prefix (same as CROSSDEV in NuttX)
+
+CROSS_COMPILE ?= $(CROSSDEV)
 -include $(MICROPTHYON_SRCDIR)/mkenv.mk
 
 # qstr definitions (must come before including py.mk)
@@ -72,6 +81,8 @@ INC =  -I. -I$(WD) -I$(MICROPYTHON_UNPACKDIR) -I$(PY_SRC) -I$(BUILD)
 
 CFLAGS +=$(INC)
 
+# Built-in application info
+
 CONFIG_INTERPRETERS_MICROPYTHON_APPNAME ?= micropython
 CONFIG_INTERPRETERS_MICROPYTHON_STACKSIZE ?= 2048
 CONFIG_INTERPRETERS_MICROPYTHON_PRIORITY ?= SCHED_PRIORITY_DEFAULT
@@ -82,6 +93,8 @@ PRIORITY = $(CONFIG_INTERPRETERS_MICROPYTHON_PRIORITY)
 
 CONFIG_INTERPRETERS_MICROPYTHON_PROGNAME ?= micropython$(EXEEXT)
 PROGNAME = $(CONFIG_INTERPRETERS_MICROPYTHON_PROGNAME)
+
+# Files
 
 ASRCS =
 CSRCS = pyexec.c py_readline.c
