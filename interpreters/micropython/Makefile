@@ -69,13 +69,13 @@ CROSS_COMPILE ?= $(CROSSDEV)
 
 QSTR_DEFS = qstrdefsport.h
 
-# include py core make definitions
+# Include py core make definitions
 
 -include $(MICROPTHYON_SRCDIR)/py.mk
 
-# c99 is needed for micropython
+# c99 is needed for Micro Python
 
-CFLAGS+=-std=c99 -Wno-shadow -Wno-strict-prototypes
+CFLAGS += -std=c99 -Wno-shadow -Wno-strict-prototypes
 
 INC =  -I. -I$(WD) -I$(MICROPYTHON_UNPACKDIR) -I$(PY_SRC) -I$(BUILD)
 
