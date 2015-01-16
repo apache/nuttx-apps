@@ -455,6 +455,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
         {
           goto errout;
         }
+
       args->allocated = true;
     }
 
@@ -797,8 +798,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       handle = dhcpc_open(&mac, IFHWADDRLEN);
 
-      /* Get an IP address.  Note that there is no logic for renewing the IP address in this
-       * example.  The address should be renewed in ds.lease_time/2 seconds.
+      /* Get an IP address.  Note that there is no logic for renewing the IP
+       * address in this example.  The address should be renewed in
+       * ds.lease_time/2 seconds.
        */
 
       if (handle)
@@ -843,7 +845,7 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR const char *fmt = g_fmtarginvalid;
   const char *staddr;
-  net_ipaddr_t ipaddr;
+  in_addr_t ipaddr;
   uint32_t start;
   uint32_t next;
   uint32_t dsec = 10;
@@ -899,7 +901,9 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered, then return without processing the
+   * command
+   */
 
   if (badarg)
     {
@@ -931,8 +935,8 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   id = ping_newid();
 
-  /* The maximum wait for a response will be the larger of the inter-ping time and
-   * the configured maximum round-trip time.
+  /* The maximum wait for a response will be the larger of the inter-ping
+   * time and the configured maximum round-trip time.
    */
 
   maxwait = MAX(dsec, CONFIG_NSH_MAX_ROUNDTRIP);
@@ -960,7 +964,7 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           /* Get the elapsed time from the time that the request was
            * sent until the response was received.  If we got a response
-           * to an earlier request, then fudge the elpased time.
+           * to an earlier request, then fudge the elapsed time.
            */
 
           elapsed = TICK2MSEC(clock_systimer() - next);
@@ -1091,7 +1095,9 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         }
     }
 
-  /* If a bad argument was encountered, then return without processing the command */
+  /* If a bad argument was encountered, then return without processing the
+   * command
+   */
 
   if (badarg)
     {

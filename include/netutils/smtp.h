@@ -2,7 +2,7 @@
  * apps/include/netutils/smtp.h
  * SMTP header file
  *
- *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Heavily leveraged from uIP 1.0 which also has a BSD-like license:
@@ -69,7 +69,7 @@ extern "C"
 
 void *smtp_open(void);
 void  smtp_configure(FAR void *handle, FAR const char *localhostname,
-                     FAR const net_ipaddr_t *paddr);
+                     FAR const in_addr_t *paddr);
 int   smtp_send(FAR void *handle, FAR const char *to, FAR const char *cc,
                 FAR const char *from, FAR const char *subject,
                 FAR const char *msg, int msglen);
