@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/netlib/netlib_setdripv4addr.c
+ * netutils/netlib/netlib_getipv6addr.c
  *
- *   Copyright (C) 2007-2009, 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,14 +38,14 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET_IPv4) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#if defined(CONFIG_NET_IPv6) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <netinet/in.h>
 #include <net/if.h>
@@ -53,49 +53,49 @@
 #include <apps/netutils/netlib.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_set_dripv4addr
+ * Name: netlib_get_ipv6addr
  *
  * Description:
- *   Set the default router IPv4 address
+ *   Get the network driver IPv6 address
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   ipaddr   The address to set
+ *   ipaddr   The location to return the IP address
  *
  * Return:
  *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
-int netlib_set_dripv4addr(FAR const char *ifname,
-                          FAR const struct in_addr *addr)
+int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr)
 {
   int ret = ERROR;
 
   if (ifname && addr)
     {
-      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          FAR struct sockaddr_in *inaddr;
-          struct ifreq req;
+          struct lifreq req;
 
-          /* Add the device name to the request */
+          strncpy(req.lifr_name, ifname, IFNAMSIZ);
+          ret = ioctl(sockfd, SIOCGLIFADDR, (unsigned long)&req);
+          if (!ret)
+            {
+              FAR struct sockaddr_in6 *req_addr;
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+              req_addr = (FAR struct sockaddr_in6 *)&req.lifr_addr;
+              memcpy(addr, &req_addr->sin6_addr, sizeof(struct in6_addr));
+            }
 
-          /* Add the INET address to the request */
-
-          inaddr             = (FAR struct sockaddr_in *)&req.ifr_addr;
-          inaddr->sin_family = AF_INET;
-          inaddr->sin_port   = 0;
-          memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
-
-          ret = ioctl(sockfd, SIOCSIFDSTADDR, (unsigned long)&req);
           close(sockfd);
         }
     }
@@ -103,4 +103,4 @@ int netlib_set_dripv4addr(FAR const char *ifname,
   return ret;
 }
 
-#endif /* CONFIG_NET_IPv4 && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_IPv6 && CONFIG_NSOCKET_DESCRIPTORS */

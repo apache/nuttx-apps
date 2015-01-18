@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/netlib/netlib_getipv4addr.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#if defined(CONFIG_NET_IPv4) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -57,14 +57,14 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Global Functions
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
  * Name: netlib_get_ipv4addr
  *
  * Description:
- *   Get the network driver IP address
+ *   Get the network driver IPv4 address
  *
  * Parameters:
  *   ifname   The name of the interface to use
@@ -75,13 +75,10 @@
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
-int netlib_get_ipv4addr(const char *ifname, struct in6_addr *addr)
-#else
-int netlib_get_ipv4addr(const char *ifname, struct in_addr *addr)
-#endif
+int netlib_get_ipv4addr(FAR const char *ifname, FAR struct in_addr *addr)
 {
   int ret = ERROR;
+
   if (ifname && addr)
     {
       int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
@@ -92,15 +89,10 @@ int netlib_get_ipv4addr(const char *ifname, struct in_addr *addr)
           ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
           if (!ret)
             {
-#ifdef CONFIG_NET_IPv6
-              FAR struct sockaddr_in6 *req_addr;
-              req_addr = (FAR struct sockaddr_in6 *)&req.ifr_addr;
-              memcpy(addr, &req_addr->sin6_addr, sizeof(struct in6_addr));
-#else
               FAR struct sockaddr_in *req_addr;
+
               req_addr = (FAR struct sockaddr_in*)&req.ifr_addr;
               memcpy(addr, &req_addr->sin_addr, sizeof(struct in_addr));
-#endif
             }
 
           close(sockfd);
@@ -110,4 +102,4 @@ int netlib_get_ipv4addr(const char *ifname, struct in_addr *addr)
   return ret;
 }
 
-#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_IPv4 && CONFIG_NSOCKET_DESCRIPTORS */

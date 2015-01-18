@@ -53,7 +53,7 @@
 #include <apps/netutils/netlib.h>
 
 /****************************************************************************
- * Global Functions
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
@@ -66,7 +66,7 @@
  *   ifname   The name of the interface to use
  *
  * Return:
- *   0 on sucess; -1 on failure
+ *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
@@ -109,7 +109,7 @@ int netlib_ifup(const char *ifname)
  *   ifname   The name of the interface to use
  *
  * Return:
- *   0 on sucess; -1 on failure
+ *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
