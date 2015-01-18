@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getifflag.c
+ * netutils/netlib/netlib_getifstatus.c
  *
  *   Copyright (C) 2007-2009, 2011, 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netinit.c
  *
- *   Copyright (C) 2010-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2012, 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This is influenced by similar logic from uIP:
@@ -184,6 +184,7 @@ static void nsh_netinit_configure(void)
   netlib_setmacaddr(NET_DEVNAME, mac);
 #endif
 
+#ifdef CONFIG_NET_IPv4
   /* Set up our host address */
 
 #if !defined(CONFIG_NSH_DHCPC)
@@ -191,17 +192,22 @@ static void nsh_netinit_configure(void)
 #else
   addr.s_addr = 0;
 #endif
-  netlib_sethostaddr(NET_DEVNAME, &addr);
+  netlib_set_ipv4addr(NET_DEVNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_NSH_DRIPADDR);
-  netlib_setdraddr(NET_DEVNAME, &addr);
+  netlib_set_dripv4addr(NET_DEVNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_NSH_NETMASK);
-  netlib_setnetmask(NET_DEVNAME, &addr);
+  netlib_set_ipv4netmask(NET_DEVNAME, &addr);
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#  warning Missing logic
+#endif
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   /* Set up the resolver */
@@ -230,16 +236,16 @@ static void nsh_netinit_configure(void)
     {
         struct dhcpc_state ds;
         (void)dhcpc_request(handle, &ds);
-        netlib_sethostaddr(NET_DEVNAME, &ds.ipaddr);
+        netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
 
         if (ds.netmask.s_addr != 0)
           {
-            netlib_setnetmask(NET_DEVNAME, &ds.netmask);
+            netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
           }
 
         if (ds.default_router.s_addr != 0)
           {
-            netlib_setdraddr(NET_DEVNAME, &ds.default_router);
+            netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
           }
 
         if (ds.dnsaddr.s_addr != 0)

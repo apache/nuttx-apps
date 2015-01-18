@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setnetmask.c
+ * netutils/netlib/netlib_setipv4netmask.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -56,7 +56,7 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setnetmask
+ * Name: netlib_set_ipv4netmask
  *
  * Description:
  *   Set the netmask
@@ -71,9 +71,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-int netlib_setnetmask(const char *ifname, const struct in6_addr *addr)
+int netlib_set_ipv4netmask(const char *ifname, const struct in6_addr *addr)
 #else
-int netlib_setnetmask(const char *ifname, const struct in_addr *addr)
+int netlib_set_ipv4netmask(const char *ifname, const struct in_addr *addr)
 #endif
 {
   int ret = ERROR;

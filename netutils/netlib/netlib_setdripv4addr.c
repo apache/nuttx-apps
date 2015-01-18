@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_gethostaddr.c
+ * netutils/netlib/netlib_setdripv4addr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -43,9 +43,9 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <unistd.h>
 
 #include <netinet/in.h>
 #include <net/if.h>
@@ -53,32 +53,28 @@
 #include <apps/netutils/netlib.h>
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Global Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_gethostaddr
+ * Name: netlib_set_dripv4addr
  *
  * Description:
- *   Get the network driver IP address
+ *   Set the default router IP address
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   ipaddr   The location to return the IP address
+ *   ipaddr   The address to set
  *
  * Return:
- *   0 on success; -1 on failure
+ *   0 on sucess; -1 on failure
  *
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-int netlib_gethostaddr(const char *ifname, struct in6_addr *addr)
+int netlib_set_dripv4addr(const char *ifname, const struct in6_addr *addr)
 #else
-int netlib_gethostaddr(const char *ifname, struct in_addr *addr)
+int netlib_set_dripv4addr(const char *ifname, const struct in_addr *addr)
 #endif
 {
   int ret = ERROR;
@@ -88,21 +84,29 @@ int netlib_gethostaddr(const char *ifname, struct in_addr *addr)
       if (sockfd >= 0)
         {
           struct ifreq req;
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
-          ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
-          if (!ret)
-            {
 #ifdef CONFIG_NET_IPv6
-              FAR struct sockaddr_in6 *req_addr;
-              req_addr = (FAR struct sockaddr_in6 *)&req.ifr_addr;
-              memcpy(addr, &req_addr->sin6_addr, sizeof(struct in6_addr));
+          struct sockaddr_in6 *inaddr;
 #else
-              FAR struct sockaddr_in *req_addr;
-              req_addr = (FAR struct sockaddr_in*)&req.ifr_addr;
-              memcpy(addr, &req_addr->sin_addr, sizeof(struct in_addr));
+          struct sockaddr_in  *inaddr;
 #endif
-            }
+          /* Add the device name to the request */
 
+          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+
+          /* Add the INET address to the request */
+
+#ifdef CONFIG_NET_IPv6
+          inaddr             = (struct sockaddr_in6 *)&req.ifr_addr;
+          inaddr->sin_family = AF_INET6;
+          inaddr->sin_port   = 0;
+          memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
+#else
+          inaddr             = (struct sockaddr_in *)&req.ifr_addr;
+          inaddr->sin_family = AF_INET;
+          inaddr->sin_port   = 0;
+          memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
+#endif
+          ret = ioctl(sockfd, SIOCSIFDSTADDR, (unsigned long)&req);
           close(sockfd);
         }
     }

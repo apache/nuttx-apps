@@ -296,17 +296,17 @@ static int xmlrpc_netinit(void)
 #else
   addr.s_addr = HTONL(CONFIG_EXAMPLES_XMLRPC_IPADDR);
 #endif
-  netlib_sethostaddr("eth0", &addr);
+  netlib_set_ipv4addr("eth0", &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_XMLRPC_DRIPADDR);
-  netlib_setdraddr("eth0", &addr);
+  netlib_set_dripv4addr("eth0", &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_XMLRPC_NETMASK);
-  netlib_setnetmask("eth0", &addr);
+  netlib_set_ipv4netmask("eth0", &addr);
 
 #ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC
   /* Set up the resolver */
@@ -331,16 +331,16 @@ static int xmlrpc_netinit(void)
     {
       struct dhcpc_state ds;
       (void)dhcpc_request(handle, &ds);
-      netlib_sethostaddr("eth0", &ds.ipaddr);
+      netlib_set_ipv4addr("eth0", &ds.ipaddr);
 
       if (ds.netmask.s_addr != 0)
         {
-          netlib_setnetmask("eth0", &ds.netmask);
+          netlib_set_ipv4netmask("eth0", &ds.netmask);
         }
 
       if (ds.default_router.s_addr != 0)
         {
-          netlib_setdraddr("eth0", &ds.default_router);
+          netlib_set_dripv4addr("eth0", &ds.default_router);
         }
 
       if (ds.dnsaddr.s_addr != 0)

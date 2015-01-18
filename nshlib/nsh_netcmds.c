@@ -732,7 +732,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       gip = addr.s_addr = inet_addr(hostip);
     }
 
-  netlib_sethostaddr(intf, &addr);
+  netlib_set_ipv4addr(intf, &addr);
 
   /* Set gateway */
 
@@ -755,7 +755,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       addr.s_addr = gip;
     }
 
-  netlib_setdraddr(intf, &addr);
+  netlib_set_dripv4addr(intf, &addr);
 
   /* Set network mask */
 
@@ -770,7 +770,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       addr.s_addr = inet_addr("255.255.255.0");
     }
 
-  netlib_setnetmask(intf, &addr);
+  netlib_set_ipv4netmask(intf, &addr);
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   if (dns)
@@ -808,16 +808,16 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           struct dhcpc_state ds;
 
           (void)dhcpc_request(handle, &ds);
-          netlib_sethostaddr("eth0", &ds.ipaddr);
+          netlib_set_ipv4addr("eth0", &ds.ipaddr);
 
           if (ds.netmask.s_addr != 0)
             {
-              netlib_setnetmask("eth0", &ds.netmask);
+              netlib_set_ipv4netmask("eth0", &ds.netmask);
             }
 
           if (ds.default_router.s_addr != 0)
             {
-              netlib_setdraddr("eth0", &ds.default_router);
+              netlib_set_dripv4addr("eth0", &ds.default_router);
             }
 
           if (ds.dnsaddr.s_addr != 0)

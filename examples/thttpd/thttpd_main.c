@@ -204,17 +204,17 @@ int thttp_main(int argc, char *argv[])
 
   printf("Setup network addresses\n");
   addr.s_addr = HTONL(CONFIG_THTTPD_IPADDR);
-  netlib_sethostaddr(NET_DEVNAME, &addr);
+  netlib_set_ipv4addr(NET_DEVNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_THTTPD_DRIPADDR);
-  netlib_setdraddr(NET_DEVNAME, &addr);
+  netlib_set_dripv4addr(NET_DEVNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_THTTPD_NETMASK);
-  netlib_setnetmask(NET_DEVNAME, &addr);
+  netlib_set_ipv4netmask(NET_DEVNAME, &addr);
 
   /* Initialize the NXFLAT binary loader */
 

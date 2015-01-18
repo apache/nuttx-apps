@@ -112,16 +112,18 @@ int netlib_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
 
 /* IP address support */
 
+#ifdef CONFIG_NET_IPv4
+int netlib_get_ipv4addr(FAR const char *ifname, FAR struct in_addr *addr);
+int netlib_set_ipv4addr(FAR const char *ifname, FAR const struct in_addr *addr);
+int netlib_set_dripv4addr(FAR const char *ifname, FAR const struct in_addr *addr);
+int netlib_set_ipv4netmask(FAR const char *ifname, FAR const struct in_addr *addr);
+#endif
+
 #ifdef CONFIG_NET_IPv6
-int netlib_gethostaddr(FAR const char *ifname, struct in6_addr *addr);
-int netlib_sethostaddr(FAR const char *ifname, const struct in6_addr *addr);
-int netlib_setdraddr(FAR const char *ifname, const struct in6_addr *addr);
-int netlib_setnetmask(FAR const char *ifname, const struct in6_addr *addr);
-#else
-int netlib_gethostaddr(FAR const char *ifname, struct in_addr *addr);
-int netlib_sethostaddr(FAR const char *ifname, const struct in_addr *addr);
-int netlib_setdraddr(FAR const char *ifname, const struct in_addr *addr);
-int netlib_setnetmask(FAR const char *ifname, const struct in_addr *addr);
+int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr);
+int netlib_set_ipv6addr(FAR const char *ifname, FAR const struct in6_addr *addr);
+int netlib_set_dripv6addr(FAR const char *ifname, FAR const struct in6_addr *addr);
+int netlib_set_ipv6netmask(FAR const char *ifname, FAR const struct in6_addr *addr);
 #endif
 
 /* HTTP support */

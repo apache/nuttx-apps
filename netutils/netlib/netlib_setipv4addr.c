@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setdraddr.c
+ * netutils/netlib/netlib_setipv4addr.c
  *
  *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -57,10 +57,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setdraddr
+ * Name: netlib_set_ipv4addr
  *
  * Description:
- *   Set the default router IP address
+ *   Set the network driver IP address
  *
  * Parameters:
  *   ifname   The name of the interface to use
@@ -72,9 +72,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_NET_IPv6
-int netlib_setdraddr(const char *ifname, const struct in6_addr *addr)
+int netlib_set_ipv4addr(const char *ifname, const struct in6_addr *addr)
 #else
-int netlib_setdraddr(const char *ifname, const struct in_addr *addr)
+int netlib_set_ipv4addr(const char *ifname, const struct in_addr *addr)
 #endif
 {
   int ret = ERROR;
@@ -106,11 +106,10 @@ int netlib_setdraddr(const char *ifname, const struct in_addr *addr)
           inaddr->sin_port   = 0;
           memcpy(&inaddr->sin_addr, addr, sizeof(struct in_addr));
 #endif
-          ret = ioctl(sockfd, SIOCSIFDSTADDR, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCSIFADDR, (unsigned long)&req);
           close(sockfd);
         }
     }
-
   return ret;
 }
 

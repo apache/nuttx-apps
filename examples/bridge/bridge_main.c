@@ -118,17 +118,17 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
 #else
   addr.s_addr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET1_IPADDR);
 #endif
-  netlib_sethostaddr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
+  netlib_set_ipv4addr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET1_DRIPADDR);
-  netlib_setdraddr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
+  netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET1_NETMASK);
-  netlib_setnetmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
+  netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
 
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC
   /* Set up the resolver */
@@ -159,16 +159,16 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
       return ERROR;
     }
 
-  netlib_sethostaddr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.ipaddr);
+  netlib_set_ipv4addr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.ipaddr);
 
   if (ds.netmask.s_addr != 0)
     {
-      netlib_setnetmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.netmask);
+      netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.netmask);
     }
 
   if (ds.default_router.s_addr != 0)
     {
-      netlib_setdraddr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.default_router);
+      netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &ds.default_router);
     }
 
   if (ds.dnsaddr.s_addr != 0)
@@ -243,17 +243,17 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 #else
   addr.s_addr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET2_IPADDR);
 #endif
-  netlib_sethostaddr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
+  netlib_set_ipv4addr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET2_DRIPADDR);
-  netlib_setdraddr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
+  netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_BRIDGE_NET2_NETMASK);
-  netlib_setnetmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
+  netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
 
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC
   /* Set up the resolver */
@@ -284,16 +284,16 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
       return ERROR;
     }
 
-  netlib_sethostaddr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.ipaddr);
+  netlib_set_ipv4addr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.ipaddr);
 
   if (ds.netmask.s_addr != 0)
     {
-      netlib_setnetmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.netmask);
+      netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.netmask);
     }
 
   if (ds.default_router.s_addr != 0)
     {
-      netlib_setdraddr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.default_router);
+      netlib_set_dripv4addr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &ds.default_router);
     }
 
   if (ds.dnsaddr.s_addr != 0)

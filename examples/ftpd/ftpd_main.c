@@ -103,17 +103,17 @@ static void fptd_netinit(void)
   /* Set up our host address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_FTPD_IPADDR);
-  netlib_sethostaddr("eth0", &addr);
+  netlib_set_ipv4addr("eth0", &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_FTPD_DRIPADDR);
-  netlib_setdraddr("eth0", &addr);
+  netlib_set_dripv4addr("eth0", &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_FTPD_NETMASK);
-  netlib_setnetmask("eth0", &addr);
+  netlib_set_ipv4netmask("eth0", &addr);
 #endif /* CONFIG_EXAMPLES_FTPD_NONETINIT */
 }
 

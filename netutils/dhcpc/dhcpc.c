@@ -447,7 +447,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
   /* Save the currently assigned IP address (should be INADDR_ANY) */
 
   oldaddr.s_addr = 0;
-  netlib_gethostaddr("eth0", &oldaddr);
+  netlib_get_ipv4addr("eth0", &oldaddr);
 
   /* Loop until we receive the lease (or an error occurs) */
 
@@ -456,7 +456,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
       /* Set the IP address to INADDR_ANY. */
 
       newaddr.s_addr = INADDR_ANY;
-      (void)netlib_sethostaddr("eth0", &newaddr);
+      (void)netlib_set_ipv4addr("eth0", &newaddr);
 
       /* Loop sending DISCOVER until we receive an OFFER from a DHCP
        * server.  We will lock on to the first OFFER and decline any
@@ -495,7 +495,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
                    * out of the loop.
                    */
 
-                  (void)netlib_sethostaddr("eth0", &presult->ipaddr);
+                  (void)netlib_set_ipv4addr("eth0", &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -587,7 +587,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
             {
               /* An error other than a timeout was received */
 
-              (void)netlib_sethostaddr("eth0", &oldaddr);
+              (void)netlib_set_ipv4addr("eth0", &oldaddr);
               return ERROR;
             }
         }

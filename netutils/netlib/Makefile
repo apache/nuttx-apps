@@ -1,7 +1,7 @@
 ############################################################################
 # apps/netutils/netlib/Makefile
 #
-#   Copyright (C) 2011-2012, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,20 @@ include $(APPDIR)/Make.defs
 # UIP Library
 
 ASRCS  =
-CSRCS  = netlib.c netlib_sethostaddr.c netlib_gethostaddr.c
-CSRCS += netlib_setdraddr.c netlib_setnetmask.c netlib_parsehttpurl.c
+CSRCS  = netlib.c netlib_parsehttpurl.c
 CSRCS += netlib_setifstatus.c netlib_getifstatus.c
+
+# IP address support
+
+ifeq ($(CONFIG_NET_IPv4),y)
+CSRCS += netlib_setipv4addr.c netlib_getipv4addr.c
+CSRCS += netlib_setdripv4addr.c netlib_setipv4netmask.c
+endif
+
+ifeq ($(CONFIG_NET_IPv6),y)
+CSRCS += netlib_setipv6addr.c netlib_getipv6addr.c
+CSRCS += netlib_setdripv6addr.c netlib_setipv6netmask.c
+endif
 
 # These require TCP support
 
