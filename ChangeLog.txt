@@ -1171,4 +1171,6 @@
 	  Contributed by Dave Marples (2015-01-11).
 	* apps/examples/timer:  Add a trivial test of the timer driver
 	  (2015-01-13).
+	* apps/netutils/dnsclient:  Can select to be either IPv4 or IPv6, but
+	  not both (IPv6 still does not compile) (2015-01-18).
 
