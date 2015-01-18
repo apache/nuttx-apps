@@ -49,6 +49,22 @@
 #include <netinet/in.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+/* If both IPv4 and IPv6 are enabled, the DNS client can support only one or
+ * the other.
+ */
+
+#if !defined(CONFIG_NETUTILS_DNSCLIENT_IPv4) && \
+    !defined(CONFIG_NETUTILS_DNSCLIENT_IPv6)
+#  ifdef CONFIG_NET_IPv6
+#     define CONFIG_NETUTILS_DNSCLIENT_IPv6 1
+#  else
+#     define CONFIG_NETUTILS_DNSCLIENT_IPv4 1
+#  endif
+#endif
+
+/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
@@ -127,7 +143,7 @@ int dns_query(FAR const char *hostname, FAR in_addr_t *ipaddr);
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 void dns_setserver(FAR const struct in6_addr *dnsserver);
 #else
 void dns_setserver(FAR const struct in_addr *dnsserver);
@@ -155,7 +171,7 @@ void dns_getserver(FAR struct in_addr *dnsserver);
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 int  dns_whois_socket(int sockfd, FAR const char *name,
                       FAR struct sockaddr_in6 *addr);
 #else
@@ -172,7 +188,7 @@ int  dns_whois_socket(int sockfd, FAR const char *name,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 int dns_whois(FAR const char *name, FAR struct sockaddr_in6 *addr);
 #else
 int dns_whois(FAR const char *name, FAR struct sockaddr_in *addr);
