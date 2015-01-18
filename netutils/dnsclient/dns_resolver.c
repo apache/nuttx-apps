@@ -113,7 +113,7 @@ int dns_query(FAR const char *hostname, FAR in_addr_t *ipaddr)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 int dns_whois(FAR const char *name, FAR struct sockaddr_in6 *addr)
 #else
 int dns_whois(FAR const char *name, FAR struct sockaddr_in *addr)

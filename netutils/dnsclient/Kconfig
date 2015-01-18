@@ -12,6 +12,21 @@ config NETUTILS_DNSCLIENT
 
 if NETUTILS_DNSCLIENT
 
+choice
+	prompt "Internet Protocol"
+	default NETUTILS_DNSCLIENT_IPv4 if NET_IPv4
+	default NETUTILS_DNSCLIENT_IPv6 if NET_IPv6 && !NET_IPv4
+
+config NETUTILS_DNSCLIENT_IPv4
+	bool "IPv4"
+	depends on NET_IPv4
+
+config NETUTILS_DNSCLIENT_IPv6
+	bool "IPv6"
+	depends on NET_IPv6
+
+endchoice # Internet Protocol
+
 config NETUTILS_DNSCLIENT_ENTRIES
 	int "Number of DNS resolver entries"
 	default 8

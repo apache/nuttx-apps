@@ -101,7 +101,7 @@
 #  define RECV_BUFFER_SIZE 96
 #endif
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 #  define ADDRLEN sizeof(struct sockaddr_in6)
 #else
 #  define ADDRLEN sizeof(struct sockaddr_in)
@@ -136,7 +136,7 @@ struct dns_answer
   uint16_t class;
   uint16_t ttl[2];
   uint16_t len;
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
   struct in6_addr ipaddr;
 #else
   struct in_addr ipaddr;
@@ -151,7 +151,7 @@ struct namemap
   uint8_t seqno;
   uint8_t err;
   char name[32];
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
   struct in6_addr ipaddr;
 #else
   struct in_addr ipaddr;
@@ -163,7 +163,7 @@ struct namemap
  ****************************************************************************/
 
 static uint8_t g_seqno;
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 static struct sockaddr_in6 g_dnsserver;
 #else
 static struct sockaddr_in g_dnsserver;
@@ -209,7 +209,7 @@ static FAR unsigned char *dns_parse_name(FAR unsigned char *query)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 static int dns_send_query(int sockfd, FAR const char *name,
                            FAR struct sockaddr_in6 *addr)
 #else
@@ -264,7 +264,7 @@ static int dns_send_query(int sockfd, FAR const char *name,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 #  error "Not implemented"
 #else
 static int dns_recv_response(int sockfd, FAR struct sockaddr_in *addr)
@@ -502,7 +502,7 @@ int dns_query_sock(int sockfd, FAR const char *hostname, FAR in_addr_t *ipaddr)
 
 #else
 
-# ifdef CONFIG_NET_IPv6
+# ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
   struct sockaddr_in6 addr;
 # else
   struct sockaddr_in addr;
@@ -540,7 +540,7 @@ int dns_query_sock(int sockfd, FAR const char *hostname, FAR in_addr_t *ipaddr)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 void dns_setserver(FAR const struct in6_addr *dnsserver)
 #else
 void dns_setserver(FAR const struct in_addr *dnsserver)
@@ -548,7 +548,8 @@ void dns_setserver(FAR const struct in_addr *dnsserver)
 {
   g_dnsserver.sin_family = AF_INET;
   g_dnsserver.sin_port   = HTONS(53);
-#ifdef CONFIG_NET_IPv6
+
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
   memcpy(&g_dnsserver.sin6_addr, dnsserver, ADDRLEN);
 #else
   g_dnsserver.sin_addr.s_addr = dnsserver->s_addr;
@@ -563,13 +564,13 @@ void dns_setserver(FAR const struct in_addr *dnsserver)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 void dns_getserver(FAR struct in6_addr *dnsserver)
 #else
 void dns_getserver(FAR struct in_addr *dnsserver)
 #endif
 {
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
   memcpy(dnsserver, &g_dnsserver.sin6_addr, ADDRLEN);
 #else
   dnsserver->s_addr = g_dnsserver.sin_addr.s_addr;
@@ -584,7 +585,7 @@ void dns_getserver(FAR struct in_addr *dnsserver)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
 int dns_whois_socket(int sockfd, FAR const char *name,
                      FAR struct sockaddr_in6 *addr)
 #else

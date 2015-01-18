@@ -141,8 +141,8 @@ void dns_setserver(FAR const struct in_addr *dnsserver);
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv6
-void dns_getserver(FAR const struct in_addr *dnsserver);
+#ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
+void dns_getserver(FAR struct in6_addr *dnsserver);
 #else
 void dns_getserver(FAR struct in_addr *dnsserver);
 #endif
