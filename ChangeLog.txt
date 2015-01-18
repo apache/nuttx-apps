@@ -1173,4 +1173,6 @@
 	  (2015-01-13).
 	* apps/netutils/dnsclient:  Can select to be either IPv4 or IPv6, but
 	  not both (IPv6 still does not compile) (2015-01-18).
+	* apps/netutils/netlib:  Add new library functions to manipulate IPv6
+	  addresses (2015-01-13).
 
