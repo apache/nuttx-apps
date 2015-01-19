@@ -280,7 +280,12 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
+#ifdef CONFIG_NET_IPv4
   struct in_addr addr;
+#endif
+#ifdef CONFIG_NET_IPv6
+  char addrstr[INET6_ADDRSTRLEN];
+#endif
   uint8_t iff;
   const char *status;
   int ret;
@@ -305,15 +310,18 @@ int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
       status = "DOWN";
     }
 
-#ifdef CONFIG_NET_ETHERNET
+#if defined(CONFIG_NET_ETHERNET)
   /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
-  nsh_output(vtbl, "%s\tHWaddr %s at %s\n",
+  nsh_output(vtbl, "%s\tLink encap: Ethernet HWaddr %s at %s\n",
              dev->d_ifname, ether_ntoa(&dev->d_mac), status);
+#elif defined(CONFIG_NET_SLIP)
+  nsh_output(vtbl, "%s\tLink encap:SLIP\n");
 #endif
 
+#ifdef CONFIG_NET_IPv4
   addr.s_addr = dev->d_ipaddr;
-  nsh_output(vtbl, "\tIPaddr:%s ", inet_ntoa(addr));
+  nsh_output(vtbl, "\tinet addr:%s ", inet_ntoa(addr));
 
   addr.s_addr = dev->d_draddr;
   nsh_output(vtbl, "DRaddr:%s ", inet_ntoa(addr));
@@ -324,6 +332,28 @@ int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   dns_getserver(&addr);
   nsh_output(vtbl, "\tDNSaddr:%s\n", inet_ntoa(addr));
+#endif
+#endif
+
+#ifdef CONFIG_NET_IPv6
+  if (inet_ntop(AF_INET6, dev->d_ipv6addr, addrstr, INET6_ADDRSTRLEN))
+    {
+      nsh_output(vtbl, "\tinet6 addr:%s\n", addrstr);
+    }
+
+  if (inet_ntop(AF_INET6, dev->d_ipv6draddr, addrstr, INET6_ADDRSTRLEN))
+    {
+      nsh_output(vtbl, "\tinet6 DRaddr:%s\n", addrstr);
+    }
+
+  if (inet_ntop(AF_INET6, dev->d_ipv6netmask, addrstr, INET6_ADDRSTRLEN))
+    {
+      nsh_output(vtbl, "\tinet6 Mask:%s\n", addrstr);
+    }
+
+#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#  warning Missing logic
+#endif
 #endif
 
   nsh_output(vtbl, "\n");
@@ -582,7 +612,12 @@ int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_IFCONFIG
 int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+#ifdef CONFIG_NET_IPv4
   struct in_addr addr;
+#endif
+#ifdef CONFIG_NET_IPv6
+  struct in6_addr addr6;
+#endif
   in_addr_t gip;
   int i;
   FAR char *intf = NULL;
@@ -596,13 +631,16 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
   FAR char *dns = NULL;
 #endif
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+  bool inet6 = false;
+#endif
   bool badarg = false;
   uint8_t mac[IFHWADDRLEN];
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
 #endif
 
-  /* With one or no arguments, ifconfig simply shows the status of ethernet
+  /* With one or no arguments, ifconfig simply shows the status of Ethernet
    * device:
    *
    *   ifconfig
@@ -661,6 +699,22 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                       badarg = true;
                     }
                 }
+              else if (!strcmp(tmp, "inet"))
+                {
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+                  inet6 = false;
+#elif !defined(CONFIG_NET_IPv4)
+                  badarg = true;
+#endif
+                }
+              else if (!strcmp(tmp, "inet6"))
+                {
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+                  inet6 = true;
+#elif !defined(CONFIG_NET_IPv6)
+                  badarg = true;
+#endif
+                }
 
 #ifdef CONFIG_NET_ETHERNET
               /* REVISIT: How will we handle Ethernet and SLIP networks together? */
@@ -715,77 +769,148 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
-#if defined(CONFIG_NSH_DHCPC)
-  if (!strcmp(hostip, "dhcp"))
-    {
-      /* Set DHCP addr */
+   /* Set IP address */
 
-      ndbg("DHCPC Mode\n");
-      gip = addr.s_addr = 0;
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  if (inet6)
+#endif
+    {
+#warning Missing Logic
+      UNUSED(addr6);
+      UNUSED(gip);
+      UNUSED(hostip);
     }
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
   else
 #endif
     {
-      /* Set host IP address */
-
-      ndbg("Host IP: %s\n", hostip);
-      gip = addr.s_addr = inet_addr(hostip);
-    }
-
-  netlib_set_ipv4addr(intf, &addr);
-
-  /* Set gateway */
-
-  if (gwip)
-    {
-      ndbg("Gateway: %s\n", gwip);
-      gip = addr.s_addr = inet_addr(gwip);
-    }
-  else
-    {
-      if (gip)
+#if defined(CONFIG_NSH_DHCPC)
+      if (!strcmp(hostip, "dhcp"))
         {
-          ndbg("Gateway: default\n");
-          gip  = NTOHL(gip);
-          gip &= ~0x000000ff;
-          gip |= 0x00000001;
-          gip  = HTONL(gip);
+          /* Set DHCP addr */
+
+          ndbg("DHCPC Mode\n");
+          gip = addr.s_addr = 0;
+        }
+      else
+#endif
+        {
+          /* Set host IP address */
+
+          ndbg("Host IP: %s\n", hostip);
+          gip = addr.s_addr = inet_addr(hostip);
         }
 
-      addr.s_addr = gip;
+      netlib_set_ipv4addr(intf, &addr);
     }
+#endif /* CONFIG_NET_IPv4 */
 
-  netlib_set_dripv4addr(intf, &addr);
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  if (inet6)
+#endif
+    {
+#warning Missing Logic
+      UNUSED(gwip);
+    }
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+  else
+#endif
+    {
+      /* Set gateway */
+
+      if (gwip)
+        {
+          ndbg("Gateway: %s\n", gwip);
+          gip = addr.s_addr = inet_addr(gwip);
+        }
+      else
+        {
+          if (gip)
+            {
+              ndbg("Gateway: default\n");
+              gip  = NTOHL(gip);
+              gip &= ~0x000000ff;
+              gip |= 0x00000001;
+              gip  = HTONL(gip);
+            }
+
+          addr.s_addr = gip;
+        }
+
+      netlib_set_dripv4addr(intf, &addr);
+    }
+#endif /* CONFIG_NET_IPv4 */
 
   /* Set network mask */
 
-  if (mask)
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  if (inet6)
+#endif
     {
-      ndbg("Netmask: %s\n",mask);
-      addr.s_addr = inet_addr(mask);
+#warning Missing Logic
+      UNUSED(mask);
     }
-  else
-    {
-      ndbg("Netmask: Default\n");
-      addr.s_addr = inet_addr("255.255.255.0");
-    }
+#endif /* CONFIG_NET_IPv6 */
 
-  netlib_set_ipv4netmask(intf, &addr);
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+  else
+#endif
+    {
+      if (mask)
+        {
+          ndbg("Netmask: %s\n",mask);
+          addr.s_addr = inet_addr(mask);
+        }
+      else
+        {
+          ndbg("Netmask: Default\n");
+          addr.s_addr = inet_addr("255.255.255.0");
+        }
+
+      netlib_set_ipv4netmask(intf, &addr);
+    }
+#endif /* CONFIG_NET_IPv4 */
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-  if (dns)
-    {
-      ndbg("DNS: %s\n", dns);
-      addr.s_addr = inet_addr(dns);
-    }
-  else
-    {
-      ndbg("DNS: Default\n");
-      addr.s_addr = gip;
-    }
-
-  dns_setserver(&addr);
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  if (inet6)
 #endif
+    {
+#warning Missing Logic
+    }
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+  else
+#endif
+    {
+      if (dns)
+        {
+          ndbg("DNS: %s\n", dns);
+          addr.s_addr = inet_addr(dns);
+        }
+      else
+        {
+          ndbg("DNS: Default\n");
+          addr.s_addr = gip;
+        }
+
+      dns_setserver(&addr);
+    }
+#endif /* CONFIG_NET_IPv4 */
+#endif /* CONFIG_NSH_DHCPC || CONFIG_NSH_DNS */
 
 #if defined(CONFIG_NSH_DHCPC)
   /* Get the MAC address of the NIC */

@@ -200,7 +200,9 @@ static const uint16_t g_ipv6_netmask[8] =
 
 static void nsh_netinit_configure(void)
 {
+#ifdef CONFIG_NET_IPv4
   struct in_addr addr;
+#endif
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
 #endif
