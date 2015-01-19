@@ -58,7 +58,9 @@ endif
 # These require TCP support
 
 ifeq ($(CONFIG_NET_TCP),y)
+ifeq ($(CONFIG_NET_IPv4),y) # Not yet available for IPv6
 CSRCS += netlib_server.c netlib_listenon.c
+endif
 endif
 
 # No MAC address support for SLIP (Ethernet only)
@@ -70,7 +72,9 @@ endif
 # IGMP support
 
 ifeq ($(CONFIG_NET_IGMP),y)
+ifeq ($(CONFIG_NET_IPv4),y) # Not yet available for IPv6
 CSRCS += netlib_ipmsfilter.c
+endif
 endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

@@ -54,6 +54,19 @@
 #include <apps/netutils/netlib.h>
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+/* The address family that we used to create the socket really does not
+ * matter.  It should, however, be valid in the current configuration.
+ */
+
+#if defined(CONFIG_NET_IPv4)
+#  define PF_INETX PF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define PF_INETX PF_INET6
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -79,7 +92,7 @@ int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;

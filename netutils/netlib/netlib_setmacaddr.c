@@ -55,11 +55,20 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+/* The address family that we used to create the socket and in the IOCTL
+ * data really does not matter.  It should, however, be valid in the current
+ * configuration.
+ */
 
-#ifdef CONFIG_NET_IPv6
-# define AF_INETX AF_INET6
-#else
-# define AF_INETX AF_INET
+#if defined(CONFIG_NET_IPv4)
+#  define PF_INETX PF_INET
+#  define AF_INETX AF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define PF_INETX PF_INET6
+#  define AF_INETX AF_INET6
 #endif
 
 /****************************************************************************
@@ -89,7 +98,7 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
