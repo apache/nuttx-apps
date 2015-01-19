@@ -889,40 +889,316 @@ config NSH_NETINIT_DEBUG
 		or DEBUG_VERBOSE are not selected.  This allows for focused, unit-
 		level debug of the NSH network initialization logic.
 
+menu "IP Address Configuration"
+
 config NSH_DHCPC
 	bool "Use DHCP to get IP address"
 	default n
-	depends on NSH_LIBRARY && NETUTILS_DHCPC
+	depends on NETUTILS_DHCPC
 	---help---
 		Obtain the IP address via DHCP.
 
 		Per RFC2131 (p. 9), the DHCP client must be prepared to receive DHCP
 		messages of up to 576 bytes (excluding Ethernet, IP, or UDP headers and FCS).
 
+if NET_IPv4
+
+comment "IPv4 Addresses"
+
 config NSH_IPADDR
-	hex "Target IP address"
+	hex "Target IPv4 address"
 	default 0x0a000002
-	depends on NSH_LIBRARY && NET && !NSH_DHCPC
+	depends on !NSH_DHCPC
 	---help---
 		If NSH_DHCPC is NOT set, then the static IP address must be provided.
 		This is a 32-bit integer value in host order.  So, as an example,
 		0x10000002 would be 10.0.0.2.
 
 config NSH_DRIPADDR
-	hex "Router IP address"
+	hex "Router IPv4 address"
 	default 0x0a000001
-	depends on NSH_LIBRARY && NET
 	---help---
 		Default router IP address (aka, Gateway).  This is a 32-bit integer
 		value in host order.  So, as an example, 0x10000001 would be 10.0.0.1.
 
 config NSH_NETMASK
-	hex "Network mask"
+	hex "IPv4 Network mask"
 	default 0xffffff00
-	depends on NSH_LIBRARY && NET
 	---help---
 		Network mask.  This is a 32-bit integer value in host order.  So, as
 		an example, 0xffffff00 would be 255.255.255.0.
+
+endif # NET_IPv4
+
+if NET_IPv6
+if !NSH_DHCPC
+
+comment "Target IPv6 address"
+
+config NSH_IPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the first of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the second of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the third of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the fourth of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the fifth of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the sixth of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the seventh of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+config NSH_IPv6ADDR_8
+	hex "[7]"
+	default 0x0002
+	range 0x0 0xffff
+	---help---
+		If NSH_DHCPC is NOT set, then the static IP address must be
+		provided. This is a 16-bit integer value in host order.  Each of the
+		eight values forming the full IP address must be specified
+		individually.  This is the last of the 8-values.  The default for
+		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+
+endif # !NSH_DHCPC
+
+comment "Router IPv6 address"
+
+config NSH_DRIPv6ADDR_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the first of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the second of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the third of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the fourth of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the fifth of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the sixth of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the seventh of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+config NSH_DRIPv6ADDR_8
+	hex "[7]"
+	default 0x0001
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP 
+		address must be specified individually.  This is the last of the
+		8-values.  The default for all eight values is
+		fc00:0000:0000:0000:0000:0000:0000:0001.
+
+comment "IPv6 Network mask"
+
+config NSH_IPv6NETMASK_1
+	hex "[0]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the first of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_2
+	hex "[1]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the second of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_3
+	hex "[2]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the third of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_4
+	hex "[3]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fourth of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_5
+	hex "[4]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fifth of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_6
+	hex "[5]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the sixth of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_7
+	hex "[6]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the seventh of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+config NSH_IPv6NETMASK_8
+	hex "[7]"
+	default 0xff80
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the eighth of the 8-values.  The default for
+		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+
+endif #NET_IPv6
+endmenu # IP Address Configuration
 
 config NSH_DNS
 	bool "Use DNS"

@@ -131,6 +131,57 @@
 static sem_t g_notify_sem;
 #endif
 
+#ifdef CONFIG_NET_IPv6
+  /* Host IPv6 address */
+
+#ifdef CONFIG_NSH_DHCPC
+static const uint16_t g_ipv6_hostaddr[8] =
+{
+  0x0000, 0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000
+};
+#else
+static const uint16_t g_ipv6_hostaddr[8] =
+{
+  HTONS(CONFIG_NSH_IPv6ADDR_1),
+  HTONS(CONFIG_NSH_IPv6ADDR_2),
+  HTONS(CONFIG_NSH_IPv6ADDR_3),
+  HTONS(CONFIG_NSH_IPv6ADDR_4),
+  HTONS(CONFIG_NSH_IPv6ADDR_5),
+  HTONS(CONFIG_NSH_IPv6ADDR_6),
+  HTONS(CONFIG_NSH_IPv6ADDR_7),
+  HTONS(CONFIG_NSH_IPv6ADDR_8),
+};
+#endif
+
+/* Default routine IPv6 address */
+
+static const uint16_t g_ipv6_draddr[8] =
+{
+  HTONS(CONFIG_NSH_DRIPv6ADDR_1),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_2),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_3),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_4),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_5),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_6),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_7),
+  HTONS(CONFIG_NSH_DRIPv6ADDR_8),
+};
+
+/* IPv6 netmask */
+
+static const uint16_t g_ipv6_netmask[8] =
+{
+  HTONS(CONFIG_NSH_IPv6NETMASK_1),
+  HTONS(CONFIG_NSH_IPv6NETMASK_2),
+  HTONS(CONFIG_NSH_IPv6NETMASK_3),
+  HTONS(CONFIG_NSH_IPv6NETMASK_4),
+  HTONS(CONFIG_NSH_IPv6NETMASK_5),
+  HTONS(CONFIG_NSH_IPv6NETMASK_6),
+  HTONS(CONFIG_NSH_IPv6NETMASK_7),
+  HTONS(CONFIG_NSH_IPv6NETMASK_8),
+};
+#endif /* CONFIG_NET_IPv6 */
+
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
@@ -206,7 +257,20 @@ static void nsh_netinit_configure(void)
 #endif
 
 #ifdef CONFIG_NET_IPv6
-#  warning Missing logic
+  /* Set up our host address */
+
+  netlib_set_ipv6addr(NET_DEVNAME,
+                      (FAR const struct in6_addr *)g_ipv6_hostaddr);
+
+  /* Set up the default router address */
+
+  netlib_set_dripv6addr(NET_DEVNAME,
+                        (FAR const struct in6_addr *)g_ipv6_draddr);
+
+  /* Setup the subnet mask */
+
+  netlib_set_ipv6netmask(NET_DEVNAME,
+                        (FAR const struct in6_addr *)g_ipv6_netmask);
 #endif
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
