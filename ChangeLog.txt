@@ -1177,4 +1177,7 @@
 	  addresses (2015-01-13).
 	* apps/nshlib/Kconfig and nsh_netinit.c:  Add logic to initialize
 	  IPv6 addresses (2015-01-19).
+	* apps/netutils/netlib:  All IOCTLs must use a valid address family --
+	  even if the address family does not matter such as when getting the
+	  MAC address or the network flags (2015-01-19).
 
