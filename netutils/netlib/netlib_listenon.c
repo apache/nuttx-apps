@@ -46,6 +46,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <debug.h>
+
+#include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include <apps/netutils/netlib.h>
