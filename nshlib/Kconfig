@@ -1119,83 +1119,83 @@ comment "IPv6 Network mask"
 
 config NSH_IPv6NETMASK_1
 	hex "[0]"
-	default 0xffff
+	default 0xfe00
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the first of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_2
 	hex "[1]"
-	default 0xffff
+	default 0x0000
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the second of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_3
 	hex "[2]"
-	default 0xffff
+	default 0x0000
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the third of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_4
 	hex "[3]"
-	default 0xffff
-	range 0x0 0xffff
+	default 0x0000
+	range 0x0 0x0000
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the fourth of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_5
 	hex "[4]"
-	default 0xffff
+	default 0x0000
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the fifth of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_6
 	hex "[5]"
-	default 0xffff
+	default 0x0000
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the sixth of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_7
 	hex "[6]"
-	default 0xffff
+	default 0x0000
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the seventh of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 config NSH_IPv6NETMASK_8
 	hex "[7]"
-	default 0xff80
+	default 0x0000
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the eighth of the 8-values.  The default for
-		all eight values is ffff:ffff:ffff:ffff:ffff:ffff:ffff:ff80.
+		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
 
 endif #NET_IPv6
 endmenu # IP Address Configuration
