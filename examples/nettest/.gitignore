@@ -2,6 +2,7 @@
 /.depend
 /.built
 /host
+/config.h
 /*.asm
 /*.obj
 /*.rel

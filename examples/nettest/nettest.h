@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nettest/nettest.h
  *
- *   Copyright (C) 2007, 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@
 #endif
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifdef NETTEST_HOST
@@ -67,6 +67,14 @@
 #  else
 #    undef NETTEST_HAVE_SOLINGER
 #  endif
+#endif /* NETTEST_HOST */
+
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+#  define AF_INETX AF_INET6
+#  define PF_INETX PF_INET6
+#else
+#  define AF_INETX AF_INET
+#  define PF_INETX PF_INET
 #endif
 
 #define PORTNO     5471

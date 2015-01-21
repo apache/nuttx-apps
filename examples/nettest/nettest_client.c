@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nettest/nettest-client.c
  *
- *   Copyright (C) 2007, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,8 @@
  * Included Files
  ****************************************************************************/
 
+#include "config.h"
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -56,12 +58,17 @@
 
 void send_client(void)
 {
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+  struct sockaddr_in6 myaddr;
+#else
   struct sockaddr_in myaddr;
+#endif
   char *outbuf;
 #ifndef CONFIG_EXAMPLES_NETTEST_PERFORMANCE
   char *inbuf;
 #endif
   int sockfd;
+  socklen_t addrlen;
   int nbytessent;
 #ifndef CONFIG_EXAMPLES_NETTEST_PERFORMANCE
   int nbytesrecvd;
@@ -86,7 +93,7 @@ void send_client(void)
 
   /* Create a new TCP socket */
 
-  sockfd = socket(PF_INET, SOCK_STREAM, 0);
+  sockfd = socket(PF_INETX, SOCK_STREAM, 0);
   if (sockfd < 0)
     {
       printf("client socket failure %d\n", errno);
@@ -95,20 +102,35 @@ void send_client(void)
 
   /* Connect the socket to the server */
 
-  myaddr.sin_family      = AF_INET;
-  myaddr.sin_port        = HTONS(PORTNO);
-#if 0
-  myaddr.sin_addr.s_addr = HTONL(INADDR_LOOPBACK);
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+  myaddr.sin6_family            = AF_INET6;
+  myaddr.sin6_port              = HTONS(PORTNO);
+
+  myaddr.sin6_addr.s6_addr16[0] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_1);
+  myaddr.sin6_addr.s6_addr16[1] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_2);
+  myaddr.sin6_addr.s6_addr16[2] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_3);
+  myaddr.sin6_addr.s6_addr16[3] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_4);
+  myaddr.sin6_addr.s6_addr16[4] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_5);
+  myaddr.sin6_addr.s6_addr16[5] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_6);
+  myaddr.sin6_addr.s6_addr16[6] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_7);
+  myaddr.sin6_addr.s6_addr16[7] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_8);
+
+  addrlen = sizeof(struct sockaddr_in6);
 #else
-  myaddr.sin_addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
+  myaddr.sin_family             = AF_INET;
+  myaddr.sin_port               = HTONS(PORTNO);
+  myaddr.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
+
+  addrlen = sizeof(struct sockaddr_in);
 #endif
 
   printf("client: Connecting...\n");
-  if (connect( sockfd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+  if (connect( sockfd, (struct sockaddr*)&myaddr, addrlen) < 0)
     {
       printf("client: connect failure: %d\n", errno);
       goto errout_with_socket;
     }
+
   printf("client: Connected\n");
 
   /* Initialize the buffer */
@@ -140,6 +162,7 @@ void send_client(void)
                   nbytessent, SENDSIZE);
           goto errout_with_socket;
         }
+
       printf("Sent %d bytes\n", nbytessent);
     }
 #else
@@ -176,6 +199,7 @@ void send_client(void)
           printf("client: The server closed the connection\n");
           goto errout_with_socket;
         }
+
       totalbytesrecvd += nbytesrecvd;
       printf("client: Received %d of %d bytes\n", totalbytesrecvd, SENDSIZE);
     }

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nettest/nettest.c
  *
- *   Copyright (C) 2007, 2009-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,8 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "config.h"
+//#include <nuttx/config.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -59,6 +60,50 @@
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+/* Our host IPv6 address */
+
+static const uint16_t g_ipv6_hostaddr[8] =
+{
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_1),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_2),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_3),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_4),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_5),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_6),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_7),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_8),
+};
+
+/* Default routine IPv6 address */
+
+static const uint16_t g_ipv6_draddr[8] =
+{
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_1),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_2),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_3),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_4),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_5),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_6),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_7),
+  HTONS(CONFIG_EXAMPLES_NETTEST_DRIPv6ADDR_8),
+};
+
+/* IPv6 netmask */
+
+static const uint16_t g_ipv6_netmask[8] =
+{
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_1),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_2),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_3),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_4),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_5),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_6),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_7),
+  HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_8),
+};
+#endif /* CONFIG_EXAMPLES_NETTEST_IPv6 */
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -73,7 +118,9 @@ int main(int argc, FAR char *argv[])
 int nettest_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv4
   struct in_addr addr;
+#endif
 #ifdef CONFIG_EXAMPLES_NETTEST_NOMAC
   uint8_t mac[IFHWADDRLEN];
 #endif
@@ -87,23 +134,40 @@ int nettest_main(int argc, char *argv[])
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  netlib_setmacaddr("eth0", mac);
+  netlib_setmacaddr(EXAMPLES_NETTEST_IPv6NETMASK_, mac);
 #endif
 
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+  /* Set up our host address */
+
+  netlib_set_ipv6addr("eth0",
+                      (FAR const struct in6_addr *)g_ipv6_hostaddr);
+
+  /* Set up the default router address */
+
+  netlib_set_dripv6addr("eth0",
+                        (FAR const struct in6_addr *)g_ipv6_draddr);
+
+  /* Setup the subnet mask */
+
+  netlib_set_ipv6netmask("eth0",
+                        (FAR const struct in6_addr *)g_ipv6_netmask);
+#else
   /* Set up our host address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_IPADDR);
-  netlib_set_ipv4addr("eth0", &addr);
+  netlib_set_ipv4addr(EXAMPLES_NETTEST_IPv6NETMASK_, &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_DRIPADDR);
-  netlib_set_dripv4addr("eth0", &addr);
+  netlib_set_dripv4addr(EXAMPLES_NETTEST_IPv6NETMASK_, &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_NETMASK);
-  netlib_set_ipv4netmask("eth0", &addr);
+  netlib_set_ipv4netmask(EXAMPLES_NETTEST_IPv6NETMASK_, &addr);
+#endif
 
 #ifdef CONFIG_EXAMPLES_NETTEST_SERVER
   recv_server();

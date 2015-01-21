@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nettest/nettest-server.c
  *
- *   Copyright (C) 2007, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,15 @@
  * Included Files
  ****************************************************************************/
 
+#include "config.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -56,7 +59,11 @@
 
 void recv_server(void)
 {
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+  struct sockaddr_in6 myaddr;
+#else
   struct sockaddr_in myaddr;
+#endif
 #ifdef NETTEST_HAVE_SOLINGER
   struct linger ling;
 #endif
@@ -82,10 +89,9 @@ void recv_server(void)
       exit(1);
     }
 
-
   /* Create a new TCP socket */
 
-  listensd = socket(PF_INET, SOCK_STREAM, 0);
+  listensd = socket(PF_INETX, SOCK_STREAM, 0);
   if (listensd < 0)
     {
       printf("server: socket failure: %d\n", errno);
@@ -103,11 +109,21 @@ void recv_server(void)
 
   /* Bind the socket to a local address */
 
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+  myaddr.sin6_family     = AF_INET6;
+  myaddr.sin6_port       = HTONS(PORTNO);
+  memset(&myaddr.sin6_addr, 0, sizeof(struct in6_addr));
+
+  addrlen = sizeof(struct sockaddr_in6);
+#else
   myaddr.sin_family      = AF_INET;
   myaddr.sin_port        = HTONS(PORTNO);
   myaddr.sin_addr.s_addr = INADDR_ANY;
 
-  if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+  addrlen = sizeof(struct sockaddr_in);
+#endif
+
+  if (bind(listensd, (struct sockaddr*)&myaddr, addrlen) < 0)
     {
       printf("server: bind failure: %d\n", errno);
       goto errout_with_listensd;
@@ -124,13 +140,13 @@ void recv_server(void)
   /* Accept only one connection */
 
   printf("server: Accepting connections on port %d\n", PORTNO);
-  addrlen = sizeof(struct sockaddr_in);
   acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
   if (acceptsd < 0)
     {
       printf("server: accept failure: %d\n", errno);
       goto errout_with_listensd;
     }
+
   printf("server: Connection accepted -- receiving\n");
 
   /* Configure to "linger" until all data is sent when the socket is closed */
@@ -165,6 +181,7 @@ void recv_server(void)
       printf("Received %d bytes\n", nbytesread);
     }
 #else
+
   /* Receive canned message */
 
   totalbytesread = 0;
@@ -219,6 +236,7 @@ void recv_server(void)
       printf("server: send failed: %d\n", errno);
       goto errout_with_acceptsd;
     }
+
   printf("server: Sent %d bytes\n", nbytessent);
 
   /* If this platform only does abortive disconnects, then wait a bit to get the

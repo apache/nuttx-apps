@@ -123,11 +123,14 @@ $(HOST_OBJS): %$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
 	@$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 
-$(HOST_BIN): $(HOST_OBJS)
+$(HOST_BIN): config.h $(HOST_OBJS)
 	@echo "LD:  $@"
 	@$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
-.built: $(TARG_OBJS)
+config.h: $(TOPDIR)/include/nuttx/config.h
+	@cp $< $@
+
+.built: config.h $(TARG_OBJS)
 	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
 	@touch .built
 
@@ -164,6 +167,7 @@ clean:
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, .built)
 	$(call DELFILE, *.dSYM)
+	$(call DELFILE, config.h)
 	$(call CLEAN)
 
 distclean: clean
