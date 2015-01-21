@@ -106,14 +106,14 @@ void send_client(void)
   myaddr.sin6_family            = AF_INET6;
   myaddr.sin6_port              = HTONS(PORTNO);
 
-  myaddr.sin6_addr.s6_addr16[0] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_1);
-  myaddr.sin6_addr.s6_addr16[1] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_2);
-  myaddr.sin6_addr.s6_addr16[2] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_3);
-  myaddr.sin6_addr.s6_addr16[3] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_4);
-  myaddr.sin6_addr.s6_addr16[4] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_5);
-  myaddr.sin6_addr.s6_addr16[5] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_6);
-  myaddr.sin6_addr.s6_addr16[6] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_7);
-  myaddr.sin6_addr.s6_addr16[7] = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_8);
+  myaddr.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_1);
+  myaddr.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_2);
+  myaddr.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_3);
+  myaddr.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_4);
+  myaddr.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_5);
+  myaddr.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_6);
+  myaddr.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_7);
+  myaddr.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_8);
 
   addrlen = sizeof(struct sockaddr_in6);
 #else
