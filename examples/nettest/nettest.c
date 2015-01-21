@@ -118,7 +118,7 @@ int main(int argc, FAR char *argv[])
 int nettest_main(int argc, char *argv[])
 #endif
 {
-#ifdef CONFIG_EXAMPLES_NETTEST_IPv4
+#ifndef CONFIG_EXAMPLES_NETTEST_IPv6
   struct in_addr addr;
 #endif
 #ifdef CONFIG_EXAMPLES_NETTEST_NOMAC
@@ -134,7 +134,7 @@ int nettest_main(int argc, char *argv[])
   mac[3] = 0xad;
   mac[4] = 0xbe;
   mac[5] = 0xef;
-  netlib_setmacaddr(EXAMPLES_NETTEST_IPv6NETMASK_, mac);
+  netlib_setmacaddr("eth0", mac);
 #endif
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
@@ -156,17 +156,17 @@ int nettest_main(int argc, char *argv[])
   /* Set up our host address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_IPADDR);
-  netlib_set_ipv4addr(EXAMPLES_NETTEST_IPv6NETMASK_, &addr);
+  netlib_set_ipv4addr("eth0", &addr);
 
   /* Set up the default router address */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_DRIPADDR);
-  netlib_set_dripv4addr(EXAMPLES_NETTEST_IPv6NETMASK_, &addr);
+  netlib_set_dripv4addr("eth0", &addr);
 
   /* Setup the subnet mask */
 
   addr.s_addr = HTONL(CONFIG_EXAMPLES_NETTEST_NETMASK);
-  netlib_set_ipv4netmask(EXAMPLES_NETTEST_IPv6NETMASK_, &addr);
+  netlib_set_ipv4netmask("eth0", &addr);
 #endif
 
 #ifdef CONFIG_EXAMPLES_NETTEST_SERVER
