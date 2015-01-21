@@ -534,8 +534,8 @@ int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifdef CONFIG_NET_IPv6
   sin                  = (FAR struct sockaddr_in6 *)&data.addr;
-  sin->sin_family      = AF_INET6;
-  sin->sin_port        = htons(NFS_PMAPPORT);
+  sin->sin6_family     = AF_INET6;
+  sin->sin6_port       = htons(NFS_PMAPPORT);
   memcpy(&sin->sin6_addr, &inaddr, sizeof(struct in6_addr));
   data.addrlen         = sizeof(struct sockaddr_in6);
 #else

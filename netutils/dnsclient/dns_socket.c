@@ -546,12 +546,15 @@ void dns_setserver(FAR const struct in6_addr *dnsserver)
 void dns_setserver(FAR const struct in_addr *dnsserver)
 #endif
 {
-  g_dnsserver.sin_family = AF_INET;
-  g_dnsserver.sin_port   = HTONS(53);
-
 #ifdef CONFIG_NETUTILS_DNSCLIENT_IPv6
+  g_dnsserver.sin6_family = AF_INET6;
+  g_dnsserver.sin6_port   = HTONS(53);
+
   memcpy(&g_dnsserver.sin6_addr, dnsserver, ADDRLEN);
 #else
+  g_dnsserver.sin_family  = AF_INET;
+  g_dnsserver.sin_port    = HTONS(53);
+
   g_dnsserver.sin_addr.s_addr = dnsserver->s_addr;
 #endif
 }

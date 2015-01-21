@@ -89,9 +89,9 @@ int netlib_set_ipv6netmask(FAR const char *ifname,
 
           /* Add the INET address to the request */
 
-          inaddr             = (FAR struct sockaddr_in6 *)&req.lifr_addr;
-          inaddr->sin_family = AF_INET6;
-          inaddr->sin_port   = 0;
+          inaddr              = (FAR struct sockaddr_in6 *)&req.lifr_addr;
+          inaddr->sin6_family = AF_INET6;
+          inaddr->sin6_port   = 0;
           memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
 
           ret = ioctl(sockfd, SIOCSLIFNETMASK, (unsigned long)((uintptr_t)&req));

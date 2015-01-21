@@ -944,7 +944,7 @@ config NSH_IPv6ADDR_1
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the first of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_2
 	hex "[1]"
@@ -955,7 +955,7 @@ config NSH_IPv6ADDR_2
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the second of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_3
 	hex "[2]"
@@ -966,7 +966,7 @@ config NSH_IPv6ADDR_3
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the third of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_4
 	hex "[3]"
@@ -977,7 +977,7 @@ config NSH_IPv6ADDR_4
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the fourth of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_5
 	hex "[4]"
@@ -988,7 +988,7 @@ config NSH_IPv6ADDR_5
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the fifth of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_6
 	hex "[5]"
@@ -999,7 +999,7 @@ config NSH_IPv6ADDR_6
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the sixth of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_7
 	hex "[6]"
@@ -1010,7 +1010,7 @@ config NSH_IPv6ADDR_7
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the seventh of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 config NSH_IPv6ADDR_8
 	hex "[7]"
@@ -1021,7 +1021,7 @@ config NSH_IPv6ADDR_8
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the last of the 8-values.  The default for
-		all eight values is fc00:0000:0000:0000:0000:0000:0000:0002.
+		all eight values is fc00::2.
 
 endif # !NSH_DHCPC
 
@@ -1035,8 +1035,7 @@ config NSH_DRIPv6ADDR_1
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the first of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_2
 	hex "[1]"
@@ -1046,8 +1045,7 @@ config NSH_DRIPv6ADDR_2
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the second of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_3
 	hex "[2]"
@@ -1057,8 +1055,7 @@ config NSH_DRIPv6ADDR_3
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the third of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_4
 	hex "[3]"
@@ -1068,8 +1065,7 @@ config NSH_DRIPv6ADDR_4
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the fourth of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_5
 	hex "[4]"
@@ -1079,8 +1075,7 @@ config NSH_DRIPv6ADDR_5
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the fifth of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_6
 	hex "[5]"
@@ -1090,8 +1085,7 @@ config NSH_DRIPv6ADDR_6
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the sixth of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_7
 	hex "[6]"
@@ -1101,8 +1095,7 @@ config NSH_DRIPv6ADDR_7
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the seventh of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 config NSH_DRIPv6ADDR_8
 	hex "[7]"
@@ -1112,8 +1105,7 @@ config NSH_DRIPv6ADDR_8
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
 		value in host order.  Each of the eight values forming the full IP 
 		address must be specified individually.  This is the last of the
-		8-values.  The default for all eight values is
-		fc00:0000:0000:0000:0000:0000:0000:0001.
+		8-values.  The default for all eight values is fc00::1.
 
 comment "IPv6 Network mask"
 
@@ -1125,7 +1117,7 @@ config NSH_IPv6NETMASK_1
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the first of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_2
 	hex "[1]"
@@ -1135,7 +1127,7 @@ config NSH_IPv6NETMASK_2
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the second of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_3
 	hex "[2]"
@@ -1145,7 +1137,7 @@ config NSH_IPv6NETMASK_3
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the third of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_4
 	hex "[3]"
@@ -1155,7 +1147,7 @@ config NSH_IPv6NETMASK_4
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the fourth of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_5
 	hex "[4]"
@@ -1165,7 +1157,7 @@ config NSH_IPv6NETMASK_5
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the fifth of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_6
 	hex "[5]"
@@ -1175,7 +1167,7 @@ config NSH_IPv6NETMASK_6
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the sixth of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_7
 	hex "[6]"
@@ -1185,7 +1177,7 @@ config NSH_IPv6NETMASK_7
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the seventh of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 config NSH_IPv6NETMASK_8
 	hex "[7]"
@@ -1195,7 +1187,7 @@ config NSH_IPv6NETMASK_8
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
 		individually.  This is the eighth of the 8-values.  The default for
-		all eight values is fe00:0000:0000:0000:0000:0000:0000:0000.
+		all eight values is fe00::0.
 
 endif #NET_IPv6
 endmenu # IP Address Configuration
