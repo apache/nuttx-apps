@@ -70,11 +70,7 @@ else
 endif
 endif
 
-HOSTCFLAGS += -DCONFIG_EXAMPLES_UDP_HOST=1
-ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
-HOSTCFLAGS += -DCONFIG_EXAMPLES_UDP_SERVER=1 \
-              -DCONFIG_EXAMPLES_UDP_SERVERIP="$(CONFIG_EXAMPLES_UDP_SERVERIP)"
-endif
+HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
 
 HOST_SRCS = host.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
@@ -114,13 +110,18 @@ $(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
 	$(call ARCHIVE, $@, $(TARG_OBJS))
 
 $(HOST_OBJS): %.o: %.c
-	$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+	@echo "CC:  $<"
+	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 
-$(HOST_BIN): $(HOST_OBJS)
-	$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
+config.h: $(TOPDIR)/include/nuttx/config.h
+	@echo "CP:  $<"
+	$(Q) cp $< $@
 
-.built: $(TARG_BIN) $(HOST_BIN)
-	@touch .built
+$(HOST_BIN): config.h $(HOST_OBJS)
+	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
+
+.built: config.h $(TARG_BIN) $(HOST_BIN)
+	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(TARG_MAINOBJ)
@@ -148,6 +149,7 @@ clean:
 	$(call DELFILE, $(TARG_BIN))
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, *.dSYM)
+	$(call DELFILE, config.h)
 	$(call CLEAN)
 
 distclean: clean

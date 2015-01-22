@@ -167,7 +167,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_1
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the first of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -177,7 +177,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_2
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the second of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -187,7 +187,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_3
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the third of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -197,7 +197,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_4
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the fourth of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -207,7 +207,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_5
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the fifth of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -217,7 +217,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_6
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the sixth of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -227,7 +227,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_7
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the seventh of the
 		8-values.  The default for all eight values is fc00::1.
 
@@ -237,7 +237,7 @@ config EXAMPLES_NETTEST_DRIPv6ADDR_8
 	range 0x0 0xffff
 	---help---
 		Default router IP address (aka, Gateway).  This is a 16-bit integer
-		value in host order.  Each of the eight values forming the full IP 
+		value in host order.  Each of the eight values forming the full IP
 		address must be specified individually.  This is the last of the
 		8-values.  The default for all eight values is fc00::1.
 

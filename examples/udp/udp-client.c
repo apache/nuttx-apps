@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/udp/udp-client.c
  *
- *   Copyright (C) 2007 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,8 @@
 /****************************************************************************
  * Included Files
  ****************************************************************************/
+
+#include "config.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -77,15 +79,20 @@ static inline void fill_buffer(unsigned char *buf, int offset)
 
 void send_client(void)
 {
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+  struct sockaddr_in6 server;
+#else
   struct sockaddr_in server;
+#endif
   unsigned char outbuf[SENDSIZE];
+  socklen_t addrlen;
   int sockfd;
   int nbytes;
   int offset;
 
   /* Create a new UDP socket */
 
-  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  sockfd = socket(PF_INETX, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
       printf("client socket failure %d\n", errno);
@@ -100,15 +107,35 @@ void send_client(void)
 
       fill_buffer(outbuf, offset);
 
-      /* Send the message */
+      /* Set up the server address */
 
-      server.sin_family      = AF_INET;
-      server.sin_port        = HTONS(PORTNO);
-      server.sin_addr.s_addr = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+      server.sin6_family            = AF_INET6;
+      server.sin6_port              = HTONS(PORTNO);
+
+      server.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1);
+      server.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2);
+      server.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3);
+      server.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4);
+      server.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5);
+      server.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6);
+      server.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7);
+      server.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8);
+
+      addrlen                       = sizeof(struct sockaddr_in6);
+#else
+      server.sin_family             = AF_INET;
+      server.sin_port               = HTONS(PORTNO);
+      server.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+
+      addrlen                       = sizeof(struct sockaddr_in);
+#endif
+
+      /* Send the message */
 
       printf("client: %d. Sending %d bytes\n", offset, SENDSIZE);
       nbytes = sendto(sockfd, outbuf, SENDSIZE, 0,
-                      (struct sockaddr*)&server, sizeof(struct sockaddr_in));
+                      (struct sockaddr*)&server, addrlen);
       printf("client: %d. Sent %d bytes\n", offset, nbytes);
 
       if (nbytes < 0)

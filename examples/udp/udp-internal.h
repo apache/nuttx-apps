@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/udp/udp-internal.h
  *
- *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
  * Included Files
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_UDP_HOST
+#ifdef EXAMPLES_UDP_HOST
 #else
 # include <debug.h>
 #endif
@@ -51,11 +51,19 @@
  * Definitions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_UDP_HOST
+#ifdef EXAMPLES_UDP_HOST
    /* HTONS/L macros are unique to uIP */
 
 #  define HTONS(a)       htons(a)
 #  define HTONL(a)       htonl(a)
+#endif
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+#  define AF_INETX AF_INET6
+#  define PF_INETX PF_INET6
+#else
+#  define AF_INETX AF_INET
+#  define PF_INETX PF_INET
 #endif
 
 #define PORTNO     5471

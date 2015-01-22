@@ -121,18 +121,19 @@ $(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
 
 $(HOST_OBJS): %$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
-	@$(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+
+config.h: $(TOPDIR)/include/nuttx/config.h
+	@echo "CP:  $<"
+	$(Q) cp $< $@
 
 $(HOST_BIN): config.h $(HOST_OBJS)
 	@echo "LD:  $@"
-	@$(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
-
-config.h: $(TOPDIR)/include/nuttx/config.h
-	@cp $< $@
+	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
 
 .built: config.h $(TARG_OBJS)
 	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
-	@touch .built
+	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(TARG_MAINOBJ)

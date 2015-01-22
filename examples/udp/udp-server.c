@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/udp/udp-server.c
  *
- *   Copyright (C) 2007, 2009, 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,15 @@
  * Included Files
  ****************************************************************************/
 
+#include "config.h"
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 
 #include <arpa/inet.h>
@@ -73,6 +76,7 @@ static inline int check_buffer(unsigned char *buf)
           ret = 0;
         }
     }
+
   return ret;
 }
 
@@ -82,19 +86,25 @@ static inline int check_buffer(unsigned char *buf)
 
 void recv_server(void)
 {
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+  struct sockaddr_in6 server;
+  struct sockaddr_in6 client;
+#else
   struct sockaddr_in server;
   struct sockaddr_in client;
   in_addr_t tmpaddr;
+#endif
   unsigned char inbuf[1024];
+  socklen_t addrlen;
+  socklen_t recvlen;
   int sockfd;
   int nbytes;
   int optval;
   int offset;
-  socklen_t addrlen;
 
   /* Create a new UDP socket */
 
-  sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  sockfd = socket(PF_INETX, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
       printf("server: socket failure: %d\n", errno);
@@ -112,11 +122,21 @@ void recv_server(void)
 
   /* Bind the socket to a local address */
 
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+  server.sin6_family     = AF_INET6;
+  server.sin6_port       = HTONS(PORTNO);
+  memset(&server.sin6_addr, 0, sizeof(struct in6_addr));
+
+  addrlen                = sizeof(struct sockaddr_in6);
+#else
   server.sin_family      = AF_INET;
   server.sin_port        = HTONS(PORTNO);
-  server.sin_addr.s_addr = HTONL(INADDR_ANY);
+  server.sin_addr.s_addr = HTONL(INADDR_ANY);;
 
-  if (bind(sockfd, (struct sockaddr*)&server, sizeof(struct sockaddr_in)) < 0)
+  addrlen                = sizeof(struct sockaddr_in);
+#endif
+
+  if (bind(sockfd, (struct sockaddr*)&server, addrlen) < 0)
     {
       printf("server: bind failure: %d\n", errno);
       exit(1);
@@ -127,17 +147,26 @@ void recv_server(void)
   for (offset = 0; offset < 256; offset++)
     {
       printf("server: %d. Receiving up 1024 bytes\n", offset);
-      addrlen = sizeof(struct sockaddr_in);
+      recvlen = addrlen;
       nbytes = recvfrom(sockfd, inbuf, 1024, 0,
-                        (struct sockaddr*)&client, &addrlen);
+                        (struct sockaddr*)&client, &recvlen);
 
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+      printf("server: %d. Received %d bytes from %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x port %d\n",
+             offset, nbytes,
+             client.sin6_addr.s6_addr16[0], client.sin6_addr.s6_addr16[1],
+             client.sin6_addr.s6_addr16[2], client.sin6_addr.s6_addr16[3],
+             client.sin6_addr.s6_addr16[4], client.sin6_addr.s6_addr16[5],
+             client.sin6_addr.s6_addr16[6], client.sin6_addr.s6_addr16[7],
+             ntohs(client.sin6_port));
+#else
       tmpaddr = ntohl(client.sin_addr.s_addr);
       printf("server: %d. Received %d bytes from %d.%d.%d.%d:%d\n",
              offset, nbytes,
              tmpaddr >> 24, (tmpaddr >> 16) & 0xff,
              (tmpaddr >> 8) & 0xff, tmpaddr & 0xff,
              ntohs(client.sin_port));
-
+#endif
       if (nbytes < 0)
         {
           printf("server: %d. recv failed: %d\n", offset, errno);
