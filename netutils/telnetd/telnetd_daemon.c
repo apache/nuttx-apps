@@ -108,7 +108,7 @@ static int telnetd_daemon(int argc, char *argv[])
 #ifdef CONFIG_SCHED_HAVE_PARENT
   struct sigaction sa;
   sigset_t blockset;
-#endif  
+#endif
   socklen_t addrlen;
   FAR char *devpath;
   pid_t pid;
