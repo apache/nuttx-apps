@@ -98,9 +98,14 @@ micropython
        error: unknown type name 'wint_t'
 
      You can't include the NuttX wchar.h header file where this is defined, but
-     you can add this to the mpconfigport.h header file:
+     you can add this to the mpconfigport.h header file (if it is not already
+     there):
 
        typedef int wint_t;
+
+     Is the missing wint_t definition coming from alloca.h?  You can either
+     (1) replace alloc(a) with the #define described above, or (2) move the
+     typedef of wint_t to before the inclusion of alloca.h.
 
   6. Micro Python is released under the MIT license which is license-compatible
      with the NuttX 3-clause BSD license.  Here is the full text of the Micro
