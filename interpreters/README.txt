@@ -93,7 +93,16 @@ micropython
      discussions in the NuttX Yahoo! forum; people have found many creative
      way to link with the newlib math library, for example.
 
-  5. Micro Python is released under the MIT license which is license-compatible
+  5. See errors like this?
+
+       error: unknown type name 'wint_t'
+
+     You can't include the NuttX wchar.h header file where this is defined, but
+     you can add this to the mpconfigport.h header file:
+
+       typedef int wint_t;
+
+  6. Micro Python is released under the MIT license which is license-compatible
      with the NuttX 3-clause BSD license.  Here is the full text of the Micro
      Python LICENSE file as of 2015-01-14:
 
