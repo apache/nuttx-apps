@@ -1191,3 +1191,5 @@
 	  not do anything crazy like exit.  Most from Rony Xln (2015-01-22).
 	*  apps/examples/udp:  The UDP test example has been extend to support
 	  IPv6 domain sockets (2015-01-22).
+	* apps/nshlib:  Add the ping6 command to support checking IPv6 networks.
+	  NSH logic is complete but still nissing (2015-01-23).
