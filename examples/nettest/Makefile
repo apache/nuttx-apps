@@ -157,7 +157,7 @@ else
 context:
 endif
 
-.depend: Makefile $(TARG_SRCS)
+.depend: Makefile config.h $(TARG_SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep
 	@touch $@
 
