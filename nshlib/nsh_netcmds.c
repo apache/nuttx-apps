@@ -1241,7 +1241,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
              ntohs(ipaddr.s6_addr16[2]), ntohs(ipaddr.s6_addr16[3]),
              ntohs(ipaddr.s6_addr16[4]), ntohs(ipaddr.s6_addr16[5]),
              ntohs(ipaddr.s6_addr16[6]), ntohs(ipaddr.s6_addr16[7]),
-             count);
+             DEFAULT_PING_DATALEN);
 
   start = clock_systimer();
   for (i = 1; i <= count; i++)
