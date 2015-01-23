@@ -776,6 +776,7 @@ o ps
     nsh>
 
 o ping [-c <count>] [-i <interval>] <ip-address>
+  ping6 [-c <count>] [-i <interval>] <ip-address>
 
   Test the network communication with a remote peer.  Example,
 
@@ -793,6 +794,8 @@ o ping [-c <count>] [-i <interval>] <ip-address>
     56 bytes from 10.0.0.1: icmp_seq=10 time=0 ms
     10 packets transmitted, 10 received, 0% packet loss, time 10190 ms
     nsh>
+
+  ping6 differs from ping in that it uses IPv6 addressing.
 
 o put [-b|-n] [-f <remote-path>] -h <ip-address> <local-path>
 
@@ -980,6 +983,7 @@ Command Dependencies on Configuration Settings
   mv         (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0) (see note 4)
   nfsmount   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET && CONFIG_NFS
   ping       CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_PING && !CONFIG_DISABLE_SIGNALS
+  ping6      CONFIG_NET && CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_PING && !CONFIG_DISABLE_SIGNALS
   ps         --
   put        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && MTU >= 558 (see note 1,2)
   pwd        !CONFIG_DISABLE_ENVIRON && CONFIG_NFILE_DESCRIPTORS > 0
@@ -1023,12 +1027,12 @@ also allow it to squeeze into very small memory footprints.
   CONFIG_NSH_DISABLE_MKFATFS,   CONFIG_NSH_DISABLE_MKFIFO,    CONFIG_NSH_DISABLE_MKRD,
   CONFIG_NSH_DISABLE_MH,        CONFIG_NSH_DISABLE_MOUNT,     CONFIG_NSH_DISABLE_MW,
   CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,  CONFIG_NSH_DISABLE_PS,
-  CONFIG_NSH_DISABLE_PING,      CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,
-  CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_SET,
-  CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,
-  CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
-  CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,
-  CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_PING,      CONFIG_NSH_DISABLE_PING6,     CONFIG_NSH_DISABLE_PUT,
+  CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,
+  CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SLEEP,
+  CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,
+  CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USLEEP,
+  CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.

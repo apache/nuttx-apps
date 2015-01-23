@@ -963,6 +963,12 @@ void nsh_usbtrace(void);
         int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #    endif
 #  endif
+#  if defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && \
+     !defined(CONFIG_DISABLE_SIGNALS)
+#    ifndef CONFIG_NSH_DISABLE_PING6
+        int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
+#  endif
 #  if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
 #    ifndef CONFIG_NSH_DISABLE_PUT
       int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

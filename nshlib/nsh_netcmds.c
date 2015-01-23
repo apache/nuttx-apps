@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netcmds.c
  *
- *   Copyright (C) 2007-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2012, 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,8 @@
 #include <nuttx/net/netdev.h>
 #include <nuttx/net/netstats.h>
 #include <nuttx/net/ip.h>
+#include <nuttx/net/icmp.h>
+#include <nuttx/net/icmpv6.h>
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS)
@@ -96,8 +98,21 @@
 #include "nsh_console.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
+
+#undef HAVE_PING
+#undef HAVE_PING6
+
+#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
+   !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING)
+#  define HAVE_PING
+#endif
+
+#if defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && \
+   !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING6)
+#  define HAVE_PING6
+#endif
 
 /* Size of the ECHO data */
 
@@ -132,8 +147,7 @@ struct tftpc_args_s
  * Private Data
  ****************************************************************************/
 
-#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
+#if defined(HAVE_PING) || defined(HAVE_PING6)
 static uint16_t g_pingid = 0;
 #endif
 
@@ -149,16 +163,108 @@ static uint16_t g_pingid = 0;
  * Name: ping_newid
  ****************************************************************************/
 
-#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
-static inline uint16_t ping_newid(void)
+#if defined(HAVE_PING) || defined(HAVE_PING6)
+static uint16_t ping_newid(void)
 {
   irqstate_t save = irqsave();
   uint16_t ret = ++g_pingid;
   irqrestore(save);
   return ret;
 }
-#endif
+#endif /* HAVE_PING || HAVE_PINg */
+
+/****************************************************************************
+ * Name: ping_options
+ ****************************************************************************/
+
+#if defined(HAVE_PING) || defined(HAVE_PING6)
+static int ping_options(FAR struct nsh_vtbl_s *vtbl,
+                        int argc, FAR char **argv,
+                        FAR int *count, FAR uint32_t *dsec, FAR char **staddr)
+{
+  FAR const char *fmt = g_fmtarginvalid;
+  bool badarg = false;
+  int option;
+  int tmp;
+
+  /* Get the ping options */
+
+  while ((option = getopt(argc, argv, ":c:i:")) != ERROR)
+    {
+      switch (option)
+        {
+          case 'c':
+            tmp = atoi(optarg);
+            if (tmp < 1 || tmp > 10000)
+              {
+                nsh_output(vtbl, g_fmtargrange, argv[0]);
+                badarg = true;
+              }
+            else
+              {
+                *count = tmp;
+              }
+            break;
+
+          case 'i':
+            tmp = atoi(optarg);
+            if (tmp < 1 || tmp >= 4294)
+              {
+                nsh_output(vtbl, g_fmtargrange, argv[0]);
+                badarg = true;
+              }
+            else
+              {
+                *dsec = 10 * tmp;
+              }
+            break;
+
+          case ':':
+            nsh_output(vtbl, g_fmtargrequired, argv[0]);
+            badarg = true;
+            break;
+
+          case '?':
+          default:
+            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
+        }
+    }
+
+  /* If a bad argument was encountered, then return without processing the
+   * command
+   */
+
+  if (badarg)
+    {
+      return ERROR;
+    }
+
+  /* There should be exactly on parameter left on the command-line */
+
+  if (optind == argc-1)
+    {
+      *staddr = argv[optind];
+    }
+  else if (optind >= argc)
+    {
+      fmt = g_fmttoomanyargs;
+      goto errout;
+    }
+  else
+    {
+      fmt = g_fmtargrequired;
+      goto errout;
+    }
+
+  return OK;
+
+errout:
+  nsh_output(vtbl, fmt, argv[0]);
+  return ERROR;
+}
+#endif /* HAVE_PING || HAVE_PING6 */
 
 /****************************************************************************
  * Name: net_statistics
@@ -963,97 +1069,38 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_ping
  ****************************************************************************/
 
-#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
-#ifndef CONFIG_NSH_DISABLE_PING
+#ifdef HAVE_PING
 int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR const char *fmt = g_fmtarginvalid;
-  const char *staddr;
+  FAR char *staddr;
   in_addr_t ipaddr;
   uint32_t start;
   uint32_t next;
   uint32_t dsec = 10;
   uint32_t maxwait;
   uint16_t id;
-  bool badarg = false;
   int count = 10;
-  int option;
   int seqno;
   int replies = 0;
   int elapsed;
+  int ret;
   int tmp;
   int i;
 
   /* Get the ping options */
 
-  while ((option = getopt(argc, argv, ":c:i:")) != ERROR)
-    {
-      switch (option)
-        {
-          case 'c':
-            count = atoi(optarg);
-            if (count < 1 || count > 10000)
-              {
-                nsh_output(vtbl, g_fmtargrange, argv[0]);
-                badarg = true;
-              }
-            break;
-
-          case 'i':
-            tmp = atoi(optarg);
-            if (tmp < 1 || tmp >= 4294)
-              {
-                nsh_output(vtbl, g_fmtargrange, argv[0]);
-                badarg = true;
-              }
-            else
-              {
-                dsec = 10 * tmp;
-              }
-            break;
-
-          case ':':
-            nsh_output(vtbl, g_fmtargrequired, argv[0]);
-            badarg = true;
-            break;
-
-          case '?':
-          default:
-            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-            badarg = true;
-            break;
-        }
-    }
-
-  /* If a bad argument was encountered, then return without processing the
-   * command
-   */
-
-  if (badarg)
+  ret = ping_options(vtbl, argc, argv, &count, &dsec, &staddr);
+  if (ret < 0)
     {
       return ERROR;
     }
 
-  /* There should be exactly on parameter left on the command-line */
+  /* Get the IP address in binary form */
 
-  if (optind == argc-1)
+  if (dns_gethostip(staddr, &ipaddr) < 0)
     {
-      staddr = argv[optind];
-      if (dns_gethostip(staddr, &ipaddr) < 0)
-        {
-          goto errout;
-        }
-    }
-  else if (optind >= argc)
-    {
-      fmt = g_fmttoomanyargs;
-      goto errout;
-    }
-  else
-    {
-      fmt = g_fmtargrequired;
-      goto errout;
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
     }
 
   /* Get the ID to use */
@@ -1128,13 +1175,131 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %d ms\n",
              count, replies, tmp, elapsed);
   return OK;
-
-errout:
-  nsh_output(vtbl, fmt, argv[0]);
-  return ERROR;
 }
+#endif /* HAVE_PING */
+
+/****************************************************************************
+ * Name: cmd_ping6
+ ****************************************************************************/
+
+#ifdef HAVE_PING6
+int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *staddr;
+  struct in6_addr ipaddr;
+  uint32_t start;
+  uint32_t next;
+  uint32_t dsec = 10;
+  uint32_t maxwait;
+  uint16_t id;
+  int count = 10;
+  int seqno;
+  int replies = 0;
+  int elapsed;
+  int ret;
+  int tmp;
+  int i;
+
+  /* Get the ping options */
+
+  ret = ping_options(vtbl, argc, argv, &count, &dsec, &staddr);
+  if (ret < 0)
+    {
+      return ERROR;
+    }
+
+  /* Get the IP address in binary form
+   * REVISIT:  DNS hostname look-up not yet supported
+   */
+
+#if 0
+  ret = dns_gethostip(staddr, &ipaddr);
+#else
+  ret = inet_pton(AF_INET6, staddr, &ipaddr);
 #endif
-#endif /* CONFIG_NET_ICMP && CONFIG_NET_ICMP_PING */
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+
+  /* Get the ID to use */
+
+  id = ping_newid();
+
+  /* The maximum wait for a response will be the larger of the inter-ping
+   * time and the configured maximum round-trip time.
+   */
+
+  maxwait = MAX(dsec, CONFIG_NSH_MAX_ROUNDTRIP);
+
+  /* Loop for the specified count */
+
+  nsh_output(vtbl,
+             "PING6 %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x %d bytes of data\n",
+             ntohs(ipaddr.s6_addr16[0]), ntohs(ipaddr.s6_addr16[1]),
+             ntohs(ipaddr.s6_addr16[2]), ntohs(ipaddr.s6_addr16[3]),
+             ntohs(ipaddr.s6_addr16[4]), ntohs(ipaddr.s6_addr16[5]),
+             ntohs(ipaddr.s6_addr16[6]), ntohs(ipaddr.s6_addr16[7]),
+             count);
+
+  start = clock_systimer();
+  for (i = 1; i <= count; i++)
+    {
+      /* Send the ECHO request and wait for the response */
+
+      next  = clock_systimer();
+      seqno = icmpv6_ping(ipaddr.s6_addr16, id, i, DEFAULT_PING_DATALEN, maxwait);
+
+      /* Was any response returned? We can tell if a non-negative sequence
+       * number was returned.
+       */
+
+      if (seqno >= 0 && seqno <= i)
+        {
+          /* Get the elapsed time from the time that the request was
+           * sent until the response was received.  If we got a response
+           * to an earlier request, then fudge the elapsed time.
+           */
+
+          elapsed = TICK2MSEC(clock_systimer() - next);
+          if (seqno < i)
+            {
+              elapsed += 100 * dsec * (i - seqno);
+            }
+
+          /* Report the receipt of the reply */
+
+          nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%d ms\n",
+                     DEFAULT_PING_DATALEN, staddr, seqno, elapsed);
+          replies++;
+        }
+
+      /* Wait for the remainder of the interval.  If the last seqno<i,
+       * then this is a bad idea... we will probably lose the response
+       * to the current request!
+       */
+
+      elapsed = TICK2DSEC(clock_systimer() - next);
+      if (elapsed < dsec)
+        {
+          usleep(100000 * (dsec - elapsed));
+        }
+    }
+
+  /* Get the total elapsed time */
+
+  elapsed = TICK2MSEC(clock_systimer() - start);
+
+  /* Calculate the percentage of lost packets */
+
+  tmp = (100*(count - replies) + (count >> 1)) / count;
+
+  nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %d ms\n",
+             count, replies, tmp, elapsed);
+  return OK;
+}
+#endif /* CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_PING */
 
 /****************************************************************************
  * Name: cmd_put
