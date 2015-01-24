@@ -345,7 +345,7 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
   /* Dropped IP packets */
 
 #ifdef CONFIG_NET_IPv4
-  nsh_output(vtbl, "  IPv4        VHL: %04x Frg: %04x\n",
+  nsh_output(vtbl, "  IPv4        VHL: %04x   Frg: %04x\n",
              g_netstats.ipv4.vhlerr, g_netstats.ipv4.fragerr);
 #endif
 #ifdef CONFIG_NET_IPv6
@@ -377,9 +377,9 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "\n");
 
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, "  TCP         ACK: %04x SYN: %04x\n",
+  nsh_output(vtbl, "  TCP         ACK: %04x   SYN: %04x\n",
             g_netstats.tcp.ackerr, g_netstats.tcp.syndrop);
-  nsh_output(vtbl, "              RST: %04x %04x\n",
+  nsh_output(vtbl, "              RST: %04x  %04x\n",
             g_netstats.tcp.rst, g_netstats.tcp.synrst);
 #endif
 
@@ -439,10 +439,10 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 #ifdef CONFIG_NET_IPv6
   nsh_output(vtbl, "  ----");
 #endif
+  nsh_output(vtbl, "  %04x", g_netstats.tcp.rexmit);
 #ifdef CONFIG_NET_UDP
   nsh_output(vtbl, "  ----");
 #endif
-  nsh_output(vtbl, "  %04x", g_netstats.tcp.rexmit);
 #ifdef CONFIG_NET_ICMP
    nsh_output(vtbl, "  ----");
 #endif
