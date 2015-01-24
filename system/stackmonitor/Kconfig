@@ -6,13 +6,13 @@
 config SYSTEM_STACKMONITOR
 	bool "Stack monitor"
 	default n
-	depends on DEBUG_STACK && !KERNEL_BUILD
+	depends on DEBUG_COLORATION && !KERNEL_BUILD
 	---help---
-		If the stack debug feature is enabled (DEBUG_STACK) this option will
-		select the Stack Moitor.  The stack monitor is a daemon that will
-		periodically assess stack usage by all tasks and threads in the
-		system.  This feature depends on internal OS features and, hence, is
-		not available if the NuttX kernel build is selected.
+		If the stack coloration feature is enabled (DEBUG_COLORATION) this
+		option will select the Stack Moitor.  The stack monitor is a daemoni
+		that will periodically assess stack usage by all tasks and threads
+		in the system.  This feature depends on internal OS features and,
+		hence, is not available if the NuttX kernel build is selected.
 
 if SYSTEM_STACKMONITOR
 
