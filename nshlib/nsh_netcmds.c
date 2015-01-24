@@ -279,7 +279,7 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 #ifdef CONFIG_NET_IPv4
   nsh_output(vtbl, "  IPv4");
 #endif
-#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
   nsh_output(vtbl, "  IPv6");
 #endif
 #ifdef CONFIG_NET_TCP
