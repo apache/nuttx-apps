@@ -273,107 +273,184 @@ errout:
 #if defined(CONFIG_NET_STATISTICS) && !defined(CONFIG_NSH_DISABLE_IFCONFIG)
 static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 {
-  nsh_output(vtbl, "            IP ");
+  /* Headings */
+
+  nsh_output(vtbl, "           ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  IPv4");
+#endif
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  IPv6");
+#endif
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, "  TCP");
+  nsh_output(vtbl, "   TCP");
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, "  UDP");
+  nsh_output(vtbl, "   UDP");
 #endif
 #ifdef CONFIG_NET_ICMP
   nsh_output(vtbl, "  ICMP");
+#endif
+#ifdef CONFIG_NET_ICMPv6
+  nsh_output(vtbl, " ICMP6");
 #endif
   nsh_output(vtbl, "\n");
 
   /* Received packets */
 
-  nsh_output(vtbl, "Received    %04x", g_netstats.ip.recv);
+  nsh_output(vtbl, "Received   ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  %04x", g_netstats.ipv4.recv);
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  %04x", g_netstats.ipv6.recv);
+#endif
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x", g_netstats.tcp.recv);
+  nsh_output(vtbl, "  %04x", g_netstats.tcp.recv);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x", g_netstats.udp.recv);
+  nsh_output(vtbl, "  %04x", g_netstats.udp.recv);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x", g_netstats.icmp.recv);
+  nsh_output(vtbl, "  %04x", g_netstats.icmp.recv);
+#endif
+#ifdef CONFIG_NET_ICMPv6
+  nsh_output(vtbl, "  %04x", g_netstats.icmpv6.recv);
 #endif
   nsh_output(vtbl, "\n");
 
   /* Dropped packets */
 
-  nsh_output(vtbl, "Dropped     %04x", g_netstats.ip.drop);
+  nsh_output(vtbl, "Dropped    ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  %04x", g_netstats.ipv4.drop);
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  %04x", g_netstats.ipv6.drop);
+#endif
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x", g_netstats.tcp.drop);
+  nsh_output(vtbl, "  %04x", g_netstats.tcp.drop);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x", g_netstats.udp.drop);
+  nsh_output(vtbl, "  %04x", g_netstats.udp.drop);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x", g_netstats.icmp.drop);
+  nsh_output(vtbl, "  %04x", g_netstats.icmp.drop);
+#endif
+#ifdef CONFIG_NET_ICMPv6
+  nsh_output(vtbl, "  %04x", g_netstats.icmpv6.drop);
 #endif
   nsh_output(vtbl, "\n");
 
-  nsh_output(vtbl, "  IP        VHL: %04x HBL: %04x\n",
-             g_netstats.ip.vhlerr, g_netstats.ip.hblenerr);
-  nsh_output(vtbl, "            LBL: %04x Frg: %04x\n",
-             g_netstats.ip.lblenerr, g_netstats.ip.fragerr);
+  /* Dropped IP packets */
 
-  nsh_output(vtbl, "  Checksum  %04x",g_netstats.ip.chkerr);
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  IPv4        VHL: %04x Frg: %04x\n",
+             g_netstats.ipv4.vhlerr, g_netstats.ipv4.fragerr);
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  IPv6        VHL: %04x\n",
+             g_netstats.ipv6.vhlerr);
+#endif
+
+  /* Checksum errors */
+
+  nsh_output(vtbl, "  Checksum ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  %04x", g_netstats.ipv4.chkerr);
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  ----");
+#endif
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x", g_netstats.tcp.chkerr);
+  nsh_output(vtbl, "  %04x", g_netstats.tcp.chkerr);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x", g_netstats.udp.chkerr);
+  nsh_output(vtbl, "  %04x", g_netstats.udp.chkerr);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " ----");
+  nsh_output(vtbl, "  ----");
+#endif
+#ifdef CONFIG_NET_ICMPv6
+  nsh_output(vtbl, "  ----");
 #endif
   nsh_output(vtbl, "\n");
 
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, "  TCP       ACK: %04x SYN: %04x\n",
+  nsh_output(vtbl, "  TCP         ACK: %04x SYN: %04x\n",
             g_netstats.tcp.ackerr, g_netstats.tcp.syndrop);
-  nsh_output(vtbl, "            RST: %04x %04x\n",
+  nsh_output(vtbl, "              RST: %04x %04x\n",
             g_netstats.tcp.rst, g_netstats.tcp.synrst);
 #endif
 
-  nsh_output(vtbl, "  Type      %04x", g_netstats.ip.protoerr);
+  /* Prototype errors */
+
+  nsh_output(vtbl, "  Type     ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  %04x", g_netstats.ipv4.protoerr);
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  %04x", g_netstats.ipv6.protoerr);
+#endif
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " ----");
+  nsh_output(vtbl, "  ----");
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " ----");
+  nsh_output(vtbl, "  ----");
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x", g_netstats.icmp.typeerr);
+  nsh_output(vtbl, "  %04x", g_netstats.icmp.typeerr);
+#endif
+#ifdef CONFIG_NET_ICMPv6
+  nsh_output(vtbl, "  %04x", g_netstats.icmpv6.typeerr);
 #endif
   nsh_output(vtbl, "\n");
 
   /* Sent packets */
 
-  nsh_output(vtbl, "Sent        ----", g_netstats.ip.sent);
+  nsh_output(vtbl, "Sent       ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  %04x", g_netstats.ipv4.sent);
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  %04x", g_netstats.ipv6.sent);
+#endif
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, " %04x", g_netstats.tcp.sent);
+  nsh_output(vtbl, "  %04x", g_netstats.tcp.sent);
 #endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " %04x", g_netstats.udp.sent);
+  nsh_output(vtbl, "  %04x", g_netstats.udp.sent);
 #endif
 #ifdef CONFIG_NET_ICMP
-  nsh_output(vtbl, " %04x", g_netstats.icmp.sent);
+  nsh_output(vtbl, "  %04x", g_netstats.icmp.sent);
+#endif
+#ifdef CONFIG_NET_ICMPv6
+  nsh_output(vtbl, "  %04x", g_netstats.icmpv6.sent);
 #endif
   nsh_output(vtbl, "\n");
 
+  /* TCP retransmissions */
+
 #ifdef CONFIG_NET_TCP
-  nsh_output(vtbl, "  Rexmit    ---- %04x", g_netstats.tcp.rexmit);
+  nsh_output(vtbl, "  Rexmit   ");
+#ifdef CONFIG_NET_IPv4
+  nsh_output(vtbl, "  ----");
+#endif
+#ifdef CONFIG_NET_IPv6
+  nsh_output(vtbl, "  ----");
+#endif
 #ifdef CONFIG_NET_UDP
-  nsh_output(vtbl, " ----");
+  nsh_output(vtbl, "  ----");
 #endif
+  nsh_output(vtbl, "  %04x", g_netstats.tcp.rexmit);
 #ifdef CONFIG_NET_ICMP
-   nsh_output(vtbl, " ----");
+   nsh_output(vtbl, "  ----");
+#endif
+#ifdef CONFIG_NET_ICMPv6
+   nsh_output(vtbl, "  ----");
 #endif
   nsh_output(vtbl, "\n");
-#endif
-  nsh_output(vtbl, "\n");
+#endif /* CONFIG_NET_TCP */
 }
 #else
 # define net_statistics(vtbl)
