@@ -292,7 +292,7 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
   nsh_output(vtbl, "  ICMP");
 #endif
 #ifdef CONFIG_NET_ICMPv6
-  nsh_output(vtbl, " ICMP6");
+  nsh_output(vtbl, "  ICMPv6");
 #endif
   nsh_output(vtbl, "\n");
 
