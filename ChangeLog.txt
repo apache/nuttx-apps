@@ -1140,7 +1140,7 @@
 	* apps/examples/bridge/host_main.c, host_net1.c, host_net2.c, Kconfig,
 	  and Makefile:  Add host-side test driver (2014-11-21).
 
-7.7 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.7 2015-01-26 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/romfs/Makefile: fix romfs example builtin app registry
 	  issue.  From Librae (2014-11-27).
@@ -1187,10 +1187,12 @@
 	* apps/netutils/telnetd:  Add protection when CONFIG_SCHED_HAVE_PARENT
 	  is enabled:  Call sigaction with SA_NOCLDWAIT so that exit status is
 	  not retained (no zombies) and block receipt of SIGCHLD so that accept
-	  is not awakened by a signal.  Iff accept() is awakened by a signal, do
+	  is not awakened by a signal.  If accept() is awakened by a signal, do
 	  not do anything crazy like exit.  Most from Rony Xln (2015-01-22).
 	*  apps/examples/udp:  The UDP test example has been extend to support
 	  IPv6 domain sockets (2015-01-22).
 	* apps/nshlib:  Add the ping6 command to support checking IPv6 networks.
-	  NSH logic is complete but still nissing (2015-01-23).
+	  (2015-01-23).
 	* apps/nsh: Clean up network status presentation for IPv6 (2015-01-24).
+
+7.8 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
