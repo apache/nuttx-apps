@@ -154,6 +154,22 @@
 #  define CONFIG_NSH_NETINIT_THREAD_PRIORITY 100
 #endif
 
+/* Some networking commands do not make sense unless there is a network
+ * device.  There might not be a network device if, for example, only Unix
+ * domain sockets were enable.
+ */
+
+#if !defined(CONFIG_NET_ETHERNET) && !defined(CONFIG_NET_SLIP)
+  /* No link layer protocol is a good indication that there is no network
+   * device.
+   */
+
+#  undef CONFIG_NSH_DISABLE_IFUPDOWN
+#  undef CONFIG_NSH_DISABLE_IFCONFIG
+#  define CONFIG_NSH_DISABLE_IFUPDOWN 1
+#  define CONFIG_NSH_DISABLE_IFCONFIG 1
+#endif
+
 /* Telnetd requires networking support */
 
 #ifndef CONFIG_NET
