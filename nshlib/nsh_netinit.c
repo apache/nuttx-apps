@@ -235,7 +235,8 @@ static void nsh_netinit_configure(void)
   /* Set the MAC address */
 
   netlib_setmacaddr(NET_DEVNAME, mac);
-#endif
+
+#endif /* CONFIG_NSH_NOMAC && CONFIG_NET_ETHERNET */
 
 #ifdef CONFIG_NET_IPv4
   /* Set up our host address */
