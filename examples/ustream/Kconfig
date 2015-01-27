@@ -1,0 +1,19 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_USTREAM
+	bool "Unix domain socket example"
+	default n
+	depends on NET_LOCAL
+	---help---
+		Enable the Unix domain SOCK_STREAM test example
+
+if EXAMPLES_USTREAM
+
+config EXAMPLES_USTREAM_ADDR
+	string "Unix domain address"
+	default "/var/fifo/fifo"
+
+endif # EXAMPLES_USTREAM
