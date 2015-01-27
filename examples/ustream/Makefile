@@ -116,7 +116,7 @@ $(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: $(OBJS)
-	$(call ARCHIVE, $(USTREAM_BIN), $(SERVER_OBJS))
+	$(call ARCHIVE, $(USTREAM_BIN), $(OBJS))
 	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
