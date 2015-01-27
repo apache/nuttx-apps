@@ -149,16 +149,6 @@ float nanf(FAR const char *tagp)
   return 0;
 }
 
-float copysignf(float x, float y)
-{
-  if (y < 0)
-    {
-      return -fabsf(x);
-    }
-
-  return fabsf(x);
-}
-
 float truncf(float x)
 {
   union
