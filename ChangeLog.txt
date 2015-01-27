@@ -1199,3 +1199,6 @@
 
 	* apps/interpreters/micropython: Add math library defines for nan(),
 	  copysign(), and trunc() functions.  From Brennan Ashton (2015-01-26).
+	* apps/examples/ustreadm:  Add a simple test of Unix domain sockets
+	  (2014-01-27).
+
