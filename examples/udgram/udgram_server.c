@@ -145,7 +145,7 @@ int server_main(int argc, char *argv[])
       nbytes = recvfrom(sockfd, inbuf, 1024, 0,
                         (struct sockaddr*)&client, &recvlen);
 
-      if (recvlen < sizeof(sa_family_t))
+      if (recvlen < sizeof(sa_family_t) || recvlen > sizeof(struct sockaddr_un))
         {
           printf("server: %d. ERROR Received %d bytes from client with invalid length %d\n",
                  offset, nbytes, recvlen);
@@ -159,11 +159,24 @@ int server_main(int argc, char *argv[])
         {
           printf("server: %d. Received %d bytes from an abstract client\n",
                  offset, nbytes);
+
+          if (client.sun_path[0] != '\0')
+            {
+              printf("server:  ERROR path not NUL terminated\n");
+            }
         }
-      else /* if (recvlen > sizeof(sa_family_t) */
+      else /* if (recvlen > sizeof(sa_family_t)+1 &&
+                  recvlen <= sizeof(struct sockaddr_un)) */
         {
-          printf("server: %d. Received %d bytes from a client %s\n",
+          int pathlen = recvlen - sizeof(sa_family_t) - 1;
+
+          printf("server: %d. Received %d bytes from a pathname client %s\n",
                  offset, nbytes, client.sun_path);
+
+          if (client.sun_path[pathlen] != '\0')
+            {
+              printf("server:  ERROR path not NUL terminated\n");
+            }
         }
 
       if (nbytes < 0)
