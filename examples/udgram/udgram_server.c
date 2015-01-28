@@ -95,7 +95,6 @@ int server_main(int argc, char *argv[])
   socklen_t recvlen;
   int sockfd;
   int nbytes;
-  int optval;
   int offset;
 
   /* Create a new UDP socket */
@@ -104,15 +103,6 @@ int server_main(int argc, char *argv[])
   if (sockfd < 0)
     {
       printf("server: socket failure: %d\n", errno);
-      return 1;
-    }
-
-  /* Set socket to reuse address */
-
-  optval = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
-    {
-      printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       return 1;
     }
 
@@ -144,6 +134,13 @@ int server_main(int argc, char *argv[])
       recvlen = addrlen;
       nbytes = recvfrom(sockfd, inbuf, 1024, 0,
                         (struct sockaddr*)&client, &recvlen);
+
+      if (nbytes < 0)
+        {
+          printf("server: %d. recv failed: %d\n", offset, errno);
+          close(sockfd);
+          return 1;
+        }
 
       if (recvlen < sizeof(sa_family_t) || recvlen > sizeof(struct sockaddr_un))
         {
@@ -177,13 +174,6 @@ int server_main(int argc, char *argv[])
             {
               printf("server:  ERROR path not NUL terminated\n");
             }
-        }
-
-      if (nbytes < 0)
-        {
-          printf("server: %d. recv failed: %d\n", offset, errno);
-          close(sockfd);
-          return 1;
         }
 
       if (nbytes != SENDSIZE)
