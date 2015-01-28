@@ -318,6 +318,10 @@ ifeq ($(CONFIG_EXAMPLES_USBTERM),y)
 CONFIGURED_APPS += examples/usbterm
 endif
 
+ifeq ($(CONFIG_EXAMPLES_UDGRAM),y)
+CONFIGURED_APPS += examples/udgram
+endif
+
 ifeq ($(CONFIG_EXAMPLES_USTREAM),y)
 CONFIGURED_APPS += examples/ustream
 endif

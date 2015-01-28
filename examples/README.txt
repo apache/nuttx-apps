@@ -1979,8 +1979,22 @@ examples/usbterm
 examples/ustream
 ^^^^^^^^^^^^^^^^
 
-  This is the same test as examples/nettest, but using Unix domain
-  sockets.
+  This is the same test as examples/udp and similar to examples/ustream,
+  but using Unix domain datagram sockets.
+
+  Dependencies:
+    CONFIG_NET_LOCAL - Depends on support for Unix domain sockets
+
+  Configuration:
+    CONFIG_EXAMPLES_UDGRAM - Enables the Unix domain socket example.
+    CONFIG_EXAMPLES_UDGRAM_ADDR - Specifics the Unix domain address.
+      Default "/var/fifo/fifo".
+
+examples/ustream
+^^^^^^^^^^^^^^^^
+
+  This is the same test as examples/udp and similar to examples/udgram,
+  but using Unix domain stream sockets.
 
   Dependencies:
     CONFIG_NET_LOCAL - Depends on support for Unix domain sockets
