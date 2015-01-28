@@ -103,7 +103,7 @@ int client_main(int argc, char *argv[])
   strncpy(myaddr.sun_path, CONFIG_EXAMPLES_USTREAM_ADDR, addrlen);
   myaddr.sun_path[addrlen] = '\0';
 
-  printf("client: Connecting...\n");
+  printf("client: Connecting to %s...\n", CONFIG_EXAMPLES_USTREAM_ADDR);
   addrlen += sizeof(sa_family_t) + 1;
   ret = connect( sockfd, (struct sockaddr *)&myaddr, addrlen);
   if (ret < 0)
@@ -176,6 +176,7 @@ int client_main(int argc, char *argv[])
       goto errout_with_socket;
     }
 
+  printf("client: Terminating\n");
   close(sockfd);
   free(outbuf);
   free(inbuf);

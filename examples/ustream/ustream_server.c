@@ -113,6 +113,8 @@ int server_main(int argc, char *argv[])
 
   /* Listen for connections on the bound socket */
 
+  printf("server: Accepting connections on %s ...\n", CONFIG_EXAMPLES_USTREAM_ADDR);
+
   if (listen(listensd, 5) < 0)
     {
       printf("server: listen failure %d\n", errno);
@@ -121,7 +123,6 @@ int server_main(int argc, char *argv[])
 
   /* Accept only one connection */
 
-  printf("server: Accepting connections on %s\n", CONFIG_EXAMPLES_USTREAM_ADDR);
   acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
   if (acceptsd < 0)
     {
@@ -187,14 +188,7 @@ int server_main(int argc, char *argv[])
     }
 
   printf("server: Sent %d bytes\n", nbytessent);
-
-  /* If this platform only does abortive disconnects, then wait a bit to get the
-   * client side a change to receive the data.
-   */
-
-  printf("server: Wait before closing\n");
-  sleep(60);
-
+  printf("server: Terminating\n");
   close(listensd);
   close(acceptsd);
   free(buffer);
