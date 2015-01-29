@@ -460,7 +460,8 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
  * Name: ifconfig_callback
  ****************************************************************************/
 
-int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
+#if !defined(CONFIG_NSH_DISABLE_IFUPDOWN) || !defined(CONFIG_NSH_DISABLE_IFCONFIG)
+static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 {
   struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
 #ifdef CONFIG_NET_IPv4
@@ -542,6 +543,7 @@ int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
   nsh_output(vtbl, "\n");
   return OK;
 }
+#endif /* !CONFIG_NSH_DISABLE_IFUPDOWN || !CONFIG_NSH_DISABLE_IFCONFIG */
 
 /****************************************************************************
  * Name: tftpc_parseargs
