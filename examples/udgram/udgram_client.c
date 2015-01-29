@@ -140,12 +140,6 @@ int client_main(int argc, char *argv[])
         }
 
       printf("client: %d. Sent %d bytes\n", offset, nbytes);
-
-      /* Now, sleep a bit.  No packets should be dropped due to overrunning
-       * the server.
-       */
-
-      sleep(2);
     }
 
   close(sockfd);
