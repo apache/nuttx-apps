@@ -124,7 +124,6 @@ int client_main(int argc, char *argv[])
       printf("client: %d. Sending %d bytes\n", offset, SENDSIZE);
       nbytes = sendto(sockfd, outbuf, SENDSIZE, 0,
                       (struct sockaddr *)&server, addrlen);
-      printf("client: %d. Sent %d bytes\n", offset, nbytes);
 
       if (nbytes < 0)
         {
@@ -139,6 +138,8 @@ int client_main(int argc, char *argv[])
           close(sockfd);
           return 1;
         }
+
+      printf("client: %d. Sent %d bytes\n", offset, nbytes);
 
       /* Now, sleep a bit.  No packets should be dropped due to overrunning
        * the server.
