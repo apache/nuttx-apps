@@ -122,7 +122,7 @@ int server_main(int argc, char *argv[])
 
   if (bind(sockfd, (struct sockaddr*)&server, addrlen) < 0)
     {
-      printf("server: bind failure: %d\n", errno);
+      printf("server: ERROR bind failure: %d\n", errno);
       return 1;
     }
 
@@ -137,7 +137,7 @@ int server_main(int argc, char *argv[])
 
       if (nbytes < 0)
         {
-          printf("server: %d. recv failed: %d\n", offset, errno);
+          printf("server: %d. ERROR recv failed: %d\n", offset, errno);
           close(sockfd);
           return 1;
         }
@@ -178,7 +178,7 @@ int server_main(int argc, char *argv[])
 
       if (nbytes != SENDSIZE)
         {
-          printf("server: %d. recv size incorrect: %d vs %d\n",
+          printf("server: %d. ERROR recv size incorrect: %d vs %d\n",
                  offset, nbytes, SENDSIZE);
           close(sockfd);
           return 1;
@@ -186,13 +186,13 @@ int server_main(int argc, char *argv[])
 
       if (offset < inbuf[0])
         {
-          printf("server: %d. %d packets lost, resetting offset\n",
+          printf("server: %d. ERROR %d packets lost, resetting offset\n",
                  offset, inbuf[0] - offset);
           offset = inbuf[0];
         }
       else if (offset > inbuf[0])
         {
-          printf("server: %d. Bad offset in buffer: %d\n",
+          printf("server: %d. ERROR Bad offset in buffer: %d\n",
                  offset, inbuf[0]);
           close(sockfd);
           return 1;
@@ -200,7 +200,7 @@ int server_main(int argc, char *argv[])
 
       if (!check_buffer(inbuf))
         {
-          printf("server: %d. Bad buffer contents\n", offset);
+          printf("server: %d. ERROR Bad buffer contents\n", offset);
           close(sockfd);
           return 1;
         }

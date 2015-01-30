@@ -93,7 +93,7 @@ int client_main(int argc, char *argv[])
   sockfd = socket(PF_LOCAL, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
-      printf("client socket failure %d\n", errno);
+      printf("client: ERROR socket failure %d\n", errno);
       return 1;
     }
 
@@ -127,13 +127,13 @@ int client_main(int argc, char *argv[])
 
       if (nbytes < 0)
         {
-          printf("client: %d. sendto failed: %d\n", offset, errno);
+          printf("client: %d. ERROR sendto failed: %d\n", offset, errno);
           close(sockfd);
           return 1;
         }
       else if (nbytes != SENDSIZE)
         {
-          printf("client: %d. Bad send length: %d Expected: %d\n",
+          printf("client: %d. ERROR Bad send length: %d Expected: %d\n",
                  offset, nbytes, SENDSIZE);
           close(sockfd);
           return 1;
