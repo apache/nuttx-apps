@@ -1988,7 +1988,7 @@ examples/ustream
   Configuration:
     CONFIG_EXAMPLES_UDGRAM - Enables the Unix domain socket example.
     CONFIG_EXAMPLES_UDGRAM_ADDR - Specifics the Unix domain address.
-      Default "/var/fifo/fifo".
+      Default "/dev/fifo".
 
 examples/ustream
 ^^^^^^^^^^^^^^^^
@@ -2002,7 +2002,7 @@ examples/ustream
   Configuration:
     CONFIG_EXAMPLES_USTREAM - Enables the Unix domain socket example.
     CONFIG_EXAMPLES_USTREAM_ADDR - Specifics the Unix domain address.
-      Default "/var/fifo/fifo".
+      Default "/dev/fifo".
 
 examples/watchdog
 ^^^^^^^^^^^^^^^^^

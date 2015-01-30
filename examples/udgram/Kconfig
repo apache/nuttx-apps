@@ -14,7 +14,7 @@ if EXAMPLES_UDGRAM
 
 config EXAMPLES_UDGRAM_ADDR
 	string "Unix domain address"
-	default "/var/fifo/fifo"
+	default "/dev/fifo"
 
 config EXAMPLES_UDGRAM_SERVER_APPNAME
     string "Server executable name"

@@ -14,6 +14,6 @@ if EXAMPLES_USTREAM
 
 config EXAMPLES_USTREAM_ADDR
 	string "Unix domain address"
-	default "/var/fifo/fifo"
+	default "/dev/fifo"
 
 endif # EXAMPLES_USTREAM
