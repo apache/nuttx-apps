@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/readline/readline.h
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,12 +45,6 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-/* In some systems, the underlying serial logic may automatically echo
- * characters back to the console.  We will assume that that is not the case
- & here
- */
-
-#define CONFIG_READLINE_ECHO 1
 
 /* Some environments may return CR as end-of-line, others LF, and others
  * both.  If not specified, the logic here assumes either (but not both) as
