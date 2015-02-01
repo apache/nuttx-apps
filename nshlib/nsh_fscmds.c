@@ -1250,7 +1250,8 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Then register the ramdisk */
 
-  ret = ramdisk_register(minor, buffer, nsectors, sectsize, true);
+  ret = ramdisk_register(minor, buffer, nsectors, sectsize,
+                         RDFLAG_WRENABLED | RDFLAG_FUNLINK);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ramdisk_register", NSH_ERRNO_OF(-ret));

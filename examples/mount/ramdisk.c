@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/mount/ramdisk.c
  *
- *   Copyright (C) 2008-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ int create_ramdisk(void)
                          (FAR uint8_t *)pbuffer,
                          CONFIG_EXAMPLES_MOUNT_NSECTORS,
                          CONFIG_EXAMPLES_MOUNT_SECTORSIZE,
-                         true);
+                         RDFLAG_WRENABLED | RDFLAG_FUNLINK);
   if (ret < 0)
     {
       printf("create_ramdisk: Failed to register ramdisk at %s: %d\n",
