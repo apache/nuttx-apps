@@ -304,7 +304,7 @@ config EXAMPLES_UDP_IPv6NETMASK_8
 		individually.  This is the eighth of the 8-values.  The default for
 		all eight values is fe00::0.
 
-#endif /* NET_ICMPv6_AUTOCONF */
+endif # NET_ICMPv6_AUTOCONF
 
 comment "Server IPv6 address"
 

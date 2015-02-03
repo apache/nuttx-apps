@@ -111,6 +111,16 @@
 #  error ERROR: No link layer protocol defined
 #endif
 
+/* We need a valid IP domain (any domain) to create a socket that we can use
+ * to comunicate with the network device.
+ */
+
+#if defined(CONFIG_NET_IPv4)
+#  define AF_INETX AF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define AF_INETX AF_INET6
+#endif
+
 /* While the network is up, the network monitor really does nothing.  It
  * will wait for a very long time while waiting, it can be awakened by a
  * signal indicating a change in network status.
@@ -388,7 +398,7 @@ static int nsh_netinit_monitor(void)
    * interface driver.
    */
 
-  sd = socket(AF_INET, SOCK_DGRAM, 0);
+  sd = socket(AF_INETX, SOCK_DGRAM, 0);
   if (sd < 0)
     {
       ret = -errno;
