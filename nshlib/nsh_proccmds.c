@@ -90,7 +90,7 @@ static const char *g_statenames[] =
   "RUNNING ",
   "INACTIVE",
   "WAITSEM ",
-#ifndef CONFIG_DISABLE_MQUEUE
+#ifndef CONFIG_DISABLE_SIGNALS
   "WAITSIG ",
 #endif
 #ifndef CONFIG_DISABLE_MQUEUE
