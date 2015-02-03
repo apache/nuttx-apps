@@ -1203,4 +1203,11 @@
 	  (2015-01-27).
 	* apps/examples/udgram:  Add a simple test of Unix domain datagram
 	  sockets (2015-01-28)
-
+	* apps/Makefile and builtin/Makefile: Fix for building with parallel
+	  make. Build-server sometimes failed 'make -j24' with errors in the
+	  builtin line or or sometimes silently succeeds but generateed builds
+	  that contain a random subset of configured NuttX applications. There
+	  are two root causes for this: (1) Recipes for building builtin_list.h
+	  and builtin_proto.h are not linearizable, and (2) Nothing ensures
+	  that 'make context' is run first for apps/builtin.  This change
+	  address both issues. From Juha Niskanen (2015-02-03).
