@@ -74,35 +74,39 @@ $(COBJS): %$(OBJEXT): %.c
 registry$(DELIM).updated:
 	$(Q) $(MAKE) -C registry .updated TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
+builtin_list$(OBJEXT): builtin_list.h builtin_proto.h
+
 builtin_list.h: registry$(DELIM).updated
-	$(call DELFILE, builtin_list.h)
-	$(Q) touch builtin_list.h
+	$(call DELFILE, .xx_builtin_list.h)
+	$(Q) touch .xx_builtin_list.h
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) (for /f %%G in ('dir /b registry\*.bdat') do ( type registry\%%G >> builtin_list.h )) || echo ""
+	$(Q) (for /f %%G in ('dir /b registry\*.bdat') do ( type registry\%%G >> .xx_builtin_list.h )) || echo ""
 else
 	$(Q) ( \
 		filelist=`ls registry/*.bdat 2>/dev/null || echo ""`; \
 		for file in $$filelist; \
-			do cat $$file >> builtin_list.h; \
+			do cat $$file >> .xx_builtin_list.h; \
 		done; \
 	)
 endif
+	$(Q) mv .xx_builtin_list.h builtin_list.h
 
 builtin_proto.h: registry$(DELIM).updated
-	$(call DELFILE, builtin_proto.h)
-	$(Q) touch builtin_proto.h
+	$(call DELFILE, .xx_builtin_proto.h)
+	$(Q) touch .xx_builtin_proto.h
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-	$(Q) (for /f %%G in ('dir /b registry\*.pdat') do ( type registry\%%G >> builtin_proto.h )) || echo ""
+	$(Q) (for /f %%G in ('dir /b registry\*.pdat') do ( type registry\%%G >> .xx_builtin_proto.h )) || echo ""
 else
 	$(Q) ( \
 		filelist=`ls registry/*.pdat 2>/dev/null || echo ""`; \
 		for file in $$filelist; \
-			do cat $$file >> builtin_proto.h; \
+			do cat $$file >> .xx_builtin_proto.h; \
 		done; \
 	)
 endif
+	$(Q) mv .xx_builtin_proto.h builtin_proto.h
 
-.built: builtin_list.h builtin_proto.h $(OBJS)
+.built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
@@ -120,6 +124,8 @@ depend: .depend
 clean:
 	$(Q) $(MAKE) -C registry clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 	$(call DELFILE, .built)
+	$(call DELFILE, .xx_builtin_list.h)
+	$(call DELFILE, .xx_builtin_proto.h)
 	$(call CLEAN)
 
 distclean: clean

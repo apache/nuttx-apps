@@ -45,7 +45,7 @@ TOPDIR ?= $(APPDIR)/import
 # CONFIGURED_APPS is the list of all configured built-in directories/built
 #   action.
 # SUBDIRS is the list of all directories containing Makefiles.  It is used
-#   only for cleaning. builtin must always be the first in the list.
+#   only for cleaning.
 
 CONFIGURED_APPS =
 SUBDIRS  = examples graphics interpreters modbus builtin import nshlib
@@ -114,7 +114,7 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: import install context .depdirs depend clean distclean
+.PHONY: import install context context_serialize context_rest .depdirs depend clean distclean
 
 define SDIR_template
 $(1)_$(2):
@@ -142,7 +142,13 @@ install: $(BIN_DIR) .install
 import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
-context: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_context)
+context_rest: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_context)
+
+context_serialize:
+	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
+	$(Q) $(MAKE) context_rest
+
+context: context_serialize
 
 .depdirs: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_depend)
 
