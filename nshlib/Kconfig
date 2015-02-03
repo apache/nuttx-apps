@@ -930,8 +930,7 @@ config NSH_NETMASK
 
 endif # NET_IPv4
 
-if NET_IPv6
-if !NET_ICMPv6_AUTOCONF
+if NET_IPv6 && !NET_ICMPv6_AUTOCONF
 
 comment "Target IPv6 address"
 
@@ -1022,8 +1021,6 @@ config NSH_IPv6ADDR_8
 		eight values forming the full IP address must be specified
 		individually.  This is the last of the 8-values.  The default for
 		all eight values is fc00::2.
-
-endif # !NET_ICMPv6_AUTOCONF
 
 comment "Router IPv6 address"
 
@@ -1189,7 +1186,7 @@ config NSH_IPv6NETMASK_8
 		individually.  This is the eighth of the 8-values.  The default for
 		all eight values is fe00::0.
 
-endif #NET_IPv6
+endif #NET_IPv6 && !NET_ICMPv6_AUTOCONF
 endmenu # IP Address Configuration
 
 config NSH_DNS

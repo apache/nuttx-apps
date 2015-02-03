@@ -76,6 +76,7 @@ config EXAMPLES_NETTEST_CLIENTIP
 endif # EXAMPLES_NETTEST_IPv4
 
 if EXAMPLES_NETTEST_IPv6
+if !NET_ICMPv6_AUTOCONF
 
 comment "Target IPv6 address"
 
@@ -322,6 +323,8 @@ config EXAMPLES_NETTEST_IPv6NETMASK_8
 		of the eight values forming the full IP address must be specified
 		individually.  This is the eighth of the 8-values.  The default for
 		all eight values is fe00::0.
+
+#endif /* NET_ICMPv6_AUTOCONF */
 
 comment "Client IPv6 address"
 
