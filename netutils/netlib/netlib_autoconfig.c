@@ -74,36 +74,33 @@ int netlib_icmpv6_autoconfiguration(FAR const char *ifname)
 {
   int ret = ERROR;
 
-#if 1 /* Not yet implemented */
+  /* Verify that an interface name was provided */
 
-#  warning Missing logic
-  errno = ENOSYS;
-
-#else
   if (ifname)
     {
+      /* Get an IPv6 socket */
+
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          FAR struct sockaddr_in6 *inaddr;
+          /* Create a request consisting only of the interface name */
+
           struct lifreq req;
-
-          /* Add the device name to the request */
-
           strncpy(req.lifr_name, ifname, IFNAMSIZ);
 
-          /* Add the INET address to the request */
+          /* Perform the ICMPv6 auto-configuration and close the socket */
 
-          inaddr              = (FAR struct sockaddr_in6 *)&req.lifr_addr;
-          inaddr->sin6_family = AF_INET6;
-          inaddr->sin6_port   = 0;
-          memcpy(&inaddr->sin6_addr, addr, sizeof(struct in6_addr));
-
-          ret = ioctl(sockfd, SIOCSLIFNETMASK, (unsigned long)((uintptr_t)&req));
+          ret = ioctl(sockfd, SIOCIFAUTOCONF,
+                      (unsigned long)((uintptr_t)&req));
           close(sockfd);
         }
     }
-#endif
+  else
+    {
+      /* No interface name */
+
+      set_errno(EINVAL);
+    }
 
   return ret;
 }
