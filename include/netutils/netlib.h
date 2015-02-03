@@ -126,6 +126,12 @@ int netlib_set_dripv6addr(FAR const char *ifname, FAR const struct in6_addr *add
 int netlib_set_ipv6netmask(FAR const char *ifname, FAR const struct in6_addr *addr);
 #endif
 
+/* ICMPv6 Autoconfiguration */
+
+#ifdef CONFIG_NET_ICMPv6_AUTOCONF
+int netlib_icmpv6_autoconfiguration(FAR const char *ifname);
+#endif
+
 /* HTTP support */
 
 int  netlib_parsehttpurl(FAR const char *url, uint16_t *port,

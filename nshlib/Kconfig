@@ -931,7 +931,7 @@ config NSH_NETMASK
 endif # NET_IPv4
 
 if NET_IPv6
-if !NSH_DHCPC
+if !NET_ICMPv6_AUTOCONF
 
 comment "Target IPv6 address"
 
@@ -940,7 +940,7 @@ config NSH_IPv6ADDR_1
 	default 0xfc00
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the first of the 8-values.  The default for
@@ -951,7 +951,7 @@ config NSH_IPv6ADDR_2
 	default 0x0000
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the second of the 8-values.  The default for
@@ -962,7 +962,7 @@ config NSH_IPv6ADDR_3
 	default 0x0000
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the third of the 8-values.  The default for
@@ -973,7 +973,7 @@ config NSH_IPv6ADDR_4
 	default 0x0000
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the fourth of the 8-values.  The default for
@@ -984,7 +984,7 @@ config NSH_IPv6ADDR_5
 	default 0x0000
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the fifth of the 8-values.  The default for
@@ -995,7 +995,7 @@ config NSH_IPv6ADDR_6
 	default 0x0000
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the sixth of the 8-values.  The default for
@@ -1006,7 +1006,7 @@ config NSH_IPv6ADDR_7
 	default 0x0000
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the seventh of the 8-values.  The default for
@@ -1017,13 +1017,13 @@ config NSH_IPv6ADDR_8
 	default 0x0002
 	range 0x0 0xffff
 	---help---
-		If NSH_DHCPC is NOT set, then the static IP address must be
+		If NET_ICMPv6_AUTOCONF is NOT set, then the static IP address must be
 		provided. This is a 16-bit integer value in host order.  Each of the
 		eight values forming the full IP address must be specified
 		individually.  This is the last of the 8-values.  The default for
 		all eight values is fc00::2.
 
-endif # !NSH_DHCPC
+endif # !NET_ICMPv6_AUTOCONF
 
 comment "Router IPv6 address"
 

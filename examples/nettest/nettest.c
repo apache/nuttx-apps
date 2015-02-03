@@ -61,6 +61,7 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+#ifndef CONFIG_NET_ICMPv6_AUTOCONF
 /* Our host IPv6 address */
 
 static const uint16_t g_ipv6_hostaddr[8] =
@@ -74,6 +75,7 @@ static const uint16_t g_ipv6_hostaddr[8] =
   HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_7),
   HTONS(CONFIG_EXAMPLES_NETTEST_IPv6ADDR_8),
 };
+#endif
 
 /* Default routine IPv6 address */
 
@@ -138,10 +140,17 @@ int nettest_main(int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-  /* Set up our host address */
+#ifdef CONFIG_NET_ICMPv6_AUTOCONF
+  /* Perform ICMPv6 auto-configuration */
+
+  netlib_icmpv6_autoconfiguration("eth0");
+
+#else
+  /* Set up our fixed host address */
 
   netlib_set_ipv6addr("eth0",
                       (FAR const struct in6_addr *)g_ipv6_hostaddr);
+#endif
 
   /* Set up the default router address */
 

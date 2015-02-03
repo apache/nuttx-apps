@@ -132,14 +132,9 @@ static sem_t g_notify_sem;
 #endif
 
 #ifdef CONFIG_NET_IPv6
-  /* Host IPv6 address */
+#ifndef CONFIG_NET_ICMPv6_AUTOCONF
+/* Host IPv6 address */
 
-#ifdef CONFIG_NSH_DHCPC
-static const uint16_t g_ipv6_hostaddr[8] =
-{
-  0x0000, 0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000,  0x0000
-};
-#else
 static const uint16_t g_ipv6_hostaddr[8] =
 {
   HTONS(CONFIG_NSH_IPv6ADDR_1),
@@ -151,7 +146,7 @@ static const uint16_t g_ipv6_hostaddr[8] =
   HTONS(CONFIG_NSH_IPv6ADDR_7),
   HTONS(CONFIG_NSH_IPv6ADDR_8),
 };
-#endif
+#endif /* CONFIG_NET_ICMPv6_AUTOCONF */
 
 /* Default routine IPv6 address */
 
@@ -260,10 +255,18 @@ static void nsh_netinit_configure(void)
 #endif
 
 #ifdef CONFIG_NET_IPv6
-  /* Set up our host address */
+#ifdef CONFIG_NET_ICMPv6_AUTOCONF
+  /* Perform ICMPv6 auto-configuration */
+
+  netlib_icmpv6_autoconfiguration(NET_DEVNAME);
+
+#else
+
+  /* Set up our fixed host address */
 
   netlib_set_ipv6addr(NET_DEVNAME,
                       (FAR const struct in6_addr *)g_ipv6_hostaddr);
+#endif
 
   /* Set up the default router address */
 
