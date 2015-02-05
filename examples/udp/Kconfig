@@ -226,7 +226,7 @@ comment "IPv6 Network mask"
 
 config EXAMPLES_UDP_IPv6NETMASK_1
 	hex "[0]"
-	default 0xfe00
+	default 0xffff
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
@@ -236,7 +236,7 @@ config EXAMPLES_UDP_IPv6NETMASK_1
 
 config EXAMPLES_UDP_IPv6NETMASK_2
 	hex "[1]"
-	default 0x0000
+	default 0xffff
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
@@ -246,7 +246,7 @@ config EXAMPLES_UDP_IPv6NETMASK_2
 
 config EXAMPLES_UDP_IPv6NETMASK_3
 	hex "[2]"
-	default 0x0000
+	default 0xffff
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
@@ -256,8 +256,8 @@ config EXAMPLES_UDP_IPv6NETMASK_3
 
 config EXAMPLES_UDP_IPv6NETMASK_4
 	hex "[3]"
-	default 0x0000
-	range 0x0 0x0000
+	default 0xffff
+	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
 		of the eight values forming the full IP address must be specified
@@ -266,7 +266,7 @@ config EXAMPLES_UDP_IPv6NETMASK_4
 
 config EXAMPLES_UDP_IPv6NETMASK_5
 	hex "[4]"
-	default 0x0000
+	default 0xffff
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
@@ -276,7 +276,7 @@ config EXAMPLES_UDP_IPv6NETMASK_5
 
 config EXAMPLES_UDP_IPv6NETMASK_6
 	hex "[5]"
-	default 0x0000
+	default 0xffff
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
@@ -286,7 +286,7 @@ config EXAMPLES_UDP_IPv6NETMASK_6
 
 config EXAMPLES_UDP_IPv6NETMASK_7
 	hex "[6]"
-	default 0x0000
+	default 0xffff
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
@@ -296,7 +296,7 @@ config EXAMPLES_UDP_IPv6NETMASK_7
 
 config EXAMPLES_UDP_IPv6NETMASK_8
 	hex "[7]"
-	default 0x0000
+	default 0xff80
 	range 0x0 0xffff
 	---help---
 		Network mask.  This is a 16-bit integer value in host order.  Each
