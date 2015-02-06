@@ -1211,3 +1211,8 @@
 	  and builtin_proto.h are not linearizable, and (2) Nothing ensures
 	  that 'make context' is run first for apps/builtin.  This change
 	  address both issues. From Juha Niskanen (2015-02-03).
+	* apps/netutils/netlib:  Add utilities to convert to/from prefix lengths
+	 from/to 128-bit network masks (2015-02-06).
+	* apps/nshlib: Modify the NSH IPv6 ifconfig command to show the more
+	  stand post-pended prefix value, rather than the full 128-bit netmask
+	  (2015-02-06).
