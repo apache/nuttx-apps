@@ -469,6 +469,7 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 #endif
 #ifdef CONFIG_NET_IPv6
   char addrstr[INET6_ADDRSTRLEN];
+  uint8_t preflen;
 #endif
   uint8_t iff;
   const char *status;
@@ -504,11 +505,17 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 #endif
 
 #ifdef CONFIG_NET_IPv4
+  /* Show the IPv4 address */
+
   addr.s_addr = dev->d_ipaddr;
   nsh_output(vtbl, "\tinet addr:%s ", inet_ntoa(addr));
 
+  /* Show the IPv4 default router address */
+
   addr.s_addr = dev->d_draddr;
   nsh_output(vtbl, "DRaddr:%s ", inet_ntoa(addr));
+
+  /* Show the IPv4 network mask */
 
   addr.s_addr = dev->d_netmask;
   nsh_output(vtbl, "Mask:%s\n", inet_ntoa(addr));
@@ -520,22 +527,25 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 #endif
 
 #ifdef CONFIG_NET_IPv6
+  /* Convert the 128 network mask to a human friendly prefix length */
+
+  preflen = netlib_ipv6netmask2prefix(dev->d_ipv6netmask);
+
+  /* Show the assigned IPv6 address */
+
   if (inet_ntop(AF_INET6, dev->d_ipv6addr, addrstr, INET6_ADDRSTRLEN))
     {
-      nsh_output(vtbl, "\tinet6 addr:%s\n", addrstr);
+      nsh_output(vtbl, "\tinet6 addr:%s/%d\n", addrstr, preflen);
     }
+
+  /* REVISIT: Show the IPv6 default router address */
 
   if (inet_ntop(AF_INET6, dev->d_ipv6draddr, addrstr, INET6_ADDRSTRLEN))
     {
-      nsh_output(vtbl, "\tinet6 DRaddr:%s\n", addrstr);
+      nsh_output(vtbl, "\tinet6 DRaddr:%s/%d\n", addrstr, preflen);
     }
 
-  if (inet_ntop(AF_INET6, dev->d_ipv6netmask, addrstr, INET6_ADDRSTRLEN))
-    {
-      nsh_output(vtbl, "\tinet6 Mask:%s\n", addrstr);
-    }
-
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
+#if defined(CONFIG_NSH_DHCPCv6) || defined(CONFIG_NSH_DNS)
 #  warning Missing logic
 #endif
 #endif

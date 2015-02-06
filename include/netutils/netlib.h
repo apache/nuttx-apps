@@ -124,6 +124,9 @@ int netlib_get_ipv6addr(FAR const char *ifname, FAR struct in6_addr *addr);
 int netlib_set_ipv6addr(FAR const char *ifname, FAR const struct in6_addr *addr);
 int netlib_set_dripv6addr(FAR const char *ifname, FAR const struct in6_addr *addr);
 int netlib_set_ipv6netmask(FAR const char *ifname, FAR const struct in6_addr *addr);
+
+uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
+void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
 #endif
 
 /* ICMPv6 Autoconfiguration */
