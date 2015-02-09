@@ -857,7 +857,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
        * stop, etc.
        */
 
-      size = mq_receive(pPlayer->mq, &msg, sizeof(msg), &prio);
+      size = mq_receive(pPlayer->mq, (FAR char *)&msg, sizeof(msg), &prio);
 
       /* Validate a message was received */
 
@@ -1605,7 +1605,8 @@ int nxplayer_stop(FAR struct nxplayer_s *pPlayer)
 
   term_msg.msgId = AUDIO_MSG_STOP;
   term_msg.u.data = 0;
-  mq_send(pPlayer->mq, &term_msg, sizeof(term_msg), CONFIG_NXPLAYER_MSG_PRIO);
+  mq_send(pPlayer->mq, (FAR const char *)&term_msg, sizeof(term_msg),
+          CONFIG_NXPLAYER_MSG_PRIO);
 
   /* Join the thread.  The thread will do all the cleanup. */
 
