@@ -1195,24 +1195,26 @@
 	  (2015-01-23).
 	* apps/nsh: Clean up network status presentation for IPv6 (2015-01-24).
 
-7.8 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.8 2015-02-11 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/interpreters/micropython: Add math library defines for nan(),
 	  copysign(), and trunc() functions.  From Brennan Ashton (2015-01-26).
-	* apps/examples/ustreadm:  Add a simple test of Unix domain sockets
+	* apps/examples/ustream:  Add a simple test of Unix domain sockets
 	  (2015-01-27).
 	* apps/examples/udgram:  Add a simple test of Unix domain datagram
 	  sockets (2015-01-28)
 	* apps/Makefile and builtin/Makefile: Fix for building with parallel
 	  make. Build-server sometimes failed 'make -j24' with errors in the
-	  builtin line or or sometimes silently succeeds but generateed builds
+	  builtin line or or sometimes silently succeeds but generated builds
 	  that contain a random subset of configured NuttX applications. There
 	  are two root causes for this: (1) Recipes for building builtin_list.h
 	  and builtin_proto.h are not linearizable, and (2) Nothing ensures
 	  that 'make context' is run first for apps/builtin.  This change
 	  address both issues. From Juha Niskanen (2015-02-03).
 	* apps/netutils/netlib:  Add utilities to convert to/from prefix lengths
-	 from/to 128-bit network masks (2015-02-06).
+	  from/to 128-bit network masks (2015-02-06).
 	* apps/nshlib: Modify the NSH IPv6 ifconfig command to show the more
-	  stand post-pended prefix value, rather than the full 128-bit netmask
+	  standard post-pended prefix value, rather than the full 128-bit netmask
 	  (2015-02-06).
+
+7.9 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
