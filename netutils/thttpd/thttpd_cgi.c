@@ -42,6 +42,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>

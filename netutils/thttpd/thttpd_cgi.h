@@ -54,6 +54,7 @@
 
 extern int cgi(httpd_conn *hc);
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
+struct timeval;
 static void cgi_kill(ClientData client_data, struct timeval *now);
 #endif
 
