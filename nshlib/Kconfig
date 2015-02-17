@@ -873,7 +873,11 @@ config NSH_NETINIT_THREAD_STACKSIZE
 
 config NSH_NETINIT_THREAD_PRIORITY
 	int "Network initialization thread priority"
-	default 100
+	default 80
+	---help---
+		This should be set to a priority lower than most tasks.  The network
+		PHY polling is CPU intensive and can interfere with the usability of
+		of threads competing for CPU bandwidth.
 
 endif # NSH_NETINIT_THREAD
 
