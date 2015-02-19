@@ -1,7 +1,7 @@
 /***********************************************************************
  * apps/examples/ostest/semtimed.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,6 +92,7 @@ void semtimed_test(void)
   int prio_min;
   int prio_max;
   int prio_mid;
+  int errcode;
   pthread_attr_t attr;
   int status;
 
@@ -106,7 +107,9 @@ void semtimed_test(void)
   abstime.tv_nsec = before.tv_nsec;
 
   printf("semtimed_test: Waiting for two second timeout\n");
-  status = sem_timedwait(&sem, &abstime);
+  status  = sem_timedwait(&sem, &abstime);
+  errcode = errno;
+
   (void)clock_gettime(CLOCK_REALTIME, &after);
 
   if (status == OK)
@@ -115,7 +118,6 @@ void semtimed_test(void)
     }
   else
     {
-      int errcode = errno;
       if (errcode == ETIMEDOUT)
         {
           printf("samwait_test:  PASS\n");
@@ -192,12 +194,13 @@ void semtimed_test(void)
   abstime.tv_nsec = before.tv_nsec;
 
   printf("semtimed_test: Waiting for two second timeout\n");
-  status = sem_timedwait(&sem, &abstime);
+  status  = sem_timedwait(&sem, &abstime);
+  errcode = errno;
+
   (void)clock_gettime(CLOCK_REALTIME, &after);
 
   if (status < 0)
     {
-      int errcode = errno;
       printf("semtimed_test: ERROR: sem_timedwait failed with: %d\n", errcode);
     }
   else
