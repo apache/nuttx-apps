@@ -4,7 +4,7 @@
 #
 
 config NETUTILS_TELNETD
-	bool "Telet daemon"
+	bool "Telnet daemon"
 	default n
 	depends on NET && NET_TCP
 	---help---
