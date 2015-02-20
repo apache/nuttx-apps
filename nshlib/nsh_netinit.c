@@ -572,7 +572,7 @@ static int nsh_netinit_monitor(void)
 
       abstime.tv_sec  += reltime.tv_sec;
       abstime.tv_nsec += reltime.tv_nsec;
-      if (abstime.tv_nsec > 1000000000)
+      if (abstime.tv_nsec >= 1000000000)
         {
           abstime.tv_sec++;
           abstime.tv_nsec -= 1000000000;
