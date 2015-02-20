@@ -1218,3 +1218,7 @@
 	  (2015-02-06).
 
 7.9 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/ostest: Improved error checking for sem_timedwait()
+	  from Juha Niskanen (2015-02-20).
+
