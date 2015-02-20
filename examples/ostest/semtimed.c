@@ -51,7 +51,7 @@
  ***********************************************************************/
 
 #ifndef NULL
-# define NULL (void*)0
+# error Broken toolchain does not have NULL
 #endif
 
 /***********************************************************************
@@ -66,13 +66,36 @@ static sem_t sem;
 
 static void *poster_func(void *parameter)
 {
+  int status;
+
   /* Wait for one second, then post the semaphore */
 
   printf("poster_func: Waiting for 1 second\n");
   sleep(1);
+
   printf("poster_func: Posting\n");
-  sem_post(&sem);
+  status = sem_post(&sem);
+  if (status != OK)
+    {
+      printf("poster_func: ERROR: sem_post failed\n");
+    }
+
   return NULL;
+}
+
+static void ostest_gettime(struct timespec *tp)
+{
+  int status;
+
+  status = clock_gettime(CLOCK_REALTIME, tp);
+  if (status != OK)
+    {
+      printf("ostest_gettime: ERROR: clock_gettime failed\n");
+    }
+  else if (tp->tv_sec < 0 || tp->tv_nsec < 0 || tp->tv_nsec >= 1000*1000*1000)
+    {
+      printf("ostest_gettime: ERROR: clock_gettime returned bogus time\n");
+    }
 }
 
 /***********************************************************************
@@ -97,11 +120,15 @@ void semtimed_test(void)
   int status;
 
   printf("semtimed_test: Initializing semaphore to 0\n");
-  sem_init(&sem, 0, 0);
+  status = sem_init(&sem, 0, 0);
+  if (status != OK)
+    {
+      printf("semtimed_test: ERROR: sem_init failed\n");
+    }
 
   /* First, make sure that the timeout expires if the semaphore is never posted */
 
-  (void)clock_gettime(CLOCK_REALTIME, &before);
+  ostest_gettime(&before);
 
   abstime.tv_sec  = before.tv_sec + 2;
   abstime.tv_nsec = before.tv_nsec;
@@ -110,7 +137,7 @@ void semtimed_test(void)
   status  = sem_timedwait(&sem, &abstime);
   errcode = errno;
 
-  (void)clock_gettime(CLOCK_REALTIME, &after);
+  ostest_gettime(&after);
 
   if (status == OK)
     {
@@ -120,7 +147,7 @@ void semtimed_test(void)
     {
       if (errcode == ETIMEDOUT)
         {
-          printf("samwait_test:  PASS\n");
+          printf("semtimed_test: PASS: first test returned timeout\n");
         }
       else
         {
@@ -128,7 +155,6 @@ void semtimed_test(void)
         }
     }
 
-  (void)clock_gettime(CLOCK_REALTIME, &after);
   printf("BEFORE: (%lu sec, %lu nsec)\n",
           (unsigned long)before.tv_sec, (unsigned long)before.tv_nsec);
   printf("AFTER:  (%lu sec, %lu nsec)\n",
@@ -159,7 +185,6 @@ void semtimed_test(void)
       printf("semtimed_test: Set thread 1 priority to %d\n",  sparam.sched_priority);
     }
 
-
   printf("semtimed_test: Starting poster thread 3\n");
   status = pthread_attr_init(&attr);
   if (status != 0)
@@ -188,7 +213,7 @@ void semtimed_test(void)
 
   /* Up to two seconds for the semaphore to be posted */
 
-  (void)clock_gettime(CLOCK_REALTIME, &before);
+  ostest_gettime(&before);
 
   abstime.tv_sec  = before.tv_sec + 2;
   abstime.tv_nsec = before.tv_nsec;
@@ -197,7 +222,7 @@ void semtimed_test(void)
   status  = sem_timedwait(&sem, &abstime);
   errcode = errno;
 
-  (void)clock_gettime(CLOCK_REALTIME, &after);
+  ostest_gettime(&after);
 
   if (status < 0)
     {
@@ -208,12 +233,10 @@ void semtimed_test(void)
       printf("semtimed_test: PASS: sem_timedwait succeeded\n");
     }
 
-  (void)clock_gettime(CLOCK_REALTIME, &after);
   printf("BEFORE: (%lu sec, %lu nsec)\n",
           (unsigned long)before.tv_sec, (unsigned long)before.tv_nsec);
   printf("AFTER:  (%lu sec, %lu nsec)\n",
           (unsigned long)after.tv_sec, (unsigned long)after.tv_nsec);
-
 
   /* Clean up detritus left by the pthread */
 
@@ -228,5 +251,6 @@ void semtimed_test(void)
       pthread_join(poster_thread, NULL);
     }
 #endif
+
   sem_destroy(&sem);
 }
