@@ -6,6 +6,7 @@
 config NETUTILS_FTPD
 	bool "FTP server"
 	default n
+	depends on NET_TCP && !DISABLE_POLL
 	---help---
 		Enable support for the FTP server.
 
