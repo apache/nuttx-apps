@@ -176,6 +176,11 @@ config NSH_DISABLE_CMP
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 
+config NSH_DISABLE_DATE
+	bool "Disable date"
+	default n
+	depends on RTC
+
 config NSH_DISABLE_DD
 	bool "Disable dd"
 	default y if DEFAULT_SMALL
@@ -276,6 +281,10 @@ config NSH_DISABLE_MH
 
 config NSH_DISABLE_MOUNT
 	bool "Disable mount"
+	default n
+
+config NSH_DISABLE_MV
+	bool "Disable mv"
 	default n
 
 config NSH_DISABLE_MW
