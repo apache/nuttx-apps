@@ -1,19 +1,16 @@
-/* www.mycal.net
- *---------------------------------------------------------------------------
- *pap.c - PAP processor for the PPP module - -
- *---------------------------------------------------------------------------
- *Version - 0.1 Original Version Jun 3, 2000 - -
- *---------------------------------------------------------------------------
- *- Copyright (C) 2000, Mycal Labs www.mycal.com - -
- *---------------------------------------------------------------------------
-*/
-/*
- * Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
- * All rights reserved.
+/****************************************************************************
+ * netutils/pppd/pap.c
+ * PAP processor for the PPP module
+ *
+ *   Version: 0.1 Original Version Jun 3, 2000
+ *   Copyright (C) 2000, Mycal Labs www.mycal.com - -
+ *   Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -39,15 +36,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This file is part of the Mycal Modified uIP TCP/IP stack.
- *
- * $Id: pap.c,v 1.2 2010/10/19 18:29:03 adamdunkels Exp $
- *
- */
+ ****************************************************************************/
 
-/*                   */
-/* include files     */
-/*                   */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include "ppp_conf.h"
 #include "ppp_arch.h"
@@ -55,11 +48,19 @@
 #include "pap.h"
 #include "lcp.h"
 
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 #if PPP_DEBUG
 #  define DEBUG1(x) debug_printf x
 #else
 #  define DEBUG1(x)
 #endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 /*---------------------------------------------------------------------------*/
 

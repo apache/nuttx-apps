@@ -1,24 +1,16 @@
-/*                                                              www.mycal.com
- *---------------------------------------------------------------------------
- * ahdlc.c - Ahdlc receive and transmit processor for PPP engine.
+/****************************************************************************
+ * apps/netutils/pppd/ahdlc.c
+ * Ahdlc receive and transmit processor for PPP engine.
  *
- *---------------------------------------------------------------------------
- * Version
- *        0.1 Original Version Jan 11, 1998
- *
- *---------------------------------------------------------------------------
- *
- * Copyright (C) 1998, Mycal Labs www.mycal.com
- *
- *---------------------------------------------------------------------------
- */
-/*
- * Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
- * All rights reserved.
+ *   Version: 0.1 Original Version Jan 11, 1998
+ *   Copyright (C) 1998, Mycal Labs www.mycal.com
+ *   Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -44,18 +36,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This file is part of the Mycal Modified uIP TCP/IP stack.
- *
- * $Id: ahdlc.c,v 1.1 2007/05/26 07:14:39 oliverschmidt Exp $
- *
- */
+ ****************************************************************************/
 
-/*                   */
-/* include files     */
-/*                   */
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include "ppp_conf.h"
 #include "ppp.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 #if PPP_DEBUG
 #  define DEBUG1(x) debug_printf x
@@ -80,6 +72,10 @@
 #define AHDLC_TX_ASYNC_MAP   0x8
 #define AHDLC_PFC            0x10
 #define AHDLC_ACFC           0x20
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 /*---------------------------------------------------------------------------*/
 /* Simple and fast CRC16 routine for embedded processors.

@@ -1,20 +1,16 @@
-/*
-  www.mycal.com
-  ---------------------------------------------------------------------------
-  pap.h - pap header file
-  ---------------------------------------------------------------------------
-  Version
-  0.1 Original Version June 3, 2000
-  (c)2000 Mycal Labs, All Rights Reserved
-  ---------------------------------------------------------------------------
-*/
-/*
- * Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
- * All rights reserved.
+/****************************************************************************
+ * netutils/pppd/pap.h
+ * PAP header file
+ *
+ *   Version: 0.1 Original Version June 3, 2000
+ *   (c)2000 Mycal Labs, All Rights Reserved
+ *   Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -22,8 +18,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *      This product includes software developed by Mike Johnson/Mycal Labs
- *        www.mycal.net.
+ *    This product includes software developed by Mike Johnson/Mycal Labs
+ *    www.mycal.net.
  * 4. The name of the author may not be used to endorse or promote
  *    products derived from this software without specific prior
  *    written permission.
@@ -40,11 +36,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This file is part of the Mycal Modified uIP TCP/IP stack.
- *
- * $Id: pap.h,v 1.1 2007/05/26 07:14:40 oliverschmidt Exp $
- *
- */
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #ifndef __APPS_NETUTILS_PPPD_PAP_H
 #define __APPS_NETUTILS_PPPD_PAP_H

@@ -1,13 +1,11 @@
-/*---------------------------------------------------------------------------
- ahdlc.h - ahdlc header file
----------------------------------------------------------------------------
- Version
-        0.1 Original Version Jan 11, 1998
- (c)1998 Mycal Labs, All Rights Reserved
- ---------------------------------------------------------------------------*/
-/*
- * Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
- * All rights reserved.
+/****************************************************************************
+ * apps/netutils/pppd/ahdlc.h
+ * ahdlc header file
+ *
+ * Version
+ *   0.1 Original Version Jan 11, 1998
+ *   Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,11 +35,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This file is part of the Mycal Modified uIP TCP/IP stack.
- *
- * $Id: ahdlc.h,v 1.1 2007/05/26 07:14:39 oliverschmidt Exp $
- *
- */
+ ****************************************************************************/
 
 #ifndef __APPS_NETUTILS_PPPD_AHDLC_H
 #define __APPS_NETUTILS_PPPD_AHDLC_H

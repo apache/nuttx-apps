@@ -1,19 +1,16 @@
-/* www.mycal.com
-   ---------------------------------------------------------------------------
-   LCP.h - LCP header file
-   ---------------------------------------------------------------------------
-   Version                                                                  -
-   0.1 Original Version June 3, 2000
-   (c)2000 Mycal Labs, All Rights Reserved
-   ---------------------------------------------------------------------------
-*/
-/*
- * Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
- * All rights reserved.
+/****************************************************************************
+ * netutils/pppd/lpc.h
+ * Link Configuration Protocol header file
+ *
+ *   Version: .1 Original Version June 3, 2000
+ *   (c)2000 Mycal Labs, All Rights Reserved
+ *   Copyright (c) 2003, Mike Johnson, Mycal Labs, www.mycal.net
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -39,11 +36,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This file is part of the Mycal Modified uIP TCP/IP stack.
- *
- * $Id: lcp.h,v 1.1 2007/05/26 07:14:39 oliverschmidt Exp $
- *
- */
+ ****************************************************************************/
 
 #ifndef __APPS_NETUTILS_PPPD_LCP_H
 #define __APPS_NETUTILS_PPPD_LCP_H
