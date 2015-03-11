@@ -1,0 +1,23 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config NETUTILS_PPPD
+	bool "PPP daemon"
+	default n
+	select NET_TUN
+	---help---
+		Enable support for the PPP daemon.
+
+if NETUTILS_PPPD
+
+config NETUTILS_PPPD_STACKSIZE
+	int "PPP daemon stack stack size"
+	default 2048
+
+config NETUTILS_PPPD_SERVERPRIO
+	int "NTP daemon priority"
+	default 100
+
+endif # NETUTILS_PPPD
