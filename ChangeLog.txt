@@ -1221,4 +1221,5 @@
 
 	* apps/examples/ostest: Improved error checking for sem_timedwait()
 	  from Juha Niskanen (2015-02-20).
-
+	* apps/netutils/Kconfig, Make.defs, and pppd/: Add a PPP daemon.  From
+	  Max Neklyudov (2015-03-11).
