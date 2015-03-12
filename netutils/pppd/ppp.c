@@ -67,8 +67,10 @@
  * Private Functions
  ****************************************************************************/
 
-/*---------------------------------------------------------------------------*/
-/* Unknown Protocol Handler, sends reject */
+/****************************************************************************
+ * Unknown Protocol Handler, sends reject
+ *
+ ****************************************************************************/
 
 static void ppp_reject_protocol(struct ppp_context_s *ctx, u16_t protocol,
                                 u8_t *buffer, u16_t count)
@@ -106,7 +108,13 @@ static void ppp_reject_protocol(struct ppp_context_s *ctx, u16_t protocol,
   ahdlc_tx(ctx, LCP, buffer, 0, (u16_t)(count + 6), 0);
 }
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: dump_ppp_packet
+ ****************************************************************************/
 
 #if PACKET_RX_DEBUG
 void dump_ppp_packet(u8_t *buffer, u16_t len)
@@ -128,11 +136,11 @@ void dump_ppp_packet(u8_t *buffer, u16_t len)
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
-/* Initialize and start PPP engine.  This just sets things up to
+/****************************************************************************
+ * Initialize and start PPP engine.  This just sets things up to
  * starting values.  This can stay a private method.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void ppp_init(struct ppp_context_s *ctx)
 {
@@ -151,18 +159,17 @@ void ppp_init(struct ppp_context_s *ctx)
   ahdlc_rx_ready(ctx);
 }
 
-/*---------------------------------------------------------------------------*/
-/* raise_ppp() - This routine will try to bring up a PPP connection,
+/****************************************************************************
+ * raise_ppp() - This routine will try to bring up a PPP connection,
  *  It is blocking. In the future we probably want to pass a
  *  structure with all the options on bringing up a PPP link, like
  *  server/client, DSN server, username password for PAP... +++ for
  *  now just use config and bit defines
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 #if 0
-u16_t
-ppp_raise(u8_t config, u8_t *username, u8_t *password)
+u16_t ppp_raise(u8_t config, u8_t *username, u8_t *password)
 {
   u16_t    status = 0;
 
@@ -223,7 +230,9 @@ ppp_raise(u8_t config, u8_t *username, u8_t *password)
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: ppp_connect
+ ****************************************************************************/
 
 void ppp_connect(struct ppp_context_s *ctx)
 {
@@ -239,7 +248,9 @@ void ppp_connect(struct ppp_context_s *ctx)
   ctx->ppp_flags = PPP_RX_READY;
 }
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: ppp_send
+ ****************************************************************************/
 
 void ppp_send(struct ppp_context_s *ctx)
 {
@@ -251,7 +262,9 @@ void ppp_send(struct ppp_context_s *ctx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: ppp_poll
+ ****************************************************************************/
 
 void ppp_poll(struct ppp_context_s *ctx)
 {
@@ -305,11 +318,11 @@ void ppp_poll(struct ppp_context_s *ctx)
     }
 }
 
-/*---------------------------------------------------------------------------*/
-/* ppp_upcall() - this is where valid PPP frames from the ahdlc layer are
+/****************************************************************************
+ * ppp_upcall() - this is where valid PPP frames from the ahdlc layer are
  *    sent to be processed and demuxed.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void ppp_upcall(struct ppp_context_s *ctx, u16_t protocol, u8_t *buffer, u16_t len)
 {
@@ -364,13 +377,14 @@ void ppp_upcall(struct ppp_context_s *ctx, u16_t protocol, u8_t *buffer, u16_t l
     }
 }
 
-/*---------------------------------------------------------------------------*/
-/* scan_packet(list,buffer,len)
+/****************************************************************************
+ * scan_packet(list,buffer,len)
  *
  * list = list of supported ID's
  * *buffer pointer to the first code in the packet
  * length of the codespace
- */
+ *
+ ****************************************************************************/
  
 u16_t scan_packet(struct ppp_context_s *ctx, u16_t protocol, const u8_t *list,
                   u8_t *buffer, u8_t *options, u16_t len)
@@ -450,5 +464,3 @@ u16_t scan_packet(struct ppp_context_s *ctx, u16_t protocol, const u8_t *list,
 
   return bad;
 }
-
-/*---------------------------------------------------------------------------*/

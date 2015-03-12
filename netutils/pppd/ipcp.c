@@ -76,7 +76,13 @@ static const u8_t ipcplist[] =
  * Private Functions
  ****************************************************************************/
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: printip
+ ****************************************************************************/
 
 #if 0
 void printip(uip_ipaddr_t ip2)
@@ -88,7 +94,9 @@ void printip(uip_ipaddr_t ip2)
 #  define printip(x)
 #endif
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: ipcp_init
+ ****************************************************************************/
 
 void ipcp_init(struct ppp_context_s *ctx)
 {
@@ -110,8 +118,13 @@ void ipcp_init(struct ppp_context_s *ctx)
 #endif
 }
 
-/*---------------------------------------------------------------------------*/
-/* IPCP RX protocol Handler */
+/****************************************************************************
+ * Name: ipcp_rx
+ *
+ * Description:
+ *   IPCP RX protocol Handler
+ *
+ ****************************************************************************/
 
 void ipcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
 {
@@ -412,7 +425,9 @@ void ipcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
   }
 }
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: ipcp_task
+ ****************************************************************************/
 
 void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
 {
@@ -424,88 +439,86 @@ void ipcp_task(struct ppp_context_s *ctx, u8_t *buffer)
      send a request */
 
   if (!(ctx->ipcp_state & IPCP_TX_UP) && !(ctx->ipcp_state & IPCP_TX_TIMEOUT))
-  {
-    /* Check if we have a request pending */
+    {
+      /* Check if we have a request pending */
 
-    if ((ppp_arch_clock_seconds() - ctx->ipcp_prev_seconds) > IPCP_TIMEOUT)
-      {
-        ctx->ipcp_prev_seconds = ppp_arch_clock_seconds();
+      if ((ppp_arch_clock_seconds() - ctx->ipcp_prev_seconds) > IPCP_TIMEOUT)
+        {
+          ctx->ipcp_prev_seconds = ppp_arch_clock_seconds();
 
-        /* No pending request, lets build one */
+          /* No pending request, lets build one */
 
-        pkt=(IPCPPKT *)buffer;
+          pkt=(IPCPPKT *)buffer;
 
-        /* Configure-Request only here, write id */
+          /* Configure-Request only here, write id */
 
-        pkt->code = CONF_REQ;
-        pkt->id = ctx->ppp_id;
+          pkt->code = CONF_REQ;
+          pkt->id = ctx->ppp_id;
 
-        bptr = pkt->data;
+          bptr = pkt->data;
 
-        /* Write options, we want IP address, and DNS addresses if set. */
-        /* Write zeros for IP address the first time */
+          /* Write options, we want IP address, and DNS addresses if set. */
+          /* Write zeros for IP address the first time */
 
-        *bptr++ = IPCP_IPADDRESS;
-        *bptr++ = 0x6;
-        *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[0];
-        *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[1];
-        *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[2];
-        *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[3];
+          *bptr++ = IPCP_IPADDRESS;
+          *bptr++ = 0x6;
+          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[0];
+          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[1];
+          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[2];
+          *bptr++ = (u8_t)((u8_t*)&ctx->local_ip)[3];
 
 #ifdef IPCP_GET_PRI_DNS
-        if (!(ppp_ipcp_state & IPCP_PRI_DNS_BIT))
-          {
-            /* Write zeros for IP address the first time */
+          if (!(ppp_ipcp_state & IPCP_PRI_DNS_BIT))
+            {
+              /* Write zeros for IP address the first time */
 
-            *bptr++ = IPCP_PRIMARY_DNS;
-            *bptr++ = 0x6;
-            *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[0];
-            *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[1];
-            *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[2];
-            *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[3];
-          }
+              *bptr++ = IPCP_PRIMARY_DNS;
+              *bptr++ = 0x6;
+              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[0];
+              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[1];
+              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[2];
+              *bptr++ = ((u8_t*)&ctx->pri_dns_addr)[3];
+            }
 #endif
 
 #ifdef IPCP_GET_SEC_DNS
-        if (!(ppp_ipcp_state & IPCP_SEC_DNS_BIT))
-          {
-            /* Write zeros for IP address the first time */
+          if (!(ppp_ipcp_state & IPCP_SEC_DNS_BIT))
+            {
+              /* Write zeros for IP address the first time */
 
-            *bptr++ = IPCP_SECONDARY_DNS;
-            *bptr++ = 0x6;
-            *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[0];
-            *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[1];
-            *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[2];
-            *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[3];
-          }
+              *bptr++ = IPCP_SECONDARY_DNS;
+              *bptr++ = 0x6;
+              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[0];
+              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[1];
+              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[2];
+              *bptr++ = ((u8_t*)&ctx->sec_dns_addr)[3];
+            }
 #endif
 
-        /* Write length */
+          /* Write length */
 
-        t = bptr - buffer;
+          t = bptr - buffer;
 
-        /* length here -  code and ID + */
+          /* length here -  code and ID + */
 
-        pkt->len = htons(t);
+          pkt->len = htons(t);
 
-        DEBUG1(("\n**Sending IPCP Request packet\n"));
+          DEBUG1(("\n**Sending IPCP Request packet\n"));
 
-        /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
+          /* Send packet ahdlc_txz(procol,header,data,headerlen,datalen); */
 
-        ahdlc_tx(ctx, IPCP, 0, buffer, 0, t);
+          ahdlc_tx(ctx, IPCP, 0, buffer, 0, t);
 
-        /* Inc retry */
+          /* Inc retry */
 
-        ctx->ipcp_retry++;
+          ctx->ipcp_retry++;
 
-        /* Have we timed out? (combine the timers?) */
+          /* Have we timed out? (combine the timers?) */
 
-        if (ctx->ipcp_retry > IPCP_RETRY_COUNT)
-          {
-            ctx->ipcp_state &= IPCP_TX_TIMEOUT;
-          }
-      }
-  }
+          if (ctx->ipcp_retry > IPCP_RETRY_COUNT)
+            {
+              ctx->ipcp_state &= IPCP_TX_TIMEOUT;
+            }
+        }
+    }
 }
-
-/*---------------------------------------------------------------------------*/

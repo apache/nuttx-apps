@@ -84,9 +84,10 @@ static const u8_t lcplist[] =
  * Private Functions
  ****************************************************************************/
 
-/*---------------------------------------------------------------------------*/
-/* lcp_init() - Initialize the LCP engine to startup values */
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * lcp_init() - Initialize the LCP engine to startup values
+ *
+ ****************************************************************************/
 
 void lcp_init(struct ppp_context_s *ctx)
 {
@@ -94,13 +95,13 @@ void lcp_init(struct ppp_context_s *ctx)
   ctx->lcp_retry = 0;
 }
 
-/*---------------------------------------------------------------------------*/
-/* lcp_rx() - Receive an LCP packet and process it.
+/****************************************************************************
+ * lcp_rx() - Receive an LCP packet and process it.
  *    This routine receives a LCP packet in buffer of length count.
  *    Process it here, support for CONF_REQ, CONF_ACK, CONF_NACK, CONF_REJ or
  *    TERM_REQ.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void lcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
 {
@@ -403,7 +404,9 @@ void lcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
   }
 }
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: lcp_disconnect
+ ****************************************************************************/
 
 void lcp_disconnect(struct ppp_context_s *ctx, u8_t id)
 {
@@ -418,7 +421,9 @@ void lcp_disconnect(struct ppp_context_s *ctx, u8_t id)
   ahdlc_tx(ctx, LCP, 0, buffer, 0, bptr - buffer);
 }
 
-/*---------------------------------------------------------------------------*/
+/****************************************************************************
+ * Name: lcp_echo_request
+ ****************************************************************************/
 
 void lcp_echo_request(struct ppp_context_s *ctx, u8_t *buffer)
 {
@@ -463,14 +468,14 @@ void lcp_echo_request(struct ppp_context_s *ctx, u8_t *buffer)
   }
 }
 
-/*---------------------------------------------------------------------------*/
-/* lcp_task(buffer) - This routine see if a lcp request needs to be sent
+/****************************************************************************
+ * lcp_task(buffer) - This routine see if a lcp request needs to be sent
  *    out.  It uses the passed buffer to form the packet.  This formed LCP
  *    request is what we negotiate for sending options on the link.
  *
  *    Currently we negotiate : Magic Number Only, but this will change.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void lcp_task(struct ppp_context_s *ctx, u8_t *buffer)
 {
@@ -591,5 +596,3 @@ void lcp_task(struct ppp_context_s *ctx, u8_t *buffer)
         }
     }
 }
-
-/*---------------------------------------------------------------------------*/

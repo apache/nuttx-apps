@@ -57,9 +57,7 @@
 #  undef  PACKET_TX_DEBUG
 #endif
 
-/*---------------------------------------------------------------------------
- * ahdlc flags bit defins, for ahdlc_flags variable
- ---------------------------------------------------------------------------*/
+/* ahdlc flags bit defins, for ahdlc_flags variable */
 
 /* Escaped mode bit */
 
@@ -77,8 +75,9 @@
  * Private Functions
  ****************************************************************************/
 
-/*---------------------------------------------------------------------------*/
-/* Simple and fast CRC16 routine for embedded processors.
+/****************************************************************************
+ * Simple and fast CRC16 routine for embedded processors.
+ *
  *    Just slightly slower than the table lookup method but consumes
  *    almost no space.  Much faster and smaller than the loop and
  *    shift method that is widely used in the embedded space.
@@ -87,8 +86,8 @@
  *    data = (crcvalue ^ inputchar) & 0xff;
  *    data = (data ^ (data << 4)) & 0xff;
  *    crc = (crc >> 8) ^ ((data << 8) ^ (data <<3) ^ (data >> 4))
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 static u16_t crcadd(u16_t crcvalue, u8_t c)
 {
@@ -101,11 +100,15 @@ static u16_t crcadd(u16_t crcvalue, u8_t c)
   return ((crcvalue >> 8) ^ b);
 }
 
-/*---------------------------------------------------------------------------*/
-/* ahdlc_init(buffer, buffersize) - this initializes the ahdlc engine to
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * ahdlc_init(buffer, buffersize) - this initializes the ahdlc engine to
  *    allow for rx frames.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void ahdlc_init(struct ppp_context_s *ctx)
 {
@@ -118,11 +121,11 @@ void ahdlc_init(struct ppp_context_s *ctx)
 #endif
 }
 
-/*---------------------------------------------------------------------------*/
-/* ahdlc_rx_ready() - resets the ahdlc engine to the beginning of frame
+/****************************************************************************
+ * ahdlc_rx_ready() - resets the ahdlc engine to the beginning of frame
  *    state.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void ahdlc_rx_ready(struct ppp_context_s *ctx)
 {
@@ -131,15 +134,15 @@ void ahdlc_rx_ready(struct ppp_context_s *ctx)
   ctx->ahdlc_flags |= AHDLC_RX_READY;
 }
 
-/*---------------------------------------------------------------------------*/
-/* ahdlc receive function - This routine processes incoming bytes and tries
+/****************************************************************************
+ * ahdlc receive function - This routine processes incoming bytes and tries
  *    to build a PPP frame.
  *
  *    Two possible reasons that ahdlc_rx will not process characters:
  *        o Buffer is locked - in this case ahdlc_rx returns 1, char
  *            sending routing should retry.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
 {
@@ -299,14 +302,14 @@ u8_t ahdlc_rx(struct ppp_context_s *ctx, u8_t c)
   return 0;
 }
 
-/*---------------------------------------------------------------------------*/
-/* ahdlc_tx_char(char) - write a character to the serial device,
+/****************************************************************************
+ * ahdlc_tx_char(char) - write a character to the serial device,
  * escape if necessary.
  *
- * Relies on local global vars    :    ahdlc_tx_crc, ahdlc_flags.
+ * Relies on local global vars   :    ahdlc_tx_crc, ahdlc_flags.
  * Modifies local global vars    :    ahdlc_tx_crc.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 void ahdlc_tx_char(struct ppp_context_s *ctx, u16_t protocol, u8_t c)
 {
@@ -332,15 +335,16 @@ void ahdlc_tx_char(struct ppp_context_s *ctx, u16_t protocol, u8_t c)
   ppp_arch_putchar(ctx, c);
 }
 
-/*---------------------------------------------------------------------------*/
-/* ahdlc_tx(protocol,buffer,len) - Transmit a PPP frame.
+/****************************************************************************
+ * ahdlc_tx(protocol,buffer,len) - Transmit a PPP frame.
+ *
  *    Buffer contains protocol data, ahdlc_tx addes address, control and
  *    protocol data.
  *
  * Relies on local global vars    :    ahdlc_tx_crc, ahdlc_flags.
  * Modifies local global vars    :    ahdlc_tx_crc.
- */
-/*---------------------------------------------------------------------------*/
+ *
+ ****************************************************************************/
 
 u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
               u8_t *buffer, u16_t headerlen, u16_t datalen)
@@ -443,5 +447,3 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 O
   return 0;
 }
-
-/*---------------------------------------------------------------------------*/
