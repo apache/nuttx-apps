@@ -52,7 +52,7 @@
 #include <unistd.h>
 #include <debug.h>
 
-#include <nuttx/arch.h>
+#include <nuttx/board.h>
 
 /****************************************************************************
  * Pre-processor Definitions
