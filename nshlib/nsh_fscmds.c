@@ -168,7 +168,8 @@ static char *nsh_getdirpath(const char *path, const char *file)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-static int foreach_direntry(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const char *dirpath,
+static int foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                            FAR const char *dirpath,
                             direntry_handler_t handler, void *pvarg)
 {
   DIR *dirp;
@@ -196,7 +197,7 @@ static int foreach_direntry(FAR struct nsh_vtbl_s *vtbl, const char *cmd, const 
 
   for (;;)
     {
-      struct dirent *entryp = readdir(dirp);
+      FAR struct dirent *entryp = readdir(dirp);
       if (!entryp)
         {
           /* Finished with this directory */
@@ -244,7 +245,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   /* Check if any options will require that we stat the file */
 
-  if ((lsflags & (LSFLAGS_SIZE|LSFLAGS_LONG)) != 0)
+  if ((lsflags & (LSFLAGS_SIZE | LSFLAGS_LONG)) != 0)
     {
       struct stat buf;
 
