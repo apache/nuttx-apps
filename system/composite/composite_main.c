@@ -730,7 +730,7 @@ int conn_main(int argc, char *argv[])
 
   /* Perform architecture-specific initialization */
 
-  printf("conn_main: Performing architecture-specific intialization\n");
+  printf("conn_main: Performing architecture-specific initialization\n");
   ret = composite_archinitialize();
   if (ret < 0)
     {
