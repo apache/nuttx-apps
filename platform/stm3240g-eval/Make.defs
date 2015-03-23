@@ -36,5 +36,5 @@
 # Add platform specific sources to ASRCS and CSRCS
 
 ifeq ($(CONFIG_HAVE_CXX),y)
-CSRCS += up_cxxinitialize.c
+CSRCS += stm32_cxxinitialize.c
 endif
