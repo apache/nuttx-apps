@@ -6,6 +6,7 @@
 config EXAMPLES_HIDKBD
 	bool "USB HID keyboard example"
 	default n
+	depends on !BUILD_PROTECTED && !BUILD_KERNEL
 	---help---
 		Enable the USB HID keyboard example
 

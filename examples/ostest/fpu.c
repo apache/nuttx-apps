@@ -55,7 +55,10 @@
 
 #undef HAVE_FPU
 #ifdef CONFIG_ARCH_FPU
-#  if defined(CONFIG_EXAMPLES_OSTEST_FPUSIZE) && defined(CONFIG_SCHED_WAITPID) && !defined(CONFIG_DISABLE_SIGNALS)
+#  if defined(CONFIG_EXAMPLES_OSTEST_FPUSIZE) && \
+      defined(CONFIG_SCHED_WAITPID) && \
+      !defined(CONFIG_DISABLE_SIGNALS) && \
+      defined(CONFIG_BUILD_FLAT)
 #    define HAVE_FPU 1
 #  else
 #    ifndef CONFIG_EXAMPLES_OSTEST_FPUSIZE
@@ -66,6 +69,9 @@
 #    endif
 #    ifdef CONFIG_DISABLE_SIGNALS
 #      warning "FPU test not built; CONFIG_DISABLE_SIGNALS defined"
+#    endif
+#    ifndef CONFIG_BUILD_FLAT
+#      warning "FPU test not built; Only available in the flat build (CONFIG_BUILD_FLAT)"
 #    endif
 #  endif
 #endif
@@ -88,7 +94,7 @@
 #  define CONFIG_EXAMPLES_OSTEST_FPUSTACKSIZE 2048
 #endif
 
-/* Other defintions ****************************************************/
+/* Other definitions ***************************************************/
 /* We'll keep all data using 32-bit values only to force 32-bit alignment.
  * This logic has no real notion of the underlying representation.
  */

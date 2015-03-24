@@ -46,6 +46,7 @@ config EXAMPLES_TOUCHSCREEN_MOUSE
 config EXAMPLES_TOUCHSCREEN_ARCHINIT
 	bool "Architecture-specific initialization"
 	default y
+	depends on !BUILD_PROTECTED && !BUILD_KERNEL
 	---help---
 		By default, the touchscreen example will call arch_tcinitialize() to
 		register the touchscreen device before it attempts to open it.
@@ -54,7 +55,7 @@ config EXAMPLES_TOUCHSCREEN_ARCHINIT
 
 		This works well for the typical touchscreen controller but there are
 		other devices that cannot be initialized and uninitialized in this
-		fashion.  Consider a USB mouse, fo example.  The USB mouse will be
+		fashion.  Consider a USB mouse, for example.  The USB mouse will be
 		registered when the mouse is connected and unregistered when the
 		mouse is disconnected.
 
@@ -63,5 +64,13 @@ config EXAMPLES_TOUCHSCREEN_ARCHINIT
 		linking requirements or, (2) select this option.  if this option is
 		de-selected, then the arch_tcinitialize() and arch_tcuninitialize() will
 		never be called.
+
+		NOTE also that the functions arch_tcinitialize() and
+		arch_tcuninitialize() are effective non-standard operating system
+		calls.  This is cheap shortcut and a violation of the OS interface.
+		You can get away with this in the flat build (CONFIG_BUILD_FLAT),
+		but not in the protected or kernel builds (CONFIG_BUILD_PROTECTED
+		or CONFIG)BUILD_KERNEL).  In those cases, you will need to perform
+		one-time touchscreen initialization in board_initialize().
 
 endif
