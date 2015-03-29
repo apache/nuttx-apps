@@ -390,7 +390,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
     {
       /* Yes.. */
 
-      char *newpath;
+      FAR char *newpath;
       newpath = nsh_getdirpath(dirpath, entryp->d_name);
 
       /* List the directory contents */
@@ -408,6 +408,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
           free(newpath);
         }
     }
+
   return ret;
 }
 
