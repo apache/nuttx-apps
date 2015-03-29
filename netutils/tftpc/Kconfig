@@ -6,6 +6,7 @@
 config NETUTILS_TFTPC
 	bool "TFTP client"
 	default n
+	depends on NET_UDP
 	---help---
 		Enable support for the TFTP client.
 

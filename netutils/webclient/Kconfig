@@ -6,6 +6,7 @@
 config NETUTILS_WEBCLIENT
 	bool "uIP web client"
 	default n
+	depends on NET_TCP
 	---help---
 		Enable support for the uIP web client.
 

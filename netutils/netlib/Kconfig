@@ -6,6 +6,7 @@
 config NETUTILS_NETLIB
 	bool "Network support library"
 	default n
+	depends on NET
 	---help---
 		Enable support for the network support library.
 
