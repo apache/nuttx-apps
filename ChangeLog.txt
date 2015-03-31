@@ -1224,3 +1224,7 @@
 	* apps/netutils/Kconfig, Make.defs, and pppd/: Add a PPP daemon.  From
 	  Max Neklyudov (2015-03-11).
 	* Rename arch_nshinitialize() to board_app_initialize() (2015-03-30).
+	* apps/nshlib:  NSH initialization now calls boardctl(BOARDIOC_INIT)
+	  instead of board_app_initaliaze().   Remove support for
+	  CONFIG_NSH_ARCHMAC.  It is not used and there are better ways to do
+	  that operation (2015-03-31).
