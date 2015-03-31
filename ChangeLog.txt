@@ -1228,3 +1228,7 @@
 	  instead of board_app_initaliaze().   Remove support for
 	  CONFIG_NSH_ARCHMAC.  It is not used and there are better ways to do
 	  that operation (2015-03-31).
+	* apps/examples/touchscreen:  No longer calls arch_tcinitialize() or
+	  arch_tcuninitialize().  Instead the new OS interface boardctl() is
+	  called to perform these test operations on the touchscreen driver
+	  (2015-03-31).
