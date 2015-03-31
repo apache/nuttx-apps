@@ -43,6 +43,7 @@
 #include <cerrno>
 #include <cfcntl>
 
+#include <sys/boardctl.h>
 #include <sched.h>
 #include <pthread.h>
 #include <assert.h>
@@ -281,7 +282,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 #ifdef CONFIG_NXWM_TOUCHSCREEN_DEVINIT
   // Initialize the touchscreen device
 
-  int ret = arch_tcinitialize(CONFIG_NXWM_TOUCHSCREEN_DEVNO);
+  int ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_NXWM_TOUCHSCREEN_DEVNO);
   if (ret < 0)
     {
       dbg("ERROR Failed initialize the touchscreen device: %d\n", ret);

@@ -544,3 +544,8 @@
   NuttX 7.6 and previous versions of the UnitTest code.
 
 1.15 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* In NuttX 7.9, the interface arch_tcinitialize() was replaced with the
+  boardctl() interface.  Old versions of NxWM will then be incompatible
+  with Versions of NuttX at 7.9 and beyond (2015-03-31).
+
