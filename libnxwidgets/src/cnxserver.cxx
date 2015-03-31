@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cnxserver.cxx
  *
- *   Copyright (C) 2012, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -125,10 +126,10 @@ bool CNxServer::connect(void)
 #if defined(CONFIG_NXWIDGETS_EXTERNINIT)
   // Use external graphics driver initialization
 
-  m_hDevice = up_nxdrvinit(CONFIG_NXWIDGETS_DEVNO);
+  m_hDevice = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_NXWIDGETS_DEVNO);
   if (!m_hDevice)
     {
-      gdbg("up_nxdrvinit failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
+      gdbg("boardctl failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
       return false;
     }
 
@@ -357,10 +358,10 @@ int CNxServer::server(int argc, char *argv[])
 #if defined(CONFIG_NXWIDGETS_EXTERNINIT)
   // Use external graphics driver initialization
 
-  dev = up_nxdrvinit(CONFIG_NXWIDGETS_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_NXWIDGETS_DEVNO);
   if (!dev)
     {
-      gdbg("up_nxdrvinit failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
+      gdbg("boardctl failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
       return EXIT_FAILURE;
     }
 
