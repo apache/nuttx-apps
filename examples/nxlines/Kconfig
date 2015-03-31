@@ -83,6 +83,8 @@ config EXAMPLES_NXLINES_BPP
 config EXAMPLES_NXLINES_EXTERNINIT
 	bool "External Device Initialization"
 	default false
+	depends on LIB_BOARDCTL
+	select BOARDCTL_GRAPHICS
 	---help---
 		The driver for the graphics device on this platform requires some unusual
 		initialization.  This is the for, for example, SPI LCD/OLED devices.  If

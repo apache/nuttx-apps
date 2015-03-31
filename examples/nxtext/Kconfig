@@ -111,6 +111,8 @@ endif # !EXAMPLES_NXTEXT_DEFAULT_FONT
 config EXAMPLES_NXTEXT_EXTERNINIT
 	bool "External Device Initialization"
 	default n
+	depends on LIB_BOARDCTL
+	select BOARDCTL_GRAPHICS
 	---help---
 		The driver for the graphics device on this platform requires some
 		unusual initialization.  This is the case, for example, for SPI LCD/OLED

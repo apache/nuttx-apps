@@ -29,6 +29,8 @@ config NXWIDGETS_FLICKERFREE
 config NXWIDGETS_EXTERNINIT
 	bool "External display Initialization"
 	default n
+	depends on LIB_BOARDCTL
+	select BOARDCTL_GRAPHICS
 	---help---
 		Define to support external display initialization.
 

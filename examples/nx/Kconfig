@@ -92,6 +92,8 @@ config EXAMPLES_NX_TOOLBAR_HEIGHT
 config EXAMPLES_NX_EXTERNINIT
 	bool "External Device Initialization"
 	default n
+	depends on LIB_BOARDCTL
+	select BOARDCTL_GRAPHICS
 	---help---
 		The driver for the graphics device on this platform requires some
 		unusual initialization.  This is the for, for example, SPI LCD/OLED
