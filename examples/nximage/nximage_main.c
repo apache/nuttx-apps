@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nximage/nximage_main.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -130,10 +131,10 @@ static inline int nximage_initialize(void)
   /* Use external graphics driver initialization */
 
   printf("nximage_initialize: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXIMAGE_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXIMAGE_DEVNO);
   if (!dev)
     {
-      printf("nximage_initialize: up_nxdrvinit failed, devno=%d\n",
+      printf("nximage_initialize: boardctl failed, devno=%d\n",
              CONFIG_EXAMPLES_NXIMAGE_DEVNO);
       g_nximage.code = NXEXIT_EXTINITIALIZE;
       return ERROR;

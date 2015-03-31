@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello_main.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -126,10 +127,10 @@ static inline int nxhello_initialize(void)
   /* Use external graphics driver initialization */
 
   printf("nxhello_initialize: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXHELLO_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXHELLO_DEVNO);
   if (!dev)
     {
-      printf("nxhello_initialize: up_nxdrvinit failed, devno=%d\n",
+      printf("nxhello_initialize: boardctl failed, devno=%d\n",
              CONFIG_EXAMPLES_NXHELLO_DEVNO);
       g_nxhello.code = NXEXIT_EXTINITIALIZE;
       return ERROR;

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nx/nx_server.c
  *
- *   Copyright (C) 2008-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -92,10 +93,11 @@ int nx_servertask(int argc, char *argv[])
   /* Use external graphics driver initialization */
 
   printf("nxeg_initialize: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NX_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NX_DEVNO);
   if (!dev)
     {
-      printf("nxeg_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nxeg_initialize: boardctl failed, devno=%d\n",
+             CONFIG_EXAMPLES_NX_DEVNO);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }

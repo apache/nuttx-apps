@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nx/nx_internal.h
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -276,22 +276,18 @@ extern nxgl_mxpixel_t g_tbcolor[CONFIG_NX_NPLANES];
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NX_EXTERNINIT
-extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
-#endif
-
 #if defined(CONFIG_NX) && defined(CONFIG_NX_MULTIUSER)
-extern int nx_servertask(int argc, char *argv[]);
-extern FAR void *nx_listenerthread(FAR void *arg);
+int nx_servertask(int argc, char *argv[]);
+FAR void *nx_listenerthread(FAR void *arg);
 #endif
 
 #ifdef CONFIG_NX_KBD
-extern void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);
+void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);
 #ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-extern void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);
+void nxeg_tbkbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);
 #endif
-extern void nxeg_filltext(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                          FAR struct nxeg_state_s *st);
+void nxeg_filltext(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+                   FAR struct nxeg_state_s *st);
 #endif
 
 #endif /* __EXAMPLES_NX_NX_INTERNAL_H */

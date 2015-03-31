@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxlines/nxlines_main.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,10 +122,10 @@ static inline int nxlines_initialize(void)
   /* Use external graphics driver initialization */
 
   printf("nxlines_initialize: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXLINES_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXLINES_DEVNO);
   if (!dev)
     {
-      printf("nxlines_initialize: up_nxdrvinit failed, devno=%d\n",
+      printf("nxlines_initialize: boardctl failed, devno=%d\n",
              CONFIG_EXAMPLES_NXLINES_DEVNO);
       g_nxlines.code = NXEXIT_EXTINITIALIZE;
       return ERROR;

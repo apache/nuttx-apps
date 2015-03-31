@@ -909,10 +909,14 @@ examples/nx
       function with a prototype like:
 
       #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
       #else
-      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
       #endif
+
+      and must also define: CONFIG_LIB_BOARDCTL=y and
+      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+      will be available in order to access this function.
 
   This test can be performed with either the single-user version of
   NX or with the multiple user version of NX selected with CONFIG_NX_MULTIUSER.
@@ -982,10 +986,14 @@ examples/nxterm
       function with a prototype like:
 
       #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
       #else
-      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
       #endif
+
+      and must also define: CONFIG_LIB_BOARDCTL=y and
+      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+      will be available in order to access this function.
 
     CONFIG_EXAMPLES_NXCON_MINOR -- The NX console device minor number.
       Default is 0 corresponding to /dev/nxterm0
@@ -1054,10 +1062,14 @@ examplex/nxhello
       function with a prototype like:
 
       #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
       #else
-      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
       #endif
+
+      and must also define: CONFIG_LIB_BOARDCTL=y and
+      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+      will be available in order to access this function.
 
 examples/nximage
 ^^^^^^^^^^^^^^^^
@@ -1090,10 +1102,14 @@ examples/nximage
       function with a prototype like:
 
       #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
       #else
-      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
       #endif
+
+      and must also define: CONFIG_LIB_BOARDCTL=y and
+      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+      will be available in order to access this function.
 
     How was that run-length encoded image produced?
 
@@ -1148,10 +1164,14 @@ examplex/nxlines
       function with a prototype like:
 
       #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
       #else
-      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
       #endif
+
+      and must also define: CONFIG_LIB_BOARDCTL=y and
+      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+      will be available in order to access this function.
 
     CONFIG_NSH_BUILTIN_APPS - Build the NX lines examples as an NSH built-in
       function.
@@ -1203,10 +1223,14 @@ examples/nxtext
       function with a prototype like:
 
       #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
       #else
-      FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
       #endif
+
+      and must also define: CONFIG_LIB_BOARDCTL=y and
+      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+      will be available in order to access this function.
 
     CONFIG_EXAMPLES_NXTEXT_BMCACHE - The maximum number of characters that
       can be put in the background window.  Default is 128.

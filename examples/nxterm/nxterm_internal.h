@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxterm/nxterm_internal.h
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -276,15 +276,10 @@ extern const struct nx_callback_s g_nxtoolcb;
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
-/* Board-specific driver intiialization */
-
-#ifdef CONFIG_EXAMPLES_NXCON_EXTERNINIT
-extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
-#endif
 
 /* Server thread support */
 
-extern int nxterm_server(int argc, char *argv[]);
-extern FAR void *nxterm_listener(FAR void *arg);
+int nxterm_server(int argc, char *argv[]);
+FAR void *nxterm_listener(FAR void *arg);
 
 #endif /* __EXAMPLES_NXTERM_NXCON_INTERNAL_H */

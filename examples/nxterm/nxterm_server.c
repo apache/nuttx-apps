@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxterm/nxterm_server.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -90,10 +91,11 @@ int nxterm_server(int argc, char *argv[])
   /* Use external graphics driver initialization */
 
   printf("nxterm_server: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXCON_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXCON_DEVNO);
   if (!dev)
     {
-      printf("nxterm_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXCON_DEVNO);
+      printf("nxterm_server: boardctl failed, devno=%d\n",
+             CONFIG_EXAMPLES_NXCON_DEVNO);
       return ERROR;
     }
 

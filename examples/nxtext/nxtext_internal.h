@@ -315,32 +315,29 @@ extern int g_exitcode;
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NXTEXT_EXTERNINIT
-extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
-#endif
 #if defined(CONFIG_NX) && defined(CONFIG_NX_MULTIUSER)
-extern int nxtext_server(int argc, char *argv[]);
-extern FAR void *nxtext_listener(FAR void *arg);
+int nxtext_server(int argc, char *argv[]);
+FAR void *nxtext_listener(FAR void *arg);
 #endif
 
 /* Background window interfaces */
 
-extern FAR struct nxtext_state_s *nxbg_getstate(void);
-extern void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen);
+FAR struct nxtext_state_s *nxbg_getstate(void);
+void nxbg_write(NXWINDOW hwnd, FAR const uint8_t *buffer, size_t buflen);
 
 /* Pop-up window interfaces */
 
-extern NXWINDOW nxpu_open(void);
-extern int nxpu_close(NXWINDOW hwnd);
+NXWINDOW nxpu_open(void);
+int nxpu_close(NXWINDOW hwnd);
 
 /* Generic text helpers */
 
-extern void nxtext_home(FAR struct nxtext_state_s *st);
-extern void nxtext_newline(FAR struct nxtext_state_s *st);
-extern void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
-                        NXHANDLE hfont, uint8_t ch);
-extern void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
-                            FAR struct nxtext_state_s *st, NXHANDLE hfont,
-                            FAR const struct nxtext_bitmap_s *bm);
+void nxtext_home(FAR struct nxtext_state_s *st);
+void nxtext_newline(FAR struct nxtext_state_s *st);
+void nxtext_putc(NXWINDOW hwnd, FAR struct nxtext_state_s *st,
+                 NXHANDLE hfont, uint8_t ch);
+void nxtext_fillchar(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
+                     FAR struct nxtext_state_s *st, NXHANDLE hfont,
+                     FAR const struct nxtext_bitmap_s *bm);
 
 #endif /* __EXAMPLES_NXTEXT_NXTEXT_INTERNAL_H */

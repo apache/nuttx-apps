@@ -118,10 +118,14 @@ config EXAMPLES_NXTEXT_EXTERNINIT
 		must provide an LCD initialization function with a prototype like:
 
 		#ifdef CONFIG_NX_LCDDRIVER
-		FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+		FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
 		#else
-		FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+		FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
 		#endif
+
+		and must also define: CONFIG_LIB_BOARDCTL=y and
+		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+		will be available in order to access this function.
 
 if NX_MULTIUSER
 

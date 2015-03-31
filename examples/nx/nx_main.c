@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nx/nx_main.c
  *
- *   Copyright (C) 2008-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -426,10 +427,10 @@ static inline int nxeg_suinitialize(void)
   /* Use external graphics driver initialization */
 
   printf("nxeg_initialize: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NX_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NX_DEVNO);
   if (!dev)
     {
-      printf("nxeg_initialize: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nxeg_initialize: boardctl failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }

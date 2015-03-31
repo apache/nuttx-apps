@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,12 +169,8 @@ extern const struct nx_callback_s g_nxhellocb;
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NXHELLO_EXTERNINIT
-extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
-#endif
-
 /* Background window interfaces */
 
-extern void nxhello_hello(NXWINDOW hwnd);
+void nxhello_hello(NXWINDOW hwnd);
 
 #endif /* __APPS_EXAMPLES_NXHELLO_NXHELLO_H */

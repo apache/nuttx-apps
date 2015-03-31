@@ -90,10 +90,13 @@ config EXAMPLES_NXLINES_EXTERNINIT
 		initialization function with a prototype like:
 
 		#ifdef NX_LCDDRIVER
-		FAR struct lcd_dev_s *up_nxdrvinit(unsigned int devno);
+		FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
 		#else
-		FAR struct fb_vtable_s *up_nxdrvinit(unsigned int devno);
+		FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
 		#endif
 
-endif
+		and must also define: CONFIG_LIB_BOARDCTL=y and
+		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
+		will be available in order to access this function.
 
+endif

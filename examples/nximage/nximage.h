@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nximage/nximage.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -182,18 +182,14 @@ extern const struct nx_callback_s g_nximagecb;
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NXIMAGE_EXTERNINIT
-extern FAR NX_DRIVERTYPE *up_nxdrvinit(unsigned int devno);
-#endif
-
 /* Background window interfaces */
 
-extern void nximage_image(NXWINDOW hwnd);
+void nximage_image(NXWINDOW hwnd);
 
 /* Image interfaces */
 
-extern nxgl_mxpixel_t nximage_bgcolor(void);
-extern nxgl_mxpixel_t nximage_avgcolor(nxgl_mxpixel_t color1, nxgl_mxpixel_t color2);
-extern void nximage_blitrow(FAR nxgl_mxpixel_t *run, FAR const void **state);
+nxgl_mxpixel_t nximage_bgcolor(void);
+nxgl_mxpixel_t nximage_avgcolor(nxgl_mxpixel_t color1, nxgl_mxpixel_t color2);
+void nximage_blitrow(FAR nxgl_mxpixel_t *run, FAR const void **state);
 
 #endif /* __APPS_EXAMPLES_NXIMAGE_NXIMAGE_H */

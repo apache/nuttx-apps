@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxtext/nxtext_server.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,10 +92,11 @@ int nxtext_server(int argc, char *argv[])
   /* Use external graphics driver initialization */
 
   printf("nxtext_server: Initializing external graphics device\n");
-  dev = up_nxdrvinit(CONFIG_EXAMPLES_NXTEXT_DEVNO);
+  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXTEXT_DEVNO);
   if (!dev)
     {
-      printf("nxtext_server: up_nxdrvinit failed, devno=%d\n", CONFIG_EXAMPLES_NXTEXT_DEVNO);
+      printf("nxtext_server: boardctl failed, devno=%d\n",
+             CONFIG_EXAMPLES_NXTEXT_DEVNO);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
