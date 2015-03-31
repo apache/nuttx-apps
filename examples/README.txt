@@ -1809,12 +1809,13 @@ examples/touchscreen
 
     CONFIG_EXAMPLES_TOUCHSREEN=y
 
-  The board-specific logic must provide the following interfaces that will
-  be called by the example in order to initialize and uninitialize the
-  touchscreen hardware:
+  This example code will call boardctl() to setup the touchscreen driver
+  for texting.  The implementation of boardctl() will require that board-
+  specific logic  provide the following interfaces that will be called by
+  the boardctl() in order to initialize and uninitialize the touchscreen hardware:
 
-    int arch_tcinitialize(int minor);
-    int arch_tcuninitialize(void);
+    int board_tsc_setup(int minor);
+    void board_tsc_teardown(void);
 
 examples/udp
 ^^^^^^^^^^^^
