@@ -128,10 +128,6 @@
 #  define CONFIG_NSH_MACADDR   0x00e0deadbeef
 #endif
 
-#ifndef CONFIG_NET
-#  undef CONFIG_NSH_ARCHMAC
-#endif
-
 #if !defined(CONFIG_NSH_NETINIT_THREAD) || !defined(CONFIG_ARCH_PHY_INTERRUPT) || \
     !defined(CONFIG_NETDEV_PHY_IOCTL) || !defined(CONFIG_NET_UDP) || \
      defined(CONFIG_DISABLE_SIGNALS)
@@ -772,14 +768,9 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 
 /* Architecture-specific initialization */
 
-#ifdef CONFIG_NSH_ARCHINIT
-int board_app_initialize(void);
-#else
-#  define board_app_initialize() (-ENOSYS)
-#endif
-
-#ifdef CONFIG_NSH_ARCHMAC
-int nsh_arch_macaddress(uint8_t *mac);
+#if defined(CONFIG_NSH_ARCHINIT) && !defined(CONFIG_LIB_BOARDCTL)
+#  warning CONFIG_NSH_ARCHINIT is set, but CONFIG_LIB_BOARDCTL is not
+#  undef CONFIG_NSH_ARCHINIT
 #endif
 
 /* Basic session and message handling */

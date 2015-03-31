@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
 #include <apps/nsh.h>
 
 #include "nsh.h"
@@ -93,9 +94,11 @@ void nsh_initialize(void)
 
   (void)nsh_romfsetc();
 
-  /* Perform architecture-specific initialization (if available) */
+#ifdef CONFIG_NSH_ARCHINIT
+  /* Perform architecture-specific initialization (if configured) */
 
-  (void)board_app_initialize();
+  (void)boardctl(BOARDIOC_INIT, 0);
+#endif
 
   /* Bring up the network */
 

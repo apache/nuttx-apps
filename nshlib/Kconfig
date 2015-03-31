@@ -1243,19 +1243,6 @@ config NSH_SWMAC
 		With this choice, you can assign a fixed MAC address determined by
 		a NuttX configuration option.
 
-config NSH_ARCHMAC
-	bool "Platform-specific"
-	---help---
-		This selection will enable a call to an interface exported by
-		platform-specific code to determine the MAC address.  If this option
-		is selected, the the platform-specific code must provide the
-		function nsh_arch_macaddress() that will be called by the NSH
-		initialize logic to obtain the MAC address.
-
-		This option might be useful, as an example, if MAC addresses are
-		retained in Serial FLASH. Such address might be assigned during the
-		manufacturing process so that each board has a unique MAC address.
-
 endchoice # MAC address selection
 
 config NSH_MACADDR

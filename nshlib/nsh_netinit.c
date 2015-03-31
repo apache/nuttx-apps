@@ -219,12 +219,6 @@ static void nsh_netinit_configure(void)
   /* Many embedded network interfaces must have a software assigned MAC */
 
 #if defined(CONFIG_NSH_NOMAC) && defined(CONFIG_NET_ETHERNET)
-#ifdef CONFIG_NSH_ARCHMAC
-  /* Let platform-specific logic assign the MAC address. */
-
-  (void)nsh_arch_macaddress(mac);
-
-#else
   /* Use the configured, fixed MAC address */
 
   mac[0] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
@@ -233,7 +227,6 @@ static void nsh_netinit_configure(void)
   mac[3] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
   mac[4] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
   mac[5] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
-#endif
 
   /* Set the MAC address */
 
