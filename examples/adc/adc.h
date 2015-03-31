@@ -91,15 +91,4 @@ struct adc_state_s
  * Public Function Prototypes
  ****************************************************************************/
 
-/****************************************************************************
- * Name: adc_devinit()
- *
- * Description:
- *   Perform architecuture-specific initialization of the ADC hardware.  This
- *   interface must be provided by all configurations using apps/examples/adc
- *
- ****************************************************************************/
-
-int adc_devinit(void);
-
 #endif /* __APPS_EXAMPLES_ADC_ADC_H */

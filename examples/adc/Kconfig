@@ -6,7 +6,7 @@
 config EXAMPLES_ADC
 	bool "ADC example"
 	default n
-	depends on ADC
+	depends on ADC && LIB_BOARDCTL
 	---help---
 		Enable the ADC example
 

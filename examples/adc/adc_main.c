@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/adc/adc_main.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -250,10 +251,10 @@ int adc_main(int argc, char *argv[])
        */
 
       printf("adc_main: Initializing external ADC device\n");
-      ret = adc_devinit();
+      ret = boardctl(BOARDIOC_ADCTEST_SETUP, 0);
       if (ret != OK)
         {
-          printf("adc_main: adc_devinit failed: %d\n", ret);
+          printf("adc_main: boardctl failed: %d\n", ret);
           errval = 1;
           goto errout;
         }
