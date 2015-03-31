@@ -100,15 +100,4 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-/****************************************************************************
- * Name: pwm_devinit()
- *
- * Description:
- *   Perform architecuture-specific initialization of the PWM hardware.  This
- *   interface must be provided by all configurations using apps/examples/pwm
- *
- ****************************************************************************/
-
-int pwm_devinit(void);
-
 #endif /* __APPS_EXAMPLES_PWM_PWM_H */
