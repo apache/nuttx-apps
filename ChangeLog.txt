@@ -1232,3 +1232,6 @@
 	  arch_tcuninitialize().  Instead the new OS interface boardctl() is
 	  called to perform these test operations on the touchscreen driver
 	  (2015-03-31).
+	* apps/examples/adc: Change apps/examples/adc to that is now calls
+	  boardctl() instead of adc_devinit() in order to initalize the ADC
+	  device(2015-03-31).
