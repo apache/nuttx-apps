@@ -95,7 +95,7 @@ void nsh_initialize(void)
 
   /* Perform architecture-specific initialization (if available) */
 
-  (void)nsh_archinitialize();
+  (void)board_app_initialize();
 
   /* Bring up the network */
 

@@ -1258,9 +1258,9 @@ NSH-Specific Configuration Settings
 
   * CONFIG_NSH_ARCHINIT
       Set if your board provides architecture specific initialization
-      via the board-specific function nsh_archinitialize().  This
-      function will be called early in NSH initialization to allow
-      board logic to do such things as configure MMC/SD slots.
+      via the board-interface function boardctl().  This function will
+      be called early in NSH initialization to allow board logic to
+      do such things as configure MMC/SD slots.
 
   If Telnet is selected for the NSH console, then we must configure
   the resources used by the Telnet daemon and by the Telnet clients.

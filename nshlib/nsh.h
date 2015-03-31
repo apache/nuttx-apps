@@ -773,9 +773,9 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 /* Architecture-specific initialization */
 
 #ifdef CONFIG_NSH_ARCHINIT
-int nsh_archinitialize(void);
+int board_app_initialize(void);
 #else
-#  define nsh_archinitialize() (-ENOSYS)
+#  define board_app_initialize() (-ENOSYS)
 #endif
 
 #ifdef CONFIG_NSH_ARCHMAC
