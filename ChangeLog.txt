@@ -1223,3 +1223,4 @@
 	  from Juha Niskanen (2015-02-20).
 	* apps/netutils/Kconfig, Make.defs, and pppd/: Add a PPP daemon.  From
 	  Max Neklyudov (2015-03-11).
+	* Rename arch_nshinitialize() to board_app_initialize() (2015-03-30).
