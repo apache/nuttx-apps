@@ -49,7 +49,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/watchdog.h>
+#include <nuttx/timers/watchdog.h>
 
 #include "watchdog.h"
 

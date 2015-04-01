@@ -45,7 +45,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <nuttx/timer.h>
+#include <nuttx/timers/timer.h>
 
 /****************************************************************************
  * Pre-processor Definitions

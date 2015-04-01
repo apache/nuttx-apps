@@ -1777,7 +1777,7 @@ examples/tiff
 examples/timer
 ^^^^^^^^^^^^^^
 
-  This is a simple test of the timer driver (see include/nuttx/timer.h).
+  This is a simple test of the timer driver (see include/nuttx/timers/timer.h).
 
   Dependencies:
     CONFIG_TIMER - The timer driver must be selected
