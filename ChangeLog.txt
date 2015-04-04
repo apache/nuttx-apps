@@ -524,7 +524,7 @@
   selection (2014-7-27).
 * NxWM::CMediaPlayer: Correct handling of increments to sub-sampling rate
   (2014-7-27).
-* XWidgets::CNxWidget: Remove an unused bit field (2014-7-28).
+* NxWidgets::CNxWidget: Remove an unused bit field (2014-7-28).
 * NxWM::CMediaPlayer: Add a CLabel that show the current fast forward/rewind
   speed (2014-7-28).
 * NxWM::CKeyboard: Add support for a USB keyboard as the NxConsole and text
@@ -548,4 +548,6 @@
 * In NuttX 7.9, the interface arch_tcinitialize() was replaced with the
   boardctl() interface.  Old versions of NxWM will then be incompatible
   with Versions of NuttX at 7.9 and beyond (2015-03-31).
-
+* NxWidgets::CNxServer:  More renaming: up_lcdinitialize->board_lcd_initialize,
+  up_lcdgetdev->board_lcd_getdev, up_lcduninitialize->board_lcd_uninitialize
+  (2015-04-04).
