@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <nuttx/board.h>
 #include <nuttx/lcd/lcd.h>
 #include <nuttx/nx/nxglib.h>
 
@@ -116,20 +117,21 @@ static inline int lcdrw_initialize(FAR struct lcdrw_instance_s *inst)
   /* Initialize the LCD device */
 
   printf("screens_initialize: Initializing LCD\n");
-  ret = up_lcdinitialize();
+  ret = board_lcd_initialize();
   if (ret < 0)
     {
-      fprintf(stderr, "screens_initialize: up_lcdinitialize failed: %d\n", -ret);
+      fprintf(stderr, "screens_initialize: board_lcd_initialize failed: %d\n", -ret);
       return ret;
     }
 
   /* Get the device instance. */
 
   printf("Get LCD instance\n");
-  inst->dev = up_lcdgetdev(CONFIG_EXAMPLES_LDCRW_DEVNO);
+  inst->dev = board_lcd_getdev(CONFIG_EXAMPLES_LDCRW_DEVNO);
   if (!inst->dev)
     {
-      fprintf(stderr, "up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_LDCRW_DEVNO);
+      fprintf(stderr, "board_lcd_getdev failed, devno=%d\n",
+              CONFIG_EXAMPLES_LDCRW_DEVNO);
       return ret;
     }
 

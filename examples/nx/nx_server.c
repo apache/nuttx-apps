@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/boardctl.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -48,6 +49,7 @@
 #include <debug.h>
 
 #include <nuttx/arch.h>
+#include <nuttx/board.h>
 #include <nuttx/nx/nx.h>
 
 #ifdef CONFIG_NX_LCDDRIVER
@@ -106,19 +108,20 @@ int nx_servertask(int argc, char *argv[])
   /* Initialize the LCD device */
 
   printf("nx_servertask: Initializing LCD\n");
-  ret = up_lcdinitialize();
+  ret = board_lcd_initialize();
   if (ret < 0)
     {
-      printf("nx_servertask: up_lcdinitialize failed: %d\n", -ret);
+      printf("nx_servertask: board_lcd_initialize failed: %d\n", -ret);
       return 1;
     }
 
   /* Get the device instance */
 
-  dev = up_lcdgetdev(CONFIG_EXAMPLES_NX_DEVNO);
+  dev = board_lcd_getdev(CONFIG_EXAMPLES_NX_DEVNO);
   if (!dev)
     {
-      printf("nx_servertask: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nx_servertask: board_lcd_getdev failed, devno=%d\n",
+             CONFIG_EXAMPLES_NX_DEVNO);
       return 2;
     }
 

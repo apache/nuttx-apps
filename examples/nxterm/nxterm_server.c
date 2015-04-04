@@ -48,6 +48,7 @@
 #include <debug.h>
 
 #include <nuttx/arch.h>
+#include <nuttx/board.h>
 #include <nuttx/nx/nx.h>
 
 #ifdef CONFIG_NX_LCDDRIVER
@@ -103,19 +104,20 @@ int nxterm_server(int argc, char *argv[])
   /* Initialize the LCD device */
 
   printf("nxterm_server: Initializing LCD\n");
-  ret = up_lcdinitialize();
+  ret = board_lcd_initialize();
   if (ret < 0)
     {
-      printf("nxterm_server: up_lcdinitialize failed: %d\n", -ret);
+      printf("nxterm_server: board_lcd_initialize failed: %d\n", -ret);
       return 1;
     }
 
   /* Get the device instance */
 
-  dev = up_lcdgetdev(CONFIG_EXAMPLES_NXCON_DEVNO);
+  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXCON_DEVNO);
   if (!dev)
     {
-      printf("nxterm_server: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXCON_DEVNO);
+      printf("nxterm_server: board_lcd_getdev failed, devno=%d\n",
+             CONFIG_EXAMPLES_NXCON_DEVNO);
       return 2;
     }
 

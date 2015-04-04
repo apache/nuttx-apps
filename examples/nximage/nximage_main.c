@@ -53,13 +53,15 @@
 #include <errno.h>
 #include <debug.h>
 
+#include <nuttx/arch.h>
+#include <nuttx/board.h>
+
 #ifdef CONFIG_NX_LCDDRIVER
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
 #endif
 
-#include <nuttx/arch.h>
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxfonts.h>
@@ -146,20 +148,21 @@ static inline int nximage_initialize(void)
   /* Initialize the LCD device */
 
   printf("nximage_initialize: Initializing LCD\n");
-  ret = up_lcdinitialize();
+  ret = board_lcd_initialize();
   if (ret < 0)
     {
-      printf("nximage_initialize: up_lcdinitialize failed: %d\n", -ret);
+      printf("nximage_initialize: board_lcd_initialize failed: %d\n", -ret);
       g_nximage.code = NXEXIT_LCDINITIALIZE;
       return ERROR;
     }
 
   /* Get the device instance */
 
-  dev = up_lcdgetdev(CONFIG_EXAMPLES_NXIMAGE_DEVNO);
+  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXIMAGE_DEVNO);
   if (!dev)
     {
-      printf("nximage_initialize: up_lcdgetdev failed, devno=%d\n", CONFIG_EXAMPLES_NXIMAGE_DEVNO);
+      printf("nximage_initialize: board_lcd_getdev failed, devno=%d\n",
+             CONFIG_EXAMPLES_NXIMAGE_DEVNO);
       g_nximage.code = NXEXIT_LCDGETDEV;
       return ERROR;
     }
