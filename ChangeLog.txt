@@ -1240,3 +1240,5 @@
 	* apps/examples/:  More renaming: up_lcdinitialize->board_lcd_initialize,
 	  up_lcdgetdev->board_lcd_getdev, up_lcduninitialize->board_lcd_uninitialize
 	  (2015-04-04).
+	* apps/examples/nxlines/: Add the new 'capped' parameter to nx_drawline()
+	  calls (2015-04-05).
