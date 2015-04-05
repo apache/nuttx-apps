@@ -242,13 +242,13 @@ namespace NXWidgets
      * @param x2 The x coordinate of the end point of the line.
      * @param y2 The y coordinate of the end point of the line.
      * @param color The color of the line.
-     * @param capped Draw a circular cap both ends of the line to support
+     * @param caps Draw a circular cap on the ends of the line to support
      *  better line joins
      */
 
     void drawLine(nxgl_coord_t x1, nxgl_coord_t y1,
                   nxgl_coord_t x2, nxgl_coord_t y2,
-                  nxgl_mxpixel_t color, bool capped);
+                  nxgl_mxpixel_t color, enum INxWindow::ELineCaps caps);
 
     /**
      * Draw a filled rectangle of the specified start position, end position,

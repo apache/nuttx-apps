@@ -308,7 +308,7 @@ bool CBgWindow::fillTrapezoid(FAR const struct nxgl_rect_s *pClip,
  * @param vector - Describes the line to be drawn
  * @param width  - The width of the line
  * @param color  - The color to use to fill the line
- * @param capped - Draw a circular cap both ends of the line to support
+ * @param caps   - Draw a circular cap on the ends of the line to support
  *                 better line joins
  *
  * @return True on success; false on failure.
@@ -316,11 +316,11 @@ bool CBgWindow::fillTrapezoid(FAR const struct nxgl_rect_s *pClip,
 
 bool CBgWindow::drawLine(FAR struct nxgl_vector_s *vector,
                          nxgl_coord_t width, nxgl_mxpixel_t color,
-                         bool capped)
+                         enum ELineCaps caps)
 {
   // Draw a line with the specified color
 
-  return nx_drawline(m_hWindow, vector, width, &color, capped) == OK;
+  return nx_drawline(m_hWindow, vector, width, &color, (uint8_t)caps) == OK;
 }
 
 /**

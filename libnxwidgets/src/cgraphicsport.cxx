@@ -246,13 +246,13 @@ void CGraphicsPort::drawVertLine(nxgl_coord_t x, nxgl_coord_t y,
  * @param x2     - The x coordinate of the end point of the line.
  * @param y2     - The y coordinate of the end point of the line.
  * @param color  - The color of the line.
- * @param capped - Draw a circular cap both ends of the line to support
+ * @param caps   - Draw a circular cap one the ends of the line to support
  *               - better line joins
  */
 
 void CGraphicsPort::drawLine(nxgl_coord_t x1, nxgl_coord_t y1,
                              nxgl_coord_t x2, nxgl_coord_t y2,
-                             nxgl_mxpixel_t color, bool capped)
+                             nxgl_mxpixel_t color, enum INxWindow::ELineCaps caps)
 {
   struct nxgl_vector_s vector;
 
@@ -261,7 +261,7 @@ void CGraphicsPort::drawLine(nxgl_coord_t x1, nxgl_coord_t y1,
   vector.pt2.x = x2;
   vector.pt2.y = y2;
 
-  if (!m_pNxWnd->drawLine(&vector, 1, color, capped))
+  if (!m_pNxWnd->drawLine(&vector, 1, color, caps))
     {
       gdbg("INxWindow::drawLine failed\n");
     }
