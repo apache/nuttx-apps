@@ -294,7 +294,8 @@ void nxlines_test(NXWINDOW hwnd)
 
       color[0] = CONFIG_EXAMPLES_NXLINES_CIRCLECOLOR;
       ret = nx_drawline((NXWINDOW)hwnd, &previous,
-                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color, false);
+                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color,
+                        NX_LINECAP_NONE);
       if (ret < 0)
         {
           printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
@@ -304,7 +305,8 @@ void nxlines_test(NXWINDOW hwnd)
 
       color[0] = CONFIG_EXAMPLES_NXLINES_LINECOLOR;
       ret = nx_drawline((NXWINDOW)hwnd, &vector,
-                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color, false);
+                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color,
+                        NX_LINECAP_NONE);
       if (ret < 0)
         {
           printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
