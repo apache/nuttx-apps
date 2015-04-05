@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/inxwindow.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -249,13 +249,15 @@ namespace NXWidgets
      * @param vector - Describes the line to be drawn
      * @param width  - The width of the line
      * @param color  - The color to use to fill the line
+     * @param capped - Draw a circular cap both ends of the line to support
+     *                 better line joins
      *
      * @return True on success; false on failure.
      */
 
     virtual bool drawLine(FAR struct nxgl_vector_s *vector,
-                          nxgl_coord_t width,
-                          nxgl_mxpixel_t color) = 0;
+                          nxgl_coord_t width, nxgl_mxpixel_t color,
+                          bool capped) = 0;
 
     /**
      * Draw a filled circle at the specified position, size, and color.

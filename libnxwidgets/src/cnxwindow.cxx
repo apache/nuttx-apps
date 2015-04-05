@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cnxwindow.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -286,16 +286,19 @@ bool CNxWindow::fillTrapezoid(FAR const struct nxgl_rect_s *pClip,
  * @param vector - Describes the line to be drawn
  * @param width  - The width of the line
  * @param color  - The color to use to fill the line
+ * @param capped - Draw a circular cap both ends of the line to support
+ *                 better line joins
  *
  * @return True on success; false on failure.
  */
 
 bool CNxWindow::drawLine(FAR struct nxgl_vector_s *vector,
-                         nxgl_coord_t width, nxgl_mxpixel_t color)
+                         nxgl_coord_t width, nxgl_mxpixel_t color,
+                         bool capped)
 {
   // Draw a line with the specified color
 
-  return nx_drawline(m_hNxWindow, vector, width, &color) == OK;
+  return nx_drawline(m_hNxWindow, vector, width, &color, capped) == OK;
 }
 
 /**

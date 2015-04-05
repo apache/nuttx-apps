@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cgraphicsport.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -241,16 +241,18 @@ void CGraphicsPort::drawVertLine(nxgl_coord_t x, nxgl_coord_t y,
 /**
  * Draw a line of a fixed color in the window.
  *
- * @param x1 The x coordinate of the start point of the line.
- * @param y1 The y coordinate of the start point of the line.
- * @param x2 The x coordinate of the end point of the line.
- * @param y2 The y coordinate of the end point of the line.
- * @param color The color of the line.
+ * @param x1     - The x coordinate of the start point of the line.
+ * @param y1     - The y coordinate of the start point of the line.
+ * @param x2     - The x coordinate of the end point of the line.
+ * @param y2     - The y coordinate of the end point of the line.
+ * @param color  - The color of the line.
+ * @param capped - Draw a circular cap both ends of the line to support
+ *               - better line joins
  */
 
 void CGraphicsPort::drawLine(nxgl_coord_t x1, nxgl_coord_t y1,
                              nxgl_coord_t x2, nxgl_coord_t y2,
-                             nxgl_mxpixel_t color)
+                             nxgl_mxpixel_t color, bool capped)
 {
   struct nxgl_vector_s vector;
 
@@ -259,7 +261,7 @@ void CGraphicsPort::drawLine(nxgl_coord_t x1, nxgl_coord_t y1,
   vector.pt2.x = x2;
   vector.pt2.y = y2;
 
-  if (!m_pNxWnd->drawLine(&vector, 1, color))
+  if (!m_pNxWnd->drawLine(&vector, 1, color, capped))
     {
       gdbg("INxWindow::drawLine failed\n");
     }
