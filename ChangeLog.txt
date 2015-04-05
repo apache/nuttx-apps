@@ -551,3 +551,7 @@
 * NxWidgets::CNxServer:  More renaming: up_lcdinitialize->board_lcd_initialize,
   up_lcdgetdev->board_lcd_getdev, up_lcduninitialize->board_lcd_uninitialize
   (2015-04-04).
+* NxWidgets:: INxWindow, CNxWindow, CBgWindow, CNxTkWindow, CNxToolbar,
+  CGraphicsPort: Add a capped parameter to all drawLine() methods.  Pass on
+  to NX nx_drawline() and NXTK nxtk_drawlinetoolbar() and nxtk_drawlinewindow()
+  functions (2015-04-05).
