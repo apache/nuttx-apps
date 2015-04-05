@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxlines/nxlines_bkgd.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -293,7 +293,8 @@ void nxlines_test(NXWINDOW hwnd)
       /* Clear the previous line by overwriting it with the circle color */
 
       color[0] = CONFIG_EXAMPLES_NXLINES_CIRCLECOLOR;
-      ret = nx_drawline((NXWINDOW)hwnd, &previous, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
+      ret = nx_drawline((NXWINDOW)hwnd, &previous,
+                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color, false);
       if (ret < 0)
         {
           printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
@@ -302,7 +303,8 @@ void nxlines_test(NXWINDOW hwnd)
       /* Draw the new line */
 
       color[0] = CONFIG_EXAMPLES_NXLINES_LINECOLOR;
-      ret = nx_drawline((NXWINDOW)hwnd, &vector, CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color);
+      ret = nx_drawline((NXWINDOW)hwnd, &vector,
+                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color, false);
       if (ret < 0)
         {
           printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
