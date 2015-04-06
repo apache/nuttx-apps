@@ -1,4 +1,6 @@
-/*
+/****************************************************************************
+ * apps/modbus/tcp/mbtcp.c
+ *
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
@@ -25,27 +27,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File: $Id: mbtcp.c,v 1.3 2006/12/07 22:10:34 wolti Exp $
- */
+ ****************************************************************************/
 
-/* ----------------------- System includes ----------------------------------*/
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <nuttx/config.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* ----------------------- Platform includes --------------------------------*/
+#include <apps/modbus/mb.h>
+
 #include "port.h"
-
-/* ----------------------- Modbus includes ----------------------------------*/
-#include <apps/modbusmb.h>
-#include <apps/modbusmbframe.h>
-#include <apps/modbusmbport.h>
-
 #include "mbtcp.h"
 
 #ifdef CONFIG_MB_TCP_ENABLED
 
-/* ----------------------- Defines ------------------------------------------*/
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 /* ----------------------- MBAP Header --------------------------------------*/
 /*
@@ -76,84 +77,87 @@
 
 #define MB_TCP_PROTOCOL_ID  0   /* 0 = Modbus Protocol */
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
-/* ----------------------- Start implementation -----------------------------*/
-eMBErrorCode
-eMBTCPDoInit( uint16_t ucTCPPort )
+eMBErrorCode eMBTCPDoInit(uint16_t ucTCPPort)
 {
-    eMBErrorCode    eStatus = MB_ENOERR;
+  eMBErrorCode    eStatus = MB_ENOERR;
 
-    if( xMBTCPPortInit( ucTCPPort ) == false )
+  if (xMBTCPPortInit(ucTCPPort) == false)
     {
-        eStatus = MB_EPORTERR;
+      eStatus = MB_EPORTERR;
     }
-    return eStatus;
+ 
+   return eStatus;
 }
 
-void
-eMBTCPStart( void )
+void eMBTCPStart(void)
 {
 }
 
-void
-eMBTCPStop( void )
+void eMBTCPStop(void)
 {
-    /* Make sure that no more clients are connected. */
-    vMBTCPPortDisable( );
+   /* Make sure that no more clients are connected. */
+
+  vMBTCPPortDisable();
 }
 
-eMBErrorCode
-eMBTCPReceive( uint8_t * pucRcvAddress, uint8_t ** ppucFrame, uint16_t * pusLength )
+eMBErrorCode eMBTCPReceive(uint8_t *pucRcvAddress, uint8_t **ppucFrame, uint16_t *pusLength)
 {
-    eMBErrorCode    eStatus = MB_EIO;
-    uint8_t        *pucMBTCPFrame;
-    uint16_t        usLength;
-    uint16_t        usPID;
+  eMBErrorCode    eStatus = MB_EIO;
+  uint8_t        *pucMBTCPFrame;
+  uint16_t        usLength;
+  uint16_t        usPID;
 
-    if( xMBTCPPortGetRequest( &pucMBTCPFrame, &usLength ) != false )
+  if (xMBTCPPortGetRequest(&pucMBTCPFrame, &usLength) != false)
     {
-        usPID = pucMBTCPFrame[MB_TCP_PID] << 8U;
-        usPID |= pucMBTCPFrame[MB_TCP_PID + 1];
+      usPID = pucMBTCPFrame[MB_TCP_PID] << 8U;
+      usPID |= pucMBTCPFrame[MB_TCP_PID + 1];
 
-        if( usPID == MB_TCP_PROTOCOL_ID )
+      if (usPID == MB_TCP_PROTOCOL_ID)
         {
-            *ppucFrame = &pucMBTCPFrame[MB_TCP_FUNC];
-            *pusLength = usLength - MB_TCP_FUNC;
-            eStatus = MB_ENOERR;
+          *ppucFrame = &pucMBTCPFrame[MB_TCP_FUNC];
+          *pusLength = usLength - MB_TCP_FUNC;
+          eStatus = MB_ENOERR;
 
-            /* Modbus TCP does not use any addresses. Fake the source address such
-             * that the processing part deals with this frame.
-             */
-            *pucRcvAddress = MB_TCP_PSEUDO_ADDRESS;
+          /* Modbus TCP does not use any addresses. Fake the source address such
+           * that the processing part deals with this frame.
+           */
+
+          *pucRcvAddress = MB_TCP_PSEUDO_ADDRESS;
         }
     }
-    else
+  else
     {
-        eStatus = MB_EIO;
+      eStatus = MB_EIO;
     }
-    return eStatus;
+
+  return eStatus;
 }
 
-eMBErrorCode
-eMBTCPSend( uint8_t _unused, const uint8_t * pucFrame, uint16_t usLength )
+eMBErrorCode eMBTCPSend(uint8_t _unused, const uint8_t * pucFrame, uint16_t usLength)
 {
-    eMBErrorCode    eStatus = MB_ENOERR;
-    uint8_t        *pucMBTCPFrame = ( uint8_t * ) pucFrame - MB_TCP_FUNC;
-    uint16_t        usTCPLength = usLength + MB_TCP_FUNC;
+  eMBErrorCode    eStatus = MB_ENOERR;
+  uint8_t        *pucMBTCPFrame = (uint8_t *) pucFrame - MB_TCP_FUNC;
+  uint16_t        usTCPLength = usLength + MB_TCP_FUNC;
 
-    /* The MBAP header is already initialized because the caller calls this
-     * function with the buffer returned by the previous call. Therefore we
-     * only have to update the length in the header. Note that the length
-     * header includes the size of the Modbus PDU and the UID Byte. Therefore
-     * the length is usLength plus one.
-     */
-    pucMBTCPFrame[MB_TCP_LEN] = ( usLength + 1 ) >> 8U;
-    pucMBTCPFrame[MB_TCP_LEN + 1] = ( usLength + 1 ) & 0xFF;
-    if( xMBTCPPortSendResponse( pucMBTCPFrame, usTCPLength ) == false )
+  /* The MBAP header is already initialized because the caller calls this
+   * function with the buffer returned by the previous call. Therefore we
+   * only have to update the length in the header. Note that the length
+   * header includes the size of the Modbus PDU and the UID Byte. Therefore
+   * the length is usLength plus one.
+   */
+
+  pucMBTCPFrame[MB_TCP_LEN] = (usLength + 1) >> 8U;
+  pucMBTCPFrame[MB_TCP_LEN + 1] = (usLength + 1) & 0xFF;
+  if (xMBTCPPortSendResponse(pucMBTCPFrame, usTCPLength) == false)
     {
-        eStatus = MB_EIO;
+      eStatus = MB_EIO;
     }
-    return eStatus;
+
+  return eStatus;
 }
 
 #endif
