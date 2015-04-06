@@ -25,8 +25,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File: $Id: mbtcp.h,v 1.2 2006/12/07 22:10:34 wolti Exp $
- */
+ ****************************************************************************/
 
 #ifndef __APPS_MODBUS_TCP_MBTCP_H
 #define __APPS_MODBUS_TCP_MBTCP_H
