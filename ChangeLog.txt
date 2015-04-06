@@ -1242,3 +1242,6 @@
 	  (2015-04-04).
 	* apps/examples/nxlines/: Add the new 'capped' parameter to nx_drawline()
 	  calls (2015-04-05).
+	* apps/modbus/tcp:  Fix some complile problems when TCP is enabled
+	  (2015-04-06).
+
