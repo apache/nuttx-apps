@@ -1,5 +1,7 @@
-/*
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+/****************************************************************************
+ * apps/modutils/rtu/mbcrc.h
+ *
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
  *
@@ -25,12 +27,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File: $Id: mbcrc.h,v 1.5 2006/12/07 22:10:34 wolti Exp $
- */
+ ****************************************************************************/
 
-#ifndef _MB_CRC_H
-#define _MB_CRC_H
+#ifndef __APPS_MODBUS_RTU_MBCRC_H
+#define __APPS_MODBUS_RTU_MBCRC_H
 
-uint16_t          usMBCRC16( uint8_t * pucFrame, uint16_t usLen );
+/****************************************************************************
+ * Global Function Prototypes
+ ****************************************************************************/
 
-#endif
+uint16_t usMBCRC16(uint8_t *pucFrame, uint16_t usLen);
+
+#endif /* __APPS_MODBUS_RTU_MBCRC_H */

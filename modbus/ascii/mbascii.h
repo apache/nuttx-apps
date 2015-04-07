@@ -1,5 +1,7 @@
-/*
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+/****************************************************************************
+ * apps/modbus/ascii/mbascii.h
+ *
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
  *
@@ -25,32 +27,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File: $Id: mbascii.h,v 1.8 2006/12/07 22:10:34 wolti Exp $
- */
+ ****************************************************************************/
 
-#ifndef _MB_ASCII_H
-#define _MB_ASCII_H
+#ifndef __APPS_MODBUS_ASCII_MBASCII_H
+#define __APPS_MODBUS_ASCII_MBASCII_H
 
 #ifdef __cplusplus
 PR_BEGIN_EXTERN_C
 #endif
 
-#ifdef CONFIG_MB_ASCII_ENABLED
-eMBErrorCode    eMBASCIIInit( uint8_t slaveAddress, uint8_t ucPort,
-                              speed_t ulBaudRate, eMBParity eParity );
-void            eMBASCIIStart( void );
-void            eMBASCIIStop( void );
+/****************************************************************************
+ * Global Function Prototypes
+ ****************************************************************************/
 
-eMBErrorCode    eMBASCIIReceive( uint8_t * pucRcvAddress, uint8_t ** pucFrame,
-                                 uint16_t * pusLength );
-eMBErrorCode    eMBASCIISend( uint8_t slaveAddress, const uint8_t * pucFrame,
-                              uint16_t usLength );
-bool            xMBASCIIReceiveFSM( void );
-bool            xMBASCIITransmitFSM( void );
-bool            xMBASCIITimerT1SExpired( void );
+#ifdef CONFIG_MB_ASCII_ENABLED
+eMBErrorCode eMBASCIIInit(uint8_t slaveAddress, uint8_t ucPort,
+                          speed_t ulBaudRate, eMBParity eParity);
+void eMBASCIIStart(void);
+void eMBASCIIStop(void);
+eMBErrorCode eMBASCIIReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
+                             uint16_t * pusLength);
+eMBErrorCode eMBASCIISend(uint8_t slaveAddress, const uint8_t *pucFrame,
+                          uint16_t usLength);
+bool xMBASCIIReceiveFSM(void);
+bool xMBASCIITransmitFSM(void);
+bool xMBASCIITimerT1SExpired(void);
 #endif
 
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif
-#endif
+
+#endif /* __APPS_MODBUS_ASCII_MBASCII_H */

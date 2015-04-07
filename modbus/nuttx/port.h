@@ -1,6 +1,7 @@
 /****************************************************************************
+ * apps/modbus/nuttx/port.h
  *
- * FreeModbus Libary: NuttX Port
+ * FreeModbus Library: NuttX Port
  * Based on the FreeModbus Linux port by:
  *
  *   Copyright (C) 2006 Christian Walter <wolti@sil.at>
@@ -73,8 +74,8 @@ typedef enum
 
 void vMBPortEnterCritical(void);
 void vMBPortExitCritical(void);
-void vMBPortLog(eMBPortLogLevel eLevel, const char * szModule,
-                const char * szFmt, ...);
+void vMBPortLog(eMBPortLogLevel eLevel, const char *szModule,
+                const char *szFmt, ...);
 void vMBPortTimerPoll(void);
 bool xMBPortSerialPoll(void);
 bool xMBPortSerialSetTimeout(uint32_t dwTimeoutMs);
