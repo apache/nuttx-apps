@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_STACKMONITOR
-	bool "Stack monitor"
+menuconfig SYSTEM_STACKMONITOR
+	bool "Stack Monitor"
 	default n
 	depends on STACK_COLORATION && !KERNEL_BUILD
 	---help---

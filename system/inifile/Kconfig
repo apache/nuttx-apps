@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_INIFILE
-	bool "INI file parser"
+menuconfig SYSTEM_INIFILE
+	bool "INI File Parser"
 	default n
 	---help---
 		Enable support for a simple INI file parser.

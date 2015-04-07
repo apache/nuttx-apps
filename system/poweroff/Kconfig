@@ -4,7 +4,7 @@
 #
 
 config SYSTEM_POWEROFF
-	bool "Power-Off command"
+	bool "Power-Off"
 	default n
 	---help---
 		Enable support for the NSH poweroff command.  NOTE: This option

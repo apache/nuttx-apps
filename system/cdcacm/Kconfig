@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_CDCACM
-	bool "CDC/ACM class controls"
+menuconfig SYSTEM_CDCACM
+	bool "USB CDC/ACM Device Commands"
 	default n
 	depends on CDCACM && !KERNEL_BUILD
 	---help---

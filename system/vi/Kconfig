@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_VI
-	bool "Tiny VI work-alike text editor"
+menuconfig SYSTEM_VI
+	bool "VI Work-Alike Text Editor"
 	default n
 	---help---
 		Enable support for NuttX tiny VI work-alike editor.

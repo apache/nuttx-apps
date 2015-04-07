@@ -3,7 +3,7 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_PRUN
+menuconfig SYSTEM_PRUN
 	bool "Pascal P-Code interpreter"
 	default n
 	depends on INTERPRETERS_PCODE

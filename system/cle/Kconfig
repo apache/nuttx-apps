@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_CLE
-	bool "Tiny VI work-alike command line editor"
+menuconfig SYSTEM_CLE
+	bool "EMACS-like Command Line Editor"
 	default n
 	---help---
 		Enable support for NuttX tiny EMACS-like command line editor.

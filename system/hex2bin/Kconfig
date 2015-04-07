@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_HEX2BIN
-	bool "Intel HEX Conversion"
+menuconfig SYSTEM_HEX2BIN
+	bool "Intel HEX to binary conversion"
 	default n
 	---help---
 		Enable support for a logic to convert Intel HEX format to binary.

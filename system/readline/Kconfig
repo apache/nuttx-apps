@@ -3,13 +3,14 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_READLINE
-	bool "readline() support"
+menuconfig SYSTEM_READLINE
+	bool "readline() Support"
 	default n
 	---help---
 		Enable support for the readline() function.
 
 if SYSTEM_READLINE
+
 config READLINE_ECHO
 	bool "Echo character input"
 	default y

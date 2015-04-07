@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_USBMSC
-	bool "USB mass storage class controls"
+menuconfig SYSTEM_USBMSC
+	bool "USB Mass Storage Device Commands"
 	default n
 	depends on USBMSC && !KERNEL_BUILD
 	---help---

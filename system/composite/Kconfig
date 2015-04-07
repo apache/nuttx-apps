@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_COMPOSITE
-	bool "USB composite class controls"
+menuconfig SYSTEM_COMPOSITE
+	bool "USB Composite Device Commands"
 	default n
 	depends on USBDEV_COMPOSITE && !KERNEL_BUILD
 	---help---

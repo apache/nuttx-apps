@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_SYSINFO
-	bool "NSH sysinfo command"
+menuconfig SYSTEM_SYSINFO
+	bool "Sysinfo"
 	default n
 	---help---
 		Enable support for the NSH sysinfo command.

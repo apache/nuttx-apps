@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_ZMODEM
-	bool "Zmodem commands"
+menuconfig SYSTEM_ZMODEM
+	bool "Zmodem Commands"
 	default n
 	---help---
 		This selection enables the 'sz' and 'rz' NSH commands.

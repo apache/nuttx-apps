@@ -4,10 +4,10 @@
 #
 
 config SYSTEM_FREE
-	bool "NSH free command replacement"
+	bool "Custom Free Memory Command"
 	default n
 	---help---
-		Enable support for the NSH free replacement command.
+		Enable support for the NSH 'free' replacement command.
 
 if SYSTEM_FREE
 endif

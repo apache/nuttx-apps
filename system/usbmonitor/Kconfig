@@ -3,7 +3,7 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_USBMONITOR
+menuconfig SYSTEM_USBMONITOR
 	bool "USB Monitor"
 	default n
 	depends on (USBDEV && USBDEV_TRACE) || (USBHOST && USBHOST_TRACE)

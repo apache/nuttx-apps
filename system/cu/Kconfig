@@ -3,8 +3,8 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_CUTERM
-	bool "CU serial terminal"
+menuconfig SYSTEM_CUTERM
+	bool "CU minimal serial terminal"
 	default n
 	---help---
 		Enable the CU serial terminal.  This is a minimalistic

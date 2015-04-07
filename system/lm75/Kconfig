@@ -3,7 +3,7 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config SYSTEM_LM75
+menuconfig SYSTEM_LM75
 	bool "Temperature"
 	default n
 	depends on I2C_LM75

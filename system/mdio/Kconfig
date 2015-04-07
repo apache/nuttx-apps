@@ -4,11 +4,11 @@
 #
 
 config SYSTEM_MDIO
-	bool "MDIO tool"
+	bool "PHY Tool"
 	default n
 	depends on NETDEV_PHY_IOCTL
 	---help---
-		Enable the MDIO tool
+		Enable the PHY MDIO tool
 
 if SYSTEM_MDIO
 endif
