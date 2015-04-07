@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/modbus/nuttx/portserial.c
  *
- * FreeModbus Libary: NuttX Port
+ * FreeModbus Library: NuttX Port
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
  *

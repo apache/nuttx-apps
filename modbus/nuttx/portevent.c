@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/modbus/nuttx/portevent.c
  *
- * FreeModbus Libary: NuttX Port
+ * FreeModbus Library: NuttX Port
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
  *
@@ -90,3 +90,4 @@ bool xMBPortEventGet(eMBEventType * eEvent)
 
   return xEventHappened;
 }
+

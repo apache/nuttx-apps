@@ -1,5 +1,7 @@
-/*
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+/****************************************************************************
+ * apps/functions/mbutils.c
+ *
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
  *
@@ -25,119 +27,136 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File: $Id: mbutils.c,v 1.6 2007/02/18 23:49:07 wolti Exp $
- */
+ ****************************************************************************/
 
-/* ----------------------- System includes ----------------------------------*/
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <nuttx/config.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-/* ----------------------- Platform includes --------------------------------*/
 #include "port.h"
 
-/* ----------------------- Modbus includes ----------------------------------*/
 #include <apps/modbus/mb.h>
 #include <apps/modbus/mbproto.h>
 
-/* ----------------------- Defines ------------------------------------------*/
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 #define BITS_uint8_t      8U
 
-/* ----------------------- Start implementation -----------------------------*/
-void
-xMBUtilSetBits( uint8_t * ucByteBuf, uint16_t usBitOffset, uint8_t ucNBits,
-                uint8_t ucValue )
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+void xMBUtilSetBits(uint8_t *ucByteBuf, uint16_t usBitOffset,
+                    uint8_t ucNBits, uint8_t ucValue)
 {
-    uint16_t        usWordBuf;
-    uint16_t        usMask;
-    uint16_t        usByteOffset;
-    uint16_t        usNPreBits;
-    uint16_t        usValue = ucValue;
+  uint16_t usWordBuf;
+  uint16_t usMask;
+  uint16_t usByteOffset;
+  uint16_t usNPreBits;
+  uint16_t usValue = ucValue;
 
-    ASSERT( ucNBits <= 8 );
-    ASSERT( ( size_t )BITS_uint8_t == sizeof( uint8_t ) * 8 );
+  ASSERT(ucNBits <= 8);
+  ASSERT((size_t)BITS_uint8_t == sizeof(uint8_t) * 8);
 
-    /* Calculate byte offset for first byte containing the bit values starting
-     * at usBitOffset. */
-    usByteOffset = ( uint16_t )( ( usBitOffset ) / BITS_uint8_t );
+  /* Calculate byte offset for first byte containing the bit values starting
+   * at usBitOffset.
+   */
 
-    /* How many bits precede our bits to set. */
-    usNPreBits = ( uint16_t )( usBitOffset - usByteOffset * BITS_uint8_t );
+  usByteOffset = (uint16_t)((usBitOffset) / BITS_uint8_t);
 
-    /* Move bit field into position over bits to set */
-    usValue <<= usNPreBits;
+  /* How many bits precede our bits to set. */
 
-    /* Prepare a mask for setting the new bits. */
-    usMask = ( uint16_t )( ( 1 << ( uint16_t ) ucNBits ) - 1 );
-    usMask <<= usBitOffset - usByteOffset * BITS_uint8_t;
+  usNPreBits = (uint16_t)(usBitOffset - usByteOffset * BITS_uint8_t);
 
-    /* copy bits into temporary storage. */
-    usWordBuf = ucByteBuf[usByteOffset];
-    usWordBuf |= ucByteBuf[usByteOffset + 1] << BITS_uint8_t;
+  /* Move bit field into position over bits to set */
 
-    /* Zero out bit field bits and then or value bits into them. */
-    usWordBuf = ( uint16_t )( ( usWordBuf & ( ~usMask ) ) | usValue );
+  usValue <<= usNPreBits;
 
-    /* move bits back into storage */
-    ucByteBuf[usByteOffset] = ( uint8_t )( usWordBuf & 0xFF );
-    ucByteBuf[usByteOffset + 1] = ( uint8_t )( usWordBuf >> BITS_uint8_t );
+  /* Prepare a mask for setting the new bits. */
+
+  usMask = (uint16_t)((1 << (uint16_t) ucNBits) - 1);
+  usMask <<= usBitOffset - usByteOffset * BITS_uint8_t;
+
+  /* copy bits into temporary storage. */
+
+  usWordBuf = ucByteBuf[usByteOffset];
+  usWordBuf |= ucByteBuf[usByteOffset + 1] << BITS_uint8_t;
+
+  /* Zero out bit field bits and then or value bits into them. */
+
+  usWordBuf = (uint16_t)((usWordBuf & (~usMask)) | usValue);
+
+  /* move bits back into storage */
+
+  ucByteBuf[usByteOffset] = (uint8_t)(usWordBuf & 0xFF);
+  ucByteBuf[usByteOffset + 1] = (uint8_t)(usWordBuf >> BITS_uint8_t);
 }
 
-uint8_t
-xMBUtilGetBits( uint8_t * ucByteBuf, uint16_t usBitOffset, uint8_t ucNBits )
+uint8_t xMBUtilGetBits(uint8_t *ucByteBuf, uint16_t usBitOffset, uint8_t ucNBits)
 {
-    uint16_t        usWordBuf;
-    uint16_t        usMask;
-    uint16_t        usByteOffset;
-    uint16_t        usNPreBits;
+  uint16_t usWordBuf;
+  uint16_t usMask;
+  uint16_t usByteOffset;
+  uint16_t usNPreBits;
 
-    /* Calculate byte offset for first byte containing the bit values starting
-     * at usBitOffset. */
-    usByteOffset = ( uint16_t )( ( usBitOffset ) / BITS_uint8_t );
+  /* Calculate byte offset for first byte containing the bit values starting
+   * at usBitOffset.
+   */
 
-    /* How many bits precede our bits to set. */
-    usNPreBits = ( uint16_t )( usBitOffset - usByteOffset * BITS_uint8_t );
+  usByteOffset = (uint16_t)((usBitOffset) / BITS_uint8_t);
 
-    /* Prepare a mask for setting the new bits. */
-    usMask = ( uint16_t )( ( 1 << ( uint16_t ) ucNBits ) - 1 );
+  /* How many bits precede our bits to set. */
 
-    /* copy bits into temporary storage. */
-    usWordBuf = ucByteBuf[usByteOffset];
-    usWordBuf |= ucByteBuf[usByteOffset + 1] << BITS_uint8_t;
+  usNPreBits = (uint16_t)(usBitOffset - usByteOffset * BITS_uint8_t);
 
-    /* throw away unneeded bits. */
-    usWordBuf >>= usNPreBits;
+  /* Prepare a mask for setting the new bits. */
 
-    /* mask away bits above the requested bitfield. */
-    usWordBuf &= usMask;
+  usMask = (uint16_t)((1 << (uint16_t) ucNBits) - 1);
 
-    return ( uint8_t ) usWordBuf;
+  /* copy bits into temporary storage. */
+
+  usWordBuf = ucByteBuf[usByteOffset];
+  usWordBuf |= ucByteBuf[usByteOffset + 1] << BITS_uint8_t;
+
+  /* throw away unneeded bits. */
+
+  usWordBuf >>= usNPreBits;
+
+  /* mask away bits above the requested bitfield. */
+
+  usWordBuf &= usMask;
+  return (uint8_t) usWordBuf;
 }
 
-eMBException
-prveMBError2Exception( eMBErrorCode eErrorCode )
+eMBException prveMBError2Exception(eMBErrorCode eErrorCode)
 {
-    eMBException    eStatus;
+  eMBException eStatus;
 
-    switch ( eErrorCode )
+  switch (eErrorCode)
     {
-        case MB_ENOERR:
-            eStatus = MB_EX_NONE;
-            break;
+      case MB_ENOERR:
+        eStatus = MB_EX_NONE;
+        break;
 
-        case MB_ENOREG:
-            eStatus = MB_EX_ILLEGAL_DATA_ADDRESS;
-            break;
+      case MB_ENOREG:
+        eStatus = MB_EX_ILLEGAL_DATA_ADDRESS;
+        break;
 
-        case MB_ETIMEDOUT:
-            eStatus = MB_EX_SLAVE_BUSY;
-            break;
+      case MB_ETIMEDOUT:
+        eStatus = MB_EX_SLAVE_BUSY;
+        break;
 
-        default:
-            eStatus = MB_EX_SLAVE_DEVICE_FAILURE;
-            break;
+      default:
+        eStatus = MB_EX_SLAVE_DEVICE_FAILURE;
+        break;
     }
 
-    return eStatus;
+  return eStatus;
 }
