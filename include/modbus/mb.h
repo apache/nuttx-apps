@@ -159,8 +159,8 @@ typedef enum
  *    - eMBErrorCode::MB_EPORTERR IF the porting layer returned an error.
  */
 
-eMBErrorCode  eMBInit(eMBMode eMode, uint8_t ucSlaveAddress,
-                      uint8_t ucPort, speed_t ulBaudRate, eMBParity eParity);
+eMBErrorCode eMBInit(eMBMode eMode, uint8_t ucSlaveAddress,
+                     uint8_t ucPort, speed_t ulBaudRate, eMBParity eParity);
 
 /* Initialize the Modbus protocol stack for Modbus TCP.
  *
@@ -235,7 +235,7 @@ eMBErrorCode eMBDisable(void);
  *   returns eMBErrorCode::MB_EILLSTATE. Otherwise it returns
  *   eMBErrorCode::MB_ENOERR.
  */
-eMBErrorCode    eMBPoll(void);
+eMBErrorCode eMBPoll(void);
 
 /* Configure the slave id of the device.
  *
@@ -256,9 +256,9 @@ eMBErrorCode    eMBPoll(void);
  *   is too small it returns eMBErrorCode::MB_ENORES. Otherwise
  *   it returns eMBErrorCode::MB_ENOERR.
  */
-eMBErrorCode    eMBSetSlaveID(uint8_t ucSlaveID, bool xIsRunning,
-                               uint8_t const *pucAdditional,
-                               uint16_t usAdditionalLen);
+eMBErrorCode eMBSetSlaveID(uint8_t ucSlaveID, bool xIsRunning,
+                           uint8_t const *pucAdditional,
+                           uint16_t usAdditionalLen);
 
 /* Registers a callback handler for a given function code.
  *
@@ -281,10 +281,8 @@ eMBErrorCode    eMBSetSlaveID(uint8_t ucSlaveID, bool xIsRunning,
  *   case the values in config.h should be adjusted. If the argument was not
  *   valid it returns eMBErrorCode::MB_EINVAL.
  */
-eMBErrorCode    eMBRegisterCB(uint8_t ucFunctionCode,
-                               pxMBFunctionHandler pxHandler);
-
-/* ----------------------- Callback -----------------------------------------*/
+eMBErrorCode eMBRegisterCB(uint8_t ucFunctionCode,
+                           pxMBFunctionHandler pxHandler);
 
 /* The protocol stack does not internally allocate any memory for the
  * registers. This makes the protocol stack very small and also usable on
@@ -326,8 +324,8 @@ eMBErrorCode    eMBRegisterCB(uint8_t ucFunctionCode,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
-eMBErrorCode    eMBRegInputCB(uint8_t * pucRegBuffer, uint16_t usAddress,
-                               uint16_t usNRegs);
+eMBErrorCode eMBRegInputCB(uint8_t * pucRegBuffer, uint16_t usAddress,
+                           uint16_t usNRegs);
 
 /* Callback function used if a Holding Register value is read or written by
  * the protocol stack. The starting register address is given by \c usAddress
@@ -361,8 +359,8 @@ eMBErrorCode    eMBRegInputCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
-eMBErrorCode    eMBRegHoldingCB(uint8_t * pucRegBuffer, uint16_t usAddress,
-                                 uint16_t usNRegs, eMBRegisterMode eMode);
+eMBErrorCode eMBRegHoldingCB(uint8_t * pucRegBuffer, uint16_t usAddress,
+                             uint16_t usNRegs, eMBRegisterMode eMode);
 
 /* Callback function used if a Coil Register value is read or written by the
  * protocol stack. If you are going to use this function you might use the
@@ -397,8 +395,8 @@ eMBErrorCode    eMBRegHoldingCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
-eMBErrorCode    eMBRegCoilsCB(uint8_t * pucRegBuffer, uint16_t usAddress,
-                               uint16_t usNCoils, eMBRegisterMode eMode);
+eMBErrorCode eMBRegCoilsCB(uint8_t *pucRegBuffer, uint16_t usAddress,
+                           uint16_t usNCoils, eMBRegisterMode eMode);
 
 /* Callback function used if a Input Discrete Register value is read by
  * the protocol stack.
@@ -428,8 +426,8 @@ eMBErrorCode    eMBRegCoilsCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
-eMBErrorCode    eMBRegDiscreteCB(uint8_t * pucRegBuffer, uint16_t usAddress,
-                                  uint16_t usNDiscrete);
+eMBErrorCode eMBRegDiscreteCB(uint8_t *pucRegBuffer, uint16_t usAddress,
+                              uint16_t usNDiscrete);
 
 #ifdef __cplusplus
 PR_END_EXTERN_C

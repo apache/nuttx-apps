@@ -1,4 +1,6 @@
-/*
+/****************************************************************************
+ * apps/include/modbus/mbframe.h
+ *
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2006 Christian Walter <wolti@sil.at>
  * All rights reserved.
@@ -25,18 +27,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File: $Id: mbframe.h,v 1.9 2006/12/07 22:10:34 wolti Exp $
- */
+ ****************************************************************************/
 
-#ifndef _MB_FRAME_H
-#define _MB_FRAME_H
+#ifndef __APPS_INCLUDE_MODBUS_MBFRAME_H
+#define __APPS_INCLUDE_MODBUS_MBFRAME_H
 
 #ifdef __cplusplus
 PR_BEGIN_EXTERN_C
 #endif
 
-/*!
- * Constants which defines the format of a modbus frame. The example is
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Constants which defines the format of a Modbus frame. The example is
  * shown for a Modbus RTU/ASCII frame. Note that the Modbus PDU is not
  * dependent on the underlying transport.
  *
@@ -60,28 +64,27 @@ PR_BEGIN_EXTERN_C
  * </code>
  */
 
-/* ----------------------- Defines ------------------------------------------*/
 #define MB_PDU_SIZE_MAX     253 /*!< Maximum size of a PDU. */
 #define MB_PDU_SIZE_MIN     1   /*!< Function Code */
 #define MB_PDU_FUNC_OFF     0   /*!< Offset of function code in PDU. */
 #define MB_PDU_DATA_OFF     1   /*!< Offset for response data in PDU. */
 
-/* ----------------------- Prototypes  0-------------------------------------*/
-typedef void    ( *pvMBFrameStart ) ( void );
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
-typedef void    ( *pvMBFrameStop ) ( void );
-
-typedef eMBErrorCode( *peMBFrameReceive ) ( uint8_t * pucRcvAddress,
-                                            uint8_t ** pucFrame,
-                                            uint16_t * pusLength );
-
-typedef eMBErrorCode( *peMBFrameSend ) ( uint8_t slaveAddress,
-                                         const uint8_t * pucFrame,
-                                         uint16_t usLength );
-
-typedef void( *pvMBFrameClose ) ( void );
+typedef void (*pvMBFrameStart)(void);
+typedef void (*pvMBFrameStop)(void);
+typedef eMBErrorCode (*peMBFrameReceive)(uint8_t *pucRcvAddress,
+                                         uint8_t **pucFrame,
+                                         uint16_t *pusLength);
+typedef eMBErrorCode (*peMBFrameSend)(uint8_t slaveAddress,
+                                      const uint8_t *pucFrame,
+                                      uint16_t usLength);
+typedef void (*pvMBFrameClose)(void);
 
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif
-#endif
+
+#endif /* __APPS_INCLUDE_MODBUS_MBFRAME_H */
