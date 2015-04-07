@@ -160,4 +160,4 @@ eMBErrorCode eMBTCPSend(uint8_t _unused, const uint8_t * pucFrame, uint16_t usLe
   return eStatus;
 }
 
-#endif
+#endif /* CONFIG_MB_TCP_ENABLED */

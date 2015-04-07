@@ -43,7 +43,7 @@ PR_BEGIN_EXTERN_C
 #define MB_TCP_PSEUDO_ADDRESS   255
 
 /****************************************************************************
- * Public Function Protototypes
+ * Public Function Prototypes
  ****************************************************************************/
 
 eMBErrorCode eMBTCPDoInit(uint16_t ucTCPPort);
