@@ -1,4 +1,5 @@
-/*
+/****************************************************************************
+ *
  * FreeModbus Libary: NuttX Port
  * Based on the FreeModbus Linux port by:
  *
@@ -18,17 +19,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * File: $Id: port.h,v 1.1 2006/08/01 20:58:49 wolti Exp $
- */
+ ****************************************************************************/
 
 #ifndef __APPS_MODBUS_NUTTX_PORT_H
 #define __APPS_MODBUS_NUTTX_PORT_H
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
 
-/* ----------------------- Defines ------------------------------------------*/
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 #define INLINE
 #define PR_BEGIN_EXTERN_C  extern "C" {
@@ -41,8 +47,6 @@ PR_BEGIN_EXTERN_C
 #define ENTER_CRITICAL_SECTION( ) vMBPortEnterCritical()
 #define EXIT_CRITICAL_SECTION( ) vMBPortExitCritical()
 
-#define MB_PORT_HAS_CLOSE 1
-
 #ifndef true
 #  define true   true
 #endif
@@ -51,7 +55,9 @@ PR_BEGIN_EXTERN_C
 #  define false  false
 #endif
 
-/* ----------------------- Type definitions ---------------------------------*/
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
 
 typedef enum
 {
@@ -61,7 +67,9 @@ typedef enum
   MB_LOG_DEBUG = 3
 } eMBPortLogLevel;
 
-/* ----------------------- Function prototypes ------------------------------*/
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 void vMBPortEnterCritical(void);
 void vMBPortExitCritical(void);
@@ -74,4 +82,5 @@ bool xMBPortSerialSetTimeout(uint32_t dwTimeoutMs);
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif
-#endif
+
+#endif /* __APPS_MODBUS_NUTTX_PORT_H */

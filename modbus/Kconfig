@@ -7,20 +7,27 @@ config MODBUS
 	bool "Modbus support via FreeModBus"
 	default n
 
+if MODBUS
+
 config MB_ASCII_ENABLED
 	bool "Modbus ASCII support"
-	depends on MODBUS
 	default y
 
 config MB_RTU_ENABLED
 	bool "Modbus RTU support"
-	depends on MODBUS
 	default y
 
 config MB_TCP_ENABLED
 	bool "Modbus TCP support"
-	depends on MODBUS
 	default y
+
+config MB_HAVE_CLOSE
+	bool "Platform close callbacks"
+	default n
+	---help---
+		A port which wants to get an callback must select
+		CONFIG_MB_HAVE_CLOSE and provide vMBPortClose() as
+		as vMBTCPPortClose() (if CONFIG_MB_TCP_ENABLED)
 
 config MB_ASCII_TIMEOUT_SEC
 	int "Character timeout"
@@ -49,7 +56,6 @@ config MB_ASCII_TIMEOUT_WAIT_BEFORE_SEND_MS
 
 config MB_FUNC_HANDLERS_MAX
 	int "Maximum number of Modbus functions"
-	depends on MODBUS
 	default 16
 	---help---
 		Maximum number of Modbus functions codes the protocol stack should support.
@@ -72,70 +78,62 @@ config MB_FUNC_OTHER_REP_SLAVEID_BUF
 
 config MB_FUNC_OTHER_REP_SLAVEID_ENABLED
 	bool "Report Slave ID function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Report Slave ID function should be enabled.
 
 config MB_FUNC_READ_INPUT_ENABLED
 	bool "Read Input Registers function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Read Input Registers function should be enabled.
 
 config MB_FUNC_READ_HOLDING_ENABLED
 	bool "Read Holding Registers function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Read Holding Registers function should be enabled.
 
 config MB_FUNC_WRITE_HOLDING_ENABLED
 	bool "Write Single Register function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Write Single Register function should be enabled.
 
 config MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
 	bool "Write Multiple registers function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Write Multiple registers function should be enabled.
 
 config MB_FUNC_READ_COILS_ENABLED
 	bool "Read Coils function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Read Coils function should be enabled.
 
 config MB_FUNC_WRITE_COIL_ENABLED
 	bool "Write Coils function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Write Coils function should be enabled.
 
 config MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 	bool "Write Multiple Coils function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Write Multiple Coils function should be enabled.
 
 config MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
 	bool "Read Discrete Inputs function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Read Discrete Inputs function should be enabled.
 
 config MB_FUNC_READWRITE_HOLDING_ENABLED
 	bool "Read/Write Multiple Registers function"
-	depends on MODBUS
 	default y
 	---help---
 		If the Read/Write Multiple Registers function should be enabled.
+
+endif # MODBUS

@@ -87,9 +87,10 @@
  *   None
  *
  ****************************************************************************/
-
+void eMBInit(void); // REMOVE ME
 void nsh_initialize(void)
 {
+eMBInit(); // REMOVE ME
   /* Mount the /etc filesystem */
 
   (void)nsh_romfsetc();
