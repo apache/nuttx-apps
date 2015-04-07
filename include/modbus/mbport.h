@@ -102,9 +102,7 @@ bool xMBPortEventGet(/*@out@ */ eMBEventType * eEvent);
 
 bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
                        uint8_t ucDataBits, eMBParity eParity);
-#ifdef CONFIG_MB_HAVE_CLOSE
 void vMBPortClose(void);
-#endif
 void xMBPortSerialClose(void);
 void vMBPortSerialEnable(bool xRxEnable, bool xTxEnable);
 bool xMBPortSerialGetByte(int8_t * pucByte);
@@ -118,6 +116,7 @@ void vMBPortTimersEnable(void);
 void vMBPortTimersDisable(void);
 void vMBPortTimersDelay(uint16_t usTimeOutMS);
 
+#ifdef CONFIG_MB_TCP_ENABLED
 /* TCP port function */
 
 bool xMBTCPPortInit(uint16_t usTCPPort);
@@ -127,6 +126,7 @@ void vMBTCPPortClose(void);
 void vMBTCPPortDisable(void);
 bool xMBTCPPortGetRequest(uint8_t **ppucMBTCPFrame, uint16_t * usTCPLength);
 bool xMBTCPPortSendResponse(const uint8_t *pucMBTCPFrame, uint16_t usTCPLength);
+#endif
 
 #ifdef __cplusplus
 PR_END_EXTERN_C

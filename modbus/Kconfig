@@ -24,6 +24,7 @@ config MB_TCP_ENABLED
 config MB_HAVE_CLOSE
 	bool "Platform close callbacks"
 	default n
+	depends on MB_TCP_ENABLED
 	---help---
 		A port which wants to get an callback must select
 		CONFIG_MB_HAVE_CLOSE and provide vMBPortClose() as

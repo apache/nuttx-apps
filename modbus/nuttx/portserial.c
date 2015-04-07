@@ -1,27 +1,37 @@
-/*
+/****************************************************************************
+ * apps/modbus/nuttx/portserial.c
+ *
  * FreeModbus Libary: NuttX Port
- * Based on the FreeModbus Linux port by:
+ * Copyright (c) 2006 Christian Walter <wolti@sil.at>
+ * All rights reserved.
  *
- *   Copyright (C) 2006 Christian Walter <wolti@sil.at>
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * File: $Id: portserial.c,v 1.3 2006/10/12 08:35:34 wolti Exp $
- */
+ ****************************************************************************/
 
-/* ----------------------- Standard includes --------------------------------*/
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
 #include <nuttx/config.h>
 #include <stdio.h>
@@ -42,12 +52,12 @@
 
 #include "port.h"
 
-/* ----------------------- Modbus includes ----------------------------------*/
-
 #include <apps/modbus/mb.h>
 #include <apps/modbus/mbport.h>
 
-/* ----------------------- Defines  -----------------------------------------*/
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
 
 #ifdef CONFIG_MB_ASCII_ENABLED
 #define BUF_SIZE    513         /* must hold a complete ASCII frame. */
@@ -55,7 +65,9 @@
 #define BUF_SIZE    256         /* must hold a complete RTU frame. */
 #endif
 
-/* ----------------------- Static variables ---------------------------------*/
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
 
 static int      iSerialFd = -1;
 static bool     bRxEnabled;
@@ -70,12 +82,97 @@ static int      uiTxBufferPos;
 static struct termios xOldTIO;
 #endif
 
-/* ----------------------- Function prototypes ------------------------------*/
+/****************************************************************************
+ * Private Function Prototypes
+ ****************************************************************************/
 
-static bool     prvbMBPortSerialRead(uint8_t *pucBuffer, uint16_t usNBytes, uint16_t *usNBytesRead);
-static bool     prvbMBPortSerialWrite(uint8_t *pucBuffer, uint16_t usNBytes);
+static bool prvbMBPortSerialRead(uint8_t *pucBuffer, uint16_t usNBytes,
+                                 uint16_t *usNBytesRead);
+static bool prvbMBPortSerialWrite(uint8_t *pucBuffer, uint16_t usNBytes);
 
-/* ----------------------- Begin implementation -----------------------------*/
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static bool prvbMBPortSerialRead(uint8_t *pucBuffer, uint16_t usNBytes,
+                                 uint16_t *usNBytesRead)
+{
+  bool            bResult = true;
+  ssize_t         res;
+  fd_set          rfds;
+  struct timeval  tv;
+
+  tv.tv_sec = 0;
+  tv.tv_usec = 50000;
+  FD_ZERO(&rfds);
+  FD_SET(iSerialFd, &rfds);
+
+  /* Wait until character received or timeout. Recover in case of an
+   * interrupted read system call.
+   */
+
+  do
+    {
+      if (select(iSerialFd + 1, &rfds, NULL, NULL, &tv) == -1)
+        {
+          if (errno != EINTR)
+            {
+              bResult = false;
+            }
+        }
+      else if (FD_ISSET(iSerialFd, &rfds))
+        {
+          if ((res = read(iSerialFd, pucBuffer, usNBytes)) == -1)
+            {
+              bResult = false;
+            }
+          else
+            {
+              *usNBytesRead = (uint16_t)res;
+              break;
+            }
+        }
+      else
+        {
+          *usNBytesRead = 0;
+          break;
+        }
+    }
+
+  while (bResult == true);
+  return bResult;
+}
+
+static bool prvbMBPortSerialWrite(uint8_t *pucBuffer, uint16_t usNBytes)
+{
+  ssize_t res;
+  size_t  left = (size_t) usNBytes;
+  size_t  done = 0;
+
+  while (left > 0)
+    {
+      if ((res = write(iSerialFd, pucBuffer + done, left)) == -1)
+        {
+          if (errno != EINTR)
+            {
+              break;
+            }
+
+          /* call write again because of interrupted system call. */
+
+          continue;
+        }
+
+      done += res;
+      left -= res;
+    }
+
+  return left == 0 ? true : false;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 void vMBPortSerialEnable(bool bEnableRx, bool bEnableTx)
 {
@@ -141,12 +238,15 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
         {
           case MB_PAR_NONE:
             break;
+
           case MB_PAR_EVEN:
             xNewTIO.c_cflag |= PARENB;
             break;
+
           case MB_PAR_ODD:
             xNewTIO.c_cflag |= PARENB | PARODD;
             break;
+
           default:
             bStatus = false;
         }
@@ -156,9 +256,11 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
           case 8:
             xNewTIO.c_cflag |= CS8;
             break;
+
           case 7:
             xNewTIO.c_cflag |= CS7;
             break;
+
           default:
             bStatus = false;
         }
@@ -226,145 +328,74 @@ void vMBPortClose(void)
     }
 }
 
-bool prvbMBPortSerialRead(uint8_t *pucBuffer, uint16_t usNBytes, uint16_t *usNBytesRead)
+bool xMBPortSerialPoll(void)
 {
-  bool            bResult = true;
-  ssize_t         res;
-  fd_set          rfds;
-  struct timeval  tv;
+  bool     bStatus = true;
+  uint16_t usBytesRead;
+  int      i;
 
-  tv.tv_sec = 0;
-  tv.tv_usec = 50000;
-  FD_ZERO(&rfds);
-  FD_SET(iSerialFd, &rfds);
-
-  /* Wait until character received or timeout. Recover in case of an
-   * interrupted read system call.
-   */
-
-  do
+  while (bRxEnabled)
     {
-      if (select(iSerialFd + 1, &rfds, NULL, NULL, &tv) == -1)
+      if (prvbMBPortSerialRead(&ucBuffer[0], BUF_SIZE, &usBytesRead))
         {
-          if (errno != EINTR)
+          if (usBytesRead == 0)
             {
-              bResult = false;
-            }
-        }
-      else if (FD_ISSET(iSerialFd, &rfds))
-        {
-          if ((res = read(iSerialFd, pucBuffer, usNBytes)) == -1)
-            {
-              bResult = false;
-            }
-          else
-            {
-              *usNBytesRead = (uint16_t)res;
+              /* timeout with no bytes. */
+
               break;
+            }
+          else if (usBytesRead > 0)
+            {
+              for (i = 0; i < usBytesRead; i++)
+                {
+                  /* Call the modbus stack and let him fill the buffers. */
+
+                  (void)pxMBFrameCBByteReceived();
+                }
+
+              uiRxBufferPos = 0;
             }
         }
       else
         {
-          *usNBytesRead = 0;
-          break;
+          vMBPortLog(MB_LOG_ERROR, "SER-POLL", "read failed on serial device: %d\n",
+                     errno);
+          bStatus = false;
         }
     }
 
-  while(bResult == true);
-  return bResult;
-}
-
-bool prvbMBPortSerialWrite(uint8_t *pucBuffer, uint16_t usNBytes)
-{
-  ssize_t res;
-  size_t  left = (size_t) usNBytes;
-  size_t  done = 0;
-
-  while(left > 0)
+  if (bTxEnabled)
     {
-      if ((res = write(iSerialFd, pucBuffer + done, left)) == -1)
+      while (bTxEnabled)
         {
-          if (errno != EINTR)
-            {
-              break;
-            }
+          (void)pxMBFrameCBTransmitterEmpty();
 
-          /* call write again because of interrupted system call. */
-          continue;
+          /* Call the modbus stack to let him fill the buffer. */
         }
 
-      done += res;
-      left -= res;
-    }
-
-  return left == 0 ? true : false;
-}
-
-bool
-xMBPortSerialPoll()
-{
-    bool            bStatus = true;
-    uint16_t        usBytesRead;
-    int             i;
-
-    while(bRxEnabled)
-    {
-        if (prvbMBPortSerialRead(&ucBuffer[0], BUF_SIZE, &usBytesRead))
+      if (!prvbMBPortSerialWrite(&ucBuffer[0], uiTxBufferPos))
         {
-            if (usBytesRead == 0)
-            {
-                /* timeout with no bytes. */
-                break;
-            }
-            else if (usBytesRead > 0)
-            {
-                for(i = 0; i < usBytesRead; i++)
-                {
-                    /* Call the modbus stack and let him fill the buffers. */
-                    (void)pxMBFrameCBByteReceived();
-                }
-                uiRxBufferPos = 0;
-            }
-        }
-        else
-        {
-            vMBPortLog(MB_LOG_ERROR, "SER-POLL", "read failed on serial device: %d\n",
-                        errno);
-            bStatus = false;
-        }
-    }
-    if (bTxEnabled)
-    {
-        while(bTxEnabled)
-        {
-            (void)pxMBFrameCBTransmitterEmpty();
-            /* Call the modbus stack to let him fill the buffer. */
-        }
-        if (!prvbMBPortSerialWrite(&ucBuffer[0], uiTxBufferPos))
-        {
-            vMBPortLog(MB_LOG_ERROR, "SER-POLL", "write failed on serial device: %d\n",
-                        errno);
-            bStatus = false;
+          vMBPortLog(MB_LOG_ERROR, "SER-POLL", "write failed on serial device: %d\n",
+                     errno);
+          bStatus = false;
         }
     }
 
-    return bStatus;
+  return bStatus;
 }
 
-bool
-xMBPortSerialPutByte(int8_t ucByte)
+bool xMBPortSerialPutByte(int8_t ucByte)
 {
-    ASSERT(uiTxBufferPos < BUF_SIZE);
-    ucBuffer[uiTxBufferPos] = ucByte;
-    uiTxBufferPos++;
-    return true;
+  ASSERT(uiTxBufferPos < BUF_SIZE);
+  ucBuffer[uiTxBufferPos] = ucByte;
+  uiTxBufferPos++;
+  return true;
 }
 
-bool
-xMBPortSerialGetByte(int8_t *pucByte)
+bool xMBPortSerialGetByte(int8_t *pucByte)
 {
-    ASSERT(uiRxBufferPos < BUF_SIZE);
-    *pucByte = ucBuffer[uiRxBufferPos];
-    uiRxBufferPos++;
-    return true;
+  ASSERT(uiRxBufferPos < BUF_SIZE);
+  *pucByte = ucBuffer[uiRxBufferPos];
+  uiRxBufferPos++;
+  return true;
 }

@@ -160,11 +160,7 @@ eMBErrorCode eMBInit(eMBMode eMode, uint8_t ucSlaveAddress, uint8_t ucPort,
           pvMBFrameStopCur = eMBRTUStop;
           peMBFrameSendCur = eMBRTUSend;
           peMBFrameReceiveCur = eMBRTUReceive;
-#ifdef CONFIG_MB_HAVE_CLOSE
           pvMBFrameCloseCur = vMBPortClose;
-#else
-          pvMBFrameCloseCur = NULL;
-#endif
           pxMBFrameCBByteReceived = xMBRTUReceiveFSM;
           pxMBFrameCBTransmitterEmpty = xMBRTUTransmitFSM;
           pxMBPortCBTimerExpired = xMBRTUTimerT35Expired;
@@ -178,11 +174,7 @@ eMBErrorCode eMBInit(eMBMode eMode, uint8_t ucSlaveAddress, uint8_t ucPort,
           pvMBFrameStopCur = eMBASCIIStop;
           peMBFrameSendCur = eMBASCIISend;
           peMBFrameReceiveCur = eMBASCIIReceive;
-#ifdef CONFIG_MB_HAVE_CLOSE
           pvMBFrameCloseCur = vMBPortClose;
-#else
-          pvMBFrameCloseCur = NULL;
-#endif
           pxMBFrameCBByteReceived = xMBASCIIReceiveFSM;
           pxMBFrameCBTransmitterEmpty = xMBASCIITransmitFSM;
           pxMBPortCBTimerExpired = xMBASCIITimerT1SExpired;

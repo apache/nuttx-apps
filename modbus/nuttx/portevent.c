@@ -1,76 +1,92 @@
-/*
+/****************************************************************************
+ * apps/modbus/nuttx/portevent.c
+ *
  * FreeModbus Libary: NuttX Port
- * Based on the FreeModbus Linux port by:
+ * Copyright (c) 2006 Christian Walter <wolti@sil.at>
+ * All rights reserved.
  *
- *   Copyright (C) 2006 Christian Walter <wolti@sil.at>
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * File: $Id: portevent.c,v 1.1 2006/08/01 20:58:49 wolti Exp $
- */
+ ****************************************************************************/
 
-/* ----------------------- Modbus includes ----------------------------------*/
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <apps/modbus/mb.h>
 #include <apps/modbus/mbport.h>
 
 #include "port.h"
 
-/* ----------------------- Variables ----------------------------------------*/
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
 static eMBEventType eQueuedEvent;
-static bool     xEventInQueue;
+static bool xEventInQueue;
 
-/* ----------------------- Start implementation -----------------------------*/
-bool
-xMBPortEventInit( void )
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+bool xMBPortEventInit(void)
 {
-    xEventInQueue = false;
-    return true;
+  xEventInQueue = false;
+  return true;
 }
 
-bool
-xMBPortEventPost( eMBEventType eEvent )
+bool xMBPortEventPost(eMBEventType eEvent)
 {
-    xEventInQueue = true;
-    eQueuedEvent = eEvent;
-    return true;
+  xEventInQueue = true;
+  eQueuedEvent = eEvent;
+  return true;
 }
 
-bool
-xMBPortEventGet( eMBEventType * eEvent )
+bool xMBPortEventGet(eMBEventType * eEvent)
 {
-    bool            xEventHappened = false;
+  bool xEventHappened = false;
 
-    if( xEventInQueue )
+  if (xEventInQueue)
     {
-        *eEvent = eQueuedEvent;
-        xEventInQueue = false;
-        xEventHappened = true;
+      *eEvent = eQueuedEvent;
+      xEventInQueue = false;
+      xEventHappened = true;
     }
-    else
+  else
     {
-        /* Poll the serial device. The serial device timeouts if no
-         * characters have been received within for t3.5 during an
-         * active transmission or if nothing happens within a specified
-         * amount of time. Both timeouts are configured from the timer
-         * init functions.
-         */
-        ( void )xMBPortSerialPoll(  );
+      /* Poll the serial device. The serial device timeouts if no
+       * characters have been received within for t3.5 during an
+       * active transmission or if nothing happens within a specified
+       * amount of time. Both timeouts are configured from the timer
+       * init functions.
+       */
 
-        /* Check if any of the timers have expired. */
-        vMBPortTimerPoll(  );
+      (void)xMBPortSerialPoll();
 
+      /* Check if any of the timers have expired. */
+
+      vMBPortTimerPoll();
     }
-    return xEventHappened;
+
+  return xEventHappened;
 }
