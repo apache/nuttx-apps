@@ -436,6 +436,12 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
+      /* Verify that we can modify the signal mask */
+
+      printf("\nuser_main: sigprocmask test\n");
+      sigprocmask_test();
+      check_test_memory_usage();
+
       /* Verify signal handlers */
 
       printf("\nuser_main: signal handler test\n");

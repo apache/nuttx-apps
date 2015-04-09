@@ -43,6 +43,10 @@
 #include <errno.h>
 #include "ostest.h"
 
+/***********************************************************************
+ * Pre-processor Definitions
+ ***********************************************************************/
+
 #ifndef NULL
 # define NULL (void*)0
 #endif
@@ -50,9 +54,17 @@
 #define WAKEUP_SIGNAL 17
 #define SIGVALUE_INT  42
 
+/***********************************************************************
+ * Private Data
+ ***********************************************************************/
+
 static sem_t sem;
 static bool sigreceived = false;
 static bool threadexited = false;
+
+/***********************************************************************
+ * Private Functions
+ ***********************************************************************/
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
 static void death_of_child(int signo, siginfo_t *info, void *ucontext)
@@ -212,6 +224,10 @@ static int waiter_main(int argc, char *argv[])
   threadexited = true;
   return 0;
 }
+
+/***********************************************************************
+ * Public Functions
+ ***********************************************************************/
 
 void sighand_test(void)
 {
