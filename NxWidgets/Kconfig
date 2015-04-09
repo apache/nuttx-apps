@@ -163,7 +163,7 @@ config NXWIDGETS_TNXARRAY_SIZEINCREMENT
 	int "Dyanamic Array Reallocation Size Increment"
 	default 8
 	---help---
-		Default dynamic array realloctino increment (in entries).  Default: 8
+		Default dynamic array reallocation increment (in entries).  Default: 8
 
 config NXWIDGETS_CUSTOM_FILLCOLORS
 	bool "Custom Default Fill Colors"
