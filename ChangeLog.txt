@@ -1247,4 +1247,6 @@
 	* apps/system: Clean up Kconfig menus.  The way it worked before, it was
 	  difficult to see what was enabled and what was not.  menus replaced
 	  with menuconfig (2015-04-07).
+	* apps/examples/ostest/sigprocmask.c: Add a simple test of sigprocmask,
+	  sighold, and sigrelse (2015-04-09).
 
