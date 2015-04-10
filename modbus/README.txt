@@ -5,6 +5,10 @@ This directory contains a port of last open source version of FreeModBus
 (BSD license).  The code in this directory is a subset of FreeModBus version
 1.5.0 (June 6, 2010) that can be downloaded in its entirety from http://developer.berlios.de/project/showfiles.php?group_id=6120.
 
+NOTE: There are extensions to support RTU master mode available here:
+https://github.com/armink/FreeModbus_Slave-Master-RTT-STM32, author:
+Armink(383016632@qq.com)
+
 Directory Structure/Relation to freemodbus-v1.5.0
 -------------------------------------------------
 
