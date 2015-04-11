@@ -365,7 +365,7 @@ static pthread_addr_t nsh_child(pthread_addr_t arg)
 
   dbg("BG %s complete\n", carg->argv[0]);
   nsh_releaseargs(carg);
-  return (void*)ret;
+  return (pthread_addr_t)((uintptr_t)ret);
 }
 #endif
 

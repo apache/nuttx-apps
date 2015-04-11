@@ -848,7 +848,7 @@ void nsh_usbtrace(void);
   int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+#ifndef CONFIG_NSH_DISABLE_DATE
   int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 

@@ -179,8 +179,8 @@ config NSH_DISABLE_CMP
 
 config NSH_DISABLE_DATE
 	bool "Disable date"
-	default n
-	depends on RTC
+	default n if RTC
+	default y if !RTC
 
 config NSH_DISABLE_DD
 	bool "Disable dd"

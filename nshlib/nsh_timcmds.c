@@ -65,7 +65,7 @@
  * Private Data
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+#ifndef  CONFIG_NSH_DISABLE_DATE
 static FAR const char * const g_datemontab[] =
 {
   "jan", "feb", "mar", "apr", "may", "jun",
@@ -85,7 +85,7 @@ static FAR const char * const g_datemontab[] =
  * Name: date_month
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+#ifndef CONFIG_NSH_DISABLE_DATE
 static inline int date_month(FAR const char *abbrev)
 {
   int i;
@@ -105,7 +105,7 @@ static inline int date_month(FAR const char *abbrev)
  * Name: date_gettime
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+#ifndef CONFIG_NSH_DISABLE_DATE
 static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
 {
   static const char format[] = "%b %d %H:%M:%S %Y";
@@ -139,7 +139,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
  * Name: date_settime
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+#ifndef CONFIG_NSH_DISABLE_DATE
 static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name,
                                FAR char *newtime)
 {
@@ -178,6 +178,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
     {
       goto errout_bad_parm;
     }
+
   tm.tm_mday = (int)result;
 
   /* Get the hours */
@@ -193,6 +194,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
     {
       goto errout_bad_parm;
     }
+
   tm.tm_hour = (int)result;
 
   /* Get the minutes */
@@ -208,6 +210,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
     {
       goto errout_bad_parm;
     }
+
   tm.tm_min = (int)result;
 
   /* Get the seconds */
@@ -223,6 +226,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
     {
       goto errout_bad_parm;
     }
+
   tm.tm_sec = (int)result;
 
   /* And finally the year */
@@ -238,6 +242,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
     {
       goto errout_bad_parm;
     }
+
   tm.tm_year = (int)result - 1900;
 
   /* Convert this to the right form, then set the timer */
@@ -251,6 +256,7 @@ static inline int date_settime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name
       nsh_output(vtbl, g_fmtcmdfailed, name, "clock_settime", NSH_ERRNO);
       return ERROR;
     }
+
   return OK;
 
 errout_bad_parm:
@@ -267,7 +273,7 @@ errout_bad_parm:
  * Name: cmd_date
  ****************************************************************************/
 
-#if defined (CONFIG_RTC) && !defined(CONFIG_NSH_DISABLE_DATE)
+#ifndef CONFIG_NSH_DISABLE_DATE
 int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *newtime = NULL;

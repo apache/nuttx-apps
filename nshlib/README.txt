@@ -343,8 +343,7 @@ o cp <source-path> <dest-path>
 
 o date [-s "MMM DD HH:MM:SS YYYY"]
 
-  Show or set the current date and time.  This command is only supported
-  if the platform supported RTC hardware (CONFIG_RTC=y).
+  Show or set the current date and time.
 
   Only one format is used both on display and when setting the date/time:
   MMM DD HH:MM:SS YYYY.  For example,
