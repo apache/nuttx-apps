@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/modbus/functions/mbfunccoils_m.c
  * 
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  * All rights reserved.
  *
@@ -43,6 +43,7 @@
 #include <apps/modbus/mb_m.h>
 #include <apps/modbus/mbframe.h>
 #include <apps/modbus/mbproto.h>
+#include <apps/modbus/mbport.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -82,7 +83,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if defined(CONFIG_RTU_ASCII_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Description:
@@ -99,7 +100,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  *
  ****************************************************************************/
 
-#if MB_FUNC_READ_COILS_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_READ_COILS_ENABLED
 eMBMasterReqErrCode eMBMasterReqReadCoils(uint8_t ucSndAddr,
                                           uint16_t usCoilAddr,
                                           uint16_t usNCoils,
@@ -108,7 +109,7 @@ eMBMasterReqErrCode eMBMasterReqReadCoils(uint8_t ucSndAddr,
   uint8_t *ucMBFrame;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }
@@ -229,7 +230,7 @@ eMBException eMBMasterFuncReadCoils(uint8_t *pucFrame, uint16_t *usLen)
  *
  ****************************************************************************/
 
-#if MB_FUNC_WRITE_COIL_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_WRITE_COIL_ENABLED
 eMBMasterReqErrCode eMBMasterReqWriteCoil(uint8_t ucSndAddr,
                                           uint16_t usCoilAddr,
                                           uint16_t usCoilData,
@@ -238,7 +239,7 @@ eMBMasterReqErrCode eMBMasterReqWriteCoil(uint8_t ucSndAddr,
   uint8_t *ucMBFrame;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }
@@ -341,7 +342,7 @@ eMBException eMBMasterFuncWriteCoil(uint8_t *pucFrame, uint16_t *usLen)
  *
  ****************************************************************************/
 
-#if MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 eMBMasterReqErrCode eMBMasterReqWriteMultipleCoils(uint8_t ucSndAddr,
                                                    uint16_t usCoilAddr,
                                                    uint16_t usNCoils,
@@ -353,7 +354,7 @@ eMBMasterReqErrCode eMBMasterReqWriteMultipleCoils(uint8_t ucSndAddr,
   uint8_t ucByteCount;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }

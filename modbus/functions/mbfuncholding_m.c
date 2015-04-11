@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/modbus/functions/mbfuncholding_m.c
  * 
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  * All rights reserved.
  *
@@ -94,7 +94,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if defined(CONFIG_RTU_ASCII_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Description:
@@ -111,7 +111,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  *
  ****************************************************************************/
 
-#if MB_FUNC_WRITE_HOLDING_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_WRITE_HOLDING_ENABLED
 eMBMasterReqErrCode eMBMasterReqWriteHoldingRegister(uint8_t ucSndAddr,
                                                      uint16_t usRegAddr,
                                                      uint16_t usRegData,
@@ -120,7 +120,7 @@ eMBMasterReqErrCode eMBMasterReqWriteHoldingRegister(uint8_t ucSndAddr,
   uint8_t *ucMBFrame;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }
@@ -195,7 +195,7 @@ eMBException eMBMasterFuncWriteHoldingRegister(uint8_t *pucFrame,
  *
  ****************************************************************************/
 
-#if MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
 eMBMasterReqErrCode
   eMBMasterReqWriteMultipleHoldingRegister(uint8_t ucSndAddr,
                                            uint16_t usRegAddr,
@@ -207,7 +207,7 @@ eMBMasterReqErrCode
   uint16_t usRegIndex = 0;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }
@@ -313,7 +313,7 @@ eMBException eMBMasterFuncWriteMultipleHoldingRegister(uint8_t *pucFrame,
  *
  ****************************************************************************/
 
-#if MB_FUNC_READ_HOLDING_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_READ_HOLDING_ENABLED
 eMBMasterReqErrCode eMBMasterReqReadHoldingRegister(uint8_t ucSndAddr,
                                                     uint16_t usRegAddr,
                                                     uint16_t usNRegs,
@@ -322,7 +322,7 @@ eMBMasterReqErrCode eMBMasterReqReadHoldingRegister(uint8_t ucSndAddr,
   uint8_t *ucMBFrame;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }
@@ -429,7 +429,7 @@ eMBException eMBMasterFuncReadHoldingRegister(uint8_t *pucFrame,
  *
  ****************************************************************************/
 
-#if MB_FUNC_READWRITE_HOLDING_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_READWRITE_HOLDING_ENABLED
 eMBMasterReqErrCode
   eMBMasterReqReadWriteMultipleHoldingRegister(uint8_t ucSndAddr,
                                                uint16_t usReadRegAddr,
@@ -443,7 +443,7 @@ eMBMasterReqErrCode
   uint16_t usRegIndex = 0;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }

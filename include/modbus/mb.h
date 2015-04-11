@@ -32,25 +32,6 @@
 #ifndef __APPS_INCLUDE_MODBUS_MB_H
 #define __APPS_INCLUDE_MODBUS_MB_H
 
-/****************************************************************************
- * Included Files
- ****************************************************************************/
-
-#include <stdint.h>
-#include <stdbool.h>
-#include <termios.h>
-
-#ifdef __cplusplus
-PR_BEGIN_EXTERN_C
-#endif
-
-#include "mbport.h"
-#include "mbproto.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
 /* This module defines the interface for the application. It contains
  * the basic functions and types required to use the Modbus protocol stack.
  * A typical application will want to call eMBInit() first. If the device
@@ -74,6 +55,26 @@ PR_BEGIN_EXTERN_C
  *       ...
  *     }
  */
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <termios.h>
+
+#ifdef __cplusplus
+PR_BEGIN_EXTERN_C
+#endif
+
+#include "mbport.h"
+#include "mbproto.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
 
 /* Use the default Modbus TCP port (502) */
 
@@ -319,7 +320,7 @@ eMBErrorCode eMBRegisterCB(uint8_t ucFunctionCode,
  *        ILLEGAL DATA ADDRESS  exception frame is sent as a response.
  *   - eMBErrorCode::MB_ETIMEDOUT If the requested register block is
  *       currently not available and the application dependent response
- *       timeout would be violated. In this case a  SLAVE DEVICE BUSY 
+ *       timeout would be violated. In this case a  SLAVE DEVICE BUSY
  *       exception is sent as a response.
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
@@ -354,7 +355,7 @@ eMBErrorCode eMBRegInputCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *        ILLEGAL DATA ADDRESS  exception frame is sent as a response.
  *   - eMBErrorCode::MB_ETIMEDOUT If the requested register block is
  *       currently not available and the application dependent response
- *       timeout would be violated. In this case a  SLAVE DEVICE BUSY 
+ *       timeout would be violated. In this case a  SLAVE DEVICE BUSY
  *       exception is sent as a response.
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
@@ -390,7 +391,7 @@ eMBErrorCode eMBRegHoldingCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *        ILLEGAL DATA ADDRESS  is sent as a response.
  *   - eMBErrorCode::MB_ETIMEDOUT If the requested register block is
  *       currently not available and the application dependent response
- *       timeout would be violated. In this case a  SLAVE DEVICE BUSY 
+ *       timeout would be violated. In this case a  SLAVE DEVICE BUSY
  *       exception is sent as a response.
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
@@ -421,7 +422,7 @@ eMBErrorCode eMBRegCoilsCB(uint8_t *pucRegBuffer, uint16_t usAddress,
  *       as a response.
  *   - eMBErrorCode::MB_ETIMEDOUT If the requested register block is
  *       currently not available and the application dependent response
- *       timeout would be violated. In this case a  SLAVE DEVICE BUSY 
+ *       timeout would be violated. In this case a  SLAVE DEVICE BUSY
  *       exception is sent as a response.
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.

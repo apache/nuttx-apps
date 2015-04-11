@@ -35,7 +35,14 @@
 
 CSRCS += mbfunccoils.c mbfuncdiag.c mbfuncdisc.c mbfuncholding.c
 CSRCS += mbfuncinput.c mbfuncother.c mbutils.c
+
+ifeq ($(CONFIG_MB_ASCII_MASTER),y)
 CSRCS += mbfunccoils_m.c mbfuncdisc_m.c mbfuncholding_m.c mbfuncinput_m.c
+else
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+CSRCS += mbfunccoils_m.c mbfuncdisc_m.c mbfuncholding_m.c mbfuncinput_m.c
+endif
+endif
 
 DEPPATH += --dep-path functions
 VPATH += :functions

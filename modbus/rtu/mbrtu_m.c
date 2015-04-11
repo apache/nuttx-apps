@@ -1,6 +1,6 @@
 /****************************************************************************
  * apps/modbus/rtu/mbrtu_m.c
- * 
+ *
  * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (c) 2013 China Beijing Armink <armink.ztl@gmail.com>
  * All rights reserved.
@@ -48,7 +48,7 @@
 
 #include <apps/modbus/mbport.h>
 
-#if MB_MASTER_RTU_ENABLED > 0
+#if defined(CONFIG_RTU_ASCII_MASTER)
 
 /****************************************************************************
  * Included Files
@@ -132,7 +132,7 @@ eMBErrorCode eMBMasterRTUInit(uint8_t ucPort, speed_t ulBaudRate,
         }
       else
         {
-          /* The timer reload value for a character is given by: ChTimeValue = 
+          /* The timer reload value for a character is given by: ChTimeValue =
            * Ticks_per_1s / ( Baudrate / 11 ) = 11 * Ticks_per_1s / Baudrate =
            * 220000 / Baudrate The reload for t3.5 is 1.5 times this value and
            * similary for t3.5.
@@ -155,7 +155,7 @@ void eMBMasterRTUStart(void)
 {
   ENTER_CRITICAL_SECTION();
 
-  /* Initially the receiver is in the state STATE_M_RX_INIT. we start the timer 
+  /* Initially the receiver is in the state STATE_M_RX_INIT. we start the timer
    * and if no character is received within t3.5 we change to STATE_M_RX_IDLE.
    * This makes sure that we delay startup of the modbus protocol stack until
    * the bus is free.
@@ -222,14 +222,14 @@ eMBErrorCode eMBMasterRTUSend(uint8_t ucSlaveAddress, const uint8_t *pucFrame,
   eMBErrorCode eStatus = MB_ENOERR;
   uint16_t usCRC16;
 
-  if (ucSlaveAddress > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSlaveAddress > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       return MB_EINVAL;
     }
 
   ENTER_CRITICAL_SECTION();
 
-  /* Check if the receiver is still in idle state. If not we where to slow with 
+  /* Check if the receiver is still in idle state. If not we where to slow with
    * processing the received frame and the master sent another frame on the
    * network. We have to abort sending the frame.
    */
@@ -304,7 +304,7 @@ bool xMBMasterRTUReceiveFSM(void)
        */
 
     case STATE_M_RX_IDLE:
-      /* In time of respond timeout,the receiver receive a frame. Disable timer 
+      /* In time of respond timeout,the receiver receive a frame. Disable timer
        * of respond timeout and change the transmitter state to idle.
        */
 

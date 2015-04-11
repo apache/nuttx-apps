@@ -13,9 +13,19 @@ config MB_ASCII_ENABLED
 	bool "Modbus ASCII support"
 	default y
 
+config MB_ASCII_MASTER
+	bool "Modbus ASCII master"
+	default n
+	depends on MB_ASCII_ENABLED
+
 config MB_RTU_ENABLED
 	bool "Modbus RTU support"
 	default y
+
+config MB_RTU_MASTER
+	bool "Modbus RTU master"
+	default n
+	depends on MB_RTU_ENABLED
 
 config MB_TCP_ENABLED
 	bool "Modbus TCP support"
@@ -40,6 +50,7 @@ config MB_ASCII_TIMEOUT_SEC
 		The character timeout value is not fixed for Modbus ASCII and is therefore
 		a configuration option. It should be set to the maximum expected delay
 		time of the network.
+
 
 config MB_ASCII_TIMEOUT_WAIT_BEFORE_SEND_MS
 	int "Timeout to wait before sending"
@@ -137,4 +148,14 @@ config MB_FUNC_READWRITE_HOLDING_ENABLED
 	---help---
 		If the Read/Write Multiple Registers function should be enabled.
 
+if MB_ASCII_MASTER || MB_RTU_MASTER
+
+config MB_MASTER_TOTAL_SLAVE_NUM
+	int "Total number slaves"
+	default 16
+	---help---
+		The total slaves in Modbus Master system. Default 16.
+		NOTE: The slave ID must be continuous from 1.
+
+endif # MB_ASCII_MASTER || MB_RTU_MASTER
 endif # MODBUS

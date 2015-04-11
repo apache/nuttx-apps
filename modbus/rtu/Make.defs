@@ -36,7 +36,9 @@
 ifeq ($(CONFIG_MB_RTU_ENABLED),y)
 
 CSRCS += mbcrc.c mbrtu.c
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
 CSRCS += mbrtu_m.c
+endif
 
 DEPPATH += --dep-path rtu
 VPATH += :rtu

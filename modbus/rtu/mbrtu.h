@@ -37,7 +37,7 @@ PR_BEGIN_EXTERN_C
 #endif
 
 /****************************************************************************
- * Global Function Prototypes
+ * Public Function Prototypes
  ****************************************************************************/
 
 eMBErrorCode eMBRTUInit(uint8_t slaveAddress, uint8_t ucPort,
@@ -53,7 +53,7 @@ bool xMBRTUTransmitFSM(void);
 bool xMBRTUTimerT15Expired(void);
 bool xMBRTUTimerT35Expired(void);
 
-#if MB_MASTER_RTU_ENABLED > 0
+#if defined(CONFIG_RTU_ASCII_MASTER)
 eMBErrorCode eMBMasterRTUInit(uint8_t ucPort, speed_t ulBaudRate,
                               eMBParity eParity);
 void eMBMasterRTUStart(void);

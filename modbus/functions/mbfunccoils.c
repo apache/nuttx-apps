@@ -42,6 +42,7 @@
 #include <apps/modbus/mb.h>
 #include <apps/modbus/mbframe.h>
 #include <apps/modbus/mbproto.h>
+#include <apps/modbus/mbport.h>
 
 /****************************************************************************
  * Pre-processor Definitions

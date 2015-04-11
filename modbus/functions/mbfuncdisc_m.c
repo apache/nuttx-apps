@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/modbus/functions/mbfuncdisc_m.c
  * 
- * FreeModbus Libary: A portable Modbus implementation for Modbus ASCII/RTU.
+ * FreeModbus Library: A portable Modbus implementation for Modbus ASCII/RTU.
  * Copyright (C) 2013 Armink <armink.ztl@gmail.com>
  * All rights reserved.
  *
@@ -65,7 +65,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#if MB_MASTER_RTU_ENABLED > 0 || MB_MASTER_ASCII_ENABLED > 0
+#if defined(CONFIG_RTU_ASCII_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Description:
@@ -82,7 +82,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  *
  ****************************************************************************/
 
-#if MB_FUNC_READ_DISCRETE_INPUTS_ENABLED > 0
+#ifdef CONFIG_MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
 eMBMasterReqErrCode eMBMasterReqReadDiscreteInputs(uint8_t ucSndAddr,
                                                    uint16_t usDiscreteAddr,
                                                    uint16_t usNDiscreteIn,
@@ -91,7 +91,7 @@ eMBMasterReqErrCode eMBMasterReqReadDiscreteInputs(uint8_t ucSndAddr,
   uint8_t *ucMBFrame;
   eMBMasterReqErrCode eErrStatus = MB_MRE_NO_ERR;
 
-  if (ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM)
+  if (ucSndAddr > CONFIG_MB_MASTER_TOTAL_SLAVE_NUM)
     {
       eErrStatus = MB_MRE_ILL_ARG;
     }
