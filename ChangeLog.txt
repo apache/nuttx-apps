@@ -1253,3 +1253,6 @@
 	  Armink(383016632@qq.com):
 	  https://github.com/armink/FreeModbus_Slave-Master-RTT-STM32.  Ported
 	  to NuttX by Darcy Gong.
+	* apps/nshlib:  Allow NSH 'date' command with no hardware RTC.  Thisi
+	  command is useful without an RTC too.  Also, this permits testing on
+	  the simulator which never has an RTC (2015-04-11).
