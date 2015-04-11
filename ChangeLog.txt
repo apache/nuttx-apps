@@ -1249,4 +1249,7 @@
 	  with menuconfig (2015-04-07).
 	* apps/examples/ostest/sigprocmask.c: Add a simple test of sigprocmask,
 	  sighold, and sigrelse (2015-04-09).
-
+	* apps/modbus: Includes extensions to support RTU master mode by
+	  Armink(383016632@qq.com):
+	  https://github.com/armink/FreeModbus_Slave-Master-RTT-STM32.  Ported
+	  to NuttX by Darcy Gong.
