@@ -64,10 +64,6 @@
 extern void ppp_arch_modem_reset(const char *tty);
 #endif
 
-/*
-socat /dev/ttyUSB2,raw,echo=0,b115200,crtscts=0 /dev/ttyUSB7,raw,echo=0,b115200,crtscts=0
-*/
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -75,15 +71,6 @@ socat /dev/ttyUSB2,raw,echo=0,b115200,crtscts=0 /dev/ttyUSB7,raw,echo=0,b115200,
 /****************************************************************************
  * Private Types
  ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/* This type describes the state of the NTP client daemon.  Only once
- * instance of the NTP daemon is permitted in this implementation.  This
- * limitation is due only to this global data structure.
- */
 
 /****************************************************************************
  * Private Data

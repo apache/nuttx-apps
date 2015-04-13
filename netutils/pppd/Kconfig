@@ -16,8 +16,4 @@ config NETUTILS_PPPD_STACKSIZE
 	int "PPP daemon stack stack size"
 	default 2048
 
-config NETUTILS_PPPD_SERVERPRIO
-	int "NTP daemon priority"
-	default 100
-
 endif # NETUTILS_PPPD
