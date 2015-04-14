@@ -44,7 +44,10 @@ STACKSIZE = $(CONFIG_NETUTILS_PPPD_STACKSIZE)
 ASRCS =
 CSRCS =
 
-CSRCS += pppd.c chat.c ppp.c ahdlc.c lcp.c pap.c ipcp.c
+CSRCS += pppd.c chat.c ppp.c ahdlc.c lcp.c ipcp.c
+ifeq ($(CONFIG_NETUTILS_PPPD_PAP),y)
+CSRCS += pap.c
+endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

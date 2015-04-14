@@ -41,13 +41,18 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include "ppp_conf.h"
 #include "ppp_arch.h"
 #include "ppp.h"
 #include "ahdlc.h"
 #include "ipcp.h"
 #include "lcp.h"
+
+#ifdef CONFIG_NETUTILS_PPPD_PAP
 #include "pap.h"
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -151,7 +156,9 @@ void ppp_init(struct ppp_context_s *ctx)
   ctx->ip_no_data_time = 0;
   ctx->ppp_id = 0;
 
+#ifdef CONFIG_NETUTILS_PPPD_PAP
   pap_init(ctx);
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
   ipcp_init(ctx);
   lcp_init(ctx);
 
@@ -239,7 +246,10 @@ void ppp_connect(struct ppp_context_s *ctx)
   /* Initialize PPP engine */
 
   /* init_ppp(); */
+
+#ifdef CONFIG_NETUTILS_PPPD_PAP
   pap_init(ctx);
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
   ipcp_init(ctx);
   lcp_init(ctx);
 
@@ -306,7 +316,7 @@ void ppp_poll(struct ppp_context_s *ctx)
   if ((ctx->lcp_state & LCP_TX_UP) && (ctx->lcp_state & LCP_RX_UP))
     {
       /* If LCP wants PAP, try to authenticate, else bring up IPCP */
-
+#ifdef CONFIG_NETUTILS_PPPD_PAP
       if ((ctx->lcp_state & LCP_RX_AUTH) && (!(ctx->pap_state & PAP_TX_UP)))
         {
           pap_task(ctx, ctx->ip_buf);
@@ -315,12 +325,32 @@ void ppp_poll(struct ppp_context_s *ctx)
         {
           ipcp_task(ctx, ctx->ip_buf);
         }
+#else
+      if (ctx->lcp_state & LCP_RX_AUTH)
+        {
+          /* lcp is asking for authentication but we do not support this.
+           * This should be communicated upstream but we do not have an
+           * interface for that right now, so just ignore it; nothing can be
+           * done.  This also should not have been hit because upcall does
+           * not know about the pap message type.
+           */
+
+          DEBUG1(("Asking for PAP, but we do not know PAP\n"));
+        }
+      else
+        {
+          ipcp_task(ctx, ctx->ip_buf);
+        }
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
     }
 }
 
 /****************************************************************************
- * ppp_upcall() - this is where valid PPP frames from the ahdlc layer are
- *    sent to be processed and demuxed.
+ * Name: ppp_upcall
+ *
+ * Description:
+ *   This is where valid PPP frames from the ahdlc layer are sent to be
+ *   processed and demuxed.
  *
  ****************************************************************************/
 
@@ -348,11 +378,13 @@ void ppp_upcall(struct ppp_context_s *ctx, u16_t protocol, u8_t *buffer, u16_t l
         DEBUG1(("\n"));
         break;
 
+#ifdef CONFIG_NETUTILS_PPPD_PAP
       case PAP:  /* PAP should be compile in optional */
         DEBUG1(("PAP Packet - "));
         pap_rx(ctx, buffer, len);
         DEBUG1(("\n"));
         break;
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
       case IPCP: /* IPCP should be compile in optional. */
         DEBUG1(("IPCP Packet - "));

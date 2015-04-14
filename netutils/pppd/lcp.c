@@ -195,6 +195,7 @@ void lcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
                 }
               break;
 
+#ifdef CONFIG_NETUTILS_PPPD_PAP
             case LPC_AUTH:
               bptr++;
               if ((*bptr++ == 0xc0) && (*bptr++ == 0x23))
@@ -234,6 +235,7 @@ void lcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
                   *tptr++ = 0x23;
                 }
               break;
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
             case LPC_MAGICNUMBER:
               DEBUG1(("<magic > "));

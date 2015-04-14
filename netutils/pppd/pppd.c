@@ -110,12 +110,12 @@ static int make_nonblock(int fd)
 {
   int flags;
 
-  if( (flags = fcntl(fd, F_GETFL, 0)) < 0) 
+  if ((flags = fcntl(fd, F_GETFL, 0)) < 0)
     {
       return flags;
     }
 
-  if( (flags = fcntl(fd, F_SETFL, flags | O_NONBLOCK)) < 0 )
+  if ((flags = fcntl(fd, F_SETFL, flags | O_NONBLOCK)) < 0)
     {
       return flags;
     }
@@ -132,7 +132,7 @@ static int tun_alloc(char *dev)
   struct ifreq ifr;
   int fd, err;
 
-  if( (fd = open("/dev/tun", O_RDWR)) < 0 )
+  if ((fd = open("/dev/tun", O_RDWR)) < 0)
       return fd;
 
   printf("tun fd:%i\n", fd);
@@ -145,12 +145,12 @@ static int tun_alloc(char *dev)
 
   memset(&ifr, 0, sizeof(ifr));
   ifr.ifr_flags = IFF_TUN;
-  if( *dev )
+  if (*dev)
     {
       strncpy(ifr.ifr_name, dev, IFNAMSIZ);
     }
 
-  if( (err = ioctl(fd, TUNSETIFF, (unsigned long)&ifr)) < 0 ) 
+  if ((err = ioctl(fd, TUNSETIFF, (unsigned long)&ifr)) < 0)
     {
       close(fd);
       return err;
@@ -170,7 +170,7 @@ static int open_tty(char *dev)
   int fd;
   int err;
 
-  if( (fd = open(dev, O_RDWR)) < 0 )
+  if ((fd = open(dev, O_RDWR)) < 0)
       return fd;
 
   if ((err = make_nonblock(fd)) < 0)
@@ -194,17 +194,20 @@ static u8_t ppp_check_errors(struct ppp_context_s *ctx)
 
   /* Check Errors */
 
-  if(ctx->lcp_state & (LCP_TX_TIMEOUT | LCP_RX_TIMEOUT | LCP_TERM_PEER))
+  if (ctx->lcp_state & (LCP_TX_TIMEOUT | LCP_RX_TIMEOUT | LCP_TERM_PEER))
     {
       ret = 1;
     }
 
-  if(ctx->pap_state & (PAP_TX_AUTH_FAIL | PAP_RX_AUTH_FAIL | PAP_TX_TIMEOUT | PAP_RX_TIMEOUT))
+#ifdef CONFIG_NETUTILS_PPPD_PAP
+  if (ctx->pap_state & (PAP_TX_AUTH_FAIL | PAP_RX_AUTH_FAIL |
+                        PAP_TX_TIMEOUT | PAP_RX_TIMEOUT))
     {
       ret = 2;
     }
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
-  if(ctx->ipcp_state & (IPCP_TX_TIMEOUT))
+  if (ctx->ipcp_state & (IPCP_TX_TIMEOUT))
     {
       ret = 3;
     }
@@ -342,8 +345,11 @@ int pppd_main(int argc, char **argv)
   ctx = (struct ppp_context_s*)malloc(sizeof(struct ppp_context_s));
   memset(ctx, 0, sizeof(struct ppp_context_s));
 
+#ifdef CONFIG_NETUTILS_PPPD_PAP
   strcpy((char*)ctx->pap_username, PAP_USERNAME);
   strcpy((char*)ctx->pap_password, PAP_PASSWORD);
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
+
   strcpy((char*)ctx->ifname, "ppp%d");
   strcpy((char*)ctx->ttyname, "/dev/ttyS2");
 

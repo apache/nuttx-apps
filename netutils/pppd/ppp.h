@@ -45,12 +45,17 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include "ppp_conf.h"
 #include "ahdlc.h"
 #include "lcp.h"
 #include "ipcp.h"
-#include "pap.h"
 #include "ppp_arch.h"
+
+#ifdef CONFIG_NETUTILS_PPPD_PAP
+#include "pap.h"
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -97,8 +102,10 @@
 #define USE_NOACCMBUG       0x2
 #define USE_GETDNS          0x4
 
+#ifdef CONFIG_NETUTILS_PPPD_PAP
 #define ppp_setusername(un) strncpy(pap_username, (un), PAP_USERNAME_SIZE)
 #define ppp_setpassword(pw) strncpy(pap_password, (pw), PAP_PASSWORD_SIZE)
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
 /****************************************************************************
  * Public Types
@@ -153,6 +160,7 @@ struct ppp_context_s
   u8_t   lcp_retry;
   time_t lcp_prev_seconds;
 
+#ifdef CONFIG_NETUTILS_PPPD_PAP
   /* PAP */
 
   u8_t   pap_username[PAP_USERNAME_SIZE];
@@ -160,6 +168,7 @@ struct ppp_context_s
   u8_t   pap_state;
   u8_t   pap_retry;
   time_t pap_prev_seconds;
+#endif /* CONFIG_NETUTILS_PPPD_PAP */
 
   /* IPCP */
 
