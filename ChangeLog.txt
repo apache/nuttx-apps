@@ -543,7 +543,7 @@
   This change to the NuttX syslog introduces an incompatibility between
   NuttX 7.6 and previous versions of the UnitTest code.
 
-1.15 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.15 2015-04-14 Gregory Nutt <gnutt@nuttx.org>
 
 * In NuttX 7.9, the interface arch_tcinitialize() was replaced with the
   boardctl() interface.  Old versions of NxWM will then be incompatible
@@ -555,3 +555,5 @@
   CGraphicsPort: Add a capped parameter to all drawLine() methods.  Pass on
   to NX nx_drawline() and NXTK nxtk_drawlinetoolbar() and nxtk_drawlinewindow()
   functions (2015-04-05).
+
+1.16 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
