@@ -222,6 +222,10 @@ ifeq ($(CONFIG_EXAMPLES_POLL),y)
 CONFIGURED_APPS += examples/poll
 endif
 
+ifeq ($(CONFIG_EXAMPLES_PPPD),y)
+CONFIGURED_APPS += examples/pppd
+endif
+
 ifeq ($(CONFIG_EXAMPLES_PWM),y)
 CONFIGURED_APPS += examples/pwm
 endif

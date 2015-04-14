@@ -45,7 +45,7 @@ SUBDIRS += nxffs nxflat nxhello nximage nxlines nxtext ostest pashello pipe
 SUBDIRS += poll posix_spawn pwm qencoder random relays rgmp romfs sendmail
 SUBDIRS += serialblaster serloop serialrx slcd smart smart_test tcpecho
 SUBDIRS += telnetd thttpd tiff timer touchscreen udp usbserial usbterm
-SUBDIRS += ustream udgram watchdog webserver wget wgetjson xmlrpc
+SUBDIRS += ustream udgram watchdog webserver wget wgetjson xmlrpc pppd
 
 # Sub-directories that might need context setup.  Directories may need
 # context setup for a variety of reasons, but the most common is because
@@ -60,6 +60,7 @@ CNTXTDIRS += ltdc modbus lcdrw mtdpart mtdrwb netpkt nettest nx nxhello
 CNTXTDIRS += nximage nxlines nxtext nrf24l01_term ostest random relays
 CNTXTDIRS += qencoder serialblasters lcd serialrx smart_test tcpecho telnetd
 CNTXTDIRS += tiff timer touchscreen usbterm udgram ustream watchdog wgetjson
+CNTXTDIRS += pppd
 endif
 
 all: nothing

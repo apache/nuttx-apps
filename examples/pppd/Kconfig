@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config EXAMPLES_PPPD
+	bool "pppd client example"
+	default n
+	---help---
+		Enable the pppd client example
+
+if EXAMPLES_PPPD
+
+endif
