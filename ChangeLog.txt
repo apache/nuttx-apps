@@ -1256,3 +1256,8 @@
 	* apps/nshlib:  Allow NSH 'date' command with no hardware RTC.  Thisi
 	  command is useful without an RTC too.  Also, this permits testing on
 	  the simulator which never has an RTC (2015-04-11).
+	* apps/netutils/ppp: Make pppd PAP authentication optional.  From
+	  Brennan Ashton
+	* apps/examples/pppd:  Add PPPD test case.  Split out from
+	  apps/netutils/pppd by Brennan Ashton.
+	* apps/netutils/pppd: Spit up pppd utils.  From Brennan Ashton.
