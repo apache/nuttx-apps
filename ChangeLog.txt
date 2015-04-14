@@ -1261,3 +1261,6 @@
 	* apps/examples/pppd:  Add PPPD test case.  Split out from
 	  apps/netutils/pppd by Brennan Ashton.
 	* apps/netutils/pppd: Spit up pppd utils.  From Brennan Ashton.
+	* apps/system/zoneinfo:  All logic to build timezone info.  Does not do
+	  much else yet (2015-04-14).
+
