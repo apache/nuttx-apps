@@ -1217,7 +1217,7 @@
 	  standard post-pended prefix value, rather than the full 128-bit netmask
 	  (2015-02-06).
 
-7.9 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.9 2015-04-14 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/ostest: Improved error checking for sem_timedwait()
 	  from Juha Niskanen (2015-02-20).
@@ -1264,3 +1264,4 @@
 	* apps/system/zoneinfo:  All logic to build timezone info.  Does not do
 	  much else yet (2015-04-14).
 
+7.10 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>

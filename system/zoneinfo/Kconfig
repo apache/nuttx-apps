@@ -6,7 +6,7 @@
 config SYSTEM_ZONEINFO
 	bool "TZ database"
 	default n
-	depends on LIBC_LOCALTIME && EXPERIMENTAL
+	depends on LIBC_LOCALTIME
 	---help---
 		Build the TZ/Olson database.
 
