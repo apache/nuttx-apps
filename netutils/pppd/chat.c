@@ -37,11 +37,15 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include "ppp_conf.h"
 #include "ppp_arch.h"
 #include "chat.h"
 
 #include <poll.h>
+
+#include <apps/netutils/pppd.h>
 
 /****************************************************************************
  * Pre-processor Definitions

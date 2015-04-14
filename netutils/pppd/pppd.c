@@ -60,6 +60,8 @@
 #include "ppp.h"
 #include "chat.h"
 
+#include <apps/netutils/pppd.h>
+
 #if PPP_ARCH_HAVE_MODEM_RESET
 extern void ppp_arch_modem_reset(const char *tty);
 #endif
@@ -75,28 +77,6 @@ extern void ppp_arch_modem_reset(const char *tty);
 /****************************************************************************
  * Private Data
  ****************************************************************************/
-
-static struct chat_script_s connect_script =
-{
-  .timeout = 30,
-  .lines =
-  {
-    {"AT",                                 "OK"},
-    {"AT+CGDCONT = 1,\"IP\",\"internet\"", "OK"},
-    {"ATD*99***1#",                        "CONNECT"},
-    {0, 0}
-  },
-};
-
-static struct chat_script_s disconnect_script =
-{
-  .timeout = 30,
-  .lines =
-  {
-    {"ATZ",                                "OK"},
-    {0, 0}
-  },
-};
 
 /****************************************************************************
  * Private Functions
@@ -227,7 +207,7 @@ void ppp_reconnect(struct ppp_context_s *ctx)
 {
   int ret;
   int retry = PPP_MAX_CONNECT;
-
+  struct pppd_settings_s *pppd_settings = ctx->settings;
   netlib_ifdown((char*)ctx->ifname);
 
   lcp_disconnect(ctx, ++ctx->ppp_id);
@@ -238,20 +218,20 @@ void ppp_reconnect(struct ppp_context_s *ctx)
   sleep(2);
   write(ctx->tty_fd, "ATE1\r\n", 6);
 
-  if (ctx->disconnect_script)
+  if (pppd_settings->disconnect_script)
     {
-      ret = ppp_chat(ctx->tty_fd, ctx->disconnect_script, 1 /*echo on*/);
+      ret = ppp_chat(ctx->tty_fd, pppd_settings->disconnect_script, 1 /*echo on*/);
       if (ret < 0)
         {
           printf("ppp: disconnect script failed\n");
         }
     }
 
-  if (ctx->connect_script)
+  if (pppd_settings->connect_script)
     {
       do
         {
-          ret = ppp_chat(ctx->tty_fd, ctx->connect_script, 1 /*echo on*/);
+          ret = ppp_chat(ctx->tty_fd, pppd_settings->connect_script, 1 /*echo on*/);
           if (ret < 0)
             {
               printf("ppp: connect script failed\n");
@@ -260,7 +240,7 @@ void ppp_reconnect(struct ppp_context_s *ctx)
                 {
                   retry = PPP_MAX_CONNECT;
 #if PPP_ARCH_HAVE_MODEM_RESET
-                  ppp_arch_modem_reset((char*)ctx->ttyname);
+                  ppp_arch_modem_reset(pppd_settings->ttyname);
 #endif
                   sleep(45);
                 }
@@ -333,10 +313,10 @@ int ppp_arch_putchar(struct ppp_context_s *ctx, u8_t c)
 }
 
 /****************************************************************************
- * Name: pppd_main
+ * Name: pppd
  ****************************************************************************/
 
-int pppd_main(int argc, char **argv)
+int pppd(struct pppd_settings_s *pppd_settings)
 {
   struct pollfd fds[2];
   int ret;
@@ -344,18 +324,9 @@ int pppd_main(int argc, char **argv)
 
   ctx = (struct ppp_context_s*)malloc(sizeof(struct ppp_context_s));
   memset(ctx, 0, sizeof(struct ppp_context_s));
-
-#ifdef CONFIG_NETUTILS_PPPD_PAP
-  strcpy((char*)ctx->pap_username, PAP_USERNAME);
-  strcpy((char*)ctx->pap_password, PAP_PASSWORD);
-#endif /* CONFIG_NETUTILS_PPPD_PAP */
-
   strcpy((char*)ctx->ifname, "ppp%d");
-  strcpy((char*)ctx->ttyname, "/dev/ttyS2");
 
-  ctx->connect_script = &connect_script;
-  ctx->disconnect_script = &disconnect_script;
-
+  ctx->settings = pppd_settings;
   ctx->if_fd = tun_alloc((char*)ctx->ifname);
   if (ctx->if_fd < 0)
     {
@@ -363,7 +334,7 @@ int pppd_main(int argc, char **argv)
       return 2;
     }
 
-  ctx->tty_fd = open_tty((char*)ctx->ttyname);
+  ctx->tty_fd = open_tty(pppd_settings->ttyname);
   if (ctx->tty_fd < 0)
     {
       close(ctx->tty_fd);
@@ -409,11 +380,9 @@ int pppd_main(int argc, char **argv)
           if (ctx->ip_len > 0)
             {
               ret = write(ctx->if_fd, ctx->ip_buf, ctx->ip_len);
-              //printf("write to tun :%i\n", ret);
               ctx->ip_len = 0;
 
               ret = read(ctx->if_fd, ctx->ip_buf, PPP_RX_BUFFER_SIZE);
-              //printf("read (after write) from tun :%i\n", ret);
               if (ret > 0)
                 {
                   ctx->ip_len = ret;

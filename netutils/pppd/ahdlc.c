@@ -444,6 +444,6 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
   ++ctx->ppp_tx_frame_count;
 #endif
-O
+
   return 0;
 }

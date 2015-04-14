@@ -40,23 +40,11 @@
  * Included Files
  ****************************************************************************/
 
-#include <time.h>
+#include <apps/netutils/pppd.h>
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
-
-struct chat_line_s
-{
-  const char *request;
-  const char *response;
-};
-
-struct chat_script_s
-{
-  time_t timeout;
-  struct chat_line_s lines[];
-};
 
 /****************************************************************************
  * Public Function Prototypes

@@ -42,11 +42,15 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include "ppp_conf.h"
 #include "ppp_arch.h"
 #include "ppp.h"
 #include "ahdlc.h"
 #include "lcp.h"
+
+#include <apps/netutils/pppd.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -109,6 +113,7 @@ void lcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
   u8_t error = 0;
   u8_t id;
   u16_t len, j;
+  struct pppd_settings_s *pppd_settings = ctx->settings;
 
   switch (*bptr++)
   {
@@ -202,7 +207,7 @@ void lcp_rx(struct ppp_context_s *ctx, u8_t *buffer, u16_t count)
                 {
                   /* Negotiate PAP */
 
-                  if (strlen((char*)ctx->pap_username) > 0)
+                  if (strlen(pppd_settings->pap_username) > 0)
                     {
                       DEBUG1(("<auth pap> "));
                       ctx->lcp_state |= LCP_RX_AUTH;

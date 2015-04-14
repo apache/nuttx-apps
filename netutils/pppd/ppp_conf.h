@@ -55,8 +55,6 @@
 
 #define PAP_USERNAME_SIZE       16
 #define PAP_PASSWORD_SIZE       16
-#define PAP_USERNAME  "user"
-#define PAP_PASSWORD  "pass"
 
 #define xxdebug_printf          printf
 #define debug_printf            printf

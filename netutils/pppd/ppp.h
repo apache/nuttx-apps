@@ -102,16 +102,9 @@
 #define USE_NOACCMBUG       0x2
 #define USE_GETDNS          0x4
 
-#ifdef CONFIG_NETUTILS_PPPD_PAP
-#define ppp_setusername(un) strncpy(pap_username, (un), PAP_USERNAME_SIZE)
-#define ppp_setpassword(pw) strncpy(pap_password, (pw), PAP_PASSWORD_SIZE)
-#endif /* CONFIG_NETUTILS_PPPD_PAP */
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
-
-struct chat_script_s;
 
 /* PPP context definition */
 
@@ -136,7 +129,6 @@ struct ppp_context_s
   /* Interfaces */
 
   int   tty_fd;
-  u8_t  ttyname[TTYNAMSIZ];
   int   if_fd;
   u8_t  ifname[IFNAMSIZ];
 
@@ -163,8 +155,6 @@ struct ppp_context_s
 #ifdef CONFIG_NETUTILS_PPPD_PAP
   /* PAP */
 
-  u8_t   pap_username[PAP_USERNAME_SIZE];
-  u8_t   pap_password[PAP_PASSWORD_SIZE];
   u8_t   pap_state;
   u8_t   pap_retry;
   time_t pap_prev_seconds;
@@ -198,6 +188,10 @@ struct ppp_context_s
   u32_t ppp_rx_frame_count;
   u32_t ppp_tx_frame_count;
 #endif
+
+  /* PPPD Settings */
+
+  struct pppd_settings_s *settings;
 };
 
 /****************************************************************************
