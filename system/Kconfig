@@ -29,3 +29,5 @@ source "$APPSDIR/system/composite/Kconfig"
 source "$APPSDIR/system/usbmsc/Kconfig"
 source "$APPSDIR/system/usbmonitor/Kconfig"
 source "$APPSDIR/system/zmodem/Kconfig"
+source "$APPSDIR/system/zoneinfo/Kconfig"
+

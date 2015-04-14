@@ -1,0 +1,14 @@
+/Make.dep
+/.depend
+/.built
+/.tzbin
+/.tzcode
+/tz*-latest.tar.gz
+/*.asm
+/*.rel
+/*.lst
+/*.sym
+/*.adb
+/*.lib
+/*.src
+/*.obj

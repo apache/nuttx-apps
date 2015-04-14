@@ -137,3 +137,8 @@ endif
 ifeq ($(CONFIG_SYSTEM_ZMODEM),y)
 CONFIGURED_APPS += system/zmodem
 endif
+
+ifeq ($(CONFIG_SYSTEM_ZONEINFO),y)
+CONFIGURED_APPS += system/zoneinfo
+endif
+

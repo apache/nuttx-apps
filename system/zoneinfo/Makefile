@@ -1,9 +1,8 @@
 ############################################################################
-# apps/system/free/Makefile
+# apps/system/zoneinfo/Makefile
 #
-#   Copyright (C) 2011-2012 Uros Platise. All rights reserved.
-#   Author: Uros Platise <uros.platise@isotel.eu>
-#           Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2015, Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -42,15 +41,15 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-# Replacement free command
+# Zoneinfo database
 
-APPNAME = free
+APPNAME = tzmount
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 768
 
 ASRCS =
 CSRCS =
-MAINSRC = free.c
+MAINSRC = tzmount.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -89,7 +88,7 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: context depend clean distclean
+.PHONY: tzcode_unpack tzdata_unpack tzcode_build tzbuild register context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -114,16 +113,43 @@ install:
 
 endif
 
+# Build TZ database
+
+tzcode:
+	mkdir tzcode
+
+tzbin:
+	mkdir tzbin
+
+tzcode-latest.tar.gz:
+	$(Q) wget --retr-symlinks ftp://ftp.iana.org/tz/tzcode-latest.tar.gz
+
+tzdata-latest.tar.gz:
+	$(Q) wget --retr-symlinks ftp://ftp.iana.org/tz/tzdata-latest.tar.gz
+
+tzcode_unpack: tzcode tzcode-latest.tar.gz
+	$(Q) tar zx -C tzcode -f tzcode-latest.tar.gz
+
+tzdata_unpack: tzcode tzdata-latest.tar.gz
+	$(Q) tar zx -C tzcode -f tzdata-latest.tar.gz
+
+tzcode_build: tzcode_unpack
+
+tzbuild: tzcode_build tzdata_unpack tzbin
+	$(Q) $(MAKE) -C tzcode TOPDIR=$(PWD)$(DELIM)tzbin install
+
 # Register application
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+register: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
 else
-context:
+register:
 endif
+
+context: tzbuild register
 
 # Create dependencies
 
@@ -135,10 +161,14 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
+	$(call DELDIR, tzbin)
+	$(call DELDIR, tzcode)
 	$(call CLEAN)
 
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(call DELFILE, tzdata-latest.tar.gz)
+	$(call DELFILE, tzcode-latest.tar.gz)
 
 -include Make.dep

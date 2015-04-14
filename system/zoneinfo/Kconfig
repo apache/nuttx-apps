@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config SYSTEM_ZONEINFO
+	bool "TZ database"
+	default n
+	depends on LIBC_LOCALTIME && EXPERIMENTAL
+	---help---
+		Build the TZ/Olson database.
+
+if SYSTEM_ZONEINFO
+endif
+
