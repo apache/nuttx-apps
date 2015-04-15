@@ -1268,4 +1268,5 @@
 
 	* apps/system/zoneinfo:  Add logic to build a ROMFS file system
 	  containing the timezone data (2015-04-15).
-
+	* apps/nshlib/nsh_timcmds.c: Check return values from time functions
+	  (2015-04-15).
