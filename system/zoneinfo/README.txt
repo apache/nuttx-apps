@@ -1,8 +1,11 @@
 apps/system/zoninfo/README.txt
 Author: Gregory Nutt <gnutt@nuttx.org>
 
+Contents
+=======
+
 This directory contains logic to create a version of the TZ/Olson database.
-This base is required if localtime() support is selected via
+This database is required if localtime() support is selected via
 CONFIG_LIBC_LOCALTIME.  This logic in this directory does the following:
 
   - It downloads the current TZ database from the IANA website
@@ -10,6 +13,9 @@ CONFIG_LIBC_LOCALTIME.  This logic in this directory does the following:
   - It builds the tools and constructs the binary TZ database
   - It will then, optionally, build a ROMFS filesystem image containing
     the data base.
+
+Creating and Mounting a ROMFS TZ Database
+=========================================
 
 The ROMFS filesystem image can that be mounted during the boot-up sequence
 so that it is available for the localtime logic.  There are two steps to
@@ -27,12 +33,43 @@ doing this:
   - The second step is to mount the file system.  This step can be
     performed either in your board configuration logic or by your
     application using the mount() interface described in
-    uttx/include/sys/mount.h.
+    nuttx/include/sys/mount.h.
 
-    This steps, however, must be done very early in initialization,
+    These steps, however, must be done very early in initialization,
     before there is any need for time-related services.
 
-Both of these steps are shown together in the following code sample:
+Both of these steps are shown together in the following code sample at the
+end of this README file.
+
+Example Configuration
+=====================
+
+I have tested this using the sim/nsh configuration.  Here are the
+modifications to the configuration that I used for testing:
+
+  CONFIG_BOARD_INITIALIZE=y
+
+  CONFIG_LIBC_LOCALTIME=y
+  CONFIG_LIBC_TZDIR="/share/zoneinfo"
+  CONFIG_LIBC_TZ_MAX_TIMES=370
+  CONFIG_LIBC_TZ_MAX_TYPES=20
+
+  CONFIG_SYSTEM_ZONEINFO=y
+  CONFIG_SYSTEM_ZONEINFO_ROMFS=y
+
+Here is a sample run.  I have not seen any errors but neither am I
+certain that everything is working properly:
+
+  NuttShell (NSH)
+  nsh> date
+  Jul 01 00:00:02 2008
+  nsh> set TZ US/Mountain
+  nsh> date -s "Apr 11 11:53:00 2015"
+  nsh> date
+  Apr 11 17:53:00 2015
+
+Sample Code to Mount the ROMFS Filesystem
+=========================================
 
 /****************************************************************************
  * Included Files

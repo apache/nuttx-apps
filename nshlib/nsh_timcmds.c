@@ -125,11 +125,22 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
 
   /* Break the current time up into the format needed by strftime */
 
-  (void)gmtime_r((FAR const time_t*)&ts.tv_sec, &tm);
+  ret = gmtime_r((FAR const time_t*)&ts.tv_sec, &tm);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, name, "gmtime_r", NSH_ERRNO);
+      return ERROR;
+    }
 
   /* Show the current time in the requested format */
 
-  (void)strftime(timbuf, MAX_TIME_STRING, format, &tm);
+  ret = strftime(timbuf, MAX_TIME_STRING, format, &tm);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, name, "strftime", NSH_ERRNO);
+      return ERROR;
+    }
+
   nsh_output(vtbl, "%s\n", timbuf);
   return OK;
 }
