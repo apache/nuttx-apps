@@ -1265,3 +1265,7 @@
 	  much else yet (2015-04-14).
 
 7.10 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/zoneinfo:  Add logic to build a ROMFS file system
+	  containing the timezone data (2015-04-15).
+
