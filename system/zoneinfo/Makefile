@@ -49,7 +49,14 @@ STACKSIZE = 768
 
 ASRCS =
 CSRCS =
+
+ifeq ($(CONFIG_SYSTEM_ZONEINFO_ROMFS),y)
+CSRCS += tzromfs.c
+endif
+
+ifeq ($(CONFIG_SYSTEM_ZONEINFO_MNTCMD),y)
 MAINSRC = tzmount.c
+endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -61,6 +68,10 @@ OBJS = $(AOBJS) $(COBJS)
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
 endif
+
+ZONEINFO_PATH = $(APPDIR)/system/zoneinfo
+TZBIN_PATH = $(ZONEINFO_PATH)/tzbin
+TZCODE_PATH = $(ZONEINFO_PATH)/tzcode
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   BIN = ..\..\libapps$(LIBEXT)
@@ -88,7 +99,7 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: tzcode_unpack tzdata_unpack tzcode_build tzbuild register context depend clean distclean
+.PHONY: romfs register context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -96,9 +107,11 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-.built: $(OBJS)
+.built: .tzbuilt romfs $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
+
+# Kernel mode program build
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
@@ -112,6 +125,31 @@ else
 install:
 
 endif
+
+# ROMFS file system containing the TZ database
+
+ifeq ($(CONFIG_SYSTEM_ZONEINFO_MNTCMD),y)
+
+checkgenromfs:
+	@genromfs -h 1>/dev/null 2>&1 || { \
+ echo "Host executable genromfs not available in PATH"; \
+ echo "You may need to download in from http://romfs.sourceforge.net/"; \
+ exit 1; \
+	}
+
+romfs_zoneinfo.img : checkgenromfs .tzbuilt
+	@genromfs -f $@ -d $(TZBIN_PATH)/etc/zoneinfo -V "TZDatbase" || { echo "genromfs failed" ; exit 1 ; }
+
+romfs_zoneinfo.h : romfs_zoneinfo.img
+	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
+
+romfs: romfs_zoneinfo.h
+
+else
+
+romfs:
+
+endif # CONFIG_SYSTEM_ZONEINFO_MNTCMD
 
 # Build TZ database
 
@@ -127,20 +165,18 @@ tzcode-latest.tar.gz:
 tzdata-latest.tar.gz:
 	$(Q) wget --retr-symlinks ftp://ftp.iana.org/tz/tzdata-latest.tar.gz
 
-tzcode_unpack: tzcode tzcode-latest.tar.gz
+.tzunpack: tzcode tzcode-latest.tar.gz tzdata-latest.tar.gz
 	$(Q) tar zx -C tzcode -f tzcode-latest.tar.gz
-
-tzdata_unpack: tzcode tzdata-latest.tar.gz
 	$(Q) tar zx -C tzcode -f tzdata-latest.tar.gz
+	$(Q) touch .tzunpack
 
-tzcode_build: tzcode_unpack
-
-tzbuild: tzcode_build tzdata_unpack tzbin
-	$(Q) $(MAKE) -C tzcode TOPDIR=$(PWD)$(DELIM)tzbin install
+.tzbuilt: tzcode tzbin .tzunpack
+	$(Q) $(MAKE) -C tzcode TOPDIR=$(TZBIN_PATH) install
+	$(Q) touch .tzbuilt
 
 # Register application
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+ifeq ($(CONFIG_SYSTEM_ZONEINFO_MNTCMD),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 
@@ -149,7 +185,7 @@ else
 register:
 endif
 
-context: tzbuild register
+context: .tzbuilt romfs register
 
 # Create dependencies
 
@@ -161,14 +197,18 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
-	$(call DELDIR, tzbin)
-	$(call DELDIR, tzcode)
 	$(call CLEAN)
 
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(call DELFILE, .tzunpack)
+	$(call DELFILE, .tzbuilt)
+	$(call DELFILE, romfs_zoneinfo.img)
+	$(call DELFILE, romfs_zoneinfo.h)
 	$(call DELFILE, tzdata-latest.tar.gz)
 	$(call DELFILE, tzcode-latest.tar.gz)
+	$(call DELDIR, tzbin)
+	$(call DELDIR, tzcode)
 
 -include Make.dep

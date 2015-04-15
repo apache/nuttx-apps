@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/zoninfo/tzmount.c
+ * apps/system/zoneinfo/tzromfs.c
  *
  *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -38,86 +38,14 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#include <sys/mount.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-
-#include <nuttx/fs/ramdisk.h>
 #include <apps/zoneinfo.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#ifndef CONFIG_SYSTEM_ZONEINFO_RAMDEVNO
-#  define CONFIG_SYSTEM_ZONEINFO_RAMDEVNO 1
-#endif
-
-#ifndef CONFIG_LIBC_TZDIR
-#  errror CONFIG_LIBC_TZDIR is not defined
-#endif
-
-#ifdef CONFIG_DISABLE_MOUNTPOINT
-#  error "Mountpoint support is disabled"
-#endif
-
-#if CONFIG_NFILE_DESCRIPTORS < 4
-#  error "Not enough file descriptors"
-#endif
-
-#ifndef CONFIG_FS_ROMFS
-#  error "ROMFS support not enabled"
-#endif
-
-#define SECTORSIZE  64
-#define NSECTORS(b) (((b)+SECTORSIZE-1)/SECTORSIZE)
-
-#define STR_RAMDEVNO(m)    #m
-#define MKMOUNT_DEVNAME(m) "/dev/ram" STR_RAMDEVNO(m)
-#define MOUNT_DEVNAME      MKMOUNT_DEVNAME(CONFIG_SYSTEM_ZONEINFO_RAMDEVNO)
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Functions
+ * Public Data
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int tzmount_main(int argc, char **argv)
-#endif
-{
-   int  ret;
-
-  /* Create a RAM disk for the test */
-
-  ret = romdisk_register(CONFIG_SYSTEM_ZONEINFO_RAMDEVNO,
-                         romfs_zoneinfo_img,
-                         NSECTORS(romfs_zoneinfo_img_len),
-                         SECTORSIZE);
-  if (ret < 0)
-    {
-      printf("ERROR: Failed to create RAM disk\n");
-      return EXIT_FAILURE;
-    }
-
-  /* Mount the test file system */
-
-  printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
-         CONFIG_LIBC_TZDIR, MOUNT_DEVNAME);
-
-  ret = mount(MOUNT_DEVNAME, CONFIG_LIBC_TZDIR, "romfs", MS_RDONLY, NULL);
-  if (ret < 0)
-    {
-      printf("ERROR: Mount failed: %d\n", errno);
-      return EXIT_FAILURE;
-    }
-
-  printf("TZ database mounted at %s\n", CONFIG_LIBC_TZDIR);
-  return EXIT_SUCCESS;
-}
+#include "romfs_zoneinfo.h"

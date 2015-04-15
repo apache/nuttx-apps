@@ -1,9 +1,12 @@
 /Make.dep
 /.depend
 /.built
-/.tzbin
-/.tzcode
+/.tzbuilt
+/.tzunpack
+/tzbin
+/tzcode
 /tz*-latest.tar.gz
+/romfs_zoneinfo.*
 /*.asm
 /*.rel
 /*.lst
