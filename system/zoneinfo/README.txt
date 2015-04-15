@@ -29,6 +29,9 @@ doing this:
     application using the mount() interface described in
     uttx/include/sys/mount.h.
 
+    This steps, however, must be done very early in initialization,
+    before there is any need for time-related services.
+
 Both of these steps are shown together in the following code sample:
 
 /****************************************************************************
