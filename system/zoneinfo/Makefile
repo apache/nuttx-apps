@@ -43,10 +43,6 @@ endif
 
 # Zoneinfo database
 
-APPNAME = tzmount
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 768
-
 ASRCS =
 CSRCS =
 
@@ -54,20 +50,11 @@ ifeq ($(CONFIG_SYSTEM_ZONEINFO_ROMFS),y)
 CSRCS += tzromfs.c
 endif
 
-ifeq ($(CONFIG_SYSTEM_ZONEINFO_MNTCMD),y)
-MAINSRC = tzmount.c
-endif
-
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
-endif
 
 ZONEINFO_PATH = $(APPDIR)/system/zoneinfo
 TZBIN_PATH = $(ZONEINFO_PATH)/tzbin
@@ -83,15 +70,6 @@ else
 endif
 endif
 
-ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
-else
-  INSTALL_DIR = $(BIN_DIR)
-endif
-
-CONFIG_XYZ_PROGNAME ?= free$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 ROOTDEPPATH = --dep-path .
 
 # Common build
@@ -104,31 +82,16 @@ all: .built
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
+$(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: .tzbuilt romfs $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
-# Kernel mode program build
-
-ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-
 # ROMFS file system containing the TZ database
 
-ifeq ($(CONFIG_SYSTEM_ZONEINFO_MNTCMD),y)
+ifeq ($(CONFIG_SYSTEM_ZONEINFO_ROMFS),y)
 
 checkgenromfs:
 	@genromfs -h 1>/dev/null 2>&1 || { \
@@ -149,7 +112,7 @@ else
 
 romfs:
 
-endif # CONFIG_SYSTEM_ZONEINFO_MNTCMD
+endif # CONFIG_SYSTEM_ZONEINFO_ROMFS
 
 # Build TZ database
 
@@ -174,18 +137,13 @@ tzdata-latest.tar.gz:
 	$(Q) $(MAKE) -C tzcode TOPDIR=$(TZBIN_PATH) install
 	$(Q) touch .tzbuilt
 
-# Register application
+# Create initial context
 
-ifeq ($(CONFIG_SYSTEM_ZONEINFO_MNTCMD),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+context: .tzbuilt romfs
 
-register: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-register:
-endif
+# Install application
 
-context: .tzbuilt romfs register
+install:
 
 # Create dependencies
 

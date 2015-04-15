@@ -19,23 +19,4 @@ config SYSTEM_ZONEINFO_ROMFS
 	---help---
 		Build a mountable ROMFS filesystem containing the TZ database
 
-config SYSTEM_ZONEINFO_MNTCMD
-	bool "Zoneinfo mount command"
-	default n
-	depends on SYSTEM_ZONEINFO_ROMFS && NSH_BUILTIN_APPS
-	---help---
-		Build an NSH command that will mount the ROMFS filesystem containing
-		the TZ database at CONFIG_LIBC_TZDIR.
-
-config SYSTEM_ZONEINFO_RAMDEVNO
-	int "ROMFS minor number"
-	default 0
-	depends on SYSTEM_ZONEINFO_MNTCMD
-	---help---
-		Minor number to use when registering the ROM disk block driver.  The
-		driver will be registers as /dev/ramN where N is provided by
-		CONFIG_SYSTEM_ZONEINFO_RAMDEVNO.  This, of course, must not conflict
-		with other RAM/ROM disk devices that may have been previously
-		registered.
-
 endif # SYSTEM_ZONEINFO
