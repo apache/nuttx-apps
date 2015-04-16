@@ -127,14 +127,24 @@ CNxServer::~CNxServer(void)
 bool CNxServer::connect(void)
 {
 #if defined(CONFIG_NXWIDGETS_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   // Use external graphics driver initialization
 
-  m_hDevice = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_NXWIDGETS_DEVNO);
-  if (!m_hDevice)
+  printf("nxtext_initialize: Initializing external graphics device\n");
+
+  devinfo.devno = CONFIG_NXWIDGETS_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      gdbg("boardctl failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
+      gdbg("boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
       return false;
     }
+
+  m_hDevice = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   int ret;
@@ -359,14 +369,24 @@ int CNxServer::server(int argc, char *argv[])
   int ret;
 
 #if defined(CONFIG_NXWIDGETS_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   // Use external graphics driver initialization
 
-  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_NXWIDGETS_DEVNO);
-  if (!dev)
+  printf("nxtext_initialize: Initializing external graphics device\n");
+
+  devinfo.devno = CONFIG_NXWIDGETS_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      gdbg("boardctl failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
+      gdbg("boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
       return EXIT_FAILURE;
     }
+
+  dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   // Initialize the LCD device
