@@ -1272,4 +1272,7 @@
 	  (2015-04-15).
 	* apps/examples/nxlines:  Fix missing right bracket that causes
 	  compile error when CONFIG_NX_XYINPUT=y.  From Librae (2015-04-16).
-
+	* apps/examples: When boardctl() fails, need to print errno not the
+	  returned value which will always be -1 (2015-04-16).
+	* apps/examples: Correct use of the BOARDIOC_GRAPHICS_SETUP boardctl()
+	  call (2015-04-16).
