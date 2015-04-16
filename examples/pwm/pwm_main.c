@@ -317,7 +317,7 @@ int pwm_main(int argc, char *argv[])
   ret = boardctl(BOARDIOC_PWMTEST_SETUP, 0);
   if (ret != OK)
     {
-      printf("pwm_main: boardctl failed: %d\n", ret);
+      printf("pwm_main: boardctl failed: %d\n", errno);
       goto errout;
     }
 

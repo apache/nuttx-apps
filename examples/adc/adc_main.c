@@ -252,9 +252,9 @@ int adc_main(int argc, char *argv[])
 
       printf("adc_main: Initializing external ADC device\n");
       ret = boardctl(BOARDIOC_ADCTEST_SETUP, 0);
-      if (ret != OK)
+      if (ret < 0)
         {
-          printf("adc_main: boardctl failed: %d\n", ret);
+          printf("adc_main: boardctl failed: %d\n", errno);
           errval = 1;
           goto errout;
         }

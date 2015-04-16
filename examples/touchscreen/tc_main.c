@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/touchscreen/tc_main.c
  *
- *   Copyright (C) 2011, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2014-2025 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ int tc_main(int argc, char *argv[])
   ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_EXAMPLES_TOUCHSCREEN_MINOR);
   if (ret != OK)
     {
-      printf("tc_main: board_tsc_setup failed: %d\n", ret);
+      printf("tc_main: board_tsc_setup failed: %d\n", errno);
       errval = 1;
       goto errout;
     }
