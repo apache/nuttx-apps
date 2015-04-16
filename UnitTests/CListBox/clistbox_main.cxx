@@ -274,7 +274,7 @@ int clistbox_main(int argc, char *argv[])
           printf("clistbox_main: Selecting five options\n");
           for (int i = 0; i < 5; i++)
             {
-              selected[i] = ((nOptions - 1) * rand()) / MAX_RAND;
+              selected[i] = ((nOptions - 1) * rand()) / RAND_MAX;
               printf("clistbox_main: Selecting option %d\n", selected[i]);
               listbox->removeOption(selected[i]);
               test->showListBox(listbox);
