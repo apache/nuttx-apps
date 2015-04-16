@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ltdc/ltdc_main.c
  *
- *   Copyright (C) 2008, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,59 +37,11 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
-#include <debug.h>
-
-#include <nuttx/video/rgbcolors.h>
-#include <nuttx/video/fb.h>
-
-#include <arch/chip/ltdc.h>
+#include "ltdc.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-
-#define LTDC_EXAMPLE_NCOLORS    5
-
-#ifdef CONFIG_STM32_LTDC_INTERFACE
-struct surface
-{
-  struct fb_videoinfo_s vinfo;
-  struct fb_planeinfo_s pinfo;
-  FAR struct ltdc_layer_s *layer;
-};
-#endif
-
-enum example_colors
-{
-  LTDC_BLACK,
-  LTDC_RED,
-  LTDC_GREEN,
-  LTDC_BLUE,
-  LTDC_WHITE
-};
-
-static const uint32_t g_rgb24[LTDC_EXAMPLE_NCOLORS] =
-{
-  RGB24_BLACK,
-  RGB24_RED,
-  RGB24_GREEN,
-  RGB24_BLUE,
-  RGB24_WHITE,
-};
-
-static const uint32_t g_rgb16[LTDC_EXAMPLE_NCOLORS] =
-{
-  RGB16_BLACK,
-  RGB16_RED,
-  RGB16_GREEN,
-  RGB16_BLUE,
-  RGB16_WHITE,
-};
 
 /****************************************************************************
  * Private Data
@@ -104,15 +56,22 @@ static struct surface g_surface[1];
 #endif
 
 #ifdef CONFIG_FB_CMAP
+#ifdef CONFIG_FB_TRANSPARENCY
+static uint8_t g_color[4*LTDC_EXAMPLE_NCOLORS];
+#else
 static uint8_t g_color[3*LTDC_EXAMPLE_NCOLORS];
+#endif
 
 static struct fb_cmap_s g_cmap =
 {
-  .first = 0,
-  .len   = LTDC_EXAMPLE_NCOLORS,
-  .red   = &g_color[0],
-  .green = &g_color[LTDC_EXAMPLE_NCOLORS],
-  .blue  = &g_color[2*LTDC_EXAMPLE_NCOLORS]
+  .first  = 0,
+  .len    = LTDC_EXAMPLE_NCOLORS,
+  .red    = &g_color[0],
+  .green  = &g_color[LTDC_EXAMPLE_NCOLORS],
+  .blue   = &g_color[2*LTDC_EXAMPLE_NCOLORS]
+#ifdef CONFIG_FB_TRANSPARENCY
+ ,.transp = &g_color[3*LTDC_EXAMPLE_NCOLORS]
+#endif
 };
 #endif
 
@@ -120,337 +79,7 @@ static struct fb_cmap_s g_cmap =
  * Private Function
 ****************************************************************************/
 
-/****************************************************************************
- * Name: ltdc_init_cmap
- *
- * Description:
- *   Initialize the color lookup table
- *
- ***************************************************************************/
-
-#ifdef CONFIG_FB_CMAP
-static void ltdc_init_cmap(void)
-{
-  memset(&g_color, 0, sizeof(g_color));
-
-  /* CLUT color format definition
-   *
-   * Position value
-   * 00       0x000000    black
-   * 01       0xff0000    red
-   * 02       0x00ff00    green
-   * 03       0x0000ff    blue
-   * 04       0xffffff    white
-   *
-   */
-
-  g_cmap.red[1]   = 0xff;
-  g_cmap.green[2] = 0xff;
-  g_cmap.blue[3]  = 0xff;
-  g_cmap.red[4]   = 0xff;
-  g_cmap.green[4] = 0xff;
-  g_cmap.blue[4]  = 0xff;
-}
-#endif
-
-/****************************************************************************
- * Name: ltdc_color
- *
- * Description:
- *   Get the correct color value to the pixel format
- *
- ***************************************************************************/
-
-static uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
-{
-  uint32_t value;
-
-  switch (vinfo->fmt)
-    {
-#if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
-        case FB_FMT_RGB8:
-          value = color;
-          break;
-#endif
-#if defined(CONFIG_STM32_LTDC_L1_RGB565) || defined(CONFIG_STM32_LTDC_L2_RGB565)
-        case FB_FMT_RGB16_565:
-          value = g_rgb16[color];
-          break;
-#endif
-#if defined(CONFIG_STM32_LTDC_L1_RGB888) || \
-        defined(CONFIG_STM32_LTDC_L2_RGB888)
-        case FB_FMT_RGB24:
-          value = g_rgb24[color];
-          break;
-#endif
-        default:
-          dbg("Unsupported pixel format %d\n", vinfo->fmt);
-          value = 0;
-          break;
-    }
-
-  return value;
-}
-
-/***************************************************************************
- * Name: ltdc_simple_draw
- *
- * Description:
- *   Draw four different colored rectangles on the whole screen
- *
- ***************************************************************************/
-
-static void ltdc_simple_draw(FAR struct fb_videoinfo_s *vinfo,
-                                FAR struct fb_planeinfo_s *pinfo)
-{
-  volatile int x, y;
-  uint16_t xres = vinfo->xres;
-  uint16_t yres = vinfo->yres;
-
-  dbg("draw a red and green rectangle in the upper half\n");
-  dbg("draw a white and blue rectangle in the lower half\n");
-
-#if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
-  if (vinfo->fmt == FB_FMT_RGB8)
-    {
-      uint8_t color;
-      uint8_t *buf = (uint8_t *)pinfo->fbmem;
-
-      for (y = 0; y < yres/2; y++)
-        {
-          color = ltdc_color(vinfo, LTDC_RED);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-
-          color = ltdc_color(vinfo, LTDC_GREEN);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-        }
-
-      for (y = 0; y < yres/2; y++)
-        {
-          color = ltdc_color(vinfo, LTDC_WHITE);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-
-          color = ltdc_color(vinfo, LTDC_BLUE);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-        }
-    }
-#endif
-
-#if defined(CONFIG_STM32_LTDC_L1_RGB565) || defined(CONFIG_STM32_LTDC_L2_RGB565)
-  if(vinfo->fmt == FB_FMT_RGB16_565)
-    {
-      uint16_t color;
-      uint16_t *buf = (uint16_t *)pinfo->fbmem;
-
-      for (y = 0; y < yres/2; y++)
-        {
-          color = ltdc_color(vinfo, LTDC_RED);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-
-          color = ltdc_color(vinfo, LTDC_GREEN);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-        }
-
-      for (y = 0; y < yres/2; y++)
-        {
-          color = ltdc_color(vinfo, LTDC_WHITE);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-
-          color = ltdc_color(vinfo, LTDC_BLUE);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-            }
-        }
-    }
-#endif
-
-#if defined(CONFIG_STM32_LTDC_L1_RGB888) || defined(CONFIG_STM32_LTDC_L2_RGB888)
-  if(vinfo->fmt == FB_FMT_RGB24)
-    {
-      uint32_t color;
-      uint8_t *buf = (uint8_t *)pinfo->fbmem;
-
-      for (y = 0; y < yres/2; y++)
-        {
-          color = ltdc_color(vinfo, LTDC_RED);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-              *buf++ = (color >> 8);
-              *buf++ = (color >> 16);
-            }
-
-          color = ltdc_color(vinfo, LTDC_GREEN);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-              *buf++ = (color >> 8);
-              *buf++ = (color >> 16);
-            }
-        }
-
-      for (y = 0; y < yres/2; y++)
-        {
-          color = ltdc_color(vinfo, LTDC_WHITE);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-              *buf++ = (color >> 8);
-              *buf++ = (color >> 16);
-            }
-
-          color = ltdc_color(vinfo, LTDC_BLUE);
-
-          for (x = 0; x < xres/2; x++)
-            {
-              *buf++ = color;
-              *buf++ = (color >> 8);
-              *buf++ = (color >> 16);
-            }
-        }
-    }
-#endif
-}
-
-#ifdef CONFIG_STM32_LTDC_L2
-/******************************************************************************
- * Name: ltdc_drawcolor
- *
- * Description:
- *   Draw a specific color to the framebuffer
- *
- *****************************************************************************/
-
-static void ltdc_drawcolor(FAR struct fb_videoinfo_s *vinfo, void *buffer,
-                           uint16_t xres, uint16_t yres, uint32_t color)
-{
-  int x,y;
-
-  /* draw a blue rectangle */
-
-  dbg("draw a full screen rectangle with color %08x\n", color);
-
-#if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
-  if (vinfo->fmt == FB_FMT_RGB8)
-    {
-      uint8_t *buf = (uint8_t *)buffer;
-
-      for (y = 0; y < yres; y++)
-        {
-          for (x = 0; x < xres; x++)
-            {
-              *buf++ = color;
-            }
-        }
-    }
-#endif
-
-#if defined(CONFIG_STM32_LTDC_L1_RGB565) || defined(CONFIG_STM32_LTDC_L2_RGB565)
-  if (vinfo->fmt == FB_FMT_RGB16_565)
-    {
-      uint16_t *buf = (uint16_t *)buffer;
-
-      for (y = 0; y < yres; y++)
-        {
-          for (x = 0; x < xres; x++)
-            {
-              *buf++ = color;
-            }
-        }
-    }
-#endif
-
-#if defined(CONFIG_STM32_LTDC_L1_RGB888) || defined(CONFIG_STM32_LTDC_L2_RGB888)
-  if (vinfo->fmt == FB_FMT_RGB24)
-    {
-      uint8_t *buf = (uint8_t *)buffer;
-      uint8_t r;
-      uint8_t g;
-      uint8_t b;
-
-      r = (uint8_t)(color >> 16);
-      g = (uint8_t)(color >> 8);
-      b = (uint8_t)color;
-
-      for (y = 0; y < yres; y++)
-        {
-          for (x = 0; x < xres; x++)
-            {
-              *buf++ = b;
-              *buf++ = g;
-              *buf++ = r;
-            }
-        }
-    }
-#endif
-}
-#endif
-
 #ifdef CONFIG_STM32_LTDC_INTERFACE
-/******************************************************************************
- * Name: ltdc_get_surface
- *
- * Description:
- *   Get a reference to a specific layer
- *
- *****************************************************************************/
-
-static struct surface * ltdc_get_surface(uint32_t mode)
-{
-  int ret;
-  int lid;
-  FAR struct surface *sur = &g_surface[0];
-
-  ret = sur->layer->getlid(sur->layer, &lid, mode);
-
-  if (ret != OK)
-    {
-      dbg("getlid() failed\n");
-      _exit(1);
-    }
-
-  if (lid < 0 || lid > 1)
-    {
-      dbg("invalid layer id %d\n", lid);
-      _exit(1);
-    }
-
-  return &g_surface[lid];
-}
-
 /******************************************************************************
  * Name: ltdc_init_surface
  *
@@ -498,9 +127,27 @@ static int ltdc_init_surface(int lid, uint32_t mode)
       sur->layer->update(sur->layer, LTDC_UPDATE_NONE);
     }
 #endif
+
+#ifdef CONFIG_STM32_DMA2D
+  /* Initialize dma2d layer */
+
+  if (sur->layer->getlid(sur->layer, &lid, LTDC_LAYER_DMA2D) != OK)
+    {
+      dbg("getlid() failed\n");
+      return -1;
+    }
+
+  sur->dma2d = up_dma2dgetlayer(lid);
+
+  if (sur->dma2d == NULL)
+    {
+      dbg("up_dma2dgetlayer() failed\n");
+      return -1;
+    }
+#endif
+
   return OK;
 }
-
 
 /******************************************************************************
  * Name: ltdc_setget_test
@@ -614,6 +261,16 @@ static void ltdc_setget_test(void)
 #ifdef CONFIG_FB_CMAP
   if (sur->vinfo.fmt == FB_FMT_RGB8)
     {
+
+      FAR struct fb_cmap_s *cmap = ltdc_createcmap(LTDC_EXAMPLE_NCOLORS);
+
+      ltdc_clrcolor(g_cmap.red, 0x11, LTDC_EXAMPLE_NCOLORS);
+      ltdc_clrcolor(g_cmap.blue, 0x22, LTDC_EXAMPLE_NCOLORS);
+      ltdc_clrcolor(g_cmap.green, 0x33, LTDC_EXAMPLE_NCOLORS);
+#ifdef CONFIG_FB_TRANSPARENCY
+      ltdc_clrcolor(g_cmap.transp, 0x44, LTDC_EXAMPLE_NCOLORS);
+#endif
+
       ret = sur->layer->setclut(sur->layer, &g_cmap);
 
       if (ret != OK)
@@ -621,11 +278,47 @@ static void ltdc_setget_test(void)
           dbg("setclut() failed\n");
         }
 
-      ret = sur->layer->getclut(sur->layer, &g_cmap);
+      /* Clear all colors to black */
+
+      ltdc_clrcolor(cmap->red, 0, LTDC_EXAMPLE_NCOLORS);
+      ltdc_clrcolor(cmap->blue, 0, LTDC_EXAMPLE_NCOLORS);
+      ltdc_clrcolor(cmap->green, 0, LTDC_EXAMPLE_NCOLORS);
+#ifdef CONFIG_FB_TRANSPARENCY
+      ltdc_clrcolor(cmap->transp, 0, LTDC_EXAMPLE_NCOLORS);
+#endif
+
+      ret = sur->layer->getclut(sur->layer, cmap);
 
       if (ret != OK)
         {
           dbg("getclut() failed\n");
+        }
+
+#ifdef CONFIG_FB_TRANSPARENCY
+      if (ltdc_cmpcolor(g_cmap.red, cmap->red, LTDC_EXAMPLE_NCOLORS) ||
+            ltdc_cmpcolor(g_cmap.blue, cmap->blue, LTDC_EXAMPLE_NCOLORS) ||
+             ltdc_cmpcolor(g_cmap.green, cmap->green, LTDC_EXAMPLE_NCOLORS) ||
+                ltdc_cmpcolor(g_cmap.transp, cmap->transp, LTDC_EXAMPLE_NCOLORS))
+#else
+      if (ltdc_cmpcolor(g_cmap.red, cmap->red, LTDC_EXAMPLE_NCOLORS) ||
+            ltdc_cmpcolor(g_cmap.blue, cmap->blue, LTDC_EXAMPLE_NCOLORS) ||
+             ltdc_cmpcolor(g_cmap.green, cmap->green, LTDC_EXAMPLE_NCOLORS))
+#endif
+        {
+          dbg("getclut() failed, unexpected cmap content\n");
+        }
+
+      ltdc_deletecmap(cmap);
+
+      /* Restore the origin cmap */
+
+      ltdc_init_cmap();
+
+      ret = sur->layer->setclut(sur->layer, &g_cmap);
+
+      if (ret != OK)
+        {
+          dbg("setclut() failed\n");
         }
     }
 #endif
@@ -1925,6 +1618,463 @@ static void ltdc_flip_test(void)
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: ltdc_clrcolor
+ *
+ * Description:
+ *   Fills the color value table with an specific color.
+ *   This works like memset but for 8-bit aligned memory.
+ *
+ * Parameter:
+ *   color - Pointer to the color value table
+ *   value - The color to set
+ *   size  - the size of the color value table
+ *
+ ***************************************************************************/
+
+void ltdc_clrcolor(uint8_t *color, uint8_t value, size_t size)
+{
+  while (size--)
+    {
+      *color++ = value;
+    }
+}
+
+/****************************************************************************
+ * Name: ltdc_cmpcolor
+ *
+ * Description:
+ *   Compares two color value tables
+ *
+ * Parameter:
+ *   color1 - color value table 1
+ *   color2 - color value table 2
+ *   size   - the size of the color value table
+ *
+ * Return:
+ *   0 - if equal otherwise unequal to 0
+ *
+ ***************************************************************************/
+
+int ltdc_cmpcolor(uint8_t *color1, uint8_t *color2, size_t size)
+{
+  int n;
+
+  for (n = 0; !n && size; --size)
+    {
+      n = *color1++ - *color2++;
+    }
+
+  return n;
+}
+
+/****************************************************************************
+ * Name: ltdc_init_cmap
+ *
+ * Description:
+ *   Initialize the color lookup table
+ *
+ ***************************************************************************/
+
+#ifdef CONFIG_FB_CMAP
+void ltdc_init_cmap(void)
+{
+  memset(&g_color, 0, sizeof(g_color));
+
+  /* CLUT color format definition
+   *
+   * Position value
+   * 00       0x000000    black
+   * 01       0xff0000    red
+   * 02       0x00ff00    green
+   * 03       0x0000ff    blue
+   * 04       0xffffff    white
+   *
+   */
+  g_cmap.red[1]    = 0xff;
+  g_cmap.green[2]  = 0xff;
+  g_cmap.blue[3]   = 0xff;
+  g_cmap.red[4]    = 0xff;
+  g_cmap.green[4]  = 0xff;
+  g_cmap.blue[4]   = 0xff;
+#ifdef CONFIG_FB_TRANSPARENCY
+  g_cmap.transp[0] = 0xff;
+  g_cmap.transp[1] = 0xff;
+  g_cmap.transp[2] = 0xff;
+  g_cmap.transp[3] = 0xff;
+  g_cmap.transp[4] = 0xff;
+#endif
+}
+
+
+/****************************************************************************
+ * Name: ltdc_createcmap
+ *
+ * Description:
+ *   Initialize
+ *
+ ***************************************************************************/
+
+FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
+{
+  FAR struct fb_cmap_s *cmap = malloc(sizeof(struct fb_cmap_s));
+
+  if (cmap)
+    {
+#ifdef CONFIG_FB_TRANSPARENCY
+      uint8_t *clut = malloc(4 * ncolors * sizeof(uint8_t));
+#else
+      uint8_t *clut = malloc(3 * ncolors * sizeof(uint8_t));
+#endif
+
+      if (!clut)
+        {
+          dbg("malloc() failed\n");
+          free(cmap);
+          return NULL;;
+        }
+
+#ifdef CONFIG_FB_TRANSPARENCY
+      cmap->transp = &clut[0];
+      cmap->red = &clut[1 * ncolors * sizeof(uint8_t)];
+      cmap->green = &clut[2 * ncolors * sizeof(uint8_t)];
+      cmap->blue = &clut[3 * ncolors * sizeof(uint8_t)];
+#else
+      cmap->red = &clut[0];
+      cmap->green = &clut[1 * ncolors * sizeof(uint8_t)];
+      cmap->blue = &clut[2 * ncolors * sizeof(uint8_t)];
+#endif
+      cmap->first = 0;
+      cmap->len   = ncolors;
+
+    }
+
+  return cmap;
+}
+
+
+/****************************************************************************
+ * Name: ltdc_deletecmap
+ *
+ * Description:
+ *   Initialize
+ *
+ ***************************************************************************/
+
+void ltdc_deletecmap(FAR struct fb_cmap_s *cmap)
+{
+  if (cmap)
+    {
+#ifdef CONFIG_FB_TRANSPARENCY
+      free(cmap->transp);
+#else
+      free(cmap->red);
+#endif
+      free(cmap);
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: ltdc_color
+ *
+ * Description:
+ *   Get the correct color value to the pixel format
+ *
+ ***************************************************************************/
+
+uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
+{
+  uint32_t value;
+
+  switch (vinfo->fmt)
+    {
+#if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
+        case FB_FMT_RGB8:
+          value = color;
+          break;
+#endif
+#if defined(CONFIG_STM32_LTDC_L1_RGB565) || defined(CONFIG_STM32_LTDC_L2_RGB565)
+        case FB_FMT_RGB16_565:
+          value = g_rgb16[color];
+          break;
+#endif
+#if defined(CONFIG_STM32_LTDC_L1_RGB888) || \
+        defined(CONFIG_STM32_LTDC_L2_RGB888)
+        case FB_FMT_RGB24:
+          value = g_rgb24[color];
+          break;
+#endif
+        default:
+          dbg("Unsupported pixel format %d\n", vinfo->fmt);
+          value = 0;
+          break;
+    }
+
+  return value;
+}
+
+/***************************************************************************
+ * Name: ltdc_simple_draw
+ *
+ * Description:
+ *   Draw four different colored rectangles on the whole screen
+ *
+ ***************************************************************************/
+
+void ltdc_simple_draw(FAR struct fb_videoinfo_s *vinfo,
+                                FAR struct fb_planeinfo_s *pinfo)
+{
+  volatile int x, y;
+  uint16_t xres = vinfo->xres;
+  uint16_t yres = vinfo->yres;
+
+  dbg("draw a red and green rectangle in the upper half\n");
+  dbg("draw a white and blue rectangle in the lower half\n");
+
+#if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
+  if (vinfo->fmt == FB_FMT_RGB8)
+    {
+      uint8_t color;
+      uint8_t *buf = (uint8_t *)pinfo->fbmem;
+
+      for (y = 0; y < yres/2; y++)
+        {
+          color = ltdc_color(vinfo, LTDC_RED);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+
+          color = ltdc_color(vinfo, LTDC_GREEN);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+        }
+
+      for (y = 0; y < yres/2; y++)
+        {
+          color = ltdc_color(vinfo, LTDC_WHITE);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+
+          color = ltdc_color(vinfo, LTDC_BLUE);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+        }
+    }
+#endif
+
+#if defined(CONFIG_STM32_LTDC_L1_RGB565) || defined(CONFIG_STM32_LTDC_L2_RGB565)
+  if(vinfo->fmt == FB_FMT_RGB16_565)
+    {
+      uint16_t color;
+      uint16_t *buf = (uint16_t *)pinfo->fbmem;
+
+      for (y = 0; y < yres/2; y++)
+        {
+          color = ltdc_color(vinfo, LTDC_RED);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+
+          color = ltdc_color(vinfo, LTDC_GREEN);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+        }
+
+      for (y = 0; y < yres/2; y++)
+        {
+          color = ltdc_color(vinfo, LTDC_WHITE);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+
+          color = ltdc_color(vinfo, LTDC_BLUE);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+            }
+        }
+    }
+#endif
+
+#if defined(CONFIG_STM32_LTDC_L1_RGB888) || defined(CONFIG_STM32_LTDC_L2_RGB888)
+  if(vinfo->fmt == FB_FMT_RGB24)
+    {
+      uint32_t color;
+      uint8_t *buf = (uint8_t *)pinfo->fbmem;
+
+      for (y = 0; y < yres/2; y++)
+        {
+          color = ltdc_color(vinfo, LTDC_RED);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+              *buf++ = (color >> 8);
+              *buf++ = (color >> 16);
+            }
+
+          color = ltdc_color(vinfo, LTDC_GREEN);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+              *buf++ = (color >> 8);
+              *buf++ = (color >> 16);
+            }
+        }
+
+      for (y = 0; y < yres/2; y++)
+        {
+          color = ltdc_color(vinfo, LTDC_WHITE);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+              *buf++ = (color >> 8);
+              *buf++ = (color >> 16);
+            }
+
+          color = ltdc_color(vinfo, LTDC_BLUE);
+
+          for (x = 0; x < xres/2; x++)
+            {
+              *buf++ = color;
+              *buf++ = (color >> 8);
+              *buf++ = (color >> 16);
+            }
+        }
+    }
+#endif
+}
+
+#ifdef CONFIG_STM32_LTDC_L2
+/******************************************************************************
+ * Name: ltdc_drawcolor
+ *
+ * Description:
+ *   Draw a specific color to the framebuffer
+ *
+ *****************************************************************************/
+
+void ltdc_drawcolor(FAR struct fb_videoinfo_s *vinfo, void *buffer,
+                           uint16_t xres, uint16_t yres, uint32_t color)
+{
+  int x,y;
+
+  /* draw a blue rectangle */
+
+  dbg("draw a full screen rectangle with color %08x\n", color);
+
+#if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
+  if (vinfo->fmt == FB_FMT_RGB8)
+    {
+      uint8_t *buf = (uint8_t *)buffer;
+
+      for (y = 0; y < yres; y++)
+        {
+          for (x = 0; x < xres; x++)
+            {
+              *buf++ = color;
+            }
+        }
+    }
+#endif
+
+#if defined(CONFIG_STM32_LTDC_L1_RGB565) || defined(CONFIG_STM32_LTDC_L2_RGB565)
+  if (vinfo->fmt == FB_FMT_RGB16_565)
+    {
+      uint16_t *buf = (uint16_t *)buffer;
+
+      for (y = 0; y < yres; y++)
+        {
+          for (x = 0; x < xres; x++)
+            {
+              *buf++ = color;
+            }
+        }
+    }
+#endif
+
+#if defined(CONFIG_STM32_LTDC_L1_RGB888) || defined(CONFIG_STM32_LTDC_L2_RGB888)
+  if (vinfo->fmt == FB_FMT_RGB24)
+    {
+      uint8_t *buf = (uint8_t *)buffer;
+      uint8_t r;
+      uint8_t g;
+      uint8_t b;
+
+      r = (uint8_t)(color >> 16);
+      g = (uint8_t)(color >> 8);
+      b = (uint8_t)color;
+
+      for (y = 0; y < yres; y++)
+        {
+          for (x = 0; x < xres; x++)
+            {
+              *buf++ = b;
+              *buf++ = g;
+              *buf++ = r;
+            }
+        }
+    }
+#endif
+}
+#endif
+
+#ifdef CONFIG_STM32_LTDC_INTERFACE
+/******************************************************************************
+ * Name: ltdc_get_surface
+ *
+ * Description:
+ *   Get a reference to a specific layer
+ *
+ *****************************************************************************/
+
+struct surface * ltdc_get_surface(uint32_t mode)
+{
+  int ret;
+  int lid;
+  FAR struct surface *sur = &g_surface[0];
+
+  ret = sur->layer->getlid(sur->layer, &lid, mode);
+
+  if (ret != OK)
+    {
+      dbg("getlid() failed\n");
+      _exit(1);
+    }
+
+  if (lid < 0 || lid > 1)
+    {
+      dbg("invalid layer id %d\n", lid);
+      _exit(1);
+    }
+
+  return &g_surface[lid];
+}
+#endif
+
+
+/****************************************************************************
  * ltdc_main
  ****************************************************************************/
 
@@ -1989,7 +2139,6 @@ int ltdc_main(int argc, char *argv[])
 #ifdef CONFIG_STM32_LTDC_L2
   ltdc_init_surface(1, LTDC_LAYER_INACTIVE);
 #endif
-
   usleep(1000000);
 
   ltdc_setget_test();
@@ -2011,6 +2160,7 @@ int ltdc_main(int argc, char *argv[])
   ltdc_common_test();
 
 #ifdef CONFIG_STM32_LTDC_L2
+
   usleep(1000000);
 
   ltdc_alpha_blend_test();
@@ -2018,6 +2168,10 @@ int ltdc_main(int argc, char *argv[])
   usleep(1000000);
 
   ltdc_flip_test();
+
+#ifdef CONFIG_STM32_DMA2D
+  ltdc_dma2d_main();
+#endif
 
 #endif /* CONFIG_STM32_LTDC_L2 */
 #endif /* CONFIG_STM32_LTDC_INTERFACE */

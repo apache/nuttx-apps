@@ -45,6 +45,9 @@ STACKSIZE = 2048
 
 ASRCS =
 CSRCS =
+ifeq ($(CONFIG_STM32_DMA2D),y)
+CSRCS += dma2d.c
+endif
 MAINSRC = ltdc_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
