@@ -557,3 +557,8 @@
   functions (2015-04-05).
 
 1.16 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM::CTouchscreen: When boardctl() fails, need to print errno not the
+  returned value which will always be -1 (2015-04-16).
+* NxWidgets::CNxServer:  Correct use of the BOARDIOC_GRAPHICS_SETUP
+  boardctl() call (2015-04-16).
