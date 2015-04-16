@@ -1276,3 +1276,5 @@
 	  returned value which will always be -1 (2015-04-16).
 	* apps/examples: Correct use of the BOARDIOC_GRAPHICS_SETUP boardctl()
 	  call (2015-04-16).
+	* apps/examples/ltdc:  Add testing support for the STM32 LTDC's 2D
+	  DMA. From Marco Krahl (2015-04-16).
