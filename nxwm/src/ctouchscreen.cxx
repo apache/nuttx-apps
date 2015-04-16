@@ -1,7 +1,7 @@
 /********************************************************************************************
  * NxWidgets/nxwm/src/ctouchscreen.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -285,7 +285,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
   int ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_NXWM_TOUCHSCREEN_DEVNO);
   if (ret < 0)
     {
-      dbg("ERROR Failed initialize the touchscreen device: %d\n", ret);
+      dbg("ERROR Failed initialize the touchscreen device: %d\n", errno);
       This->m_state = LISTENER_FAILED;
       sem_post(&This->m_waitSem);
       return (FAR void *)0;
