@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 
+#include <sys/boardctl.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -167,17 +168,26 @@ static inline int nxtext_suinitialize(void)
   FAR NX_DRIVERTYPE *dev;
 
 #if defined(CONFIG_EXAMPLES_NXTEXT_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   /* Use external graphics driver initialization */
 
   printf("nxtext_initialize: Initializing external graphics device\n");
-  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXTEXT_DEVNO);
-  if (!dev)
+
+  devinfo.devno = CONFIG_EXAMPLES_NXTEXT_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      printf("nxtext_initialize: boardctl failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXTEXT_DEVNO);
+      printf("nxtext_initialize: boardctl failed, devno=%d: %d\n",
+             CONFIG_EXAMPLES_NXTEXT_DEVNO, errno);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
+
+  dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   int ret;

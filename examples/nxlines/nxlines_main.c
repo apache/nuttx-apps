@@ -122,17 +122,26 @@ static inline int nxlines_initialize(void)
   FAR NX_DRIVERTYPE *dev;
 
 #if defined(CONFIG_EXAMPLES_NXLINES_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   /* Use external graphics driver initialization */
 
   printf("nxlines_initialize: Initializing external graphics device\n");
-  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXLINES_DEVNO);
-  if (!dev)
+
+  devinfo.devno = CONFIG_EXAMPLES_NXLINES_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      printf("nxlines_initialize: boardctl failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXLINES_DEVNO);
+      printf("nxlines_initialize: boardctl failed, devno=%d: %d\n",
+             CONFIG_EXAMPLES_NXLINES_DEVNO, errno);
       g_nxlines.code = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
+
+  dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   int ret;

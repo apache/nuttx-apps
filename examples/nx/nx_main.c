@@ -427,16 +427,26 @@ static inline int nxeg_suinitialize(void)
   FAR NX_DRIVERTYPE *dev;
 
 #if defined(CONFIG_EXAMPLES_NX_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   /* Use external graphics driver initialization */
 
   printf("nxeg_initialize: Initializing external graphics device\n");
-  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NX_DEVNO);
-  if (!dev)
+
+  devinfo.devno = CONFIG_EXAMPLES_NX_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      printf("nxeg_initialize: boardctl failed, devno=%d\n", CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nxeg_initialize: boardctl failed, devno=%d: %d\n",
+             CONFIG_EXAMPLES_NX_DEVNO, errno);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
+
+  dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   int ret;

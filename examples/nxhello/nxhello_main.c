@@ -126,17 +126,26 @@ static inline int nxhello_initialize(void)
   FAR NX_DRIVERTYPE *dev;
 
 #if defined(CONFIG_EXAMPLES_NXHELLO_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   /* Use external graphics driver initialization */
 
   printf("nxhello_initialize: Initializing external graphics device\n");
-  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NXHELLO_DEVNO);
-  if (!dev)
+
+  devinfo.devno = CONFIG_EXAMPLES_NXHELLO_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      printf("nxhello_initialize: boardctl failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXHELLO_DEVNO);
+      printf("nxhello_initialize: boardctl failed, devno=%d: %d\n",
+             CONFIG_EXAMPLES_NXHELLO_DEVNO, errno);
       g_nxhello.code = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
+
+  dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   int ret;

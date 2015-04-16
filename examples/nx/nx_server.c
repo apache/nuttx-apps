@@ -63,7 +63,7 @@
 #ifdef CONFIG_NX_MULTIUSER
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -92,17 +92,26 @@ int nx_servertask(int argc, char *argv[])
   int ret;
 
 #if defined(CONFIG_EXAMPLES_NX_EXTERNINIT)
+  struct boardioc_graphics_s devinfo;
+  int ret;
+
   /* Use external graphics driver initialization */
 
-  printf("nxeg_initialize: Initializing external graphics device\n");
-  dev = boardctl(BOARDIOC_GRAPHICS_SETUP, CONFIG_EXAMPLES_NX_DEVNO);
-  if (!dev)
+  printf("nx_servertask: Initializing external graphics device\n");
+
+  devinfo.devno = CONFIG_EXAMPLES_NX_DEVNO;
+  devinfo.dev = NULL;
+
+  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  if (ret < 0)
     {
-      printf("nxeg_initialize: boardctl failed, devno=%d\n",
-             CONFIG_EXAMPLES_NX_DEVNO);
+      printf("nx_servertask: boardctl failed, devno=%d: %d\n",
+             CONFIG_EXAMPLES_NX_DEVNO, errno);
       g_exitcode = NXEXIT_EXTINITIALIZE;
       return ERROR;
     }
+
+  dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
   /* Initialize the LCD device */
