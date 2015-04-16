@@ -166,7 +166,7 @@ static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 {
   printf("nxlines_mousein: hwnd=%p pos=(%d,%d) button=%02x\n",
          hwnd,  pos->x, pos->y, buttons);
-
+}
 #endif
 
 /****************************************************************************
