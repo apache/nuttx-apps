@@ -1270,3 +1270,6 @@
 	  containing the timezone data (2015-04-15).
 	* apps/nshlib/nsh_timcmds.c: Check return values from time functions
 	  (2015-04-15).
+	* apps/examples/nxlines:  Fix missing right bracket that causes
+	  compile error when CONFIG_NX_XYINPUT=y.  From Librae (2015-04-16).
+
