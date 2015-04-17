@@ -50,8 +50,8 @@
  * Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
-/* Most of the NX configuration settings are probbably *not* needed by this
- * example.  But, presumeably you are using NX too and so the checks might
+/* Most of the NX configuration settings are probably *not* needed by this
+ * example.  But, presumably you are using NX too and so the checks might
  * be good for you.
  */
 
