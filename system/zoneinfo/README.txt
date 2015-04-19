@@ -96,6 +96,10 @@ the logic but neither am I certain that everything is working properly:
   nsh> date
   Apr 11 17:53:00 2015
 
+NOTE: Because of daylight savings time, US/Mountain is GMT-6 on Apr 11.  The
+above suggests that perhaps the NSH data command may be setting local time,
+but printing GMT time?
+
 Sample Code to Mount the ROMFS Filesystem
 =========================================
 
