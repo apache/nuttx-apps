@@ -314,9 +314,9 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
       fullpath = nsh_getfullpath(vtbl, localfile);
 
-      /* Open the local file for writing */
+      /* Open the local file for reading */
 
-      fd = open(fullpath, O_RDONLY|O_TRUNC, 0644);
+      fd = open(fullpath, O_RDONLY);
       if (fd < 0)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
