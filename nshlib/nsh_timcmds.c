@@ -125,8 +125,7 @@ static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *nam
 
   /* Break the current time up into the format needed by strftime */
 
-  ret = gmtime_r((FAR const time_t*)&ts.tv_sec, &tm);
-  if (ret < 0)
+  if (gmtime_r((FAR const time_t*)&ts.tv_sec, &tm) == NULL)
     {
       nsh_output(vtbl, g_fmtcmdfailed, name, "gmtime_r", NSH_ERRNO);
       return ERROR;
