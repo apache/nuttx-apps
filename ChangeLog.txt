@@ -1278,3 +1278,6 @@
 	  call (2015-04-16).
 	* apps/examples/ltdc:  Add testing support for the STM32 LTDC's 2D
 	  DMA. From Marco Krahl (2015-04-16).
+	* apps/nshlib/: Fix handling of gmtime_r return value in time commands.
+	  gmtime_r returns a pointer, not an int (2015-04-21).
+
