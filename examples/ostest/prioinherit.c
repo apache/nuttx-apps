@@ -192,7 +192,7 @@ static inline void hog_cpu(void)
 {
 #ifdef CONFIG_ARCH_SIM
   /* The simulator doesn't have any mechanism to do asynchronous pre-emption
-   * (basically because it doesn't have any interupts/asynchronous events).
+   * (basically because it doesn't have any interrupts/asynchronous events).
    * The simulator does "fake" a timer interrupt in up_idle() -- the idle
    * thread that only executes when nothing else is running.  In the simulator,
    * we cannot suspend the middle priority task, or we wouldn't have the
