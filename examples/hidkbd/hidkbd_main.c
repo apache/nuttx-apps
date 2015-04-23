@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/hidkbd/hidkbd_main.c
  *
- *   Copyright (C) 2011, 2013-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -233,33 +233,23 @@ static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
 
 static int hidkbd_waiter(int argc, char *argv[])
 {
-  bool connected = false;
-  int rhpndx;
+  FAR struct usbhost_hubport_s *hport;
 
   printf("hidkbd_waiter: Running\n");
   for (;;)
     {
-      /* Wait for the device to change state.
-       *
-       * REVISIT:  This will not handle USB implementations (such as the the
-       * SAMA5) which have multiple downstream, root hub ports.  In such cases,
-       * connected must be an array with dimension equal to the number of root
-       * hub ports.
-       */
+      /* Wait for the device to change state */
 
-      rhpndx = CONN_WAIT(g_usbconn, &connected);
-      DEBUGASSERT(rhpndx == OK);
-
-      connected = !connected;
-      printf("hidkbd_waiter: %s\n", connected ? "connected" : "disconnected");
+      DEBUGVERIFY(CONN_WAIT(g_usbconn, &hport));
+      printf("hidkbd_waiter: %s\n", hport->connected ? "connected" : "disconnected");
 
       /* Did we just become connected? */
 
-      if (connected)
+      if (hport->connected)
         {
           /* Yes.. enumerate the newly connected device */
 
-          (void)CONN_ENUMERATE(g_usbconn, rhpndx);
+          (void)CONN_ENUMERATE(g_usbconn, hport);
         }
     }
 
