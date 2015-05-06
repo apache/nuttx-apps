@@ -80,7 +80,7 @@ enum ntpc_daemon_e
   NTP_STOPPED
 };
 
-/* This type describes the state of the NTP client daemon.  Only once
+/* This type describes the state of the NTP client daemon.  Only one
  * instance of the NTP daemon is permitted in this implementation.
  */
 
@@ -505,6 +505,7 @@ int ntpc_start(void)
 
           g_ntpc_daemon.state = NTP_STOPPED;
           ndbg("ERROR: Failed to start the NTP daemon\n", errval);
+          sched_unlock();
           return -errval;
         }
 
