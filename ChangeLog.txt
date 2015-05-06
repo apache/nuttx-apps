@@ -1280,4 +1280,6 @@
 	  DMA. From Marco Krahl (2015-04-16).
 	* apps/nshlib/: Fix handling of gmtime_r return value in time commands.
 	  gmtime_r returns a pointer, not an int (2015-04-21).
+	* apps/netutils/ntp: Fix mismatched sched_lock/unlock.  Noted by
+	  Juha Niskanen (2015-05-06).
 
