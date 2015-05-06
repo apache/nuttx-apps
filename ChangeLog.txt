@@ -1282,4 +1282,5 @@
 	  gmtime_r returns a pointer, not an int (2015-04-21).
 	* apps/netutils/ntp: Fix mismatched sched_lock/unlock.  Noted by
 	  Juha Niskanen (2015-05-06).
-
+	* apps/examples:  Modify/simpify apps/examples build files.  From Roman
+	  Saveljev (2015-05-06).
