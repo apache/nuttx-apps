@@ -16,4 +16,8 @@ config EXAMPLES_USTREAM_ADDR
 	string "Unix domain address"
 	default "/dev/fifo"
 
+config EXAMPLES_USTREAM_USE_POLL
+	bool "Use poll for checking socket readiness"
+	default n
+
 endif # EXAMPLES_USTREAM

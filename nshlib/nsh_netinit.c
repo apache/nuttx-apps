@@ -107,7 +107,9 @@
 #  ifndef CONFIG_NSH_NOMAC
 #    error "CONFIG_NSH_NOMAC must be defined for SLIP"
 #  endif
-#elif !defined(CONFIG_NET_LOCAL)
+#elif defined(CONFIG_NET_LOCAL)
+#  define NET_DEVNAME "lo"
+#else
 #  error ERROR: No link layer protocol defined
 #endif
 

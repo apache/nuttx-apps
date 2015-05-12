@@ -47,6 +47,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <poll.h>
 
 #include "ustream.h"
 
@@ -60,6 +61,9 @@ int main(int argc, FAR char *argv[])
 int client_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+  struct pollfd pfd;
+#endif
   struct sockaddr_un myaddr;
   socklen_t addrlen;
   FAR char *outbuf;
@@ -128,6 +132,29 @@ int client_main(int argc, char *argv[])
 
   /* Then send and receive one message */
 
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+  memset(&pfd, 0, sizeof(pfd));
+  pfd.fd = sockfd;
+  pfd.events = POLLOUT;
+
+  ret = poll(&pfd, 1, -1);
+  if (ret < 0)
+    {
+      printf("client: send-poll failed: %d\n", errno);
+      goto errout_with_socket;
+    }
+  else if (ret == 0)
+    {
+      printf("client: send-poll failed: returned zero\n");
+      goto errout_with_socket;
+    }
+  else if (!(pfd.revents & POLLOUT))
+    {
+      printf("client: send-poll failed: no POLLOUT\n");
+      goto errout_with_socket;
+    }
+#endif
+
   printf("client: Sending %d bytes\n", SENDSIZE);
   nbytessent = send(sockfd, outbuf, SENDSIZE, 0);
   printf("client: Sent %d bytes\n", nbytessent);
@@ -146,6 +173,29 @@ int client_main(int argc, char *argv[])
   totalbytesrecvd = 0;
   do
     {
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+      memset(&pfd, 0, sizeof(pfd));
+      pfd.fd = sockfd;
+      pfd.events = POLLIN;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("client: recv-poll failed: %d\n", errno);
+          goto errout_with_socket;
+        }
+      else if (ret == 0)
+        {
+          printf("client: recv-poll failed: returned zero\n");
+          goto errout_with_socket;
+        }
+      else if (!(pfd.revents & POLLIN))
+        {
+          printf("client: recv-poll failed: no POLLOUT\n");
+          goto errout_with_socket;
+        }
+#endif
+
       printf("client: Receiving...\n");
       nbytesrecvd = recv(sockfd, &inbuf[totalbytesrecvd], SENDSIZE - totalbytesrecvd, 0);
 

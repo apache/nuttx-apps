@@ -48,6 +48,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <poll.h>
 
 #include "ustream.h"
 
@@ -61,6 +62,9 @@ int main(int argc, FAR char *argv[])
 int server_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+  struct pollfd pfd;
+#endif
   struct sockaddr_un myaddr;
   socklen_t addrlen;
   FAR char *buffer;
@@ -123,6 +127,29 @@ int server_main(int argc, char *argv[])
 
   /* Accept only one connection */
 
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+  memset(&pfd, 0, sizeof(pfd));
+  pfd.fd = listensd;
+  pfd.events = POLLIN;
+
+  ret = poll(&pfd, 1, -1);
+  if (ret < 0)
+    {
+      printf("server: poll failure: %d\n", errno);
+      goto errout_with_listensd;
+    }
+  else if (ret == 0)
+    {
+      printf("server: poll failure: returned zero\n");
+      goto errout_with_listensd;
+    }
+  else if (!(pfd.revents & POLLIN))
+    {
+      printf("server: poll failure: no POLLIN\n");
+      goto errout_with_listensd;
+    }
+#endif
+
   acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
   if (acceptsd < 0)
     {
@@ -137,6 +164,29 @@ int server_main(int argc, char *argv[])
   totalbytesread = 0;
   while (totalbytesread < SENDSIZE)
     {
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+      memset(&pfd, 0, sizeof(pfd));
+      pfd.fd = acceptsd;
+      pfd.events = POLLIN;
+
+      ret = poll(&pfd, 1, -1);
+      if (ret < 0)
+        {
+          printf("server: recv-poll failed: %d\n", errno);
+          goto errout_with_acceptsd;
+        }
+      else if (ret == 0)
+        {
+          printf("server: recv-poll failed: returned zero\n");
+          goto errout_with_acceptsd;
+        }
+      else if (!(pfd.revents & POLLIN))
+        {
+          printf("server: recv-poll failed: no POLLIN\n");
+          goto errout_with_acceptsd;
+        }
+#endif
+
       printf("server: Reading...\n");
       nbytesread = recv(acceptsd, &buffer[totalbytesread], 2*SENDSIZE - totalbytesread, 0);
       if (nbytesread < 0)
@@ -178,6 +228,29 @@ int server_main(int argc, char *argv[])
     }
 
   /* Then send the same data back to the client */
+
+#ifdef CONFIG_EXAMPLES_USTREAM_USE_POLL
+  memset(&pfd, 0, sizeof(pfd));
+  pfd.fd = acceptsd;
+  pfd.events = POLLOUT;
+
+  ret = poll(&pfd, 1, -1);
+  if (ret < 0)
+    {
+      printf("server: send-poll failed: %d\n", errno);
+      goto errout_with_acceptsd;
+    }
+  else if (ret == 0)
+    {
+      printf("server: send-poll failed: returned zero\n");
+      goto errout_with_acceptsd;
+    }
+  else if (!(pfd.revents & POLLOUT))
+    {
+      printf("server: send-poll failed: no POLLOUT\n");
+      goto errout_with_acceptsd;
+    }
+#endif
 
   printf("server: Sending %d bytes\n", totalbytesread);
   nbytessent = send(acceptsd, buffer, totalbytesread, 0);
