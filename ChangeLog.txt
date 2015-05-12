@@ -1284,3 +1284,5 @@
 	  Juha Niskanen (2015-05-06).
 	* apps/examples:  Modify/simpify apps/examples build files.  From Roman
 	  Saveljev (2015-05-06).
+	* apps/nshlib/nsh_netinit.c and apps/examples/ustream/: Add poll
+	  support for Unix stream sockets.  From Jussi Kivilinna (2015-05-12).
