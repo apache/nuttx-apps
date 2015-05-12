@@ -75,7 +75,7 @@ endif # CONFIG_MUTEX_TYPES
 endif # CONFIG_DISABLE_PTHREAD
 
 ifneq ($(CONFIG_DISABLE_SIGNALS),y)
-CSRCS += sigprocmask.c sighand.c
+CSRCS += sigprocmask.c sighand.c signest.c
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += timedwait.c
 endif # CONFIG_DISABLE_PTHREAD

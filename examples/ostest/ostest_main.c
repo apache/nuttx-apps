@@ -447,6 +447,10 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: signal handler test\n");
       sighand_test();
       check_test_memory_usage();
+
+      printf("\nuser_main: nested signal handler test\n");
+      signest_test();
+      check_test_memory_usage();
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS) && !defined(CONFIG_DISABLE_SIGNALS)
