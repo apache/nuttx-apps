@@ -1286,3 +1286,6 @@
 	  Saveljev (2015-05-06).
 	* apps/nshlib/nsh_netinit.c and apps/examples/ustream/: Add poll
 	  support for Unix stream sockets.  From Jussi Kivilinna (2015-05-12).
+	* apps/examples/ostest: Add a test of nested signals.  There are no
+	  failures to handle signals but neither am I getting any nested
+	  signal handling (2015-05-12).
