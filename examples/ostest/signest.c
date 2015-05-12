@@ -107,11 +107,7 @@ static void waiter_action(int signo)
   g_nest_level = nest_level;
 }
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
 static int waiter_main(int argc, char *argv[])
-#endif
 {
   sigset_t sigset;
   struct sigaction act;
@@ -167,11 +163,7 @@ static int waiter_main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
 static int interfere_main(int argc, char *argv[])
-#endif
 {
   /* Now just loop staying in the way as much as possible */
 
