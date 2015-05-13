@@ -177,7 +177,7 @@ void sighand_test(void);
 
 /* signest.c ****************************************************************/
 
-void signext_test(void);
+void signest_test(void);
 
 /* posixtimers.c ************************************************************/
 

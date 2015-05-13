@@ -61,19 +61,17 @@
 
 static sem_t g_waiter_sem;
 static sem_t g_interferer_sem;
-static bool g_waiter_running;
-static bool g_interferer_running;
-static bool g_done;
-static int g_nestlevel;
+static volatile bool g_waiter_running;
+static volatile bool g_interferer_running;
+static volatile bool g_done;
+static volatile int g_nestlevel;
 
-static int g_even_signals;
-static int g_odd_signals;
-static int g_even_handled;
-static int g_odd_handled;
-static int g_even_nested;
-static int g_odd_nested;
+static volatile int g_even_handled;
+static volatile int g_odd_handled;
+static volatile int g_even_nested;
+static volatile int g_odd_nested;
 
-static int g_nest_level;
+static volatile int g_nest_level;
 
 /***********************************************************************
  * Private Functions
@@ -193,6 +191,8 @@ void signest_test(void)
   int total_signals;
   int total_handled;
   int total_nested;
+  int even_signals;
+  int odd_signals;
   int prio;
   int ret;
   int i;
@@ -205,8 +205,9 @@ void signest_test(void)
   g_done = false;
   g_nestlevel = 0;
 
-  g_even_signals = 0;
-  g_odd_signals = 0;
+  even_signals = 0;
+  odd_signals = 0;
+
   g_even_handled = 0;
   g_odd_handled = 0;
   g_even_nested = 0;
@@ -265,8 +266,8 @@ void signest_test(void)
           kill(waiterpid, j);
           kill(waiterpid, j+1);
 
-          g_odd_signals++;
-          g_even_signals++;
+          odd_signals++;
+          even_signals++;
 
           usleep(10*1000);
 
@@ -275,8 +276,8 @@ void signest_test(void)
           kill(waiterpid, j+1);
           kill(waiterpid, j);
 
-          g_odd_signals++;
-          g_even_signals++;
+          odd_signals++;
+          even_signals++;
 
           usleep(10*1000);
         }
@@ -284,13 +285,13 @@ void signest_test(void)
 
   /* Check the test results so far */
 
-  total_signals = g_odd_signals + g_even_signals;
+  total_signals = odd_signals + even_signals;
   total_handled = g_odd_handled + g_even_handled;
   total_nested  = g_odd_nested + g_even_nested;
 
   printf("signest_test: Simple case:\n");
   printf("  Total signalled %-3d  Odd=%-3d Even=%-3d\n",
-         total_signals, g_odd_signals, g_even_signals);
+         total_signals, odd_signals, even_signals);
   printf("  Total handled   %-3d  Odd=%-3d Even=%-3d\n",
          total_handled, g_odd_handled, g_even_handled);
   printf("  Total nested    %-3d  Odd=%-3d Even=%-3d\n",
@@ -311,8 +312,8 @@ void signest_test(void)
           kill(waiterpid, j);
           kill(waiterpid, j+1);
 
-          g_odd_signals++;
-          g_even_signals++;
+          odd_signals++;
+          even_signals++;
           sched_unlock();
 
           usleep(10*1000);
@@ -323,8 +324,8 @@ void signest_test(void)
           kill(waiterpid, j+1);
           kill(waiterpid, j);
 
-          g_odd_signals++;
-          g_even_signals++;
+          odd_signals++;
+          even_signals++;
           sched_unlock();
 
           usleep(10*1000);
@@ -333,13 +334,13 @@ void signest_test(void)
 
   /* Check the test results so far */
 
-  total_signals = g_odd_signals + g_even_signals;
+  total_signals = odd_signals + even_signals;
   total_handled = g_odd_handled + g_even_handled;
   total_nested  = g_odd_nested + g_even_nested;
 
   printf("signest_test: With task locking\n");
   printf("  Total signalled %-3d  Odd=%-3d Even=%-3d\n",
-         total_signals, g_odd_signals, g_even_signals);
+         total_signals, odd_signals, even_signals);
   printf("  Total handled   %-3d  Odd=%-3d Even=%-3d\n",
          total_handled, g_odd_handled, g_even_handled);
   printf("  Total nested    %-3d  Odd=%-3d Even=%-3d\n",
@@ -358,8 +359,8 @@ void signest_test(void)
           sem_post(&g_interferer_sem);
           kill(waiterpid, j+1);
 
-          g_odd_signals++;
-          g_even_signals++;
+          odd_signals++;
+          even_signals++;
           sched_unlock();
 
           usleep(10*1000);
@@ -371,8 +372,8 @@ void signest_test(void)
           sem_post(&g_interferer_sem);
           kill(waiterpid, j);
 
-          g_odd_signals++;
-          g_even_signals++;
+          odd_signals++;
+          even_signals++;
           sched_unlock();
 
           usleep(10*1000);
@@ -389,13 +390,13 @@ errout_with_waiter:
 
   /* Check the final test results */
 
-  total_signals = g_odd_signals + g_even_signals;
+  total_signals = odd_signals + even_signals;
   total_handled = g_odd_handled + g_even_handled;
   total_nested  = g_odd_nested + g_even_nested;
 
   printf("signest_test: With intefering thread\n");
   printf("  Total signalled %-3d  Odd=%-3d Even=%-3d\n",
-         total_signals, g_odd_signals, g_even_signals);
+         total_signals, odd_signals, even_signals);
   printf("  Total handled   %-3d  Odd=%-3d Even=%-3d\n",
          total_handled, g_odd_handled, g_even_handled);
   printf("  Total nested    %-3d  Odd=%-3d Even=%-3d\n",
@@ -419,16 +420,16 @@ errout_with_waiter:
              total_handled, total_signals);
     }
 
-  if (g_odd_signals != g_odd_handled)
+  if (odd_signals != g_odd_handled)
     {
       printf("signest_test: ERROR only %d of %d ODD signals were handled\n",
-             g_odd_handled, g_odd_signals);
+             g_odd_handled, odd_signals);
     }
 
-  if (g_even_signals != g_even_handled)
+  if (even_signals != g_even_handled)
     {
       printf("signest_test: ERROR only %d of %d EVEN signals were handled\n",
-             g_even_handled, g_even_signals);
+             g_even_handled, even_signals);
     }
 
   if (g_odd_nested > 0)
