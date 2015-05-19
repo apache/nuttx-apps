@@ -1289,3 +1289,6 @@
 	* apps/examples/ostest: Add a test of nested signals.  There are no
 	  failures to handle signals but neither am I getting any nested
 	  signal handling (2015-05-12).
+	* apps/nshlib: Enhancements to NSH ifconfig for case of multi-link
+	  operation, TUN device and local connections.  From Max Neklyudov
+	  (2015-05-19).
