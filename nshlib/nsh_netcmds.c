@@ -475,6 +475,8 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
   const char *status;
   int ret;
 
+  /* Get the interface status:  RUNNING, UP, or DOWN */
+
   ret = netlib_getifstatus(dev->d_ifname, &iff);
   if (ret != OK)
     {
@@ -495,13 +497,57 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
       status = "DOWN";
     }
 
-#if defined(CONFIG_NET_ETHERNET)
-  /* REVISIT: How will we handle Ethernet and SLIP networks together? */
+#if defined(CONFIG_NET_MULTILINK)
+  /* If there are multiple link types being supported, then selected the
+   * output appropriate for the link type associated with this device.
+   */
 
-  nsh_output(vtbl, "%s\tLink encap: Ethernet HWaddr %s at %s\n",
+  switch (dev->d_lltype)
+    {
+#  if defined(CONFIG_NET_ETHERNET)
+      case NET_LL_ETHERNET:
+        nsh_output(vtbl, "%s\tLink encap:Ethernet HWaddr %s",
+                   dev->d_ifname, ether_ntoa(&dev->d_mac));
+        break;
+#  endif
+
+#  if defined(CONFIG_NET_SLIP)
+      case NET_LL_SLIP:
+        nsh_output(vtbl, "%s\tLink encap:SLIP", dev->d_ifname);
+        break;
+#  endif
+
+#  if defined(CONFIG_NET_PPP)
+      case NET_LL_PPP:
+        nsh_output(vtbl, "%s\tLink encap:P-t-P", dev->d_ifname);
+        break;
+#  endif
+
+#  if defined(CONFIG_NET_TUN)
+      case NET_LL_TUN:
+        nsh_output(vtbl, "%s\tLink encap:TUN", dev->d_ifname);
+        break;
+#  endif
+
+      default:
+        nsh_output(vtbl, "%s\tLink encap:UNSPEC", dev->d_ifname);
+    }
+
+  nsh_output(vtbl, " at %s\n", status);
+
+#elif defined(CONFIG_NET_ETHERNET)
+  nsh_output(vtbl, "%s\tLink encap:Ethernet HWaddr %s at %s\n",
              dev->d_ifname, ether_ntoa(&dev->d_mac), status);
+
 #elif defined(CONFIG_NET_SLIP)
-  nsh_output(vtbl, "%s\tLink encap:SLIP\n");
+  nsh_output(vtbl, "%s\tLink encap:SLIP at %s\n", dev->d_ifname, status);
+
+#elif defined(CONFIG_NET_PPP)
+  nsh_output(vtbl, "%s\tLink encap:P-t-P at %s\n", dev->d_ifname, status);
+
+#elif defined(CONFIG_NET_TUN)
+  nsh_output(vtbl, "%s\tLink encap:TUN at %s\n", dev->d_ifname, status);
+
 #endif
 
 #ifdef CONFIG_NET_IPv4
@@ -1186,10 +1232,15 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the IP address in binary form */
 
-  if (dns_gethostip(staddr, &ipaddr) < 0)
+  ret = inet_pton(AF_INET, staddr, &ipaddr);
+  if (ret == 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-      return ERROR;
+      ret = dns_gethostip(staddr, &ipaddr);
+      if (ret < 0)
+        {
+          nsh_output(vtbl, "nsh: %s: unable to resolve hostname '%s'\n", argv[0], staddr);
+          return ERROR;
+        }
     }
 
   /* Get the ID to use */

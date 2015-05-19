@@ -155,7 +155,7 @@
  * domain sockets were enable.
  */
 
-#if !defined(CONFIG_NET_ETHERNET) && !defined(CONFIG_NET_SLIP)
+#if !defined(CONFIG_NET_ETHERNET) && !defined(CONFIG_NET_SLIP) && !defined(CONFIG_NET_TUN)
   /* No link layer protocol is a good indication that there is no network
    * device.
    */
