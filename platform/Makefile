@@ -60,8 +60,13 @@ endif
 
 PLATFORMDIR = $(APPDIR)$(DELIM)platform$(DELIM)board
 DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
-BOARDDIR    = $(APPDIR)$(DELIM)platform$(DELIM)$(CONFIG_ARCH_BOARD)
-LINKDIR     = $(if $(wildcard $(BOARDDIR)$(DELIM)Make.defs),$(BOARDDIR),$(DUMMYDIR))
+
+ifeq ($(CONFIG_ARCH_BOARD_CUSTOM),y)
+  LINKDIR   = $(DUMMYDIR)
+else
+  BOARDDIR  = $(APPDIR)$(DELIM)platform$(DELIM)$(CONFIG_ARCH_BOARD)
+  LINKDIR   = $(if $(wildcard $(BOARDDIR)$(DELIM)Make.defs),$(BOARDDIR),$(DUMMYDIR))
+endif
 
 VPATH       = board
 
