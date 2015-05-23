@@ -50,7 +50,7 @@ config INTERPRETER_BAS_STACKSIZE
 	---help---
 		Size of the stack allocated for the Basic interpreter main task
 
-config INTERPREPTER_BAS_VT100
+config INTERPRETER_BAS_VT100
 	bool "VT100 terminal support"
 	default y
 

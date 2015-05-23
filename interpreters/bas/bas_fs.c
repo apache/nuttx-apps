@@ -103,7 +103,7 @@ static int g_used;
 static const int g_open_mode[4] = { 0, O_RDONLY, O_WRONLY, O_RDWR };
 static char g_errmsgbuf[80];
 
-#ifdef CONFIG_INTERPREPTER_BAS_VT100
+#ifdef CONFIG_INTERPRETER_BAS_VT100
 static const uint8_t g_vt100_colormap[8] =
 {
   VT100_BLACK, VT100_BLUE,   VT100_GREEN,  VT100_CYAN,
@@ -306,7 +306,7 @@ static int edit(int chn, int onl)
         {
           if (f->inCapacity)
             {
-#ifdef CONFIG_INTERPREPTER_BAS_VT100
+#ifdef CONFIG_INTERPRETER_BAS_VT100
               /* Could use vt100_clrtoeol */
 #endif
               /* Is the previous character in the buffer 2 character escape sequence? */
@@ -397,7 +397,7 @@ static int edit(int chn, int onl)
 
 static int cls(int chn)
 {
-#ifdef CONFIG_INTERPREPTER_BAS_VT100
+#ifdef CONFIG_INTERPRETER_BAS_VT100
   vt100_clrscreen(chn);
   vt100_cursorhome(chn);
   return 0;
@@ -409,7 +409,7 @@ static int cls(int chn)
 
 static int locate(int chn, int line, int column)
 {
-#ifdef CONFIG_INTERPREPTER_BAS_VT100
+#ifdef CONFIG_INTERPRETER_BAS_VT100
   vt100_setcursor(chn, line, column);
   return 0;
 #else
@@ -420,7 +420,7 @@ static int locate(int chn, int line, int column)
 
 static int colour(int chn, int foreground, int background)
 {
-#ifdef CONFIG_INTERPREPTER_BAS_VT100
+#ifdef CONFIG_INTERPRETER_BAS_VT100
   if (foreground >= 0)
     {
       vt100_foreground_color(chn, foreground);
@@ -440,7 +440,7 @@ static int colour(int chn, int foreground, int background)
 
 static int resetcolour(int chn)
 {
-#ifdef CONFIG_INTERPREPTER_BAS_VT100
+#ifdef CONFIG_INTERPRETER_BAS_VT100
   vt100_foreground_color(chn, VT100_DEFAULT);
   vt100_background_color(chn, VT100_DEFAULT);
 #endif

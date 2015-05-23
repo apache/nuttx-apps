@@ -43,7 +43,7 @@ ASRCS  =
 CSRCS  = bas.c bas_auto.c bas_fs.c bas_global.c bas_main.c bas_program.c
 CSRCS += bas_str.c bas_token.c bas_value.c bas_var.c
 
-ifeq ($(CONFIG_INTERPREPTER_BAS_VT100),y)
+ifeq ($(CONFIG_INTERPRETER_BAS_VT100),y)
 CSRCS += bas_vt100.c
 endif
 
