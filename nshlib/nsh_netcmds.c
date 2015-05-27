@@ -1295,11 +1295,11 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           if (seqno == -ETIMEDOUT)
             {
-              nsh_output(vtbl, "seq=%d Request timeout\n", i);
+              nsh_output(vtbl, "icmp_seq=%d Request timeout\n", i);
             }
           else if (seqno == -ENETUNREACH)
             {
-              nsh_output(vtbl, "seq=%d Network is unreachable\n", i);
+              nsh_output(vtbl, "icmp_seq=%d Network is unreachable\n", i);
             }
         }
 
