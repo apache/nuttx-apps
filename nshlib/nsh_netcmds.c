@@ -1291,6 +1291,17 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                      DEFAULT_PING_DATALEN, staddr, seqno, elapsed);
           replies++;
         }
+      else if (seqno < 0)
+        {
+          if (seqno == -ETIMEDOUT)
+            {
+              nsh_output(vtbl, "seq=%d Request timeout\n", i);
+            }
+          else if (seqno == -ENETUNREACH)
+            {
+              nsh_output(vtbl, "seq=%d Network is unreachable\n", i);
+            }
+        }
 
       /* Wait for the remainder of the interval.  If the last seqno<i,
        * then this is a bad idea... we will probably lose the response
