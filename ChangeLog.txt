@@ -1292,3 +1292,6 @@
 	* apps/nshlib: Enhancements to NSH ifconfig for case of multi-link
 	  operation, TUN device and local connections.  From Max Neklyudov
 	  (2015-05-19).
+	* apps/nshlib: Enhanced output to NSH ping command from Max Neklyudov
+	  (2015-05-27).
+
