@@ -1294,4 +1294,6 @@
 	  (2015-05-19).
 	* apps/nshlib: Enhanced output to NSH ping command from Max Neklyudov
 	  (2015-05-27).
-
+	* apps/examples/elf: Add configuration options to support building the
+	  hello++4 example that depends upon having uClibc++ available.  From
+	  Leo aloe3132 (2015-05-29).
