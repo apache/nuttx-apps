@@ -1297,3 +1297,6 @@
 	* apps/examples/elf: Add configuration options to support building the
 	  hello++4 example that depends upon having uClibc++ available.  From
 	  Leo aloe3132 (2015-05-29).
+	* apps/platform/stm32f4discovery: Move up_cxxinitialize from
+	  nuttx/configs/stm32f4discovery/src to apps/platform/stm32f4discovery
+	  where it belongs (2015-05-29).
