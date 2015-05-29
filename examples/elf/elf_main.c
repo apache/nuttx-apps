@@ -225,6 +225,12 @@ int elf_main(int argc, char *argv[])
   int ret;
   int i;
 
+  /* Call all C++ static constructors */
+
+#if defined(CONFIG_EXAMPLES_ELF_CXXINITIALIZE)
+  up_cxxinitialize();
+#endif
+
   /* Initialize the memory monitor */
 
   mm_initmonitor();

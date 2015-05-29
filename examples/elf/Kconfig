@@ -16,7 +16,7 @@ config EXAMPLES_ELF_SYSCALL
 	default n
 	depends on LIB_SYSCALL && !BUILD_KERNEL
 	---help---
-		Link with the SYCALL library.  By default, all undefined symbols
+		Link with the SYSCALL library.  By default, all undefined symbols
 		must be provided via a symbol table.  But if this option is
 		selected, then each ELF test program will link with the SYSCALL
 		library and will interface with the OS system calls.  In this case,
@@ -53,5 +53,24 @@ config EXAMPLES_ELF_DEVPATH
 		The path to the ROMFS block driver device.  This must match EXAMPLES_ELF_DEVMINOR.
 		Used for registering the RAM block driver that will hold the ROMFS file system
 		containing the ELF executables to be tested.  Default: "/dev/ram0"
+
+config EXAMPLES_ELF_CXXINITIALIZE
+	bool "C++ Initialization"
+	default y
+	depends on HAVE_CXX && HAVE_CXXINITIALIZE
+	---help---
+		By default, if CONFIG_HAVE_CXX and CONFIG_HAVE_CXXINITIALIZE are
+		defined, then this example will call the NuttX function to
+		initialize static C++ constructors.  This option may be disabled,
+		however, if that static initialization was performed elsewhere.
+
+config EXAMPLES_ELF_UCLIBCXX
+	bool "uClibc++ is installed"
+	default n
+	depends on UCLIBCXX
+	---help---
+		By default, uClibc++ is not installed and configured. If the
+		user installs and configures the C++ standard library, this
+		example will compile the demos using it.
 
 endif

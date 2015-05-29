@@ -67,8 +67,10 @@ BIN1 = hello++1
 BIN2 = hello++2
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 BIN3 = hello++3
+ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+BIN4 = hello++4
 endif
-#BIN4 = hello++4
+endif
 ALL_BIN = $(BIN1) $(BIN2) $(BIN3) $(BIN4)
 
 SRCS1 = $(BIN1).c
@@ -80,10 +82,12 @@ OBJS2 = $(SRCS2:.c=$(OBJEXT))
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 SRCS3 = $(BIN3).c
 OBJS3 = $(SRCS3:.c=$(OBJEXT))
+ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+SRCS4 = $(BIN4).c
+OBJS4 = $(SRCS4:.c=$(OBJEXT))
+endif
 endif
 
-#SRCS4 = $(BIN4).c
-#OBJS4 = $(SRCS4:.c=$(OBJEXT))
 
 SRCS = $(SRCS1) $(SRCS2) $(SRCS3) $(SRCS4)
 OBJS = $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4)
@@ -122,15 +126,17 @@ ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 $(BIN3): $(OBJS3)
 	@echo "LD: $<"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
-endif
 
 # BIN4 is similar to BIN3 except that it uses the streams code from libstdc++
 #
 # NOTE:  libstdc++ is not available for NuttX as of this writing
 #
-#$(BIN4): $(OBJS4)
-#	@echo "LD: $<"
-#	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+$(BIN4): $(OBJS4)
+	@echo "LD: $<"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
+endif
+endif
 
 clean:
 	$(call DELFILE, $(BIN1))
@@ -145,8 +151,10 @@ install: $(ALL_BIN)
 	$(Q) install $(BIN2) $(ROMFS_DIR)/$(BIN2)
 ifeq ($(CONFIG_BINFMT_CONSTRUCTORS),y)
 	$(Q) install $(BIN3) $(ROMFS_DIR)/$(BIN3)
+ifeq ($(CONFIG_EXAMPLES_ELF_UCLIBCXX),y)
+	$(Q) install $(BIN4) $(ROMFS_DIR)/$(BIN4)
 endif
-#	$(Q) install $(BIN4) $(ROMFS_DIR)/$(BIN4)
+endif
 
 
 
