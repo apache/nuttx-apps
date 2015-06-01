@@ -1300,3 +1300,5 @@
 	* apps/platform/stm32f4discovery: Move up_cxxinitialize from
 	  nuttx/configs/stm32f4discovery/src to apps/platform/stm32f4discovery
 	  where it belongs (2015-05-29).
+	* apps/examples/elf/tests/helloxx: Add hello++5 to ELF example.  From
+	  Leo Aloe3132 (2015-06-01).
