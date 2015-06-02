@@ -3230,11 +3230,13 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
         }
 
       /* Nope, no index file, so it's an actual directory request. */
+
 #ifdef CONFIG_THTTPD_GENERATE_INDICES
       /* Directories must be readable for indexing. */
+
       if (!(hc->sb.st_mode & S_IROTH))
         {
-          ndbg("%s URL \"%s\" tried to index a directory with indexing disabled\n",
+          ndbg("%s URL \"%s\" tried to index a non-readable directory\n",
                  httpd_ntoa(&hc->client_addr), hc->encodedurl);
           httpd_send_err(hc, 403, err403title, "",
                          ERROR_FORM(err403form,
@@ -3262,8 +3264,9 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
       return ls(hc);
 #else /* CONFIG_THTTPD_GENERATE_INDICES */
+      /* Indexing is disabled */
 
-      ndbg("%s URL \"%s\" tried to index a directory\n",
+      ndbg("%s URL \"%s\" tried to index a directory with indexing disabled\n",
              httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,

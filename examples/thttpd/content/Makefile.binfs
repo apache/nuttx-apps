@@ -44,7 +44,7 @@ PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
 ASRCS =
-CSRCS = hello.c netstat.c tasks.c
+CSRCS = index.c hello.c netstat.c tasks.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -68,9 +68,8 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-
-ROOTDEPPATH = --dep-path hello --dep-path netstat --dep-path tasks
-VPATH = hello:netstat:tasks
+ROOTDEPPATH = --dep-path index --dep-path hello --dep-path netstat --dep-path tasks
+VPATH = index:hello:netstat:tasks
 
 all: .built
 .PHONY: context headers binaries depend clean
@@ -89,6 +88,9 @@ binaries: .built
 
 headers:
 
+$(BUILTIN_REGISTRY)$(DELIM)index_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,index.cgi,$(PRIORITY),$(STACKSIZE),index_main)
+
 $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,hello,$(PRIORITY),$(STACKSIZE),hello_main)
 
@@ -98,7 +100,7 @@ $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,tasks,$(PRIORITY),$(STACKSIZE),tasks_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
+context: $(BUILTIN_REGISTRY)$(DELIM)index_main.bdat $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep

@@ -129,7 +129,7 @@ static void create_environment(httpd_conn *hc);
 static char **make_argp(httpd_conn *hc);
 static inline int cgi_interpose_input(struct cgi_conn_s *cc);
 static inline int cgi_interpose_output(struct cgi_conn_s *cc);
-static int  cgi_child(int argc, char **argv);
+static int cgi_child(int argc, char **argv);
 
 /****************************************************************************
  * Private Data
@@ -720,7 +720,7 @@ static int cgi_child(int argc, char **argv)
   cc = (FAR struct cgi_conn_s*)httpd_malloc(sizeof(struct cgi_conn_s));
   if (!cc)
     {
-      nlldbg("cgi_conn allocation failed\n");
+      nlldbg("ERROR: cgi_conn allocation failed\n");
       close(hc->conn_fd);
       goto errout;
     }
@@ -768,7 +768,7 @@ static int cgi_child(int argc, char **argv)
   ret = pipe(pipefd);
   if (ret < 0)
     {
-      nlldbg("STDIN pipe: %d\n", errno);
+      nlldbg("ERROR: STDIN pipe: %d\n", errno);
       goto errout_with_cgiconn;
     }
   else
@@ -784,7 +784,7 @@ static int cgi_child(int argc, char **argv)
 
       if (ret < 0)
         {
-          nlldbg("STDIN dup2: %d\n", errno);
+          nlldbg("ERROR: STDIN dup2: %d\n", errno);
           goto errout_with_descriptors;
         }
     }
@@ -799,7 +799,7 @@ static int cgi_child(int argc, char **argv)
       ret = pipe(pipefd);
       if (ret < 0)
         {
-          nlldbg("STDOUT pipe: %d\n", errno);
+          nlldbg("ERROR: STDOUT pipe: %d\n", errno);
           goto errout_with_descriptors;
         }
       else
@@ -815,7 +815,7 @@ static int cgi_child(int argc, char **argv)
 
           if (ret < 0)
             {
-              nlldbg("STDOUT dup2: %d\n", errno);
+              nlldbg("ERROR: STDOUT dup2: %d\n", errno);
               goto errout_with_descriptors;
             }
         }
@@ -833,6 +833,7 @@ static int cgi_child(int argc, char **argv)
         {
           (void)chdir(directory); /* ignore errors */
         }
+
       httpd_free(dupname);
     }
 
@@ -841,7 +842,7 @@ static int cgi_child(int argc, char **argv)
   httpd_realloc_str(&cc->outbuf.buffer, &cc->outbuf.size, CONFIG_THTTPD_CGIOUTBUFFERSIZE);
   if (!cc->outbuf.buffer)
     {
-      nlldbg("hdr allocation failed\n");
+      nlldbg("ERROR: hdr allocation failed\n");
       goto errout_with_descriptors;
     }
 
@@ -850,7 +851,7 @@ static int cgi_child(int argc, char **argv)
   fw = fdwatch_initialize(2);
   if (!fw)
     {
-      nlldbg("fdwatch allocation failed\n");
+      nlldbg("ERROR: fdwatch allocation failed\n");
       goto errout_with_outbuffer;
     }
 
@@ -867,7 +868,7 @@ static int cgi_child(int argc, char **argv)
     {
       /* Something went wrong. */
 
-      nlldbg("execve %s: %d\n", hc->expnfilename, errno);
+      nlldbg("ERROR: execve %s: %d\n", hc->expnfilename, errno);
       goto errout_with_watch;
    }
 
@@ -877,7 +878,7 @@ static int cgi_child(int argc, char **argv)
   client_data.i = child;
   if (tmr_create(NULL, cgi_kill, client_data, CONFIG_THTTPD_CGI_TIMELIMIT * 1000L, 0) == NULL)
     {
-      nlldbg("tmr_create(cgi_kill child) failed\n");
+      nlldbg("ERROR: tmr_create(cgi_kill child) failed\n");
       goto errout_with_watch;
     }
 #endif
@@ -895,7 +896,7 @@ static int cgi_child(int argc, char **argv)
     {
       if (httpd_write(cc->wrfd, &(hc->read_buf[hc->checked_idx]), nbytes) != nbytes)
         {
-          nlldbg("httpd_write failed\n");
+          nlldbg("ERROR: httpd_write failed\n");
           return 1;
         }
     }

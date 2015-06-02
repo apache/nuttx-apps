@@ -64,6 +64,10 @@
 #  include <nuttx/binfmt/nxflat.h>
 #endif
 
+#ifdef CONFIG_THTTPD_BINFS
+#  include <nuttx/binfmt/builtin.h>
+#endif
+
 #ifdef CONFIG_NET_SLIP
 #  include <nuttx/net/net.h>
 #endif
@@ -249,6 +253,7 @@ int thttp_main(int argc, char *argv[])
   /* Create a ROM disk for the ROMFS filesystem */
 
   printf("Registering romdisk\n");
+
   ret = romdisk_register(0, (uint8_t*)romfs_img, NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
@@ -272,6 +277,17 @@ int thttp_main(int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_THTTPD_BINFS
+  /* Initialize the NXFLAT binary loader */
+
+  printf("Initializing the Built-In binary loader\n");
+
+  ret = builtin_initialize();
+  if (ret < 0)
+    {
+      printf("ERROR: Initialization of the Built-In loader failed: %d\n", ret);
+      exit(2);
+    }
+
   /* Mount the BINFS file system */
 
   printf("Mounting BINFS filesystem at target=%s\n", MOUNTPT);
