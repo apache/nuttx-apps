@@ -121,7 +121,11 @@ int main(int argc, char *argv[])
       "</head>\r\n"
       "<body bgcolor=\"#fffeec\" text=\"black\">\r\n"
         "<div class=\"menu\">\r\n"
+#ifdef CONFIG_THTTPD_BINFS
+        "<div class=\"menubox\"><a href=\"/index.cgi\">Front page</a></div>\r\n"
+#else
         "<div class=\"menubox\"><a href=\"/index.html\">Front page</a></div>\r\n"
+#endif
         "<div class=\"menubox\"><a href=\"hello\">Say Hello</a></div>\r\n"
         "<div class=\"menubox\"><a href=\"tasks\">Tasks</a></div>\r\n"
         "<div class=\"menubox\"><a href=\"netstat\">Network status</a></div>\r\n"
