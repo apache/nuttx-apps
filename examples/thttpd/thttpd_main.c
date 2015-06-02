@@ -59,13 +59,19 @@
 
 #include <nuttx/fs/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
-#include <nuttx/binfmt/nxflat.h>
+
+#ifdef CONFIG_THTTPD_NXFLAT
+#  include <nuttx/binfmt/nxflat.h>
+#endif
+
 #ifdef CONFIG_NET_SLIP
 #  include <nuttx/net/net.h>
 #endif
 
-#include "content/romfs.h"
-#include "content/symtab.h"
+#ifdef CONFIG_THTTPD_NXFLAT
+#  include "content/romfs.h"
+#  include "content/symtab.h"
+#endif
 
 /****************************************************************************
  * Definitions
@@ -79,22 +85,33 @@
 #  error "You must provide file descriptors via CONFIG_NFILE_DESCRIPTORS in your configuration file"
 #endif
 
-#ifndef CONFIG_NXFLAT
-#  error "You must select CONFIG_NXFLAT in your configuration file"
-#endif
-
-#ifndef CONFIG_FS_ROMFS
-#  error "You must select CONFIG_FS_ROMFS in your configuration file"
-#endif
-
-#ifdef CONFIG_DISABLE_MOUNTPOINT
-#  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
-#endif
-
 #ifdef CONFIG_BINFMT_DISABLE
 #  error "You must not disable loadable modules via CONFIG_BINFMT_DISABLE in your configuration file"
 #endif
 
+#ifdef CONFIG_THTTPD_NXFLAT
+#  ifndef CONFIG_NXFLAT
+#    error "You must select CONFIG_NXFLAT in your configuration file"
+#  endif
+
+#  ifndef CONFIG_FS_ROMFS
+#    error "You must select CONFIG_FS_ROMFS in your configuration file"
+#  endif
+
+#  ifdef CONFIG_DISABLE_MOUNTPOINT
+#    error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
+#  endif
+#endif
+
+#ifdef CONFIG_THTTPD_BINFS
+#  ifndef CONFIG_FS_BINFS
+#    error "You must select CONFIG_BUILTIN=y in your configuration file"
+#  endif
+
+#  ifndef CONFIG_FS_BINFS
+#    error "You must select CONFIG_FS_BINFS=y in your configuration file"
+#  endif
+#endif
 /* Ethernet specific configuration */
 
 #ifdef CONFIG_NET_ETHERNET
@@ -142,6 +159,7 @@
  * Public Data
  ****************************************************************************/
 
+#ifdef CONFIG_THTTPD_NXFLAT
 /* These values must be provided by the user before the THTTPD task daemon
  * is started:
  *
@@ -153,6 +171,7 @@
 
 FAR const struct symtab_s *g_thttpdsymtab;
 int                         g_thttpdnsymbols;
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -173,7 +192,9 @@ int thttp_main(int argc, char *argv[])
   uint8_t mac[IFHWADDRLEN];
 #endif
   char *thttpd_argv = "thttpd";
+#if defined(CONFIG_THTTPD_NXFLAT) || defined(CONFIG_NET_SLIP)
   int ret;
+#endif
 
   /* Configure SLIP */
 
@@ -216,6 +237,7 @@ int thttp_main(int argc, char *argv[])
   addr.s_addr = HTONL(CONFIG_EXAMPLES_THTTPD_NETMASK);
   netlib_set_ipv4netmask(NET_DEVNAME, &addr);
 
+#ifdef CONFIG_THTTPD_NXFLAT
   /* Initialize the NXFLAT binary loader */
 
   printf("Initializing the NXFLAT binary loader\n");
@@ -249,11 +271,14 @@ int thttp_main(int argc, char *argv[])
              ROMFSDEV, MOUNTPT, errno);
       nxflat_uninitialize();
     }
+#endif
 
   /* Start THTTPD.  At present, symbol table info is passed via global variables */
 
+#ifdef CONFIG_THTTPD_NXFLAT
   g_thttpdsymtab   = exports;
   g_thttpdnsymbols = NEXPORTS;
+#endif
 
   printf("Starting THTTPD\n");
   fflush(stdout);

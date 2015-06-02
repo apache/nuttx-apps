@@ -6,10 +6,12 @@
 config NETUTILS_THTTPD
 	bool "THTTPD webserver"
 	default n
+	depends on NXFLAT || FS_BINFS
 	---help---
 		Enable support for the THTTPD webservert.
 
 if NETUTILS_THTTPD
+
 config THTTPD_PORT
 	int "THTTPD port number"
 	default 80
@@ -32,26 +34,44 @@ config THTTPD_SERVER_ADDRESS
 		SERVER_ADDRESS: response, Default: "http://www.nuttx.org"
 
 config THTTPD_SERVER_SOFTWARE
-	string "Reporter server software string"
+	string "Reported server software string"
 	default "thttpd/2.25b 29dec2003-NuttX"
 	---help---
 		SERVER_SOFTWARE: response, Default: "thttpd/2.25b 29dec2003-NuttX"
 
+choice
+	prompt "CGI file system"
+	default THTTPD_NXFLAT if NXFLAT && !FS_BINFS
+	default THTTPD_BINFS if !NXFLAT && FS_BINFS
+
+config THTTPD_NXFLAT
+	bool "NXFLAT"
+	depends on NXFLAT
+
+config THTTPD_BINFS
+	bool "binfs"
+	depends on FS_BINFS
+
+endchoice
+
 config THTTPD_PATH
 	string "Path to the server content"
-	default "/mnt/www"
+	default "/mnt/www" if NXFLAT
+	default "/bin" if FS_BINFS
 	---help---
 		Server working directory.  Default: "/mnt/www"
 
 config THTTPD_CGI_PATH
 	string "Path to CGI content"
-	default "/mnt/www/cgi-bin"
+	default "/mnt/www/cgi-bin" if NXFLAT
+	default "/bin" if FS_BINFS
 	---help---
 		Path to CGI executables.  Default: "/mnt/www/cgi-bin"
 
 config THTTPD_CGI_PATTERN
 	string "CGI match pattern"
-	default "/mnt/www/cgi-bin/*"
+	default "/mnt/www/cgi-bin/*" if NXFLAT
+	default "/bin/*" if FS_BINFS
 	---help---
 		Only CGI programs matching this pattern will be executed.  In
 		fact, if this value is not defined then no CGI logic will be built.
@@ -59,7 +79,7 @@ config THTTPD_CGI_PATTERN
 
 config THTTPD_CGI_PRIORITY
 	int "CGI child priority"
-	default 50
+	default 100
 	---help---
 		Provides the priority of CGI child tasks.  Default: 50
 

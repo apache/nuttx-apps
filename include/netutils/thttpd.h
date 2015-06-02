@@ -1,7 +1,7 @@
 /****************************************************************************
  *  apps/include/netutils/thttpd.h
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,7 @@ extern "C" {
 #define EXTERN extern
 #endif
 
+#ifdef CONFIG_THTTPD_NXFLAT
 /* These values must be provided by the user before the THTTPD task daemon
  * is started:
  *
@@ -70,6 +71,7 @@ extern "C" {
 
 EXTERN FAR const struct symtab_s *g_thttpdsymtab;
 EXTERN int                        g_thttpdnsymbols;
+#endif
 
 /****************************************************************************
  * Public Function Prototypes
@@ -91,7 +93,7 @@ EXTERN int                        g_thttpdnsymbols;
  *
  ****************************************************************************/
 
-EXTERN int thttpd_main(int argc, char **argv);
+int thttpd_main(int argc, char **argv);
 
 #undef EXTERN
 #if defined(__cplusplus)

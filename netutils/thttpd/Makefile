@@ -1,7 +1,7 @@
 #############################################################################
 # apps/netutils/thttpd/Makefile
 #
-#   Copyright (C) 2009, 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2009, 2011-2012, 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+include $(APPDIR)$(DELIM)Make.defs
 
 # THTTPD Library
 
@@ -43,19 +43,9 @@ ASRCS =
 CSRCS =
 
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS += libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c fdwatch.c tdate_parse.c
-MAINSRC += thttpd.c
-endif
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
+  CSRCS += libhttpd.c thttpd_cgi.c thttpd_alloc.c thttpd_strings.c timers.c
+  CSRCS += fdwatch.c tdate_parse.c
+  MAINSRC += thttpd.c
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -81,19 +71,43 @@ ROOTDEPPATH = --dep-path .
 
 # CGI binaries (examples only, not used in the build)
 
-CGIBINDIR = $(APPDIR)/netutils/thttpd/cgi-bin
+CGIBINDIR = $(APPDIR)$(DELIM)netutils$(DELIM)thttpd$(DELIM)cgi-bin
 
-SUBDIRS =
-ifeq ($(CONFIG_NXFLAT),y)
-SUBDIRS = cgi-src
-SUBDIR_BIN1 = phf
-SUBDIR_BIN2 = redirect
-SUBDIR_BIN3 = ssi
-SUBDIR_BIN += cgi-bin/$(SUBDIR_BIN1) cgi-bin/$(SUBDIR_BIN2)  cgi-bin/$(SUBDIR_BIN3)
+BINFS_CSRCS =
+VPATH = .
+
+ifeq ($(CONFIG_THTTPD_NXFLAT),y)
+  SUBDIR_BIN1 = phf
+  SUBDIR_BIN2 = redirect
+  SUBDIR_BIN3 = ssi
+  SUBDIR_BIN += cgi-bin$(DELIM)$(SUBDIR_BIN1) cgi-bin$(DELIM)$(SUBDIR_BIN2)  cgi-bin$(DELIM)$(SUBDIR_BIN3)
 endif
 
+ifeq ($(CONFIG_THTTPD_BINFS),y)
+  BINFS_CSRCS =  phf.c redirect.c ssi.c
+  VPATH += :cgi-src
+endif
+
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+BINFS_COBJS = $(BINFS_CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS) $(BINFS_CSRCS) $(MAINSRC)
+OBJS = $(AOBJS) $(COBJS) $(BINFS_COBJS)
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS += $(MAINOBJ)
+endif
+
+CONFIG_THTTPD_CGI_PRIORITY ?= 100
+CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
+
+PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
+STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
+
 all: $(SUBDIR_BIN) .built
-.PHONY: depend clean distclean
+.PHONY: context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -101,27 +115,27 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-ifeq ($(CONFIG_NXFLAT),y)
+ifeq ($(CONFIG_THTTPD_NXFLAT),y)
 cgi-bin:
 	$(Q) mkdir cgi-bin
 
-cgi-src/$(SUBDIR_BIN1):
+cgi-src$(DELIM)$(SUBDIR_BIN1):
 	$(Q) $(MAKE) -C cgi-src $(SUBDIR_BIN1)
 
-cgi-bin/$(SUBDIR_BIN1): cgi-bin cgi-src/$(SUBDIR_BIN1)
-	$(Q) cp -a cgi-src/$(SUBDIR_BIN1) $@
+cgi-bin$(DELIM)$(SUBDIR_BIN1): cgi-bin cgi-src$(DELIM)$(SUBDIR_BIN1)
+	$(Q) cp -a cgi-src$(DELIM)$(SUBDIR_BIN1) $@
 
-cgi-src/$(SUBDIR_BIN2):
+cgi-src$(DELIM)$(SUBDIR_BIN2):
 	$(Q) $(MAKE) -C cgi-src $(SUBDIR_BIN2)
 
-cgi-bin/$(SUBDIR_BIN2): cgi-bin cgi-src/$(SUBDIR_BIN2)
-	$(Q) cp -a cgi-src/$(SUBDIR_BIN2) $@
+cgi-bin$(DELIM)$(SUBDIR_BIN2): cgi-bin cgi-src$(DELIM)$(SUBDIR_BIN2)
+	$(Q) cp -a cgi-src$(DELIM)$(SUBDIR_BIN2) $@
 
-cgi-src/$(SUBDIR_BIN3):
+cgi-src$(DELIM)$(SUBDIR_BIN3):
 	$(Q) $(MAKE) -C cgi-src $(SUBDIR_BIN3)
 
-cgi-bin/$(SUBDIR_BIN3): cgi-bin cgi-src/$(SUBDIR_BIN3)
-	$(Q) cp -a cgi-src/$(SUBDIR_BIN3) $@
+cgi-bin$(DELIM)$(SUBDIR_BIN3): cgi-bin cgi-src$(DELIM)$(SUBDIR_BIN3)
+	$(Q) cp -a cgi-src$(DELIM)$(SUBDIR_BIN3) $@
 endif
 
 .built: $(OBJS)
@@ -141,7 +155,22 @@ install:
 
 endif
 
+ifeq ($(CONFIG_THTTPD_BINFS),y)
+$(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,phf,$(PRIORITY),$(STACKSIZE),php_main)
+
+$(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,redirect,$(PRIORITY),$(STACKSIZE),redirect_main)
+
+$(BUILTIN_REGISTRY)$(DELIM)ssi_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,ssi,$(PRIORITY),$(STACKSIZE),ssi_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat $(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat $(BUILTIN_REGISTRY)$(DELIM)ssi_main.bdat
+
+else
 context:
+
+endif
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep

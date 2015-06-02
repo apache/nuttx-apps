@@ -2,7 +2,7 @@
  * netutils/thttpd/cgi-src/ssi.c
  * Server-side-includes CGI program
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file of the same name in the original THTTPD package:
@@ -876,7 +876,11 @@ static void read_file(FILE *instream, char *vfilename, char *filename)
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, char **argv)
+#ifdef CONFIG_THTTPD_BINFS
+int ssi_main(int argc, char *argv[])
+#else
+int main(int argc, char *argv[])
+#endif
 {
   FILE *instream;
   char *script_name;

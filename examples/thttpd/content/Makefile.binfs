@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/thttpd/Makefile
+# apps/examples/thttpd/content/Makefile.binfs
 #
-#   Copyright (C) 2009-2012, 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,30 +37,28 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# THTTPD Web Server Example
+CONFIG_THTTPD_CGI_PRIORITY ?= 100
+CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
+
+PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
+STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
 ASRCS =
-CSRCS =
-MAINSRC = thttpd_main.c
+CSRCS = hello.c netstat.c tasks.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
 
-ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
-endif
-
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
+  BIN = ..\..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\..\\libapps$(LIBEXT)
 else
-  BIN = ../../libapps$(LIBEXT)
+  BIN = ../../../libapps$(LIBEXT)
 endif
 endif
 
@@ -70,25 +68,12 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONTENT_MAKE = $(MAKE) -C content
-ifeq ($(CONFIG_THTTPD_NXFLAT),y)
-  CONTENT_MAKE += -f Makefile.nxflat
-endif
-ifeq ($(CONFIG_THTTPD_BINFS),y)
-  CONTENT_MAKE += -f Makefile.binfs
-endif
 
-CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-ROOTDEPPATH = --dep-path .
-
-# Common build
-
-VPATH =
+ROOTDEPPATH = --dep-path hello --dep-path netstat --dep-path tasks
+VPATH = hello:netstat:tasks
 
 all: .built
-.PHONY: headers clean depend distclean
+.PHONY: context headers binaries depend clean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -96,40 +81,33 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-headers:
-	@$(CONTENT_MAKE) headers TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
-
-.built: headers $(OBJS)
+.built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
-	@$(CONTENT_MAKE) binaries TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	@touch .built
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+binaries: .built
 
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+headers:
 
-else
-install:
+$(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,hello,$(PRIORITY),$(STACKSIZE),hello_main)
 
-endif
+$(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,netstat,$(PRIORITY),$(STACKSIZE),netstat_main)
 
-context:
-	@$(CONTENT_MAKE) context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
+$(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,tasks,$(PRIORITY),$(STACKSIZE),tasks_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	@touch $@
 
 depend: .depend
-	@$(CONTENT_MAKE) depend TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 
 clean:
 	$(call DELFILE, .built)
-	@$(CONTENT_MAKE) clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" CROSSDEV=$(CROSSDEV)
 	$(call CLEAN)
 
 distclean: clean
@@ -137,4 +115,3 @@ distclean: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
-

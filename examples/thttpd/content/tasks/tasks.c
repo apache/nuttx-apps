@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/thttpd/tasks/tasks.c
  *
- *   Copyright (C) 2009, 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 #include <sched.h>
 
 /****************************************************************************
- * Definitions
+ * pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -165,12 +165,16 @@ static const char *g_ttypenames[4] =
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_THTTPD_BINFS
+int tasks_main(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
   puts(
-	"Content-type: text/html\r\n"
-	"Status: 200/html\r\n"
-	"\r\n"
+    "Content-type: text/html\r\n"
+    "Status: 200/html\r\n"
+    "\r\n"
     "<html>\r\n"
       "<head>\r\n"
         "<title>NuttX Tasks</title>\r\n"

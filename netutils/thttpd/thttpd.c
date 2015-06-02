@@ -170,10 +170,9 @@ static void shut_down(void)
   httpd_free((void *)connects);
 }
 
-static int handle_newconnect(struct timeval *tv, int listen_fd)
+static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
 {
-  struct connect_s *conn;
-  ClientData client_data;
+  FAR struct connect_s *conn;
 
   /* This loops until the accept() fails, trying to start new connections as
    * fast as possible so we don't overrun the listen queue.
@@ -243,7 +242,6 @@ static int handle_newconnect(struct timeval *tv, int listen_fd)
       free_connections        = conn->next;
       conn->next              = NULL;
 
-      client_data.p           = conn;
       conn->active_at         = tv->tv_sec;
       conn->wakeup_timer      = NULL;
       conn->linger_timer      = NULL;
@@ -258,7 +256,6 @@ static int handle_newconnect(struct timeval *tv, int listen_fd)
 
 static void handle_read(struct connect_s *conn, struct timeval *tv)
 {
-  ClientData client_data;
   httpd_conn *hc = conn->hc;
   off_t actual;
   int sz;
@@ -383,7 +380,6 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
   /* We have a valid connection and a file to send to it */
 
   conn->conn_state = CNST_SENDING;
-  client_data.p    = conn;
   fdwatch_del_fd(fw, hc->conn_fd);
   return;
 

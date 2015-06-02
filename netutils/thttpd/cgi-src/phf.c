@@ -2,7 +2,7 @@
  * netutils/thttpd/cgi-src/phf.c
  * Cracker trap
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file of the same name in the original THTTPD package:
@@ -59,7 +59,11 @@
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_THTTPD_BINFS
+int phf_main(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
   fprintf(stderr, "phf CGI probe from %s\n", getenv("REMOTE_ADDR"));
 

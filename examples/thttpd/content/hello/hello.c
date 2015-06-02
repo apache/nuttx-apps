@@ -2,7 +2,7 @@
  * examples/thttpd/content/hello/hello.c
  * Manatory "Hello, World!" Example
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,18 @@
  * Public Functions
  ****************************************************************************/
 
+#ifdef CONFIG_THTTPD_BINFS
+int hello_main(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
   fprintf(stderr, "Hello requested from: %s\n", getenv("REMOTE_ADDR"));
 
   puts(
-	"Content-type: text/html\r\n"
-	"Status: 200/html\r\n"
-	"\r\n"
+    "Content-type: text/html\r\n"
+    "Status: 200/html\r\n"
+    "\r\n"
     "<html>\r\n"
       "<head>\r\n"
         "<title>Hello!</title>\r\n"

@@ -857,7 +857,12 @@ static int cgi_child(int argc, char **argv)
   /* Run the CGI program. */
 
   nllvdbg("Starting CGI: %s\n", hc->expnfilename);
+
+#ifdef CONFIG_THTTPD_NXFLAT
   child = exec(hc->expnfilename, (FAR char * const *)argp, g_thttpdsymtab, g_thttpdnsymbols);
+#else
+  child = exec(hc->expnfilename, (FAR char * const *)argp, NULL, 0);
+#endif
   if (child < 0)
     {
       /* Something went wrong. */

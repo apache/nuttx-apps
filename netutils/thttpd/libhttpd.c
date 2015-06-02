@@ -1104,14 +1104,15 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
   static char *checked;
   static char *rest;
   static size_t maxchecked = 0, maxrest = 0;
-  size_t checkedlen, restlen, prevcheckedlen, prevrestlen;
+  size_t checkedlen;
+  size_t restlen;
 #if 0 // REVISIT
   struct stat sb;
 #endif
-  int nlinks, i;
   char *r;
   char *cp1;
   char *cp2;
+  int i;
 
   nvdbg("path: \"%s\"\n", path);
 #if 0 // REVISIT
@@ -1191,17 +1192,11 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
     }
 
   r = rest;
-  nlinks = 0;
 
   /* While there are still components to check... */
 
   while (restlen > 0)
     {
-      /* Save current checkedlen.  Save current restlen in case we get a non-existant component. */
-
-      prevcheckedlen = checkedlen;
-      prevrestlen    = restlen;
-
       /* Grab one component from r and transfer it to checked. */
 
       cp1 = strchr(r, '/');

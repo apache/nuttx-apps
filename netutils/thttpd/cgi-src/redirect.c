@@ -2,7 +2,7 @@
  * netutils/thttpd/cgi-src/redirect.c
  * Simple redirection CGI program
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file of the same name in the original THTTPD package:
@@ -147,7 +147,11 @@ The requested filename, %s, has moved to a new URL:\n\
  * Public Functions
  ****************************************************************************/
 
-int main(int argc, char **argv)
+#ifdef CONFIG_THTTPD_BINFS
+int redirect_main(int argc, char *argv[])
+#else
+int main(int argc, char *argv[])
+#endif
 {
   char *script_name;
   char *path_info;
