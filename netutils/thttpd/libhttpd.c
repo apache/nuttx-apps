@@ -88,7 +88,7 @@
 
 #define NAMLEN(dirent) strlen((dirent)->d_name)
 
-extern char *crypt(const char *key, const char *setting);
+extern CODE char *crypt(const char *key, const char *setting);
 
 #ifndef MAX
 #  define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -1563,7 +1563,11 @@ static void ls_child(int argc, char **argv)
   struct stat lsb;
   char modestr[20];
   char *linkprefix;
+#if 0
   char link[MAXPATHLEN + 1];
+#else
+  char link[1];
+#endif
   char *fileclass;
   time_t now;
   char *timestr;
@@ -1640,6 +1644,7 @@ static void ls_child(int argc, char **argv)
       nameptrs[nnames][namlen] = '\0';
       ++nnames;
     }
+
   closedir(dirp);
 
   /* Sort the names. */
@@ -1818,7 +1823,6 @@ static int ls(httpd_conn *hc)
   struct stat lsb;
   char modestr[20];
   char *linkprefix;
-  char link[MAXPATHLEN + 1];
   char *fileclass;
   time_t now;
   char *timestr;
