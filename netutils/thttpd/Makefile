@@ -157,7 +157,7 @@ endif
 
 ifeq ($(CONFIG_THTTPD_BINFS),y)
 $(BUILTIN_REGISTRY)$(DELIM)phf_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,phf,$(PRIORITY),$(STACKSIZE),php_main)
+	$(call REGISTER,phf,$(PRIORITY),$(STACKSIZE),phf_main)
 
 $(BUILTIN_REGISTRY)$(DELIM)redirect_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,redirect,$(PRIORITY),$(STACKSIZE),redirect_main)

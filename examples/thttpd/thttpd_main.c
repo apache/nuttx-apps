@@ -192,9 +192,7 @@ int thttp_main(int argc, char *argv[])
   uint8_t mac[IFHWADDRLEN];
 #endif
   char *thttpd_argv = "thttpd";
-#if defined(CONFIG_THTTPD_NXFLAT) || defined(CONFIG_NET_SLIP)
   int ret;
-#endif
 
   /* Configure SLIP */
 
@@ -259,7 +257,7 @@ int thttp_main(int argc, char *argv[])
       exit(1);
     }
 
-  /* Mount the file system */
+  /* Mount the ROMFS file system */
 
   printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, ROMFSDEV);
@@ -267,9 +265,21 @@ int thttp_main(int argc, char *argv[])
   ret = mount(ROMFSDEV, MOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      printf("ERROR: mount(%s,%s,romfs) failed: %s\n",
+      printf("ERROR: mount(%s,%s,romfs) failed: %d\n",
              ROMFSDEV, MOUNTPT, errno);
       nxflat_uninitialize();
+    }
+#endif
+
+#ifdef CONFIG_THTTPD_BINFS
+  /* Mount the BINFS file system */
+
+  printf("Mounting BINFS filesystem at target=%s\n", MOUNTPT);
+
+  ret = mount(NULL, MOUNTPT, "binfs", MS_RDONLY, NULL);
+  if (ret < 0)
+    {
+      printf("ERROR: mount(NULL,%s,binfs) failed: %d\n", MOUNTPT, errno);
     }
 #endif
 
