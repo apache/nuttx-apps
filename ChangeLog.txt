@@ -1302,3 +1302,7 @@
 	  where it belongs (2015-05-29).
 	* apps/examples/elf/tests/helloxx: Add hello++5 to ELF example.  From
 	  Leo Aloe3132 (2015-06-01).
+	* apps/netutils/thttpd/ and apps/examples/thttpd/: Add support for using
+	  binfs/ instead of NXFLAT.  NXFLAT is probably the better solution but
+	  recently compiler changes make it unusable.  binfs or ELF are fallback
+	  binary formats.  This commit adds an option to use binfs (2015-06-02).
