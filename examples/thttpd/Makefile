@@ -71,11 +71,10 @@ else
 endif
 
 CONTENT_MAKE = $(MAKE) -C content
-ifeq ($(CONFIG_THTTPD_NXFLAT),y)
-  CONTENT_MAKE += -f Makefile.nxflat
-endif
 ifeq ($(CONFIG_THTTPD_BINFS),y)
   CONTENT_MAKE += -f Makefile.binfs
+else
+  CONTENT_MAKE += -f Makefile.nxflat
 endif
 
 CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
