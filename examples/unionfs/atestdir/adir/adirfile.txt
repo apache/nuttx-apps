@@ -1,0 +1,2 @@
+This is a file in directory adir on file system 1
+
