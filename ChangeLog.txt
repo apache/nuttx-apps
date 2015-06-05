@@ -1306,3 +1306,5 @@
 	  binfs/ instead of NXFLAT.  NXFLAT is probably the better solution but
 	  recently compiler changes make it unusable.  binfs or ELF are fallback
 	  binary formats.  This commit adds an option to use binfs (2015-06-02).
+	* apps/examples/unionfs: Add a test of the union file system to
+	  apps/examaples (2015-06-05).
