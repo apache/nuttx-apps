@@ -1,2 +1,2 @@
-This is anoath file in directory adir on file system 2
+This is another file in directory adir on file system 2
 
