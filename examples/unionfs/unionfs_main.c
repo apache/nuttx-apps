@@ -192,7 +192,7 @@ int unionfs_main(int argc, char *argv[])
                       CONFIG_EXAMPLES_UNIONFS_MOUNTPT);
   if (ret < 0)
     {
-      printf("ERROR: Failed to crate the union file system 1: %d\n", ret);
+      printf("ERROR: Failed to create the union file system: %d\n", ret);
       return EXIT_FAILURE;
     }
 

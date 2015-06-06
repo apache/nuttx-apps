@@ -43,8 +43,14 @@ CONFIG_THTTPD_CGI_STACKSIZE ?= 2048
 PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
+THTTPD_DIR = $(APPDIR)/examples/thttpd
+CONTENT_DIR = $(THTTPD_DIR)/content
+ROMFS_DIR = $(CONTENT_DIR)/romfs
+ROMFS_IMG = $(CONTENT_DIR)/romfs.img
+ROMFS_HDR = $(CONTENT_DIR)/romfs.h
+
 ASRCS =
-CSRCS = index.c hello.c netstat.c tasks.c
+CSRCS = hello.c netstat.c tasks.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -68,8 +74,8 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-ROOTDEPPATH = --dep-path index --dep-path hello --dep-path netstat --dep-path tasks
-VPATH = index:hello:netstat:tasks
+ROOTDEPPATH = --dep-path hello --dep-path netstat --dep-path tasks
+VPATH = hello:netstat:tasks
 
 all: .built
 .PHONY: context headers binaries depend clean
@@ -80,16 +86,38 @@ $(AOBJS): %$(OBJEXT): %.S
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-.built: $(OBJS)
+# Create the romfs directory
+
+$(ROMFS_DIR):
+	@mkdir -p $(ROMFS_DIR)
+
+# Populate the romfs directory
+
+$(ROMFS_DIR)/index.html : $(CONTENT_DIR)/index.html
+	@cp -a $< $@ || { echo "cp of index.html failed"; exit 1; }
+
+$(ROMFS_DIR)/style.css : $(CONTENT_DIR)/style.css
+	@cp -a $< $@ || { echo "cp of $< failed"; exit 1; }
+
+populate: $(ROMFS_DIR) $(ROMFS_DIR)/index.html  $(ROMFS_DIR)/style.css
+
+# Create the romfs.img file from the populated romfs directory
+
+$(ROMFS_IMG): populate
+	@genromfs -f $@ -d $(ROMFS_DIR) -V "THTTPDTEST"
+
+# Create the romfs.h header file from the romfs.img file
+
+$(ROMFS_HDR) : $(ROMFS_IMG)
+	@(cd $(CONTENT_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+
+.built: $(ROMFS_HDR) $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
 binaries: .built
 
-headers:
-
-$(BUILTIN_REGISTRY)$(DELIM)index_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,index.cgi,$(PRIORITY),$(STACKSIZE),index_main)
+headers: $(ROMFS_HDR)
 
 $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,hello,$(PRIORITY),$(STACKSIZE),hello_main)
@@ -100,7 +128,7 @@ $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat: $(DEPCONFIG) Makefile
 $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,tasks,$(PRIORITY),$(STACKSIZE),tasks_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)index_main.bdat $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
+context: $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
@@ -109,6 +137,9 @@ context: $(BUILTIN_REGISTRY)$(DELIM)index_main.bdat $(BUILTIN_REGISTRY)$(DELIM)h
 depend: .depend
 
 clean:
+	$(call DELFILE$(ROMFS_HDR))
+	$(call DELFILE, $(ROMFS_IMG))
+	@rm -rf $(ROMFS_DIR)
 	$(call DELFILE, .built)
 	$(call CLEAN)
 
