@@ -102,13 +102,13 @@ checkgenromfs:
 	}
 
 atestdir.img : checkgenromfs
-	@genromfs -f $@ -d atestdir -V "UNIONFS_Test" || { echo "genromfs failed" ; exit 1 ; }
+	@genromfs -f $@ -d atestdir -V "UNIONFS_FS1" || { echo "genromfs failed" ; exit 1 ; }
 
 romfs_atestdir.h : atestdir.img
 	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
 
 btestdir.img : checkgenromfs
-	@genromfs -f $@ -d btestdir -V "UNIONFS_Test" || { echo "genromfs failed" ; exit 1 ; }
+	@genromfs -f $@ -d btestdir -V "UNIONFS_FS2" || { echo "genromfs failed" ; exit 1 ; }
 
 romfs_btestdir.h : btestdir.img
 	@xxd -i $< >$@ || { echo "xxd of $< failed" ; exit 1 ; }
