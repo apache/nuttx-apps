@@ -6,7 +6,7 @@
 config EXAMPLES_UNIONFS
 	bool "Union file system example"
 	default n
-	depends on FS_ROMFS || FS_UNIONFS
+	depends on (FS_ROMFS || FS_UNIONFS) && BUILD_FLAT
 	---help---
 		Enable the Union File System example
 

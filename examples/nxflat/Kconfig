@@ -6,6 +6,7 @@
 config EXAMPLES_NXFLAT
 	bool "NXFLAT example"
 	default n
+	depends on NXFLAT && BUILD_FLAT
 	---help---
 		Enable the NXFLAT example
 

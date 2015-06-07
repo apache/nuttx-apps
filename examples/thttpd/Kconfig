@@ -6,7 +6,7 @@
 config EXAMPLES_THTTPD
 	bool "THTTPD web server example"
 	default n
-	depends on FS_ROMFS
+	depends on FS_ROMFS && BUILD_FLAT
 	---help---
 		Enable the THTTPD web server example
 

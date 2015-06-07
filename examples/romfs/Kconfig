@@ -6,7 +6,7 @@
 config EXAMPLES_ROMFS
 	bool "ROMFS example"
 	default n
-	depends on FS_ROMFS
+	depends on FS_ROMFS && BUILD_FLAT
 	---help---
 		Enable the ROMFS example
 
