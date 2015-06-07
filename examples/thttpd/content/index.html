@@ -18,13 +18,16 @@
   <p>
     These web pages are served by a port of <a href="http://acme.com/software/thttpd/">THTTPD</a>
     running on top of <a href="http://www.nuttx.org">NuttX</a>.
-    NuttX includes a port of the <a href="http://www.sics.se/~adam/uip/">uIP</a> embedded TCP/IP stack.
+    NuttX includes an embedded TCP/IP state that derives from the <a href="http://www.sics.se/~adam/uip/">uIP</a>.
   </p>
   <p>
     Click on the links above to exercise THTTPD's CGI capability under NuttX.
-    Clicking the links will execute the CGI program from an
-    <a href="http://nuttx.sourceforge.net/NuttXNxFlat.html">NXFLAT</a> program residing
-    in a ROMFS file system.
+    Depending on the configuration, clicking the links will execute the CGI program from either:
   </p>
+  <ol>
+    <li>An <a href="http://nuttx.sourceforge.net/NuttXNxFlat.html">NXFLAT</a> program residing
+    in a NuttX ROMFS file system, or</li>
+    <li>A built-in application managed by a NuttX BINFS file system.</li>
+  </ol>
   </body>
 </html>
