@@ -139,6 +139,12 @@ static const char* get_fstype(FAR struct statfs *statbuf)
         break;
 #endif
 
+#ifdef CONFIG_FS_UNIONFS
+      case UNIONFS_MAGIC:
+        fstype = "unionfs";
+        break;
+#endif
+
       default:
         fstype = "Unrecognized";
         break;
