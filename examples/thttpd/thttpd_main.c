@@ -156,7 +156,7 @@
 
 /* Describe the ROMFS file system */
 
-#define SECTORSIZE   512
+#define SECTORSIZE   64
 #define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
 #define ROMFSDEV     "/dev/ram0"
 
