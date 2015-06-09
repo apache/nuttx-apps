@@ -1264,7 +1264,7 @@
 	* apps/system/zoneinfo:  All logic to build timezone info.  Does not do
 	  much else yet (2015-04-14).
 
-7.10 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.10 2015-06-09 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/system/zoneinfo:  Add logic to build a ROMFS file system
 	  containing the timezone data (2015-04-15).
@@ -1307,4 +1307,10 @@
 	  recently compiler changes make it unusable.  binfs or ELF are fallback
 	  binary formats.  This commit adds an option to use binfs (2015-06-02).
 	* apps/examples/unionfs: Add a test of the union file system to
-	  apps/examaples (2015-06-05).
+	  apps/examples (2015-06-05).
+	* apps/examples/thttpd now uses the Union File System if BINFS is
+	  selected for CGI binaries (2015-06-06).
+	* apps/nshlib/: The NSH mount command now recognizes the Union file
+	  system type when listing mounted file systems (2015-06-07).
+
+7.11 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
