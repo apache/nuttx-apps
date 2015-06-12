@@ -1562,7 +1562,6 @@ static void ls_child(int argc, char **argv)
   static size_t maxencrname = 0;
   FILE *fp;
   struct stat sb;
-  struct stat lsb;
   char modestr[20];
   char *linkprefix;
 #if 0
@@ -1685,7 +1684,7 @@ static void ls_child(int argc, char **argv)
       httpd_realloc_str(&encrname, &maxencrname, 3 * strlen(rname) + 1);
       httpd_strencode(encrname, maxencrname, rname);
 
-      if (stat(name, &sb) < 0 || lstat(name, &lsb) < 0)
+      if (stat(name, &sb) < 0)
         {
           continue;
         }
@@ -1695,7 +1694,7 @@ static void ls_child(int argc, char **argv)
 
       /* Break down mode word.  First the file type. */
 
-      switch (lsb.st_mode & S_IFMT)
+      switch (sb.st_mode & S_IFMT)
         {
         case S_IFIFO:
           modestr[0] = 'p';
@@ -1731,9 +1730,9 @@ static void ls_child(int argc, char **argv)
        * not of interest to web clients.
        */
 
-      modestr[1] = (lsb.st_mode & S_IROTH) ? 'r' : '-';
-      modestr[2] = (lsb.st_mode & S_IWOTH) ? 'w' : '-';
-      modestr[3] = (lsb.st_mode & S_IXOTH) ? 'x' : '-';
+      modestr[1] = (sb.st_mode & S_IROTH) ? 'r' : '-';
+      modestr[2] = (sb.st_mode & S_IWOTH) ? 'w' : '-';
+      modestr[3] = (sb.st_mode & S_IXOTH) ? 'x' : '-';
       modestr[4] = '\0';
 
       /* We also leave out the owner and group name */
@@ -1741,7 +1740,7 @@ static void ls_child(int argc, char **argv)
       /* Get time string. */
 
       now = time(NULL);
-      timestr = ctime(&lsb.st_mtime);
+      timestr = ctime(&sb.st_mtime);
       timestr[0] = timestr[4];
       timestr[1] = timestr[5];
       timestr[2] = timestr[6];
@@ -1750,7 +1749,7 @@ static void ls_child(int argc, char **argv)
       timestr[5] = timestr[9];
       timestr[6] = ' ';
 
-      if (now - lsb.st_mtime > 60 * 60 * 24 * 182)      /* 1/2 year */
+      if (now - sb.st_mtime > 60 * 60 * 24 * 182)      /* 1/2 year */
         {
           timestr[7] = ' ';
           timestr[8] = timestr[20];
@@ -1791,10 +1790,11 @@ static void ls_child(int argc, char **argv)
 
       /* And print. */
 
-      (void)fprintf(fp, "%s %3ld  %10lld  %s  <A HREF=\"/%.500s%s\">%s</A>%s%s%s\n",
-                    modestr, (long)lsb.st_nlink, (int16_t) lsb.st_size,
-                    timestr, encrname, S_ISDIR(sb.st_mode) ? "/" : "",
-                    nameptrs[i], linkprefix, link, fileclass);
+      (void)fprintf(fp,
+                    "%s %3ld  %10lld  %s  <A HREF=\"/%.500s%s\">%s</A>%s%s%s\n",
+                    modestr, 0, (int16_t)sb.st_size, timestr, encrname,
+                    S_ISDIR(sb.st_mode) ? "/" : "", nameptrs[i], linkprefix,
+                    link, fileclass);
     }
 
   fputs("</PRE>", fp);
