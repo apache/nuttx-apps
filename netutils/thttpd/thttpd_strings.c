@@ -154,7 +154,7 @@ void httpd_strdecode(char *to, char *from)
 /* Copies and encodes a string. */
 
 #ifdef CONFIG_THTTPD_GENERATE_INDICES
-static void httpd_strencode(char *to, int tosize, char *from)
+void httpd_strencode(char *to, int tosize, char *from)
 {
   int tolen;
 

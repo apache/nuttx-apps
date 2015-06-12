@@ -308,6 +308,7 @@ config THTTPD_TILDE_MAP2
 config THTTPD_GENERATE_INDICES
 	bool "Generate name indices"
 	default n
+	select TIME_EXTENDED
 	---help---
 
 config THTTPD_USE_URLPATTERN

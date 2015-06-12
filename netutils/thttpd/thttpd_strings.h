@@ -2,7 +2,7 @@
  * netutils/thttpd/thttpd_strings.h
  * HTTP strings
  *
- *   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file of the same name in the original THTTPD package:
@@ -111,12 +111,12 @@ extern const char html_endhdr2[];
 
 /* Copies and decodes a string.  It's ok for from and to to be the same string. */
 
-extern void httpd_strdecode(char *to, char *from);
+void httpd_strdecode(char *to, char *from);
 
 /* Copies and encodes a string. */
 
 #ifdef CONFIG_THTTPD_GENERATE_INDICES
-extern void httpd_strencode(char *to, int tosize, char *from);
+void httpd_strencode(char *to, int tosize, char *from);
 #endif
 
 #endif /* CONFIG_THTTPD */
