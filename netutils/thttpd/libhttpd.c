@@ -2,7 +2,7 @@
  * netutils/thttpd/libhttpd.c
  * HTTP Protocol Library
  *
- *   Copyright (C) 2009, 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file of the same name in the original THTTPD package:
@@ -43,11 +43,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -1536,9 +1538,9 @@ done:
 /* qsort comparison routine. */
 
 #ifdef CONFIG_THTTPD_GENERATE_INDICES
-static int name_compare(char **a, char **b)
+static int name_compare(FAR const void *a, FAR const void *b)
 {
-  return strcmp(*a, *b);
+  return strcmp(*((FAR char **)a), *((FAR char **)b));
 }
 
 static void ls_child(int argc, char **argv)
@@ -1548,6 +1550,7 @@ static void ls_child(int argc, char **argv)
   struct dirent *de;
   int namlen;
   static int maxnames = 0;
+  int oldmax;
   int nnames;
   static char *names;
   static char **nameptrs;
@@ -1558,20 +1561,19 @@ static void ls_child(int argc, char **argv)
   static char *encrname;
   static size_t maxencrname = 0;
   FILE *fp;
-  int i, r;
   struct stat sb;
   struct stat lsb;
   char modestr[20];
   char *linkprefix;
 #if 0
-  char link[MAXPATHLEN + 1];
+  char link[PATH_MAX + 1];
 #else
   char link[1];
 #endif
   char *fileclass;
   time_t now;
   char *timestr;
-  ClientData client_data;
+  int i;
 
   httpd_unlisten(hc->hs);
   send_mime(hc, 200, ok200title, "", "", "text/html; charset=%s",
@@ -1616,14 +1618,14 @@ static void ls_child(int argc, char **argv)
           if (maxnames == 0)
             {
               maxnames = 100;
-              names    = NEW(char, maxnames * (MAXPATHLEN + 1));
+              names    = NEW(char, maxnames * (PATH_MAX + 1));
               nameptrs = NEW(char*, maxnames);
             }
           else
             {
               oldmax    = maxnames;
               maxnames *= 2;
-              names     = RENEW(names, char, oldmax*(MAXPATHLEN+1), maxnames*(MAXPATHLEN + 1));
+              names     = RENEW(names, char, oldmax*(PATH_MAX+1), maxnames*(PATH_MAX + 1));
               nameptrs  = RENEW(nameptrs, char*, oldmax, maxnames);
             }
 
@@ -1635,7 +1637,7 @@ static void ls_child(int argc, char **argv)
 
           for (i = 0; i < maxnames; ++i)
             {
-              nameptrs[i] = &names[i * (MAXPATHLEN + 1)];
+              nameptrs[i] = &names[i * (PATH_MAX + 1)];
             }
         }
 
@@ -1805,27 +1807,7 @@ static void ls_child(int argc, char **argv)
 static int ls(httpd_conn *hc)
 {
   DIR *dirp;
-  struct dirent *de;
-  int namlen;
-  static int maxnames = 0;
-  int nnames;
-  static char *names;
-  static char **nameptrs;
-  static char *name;
-  static size_t maxname = 0;
-  static char *rname;
-  static size_t maxrname = 0;
-  static char *encrname;
-  static size_t maxencrname = 0;
-  FILE *fp;
-  int i, child;
-  struct stat sb;
-  struct stat lsb;
-  char modestr[20];
-  char *linkprefix;
-  char *fileclass;
-  time_t now;
-  char *timestr;
+  int child;
   char arg[16];
   char *argv[1];
 #if CONFIG_THTTPD_CGI_TIMELIMIT > 0
