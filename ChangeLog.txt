@@ -1314,3 +1314,6 @@
 	  system type when listing mounted file systems (2015-06-07).
 
 7.11 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/netutils/thttpd:  Fix compilation problems when
+	  CONFIG_THTTPD_GENERATE_INDICES is defined (2015-06-12).
