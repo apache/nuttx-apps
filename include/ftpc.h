@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/ftpc.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -146,7 +146,7 @@ struct ftpc_login_s
  *
  * Since the structure and file names are allocated, they must be freed
  * by calling ftpc_dirfree() when they are no longer needed.  Allocated
- * name strings maby be "stolen" from the array but the pointer int the
+ * name strings may be "stolen" from the array but the pointer int the
  * array should be nullified so that the string is not freed by
  * ftpc_dirfree().
  */
@@ -166,7 +166,8 @@ struct ftpc_dirlist_s
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -176,46 +177,46 @@ extern "C" {
  ****************************************************************************/
 /* Connection management ****************************************************/
 
-EXTERN SESSION ftpc_connect(FAR struct ftpc_connect_s *server);
-EXTERN void ftpc_disconnect(SESSION handle);
+SESSION ftpc_connect(FAR struct ftpc_connect_s *server);
+void ftpc_disconnect(SESSION handle);
 
 /* FTP commands *************************************************************/
 
-EXTERN int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login);
-EXTERN int ftpc_quit(SESSION handle);
+int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login);
+int ftpc_quit(SESSION handle);
 
-EXTERN int ftpc_chdir(SESSION handle, FAR const char *path);
-EXTERN FAR char *ftpc_rpwd(SESSION handle);
-EXTERN int ftpc_cdup(SESSION handle);
-EXTERN int ftpc_mkdir(SESSION handle, FAR const char *path);
-EXTERN int ftpc_rmdir(SESSION handle, FAR const char *path);
+int ftpc_chdir(SESSION handle, FAR const char *path);
+FAR char *ftpc_rpwd(SESSION handle);
+int ftpc_cdup(SESSION handle);
+int ftpc_mkdir(SESSION handle, FAR const char *path);
+int ftpc_rmdir(SESSION handle, FAR const char *path);
 
-EXTERN int ftpc_unlink(SESSION handle, FAR const char *path);
-EXTERN int ftpc_chmod(SESSION handle, FAR const char *path, FAR const char *mode);
-EXTERN int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname);
-EXTERN off_t ftpc_filesize(SESSION handle, FAR const char *path);
-EXTERN time_t ftpc_filetime(SESSION handle, FAR const char *filename);
+int ftpc_unlink(SESSION handle, FAR const char *path);
+int ftpc_chmod(SESSION handle, FAR const char *path, FAR const char *mode);
+int ftpc_rename(SESSION handle, FAR const char *oldname, FAR const char *newname);
+off_t ftpc_filesize(SESSION handle, FAR const char *path);
+time_t ftpc_filetime(SESSION handle, FAR const char *filename);
 
-EXTERN int ftpc_idle(SESSION handle, unsigned int idletime);
-EXTERN int ftpc_noop(SESSION handle);
-EXTERN int ftpc_help(SESSION handle, FAR const char *arg);
+int ftpc_idle(SESSION handle, unsigned int idletime);
+int ftpc_noop(SESSION handle);
+int ftpc_help(SESSION handle, FAR const char *arg);
 
 /* Directory listings *******************************************************/
 
-EXTERN FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
-                                               FAR const char *dirpath);
-EXTERN void ftpc_dirfree(FAR struct ftpc_dirlist_s *dirlist);
+FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
+                                        FAR const char *dirpath);
+void ftpc_dirfree(FAR struct ftpc_dirlist_s *dirlist);
 
 /* File transfers ***********************************************************/
 
-EXTERN int ftpc_getfile(SESSION handle, FAR const char *rname,
-                        FAR const char *lname, uint8_t how, uint8_t xfrmode);
-EXTERN int ftp_putfile(SESSION handle, FAR const char *lname,
-                       FAR const char *rname, uint8_t how, uint8_t xfrmode);
+int ftpc_getfile(SESSION handle, FAR const char *rname,
+                 FAR const char *lname, uint8_t how, uint8_t xfrmode);
+int ftp_putfile(SESSION handle, FAR const char *lname,
+                FAR const char *rname, uint8_t how, uint8_t xfrmode);
 
 /* FTP response *************************************************************/
 
-EXTERN FAR char *ftpc_response(SESSION handle);
+FAR char *ftpc_response(SESSION handle);
 
 #undef EXTERN
 #ifdef __cplusplus

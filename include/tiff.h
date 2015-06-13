@@ -1,7 +1,7 @@
 /************************************************************************************
  * apps/include/tiff.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Reference:
@@ -359,7 +359,8 @@ struct tiff_info_s
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -384,7 +385,7 @@ extern "C" {
  *
  ************************************************************************************/
 
-EXTERN int tiff_initialize(FAR struct tiff_info_s *info);
+int tiff_initialize(FAR struct tiff_info_s *info);
 
 /************************************************************************************
  * Name: tiff_addstrip
@@ -402,7 +403,7 @@ EXTERN int tiff_initialize(FAR struct tiff_info_s *info);
  *
  ************************************************************************************/
 
-EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip);
+int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip);
 
 /************************************************************************************
  * Name: tiff_finalize
@@ -418,7 +419,7 @@ EXTERN int tiff_addstrip(FAR struct tiff_info_s *info, FAR const uint8_t *strip)
  *
  ************************************************************************************/
 
-EXTERN int tiff_finalize(FAR struct tiff_info_s *info);
+int tiff_finalize(FAR struct tiff_info_s *info);
 
 /************************************************************************************
  * Name: tiff_abort
@@ -434,7 +435,7 @@ EXTERN int tiff_finalize(FAR struct tiff_info_s *info);
  *
  ************************************************************************************/
 
-EXTERN void tiff_abort(FAR struct tiff_info_s *info);
+void tiff_abort(FAR struct tiff_info_s *info);
 
 /************************************************************************************
  * Name: tiff_put/get16/32
@@ -452,10 +453,10 @@ EXTERN void tiff_abort(FAR struct tiff_info_s *info);
  *
  ************************************************************************************/
 
-EXTERN void tiff_put16(FAR uint8_t *dest, uint16_t value);
-EXTERN void tiff_put32(FAR uint8_t *dest, uint32_t value);
-EXTERN uint16_t tiff_get16(FAR uint8_t *dest);
-EXTERN uint32_t tiff_get32(FAR uint8_t *dest);
+void tiff_put16(FAR uint8_t *dest, uint16_t value);
+void tiff_put32(FAR uint8_t *dest, uint32_t value);
+uint16_t tiff_get16(FAR uint8_t *dest);
+uint32_t tiff_get32(FAR uint8_t *dest);
 
 #undef EXTERN
 #ifdef __cplusplus

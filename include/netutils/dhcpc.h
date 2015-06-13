@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/netutils/dhcpc.h
  *
- *   Copyright (C) 2007, 2009-2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This logic was leveraged from uIP which also has a BSD-style license:
@@ -69,14 +69,15 @@ struct dhcpc_state
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
 
-EXTERN void *dhcpc_open(const void *mac_addr, int mac_len);
-EXTERN int   dhcpc_request(void *handle, struct dhcpc_state *presult);
-EXTERN void  dhcpc_close(void *handle);
+FAR void *dhcpc_open(FAR const void *mac_addr, int mac_len);
+int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult);
+void dhcpc_close(FAR void *handle);
 
 #undef EXTERN
 #ifdef __cplusplus

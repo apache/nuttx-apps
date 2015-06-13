@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/netutils/ftpd.h
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@
  *   CONFIG_DISABLE_PTHREAD - pthread support is required
  *   CONFIG_DISABLE_POLL - poll() support is required
  *
- * Other FTPD configuration options thay may be of interest:
+ * Other FTPD configuration options that may be of interest:
  *
  *   CONFIG_FTPD_VENDORID - The vendor name to use in FTP communications.
  *     Default: "NuttX"
@@ -117,7 +117,8 @@ typedef FAR void *FTPD_SESSION;
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -142,7 +143,7 @@ extern "C" {
  *
  ****************************************************************************/
 
-EXTERN FTPD_SESSION ftpd_open(void);
+FTPD_SESSION ftpd_open(void);
 
 /****************************************************************************
  * Name: ftpd_adduser
@@ -166,9 +167,9 @@ EXTERN FTPD_SESSION ftpd_open(void);
  *
  ****************************************************************************/
 
-EXTERN int ftpd_adduser(FTPD_SESSION handle, uint8_t accountflags,
-                        FAR const char *user, FAR const char *passwd,
-                        FAR const char *home);
+int ftpd_adduser(FTPD_SESSION handle, uint8_t accountflags,
+                 FAR const char *user, FAR const char *passwd,
+                 FAR const char *home);
 
 /****************************************************************************
  * Name: ftpd_session
@@ -186,13 +187,13 @@ EXTERN int ftpd_adduser(FTPD_SESSION handle, uint8_t accountflags,
  *
  * Returned Value:
  *   Zero is returned if the FTP worker was started.  On failure, a negated
- *   errno value is returned to indicate why the servier terminated.
+ *   errno value is returned to indicate why the server terminated.
  *   -ETIMEDOUT indicates that the user-provided timeout elapsed with no
  *   connection.
  *
  ****************************************************************************/
 
-EXTERN int ftpd_session(FTPD_SESSION handle, int timeout);
+int ftpd_session(FTPD_SESSION handle, int timeout);
 
 /****************************************************************************
  * Name: ftpd_close
@@ -208,7 +209,7 @@ EXTERN int ftpd_session(FTPD_SESSION handle, int timeout);
  *
  ****************************************************************************/
 
-EXTERN void ftpd_close(FTPD_SESSION handle);
+void ftpd_close(FTPD_SESSION handle);
 
 #undef EXTERN
 #ifdef __cplusplus

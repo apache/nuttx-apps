@@ -2,7 +2,7 @@
  * apps/include/netutils/ipmsfilter.h
  * User interface to add/remove IP multicast address
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,8 @@
 #undef EXTERN
 #if defined(__cplusplus)
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -84,13 +85,12 @@ extern "C" {
  *              MCAST_EXCLUDE: Remove multicast address
  *
  * Return:
- *   0 on sucess; Negated errno on failure
+ *   0 on success; Negated errno on failure
  *
  ****************************************************************************/
 
-EXTERN int ipmsfilter(FAR const char *ifname,
-                      FAR const struct in_addr *multiaddr,
-                      uint32_t fmode);
+int ipmsfilter(FAR const char *ifname, FAR const struct in_addr *multiaddr,
+               uint32_t fmode);
 
 #undef EXTERN
 #if defined(__cplusplus)

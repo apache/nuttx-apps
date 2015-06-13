@@ -2,7 +2,7 @@
  *  apps/include/netutils/webclient.h
  * Header file for the HTTP client
  *
- *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based remotely on the uIP webclient which also has a BSD style license:
@@ -75,7 +75,7 @@
  * Public types
  ****************************************************************************/
 
-/* wget calls a user provided function of the follwoing type to process
+/* wget calls a user provided function of the following type to process
  * each received chuck of the incoming file data.  If the system has a file
  * system, then it may just write the data to a file.  Or it may buffer the
  * file in memory.  To facilitate this latter case, the caller may modify
@@ -104,18 +104,19 @@ typedef void (*wget_callback_t)(FAR char **buffer, int offset,
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
 
 #ifdef WGET_USE_URLENCODE
-EXTERN char *web_post_str(FAR char *buffer, int *size, FAR char *name,
-                          FAR char *value);
-EXTERN char *web_posts_str(FAR char *buffer, int *size, FAR char **name,
-                           FAR char **value, int len);
-EXTERN int web_post_strlen(FAR char *name, FAR char *value);
-EXTERN int web_posts_strlen(FAR char **name, FAR char **value, int len);
+FAR char *web_post_str(FAR char *buffer, FAR int *size, FAR char *name,
+                       FAR char *value);
+FAR char *web_posts_str(FAR char *buffer, FAR int *size, FAR char **name,
+                        FAR char **value, int len);
+int web_post_strlen(FAR char *name, FAR char *value);
+int web_posts_strlen(FAR char **name, FAR char **value, int len);
 #endif
 
 /****************************************************************************
@@ -127,7 +128,7 @@ EXTERN int web_posts_strlen(FAR char **name, FAR char **value, int len);
  *   Note: If the function is passed a host name, it must already be in
  *   the resolver cache in order for the function to connect to the web
  *   server. It is therefore up to the calling module to implement the
- *   resolver calls and the signal handler used for reporting a resolv
+ *   resolver calls and the signal handler used for reporting a resolve
  *   query answer.
  *
  * Input Parameters
@@ -147,13 +148,12 @@ EXTERN int web_posts_strlen(FAR char **name, FAR char **value, int len);
  *
  ****************************************************************************/
 
-EXTERN int wget(FAR const char *url, FAR char *buffer, int buflen,
-                wget_callback_t callback, FAR void *arg);
+int wget(FAR const char *url, FAR char *buffer, int buflen,
+         wget_callback_t callback, FAR void *arg);
 
 
-EXTERN int wget_post(FAR const char *url, FAR const char *posts,
-                     FAR char *buffer, int buflen, wget_callback_t callback,
-                     FAR void *arg);
+int wget_post(FAR const char *url, FAR const char *posts, FAR char *buffer,
+              int buflen, wget_callback_t callback, FAR void *arg);
 
 #undef EXTERN
 #ifdef __cplusplus

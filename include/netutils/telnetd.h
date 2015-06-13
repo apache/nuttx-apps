@@ -1,7 +1,7 @@
 /****************************************************************************
  *  apps/include/netutils/telnetd.h
  *
- *   Copyright (C) 2007, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,11 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
-/* CONFIG_TELNETD_CONSOLE - Use the first telnet session as the default
+/* CONFIG_TELNETD_CONSOLE - Use the first Telnet session as the default
  *   console.
- * CONFIG_TELNETD_RXBUFFER_SIZE - The size of the telnet receive buffer.
+ * CONFIG_TELNETD_RXBUFFER_SIZE - The size of the Telnet receive buffer.
  *   Default: 256 bytes.
- * CONFIG_TELNETD_TXBUFFER_SIZE - The size of the telnet transmit buffer.
+ * CONFIG_TELNETD_TXBUFFER_SIZE - The size of the Telnet transmit buffer.
  *   Default: 256 bytes.
  * CONFIG_TELNETD_DUMPBUFFER - dumping of all input/output buffers.
  */
@@ -67,7 +67,7 @@
  ****************************************************************************/
 
  /* An instance of the struct telnetd_config_s structure must be passed to
- * telnetd_start in order to configure the new telnet daemon.
+ * telnetd_start in order to configure the new Telnet daemon.
  */
 
 struct telnetd_config_s
@@ -75,10 +75,10 @@ struct telnetd_config_s
   /* These fields describe the telnet daemon */
 
   int    d_port;      /* The port to listen on (in network byte order) */
-  int    d_priority;  /* The execution priority of the telnet daemon task */
-  int    d_stacksize; /* The stack size needed by the telnet daemon task */
+  int    d_priority;  /* The execution priority of the Telnet daemon task */
+  int    d_stacksize; /* The stack size needed by the Telnet daemon task */
 
-  /* These fields describe the priority of each thread created by the telnet
+  /* These fields describe the priority of each thread created by the Telnet
    * daemon.
    */
 
@@ -94,7 +94,8 @@ struct telnetd_config_s
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -103,22 +104,22 @@ extern "C" {
  * Name: telnetd_start
  *
  * Description:
- *   Start the telnet daemon.
+ *   Start the Telnet daemon.
  *
  * Parameters:
  *   config    A pointer to a configuration structure that characterizes the
- *             telnet daemon.  This configuration structure may be defined
+ *             Telnet daemon.  This configuration structure may be defined
  *             on the caller's stack because it is not retained by the
  *             daemon.
  *
  * Return:
- *   The process ID (pid) of the new telnet daemon is returned on
+ *   The process ID (pid) of the new Telnet daemon is returned on
  *   success; A negated errno is returned if the daemon was not successfully
  *   started.
  *
  ****************************************************************************/
 
-EXTERN int telnetd_start(FAR struct telnetd_config_s *config);
+int telnetd_start(FAR struct telnetd_config_s *config);
 
 #undef EXTERN
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/netutils/dhcpd.h
  *
- *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This logic was leveraged from uIP which also has a BSD-style license:
@@ -56,12 +56,13 @@
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
 
-EXTERN int dhcpd_run(void);
+int dhcpd_run(void);
 
 #undef EXTERN
 #ifdef __cplusplus

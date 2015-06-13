@@ -56,6 +56,7 @@
 #define TTYNAMSIZ               16
 #define PAP_USERNAME_SIZE       16
 #define PAP_PASSWORD_SIZE       16
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -75,15 +76,18 @@ struct chat_script_s
 struct pppd_settings_s
 {
   /* Serial Interface */
+
   char ttyname[TTYNAMSIZ];
 
 #ifdef CONFIG_NETUTILS_PPPD_PAP
   /* PAP Authentication Settings */
+
   char pap_username[PAP_USERNAME_SIZE];
   char pap_password[PAP_PASSWORD_SIZE];
 #endif /* CONFIG_NETUTILS_PPPD_PAP */
 
   /* Chat Scripts */
+
   struct chat_script_s *connect_script;
   struct chat_script_s *disconnect_script;
 };
@@ -94,7 +98,8 @@ struct pppd_settings_s
 
 #ifdef __cplusplus
 #define EXTERN extern "C"
-extern "C" {
+extern "C"
+{
 #else
 #define EXTERN extern
 #endif
@@ -117,7 +122,7 @@ extern "C" {
  *
  ****************************************************************************/
 
-EXTERN int pppd(struct pppd_settings_s *ppp_settings);
+int pppd(struct pppd_settings_s *ppp_settings);
 
 #undef EXTERN
 #ifdef __cplusplus
