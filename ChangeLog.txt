@@ -1317,3 +1317,6 @@
 
 	* apps/netutils/thttpd:  Fix compilation problems when
 	  CONFIG_THTTPD_GENERATE_INDICES is defined (2015-06-12).
+	* apps/include: Clean up and review of header files for conformance to
+	  standards (2015-06-12).
+
