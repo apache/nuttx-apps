@@ -1319,4 +1319,7 @@
 	  CONFIG_THTTPD_GENERATE_INDICES is defined (2015-06-12).
 	* apps/include: Clean up and review of header files for conformance to
 	  standards (2015-06-12).
+	* apps/examples/ostest/:  Extende the OS test to include a test of
+	  pthread_mutex_trylock() for recursive mutexes. rom Juha Niskanen
+	  (2015-06-16).
 
