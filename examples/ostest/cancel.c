@@ -168,7 +168,7 @@ static void restart_thread(pthread_t *waiter, int cancelable)
   /* Destroy the mutex */
 
   printf("restart_thread: Destroying mutex\n");
-  status = pthread_cond_destroy(&cond);
+  status = pthread_mutex_destroy(&mutex);
   if (status != 0)
     {
       printf("restart_thread: ERROR pthread_mutex_destroy failed, status=%d\n", status);
