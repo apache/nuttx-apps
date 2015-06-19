@@ -67,7 +67,7 @@ endif
 CONFIG_XYZ_PROGNAME ?= thttpd$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
-ROOTDEPPATH = --dep-path .
+DEPPATHS = --dep-path .
 
 # CGI binaries (examples only, not used in the build)
 
@@ -85,6 +85,7 @@ endif
 
 ifeq ($(CONFIG_THTTPD_BINFS),y)
   BINFS_CSRCS =  phf.c redirect.c ssi.c
+  DEPPATHS += --dep-path cgi-src
   VPATH += :cgi-src
 endif
 
@@ -173,7 +174,7 @@ context:
 endif
 
 .depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) $(MKDEP) $(DEPPATHS) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	$(Q) touch $@
 
 depend: .depend
