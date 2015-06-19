@@ -1322,4 +1322,5 @@
 	* apps/examples/ostest/:  Extende the OS test to include a test of
 	  pthread_mutex_trylock() for recursive mutexes. rom Juha Niskanen
 	  (2015-06-16).
-
+	* apps/netutils/thttpd: Missing gci-src as a dependency path when
+	  building with BINFS enabled (2015-06-18).
