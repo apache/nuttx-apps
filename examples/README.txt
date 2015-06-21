@@ -1873,6 +1873,9 @@ examples/unionfs
     CONFIG_EXAMPLES_UNIONFS_RAMDEVNO_B - ROMFS file system 2 RAM disk device number
     CONFIG_EXAMPLES_UNIONFS_SECTORSIZE - ROM disk sector size.
 
+  See the README.txt file at nuttx/configs/sim/README.txt for a walk-through of
+  the output of this text.
+
 examples/usbserial
 ^^^^^^^^^^^^^^^^^^
 

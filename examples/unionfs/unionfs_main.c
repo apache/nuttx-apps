@@ -188,7 +188,7 @@ int unionfs_main(int argc, char *argv[])
   /* Now create and mount the union file system */
 
   ret = unionfs_mount(CONFIG_EXAMPLES_UNIONFS_TMPA, NULL,
-                      CONFIG_EXAMPLES_UNIONFS_TMPB, NULL,
+                      CONFIG_EXAMPLES_UNIONFS_TMPB, "offset",
                       CONFIG_EXAMPLES_UNIONFS_MOUNTPT);
   if (ret < 0)
     {
