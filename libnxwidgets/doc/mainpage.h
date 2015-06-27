@@ -4,7 +4,7 @@
  * interface has been created called NXWidgets. NXWidgets is written in C++
  * and integrates seamlessly with the NuttX NX graphics subystem in order to
  * provide graphic objects, or "widgets", in the <a title="NX Graphics
- * Subsystem" href="http://nuttx.sourceforge.net/NXGraphicsSubsystem.html">
+ * Subsystem" href="https://bitbucket.org/patacongo/nuttx/src/master/nuttx/Documentation/NXGraphicsSubsystem.html?at=master">
  * NX Graphics Subsystem</a>.
  *
  * \section feature Features
