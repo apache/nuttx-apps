@@ -170,7 +170,7 @@ A: Here are four:
 
       This is documented in NuttX/configs/README.txt and
       nuttx/Documentation/NuttxPortingGuide.html (Online at
-      http://nuttx.sourceforge.net/NuttxPortingGuide.html#apndxconfigs
+      https://bitbucket.org/patacongo/nuttx/src/master/nuttx/Documentation/NuttxPortingGuide.html#apndxconfigs
       under Build options). And in the apps/README.txt file.
 
    3) If you like the random collection of stuff in the apps/ directory
