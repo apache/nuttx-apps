@@ -1324,3 +1324,5 @@
 	  (2015-06-16).
 	* apps/netutils/thttpd: Missing gci-src as a dependency path when
 	  building with BINFS enabled (2015-06-18).
+	* The apps/ directory has been removed from the NuttX GIT repository
+	  and now stands alone in its own repository (2015-06-27).

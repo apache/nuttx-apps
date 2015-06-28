@@ -137,8 +137,8 @@ pcode
 -----
 
   At present, only the NuttX Pascal add-on is supported.  This NuttX add-on
-  must be downloaded separately (or is available in an GIT snapshot in the
-  misc/pascal directory).
+  must be downloaded separately (or is available from the Nuttx Pascal GIT
+  repository).
 
   This Pascal add-on must be installed into the NuttX apps/ directory.  After
   unpacking the Pascal add-on package, an installation script and README.txt

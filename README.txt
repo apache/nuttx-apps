@@ -122,9 +122,9 @@ to the project. One must:
  2. In this directory there should be:
 
     - A Make.defs file that would be included by the apps/Makefile
-    - A Kconfig file that would be used by the configuration tool (see
-      misc/tools/kconfig-language.txt).  This Kconfig file should be
-      included by the apps/Kconfig file
+    - A Kconfig file that would be used by the configuration tool (see the
+      file kconfig-language.txt in the NuttX tools repository).  This
+      Kconfig file should be included by the apps/Kconfig file
     - A Makefile, and
     - The application source code.
 

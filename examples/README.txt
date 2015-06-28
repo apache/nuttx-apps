@@ -210,7 +210,7 @@ examples/cxxtest
   This is a test of the C++ standard library.  At present a port of the uClibc++
   C++ library is available.  Due to licensing issues, the uClibc++ C++ library
   is not included in the NuttX source tree by default, but must be installed
-  (see misc/uClibc++/README.txt for installation).
+  (see the README.txt file in the uClibc++ download package for installation).
 
   The uClibc++ test includes simple test of:
 
@@ -348,8 +348,8 @@ examples/elf
 
   3. This example also requires genromfs.  genromfs can be build as part of the
      nuttx toolchain.  Or can built from the genromfs sources that can be found
-     at misc/tools/genromfs-0.5.2.tar.gz.  In any event, the PATH variable must
-     include the path to the genromfs executable.
+     in the NuttX tools repository (genromfs-0.5.2.tar.gz).  In any event, the
+     PATH variable must include the path to the genromfs executable.
 
   4. ELF size:  The ELF files in this example are, be default, quite large
      because they include a lot of "build garbage".  You can greatly reduce the
@@ -1428,8 +1428,8 @@ examples/posix_spawn
 
   3. This example also requires genromfs.  genromfs can be build as part of the
      nuttx toolchain.  Or can built from the genromfs sources that can be found
-     at misc/tools/genromfs-0.5.2.tar.gz.  In any event, the PATH variable must
-     include the path to the genromfs executable.
+     in the NuttX tools repository (genromfs-0.5.2.tar.gz).  In any event, the
+     PATH variable must include the path to the genromfs executable.
 
   4. ELF size:  The ELF files in this example are, be default, quite large
      because they include a lot of "build garbage".  You can greatly reduce the
