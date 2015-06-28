@@ -563,4 +563,5 @@
 * NxWidgets::CNxServer:  Correct use of the BOARDIOC_GRAPHICS_SETUP
   boardctl() call (2015-04-16).
 * CListBox unit test:  Should use RAND_MAX, not MAX_RAND (2015-04-16).
-
+* The NxWidgets/ directory has been removed from the NuttX GIT repository
+  and now stands alone in its own repository (2015-06-27).
