@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/poll/select_listener.c
  *
- *   Copyright (C) 2008, 2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2009, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,7 +139,7 @@ void *select_listener(pthread_addr_t pvarg)
               ready = true;
             }
 
-          if (!FD_ISSET(fd, rfds))
+          if (!FD_ISSET(fd, &rfds))
             {
               printf("select_listener: ERROR fd=%d not in fd_set\n", fd);
             }

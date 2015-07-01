@@ -1326,3 +1326,4 @@
 	  building with BINFS enabled (2015-06-18).
 	* The apps/ directory has been removed from the NuttX GIT repository
 	  and now stands alone in its own repository (2015-06-27).
+	* apps/examples/poll: Fix a few bit-rot compilation errors (2015-07-01).
