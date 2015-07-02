@@ -55,6 +55,7 @@
 
 #include <net/if.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <nuttx/net/arp.h>
 #include <apps/netutils/netlib.h>
