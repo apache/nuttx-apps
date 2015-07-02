@@ -37,7 +37,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <arch/board/power.h>
+#include <nuttx/board.h>
 
 /****************************************************************************
  * Public Functions
@@ -63,5 +63,10 @@ int poweroff_main(int argc, char *argv[])
    */
 
   board_power_off();
+
+  /* If board_power_off function returns, then it was not possible to power-off the
+   * board due to some constraints.
+   */
+
   return 0;
 }
