@@ -6,7 +6,7 @@
 config SYSTEM_POWEROFF
 	bool "Power-Off"
 	default n
-	depends on LIB_BOARDCTL
+	depends on LIB_BOARDCTL && ARCH_HAVE_POWEROFF
 	select BOARDCTL_POWEROFF
 	---help---
 		Enable support for the NSH poweroff command.  NOTE: This option
