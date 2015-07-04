@@ -332,6 +332,11 @@ config NSH_DISABLE_SH
 	bool "Disable sh"
 	default n
 
+config CONFIG_NSH_DISABLE_SHUTDOWN
+	bool "Disable sh"
+	default n
+	depends on BOARDCTL_POWEROFF
+
 config NSH_DISABLE_SLEEP
 	bool "Disable sleep"
 	default n

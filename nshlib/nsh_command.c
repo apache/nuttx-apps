@@ -369,6 +369,10 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
+#if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_SHUTDOWN)
+  { "shutdown", cmd_shutdown, 1, 1, NULL },
+#endif
+
 #ifndef CONFIG_DISABLE_SIGNALS
 # ifndef CONFIG_NSH_DISABLE_SLEEP
   { "sleep",    cmd_sleep,    2, 2, "<sec>" },
