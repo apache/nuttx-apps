@@ -1332,6 +1332,7 @@
 	  also be used to reset the system if CONFIG_BOARDCTL_RESET=y.
 	  (2015-07-04).
 	* apps/system/poweroff:  Remove the system poweroff command.  This is
-	  replaced with the NSH shutdown commandi (2015-07-02).
+	  replaced with the NSH shutdown command (2015-07-02).
 	* apps/nshlib:  Add support for a uname command (2015-07-04).
-
+	* apps/system/sysinfo:  Remove the system sysinfo command.  This is
+	  replaced with the NSH uname command (2015-07-04).

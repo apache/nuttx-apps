@@ -39,7 +39,7 @@
 
 SUBDIRS  = cdcacm cle composite cu flash_eraseall free i2c hex2bin inifile
 SUBDIRS += install lm75 mdio nxplayer ramtest ramtron readline sdcard
-SUBDIRS += stackmonitor sudoku sysinfo usbmonitor usbmsc vi zmodem zoneinfo
+SUBDIRS += stackmonitor sudoku usbmonitor usbmsc vi zmodem zoneinfo
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 
