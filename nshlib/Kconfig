@@ -323,7 +323,7 @@ config NSH_DISABLE_PWD
 	default n
 
 config NSH_DISABLE_REBOOT
-	bool "Disbable reboot"
+	bool "Disable reboot"
 	default n if !DEFAULT_SMALL && !BOARDCTL_POWEROFF
 	default y if DEFAULT_SMALL || BOARDCTL_POWEROFF
 	depends on BOARDCTL_RESET
