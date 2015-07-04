@@ -884,11 +884,12 @@ o sh <script-path>
   Execute the sequence of NSH commands in the file referred
   to by <script-path>.
 
-o shutdown [--reset]
+o shutdown [--reboot]
 
-  Shutdown and power off the system or, optionally, reset the system
-  immediately.  This command depends on hardware support to power down or
-  reset the system; one, both, or neither behavior may be supported.
+  Shutdown and power off the system or, optionally, reset and reboot the
+  system immediately.  This command depends on hardware support to power
+  down or reset the system; one, both, or neither behavior may be
+  supported.
 
 o sleep <sec>
 

@@ -85,15 +85,15 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
 #if defined(CONFIG_BOARDCTL_POWEROFF) && defined(CONFIG_BOARDCTL_RESET)
   /* If both shutdown and reset are supported, then a single option may
-   * be provided to select the reset behavior (--reset).  We know here
+   * be provided to select the reset behavior (--reboot).  We know here
    * that argc is either 1 or 2.
    */
 
   if (argc == 2)
     {
-      /* Verify that the single argument is --reset */
+      /* Verify that the single argument is --reboot */
 
-      if (strcmp(argv[1], "--reset") != 0)
+      if (strcmp(argv[1], "--reboot") != 0)
         {
           nsh_output(vtbl, g_fmtarginvalid, argv[0]);
           return ERROR
@@ -121,9 +121,9 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * argument has been provided.
    */
 
-  /* Verify that the single argument is --reset */
+  /* Verify that the single argument is --reboot */
 
-  if (strcmp(argv[1], "--reset") != 0)
+  if (strcmp(argv[1], "--reboot") != 0)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR
