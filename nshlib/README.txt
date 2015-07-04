@@ -884,10 +884,11 @@ o sh <script-path>
   Execute the sequence of NSH commands in the file referred
   to by <script-path>.
 
-o shutdown
+o shutdown [--reset]
 
-  Shutdown and power off the system immediately.  This command depends on
-  hardware support to power down the system.
+  Shutdown and power off the system or, optionally, reset the system
+  immediately.  This command depends on hardware support to power down or
+  reset the system; one, both, or neither behavior may be supported.
 
 o sleep <sec>
 
@@ -995,7 +996,7 @@ Command Dependencies on Configuration Settings
   rmdir      (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
   set        !CONFIG_DISABLE_ENVIRON
   sh         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
-  shutdown   CONFIG_BOARDCTL_POWEROFF
+  shutdown   CONFIG_BOARDCTL_POWEROFF || CONFIG_BOARDCTL_RESET
   sleep      !CONFIG_DISABLE_SIGNALS
   test       !CONFIG_NSH_DISABLESCRIPT
   umount     !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE

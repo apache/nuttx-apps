@@ -78,17 +78,78 @@
  * Name: cmd_shutdown
  ****************************************************************************/
 
-#if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_SHUTDOWN)
+#if (defined(CONFIG_BOARDCTL_POWEROFF) || defined(CONFIG_BOARDCTL_RESET)) && \
+    !defined(CONFIG_NSH_DISABLE_SHUTDOWN)
+
 int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  /* Invoide the BOARDIOC_POWEROFF board control to shutdown the board 
-   * If board_power_off function returns, then it was not possible to power-off the
-   * board due to some constraints.
+#if defined(CONFIG_BOARDCTL_POWEROFF) && defined(CONFIG_BOARDCTL_RESET)
+  /* If both shutdown and reset are supported, then a single option may
+   * be provided to select the reset behavior (--reset).  We know here
+   * that argc is either 1 or 2.
+   */
+
+  if (argc == 2)
+    {
+      /* Verify that the single argument is --reset */
+
+      if (strcmp(argv[1], "--reset") != 0)
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          return ERROR
+        }
+
+      /* Invoke the BOARDIOC_RESET board control to reset the board.  If
+       * the board_reset() function returns, then it was not possible to
+       * reset the board due to some constraints.
+       */
+
+      (void)boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+    }
+  else
+    {
+      /* Invoke the BOARDIOC_POWEROFF board control to shutdown the board.
+       * If the board_power_off function returns, then it was not possible
+       * to power-off the* board due to some constraints.
+       */
+
+      (void)boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+    }
+
+#elif defined(CONFIG_BOARDCTL_RESET)
+  /* Only reset behavior is supported and we already know that exactly one
+   * argument has been provided.
+   */
+
+  /* Verify that the single argument is --reset */
+
+  if (strcmp(argv[1], "--reset") != 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR
+    }
+
+  /* Invoke the BOARDIOC_RESET board control to reset the board.  If
+   * the board_reset() function returns, then it was not possible to
+   * reset the board due to some constraints.
+   */
+
+  (void)boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+
+#else
+  /* Only the reset behavior is supported and we already know that there is
+   * no argument to the command.
+   */
+
+  /* Invoke the BOARDIOC_POWEROFF board control to shutdown the board.  If
+   * the board_power_off function returns, then it was not possible to power-
+   * off the board due to some constraints.
    */
 
   (void)boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+#endif
 
-  /* boarctl() will not return in this case.  It if does, it means that
+  /* boarctl() will not return in any case.  It if does, it means that
    * there was a problem with the shutdown operaion.
    */
 
