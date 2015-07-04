@@ -1329,4 +1329,6 @@
 	* apps/examples/poll: Fix a few bit-rot compilation errors (2015-07-01).
 	* apps/nshlib: NSH will now support an (optional) shutdown command if
 	  the board provides the option CONFIG_BOARD_POWEROFF (2015-07-04).
+	* apps/system/poweroff:  Remove the system poweroff command.  This is
+	  replaced with the NSH shutdown commandi (2015-07-02).
 
