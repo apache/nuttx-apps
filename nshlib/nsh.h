@@ -1001,6 +1001,10 @@ void nsh_usbtrace(void);
    int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_UNAME
+   int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
 #ifndef CONFIG_DISABLE_ENVIRON
 #  ifndef CONFIG_NSH_DISABLE_SET
       int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

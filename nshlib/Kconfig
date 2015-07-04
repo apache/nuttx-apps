@@ -362,6 +362,11 @@ config NSH_DISABLE_UMOUNT
 	bool "Disable umount"
 	default n
 
+config NSH_DISABLE_UNAME
+	bool "Disable uname"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+
 config NSH_DISABLE_UNSET
 	bool "Disable unset"
 	default n

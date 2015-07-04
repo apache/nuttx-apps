@@ -924,9 +924,27 @@ o unset <name>
 
     nsh>
 
- o urldecode [-f] <string or filepath>
+o urldecode [-f] <string or filepath>
 
- o urlencode [-f] <string or filepath>
+o urlencode [-f] <string or filepath>
+
+o uname [-a | -imnoprsv]
+
+  Print certain system information.  With no options, the output is the same as -s.
+
+    -a Print all information, in the following order, except omit -p and -i if unknown:
+
+    -s, -o, Print the operating system name (NuttX)
+
+    -n Print the network node hostname (only availabel if CONFIG_NET=y)
+
+    -r Print the kernel release
+
+    -v Print the kernel version
+
+    -m Print the machine hardware name
+
+    -p, -i Print "unknown"
 
 o usleep <usec>
 
@@ -1020,6 +1038,7 @@ Command Dependencies on Configuration Settings
   sleep      !CONFIG_DISABLE_SIGNALS
   test       !CONFIG_NSH_DISABLESCRIPT
   umount     !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE
+  uname      !CONFIG_NSH_DISABLE_UNAME
   unset      !CONFIG_DISABLE_ENVIRON
   urldecode  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_URLCODE
   urlencode  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_URLCODE

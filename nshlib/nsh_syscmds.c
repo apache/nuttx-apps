@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/boardctl.h>
+#include <sys/utsname.h>
 #include <stdlib.h>
 #include <errno.h>
 
@@ -47,8 +48,23 @@
 #include "nsh_console.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
+
+#define UNAME_KERNEL   (1 << 0)
+#define UNAME_NODE     (1 << 1)
+#define UNAME_RELEASE  (1 << 2)
+#define UNAME_VERISON  (1 << 3)
+#define UNAME_MACHINE  (1 << 4)
+#define UNAME_UNKNOWN  (1 << 5)
+
+#ifdef CONFIG_NET
+#  define UNAME_ALL    (UNAME_KERNEL | UNAME_NODE | UNAME_RELEASE | \
+                        UNAME_VERISON | UNAME_MACHINE)
+#else
+#  define UNAME_ALL    (UNAME_KERNEL | UNAME_RELEASE | UNAME_VERISON | \
+                        UNAME_MACHINE)
+#endif
 
 /****************************************************************************
  * Private Types
@@ -203,3 +219,157 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   return ERROR;
 }
 #endif
+
+/****************************************************************************
+ * Name: cmd_uname
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_UNAME
+int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *str;
+  struct utsname info;
+  unsigned int set;
+  int option;
+  bool badarg;
+  bool first;
+  int ret;
+  int i;
+
+  /* Get the ping options */
+
+  set = 0;
+  while ((option = getopt(argc, argv, "asonrvmpi")) != ERROR)
+    {
+      switch (option)
+        {
+          case 'a':
+            set = UNAME_ALL;
+            break;
+
+          case 'o':
+          case 's':
+            set |= UNAME_KERNEL;
+            break;
+
+#if CONFIG_NET
+          case 'n':
+            set |= UNAME_NODE;
+            break;
+#endif
+
+          case 'r':
+            set |= UNAME_RELEASE;
+            break;
+
+          case 'v':
+            set |= UNAME_VERISON;
+            break;
+
+          case 'm':
+            set |= UNAME_MACHINE;
+            break;
+
+          case 'p':
+          case 'i':
+            if (set != UNAME_ALL)
+              {
+                set |= UNAME_UNKNOWN;
+              }
+            break;
+
+          case '?':
+          default:
+            nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+            badarg = true;
+            break;
+        }
+    }
+
+  /* If a bad argument was encountered, then return without processing the
+   * command
+   */
+
+  if (badarg)
+    {
+      return ERROR;
+    }
+
+  /* If nothing is provided on the command line, the default is -s */
+
+  if (set == 0)
+    {
+      set = UNAME_KERNEL;
+    }
+
+  /* Get uname data */
+
+  ret = uname(&info);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "uname", NSH_ERRNO);
+      return ERROR;
+    }
+
+  /* Process each option */
+
+  first = true;
+  for (i = 0; set != 0; i++)
+    {
+      unsigned int mask = (1 << i);
+      if ((set & mask) != 0)
+        {
+          set &= ~mask;
+          switch (i)
+            {
+              case 0: /* print the kernel/operating system name */
+                str = info.sysname;
+                str[SYS_NAMELEN-1] = '\0';
+                break;
+
+#if CONFIG_NET
+              case 1: /* Print noname */
+                str = info.nodename;
+                str[HOST_NAME_MAX-1] = '\0';
+                break;
+
+#endif
+              case 2: /* Print the kernel release */
+                str = info.release;
+                str[SYS_NAMELEN-1] = '\0';
+                break;
+
+              case 3: /* Print the kernel version */
+                str = info.version;
+                str[SYS_NAMELEN-1] = '\0';
+                break;
+
+              case 4: /* Print the machine hardware name */
+                str = info.machine;
+                str[SYS_NAMELEN-1] = '\0';
+                break;
+
+              case 5: /* Print invalid */
+                str = "unknown";
+                break;
+
+              default:
+                nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+                return ERROR;
+            }
+
+          if (!first)
+            {
+              nsh_output(vtbl, " ");
+            }
+
+          nsh_output(vtbl, str);
+          first = false;
+        }
+    }
+
+  nsh_output(vtbl, "\n");
+  return OK;
+}
+#endif
+

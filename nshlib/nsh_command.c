@@ -401,6 +401,14 @@ static const struct cmdmap_s g_cmdmap[] =
   { "true",     cmd_true,    1, 1, NULL },
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_UNAME
+#if CONFIG_NET
+  { "uname",    cmd_uname,   1, 7, "[-a | -imnoprsv]" },
+#else
+  { "uname",    cmd_uname,   1, 7, "[-a | -imoprsv]" },
+#endif
+#endif
+
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
 # ifndef CONFIG_NSH_DISABLE_UMOUNT
   { "umount",   cmd_umount,   2, 2, "<dir-path>" },
