@@ -150,10 +150,56 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
 
   /* boarctl() will not return in any case.  It if does, it means that
-   * there was a problem with the shutdown operaion.
+   * there was a problem with the shutdown/resaet operaion.
    */
 
   nsh_output(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
   return ERROR;
 }
 #endif /* CONFIG_BOARDCTL_POWEROFF && !CONFIG_NSH_DISABLE_SHUTDOWN */
+
+/****************************************************************************
+ * Name: cmd_poweroff
+ ****************************************************************************/
+
+#if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
+int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  /* Invoke the BOARDIOC_POWEROFF board control to shutdown the board.  If
+   * the board_power_off function returns, then it was not possible to power-
+   * off the board due to some constraints.
+   */
+
+  (void)boardctl(BOARDIOC_POWEROFF, EXIT_SUCCESS);
+
+  /* boarctl() will not return in any case.  It if does, it means that
+   * there was a problem with the shutdown operaion.
+   */
+
+  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+  return ERROR;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_reboot
+ ****************************************************************************/
+
+#if defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)
+int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  /* Invoke the BOARDIOC_RESET board control to reset the board.  If
+   * the board_reset() function returns, then it was not possible to
+   * reset the board due to some constraints.
+   */
+
+  (void)boardctl(BOARDIOC_RESET, EXIT_SUCCESS);
+
+  /* boarctl() will not return in this case.  It if does, it means that
+   * there was a problem with the reset operaion.
+   */
+
+  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "boardctl", NSH_ERRNO);
+  return ERROR;
+}
+#endif

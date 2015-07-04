@@ -988,6 +988,14 @@ void nsh_usbtrace(void);
 #  endif
 #endif /* CONFIG_NET */
 
+#if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
+   int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
+#if defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)
+   int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
 #if (defined(CONFIG_BOARDCTL_POWEROFF) || defined(CONFIG_BOARDCTL_RESET)) && \
     !defined(CONFIG_NSH_DISABLE_SHUTDOWN)
    int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

@@ -297,6 +297,12 @@ config NSH_DISABLE_NSFMOUNT
 	default n
 	depends on NFS
 
+config NSH_DISABLE_POWEROFF
+	bool "Disable poweroff"
+	default n if !DEFAULT_SMALL && !BOARDCTL_RESET
+	default y if DEFAULT_SMALL || BOARDCTL_RESET
+	depends on BOARDCTL_POWEROFF
+
 config NSH_DISABLE_PS
 	bool "Disable ps"
 	default n
@@ -316,6 +322,12 @@ config NSH_DISABLE_PWD
 	bool "Disable pwd"
 	default n
 
+config NSH_DISABLE_REBOOT
+	bool "Disbable reboot"
+	default n if !DEFAULT_SMALL && !BOARDCTL_POWEROFF
+	default y if DEFAULT_SMALL || BOARDCTL_POWEROFF
+	depends on BOARDCTL_RESET
+
 config NSH_DISABLE_RM
 	bool "Disable rm"
 	default n
@@ -332,10 +344,11 @@ config NSH_DISABLE_SH
 	bool "Disable sh"
 	default n
 
-config CONFIG_NSH_DISABLE_SHUTDOWN
-	bool "Disable sh"
-	default n
-	depends on BOARDCTL_POWEROFF
+config NSH_DISABLE_SHUTDOWN
+	bool "Disable shutdown"
+	default n if !DEFAULT_SMALL && BOARD_POWEROFF && BOARD_RESET
+	default y if DEFAULT_SMALL || !BOARD_POWEROFF || !BOARD_RESET
+	depends on BOARDCTL_POWEROFF || BOARDCTL_RESET
 
 config NSH_DISABLE_SLEEP
 	bool "Disable sleep"
