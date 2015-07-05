@@ -51,19 +51,34 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifdef CONFIG_ARCH_BOARD_CUSTOM
+#  ifndef CONFIG_ARCH_BOARD_CUSTOM_NAME
+#    define BOARD_NAME ""
+#  else
+#    define BOARD_NAME CONFIG_ARCH_BOARD_CUSTOM_NAME
+#  endif
+#else
+#  ifndef CONFIG_ARCH_BOARD
+#    define BOARD_NAME ""
+#  else
+#    define BOARD_NAME CONFIG_ARCH_BOARD
+#  endif
+#endif
+
 #define UNAME_KERNEL   (1 << 0)
 #define UNAME_NODE     (1 << 1)
 #define UNAME_RELEASE  (1 << 2)
 #define UNAME_VERISON  (1 << 3)
 #define UNAME_MACHINE  (1 << 4)
-#define UNAME_UNKNOWN  (1 << 5)
+#define UNAME_PLATFORM (1 << 5)
+#define UNAME_UNKNOWN  (1 << 6)
 
 #ifdef CONFIG_NET
 #  define UNAME_ALL    (UNAME_KERNEL | UNAME_NODE | UNAME_RELEASE | \
-                        UNAME_VERISON | UNAME_MACHINE)
+                        UNAME_VERISON | UNAME_MACHINE | UNAME_PLATFORM)
 #else
 #  define UNAME_ALL    (UNAME_KERNEL | UNAME_RELEASE | UNAME_VERISON | \
-                        UNAME_MACHINE)
+                        UNAME_MACHINE | UNAME_PLATFORM)
 #endif
 
 /****************************************************************************
@@ -271,11 +286,14 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             break;
 
           case 'p':
-          case 'i':
             if (set != UNAME_ALL)
               {
                 set |= UNAME_UNKNOWN;
               }
+            break;
+
+          case 'i':
+            set |= UNAME_PLATFORM;
             break;
 
           case '?':
@@ -324,32 +342,31 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             {
               case 0: /* print the kernel/operating system name */
                 str = info.sysname;
-                str[SYS_NAMELEN-1] = '\0';
                 break;
 
 #if CONFIG_NET
               case 1: /* Print noname */
                 str = info.nodename;
-                str[HOST_NAME_MAX-1] = '\0';
                 break;
 
 #endif
               case 2: /* Print the kernel release */
                 str = info.release;
-                str[SYS_NAMELEN-1] = '\0';
                 break;
 
               case 3: /* Print the kernel version */
                 str = info.version;
-                str[SYS_NAMELEN-1] = '\0';
                 break;
 
               case 4: /* Print the machine hardware name */
                 str = info.machine;
-                str[SYS_NAMELEN-1] = '\0';
                 break;
 
-              case 5: /* Print invalid */
+              case 5: /* Print the machine platform name */
+                str = BOARD_NAME;
+                break;
+
+              case 6: /* Print "unknown" */
                 str = "unknown";
                 break;
 
