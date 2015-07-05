@@ -239,7 +239,9 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the ping options */
 
-  set = 0;
+  set    = 0;
+  badarg = false;
+
   while ((option = getopt(argc, argv, "asonrvmpi")) != ERROR)
     {
       switch (option)
@@ -334,7 +336,6 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               case 1: /* Print noname */
                 str = info.nodename;
                 break;
-
 #endif
               case 2: /* Print the kernel release */
                 str = info.release;
