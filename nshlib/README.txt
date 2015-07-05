@@ -944,7 +944,9 @@ o uname [-a | -imnoprsv]
 
     -m Print the machine hardware name
 
-    -p, -i Print "unknown"
+    -i Print the machine platform name
+
+    -p Print "unknown"
 
 o usleep <usec>
 
