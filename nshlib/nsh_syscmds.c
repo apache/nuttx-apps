@@ -53,13 +53,13 @@
 
 #ifdef CONFIG_ARCH_BOARD_CUSTOM
 #  ifndef CONFIG_ARCH_BOARD_CUSTOM_NAME
-#    define BOARD_NAME ""
+#    define BOARD_NAME g_unknown
 #  else
 #    define BOARD_NAME CONFIG_ARCH_BOARD_CUSTOM_NAME
 #  endif
 #else
 #  ifndef CONFIG_ARCH_BOARD
-#    define BOARD_NAME ""
+#    define BOARD_NAME g_unknown
 #  else
 #    define BOARD_NAME CONFIG_ARCH_BOARD
 #  endif
@@ -82,24 +82,10 @@
 #endif
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+static const char g_unknown[] = "unknown";
 
 /****************************************************************************
  * Public Functions
@@ -242,7 +228,7 @@ int cmd_reboot(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_UNAME
 int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR char *str;
+  FAR const char *str;
   struct utsname info;
   unsigned int set;
   int option;
@@ -367,7 +353,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 break;
 
               case 6: /* Print "unknown" */
-                str = "unknown";
+                str = g_unknown;
                 break;
 
               default:
