@@ -108,11 +108,14 @@ config EXAMPLES_OSTEST_FPUSTACKSIZE
 endif # !EXAMPLES_OSTEST_FPUTESTDISABLE
 endif # ARCH_FPU && SCHED_WAITPID && !DISABLE_SIGNALS
 
-if BOARDCTL_POWEROFF
+config EXAMPLES_OSTEST_WAITRESULT
+	bool "Wait and return test result
+	default y
+	depends on SCHED_WAITPID
 
 config EXAMPLES_OSTEST_POWEROFF
-    bool "Terminate on return"
-    default n
+	bool "Terminate on test completion"
+	default n
+	depends on BOARDCTL_POWEROFF && EXAMPLES_OSTEST_WAITRESULT
 
-endif # BOARDCTL_POWEROFF
 endif # EXAMPLES_OSTEST

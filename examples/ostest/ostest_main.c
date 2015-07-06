@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/examples/ostest/ostest_main.c
  *
- *   Copyright (C) 2007-2009, 2011-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -555,7 +555,12 @@ int main(int argc, FAR char **argv)
 int ostest_main(int argc, FAR char *argv[])
 {
   int result;
+#ifdef CONFIG_EXAMPLES_OSTEST_WAITRESULT
   int ostest_result = ERROR;
+#else
+  int ostest_result = OK;
+#endif
+
   /* Verify that stdio works first */
 
   stdio_test();
@@ -604,16 +609,28 @@ int ostest_main(int argc, FAR char *argv[])
   else
     {
       printf("ostest_main: Started user_main at PID=%d\n", result);
-      if(waitpid(result, &ostest_result,0) != result)
+
+#ifdef CONFIG_EXAMPLES_OSTEST_WAITRESULT
+      /* Wait for the test to complete to get the test result */
+
+      if (waitpid(result, &ostest_result, 0) != result)
         {
           printf("ostest_main: ERROR Failed to wait for user_main to terminate\n");
           ostest_result = ERROR;
         }
+#endif
     }
 
-  printf("ostest_main: Exiting with status %d\n",ostest_result);
+  printf("ostest_main: Exiting with status %d\n", ostest_result);
+
 #ifdef CONFIG_EXAMPLES_OSTEST_POWEROFF
-  boardctl(BOARDIOC_POWEROFF,ostest_result);
+  /* Power down, providing the test result.  This is really only an
+   *interesting case when used with the NuttX simulator.  In that case,
+   * test management logic can received the result of the test.
+   */
+
+  boardctl(BOARDIOC_POWEROFF, ostest_result);
 #endif
+
   return ostest_result;
 }
