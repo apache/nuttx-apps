@@ -48,6 +48,10 @@
 #include <sched.h>
 #include <errno.h>
 
+#ifdef CONFIG_EXAMPLES_OSTEST_POWEROFF
+#include <sys/boardctl.h>
+#endif
+
 #include <nuttx/init.h>
 
 #include "ostest.h"
@@ -551,7 +555,7 @@ int main(int argc, FAR char **argv)
 int ostest_main(int argc, FAR char *argv[])
 {
   int result;
-
+  int ostest_result = ERROR;
   /* Verify that stdio works first */
 
   stdio_test();
@@ -595,12 +599,21 @@ int ostest_main(int argc, FAR char *argv[])
   if (result == ERROR)
     {
       printf("ostest_main: ERROR Failed to start user_main\n");
+      ostest_result = ERROR;
     }
   else
     {
       printf("ostest_main: Started user_main at PID=%d\n", result);
+      if(waitpid(result, &ostest_result,0) != result)
+        {
+          printf("ostest_main: ERROR Failed to wait for user_main to terminate\n");
+          ostest_result = ERROR;
+        }
     }
 
-  printf("ostest_main: Exiting\n");
-  return 0;
+  printf("ostest_main: Exiting with status %d\n",ostest_result);
+#ifdef CONFIG_EXAMPLES_OSTEST_POWEROFF
+  boardctl(BOARDIOC_POWEROFF,ostest_result);
+#endif
+  return ostest_result;
 }
