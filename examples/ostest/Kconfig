@@ -109,7 +109,7 @@ endif # !EXAMPLES_OSTEST_FPUTESTDISABLE
 endif # ARCH_FPU && SCHED_WAITPID && !DISABLE_SIGNALS
 
 config EXAMPLES_OSTEST_WAITRESULT
-	bool "Wait and return test result
+	bool "Wait and return test result"
 	default y
 	depends on SCHED_WAITPID
 
