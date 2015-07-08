@@ -122,7 +122,7 @@ int netdb_main(int argc, char **argv)
           show_usage(argv[0], EXIT_FAILURE);
         }
 
-      printf("Addr: %s  Host: %s\n", argv[2], host->h_name);
+      printf("IPv4 Addr: %s  Host: %s\n", argv[2], host->h_name);
       return EXIT_SUCCESS;
     }
   else if (strcmp(argv[1], "--ipv6") == 0)
@@ -144,7 +144,7 @@ int netdb_main(int argc, char **argv)
           show_usage(argv[0], EXIT_FAILURE);
         }
 
-      printf("Addr: %s  Host: %s\n", argv[2], host->h_name);
+      printf("IPv6 Addr: %s  Host: %s\n", argv[2], host->h_name);
       return EXIT_SUCCESS;
     }
   else if (strcmp(argv[1], "--host") == 0)
@@ -161,8 +161,7 @@ int netdb_main(int argc, char **argv)
 
       if (host->h_addrtype == AF_INET)
         {
-          if (inet_ntop(AF_INET, host->h_addr, buffer,
-                        sizeof(struct in_addr)) == NULL)
+          if (inet_ntop(AF_INET, host->h_addr, buffer, 48) == NULL)
             {
               fprintf(stderr,
                       "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
@@ -174,8 +173,7 @@ int netdb_main(int argc, char **argv)
         }
       else if (host->h_addrtype == AF_INET6)
         {
-          if (inet_ntop(AF_INET6, host->h_addr, buffer,
-                        sizeof(struct in6_addr)) == NULL)
+          if (inet_ntop(AF_INET6, host->h_addr, buffer, 48) == NULL)
             {
               fprintf(stderr,
                       "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
