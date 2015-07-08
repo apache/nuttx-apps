@@ -70,6 +70,10 @@ ifeq ($(CONFIG_SYSTEM_FLASH_ERASEALL),y)
 CONFIGURED_APPS += system/flash_eraseall
 endif
 
+ifeq ($(CONFIG_SYSTEM_NETDB),y)
+CONFIGURED_APPS += system/netdb
+endif
+
 ifeq ($(CONFIG_SYSTEM_NXPLAYER),y)
 CONFIGURED_APPS += system/nxplayer
 endif

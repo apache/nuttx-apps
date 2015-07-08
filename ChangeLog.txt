@@ -1336,3 +1336,6 @@
 	* apps/nshlib:  Add support for a uname command (2015-07-04).
 	* apps/system/sysinfo:  Remove the system sysinfo command.  This is
 	  replaced with the NSH uname command (2015-07-04).
+	* apps/syste/netdb:  Add a command to access the network database
+	  (2015-07-08).
+
