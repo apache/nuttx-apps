@@ -86,13 +86,19 @@ static void show_usage(FAR const char *progname, int exitcode)
 int netdb_main(int argc, char **argv)
 {
   FAR struct hostent *host;
+  FAR const char *addrtype;
   char buffer[48];
   int ret;
+
+  /* Handle: netdb --help */
 
   if (argc == 2 && strcmp(argv[1], "--help") == 0)
     {
       show_usage(argv[0], EXIT_SUCCESS);
     }
+
+  /* Otherwise there must be exactly two arguments following the program name */
+
   else if (argc < 3)
     {
       fprintf(stderr, "ERROR -- Missing arguments\n\n");
@@ -103,9 +109,14 @@ int netdb_main(int argc, char **argv)
       fprintf(stderr, "ERROR -- Too many arguments\n\n");
       show_usage(argv[0], EXIT_FAILURE);
     }
+
+  /* Handle: netdb --ipv4 <ipv4-addr>  */
+
   else if (strcmp(argv[1], "--ipv4") == 0)
     {
       struct in_addr addr;
+
+      /* Convert the address to binary */
 
       ret = inet_pton(AF_INET, argv[2], &addr);
       if (ret < 0)
@@ -114,20 +125,24 @@ int netdb_main(int argc, char **argv)
           show_usage(argv[0], EXIT_FAILURE);
         }
 
+      /* Get the matching host name + any aliases */
+
       host = gethostbyaddr(&addr, sizeof(struct in_addr), AF_INET);
       if (!host)
         {
           fprintf(stderr, "ERROR -- gethostbyaddr failed.  h_errno=%d\n\n",
                   h_errno);
-          show_usage(argv[0], EXIT_FAILURE);
+          return EXIT_FAILURE;
         }
-
-      printf("IPv4 Addr: %s  Host: %s\n", argv[2], host->h_name);
-      return EXIT_SUCCESS;
     }
+
+  /* Handle: netdb --ipv46<ipv6-addr>  */
+
   else if (strcmp(argv[1], "--ipv6") == 0)
     {
       struct in_addr addr;
+
+      /* Convert the address to binary */
 
       ret = inet_pton(AF_INET6, argv[2], &addr);
       if (ret < 0)
@@ -136,68 +151,104 @@ int netdb_main(int argc, char **argv)
           show_usage(argv[0], EXIT_FAILURE);
         }
 
+      /* Get the matching host name + any aliases */
+
       host = gethostbyaddr(&addr, sizeof(struct in6_addr), AF_INET6);
       if (!host)
         {
           fprintf(stderr, "ERROR -- gethostbyaddr failed.  h_errno=%d\n\n",
                   h_errno);
-          show_usage(argv[0], EXIT_FAILURE);
+          return EXIT_FAILURE;
         }
-
-      printf("IPv6 Addr: %s  Host: %s\n", argv[2], host->h_name);
-      return EXIT_SUCCESS;
     }
+
+  /* Handle: netdb --host <host-name>  */
+
   else if (strcmp(argv[1], "--host") == 0)
     {
-      FAR const char *addrtype;
+      /* Get the matching address + any aliases */
 
       host = gethostbyname(argv[2]);
       if (!host)
         {
           fprintf(stderr, "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
                   h_errno);
-          show_usage(argv[0], EXIT_FAILURE);
+          return EXIT_FAILURE;
         }
-
-      if (host->h_addrtype == AF_INET)
-        {
-          if (inet_ntop(AF_INET, host->h_addr, buffer, 48) == NULL)
-            {
-              fprintf(stderr,
-                      "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
-                      h_errno);
-              show_usage(argv[0], EXIT_FAILURE);
-            }
-
-          addrtype = "IPv4";
-        }
-      else if (host->h_addrtype == AF_INET6)
-        {
-          if (inet_ntop(AF_INET6, host->h_addr, buffer, 48) == NULL)
-            {
-              fprintf(stderr,
-                      "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
-                      h_errno);
-              show_usage(argv[0], EXIT_FAILURE);
-            }
-
-          addrtype = "IPv6";
-        }
-      else
-        {
-           fprintf(stderr, "ERROR -- gethostbyname address type&d  not recognized.\n\n",
-                   host->h_addrtype);
-           show_usage(argv[0], EXIT_FAILURE);
-        }
-
-      printf("Host: %s  %s Addr: %s\n", argv[2], addrtype, buffer);
-      return EXIT_SUCCESS;
     }
+
+  /* The first argument is not any argument that we recognize */
+
   else
     {
       fprintf(stderr, "ERROR -- Unrecognized option: %s\n\n", argv[1]);
       show_usage(argv[0], EXIT_FAILURE);
     }
+
+  /* If we get here, then gethostbyname() or gethostbyaddr() was
+   * successfully.
+   */
+
+  /* Convert the address to a string */
+  /* Handle IPv4 addresses */
+
+  if (host->h_addrtype == AF_INET)
+    {
+      if (inet_ntop(AF_INET, host->h_addr, buffer, 48) == NULL)
+        {
+          fprintf(stderr,
+                  "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
+                  h_errno);
+          return EXIT_FAILURE;
+        }
+
+      addrtype = "IPv4";
+    }
+
+  /* Handle IPv6 addresses */
+
+  else if (host->h_addrtype == AF_INET6)
+    {
+      if (inet_ntop(AF_INET6, host->h_addr, buffer, 48) == NULL)
+        {
+          fprintf(stderr,
+                  "ERROR -- gethostbyname failed.  h_errno=%d\n\n",
+                  h_errno);
+          return EXIT_FAILURE;
+        }
+
+      addrtype = "IPv6";
+    }
+
+  /* Huh? */
+
+  else
+    {
+       fprintf(stderr, "ERROR -- gethostbyname address type %d  not recognized.\n\n",
+               host->h_addrtype);
+       return EXIT_FAILURE;
+    }
+
+  /* Print the host name / address mapping */
+
+  printf("Host: %s  %s Addr: %s\n", host->h_name, addrtype, buffer);
+
+  /* Print any host name aliases */
+
+  if (host->h_aliases != NULL && *host->h_aliases != NULL)
+    {
+      FAR char **alias;
+
+      printf("Aliases:");
+      for (alias = host->h_aliases; *alias != NULL; alias++)
+        {
+          printf(" %s", *alias);
+        }
+
+      putchar('\n');
+    }
+
+  return EXIT_SUCCESS;
 }
 
 #endif /* CONFIG_SYSTEM_NETDB */
