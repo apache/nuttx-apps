@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/wget/target.c
+ * examples/wget/wget_main.c
  *
  *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -104,7 +104,7 @@ static void callback(FAR char **buffer, int offset, int datend,
  ****************************************************************************/
 
 /****************************************************************************
- * wget_main
+ * Name: wget_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL

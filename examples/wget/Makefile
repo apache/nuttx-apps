@@ -41,7 +41,7 @@ include $(APPDIR)/Make.defs
 
 ASRCS =
 CSRCS =
-MAINSRC = target.c
+MAINSRC = wget_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -116,7 +116,6 @@ depend: .depend
 clean:
 	$(call DELFILE, .built)
 	$(call CLEAN)
-	@$(MAKE) -f Makefile.host clean TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 distclean: clean
 	$(call DELFILE, Make.dep)
