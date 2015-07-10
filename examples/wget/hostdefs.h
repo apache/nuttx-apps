@@ -52,8 +52,8 @@
 
 #define HTONS(a) htons(a)
 #define HTONL(a) htonl(a)
-#define CONFIG_CPP_HAVE_WARNING   1
-#define CONFIG_HAVE_GETHOSTBYNAME 1
+#define CONFIG_CPP_HAVE_WARNING 1
+#define CONFIG_LIBC_NETDB 1
 #define FAR
 
 #define ndbg(...) printf(__VA_ARGS__)

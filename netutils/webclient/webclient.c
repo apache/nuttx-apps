@@ -60,19 +60,16 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <netdb.h>
 #include <string.h>
 #include <errno.h>
-
-#ifdef CONFIG_HAVE_GETHOSTBYNAME
-#  include <netdb.h>
-#else
-#  include <nuttx/net/dnsclient.h>
-#endif
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include <nuttx/version.h>
+#include <nuttx/net/dnsclient.h>
+
 #include <apps/netutils/netlib.h>
 #include <apps/netutils/webclient.h>
 

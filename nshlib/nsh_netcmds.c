@@ -86,11 +86,8 @@
 #endif
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-#  ifdef CONFIG_HAVE_GETHOSTBYNAME
-#    include <netdb.h>
-#  else
-#    include <nuttx/net/dnsclient.h>
-#  endif
+#  include <netdb.h>
+#  include <nuttx/net/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 
