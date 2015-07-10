@@ -69,7 +69,7 @@
 
 #include <apps/netutils/netlib.h>
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-#  include <apps/netutils/dnsclient.h>
+#  include <nuttx/net/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 

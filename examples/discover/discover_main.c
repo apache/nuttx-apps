@@ -65,7 +65,7 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_DISCOVER_DHCPC
-#  include <apps/netutils/dnsclient.h>
+#  include <nuttx/net/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 

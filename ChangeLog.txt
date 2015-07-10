@@ -1338,4 +1338,7 @@
 	  replaced with the NSH uname command (2015-07-04).
 	* apps/syste/netdb:  Add a command to access the network database
 	  (2015-07-08).
-
+	* apps/netuils/dnsclient and include/netutils/dnsclient.h:  Move the
+	  DNS client logic into the NuttX C library.  It is a necessary part
+	  for the full implementation of the netdb logic and provides more
+	  flexibility in that location (2015-07-10).

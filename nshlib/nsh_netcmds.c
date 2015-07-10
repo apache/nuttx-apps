@@ -70,7 +70,7 @@
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS)
 #  include <apps/netutils/netlib.h>
-#  include <apps/netutils/dnsclient.h>
+#  include <nuttx/net/dnsclient.h>
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
@@ -89,7 +89,7 @@
 #  ifdef CONFIG_HAVE_GETHOSTBYNAME
 #    include <netdb.h>
 #  else
-#    include <apps/netutils/dnsclient.h>
+#    include <nuttx/net/dnsclient.h>
 #  endif
 #  include <apps/netutils/dhcpc.h>
 #endif

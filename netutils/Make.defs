@@ -66,10 +66,6 @@ ifeq ($(CONFIG_NETUTILS_PPPD),y)
 CONFIGURED_APPS += netutils/pppd
 endif
 
-ifeq ($(CONFIG_NETUTILS_DNSCLIENT),y)
-CONFIGURED_APPS += netutils/dnsclient
-endif
-
 ifeq ($(CONFIG_NETUTILS_SMTP),y)
 CONFIGURED_APPS += netutils/smtp
 endif

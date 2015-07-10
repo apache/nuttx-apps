@@ -47,7 +47,7 @@
 #include <net/if.h>
 
 #include <apps/netutils/netlib.h>
-#include <apps/netutils/dnsclient.h>
+#include <nuttx/net/dnsclient.h>
 #include <apps/netutils/webclient.h>
 
 /****************************************************************************

@@ -55,7 +55,7 @@
 #if defined(CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC) || \
     defined(CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC)
 #  include <arpa/inet.h>
-#  include <apps/netutils/dnsclient.h>
+#  include <nuttx/net/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 

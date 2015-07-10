@@ -66,7 +66,7 @@
 #ifdef CONFIG_HAVE_GETHOSTBYNAME
 #  include <netdb.h>
 #else
-#  include <apps/netutils/dnsclient.h>
+#  include <nuttx/net/dnsclient.h>
 #endif
 
 #include <arpa/inet.h>
