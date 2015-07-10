@@ -39,6 +39,7 @@
 
 #include <nuttx/config.h>
 
+#include <sys/wait.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
