@@ -6,7 +6,7 @@
 menuconfig SYSTEM_NETDB
 	bool "netdb interface"
 	default n
-	depends on LIB_NETDB
+	depends on LIBC_NETDB
 
 if SYSTEM_NETDB
 
