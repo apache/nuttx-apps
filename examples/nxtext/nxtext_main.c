@@ -458,9 +458,9 @@ int nxtext_main(int argc, char **argv)
 
           hwnd = nxpu_open();
 
+#ifdef CONFIG_NX_KBD
           /* Give keyboard input to the top window (which should be the pop-up) */
 
-#ifdef CONFIG_NX_KBD
           printf("nxtext_main: Send keyboard input: %s\n", g_pumsg);
           ret = nx_kbdin(g_hnx, strlen((FAR const char *)g_pumsg), g_pumsg);
           if (ret < 0)
@@ -493,7 +493,9 @@ int nxtext_main(int argc, char **argv)
 
   /* Close the pop-up window */
 
+#ifdef CONFIG_NX_KBD
 errout_with_hwnd:
+#endif
   if (popcnt >= 3)
     {
       printf("nxtext_main: Close pop-up\n");

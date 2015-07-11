@@ -279,6 +279,16 @@ static const uint8_t        g_anyipaddr[4] = {0, 0, 0, 0};
 static struct dhcpd_state_s g_state;
 
 /****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#ifndef CONFIG_NETUTILS_DHCPD_HOST
+/* This is an internal OS interface and should be called from this file */
+
+void arp_update(FAR uint16_t *pipaddr, FAR uint8_t *ethaddr);
+#endif
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
