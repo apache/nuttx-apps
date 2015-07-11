@@ -287,14 +287,9 @@ static void nsh_netinit_configure(void)
 #endif /* CONFIG_NET_ICMPv6_AUTOCONF */
 #endif /* CONFIG_NET_IPv6 */
 
-#if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-  /* Set up the resolver */
-
-  dns_bind();
 #if defined(CONFIG_NSH_DNS)
   addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
   dns_setserver(&addr);
-#endif
 #endif
 
 #if defined(CONFIG_NSH_DHCPC)

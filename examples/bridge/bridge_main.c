@@ -131,10 +131,6 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
   netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
 
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC
-  /* Set up the resolver */
-
-  dns_bind();
-
   /* Get the MAC address of the NIC */
 
   netlib_getmacaddr(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, mac);
@@ -256,10 +252,6 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
   netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, &addr);
 
 #ifdef CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC
-  /* Set up the resolver */
-
-  dns_bind();
-
   /* Get the MAC address of the NIC */
 
   netlib_getmacaddr(CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME, mac);

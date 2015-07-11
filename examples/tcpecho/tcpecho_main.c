@@ -145,10 +145,6 @@ static int tcpecho_netsetup()
   netlib_set_ipv4netmask("eth0", &addr);
 
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC
-  /* Set up the resolver */
-
-  dns_bind();
-
   /* Get the MAC address of the NIC */
 
   netlib_getmacaddr("eth0", mac);
