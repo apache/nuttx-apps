@@ -1342,3 +1342,8 @@
 	  DNS client logic into the NuttX C library.  It is a necessary part
 	  for the full implementation of the netdb logic and provides more
 	  flexibility in that location (2015-07-10).
+	* apps/examples/ and apps/netutils: Remove calls to obsolete, non-
+	  functional DNS interfaces (2015-07-11).
+	* apps/netutils and apps/nshlib: Replace calls to the non-standard
+	  dns_gethotip with calls to standard gethostbyname (2015-07-11).
+

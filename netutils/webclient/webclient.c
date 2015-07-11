@@ -68,7 +68,6 @@
 #include <netinet/in.h>
 
 #include <nuttx/version.h>
-#include <nuttx/net/dnsclient.h>
 
 #include <apps/netutils/netlib.h>
 #include <apps/netutils/webclient.h>
@@ -376,6 +375,41 @@ exit:
 }
 
 /****************************************************************************
+ * Name: wget_gethostip
+ *
+ * Description:
+ *   Call gethostbyname() to get the IPv4 address associated with a hostname.
+ *
+ * Input Parameters
+ *   hostname - The host name to use in the nslookup.
+ *   ipv4addr - The location to return the IPv4 address.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+static int wget_gethostip(FAR char *hostname, in_addr_t *ipv4addr)
+{
+  FAR struct hostent *he;
+
+  he = gethostbyname(hostname);
+  if (he == NULL)
+    {
+      ndbg("gethostbyname failed: %d\n", h_errno);
+      return -ENOENT;
+    }
+  else if (he->h_addrtype != AF_INET)
+    {
+      ndbg("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      return -ENOEXEC;
+    }
+
+  memcpy(ipv4addr, he->h_addr, sizeof(in_addr_t));
+  return OK;
+}
+
+/****************************************************************************
  * Name: wget_base
  *
  * Description:
@@ -477,7 +511,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
 
       server.sin_family = AF_INET;
       server.sin_port   = htons(ws.port);
-      ret = dns_gethostip(ws.hostname, &server.sin_addr.s_addr);
+      ret = wget_gethostip(ws.hostname, &server.sin_addr.s_addr);
       if (ret < 0)
         {
           /* Could not resolve host (or malformed IP address) */

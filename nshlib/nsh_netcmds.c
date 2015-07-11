@@ -49,6 +49,7 @@
 #include <string.h>
 #include <sched.h>
 #include <fcntl.h>       /* Needed for open */
+#include <netdb.h>       /* Needed for gethostbyname */
 #include <libgen.h>      /* Needed for basename */
 #include <errno.h>
 #include <debug.h>
@@ -70,7 +71,6 @@
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS)
 #  include <apps/netutils/netlib.h>
-#  include <nuttx/net/dnsclient.h>
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
@@ -86,8 +86,6 @@
 #endif
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-#  include <netdb.h>
-#  include <nuttx/net/dnsclient.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 
@@ -736,6 +734,79 @@ errout:
 #endif
 
 /****************************************************************************
+ * Name: nsh_gethostip
+ *
+ * Description:
+ *   Call gethostbyname() to get the IP address associated with a hostname.
+ *
+ * Input Parameters
+ *   hostname - The host name to use in the nslookup.
+ *   ipv4addr - The location to return the IPv4 address.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+#if defined(HAVE_PING) || defined(HAVE_PING6)
+static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
+                         int addrtype)
+{
+  FAR struct hostent *he;
+
+  he = gethostbyname(hostname);
+  if (he == NULL)
+    {
+      ndbg("gethostbyname failed: %d\n", h_errno);
+      return -ENOENT;
+    }
+#if defined(HAVE_PING) && defined(HAVE_PING6)
+
+  else if (he->h_addrtype != addrtype)
+    {
+      ndbg("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      return -ENOEXEC;
+    }
+  else if (addrtype == AF_INET)
+    {
+      memcpy(&ipaddr->ipv4, he->h_addr, sizeof(in_addr_t));
+    }
+  else /* if (addrtype == AF_INET6) */
+    {
+      memcpy(ipaddr->ipv6, he->h_addr, sizeof(net_ipv6addr_t));
+    }
+
+#elif defined(HAVE_PING)
+
+  else if (he->h_addrtype != AF_INET)
+    {
+      ndbg("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      return -ENOEXEC;
+    }
+  else
+    {
+      memcpy(&ipaddr->ipv4, he->h_addr, sizeof(in_addr_t));
+    }
+
+#else /* if defined(HAVE_PING6) */
+
+  else if (he->h_addrtype != AF_INET6)
+    {
+      ndbg("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      return -ENOEXEC;
+    }
+  else
+    {
+      memcpy(ipaddr->ipv6, he->h_addr, sizeof(net_ipv6addr_t));
+    }
+
+#endif
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
  * Name: wget_callback
  ****************************************************************************/
 
@@ -1229,15 +1300,11 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the IP address in binary form */
 
-  ret = inet_pton(AF_INET, staddr, &ipaddr);
-  if (ret == 0)
+  ret = nsh_gethostip(staddr, (FAR union ip_addr_u *)&ipaddr, AF_INET);
+  if (ret < 0)
     {
-      ret = dns_gethostip(staddr, &ipaddr);
-      if (ret < 0)
-        {
-          nsh_output(vtbl, "nsh: %s: unable to resolve hostname '%s'\n", argv[0], staddr);
-          return ERROR;
-        }
+      nsh_output(vtbl, "nsh: %s: unable to resolve hostname '%s'\n", argv[0], staddr);
+      return ERROR;
     }
 
   /* Get the ID to use */
@@ -1356,15 +1423,9 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-  /* Get the IP address in binary form
-   * REVISIT:  DNS hostname look-up not yet supported
-   */
+  /* Get the IP address in binary form */
 
-#if 0
-  ret = dns_gethostip(staddr, &ipaddr);
-#else
-  ret = inet_pton(AF_INET6, staddr, &ipaddr);
-#endif
+  ret = nsh_gethostip(staddr, (FAR union ip_addr_u *)&ipaddr, AF_INET6);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
