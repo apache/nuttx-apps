@@ -7,6 +7,7 @@ config NETUTILS_WEBCLIENT
 	bool "uIP web client"
 	default n
 	depends on NET_TCP
+	select LIBC_NETDB
 	---help---
 		Enable support for the uIP web client.
 
