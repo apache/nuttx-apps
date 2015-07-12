@@ -58,10 +58,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_get_ipv4addr
+ * Name: netlib_get_ipv4dnsaddr
  *
  * Description:
- *   Get the DNS server IPv4address
+ *   Get the DNS server IPv4 address
  *
  * Parameters:
  *   ipaddr   The location to return the IPv4 address
