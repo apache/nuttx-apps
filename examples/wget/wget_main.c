@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/wget/wget_main.c
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@
 #include <net/if.h>
 
 #include <apps/netutils/netlib.h>
-#include <nuttx/net/dns.h>
 #include <apps/netutils/webclient.h>
 
 /****************************************************************************

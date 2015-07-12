@@ -2,6 +2,7 @@
  * apps/examples/xmlrpc/xmlrpc_main.c
  *
  *   Copyright (C) 2012 Max Holtzberg. All rights reserved.
+ *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
  *   Author: Max Holtzberg <mh@uvc.de>
  *
  * Based on the embeddable lightweight XML-RPC server code discussed
@@ -80,7 +81,6 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC
-#  include <nuttx/net/dns.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 
@@ -341,7 +341,7 @@ static int xmlrpc_netinit(void)
 
       if (ds.dnsaddr.s_addr != 0)
         {
-          dns_setserver(&ds.dnsaddr);
+          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
         }
 
       dhcpc_close(handle);

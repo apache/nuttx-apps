@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/bridge/bridge_main.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
  *
  *   Authors: Gregory Nutt <gnutt@nuttx.org>
  *
@@ -55,7 +55,6 @@
 #if defined(CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC) || \
     defined(CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC)
 #  include <arpa/inet.h>
-#  include <nuttx/net/dns.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 
@@ -169,7 +168,7 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
 
   if (ds.dnsaddr.s_addr != 0)
     {
-      dns_setserver(&ds.dnsaddr);
+      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
     }
 
   dhcpc_close(handle);
@@ -290,7 +289,7 @@ printf("NET2: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET2_IFNAME);
 
   if (ds.dnsaddr.s_addr != 0)
     {
-      dns_setserver(&ds.dnsaddr);
+      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
     }
 
   dhcpc_close(handle);

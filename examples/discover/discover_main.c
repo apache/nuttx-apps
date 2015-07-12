@@ -2,7 +2,7 @@
  * examples/discover/discover_main.c
  *
  *   Copyright (C) 2012 Max Holtzberg. All rights reserved.
- *   Copyright (C) 2008, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2011-2012, 2015 Gregory Nutt. All rights reserved.
  *
  *   Authors: Max Holtzberg <mh@uvc.de>
  *            Gregory Nutt <gnutt@nuttx.org>
@@ -65,7 +65,6 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_DISCOVER_DHCPC
-#  include <nuttx/net/dns.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 
@@ -167,7 +166,7 @@ int discover_main(int argc, char *argv[])
 
       if (ds.dnsaddr.s_addr != 0)
         {
-          dns_setserver(&ds.dnsaddr);
+          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
         }
 
       dhcpc_close(handle);

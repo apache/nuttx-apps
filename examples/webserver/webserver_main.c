@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/webserver/webserver_main.c
  *
- *   Copyright (C) 2007, 2009-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based on uIP which also has a BSD style license:
@@ -70,7 +70,6 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
-# include <nuttx/net/dns.h>
 # include <apps/netutils/dhcpc.h>
 #endif
 
@@ -173,7 +172,7 @@ int webserver_main(int argc, char *argv[])
 
         if (ds.dnsaddr.s_addr != 0)
           {
-            dns_setserver(&ds.dnsaddr);
+            netlib_set_ipv4dnsaddr(&ds.dnsaddr);
           }
 
         dhcpc_close(handle);

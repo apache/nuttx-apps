@@ -3,7 +3,7 @@
  * Various non-standard APIs to support netutils.  All non-standard and
  * intended only for internal use.
  *
- *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011m 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Some of these APIs derive from uIP.  uIP also has a BSD style license:
@@ -72,7 +72,7 @@
 #endif
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Data
  ****************************************************************************/
 
 #undef EXTERN
@@ -83,6 +83,10 @@ extern "C"
 #else
 #define EXTERN extern
 #endif
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
 /* Convert a textual representation of an IP address to a numerical representation.
  *
@@ -103,9 +107,9 @@ extern "C"
 bool netlib_ipaddrconv(FAR const char *addrstr, uint8_t *addr);
 bool netlib_hwmacconv(FAR const char *hwstr, uint8_t *hw);
 
+#ifdef CONFIG_NET_ETHERNET
 /* Get and set IP/MAC addresses (Ethernet L2 only) */
 
-#ifdef CONFIG_NET_ETHERNET
 int netlib_setmacaddr(FAR const char *ifname, const uint8_t *macaddr);
 int netlib_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
 #endif
@@ -129,9 +133,9 @@ uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
 void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
 #endif
 
+#ifdef CONFIG_NET_ICMPv6_AUTOCONF
 /* ICMPv6 Autoconfiguration */
 
-#ifdef CONFIG_NET_ICMPv6_AUTOCONF
 int netlib_icmpv6_autoconfiguration(FAR const char *ifname);
 #endif
 
@@ -150,6 +154,13 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler,
 int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags);
 int netlib_ifup(FAR const char *ifname);
 int netlib_ifdown(FAR const char *ifname);
+
+/* DNS server addressing */
+
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NETDB_DNSCLIENT)
+int netlib_set_ipv4dnsaddr(FAR const struct in_addr *inaddr);
+int netlib_get_ipv4addr(FAR struct in_addr *inaddr);
+#endif
 
 #undef EXTERN
 #ifdef __cplusplus

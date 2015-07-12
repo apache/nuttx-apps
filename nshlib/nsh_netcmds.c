@@ -562,7 +562,7 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
   nsh_output(vtbl, "Mask:%s\n", inet_ntoa(addr));
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-  dns_getserver(&addr);
+  netlib_get_ipv4dnsaddr(&addr);
   nsh_output(vtbl, "\tDNSaddr:%s\n", inet_ntoa(addr));
 #endif
 #endif
@@ -1216,7 +1216,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           addr.s_addr = gip;
         }
 
-      dns_setserver(&addr);
+      netlib_set_ipv4dnsaddr(&addr);
     }
 #endif /* CONFIG_NET_IPv4 */
 #endif /* CONFIG_NSH_DHCPC || CONFIG_NSH_DNS */
@@ -1256,7 +1256,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (ds.dnsaddr.s_addr != 0)
             {
-              dns_setserver(&ds.dnsaddr);
+              netlib_set_ipv4dnsaddr(&ds.dnsaddr);
             }
 
           dhcpc_close(handle);

@@ -69,7 +69,6 @@
 
 #include <apps/netutils/netlib.h>
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-#  include <nuttx/net/dns.h>
 #  include <apps/netutils/dhcpc.h>
 #endif
 
@@ -289,7 +288,7 @@ static void nsh_netinit_configure(void)
 
 #if defined(CONFIG_NSH_DNS)
   addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
-  dns_setserver(&addr);
+  netlib_set_ipv4dnsaddr(&addr);
 #endif
 
 #if defined(CONFIG_NSH_DHCPC)
@@ -323,7 +322,7 @@ static void nsh_netinit_configure(void)
 
         if (ds.dnsaddr.s_addr != 0)
           {
-            dns_setserver(&ds.dnsaddr);
+            netlib_set_ipv4dnsaddr(&ds.dnsaddr);
           }
 
         dhcpc_close(handle);
