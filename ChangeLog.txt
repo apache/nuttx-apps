@@ -1346,4 +1346,6 @@
 	  functional DNS interfaces (2015-07-11).
 	* apps/netutils and apps/nshlib: Replace calls to the non-standard
 	  dns_gethotip with calls to standard gethostbyname (2015-07-11).
-
+	* apps/netutils/netlib and other files: Create netlib wrapper functions
+	  around dns_getserver() and dns_setserver() to isolate application
+	  code from changes to those interfaces (2015-07-12).
