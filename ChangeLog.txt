@@ -1349,3 +1349,5 @@
 	* apps/netutils/netlib and other files: Create netlib wrapper functions
 	  around dns_getserver() and dns_setserver() to isolate application
 	  code from changes to those interfaces (2015-07-12).
+	* apps/nshlib:  Add an nslookup command (2015-07-13).
+

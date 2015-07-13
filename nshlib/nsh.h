@@ -988,6 +988,11 @@ void nsh_usbtrace(void);
 #  endif
 #endif /* CONFIG_NET */
 
+#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT) && \
+   !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
+   int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+
 #if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
    int cmd_poweroff(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif

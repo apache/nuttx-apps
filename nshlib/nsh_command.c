@@ -317,6 +317,11 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
+#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT) && \
+   !defined(CONFIG_NSH_DISABLE_NSLOOKUP)
+  { "nslookup", cmd_nslookup, 2, 2, "<host-name>" },
+#endif
+
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && !defined(CONFIG_DISABLE_SIGNALS)
 # ifndef CONFIG_NSH_DISABLE_PING
   { "ping",     cmd_ping,     2, 6, "[-c <count>] [-i <interval>] <ip-address>" },
