@@ -53,8 +53,18 @@
 #include "nxlines.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
+
+#ifdef CONFIG_NX_ANTIALIASING
+  /* If anti-aliasing is enabled, then we must clear a slightly
+   * larger region to prevent wierd edge effects.
+   */
+
+#  define CLEAR_WIDTH (CONFIG_EXAMPLES_NXLINES_LINEWIDTH + 2)
+#else
+#  define CLEAR_WIDTH CONFIG_EXAMPLES_NXLINES_LINEWIDTH
+#endif
 
 #ifndef MIN
 #  define MIN(a,b) (a < b ? a : b)
@@ -210,6 +220,8 @@ void nxlines_test(NXWINDOW hwnd)
   nxgl_coord_t halfx;
   nxgl_coord_t halfy;
   b16_t angle;
+  b16_t sinangle;
+  b16_t cosangle;
   int ret;
 
   /* Get the maximum radius and center of the circle */
@@ -279,8 +291,11 @@ void nxlines_test(NXWINDOW hwnd)
     {
       /* Determine the position of the line on this pass */
 
-      halfx = b16toi(b16muli(b16sin(angle), radius));
-      halfy = b16toi(b16muli(b16cos(angle), radius));
+      sinangle = b16sin(angle);
+      halfx = b16toi(b16muli(sinangle, radius));
+
+      cosangle = b16cos(angle);
+      halfy = b16toi(b16muli(cosangle, radius));
 
       vector.pt1.x = center.x + halfx;
       vector.pt1.y = center.y + halfy;
@@ -293,8 +308,7 @@ void nxlines_test(NXWINDOW hwnd)
       /* Clear the previous line by overwriting it with the circle color */
 
       color[0] = CONFIG_EXAMPLES_NXLINES_CIRCLECOLOR;
-      ret = nx_drawline((NXWINDOW)hwnd, &previous,
-                        CONFIG_EXAMPLES_NXLINES_LINEWIDTH, color,
+      ret = nx_drawline((NXWINDOW)hwnd, &previous, CLEAR_WIDTH, color,
                         NX_LINECAP_NONE);
       if (ret < 0)
         {
@@ -311,6 +325,23 @@ void nxlines_test(NXWINDOW hwnd)
         {
           printf("nxlines_test: nx_drawline failed clearing: %d\n", ret);
         }
+
+
+#ifdef CONFIG_NX_ANTIALIASING
+      /* If anti-aliasing is enabled, then we must clear a slightly
+       * larger region to prevent wierd edge effects.
+       */
+
+      halfx = b16toi(b16muli(sinangle, radius + 1));
+      halfy = b16toi(b16muli(cosangle, radius + 1));
+
+      previous.pt1.x = center.x + halfx;
+      previous.pt1.y = center.y + halfy;
+      previous.pt2.x = center.x - halfx;
+      previous.pt2.y = center.y - halfy;
+#else
+      memcpy(&previous, &vector, sizeof(struct nxgl_vector_s));
+#endif
 
       /* Set up for the next time through the loop then sleep for a bit. */
 
@@ -332,8 +363,6 @@ void nxlines_test(NXWINDOW hwnd)
           angle = 0;
 #endif
         }
-
-      memcpy(&previous, &vector, sizeof(struct nxgl_vector_s));
       usleep(500*1000);
     }
 }
