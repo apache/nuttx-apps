@@ -761,6 +761,10 @@ errout:
 static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
                          int addrtype)
 {
+#ifdef CONFIG_LIBC_NETDB
+
+  /* Netdb support is enabled */
+
   FAR struct hostent *he;
 
   he = gethostbyname(hostname);
@@ -769,6 +773,7 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
       ndbg("gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
+
 #if defined(HAVE_PING) && defined(HAVE_PING6)
 
   else if (he->h_addrtype != addrtype)
@@ -812,6 +817,44 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
 #endif
 
   return OK;
+
+#else /* CONFIG_LIBC_NETDB */
+
+  /* No host name support */
+
+  int ret;
+
+#ifdef HAVE_PING
+  /* Convert strings to numeric IPv4 address */
+
+#ifdef HAVE_PING6
+  if (addrtype == AF_INET)
+#endif
+    {
+      ret = inet_pton(AF_INET, hostname, &ipaddr->ipv4);
+    }
+#endif
+
+#ifdef HAVE_PING6
+  /* Convert strings to numeric IPv6 address */
+
+#ifdef HAVE_PING
+  else
+#endif
+    {
+      ret = inet_pton(AF_INET6, hostname, ipaddr->ipv6);
+    }
+#endif
+
+ /* The inet_pton() function returns 1 if the conversion succeeds. It will
+  * return 0 if the input is not a valid IPv4 dotted-decimal string or a
+  * valid IPv6 address string, or -1 with errno set to EAFNOSUPPORT if
+  * the address family argument is unsupported.
+  */
+
+  return (ret > 0) ? OK : ERROR;
+
+#endif /* CONFIG_LIBC_NETDB */
 }
 #endif
 
