@@ -236,7 +236,7 @@ static inline int ls_specialdir(const char *dir)
  * Name: ls_handler
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_LS)
 static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                       FAR struct dirent *entryp, FAR void *pvarg)
 {
