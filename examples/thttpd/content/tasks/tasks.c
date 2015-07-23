@@ -85,6 +85,14 @@ static const char *g_ttypenames[4] =
   "--?--  "
 };
 
+static FAR const char *g_policynames[4] =
+{
+  "FIFO",
+  "RR  ",
+  "SPOR",
+  "OTHR"
+};
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -105,13 +113,14 @@ static const char *g_ttypenames[4] =
 
 /* static */ void show_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
+  FAR const char *policy;
   int i;
 
   /* Show task/thread status */
 
+  policy = g_policynames[(tcb->flags & TCB_FLAG_POLICY_MASK) >> TCB_FLAG_POLICY_SHIFT];
   printf("%5d %3d %4s %7s%c%c %8s ",
-         tcb->pid, tcb->sched_priority,
-         tcb->flags & TCB_FLAG_ROUND_ROBIN ? "RR  " : "FIFO",
+         tcb->pid, tcb->sched_priority, policy,
          g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >> TCB_FLAG_TTYPE_SHIFT],
          tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
          tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',

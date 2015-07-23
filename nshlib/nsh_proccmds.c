@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_proccmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,14 @@ static const char *g_ttypenames[4] =
   "--?--  "
 };
 #endif
+
+static FAR const char *g_policynames[4] =
+{
+  "FIFO",
+  "RR  ",
+  "SPOR",
+  "OTHR"
+};
 
 /****************************************************************************
  * Public Data
@@ -231,7 +239,8 @@ static int loadavg(pid_t pid, FAR char *buffer, size_t buflen)
 #ifndef CONFIG_NSH_DISABLE_PS
 static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
-  struct nsh_vtbl_s *vtbl = (struct nsh_vtbl_s*)arg;
+  FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s*)arg;
+  FAR const char *policy;
 #ifdef HAVE_CPULOAD
   char buffer[8];
   int ret;
@@ -240,9 +249,9 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
 
   /* Show task status */
 
+  policy = g_policynames[(tcb->flags & TCB_FLAG_POLICY_MASK) >> TCB_FLAG_POLICY_SHIFT];
   nsh_output(vtbl, "%5d %3d %4s %7s%c%c %8s ",
-             tcb->pid, tcb->sched_priority,
-             tcb->flags & TCB_FLAG_ROUND_ROBIN ? "RR  " : "FIFO",
+             tcb->pid, tcb->sched_priority, policy,
              g_ttypenames[(tcb->flags & TCB_FLAG_TTYPE_MASK) >> TCB_FLAG_TTYPE_SHIFT],
              tcb->flags & TCB_FLAG_NONCANCELABLE ? 'N' : ' ',
              tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',

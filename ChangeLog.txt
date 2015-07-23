@@ -1357,4 +1357,6 @@
 	  anti-aliasing an option for each graphics call so you would rend the
 	  line with anti-aliasing ON and clear it with anti-aliasing OFF. but I
 	  don't have the wherewithal for that change today (2015-04-14)`.
+	* apps/nshlib and apps/examaples/thttpd:  Change decoding to handle the
+	  increased size of the scheduling policy field in the TCB (2015-07-23).
 
