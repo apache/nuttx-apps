@@ -87,7 +87,7 @@ int netlib_get_ipv4dnsaddr(FAR struct in_addr *inaddr)
           /* Sanity check */
 
           DEBUGASSERT(addr.sin_family == AF_INET &&
-                      addrlen == sizeof(sizeof(struct sockaddr_in)));
+                      addrlen == sizeof(struct sockaddr_in));
           memcpy(inaddr, &addr.sin_addr, sizeof(struct in_addr));
         }
     }
