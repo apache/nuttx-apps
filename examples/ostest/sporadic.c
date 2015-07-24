@@ -44,6 +44,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sched.h>
+#include <time.h>
 
 #include "ostest.h"
 
@@ -70,14 +71,19 @@ static sem_t g_sporadic_sem;
 static void *fifo_func(void *parameter)
 {
   struct sched_param param;
+  time_t start;
+  time_t last;
+  time_t now;
   int ret;
-  int i;
 
   while (sem_wait(&g_sporadic_sem) < 0);
 
+  start = time(NULL);
+  last  = start;
+
   for (;;)
     {
-      for (i = 0; i < 1000; i++)
+      do
         {
           ret = sched_getparam(0, &param);
           if (ret < 0)
@@ -85,24 +91,34 @@ static void *fifo_func(void *parameter)
               printf("ERROR: sched_getparam failed\n");
               return NULL;
             }
-        }
 
-      printf("FIFO: %d\n", param.sched_priority);
+          now = time(NULL);
+        }
+      while (now == last);
+
+      printf("%4lu FIFO:     %d\n",
+             (unsigned long)(now-start), param.sched_priority);
+      last = now;
     }
 }
 
 static void *sporadic_func(void *parameter)
 {
   struct sched_param param;
+  time_t start;
+  time_t last;
+  time_t now;
   int prio = 0;
   int ret;
-  int i;
 
   while (sem_wait(&g_sporadic_sem) < 0);
 
+  start = time(NULL);
+  last  = start;
+
   for (;;)
     {
-      for (i = 0; i < 1000; i++)
+      do
         {
           ret = sched_getparam(0, &param);
           if (ret < 0)
@@ -111,14 +127,14 @@ static void *sporadic_func(void *parameter)
               return NULL;
             }
 
-          if (prio != param.sched_priority)
-            {
-              break;
-            }
+          now = time(NULL);
         }
+      while (now == last && prio == param.sched_priority);
 
+      printf("%4lu SPORADIC: %d->%d\n",
+             (unsigned long)(now-start), prio, param.sched_priority);
       prio = param.sched_priority;
-      printf("SPORADIC: %d\n", prio);
+      last = now;
     }
 }
 
@@ -218,6 +234,7 @@ void sporadic_test(void)
   sparam.sched_ss_repl_period.tv_sec  = 4;
   sparam.sched_ss_repl_period.tv_nsec = 0;
   sparam.sched_ss_init_budget.tv_sec  = 2;
+  sparam.sched_ss_init_budget.tv_nsec = 0;
   sparam.sched_ss_max_repl            = 5;
 
   ret = pthread_attr_setschedparam(&attr, &sparam);
