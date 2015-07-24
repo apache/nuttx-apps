@@ -1359,4 +1359,7 @@
 	  don't have the wherewithal for that change today (2015-04-14)`.
 	* apps/nshlib and apps/examaples/thttpd:  Change decoding to handle the
 	  increased size of the scheduling policy field in the TCB (2015-07-23).
-
+	* apps/examples/ostest: Improve syncrhonization in round robin tests.
+	  On very fast processors, there are race conditions that make the test
+	  failure.  Need better interlocking to assure that the threads actually
+	  do start at the same time (2015-07-24).

@@ -1,7 +1,7 @@
 /********************************************************************************
  * examples/ostest/roundrobin.c
  *
- *   Copyright (C) 2007, 2008, 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,14 +38,18 @@
  ********************************************************************************/
 
 #include <nuttx/config.h>
+
 #include <stdio.h>
 #include <stdbool.h>
+#include <semaphore.h>
+#include <sched.h>
+
 #include "ostest.h"
 
 #if CONFIG_RR_INTERVAL > 0
 
 /********************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ********************************************************************************/
 
 /* This numbers should be tuned for different processor speeds via .config file.
@@ -67,6 +71,12 @@
 #  define CONFIG_EXAMPLES_OSTEST_RR_RUNS 10
 #  warning "Invalid value of CONFIG_EXAMPLES_OSTEST_RR_RUNS, using default value = 10"
 #endif
+
+/********************************************************************************
+ * Private Data
+ ********************************************************************************/
+
+static sem_t g_rrsem;
 
 /********************************************************************************
  * Private Functions
@@ -122,6 +132,8 @@ static FAR void *get_primes_thread(FAR void *parameter)
   int last;
   int i;
 
+  while (sem_wait(&g_rrsem) < 0);
+
   printf("get_primes_thread id=%d started, looking for primes < %d, doing %d run(s)\n",
          id, CONFIG_EXAMPLES_OSTEST_RR_RANGE, CONFIG_EXAMPLES_OSTEST_RR_RUNS);
 
@@ -154,6 +166,8 @@ void rr_test(void)
   pthread_addr_t result;
   int status;
 
+  /* Setup common thread attrributes */
+
   status = pthread_attr_init(&attr);
   if (status != OK)
     {
@@ -181,6 +195,13 @@ void rr_test(void)
       printf("rr_test: Set thread policy to SCHED_RR\n");
     }
 
+  /* This semaphore will prevent anything from running */
+
+  sched_lock();
+  sem_init(&g_rrsem, 0, 0);
+
+  /* Start the threads */
+
   printf("rr_test: Starting first get_primes_thread\n");
 
   status = pthread_create(&get_primes1_thread, &attr, get_primes_thread, (FAR void *)1);
@@ -202,6 +223,10 @@ void rr_test(void)
   printf("rr_test: Waiting for threads to complete -- this should take awhile\n");
   printf("         If RR scheduling is working, they should start and complete at\n");
   printf("         about the same time\n");
+
+  sem_post(&g_rrsem);
+  sem_post(&g_rrsem);
+  sched_unlock();
 
   pthread_join(get_primes2_thread, &result);
   pthread_join(get_primes1_thread, &result);
