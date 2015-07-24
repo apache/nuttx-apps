@@ -195,7 +195,7 @@ void rr_test(void)
       printf("rr_test: Set thread policy to SCHED_RR\n");
     }
 
-  /* This semaphore will prevent anything from running */
+  /* This semaphore will prevent anything from running until we are ready */
 
   sched_lock();
   sem_init(&g_rrsem, 0, 0);
@@ -231,6 +231,7 @@ void rr_test(void)
   pthread_join(get_primes2_thread, &result);
   pthread_join(get_primes1_thread, &result);
   printf("rr_test: Done\n");
+  sem_destroy(&g_rrsem);
 }
 
 #endif /* CONFIG_RR_INTERVAL */

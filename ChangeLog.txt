@@ -1363,3 +1363,6 @@
 	  On very fast processors, there are race conditions that make the test
 	  failure.  Need better interlocking to assure that the threads actually
 	  do start at the same time (2015-07-24).
+	* apps/examples/ostest: Add a test for the sporadic scheduler.  This
+	  test is failing as of this commit (2015-07-24).
+

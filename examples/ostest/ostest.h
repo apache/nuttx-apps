@@ -187,6 +187,10 @@ void timer_test(void);
 
 void rr_test(void);
 
+/* sporadic.c *************************************************************/
+
+void sporadic_test(void);
+
 /* barrier.c ****************************************************************/
 
 void barrier_test(void);

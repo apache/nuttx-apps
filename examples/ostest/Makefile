@@ -63,15 +63,22 @@ endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += cancel.c cond.c mutex.c sem.c semtimed.c barrier.c
+
 ifeq ($(CONFIG_FS_NAMED_SEMAPHORES),y)
 CSRCS += nsem.c
 endif
-ifneq ($(CONFIG_RR_INTERVAL),0)
-CSRCS += roundrobin.c
-endif # CONFIG_RR_INTERVAL
+
 ifeq ($(CONFIG_MUTEX_TYPES),y)
 CSRCS += rmutex.c
-endif # CONFIG_MUTEX_TYPES
+endif
+
+ifneq ($(CONFIG_RR_INTERVAL),0)
+CSRCS += roundrobin.c
+endif
+
+ifeq ($(CONFIG_SCHED_SPORADIC),y)
+CSRCS += sporadic.c
+endif
 endif # CONFIG_DISABLE_PTHREAD
 
 ifneq ($(CONFIG_DISABLE_SIGNALS),y)
