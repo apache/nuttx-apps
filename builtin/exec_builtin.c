@@ -185,12 +185,14 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
     {
       goto errout_with_actions;
     }
+
 #else
   ret = posix_spawnattr_setflags(&attr, POSIX_SPAWN_SETSCHEDPARAM);
   if (ret != 0)
     {
       goto errout_with_actions;
     }
+
 #endif
 
   /* Is output being redirected? */
