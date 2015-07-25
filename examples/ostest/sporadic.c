@@ -96,6 +96,7 @@ static void *fifo_func(void *parameter)
     {
       do
         {
+          sched_lock(); /* Just to exercise more logic */
           ret = sched_getparam(0, &param);
           if (ret < 0)
             {
@@ -104,12 +105,15 @@ static void *fifo_func(void *parameter)
             }
 
           now = time(NULL);
+          sched_unlock();
         }
       while (now == last);
 
+      sched_lock(); /* Just to exercise more logic */
       printf("%4lu FIFO:     %d\n",
              (unsigned long)(now-g_start_time), param.sched_priority);
       last = now;
+      sched_unlock();
     }
 }
 
@@ -129,6 +133,7 @@ static void *sporadic_func(void *parameter)
     {
       do
         {
+          sched_lock(); /* Just to exercise more logic */
           ret = sched_getparam(0, &param);
           if (ret < 0)
             {
@@ -137,13 +142,16 @@ static void *sporadic_func(void *parameter)
             }
 
           now = time(NULL);
+          sched_unlock();
         }
       while (now == last && prio == param.sched_priority);
 
+      sched_lock(); /* Just to exercise more logic */
       printf("%4lu SPORADIC: %d->%d\n",
              (unsigned long)(now-g_start_time), prio, param.sched_priority);
       prio = param.sched_priority;
       last = now;
+      sched_unlock();
     }
 }
 
