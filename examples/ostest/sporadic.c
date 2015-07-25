@@ -63,23 +63,34 @@
  ***********************************************************************/
 
 static sem_t g_sporadic_sem;
+static time_t g_start_time;
 
 /***********************************************************************
  * Private Functions
  ***********************************************************************/
 
+static void *nuisance_func(void *parameter)
+{
+  while (sem_wait(&g_sporadic_sem) < 0);
+
+  for (;;)
+    {
+      usleep(500*1000);
+    }
+
+  return NULL;
+}
+
 static void *fifo_func(void *parameter)
 {
   struct sched_param param;
-  time_t start;
   time_t last;
   time_t now;
   int ret;
 
   while (sem_wait(&g_sporadic_sem) < 0);
 
-  start = time(NULL);
-  last  = start;
+  last  = g_start_time;
 
   for (;;)
     {
@@ -97,7 +108,7 @@ static void *fifo_func(void *parameter)
       while (now == last);
 
       printf("%4lu FIFO:     %d\n",
-             (unsigned long)(now-start), param.sched_priority);
+             (unsigned long)(now-g_start_time), param.sched_priority);
       last = now;
     }
 }
@@ -105,7 +116,6 @@ static void *fifo_func(void *parameter)
 static void *sporadic_func(void *parameter)
 {
   struct sched_param param;
-  time_t start;
   time_t last;
   time_t now;
   int prio = 0;
@@ -113,8 +123,7 @@ static void *sporadic_func(void *parameter)
 
   while (sem_wait(&g_sporadic_sem) < 0);
 
-  start = time(NULL);
-  last  = start;
+  last  = g_start_time;
 
   for (;;)
     {
@@ -132,7 +141,7 @@ static void *sporadic_func(void *parameter)
       while (now == last && prio == param.sched_priority);
 
       printf("%4lu SPORADIC: %d->%d\n",
-             (unsigned long)(now-start), prio, param.sched_priority);
+             (unsigned long)(now-g_start_time), prio, param.sched_priority);
       prio = param.sched_priority;
       last = now;
     }
@@ -144,6 +153,7 @@ static void *sporadic_func(void *parameter)
 
 void sporadic_test(void)
 {
+  pthread_t nuisance_thread = (pthread_t)0;
   pthread_t sporadic_thread = (pthread_t)0;
   pthread_t fifo_thread = (pthread_t)0;
 #ifdef SDCC
@@ -170,7 +180,7 @@ void sporadic_test(void)
   prio_mid  = (prio_min + prio_max) >> 1;
   prio_high = prio_max - ((prio_max - prio_min) >> 2);
 
-  /* Temporarily set our priority to prio_high + 1 */
+  /* Temporarily set our priority to prio_high + 2 */
 
   ret = sched_getparam(0, &myparam);
   if (ret != OK)
@@ -178,7 +188,7 @@ void sporadic_test(void)
       printf("sporadic_test: ERROR: sched_getparam failed, ret=%d\n",  ret);
     }
 
-  sparam.sched_priority = prio_high+1;
+  sparam.sched_priority = prio_high + 2;
   ret = sched_setparam(0, &sparam);
   if (ret != OK)
     {
@@ -196,7 +206,7 @@ void sporadic_test(void)
   sched_lock();
   sem_init(&g_sporadic_sem, 0, 0);
 
-  /* Start a FIFO thread at the middle priority */
+  /* Start a FIFO thread at the highest priority (prio_max + 1) */
 
   printf("sporadic_test: Starting FIFO thread at priority %d\n", prio_mid);
 
@@ -205,6 +215,21 @@ void sporadic_test(void)
     {
       printf("sporadic_test: ERROR: pthread_attr_setschedpolicy failed, ret=%d\n",  ret);
     }
+
+  sparam.sched_priority = prio_high + 1;
+  ret = pthread_attr_setschedparam(&attr, &sparam);
+  if (ret != OK)
+    {
+      printf("sporadic_test: ERROR: pthread_attr_setschedparam failed, ret=%d\n",  ret);
+    }
+
+  ret = pthread_create(&nuisance_thread, &attr, nuisance_func, NULL);
+  if (ret != 0)
+    {
+      printf("sporadic_test: ERROR: FIFO thread creation failed: %d\n",  ret);
+    }
+
+  /* Start a FIFO thread at the middle priority */
 
   sparam.sched_priority = prio_mid;
   ret = pthread_attr_setschedparam(&attr, &sparam);
@@ -249,6 +274,9 @@ void sporadic_test(void)
       printf("sporadic_test: ERROR: sporadic thread creation failed: %d\n",  ret);
     }
 
+  g_start_time = time(NULL);
+
+  sem_post(&g_sporadic_sem);
   sem_post(&g_sporadic_sem);
   sem_post(&g_sporadic_sem);
 
@@ -258,9 +286,15 @@ void sporadic_test(void)
   ret = pthread_cancel(fifo_thread);
   pthread_join(fifo_thread, &result);
 
-  /* Wait a bit longer */
+  /* Wait a bit longer then kill the nuisance thread */
 
-  sleep(12);
+  sleep(8);
+  ret = pthread_cancel(nuisance_thread);
+  pthread_join(nuisance_thread, &result);
+
+  /* Wait a bit longer then kill the sporadic thread */
+
+  sleep(8);
   ret = pthread_cancel(sporadic_thread);
   pthread_join(sporadic_thread, &result);
   sched_unlock();
