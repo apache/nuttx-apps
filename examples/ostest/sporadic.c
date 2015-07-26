@@ -182,6 +182,12 @@ void sporadic_test(void)
   pthread_attr_t attr;
   int ret;
 
+#if CONFIG_SCHED_SPORADIC_MAXREPL < 5
+  printf("sporadic_test: CONFIG_SCHED_SPORADIC_MAXREPL is small: %d\n",
+         CONFIG_SCHED_SPORADIC_MAXREPL);
+  printf("  -- There will some errors in the the replenishment interval\n");
+#endif
+
   printf("sporadic_test: Initializing semaphore to 0\n");
   sem_init(&g_sporadic_sem, 0, 0);
 
