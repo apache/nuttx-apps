@@ -73,13 +73,35 @@ static time_t g_start_time;
  * Private Functions
  ***********************************************************************/
 
+void my_mdelay(unsigned int milliseconds)
+{
+  volatile unsigned int i;
+  volatile unsigned int j;
+
+  for (i = 0; i < milliseconds; i++)
+    {
+      for (j = 0; j < CONFIG_BOARD_LOOPSPERMSEC; j++)
+        {
+        }
+    }
+}
 static void *nuisance_func(void *parameter)
 {
+  /* Synchronized start */
+
   while (sem_wait(&g_sporadic_sem) < 0);
+
+  /* Sleep until we are cancelled */
 
   for (;;)
     {
+      /* Sleep gracefully for awhile */
+
       usleep(500*1000);
+
+      /* Then hog some CPU time */
+
+      my_mdelay(100);
     }
 
   return NULL;
