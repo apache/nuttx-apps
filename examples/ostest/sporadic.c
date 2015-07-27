@@ -286,7 +286,7 @@ void sporadic_test(void)
   sparam.sched_ss_repl_period.tv_nsec = 0;
   sparam.sched_ss_init_budget.tv_sec  = 2;
   sparam.sched_ss_init_budget.tv_nsec = 0;
-  sparam.sched_ss_max_repl            = MIN(5, CONFIG_SCHED_SPORADIC_MAXREPL);
+  sparam.sched_ss_max_repl            = CONFIG_SCHED_SPORADIC_MAXREPL;
 
   ret = pthread_attr_setschedparam(&attr, &sparam);
   if (ret != OK)
