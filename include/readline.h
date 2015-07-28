@@ -87,7 +87,7 @@ extern "C"
  **************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
-void readline_prompt(FAR const *prompt);
+void readline_prompt(FAR const char *prompt);
 #else
 #  define readline_prompt(p)
 #endif

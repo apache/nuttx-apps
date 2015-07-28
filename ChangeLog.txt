@@ -1365,4 +1365,6 @@
 	  do start at the same time (2015-07-24).
 	* apps/examples/ostest: Add a test for the sporadic scheduler.  This
 	  test is failing as of this commit (2015-07-24).
-
+	* apps/system/readline:  Add support for Unix-style tab complete toi
+	  readline.  This currently works only for built-in functions.i
+	  Contributed by Nghia (2015-07-28).

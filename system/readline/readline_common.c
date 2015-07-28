@@ -63,7 +63,7 @@ static const char g_erasetoeol[] = VT100_CLEAREOL;
 #ifdef CONFIG_READLINE_TABCOMPLETION
 /* Prompt string to present at the beginning of the line */
 
-static const *char g_readline_prompt = NULL;
+static FAR const char *g_readline_prompt = NULL;
 #endif
 
 /****************************************************************************
@@ -199,7 +199,7 @@ void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
  **************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
-void readline_prompt(FAR const *prompt)
+void readline_prompt(FAR const char *prompt)
 {
   g_readline_prompt = prompt;
 }

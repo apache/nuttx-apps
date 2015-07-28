@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/boardctl.h>
+#include <apps/readline.h>
 #include <apps/nsh.h>
 
 #include "nsh.h"
