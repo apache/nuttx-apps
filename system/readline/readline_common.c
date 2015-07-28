@@ -48,26 +48,10 @@
 
 #include <nuttx/ascii.h>
 #include <nuttx/vt100.h>
+#include <nuttx/binfmt/builtin.h>
 
 #include <apps/readline.h>
 #include "readline.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Type Declarations
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-extern const char g_nshprompt[];
 
 /****************************************************************************
  * Private Data
@@ -76,18 +60,155 @@ extern const char g_nshprompt[];
 
 static const char g_erasetoeol[] = VT100_CLEAREOL;
 
+#ifdef CONFIG_READLINE_TABCOMPLETION
+/* Prompt string to present at the beginning of the line */
+
+static const *char g_readline_prompt = NULL;
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
-static void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *len);
+
+/****************************************************************************
+ * Name: tab_completion
+ *
+ * Description:
+ *   Nghia - Unix like tab completion, only for builtin apps
+ *
+ * Input Parameters:
+ *   vtbl   - vtbl used to access implementation specific interface
+ *   buf     - The user allocated buffer to be filled.
+ *   buflen  - the size of the buffer.
+ *
+ * Returned Value:
+ *   None.
+ *
+ **************************************************************************/
+
+#ifdef CONFIG_READLINE_TABCOMPLETION
+void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
+{
+  FAR const char *name = NULL;
+  int num_matches = 0;
+  int matches[128];
+  int len = *nch;
+  int i;
+  int j;
+
+  if (len >= 1)
+    {
+      for (i = 0; (name = builtin_getname(i)) != NULL; i++)
+        {
+          if (!strncmp(buf, name, len))
+            {
+              matches[num_matches] = i;
+              num_matches++;
+
+              if (num_matches >= sizeof(matches) / sizeof(int))
+                {
+                  break;
+                }
+            }
+        }
+
+      if (num_matches ==  1)
+        {
+          name = builtin_getname(matches[0]);
+
+          int name_len = strlen(name);
+
+          for (j = len; j < name_len; j++)
+            {
+              buf[j] = name[j];
+              RL_PUTC(vtbl, name[j]);
+            }
+
+          /* Don't remove extra characters after the completed word, if any */
+
+          if (len < name_len)
+            {
+              *nch = name_len;
+            }
+        }
+      else if (num_matches > 1)
+        {
+          RL_PUTC(vtbl, '\n');
+
+          /* possible completion */
+
+          for (i = 0; i < num_matches; i++)
+            {
+              name = builtin_getname(matches[i]);
+
+              RL_PUTC(vtbl, ' ');
+              RL_PUTC(vtbl, ' ');
+
+              for (j = 0; j < strlen(name); j++)
+                {
+                  RL_PUTC(vtbl, name[j]);
+                }
+
+              RL_PUTC(vtbl, '\n');
+            }
+
+          /* Output the original prompt */
+
+          if (g_readline_prompt != NULL)
+            {
+              for (i = 0; i < strlen(g_readline_prompt); i++)
+                {
+                  RL_PUTC(vtbl, g_readline_prompt[i]);
+                }
+            }
+
+          for (i = 0; i < len; i++)
+            {
+              RL_PUTC(vtbl, buf[i]);
+            }
+        }
+    }
+}
+#endif
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: readline_prompt
+ *
+ *   If a prompt string is used by the application, then the application
+ *   must provide the prompt string to readline by calling this function.
+ *   This is needed only for tab completion in cases where is it necessary
+ *   to reprint the prompt string.
+ *
+ * Input Parameters:
+ *   prompt    - The prompt string.
+ *
+ * Returned values:
+ *   None
+ *
+ * Assumptions:
+ *   The prompt string is statically allocated a global.  readline will
+ *   simply remember the pointer to the string.  The string must stay
+ *   allocated and available.  Only one prompt string is supported.  If
+ *   there are multiple clients of readline, they must all share the same
+ *   prompt string (with exceptions in the case of the kernel build).
+ *
+ **************************************************************************/
+
+#ifdef CONFIG_READLINE_TABCOMPLETION
+void readline_prompt(FAR const *prompt)
+{
+  g_readline_prompt = prompt;
+}
+#endif
+
+/****************************************************************************
  * Name: readline_common
  *
+ * Description:
  *   readline() reads in at most one less than 'buflen' characters from
  *   'instream' and stores them into the buffer pointed to by 'buf'.
  *   Characters are echoed on 'outstream'.  Reading stops after an EOF or a
@@ -102,12 +223,11 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *len);
  *   different creature.
  *
  * Input Parameters:
- *   buf       - The user allocated buffer to be filled.
- *   buflen    - the size of the buffer.
- *   instream  - The stream to read characters from
- *   outstream - The stream to each characters to.
+ *   vtbl   - vtbl used to access implementation specific interface
+ *   buf     - The user allocated buffer to be filled.
+ *   buflen  - the size of the buffer.
  *
- * Returned values:
+ * Returned Value:
  *   On success, the (positive) number of bytes transferred is returned.
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
@@ -285,88 +405,11 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
               return nch;
             }
         }
+#ifdef CONFIG_READLINE_TABCOMPLETION
      else if (ch == '\t') /* Nghia - TAB character */
         {
           tab_completion(vtbl, buf, &nch);
         }
-    }
-}
-
-/* 
- * Nghia - Unix like tab completion, only for builtin apps
-*/
-void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
-{
-  int i, j;
-  int num_matches = 0;
-  int matches[128];
-  FAR const char *name = NULL;
-  int len = *nch;
-
-  if (len >= 1) 
-    {
-      for (i = 0; (name = builtin_getname(i)) != NULL; i++)
-        {
-          if (!strncmp(buf, name, len))
-            {
-              matches[num_matches] = i;
-              num_matches++;
-
-              if (num_matches >= sizeof(matches) / sizeof(int))
-                {
-                  break;
-                }
-            }
-        }
-
-      if (num_matches ==  1)
-        {
-          name = builtin_getname(matches[0]);
-
-          int name_len = strlen(name);
-
-          for (j = len; j < name_len; j++)
-            {
-              buf[j] = name[j];
-              RL_PUTC(vtbl, name[j]);
-            }
-
-          // don't remove extra characters after the completed word, if any 
-          if (len < name_len) 
-            {
-                *nch = name_len;
-            }
-        }
-      else if (num_matches > 1) 
-        {
-          RL_PUTC(vtbl, '\n');
-
-          // possible completion
-          for (i = 0; i < num_matches; i++)
-            {
-              name = builtin_getname(matches[i]);
-
-              RL_PUTC(vtbl, ' ');
-              RL_PUTC(vtbl, ' ');
-
-              for (j = 0; j < strlen(name); j++) 
-                {
-                  RL_PUTC(vtbl, name[j]);
-                }
-
-              RL_PUTC(vtbl, '\n');
-            }
-
-          // output the original prompt
-          for (i = 0; i < strlen(g_nshprompt); i++) 
-            {
-              RL_PUTC(vtbl, g_nshprompt[i]);
-            }
-
-          for (i = 0; i < len; i++)
-            {
-              RL_PUTC(vtbl, buf[i]);
-            }
-        }
+#endif
     }
 }

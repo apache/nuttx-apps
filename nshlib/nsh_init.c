@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_init.c
  *
- *   Copyright (C) 2007-2012, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2012, 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,4 +103,10 @@ void nsh_initialize(void)
   /* Bring up the network */
 
   (void)nsh_netinit();
+
+#ifdef CONFIG_READLINE_TABCOMPLETION
+  /* Configure the NSH prompt */
+
+  readline_prompt(g_nshprompt);
+#endif
 }

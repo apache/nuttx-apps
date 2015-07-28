@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/readline.h
  *
- *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,35 @@ extern "C"
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: readline_prompt
+ *
+ *   If a prompt string is used by the application, then the application
+ *   must provide the prompt string to readline by calling this function.
+ *   This is needed only for tab completion in cases where is it necessary
+ *   to reprint the prompt string.
+ *
+ * Input Parameters:
+ *   prompt    - The prompt string.
+ *
+ * Returned values:
+ *   None
+ *
+ * Assumptions:
+ *   The prompt string is statically allocated a global.  readline will
+ *   simply remember the pointer to the string.  The string must stay
+ *   allocated and available.  Only one prompt string is supported.  If
+ *   there are multiple clients of readline, they must all share the same
+ *   prompt string (with exceptions in the case of the kernel build).
+ *
+ **************************************************************************/
+
+#ifdef CONFIG_READLINE_TABCOMPLETION
+void readline_prompt(FAR const *prompt);
+#else
+#  define readline_prompt(p)
+#endif
 
 /****************************************************************************
  * Name: readline
