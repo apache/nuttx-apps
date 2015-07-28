@@ -54,6 +54,15 @@
  * Pre-processor Definitions
  ***********************************************************************/
 
+/* It is actually a better test without schedule locking because that
+ * forces the scheduler into an uninteresting fallback mode.
+ */
+
+#undef sched_lock
+#undef sched_unlock
+#define sched_lock()
+#define sched_unlock()
+
 #ifndef NULL
 # define NULL (void*)0
 #endif
@@ -304,7 +313,7 @@ void sporadic_test(void)
 
   sparam.sched_priority               = prio_high;
   sparam.sched_ss_low_priority        = prio_low;
-  sparam.sched_ss_repl_period.tv_sec  = 4;
+  sparam.sched_ss_repl_period.tv_sec  = 5;
   sparam.sched_ss_repl_period.tv_nsec = 0;
   sparam.sched_ss_init_budget.tv_sec  = 2;
   sparam.sched_ss_init_budget.tv_nsec = 0;
@@ -332,19 +341,19 @@ void sporadic_test(void)
 
   /* Wait a while then kill the FIFO thread */
 
-  sleep(12);
+  sleep(15);
   ret = pthread_cancel(fifo_thread);
   pthread_join(fifo_thread, &result);
 
   /* Wait a bit longer then kill the nuisance thread */
 
-  sleep(8);
+  sleep(10);
   ret = pthread_cancel(nuisance_thread);
   pthread_join(nuisance_thread, &result);
 
   /* Wait a bit longer then kill the sporadic thread */
 
-  sleep(8);
+  sleep(10);
   ret = pthread_cancel(sporadic_thread);
   pthread_join(sporadic_thread, &result);
   sched_unlock();
