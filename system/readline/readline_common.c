@@ -67,6 +67,7 @@
 /****************************************************************************
  * Public Data
  ****************************************************************************/
+extern const char g_nshprompt[];
 
 /****************************************************************************
  * Private Data
@@ -78,6 +79,7 @@ static const char g_erasetoeol[] = VT100_CLEAREOL;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+static void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *len);
 
 /****************************************************************************
  * Public Functions
@@ -283,6 +285,88 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
               return nch;
             }
         }
+     else if (ch == '\t') /* Nghia - TAB character */
+        {
+          tab_completion(vtbl, buf, &nch);
+        }
     }
 }
 
+/* 
+ * Nghia - Unix like tab completion, only for builtin apps
+*/
+void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
+{
+  int i, j;
+  int num_matches = 0;
+  int matches[128];
+  FAR const char *name = NULL;
+  int len = *nch;
+
+  if (len >= 1) 
+    {
+      for (i = 0; (name = builtin_getname(i)) != NULL; i++)
+        {
+          if (!strncmp(buf, name, len))
+            {
+              matches[num_matches] = i;
+              num_matches++;
+
+              if (num_matches >= sizeof(matches) / sizeof(int))
+                {
+                  break;
+                }
+            }
+        }
+
+      if (num_matches ==  1)
+        {
+          name = builtin_getname(matches[0]);
+
+          int name_len = strlen(name);
+
+          for (j = len; j < name_len; j++)
+            {
+              buf[j] = name[j];
+              RL_PUTC(vtbl, name[j]);
+            }
+
+          // don't remove extra characters after the completed word, if any 
+          if (len < name_len) 
+            {
+                *nch = name_len;
+            }
+        }
+      else if (num_matches > 1) 
+        {
+          RL_PUTC(vtbl, '\n');
+
+          // possible completion
+          for (i = 0; i < num_matches; i++)
+            {
+              name = builtin_getname(matches[i]);
+
+              RL_PUTC(vtbl, ' ');
+              RL_PUTC(vtbl, ' ');
+
+              for (j = 0; j < strlen(name); j++) 
+                {
+                  RL_PUTC(vtbl, name[j]);
+                }
+
+              RL_PUTC(vtbl, '\n');
+            }
+
+          // output the original prompt
+          for (i = 0; i < strlen(g_nshprompt); i++) 
+            {
+              RL_PUTC(vtbl, g_nshprompt[i]);
+            }
+
+          for (i = 0; i < len; i++)
+            {
+              RL_PUTC(vtbl, buf[i]);
+            }
+        }
+    }
+}
