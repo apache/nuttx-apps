@@ -106,7 +106,6 @@ static const char *g_ttypenames[4] =
   "KTHREAD",
   "--?--  "
 };
-#endif
 
 static FAR const char *g_policynames[4] =
 {
@@ -115,6 +114,7 @@ static FAR const char *g_policynames[4] =
   "SPOR",
   "OTHR"
 };
+#endif
 
 /****************************************************************************
  * Public Data
