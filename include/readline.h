@@ -43,23 +43,35 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 
+#ifdef CONFIG_SYSTEM_READLINE
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* Tab completion cannot be supported if there is no console echo */
 
-#ifndef CONFIG_READLINE_MAX_BUILTINS
-#  define CONFIG_READLINE_MAX_BUILTINS 64
+#ifndef CONFIG_READLINE_ECHO
+#  undef CONFIG_READLINE_TABCOMPLETION
 #endif
 
-#ifndef CONFIG_READLINE_MAX_EXTCMDS
-#  define CONFIG_READLINE_MAX_EXTCMDS 64
+/* Make sure that the are valid values for all tab-completion settings */
+
+#ifdef CONFIG_READLINE_TABCOMPLETION
+#  ifndef CONFIG_READLINE_MAX_BUILTINS
+#    define CONFIG_READLINE_MAX_BUILTINS 64
+#  endif
+
+#  ifndef CONFIG_READLINE_MAX_EXTCMDS
+#    define CONFIG_READLINE_MAX_EXTCMDS 64
+#  endif
 #endif
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
+#if defined(CONFIG_READLINE_TABCOMPLETION) && \
+    defined(CONFIG_READLINE_HAVE_EXTMATCH)
 struct extmatch_vtable_s
 {
   CODE int (*count_matches)(FAR char *name, FAR int *matches, int namelen);
@@ -118,7 +130,7 @@ FAR const char *readline_prompt(FAR const char *prompt);
  * Name: readline_extmatch
  *
  *   If the applications supports a command set, then it may call this
- *   function in order to provide support for tab complete on these\
+ *   function in order to provide support for tab complete on these
  *   "external"  commands
  *
  * Input Parameters:
@@ -138,7 +150,8 @@ FAR const char *readline_prompt(FAR const char *prompt);
  *
  **************************************************************************/
 
-#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
+#if defined(CONFIG_READLINE_TABCOMPLETION) && \
+    defined(CONFIG_READLINE_HAVE_EXTMATCH)
 FAR const struct extmatch_vtable_s *
   readline_extmatch(FAR const struct extmatch_vtable_s *vtbl);
 #endif
@@ -214,4 +227,5 @@ ssize_t std_readline(FAR char *buf, int buflen);
 }
 #endif
 
+#endif /* CONFIG_SYSTEM_READLINE */
 #endif /* __APPS_INCLUDE_READLINE_H */

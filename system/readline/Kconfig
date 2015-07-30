@@ -24,6 +24,8 @@ config READLINE_ECHO
 		already has local echo support or you need to suppress the back-channel
 		responses for any other reason.
 
+if READLINE_ECHO
+
 config READLINE_TABCOMPLETION
 	bool "Tab completion"
 	default n
@@ -51,4 +53,5 @@ config READLINE_MAX_EXTCMDS
         will be displayed.
 
 endif # READLINE_TABCOMPLETION
+endif # READLINE_ECHO
 endif # SYSTEM_READLINE
