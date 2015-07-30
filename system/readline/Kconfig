@@ -3,15 +3,15 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+config READLINE_HAVE_EXTMATCH
+	bool
+	default n
+
 menuconfig SYSTEM_READLINE
 	bool "readline() Support"
 	default n
 	---help---
 		Enable support for the readline() function.
-
-config READLINE_HAVE_EXTMATCH
-	bool
-	default n
 
 if SYSTEM_READLINE
 
@@ -45,7 +45,7 @@ config READLINE_MAX_BUILTINS
 		will be displayed.
 
 config READLINE_MAX_EXTCMDS
-    int "Maximum built-in matches"
+    int "Maximum external command matches"
     default 64
     depends on READLINE_HAVE_EXTMATCH
     ---help---
