@@ -55,7 +55,6 @@
 #  define CONFIG_READLINE_MAX_EXTCMDS 64
 #endif
 
-
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -88,7 +87,7 @@ extern "C"
  * Name: readline_prompt
  *
  *   If a prompt string is used by the application, then the application
- *   must provide the prompt string to readline by calling this function.
+ *   must provide the prompt string to readline() by calling this function.
  *   This is needed only for tab completion in cases where is it necessary
  *   to reprint the prompt string.
  *
@@ -97,13 +96,14 @@ extern "C"
  *   called with that value in order to restore the previous vtable.
  *
  * Returned values:
- *   Returns the previous value of the prompt string
+ *   Returns the previous value of the prompt string.  This function may
+ *   then be called with that value in order to restore the previous prompt.
  *
  * Assumptions:
- *   The prompt string is statically allocated a global.  readline will
+ *   The prompt string is statically allocated a global.  readline() will
  *   simply remember the pointer to the string.  The string must stay
  *   allocated and available.  Only one prompt string is supported.  If
- *   there are multiple clients of readline, they must all share the same
+ *   there are multiple clients of readline(), they must all share the same
  *   prompt string (with exceptions in the case of the kernel build).
  *
  **************************************************************************/
@@ -129,10 +129,10 @@ FAR const char *readline_prompt(FAR const char *prompt);
  *   called with that value in order to restore the previous vtable.
  *
  * Assumptions:
- *   The vtbl string is statically allocated a global.  readline will
+ *   The vtbl string is statically allocated a global.  readline() will
  *   simply remember the pointer to the structure.  The structure must stay
  *   allocated and available.  Only one instance of such a structure is 
- *   upported.  If there are multiple clients of readline, they must all
+ *   supported.  If there are multiple clients of readline(), they must all
  *   share the same tab-completion logic (with exceptions in the case of
  *   the kernel build).
  *
