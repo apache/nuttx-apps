@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/readline/readline_common.c
  *
- *   Copyright (C) 2007-2008, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2008, 2011-2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,11 +64,55 @@ static const char g_erasetoeol[] = VT100_CLEAREOL;
 /* Prompt string to present at the beginning of the line */
 
 static FAR const char *g_readline_prompt = NULL;
+
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+static FAR const struct extmatch_vtable_s *g_extmatch_vtbl = NULL;
+#endif
 #endif
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: count_builtin_maches
+ *
+ * Description:
+ *   Count the number of builtin commands
+ *
+ * Input Parameters:
+ *   matches - Array to save builtin command index.
+ *   len - The length of the matching name to try
+ *
+ * Returned Value:
+ *   The number of matching names
+ *
+ **************************************************************************/
+
+#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_BUILTIN)
+static int count_builtin_maches(FAR char *buf, FAR int *matches, int namelen)
+{
+  FAR const char *name;
+  int nr_matches = 0;
+  int i;
+
+  for (i = 0; (name = builtin_getname(i)) != NULL; i++)
+    {
+      if (strncmp(buf, name, namelen) == 0)
+        {
+          matches[nr_matches] = i;
+          nr_matches++;
+
+          if (nr_matches >= CONFIG_READLINE_MAX_BUILTINS)
+            {
+              break;
+            }
+        }
+    }
+
+  return nr_matches;
+}
+#endif
 
 /****************************************************************************
  * Name: tab_completion
@@ -87,36 +131,83 @@ static FAR const char *g_readline_prompt = NULL;
  **************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
-void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
+static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
+                           int *nch)
 {
   FAR const char *name = NULL;
-  int num_matches = 0;
-  int matches[128];
+#ifdef CONFIG_BUILTIN
+  int nr_builtin_matches = 0;
+  int builtin_matches[CONFIG_READLINE_MAX_BUILTINS];
+#endif
+#ifdef CONFIG_BUILTIN
+  int nr_ext_matches = 0;
+  int ext_matches[CONFIG_READLINE_MAX_EXTCMDS];
+#endif
+  int nr_matches;
   int len = *nch;
   int i;
   int j;
 
   if (len >= 1)
     {
-      for (i = 0; (name = builtin_getname(i)) != NULL; i++)
-        {
-          if (!strncmp(buf, name, len))
-            {
-              matches[num_matches] = i;
-              num_matches++;
+#ifdef CONFIG_BUILTIN
+      /* Count the matching builtin commands */
 
-              if (num_matches >= sizeof(matches) / sizeof(int))
-                {
-                  break;
-                }
-            }
+      nr_builtin_matches = count_builtin_maches(buf, builtin_matches, len);
+      nr_matches         = nr_builtin_matches;
+#else
+      nr_matches         = 0;
+#endif
+
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+      /* Is there registered external handling logic? */
+
+      nr_ext_matches     = 0;
+      if (g_extmatch_vtbl != NULL)
+        {
+          /* Count the number of external commands */
+
+          nr_ext_matches = g_extmatch_vtbl->count_matches(buf, ext_matches, len);
+          nr_matches    += nr_ext_matches;
         }
 
-      if (num_matches ==  1)
-        {
-          name = builtin_getname(matches[0]);
+#endif
 
-          int name_len = strlen(name);
+      /* Is there only one matching name? */
+
+      if (nr_matches ==  1)
+        {
+          int name_len;
+
+          /* Yes... that that is the one we want.  Was it a match with a
+           * builtin command?  Or with an external command.
+           */
+
+#ifdef CONFIG_BUILTIN
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+          if (nr_builtin_matches ==  1)
+#endif
+            {
+              /* It is a match with a builtin command */
+
+              name = builtin_getname(builtin_matches[0]);
+            }
+#endif
+
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+#ifdef CONFIG_BUILTIN
+          else
+#endif
+            {
+              /* It is a match with an external command */
+
+              name = g_extmatch_vtbl->getname(ext_matches[0]);
+            }
+#endif
+
+          /* Copy the name to the command buffer and to the display. */
+
+          name_len = strlen(name);
 
           for (j = len; j < name_len; j++)
             {
@@ -124,22 +215,26 @@ void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
               RL_PUTC(vtbl, name[j]);
             }
 
-          /* Don't remove extra characters after the completed word, if any */
+          /* Don't remove extra characters after the completed word, if any. */
 
           if (len < name_len)
             {
               *nch = name_len;
             }
         }
-      else if (num_matches > 1)
+
+      /* Are there multiple matching names? */
+
+      else if (nr_matches > 1)
         {
           RL_PUTC(vtbl, '\n');
 
-          /* possible completion */
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+          /* Show the possible external completions */
 
-          for (i = 0; i < num_matches; i++)
+          for (i = 0; i < nr_ext_matches; i++)
             {
-              name = builtin_getname(matches[i]);
+              name = g_extmatch_vtbl->getname(ext_matches[i]);
 
               RL_PUTC(vtbl, ' ');
               RL_PUTC(vtbl, ' ');
@@ -151,6 +246,26 @@ void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
 
               RL_PUTC(vtbl, '\n');
             }
+#endif
+
+#ifdef CONFIG_BUILTIN
+          /* Show the possible builtin completions */
+
+          for (i = 0; i < nr_builtin_matches; i++)
+            {
+              name = builtin_getname(builtin_matches[i]);
+
+              RL_PUTC(vtbl, ' ');
+              RL_PUTC(vtbl, ' ');
+
+              for (j = 0; j < strlen(name); j++)
+                {
+                  RL_PUTC(vtbl, name[j]);
+                }
+
+              RL_PUTC(vtbl, '\n');
+            }
+#endif
 
           /* Output the original prompt */
 
@@ -184,10 +299,11 @@ void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
  *   to reprint the prompt string.
  *
  * Input Parameters:
- *   prompt    - The prompt string.
+ *   prompt    - The prompt string. This function may then be
+ *   called with that value in order to restore the previous vtable.
  *
  * Returned values:
- *   None
+ *   Returns the previous value of the prompt string
  *
  * Assumptions:
  *   The prompt string is statically allocated a global.  readline will
@@ -199,9 +315,45 @@ void tab_completion(FAR struct rl_common_s *vtbl, char *buf, int *nch)
  **************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
-void readline_prompt(FAR const char *prompt)
+FAR const char *readline_prompt(FAR const char *prompt)
 {
+  FAR const char *ret = g_readline_prompt;
   g_readline_prompt = prompt;
+  return ret;
+}
+#endif
+
+/****************************************************************************
+ * Name: readline_extmatch
+ *
+ *   If the applications supports a command set, then it may call this
+ *   function in order to provide support for tab complete on these\
+ *   "external"  commands
+ *
+ * Input Parameters:
+ *   vtbl - Callbacks to access the external names.
+ *
+ * Returned values:
+ *   Returns the previous vtable pointer.  This function may then be
+ *   called with that value in order to restore the previous vtable.
+ *
+ * Assumptions:
+ *   The vtbl string is statically allocated a global.  readline will
+ *   simply remember the pointer to the structure.  The structure must stay
+ *   allocated and available.  Only one instance of such a structure is 
+ *   upported.  If there are multiple clients of readline, they must all
+ *   share the same tab-completion logic (with exceptions in the case of
+ *   the kernel build).
+ *
+ **************************************************************************/
+
+#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
+FAR const struct extmatch_vtable_s *
+  readline_extmatch(FAR const struct extmatch_vtable_s *vtbl)
+{
+  FAR const struct extmatch_vtable_s *ret = g_extmatch_vtbl;
+  g_extmatch_vtbl = vtbl;
+  return ret;
 }
 #endif
 

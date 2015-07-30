@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/boardctl.h>
+
 #include <apps/readline.h>
 #include <apps/nsh.h>
 
@@ -61,7 +62,16 @@
  * Private Data
  ****************************************************************************/
 
-/****************************************************************************
+#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION) && \
+    defined(CONFIG_READLINE_HAVE_EXTMATCH)
+static const struct extmatch_vtable_s g_nsh_extmatch =
+{
+  nsh_extmatch_count,  /* count_matches */
+  nsh_extmatch_getname /* getname */
+};
+#endif
+
+  /**************************************************************************
  * Public Data
  ****************************************************************************/
 
@@ -105,9 +115,15 @@ void nsh_initialize(void)
 
   (void)nsh_netinit();
 
-#ifdef CONFIG_READLINE_TABCOMPLETION
+#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
   /* Configure the NSH prompt */
 
-  readline_prompt(g_nshprompt);
+  (void)readline_prompt(g_nshprompt);
+
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+  /* Set up for tab completion on NSH commands */
+
+  (void)readline_extmatch(&g_nsh_extmatch);
+#endif
 #endif
 }

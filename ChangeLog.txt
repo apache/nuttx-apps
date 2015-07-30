@@ -1368,3 +1368,6 @@
 	* apps/system/readline:  Add support for Unix-style tab complete toi
 	  readline.  This currently works only for built-in functions.i
 	  Contributed by Nghia (2015-07-28).
+	* apps/system/readline and apps/nshlib:  Extended the tab-completion
+	  support to also expand NSH command names (2015-07-30).
+

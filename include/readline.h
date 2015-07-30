@@ -47,6 +47,27 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#ifndef CONFIG_READLINE_MAX_BUILTINS
+#  define CONFIG_READLINE_MAX_BUILTINS 64
+#endif
+
+#ifndef CONFIG_READLINE_MAX_EXTCMDS
+#  define CONFIG_READLINE_MAX_EXTCMDS 64
+#endif
+
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
+struct extmatch_vtable_s
+{
+  CODE int (*count_matches)(FAR char *name, FAR int *matches, int namelen);
+  CODE FAR const char *(*getname)(int index);
+};
+#endif
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -72,10 +93,11 @@ extern "C"
  *   to reprint the prompt string.
  *
  * Input Parameters:
- *   prompt    - The prompt string.
+ *   prompt    - The prompt string. This function may then be
+ *   called with that value in order to restore the previous vtable.
  *
  * Returned values:
- *   None
+ *   Returns the previous value of the prompt string
  *
  * Assumptions:
  *   The prompt string is statically allocated a global.  readline will
@@ -87,9 +109,38 @@ extern "C"
  **************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
-void readline_prompt(FAR const char *prompt);
+FAR const char *readline_prompt(FAR const char *prompt);
 #else
 #  define readline_prompt(p)
+#endif
+
+/****************************************************************************
+ * Name: readline_extmatch
+ *
+ *   If the applications supports a command set, then it may call this
+ *   function in order to provide support for tab complete on these\
+ *   "external"  commands
+ *
+ * Input Parameters:
+ *   vtbl - Callbacks to access the external names.
+ *
+ * Returned values:
+ *   Returns the previous vtable pointer.  This function may then be
+ *   called with that value in order to restore the previous vtable.
+ *
+ * Assumptions:
+ *   The vtbl string is statically allocated a global.  readline will
+ *   simply remember the pointer to the structure.  The structure must stay
+ *   allocated and available.  Only one instance of such a structure is 
+ *   upported.  If there are multiple clients of readline, they must all
+ *   share the same tab-completion logic (with exceptions in the case of
+ *   the kernel build).
+ *
+ **************************************************************************/
+
+#if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
+FAR const struct extmatch_vtable_s *
+  readline_extmatch(FAR const struct extmatch_vtable_s *vtbl);
 #endif
 
 /****************************************************************************

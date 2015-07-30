@@ -9,6 +9,10 @@ menuconfig SYSTEM_READLINE
 	---help---
 		Enable support for the readline() function.
 
+config READLINE_HAVE_EXTMATCH
+	bool
+	default n
+
 if SYSTEM_READLINE
 
 config READLINE_ECHO
@@ -23,9 +27,28 @@ config READLINE_ECHO
 config READLINE_TABCOMPLETION
 	bool "Tab completion"
 	default n
-	depends on BUILD_FLAT && BUILTIN
+	depends on (BUILD_FLAT && BUILTIN) || READLINE_HAVE_EXTMATCH
 	---help---
 		Build in support for Unix-style tab completion.  This feature was
-		provided by Nghia.
+		originally provided by Nghia.
 
-endif
+if READLINE_TABCOMPLETION
+
+config READLINE_MAX_BUILTINS
+	int "Maximum built-in matches"
+	default 64
+    depends on BUILTIN
+	---help---
+		This the maximum number of matching names of builtin commands that
+		will be displayed.
+
+config READLINE_MAX_EXTCMDS
+    int "Maximum built-in matches"
+    default 64
+    depends on READLINE_HAVE_EXTMATCH
+    ---help---
+        This the maximum number of matching names of builtin commands that
+        will be displayed.
+
+endif # READLINE_TABCOMPLETION
+endif # SYSTEM_READLINE

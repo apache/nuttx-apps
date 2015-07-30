@@ -45,6 +45,10 @@
 #  include <nuttx/binfmt/builtin.h>
 #endif
 
+#if defined(CONFIG_SYSTEM_READLINE) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
+#  include <apps/readline.h>
+#endif
+
 #include "nsh.h"
 #include "nsh_console.h"
 
@@ -824,3 +828,73 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
    ret = handler(vtbl, argc, argv);
    return ret;
 }
+
+/****************************************************************************
+ * Name: nsh_extmatch_count
+ *
+ * Description:
+ *   This support function is used to provide support for realine tab-
+ *   completion logic  nsh_extmatch_count() counts the number of matching
+ *   nsh command names
+ *
+ * Input Parameters:
+ *   name    - A point to the name containing the name to be matched.
+ *   matches - A table is size CONFIG_READLINE_MAX_EXTCMDS that can
+ *             be used to remember matching name indices.
+ *   namelen - The lenght of the name to match
+ *
+ * Returned Values:
+ *   The number commands that match to the first namelen characters.
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION) && \
+    defined(CONFIG_READLINE_HAVE_EXTMATCH)
+int nsh_extmatch_count(FAR char *name, FAR int *matches, int namelen)
+{
+  int nr_matches = 0;
+  int i;
+
+  for (i = 0; i < NUM_CMDS; i++)
+    {
+      if (strncmp(name, g_cmdmap[i].cmd, namelen) == 0)
+        {
+          matches[nr_matches] = i;
+          nr_matches++;
+
+          if (nr_matches >= CONFIG_READLINE_MAX_EXTCMDS)
+            {
+              break;
+            }
+        }
+    }
+
+  return nr_matches;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_extmatch_getname
+ *
+ * Description:
+ *   This support function is used to provide support for realine tab-
+ *   completion logic  nsh_extmatch_getname() will return the full command
+ *   string from an index that was previously saved by nsh_exmatch_count().
+ *
+ * Input Parameters:
+ *   index - The index of the command name to be returned.
+ *
+ * Returned Values:
+ *   The numb
+ *
+ ****************************************************************************/
+
+#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION) && \
+    defined(CONFIG_READLINE_HAVE_EXTMATCH)
+FAR const char *nsh_extmatch_getname(int index)
+{
+  DEBUGASSERT(index > 0 && index <= NUM_CMDS);
+  return  g_cmdmap[index].cmd;
+}
+#endif
+
