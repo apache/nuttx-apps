@@ -107,7 +107,7 @@ static void waiter_action(int signo)
 
 static int waiter_main(int argc, char *argv[])
 {
-  sigset_t sigset;
+  sigset_t set;
   struct sigaction act;
   int ret;
   int i;
@@ -115,8 +115,8 @@ static int waiter_main(int argc, char *argv[])
   printf("waiter_main: Waiter started\n" );
   printf("waiter_main: Setting signal mask\n" );
 
-  (void)sigemptyset(&sigset);
-  ret = sigprocmask(SIG_SETMASK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  ret = sigprocmask(SIG_SETMASK, &set, NULL);
   if (ret < 0)
     {
       printf("waiter_main: ERROR sigprocmask failed: %d\n", errno);

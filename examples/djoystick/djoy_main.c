@@ -1,7 +1,7 @@
 /****************************************************************************
  * examplex/djoystick/djoy_main.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -204,15 +204,15 @@ int djoy_main(int argc, char *argv[])
 #endif
     {
       struct siginfo value;
-      sigset_t sigset;
+      sigset_t set;
       djoy_buttonset_t newset;
       ssize_t nread;
 
       /* Wait for a signal */
 
-      (void)sigemptyset(&sigset);
-      (void)sigaddset(&sigset, CONFIG_EXAMPLES_DJOYSTICK_SIGNO);
-      ret = sigwaitinfo(&sigset, &value);
+      (void)sigemptyset(&set);
+      (void)sigaddset(&set, CONFIG_EXAMPLES_DJOYSTICK_SIGNO);
+      ret = sigwaitinfo(&set, &value);
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: sigwaitinfo() failed: %d\n", errno);

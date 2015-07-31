@@ -1,7 +1,7 @@
 /****************************************************************************
  * examplex/ajoystick/ajoy_main.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -196,16 +196,16 @@ static void show_joystick(FAR const struct ajoy_sample_s *sample)
 
 static int ajoy_wait(int fd, FAR const struct timespec *timeout)
 {
-  sigset_t sigset;
+  sigset_t set;
   struct siginfo value;
   ajoy_buttonset_t newset;
   int ret;
 
   /* Wait for a signal */
 
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, CONFIG_EXAMPLES_AJOYSTICK_SIGNO);
-  ret = sigtimedwait(&sigset, &value, timeout);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, CONFIG_EXAMPLES_AJOYSTICK_SIGNO);
+  ret = sigtimedwait(&set, &value, timeout);
   if (ret < 0)
     {
       int errcode = errno;

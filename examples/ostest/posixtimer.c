@@ -140,7 +140,7 @@ static void timer_expiration(int signo, siginfo_t *info, void *ucontext)
 
 void timer_test(void)
 {
-  sigset_t           sigset;
+  sigset_t           set;
   struct sigaction   act;
   struct sigaction   oact;
   struct sigevent    notify;
@@ -156,9 +156,9 @@ void timer_test(void)
 
   printf("timer_test: Unmasking signal %d\n" , MY_TIMER_SIGNAL);
 
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, MY_TIMER_SIGNAL);
-  status = sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, MY_TIMER_SIGNAL);
+  status = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (status != OK)
     {
       printf("timer_test: ERROR sigprocmask failed, status=%d\n",

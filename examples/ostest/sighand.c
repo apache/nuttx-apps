@@ -151,7 +151,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
 
 static int waiter_main(int argc, char *argv[])
 {
-  sigset_t sigset;
+  sigset_t set;
   struct sigaction act;
   struct sigaction oact;
   int status;
@@ -159,9 +159,9 @@ static int waiter_main(int argc, char *argv[])
   printf("waiter_main: Waiter started\n" );
 
   printf("waiter_main: Unmasking signal %d\n" , WAKEUP_SIGNAL);
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, WAKEUP_SIGNAL);
-  status = sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, WAKEUP_SIGNAL);
+  status = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (status != OK)
     {
       printf("waiter_main: ERROR sigprocmask failed, status=%d\n",
@@ -230,7 +230,7 @@ void sighand_test(void)
 #ifdef CONFIG_SCHED_HAVE_PARENT
   struct sigaction act;
   struct sigaction oact;
-  sigset_t sigset;
+  sigset_t set;
 #endif
   struct sched_param param;
   union sigval sigvalue;
@@ -243,9 +243,9 @@ void sighand_test(void)
 #ifdef CONFIG_SCHED_HAVE_PARENT
   printf("sighand_test: Unmasking SIGCHLD\n");
 
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, SIGCHLD);
-  status = sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, SIGCHLD);
+  status = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (status != OK)
     {
       printf("sighand_test: ERROR sigprocmask failed, status=%d\n",
