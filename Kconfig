@@ -15,6 +15,10 @@ menu "Graphics Support"
 source "$APPSDIR/graphics/Kconfig"
 endmenu
 
+menu "IEEE 802.15.4"
+source "$APPSDIR/ieee802154/Kconfig"
+endmenu
+
 menu "Interpreters"
 source "$APPSDIR/interpreters/Kconfig"
 endmenu
