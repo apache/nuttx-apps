@@ -73,7 +73,7 @@
 static struct ieee802154_packet_s rxpacket;
 static struct ieee802154_packet_s txpacket;
 
-int setchan(int fd, int chan)
+int setchan(int fd, uint8_t chan)
 {
   int ret = ioctl(fd, MAC854IOCSCHAN, (unsigned long)chan );
   if (ret<0)
@@ -105,9 +105,9 @@ int getcca(int fd, FAR struct ieee802154_cca_s *cca)
 
 int scan(int fd)
 {
-  int chan,scan,oldchan;
+  int scan;
   int ret = OK;
-  uint8_t energy;
+  uint8_t oldchan, chan, energy;
   uint8_t levels[16];
 
   /* save original channel */
@@ -141,6 +141,7 @@ int scan(int fd)
               printf("Device is not an IEEE 802.15.4 interface!\n");
               return ret;
             }
+
           if(energy > levels[chan])
             {
               levels[chan] = energy;
@@ -173,8 +174,9 @@ int scan(int fd)
 static int status(int fd)
 {
   int ret,i;
-  uint8_t panid[2], saddr[2], eaddr[8];
-  int promisc, chan;
+  uint8_t chan, eaddr[8];
+  uint16_t panid, saddr;
+  bool promisc;
   struct ieee802154_cca_s cca;
 
   /* Get information */
@@ -198,7 +200,7 @@ static int status(int fd)
       printf("MAC854IOCGSADDR failed\n");
       return ret;
     }
-  ret = ioctl(fd, MAC854IOCGEADDR, (unsigned long)&eaddr);
+  ret = ioctl(fd, MAC854IOCGEADDR, (unsigned long)&eaddr[0]);
   if (ret)
     {
       printf("MAC854IOCGEADR failed\n");
@@ -227,7 +229,7 @@ static int status(int fd)
   /* Display */
 
   printf("PANID %02X%02X CHAN %2d (%d MHz)\nSADDR %02X%02X EADDR ", 
-          panid[0], panid[1], chan, 2350+(5*chan), saddr[0], saddr[1]);
+          panid>>8, panid&0xFF, chan, 2350+(5*chan), saddr>>8, saddr&0xFF);
   for (i=0; i<8; i++)
     {
       printf("%02X", eaddr[i]);
@@ -241,7 +243,7 @@ static int status(int fd)
     {
       printf("CS (%d)", cca.csth);
     }
-  printf("\nPromisc:%s\n", promisc?"Yes":"No");
+  printf("\nPromisc: %s\n", promisc?"Yes":"No");
   return 0;
 }
 
@@ -330,6 +332,7 @@ int usage(void)
   printf("i8 <device> <op> <arg>\n"
          "  scan\n"
          "  dump\n"
+         "  snif\n"
          "  stat\n"
          "  chan <ch>\n"
          "  edth <off|rssi>\n"
