@@ -103,29 +103,21 @@ int getcca(int fd, FAR struct ieee802154_cca_s *cca)
   return ret;
 }
 
+uint8_t levels[16];
+uint8_t disp[16];
+
 int scan(int fd)
 {
-  int scan;
   int ret = OK;
-  uint8_t oldchan, chan, energy;
-  uint8_t levels[16];
+  uint8_t chan, energy;
 
-  /* save original channel */
-
-  ret = ioctl(fd, MAC854IOCGCHAN, (unsigned long)&oldchan);
-  if (ret)
-    {
-      printf("MAC854IOCGCHAN failed\n");
-      return ret;
-    }
+  printf("\n");
 
   /* do scan */
-  
-  printf("Scanning channels ");
-  memset(levels, 0, 16);
-  for(scan=0;scan<256;scan++)
+  memset(disp,0,16);
+ 
+  while(1)
     {
-      printf("."); fflush(stdout);
       for (chan=0; chan<16; chan++)
         {
           ret = setchan(fd, chan+11);
@@ -134,7 +126,6 @@ int scan(int fd)
               printf("Device is not an IEEE 802.15.4 interface!\n");
               return ret;
             }
-
           ret = ioctl(fd, MAC854IOCGED, (unsigned long)&energy);
           if (ret<0)
             {
@@ -142,24 +133,34 @@ int scan(int fd)
               return ret;
             }
 
-          if(energy > levels[chan])
+          levels[chan] = energy;
+        }
+
+      /* compute max with decay */
+
+      for (chan=0; chan<16; chan++)
+        {
+          if(levels[chan] > disp[chan])
             {
-              levels[chan] = energy;
+               disp[chan] = levels[chan];
+            }
+         else
+            {
+              if(disp[chan] > 0) disp[chan] -= 1;
             }
         }
-    }
-  printf("\n");
-  for (chan=0;chan < 16; chan++)
-    {
-      printf("%2d : [%3d] ",chan+11, levels[chan]);
-      energy = levels[chan] >> 3;
-      while(energy-- > 0) printf("#");
-      printf("\n");
-    }
 
-  /* restore original channel */
+      for (chan=0;chan < 16; chan++)
+        {
+          printf("%2d : [%3d] ",chan+11, disp[chan]);
+          energy = disp[chan] >> 3;
+          while(energy-- > 0) printf("#");
+          printf("                                \n");
+        }
 
-  ret = setchan(fd, oldchan);
+      /* move cursor 17 lines up : http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html */
+      printf("\x1B[16A");
+    }
 
   return ret;
 }
