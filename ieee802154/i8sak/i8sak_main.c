@@ -70,8 +70,8 @@
  * Private Data
  ****************************************************************************/
 
-static struct ieee802154_packet_s rxpacket;
-static struct ieee802154_packet_s txpacket;
+static struct ieee802154_packet_s gRxPacket;
+static struct ieee802154_packet_s gTxPacket;
 
 int setchan(int fd, uint8_t chan)
 {
@@ -257,7 +257,13 @@ static int status(int fd)
 
 static int display(FAR struct ieee802154_packet_s *pack)
 {
-  printf("Packet len=%d\n", pack->len);
+  int i;
+  printf("Packet len=%u rssi=%u lqi=%u [\n", pack->len, pack->rssi, pack->lqi);
+  for (i = 0; i < pack->len; i++)
+    {
+      printf("%02X", pack->data[i]);
+    }
+  printf("]\n");
   return 0;
 }
 
@@ -276,23 +282,22 @@ static int sniff(int fd, int chan)
     {
       return ret;
     }
-#if 0
+
   ret = ioctl(fd, MAC854IOCSPROMISC, TRUE);
   if (ret<0)
     {
       printf("Device is not an IEEE 802.15.4 interface!\n");
       return ret;
     }
-#endif
-  printf("Listening on channel %d\n",chan);
+
+  printf("Listening on channel %d in promisc mode.\n",chan);
   while (1)
     {
-      ret = read(fd, &rxpacket, sizeof(struct ieee802154_packet_s));
+      ret = read(fd, &gRxPacket, sizeof(struct ieee802154_packet_s));
       if(ret < 0)
         {
           if (errno == EAGAIN)
             {
-            usleep(1000);
             continue;
             }
           else
@@ -303,20 +308,36 @@ static int sniff(int fd, int chan)
         } 
 
       /* Display packet */
-      display(&rxpacket);
+      display(&gRxPacket);
     }
   
   return ret;
 }
 
-static int tx(int fd, FAR struct ieee802154_packet_s *packet)
+static int tx(int fd, int chan, FAR struct ieee802154_packet_s *pack)
 {
-  int i;
-  for (i = 0; i < packet->len; i++)
+  int i,ret;
+
+  ret = setchan(fd, chan);
+  if (ret<0)
     {
-      printf("%02X", packet->data[i]);
+      return ret;
     }
-  printf("\n");
+
+  for (i = 0; i < pack->len; i++)
+    {
+      printf("%02X", pack->data[i]);
+    }
+  fflush(stdout);
+  ret = write(fd, pack, sizeof(struct ieee802154_packet_s));
+  if(ret==OK)
+    {
+      printf(" OK\n");
+    }
+  else
+    {
+      printf(" write: errno=%d\n",errno);
+    }
   return OK;
 }
 
@@ -333,12 +354,12 @@ int usage(void)
   printf("i8 <device> <op> <arg>\n"
          "  scan\n"
          "  dump\n"
-         "  snif\n"
+         "  snif <ch>\n"
          "  stat\n"
          "  chan <ch>\n"
          "  edth <off|rssi>\n"
          "  csth <off|corr>\n"
-         "  tx <hexpacket>\n"
+         "  tx <ch> <hexpacket>\n"
          );
   return ERROR;
 }
@@ -358,13 +379,13 @@ int i8_main(int argc, char *argv[])
   unsigned long arg=0;
   struct ieee802154_cca_s cca;
 
-  printf("IEEE packet sniffer/dumper\n");
+  printf("IEEE packet sniffer/dumper argc=%d\n",argc);
   if (argc<3)
     {
       return usage();
     }
 
-  if (argc==4)
+  if (argc>=4)
     {
     arg = atol(argv[3]);
     }
@@ -442,8 +463,9 @@ int i8_main(int argc, char *argv[])
   else if (!strcmp(argv[2], "tx"))
     {
     int id=0;
-    int len = strlen(argv[3]);
-    FAR char *ptr = argv[3];
+    unsigned long ch = arg;
+    int len = strlen(argv[4]);
+    FAR char *ptr = argv[4];
 
     if (len & 1)
       {
@@ -457,7 +479,7 @@ int i8_main(int argc, char *argv[])
         int dat;
         if (sscanf(ptr, "%2x", &dat)==1)
           {
-            txpacket.data[id++] = dat;
+            gTxPacket.data[id++] = dat;
             ptr += 2;
             len -= 2;
           }
@@ -469,9 +491,9 @@ data_error:
             goto error;
           }
       }
-    txpacket.len = id;
+    gTxPacket.len = id;
 
-    ret = tx(fd,&txpacket);
+    ret = tx(fd, ch, &gTxPacket);
     }
   else
     {
