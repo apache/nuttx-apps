@@ -171,7 +171,23 @@ static int coord_ack(FAR struct ieee_coord_s *coord)
 
 static int coord_command(FAR struct ieee_coord_s *coord)
 {
-  printf("Command!\n");
+  FAR struct ieee_frame_s *rx = &coord->rxbuf;
+  uint8_t cmd = rx->payload[0];
+
+  printf("Command %02X!\n",cmd);
+
+  switch(cmd)
+    {
+      case IEEE802154_CMD_ASSOC_REQ      : break;
+      case IEEE802154_CMD_ASSOC_RSP      : break;
+      case IEEE802154_CMD_DIS_NOT        : break;
+      case IEEE802154_CMD_DATA_REQ       : break;
+      case IEEE802154_CMD_PANID_CONF_NOT : break;
+      case IEEE802154_CMD_ORPHAN_NOT     : break;
+      case IEEE802154_CMD_BEACON_REQ     : break;
+      case IEEE802154_CMD_COORD_REALIGN  : break;
+      case IEEE802154_CMD_GTS_REQ        : break;
+    }
   return 0;
 }
 
@@ -260,6 +276,8 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
       rx->saddr  = NULL;
       rx->saddrlen = 0;
     }
+
+  rx->payload = rx->packet.data + index;
 
   printf("SADDR len %d DADDR len %d\n", rx->saddrlen, rx->daddrlen);
   switch(ftype)
