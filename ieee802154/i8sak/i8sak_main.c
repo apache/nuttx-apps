@@ -258,7 +258,7 @@ static int status(int fd)
 static int display(FAR struct ieee802154_packet_s *pack)
 {
   int i;
-  printf("Packet len=%u rssi=%u lqi=%u [\n", pack->len, pack->rssi, pack->lqi);
+  printf("len=%3u rssi=%3u lqi=%3u [", pack->len, pack->rssi, pack->lqi);
   for (i = 0; i < pack->len; i++)
     {
       printf("%02X", pack->data[i]);
@@ -313,6 +313,13 @@ static int sniff(int fd, int chan)
   
   return ret;
 }
+
+/****************************************************************************
+ * Name : tx
+ *
+ * Description :
+ *   Transmit a frame.
+ ****************************************************************************/
 
 static int tx(int fd, int chan, FAR struct ieee802154_packet_s *pack)
 {
