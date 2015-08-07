@@ -6,6 +6,7 @@
 config IEEE802154_COORD
 	bool "Generic IEEE 802.15.4 coordinator"
 	default n
+	select IEEE802154_COMMON
 	---help---
 		Enable the IEEE 802.15.4 generic coordinator
 

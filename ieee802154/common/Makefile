@@ -1,8 +1,8 @@
 ############################################################################
-# apps/ieee802154/Makefile
+# apps/nshlib/Makefile
 #
-#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
-#   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,36 +33,70 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config # Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+# NSH Library
 
-SUBDIRS = $(dir $(wildcard */Makefile))
+ASRCS  =
+CSRCS  = ieee802154_setchan.c ieee802154_setpanid.c
+CSRCS += ieee802154_seteaddr.c ieee802154_setsaddr.c
+CSRCS += ieee802154_setpromisc.c
 
-all: nothing
+#
 
-.PHONY: nothing context depend clean distclean
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
-$(foreach SDIR, $(CNTXTDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN		= ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN		= ..\\..\\libapps$(LIBEXT)
+else
+  BIN		= ../../libapps$(LIBEXT)
+endif
+endif
 
-nothing:
+ROOTDEPPATH = --dep-path .
+VPATH =
+
+# Build targets
+
+all: .built
+.PHONY: context .depend depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	@touch .built
 
 install:
 
-context: $(foreach SDIR, $(CNTXTDIRS), $(SDIR)_context)
+context:
 
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
+.depend: Makefile $(SRCS)
+	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
 
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
+depend: .depend
 
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
 
 -include Make.dep
+

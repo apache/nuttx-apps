@@ -3,5 +3,6 @@
 # see misc/tools/kconfig-language.txt.
 #
 
+source "$APPSDIR/ieee802154/common/Kconfig"
 source "$APPSDIR/ieee802154/coord/Kconfig"
 source "$APPSDIR/ieee802154/i8sak/Kconfig"

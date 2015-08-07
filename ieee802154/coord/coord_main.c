@@ -61,8 +61,12 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include <nuttx/ieee802154/ieee802154.h>
+
+#include <apps/ieee802154/ieee802154.h>
 
 /****************************************************************************
  * Definitions
@@ -82,14 +86,29 @@ struct ieee_client_s
   struct ieee802154_packet_s pending;  /* pending packet for device */
 };
 
+struct ieee_frame_s
+{
+  struct ieee802154_packet_s packet;
+  uint8_t                    fc1;
+  uint8_t                    fc2;
+  uint8_t                    seq;
+  uint8_t                    *dpanid;
+  uint8_t                    *daddr;
+  uint8_t                    daddrlen;
+  uint8_t                    *spanid;
+  uint8_t                    *saddr;
+  uint8_t                    saddrlen;
+  uint8_t                    *payload;
+};
+
 struct ieee_coord_s
 {
-  int                        fd;       /* Device handle */
-  uint8_t                    chan;     /* PAN channel */
-  uint8_t                    panid[2]; /* PAN ID */
-  uint8_t                    nclients; /* Number of coordinated clients */
-  struct ieee802154_packet_s rxbuf;    /* General rx buffer */
-  struct ieee_client_s       clients[CONFIG_IEEE802154_COORD_MAXCLIENTS];
+  int                  fd;       /* Device handle */
+  uint8_t              chan;     /* PAN channel */
+  uint16_t             panid;    /* PAN ID */
+  uint8_t              nclients; /* Number of coordinated clients */
+  struct ieee_frame_s  rxbuf;    /* General rx buffer */
+  struct ieee_client_s clients[CONFIG_IEEE802154_COORD_MAXCLIENTS];
 };
 
 /****************************************************************************
@@ -98,10 +117,10 @@ struct ieee_coord_s
 static struct ieee_coord_s g_coord;
 
 /****************************************************************************
- * Private Functions
+ * coord_initialize
  ****************************************************************************/
 
-static void coord_initialize(struct ieee_coord_s *coord)
+static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev, FAR char *chan, FAR char *panid)
 {
   int i;
   coord->nclients = 0;
@@ -109,26 +128,173 @@ static void coord_initialize(struct ieee_coord_s *coord)
     {
       coord->clients[i].pending.len = 0;
     }
+  coord->chan  = strtol(chan , NULL, 0);
+  coord->panid = strtol(panid, NULL, 0);
+
+  coord->fd = open(dev, O_RDWR);
+
 }
 
 /****************************************************************************
- * Public Functions
+ * coord_main
  ****************************************************************************/
 
-static int coord_loop(FAR struct ieee_coord_s *coord, FAR char *dev, int chan, int panid)
+static int coord_beacon(FAR struct ieee_coord_s *coord)
 {
-  uint8_t pan[2];
-  int ret = OK;
+  printf("Beacon!\n");
+  return 0;
+}
 
-  pan[0] = panid >> 8;
-  pan[1] = panid &  0xFF;
+/****************************************************************************
+ * coord_main
+ ****************************************************************************/
 
-  printf("starting %s on chan %d, panid %02X%02X", dev, chan, pan[0], pan[1]);
+static int coord_data(FAR struct ieee_coord_s *coord)
+{
+  printf("Data!\n");
+  return 0;
+}
 
-  while(ret == OK)
+/****************************************************************************
+ * coord_main
+ ****************************************************************************/
+
+static int coord_ack(FAR struct ieee_coord_s *coord)
+{
+  printf("Ack!\n");
+  return 0;
+}
+
+/****************************************************************************
+ * coord_main
+ ****************************************************************************/
+
+static int coord_command(FAR struct ieee_coord_s *coord)
+{
+  printf("Command!\n");
+  return 0;
+}
+
+/****************************************************************************
+ * coord_main
+ ****************************************************************************/
+
+static int coord_manage(FAR struct ieee_coord_s *coord)
+{
+  /* Decode frame type */
+  uint8_t ftype, saddr, daddr;
+  int index;
+
+  FAR struct ieee_frame_s *rx = &coord->rxbuf;
+  int i;
+
+  for(i=0; i<rx->packet.len; i++) printf("%02X", rx->packet.data[i]);
+  printf("\n");
+
+  rx->fc1 = rx->packet.data[0];
+  rx->fc2 = rx->packet.data[1];
+  rx->seq = rx->packet.data[2];
+
+  ftype = rx->fc1 & IEEE802154_FC1_FTYPE;
+  daddr = rx->fc2 & IEEE802154_FC2_DADDR;
+  saddr = rx->fc2 & IEEE802154_FC2_SADDR;
+
+  index = 3;
+
+  if(daddr == IEEE802154_DADDR_SHORT)
     {
-      ret = read(coord->fd, &coord->rxbuf, sizeof(struct ieee802154_packet_s));
+      rx->dpanid = rx->packet.data+index;
+      index += 2; /* skip dest pan id */
+      rx->daddr  = rx->packet.data+index;
+      index += 2; /* skip dest addr */
+      rx->daddrlen = 2;
+    }
+  else if(daddr == IEEE802154_DADDR_EXT)
+    {
+      rx->dpanid = rx->packet.data+index;
+      index += 2; /* skip dest pan id */
+      rx->daddr  = rx->packet.data+index;
+      index += 8; /* skip dest addr */
+      rx->daddrlen = 8;
+    }
+  else
+    {
+      rx->dpanid = NULL;
+      rx->daddr  = NULL;
+      rx->daddrlen = 0;
+    }
 
+  if(saddr == IEEE802154_SADDR_SHORT)
+    {
+      if(rx->fc1 & IEEE802154_FC1_INTRA)
+        {
+          rx->spanid = rx->dpanid;
+        }
+      else
+        {
+          rx->spanid = rx->packet.data+index;
+          index += 2; /*skip dest pan id*/
+        }
+      rx->saddr  = rx->packet.data+index;
+      index += 2; /* skip dest addr */
+      rx->saddrlen = 2;
+    }
+  else if(saddr == IEEE802154_SADDR_EXT)
+    {
+      if(rx->fc1 & IEEE802154_FC1_INTRA)
+        {
+          rx->spanid = rx->dpanid;
+        }
+      else
+        {
+          rx->spanid = rx->packet.data+index;
+          index += 2; /*skip dest pan id*/
+        }
+      rx->saddr  = rx->packet.data+index;
+      index += 8; /* skip dest addr */
+      rx->saddrlen = 8;
+    }
+  else
+    {
+      rx->spanid = NULL;
+      rx->saddr  = NULL;
+      rx->saddrlen = 0;
+    }
+
+  printf("SADDR len %d DADDR len %d\n", rx->saddrlen, rx->daddrlen);
+  switch(ftype)
+    {
+      case IEEE802154_FRAME_BEACON : coord_beacon (coord); break;
+      case IEEE802154_FRAME_DATA   : coord_data   (coord); break;
+      case IEEE802154_FRAME_ACK    : coord_ack    (coord); break;
+      case IEEE802154_FRAME_COMMAND: coord_command(coord); break;
+      default                      : fprintf(stderr, "unknown frame type!");
+    }
+  return 0;
+}
+
+/****************************************************************************
+ * coord_loop
+ ****************************************************************************/
+
+static int coord_loop(FAR struct ieee_coord_s *coord)
+{
+  int ret = 1;
+  FAR struct ieee_frame_s *rx = &coord->rxbuf;
+
+  printf("starting on chan %d, panid %04X\n", coord->chan, coord->panid);
+
+  ieee802154_setchan (coord->fd, coord->chan );
+  ieee802154_setpanid(coord->fd, coord->panid);
+  //ieee802154_setpromisc(coord->fd, TRUE);
+
+  while(ret > 0)
+    {
+      ret = read(coord->fd, &rx->packet, sizeof(struct ieee802154_packet_s));
+      if(ret > 0)
+        {
+          coord_manage(coord);
+        }
     }
   return OK;
 }
@@ -143,20 +309,21 @@ int main(int argc, FAR char *argv[])
 int coord_main(int argc, FAR char *argv[])
 #endif
 {
-  int chan;
-  int panid;
-
-  coord_initialize(&g_coord);
   printf("IEEE 802.15.4 Coordinator start\n");
 
   if (argc<4)
     {
-      printf("coord <dev> <chan> <panid>");
+      printf("coord <dev> <chan> [0x]<panid>\n");
       return ERROR;
     }
 
-  chan  = strtol(argv[2], NULL, 0);
-  panid = strtol(argv[3], NULL, 0);
 
-  return coord_loop(&g_coord, argv[1], chan, panid);
+  coord_initialize(&g_coord, argv[1], argv[2], argv[3]);
+  if(g_coord.fd<0)
+    {
+      fprintf(stderr, "cannot open %s, errno=%d\n", argv[1], errno);
+      exit(ERROR);
+    }
+
+  return coord_loop(&g_coord);
 }
