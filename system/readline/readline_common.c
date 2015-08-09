@@ -404,8 +404,11 @@ FAR const struct extmatch_vtable_s *
 
 ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
 {
-  int  escape;
-  int  nch;
+  int escape;
+  int nch;
+#ifdef CONFIG_READLINE_CMD_HISTORY
+  int i;
+#endif
 
   /* Sanity checks */
 
@@ -524,7 +527,7 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
                             idx = idx - CONFIG_READLINE_CMD_HISTORY_LEN;
                           }
 
-                        for (int i=0; g_cmd_history[idx][i] != '\0'; i++)
+                        for (i = 0; g_cmd_history[idx][i] != '\0'; i++)
                           {
                             buf[nch++] = g_cmd_history[idx][i];
                             RL_PUTC(vtbl, g_cmd_history[idx][i]);
@@ -606,11 +609,9 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
 
           if (nch >= 1)
             {
-              int i = 0;
-
               g_cmd_history_head = (g_cmd_history_head + 1) % CONFIG_READLINE_CMD_HISTORY_LEN;
 
-              for (i=0; (i < nch) && i < (CONFIG_READLINE_CMD_HISTORY_LINELEN - 1); i++)
+              for (i = 0; (i < nch) && i < (CONFIG_READLINE_CMD_HISTORY_LINELEN - 1); i++)
                 {
                   g_cmd_history[g_cmd_history_head][i] = buf[i];
                 }
