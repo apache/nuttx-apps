@@ -392,6 +392,12 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
   int  escape;
   int  nch;
 
+  /* Nghia Ho: command history */
+  static char cmd_history[CONFIG_READLINE_CMD_HISTORY_LEN][CONFIG_NSH_LINELEN]; /* circular buffer */
+  static int cmd_history_head = -1; /* head of the circular buffer, most recent command */
+  static int cmd_history_steps_from_head = 1; /* offset from head */
+  static int cmd_history_len = 0; /* number of elements in the circular buffer */
+
   /* Sanity checks */
 
   DEBUGASSERT(buf && buflen > 0);
@@ -453,6 +459,63 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
           if (ch != ASCII_LBRACKET || escape == 2)
             {
               /* We are finished with the escape sequence */
+
+              /* Nghia Ho: intercept up and down arrow keys */
+              if (cmd_history_len > 0)
+                {
+                  if (ch == 'A') /* up arrow */
+                    {
+                      /* go to the past command in history */ 
+                      cmd_history_steps_from_head--;
+
+                      if (-cmd_history_steps_from_head >= cmd_history_len) 
+                        {
+                          cmd_history_steps_from_head = -(cmd_history_len - 1);
+                        }
+                    }
+                  else if (ch == 'B') /* down arrow */
+                    {
+                      /* go to the recent command in history */
+                      cmd_history_steps_from_head++;
+
+                      if (cmd_history_steps_from_head > 1) 
+                        {
+                          cmd_history_steps_from_head = 1;
+                        }
+                    }
+            
+                  /* clear out current command from the prompt */
+                  while (nch > 0)
+                    {
+                      nch--;
+
+#ifdef CONFIG_READLINE_ECHO
+                      RL_PUTC(vtbl, ASCII_BS);
+                      RL_WRITE(vtbl, g_erasetoeol, sizeof(g_erasetoeol));
+#endif
+                    }
+
+                    if (cmd_history_steps_from_head != 1)
+                      {
+                        int idx = cmd_history_head + cmd_history_steps_from_head;
+
+                        /* circular buffer wrap around */
+                        if (idx < 0)
+                          {
+                            idx = idx + CONFIG_READLINE_CMD_HISTORY_LEN;
+                          }
+                        else if (idx >= CONFIG_READLINE_CMD_HISTORY_LEN) 
+                          {
+                            idx = idx - CONFIG_READLINE_CMD_HISTORY_LEN;
+                          }
+
+                        for (int i=0; cmd_history[idx][i] != '\0'; i++) 
+                          {
+                            buf[nch++] = cmd_history[idx][i];
+                            RL_PUTC(vtbl, cmd_history[idx][i]);
+                          }                   
+                     }
+                }
 
               escape = 0;
               ch = 'a';
@@ -520,6 +583,27 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
       else if (ch == '\n' || ch == '\r')
 #endif
         {
+          /* Nghia Ho: save history of command, only if there was something typed besides return character */
+          if (nch >= 1)
+            {
+              int i = 0;
+
+              cmd_history_head = (cmd_history_head + 1) % CONFIG_READLINE_CMD_HISTORY_LEN;
+
+              for (i=0; (i < nch) && i < (CONFIG_NSH_LINELEN - 1); i++) 
+                {
+                  cmd_history[cmd_history_head][i] = buf[i];
+                }
+
+              cmd_history[cmd_history_head][i] = '\0';
+              cmd_history_steps_from_head = 1;
+
+              if (cmd_history_len < CONFIG_READLINE_CMD_HISTORY_LEN)
+                {
+                  cmd_history_len++;
+                }
+            }
+
           /* The newline is stored in the buffer along with the null
            * terminator.
            */

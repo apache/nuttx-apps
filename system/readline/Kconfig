@@ -32,7 +32,15 @@ config READLINE_TABCOMPLETION
 	depends on (BUILD_FLAT && BUILTIN) || READLINE_HAVE_EXTMATCH
 	---help---
 		Build in support for Unix-style tab completion.  This feature was
-		originally provided by Nghia.
+		originally provided by Nghia Ho.
+
+config READLINE_CMD_HISTORY_LEN
+	int "Command line history"
+	default 16
+	depends on (BUILD_FLAT && BUILTIN) || READLINE_HAVE_EXTMATCH
+	---help---
+		Build in support for Unix-style command history using up and down arrow keys.  This feature was
+		originally provided by Nghia Ho.
 
 if READLINE_TABCOMPLETION
 
