@@ -68,7 +68,22 @@ static FAR const char *g_readline_prompt = NULL;
 #ifdef CONFIG_READLINE_HAVE_EXTMATCH
 static FAR const struct extmatch_vtable_s *g_extmatch_vtbl = NULL;
 #endif
-#endif
+#endif /* CONFIG_READLINE_TABCOMPLETION */
+
+#ifdef CONFIG_READLINE_CMD_HISTORY
+/* Nghia Ho: command history
+ *
+ * g_cmd_history[][]             Circular buffer
+ * g_cmd_history_head            Head of the circular buffer, most recent command
+ * g_cmd_history_steps_from_head Offset from head
+ * g_cmd_history_len             Number of elements in the circular buffer
+ */
+
+static char g_cmd_history[CONFIG_READLINE_CMD_HISTORY_LEN][CONFIG_READLINE_CMD_HISTORY_LINELEN];
+static int g_cmd_history_head = -1;
+static int g_cmd_history_steps_from_head = 1;
+static int g_cmd_history_len = 0;
+#endif /* CONFIG_READLINE_CMD_HISTORY */
 
 /****************************************************************************
  * Private Functions
@@ -341,7 +356,7 @@ FAR const char *readline_prompt(FAR const char *prompt)
  * Assumptions:
  *   The vtbl string is statically allocated a global.  readline() will
  *   simply remember the pointer to the structure.  The structure must stay
- *   allocated and available.  Only one instance of such a structure is 
+ *   allocated and available.  Only one instance of such a structure is
  *   supported.  If there are multiple clients of readline(), they must all
  *   share the same tab-completion logic (with exceptions in the case of
  *   the kernel build).
@@ -391,12 +406,6 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
 {
   int  escape;
   int  nch;
-
-  /* Nghia Ho: command history */
-  static char cmd_history[CONFIG_READLINE_CMD_HISTORY_LEN][CONFIG_NSH_LINELEN]; /* circular buffer */
-  static int cmd_history_head = -1; /* head of the circular buffer, most recent command */
-  static int cmd_history_steps_from_head = 1; /* offset from head */
-  static int cmd_history_len = 0; /* number of elements in the circular buffer */
 
   /* Sanity checks */
 
@@ -460,31 +469,36 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
             {
               /* We are finished with the escape sequence */
 
+#ifdef CONFIG_READLINE_CMD_HISTORY
               /* Nghia Ho: intercept up and down arrow keys */
-              if (cmd_history_len > 0)
+
+              if (g_cmd_history_len > 0)
                 {
                   if (ch == 'A') /* up arrow */
                     {
-                      /* go to the past command in history */ 
-                      cmd_history_steps_from_head--;
+                      /* Go to the past command in history */
 
-                      if (-cmd_history_steps_from_head >= cmd_history_len) 
+                      g_cmd_history_steps_from_head--;
+
+                      if (-g_cmd_history_steps_from_head >= g_cmd_history_len)
                         {
-                          cmd_history_steps_from_head = -(cmd_history_len - 1);
+                          g_cmd_history_steps_from_head = -(g_cmd_history_len - 1);
                         }
                     }
                   else if (ch == 'B') /* down arrow */
                     {
-                      /* go to the recent command in history */
-                      cmd_history_steps_from_head++;
+                      /* Go to the recent command in history */
 
-                      if (cmd_history_steps_from_head > 1) 
+                      g_cmd_history_steps_from_head++;
+
+                      if (g_cmd_history_steps_from_head > 1)
                         {
-                          cmd_history_steps_from_head = 1;
+                          g_cmd_history_steps_from_head = 1;
                         }
                     }
-            
-                  /* clear out current command from the prompt */
+
+                  /* Clear out current command from the prompt */
+
                   while (nch > 0)
                     {
                       nch--;
@@ -495,27 +509,29 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
 #endif
                     }
 
-                    if (cmd_history_steps_from_head != 1)
+                    if (g_cmd_history_steps_from_head != 1)
                       {
-                        int idx = cmd_history_head + cmd_history_steps_from_head;
+                        int idx = g_cmd_history_head + g_cmd_history_steps_from_head;
 
-                        /* circular buffer wrap around */
+                        /* Circular buffer wrap around */
+
                         if (idx < 0)
                           {
                             idx = idx + CONFIG_READLINE_CMD_HISTORY_LEN;
                           }
-                        else if (idx >= CONFIG_READLINE_CMD_HISTORY_LEN) 
+                        else if (idx >= CONFIG_READLINE_CMD_HISTORY_LEN)
                           {
                             idx = idx - CONFIG_READLINE_CMD_HISTORY_LEN;
                           }
 
-                        for (int i=0; cmd_history[idx][i] != '\0'; i++) 
+                        for (int i=0; g_cmd_history[idx][i] != '\0'; i++)
                           {
-                            buf[nch++] = cmd_history[idx][i];
-                            RL_PUTC(vtbl, cmd_history[idx][i]);
-                          }                   
+                            buf[nch++] = g_cmd_history[idx][i];
+                            RL_PUTC(vtbl, g_cmd_history[idx][i]);
+                          }
                      }
                 }
+#endif /* CONFIG_READLINE_CMD_HISTORY */
 
               escape = 0;
               ch = 'a';
@@ -583,26 +599,31 @@ ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
       else if (ch == '\n' || ch == '\r')
 #endif
         {
-          /* Nghia Ho: save history of command, only if there was something typed besides return character */
+#ifdef CONFIG_READLINE_CMD_HISTORY
+          /* Nghia Ho: save history of command, only if there was something
+           * typed besides return character.
+           */
+
           if (nch >= 1)
             {
               int i = 0;
 
-              cmd_history_head = (cmd_history_head + 1) % CONFIG_READLINE_CMD_HISTORY_LEN;
+              g_cmd_history_head = (g_cmd_history_head + 1) % CONFIG_READLINE_CMD_HISTORY_LEN;
 
-              for (i=0; (i < nch) && i < (CONFIG_NSH_LINELEN - 1); i++) 
+              for (i=0; (i < nch) && i < (CONFIG_READLINE_CMD_HISTORY_LINELEN - 1); i++)
                 {
-                  cmd_history[cmd_history_head][i] = buf[i];
+                  g_cmd_history[g_cmd_history_head][i] = buf[i];
                 }
 
-              cmd_history[cmd_history_head][i] = '\0';
-              cmd_history_steps_from_head = 1;
+              g_cmd_history[g_cmd_history_head][i] = '\0';
+              g_cmd_history_steps_from_head = 1;
 
-              if (cmd_history_len < CONFIG_READLINE_CMD_HISTORY_LEN)
+              if (g_cmd_history_len < CONFIG_READLINE_CMD_HISTORY_LEN)
                 {
-                  cmd_history_len++;
+                  g_cmd_history_len++;
                 }
             }
+#endif /* CONFIG_READLINE_CMD_HISTORY */
 
           /* The newline is stored in the buffer along with the null
            * terminator.
