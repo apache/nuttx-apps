@@ -106,7 +106,7 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
       index += 2; /* skip dest addr */
       src->ia_len = 2;
     }
-  if(saddr == IEEE802154_SADDR_EXT)
+  else if(saddr == IEEE802154_SADDR_EXT)
     {
       memcpy(src->ia_eaddr, packet->data+index, 8);
       index += 8; /* skip dest addr */
