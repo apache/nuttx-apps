@@ -73,36 +73,7 @@
 
 static struct ieee802154_packet_s gRxPacket;
 static struct ieee802154_packet_s gTxPacket;
-
-int setchan(int fd, uint8_t chan)
-{
-  int ret = ioctl(fd, MAC854IOCSCHAN, (unsigned long)chan );
-  if (ret<0)
-    {
-      printf("MAC854IOCSCHAN failed\n");
-    }
-  return ret;
-}
-
-int setcca(int fd, FAR struct ieee802154_cca_s *cca)
-{
-  int ret = ioctl(fd, MAC854IOCSCCA, (unsigned long)cca );
-  if (ret<0)
-    {
-      printf("MAC854IOCSCCA failed\n");
-    }
-  return ret;
-}
-
-int getcca(int fd, FAR struct ieee802154_cca_s *cca)
-{
-  int ret = ioctl(fd, MAC854IOCGCCA, (unsigned long)cca );
-  if (ret<0)
-    {
-      printf("MAC854IOCGCCA failed\n");
-    }
-  return ret;
-}
+static uint8_t gChan;
 
 uint8_t levels[16];
 uint8_t disp[16];
@@ -121,7 +92,7 @@ int scan(int fd)
     {
       for (chan=0; chan<16; chan++)
         {
-          ret = setchan(fd, chan+11);
+          ret = ieee802154_setchan(fd, chan+11);
           if (ret<0)
             {
               printf("Device is not an IEEE 802.15.4 interface!\n");
@@ -214,10 +185,9 @@ static int status(int fd)
       printf("MAC854IOCGPROMISC failed\n");
       return ret;
     }
-  ret = ioctl(fd, MAC854IOCGCCA, (unsigned long)&cca);
+  ret = ieee802154_getcca(fd, &cca);
   if (ret)
     {
-      printf("MAC854IOCGCCA failed\n");
       return ret;
     }
 #if 0
@@ -259,17 +229,21 @@ static int status(int fd)
 static int display(FAR struct ieee802154_packet_s *pack)
 {
   int i;
-  int     hlen=0;
+  int     hlen=0, dhlen=0;
   char    buf[IEEE802154_ADDRSTRLEN+1];
   struct ieee802154_addr_s dest,src;
 
-  printf("rssi=%3u lqi=%3u ", pack->rssi, pack->lqi);
-
   hlen = ieee802154_addrparse(pack, &dest, &src);
+
+  dhlen = hlen;
+  if(hlen>pack->len) dhlen = 0;
+
+  printf("chan=%2d rssi=%3u lqi=%3u len=%d ", gChan, pack->rssi, pack->lqi, pack->len - dhlen);
+
   if(hlen<0)
     {
-      printf("invalid header \n");
-      hlen = 0;
+      printf("[invalid header] ");
+      dhlen = 0;
     }
   else
     {
@@ -279,11 +253,9 @@ static int display(FAR struct ieee802154_packet_s *pack)
       printf("%s] ", buf);
     }
 
-  printf("len=%d ", pack->len - hlen);
-
-  for (i = 0; i < pack->len - hlen; i++)
+  for (i = 0; i < pack->len - dhlen; i++)
     {
-      printf("%02X", pack->data[i+hlen]);
+      printf("%02X", pack->data[i+dhlen]);
     }
   printf("\n");
   return 0;
@@ -343,19 +315,22 @@ static void* sniff(void *arg)
  *   Transmit a frame.
  ****************************************************************************/
 
-static int tx(int fd, FAR struct ieee802154_packet_s *pack)
+static int tx(int fd, FAR struct ieee802154_packet_s *pack, int verbose)
 {
   int i,ret;
 
-  for (i = 0; i < pack->len; i++)
+  if(verbose)
     {
-      printf("%02X", pack->data[i]);
+      for (i = 0; i < pack->len; i++)
+        {
+          printf("%02X", pack->data[i]);
+        }
+      fflush(stdout);
     }
-  fflush(stdout);
   ret = write(fd, pack, sizeof(struct ieee802154_packet_s));
   if(ret==OK)
     {
-      printf(" OK\n");
+      if(verbose) printf(" OK\n");
     }
   else
     {
@@ -441,7 +416,8 @@ int i8_main(int argc, char *argv[])
         {
         ret = usage();
         }
-      ret = setchan(fd, arg);
+      ret = ieee802154_setchan(fd, arg);
+      gChan = arg;
     }
   else if (!strcmp(argv[2], "edth"))
     {
@@ -449,7 +425,7 @@ int i8_main(int argc, char *argv[])
         {
         goto usage;
         }
-      ret = getcca(fd, &cca);
+      ret = ieee802154_getcca(fd, &cca);
       if(!strcmp("off",argv[3]))
         {
           cca.use_ed = 0;
@@ -459,7 +435,7 @@ int i8_main(int argc, char *argv[])
           cca.use_ed = 1;
           cca.edth   = arg;
         }
-      ret = setcca(fd, &cca);
+      ret = ieee802154_setcca(fd, &cca);
     }
   else if (!strcmp(argv[2], "csth"))
     {
@@ -467,7 +443,7 @@ int i8_main(int argc, char *argv[])
         {
         goto usage;
         }
-      ret = getcca(fd, &cca);
+      ret = ieee802154_getcca(fd, &cca);
       if(!strcmp("off",argv[3]))
         {
           cca.use_cs = 0;
@@ -477,7 +453,7 @@ int i8_main(int argc, char *argv[])
           cca.use_cs = 1;
           cca.csth   = arg;
         }
-      ret = setcca(fd, &cca);
+      ret = ieee802154_setcca(fd, &cca);
     }
   else if (!strcmp(argv[2], "snif"))
     {
@@ -487,7 +463,7 @@ int i8_main(int argc, char *argv[])
       if (ret<0)
         {
           printf("Device is not an IEEE 802.15.4 interface!\n");
-          return (void*)ret;
+          return ret;
         }
 
       args.fd = fd;
@@ -497,7 +473,7 @@ int i8_main(int argc, char *argv[])
       if (ret<0)
         {
           printf("Device is not an IEEE 802.15.4 interface!\n");
-          return (void*)ret;
+          return ret;
         }
 
     }
@@ -533,7 +509,7 @@ data_error:
       }
     gTxPacket.len = id;
 
-    ret = tx(fd, &gTxPacket);
+    ret = tx(fd, &gTxPacket, TRUE);
     }
   else if (!strcmp(argv[2], "beacons"))
     {
@@ -554,17 +530,18 @@ data_error:
     gTxPacket.data[gTxPacket.len++] = 0xFF;
     gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
     gTxPacket.data[gTxPacket.len++] = 0xFF;
-    gTxPacket.data[gTxPacket.len++] = 0x07; //BEACON_REQ
+    gTxPacket.data[gTxPacket.len++] = IEEE802154_CMD_BEACON_REQ;
 //    for(i=1;i<3;i++)
     while(1)
       {
         int ch;
         for(ch=11; ch<27; ch++)
           {
-            setchan(fd, ch);
-            printf("txbeacon on chan %d\n", ch);
+            printf("chan=%2d...\r", ch); fflush(stdout);
+            ieee802154_setchan(fd, ch);
+            gChan = ch;
             gTxPacket.data[2] = i; //seq
-            tx(fd, &gTxPacket);
+            tx(fd, &gTxPacket, FALSE);
             sleep(1);
           }
           i++; if(i==256) i=0;
