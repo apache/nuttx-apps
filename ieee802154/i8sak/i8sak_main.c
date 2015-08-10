@@ -273,24 +273,25 @@ static int display(FAR struct ieee802154_packet_s *pack)
  * Description :
  *   Listen for all packets with a valid CRC on a given channel.
  ****************************************************************************/
+struct sniffargs
+{
+  int fd;
+};
 
-static int sniff(int fd, int chan)
+static void* sniff(void *arg)
 {
   int ret;
-  ret = setchan(fd, chan);
-  if (ret<0)
-    {
-      return ret;
-    }
+  struct sniffargs *sa = (struct sniffargs*)arg;
+  int fd = sa->fd;
 
   ret = ioctl(fd, MAC854IOCSPROMISC, TRUE);
   if (ret<0)
     {
       printf("Device is not an IEEE 802.15.4 interface!\n");
-      return ret;
+      return (void*)ret;
     }
 
-  printf("Listening on channel %d in promisc mode.\n",chan);
+  printf("Listening...\n");
   while (1)
     {
       ret = read(fd, &gRxPacket, sizeof(struct ieee802154_packet_s));
@@ -299,6 +300,11 @@ static int sniff(int fd, int chan)
           if (errno == EAGAIN)
             {
             continue;
+            }
+          if (errno == EINTR)
+            {
+            printf("read: interrupted\n");
+            break;
             }
           else
             {
@@ -311,7 +317,14 @@ static int sniff(int fd, int chan)
       display(&gRxPacket);
     }
   
-  return ret;
+  ret = ioctl(fd, MAC854IOCSPROMISC, FALSE);
+  if (ret<0)
+    {
+      printf("Device is not an IEEE 802.15.4 interface!\n");
+      return (void*)ret;
+    }
+
+  return (void*)ret;
 }
 
 /****************************************************************************
@@ -321,15 +334,9 @@ static int sniff(int fd, int chan)
  *   Transmit a frame.
  ****************************************************************************/
 
-static int tx(int fd, int chan, FAR struct ieee802154_packet_s *pack)
+static int tx(int fd, FAR struct ieee802154_packet_s *pack)
 {
   int i,ret;
-
-  ret = setchan(fd, chan);
-  if (ret<0)
-    {
-      return ret;
-    }
 
   for (i = 0; i < pack->len; i++)
     {
@@ -361,12 +368,12 @@ int usage(void)
   printf("i8 <device> <op> <arg>\n"
          "  scan\n"
          "  dump\n"
-         "  snif <ch>\n"
-         "  stat\n"
          "  chan <ch>\n"
+         "  snif\n"
+         "  stat\n"
          "  edth <off|rssi>\n"
          "  csth <off|corr>\n"
-         "  tx <ch> <hexpacket>\n"
+         "  tx <hexpacket>\n"
          );
   return ERROR;
 }
@@ -465,14 +472,15 @@ int i8_main(int argc, char *argv[])
     }
   else if (!strcmp(argv[2], "snif"))
     {
-    ret = sniff(fd,arg);
+    struct sniffargs args;
+    args.fd = fd;
+    ret = (int)sniff(&args);
     }
   else if (!strcmp(argv[2], "tx"))
     {
     int id=0;
-    unsigned long ch = arg;
-    int len = strlen(argv[4]);
-    FAR char *ptr = argv[4];
+    int len = strlen(argv[3]);
+    FAR char *ptr = argv[3];
 
     if (len & 1)
       {
@@ -500,7 +508,43 @@ data_error:
       }
     gTxPacket.len = id;
 
-    ret = tx(fd, ch, &gTxPacket);
+    ret = tx(fd, &gTxPacket);
+    }
+  else if (!strcmp(argv[2], "beacons"))
+    {
+    struct sniffargs args;
+    pthread_t pth;
+    int i;
+    
+    args.fd = fd;
+
+    pthread_create(&pth, NULL, sniff, &args);
+  
+    //beacon request
+    gTxPacket.len = 0;
+    gTxPacket.data[gTxPacket.len++] = 0x03; //mac command, no ack, no panid compression
+    gTxPacket.data[gTxPacket.len++] = 0x08; //short destination address, no source address
+    gTxPacket.data[gTxPacket.len++] = 0;    //seq
+    gTxPacket.data[gTxPacket.len++] = 0xFF; //panid
+    gTxPacket.data[gTxPacket.len++] = 0xFF;
+    gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
+    gTxPacket.data[gTxPacket.len++] = 0xFF;
+//    for(i=1;i<3;i++)
+    while(1)
+      {
+        int ch;
+        for(ch=11; ch<27; ch++)
+          {
+            setchan(fd, ch);
+            printf("txbeacon on chan %d\n", ch);
+            gTxPacket.data[2] = i; //seq
+            tx(fd, &gTxPacket);
+            sleep(1);
+          }
+          i++; if(i==256) i=0;
+      }
+    pthread_kill(pth, SIGUSR1);
+    
     }
   else
     {
