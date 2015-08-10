@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/ieee802154/ieee802154.h
+ * ieee802154/common/ieee802154_addrtostr.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -33,32 +33,51 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_IEEE802154_IEEE802154_H
-#define __APPS_INCLUDE_IEEE802154_IEEE802154_H
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
+#include <nuttx/config.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <stdio.h>
+#include <nuttx/ieee802154/ieee802154.h>
+#include <apps/ieee802154/ieee802154.h>
 
-struct ieee802154_addr_s
+int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *addr)
 {
-  uint8_t ia_len; /* structure length NOT including panid, so 2/8*/
-  uint16_t ia_panid;
-  union {
-    uint16_t _ia_saddr;
-    uint8_t  _ia_eaddr[8];
-  } ia_addr;
-#define ia_saddr ia_addr._ia_saddr
-#define ia_eaddr ia_addr._ia_eaddr
-};
-#define IEEE802154_ADDRSTRLEN 22 /* (4+1+8*2) */
+#ifndef CONFIG_BIG_ENDIAN
+  uint16_t panid = ((addr->ia_panid & 0xff)<<8) | ((addr->ia_panid>>8) & 0xff);
+#else
+  uint16_t panid = addr->ia_panid;
+#endif
 
-int ieee802154_setchan   (int fd, uint8_t chan);
-int ieee802154_setpanid  (int fd, uint16_t panid);
-int ieee802154_setsaddr  (int fd, uint16_t saddr);
-int ieee802154_seteaddr  (int fd, FAR uint8_t *chan);
-int ieee802154_setpromisc(int fd, bool promisc);
+  if(addr->ia_len == 0)
+    {
+      return snprintf(buf, len, "none");
+    }
+  else if(addr->ia_len == 2)
+    {
+#ifndef CONFIG_BIG_ENDIAN
+      uint16_t saddr = ((addr->ia_saddr & 0xff)<<8) | ((addr->ia_saddr>>8) & 0xff);
+#else
+      uint16_t saddr = addr->ia_saddr;
+#endif
+      return snprintf(buf, len, "%04X/%04X", panid, saddr);
+    }
+  else if(addr->ia_len == 8)
+    {
+      int i;
+      int off = snprintf(buf, len, "%04X/", panid);
+      for(i=0; i<8; i++)
+        {
+        off += snprintf(buf+off, len-off, "%02X", addr->ia_eaddr[i]);
+        }
+      return off;
+    }
+  else
+    {
+      return snprintf(buf,len,"<INVAL>");
+    }
+  return -1;
+}
 
-int ieee802154_addrparse(FAR struct ieee802154_packet_s *inPacket, FAR struct ieee802154_addr_s *dest, FAR struct ieee802154_addr_s *src);
-int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *addr);
-
-#endif /*__APPS_INCLUDE_IEEE802154_IEEE802154_H */

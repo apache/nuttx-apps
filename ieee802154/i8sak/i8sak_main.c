@@ -529,6 +529,7 @@ data_error:
     gTxPacket.data[gTxPacket.len++] = 0xFF;
     gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
     gTxPacket.data[gTxPacket.len++] = 0xFF;
+    gTxPacket.data[gTxPacket.len++] = 0x07; //BEACON_REQ
 //    for(i=1;i<3;i++)
     while(1)
       {

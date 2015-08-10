@@ -43,6 +43,7 @@ ASRCS  =
 CSRCS  = ieee802154_setchan.c ieee802154_setpanid.c
 CSRCS += ieee802154_seteaddr.c ieee802154_setsaddr.c
 CSRCS += ieee802154_setpromisc.c
+CSRCS += ieee802154_addrparse.c ieee802154_addrtostr.c
 
 #
 

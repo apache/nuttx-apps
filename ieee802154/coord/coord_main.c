@@ -90,25 +90,13 @@ struct ieee_client_s
   struct ieee802154_packet_s pending;  /* pending packet for device */
 };
 
-struct ieee_addr
-{
-  uint8_t  len;
-  uint16_t panid;
-  union
-    {
-    uint16_t saddr;
-    uint8_t  eaddr[8];
-    } addr;
-};
-
 struct ieee_frame_s
 {
   struct ieee802154_packet_s packet;
-  uint8_t                    fc1;
-  uint8_t                    fc2;
+  struct ieee802154_addr_s   dest;
+  struct ieee802154_addr_s   src;
   uint8_t                    seq;
-  struct ieee_addr           daddr;
-  struct ieee_addr           saddr;
+  uint8_t                    plen;
   uint8_t                    *payload;
 };
 
@@ -207,84 +195,37 @@ static int coord_command(FAR struct ieee_coord_s *coord)
 static int coord_manage(FAR struct ieee_coord_s *coord)
 {
   /* Decode frame type */
-  uint8_t ftype, saddr, daddr;
-  int index;
+  uint8_t fc1, ftype;
+  int     hlen;
+  char    buf[IEEE802154_ADDRSTRLEN+1];
 
   FAR struct ieee_frame_s *rx = &coord->rxbuf;
   int i;
 
-  for(i=0; i<rx->packet.len; i++) printf("%02X", rx->packet.data[i]);
-  printf("\n");
 
-  rx->fc1 = rx->packet.data[0];
-  rx->fc2 = rx->packet.data[1];
+  fc1 = rx->packet.data[0];
   rx->seq = rx->packet.data[2];
 
-  ftype = rx->fc1 & IEEE802154_FC1_FTYPE;
-  daddr = rx->fc2 & IEEE802154_FC2_DADDR;
-  saddr = rx->fc2 & IEEE802154_FC2_SADDR;
-
-  index = 3;
-
-  if(daddr == IEEE802154_DADDR_SHORT)
+  hlen = ieee802154_addrparse(&rx->packet, &rx->dest, &rx->src);
+  if(hlen<0)
     {
-      memcpy(&rx->daddr.panid, rx->packet.data+index, 2);
-      index += 2; /* skip dest pan id */
-      memcpy(&rx->daddr.addr.saddr, rx->packet.data+index, 2);
-      index += 2; /* skip dest addr */
-      rx->daddr.len = 2;
-    }
-  else if(daddr == IEEE802154_DADDR_EXT)
-    {
-      memcpy(&rx->daddr.panid, rx->packet.data+index, 2);
-      index += 2; /* skip dest pan id */
-      memcpy(&rx->daddr.addr.eaddr, rx->packet.data+index, 8);
-      index += 8; /* skip dest addr */
-      rx->daddr.len = 8;
-    }
-  else
-    {
-      rx->daddr.len = 0;
+      printf("invalid packet\n");
+      return 1;
     }
 
-  if(saddr == IEEE802154_SADDR_SHORT)
-    {
-      if(rx->fc1 & IEEE802154_FC1_INTRA)
-        {
-          rx->saddr.panid = rx->daddr.panid;
-        }
-      else
-        {
-          memcpy(&rx->saddr.panid, rx->packet.data+index, 2);
-          index += 2; /*skip dest pan id*/
-        }
-      memcpy(&rx->saddr.addr.saddr, rx->packet.data+index, 2);
-      index += 2; /* skip dest addr */
-      rx->saddr.len = 2;
-    }
-  else if(saddr == IEEE802154_SADDR_EXT)
-    {
-      if(rx->fc1 & IEEE802154_FC1_INTRA)
-        {
-          rx->saddr.panid = rx->daddr.panid;
-        }
-      else
-        {
-          memcpy(&rx->saddr.panid, rx->packet.data+index, 2);
-          index += 2; /*skip dest pan id*/
-        }
-      memcpy(&rx->saddr.addr.eaddr, rx->packet.data+index, 8);
-      index += 8; /* skip dest addr */
-      rx->saddr.len = 8;
-    }
-  else
-    {
-      rx->saddr.len = 0;
-    }
+  rx->payload = rx->packet.data + hlen;
+  rx->plen    = rx->packet.len  - hlen;
 
-  rx->payload = rx->packet.data + index;
+  ftype = fc1 & IEEE802154_FC1_FTYPE;
 
-  printf("SADDR len %d DADDR len %d\n", rx->saddr.len, rx->daddr.len);
+  ieee802154_addrtostr(buf,sizeof(buf),&rx->src);
+  printf("[%s -> ", buf);
+  ieee802154_addrtostr(buf,sizeof(buf),&rx->dest);
+  printf("%s] ", buf);
+  
+  for(i=0; i<rx->plen; i++) printf("%02X", rx->payload[i]);
+  printf("\n");
+
   switch(ftype)
     {
       case IEEE802154_FRAME_BEACON : coord_beacon (coord); break;
