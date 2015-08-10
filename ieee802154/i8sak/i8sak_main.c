@@ -61,6 +61,7 @@
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/ieee802154/ieee802154.h>
 #include <nuttx/ieee802154/ieee802154_dev.h>
+#include <apps/ieee802154/ieee802154.h>
 
 /****************************************************************************
  * Definitions
@@ -258,12 +259,33 @@ static int status(int fd)
 static int display(FAR struct ieee802154_packet_s *pack)
 {
   int i;
-  printf("len=%3u rssi=%3u lqi=%3u [", pack->len, pack->rssi, pack->lqi);
-  for (i = 0; i < pack->len; i++)
+  int     hlen=0;
+  char    buf[IEEE802154_ADDRSTRLEN+1];
+  struct ieee802154_addr_s dest,src;
+
+  printf("rssi=%3u lqi=%3u ", pack->rssi, pack->lqi);
+
+  hlen = ieee802154_addrparse(pack, &dest, &src);
+  if(hlen<0)
     {
-      printf("%02X", pack->data[i]);
+      printf("invalid header \n");
+      hlen = 0;
     }
-  printf("]\n");
+  else
+    {
+      ieee802154_addrtostr(buf,sizeof(buf),&src);
+      printf("[%s -> ", buf);
+      ieee802154_addrtostr(buf,sizeof(buf),&dest);
+      printf("%s] ", buf);
+    }
+
+  printf("len=%d ", pack->len - hlen);
+
+  for (i = 0; i < pack->len - hlen; i++)
+    {
+      printf("%02X", pack->data[i+hlen]);
+    }
+  printf("\n");
   return 0;
 }
 
@@ -283,13 +305,6 @@ static void* sniff(void *arg)
   int ret;
   struct sniffargs *sa = (struct sniffargs*)arg;
   int fd = sa->fd;
-
-  ret = ioctl(fd, MAC854IOCSPROMISC, TRUE);
-  if (ret<0)
-    {
-      printf("Device is not an IEEE 802.15.4 interface!\n");
-      return (void*)ret;
-    }
 
   printf("Listening...\n");
   while (1)
@@ -317,12 +332,6 @@ static void* sniff(void *arg)
       display(&gRxPacket);
     }
   
-  ret = ioctl(fd, MAC854IOCSPROMISC, FALSE);
-  if (ret<0)
-    {
-      printf("Device is not an IEEE 802.15.4 interface!\n");
-      return (void*)ret;
-    }
 
   return (void*)ret;
 }
@@ -472,9 +481,25 @@ int i8_main(int argc, char *argv[])
     }
   else if (!strcmp(argv[2], "snif"))
     {
-    struct sniffargs args;
-    args.fd = fd;
-    ret = (int)sniff(&args);
+      struct sniffargs args;
+
+      ret = ioctl(fd, MAC854IOCSPROMISC, TRUE);
+      if (ret<0)
+        {
+          printf("Device is not an IEEE 802.15.4 interface!\n");
+          return (void*)ret;
+        }
+
+      args.fd = fd;
+      ret = (int)sniff(&args);
+
+      ret = ioctl(fd, MAC854IOCSPROMISC, FALSE);
+      if (ret<0)
+        {
+          printf("Device is not an IEEE 802.15.4 interface!\n");
+          return (void*)ret;
+        }
+
     }
   else if (!strcmp(argv[2], "tx"))
     {
