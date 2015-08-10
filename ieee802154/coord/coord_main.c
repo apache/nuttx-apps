@@ -157,6 +157,7 @@ static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
   FAR struct ieee_frame_s        *rx = &coord->rxbuf;
   FAR struct ieee802154_packet_s *tx = &coord->txbuf.packet;
   FAR struct ieee802154_addr_s   dest;
+  int i;
 
   printf("Beacon request\n");
 
@@ -196,6 +197,9 @@ static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
   tx->data[tx->len++] = '/';
   tx->data[tx->len++] = '0';
 
+  printf("Beacon: ");
+  for(i=0;i<tx->len;i++) printf("%02X", tx->data[i]);
+  printf("\n");
   return write(coord->fd, tx, sizeof(struct ieee802154_packet_s));
 }
 
@@ -331,9 +335,10 @@ int coord_task(int s_argc, char **s_argv)
 
   printf("IEEE 802.15.4 Coordinator started, chan %d, panid %04X, argc %d\n", g_coord.chan, g_coord.addr.ia_panid, s_argc);
 
-  ieee802154_setchan (g_coord.fd, g_coord.chan );
-  ieee802154_setsaddr(g_coord.fd, g_coord.addr.ia_saddr);
-  ieee802154_setpanid(g_coord.fd, g_coord.addr.ia_panid);
+  ieee802154_setchan (g_coord.fd  , g_coord.chan );
+  ieee802154_setsaddr(g_coord.fd  , g_coord.addr.ia_saddr);
+  ieee802154_setpanid(g_coord.fd  , g_coord.addr.ia_panid);
+  ieee802154_setdevmode(g_coord.fd, IEEE802154_MODE_PANCOORD);
 
   if(g_coord.fd<0)
     {
