@@ -46,7 +46,7 @@
 
 int ieee802154_setsaddr(int fd, uint16_t saddr)
 {
-  int ret = ioctl(fd, MAC854IOCSCHAN, (unsigned long)saddr );
+  int ret = ioctl(fd, MAC854IOCSSADDR, (unsigned long)saddr );
   if (ret<0)
     {
       printf("MAC854IOCSSADDR failed\n");
