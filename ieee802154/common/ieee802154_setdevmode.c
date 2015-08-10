@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/ieee802154/ieee802154.h
+ * ieee802154/common/ieee802154_setdevmode.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -33,34 +33,23 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_IEEE802154_IEEE802154_H
-#define __APPS_INCLUDE_IEEE802154_IEEE802154_H
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
 
+#include <nuttx/config.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <nuttx/fs/ioctl.h>
+#include <nuttx/ieee802154/ieee802154_dev.h>
 
-struct ieee802154_addr_s
+int ieee802154_setdevmode(int fd, uint8_t devmode)
 {
-  uint8_t ia_len; /* structure length NOT including panid, so 2/8*/
-  uint16_t ia_panid;
-  union {
-    uint16_t _ia_saddr;
-    uint8_t  _ia_eaddr[8];
-  } ia_addr;
-#define ia_saddr ia_addr._ia_saddr
-#define ia_eaddr ia_addr._ia_eaddr
-};
-#define IEEE802154_ADDRSTRLEN 22 /* (4+1+8*2) */
-
-int ieee802154_setchan   (int fd, uint8_t chan);
-int ieee802154_setpanid  (int fd, uint16_t panid);
-int ieee802154_setsaddr  (int fd, uint16_t saddr);
-int ieee802154_seteaddr  (int fd, FAR uint8_t *chan);
-int ieee802154_setpromisc(int fd, bool promisc);
-int ieee802154_setdevmode(int fd, uint8_t devmode);
-
-int ieee802154_addrparse(FAR struct ieee802154_packet_s *inPacket, FAR struct ieee802154_addr_s *dest, FAR struct ieee802154_addr_s *src);
-int ieee802154_addrstore(FAR struct ieee802154_packet_s *inPacket, FAR struct ieee802154_addr_s *dest, FAR struct ieee802154_addr_s *src);
-int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *addr);
-
-#endif /*__APPS_INCLUDE_IEEE802154_IEEE802154_H */
+  int ret = ioctl(fd, MAC854IOCSDEVMODE, (unsigned long)devmode );
+  if (ret<0)
+    {
+      printf("MAC854IOCSDEVMODE failed\n");
+    }
+  return ret;
+}
