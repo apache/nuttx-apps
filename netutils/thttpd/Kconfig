@@ -6,7 +6,7 @@
 config NETUTILS_THTTPD
 	bool "THTTPD webserver"
 	default n
-	depends on NXFLAT || FS_BINFS
+	depends on (NXFLAT || FS_BINFS) && !DISABLE_POLL
 	---help---
 		Enable support for the THTTPD webservert.
 
