@@ -102,12 +102,14 @@ struct ieee_frame_s
 
 struct ieee_coord_s
 {
-  int                  fd;       /* Device handle */
-  uint8_t              chan;     /* PAN channel */
-  uint16_t             panid;    /* PAN ID */
-  uint8_t              nclients; /* Number of coordinated clients */
-  struct ieee_frame_s  rxbuf;    /* General rx buffer */
-  struct ieee_client_s clients[CONFIG_IEEE802154_COORD_MAXCLIENTS];
+  int                      fd;       /* Device handle */
+  uint8_t                  chan;     /* PAN channel */
+  struct ieee802154_addr_s addr;    /* coord own address */
+  uint8_t                  nclients; /* Number of coordinated clients */
+  struct ieee_frame_s      rxbuf;    /* General rx buffer */
+  struct ieee_frame_s      txbuf;    /* General tx buffer */
+  struct ieee_client_s     clients[CONFIG_IEEE802154_COORD_MAXCLIENTS];
+  uint8_t                  macBSN;
 };
 
 /****************************************************************************
@@ -121,6 +123,7 @@ static struct ieee_coord_s g_coord;
 
 static int coord_beacon(FAR struct ieee_coord_s *coord)
 {
+  FAR struct ieee_frame_s *rx = &coord->rxbuf;
   printf("Beacon!\n");
   return 0;
 }
@@ -151,15 +154,49 @@ static int coord_ack(FAR struct ieee_coord_s *coord)
 
 static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
 {
-  FAR struct ieee_frame_s *rx = &coord->rxbuf;
-  
-  //check the request looks good
-  
+  FAR struct ieee_frame_s        *rx = &coord->rxbuf;
+  FAR struct ieee802154_packet_s *tx = &coord->txbuf.packet;
+  FAR struct ieee802154_addr_s   dest;
+
   printf("Beacon request\n");
 
-  //compose a basic response
+  /* check command */
+
+  /* build response */
+  tx->len = 0;
   
-  return 0;
+  /* frame control */
+  tx->data[tx->len++] = 0x00; /* beacon, no ack */
+  tx->data[tx->len++] = 0x00; /* updated later */
+
+  /* seq */
+  tx->data[tx->len++] = coord->macBSN;
+  coord->macBSN++;
+
+  /* adressing */
+  dest.ia_len = 0; /*no dest address*/
+  tx->len = ieee802154_addrstore(tx, &dest, &coord->addr);
+
+  /* superframe spec */
+  tx->data[tx->len++] = 0xff;
+  tx->data[tx->len++] = 0xcf;
+
+  /* GTS fields */
+  tx->data[tx->len++] = 0x00;
+
+  /* pending addresses */
+  tx->data[tx->len++] = 0x00;
+
+  /* payload */
+  tx->data[tx->len++] = 'F';
+  tx->data[tx->len++] = '4';
+  tx->data[tx->len++] = 'G';
+  tx->data[tx->len++] = 'R';
+  tx->data[tx->len++] = 'X';
+  tx->data[tx->len++] = '/';
+  tx->data[tx->len++] = '0';
+
+  return write(coord->fd, tx, sizeof(struct ieee802154_packet_s));
 }
 
 /****************************************************************************
@@ -262,7 +299,10 @@ static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev, FAR 
       coord->clients[i].pending.len = 0;
     }
   coord->chan  = strtol(chan , NULL, 0);
-  coord->panid = strtol(panid, NULL, 0);
+
+  coord->addr.ia_len   = 2;
+  coord->addr.ia_panid = strtol(panid, NULL, 0);
+  coord->addr.ia_saddr = 0x0001;
 
   coord->fd = open(dev, O_RDWR);
 
@@ -289,10 +329,11 @@ int coord_task(int s_argc, char **s_argv)
   
   coord_initialize(&g_coord, s_argv[3], s_argv[4], s_argv[5]);
 
-  printf("IEEE 802.15.4 Coordinator started, chan %d, panid %04X, argc %d\n", g_coord.chan, g_coord.panid, s_argc);
+  printf("IEEE 802.15.4 Coordinator started, chan %d, panid %04X, argc %d\n", g_coord.chan, g_coord.addr.ia_panid, s_argc);
 
   ieee802154_setchan (g_coord.fd, g_coord.chan );
-  ieee802154_setpanid(g_coord.fd, g_coord.panid);
+  ieee802154_setsaddr(g_coord.fd, g_coord.addr.ia_saddr);
+  ieee802154_setpanid(g_coord.fd, g_coord.addr.ia_panid);
 
   if(g_coord.fd<0)
     {
@@ -319,8 +360,8 @@ int coord_task(int s_argc, char **s_argv)
                     break;
                     
                   case ACTION_PANID:
-                    g_coord.panid = (uint16_t)g_message.param;
-                    ieee802154_setpanid(g_coord.fd, g_coord.panid);
+                    g_coord.addr.ia_panid = (uint16_t)g_message.param;
+                    ieee802154_setpanid(g_coord.fd, g_coord.addr.ia_panid);
                     break;
                     
                   default:
