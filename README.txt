@@ -83,7 +83,7 @@ asynchronously with NSH.  If you want to force NSH to execute commands
 then wait for the command to execute, you can enable that feature by
 adding the following to the NuttX configuration file:
 
-CONFIG_SCHED_WAITPID=y
+  CONFIG_SCHED_WAITPID=y
 
 The configuration option enables support for the waitpid() RTOS interface.
 When that interface is enabled, NSH will use it to wait, sleeping until

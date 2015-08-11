@@ -40,15 +40,21 @@ TOPDIR ?= $(APPDIR)/import
 
 -include $(TOPDIR)/Make.defs
 
+# Tools
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  MKKCONFIG = ${shell $(APPDIR)\tools\mkkconfig.bat}
+else
+  MKKCONFIG = ${shell $(APPDIR)/tools/mkkconfig.sh}
+endif
+
 # Application Directories
 
 # BUILDIRS is the list of top-level directories containing Make.defs files
-# CONFIGDIRS is the list all top-level directories containing Kconfig files
 # CLEANDIRS is the list of all top-level directories containing Makefiles.
 #   It is used only for cleaning.
 
 BUILDIRS   := $(dir $(filter-out import/Make.defs,$(wildcard */Make.defs)))
-CONFIGDIRS := $(dir $(wildcard */Kconfig))
 CLEANDIRS  := $(dir $(wildcard */Makefile))
 
 # CONFIGURED_APPS is the application directories that should be built in
@@ -77,7 +83,7 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: import install context context_serialize context_rest .depdirs depend clean distclean
+.PHONY: import install context context_serialize context_rest .depdirs preconfig depend clean distclean
 
 define SDIR_template
 $(1)_$(2):
@@ -113,6 +119,11 @@ context_serialize:
 
 context: context_serialize
 
+Kconfig: $(MKKCONFIG)
+	$(MKKCONFIG)
+
+preconfig: Kconfig
+
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
 .depend: context Makefile .depdirs
@@ -122,6 +133,7 @@ depend: .depend
 
 clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(BIN))
+	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
 	$(call CLEAN)
 
@@ -141,4 +153,7 @@ else
 	)
 endif
 	$(call DELFILE, .depend)
+	$(call DELFILE, $(BIN))
+	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
+	$(call CLEAN)

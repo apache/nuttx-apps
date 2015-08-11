@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "System Libraries and NSH Add-Ons"
+
 source "$APPSDIR/system/free/Kconfig"
 source "$APPSDIR/system/cle/Kconfig"
 source "$APPSDIR/system/cu/Kconfig"
@@ -30,3 +32,4 @@ source "$APPSDIR/system/usbmonitor/Kconfig"
 source "$APPSDIR/system/zmodem/Kconfig"
 source "$APPSDIR/system/zoneinfo/Kconfig"
 
+endmenu # System Libraries and NSH Add-Ons

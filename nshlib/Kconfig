@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "NSH Library"
+
 config NSH_LIBRARY
 	bool "NSH Library"
 	default n
@@ -1381,3 +1383,4 @@ endif # NSH_TELNET_LOGIN
 endif # NSH_TELNET
 endmenu # Telnet Configuration
 endif # NSH_LIBRARY
+endmenu # NSH Library

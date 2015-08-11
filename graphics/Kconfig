@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "Graphics Support"
+
 config TIFF
 	bool "TIFF file generation library"
 	default n
@@ -31,4 +33,4 @@ source "$APPSDIR/graphics/traveler/Kconfig"
 endmenu
 
 endif # GRAPHICS_TRAVELER
-
+endmenu # Graphics Support

@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "Platform-specific Support"
+
 config PLATFORM_CONFIGDATA
 	bool "Platform configuration data"
 	default n
@@ -15,3 +17,5 @@ config PLATFORM_CONFIGDATA
 		FLASH, etc.
 
 source "$APPSDIR/platform/mikroe-stm32f4/Kconfig"
+
+endmenu # Platform-specific Support
