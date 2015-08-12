@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "NxWidgets/NxWM"
+
 config NXWIDGETS
 	bool "Enable NxWidgets"
 	default n
@@ -1281,3 +1283,5 @@ endif # NXWM_MEDIAPLAYER
 endmenu # NxWM Media Player Display Settings
 
 endif # NXWM
+endmenu # NxWidgets/NxWM
+
