@@ -1378,7 +1378,7 @@
 	  directories.  This means that to install a new application, you
 	  simply have to copy the directory (or link it) into the apps/
 	  directory.  If the new directory includes a Makefile and Make.defs
-	  file, the it will automatically be included in the build (2015-08-11).
+	  file, then it will automatically be included in the build (2015-08-11).
 	* apps/Makefile, Kconfig, */Kconfig, tools/mkkconfig.sh: Add the tool
 	  mkkconfig.sh that dynamically builds the apps/Kconfig file at
 	  configuration time.  The hardcoded configuration file has been removed
