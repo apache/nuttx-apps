@@ -208,9 +208,6 @@ A: Here are three:
       well.  apps/Makefile uses a tool at apps/tools/mkkconfig.sh that
       dynamically builds the apps/Kconfig file at pre-configuration time.
 
-      NOTE: The native Windows build is temporarily broken until a new
-      apps/tools/mkconfig.bat script is generated (2015-08-11).
-
       You could, for example, create a script called install.sh that
       installs a custom application, configuration, and board specific
       directory:
