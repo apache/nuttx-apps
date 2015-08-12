@@ -226,7 +226,7 @@ static int status(int fd)
  *   Display a single packet
  ****************************************************************************/
 
-static int display(FAR struct ieee802154_packet_s *pack)
+static int display(FAR struct ieee802154_packet_s *pack, bool verbose)
 {
   int i;
   int     hlen=0, dhlen=0;
@@ -238,7 +238,7 @@ static int display(FAR struct ieee802154_packet_s *pack)
   dhlen = hlen;
   if(hlen>pack->len) dhlen = 0;
 
-  printf("chan=%2d rssi=%3u lqi=%3u len=%d ", gChan, pack->rssi, pack->lqi, pack->len - dhlen);
+  printf("chan=%2d rssi=%3u lqi=%3u len=%3u ", gChan, pack->rssi, pack->lqi, pack->len - dhlen);
 
   if(hlen<0)
     {
@@ -270,6 +270,7 @@ static int display(FAR struct ieee802154_packet_s *pack)
 struct sniffargs
 {
   int fd;
+  int verbose;
 };
 
 static void* sniff(void *arg)
@@ -301,7 +302,7 @@ static void* sniff(void *arg)
         } 
 
       /* Display packet */
-      display(&gRxPacket);
+      display(&gRxPacket, sa->verbose);
     }
   
 
@@ -459,22 +460,13 @@ int i8_main(int argc, char *argv[])
     {
       struct sniffargs args;
 
-      ret = ioctl(fd, MAC854IOCSPROMISC, TRUE);
-      if (ret<0)
-        {
-          printf("Device is not an IEEE 802.15.4 interface!\n");
-          return ret;
-        }
+      ret = ieee802154_setpromisc(fd, TRUE);
 
       args.fd = fd;
+      args.verbose = FALSE;
       ret = (int)sniff(&args);
 
-      ret = ioctl(fd, MAC854IOCSPROMISC, FALSE);
-      if (ret<0)
-        {
-          printf("Device is not an IEEE 802.15.4 interface!\n");
-          return ret;
-        }
+      ret = ieee802154_setpromisc(fd, FALSE);
 
     }
   else if (!strcmp(argv[2], "tx"))
@@ -513,41 +505,46 @@ data_error:
     }
   else if (!strcmp(argv[2], "beacons"))
     {
-    struct sniffargs args;
-    pthread_t pth;
-    int i;
+      struct sniffargs args;
+      struct ieee802154_addr_s dest;
+      pthread_t pth;
+      int i;
     
-    args.fd = fd;
+      args.fd = fd;
+      args.verbose = FALSE;
 
-    pthread_create(&pth, NULL, sniff, &args);
+      pthread_create(&pth, NULL, sniff, &args);
   
-    //beacon request
-    gTxPacket.len = 0;
-    gTxPacket.data[gTxPacket.len++] = 0x03; //mac command, no ack, no panid compression
-    gTxPacket.data[gTxPacket.len++] = 0x08; //short destination address, no source address
-    gTxPacket.data[gTxPacket.len++] = 0;    //seq
-    gTxPacket.data[gTxPacket.len++] = 0xFF; //panid
-    gTxPacket.data[gTxPacket.len++] = 0xFF;
-    gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
-    gTxPacket.data[gTxPacket.len++] = 0xFF;
-    gTxPacket.data[gTxPacket.len++] = IEEE802154_CMD_BEACON_REQ;
+      //beacon request
+      gTxPacket.len = 0;
+      gTxPacket.data[gTxPacket.len++] = 0x03; //mac command, no ack, no panid compression
+      gTxPacket.data[gTxPacket.len++] = 0x00; //short destination address, no source address
+      gTxPacket.data[gTxPacket.len++] = 0;    //seq
+      dest.ia_len = 2;
+      dest.ia_panid = 0xFFFF;
+      dest.ia_saddr = 0xFFFF;
+      ieee802154_addrstore(&gTxPacket, &dest, NULL);
+      gTxPacket.data[gTxPacket.len++] = 0xFF; //panid
+      gTxPacket.data[gTxPacket.len++] = 0xFF;
+      gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
+      gTxPacket.data[gTxPacket.len++] = 0xFF;
+      gTxPacket.data[gTxPacket.len++] = IEEE802154_CMD_BEACON_REQ;
 //    for(i=1;i<3;i++)
-    while(1)
-      {
-        int ch;
-        for(ch=11; ch<27; ch++)
-          {
-            printf("chan=%2d...\r", ch); fflush(stdout);
-            ieee802154_setchan(fd, ch);
-            gChan = ch;
-            gTxPacket.data[2] = i; //seq
-            tx(fd, &gTxPacket, FALSE);
-            sleep(1);
-          }
-          i++; if(i==256) i=0;
-      }
-    pthread_kill(pth, SIGUSR1);
-    
+      while(1)
+        {
+          int ch;
+          for(ch=11; ch<27; ch++)
+            {
+              printf("chan=%2d...\r", ch); fflush(stdout);
+              ieee802154_setchan(fd, ch);
+              gChan = ch;
+              gTxPacket.data[2] = i; //seq
+              tx(fd, &gTxPacket, FALSE);
+              sleep(1);
+            }
+            i++; if(i==256) i=0;
+        }
+      pthread_kill(pth, SIGUSR1);
     }
   else
     {
