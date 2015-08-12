@@ -52,6 +52,10 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
 
   /* encode dest addr */
 
+  if(dest == NULL)
+    {
+    goto nodest;
+    }
   if(dest->ia_len == 2)
     {
       memcpy(packet->data+index, &dest->ia_panid, 2);
@@ -70,6 +74,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
     }
   else if(dest->ia_len == 0)
     {
+nodest:
       packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_NONE;
     }
   else
@@ -79,7 +84,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
 
   /* encode source pan id according to compression */
 
-  if( (dest->ia_len != 0) && (src->ia_len != 0) && (dest->ia_panid == src->ia_panid) )
+  if( (dest != NULL && dest->ia_len != 0) && (src != NULL && src->ia_len != 0) && (dest->ia_panid == src->ia_panid) )
     {
       packet->data[0] |= IEEE802154_FC1_INTRA;
     }
@@ -92,6 +97,10 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
 
   /* encode source addr */
 
+  if(src == NULL)
+    {
+    goto nosrc;
+    }
   if(src->ia_len == 2)
     {
       memcpy(packet->data+index, &src->ia_saddr, 2);
@@ -106,6 +115,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
     }
   else if(dest->ia_len == 0)
     {
+nosrc:
       packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_NONE;
     }
   else
