@@ -204,11 +204,12 @@ int can_main(int argc, char *argv[])
     /* Construct the next TX message */
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
-    txmsg.cm_hdr.ch_id    = msgid;
-    txmsg.cm_hdr.ch_rtr   = false;
-    txmsg.cm_hdr.ch_dlc   = msgdlc;
+    txmsg.cm_hdr.ch_id     = msgid;
+    txmsg.cm_hdr.ch_rtr    = false;
+    txmsg.cm_hdr.ch_dlc    = msgdlc;
 #ifdef CONFIG_CAN_EXTID
-    txmsg.cm_hdr.ch_extid = true;
+    txmsg.cm_hdr.ch_extid  = true;
+    txmsg.cm_hdr.ch_unused = 0;
 #endif
 
     for (i = 0; i < msgdlc; i++)
