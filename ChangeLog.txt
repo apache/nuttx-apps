@@ -1313,7 +1313,7 @@
 	* apps/nshlib/: The NSH mount command now recognizes the Union file
 	  system type when listing mounted file systems (2015-06-07).
 
-7.11 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.11 2015-08-13 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/netutils/thttpd:  Fix compilation problems when
 	  CONFIG_THTTPD_GENERATE_INDICES is defined (2015-06-12).
@@ -1359,7 +1359,7 @@
 	  don't have the wherewithal for that change today (2015-04-14)`.
 	* apps/nshlib and apps/examaples/thttpd:  Change decoding to handle the
 	  increased size of the scheduling policy field in the TCB (2015-07-23).
-	* apps/examples/ostest: Improve syncrhonization in round robin tests.
+	* apps/examples/ostest: Improve synchronization in round robin tests.
 	  On very fast processors, there are race conditions that make the test
 	  failure.  Need better interlocking to assure that the threads actually
 	  do start at the same time (2015-07-24).
@@ -1394,3 +1394,4 @@
 	  apps/tools/mkkconfig.sh.  Needed for a Windows native build.  Untested
 	  on initial commit (2015-08-12).
 
+7.12 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
