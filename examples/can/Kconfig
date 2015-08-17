@@ -10,5 +10,12 @@ config EXAMPLES_CAN
 		Enable the CAN example
 
 if EXAMPLES_CAN
+
+config EXAMPLES_CAN_NMSGS
+	int "Number of Messages"
+	default 32
+	---help---
+		The number of CAN messages to send before returning
+
 endif
 

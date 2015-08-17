@@ -70,10 +70,17 @@
 #  define CAN_OFLAGS O_RDWR
 #endif
 
+#ifndef CONFIG_EXAMPLES_CAN_NMSGS
+#  define CONFIG_EXAMPLES_CAN_NMSGS 32
+#endif
+
+#define MAX_EXTID (1 << 29)
+#define MAX_STDID (1 << 11)
+
 #ifdef CONFIG_CAN_EXTID
-#  define MAX_ID (1 << 29)
+#  define MAX_ID MAX_EXTID
 #else
-#  define MAX_ID (1 << 11)
+#  define MAX_ID MAX_STDID
 #endif
 
 /****************************************************************************
@@ -96,6 +103,27 @@
  * Private Functions
  ****************************************************************************/
 
+static void show_usage(FAR const char *progname)
+{
+#ifdef CONFIG_CAN_EXTID
+  fprintf(stderr, "USAGE: %s [-s] [-n <nmsgs] [-a <min-id>] [b <max-id>]\n",
+          progname);
+#else
+  fprintf(stderr, "USAGE: %s [-n <nmsgs] [-a <min-id>] [b <max-id>]\n",
+          progname);
+#endif
+  fprintf(stderr, "USAGE: %s -h\n",
+          progname);
+  fprintf(stderr, "\nWhere:\n");
+#ifdef CONFIG_CAN_EXTID
+  fprintf(stderr, "-s: Use standard IDs.  Default: Extended ID\n");
+#endif
+  fprintf(stderr, "-n <nmsgs>: The number of messages to send.  Default: 32\n");
+  fprintf(stderr, "-a <min-id>: The start message id.  Default 1\n");
+  fprintf(stderr, "-b <max-id>: The start message id.  Default %d\n", MAX_ID - 1);
+  fprintf(stderr, "-h: Show this message and exit\n");
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -113,10 +141,13 @@ int can_main(int argc, char *argv[])
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
   struct can_msg_s txmsg;
 #ifdef CONFIG_CAN_EXTID
+  bool extended;
   uint32_t msgid;
 #else
   uint16_t msgid;
 #endif
+  long minid;
+  long maxid;
   int msgdlc;
   uint8_t msgdata;
 #endif
@@ -127,30 +158,117 @@ int can_main(int argc, char *argv[])
 
   size_t msgsize;
   ssize_t nbytes;
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_CAN_NMSGS)
+  bool badarg;
+  bool help;
   long nmsgs;
-#endif
-
+  int option;
   int fd;
   int errval = 0;
   int ret;
   int i;
 
-  /* If this example is configured as an NX add-on, then limit the number of
-   * samples that we collect before returning.  Otherwise, we never return
-   */
+  /* Parse command line parameters */
 
-#if defined(CONFIG_NSH_BUILTIN_APPS)
-  nmsgs = CONFIG_EXAMPLES_CAN_NMSGS;
-  if (argc > 1)
+  nmsgs    = CONFIG_EXAMPLES_CAN_NMSGS;
+  minid    = 1;
+  maxid    = MAX_ID - 1;
+  badarg   = false;
+#ifdef CONFIG_CAN_EXTID
+  extended = true;
+#endif
+  badarg   = false;
+  help     = false;
+
+#ifdef CONFIG_CAN_EXTID
+  while ((option = getopt(argc, argv, ":n:a:b:hs")) != ERROR)
+#else
+  while ((option = getopt(argc, argv, ":n:a:b:h")) != ERROR)
+#endif
     {
-      nmsgs = strtol(argv[1], NULL, 10);
+      switch (option)
+        {
+          case 'a':
+            minid = strtol(optarg, NULL, 10);
+            if (minid < 1 || minid > maxid)
+              {
+                fprintf(stderr, "<min-id> out of range\n");
+                badarg = true;
+              }
+            break;
+
+          case 'b':
+            maxid = strtol(optarg, NULL, 10);
+            if (maxid < minid || maxid >= MAX_ID)
+              {
+                fprintf(stderr, "ERROR: <max-id> out of range\n");
+                badarg = true;
+              }
+            break;
+
+          case 'h':
+            help = true;
+            break;
+
+#ifdef CONFIG_CAN_EXTID
+          case 's':
+            extended = false;
+            break;
+#endif
+
+          case 'n':
+            nmsgs = strtol(optarg, NULL, 10);
+            if (nmsgs < 1)
+              {
+                fprintf(stderr, "ERROR: <nmsgs> out of range\n");
+                badarg = true;
+              }
+            break;
+
+          case ':':
+            fprintf(stderr, "ERROR: Bad option argument\n");
+            badarg = true;
+            break;
+
+          case '?':
+          default:
+            fprintf(stderr, "ERROR: Unrecognized option\n");
+            badarg = true;
+            break;
+        }
     }
 
-  printf("can_main: nmsgs: %ld\n", nmsgs);
-#elif defined(CONFIG_EXAMPLES_CAN_NMSGS)
-  printf("can_main: nmsgs: %d\n", CONFIG_EXAMPLES_CAN_NMSGS);
+  if (badarg)
+    {
+      show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+
+  if (help)
+    {
+      show_usage(argv[0]);
+      return EXIT_SUCCESS;
+    }
+
+#ifdef CONFIG_CAN_EXTID
+  if (!extended && maxid >= MAX_STDID)
+    {
+      maxid = MAX_STDID - 1;
+      if (minid > maxid)
+        {
+          minid = maxid;
+        }
+    }
 #endif
+
+  if (optind != argc)
+    {
+      fprintf(stderr, "ERROR: Garbage on command line\n");
+      show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+
+  printf("can_main: nmsgs: %d min ID: %d max ID: %d\n",
+         nmsgs, minid, maxid);
 
   /* Initialization of the CAN hardware is performed by logic external to
    * this test.
@@ -183,17 +301,11 @@ int can_main(int argc, char *argv[])
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
   msgdlc  = 1;
-  msgid   = 1;
+  msgid   = minid;
   msgdata = 0;
 #endif
 
-#if defined(CONFIG_NSH_BUILTIN_APPS)
-  for (; nmsgs > 0; nmsgs--)
-#elif defined(CONFIG_EXAMPLES_CAN_NMSGS)
   for (nmsgs = 0; nmsgs < CONFIG_EXAMPLES_CAN_NMSGS; nmsgs++)
-#else
-  for (;;)
-#endif
   {
     /* Flush any output before the loop entered or from the previous pass
      * through the loop.
@@ -208,7 +320,7 @@ int can_main(int argc, char *argv[])
     txmsg.cm_hdr.ch_rtr    = false;
     txmsg.cm_hdr.ch_dlc    = msgdlc;
 #ifdef CONFIG_CAN_EXTID
-    txmsg.cm_hdr.ch_extid  = true;
+    txmsg.cm_hdr.ch_extid  = extended;
     txmsg.cm_hdr.ch_unused = 0;
 #endif
 
@@ -285,9 +397,9 @@ int can_main(int argc, char *argv[])
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
     msgdata += msgdlc;
 
-    if (++msgid >= MAX_ID)
+    if (++msgid > maxid)
       {
-        msgid = 1;
+        msgid = minid;
       }
 
     if (++msgdlc > CAN_MAXDATALEN)

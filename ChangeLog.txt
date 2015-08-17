@@ -1395,3 +1395,7 @@
 	  on initial commit (2015-08-12).
 
 7.12 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/can:  Extend the CAN loopback test by adding more
+	  command line options (2015-08-17).
+
