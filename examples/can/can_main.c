@@ -164,6 +164,7 @@ int can_main(int argc, char *argv[])
   int option;
   int fd;
   int errval = 0;
+  int msgno;
   int ret;
   int i;
 
@@ -305,7 +306,7 @@ int can_main(int argc, char *argv[])
   msgdata = 0;
 #endif
 
-  for (nmsgs = 0; nmsgs < CONFIG_EXAMPLES_CAN_NMSGS; nmsgs++)
+  for (msgno = 0; msgno < nmsgs; msgno++)
   {
     /* Flush any output before the loop entered or from the previous pass
      * through the loop.
