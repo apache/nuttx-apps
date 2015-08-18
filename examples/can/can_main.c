@@ -307,108 +307,178 @@ int can_main(int argc, char *argv[])
 #endif
 
   for (msgno = 0; msgno < nmsgs; msgno++)
-  {
-    /* Flush any output before the loop entered or from the previous pass
-     * through the loop.
-     */
+    {
+      /* Flush any output before the loop entered or from the previous pass
+       * through the loop.
+       */
 
-    fflush(stdout);
+      fflush(stdout);
 
-    /* Construct the next TX message */
+      /* Construct the next TX message */
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
-    txmsg.cm_hdr.ch_id     = msgid;
-    txmsg.cm_hdr.ch_rtr    = false;
-    txmsg.cm_hdr.ch_dlc    = msgdlc;
+      txmsg.cm_hdr.ch_id     = msgid;
+      txmsg.cm_hdr.ch_rtr    = false;
+      txmsg.cm_hdr.ch_dlc    = msgdlc;
+      txmsg.cm_hdr.ch_error  = 0;
 #ifdef CONFIG_CAN_EXTID
-    txmsg.cm_hdr.ch_extid  = extended;
-    txmsg.cm_hdr.ch_unused = 0;
+      txmsg.cm_hdr.ch_extid  = extended;
 #endif
+      txmsg.cm_hdr.ch_unused = 0;
 
-    for (i = 0; i < msgdlc; i++)
-      {
-        txmsg.cm_data[i] = msgdata + i;
-      }
+      for (i = 0; i < msgdlc; i++)
+        {
+          txmsg.cm_data[i] = msgdata + i;
+        }
 
-    /* Send the TX message */
+      /* Send the TX message */
 
-    msgsize = CAN_MSGLEN(msgdlc);
-    nbytes = write(fd, &txmsg, msgsize);
-    if (nbytes != msgsize)
-      {
-        printf("ERROR: write(%ld) returned %ld\n", (long)msgsize, (long)nbytes);
-        errval = 3;
-        goto errout_with_dev;
-      }
+      msgsize = CAN_MSGLEN(msgdlc);
+      nbytes = write(fd, &txmsg, msgsize);
+      if (nbytes != msgsize)
+        {
+          printf("ERROR: write(%ld) returned %ld\n",
+                 (long)msgsize, (long)nbytes);
+          errval = 3;
+          goto errout_with_dev;
+        }
 #endif
 
 #ifdef CONFIG_EXAMPLES_CAN_WRITEONLY
-    printf("  ID: %4u DLC: %d\n", msgid, msgdlc);
+      printf("  ID: %4u DLC: %d\n", msgid, msgdlc);
 #endif
 
-    /* Read the RX message */
+      /* Read the RX message */
 
 #ifndef CONFIG_EXAMPLES_CAN_WRITEONLY
-    msgsize = sizeof(struct can_msg_s);
-    nbytes = read(fd, &rxmsg, msgsize);
-    if (nbytes < CAN_MSGLEN(0) || nbytes > msgsize)
-      {
-        printf("ERROR: read(%ld) returned %ld\n", (long)msgsize, (long)nbytes);
-        errval = 4;
-        goto errout_with_dev;
-      }
+      msgsize = sizeof(struct can_msg_s);
+      nbytes = read(fd, &rxmsg, msgsize);
+      if (nbytes < CAN_MSGLEN(0) || nbytes > msgsize)
+        {
+          printf("ERROR: read(%ld) returned %ld\n",
+                 (long)msgsize, (long)nbytes);
+          errval = 4;
+          goto errout_with_dev;
+        }
 #endif
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
-    printf("  ID: %4u DLC: %u\n", rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
+      printf("  ID: %4u DLC: %u\n",
+             rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 #endif
 
-    /* Verify that the received messages are the same */
+      /* Check for error reports */
+
+#ifndef CONFIG_EXAMPLES_CAN_WRITEONLY
+      if (rxmsg.cm_hdr.ch_error != 0)
+        {
+          printf("ERROR: CAN error report: [%04x]\n", rxmsg.cm_hdr.ch_id);
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_SYSTEM) != 0)
+            {
+              printf("  Driver internal error\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_RXLOST) != 0)
+            {
+              printf("  RX Message Lost\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TXLOST) != 0)
+            {
+              printf("  TX Message Lost\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_ACCESS) != 0)
+            {
+              printf("  RAM Access Failure\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TIMEOUT) != 0)
+            {
+              printf("  Timeout Occurred\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_PASSIVE) != 0)
+            {
+              printf("  Error Passive\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_CRC) != 0)
+            {
+              printf("  RX CRC Error\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_BIT) != 0)
+            {
+              printf("  Bit Error\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_ACK) != 0)
+            {
+              printf("  Acknowledge Error\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_FORMAT) != 0)
+            {
+              printf("  Format Error\n");
+            }
+
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_STUFF) != 0)
+            {
+              printf("  Stuff Error\n");
+            }
+        }
+      else
+       {
+          /* Verify that the received messages are the same */
 
 #ifdef CONFIG_EXAMPLES_CAN_READWRITE
-    if (memcmp(&txmsg.cm_hdr, &rxmsg.cm_hdr, sizeof(struct can_hdr_s)) != 0)
-      {
-        printf("ERROR: Sent header does not match received header:\n");
-        lib_dumpbuffer("Sent header", (FAR const uint8_t*)&txmsg.cm_hdr,
-                       sizeof(struct can_hdr_s));
-        lib_dumpbuffer("Received header", (FAR const uint8_t*)&rxmsg.cm_hdr,
-                       sizeof(struct can_hdr_s));
-        errval = 4;
-        goto errout_with_dev;
-      }
+          if (memcmp(&txmsg.cm_hdr, &rxmsg.cm_hdr, sizeof(struct can_hdr_s)) != 0)
+            {
+              printf("ERROR: Sent header does not match received header:\n");
+              lib_dumpbuffer("Sent header", (FAR const uint8_t*)&txmsg.cm_hdr,
+                             sizeof(struct can_hdr_s));
+              lib_dumpbuffer("Received header", (FAR const uint8_t*)&rxmsg.cm_hdr,
+                             sizeof(struct can_hdr_s));
+              errval = 4;
+              goto errout_with_dev;
+            }
 
-    if (memcmp(txmsg.cm_data, rxmsg.cm_data, msgdlc) != 0)
-      {
-        printf("ERROR: Data does not match. DLC=%d\n", msgdlc);
-        for (i = 0; i < msgdlc; i++)
-          {
-            printf("  %d: TX %02x RX %02x\n", i, txmsg.cm_data[i], rxmsg.cm_data[i]);
-            errval = 5;
-            goto errout_with_dev;
-          }
-      }
-
-    /* Report success */
-
-    printf("  ID: %4u DLC: %d -- OK\n", msgid, msgdlc);
+          if (memcmp(txmsg.cm_data, rxmsg.cm_data, msgdlc) != 0)
+            {
+              printf("ERROR: Data does not match. DLC=%d\n", msgdlc);
+              for (i = 0; i < msgdlc; i++)
+                {
+                  printf("  %d: TX %02x RX %02x\n",
+                         i, txmsg.cm_data[i], rxmsg.cm_data[i]);
+                  errval = 5;
+                  goto errout_with_dev;
+                }
+            }
+        }
 #endif
 
-    /* Set up for the next pass */
+      /* Report success */
+
+      printf("  ID: %4u DLC: %d -- OK\n", msgid, msgdlc);
+#endif
+
+      /* Set up for the next pass */
 
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
-    msgdata += msgdlc;
+      msgdata += msgdlc;
 
-    if (++msgid > maxid)
-      {
-        msgid = minid;
-      }
+      if (++msgid > maxid)
+        {
+          msgid = minid;
+        }
 
-    if (++msgdlc > CAN_MAXDATALEN)
-      {
-        msgdlc = 1;
-      }
+      if (++msgdlc > CAN_MAXDATALEN)
+        {
+          msgdlc = 1;
+        }
 #endif
-  }
+    }
 
 errout_with_dev:
   close(fd);
