@@ -6,6 +6,8 @@
 config EXAMPLES_CAN
 	bool "CAN example"
 	default n
+	depends on CAN && LIB_BOARDCTL
+	select BOARDCTL_CANINIT
 	---help---
 		Enable the CAN example
 

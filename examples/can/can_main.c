@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -276,10 +277,10 @@ int can_main(int argc, char *argv[])
    * this test.
    */
 
-  ret = can_devinit();
+  ret = boardctl(BOARDIOC_CAN_INITIALIZE, 0);
   if (ret != OK)
     {
-      printf("ERROR: can_devinit failed: %d\n", ret);
+      printf("ERROR: BOARDIOC_CAN_INITIALIZE failed: %d\n", ret);
       errval = 1;
       goto errout;
     }
