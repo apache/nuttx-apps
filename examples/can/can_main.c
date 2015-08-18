@@ -270,29 +270,26 @@ int can_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  printf("can_main: nmsgs: %d min ID: %d max ID: %d\n",
-         nmsgs, minid, maxid);
+  printf("nmsgs: %d min ID: %d max ID: %d\n", nmsgs, minid, maxid);
 
   /* Initialization of the CAN hardware is performed by logic external to
    * this test.
    */
 
-  printf("can_main: Initializing external CAN device\n");
   ret = can_devinit();
   if (ret != OK)
     {
-      printf("can_main: can_devinit failed: %d\n", ret);
+      printf("ERROR: can_devinit failed: %d\n", ret);
       errval = 1;
       goto errout;
     }
 
   /* Open the CAN device for reading */
 
-  printf("can_main: Hardware initialized. Opening the CAN device\n");
   fd = open(CONFIG_EXAMPLES_CAN_DEVPATH, CAN_OFLAGS);
   if (fd < 0)
     {
-      printf("can_main: open %s failed: %d\n",
+      printf("ERROR: open %s failed: %d\n",
               CONFIG_EXAMPLES_CAN_DEVPATH, errno);
       errval = 2;
       goto errout_with_dev;
