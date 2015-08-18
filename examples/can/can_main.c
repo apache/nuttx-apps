@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/ioctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -138,6 +139,7 @@ int main(int argc, FAR char *argv[])
 int can_main(int argc, char *argv[])
 #endif
 {
+  struct canioc_bittiming_s bt;
 #ifndef CONFIG_EXAMPLES_CAN_READONLY
   struct can_msg_s txmsg;
 #ifdef CONFIG_CAN_EXTID
@@ -295,6 +297,24 @@ int can_main(int argc, char *argv[])
       errval = 2;
       goto errout_with_dev;
     }
+
+  /* Show bit timing information .. if provided by the driver.  Not all CAN
+   * drivers will support this IOCTL.
+   */
+
+  ret = ioctl(fd, CANIOC_GET_BITTIMING, (unsigned long)((uintptr_t)&bt));
+  if (ret < 0)
+    {
+      printf("Bit timing not available: %d\n", errno);
+    }
+  else
+   {
+      printf("Bit timing:\n");
+      printf("   Baud: %lu\n", (unsigned long)bt.bt_baud);
+      printf("  TSEG1: %u\n", bt.bt_tseg1);
+      printf("  TSEG2: %u\n", bt.bt_tseg2);
+      printf("    SJW: %u\n", bt.bt_sjw);
+   }
 
   /* Now loop the appropriate number of times, performing one loopback test
    * on each pass.
