@@ -1239,7 +1239,7 @@ endmenu # IP Address Configuration
 config NSH_DNS
 	bool "Use DNS"
 	default n
-	depends on NSH_LIBRARY && NETUTILS_DNSCLIENT
+	depends on NSH_LIBRARY && NETDB_DNSCLIENT
 	---help---
 		Configure to use a DNS.
 
