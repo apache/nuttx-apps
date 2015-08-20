@@ -1398,4 +1398,6 @@
 
 	* apps/examples/can:  Extend the CAN loopback test by adding more
 	  command line options (2015-08-17).
+	* apps/examples/usbserial: Can now be run as an NSH builtin-function.
+	  Now uses a configurable IO buffer size (2015-08-20).
 

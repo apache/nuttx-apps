@@ -11,6 +11,13 @@ config EXAMPLES_USBSERIAL
 
 if EXAMPLES_USBSERIAL
 
+config EXAMPLES_USBSERIAL_BUFSIZE
+	int "Target I/O Buffer Size"
+	default 512
+	---help---
+		The size of the array that is used as an I/O buffer for USB serial
+		data transfers.
+
 config EXAMPLES_USBSERIAL_TRACEINIT
 	bool "USB Trace Initialization"
 	default n

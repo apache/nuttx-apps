@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/usbserial/Makefile.host
 #
-#   Copyright (C) 2008, 2011 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2008, 2011, 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,9 @@ DEFINES	+= -DCONFIG_EXAMPLES_USBSERIAL_ONLYSMALL=1
 endif
 ifeq ($(CONFIG_EXAMPLES_USBSERIAL_ONLYBIG),y)
 DEFINES	+= -DCONFIG_EXAMPLES_USBSERIAL_ONLYBIG=1
+endif
+ifeq ($(CONFIG_CDCACM),y)
+DEFINES	+= -DCONFIG_CDCACM=1
 endif
 
 all: $(BIN)
