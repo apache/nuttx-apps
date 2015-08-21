@@ -1400,4 +1400,9 @@
 	  command line options (2015-08-17).
 	* apps/examples/usbserial: Can now be run as an NSH builtin-function.
 	  Now uses a configurable IO buffer size (2015-08-20).
+	* Various Kconfig files in netutils:  Fix some changes from from
+	  NETUTILS_DNSCLIENT to NETDB_DNSCLIENT.  From Pavel Pisa (2015-08-20).
+	* system/netdb:  Failed to build if CONFIG_NET_HOSTFILE was not defined
+	  because gethostbyaddr() was not available.  Noted by OrbitalFox
+	  (2015-08-21).
 
