@@ -1,7 +1,7 @@
 ############################################################################
-# apps/system/Makefile
+# apps/system/system/Makefile
 #
-#   Copyright (C) 2011-2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,48 +33,72 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories containing system tasks/libraries
-
-SUBDIRS  = cdcacm cle composite cu flash_eraseall free i2c hex2bin inifile
-SUBDIRS += install lm75 mdio netdb nxplayer ramtest ramtron readline sdcard
-SUBDIRS += stackmonitor sudoku symtab usbmonitor usbmsc vi zmodem zoneinfo
-
-# Create the list of installed runtime modules (INSTALLED_DIRS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-define ADD_DIRECTORY
-  INSTALLED_DIRS  += $(if $(wildcard .\$1\Makefile),$1,)
-endef
-else
-define ADD_DIRECTORY
-  INSTALLED_DIRS  += $(if $(wildcard ./$1/Makefile),$1,)
-endef
+ifeq ($(WINTOOL),y)
+INCDIROPT = -w
 endif
 
-$(foreach DIR, $(SUBDIRS), $(eval $(call ADD_DIRECTORY,$(DIR))))
+# Symbol table support
 
-all: nothing
-.PHONY: nothing context depend clean distclean
+ASRCS =
+CSRCS = symtab.c
 
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(INSTALLED_DIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
-nothing:
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN = ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
+endif
+
+ROOTDEPPATH = --dep-path .
+
+# Common build
+
+VPATH =
+
+all: .built
+.PHONY: context depend clean distclean
+
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
 
 install:
 
 context:
 
-depend: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_depend)
+# Create dependencies
 
-clean: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_clean)
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
-distclean: $(foreach SDIR, $(INSTALLED_DIRS), $(SDIR)_distclean)
+depend: .depend
+
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+
+-include Make.dep
