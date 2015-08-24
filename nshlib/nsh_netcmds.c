@@ -515,6 +515,12 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
         break;
 #  endif
 
+#  if defined(CONFIG_NET_LOOPBACK)
+      case NET_LL_LOOPBACK:
+        nsh_output(vtbl, "%s\tLink encap:Local Loopback\n", dev->d_ifname);
+        break;
+#  endif
+
 #  if defined(CONFIG_NET_SLIP)
       case NET_LL_SLIP:
         nsh_output(vtbl, "%s\tLink encap:SLIP", dev->d_ifname);
@@ -542,6 +548,9 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 #elif defined(CONFIG_NET_ETHERNET)
   nsh_output(vtbl, "%s\tLink encap:Ethernet HWaddr %s at %s\n",
              dev->d_ifname, ether_ntoa(&dev->d_mac), status);
+
+#elif defined(CONFIG_NET_LOOPBACK)
+  nsh_output(vtbl, "%s\tLink encap:Local Loopback\n", dev->d_ifname);
 
 #elif defined(CONFIG_NET_SLIP)
   nsh_output(vtbl, "%s\tLink encap:SLIP at %s\n", dev->d_ifname, status);
