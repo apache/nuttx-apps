@@ -43,7 +43,9 @@ TARG_ASRCS =
 TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
 
 TARG_CSRCS =
-ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
+ifeq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
+TARG_CSRCS += nettest_server.c nettest_client.c
+else ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
 TARG_CSRCS += nettest_server.c
 else
 TARG_CSRCS += nettest_client.c
@@ -70,24 +72,26 @@ else
 endif
 endif
 
-HOSTCFLAGS += -DNETTEST_HOST=1
-ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
-HOSTCFLAGS += -DCONFIG_EXAMPLES_NETTEST_SERVER=1 -DCONFIG_EXAMPLES_NETTEST_CLIENTIP="$(CONFIG_EXAMPLES_NETTEST_CLIENTIP)"
-endif
-ifeq ($(CONFIG_EXAMPLES_NETTEST_PERFORMANCE),y)
-HOSTCFLAGS += -DCONFIG_EXAMPLES_NETTEST_PERFORMANCE=1
-endif
+ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
+  HOSTCFLAGS += -DNETTEST_HOST=1
+  ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
+    HOSTCFLAGS += -DCONFIG_EXAMPLES_NETTEST_SERVER=1 -DCONFIG_EXAMPLES_NETTEST_CLIENTIP="$(CONFIG_EXAMPLES_NETTEST_CLIENTIP)"
+  endif
+  ifeq ($(CONFIG_EXAMPLES_NETTEST_PERFORMANCE),y)
+  HOSTCFLAGS += -DCONFIG_EXAMPLES_NETTEST_PERFORMANCE=1
+  endif
 
-HOST_SRCS = host.c
-ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
-HOST_SRCS += nettest_client.c
-else
-HOST_SRCS += nettest_server.c
-endif
+  HOST_SRCS = host.c
+  ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
+  HOST_SRCS += nettest_client.c
+  else
+  HOST_SRCS += nettest_server.c
+  endif
 
-HOSTOBJEXT ?= .hobj
-HOST_OBJS = $(HOST_SRCS:.c=$(HOSTOBJEXT))
-HOST_BIN = host
+  HOSTOBJEXT ?= .hobj
+  HOST_OBJS = $(HOST_SRCS:.c=$(HOSTOBJEXT))
+  HOST_BIN = host
+endif
 
 ifeq ($(WINTOOL),y)
   INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
@@ -119,17 +123,21 @@ $(TARG_AOBJS): %$(OBJEXT): %.S
 $(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
+ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 $(HOST_OBJS): %$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+endif
 
 config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
 
+ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 $(HOST_BIN): config.h $(HOST_OBJS)
 	@echo "LD:  $@"
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
+endif
 
 .built: config.h $(TARG_OBJS)
 	$(call ARCHIVE, $(TARG_BIN), $(TARG_OBJS))
@@ -164,8 +172,10 @@ endif
 depend: .depend
 
 clean:
+ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 	$(call DELFILE, *$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
+endif
 	$(call DELFILE, .built)
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)

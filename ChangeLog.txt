@@ -1415,4 +1415,6 @@
 	* apps/nettest: Add option to suppress network initialization.  This
 	  is necessary if the nettest is run from NSH which has already
 	  initialized the network (2015-08-26).
+	* apps/nettest: Extend test so that can be performed using the local
+	  loopback device (2015-08-26).
 

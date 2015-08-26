@@ -41,7 +41,10 @@
 //#include <nuttx/config.h>
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sched.h>
 #include <debug.h>
 
 #include <net/if.h>
@@ -177,6 +180,14 @@ static void netest_initialize(void)
 }
 #endif /*CONFIG_EXAMPLES_NETTEST_INIT */
 
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
+static int server_child(int argc, char *argv[])
+{
+  recv_server();
+  return EXIT_SUCCESS;
+}
+#endif
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -191,21 +202,42 @@ int main(int argc, FAR char *argv[])
 int nettest_main(int argc, char *argv[])
 #endif
 {
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  pid_t child;
+#endif
+
 #ifdef CONFIG_EXAMPLES_NETTEST_INIT
   /* Initialize the network */
 
  netest_initialize();
 #endif
 
-#ifdef CONFIG_EXAMPLES_NETTEST_SERVER
-  /* Then perform the server side of the test */
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  /* Then perform the server side of the test on a child task */
+
+  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_PRIORITY,
+                      CONFIG_EXAMPLES_NETTEST_STACKSIZE, server_child,
+                      NULL);
+  if (child < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to server daemon\n");
+      return EXIT_FAILURE;
+    }
+
+  usleep(500*10000);
+
+#elif defined(CONFIG_EXAMPLES_NETTEST_SERVER)
+  /* Then perform the server side of the test on this thread */
 
   recv_server();
-#else
-  /* Then perform the client side of the test */
+#endif
+
+#if !defined(CONFIG_EXAMPLES_NETTEST_SERVER) || \
+    defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  /* Then perform the client side of the test on this thread */
 
   send_client();
 #endif
 
-  return 0;
+  return EXIT_SUCCESS;
 }
