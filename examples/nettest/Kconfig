@@ -26,10 +26,6 @@ config EXAMPLES_NETTEST_PERFORMANCE
 	Configure the example to test for network performance.  Default:  Test
 	is for network functionality.
 
-config EXAMPLES_NETTEST_NOMAC
-	bool "Use Canned MAC Address"
-	default n
-
 choice
 	prompt "IP Domain"
 	default EXAMPLES_NETTEST_IPv4 if NET_IPv4
@@ -45,9 +41,27 @@ config EXAMPLES_NETTEST_IPv6
 
 endchoice # IP Domain
 
+config EXAMPLES_NETTEST_INIT
+	bool "Initialize network"
+	default n if NSH_BUILTIN_APPS
+	default y if !NSH_BUILTIN_APPS
+	depends on !BUILD_KERNEL
+	---help---
+		Include logic to initialize the network.  This should not be done if
+		the network is already initialized when nettest runs.  This is
+		usually the case, for example, when nettest is run as an NSH built-
+		in task.
+
+config EXAMPLES_NETTEST_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	depends on EXAMPLES_NETTEST_INIT
+
 if EXAMPLES_NETTEST_IPv4
 
 comment "IPv4 addresses"
+
+if EXAMPLES_NETTEST_INIT
 
 config EXAMPLES_NETTEST_IPADDR
 	hex "Target IP address"
@@ -60,6 +74,8 @@ config EXAMPLES_NETTEST_DRIPADDR
 config EXAMPLES_NETTEST_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
+
+endif # EXAMPLES_NETTEST_INIT
 
 config EXAMPLES_NETTEST_CLIENTIP
 	hex "Client IP Address"
@@ -79,6 +95,8 @@ if EXAMPLES_NETTEST_IPv6
 if !NET_ICMPv6_AUTOCONF
 
 comment "Target IPv6 address"
+
+if EXAMPLES_NETTEST_INIT
 
 config EXAMPLES_NETTEST_IPv6ADDR_1
 	hex "[0]"
@@ -325,6 +343,7 @@ config EXAMPLES_NETTEST_IPv6NETMASK_8
 		all eight values is fe00::0.
 
 endif # NET_ICMPv6_AUTOCONF
+endif # EXAMPLES_NETTEST_INIT
 
 comment "Client IPv6 address"
 

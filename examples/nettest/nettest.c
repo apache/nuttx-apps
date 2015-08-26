@@ -60,7 +60,9 @@
  * Private Data
  ****************************************************************************/
 
-#if defined(CONFIG_EXAMPLES_NETTEST_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF)
+#if defined(CONFIG_EXAMPLES_NETTEST_INIT) && \
+    defined(CONFIG_EXAMPLES_NETTEST_IPv6) && \
+    !defined(CONFIG_NET_ICMPv6_AUTOCONF)
 /* Our host IPv6 address */
 
 static const uint16_t g_ipv6_hostaddr[8] =
@@ -102,21 +104,14 @@ static const uint16_t g_ipv6_netmask[8] =
   HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_7),
   HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_8),
 };
-#endif /* CONFIG_EXAMPLES_NETTEST_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
+#endif /* CONFIG_EXAMPLES_NETTEST_INIT && CONFIG_EXAMPLES_NETTEST_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
-/****************************************************************************
- * nettest_main
- ****************************************************************************/
-
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int nettest_main(int argc, char *argv[])
-#endif
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+static void netest_initialize(void)
 {
 #ifndef CONFIG_EXAMPLES_NETTEST_IPv6
   struct in_addr addr;
@@ -179,10 +174,36 @@ int nettest_main(int argc, char *argv[])
   netlib_set_ipv4netmask("eth0", &addr);
 
 #endif /* CONFIG_EXAMPLES_NETTEST_IPv6 */
+}
+#endif /*CONFIG_EXAMPLES_NETTEST_INIT */
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * nettest_main
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int nettest_main(int argc, char *argv[])
+#endif
+{
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+  /* Initialize the network */
+
+ netest_initialize();
+#endif
 
 #ifdef CONFIG_EXAMPLES_NETTEST_SERVER
+  /* Then perform the server side of the test */
+
   recv_server();
 #else
+  /* Then perform the client side of the test */
+
   send_client();
 #endif
 

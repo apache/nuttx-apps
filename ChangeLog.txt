@@ -1412,4 +1412,7 @@
 	  substantial effect on system image size. Mainly code/text. If
 	  loading of applications at runtime is not planned do not select
 	  this.  From Pavel Pisa (2015-08-23).
+	* apps/nettest: Add option to suppress network initialization.  This
+	  is necessary if the nettest is run from NSH which has already
+	  initialized the network (2015-08-26).
 
