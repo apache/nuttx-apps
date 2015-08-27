@@ -40,6 +40,7 @@
 #include "config.h"
 //#include <nuttx/config.h>
 
+#include <sys/wait.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -202,8 +203,11 @@ int main(int argc, FAR char *argv[])
 int nettest_main(int argc, char *argv[])
 #endif
 {
-#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
   pid_t child;
+#ifdef CONFIG_SCHED_WAITPID
+  int statloc;
+#endif
 #endif
 
 #ifdef CONFIG_EXAMPLES_NETTEST_INIT
@@ -224,7 +228,7 @@ int nettest_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  usleep(500*10000);
+  usleep(500*1000);
 
 #elif defined(CONFIG_EXAMPLES_NETTEST_SERVER)
   /* Then perform the server side of the test on this thread */
@@ -237,6 +241,11 @@ int nettest_main(int argc, char *argv[])
   /* Then perform the client side of the test on this thread */
 
   send_client();
+#endif
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(CONFIG_SCHED_WAITPID)
+  printf("main: Waiting for the server to exit\n");
+  (void)waitpid(child, &statloc, 0);
 #endif
 
   return EXIT_SUCCESS;
