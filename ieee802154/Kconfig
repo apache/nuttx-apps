@@ -3,6 +3,10 @@
 # see misc/tools/kconfig-language.txt.
 #
 
+menu "IEEE 802.15.4 applications"
+
 source "$APPSDIR/ieee802154/common/Kconfig"
 source "$APPSDIR/ieee802154/coord/Kconfig"
 source "$APPSDIR/ieee802154/i8sak/Kconfig"
+
+endmenu #ieee 802.15.4 apps
