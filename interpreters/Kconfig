@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "Interpreters"
+
 source "$APPSDIR/interpreters/bas/Kconfig"
 source "$APPSDIR/interpreters/ficl/Kconfig"
 
@@ -20,3 +22,4 @@ if INTERPRETERS_PCODE
 endif
 
 source "$APPSDIR/interpreters/micropython/Kconfig"
+endmenu # Interpreters

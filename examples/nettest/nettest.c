@@ -40,8 +40,12 @@
 #include "config.h"
 //#include <nuttx/config.h>
 
+#include <sys/wait.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sched.h>
 #include <debug.h>
 
 #include <net/if.h>
@@ -60,7 +64,9 @@
  * Private Data
  ****************************************************************************/
 
-#if defined(CONFIG_EXAMPLES_NETTEST_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF)
+#if defined(CONFIG_EXAMPLES_NETTEST_INIT) && \
+    defined(CONFIG_EXAMPLES_NETTEST_IPv6) && \
+    !defined(CONFIG_NET_ICMPv6_AUTOCONF)
 /* Our host IPv6 address */
 
 static const uint16_t g_ipv6_hostaddr[8] =
@@ -102,21 +108,14 @@ static const uint16_t g_ipv6_netmask[8] =
   HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_7),
   HTONS(CONFIG_EXAMPLES_NETTEST_IPv6NETMASK_8),
 };
-#endif /* CONFIG_EXAMPLES_NETTEST_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
+#endif /* CONFIG_EXAMPLES_NETTEST_INIT && CONFIG_EXAMPLES_NETTEST_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
-/****************************************************************************
- * nettest_main
- ****************************************************************************/
-
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int nettest_main(int argc, char *argv[])
-#endif
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+static void netest_initialize(void)
 {
 #ifndef CONFIG_EXAMPLES_NETTEST_IPv6
   struct in_addr addr;
@@ -179,12 +178,75 @@ int nettest_main(int argc, char *argv[])
   netlib_set_ipv4netmask("eth0", &addr);
 
 #endif /* CONFIG_EXAMPLES_NETTEST_IPv6 */
+}
+#endif /*CONFIG_EXAMPLES_NETTEST_INIT */
 
-#ifdef CONFIG_EXAMPLES_NETTEST_SERVER
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
+static int server_child(int argc, char *argv[])
+{
   recv_server();
+  return EXIT_SUCCESS;
+}
+#endif
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * nettest_main
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
 #else
+int nettest_main(int argc, char *argv[])
+#endif
+{
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
+  pid_t child;
+#ifdef CONFIG_SCHED_WAITPID
+  int statloc;
+#endif
+#endif
+
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+  /* Initialize the network */
+
+ netest_initialize();
+#endif
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  /* Then perform the server side of the test on a child task */
+
+  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_PRIORITY,
+                      CONFIG_EXAMPLES_NETTEST_STACKSIZE, server_child,
+                      NULL);
+  if (child < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to server daemon\n");
+      return EXIT_FAILURE;
+    }
+
+  usleep(500*1000);
+
+#elif defined(CONFIG_EXAMPLES_NETTEST_SERVER)
+  /* Then perform the server side of the test on this thread */
+
+  recv_server();
+#endif
+
+#if !defined(CONFIG_EXAMPLES_NETTEST_SERVER) || \
+    defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  /* Then perform the client side of the test on this thread */
+
   send_client();
 #endif
 
-  return 0;
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(CONFIG_SCHED_WAITPID)
+  printf("main: Waiting for the server to exit\n");
+  (void)waitpid(child, &statloc, 0);
+#endif
+
+  return EXIT_SUCCESS;
 }

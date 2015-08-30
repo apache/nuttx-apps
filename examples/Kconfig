@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "Examples"
+
 source "$APPSDIR/examples/adc/Kconfig"
 source "$APPSDIR/examples/ajoystick/Kconfig"
 source "$APPSDIR/examples/bastest/Kconfig"
@@ -83,3 +85,5 @@ source "$APPSDIR/examples/watchdog/Kconfig"
 source "$APPSDIR/examples/wget/Kconfig"
 source "$APPSDIR/examples/wgetjson/Kconfig"
 source "$APPSDIR/examples/xmlrpc/Kconfig"
+
+endmenu # Examples

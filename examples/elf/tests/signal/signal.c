@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/elf/tests/signal/signal.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,6 +100,7 @@ void siguser_action(int signo, siginfo_t *siginfo, void *arg)
       printf("siginfo:\n");
       printf("  si_signo  = %d\n",  siginfo->si_signo);
       printf("  si_code   = %d\n",  siginfo->si_code);
+      printf("  si_errno  = %d\n",  siginfo->si_errno);
       printf("  si_value  = %d\n",  siginfo->si_value.sival_int);
     }
 }

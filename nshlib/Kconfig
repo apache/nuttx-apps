@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "NSH Library"
+
 config NSH_LIBRARY
 	bool "NSH Library"
 	default n
@@ -1237,7 +1239,7 @@ endmenu # IP Address Configuration
 config NSH_DNS
 	bool "Use DNS"
 	default n
-	depends on NSH_LIBRARY && NETUTILS_DNSCLIENT
+	depends on NSH_LIBRARY && NETDB_DNSCLIENT
 	---help---
 		Configure to use a DNS.
 
@@ -1381,3 +1383,4 @@ endif # NSH_TELNET_LOGIN
 endif # NSH_TELNET
 endmenu # Telnet Configuration
 endif # NSH_LIBRARY
+endmenu # NSH Library

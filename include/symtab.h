@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/examples/can/can.h
+ * apps/include/symtab.h
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_CAN_CAN_H
-#define __APPS_EXAMPLES_CAN_CAN_H
+#ifndef __APPS_INCLUDE_SYMTAB_H
+#define __APPS_INCLUDE_SYMTAB_H
 
 /****************************************************************************
  * Included Files
@@ -43,58 +43,60 @@
 #include <nuttx/config.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
-/* Configuration ************************************************************/
-/* This test depends on these specific CAN configurations settings (your
- * specific CAN settings might require additional settings).
- *
- * CONFIG_CAN - Enables CAN support.
- * CONFIG_CAN_LOOPBACK - A CAN driver may or may not support a loopback
- *   mode for testing. The STM32 CAN driver does support loopback mode.
- *
- * Specific configuration options for this example include:
- *
- * CONFIG_NSH_BUILTIN_APPS - Build the CAN test as an NSH built-in function.
- *   Default: Built as a standalone problem
- * CONFIG_CAN_LOOPBACK
- * CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device. Default: /dev/can0
- * CONFIG_EXAMPLES_CAN_NMSGS - If CONFIG_NSH_BUILTIN_APPS
- *   is defined, then the number of loops is provided on the command line
- *   and this value is ignored.  Otherwise, this number of CAN message is
- *   collected and the program terminates.  Default:  If built as an NSH
- *   built-in, the default is 32.  Otherwise messages are sent and received
- *   indefinitely.
- * CONFIG_EXAMPLES_CAN_READONLY - Only receive messages
- * CONFIG_EXAMPLES_CAN_WRITEONLY - Only send messages
- */
-
-#ifndef CONFIG_CAN
-#  error "CAN device support is not enabled (CONFIG_CAN)"
-#endif
-
-#ifndef CONFIG_CAN_LOOPBACK
-#  warning "CAN loopback is not enabled (CONFIG_CAN_LOOPBACK)"
-#endif
-
-#ifndef CONFIG_EXAMPLES_CAN_DEVPATH
-#  define CONFIG_EXAMPLES_CAN_DEVPATH "/dev/can0"
-#endif
-
-#if defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_EXAMPLES_CAN_NMSGS)
-#  define CONFIG_EXAMPLES_CAN_NMSGS 32
-#endif
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-/****************************************************************************
- * Public Variables
- ****************************************************************************/
+/* struct symbtab_s describes one entry in the symbol table.  A symbol table
+ * is a fixed size array of struct symtab_s.  The information is intentionally
+ * minimal and supports only:
+ *
+ * 1. Function pointers as sym_values.  Of other kinds of values need to be
+ *    supported, then typing information would also need to be included in
+ *    the structure.
+ *
+ * 2. Fixed size arrays.  There is no explicit provisional for dynamically
+ *    adding or removing entries from the symbol table (realloc might be
+ *    used for that purpose if needed).  The intention is to support only
+ *    fixed size arrays completely defined at compilation or link time.
+ */
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-#endif /* __APPS_EXAMPLES_CAN_CAN_H */
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
+/****************************************************************************
+ * Name: symtab_initialize
+ *
+ * Description:
+ *   Setup a user provided symbol table.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+void symtab_initialize(void);
+
+#undef EXTERN
+#if defined(__cplusplus)
+}
+#endif
+
+#endif /* __APPS_INCLUDE_SYMTAB_H */
+

@@ -50,7 +50,7 @@
 #include <errno.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #if defined(CONFIG_EXAMPLES_USBSERIAL_INONLY) && defined(CONFIG_EXAMPLES_USBSERIAL_OUTONLY)
@@ -181,6 +181,7 @@ int main(int argc, char **argv, char **envp)
           fprintf(stderr, "Too many arguments on command line\n");
           show_usage(argv[0], 1);
         }
+
       g_ttydev = argv[1];
     }
 
@@ -192,13 +193,15 @@ int main(int argc, char **argv, char **envp)
       fd = open(g_ttydev, O_RDWR);
       if (fd < 0)
         {
-          printf("main: ERROR: Failed to open %s: %s\n", g_ttydev, strerror(errno));
+          printf("main: ERROR: Failed to open %s: %s\n",
+                 g_ttydev, strerror(errno));
           printf("main:        Assume not connected. Wait and try again.\n");
           printf("main:        (Control-C to terminate).\n");
           sleep(5);
         }
     }
   while (fd < 0);
+
   printf("main: Successfully opened the serial driver\n");
 
   /* Configure the serial port in raw mode (at least turn off echo) */
@@ -206,7 +209,8 @@ int main(int argc, char **argv, char **envp)
   ret = tcgetattr(fd, &tty);
   if (ret < 0)
     {
-      printf("main: ERROR: Failed to get termios for %s: %s\n", g_ttydev, strerror(errno));
+      printf("main: ERROR: Failed to get termios for %s: %s\n",
+             g_ttydev, strerror(errno));
       close(fd);
       return 1;
     }
@@ -220,7 +224,8 @@ int main(int argc, char **argv, char **envp)
   ret = tcsetattr(fd, TCSANOW, &tty);
   if (ret < 0)
     {
-      printf("main: ERROR: Failed to set termios for %s: %s\n", g_ttydev, strerror(errno));
+      printf("main: ERROR: Failed to set termios for %s: %s\n",
+             g_ttydev, strerror(errno));
       close(fd);
       return 1;
     }
@@ -237,7 +242,8 @@ int main(int argc, char **argv, char **envp)
       nbytes = read(fd, g_iobuffer, BUFFER_SIZE-1);
       if (nbytes < 0)
         {
-          printf("main: ERROR: Failed to read from %s: %s\n", g_ttydev, strerror(errno));
+          printf("main: ERROR: Failed to read from %s: %s\n",
+                 g_ttydev, strerror(errno));
           close(fd);
           return 2;
         }
@@ -271,9 +277,11 @@ int main(int argc, char **argv, char **envp)
           nbytes = write(fd, g_longmsg, sizeof(g_longmsg));
           count = 0;
         }
+
 #elif !defined(CONFIG_EXAMPLES_USBSERIAL_ONLYSMALL)
       printf("main: Sending %d bytes..\n", sizeof(g_longmsg));
       nbytes = write(fd, g_longmsg, sizeof(g_longmsg));
+
 #else /* !defined(CONFIG_EXAMPLES_USBSERIAL_ONLYBIG) */
       printf("main: Sending %d bytes..\n", sizeof(g_shortmsg));
       nbytes = write(fd, g_shortmsg, sizeof(g_shortmsg));
@@ -287,6 +295,7 @@ int main(int argc, char **argv, char **envp)
           close(fd);
           return 2;
         }
+
       printf("main: %ld bytes sent\n", (long)nbytes);
 #endif /* CONFIG_EXAMPLES_USBSERIAL_INONLY */
     }

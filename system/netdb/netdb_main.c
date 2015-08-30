@@ -65,6 +65,15 @@
 #  define CONFIG_SYSTEM_NETDB_PRIORITY 50
 #endif
 
+/* REVIST: Currently the availability of gethostbyaddr() depends on
+ * CONFIG_NETDB_HOSTFILE.  That might not always be true, however.
+ */
+
+#undef HAVE_GETHOSTBYADDR
+#ifdef CONFIG_NETDB_HOSTFILE
+#  define HAVE_GETHOSTBYADDR 1
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -73,8 +82,10 @@ static void show_usage(FAR const char *progname, int exitcode) noreturn_function
 static void show_usage(FAR const char *progname, int exitcode)
 {
   fprintf(stderr, "USAGE: %s --ipv4 <ipv4-addr>\n", progname);
+#ifdef HAVE_GETHOSTBYADDR
   fprintf(stderr, "       %s --ipv6 <ipv6-addr>\n", progname);
   fprintf(stderr, "       %s --host <host-name>\n", progname);
+#endif
   fprintf(stderr, "       %s --help\n", progname);
   exit(exitcode);
 }
@@ -110,6 +121,7 @@ int netdb_main(int argc, char **argv)
       show_usage(argv[0], EXIT_FAILURE);
     }
 
+#ifdef HAVE_GETHOSTBYADDR
   /* Handle: netdb --ipv4 <ipv4-addr>  */
 
   else if (strcmp(argv[1], "--ipv4") == 0)
@@ -161,6 +173,7 @@ int netdb_main(int argc, char **argv)
           return EXIT_FAILURE;
         }
     }
+#endif /* HAVE_GETHOSTBYADDR */
 
   /* Handle: netdb --host <host-name>  */
 
