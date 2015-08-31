@@ -1417,4 +1417,6 @@
 	  initialized the network (2015-08-26).
 	* apps/nettest: Extend test so that can be performed using the local
 	  loopback device (2015-08-26).
-
+	* apps/nshlib: Fix error handling in 'cat' command.  On a failure to
+	  allocate memory, a file ws not being closed.  From Bruno Herrera
+	  (2015-08-26).

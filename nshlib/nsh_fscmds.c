@@ -439,6 +439,7 @@ static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   buffer = (FAR char *)malloc(IOBUFFERSIZE);
   if(buffer == NULL)
     {
+      (void)close(fd);
       nsh_output(vtbl, g_fmtcmdfailed, cmd, "malloc", NSH_ERRNO);
       return ERROR;
     }
