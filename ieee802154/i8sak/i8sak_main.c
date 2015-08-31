@@ -356,6 +356,7 @@ int usage(void)
          "  chan <ch>\n"
          "  snif\n"
          "  stat\n"
+         "  pa <on|off>\n"
          "  edth <off|rssi>\n"
          "  csth <off|corr>\n"
          "  tx <hexpacket>\n"
@@ -407,6 +408,25 @@ int i8_main(int argc, char *argv[])
     {
     ret = ioctl(fd, 1000, 0);
     }
+  else if (!strcmp(argv[2], "pa"))
+    {
+      if(argc != 4)
+        {
+        goto usage;
+        }
+      if(!strcmp(argv[3],"off"))
+        {
+          ret = ioctl(fd, 1001, 0);
+        }
+      else if(!strcmp(argv[3],"on"))
+        {
+          ret = ioctl(fd, 1001, 1);
+        }
+      else
+        {
+        goto usage;
+        }
+    }
   else if (!strcmp(argv[2], "stat"))
     {
     ret = status(fd);
@@ -415,7 +435,7 @@ int i8_main(int argc, char *argv[])
     {
       if(argc != 4)
         {
-        ret = usage();
+        goto usage;
         }
       ret = ieee802154_setchan(fd, arg);
       gChan = arg;
