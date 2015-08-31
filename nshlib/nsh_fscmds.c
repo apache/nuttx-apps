@@ -1349,7 +1349,7 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (!newpath)
     {
       ret = ERROR;
-      goto errout_with_free;
+      goto errout_with_oldpath;
     }
 
   /* Perform the mount */
@@ -1361,9 +1361,11 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 
   /* Free the file paths */
-errout_with_free:
-  nsh_freefullpath(oldpath);
+
   nsh_freefullpath(newpath);
+
+errout_with_oldpath:
+  nsh_freefullpath(oldpath);
   return ret;
 }
 #endif
