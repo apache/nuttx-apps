@@ -365,12 +365,12 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
 #if PACKET_TX_DEBUG
   DEBUG1(("\n"));
-  for(i = 0; i < headerlen; ++i)
+  for (i = 0; i < headerlen; ++i)
     {
       DEBUG1(("0x%02x ", header[i]));
     }
 
-  for(i = 0; i < datalen; ++i)
+  for (i = 0; i < datalen; ++i)
     {
       DEBUG1(("0x%02x ", buffer[i]));
     }
@@ -405,7 +405,7 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
   /* Write header if it exists */
 
-  for(i = 0; i < headerlen; ++i)
+  for (i = 0; i < headerlen; ++i)
     {
       /* Get next byte from buffer */
 
@@ -418,7 +418,7 @@ u8_t ahdlc_tx(struct ppp_context_s *ctx, u16_t protocol, u8_t *header,
 
   /* Write frame bytes */
 
-  for(i = 0; i < datalen; ++i)
+  for (i = 0; i < datalen; ++i)
     {
       /* Get next byte from buffer */
 

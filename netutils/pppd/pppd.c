@@ -113,7 +113,9 @@ static int tun_alloc(char *dev)
   int fd, err;
 
   if ((fd = open("/dev/tun", O_RDWR)) < 0)
+    {
       return fd;
+    }
 
   printf("tun fd:%i\n", fd);
 
@@ -151,7 +153,9 @@ static int open_tty(char *dev)
   int err;
 
   if ((fd = open(dev, O_RDWR)) < 0)
+    {
       return fd;
+    }
 
   if ((err = make_nonblock(fd)) < 0)
     {
