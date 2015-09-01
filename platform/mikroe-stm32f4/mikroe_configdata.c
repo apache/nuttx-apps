@@ -111,7 +111,7 @@ int platform_setconfig(enum config_data_e id, int instance,
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
   FILE*   fd;
 #endif
-#if CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
+#ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
   struct config_data_s  config;
   int                   ret;
   int                   fd;
@@ -166,7 +166,7 @@ int platform_setconfig(enum config_data_e id, int instance,
         fclose(fd);
         return OK;
 
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
+#elif defined(CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM)
 
         /* We are reading from a read-only system, so nothing to do. */
 
@@ -224,13 +224,13 @@ int platform_getconfig(enum config_data_e id, int instance,
   size_t  bytes;
   enum    config_data_e saved_id;
   int     saved_instance;
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
+#elif defined(CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM)
   static const uint8_t touch_cal_data[] = {
       0x9a, 0x2f, 0x00, 0x00,
       0x40, 0xbc, 0x69, 0xfe, 0x70, 0x2e, 0x00,
       0x00, 0xb8, 0x2d, 0xdb, 0xff };
 #endif
-#if CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
+#ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
   struct config_data_s  config;
   int                   ret;
   int                   fd;
@@ -298,7 +298,7 @@ int platform_getconfig(enum config_data_e id, int instance,
 
         return OK;
 
-#elif CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM
+#elif defined(CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM)
 
         memcpy(configdata, touch_cal_data, datalen);
         return OK;

@@ -411,7 +411,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_UNAME
-#if CONFIG_NET
+#ifdef CONFIG_NET
   { "uname",    cmd_uname,   1, 7, "[-a | -imnoprsv]" },
 #else
   { "uname",    cmd_uname,   1, 7, "[-a | -imoprsv]" },

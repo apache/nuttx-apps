@@ -255,7 +255,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             set |= UNAME_KERNEL;
             break;
 
-#if CONFIG_NET
+#ifdef CONFIG_NET
           case 'n':
             set |= UNAME_NODE;
             break;
@@ -332,7 +332,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 str = info.sysname;
                 break;
 
-#if CONFIG_NET
+#ifdef CONFIG_NET
               case 1: /* Print noname */
                 str = info.nodename;
                 break;
