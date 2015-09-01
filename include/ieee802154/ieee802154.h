@@ -53,6 +53,8 @@ struct ieee802154_addr_s
 #define IEEE802154_ADDRSTRLEN 22 /* (4+1+8*2) */
 
 int ieee802154_setchan   (int fd, uint8_t chan);
+int ieee802154_getchan   (int fd, FAR uint8_t *chan);
+
 int ieee802154_setpanid  (int fd, uint16_t panid);
 int ieee802154_setsaddr  (int fd, uint16_t saddr);
 int ieee802154_seteaddr  (int fd, FAR uint8_t *chan);

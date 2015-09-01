@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_getcca.c
+ * ieee802154/common/ieee802154_getchan.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -45,12 +45,12 @@
 #include <nuttx/ieee802154/ieee802154.h>
 #include <nuttx/ieee802154/ieee802154_dev.h>
 
-int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca)
+int ieee802154_getchan(int fd, FAR uint8_t *chan)
 {
-  int ret = ioctl(fd, MAC854IOCGCCA, (unsigned long)cca );
+  int ret = ioctl(fd, MAC854IOCGCHAN, (unsigned long)chan );
   if (ret<0)
     {
-      printf("MAC854IOCGCCA failed\n");
+      printf("MAC854IOCGCHAN failed\n");
     }
   return ret;
 }

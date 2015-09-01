@@ -73,12 +73,11 @@
 
 static struct ieee802154_packet_s gRxPacket;
 static struct ieee802154_packet_s gTxPacket;
-static uint8_t gChan;
 
 uint8_t levels[16];
 uint8_t disp[16];
 
-int scan(int fd)
+int energy_scan(int fd)
 {
   int ret = OK;
   uint8_t chan, energy;
@@ -160,10 +159,10 @@ static int status(int fd)
       printf("MAC854IOCGPANID failed\n");
       return ret;
     }
-  ret = ioctl(fd, MAC854IOCGCHAN, (unsigned long)&chan);
+
+  ret = ieee802154_getchan(fd, &chan);
   if (ret)
     {
-      printf("MAC854IOCGCHAN failed\n");
       return ret;
     }
 
@@ -201,7 +200,7 @@ static int status(int fd)
   /* Display */
 
   printf("PANID %02X%02X CHAN %2d (%d MHz)\nSADDR %02X%02X EADDR ", 
-          panid>>8, panid&0xFF, chan, 2350+(5*chan), saddr>>8, saddr&0xFF);
+          panid>>8, panid&0xFF, (int)chan, 2350+(5*chan), saddr>>8, saddr&0xFF);
   for (i=0; i<8; i++)
     {
       printf("%02X", eaddr[i]);
@@ -226,7 +225,7 @@ static int status(int fd)
  *   Display a single packet
  ****************************************************************************/
 
-static int display(FAR struct ieee802154_packet_s *pack, bool verbose)
+static int display(uint8_t chan, FAR struct ieee802154_packet_s *pack, bool verbose)
 {
   int i;
   int     hlen=0, dhlen=0;
@@ -238,7 +237,7 @@ static int display(FAR struct ieee802154_packet_s *pack, bool verbose)
   dhlen = hlen;
   if(hlen>pack->len) dhlen = 0;
 
-  printf("chan=%2d rssi=%3u lqi=%3u len=%3u ", gChan, pack->rssi, pack->lqi, pack->len - dhlen);
+  printf("chan=%2d rssi=%3u lqi=%3u len=%3u ", chan, pack->rssi, pack->lqi, pack->len - dhlen);
 
   if(hlen<0)
     {
@@ -278,6 +277,7 @@ static void* sniff(void *arg)
   int ret;
   struct sniffargs *sa = (struct sniffargs*)arg;
   int fd = sa->fd;
+  uint8_t chan;
 
   printf("Listening...\n");
   while (1)
@@ -287,12 +287,12 @@ static void* sniff(void *arg)
         {
           if (errno == EAGAIN)
             {
-            continue;
+              continue;
             }
           if (errno == EINTR)
             {
-            printf("read: interrupted\n");
-            break;
+              printf("read: interrupted\n");
+              break;
             }
           else
             {
@@ -302,7 +302,9 @@ static void* sniff(void *arg)
         } 
 
       /* Display packet */
-      display(&gRxPacket, sa->verbose);
+      chan=0;
+      ieee802154_getchan(fd, &chan);
+      display(chan, &gRxPacket, sa->verbose);
     }
   
 
@@ -350,16 +352,17 @@ static int tx(int fd, FAR struct ieee802154_packet_s *pack, int verbose)
 
 int usage(void)
 {
-  printf("i8 <device> <op> <arg>\n"
-         "  scan\n"
-         "  dump\n"
-         "  chan <ch>\n"
-         "  snif\n"
-         "  stat\n"
-         "  pa <on|off>\n"
-         "  edth <off|rssi>\n"
-         "  csth <off|corr>\n"
-         "  tx <hexpacket>\n"
+  printf("i8 <device> <op> [<args>]\n"
+         "  scan              Energy scan\n"
+         "  beacons [single]  Aactive scan [on cur chan]\n"
+         "  dump              Show device registers\n"
+         "  chan <ch>         Select current channel\n"
+         "  snif              Listen for packets\n"
+         "  stat              Device status\n"
+         "  pa <on|off>       Enable/Disable external RF amplifiers\n"
+         "  edth <off|rssi>   Select Energy detection rx threshold\n"
+         "  csth <off|corr>   Select preamble correlation rx threshold\n"
+         "  tx <hexpacket>    Transmit a raw packet\n"
          );
   return ERROR;
 }
@@ -402,7 +405,7 @@ int i8_main(int argc, char *argv[])
   /* get mode */
   if (!strcmp(argv[2], "scan"))
     {
-    ret = scan(fd);
+    ret = energy_scan(fd);
     }
   else if (!strcmp(argv[2], "dump"))
     {
@@ -438,7 +441,6 @@ int i8_main(int argc, char *argv[])
         goto usage;
         }
       ret = ieee802154_setchan(fd, arg);
-      gChan = arg;
     }
   else if (!strcmp(argv[2], "edth"))
     {
@@ -528,8 +530,14 @@ data_error:
       struct sniffargs args;
       struct ieee802154_addr_s dest;
       pthread_t pth;
-      int i;
-    
+      int i,single = FALSE;
+      uint8_t ch;
+
+      if(argc==4 && !strcmp(argv[3], "single") )
+        {
+        single = TRUE;
+        }
+
       args.fd = fd;
       args.verbose = FALSE;
 
@@ -543,26 +551,42 @@ data_error:
       dest.ia_len = 2;
       dest.ia_panid = 0xFFFF;
       dest.ia_saddr = 0xFFFF;
+
+      gTxPacket.len = ieee802154_addrstore(&gTxPacket, &dest, NULL);
+
       ieee802154_addrstore(&gTxPacket, &dest, NULL);
       gTxPacket.data[gTxPacket.len++] = 0xFF; //panid
       gTxPacket.data[gTxPacket.len++] = 0xFF;
       gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
       gTxPacket.data[gTxPacket.len++] = 0xFF;
+
       gTxPacket.data[gTxPacket.len++] = IEEE802154_CMD_BEACON_REQ;
-//    for(i=1;i<3;i++)
+      if(!single)
+        {
+          ch = 11;
+        }
+      i=0;
       while(1)
         {
-          int ch;
-          for(ch=11; ch<27; ch++)
+          if(!single)
             {
-              printf("chan=%2d...\r", ch); fflush(stdout);
               ieee802154_setchan(fd, ch);
-              gChan = ch;
-              gTxPacket.data[2] = i; //seq
-              tx(fd, &gTxPacket, FALSE);
-              sleep(1);
             }
-            i++; if(i==256) i=0;
+          ieee802154_getchan(fd, &ch);
+          printf("chan=%2d seq=%2X ...\r", (int)ch, i); fflush(stdout);
+          gTxPacket.data[2] = i; //seq
+          tx(fd, &gTxPacket, FALSE);
+          sleep(1);
+          i++;
+          if(i==256)
+            {
+              i=0;
+            }
+          if(!single)
+            {
+            ch++;
+            if(ch==27) ch=11;
+            }
         }
       pthread_kill(pth, SIGUSR1);
     }
