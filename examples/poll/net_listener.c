@@ -63,7 +63,7 @@
 #include "poll_internal.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define IOBUFFER_SIZE 80
@@ -298,7 +298,7 @@ static void net_configure(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  /* Configure uIP */
+  /* Configure the network */
   /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_POLL_NOMAC
@@ -343,7 +343,7 @@ void *net_listener(pthread_addr_t pvarg)
   int ret;
   int i;
 
-  /* Configure uIP */
+  /* Configure the network */
 
   net_configure();
 

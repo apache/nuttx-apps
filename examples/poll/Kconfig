@@ -28,4 +28,4 @@ config EXAMPLES_POLL_NETMASK
 	hex "Network Mask"
 	default 0xffffff00
 
-endif
+endif # EXAMPLES_POLL
