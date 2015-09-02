@@ -48,79 +48,79 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
                          FAR struct ieee802154_addr_s *dest,
                          FAR struct ieee802154_addr_s *src)
 {
-  int index=3;
+  int index=3; //skip fc and seq
 
   /* encode dest addr */
 
-  if(dest == NULL)
+  if(dest == NULL || dest->ia_len == 0)
     {
-    goto nodest;
-    }
-  if(dest->ia_len == 2)
-    {
-      memcpy(packet->data+index, &dest->ia_panid, 2);
-      index += 2; /* skip dest pan id */
-      memcpy(packet->data+index, &dest->ia_saddr, 2);
-      index += 2; /* skip dest addr */
-      packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_SHORT;
-    }
-  else if(dest->ia_len == 8)
-    {
-      memcpy(packet->data+index, &dest->ia_panid, 2);
-      index += 2; /* skip dest pan id */
-      memcpy(packet->data+index, dest->ia_eaddr, 8);
-      index += 8; /* skip dest addr */
-      packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_EXT;
-    }
-  else if(dest->ia_len == 0)
-    {
-nodest:
       packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_NONE;
     }
   else
     {
-      return -EINVAL;
+      memcpy(packet->data+index, &dest->ia_panid, 2);
+      index += 2; /* skip dest pan id */
+      if(dest->ia_len == 2)
+        {
+          memcpy(packet->data+index, &dest->ia_saddr, 2);
+          index += 2; /* skip dest addr */
+          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_SHORT;
+        }
+      else if(dest->ia_len == 8)
+        {
+          memcpy(packet->data+index, &dest->ia_panid, 2);
+          index += 2; /* skip dest pan id */
+          memcpy(packet->data+index, dest->ia_eaddr, 8);
+          index += 8; /* skip dest addr */
+          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_EXT;
+        }
+      else
+        {
+          return -EINVAL;
+        }
     }
 
-  /* encode source pan id according to compression */
+  packet->data[0] &= ~IEEE802154_FC1_INTRA;
+  if( (dest != NULL && dest->ia_len != 0) && (src != NULL && src->ia_len != 0) )
+    {
+      /* we have both adresses, encode source pan id according to compression */
+      if( dest->ia_panid == src->ia_panid)
+        {
+          packet->data[0] |= IEEE802154_FC1_INTRA;
+        }
+    }
 
-  if( (dest != NULL && dest->ia_len != 0) && (src != NULL && src->ia_len != 0) && (dest->ia_panid == src->ia_panid) )
-    {
-      packet->data[0] |= IEEE802154_FC1_INTRA;
-    }
-  else
-    {
-      memcpy(packet->data+index, &src->ia_panid, 2);
-      index += 2; /*skip dest pan id*/
-      packet->data[0] &= ~IEEE802154_FC1_INTRA;
-    }
 
   /* encode source addr */
 
-  if(src == NULL)
+  if(src == NULL || src->ia_len==0)
     {
-    goto nosrc;
-    }
-  if(src->ia_len == 2)
-    {
-      memcpy(packet->data+index, &src->ia_saddr, 2);
-      index += 2; /* skip src addr */
-      packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_SHORT;
-    }
-  else if(src->ia_len == 8)
-    {
-      memcpy(packet->data+index, src->ia_eaddr, 8);
-      index += 8; /* skip src addr */
-      packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_EXT;
-    }
-  else if(dest->ia_len == 0)
-    {
-nosrc:
-      packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_NONE;
+    packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_NONE;
     }
   else
     {
-      return -EINVAL;
+      /*add src pan id if it was not compressed before*/
+      if(!(packet->data[0] & IEEE802154_FC1_INTRA))
+        {
+          memcpy(packet->data+index, &src->ia_panid, 2);
+          index += 2; /*skip src pan id*/
+        }
+      if(src->ia_len == 2)
+        {
+          memcpy(packet->data+index, &src->ia_saddr, 2);
+          index += 2; /* skip src addr */
+          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_SHORT;
+        }
+      else if(src->ia_len == 8)
+        {
+          memcpy(packet->data+index, src->ia_eaddr, 8);
+          index += 8; /* skip src addr */
+          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_EXT;
+        }
+      else
+        {
+          return -EINVAL;
+        }
     }
 
   return index;

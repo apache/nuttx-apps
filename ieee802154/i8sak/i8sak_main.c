@@ -554,12 +554,6 @@ data_error:
 
       gTxPacket.len = ieee802154_addrstore(&gTxPacket, &dest, NULL);
 
-      ieee802154_addrstore(&gTxPacket, &dest, NULL);
-      gTxPacket.data[gTxPacket.len++] = 0xFF; //panid
-      gTxPacket.data[gTxPacket.len++] = 0xFF;
-      gTxPacket.data[gTxPacket.len++] = 0xFF; //saddr
-      gTxPacket.data[gTxPacket.len++] = 0xFF;
-
       gTxPacket.data[gTxPacket.len++] = IEEE802154_CMD_BEACON_REQ;
       if(!single)
         {

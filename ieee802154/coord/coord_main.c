@@ -156,7 +156,6 @@ static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
 {
   FAR struct ieee_frame_s        *rx = &coord->rxbuf;
   FAR struct ieee802154_packet_s *tx = &coord->txbuf.packet;
-  FAR struct ieee802154_addr_s   dest;
   int i;
 
   printf("Beacon request\n");
@@ -175,8 +174,7 @@ static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
   coord->macBSN++;
 
   /* adressing */
-  dest.ia_len = 0; /*no dest address*/
-  tx->len = ieee802154_addrstore(tx, &dest, &coord->addr);
+  tx->len = ieee802154_addrstore(tx, NULL, &coord->addr);
 
   /* superframe spec */
   tx->data[tx->len++] = 0xff;
