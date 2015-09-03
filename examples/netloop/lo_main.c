@@ -111,7 +111,7 @@ static int lo_client(void)
 
   for (i = 0; ; i++)
     {
-      sprintf(outbuf, "Remote message %d", i);
+      sprintf(outbuf, "Loopback message %d", i);
       len = strlen(outbuf);
 
       printf("lo_client: Sending '%s' (%d bytes)\n", outbuf, len);

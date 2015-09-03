@@ -797,19 +797,22 @@ examples/netpkt
 examples/netloop
 ^^^^^^^^^^^^^^^^
 
-  This is a simple test of the netwok loopback device
+  This is a simple test of the netwok loopback device.  examples/nettest can
+  also be configured to provide (better) test of local loopback transfers.
+  This version derives from examples/poll and is focused on testing poll()
+  with loopback devices.
 
     CONFIG_EXAMPLES_NETLOOP=y - Enables the nettest example
 
   Dependencies:
 
-    CONFIG_NSH_BUILTIN_APPS=n
-    CONFIG_NET_LOOPBACK
-    CONFIG_NET_TCP
+    CONFIG_NSH_BUILTIN_APPS=n     - Does NOT work as an NSH built-in command
+    CONFIG_NET_LOOPBACK           - Requires local loopback supprt
+    CONFIG_NET_TCP                - Requires TCP support with the following:
     CONFIG_NET_TCPBACKLOG
     CONFIG_NET_TCP_READAHEAD
     CONFIG_NET_TCP_WRITE_BUFFERS
-    CONFIG_NET_IPv4
+    CONFIG_NET_IPv4               - Currently supports only IPv4
 
 examples/nettest
 ^^^^^^^^^^^^^^^^

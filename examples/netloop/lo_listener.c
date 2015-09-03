@@ -149,7 +149,7 @@ static inline bool net_incomingdata(struct net_listener_s *nls, int sd)
       else
         {
           nls->buffer[ret]='\0';
-          printf("poll_listener: Read '%s' (%d bytes)\n", nls->buffer, ret);
+          printf("lo_listener: Read '%s' (%d bytes)\n", nls->buffer, ret);
 
           /* Echo the data back to the client */
 
