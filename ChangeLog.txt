@@ -1423,3 +1423,6 @@
 	* apps/nshlib: Fix error handling in 'mv' command.  On a failure to
 	  expand the second path, the memory allocated for the expansion of the
 	  first path was not being freed.  From Bruno Herrera (2015-08-26).
+	* apps/examples/netloop:  Add a test of the local loopback device
+	  (2015-09-02).
+

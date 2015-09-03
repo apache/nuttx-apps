@@ -794,6 +794,23 @@ examples/netpkt
 
   A test of AF_PACKET, "raw" sockets.  Contributed by Lazlo Sitzer.
 
+examples/netloop
+^^^^^^^^^^^^^^^^
+
+  This is a simple test of the netwok loopback device
+
+    CONFIG_EXAMPLES_NETLOOP=y - Enables the nettest example
+
+  Dependencies:
+
+    CONFIG_NSH_BUILTIN_APPS=n
+    CONFIG_NET_LOOPBACK
+    CONFIG_NET_TCP
+    CONFIG_NET_TCPBACKLOG
+    CONFIG_NET_TCP_READAHEAD
+    CONFIG_NET_TCP_WRITE_BUFFERS
+    CONFIG_NET_IPv4
+
 examples/nettest
 ^^^^^^^^^^^^^^^^
 

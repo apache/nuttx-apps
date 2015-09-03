@@ -1,0 +1,14 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_NETLOOP
+	bool "Local loopback example"
+	default n
+	depends on !NSH_BUILTIN_APPS && NET_LOOPBACK && NET_TCP && NET_TCPBACKLOG && NET_TCP_READAHEAD && NET_TCP_WRITE_BUFFERS && NET_IPv4
+	---help---
+		Enable the local loopback example
+
+if EXAMPLES_NETLOOP
+endif # EXAMPLES_NETLOOP
