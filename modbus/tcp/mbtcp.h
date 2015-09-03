@@ -33,7 +33,8 @@
 #define __APPS_MODBUS_TCP_MBTCP_H
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 /****************************************************************************
@@ -55,7 +56,7 @@ eMBErrorCode eMBTCPSend(uint8_t _unused, const uint8_t *pucFrame,
                         uint16_t usLength);
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_MODBUS_TCP_MBTCP_H */

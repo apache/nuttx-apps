@@ -33,7 +33,8 @@
 #define __APPS_INCLUDE_MODBUS_MBUTILS_H
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 /****************************************************************************
@@ -104,7 +105,7 @@ void xMBUtilSetBits(uint8_t *ucByteBuf, uint16_t usBitOffset,
 uint8_t xMBUtilGetBits(uint8_t *ucByteBuf, uint16_t usBitOffset, uint8_t ucNBits);
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MBUTILS_H */

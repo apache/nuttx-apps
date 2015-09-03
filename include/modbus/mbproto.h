@@ -33,7 +33,8 @@
 #define __APPS_INCLUDE_MODBUS_MBPROTO_H
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 /****************************************************************************
@@ -87,7 +88,7 @@ typedef struct
 } xMBFunctionHandler;
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MBPROTO_H */

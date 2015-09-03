@@ -65,7 +65,8 @@
 #include <termios.h>
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 #include "mbport.h"
@@ -431,6 +432,6 @@ eMBErrorCode eMBRegDiscreteCB(uint8_t *pucRegBuffer, uint16_t usAddress,
                               uint16_t usNDiscrete);
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 #endif

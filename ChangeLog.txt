@@ -1425,4 +1425,6 @@
 	  first path was not being freed.  From Bruno Herrera (2015-08-26).
 	* apps/examples/netloop:  Add a test of the local loopback device
 	  (2015-09-02).
-
+	* apps/modbus and apps/include/modbus:  Macros PR_BEGIN_EXTERN_C and
+	  PR_END_EXTERN_C were not defined in all contexts.  Replace with
+	  explicit expansion in all cases. From Stefan Kolb (2015-09-03).

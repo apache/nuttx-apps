@@ -33,7 +33,8 @@
 #define __APPS_INCLUDE_MODBUS_MBFUNC_H
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 /****************************************************************************
@@ -81,7 +82,7 @@ eMBException eMBFuncReadWriteMultipleHoldingRegister(uint8_t *pucFrame, uint16_t
 #endif
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MBFUNC_H */

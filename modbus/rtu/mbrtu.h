@@ -33,7 +33,8 @@
 #define __APPS_MODBUS_RTU_MBRTU_H
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 /****************************************************************************
@@ -68,7 +69,7 @@ bool xMBMasterRTUTimerExpired(void);
 #endif
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_MODBUS_RTU_MBRTU_H */

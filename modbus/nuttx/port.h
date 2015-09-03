@@ -44,13 +44,12 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define INLINE
-#define PR_BEGIN_EXTERN_C  extern "C" {
-#define PR_END_EXTERN_C    }
-
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
+
+#define INLINE
 
 #define ENTER_CRITICAL_SECTION( ) vMBPortEnterCritical()
 #define EXIT_CRITICAL_SECTION( ) vMBPortExitCritical()
@@ -88,7 +87,7 @@ bool xMBPortSerialPoll(void);
 bool xMBPortSerialSetTimeout(uint32_t dwTimeoutMs);
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_MODBUS_NUTTX_PORT_H */

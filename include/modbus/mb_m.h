@@ -67,7 +67,8 @@
 #include <termios.h>
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 #include "mbport.h"
@@ -459,7 +460,7 @@ void vMBMasterSetErrorType(eMBMasterErrorEventType errorType);
 eMBMasterReqErrCode eMBMasterWaitRequestFinish(void);
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MB_M_H */
