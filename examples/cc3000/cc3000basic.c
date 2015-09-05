@@ -102,7 +102,7 @@
  *    11    860    844 Telnet sd
  */
 
- #include <nuttx/config.h>
+#include <nuttx/config.h>
 
 #include "board.h"
 #include <stdio.h>

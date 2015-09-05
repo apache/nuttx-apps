@@ -488,7 +488,7 @@ static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
                   /* EINTR is not an error (but will stop stop the cat) */
 
- #ifndef CONFIG_DISABLE_SIGNALS
+#ifndef CONFIG_DISABLE_SIGNALS
                   if (errval == EINTR)
                     {
                       nsh_output(vtbl, g_fmtsignalrecvd, cmd);
