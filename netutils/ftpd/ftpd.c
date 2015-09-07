@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/n etutils/ftpd.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Includes original code as well as logic adapted from hwport_ftpd, written
@@ -977,7 +977,7 @@ static ssize_t ftpd_response(int sd, int timeout, FAR const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  avsprintf(&buffer, fmt, ap);
+  vasprintf(&buffer, fmt, ap);
   va_end(ap);
 
   if (!buffer)
