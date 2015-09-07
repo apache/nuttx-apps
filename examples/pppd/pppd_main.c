@@ -87,6 +87,11 @@ int pppd_main(int argc, char *argv[])
     .disconnect_script = &disconnect_script,
     .connect_script = &connect_script,
     .ttyname = "/dev/ttyS2",
+#ifdef CONFIG_NETUTILS_PPPD_PAP
+    .pap_username = "username",
+    .pap_password = "password",
+#endif
   };
+
   return pppd(&pppd_settings);
 }
