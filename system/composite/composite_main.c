@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/composite/composite_main.c
  *
- *   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -706,7 +706,6 @@ int conn_main(int argc, char *argv[])
    */
 
 #ifdef CONFIG_NSH_BUILTIN_APPS
-
    /* Check if there is a non-NULL USB mass storage device handle (meaning that the
     * USB mass storage device is already configured).
     */
@@ -760,7 +759,7 @@ int conn_main(int argc, char *argv[])
   ret = dumptrace();
   if (ret < 0)
     {
-      goto errout;
+      goto errout_bad_dump;
     }
 #endif
 
@@ -831,11 +830,16 @@ int conn_main(int argc, char *argv[])
    final_memory_usage("Final memory usage");
    return 0;
 
-errout:
+#if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
+errout_bad_dump:
+#endif
+
 #if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
+errout:
   close(g_composite.infd);
   close(g_composite.outfd);
 #endif
+
   composite_uninitialize(g_composite.cmphandle);
   final_memory_usage("Final memory usage");
   return 1;
