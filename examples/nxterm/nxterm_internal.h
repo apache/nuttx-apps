@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NXTERM_NXCON_INTERNAL_H
-#define __EXAMPLES_NXTERM_NXCON_INTERNAL_H
+#ifndef __EXAMPLES_NXTERM_NXTERM_INTERNAL_H
+#define __EXAMPLES_NXTERM_NXTERM_INTERNAL_H
 
 /****************************************************************************
  * Included Files
@@ -146,9 +146,9 @@
 /* Toolbar color (medium grey) */
 
 #ifndef CONFIG_EXAMPLES_NXTERM_TBCOLOR
-#  if CONFIG_EXAMPLES_NX_BPP == 24 || CONFIG_EXAMPLES_NX_BPP == 32
+#  if CONFIG_EXAMPLES_NXTERM_BPP == 24 || CONFIG_EXAMPLES_NXTERM_BPP == 32
 #    define CONFIG_EXAMPLES_NXTERM_TBCOLOR RGBTO24(188, 188, 188)
-#  elif CONFIG_EXAMPLES_NX_BPP == 16
+#  elif CONFIG_EXAMPLES_NXTERM_BPP == 16
 #    define CONFIG_EXAMPLES_NXTERM_TBCOLOR RGBTO16(188, 188, 188)
 #  else
 #    define CONFIG_EXAMPLES_NXTERM_TBCOLOR RGBTO8(188, 188, 188)
@@ -282,4 +282,4 @@ extern const struct nx_callback_s g_nxtoolcb;
 int nxterm_server(int argc, char *argv[]);
 FAR void *nxterm_listener(FAR void *arg);
 
-#endif /* __EXAMPLES_NXTERM_NXCON_INTERNAL_H */
+#endif /* __EXAMPLES_NXTERM_NXTERM_INTERNAL_H */
