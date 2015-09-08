@@ -72,6 +72,10 @@
 #  endif
 #endif
 
+#ifndef CONFIG_USBDEV_TRACE_INITIALIDSET
+#  define CONFIG_USBDEV_TRACE_INITIALIDSET 0
+#endif
+
 #ifdef CONFIG_EXAMPLES_USBSERIAL_TRACEINIT
 #  define TRACE_INIT_BITS       (TRACE_INIT_BIT)
 #else
@@ -223,7 +227,7 @@ int usbserial_main(int argc, char *argv[])
 
   printf("usbserial_main: Successfully registered the serial driver\n");
 
-#if CONFIG_USBDEV_TRACE && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
+#if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
   /* If USB tracing is enabled and tracing of initial USB events is specified,
    * then dump all collected trace data to stdout
    */
