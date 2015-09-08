@@ -771,7 +771,7 @@ static int dhcpd_addoption32(uint8_t code, uint32_t value)
  * Name: dhcp_addoption32p
  ****************************************************************************/
 
-#if HAVE_DNSIP
+#ifdef HAVE_DSNIP
 static int dhcp_addoption32p(uint8_t code, FAR uint8_t *value)
 {
   uint8_t option[6];
@@ -1005,7 +1005,7 @@ static int dhcpd_sendpacket(int bbroadcast)
 static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
 {
   in_addr_t netaddr;
-#if HAVE_DNSIP
+#ifdef HAVE_DSNIP
   uint32_t dnsaddr;
   dnsaddr = htonl(CONFIG_NETUTILS_DHCPD_DNSIP);
 #endif
@@ -1025,13 +1025,13 @@ static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
   /* Add the leasetime to the response options */
 
   dhcpd_addoption32(DHCP_OPTION_LEASE_TIME, htonl(leasetime));
-#if HAVE_NETMASK
+#ifdef HAVE_NETMASK
   dhcpd_addoption32(DHCP_OPTION_SUBNET_MASK, htonl(CONFIG_NETUTILS_DHCPD_NETMASK));
 #endif
-#if HAVE_ROUTERIP
+#ifdef HAVE_ROUTERIP
   dhcpd_addoption32(DHCP_OPTION_ROUTER, htonl(CONFIG_NETUTILS_DHCPD_ROUTERIP));
 #endif
-#if HAVE_DNSIP
+#ifdef HAVE_DSNIP
   dhcp_addoption32p(DHCP_OPTION_DNS_SERVER, (FAR uint8_t*)&dnsaddr);
 #endif
 
@@ -1065,7 +1065,7 @@ int dhcpd_sendack(in_addr_t ipaddr)
 {
   uint32_t leasetime = CONFIG_NETUTILS_DHCPD_LEASETIME;
   in_addr_t netaddr;
-#if HAVE_DNSIP
+#ifdef HAVE_DSNIP
   uint32_t dnsaddr;
   dnsaddr = htonl(CONFIG_NETUTILS_DHCPD_DNSIP);
 #endif
@@ -1087,13 +1087,13 @@ int dhcpd_sendack(in_addr_t ipaddr)
   /* Add the lease time to the response */
 
   dhcpd_addoption32(DHCP_OPTION_LEASE_TIME, htonl(leasetime));
-#if HAVE_NETMASK
+#ifdef HAVE_NETMASK
   dhcpd_addoption32(DHCP_OPTION_SUBNET_MASK, htonl(CONFIG_NETUTILS_DHCPD_NETMASK));
 #endif
-#if HAVE_ROUTERIP
+#ifdef HAVE_ROUTERIP
   dhcpd_addoption32(DHCP_OPTION_ROUTER, htonl(CONFIG_NETUTILS_DHCPD_ROUTERIP));
 #endif
-#if HAVE_DNSIP
+#ifdef HAVE_DSNIP
   dhcp_addoption32p(DHCP_OPTION_DNS_SERVER, (FAR uint8_t*)&dnsaddr);
 #endif
 

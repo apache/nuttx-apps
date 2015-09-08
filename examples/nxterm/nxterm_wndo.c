@@ -133,7 +133,7 @@ static void nxwndo_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
     {
       /* If the driver has not been opened, then just redraw the window color */
 
-      wcolor[0] = CONFIG_EXAMPLES_NXCON_WCOLOR;
+      wcolor[0] = CONFIG_EXAMPLES_NXTERM_WCOLOR;
       (void)nxtk_fillwindow(hwnd, rect, wcolor);
     }
 }

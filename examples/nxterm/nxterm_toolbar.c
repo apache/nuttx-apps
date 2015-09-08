@@ -121,7 +121,7 @@ static void nxtool_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
          more ? "true" : "false");
 
-  color[0] = CONFIG_EXAMPLES_NXCON_TBCOLOR;
+  color[0] = CONFIG_EXAMPLES_NXTERM_TBCOLOR;
   ret = nxtk_filltoolbar(hwnd, rect, color);
   if (ret < 0)
     {

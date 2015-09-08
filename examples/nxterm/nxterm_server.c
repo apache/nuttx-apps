@@ -88,7 +88,7 @@ int nxterm_server(int argc, char *argv[])
   FAR NX_DRIVERTYPE *dev;
   int ret;
 
-#if defined(CONFIG_EXAMPLES_NXCON_EXTERNINIT)
+#if defined(CONFIG_EXAMPLES_NXTERM_EXTERNINIT)
   struct boardioc_graphics_s devinfo;
   int ret;
 
@@ -96,14 +96,14 @@ int nxterm_server(int argc, char *argv[])
 
   printf("nxterm_server: Initializing external graphics device\n");
 
-  devinfo.devno = CONFIG_EXAMPLES_NXCON_DEVNO;
+  devinfo.devno = CONFIG_EXAMPLES_NXTERM_DEVNO;
   devinfo.dev = NULL;
 
   ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
   if (ret < 0)
     {
       printf("nxterm_server: boardctl failed, devno=%d: %d\n",
-             CONFIG_EXAMPLES_NXCON_DEVNO, errno);
+             CONFIG_EXAMPLES_NXTERM_DEVNO, errno);
       return ERROR;
     }
 
@@ -122,11 +122,11 @@ int nxterm_server(int argc, char *argv[])
 
   /* Get the device instance */
 
-  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXCON_DEVNO);
+  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXTERM_DEVNO);
   if (!dev)
     {
       printf("nxterm_server: board_lcd_getdev failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXCON_DEVNO);
+             CONFIG_EXAMPLES_NXTERM_DEVNO);
       return 2;
     }
 
@@ -144,10 +144,10 @@ int nxterm_server(int argc, char *argv[])
       return 1;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXCON_VPLANE);
+  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXTERM_VPLANE);
   if (!dev)
     {
-      printf("nxterm_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXCON_VPLANE);
+      printf("nxterm_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTERM_VPLANE);
       return 2;
     }
 #endif

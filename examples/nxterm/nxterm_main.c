@@ -110,7 +110,7 @@ static int nxterm_initialize(void)
 
   /* Set the client task priority */
 
-  param.sched_priority = CONFIG_EXAMPLES_NXCON_CLIENTPRIO;
+  param.sched_priority = CONFIG_EXAMPLES_NXTERM_CLIENTPRIO;
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
@@ -121,8 +121,8 @@ static int nxterm_initialize(void)
   /* Start the server task */
 
   printf("nxterm_initialize: Starting nxterm_server task\n");
-  servrid = task_create("NX Server", CONFIG_EXAMPLES_NXCON_SERVERPRIO,
-                        CONFIG_EXAMPLES_NXCON_STACKSIZE, nxterm_server, NULL);
+  servrid = task_create("NX Server", CONFIG_EXAMPLES_NXTERM_SERVERPRIO,
+                        CONFIG_EXAMPLES_NXTERM_STACKSIZE, nxterm_server, NULL);
   if (servrid < 0)
     {
       printf("nxterm_initialize: Failed to create nxterm_server task: %d\n", errno);
@@ -146,9 +146,9 @@ static int nxterm_initialize(void)
         */
 
        (void)pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXCON_LISTENERPRIO;
+       param.sched_priority = CONFIG_EXAMPLES_NXTERM_LISTENERPRIO;
        (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXCON_STACKSIZE);
+       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTERM_STACKSIZE);
 
        ret = pthread_create(&thread, &attr, nxterm_listener, NULL);
        if (ret != 0)
@@ -267,8 +267,8 @@ int nxterm_main(int argc, char **argv)
 
   /* Set the background to the configured background color */
 
-  printf("nxterm_main: Set background color=%d\n", CONFIG_EXAMPLES_NXCON_BGCOLOR);
-  color = CONFIG_EXAMPLES_NXCON_BGCOLOR;
+  printf("nxterm_main: Set background color=%d\n", CONFIG_EXAMPLES_NXTERM_BGCOLOR);
+  color = CONFIG_EXAMPLES_NXTERM_BGCOLOR;
   ret = nx_setbgcolor(g_nxterm_vars.hnx, &color);
   if (ret < 0)
     {
@@ -333,7 +333,7 @@ int nxterm_main(int argc, char **argv)
   /* Open the toolbar */
 
   printf("nxterm_main: Add toolbar to window\n");
-  ret = nxtk_opentoolbar(g_nxterm_vars.hwnd, CONFIG_EXAMPLES_NXCON_TOOLBAR_HEIGHT, &g_nxtoolcb, NULL);
+  ret = nxtk_opentoolbar(g_nxterm_vars.hwnd, CONFIG_EXAMPLES_NXTERM_TOOLBAR_HEIGHT, &g_nxtoolcb, NULL);
   if (ret < 0)
     {
       printf("nxterm_main: nxtk_opentoolbar failed: %d\n", errno);
@@ -347,11 +347,11 @@ int nxterm_main(int argc, char **argv)
   /* NxTerm Configuration ************************************************/
   /* Use the window to create an NX console */
 
-  g_nxterm_vars.wndo.wcolor[0] = CONFIG_EXAMPLES_NXCON_WCOLOR;
-  g_nxterm_vars.wndo.fcolor[0] = CONFIG_EXAMPLES_NXCON_FONTCOLOR;
-  g_nxterm_vars.wndo.fontid    = CONFIG_EXAMPLES_NXCON_FONTID;
+  g_nxterm_vars.wndo.wcolor[0] = CONFIG_EXAMPLES_NXTERM_WCOLOR;
+  g_nxterm_vars.wndo.fcolor[0] = CONFIG_EXAMPLES_NXTERM_FONTCOLOR;
+  g_nxterm_vars.wndo.fontid    = CONFIG_EXAMPLES_NXTERM_FONTID;
 
-  g_nxterm_vars.hdrvr = nxtk_register(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo, CONFIG_EXAMPLES_NXCON_MINOR);
+  g_nxterm_vars.hdrvr = nxtk_register(g_nxterm_vars.hwnd, &g_nxterm_vars.wndo, CONFIG_EXAMPLES_NXTERM_MINOR);
   if (!g_nxterm_vars.hdrvr)
     {
       printf("nxterm_main: nxtk_register failed: %d\n", errno);
@@ -360,11 +360,11 @@ int nxterm_main(int argc, char **argv)
 
   /* Open the NxTerm driver */
 
-  fd = open(CONFIG_EXAMPLES_NXCON_DEVNAME, O_WRONLY);
+  fd = open(CONFIG_EXAMPLES_NXTERM_DEVNAME, O_WRONLY);
   if (fd < 0)
     {
       printf("nxterm_main: open %s read-only failed: %d\n",
-             CONFIG_EXAMPLES_NXCON_DEVNAME, errno);
+             CONFIG_EXAMPLES_NXTERM_DEVNAME, errno);
       goto errout_with_driver;
     }
 
