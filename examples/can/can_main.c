@@ -176,7 +176,6 @@ int can_main(int argc, char *argv[])
   nmsgs    = CONFIG_EXAMPLES_CAN_NMSGS;
   minid    = 1;
   maxid    = MAX_ID - 1;
-  badarg   = false;
 #ifdef CONFIG_CAN_EXTID
   extended = true;
 #endif
