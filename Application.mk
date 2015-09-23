@@ -39,12 +39,15 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
+CXXEXT ?= .cxx
+
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
+CXXOBJS = $(CXXSRCS:$(CXXEXT)=$(OBJEXT))
 MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
+OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   OBJS += $(MAINOBJ)
@@ -70,6 +73,9 @@ $(AOBJS): %$(OBJEXT): %.S
 
 $(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
+
+$(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
+	$(call COMPILEXX, $<, $@)
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
@@ -107,8 +113,9 @@ else
 context:
 endif
 
-.depend: Makefile $(SRCS)
+.depend: Makefile $(SRCS) $(CXXSRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(CXXSRCS) >Make.dep
 	$(Q) touch $@
 
 depend: .depend

@@ -1,8 +1,8 @@
 ############################################################################
-# apps/examples/Makefile
+# apps/canutils/uavcan/Make.defs
 #
-#   Copyright (C) 2011-2015 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
+#   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,4 +33,6 @@
 #
 ############################################################################
 
-include $(APPDIR)/Directory.mk
+ifeq ($(CONFIG_CANUTILS_UAVCAN),y)
+CONFIGURED_APPS += canutils/uavcan
+endif
