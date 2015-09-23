@@ -1,7 +1,8 @@
 ############################################################################
-# apps/examples/Makefile
+# apps/canutils/Make.defs
+# Adds selected applications to apps/ build
 #
-#   Copyright (C) 2011-2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,4 +34,4 @@
 #
 ############################################################################
 
-include $(APPDIR)/Directory.mk
+include $(wildcard canutils/*/Make.defs)

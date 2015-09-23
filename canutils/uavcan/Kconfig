@@ -1,0 +1,85 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config CANUTILS_UAVCAN
+	bool "UAVCAN Library"
+	default n
+	depends on STM32_CAN1
+	depends on STM32_TIM2 || STM32_TIM3 || STM32_TIM4 || STM32_TIM5 || STM32_TIM6 || STM32_TIM7
+	depends on C99_BOOL8
+	depends on HAVE_CXX
+	depends on !DISABLE_POLL
+	---help---
+		Enables support for the UAVCAN library.
+
+if CANUTILS_UAVCAN
+
+config UAVCAN_STM32_TIMER_NUMBER
+	int "Timer Number"
+	default 2
+	range 2 7
+	---help---
+		Specifies the timer number.
+
+choice
+	prompt "C++ Version"
+	default UAVCAN_CPP03
+
+config UAVCAN_CPP03
+	bool "C++03"
+	---help---
+		The library will use C++03.
+
+config UAVCAN_CPP11
+	bool "C++11"
+	---help---
+		The library will use C++11.
+
+endchoice
+
+config UAVCAN_TINY
+	bool "Tiny"
+	default n
+	---help---
+		Removes some features to save memory.
+
+config UAVCAN_TOSTRING
+	bool "Implement toString"
+	default n
+	---help---
+		The library will add a toString method to most of its classes.
+
+config UAVCAN_IMPLEMENT_PLACEMENT_NEW
+	bool "Implement Placement new"
+	default n
+	---help---
+		The library will implement placement new.
+
+config UAVCAN_USE_EXTERNAL_SNPRINTF
+	bool "Use External snprintf"
+	default n
+	---help---
+		The library will use an external snprintf.
+
+config UAVCAN_USE_EXTERNAL_FLOAT16_CONVERSION
+	bool "Use External float16 Conversion"
+	default n
+	---help---
+		The library will use an external float16 conversion.
+
+config UAVCAN_NO_ASSERTIONS
+	bool "Disable Assertions"
+	default n
+	---help---
+		Disables assertions.
+
+config UAVCAN_MEM_POOL_BLOCK_SIZE
+	int "Memory Pool Block Size"
+	default 0
+	---help---
+		Specifies the memory pool block size.  A value of 0 will
+		use the library default.
+
+endif
