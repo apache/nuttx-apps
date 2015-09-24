@@ -853,15 +853,15 @@ config NSH_NETINIT_THREAD
 
 		But if there is no network connected, then the start-up delay can
 		be very long depending upon things like the particular PHY, driver
-		timeout delay times, and numbers of retries.  A failed negotiation
+		timeout delay times and number of retries.  A failed negotiation
 		can potentially take a very long time, perhaps as much as a
 		minute... Long enough that you might think that the board would
 		never come up!
 
-		One solution is to enabled by this option.  If NSH_NETINIT_THREAD
-		is selected, the network bring-up will all occur in parallel with
+		One solution is enabled by this option.  If NSH_NETINIT_THREAD
+		is selected, the network bring-up will occur in parallel with
 		NSH on a separate thread.  In this case, the NSH prompt will occur
-		immediately with the network becoming available some time layer (if
+		immediately with the network becoming available some time later (if
 		if all).  This thread will terminate once it successfully initializes
 		the network
 
