@@ -16,6 +16,42 @@ config CANUTILS_UAVCAN
 
 if CANUTILS_UAVCAN
 
+config UAVCAN_LIBUAVCAN_URL
+	string "UAVCAN URL"
+	default "https://github.com/UAVCAN/libuavcan/archive"
+	---help---
+		UAVCAN URL.
+
+config UAVCAN_LIBUAVCAN_VERSION
+	string "UAVCAN Version"
+	default "531433a3261ff1568e824c240d0f1c6ecef73be1"
+	---help---
+		UAVCAN version.
+
+config UAVCAN_DSDL_URL
+	string "DSDL URL"
+	default "https://github.com/UAVCAN/dsdl/archive"
+	---help---
+		DSDL URL.
+
+config UAVCAN_DSDL_VERSION
+	string "DSDL Version"
+	default "9804a3e6972825586be252ce08dd899f44994b14"
+	---help---
+		DSDL version.
+
+config UAVCAN_PYUAVCAN_URL
+	string "Python UAVCAN URL"
+	default "https://github.com/UAVCAN/pyuavcan/archive"
+	---help---
+		Python UAVCAN URL.
+
+config UAVCAN_PYUAVCAN_VERSION
+	string "Python UAVCAN Version"
+	default "4e2798ec3da8e8493b769da514f3b96eea5773e2"
+	---help---
+		Python UAVCAN version.
+
 config UAVCAN_STM32_TIMER_NUMBER
 	int "Timer Number"
 	default 2
