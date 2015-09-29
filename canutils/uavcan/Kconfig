@@ -6,8 +6,10 @@
 config CANUTILS_UAVCAN
 	bool "UAVCAN Library"
 	default n
-	depends on STM32_CAN1
-	depends on STM32_TIM2 || STM32_TIM3 || STM32_TIM4 || STM32_TIM5 || STM32_TIM6 || STM32_TIM7
+	depends on STM32_HAVE_CAN1
+	depends on !STM32_CAN1
+	depends on !STM32_CAN2
+	depends on (STM32_HAVE_TIM2 && !STM32_TIM2) || (STM32_HAVE_TIM3 && !STM32_TIM3) || (STM32_HAVE_TIM4 && !STM32_TIM4) || (STM32_HAVE_TIM5 && !STM32_TIM5) || (STM32_HAVE_TIM6 && !STM32_TIM6) || (STM32_HAVE_TIM7 && !STM32_TIM7)
 	depends on C99_BOOL8
 	depends on HAVE_CXX
 	depends on !DISABLE_POLL
@@ -52,9 +54,39 @@ config UAVCAN_PYUAVCAN_VERSION
 	---help---
 		Python UAVCAN version.
 
+config UAVCAN_STM32_NUM_IFACES
+	int "Number of CAN Interfaces"
+	default 1
+	range 1 1 if !STM32_HAVE_CAN2
+	range 1 2 if STM32_HAVE_CAN2
+
+if UAVCAN_STM32_TIMER_NUMBER = 2 && STM32_TIM2
+comment "Timer 2 is already configured for NuttX"
+endif
+if UAVCAN_STM32_TIMER_NUMBER = 3 && STM32_TIM3
+comment "Timer 3 is already configured for NuttX"
+endif
+if UAVCAN_STM32_TIMER_NUMBER = 4 && STM32_TIM4
+comment "Timer 4 is already configured for NuttX"
+endif
+if UAVCAN_STM32_TIMER_NUMBER = 5 && STM32_TIM5
+comment "Timer 5 is already configured for NuttX"
+endif
+if UAVCAN_STM32_TIMER_NUMBER = 6 && STM32_TIM6
+comment "Timer 6 is already configured for NuttX"
+endif
+if UAVCAN_STM32_TIMER_NUMBER = 7 && STM32_TIM7
+comment "Timer 7 is already configured for NuttX"
+endif
+
 config UAVCAN_STM32_TIMER_NUMBER
 	int "Timer Number"
-	default 2
+	default 2 if STM32_HAVE_TIM2 && !STM32_TIM2
+	default 3 if STM32_HAVE_TIM3 && !STM32_TIM3
+	default 4 if STM32_HAVE_TIM4 && !STM32_TIM4
+	default 5 if STM32_HAVE_TIM5 && !STM32_TIM5
+	default 6 if STM32_HAVE_TIM6 && !STM32_TIM6
+	default 7 if STM32_HAVE_TIM7 && !STM32_TIM7
 	range 2 7
 	---help---
 		Specifies the timer number.
