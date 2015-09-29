@@ -67,13 +67,8 @@ CXXFLAGS += -I$(LIBUAVCAN_INC) -I$(LIBUAVCAN_STM32_INC) -Idsdlc_generated
 CXXFLAGS += -I$(TOPDIR)/arch/arm/src/common -I$(TOPDIR)/arch/arm/src/stm32
 
 CXXFLAGS += -DUAVCAN_STM32_NUTTX=1
+CXXFLAGS += -DUAVCAN_STM32_NUM_IFACES=$(CONFIG_UAVCAN_STM32_NUM_IFACES)
 CXXFLAGS += -DUAVCAN_STM32_TIMER_NUMBER=$(CONFIG_UAVCAN_STM32_TIMER_NUMBER)
-
-ifeq ($(CONFIG_STM32_CAN2),y)
-CXXFLAGS += -DUAVCAN_STM32_NUM_IFACES=2
-else
-CXXFLAGS += -DUAVCAN_STM32_NUM_IFACES=1
-endif
 
 ifeq ($(CONFIG_UAVCAN_CPP03),y)
 CXXFLAGS += -std=c++03 -DUAVCAN_CPP_VERSION=UAVCAN_CPP03
@@ -164,6 +159,9 @@ libuavcan: $(LIBUAVCAN_UNPACKNAME) $(DSDL_UNPACKNAME) $(PYUAVCAN_UNPACKNAME)
 dsdlc_generated: libuavcan
 	$(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
 
+$(APPDIR)/include/uavcan: libuavcan/libuavcan/include/uavcan
+	$(Q) cp -R libuavcan/libuavcan/include/uavcan $(APPDIR)/include
+
 $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 	$(call COMPILEXX, $<, $@)
 
@@ -173,9 +171,9 @@ $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 
 install:
 
-context:
+context: libuavcan dsdlc_generated $(APPDIR)/include/uavcan
 
-.depend: Makefile $(CXXSRCS) dsdlc_generated
+.depend: Makefile $(CXXSRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(CXXSRCS) >Make.dep
 	$(Q) touch $@
 
@@ -185,6 +183,7 @@ clean:
 	$(call DELFILE, .built)
 	$(call DELDIR, libuavcan)
 	$(call DELDIR, dsdlc_generated)
+	$(call DELDIR, $(APPDIR)/include/uavcan)
 
 distclean: clean
 	$(call DELFILE, Make.dep)
