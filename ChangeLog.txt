@@ -1428,3 +1428,6 @@
 	* apps/modbus and apps/include/modbus:  Macros PR_BEGIN_EXTERN_C and
 	  PR_END_EXTERN_C were not defined in all contexts.  Replace with
 	  explicit expansion in all cases. From Stefan Kolb (2015-09-03).
+	* apps/canutils/uavcan: Add support for libuavcan.  From  Paul
+	  Alexander Patience (2015-09-25).
+
