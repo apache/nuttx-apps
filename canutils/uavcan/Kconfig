@@ -147,7 +147,30 @@ config UAVCAN_MEM_POOL_BLOCK_SIZE
 	int "Memory Pool Block Size"
 	default 0
 	---help---
-		Specifies the memory pool block size.  A value of 0 will
-		use the library default.
+		Specifies the memory pool block size.  If the value is 0, the
+		library will use a default value.
+
+config UAVCAN_RX_QUEUE_CAPACITY
+	int "Rx Queue Capacity"
+	default 0
+	---help---
+		Specifies the rx queue capacity.  If the value is 0, the
+		library will use a default value.
+
+config UAVCAN_BIT_RATE
+	int "Bit Rate"
+	default 0
+	range 0 1000000
+	---help---
+		Specifies the CAN bit rate.  If the value is 0, the library
+		will automatically detect the bit rate.
+
+config UAVCAN_INIT_RETRIES
+	int "Initialization Retries"
+	default 0
+	---help---
+		Specifies the number of times to try initializing the CAN
+		peripherals before panicking.  A value of 0 means to try
+		forever.
 
 endif

@@ -61,7 +61,7 @@ PYUAVCAN_PACKNAME = $(PYUAVCAN_UNPACKNAME)$(PACKEXT)
 -include libuavcan/libuavcan/include.mk
 -include libuavcan/libuavcan_drivers/stm32/driver/include.mk
 
-CXXSRCS = $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
+CXXSRCS = platform_stm32.cpp $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 
 CXXFLAGS += -I$(LIBUAVCAN_INC) -I$(LIBUAVCAN_STM32_INC) -Idsdlc_generated
 CXXFLAGS += -I$(TOPDIR)/arch/arm/src/common -I$(TOPDIR)/arch/arm/src/stm32

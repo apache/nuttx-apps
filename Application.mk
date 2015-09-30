@@ -35,8 +35,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
--include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
 CXXEXT ?= .cxx
@@ -44,9 +42,14 @@ CXXEXT ?= .cxx
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
 CXXOBJS = $(CXXSRCS:$(CXXEXT)=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
+ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
+  MAINOBJ = $(MAINSRC:$(CXXEXT)=$(OBJEXT))
+else
+  MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
+endif
+
+SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
@@ -71,11 +74,19 @@ all: .built
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
+$(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 	$(call COMPILEXX, $<, $@)
+
+ifeq ($(suffix $(MAINSRC)),$(CXXEXT))
+$(MAINOBJ): %$(OBJEXT): %$(CXXEXT)
+	$(call COMPILEXX, $<, $@)
+else
+$(MAINOBJ): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+endif
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
@@ -113,9 +124,12 @@ else
 context:
 endif
 
-.depend: Makefile $(SRCS) $(CXXSRCS)
+.depend: Makefile $(SRCS)
+ifeq ($(filter %$(CXXEXT),$(SRCS)),)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(CXXSRCS) >Make.dep
+else
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(SRCS) >Make.dep
+endif
 	$(Q) touch $@
 
 depend: .depend
