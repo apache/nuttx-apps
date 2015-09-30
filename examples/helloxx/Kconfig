@@ -6,6 +6,7 @@
 config EXAMPLES_HELLOXX
 	bool "\"Hello, World!\" C++ example"
 	default n
+	depends on HAVE_CXX
 	---help---
 		Enable the \"Hello, World!\" C++ example
 
@@ -19,6 +20,6 @@ config EXAMPLES_HELLOXX_CXXINITIALIZE
 		By default, if CONFIG_HAVE_CXX and CONFIG_HAVE_CXXINITIALIZE are
 		defined, then this example will call the NuttX function to
 		initialize static C++ constructors.  This option may be disabled,
-		however, if that static initialization was preformed elsewhere.
+		however, if that static initialization was performed elsewhere.
 
 endif

@@ -33,45 +33,17 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
 # CXX test program
 
 ASRCS =
 CSRCS =
-CXXSRCS = 
+CXXSRCS =
 MAINSRC = cxxtest_main.cxx
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-CXXOBJS = $(CXXSRCS:.cxx=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.cxx=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS) $(CXXSRCS)
-OBJS = $(AOBJS) $(COBJS) $(CXXOBJS)
-
-ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
 
 CONFIG_XYZ_PROGNAME ?= cxxtest$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-ROOTDEPPATH = --dep-path .
-
-ROOTDEPPATH = --dep-path .
 
 # cxxtest built-in application info
 
@@ -79,71 +51,4 @@ APPNAME = cxxtest
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 4096
 
-# Common build
-
-VPATH =
-
-all: .built
-.PHONY: clean depend distclean chkcxx
-
-chkcxx:
-ifneq ($(CONFIG_HAVE_CXX),y)
-	@echo ""
-	@echo "In order to use this example, you toolchain must support must"
-	@echo ""
-	@echo "  (1) Explicitly select CONFIG_HAVE_CXX to build in C++ support"
-	@echo "  (2) Define CXX, CXXFLAGS, and COMPILEXX in the Make.defs file"
-	@echo "      of the configuration that you are using."
-	@echo ""
-	@exit 1
-endif
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-$(CXXOBJS) $(MAINOBJ): %$(OBJEXT): %.cxx
-	$(call COMPILEXX, $<, $@)
-
-.built: chkcxx $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
-
-ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
-install:
-
-endif
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
-
-.depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
--include Make.dep
+include $(APPDIR)/Application.mk
