@@ -1,0 +1,325 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_UDPBLASTER
+	bool "UDP blaster example"
+	default n
+	depends on NET_UDP
+	---help---
+		Enable the network test example
+
+if EXAMPLES_UDPBLASTER
+
+config EXAMPLES_UDPBLASTER_HOSTRATE
+	int "Host send rate (bits/second)"
+	default 800000
+
+choice
+	prompt "IP Domain"
+	default EXAMPLES_UDPBLASTER_IPv4 if NET_IPv4
+	default EXAMPLES_UDPBLASTER_IPv6 if NET_IPv6 && !NET_IPv4
+
+config EXAMPLES_UDPBLASTER_IPv4
+	bool "IPv4"
+	depends on NET_IPv4
+
+config EXAMPLES_UDPBLASTER_IPv6
+	bool "IPv6"
+	depends on NET_IPv6
+
+endchoice # IP Domain
+
+config EXAMPLES_UDPBLASTER_INIT
+	bool "Initialize network"
+	default n if NSH_BUILTIN_APPS
+	default y if !NSH_BUILTIN_APPS
+	depends on !BUILD_KERNEL && !EXAMPLES_UDPBLASTER_LOOPBACK
+	---help---
+		Include logic to initialize the network.  This should not be done if
+		the network is already initialized when udpblaster runs.  This is
+		usually the case, for example, when udpblaster is run as an NSH built-
+		in task.
+
+config EXAMPLES_UDPBLASTER_NOMAC
+	bool "Use Canned MAC Address"
+	default n
+	depends on EXAMPLES_UDPBLASTER_INIT
+
+if EXAMPLES_UDPBLASTER_IPv4
+
+comment "IPv4 addresses"
+
+config EXAMPLES_UDPBLASTER_TARGETIP
+	hex "Target IP address"
+	default 0x0a000002
+
+config EXAMPLES_UDPBLASTER_HOSTIP
+	hex "Host IP address)"
+	default 0x0a000001
+
+if EXAMPLES_UDPBLASTER_INIT
+
+config EXAMPLES_UDPBLASTER_NETMASK
+	hex "Network Mask"
+	default 0xffffff00
+
+endif # EXAMPLES_UDPBLASTER_INIT
+endif # EXAMPLES_UDPBLASTER_IPv4
+
+if EXAMPLES_UDPBLASTER_IPv6
+if !NET_ICMPv6_AUTOCONF
+
+comment "Target IPv6 address"
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the first of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the second of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the third of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fourth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the fifth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the sixth of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the seventh of the 8-values.  The
+		default for all eight values is fc00::2.
+
+config EXAMPLES_UDPBLASTER_TARGETIPv6_8
+	hex "[7]"
+	default 0x0002
+	range 0x0 0xffff
+	---help---
+		Target IPv6 address.  This is a 16-bit integer value in host order.
+		Each of the eight values forming the full IP address must be
+		specified individually.  This is the last of the 8-values.  The
+		default for all eight values is fc00::2.
+
+comment "Router IPv6 address"
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_1
+	hex "[0]"
+	default 0xfc00
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the first of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_2
+	hex "[1]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the second of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_3
+	hex "[2]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the third of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_4
+	hex "[3]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fourth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_5
+	hex "[4]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the fifth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_6
+	hex "[5]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the sixth of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_7
+	hex "[6]"
+	default 0x0000
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the seventh of the
+		8-values.  The default for all eight values is fc00::1.
+
+config EXAMPLES_UDPBLASTER_HOSTIPv6_8
+	hex "[7]"
+	default 0x0001
+	range 0x0 0xffff
+	---help---
+		Default router IP address (aka, Gateway).  This is a 16-bit integer
+		value in host order.  Each of the eight values forming the full IP
+		address must be specified individually.  This is the last of the
+		8-values.  The default for all eight values is fc00::1.
+
+if EXAMPLES_UDPBLASTER_INIT
+
+comment "IPv6 Network mask"
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_1
+	hex "[0]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the first of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_2
+	hex "[1]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the second of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_3
+	hex "[2]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the third of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_4
+	hex "[3]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fourth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_5
+	hex "[4]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the fifth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_6
+	hex "[5]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the sixth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_7
+	hex "[6]"
+	default 0xffff
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the seventh of the 8-values.  The default for
+		all eight values is fe00::0.
+
+config EXAMPLES_UDPBLASTER_IPv6NETMASK_8
+	hex "[7]"
+	default 0xff80
+	range 0x0 0xffff
+	---help---
+		Network mask.  This is a 16-bit integer value in host order.  Each
+		of the eight values forming the full IP address must be specified
+		individually.  This is the eighth of the 8-values.  The default for
+		all eight values is fe00::0.
+
+endif # NET_ICMPv6_AUTOCONF
+endif # EXAMPLES_UDPBLASTER_INIT
+endif # EXAMPLES_UDPBLASTER_IPv6
+endif # EXAMPLES_UDPBLASTER

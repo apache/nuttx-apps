@@ -1430,4 +1430,6 @@
 	  explicit expansion in all cases. From Stefan Kolb (2015-09-03).
 	* apps/canutils/uavcan: Add support for libuavcan.  From  Paul
 	  Alexander Patience (2015-09-25).
+	* apps/examples/udpblaster: Add a test to stress the network by
+	  sending UDP packets at a very high rate.  (2015-09-30).
 
