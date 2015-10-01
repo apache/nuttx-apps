@@ -159,8 +159,10 @@ libuavcan: $(LIBUAVCAN_UNPACKNAME) $(DSDL_UNPACKNAME) $(PYUAVCAN_UNPACKNAME)
 dsdlc_generated: libuavcan
 	$(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
 
-$(APPDIR)/include/uavcan: libuavcan/libuavcan/include/uavcan
-	$(Q) cp -R libuavcan/libuavcan/include/uavcan $(APPDIR)/include
+$(APPDIR)/include/uavcan: libuavcan/libuavcan/include/uavcan dsdlc_generated/uavcan
+	$(Q) mkdir -p $(APPDIR)/include/uavcan
+	$(Q) cp -R libuavcan/libuavcan/include/uavcan/* $(APPDIR)/include/uavcan
+	$(Q) cp -R dsdlc_generated/uavcan/* $(APPDIR)/include/uavcan
 
 $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 	$(call COMPILEXX, $<, $@)
