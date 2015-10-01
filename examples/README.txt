@@ -1861,6 +1861,12 @@ examples/touchscreen
     int board_tsc_setup(int minor);
     void board_tsc_teardown(void);
 
+examples/uavcan
+^^^^^^^^^^^^^^^
+
+  Illustrates use of canutils/uavcan.  Contributed by Paul Alexander
+  Patience.
+
 examples/udp
 ^^^^^^^^^^^^
 
