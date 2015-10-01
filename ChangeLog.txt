@@ -1394,7 +1394,7 @@
 	  apps/tools/mkkconfig.sh.  Needed for a Windows native build.  Untested
 	  on initial commit (2015-08-12).
 
-7.12 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.12 2015-10-01 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/can:  Extend the CAN loopback test by adding more
 	  command line options (2015-08-17).
@@ -1412,11 +1412,11 @@
 	  substantial effect on system image size. Mainly code/text. If
 	  loading of applications at runtime is not planned do not select
 	  this.  From Pavel Pisa (2015-08-23).
-	* apps/nettest: Add option to suppress network initialization.  This
-	  is necessary if the nettest is run from NSH which has already
+	* apps/examples/nettest: Add option to suppress network initialization.
+	  This is necessary if the nettest is run from NSH which has already
 	  initialized the network (2015-08-26).
-	* apps/nettest: Extend test so that can be performed using the local
-	  loopback device (2015-08-26).
+	* apps/examples/nettest: Extend test so that can be performed using the
+	  local loopback device (2015-08-26).
 	* apps/nshlib: Fix error handling in 'cat' command.  On a failure to
 	  allocate memory, a file was not being closed.  From Bruno Herrera
 	  (2015-08-26).
@@ -1435,3 +1435,4 @@
 	* apps/examples/uavcan: libuavcan example from Paul Alexander
 	  Patience (2015-10-01).
 
+7.13 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
