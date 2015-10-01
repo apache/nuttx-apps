@@ -1,5 +1,5 @@
 /****************************************************************************
- * canutils/uavcan/uavcan_platform.cpp
+ * examples/uavcan/uavcan_main.cxx
  *
  *   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
  *   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
@@ -39,63 +39,63 @@
 
 #include <nuttx/config.h>
 
-#include <cunistd>
+#include <cstdio>
+#include <cstdlib>
 
-#include <uavcan_stm32/uavcan_stm32.hpp>
+#include <uavcan/uavcan.hpp>
 
 /****************************************************************************
- * Private Data
+ * Public Function Prototypes
  ****************************************************************************/
 
-#if CONFIG_UAVCAN_RX_QUEUE_CAPACITY > 0
-static uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY> can;
-#else
-static uavcan_stm32::CanInitHelper<> can;
+#ifndef CONFIG_BUILD_KERNEL
+extern "C"
+{
+  int uavcan_main(int argc, FAR char *argv[]);
+}
 #endif
 
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-static void delay_callable()
-{
-  std::usleep(can.getRecommendedListeningDelay().toUSec());
-}
+uavcan::ICanDriver& getCanDriver();
+uavcan::ISystemClock& getSystemClock();
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-uavcan::ICanDriver& getCanDriver()
+/****************************************************************************
+ * Name: uavcan_main
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int uavcan_main(int argc, FAR char *argv[])
+#endif
 {
-  static bool initialized = false;
+  uavcan::Node<CONFIG_EXAMPLES_UAVCAN_NODE_MEM_POOL_SIZE>
+    node(getCanDriver(), getSystemClock());
+  int ret;
 
-  if (!initialized)
+  node.setNodeID(CONFIG_EXAMPLES_UAVCAN_NODE_ID);
+  node.setName(CONFIG_EXAMPLES_UAVCAN_NODE_NAME);
+
+  ret = node.start();
+  if (ret < 0)
     {
-      uavcan::uint32_t bitrate = CONFIG_UAVCAN_BIT_RATE;
-
-#if CONFIG_UAVCAN_INIT_RETRIES > 0
-      int retries = 0;
-#endif
-
-      while (can.init(delay_callable, bitrate) < 0)
-        {
-#if CONFIG_UAVCAN_INIT_RETRIES > 0
-          retries++;
-          if (retries >= CONFIG_UAVCAN_INIT_RETRIES)
-            {
-              PANIC();
-            }
-#endif
-        }
-
-      initialized = true;
+      std::fprintf(stderr, "ERROR: node.start failed: %d\n", ret);
+      return EXIT_FAILURE;
     }
 
-  return can.driver;
-}
+  node.setModeOperational();
 
-uavcan::ISystemClock& getSystemClock()
-{
-  return uavcan_stm32::SystemClock::instance();
+  for (;;)
+    {
+      ret = node.spin(uavcan::MonotonicDuration::fromMSec(100));
+      if (ret < 0)
+        {
+          std::fprintf(stderr, "ERROR: node.spin failed: %d\n", ret);
+        }
+    }
+
+  return EXIT_SUCCESS;
 }
