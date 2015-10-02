@@ -68,7 +68,7 @@ static int sigusr2_rcvd = 0;
 
 /****************************************************************************
  * Name: siguser_action
- ***************************************************************************/
+ ****************************************************************************/
 
 /* NOTE: it is necessary for functions that are referred to by function pointers
  *  pointer to be declared with global scope (at least for ARM).  Otherwise,

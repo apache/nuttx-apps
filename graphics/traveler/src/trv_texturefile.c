@@ -69,7 +69,7 @@
  *   Return the log base 2 of the argument, or -1 if the argument is not
  *   an integer power of 2.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_log2(uint16_t x)
 {
@@ -87,7 +87,7 @@ static int trv_log2(uint16_t x)
  * Name: trv_new_texture
  *
  * Description:
- ***************************************************************************/
+ ****************************************************************************/
 
 static FAR struct trv_bitmap_s *
 trv_new_texture(uint16_t width, uint16_t height)
@@ -147,7 +147,7 @@ trv_new_texture(uint16_t width, uint16_t height)
 /****************************************************************************
  * Name: trv_quantize_texture
  * Description:
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
                                  FAR struct trv_bitmap_s *bitmap)
@@ -176,7 +176,7 @@ static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_bitmap_s *trv_read_texture(FAR const char *filename)
 {

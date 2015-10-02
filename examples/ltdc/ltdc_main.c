@@ -1629,7 +1629,7 @@ static void ltdc_flip_test(void)
  *   value - The color to set
  *   size  - the size of the color value table
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_clrcolor(uint8_t *color, uint8_t value, size_t size)
 {
@@ -1653,7 +1653,7 @@ void ltdc_clrcolor(uint8_t *color, uint8_t value, size_t size)
  * Return:
  *   0 - if equal otherwise unequal to 0
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int ltdc_cmpcolor(uint8_t *color1, uint8_t *color2, size_t size)
 {
@@ -1673,7 +1673,7 @@ int ltdc_cmpcolor(uint8_t *color1, uint8_t *color2, size_t size)
  * Description:
  *   Initialize the color lookup table
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_FB_CMAP
 void ltdc_init_cmap(void)
@@ -1712,7 +1712,7 @@ void ltdc_init_cmap(void)
  * Description:
  *   Initialize
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
 {
@@ -1758,7 +1758,7 @@ FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
  * Description:
  *   Initialize
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_deletecmap(FAR struct fb_cmap_s *cmap)
 {
@@ -1780,7 +1780,7 @@ void ltdc_deletecmap(FAR struct fb_cmap_s *cmap)
  * Description:
  *   Get the correct color value to the pixel format
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
 {
@@ -1813,13 +1813,13 @@ uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
   return value;
 }
 
-/***************************************************************************
+/****************************************************************************
  * Name: ltdc_simple_draw
  *
  * Description:
  *   Draw four different colored rectangles on the whole screen
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_simple_draw(FAR struct fb_videoinfo_s *vinfo,
                                 FAR struct fb_planeinfo_s *pinfo)

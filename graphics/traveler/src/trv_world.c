@@ -91,7 +91,7 @@
 
 /****************************************************************************
  * Private Type Declarations
- ***************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Function Prototypes
@@ -166,7 +166,7 @@ static const char g_world_images_name[]          = WORLD_IMAGES;
  *   Reads a short value from the INI file and assures that it is within
  *   range for an a int16_t
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_ini_short(INIHANDLE inihandle, FAR int16_t *value,
                          FAR const char *section, FAR const char *name)
@@ -221,7 +221,7 @@ static int trv_ini_short(INIHANDLE inihandle, FAR int16_t *value,
  * Description:
  *   Reads a long value from the INI file
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 #if 0 /* Not used */
 static uint8_t trv_ini_long(INIHANDLE inihandle, FAR long *value,
@@ -240,7 +240,7 @@ static uint8_t trv_ini_long(INIHANDLE inihandle, FAR long *value,
  * Description:
  *   Reads a file name from the the INI file.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_ini_filename(INIHANDLE inihandle, FAR const char *path,
                             FAR const char *section, FAR const char *name,
@@ -280,7 +280,7 @@ static int trv_ini_filename(INIHANDLE inihandle, FAR const char *path,
  *   This is the guts of trv_world_create.  It is implemented as a separate 
  *   function in order to simplify error handling
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldpath)
 {
@@ -430,7 +430,7 @@ static int trv_manage_wldfile(INIHANDLE inihandle, FAR const char *wldpath)
  * Description:
  *   Load the world data structures from information in an INI file
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int trv_world_create(FAR const char *wldpath, FAR const char *wldfile)
 {
@@ -469,7 +469,7 @@ int trv_world_create(FAR const char *wldpath, FAR const char *wldfile)
  * Description:
  *   Destroy the world and release all of its resources
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_world_destroy(void)
 {

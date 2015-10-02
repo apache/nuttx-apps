@@ -102,7 +102,7 @@ static int g_cmd_history_len = 0;
  * Returned Value:
  *   The number of matching names
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_BUILTIN)
 static int count_builtin_maches(FAR char *buf, FAR int *matches, int namelen)
@@ -143,7 +143,7 @@ static int count_builtin_maches(FAR char *buf, FAR int *matches, int namelen)
  * Returned Value:
  *   None.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
 static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
@@ -328,7 +328,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
  *   there are multiple clients of readline(), they must all share the same
  *   prompt string (with exceptions in the case of the kernel build).
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
 FAR const char *readline_prompt(FAR const char *prompt)
@@ -361,7 +361,7 @@ FAR const char *readline_prompt(FAR const char *prompt)
  *   share the same tab-completion logic (with exceptions in the case of
  *   the kernel build).
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
 FAR const struct extmatch_vtable_s *
@@ -400,7 +400,7 @@ FAR const struct extmatch_vtable_s *
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen)
 {

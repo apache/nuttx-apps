@@ -60,7 +60,7 @@
  *   graphic file formats can be supported.  Currently only the ancient
  *   PCX format is supported.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_graphicfile_s *tvr_graphicfile_read(char *filename)
 {
@@ -94,13 +94,13 @@ FAR struct trv_graphicfile_s *tvr_graphicfile_read(char *filename)
   return gfile;
 }
 
-/*************************************************************************
+/****************************************************************************
  * Name: trv_graphicfile_new
  *
  * Description:
  *   Allocate a new graphic file structure
  *
- ************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_graphicfile_s *trv_graphicfile_new(void)
 {
@@ -117,14 +117,14 @@ FAR struct trv_graphicfile_s *trv_graphicfile_new(void)
   return gfile;
 }
 
-/*************************************************************************
+/****************************************************************************
  * Name: trv_graphicfile_free
  *
  * Description:
  *   Free the graphic file structure after also freeing in additional
  *   resources attached to the structure.
  
- ************************************************************************/
+ ****************************************************************************/
 
 void trv_graphicfile_free(FAR struct trv_graphicfile_s *gfile)
 {
@@ -144,14 +144,14 @@ void trv_graphicfile_free(FAR struct trv_graphicfile_s *gfile)
     }
 }
 
-/*************************************************************************
+/****************************************************************************
  * Name: trv_graphicfile_pixel
  *
  * Description:
  *   Return the RGB color value for a pixel at location (x,y) in the
  *   texture bitmap.
  *
- ************************************************************************/
+ ****************************************************************************/
 
 struct trv_color_rgb_s
 trv_graphicfile_pixel(FAR struct trv_graphicfile_s *gfile, int x, int y)

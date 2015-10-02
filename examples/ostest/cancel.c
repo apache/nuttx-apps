@@ -1,4 +1,4 @@
-/***********************************************************************
+/****************************************************************************
  * examples/ostest/cancel.c
  *
  *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
@@ -31,7 +31,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ***********************************************************************/
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <time.h>

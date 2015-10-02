@@ -50,7 +50,7 @@
 
 /****************************************************************************
  * Private Type Declarations
- ***************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -63,7 +63,7 @@
  *
  *   This function loads the world data for one plane
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_load_worldplane(FAR FILE *fp, FAR struct trv_rect_head_s *head,
                                uint8_t nrects)
@@ -107,7 +107,7 @@ static int trv_load_worldplane(FAR FILE *fp, FAR struct trv_rect_head_s *head,
  * Function: trv_load_planes
  * Description:
  * This function loads the world data from the opened file
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_load_planes(FAR FILE *fp)
 {
@@ -153,7 +153,7 @@ static int trv_load_planes(FAR FILE *fp)
  *
  * This function opens the input file and loads the world plane data from it
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int trv_load_planefile(FAR const char *wldfile)
 {

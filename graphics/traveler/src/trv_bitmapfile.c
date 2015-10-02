@@ -59,7 +59,7 @@
  * Description:
  *   Read a file name from the input stream
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_read_filename(FAR FILE  *fp, FAR char *filename)
 {
@@ -126,7 +126,7 @@ static int trv_read_filename(FAR FILE  *fp, FAR char *filename)
  * Description:
  *   This function loads the world data from the input file
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_load_bitmaps(FAR FILE *fp, FAR const char *wldpath)
 {
@@ -210,7 +210,7 @@ static int trv_load_bitmaps(FAR FILE *fp, FAR const char *wldpath)
 
 /****************************************************************************
  * Public Functions
- ***************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: trv_load_bitmapfile
@@ -218,7 +218,7 @@ static int trv_load_bitmaps(FAR FILE *fp, FAR const char *wldpath)
  * Description:
  *   This function opens the input file and loads the world data from it
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int trv_load_bitmapfile(FAR const char *bitmapfile, FAR const char *wldpath)
 {
