@@ -127,7 +127,7 @@ extern "C"
  * Returned Value:
  *   Pointer to created NxPlayer context or NULL if error.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 FAR struct nxplayer_s *nxplayer_create(void);
 
@@ -143,7 +143,7 @@ FAR struct nxplayer_s *nxplayer_create(void);
  * Returned Value:
  *   None
  *
- **************************************************************************/
+ ****************************************************************************/
 
 void nxplayer_release(FAR struct nxplayer_s *pPlayer);
 
@@ -158,7 +158,7 @@ void nxplayer_release(FAR struct nxplayer_s *pPlayer);
  * Returned Value:
  *   None
  *
- **************************************************************************/
+ ****************************************************************************/
 
 void nxplayer_reference(FAR struct nxplayer_s *pPlayer);
 
@@ -178,7 +178,7 @@ void nxplayer_reference(FAR struct nxplayer_s *pPlayer);
  * Returned Value:
  *   OK if context initialized successfully, error code otherwise.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer,
                        FAR const char *device);
@@ -202,7 +202,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer,
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
                       FAR const char *filename, int filefmt, int subfmt);
@@ -218,7 +218,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
 int nxplayer_stop(FAR struct nxplayer_s *pPlayer);
@@ -235,7 +235,7 @@ int nxplayer_stop(FAR struct nxplayer_s *pPlayer);
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxplayer_pause(FAR struct nxplayer_s *pPlayer);
@@ -252,7 +252,7 @@ int nxplayer_pause(FAR struct nxplayer_s *pPlayer);
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
 int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
@@ -278,7 +278,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer);
  * Returned Value:
  *   OK if fast forward operation successful.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
 int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample);
@@ -305,7 +305,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample);
  * Returned Value:
  *   OK if rewind operation successfully initiated.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_REWIND
 int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample);
@@ -325,7 +325,7 @@ int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample);
  * Returned Value:
  *   OK if rewind operation successfully cancelled.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
 int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused);
@@ -345,7 +345,7 @@ int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused);
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
 int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume);
@@ -365,7 +365,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume);
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
@@ -385,7 +385,7 @@ int nxplayer_setbalance(FAR struct nxplayer_s *pPlayer, uint16_t balance);
  * Returned Value:
  *   None
  *
- **************************************************************************/
+ ****************************************************************************/
 
 void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer,
                           FAR const char *mediadir);
@@ -406,7 +406,7 @@ void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer,
  * Returned Value:
  *   OK if equalization was set correctly.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_EQUALIZER
 int nxplayer_setequalization(FAR struct nxplayer_s *pPlayer,
@@ -426,7 +426,7 @@ int nxplayer_setequalization(FAR struct nxplayer_s *pPlayer,
  * Returned Value:
  *   OK if the bass level was set successfully
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
 int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t bass);
@@ -445,7 +445,7 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t bass);
  * Returned Value:
  *   OK if the treble level was set successfully
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
 int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t treble);
@@ -463,7 +463,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t treble);
  * Returned Value:
  *   OK if file found, device found, and playback started.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
 int nxplayer_systemreset(FAR struct nxplayer_s *pPlayer);

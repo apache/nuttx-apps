@@ -82,7 +82,7 @@ extern "C"
  * Returned values:
  *   Standard task return values (zero meaning success).
  *
- **************************************************************************/
+ ****************************************************************************/
 
 int usbmonitor_start(int argc, char **argv);
 int usbmonitor_stop(int argc, char **argv);

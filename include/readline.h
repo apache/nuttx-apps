@@ -118,7 +118,7 @@ extern "C"
  *   there are multiple clients of readline(), they must all share the same
  *   prompt string (with exceptions in the case of the kernel build).
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_READLINE_TABCOMPLETION
 FAR const char *readline_prompt(FAR const char *prompt);
@@ -148,7 +148,7 @@ FAR const char *readline_prompt(FAR const char *prompt);
  *   share the same tab-completion logic (with exceptions in the case of
  *   the kernel build).
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if defined(CONFIG_READLINE_TABCOMPLETION) && \
     defined(CONFIG_READLINE_HAVE_EXTMATCH)
@@ -183,7 +183,7 @@ FAR const struct extmatch_vtable_s *
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if CONFIG_NFILE_STREAMS > 0
 ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
@@ -214,7 +214,7 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if CONFIG_NFILE_STREAMS > 0
 #  define std_readline(b,s) readline(b,s,stdin,stdout)
