@@ -38,7 +38,7 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Global Function Prototypes
+ * Public Function Prototypes
  ****************************************************************************/
 
 #ifdef CONFIG_MB_ASCII_ENABLED

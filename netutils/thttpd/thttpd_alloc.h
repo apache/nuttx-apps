@@ -48,7 +48,7 @@
 #ifdef CONFIG_THTTPD
 
 /****************************************************************************
- * Global Functions
+ * Public Functions
  ****************************************************************************/
 
 /* Allows all memory management calls to be intercepted */
