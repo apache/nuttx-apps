@@ -56,7 +56,7 @@
 #ifdef CONFIG_NX_KBD
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Select renderer -- Some additional logic would be required to support

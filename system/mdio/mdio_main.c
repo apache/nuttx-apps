@@ -52,7 +52,7 @@
 #include <arpa/inet.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define CONFIG_HELLO_IPADDR     0xc0a8eacd

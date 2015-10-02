@@ -54,7 +54,7 @@
 #include <apps/netutils/cJSON.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_WGETJSON_MAXSIZE

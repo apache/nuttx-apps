@@ -47,7 +47,7 @@
 #include <nuttx/nx/nxglib.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* Most of the NX configuration settings are probably *not* needed by this

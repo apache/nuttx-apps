@@ -59,7 +59,7 @@
 #include "tests/dirlist.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Check configuration.  This is not all of the configuration settings that

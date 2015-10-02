@@ -80,7 +80,7 @@
 #endif
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Check configuration.  This is not all of the configuration settings that

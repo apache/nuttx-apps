@@ -51,7 +51,7 @@
 #include <nuttx/fs/ioctl.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* Make sure that support for MTD partitions is enabled */

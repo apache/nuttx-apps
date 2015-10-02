@@ -44,7 +44,7 @@
 #include <pthread.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* CONFIG_NSH_BUILTIN_APPS - Build the I2SCHAR test as an NSH built-in

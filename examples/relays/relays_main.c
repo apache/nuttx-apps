@@ -54,7 +54,7 @@
 #ifdef CONFIG_ARCH_RELAYS
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_RELAYS_NRELAYS

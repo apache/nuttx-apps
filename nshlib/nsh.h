@@ -57,7 +57,7 @@
 #include <nuttx/usb/usbdev_trace.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* The background commands require pthread support */
