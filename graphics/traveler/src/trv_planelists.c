@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_planelist.c
  * This file contains the logic to manage world plane lists.
  *

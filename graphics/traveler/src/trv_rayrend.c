@@ -1,4 +1,4 @@
-/*****************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_rayrend.c
  * This file contains the functions needed to render a screen.
  *

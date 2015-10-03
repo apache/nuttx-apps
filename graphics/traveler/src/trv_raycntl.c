@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_raycntl.c
  *  This file contains the high-level ray caster control logic
  *

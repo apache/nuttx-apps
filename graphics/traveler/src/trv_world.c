@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_world.c
  * This file contains the logic that creates and destroys the world.
  *

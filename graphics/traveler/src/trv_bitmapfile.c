@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_bitmapfile.c
  * This file contains the logic which loads texture bitmaps
  *

@@ -120,7 +120,7 @@ struct trv_input_s g_trv_input;
 
 /****************************************************************************
  * Private Function Prototypes
- *****************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_GRAPHICS_TRAVELER_JOYSTICK
 static struct trv_joystick_s g_trv_joystick;

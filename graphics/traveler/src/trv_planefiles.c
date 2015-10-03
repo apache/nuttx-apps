@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_planefiles.c
  * This file contains the logic to manage the world data files
  *

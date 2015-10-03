@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_doors.c
  * This file contains the logic which manages world door logic.
  *

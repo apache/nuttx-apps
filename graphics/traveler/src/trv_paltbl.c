@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_paltbl.c
  * This file contains the logic that creates the range palette table that is
  * used to modify the palette with range to hit

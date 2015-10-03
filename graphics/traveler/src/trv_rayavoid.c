@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_rayavoid.c
  * This file contains the logic which determines if the desired player motion
  * would cause a collision with various walls or if the motion would cause
@@ -38,7 +38,7 @@
  *
  ****************************************************************************/
 
-/*****************************************************************************
+/****************************************************************************
  * Included files
  ****************************************************************************/
 
@@ -48,7 +48,7 @@
 #include "trv_world.h"
 #include "trv_rayavoid.h"
 
-/*****************************************************************************
+/****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
@@ -56,7 +56,7 @@
 
 #define MIN_APPROACH_DISTANCE (64/4) /* One quarter cell */
 
-/*****************************************************************************
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -68,11 +68,11 @@
 
 static struct trv_rect_data_s *g_clip_rect;
 
-/*****************************************************************************
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/*****************************************************************************
+/****************************************************************************
  * Name:  trv_ray_test_xplane
  *
  * Description:
@@ -84,7 +84,7 @@ static struct trv_rect_data_s *g_clip_rect;
  *   trv_rayclip_player_xmotion and depends on the side-effect setting of
  *   g_clip_rect.
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_rect_data_s *trv_ray_test_xplane(FAR struct trv_camera_s *pov,
                                               trv_coord_t dist, int16_t yaw,
@@ -94,7 +94,7 @@ FAR struct trv_rect_data_s *trv_ray_test_xplane(FAR struct trv_camera_s *pov,
   return g_clip_rect;
 }
 
-/*****************************************************************************
+/****************************************************************************
  * Name:  trv_rayclip_player_xmotion
  *
  * Description:
@@ -103,7 +103,7 @@ FAR struct trv_rect_data_s *trv_ray_test_xplane(FAR struct trv_camera_s *pov,
  *   a collision with an X plane.  This logic is essentially a modified X
  *   ray cast.
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 trv_coord_t trv_rayclip_player_xmotion(FAR struct trv_camera_s *pov,
                                      trv_coord_t dist, int16_t yaw,
@@ -322,7 +322,7 @@ trv_coord_t trv_rayclip_player_xmotion(FAR struct trv_camera_s *pov,
   return reqdeltax;
 }
 
-/*****************************************************************************
+/****************************************************************************
  * Name:  trv_ray_test_yplane
  *
  * Description:
@@ -343,7 +343,7 @@ FAR struct trv_rect_data_s *trv_ray_test_yplane(FAR struct trv_camera_s *pov,
   return g_clip_rect;
 }
 
-/*****************************************************************************
+/****************************************************************************
  * Name:  trv_rayclip_player_ymotion
  *
  * Description:
@@ -569,7 +569,7 @@ trv_coord_t trv_rayclip_player_ymotion(FAR struct trv_camera_s *pov,
   return reqdeltay;
 }
 
-/*****************************************************************************
+/****************************************************************************
  * Name:  trv_ray_adjust_zpos
  *
  * Description:
