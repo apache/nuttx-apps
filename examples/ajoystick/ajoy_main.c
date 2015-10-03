@@ -114,8 +114,8 @@ static b16_t   g_ybslope;
 
 static const char *g_ajoynames[AJOY_NBUTTONS] =
 {
- "SELECT",   "FIRE",     "JUMP",     "BUTTON 4",
- "BUTTON 5", "BUTTON 6", "BUTTON 7", "BUTTON 8",
+  "SELECT",   "FIRE",     "JUMP",     "BUTTON 4",
+  "BUTTON 5", "BUTTON 6", "BUTTON 7", "BUTTON 8",
 };
 
 /****************************************************************************

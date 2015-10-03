@@ -213,7 +213,7 @@ int nettest_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_NETTEST_INIT
   /* Initialize the network */
 
- netest_initialize();
+  netest_initialize();
 #endif
 
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)

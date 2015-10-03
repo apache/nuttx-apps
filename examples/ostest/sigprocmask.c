@@ -126,7 +126,7 @@ void sigprocmask_test(void)
       printf("sigprocmask_test: ERROR sigprocmask failed: %d\n", errcode);
       goto errout_with_mask;
     }
- 
+
   /* It should be the same as newmask */
 
   if (memcmp(&currmask, &newmask, sizeof(sigset_t)) != 0)
@@ -185,7 +185,7 @@ void sigprocmask_test(void)
       printf("sigprocmask_test: ERROR sigprocmask failed: %d\n", errcode);
       goto errout_with_mask;
     }
- 
+
   /* It should be the same as newmask */
 
   if (memcmp(&currmask, &newmask, sizeof(sigset_t)) != 0)
@@ -193,7 +193,7 @@ void sigprocmask_test(void)
       printf("sigprocmask_test: ERROR unexpected sigprocmask\n");
       goto errout_with_mask;
     }
- 
+
   ret = sigprocmask(SIG_SETMASK, &saved, NULL);
   if (ret != OK)
     {

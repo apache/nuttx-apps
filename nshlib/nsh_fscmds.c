@@ -129,14 +129,14 @@ static char g_iobuffer[IOBUFFERSIZE];
 #if !defined(CONFIG_NSH_DISABLE_CP) || defined(CONFIG_NSH_FULLPATH)
 static void trim_dir(char *arg)
 {
- /* Skip any trailing '/' characters (unless it is also the leading '/') */
+  /* Skip any trailing '/' characters (unless it is also the leading '/') */
 
- int len = strlen(arg) - 1;
- while (len > 0 && arg[len] == '/')
-   {
+  int len = strlen(arg) - 1;
+  while (len > 0 && arg[len] == '/')
+    {
       arg[len] = '\0';
       len--;
-   }
+    }
 }
 #endif
 

@@ -114,7 +114,7 @@ extern "C"
  *
  ****************************************************************************/
 
-EXTERN ssize_t tiff_read(int fd, FAR void *buffer, size_t count);
+ssize_t tiff_read(int fd, FAR void *buffer, size_t count);
 
 /****************************************************************************
  * Name: tiff_write
@@ -132,7 +132,7 @@ EXTERN ssize_t tiff_read(int fd, FAR void *buffer, size_t count);
  *
  ****************************************************************************/
 
-EXTERN int tiff_write(int fd, FAR const void *buffer, size_t count);
+int tiff_write(int fd, FAR const void *buffer, size_t count);
 
 /****************************************************************************
  * Name: tiff_putint16
@@ -149,7 +149,7 @@ EXTERN int tiff_write(int fd, FAR const void *buffer, size_t count);
  *
  ****************************************************************************/
 
-EXTERN int tiff_putint16(int fd, uint16_t value);
+int tiff_putint16(int fd, uint16_t value);
 
 /****************************************************************************
  * Name: tiff_putint32
@@ -166,7 +166,7 @@ EXTERN int tiff_putint16(int fd, uint16_t value);
  *
  ****************************************************************************/
 
-EXTERN int tiff_putint32(int fd, uint32_t value);
+int tiff_putint32(int fd, uint32_t value);
 
 /****************************************************************************
  * Name: tiff_putstring
@@ -184,7 +184,7 @@ EXTERN int tiff_putint32(int fd, uint32_t value);
  *
  ****************************************************************************/
 
-EXTERN int tiff_putstring(int fd, FAR const char *string, int len);
+int tiff_putstring(int fd, FAR const char *string, int len);
 
 /****************************************************************************
  * Name: tiff_wordalign
@@ -201,7 +201,7 @@ EXTERN int tiff_putstring(int fd, FAR const char *string, int len);
  *
  ****************************************************************************/
 
-EXTERN ssize_t tiff_wordalign(int fd, size_t size);
+ssize_t tiff_wordalign(int fd, size_t size);
 
 #undef EXTERN
 #if defined(__cplusplus)
@@ -209,4 +209,3 @@ EXTERN ssize_t tiff_wordalign(int fd, size_t size);
 #endif
 
 #endif  /* __APPS_GRAPHICS_TIFF_TIFF_INTERNAL_H */
-

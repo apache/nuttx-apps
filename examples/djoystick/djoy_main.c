@@ -95,7 +95,7 @@ static djoy_buttonset_t g_djoylast;
 
 static const char *g_djoynames[DJOY_NDISCRETES] = 
 {
- "UP", "DOWN", "LEFT", "RIGHT", "SELECT", "FIRE", "JUMP", "RUN"
+  "UP", "DOWN", "LEFT", "RIGHT", "SELECT", "FIRE", "JUMP", "RUN"
 };
 
 /****************************************************************************
@@ -240,7 +240,7 @@ int djoy_main(int argc, char *argv[])
                   (long)nread, sizeof(djoy_buttonset_t));
           goto errout_with_fd;
         }
-      
+
       /* Show the set of joystick discretes that we just read */
 
       printf("Read set\n");

@@ -183,7 +183,7 @@ static int button7_handler(int irq, FAR void *context);
  * Private Data
  ****************************************************************************/
 
- /* Button Names */
+/* Button Names */
 
 static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 {

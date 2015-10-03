@@ -328,17 +328,18 @@ int cmd_date(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       goto errout;
     }
 
- /* Display or set the time */
+  /* Display or set the time */
 
- if (newtime)
-   {
-     ret = date_settime(vtbl, argv[0], newtime);
-   }
- else
-   {
-     ret = date_showtime(vtbl, argv[0]);
-   }
- return ret;
+  if (newtime)
+    {
+      ret = date_settime(vtbl, argv[0], newtime);
+    }
+  else
+    {
+      ret = date_showtime(vtbl, argv[0]);
+    }
+
+  return ret;
 
 errout:
   nsh_output(vtbl, errfmt, argv[0]);

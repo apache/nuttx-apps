@@ -321,10 +321,10 @@ static inline int tiff_putheader(FAR struct tiff_info_s *info)
       return ret;
     }
 
- /* Two pad bytes following the header */
+  /* Two pad bytes following the header */
 
- ret = tiff_putint16(info->outfd, 0);
- return ret;
+  ret = tiff_putint16(info->outfd, 0);
+  return ret;
 }
 
 /****************************************************************************

@@ -1716,7 +1716,7 @@ int zms_send(ZMSHANDLE handle, FAR const char *filename,
    * irrecoverable error is detected or until the file is sent correctly.
    */
 
- return zm_datapump(&pzms->cmn);
+  return zm_datapump(&pzms->cmn);
 }
 
 /****************************************************************************

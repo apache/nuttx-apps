@@ -140,7 +140,7 @@ trv_new_texture(uint16_t width, uint16_t height)
   bitmap->w     = width;
   bitmap->h     = height;
   bitmap->log2h = log2h;
-     
+
   return bitmap;
 }
 
@@ -162,7 +162,7 @@ static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
       for (y = gfile->height - 1; y >= 0; y--)
         {
           pixel        = trv_graphicfile_pixel(gfile, x, y);
-          *destpixel++ = trv_color_rgb2pixel(&pixel);   
+          *destpixel++ = trv_color_rgb2pixel(&pixel);
         }
     }
 }

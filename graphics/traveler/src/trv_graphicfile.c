@@ -83,7 +83,7 @@ FAR struct trv_graphicfile_s *tvr_graphicfile_read(char *filename)
    * REVISIT: Here would be the place where we would decide on the format of
    * the graphic file.  Here we just assume that the file is PCX.
    */
-   
+
   gfile = trv_load_pcx(fp, filename);
   if (gfile == NULL)
     {
@@ -123,7 +123,7 @@ FAR struct trv_graphicfile_s *trv_graphicfile_new(void)
  * Description:
  *   Free the graphic file structure after also freeing in additional
  *   resources attached to the structure.
- 
+
  ****************************************************************************/
 
 void trv_graphicfile_free(FAR struct trv_graphicfile_s *gfile)

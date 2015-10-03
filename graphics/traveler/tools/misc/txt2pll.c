@@ -257,11 +257,11 @@ int main(int argc, char **argv, char** envp)
 
   /* Write header information */
 
- if (fwrite((char*)&header, SIZEOF_TRVPLANEFILEHEADER_T, 1, outstream) != 1)
-   {
+  if (fwrite((char*)&header, SIZEOF_TRVPLANEFILEHEADER_T, 1, outstream) != 1)
+    {
       fprintf(stderr, "Failed to write file header\n");
       return EXIT_FAILURE;
-   }
+    }
 
   /* Read X Planes */
 

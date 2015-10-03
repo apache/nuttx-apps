@@ -1074,7 +1074,7 @@ static const struct pix_run_s g_nuttx[] =
   { 75,   0}, {  1,   5}, {  2,   4}, {  1,   3}, {  1, 163}, {  1,   6}, {  1,   4}, {  1,   5},  /* Row 158 */
   { 77,   0},
   { 76,   0}, {  1,   5}, {  4,   4}, {  1,   5}, { 78,   0}                                       /* Row 159 */
- };
+};
 
 #elif CONFIG_EXAMPLES_NXIMAGE_BPP == 16
 

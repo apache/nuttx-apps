@@ -3622,10 +3622,11 @@ YY_RULE_SETUP
 #line 1171 "bas_token.l"
 {
                     if (cur)
-                    {
-                      cur->statement=stmt_QUOTE_REM;
-                      strcpy(cur->u.rem=malloc(strlen(yytext+1)+1),yytext+1);
-                          }  
+                      {
+                        cur->statement=stmt_QUOTE_REM;
+                        strcpy(cur->u.rem=malloc(strlen(yytext+1)+1),yytext+1);
+                      } 
+
                     return T_QUOTE;
                   }
   YY_BREAK
@@ -4240,8 +4241,8 @@ static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file)
    * In that case, we don't want to reset the lineno or column.
    */
 
- if (b != YY_CURRENT_BUFFER)
-   {
+  if (b != YY_CURRENT_BUFFER)
+    {
       b->yy_bs_lineno = 1;
       b->yy_bs_column = 0;
     }
@@ -4352,9 +4353,9 @@ static void yyensure_buffer_stack (void)
                 (num_to_alloc * sizeof(struct yy_buffer_state*));
     if (! (yy_buffer_stack))
       YY_FATAL_ERROR("out of dynamic memory in yyensure_buffer_stack()");
-                
+         
     memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-        
+
     (yy_buffer_stack_max) = num_to_alloc;
     (yy_buffer_stack_top) = 0;
     return;

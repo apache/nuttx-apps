@@ -1871,7 +1871,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
       goto errout_with_session;
     }
 
- for (;;)
+  for (;;)
     {
       /* Read from the source (file or TCP connection) */
 
@@ -4042,7 +4042,7 @@ static FAR void *ftpd_worker(FAR void *arg)
 
   /* Then loop processing FTP commands */
 
- for (;;)
+  for (;;)
     {
       /* Receive the next command */
 

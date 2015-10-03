@@ -418,7 +418,7 @@ void ppp_upcall(struct ppp_context_s *ctx, u16_t protocol, u8_t *buffer, u16_t l
  * length of the codespace
  *
  ****************************************************************************/
- 
+
 u16_t scan_packet(struct ppp_context_s *ctx, u16_t protocol, const u8_t *list,
                   u8_t *buffer, u8_t *options, u16_t len)
 {

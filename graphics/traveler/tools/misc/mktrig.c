@@ -132,7 +132,7 @@ int main(int argc, char **argv, char **envp)
 
           value16 = (uint16_t)((long)(valuef));
           fprintf(outfile, "0x%04x", (unsigned int)value16);
-  
+
           i++;
           j++;
           if ((j < 8) && (i < 2400))

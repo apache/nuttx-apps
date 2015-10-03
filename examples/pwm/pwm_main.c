@@ -388,9 +388,9 @@ int pwm_main(int argc, char *argv[])
         }
     }
 
- close(fd);
- fflush(stdout);
- return OK;
+  close(fd);
+  fflush(stdout);
+  return OK;
 
 errout_with_dev:
   close(fd);

@@ -855,11 +855,11 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
     }
 #endif
 
- /* The inet_pton() function returns 1 if the conversion succeeds. It will
-  * return 0 if the input is not a valid IPv4 dotted-decimal string or a
-  * valid IPv6 address string, or -1 with errno set to EAFNOSUPPORT if
-  * the address family argument is unsupported.
-  */
+  /* The inet_pton() function returns 1 if the conversion succeeds. It will
+   * return 0 if the input is not a valid IPv4 dotted-decimal string or a
+   * valid IPv6 address string, or -1 with errno set to EAFNOSUPPORT if
+   * the address family argument is unsupported.
+   */
 
   return (ret > 0) ? OK : ERROR;
 

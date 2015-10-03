@@ -237,6 +237,7 @@ eMBErrorCode eMBDisable(void);
  *   returns eMBErrorCode::MB_EILLSTATE. Otherwise it returns
  *   eMBErrorCode::MB_ENOERR.
  */
+
 eMBErrorCode eMBPoll(void);
 
 /* Configure the slave id of the device.
@@ -258,6 +259,7 @@ eMBErrorCode eMBPoll(void);
  *   is too small it returns eMBErrorCode::MB_ENORES. Otherwise
  *   it returns eMBErrorCode::MB_ENOERR.
  */
+
 eMBErrorCode eMBSetSlaveID(uint8_t ucSlaveID, bool xIsRunning,
                            uint8_t const *pucAdditional,
                            uint16_t usAdditionalLen);
@@ -283,6 +285,7 @@ eMBErrorCode eMBSetSlaveID(uint8_t ucSlaveID, bool xIsRunning,
  *   case the values in config.h should be adjusted. If the argument was not
  *   valid it returns eMBErrorCode::MB_EINVAL.
  */
+
 eMBErrorCode eMBRegisterCB(uint8_t ucFunctionCode,
                            pxMBFunctionHandler pxHandler);
 
@@ -326,6 +329,7 @@ eMBErrorCode eMBRegisterCB(uint8_t ucFunctionCode,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
+
 eMBErrorCode eMBRegInputCB(uint8_t * pucRegBuffer, uint16_t usAddress,
                            uint16_t usNRegs);
 
@@ -361,6 +365,7 @@ eMBErrorCode eMBRegInputCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
+
 eMBErrorCode eMBRegHoldingCB(uint8_t * pucRegBuffer, uint16_t usAddress,
                              uint16_t usNRegs, eMBRegisterMode eMode);
 
@@ -397,6 +402,7 @@ eMBErrorCode eMBRegHoldingCB(uint8_t * pucRegBuffer, uint16_t usAddress,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
+
 eMBErrorCode eMBRegCoilsCB(uint8_t *pucRegBuffer, uint16_t usAddress,
                            uint16_t usNCoils, eMBRegisterMode eMode);
 
@@ -428,6 +434,7 @@ eMBErrorCode eMBRegCoilsCB(uint8_t *pucRegBuffer, uint16_t usAddress,
  *   - eMBErrorCode::MB_EIO If an unrecoverable error occurred. In this case
  *       a  SLAVE DEVICE FAILURE  exception is sent as a response.
  */
+
 eMBErrorCode eMBRegDiscreteCB(uint8_t *pucRegBuffer, uint16_t usAddress,
                               uint16_t usNDiscrete);
 

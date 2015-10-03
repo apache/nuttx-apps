@@ -210,7 +210,7 @@ static void trv_rend_zcell(uint8_t row, uint8_t col, uint8_t height, uint8_t wid
 
   endcol = col + width;
   endrow = row + height;
-     
+   
   /* Calculate the horizontal interpolation values */
   /* This is the H starting position (first row, first column) */
 
@@ -221,7 +221,7 @@ static void trv_rend_zcell(uint8_t row, uint8_t col, uint8_t height, uint8_t wid
   hcolstep =
     TDIV((g_ray_hit[row][endcol].xpos - g_ray_hit[row][col].xpos),
       width, scale);
-     
+
   /* This is the change in xpos per column in the last row */
 
   tmpcolstep =
@@ -264,7 +264,7 @@ static void trv_rend_zcell(uint8_t row, uint8_t col, uint8_t height, uint8_t wid
   vrowstep =
     TDIV((g_ray_hit[endrow][col].ypos - g_ray_hit[row][col].ypos),
       height, scale);
-     
+
   /* Determine the palette mapping table zone for each row */
 
   if (IS_SHADED(g_ray_hit[row][col].rect))
@@ -386,7 +386,7 @@ static void trv_rend_zrow(uint8_t row, uint8_t col, uint8_t width)
     {
       palptr = GET_PALPTR(0);
     }
-     
+
   /* Within this function, all references to width are really
    * (width-1)
    */
@@ -396,7 +396,7 @@ static void trv_rend_zrow(uint8_t row, uint8_t col, uint8_t width)
   /* Get the index to the right side */
 
   endcol = col + width;
-     
+
   /* Calculate the horizontal interpolation values */
   /* This is the H starting position (first column) */
 
@@ -407,18 +407,18 @@ static void trv_rend_zrow(uint8_t row, uint8_t col, uint8_t width)
   hcolstep =
     TDIV((g_ray_hit[row][endcol].xpos - g_ray_hit[row][col].xpos),
       width, scale);
-     
+
   /* Calculate the vertical interpolation values */
   /* This is the V starting position (first column) */
 
   ypos.w = TALIGN(g_ray_hit[row][col].ypos, scale);
-     
+
   /* This is the change in ypos per column */
 
   vcolstep =
     TDIV((g_ray_hit[row][endcol].ypos - g_ray_hit[row][col].ypos),
       width, scale);
-     
+
   /* Interpolate to texture each column in the row */
 
   for (j = col; j <= endcol; j++)
@@ -443,7 +443,7 @@ static void trv_rend_zcol(uint8_t row, uint8_t col, uint8_t height)
   uint8_t i, endrow;
   FAR uint8_t *palptr;
   FAR uint8_t *outpixel;
-  uint8_t scale; 
+  uint8_t scale;
   FAR trv_pixel_t *texture;
   FAR struct trv_bitmap_s *bmp;
   union tex_ndx_u xpos;
@@ -493,7 +493,7 @@ static void trv_rend_zcol(uint8_t row, uint8_t col, uint8_t height)
     {
       palptr = GET_PALPTR(0);
     }
-    
+
   /* Within this function, all references to height are really
    * (height-1)
    */
@@ -519,13 +519,13 @@ static void trv_rend_zcol(uint8_t row, uint8_t col, uint8_t height)
   /* This is the V starting position (first row) */
 
   ypos.w = TALIGN(g_ray_hit[row][col].ypos, scale);
-    
+
   /* This is the change in ypos for each row */
 
   vrowstep =
     TDIV((g_ray_hit[endrow][col].ypos - g_ray_hit[row][col].ypos),
       height, scale);
-    
+
   /* Now, interpolate to texture each row (vertical component) */
 
   for (i = row; i <= endrow; i++)
@@ -678,7 +678,7 @@ static void trv_rend_wall(uint8_t row, uint8_t col,
     {
       palptr = GET_PALPTR(0);
     }
-    
+
   /* Within this function, all references to height and width are really
    * (height-1) and (width-1)
    */
@@ -701,12 +701,12 @@ static void trv_rend_wall(uint8_t row, uint8_t col,
   hcolstep =
     TDIV((g_ray_hit[row][endcol].xpos - g_ray_hit[row][col].xpos),
       width, scale);
-    
+
   /* Calculate the vertical interpolation values */
   /* This is the V starting position (first row, first column) */
 
   vstart = TALIGN(g_ray_hit[row][col].ypos, scale);
-    
+
   /* This is the change in ypos per column in the first row */
 
   vcolstep =
@@ -728,7 +728,7 @@ static void trv_rend_wall(uint8_t row, uint8_t col,
   vrowstep =
     TDIV((g_ray_hit[endrow][col].ypos - g_ray_hit[row][col].ypos),
       height, scale);
-    
+
   /* Now, interpolate to texture each row (vertical component) */
 
   for (i = row; i <= endrow; i++)
@@ -855,7 +855,7 @@ static void trv_rend_wallrow(uint8_t row, uint8_t col, uint8_t width)
     {
       palptr = GET_PALPTR(0);
     }
-    
+
   /* Within this function, all references to width are really
    * (width-1)
    */
@@ -865,7 +865,7 @@ static void trv_rend_wallrow(uint8_t row, uint8_t col, uint8_t width)
   /* Get the index to the right side */
 
   endcol = col + width;
-    
+
   /* Calculate the horizontal interpolation values */
   /* This is the H starting position (first column) */
 
@@ -881,13 +881,13 @@ static void trv_rend_wallrow(uint8_t row, uint8_t col, uint8_t width)
   /* This is the V starting position (first column) */
 
   ypos.w = TALIGN(g_ray_hit[row][col].ypos, scale);
-    
+
   /* This is the change in ypos per column */
 
   vcolstep =
     TDIV((g_ray_hit[row][endcol].ypos - g_ray_hit[row][col].ypos),
       width, scale);
-    
+
   /* Interpolate to texture each column in the row */
 
   for (j = col; j <= endcol; j++)
@@ -895,7 +895,7 @@ static void trv_rend_wallrow(uint8_t row, uint8_t col, uint8_t width)
       /* Extract the pixel from the texture */
 
       inpixel = texture[TNDX(xpos.s.i, ypos.s.i, tsize, tmask)];
-      
+
       /* If this is an INVISIBLE_PIXEL in a TRANSPARENT_WALL, then
        * we will have to take some pretty extreme measures to get the
        * correct value of the pixel
@@ -991,7 +991,7 @@ static void trv_rend_wallcol(uint8_t row, uint8_t col, uint8_t height)
     {
       palptr = GET_PALPTR(0);
     }
-    
+
   /* Within this function, all references to height are really
    * (height-1)
    */
@@ -1010,7 +1010,7 @@ static void trv_rend_wallcol(uint8_t row, uint8_t col, uint8_t height)
   /* This is the V starting position (first row, first column) */
 
   ypos.w = TALIGN(g_ray_hit[row][col].ypos, scale);
-    
+
   /* This is the change in ypos for each row */
 
   vrowstep =

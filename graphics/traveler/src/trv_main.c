@@ -283,7 +283,7 @@ int traveler_main(int argc, char *argv[])
           switch (*ptr)
             {
             case 'p' :
-			  wldpath = ptr++;
+              wldpath = ptr++;
               break;
 
             default:

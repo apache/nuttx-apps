@@ -106,9 +106,9 @@ int main(int argc, char **argv, char **envp)
   FILE *instream;
   FILE *outstream = stdout;
 
- while ((option = getopt(argc, argv, "ho:")) != EOF)
-   {
-     switch (option)
+  while ((option = getopt(argc, argv, "ho:")) != EOF)
+    {
+      switch (option)
         {
         case 'h' :
           b_use_hex = true;

@@ -243,7 +243,7 @@ int cmd_rhelp(SESSION handle, int argc, char **argv)
       free(msg);
     }
 
- return ret;
+  return ret;
 }
 
 /****************************************************************************
