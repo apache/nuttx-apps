@@ -48,13 +48,6 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-#ifndef CONFIG_BUILD_KERNEL
-extern "C"
-{
-  int uavcan_main(int argc, FAR char *argv[]);
-}
-#endif
-
 uavcan::ICanDriver& getCanDriver();
 uavcan::ISystemClock& getSystemClock();
 
@@ -69,7 +62,7 @@ uavcan::ISystemClock& getSystemClock();
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int uavcan_main(int argc, FAR char *argv[])
+extern "C" int uavcan_main(int argc, FAR char *argv[])
 #endif
 {
   uavcan::Node<CONFIG_EXAMPLES_UAVCAN_NODE_MEM_POOL_SIZE>

@@ -60,36 +60,52 @@ config UAVCAN_STM32_NUM_IFACES
 	range 1 1 if !STM32_HAVE_CAN2
 	range 1 2 if STM32_HAVE_CAN2
 
-if UAVCAN_STM32_TIMER_NUMBER = 2 && STM32_TIM2
-comment "Timer 2 is already configured for NuttX"
-endif
-if UAVCAN_STM32_TIMER_NUMBER = 3 && STM32_TIM3
-comment "Timer 3 is already configured for NuttX"
-endif
-if UAVCAN_STM32_TIMER_NUMBER = 4 && STM32_TIM4
-comment "Timer 4 is already configured for NuttX"
-endif
-if UAVCAN_STM32_TIMER_NUMBER = 5 && STM32_TIM5
-comment "Timer 5 is already configured for NuttX"
-endif
-if UAVCAN_STM32_TIMER_NUMBER = 6 && STM32_TIM6
-comment "Timer 6 is already configured for NuttX"
-endif
-if UAVCAN_STM32_TIMER_NUMBER = 7 && STM32_TIM7
-comment "Timer 7 is already configured for NuttX"
-endif
+choice
+	prompt "Timer"
+	default UAVCAN_STM32_TIM2 if STM32_HAVE_TIM2 && !STM32_TIM2
+	default UAVCAN_STM32_TIM3 if STM32_HAVE_TIM3 && !STM32_TIM3
+	default UAVCAN_STM32_TIM4 if STM32_HAVE_TIM4 && !STM32_TIM4
+	default UAVCAN_STM32_TIM5 if STM32_HAVE_TIM5 && !STM32_TIM5
+	default UAVCAN_STM32_TIM6 if STM32_HAVE_TIM6 && !STM32_TIM6
+	default UAVCAN_STM32_TIM7 if STM32_HAVE_TIM7 && !STM32_TIM7
 
-config UAVCAN_STM32_TIMER_NUMBER
-	int "Timer Number"
-	default 2 if STM32_HAVE_TIM2 && !STM32_TIM2
-	default 3 if STM32_HAVE_TIM3 && !STM32_TIM3
-	default 4 if STM32_HAVE_TIM4 && !STM32_TIM4
-	default 5 if STM32_HAVE_TIM5 && !STM32_TIM5
-	default 6 if STM32_HAVE_TIM6 && !STM32_TIM6
-	default 7 if STM32_HAVE_TIM7 && !STM32_TIM7
-	range 2 7
+config UAVCAN_STM32_TIM2
+	bool "TIM2"
+	depends on STM32_HAVE_TIM2 && !STM32_TIM2
 	---help---
-		Specifies the timer number.
+		The library will use TIM2.
+
+config UAVCAN_STM32_TIM3
+	bool "TIM3"
+	depends on STM32_HAVE_TIM3 && !STM32_TIM3
+	---help---
+		The library will use TIM3.
+
+config UAVCAN_STM32_TIM4
+	bool "TIM4"
+	depends on STM32_HAVE_TIM4 && !STM32_TIM4
+	---help---
+		The library will use TIM4.
+
+config UAVCAN_STM32_TIM5
+	bool "TIM5"
+	depends on STM32_HAVE_TIM5 && !STM32_TIM5
+	---help---
+		The library will use TIM5.
+
+config UAVCAN_STM32_TIM6
+	bool "TIM6"
+	depends on STM32_HAVE_TIM6 && !STM32_TIM6
+	---help---
+		The library will use TIM6.
+
+config UAVCAN_STM32_TIM7
+	bool "TIM7"
+	depends on STM32_HAVE_TIM7 && !STM32_TIM7
+	---help---
+		The library will use TIM7.
+
+endchoice
 
 choice
 	prompt "C++ Version"
@@ -107,15 +123,34 @@ config UAVCAN_CPP11
 
 endchoice
 
+config UAVCAN_DEBUG
+	bool "Debug"
+	default n
+	---help---
+		Enables debug.
+
+config UAVCAN_EXCEPTIONS
+	bool "Exceptions"
+	default n
+	---help---
+		Enables exceptions.
+
 config UAVCAN_TINY
 	bool "Tiny"
 	default n
 	---help---
 		Removes some features to save memory.
 
+config UAVCAN_NO_GLOBAL_DATA_TYPE_REGISTRY
+	bool "No Global Data Type Registry"
+	default n
+	---help---
+		Removes the global data type registry.
+
 config UAVCAN_TOSTRING
 	bool "Implement toString"
 	default n
+	depends on UAVCAN_EXCEPTIONS
 	---help---
 		The library will add a toString method to most of its classes.
 
@@ -138,7 +173,7 @@ config UAVCAN_USE_EXTERNAL_FLOAT16_CONVERSION
 		The library will use an external float16 conversion.
 
 config UAVCAN_NO_ASSERTIONS
-	bool "Disable Assertions"
+	bool "No Assertions"
 	default n
 	---help---
 		Disables assertions.
@@ -148,6 +183,27 @@ config UAVCAN_MEM_POOL_BLOCK_SIZE
 	default 0
 	---help---
 		Specifies the memory pool block size.  If the value is 0, the
+		library will use a default value.
+
+config UAVCAN_FLOAT_COMPARISON_EPSILON_MULT
+	int "Float Comparion Epsilon Mult"
+	default 0
+	---help---
+		Specifies the float comparison epsilon mult.  If the value is
+		0, the library will use a default value.
+
+config UAVCAN_MAX_CAN_ACCEPTANCE_FILTERS
+	int "Max CAN Acceptance Filters"
+	default 0
+	---help---
+		Specifies the maximum number of CAN acceptance filters.  If
+		the value is 0, the library will use a default value.
+
+config UAVCAN_MAX_NETWORK_SIZE_HINT
+	int "Max Network Size Hint"
+	default 0
+	---help---
+		Specifies the maximum network size.  If the value is 0, the
 		library will use a default value.
 
 config UAVCAN_RX_QUEUE_CAPACITY
