@@ -64,7 +64,8 @@ PYUAVCAN_PACKNAME = $(PYUAVCAN_UNPACKNAME)$(PACKEXT)
 CXXSRCS = platform_stm32.cpp $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 
 CXXFLAGS += -I$(LIBUAVCAN_INC) -I$(LIBUAVCAN_STM32_INC) -Idsdlc_generated
-CXXFLAGS += -I$(TOPDIR)/arch/arm/src/common -I$(TOPDIR)/arch/arm/src/stm32
+CXXFLAGS += -I$(TOPDIR)$(DELIM)arch$(DELIM)arm$(DELIM)src$(DELIM)common
+CXXFLAGS += -I$(TOPDIR)$(DELIM)arch$(DELIM)arm$(DELIM)src$(DELIM)stm32
 
 CXXFLAGS += -D__KERNEL__
 CXXFLAGS += -DUAVCAN_STM32_NUTTX=1
@@ -176,7 +177,7 @@ all: .built
 
 $(LIBUAVCAN_PACKNAME):
 	@echo "Downloading: $(LIBUAVCAN_PACKNAME)"
-	$(Q) $(WGET) -O $(LIBUAVCAN_PACKNAME) $(LIBUAVCAN_URL)/$(LIBUAVCAN_VERSION)$(PACKEXT)
+	$(Q) $(WGET) -O $(LIBUAVCAN_PACKNAME) $(LIBUAVCAN_URL)$(DELIM)$(LIBUAVCAN_VERSION)$(PACKEXT)
 
 $(LIBUAVCAN_UNPACKNAME): $(LIBUAVCAN_PACKNAME)
 	@echo "Unpacking: $(LIBUAVCAN_PACKNAME) -> $(LIBUAVCAN_UNPACKNAME)"
@@ -185,7 +186,7 @@ $(LIBUAVCAN_UNPACKNAME): $(LIBUAVCAN_PACKNAME)
 
 $(DSDL_PACKNAME):
 	@echo "Downloading: $(DSDL_PACKNAME)"
-	$(Q) $(WGET) -O $(DSDL_PACKNAME) $(DSDL_URL)/$(DSDL_VERSION)$(PACKEXT)
+	$(Q) $(WGET) -O $(DSDL_PACKNAME) $(DSDL_URL)$(DELIM)$(DSDL_VERSION)$(PACKEXT)
 
 $(DSDL_UNPACKNAME): $(DSDL_PACKNAME)
 	@echo "Unpacking: $(DSDL_PACKNAME) -> $(DSDL_UNPACKNAME)"
@@ -194,7 +195,7 @@ $(DSDL_UNPACKNAME): $(DSDL_PACKNAME)
 
 $(PYUAVCAN_PACKNAME):
 	@echo "Downloading: $(PYUAVCAN_PACKNAME)"
-	$(Q) $(WGET) -O $(PYUAVCAN_PACKNAME) $(PYUAVCAN_URL)/$(PYUAVCAN_VERSION)$(PACKEXT)
+	$(Q) $(WGET) -O $(PYUAVCAN_PACKNAME) $(PYUAVCAN_URL)$(DELIM)$(PYUAVCAN_VERSION)$(PACKEXT)
 
 $(PYUAVCAN_UNPACKNAME): $(PYUAVCAN_PACKNAME)
 	@echo "Unpacking: $(PYUAVCAN_PACKNAME) -> $(PYUAVCAN_UNPACKNAME)"
@@ -211,10 +212,10 @@ libuavcan: $(LIBUAVCAN_UNPACKNAME) $(DSDL_UNPACKNAME) $(PYUAVCAN_UNPACKNAME)
 dsdlc_generated: libuavcan
 	$(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
 
-$(APPDIR)/include/uavcan: libuavcan dsdlc_generated
-	$(Q) mkdir -p $(APPDIR)/include/uavcan
-	$(Q) cp -R libuavcan/libuavcan/include/uavcan/* $(APPDIR)/include/uavcan
-	$(Q) cp -R dsdlc_generated/uavcan/* $(APPDIR)/include/uavcan
+$(APPDIR)$(DELIM)include$(DELIM)uavcan: dsdlc_generated
+	$(Q) mkdir -p $(APPDIR)$(DELIM)include$(DELIM)uavcan
+	$(Q) cp -R libuavcan$(DELIM)libuavcan$(DELIM)include$(DELIM)uavcan$(DELIM)* $(APPDIR)$(DELIM)include$(DELIM)uavcan
+	$(Q) cp -R dsdlc_generated$(DELIM)uavcan$(DELIM)* $(APPDIR)$(DELIM)include$(DELIM)uavcan
 
 $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 	$(call COMPILEXX, $<, $@)
@@ -225,7 +226,8 @@ $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 
 install:
 
-context: libuavcan dsdlc_generated $(APPDIR)/include/uavcan
+context: libuavcan
+	$(Q) $(MAKE) $(APPDIR)$(DELIM)include$(DELIM)uavcan TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 .depend: Makefile $(CXXSRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CXX)" -- $(CXXFLAGS) -- $(CXXSRCS) >Make.dep
@@ -237,7 +239,7 @@ clean:
 	$(call DELFILE, .built)
 	$(call DELDIR, libuavcan)
 	$(call DELDIR, dsdlc_generated)
-	$(call DELDIR, $(APPDIR)/include/uavcan)
+	$(call DELDIR, $(APPDIR)$(DELIM)include$(DELIM)uavcan)
 
 distclean: clean
 	$(call DELFILE, Make.dep)
