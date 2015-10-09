@@ -39,8 +39,6 @@
 
 #include <nuttx/config.h>
 
-#include <sys/boardctl.h>
-
 #include <cstdio>
 #include <cstdlib>
 
@@ -67,17 +65,9 @@ int main(int argc, FAR char *argv[])
 extern "C" int uavcan_main(int argc, FAR char *argv[])
 #endif
 {
-  int ret;
-
-  ret = boardctl(BOARDIOC_INIT, 0);
-  if (ret < 0)
-    {
-      std::fprintf(stderr, "ERROR: boardctl failed: %d\n", ret);
-      return EXIT_FAILURE;
-    }
-
   uavcan::Node<CONFIG_EXAMPLES_UAVCAN_NODE_MEM_POOL_SIZE>
     node(getCanDriver(), getSystemClock());
+  int ret;
 
   node.setNodeID(CONFIG_EXAMPLES_UAVCAN_NODE_ID);
   node.setName(CONFIG_EXAMPLES_UAVCAN_NODE_NAME);
