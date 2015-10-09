@@ -237,7 +237,7 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
-	$(call DELDIR, libuavcan)
+	$(foreach CXXOBJ, $(CXXOBJS), $(call DELFILE, $(CXXOBJ)))
 	$(call DELDIR, dsdlc_generated)
 	$(call DELDIR, $(APPDIR)$(DELIM)include$(DELIM)uavcan)
 
