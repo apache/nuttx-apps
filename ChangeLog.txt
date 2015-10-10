@@ -1436,3 +1436,9 @@
 	  Patience (2015-10-01).
 
 7.13 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/fstest:  Add a generic file system test.  This is
+	  essentially the same as examples/smart, but has all of the SmartFS
+	  specific logic ripped out.  This was created for testing the new
+	  tmpfs (2015-10-10).
+

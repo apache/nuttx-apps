@@ -389,6 +389,24 @@ examples/flash_test
       internal OS interfaces and so is not available in the NUTTX kernel
       builds
 
+examples/fstest
+^^^^^^^^^^^^^^
+
+  This is a generic file system test that derives from examples/nxffs.  It
+  was created to test the tmpfs file system, but should work with any file
+  system provided that all initialization has already been performed prior
+  to starting the test.
+
+  * CONFIG_EXAMPLES_FSTEST: Enable the file system example
+  * CONFIG_EXAMPLES_FSTEST_MAXNAME: Determines the maximum size of names used
+    in the filesystem
+  * CONFIG_EXAMPLES_FSTEST_MAXFILE: Determines the maximum size of a file
+  * CONFIG_EXAMPLES_FSTEST_MAXIO: Max I/O, default 347.
+  * CONFIG_EXAMPLES_FSTEST_MAXOPEN: Max open files.
+  * CONFIG_EXAMPLES_FSTEST_MOUNTPT: Path where the file system is mounted.
+  * CONFIG_EXAMPLES_FSTEST_NLOOPS: Number of test loops. default 100
+  * CONFIG_EXAMPLES_FSTEST_VERBOSE: Verbose output
+
 examples/ftpc
 ^^^^^^^^^^^^^
 
@@ -1663,7 +1681,7 @@ examples/slcd
 examples/smart
 ^^^^^^^^^^^^^^
 
-  This is a test of the SMART file systemt that derives from
+  This is a test of the SMART file system that derives from
   examples/nxffs.
 
   * CONFIG_EXAMPLES_SMART: - Enable the SMART file system example
@@ -1685,8 +1703,6 @@ examples/smart
   * CONFIG_EXAMPLES_SMART_MOUNTPT: SMART mountpoint
   * CONFIG_EXAMPLES_SMART_NLOOPS: Number of test loops. default 100
   * CONFIG_EXAMPLES_SMART_VERBOSE: Verbose output
-
-endif
 
 examples/smart_test
 ^^^^^^^^^^^^^^^^^^^
