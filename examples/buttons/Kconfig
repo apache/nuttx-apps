@@ -6,6 +6,7 @@
 config EXAMPLES_BUTTONS
 	bool "Buttons example"
 	default n
+	depends on ARCH_BUTTONS && BUILD_FLAT
 	---help---
 		Enable the buttons example.  May require ARCH_BUTTONS on some boards.
 
