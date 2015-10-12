@@ -109,6 +109,12 @@ static const char* get_fstype(FAR struct statfs *statbuf)
         break;
 #endif
 
+#ifdef CONFIG_FS_TMPFS
+      case TMPFS_MAGIC:
+        fstype = "tmpfs";
+        break;
+#endif
+
 #ifdef CONFIG_FS_BINFS
       case BINFS_MAGIC:
         fstype = "binfs";
