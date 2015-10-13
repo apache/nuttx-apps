@@ -89,5 +89,6 @@ source "$APPSDIR/examples/watchdog/Kconfig"
 source "$APPSDIR/examples/wget/Kconfig"
 source "$APPSDIR/examples/wgetjson/Kconfig"
 source "$APPSDIR/examples/xmlrpc/Kconfig"
+source "$APPSDIR/examples/zerocross/Kconfig"
 
 endmenu # Examples

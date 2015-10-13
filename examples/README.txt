@@ -2250,3 +2250,8 @@ examples/xmlrpc
       Default 0x0a000001. Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
     CONFIG_EXAMPLES_XMLRPC_NETMASK - Network Mask.  Default 0xffffff00
       Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
+
+examples/zerocross
+^^^^^^^^^^^^^^^^^^
+
+  A simple test of the Zero Crossing device driver.

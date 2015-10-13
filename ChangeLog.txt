@@ -1441,4 +1441,5 @@
 	  essentially the same as examples/smart, but has all of the SmartFS
 	  specific logic ripped out.  This was created for testing the new
 	  tmpfs (2015-10-10).
-
+	* apps/examples/zerocross: Add a Zero Cross application example.
+	  From Alan Carvalho de Assis (2015-10-13).
