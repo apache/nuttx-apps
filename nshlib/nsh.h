@@ -843,7 +843,7 @@ int nsh_romfsetc(void);
 #  define nsh_romfsetc() (-ENOSYS)
 #endif
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NSH_NETINIT
 int nsh_netinit(void);
 #else
 #  define nsh_netinit() (-ENOSYS)
