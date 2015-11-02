@@ -150,6 +150,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
                            int *nch)
 {
   FAR const char *name = NULL;
+  char tmp_name[CONFIG_TASK_NAME_SIZE + 1];
 #ifdef CONFIG_BUILTIN
   int nr_builtin_matches = 0;
   int builtin_matches[CONFIG_READLINE_MAX_BUILTINS];
@@ -160,10 +161,9 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 #endif
   int nr_matches;
   int len = *nch;
+  int name_len;
   int i;
   int j;
-  int name_len;
-  char tmp_name[CONFIG_TASK_NAME_SIZE+1];
 
   if (len >= 1)
     {
@@ -192,7 +192,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
       /* Is there only one matching name? */
 
-      if (nr_matches ==  1)
+      if (nr_matches == 1)
         {
           /* Yes... that that is the one we want.  Was it a match with a
            * builtin command?  Or with an external command.
@@ -250,7 +250,8 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
            * - prog2
            * - prog3
            * then it should automatically complete up to prog.
-           * We do this in one pass using a temp */
+           * We do this in one pass using a temp.
+           */
 
           memset(tmp_name, 0, sizeof(tmp_name));
 #ifdef CONFIG_READLINE_HAVE_EXTMATCH
@@ -259,7 +260,8 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
           for (i = 0; i < nr_ext_matches; i++)
             {
               name = g_extmatch_vtbl->getname(ext_matches[i]);
-              /* initialize temp */
+
+              /* Initialize temp */
 
               if (tmp_name[0] == '\0')
                 {
@@ -271,13 +273,15 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
               for (j = 0; j < strlen(name); j++)
                 {
-                  /* removing characters that aren't common to all the
-                   * matches */
+                  /* Removing characters that aren't common to all the
+                   * matches.
+                   */
 
                   if (name[j] != tmp_name[j])
                     {
                       tmp_name[j] = '\0';
                     }
+
                   RL_PUTC(vtbl, name[j]);
                 }
 
@@ -291,7 +295,8 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
           for (i = 0; i < nr_builtin_matches; i++)
             {
               name = builtin_getname(builtin_matches[i]);
-              /* initialize temp */
+
+              /* Initialize temp */
 
               if (tmp_name[0] == '\0')
                 {
@@ -303,13 +308,15 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
               for (j = 0; j < strlen(name); j++)
                 {
-                  /* removing characters that aren't common to all the
-                   * matches */
+                  /* Removing characters that aren't common to all the
+                   * matches.
+                   */
 
                   if (name[j] != tmp_name[j])
                     {
                       tmp_name[j] = '\0';
                     }
+
                   RL_PUTC(vtbl, name[j]);
                 }
 
