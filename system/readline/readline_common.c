@@ -162,6 +162,8 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
   int len = *nch;
   int i;
   int j;
+  int name_len;
+  char tmp_name[CONFIG_TASK_NAME_SIZE+1];
 
   if (len >= 1)
     {
@@ -192,8 +194,6 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
 
       if (nr_matches ==  1)
         {
-          int name_len;
-
           /* Yes... that that is the one we want.  Was it a match with a
            * builtin command?  Or with an external command.
            */
@@ -244,18 +244,40 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
         {
           RL_PUTC(vtbl, '\n');
 
+          /* See how many characters we can auto complete for the user
+           * For example, if we have the following commands:
+           * - prog1
+           * - prog2
+           * - prog3
+           * then it should automatically complete up to prog.
+           * We do this in one pass using a temp */
+
+          memset(tmp_name, 0, sizeof(tmp_name));
 #ifdef CONFIG_READLINE_HAVE_EXTMATCH
           /* Show the possible external completions */
 
           for (i = 0; i < nr_ext_matches; i++)
             {
               name = g_extmatch_vtbl->getname(ext_matches[i]);
+              /* initialize temp */
+
+              if (tmp_name[0] == '\0')
+                {
+                  strcpy(tmp_name, name);
+                }
 
               RL_PUTC(vtbl, ' ');
               RL_PUTC(vtbl, ' ');
 
               for (j = 0; j < strlen(name); j++)
                 {
+                  /* removing characters that aren't common to all the
+                   * matches */
+
+                  if (name[j] != tmp_name[j])
+                    {
+                      tmp_name[j] = '\0';
+                    }
                   RL_PUTC(vtbl, name[j]);
                 }
 
@@ -269,18 +291,34 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
           for (i = 0; i < nr_builtin_matches; i++)
             {
               name = builtin_getname(builtin_matches[i]);
+              /* initialize temp */
+
+              if (tmp_name[0] == '\0')
+                {
+                  strcpy(tmp_name, name);
+                }
 
               RL_PUTC(vtbl, ' ');
               RL_PUTC(vtbl, ' ');
 
               for (j = 0; j < strlen(name); j++)
                 {
+                  /* removing characters that aren't common to all the
+                   * matches */
+
+                  if (name[j] != tmp_name[j])
+                    {
+                      tmp_name[j] = '\0';
+                    }
                   RL_PUTC(vtbl, name[j]);
                 }
 
               RL_PUTC(vtbl, '\n');
             }
 #endif
+          strcpy(buf, tmp_name);
+
+          name_len = strlen(tmp_name);
 
           /* Output the original prompt */
 
@@ -292,9 +330,16 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
                 }
             }
 
-          for (i = 0; i < len; i++)
+          for (i = 0; i < name_len; i++)
             {
               RL_PUTC(vtbl, buf[i]);
+            }
+
+          /* Don't remove extra characters after the completed word, if any. */
+
+          if (len < name_len)
+            {
+              *nch = name_len;
             }
         }
     }

@@ -101,6 +101,18 @@ static const struct extmatch_vtable_s g_nsh_extmatch =
 
 void nsh_initialize(void)
 {
+#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
+  /* Configure the NSH prompt */
+
+  (void)readline_prompt(g_nshprompt);
+
+#ifdef CONFIG_READLINE_HAVE_EXTMATCH
+  /* Set up for tab completion on NSH commands */
+
+  (void)readline_extmatch(&g_nsh_extmatch);
+#endif
+#endif
+
   /* Mount the /etc filesystem */
 
   (void)nsh_romfsetc();
@@ -114,16 +126,4 @@ void nsh_initialize(void)
   /* Bring up the network */
 
   (void)nsh_netinit();
-
-#if defined(CONFIG_NSH_READLINE) && defined(CONFIG_READLINE_TABCOMPLETION)
-  /* Configure the NSH prompt */
-
-  (void)readline_prompt(g_nshprompt);
-
-#ifdef CONFIG_READLINE_HAVE_EXTMATCH
-  /* Set up for tab completion on NSH commands */
-
-  (void)readline_extmatch(&g_nsh_extmatch);
-#endif
-#endif
 }
