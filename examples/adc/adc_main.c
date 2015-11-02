@@ -288,7 +288,7 @@ int adc_main(int argc, char *argv[])
   /* Open the ADC device for reading */
 
   printf("adc_main: Hardware initialized. Opening the ADC device: %s\n",
-          g_adcstate.devpath);
+         g_adcstate.devpath);
 
   fd = open(g_adcstate.devpath, O_RDONLY);
   if (fd < 0)
@@ -305,7 +305,9 @@ int adc_main(int argc, char *argv[])
 #if defined(CONFIG_NSH_BUILTIN_APPS)
   for (; g_adcstate.count > 0; g_adcstate.count--)
 #elif CONFIG_EXAMPLES_ADC_NSAMPLES > 0
-  for (g_adcstate.count = 0; g_adcstate.count < CONFIG_EXAMPLES_ADC_NSAMPLES; g_adcstate.count++)
+  for (g_adcstate.count = 0;
+       g_adcstate.count < CONFIG_EXAMPLES_ADC_NSAMPLES;
+       g_adcstate.count++)
 #else
   for (;;)
 #endif
@@ -340,7 +342,7 @@ int adc_main(int argc, char *argv[])
         if (errval != EINTR)
           {
             printf("adc_main: read %s failed: %d\n",
-                    g_adcstate.devpath, errval);
+                   g_adcstate.devpath, errval);
             errval = 3;
             goto errout_with_dev;
           }
@@ -365,10 +367,10 @@ int adc_main(int argc, char *argv[])
         else
           {
             printf("Sample:\n");
-            for (i = 0; i < nsamples ; i++)
+            for (i = 0; i < nsamples; i++)
               {
                 printf("%d: channel: %d value: %d\n",
-                        i+1, sample[i].am_channel, sample[i].am_data);
+                       i+1, sample[i].am_channel, sample[i].am_data);
               }
           }
       }
