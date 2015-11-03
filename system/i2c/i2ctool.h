@@ -52,7 +52,7 @@
 #include <nuttx/i2c.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* CONFIG_NSH_BUILTIN_APPS - Build the tools as an NSH built-in command

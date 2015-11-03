@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_fsutils.c
  * Miscellaneous file access utilities
  *
@@ -55,7 +55,7 @@
  * Description:
  *   Read a decimal number from the steam 'fp'
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int16_t trv_read_decimal(FAR FILE *fp)
 {
@@ -105,7 +105,7 @@ int16_t trv_read_decimal(FAR FILE *fp)
  *   to the file.  The pointer returned by this function is allocated and
  *   must be freed by the caller.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR char *trv_fullpath(FAR const char *path, FAR const char *name)
 {

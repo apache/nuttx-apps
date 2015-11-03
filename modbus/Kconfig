@@ -3,6 +3,8 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+menu "FreeModBus"
+
 config MODBUS
 	bool "Modbus support via FreeModBus"
 	default n
@@ -159,3 +161,4 @@ config MB_MASTER_TOTAL_SLAVE_NUM
 
 endif # MB_ASCII_MASTER || MB_RTU_MASTER
 endif # MODBUS
+endmenu # FreeModBus

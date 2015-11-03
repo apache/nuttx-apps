@@ -1,4 +1,4 @@
-/***********************************************************************
+/****************************************************************************
  * apps/examples/ostest/sigprocmask.c
  *
  *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
@@ -31,7 +31,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ***********************************************************************/
+ ****************************************************************************/
 
 #include <sys/types.h>
 #include <stdbool.h>
@@ -42,21 +42,21 @@
 
 #include "ostest.h"
 
-/***********************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ***********************************************************************/
+ ****************************************************************************/
 
 #define NSIGNALS 5
 
-/***********************************************************************
+/****************************************************************************
  * Private Data
- ***********************************************************************/
+ ****************************************************************************/
 
 static int g_some_signals[NSIGNALS] = {1, 3, 5, 7, 9};
 
-/***********************************************************************
+/****************************************************************************
  * Public Functions
- ***********************************************************************/
+ ****************************************************************************/
 
 void sigprocmask_test(void)
 {
@@ -126,7 +126,7 @@ void sigprocmask_test(void)
       printf("sigprocmask_test: ERROR sigprocmask failed: %d\n", errcode);
       goto errout_with_mask;
     }
- 
+
   /* It should be the same as newmask */
 
   if (memcmp(&currmask, &newmask, sizeof(sigset_t)) != 0)
@@ -185,7 +185,7 @@ void sigprocmask_test(void)
       printf("sigprocmask_test: ERROR sigprocmask failed: %d\n", errcode);
       goto errout_with_mask;
     }
- 
+
   /* It should be the same as newmask */
 
   if (memcmp(&currmask, &newmask, sizeof(sigset_t)) != 0)
@@ -193,7 +193,7 @@ void sigprocmask_test(void)
       printf("sigprocmask_test: ERROR unexpected sigprocmask\n");
       goto errout_with_mask;
     }
- 
+
   ret = sigprocmask(SIG_SETMASK, &saved, NULL);
   if (ret != OK)
     {

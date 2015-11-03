@@ -120,7 +120,7 @@ struct trv_input_s g_trv_input;
 
 /****************************************************************************
  * Private Function Prototypes
- *****************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_GRAPHICS_TRAVELER_JOYSTICK
 static struct trv_joystick_s g_trv_joystick;
@@ -145,15 +145,15 @@ static struct trv_joystick_s g_trv_joystick;
 #ifdef CONFIG_GRAPHICS_TRAVELER_AJOYSTICK
 static int trv_joystick_wait(void)
 {
-  sigset_t sigset;
+  sigset_t set;
   struct siginfo value;
   int ret;
 
   /* Wait for a signal */
 
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO);
-  ret = sigwaitinfo(&sigset, &value);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO);
+  ret = sigwaitinfo(&set, &value);
   if (ret < 0)
     {
       int errcode = errno;

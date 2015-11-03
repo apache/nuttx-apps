@@ -43,7 +43,7 @@
 #include <nuttx/config.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* This test depends on these specific CAN configurations settings (your
@@ -96,16 +96,5 @@
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
-
-/****************************************************************************
- * Name: can_devinit()
- *
- * Description:
- *   Perform architecuture-specific initialization of the CAN hardware.  This
- *   interface must be provided by all configurations using apps/examples/can
- *
- ****************************************************************************/
-
-int can_devinit(void);
 
 #endif /* __APPS_EXAMPLES_CAN_CAN_H */

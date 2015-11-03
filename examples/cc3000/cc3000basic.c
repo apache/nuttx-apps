@@ -1,4 +1,4 @@
-/***************************************************************************
+/****************************************************************************
  * apps/examples/cc3000basic.c
  *
  * Derives from an application to demo an Arduino connected to the TI CC3000
@@ -102,7 +102,7 @@
  *    11    860    844 Telnet sd
  */
 
- #include <nuttx/config.h>
+#include <nuttx/config.h>
 
 #include "board.h"
 #include <stdio.h>

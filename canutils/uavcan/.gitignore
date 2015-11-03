@@ -1,0 +1,6 @@
+/.built
+/dsdlc_generated
+/libuavcan
+/libuavcan-*
+/dsdl-*
+/pyuavcan-*

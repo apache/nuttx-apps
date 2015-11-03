@@ -321,10 +321,10 @@ static inline int tiff_putheader(FAR struct tiff_info_s *info)
       return ret;
     }
 
- /* Two pad bytes following the header */
+  /* Two pad bytes following the header */
 
- ret = tiff_putint16(info->outfd, 0);
- return ret;
+  ret = tiff_putint16(info->outfd, 0);
+  return ret;
 }
 
 /****************************************************************************
@@ -450,7 +450,7 @@ static int tiff_datetime(FAR char *timbuf, unsigned int buflen)
 int tiff_initialize(FAR struct tiff_info_s *info)
 {
   uint16_t val16;
-#if CONFIG_DEBUG_TIFFOFFSETS
+#ifdef CONFIG_DEBUG_TIFFOFFSETS
   off_t offset = 0;
 #endif
   char timbuf[TIFF_DATETIME_STRLEN + 8];

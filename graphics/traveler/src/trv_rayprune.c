@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_rayprune.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
@@ -86,7 +86,7 @@
 
 /****************************************************************************
  * Private Type Declarations
- ***************************************************************************/
+ ****************************************************************************/
 
 enum working_plane_state_e
 {
@@ -173,7 +173,7 @@ static struct trv_rect_head_s g_discard_zplane;   /* List of discarded Z=plane
  *   camera position and "clockwise" of the current yaw is moved into
  *   the output X plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawxprune_14cw(FAR struct trv_rect_head_s *outlist,
                                    FAR struct trv_rect_head_s *inlist,
@@ -262,7 +262,7 @@ static void trv_ray_yawxprune_14cw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "counterclockwise" of the current yaw is moved into
  *   the output X plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawxprune_14ccw(FAR struct trv_rect_head_s *outlist,
                                     FAR struct trv_rect_head_s *inlist,
@@ -351,7 +351,7 @@ static void trv_ray_yawxprune_14ccw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "clockwise" of the current yaw is moved into
  *   the output X plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawxprune_23cw(FAR struct trv_rect_head_s *outlist,
                                    FAR struct trv_rect_head_s *inlist,
@@ -440,7 +440,7 @@ static void trv_ray_yawxprune_23cw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "counterclockwise" of the current yaw is moved
  *   into the output X plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawxprune_23ccw(FAR struct trv_rect_head_s *outlist,
                                     FAR struct trv_rect_head_s *inlist,
@@ -529,7 +529,7 @@ static void trv_ray_yawxprune_23ccw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "clockwise" of the current yaw is moved into
  *   the output Y plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawyprune_12cw(FAR struct trv_rect_head_s *outlist,
                                    FAR struct trv_rect_head_s *inlist,
@@ -620,7 +620,7 @@ static void trv_ray_yawyprune_12cw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "counterclockwise" of the current yaw is moved into
  *   the output Y plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawyprune_12ccw(FAR struct trv_rect_head_s *outlist,
                                     FAR struct trv_rect_head_s *inlist,
@@ -711,7 +711,7 @@ static void trv_ray_yawyprune_12ccw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "clockwise" of the current yaw is moved into
  *   the output Y plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawyprune_34cw(FAR struct trv_rect_head_s *outlist,
                                    FAR struct trv_rect_head_s *inlist,
@@ -802,7 +802,7 @@ static void trv_ray_yawyprune_34cw(FAR struct trv_rect_head_s *outlist,
  *   camera position and "counterclockwise" of the current yaw is moved
  *   into the output Y plane list.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_yawyprune_34ccw(FAR struct trv_rect_head_s *outlist,
                                     FAR struct trv_rect_head_s *inlist,

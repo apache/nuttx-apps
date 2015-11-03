@@ -223,7 +223,7 @@ static void print_help(void)
          " -s: Use given speed (default %d)\n"
          " -r: Disable RTS/CTS flow control (default: on)\n"
          " -?: This help\n",
-		 CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE,
+         CONFIG_SYSTEM_CUTERM_DEFAULT_DEVICE,
          CONFIG_SYSTEM_CUTERM_DEFAULT_BAUD);
 }
 

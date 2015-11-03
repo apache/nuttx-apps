@@ -63,7 +63,7 @@
 #include "poll_internal.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define IOBUFFER_SIZE 80
@@ -91,7 +91,7 @@ static void net_configure(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  /* Configure uIP */
+  /* Configure the network */
   /* Many embedded network interfaces must have a software assigned MAC */
 
 #ifdef CONFIG_EXAMPLES_POLL_NOMAC
@@ -232,7 +232,7 @@ void *net_reader(pthread_addr_t pvarg)
   socklen_t addrlen;
   int optval;
 
-  /* Configure uIP */
+  /* Configure the network */
 
   net_configure();
 
@@ -288,6 +288,7 @@ void *net_reader(pthread_addr_t pvarg)
           printf("net_reader: accept failure: %d\n", errno);
           continue;
         }
+
       printf("net_reader: Connection accepted on sd=%d\n", acceptsd);
 
       /* Configure to "linger" until all data is sent when the socket is closed */
@@ -295,11 +296,12 @@ void *net_reader(pthread_addr_t pvarg)
 #ifdef POLL_HAVE_SOLINGER
       ling.l_onoff  = 1;
       ling.l_linger = 30;     /* timeout is seconds */
+
       if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
         {
-        printf("net_reader: setsockopt SO_LINGER failure: %d\n", errno);
-        goto errout_with_acceptsd;
-      }
+          printf("net_reader: setsockopt SO_LINGER failure: %d\n", errno);
+          goto errout_with_acceptsd;
+        }
 #endif
 
       /* Handle incoming messsages on the connection. */

@@ -389,6 +389,24 @@ examples/flash_test
       internal OS interfaces and so is not available in the NUTTX kernel
       builds
 
+examples/fstest
+^^^^^^^^^^^^^^
+
+  This is a generic file system test that derives from examples/nxffs.  It
+  was created to test the tmpfs file system, but should work with any file
+  system provided that all initialization has already been performed prior
+  to starting the test.
+
+  * CONFIG_EXAMPLES_FSTEST: Enable the file system example
+  * CONFIG_EXAMPLES_FSTEST_MAXNAME: Determines the maximum size of names used
+    in the filesystem
+  * CONFIG_EXAMPLES_FSTEST_MAXFILE: Determines the maximum size of a file
+  * CONFIG_EXAMPLES_FSTEST_MAXIO: Max I/O, default 347.
+  * CONFIG_EXAMPLES_FSTEST_MAXOPEN: Max open files.
+  * CONFIG_EXAMPLES_FSTEST_MOUNTPT: Path where the file system is mounted.
+  * CONFIG_EXAMPLES_FSTEST_NLOOPS: Number of test loops. default 100
+  * CONFIG_EXAMPLES_FSTEST_VERBOSE: Verbose output
+
 examples/ftpc
 ^^^^^^^^^^^^^
 
@@ -793,6 +811,26 @@ examples/netpkt
 ^^^^^^^^^^^^^^^
 
   A test of AF_PACKET, "raw" sockets.  Contributed by Lazlo Sitzer.
+
+examples/netloop
+^^^^^^^^^^^^^^^^
+
+  This is a simple test of the netwok loopback device.  examples/nettest can
+  also be configured to provide (better) test of local loopback transfers.
+  This version derives from examples/poll and is focused on testing poll()
+  with loopback devices.
+
+    CONFIG_EXAMPLES_NETLOOP=y - Enables the nettest example
+
+  Dependencies:
+
+    CONFIG_NSH_BUILTIN_APPS=n     - Does NOT work as an NSH built-in command
+    CONFIG_NET_LOOPBACK           - Requires local loopback supprt
+    CONFIG_NET_TCP                - Requires TCP support with the following:
+    CONFIG_NET_TCPBACKLOG
+    CONFIG_NET_TCP_READAHEAD
+    CONFIG_NET_TCP_WRITE_BUFFERS
+    CONFIG_NET_IPv4               - Currently supports only IPv4
 
 examples/nettest
 ^^^^^^^^^^^^^^^^
@@ -1643,7 +1681,7 @@ examples/slcd
 examples/smart
 ^^^^^^^^^^^^^^
 
-  This is a test of the SMART file systemt that derives from
+  This is a test of the SMART file system that derives from
   examples/nxffs.
 
   * CONFIG_EXAMPLES_SMART: - Enable the SMART file system example
@@ -1665,8 +1703,6 @@ examples/smart
   * CONFIG_EXAMPLES_SMART_MOUNTPT: SMART mountpoint
   * CONFIG_EXAMPLES_SMART_NLOOPS: Number of test loops. default 100
   * CONFIG_EXAMPLES_SMART_VERBOSE: Verbose output
-
-endif
 
 examples/smart_test
 ^^^^^^^^^^^^^^^^^^^
@@ -1841,6 +1877,12 @@ examples/touchscreen
     int board_tsc_setup(int minor);
     void board_tsc_teardown(void);
 
+examples/uavcan
+^^^^^^^^^^^^^^^
+
+  Illustrates use of canutils/uavcan.  Contributed by Paul Alexander
+  Patience.
+
 examples/udp
 ^^^^^^^^^^^^
 
@@ -1851,6 +1893,14 @@ examples/udp
   netutils libraries in the defconfig file:
 
     CONFIG_NETUTILS_NETLIB=y
+
+examples/udpblaster
+^^^^^^^^^^^^^^^^^^^
+
+  This is a simple network test for stressing UDP transfers.  It simply
+  sends UDP packets from both the host and the target and the highest ratei
+  possible.
+
 
 examples/unionfs
 ^^^^^^^^^^^^^^^^
@@ -2200,3 +2250,8 @@ examples/xmlrpc
       Default 0x0a000001. Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
     CONFIG_EXAMPLES_XMLRPC_NETMASK - Network Mask.  Default 0xffffff00
       Ignored if CONFIG_NSH_BUILTIN_APPS is selected.
+
+examples/zerocross
+^^^^^^^^^^^^^^^^^^
+
+  A simple test of the Zero Crossing device driver.

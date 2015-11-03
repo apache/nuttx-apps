@@ -62,7 +62,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_READ_COILS_ENABLED
+#ifdef CONFIG_MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
 eMBException eMBFuncReadDiscreteInputs(uint8_t *pucFrame, uint16_t *usLen)
 {
   uint16_t usRegAddress;

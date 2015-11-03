@@ -68,7 +68,7 @@ int main(int argc, char **argv)
   if (test_stream)
     {
       fprintf(stderr, "Hmm... Delete \"%s\" and try this again\n",
-	      g_nonexistent);
+              g_nonexistent);
       exit(1);
     }
 
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
    */
 
   fprintf(stderr, "We failed to open \"%s!\" errno is %d\n",
-	  g_nonexistent, errno);
+          g_nonexistent, errno);
 
   return 0;
 }

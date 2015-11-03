@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/usbterm/usbterm_main.c
  *
- *   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@
 #include "usbterm.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -226,7 +226,7 @@ int usbterm_main(int argc, char *argv[])
     }
   printf("usbterm_main: Successfully registered the serial driver\n");
 
-#if CONFIG_USBDEV_TRACE && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
+#if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
   /* If USB tracing is enabled and tracing of initial USB events is specified,
    * then dump all collected trace data to stdout
    */

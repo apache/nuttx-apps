@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_doors.c
  * This file contains the logic which manages world door logic.
  *
@@ -57,7 +57,7 @@
 
 /****************************************************************************
  * Private Type Declarations
- ***************************************************************************/
+ ****************************************************************************/
 
 /* These are possible values for the g_opendoor state variable */
 
@@ -97,7 +97,7 @@ struct trv_opendoor_s g_opendoor;
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_door_startopen (void)
 {
@@ -288,7 +288,7 @@ void trv_door_initialize(void)
   g_opendoor.state = DOOR_IDLE;
 }
 
-/***************************************************************************
+/****************************************************************************
  * Name: trv_door_animate
  *
  * Description:
@@ -297,7 +297,7 @@ void trv_door_initialize(void)
  *   is started.  This function then calls trv_door_animation which must be
  *   called on each cycle to perform the door movement.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_door_animate(void)
 {

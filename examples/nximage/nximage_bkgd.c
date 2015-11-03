@@ -55,7 +55,7 @@
 #include "nximage.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Select renderer -- Some additional logic would be required to support

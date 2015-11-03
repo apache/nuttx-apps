@@ -59,6 +59,29 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Configuration ************************************************************/
+
+#ifdef CONFIG_PWM_MULTICHAN
+#  if CONFIG_PWM_NCHANNELS > 1
+#    if CONFIG_EXAMPLES_PWM_CHANNEL1 == CONFIG_EXAMPLES_PWM_CHANNEL2
+#      error "Channel numbers must be unique"
+#    endif
+#  endif
+#  if CONFIG_PWM_NCHANNELS > 2
+#    if CONFIG_EXAMPLES_PWM_CHANNEL1 == CONFIG_EXAMPLES_PWM_CHANNEL3 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL2 == CONFIG_EXAMPLES_PWM_CHANNEL3
+#      error "Channel numbers must be unique"
+#    endif
+#  endif
+#  if CONFIG_PWM_NCHANNELS > 3
+#    if CONFIG_EXAMPLES_PWM_CHANNEL1 == CONFIG_EXAMPLES_PWM_CHANNEL4 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL2 == CONFIG_EXAMPLES_PWM_CHANNEL4 || \
+        CONFIG_EXAMPLES_PWM_CHANNEL3 == CONFIG_EXAMPLES_PWM_CHANNEL4
+#      error "Channel numbers must be unique"
+#    endif
+#  endif
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -67,7 +90,12 @@ struct pwm_state_s
 {
   bool      initialized;
   FAR char *devpath;
+#ifdef CONFIG_PWM_MULTICHAN
+  uint8_t   channels[CONFIG_PWM_NCHANNELS];
+  uint8_t   duties[CONFIG_PWM_NCHANNELS];
+#else
   uint8_t   duty;
+#endif
   uint32_t  freq;
 #ifdef CONFIG_PWM_PULSECOUNT
   uint32_t  count;
@@ -117,27 +145,82 @@ static void pwm_devpath(FAR struct pwm_state_s *pwm, FAR const char *devpath)
 
 static void pwm_help(FAR struct pwm_state_s *pwm)
 {
+#ifdef CONFIG_PWM_MULTICHAN
+  uint8_t channels[CONFIG_PWM_NCHANNELS] =
+  {
+    CONFIG_EXAMPLES_PWM_CHANNEL1,
+#if CONFIG_PWM_NCHANNELS > 1
+    CONFIG_EXAMPLES_PWM_CHANNEL2,
+#endif
+#if CONFIG_PWM_NCHANNELS > 2
+    CONFIG_EXAMPLES_PWM_CHANNEL3,
+#endif
+#if CONFIG_PWM_NCHANNELS > 3
+    CONFIG_EXAMPLES_PWM_CHANNEL4,
+#endif
+  };
+  uint8_t duties[CONFIG_PWM_NCHANNELS] =
+  {
+    CONFIG_EXAMPLES_PWM_DUTYPCT1,
+#if CONFIG_PWM_NCHANNELS > 1
+    CONFIG_EXAMPLES_PWM_DUTYPCT2,
+#endif
+#if CONFIG_PWM_NCHANNELS > 2
+    CONFIG_EXAMPLES_PWM_DUTYPCT3,
+#endif
+#if CONFIG_PWM_NCHANNELS > 3
+    CONFIG_EXAMPLES_PWM_DUTYPCT4,
+#endif
+  };
+  int i;
+#endif
+
   printf("Usage: pwm [OPTIONS]\n");
   printf("\nArguments are \"sticky\".  For example, once the PWM frequency is\n");
   printf("specified, that frequency will be re-used until it is changed.\n");
   printf("\n\"sticky\" OPTIONS include:\n");
   printf("  [-p devpath] selects the PWM device.  "
-        "Default: %s Current: %s\n",
-        CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
+         "Default: %s Current: %s\n",
+         CONFIG_EXAMPLES_PWM_DEVPATH, pwm->devpath ? pwm->devpath : "NONE");
   printf("  [-f frequency] selects the pulse frequency.  "
-        "Default: %d Hz Current: %u Hz\n",
-        CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
+         "Default: %d Hz Current: %u Hz\n",
+         CONFIG_EXAMPLES_PWM_FREQUENCY, pwm->freq);
+#ifdef CONFIG_PWM_MULTICHAN
+  printf("  [[-c channel1] [[-c channel2] ...]] selects the channel number for each channel.  ");
+  printf("Default:");
+  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+    {
+      printf(" %d", channels[i]);
+    }
+  printf("Current:");
+  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+    {
+      printf(" %d", pwm->channels[i]);
+    }
+  printf("  [[-d duty1] [[-d duty2] ...]] selects the pulse duty as a percentage.  ");
+  printf("Default:");
+  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+    {
+      printf(" %d %%", duties[i]);
+    }
+  printf("Current:");
+  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+    {
+      printf(" %d %%", pwm->duties[i]);
+    }
+#else
   printf("  [-d duty] selects the pulse duty as a percentage.  "
          "Default: %d %% Current: %d %%\n",
          CONFIG_EXAMPLES_PWM_DUTYPCT, pwm->duty);
+#endif
 #ifdef CONFIG_PWM_PULSECOUNT
   printf("  [-n count] selects the pulse count.  "
-        "Default: %d Current: %u\n",
-        CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
+         "Default: %d Current: %u\n",
+         CONFIG_EXAMPLES_PWM_PULSECOUNT, pwm->count);
 #endif
   printf("  [-t duration] is the duration of the pulse train in seconds.  "
          "Default: %d Current: %d\n",
-        CONFIG_EXAMPLES_PWM_DURATION, pwm->duration);
+         CONFIG_EXAMPLES_PWM_DURATION, pwm->duration);
   printf("  [-h] shows this message and exits\n");
 }
 
@@ -186,6 +269,10 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
   long value;
   int index;
   int nargs;
+#ifdef CONFIG_PWM_MULTICHAN
+  int nchannels = 0;
+  int nduties   = 0;
+#endif
 
   for (index = 1; index < argc; )
     {
@@ -210,6 +297,29 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             index += nargs;
             break;
 
+#ifdef CONFIG_PWM_MULTICHAN
+          case 'c':
+            nargs = arg_decimal(&argv[index], &value);
+            if (value < 1 || value > 4)
+              {
+                printf("Channel out of range: %ld\n", value);
+                exit(1);
+              }
+
+            if (nchannels < CONFIG_PWM_NCHANNELS)
+              {
+                nchannels++;
+              }
+            else
+              {
+                memmove(pwm->channels, pwm->channels+1, CONFIG_PWM_NCHANNELS-1);
+              }
+
+            pwm->channels[nchannels-1] = (uint8_t)value;
+            index += nargs;
+            break;
+#endif
+
           case 'd':
             nargs = arg_decimal(&argv[index], &value);
             if (value < 1 || value > 99)
@@ -218,7 +328,20 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
                 exit(1);
               }
 
+#ifdef CONFIG_PWM_MULTICHAN
+            if (nduties < CONFIG_PWM_NCHANNELS)
+              {
+                nduties++;
+              }
+            else
+              {
+                memmove(pwm->duties, pwm->duties+1, CONFIG_PWM_NCHANNELS-1);
+              }
+
+            pwm->duties[nduties-1] = (uint8_t)value;
+#else
             pwm->duty = (uint8_t)value;
+#endif
             index += nargs;
             break;
 
@@ -234,8 +357,8 @@ static void parse_args(FAR struct pwm_state_s *pwm, int argc, FAR char **argv)
             pwm->count = (uint32_t)value;
             index += nargs;
             break;
-
 #endif
+
           case 'p':
             nargs = arg_string(&argv[index], &str);
             pwm_devpath(pwm, str);
@@ -283,12 +406,33 @@ int pwm_main(int argc, char *argv[])
   struct pwm_info_s info;
   int fd;
   int ret;
+#ifdef CONFIG_PWM_MULTICHAN
+  int i;
+  int j;
+#endif
 
   /* Initialize the state data */
 
   if (!g_pwmstate.initialized)
     {
+#ifdef CONFIG_PWM_MULTICHAN
+      g_pwmstate.channels[0] = CONFIG_EXAMPLES_PWM_CHANNEL1;
+      g_pwmstate.duties[0]   = CONFIG_EXAMPLES_PWM_DUTYPCT1;
+#if CONFIG_PWM_NCHANNELS > 1
+      g_pwmstate.channels[1] = CONFIG_EXAMPLES_PWM_CHANNEL2;
+      g_pwmstate.duties[1]   = CONFIG_EXAMPLES_PWM_DUTYPCT2;
+#endif
+#if CONFIG_PWM_NCHANNELS > 2
+      g_pwmstate.channels[2] = CONFIG_EXAMPLES_PWM_CHANNEL3;
+      g_pwmstate.duties[2]   = CONFIG_EXAMPLES_PWM_DUTYPCT3;
+#endif
+#if CONFIG_PWM_NCHANNELS > 3
+      g_pwmstate.channels[3] = CONFIG_EXAMPLES_PWM_CHANNEL4;
+      g_pwmstate.duties[3]   = CONFIG_EXAMPLES_PWM_DUTYPCT4;
+#endif
+#else
       g_pwmstate.duty        = CONFIG_EXAMPLES_PWM_DUTYPCT;
+#endif
       g_pwmstate.freq        = CONFIG_EXAMPLES_PWM_FREQUENCY;
       g_pwmstate.duration    = CONFIG_EXAMPLES_PWM_DURATION;
 #ifdef CONFIG_PWM_PULSECOUNT
@@ -300,6 +444,20 @@ int pwm_main(int argc, char *argv[])
   /* Parse the command line */
 
   parse_args(&g_pwmstate, argc, argv);
+
+#ifdef CONFIG_PWM_MULTICHAN
+  for (i = 0; i < CONFIG_PWM_MULTICHAN; i++)
+    {
+      for (j = i + 1; j < CONFIG_PWM_MULTICHAN; j++)
+        {
+          if (g_pwmstate.channels[j] == g_pwmstate.channels[i])
+            {
+              printf("pwm_main: channel numbers must be unique\n");
+              goto errout;
+            }
+        }
+    }
+#endif
 
   /* Has a device been assigned? */
 
@@ -333,17 +491,33 @@ int pwm_main(int argc, char *argv[])
   /* Configure the characteristics of the pulse train */
 
   info.frequency = g_pwmstate.freq;
+#ifdef CONFIG_PWM_MULTICHAN
+  printf("pwm_main: starting output with frequency: %u",
+         info.frequency);
+
+  for (i = 0; i < CONFIG_PWM_NCHANNELS; i++)
+    {
+      info.channels[i].channel = g_pwmstate.channels[i];
+      info.channels[i].duty    = ((uint32_t)g_pwmstate.duties[i] << 16) / 100;
+      printf(" channel: %d duty: %08x",
+        info.channels[i].channel, info.channels[i].duty);
+    }
+
+  printf("\n");
+
+#else
   info.duty      = ((uint32_t)g_pwmstate.duty << 16) / 100;
-#ifdef CONFIG_PWM_PULSECOUNT
+#  ifdef CONFIG_PWM_PULSECOUNT
   info.count     = g_pwmstate.count;
 
   printf("pwm_main: starting output with frequency: %u duty: %08x count: %u\n",
          info.frequency, info.duty, info.count);
 
-#else
+#  else
   printf("pwm_main: starting output with frequency: %u duty: %08x\n",
          info.frequency, info.duty);
 
+#  endif
 #endif
 
   ret = ioctl(fd, PWMIOC_SETCHARACTERISTICS, (unsigned long)((uintptr_t)&info));
@@ -376,7 +550,7 @@ int pwm_main(int argc, char *argv[])
 
       sleep(g_pwmstate.duration);
 
-      /* Then stop the  pulse train */
+      /* Then stop the pulse train */
 
       printf("pwm_main: stopping output\n");
 
@@ -388,9 +562,9 @@ int pwm_main(int argc, char *argv[])
         }
     }
 
- close(fd);
- fflush(stdout);
- return OK;
+  close(fd);
+  fflush(stdout);
+  return OK;
 
 errout_with_dev:
   close(fd);

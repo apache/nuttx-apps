@@ -230,7 +230,7 @@ eMBErrorCode eMBRTUSend(uint8_t ucSlaveAddress, const uint8_t *pucFrame, uint16_
       usSndBufferCount += usLength;
 
       /* Calculate CRC16 checksum for Modbus-Serial-Line-PDU. */
- 
+
       usCRC16 = usMBCRC16((uint8_t *) pucSndBufferCur, usSndBufferCount);
       ucRTUBuf[usSndBufferCount++] = (uint8_t)(usCRC16 & 0xFF);
       ucRTUBuf[usSndBufferCount++] = (uint8_t)(usCRC16 >> 8);

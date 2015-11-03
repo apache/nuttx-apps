@@ -56,7 +56,7 @@
 #include "poll_internal.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #if defined(CONFIG_DEV_CONSOLE) && !defined(CONFIG_DEV_LOWCONSOLE)
@@ -105,6 +105,7 @@ void *poll_listener(pthread_addr_t pvarg)
   /* Open the FIFO for non-blocking read */
 
   printf("poll_listener: Opening %s for non-blocking read\n", FIFO_PATH1);
+
   fd = open(FIFO_PATH1, O_RDONLY|O_NONBLOCK);
   if (fd < 0)
     {

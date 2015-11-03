@@ -55,7 +55,7 @@
 #include <sys/ioctl.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But

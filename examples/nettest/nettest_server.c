@@ -178,6 +178,7 @@ void recv_server(void)
           printf("server: The client broke the connection\n");
           goto errout_with_acceptsd;
         }
+
       printf("Received %d bytes\n", nbytesread);
     }
 #else
@@ -245,9 +246,10 @@ void recv_server(void)
 
 #if 1 /* Do it for all platforms */
   printf("server: Wait before closing\n");
-  sleep(60);
+  sleep(2);
 #endif
 
+  printf("server: Terminating\n");
   close(listensd);
   close(acceptsd);
   free(buffer);

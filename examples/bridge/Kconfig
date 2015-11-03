@@ -47,7 +47,7 @@ config EXAMPLES_BRIDGE_NET1_DHCPC
 	bool "DHCP Client"
 	default n
 	select NETUTILS_DHCPC
-	select NETUTILS_DNSCLIENT
+	select NETDB_DNSCLIENT
 
 config EXAMPLES_BRIDGE_NET1_NOMAC
 	bool "Use Canned MAC Address"
@@ -129,7 +129,7 @@ config EXAMPLES_BRIDGE_NET2_DHCPC
 	bool "DHCP Client"
 	default n
 	select NETUTILS_DHCPC
-	select NETUTILS_DNSCLIENT
+	select NETDB_DNSCLIENT
 
 config EXAMPLES_BRIDGE_NET2_NOMAC
 	bool "Use Canned MAC Address"

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_raycast.c
  * This file contains the low-level ray casting logic
  *
@@ -103,7 +103,7 @@ static int32_t g_adj_cotpitch;
  *   NOTE:  The X-Ray caster must run first because it initializes a
  *   data structure needed by both the Y and Z ray casters.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_xcaster14(FAR struct trv_raycast_s *result)
 {
@@ -332,7 +332,7 @@ static void trv_ray_xcaster14(FAR struct trv_raycast_s *result)
  *   NOTE:  The X-Ray caster must run first because it initializes a
  *   data structure needed by both the Y and Z ray casters.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_xcaster23(FAR struct trv_raycast_s *result)
 {
@@ -559,7 +559,7 @@ static void trv_ray_xcaster23(FAR struct trv_raycast_s *result)
  *
  *   NOTE:  The X-Ray is assumed to have been performed first!
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_ycaster12(FAR struct trv_raycast_s *result)
 {
@@ -785,7 +785,7 @@ static void trv_ray_ycaster12(FAR struct trv_raycast_s *result)
  *
  *   NOTE:  The X-Ray is assumed to have been performed first!
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_ycaster34(FAR struct trv_raycast_s *result)
 {
@@ -1014,7 +1014,7 @@ static void trv_ray_ycaster34(FAR struct trv_raycast_s *result)
  *
  *   NOTE: It is assumed that both the X and Y ray casters have already
  *   ran!
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_zcasteru(FAR struct trv_raycast_s *result)
 {
@@ -1163,7 +1163,7 @@ static void trv_ray_zcasteru(FAR struct trv_raycast_s *result)
  *   NOTE: It is assumed that both the X and Y ray casters have already
  *   ran!
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_ray_zcasterl(FAR struct trv_raycast_s *result)
 {
@@ -1310,7 +1310,7 @@ static void trv_ray_zcasterl(FAR struct trv_raycast_s *result)
  *   quadrants so that simpler casting algorithms can be used.  It also
  *   enforces the order of casting:  X first, then Y, and finally Z.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_raycast(int16_t pitch, int16_t yaw, int16_t screenyaw,
                 FAR struct trv_raycast_s *result)

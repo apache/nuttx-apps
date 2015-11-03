@@ -80,13 +80,13 @@ static struct fb_cmap_s g_cmap =
 ****************************************************************************/
 
 #ifdef CONFIG_STM32_LTDC_INTERFACE
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_init_surface
  *
  * Description:
  *   Initialize layer and the layers videoinfo and planeinfo
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static int ltdc_init_surface(int lid, uint32_t mode)
 {
@@ -149,13 +149,13 @@ static int ltdc_init_surface(int lid, uint32_t mode)
   return OK;
 }
 
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_setget_test
  *
  * Description:
  *   Perform layer area positioning test
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_setget_test(void)
 {
@@ -338,13 +338,13 @@ static void ltdc_setget_test(void)
   sur->layer->update(sur->layer, 0);
 }
 
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_color_test
  *
  * Description:
  *   Perform layer color test
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_color_test(void)
 {
@@ -445,13 +445,13 @@ static void ltdc_color_test(void)
   usleep(1000000);
 }
 
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_colorkey_test
  *
  * Description:
  *   Perform layer colorkey test
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_colorkey_test(void)
 {
@@ -552,13 +552,13 @@ static void ltdc_colorkey_test(void)
   usleep(1000000);
 }
 
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_area_test
  *
  * Description:
  *   Perform layer area positioning test
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_area_test(void)
 {
@@ -874,14 +874,14 @@ static void ltdc_area_test(void)
   usleep(1000000);
 }
 
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_common_test
  *
  * Description:
  *   Perform test with all layer operations at once
  *   Todo: add alpha blending and default color
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_common_test(void)
 {
@@ -1289,13 +1289,13 @@ static void ltdc_common_test(void)
 }
 
 #ifdef CONFIG_STM32_LTDC_L2
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_alpha_blend_test
  *
  * Description:
  *   Perform layer blend test
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_alpha_blend_test(void)
 {
@@ -1422,13 +1422,13 @@ static void ltdc_alpha_blend_test(void)
   top->layer->update(top->layer, LTDC_UPDATE_SIM|LTDC_SYNC_VBLANK);
 }
 
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_flip_test
  *
  * Description:
  *   Perform layer flip test
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_flip_test(void)
 {
@@ -1629,7 +1629,7 @@ static void ltdc_flip_test(void)
  *   value - The color to set
  *   size  - the size of the color value table
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_clrcolor(uint8_t *color, uint8_t value, size_t size)
 {
@@ -1653,7 +1653,7 @@ void ltdc_clrcolor(uint8_t *color, uint8_t value, size_t size)
  * Return:
  *   0 - if equal otherwise unequal to 0
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int ltdc_cmpcolor(uint8_t *color1, uint8_t *color2, size_t size)
 {
@@ -1673,7 +1673,7 @@ int ltdc_cmpcolor(uint8_t *color1, uint8_t *color2, size_t size)
  * Description:
  *   Initialize the color lookup table
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_FB_CMAP
 void ltdc_init_cmap(void)
@@ -1712,7 +1712,7 @@ void ltdc_init_cmap(void)
  * Description:
  *   Initialize
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
 {
@@ -1758,7 +1758,7 @@ FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
  * Description:
  *   Initialize
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_deletecmap(FAR struct fb_cmap_s *cmap)
 {
@@ -1780,7 +1780,7 @@ void ltdc_deletecmap(FAR struct fb_cmap_s *cmap)
  * Description:
  *   Get the correct color value to the pixel format
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
 {
@@ -1813,13 +1813,13 @@ uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
   return value;
 }
 
-/***************************************************************************
+/****************************************************************************
  * Name: ltdc_simple_draw
  *
  * Description:
  *   Draw four different colored rectangles on the whole screen
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_simple_draw(FAR struct fb_videoinfo_s *vinfo,
                                 FAR struct fb_planeinfo_s *pinfo)
@@ -1967,13 +1967,13 @@ void ltdc_simple_draw(FAR struct fb_videoinfo_s *vinfo,
 }
 
 #ifdef CONFIG_STM32_LTDC_L2
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_drawcolor
  *
  * Description:
  *   Draw a specific color to the framebuffer
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 void ltdc_drawcolor(FAR struct fb_videoinfo_s *vinfo, void *buffer,
                            uint16_t xres, uint16_t yres, uint32_t color)
@@ -2041,13 +2041,13 @@ void ltdc_drawcolor(FAR struct fb_videoinfo_s *vinfo, void *buffer,
 #endif
 
 #ifdef CONFIG_STM32_LTDC_INTERFACE
-/******************************************************************************
+/****************************************************************************
  * Name: ltdc_get_surface
  *
  * Description:
  *   Get a reference to a specific layer
  *
- *****************************************************************************/
+ ****************************************************************************/
 
 struct surface * ltdc_get_surface(uint32_t mode)
 {

@@ -129,6 +129,10 @@
 
 /* Trace initialization *****************************************************/
 
+#ifndef CONFIG_USBDEV_TRACE_INITIALIDSET
+#  define CONFIG_USBDEV_TRACE_INITIALIDSET 0
+#endif
+
 #ifdef CONFIG_SYSTEM_COMPOSITE_TRACEINIT
 #  define TRACE_INIT_BITS       (TRACE_INIT_BIT)
 #else

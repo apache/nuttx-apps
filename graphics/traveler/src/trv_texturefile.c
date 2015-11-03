@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_texturefile.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
@@ -69,7 +69,7 @@
  *   Return the log base 2 of the argument, or -1 if the argument is not
  *   an integer power of 2.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_log2(uint16_t x)
 {
@@ -87,7 +87,7 @@ static int trv_log2(uint16_t x)
  * Name: trv_new_texture
  *
  * Description:
- ***************************************************************************/
+ ****************************************************************************/
 
 static FAR struct trv_bitmap_s *
 trv_new_texture(uint16_t width, uint16_t height)
@@ -140,14 +140,14 @@ trv_new_texture(uint16_t width, uint16_t height)
   bitmap->w     = width;
   bitmap->h     = height;
   bitmap->log2h = log2h;
-     
+
   return bitmap;
 }
 
 /****************************************************************************
  * Name: trv_quantize_texture
  * Description:
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
                                  FAR struct trv_bitmap_s *bitmap)
@@ -162,7 +162,7 @@ static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
       for (y = gfile->height - 1; y >= 0; y--)
         {
           pixel        = trv_graphicfile_pixel(gfile, x, y);
-          *destpixel++ = trv_color_rgb2pixel(&pixel);   
+          *destpixel++ = trv_color_rgb2pixel(&pixel);
         }
     }
 }
@@ -176,7 +176,7 @@ static void trv_quantize_texture(FAR struct trv_graphicfile_s *gfile,
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_bitmap_s *trv_read_texture(FAR const char *filename)
 {

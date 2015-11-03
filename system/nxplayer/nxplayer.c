@@ -1132,7 +1132,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
  * Returned Value:
  *   OK if equalization was set correctly.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_EQUALIZER
 int nxplayer_setequalization(FAR struct nxplayer_s *pPlayer,
@@ -1375,7 +1375,7 @@ int nxplayer_resume(FAR struct nxplayer_s *pPlayer)
  * Returned Value:
  *   OK if fast forward operation successful.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_FFORWARD
 int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
@@ -1431,7 +1431,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
  * Returned Value:
  *   OK if rewind operation successfully initiated.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_REWIND
 int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
@@ -1480,7 +1480,7 @@ int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
  * Returned Value:
  *   OK if rewind operation successfully cancelled.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #if !defined(CONFIG_AUDIO_EXCLUDE_FFORWARD) || !defined(CONFIG_AUDIO_EXCLUDE_REWIND)
 int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused)
@@ -1863,7 +1863,7 @@ void nxplayer_setmediadir(FAR struct nxplayer_s *pPlayer,
  * Returned values:
  *   Pointer to the created context or NULL if there was an error.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 FAR struct nxplayer_s *nxplayer_create(void)
 {
@@ -1928,7 +1928,7 @@ FAR struct nxplayer_s *nxplayer_create(void)
  *
  * Returned values:    None
  *
- **************************************************************************/
+ ****************************************************************************/
 
 void nxplayer_release(FAR struct nxplayer_s* pPlayer)
 {
@@ -1993,7 +1993,7 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
  *
  * Returned values:    None
  *
- **************************************************************************/
+ ****************************************************************************/
 
 void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
 {
@@ -2029,7 +2029,7 @@ void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
  *
  * Returned values:    None
  *
- **************************************************************************/
+ ****************************************************************************/
 
 void nxplayer_detach(FAR struct nxplayer_s* pPlayer)
 {

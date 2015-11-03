@@ -1,4 +1,4 @@
-/***********************************************************************
+/****************************************************************************
  * apps/examples/ostest/sighand.c
  *
  *   Copyright (C) 2007, 2008, 2011 Gregory Nutt. All rights reserved.
@@ -31,7 +31,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ***********************************************************************/
+ ****************************************************************************/
 
 #include <sys/types.h>
 #include <stdbool.h>
@@ -43,9 +43,9 @@
 #include <errno.h>
 #include "ostest.h"
 
-/***********************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ***********************************************************************/
+ ****************************************************************************/
 
 #ifndef NULL
 # define NULL (void*)0
@@ -54,17 +54,17 @@
 #define WAKEUP_SIGNAL 17
 #define SIGVALUE_INT  42
 
-/***********************************************************************
+/****************************************************************************
  * Private Data
- ***********************************************************************/
+ ****************************************************************************/
 
 static sem_t sem;
 static bool sigreceived = false;
 static bool threadexited = false;
 
-/***********************************************************************
+/****************************************************************************
  * Private Functions
- ***********************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
 static void death_of_child(int signo, siginfo_t *info, void *ucontext)
@@ -78,8 +78,10 @@ static void death_of_child(int signo, siginfo_t *info, void *ucontext)
 
   if (info)
     {
-      printf("death_of_child: PID %d received signal=%d code=%d pid=%d status=%d\n",
-             getpid(), signo, info->si_code, info->si_pid, info->si_status);
+      printf("death_of_child: PID %d received signal=%d code=%d "
+             "errno=%d pid=%d status=%d\n",
+             getpid(), signo, info->si_code, info->si_errno,
+             info->si_pid, info->si_status);
     }
   else
     {
@@ -151,7 +153,7 @@ static void wakeup_action(int signo, siginfo_t *info, void *ucontext)
 
 static int waiter_main(int argc, char *argv[])
 {
-  sigset_t sigset;
+  sigset_t set;
   struct sigaction act;
   struct sigaction oact;
   int status;
@@ -159,9 +161,9 @@ static int waiter_main(int argc, char *argv[])
   printf("waiter_main: Waiter started\n" );
 
   printf("waiter_main: Unmasking signal %d\n" , WAKEUP_SIGNAL);
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, WAKEUP_SIGNAL);
-  status = sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, WAKEUP_SIGNAL);
+  status = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (status != OK)
     {
       printf("waiter_main: ERROR sigprocmask failed, status=%d\n",
@@ -221,16 +223,16 @@ static int waiter_main(int argc, char *argv[])
   return 0;
 }
 
-/***********************************************************************
+/****************************************************************************
  * Public Functions
- ***********************************************************************/
+ ****************************************************************************/
 
 void sighand_test(void)
 {
 #ifdef CONFIG_SCHED_HAVE_PARENT
   struct sigaction act;
   struct sigaction oact;
-  sigset_t sigset;
+  sigset_t set;
 #endif
   struct sched_param param;
   union sigval sigvalue;
@@ -243,9 +245,9 @@ void sighand_test(void)
 #ifdef CONFIG_SCHED_HAVE_PARENT
   printf("sighand_test: Unmasking SIGCHLD\n");
 
-  (void)sigemptyset(&sigset);
-  (void)sigaddset(&sigset, SIGCHLD);
-  status = sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  (void)sigaddset(&set, SIGCHLD);
+  status = sigprocmask(SIG_UNBLOCK, &set, NULL);
   if (status != OK)
     {
       printf("sighand_test: ERROR sigprocmask failed, status=%d\n",

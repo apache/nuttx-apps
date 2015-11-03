@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_planelist.c
  * This file contains the logic to manage world plane lists.
  *
@@ -68,7 +68,7 @@ FAR struct trv_rect_list_s *g_rect_freelist;
  * Description:
  *   This function deallocates one plane of the world
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_release_worldplane(FAR struct trv_rect_list_s *rect)
 {
@@ -91,7 +91,7 @@ static void trv_release_worldplane(FAR struct trv_rect_list_s *rect)
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int trv_initialize_planes(void)
 {
@@ -112,7 +112,7 @@ int trv_initialize_planes(void)
  * Description:
  *   This function adds a plane to a world plane list
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_add_plane(FAR struct trv_rect_list_s *rect,
                    FAR struct trv_rect_head_s *list)
@@ -190,7 +190,7 @@ void trv_add_plane(FAR struct trv_rect_list_s *rect,
  *   This function removes the specified plane from the world plane srclist
  *   then adds it to the world plane destlist
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_move_plane(FAR struct trv_rect_list_s *rect,
                     FAR struct trv_rect_head_s *destlist,
@@ -229,7 +229,7 @@ void trv_move_plane(FAR struct trv_rect_list_s *rect,
  * Description:
  *   This function concatenates two world plane lists
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
                           FAR struct trv_rect_head_s *inlist)
@@ -323,13 +323,13 @@ void trv_merge_planelists(FAR struct trv_rect_head_s *outlist,
   inlist->tail = NULL;
 }
 
-/*************************************************************************
+/****************************************************************************
  * Function: trv_new_plane
  *
  * Description:
  *   This function allocates memory for a new plane rectangle.
  *
- ************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_rect_list_s *trv_new_plane(void)
 {
@@ -354,14 +354,14 @@ FAR struct trv_rect_list_s *trv_new_plane(void)
   return rect;
 }
 
-/*************************************************************************
+/****************************************************************************
  * Name: trv_release_planes
  *
  * Description:
  *
  *   This function deallocates the entire world.
  *
- ************************************************************************/
+ ****************************************************************************/
 
 void trv_release_planes(void)
 {

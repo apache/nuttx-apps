@@ -56,7 +56,7 @@
 #include <nuttx/fs/nxffs.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* The default is to use the RAM MTD device at drivers/mtd/rammtd.c.  But
@@ -652,10 +652,19 @@ static int nxffs_delfiles(void)
 
       int ndx = (rand() % (g_nfiles - g_ndeleted));
 
-      /* And delete the next undeleted file after that random index */
+      /* And delete the next undeleted file after that random index.  NOTE
+       * that the entry at ndx is not checked.
+       */
 
-      for (j = ndx + 1; j != ndx;)
+      for (j = ndx + 1; j != ndx; j++)
         {
+          /* Test for wrap-around */
+
+          if (j >= CONFIG_EXAMPLES_FSTEST_MAXOPEN)
+            {
+              j = 0;
+            }
+
           file = &g_files[j];
           if (file->name && !file->deleted)
             {
@@ -677,14 +686,6 @@ static int nxffs_delfiles(void)
                   break;
                 }
             }
-
-          /* Increment the index and test for wrap-around */
-
-          if (++j >= CONFIG_EXAMPLES_NXFFS_MAXOPEN)
-            {
-              j = 0;
-            }
-
         }
     }
 

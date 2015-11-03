@@ -120,7 +120,7 @@ extern uint32_t _etext;
  *   definition only provides the 'contract' between application
  *   specific C++ code and platform-specific toolchain support
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void up_cxxinitialize(void)
 {

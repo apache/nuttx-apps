@@ -82,7 +82,7 @@
 #include "nsh_console.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define LSFLAGS_SIZE          1
@@ -129,14 +129,14 @@ static char g_iobuffer[IOBUFFERSIZE];
 #if !defined(CONFIG_NSH_DISABLE_CP) || defined(CONFIG_NSH_FULLPATH)
 static void trim_dir(char *arg)
 {
- /* Skip any trailing '/' characters (unless it is also the leading '/') */
+  /* Skip any trailing '/' characters (unless it is also the leading '/') */
 
- int len = strlen(arg) - 1;
- while (len > 0 && arg[len] == '/')
-   {
+  int len = strlen(arg) - 1;
+  while (len > 0 && arg[len] == '/')
+    {
       arg[len] = '\0';
       len--;
-   }
+    }
 }
 #endif
 
@@ -439,6 +439,7 @@ static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   buffer = (FAR char *)malloc(IOBUFFERSIZE);
   if(buffer == NULL)
     {
+      (void)close(fd);
       nsh_output(vtbl, g_fmtcmdfailed, cmd, "malloc", NSH_ERRNO);
       return ERROR;
     }
@@ -487,7 +488,7 @@ static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 
                   /* EINTR is not an error (but will stop stop the cat) */
 
- #ifndef CONFIG_DISABLE_SIGNALS
+#ifndef CONFIG_DISABLE_SIGNALS
                   if (errval == EINTR)
                     {
                       nsh_output(vtbl, g_fmtsignalrecvd, cmd);
@@ -1347,8 +1348,8 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   newpath = nsh_getfullpath(vtbl, argv[2]);
   if (!newpath)
     {
-      nsh_freefullpath(newpath);
-      return ERROR;
+      ret = ERROR;
+      goto errout_with_oldpath;
     }
 
   /* Perform the mount */
@@ -1361,8 +1362,10 @@ int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Free the file paths */
 
-  nsh_freefullpath(oldpath);
   nsh_freefullpath(newpath);
+
+errout_with_oldpath:
+  nsh_freefullpath(oldpath);
   return ret;
 }
 #endif

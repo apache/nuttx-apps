@@ -354,9 +354,9 @@ int wdog_main(int argc, char *argv[])
       goto errout_with_dev;
     }
 
- close(fd);
- fflush(stdout);
- return OK;
+  close(fd);
+  fflush(stdout);
+  return OK;
 
 errout_with_dev:
   close(fd);

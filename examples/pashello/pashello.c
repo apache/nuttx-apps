@@ -48,7 +48,7 @@
 #include "pashello.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifndef CONFIG_EXAMPLES_PASHELLO_VARSTACKSIZE

@@ -322,9 +322,9 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
     }
   return OK;
 
- errout_with_data:
+errout_with_data:
   ftpc_sockclose(&session->data);
- errout:
+errout:
   return ERROR;
 }
 
@@ -371,8 +371,10 @@ int ftpc_xfrmode(struct ftpc_session_s *session, uint8_t xfrmode)
        */
 
       ret = ftpc_cmd(session, "TYPE %c", xfrmode == FTPC_XFRMODE_ASCII ? 'A' : 'I');
+      UNUSED(ret);
       session->xfrmode = xfrmode;
     }
+
   return OK;
 }
 

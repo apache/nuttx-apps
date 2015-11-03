@@ -1313,7 +1313,7 @@
 	* apps/nshlib/: The NSH mount command now recognizes the Union file
 	  system type when listing mounted file systems (2015-06-07).
 
-7.11 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.11 2015-08-13 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/netutils/thttpd:  Fix compilation problems when
 	  CONFIG_THTTPD_GENERATE_INDICES is defined (2015-06-12).
@@ -1359,10 +1359,87 @@
 	  don't have the wherewithal for that change today (2015-04-14)`.
 	* apps/nshlib and apps/examaples/thttpd:  Change decoding to handle the
 	  increased size of the scheduling policy field in the TCB (2015-07-23).
-	* apps/examples/ostest: Improve syncrhonization in round robin tests.
+	* apps/examples/ostest: Improve synchronization in round robin tests.
 	  On very fast processors, there are race conditions that make the test
 	  failure.  Need better interlocking to assure that the threads actually
 	  do start at the same time (2015-07-24).
 	* apps/examples/ostest: Add a test for the sporadic scheduler.  This
 	  test is failing as of this commit (2015-07-24).
+	* apps/system/readline:  Add support for Unix-style tab complete toi
+	  readline.  This currently works only for built-in functions.
+	  Contributed by Nghia Ho (2015-07-28).
+	* apps/system/readline and apps/nshlib:  Extended the tab-completion
+	  support to also expand NSH command names (2015-07-30).
+	* apps/system/readline and apps/nshlib:  Add support for an in-memory
+	  command line history that can be retrieved using the up and down
+	  arrows.  Contributed by Nghia Ho (2015-08-09).
+	* apps/Makefile:  No longer depends on hardcoded lists of directories.
+	  Instead, it does a wildcard search to find all appropriate
+	  directories.  This means that to install a new application, you
+	  simply have to copy the directory (or link it) into the apps/
+	  directory.  If the new directory includes a Makefile and Make.defs
+	  file, then it will automatically be included in the build (2015-08-11).
+	* apps/Makefile, Kconfig, */Kconfig, tools/mkkconfig.sh: Add the tool
+	  mkkconfig.sh that dynamically builds the apps/Kconfig file at
+	  configuration time.  The hardcoded configuration file has been removed
+	  and now the top-level Makefile executes tools/mkkconfig.sh to auto-
+	  generate the top-level Kconfig file.  A new apps/ make target call
+	  preconfig: was added to support this operation.  Now you do not have
+	  to modify the top-level Kconfig file to add a new directory into the
+	  configuration; the top-level subdirectory simply needs to include a
+	  Kconfig file and it will automatically be included in the
+	  configuration.  The native Windows build is temporarily broken until
+	  a new apps/tools/mkconfig.bat script is generated (2015-08-11).
+	* apps/tools/mkkconfig.bat:  Add the Windows script corresponding to
+	  apps/tools/mkkconfig.sh.  Needed for a Windows native build.  Untested
+	  on initial commit (2015-08-12).
 
+7.12 2015-10-01 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/can:  Extend the CAN loopback test by adding more
+	  command line options (2015-08-17).
+	* apps/examples/usbserial: Can now be run as an NSH builtin-function.
+	  Now uses a configurable IO buffer size (2015-08-20).
+	* Various Kconfig files in netutils:  Fix some changes from from
+	  NETUTILS_DNSCLIENT to NETDB_DNSCLIENT.  From Pavel Pisa (2015-08-20).
+	* system/netdb:  Failed to build if CONFIG_NET_HOSTFILE was not defined
+	  because gethostbyaddr() was not available.  Noted by OrbitalFox
+	  (2015-08-21).
+	* apps/system/symtab: Optional canned symtab inclusion to the build. When
+	  option CONFIG_SYSTEM_SYMTAB is selected and symbol table file
+	  libc/symtab/canned_symtab.inc is prepared then application can
+	  use system provided complete symbol table. The option has
+	  substantial effect on system image size. Mainly code/text. If
+	  loading of applications at runtime is not planned do not select
+	  this.  From Pavel Pisa (2015-08-23).
+	* apps/examples/nettest: Add option to suppress network initialization.
+	  This is necessary if the nettest is run from NSH which has already
+	  initialized the network (2015-08-26).
+	* apps/examples/nettest: Extend test so that can be performed using the
+	  local loopback device (2015-08-26).
+	* apps/nshlib: Fix error handling in 'cat' command.  On a failure to
+	  allocate memory, a file was not being closed.  From Bruno Herrera
+	  (2015-08-26).
+	* apps/nshlib: Fix error handling in 'mv' command.  On a failure to
+	  expand the second path, the memory allocated for the expansion of the
+	  first path was not being freed.  From Bruno Herrera (2015-08-26).
+	* apps/examples/netloop:  Add a test of the local loopback device
+	  (2015-09-02).
+	* apps/modbus and apps/include/modbus:  Macros PR_BEGIN_EXTERN_C and
+	  PR_END_EXTERN_C were not defined in all contexts.  Replace with
+	  explicit expansion in all cases. From Stefan Kolb (2015-09-03).
+	* apps/canutils/uavcan: Add support for libuavcan.  From  Paul
+	  Alexander Patience (2015-09-25).
+	* apps/examples/udpblaster: Add a test to stress the network by
+	  sending UDP packets at a very high rate.  (2015-09-30).
+	* apps/examples/uavcan: libuavcan example from Paul Alexander
+	  Patience (2015-10-01).
+
+7.13 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/fstest:  Add a generic file system test.  This is
+	  essentially the same as examples/smart, but has all of the SmartFS
+	  specific logic ripped out.  This was created for testing the new
+	  tmpfs (2015-10-10).
+	* apps/examples/zerocross: Add a Zero Cross application example.
+	  From Alan Carvalho de Assis (2015-10-13).

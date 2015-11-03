@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/n etutils/ftpd.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Includes original code as well as logic adapted from hwport_ftpd, written
@@ -977,7 +977,7 @@ static ssize_t ftpd_response(int sd, int timeout, FAR const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  avsprintf(&buffer, fmt, ap);
+  vasprintf(&buffer, fmt, ap);
   va_end(ap);
 
   if (!buffer)
@@ -1871,7 +1871,7 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
       goto errout_with_session;
     }
 
- for (;;)
+  for (;;)
     {
       /* Read from the source (file or TCP connection) */
 
@@ -4042,7 +4042,7 @@ static FAR void *ftpd_worker(FAR void *arg)
 
   /* Then loop processing FTP commands */
 
- for (;;)
+  for (;;)
     {
       /* Receive the next command */
 

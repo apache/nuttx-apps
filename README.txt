@@ -83,7 +83,7 @@ asynchronously with NSH.  If you want to force NSH to execute commands
 then wait for the command to execute, you can enable that feature by
 adding the following to the NuttX configuration file:
 
-CONFIG_SCHED_WAITPID=y
+  CONFIG_SCHED_WAITPID=y
 
 The configuration option enables support for the waitpid() RTOS interface.
 When that interface is enabled, NSH will use it to wait, sleeping until
@@ -150,7 +150,7 @@ Building NuttX with Board-Specific Pieces Outside the Source Tree
 
 Q: Has anyone come up with a tidy way to build NuttX with board-
    specific pieces outside the source tree?
-A: Here are four:
+A: Here are three:
 
    1) There is a make target called 'make export'. It will build
       NuttX, then bundle all of the header files, libaries, startup
@@ -176,38 +176,48 @@ A: Here are four:
    3) If you like the random collection of stuff in the apps/ directory
       but just want to expand the existing components with your own,
       external sub-directory then there is an easy way to that too:
-      You just create the sympolic link at apps/external that
-      redirects to your application sub-directory. The apps/Makefile
-      will always automatically check for the existence of an
-      apps/external directory and if it exists, it will automatically
-      incorporate it into the build.
+      You just create a sympolic link in the apps/ directory that
+      redirects to your application sub-directory.
 
-      This feature of the apps/Makefile is documented only here.
+      In order to be incorporated into the build, the directory that
+      you link under the apps/ directory should contain (1) a Makefile
+      that supports the clean and distclean targets (see other Makefiles
+      for examples), and (2) a tiny Make.defs file that simply adds the
+      custon build directories to the variable CONFIGURED_APPS like:
 
-      You can, for example, create a script called install.sh that
+        CONFIGURED_APPS += my_directory1 my_directory2
+
+      The apps/Makefile will always automatically check for the
+      existence of subdirectories containing a Makefile and a Make.defs
+      file.  The Makefile will be used only to support cleaning operations.
+      The Make.defs file provides the set of directories to be built; these
+      directories must also contain a Makefile.  That Makefile must be able
+      to build the sources and add the objects to the apps/libapps.a archive.
+      (see other Makefiles for examples).  It should support the all,
+      install, context, and depend targets.
+
+      apps/Makefile does not depend on any hardcoded lists of directories.
+      Instead, it does a wildcard search to find all appropriate
+      directories.  This means that to install a new application, you
+      simply have to copy the directory (or link it) into the apps/
+      directory.  If the new directory includes a Makefile and Make.defs
+      file, then it will automatically be included in the build.
+
+      If the directory that you add also includes a Kconfig file, then it
+      will automatically be included in the NuttX configuration system as
+      well.  apps/Makefile uses a tool at apps/tools/mkkconfig.sh that
+      dynamically builds the apps/Kconfig file at pre-configuration time.
+
+      You could, for example, create a script called install.sh that
       installs a custom application, configuration, and board specific
       directory:
 
-      a) Copy 'MyBoard' directory to configs/MyBoard.
-      b) Add a symbolic link to MyApplication at apps/external
-      c) Configure NuttX (usually by:
+        a) Copy 'MyBoard' directory to configs/MyBoard.
+        b) Add a symbolic link to MyApplication at apps/external
+        c) Configure NuttX (usually by:
 
-         tools/configure.sh MyBoard/MyConfiguration
+           tools/configure.sh MyBoard/MyConfiguration
 
-         or simply by copying defconfig->nuttx/.config,
-         setenv.sh->nuttx/setenv.sh, and Make.defs->nuttx/Make.defs.
-
-      Using the 'external' link makes it especially easy to add a
-      'built-in' application an existing configuration.
-
-   4) Add any link to apps/
-
-      a) Add symbolic links apps/ to as many other directories as you
-         want,
-      b) Add the symbolic link to the list of candidate paths in the
-         top level apps/Makefile, and
-      b) Add the (relative) paths to the CONFIGURED_APPS list
-         in the Make.defs file in your new directory.
-
-      That is basically the same as my option #3 but doesn't use the
-      magic 'external' link.
+      Use of the name ''apps/external'' is suggested because that name
+      is included in the .gitignore file and will save you some nuisance
+      when working with GIT.

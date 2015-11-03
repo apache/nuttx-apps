@@ -112,7 +112,7 @@ static const uint32_t g_rgb16[LTDC_EXAMPLE_NCOLORS] =
 
 /****************************************************************************
  * Public Functions
-****************************************************************************/
+ ****************************************************************************/
 
 void ltdc_clrcolor(uint8_t *color, uint8_t value, size_t size);
 int ltdc_cmpcolor(uint8_t *color1, uint8_t *color2, size_t size);

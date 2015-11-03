@@ -54,7 +54,7 @@
 #include "igmp.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Check if the destination address is a multicast address

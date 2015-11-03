@@ -43,7 +43,7 @@
 #include <nuttx/config.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* The task_create task size can be specified in the defconfig file */

@@ -89,7 +89,7 @@ eMBErrorCode eMBTCPDoInit(uint16_t ucTCPPort)
     {
       eStatus = MB_EPORTERR;
     }
- 
+
    return eStatus;
 }
 

@@ -63,13 +63,13 @@ int main(int argc, char **argv)
     {
       printf("argv[%d]\t= ", i);
       if (argv[i])
-	{
-	  printf("(0x%p) \"%s\"\n", argv[i], argv[i]);
-	}
+        {
+          printf("(0x%p) \"%s\"\n", argv[i], argv[i]);
+        }
       else
-	{
-	  printf("NULL?\n");
-	}
+        {
+          printf("NULL?\n");
+        }
     }
 
   printf("argv[%d]\t= 0x%p\n", argc, argv[argc]);

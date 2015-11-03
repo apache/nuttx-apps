@@ -44,7 +44,8 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-PR_BEGIN_EXTERN_C
+extern "C"
+{
 #endif
 
 typedef enum
@@ -185,7 +186,7 @@ bool xMBTCPPortSendResponse(const uint8_t *pucMBTCPFrame, uint16_t usTCPLength);
 #endif
 
 #ifdef __cplusplus
-PR_END_EXTERN_C
+}
 #endif
 
 #endif /* __APPS_INCLUDE_MODBUS_MBPORT_H */

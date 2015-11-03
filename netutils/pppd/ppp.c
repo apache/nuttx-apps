@@ -99,7 +99,7 @@ static void ppp_reject_protocol(struct ppp_context_s *ctx, u16_t protocol,
 
   dptr = buffer + count + 6;
   sptr = buffer + count;
-  for(i = 0; i < count; ++i)
+  for (i = 0; i < count; ++i)
     {
       *dptr-- = *sptr--;
     }
@@ -127,7 +127,7 @@ void dump_ppp_packet(u8_t *buffer, u16_t len)
   int i;
 
   DEBUG1(("\n"));
-  for(i = 0;i < len; ++i)
+  for (i = 0;i < len; ++i)
     {
       if ((i & 0x1f) == 0x10)
         {
@@ -371,41 +371,42 @@ void ppp_upcall(struct ppp_context_s *ctx, u16_t protocol, u8_t *buffer, u16_t l
     {
       /* Demux on protocol field */
 
-      switch(protocol) {
-      case LCP:  /* We must support some level of LCP */
-        DEBUG1(("LCP Packet - "));
-        lcp_rx(ctx, buffer, len);
-        DEBUG1(("\n"));
-        break;
+      switch (protocol)
+        {
+        case LCP:  /* We must support some level of LCP */
+          DEBUG1(("LCP Packet - "));
+          lcp_rx(ctx, buffer, len);
+          DEBUG1(("\n"));
+          break;
 
 #ifdef CONFIG_NETUTILS_PPPD_PAP
-      case PAP:  /* PAP should be compile in optional */
-        DEBUG1(("PAP Packet - "));
-        pap_rx(ctx, buffer, len);
-        DEBUG1(("\n"));
-        break;
+        case PAP:  /* PAP should be compile in optional */
+          DEBUG1(("PAP Packet - "));
+          pap_rx(ctx, buffer, len);
+          DEBUG1(("\n"));
+          break;
 #endif /* CONFIG_NETUTILS_PPPD_PAP */
 
-      case IPCP: /* IPCP should be compile in optional. */
-        DEBUG1(("IPCP Packet - "));
-        ipcp_rx(ctx, buffer, len);
-        DEBUG1(("\n"));
-        break;
+        case IPCP: /* IPCP should be compile in optional. */
+          DEBUG1(("IPCP Packet - "));
+          ipcp_rx(ctx, buffer, len);
+          DEBUG1(("\n"));
+          break;
 
-      case IPV4: /* We must support IPV4 */
-        DEBUG1(("IPV4 Packet---\n"));
-        memcpy(ctx->ip_buf, buffer, len);
-        ctx->ip_len = len;
-        ctx->ip_no_data_time = 0;
-        DEBUG1(("\n"));
-        break;
+        case IPV4: /* We must support IPV4 */
+          DEBUG1(("IPV4 Packet---\n"));
+          memcpy(ctx->ip_buf, buffer, len);
+          ctx->ip_len = len;
+          ctx->ip_no_data_time = 0;
+          DEBUG1(("\n"));
+          break;
 
-      default:
-        DEBUG1(("Unknown PPP Packet Type 0x%04x - ",protocol));
-        ppp_reject_protocol(ctx, protocol, buffer, len);
-        DEBUG1(("\n"));
-        break;
-      }
+        default:
+          DEBUG1(("Unknown PPP Packet Type 0x%04x - ",protocol));
+          ppp_reject_protocol(ctx, protocol, buffer, len);
+          DEBUG1(("\n"));
+          break;
+        }
     }
 }
 
@@ -417,7 +418,7 @@ void ppp_upcall(struct ppp_context_s *ctx, u16_t protocol, u8_t *buffer, u16_t l
  * length of the codespace
  *
  ****************************************************************************/
- 
+
 u16_t scan_packet(struct ppp_context_s *ctx, u16_t protocol, const u8_t *list,
                   u8_t *buffer, u8_t *options, u16_t len)
 {
@@ -460,7 +461,7 @@ u16_t scan_packet(struct ppp_context_s *ctx, u16_t protocol, const u8_t *list,
           bad = 1;
           *tptr++ = i;
           j = *tptr++ = *bptr++;
-          for(i = 0; i < j - 2; ++i)
+          for (i = 0; i < j - 2; ++i)
             {
               *tptr++ = *bptr++;
             }

@@ -6,7 +6,7 @@
 config EXAMPLES_TIMER
 	bool "Timer example"
 	default n
-	depends on TIMER
+	depends on TIMER && BUILD_FLAT
 	---help---
 		Enable the \"Timer, World!\" example
 

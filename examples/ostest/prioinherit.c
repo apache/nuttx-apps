@@ -52,7 +52,7 @@
 #if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_DISABLE_PTHREAD)
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #ifndef CONFIG_SEM_PREALLOCHOLDERS

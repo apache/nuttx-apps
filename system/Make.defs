@@ -114,6 +114,10 @@ ifeq ($(CONFIG_SYSTEM_STACKMONITOR),y)
 CONFIGURED_APPS += system/stackmonitor
 endif
 
+ifeq ($(CONFIG_SYSTEM_SYMTAB),y)
+CONFIGURED_APPS += system/symtab
+endif
+
 ifeq ($(CONFIG_SYSTEM_USBMSC),y)
 CONFIGURED_APPS += system/usbmsc
 endif

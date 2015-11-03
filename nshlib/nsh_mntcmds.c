@@ -59,7 +59,7 @@
 #include "nsh_console.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
@@ -106,6 +106,12 @@ static const char* get_fstype(FAR struct statfs *statbuf)
 #ifdef CONFIG_FS_ROMFS
       case ROMFS_MAGIC:
         fstype = "romfs";
+        break;
+#endif
+
+#ifdef CONFIG_FS_TMPFS
+      case TMPFS_MAGIC:
+        fstype = "tmpfs";
         break;
 #endif
 

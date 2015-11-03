@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_console.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2013, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -240,13 +240,13 @@ static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
   va_list ap;
   char *str;
 
-  /* Use avsprintf() to allocate a buffer and fill it with the formatted
+  /* Use vasprintf() to allocate a buffer and fill it with the formatted
    * data
    */
 
   va_start(ap, fmt);
   str = NULL;
-  (void)avsprintf(&str, fmt, ap);
+  (void)vasprintf(&str, fmt, ap);
 
   /* Was a string allocated? */
 

@@ -33,7 +33,7 @@
 #define __APPS_MODBUS_RTU_MBCRC_H
 
 /****************************************************************************
- * Global Function Prototypes
+ * Public Function Prototypes
  ****************************************************************************/
 
 uint16_t usMBCRC16(uint8_t *pucFrame, uint16_t usLen);

@@ -58,7 +58,7 @@
  * Description:
  *   Remove the surface of the dma2dlayer
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_remove_dma2d_surface(FAR struct dma2d_surface *sur)
 {
@@ -76,7 +76,7 @@ static void ltdc_remove_dma2d_surface(FAR struct dma2d_surface *sur)
  * Description:
  *   Create a surface for the dma2dlayer
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
                                                            uint16_t yres,
@@ -143,7 +143,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
  * Description:
  *   Clear the whole ltdc layer with a specific color
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_clearlayer(FAR struct surface *sur, uint8_t color)
 {
@@ -165,7 +165,7 @@ static void ltdc_clearlayer(FAR struct surface *sur, uint8_t color)
  * Description:
  *   Clear the whole dma2d layer with a specific color
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void dma2d_clearlayer(FAR struct dma2d_surface *sur, uint8_t color)
 {
@@ -193,7 +193,7 @@ static void dma2d_clearlayer(FAR struct dma2d_surface *sur, uint8_t color)
  *       layer dest must be larger or equal to the size of the layer back and
  *       fore.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_blendshadow(FAR struct surface *dest,
                              FAR struct dma2d_surface *fore,
@@ -267,7 +267,7 @@ static void ltdc_blendshadow(FAR struct surface *dest,
  *   Helper: Blend a rectangle to the a specific pixel position.
  *   Note! This is only useful for the blitflipositioning test.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_blendrect(FAR struct dma2d_surface *fore,
                            FAR struct dma2d_surface *back,
@@ -301,7 +301,7 @@ static void ltdc_blendrect(FAR struct dma2d_surface *fore,
  *   Note! This is done by performing sequential blend operations.
  *         It does not claim to have a good speed performance.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_blendoutline(FAR struct dma2d_surface *fore,
                               FAR struct dma2d_surface *back)
@@ -368,7 +368,7 @@ static void ltdc_blendoutline(FAR struct dma2d_surface *fore,
  *   Calculates the next pixel position.
  *   This is based on the Breseham algorithmus.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_calcpos(int32_t *x0, int32_t *y0, int32_t x1, int32_t y1)
 {
@@ -397,7 +397,7 @@ static void ltdc_calcpos(int32_t *x0, int32_t *y0, int32_t x1, int32_t y1)
  * Description:
  *   Test: Error handling of dma2d interface
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_interface(void)
 {
@@ -661,7 +661,7 @@ static void ltdc_dma2d_interface(void)
  * Description:
  *   Test: Drawing color to specific area.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_fillarea(void)
 {
@@ -821,7 +821,7 @@ static void ltdc_dma2d_fillarea(void)
  * Description:
  *   Test: Perform simple blit operation to check source area positioning
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_blitsimple(void)
 {
@@ -951,7 +951,7 @@ static void ltdc_dma2d_blitsimple(void)
  *   Test: Perform simple blit operation to check source and destination
  *         positioning
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_blitpositioning(void)
 {
@@ -1215,7 +1215,7 @@ static void ltdc_dma2d_blitpositioning(void)
  * Description:
  *   Test: Perform simple blend operation to check source area positioning
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_blendsimple(void)
 {
@@ -1376,7 +1376,7 @@ static void ltdc_dma2d_blendsimple(void)
  *   Test: Perform simple blit operation with allocated dma2d layer using the
  *         dma2d interface.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_blitdynamiclayer(void)
 {
@@ -1648,7 +1648,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
  *   Test: Perform simple blend operation with allocated dma2d layer using the
  *         dma2d interface.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_blenddynamiclayer(void)
 {
@@ -1972,7 +1972,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
  * Description:
  *   Perform simple blit and flip operation with both interfaces
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_dma2d_blitflippositioning(void)
 {
@@ -2273,7 +2273,7 @@ static void ltdc_dma2d_blitflippositioning(void)
  *  Perform the screensaver test.
  *  Note! This test runs in an endless loop.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void ltdc_screensaver(void)
 {
@@ -2448,7 +2448,7 @@ static void ltdc_screensaver(void)
  * Description:
  *   Triggers the dma2d tests
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void ltdc_dma2d_main(void)
 {

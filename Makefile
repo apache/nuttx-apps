@@ -40,64 +40,33 @@ TOPDIR ?= $(APPDIR)/import
 
 -include $(TOPDIR)/Make.defs
 
+# Tools
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  MKKCONFIG = ${shell $(APPDIR)\tools\mkkconfig.bat}
+else
+  MKKCONFIG = ${shell $(APPDIR)/tools/mkkconfig.sh}
+endif
+
 # Application Directories
 
-# CONFIGURED_APPS is the list of all configured built-in directories/built
-#   action.
-# SUBDIRS is the list of all directories containing Makefiles.  It is used
-#   only for cleaning.
+# BUILDIRS is the list of top-level directories containing Make.defs files
+# CLEANDIRS is the list of all top-level directories containing Makefiles.
+#   It is used only for cleaning.
+
+BUILDIRS   := $(dir $(filter-out import/Make.defs,$(wildcard */Make.defs)))
+CLEANDIRS  := $(dir $(wildcard */Makefile))
+
+# CONFIGURED_APPS is the application directories that should be built in
+#   the current configuration.
 
 CONFIGURED_APPS =
-SUBDIRS  = examples graphics interpreters modbus builtin import nshlib
-SUBDIRS += netutils platform system
 
-# The list of configured directories is derived from NuttX configuration
-# file:  The selected applications are enabled settings in the configuration
-# file.  For example,
-#
-#   CONFIG_EXAMPLES_HELLO=y
-#
-# Will cause the "Hello, World!" example at apps/examples/hello to be
-# built and added int libapps.a.
-# out.
-
-# builtin/Make.defs must be included first
-
-include builtin/Make.defs
-include examples/Make.defs
-include graphics/Make.defs
-include interpreters/Make.defs
-include modbus/Make.defs
-include netutils/Make.defs
-include nshlib/Make.defs
-include platform/Make.defs
-include system/Make.defs
--include external/Make.defs
-
-# INSTALLED_APPS is the list of currently available application directories.  It
-# is the same as CONFIGURED_APPS, but filtered to exclude any non-existent
-# application directory. builtin is always in the list of applications to be
-# built.
-
-INSTALLED_APPS =
-
-# Create the list of available applications (INSTALLED_APPS)
-
-define ADD_BUILTIN
-  INSTALLED_APPS += $(if $(wildcard $1$(DELIM)Makefile),$1,)
+define Add_Application
+  include $(1)Make.defs
 endef
 
-$(foreach BUILTIN, $(CONFIGURED_APPS), $(eval $(call ADD_BUILTIN,$(BUILTIN))))
-
-# The external/ directory may also be added to the INSTALLED_APPS.  But there
-# is no external/ directory in the repository.  Rather, this directory may be
-# provided by the user (possibly as a symbolic link) to add libraries and
-# applications to the standard build from the repository.
-
-EXTERNAL_DIR := $(dir $(wildcard external$(DELIM)Makefile))
-
-INSTALLED_APPS += $(EXTERNAL_DIR)
-SUBDIRS += $(EXTERNAL_DIR)
+$(foreach BDIR, $(BUILDIRS), $(eval $(call Add_Application,$(BDIR))))
 
 # Library path
 
@@ -114,23 +83,23 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: import install context context_serialize context_rest .depdirs depend clean distclean
+.PHONY: import install context context_serialize context_rest .depdirs preconfig depend clean distclean
 
 define SDIR_template
 $(1)_$(2):
 	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
 endef
 
-$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
-$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
-$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
-$(foreach SDIR, $(INSTALLED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),install)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),context)))
+$(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),depend)))
+$(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
+$(foreach SDIR, $(CLEANDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 
-$(BIN): $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_all)
+$(BIN): $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_all)
 
-.install: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_install)
+.install: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_install)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -142,7 +111,7 @@ install: $(BIN_DIR) .install
 import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
 
-context_rest: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_context)
+context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 
 context_serialize:
 	$(Q) $(MAKE) -C builtin context TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
@@ -150,19 +119,25 @@ context_serialize:
 
 context: context_serialize
 
-.depdirs: $(foreach SDIR, $(INSTALLED_APPS), $(SDIR)_depend)
+Kconfig: $(MKKCONFIG)
+	$(MKKCONFIG)
+
+preconfig: Kconfig
+
+.depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
 .depend: context Makefile .depdirs
 	$(Q) touch $@
 
 depend: .depend
 
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
+clean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_clean)
 	$(call DELFILE, $(BIN))
+	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
 	$(call CLEAN)
 
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
+distclean: $(foreach SDIR, $(CLEANDIRS), $(SDIR)_distclean)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
 	$(Q) ( if exist  external ( \
 		echo ********************************************************" \
@@ -178,6 +153,7 @@ else
 	)
 endif
 	$(call DELFILE, .depend)
+	$(call DELFILE, $(BIN))
+	$(call DELFILE, Kconfig)
 	$(call DELDIR, $(BIN_DIR))
-
-
+	$(call CLEAN)

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_pcx.c
  * PCX graphic file support
  *
@@ -56,7 +56,7 @@
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_load_pcxheader(FAR FILE *fp, struct pcx_header_s *header)
 {
@@ -78,7 +78,7 @@ static void trv_load_pcxheader(FAR FILE *fp, struct pcx_header_s *header)
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_load_pcxdata(FAR FILE *fp, int32_t imagesize,
                              FAR uint8_t *imagebuffer)
@@ -127,7 +127,7 @@ static void trv_load_pcxdata(FAR FILE *fp, int32_t imagesize,
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_load_pcxpalette(FAR FILE *fp,
                                 FAR struct trv_color_rgb_s *palette)
@@ -160,7 +160,7 @@ static void trv_load_pcxpalette(FAR FILE *fp,
  * Description:
  *   This function loads a PCX file into a memory.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 FAR struct trv_graphicfile_s *trv_load_pcx(FAR FILE *fp,
                                            FAR const char *filename)

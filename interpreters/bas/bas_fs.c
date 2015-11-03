@@ -1671,7 +1671,7 @@ long int FS_lof(int chn)
       return -1;
     }
 
- return (long int)(endpos / g_file[chn]->recLength);
+  return (long int)(endpos / g_file[chn]->recLength);
 }
 
 long int FS_recLength(int chn)

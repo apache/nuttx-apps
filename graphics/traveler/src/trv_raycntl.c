@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_raycntl.c
  *  This file contains the high-level ray caster control logic
  *
@@ -136,7 +136,7 @@ static int16_t g_pitch[VGULP_SIZE];
  *   recursively resolve the cell until all four corners are the same.
  *   When the are the same, then rend the cell to the display buffer.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static void trv_resolve_cell(uint8_t toprow, uint8_t leftcol,
                              uint8_t height, uint8_t width)
@@ -593,7 +593,7 @@ static void trv_resolve_cell(uint8_t toprow, uint8_t leftcol,
  *   This is the heart of the system.  it casts out 320 rays and builds the
  *   3-D image from their intersections with the walls.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_raycaster(FAR struct trv_camera_s *player,
                    FAR struct trv_graphics_info_s *ginfo)
@@ -764,7 +764,7 @@ void trv_raycaster(FAR struct trv_camera_s *player,
  *   Prevention of this condition is the best approach.  However, total
  *   elimination of the condition is impossible.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 uint8_t trv_get_texture(uint8_t row, uint8_t col)
 {

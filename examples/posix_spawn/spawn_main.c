@@ -58,7 +58,7 @@
 #include "filesystem/romfs.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 /* Check configuration.  This is not all of the configuration settings that

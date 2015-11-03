@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_color.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
@@ -88,7 +88,7 @@
 
 /****************************************************************************
  * Private Type Declarations
- ************************************************************************/
+ ****************************************************************************/
 
 /* The following enumeration defines indices into the g_unit_vector array */
 
@@ -125,7 +125,7 @@ struct color_form_s
 
 /****************************************************************************
  * Private Variables
- *************************************************************************/
+ ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
 static FAR struct trv_color_lum_s *g_pixel2um_lut;
@@ -204,7 +204,7 @@ static float g_trv_cube2pixel;
 
 /****************************************************************************
  * Private Functions
- ************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: trv_lum2formtype
@@ -213,7 +213,7 @@ static float g_trv_cube2pixel;
  *   Convert an ordered RGB-Luminance value a color form  (index into
  *   XXXForm arrays).
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
 static uint8_t trv_lum2formtype(struct color_form_s *lum)
@@ -256,7 +256,7 @@ static uint8_t trv_lum2formtype(struct color_form_s *lum)
  *   Convert an RGB-Luminance value into a color form code (index into
  *   g_unit_vector array).
  *
- ************************************************************************/
+ ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
 static enum unit_vector_index_e trv_lum2colorform(struct trv_color_lum_s *lum)
@@ -345,13 +345,13 @@ static enum unit_vector_index_e trv_lum2colorform(struct trv_color_lum_s *lum)
 
 /****************************************************************************
  * Public Functions
- ************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: trv_color_allocate
  *
  * Description:
- ************************************************************************/
+ ****************************************************************************/
 
 void trv_color_allocate(FAR struct trv_palette_s *pinfo)
 {
@@ -501,7 +501,7 @@ void trv_color_allocate(FAR struct trv_palette_s *pinfo)
  *   When all color mapping has been performed, this function should be
  *   called to release all resources dedicated to color mapping.
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_color_endmapping(void)
 {
@@ -526,7 +526,7 @@ void trv_color_endmapping(void)
  * Description:
  *   Free the color lookup table
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 void trv_color_free(struct trv_palette_s *pinfo)
 {
@@ -542,7 +542,7 @@ void trv_color_free(struct trv_palette_s *pinfo)
  * Description: Map a RGB triplet into the corresponding pixel.  The
  *   value range of ech RGB value is assume to lie within 0 through
  *   TRV_PIXEL_MAX.
- ************************************************************************/
+ ****************************************************************************/
 
 trv_pixel_t trv_color_rgb2pixel(struct trv_color_rgb_s *pixel)
 {
@@ -591,7 +591,7 @@ trv_pixel_t trv_color_rgb2pixel(struct trv_color_rgb_s *pixel)
 /****************************************************************************
  * Name: trv_color_lum2pixel
  * Description: Convert an RGB-Luminance value into a pixel
- ************************************************************************/
+ ****************************************************************************/
 
 trv_pixel_t trv_color_lum2pixel(struct trv_color_lum_s *lum)
 {
@@ -641,7 +641,7 @@ trv_pixel_t trv_color_lum2pixel(struct trv_color_lum_s *lum)
 /****************************************************************************
  * Name: trv_color_pixel2lum
  * Description: Convert a pixel value into RGB-Luminance value.
- ************************************************************************/
+ ****************************************************************************/
 
 void trv_color_pixel2lum(trv_pixel_t pixval,
                          struct trv_color_lum_s *lum)

@@ -1,4 +1,4 @@
-/***********************************************************************
+/****************************************************************************
  * apps/examples/ostest/signest.c
  *
  *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
@@ -31,7 +31,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ***********************************************************************/
+ ****************************************************************************/
 
 #include <sys/types.h>
 #include <stdbool.h>
@@ -44,9 +44,9 @@
 #include <errno.h>
 #include "ostest.h"
 
-/***********************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ***********************************************************************/
+ ****************************************************************************/
 
 #ifndef NULL
 # define NULL (void*)0
@@ -55,9 +55,9 @@
 #define WAKEUP_SIGNAL 17
 #define SIGVALUE_INT  42
 
-/***********************************************************************
+/****************************************************************************
  * Private Data
- ***********************************************************************/
+ ****************************************************************************/
 
 static sem_t g_waiter_sem;
 static sem_t g_interferer_sem;
@@ -73,9 +73,9 @@ static volatile int g_odd_nested;
 
 static volatile int g_nest_level;
 
-/***********************************************************************
+/****************************************************************************
  * Private Functions
- ***********************************************************************/
+ ****************************************************************************/
 
 static void waiter_action(int signo)
 {
@@ -107,7 +107,7 @@ static void waiter_action(int signo)
 
 static int waiter_main(int argc, char *argv[])
 {
-  sigset_t sigset;
+  sigset_t set;
   struct sigaction act;
   int ret;
   int i;
@@ -115,8 +115,8 @@ static int waiter_main(int argc, char *argv[])
   printf("waiter_main: Waiter started\n" );
   printf("waiter_main: Setting signal mask\n" );
 
-  (void)sigemptyset(&sigset);
-  ret = sigprocmask(SIG_SETMASK, &sigset, NULL);
+  (void)sigemptyset(&set);
+  ret = sigprocmask(SIG_SETMASK, &set, NULL);
   if (ret < 0)
     {
       printf("waiter_main: ERROR sigprocmask failed: %d\n", errno);
@@ -179,9 +179,9 @@ static int interfere_main(int argc, char *argv[])
   g_interferer_running = false;
   return EXIT_SUCCESS;
 }
-/***********************************************************************
+/****************************************************************************
  * Public Functions
- ***********************************************************************/
+ ****************************************************************************/
 
 void signest_test(void)
 {

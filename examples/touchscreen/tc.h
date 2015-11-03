@@ -43,7 +43,7 @@
 #include <nuttx/config.h>
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* CONFIG_NSH_BUILTIN_APPS - Build the touchscreen test as

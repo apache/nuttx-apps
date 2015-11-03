@@ -42,6 +42,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <apps/netutils/pppd.h>
 #include "ppp_conf.h"
 #include "ppp_arch.h"
 #include "ppp.h"
@@ -156,16 +157,16 @@ void pap_task(struct ppp_context_s *ctx, u8_t *buffer)
 
           /* Write options */
 
-          t = strlen((char*)ctx->pap_username);
+          t = strlen((char*)ctx->settings->pap_username);
 
           /* Write peer length */
 
           *bptr++ = (u8_t)t;
-          bptr = memcpy(bptr, ctx->pap_username, t);
+          bptr = memcpy(bptr, ctx->settings->pap_username, t);
 
-          t = strlen((char*)ctx->pap_password);
+          t = strlen((char*)ctx->settings->pap_password);
           *bptr++ = (u8_t)t;
-          bptr = memcpy(bptr, ctx->pap_password, t);
+          bptr = memcpy(bptr, ctx->settings->pap_password, t);
 
           /* Write length */
 

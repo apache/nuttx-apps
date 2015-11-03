@@ -299,7 +299,7 @@ static int readstream(FAR struct lib_instream_s *instream,
           *line = '\0';
           return nbytes;
         }
-#elif CONFIG_EOL_IS_EITHER_CRLF
+#elif defined(CONFIG_EOL_IS_EITHER_CRLF)
       if (ch == '\n' || ch == '\r')
         {
           *line = '\0';

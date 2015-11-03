@@ -103,18 +103,31 @@
 
 #if defined(CONFIG_NET_ETHERNET)
 #  define NET_DEVNAME "eth0"
+#  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_SLIP)
 #  define NET_DEVNAME "sl0"
 #  ifndef CONFIG_NSH_NOMAC
 #    error "CONFIG_NSH_NOMAC must be defined for SLIP"
 #  endif
+#  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_TUN)
 #  define NET_DEVNAME "tun0"
+#  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_LOCAL)
 #  define NET_DEVNAME "lo"
-#else
+#  define NSH_HAVE_NETDEV
+#elif !defined(CONFIG_NET_LOOPBACK)
 #  error ERROR: No link layer protocol defined
 #endif
+
+/* If we have no network device (only only the local loopback device), then we
+ * cannot support the network monitor.
+ */
+
+#ifndef NSH_HAVE_NETDEV
+#  undef CONFIG_NSH_NETINIT_MONITOR
+#endif
+
 
 /* We need a valid IP domain (any domain) to create a socket that we can use
  * to comunicate with the network device.
@@ -208,6 +221,7 @@ static const uint16_t g_ipv6_netmask[8] =
 
 static void nsh_netinit_configure(void)
 {
+#ifdef NSH_HAVE_NETDEV
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
 #endif
@@ -328,6 +342,7 @@ static void nsh_netinit_configure(void)
         dhcpc_close(handle);
     }
 #endif
+#endif /* NSH_HAVE_NETDEV */
 
   nvdbg("Exit\n");
 }

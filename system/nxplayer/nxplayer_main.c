@@ -589,7 +589,7 @@ static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char* parg)
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])

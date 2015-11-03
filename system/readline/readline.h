@@ -118,7 +118,7 @@ struct rl_common_s
  *   EOF is returned to indicate either an end of file condition or a
  *   failure.
  *
- **************************************************************************/
+ ****************************************************************************/
 
 ssize_t readline_common(FAR struct rl_common_s *vtbl, FAR char *buf, int buflen);
 

@@ -97,7 +97,7 @@ void httpd_memstats(void)
 #endif
 
 /****************************************************************************
- * Global Functions
+ * Public Functions
  ****************************************************************************/
 
 #ifdef CONFIG_THTTPD_MEMDEBUG

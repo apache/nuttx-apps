@@ -1,4 +1,4 @@
-/*******************************************************************************
+/****************************************************************************
  * apps/graphics/traveler/src/trv_paltbl.c
  * This file contains the logic that creates the range palette table that is
  * used to modify the palette with range to hit
@@ -64,7 +64,7 @@
 
 /****************************************************************************
  * Private Type Declarations
- ***************************************************************************/
+ ****************************************************************************/
 
 #ifdef CONFIG_GRAPHICS_TRAVELER_PALRANGES
 struct trv_palrange_s
@@ -94,7 +94,7 @@ trv_pixel_t *g_paltable[NUM_ZONES];
  *
  * Description:
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 static int trv_allocate_paltbl(uint32_t entrysize)
 {
@@ -124,7 +124,7 @@ static int trv_allocate_paltbl(uint32_t entrysize)
  * Description:
  *   This function loads the g_paltable from the specified file
  *
- ***************************************************************************/
+ ****************************************************************************/
 
 int trv_load_paltable(FAR const char *file)
 {
@@ -326,12 +326,12 @@ int trv_load_paltable(FAR const char *file)
 #endif /* CONFIG_GRAPHICS_TRAVELER_PALRANGES */
 }
 
-/*************************************************************************
+/****************************************************************************
  * Function: trv_release_paltable
  *
  * Description:
  *
- ************************************************************************/
+ ****************************************************************************/
 
 void trv_release_paltable(void)
 {
