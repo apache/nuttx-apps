@@ -49,7 +49,7 @@ config READLINE_MAX_EXTCMDS
 	default 64
 	depends on READLINE_HAVE_EXTMATCH
 	---help---
-		This the maximum number of matching names of builtin commands that
+		This the maximum number of matching names of external commands that
 		will be displayed.
 
 endif # READLINE_TABCOMPLETION

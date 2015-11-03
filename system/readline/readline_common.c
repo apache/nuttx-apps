@@ -107,6 +107,7 @@ static int g_cmd_history_len = 0;
 #if defined(CONFIG_READLINE_TABCOMPLETION) && defined(CONFIG_BUILTIN)
 static int count_builtin_maches(FAR char *buf, FAR int *matches, int namelen)
 {
+#if CONFIG_READLINE_MAX_BUILTINS > 0
   FAR const char *name;
   int nr_matches = 0;
   int i;
@@ -126,6 +127,10 @@ static int count_builtin_maches(FAR char *buf, FAR int *matches, int namelen)
     }
 
   return nr_matches;
+
+#else
+  return 0;
+#endif
 }
 #endif
 
@@ -254,6 +259,7 @@ static void tab_completion(FAR struct rl_common_s *vtbl, char *buf,
            */
 
           memset(tmp_name, 0, sizeof(tmp_name));
+
 #ifdef CONFIG_READLINE_HAVE_EXTMATCH
           /* Show the possible external completions */
 
