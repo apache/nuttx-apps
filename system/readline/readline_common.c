@@ -425,9 +425,13 @@ FAR const char *readline_prompt(FAR const char *prompt)
 FAR const struct extmatch_vtable_s *
   readline_extmatch(FAR const struct extmatch_vtable_s *vtbl)
 {
+#if (CONFIG_READLINE_MAX_EXTCMDS > 0)
   FAR const struct extmatch_vtable_s *ret = g_extmatch_vtbl;
   g_extmatch_vtbl = vtbl;
   return ret;
+#else
+  return NULL;
+#endif
 }
 #endif
 
