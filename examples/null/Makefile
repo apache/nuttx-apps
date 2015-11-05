@@ -35,6 +35,12 @@
 
 -include $(TOPDIR)/Make.defs
 
+# The NULL example built-in application info
+
+APPNAME = null
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+
 # The smallest thing you can build -- the NULL example.
 
 ASRCS =
