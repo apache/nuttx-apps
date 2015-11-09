@@ -301,6 +301,21 @@ int media_main(int argc, char *argv[])
       info.nblocks = blockno;
     }
 
+  /* Seek to the beginnin of the file */
+
+  seekpos = lseek(fd, 0, SEEK_SET);
+  if (seekpos == (off_t)-1)
+    {
+      int errcode = errno;
+
+      fprintf(stderr, "ERROR: lseek to 0 failed: %d\n", errcode);
+    }
+  else if (seekpos != 0)
+    {
+      fprintf(stderr, "ERROR: lseek to 0 failed: %lu\n",
+              (unsigned)seekpos);
+    }
+
   /* Re-read and verify each sector */
 
   value = START_VALUE;
