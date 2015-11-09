@@ -1443,3 +1443,6 @@
 	  tmpfs (2015-10-10).
 	* apps/examples/zerocross: Add a Zero Cross application example.
 	  From Alan Carvalho de Assis (2015-10-13).
+	* apps/examples/media:  Add a simple test for access of media via
+	  a block driver or MTD driver (2015-11-09).
+
