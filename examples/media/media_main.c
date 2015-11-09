@@ -53,6 +53,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#define START_VALUE 0x20
+#define END_VALUE   0x7f
+
 /****************************************************************************
  * Private types
  ****************************************************************************/
@@ -117,8 +120,17 @@ int main(int argc, FAR char *argv[])
 int media_main(int argc, char *argv[])
 #endif
 {
-  FAR uint8_t *buffer;
+  FAR uint8_t *txbuffer;
+  FAR uint8_t *rxbuffer;
   struct media_info_s info;
+  ssize_t nwritten;
+  ssize_t nread;
+  off_t blockno;
+  off_t pos;
+  off_t seekpos;
+  off_t i;
+  uint32_t nerrors;
+  uint8_t value;
   int fd;
 
   /* Open the character driver that wraps the media */
@@ -138,20 +150,218 @@ int media_main(int argc, char *argv[])
   printf("  blocksize:    %lu\n", (unsigned long)info.blocksize);
   printf("  nblocks:      %lu\n", (unsigned long)info.nblocks);
 
-  /* Allocate an I/O buffer of the correct block size */
+  /* Allocate I/O buffers of the correct block size */
 
-  buffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
-  if (buffer == NULL)
+  txbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
+  if (txbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate I/O buffer of size %ul\n",
+      fprintf(stderr, "ERROR: failed to allocate TX I/O buffer of size %ul\n",
               (unsigned long)info.blocksize);
       close(fd);
       return 1;
     }
 
+  rxbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
+  if (rxbuffer == NULL)
+    {
+      fprintf(stderr, "ERROR: failed to allocate IRX /O buffer of size %ul\n",
+              (unsigned long)info.blocksize);
+      free(txbuffer);
+      close(fd);
+      return 1;
+    }
+
+  /* Write and verify each sector */
+
+  pos     = 0;
+  nerrors = 0;
+  value   = START_VALUE;
+
+  for (blockno = 0; info.nblocks == 0 || blockno < info.nblocks; blockno++)
+    {
+      /* Fill buffer with a (possibly) unique pattern */
+
+      for (i = 0; i < info.nblocks; i++)
+        {
+          txbuffer[i] = value;
+          if (++value >= END_VALUE)
+            {
+              value = START_VALUE;
+            }
+        }
+
+      seekpos = lseek(fd, pos, SEEK_SET);
+      if (seekpos == (off_t)-1)
+        {
+          int errcode = errno;
+
+          fprintf(stderr, "ERROR: lseek to %lu failed: %d\n",
+                  (unsigned long)pos, errcode);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          info.nblocks = blockno;
+          break;
+        }
+      else if (seekpos != pos)
+        {
+          fprintf(stderr, "ERROR: lseek failed: %lu vs %lu\n",
+                  (unsigned)seekpos, (unsigned long) pos);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          info.nblocks = blockno;
+          break;
+        }
+
+      nwritten = write(fd, txbuffer, info.blocksize);
+      if (nwritten < 0)
+        {
+          int errcode = errno;
+
+          fprintf(stderr, "ERROR: write failed: %d\n", errcode);
+          if (errno != EINTR)
+            {
+              fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+              info.nblocks = blockno;
+              break;
+            }
+        }
+      else if (nwritten != info.blocksize)
+        {
+          fprintf(stderr, "ERROR: Unexpected write size: %lu vs. %lu\n",
+                  (unsigned long)nwritten, (unsigned long)info.blocksize);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          info.nblocks = blockno;
+          break;
+        }
+
+      seekpos = lseek(fd, pos, SEEK_SET);
+      if (seekpos == (off_t)-1)
+        {
+          int errcode = errno;
+
+          fprintf(stderr, "ERROR: lseek to %lu failed: %d\n",
+                  (unsigned long)pos, errcode);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          info.nblocks = blockno;
+          break;
+        }
+      else if (seekpos != pos)
+        {
+          fprintf(stderr, "ERROR: lseek failed: %lu vs %lu\n",
+                  (unsigned)seekpos, (unsigned long) pos);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          info.nblocks = blockno;
+          break;
+        }
+
+      nread = read(fd, rxbuffer, info.blocksize);
+      if (nread < 0)
+        {
+          int errcode = errno;
+
+          fprintf(stderr, "ERROR: read failed: %d\n", errcode);
+          if (errno != EINTR)
+            {
+              fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+              info.nblocks = blockno;
+              break;
+            }
+        }
+      else if (nread != info.blocksize)
+        {
+          fprintf(stderr, "ERROR: Unexpected read size: %lu vs. %lu\n",
+                  (unsigned long)nread, (unsigned long)info.blocksize);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          info.nblocks = blockno;
+          break;
+        }
+      else
+        {
+          for (i = 0; i < info.blocksize; i++)
+            {
+              if (txbuffer[i] != rxbuffer[i])
+                {
+                  fprintf(stderr,
+                          "ERROR: block=%ul offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          blockno, i, rxbuffer[i], txbuffer[i]);
+                  if (++nerrors > 100)
+                    {
+                      fprintf(stderr, "ERROR: Too many errors\n");
+                      fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+                      info.nblocks = blockno;
+                      break;
+                    }
+                }
+            }
+        }
+    }
+
+  /* Set the number of blocks if it was unknown before */
+
+  if (info.nblocks == 0)
+    {
+      info.nblocks = blockno;
+    }
+
+  /* Re-read and verify each sector */
+
+  value = START_VALUE;
+
+  for (blockno = 0; blockno < info.nblocks; blockno++)
+    {
+      /* Fill buffer with a (possibly) unique pattern */
+
+      for (i = 0; i < info.nblocks; i++)
+        {
+          txbuffer[i] = value;
+          if (++value >= END_VALUE)
+            {
+              value = START_VALUE;
+            }
+        }
+
+      nread = read(fd, rxbuffer, info.blocksize);
+      if (nread < 0)
+        {
+          int errcode = errno;
+
+          fprintf(stderr, "ERROR: read failed: %d\n", errcode);
+          if (errno != EINTR)
+            {
+              fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+              break;
+            }
+        }
+      else if (nread != info.blocksize)
+        {
+          fprintf(stderr, "ERROR: Unexpected read size: %lu vs. %lu\n",
+                  (unsigned long)nread, (unsigned long)info.blocksize);
+          fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+          break;
+        }
+      else
+        {
+          for (i = 0; i < info.blocksize; i++)
+            {
+              if (txbuffer[i] != rxbuffer[i])
+                {
+                  fprintf(stderr,
+                          "ERROR: block=%ul offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          blockno, i, rxbuffer[i], txbuffer[i]);
+
+                  if (++nerrors > 100)
+                    {
+                      fprintf(stderr, "ERROR: Too many errors\n");
+                      fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+                      break;
+                    }
+                }
+            }
+        }
+    }
+
   /* Clean-up and exit */
 
-  free(buffer);
+  free(rxbuffer);
+  free(txbuffer);
   close(fd);
   return 0;
 }
