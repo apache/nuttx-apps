@@ -59,30 +59,44 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#if defined(CONFIG_EXAMPLES_CAN_READONLY)
-#  undef CONFIG_EXAMPLES_CAN_WRITEONLY
-#  undef CONFIG_EXAMPLES_CAN_READWRITE
+#if defined(CONFIG_EXAMPLES_CAN_READ)
 #  define CAN_OFLAGS O_RDONLY
-#elif defined(CONFIG_EXAMPLES_CAN_WRITEONLY)
-#  undef CONFIG_EXAMPLES_CAN_READWRITE
+#elif defined(CONFIG_EXAMPLES_CAN_WRITE)
 #  define CAN_OFLAGS O_WRONLY
-#else
-#  undef CONFIG_EXAMPLES_CAN_READWRITE
-#  define CONFIG_EXAMPLES_CAN_READWRITE 1
+#elif defined(CONFIG_EXAMPLES_CAN_READWRITE)
 #  define CAN_OFLAGS O_RDWR
+#  define CONFIG_EXAMPLES_CAN_READ 1
+#  define CONFIG_EXAMPLES_CAN_WRITE 1
 #endif
 
-#ifndef CONFIG_EXAMPLES_CAN_NMSGS
-#  define CONFIG_EXAMPLES_CAN_NMSGS 32
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
+#  ifdef CONFIG_CAN_EXTID
+#    define MAX_ID CAN_MAX_EXTMSGID
+#  else
+#    define MAX_ID CAN_MAX_STDMSGID
+#  endif
 #endif
 
-#define MAX_EXTID (1 << 29)
-#define MAX_STDID (1 << 11)
-
-#ifdef CONFIG_CAN_EXTID
-#  define MAX_ID MAX_EXTID
+#ifdef CONFIG_NSH_BUILTIN_APPS
+#  ifdef CONFIG_EXAMPLES_CAN_WRITE
+#    ifdef CONFIG_CAN_EXTID
+#      define OPT_STR ":n:a:b:hs"
+#    else
+#      define OPT_STR ":n:a:b:h"
+#    endif
+#  else
+#    define OPT_STR ":n:h"
+#  endif
 #else
-#  define MAX_ID MAX_STDID
+#  ifdef CONFIG_EXAMPLES_CAN_WRITE
+#    ifdef CONFIG_CAN_EXTID
+#      define OPT_STR ":a:b:hs"
+#    else
+#      define OPT_STR ":a:b:h"
+#    endif
+#  else
+#    define OPT_STR ":h"
+#  endif
 #endif
 
 /****************************************************************************
@@ -107,22 +121,31 @@
 
 static void show_usage(FAR const char *progname)
 {
-#ifdef CONFIG_CAN_EXTID
-  fprintf(stderr, "USAGE: %s [-s] [-n <nmsgs] [-a <min-id>] [b <max-id>]\n",
-          progname);
-#else
-  fprintf(stderr, "USAGE: %s [-n <nmsgs] [-a <min-id>] [b <max-id>]\n",
-          progname);
+  fprintf(stderr, "USAGE: %s"
+#ifdef CONFIG_NSH_BUILTIN_APPS
+          " [-n <nmsgs]"
 #endif
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
+#ifdef CONFIG_CAN_EXTID
+          " [-s]"
+#endif
+          " [-a <min-id>] [b <max-id>]"
+#endif
+          "\n",
+          progname);
   fprintf(stderr, "USAGE: %s -h\n",
           progname);
   fprintf(stderr, "\nWhere:\n");
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  fprintf(stderr, "-n <nmsgs>: The number of messages to send.  Default: 32\n");
+#endif
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
 #ifdef CONFIG_CAN_EXTID
   fprintf(stderr, "-s: Use standard IDs.  Default: Extended ID\n");
 #endif
-  fprintf(stderr, "-n <nmsgs>: The number of messages to send.  Default: 32\n");
   fprintf(stderr, "-a <min-id>: The start message id.  Default 1\n");
-  fprintf(stderr, "-b <max-id>: The start message id.  Default %d\n", MAX_ID - 1);
+  fprintf(stderr, "-b <max-id>: The start message id.  Default %d\n", MAX_ID);
+#endif
   fprintf(stderr, "-h: Show this message and exit\n");
 }
 
@@ -137,59 +160,56 @@ static void show_usage(FAR const char *progname)
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int can_main(int argc, char *argv[])
+int can_main(int argc, FAR char *argv[])
 #endif
 {
   struct canioc_bittiming_s bt;
-#ifndef CONFIG_EXAMPLES_CAN_READONLY
+
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
   struct can_msg_s txmsg;
 #ifdef CONFIG_CAN_EXTID
-  bool extended;
+  bool extended = true;
   uint32_t msgid;
 #else
   uint16_t msgid;
 #endif
-  long minid;
-  long maxid;
+  long minid    = 1;
+  long maxid    = MAX_ID;
   int msgdlc;
   uint8_t msgdata;
+  int i;
 #endif
 
-#ifndef CONFIG_EXAMPLES_CAN_WRITEONLY
+#ifdef CONFIG_EXAMPLES_CAN_READ
   struct can_msg_s rxmsg;
 #endif
 
   size_t msgsize;
   ssize_t nbytes;
-  bool badarg;
-  bool help;
-  long nmsgs;
+  bool badarg   = false;
+  bool help     = false;
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  long nmsgs    = CONFIG_EXAMPLES_CAN_NMSGS;
+  long msgno;
+#endif
   int option;
   int fd;
-  int errval = 0;
-  int msgno;
+  int errval    = 0;
   int ret;
-  int i;
 
   /* Parse command line parameters */
 
-  nmsgs    = CONFIG_EXAMPLES_CAN_NMSGS;
-  minid    = 1;
-  maxid    = MAX_ID - 1;
-#ifdef CONFIG_CAN_EXTID
-  extended = true;
-#endif
-  badarg   = false;
-  help     = false;
-
-#ifdef CONFIG_CAN_EXTID
-  while ((option = getopt(argc, argv, ":n:a:b:hs")) != ERROR)
-#else
-  while ((option = getopt(argc, argv, ":n:a:b:h")) != ERROR)
-#endif
+  while ((option = getopt(argc, argv, OPT_STR)) != ERROR)
     {
       switch (option)
         {
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
+#ifdef CONFIG_CAN_EXTID
+          case 's':
+            extended = false;
+            break;
+#endif
+
           case 'a':
             minid = strtol(optarg, NULL, 10);
             if (minid < 1 || minid > maxid)
@@ -201,23 +221,19 @@ int can_main(int argc, char *argv[])
 
           case 'b':
             maxid = strtol(optarg, NULL, 10);
-            if (maxid < minid || maxid >= MAX_ID)
+            if (maxid < minid || maxid > MAX_ID)
               {
                 fprintf(stderr, "ERROR: <max-id> out of range\n");
                 badarg = true;
               }
             break;
+#endif
 
           case 'h':
             help = true;
             break;
 
-#ifdef CONFIG_CAN_EXTID
-          case 's':
-            extended = false;
-            break;
-#endif
-
+#ifdef CONFIG_NSH_BUILTIN_APPS
           case 'n':
             nmsgs = strtol(optarg, NULL, 10);
             if (nmsgs < 1)
@@ -226,6 +242,7 @@ int can_main(int argc, char *argv[])
                 badarg = true;
               }
             break;
+#endif
 
           case ':':
             fprintf(stderr, "ERROR: Bad option argument\n");
@@ -252,10 +269,10 @@ int can_main(int argc, char *argv[])
       return EXIT_SUCCESS;
     }
 
-#ifdef CONFIG_CAN_EXTID
-  if (!extended && maxid >= MAX_STDID)
+#if defined(CONFIG_EXAMPLES_CAN_WRITE) && defined(CONFIG_CAN_EXTID)
+  if (!extended && maxid > CAN_MAX_STDMSGID)
     {
-      maxid = MAX_STDID - 1;
+      maxid = CAN_MAX_STDMSGID;
       if (minid > maxid)
         {
           minid = maxid;
@@ -270,14 +287,19 @@ int can_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  printf("nmsgs: %d min ID: %d max ID: %d\n", nmsgs, minid, maxid);
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  printf("nmsgs: %d\n", nmsgs);
+#endif
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
+  printf("min ID: %ld max ID: %ld\n", minid, maxid);
+#endif
 
   /* Initialization of the CAN hardware is performed by logic external to
    * this test.
    */
 
   ret = boardctl(BOARDIOC_CAN_INITIALIZE, 0);
-  if (ret != OK)
+  if (ret < 0)
     {
       printf("ERROR: BOARDIOC_CAN_INITIALIZE failed: %d\n", ret);
       errval = 1;
@@ -290,12 +312,12 @@ int can_main(int argc, char *argv[])
   if (fd < 0)
     {
       printf("ERROR: open %s failed: %d\n",
-              CONFIG_EXAMPLES_CAN_DEVPATH, errno);
+             CONFIG_EXAMPLES_CAN_DEVPATH, errno);
       errval = 2;
       goto errout_with_dev;
     }
 
-  /* Show bit timing information .. if provided by the driver.  Not all CAN
+  /* Show bit timing information if provided by the driver.  Not all CAN
    * drivers will support this IOCTL.
    */
 
@@ -305,25 +327,29 @@ int can_main(int argc, char *argv[])
       printf("Bit timing not available: %d\n", errno);
     }
   else
-   {
+    {
       printf("Bit timing:\n");
       printf("   Baud: %lu\n", (unsigned long)bt.bt_baud);
       printf("  TSEG1: %u\n", bt.bt_tseg1);
       printf("  TSEG2: %u\n", bt.bt_tseg2);
       printf("    SJW: %u\n", bt.bt_sjw);
-   }
+    }
 
   /* Now loop the appropriate number of times, performing one loopback test
    * on each pass.
    */
 
-#ifndef CONFIG_EXAMPLES_CAN_READONLY
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
   msgdlc  = 1;
   msgid   = minid;
   msgdata = 0;
 #endif
 
+#ifdef CONFIG_NSH_BUILTIN_APPS
   for (msgno = 0; msgno < nmsgs; msgno++)
+#else
+  for (; ; )
+#endif
     {
       /* Flush any output before the loop entered or from the previous pass
        * through the loop.
@@ -331,9 +357,10 @@ int can_main(int argc, char *argv[])
 
       fflush(stdout);
 
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
+
       /* Construct the next TX message */
 
-#ifndef CONFIG_EXAMPLES_CAN_READONLY
       txmsg.cm_hdr.ch_id     = msgid;
       txmsg.cm_hdr.ch_rtr    = false;
       txmsg.cm_hdr.ch_dlc    = msgdlc;
@@ -359,15 +386,15 @@ int can_main(int argc, char *argv[])
           errval = 3;
           goto errout_with_dev;
         }
+
+      printf("  ID: %4u DLC: %d\n", msgid, msgdlc);
+
 #endif
 
-#ifdef CONFIG_EXAMPLES_CAN_WRITEONLY
-      printf("  ID: %4u DLC: %d\n", msgid, msgdlc);
-#endif
+#ifdef CONFIG_EXAMPLES_CAN_READ
 
       /* Read the RX message */
 
-#ifndef CONFIG_EXAMPLES_CAN_WRITEONLY
       msgsize = sizeof(struct can_msg_s);
       nbytes = read(fd, &rxmsg, msgsize);
       if (nbytes < CAN_MSGLEN(0) || nbytes > msgsize)
@@ -377,19 +404,15 @@ int can_main(int argc, char *argv[])
           errval = 4;
           goto errout_with_dev;
         }
-#endif
 
-#ifndef CONFIG_EXAMPLES_CAN_READONLY
       printf("  ID: %4u DLC: %u\n",
              rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
-#endif
 
       /* Check for error reports */
 
-#ifndef CONFIG_EXAMPLES_CAN_WRITEONLY
       if (rxmsg.cm_hdr.ch_error != 0)
         {
-          printf("ERROR: CAN error report: [%04x]\n", rxmsg.cm_hdr.ch_id);
+          printf("ERROR: CAN error report: [0x%04x]\n", rxmsg.cm_hdr.ch_id);
           if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_SYSTEM) != 0)
             {
               printf("  Driver internal error\n");
@@ -446,16 +469,19 @@ int can_main(int argc, char *argv[])
             }
         }
       else
-       {
+        {
+#if defined(CONFIG_EXAMPLES_CAN_WRITE) && defined(CONFIG_CAN_LOOPBACK)
+
           /* Verify that the received messages are the same */
 
-#ifdef CONFIG_EXAMPLES_CAN_READWRITE
           if (memcmp(&txmsg.cm_hdr, &rxmsg.cm_hdr, sizeof(struct can_hdr_s)) != 0)
             {
               printf("ERROR: Sent header does not match received header:\n");
-              lib_dumpbuffer("Sent header", (FAR const uint8_t*)&txmsg.cm_hdr,
+              lib_dumpbuffer("Sent header",
+                             (FAR const uint8_t *)&txmsg.cm_hdr,
                              sizeof(struct can_hdr_s));
-              lib_dumpbuffer("Received header", (FAR const uint8_t*)&rxmsg.cm_hdr,
+              lib_dumpbuffer("Received header",
+                             (FAR const uint8_t *)&rxmsg.cm_hdr,
                              sizeof(struct can_hdr_s));
               errval = 4;
               goto errout_with_dev;
@@ -466,23 +492,34 @@ int can_main(int argc, char *argv[])
               printf("ERROR: Data does not match. DLC=%d\n", msgdlc);
               for (i = 0; i < msgdlc; i++)
                 {
-                  printf("  %d: TX %02x RX %02x\n",
+                  printf("  %d: TX 0x%02x RX 0x%02x\n",
                          i, txmsg.cm_data[i], rxmsg.cm_data[i]);
                   errval = 5;
                   goto errout_with_dev;
                 }
             }
+
+          /* Report success */
+
+          printf("  ID: %4u DLC: %d -- OK\n", msgid, msgdlc);
+
+#else
+
+          /* Print the data received */
+
+          printf("Data received:\n");
+          for (i = 0; i < msgdlc; i++)
+            {
+              printf("  %d: 0x%02x\n", i, rxmsg.cm_data[i]);
+            }
+#endif
         }
 #endif
 
-      /* Report success */
-
-      printf("  ID: %4u DLC: %d -- OK\n", msgid, msgdlc);
-#endif
+#ifdef CONFIG_EXAMPLES_CAN_WRITE
 
       /* Set up for the next pass */
 
-#ifndef CONFIG_EXAMPLES_CAN_READONLY
       msgdata += msgdlc;
 
       if (++msgid > maxid)

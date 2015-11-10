@@ -65,24 +65,13 @@
  *   collected and the program terminates.  Default:  If built as an NSH
  *   built-in, the default is 32.  Otherwise messages are sent and received
  *   indefinitely.
- * CONFIG_EXAMPLES_CAN_READONLY - Only receive messages
- * CONFIG_EXAMPLES_CAN_WRITEONLY - Only send messages
+ * CONFIG_EXAMPLES_CAN_READ - Only receive messages
+ * CONFIG_EXAMPLES_CAN_WRITE - Only send messages
+ * CONFIG_EXAMPLES_CAN_READWRITE - Receive and send messages
  */
 
 #ifndef CONFIG_CAN
 #  error "CAN device support is not enabled (CONFIG_CAN)"
-#endif
-
-#ifndef CONFIG_CAN_LOOPBACK
-#  warning "CAN loopback is not enabled (CONFIG_CAN_LOOPBACK)"
-#endif
-
-#ifndef CONFIG_EXAMPLES_CAN_DEVPATH
-#  define CONFIG_EXAMPLES_CAN_DEVPATH "/dev/can0"
-#endif
-
-#if defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_EXAMPLES_CAN_NMSGS)
-#  define CONFIG_EXAMPLES_CAN_NMSGS 32
 #endif
 
 /****************************************************************************
