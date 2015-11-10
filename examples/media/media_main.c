@@ -155,7 +155,7 @@ int media_main(int argc, char *argv[])
   txbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
   if (txbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate TX I/O buffer of size %ul\n",
+      fprintf(stderr, "ERROR: failed to allocate TX I/O buffer of size %lu\n",
               (unsigned long)info.blocksize);
       close(fd);
       return 1;
@@ -164,7 +164,7 @@ int media_main(int argc, char *argv[])
   rxbuffer = (FAR uint8_t *)malloc((size_t)info.blocksize);
   if (rxbuffer == NULL)
     {
-      fprintf(stderr, "ERROR: failed to allocate IRX /O buffer of size %ul\n",
+      fprintf(stderr, "ERROR: failed to allocate IRX /O buffer of size %lu\n",
               (unsigned long)info.blocksize);
       free(txbuffer);
       close(fd);
@@ -275,23 +275,27 @@ int media_main(int argc, char *argv[])
         }
       else
         {
-          for (i = 0; i < info.blocksize; i++)
+          for (i = 0; i < info.blocksize && nerrors <= 100; i++)
             {
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%ul offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          "ERROR: block=%lu offset=%lu.  Unexpected value: %02x vs. %02x\n",
                           blockno, i, rxbuffer[i], txbuffer[i]);
-                  if (++nerrors > 100)
-                    {
-                      fprintf(stderr, "ERROR: Too many errors\n");
-                      fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
-                      info.nblocks = blockno;
-                      break;
-                    }
+                  nerrors++;
                 }
             }
+
+          if (nerrors > 100)
+            {
+              fprintf(stderr, "ERROR: Too many errors\n");
+              fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+              info.nblocks = blockno;
+              break;
+            }
         }
+
+      pos += info.blocksize;
     }
 
   /* Set the number of blocks if it was unknown before */
@@ -354,21 +358,23 @@ int media_main(int argc, char *argv[])
         }
       else
         {
-          for (i = 0; i < info.blocksize; i++)
+          for (i = 0; i < info.blocksize && nerrors <= 100; i++)
             {
               if (txbuffer[i] != rxbuffer[i])
                 {
                   fprintf(stderr,
-                          "ERROR: block=%ul offset=%lu.  Unexpected value: %02x vs. %02x\n",
+                          "ERROR: block=%lu offset=%lu.  Unexpected value: %02x vs. %02x\n",
                           blockno, i, rxbuffer[i], txbuffer[i]);
-
-                  if (++nerrors > 100)
-                    {
-                      fprintf(stderr, "ERROR: Too many errors\n");
-                      fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
-                      break;
-                    }
+                  nerrors++;
                 }
+            }
+
+          if (nerrors > 100)
+            {
+              fprintf(stderr, "ERROR: Too many errors\n");
+              fprintf(stderr, "ERROR: Aborting at block: %lu\n", blockno);
+              info.nblocks = blockno;
+              break;
             }
         }
     }
