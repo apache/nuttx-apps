@@ -26,7 +26,7 @@ config UAVCAN_LIBUAVCAN_URL
 
 config UAVCAN_LIBUAVCAN_VERSION
 	string "UAVCAN Version"
-	default "531433a3261ff1568e824c240d0f1c6ecef73be1"
+	default "c152f28a620ceec9f63581a7c99fe77c89938048"
 	---help---
 		UAVCAN version.
 
@@ -50,7 +50,7 @@ config UAVCAN_PYUAVCAN_URL
 
 config UAVCAN_PYUAVCAN_VERSION
 	string "Python UAVCAN Version"
-	default "4e2798ec3da8e8493b769da514f3b96eea5773e2"
+	default "c58477a644d20ccf95a20c151f3a0402f271c3b8"
 	---help---
 		Python UAVCAN version.
 
