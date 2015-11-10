@@ -146,6 +146,7 @@ int media_main(int argc, char *argv[])
   /* Get the block size to use */
 
   get_blocksize(fd, &info);
+
   printf("Using:\n");
   printf("  blocksize:    %lu\n", (unsigned long)info.blocksize);
   printf("  nblocks:      %lu\n", (unsigned long)info.nblocks);
@@ -179,6 +180,8 @@ int media_main(int argc, char *argv[])
 
   for (blockno = 0; info.nblocks == 0 || blockno < info.nblocks; blockno++)
     {
+      printf("Write/Verify: Block %lu\n", (unsigned long)blockno);
+
       /* Fill buffer with a (possibly) unique pattern */
 
       for (i = 0; i < info.nblocks; i++)
@@ -326,6 +329,8 @@ int media_main(int argc, char *argv[])
 
   for (blockno = 0; blockno < info.nblocks; blockno++)
     {
+      printf("Re-read/Verify: Block %lu\n", (unsigned long)blockno);
+
       /* Fill buffer with a (possibly) unique pattern */
 
       for (i = 0; i < info.nblocks; i++)
