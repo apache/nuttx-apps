@@ -1,4 +1,4 @@
-/************************************************************************************
+/****************************************************************************
  * apps/platform/stm3240g-eval/src/stm32_cxxinitialize.c
  *
  *   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
@@ -31,11 +31,11 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- ************************************************************************************/
+ ****************************************************************************/
 
-/************************************************************************************
+/****************************************************************************
  * Included Files
- ************************************************************************************/
+ ****************************************************************************/
 
 #include <nuttx/config.h>
 
@@ -43,15 +43,15 @@
 
 #include <nuttx/arch.h>
 
-#include <arch/stm32/chip.h>
-
 #if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
 
-/************************************************************************************
+/****************************************************************************
  * Pre-processor Definitions
- ************************************************************************************/
-/* Debug ****************************************************************************/
-/* Non-standard debug that may be enabled just for testing the static constructors */
+ ****************************************************************************/
+/* Debug ********************************************************************/
+/* Non-standard debug that may be enabled just for testing the static
+ * constructors
+ */
 
 #ifndef CONFIG_DEBUG
 #  undef CONFIG_DEBUG_CXX
@@ -74,16 +74,16 @@
 #  define cxxllvdbg(x...)
 #endif
 
-/************************************************************************************
+/****************************************************************************
  * Private Types
- ************************************************************************************/
+ ****************************************************************************/
 /* This type defines one entry in initialization array */
 
 typedef void (*initializer_t)(void);
 
-/************************************************************************************
- * External references
- ************************************************************************************/
+/****************************************************************************
+ * External References
+ ****************************************************************************/
 /* _sinit and _einit are symbols exported by the linker script that mark the
  * beginning and the end of the C++ initialization section.
  */
@@ -98,13 +98,13 @@ extern initializer_t _einit;
 extern uint32_t _stext;
 extern uint32_t _etext;
 
-/************************************************************************************
+/****************************************************************************
  * Private Functions
- ************************************************************************************/
+ ****************************************************************************/
 
-/************************************************************************************
+/****************************************************************************
  * Public Functions
- ************************************************************************************/
+ ****************************************************************************/
 
 /****************************************************************************
  * Name: up_cxxinitialize
@@ -115,10 +115,10 @@ extern uint32_t _etext;
  *   initialization of the static C++ class instances.
  *
  *   This function should then be called in the application-specific
- *   logic in order to perform the C++ initialization.  NOTE that no
- *   component of the core NuttX RTOS logic is involved; This function
- *   definition only provides the 'contract' between application
- *   specific C++ code and platform-specific toolchain support
+ *   user_start logic in order to perform the C++ initialization.  NOTE
+ *   that no component of the core NuttX RTOS logic is involved; this
+ *   function definition only provides the 'contract' between application
+ *   specific C++ code and platform-specific toolchain support.
  *
  ****************************************************************************/
 
@@ -129,7 +129,7 @@ void up_cxxinitialize(void)
   cxxdbg("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
          &_sinit, &_einit, &_stext, &_etext);
 
-  /* Visit each entry in the initialzation table */
+  /* Visit each entry in the initialization table */
 
   for (initp = &_sinit; initp != &_einit; initp++)
     {
@@ -138,10 +138,11 @@ void up_cxxinitialize(void)
 
       /* Make sure that the address is non-NULL and lies in the text region
        * defined by the linker script.  Some toolchains may put NULL values
-       * or counts in the initialization table
+       * or counts in the initialization table.
        */
 
-      if ((void*)initializer > (void*)&_stext && (void*)initializer < (void*)&_etext)
+      if ((void *)initializer > (void *)&_stext &&
+          (void *)initializer < (void *)&_etext)
         {
           cxxdbg("Calling %p\n", initializer);
           initializer();
