@@ -44,30 +44,31 @@
 #include <uavcan_stm32/uavcan_stm32.hpp>
 
 /****************************************************************************
- * Private Data
+ * Configuration
  ****************************************************************************/
 
-#if CONFIG_UAVCAN_RX_QUEUE_CAPACITY > 0
-static uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY> can;
-#else
-static uavcan_stm32::CanInitHelper<> can;
+#if CONFIG_UAVCAN_RX_QUEUE_CAPACITY == 0
+#  undef CONFIG_UAVCAN_RX_QUEUE_CAPACITY
+#  define CONFIG_UAVCAN_RX_QUEUE_CAPACITY
 #endif
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static void delay_callable()
+static void delay(void)
 {
-  std::usleep(can.getRecommendedListeningDelay().toUSec());
+  std::usleep(uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY>::
+              getRecommendedListeningDelay().toUSec());
 }
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-uavcan::ICanDriver& getCanDriver()
+uavcan::ICanDriver &getCanDriver(void)
 {
+  static uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY> can;
   static bool initialized = false;
 
   if (!initialized)
@@ -78,7 +79,7 @@ uavcan::ICanDriver& getCanDriver()
       int retries = 0;
 #endif
 
-      while (can.init(delay_callable, bitrate) < 0)
+      while (can.init(delay, bitrate) < 0)
         {
 #if CONFIG_UAVCAN_INIT_RETRIES > 0
           retries++;
@@ -95,7 +96,7 @@ uavcan::ICanDriver& getCanDriver()
   return can.driver;
 }
 
-uavcan::ISystemClock& getSystemClock()
+uavcan::ISystemClock &getSystemClock(void)
 {
   return uavcan_stm32::SystemClock::instance();
 }
