@@ -42,14 +42,16 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <nuttx/arch.h>
+
 #include <uavcan/uavcan.hpp>
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-uavcan::ICanDriver& getCanDriver();
-uavcan::ISystemClock& getSystemClock();
+extern uavcan::ICanDriver &getCanDriver(void);
+extern uavcan::ISystemClock &getSystemClock(void);
 
 /****************************************************************************
  * Public Functions
@@ -65,14 +67,15 @@ int main(int argc, FAR char *argv[])
 extern "C" int uavcan_main(int argc, FAR char *argv[])
 #endif
 {
-  uavcan::Node<CONFIG_EXAMPLES_UAVCAN_NODE_MEM_POOL_SIZE>
+  up_cxxinitialize();
+
+  static uavcan::Node<CONFIG_EXAMPLES_UAVCAN_NODE_MEM_POOL_SIZE>
     node(getCanDriver(), getSystemClock());
-  int ret;
 
   node.setNodeID(CONFIG_EXAMPLES_UAVCAN_NODE_ID);
   node.setName(CONFIG_EXAMPLES_UAVCAN_NODE_NAME);
 
-  ret = node.start();
+  int ret = node.start();
   if (ret < 0)
     {
       std::fprintf(stderr, "ERROR: node.start failed: %d\n", ret);
