@@ -86,6 +86,8 @@ static void get_blocksize(int fd, FAR struct media_info_s *info)
   ret = ioctl(fd, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&mtdgeo));
   if (ret >= 0)
     {
+      /* Its an MTD device.  Use its geometry */
+
       printf("MTD Geometry:\n");
       printf("  blocksize:    %u\n", (unsigned int)mtdgeo.blocksize);
       printf("  erasesize:    %lu\n", (unsigned long)mtdgeo.erasesize);
@@ -93,6 +95,14 @@ static void get_blocksize(int fd, FAR struct media_info_s *info)
 
       info->blocksize = mtdgeo.erasesize;
       info->nblocks   = mtdgeo.neraseblocks;
+
+      /* Attempt to erase the entire MTD device */
+
+      ret = ioctl(fd, MTDIOC_BULKERASE, 0);
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: Failed erase the MTD device\n");
+        }
     }
 
   /* Otherwise, use the configured default.  We have no idea of the size
