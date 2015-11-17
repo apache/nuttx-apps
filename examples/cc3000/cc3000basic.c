@@ -119,7 +119,6 @@
 #include <nuttx/wireless/cc3000/include/sys/socket.h>
 #include <nuttx/wireless/cc3000/wlan.h>
 #include <nuttx/wireless/cc3000/hci.h>
-#include <nuttx/wireless/cc3000/security.h>
 #include <nuttx/wireless/cc3000/netapp.h>
 
 #include "shell.h"
