@@ -95,3 +95,6 @@ nxwm
   running in a window.  You should be able to select the NX icon in the start
   menu and create as many NSH sessions in windows as you want. (keybard input
   still comes through serial).
+
+  Note 1: NwWM requires NuttX-7.9 or above to work with the current
+  NxWidgets-1.15 release.
