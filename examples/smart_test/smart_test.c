@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/smart_test/smart_test.c
  *
- *   Copyright (C) 2013 Ken Pettit. All rights reserved.
+ *   Copyright (C) 2013, 2015 Ken Pettit. All rights reserved.
  *   Author: Ken Pettit <pettitkd@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,15 +52,15 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define SMART_TEST_LINE_COUNT 2000
-#define SMART_TEST_SEEK_WRITE_COUNT 2000
-
 /****************************************************************************
  * Private data
  ****************************************************************************/
 
-static int g_linePos[SMART_TEST_LINE_COUNT];
-static int g_lineLen[SMART_TEST_LINE_COUNT];
+static int *g_linePos;
+static int *g_lineLen;
+static int g_lineCount = 2000;
+static int g_seekCount = 2000;
+static int g_writeCount = 2000;
 
 /****************************************************************************
  * Private Functions
@@ -76,7 +76,7 @@ static int g_lineLen[SMART_TEST_LINE_COUNT];
 
 static int smart_create_test_file(char *filename)
 {
-  FILE*     fd;
+  FILE     *fd;
   int       x;
   char      string[80];
 
@@ -97,8 +97,8 @@ static int smart_create_test_file(char *filename)
    * file where that file starts.
    */
 
-  printf("Writing test data.  %d lines to write\n", SMART_TEST_LINE_COUNT);
-  for (x = 0; x < SMART_TEST_LINE_COUNT; x++)
+  printf("Writing test data.  %d lines to write\n", g_lineCount);
+  for (x = 0; x < g_lineCount; x++)
     {
       g_linePos[x] = ftell(fd);
 
@@ -128,13 +128,12 @@ static int smart_create_test_file(char *filename)
 
 static int smart_seek_test(char *filename)
 {
-  FILE*     fd;
-  int       x;
-  int       index;
+  FILE     *fd;
   char      readstring[80];
   char      cmpstring[80];
-
-  printf("Performing 2000 random seek tests\n");
+  int       index;
+  int       x;
+  int       ret = OK;
 
   fd = fopen(filename, "r");
   if (fd == NULL)
@@ -143,15 +142,17 @@ static int smart_seek_test(char *filename)
       return -ENOENT;
     }
 
+  printf("Performing %d random seek tests\n", g_seekCount);
+
   srand(23);
-  for (x = 0; x < 2000; x++)
+  for (x = 0; x < g_seekCount; x++)
     {
       /* Get random line to seek to */
 
       index = rand();
-      while (index >= SMART_TEST_LINE_COUNT)
+      while (index >= g_lineCount)
         {
-          index -= SMART_TEST_LINE_COUNT;
+          index -= g_lineCount;
         }
 
       fseek(fd, g_linePos[index], SEEK_SET);
@@ -164,15 +165,20 @@ static int smart_seek_test(char *filename)
       if (strcmp(readstring, cmpstring) != 0)
         {
           printf("\nSeek error on line %d\n", index);
+          printf ("\t Expected \"%s\"\n", cmpstring);
+          printf ("\t Received \"%s\"\n", readstring);
+          ret = -1;
         }
 
       printf("\r%d", x);
       fflush(stdout);
     }
 
-  fclose(fd);
+  printf("\r%d", x);
+  fflush(stdout);
 
-  return OK;
+  fclose(fd);
+  return ret;
 }
 
 /****************************************************************************
@@ -184,7 +190,7 @@ static int smart_seek_test(char *filename)
 
 static int smart_append_test(char *filename)
 {
-  FILE*     fd;
+  FILE     *fd;
   int       pos;
   char      readstring[80];
 
@@ -217,15 +223,14 @@ static int smart_append_test(char *filename)
   readstring[30] = '\0';
   if (strcmp(readstring, "This is a test of the append.\n") != 0)
     {
-      printf("Append test failed\n");
+      printf("\nAppend test failed\n");
     }
   else
     {
-      printf("Append test passed\n");
+      printf("\nAppend test passed\n");
     }
 
   fclose(fd);
-
   return OK;
 }
 
@@ -238,16 +243,17 @@ static int smart_append_test(char *filename)
 
 static int smart_seek_with_write_test(char *filename)
 {
-  FILE*     fd;
-  int       x;
-  int       index;
+  FILE     *fd;
   char      temp;
   char      readstring[80];
   char      cmpstring[80];
-  int       c, s1, s2, len;
-
-  printf("Performing %d random seek with write tests\n",
-         SMART_TEST_SEEK_WRITE_COUNT);
+  int       c;
+  int       s1;
+  int       s2;
+  int       len;
+  int       x;
+  int       index;
+  int       pass = TRUE;
 
   fd = fopen(filename, "r+");
   if (fd == NULL)
@@ -256,16 +262,19 @@ static int smart_seek_with_write_test(char *filename)
       return -ENOENT;
     }
 
+  printf("Performing %d random seek with write tests\n",
+         g_writeCount);
+
   index = 0;
-  for (x = 0; x < SMART_TEST_SEEK_WRITE_COUNT; x++)
+  for (x = 0; x < g_writeCount; x++)
     {
 #if 0
       /* Get a random value */
 
       index = rand();
-      while (index >= SMART_TEST_LINE_COUNT)
+      while (index >= g_lineCount)
         {
-          index -= SMART_TEST_LINE_COUNT;
+          index -= g_lineCount;
         }
 #endif
       /* Read the data into the buffer */
@@ -301,7 +310,13 @@ static int smart_seek_with_write_test(char *filename)
 
       if (strcmp(readstring, cmpstring) != 0)
         {
-          printf("\nCompare failure on line %d\n", index);
+          printf("\nCompare failure on line %d, offset %d\n",
+                 index, g_linePos[index]);
+          printf("\tExpected \"%s\"", cmpstring);
+          printf("\rReceived \"%s\"", readstring);
+          fseek(fd, g_linePos[index], SEEK_SET);
+          fread(cmpstring, 1, g_lineLen[index], fd);
+          pass = FALSE;
           break;
         }
 
@@ -310,16 +325,22 @@ static int smart_seek_with_write_test(char *filename)
 
       /* On to next line */
 
-      if (++index >= SMART_TEST_LINE_COUNT)
+      if (++index >= g_lineCount)
         {
           index = 0;
         }
     }
 
-  printf("\n");
+  if (pass)
+    {
+      printf("\nPass\n");
+    }
+  else
+    {
+      printf("\nFail\n");
+    }
 
   fclose(fd);
-
   return OK;
 }
 
@@ -333,45 +354,87 @@ int main(int argc, FAR char *argv[])
 int smart_test_main(int argc, char *argv[])
 #endif
 {
-  int ret;
+  int ret, opt;
+  int gTestCount = 10000;
 
   /* Argument given? */
 
+  while ((opt = getopt(argc, argv, "l:s:w:")) != -1)
+     {
+       switch (opt)
+         {
+           case 'l':
+             g_lineCount = atoi(optarg);
+             break;
+
+           case 's':
+             g_seekCount = atoi(optarg);
+             break;
+
+           case 'w':
+             g_writeCount = atoi(optarg);
+             break;
+
+           default: /* '?' */
+             fprintf(stderr, "usage: smart_test [-l lineCount] [-s seekCount] [-w writeCount] smart_mounted_filename\n");
+             exit(EXIT_FAILURE);
+         }
+   }
+
   if (argc < 2)
     {
-      fprintf(stderr, "usage: smart_test smart_mounted_filename\n");
+      fprintf(stderr, "usage: smart_test [-l lineCount] [-s seekCount] [-w writeCount] smart_mounted_filename\n");
+      return -1;
+    }
+
+  /* Allocate memory for the test */
+
+  g_linePos = malloc(g_lineCount * sizeof(int));
+  if (g_linePos == NULL)
+    {
+      return -1;
+    }
+
+  g_lineLen = malloc(g_lineCount * sizeof(int));
+  if (g_lineLen == NULL)
+    {
+      free(g_linePos);
       return -1;
     }
 
   /* Create a test file */
 
-  if ((ret = smart_create_test_file(argv[1])) < 0)
+  if ((ret = smart_create_test_file(argv[optind])) < 0)
     {
-      return ret;
+      goto err_out_with_mem;
     }
 
   /* Conduct a seek test */
 
-  if ((ret = smart_seek_test(argv[1])) < 0)
+  if ((ret = smart_seek_test(argv[optind])) < 0)
     {
-      return ret;
+      goto err_out_with_mem;
     }
 
   /* Conduct an append test */
 
-  if ((ret = smart_append_test(argv[1])) < 0)
+  if ((ret = smart_append_test(argv[optind])) < 0)
     {
-      return ret;
+      goto err_out_with_mem;
     }
 
   /* Conduct a seek with write test */
 
-  if ((ret = smart_seek_with_write_test(argv[1])) < 0)
+  if ((ret = smart_seek_with_write_test(argv[optind])) < 0)
     {
-      return ret;
+      goto err_out_with_mem;
     }
 
-  /* Delete the file */
+err_out_with_mem:
 
-  return 0;
+  /* Free the memory */
+
+  free(g_linePos);
+  free(g_lineLen);
+  return ret;
 }
