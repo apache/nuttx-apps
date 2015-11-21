@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_ddcmd.c
  *
- *   Copyright (C) 2008-2009, 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,6 @@
 #include <debug.h>
 #include <errno.h>
 
-#include <nuttx/fs/fs.h>
-
 #include "nsh.h"
 #include "nsh_console.h"
 
@@ -74,30 +72,6 @@
 
 #undef CAN_PIPE_FROM_STD
 
-/* Function pointer calls are only need if block drivers are supported
- * (or, rather, if mount points are supported in the file system)
- */
-
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-#  define DD_INFD         ((dd)->inf.fd)
-#  define DD_INHANDLE     ((dd)->inf.handle)
-#  define DD_OUTFD        ((dd)->outf.fd)
-#  define DD_OUTHANDLE    ((dd)->outf.handle)
-#  define DD_READ(dd)     ((dd)->infread(dd))
-#  define DD_WRITE(dd)    ((dd)->outfwrite(dd))
-#  define DD_INCLOSE(dd)  ((dd)->infclose(dd))
-#  define DD_OUTCLOSE(dd) ((dd)->outfclose(dd))
-#else
-#  define DD_INFD         ((dd)->infd)
-#  undef  DD_INHANDLE
-#  define DD_OUTFD        ((dd)->outfd)
-#  undef  DD_OUTHANDLE
-#  define DD_READ(dd)     dd_readch(dd)
-#  define DD_WRITE(dd)    dd_writech(dd)
-#  define DD_INCLOSE(dd)  dd_infclosech(dd)
-#  define DD_OUTCLOSE(dd) dd_outfclosech(dd)
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -106,26 +80,8 @@ struct dd_s
 {
   FAR struct nsh_vtbl_s *vtbl;
 
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-  union
-  {
-    FAR void *handle;  /* BCH lib handle for block device */
-    int fd;            /* File descriptor of the character device */
-  } inf;
-#else
-  int infd;            /* File descriptor of the input device */
-#endif
-
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-  union
-  {
-    FAR void *handle;  /* BCH lib handle for block device */
-    int fd;            /* File descriptor of the character device */
-  } outf;
-#else
-  int outfd;           /* File descriptor of the output device */
-#endif
-
+  int      infd;       /* File descriptor of the input device */
+  int      outfd;      /* File descriptor of the output device */
   uint32_t nsectors;   /* Number of sectors to transfer */
   uint32_t sector;     /* The current sector number */
   uint32_t skip;       /* The number of sectors skipped on input */
@@ -133,15 +89,6 @@ struct dd_s
   uint16_t sectsize;   /* Size of one sector */
   uint16_t nbytes;     /* Number of valid bytes in the buffer */
   uint8_t *buffer;     /* Buffer of data to write to the output file */
-
-  /* Function pointers to handle differences between block and character devices */
-
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-  int  (*infread)(struct dd_s *dd);
-  void (*infclose)(struct dd_s *dd);
-  int  (*outfwrite)(struct dd_s *dd);
-  void (*outfclose)(struct dd_s *dd);
-#endif
 };
 
 /****************************************************************************
@@ -163,85 +110,10 @@ static const char g_dd[] = "dd";
  ****************************************************************************/
 
 /****************************************************************************
- * Name: dd_outfcloseblk
+ * Name: dd_write
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-static void dd_outfcloseblk(struct dd_s *dd)
-{
-  (void)bchlib_teardown(DD_OUTHANDLE);
-}
-#endif
-
-/****************************************************************************
- * Name: dd_outfclosech
- ****************************************************************************/
-
-static void dd_outfclosech(struct dd_s *dd)
-{
-  (void)close(DD_OUTFD);
-}
-
-/****************************************************************************
- * Name: dd_infcloseblk
- ****************************************************************************/
-
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-static void dd_infcloseblk(struct dd_s *dd)
-{
-  (void)bchlib_teardown(DD_INHANDLE);
-}
-#endif
-
-/****************************************************************************
- * Name: dd_infclosech
- ****************************************************************************/
-
-static void dd_infclosech(struct dd_s *dd)
-{
-  (void)close(DD_INFD);
-}
-
-/****************************************************************************
- * Name: dd_writeblk
- ****************************************************************************/
-
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-static int dd_writeblk(struct dd_s *dd)
-{
-  ssize_t nbytes;
-  off_t   offset = (dd->sector - dd->skip) * dd->sectsize;
-
-  /* Write the sector at the specified offset */
-
-  nbytes = bchlib_write(DD_OUTHANDLE, (char*)dd->buffer, offset, dd->sectsize);
-  if (nbytes < 0)
-    {
-      /* bchlib_write return -EFBIG on attempts to write past the end of
-       * the device.
-       */
-
-      if (nbytes == -EFBIG)
-        {
-          dd->eof = true; /* Set end-of-file */
-        }
-      else
-        {
-          FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-          nsh_output(vtbl, g_fmtcmdfailed, g_dd, "bshlib_write", NSH_ERRNO_OF(-nbytes));
-          return ERROR;
-        }
-    }
-
-  return OK;
-}
-#endif
-
-/****************************************************************************
- * Name: dd_writech
- ****************************************************************************/
-
-static int dd_writech(struct dd_s *dd)
+static int dd_write(struct dd_s *dd)
 {
   uint8_t *buffer = dd->buffer;
   uint16_t written ;
@@ -252,7 +124,7 @@ static int dd_writech(struct dd_s *dd)
   written = 0;
   do
     {
-      nbytes = write(DD_OUTFD, buffer, dd->sectsize - written);
+      nbytes = write(dd->outfd, buffer, dd->sectsize - written);
       if (nbytes < 0)
         {
            FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
@@ -269,36 +141,10 @@ static int dd_writech(struct dd_s *dd)
 }
 
 /****************************************************************************
- * Name: dd_readblk
+ * Name: dd_read
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-static int dd_readblk(struct dd_s *dd)
-{
-  ssize_t nbytes;
-  off_t   offset = dd->sector * dd->sectsize;
-
-  nbytes = bchlib_read(DD_INHANDLE, (char*)dd->buffer, offset, dd->sectsize);
-  if (nbytes < 0)
-    {
-      FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-      nsh_output(vtbl, g_fmtcmdfailed, g_dd, "bshlib_read", NSH_ERRNO_OF(-nbytes));
-      return ERROR;
-    }
-
-  /* bchlib_read return 0 on attempts to write past the end of the device. */
-
-  dd->nbytes = nbytes;
-  dd->eof    = (nbytes == 0);
-  return OK;
-}
-#endif
-
-/****************************************************************************
- * Name: dd_readch
- ****************************************************************************/
-
-static int dd_readch(struct dd_s *dd)
+static int dd_read(struct dd_s *dd)
 {
   uint8_t *buffer = dd->buffer;
   ssize_t nbytes;
@@ -306,7 +152,7 @@ static int dd_readch(struct dd_s *dd)
   dd->nbytes = 0;
   do
     {
-      nbytes = read(DD_INFD, buffer, dd->sectsize - dd->nbytes);
+      nbytes = read(dd->infd, buffer, dd->sectsize - dd->nbytes);
       if (nbytes < 0)
         {
            FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
@@ -324,80 +170,13 @@ static int dd_readch(struct dd_s *dd)
 }
 
 /****************************************************************************
- * Name: dd_filetype
- ****************************************************************************/
-
-#ifndef CONFIG_DISABLE_MOUNTPOINT
-static int dd_filetype(const char *filename)
-{
-  struct stat sb;
-  int ret;
-
-  /* Get the type of the file */
-
-  ret = stat(filename, &sb);
-  if (ret < 0)
-    {
-      return ERROR;  /* Return -1 on failure */
-    }
-
-  return S_ISBLK(sb.st_mode); /* Return true(1) if block, false(0) if char */
-}
-#endif
-
-/****************************************************************************
  * Name: dd_infopen
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_MOUNTPOINT
 static inline int dd_infopen(const char *name, struct dd_s *dd)
 {
-  FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-  int ret;
-  int type;
-
-  /* Get the type of the input file */
-
-  type = dd_filetype(name);
-  if (type < 0)
-    {
-      nsh_output(vtbl, g_fmtcmdfailed, g_dd, "stat", NSH_ERRNO_OF(-type));
-      return type;
-    }
-
-  /* Open the input file */
-
-  if (!type)
-    {
-      DD_INFD = open(name, O_RDONLY);
-      if (DD_INFD < 0)
-        {
-          nsh_output(vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
-          return ERROR;
-        }
-
-      dd->infread  = dd_readch;  /* Character oriented read */
-      dd->infclose = dd_infclosech;
-    }
-  else
-    {
-      ret = bchlib_setup(name, true, &DD_INHANDLE);
-      if (ret < 0)
-        {
-          return ERROR;
-        }
-
-      dd->infread  = dd_readblk;
-      dd->infclose = dd_infcloseblk;
-    }
-
-  return OK;
-}
-#else
-static inline int dd_infopen(const char *name, struct dd_s *dd)
-{
-  DD_INFD = open(name, O_RDONLY);
-  if (DD_INFD < 0)
+  dd->infd = open(name, O_RDONLY);
+  if (dd->infd < 0)
     {
       FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
       nsh_output(vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
@@ -406,59 +185,15 @@ static inline int dd_infopen(const char *name, struct dd_s *dd)
 
   return OK;
 }
-#endif
 
 /****************************************************************************
  * Name: dd_outfopen
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_MOUNTPOINT
 static inline int dd_outfopen(const char *name, struct dd_s *dd)
 {
-  int type;
-  int ret = OK;
-
-  /* Get the type of the output file */
-
-  type = dd_filetype(name);
-
-  /* Open the block driver for input */
-
-  if (type == true)
-    {
-      ret = bchlib_setup(name, true, &DD_OUTHANDLE);
-      if (ret < 0)
-        {
-          return ERROR;
-        }
-
-      dd->outfwrite = dd_writeblk;  /* Block oriented write */
-      dd->outfclose = dd_outfcloseblk;
-    }
-
-  /* Otherwise, the file is character oriented or does not exist */
-
-  else
-    {
-      DD_OUTFD = open(name, O_WRONLY|O_CREAT|O_TRUNC, 0644);
-      if (DD_OUTFD < 0)
-        {
-          FAR struct nsh_vtbl_s *vtbl = dd->vtbl;
-          nsh_output(vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
-          return ERROR;
-        }
-
-      dd->outfwrite = dd_writech;  /* Character oriented write */
-      dd->outfclose = dd_outfclosech;
-    }
-
-  return OK;
-}
-#else
-static inline int dd_outfopen(const char *name, struct dd_s *dd)
-{
-  DD_OUTFD = open(name, O_WRONLY|O_CREAT|O_TRUNC, 0644);
-  if (DD_OUTFD < 0)
+  dd->outfd = open(name, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+  if (dd->outfd < 0)
     {
       nsh_output(dd->vtbl, g_fmtcmdfailed, g_dd, "open", NSH_ERRNO);
       return ERROR;
@@ -466,7 +201,6 @@ static inline int dd_outfopen(const char *name, struct dd_s *dd)
 
   return OK;
 }
-#endif
 
 /****************************************************************************
  * Public Functions
@@ -496,22 +230,15 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    */
 
 #ifdef CAN_PIPE_FROM_STD
-  DD_INFD      = 0;       /* stdin */
-#ifndef CONFIG_NSH_DISABLE_DD
-  dd.infread   = readch;  /* Character oriented read */
-  dd.infclose  = noclose; /* Don't close stdin */
+  dd->infd     = 0;       /* stdin */
 #endif
-#endif
+
   /* If no OF= option is provided on the command line, then write
    * to stdout.
    */
 
 #ifdef CAN_PIPE_FROM_STD
-  DD_OUTDF     = 1;       /* stdout */
-#ifndef CONFIG_NSH_DISABLE_DD
-  dd.outfwrite = writech; /* Character oriented write */
-  dd.outfclose = noclose; /* Don't close stdout */
-#endif
+  dd->outfd    = 1;       /* stdout */
 #endif
 
   /* Parse command line parameters */
@@ -580,7 +307,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       /* Read one sector from from the input */
 
-      ret = DD_READ(&dd);
+      ret = dd_read(&dd);
       if (ret < 0)
         {
           goto errout_with_outf;
@@ -601,7 +328,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (dd.sector >= dd.skip)
             {
-              ret = DD_WRITE(&dd);
+              ret = dd_write(&dd);
               if (ret < 0)
                 {
                   goto errout_with_outf;
@@ -621,10 +348,10 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   ret = OK;
 
 errout_with_outf:
-  DD_OUTCLOSE(&dd);
+  (void)close(dd.outfd);
 
 errout_with_inf:
-  DD_INCLOSE(&dd);
+  (void)close(dd.infd);
   free(dd.buffer);
 
 errout_with_paths:

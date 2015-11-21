@@ -598,8 +598,6 @@
 #  define CONFIG_NSH_DISABLE_PS 1
 #  undef CONFIG_NSH_DISABLE_DF          /* 'df' depends on foreach_mountpoint */
 #  define CONFIG_NSH_DISABLE_DF 1
-#  undef CONFIG_NSH_DISABLE_DD          /* 'dd' depends on bchlib_* interfaces */
-#  define CONFIG_NSH_DISABLE_DD 1
 #  undef CONFIG_NSH_DISABLE_LOSETUP     /* 'losetup' depends on losetup/loteardown */
 #  define CONFIG_NSH_DISABLE_LOSETUP 1
 #  undef CONFIG_NSH_DISABLE_MKFATFS     /* 'mkfatfs' depends on mkfatfs interface */

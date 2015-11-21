@@ -1445,4 +1445,7 @@
 	  From Alan Carvalho de Assis (2015-10-13).
 	* apps/examples/media:  Add a simple test for access of media via
 	  a block driver or MTD driver (2015-11-09).
+	* apps/nshlib/nsh_ddcmd.c:  Now that NuttX automatically converts
+	  block devices to character devices, all of the BCH stuff in NSH
+	  can be removed (2015-11-21).
 
