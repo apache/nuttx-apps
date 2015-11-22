@@ -120,8 +120,8 @@ int loadfile(FAR char *name)
 
   if (g_hexfile == NULL)
     {
-      fprintf(stderr, "ERROR: Failed to open %s: %d\n", name, g_last_error);
-      return -g_last_error;
+      fprintf(stderr, "ERROR: Failed to open %s\n", name);
+      return -ENOENT;
     }
 
   bfread(g_hexfile);
@@ -192,7 +192,6 @@ int hexcmd(FAR struct command_s *cmd, int optc, FAR char *opt)
       break;
 
     default:
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -341,7 +340,6 @@ int runargs(void)
       if (g_hexfile == NULL)
         {
           fprintf(stderr, "ERROR: Missing filename\n");
-          g_last_error = EINVAL;
           return -EINVAL;
         }
 

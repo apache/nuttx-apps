@@ -91,7 +91,6 @@ static int setinsert(FAR struct command_s *cmd, int optc, char *opt)
 
   if (opt == NULL)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -101,7 +100,6 @@ static int setinsert(FAR struct command_s *cmd, int optc, char *opt)
 
   if (s == opt)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -158,7 +156,6 @@ static int setinsert(FAR struct command_s *cmd, int optc, char *opt)
       else
         {
           fprintf(stderr, "ERROR: Too many values set\n");
-          g_last_error = E2BIG;
           return -E2BIG;
         }
     }
@@ -178,7 +175,6 @@ int hexinsert(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_INSERT)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 

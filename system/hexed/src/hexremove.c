@@ -75,7 +75,6 @@ static int setremove(FAR struct command_s *cmd, int optc, char *opt)
 
   if (opt == NULL)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -85,7 +84,6 @@ static int setremove(FAR struct command_s *cmd, int optc, char *opt)
 
   if (s == opt)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -111,7 +109,6 @@ static int setremove(FAR struct command_s *cmd, int optc, char *opt)
     default:
       /* Too many options specified */
 
-      g_last_error = E2BIG;
       return -E2BIG;
     }
 
@@ -130,7 +127,6 @@ int hexremove(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_REMOVE)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 

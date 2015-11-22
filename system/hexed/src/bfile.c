@@ -44,12 +44,6 @@
 #include "bfile.h"
 
 /****************************************************************************
- * Public Data
- ****************************************************************************/
-
-int g_last_error;
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -59,7 +53,6 @@ static FAR void *bfallocbuf(FAR struct bfile_s *bf, long sz)
 {
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return NULL;
     }
 
@@ -68,7 +61,6 @@ static FAR void *bfallocbuf(FAR struct bfile_s *bf, long sz)
   sz = BFILE_BUF_ALIGN(sz);
   if ((bf->buf = realloc(bf->buf, sz)) == NULL)
     {
-      g_last_error = ENOMEM;
       return NULL;
     }
 
@@ -89,7 +81,6 @@ static int bffree(FAR struct bfile_s *bf)
 {
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return -EBADF;
     }
 
@@ -123,7 +114,6 @@ long fsize(FILE * fp)
 
   if (fp == NULL)
     {
-      g_last_error = EBADF;
       return 0;
     }
 
@@ -140,7 +130,6 @@ long bftruncate(FAR struct bfile_s *bf, long sz)
 {
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return -EBADF;
     }
 
@@ -159,7 +148,6 @@ int bfflush(FAR struct bfile_s *bf)
 
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return -EBADF;
     }
 
@@ -176,14 +164,13 @@ int bfflush(FAR struct bfile_s *bf)
   nread = fwrite(bf->buf, 1, bf->size, bf->fp);
   if (nread < 0)
     {
-      g_last_error = errno;
-      fprintf(stderr, "ERROR: Write to file failed: %d\n", g_last_error);
-      ret = -g_last_error;
+      int errcode = errno;
+      fprintf(stderr, "ERROR: Write to file failed: %d\n", errcode);
+      ret = -errcode;
     }
   else if (fwrite(bf->buf, 1, bf->size, bf->fp) == bf->size)
     {
       fprintf(stderr, "ERROR: Bad write size\n");
-      g_last_error = EIO;
       ret = -EIO;
     }
   else
@@ -206,7 +193,6 @@ FAR struct bfile_s *bfopen(char *name, char *mode)
 
   if (name == NULL)
     {
-      g_last_error = EINVAL;
       return NULL;
     }
 
@@ -214,7 +200,6 @@ FAR struct bfile_s *bfopen(char *name, char *mode)
 
   if ((bf = malloc(sizeof(struct bfile_s))) == NULL)
     {
-      g_last_error = ENOMEM;
       return NULL;
     }
 
@@ -225,7 +210,6 @@ FAR struct bfile_s *bfopen(char *name, char *mode)
   if ((bf->name = malloc(strlen(name) + 1)) == NULL)
     {
       bffree(bf);
-      g_last_error = ENOMEM;
       return NULL;
     }
 
@@ -235,7 +219,6 @@ FAR struct bfile_s *bfopen(char *name, char *mode)
 
   if ((bf->fp = fopen(bf->name, mode)) == NULL)
     {
-      g_last_error = errno;
       bffree(bf);
       return NULL;
     }
@@ -260,7 +243,6 @@ int bfclose(FAR struct bfile_s *bf)
 
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return -EBADF;
     }
 
@@ -285,7 +267,6 @@ long bfclip(FAR struct bfile_s *bf, long off, long sz)
 
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return EOF;
     }
 
@@ -293,7 +274,6 @@ long bfclip(FAR struct bfile_s *bf, long off, long sz)
 
   if (off < 0 || sz <= 0)
     {
-      g_last_error = ERANGE;
       return EOF;
     }
 
@@ -301,7 +281,6 @@ long bfclip(FAR struct bfile_s *bf, long off, long sz)
 
   if (off > bf->size)
     {
-      g_last_error = ENFILE;
       return EOF;
     }
 
@@ -336,7 +315,6 @@ long bfinsert(FAR struct bfile_s *bf, long off, void *mem, long sz)
 
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return EOF;
     }
 
@@ -344,7 +322,6 @@ long bfinsert(FAR struct bfile_s *bf, long off, void *mem, long sz)
 
   if (off < 0 || sz <= 0)
     {
-      g_last_error = ERANGE;
       return EOF;
     }
 
@@ -383,7 +360,6 @@ long bfcopy(FAR struct bfile_s *bf, long off, long src, long sz)
 {
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return EOF;
     }
 
@@ -391,7 +367,6 @@ long bfcopy(FAR struct bfile_s *bf, long off, long src, long sz)
 
   if (src > bf->size)
     {
-      g_last_error = ENFILE;
       return EOF;
     }
 
@@ -431,7 +406,6 @@ long bfmove(FAR struct bfile_s *bf, long off, long src, long sz)
 
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return EOF;
     }
 
@@ -439,7 +413,6 @@ long bfmove(FAR struct bfile_s *bf, long off, long src, long sz)
 
   if (src > bf->size)
     {
-      g_last_error = ENFILE;
       return EOF;
     }
 
@@ -496,7 +469,6 @@ long bfread(FAR struct bfile_s *bf)
 
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return EOF;
     }
 
@@ -531,7 +503,6 @@ long bfwrite(FAR struct bfile_s *bf, long off, void *mem, long sz)
 {
   if (bf == NULL)
     {
-      g_last_error = EBADF;
       return EOF;
     }
 

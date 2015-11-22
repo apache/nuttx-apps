@@ -112,7 +112,6 @@ static int runmove(FAR struct command_s *cmd)
 
   if (cmd->opts.src > g_hexfile->size)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -129,7 +128,7 @@ static int runmove(FAR struct command_s *cmd)
     }
 }
 
-/* set the move command */
+/* Set the move command */
 
 static int setmove(FAR struct command_s *cmd, int optc, char *opt)
 {
@@ -147,7 +146,6 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
 
   if (opt == NULL)
     {
-      g_last_error = EFAULT;
       return -EFAULT;
     }
 
@@ -157,7 +155,6 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
 
   if (s == opt)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -191,7 +188,6 @@ static int setmove(FAR struct command_s *cmd, int optc, char *opt)
     default:
       /* Too many options specified */
 
-      g_last_error = E2BIG;
       return -E2BIG;
     }
 
@@ -210,7 +206,6 @@ int hexmove(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || (cmd->id != CMD_MOVE && cmd->id != CMD_MOVE_OVER))
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 

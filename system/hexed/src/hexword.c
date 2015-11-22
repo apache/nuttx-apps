@@ -65,7 +65,6 @@ static int setword(FAR struct command_s *cmd, int optc, char *opt)
 
   if (opt == NULL)
     {
-      g_last_error = EFAULT;
       return -EFAULT;
     }
 
@@ -75,7 +74,6 @@ static int setword(FAR struct command_s *cmd, int optc, char *opt)
 
   if (s == opt)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -106,7 +104,6 @@ static int setword(FAR struct command_s *cmd, int optc, char *opt)
     {
       /* Too many options specified */
 
-      g_last_error = E2BIG;
       return -E2BIG;
     }
 
@@ -125,7 +122,6 @@ int hexword(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_WORD)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 

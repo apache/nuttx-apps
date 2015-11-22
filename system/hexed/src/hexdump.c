@@ -242,7 +242,6 @@ int hexdump(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_DUMP)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 

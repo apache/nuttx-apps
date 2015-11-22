@@ -77,7 +77,6 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
 
   if (opt == NULL)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -87,7 +86,6 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
 
   if (s == opt)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
@@ -135,7 +133,6 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
   else
     {
       fprintf(stderr, "ERROR: too many values set\n");
-      g_last_error = E2BIG;
       return -E2BIG;
     }
 
@@ -154,7 +151,6 @@ int hexenter(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_ENTER)
     {
-      g_last_error = EINVAL;
       return -EINVAL;
     }
 
