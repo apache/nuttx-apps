@@ -1448,4 +1448,6 @@
 	* apps/nshlib/nsh_ddcmd.c:  Now that NuttX automatically converts
 	  block devices to character devices, all of the BCH stuff in NSH
 	  can be removed (2015-11-21).
-
+	* apps/system/hexed:  Port the hexed command line hexadeciamal
+	  editor to Nuttx.  See http://apps.venomdev.net/hexed/.
+	  Initial port is not functional (2015-11-21).

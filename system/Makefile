@@ -38,8 +38,9 @@
 # Sub-directories containing system tasks/libraries
 
 SUBDIRS  = cdcacm cle composite cu flash_eraseall free i2c hex2bin inifile
-SUBDIRS += install lm75 mdio netdb nxplayer ramtest ramtron readline sdcard
-SUBDIRS += stackmonitor sudoku symtab usbmonitor usbmsc vi zmodem zoneinfo
+SUBDIRS += install hexed lm75 mdio netdb nxplayer ramtest ramtron readline
+SUBDIRS += sdcard stackmonitor sudoku symtab usbmonitor usbmsc vi zmodem
+SUBDIRS += zoneinfo
 
 # Create the list of installed runtime modules (INSTALLED_DIRS)
 

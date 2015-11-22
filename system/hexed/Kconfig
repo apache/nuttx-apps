@@ -1,0 +1,13 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig SYSTEM_HEXED
+	bool "Hex editor"
+	default n
+	---help---
+		Enable support for the hexed command line hexadecial file editor
+
+if SYSTEM_HEXED
+endif # SYSTEM_HEXED

@@ -54,6 +54,10 @@ ifeq ($(CONFIG_SYSTEM_HEX2BIN),y)
 CONFIGURED_APPS += system/hex2bin
 endif
 
+ifeq ($(CONFIG_SYSTEM_HEXED),y)
+CONFIGURED_APPS += system/hexed
+endif
+
 ifeq ($(CONFIG_SYSTEM_I2CTOOL),y)
 CONFIGURED_APPS += system/i2c
 endif
