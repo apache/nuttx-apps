@@ -127,8 +127,8 @@ struct command_s
  * Public Data
  ****************************************************************************/
 
-extern int g_wordsize;
 extern FAR struct bfile_s *g_hexfile;
+extern int g_wordsize;
 
 /****************************************************************************
  * Public Function Prototypes

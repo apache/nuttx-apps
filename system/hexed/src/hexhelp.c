@@ -63,7 +63,7 @@ static const char *helpmsg[] =
   "  -m [src] [dest] [len]         Move data from src to dest for len words\n",
   "  -r [src] [len]                Remove data from src for len words\n",
   "  -w [bytes]                    Set the word size in bytes: 1 = 8 bits\n"
-    "                                2 = 16 bits, 4 = 32 bits, 8 = 64 bits\n",
+  "                                2 = 16 bits, 4 = 32 bits, 8 = 64 bits\n",
   NULL,
 };
 

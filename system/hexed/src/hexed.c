@@ -59,11 +59,11 @@ int g_wordsize;
  ****************************************************************************/
 
 static FAR struct command_s g_cmdtbl[CMD_MAX_CNT];
-static FAR struct command_s *g_cmd;
+static int g_ncmds;
 
 /* Valid args */
 
-static struct arglist_s g_arglist[] =
+static const struct arglist_s g_arglist[] =
 {
   {"h",  0},
   {"co", CMDARGS_FL_OPTREQ},
@@ -215,9 +215,7 @@ FAR struct command_s *newcmd(int cmdno)
 
   /* Set defaults */
 
-  cmd = &g_cmdtbl[cmdno];
-  memset(cmd, sizeof(struct command_s), 0);
-
+  cmd            = &g_cmdtbl[cmdno];
   cmd->id        = g_cmdargs->argid;
   cmd->cmd       = g_cmdargs->arg;
   cmd->flags     = CMD_FL_CMDLINE;
@@ -229,17 +227,17 @@ FAR struct command_s *newcmd(int cmdno)
 
 int parseargs(FAR char *argv[])
 {
+  FAR struct command_s *cmd;
   FAR char *fname;
   FAR char *opt;
-  int cmdcnt;
   int optc;
 
   fname     = NULL;
-  cmdcnt    = 0;
-  g_cmd     = g_cmdtbl;
+  cmd       = g_cmdtbl;
+  g_ncmds   = 0;
   g_hexfile = NULL;
 
-  memset(g_cmd, sizeof(struct command_s), 0);
+  memset(g_cmdtbl, 0, CMD_MAX_CNT * sizeof(struct command_s));
 
   while (parsecmdargs(argv, g_arglist) != EOF)
     {
@@ -247,10 +245,10 @@ int parseargs(FAR char *argv[])
 
       if (g_cmdargs->argid > 0)
         {
-          cmdcnt++;
-          optc  = 0;
-          opt   = g_cmdargs->opt;
-          g_cmd = newcmd(cmdcnt);
+          g_ncmds++;
+          optc = 0;
+          opt  = g_cmdargs->opt;
+          cmd  = newcmd(g_ncmds);
         }
       else
         {
@@ -261,7 +259,7 @@ int parseargs(FAR char *argv[])
 
       /* Set command options */
 
-      optc = hexcmd(g_cmd, optc, opt);
+      optc = hexcmd(cmd, optc, opt);
       if (optc < 0)
         {
           /* End of range option? */
@@ -296,7 +294,7 @@ int parseargs(FAR char *argv[])
 
       if (optc <= 0)
         {
-          g_cmd = g_cmdtbl;
+          cmd = g_cmdtbl;
           optc = 0;
         }
     }
@@ -308,19 +306,27 @@ int parseargs(FAR char *argv[])
 
 int runargs(void)
 {
+  FAR struct command_s *cmd;
   int quit;
   int i;
+
+  /* Check for no commands */
+
+  if (g_ncmds == 0)
+    {
+      return CMD_QUIT;
+    }
 
   /* Scan for help command */
 
   quit  = 0;
-  g_cmd = &g_cmdtbl[1];             /* Skip 1st reserved command */
+  cmd = &g_cmdtbl[1];             /* Skip 1st reserved command */
 
-  for (i = 1; i < CMD_MAX_CNT && g_cmd->id > 0; i++, g_cmd++)
+  for (i = 1; i < g_ncmds + 1; i++, cmd++)
     {
-      if (g_cmd->id == CMD_HELP)
+      if (cmd->id == CMD_HELP)
         {
-          hexcmd(g_cmd, -1, NULL);
+          hexcmd(cmd, -1, NULL);
           quit = CMD_QUIT;
           break;
         }
@@ -330,12 +336,23 @@ int runargs(void)
 
   if (quit != CMD_QUIT)
     {
-      g_cmd = &g_cmdtbl[1];         /* Skip 1st reserved command */
-      for (i = 1; i < CMD_MAX_CNT && g_cmd->id > 0; i++, g_cmd++)
-        {
-          hexcmd(g_cmd, -1, NULL);
+      /* All other commands require a filename arguement */
 
-          if ((g_cmd->flags & CMD_FL_QUIT) != 0)
+      if (g_hexfile == NULL)
+        {
+          fprintf(stderr, "ERROR: Missing filename\n");
+          g_last_error = EINVAL;
+          return -EINVAL;
+        }
+
+      /* Process every command on the command line */
+
+      cmd = &g_cmdtbl[1];         /* Skip 1st reserved command */
+      for (i = 1; i < g_ncmds + 1; i++, cmd++)
+        {
+          hexcmd(cmd, -1, NULL);
+
+          if ((cmd->flags & CMD_FL_QUIT) != 0)
             {
               quit = CMD_QUIT;
             }
@@ -362,9 +379,17 @@ int main(int argc, FAR char *argv[])
 int hexed_main(int argc, char *argv[])
 #endif
 {
-  g_wordsize = WORD_8;
+  struct cmdargs_s args;
+
+  /* Set cmdargs global reference (if already not set) */
+
+  memset(&args, 0, sizeof(struct cmdargs_s));
+  g_cmdargs = &args;
 
   /* Check command line arguments */
+
+  g_wordsize = WORD_8;
+  g_hexfile  = NULL;
 
   parseargs(argv);
 

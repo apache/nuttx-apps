@@ -52,8 +52,6 @@ FAR struct cmdargs_s *g_cmdargs = NULL;
  * Private Data
  ****************************************************************************/
 
-static struct cmdargs_s g_cmdargs_storage;
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -74,23 +72,14 @@ static struct cmdargs_s g_cmdargs_storage;
  *
  ****************************************************************************/
 
-int parsecmdargs(FAR char *argv[], FAR struct arglist_s *arglist)
+int parsecmdargs(FAR char *argv[], FAR const struct arglist_s *arglist)
 {
   FAR char *arg;
   int i;
 
-  /* Set cmdargs global reference (if already not set) */
-
-  if (g_cmdargs != &g_cmdargs_storage)
-    {
-      g_cmdargs = &g_cmdargs_storage;
-      memset(g_cmdargs, 0, sizeof(struct cmdargs_s));
-    }
-
-  g_cmdargs->argid = 0;
-
   /* Get next arg */
 
+  g_cmdargs->argid = 0;
   if ((g_cmdargs->flags & CMDARGS_FL_SINGLE) == 0)
     {
       g_cmdargs->idx++;

@@ -98,6 +98,6 @@ extern FAR struct cmdargs_s *g_cmdargs;
  * Public Function Prototypes
  ****************************************************************************/
 
-int parsecmdargs(FAR char *argv[], FAR struct arglist_s *arglist);
+int parsecmdargs(FAR char *argv[], FAR const struct arglist_s *arglist);
 
 #endif /* __APPS_SYSTEM_HEXED_INCLUDE_CMDARGS_H */

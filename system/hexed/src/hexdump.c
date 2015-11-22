@@ -254,15 +254,6 @@ int hexdump(FAR struct command_s *cmd, int optc, char *opt)
     }
   else
     {
-      /* We need to have a file name for this command */
-
-      if (g_hexfile == NULL)
-        {
-          fprintf(stderr, "ERROR: Dump command requires a filename\n");
-          g_last_error = EINVAL;
-          return -EINVAL;
-        }
-
       optc = rundump(cmd);
     }
 
