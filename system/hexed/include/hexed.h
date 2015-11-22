@@ -134,7 +134,7 @@ extern FAR struct bfile_s *g_hexfile;
  * Public Function Prototypes
  ****************************************************************************/
 
-void hexed_error(int eno, FAR const char *fmt, ...);
+void hexed_fatal(FAR const char *fmt, ...);
 int  hexcopy(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexdump(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexenter(FAR struct command_s *cmd, int optc, FAR char *opt);
@@ -143,7 +143,5 @@ int  hexinsert(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexmove(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexremove(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexword(FAR struct command_s *cmd, int optc, FAR char *opt);
-int  show_usage(void);
-void printhex(uint64_t i, int size);
 
 #endif /* __APPS_SYSTEM_HEXED_INCLUDE_HEXED_H */

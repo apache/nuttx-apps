@@ -63,7 +63,8 @@ static int runenter(FAR struct command_s *cmd)
 static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
 {
   FAR char *s;
-  int64_t *hx, v;
+  FAR int64_t *hx;
+  int64_t v;
 
   /* Set defaults */
 
@@ -109,15 +110,15 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
           break;
 
         case WORD_32:
-          *((int32_t *) hx + cmd->opts.cnt) = v;
+          *((int32_t *)hx + cmd->opts.cnt) = v;
           break;
 
         case WORD_16:
-          *((int16_t *) hx + cmd->opts.cnt) = v;
+          *((int16_t *)hx + cmd->opts.cnt) = v;
           break;
 
         case WORD_8:
-          *((int8_t *) hx + cmd->opts.cnt) = v;
+          *((int8_t *)hx + cmd->opts.cnt) = v;
           break;
 
         default:
@@ -133,8 +134,9 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
 
   else
     {
-      hexed_error(E2BIG, "Enter error: too many values set\n");
+      fprintf(stderr, "ERROR: too many values set\n");
       g_last_error = E2BIG;
+      return -E2BIG;
     }
 
   return optc;

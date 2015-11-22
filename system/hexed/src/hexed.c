@@ -83,40 +83,16 @@ static struct arglist_s g_arglist[] =
  * Public Functions
  ****************************************************************************/
 
-/* Print hexed_error msg and exit */
+/* Print error msg and exit */
 
-void hexed_error(int eno, FAR const char *fmt, ...)
+void hexed_fatal(FAR const char *fmt, ...)
 {
   va_list va;
 
   va_start(va, fmt);
   vfprintf(stderr, fmt, va);
   va_end(va);
-  exit(-eno);
-}
-
-/* Print 1-8 byte hexadecimal number */
-
-void printhex(uint64_t i, int size)
-{
-  switch (size)
-    {
-    case WORD_64:
-      printf("%016llx", (unsigned long long)i);
-      break;
-
-    case WORD_32:
-      printf("%08lx", (unsigned long)i);
-      break;
-
-    case WORD_16:
-      printf("%04x", (unsigned int)i);
-      break;
-
-    case WORD_8:
-      printf("%02x", (unsigned int)i);
-      break;
-    }
+  exit(1);
 }
 
 /* Load a Buffered File hexfile */
@@ -296,7 +272,7 @@ int parseargs(FAR char *argv[])
 
               if (strlen(opt) > 1 && *(opt + 1) != '-')
                 {
-                  hexed_error(EINVAL, "Unknown option: %s\n", opt);
+                  hexed_fatal("ERROR: Unknown option: %s\n", opt);
                 }
             }
 
@@ -312,7 +288,7 @@ int parseargs(FAR char *argv[])
 
           else
             {
-              hexed_error(EINVAL, "Unexpected option: %s\n", opt);
+              hexed_fatal("ERROR: Unexpected option: %s\n", opt);
             }
         }
 

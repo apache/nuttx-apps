@@ -157,8 +157,9 @@ static int setinsert(FAR struct command_s *cmd, int optc, char *opt)
         }
       else
         {
-          hexed_error(E2BIG, "Insert error: too many values set\n");
+          fprintf(stderr, "ERROR: Too many values set\n");
           g_last_error = E2BIG;
+          return -E2BIG;
         }
     }
 

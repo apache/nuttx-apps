@@ -10,4 +10,17 @@ menuconfig SYSTEM_HEXED
 		Enable support for the hexed command line hexadecial file editor
 
 if SYSTEM_HEXED
+
+config SYSTEM_HEXED_STACKSIZE
+	int "hexed stack size"
+	default 2048
+	---help---
+		The size of stack allocated for the hexed task.
+
+config SYSTEM_HEXED_PRIORITY
+	int "hexed priority"
+	default 100
+	---help---
+		The priority of the hexed task.
+
 endif # SYSTEM_HEXED

@@ -97,7 +97,38 @@ static int rundump(FAR struct command_s *cmd)
 
           if (off + x < last)
             {
-              printhex(*(uint64_t *) (cur + x), cmd->opts.word);
+              /* Print 1-8 byte hexadecimal number */
+
+              switch (cmd->opts.word)
+                {
+                case WORD_64:
+                  {
+                    uint64_t data = *(uint64_t *)(cur + x);
+                    printf("%016llx", (unsigned long long)data);
+                  }
+                  break;
+
+               case WORD_32:
+                  {
+                    uint32_t data = *(uint32_t *)(cur + x);
+                    printf("%08lx", (unsigned long)data);
+                  }
+                 break;
+
+               case WORD_16:
+                  {
+                    uint16_t data = *(uint16_t *)(cur + x);
+                    printf("%04x", (unsigned int)data);
+                  }
+                 break;
+
+               case WORD_8:
+                  {
+                    uint8_t data = *(uint8_t *)(cur + x);
+                    printf("%02x", (unsigned int)data);
+                  }
+                 break;
+                }
             }
           else
             {
@@ -211,7 +242,8 @@ int hexdump(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_DUMP)
     {
-      return -1;
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set/run dump */
@@ -222,6 +254,15 @@ int hexdump(FAR struct command_s *cmd, int optc, char *opt)
     }
   else
     {
+      /* We need to have a file name for this command */
+
+      if (g_hexfile == NULL)
+        {
+          fprintf(stderr, "ERROR: Dump command requires a filename\n");
+          g_last_error = EINVAL;
+          return -EINVAL;
+        }
+
       optc = rundump(cmd);
     }
 
