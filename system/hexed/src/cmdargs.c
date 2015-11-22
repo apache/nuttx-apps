@@ -37,90 +37,106 @@
  ****************************************************************************/
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+
 #include "cmdargs.h"
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-FAR struct cmdargs_s *cmdargs = NULL;
+FAR struct cmdargs_s *g_cmdargs = NULL;
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static struct cmdargs_s _cmdargs;
+static struct cmdargs_s g_cmdargs_storage;
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/* Parse the command line arguments */
+/****************************************************************************
+ * Name: parsecmdargs
+ *
+ * Description:
+ *   Parse the command line arguments
+ *
+ * Input parmeters:
+ *   argv    - The command line arguments
+ *   arglist - The array or supported arguments
+ *
+ * Returned Value:
+ *   One success, the argument ID is returned.  EOF is returned on any
+ *   failure.
+ *
+ ****************************************************************************/
 
 int parsecmdargs(FAR char *argv[], FAR struct arglist_s *arglist)
 {
+  FAR char *arg;
   int i;
-  char *arg;
 
-  /* Set cmdargs */
+  /* Set cmdargs global reference (if already not set) */
 
-  if (cmdargs != &_cmdargs)
+  if (g_cmdargs != &g_cmdargs_storage)
     {
-      cmdargs = &_cmdargs;
-      memset(cmdargs, 0, sizeof(struct cmdargs_s));
+      g_cmdargs = &g_cmdargs_storage;
+      memset(g_cmdargs, 0, sizeof(struct cmdargs_s));
     }
 
-  cmdargs->argid = 0;
+  g_cmdargs->argid = 0;
 
   /* Get next arg */
 
-  if ((cmdargs->flags & CMDARGS_FL_SINGLE) == 0)
+  if ((g_cmdargs->flags & CMDARGS_FL_SINGLE) == 0)
     {
-      cmdargs->idx++;
-      arg = argv[cmdargs->idx];
-      cmdargs->flags = 0;
-
-      /* Single step through this arg */
+      g_cmdargs->idx++;
+      arg = argv[g_cmdargs->idx];
+      g_cmdargs->flags = 0;
     }
   else
     {
-      arg = cmdargs->arg + 1;
-      cmdargs->flags &= CMDARGS_FL_RESET;
+      /* Skip over this argument */
+
+      arg = g_cmdargs->arg + 1;
+      g_cmdargs->flags &= CMDARGS_FL_RESET;
     }
 
-  /* Error or end of command line */
+  /* End of command line */
 
-  if (argv == NULL || arglist == NULL || argv[cmdargs->idx] == NULL)
+  if (argv[g_cmdargs->idx] == NULL)
     {
-      memset(cmdargs, 0, sizeof(struct cmdargs_s));
-      return -1;
+      memset(g_cmdargs, 0, sizeof(struct cmdargs_s));
+      return EOF;
     }
 
   /* Check for argument */
 
-  cmdargs->arg = arg;
+  g_cmdargs->arg = arg;
   if (*arg == '-')
     {
-      cmdargs->flags |= CMDARGS_FL_SETARG;
+      g_cmdargs->flags |= CMDARGS_FL_SETARG;
       arg++;
       if (*arg == '-')
         {
           arg++;
-          cmdargs->flags |= CMDARGS_FL_LONGARG;
+          g_cmdargs->flags |= CMDARGS_FL_LONGARG;
         }
     }
 
   /* Scan arglist */
 
-  if ((cmdargs->flags & CMDARGS_FL_SETARG) != 0)
+  if ((g_cmdargs->flags & CMDARGS_FL_SETARG) != 0)
     {
       for (i = 1; arglist->name != NULL; i++, arglist++)
         {
           /* Skip long args in single step mode */
 
-          if ((cmdargs->flags & CMDARGS_FL_SINGLE) != 0
-              && strlen(arglist->name) > 1)
+          if ((g_cmdargs->flags & CMDARGS_FL_SINGLE) != 0 &&
+              strlen(arglist->name) > 1)
             {
               continue;
             }
@@ -132,12 +148,12 @@ int parsecmdargs(FAR char *argv[], FAR struct arglist_s *arglist)
               /* The long arg flag is set but we've found a single arg match */
 
               if (strlen(arglist->name) == 1 &&
-                  (cmdargs->flags & CMDARGS_FL_LONGARG) != 0)
+                  (g_cmdargs->flags & CMDARGS_FL_LONGARG) != 0)
                 {
                   break;
                 }
 
-              cmdargs->argid = i;
+              g_cmdargs->argid = i;
               break;
             }
         }
@@ -145,16 +161,16 @@ int parsecmdargs(FAR char *argv[], FAR struct arglist_s *arglist)
 
   /* Found argument */
 
-  if (cmdargs->argid > 0)
+  if (g_cmdargs->argid > 0)
     {
-      cmdargs->arg = arg;
-      cmdargs->opt = NULL;
-      cmdargs->flags |= CMDARGS_FL_CALLMASK(arglist->flags);
+      g_cmdargs->arg = arg;
+      g_cmdargs->opt = NULL;
+      g_cmdargs->flags |= CMDARGS_FL_CALLMASK(arglist->flags);
       arg += strlen(arglist->name);
 
       /* Argument accepts options */
 
-      if ((cmdargs->flags & CMDARGS_FL_OPT) != 0)
+      if ((g_cmdargs->flags & CMDARGS_FL_OPT) != 0)
         {
           /* Option in same arg */
 
@@ -165,46 +181,47 @@ int parsecmdargs(FAR char *argv[], FAR struct arglist_s *arglist)
               if (strchr(":=", *arg))
                 {
                   arg++;
-                  cmdargs->opt = arg;
+                  g_cmdargs->opt = arg;
 
                   /* Error setting arg/option */
                 }
               else
                 {
-                  cmdargs->opt = NULL;
+                  g_cmdargs->opt = NULL;
                 }
 
               /* Option in next arg */
             }
-          else if (argv[cmdargs->idx + 1] != NULL &&
-                   *argv[cmdargs->idx + 1] != '\0' &&
-                   *argv[cmdargs->idx + 1] != '-')
+          else if (argv[g_cmdargs->idx + 1] != NULL &&
+                   *argv[g_cmdargs->idx + 1] != '\0' &&
+                   *argv[g_cmdargs->idx + 1] != '-')
             {
-              cmdargs->idx++;
-              cmdargs->opt = argv[cmdargs->idx];
+              g_cmdargs->idx++;
+              g_cmdargs->opt = argv[g_cmdargs->idx];
             }
         }
 
       /* Single step through this arg */
 
       if (strlen(arglist->name) == 1 && *arg != '\0' &&
-          (cmdargs->flags & CMDARGS_FL_OPTREQ) != CMDARGS_FL_OPTREQ &&
-          cmdargs->opt == NULL)
+          (g_cmdargs->flags & CMDARGS_FL_OPTREQ) != CMDARGS_FL_OPTREQ &&
+          g_cmdargs->opt == NULL)
         {
-          cmdargs->flags |= CMDARGS_FL_SINGLE;
+          g_cmdargs->flags |= CMDARGS_FL_SINGLE;
         }
       else
         {
-          cmdargs->flags &= ~CMDARGS_FL_SINGLE;
+          g_cmdargs->flags &= ~CMDARGS_FL_SINGLE;
         }
-
-      /* No valid argument found */
     }
+
+  /* No valid argument found */
+
   else
     {
-      cmdargs->flags = 0;
-      cmdargs->opt = NULL;
+      g_cmdargs->flags = 0;
+      g_cmdargs->opt = NULL;
     }
 
-  return cmdargs->argid;
+  return g_cmdargs->argid;
 }

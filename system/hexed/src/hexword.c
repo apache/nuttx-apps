@@ -65,7 +65,8 @@ static int setword(FAR struct command_s *cmd, int optc, char *opt)
 
   if (opt == NULL)
     {
-      RETURN_ERR(EFAULT);
+      g_last_error = EFAULT;
+      return -EFAULT;
     }
 
   v = strtoll(opt, &s, 0x10);
@@ -74,7 +75,8 @@ static int setword(FAR struct command_s *cmd, int optc, char *opt)
 
   if (s == opt)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set global word size */
@@ -104,7 +106,8 @@ static int setword(FAR struct command_s *cmd, int optc, char *opt)
     {
       /* Too many options specified */
 
-      RETURN_ERR(E2BIG);
+      g_last_error = E2BIG;
+      return -E2BIG;
     }
 
   return optc;
@@ -122,7 +125,8 @@ int hexword(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_WORD)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set word size */

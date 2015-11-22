@@ -57,7 +57,6 @@
 /* hexed constants */
 
 #define PNAME           "hexed"       /* Program name */
-#define TEMP_FILE       "~hexed.tmp"  /* Temp file name */
 #define CMD_MAX_CNT     0x10          /* Command table max count */
 #define OPT_BUF_SZ      0x40          /* Option buffer size */
 
@@ -73,12 +72,6 @@
 #define CMD_FL_CMDLINE  0x00000001    /* Command set on command line */
 #define CMD_FL_QUIT     0x00000002    /* Quit after command line */
 #define CMD_FL_OVERFLOW 0x00000003    /* Command overflow */
-
-#define RETURN_ERR(err) \
-{ \
-  set_errno(err); \
-  return -err; \
-}
 
 /****************************************************************************
  * Public Types
@@ -150,6 +143,7 @@ int  hexinsert(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexmove(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexremove(FAR struct command_s *cmd, int optc, FAR char *opt);
 int  hexword(FAR struct command_s *cmd, int optc, FAR char *opt);
+int  show_usage(void);
 void printhex(uint64_t i, int size);
 
 #endif /* __APPS_SYSTEM_HEXED_INCLUDE_HEXED_H */

@@ -49,17 +49,17 @@
 static const char *helpmsg[] =
 {
   NULL,
-  "  -?                            Shows this help screen\n",
+  "  -h                            Shows this help screen\n",
   "  -co [src] [dest] [len]        Copy data from src overwriting dest for len\n"
-    "                                words\n",
+  "                                words\n",
   "  -c [src] [dest] [len]         Copy data from src to dest for len words\n",
   "  -d [src] [len]                Display data from src for len words\n",
   "  -e [dest] [...]               Enter hex values [...] at dest\n",
   NULL,
   "  -i [dest] [cnt] [...]         Insert hex values [...] at dest repeating cnt"
-    "\n                                times. Defaults to 0 for empty hex values.\n",
+  "\n                                times. Defaults to 0 for empty hex values.\n",
   "  -mo [src] [dest] [len]        Move data from src overwriting dest for len\n"
-    "                                words\n",
+  "                                words\n",
   "  -m [src] [dest] [len]         Move data from src to dest for len words\n",
   "  -r [src] [len]                Remove data from src for len words\n",
   "  -w [bytes]                    Set the word size in bytes: 1 = 8 bits\n"
@@ -71,7 +71,13 @@ static const char *helpmsg[] =
  * Private Functions
  ****************************************************************************/
 
-/* Display the help page */
+/****************************************************************************
+ * Name: runhelp
+ *
+ * Description:
+ *   Display the help page
+ *
+ ****************************************************************************/
 
 static int runhelp(FAR struct command_s *cmd)
 {
@@ -99,7 +105,13 @@ static int runhelp(FAR struct command_s *cmd)
  * Public Functions
  ****************************************************************************/
 
-/* Help command */
+/****************************************************************************
+ * Name: hexhelp
+ *
+ * Description:
+ *   Help command
+ *
+ ****************************************************************************/
 
 int hexhelp(FAR struct command_s *cmd, int optc, char *opt)
 {
@@ -107,7 +119,8 @@ int hexhelp(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_HELP)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Run help */

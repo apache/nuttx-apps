@@ -81,7 +81,8 @@ static int runcopy(FAR struct command_s *cmd)
 
   if (cmd->opts.src > g_hexfile->size)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   switch (cmd->id)
@@ -115,7 +116,8 @@ static int setcopy(FAR struct command_s *cmd, int optc, char *opt)
 
   if (opt == NULL)
     {
-      RETURN_ERR(EFAULT);
+      g_last_error = EFAULT;
+      return -EFAULT;
     }
 
   v = strtoll(opt, &s, 0x10);
@@ -124,7 +126,8 @@ static int setcopy(FAR struct command_s *cmd, int optc, char *opt)
 
   if (s == opt)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set options */
@@ -156,7 +159,8 @@ static int setcopy(FAR struct command_s *cmd, int optc, char *opt)
     default:
       /* Too many options specified */
 
-      RETURN_ERR(E2BIG);
+      g_last_error = E2BIG;
+      return -E2BIG;
     }
 
   return optc;
@@ -174,7 +178,8 @@ int hexcopy(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || (cmd->id != CMD_COPY && cmd->id != CMD_COPY_OVER))
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set/run copy */

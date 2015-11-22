@@ -40,6 +40,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "bfile.h"
 #include "hexed.h"
 
@@ -75,7 +76,8 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
 
   if (opt == NULL)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   v = strtoll(opt, &s, 0x10);
@@ -84,7 +86,8 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
 
   if (s == opt)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set destination */
@@ -120,16 +123,18 @@ static int setenter(FAR struct command_s *cmd, int optc, FAR char *opt)
         default:
           break;
         }
+
       cmd->opts.cnt++;
       cmd->opts.bytes = cmd->opts.cnt * cmd->opts.word;
       optc++;
-
-      /* Buffer overflow */
     }
+
+  /* Buffer overflow */
+
   else
     {
-      error(E2BIG, "Enter error: too many values set\n");
-      /* RETURN_ERR(E2BIG); */
+      hexed_error(E2BIG, "Enter error: too many values set\n");
+      g_last_error = E2BIG;
     }
 
   return optc;
@@ -147,7 +152,8 @@ int hexenter(FAR struct command_s *cmd, int optc, char *opt)
 
   if (cmd == NULL || cmd->id != CMD_ENTER)
     {
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   /* Set/run enter */

@@ -36,12 +36,13 @@
  * Included Files
  ****************************************************************************/
 
-#include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+
 #include "bfile.h"
 #include "cmdargs.h"
 #include "hexed.h"
@@ -50,8 +51,8 @@
  * Public Data
  ****************************************************************************/
 
-int g_wordsize;
 FAR struct bfile_s *g_hexfile = NULL;
+int g_wordsize;
 
 /****************************************************************************
  * Private Data
@@ -64,17 +65,17 @@ static FAR struct command_s *g_cmd;
 
 static struct arglist_s g_arglist[] =
 {
-  {"?", 0},
+  {"h",  0},
   {"co", CMDARGS_FL_OPTREQ},
-  {"c", CMDARGS_FL_OPTREQ},
-  {"d", CMDARGS_FL_OPTREQ},
-  {"e", CMDARGS_FL_OPTREQ},
-  {"f", CMDARGS_FL_OPTREQ},
-  {"i", CMDARGS_FL_OPTREQ},
+  {"c",  CMDARGS_FL_OPTREQ},
+  {"d",  CMDARGS_FL_OPTREQ},
+  {"e",  CMDARGS_FL_OPTREQ},
+  {"f",  CMDARGS_FL_OPTREQ},
+  {"i",  CMDARGS_FL_OPTREQ},
   {"mo", CMDARGS_FL_OPTREQ},
-  {"m", CMDARGS_FL_OPTREQ},
-  {"r", CMDARGS_FL_OPTREQ},
-  {"w", CMDARGS_FL_OPTREQ},
+  {"m",  CMDARGS_FL_OPTREQ},
+  {"r",  CMDARGS_FL_OPTREQ},
+  {"w",  CMDARGS_FL_OPTREQ},
   {NULL, 0}
 };
 
@@ -84,7 +85,7 @@ static struct arglist_s g_arglist[] =
 
 /* Print hexed_error msg and exit */
 
-void hexed_error(int eno, const char *fmt, ...)
+void hexed_error(int eno, FAR const char *fmt, ...)
 {
   va_list va;
 
@@ -101,39 +102,38 @@ void printhex(uint64_t i, int size)
   switch (size)
     {
     case WORD_64:
-      printf("%016llx", (unsigned long long) i);
+      printf("%016llx", (unsigned long long)i);
       break;
 
     case WORD_32:
-      printf("%08lx", (unsigned long) i);
+      printf("%08lx", (unsigned long)i);
       break;
 
     case WORD_16:
-      printf("%04x", (unsigned int) i);
+      printf("%04x", (unsigned int)i);
       break;
 
     case WORD_8:
-      printf("%02x", (unsigned int) i);
+      printf("%02x", (unsigned int)i);
       break;
     }
 }
 
 /* Load a Buffered File hexfile */
 
-int loadfile(char *name)
+int loadfile(FAR char *name)
 {
   /* No file name */
 
   if (name == NULL)
     {
-      errno = ENOENT;
-      return -errno;
+      return -ENOENT;
     }
 
   /* Open file */
 
   g_hexfile = bfopen(name, "r+b");
-  if (g_hexfile == NULL && errno == ENOENT)
+  if (g_hexfile == NULL)
     {
       /* Create file */
 
@@ -144,7 +144,8 @@ int loadfile(char *name)
 
   if (g_hexfile == NULL)
     {
-      return -errno;
+      fprintf(stderr, "ERROR: Failed to open %s: %d\n", name, g_last_error);
+      return -g_last_error;
     }
 
   bfread(g_hexfile);
@@ -157,8 +158,7 @@ int savefile(FAR struct bfile_s *file)
 {
   if (file == NULL || file->fp == NULL)
     {
-      errno = EBADF;
-      return -errno;
+      return -EBADF;
     }
 
   bftruncate(file, file->size);
@@ -167,7 +167,7 @@ int savefile(FAR struct bfile_s *file)
 
 /* Set or run a command */
 
-int hexcmd(FAR struct command_s *cmd, int optc, char *opt)
+int hexcmd(FAR struct command_s *cmd, int optc, FAR char *opt)
 {
   switch (cmd->id)
     {
@@ -216,7 +216,8 @@ int hexcmd(FAR struct command_s *cmd, int optc, char *opt)
       break;
 
     default:
-      RETURN_ERR(EINVAL);
+      g_last_error = EINVAL;
+      return -EINVAL;
     }
 
   return optc;
@@ -232,56 +233,60 @@ FAR struct command_s *newcmd(int cmdno)
 
   if (cmdno >= CMD_MAX_CNT)
     {
-      errno = E2BIG;
-      perror(PNAME);
-      exit(-errno);
+      fprintf(stderr, "ERROR: Command buffer overflow\n");
+      exit(EXIT_FAILURE);
     }
 
   /* Set defaults */
 
   cmd = &g_cmdtbl[cmdno];
   memset(cmd, sizeof(struct command_s), 0);
-  cmd->id = cmdargs->argid;
-  cmd->cmd = cmdargs->arg;
-  cmd->flags = CMD_FL_CMDLINE;
+
+  cmd->id        = g_cmdargs->argid;
+  cmd->cmd       = g_cmdargs->arg;
+  cmd->flags     = CMD_FL_CMDLINE;
   cmd->opts.word = g_wordsize;
   return cmd;
 }
 
 /* Parse the command line arguments */
 
-int parseargs(char *argv[])
+int parseargs(FAR char *argv[])
 {
   FAR char *fname;
   FAR char *opt;
   int cmdcnt;
   int optc;
 
-  fname = NULL;
-  g_cmd = g_cmdtbl;                 /* 1st command is reserved */
-  cmdcnt = 0;
+  fname     = NULL;
+  cmdcnt    = 0;
+  g_cmd     = g_cmdtbl;
+  g_hexfile = NULL;
+
   memset(g_cmd, sizeof(struct command_s), 0);
-  while (parsecmdargs(argv, g_arglist) != -1)
+
+  while (parsecmdargs(argv, g_arglist) != EOF)
     {
       /* Set new command */
 
-      if (cmdargs->argid > 0)
+      if (g_cmdargs->argid > 0)
         {
           cmdcnt++;
-          optc = 0;
-          opt = cmdargs->opt;
+          optc  = 0;
+          opt   = g_cmdargs->opt;
           g_cmd = newcmd(cmdcnt);
-
-          /* Unknown arg */
         }
       else
         {
-          opt = cmdargs->arg;
+          /* Unknown arg */
+
+          opt = g_cmdargs->arg;
         }
 
       /* Set command options */
 
-      if ((optc = hexcmd(g_cmd, optc, opt)) < 0)
+      optc = hexcmd(g_cmd, optc, opt);
+      if (optc < 0)
         {
           /* End of range option? */
 
@@ -293,16 +298,18 @@ int parseargs(char *argv[])
                 {
                   hexed_error(EINVAL, "Unknown option: %s\n", opt);
                 }
-
-               /* Might be file name */
             }
+
+          /* Might be file name */
+
           else if (fname == NULL)
             {
               fname = opt;
               loadfile(fname);
-
-              /* Unexpected option */
             }
+
+          /* Unexpected option */
+
           else
             {
               hexed_error(EINVAL, "Unexpected option: %s\n", opt);
@@ -330,7 +337,7 @@ int runargs(void)
 
   /* Scan for help command */
 
-  quit = 0;
+  quit  = 0;
   g_cmd = &g_cmdtbl[1];             /* Skip 1st reserved command */
 
   for (i = 1; i < CMD_MAX_CNT && g_cmd->id > 0; i++, g_cmd++)
@@ -361,7 +368,9 @@ int runargs(void)
 
   /* Save file */
 
-  if (quit == CMD_QUIT && g_hexfile->flags == BFILE_FL_DIRTY)
+  if (quit == CMD_QUIT &&
+      g_hexfile != NULL &&
+      g_hexfile->flags == BFILE_FL_DIRTY)
     {
       savefile(g_hexfile);
     }
@@ -383,17 +392,14 @@ int hexed_main(int argc, char *argv[])
 
   parseargs(argv);
 
-  /* Open file */
-
-  if (g_hexfile == NULL)
-    {
-      loadfile(TEMP_FILE);
-    }
-
   /* Run commands */
 
   runargs();
-  bfclose(g_hexfile);
-  (void)unlink(TEMP_FILE);
+  if (g_hexfile)
+    {
+      bfclose(g_hexfile);
+      g_hexfile = NULL;
+    }
+
   return 0;
 }

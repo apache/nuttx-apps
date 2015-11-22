@@ -54,11 +54,14 @@
 
 #define CMDARGS_FL_RESET        (CMDARGS_FL_SINGLE | CMDARGS_FL_SETARG)
 
-/* Flags set by the caller */
+/* Flags set by the caller
+ *
+ * CMDARGS_FL_OPT    - Options accepted
+ * CMDARGS_FL_OPTREQ - Options required
+ */
 
-#define CMDARGS_FL_OPT          0x00010000    /* options accepted */
-#define CMDARGS_FL_OPTREQ       (0x00020000 | CMDARGS_FL_OPT) /* opts */
-                                                                /* required */
+#define CMDARGS_FL_OPT          0x00010000
+#define CMDARGS_FL_OPTREQ       (0x00020000 | CMDARGS_FL_OPT)
 
 #define CMDARGS_FL_CALLMASK(fl) (fl & 0xffff0000)
 
@@ -78,18 +81,18 @@ struct arglist_s
 
 struct cmdargs_s
 {
-  int idx;                    /* last argument parsed */
-  int flags;                  /* argument flags */
-  int argid;                  /* argument id in struct arglist_s */
-  FAR char *arg;              /* argument string */
-  FAR char *opt;              /* options string */
+  int idx;                    /* Last argument parsed */
+  int flags;                  /* Argument flags */
+  int argid;                  /* Argument id in struct arglist_s */
+  FAR char *arg;              /* Argument string */
+  FAR char *opt;              /* Options string */
 };
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
-extern FAR struct cmdargs_s *cmdargs;
+extern FAR struct cmdargs_s *g_cmdargs;
 
 /****************************************************************************
  * Public Function Prototypes
