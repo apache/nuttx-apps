@@ -152,7 +152,7 @@ int loadfile(char *name)
 }
 
 /* Save a buffered file hexfile */
- 
+
 int savefile(FAR struct bfile_s *file)
 {
   if (file == NULL || file->fp == NULL)
