@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 #include <libgen.h>
 #include <errno.h>
 
@@ -314,7 +315,28 @@ int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_SET
 int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  int ret = setenv(argv[1], argv[2], TRUE);
+  FAR char *value;
+  int ndx;
+  int ret;
+
+  /* Strip leading whitespace from the value */
+
+  for (value = argv[2];
+       *value != '\0' && isspace(*value);
+       value++);
+
+  /* Strip trailing whitespace from the value */
+
+  for (ndx = strlen(value) - 1;
+       ndx >= 0 && isspace(value[ndx]);
+       ndx--)
+    {
+      value[ndx] = '\0';
+    }
+
+  /* Set the environment variable */
+
+  ret = setenv(argv[1], value, TRUE);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
