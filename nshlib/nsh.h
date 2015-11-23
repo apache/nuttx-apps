@@ -189,6 +189,13 @@
 #  define CONFIG_NSH_DISABLE_WGET 1
 #endif
 
+/* mksmartfs depends on smartfs and mksmartfs support */
+
+#if !defined(CONFIG_FS_SMARTFS) || !defined(CONFIG_FSUTILS_MKSMARTFS)
+#  undef  CONFIG_NSH_DISABLE_MKSMARTFS
+#  define CONFIG_NSH_DISABLE_MKSMARTFS 1
+#endif
+
 /* One front end must be defined */
 
 #if !defined(CONFIG_NSH_CONSOLE) && !defined(CONFIG_NSH_TELNET)
@@ -922,7 +929,7 @@ void nsh_usbtrace(void);
          int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
 #   endif /* CONFIG_FS_FAT */
-#   ifdef CONFIG_FS_SMARTFS
+#if defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
 #     ifndef CONFIG_NSH_DISABLE_MKSMARTFS
          int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif

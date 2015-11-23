@@ -55,7 +55,7 @@
 #     include <nuttx/fs/mkfatfs.h>
 #   endif
 #   ifdef CONFIG_FS_SMARTFS
-#     include <nuttx/fs/mksmartfs.h>
+#     include <apps/fsutils/mksmartfs.h>
 #   endif
 #   ifdef CONFIG_NFS
 #     include <sys/socket.h>
@@ -1279,24 +1279,58 @@ errout_with_fmt:
  ****************************************************************************/
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-     defined(CONFIG_FS_SMARTFS)
+     defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
 #ifndef CONFIG_NSH_DISABLE_MKSMARTFS
 int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  char *fullpath = NULL;
   int ret = ERROR;
+  uint16_t  sectorsize = 0;
+  int opt;
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
   int nrootdirs = 1;
 #endif
+
+  /* Process any options */
+
+  optind = 0;
+  while ((opt = getopt(argc, argv, "s:")) != -1)
+    {
+      switch (opt)
+        {
+          case 's':
+            sectorsize = atoi(optarg);
+            if (sectorsize < 256 || sectorsize > 16384)
+              {
+                nsh_output(vtbl, "Sector size must be 256-16384\n");
+                return EINVAL;
+              }
+            if (sectorsize & (sectorsize-1))
+              {
+                nsh_output(vtbl, "Sector size must be power of 2\n");
+                return EINVAL;
+              }
+
+            break;
+
+          default:
+            break;
+        }
+    }
+
+  if (optind < argc)
+    {
+      fullpath = nsh_getfullpath(vtbl, argv[optind]);
+    }
 
   if (fullpath)
     {
       /* Test if number of root directories was supplied */
 
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-      if (argc == 3)
+      if (optind + 1 < argc)
         {
-          nrootdirs = atoi(argv[2]);
+          nrootdirs = atoi(argv[optind + 1]);
         }
 
       if (nrootdirs > 8 || nrootdirs < 1)
@@ -1307,9 +1341,9 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
         {
 #ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
-          ret = mksmartfs(fullpath, nrootdirs);
+          ret = mksmartfs(fullpath, sectorsize, nrootdirs);
 #else
-          ret = mksmartfs(fullpath);
+          ret = mksmartfs(fullpath, sectorsize);
 #endif
           if (ret < 0)
             {

@@ -280,6 +280,12 @@ config NSH_DISABLE_MKRD
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 
+config NSH_DISABLE_MKSMARTFS
+	bool "Disable mksmartfs"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	depends on FS_SMARTFS && FSUTILS_MKSMARTFS
+
 config NSH_DISABLE_MH
 	bool "Disable mh"
 	default n
