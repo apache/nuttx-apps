@@ -1451,3 +1451,7 @@
 	* apps/system/hexed:  Port the hexed command line hexadeciamal
 	  editor to Nuttx.  See http://apps.venomdev.net/hexed/.
 	  Initial port is not functional (2015-11-21).
+	* apps/fsutils/smartfs: Move into apps/fsutils from kernel, now
+	  uses only open and ioctl.  From Ken Petit (2015-11-23).
+	* apps/fsutils/smartfs/ and apps/nshlib/: Add configuration option
+	  to supported multiple root directories. From Ken Petit (2015-11-23).
