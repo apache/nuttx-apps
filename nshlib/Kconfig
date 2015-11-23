@@ -166,8 +166,8 @@ config NSH_DISABLE_BASE64ENC
 
 config NSH_DISABLE_BASENAME
 	bool "Disable basename"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default y if DEFAULT_SMALL || NSH_DISABLESCRIPT
+	default n if !DEFAULT_SMALL && !NSH_DISABLESCRIPT
 
 config NSH_DISABLE_CAT
 	bool "Disable cat"
@@ -208,8 +208,8 @@ config NSH_DISABLE_DELROUTE
 
 config NSH_DISABLE_DIRNAME
 	bool "Disable dirname"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default y if DEFAULT_SMALL || NSH_DISABLESCRIPT
+	default n if !DEFAULT_SMALL && !NSH_DISABLESCRIPT
 
 config NSH_DISABLE_ECHO
 	bool "Disable echo"
