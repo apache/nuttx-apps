@@ -821,8 +821,14 @@ void nsh_usbtrace(void);
 
 /* Shell command handlers */
 
+#ifndef CONFIG_NSH_DISABLE_BASENAME
+  int cmd_basename(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   int cmd_break(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+#ifndef CONFIG_NSH_DISABLE_DIRNAME
+  int cmd_dirname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 #ifndef CONFIG_NSH_DISABLE_ECHO
   int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

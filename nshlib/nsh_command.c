@@ -123,6 +123,10 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_BASENAME
+  { "basename",  cmd_basename, 2, 3, "<path> [<suffix>]" },
+#endif
+
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_LOOPS)
   { "break",     cmd_break,   1, 1, NULL },
 #endif
@@ -142,6 +146,10 @@ static const struct cmdmap_s g_cmdmap[] =
 # ifndef CONFIG_NSH_DISABLE_CMP
   { "cmp",      cmd_cmp,      3, 3, "<path1> <path2>" },
 # endif
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_DIRNAME
+  { "dirname",  cmd_dirname,  2, 2, "<path>" },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_DATE

@@ -1455,3 +1455,6 @@
 	  uses only open and ioctl.  From Ken Petit (2015-11-23).
 	* apps/fsutils/smartfs/ and apps/nshlib/: Add configuration option
 	  to supported multiple root directories. From Ken Petit (2015-11-23).
+	* apps/nshlib:  Add support for 'basename' and 'dirname' commands
+	  (2015-11-23).
+

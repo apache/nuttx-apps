@@ -540,6 +540,66 @@ static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: cmd_basename
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_BASENAME
+int cmd_basename(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *filename;
+
+  /* Usage: basename <path> [<suffix>]
+   *
+   * NOTE:  basename() may modify path.
+   */
+
+  filename = basename(argv[1]);
+  if (argc > 2)
+    {
+      FAR char *suffix = argv[2];
+      int nndx;
+      int sndx;
+
+      /* Check for any trailing sub-string */
+
+      nndx  = strlen(filename);
+      sndx  = strlen(suffix);
+      nndx -= sndx;
+
+      if (nndx > 0 && strcmp(&filename[nndx], suffix) == 0)
+        {
+          filename[nndx] = '\0';
+        }
+    }
+
+  /* And output the resulting basename */
+
+  nsh_output(vtbl, "%s\n", filename);
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_dirname
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_DIRNAME
+int cmd_dirname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *filename;
+
+  /* Usage: dirname <path>
+   *
+   * NOTE:  basename() may modify path.
+   */
+
+  filename = dirname(argv[1]);
+  nsh_output(vtbl, "%s\n", filename);
+  return OK;
+}
+#endif
+
+/****************************************************************************
  * Name: cmd_cat
  ****************************************************************************/
 

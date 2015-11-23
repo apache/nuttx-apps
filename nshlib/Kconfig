@@ -164,6 +164,11 @@ config NSH_DISABLE_BASE64ENC
 	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_BASE64
 
+config NSH_DISABLE_BASENAME
+	bool "Disable basename"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+
 config NSH_DISABLE_CAT
 	bool "Disable cat"
 	default n
@@ -198,6 +203,11 @@ config NSH_DISABLE_DF
 
 config NSH_DISABLE_DELROUTE
 	bool "Disable delroute"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+
+config NSH_DISABLE_DIRNAME
+	bool "Disable dirname"
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 
