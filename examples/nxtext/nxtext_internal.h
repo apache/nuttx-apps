@@ -47,7 +47,6 @@
 #include <semaphore.h>
 
 #include <nuttx/nx/nx.h>
-#include <nuttx/nx/nxtk.h>
 #include <nuttx/nx/nxfonts.h>
 
 /****************************************************************************

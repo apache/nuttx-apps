@@ -48,7 +48,6 @@
 #include <debug.h>
 
 #include <nuttx/nx/nx.h>
-#include <nuttx/nx/nxtk.h>
 #include <nuttx/nx/nxfonts.h>
 
 #include "nxtext_internal.h"
