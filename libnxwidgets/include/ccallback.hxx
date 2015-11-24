@@ -94,7 +94,7 @@ namespace NXWidgets
     CWidgetControl      *m_widgetControl; /**< The widget control instance for this window */
     struct nx_callback_s m_callbacks;     /**< C-callable vtable of callback function pointers */
 #ifdef CONFIG_NXTERM_NXKBDIN
-    NXTERM               m_nxterm;      /**< The NxTerm handle for redirection of keyboard input */
+    NXTERM               m_nxterm;        /**< The NxTerm handle for redirection of keyboard input */
 #endif
 
     // Methods in the callback vtable
@@ -208,7 +208,7 @@ namespace NXWidgets
      */
 
 #ifdef CONFIG_NX_MULTIUSER
-  static void windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2);
+    static void windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2);
 #endif
 
   public:
