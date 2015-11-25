@@ -134,18 +134,15 @@ int serialrx_main(int argc, char *argv[])
     {
 #ifdef CONFIG_EXAMPLES_SERIALRX_BUFFERED
       size_t n = fread(buf, 1, CONFIG_EXAMPLES_SERIALRX_BUFSIZE, f);
-      if (n < CONFIG_EXAMPLES_SERIALRX_BUFSIZE)
+      if (feof(f))
         {
-          if (feof(f))
-            {
-              eof = true;
-            }
-          else
-            {
-              printf("fread failed: %d\n", errno);
-              clearerr(f);
-              fflush(stdout);
-            }
+          eof = true;
+        }
+      else if (ferror(f))
+        {
+          printf("fread failed: %d\n", errno);
+          fflush(stdout);
+          clearerr(f);
         }
 #else
       ssize_t n = read(fd, buf, CONFIG_EXAMPLES_SERIALRX_BUFSIZE);
@@ -170,15 +167,14 @@ int serialrx_main(int argc, char *argv[])
               count -= CONFIG_EXAMPLES_SERIALRX_BUFSIZE;
             }
 #elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTHEX)
-          printf("Received:\n");
           for (i = 0; i < (int)n; i++)
             {
-              printf("%d: 0x%02x\n", i, buf[i]);
+              printf("0x%02x ", i, buf[i]);
             }
           fflush(stdout);
 #elif defined(CONFIG_EXAMPLES_SERIALRX_PRINTSTR)
           buf[n] = '\0';
-          printf("Received: %s", buf);
+          printf("%s", buf);
           fflush(stdout);
 #endif
         }
