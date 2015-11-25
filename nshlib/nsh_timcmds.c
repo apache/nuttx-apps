@@ -108,7 +108,11 @@ static inline int date_month(FAR const char *abbrev)
 #ifndef CONFIG_NSH_DISABLE_DATE
 static inline int date_showtime(FAR struct nsh_vtbl_s *vtbl, FAR const char *name)
 {
+#if defined(CONFIG_LIBC_LOCALTIME) || defined(CONFIG_TIME_EXTENDED)
+  static const char format[] = "%a, %b %d %H:%M:%S %Y";
+#else
   static const char format[] = "%b %d %H:%M:%S %Y";
+#endif
   struct timespec ts;
   struct tm tm;
   char timbuf[MAX_TIME_STRING];
