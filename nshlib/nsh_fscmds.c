@@ -51,6 +51,10 @@
 #     include <sys/mount.h>
 #     include <nuttx/fs/ramdisk.h>
 #   endif
+#   ifdef CONFIG_DEV_LOOP
+#     include <sys/ioctl.h>
+#     include <nuttx/fs/loop.h>
+#   endif
 #   ifdef CONFIG_FS_FAT
 #     include <nuttx/fs/mkfatfs.h>
 #   endif
@@ -838,17 +842,19 @@ errout:
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
-#ifndef CONFIG_NSH_DISABLE_LOSETUP
+#   if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
 int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *loopdev  = NULL;
-  char *filepath = NULL;
-  bool  teardown = false;
-  bool  readonly = false;
-  off_t offset   = 0;
-  bool  badarg   = false;
-  int   ret      = ERROR;
-  int   option;
+  FAR char *loopdev = NULL;
+  FAR char *filepath = NULL;
+  struct losetup_s setup;
+  bool teardown = false;
+  bool readonly = false;
+  off_t offset = 0;
+  bool badarg = false;
+  int ret = ERROR;
+  int option;
+  int fd;
 
   /* Get the losetup options:  Two forms are supported:
    *
@@ -917,10 +923,19 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* There should be nothing else on the command line */
 
   if (optind < argc)
-   {
-     nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
-     goto errout_with_paths;
-   }
+    {
+      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      goto errout_with_paths;
+    }
+
+  /* Open the loop device */
+
+  fd = open("/dev/loop", O_RDONLY);
+  if (fd < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+      goto errout_with_paths;
+    }
 
   /* Perform the teardown operation */
 
@@ -928,26 +943,37 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       /* Tear down the loop device. */
 
-      ret = loteardown(loopdev);
+      ret = ioctl(fd, LOOPIOC_TEARDOWN, (unsigned long)((uintptr_t)loopdev));
       if (ret < 0)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "loteardown", NSH_ERRNO_OF(-ret));
-          goto errout_with_paths;
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+          goto errout_with_fd;
         }
     }
   else
     {
       /* Set up the loop device */
 
-      ret = losetup(loopdev, filepath, 512, offset, readonly);
+      setup.devname  = loopdev;   /* The loop block device to be created */
+      setup.filename = filepath;  /* The file or character device to use */
+      setup.sectsize = 512;       /* The sector size to use with the block device */
+      setup.offset   = offset;    /* An offset that may be applied to the device */
+      setup.readonly = readonly;    /* True: Read access will be supported only */
+
+      ret = ioctl(fd, LOOPIOC_SETUP, (unsigned long)((uintptr_t)&setup));
       if (ret < 0)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "losetup", NSH_ERRNO_OF(-ret));
-          goto errout_with_paths;
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+          goto errout_with_fd;
         }
     }
 
-  /* Free memory */
+  ret = OK;
+
+  /* Free resources */
+
+errout_with_fd:
+  (void)close(fd);
 
 errout_with_paths:
   if (loopdev)

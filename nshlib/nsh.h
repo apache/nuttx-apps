@@ -594,7 +594,7 @@
  *   entries the provide the necessary interfaces.
  * - Other interfaces are more standard and for these there probably should
  *   be new system calls to support the OS interface.  Such interfaces
- *   include things like losetup, loteardown, and mkrd.
+ *   include things like ps, mkfatfs, and mkrd.
  * - Other interfaces simply need to be moved out of the OS and into the C
  *   library where they will become accessible to application code.  Such
  *   interfaces include mkfatfs.
@@ -605,8 +605,6 @@
 #  define CONFIG_NSH_DISABLE_PS 1
 #  undef CONFIG_NSH_DISABLE_DF          /* 'df' depends on foreach_mountpoint */
 #  define CONFIG_NSH_DISABLE_DF 1
-#  undef CONFIG_NSH_DISABLE_LOSETUP     /* 'losetup' depends on losetup/loteardown */
-#  define CONFIG_NSH_DISABLE_LOSETUP 1
 #  undef CONFIG_NSH_DISABLE_MKFATFS     /* 'mkfatfs' depends on mkfatfs interface */
 #  define CONFIG_NSH_DISABLE_MKFATFS 1
 #  undef CONFIG_NSH_DISABLE_MKRD        /* 'mkrd' depends on ramdisk_register */
@@ -908,7 +906,7 @@ void nsh_usbtrace(void);
 # endif /* CONFIG_NFILE_STREAMS && NSH_HAVE_DIROPTS */
 
 # ifndef CONFIG_DISABLE_MOUNTPOINT
-#   ifndef CONFIG_NSH_DISABLE_LOSETUP
+#   if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
        int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif
 #   ifndef CONFIG_NSH_DISABLE_MKFIFO

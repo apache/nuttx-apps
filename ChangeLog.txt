@@ -1461,3 +1461,7 @@
 	  leading or trailing whitespace (2015-11-23).
 	* apps/nshlib: The mount commands now accepts mount options (currently
 	  needed only for the hostfs file system).  From Ken Petit (2015-11-25).
+	* apps/nshlib:  NSH no longer calls losetup() and loteardown directly.
+	  Now it opens /dev/loop and accomplishes these things using ioctl()
+	  calls (2015-11-25).
+

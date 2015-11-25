@@ -243,7 +243,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
-# ifndef CONFIG_NSH_DISABLE_LOSETUP
+# if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
   { "losetup",   cmd_losetup, 3, 6, "[-d <dev-path>] | [[-o <offset>] [-r] <dev-path> <file-path>]" },
 # endif
 #endif
