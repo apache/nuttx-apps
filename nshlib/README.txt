@@ -701,7 +701,7 @@ o mkrd [-m <minor>] [-s <sector-size>] <nsectors>
     /tmp:
     nsh>
 
-o mount [-t <fstype> <block-device> <dir-path>]
+o mount [-t <fstype> [-o <options>] <block-device> <dir-path>]
 
   The mount command performs one of two different operations.  If no
   parameters are provided on the command line after the mount command,

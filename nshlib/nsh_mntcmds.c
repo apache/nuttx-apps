@@ -151,6 +151,12 @@ static const char* get_fstype(FAR struct statfs *statbuf)
         break;
 #endif
 
+#ifdef CONFIG_FS_HOSTFS
+      case HOSTFS_MAGIC:
+        fstype = "hostfs";
+        break;
+#endif
+
       default:
         fstype = "Unrecognized";
         break;
@@ -339,6 +345,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR const char *target;
   FAR char *fulltarget;
   FAR const char *filesystem = NULL;
+  FAR const char *options = NULL;
   bool badarg = false;
   int option;
   int ret;
@@ -358,12 +365,16 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * logic just sets 'badarg' and continues.
    */
 
-  while ((option = getopt(argc, argv, ":t:")) != ERROR)
+  while ((option = getopt(argc, argv, ":o:t:")) != ERROR)
     {
       switch (option)
         {
           case 't':
             filesystem = optarg;
+            break;
+
+          case 'o':
+            options = optarg;
             break;
 
           case ':':
@@ -451,7 +462,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Perform the mount */
 
-  ret = mount(fullsource, fulltarget, filesystem, 0, NULL);
+  ret = mount(fullsource, fulltarget, filesystem, 0, options);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "mount", NSH_ERRNO);

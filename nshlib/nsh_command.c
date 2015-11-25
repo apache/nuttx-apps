@@ -306,9 +306,9 @@ static const struct cmdmap_s g_cmdmap[] =
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
 # ifndef CONFIG_NSH_DISABLE_MOUNT
 #if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
-  { "mount",    cmd_mount,    5, 5, "-t <fstype> [<block-device>] <mount-point>" },
+  { "mount",    cmd_mount,    5, 7, "-t <fstype> [-o <options>] [<block-device>] <mount-point>" },
 #    else
-  { "mount",    cmd_mount,    1, 5, "[-t <fstype> [<block-device>] <mount-point>]" },
+  { "mount",    cmd_mount,    1, 7, "[-t <fstype> [-o <options>] [<block-device>] <mount-point>]" },
 #  endif
 # endif
 #endif

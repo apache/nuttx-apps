@@ -1459,4 +1459,5 @@
 	  (2015-11-23).
 	* apps/nshlib:  Like bash, NSH set command should strip off any
 	  leading or trailing whitespace (2015-11-23).
-
+	* apps/nshlib: The mount commands now accepts mount options (currently
+	  needed only for the hostfs file system).  From Ken Petit (2015-11-25).
