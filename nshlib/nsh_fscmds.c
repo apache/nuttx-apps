@@ -108,7 +108,8 @@ typedef int (*direntry_handler_t)(FAR struct nsh_vtbl_s *, const char *,
  * Private Data
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#if CONFIG_NFILE_DESCRIPTORS > 0 && \
+    (!defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP))
 /* Common buffer for file I/O.  Note the use of this common buffer precludes
  * multiple copies of NSH running concurrently.  It should be allocated per
  * NSH instance and retained in the "vtbl" as is done for the telnet
@@ -148,7 +149,8 @@ static void trim_dir(char *arg)
  * Name: nsh_getdirpath
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#if CONFIG_NFILE_DESCRIPTORS > 0 && \
+    (!defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP))
 static char *nsh_getdirpath(const char *path, const char *file)
 {
   /* Handle the case where all that is left is '/' */
@@ -171,7 +173,7 @@ static char *nsh_getdirpath(const char *path, const char *file)
  * Name: foreach_direntry
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_LS)
 static int foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                             FAR const char *dirpath,
                             direntry_handler_t handler, void *pvarg)
