@@ -1030,7 +1030,7 @@ Command Dependencies on Configuration Settings
   ifdown     CONFIG_NET
   ifup       CONFIG_NET
   kill       !CONFIG_DISABLE_SIGNALS
-  losetup    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0
+  losetup    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_DEV_LOOP
   ls         CONFIG_NFILE_DESCRIPTORS > 0
   md5        CONFIG_NETUTILS_CODECS && CONFIG_CODECS_HASH_MD5
   mb,mh,mw   ---
