@@ -461,6 +461,88 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 #endif
 
 /****************************************************************************
+ * Name: net_statistics
+ ****************************************************************************/
+
+#if defined(CONFIG_NETDEV_STATISTICS) && !defined(CONFIG_NSH_DISABLE_IFCONFIG)
+static inline void netdev_statistics(FAR struct nsh_vtbl_s *vtbl,
+                                     FAR struct net_driver_s *dev)
+{
+  FAR struct netdev_statistics_s *stats = &dev->d_statistics;
+  FAR char *fmt;
+
+  /* Rx Statistics */
+
+  nsh_output(vtbl, "\tRX: %-8s %-8s %-8s\n",
+             "RECEIVED", "FRAGMENT", "ERRORS");
+  nsh_output(vtbl, "\t    %08lx %08lx %08lx\n",
+             (unsigned long)stats->rx_packets,
+             (unsigned long)stats->rx_fragments,
+             (unsigned long)stats->rx_errors);
+
+  fmt = "\t    "
+#ifdef CONFIG_NET_IPv4
+        "%-8s "
+#endif
+#ifdef CONFIG_NET_IPv6
+        "%-8s "
+#endif
+#ifdef CONFIG_NET_ARP
+        "%-8s "
+#endif
+        "%-8s\n";
+
+  nsh_output(vtbl, fmt
+#ifdef CONFIG_NET_IPv4
+        , "IPv4"
+#endif
+#ifdef CONFIG_NET_IPv6
+        , "IPv6"
+#endif
+#ifdef CONFIG_NET_ARP
+        , "ARP"
+#endif
+        , "DROPPED");
+
+  fmt = "\t    "
+#ifdef CONFIG_NET_IPv4
+        "%08lx "
+#endif
+#ifdef CONFIG_NET_IPv6
+        "%08lx "
+#endif
+#ifdef CONFIG_NET_ARP
+        "%08lx "
+#endif
+        "%08lx\n";
+
+  nsh_output(vtbl, fmt
+#ifdef CONFIG_NET_IPv4
+        , (unsigned long)stats->rx_ipv4
+#endif
+#ifdef CONFIG_NET_IPv6
+        , (unsigned long)stats->rx_ipv6
+#endif
+#ifdef CONFIG_NET_ARP
+        , (unsigned long)stats->rx_arp
+#endif
+        , (unsigned long)stats->rx_dropped);
+
+  nsh_output(vtbl, "\tTX: %-8s %-8s %-8s %-8s\n",
+             "QUEUED", "SENT", "ERRORS", "TIMEOUTS");
+  nsh_output(vtbl, "\t    %08lx %08lx %08lx %08lx\n",
+             (unsigned long)stats->tx_packets,
+             (unsigned long)stats->tx_done,
+             (unsigned long)stats->tx_errors,
+             (unsigned long)stats->tx_timeouts);
+  nsh_output(vtbl, "\tTOTAL ERRORS: %08x\n\n",
+             (unsigned long)stats->errors);
+}
+#else
+# define netdev_statistics(vtbl,dev)
+#endif
+
+/****************************************************************************
  * Name: ifconfig_callback
  ****************************************************************************/
 
@@ -610,6 +692,10 @@ static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
 #endif
 
   nsh_output(vtbl, "\n");
+
+  /* Show driver statistics */
+
+  netdev_statistics(vtbl, dev);
   return OK;
 }
 #endif /* !CONFIG_NSH_DISABLE_IFUPDOWN || !CONFIG_NSH_DISABLE_IFCONFIG */

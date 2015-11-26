@@ -1464,4 +1464,6 @@
 	* apps/nshlib:  NSH no longer calls losetup() and loteardown directly.
 	  Now it opens /dev/loop and accomplishes these things using ioctl()
 	  calls (2015-11-25).
+	* apps/nshlib:  If CONFIG_NETDEV_STATISTICS=y, then print the network
+	  driver statistics in the ifconfig (15-11-26).
 
