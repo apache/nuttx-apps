@@ -45,17 +45,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#if 0
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-#include <limits.h>
-#include <libgen.h>
-#include <errno.h>
-#include <debug.h>
-#endif
-
 #include "nsh.h"
 #include "nsh_console.h"
 
