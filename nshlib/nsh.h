@@ -1110,4 +1110,25 @@ int nsh_extmatch_count(FAR char *name, FAR int *matches, int namelen);
 FAR const char *nsh_extmatch_getname(int index);
 #endif
 
+/****************************************************************************
+ * Name: nsh_catfile
+ *
+ * Description:
+ *   Dump the contents of a file to the current NSH terminal.
+ *
+ * Input Paratemets:
+ *   vtbl     - session vtbl
+ *   cmd      - NSH command name to use in error reporting
+ *   filepath - The full path to the file to be dumped
+ *
+ * Returned Value:
+ *   Zero (OK) on success; -1 (ERROR) on failure.
+ *
+ ****************************************************************************/
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
+int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                FAR const char *filepath);
+#endif
+
 #endif /* __APPS_NSHLIB_NSH_H */

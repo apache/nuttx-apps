@@ -50,6 +50,10 @@ else
 CSRCS += nsh_session.c
 endif
 
+ifneq ($(CONFIG_NFILE_DESCRIPTORS),0)
+CSRCS += nsh_fsutils.c
+endif
+
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 CSRCS += nsh_builtin.c
 endif

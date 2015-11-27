@@ -421,127 +421,6 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
 #endif /* CONFIG_NFILE_DESCRIPTORS > 0 && !CONFIG_NSH_DISABLE_LS */
 
 /****************************************************************************
- * Name: cat_common
- ****************************************************************************/
-
-#if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_NSH_DISABLE_CAT
-static int cat_common(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                      FAR const char *filename)
-{
-  FAR char *buffer;
-  int fd;
-  int ret = OK;
-
-  /* Open the file for reading */
-
-  fd = open(filename, O_RDONLY);
-  if (fd < 0)
-    {
-      nsh_output(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
-      return ERROR;
-    }
-
-  buffer = (FAR char *)malloc(IOBUFFERSIZE);
-  if(buffer == NULL)
-    {
-      (void)close(fd);
-      nsh_output(vtbl, g_fmtcmdfailed, cmd, "malloc", NSH_ERRNO);
-      return ERROR;
-    }
-
-  /* And just dump it byte for byte into stdout */
-
-  for (;;)
-    {
-      int nbytesread = read(fd, buffer, IOBUFFERSIZE);
-
-      /* Check for read errors */
-
-      if (nbytesread < 0)
-        {
-          int errval = errno;
-
-          /* EINTR is not an error (but will stop stop the cat) */
-
-#ifndef CONFIG_DISABLE_SIGNALS
-          if (errval == EINTR)
-            {
-              nsh_output(vtbl, g_fmtsignalrecvd, cmd);
-            }
-          else
-#endif
-            {
-              nsh_output(vtbl, g_fmtcmdfailed, cmd, "read", NSH_ERRNO_OF(errval));
-            }
-
-          ret = ERROR;
-          break;
-        }
-
-      /* Check for data successfully read */
-
-      else if (nbytesread > 0)
-        {
-          int nbyteswritten = 0;
-
-          while (nbyteswritten < nbytesread)
-            {
-              ssize_t n = nsh_write(vtbl, buffer, nbytesread);
-              if (n < 0)
-                {
-                  int errval = errno;
-
-                  /* EINTR is not an error (but will stop stop the cat) */
-
-#ifndef CONFIG_DISABLE_SIGNALS
-                  if (errval == EINTR)
-                    {
-                      nsh_output(vtbl, g_fmtsignalrecvd, cmd);
-                    }
-                  else
-#endif
-                    {
-                      nsh_output(vtbl, g_fmtcmdfailed, cmd, "write", NSH_ERRNO);
-                    }
-
-                  ret = ERROR;
-                  break;
-                }
-              else
-                {
-                  nbyteswritten += n;
-                }
-            }
-        }
-
-      /* Otherwise, it is the end of file */
-
-      else
-        {
-          break;
-        }
-    }
-
-   /* Make sure that the following NSH prompt appears on a new line.  If the
-    * file ends in a newline, then this will print an extra blank line
-    * before the prompt, but that is preferable to the case where there is
-    * no newline and the NSH prompt appears on the same line as the cat'ed
-    * file.
-    */
-
-   nsh_output(vtbl, "\n");
-
-   /* Close the input file and return the result */
-
-   (void)close(fd);
-   free(buffer);
-   return ret;
-}
-#endif
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -632,7 +511,7 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           /* Dump the file to the console */
 
-          ret = cat_common(vtbl, argv[0], fullpath);
+          ret = nsh_catfile(vtbl, argv[0], fullpath);
 
           /* Free the allocated full path */
 
@@ -653,7 +532,7 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
 int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  return cat_common(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
+  return nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
 }
 #endif
 
@@ -669,7 +548,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   char *srcpath  = NULL;
   char *destpath = NULL;
   char *allocpath = NULL;
-  int oflags = O_WRONLY|O_CREAT|O_TRUNC;
+  int oflags = O_WRONLY | O_CREAT | O_TRUNC;
   int rdfd;
   int wrfd;
   int ret = ERROR;
