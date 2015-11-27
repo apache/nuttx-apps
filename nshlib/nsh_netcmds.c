@@ -474,7 +474,7 @@ static inline void netdev_statistics(FAR struct nsh_vtbl_s *vtbl,
   /* Rx Statistics */
 
   nsh_output(vtbl, "\tRX: %-8s %-8s %-8s\n",
-             "RECEIVED", "FRAGMENT", "ERRORS");
+             "Received", "Fragment", "Errors");
   nsh_output(vtbl, "\t    %08lx %08lx %08lx\n",
              (unsigned long)stats->rx_packets,
              (unsigned long)stats->rx_fragments,
@@ -502,7 +502,7 @@ static inline void netdev_statistics(FAR struct nsh_vtbl_s *vtbl,
 #ifdef CONFIG_NET_ARP
         , "ARP"
 #endif
-        , "DROPPED");
+        , "Dropped");
 
   fmt = "\t    "
 #ifdef CONFIG_NET_IPv4
@@ -529,13 +529,13 @@ static inline void netdev_statistics(FAR struct nsh_vtbl_s *vtbl,
         , (unsigned long)stats->rx_dropped);
 
   nsh_output(vtbl, "\tTX: %-8s %-8s %-8s %-8s\n",
-             "QUEUED", "SENT", "ERRORS", "TIMEOUTS");
+             "Queued", "Sent", "Erorts", "Timeouts");
   nsh_output(vtbl, "\t    %08lx %08lx %08lx %08lx\n",
              (unsigned long)stats->tx_packets,
              (unsigned long)stats->tx_done,
              (unsigned long)stats->tx_errors,
              (unsigned long)stats->tx_timeouts);
-  nsh_output(vtbl, "\tTOTAL ERRORS: %08x\n\n",
+  nsh_output(vtbl, "\tTotal Errors: %08x\n\n",
              (unsigned long)stats->errors);
 }
 #else
