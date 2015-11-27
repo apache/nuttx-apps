@@ -1466,8 +1466,8 @@
 	  calls (2015-11-25).
 	* apps/nshlib:  If CONFIG_NETDEV_STATISTICS=y, then print the network
 	  driver statistics in the ifconfig (15-11-26).
-	* apps/nshlib:  The 'ifconfig' command now uses /proc/net/stat to
-	  show network statistics.  A consequence of this is that you cannot
-	  view network statistics if the procfs is not enabled and mounted
-	  at /proc (2015-11-27).
-
+	* apps/nshlib:  The 'ifconfig' command now uses /proc/net/<dev> to view
+	  and network device configuration/status and /proc/net/stat to show
+	  network statistics.  A consequence of this is that you cannot view
+	  this network information if the procfs is not enabled and mounted at
+	  /proc (2015-11-27).

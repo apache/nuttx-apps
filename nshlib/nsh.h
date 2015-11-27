@@ -601,14 +601,21 @@
  */
 
 #if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
-#  undef CONFIG_NSH_DISABLE_PS          /* 'ps' depends on sched_foreach */
+#  undef  CONFIG_NSH_DISABLE_PS          /* 'ps' depends on sched_foreach */
 #  define CONFIG_NSH_DISABLE_PS 1
-#  undef CONFIG_NSH_DISABLE_DF          /* 'df' depends on foreach_mountpoint */
+#  undef  CONFIG_NSH_DISABLE_DF          /* 'df' depends on foreach_mountpoint */
 #  define CONFIG_NSH_DISABLE_DF 1
-#  undef CONFIG_NSH_DISABLE_MKFATFS     /* 'mkfatfs' depends on mkfatfs interface */
+#  undef  CONFIG_NSH_DISABLE_MKFATFS     /* 'mkfatfs' depends on mkfatfs interface */
 #  define CONFIG_NSH_DISABLE_MKFATFS 1
-#  undef CONFIG_NSH_DISABLE_MKRD        /* 'mkrd' depends on ramdisk_register */
+#  undef  CONFIG_NSH_DISABLE_MKRD        /* 'mkrd' depends on ramdisk_register */
 #  define CONFIG_NSH_DISABLE_MKRD 1
+#endif
+
+/* Certain commands are only available if the procfs file system is enable */
+
+#if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_NET)
+#  undef  CONFIG_NSH_DISABLE_IFCONFIG    /* 'ifconfig' depends on network procfs */
+#  define CONFIG_NSH_DISABLE_IFCONFIG 1
 #endif
 
 /****************************************************************************
