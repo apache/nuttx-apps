@@ -245,7 +245,13 @@ config NSH_DISABLE_HEXDUMP
 
 config NSH_DISABLE_IFCONFIG
 	bool "Disable ifconfig"
-	default n
+	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
+	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_NET
+
+config NSH_DISABLE_IFUPDOWN
+	bool "Disable ifup/down"
+	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_NET
+	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_NET
 
 config NSH_DISABLE_KILL
 	bool "Disable kill"

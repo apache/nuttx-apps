@@ -616,6 +616,9 @@
 #if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_NET)
 #  undef  CONFIG_NSH_DISABLE_IFCONFIG    /* 'ifconfig' depends on network procfs */
 #  define CONFIG_NSH_DISABLE_IFCONFIG 1
+
+#  undef  CONFIG_NSH_DISABLE_IFUPDOWN    /* 'ifup/down' depend on network procfs */
+#  define CONFIG_NSH_DISABLE_IFUPDOWN 1
 #endif
 
 /****************************************************************************

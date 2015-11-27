@@ -1471,3 +1471,6 @@
 	  network statistics.  A consequence of this is that you cannot view
 	  this network information if the procfs is not enabled and mounted at
 	  /proc (2015-11-27).
+	* apps/nshlib: Remove all references to internal OS interface
+	  netdev_foreach().  Logic in ifconfig, ifup, and ifown now use the
+	  procfs file system to examine networking status.  (2015-11-27).

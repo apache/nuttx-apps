@@ -52,6 +52,7 @@
 #include <string.h>
 #include <sched.h>
 #include <fcntl.h>       /* Needed for open */
+#include <dirent.h>
 #include <netdb.h>       /* Needed for gethostbyname */
 #include <libgen.h>      /* Needed for basename */
 #include <errno.h>
@@ -142,6 +143,9 @@ struct tftpc_args_s
   in_addr_t   ipaddr;    /* Host IP address */
 };
 #endif
+
+typedef int (*nsh_netdev_callback_t)(FAR struct nsh_vtbl_s *vtbl,
+                                     FAR char *devname);
 
 /****************************************************************************
  * Private Function Prototypes
@@ -290,16 +294,15 @@ static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
  ****************************************************************************/
 
 #if !defined(CONFIG_NSH_DISABLE_IFUPDOWN) || !defined(CONFIG_NSH_DISABLE_IFCONFIG)
-static int ifconfig_callback(FAR struct net_driver_s *dev, void *arg)
+static int ifconfig_callback(FAR struct nsh_vtbl_s *vtbl, FAR char *devname)
 {
-  FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s *)arg;
   char buffer[IFNAMSIZ + 12];
 
-  DEBUGASSERT(dev != NULL && vtbl != NULL);
+  DEBUGASSERT(vtbl != NULL && devname != NULL);
 
   /* Construct the full path to the /proc/net entry for this device */
 
-  snprintf(buffer, IFNAMSIZ + 12, "/proc/net/%s", dev->d_ifname);
+  snprintf(buffer, IFNAMSIZ + 12, "/proc/net/%s", devname);
   (void)nsh_catfile(vtbl, "ifconfig", buffer);
 
   return OK;
@@ -574,6 +577,58 @@ static void wget_callback(FAR char **buffer, int offset, int datend,
 #endif
 
 /****************************************************************************
+ * Name: nsh_foreach_netdev
+ ****************************************************************************/
+
+#if !defined(CONFIG_NSH_DISABLE_IFUPDOWN) || !defined(CONFIG_NSH_DISABLE_IFCONFIG)
+static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
+                              FAR struct nsh_vtbl_s *vtbl,
+                              FAR char *cmd)
+{
+  FAR struct dirent *entry;
+  FAR DIR *dir;
+  int ret = OK;
+
+  /* Open the /proc/net directory */
+
+  dir = opendir("/proc/net");
+  if (dir == NULL)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, cmd, "opendir", NSH_ERRNO);
+      return ERROR;
+    }
+
+  /* Look for device configuration "regular" files */
+
+  while ((entry = readdir(dir)) != NULL)
+    {
+      /* Skip anything that is not a regular file and skip the file
+       * /proc/dev/stat which does not correspond to a network driver.
+       */
+
+      if (entry->d_type == DTYPE_FILE &&
+          strcmp(entry->d_name, "stat") != 0)
+        {
+          /* Performt he callback.  It returns any non-zero value, then
+           * terminate the serach.
+           */
+
+          ret = callback(vtbl, entry->d_name);
+          if (ret != OK)
+            {
+              break;
+            }
+        }
+    }
+
+  /* Close the directory */
+
+  (void)closedir(dir);
+  return ret;
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -632,8 +687,7 @@ int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (argc != 2)
     {
       nsh_output(vtbl, "Please select nic_name:\n");
-      netdev_foreach(ifconfig_callback, vtbl);
-      return OK;
+      return nsh_foreach_netdev(ifconfig_callback, vtbl, "ifup");
     }
 
   intf = argv[1];
@@ -656,8 +710,7 @@ int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (argc != 2)
     {
       nsh_output(vtbl, "Please select nic_name:\n");
-      netdev_foreach(ifconfig_callback, vtbl);
-      return OK;
+      return nsh_foreach_netdev(ifconfig_callback, vtbl, "ifdown");
     }
 
   intf = argv[1];
@@ -701,6 +754,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
 #endif
+  int ret;
 
   /* With one or no arguments, ifconfig simply shows the status of Ethernet
    * device:
@@ -711,7 +765,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (argc <= 2)
     {
-      netdev_foreach(ifconfig_callback, vtbl);
+      ret = nsh_foreach_netdev(ifconfig_callback, vtbl, "ifconfig");
+      if (ret < 0)
+        {
+          return ERROR;
+        }
+
       net_statistics(vtbl);
       return OK;
     }
