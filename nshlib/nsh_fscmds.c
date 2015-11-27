@@ -1006,6 +1006,7 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   unsigned int lsflags = 0;
   char *fullpath;
   bool badarg = false;
+  int len;
   int ret;
 
   /* Get the ls options */
@@ -1069,6 +1070,15 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (!fullpath)
     {
       return ERROR;
+    }
+
+  /* Trim any trailing '/' characters */
+
+  len = strlen(fullpath) - 1;
+  while (len > 0 && fullpath[len] == '/')
+    {
+      fullpath[len] = '\0';
+      len--;
     }
 
   /* See if it is a single file */
