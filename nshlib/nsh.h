@@ -974,6 +974,9 @@ void nsh_usbtrace(void);
 #   if defined(CONFIG_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSETUP)
        int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif
+#   if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
+       int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#   endif
 #   ifndef CONFIG_NSH_DISABLE_MKFIFO
        int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif

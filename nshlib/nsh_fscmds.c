@@ -61,6 +61,10 @@
 #   ifdef CONFIG_FS_SMARTFS
 #     include <apps/fsutils/mksmartfs.h>
 #   endif
+#   ifdef CONFIG_SMART_DEV_LOOP
+#     include <sys/ioctl.h>
+#     include <nuttx/fs/smart.h>
+#   endif
 #   ifdef CONFIG_NFS
 #     include <sys/socket.h>
 #     include <netinet/in.h>
@@ -753,6 +757,173 @@ int cmd_losetup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       setup.readonly = readonly;    /* True: Read access will be supported only */
 
       ret = ioctl(fd, LOOPIOC_SETUP, (unsigned long)((uintptr_t)&setup));
+      if (ret < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+          goto errout_with_fd;
+        }
+    }
+
+  ret = OK;
+
+  /* Free resources */
+
+errout_with_fd:
+  (void)close(fd);
+
+errout_with_paths:
+  if (loopdev)
+    {
+      free(loopdev);
+    }
+
+  if (filepath)
+    {
+      free(filepath);
+    }
+
+  return ret;
+}
+#endif
+#endif
+
+/****************************************************************************
+ * Name: cmd_losmart
+ ****************************************************************************/
+
+#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
+#   if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
+int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *loopdev = NULL;
+  FAR char *filepath = NULL;
+  struct smart_losetup_s setup;
+  bool teardown = false;
+  bool readonly = false;
+  int minor = -1;
+  int erasesize = -1;
+  int sectsize = -1;
+  off_t offset = 0;
+  bool badarg = false;
+  int ret = ERROR;
+  int option;
+  int fd;
+
+  /* Get the losetup options:  Two forms are supported:
+   *
+   *   losmart -d <loop-device>
+   *   losmart [-m minor-number] [-o <offset>] [-e erasesize] [-s sectsize] [-r] <filename>
+   *
+   * NOTE that the -o and -r options are accepted with the -d option, but
+   * will be ignored.
+   */
+
+  while ((option = getopt(argc, argv, "d:e:m:o:rs:")) != ERROR)
+    {
+      switch (option)
+        {
+        case 'd':
+          loopdev  = nsh_getfullpath(vtbl, optarg);
+          teardown = true;
+          break;
+
+        case 'e':
+          erasesize = atoi(optarg);
+          break;
+
+        case 'm':
+          minor = atoi(optarg);
+          break;
+
+        case 'o':
+          offset = atoi(optarg);
+          break;
+
+        case 'r':
+          readonly = true;
+          break;
+
+        case 's':
+          sectsize = atoi(optarg);
+          break;
+
+        case '?':
+        default:
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          badarg = true;
+          break;
+        }
+    }
+
+  /* If a bad argument was encountered, then return without processing the command */
+
+  if (badarg)
+    {
+      goto errout_with_paths;
+    }
+
+  /* If this is not a tear down operation, then additional command line
+   * parameters are required.
+   */
+
+  if (!teardown)
+    {
+      /* There must be two arguments on the command line after the options */
+
+      if (optind < argc)
+        {
+          filepath = nsh_getfullpath(vtbl, argv[optind]);
+          optind++;
+        }
+      else
+        {
+          nsh_output(vtbl, g_fmtargrequired, argv[0]);
+          goto errout_with_paths;
+        }
+    }
+
+  /* There should be nothing else on the command line */
+
+  if (optind < argc)
+    {
+      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      goto errout_with_paths;
+    }
+
+  /* Open the loop device */
+
+  fd = open("/dev/smart", O_RDONLY);
+  if (fd < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "open", NSH_ERRNO);
+      goto errout_with_paths;
+    }
+
+  /* Perform the teardown operation */
+
+  if (teardown)
+    {
+      /* Tear down the loop device. */
+
+      ret = ioctl(fd, SMART_LOOPIOC_TEARDOWN, (unsigned long)((uintptr_t) loopdev));
+      if (ret < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+          goto errout_with_fd;
+        }
+    }
+  else
+    {
+      /* Set up the loop device */
+
+      setup.minor     = minor;      /* The loop block device to be created */
+      setup.filename  = filepath;   /* The file or character device to use */
+      setup.sectsize  = sectsize;   /* The sector size to use with the block device */
+      setup.erasesize = erasesize;  /* The sector size to use with the block device */
+      setup.offset    = offset;     /* An offset that may be applied to the device */
+      setup.readonly  = readonly;   /* True: Read access will be supported only */
+
+      ret = ioctl(fd, SMART_LOOPIOC_SETUP, (unsigned long)((uintptr_t)&setup));
       if (ret < 0)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);

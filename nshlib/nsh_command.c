@@ -248,6 +248,12 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
+#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT)
+# if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
+  { "losmart",   cmd_losmart, 2, 11, "[-d <dev-path>] | [[-m <minor>] [-o <offset>] [-e <erase-size>] [-s <sect-size>] [-r] <file-path>]" },
+# endif
+#endif
+
 #if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_LS
   { "ls",       cmd_ls,       1, 5, "[-lRs] <dir-path>" },
