@@ -68,7 +68,7 @@
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_CATFILE
 int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR const char *filepath)
 {
@@ -183,3 +183,106 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
 }
 #endif
 
+/****************************************************************************
+ * Name: nsh_readfile
+ *
+ * Description:
+ *   Read a small file into a buffer buffer.  An error occurs if the file
+ *   will not fit into the buffer.
+ *
+ * Input Paramters:
+ *   vtbl     - The console vtable
+ *   filepath - The full path to the file to be read
+ *   buffer   - The user-provided buffer into which the file is read.
+ *   buflen   - The size of the user provided buffer
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success; -1 (ERROR) is returned on any
+ *   failure to read the fil into the buffer.
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_READFILE
+static int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                        FAR const char *filepath, FAR char *buffer,
+                        size_t buflen)
+{
+  FAR char *bufptr;
+  size_t remaining;
+  ssize_t nread;
+  ssize_t ntotal;
+  int fd;
+  int ret;
+
+  /* Open the file */
+
+  fd = open(filepath, O_RDONLY);
+  if (fd < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, cmd, "open", NSH_ERRNO);
+      return ERROR;
+    }
+
+  /* Read until we hit the end of the file, until we have exhausted the
+   * buffer space, or until some irrecoverable error occurs
+   */
+
+  ntotal    = 0;          /* No bytes read yet */
+  *buffer   = '\0';       /* NUL terminate the empty buffer */
+  bufptr    = buffer;     /* Working pointer */
+  remaining = buflen - 1; /* Reserve one byte for a NUL terminator */
+  ret       = ERROR;      /* Assume failure */
+
+  do
+    {
+      nread = read(fd, bufptr, remaining);
+      if (nread < 0)
+        {
+          /* Read error */
+
+          int errcode = errno;
+          DEBUGASSERT(errcode > 0);
+
+          /* EINTR is not a read error.  It simply means that a signal was
+           * received while waiting for the read to complete.
+           */
+
+          if (errcode != EINTR)
+            {
+              /* Fatal error */
+
+              nsh_output(vtbl, g_fmtcmdfailed, cmd, "read", NSH_ERRNO);
+              break;
+            }
+        }
+      else if (nread == 0)
+        {
+          /* End of file */
+
+          ret = OK;
+          break;
+        }
+      else
+        {
+          /* Successful read.  Make sure that the buffer is null terminated */
+
+          DEBUGASSERT(nread <= remaining);
+          ntotal += nread;
+          buffer[ntotal] = '\0';
+
+          /* Bump up the read count and continuing reading to the end of
+           * file.
+           */
+
+          bufptr    += nread;
+          remaining -= nread;
+        }
+    }
+  while (buflen > 0);
+
+  /* Close the file and return. */
+
+  close(fd);
+  return ret;
+}
+#endif

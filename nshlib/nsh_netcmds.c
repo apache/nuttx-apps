@@ -283,7 +283,7 @@ errout:
    !defined(CONFIG_NSH_DISABLE_IFCONFIG)
 static inline void net_statistics(FAR struct nsh_vtbl_s *vtbl)
 {
-  (void)nsh_catfile(vtbl, "ifconfig", "/proc/net/stat");
+  (void)nsh_catfile(vtbl, "ifconfig", CONFIG_NSH_PROC_MOUNTPOINT "/net/stat");
 }
 #else
 # define net_statistics(vtbl)
@@ -302,7 +302,7 @@ static int ifconfig_callback(FAR struct nsh_vtbl_s *vtbl, FAR char *devname)
 
   /* Construct the full path to the /proc/net entry for this device */
 
-  snprintf(buffer, IFNAMSIZ + 12, "/proc/net/%s", devname);
+  snprintf(buffer, IFNAMSIZ + 12, CONFIG_NSH_PROC_MOUNTPOINT "/net/%s", devname);
   (void)nsh_catfile(vtbl, "ifconfig", buffer);
 
   return OK;
@@ -591,7 +591,7 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
 
   /* Open the /proc/net directory */
 
-  dir = opendir("/proc/net");
+  dir = opendir(CONFIG_NSH_PROC_MOUNTPOINT "/net");
   if (dir == NULL)
     {
       nsh_output(vtbl, g_fmtcmdfailed, cmd, "opendir", NSH_ERRNO);

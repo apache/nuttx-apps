@@ -611,7 +611,9 @@
 #  define CONFIG_NSH_DISABLE_MKRD 1
 #endif
 
-/* Certain commands are only available if the procfs file system is enable */
+/* Certain commands/features are only available if the procfs file system is
+ * enabled.
+ */
 
 #if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_NET)
 #  undef  CONFIG_NSH_DISABLE_IFCONFIG    /* 'ifconfig' depends on network procfs */
@@ -619,6 +621,35 @@
 
 #  undef  CONFIG_NSH_DISABLE_IFUPDOWN    /* 'ifup/down' depend on network procfs */
 #  define CONFIG_NSH_DISABLE_IFUPDOWN 1
+#endif
+
+#define NSH_HAVE_CPULOAD  1
+#if !defined(CONFIG_FS_PROCFS) || !defined(CONFIG_FS_PROCFS_EXCLUDE_CPULOAD) || \
+    !defined(CONFIG_SCHED_CPULOAD) || defined(CONFIG_NSH_DISABLE_PS)
+#  undef NSH_HAVE_CPULOAD
+#endif
+
+/* Suppress unused file utilities */
+
+#define NSH_HAVE_CATFILE  1
+#define NSH_HAVE_READFILE 1
+
+#if CONFIG_NFILE_DESCRIPTORS <= 0
+#  undef NSH_HAVE_CATFILE
+#  undef NSH_HAVE_READFILE
+#endif
+
+/* nsh_catfile used by cat, ifconfig, ifup/down */
+
+#if defined(CONFIG_NSH_DISABLE_CAT) && defined(CONFIG_NSH_DISABLE_IFCONFIG) && \
+    defined(CONFIG_NSH_DISABLE_IFUPDOWN)
+#  undef NSH_HAVE_CATFILE
+#endif
+
+/* nsh_readfile use by ps command (for load information) */
+
+#if !defined(NSH_HAVE_CPULOAD)
+#  undef NSH_HAVE_READFILE
 #endif
 
 /****************************************************************************
@@ -1136,9 +1167,34 @@ FAR const char *nsh_extmatch_getname(int index);
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#ifdef NSH_HAVE_CATFILE
 int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR const char *filepath);
+#endif
+
+/****************************************************************************
+ * Name: nsh_readfile
+ *
+ * Description:
+ *   Read a small file into a buffer buffer.  An error occurs if the file
+ *   will not fit into the buffer.
+ *
+ * Input Paramters:
+ *   vtbl     - The console vtable
+ *   filepath - The full path to the file to be read
+ *   buffer   - The user-provided buffer into which the file is read.
+ *   buflen   - The size of the user provided buffer
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success; -1 (ERROR) is returned on any
+ *   failure to read the fil into the buffer.
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_READFILE
+static int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                        FAR const char *filepath, FAR char *buffer,
+                        size_t buflen);
 #endif
 
 #endif /* __APPS_NSHLIB_NSH_H */

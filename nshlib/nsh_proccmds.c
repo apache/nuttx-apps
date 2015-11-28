@@ -57,12 +57,6 @@
 #  define CONFIG_NSH_PROC_MOUNTPOINT "/proc"
 #endif
 
-#undef HAVE_CPULOAD
-#if defined(CONFIG_SCHED_CPULOAD) && defined(CONFIG_FS_PROCFS) && \
-   !defined(CONFIG_FS_PROCFS_EXCLUDE_CPULOAD)
-#  define HAVE_CPULOAD 1
-#endif
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -72,10 +66,6 @@
  */
 
 typedef int (*exec_t)(void);
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
 
 /****************************************************************************
  * Private Data
@@ -117,107 +107,16 @@ static FAR const char *g_policynames[4] =
 #endif
 
 /****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: readfile
- ****************************************************************************/
-
-#ifdef HAVE_CPULOAD
-static int readfile(FAR const char *filename, FAR char *buffer, size_t buflen)
-{
-  FAR char *bufptr;
-  size_t remaining;
-  ssize_t nread;
-  ssize_t ntotal;
-  int fd;
-  int ret;
-
-  /* Open the file */
-
-  fd = open(filename, O_RDONLY);
-  if (fd < 0)
-    {
-      int errcode = errno;
-      DEBUGASSERT(errcode > 0);
-      return -errcode;
-    }
-
-  /* Read until we hit the end of the file, until we have exhausted the
-   * buffer space, or until some irrecoverable error occurs
-   */
-
-  ntotal    = 0;          /* No bytes read yet */
-  *buffer   = '\0';       /* NUL terminate the empty buffer */
-  bufptr    = buffer;     /* Working pointer */
-  remaining = buflen - 1; /* Reserve one byte for a NUL terminator */
-  ret       = -E2BIG;     /* Assume result will not fit in the buffer */
-
-  do
-    {
-      nread = read(fd, bufptr, remaining);
-      if (nread < 0)
-        {
-          /* Read error */
-
-          int errcode = errno;
-          DEBUGASSERT(errcode > 0);
-
-          /* EINTR is not a read error.  It simply means that a signal was
-           * received while waiting for the read to complete.
-           */
-
-          if (errcode != EINTR)
-            {
-              /* Fatal error */
-
-              ret = -errcode;
-              break;
-            }
-        }
-      else if (nread == 0)
-        {
-          /* End of file */
-
-          ret = OK;
-          break;
-        }
-      else
-        {
-          /* Successful read.  Make sure that the buffer is null terminated */
-
-          DEBUGASSERT(nread <= remaining);
-          ntotal += nread;
-          buffer[ntotal] = '\0';
-
-          /* Bump up the read count and continuing reading to the end of
-           * file.
-           */
-
-          bufptr    += nread;
-          remaining -= nread;
-        }
-    }
-  while (buflen > 0);
-
-  /* Close the file and return. */
-
-  close(fd);
-  return ret;
-}
-#endif
 
 /****************************************************************************
  * Name: loadavg
  ****************************************************************************/
 
-#ifdef HAVE_CPULOAD
-static int loadavg(pid_t pid, FAR char *buffer, size_t buflen)
+#ifdef NSH_HAVE_CPULOAD
+static int loadavg(FAR struct nsh_vtbl_s *vtbl, , FAR const char *cmd,
+                   pid_t pid, FAR char *buffer, size_t buflen)
 {
   char path[24];
 
@@ -228,7 +127,7 @@ static int loadavg(pid_t pid, FAR char *buffer, size_t buflen)
 
   /* Read the 'loadavg' pseudo-file into the user buffer */
 
-  return readfile(path, buffer, buflen);
+  return nsh_readfile(vtbl, cmd, path, buffer, buflen);
 }
 #endif
 
@@ -241,7 +140,7 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
 {
   FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s*)arg;
   FAR const char *policy;
-#ifdef HAVE_CPULOAD
+#ifdef NSH_HAVE_CPULOAD
   char buffer[8];
   int ret;
 #endif
@@ -257,10 +156,10 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
              tcb->flags & TCB_FLAG_CANCEL_PENDING ? 'P' : ' ',
              g_statenames[tcb->task_state]);
 
-#ifdef HAVE_CPULOAD
+#ifdef NSH_HAVE_CPULOAD
   /* Get the CPU load */
 
-  ret = loadavg(tcb->pid, buffer, sizeof(buffer));
+  ret = loadavg(vtbl, "ps", tcb->pid, buffer, sizeof(buffer));
   if (ret < 0)
     {
       /* Make the buffer into an empty string */
@@ -344,7 +243,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_PS
 int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-#ifdef HAVE_CPULOAD
+#ifdef NSH_HAVE_CPULOAD
   nsh_output(vtbl, "PID   PRI SCHD TYPE   NP STATE    CPU    NAME\n");
 #else
   nsh_output(vtbl, "PID   PRI SCHD TYPE   NP STATE    NAME\n");
