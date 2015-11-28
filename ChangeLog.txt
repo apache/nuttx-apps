@@ -1481,3 +1481,7 @@
 	  buffer.  That will not work in an environment where there are multiple
 	  NSH sessions.  The I/O buffer must, instead, be a part part of the
 	  session-specific data defined in nsh_console.h (2015-11-28).
+	* apps/nshlib:  The 'ps' command now uses /proc/<pid>/ to obtain
+	  task status information.  A consequence of this is that you cannot use
+	  the 'ps' command if the procfs is not enabled and mounted at
+	  /proc (2015-11-28).
