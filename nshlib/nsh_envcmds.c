@@ -316,23 +316,11 @@ int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *value;
-  int ndx;
   int ret;
 
-  /* Strip leading whitespace from the value */
+  /* Trim whitespace from the value */
 
-  for (value = argv[2];
-       *value != '\0' && isspace(*value);
-       value++);
-
-  /* Strip trailing whitespace from the value */
-
-  for (ndx = strlen(value) - 1;
-       ndx >= 0 && isspace(value[ndx]);
-       ndx--)
-    {
-      value[ndx] = '\0';
-    }
+  value = nsh_trimspaces(argv[2]);
 
   /* Set the environment variable */
 

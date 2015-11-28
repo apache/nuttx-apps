@@ -613,8 +613,6 @@
  */
 
 #if defined(CONFIG_BUILD_PROTECTED) || defined(CONFIG_BUILD_KERNEL)
-#  undef  CONFIG_NSH_DISABLE_PS          /* 'ps' depends on sched_foreach */
-#  define CONFIG_NSH_DISABLE_PS 1
 #  undef  CONFIG_NSH_DISABLE_DF          /* 'df' depends on foreach_mountpoint */
 #  define CONFIG_NSH_DISABLE_DF 1
 #  undef  CONFIG_NSH_DISABLE_MKFATFS     /* 'mkfatfs' depends on mkfatfs interface */
@@ -635,6 +633,11 @@
 #  define CONFIG_NSH_DISABLE_IFUPDOWN 1
 #endif
 
+#if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_PROCESS)
+#  undef  CONFIG_NSH_DISABLE_PS          /* 'ps' depends on process procfs */
+#  define CONFIG_NSH_DISABLE_PS 1
+#endif
+
 #define NSH_HAVE_CPULOAD  1
 #if !defined(CONFIG_FS_PROCFS) || !defined(CONFIG_FS_PROCFS_EXCLUDE_CPULOAD) || \
     !defined(CONFIG_SCHED_CPULOAD) || defined(CONFIG_NSH_DISABLE_PS)
@@ -647,6 +650,7 @@
 #define NSH_HAVE_READFILE         1
 #define NSH_HAVE_FOREACH_DIRENTRY 1
 #define NSH_HAVE_TRIMDIR          1
+#define NSH_HAVE_TRIMSPACES       1
 
 #if CONFIG_NFILE_DESCRIPTORS <= 0
 #  undef NSH_HAVE_CATFILE
@@ -662,20 +666,26 @@
 #  undef NSH_HAVE_CATFILE
 #endif
 
-/* nsh_readfile used by ps command (for load information) */
+/* nsh_readfile used by ps command */
 
-#if !defined(NSH_HAVE_CPULOAD)
+#if defined(CONFIG_NSH_DISABLE_PS)
 #  undef NSH_HAVE_READFILE
 #endif
 
-/* nsh_foreach_direntry used by the ls command */
+/* nsh_foreach_direntry used by the ls and ps commands */
 
-#if defined(CONFIG_NSH_DISABLE_LS)
-#  undef NSH_HAVE_READFILE
+#if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_PS)
+#  undef NSH_HAVE_FOREACH_DIRENTRY
 #endif
 
 #if defined(CONFIG_NSH_DISABLE_CP)
 #  undef NSH_HAVE_TRIMDIR
+#endif
+
+/* nsh_trimspaces used by the set and ps commands */
+
+#if defined(CONFIG_NSH_DISABLE_SET) && defined(CONFIG_NSH_DISABLE_PS)
+#  undef NSH_HAVE_TRIMSPACES
 #endif
 
 /****************************************************************************
@@ -1216,8 +1226,9 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Name: nsh_readfile
  *
  * Description:
- *   Read a small file into a buffer buffer.  An error occurs if the file
- *   will not fit into the buffer.
+ *   Read a small file into a user-provided buffer.  The data is assumed to
+ *   be a string and is guaranteed to be NUL-termined.  An error occurs if
+ *   the file content (+terminator)  will not fit into the provided 'buffer'.
  *
  * Input Paramters:
  *   vtbl     - The console vtable
@@ -1271,12 +1282,31 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Input Parmeters:
  *   dirpath - The directory path to be trimmed.  May be modified!
  *
- * Returned value
+ * Returned value:
+ *   None
  *
  ****************************************************************************/
 
 #ifdef NSH_HAVE_TRIMDIR
 void nsh_trimdir(FAR char *dirpath);
+#endif
+
+/****************************************************************************
+ * Name: nsh_trimspaces
+ *
+ * Description:
+ *   Trim any leading or trailing spaces from a string.
+ *
+ * Input Parmeters:
+ *   str - The sring to be trimmed.  May be modified!
+ *
+ * Returned value:
+ *   The new string pointer.
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_TRIMSPACES
+FAR char *nsh_trimspaces(FAR char *str);
 #endif
 
 #endif /* __APPS_NSHLIB_NSH_H */

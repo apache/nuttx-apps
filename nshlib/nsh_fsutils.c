@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <fcntl.h>
 #include <dirent.h>
 
@@ -364,7 +365,8 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Input Parmeters:
  *   dirpath - The directory path to be trimmed.  May be modified!
  *
- * Returned value
+ * Returned value:
+ *   None
  *
  ****************************************************************************/
 
@@ -379,6 +381,45 @@ void nsh_trimdir(FAR char *dirpath)
       dirpath[len] = '\0';
       len--;
     }
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_trimspaces
+ *
+ * Description:
+ *   Trim any leading or trailing spaces from a string.
+ *
+ * Input Parmeters:
+ *   str - The sring to be trimmed.  May be modified!
+ *
+ * Returned value:
+ *   The new string pointer.
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_TRIMSPACES
+FAR char *nsh_trimspaces(FAR char *str)
+{
+  FAR char *trimmed;
+  int ndx;
+
+  /* Strip leading whitespace from the value */
+
+  for (trimmed = str;
+       *trimmed != '\0' && isspace(*trimmed);
+       trimmed++);
+
+  /* Strip trailing whitespace from the value */
+
+  for (ndx = strlen(trimmed) - 1;
+       ndx >= 0 && isspace(trimmed[ndx]);
+       ndx--)
+    {
+      trimmed[ndx] = '\0';
+    }
+
+  return trimmed;
 }
 #endif
 
