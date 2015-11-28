@@ -531,15 +531,15 @@
 	  cancelable state.
 	* apps/nshlib/nsh_ddcmd.c: Correct the test of the skip input
 	  parameter.  Was limiting the range to <= count.  From Ken
-	  Petit (2014-4-24).
+	  Pettit (2014-4-24).
 
 6.28 2013-06-14 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/mtdpart:  Provides a simple test of MTD partitions.
 	* apps/nshlib/nsh_mntcmds.c:  Add a -h option to the df command to show
-	  the volume information in human readable form (Ken Petit, 2013-4-30).
+	  the volume information in human readable form (Ken Pettit, 2013-4-30).
 	* apps/nshlib/nsh_fscmds.c: Add support for the mksmartfs command.
-	  (Ken Petit, 2013-4-30).
+	  (Ken Pettit, 2013-4-30).
 	* apps/system/flash_eraseall:  Add an interface to erase FLASH using a
 	  flash_eraseall NSH command  (Ken Pettit, 2013-5-1).
 	* apps/examples/flash_test and apps/examples/smart_test:  Add tests of
@@ -677,7 +677,7 @@
 	* apps/system/i2ctool/Kconfig:  Fix default I2C frequency:  400KHz
 	  instead of 4MHz.  Suggested by Max Kriegleder (2013-10-10).
 	* apps/system/info/Kconfig and Makefile:  Increase stack size.
-	  Ken Petit reports that this simple command can exceed its 768
+	  Ken Pettit reports that this simple command can exceed its 768
 	  stack size under certain conditions.  The size is marginal and
 	  has been increased to 1024 by default but is also now configurable
 	  (2013-10-14).
@@ -1452,15 +1452,15 @@
 	  editor to Nuttx.  See http://apps.venomdev.net/hexed/.
 	  Initial port is not functional (2015-11-21).
 	* apps/fsutils/smartfs: Move into apps/fsutils from kernel, now
-	  uses only open and ioctl.  From Ken Petit (2015-11-23).
+	  uses only open and ioctl.  From Ken Pettit (2015-11-23).
 	* apps/fsutils/smartfs/ and apps/nshlib/: Add configuration option
-	  to supported multiple root directories. From Ken Petit (2015-11-23).
+	  to supported multiple root directories. From Ken Pettit (2015-11-23).
 	* apps/nshlib:  Add support for 'basename' and 'dirname' commands
 	  (2015-11-23).
 	* apps/nshlib:  Like bash, NSH set command should strip off any
 	  leading or trailing whitespace (2015-11-23).
 	* apps/nshlib: The mount commands now accepts mount options (currently
-	  needed only for the hostfs file system).  From Ken Petit (2015-11-25).
+	  needed only for the hostfs file system).  From Ken Pettit (2015-11-25).
 	* apps/nshlib:  NSH no longer calls losetup() and loteardown directly.
 	  Now it opens /dev/loop and accomplishes these things using ioctl()
 	  calls (2015-11-25).
@@ -1476,7 +1476,7 @@
 	  procfs file system to examine networking status.  (2015-11-27).
 	* apps/nshlib:  Add a new NSH losmart command.  losmart setups up
 	  a loop device for the smart MTD driver similar to losetup but
-	  with different syntax.  From Ket Petit (2015-11-28).
+	  with different syntax.  From Ken Pettit (2015-11-28).
 	* apps/nshlib:  The I/O buffer, g_iobuffer, should not be a global
 	  buffer.  That will not work in an environment where there are multiple
 	  NSH sessions.  The I/O buffer must, instead, be a part part of the
