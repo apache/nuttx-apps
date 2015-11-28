@@ -495,6 +495,12 @@ o ifconfig [nic_name [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask 
   if networking statistics are enabled (CONFIG_NET_STATISTICS), then
   this command will also show the detailed state of transfers by protocol.
 
+  NOTE: This commands depends upon having the rpocfs file system configured
+  into the system.   The procfs file system must also have been mounted
+  with a command like:
+
+    nsh> mount -t procfs /proc
+
 o ifdown <nic-name>
 
   Take down the interface identified by the name <nic-name>.
@@ -810,12 +816,18 @@ o ps
   Show the currently active threads and tasks.  For example,
 
     nsh> ps
-    PID   PRI SCHD TYPE   NP STATE    NAME
-        0   0 FIFO TASK      READY    Idle Task()
-        1 128 RR   TASK      RUNNING  init()
-        2 128 FIFO TASK      WAITSEM  nsh_telnetmain()
-        3 100 RR   PTHREAD   WAITSEM  <pthread>(21)
+    PID PRI POLICY   TYPE    NPX STATE    EVENT     SIGMASK  COMMAND
+      0   0 FIFO     Kthread --- Ready              00000000 Idle Task
+      1 128 RR       Task    --- Running            00000000 init
+      2 128 FIFO     Task    --- Waiting  Semaphore 00000000 nsh_telnetmain()
+      3 100 RR       pthread --- Waiting  Semaphore 00000000 <pthread>(21)
     nsh>
+
+  NOTE: This commands depends upon having the rpocfs file system configured
+  into the system.   The procfs file system must also have been mounted
+  with a command like:
+
+    nsh> mount -t procfs /proc
 
 o put [-b|-n] [-f <remote-path>] -h <ip-address> <local-path>
 
