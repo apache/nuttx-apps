@@ -189,8 +189,9 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  * Name: nsh_readfile
  *
  * Description:
- *   Read a small file into a buffer buffer.  An error occurs if the file
- *   will not fit into the buffer.
+ *   Read a small file into a user-provided buffer.  The data is assumed to
+ *   be a string and is guaranteed to be NUL-termined.  An error occurs if
+ *   the file content (+terminator)  will not fit into the provided 'buffer'.
  *
  * Input Paramters:
  *   vtbl     - The console vtable
@@ -318,21 +319,20 @@ int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   /* Open the directory */
 
   dirp = opendir(dirpath);
-
-  if (!dirp)
+  if (dirp == NULL)
     {
       /* Failed to open the directory */
 
-      nsh_output(vtbl, g_fmtnosuch, cmd, "opendir", dirpath);
+      nsh_output(vtbl, g_fmtnosuch, cmd, "directory", dirpath);
       return ERROR;
     }
 
   /* Read each directory entry */
 
-  for (;;)
+  for (; ; )
     {
       FAR struct dirent *entryp = readdir(dirp);
-      if (!entryp)
+      if (entryp == NULL)
         {
           /* Finished with this directory */
 
