@@ -1477,4 +1477,7 @@
 	* apps/nshlib:  Add a new NSH losmart command.  losmart setups up
 	  a loop device for the smart MTD driver similar to losetup but
 	  with different syntax.  From Ket Petit (2015-11-28).
-
+	* apps/nshlib:  The I/O buffer, g_iobuffer, should not be a global
+	  buffer.  That will not work in an environment where there are multiple
+	  NSH sessions.  The I/O buffer must, instead, be a part part of the
+	  session-specific data defined in nsh_console.h (2015-11-28).

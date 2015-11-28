@@ -123,6 +123,12 @@ struct nsh_vtbl_s
 #endif
   void (*exit)(FAR struct nsh_vtbl_s *vtbl, int exitstatus) noreturn_function;
 
+#ifdef NSH_HAVE_IOBUFFER
+/* Common buffer for file I/O. */
+
+  char iobuffer[IOBUFFERSIZE];
+#endif
+
   /* Parser state data */
 
   struct nsh_parser_s np;

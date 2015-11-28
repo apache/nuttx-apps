@@ -98,25 +98,6 @@
 #define LSFLAGS_RECURSIVE     4
 
 /****************************************************************************
- * Private Data
- ****************************************************************************/
-
-#if CONFIG_NFILE_DESCRIPTORS > 0 && \
-    (!defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP))
-/* Common buffer for file I/O.  Note the use of this common buffer precludes
- * multiple copies of NSH running concurrently.  It should be allocated per
- * NSH instance and retained in the "vtbl" as is done for the telnet
- * connection.
- */
-
-static char g_iobuffer[IOBUFFERSIZE];
-#endif
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -126,21 +107,22 @@ static char g_iobuffer[IOBUFFERSIZE];
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && \
     (!defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP))
-static char *nsh_getdirpath(FAR const char *path, FAR const char *file)
+static char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
+                            FAR const char *path, FAR const char *file)
 {
   /* Handle the case where all that is left is '/' */
 
   if (strcmp(path, "/") == 0)
     {
-      sprintf(g_iobuffer, "/%s", file);
+      sprintf(vtbl->iobuffer, "/%s", file);
     }
   else
     {
-      sprintf(g_iobuffer, "%s/%s", path, file);
+      sprintf(vtbl->iobuffer, "%s/%s", path, file);
     }
 
-  g_iobuffer[PATH_MAX] = '\0';
-  return strdup(g_iobuffer);
+  vtbl->iobuffer[PATH_MAX] = '\0';
+  return strdup(vtbl->iobuffer);
 }
 #endif
 
@@ -176,7 +158,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
       if (entryp != NULL)
         {
-          char *fullpath = nsh_getdirpath(dirpath, entryp->d_name);
+          FAR char *fullpath = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
           ret = stat(fullpath, &buf);
           free(fullpath);
         }
@@ -311,7 +293,7 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
       /* Yes.. */
 
       FAR char *newpath;
-      newpath = nsh_getdirpath(dirpath, entryp->d_name);
+      newpath = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
 
       /* List the directory contents */
 
@@ -508,7 +490,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           /* Construct the full path to the new file */
 
-          allocpath = nsh_getdirpath(argv[2], basename(argv[1]) );
+          allocpath = nsh_getdirpath(vtbl, argv[2], basename(argv[1]) );
           if (!allocpath)
             {
               nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
@@ -546,7 +528,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       do
         {
-          nbytesread = read(rdfd, g_iobuffer, IOBUFFERSIZE);
+          nbytesread = read(rdfd, vtbl->iobuffer, IOBUFFERSIZE);
           if (nbytesread == 0)
             {
               /* End of file */
@@ -577,7 +559,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       do
         {
-          nbyteswritten = write(wrfd, g_iobuffer, nbytesread);
+          nbyteswritten = write(wrfd, vtbl->iobuffer, nbytesread);
           if (nbyteswritten >= 0)
             {
               nbytesread -= nbyteswritten;

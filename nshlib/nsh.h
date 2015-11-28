@@ -567,7 +567,20 @@
  * large as PATH_MAX.
  */
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+#define NSH_HAVE_IOBUFFER 1
+
+#if CONFIG_NFILE_DESCRIPTORS <= 0
+#  undef NSH_HAVE_IOBUFFER
+#endif
+
+/* The I/O buffer is needed for the ls, cp, and ps commands */
+
+#if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_CP) && \
+    defined(CONFIG_NSH_DISABLE_PS)
+#  undef NSH_HAVE_IOBUFFER
+#endif
+
+#ifdef NSH_HAVE_IOBUFFER
 #  ifdef CONFIG_NSH_FILEIOSIZE
 #    if CONFIG_NSH_FILEIOSIZE > (PATH_MAX + 1)
 #      define IOBUFFERSIZE CONFIG_NSH_FILEIOSIZE
@@ -577,8 +590,8 @@
 #  else
 #    define IOBUFFERSIZE 1024
 #  endif
-# else
-#    define IOBUFFERSIZE (PATH_MAX + 1)
+#else
+#  define IOBUFFERSIZE (PATH_MAX + 1)
 #endif
 
 /* Certain commands are not available in a kernel builds because they depend
