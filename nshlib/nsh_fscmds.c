@@ -94,17 +94,6 @@
 #define LSFLAGS_RECURSIVE     4
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-typedef int (*direntry_handler_t)(FAR struct nsh_vtbl_s *, const char *,
-                                  struct dirent *, void *);
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -128,30 +117,12 @@ static char g_iobuffer[IOBUFFERSIZE];
  ****************************************************************************/
 
 /****************************************************************************
- * Name: trim_dir
- ****************************************************************************/
-
-#if !defined(CONFIG_NSH_DISABLE_CP) || defined(CONFIG_NSH_FULLPATH)
-static void trim_dir(char *arg)
-{
-  /* Skip any trailing '/' characters (unless it is also the leading '/') */
-
-  int len = strlen(arg) - 1;
-  while (len > 0 && arg[len] == '/')
-    {
-      arg[len] = '\0';
-      len--;
-    }
-}
-#endif
-
-/****************************************************************************
  * Name: nsh_getdirpath
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && \
     (!defined(CONFIG_NSH_DISABLE_LS) || !defined(CONFIG_NSH_DISABLE_CP))
-static char *nsh_getdirpath(const char *path, const char *file)
+static char *nsh_getdirpath(FAR const char *path, FAR const char *file)
 {
   /* Handle the case where all that is left is '/' */
 
@@ -166,64 +137,6 @@ static char *nsh_getdirpath(const char *path, const char *file)
 
   g_iobuffer[PATH_MAX] = '\0';
   return strdup(g_iobuffer);
-}
-#endif
-
-/****************************************************************************
- * Name: foreach_direntry
- ****************************************************************************/
-
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_NSH_DISABLE_LS)
-static int foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                            FAR const char *dirpath,
-                            direntry_handler_t handler, void *pvarg)
-{
-  DIR *dirp;
-  int ret = OK;
-
-  /* Trim trailing '/' from directory names */
-
-#ifdef CONFIG_NSH_FULLPATH
-  trim_dir(arg);
-#endif
-
-  /* Open the directory */
-
-  dirp = opendir(dirpath);
-
-  if (!dirp)
-    {
-      /* Failed to open the directory */
-
-      nsh_output(vtbl, g_fmtnosuch, cmd, "directory", dirpath);
-      return ERROR;
-    }
-
-  /* Read each directory entry */
-
-  for (;;)
-    {
-      FAR struct dirent *entryp = readdir(dirp);
-      if (!entryp)
-        {
-          /* Finished with this directory */
-
-          break;
-        }
-
-      /* Call the handler with this directory entry */
-
-      if (handler(vtbl, dirpath, entryp, pvarg) <  0)
-        {
-          /* The handler reported a problem */
-
-          ret = ERROR;
-          break;
-        }
-    }
-
-  closedir(dirp);
-  return ret;
 }
 #endif
 
@@ -354,11 +267,8 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   if (entryp != NULL)
     {
-#ifdef CONFIG_NSH_FULLPATH
-      nsh_output(vtbl, " %s/%s", arg, entryp->d_name);
-#else
       nsh_output(vtbl, " %s", entryp->d_name);
-#endif
+
       if (DIRENT_ISDIRECTORY(entryp->d_type) &&
           !ls_specialdir(entryp->d_name))
         {
@@ -405,12 +315,13 @@ static int ls_recursive(FAR struct nsh_vtbl_s *vtbl, const char *dirpath,
 
       /* Traverse the directory  */
 
-      ret = foreach_direntry(vtbl, "ls", newpath, ls_handler, pvarg);
+      ret = nsh_foreach_direntry(vtbl, "ls", newpath, ls_handler, pvarg);
       if (ret == 0)
         {
           /* Then recurse to list each directory within the directory */
 
-          ret = foreach_direntry(vtbl, "ls", newpath, ls_recursive, pvarg);
+          ret = nsh_foreach_direntry(vtbl, "ls", newpath, ls_recursive,
+                                     pvarg);
           free(newpath);
         }
     }
@@ -589,7 +500,7 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           /* Yes, it is a directory. Remove any trailing '/' characters from the path */
 
-          trim_dir(argv[2]);
+          nsh_trimdir(argv[2]);
 
           /* Construct the full path to the new file */
 
@@ -981,14 +892,14 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       nsh_output(vtbl, "%s:\n", fullpath);
 
-      ret = foreach_direntry(vtbl, "ls", fullpath, ls_handler,
-                             (FAR void*)((uintptr_t)lsflags));
+      ret = nsh_foreach_direntry(vtbl, "ls", fullpath, ls_handler,
+                                 (FAR void*)((uintptr_t)lsflags));
       if (ret == OK && (lsflags & LSFLAGS_RECURSIVE) != 0)
         {
           /* Then recurse to list each directory within the directory */
 
-          ret = foreach_direntry(vtbl, "ls", fullpath, ls_recursive,
-                                 (FAR void *)((uintptr_t)lsflags));
+          ret = nsh_foreach_direntry(vtbl, "ls", fullpath, ls_recursive,
+                                     (FAR void *)((uintptr_t)lsflags));
         }
     }
 

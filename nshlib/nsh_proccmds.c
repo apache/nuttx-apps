@@ -132,11 +132,11 @@ static int loadavg(FAR struct nsh_vtbl_s *vtbl, , FAR const char *cmd,
 #endif
 
 /****************************************************************************
- * Name: ps_task
+ * Name: ps_callback
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PS
-static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
+static void ps_callback(FAR struct tcb_s *tcb, FAR void *arg)
 {
   FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s*)arg;
   FAR const char *policy;
@@ -219,9 +219,9 @@ static void ps_task(FAR struct tcb_s *tcb, FAR void *arg)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_EXEC
-int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
-  char *endptr;
+  FAR char *endptr;
   uintptr_t addr;
 
   addr = (uintptr_t)strtol(argv[1], &endptr, 0);
@@ -248,7 +248,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #else
   nsh_output(vtbl, "PID   PRI SCHD TYPE   NP STATE    NAME\n");
 #endif
-  sched_foreach(ps_task, vtbl);
+  sched_foreach(ps_callback, vtbl);
   return OK;
 }
 #endif

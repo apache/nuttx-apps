@@ -70,11 +70,11 @@
 
 struct cmdmap_s
 {
-  const char *cmd;        /* Name of the command */
-  cmd_t       handler;    /* Function that handles the command */
+  FAR const char *cmd;    /* Name of the command */
+  nsh_cmd_t   handler;    /* Function that handles the command */
   uint8_t     minargs;    /* Minimum number of arguments (including command) */
   uint8_t     maxargs;    /* Maximum number of arguments (including command) */
-  const char *usage;      /* Usage instructions for 'help' command */
+  FAR const char *usage;  /* Usage instructions for 'help' command */
 };
 
 /****************************************************************************
@@ -784,7 +784,7 @@ int nsh_command(FAR struct nsh_vtbl_s *vtbl, int argc, char *argv[])
 {
   const struct cmdmap_s *cmdmap;
   const char            *cmd;
-  cmd_t                  handler = cmd_unrecognized;
+  nsh_cmd_t              handler = cmd_unrecognized;
   int                    ret;
 
   /* The form of argv is:

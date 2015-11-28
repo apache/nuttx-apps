@@ -43,7 +43,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -286,3 +288,98 @@ static int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
   return ret;
 }
 #endif
+
+/****************************************************************************
+ * Name: nsh_foreach_direntry
+ *
+ * Description:
+ *    Call the provided 'handler' for each entry found in the directory at
+ *    'dirpath'.
+ *
+ * Input Parameters
+ *   vtbl     - The console vtable
+ *   cmd      - NSH command name to use in error reporting
+ *   dirpath  - The full path to the directory to be traversed
+ *   handler  - The handler to be called for each entry of the directory
+ *   pvarg    - User provided argument to be passed to the 'handler'
+ *
+ * Returned Value:
+ *   Zero (OK) returned on success; -1 (ERROR) returned on failure.
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_FOREACH_DIRENTRY
+int nsh_foreach_direntry(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                         FAR const char *dirpath,
+                         nsh_direntry_handler_t handler, void *pvarg)
+{
+  DIR *dirp;
+  int ret = OK;
+
+  /* Open the directory */
+
+  dirp = opendir(dirpath);
+
+  if (!dirp)
+    {
+      /* Failed to open the directory */
+
+      nsh_output(vtbl, g_fmtnosuch, cmd, "opendir", dirpath);
+      return ERROR;
+    }
+
+  /* Read each directory entry */
+
+  for (;;)
+    {
+      FAR struct dirent *entryp = readdir(dirp);
+      if (!entryp)
+        {
+          /* Finished with this directory */
+
+          break;
+        }
+
+      /* Call the handler with this directory entry */
+
+      if (handler(vtbl, dirpath, entryp, pvarg) <  0)
+        {
+          /* The handler reported a problem */
+
+          ret = ERROR;
+          break;
+        }
+    }
+
+  closedir(dirp);
+  return ret;
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_trimdir
+ *
+ * Description:
+ *   Skip any trailing '/' characters (unless it is also the leading '/')
+ *
+ * Input Parmeters:
+ *   dirpath - The directory path to be trimmed.  May be modified!
+ *
+ * Returned value
+ *
+ ****************************************************************************/
+
+#ifdef NSH_HAVE_TRIMDIR
+void nsh_trimdir(FAR char *dirpath)
+{
+  /* Skip any trailing '/' characters (unless it is also the leading '/') */
+
+  int len = strlen(dirpath) - 1;
+  while (len > 0 && dirpath[len] == '/')
+    {
+      dirpath[len] = '\0';
+      len--;
+    }
+}
+#endif
+
