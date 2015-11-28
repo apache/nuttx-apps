@@ -1233,9 +1233,8 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
  ****************************************************************************/
 
 #ifdef NSH_HAVE_READFILE
-static int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
-                        FAR const char *filepath, FAR char *buffer,
-                        size_t buflen);
+int nsh_readfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
+                 FAR const char *filepath, FAR char *buffer, size_t buflen);
 #endif
 
 /****************************************************************************
