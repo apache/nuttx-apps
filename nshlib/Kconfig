@@ -264,8 +264,8 @@ config NSH_DISABLE_LOSETUP
 
 config NSH_DISABLE_LOSMART
 	bool "Disable losmart"
-	default y if DEFAULT_SMALL
-	default n if !DEFAULT_SMALL
+	default y if DEFAULT_SMALL || !MTD_SMART
+	default n if !DEFAULT_SMALL && MTD_SMART
 
 config NSH_DISABLE_LS
 	bool "Disable ls"
