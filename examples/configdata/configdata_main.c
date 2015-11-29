@@ -134,8 +134,10 @@ static int g_ntests, g_nverified;
 static int g_ntotalalloc, g_ntotaldelete;
 
 static struct mallinfo g_mmbefore;
-static struct mallinfo g_mmprevious;
 static struct mallinfo g_mmafter;
+#ifndef CONFIG_EXAMPLES_CONFIGDATA_SILENT
+static struct mallinfo g_mmprevious;
+#endif
 
 /****************************************************************************
  * External Functions
@@ -273,10 +275,12 @@ static inline uint8_t configdata_randinstance(void)
  * Name: configdata_freefile
  ****************************************************************************/
 
+#if 0 /* Not used */
 static void configdata_freeentry(FAR struct configdata_entrydesc_s *entry)
 {
   memset(entry, 0, sizeof(struct configdata_entrydesc_s));
 }
+#endif
 
 /****************************************************************************
  * Name: configdata_wrentry
