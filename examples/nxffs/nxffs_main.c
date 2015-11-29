@@ -660,7 +660,7 @@ static int nxffs_delfiles(void)
         {
           /* Test for wrap-around */
 
-          if (j >= CONFIG_EXAMPLES_FSTEST_MAXOPEN)
+          if (j >= CONFIG_EXAMPLES_NXFFS_MAXOPEN)
             {
               j = 0;
             }

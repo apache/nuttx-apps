@@ -169,6 +169,7 @@ static void configdata_showmemusage(struct mallinfo *mmbefore,
  * Name: configdata_loopmemusage
  ****************************************************************************/
 
+#ifndef CONFIG_EXAMPLES_CONFIGDATA_SILENT
 static void configdata_loopmemusage(void)
 {
   /* Get the current memory usage */
@@ -192,6 +193,7 @@ static void configdata_loopmemusage(void)
   memcpy(&g_mmprevious, &g_mmafter, sizeof(struct mallinfo));
 #endif
 }
+#endif
 
 /****************************************************************************
  * Name: configdata_endmemusage
@@ -565,7 +567,7 @@ static int configdata_getnextdeleted(void)
  * Name: configdata_cleardeleted
  ****************************************************************************/
 
-static int configdata_cleardeleted(void)
+static void configdata_cleardeleted(void)
 {
   int nextdeleted;
   int x;
