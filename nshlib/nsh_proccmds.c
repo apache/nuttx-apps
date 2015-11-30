@@ -59,6 +59,18 @@
 #  define CONFIG_NSH_PROC_MOUNTPOINT "/proc"
 #endif
 
+/* See include/nuttx/sched.h: */
+
+#undef HAVE_GROUPID
+
+#if defined(CONFIG_SCHED_HAVE_PARENT) && defined(CONFIG_SCHED_CHILD_STATUS)
+#  define HAVE_GROUPID  1
+#endif
+
+#ifdef CONFIG_DISABLE_PTHREAD
+#  undef HAVE_GROUPID
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -74,6 +86,13 @@ typedef int (*exec_t)(void);
 struct nsh_taskstatus_s
 {
   FAR const char *td_type;       /* Thread type */
+#ifdef CONFIG_SCHED_HAVE_PARENT
+#ifdef HAVE_GROUPID
+  FAR const char *td_groupid;    /* Group ID */
+#else
+  FAR const char *td_ppid;      /* Parent thread ID */
+#endif
+#endif
   FAR const char *td_state;      /* Thread state */
   FAR const char *td_event;      /* Thread wait event */
   FAR const char *td_flags;      /* Thread flags */
@@ -90,6 +109,13 @@ struct nsh_taskstatus_s
 static const char g_name[]      = "Name:";
 #endif
 static const char g_type[]      = "Type:";
+#ifdef CONFIG_SCHED_HAVE_PARENT
+#ifdef HAVE_GROUPID
+static const char g_groupid[]   = "Group:";
+#else
+static const char g_ppid[]      = "PPID:";
+#endif
+#endif
 static const char g_state[]     = "State:";
 static const char g_flags[]     = "Flags:";
 static const char g_priority[]  = "Priority:";
@@ -118,6 +144,8 @@ static void nsh_parse_statusline(FAR char *line,
    *   123456789012345678901234567890
    *   Name:       xxxx...            Task/thread name (See CONFIG_TASK_NAME_SIZE)
    *   Type:       xxxxxxx            {Task, pthread, Kthread, Invalid}
+   *   Type:       xxxxxxx            {Task, pthread, Kthread, Invalid}
+   *   PPID:       xxxxx              Parent thread ID
    *   State:      xxxxxxxx,xxxxxxxxx {Invalid, Waiting, Ready, Running, Inactive},
    *                                  {Unlock, Semaphore, Signal, MQ empty, MQ full}
    *   Flags:      xxx                N,P,X
@@ -143,6 +171,25 @@ static void nsh_parse_statusline(FAR char *line,
 
       status->td_type = nsh_trimspaces(&line[12]);
     }
+
+#ifdef CONFIG_SCHED_HAVE_PARENT
+#ifdef HAVE_GROUPID
+  else if (strncmp(line, g_groupid, strlen(g_groupid)) == 0)
+    {
+      /* Save the Group ID */
+
+      status->td_groupid = nsh_trimspaces(&line[12]);
+    }
+#else
+  else if (strncmp(line, g_ppid, strlen(g_ppid)) == 0)
+    {
+      /* Save the parent thread id */
+
+      status->td_ppid = nsh_trimspaces(&line[12]);
+    }
+#endif
+#endif
+
   else if (strncmp(line, g_state, strlen(g_state)) == 0)
     {
       FAR char *ptr;
@@ -226,6 +273,13 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   /* Set all pointers to the empty string. */
 
   status.td_type     = "";
+#ifdef CONFIG_SCHED_HAVE_PARENT
+#ifdef HAVE_GROUPID
+  status.td_groupid  = "";
+#else
+  status.td_ppid     = "";
+#endif
+#endif
   status.td_state    = "";
   status.td_event    = "";
   status.td_flags    = "";
@@ -283,10 +337,19 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   /* Finally, print the status information */
 
-  nsh_output(vtbl, "%5s %3s %-8s %-7s %3s %-8s %-9s ",
-             entryp->d_name, status.td_priority, status.td_policy,
-             status.td_type, status.td_flags, status.td_state,
-             status.td_event);
+  nsh_output(vtbl, "%5s ", entryp->d_name);
+
+#ifdef CONFIG_SCHED_HAVE_PARENT
+#ifdef HAVE_GROUPID
+  nsh_output(vtbl, "%5s ", status.td_groupid);
+#else
+  nsh_output(vtbl, "%5s ", status.td_ppid);
+#endif
+#endif
+
+  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
+             status.td_priority, status.td_policy, status.td_type,
+             status.td_flags, status.td_state, status.td_event);
 
 #ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
@@ -373,8 +436,19 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLE_PS
 int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-   nsh_output(vtbl, "%5s %3s %-8s %-7s %3s %-8s %-9s ",
-             "PID", "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
+  nsh_output(vtbl, "%5s ", "PID");
+
+#ifdef CONFIG_SCHED_HAVE_PARENT
+#ifdef HAVE_GROUPID
+  nsh_output(vtbl, "%5s ", "GROUP");
+#else
+  nsh_output(vtbl, "%5s ", "PPID");
+#endif
+#endif
+
+  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
+             "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
+
 #ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", "SIGMASK");
 #endif
