@@ -357,16 +357,15 @@ errout_with_inf:
 errout_with_paths:
   if (infile)
     {
-      free(infile);
+      nsh_freefullpath(infile);
     }
 
   if (outfile)
     {
-      free(outfile);
+      nsh_freefullpath(outfile);
     }
 
   return ret;
 }
 
 #endif /* CONFIG_NFILE_DESCRIPTORS && !CONFIG_NSH_DISABLE_DD */
-
