@@ -986,7 +986,7 @@ config NSH_IPADDR
 	---help---
 		If NSH_DHCPC is NOT set, then the static IP address must be provided.
 		This is a 32-bit integer value in host order.  So, as an example,
-		0x10000002 would be 10.0.0.2.
+		0x0a000002 would be 10.0.0.2.
 
 config NSH_DRIPADDR
 	hex "Router IPv4 address"
