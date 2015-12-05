@@ -139,7 +139,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
       (void)pthread_attr_init(&attr);
       (void)pthread_attr_setstacksize(&attr, stacksize);
 
-      ret = pthread_create(&child, &attr, handler, (void*)acceptsd);
+      ret = pthread_create(&child, &attr, handler, (pthread_addr_t)((uintptr_t)acceptsd));
       if (ret != 0)
         {
           /* Close the connection */
