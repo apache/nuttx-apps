@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -126,6 +127,7 @@ static int telnetd_daemon(int argc, char *argv[])
 {
   FAR struct telnetd_s *daemon;
   struct sockaddr_in myaddr;
+  struct telnet_session_s session;
 #ifdef CONFIG_NET_SOLINGER
   struct linger ling;
 #endif
@@ -134,7 +136,6 @@ static int telnetd_daemon(int argc, char *argv[])
   sigset_t blockset;
 #endif
   socklen_t addrlen;
-  FAR char *devpath;
   pid_t pid;
   int listensd;
   int acceptsd;
@@ -142,6 +143,8 @@ static int telnetd_daemon(int argc, char *argv[])
 #ifdef CONFIG_NET_HAVE_REUSEADDR
   int optval;
 #endif
+  int ret;
+  int fd;
 
   /* Get daemon startup info */
 
@@ -273,29 +276,40 @@ static int telnetd_daemon(int argc, char *argv[])
         }
 #endif
 
+      /* Open the Telnet factory */
+
+      fd = open("/dev/telnet", O_RDONLY);
+      if (fd < 0)
+        {
+          nlldbg("ERROR: open(/dev/telnet) failed: %d\n", errno);
+          goto errout_with_acceptsd;
+        }
+
       /* Create a character device to "wrap" the accepted socket descriptor */
 
       nllvdbg("Creating the telnet driver\n");
-      devpath = telnet_driver(acceptsd);
-      if (devpath < 0)
+
+      session.ts_sd         = acceptsd;
+      session.ts_devpath[0] = '\0';
+
+      ret = ioctl(fd, SIOCTELNET, (unsigned long)((uintptr_t)&session));
+      close(fd);
+
+      if (ret < 0)
         {
-          nlldbg("ERROR: telnet_driver failed\n");
+          nlldbg("ERROR: open(/dev/telnet) failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
 
       /* Open the driver */
 
-      nllvdbg("Opening the telnet driver\n");
-      drvrfd = open(devpath, O_RDWR);
+      nllvdbg("Opening the telnet driver at %s\n", session.ts_devpath);
+      drvrfd = open(session.ts_devpath, O_RDWR);
       if (drvrfd < 0)
         {
-          nlldbg("ERROR: Failed to open %s: %d\n", devpath, errno);
+          nlldbg("ERROR: Failed to open %s: %d\n", session.ts_devpath, errno);
           goto errout_with_acceptsd;
         }
-
-      /* We can now free the driver string */
-
-      free(devpath);
 
       /* Use this driver as stdin, stdout, and stderror */
 

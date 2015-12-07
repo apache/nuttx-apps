@@ -1492,4 +1492,8 @@
 	  nuttx/drivers/net.  It is a driver an belongs in the OS.  There are
 	  still some partitioning issues with the interface to the Telnet
 	  driver (2015-12-07).
+	* netutils/telnetd:  No longer calls OS interfade telnet_driver.  Now
+	  creates Telnet sessions by open a new factory device at /dev/telnet
+	  and then using ioctl calls to create the session character drivers
+	  at /dev/telnetN (2015-12-07).
 
