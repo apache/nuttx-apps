@@ -252,7 +252,7 @@ static int telnetd_daemon(int argc, char *argv[])
       /* Create a character device to "wrap" the accepted socket descriptor */
 
       nllvdbg("Creating the telnet driver\n");
-      devpath = telnetd_driver(acceptsd, daemon);
+      devpath = telnetd_driver(acceptsd);
       if (devpath < 0)
         {
           nlldbg("ERROR: telnetd_driver failed\n");

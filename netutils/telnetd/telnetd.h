@@ -99,8 +99,6 @@ extern struct telnetd_common_s g_telnetdcommon;
  *
  * Parameters:
  *   sd - The socket descriptor that represents the new telnet connection.
- *   daemon - A pointer to the structure representing the overall state of
- *     this instance of the telnet daemon.
  *
  * Return:
  *   An allocated string represent the full path to the created driver.  The
@@ -109,7 +107,7 @@ extern struct telnetd_common_s g_telnetdcommon;
  *
  ****************************************************************************/
 
-FAR char *telnetd_driver(int sd, FAR struct telnetd_s *daemon);
+FAR char *telnetd_driver(int sd);
 
 #endif /* __APPS_NETUTILS_TELNETD_TELNETD_H */
 

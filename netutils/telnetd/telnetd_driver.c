@@ -738,8 +738,6 @@ static int telnetd_poll(FAR struct file *filep, FAR struct pollfd *fds,
  *
  * Parameters:
  *   sd - The socket descriptor that represents the new telnet connection.
- *   daemon - A pointer to the structure representing the overall state of
- *     this instance of the telnet daemon.
  *
  * Return:
  *   An allocated string represent the full path to the created driver.  The
@@ -748,7 +746,7 @@ static int telnetd_poll(FAR struct file *filep, FAR struct pollfd *fds,
  *
  ****************************************************************************/
 
-FAR char *telnetd_driver(int sd, FAR struct telnetd_s *daemon)
+FAR char *telnetd_driver(int sd)
 {
   FAR struct telnetd_dev_s *priv;
   FAR struct socket *psock;
@@ -775,7 +773,7 @@ FAR char *telnetd_driver(int sd, FAR struct telnetd_s *daemon)
 
   /* Clone the internal socket structure.  We do this so that it will be
    * independent of threads and of socket descriptors (the original socket
-   * instance resided in the daemon's socket array).
+   * instance resided in the daemon's task group`).
    */
 
   psock = sockfd_socket(sd);

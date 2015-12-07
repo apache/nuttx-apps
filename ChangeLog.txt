@@ -1435,7 +1435,7 @@
 	* apps/examples/uavcan: libuavcan example from Paul Alexander
 	  Patience (2015-10-01).
 
-7.13 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.13 2015-12-05 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/fstest:  Add a generic file system test.  This is
 	  essentially the same as examples/smart, but has all of the SmartFS
@@ -1467,7 +1467,7 @@
 	* apps/nshlib:  If CONFIG_NETDEV_STATISTICS=y, then print the network
 	  driver statistics in the ifconfig (15-11-26).
 	* apps/nshlib:  The 'ifconfig' command now uses /proc/net/<dev> to view
-	  and network device configuration/status and /proc/net/stat to show
+	  network device configuration and status and /proc/net/stat to show
 	  network statistics.  A consequence of this is that you cannot view
 	  this network information if the procfs is not enabled and mounted at
 	  /proc (2015-11-27).
@@ -1485,3 +1485,5 @@
 	  task status information.  A consequence of this is that you cannot use
 	  the 'ps' command if the procfs is not enabled and mounted at
 	  /proc (2015-11-28).
+
+7.14 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
