@@ -1487,3 +1487,9 @@
 	  /proc (2015-11-28).
 
 7.14 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* netutils/telnetd:  Move the Telnet driver from netutils/telnetd to
+	  nuttx/drivers/net.  It is a driver an belongs in the OS.  There are
+	  still some partitioning issues with the interface to the Telnet
+	  driver (2015-12-07).
+

@@ -56,14 +56,38 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <nuttx/net/telnet.h>
+
 #include <apps/netutils/telnetd.h>
 #include <apps/netutils/netlib.h>
-
-#include "telnetd.h"
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
+
+/* This structure represents the overall state of one telnet daemon instance
+ * (Yes, multiple telnet daemons are supported).
+ */
+
+struct telnetd_s
+{
+  int                   port;      /* The port to listen on (in network byte order) */
+  int                   priority;  /* The execution priority of the spawned task, */
+  int                   stacksize; /* The stack size needed by the spawned task */
+  main_t                entry;     /* The entrypoint of the task to spawn when a new
+                                    * connection is accepted. */
+};
+
+/* This structure is used to passed information to telnet daemon when it
+ * started.  It contains global information visable to all telnet daemons.
+ */
+
+struct telnetd_common_s
+{
+  uint8_t               ndaemons;  /* The total number of daemons running */
+  sem_t                 startsem;  /* Enforces one-at-a-time startup */
+  FAR struct telnetd_s *daemon;    /* Describes the new daemon */
+};
 
 /****************************************************************************
  * Private Data
@@ -77,7 +101,7 @@
  * started.
  */
 
-struct telnetd_common_s g_telnetdcommon;
+static struct telnetd_common_s g_telnetdcommon;
 
 /****************************************************************************
  * Public Functions
@@ -252,10 +276,10 @@ static int telnetd_daemon(int argc, char *argv[])
       /* Create a character device to "wrap" the accepted socket descriptor */
 
       nllvdbg("Creating the telnet driver\n");
-      devpath = telnetd_driver(acceptsd);
+      devpath = telnet_driver(acceptsd);
       if (devpath < 0)
         {
-          nlldbg("ERROR: telnetd_driver failed\n");
+          nlldbg("ERROR: telnet_driver failed\n");
           goto errout_with_acceptsd;
         }
 
@@ -364,8 +388,6 @@ int telnetd_start(FAR struct telnetd_config_s *config)
   if (g_telnetdcommon.ndaemons < 1)
     {
       sem_init(&g_telnetdcommon.startsem, 0, 0);
-      sem_init(&g_telnetdcommon.exclsem, 0, 1);
-      g_telnetdcommon.minor = 0;
     }
 
   /* Then start the new daemon */

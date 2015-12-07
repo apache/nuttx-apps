@@ -39,26 +39,26 @@ include $(APPDIR)/Make.defs
 
 # Telnet daemon
 
-ASRCS		=
-CSRCS		=
+ASRCS =
+CSRCS =
 
 ifeq ($(CONFIG_NET_TCP),y)
-CSRCS		+= telnetd_daemon.c telnetd_driver.c
+CSRCS += telnetd_daemon.c
 endif
 
-AOBJS		= $(ASRCS:.S=$(OBJEXT))
-COBJS		= $(CSRCS:.c=$(OBJEXT))
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
 
-SRCS		= $(ASRCS) $(CSRCS)
-OBJS		= $(AOBJS) $(COBJS)
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
@@ -66,7 +66,7 @@ ROOTDEPPATH	= --dep-path .
 
 # Common build
 
-VPATH		=
+VPATH =
 
 all: .built
 .PHONY: context depend clean distclean

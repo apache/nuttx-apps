@@ -47,20 +47,7 @@
  ****************************************************************************/
 /* CONFIG_TELNETD_CONSOLE - Use the first Telnet session as the default
  *   console.
- * CONFIG_TELNETD_RXBUFFER_SIZE - The size of the Telnet receive buffer.
- *   Default: 256 bytes.
- * CONFIG_TELNETD_TXBUFFER_SIZE - The size of the Telnet transmit buffer.
- *   Default: 256 bytes.
- * CONFIG_TELNETD_DUMPBUFFER - dumping of all input/output buffers.
  */
-
-#ifndef CONFIG_TELNETD_RXBUFFER_SIZE
-# define CONFIG_TELNETD_RXBUFFER_SIZE 256
-#endif
-
-#ifndef CONFIG_TELNETD_TXBUFFER_SIZE
-# define CONFIG_TELNETD_TXBUFFER_SIZE 256
-#endif
 
 /****************************************************************************
  * Public Types

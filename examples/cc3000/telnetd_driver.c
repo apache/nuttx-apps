@@ -79,6 +79,9 @@
 #define TELNET_DO    253
 #define TELNET_DONT  254
 
+#define TELNET_RXBUFFER_SIZE 256
+#define TELNET_TXBUFFER_SIZE 256
+
 /* Device stuff *************************************************************/
 
 #define TELNETD_DEVFMT "/dev/telnetd%d"
@@ -109,8 +112,8 @@ struct telnetd_dev_s
   uint8_t            td_crefs;   /* The number of open references to the session */
   int                td_minor;   /* Minor device number */
   long               td_psock;   /* A clone of the internal socket structure */
-  char td_rxbuffer[CONFIG_TELNETD_RXBUFFER_SIZE];
-  char td_txbuffer[CONFIG_TELNETD_TXBUFFER_SIZE];
+  char td_rxbuffer[TELNET_RXBUFFER_SIZE];
+  char td_txbuffer[TELNET_TXBUFFER_SIZE];
 };
 
 /****************************************************************************
@@ -568,7 +571,7 @@ static ssize_t telnetd_read(FAR struct file *filep, FAR char *buffer, size_t len
       else
         {
           ret = recv(priv->td_psock, priv->td_rxbuffer,
-                          CONFIG_TELNETD_RXBUFFER_SIZE, 0);
+                     TELNET_RXBUFFER_SIZE, 0);
 
           /* Did we receive anything? */
 
@@ -635,7 +638,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
        * next largest character sequence ("\r\n\0")?
        */
 
-      if (eol || ncopied > CONFIG_TELNETD_TXBUFFER_SIZE-3)
+      if (eol || ncopied > TELNET_TXBUFFER_SIZE-3)
         {
           /* Yes... send the data now */
 
