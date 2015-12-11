@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_PING
+	bool "ICMP ping support"
+	default n
+	depends on NET_IPv4 && NET_ICMP && NET_PKT
+	help
+		Build in support for a IPv4 ping command.  This command ping will
+		send the ICMP ECHO_REQUEST and wait for the ICMP ECHO_RESPONSE from
+		the remote peer.
+
+config NETUTILS_PING6
+	bool "ICMPv6 ping support"
+	default n
+	depends on NET_IPv6 && NET_ICMPv6 && NET_PKT
+	help
+		Build in support for a IPv6 ping command.  This command ping will
+		send the ICMPv6 ECHO_REQUEST and wait for the ICMPv6 ECHO_RESPONSE
+		from the remote peer.
+
+if NETUTILS_PING || NETUTILS_PING6
+
+config NETUTILS_PING_SIGNO
+	int "Ping timeout signal"
+	default 13
+
+endif # NETUTILS_PING || NETUTILS_PING6

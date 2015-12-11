@@ -1496,4 +1496,6 @@
 	  creates Telnet sessions by open a new factory device at /dev/telnet
 	  and then using ioctl calls to create the session character drivers
 	  at /dev/telnetN (2015-12-07).
+	* netutils/ping: Unfinished implementation of ping/ping6 using raw
+	  sockets (2015-12-11).
 
