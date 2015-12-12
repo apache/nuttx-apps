@@ -122,7 +122,6 @@ int main(int argc, FAR char *argv[])
 int module_main(int argc, char *argv[])
 #endif
 {
-  struct module_s module;
   char buffer[128];
   ssize_t nbytes;
   int ret;
@@ -154,12 +153,7 @@ int module_main(int argc, char *argv[])
 
   /* Install the character driver  */
 
-  memset(&module, 0, sizeof(struct module_s));
-  module.filename = MOUNTPT "/chardev";
-  module.exports  = exports;
-  module.nexports = nexports;
-
-  ret = insmod(&module);
+  ret = insmod(MOUNTPT "/chardev", "chardev", exports, nexports);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: insmod failed: %d\n", ret);
@@ -205,7 +199,7 @@ int module_main(int argc, char *argv[])
   lib_dumpbuffer("Bytes read", (FAR const uint8_t *)g_write_string, nbytes);
 
   close(fd);
-  ret = rmmod(&module);
+  ret = rmmod("chardev");
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: rmmod failed: %d\n", ret);
