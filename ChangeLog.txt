@@ -1498,4 +1498,6 @@
 	  at /dev/telnetN (2015-12-07).
 	* netutils/ping: Unfinished implementation of ping/ping6 using raw
 	  sockets (2015-12-11).
+	* examples/module:  Add a test harness for verifying NuttX kernel
+	  modules (2015-12-12).
 

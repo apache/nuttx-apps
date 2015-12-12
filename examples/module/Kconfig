@@ -1,0 +1,45 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_MODULE
+	bool "Module Example"
+	default n
+	---help---
+		Enable the module example
+
+if EXAMPLES_MODULE
+
+config EXAMPLES_MODULE_LIBC
+	bool "Link with LIBC"
+	default n
+	depends on !BUILD_KERNEL
+	---help---
+		Link with the C library (and also math library if it was built).
+		By default, all undefined symbols must be provided via a symbol
+		table.  But if this option is selected, then each MODULE test program
+		will link with the SYSCALL library and will interface with the OS
+		system calls.  You probably will NOT want this option, however,
+		because it will substantially increase the size of code.  For
+		example, a separate copy of printf() would be linked with every
+		program greatly increasing the total code size.  This option is
+		primarily intended only for testing.
+
+config EXAMPLES_MODULE_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the MODULE executables to be tested.  Default: 0
+
+config EXAMPLES_MODULE_DEVPATH
+	string "ROMFS Device Path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device.  This must match EXAMPLES_MODULE_DEVMINOR.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the MODULE executables to be tested.  Default: "/dev/ram0"
+
+endif

@@ -1,0 +1,209 @@
+/****************************************************************************
+ * examples/module/module_main.c
+ *
+ *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
+
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
+#include <nuttx/config.h>
+#include <nuttx/compiler.h>
+
+#include <sys/mount.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <syslog.h>
+#include <errno.h>
+#include <debug.h>
+
+#include <nuttx/fs/ramdisk.h>
+#include <nuttx/module.h>
+#include <nuttx/binfmt/symtab.h>
+
+#include "drivers/romfs.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Check configuration.  This is not all of the configuration settings that
+ * are required -- only the more obvious.
+ */
+
+#if CONFIG_NFILE_DESCRIPTORS < 1
+#  error "You must provide file descriptors via CONFIG_NFILE_DESCRIPTORS in your configuration file"
+#endif
+
+#ifndef CONFIG_MODULE
+#  error "You must select CONFIG_MODULE in your configuration file"
+#endif
+
+#ifndef CONFIG_FS_ROMFS
+#  error "You must select CONFIG_FS_ROMFS in your configuration file"
+#endif
+
+#ifdef CONFIG_DISABLE_MOUNTPOINT
+#  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
+#endif
+
+/* Describe the ROMFS file system */
+
+#define SECTORSIZE   64
+#define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
+#define MOUNTPT      "/mnt/romfs"
+
+#ifndef CONFIG_EXAMPLES_MODULE_DEVMINOR
+#  define CONFIG_EXAMPLES_MODULE_DEVMINOR 0
+#endif
+
+#ifndef CONFIG_EXAMPLES_MODULE_DEVPATH
+#  define CONFIG_EXAMPLES_MODULE_DEVPATH "/dev/ram0"
+#endif
+
+/****************************************************************************
+ * Private data
+ ****************************************************************************/
+
+static const char g_write_string[] = "Hi there, installed driver\n";
+
+/****************************************************************************
+ * Symbols from Auto-Generated Code
+ ****************************************************************************/
+
+extern const struct symtab_s exports[];
+extern const int nexports;
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: module_main
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int module_main(int argc, char *argv[])
+#endif
+{
+  struct module_s module;
+  char buffer[128];
+  ssize_t nbytes;
+  int ret;
+  int fd;
+
+  /* Create a ROM disk for the ROMFS filesystem */
+
+  printf("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_MODULE_DEVMINOR);
+  ret = romdisk_register(CONFIG_EXAMPLES_MODULE_DEVMINOR, (FAR uint8_t *)romfs_img,
+                         NSECTORS(romfs_img_len), SECTORSIZE);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+
+  /* Mount the file system */
+
+  printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
+         MOUNTPT, CONFIG_EXAMPLES_MODULE_DEVPATH);
+
+  ret = mount(CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
+              CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, errno);
+      exit(EXIT_FAILURE);
+    }
+
+  /* Install the character driver  */
+
+  memset(&module, 0, sizeof(struct module_s));
+  module.filename = MOUNTPT "/chardev";
+  module.exports  = exports;
+  module.nexports = nexports;
+
+  ret = insmod(&module);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: insmod failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+
+  /* Open the installed character driver */
+
+  fd = open("/dev/chardev", O_RDWR);
+  if (fd < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: Failed to open /dev/chardev: %d\n", errcode);
+      exit(EXIT_FAILURE);
+    }
+
+  /* Read from the character driver */
+
+  nbytes = read(fd, buffer, 128);
+  if (nbytes < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: Read from /dev/chardev failed: %d\n", errcode);
+      close(fd);
+      exit(EXIT_FAILURE);
+    }
+
+  printf("Read %d bytes: %d\n", (int)nbytes);
+  lib_dumpbuffer("Bytes read", (FAR const uint8_t *)buffer, nbytes);
+
+  /* Write to the character driver */
+
+  nbytes = write(fd, g_write_string, strlen(g_write_string));
+  if (nbytes < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: Write to /dev/chardev failed: %d\n", errcode);
+      close(fd);
+      exit(EXIT_FAILURE);
+    }
+
+  printf("Wrote %d bytes: %d\n", (int)nbytes);
+  lib_dumpbuffer("Bytes read", (FAR const uint8_t *)g_write_string, nbytes);
+
+  close(fd);
+  return EXIT_SUCCESS;
+}
