@@ -14,7 +14,7 @@ if EXAMPLES_MODULE
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"
 	default n
-	depends on !BUILD_KERNEL
+	depends on !BUILD_KERNEL && EXPERIMENTAL
 	---help---
 		Link with the C library (and also math library if it was built).
 		By default, all undefined symbols must be provided via a symbol
@@ -25,6 +25,15 @@ config EXAMPLES_MODULE_LIBC
 		example, a separate copy of printf() would be linked with every
 		program greatly increasing the total code size.  This option is
 		primarily intended only for testing.
+
+		WARNING:  Libc will not be built with -mlong-calls and this may
+		result in runtime linking failures due to out-of-range functions
+		calls.
+
+config EXAMPLES_MODULE_LIBGCC
+	bool "Link with LIBGCC"
+	default n
+	depends on !BUILD_KERNEL && EXPERIMENTAL
 
 config EXAMPLES_MODULE_DEVMINOR
 	int "ROMFS Minor Device Number"

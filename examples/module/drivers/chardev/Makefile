@@ -44,6 +44,14 @@ endif
 KDEFINE = ${shell $(TOPDIR)/tools/define.sh "$(CC)" __KERNEL__}
 CFLAGS += $(KDEFINE)
 
+ifeq ($(CONFIG_EXAMPLES_MODULE_LIBGCC),y)
+LIBGCC = "${shell $(CC) $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
+ifneq ($(LIBGCC),)
+  LDLIBPATH += -L "${shell dirname $(LIBGCC)}"
+  LDLIBS += -lgcc
+endif
+endif
+
 ifeq ($(CONFIG_EXAMPLES_MODULE_LIBC),y)
 LDMODULEFLAGS += -Bstatic
 LDLIBPATH +=  -L $(NUTTXLIB)
