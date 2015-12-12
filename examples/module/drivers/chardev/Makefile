@@ -73,7 +73,7 @@ $(BIN): $(OBJS)
 	$(Q) $(LD) $(LDMODULEFLAGS) $(LDLIBPATH) -o $@ $(ARCHCRT0OBJ) $^ $(LDLIBS)
 
 clean:
-	$(call DMODULEILE, $(BIN))
+	$(call DELFILE, $(BIN))
 	$(call CLEAN)
 
 install:

@@ -134,7 +134,7 @@ static int module_uninitialize(FAR void *arg)
   /* TODO: Check if there are any open references to the driver */
 
   syslog(LOG_INFO, "module_uninitialize: arg=%p\n", arg);
-  return register_driver("/dev/chardev", &chardev_fops, 0666, NULL);
+  return unregister_driver("/dev/chardev");
 }
 
 /****************************************************************************
@@ -149,10 +149,8 @@ static int module_uninitialize(FAR void *arg)
  *
  ****************************************************************************/
 
-void module_initialize(mod_uninitializer_t *uninitializer, FAR void **arg)
+int module_initialize(mod_uninitializer_t *uninitializer, FAR void **arg)
 {
-  int ret;
-
   syslog(LOG_INFO, "module_initialize:\n");
 
   *uninitializer = module_uninitialize;
