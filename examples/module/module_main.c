@@ -205,5 +205,12 @@ int module_main(int argc, char *argv[])
   lib_dumpbuffer("Bytes read", (FAR const uint8_t *)g_write_string, nbytes);
 
   close(fd);
+  ret = rmmod(&module);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: rmmod failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+
   return EXIT_SUCCESS;
 }

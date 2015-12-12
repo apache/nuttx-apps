@@ -46,6 +46,7 @@
 #include <syslog.h>
 #include <debug.h>
 
+#include <nuttx/module.h>
 #include <nuttx/fs/fs.h>
 
 /****************************************************************************
@@ -125,6 +126,18 @@ static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
 }
 
 /****************************************************************************
+ * Name: module_uninitialize
+ ****************************************************************************/
+
+static int module_uninitialize(FAR void *arg)
+{
+  /* TODO: Check if there are any open references to the driver */
+
+  syslog(LOG_INFO, "module_uninitialize: arg=%p\n", arg);
+  return register_driver("/dev/chardev", &chardev_fops, 0666, NULL);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -136,7 +149,14 @@ static ssize_t chardev_write(FAR struct file *filep, FAR const char *buffer,
  *
  ****************************************************************************/
 
-void module_initialize(void)
+void module_initialize(mod_uninitializer_t *uninitializer, FAR void **arg)
 {
-  (void)register_driver("/dev/chardev", &chardev_fops, 0666, NULL);
+  int ret;
+
+  syslog(LOG_INFO, "module_initialize:\n");
+
+  *uninitializer = module_uninitialize;
+  *arg = NULL;
+
+  return register_driver("/dev/chardev", &chardev_fops, 0666, NULL);
 }
