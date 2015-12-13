@@ -542,12 +542,8 @@ o insmod <file-path> <module-name>
      brw-rw-rw-       0 ram0
      crw-rw-rw-       0 ttyS0
     nsh> lsmod
-    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
-    mydriver          20404659  20404625         0  20404580      552  204047a8        0
-    nsh> rmmod mydriver
-    nsh> lsmod
-    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
-    nsh>
+    NAME                 INIT   UNINIT      ARG     TEXT     SIZE     DATA     SIZE
+    mydriver         20404659 20404625        0 20404580      552 204047a8        0
 
 o kill -<signal> <pid>
 
@@ -622,8 +618,8 @@ o lsmod
   Example:
 
     nsh> lsmod
-    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
-    mydriver          20404659  20404625         0  20404580      552  204047a8        0
+    NAME                 INIT   UNINIT      ARG     TEXT     SIZE     DATA     SIZE
+    mydriver         20404659 20404625        0 20404580      552 204047a8        0
 
 o md5 [-f] <string or filepath>
 
@@ -966,11 +962,11 @@ o rmmod <module-name>
   Example:
 
     nsh> lsmod
-    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
-    mydriver          20404659  20404625         0  20404580      552  204047a8        0
+    NAME                 INIT   UNINIT      ARG     TEXT     SIZE     DATA     SIZE
+    mydriver         20404659 20404625        0 20404580      552 204047a8        0
     nsh> rmmod mydriver
     nsh> lsmod
-    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
+    NAME                 INIT   UNINIT      ARG     TEXT     SIZE     DATA     SIZE
     nsh>
 
 o set <name> <value>
