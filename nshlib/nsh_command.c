@@ -195,7 +195,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  { "false",     cmd_false,    1, 1, NULL },
+  { "false",     cmd_false,   1, 1, NULL },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_FREE
@@ -228,12 +228,16 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifdef CONFIG_NET
 # ifndef CONFIG_NSH_DISABLE_IFCONFIG
-  { "ifconfig", cmd_ifconfig, 1, 11, "[nic_name [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask <net-mask>] [dns <dns-address>] [hw <hw-mac>]" },
+  { "ifconfig", cmd_ifconfig, 1, 11, "[nic-name [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask <net-mask>] [dns <dns-address>] [hw <hw-mac>]" },
 # endif
 # ifndef CONFIG_NSH_DISABLE_IFUPDOWN
-  { "ifdown",   cmd_ifdown,   2, 2,  "<nic_name>" },
-  { "ifup",     cmd_ifup,     2, 2,  "<nic_name>" },
+  { "ifdown",   cmd_ifdown,   2, 2,  "<nic-name>" },
+  { "ifup",     cmd_ifup,     2, 2,  "<nic-name>" },
 # endif
+#endif
+
+#if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
+  { "insmod",   cmd_insmod,   3, 3,  "<file-path> <module-name>" },
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
@@ -258,6 +262,12 @@ static const struct cmdmap_s g_cmdmap[] =
 # ifndef CONFIG_NSH_DISABLE_LS
   { "ls",       cmd_ls,       1, 5, "[-lRs] <dir-path>" },
 # endif
+#endif
+
+#if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MODULE)
+  { "lsmod",    cmd_lsmod,   1, 1,  NULL },
+#endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_MB
@@ -387,6 +397,10 @@ static const struct cmdmap_s g_cmdmap[] =
 # ifndef CONFIG_NSH_DISABLE_RMDIR
   { "rmdir",    cmd_rmdir,    2, 2, "<dir-path>" },
 # endif
+#endif
+
+#if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
+  { "rmmod",    cmd_rmmod,   2, 2,  "<module-name>" },
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON

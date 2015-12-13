@@ -77,6 +77,12 @@ ifneq ($(CONFIG_DISABLE_MOUNTPOINT),y)
 CSRCS += nsh_mntcmds.c
 endif
 
+ifeq ($(CONFIG_MODULE),y)
+ifneq ($(CONFIG_NSH_DISABLE_MODCMDS),y)
+CSRCS += nsh_modcmds.c
+endif
+endif
+
 ifeq ($(CONFIG_NSH_CONSOLE),y)
 CSRCS += nsh_consolemain.c
 endif

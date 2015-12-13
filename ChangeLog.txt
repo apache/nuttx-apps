@@ -1500,4 +1500,6 @@
 	  sockets (2015-12-11).
 	* examples/module:  Add a test harness for verifying NuttX kernel
 	  modules (2015-12-12).
+	* apps/nshlib:  Add module commands: insmod, rmmod, and lsmod
+	  (2015-12-13).
 

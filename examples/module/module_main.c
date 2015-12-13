@@ -131,7 +131,7 @@ int module_main(int argc, char *argv[])
 
   /* Set the OS symbol table indirectly through the boardctl() */
 
-  symdesc.symtab   = exports;
+  symdesc.symtab   = (FAR struct symtab_s *)exports;
   symdesc.nsymbols = nexports;
   ret = boardctl(BOARDIOC_OS_SYMTAB, (uintptr_t)&symdesc);
   if (ret < 0)

@@ -517,6 +517,38 @@ o ifup <nic-name>
 
     ifup eth0
 
+o insmod <file-path> <module-name>
+
+  Install the loadable OS module at <file-path> as module <module-name>
+
+  Example:
+
+    nsh> ls -l /mnt/romfs
+    /mnt/romfs:
+     dr-xr-xr-x       0 .
+     -r-xr-xr-x    9153 chardev
+    nsh> ls -l /dev
+    /dev:
+     crw-rw-rw-       0 console
+     crw-rw-rw-       0 null
+     brw-rw-rw-       0 ram0
+     crw-rw-rw-       0 ttyS0
+    nsh> insmod /mnt/romfs/chardev mydriver
+    nsh> ls -l /dev
+    /dev:
+     crw-rw-rw-       0 chardev
+     crw-rw-rw-       0 console
+     crw-rw-rw-       0 null
+     brw-rw-rw-       0 ram0
+     crw-rw-rw-       0 ttyS0
+    nsh> lsmod
+    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
+    mydriver          20404659  20404625         0  20404580      552  204047a8        0
+    nsh> rmmod mydriver
+    nsh> lsmod
+    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
+    nsh>
+
 o kill -<signal> <pid>
 
   Send the <signal> to the task identified by <pid>.
@@ -573,6 +605,25 @@ o ls [-lRs] <dir-path>
         listing
      -l Show size and mode information along with the filenames
         in the listing.
+
+o lsmod
+
+  Show information about the currently installed OS modules.  This information includes:
+
+  - The module name assigned to the module when it was installed (NAME).
+  - The address of the module initialization function (INIT).
+  - The address of the module un-initialization function (UNINIT).
+  - An argument that will be passed to the module un-initialization function (ARG).
+  - The start of the .text memory region (TEXT).
+  - The size of the .text memory region size (SIZE).
+  - The start of the .bss/.data memory region (DATA).
+  - The size of the .bss/.data memory region size (SIZE).
+
+  Example:
+
+    nsh> lsmod
+    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
+    mydriver          20404659  20404625         0  20404580      552  204047a8        0
 
 o md5 [-f] <string or filepath>
 
@@ -907,6 +958,21 @@ o rmdir <dir-path>
      drw-rw-rw-       0 TESTDIR/
     nsh>
 
+o rmmod <module-name>
+
+  Remove the loadable OS module with the <module-name>.  NOTE: An OS module
+  can only be removed if it is not busy.
+
+  Example:
+
+    nsh> lsmod
+    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
+    mydriver          20404659  20404625         0  20404580      552  204047a8        0
+    nsh> rmmod mydriver
+    nsh> lsmod
+    NAME                  INIT    UNINIT       ARG      TEXT     SIZE      DATA     SIZE
+    nsh>
+
 o set <name> <value>
 
   Set the environment variable <name> to the sting <value>.
@@ -1041,9 +1107,11 @@ Command Dependencies on Configuration Settings
   ifconfig   CONFIG_NET && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_NET
   ifdown     CONFIG_NET && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_NET
   ifup       CONFIG_NET && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_NET
+  insmod     CONFIG_MODULE
   kill       !CONFIG_DISABLE_SIGNALS
   losetup    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_DEV_LOOP
   ls         CONFIG_NFILE_DESCRIPTORS > 0
+  lsmod      CONFIG_MODULE && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_MODULE
   md5        CONFIG_NETUTILS_CODECS && CONFIG_CODECS_HASH_MD5
   mb,mh,mw   ---
   mkdir      (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
@@ -1063,6 +1131,7 @@ Command Dependencies on Configuration Settings
   reboot     CONFIG_BOARDCTL_RESET
   rm         (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
   rmdir      (((!CONFIG_DISABLE_MOUNTPOINT && CONFIG_FS_WRITABLE) || !CONFIG_DISABLE_PSEUDOFS_OPERATIONS) && CONFIG_NFILE_DESCRIPTORS > 0)
+  rmmod      CONFIG_MODULE
   set        !CONFIG_DISABLE_ENVIRON
   sh         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !CONFIG_NSH_DISABLESCRIPT
   shutdown   CONFIG_BOARDCTL_POWEROFF || CONFIG_BOARDCTL_RESET
@@ -1102,15 +1171,15 @@ also allow it to squeeze into very small memory footprints.
   CONFIG_NSH_DISABLE_LOSETUP,   CONFIG_NSH_DISABLE_LS,        CONFIG_NSH_DISABLE_MD5,
   CONFIG_NSH_DISABLE_MB,        CONFIG_NSH_DISABLE_MKDIR,     CONFIG_NSH_DISABLE_MKFATFS,
   CONFIG_NSH_DISABLE_MKFIFO,    CONFIG_NSH_DISABLE_MKRD,      CONFIG_NSH_DISABLE_MH,
-  CONFIG_NSH_DISABLE_MOUNT,     CONFIG_NSH_DISABLE_MW,        CONFIG_NSH_DISABLE_MV,
-  CONFIG_NSH_DISABLE_NFSMOUNT,  CONFIG_NSH_DISABLE_NSLOOKUP,  CONFIG_NSH_DISABLE_POWEROFF,
-  CONFIG_NSH_DISABLE_PS,        CONFIG_NSH_DISABLE_PING,      CONFIG_NSH_DISABLE_PING6,
-  CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_REBOOT,
-  CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_SET,
-  CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SHUTDOWN,  CONFIG_NSH_DISABLE_SLEEP,
-  CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,
-  CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USLEEP,
-  CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_MODCMDS,   CONFIG_NSH_DISABLE_MOUNT,     CONFIG_NSH_DISABLE_MW,
+  CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,  CONFIG_NSH_DISABLE_NSLOOKUP,
+  CONFIG_NSH_DISABLE_POWEROFF,  CONFIG_NSH_DISABLE_PS,        CONFIG_NSH_DISABLE_PING,
+  CONFIG_NSH_DISABLE_PING6,     CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,
+  CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,
+  CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SHUTDOWN,
+  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_UMOUNT,
+  CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE,
+  CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.

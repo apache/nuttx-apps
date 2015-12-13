@@ -311,6 +311,11 @@ config NSH_DISABLE_MH
 	bool "Disable mh"
 	default n
 
+config NSH_DISABLE_MODCMDS
+	bool "Disable modules commands (insmod, rmmod, lsmod)"
+	default n
+	depends on MODULE
+
 config NSH_DISABLE_MOUNT
 	bool "Disable mount"
 	default n

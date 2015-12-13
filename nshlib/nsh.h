@@ -941,6 +941,14 @@ void nsh_usbtrace(void);
   int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
+#if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
+int cmd_insmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+int cmd_rmmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MODULE)
+int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
+#endif
+
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)
   int cmd_test(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
   int cmd_lbracket(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
