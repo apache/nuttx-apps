@@ -116,7 +116,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Output a Header */
 
-  nsh_output(vtbl, "%-16s %9s %9s %9s %9s %8s %9s %8s\n",
+  nsh_output(vtbl, "%-16s %8s %8s %8s %8s %8s %8s %8s\n",
              "NAME", "INIT", "UNINIT", "ARG", "TEXT", "SIZE",
              "DATA", "SIZE");
 
@@ -138,14 +138,14 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        *
        *  "%s,%p,%p,%p,%p,%lu,%p,%lu\n"
        *
-       *   1) Module name string
-       *   2) Initializer address
-       *   3) Uninitializer address
-       *   4) Uninitializer argument
-       *   5) .text address
-       *   6) Size of .text
-       *   7) .bss/.data address
-       *   8) Size of .bss/.data
+       *   1) Module name (string)
+       *   2) Initializer address (hex)
+       *   3) Uninitializer address (hex)
+       *   4) Uninitializer argument (hex)
+       *   5) .text address (hex)
+       *   6) Size of .text (decimal)
+       *   7) .bss/.data address (hex)
+       *   8) Size of .bss/.data (decimal)
        */
 
       modulename    = strtok_r(vtbl->iobuffer, ",\n", &lasts);
@@ -157,7 +157,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       data          = strtok_r(NULL, ",\n", &lasts);
       datasize      = strtok_r(NULL, ",\n", &lasts);
 
-      nsh_output(vtbl, "%-16s %9s %9s %9s %9s %8s %9s %8s\n",
+      nsh_output(vtbl, "%-16s %8s %8s %8s %8s %8s %8s %8s\n",
                  modulename,
                  initializer   ? initializer   : "",
                  uninitializer ? uninitializer : "",

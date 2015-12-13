@@ -610,14 +610,14 @@ o lsmod
 
   Show information about the currently installed OS modules.  This information includes:
 
-  - The module name assigned to the module when it was installed (NAME).
-  - The address of the module initialization function (INIT).
-  - The address of the module un-initialization function (UNINIT).
-  - An argument that will be passed to the module un-initialization function (ARG).
-  - The start of the .text memory region (TEXT).
-  - The size of the .text memory region size (SIZE).
-  - The start of the .bss/.data memory region (DATA).
-  - The size of the .bss/.data memory region size (SIZE).
+  - The module name assigned to the module when it was installed (NAME, string).
+  - The address of the module initialization function (INIT, hexadecimal).
+  - The address of the module un-initialization function (UNINIT, hexadecimal).
+  - An argument that will be passed to the module un-initialization function (ARG, hexadecimal).
+  - The start of the .text memory region (TEXT, hexadecimal).
+  - The size of the .text memory region size (SIZE, decimal).
+  - The start of the .bss/.data memory region (DATA, hexadecimal).
+  - The size of the .bss/.data memory region size (SIZE, decimal).
 
   Example:
 
