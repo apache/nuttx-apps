@@ -6,6 +6,8 @@
 config EXAMPLES_MODULE
 	bool "Module Example"
 	default n
+	depends on MODULE && LIB_BOARDCTL
+	select BOARDCTL_OS_SYMTAB
 	---help---
 		Enable the module example
 

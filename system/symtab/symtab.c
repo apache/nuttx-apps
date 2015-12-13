@@ -73,7 +73,7 @@ void symtab_initialize(void)
 
   symdesc.symtab   = g_symtab;
   symdesc.nsymbols = NSYMBOLS;
-  (void)boardctl(BOARDIOC_SYMTAB, (uintptr_t)&symdesc);
+  (void)boardctl(BOARDIOC_APP_SYMTAB, (uintptr_t)&symdesc);
 }
 
 #endif /* CONFIG_SYSTEM_SYMTAB */

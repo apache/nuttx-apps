@@ -7,7 +7,7 @@ config SYSTEM_SYMTAB
 	bool "User-provided symbol table"
 	default n
 	depends on EXECFUNCS_HAVE_SYMTAB && LIB_BOARDCTL
-	select BOARDCTL_SYMTAB
+	select BOARDCTL_APP_SYMTAB
 	---help---
 		Build and include default symbol table in the NuttX application.
 		The symbol table is selected by call symtab_initialize().  The

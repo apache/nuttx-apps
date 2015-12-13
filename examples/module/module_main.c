@@ -41,6 +41,7 @@
 #include <nuttx/compiler.h>
 
 #include <sys/mount.h>
+#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -122,10 +123,22 @@ int main(int argc, FAR char *argv[])
 int module_main(int argc, char *argv[])
 #endif
 {
+  struct boardioc_symtab_s symdesc;
   char buffer[128];
   ssize_t nbytes;
   int ret;
   int fd;
+
+  /* Set the OS symbol table indirectly through the boardctl() */
+
+  symdesc.symtab   = exports;
+  symdesc.nsymbols = nexports;
+  ret = boardctl(BOARDIOC_OS_SYMTAB, (uintptr_t)&symdesc);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: boardctl(BOARDIOC_OS_SYMTAB) failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
 
   /* Create a ROM disk for the ROMFS filesystem */
 
@@ -153,7 +166,7 @@ int module_main(int argc, char *argv[])
 
   /* Install the character driver  */
 
-  ret = insmod(MOUNTPT "/chardev", "chardev", exports, nexports);
+  ret = insmod(MOUNTPT "/chardev", "chardev");
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: insmod failed: %d\n", ret);
