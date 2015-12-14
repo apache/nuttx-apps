@@ -142,7 +142,9 @@ int module_main(int argc, char *argv[])
 
   /* Create a ROM disk for the ROMFS filesystem */
 
-  printf("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_MODULE_DEVMINOR);
+  printf("main: Registering romdisk at /dev/ram%d\n",
+         CONFIG_EXAMPLES_MODULE_DEVMINOR);
+
   ret = romdisk_register(CONFIG_EXAMPLES_MODULE_DEVMINOR, (FAR uint8_t *)romfs_img,
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
@@ -153,7 +155,7 @@ int module_main(int argc, char *argv[])
 
   /* Mount the file system */
 
-  printf("Mounting ROMFS filesystem at target=%s with source=%s\n",
+  printf("main: Mounting ROMFS filesystem at target=%s with source=%s\n",
          MOUNTPT, CONFIG_EXAMPLES_MODULE_DEVPATH);
 
   ret = mount(CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
@@ -194,8 +196,8 @@ int module_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
-  printf("Read %d bytes: %d\n", (int)nbytes);
-  lib_dumpbuffer("Bytes read", (FAR const uint8_t *)buffer, nbytes);
+  printf("main: Read %d bytes: %d\n", (int)nbytes);
+  lib_dumpbuffer("main: Bytes read", (FAR const uint8_t *)buffer, nbytes);
 
   /* Write to the character driver */
 
@@ -208,8 +210,8 @@ int module_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
-  printf("Wrote %d bytes: %d\n", (int)nbytes);
-  lib_dumpbuffer("Bytes read", (FAR const uint8_t *)g_write_string, nbytes);
+  printf("main: Wrote %d bytes: %d\n", (int)nbytes);
+  lib_dumpbuffer("main: Bytes written", (FAR const uint8_t *)g_write_string, nbytes);
 
   close(fd);
   ret = rmmod("chardev");
