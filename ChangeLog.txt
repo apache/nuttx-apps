@@ -1502,4 +1502,5 @@
 	  modules (2015-12-12).
 	* apps/nshlib:  Add module commands: insmod, rmmod, and lsmod
 	  (2015-12-13).
-
+	* apps/examples/pca9635:  Add a simple test of PCA9635PW PWM LED
+	  driver.  From Alan Carvalho de Assis (2015-12-15).

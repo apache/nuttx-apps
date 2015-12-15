@@ -1434,6 +1434,11 @@ examples/pashello
   The correct install location for the NuttX examples and build files is
   apps/interpreters.
 
+examples/pca9635
+^^^^^^^^^^^^^^^^
+
+  A simple test of the PCA9635PW LED driver.
+
 examples/pipe
 ^^^^^^^^^^^^^
 
