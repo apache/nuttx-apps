@@ -182,6 +182,7 @@ void signest_test(void);
 /* posixtimers.c ************************************************************/
 
 void timer_test(void);
+void sigev_thread_test(void);
 
 /* roundrobin.c *************************************************************/
 

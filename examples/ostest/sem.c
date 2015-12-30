@@ -63,7 +63,7 @@ static sem_t sem;
 
 static void *waiter_func(void *parameter)
 {
-  int id = (int)parameter;
+  int id  = (int)((intptr_t)parameter);
   int status;
   int value;
 
@@ -105,7 +105,7 @@ static void *waiter_func(void *parameter)
 
 static void *poster_func(void *parameter)
 {
-  int id = (int)parameter;
+  int id  = (int)((intptr_t)parameter);
   int status;
   int value;
 

@@ -1504,3 +1504,6 @@
 	  (2015-12-13).
 	* apps/examples/pca9635:  Add a simple test of PCA9635PW PWM LED
 	  driver.  From Alan Carvalho de Assis (2015-12-15).
+	* apps/examples/ostest:  Add a test of POSIX timers using
+	  SIGEV_THREAD (20156-12-30).
+

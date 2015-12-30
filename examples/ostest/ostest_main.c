@@ -459,11 +459,19 @@ static int user_main(int argc, char *argv[])
 #endif
 
 #if !defined(CONFIG_DISABLE_POSIX_TIMERS) && !defined(CONFIG_DISABLE_SIGNALS)
-      /* Verify posix timers */
+      /* Verify posix timers (with SIGEV_SIGNAL) */
 
       printf("\nuser_main: POSIX timer test\n");
       timer_test();
       check_test_memory_usage();
+
+#ifdef CONFIG_SIG_EVTHREAD
+      /* Verify posix timers (with SIGEV_THREAD) */
+
+      printf("\nuser_main: SIGEV_THREAD timer test\n");
+      sigev_thread_test();
+      check_test_memory_usage();
+#endif
 #endif
 
 #if !defined(CONFIG_DISABLE_PTHREAD) && CONFIG_RR_INTERVAL > 0

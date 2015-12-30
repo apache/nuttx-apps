@@ -137,6 +137,10 @@ static void init_aiocb(bool signal)
         {
           aiocbp->aio_sigevent.sigev_notify = signal ? SIGEV_SIGNAL : SIGEV_NONE;
           aiocbp->aio_sigevent.sigev_signo  = SIGUSR1;
+#ifdef CONFIG_SIG_EVTHREAD
+          aiocbp->aio_sigevent.sigev_notify_function   = NULL;
+          aiocbp->aio_sigevent.sigev_notify_attributes = NULL;
+#endif
 
           aiocbp->aio_buf        = g_buffers[i];
           aiocbp->aio_offset     = (off_t)g_offsets[i];

@@ -94,6 +94,9 @@ endif # CONFIG_DISABLE_MQUEUE
 
 ifneq ($(CONFIG_DISABLE_POSIX_TIMERS),y)
 CSRCS += posixtimer.c
+ifeq ($(CONFIG_SIG_EVTHREAD),y)
+CSRCS += sigev_thread.c
+endif
 endif
 
 ifeq ($(CONFIG_ARCH_HAVE_VFORK),y)

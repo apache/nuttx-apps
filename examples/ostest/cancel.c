@@ -140,7 +140,7 @@ static void start_thread(pthread_t *waiter, int cancelable)
   /* Start the waiter thread  */
 
   printf("start_thread: Starting thread\n");
-  status = pthread_create(waiter, &attr, thread_waiter, (pthread_addr_t)cancelable);
+  status = pthread_create(waiter, &attr, thread_waiter, (pthread_addr_t)((uintptr_t)cancelable));
   if (status != 0)
     {
       printf("start_thread: ERROR pthread_create failed, status=%d\n", status);

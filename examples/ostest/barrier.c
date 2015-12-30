@@ -65,7 +65,7 @@ static pthread_barrier_t barrier;
 
 static void *barrier_func(void *parameter)
 {
-  int id = (int)parameter;
+  int id  = (int)((intptr_t)parameter);
   int status;
 
   printf("barrier_func: Thread %d started\n",  id);
@@ -156,7 +156,7 @@ void barrier_test(void)
   for (i = 0; i < CONFIG_EXAMPLES_OSTEST_NBARRIER_THREADS; i++)
     {
       status = pthread_create(&barrier_thread[i], &attr, barrier_func,
-                              (pthread_addr_t)i);
+                              (pthread_addr_t)((uintptr_t)i));
       if (status != 0)
         {
           printf("barrier_test: Error in thread %d create, status=%d\n",

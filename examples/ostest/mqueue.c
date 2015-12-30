@@ -168,7 +168,7 @@ static void *sender_thread(void *arg)
     }
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
-  return (pthread_addr_t)nerrors;
+  return (pthread_addr_t)((uintptr_t)nerrors);
 }
 
 static void *receiver_thread(void *arg)
@@ -275,8 +275,8 @@ static void *receiver_thread(void *arg)
     }
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
-  pthread_exit((pthread_addr_t)nerrors);
-  return (pthread_addr_t)nerrors;
+  pthread_exit((pthread_addr_t)((uintptr_t)nerrors));
+  return (pthread_addr_t)((uintptr_t)nerrors);
 }
 
 void mqueue_test(void)
@@ -345,18 +345,21 @@ void mqueue_test(void)
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("mqueue_test: pthread_attr_setstacksize failed, status=%d\n", status);
+      printf("mqueue_test: pthread_attr_setstacksize failed, status=%d\n",
+             status);
     }
 
   sparam.sched_priority = (prio_min + prio_mid) / 2;
   status = pthread_attr_setschedparam(&attr,&sparam);
   if (status != OK)
     {
-      printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n", status);
+      printf("mqueue_test: pthread_attr_setschedparam failed, status=%d\n",
+             status);
     }
   else
     {
-      printf("mqueue_test: Set sender thread priority to %d\n", sparam.sched_priority);
+      printf("mqueue_test: Set sender thread priority to %d\n",
+             sparam.sched_priority);
     }
 
   status = pthread_create(&sender, &attr, sender_thread, NULL);
@@ -367,9 +370,10 @@ void mqueue_test(void)
 
   printf("mqueue_test: Waiting for sender to complete\n");
   pthread_join(sender, &result);
-  if (result != (void*)0)
+  if (result != (FAR void *)0)
     {
-      printf("mqueue_test: ERROR sender thread exited with %d errors\n", (int)result);
+      printf("mqueue_test: ERROR sender thread exited with %d errors\n",
+             (int)((intptr_t)result));
     }
 
 #ifndef CONFIG_DISABLE_SIGNALS
@@ -406,7 +410,7 @@ void mqueue_test(void)
       printf("mqueue_test: ERROR receiver thread should have exited with %p\n",
              expected);
       printf("             ERROR Instead exited with nerrors=%d\n",
-             (int)result);
+             (int)((intptr_t)result));
     }
 
   /* Message queues are global resources and persist for the life the the

@@ -99,16 +99,18 @@ static void thread_inner(int id, int level)
     }
 }
 
-static void *thread_outer(void *parameter)
+static FAR void *thread_outer(FAR void *parameter)
 {
   int i;
-  printf("thread_outer[%d]: Started\n", (int)parameter);
+
+  printf("thread_outer[%d]: Started\n", (int)((intptr_t)parameter));
   for (i = 0; i < NLOOPS; i++)
     {
-      printf("thread_outer[%d]: Loop %d\n", (int)parameter, i);
-      thread_inner((int)parameter, 0);
+      printf("thread_outer[%d]: Loop %d\n", (int)((intptr_t)parameter), i);
+      thread_inner((int)((intptr_t)parameter), 0);
     }
-  printf("thread_outer[%d]: Exitting\n", (int)parameter);
+
+  printf("thread_outer[%d]: Exitting\n", (int)((intptr_t)parameter));
   pthread_exit(NULL);
   return NULL; /* Non-reachable -- needed for some compilers */
 }
@@ -160,9 +162,9 @@ void recursive_mutex_test(void)
       printf("recursive_mutex_test: Starting thread %d\n", i+1);
 #ifdef SDCC
       (void)pthread_attr_init(&attr);
-      status = pthread_create(&thread[i], &attr, thread_outer, (pthread_addr_t)i+1);
+      status = pthread_create(&thread[i], &attr, thread_outer, (pthread_addr_t)((uintptr_t)i+1));
 #else
-      status = pthread_create(&thread[i], NULL, thread_outer, (pthread_addr_t)i+1);
+      status = pthread_create(&thread[i], NULL, thread_outer, (pthread_addr_t)((uintptr_t)i+1));
 #endif
       if (status != 0)
         {

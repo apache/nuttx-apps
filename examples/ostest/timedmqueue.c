@@ -190,7 +190,7 @@ static void *sender_thread(void *arg)
 
   printf("sender_thread: returning nerrors=%d\n", nerrors);
   FFLUSH();
-  return (pthread_addr_t)nerrors;
+  return (pthread_addr_t)((uintptr_t)nerrors);
 }
 
 static void *receiver_thread(void *arg)
@@ -310,8 +310,8 @@ static void *receiver_thread(void *arg)
 
   printf("receiver_thread: returning nerrors=%d\n", nerrors);
   FFLUSH();
-  pthread_exit((pthread_addr_t)nerrors);
-  return (pthread_addr_t)nerrors;
+  pthread_exit((pthread_addr_t)((uintptr_t)nerrors));
+  return (pthread_addr_t)((uintptr_t)nerrors);
 }
 
 void timedmqueue_test(void)
@@ -328,19 +328,22 @@ void timedmqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_init failed, status=%d\n", status);
+      printf("timedmqueue_test: pthread_attr_init failed, status=%d\n",
+             status);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_setstacksize failed, status=%d\n", status);
+      printf("timedmqueue_test: pthread_attr_setstacksize failed, status=%d\n",
+             status);
     }
 
   status = pthread_create(&sender, &attr, sender_thread, NULL);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_create failed, status=%d\n", status);
+      printf("timedmqueue_test: pthread_create failed, status=%d\n",
+             status);
     }
 
   /* Wait for the sending thread to complete */
@@ -349,7 +352,8 @@ void timedmqueue_test(void)
   pthread_join(sender, &result);
   if (result != (void*)0)
     {
-      printf("timedmqueue_test: ERROR sender thread exited with %d errors\n", (int)result);
+      printf("timedmqueue_test: ERROR sender thread exited with %d errors\n",
+             (int)((intptr_t)result));
     }
 
   /* Start the receiving thread at the default priority */
@@ -358,19 +362,22 @@ void timedmqueue_test(void)
   status = pthread_attr_init(&attr);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_init failed, status=%d\n", status);
+      printf("timedmqueue_test: pthread_attr_init failed, status=%d\n",
+             status);
     }
 
   status = pthread_attr_setstacksize(&attr, STACKSIZE);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_attr_setstacksize failed, status=%d\n", status);
+      printf("timedmqueue_test: pthread_attr_setstacksize failed, status=%d\n",
+             status);
     }
 
   status = pthread_create(&receiver, &attr, receiver_thread, NULL);
   if (status != 0)
     {
-      printf("timedmqueue_test: pthread_create failed, status=%d\n", status);
+      printf("timedmqueue_test: pthread_create failed, status=%d\n",
+             status);
     }
 
   /* Wait for the receiving thread to complete */
@@ -380,7 +387,7 @@ void timedmqueue_test(void)
   if (result != (void*)0)
     {
       printf("timedmqueue_test: ERROR receiver thread exited with %d errors\n",
-             (int)result);
+             (int)((intptr_t)result));
     }
 
   /* Make sure that the message queues were properly closed (otherwise, we

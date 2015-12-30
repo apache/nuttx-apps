@@ -187,9 +187,13 @@ void timer_test(void)
 
   printf("timer_test: Creating timer\n" );
 
-  notify.sigev_notify          = SIGEV_SIGNAL;
-  notify.sigev_signo           = MY_TIMER_SIGNAL;
-  notify.sigev_value.sival_int = SIGVALUE_INT;
+  notify.sigev_notify            = SIGEV_SIGNAL;
+  notify.sigev_signo             = MY_TIMER_SIGNAL;
+  notify.sigev_value.sival_int   = SIGVALUE_INT;
+#ifdef CONFIG_SIG_EVTHREAD
+  notify.sigev_notify_function   = NULL;
+  notify.sigev_notify_attributes = NULL;
+#endif
 
   status = timer_create(CLOCK_REALTIME, &notify, &timerid);
   if (status != OK)

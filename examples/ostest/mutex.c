@@ -48,9 +48,9 @@ static volatile int my_mutex = 0;
 static unsigned long nloops[2] = {0, 0};
 static unsigned long nerrors[2] = {0, 0};
 
-static void *thread_func(void *parameter)
+static void *thread_func(FAR void *parameter)
 {
-  int id  = (int)parameter;
+  int id  = (int)((intptr_t)parameter);
   int ndx = id - 1;
   int i;
 
