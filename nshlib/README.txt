@@ -1017,6 +1017,16 @@ o time "<command>"
   The addition 100 microseconds in this example is the additional overhead
   of the time command execution itself which is included in the total.
 
+  Notice that:
+
+    nsh> time "sleep 2 &"
+    sleep [3:100]
+
+    0.0000 sec
+
+  Since the sleep command is executed in background, the sleep command
+  completes almost immediately.
+
 o unset <name>
 
   Remove the value associated with the environment variable
