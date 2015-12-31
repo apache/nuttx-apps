@@ -1015,11 +1015,12 @@ o time "<command>"
     2.0100 sec
     nsh>
 
-  The additional 10 millseconds in this example is due primarily to the
-  quantization error in the timing (this setup used a 10 millisecond
-  periodic system timer).  Other sources of error could include the
-  additional overhead of the time command execution itself which is
-  included in the total.
+  The additional 10 millseconds in this example is due to the way that the
+  sleep command works: It always waits one system clock tick longer than
+  requested and this test setup used a 10 millisecond periodic system
+  timer).  Sources of error could include the additional overhead of the
+  time command execution itself which is included in the total and various
+  quantization errors.
 
   Notice that:
 
