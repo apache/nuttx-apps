@@ -934,6 +934,9 @@ void nsh_usbtrace(void);
 #ifndef CONFIG_NSH_DISABLE_FREE
   int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
+#ifndef CONFIG_NSH_DISABLE_TIME
+  int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
 #ifndef CONFIG_NSH_DISABLE_PS
   int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif

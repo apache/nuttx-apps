@@ -1000,6 +1000,23 @@ o sleep <sec>
 
   Pause execution (sleep) of <sec> seconds.
 
+o time "<command>"
+
+  Perform command timing.  This command will execute the following <command>
+  string and then show how much time was required to execute the command.
+  Time is shown with a resolution of 100 microseconds which may be beyond
+  the resolution of many configurations.  Note that the <command> string
+  must be enclosed in quotation marks.
+
+  Example:
+
+    nsh> time "sleep 2"
+
+    2.0001 sec
+
+  The addition 100 microseconds in this example is the additional overhead
+  of the time command execution itself which is included in the total.
+
 o unset <name>
 
   Remove the value associated with the environment variable
@@ -1133,6 +1150,7 @@ Command Dependencies on Configuration Settings
   shutdown   CONFIG_BOARDCTL_POWEROFF || CONFIG_BOARDCTL_RESET
   sleep      !CONFIG_DISABLE_SIGNALS
   test       !CONFIG_NSH_DISABLESCRIPT
+  time       ---
   umount     !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE
   uname      !CONFIG_NSH_DISABLE_UNAME
   unset      !CONFIG_DISABLE_ENVIRON
@@ -1173,9 +1191,10 @@ also allow it to squeeze into very small memory footprints.
   CONFIG_NSH_DISABLE_PING6,     CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,
   CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,
   CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SHUTDOWN,
-  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DISABLE_UMOUNT,
-  CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE,
-  CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DIABLE_TIME,
+  CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
+  CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,
+  CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.

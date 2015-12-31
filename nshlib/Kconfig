@@ -395,6 +395,11 @@ config NSH_DISABLE_SLEEP
 	bool "Disable sleep"
 	default n
 
+config NSH_DISABLE_TIME
+	bool "Disable time"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+
 config NSH_DISABLE_TEST
 	bool "Disable test"
 	default n

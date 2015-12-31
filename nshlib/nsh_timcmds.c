@@ -53,9 +53,11 @@
 
 #define MAX_TIME_STRING 80
 
-/****************************************************************************
- * Private Types
- ****************************************************************************/
+#ifdef CONFIG_CLOCK_MONOTONIC
+#  define TIME_CLOCK CLOCK_MONOTONIC
+#else
+#  define TIME_CLOCK CLOCK_REALTIME
+#endif
 
 /****************************************************************************
  * Private Function Prototypes
@@ -282,6 +284,67 @@ errout_bad_parm:
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: cmd_time
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_TIME
+int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  struct timespec start;
+  bool bgsave;
+  bool redirsave;
+  int ret;
+
+  /* Get the current time */
+
+  ret = clock_gettime(TIME_CLOCK, &start);
+  if (ret < 0)
+    {
+       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime", NSH_ERRNO);
+       return ERROR;
+    }
+
+  /* Save state */
+
+  bgsave    = vtbl->np.np_bg;
+  redirsave = vtbl->np.np_redirect;
+
+  /* Execute the command */
+
+  ret = nsh_parse(vtbl, argv[1]);
+  if (ret >= 0)
+    {
+      struct timespec end;
+      struct timespec diff;
+
+      ret = clock_gettime(TIME_CLOCK, &end);
+      if (ret < 0)
+        {
+           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "clock_gettime", NSH_ERRNO);
+           ret = ERROR;
+        }
+      else
+        {
+          diff.tv_sec = end.tv_sec - start.tv_sec;
+          if (start.tv_nsec > end.tv_nsec)
+            {
+              diff.tv_sec--;
+              end.tv_nsec += 1000000000;
+            }
+
+          diff.tv_nsec = end.tv_nsec - start.tv_nsec;
+          nsh_output(vtbl, "\n%lu.%04lu sec\n", (unsigned long)diff.tv_sec,
+                     (unsigned long)diff.tv_nsec / 10000000);
+        }
+    }
+
+  vtbl->np.np_bg       = bgsave;
+  vtbl->np.np_redirect = redirsave;
+  return ret;
+}
+#endif
 
 /****************************************************************************
  * Name: cmd_date

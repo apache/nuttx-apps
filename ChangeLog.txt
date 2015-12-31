@@ -1506,4 +1506,5 @@
 	  driver.  From Alan Carvalho de Assis (2015-12-15).
 	* apps/examples/ostest:  Add a test of POSIX timers using
 	  SIGEV_THREAD (20156-12-30).
-
+	* apps/nshlib:  Add a 'time' command that may be used to time the
+	  execution of other commands (2015-12-31).

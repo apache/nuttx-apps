@@ -435,15 +435,19 @@ static const struct cmdmap_s g_cmdmap[] =
   { "test",     cmd_test,     3, CONFIG_NSH_MAXARGUMENTS, "<expression>" },
 #endif
 
+#ifndef CONFIG_NSH_DISABLE_TIME
+  { "time",     cmd_time,     2, 2, "\"<command>\"" },
+#endif
+
 #ifndef CONFIG_NSH_DISABLESCRIPT
-  { "true",     cmd_true,    1, 1, NULL },
+  { "true",     cmd_true,     1, 1, NULL },
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_UNAME
 #ifdef CONFIG_NET
-  { "uname",    cmd_uname,   1, 7, "[-a | -imnoprsv]" },
+  { "uname",    cmd_uname,    1, 7, "[-a | -imnoprsv]" },
 #else
-  { "uname",    cmd_uname,   1, 7, "[-a | -imoprsv]" },
+  { "uname",    cmd_uname,    1, 7, "[-a | -imoprsv]" },
 #endif
 #endif
 
