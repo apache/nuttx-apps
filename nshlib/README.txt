@@ -1012,10 +1012,14 @@ o time "<command>"
 
     nsh> time "sleep 2"
 
-    2.0001 sec
+    2.0100 sec
+    nsh>
 
-  The addition 100 microseconds in this example is the additional overhead
-  of the time command execution itself which is included in the total.
+  The additional 10 millseconds in this example is due primarily to the
+  quantization error in the timing (this setup used a 10 millisecond
+  periodic system timer).  Other sources of error could include the
+  additional overhead of the time command execution itself which is
+  included in the total.
 
   Notice that:
 
@@ -1023,9 +1027,16 @@ o time "<command>"
     sleep [3:100]
 
     0.0000 sec
+    nsh>
 
   Since the sleep command is executed in background, the sleep command
-  completes almost immediately.
+  completes almost immediately.  As opposed to the following where the
+  time command is run in background with the sleep command:
+
+    nsh> time "sleep 2" &
+    time [3:100]
+    nsh>
+    2.0100 sec
 
 o unset <name>
 

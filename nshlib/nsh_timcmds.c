@@ -336,7 +336,7 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           diff.tv_nsec = end.tv_nsec - start.tv_nsec;
           nsh_output(vtbl, "\n%lu.%04lu sec\n", (unsigned long)diff.tv_sec,
-                     (unsigned long)diff.tv_nsec / 10000000);
+                     (unsigned long)diff.tv_nsec / 100000);
         }
     }
 
