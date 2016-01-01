@@ -1005,8 +1005,9 @@ o time "<command>"
   Perform command timing.  This command will execute the following <command>
   string and then show how much time was required to execute the command.
   Time is shown with a resolution of 100 microseconds which may be beyond
-  the resolution of many configurations.  Note that the <command> string
-  must be enclosed in quotation marks.
+  the resolution of many configurations.  Note that the <command> must be
+  enclosed in quotation marks if it contains spaces or other
+  delimiters.
 
   Example:
 
@@ -1018,9 +1019,17 @@ o time "<command>"
   The additional 10 millseconds in this example is due to the way that the
   sleep command works: It always waits one system clock tick longer than
   requested and this test setup used a 10 millisecond periodic system
-  timer).  Sources of error could include the additional overhead of the
-  time command execution itself which is included in the total and various
-  quantization errors.
+  timer.  Sources of error could include various quantization errors,
+  competing CPU usage,  and the additional overhead of the time command
+  execution itself which is included in the total.
+
+  The reported time is the elapsed time from starting of the command to
+  completion of the command.  This elapsed time may not necessarily the
+  processing time for the command.  In a busy system, command processing
+  could be delayed if pre-empted by other, higher priority threads competing
+  for CPU time.  So the reported time includes all CPU processing from the
+  start of the command to its finish possibly including unrelated processing
+  time during that interval.
 
   Notice that:
 
