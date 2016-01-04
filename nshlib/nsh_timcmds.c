@@ -319,6 +319,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       struct timespec end;
       struct timespec diff;
 
+      /* Get and print the elapsed time */
+
       ret = clock_gettime(TIME_CLOCK, &end);
       if (ret < 0)
         {
@@ -339,6 +341,8 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                      (unsigned long)diff.tv_nsec / 100000);
         }
     }
+
+  /* Restore state */
 
   vtbl->np.np_bg       = bgsave;
   vtbl->np.np_redirect = redirsave;
