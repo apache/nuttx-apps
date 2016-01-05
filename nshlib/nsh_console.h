@@ -114,8 +114,9 @@ struct nsh_vtbl_s
   void (*addref)(FAR struct nsh_vtbl_s *vtbl);
   void (*release)(FAR struct nsh_vtbl_s *vtbl);
 #endif
-  ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer, size_t nbytes);
-  int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
+  ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer,
+                   size_t nbytes);
+  int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const IOBJ char *fmt, ...);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
 #if CONFIG_NFILE_DESCRIPTORS > 0
   void (*redirect)(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save);

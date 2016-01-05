@@ -54,10 +54,6 @@
 #include "nsh_console.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -92,14 +88,6 @@ static void nsh_consoleundirect(FAR struct nsh_vtbl_s *vtbl,
 
 static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
   noreturn_function;
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -173,7 +161,8 @@ static void nsh_closeifnotclosed(struct console_stdio_s *pstate)
  *
  ****************************************************************************/
 
-static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer, size_t nbytes)
+static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
+                                FAR const void *buffer, size_t nbytes)
 {
 #if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
@@ -214,7 +203,7 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl, FAR const void *buf
  ****************************************************************************/
 
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
-                             FAR const char *fmt, ...)
+                             FAR const IPTR char *fmt, ...)
 {
 #if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;
@@ -442,7 +431,9 @@ static void nsh_consoleexit(FAR struct nsh_vtbl_s *vtbl, int exitstatus)
 
 FAR struct console_stdio_s *nsh_newconsole(void)
 {
-  struct console_stdio_s *pstate = (struct console_stdio_s *)zalloc(sizeof(struct console_stdio_s));
+  FAR struct console_stdio_s *pstate =
+    (FAR struct console_stdio_s *)zalloc(sizeof(struct console_stdio_s));
+
   if (pstate)
     {
       /* Initialize the call table */
