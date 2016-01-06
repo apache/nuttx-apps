@@ -19,4 +19,12 @@ config EXAMPLES_HELLO_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
+config EXAMPLES_HELLO_PRIORITY
+	int "Hello task priority"
+	default 100
+
+config EXAMPLES_HELLO_STACKSIZE
+	int "Hello stack size"
+	default 2048
+
 endif
