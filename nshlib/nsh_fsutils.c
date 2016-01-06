@@ -136,19 +136,20 @@ int nsh_catfile(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
               ssize_t n = nsh_write(vtbl, buffer, nbytesread);
               if (n < 0)
                 {
-                  int errval = errno;
+                  int errcode = errno;
 
                   /* EINTR is not an error (but will stop stop the cat) */
 
 #ifndef CONFIG_DISABLE_SIGNALS
-                  if (errval == EINTR)
+                  if (errcode == EINTR)
                     {
                       nsh_output(vtbl, g_fmtsignalrecvd, cmd);
                     }
                   else
 #endif
                     {
-                      nsh_output(vtbl, g_fmtcmdfailed, cmd, "write", NSH_ERRNO);
+                      nsh_output(vtbl, g_fmtcmdfailed, cmd, "write",
+                                 NSH_ERRNO_OF(errcode));
                     }
 
                   ret = ERROR;
