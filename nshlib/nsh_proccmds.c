@@ -103,6 +103,10 @@ struct nsh_taskstatus_s
 #endif
 };
 
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
 /* Status strings */
 
 #if 0 /* Not used */
@@ -122,6 +126,25 @@ static const char g_priority[]  = "Priority:";
 static const char g_scheduler[] = "Scheduler:";
 #ifndef CONFIG_DISABLE_SIGNALS
 static const char g_sigmask[]   = "SigMask:";
+#endif
+
+/* Format strings */
+
+#ifndef CONFIG_NSH_DISABLE_PS
+static const IOBJ char g_fmtid[]      = "%5s ";
+static const IOBJ char g_fmtname[]    = "%5s ";
+#ifndef CONFIG_DISABLE_SIGNALS
+static const IOBJ char g_fmtsigmask[] = "%-8s ";
+#endif
+#ifdef NSH_HAVE_CPULOAD
+static const IOBJ char g_fmtload[]    = "%6s ";
+#endif
+static const IOBJ char g_fmtcmdline[] = "%s\n";
+static const IOBJ char g_fmtcommon[]  = "%3s %-8s %-7s %3s %-8s %-9s ";
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_EXEC
+static const IOBJ char g_fmtexec[]    = "Calling %p\n";
 #endif
 
 /****************************************************************************
@@ -337,28 +360,28 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   /* Finally, print the status information */
 
-  nsh_output(vtbl, "%5s ", entryp->d_name);
+  nsh_output(vtbl, g_fmtname, entryp->d_name);
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
 #ifdef HAVE_GROUPID
-  nsh_output(vtbl, "%5s ", status.td_groupid);
+  nsh_output(vtbl, g_fmtid, status.td_groupid);
 #else
-  nsh_output(vtbl, "%5s ", status.td_ppid);
+  nsh_output(vtbl, g_fmtid, status.td_ppid);
 #endif
 #endif
 
-  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
+  nsh_output(vtbl, g_fmtcommon,
              status.td_priority, status.td_policy, status.td_type,
              status.td_flags, status.td_state, status.td_event);
 
 #ifndef CONFIG_DISABLE_SIGNALS
-  nsh_output(vtbl, "%-8s ", status.td_sigmask);
+  nsh_output(vtbl, g_fmtsigmask, status.td_sigmask);
 #endif
 
 #ifdef NSH_HAVE_CPULOAD
   /* Get the CPU load */
 
-  filepath          = NULL;
+  filepath = NULL;
   ret = asprintf(&filepath, "%s/%s/loadavg", dirpath, entryp->d_name);
   if (ret < 0 || filepath == NULL)
     {
@@ -376,7 +399,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         }
     }
 
-  nsh_output(vtbl, "%6s ", nsh_trimspaces(vtbl->iobuffer));
+  nsh_output(vtbl, g_fmtload, nsh_trimspaces(vtbl->iobuffer));
 #endif
 
   /* Read the task/tread command line */
@@ -398,7 +421,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
       return ERROR;
     }
 
-  nsh_output(vtbl, "%s\n", nsh_trimspaces(vtbl->iobuffer));
+  nsh_output(vtbl, g_fmtcmdline, nsh_trimspaces(vtbl->iobuffer));
   return OK;
 }
 #endif
@@ -424,7 +447,7 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
        return ERROR;
     }
 
-  nsh_output(vtbl, "Calling %p\n", (exec_t)addr);
+  nsh_output(vtbl, g_fmtexec, (exec_t)addr);
   return ((exec_t)addr)();
 }
 #endif
@@ -436,26 +459,26 @@ int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 #ifndef CONFIG_NSH_DISABLE_PS
 int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  nsh_output(vtbl, "%5s ", "PID");
+  nsh_output(vtbl, g_fmtid, "PID");
 
 #ifdef CONFIG_SCHED_HAVE_PARENT
 #ifdef HAVE_GROUPID
-  nsh_output(vtbl, "%5s ", "GROUP");
+  nsh_output(vtbl, g_fmtid, "GROUP");
 #else
-  nsh_output(vtbl, "%5s ", "PPID");
+  nsh_output(vtbl, g_fmtid, "PPID");
 #endif
 #endif
 
-  nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
+  nsh_output(vtbl, g_fmtcommon,
              "PRI", "POLICY", "TYPE", "NPX", "STATE", "EVENT");
 
 #ifndef CONFIG_DISABLE_SIGNALS
-  nsh_output(vtbl, "%-8s ", "SIGMASK");
+  nsh_output(vtbl, g_fmtsigmask, "SIGMASK");
 #endif
 #ifdef NSH_HAVE_CPULOAD
-  nsh_output(vtbl, "%6s ", "CPU");
+  nsh_output(vtbl, g_fmtload, "CPU");
 #endif
-  nsh_output(vtbl, "%s\n", "COMMAND");
+  nsh_output(vtbl, g_fmtcmdline, "COMMAND");
 
   return nsh_foreach_direntry(vtbl, "ps", CONFIG_NSH_PROC_MOUNTPOINT,
                               ps_callback, NULL);
