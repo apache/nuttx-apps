@@ -253,7 +253,7 @@ void signest_test(void)
   /* Wait a bit */
 
   FFLUSH();
-  usleep(500*1000);
+  usleep(500*1000L);
 
   /* Then signal the waiter thread with back-to-back signals, one masked and the other unmasked. */
 
@@ -269,7 +269,7 @@ void signest_test(void)
           odd_signals++;
           even_signals++;
 
-          usleep(10*1000);
+          usleep(10*1000L);
 
           /* Even then odd */
 
@@ -279,7 +279,7 @@ void signest_test(void)
           odd_signals++;
           even_signals++;
 
-          usleep(10*1000);
+          usleep(10*1000L);
         }
     }
 
@@ -316,7 +316,7 @@ void signest_test(void)
           even_signals++;
           sched_unlock();
 
-          usleep(10*1000);
+          usleep(10*1000L);
 
           /* Even then odd */
 
@@ -328,7 +328,7 @@ void signest_test(void)
           even_signals++;
           sched_unlock();
 
-          usleep(10*1000);
+          usleep(10*1000L);
         }
     }
 
@@ -363,7 +363,7 @@ void signest_test(void)
           even_signals++;
           sched_unlock();
 
-          usleep(10*1000);
+          usleep(10*1000L);
 
           /* Even then odd */
 
@@ -376,7 +376,7 @@ void signest_test(void)
           even_signals++;
           sched_unlock();
 
-          usleep(10*1000);
+          usleep(10*1000L);
         }
     }
 
@@ -386,7 +386,7 @@ errout_with_waiter:
   g_done = true;
   sem_post(&g_waiter_sem);
   sem_post(&g_interferer_sem);
-  usleep(500*1000);
+  usleep(500*1000L);
 
   /* Check the final test results */
 
