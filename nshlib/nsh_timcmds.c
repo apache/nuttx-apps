@@ -293,8 +293,12 @@ errout_bad_parm:
 int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct timespec start;
+#ifndef CONFIG_NSH_DISABLEBG
   bool bgsave;
+#endif
+#if CONFIG_NFILE_STREAMS > 0
   bool redirsave;
+#endif
   int ret;
 
   /* Get the current time */
@@ -308,8 +312,12 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Save state */
 
+#ifndef CONFIG_NSH_DISABLEBG
   bgsave    = vtbl->np.np_bg;
+#endif
+#if CONFIG_NFILE_STREAMS > 0
   redirsave = vtbl->np.np_redirect;
+#endif
 
   /* Execute the command */
 
@@ -344,8 +352,13 @@ int cmd_time(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Restore state */
 
+#ifndef CONFIG_NSH_DISABLEBG
   vtbl->np.np_bg       = bgsave;
+#endif
+#if CONFIG_NFILE_STREAMS > 0
   vtbl->np.np_redirect = redirsave;
+#endif
+
   return ret;
 }
 #endif
