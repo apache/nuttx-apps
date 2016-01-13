@@ -639,7 +639,7 @@
 #endif
 
 #define NSH_HAVE_CPULOAD  1
-#if !defined(CONFIG_FS_PROCFS) || !defined(CONFIG_FS_PROCFS_EXCLUDE_CPULOAD) || \
+#if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_CPULOAD) || \
     !defined(CONFIG_SCHED_CPULOAD) || defined(CONFIG_NSH_DISABLE_PS)
 #  undef NSH_HAVE_CPULOAD
 #endif
