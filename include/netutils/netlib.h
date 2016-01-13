@@ -159,7 +159,6 @@ int netlib_ifdown(FAR const char *ifname);
 
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NETDB_DNSCLIENT)
 int netlib_set_ipv4dnsaddr(FAR const struct in_addr *inaddr);
-int netlib_get_ipv4dnsaddr(FAR struct in_addr *inaddr);
 #endif
 
 #undef EXTERN
