@@ -1508,3 +1508,5 @@
 	  SIGEV_THREAD (20156-12-30).
 	* apps/nshlib:  Add a 'time' command that may be used to time the
 	  execution of other commands (2015-12-31).
+	* apps/netutils/netlib:  Add netlib_get_dripv4addr() and
+	  netlib_get_ipv4netmask().  From Pelle Windestam (2016-01-14).
