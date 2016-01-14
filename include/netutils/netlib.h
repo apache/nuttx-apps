@@ -120,7 +120,9 @@ int netlib_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
 int netlib_get_ipv4addr(FAR const char *ifname, FAR struct in_addr *addr);
 int netlib_set_ipv4addr(FAR const char *ifname, FAR const struct in_addr *addr);
 int netlib_set_dripv4addr(FAR const char *ifname, FAR const struct in_addr *addr);
+int netlib_get_dripv4addr(FAR const char *ifname, FAR struct in_addr *addr);
 int netlib_set_ipv4netmask(FAR const char *ifname, FAR const struct in_addr *addr);
+int netlib_get_ipv4netmask(FAR const char *ifname, FAR struct in_addr *addr);
 #endif
 
 #ifdef CONFIG_NET_IPv6
