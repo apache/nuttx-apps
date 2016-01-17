@@ -219,47 +219,47 @@ static const char g_nullstring[]      = "";
  */
 
 #if CONFIG_VERSION_MAJOR != 0 || CONFIG_VERSION_MINOR != 0
-const IOBJ char g_nshgreeting[]    = "\nNuttShell (NSH) NuttX-" CONFIG_VERSION_STRING "\n";
+const char g_nshgreeting[]       = "\nNuttShell (NSH) NuttX-" CONFIG_VERSION_STRING "\n";
 #else
-const IOBJ char g_nshgreeting[]    = "\nNuttShell (NSH)\n";
+const char g_nshgreeting[]       = "\nNuttShell (NSH)\n";
 #endif
 
 /* Telnet login prompts */
 
 #if defined(CONFIG_NSH_TELNET_LOGIN) && defined(CONFIG_NSH_TELNET)
-const IOBJ char g_telnetgreeting[] = "\nWelcome to NuttShell(NSH) Telnet Server...\n";
-const IOBJ char g_userprompt[]     = "login: ";
-const IOBJ char g_passwordprompt[] = "password: ";
-const IOBJ char g_loginsuccess[]   = "\nUser Logged-in!\n";
-const IOBJ char g_badcredentials[] = "\nInvalid username or password\n";
-const IOBJ char g_loginfailure[]   = "Login failed!\n";
+const char g_telnetgreeting[]    = "\nWelcome to NuttShell(NSH) Telnet Server...\n";
+const char g_userprompt[]        = "login: ";
+const char g_passwordprompt[]    = "password: ";
+const char g_loginsuccess[]      = "\nUser Logged-in!\n";
+const char g_badcredentials[]    = "\nInvalid username or password\n";
+const char g_loginfailure[]      = "Login failed!\n";
 #endif
 
 /* The NSH prompt */
 
-const IOBJ char g_nshprompt[]      = "nsh> ";
+const char g_nshprompt[]         = "nsh> ";
 
 /* Common, message formats */
 
-const IOBJ char g_nshsyntax[]      = "nsh: %s: syntax error\n";
-const IOBJ char g_fmtargrequired[] = "nsh: %s: missing required argument(s)\n";
-const IOBJ char g_fmtnomatching[]  = "nsh: %s: no matching %s\n";
-const IOBJ char g_fmtarginvalid[]  = "nsh: %s: argument invalid\n";
-const IOBJ char g_fmtargrange[]    = "nsh: %s: value out of range\n";
-const IOBJ char g_fmtcmdnotfound[] = "nsh: %s: command not found\n";
-const IOBJ char g_fmtnosuch[]      = "nsh: %s: no such %s: %s\n";
-const IOBJ char g_fmttoomanyargs[] = "nsh: %s: too many arguments\n";
-const IOBJ char g_fmtdeepnesting[] = "nsh: %s: nesting too deep\n";
-const IOBJ char g_fmtcontext[]     = "nsh: %s: not valid in this context\n";
+const char g_nshsyntax[]         = "nsh: %s: syntax error\n";
+const char g_fmtargrequired[]    = "nsh: %s: missing required argument(s)\n";
+const char g_fmtnomatching[]     = "nsh: %s: no matching %s\n";
+const char g_fmtarginvalid[]     = "nsh: %s: argument invalid\n";
+const char g_fmtargrange[]       = "nsh: %s: value out of range\n";
+const char g_fmtcmdnotfound[]    = "nsh: %s: command not found\n";
+const char g_fmtnosuch[]         = "nsh: %s: no such %s: %s\n";
+const char g_fmttoomanyargs[]    = "nsh: %s: too many arguments\n";
+const char g_fmtdeepnesting[]    = "nsh: %s: nesting too deep\n";
+const char g_fmtcontext[]        = "nsh: %s: not valid in this context\n";
 #ifdef CONFIG_NSH_STRERROR
-const IOBJ char g_fmtcmdfailed[]   = "nsh: %s: %s failed: %s\n";
+const char g_fmtcmdfailed[]      = "nsh: %s: %s failed: %s\n";
 #else
-const IOBJ char g_fmtcmdfailed[]      = "nsh: %s: %s failed: %d\n";
+const char g_fmtcmdfailed[]      = "nsh: %s: %s failed: %d\n";
 #endif
-const IOBJ char g_fmtcmdoutofmemory[] = "nsh: %s: out of memory\n";
-const IOBJ char g_fmtinternalerror[]  = "nsh: %s: Internal error\n";
+const char g_fmtcmdoutofmemory[] = "nsh: %s: out of memory\n";
+const char g_fmtinternalerror[]  = "nsh: %s: Internal error\n";
 #ifndef CONFIG_DISABLE_SIGNALS
-const IOBJ char g_fmtsignalrecvd[]    = "nsh: %s: Interrupted by signal\n";
+const char g_fmtsignalrecvd[]    = "nsh: %s: Interrupted by signal\n";
 #endif
 
 /****************************************************************************
