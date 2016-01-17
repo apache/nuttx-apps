@@ -76,7 +76,7 @@ static void nsh_consolerelease(FAR struct nsh_vtbl_s *vtbl);
 static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
   FAR const void *buffer, size_t nbytes);
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
-  FAR const IPTR char *fmt, ...);
+  FAR const char *fmt, ...);
 static FAR char *nsh_consolelinebuffer(FAR struct nsh_vtbl_s *vtbl);
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
@@ -203,7 +203,7 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
  ****************************************************************************/
 
 static int nsh_consoleoutput(FAR struct nsh_vtbl_s *vtbl,
-                             FAR const IPTR char *fmt, ...)
+                             FAR const char *fmt, ...)
 {
 #if CONFIG_NFILE_DESCRIPTORS > 0
   FAR struct console_stdio_s *pstate = (FAR struct console_stdio_s *)vtbl;

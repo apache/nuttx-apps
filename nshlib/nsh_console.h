@@ -116,7 +116,7 @@ struct nsh_vtbl_s
 #endif
   ssize_t (*write)(FAR struct nsh_vtbl_s *vtbl, FAR const void *buffer,
                    size_t nbytes);
-  int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const IPTR char *fmt, ...);
+  int (*output)(FAR struct nsh_vtbl_s *vtbl, FAR const char *fmt, ...);
   FAR char *(*linebuffer)(FAR struct nsh_vtbl_s *vtbl);
 #if CONFIG_NFILE_DESCRIPTORS > 0
   void (*redirect)(FAR struct nsh_vtbl_s *vtbl, int fd, FAR uint8_t *save);

@@ -64,7 +64,7 @@
  * Name: netlib_get_ipv4netmask
  *
  * Description:
- *   Get the network driver IPv4 netmask 
+ *   Get the network driver IPv4 netmask
  *
  * Parameters:
  *   ifname   The name of the interface to use

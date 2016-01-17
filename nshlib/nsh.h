@@ -797,31 +797,31 @@ typedef CODE int (*nsh_direntry_handler_t)(FAR struct nsh_vtbl_s *vtbl,
  * Public Data
  ****************************************************************************/
 
-extern const IOBJ char g_nshgreeting[];
+extern const char g_nshgreeting[];
 #if defined(CONFIG_NSH_TELNET_LOGIN) && defined(CONFIG_NSH_TELNET)
-extern const IOBJ char g_telnetgreeting[];
-extern const IOBJ char g_userprompt[];
-extern const IOBJ char g_passwordprompt[];
-extern const IOBJ char g_loginsuccess[];
-extern const IOBJ char g_badcredentials[];
-extern const IOBJ char g_loginfailure[];
+extern const char g_telnetgreeting[];
+extern const char g_userprompt[];
+extern const char g_passwordprompt[];
+extern const char g_loginsuccess[];
+extern const char g_badcredentials[];
+extern const char g_loginfailure[];
 #endif
-extern const IOBJ char g_nshprompt[];
-extern const IOBJ char g_nshsyntax[];
-extern const IOBJ char g_fmtargrequired[];
-extern const IOBJ char g_fmtnomatching[];
-extern const IOBJ char g_fmtarginvalid[];
-extern const IOBJ char g_fmtargrange[];
-extern const IOBJ char g_fmtcmdnotfound[];
-extern const IOBJ char g_fmtnosuch[];
-extern const IOBJ char g_fmttoomanyargs[];
-extern const IOBJ char g_fmtdeepnesting[];
-extern const IOBJ char g_fmtcontext[];
-extern const IOBJ char g_fmtcmdfailed[];
-extern const IOBJ char g_fmtcmdoutofmemory[];
-extern const IOBJ char g_fmtinternalerror[];
+extern const char g_nshprompt[];
+extern const char g_fmtsyntax[];
+extern const char g_fmtargrequired[];
+extern const char g_fmtnomatching[];
+extern const char g_fmtarginvalid[];
+extern const char g_fmtargrange[];
+extern const char g_fmtcmdnotfound[];
+extern const char g_fmtnosuch[];
+extern const char g_fmttoomanyargs[];
+extern const char g_fmtdeepnesting[];
+extern const char g_fmtcontext[];
+extern const char g_fmtcmdfailed[];
+extern const char g_fmtcmdoutofmemory[];
+extern const char g_fmtinternalerror[];
 #ifndef CONFIG_DISABLE_SIGNALS
-extern const IOBJ char g_fmtsignalrecvd[];
+extern const char g_fmtsignalrecvd[];
 #endif
 
 /****************************************************************************
