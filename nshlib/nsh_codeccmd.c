@@ -96,9 +96,8 @@
  * Private Types
  ****************************************************************************/
 
-typedef void (*codec_callback_t)(FAR char *src_buff, int src_buff_len,
-                                 FAR char *dst_buff, FAR int *dst_buff_len,
-                                 int mode);
+typedef void (*codec_callback_t)(FAR char *src, int srclen, FAR char *dest,
+                                 FAR int *destlen, int mode);
 
 /****************************************************************************
  * Private Functions
@@ -109,10 +108,10 @@ typedef void (*codec_callback_t)(FAR char *src_buff, int src_buff_len,
  ****************************************************************************/
 
 #if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLENCODE)
-static void urlencode_cb(FAR char *src_buff, int src_buff_len,
-                         FAR char *dst_buff, FAR int *dst_buff_len, int mode)
+static void urlencode_cb(FAR char *src, int srclen, FAR char *dest,
+                         FAR int *destlen, int mode)
 {
-  urlencode(src_buff,src_buff_len,dst_buff,dst_buff_len);
+  urlencode(src, srclen, dest, destlen);
 }
 #endif
 
@@ -121,10 +120,10 @@ static void urlencode_cb(FAR char *src_buff, int src_buff_len,
  ****************************************************************************/
 
 #if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLDECODE)
-static void urldecode_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
-                         FAR int *dst_buff_len, int mode)
+static void urldecode_cb(FAR char *src, int srclen, FAR char *dest,
+                         FAR int *destlen, int mode)
 {
-  urldecode(src_buff,src_buff_len,dst_buff,dst_buff_len);
+  urldecode(src,srclen,dest,destlen);
 }
 #endif
 
@@ -133,20 +132,18 @@ static void urldecode_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buf
  ****************************************************************************/
 
 #if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64ENC)
-static void b64enc_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
-                      FAR int *dst_buff_len, int mode)
+static void b64enc_cb(FAR char *src, int srclen, FAR char *dest,
+                      FAR int *destlen, int mode)
 {
   if (mode == 0)
     {
-      //dst_buff =
-      base64_encode((unsigned char *)src_buff, src_buff_len,
-                    (unsigned char *)dst_buff, (size_t *)dst_buff_len);
+      base64_encode((unsigned char *)src, srclen,
+                    (unsigned char *)dest, (size_t *)destlen);
     }
   else
     {
-      //dst_buff =
-      base64w_encode((unsigned char *)src_buff, src_buff_len,
-                     (unsigned char *)dst_buff, (size_t *)dst_buff_len);
+      base64w_encode((unsigned char *)src, srclen,
+                     (unsigned char *)dest, (size_t *)destlen);
     }
 }
 #endif
@@ -156,20 +153,18 @@ static void b64enc_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
  ****************************************************************************/
 
 #if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64DEC)
-static void b64dec_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
-                      FAR int *dst_buff_len, int mode)
+static void b64dec_cb(FAR char *src, int srclen, FAR char *dest,
+                      FAR int *destlen, int mode)
 {
   if (mode == 0)
     {
-      //dst_buff =
-      base64_decode((unsigned char *)src_buff, src_buff_len,
-                    (unsigned char *)dst_buff, (size_t *)dst_buff_len);
+      base64_decode((unsigned char *)src, srclen,
+                    (unsigned char *)dest, (size_t *)destlen);
     }
   else
     {
-      //dst_buff =
-      base64w_decode((unsigned char *)src_buff, src_buff_len,
-                     (unsigned char *)dst_buff,(size_t *)dst_buff_len);
+      base64w_decode((unsigned char *)src, srclen,
+                     (unsigned char *)dest,(size_t *)destlen);
     }
 }
 #endif
@@ -179,10 +174,10 @@ static void b64dec_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
  ****************************************************************************/
 
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
-static void md5_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
-                   FAR int *dst_buff_len, int mode)
+static void md5_cb(FAR char *src, int srclen, FAR char *dest,
+                   FAR int *destlen, int mode)
 {
-  MD5Update((MD5_CTX *)dst_buff, (unsigned char *)src_buff, src_buff_len);
+  MD5Update((MD5_CTX *)dest, (unsigned char *)src, srclen);
 }
 #endif
 
@@ -190,22 +185,27 @@ static void md5_cb(FAR char *src_buff, int src_buff_len, FAR char *dst_buff,
  * Name: calc_codec_buffsize
  ****************************************************************************/
 
-static int calc_codec_buffsize(int src_buffsize, uint8_t mode)
+static int calc_codec_buffsize(int srclen, uint8_t mode)
 {
   switch (mode)
   {
   case CODEC_MODE_URLENCODE:
-    return src_buffsize*3+1;
+    return srclen * 3 + 1;
+
   case CODEC_MODE_URLDECODE:
-    return src_buffsize+1;
+    return srclen + 1;
+
   case CODEC_MODE_BASE64ENC:
-    return ((src_buffsize + 2)/ 3 * 4)+1;
+    return ((srclen + 2) / 3 * 4) + 1;
+
   case CODEC_MODE_BASE64DEC:
-    return (src_buffsize / 4 * 3 + 2)+1;
+    return (srclen / 4 * 3 + 2) + 1;
+
   case CODEC_MODE_HASH_MD5:
-    return 32+1;
+    return 32 + 1;
+
   default:
-    return src_buffsize+1;
+    return srclen + 1;
   }
 }
 
@@ -217,26 +217,26 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
                            uint8_t mode, codec_callback_t func)
 {
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
-  static const unsigned char hex_chars[] = "0123456789abcdef";
+  static const unsigned char hexchars[] = "0123456789abcdef";
   MD5_CTX ctx;
   unsigned char mac[16];
-  char *pSrc;
-  char *pDest;
+  FAR char *src;
+  FAR char *dest;
 #endif
 
-  char *localfile = NULL;
-  char *src_buffer = NULL;
-  char *buffer = NULL;
-  char *fullpath = NULL;
-  const char *fmt;
-  char *s_data;
+  FAR char *localfile = NULL;
+  FAR char *srcbuf = NULL;
+  FAR char *destbuf = NULL;
+  FAR char *fullpath = NULL;
+  FAR const char *fmt;
+  FAR char *sdata;
   bool badarg = false;
-  bool is_file = false;
-  bool is_websafe=false;
+  bool isfile = false;
+  bool iswebsafe = false;
   int option;
   int fd = -1;
-  int buff_len = 0;
-  int src_buff_len = 0;
+  int buflen = 0;
+  int srclen = 0;
   int i = 0;
   int ret = OK;
 
@@ -247,12 +247,12 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       switch (option)
         {
           case 'f':
-            is_file = true;
+            isfile = true;
             break;
 
 #ifdef CONFIG_CODECS_BASE64
           case 'w':
-            is_websafe = true;
+            iswebsafe = true;
 
             if (!(mode == CODEC_MODE_BASE64ENC || mode == CODEC_MODE_BASE64DEC))
               {
@@ -284,7 +284,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   if (optind == argc-1)
     {
-      s_data = argv[optind];
+      sdata = argv[optind];
     }
   else if (optind >= argc)
     {
@@ -304,11 +304,11 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
     }
 #endif
 
-  if (is_file)
+  if (isfile)
     {
       /* Get the local file name */
 
-      localfile = s_data;
+      localfile = sdata;
 
       /* Get the full path to the local file */
 
@@ -324,24 +324,24 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           goto exit;
         }
 
-      src_buffer = malloc(CONFIG_NSH_CODECS_BUFSIZE+2);
+      srcbuf = malloc(CONFIG_NSH_CODECS_BUFSIZE+2);
 #if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64ENC)
       if (mode == CODEC_MODE_BASE64ENC)
         {
-          src_buff_len = CONFIG_NSH_CODECS_BUFSIZE / 3 * 3;
+          srclen = CONFIG_NSH_CODECS_BUFSIZE / 3 * 3;
         }
       else
 #endif
         {
-          src_buff_len = CONFIG_NSH_CODECS_BUFSIZE;
+          srclen = CONFIG_NSH_CODECS_BUFSIZE;
         }
 
-      buff_len = calc_codec_buffsize(src_buff_len+2, mode);
-      buffer = malloc(buff_len);
+      buflen = calc_codec_buffsize(srclen+2, mode);
+      destbuf = malloc(buflen);
       while (true)
         {
-          memset(src_buffer, 0, src_buff_len+2);
-          ret=read(fd, src_buffer, src_buff_len);
+          memset(srcbuf, 0, srclen+2);
+          ret=read(fd, srcbuf, srclen);
           if (ret < 0)
             {
               nsh_output(vtbl, g_fmtcmdfailed, argv[0], "read", NSH_ERRNO);
@@ -356,49 +356,49 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 #if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLDECODE)
           if (mode == CODEC_MODE_URLDECODE)
             {
-              if (src_buffer[src_buff_len-1]=='%')
+              if (srcbuf[srclen-1]=='%')
                 {
-                  ret += read(fd,&src_buffer[src_buff_len],2);
+                  ret += read(fd,&srcbuf[srclen],2);
                 }
-              else if (src_buffer[src_buff_len-2]=='%')
+              else if (srcbuf[srclen-2]=='%')
                 {
-                  ret += read(fd,&src_buffer[src_buff_len],1);
+                  ret += read(fd,&srcbuf[srclen],1);
                 }
             }
 #endif
-          memset(buffer, 0, buff_len);
+          memset(destbuf, 0, buflen);
           if (func)
             {
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
               if (mode == CODEC_MODE_HASH_MD5)
                 {
-                  func(src_buffer, ret, (char *)&ctx, &buff_len,0);
+                  func(srcbuf, ret, (char *)&ctx, &buflen,0);
                 }
               else
 #endif
                 {
-                  func(src_buffer, ret, buffer, &buff_len,(is_websafe)?1:0);
-                  nsh_output(vtbl, "%s", buffer);
+                  func(srcbuf, ret, destbuf, &buflen,(iswebsafe)?1:0);
+                  nsh_output(vtbl, "%s", destbuf);
                 }
             }
 
-          buff_len = calc_codec_buffsize(src_buff_len+2, mode);
+          buflen = calc_codec_buffsize(srclen+2, mode);
         }
 
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
       if (mode == CODEC_MODE_HASH_MD5)
         {
           MD5Final(mac, &ctx);
-          pSrc = (char *)&mac;
-          pDest = buffer;
-          for (i = 0; i < 16; i++, pSrc++)
+          src = (FAR char *)&mac;
+          dest = destbuf;
+          for (i = 0; i < 16; i++, src++)
             {
-              *pDest++ = hex_chars[(*pSrc) >> 4];
-              *pDest++ = hex_chars[(*pSrc) & 0x0f];
+              *dest++ = hexchars[(*src) >> 4];
+              *dest++ = hexchars[(*src) & 0x0f];
             }
 
-          *pDest='\0';
-          nsh_output(vtbl, "%s\n", buffer);
+          *dest = '\0';
+          nsh_output(vtbl, "%s\n", destbuf);
         }
 #endif
       ret = OK;
@@ -406,44 +406,44 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
     }
   else
     {
-      src_buffer = s_data;
-      src_buff_len = strlen(s_data);
-      buff_len = calc_codec_buffsize(src_buff_len, mode);
-      buffer = malloc(buff_len);
-      buffer[0]=0;
-      if (!buffer)
+      srcbuf  = sdata;
+      srclen  = strlen(sdata);
+      buflen  = calc_codec_buffsize(srclen, mode);
+      destbuf = malloc(buflen);
+      destbuf[0]=0;
+      if (!destbuf)
         {
           fmt = g_fmtcmdoutofmemory;
           goto errout;
         }
 
-      memset(buffer, 0, buff_len);
+      memset(destbuf, 0, buflen);
       if (func)
         {
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
           if (mode == CODEC_MODE_HASH_MD5)
             {
-              func(src_buffer, src_buff_len, (char *)&ctx, &buff_len, 0);
+              func(srcbuf, srclen, (char *)&ctx, &buflen, 0);
               MD5Final(mac, &ctx);
-              pSrc = (char *)&mac;
-              pDest = buffer;
-              for (i = 0; i < 16; i++, pSrc++)
+              src = (char *)&mac;
+              dest = destbuf;
+              for (i = 0; i < 16; i++, src++)
                 {
-                  *pDest++ = hex_chars[(*pSrc) >> 4];
-                  *pDest++ = hex_chars[(*pSrc) & 0x0f];
+                  *dest++ = hexchars[(*src) >> 4];
+                  *dest++ = hexchars[(*src) & 0x0f];
                 }
 
-              *pDest='\0';
+              *dest = '\0';
             }
           else
 #endif
             {
-              func(src_buffer, src_buff_len, buffer, &buff_len,(is_websafe)?1:0);
+              func(srcbuf, srclen, destbuf, &buflen,(iswebsafe)?1:0);
             }
         }
 
-      nsh_output(vtbl, "%s\n",buffer);
-      src_buffer = NULL;
+      nsh_output(vtbl, "%s\n",destbuf);
+      srcbuf = NULL;
       goto exit;
     }
 
@@ -458,14 +458,14 @@ exit:
       free(fullpath);
     }
 
-  if (src_buffer)
+  if (srcbuf)
     {
-      free(src_buffer);
+      free(srcbuf);
     }
 
-  if (buffer)
+  if (destbuf)
     {
-      free(buffer);
+      free(destbuf);
     }
 
   return ret;
@@ -531,7 +531,7 @@ int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
 int cmd_md5(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  return cmd_codecs_proc(vtbl,argc,argv,CODEC_MODE_HASH_MD5,md5_cb);
+  return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_HASH_MD5, md5_cb);
 }
 #endif
 
