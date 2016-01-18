@@ -364,7 +364,9 @@ int can_main(int argc, FAR char *argv[])
       txmsg.cm_hdr.ch_id     = msgid;
       txmsg.cm_hdr.ch_rtr    = false;
       txmsg.cm_hdr.ch_dlc    = msgdlc;
+#ifdef CONFIG_CAN_ERRORS
       txmsg.cm_hdr.ch_error  = 0;
+#endif
 #ifdef CONFIG_CAN_EXTID
       txmsg.cm_hdr.ch_extid  = extended;
 #endif
@@ -408,67 +410,59 @@ int can_main(int argc, FAR char *argv[])
       printf("  ID: %4u DLC: %u\n",
              rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 
+#ifdef CONFIG_CAN_ERRORS
       /* Check for error reports */
 
       if (rxmsg.cm_hdr.ch_error != 0)
         {
           printf("ERROR: CAN error report: [0x%04x]\n", rxmsg.cm_hdr.ch_id);
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_SYSTEM) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TXTIMEOUT) != 0)
             {
-              printf("  Driver internal error\n");
+              printf("  TX timeout\n");
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_RXLOST) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_LOSTARB) != 0)
             {
-              printf("  RX Message Lost\n");
+              printf("  Lost arbitration: %02x\n", rxmsg.cm_data[0]);
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TXLOST) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_CONTROLLER) != 0)
             {
-              printf("  TX Message Lost\n");
+              printf("  Controller error: %02x\n", rxmsg.cm_data[1]);
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_ACCESS) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_PROTOCOL) != 0)
             {
-              printf("  RAM Access Failure\n");
+              printf("  Protocol error: %02x %02x\n", rxmsg.cm_data[2], rxmsg.cm_data[3]);
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TIMEOUT) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_TRANSCEIVER) != 0)
             {
-              printf("  Timeout Occurred\n");
+              printf("  Transceiver error: %02x\n", rxmsg.cm_data[4]);
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_PASSIVE) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_NOACK) != 0)
             {
-              printf("  Error Passive\n");
+              printf("  No ACK received on transmission\n");
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_CRC) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_BUSOFF) != 0)
             {
-              printf("  RX CRC Error\n");
+              printf("  Bus off\n");
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_BIT) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_BUSERROR) != 0)
             {
-              printf("  Bit Error\n");
+              printf("  Bus error\n");
             }
 
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_ACK) != 0)
+          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_RESTARTED) != 0)
             {
-              printf("  Acknowledge Error\n");
-            }
-
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_FORMAT) != 0)
-            {
-              printf("  Format Error\n");
-            }
-
-          if ((rxmsg.cm_hdr.ch_id & CAN_ERROR_STUFF) != 0)
-            {
-              printf("  Stuff Error\n");
+              printf("  Controller restarted\n");
             }
         }
       else
+#endif
         {
 #if defined(CONFIG_EXAMPLES_CAN_WRITE) && defined(CONFIG_CAN_LOOPBACK)
 
