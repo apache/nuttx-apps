@@ -95,9 +95,9 @@ static void wdog_help(void)
   printf("timer.  Ping for the watchdog for <pingtime> seconds, then let it expire.\n");
   printf("\nOptions include:\n");
   printf("  [-d <pingtime>] = Selects the <delay> time in milliseconds.  Default: %d\n",
-        CONFIG_EXAMPLES_WATCHDOG_PINGTIME);
-  printf("  [-p <pingdelay] = Time delay between pings in milliseconds.  Default: %d\n",
         CONFIG_EXAMPLES_WATCHDOG_PINGDELAY);
+  printf("  [-p <pingdelay] = Time delay between pings in milliseconds.  Default: %d\n",
+        CONFIG_EXAMPLES_WATCHDOG_PINGTIME);
   printf("  [-t timeout] = Time in milliseconds that the example will ping the watchdog\n");
   printf("    before letting the watchdog expire. Default: %d\n",
          CONFIG_EXAMPLES_WATCHDOG_TIMEOUT);
@@ -178,13 +178,13 @@ static void parse_args(FAR struct wdog_example_s *wdog, int argc, FAR char **arg
 
           case 'p':
             nargs = arg_decimal(&argv[index], &value);
-            if (value < 1 || value > 99)
+            if (value < 1 || value > INT_MAX)
               {
                 printf("Ping time out of range: %ld\n", value);
                 exit(EXIT_FAILURE);
               }
 
-            wdog->pingtime = (uint8_t)value;
+            wdog->pingtime = (uint32_t)value;
             index += nargs;
             break;
 
