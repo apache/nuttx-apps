@@ -75,9 +75,7 @@
  * Public Data
  ****************************************************************************/
 
-#ifdef CONFIG_NSH_BUILTIN_APPS
 struct qe_example_s g_qeexample;
-#endif
 
 /****************************************************************************
  * Private Functions
@@ -243,14 +241,14 @@ static void parse_args(int argc, FAR char **argv)
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int qe_main(int argc, char *argv[])
+int qe_main(int argc, FAR char *argv[])
 #endif
 {
   int32_t position;
   int fd;
   int exitval = EXIT_SUCCESS;
   int ret;
-#if defined(CONFIG_NSH_BUILTIN_APPS) || defined(CONFIG_EXAMPLES_QENCODER_NSAMPLES)
+#if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_QENCODER_NSAMPLES > 0
   int nloops;
 #endif
 
@@ -286,7 +284,7 @@ int qe_main(int argc, char *argv[])
   /* Open the encoder device for reading */
 
   printf("qe_main: Hardware initialized. Opening the encoder device: %s\n",
-          g_qeexample.devpath);
+         g_qeexample.devpath);
 
   fd = open(g_qeexample.devpath, O_RDONLY);
   if (fd < 0)
@@ -298,6 +296,7 @@ int qe_main(int argc, char *argv[])
 
   /* Reset the count if so requested */
 
+#ifdef CONFIG_NSH_BUILTIN_APPS
   if (g_qeexample.reset)
     {
       printf("qe_main: Resetting the count...\n");
@@ -309,6 +308,7 @@ int qe_main(int argc, char *argv[])
           goto errout_with_dev;
         }
     }
+#endif
 
   /* Now loop the appropriate number of times, displaying the collected
    * encoder samples.
@@ -317,7 +317,7 @@ int qe_main(int argc, char *argv[])
 #if defined(CONFIG_NSH_BUILTIN_APPS)
   printf("qe_main: Number of samples: %u\n", g_qeexample.nloops);
   for (nloops = 0; nloops < g_qeexample.nloops; nloops++)
-#elif defined(CONFIG_EXAMPLES_QENCODER_NSAMPLES)
+#elif CONFIG_EXAMPLES_QENCODER_NSAMPLES > 0
   printf("qe_main: Number of samples: %d\n", CONFIG_EXAMPLES_QENCODER_NSAMPLES);
   for (nloops = 0; nloops < CONFIG_EXAMPLES_QENCODER_NSAMPLES; nloops++)
 #else
@@ -344,7 +344,11 @@ int qe_main(int argc, char *argv[])
 
       else
         {
+#if defined(CONFIG_NSH_BUILTIN_APPS) || CONFIG_EXAMPLES_QENCODER_NSAMPLES > 0
           printf("qe_main: %3d. %d\n", nloops+1, position);
+#else
+          printf("qe_main: %d\n", position);
+#endif
         }
 
       /* Delay a little bit */
