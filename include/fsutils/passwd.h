@@ -40,7 +40,10 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
 #include <nuttx/compiler.h>
+
+#if defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD_READONLY)
 
 /****************************************************************************
  * Public Function Prototypes
@@ -122,4 +125,5 @@ int passwd_update(FAR const char *username, FAR const char *password);
 
 int passwd_verify(FAR const char *username, FAR const char *password);
 
+#endif /* CONFIG_FS_WRITABLE && CONFIG_FSUTILS_PASSWD_READONLY */
 #endif /* __APPS_INCLUDE_FSUTILS_PASSWD_H */

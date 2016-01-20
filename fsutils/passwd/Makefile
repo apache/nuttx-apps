@@ -46,8 +46,10 @@ ifeq ($(CONFIG_FSUTILS_PASSWD),y)
 ifeq ($(CONFIG_FS_READABLE),y)
 CSRCS += passwd_verify.c passwd_find.c passwd_encrypt.c
 ifeq ($(CONFIG_FS_WRITABLE),y)
+ifneq ($(CONFIG_FSUTILS_PASSWD_READONLY),y)
 CSRCS += passwd_adduser.c passwd_deluser.c passwd_update.c passwd_append.c
 CSRCS += passwd_delete.c passwd_lock.c
+endif
 endif
 endif
 endif

@@ -352,7 +352,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD)
+    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD) && \
+    !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 #  ifndef CONFIG_NSH_DISABLE_PASSWD
   { "passwd",   cmd_passwd,   3, 3, "<username> <password>" },
 #  endif
@@ -480,7 +481,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
-    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD)
+    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD) && \
+    !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 #  ifndef CONFIG_NSH_DISABLE_USERADD
   { "useradd",   cmd_useradd,     3, 3, "<username> <password>" },
 #  endif

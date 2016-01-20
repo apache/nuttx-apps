@@ -1045,7 +1045,8 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
          int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
 #   endif /* CONFIG_FS_SMARTFS */
-#   if defined(CONFIG_FSUTILS_PASSWD) && defined(CONFIG_FS_WRITABLE)
+#   if defined(CONFIG_FSUTILS_PASSWD) && defined(CONFIG_FS_WRITABLE) && \
+      !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 #     ifndef CONFIG_NSH_DISABLE_USERADD
          int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif

@@ -16,6 +16,11 @@ config FSUTILS_PASSWD_PATH
 	string "Path to the passwd file"
 	default "/etc/passwd"
 
+config FSUTILS_PASSWD_READONLY
+	bool "Read-only /etc/passwd file?"
+	default n
+	depends on FS_WRITABLE
+
 config FSUTILS_PASSWD_IOBUFFER_SIZE
 	int "Allocated I/O buffer size"
 	default 512
