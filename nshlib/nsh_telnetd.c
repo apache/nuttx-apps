@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_telnetd.c
  *
- *   Copyright (C) 2007-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@
 
 #include <arpa/inet.h>
 
+#include <apps/fsutils/passwd.h>
 #include <apps/netutils/telnetd.h>
 
 #include "nsh.h"
@@ -202,7 +203,10 @@ static int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 {
   char username[16];
   char password[16];
-  uint8_t i;
+#ifdef CONFIG_FSUTILS_PASSWD
+  int ret;
+#endif
+  int i;
 
   /* Present the NSH Telnet greeting */
 
@@ -211,12 +215,14 @@ static int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 
   /* Loop for the configured number of retries */
 
-  for (i = 0; i < CONFIG_NSH_TELNET_FAILCOUNT; i++)
+  for (i = 0; i < CONFIG_NSH_LOGIN_FAILCOUNT; i++)
     {
       /* Ask for the login username */
 
       fputs(g_userprompt, pstate->cn_outstream);
       fflush(pstate->cn_outstream);
+
+      username[0] = '\0';
       if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
         {
           /* Parse out the username */
@@ -229,6 +235,8 @@ static int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
       fputs(g_passwordprompt, pstate->cn_outstream);
       fflush(pstate->cn_outstream);
       nsh_telnetecho(pstate, TELNET_NOTUSE_ECHO);
+
+      password[0] = '\0';
       if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
         {
           /* Parse out the password */
@@ -237,8 +245,13 @@ static int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 
           /* Verify the username and password */
 
-          if (strcmp(password, CONFIG_NSH_TELNET_PASSWORD) == 0 &&
-              strcmp(username, CONFIG_NSH_TELNET_USERNAME) == 0)
+#ifdef CONFIG_FSUTILS_PASSWD
+          ret = passwd_verify(username, password);
+          if (PASSWORD_VERIFY_MATCH(ret))
+#else
+          if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
+              strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
+#endif
             {
               fputs(g_loginsuccess, pstate->cn_outstream);
               fflush(pstate->cn_outstream);
@@ -281,9 +294,9 @@ int nsh_telnetmain(int argc, char *argv[])
 
   dbg("Session [%d] Started\n", getpid());
 
+#ifdef CONFIG_NSH_TELNET_LOGIN
   /* Login User and Password Check */
 
-#ifdef CONFIG_NSH_TELNET_LOGIN
   if (nsh_telnetlogin(pstate) != OK)
     {
       nsh_exit(vtbl, 1);

@@ -347,9 +347,9 @@
  * If CONFIG_NSH_TELNET_LOGIN is defined, then these additional
  * options may be specified:
  *
- * CONFIG_NSH_TELNET_USERNAME - Login user name.  Default: "admin"
- * CONFIG_NSH_TELNET_PASSWORD - Login password:  Default: "nuttx"
- * CONFIG_NSH_TELNET_FAILCOUNT - Number of login retry attempts.
+ * CONFIG_NSH_LOGIN_USERNAME - Login user name.  Default: "admin"
+ * CONFIG_NSH_LOGIN_PASSWORD - Login password:  Default: "Administrator"
+ * CONFIG_NSH_LOGIN_FAILCOUNT - Number of login retry attempts.
  *   Default 3.
  */
 
@@ -375,16 +375,16 @@
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
 
-#  ifndef CONFIG_NSH_TELNET_USERNAME
-#    define CONFIG_NSH_TELNET_USERNAME  "admin"
+#  ifndef CONFIG_NSH_LOGIN_USERNAME
+#    define CONFIG_NSH_LOGIN_USERNAME  "admin"
 #  endif
 
-#  ifndef CONFIG_NSH_TELNET_PASSWORD
-#    define CONFIG_NSH_TELNET_PASSWORD  "nuttx"
+#  ifndef CONFIG_NSH_LOGIN_PASSWORD
+#    define CONFIG_NSH_LOGIN_PASSWORD  "nuttx"
 #  endif
 
-#  ifndef CONFIG_NSH_TELNET_FAILCOUNT
-#    define CONFIG_NSH_TELNET_FAILCOUNT 3
+#  ifndef CONFIG_NSH_LOGIN_FAILCOUNT
+#    define CONFIG_NSH_LOGIN_FAILCOUNT 3
 #  endif
 
 #endif /* CONFIG_NSH_TELNET_LOGIN */
@@ -803,8 +803,10 @@ extern const char g_nshgreeting[];
 #if defined(CONFIG_NSH_MOTD) && !defined(CONFIG_NSH_PLATFORM_MOTD)
 extern const char g_nshmotd[];
 #endif
+#ifdef CONFIG_NSH_LOGIN
 #if defined(CONFIG_NSH_TELNET_LOGIN) && defined(CONFIG_NSH_TELNET)
 extern const char g_telnetgreeting[];
+#endif
 extern const char g_userprompt[];
 extern const char g_passwordprompt[];
 extern const char g_loginsuccess[];
@@ -875,6 +877,19 @@ int nsh_loginscript(FAR struct nsh_vtbl_s *vtbl);
 struct console_stdio_s;
 int nsh_session(FAR struct console_stdio_s *pstate);
 int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline);
+
+/****************************************************************************
+ * Name: nsh_login
+ *
+ * Description:
+ *   Prompt the user for a username and password.  Return a failure if valid
+ *   credentials are not returned (after some retries.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_CONSOLE_LOGIN
+int nsh_login(FAR struct console_stdio_s *pstate);
+#endif
 
 /* Application interface */
 

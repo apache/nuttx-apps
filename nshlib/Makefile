@@ -1,7 +1,7 @@
 ############################################################################
 # apps/nshlib/Makefile
 #
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,10 @@ ifeq ($(CONFIG_NFILE_STREAMS),0)
 CSRCS += nsh_stdsession.c
 else
 CSRCS += nsh_session.c
+endif
+
+ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
+CSRCS += nsh_login.c
 endif
 
 ifneq ($(CONFIG_NFILE_DESCRIPTORS),0)

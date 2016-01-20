@@ -1442,35 +1442,52 @@ config NSH_IOBUFFER_SIZE
 		Determines the size of the I/O buffer to use for sending/
 		receiving TELNET commands/reponses.  Default: 512
 
+endif # NSH_TELNET
+endmenu # Telnet Configuration
+
+config NSH_LOGIN
+	bool
+	default n
+
+config NSH_CONSOLE_LOGIN
+	bool "Console Login"
+	default n
+	select NSH_LOGIN
+	---help---
+		If defined, then the console user will be required to provide a
+		username and password to start the NSH shell.
+
 config NSH_TELNET_LOGIN
 	bool "Telnet Login"
 	default n
+	depends on NSH_TELNET
+	select NSH_LOGIN
 	---help---
 		If defined, then the Telnet user will be required to provide a
 		username and password to start the NSH shell.
 
-if NSH_TELNET_LOGIN
+if NSH_LOGIN
 
-config NSH_TELNET_USERNAME
+config NSH_LOGIN_USERNAME
 	string "Login Username"
 	default "admin"
+	depends on !FSUTILS_PASSWD
 	---help---
 		Login user name.  Default: "admin"
 
-config NSH_TELNET_PASSWORD
+config NSH_LOGIN_PASSWORD
 	string "Login Password"
-	default "nuttx"
+	default "Administrator"
+	depends on !FSUTILS_PASSWD
 	---help---
-		Login password:  Default: "nuttx"
+		Login password:  Default: "Administrator"
 
-config NSH_TELNET_FAILCOUNT
+config NSH_LOGIN_FAILCOUNT
 	int "Login Retry Count"
 	default 3
 	---help---
 		Number of login retry attempts.
 
-endif # NSH_TELNET_LOGIN
-endif # NSH_TELNET
-endmenu # Telnet Configuration
+endif # NSH_LOGIN
 endif # NSH_LIBRARY
 endmenu # NSH Library

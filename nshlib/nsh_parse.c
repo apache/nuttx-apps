@@ -232,8 +232,10 @@ const char g_nshmotd[]           = CONFIG_NSH_MOTD_STRING;
 
 /* Telnet login prompts */
 
+#ifdef CONFIG_NSH_LOGIN
 #if defined(CONFIG_NSH_TELNET_LOGIN) && defined(CONFIG_NSH_TELNET)
 const char g_telnetgreeting[]    = "\nWelcome to NuttShell(NSH) Telnet Server...\n";
+#endif
 const char g_userprompt[]        = "login: ";
 const char g_passwordprompt[]    = "password: ";
 const char g_loginsuccess[]      = "\nUser Logged-in!\n";

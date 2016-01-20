@@ -1516,4 +1516,6 @@
 	  commands (2019-01-20).
 	* apps/nshlib:  Now supports a Message of the Day (MOTD) that will
 	  be presented after the NSH greeting (2015-01-20).
+	* apps/nshlib:  All sessions may be protected with logins using
+	  the encrypted password in /etc/passwd (2016-01-20).
 
