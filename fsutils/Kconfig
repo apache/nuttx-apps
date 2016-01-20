@@ -6,5 +6,6 @@
 menu "File System Utilities"
 
 source "$APPSDIR/fsutils/mksmartfs/Kconfig"
+source "$APPSDIR/fsutils/passwd/Kconfig"
 
 endmenu # FS Utilities
