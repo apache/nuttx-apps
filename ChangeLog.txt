@@ -1518,4 +1518,6 @@
 	  be presented after the NSH greeting (2015-01-20).
 	* apps/nshlib:  All sessions may be protected with logins using
 	  the encrypted password in /etc/passwd (2016-01-20).
+	* apps/fsutils/inifile:  Move system/inifile to fsutils/inifile
+	  where it seems to fit in better (2016-01-20).
 

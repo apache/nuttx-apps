@@ -5,6 +5,7 @@
 
 menu "File System Utilities"
 
+source "$APPSDIR/fsutils/inifile/Kconfig"
 source "$APPSDIR/fsutils/mksmartfs/Kconfig"
 source "$APPSDIR/fsutils/passwd/Kconfig"
 

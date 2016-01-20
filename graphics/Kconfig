@@ -22,7 +22,7 @@ endif # TIFF
 config GRAPHICS_TRAVELER
 	bool "Traveler game"
 	default n
-	select SYSTEM_INIFILE
+	select FSUTILS_INIFILE
 	---help---
 		Enable or disable the graphic Traveler game
 

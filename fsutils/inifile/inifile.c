@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/inifile/inifile.c
+ * apps/fsutils/inifile/inifile.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -52,36 +52,36 @@
 
 /* The maximum size of a line in the INI file */
 
-#ifndef CONFIG_SYSTEM_INIFILE_MAXLINE
-#  define CONFIG_SYSTEM_INIFILE_MAXLINE 256
+#ifndef CONFIG_FSUTILS_INIFILE_MAXLINE
+#  define CONFIG_FSUTILS_INIFILE_MAXLINE 256
 #endif
 
-#ifndef CONFIG_SYSTEM_INIFILE_DEBUGLEVEL
-#  define CONFIG_SYSTEM_INIFILE_DEBUGLEVEL 0
+#ifndef CONFIG_FSUTILS_INIFILE_DEBUGLEVEL
+#  define CONFIG_FSUTILS_INIFILE_DEBUGLEVEL 0
 #endif
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  if CONFIG_SYSTEM_INIFILE_DEBUGLEVEL > 0
+#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 0
 #    define inidbg(format, ...) \
        printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define inidbg(x...)
 #  endif
 
-#  if CONFIG_SYSTEM_INIFILE_DEBUGLEVEL > 1
+#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 1
 #    define inivdbg(format, ...) \
        printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
 #    define inivdbg(x...)
 #  endif
 #else
-#  if CONFIG_SYSTEM_INIFILE_DEBUGLEVEL > 0
+#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 0
 #    define inidbg printf
 #  else
 #    define inidbg (void)
 #  endif
 
-#  if CONFIG_SYSTEM_INIFILE_DEBUGLEVEL > 1
+#  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 1
 #    define inivdbg printf
 #  else
 #    define inivdbg (void)
@@ -106,7 +106,7 @@ struct inifile_state_s
 {
   FILE *instream;
   int   nextch;
-  char  line[CONFIG_SYSTEM_INIFILE_MAXLINE+1];
+  char  line[CONFIG_FSUTILS_INIFILE_MAXLINE+1];
 };
 
 /****************************************************************************
@@ -182,7 +182,7 @@ static int inifile_read_line(FAR struct inifile_state_s *priv)
    */
 
   nbytes = 0;
-  while ((nbytes < CONFIG_SYSTEM_INIFILE_MAXLINE) &&
+  while ((nbytes < CONFIG_FSUTILS_INIFILE_MAXLINE) &&
          (priv->nextch != EOF) &&
          (priv->nextch != '\n'))
    {
