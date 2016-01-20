@@ -50,7 +50,7 @@
 /****************************************************************************
  * Name: passwd_adduser
  *
- * Description: 
+ * Description:
  *   Add a new user to the /etc/passwd file.  If the user already exists,
  *   then this function will fail with -EEXIST.
  *
@@ -98,7 +98,7 @@ int passwd_adduser(FAR const char *username, FAR const char *password)
   /* Return success */
 
   ret = OK;
-  
+
 errout_with_lock:
   (void)passwd_unlock(sem);
   return ret;

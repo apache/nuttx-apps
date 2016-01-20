@@ -50,7 +50,7 @@
 /****************************************************************************
  * Name: passwd_append
  *
- * Description: 
+ * Description:
  *  Append a new record to the end of the /etc/passwd file
  *
  * Input Parameters:
@@ -97,7 +97,7 @@ int passwd_append(FAR const char *username, FAR const char *password)
   /* Return success */
 
   ret = OK;
-  
+
 errout_with_stream:
   (void)fclose(stream);
   return ret;

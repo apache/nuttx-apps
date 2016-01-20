@@ -50,7 +50,7 @@
 /****************************************************************************
  * Name: passwd_verify
  *
- * Description: 
+ * Description:
  *   Return true if the username exists in the /etc/passwd file and if the
  *   password matches the user password in that faile.
  *

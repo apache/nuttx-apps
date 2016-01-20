@@ -50,7 +50,7 @@
 /****************************************************************************
  * Name: passwd_deluser
  *
- * Description: 
+ * Description:
  *   Remove an existing user from the /etc/passwd file.  If the user does
  *   not exist, then this function will fail.
  *

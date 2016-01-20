@@ -49,7 +49,7 @@
 /****************************************************************************
  * Name: passwd_update
  *
- * Description: 
+ * Description:
  *   Change a new user to the /etc/passwd file.  If the user does not exist,
  *   then this function will fail.
  *

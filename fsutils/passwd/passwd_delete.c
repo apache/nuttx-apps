@@ -54,7 +54,7 @@
 /****************************************************************************
  * Name: passwd_copyfile
  *
- * Description: 
+ * Description:
  *  Copy copysize from instream to outstream (or until an error or EOF is
  *  encountered)
  *
@@ -157,7 +157,7 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
 /****************************************************************************
  * Name: passwd_delete
  *
- * Description: 
+ * Description:
  *  Delete on record from the password file at offset.
  *
  * Input Parameters:
@@ -248,7 +248,7 @@ int passwd_delete(off_t offset)
           break;
         }
     }
-    
+
   /* Copy the rest of the file */
 
   ret = passwd_copyfile(iobuffer, instream, outstream, SIZE_MAX);

@@ -73,7 +73,7 @@ static sem_t g_passwd_sem =  SEM_INITIALIZER(1);
 /****************************************************************************
  * Name: passwd_lock and passwd_unlock
  *
- * Description: 
+ * Description:
  *   Lock the /etc/passwd file.  This is not a real lock at the level of the
  *   file system.  Rather, it only prevents concurrent modification of the
  *   /etc/passwd file by passwd_adduser(), passwd_deluser(), and
@@ -116,7 +116,7 @@ int passwd_lock(FAR sem_t **semp)
       DEBUGASSERT(errcode == EINTR);
       UNUSED(errcode);
     }
-    
+
   *semp = sem;
   return OK;
 }

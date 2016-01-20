@@ -53,8 +53,8 @@
 /****************************************************************************
  * Name: passwd_find
  *
- * Description: 
- *   Find a password in the 
+ * Description:
+ *   Find a password in the
  *
  * Input Parameters:
  *

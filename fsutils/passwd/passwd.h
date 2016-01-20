@@ -71,7 +71,7 @@ struct passwd_s
 /****************************************************************************
  * Name: passwd_lock and passwd_unlock
  *
- * Description: 
+ * Description:
  *   Lock the /etc/passwd file.  This is not a real lock at the level of the
  *   file system.  Rather, it only prevents concurrent modification of the
  *   /etc/passwd file by passwd_adduser(), passwd_deluser(), and
@@ -97,7 +97,7 @@ int passwd_unlock(FAR sem_t *sem);
 /****************************************************************************
  * Name: passwd_encrypt
  *
- * Description: 
+ * Description:
  *   Encrypt a password.  Currently uses the Tiny Encryption Algorithm.
  *
  * Input Parameters:
@@ -114,7 +114,7 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1]);
 /****************************************************************************
  * Name: passwd_append
  *
- * Description: 
+ * Description:
  *  Append a new record to the end of the /etc/passwd file
  *
  * Input Parameters:
@@ -130,7 +130,7 @@ int passwd_append(FAR const char *username, FAR const char *password);
 /****************************************************************************
  * Name: passwd_delete
  *
- * Description: 
+ * Description:
  *  Delete on record from the password file at offset.
  *
  * Input Parameters:
@@ -146,8 +146,8 @@ int passwd_delete(off_t offset);
 /****************************************************************************
  * Name: passwd_find
  *
- * Description: 
- *   Find a password in the 
+ * Description:
+ *   Find a password in the
  *
  * Input Parameters:
  *

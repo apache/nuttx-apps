@@ -68,7 +68,7 @@ static uint32_t g_tea_key[4] =
 /****************************************************************************
  * Name: passwd_encrypt
  *
- * Description: 
+ * Description:
  *   Encrypt a password.  Currently uses the Tiny Encryption Algorithm.
  *
  * Input Parameters:
