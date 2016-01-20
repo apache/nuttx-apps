@@ -111,6 +111,11 @@ ifeq ($(CONFIG_NETUTILS_CODECS),y)
 CSRCS += nsh_codeccmd.c
 endif
 
+ifeq ($(CONFIG_FSUTILS_PASSWD),y)
+CSRCS += nsh_passwdcmds.c
+endif
+
+
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
 

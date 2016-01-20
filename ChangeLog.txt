@@ -1512,4 +1512,6 @@
 	  netlib_get_ipv4netmask().  From Pelle Windestam (2016-01-14).
 	* apps/fsutils/passwd: Utility library for accessing a password
 	  file like /etc/passwd (2016-01-19).
+	* apps/nshlib/nsh_passwdcmds.c:  Add useradd, userdel, and passwd
+	  commands (2019-01-20).
 

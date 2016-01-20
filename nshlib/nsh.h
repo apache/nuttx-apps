@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh.h
  *
- *   Copyright (C) 2007-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1035,11 +1035,22 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
          int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
 #   endif /* CONFIG_FS_FAT */
-#if defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
+#   if defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
 #     ifndef CONFIG_NSH_DISABLE_MKSMARTFS
          int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
 #   endif /* CONFIG_FS_SMARTFS */
+#   if defined(CONFIG_FSUTILS_PASSWD) && defined(CONFIG_FS_WRITABLE)
+#     ifndef CONFIG_NSH_DISABLE_USERADD
+         int cmd_useradd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#     endif
+#     ifndef CONFIG_NSH_DISABLE_USERDEL
+         int cmd_userdel(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#     endif
+#     ifndef CONFIG_NSH_DISABLE_PASSWD
+         int cmd_passwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#     endif
+#   endif
 # endif /* !CONFIG_DISABLE_MOUNTPOINT */
 # if !defined(CONFIG_DISABLE_ENVIRON)
 #   ifndef CONFIG_NSH_DISABLE_CD

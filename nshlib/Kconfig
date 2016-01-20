@@ -338,6 +338,11 @@ config NSH_DISABLE_NSLOOKUP
 	default n
 	depends on LIBC_NETDB && NETDB_DNSCLIENT
 
+config NSH_DISABLE_PASSWD
+	bool "Disable passwd"
+	default y
+	depends on FSUTILS_PASSWD
+
 config NSH_DISABLE_POWEROFF
 	bool "Disable poweroff"
 	default n if !DEFAULT_SMALL && !BOARDCTL_RESET
@@ -428,6 +433,16 @@ config NSH_DISABLE_URLENCODE
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 	depends on NETUTILS_CODECS && CODECS_URLCODE
+
+config NSH_DISABLE_USERADD
+	bool "Disable useradd"
+	default y
+	depends on FSUTILS_PASSWD
+
+config NSH_DISABLE_USERDEL
+	bool "Disable userdel"
+	default y
+	depends on FSUTILS_PASSWD
 
 config NSH_DISABLE_USLEEP
 	bool "Disable usleep"

@@ -351,6 +351,13 @@ static const struct cmdmap_s g_cmdmap[] =
   { "nslookup", cmd_nslookup, 2, 2, "<host-name>" },
 #endif
 
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
+    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD)
+#  ifndef CONFIG_NSH_DISABLE_PASSWD
+  { "passwd",   cmd_passwd,   3, 3, "<username> <password>" },
+#  endif
+#endif
+
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && !defined(CONFIG_DISABLE_SIGNALS)
 # ifndef CONFIG_NSH_DISABLE_PING
   { "ping",     cmd_ping,     2, 6, "[-c <count>] [-i <interval>] <ip-address>" },
@@ -469,6 +476,16 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #  ifndef CONFIG_NSH_DISABLE_URLENCODE
   { "urlencode", cmd_urlencode, 2, 3, "[-f] <string or filepath>" },
+#  endif
+#endif
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
+    defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD)
+#  ifndef CONFIG_NSH_DISABLE_USERADD
+  { "useradd",   cmd_useradd,     3, 3, "<username> <password>" },
+#  endif
+#  ifndef CONFIG_NSH_DISABLE_USERDEL
+  { "userdel",   cmd_userdel,     2, 2, "<username>" },
 #  endif
 #endif
 
