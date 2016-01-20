@@ -46,12 +46,14 @@ CSRCS += nsh_timcmds.c nsh_envcmds.c nsh_syscmds.c nsh_dbgcmds.c
 
 ifeq ($(CONFIG_NFILE_STREAMS),0)
 CSRCS += nsh_stdsession.c
+ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
+CSRCS += nsh_stdlogin.c
+endif
 else
 CSRCS += nsh_session.c
-endif
-
 ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
 CSRCS += nsh_login.c
+endif
 endif
 
 ifneq ($(CONFIG_NFILE_DESCRIPTORS),0)
@@ -93,6 +95,9 @@ endif
 
 ifeq ($(CONFIG_NSH_TELNET),y)
 CSRCS += nsh_telnetd.c
+ifeq ($(CONFIG_NSH_TELNET_LOGIN),y)
+CSRCS += nsh_telnetlogin.c
+endif
 endif
 
 ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)

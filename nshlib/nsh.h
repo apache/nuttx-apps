@@ -888,7 +888,15 @@ int nsh_parse(FAR struct nsh_vtbl_s *vtbl, char *cmdline);
  ****************************************************************************/
 
 #ifdef CONFIG_NSH_CONSOLE_LOGIN
+#  if CONFIG_NFILE_DESCRIPTORS > 0
 int nsh_login(FAR struct console_stdio_s *pstate);
+#  else
+int nsh_stdlogin(FAR struct console_stdio_s *pstate);
+#  endif
+#endif
+
+#ifdef CONFIG_NSH_TELNET_LOGIN
+int nsh_telnetlogin(FAR struct console_stdio_s *pstate);
 #endif
 
 /* Application interface */

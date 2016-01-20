@@ -87,7 +87,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
 #ifdef CONFIG_NSH_CONSOLE_LOGIN
   /* Login User and Password Check */
 
-  if (nsh_login(pstate) != OK)
+  if (nsh_stdlogin(pstate) != OK)
     {
       nsh_exit(vtbl, 1);
       return -1; /* nsh_exit does not return */
@@ -109,6 +109,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
   /* Output the fixed message of the day */
 
   printf("%s\n", g_nshmotd);
+
 # endif
 #endif
 
