@@ -55,6 +55,7 @@
  *   not exist, then this function will fail.
  *
  * Input Parameters:
+ *   username - Identifies the user to be deleted
  *
  * Returned Value:
  *   Zero (OK) is returned on success; a negated errno value is returned on
@@ -62,7 +63,7 @@
  *
  ****************************************************************************/
 
-int passwd_deluser(FAR const char *username, FAR const char *password)
+int passwd_deluser(FAR const char *username)
 {
   struct passwd_s passwd;
   FAR sem_t *sem;

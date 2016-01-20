@@ -77,7 +77,7 @@ int passwd_append(FAR const char *username, FAR const char *password)
 
   /* Append the new user record to the end of the password file */
 
-  stream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "at");
+  stream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "a");
   if (stream == NULL)
    {
       int errcode = errno;

@@ -76,14 +76,18 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
   size_t nbytes;
   size_t gulpsize;
   size_t ncopied;
+  size_t remaining;
+  bool eof;
 
   /* Copy 'offset' bytes from the instream to the outstream */
 
-  for (ncopied = 0; ncopied < copysize; ncopied += nwritten)
+  for (ncopied = 0, remaining = copysize, eof = false;
+       ncopied < copysize && !eof;
+       ncopied += nwritten)
     {
       /* How big of a gulp can we take on this pass through the loop */
 
-      gulpsize = copysize;
+      gulpsize = remaining;
       if (gulpsize > CONFIG_FSUTILS_PASSWD_IOBUFFER_SIZE)
         {
           gulpsize = CONFIG_FSUTILS_PASSWD_IOBUFFER_SIZE;
@@ -98,24 +102,56 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
       do
         {
           nxfrd = fread(buffer, 1, nbytes, instream);
-          if (nxfrd < 0)
+          if (nxfrd == 0)
             {
-              int errcode = errno;
-              DEBUGASSERT(errcode > 0);
+              /* Zero is returned on either a read error or end-of-file */
 
-              if (errcode != EINTR)
+              if (ferror(instream))
                 {
-                  return -errcode;
+                  /* Read error */
+
+                  int errcode = errno;
+                  DEBUGASSERT(errcode > 0);
+
+                  if (errcode != EINTR)
+                    {
+                      return -errcode;
+                    }
+                }
+              else
+                {
+                  /* End of file encountered.
+                   *
+                   * This occurs normally when copying to the end-of-the file.
+                   * In that case, the caller just sticks a huge number in for
+                   * copysize and lets the end-of-file indication terminate the
+                   * copy.
+                   */
+
+                  eof = true;
+
+                  /* Was anything buffered on this pass? */
+
+                  if (nread == 0)
+                    {
+                      /* No.. then we can just return success now */
+
+                      return OK;
+                    }
                 }
             }
           else
             {
+              DEBUGASSERT(nxfrd > 0);
+
+              /* Update counters and pointers for successful read */
+
               nread     += nxfrd;
               buffer    += nxfrd;
               nbytes    -= nxfrd;
             }
         }
-      while (nread < gulpsize);
+      while (nread < gulpsize && !eof);
 
       /* Write the buffer of data to outstream */
 
@@ -125,9 +161,11 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
 
       do
         {
-          nxfrd = fwrite(buffer, 1, nbytes, instream);
-          if (nxfrd < 0)
+          nxfrd = fwrite(buffer, 1, nbytes, outstream);
+          if (nxfrd == 0)
             {
+              /* Write error */
+
               int errcode = errno;
               DEBUGASSERT(errcode > 0);
 
@@ -138,13 +176,18 @@ static int passwd_copyfile(FAR char *iobuffer, FILE *instream,
             }
           else
             {
+              DEBUGASSERT(nxfrd > 0);
+
+              /* Update counters and pointers for successful write */
+
               nwritten  += nxfrd;
               buffer    += nxfrd;
               nbytes    -= nxfrd;
             }
         }
       while (nwritten < nread);
-      copysize -= nwritten;
+
+      remaining -= nwritten;
     }
 
   return OK;
@@ -185,7 +228,8 @@ int passwd_delete(off_t offset)
 
   /* Rename the /set/password file */
 
-  ret = rename(CONFIG_FSUTILS_PASSWD_PATH, CONFIG_FSUTILS_PASSWD_PATH ".tmp");
+  ret = rename(CONFIG_FSUTILS_PASSWD_PATH,
+               CONFIG_FSUTILS_PASSWD_PATH ".tmp");
   if (ret < 0)
     {
       ret = -errno;
@@ -197,15 +241,15 @@ int passwd_delete(off_t offset)
    * writing.
    */
 
-  instream = fopen(CONFIG_FSUTILS_PASSWD_PATH ".tmp", "rt");
+  instream = fopen(CONFIG_FSUTILS_PASSWD_PATH ".tmp", "r");
   if (instream == NULL)
     {
       ret = -errno;
       DEBUGASSERT(ret < 0);
-      goto errout_with_iobuffer;
+      goto errout_with_tmpfile;
     }
 
-  outstream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "wt");
+  outstream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "w");
   if (outstream == NULL)
     {
       ret = -errno;
@@ -258,6 +302,22 @@ errout_with_outstream:
 
 errout_with_instream:
   (void)fclose(instream);
+
+errout_with_tmpfile:
+  if (ret < 0)
+    {
+      /* Restore the previous /etc/passwd file */
+
+      (void)unlink(CONFIG_FSUTILS_PASSWD_PATH);
+      (void)rename(CONFIG_FSUTILS_PASSWD_PATH ".tmp",
+                   CONFIG_FSUTILS_PASSWD_PATH);
+    }
+  else
+    {
+      /* Delete the previous /etc/passwd file */
+
+      (void)unlink(CONFIG_FSUTILS_PASSWD_PATH ".tmp");
+    }
 
 errout_with_iobuffer:
   free(iobuffer);

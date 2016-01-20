@@ -54,6 +54,8 @@
  *   then this function will fail with -EEXIST.
  *
  * Input Parameters:
+ *   username - Identifies the user to be added
+ *   password - The password for the new user
  *
  * Returned Value:
  *   Zero (OK) is returned on success; a negated errno value is returned on
@@ -71,6 +73,7 @@ int passwd_adduser(FAR const char *username, FAR const char *password);
  *   not exist, then this function will fail.
  *
  * Input Parameters:
+ *   username - Identifies the user to be deleted
  *
  * Returned Value:
  *   Zero (OK) is returned on success; a negated errno value is returned on
@@ -78,7 +81,7 @@ int passwd_adduser(FAR const char *username, FAR const char *password);
  *
  ****************************************************************************/
 
-int passwd_deluser(FAR const char *username, FAR const char *password);
+int passwd_deluser(FAR const char *username);
 
 /****************************************************************************
  * Name: passwd_update
@@ -88,6 +91,8 @@ int passwd_deluser(FAR const char *username, FAR const char *password);
  *   then this function will fail.
  *
  * Input Parameters:
+ *   username - Identifies the user whose password will be updated
+ *   password - The new password for the existing user
  *
  * Returned Value:
  *   Zero (OK) is returned on success; a negated errno value is returned on
@@ -105,6 +110,8 @@ int passwd_update(FAR const char *username, FAR const char *password);
  *   password matches the user password in that faile.
  *
  * Input Parameters:
+ *   username - Identifies the user whose password will be verified
+ *   password - The password to be verified
  *
  * Returned Value:
  *   One (1) is returned on success match, Zero (OK) is returned on an

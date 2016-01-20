@@ -85,12 +85,12 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
 
   /* Open the password file for reading */
 
-  stream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "at");
+  stream = fopen(CONFIG_FSUTILS_PASSWD_PATH, "r");
   if (stream == NULL)
     {
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
-      return errcode;
+      return -errcode;
     }
 
   /* Read the password file line by line until the record with the matching
@@ -132,7 +132,7 @@ int passwd_find(FAR const char *username, FAR struct passwd_s *passwd)
         {
           /* We have a match, skip over any whitespace after the user name */
 
-          for (src = iobuffer; *src && isspace((int)*src); src++);
+          for (; *src && isspace((int)*src); src++);
           if (*src == '\0')
             {
               /* Bad file format? */

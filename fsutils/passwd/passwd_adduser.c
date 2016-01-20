@@ -55,6 +55,8 @@
  *   then this function will fail with -EEXIST.
  *
  * Input Parameters:
+ *   username - Identifies the user to be added
+ *   password - The password for the new user
  *
  * Returned Value:
  *   Zero (OK) is returned on success; a negated errno value is returned on
