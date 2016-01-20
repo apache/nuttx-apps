@@ -224,6 +224,12 @@ const char g_nshgreeting[]       = "\nNuttShell (NSH) NuttX-" CONFIG_VERSION_STR
 const char g_nshgreeting[]       = "\nNuttShell (NSH)\n";
 #endif
 
+/* Fixed Message of the Day (MOTD) */
+
+#if defined(CONFIG_NSH_MOTD) && !defined(CONFIG_NSH_PLATFORM_MOTD)
+const char g_nshmotd[]           = CONFIG_NSH_MOTD_STRING;
+#endif
+
 /* Telnet login prompts */
 
 #if defined(CONFIG_NSH_TELNET_LOGIN) && defined(CONFIG_NSH_TELNET)

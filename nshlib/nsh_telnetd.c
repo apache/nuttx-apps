@@ -274,7 +274,10 @@ static int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 int nsh_telnetmain(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
+  FAR struct nsh_vtbl_s *vtbl;
+
   DEBUGASSERT(pstate != NULL);
+  vtbl = &pstate->cn_vtbl;
 
   dbg("Session [%d] Started\n", getpid());
 
@@ -283,7 +286,7 @@ int nsh_telnetmain(int argc, char *argv[])
 #ifdef CONFIG_NSH_TELNET_LOGIN
   if (nsh_telnetlogin(pstate) != OK)
     {
-      nsh_exit(&pstate->cn_vtbl, 1);
+      nsh_exit(vtbl, 1);
       return -1; /* nsh_exit does not return */
     }
 #endif /* CONFIG_NSH_TELNET_LOGIN */
@@ -293,9 +296,24 @@ int nsh_telnetmain(int argc, char *argv[])
    * readline().
    */
 
-  /* Present the NSH greeting */
+  /* Present a greeting and possibly a Message of the Day (MOTD) */
 
   fputs(g_nshgreeting, pstate->cn_outstream);
+
+#ifdef CONFIG_NSH_MOTD
+# ifdef CONFIG_NSH_PLATFORM_MOTD
+  /* Output the platform message of the day */
+
+  platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
+  fprintf(pstate->cn_outstream, "%s/n", vtbl->iobuffer);
+
+# else
+  /* Output the fixed message of the day */
+
+  fprintf(pstate->cn_outstream, "%s/n", g_nshmotd);
+# endif
+#endif
+
   fflush(pstate->cn_outstream);
 
   /* Execute the startup script.  If standard console is also defined, then
@@ -304,13 +322,13 @@ int nsh_telnetmain(int argc, char *argv[])
    */
 
 #if defined(CONFIG_NSH_ROMFSETC) && !defined(CONFIG_NSH_CONSOLE)
-  (void)nsh_initscript(&pstate->cn_vtbl);
+  (void)nsh_initscript(vtbl);
 #endif
 
   /* Execute the login script */
 
 #ifdef CONFIG_NSH_ROMFSRC
-  (void)nsh_loginscript(&pstate->cn_vtbl);
+  (void)nsh_loginscript(vtbl);
 #endif
 
   /* Then enter the command line parsing loop */
@@ -328,20 +346,20 @@ int nsh_telnetmain(int argc, char *argv[])
         {
           /* Parse process the received Telnet command */
 
-          (void)nsh_parse(&pstate->cn_vtbl, pstate->cn_line);
+          (void)nsh_parse(vtbl, pstate->cn_line);
           fflush(pstate->cn_outstream);
         }
       else
         {
           fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_telnetmain",
                   "fgets", NSH_ERRNO);
-          nsh_exit(&pstate->cn_vtbl, 1);
+          nsh_exit(vtbl, 1);
         }
     }
 
   /* Clean up */
 
-  nsh_exit(&pstate->cn_vtbl, 0);
+  nsh_exit(vtbl, 0);
 
   /* We do not get here, but this is necessary to keep some compilers happy */
 

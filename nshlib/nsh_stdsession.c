@@ -102,13 +102,29 @@
 
 int nsh_session(FAR struct console_stdio_s *pstate)
 {
+  FAR struct nsh_vtbl_s *vtbl;
   int ret;
 
   DEBUGASSERT(pstate);
+  vtbl = &pstate->cn_vtbl;
 
-  /* Present a greeting */
+  /* Present a greeting and possibly a Message of the Day (MOTD) */
 
   printf("%s", g_nshgreeting);
+
+#ifdef CONFIG_NSH_MOTD
+# ifdef CONFIG_NSH_PLATFORM_MOTD
+  /* Output the platform message of the day */
+
+  platform_motd(vtbl->iobuffer, IOBUFFERSIZE);
+  printf("%s\n", vtbl->iobuffer);
+
+# else
+  /* Output the fixed message of the day */
+
+  printf("%s\n", g_nshmotd);
+# endif
+#endif
 
   /* Then enter the command line parsing loop */
 
@@ -138,7 +154,7 @@ int nsh_session(FAR struct console_stdio_s *pstate)
         {
           /* Parse process the command */
 
-          (void)nsh_parse(&pstate->cn_vtbl, pstate->cn_line);
+          (void)nsh_parse(vtbl, pstate->cn_line);
         }
 
       /* Readline normally returns the number of characters read,

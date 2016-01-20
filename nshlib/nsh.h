@@ -573,10 +573,12 @@
 #  undef NSH_HAVE_IOBUFFER
 #endif
 
-/* The I/O buffer is needed for the ls, cp, and ps commands */
+/* The I/O buffer is needed for the ls, cp, and ps commands.  It is also
+ * needed if the platform supplied MOTD is configured.
+ */
 
 #if defined(CONFIG_NSH_DISABLE_LS) && defined(CONFIG_NSH_DISABLE_CP) && \
-    defined(CONFIG_NSH_DISABLE_PS)
+    defined(CONFIG_NSH_DISABLE_PS) && !defined(CONFIG_NSH_PLATFORM_MOTD)
 #  undef NSH_HAVE_IOBUFFER
 #endif
 
@@ -798,6 +800,9 @@ typedef CODE int (*nsh_direntry_handler_t)(FAR struct nsh_vtbl_s *vtbl,
  ****************************************************************************/
 
 extern const char g_nshgreeting[];
+#if defined(CONFIG_NSH_MOTD) && !defined(CONFIG_NSH_PLATFORM_MOTD)
+extern const char g_nshmotd[];
+#endif
 #if defined(CONFIG_NSH_TELNET_LOGIN) && defined(CONFIG_NSH_TELNET)
 extern const char g_telnetgreeting[];
 extern const char g_userprompt[];

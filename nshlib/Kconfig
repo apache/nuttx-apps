@@ -17,6 +17,44 @@ config NSH_LIBRARY
 
 if NSH_LIBRARY
 
+menuconfig NSH_MOTD
+	bool "Message of the Day (MOTD)"
+	default n
+	---help---
+		Support a user-provided Message of the Day (MOTD) that will be
+		presented each time new NSH session is opened.
+
+if NSH_MOTD
+
+config NSH_PLATFORM_MOTD
+	bool "Platform MOTD"
+	default n
+	---help---
+		If this option is selected, the NSH will call into platform-specific
+		logic in order to get the MOTD.  The function prototype for this
+		call is:
+
+			void platform_motd(FAR char *buffer, size_t buflen);
+
+		Where buffer is the location to return the MOTD and buflen is the
+		length of that buffer.  The maximum size of the buffer is detemined
+		by NSH_FILEIOSIZE.  An appopriate location for the
+		implementation of platform_motd would be within apps/platform/<board>.
+
+		One newline will be inserted after the platform-supplied message.
+
+config NSH_MOTD_STRING
+	string "MOTD String"
+	default "No MOTD string provided"
+	depends on !NSH_PLATFORM_MOTD
+	---help---
+		If NSH_MOTD is selected, but NSH_PLATFORM_MOTD is not, then a fixed
+		MOTD string will be used.  That string is provided by this selection.
+
+		One newline will be inserted after supplied MOTD message.
+
+endif # NSH_MOTD
+
 menu "Command Line Configuration"
 
 choice
