@@ -67,7 +67,7 @@
 int passwd_adduser(FAR const char *username, FAR const char *password)
 {
   struct passwd_s passwd;
-  FAR sem_t *sem;
+  PASSWD_SEM_DECL(sem);
   int ret;
 
   /* Get exclusive access to the /etc/passwd file */

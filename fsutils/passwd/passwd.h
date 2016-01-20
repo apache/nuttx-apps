@@ -86,12 +86,14 @@ struct passwd_s
  *
  ****************************************************************************/
 
-#if CONFIG_FS_WRITABLE
+#if defined(CONFIG_FS_WRITABLE) && !defined(CONFIG_FSUTILS_PASSWD_READONLY)
+#  define PASSWD_SEM_DECL(s) FAR sem_t *s
 int passwd_lock(FAR sem_t **semp);
 int passwd_unlock(FAR sem_t *sem);
 #else
-# define passwd_lock(semp)  (0)
-# define passwd_unlock(sem) (0)
+#  define PASSWD_SEM_DECL(s)
+#  define passwd_lock(semp)  (0)
+#  define passwd_unlock(sem) (0)
 #endif
 
 /****************************************************************************

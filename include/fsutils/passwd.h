@@ -43,7 +43,15 @@
 #include <nuttx/config.h>
 #include <nuttx/compiler.h>
 
-#if defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD_READONLY)
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* passwd_verify() return value tests */
+
+#define PASSWORD_VERIFY_MATCH(ret)   (ret == 1)
+#define PASSWORD_VERIFY_NOMATCH(ret) (ret == 0)
+#define PASSWORD_VERIFY_ERROR(ret)   (ret < 0)
 
 /****************************************************************************
  * Public Function Prototypes
@@ -66,6 +74,7 @@
  *
  ****************************************************************************/
 
+#if defined(CONFIG_FS_WRITABLE) && defined(CONFIG_FSUTILS_PASSWD_READONLY)
 int passwd_adduser(FAR const char *username, FAR const char *password);
 
 /****************************************************************************
@@ -104,6 +113,7 @@ int passwd_deluser(FAR const char *username);
  ****************************************************************************/
 
 int passwd_update(FAR const char *username, FAR const char *password);
+#endif /* CONFIG_FS_WRITABLE && CONFIG_FSUTILS_PASSWD_READONLY */
 
 /****************************************************************************
  * Name: passwd_verify
@@ -125,5 +135,4 @@ int passwd_update(FAR const char *username, FAR const char *password);
 
 int passwd_verify(FAR const char *username, FAR const char *password);
 
-#endif /* CONFIG_FS_WRITABLE && CONFIG_FSUTILS_PASSWD_READONLY */
 #endif /* __APPS_INCLUDE_FSUTILS_PASSWD_H */

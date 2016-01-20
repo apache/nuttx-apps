@@ -66,7 +66,7 @@
 int passwd_deluser(FAR const char *username)
 {
   struct passwd_s passwd;
-  FAR sem_t *sem;
+  PASSWD_SEM_DECL(sem);
   int ret;
 
   /* Get exclusive access to the /etc/passwd file */
