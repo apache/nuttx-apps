@@ -1510,3 +1510,6 @@
 	  execution of other commands (2015-12-31).
 	* apps/netutils/netlib:  Add netlib_get_dripv4addr() and
 	  netlib_get_ipv4netmask().  From Pelle Windestam (2016-01-14).
+	* apps/fsutils/passwd: Utility library for accessing a password
+	  file like /etc/passwd (2016-01-19).
+
