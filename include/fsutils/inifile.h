@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/inifile.h
+ * apps/include/fsutils/inifile.h
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_INIFILE_H
-#define __APPS_INCLUDE_INIFILE_H
+#ifndef __APPS_INCLUDE_FSUTILS_INIFILE_H
+#define __APPS_INCLUDE_FSUTILS_INIFILE_H
 
 /****************************************************************************
  * Included Files
@@ -135,4 +135,4 @@ void inifile_free_string(FAR char *value);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_INIFILE_H */
+#endif /* __APPS_INCLUDE_FSUTILS_INIFILE_H */

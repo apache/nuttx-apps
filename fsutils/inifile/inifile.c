@@ -44,7 +44,7 @@
 #include <string.h>
 #include <debug.h>
 
-#include <apps/inifile.h>
+#include <apps/fsutils/inifile.h>
 
 /****************************************************************************
  * Pre-processor Definitions

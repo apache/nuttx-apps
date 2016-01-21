@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <apps/inifile.h>
+#include <apps/fsutils/inifile.h>
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -34,7 +34,7 @@ Syntax
 Programming Interfaces
 ======================
 
-  See apps/include/inifile.h for interfaces supported by the INI file parser.
+  See apps/include/fsutils/inifile.h for interfaces supported by the INI file parser.
 
 Test Program
 ============
