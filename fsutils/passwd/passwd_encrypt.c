@@ -62,6 +62,63 @@ static uint32_t g_tea_key[4] =
 };
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: passwd_base64
+ *
+ * Description:
+ *   Encode a 5 bit value as a base64 character.
+ *
+ * Input Parameters:
+ *   binary - 5 bit value
+ *
+ * Returned Value:
+ *   The ASCII base64 character
+ *
+ ****************************************************************************/
+
+static char passwd_base64(uint8_t binary)
+{
+  /* 0-26 -> 'A'-'Z' */
+
+  binary &= 63;
+  if (binary < 26)
+    {
+      return 'A' + binary;
+    }
+
+  /* 26-51 -> 'a'-'z' */
+
+  binary -= 26;
+  if (binary < 26)
+    {
+      return 'a' + binary;
+    }
+
+  /* 52->61 -> '0'-'9' */
+
+  binary -= 26;
+  if (binary < 10)
+    {
+      return '0' + binary;
+    }
+
+  /* 62 -> '+' */
+
+ binary -= 10;
+ if (binary == 0)
+   {
+     return '+';
+   }
+
+  /* 63 -> '/' */
+
+  return '/';
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -85,15 +142,19 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
   union
   {
     char     b[8];
+    uint16_t h[4];
     uint32_t l[2];
   } value;
 
   FAR const char *src;
+  FAR char *bptr;
   FAR char *dest;
+  uint32_t tmp;
+  uint8_t remainder;
   int remaining;
   int converted;
-  int enclen;
   int gulpsize;
+  int nbits;
   int i;
 
   /* How long is the password? */
@@ -106,9 +167,12 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
 
   /* Convert the password in 8-byte TEA cycles */
 
-  src          = password;
-  encrypted[0] = '\0';
-  enclen       = 0;
+  src        = password;
+  dest       = encrypted;
+  *dest      = '\0';
+
+  remainder  = 0;
+  nbits      = 0;
 
   for (converted = 0; converted < remaining; converted += 8)
     {
@@ -120,30 +184,50 @@ int passwd_encrypt(FAR const char *password, char encrypted[MAX_ENCRYPTED + 1])
           gulpsize = remaining;
         }
 
-      dest = value.b;
+      bptr = value.b;
       for (i = 0; i < gulpsize; i++)
         {
-          *dest++ = *src++;
+          *bptr++ = *src++;
         }
 
       /* Pad with spaces if necessary */
 
       for (; i < 8; i++)
         {
-          *dest++ = ' ';
+          *bptr++ = ' ';
         }
 
       /* Perform the conversion for this cycle */
 
       tea_encrypt(value.l, g_tea_key);
 
-      /* Generate the output from this cycle */
+      /* Generate the base64 output string from this cycle */
 
-      enclen += snprintf(&encrypted[enclen],
-                         MAX_ENCRYPTED - enclen,
-                         "%08lx%08lx",
-                         (unsigned long)value.l[0],
-                         (unsigned long)value.l[1]);
+      tmp = remainder;
+
+      for (i = 0; i < 4; i++)
+        {
+          tmp    = (uint32_t)value.h[i] << nbits | tmp;
+          nbits += 16;
+
+          while (nbits >= 6)
+            {
+              *dest++ = passwd_base64((uint8_t)(tmp & 0x3f));
+              tmp   >>= 6;
+              nbits  -= 6;
+            }
+        }
+
+      remainder = (uint8_t)tmp;
+      *dest     = '\0';
+    }
+
+  /* Handle any remainder */
+
+  if (nbits > 0)
+    {
+      *dest++ = passwd_base64(remainder);
+      *dest   = '\0';
     }
 
   return OK;

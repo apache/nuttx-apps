@@ -52,7 +52,14 @@
 #define MAX_ENCRYPTED 48         /* Maximum size of a password (encrypted, ASCII) */
 #define MAX_USERNAME  48         /* Maximum size of a username */
 #define MAX_RECORD    (MAX_USERNAME + MAX_ENCRYPTED + 1)
-#define MAX_PASSWORD  (MAX_ENCRYPTED / 2)
+
+/* The TEA incryption algorithm generates 8 bytes of encrypted data per
+ * 8 bytes of unencrypted data.  The encrypted presentation is base64 which
+ * is 8-bits of ASCII for each 6 bits of data.  That is a 3-to-4 expansion
+ * ratio.  MAX_ENCRYPTED must be a multiple of 8 bytes.
+ */
+
+#define MAX_PASSWORD  (3 * MAX_ENCRYPTED / 4)
 
 /****************************************************************************
  * Private Types
