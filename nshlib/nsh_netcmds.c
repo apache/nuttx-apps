@@ -1169,15 +1169,15 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *staddr;
   in_addr_t ipaddr;
-  uint32_t start;
-  uint32_t next;
+  systime_t start;
+  systime_t next;
+  int32_t elapsed;
   uint32_t dsec = 10;
   uint32_t maxwait;
   uint16_t id;
   int count = 10;
   int seqno;
   int replies = 0;
-  int elapsed;
   int ret;
   int tmp;
   int i;
@@ -1235,7 +1235,7 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
            * to an earlier request, then fudge the elapsed time.
            */
 
-          elapsed = TICK2MSEC(clock_systimer() - next);
+          elapsed = (int32_t)TICK2MSEC(clock_systimer() - next);
           if (seqno < i)
             {
               elapsed += 100 * dsec * (i - seqno);
@@ -1243,8 +1243,8 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           /* Report the receipt of the reply */
 
-          nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%d ms\n",
-                     DEFAULT_PING_DATALEN, staddr, seqno, elapsed);
+          nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%ld ms\n",
+                     DEFAULT_PING_DATALEN, staddr, seqno, (long)elapsed);
           replies++;
         }
       else if (seqno < 0)
@@ -1264,7 +1264,7 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * to the current request!
        */
 
-      elapsed = TICK2DSEC(clock_systimer() - next);
+      elapsed = (int32_t)TICK2DSEC(clock_systimer() - next);
       if (elapsed < dsec)
         {
           usleep(100000 * (dsec - elapsed));
@@ -1273,13 +1273,13 @@ int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the total elapsed time */
 
-  elapsed = TICK2MSEC(clock_systimer() - start);
+  elapsed = (int32_t)TICK2MSEC(clock_systimer() - start);
 
   /* Calculate the percentage of lost packets */
 
   tmp = (100*(count - replies) + (count >> 1)) / count;
 
-  nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %d ms\n",
+  nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %ld ms\n",
              count, replies, tmp, elapsed);
   return OK;
 }
@@ -1294,15 +1294,15 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *staddr;
   struct in6_addr ipaddr;
-  uint32_t start;
-  uint32_t next;
+  systime_t start;
+  systime_t next;
+  int32_t elapsed;
   uint32_t dsec = 10;
   uint32_t maxwait;
   uint16_t id;
   int count = 10;
   int seqno;
   int replies = 0;
-  int elapsed;
   int ret;
   int tmp;
   int i;
@@ -1363,7 +1363,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
            * to an earlier request, then fudge the elapsed time.
            */
 
-          elapsed = TICK2MSEC(clock_systimer() - next);
+          elapsed = (int32_t)TICK2MSEC(clock_systimer() - next);
           if (seqno < i)
             {
               elapsed += 100 * dsec * (i - seqno);
@@ -1371,8 +1371,8 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           /* Report the receipt of the reply */
 
-          nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%d ms\n",
-                     DEFAULT_PING_DATALEN, staddr, seqno, elapsed);
+          nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%ld ms\n",
+                     DEFAULT_PING_DATALEN, staddr, seqno, (long)elapsed);
           replies++;
         }
 
@@ -1381,7 +1381,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * to the current request!
        */
 
-      elapsed = TICK2DSEC(clock_systimer() - next);
+      elapsed = (int32_t)TICK2DSEC(clock_systimer() - next);
       if (elapsed < dsec)
         {
           usleep(100000 * (dsec - elapsed));
@@ -1390,14 +1390,14 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the total elapsed time */
 
-  elapsed = TICK2MSEC(clock_systimer() - start);
+  elapsed = (int32_t)TICK2MSEC(clock_systimer() - start);
 
   /* Calculate the percentage of lost packets */
 
   tmp = (100*(count - replies) + (count >> 1)) / count;
 
-  nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %d ms\n",
-             count, replies, tmp, elapsed);
+  nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %ld ms\n",
+             count, replies, tmp, (long)elapsed);
   return OK;
 }
 #endif /* CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_PING */
