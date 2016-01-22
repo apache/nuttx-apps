@@ -17,6 +17,10 @@ hello.h
 
     xxd -i hello.pex >hello.h
 
+  The resulting hello.h should be editted so that both data definitions
+  are marked with the 'const' qualify so that the data will be stored in
+  FLASH.
+
 mkhello.sh
 
   This is a scripts that can be used to rebuild both hello.pex
