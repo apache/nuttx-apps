@@ -158,6 +158,49 @@ int nsh_consolemain(int argc, char *argv[]);
 
 int nsh_telnetstart(void);
 
+/****************************************************************************
+ * Name: platform_motd
+ *
+ * Description:
+ *   If CONFIG_NSH_PLATFORM_MOTD is defined, then platform-specific logic
+ *   must provide this function in order to obtain the Message of the Day
+ *   (MOTD)
+ *
+ * Input Parmeters:
+ *   buffer - A caller allocated buffer in which to receive the MOTD
+ *   buflen - The length in bytes of the caller allocated buffer
+ *
+ * Returned value:
+ *   None
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_PLATFORM_MOTD
+void platform_motd(FAR char *buffer, size_t buflen);
+#endif
+
+/****************************************************************************
+ * Name: platform_user_verify
+ *
+ * Description:
+ *   If CONFIG_NSH_LOGIN_PLATFORM is defined, then platform-specific logic
+ *   must provide this function in order verify user credentials as part of
+ *   the login process.
+ *
+ * Input Parmeters:
+ *   username/password - User credentials to be verified.
+ *
+ * Returned value:
+ *   1 - The user credentials are verified
+ *   0 - The user credentials are incorrect
+ *  <0 - An error occurred.  The returned value is a negated errno number.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_LOGIN_PLATFORM
+int platform_user_verify(FAR const char *username, FAR const char *password);
+#endif
+
 #undef EXTERN
 #ifdef __cplusplus
 }

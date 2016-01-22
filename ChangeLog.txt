@@ -1520,4 +1520,7 @@
 	  the encrypted password in /etc/passwd (2016-01-20).
 	* apps/fsutils/inifile:  Move system/inifile to fsutils/inifile
 	  where it seems to fit in better (2016-01-20).
+	* apps/nshlib: Extend logins.  Added: Optional platform-specific
+	  function to perform password verification and optionsl delay
+	  after each failed login attempt (2016-01-22).
 

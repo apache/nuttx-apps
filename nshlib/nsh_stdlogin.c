@@ -200,13 +200,19 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
 
           /* Verify the username and password */
 
-#ifdef CONFIG_FSUTILS_PASSWD
+#if defined(CONFIG_NSH_LOGIN_PASSWD)
           ret = passwd_verify(username, password);
           if (PASSWORD_VERIFY_MATCH(ret))
 
-#else
+#elif defined(CONFIG_NSH_LOGIN_PLATFORM)
+          ret = platform_user_verify(username, password);
+          if (PASSWORD_VERIFY_MATCH(ret))
+
+#elif defined(CONFIG_NSH_LOGIN_FIXED)
           if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
               strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
+#else
+#  error No user verification method selected
 #endif
             {
               printf("%s", g_loginsuccess);
@@ -215,6 +221,9 @@ int nsh_stdlogin(FAR struct console_stdio_s *pstate)
           else
             {
               printf("%s", g_badcredentials);
+#if CONFIG_NSH_LOGIN_FAILDELAY > 0
+              usleep(CONFIG_NSH_LOGIN_FAILDELAY * 1000L);
+#endif
             }
         }
     }

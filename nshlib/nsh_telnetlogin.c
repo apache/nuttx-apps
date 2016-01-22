@@ -176,7 +176,7 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 {
   char username[16];
   char password[16];
-#ifdef CONFIG_FSUTILS_PASSWD
+#ifdef CONFIG_NSH_LOGIN_PASSWD
   int ret;
 #endif
   int i;
@@ -218,12 +218,19 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
 
           /* Verify the username and password */
 
-#ifdef CONFIG_FSUTILS_PASSWD
+#if defined(CONFIG_NSH_LOGIN_PASSWD)
           ret = passwd_verify(username, password);
           if (PASSWORD_VERIFY_MATCH(ret))
-#else
+
+#elif defined(CONFIG_NSH_LOGIN_PLATFORM)
+          ret = platform_user_verify(username, password);
+          if (PASSWORD_VERIFY_MATCH(ret))
+
+#elif defined(CONFIG_NSH_LOGIN_FIXED)
           if (strcmp(password, CONFIG_NSH_LOGIN_PASSWORD) == 0 &&
               strcmp(username, CONFIG_NSH_LOGIN_USERNAME) == 0)
+#else
+#  error No user verification method selected
 #endif
             {
               fputs(g_loginsuccess, pstate->cn_outstream);
@@ -235,6 +242,9 @@ int nsh_telnetlogin(FAR struct console_stdio_s *pstate)
             {
               fputs(g_badcredentials, pstate->cn_outstream);
               fflush(pstate->cn_outstream);
+#if CONFIG_NSH_LOGIN_FAILDELAY > 0
+              usleep(CONFIG_NSH_LOGIN_FAILDELAY * 1000L);
+#endif
             }
         }
 
