@@ -50,9 +50,18 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define USEC_PER_MSEC 1000
-#define MSEC_PER_SEC  1000
-#define USEC_PER_SEC  (USEC_PER_MSEC * MSEC_PER_SEC)
+#ifndef USEC_PER_MSEC
+#  define USEC_PER_MSEC 1000L
+#endif
+
+#ifndef MSEC_PER_SEC
+#  define MSEC_PER_SEC  1000L
+#endif
+
+#ifndef USEC_PER_SEC
+#  define USEC_PER_SEC  (USEC_PER_MSEC * MSEC_PER_SEC)
+#endif
+
 #define SHORT_DELAY   (USEC_PER_SEC / 3)
 
 /****************************************************************************
