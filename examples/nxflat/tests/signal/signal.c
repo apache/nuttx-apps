@@ -62,7 +62,7 @@
 #  define USEC_PER_SEC  (USEC_PER_MSEC * MSEC_PER_SEC)
 #endif
 
-#define SHORT_DELAY   (USEC_PER_SEC / 3)
+#define SHORT_DELAY     (USEC_PER_SEC / 3)
 
 /****************************************************************************
  * Private Data
