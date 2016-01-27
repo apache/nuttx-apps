@@ -1527,4 +1527,7 @@
 	  an internal OS interface (up_spiinitialize), that has been
 	  obsoleted.  That's what happens when you violate interface
 	  boundaries between the application and the OS (2016-01-27).
-
+	* apps/platform/Makefile:  Use a relative path to the board
+	  directory link rather than the absolute path.  For Cygwin, the
+	  absolute would would need converted with cygpath.  But just using
+	  the relative path is a simpler solution (2016-01-27).

@@ -58,7 +58,7 @@ endif
 
 # Directories
 
-PLATFORMDIR = $(APPDIR)$(DELIM)platform$(DELIM)board
+PLATFORMDIR = board
 DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
 
 ifeq ($(CONFIG_ARCH_BOARD_CUSTOM),y)
