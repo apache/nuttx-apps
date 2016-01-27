@@ -1523,7 +1523,7 @@
 	* apps/nshlib: Extend logins.  Added: Optional platform-specific
 	  function to perform password verification and optionsl delay
 	  after each failed login attempt (2016-01-22).
-	* system/ramtron:  Marked EXPERIMENTAL.  It inappropriately uses
+	* system/ramtron:  Removed completely.  It inappropriately used
 	  an internal OS interface (up_spiinitialize), that has been
 	  obsoleted.  That's what happens when you violate interface
 	  boundaries between the application and the OS (2016-01-27).
