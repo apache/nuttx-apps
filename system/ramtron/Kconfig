@@ -6,8 +6,12 @@
 config SYSTEM_RAMTRON
 	bool "RAMTRON"
 	default n
+	depends on EXPERIMENTAL
 	---help---
 		Enable support for the NSH RAMTRON command.
+
+		This configuration is broken because it depends on obsoleted
+		internal OS interfaces.  That's what you get for violating interface definitions!
 
 if SYSTEM_RAMTRON
 endif
