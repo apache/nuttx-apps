@@ -1486,14 +1486,14 @@
 	  the 'ps' command if the procfs is not enabled and mounted at
 	  /proc (2015-11-28).
 
-7.14 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.14 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
 	* netutils/telnetd:  Move the Telnet driver from netutils/telnetd to
 	  nuttx/drivers/net.  It is a driver an belongs in the OS.  There are
 	  still some partitioning issues with the interface to the Telnet
 	  driver (2015-12-07).
-	* netutils/telnetd:  No longer calls OS interfade telnet_driver.  Now
-	  creates Telnet sessions by open a new factory device at /dev/telnet
+	* netutils/telnetd:  No longer calls OS interface telnet_driver.  Now
+	  creates Telnet sessions by opening a new factory device at /dev/telnet
 	  and then using ioctl calls to create the session character drivers
 	  at /dev/telnetN (2015-12-07).
 	* netutils/ping: Unfinished implementation of ping/ping6 using raw
@@ -1505,7 +1505,7 @@
 	* apps/examples/pca9635:  Add a simple test of PCA9635PW PWM LED
 	  driver.  From Alan Carvalho de Assis (2015-12-15).
 	* apps/examples/ostest:  Add a test of POSIX timers using
-	  SIGEV_THREAD (20156-12-30).
+	  SIGEV_THREAD (2015-12-30).
 	* apps/nshlib:  Add a 'time' command that may be used to time the
 	  execution of other commands (2015-12-31).
 	* apps/netutils/netlib:  Add netlib_get_dripv4addr() and
@@ -1521,7 +1521,7 @@
 	* apps/fsutils/inifile:  Move system/inifile to fsutils/inifile
 	  where it seems to fit in better (2016-01-20).
 	* apps/nshlib: Extend logins.  Added: Optional platform-specific
-	  function to perform password verification and optionsl delay
+	  function to perform password verification and optional delay
 	  after each failed login attempt (2016-01-22).
 	* system/ramtron:  Removed completely.  It inappropriately used
 	  an internal OS interface (up_spiinitialize), that has been
@@ -1531,3 +1531,5 @@
 	  directory link rather than the absolute path.  For Cygwin, the
 	  absolute would would need converted with cygpath.  But just using
 	  the relative path is a simpler solution (2016-01-27).
+
+7.15 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
