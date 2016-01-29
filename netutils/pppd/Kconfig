@@ -6,7 +6,7 @@
 config NETUTILS_PPPD
 	bool "PPP daemon"
 	default n
-        select NETUTILS_CHAT
+	select NETUTILS_CHAT
 	select NET_TUN
 	depends on NET && NET_UDP
 	---help---

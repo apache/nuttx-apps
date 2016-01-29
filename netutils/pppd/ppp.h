@@ -56,7 +56,7 @@
 #include "ppp_arch.h"
 
 #ifdef CONFIG_NETUTILS_PPPD_PAP
-#include "pap.h"
+#  include "pap.h"
 #endif /* CONFIG_NETUTILS_PPPD_PAP */
 
 /****************************************************************************
@@ -170,9 +170,9 @@ struct ppp_context_s
   /* AHDLC */
 
   u8_t  ahdlc_rx_buffer[PPP_RX_BUFFER_SIZE];
-  u16_t ahdlc_tx_crc;     /* running tx CRC */
-  u16_t ahdlc_rx_crc;     /* running rx CRC */
-  u16_t ahdlc_rx_count;   /* number of rx bytes processed, cur frame */
+  u16_t ahdlc_tx_crc;     /* Running tx CRC */
+  u16_t ahdlc_rx_crc;     /* Running rx CRC */
+  u16_t ahdlc_rx_count;   /* Number of rx bytes processed, cur frame */
   u8_t  ahdlc_flags;      /* ahdlc state flags, see above */
   u8_t  ahdlc_tx_offline;
 
