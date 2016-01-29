@@ -47,6 +47,8 @@
 
 #include <nuttx/config.h>
 
+#include <apps/netutils/chat.h>
+
 #include "ppp_conf.h"
 #include "ahdlc.h"
 #include "lcp.h"
@@ -128,7 +130,6 @@ struct ppp_context_s
 
   /* Interfaces */
 
-  int   tty_fd;
   int   if_fd;
   u8_t  ifname[IFNAMSIZ];
 
@@ -175,11 +176,6 @@ struct ppp_context_s
   u8_t  ahdlc_flags;      /* ahdlc state flags, see above */
   u8_t  ahdlc_tx_offline;
 
-  /* Scripts */
-
-  struct chat_script_s *connect_script;
-  struct chat_script_s *disconnect_script;
-
   /* Statistics counters */
 
 #ifdef PPP_STATISTICS
@@ -188,6 +184,10 @@ struct ppp_context_s
   u32_t ppp_rx_frame_count;
   u32_t ppp_tx_frame_count;
 #endif
+
+  /* Chat controls */
+
+  struct chat_ctl ctl;
 
   /* PPPD Settings */
 

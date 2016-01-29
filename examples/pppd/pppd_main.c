@@ -50,27 +50,17 @@
  * Private Data
  ****************************************************************************/
 
-static struct chat_script_s connect_script =
-{
-  .timeout = 30,
-  .lines =
-  {
-    {"AT",                                 "OK"},
-    {"AT+CGDCONT = 1,\"IP\",\"internet\"", "OK"},
-    {"ATD*99***1#",                        "CONNECT"},
-    {0, 0}
-  },
-};
+static FAR char connect_script[] =
+  "ECHO ON "
+  "TIMEOUT 30 "
+  "\"\" ATE1 "
+  "OK AT+CGDCONT=1,\\\"IP\\\",\\\"internet\\\" "
+  "OK ATD*99***1# "
+  "CONNECT \\c";
 
-static struct chat_script_s disconnect_script =
-{
-  .timeout = 30,
-  .lines =
-  {
-    {"ATZ",                                "OK"},
-    {0, 0}
-  },
-};
+static FAR char disconnect_script[] =
+  "\"\" ATZ "
+  "OK \\c";
 
 /****************************************************************************
  * Public Functions
@@ -84,12 +74,12 @@ int pppd_main(int argc, char *argv[])
 {
   struct pppd_settings_s pppd_settings =
   {
-    .disconnect_script = &disconnect_script,
-    .connect_script = &connect_script,
-    .ttyname = "/dev/ttyS2",
+    .disconnect_script = disconnect_script,
+    .connect_script = connect_script,
+    .ttyname = "/dev/ttyS1",
 #ifdef CONFIG_NETUTILS_PPPD_PAP
-    .pap_username = "username",
-    .pap_password = "password",
+    .pap_username = "user",
+    .pap_password = "pass",
 #endif
   };
 

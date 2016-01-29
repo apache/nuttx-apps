@@ -58,8 +58,8 @@
 #include <nuttx/net/tun.h>
 
 #include "ppp.h"
-#include "chat.h"
 
+#include <apps/netutils/chat.h>
 #include <apps/netutils/pppd.h>
 
 #if PPP_ARCH_HAVE_MODEM_RESET
@@ -218,13 +218,13 @@ void ppp_reconnect(struct ppp_context_s *ctx)
   sleep(1);
   lcp_disconnect(ctx, ++ctx->ppp_id);
   sleep(1);
-  write(ctx->tty_fd, "+++", 3);
+  write(ctx->ctl.fd, "+++", 3);
   sleep(2);
-  write(ctx->tty_fd, "ATE1\r\n", 6);
+  write(ctx->ctl.fd, "ATE1\r\n", 6);
 
   if (pppd_settings->disconnect_script)
     {
-      ret = ppp_chat(ctx->tty_fd, pppd_settings->disconnect_script, 1 /*echo on*/);
+      ret = chat(&ctx->ctl, pppd_settings->disconnect_script);
       if (ret < 0)
         {
           printf("ppp: disconnect script failed\n");
@@ -235,7 +235,7 @@ void ppp_reconnect(struct ppp_context_s *ctx)
     {
       do
         {
-          ret = ppp_chat(ctx->tty_fd, pppd_settings->connect_script, 1 /*echo on*/);
+          ret = chat(&ctx->ctl, pppd_settings->connect_script);
           if (ret < 0)
             {
               printf("ppp: connect script failed\n");
@@ -286,7 +286,7 @@ time_t ppp_arch_clock_seconds(void)
 int ppp_arch_getchar(struct ppp_context_s *ctx, u8_t *c)
 {
   int ret;
-  ret = read(ctx->tty_fd, c, 1);
+  ret = read(ctx->ctl.fd, c, 1);
   return ret == 1 ? ret : 0;
 }
 
@@ -299,17 +299,17 @@ int ppp_arch_putchar(struct ppp_context_s *ctx, u8_t c)
   int ret;
   struct pollfd fds;
 
-  ret = write(ctx->tty_fd, &c, 1);
+  ret = write(ctx->ctl.fd, &c, 1);
   if (ret < 0 && errno == EAGAIN)
     {
-      fds.fd = ctx->tty_fd;
+      fds.fd = ctx->ctl.fd;
       fds.events = POLLOUT;
       fds.revents = 0;
 
       ret = poll(&fds, 1, 1000);
       if (ret > 0)
         {
-          ret = write(ctx->tty_fd, &c, 1);
+          ret = write(ctx->ctl.fd, &c, 1);
         }
     }
 
@@ -338,18 +338,21 @@ int pppd(struct pppd_settings_s *pppd_settings)
       return 2;
     }
 
-  ctx->tty_fd = open_tty(pppd_settings->ttyname);
-  if (ctx->tty_fd < 0)
+  ctx->ctl.fd = open_tty(pppd_settings->ttyname);
+  if (ctx->ctl.fd < 0)
     {
-      close(ctx->tty_fd);
+      close(ctx->ctl.fd);
       free(ctx);
       return 2;
     }
+  ctx->ctl.echo = true;
+  ctx->ctl.verbose = true;
+  ctx->ctl.timeout = 30;
 
   fds[0].fd = ctx->if_fd;
   fds[0].events = POLLIN;
 
-  fds[1].fd = ctx->tty_fd;
+  fds[1].fd = ctx->ctl.fd;
   fds[1].events = POLLIN;
 
   ppp_init(ctx);

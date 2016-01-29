@@ -1,8 +1,8 @@
 ############################################################################
-# apps/netutils/Makefile
+# apps/netutils/chat/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
+#   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,37 +33,66 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+-include $(TOPDIR)/.config
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
-# Sub-directories
+ASRCS =
+CSRCS =
 
-SUBDIRS  = chat json codecs
-ifeq ($(CONFIG_NET),y)
-SUBDIRS += netlib dhcpc dhcpd discover ftpc ftpd smtp telnetd
-SUBDIRS += webclient webserver tftpc thttpd xmlrpc pppd
+CSRCS += chat.c
+
+AOBJS = $(ASRCS:.S=$(OBJEXT))
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(ASRCS) $(CSRCS)
+OBJS = $(AOBJS) $(COBJS)
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  BIN = ..\..\libapps$(LIBEXT)
+else
+ifeq ($(WINTOOL),y)
+  BIN = ..\\..\\libapps$(LIBEXT)
+else
+  BIN = ../../libapps$(LIBEXT)
+endif
 endif
 
-all: nothing
+ROOTDEPPATH = --dep-path .
 
-.PHONY: nothing context depend clean distclean
+# Common build
 
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
+VPATH =
 
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
+all: .built
+.PHONY: context depend clean distclean
 
-nothing:
+$(AOBJS): %$(OBJEXT): %.S
+	$(call ASSEMBLE, $<, $@)
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch .built
 
 install:
 
 context:
 
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
+depend: .depend
 
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+
+-include Make.dep

@@ -1,8 +1,8 @@
 ############################################################################
-# apps/netutils/pppd/Makefile
+# apps/examples/chat/Makefile
 #
-#   Copyright (C) 2015 Max Nekludov. All rights reserved.
-#   Author: Max Nekludov <macscomp@gmail.com>
+#   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
+#   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -39,17 +39,18 @@ include $(APPDIR)/Make.defs
 
 ASRCS =
 CSRCS =
-
-CSRCS += pppd.c ppp.c ahdlc.c lcp.c ipcp.c
-ifeq ($(CONFIG_NETUTILS_PPPD_PAP),y)
-CSRCS += pap.c
-endif
+MAINSRC = chat_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS += $(MAINOBJ)
+endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   BIN = ..\..\libapps$(LIBEXT)
@@ -61,28 +62,58 @@ else
 endif
 endif
 
+ifeq ($(WINTOOL),y)
+  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+else
+  INSTALL_DIR = $(BIN_DIR)
+endif
+
+CONFIG_XYZ_PROGNAME ?= chat$(EXEEXT)
+PROGNAME = $(CONFIG_XYZ_PROGNAME)
+
 ROOTDEPPATH = --dep-path .
-
-# Common build
-
 VPATH =
 
+APPNAME = chat
+PRIORITY = SCHED_PRIORITY_DEFAULT
+STACKSIZE = 2048
+
+# Build targets
+
 all: .built
-.PHONY: context depend clean distclean
+.PHONY: context .depend depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS): %$(OBJEXT): %.c
+$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
+	@echo "LD: $(PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+
+install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+
+else
 install:
 
+endif
+
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
 context:
+endif
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep

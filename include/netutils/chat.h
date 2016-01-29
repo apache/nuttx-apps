@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/include/netutils/pppd.h
+ * apps/include/netutils/chat.h
  *
- *   Copyright (C) 2015 Brennan Ashton. All rights reserved.
- *   Author: Brennan Ashton <bashton@brennanashton.com>
+ *   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
+ *   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,58 +33,35 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_NETUTILS_PPPD_H
-#define __APPS_INCLUDE_NETUTILS_PPPD_H
+#ifndef __APPS_INCLUDE_NETUTILS_CHAT_H
+#define __APPS_INCLUDE_NETUTILS_CHAT_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-#include <time.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-/* Configuration ************************************************************/
-/* Required configuration settings:
- *
- *   CONFIG_NETUTILS_PPPD_PAP - PPPD PAP authentication support
- *     Default: n
- */
-
-#define TTYNAMSIZ               16
-#define PAP_USERNAME_SIZE       16
-#define PAP_PASSWORD_SIZE       16
+#include <stdbool.h>
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-struct pppd_settings_s
+/* Type of chat control parameters. */
+
+struct chat_ctl
 {
-  /* Serial Interface */
-
-  char ttyname[TTYNAMSIZ];
-
-#ifdef CONFIG_NETUTILS_PPPD_PAP
-  /* PAP Authentication Settings */
-
-  char pap_username[PAP_USERNAME_SIZE];
-  char pap_password[PAP_PASSWORD_SIZE];
-#endif /* CONFIG_NETUTILS_PPPD_PAP */
-
-  /* Chat Scripts */
-
-  FAR char* connect_script;
-  FAR char* disconnect_script;
+  int fd;                          /* TTY file descriptor */
+  bool echo;                       /* echo modem output to stderr */
+  bool verbose;                    /* print script lines to stderr */
+  int timeout;                     /* expected response timeout */
 };
 
-  /****************************************************************************
- * Public Data
+/****************************************************************************
+ * Public Function Prototypes
  ****************************************************************************/
 
-#ifdef __cplusplus
+#undef EXTERN
+#if defined(__cplusplus)
 #define EXTERN extern "C"
 extern "C"
 {
@@ -92,28 +69,11 @@ extern "C"
 #define EXTERN extern
 #endif
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name: pppd
- *
- * Description:
- *   Create an pppd connection
- *
- * Input Parameters:
- *    pppd_settings, setting struct for the ppp connection
- *
- * Returned Value:
- *   Returns termination state, blocking as long as the connection is up
- *
- ****************************************************************************/
-
-int pppd(struct pppd_settings_s *ppp_settings);
+int chat(FAR struct chat_ctl* ctl, FAR char* script);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
-#endif /* __APPS_INCLUDE_NETUTILS_PPPD_H */
+
+#endif /* __APPS_INCLUDE_NETUTILS_CHAT_H */

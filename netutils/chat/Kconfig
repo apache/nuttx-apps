@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config NETUTILS_CHAT
+	bool "Chat tool"
+	default n
+	depends on !DISABLE_POLL
+	---help---
+		Enable the chat tool.
+
+if NETUTILS_CHAT
+
+endif # NETUTILS_CHAT

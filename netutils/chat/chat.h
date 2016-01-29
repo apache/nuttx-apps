@@ -1,8 +1,8 @@
 /****************************************************************************
- * netutils/pppd/chat.h
+ * apps/netutils/chat/chat.h
  *
- *   Copyright (C) 2015 Max Nekludov. All rights reserved.
- *   Author: Max Nekludov <macscomp@gmail.com>
+ *   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
+ *   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,37 +33,64 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_NETUTILS_PPPD_CHAT_H
-#define __APPS_NETUTILS_PPPD_CHAT_H
+#ifndef __APPS_NETUTILS_CHAT_CHAT_H
+#define __APPS_NETUTILS_CHAT_CHAT_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <apps/netutils/pppd.h>
+#include <apps/netutils/chat.h>
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-#undef EXTERN
-#if defined(__cplusplus)
-#define EXTERN extern "C"
-extern "C"
+enum chat_line_type
 {
-#else
-#define EXTERN extern
-#endif
+  CHAT_LINE_TYPE_COMMAND = 0,
+  CHAT_LINE_TYPE_EXPECT_SEND,
+};
 
-int ppp_chat(int fd, struct chat_script_s *script, int echo);
+enum chat_command
+{
+  CHAT_COMMAND_ABORT = 0,
+  CHAT_COMMAND_ECHO,
+  CHAT_COMMAND_PAUSE,
+  CHAT_COMMAND_SAY,
+  CHAT_COMMAND_TIMEOUT,
+};
 
-#undef EXTERN
-#ifdef __cplusplus
-}
-#endif
+/* Type of chat script: singly-linked list of chat lines. */
 
-#endif /* __APPS_NETUTILS_PPPD_CHAT_H */
+struct chat_line
+{
+  enum chat_line_type type;
+  union
+  {
+    /* type-0 chat line command */
+
+    enum chat_command command;
+
+    /* type-1 chat line expected string */
+
+    FAR char* expect;
+  } lhs;
+
+  /* type 0: command argument
+   * type 1: string to be sent
+   */
+
+  FAR char* rhs;
+  FAR struct chat_line* next; /* pointer to the next line in the script */
+};
+
+/* Chat private state. */
+
+struct chat
+{
+  struct chat_ctl ctl;             /* Embedded 'chat_ctl' type. */
+  FAR struct chat_line* script;    /* first line of the script */
+};
+
+#endif /* __APPS_NETUTILS_CHAT_CHAT_H */

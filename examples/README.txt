@@ -192,6 +192,23 @@ examples/cc3000
 
   This is a test for the TI CC3000 wireless networking module.
 
+examples/chat
+^^^^^^^^^^^^^
+
+  Demonstrates AT chat functionality over a TTY device. This is useful with AT
+  modems, for example, to establish a pppd connection (see the related pppd
+  example). Moreover, some AT modems - such as ones made by u-blox - have an
+  internal TCP/IP stack, often with an implementation of TLS/SSL. In such cases
+  the chat utility can be used to configure the internal TCP/IP stack, establish
+  socket connections, set up security (e.g., download base64-encoded
+  certificates to the modem), and perform data exchange through sockets over the
+  TTY device.
+
+  Useful configuration parameters:
+    CONFIG_EXAMPLES_CHAT_PRESET[0..3]    - preset chat scripts
+    CONFIG_EXAMPLES_CHAT_TTY_DEVNODE     - TTY device node name
+    CONFIG_EXAMPLES_CHAT_TIMEOUT_SECONDS - default receive timeout
+
 examples/configdata
 ^^^^^^^^^^^^^^^^^^^
 
@@ -2005,7 +2022,7 @@ examples/unionfs
     CONFIG_FS_UNIONFS                  - Union File System support is required
 
   Configuration options.  Use the defaults if you are unsure of what you are doing:
- 
+
     CONFIG_EXAMPLES_UNIONFS            - Enables the example
     CONFIG_EXAMPLES_UNIONFS_MOUNTPT    - Mountpoint path for the Union File System
     CONFIG_EXAMPLES_UNIONFS_TMPA       - Temporary mount point for file system 1

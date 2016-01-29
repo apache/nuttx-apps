@@ -1,8 +1,9 @@
 ############################################################################
-# apps/netutils/Makefile
+# apps/examples/chat/Make.defs
+# Adds selected applications to apps/ build
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
+#   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,37 +34,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
-
-# Sub-directories
-
-SUBDIRS  = chat json codecs
-ifeq ($(CONFIG_NET),y)
-SUBDIRS += netlib dhcpc dhcpd discover ftpc ftpd smtp telnetd
-SUBDIRS += webclient webserver tftpc thttpd xmlrpc pppd
+ifeq ($(CONFIG_EXAMPLES_CHAT),y)
+  CONFIGURED_APPS += examples/chat
 endif
-
-all: nothing
-
-.PHONY: nothing context depend clean distclean
-
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
-
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
-
-nothing:
-
-install:
-
-context:
-
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
-
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
-
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
