@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/platform/nucleo-f4x1re/src/stm32_cxxinitialize.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
