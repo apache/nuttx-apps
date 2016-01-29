@@ -37,3 +37,7 @@
 
 # ASRCS += xyz.S
 CSRCS += mikroe_configdata.c
+
+ifeq ($(CONFIG_HAVE_CXX),y)
+CSRCS += stm32_cxxinitialize.c
+endif
