@@ -1533,3 +1533,7 @@
 	  the relative path is a simpler solution (2016-01-27).
 
 7.15 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/exmaples/chat and apps/netutils/chat:  Contributed by
+	  by Vladimir Komendantskiy (2019-01-29).
+
