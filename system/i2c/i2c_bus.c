@@ -77,7 +77,7 @@
 
 int i2ccmd_bus(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
-  FAR struct i2c_dev_s *dev;
+  FAR struct i2c_master_s *dev;
   int i;
 
   i2ctool_printf(i2ctool, " BUS   EXISTS?\n");

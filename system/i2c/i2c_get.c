@@ -79,7 +79,7 @@
 
 int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 {
-  FAR struct i2c_dev_s *dev;
+  FAR struct i2c_master_s *dev;
   FAR char *ptr;
   uint16_t result;
   uint8_t regaddr;
@@ -198,7 +198,7 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
  * Name: i2ctool_get
  ****************************************************************************/
 
-int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_dev_s *dev,
+int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_master_s *dev,
                 uint8_t regaddr, uint16_t *result)
 {
   struct i2c_msg_s msg[2];

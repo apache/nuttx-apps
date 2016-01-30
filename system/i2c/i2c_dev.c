@@ -79,7 +79,7 @@
 
 int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
-  FAR struct i2c_dev_s *dev;
+  FAR struct i2c_master_s *dev;
   struct i2c_msg_s msg[2];
   FAR char *ptr;
   union

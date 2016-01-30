@@ -79,7 +79,7 @@
 
 int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 {
-  FAR struct i2c_dev_s *dev;
+  FAR struct i2c_master_s *dev;
   FAR char *ptr;
   uint16_t rdvalue;
   uint8_t regaddr;
