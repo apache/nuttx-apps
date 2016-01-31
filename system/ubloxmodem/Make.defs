@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/ubloxmodem/Make.defs
+# apps/system/ubloxmodem/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_UBLOXMODEM),y)
-CONFIGURED_APPS += examples/ubloxmodem
+ifeq ($(CONFIG_SYSTEM_UBLOXMODEM),y)
+CONFIGURED_APPS += system/ubloxmodem
 endif

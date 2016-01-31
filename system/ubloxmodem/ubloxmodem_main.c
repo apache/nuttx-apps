@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/ubloxmodem/ubloxmodem_main.c
+ * apps/system/ubloxmodem/ubloxmodem_main.c
  *
  *   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
  *   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
@@ -72,9 +72,9 @@
 
 #define UBLOXMODEM_MAX_REGISTERS 16
 
-#if !defined(CONFIG_EXAMPLES_UBLOXMODEM_TTY_DEVNODE)
+#if !defined(CONFIG_SYSTEM_UBLOXMODEM_TTY_DEVNODE)
 /* Use /dev/ttyS1 by default */
-#  define CONFIG_EXAMPLES_UBLOXMODEM_TTY_DEVNODE  "/dev/ttyS1"
+#  define CONFIG_SYSTEM_UBLOXMODEM_TTY_DEVNODE  "/dev/ttyS1"
 #endif
 
 /****************************************************************************
@@ -128,7 +128,7 @@ static int ubloxmodem_open_tty(void)
 {
   int fd, ret;
 
-  fd = open(CONFIG_EXAMPLES_UBLOXMODEM_TTY_DEVNODE, O_RDWR);
+  fd = open(CONFIG_SYSTEM_UBLOXMODEM_TTY_DEVNODE, O_RDWR);
   if (fd < 0)
     {
       m_vdbg("failed to open TTY\n");
@@ -423,11 +423,11 @@ int ubloxmodem_main(int argc, FAR char** argv)
 
   ubloxmodem_parse(&cxt);
 
-  cxt.fd = open(CONFIG_EXAMPLES_UBLOXMODEM_DEVNODE, O_RDWR);
+  cxt.fd = open(CONFIG_SYSTEM_UBLOXMODEM_DEVNODE, O_RDWR);
   if (cxt.fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
-              CONFIG_EXAMPLES_UBLOXMODEM_DEVNODE, errno);
+              CONFIG_SYSTEM_UBLOXMODEM_DEVNODE, errno);
       return EXIT_FAILURE;
     }
 

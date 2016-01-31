@@ -38,6 +38,10 @@ ifeq ($(CONFIG_SYSTEM_CDCACM),y)
 CONFIGURED_APPS += system/cdcacm
 endif
 
+ifeq ($(CONFIG_SYSTEM_CLE),y)
+CONFIGURED_APPS += system/cle
+endif
+
 ifeq ($(CONFIG_SYSTEM_COMPOSITE),y)
 CONFIGURED_APPS += system/composite
 endif
@@ -68,6 +72,10 @@ endif
 
 ifeq ($(CONFIG_SYSTEM_FLASH_ERASEALL),y)
 CONFIGURED_APPS += system/flash_eraseall
+endif
+
+ifeq ($(CONFIG_SYSTEM_LM75),y)
+CONFIGURED_APPS += system/lm75
 endif
 
 ifeq ($(CONFIG_SYSTEM_NETDB),y)
@@ -102,10 +110,6 @@ ifeq ($(CONFIG_SYSTEM_SUDOKU),y)
 CONFIGURED_APPS += system/sudoku
 endif
 
-ifeq ($(CONFIG_SYSTEM_USBMONITOR),y)
-CONFIGURED_APPS += system/usbmonitor
-endif
-
 ifeq ($(CONFIG_SYSTEM_STACKMONITOR),y)
 CONFIGURED_APPS += system/stackmonitor
 endif
@@ -114,16 +118,16 @@ ifeq ($(CONFIG_SYSTEM_SYMTAB),y)
 CONFIGURED_APPS += system/symtab
 endif
 
+ifeq ($(CONFIG_SYSTEM_UBLOXMODEM),y)
+CONFIGURED_APPS += system/ubloxmodem
+endif
+
+ifeq ($(CONFIG_SYSTEM_USBMONITOR),y)
+CONFIGURED_APPS += system/usbmonitor
+endif
+
 ifeq ($(CONFIG_SYSTEM_USBMSC),y)
 CONFIGURED_APPS += system/usbmsc
-endif
-
-ifeq ($(CONFIG_SYSTEM_CLE),y)
-CONFIGURED_APPS += system/cle
-endif
-
-ifeq ($(CONFIG_SYSTEM_LM75),y)
-CONFIGURED_APPS += system/lm75
 endif
 
 ifeq ($(CONFIG_SYSTEM_VI),y)

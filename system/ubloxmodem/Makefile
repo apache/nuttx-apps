@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/ubloxmodem/Makefile
+# apps/system/ubloxmodem/Makefile
 #
 #   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
 #   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>

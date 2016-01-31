@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/ubloxmodem/ubloxmodem.h
+ * apps/system/ubloxmodem/ubloxmodem.h
  *
  *   Copyright (C) 2016 Vladimir Komendantskiy. All rights reserved.
  *   Author: Vladimir Komendantskiy <vladimir@moixaenergy.com>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_EXAMPLES_UBLOXMODEM_UBLOXMODEM_H
-#define __APPS_EXAMPLES_UBLOXMODEM_UBLOXMODEM_H
+#ifndef __APPS_SYSTEM_UBLOXMODEM_UBLOXMODEM_H
+#define __APPS_SYSTEM_UBLOXMODEM_UBLOXMODEM_H
 
 /****************************************************************************
  * Public Types
@@ -77,4 +77,4 @@ struct cmdinfo
   FAR const char* args;       /* Description of command arguments */
 };
 
-#endif // __APPS_EXAMPLES_UBLOXMODEM_UBLOXMODEM_H
+#endif // __APPS_SYSTEM_UBLOXMODEM_UBLOXMODEM_H

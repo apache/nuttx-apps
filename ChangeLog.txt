@@ -1538,4 +1538,6 @@
 	  by Vladimir Komendantskiy (2019-01-29).
 	* apps/examples/ubloxmodem:  app to control the power state of the
 	  modem in nsh.  From  Vladimir Komendantskiy (2019-01-31).
+	* apps/system/ubloxmodem:  Moved the modem application from
+	  examples/ to system/ (2016-01-31).
 

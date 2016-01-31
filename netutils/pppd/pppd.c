@@ -62,7 +62,11 @@
 #include <apps/netutils/chat.h>
 #include <apps/netutils/pppd.h>
 
-#if PPP_ARCH_HAVE_MODEM_RESET
+/****************************************************************************
+ * Extenal Functions
+ ****************************************************************************/
+
+#ifdef PPP_ARCH_HAVE_MODEM_RESET
 extern void ppp_arch_modem_reset(const char *tty);
 #endif
 
@@ -231,7 +235,7 @@ void ppp_reconnect(struct ppp_context_s *ctx)
               if (retry == 0)
                 {
                   retry = PPP_MAX_CONNECT;
-#if PPP_ARCH_HAVE_MODEM_RESET
+#ifdef PPP_ARCH_HAVE_MODEM_RESET
                   ppp_arch_modem_reset(pppd_settings->ttyname);
 #endif
                   sleep(45);

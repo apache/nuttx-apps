@@ -4,21 +4,28 @@
 #
 
 
-menuconfig EXAMPLES_UBLOXMODEM
+menuconfig SYSTEM_UBLOXMODEM
 	bool "u-blox modem configuration tool"
 	default n
 	---help---
 		Enable the u-blox modem configuration tool.
 
-if EXAMPLES_UBLOXMODEM
+		This app provides a command-line interface to GPIO power controls of
+		u-blox modem. The actual behaviour should be implemented in the lower-
+		half modem driver. Additionally the app can send test AT commands to
+		the modem via the TTY device node settable in the defconfig:
 
-config EXAMPLES_UBLOXMODEM_TTY_DEVNODE
+			CONFIG_SYSTEM_UBLOXMODEM_TTY_DEVNODE="/dev/ttyS1"
+
+if SYSTEM_UBLOXMODEM
+
+config SYSTEM_UBLOXMODEM_TTY_DEVNODE
 	string "u-blox modem TTY device node"
 	default "/dev/ttyS1"
 	---help---
 		TTY device node associated to the u-blox modem UART.
 
-config EXAMPLES_UBLOXMODEM_DEVNODE
+config SYSTEM_UBLOXMODEM_DEVNODE
 	string "u-blox modem device node"
 	default "/dev/ubxmdm"
 	---help---
