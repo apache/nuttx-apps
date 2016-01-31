@@ -1,0 +1,27 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+
+menuconfig EXAMPLES_UBLOXMODEM
+	bool "u-blox modem configuration tool"
+	default n
+	---help---
+		Enable the u-blox modem configuration tool.
+
+if EXAMPLES_UBLOXMODEM
+
+config EXAMPLES_UBLOXMODEM_TTY_DEVNODE
+	string "u-blox modem TTY device node"
+	default "/dev/ttyS1"
+	---help---
+		TTY device node associated to the u-blox modem UART.
+
+config EXAMPLES_UBLOXMODEM_DEVNODE
+	string "u-blox modem device node"
+	default "/dev/ubxmdm"
+	---help---
+		Device node created by the u-blox modem driver.
+
+endif

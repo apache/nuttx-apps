@@ -1991,6 +1991,16 @@ examples/uavcan
   Illustrates use of canutils/uavcan.  Contributed by Paul Alexander
   Patience.
 
+examples/ubloxmodem
+^^^^^^^^^^^^^^^^^^^
+
+  This app provides a command-line interface to GPIO power controls of u-blox
+  modem. The actual behaviour should be implemented in the lower-half modem
+  driver. Additionally the app can send test AT commands to the modem via the
+  TTY device node settable in the defconfig:
+
+    CONFIG_EXAMPLES_UBLOXMODEM_TTY_DEVNODE="/dev/ttyS1"
+
 examples/udp
 ^^^^^^^^^^^^
 
