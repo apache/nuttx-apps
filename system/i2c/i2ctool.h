@@ -64,10 +64,6 @@
  * CONFIG_I2CTOOL_DEFFREQ - Default frequency (default: 4000000)
  */
 
-#ifndef CONFIG_I2C_TRANSFER
-#  error "CONFIG_I2C_TRANSFER is required in the configuration"
-#endif
-
 #ifndef CONFIG_I2CTOOL_MINBUS
 #  define CONFIG_I2CTOOL_MINBUS 0
 #endif

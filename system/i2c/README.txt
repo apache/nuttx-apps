@@ -39,7 +39,6 @@ must meet certain requirements:
    each call to up_i2cinitialize() to free any resources and disable the I2C.
 2. up_i2cinitialize must accept any interface number without crashing.  It
    must simply return NULL if the device is not supported.
-3. The I2C driver must support the transfer method (CONFIG_I2C_TRANSFER=y).
 
 The I2C tool is designed to be implemented as a NuttShell (NSH) add-on.  Read
 the apps/nshlib/README.txt file for information about add-ons.
@@ -363,21 +362,6 @@ The I2C tools requires the following in your NuttX configuration:
    user-space program.  As a result, the I2C tool cannot be used if a
    NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
    or CONFIG_BUILD_KERNEL).
-
-3. I2C driver configuration
-
-   The CONFIG_I2C_TRANSFER option must also be set in your NuttX
-   configuration.  This configuration is the defconfig file in your
-   configuration directory that is copied to the NuttX top-level
-   directory as .config when NuttX is configured.
-
-     CONFIG_I2C_TRANSFER=y
-
-   NOTE:  CONFIG_I2C_TRANSFER adds extra methods to the I2C interface.
-   Not all I2C interfaces support these extra methods.  If your platform's
-   I2C driver does not support these extra methods, then you cannot use
-   the I2C tool unless you extend the support in your platform I2C
-   driver.
 
 I2C Tool Configuration Options
 ------------------------------
