@@ -180,15 +180,17 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
           /* Set up data structures */
 
-          regaddr       = 0;
+          regaddr          = 0;
 
-          msg[0].addr   = addr;
-          msg[0].flags  = 0;
-          msg[0].buffer = &regaddr;
-          msg[0].length = 1;
+          msg[0].frequency = i2ctool->freq;
+          msg[0].addr      = addr;
+          msg[0].flags     = 0;
+          msg[0].buffer    = &regaddr;
+          msg[0].length    = 1;
 
-          msg[1].addr   = addr;
-          msg[1].flags  = I2C_M_READ;
+          msg[1].frequency = i2ctool->freq;
+          msg[1].addr      = addr;
+          msg[1].flags     = I2C_M_READ;
           if (i2ctool->width == 8)
             {
               msg[1].buffer = &u.data8;

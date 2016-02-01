@@ -210,13 +210,15 @@ int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_master_s *dev,
 
   /* Set up data structures */
 
-  msg[0].addr   = i2ctool->addr;
-  msg[0].flags  = 0;
-  msg[0].buffer = &regaddr;
-  msg[0].length = 1;
+  msg[0].frequency = i2ctool->freq;
+  msg[0].addr      = i2ctool->addr;
+  msg[0].flags     = 0;
+  msg[0].buffer    = &regaddr;
+  msg[0].length    = 1;
 
-  msg[1].addr   = i2ctool->addr;
-  msg[1].flags  = I2C_M_READ;
+  msg[0].frequency = i2ctool->freq;
+  msg[1].addr      = i2ctool->addr;
+  msg[1].flags     = I2C_M_READ;
 
   if (i2ctool->width == 8)
     {

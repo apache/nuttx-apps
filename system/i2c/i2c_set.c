@@ -237,13 +237,15 @@ int i2ctool_set(FAR struct i2ctool_s *i2ctool, FAR struct i2c_master_s *dev,
 
   /* Set up data structures */
 
-  msg[0].addr   = i2ctool->addr;
-  msg[0].flags  = 0;
-  msg[0].buffer = &regaddr;
-  msg[0].length = 1;
+  msg[0].frequency = i2ctool->freq;
+  msg[0].addr      = i2ctool->addr;
+  msg[0].flags     = 0;
+  msg[0].buffer    = &regaddr;
+  msg[0].length    = 1;
 
-  msg[1].addr   = i2ctool->addr;
-  msg[1].flags  = 0;
+  msg[1].frequency = i2ctool->freq;
+  msg[1].addr      = i2ctool->addr;
+  msg[1].flags     = 0;
   if (i2ctool->width == 8)
     {
       u.data8       = (uint8_t)value;
