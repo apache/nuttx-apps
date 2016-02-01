@@ -144,10 +144,6 @@ int i2ccmd_get(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
        return ERROR;
     }
 
-  /* Set the iI2C frequency */
-
-  I2C_SETFREQUENCY(dev, i2ctool->freq);
-
   /* Loop for the requested number of repititions */
 
   regaddr = i2ctool->regaddr;

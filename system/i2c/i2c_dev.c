@@ -157,10 +157,6 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
        return ERROR;
     }
 
-  /* Set the frequency and address (NOTE:  Only 7-bit address supported now) */
-
-  I2C_SETFREQUENCY(dev, i2ctool->freq);
-
   /* Probe each address */
 
   i2ctool_printf(i2ctool, "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
