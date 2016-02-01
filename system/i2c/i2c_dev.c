@@ -178,10 +178,6 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
               continue;
             }
 
-          /* Set the I2C address */
-
-          I2C_SETADDRESS(dev, addr, 7);
-
           /* Set up data structures */
 
           regaddr       = 0;
