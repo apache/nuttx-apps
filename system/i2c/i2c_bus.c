@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/i2c/i2c_bus.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,30 +44,6 @@
 #include "i2ctool.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -77,21 +53,18 @@
 
 int i2ccmd_bus(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 {
-  FAR struct i2c_master_s *dev;
-  int i;
+  int bus;
 
   i2ctool_printf(i2ctool, " BUS   EXISTS?\n");
-  for (i = CONFIG_I2CTOOL_MINBUS; i <= CONFIG_I2CTOOL_MAXBUS; i++)
+  for (bus = CONFIG_I2CTOOL_MINBUS; bus <= CONFIG_I2CTOOL_MAXBUS; bus++)
     {
-      dev = up_i2cinitialize(i);
-      if (dev)
+      if (i2cdev_exists(bus))
         {
-          i2ctool_printf(i2ctool, "Bus %d: YES\n", i);
-          (void)up_i2cuninitialize(dev);
+          i2ctool_printf(i2ctool, "Bus %d: YES\n", bus);
         }
       else
         {
-          i2ctool_printf(i2ctool, "Bus %d: NO\n", i);
+          i2ctool_printf(i2ctool, "Bus %d: NO\n", bus);
         }
     }
 

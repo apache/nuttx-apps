@@ -1,7 +1,7 @@
 ############################################################################
 # apps/system/i2c/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,9 @@ include $(APPDIR)/Make.defs
 
 # I2C tool
 
-ASRCS =
-CSRCS = i2c_bus.c i2c_common.c i2c_dev.c i2c_get.c i2c_set.c i2c_verf.c
+ASRCS   =
+CSRCS   = i2c_bus.c i2c_common.c i2c_dev.c i2c_get.c i2c_set.c i2c_verf.c
+CSRCS  += i2c_devif.c
 MAINSRC = i2c_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

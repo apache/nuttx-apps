@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/i2c/i2ctool.h
  *
- *   Copyright (C) 2011, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,10 +192,10 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv);
 
 /* I2C access functions */
 
-int i2ctool_get(FAR struct i2ctool_s *i2ctool, FAR struct i2c_master_s *dev,
-                uint8_t addr, uint16_t *result);
-int i2ctool_set(FAR struct i2ctool_s *i2ctool, FAR struct i2c_master_s *dev,
-                uint8_t regaddr, uint16_t value);
+int i2ctool_get(FAR struct i2ctool_s *i2ctool, int fd, uint8_t addr,
+                FAR uint16_t *result);
+int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
+                uint16_t value);
 
 /* Common logic */
 
@@ -203,5 +203,13 @@ int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg);
 int arg_string(FAR char **arg, FAR char **value);
 int arg_decimal(FAR char **arg, FAR long *value);
 int arg_hex(FAR char **arg, FAR long *value);
+
+/* Driver access utilities */
+
+FAR char *i2cdev_path(int bus);
+bool i2cdev_exists(int bus);
+int i2cdev_open(FAR struct i2ctool_s *i2ctool, int bus);
+int i2cdev_transfer(FAR struct i2ctool_s *i2ctool, int fd,
+                    FAR struct i2c_msg_s *msgv, int msgc);
 
 #endif /* __APPS_SYSTEM_I2C_I2CTOOLS_H */
