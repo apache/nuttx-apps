@@ -126,7 +126,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
   /* Get a handle to the I2C bus */
 
-  fd = i2cdev_open(i2ctool, i2ctool->bus);
+  fd = i2cdev_open(i2ctool->bus);
   if (fd < 0)
     {
        i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
@@ -176,15 +176,15 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
           if (i2ctool->start)
             {
-              ret = i2cdev_transfer(i2ctool, fd, &msg[0], 1);
+              ret = i2cdev_transfer(fd, &msg[0], 1);
               if (ret == OK)
                 {
-                  ret = i2cdev_transfer(i2ctool, fd, &msg[1], 1);
+                  ret = i2cdev_transfer(fd, &msg[1], 1);
                 }
             }
           else
             {
-              ret = i2cdev_transfer(i2ctool, fd, msg, 2);
+              ret = i2cdev_transfer(fd, msg, 2);
             }
 
           if (ret == OK)

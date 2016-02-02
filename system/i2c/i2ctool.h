@@ -208,8 +208,7 @@ int arg_hex(FAR char **arg, FAR long *value);
 
 FAR char *i2cdev_path(int bus);
 bool i2cdev_exists(int bus);
-int i2cdev_open(FAR struct i2ctool_s *i2ctool, int bus);
-int i2cdev_transfer(FAR struct i2ctool_s *i2ctool, int fd,
-                    FAR struct i2c_msg_s *msgv, int msgc);
+int i2cdev_open(int bus);
+int i2cdev_transfer(int fd, FAR struct i2c_msg_s *msgv, int msgc);
 
 #endif /* __APPS_SYSTEM_I2C_I2CTOOLS_H */

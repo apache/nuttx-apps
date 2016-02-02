@@ -112,7 +112,7 @@ bool i2cdev_exists(int bus)
  * Name: i2cdev_open
  ****************************************************************************/
 
-int i2cdev_open(FAR struct i2ctool_s *i2ctool, int bus)
+int i2cdev_open(int bus)
 {
   FAR char *devpath;
   int fd;
@@ -123,27 +123,14 @@ int i2cdev_open(FAR struct i2ctool_s *i2ctool, int bus)
 
   /* Open the file for read-only access (we need only IOCTLs) */
 
-  fd = open(devpath, O_RDONLY);
-  if (fd < 0)
-    {
-      int errcode = errno;
-
-      /* We failed to open the driver */
-
-      i2ctool_printf(i2ctool, "ERROR: Failed to open %s: %d\n",
-                     devpath, errcode);
-      return ERROR;
-    }
-
-  return fd;
+  return open(devpath, O_RDONLY);
 }
 
 /****************************************************************************
  * Name: i2cdev_transfer
  ****************************************************************************/
 
-int i2cdev_transfer(FAR struct i2ctool_s *i2ctool, int fd,
-                    FAR struct i2c_msg_s *msgv, int msgc)
+int i2cdev_transfer(int fd, FAR struct i2c_msg_s *msgv, int msgc)
 {
   struct i2c_transfer_s xfer;
   int ret;
@@ -155,17 +142,5 @@ int i2cdev_transfer(FAR struct i2ctool_s *i2ctool, int fd,
 
   /* Perform the IOCTL */
 
-  ret = ioctl(fd, I2CIOC_TRANSFER, (unsigned long)((uintptr_t)&xfer));
-  if (ret < 0)
-    {
-      int errcode = errno;
-
-      /* We failed to open the driver */
-
-      i2ctool_printf(i2ctool, "ERROR: ioctl(I2CIOC_TRANSFER) failed: %d\n",
-                     errcode);
-      return ERROR;
-    }
-
-  return OK;
+  return ioctl(fd, I2CIOC_TRANSFER, (unsigned long)((uintptr_t)&xfer));
 }

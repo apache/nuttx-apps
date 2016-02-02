@@ -143,7 +143,7 @@ int i2ccmd_verf(FAR struct i2ctool_s *i2ctool, int argc, FAR char **argv)
 
   /* Get a handle to the I2C bus */
 
-  fd = i2cdev_open(i2ctool, i2ctool->bus);
+  fd = i2cdev_open(i2ctool->bus);
   if (fd < 0)
     {
        i2ctool_printf(i2ctool, "Failed to get bus %d\n", i2ctool->bus);
