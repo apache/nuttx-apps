@@ -115,7 +115,6 @@ bool i2cdev_exists(int bus)
 int i2cdev_open(int bus)
 {
   FAR char *devpath;
-  int fd;
 
   /* Get the device path */
 
@@ -133,7 +132,6 @@ int i2cdev_open(int bus)
 int i2cdev_transfer(int fd, FAR struct i2c_msg_s *msgv, int msgc)
 {
   struct i2c_transfer_s xfer;
-  int ret;
 
   /* Set up the IOCTL argument */
 
