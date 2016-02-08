@@ -1548,4 +1548,6 @@
 	* apps/netutils/dhcpd: DHCPD no longer calls directly into the
 	  OS but uses the new network IOCTL commands to modify the ARP
 	  table (2016-02-08).
+	* apps/nshlib:  Add an 'arp' command that will support access to
+	  the OS ARP table (2016-02-08).
 

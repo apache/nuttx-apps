@@ -114,6 +114,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "addroute", cmd_addroute, 4, 4, "<target> <netmask> <router>" },
 #endif
 
+#if defined(CONFIG_NET) && defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
+  { "arp",      cmd_arp,      3, 4, "[-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]" },
+#endif
+
 #if defined(CONFIG_NETUTILS_CODECS) && defined(CONFIG_CODECS_BASE64)
 #  ifndef CONFIG_NSH_DISABLE_BASE64DEC
   { "base64dec", cmd_base64decode, 2, 4, "[-w] [-f] <string or filepath>" },

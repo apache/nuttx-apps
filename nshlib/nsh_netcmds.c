@@ -629,6 +629,36 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
 #endif
 
 /****************************************************************************
+ * Name: cmd_get
+ ****************************************************************************/
+#if defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
+int mac_nibble(unsigned int ch, unsigned int *nibble)
+{
+  unsigned int ret;
+
+  if (ch >= '0' && ch <= '9')
+    {
+      ret = ch - '0';
+    }
+  else if (ch >= 'A' && ch <= 'F')
+    {
+      ret = ch - 'A' + 10;
+    }
+  else if (ch >= 'a' && ch <= 'f')
+    {
+      ret = ch - 'a' + 10;
+    }
+  else
+    {
+      return -EINVAL;
+    }
+
+  *nibble = ret;
+  return OK;
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -1157,6 +1187,145 @@ int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 
   return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: cmd_arp
+ ****************************************************************************/
+
+#if defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
+int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *ptr;
+  struct sockaddr_in inaddr;
+  struct ether_addr mac;
+  int ret;
+  int i;
+
+  /* Forms:
+   *
+   * aap -a <ipaddr>
+   * arp -d <ipdaddr>
+   * arp -s <ipaddr> <hwaddr>
+   */
+
+  if (strcmp(argv[1], "-a") == 0)
+    {
+      if (argc != 3)
+        {
+          goto errout_toomany;
+        }
+
+      /* Show the corresponding hardware address */
+
+      inaddr.sin_family      = AF_INET;
+      inaddr.sin_port        = INADDR_ANY;
+      inaddr.sin_addr.s_addr = inet_addr(argv[2]);
+
+      ret = netlib_get_arpmapping(&inaddr, mac.ether_addr_octet);
+      if (ret < 0)
+        {
+          goto errout_cmdfaild;
+        }
+
+      nsh_output(vtbl, "HWAddr: %s\n",  ether_ntoa(&mac));
+    }
+  else if (strcmp(argv[1], "-d") == 0)
+    {
+      if (argc != 3)
+        {
+          goto errout_toomany;
+        }
+
+      /* Delete the corresponding address mapping from the arp table */
+
+      inaddr.sin_family      = AF_INET;
+      inaddr.sin_port        = INADDR_ANY;
+      inaddr.sin_addr.s_addr = inet_addr(argv[2]);
+
+      ret = netlib_del_arpmapping(&inaddr);
+      if (ret < 0)
+        {
+          goto errout_cmdfaild;
+        }
+    }
+  else if (strcmp(argv[1], "-s") == 0)
+    {
+      unsigned int nibble;
+      unsigned int byte;
+      char delim;
+
+      if (argc != 4)
+        {
+          goto errout_missing;
+        }
+
+      /* Convert the MAC address string to a binary */
+
+      for (i = 0, ptr = argv[3]; i < ETHER_ADDR_LEN; i++)
+        {
+          ret = mac_nibble(*ptr++, &nibble);
+          if (ret < 0)
+            {
+              goto errout_invalid;
+            }
+
+          byte = nibble << 4;
+
+          ret = mac_nibble(*ptr++, &nibble);
+          if (ret < 0)
+            {
+              goto errout_invalid;
+            }
+
+          byte |= nibble;
+
+          delim = (i >= (ETHER_ADDR_LEN-1)) ? '\0' : ':';
+          if (*ptr++ != delim)
+            {
+              goto errout_invalid;
+            }
+
+          mac.ether_addr_octet[i] = byte;
+        }
+
+      /* Add the address mapping to the arp table */
+
+      inaddr.sin_family      = AF_INET;
+      inaddr.sin_port        = INADDR_ANY;
+      inaddr.sin_addr.s_addr = inet_addr(argv[2]);
+
+      ret = netlib_set_arpmapping(&inaddr, mac.ether_addr_octet);
+      if (ret < 0)
+        {
+          goto errout_cmdfaild;
+        }
+    }
+  else
+    {
+      goto errout_invalid;
+    }
+
+  return OK;
+
+/* Error exits */
+
+errout_cmdfaild:
+  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+  return ERROR;
+
+errout_missing:
+  nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+  return ERROR;
+
+errout_toomany:
+  nsh_output(vtbl, g_fmtargrequired, argv[0]);
+  return ERROR;
+
+errout_invalid:
+  nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+  return ERROR;
 }
 #endif
 

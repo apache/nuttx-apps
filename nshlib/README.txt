@@ -297,6 +297,33 @@ o addroute <target> <netmask> <router>
 
     nsh> addroute 1.1.1.1 2.2.2.2 3.3.3.3
 
+o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
+
+  Access the OS ARP table.
+
+  -a <ipaddr>
+     Will show the hardware address that the IP address <ipaddr> is mapped to.
+
+  -d <ipaddr>
+     Will delete the mapping for the IP address <ipaddr> from the ARP table
+
+  -s <ipaddr> <hwaddr>
+     Will set (or replace) the mapping of the IP address <ipaddr> to the
+     hardware address <hwaddr>
+
+  Example:
+
+    nsh> arp -a 10.0.0.1
+    nsh: arp: ioctl failed: 22
+
+    nsh> arp -s 10.0.0.1 00:13:3b:12:73:e6
+    nsh> arp -a 10.0.0.1
+    HWAddr: 00:13:3b:12:73:e6
+
+    nsh> arp -d 10.0.0.1
+    nsh> arp -a 10.0.0.1
+    nsh: arp: ioctl failed: 22
+
 o base64dec [-w] [-f] <string or filepath>
 
 o base64dec [-w] [-f] <string or filepath>
@@ -1143,6 +1170,7 @@ Command Dependencies on Configuration Settings
   ---------- --------------------------
   [          !CONFIG_NSH_DISABLESCRIPT
   addroute   CONFIG_NET && CONFIG_NET_ROUTE
+  arp        CONFIG_NET && CONFIG_NET_ARP
   base64dec  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_BASE64
   base64enc  CONFIG_NETUTILS_CODECS && CONFIG_CODECS_BASE64
   basename   --

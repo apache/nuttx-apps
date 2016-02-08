@@ -1092,6 +1092,9 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif /* CONFIG_NFILE_DESCRIPTORS */
 
 #if defined(CONFIG_NET)
+#  if defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
+      int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
 #  if defined(CONFIG_NET_ROUTE) && !defined(CONFIG_NSH_DISABLE_ADDROUTE)
       int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif

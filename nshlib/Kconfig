@@ -195,6 +195,12 @@ config NSH_DISABLE_ADDROUTE
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
 
+config NSH_DISABLE_ARP
+	bool "Disable arp"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	depends on NET_ARP
+
 config NSH_DISABLE_BASE64DEC
 	bool "Disable base64dec"
 	default y if DEFAULT_SMALL

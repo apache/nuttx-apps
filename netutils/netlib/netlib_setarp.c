@@ -89,7 +89,7 @@ int netlib_set_arpmapping(FAR const struct sockaddr_in *inaddr,
           memcpy(&req.arp_pa, inaddr, sizeof(struct sockaddr_in));
 
           req.arp_ha.sa_family = ARPHRD_ETHER;
-          memcpy(&req.arp_ha, macaddr,ETHER_ADDR_LEN);
+          memcpy(&req.arp_ha.sa_data, macaddr, ETHER_ADDR_LEN);
 
           ret = ioctl(sockfd, SIOCSARP, (unsigned long)((uintptr_t)&req));
           if (ret < 0)
