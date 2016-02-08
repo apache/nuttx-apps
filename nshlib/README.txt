@@ -314,7 +314,7 @@ o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
   Example:
 
     nsh> arp -a 10.0.0.1
-    nsh: arp: ioctl failed: 22
+    nsh: arp: no such ARP entry: 10.0.0.1
 
     nsh> arp -s 10.0.0.1 00:13:3b:12:73:e6
     nsh> arp -a 10.0.0.1
@@ -322,7 +322,7 @@ o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
 
     nsh> arp -d 10.0.0.1
     nsh> arp -a 10.0.0.1
-    nsh: arp: ioctl failed: 22
+    nsh: arp: no such ARP entry: 10.0.0.1
 
 o base64dec [-w] [-f] <string or filepath>
 

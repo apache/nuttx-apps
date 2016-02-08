@@ -1254,7 +1254,15 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 /* Error exits */
 
 errout_cmdfaild:
-  nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+  if (ret == -ENOENT)
+    {
+      nsh_output(vtbl, g_fmtnosuch, argv[0], "ARP entry", argv[2]);
+    }
+  else
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ioctl", NSH_ERRNO);
+    }
+
   return ERROR;
 
 errout_missing:
