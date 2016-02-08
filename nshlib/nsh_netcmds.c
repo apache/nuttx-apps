@@ -629,36 +629,6 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
 #endif
 
 /****************************************************************************
- * Name: cmd_get
- ****************************************************************************/
-#if defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
-int mac_nibble(unsigned int ch, unsigned int *nibble)
-{
-  unsigned int ret;
-
-  if (ch >= '0' && ch <= '9')
-    {
-      ret = ch - '0';
-    }
-  else if (ch >= 'A' && ch <= 'F')
-    {
-      ret = ch - 'A' + 10;
-    }
-  else if (ch >= 'a' && ch <= 'f')
-    {
-      ret = ch - 'a' + 10;
-    }
-  else
-    {
-      return -EINVAL;
-    }
-
-  *nibble = ret;
-  return OK;
-}
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -1197,11 +1167,9 @@ int cmd_nslookup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_NET_ARP) && !defined(CONFIG_NSH_DISABLE_ARP)
 int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR char *ptr;
   struct sockaddr_in inaddr;
   struct ether_addr mac;
   int ret;
-  int i;
 
   /* Forms:
    *
@@ -1252,10 +1220,6 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
   else if (strcmp(argv[1], "-s") == 0)
     {
-      unsigned int nibble;
-      unsigned int byte;
-      char delim;
-
       if (argc != 4)
         {
           goto errout_missing;
@@ -1263,31 +1227,9 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       /* Convert the MAC address string to a binary */
 
-      for (i = 0, ptr = argv[3]; i < ETHER_ADDR_LEN; i++)
+      if (!netlib_ethaddrconv(argv[3], mac.ether_addr_octet))
         {
-          ret = mac_nibble(*ptr++, &nibble);
-          if (ret < 0)
-            {
-              goto errout_invalid;
-            }
-
-          byte = nibble << 4;
-
-          ret = mac_nibble(*ptr++, &nibble);
-          if (ret < 0)
-            {
-              goto errout_invalid;
-            }
-
-          byte |= nibble;
-
-          delim = (i >= (ETHER_ADDR_LEN-1)) ? '\0' : ':';
-          if (*ptr++ != delim)
-            {
-              goto errout_invalid;
-            }
-
-          mac.ether_addr_octet[i] = byte;
+          goto errout_invalid;
         }
 
       /* Add the address mapping to the arp table */
