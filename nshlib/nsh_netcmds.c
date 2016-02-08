@@ -341,7 +341,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
             break;
 
           case 'h':
-            if (!netlib_ipaddrconv(optarg, (FAR unsigned char*)&args->ipaddr))
+            if (!netlib_ipv4addrconv(optarg, (FAR unsigned char*)&args->ipaddr))
               {
                 nsh_output(vtbl, g_fmtarginvalid, argv[0]);
                 badarg = true;
@@ -876,7 +876,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     {
                       hw = argv[i+1];
                       i++;
-                      badarg = !netlib_hwmacconv(hw, mac);
+                      badarg = !netlib_ethaddrconv(hw, mac);
                     }
                   else
                     {
@@ -1229,7 +1229,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           goto errout_cmdfaild;
         }
 
-      nsh_output(vtbl, "HWAddr: %s\n",  ether_ntoa(&mac));
+      nsh_output(vtbl, "HWaddr: %s\n",  ether_ntoa(&mac));
     }
   else if (strcmp(argv[1], "-d") == 0)
     {

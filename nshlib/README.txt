@@ -305,11 +305,11 @@ o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
      Will show the hardware address that the IP address <ipaddr> is mapped to.
 
   -d <ipaddr>
-     Will delete the mapping for the IP address <ipaddr> from the ARP table
+     Will delete the mapping for the IP address <ipaddr> from the ARP table.
 
   -s <ipaddr> <hwaddr>
      Will set (or replace) the mapping of the IP address <ipaddr> to the
-     hardware address <hwaddr>
+     hardware address <hwaddr>.
 
   Example:
 

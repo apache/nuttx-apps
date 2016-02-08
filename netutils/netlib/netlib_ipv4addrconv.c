@@ -1,8 +1,7 @@
 /****************************************************************************
- * netutils/netlib/netlib.c
- * Various uIP library functions.
+ * netutils/netlib/netlib_ipv4addrconv.c
  *
- *   Copyright (C) 2007, 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Based on uIP which also has a BSD style license:
@@ -45,22 +44,23 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
-#include <debug.h>
 
 #include <apps/netutils/netlib.h>
-
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-bool netlib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
+/****************************************************************************
+ * Name: netlib_ipv4addrconv
+ ****************************************************************************/
+
+bool netlib_ipv4addrconv(FAR const char *addrstr, FAR uint8_t *ipaddr)
 {
   unsigned char tmp;
-  char c;
   unsigned char i;
   unsigned char j;
+  char ch;
 
   tmp = 0;
 
@@ -69,87 +69,27 @@ bool netlib_ipaddrconv(const char *addrstr, uint8_t *ipaddr)
       j = 0;
       do
         {
-          c = *addrstr;
-          ++j;
-          if (j > 4)
+          ch = *addrstr++;
+          if (++j > 4)
            {
              return false;
            }
-          if (c == '.' || c == 0)
+
+          if (ch == '.' || ch == 0)
             {
-              *ipaddr = tmp;
-              ++ipaddr;
+              *ipaddr++ = tmp;
               tmp = 0;
             }
-          else if (c >= '0' && c <= '9')
+          else if (ch >= '0' && ch <= '9')
             {
-              tmp = (tmp * 10) + (c - '0');
+              tmp = (tmp * 10) + (ch - '0');
             }
           else
             {
               return false;
             }
-          ++addrstr;
         }
-      while (c != '.' && c != 0);
-    }
-
-  return true;
-}
-
-bool netlib_hwmacconv(const char *hwstr, uint8_t *hw)
-{
-  unsigned char tmp;
-  char c;
-  unsigned char i;
-  unsigned char j;
-
-  if (strlen(hwstr) != 17)
-    {
-      return false;
-    }
-
-  tmp = 0;
-
-  for (i = 0; i < 6; ++i)
-    {
-      j = 0;
-      do
-        {
-          c = *hwstr;
-          ++j;
-          if (j > 3)
-           {
-             return false;
-           }
-
-          if (c == ':' || c == 0)
-            {
-              *hw = tmp;
-              nvdbg("HWMAC[%d]%0.2X\n",i,tmp);
-              ++hw;
-              tmp = 0;
-            }
-          else if (c >= '0' && c <= '9')
-            {
-              tmp = (tmp << 4) + (c - '0');
-            }
-          else if (c >= 'a' && c <= 'f')
-            {
-              tmp = (tmp << 4) + (c - 'a' + 10);
-            }
-          else if (c >= 'A' && c <= 'F')
-            {
-              tmp = (tmp << 4) + (c - 'A' + 10);
-            }
-          else
-            {
-              return false;
-            }
-
-          ++hwstr;
-        }
-      while (c != ':' && c != 0);
+      while (ch != '.' && ch != 0);
     }
 
   return true;

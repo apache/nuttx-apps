@@ -104,14 +104,14 @@ extern "C"
  * Return: Non-zero If the IP address was parsed.
  */
 
-bool netlib_ipaddrconv(FAR const char *addrstr, uint8_t *addr);
-bool netlib_hwmacconv(FAR const char *hwstr, uint8_t *hw);
+bool netlib_ipv4addrconv(FAR const char *addrstr, FAR uint8_t *addr);
+bool netlib_ethaddrconv(FAR const char *hwstr, FAR uint8_t *hw);
 
 #ifdef CONFIG_NET_ETHERNET
 /* Get and set IP/MAC addresses (Ethernet L2 only) */
 
-int netlib_setmacaddr(FAR const char *ifname, const uint8_t *macaddr);
-int netlib_getmacaddr(FAR const char *ifname, uint8_t *macaddr);
+int netlib_setmacaddr(FAR const char *ifname, FAR const uint8_t *macaddr);
+int netlib_getmacaddr(FAR const char *ifname, FAR uint8_t *macaddr);
 #endif
 
 /* IP address support */

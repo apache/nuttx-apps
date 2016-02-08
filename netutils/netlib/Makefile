@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # UIP Library
 
 ASRCS  =
-CSRCS  = netlib.c netlib_parsehttpurl.c
+CSRCS  = netlib_ipv4addrconv.c netlib_ethaddrconv.c netlib_parsehttpurl.c
 CSRCS += netlib_setifstatus.c netlib_getifstatus.c
 
 # IP address support
