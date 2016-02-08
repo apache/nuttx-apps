@@ -49,6 +49,9 @@ ifeq ($(CONFIG_NET_IPv4),y)
 CSRCS += netlib_setipv4addr.c netlib_getipv4addr.c
 CSRCS += netlib_setdripv4addr.c netlib_setipv4netmask.c
 CSRCS += netlib_getdripv4addr.c netlib_getipv4netmask.c
+ifeq ($(CONFIG_NET_ARP),y)
+CSRCS += netlib_getarp.c netlib_setarp.c netlib_delarp.c
+endif
 ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
 CSRCS += netlib_setipv4dnsaddr.c
 endif

@@ -374,6 +374,7 @@ static int dumptrace(void)
     {
       printf("dumptrace: usbtrace_enumerate failed: %d\n", -ret);
     }
+
   return ret;
 }
 #else

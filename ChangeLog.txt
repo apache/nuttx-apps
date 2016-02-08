@@ -1543,4 +1543,6 @@
 	* apps/system/i2c:  The I2C tool now obeys it OS interfacing:
 	  it now uses an I2C character driver to access the I2C bus
 	  (2016-02-02).
+	* apps/netutils/netlib:  Add utility functions to support accesses
+	  to the ARP table (2016-02-08).
 

@@ -135,6 +135,16 @@ uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
 void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
 #endif
 
+#ifdef CONFIG_NET_ARP
+/* ARP Table Support */
+
+int netlib_del_arpmapping(FAR const struct sockaddr_in *inaddr);
+int netlib_get_arpmapping(FAR const struct sockaddr_in *inaddr,
+                          FAR uint8_t *macaddr);
+int netlib_set_arpmapping(FAR const struct sockaddr_in *inaddr,
+                          FAR const uint8_t *macaddr);
+#endif
+
 #ifdef CONFIG_NET_ICMPv6_AUTOCONF
 /* ICMPv6 Autoconfiguration */
 
