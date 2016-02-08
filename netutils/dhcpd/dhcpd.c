@@ -55,9 +55,6 @@
 #  include <nuttx/config.h>          /* NuttX configuration */
 #  include <debug.h>                 /* For ndbg, vdbg */
 #  include <nuttx/compiler.h>        /* For CONFIG_CPP_HAVE_WARNING */
-#  include <arch/irq.h>              /* For irqstore() and friends -- REVISIT */
-#  include <nuttx/net/net.h>         /* For net_lock() and friends */
-#  include <nuttx/net/arp.h>         /* For low-level ARP interfaces -- REVISIT */
 #  include <apps/netutils/dhcpd.h>   /* Advertised DHCPD APIs */
 #endif
 
@@ -74,6 +71,8 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#include <apps/netutils/netlib.h>
 
 /****************************************************************************
  * Private Data
@@ -279,16 +278,6 @@ static const uint8_t        g_anyipaddr[4] = {0, 0, 0, 0};
 static struct dhcpd_state_s g_state;
 
 /****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-#ifndef CONFIG_NETUTILS_DHCPD_HOST
-/* This is an internal OS interface and should be called from this file */
-
-void arp_update(FAR uint16_t *pipaddr, FAR uint8_t *ethaddr);
-#endif
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -297,20 +286,24 @@ void arp_update(FAR uint16_t *pipaddr, FAR uint8_t *ethaddr);
  ****************************************************************************/
 
 #ifndef CONFIG_NETUTILS_DHCPD_HOST
-static inline void dhcpd_arpupdate(uint16_t *pipaddr, uint8_t *phwaddr)
+static inline void dhcpd_arpupdate(FAR uint8_t *ipaddr, FAR uint8_t *hwaddr)
 {
-  net_lock_t flags;
+  struct sockaddr_in inaddr;
 
-  /* Disable interrupts and update the ARP table -- very non-portable hack.
-   * REVISIT -- switch to the SIOCSARP ioctl call if/when it is implemented.
+  /* Put the protocol address in a standard form. ipaddr is assume to be in
+   * network order by the memcpy.
    */
 
-  flags = net_lock();
-  arp_update(pipaddr, phwaddr);
-  net_unlock(flags);
+  inaddr.sin_family = AF_INET;
+  inaddr.sin_port = INADDR_ANY;
+  memcpy(&inaddr.sin_addr.s_addr, hwaddr, sizeof(in_addr_t));
+
+  /* Update the ARP table */
+
+  (void)netlib_set_arpmapping(&inaddr, hwaddr);
 }
 #else
-#  define dhcpd_arpupdate(pipaddr,phwaddr)
+#  define dhcpd_arpupdate(ipaddr,hwaddr)
 #endif
 
 /****************************************************************************
@@ -956,7 +949,7 @@ static int dhcpd_sendpacket(int bbroadcast)
     }
   else if (memcmp(g_state.ds_outpacket.ciaddr, g_anyipaddr, 4) != 0)
     {
-      dhcpd_arpupdate((uint16_t*)g_state.ds_outpacket.ciaddr, g_state.ds_outpacket.chaddr);
+      dhcpd_arpupdate(g_state.ds_outpacket.ciaddr, g_state.ds_outpacket.chaddr);
       memcpy(&ipaddr, g_state.ds_outpacket.ciaddr, 4);
     }
   else if (g_state.ds_outpacket.flags & HTONS(BOOTP_BROADCAST))
@@ -965,7 +958,7 @@ static int dhcpd_sendpacket(int bbroadcast)
     }
   else
     {
-      dhcpd_arpupdate((uint16_t*)g_state.ds_outpacket.yiaddr, g_state.ds_outpacket.chaddr);
+      dhcpd_arpupdate(g_state.ds_outpacket.yiaddr, g_state.ds_outpacket.chaddr);
       memcpy(&ipaddr, g_state.ds_outpacket.yiaddr, 4);
     }
 #endif

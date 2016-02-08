@@ -1545,4 +1545,7 @@
 	  (2016-02-02).
 	* apps/netutils/netlib:  Add utility functions to support accesses
 	  to the ARP table (2016-02-08).
+	* apps/netutils/dhcpd: DHCPD no longer calls directly into the
+	  OS but uses the new network IOCTL commands to modify the ARP
+	  table (2016-02-08).
 
