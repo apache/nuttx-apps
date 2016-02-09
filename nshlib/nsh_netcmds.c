@@ -1188,7 +1188,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       /* Show the corresponding hardware address */
 
       inaddr.sin_family      = AF_INET;
-      inaddr.sin_port        = INADDR_ANY;
+      inaddr.sin_port        = 0;
       inaddr.sin_addr.s_addr = inet_addr(argv[2]);
 
       ret = netlib_get_arpmapping(&inaddr, mac.ether_addr_octet);
@@ -1209,7 +1209,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       /* Delete the corresponding address mapping from the arp table */
 
       inaddr.sin_family      = AF_INET;
-      inaddr.sin_port        = INADDR_ANY;
+      inaddr.sin_port        = 0;
       inaddr.sin_addr.s_addr = inet_addr(argv[2]);
 
       ret = netlib_del_arpmapping(&inaddr);
@@ -1235,7 +1235,7 @@ int cmd_arp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       /* Add the address mapping to the arp table */
 
       inaddr.sin_family      = AF_INET;
-      inaddr.sin_port        = INADDR_ANY;
+      inaddr.sin_port        = 0;
       inaddr.sin_addr.s_addr = inet_addr(argv[2]);
 
       ret = netlib_set_arpmapping(&inaddr, mac.ether_addr_octet);
