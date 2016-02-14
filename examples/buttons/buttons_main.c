@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/buttons/buttons_main.c
  *
- *   Copyright (C) 2011, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,7 @@
 #include <unistd.h>
 #include <debug.h>
 
+#include <nuttx/irq.h>
 #include <nuttx/board.h>
 
 /****************************************************************************
@@ -477,7 +478,7 @@ int buttons_main(int argc, char *argv[])
            * output from an interrupt handler.
            */
 
-          flags = irqsave();
+          flags = enter_critical_section();
 
           /* Use lowsyslog() for compatibility with interrupt handler
            * output.
@@ -486,7 +487,7 @@ int buttons_main(int argc, char *argv[])
           lowsyslog(LOG_INFO, "POLL SET:%02x:\n", newset);
           show_buttons(g_oldset, newset);
           g_oldset = newset;
-          irqrestore(flags);
+          leave_critical_section(flags);
         }
 
       /* Sleep a little... but not long.  This will determine how fast we

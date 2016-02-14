@@ -70,6 +70,7 @@
 #include <netinet/in.h>
 #include <netinet/ether.h>
 
+#include <nuttx/irq.h>
 #include <nuttx/clock.h>
 #include <nuttx/net/net.h>
 #include <nuttx/net/netdev.h>
@@ -174,9 +175,9 @@ static uint16_t g_pingid = 0;
 #if defined(HAVE_PING) || defined(HAVE_PING6)
 static uint16_t ping_newid(void)
 {
-  irqstate_t save = irqsave();
+  irqstate_t save = enter_critical_section();
   uint16_t ret = ++g_pingid;
-  irqrestore(save);
+  leave_critical_section(save);
   return ret;
 }
 #endif /* HAVE_PING || HAVE_PINg */
