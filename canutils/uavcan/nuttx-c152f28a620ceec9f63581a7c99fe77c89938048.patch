@@ -1,0 +1,25 @@
+--- libuavcan/libuavcan_drivers/stm32/driver/src/internal.hpp.orig	2016-02-15 18:43:32.799005338 -0600
++++ libuavcan/libuavcan_drivers/stm32/driver/src/internal.hpp	2016-02-15 18:45:09.621004803 -0600
+@@ -9,6 +9,7 @@
+ #if UAVCAN_STM32_CHIBIOS
+ # include <hal.h>
+ #elif UAVCAN_STM32_NUTTX
++# include <nuttx/irq.h>
+ # include <nuttx/arch.h>
+ # include <arch/board/board.h>
+ # include <chip/stm32_tim.h>
+@@ -97,12 +98,12 @@
+     const irqstate_t flags_;
+ 
+     CriticalSectionLocker()
+-        : flags_(irqsave())
++        : flags_(enter_critical_section())
+     { }
+ 
+     ~CriticalSectionLocker()
+     {
+-        irqrestore(flags_);
++        leave_critical_section(flags_);
+     }
+ };
+ 

@@ -47,6 +47,7 @@ LIBUAVCAN_UNPACKNAME = libuavcan-$(LIBUAVCAN_VERSION)
 LIBUAVCAN_PACKNAME = $(LIBUAVCAN_UNPACKNAME)$(PACKEXT)
 LIBUAVCAN_DSDL_PATH = libuavcan$(DELIM)dsdl
 LIBUAVCAN_PYUAVCAN_PATH = libuavcan$(DELIM)libuavcan$(DELIM)dsdl_compiler$(DELIM)pyuavcan
+LIBUAVCAN_PATCHNAME = nuttx-$(LIBUAVCAN_VERSION).patch
 
 DSDL_URL = $(patsubst "%",%,$(strip $(CONFIG_UAVCAN_DSDL_URL)))
 DSDL_VERSION = $(patsubst "%",%,$(strip $(CONFIG_UAVCAN_DSDL_VERSION)))
@@ -204,6 +205,9 @@ $(PYUAVCAN_UNPACKNAME): $(PYUAVCAN_PACKNAME)
 
 libuavcan: $(LIBUAVCAN_UNPACKNAME) $(DSDL_UNPACKNAME) $(PYUAVCAN_UNPACKNAME)
 	$(Q) cp -R $(LIBUAVCAN_UNPACKNAME) libuavcan
+	$(Q) if [ -r $(LIBUAVCAN_PATCHNAME) ]; then \
+		cat $(LIBUAVCAN_PATCHNAME) | patch -p0 || { echo "ERROR: Patch failed"; exit 1; }; \
+		fi
 	$(call DELDIR, $(LIBUAVCAN_DSDL_PATH))
 	$(Q) cp -R $(DSDL_UNPACKNAME) $(LIBUAVCAN_DSDL_PATH)
 	$(call DELDIR, $(LIBUAVCAN_PYUAVCAN_PATH))
@@ -244,6 +248,7 @@ clean:
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(call DEFLFILE, .libuavcan_patched)
 	$(call DELDIR, $(LIBUAVCAN_UNPACKNAME))
 	$(call DELFILE, $(LIBUAVCAN_PACKNAME))
 	$(call DELDIR, $(DSDL_UNPACKNAME))
