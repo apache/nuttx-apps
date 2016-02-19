@@ -1550,4 +1550,6 @@
 	  table (2016-02-08).
 	* apps/nshlib:  Add an 'arp' command that will support access to
 	  the OS ARP table (2016-02-08).
+	* apps/nshlib: 'ps' command will show CPU if SMP is enabled
+	  (2016-02-19).
 

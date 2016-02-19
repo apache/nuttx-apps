@@ -90,8 +90,11 @@ struct nsh_taskstatus_s
 #ifdef HAVE_GROUPID
   FAR const char *td_groupid;    /* Group ID */
 #else
-  FAR const char *td_ppid;      /* Parent thread ID */
+  FAR const char *td_ppid;       /* Parent thread ID */
 #endif
+#endif
+#ifdef CONFIG_SMP
+  FAR const char *td_cpu;        /* CPU */
 #endif
   FAR const char *td_state;      /* Thread state */
   FAR const char *td_event;      /* Thread wait event */
@@ -115,6 +118,9 @@ static const char g_groupid[]   = "Group:";
 #else
 static const char g_ppid[]      = "PPID:";
 #endif
+#endif
+#ifdef CONFIG_SMP
+static const char g_cpu[]       = "CPU:";
 #endif
 static const char g_state[]     = "State:";
 static const char g_flags[]     = "Flags:";
@@ -188,6 +194,15 @@ static void nsh_parse_statusline(FAR char *line,
       status->td_ppid = nsh_trimspaces(&line[12]);
     }
 #endif
+#endif
+
+#ifdef CONFIG_SMP
+  else if (strncmp(line, g_cpu, strlen(g_cpu)) == 0)
+    {
+      /* Save the current CPU */
+
+      status->td_cpu = nsh_trimspaces(&line[12]);
+    }
 #endif
 
   else if (strncmp(line, g_state, strlen(g_state)) == 0)
@@ -280,6 +295,9 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   status.td_ppid     = "";
 #endif
 #endif
+#ifdef CONFIG_SMP
+  status.td_cpu      = "";
+#endif
   status.td_state    = "";
   status.td_event    = "";
   status.td_flags    = "";
@@ -345,6 +363,10 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 #else
   nsh_output(vtbl, "%5s ", status.td_ppid);
 #endif
+#endif
+
+#ifdef CONFIG_SMP
+  nsh_output(vtbl, "%3s ", status.td_cpu);
 #endif
 
   nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
@@ -444,6 +466,10 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #else
   nsh_output(vtbl, "%5s ", "PPID");
 #endif
+#endif
+
+#ifdef CONFIG_SMP
+  nsh_output(vtbl, "%3s ", "CPU");
 #endif
 
   nsh_output(vtbl, "%3s %-8s %-7s %3s %-8s %-9s ",
