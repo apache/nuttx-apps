@@ -715,6 +715,10 @@ examples/lcdrw
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
   or CONFIG_BUILD_KERNEL).
 
+examples/adc
+^^^^^^^^^^^^
+  This is a simple test of the board LED driver at nuttx/drivers/leds/userled_*.c.
+
 examples/ltdc
 ^^^^^^^^^^^^^
 

@@ -1552,4 +1552,6 @@
 	  the OS ARP table (2016-02-08).
 	* apps/nshlib: 'ps' command will show CPU if SMP is enabled
 	  (2016-02-19).
+	* apps/examples/leds: An example to demonstrate use of LED
+	  driver (2016-02-20).
 
