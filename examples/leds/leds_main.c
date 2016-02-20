@@ -127,6 +127,10 @@ static int led_daemon(int argc, char *argv[])
             }
           while (newset == ledset);
 
+          /* REVISIT: There are flaws in this logic.  It would not work
+           * correctly if there were spaces in the supported mask.
+           */
+
           if (newset == 0)
             {
               incrementing = false;
@@ -135,6 +139,10 @@ static int led_daemon(int argc, char *argv[])
         }
       else
         {
+          /* REVISIT: There are flaws in this logic.  It would not work
+           * correctly if there were spaces in the supported mask.
+           */
+
           if (ledset == 0)
             {
               incrementing = true;

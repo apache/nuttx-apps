@@ -33,7 +33,7 @@ config EXAMPLES_LEDS_DEVPATH
 	default "/dev/userleds"
 
 config EXAMPLES_LEDS_LEDSET
-	hex "Set of LEDs to use"
+	hex "Subset of LEDs to use"
 	default 0x0f
 
-endif
+endif # EXAMPLES_LEDS
