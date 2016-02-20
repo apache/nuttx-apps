@@ -100,7 +100,12 @@ static int led_daemon(int argc, char *argv[])
       goto errout_with_fd;
     }
 
+  /* Excluded any LEDs that not supported AND not in the set of LEDs the
+   * user asked us to use.
+   */
+
   printf("led_daemon: Supported LEDs 0x%02x\n", (unsigned int)supported);
+  supported &= CONFIG_EXAMPLES_LEDS_LEDSET;
 
   /* Now loop forever, changing the LED set */
 
@@ -118,7 +123,7 @@ static int led_daemon(int argc, char *argv[])
           do
             {
               tmp++;
-              newset = tmp & CONFIG_EXAMPLES_LEDS_LEDSET;
+              newset = tmp & supported;
             }
           while (newset == ledset);
 
@@ -140,7 +145,7 @@ static int led_daemon(int argc, char *argv[])
           do
             {
               tmp--;
-              newset = tmp & CONFIG_EXAMPLES_LEDS_LEDSET;
+              newset = tmp & supported;
             }
           while (newset == ledset);
         }
@@ -165,6 +170,8 @@ errout_with_fd:
 
 errout:
   g_led_daemon_started = false;
+
+  printf("led_daemon: Terminating\n");
   return EXIT_FAILURE;
 }
 
