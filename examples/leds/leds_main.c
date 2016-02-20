@@ -79,7 +79,7 @@ static int led_daemon(int argc, char *argv[])
   /* Open the LED driver */
 
   printf("led_daemon: Opening %s\n", CONFIG_EXAMPLES_LEDS_DEVPATH);
-  fd = open(CONFIG_EXAMPLES_LEDS_DEVPATH, O_RDWR);
+  fd = open(CONFIG_EXAMPLES_LEDS_DEVPATH, O_WRONLY);
   if (fd < 0)
     {
       int errcode = errno;
@@ -179,12 +179,13 @@ errout:
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int leds_main(int argc, char *argv[])
+int leds_main(int argc, FAR char *argv[])
 #endif
 {
-  char *ledargv[2];
+  FAR char *ledargv[2];
   int ret;
 
+  printf("leds_main: Starting the led_daemon\n");
   if (g_led_daemon_started)
     {
       printf("leds_main: led_daemon already running\n");
@@ -194,7 +195,6 @@ int leds_main(int argc, char *argv[])
   ledargv[0] = "led_daemon";
   ledargv[1] = NULL;
 
-  printf("leds_main: Starting the led_daemon\n");
   ret = task_create("led_daemon", CONFIG_EXAMPLES_LEDS_PRIORITY,
                     CONFIG_EXAMPLES_LEDS_STACKSIZE, led_daemon,
                     (FAR char * const *)ledargv);
@@ -206,6 +206,6 @@ int leds_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  printf("led_daemon started\n");
+  printf("leds_main: led_daemon started\n");
   return EXIT_SUCCESS;
 }

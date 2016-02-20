@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/leds/Makefile
 #
-#   Copyright (C) 2008, 2010-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Hello, World! built-in application info
+# LED driver test built-in application info
 
 CONFIG_EXAMPLES_LEDS_PRIORITY ?= SCHED_PRIORITY_DEFAULT
 CONFIG_EXAMPLES_LEDS_STACKSIZE ?= 2048
@@ -44,7 +44,7 @@ APPNAME = leds
 PRIORITY = $(CONFIG_EXAMPLES_LEDS_PRIORITY)
 STACKSIZE = $(CONFIG_EXAMPLES_LEDS_STACKSIZE)
 
-# Hello, World! Example
+# LED driver test
 
 ASRCS =
 CSRCS =
