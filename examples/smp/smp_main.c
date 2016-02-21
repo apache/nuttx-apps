@@ -79,7 +79,7 @@ int up_cpu_index(void);
 
 static void show_cpu(FAR const char *caller, int threadno)
 {
-  g_thread_cpu[threadno] =  up_cpu_index();
+  g_thread_cpu[threadno] = up_cpu_index();
   printf("%s[%d]: Running on CPU%d\n", caller, threadno, g_thread_cpu[threadno]);
 }
 
@@ -231,6 +231,20 @@ int smp_main(int argc, char *argv[])
   int ret;
   int i;
 
+  /* Initialize data */
+
+  memset(threadid, 0, sizeof(pthread_t) * CONFIG_EXAMPLES_SMP_NBARRIER_THREADS);
+  for (i = 0; i <= CONFIG_EXAMPLES_SMP_NBARRIER_THREADS; i++)
+    {
+#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
+      g_thread_cpu[i] = IMPOSSIBLE_CPU;
+#endif
+      if (i < CONFIG_EXAMPLES_SMP_NBARRIER_THREADS)
+        {
+          threadid[i] = 0;
+        }
+    }
+
   show_cpu("  Main", 0);
   printf("  Main[0]: Initializing barrier\n");
 
@@ -268,13 +282,8 @@ int smp_main(int argc, char *argv[])
       goto errout_with_barrier;
     }
 
-  memset(threadid, 0, sizeof(pthread_t) * CONFIG_EXAMPLES_SMP_NBARRIER_THREADS);
   for (i = 0; i < CONFIG_EXAMPLES_SMP_NBARRIER_THREADS; i++)
     {
-#if defined(CONFIG_SMP) && defined(CONFIG_BUILD_FLAT)
-      g_thread_cpu[i] = IMPOSSIBLE_CPU;
-#endif
-
       ret = pthread_create(&threadid[i], &attr, barrier_thread,
                            (pthread_addr_t)((uintptr_t)i+1));
       if (ret != 0)
