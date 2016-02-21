@@ -1554,4 +1554,5 @@
 	  (2016-02-19).
 	* apps/examples/leds: An example to demonstrate use of LED
 	  driver (2016-02-20).
+	* apps/examples/smp:  An verifying SMP configurations (2016-02-21).
 
