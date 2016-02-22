@@ -260,7 +260,7 @@ struct nxterm_state_s
 };
 
 /****************************************************************************
- * Public Variables
+ * Public Data
  ****************************************************************************/
 /* All example global variables are retained in a structure to minimize
  * the chance of name collisions.
