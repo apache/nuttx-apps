@@ -47,7 +47,9 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define RGBLED "/dev/rgb0"
+#ifndef CONFIG_EXAMPLES_RGBLED_DEVNAME
+#  define CONFIG_EXAMPLES_RGBLED_DEVNAME "/dev/rgbled0"
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -72,11 +74,11 @@ int rgbled_main(int argc, char *argv[])
   int fd;
   char buffer[8];
 
-  fd = open(RGBLED, O_WRONLY);
+  fd = open(CONFIG_EXAMPLES_RGBLED_DEVNAME, O_WRONLY);
 
   if (fd < 0)
     {
-      printf("Error opening %s!\n", RGBLED);
+      printf("Error opening %s!\n", CONFIG_EXAMPLES_RGBLED_DEVNAME);
       return -1;
     }
 

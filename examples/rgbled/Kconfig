@@ -11,6 +11,10 @@ config EXAMPLES_RGBLED
 
 if EXAMPLES_RGBLED
 
+config EXAMPLES_RGBLED_DEVNAME
+	string "RGB LED device name"
+	default "/dev/rgbled0"
+
 config EXAMPLES_RGBLED_PROGNAME
 	string "Program name"
 	default "rgbled"
