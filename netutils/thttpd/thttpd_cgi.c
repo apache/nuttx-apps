@@ -2,7 +2,7 @@
  * netutils/thttpd/thttpd_cgi.c
  * CGI support
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file libhttpd.c in the original THTTPD package:
@@ -59,10 +59,10 @@
 #include <apps/netutils/thttpd.h>
 
 #include "config.h"
+#include "timers.h"
 #include "libhttpd.h"
 #include "thttpd_alloc.h"
 #include "thttpd_strings.h"
-#include "timers.h"
 #include "fdwatch.h"
 
 #if defined(CONFIG_THTTPD) && defined(CONFIG_THTTPD_CGI_PATTERN)

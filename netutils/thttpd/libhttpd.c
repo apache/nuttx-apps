@@ -2,7 +2,7 @@
  * netutils/thttpd/libhttpd.c
  * HTTP Protocol Library
  *
- *   Copyright (C) 2009, 2011, 2013, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2013, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Derived from the file of the same name in the original THTTPD package:
@@ -64,11 +64,11 @@
 #include <apps/netutils/thttpd.h>
 
 #include "config.h"
+#include "timers.h"
 #include "libhttpd.h"
 #include "thttpd_alloc.h"
 #include "thttpd_strings.h"
 #include "thttpd_cgi.h"
-#include "timers.h"
 #include "tdate_parse.h"
 #include "fdwatch.h"
 
