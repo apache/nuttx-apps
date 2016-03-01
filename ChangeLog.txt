@@ -1558,4 +1558,5 @@
 	* apps/examples/rgbled:  Example using the RGB LED driver to
 	  drive an RGB LED via PWM.  From Alan Carvalho de Assis
 	  (2016-02-23).
-
+	* apps/platform/sabre-6quad:  Add a platform directory for the
+	  Sabre 6Quad board (2016-03-01).
