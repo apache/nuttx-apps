@@ -192,6 +192,10 @@ void rr_test(void);
 
 void sporadic_test(void);
 
+/* tls.c ********************************************************************/
+
+void tls_test(void);
+
 /* barrier.c ****************************************************************/
 
 void barrier_test(void);

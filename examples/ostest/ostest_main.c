@@ -274,6 +274,7 @@ static int user_main(int argc, char *argv[])
                  i, g_argv[i-1], argv[i]);
         }
     }
+
   check_test_memory_usage();
 
   /* If retention of child status is enable, then suppress it for this task.
@@ -312,6 +313,13 @@ static int user_main(int argc, char *argv[])
 
   clearenv();
   show_environment(false, false, false);
+  check_test_memory_usage();
+#endif
+
+#ifdef CONFIG_TLS
+  /* Test TLS */
+
+  tls_test();
   check_test_memory_usage();
 #endif
 

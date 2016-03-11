@@ -1560,3 +1560,4 @@
 	  (2016-02-23).
 	* apps/platform/sabre-6quad:  Add a platform directory for the
 	  Sabre 6Quad board (2016-03-01).
+	* apps/examples/ostest:  Add a test of TLS (2016-03-11).

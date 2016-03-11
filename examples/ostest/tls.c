@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/ostest/dev_null.c
+ * examples/ostest/tls.c
  *
- *   Copyright (C) 2007, 2008 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,57 +38,92 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include <string.h>
+
+#include <nuttx/tls.h>
+
 #include "ostest.h"
+
+#ifdef CONFIG_TLS
+
+#include <arch/tls.h>
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0
+static struct tls_info_s g_save_info;
 
-static FAR char buffer[1024];
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void get_tls_info(FAR struct tls_info_s *info)
+{
+  memcpy(info, up_tls_info(), sizeof(struct tls_info_s));
+}
+
+static void put_tls_info(FAR const struct tls_info_s *info)
+{
+  memcpy(up_tls_info(), info, sizeof(struct tls_info_s));
+}
+
+static void set_tls_info(uintptr_t value)
+{
+  FAR struct tls_info_s *info = up_tls_info();
+  int i;
+
+  for (i = 0; i < CONFIG_TLS_NELEM; i++)
+    {
+      info->tl_elem[i] = value;
+    }
+}
+
+static bool verify_tls_info(uintptr_t value)
+{
+  FAR struct tls_info_s *info = up_tls_info();
+  bool fail = false;
+  int i;
+
+  for (i = 0; i < CONFIG_TLS_NELEM; i++)
+    {
+      if (info->tl_elem[i] != value)
+        {
+          printf("tls: ERROR Element %d: Set %lx / read %lx\n",
+                 i, (unsigned long)value,
+                 (unsigned long)info->tl_elem[i]);
+          fail = true;  
+        }
+    }
+
+  return fail;
+}
+
+static void do_tls_test(uintptr_t value)
+{
+  set_tls_info(value);
+  if (!verify_tls_info(value))
+    {
+      printf("tls: Successfully set %lx\n", (unsigned long)value);
+    }
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int dev_null(void)
+void tls_test(void)
 {
-  int nbytes;
-  int fd;
-
-  fd = open("/dev/null", O_RDWR);
-  if (fd < 0)
-    {
-      printf("dev_null: ERROR Failed to open /dev/null\n");
-      return -1;
-    }
-
-  nbytes = read(fd, buffer, 1024);
-  if (nbytes < 0)
-    {
-      printf("dev_null: ERROR Failed to read from /dev/null\n");
-      close(fd);
-      return -1;
-    }
-
-  printf("dev_null: Read %d bytes from /dev/null\n", nbytes);
-
-  nbytes = write(fd, buffer, 1024);
-  if (nbytes < 0)
-    {
-      printf("dev_null: ERROR Failed to write to /dev/null\n");
-      close(fd);
-      return -1;
-    }
-
-  printf("dev_null: Wrote %d bytes to /dev/null\n", nbytes);
-
-  close(fd);
-  return 0;
+  get_tls_info(&g_save_info);
+  do_tls_test(0);
+  do_tls_test(0xffffffff);
+  do_tls_test(0x55555555);
+  do_tls_test(0xaaaaaaaa);
+  put_tls_info(&g_save_info);
 }
 
-#endif /*CONFIG_NFILE_DESCRIPTORS */
+#endif /* CONFIG_TLS */

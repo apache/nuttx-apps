@@ -51,6 +51,10 @@ ifeq ($(CONFIG_ARCH_FPU),y)
 CSRCS += fpu.c
 endif
 
+ifeq ($(CONFIG_TLS),y)
+CSRCS += tls.c
+endif
+
 ifeq ($(CONFIG_EXAMPLES_OSTEST_AIO),y)
 CSRCS += aio.c
 endif
