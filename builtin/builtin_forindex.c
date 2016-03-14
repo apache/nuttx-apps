@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/builtin/builtin.c
+ * apps/builtin/builtin_forindex.c
  *
  *   Copyright (C) 2011 Uros Platise. All rights reserved.
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2016 Gregory Nutt. All rights reserved.
  *   Authors: Uros Platise <uros.platise@isotel.eu>
  *            Gregory Nutt <gnutt@nuttx.org>
  *
@@ -44,27 +44,11 @@
 #include <nuttx/binfmt/builtin.h>
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Public Data
  ****************************************************************************/
 
 extern const struct builtin_s g_builtins[];
 extern const int g_builtin_count;
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Public Functions
@@ -76,5 +60,6 @@ FAR const struct builtin_s *builtin_for_index(int index)
     {
       return &g_builtins[index];
     }
+
   return NULL;
 }
