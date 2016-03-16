@@ -220,6 +220,7 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
     {
       vMBPortLog(MB_LOG_ERROR, "SER-INIT", "Can't open serial port %s: %d\n",
                  szDevice, errno);
+      bStatus = false;
     }
 
 #ifdef CONFIG_SERIAL_TERMIOS

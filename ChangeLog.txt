@@ -1561,3 +1561,7 @@
 	* apps/platform/sabre-6quad:  Add a platform directory for the
 	  Sabre 6Quad board (2016-03-01).
 	* apps/examples/ostest:  Add a test of TLS (2016-03-11).
+	* apps/modbus/nuttx/portserial.c:  Was not returning an error
+	  on failure to open the device driver.  From Olololshka kokoko
+	  (2016-03-16).
+
