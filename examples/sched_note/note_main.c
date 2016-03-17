@@ -79,8 +79,8 @@ static void dump_notes(size_t nread)
       notelen = note->nc_length;
       systime = (uint32_t) note->nc_systime[0]        +
                 (uint32_t)(note->nc_systime[1] << 8)  +
-                (uint32_t)(note->nc_systime[1] << 16) +
-                (uint32_t)(note->nc_systime[1] << 24);
+                (uint32_t)(note->nc_systime[2] << 16) +
+                (uint32_t)(note->nc_systime[3] << 24);
 
       switch (note->nc_type)
         {
