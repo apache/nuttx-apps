@@ -1564,4 +1564,6 @@
 	* apps/modbus/nuttx/portserial.c:  Was not returning an error
 	  on failure to open the device driver.  From Olololshka kokoko
 	  (2016-03-16).
-
+	* apps/examples/sched_note:  Add a simple example to exercise
+	  the scheduler instrumentation logic.  Kind of buggy right now
+	  (2016-03-17).

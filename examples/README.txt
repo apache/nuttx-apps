@@ -1730,6 +1730,11 @@ examples/romfs
   * CONFIG_EXAMPLES_ROMFS_MOUNTPOINT
       The location to mount the ROM disk.  Deafault: "/usr/local/share"
 
+examples/sched_note
+^^^^^^^^^^^^^^^^^^^
+
+  This is a simple test of the Scheduler instrumentation logic.
+
 examples/sendmail
 ^^^^^^^^^^^^^^^^^
 
