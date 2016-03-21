@@ -288,8 +288,6 @@ static void dump_notes(size_t nread)
           case NOTE_CSECTION_ENTER:
           case NOTE_CSECTION_LEAVE:
             {
-              FAR struct note_csection_s *note_csection =
-                (FAR struct note_csection_s *)note;
 #ifdef CONFIG_SMP
               uint16_t count;
 #endif
