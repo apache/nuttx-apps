@@ -145,7 +145,7 @@ static int restart_main(int argc, char *argv[])
         }
     }
 
-  return 0; /* Won't get here */
+  return 0; /* Won't get here unless we were restarted */
 }
 
 /****************************************************************************
