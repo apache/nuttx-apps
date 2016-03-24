@@ -104,7 +104,7 @@ int rand_main(int argc, char *argv[])
 
   /* fill buffer to make it super-clear as to what has and has not been written */
 
-  memset(buffer,0xcc,sizeof(buffer));
+  memset(buffer, 0xcc, sizeof(buffer));
 
   /* Open /dev/random */
 
@@ -128,9 +128,11 @@ int rand_main(int argc, char *argv[])
       (void)close(fd);
       exit(EXIT_FAILURE);
     }
+
   if (nread != nsamples * sizeof(uint32_t))
     {
-      fprintf(stderr, "ERROR: Read from /dev/randon only produced %d bytes\n", nread);
+      fprintf(stderr, "ERROR: Read from /dev/randon only produced %d bytes\n",
+              (int)nread);
       (void)close(fd);
       exit(EXIT_FAILURE);
     }
