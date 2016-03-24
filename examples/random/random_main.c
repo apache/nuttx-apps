@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <debug.h>
@@ -94,12 +95,16 @@ int rand_main(int argc, char *argv[])
       nsamples  = atoi(argv[1]);
     }
 
-  /* Clip the numer of samples to the configured buffer size */
+  /* Clip the number of samples to the configured buffer size */
 
   if (nsamples > CONFIG_EXAMPLES_MAXSAMPLES)
     {
       nsamples = CONFIG_EXAMPLES_MAXSAMPLES;
     }
+
+  /* fill buffer to make it super-clear as to what has and has not been written */
+
+  memset(buffer,0xcc,sizeof(buffer));
 
   /* Open /dev/random */
 
@@ -114,11 +119,18 @@ int rand_main(int argc, char *argv[])
   /* Read the requested number of samples */
 
   printf("Reading %d random numbers\n", nsamples);
+  fflush(stdout);
   nread = read(fd, buffer, nsamples * sizeof(uint32_t));
   if (nread < 0)
     {
       int errcode = errno;
       fprintf(stderr, "ERROR: Read from /dev/randon failed: %d\n", errcode);
+      (void)close(fd);
+      exit(EXIT_FAILURE);
+    }
+  if (nread != nsamples * sizeof(uint32_t))
+    {
+      fprintf(stderr, "ERROR: Read from /dev/randon only produced %d bytes\n", nread);
       (void)close(fd);
       exit(EXIT_FAILURE);
     }
