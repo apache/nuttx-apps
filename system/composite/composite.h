@@ -226,14 +226,4 @@ extern struct composite_state_s g_composite;
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: composite_archinitialize
- *
- * Description:
- *   Perform architecture specific initialization.
- *
- ****************************************************************************/
-
-extern int composite_archinitialize(void);
-
 #endif /* __SYSTEM_COMPOSITE_COMPOSITE_H */

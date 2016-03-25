@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_usbconsole.c
  *
- *   Copyright (C) 2012-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@
 
 #include <nuttx/config.h>
 
+#include <sys/boardctl.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -58,26 +60,6 @@
 #include "nsh_console.h"
 
 #ifdef HAVE_USB_CONSOLE
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -287,6 +269,10 @@ restart:
 int nsh_consolemain(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
+#ifdef CONFIG_CDCACM
+  struct boardioc_usbdev_ctrl_s ctrl;
+  FAR void *handle;
+#endif
   int ret;
 
   DEBUGASSERT(pstate);
@@ -301,9 +287,19 @@ int nsh_consolemain(int argc, char *argv[])
 
 #if defined(CONFIG_PL2303) || defined(CONFIG_CDCACM)
 #ifdef CONFIG_CDCACM
-  ret = cdcacm_initialize(CONFIG_NSH_USBDEV_MINOR, NULL);
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+
 #else
+# warning REVISIT: This violates the OS/application interface
+
   ret = usbdev_serialinitialize(CONFIG_NSH_USBDEV_MINOR);
+
 #endif
 
   UNUSED(ret); /* Eliminate warning if not used */

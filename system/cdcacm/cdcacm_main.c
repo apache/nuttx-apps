@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/cdcacm/cdcacm_main.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <debug.h>
@@ -50,10 +51,6 @@
 #include "cdcacm.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -62,10 +59,6 @@
  */
 
 struct cdcacm_state_s g_cdcacm;
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Public Functions
@@ -85,6 +78,7 @@ int main(int argc, FAR char *argv[])
 int sercon_main(int argc, char *argv[])
 #endif
 {
+  struct boardioc_usbdev_ctrl_s ctrl;
   int ret;
 
   /* Check if there is a non-NULL USB mass storage device handle (meaning that the
@@ -106,7 +100,13 @@ int sercon_main(int argc, char *argv[])
   /* Initialize the USB CDC/ACM serial driver */
 
   printf("sercon: Registering CDC/ACM serial driver\n");
-  ret = cdcacm_initialize(CONFIG_SYSTEM_CDCACM_DEVMINOR, &g_cdcacm.handle);
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = CONFIG_SYSTEM_CDCACM_DEVMINOR;
+  ctrl.handle   = &g_cdcacm.handle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
       printf("sercon: ERROR: Failed to create the CDC/ACM serial device: %d\n", -ret);
@@ -131,6 +131,8 @@ int main(int argc, FAR char **argv)
 int serdis_main(int argc, char *argv[])
 #endif
 {
+  struct boardioc_usbdev_ctrl_s ctrl;
+
   /* First check if the USB mass storage device is already connected */
 
   if (!g_cdcacm.handle)
@@ -147,8 +149,13 @@ int serdis_main(int argc, char *argv[])
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
-   cdcacm_uninitialize(g_cdcacm.handle);
-   g_cdcacm.handle = NULL;
-   printf("serdis: Disconnected\n");
-   return EXIT_SUCCESS;
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+  ctrl.instance = CONFIG_SYSTEM_CDCACM_DEVMINOR;
+  ctrl.handle   = &g_cdcacm.handle;
+
+  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  g_cdcacm.handle = NULL;
+  printf("serdis: Disconnected\n");
+  return EXIT_SUCCESS;
 }

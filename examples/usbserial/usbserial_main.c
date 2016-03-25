@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/usbserial/usbserial_main.c
  *
- *   Copyright (C) 2008, 2010-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2010-2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,8 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/boardctl.h>
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -195,6 +197,10 @@ int main(int argc, FAR char *argv[])
 int usbserial_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_CDCACM
+  struct boardioc_usbdev_ctrl_s ctrl;
+  FAR void *handle;
+#endif
 #ifndef CONFIG_EXAMPLES_USBSERIAL_INONLY
   int infd;
 #endif
@@ -213,11 +219,23 @@ int usbserial_main(int argc, char *argv[])
   /* Initialize the USB serial driver */
 
   printf("usbserial_main: Registering USB serial driver\n");
+
 #ifdef CONFIG_CDCACM
-  ret = cdcacm_initialize(0, NULL);
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+
 #else
+# warning REVISIT: This violates the OS/application interface
+
   ret = usbdev_serialinitialize(0);
+
 #endif
+
   if (ret < 0)
     {
       printf("usbserial_main: ERROR: Failed to create the USB serial device: %d\n",

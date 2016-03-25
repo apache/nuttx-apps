@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/usbterm/usbterm_main.c
  *
- *   Copyright (C) 2011-2013, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2013, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -64,14 +65,6 @@
 #endif
 
 #include "usbterm.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
 
 /****************************************************************************
  * Public Data
@@ -190,6 +183,10 @@ int main(int argc, FAR char *argv[])
 int usbterm_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_CDCACM
+  struct boardioc_usbdev_ctrl_s ctrl;
+  FAR void *handle;
+#endif
   pthread_attr_t attr;
   int ret;
 
@@ -214,11 +211,23 @@ int usbterm_main(int argc, char *argv[])
   /* Initialize the USB serial driver */
 
   printf("usbterm_main: Registering USB serial driver\n");
+
 #ifdef CONFIG_CDCACM
-  ret = cdcacm_initialize(0, NULL);
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+
 #else
+# warning REVISIT: This violates the OS/application interface
+
   ret = usbdev_serialinitialize(0);
+
 #endif
+
   if (ret < 0)
     {
       printf("usbterm_main: ERROR: Failed to create the USB serial device: %d\n", -ret);
