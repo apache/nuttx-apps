@@ -197,10 +197,8 @@ int main(int argc, FAR char *argv[])
 int usbserial_main(int argc, char *argv[])
 #endif
 {
-#ifdef CONFIG_CDCACM
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
-#endif
 #ifndef CONFIG_EXAMPLES_USBSERIAL_INONLY
   int infd;
 #endif
@@ -227,15 +225,16 @@ int usbserial_main(int argc, char *argv[])
   ctrl.instance = 0;
   ctrl.handle   = &handle;
 
-  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-
 #else
-# warning REVISIT: This violates the OS/application interface
 
-  ret = usbdev_serialinitialize(0);
+  ctrl.usbdev   = BOARDIOC_USBDEV_PL2303;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
 
 #endif
 
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
       printf("usbserial_main: ERROR: Failed to create the USB serial device: %d\n",

@@ -183,10 +183,8 @@ int main(int argc, FAR char *argv[])
 int usbterm_main(int argc, char *argv[])
 #endif
 {
-#ifdef CONFIG_CDCACM
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
-#endif
   pthread_attr_t attr;
   int ret;
 
@@ -219,20 +217,22 @@ int usbterm_main(int argc, char *argv[])
   ctrl.instance = 0;
   ctrl.handle   = &handle;
 
-  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-
 #else
-# warning REVISIT: This violates the OS/application interface
 
-  ret = usbdev_serialinitialize(0);
+  ctrl.usbdev   = BOARDIOC_USBDEV_PL2303;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
 
 #endif
 
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
       printf("usbterm_main: ERROR: Failed to create the USB serial device: %d\n", -ret);
       goto errout_with_devinit;
     }
+
   printf("usbterm_main: Successfully registered the serial driver\n");
 
 #if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0

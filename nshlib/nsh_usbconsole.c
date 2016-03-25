@@ -269,10 +269,8 @@ restart:
 int nsh_consolemain(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
-#ifdef CONFIG_CDCACM
   struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
-#endif
   int ret;
 
   DEBUGASSERT(pstate);
@@ -290,18 +288,19 @@ int nsh_consolemain(int argc, char *argv[])
 
   ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
   ctrl.action   = BOARDIOC_USBDEV_CONNECT;
-  ctrl.instance = 0;
+  ctrl.instance = CONFIG_NSH_USBDEV_MINOR;
   ctrl.handle   = &handle;
 
-  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-
 #else
-# warning REVISIT: This violates the OS/application interface
 
-  ret = usbdev_serialinitialize(CONFIG_NSH_USBDEV_MINOR);
+  ctrl.usbdev   = BOARDIOC_USBDEV_PL2303;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = CONFIG_NSH_USBDEV_MINOR;
+  ctrl.handle   = &handle;
 
 #endif
 
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   UNUSED(ret); /* Eliminate warning if not used */
   DEBUGASSERT(ret == OK);
 #endif
