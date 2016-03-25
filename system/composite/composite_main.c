@@ -514,7 +514,7 @@ static void usbmsc_disconnect(void)
 {
   struct boardioc_usbdev_ctrl_s ctrl;
 
-  ctrl.usbdev   = BOARDIOC_USBDEV_USBMSC;
+  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = 0;
   ctrl.handle   = &g_composite.mschandle;

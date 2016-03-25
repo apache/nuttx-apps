@@ -410,7 +410,7 @@ static void usbmsc_disconnect(FAR void *handle)
 {
   struct boardioc_usbdev_ctrl_s ctrl;
 
-  ctrl.usbdev   = BOARDIOC_USBDEV_USBMSC;
+  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = 0;
   ctrl.handle   = &handle;
@@ -481,7 +481,7 @@ int msconn_main(int argc, char *argv[])
 
   printf("mcsonn_main: Creating block drivers\n");
 
-  ctrl.usbdev   = BOARDIOC_USBDEV_USBMSC;
+  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
   ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
   ctrl.instance = 0;
   ctrl.handle   = NULL;
