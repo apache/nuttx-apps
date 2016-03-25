@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/platform/stm32l476vg-disco/src/stm32_cxxinitialize.c
+ * apps/platform/nucleo-l476rg/src/stm32_cxxinitialize.c
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
