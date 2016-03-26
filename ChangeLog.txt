@@ -1567,3 +1567,8 @@
 	* apps/examples/sched_note:  Add a simple example to exercise
 	  the scheduler instrumentation logic.  Kind of buggy right now
 	  (2016-03-17).
+	* apps/system/cdcacm, usbmsc, and composite, apps/examples/usbserial,
+	  composite, usbterm:  Use new boardctl() instead of callinig directly
+	  in the OS when possible.  There are still a few bad OS calls for
+	  USB device interfaces that do not yet have boardctl() commands
+	  (2016-03-25).

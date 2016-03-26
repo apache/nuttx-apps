@@ -6,6 +6,8 @@
 config EXAMPLES_USBSERIAL
 	bool "USB serial test example"
 	default n
+	depends on LIB_BOARDCTL
+	select BOARDCTL_USBDEVCTRL
 	---help---
 		Enable the USB serial test example
 

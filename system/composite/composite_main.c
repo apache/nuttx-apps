@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/composite/composite_main.c
  *
- *   Copyright (C) 2012-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -495,6 +497,32 @@ static int echo_serial(void)
 #endif
 
 /****************************************************************************
+ * Name: usbmsc_disconnect
+ *
+ * Description:
+ *   Disconnect the USB MSC device
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static void usbmsc_disconnect(void)
+{
+  struct boardioc_usbdev_ctrl_s ctrl;
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
+  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &g_composite.mschandle;
+
+  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -553,7 +581,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
     {
       printf("board_mscclassobject: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
                CONFIG_SYSTEM_COMPOSITE_DEVPATH1, -ret);
-      usbmsc_uninitialize(g_composite.mschandle);
+      usbmsc_disconnect();
       return ret;
     }
 
@@ -567,7 +595,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
     {
       printf("board_mscclassobject: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
                CONFIG_SYSTEM_COMPOSITE_DEVPATH2, -ret);
-      usbmsc_uninitialize(g_composite.mschandle);
+      usbmsc_disconnect();
       return ret;
     }
 
@@ -581,7 +609,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
     {
       printf("board_mscclassobject: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
                CONFIG_SYSTEM_COMPOSITE_DEVPATH3, -ret);
-      usbmsc_uninitialize(g_composite.mschandle);
+      usbmsc_disconnect();
       return ret;
     }
 
@@ -596,7 +624,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
   if (ret < 0)
     {
       printf("board_mscclassobject: usbmsc_classobject failed: %d\n", -ret);
-      usbmsc_uninitialize(g_composite.mschandle);
+      usbmsc_disconnect();
     }
 
   check_test_memory_usage("After usbmsc_classobject()");
@@ -623,7 +651,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
 void board_mscuninitialize(FAR struct usbdevclass_driver_s *classdev)
 {
   DEBUGASSERT(g_composite.mschandle != NULL);
-  usbmsc_uninitialize(g_composite.mschandle);
+  usbmsc_disconnect();
 }
 
 /****************************************************************************
@@ -679,8 +707,16 @@ int board_cdcclassobject(FAR struct usbdevclass_driver_s **classdev)
 
 void board_cdcuninitialize(FAR struct usbdevclass_driver_s *classdev)
 {
+  struct boardioc_usbdev_ctrl_s ctrl;
+
   DEBUGASSERT(classdev != NULL);
-  cdcacm_uninitialize(classdev);
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
+  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+  ctrl.instance = CONFIG_SYSTEM_COMPOSITE_TTYUSB;
+  ctrl.handle   = (FAR void **)&classdev;
+
+  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
 }
 
 /****************************************************************************
@@ -700,6 +736,7 @@ int main(int argc, FAR char *argv[])
 int conn_main(int argc, char *argv[])
 #endif
 {
+  struct boardioc_usbdev_ctrl_s ctrl;
   int ret;
 
   /* If this program is implemented as the NSH 'msconn' command, then we need to
@@ -731,25 +768,36 @@ int conn_main(int argc, char *argv[])
   /* Perform architecture-specific initialization */
 
   printf("conn_main: Performing architecture-specific initialization\n");
-  ret = composite_archinitialize();
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+  ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
+  ctrl.instance = 0;
+  ctrl.handle   = NULL;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      printf("conn_main: composite_archinitialize failed: %d\n", -ret);
+      printf("conn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", -ret);
       return 1;
     }
 
-  check_test_memory_usage("After composite_archinitialize()");
+  check_test_memory_usage("After boardctl(BOARDIOC_USBDEV_CONTROL)");
 
   /* Initialize the USB composite device device */
 
-  g_composite.cmphandle = composite_initialize();
-  if (!g_composite.cmphandle)
+  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+  ctrl.action   = BOARDIOC_USBDEV_CONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &g_composite.cmphandle;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+  if (ret < 0)
     {
-      printf("conn_main: composite_initialize failed\n");
+      printf("conn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", -ret);
       return 1;
     }
 
-  check_test_memory_usage("After composite_initialize()");
+  check_test_memory_usage("After boardctl(BOARDIOC_USBDEV_CONTROL)");
 
 #if defined(CONFIG_USBDEV_TRACE) && CONFIG_USBDEV_TRACE_INITIALIDSET != 0
   /* If USB tracing is enabled and tracing of initial USB events is specified,
@@ -841,7 +889,12 @@ errout:
   close(g_composite.outfd);
 #endif
 
-  composite_uninitialize(g_composite.cmphandle);
+  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &g_composite.cmphandle;
+
+  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   final_memory_usage("Final memory usage");
   return 1;
 }
@@ -864,6 +917,8 @@ int main(int argc, FAR char **argv)
 int disconn_main(int argc, char *argv[])
 #endif
 {
+  struct boardioc_usbdev_ctrl_s ctrl;
+
   /* First check if the USB mass storage device is already connected */
 
   if (!g_composite.cmphandle)
@@ -872,18 +927,24 @@ int disconn_main(int argc, char *argv[])
       return 1;
     }
 
-   check_test_memory_usage("Since MS connection");
+  check_test_memory_usage("Since MS connection");
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
-   composite_uninitialize(g_composite.cmphandle);
-   g_composite.cmphandle = NULL;
-   printf("disconn_main: Disconnected\n");
-   check_test_memory_usage("After composite_uninitialize()");
+  ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
+  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &g_composite.cmphandle;
 
-   /* Dump debug memory usage */
+  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
 
-   final_memory_usage("Final memory usage");
-   return 0;
+  g_composite.cmphandle = NULL;
+  printf("disconn_main: Disconnected\n");
+  check_test_memory_usage("After boardctl(BOARDIOC_USBDEV_CONTROL)");
+
+  /* Dump debug memory usage */
+
+  final_memory_usage("Final memory usage");
+  return 0;
 }
 #endif

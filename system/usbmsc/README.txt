@@ -5,11 +5,12 @@ system/usbmsc
   the device using the USB storage class driver.  In order to use this
   add-on, your board-specific logic must provide the function:
 
-    void usbmsc_archinitialize(void);
+    void board_usbmsc_initialize(void);
 
-  This function will be called by the system/usbmsc in order to
-  do the actual registration of the block device drivers.  For examples
-  of the implementation of usbmsc_archinitialize() see
+  This function will be called by the system/usbmsc indirectly via the
+  boarctl BOARDIOC_USBDEV_CONTROL command in order to do the actual
+  registration of the block device drivers.  For examples of the
+  implementation of board_usbmsc_initialize() see
   configs/mcu123-lpc124x/src/up_usbmsc.c or
   configs/stm3210e-eval/src/usbmsc.c
 
@@ -19,6 +20,10 @@ system/usbmsc
     This add-on can be built as two NSH "built-in" commands if this option
     is selected: 'msconn' will connect the USB mass storage device; 'msdis'
     will disconnect the USB storage device.
+  CONFIG_LIB_BOARDCTL
+    Enables the boardctl() interfaces.
+  CONFIG_BOARDCTL_USBDEVCTRL
+    Enables the BOARDIOC_USBDEV_CONTROL boardctl() command.
   CONFIG_SYSTEM_USBMSC_NLUNS
     Defines the number of logical units (LUNs) exported by the USB storage
     driver.  Each LUN corresponds to one exported block driver (or partition

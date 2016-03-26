@@ -139,16 +139,4 @@ extern struct usbmsc_state_s g_usbmsc;
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: usbmsc_archinitialize
- *
- * Description:
- *   Perform architecture specific initialization.  This function must
- *   configure the block device to export via USB.  This function must be
- *   provided by architecture-specific logic in order to use this add-on.
- *
- ****************************************************************************/
-
-extern int usbmsc_archinitialize(void);
-
 #endif /* __SYSTEM_USBMSC_USBMSC_H */

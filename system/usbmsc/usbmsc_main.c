@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/usbmsc/usbmsc_main.c
  *
- *   Copyright (C) 2008-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -391,6 +393,32 @@ static int usbmsc_enumerate(struct usbtrace_s *trace, void *arg)
 #endif
 
 /****************************************************************************
+ * Name: usbmsc_disconnect
+ *
+ * Description:
+ *   Disconnect the USB MSC device
+ *
+ * Input Parameters:
+ *   handle - Handle of the connect USB MSC device
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+static void usbmsc_disconnect(FAR void *handle)
+{
+  struct boardioc_usbdev_ctrl_s ctrl;
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
+  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
+  ctrl.instance = 0;
+  ctrl.handle   = &handle;
+
+  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -411,6 +439,7 @@ int main(int argc, FAR char *argv[])
 int msconn_main(int argc, char *argv[])
 #endif
 {
+  struct boardioc_usbdev_ctrl_s ctrl;
   FAR void *handle;
   int ret;
 
@@ -451,14 +480,20 @@ int msconn_main(int argc, char *argv[])
   /* Register block drivers (architecture-specific) */
 
   printf("mcsonn_main: Creating block drivers\n");
-  ret = usbmsc_archinitialize();
+
+  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
+  ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
+  ctrl.instance = 0;
+  ctrl.handle   = NULL;
+
+  ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
   if (ret < 0)
     {
-      printf("mcsonn_main: usbmsc_archinitialize failed: %d\n", -ret);
+      printf("mcsonn_main: boardctl(BOARDIOC_USBDEV_CONTROL) failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
-  check_test_memory_usage("After usbmsc_archinitialize()");
+  check_test_memory_usage("After boardctl(BOARDIOC_USBDEV_CONTROL)");
 
   /* Then exports the LUN(s) */
 
@@ -467,7 +502,7 @@ int msconn_main(int argc, char *argv[])
   if (ret < 0)
     {
       printf("mcsonn_main: usbmsc_configure failed: %d\n", -ret);
-      usbmsc_uninitialize(handle);
+      usbmsc_disconnect(handle);
       return EXIT_FAILURE;
     }
 
@@ -480,7 +515,7 @@ int msconn_main(int argc, char *argv[])
     {
       printf("mcsonn_main: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
                CONFIG_SYSTEM_USBMSC_DEVPATH1, -ret);
-      usbmsc_uninitialize(handle);
+      usbmsc_disconnect(handle);
       return EXIT_FAILURE;
     }
 
@@ -494,7 +529,7 @@ int msconn_main(int argc, char *argv[])
     {
       printf("mcsonn_main: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
                CONFIG_SYSTEM_USBMSC_DEVPATH2, -ret);
-      usbmsc_uninitialize(handle);
+      usbmsc_disconnect(handle);
       return EXIT_FAILURE;
     }
 
@@ -508,7 +543,7 @@ int msconn_main(int argc, char *argv[])
     {
       printf("mcsonn_main: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
                CONFIG_SYSTEM_USBMSC_DEVPATH3, -ret);
-      usbmsc_uninitialize(handle);
+      usbmsc_disconnect(handle);
       return EXIT_FAILURE;
     }
 
@@ -521,7 +556,7 @@ int msconn_main(int argc, char *argv[])
   if (ret < 0)
     {
       printf("mcsonn_main: usbmsc_exportluns failed: %d\n", -ret);
-      usbmsc_uninitialize(handle);
+      usbmsc_disconnect(handle);
       return EXIT_FAILURE;
     }
 
@@ -547,7 +582,7 @@ int msconn_main(int argc, char *argv[])
       if (ret < 0)
         {
           printf("mcsonn_main: usbtrace_enumerate failed: %d\n", -ret);
-          usbmsc_uninitialize(handle);
+          usbmsc_disconnect(handle);
           return EXIT_FAILURE;
         }
 
@@ -610,10 +645,10 @@ int msdis_main(int argc, char *argv[])
 
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
-  usbmsc_uninitialize(g_usbmsc.mshandle);
+  usbmsc_disconnect(g_usbmsc.mshandle);
   g_usbmsc.mshandle = NULL;
   printf("msdis: Disconnected\n");
-  check_test_memory_usage("After usbmsc_uninitialize()");
+  check_test_memory_usage("After usbmsc_disconnect()");
 
   /* Dump debug memory usage */
 
