@@ -1513,7 +1513,7 @@
 	* apps/fsutils/passwd: Utility library for accessing a password
 	  file like /etc/passwd (2016-01-19).
 	* apps/nshlib/nsh_passwdcmds.c:  Add useradd, userdel, and passwd
-	  commands (2019-01-20).
+	  commands (2016-01-20).
 	* apps/nshlib:  Now supports a Message of the Day (MOTD) that will
 	  be presented after the NSH greeting (2015-01-20).
 	* apps/nshlib:  All sessions may be protected with logins using
@@ -1532,12 +1532,12 @@
 	  absolute would would need converted with cygpath.  But just using
 	  the relative path is a simpler solution (2016-01-27).
 
-7.15 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.15 2016-03-27 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/exmaples/chat and apps/netutils/chat:  Contributed by
-	  by Vladimir Komendantskiy (2019-01-29).
+	  Vladimir Komendantskiy (2016-01-29).
 	* apps/examples/ubloxmodem:  app to control the power state of the
-	  modem in nsh.  From  Vladimir Komendantskiy (2019-01-31).
+	  modem in nsh.  From  Vladimir Komendantskiy (2016-01-31).
 	* apps/system/ubloxmodem:  Moved the modem application from
 	  examples/ to system/ (2016-01-31).
 	* apps/system/i2c:  The I2C tool now obeys it OS interfacing:
@@ -1554,7 +1554,8 @@
 	  (2016-02-19).
 	* apps/examples/leds: An example to demonstrate use of LED
 	  driver (2016-02-20).
-	* apps/examples/smp:  An verifying SMP configurations (2016-02-21).
+	* apps/examples/smp:  Add a test to verify SMP configurations
+	  (2016-02-21).
 	* apps/examples/rgbled:  Example using the RGB LED driver to
 	  drive an RGB LED via PWM.  From Alan Carvalho de Assis
 	  (2016-02-23).
@@ -1568,7 +1569,9 @@
 	  the scheduler instrumentation logic.  Kind of buggy right now
 	  (2016-03-17).
 	* apps/system/cdcacm, usbmsc, and composite, apps/examples/usbserial,
-	  composite, usbterm:  Use new boardctl() instead of callinig directly
+	  composite, usbterm:  Use new boardctl() instead of calling directly
 	  in the OS when possible.  There are still a few bad OS calls for
 	  USB device interfaces that do not yet have boardctl() commands
 	  (2016-03-25).
+
+7.16 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
