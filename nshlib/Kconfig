@@ -767,7 +767,8 @@ config NSH_CONSOLE
 config NSH_USBCONSOLE
 	bool "Use a USB serial console"
 	default n
-	depends on NSH_CONSOLE && USBDEV && (CDCACM || PL2303)
+	depends on LIB_BOARDCTL && NSH_CONSOLE && USBDEV && (CDCACM || PL2303)
+	select BOARDCTL_USBDEVCTRL
 	---help---
 		If defined, then the an arbitrary USB serial device may be used
 		to as the NSH console.  In this case, NSH_USBCONDEV must be defined
