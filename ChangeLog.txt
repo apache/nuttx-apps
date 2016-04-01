@@ -1575,3 +1575,8 @@
 	  (2016-03-25).
 
 7.16 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/sdcard:  Remove the SD card application.  This
+	  application violates OS/application interface rules and has been
+	  moved to Obsoleted/apps/system/sdcard (2016-03-29).
+
