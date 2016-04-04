@@ -1579,4 +1579,6 @@
 	* apps/system/sdcard:  Remove the SD card application.  This
 	  application violates OS/application interface rules and has been
 	  moved to Obsoleted/apps/system/sdcard (2016-03-29).
+	* apps/examples/alarm:  Add a simple test of the ALARM iotcl calls
+	  of the RTC driver (2016-04-03).
 

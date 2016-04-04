@@ -66,6 +66,10 @@ examples/adjoystick
     CONFIG_EXAMPLES_AJOYSTICK_SIGNO - Signal used to signal the test
       application.  Default 13.
 
+examples/alarm
+^^^^^^^^^^^^^^
+  A simple example that tests the alarm IOCTLs of the RTC driver.
+
 examples/bastest
 ^^^^^^^^^^^^^^^^
   This directory contains a small program that will mount a ROMFS file system
