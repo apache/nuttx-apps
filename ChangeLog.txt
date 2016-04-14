@@ -565,3 +565,6 @@
 * CListBox unit test:  Should use RAND_MAX, not MAX_RAND (2015-04-16).
 * The NxWidgets/ directory has been removed from the NuttX GIT repository
   and now stands alone in its own repository (2015-06-27).
+* Framebuffer driver parameters have changed.  This introduces an
+  incompatibility with versions of NuttX prior to 7.16 (2016-04-14).
+
