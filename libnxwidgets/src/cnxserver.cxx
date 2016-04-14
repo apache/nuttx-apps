@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cnxserver.cxx
  *
- *   Copyright (C) 2012, 2013, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2013, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,15 +175,16 @@ bool CNxServer::connect(void)
   int ret;
 
   // Initialize the frame buffer device
+  // REVISIT: display == 0 is assumed
 
-  ret = up_fbinitialize();
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       gdbg("up_fbinitialize failed: %d\n", -ret);
       return false;
     }
 
-  m_hDevice = up_fbgetvplane(CONFIG_NXWIDGETS_VPLANE);
+  m_hDevice = up_fbgetvplane(0, CONFIG_NXWIDGETS_VPLANE);
   if (!m_hDevice)
     {
       gdbg("CNxServer::connect: up_fbgetvplane failed, vplane=%d\n",
@@ -414,14 +415,14 @@ int CNxServer::server(int argc, char *argv[])
 #else // CONFIG_NX_LCDDRIVER
   // Initialize the frame buffer device
 
-  ret = up_fbinitialize();
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       gdbg("nxterm_server: up_fbinitialize failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
-  dev = up_fbgetvplane(CONFIG_NXWIDGETS_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_NXWIDGETS_VPLANE);
   if (!dev)
     {
       gdbg("up_fbgetvplane failed, vplane=%d\n", CONFIG_NXWIDGETS_VPLANE);
