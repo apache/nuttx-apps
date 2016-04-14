@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nximage/nximage_main.c
  *
- *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,18 +185,22 @@ static inline int nximage_initialize(void)
   /* Initialize the frame buffer device */
 
   printf("nximage_initialize: Initializing framebuffer\n");
-  ret = up_fbinitialize();
+
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       printf("nximage_initialize: up_fbinitialize failed: %d\n", -ret);
+
       g_nximage.code = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXIMAGE_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXIMAGE_VPLANE);
   if (!dev)
     {
-      printf("nximage_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXIMAGE_VPLANE);
+      printf("nximage_initialize: up_fbgetvplane failed, vplane=%d\n",
+             CONFIG_EXAMPLES_NXIMAGE_VPLANE);
+
       g_nximage.code = NXEXIT_FBGETVPLANE;
       return ERROR;
     }
@@ -212,6 +216,7 @@ static inline int nximage_initialize(void)
       g_nximage.code = NXEXIT_NXOPEN;
       return ERROR;
     }
+
   return OK;
 }
 

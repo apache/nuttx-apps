@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/graphics/traveler/src/trv_graphics.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,20 +83,20 @@ static FAR struct fb_vtable_s *trv_get_fbdev(void)
 
   /* Initialize the frame buffer device */
 
-  ret = up_fbinitialize();
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
-      trv_abort("ERROR: up_fbinitialize failed: %d\n", -ret);
+      trv_abort("ERROR: up_fbinitialize() failed: %d\n", -ret);
     }
 
   /* Set up to use video plane 0.  There is no support for anything but
    * video plane 0.
    */
 
-  fbdev = up_fbgetvplane(0);
+  fbdev = up_fbgetvplane(0,0);
   if (!fbdev)
     {
-      trv_abort("ERROR: up_fbgetvplane(0) failed\n");
+      trv_abort("ERROR: up_fbgetvplane() failed\n");
     }
 
   return fbdev;
