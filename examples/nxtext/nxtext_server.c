@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxtext/nxtext_server.c
  *
- *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,17 +140,19 @@ int nxtext_server(int argc, char *argv[])
   /* Initialize the frame buffer device */
 
   printf("nxtext_server: Initializing framebuffer\n");
-  ret = up_fbinitialize();
+
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       printf("nxtext_server: up_fbinitialize failed: %d\n", -ret);
       return 1;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXTEXT_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXTEXT_VPLANE);
   if (!dev)
     {
-      printf("nxtext_server: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
+      printf("nxtext_server: up_fbgetvplane failed, vplane=%d\n",
+             CONFIG_EXAMPLES_NXTEXT_VPLANE);
       return 2;
     }
 #endif

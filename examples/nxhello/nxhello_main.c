@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello_main.c
  *
- *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -181,18 +181,22 @@ static inline int nxhello_initialize(void)
   /* Initialize the frame buffer device */
 
   printf("nxhello_initialize: Initializing framebuffer\n");
-  ret = up_fbinitialize();
+
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       printf("nxhello_initialize: up_fbinitialize failed: %d\n", -ret);
+
       g_nxhello.code = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXHELLO_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXHELLO_VPLANE);
   if (!dev)
     {
-      printf("nxhello_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXHELLO_VPLANE);
+      printf("nxhello_initialize: up_fbgetvplane failed, vplane=%d\n",
+             CONFIG_EXAMPLES_NXHELLO_VPLANE);
+
       g_nxhello.code = NXEXIT_FBGETVPLANE;
       return ERROR;
     }

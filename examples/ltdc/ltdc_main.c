@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ltdc/ltdc_main.c
  *
- *   Copyright (C) 2008, 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008, 2011-2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2084,13 +2084,13 @@ int ltdc_main(int argc, char *argv[])
   FAR struct fb_videoinfo_s vinfo;
   FAR struct fb_vtable_s *fbtable;
 
-  if (up_fbinitialize()<0)
+  if (up_fbinitialize(0) < 0)
     {
       dbg("up_fbinitialize() failed\n");
       return -1;
     }
 
-  fbtable = up_fbgetvplane(0);
+  fbtable = up_fbgetvplane(0,0);
 
   if (!fbtable)
     {

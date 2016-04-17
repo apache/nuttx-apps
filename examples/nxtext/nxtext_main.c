@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxtext/nxtext_main.c
  *
- *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -223,18 +223,22 @@ static inline int nxtext_suinitialize(void)
   /* Initialize the frame buffer device */
 
   printf("nxtext_initialize: Initializing framebuffer\n");
-  ret = up_fbinitialize();
+
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       printf("nxtext_initialize: up_fbinitialize failed: %d\n", -ret);
+
       g_exitcode = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXTEXT_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXTEXT_VPLANE);
   if (!dev)
     {
-      printf("nxtext_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXTEXT_VPLANE);
+      printf("nxtext_initialize: up_fbgetvplane failed, vplane=%d\n",
+             CONFIG_EXAMPLES_NXTEXT_VPLANE);
+
       g_exitcode = NXEXIT_FBGETVPLANE;
       return ERROR;
     }
@@ -243,13 +247,16 @@ static inline int nxtext_suinitialize(void)
   /* Then open NX */
 
   printf("nxtext_initialize: Open NX\n");
+
   g_hnx = nx_open(dev);
   if (!g_hnx)
     {
       printf("nxtext_initialize: nx_open failed: %d\n", errno);
+
       g_exitcode = NXEXIT_NXOPEN;
       return ERROR;
     }
+
   return OK;
 }
 #endif

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxlines/nxlines_main.c
  *
- *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -177,18 +177,22 @@ static inline int nxlines_initialize(void)
   /* Initialize the frame buffer device */
 
   printf("nxlines_initialize: Initializing framebuffer\n");
-  ret = up_fbinitialize();
+
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       printf("nxlines_initialize: up_fbinitialize failed: %d\n", -ret);
+
       g_nxlines.code = NXEXIT_FBINITIALIZE;
       return ERROR;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NXLINES_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXLINES_VPLANE);
   if (!dev)
     {
-      printf("nxlines_initialize: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NXLINES_VPLANE);
+      printf("nxlines_initialize: up_fbgetvplane failed, vplane=%d\n",
+             CONFIG_EXAMPLES_NXLINES_VPLANE);
+
       g_nxlines.code = NXEXIT_FBGETVPLANE;
       return ERROR;
     }
@@ -197,10 +201,12 @@ static inline int nxlines_initialize(void)
   /* Then open NX */
 
   printf("nxlines_initialize: Open NX\n");
+
   g_nxlines.hnx = nx_open(dev);
   if (!g_nxlines.hnx)
     {
       printf("nxlines_initialize: nx_open failed: %d\n", errno);
+
       g_nxlines.code = NXEXIT_NXOPEN;
       return ERROR;
     }

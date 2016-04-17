@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nx/nx_server.c
  *
- *   Copyright (C) 2008-2009, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,17 +141,19 @@ int nx_servertask(int argc, char *argv[])
   /* Initialize the frame buffer device */
 
   printf("nx_servertask: Initializing framebuffer\n");
-  ret = up_fbinitialize();
+
+  ret = up_fbinitialize(0);
   if (ret < 0)
     {
       printf("nx_servertask: up_fbinitialize failed: %d\n", -ret);
       return 1;
     }
 
-  dev = up_fbgetvplane(CONFIG_EXAMPLES_NX_VPLANE);
+  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NX_VPLANE);
   if (!dev)
     {
-      printf("nx_servertask: up_fbgetvplane failed, vplane=%d\n", CONFIG_EXAMPLES_NX_VPLANE);
+      printf("nx_servertask: up_fbgetvplane failed, vplane=%d\n",
+             CONFIG_EXAMPLES_NX_VPLANE);
       return 2;
     }
 #endif
