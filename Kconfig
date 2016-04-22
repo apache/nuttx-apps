@@ -129,6 +129,13 @@ config NXWIDGETS_BPP
 		Supported bits-per-pixel {8, 16, 24, 32}.  Default: The smallest
 		BPP configuration supported by NX.
 
+config NXWIDGETS_GREYSCALE
+	bool "Greyscale (vs RGB)"
+	default n
+	---help---
+		Select to use a greyscale vs RGB color image.  This option is ignored if
+		CONFIG_NXWIDGETS_BPP > 8
+
 config NXWIDGETS_SIZEOFCHAR
 	int "Size of a character (1 or 2 bytes)"
 	range 1 2
