@@ -194,7 +194,7 @@ int media_main(int argc, char *argv[])
 
       /* Fill buffer with a (possibly) unique pattern */
 
-      for (i = 0; i < info.nblocks; i++)
+      for (i = 0; i < info.blocksize; i++)
         {
           txbuffer[i] = value;
           if (++value >= END_VALUE)
@@ -343,7 +343,7 @@ int media_main(int argc, char *argv[])
 
       /* Fill buffer with a (possibly) unique pattern */
 
-      for (i = 0; i < info.nblocks; i++)
+      for (i = 0; i < info.blocksize; i++)
         {
           txbuffer[i] = value;
           if (++value >= END_VALUE)
