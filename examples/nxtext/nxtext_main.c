@@ -60,6 +60,9 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
+#  ifdef CONFIG_VNCSERVER
+#    include <nuttx/video/vnc.h>
+#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -166,10 +169,10 @@ int g_exitcode = NXEXIT_SUCCESS;
 static inline int nxtext_suinitialize(void)
 {
   FAR NX_DRIVERTYPE *dev;
+  int ret;
 
 #if defined(CONFIG_EXAMPLES_NXTEXT_EXTERNINIT)
   struct boardioc_graphics_s devinfo;
-  int ret;
 
   /* Use external graphics driver initialization */
 
@@ -190,8 +193,6 @@ static inline int nxtext_suinitialize(void)
   dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
-  int ret;
-
   /* Initialize the LCD device */
 
   printf("nxtext_initialize: Initializing LCD\n");
@@ -217,9 +218,8 @@ static inline int nxtext_suinitialize(void)
   /* Turn the LCD on at 75% power */
 
   (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
-  int ret;
 
+#else
   /* Initialize the frame buffer device */
 
   printf("nxtext_initialize: Initializing framebuffer\n");
@@ -256,6 +256,20 @@ static inline int nxtext_suinitialize(void)
       g_exitcode = NXEXIT_NXOPEN;
       return ERROR;
     }
+
+#ifdef CONFIG_VNCSERVER
+  /* Setup the VNC server to support keyboard/mouse inputs */
+
+  ret = vnc_default_fbinitialize(0, g_hnx);
+  if (ret < 0)
+    {
+      printf("vnc_default_fbinitialize failed: %d\n", ret);
+
+      nx_close(g_hnx);
+      g_exitcode = NXEXIT_FBINITIALIZE;
+      return ERROR;
+    }
+#endif
 
   return OK;
 }
@@ -305,43 +319,58 @@ static inline int nxtext_muinitialize(void)
   g_hnx = nx_connect();
   if (g_hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+#ifdef CONFIG_VNCSERVER
+      /* Setup the VNC server to support keyboard/mouse inputs */
 
-       (void)pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO;
-       (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTEXT_STACKSIZE);
+      ret = vnc_default_fbinitialize(0, g_hnx);
+      if (ret < 0)
+        {
+          printf("vnc_default_fbinitialize failed: %d\n", ret);
 
-       ret = pthread_create(&thread, &attr, nxtext_listener, NULL);
-       if (ret != 0)
-         {
-            printf("nxtext_initialize: pthread_create failed: %d\n", ret);
-            g_exitcode = NXEXIT_PTHREADCREATE;
-            return ERROR;
-         }
+          g_exitcode = NXEXIT_FBINITIALIZE;
+          return ERROR;
+        }
+#endif
+      /* Start a separate thread to listen for server events.  This is probably
+       * the least efficient way to do this, but it makes this example flow more
+       * smoothly.
+       */
 
-       /* Don't return until we are connected to the server */
+      (void)pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO;
+      (void)pthread_attr_setschedparam(&attr, &param);
+      (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXTEXT_STACKSIZE);
 
-       while (!g_connected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      ret = pthread_create(&thread, &attr, nxtext_listener, NULL);
+      if (ret != 0)
+        {
+           printf("nxtext_initialize: pthread_create failed: %d\n", ret);
 
-           (void)sem_wait(&g_semevent);
-         }
+           g_exitcode = NXEXIT_PTHREADCREATE;
+           return ERROR;
+        }
+
+      /* Don't return until we are connected to the server */
+
+      while (!g_connected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
+
+          (void)sem_wait(&g_semevent);
+        }
     }
   else
     {
       printf("nxtext_initialize: nx_connect failed: %d\n", errno);
+
       g_exitcode = NXEXIT_NXCONNECT;
       return ERROR;
     }
+
   return OK;
 }
 #endif

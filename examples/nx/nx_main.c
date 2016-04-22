@@ -60,6 +60,9 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
+#  ifdef CONFIG_VNCSERVER
+#    include <nuttx/video/vnc.h>
+#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -425,10 +428,10 @@ static inline int nxeg_raise(NXEGWINDOW hwnd)
 static inline int nxeg_suinitialize(void)
 {
   FAR NX_DRIVERTYPE *dev;
+  int ret;
 
 #if defined(CONFIG_EXAMPLES_NX_EXTERNINIT)
   struct boardioc_graphics_s devinfo;
-  int ret;
 
   /* Use external graphics driver initialization */
 
@@ -449,8 +452,6 @@ static inline int nxeg_suinitialize(void)
   dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
-  int ret;
-
   /* Initialize the LCD device */
 
   printf("nxeg_initialize: Initializing LCD\n");
@@ -476,9 +477,8 @@ static inline int nxeg_suinitialize(void)
   /* Turn the LCD on at 75% power */
 
   (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
-  int ret;
 
+#else
   /* Initialize the frame buffer device */
 
   printf("nxeg_initialize: Initializing framebuffer\n");
@@ -515,6 +515,20 @@ static inline int nxeg_suinitialize(void)
       g_exitcode = NXEXIT_NXOPEN;
       return ERROR;
     }
+
+#ifdef CONFIG_VNCSERVER
+  /* Setup the VNC server to support keyboard/mouse inputs */
+
+  ret = vnc_default_fbinitialize(0, g_hnx);
+  if (ret < 0)
+    {
+      printf("vnc_default_fbinitialize failed: %d\n", ret);
+      nx_close(g_hnx);
+      g_exitcode = NXEXIT_FBINITIALIZE;
+      return ERROR;
+    }
+#endif
+
   return OK;
 }
 #endif
@@ -565,6 +579,18 @@ static inline int nxeg_muinitialize(void)
     {
        pthread_attr_t attr;
 
+#ifdef CONFIG_VNCSERVER
+      /* Setup the VNC server to support keyboard/mouse inputs */
+
+      ret = vnc_default_fbinitialize(0, g_hnx);
+      if (ret < 0)
+        {
+          printf("vnc_default_fbinitialize failed: %d\n", ret);
+          nx_disconnect(g_hnx);
+          g_exitcode = NXEXIT_FBINITIALIZE;
+          return ERROR;
+        }
+#endif
        /* Start a separate thread to listen for server events.  This is probably
         * the least efficient way to do this, but it makes this example flow more
         * smoothly.
@@ -600,6 +626,7 @@ static inline int nxeg_muinitialize(void)
       g_exitcode = NXEXIT_NXCONNECT;
       return ERROR;
     }
+
   return OK;
 }
 #endif

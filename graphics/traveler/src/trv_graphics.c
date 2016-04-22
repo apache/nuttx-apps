@@ -46,8 +46,13 @@
 #include "trv_graphics.h"
 
 #include <string.h>
+
 #ifdef CONFIG_NX_MULTIUSER
 #  include <semaphore.h>
+#endif
+
+#ifdef CONFIG_VNCSERVER
+#  include <nuttx/video/vnc.h>
 #endif
 
 /****************************************************************************
@@ -202,6 +207,17 @@ static inline int trv_nxsu_initialize(FAR struct trv_graphics_info_s *ginfo)
       trv_abort("trv_nxsu_initialize: nx_open failed: %d\n", errno);
     }
 
+#ifdef CONFIG_VNCSERVER
+  /* Setup the VNC server to support keyboard/mouse inputs */
+
+  ret = vnc_default_fbinitialize(0, ginfo->hnx);
+  if (ret < 0)
+    {
+      nx_close(ginfo->hnx);
+      trv_abort("vnc_default_fbinitialize failed: %d\n", ret);
+    }
+#endif
+
   /* And use the background window */
 
   trv_use_bgwindow(ginfo);
@@ -247,9 +263,7 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      printf("nxeg_initialize: sched_setparam failed: %d\n" , ret);
-      g_exitcode = NXEXIT_SCHEDSETPARAM;
-      return ERROR;
+      trv_abort("nxeg_initialize: sched_setparam failed: %d\n" , ret);
     }
 
   /* Start the server task */
@@ -259,9 +273,8 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
                         CONFIG_EXAMPLES_NX_STACKSIZE, trv_servertask, NULL);
   if (servrid < 0)
     {
-      printf("nxeg_initialize: Failed to create trv_servertask task: %d\n", errno);
-      g_exitcode = NXEXIT_TASKCREATE;
-      return ERROR;
+      trv_abort("nxeg_initialize: Failed to create trv_servertask task: %d\n",
+                errno);
     }
 
   /* Wait a bit to let the server get started */
@@ -273,42 +286,48 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
   ginfo->hnx = nx_connect();
   if (ginfo->hnx)
     {
-       pthread_attr_t attr;
+      pthread_attr_t attr;
 
-       /* Start a separate thread to listen for server events.  This is probably
-        * the least efficient way to do this, but it makes this example flow more
-        * smoothly.
-        */
+#ifdef CONFIG_VNCSERVER
+      /* Setup the VNC server to support keyboard/mouse inputs */
 
-       (void)pthread_attr_init(&attr);
-       param.sched_priority = CONFIG_EXAMPLES_NX_LISTENERPRIO;
-       (void)pthread_attr_setschedparam(&attr, &param);
-       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NX_STACKSIZE);
+      ret = vnc_default_fbinitialize(0, ginfo->hnx);
+      if (ret < 0)
+        {
+          trv_abort("vnc_default_fbinitialize failed: %d\n", ret);
+        }
+#endif
 
-       ret = pthread_create(&thread, &attr, trv_nxlistener, NULL);
-       if (ret != 0)
-         {
-            printf("nxeg_initialize: pthread_create failed: %d\n", ret);
-            g_exitcode = NXEXIT_PTHREADCREATE;
-            return ERROR;
-         }
+      /* Start a separate thread to listen for server events.  This is probably
+       * the least efficient way to do this, but it makes this example flow more
+       * smoothly.
+       */
 
-       /* Don't return until we are connected to the server */
+      (void)pthread_attr_init(&attr);
+      param.sched_priority = CONFIG_EXAMPLES_NX_LISTENERPRIO;
+      (void)pthread_attr_setschedparam(&attr, &param);
+      (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NX_STACKSIZE);
 
-       while (!g_trv_nxrconnected)
-         {
-           /* Wait for the listener thread to wake us up when we really
-            * are connected.
-            */
+      ret = pthread_create(&thread, &attr, trv_nxlistener, NULL);
+      if (ret != 0)
+        {
+           trv_abort("nxeg_initialize: pthread_create failed: %d\n", ret);
+        }
 
-           (void)sem_wait(&g_trv_nxevent);
-         }
+      /* Don't return until we are connected to the server */
+
+      while (!g_trv_nxrconnected)
+        {
+          /* Wait for the listener thread to wake us up when we really
+           * are connected.
+           */
+
+          (void)sem_wait(&g_trv_nxevent);
+        }
     }
   else
     {
-      printf("nxeg_initialize: nx_connect failed: %d\n", errno);
-      g_exitcode = NXEXIT_NXCONNECT;
-      return ERROR;
+      trv_abort("nxeg_initialize: nx_connect failed: %d\n", errno);
     }
 
   /* And use the background window */
