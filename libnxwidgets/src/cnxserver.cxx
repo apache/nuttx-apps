@@ -56,6 +56,10 @@
 #  include <pthread.h>
 #endif
 
+#ifdef CONFIG_VNCSERVER
+#  include <nuttx/video/vnc.h>
+#endif
+
 #include "nxconfig.hxx"
 #include "singletons.hxx"
 #include "cnxserver.hxx"
@@ -203,6 +207,18 @@ bool CNxServer::connect(void)
       return false;
     }
 
+#ifdef CONFIG_VNCSERVER
+  // Setup the VNC server to support keyboard/mouse inputs
+
+  ret = vnc_default_fbinitialize(0, m_hNxServer);
+  if (ret < 0)
+    {
+      gdbg("CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
+      disconnect();
+      return false;
+    }
+#endif
+
   return true;
 }
 #endif // CONFIG_NX_MULTIUSER
@@ -253,6 +269,19 @@ bool CNxServer::connect(void)
   if (m_hNxServer)
     {
       pthread_attr_t attr;
+
+#ifdef CONFIG_VNCSERVER
+      // Setup the VNC server to support keyboard/mouse inputs
+
+      ret = vnc_default_fbinitialize(0, m_hNxServer);
+      if (ret < 0)
+        {
+          gdbg("CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
+          m_running = false;
+          disconnect();
+          return false;
+        }
+#endif
 
       // Start a separate thread to listen for server events.  This is probably
       // the least efficient way to do this, but it makes this logic flow more
