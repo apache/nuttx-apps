@@ -567,4 +567,8 @@
   and now stands alone in its own repository (2015-06-27).
 * Framebuffer driver parameters have changed.  This introduces an
   incompatibility with versions of NuttX prior to 7.16 (2016-04-14).
+* UnitTests: Add Make.defs files to all UnitTests directories.  This is
+  required by the current apps/Makefile.  Hmmm..  This means that no one
+  has built the NxWidgets packages in the last several realeases!
+  (2016-04-23).
 
