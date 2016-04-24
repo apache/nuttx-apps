@@ -60,6 +60,9 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
+#  ifdef CONFIG_VNCSERVER
+#    include <nuttx/video/vnc.h>
+#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -128,10 +131,10 @@ struct nximage_data_s g_nximage =
 static inline int nximage_initialize(void)
 {
   FAR NX_DRIVERTYPE *dev;
+  int ret;
 
 #if defined(CONFIG_EXAMPLES_NXIMAGE_EXTERNINIT)
   struct boardioc_graphics_s devinfo;
-  int ret;
 
   /* Use external graphics driver initialization */
 
@@ -152,8 +155,6 @@ static inline int nximage_initialize(void)
   dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
-  int ret;
-
   /* Initialize the LCD device */
 
   printf("nximage_initialize: Initializing LCD\n");
@@ -180,8 +181,6 @@ static inline int nximage_initialize(void)
 
   (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
 #else
-  int ret;
-
   /* Initialize the frame buffer device */
 
   printf("nximage_initialize: Initializing framebuffer\n");
@@ -213,9 +212,24 @@ static inline int nximage_initialize(void)
   if (!g_nximage.hnx)
     {
       printf("nximage_initialize: nx_open failed: %d\n", errno);
+
       g_nximage.code = NXEXIT_NXOPEN;
       return ERROR;
     }
+
+#ifdef CONFIG_VNCSERVER
+  /* Setup the VNC server to support keyboard/mouse inputs */
+
+  ret = vnc_default_fbinitialize(0, g_nximage.hnx);
+  if (ret < 0)
+    {
+      printf("vnc_default_fbinitialize failed: %d\n", ret);
+
+      g_nximage.code = NXEXIT_FBINITIALIZE;
+      nx_close(g_nximage.hnx);
+      return ERROR;
+    }
+#endif
 
   return OK;
 }

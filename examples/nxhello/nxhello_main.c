@@ -60,6 +60,9 @@
 #  include <nuttx/lcd/lcd.h>
 #else
 #  include <nuttx/video/fb.h>
+#  ifdef CONFIG_VNCSERVER
+#    include <nuttx/video/vnc.h>
+#  endif
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -124,10 +127,10 @@ struct nxhello_data_s g_nxhello =
 static inline int nxhello_initialize(void)
 {
   FAR NX_DRIVERTYPE *dev;
+  int ret;
 
 #if defined(CONFIG_EXAMPLES_NXHELLO_EXTERNINIT)
   struct boardioc_graphics_s devinfo;
-  int ret;
 
   /* Use external graphics driver initialization */
 
@@ -148,8 +151,6 @@ static inline int nxhello_initialize(void)
   dev = devinfo.dev;
 
 #elif defined(CONFIG_NX_LCDDRIVER)
-  int ret;
-
   /* Initialize the LCD device */
 
   printf("nxhello_initialize: Initializing LCD\n");
@@ -175,9 +176,8 @@ static inline int nxhello_initialize(void)
   /* Turn the LCD on at 75% power */
 
   (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
-  int ret;
 
+#else
   /* Initialize the frame buffer device */
 
   printf("nxhello_initialize: Initializing framebuffer\n");
@@ -212,6 +212,21 @@ static inline int nxhello_initialize(void)
       g_nxhello.code = NXEXIT_NXOPEN;
       return ERROR;
     }
+
+#ifdef CONFIG_VNCSERVER
+  /* Setup the VNC server to support keyboard/mouse inputs */
+
+  ret = vnc_default_fbinitialize(0, g_nxhello.hnx);
+  if (ret < 0)
+    {
+      printf("vnc_default_fbinitialize failed: %d\n", ret);
+
+      nx_close(g_nxhello.hnx);
+      g_nxhello.code = NXEXIT_FBINITIALIZE;
+      return ERROR;
+    }
+#endif
+
   return OK;
 }
 

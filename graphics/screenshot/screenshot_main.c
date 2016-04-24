@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/examples/screenshot/screenshot_main.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *           Petteri Aimonen <jpa@kapsi.fi>
  *
@@ -38,18 +38,23 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <semaphore.h>
 #include <errno.h>
 
 #include <apps/tiff.h>
 
-#include <semaphore.h>
-#include <nuttx/config.h>
 #include <nuttx/nx/nx.h>
+
+#ifdef CONFIG_VNCSERVER
+#  include <nuttx/video/vnc.h>
+#endif
 
 /****************************************************************************
  * Pre-Processor Definitions
@@ -118,15 +123,15 @@ static void replace_extension(FAR const char *filename, FAR const char *newext,
 int save_screenshot(FAR const char *filename)
 {
   struct tiff_info_s info;
-  FAR uint8_t *strip;
-  int row;
-  int ret;
-  char tempf1[64];
-  char tempf2[64];
-  NXHANDLE server;
-  NXWINDOW window;
   struct nx_callback_s cb = {};
   struct nxgl_size_s size = {CONFIG_SCREENSHOT_WIDTH, CONFIG_SCREENSHOT_HEIGHT};
+  FAR uint8_t *strip;
+  NXHANDLE server;
+  NXWINDOW window;
+  char tempf1[64];
+  char tempf2[64];
+  int row;
+  int ret;
 
   replace_extension(filename, ".tm1", tempf1, sizeof(tempf1));
   replace_extension(filename, ".tm2", tempf2, sizeof(tempf2));
@@ -135,19 +140,31 @@ int save_screenshot(FAR const char *filename)
 
   server = nx_connect();
   if (!server)
-  {
-    perror("nx_connect");
-    return 1;
-  }
+    {
+      perror("nx_connect");
+      return 1;
+    }
+
+#ifdef CONFIG_VNCSERVER
+  /* Setup the VNC server to support keyboard/mouse inputs */
+
+  ret = vnc_default_fbinitialize(0, server);
+  if (ret < 0)
+    {
+      printf("vnc_default_fbinitialize failed: %d\n", ret);
+      nx_disconnect(server);
+      return 1;
+    }
+#endif
 
   /* Wait for "connected" event */
 
   if (nx_eventhandler(server) < 0)
-  {
-    perror("nx_eventhandler");
-    nx_disconnect(server);
-    return 1;
-  }
+    {
+      perror("nx_eventhandler");
+      nx_disconnect(server);
+      return 1;
+    }
 
   /* Open invisible dummy window for communication */
 
