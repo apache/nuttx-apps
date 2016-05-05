@@ -26,7 +26,7 @@ config UAVCAN_LIBUAVCAN_URL
 
 config UAVCAN_LIBUAVCAN_VERSION
 	string "UAVCAN Version"
-	default "c152f28a620ceec9f63581a7c99fe77c89938048"
+	default "b04396ace50155573e545ed9bf2fb09964ee2367"
 	---help---
 		UAVCAN version.
 
