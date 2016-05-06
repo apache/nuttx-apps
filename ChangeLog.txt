@@ -1583,4 +1583,5 @@
 	  of the RTC driver (2016-04-03).
 	* apps/examples/nximage:  No configuration option to select
 	  greyscale.
-
+	* apps/canutils/uavcan: Update UAVCAN version.  From Paul Alexander
+	  Patience (2016-05-03)
