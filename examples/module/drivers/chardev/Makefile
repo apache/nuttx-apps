@@ -1,7 +1,7 @@
 ############################################################################
 # examples/module/drivers/chardev/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015-2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,9 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
+
+OBJEXT ?= .o
+DELIM ?= /
 
 ifeq ($(WINTOOL),y)
 NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)lib}"
@@ -71,6 +74,7 @@ SRCS = $(BIN).c
 OBJS = $(SRCS:.c=$(OBJEXT))
 
 all: $(BIN)
+.PHONY: clean install
 
 $(OBJS): %$(OBJEXT): %.c
 	@echo "CC: $<"

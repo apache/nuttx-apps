@@ -1,7 +1,7 @@
 ############################################################################
 # apps/platform/Makefile
 #
-#   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013-2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ endif
 # Build targets
 
 all: .built
-.PHONY: context .depend depend clean distclean
+.PHONY: $(TOPDIR)$(DELIM).config context .depend depend clean distclean
 
 ifneq ($(ASRCS),)
 $(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
@@ -115,6 +115,8 @@ endif
 	$(Q) touch .built
 
 # Build context setup
+
+$(TOPDIR)$(DELIM).config:
 
 $(PLATFORMDIR): $(TOPDIR)$(DELIM).config
 	@echo "LN: platform$(DELIM)board to $(LINKDIR)"

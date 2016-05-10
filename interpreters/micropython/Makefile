@@ -1,7 +1,7 @@
 ############################################################################
 # apps/ interpreters/micropython/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015, 2016 Gregory Nutt. All rights reserved.
 #   Authors: Gregory Nutt <gnutt@nuttx.org>
 #            Dave Marples <dave@marples.net>
 #
@@ -127,6 +127,7 @@ ROOTDEPPATH = --dep-path .
 # Common build
 
 all: .built
+.PHONY: install context clean distclean
 
 $(MICROPYTHON_TARBALL):
 	@echo "Downloading: $(MICROPYTHON_TARBALL)"

@@ -1585,3 +1585,7 @@
 	  greyscale.
 	* apps/canutils/uavcan: Update UAVCAN version.  From Paul Alexander
 	  Patience (2016-05-03)
+	* Several Makefiles: Add .PHONY definitions to prevent 'clean up to date'
+	  message weirdness; Add default definitions for some commonly used
+	  things when 'make clean' is used without .config or Make.defs files
+	  installed (2016-05-10).

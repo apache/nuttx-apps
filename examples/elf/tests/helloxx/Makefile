@@ -1,7 +1,7 @@
 ############################################################################
 # examples/elf/tests/helloxx/Makefile
 #
-#   Copyright (C) 2012, 2014-2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014-2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,9 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
+
+OBJEXT ?= .o
+DELIM ?= /
 
 ifeq ($(WINTOOL),y)
 NUTTXLIB = "${shell cygpath -w $(TOPDIR)$(DELIM)lib}"
@@ -98,6 +101,7 @@ LDLIBSTDC_STUBS_DIR	= $(TOPDIR)/libxx
 LDLIBSTDC_STUBS_LIB	= $(LDLIBSTDC_STUBS_DIR)/liblibxx.a
 
 all: $(BIN1) $(BIN2) $(BIN3) $(BIN4) $(BIN5)
+.PHONY: clean install
 
 $(OBJS): %$(OBJEXT): %.cpp
 	@echo "CC: $<"

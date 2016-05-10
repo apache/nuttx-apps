@@ -1,7 +1,7 @@
 ############################################################################
 # examples/elf/tests/struct/Makefile
 #
-#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,9 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
+
+OBJEXT ?= .o
+DELIM ?= /
 
 CELFFLAGS += -I.
 
@@ -70,6 +73,7 @@ SRCS = struct_main.c struct_dummy.c
 OBJS = $(SRCS:.c=$(OBJEXT))
 
 all: $(BIN)
+.PHONY: clean install
 
 $(OBJS): %$(OBJEXT): %.c
 	@echo "CC: $<"

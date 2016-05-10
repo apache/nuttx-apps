@@ -1,7 +1,7 @@
 ############################################################################
 # examples/thttpd/content/hello/Makefile
 #
-#   Copyright (C) 2009 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2009, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,15 +35,16 @@
 
 -include $(TOPDIR)/Make.defs
 
-BIN			= hello
+BIN = hello
 
-R1SRCS			= $(BIN).c
-R1OBJS			= $(R1SRCS:.c=.o)
+R1SRCS = $(BIN).c
+R1OBJS = $(R1SRCS:.c=.o)
 
-R2SRC			= $(BIN)-thunk.S
-R2OBJ			= $(R2SRC:.S=.o)
+R2SRC = $(BIN)-thunk.S
+R2OBJ = $(R2SRC:.S=.o)
 
 all: $(BIN)
+.PHONY: clean install
 
 $(R1OBJS): %.o: %.c
 	@echo "CC: $<"
