@@ -248,7 +248,7 @@ clean:
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
-	$(call DEFLFILE, .libuavcan_patched)
+	$(call DELFILE, .libuavcan_patched)
 	$(call DELDIR, $(LIBUAVCAN_UNPACKNAME))
 	$(call DELFILE, $(LIBUAVCAN_PACKNAME))
 	$(call DELDIR, $(DSDL_UNPACKNAME))
