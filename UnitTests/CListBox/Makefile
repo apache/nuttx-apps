@@ -1,7 +1,7 @@
 #################################################################################
 # NxWidgets/UnitTests/CListBox/Makefile
 #
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,10 @@
 TESTDIR := ${shell pwd | sed -e 's/ /\\ /g'}
 
 -include $(TOPDIR)/Make.defs
+
+OBJEXT ?= .o
+DELIM ?= /
+
 include $(APPDIR)$(DELIM)Make.defs
 
 # Add the path to the NXWidget include directory to the CFLAGS

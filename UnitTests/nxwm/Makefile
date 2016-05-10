@@ -36,6 +36,10 @@
 TESTDIR := ${shell pwd | sed -e 's/ /\\ /g'}
 
 -include $(TOPDIR)/Make.defs
+
+OBJEXT ?= .o
+DELIM ?= /
+
 include $(APPDIR)$(DELIM)Make.defs
 
 # Add the path to the NXWidget include directory to the CFLAGS

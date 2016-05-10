@@ -571,4 +571,7 @@
   required by the current apps/Makefile.  Hmmm..  This means that no one
   has built the NxWidgets packages in the last several realeases!
   (2016-04-23).
+* UnitTests: Add some default definitions to handle the (unusual) case
+  where 'make clean' is called with no .config or Make.defs file installed
+  (2016-05-10).
 
