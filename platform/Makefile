@@ -96,7 +96,7 @@ endif
 # Build targets
 
 all: .built
-.PHONY: $(TOPDIR)$(DELIM).config context .depend depend clean distclean
+.PHONY: context .depend depend clean distclean
 
 ifneq ($(ASRCS),)
 $(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
