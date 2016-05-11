@@ -309,7 +309,7 @@ int smp_main(int argc, char *argv[])
 
   for (i = 0; i < CONFIG_EXAMPLES_SMP_NBARRIER_THREADS; i++)
     {
-      if (threadid[i] != 0);
+      if (threadid[i] != 0)
         {
           ret = pthread_join(threadid[i], &result);
           show_cpu_conditional("  Main", 0);
