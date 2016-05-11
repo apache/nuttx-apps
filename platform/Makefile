@@ -36,7 +36,9 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
+CONFIG_ARCH_BOARD ?= dummy
 DELIM ?= $(strip /)
+
 include $(APPDIR)$(DELIM)Make.defs
 
 # Platform-specific Appliction Support
