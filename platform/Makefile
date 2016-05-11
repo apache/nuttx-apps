@@ -139,7 +139,7 @@ depend: .depend
 
 # Clean targets
 
-clean: $(PLATFORMDIR)
+clean:
 	$(call DELFILE, .built)
 	$(Q) $(MAKE) -C bin TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 
