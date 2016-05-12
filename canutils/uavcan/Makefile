@@ -1,7 +1,7 @@
 ############################################################################
 # apps/canutils/uavcan/Makefile
 #
-#   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
+#   Copyright (C) 2015-2016 Omni Hoverboards Inc. All rights reserved.
 #   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -177,31 +177,31 @@ all: .built
 .PHONY: clean depend distclean
 
 $(LIBUAVCAN_PACKNAME):
-	@echo "Downloading: $(LIBUAVCAN_PACKNAME)"
-	$(Q) $(WGET) -O $(LIBUAVCAN_PACKNAME) $(LIBUAVCAN_URL)$(DELIM)$(LIBUAVCAN_VERSION)$(PACKEXT)
+	@echo "Downloading: $@"
+	$(Q) $(WGET) -O $@ $(LIBUAVCAN_URL)$(DELIM)$(LIBUAVCAN_VERSION)$(PACKEXT)
 
 $(LIBUAVCAN_UNPACKNAME): $(LIBUAVCAN_PACKNAME)
-	@echo "Unpacking: $(LIBUAVCAN_PACKNAME) -> $(LIBUAVCAN_UNPACKNAME)"
-	$(Q) $(UNPACK) $(LIBUAVCAN_PACKNAME)
-	$(Q) touch $(LIBUAVCAN_UNPACKNAME)
+	@echo "Unpacking: $< -> $@"
+	$(Q) $(UNPACK) $<
+	$(Q) touch $@
 
 $(DSDL_PACKNAME):
-	@echo "Downloading: $(DSDL_PACKNAME)"
-	$(Q) $(WGET) -O $(DSDL_PACKNAME) $(DSDL_URL)$(DELIM)$(DSDL_VERSION)$(PACKEXT)
+	@echo "Downloading: $@"
+	$(Q) $(WGET) -O $@ $(DSDL_URL)$(DELIM)$(DSDL_VERSION)$(PACKEXT)
 
 $(DSDL_UNPACKNAME): $(DSDL_PACKNAME)
-	@echo "Unpacking: $(DSDL_PACKNAME) -> $(DSDL_UNPACKNAME)"
-	$(Q) $(UNPACK) $(DSDL_PACKNAME)
-	$(Q) touch $(DSDL_UNPACKNAME)
+	@echo "Unpacking: $< -> $@"
+	$(Q) $(UNPACK) $<
+	$(Q) touch $@
 
 $(PYUAVCAN_PACKNAME):
-	@echo "Downloading: $(PYUAVCAN_PACKNAME)"
-	$(Q) $(WGET) -O $(PYUAVCAN_PACKNAME) $(PYUAVCAN_URL)$(DELIM)$(PYUAVCAN_VERSION)$(PACKEXT)
+	@echo "Downloading: $@"
+	$(Q) $(WGET) -O $@ $(PYUAVCAN_URL)$(DELIM)$(PYUAVCAN_VERSION)$(PACKEXT)
 
 $(PYUAVCAN_UNPACKNAME): $(PYUAVCAN_PACKNAME)
-	@echo "Unpacking: $(PYUAVCAN_PACKNAME) -> $(PYUAVCAN_UNPACKNAME)"
-	$(Q) $(UNPACK) $(PYUAVCAN_PACKNAME)
-	$(Q) touch $(PYUAVCAN_UNPACKNAME)
+	@echo "Unpacking: $< -> $@"
+	$(Q) $(UNPACK) $<
+	$(Q) touch $@
 
 libuavcan: $(LIBUAVCAN_UNPACKNAME) $(DSDL_UNPACKNAME) $(PYUAVCAN_UNPACKNAME)
 	$(Q) cp -R $(LIBUAVCAN_UNPACKNAME) libuavcan
@@ -226,7 +226,7 @@ $(CXXOBJS): %$(OBJEXT): %$(CXXEXT)
 
 .built: $(CXXOBJS)
 	$(call ARCHIVE, $(BIN), $(CXXOBJS))
-	$(Q) touch .built
+	$(Q) touch $@
 
 install:
 
