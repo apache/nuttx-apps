@@ -6,5 +6,6 @@
 menu "CAN Utilities"
 
 source "$APPSDIR/canutils/uavcan/Kconfig"
+source "$APPSDIR/canutils/libcanard/Kconfig"
 
 endmenu # CAN Utilities

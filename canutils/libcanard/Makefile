@@ -1,0 +1,111 @@
+############################################################################
+# apps/canutils/libcanard/Makefile
+#
+#   Copyright (C) 2016 Omni Hoverboards Inc. All rights reserved.
+#   Authors: Paul Alexander Patience <paul-a.patience@polymtl.ca>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+-include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
+
+WGET = wget
+UNPACK = unzip
+PACKEXT = .zip
+
+LIBCANARD_URL = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_URL)))
+LIBCANARD_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_VERSION)))
+LIBCANARD_UNPACKNAME = libcanard-$(LIBCANARD_VERSION)
+LIBCANARD_PACKNAME = $(LIBCANARD_UNPACKNAME)$(PACKEXT)
+LIBCANARD_SRCDIR = $(LIBCANARD_UNPACKNAME)$(DELIM)src
+
+CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c
+COBJS = $(CSRCS:.c=$(OBJEXT))
+
+SRCS = $(CSRCS)
+OBJS = $(COBJS)
+
+ifeq ($(WINTOOL),y)
+  BIN = "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
+else
+  BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
+endif
+
+ROOTDEPPATH = --dep-path .
+
+VPATH =
+
+all: .built
+.PHONY: clean depend distclean
+
+$(LIBCANARD_PACKNAME):
+	@echo "Downloading: $@"
+	$(Q) $(WGET) -O $@ $(LIBCANARD_URL)$(DELIM)$(LIBCANARD_VERSION)$(PACKEXT)
+
+$(LIBCANARD_UNPACKNAME): $(LIBCANARD_PACKNAME)
+	@echo "Unpacking: $< -> $@"
+	$(Q) $(UNPACK) $<
+	$(Q) touch $@
+
+$(LIBCANARD_SRCDIR)$(DELIM)canard.h: $(LIBCANARD_UNPACKNAME)
+
+$(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h: $(LIBCANARD_SRCDIR)$(DELIM)canard.h
+	$(Q) cp $< $@
+
+$(COBJS): %$(OBJEXT): %.c
+	$(call COMPILE, $<, $@)
+
+.built: $(OBJS)
+	$(call ARCHIVE, $(BIN), $(OBJS))
+	$(Q) touch $@
+
+install:
+
+context: $(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h
+
+.depend: Makefile $(SRCS)
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
+
+depend: .depend
+
+clean:
+	$(call DELFILE, .built)
+	$(call CLEAN)
+	$(foreach OBJ, $(OBJS), $(call DELFILE, $(OBJ)))
+
+distclean: clean
+	$(call DELFILE, Make.dep)
+	$(call DELFILE, .depend)
+	$(call DELFILE, $(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h)
+	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
+	$(call DELFILE, $(LIBCANARD_PACKNAME))
+
+-include Make.dep
