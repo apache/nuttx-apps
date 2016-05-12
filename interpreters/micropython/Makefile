@@ -55,7 +55,7 @@ MICROPYTHON_UNPACKNAME = micropython-$(MICROPYTHON_VERSION)
 UNPACK ?= tar -zxf
 
 MICROPYTHON_UNPACKDIR =  $(WD)/$(MICROPYTHON_UNPACKNAME)
-MICROPTHYON_SRCDIR = $(MICROPYTHON_UNPACKDIR)/py
+MICROPYTHON_SRCDIR = $(MICROPYTHON_UNPACKDIR)/py
 
 # Get the Micro Python build environment.  mkenv.mk has these dependencies
 #
@@ -63,7 +63,7 @@ MICROPTHYON_SRCDIR = $(MICROPYTHON_UNPACKDIR)/py
 #  CROSS_COMPILE - Tool prefix (same as CROSSDEV in NuttX)
 
 CROSS_COMPILE ?= $(CROSSDEV)
--include $(MICROPTHYON_SRCDIR)/mkenv.mk
+-include $(MICROPYTHON_SRCDIR)/mkenv.mk
 
 # qstr definitions (must come before including py.mk)
 
@@ -71,7 +71,7 @@ QSTR_DEFS = qstrdefsport.h
 
 # Include py core make definitions
 
--include $(MICROPTHYON_SRCDIR)/py.mk
+-include $(MICROPYTHON_SRCDIR)/py.mk
 
 # c99 is needed for Micro Python
 
@@ -140,13 +140,13 @@ $(MICROPYTHON_UNPACKNAME): $(MICROPYTHON_TARBALL)
 
 .built: $(MICROPYTHON_UNPACKNAME) $(OBJ)
 	$(call ARCHIVE, $(BIN), $(OBJ))
-	@touch .built
+	@touch $@
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 $(BIN_DIR)$(DELIM)$(PROGNAME): $(MICROPYTHON_UNPACKNAME) $(OBJ) $(MAINOBJ)
 	@echo "LD: $(PROGNAME)"
 	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+	$(Q) $(NM) -u $(INSTALL_DIR)$(DELIM)$(PROGNAME)
 
 install: $(BIN_DIR)$(DELIM)$(PROGNAME)
 else
@@ -180,5 +180,5 @@ distclean: clean
 	$(call DELFILE, .downloaded)
 	$(call DELFILE, $(MICROPYTHON_TARBALL))
 
--include $(MICROPTHYON_SRCDIR)/mkrules.mk
+-include $(MICROPYTHON_SRCDIR)/mkrules.mk
 -include Make.dep
