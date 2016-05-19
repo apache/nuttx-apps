@@ -1589,3 +1589,11 @@
 	  message weirdness; Add default definitions for some commonly used
 	  things when 'make clean' is used without .config or Make.defs files
 	  installed (2016-05-10).
+	* apps/canutils/libcanard:  Add libcanard UAVCAN library. From Paul
+	  Alexander Patience (2016-05-12)
+	* apps/examples/watchdog: Remove call to up_wdginitialize().  This
+	  interface should not be accessed from application code (2016-05-18).
+	* apps/system/sched_note: Move the schduler note monitor from examples/
+	  to system/ (2016-05-18).
+	* apps/platform/nucleo-144: Add platform files for NUCLEO-144
+	  (NUCLEO-F746ZG).  From Mark Olsson (2016-05-19).
