@@ -9,6 +9,21 @@ config EXAMPLES_WATCHDOG
 	---help---
 		Enable the watchdog timer example
 
+		In order to use this example, board specific logic must register the
+		watchdog timer driver.  That would be in the board bring-up logic
+		in the configs/<board>/src directory for the board.
+
+		The way that this is done depends on the underlying MCU architecture.
+		For STM32, this would be done like:
+
+			#include "stm32_wdg.h"
+
+			#if defined(CONFIG_STM32_WWDG)
+			  stm32_wwdginitialize(CONFIG_STM32_WDG_DEVPATH);
+			#elif defined(CONFIG_STM32_IWDG)
+			  stm32_iwdginitialize(CONFIG_STM32_WDG_DEVPATH, CONFIG_STM32_LSIFREQ);
+			#endif
+
 if EXAMPLES_WATCHDOG
 
 config EXAMPLES_WATCHDOG_DEVPATH

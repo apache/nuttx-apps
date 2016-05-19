@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/watchdog/watchdog_main.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,10 +54,6 @@
 #include "watchdog.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
  * Private Types
  ****************************************************************************/
 
@@ -67,18 +63,6 @@ struct wdog_example_s
   uint32_t pingdelay;
   uint32_t timeout;
 };
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -237,17 +221,6 @@ int wdog_main(int argc, char *argv[])
   /* Parse the command line */
 
   parse_args(&wdog, argc, argv);
-
-  /* Initialization of the WATCHDOG hardware is performed by logic external to
-   * this test.
-   */
-
-  ret = up_wdginitialize();
-  if (ret != OK)
-    {
-      printf("wdog_main: up_wdginitialize failed: %d\n", ret);
-      goto errout;
-    }
 
   /* Open the watchdog device for reading */
 
