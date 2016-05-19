@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/note/Makefile
+# apps/system/note/Makefile
 #
 #   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,12 +37,12 @@
 
 # LED driver test built-in application info
 
-CONFIG_EXAMPLES_NOTE_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_NOTE_STACKSIZE ?= 2048
+CONFIG_SYSTEM_NOTE_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_SYSTEM_NOTE_STACKSIZE ?= 2048
 
 APPNAME = note
-PRIORITY = $(CONFIG_EXAMPLES_NOTE_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_NOTE_STACKSIZE)
+PRIORITY = $(CONFIG_SYSTEM_NOTE_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_NOTE_STACKSIZE)
 
 # LED driver test
 
@@ -50,7 +50,7 @@ ASRCS =
 CSRCS =
 MAINSRC = note_main.c
 
-CONFIG_EXAMPLES_NOTE_PROGNAME ?= note$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_NOTE_PROGNAME)
+CONFIG_SYSTEM_NOTE_PROGNAME ?= note$(EXEEXT)
+PROGNAME = $(CONFIG_SYSTEM_NOTE_PROGNAME)
 
 include $(APPDIR)/Application.mk

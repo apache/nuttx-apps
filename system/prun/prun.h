@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/prun/prun.h
+ * apps/system/prun/prun.h
  *
  *   Copyright (C) 2008 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_PASHELLO_H
-#define __EXAMPLES_PASHELLO_H
+#ifndef __APPS_SYSTEM_PRUN_H
+#define __APPS_SYSTEM_PRUN_H
 
 /****************************************************************************
  * Included Files
@@ -52,4 +52,4 @@
 
 extern void hello_register(void);
 
-#endif /* __EXAMPLES_PASHELLO_H */
+#endif /* __APPS_SYSTEM_PRUN_H */
