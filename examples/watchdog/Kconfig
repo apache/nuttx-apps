@@ -24,6 +24,13 @@ config EXAMPLES_WATCHDOG
 			  stm32_iwdginitialize(CONFIG_STM32_WDG_DEVPATH, CONFIG_STM32_LSIFREQ);
 			#endif
 
+		For some Atmel SAM configurations, the board-specific initialization
+		sequence would be like:
+
+			#include "sam_wdt.h"
+
+			sam_wdt_initialize();
+
 if EXAMPLES_WATCHDOG
 
 config EXAMPLES_WATCHDOG_DEVPATH
