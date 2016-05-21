@@ -2,7 +2,7 @@
 # apps/netutils/Make.defs
 # Adds selected applications to apps/ build
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in include and binary forms, with or without
@@ -46,8 +46,12 @@ ifeq ($(CONFIG_NETUTILS_DHCPC),y)
 CONFIGURED_APPS += netutils/dhcpc
 endif
 
-ifeq ($(CONFIG_NETUTILS_DHCPD),y)
-CONFIGURED_APPS += netutils/dhcpd
+ifeq ($(CONFIG_NETUTILS_ESP8266),y)
+CONFIGURED_APPS += netutils/esp8266
+endif
+
+ifeq ($(CONFIG_NETUTILS_FTPC),y)
+CONFIGURED_APPS += netutils/ftpc
 endif
 
 ifeq ($(CONFIG_NETUTILS_FTPC),y)
