@@ -106,10 +106,11 @@
 
 typedef struct
 {
-  int         flags;
-  int         nfifo;
-  sem_t       *sem;
-  uint8_t     rxbuf[SOCKET_FIFO_SIZE];
+  sem_t          *sem;
+  uint8_t         flags;
+  uint16_t        in;
+  uint16_t        out;
+  uint8_t         rxbuf[SOCKET_FIFO_SIZE];
 } lesp_socket_t;
 
 typedef struct
@@ -117,7 +118,7 @@ typedef struct
   bool            running;
   pthread_t       thread;
   uint8_t         buf[BUF_WORKER_LEN];
-  int             buf_size;
+  int             bufsize;
 } lesp_worker_t;
 
 typedef struct
@@ -129,8 +130,8 @@ typedef struct
   lesp_socket_t   sockets[SOCKET_NBR];
   sem_t           sem;
   char            buf[BUF_ANS_LEN];
-  char            buf_ans[BUF_ANS_LEN];
-  char            buf_cmd[BUF_CMD_LEN];
+  char            bufans[BUF_ANS_LEN];
+  char            bufcmd[BUF_CMD_LEN];
 } lesp_state_t;
 
 /****************************************************************************
@@ -273,7 +274,7 @@ static inline int lesp_read_ipd(void)
 
   /* Put a null at end */
 
-  *(ptr + g_lesp_state.worker.buf_size) = '\0';
+  *(ptr + g_lesp_state.worker.bufsize) = '\0';
 
   if (memcmp(ptr,"+IPD,",5) != 0)
     {
@@ -327,11 +328,11 @@ static inline int lesp_read_ipd(void)
       while(size --)
         {
           uint8_t b = *buf++;
-          if (sock->nfifo < SOCKET_FIFO_SIZE)
+          if (sock->in < SOCKET_FIFO_SIZE)
             {
-              int ndx = sock->nfifo;
+              int ndx = sock->in;
               sock->rxbuf[ndx] = b;
-              sock->nfifo = ndx + 1;
+              sock->in = ndx + 1;
             }
           else
             {
@@ -369,17 +370,17 @@ int lesp_vsend_cmd(FAR const IPTR char *format, va_list ap)
 {
   int ret = 0;
 
-  ret = vsnprintf(g_lesp_state.buf_cmd,BUF_CMD_LEN,format,ap);
+  ret = vsnprintf(g_lesp_state.bufcmd,BUF_CMD_LEN,format,ap);
   if (ret >= BUF_CMD_LEN)
     {
-      g_lesp_state.buf_cmd[BUF_CMD_LEN-1]='\0';
-      syslog(LOG_DEBUG, "Buffer too small for '%s'...\n", g_lesp_state.buf_cmd);
+      g_lesp_state.bufcmd[BUF_CMD_LEN-1]='\0';
+      syslog(LOG_DEBUG, "Buffer too small for '%s'...\n", g_lesp_state.bufcmd);
       ret = -1;
     }
 
-  syslog(LOG_DEBUG, "Write:%s\n", g_lesp_state.buf_cmd);
+  syslog(LOG_DEBUG, "Write:%s\n", g_lesp_state.bufcmd);
 
-  ret = write(g_lesp_state.fd,g_lesp_state.buf_cmd,ret);
+  ret = write(g_lesp_state.fd,g_lesp_state.bufcmd,ret);
   if (ret < 0)
     {
       ret = -1;
@@ -462,7 +463,7 @@ static int lesp_read(int timeout_ms)
       ret = strlen(g_lesp_state.buf);
       if (ret > 0)
         {
-          memcpy(g_lesp_state.buf_ans,g_lesp_state.buf,ret+1); /* +1 to copy null */
+          memcpy(g_lesp_state.bufans,g_lesp_state.buf,ret+1); /* +1 to copy null */
         }
 
       g_lesp_state.buf[0] = '\0';
@@ -472,7 +473,7 @@ static int lesp_read(int timeout_ms)
     }
   while (ret == 0);
 
-  syslog(LOG_DEBUG, "read %d=>%s\n", ret, g_lesp_state.buf_ans);
+  syslog(LOG_DEBUG, "read %d=>%s\n", ret, g_lesp_state.bufans);
 
   return ret;
 }
@@ -523,22 +524,22 @@ int lesp_read_ans_ok(int timeout_ms)
 
       /* Answers sorted in probability case */
 
-      if (strcmp(g_lesp_state.buf_ans,"OK") == 0)
+      if (strcmp(g_lesp_state.bufans,"OK") == 0)
         {
           return 0;
         }
 
-      if (strcmp(g_lesp_state.buf_ans,"FAIL") == 0)
+      if (strcmp(g_lesp_state.bufans,"FAIL") == 0)
         {
           return -1;
         }
 
-      if (strcmp(g_lesp_state.buf_ans,"ERROR") == 0)
+      if (strcmp(g_lesp_state.bufans,"ERROR") == 0)
         {
           return -1;
         }
 
-      syslog(LOG_INFO,"Got:%s\n",g_lesp_state.buf_ans);
+      syslog(LOG_INFO,"Got:%s\n",g_lesp_state.bufans);
 
       /* Ro quit in case of message flooding */
     }
@@ -710,7 +711,7 @@ static void *lesp_worker(void *args)
 
   pthread_mutex_lock(&g_lesp_state.mutex);
   syslog(LOG_INFO,"worker Started \n");
-  p->buf_size = 0;
+  p->bufsize = 0;
   pthread_mutex_unlock(&g_lesp_state.mutex);
 
   while(p->running)
@@ -730,23 +731,23 @@ static void *lesp_worker(void *args)
           pthread_mutex_lock(&g_lesp_state.mutex);
           if (c == '\n')
             {
-              if (p->buf[p->buf_size-1] == '\r')
+              if (p->buf[p->bufsize-1] == '\r')
                 {
-                  p->buf_size--;
+                  p->bufsize--;
                 }
 
-              if (p->buf_size != 0)
+              if (p->bufsize != 0)
                 {
-                  p->buf[p->buf_size] = '\0';
-                  memcpy(g_lesp_state.buf,p->buf,p->buf_size+1);
+                  p->buf[p->bufsize] = '\0';
+                  memcpy(g_lesp_state.buf,p->buf,p->bufsize+1);
                   syslog(LOG_DEBUG, "Read data:%s\n", g_lesp_state.buf);
                   sem_post(&g_lesp_state.sem);
-                  p->buf_size = 0;
+                  p->bufsize = 0;
                 }
             }
-          else if (p->buf_size < BUF_ANS_LEN-1)
+          else if (p->bufsize < BUF_ANS_LEN - 1)
             {
-              p->buf[p->buf_size++] = c;
+              p->buf[p->bufsize++] = c;
             }
           else
             {
@@ -757,7 +758,7 @@ static void *lesp_worker(void *args)
 
           if ((c == ':') && (lesp_read_ipd() != 0))
             {
-              p->buf_size = 0;
+              p->bufsize = 0;
             }
         }
     }
@@ -1082,14 +1083,14 @@ int lesp_list_access_points(lesp_cb_t cb)
           continue;
         }
 
-      syslog(LOG_DEBUG, "Read:%s.\n", g_lesp_state.buf_ans);
+      syslog(LOG_DEBUG, "Read:%s.\n", g_lesp_state.bufans);
 
-      if (strcmp(g_lesp_state.buf_ans,"OK") == 0)
+      if (strcmp(g_lesp_state.bufans,"OK") == 0)
         {
           break;
         }
 
-      ret = lesp_parse_cwlap_ans_line(g_lesp_state.buf_ans,&ap);
+      ret = lesp_parse_cwlap_ans_line(g_lesp_state.bufans,&ap);
       if (ret < 0)
         {
           syslog(LOG_ERR, "Line badly formed.");
@@ -1183,7 +1184,8 @@ int lesp_closesocket(int sockfd)
 
       memset(sock, 0, sizeof(lesp_socket_t));
       sock->flags = 0;
-      sock->nfifo = 0;
+      sock->in    = 0;
+      sock->out   = 0;
     }
 
   if (ret < 0)
@@ -1282,7 +1284,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
   while (ret >= 0)
     {
-      char * ptr = g_lesp_state.buf_ans;
+      char * ptr = g_lesp_state.bufans;
       ret = lesp_read(lespTIMEOUT_MS);
 
       if (ret < 0)
@@ -1338,7 +1340,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
       ret = -1;
     }
 
-  if (ret >= 0 && sock->nfifo == 0)
+  if (ret >= 0 && sock->in == 0)
     {
       struct timespec ts;
 
@@ -1350,7 +1352,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
         {
           ts.tv_sec += lespTIMEOUT_MS_RECV_S;
           sock->sem = &sem;
-          while (ret >= 0 && sock->nfifo == 0)
+          while (ret >= 0 && sock->in == 0)
             {
               pthread_mutex_unlock(&g_lesp_state.mutex);
               ret = sem_timedwait(&sem,&ts);
@@ -1364,11 +1366,11 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
   if (ret >= 0)
     {
       ret = 0;
-      while (ret < len && sock->nfifo > 0)
+      while (ret < len && sock->out < sock->in)
         {
-          int ndx = sock->nfifo - 1;
+          int ndx = sock->out;
           *buf++ = sock->rxbuf[ndx];
-          sock->nfifo = ndx;
+          sock->out = ndx + 1;
           ret++;
         }
     }
