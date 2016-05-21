@@ -52,7 +52,7 @@
 
 #define lespBSSID_SIZE 6 
 
-#define lespIP(x1,x2,x3,x4) ( (x1)<<24 |(x2)<<16 |(x3)<<8 |(x4)<<0 )
+#define lespIP(x1,x2,x3,x4) ((x1) << 24 | (x2) << 16 | (x3) << 8 | (x4) << 0)
 
 /****************************************************************************
  * Public Types
@@ -62,7 +62,7 @@ typedef enum
 {
   lesp_eMODE_AP       = 0,
   lesp_eMODE_STATION  = 1,
-  lesp_eMODE_BOTH     = 2,
+  lesp_eMODE_BOTH     = 2
 } lesp_mode_t;
 
 typedef enum

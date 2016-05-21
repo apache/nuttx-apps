@@ -1407,7 +1407,7 @@ int lesp_gethostbyname(char *hostname, uint16_t usNameLen,
 int lesp_mdnsadvertiser(uint16_t mdnsEnabled, char *deviceServiceName,
                         uint16_t deviceServiceNameLength)
 {
-  syslog(LOG_ERR, "Not implemented %s\n",__func__);
+  syslog(LOG_ERR, "Not implemented %s\n", __func__);
   return -1;
 }
 
