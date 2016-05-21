@@ -11,23 +11,23 @@ config NETUTILS_ESP8266
 
 if NETUTILS_ESP8266
 
-config ESP8266_DEV_PATH
+config NETUTILS_ESP8266_DEV_PATH
 	string "Serial device path"
 	default "/dev/ttyS1"
 
-config ESP8266_BAUDRATE
+config NETUTILS_ESP8266_BAUDRATE
 	int "Serial BAUD rate"
 	default 115200
 
-config WIFI_MAX_TX_LEN
+config NETUTILS_ESP8266_MAXTXLEN
 	int "Max. TX length"
 	default 256
 
-config WIFI_MAX_RX_LEN
+config NETUTILS_ESP8266_MAXRXLEN
 	int "Max. RX length"
 	default 256
 
-config LESP_THREAD_PRIO
+config NETUTILS_ESP8266_THREADPRIO
 	int "Worker thread priority"
 	default 100
 

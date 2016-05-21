@@ -65,16 +65,16 @@
 
 #define NETAPP_IPCONFIG_MAC_OFFSET     (20)
 
-#ifndef CONFIG_WIFI_MAX_TX_LEN
-#   define CONFIG_WIFI_MAX_TX_LEN  256
+#ifndef CONFIG_NETUTILS_ESP8266_MAXTXLEN
+#   define CONFIG_NETUTILS_ESP8266_MAXTXLEN  256
 #endif
 
-#ifndef CONFIG_WIFI_MAX_RX_LEN
-#   define CONFIG_WIFI_MAX_RX_LEN  256
+#ifndef CONFIG_NETUTILS_ESP8266_MAXRXLEN
+#   define CONFIG_NETUTILS_ESP8266_MAXRXLEN  256
 #endif
 
-#define BUF_CMD_LEN     CONFIG_WIFI_MAX_TX_LEN
-#define BUF_ANS_LEN     CONFIG_WIFI_MAX_RX_LEN
+#define BUF_CMD_LEN     CONFIG_NETUTILS_ESP8266_MAXTXLEN
+#define BUF_ANS_LEN     CONFIG_NETUTILS_ESP8266_MAXRXLEN
 #define BUF_WORKER_LEN  1024
 
 #define CON_NBR 4
@@ -846,26 +846,26 @@ int lesp_initialize(void)
 
   if (g_lesp_state.fd < 0)
     {
-      g_lesp_state.fd = open(CONFIG_ESP8266_DEV_PATH, O_RDWR);
+      g_lesp_state.fd = open(CONFIG_NETUTILS_ESP8266_DEV_PATH, O_RDWR);
     }
 
   if (g_lesp_state.fd < 0)
     {
-      syslog(LOG_ERR,"Cannot open %s.\n", CONFIG_ESP8266_DEV_PATH);
+      syslog(LOG_ERR,"Cannot open %s.\n", CONFIG_NETUTILS_ESP8266_DEV_PATH);
       ret = -1;
     }
 
 #if 0 // lesp_set_baudrate is not defined
-  if (ret >= 0 && lesp_set_baudrate(g_lesp_state.fd, CONFIG_ESP8266_BAUDRATE) < 0)
+  if (ret >= 0 && lesp_set_baudrate(g_lesp_state.fd, CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
     {
-      syslog(LOG_ERR,"Cannot set baud rate %d.\n", CONFIG_ESP8266_BAUDRATE);
+      syslog(LOG_ERR,"Cannot set baud rate %d.\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
       ret = -1;
     }
 #endif
 
   if ((ret >= 0) && (g_lesp_state.worker.running == false))
     {
-      ret = lesp_create_worker(CONFIG_LESP_THREAD_PRIO);
+      ret = lesp_create_worker(CONFIG_NETUTILS_ESP8266_THREADPRIO);
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -1338,9 +1338,10 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
       ret = -1;
     }
 
-  if ((ret >= 0) && (sock->nfifo == 0))
+  if (ret >= 0 && sock->nfifo == 0)
     {
       struct timespec ts;
+
       if (clock_gettime(CLOCK_REALTIME,&ts) < 0)
         {
           ret = -1;
@@ -1349,7 +1350,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
         {
           ts.tv_sec += lespTIMEOUT_MS_RECV_S;
           sock->sem = &sem;
-          while ((ret >= 0) && (sock->nfifo == 0))
+          while (ret >= 0 && sock->nfifo == 0)
             {
               pthread_mutex_unlock(&g_lesp_state.mutex);
               ret = sem_timedwait(&sem,&ts);
@@ -1365,9 +1366,9 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
       ret = 0;
       while (ret < len && sock->nfifo > 0)
         {
-          int ndx = sock->nfifo;
+          int ndx = sock->nfifo - 1;
           *buf++ = sock->rxbuf[ndx];
-          sock->nfifo = ndx - 1;
+          sock->nfifo = ndx;
           ret++;
         }
     }
