@@ -108,8 +108,8 @@ typedef struct
 {
   sem_t          *sem;
   uint8_t         flags;
-  uint16_t        in;
-  uint16_t        out;
+  uint16_t        inndx;
+  uint16_t        outndx;
   uint8_t         rxbuf[SOCKET_FIFO_SIZE];
 } lesp_socket_t;
 
@@ -324,17 +324,41 @@ static inline int lesp_read_ipd(void)
 
       len -= size;
       pthread_mutex_lock(&g_lesp_state.mutex);
-      while(size --)
+      while (size--)
         {
-          uint8_t b = *buf++;
-          if (sock->in < SOCKET_FIFO_SIZE)
+          int next;
+          uint8_t b;
+
+          /* Read the next byte from the buffer */
+
+          b    = *buf++;
+
+          /* Pre-calculate the next 'inndx'.  We do this so that we can
+           * check if the FIFO is full.
+           */
+
+          next = sock->inndx + 1;
+          if (next >= SOCKET_FIFO_SIZE)
             {
-              int ndx = sock->in;
-              sock->rxbuf[ndx] = b;
-              sock->in = ndx + 1;
+              next -= SOCKET_FIFO_SIZE;
+            }
+
+          /* Is there space in the circular buffer for another byte?  If
+           * the next 'inndx' would be equal to the 'outndx', then the
+           * circular buffer is full.
+           */
+
+          if (next != sock->outndx)
+            {
+              /* Yes.. add the byte to the circular buffer */
+
+              sock->rxbuf[sock->inndx] = b;
+              sock->inndx = next;
             }
           else
             {
+              /* No.. the we have lost data */
+
               nvdbg("overflow socket 0x%02X\n", b);
             }
         }
@@ -1181,9 +1205,9 @@ int lesp_closesocket(int sockfd)
                             sockfd);
 
       memset(sock, 0, sizeof(lesp_socket_t));
-      sock->flags = 0;
-      sock->in    = 0;
-      sock->out   = 0;
+      sock->flags  = 0;
+      sock->inndx  = 0;
+      sock->outndx = 0;
     }
 
   if (ret < 0)
@@ -1338,7 +1362,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
       ret = -1;
     }
 
-  if (ret >= 0 && sock->in == 0)
+  if (ret >= 0 && sock->inndx == sock->outndx)
     {
       struct timespec ts;
 
@@ -1350,7 +1374,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
         {
           ts.tv_sec += lespTIMEOUT_MS_RECV_S;
           sock->sem = &sem;
-          while (ret >= 0 && sock->in == 0)
+          while (ret >= 0 && sock->inndx == sock->outndx)
             {
               pthread_mutex_unlock(&g_lesp_state.mutex);
               ret = sem_timedwait(&sem,&ts);
@@ -1364,11 +1388,24 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
   if (ret >= 0)
     {
       ret = 0;
-      while (ret < len && sock->out < sock->in)
+      while (ret < len && sock->outndx != sock->inndx)
         {
-          int ndx = sock->out;
-          *buf++ = sock->rxbuf[ndx];
-          sock->out = ndx + 1;
+          /* Remove one byte from the circular buffer */
+
+          int ndx = sock->outndx;
+          *buf++  = sock->rxbuf[ndx];
+
+          /* Increment the circular buffer 'outndx' */
+
+          if (++ndx >= SOCKET_FIFO_SIZE)
+            {
+              ndx -= SOCKET_FIFO_SIZE;
+            }
+
+          sock->outndx = ndx;
+
+          /* Increment the count of bytes returned */
+
           ret++;
         }
     }

@@ -1,7 +1,7 @@
 ############################################################################
 # apps/netutils/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 
 # Sub-directories
 
-SUBDIRS  = chat json codecs
+SUBDIRS  = chat json codecs esp8266
 ifeq ($(CONFIG_NET),y)
 SUBDIRS += netlib dhcpc dhcpd discover ftpc ftpd smtp telnetd
 SUBDIRS += webclient webserver tftpc thttpd xmlrpc pppd

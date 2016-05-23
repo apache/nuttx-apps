@@ -40,11 +40,7 @@ include $(APPDIR)/Make.defs
 # ESP8266 Library
 
 ASRCS =
-CSRCS =
-
-ifeq ($(CONFIG_NET_TCP),y)
-CSRCS += esp8266.c
-endif
+CSRCS = esp8266.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
