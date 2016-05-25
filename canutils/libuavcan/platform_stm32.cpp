@@ -1,7 +1,7 @@
 /****************************************************************************
- * canutils/uavcan/uavcan_platform.cpp
+ * canutils/libuavcan/platform_stm32.cpp
  *
- *   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
+ *   Copyright (C) 2015-2016 Omni Hoverboards Inc. All rights reserved.
  *   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,9 @@
  * Configuration
  ****************************************************************************/
 
-#if CONFIG_UAVCAN_RX_QUEUE_CAPACITY == 0
-#  undef CONFIG_UAVCAN_RX_QUEUE_CAPACITY
-#  define CONFIG_UAVCAN_RX_QUEUE_CAPACITY
+#if CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY == 0
+#  undef CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY
+#  define CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY
 #endif
 
 /****************************************************************************
@@ -58,7 +58,8 @@
 
 static void delay(void)
 {
-  std::usleep(uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY>::
+  std::usleep(uavcan_stm32::
+              CanInitHelper<CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY>::
               getRecommendedListeningDelay().toUSec());
 }
 
@@ -68,22 +69,22 @@ static void delay(void)
 
 uavcan::ICanDriver &getCanDriver(void)
 {
-  static uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY> can;
+  static uavcan_stm32::CanInitHelper<CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY> can;
   static bool initialized = false;
 
   if (!initialized)
     {
-      uavcan::uint32_t bitrate = CONFIG_UAVCAN_BIT_RATE;
+      uavcan::uint32_t bitrate = CONFIG_LIBUAVCAN_BIT_RATE;
 
-#if CONFIG_UAVCAN_INIT_RETRIES > 0
+#if CONFIG_LIBUAVCAN_INIT_RETRIES > 0
       int retries = 0;
 #endif
 
       while (can.init(delay, bitrate) < 0)
         {
-#if CONFIG_UAVCAN_INIT_RETRIES > 0
+#if CONFIG_LIBUAVCAN_INIT_RETRIES > 0
           retries++;
-          if (retries >= CONFIG_UAVCAN_INIT_RETRIES)
+          if (retries >= CONFIG_LIBUAVCAN_INIT_RETRIES)
             {
               PANIC();
             }
