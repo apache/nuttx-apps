@@ -50,8 +50,8 @@ ifeq ($(CONFIG_NETUTILS_ESP8266),y)
 CONFIGURED_APPS += netutils/esp8266
 endif
 
-ifeq ($(CONFIG_NETUTILS_FTPC),y)
-CONFIGURED_APPS += netutils/ftpc
+ifeq ($(CONFIG_NETUTILS_DHCPD),y)
+CONFIGURED_APPS += netutils/dhcpd
 endif
 
 ifeq ($(CONFIG_NETUTILS_FTPC),y)
