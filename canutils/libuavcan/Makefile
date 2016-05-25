@@ -182,6 +182,7 @@ $(LIBUAVCAN_PACKNAME):
 
 $(LIBUAVCAN_UNPACKNAME): $(LIBUAVCAN_PACKNAME)
 	@echo "Unpacking: $< -> $@"
+	$(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
 
@@ -191,6 +192,7 @@ $(DSDL_PACKNAME):
 
 $(DSDL_UNPACKNAME): $(DSDL_PACKNAME)
 	@echo "Unpacking: $< -> $@"
+	$(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
 
@@ -200,11 +202,13 @@ $(PYUAVCAN_PACKNAME):
 
 $(PYUAVCAN_UNPACKNAME): $(PYUAVCAN_PACKNAME)
 	@echo "Unpacking: $< -> $@"
+	$(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
 
 libuavcan: $(LIBUAVCAN_UNPACKNAME) $(DSDL_UNPACKNAME) $(PYUAVCAN_UNPACKNAME)
-	$(Q) cp -R $(LIBUAVCAN_UNPACKNAME) libuavcan
+	$(call DELDIR, $@)
+	$(Q) cp -R $(LIBUAVCAN_UNPACKNAME) $@
 	$(Q) if [ -r $(LIBUAVCAN_PATCHNAME) ]; then \
 		cat $(LIBUAVCAN_PATCHNAME) | patch -p0 || { echo "ERROR: Patch failed"; exit 1; }; \
 		fi
