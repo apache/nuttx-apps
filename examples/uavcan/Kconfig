@@ -6,7 +6,7 @@
 config EXAMPLES_UAVCAN
 	bool "UAVCAN example"
 	default n
-	depends on CANUTILS_UAVCAN
+	depends on CANUTILS_LIBUAVCAN
 	---help---
 		Enable the UAVCAN example
 
