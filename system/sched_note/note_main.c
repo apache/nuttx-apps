@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/note/note_main.c
+ * system/note/note_main.c
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -54,7 +54,7 @@
  ****************************************************************************/
 
 static bool g_note_daemon_started;
-static uint8_t g_note_buffer[CONFIG_EXAMPLES_NOTE_BUFFERSIZE];
+static uint8_t g_note_buffer[CONFIG_SYSTEM_NOTE_BUFFERSIZE];
 
 /* Names of task/thread states */
 
@@ -377,13 +377,13 @@ static int note_daemon(int argc, char *argv[])
 
   for (; ; )
     {
-      nread = read(fd, g_note_buffer, CONFIG_EXAMPLES_NOTE_BUFFERSIZE);
+      nread = read(fd, g_note_buffer, CONFIG_SYSTEM_NOTE_BUFFERSIZE);
       if (nread > 0)
         {
           dump_notes(nread);
         }
 
-      usleep(CONFIG_EXAMPLES_NOTE_DELAY * 1000L);
+      usleep(CONFIG_SYSTEM_NOTE_DELAY * 1000L);
     }
 
   (void)close(fd);
@@ -422,8 +422,8 @@ int note_main(int argc, FAR char *argv[])
   ledargv[0] = "note_daemon";
   ledargv[1] = NULL;
 
-  ret = task_create("note_daemon", CONFIG_EXAMPLES_NOTE_PRIORITY,
-                    CONFIG_EXAMPLES_NOTE_STACKSIZE, note_daemon,
+  ret = task_create("note_daemon", CONFIG_SYSTEM_NOTE_PRIORITY,
+                    CONFIG_SYSTEM_NOTE_STACKSIZE, note_daemon,
                     (FAR char * const *)ledargv);
   if (ret < 0)
     {

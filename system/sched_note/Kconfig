@@ -3,16 +3,16 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_NOTE
-	bool "Scheduler instrumentation example"
+config SYSTEM_NOTE
+	bool "Scheduler monitor"
 	default n
 	depends on DRIVER_NOTE
 	---help---
-		Enable the schedler instrumentation example
+		Enable the schedler instrumentation monitor
 
-if EXAMPLES_NOTE
+if SYSTEM_NOTE
 
-config EXAMPLES_NOTE_PROGNAME
+config SYSTEM_NOTE_PROGNAME
 	string "Program name"
 	default "note"
 	depends on BUILD_KERNEL
@@ -20,20 +20,20 @@ config EXAMPLES_NOTE_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config EXAMPLES_NOTE_PRIORITY
+config SYSTEM_NOTE_PRIORITY
 	int "Note daemon task priority"
 	default 100
 
-config EXAMPLES_NOTE_STACKSIZE
+config SYSTEM_NOTE_STACKSIZE
 	int "Note daemon stack size"
 	default 2048
 
-config EXAMPLES_NOTE_BUFFERSIZE
+config SYSTEM_NOTE_BUFFERSIZE
 	int "Note daemon I/O buffer size"
 	default 1024
 
-config EXAMPLES_NOTE_DELAY
+config SYSTEM_NOTE_DELAY
 	int "Note daemon sample delay (msec)"
 	default 1000
 
-endif # EXAMPLES_NOTE
+endif # SYSTEM_NOTE

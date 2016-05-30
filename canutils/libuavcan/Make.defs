@@ -1,8 +1,8 @@
 ############################################################################
-# examples/thttpd/content/hello/Makefile
+# apps/canutils/libuavcan/Make.defs
 #
-#   Copyright (C) 2009, 2016 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2015-2016 Omni Hoverboards Inc. All rights reserved.
+#   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,50 +33,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-BIN = hello
-
-R1SRCS = $(BIN).c
-R1OBJS = $(R1SRCS:.c=.o)
-
-R2SRC = $(BIN)-thunk.S
-R2OBJ = $(R2SRC:.S=.o)
-
-all: $(BIN)
-.PHONY: clean install
-
-$(R1OBJS): %.o: %.c
-	@echo "CC: $<"
-	$(Q) $(CC) -c $(CPICFLAGS) $< -o $@
-
-$(R2OBJ): %.o: %.S
-	@echo "AS: $<"
-	$(Q) $(CC) -c $(CPICFLAGS) $< -o $@
-
-$(BIN).r1: $(R1OBJS)
-	@echo "LD: $<"
-	$(Q) $(LD) $(NXFLATLDFLAGS1) -o $@ $^
-
-$(R2SRC): $(BIN).r1
-	@echo "MK: $<"
-	$(Q) $(MKNXFLAT) -o $@ $^
-
-$(BIN).r2: $(R2OBJ)
-	@echo "LD: $<"
-	$(Q) $(LD) $(NXFLATLDFLAGS2) -o $@ $(R1OBJS) $(R2OBJ)
-
-$(BIN): $(BIN).r2
-	@echo "LD: $<"
-	$(Q) $(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
-
-clean:
-	$(call DELFILE, $(BIN))
-	$(call DELFILE, $(R2SRC))
-	$(call DELFILE, *.r1)
-	$(call DELFILE, *.r2)
-	$(call CLEAN)
-
-install:
-	$(Q) install -m 0755 -D $(BIN) $(CGI_DIR)/$(BIN)
-
+ifeq ($(CONFIG_CANUTILS_LIBUAVCAN),y)
+CONFIGURED_APPS += canutils/libuavcan
+endif

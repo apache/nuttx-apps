@@ -1,8 +1,9 @@
 ############################################################################
-# apps/examples/note/Makefile
+# apps/platform/nucleo-144/Make.defs
 #
-#   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Author: Mark Olsson <post@markolsson.se>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,24 +34,8 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
+# Add platform specific sources to ASRCS and CSRCS
 
-# LED driver test built-in application info
-
-CONFIG_EXAMPLES_NOTE_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_NOTE_STACKSIZE ?= 2048
-
-APPNAME = note
-PRIORITY = $(CONFIG_EXAMPLES_NOTE_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_NOTE_STACKSIZE)
-
-# LED driver test
-
-ASRCS =
-CSRCS =
-MAINSRC = note_main.c
-
-CONFIG_EXAMPLES_NOTE_PROGNAME ?= note$(EXEEXT)
-PROGNAME = $(CONFIG_EXAMPLES_NOTE_PROGNAME)
-
-include $(APPDIR)/Application.mk
+ifeq ($(CONFIG_HAVE_CXX),y)
+CSRCS += stm32_cxxinitialize.c
+endif

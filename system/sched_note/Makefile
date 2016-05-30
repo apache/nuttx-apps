@@ -1,7 +1,7 @@
 ############################################################################
-# examples/thttpd/content/hello/Makefile
+# apps/system/note/Makefile
 #
-#   Copyright (C) 2009, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,48 +35,22 @@
 
 -include $(TOPDIR)/Make.defs
 
-BIN = hello
+# LED driver test built-in application info
 
-R1SRCS = $(BIN).c
-R1OBJS = $(R1SRCS:.c=.o)
+CONFIG_SYSTEM_NOTE_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_SYSTEM_NOTE_STACKSIZE ?= 2048
 
-R2SRC = $(BIN)-thunk.S
-R2OBJ = $(R2SRC:.S=.o)
+APPNAME = note
+PRIORITY = $(CONFIG_SYSTEM_NOTE_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_NOTE_STACKSIZE)
 
-all: $(BIN)
-.PHONY: clean install
+# LED driver test
 
-$(R1OBJS): %.o: %.c
-	@echo "CC: $<"
-	$(Q) $(CC) -c $(CPICFLAGS) $< -o $@
+ASRCS =
+CSRCS =
+MAINSRC = note_main.c
 
-$(R2OBJ): %.o: %.S
-	@echo "AS: $<"
-	$(Q) $(CC) -c $(CPICFLAGS) $< -o $@
+CONFIG_SYSTEM_NOTE_PROGNAME ?= note$(EXEEXT)
+PROGNAME = $(CONFIG_SYSTEM_NOTE_PROGNAME)
 
-$(BIN).r1: $(R1OBJS)
-	@echo "LD: $<"
-	$(Q) $(LD) $(NXFLATLDFLAGS1) -o $@ $^
-
-$(R2SRC): $(BIN).r1
-	@echo "MK: $<"
-	$(Q) $(MKNXFLAT) -o $@ $^
-
-$(BIN).r2: $(R2OBJ)
-	@echo "LD: $<"
-	$(Q) $(LD) $(NXFLATLDFLAGS2) -o $@ $(R1OBJS) $(R2OBJ)
-
-$(BIN): $(BIN).r2
-	@echo "LD: $<"
-	$(Q) $(LDNXFLAT) $(LDNXFLATFLAGS) -o $@ $^
-
-clean:
-	$(call DELFILE, $(BIN))
-	$(call DELFILE, $(R2SRC))
-	$(call DELFILE, *.r1)
-	$(call DELFILE, *.r2)
-	$(call CLEAN)
-
-install:
-	$(Q) install -m 0755 -D $(BIN) $(CGI_DIR)/$(BIN)
-
+include $(APPDIR)/Application.mk

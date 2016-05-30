@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/mdio/mdio_main.c
+ * system/mdio/mdio_main.c
  *
  *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

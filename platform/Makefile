@@ -1,7 +1,7 @@
 ############################################################################
 # apps/platform/Makefile
 #
-#   Copyright (C) 2013-2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013-2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,9 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
+CONFIG_ARCH_BOARD ?= dummy
 DELIM ?= $(strip /)
+
 include $(APPDIR)$(DELIM)Make.defs
 
 # Platform-specific Appliction Support
@@ -116,6 +118,8 @@ endif
 
 # Build context setup
 
+$(TOPDIR)$(DELIM).config:
+
 $(PLATFORMDIR): $(TOPDIR)$(DELIM).config
 	@echo "LN: platform$(DELIM)board to $(LINKDIR)"
 	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
@@ -135,7 +139,7 @@ depend: .depend
 
 # Clean targets
 
-clean: $(PLATFORMDIR)
+clean:
 	$(call DELFILE, .built)
 	$(Q) $(MAKE) -C bin TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" clean
 

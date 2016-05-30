@@ -1,8 +1,8 @@
 ############################################################################
-# apps/system/mdio/Makefile
+# apps/canutils/libcanard/Makefile
 #
-#   Copyright (C) 2008, 2010-2013 Gregory Nutt. All rights reserved.
-#   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Copyright (C) 2016 Omni Hoverboards Inc. All rights reserved.
+#   Authors: Paul Alexander Patience <paul-a.patience@polymtl.ca>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -33,105 +33,79 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# MDIO tool built-in application info
+WGET = wget
+UNPACK = unzip
+PACKEXT = .zip
 
-APPNAME = mdio
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
+LIBCANARD_URL = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_URL)))
+LIBCANARD_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_VERSION)))
+LIBCANARD_UNPACKNAME = libcanard-$(LIBCANARD_VERSION)
+LIBCANARD_PACKNAME = $(LIBCANARD_UNPACKNAME)$(PACKEXT)
+LIBCANARD_SRCDIR = $(LIBCANARD_UNPACKNAME)$(DELIM)src
 
-# MDIO tool
-
-ASRCS =
-CSRCS =
-MAINSRC = mdio_main.c
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
+CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c
 COBJS = $(CSRCS:.c=$(OBJEXT))
-MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
-OBJS = $(AOBJS) $(COBJS)
-
-ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(MAINOBJ)
-endif
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
-else
-  BIN = ../../libapps$(LIBEXT)
-endif
-endif
+SRCS = $(CSRCS)
+OBJS = $(COBJS)
 
 ifeq ($(WINTOOL),y)
-  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+  BIN = "${shell cygpath -w $(APPDIR)$(DELIM)libapps$(LIBEXT)}"
 else
-  INSTALL_DIR = $(BIN_DIR)
+  BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
 endif
-
-CONFIG_XYZ_PROGNAME ?= mdio$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 ROOTDEPPATH = --dep-path .
 
-# Common build
-
-VPATH = 
+VPATH =
 
 all: .built
 .PHONY: clean depend distclean
 
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
+$(LIBCANARD_PACKNAME):
+	@echo "Downloading: $@"
+	$(Q) $(WGET) -O $@ $(LIBCANARD_URL)$(DELIM)$(LIBCANARD_VERSION)$(PACKEXT)
 
-$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
+$(LIBCANARD_UNPACKNAME): $(LIBCANARD_PACKNAME)
+	@echo "Unpacking: $< -> $@"
+	$(Q) $(UNPACK) $<
+	$(Q) touch $@
+
+$(LIBCANARD_SRCDIR)$(DELIM)canard.h: $(LIBCANARD_UNPACKNAME)
+
+$(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h: $(LIBCANARD_SRCDIR)$(DELIM)canard.h
+	$(Q) cp $< $@
+
+$(COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
+	$(Q) touch $@
 
-ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
-	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
-	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
-
-install: $(BIN_DIR)$(DELIM)$(PROGNAME)
-
-else
 install:
 
-endif
-
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
-
-context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
-else
-context:
-endif
+context: $(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
 depend: .depend
 
 clean:
 	$(call DELFILE, .built)
 	$(call CLEAN)
+	$(foreach OBJ, $(OBJS), $(call DELFILE, $(OBJ)))
 
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
+	$(call DELFILE, $(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h)
+	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
+	$(call DELFILE, $(LIBCANARD_PACKNAME))
 
 -include Make.dep

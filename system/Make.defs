@@ -102,6 +102,10 @@ ifeq ($(CONFIG_SYSTEM_READLINE),y)
 CONFIGURED_APPS += system/readline
 endif
 
+ifeq ($(CONFIG_SYSTEM_NOTE),y)
+CONFIGURED_APPS += system/sched_note
+endif
+
 ifeq ($(CONFIG_SYSTEM_SUDOKU),y)
 CONFIGURED_APPS += system/sudoku
 endif

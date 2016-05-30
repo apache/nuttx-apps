@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/system/prun/prun.h
+ * canutils/libuavcan/platform_stm32.cpp
  *
- *   Copyright (C) 2008 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2015-2016 Omni Hoverboards Inc. All rights reserved.
+ *   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,23 +33,71 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_SYSTEM_PRUN_H
-#define __APPS_SYSTEM_PRUN_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
+#include <nuttx/config.h>
+
+#include <cunistd>
+
+#include <uavcan_stm32/uavcan_stm32.hpp>
 
 /****************************************************************************
- * Public Function Prototypes
+ * Configuration
  ****************************************************************************/
 
-/* Defined in device.c */
+#if CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY == 0
+#  undef CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY
+#  define CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY
+#endif
 
-extern void hello_register(void);
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
-#endif /* __APPS_SYSTEM_PRUN_H */
+static void delay(void)
+{
+  std::usleep(uavcan_stm32::
+              CanInitHelper<CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY>::
+              getRecommendedListeningDelay().toUSec());
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+uavcan::ICanDriver &getCanDriver(void)
+{
+  static uavcan_stm32::CanInitHelper<CONFIG_LIBUAVCAN_RX_QUEUE_CAPACITY> can;
+  static bool initialized = false;
+
+  if (!initialized)
+    {
+      uavcan::uint32_t bitrate = CONFIG_LIBUAVCAN_BIT_RATE;
+
+#if CONFIG_LIBUAVCAN_INIT_RETRIES > 0
+      int retries = 0;
+#endif
+
+      while (can.init(delay, bitrate) < 0)
+        {
+#if CONFIG_LIBUAVCAN_INIT_RETRIES > 0
+          retries++;
+          if (retries >= CONFIG_LIBUAVCAN_INIT_RETRIES)
+            {
+              PANIC();
+            }
+#endif
+        }
+
+      initialized = true;
+    }
+
+  return can.driver;
+}
+
+uavcan::ISystemClock &getSystemClock(void)
+{
+  return uavcan_stm32::SystemClock::instance();
+}

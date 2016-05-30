@@ -45,6 +45,8 @@ highly influenced by uIP) include:
               device class so that groups of devices can be discovered.
               It is also possible to address all classes with a kind of
               broadcast discover. (Contributed by Max Holtzberg).
+  esp8266   - An ESP8266 networking layer contributed by Pierre-noel
+              Bouteville
   json      - cJSON is an ultra-lightweight, portable, single-file,
               simple-as-can-be ANSI-C compliant JSON parser, under MIT
               license. Embeddable Lightweight XML-RPC Server discussed at

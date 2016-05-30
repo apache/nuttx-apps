@@ -1,8 +1,8 @@
 /****************************************************************************
- * canutils/uavcan/uavcan_platform.cpp
+ * apps/include/netutils/esp8266.h
  *
- *   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
- *   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
+ *   Copyright (C) 2015 Pierre-Noel Bouteville. All rights reserved.
+ *   Author: Pierre-Noel Bouteville <pnb990@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,70 +33,90 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INCLUDE_NETUTILS_ESP8266_H
+#define __APPS_INCLUDE_NETUTILS_ESP8266_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "nuttx/config.h"
 
-#include <cunistd>
+#include <netinet/in.h>
 
-#include <uavcan_stm32/uavcan_stm32.hpp>
-
-/****************************************************************************
- * Configuration
- ****************************************************************************/
-
-#if CONFIG_UAVCAN_RX_QUEUE_CAPACITY == 0
-#  undef CONFIG_UAVCAN_RX_QUEUE_CAPACITY
-#  define CONFIG_UAVCAN_RX_QUEUE_CAPACITY
-#endif
+#ifdef CONFIG_NETUTILS_ESP8266
 
 /****************************************************************************
- * Private Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-static void delay(void)
-{
-  std::usleep(uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY>::
-              getRecommendedListeningDelay().toUSec());
-}
+#define lespBSSID_SIZE 6 
+
+#define lespIP(x1,x2,x3,x4) ((x1) << 24 | (x2) << 16 | (x3) << 8 | (x4) << 0)
 
 /****************************************************************************
- * Public Functions
+ * Public Types
  ****************************************************************************/
 
-uavcan::ICanDriver &getCanDriver(void)
+typedef enum 
 {
-  static uavcan_stm32::CanInitHelper<CONFIG_UAVCAN_RX_QUEUE_CAPACITY> can;
-  static bool initialized = false;
+  lesp_eMODE_AP       = 0,
+  lesp_eMODE_STATION  = 1,
+  lesp_eMODE_BOTH     = 2
+} lesp_mode_t;
 
-  if (!initialized)
-    {
-      uavcan::uint32_t bitrate = CONFIG_UAVCAN_BIT_RATE;
-
-#if CONFIG_UAVCAN_INIT_RETRIES > 0
-      int retries = 0;
-#endif
-
-      while (can.init(delay, bitrate) < 0)
-        {
-#if CONFIG_UAVCAN_INIT_RETRIES > 0
-          retries++;
-          if (retries >= CONFIG_UAVCAN_INIT_RETRIES)
-            {
-              PANIC();
-            }
-#endif
-        }
-
-      initialized = true;
-    }
-
-  return can.driver;
-}
-
-uavcan::ISystemClock &getSystemClock(void)
+typedef enum
 {
-  return uavcan_stm32::SystemClock::instance();
-}
+  lesp_eSECURITY_NONE=0,
+  lesp_eSECURITY_WEP,
+  lesp_eSECURITY_WPA_PSK,
+  lesp_eSECURITY_WPA2_PSK,
+  lesp_eSECURITY_WPA_WPA2_PSK,
+  lesp_eSECURITY_NBR
+} lesp_security_t;
+
+typedef struct
+{
+  lesp_security_t security;
+  const char *ssid;
+  uint8_t bssid[lespBSSID_SIZE];
+  int rssi; 
+} lesp_ap_t;
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+int lesp_initialize(void);
+int lesp_soft_reset(void);
+
+const char *lesp_security_to_str(lesp_security_t security);
+
+int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s);
+
+int lesp_ap_is_connected(void);
+
+int lesp_set_dhcp(lesp_mode_t mode,bool enable);
+int lesp_set_net(lesp_mode_t mode,
+                 in_addr_t ip, 
+                 in_addr_t mask, 
+                 in_addr_t gateway
+                );
+
+typedef void (*lesp_cb_t)(lesp_ap_t* wlan);
+
+int lesp_list_access_points(lesp_cb_t cb);
+
+int lesp_socket(int domain, int type, int protocol);
+int lesp_closesocket(int sockfd);
+int lesp_bind(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen);
+int lesp_connect(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen);
+int lesp_listen(int sockfd, int backlog);
+int lesp_accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags);
+ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags);
+int lesp_setsockopt(int sockfd, int level, int option,
+                    FAR const void *value, socklen_t value_len);
+
+#endif /* CONFIG_NETUTILS_ESP8266 */
+#endif /* __APPS_INCLUDE_NETUTILS_ESP8266_H */
