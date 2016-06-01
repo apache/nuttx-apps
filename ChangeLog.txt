@@ -1574,7 +1574,7 @@
 	  USB device interfaces that do not yet have boardctl() commands
 	  (2016-03-25).
 
-7.16 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.16 2016-06-01 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/system/sdcard:  Remove the SD card application.  This
 	  application violates OS/application interface rules and has been
@@ -1605,3 +1605,4 @@
 	  path by providing an alternal path on the command line.  From Sébastien
 	  Lorquet (2016-06-01).
 
+7.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>

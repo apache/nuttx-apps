@@ -307,7 +307,7 @@ int alarm_main(int argc, FAR char *argv[])
       return EXIT_FAILURE;
     }
 
-  printf("Alarm set in %lu seconds\n", seconds);
+  printf("Alarm %d set in %lu seconds\n", alarmid, seconds);
   (void)close(fd);
   return EXIT_SUCCESS;
 }
