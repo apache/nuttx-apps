@@ -506,3 +506,32 @@ Additional new features and extended functionality in Version 1.15:
 Bugfixes:
 
 * There are no new bug fixes in this release.
+
+NxWidgets-1.16
+==============
+
+The 17th release of the NxWidgets package was made on June 1, 2016.  This
+release depends on NuttX-7.16 or above and should not be used with older
+NuttX releases.
+
+The TAG for this release is nuttx-7.16
+
+Additional new features and extended functionality in Version 1.15:
+
+* The NxWidgets/ directory has been removed from the NuttX GIT repository
+  and now stands alone in its own repository (2015-06-27).
+
+Bugfixes\:
+
+* NxWM::CTouchscreen: When boardctl() fails, need to print errno not the
+  returned value which will always be -1.
+* NxWidgets::CNxServer:  Correct use of the BOARDIOC_GRAPHICS_SETUP
+  boardctl() call.
+* CListBox unit test:  Should use RAND_MAX, not MAX_RAND.
+* Framebuffer driver parameters have changed.  This introduces an
+  incompatibility with versions of NuttX prior to 7.16.
+* UnitTests: Add Make.defs files to all UnitTests directories.  This is
+  required by the current apps/Makefile.  Hmmm..  This means that no one
+  has built the NxWidgets packages in the last several realeases!
+* UnitTests: Add some default definitions to handle the (unusual) case
+  where 'make clean' is called with no .config or Make.defs file installed

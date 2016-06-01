@@ -556,7 +556,7 @@
   to NX nx_drawline() and NXTK nxtk_drawlinetoolbar() and nxtk_drawlinewindow()
   functions (2015-04-05).
 
-1.16 2015-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.16 2016-06-01 Gregory Nutt <gnutt@nuttx.org>
 
 * NxWM::CTouchscreen: When boardctl() fails, need to print errno not the
   returned value which will always be -1 (2015-04-16).
@@ -575,3 +575,4 @@
   where 'make clean' is called with no .config or Make.defs file installed
   (2016-05-10).
 
+1.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
