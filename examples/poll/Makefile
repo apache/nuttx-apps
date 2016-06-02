@@ -125,3 +125,5 @@ distclean: clean
 	$(call DELFILE, *.dSYM)
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

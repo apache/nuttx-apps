@@ -109,3 +109,5 @@ distclean: clean
 	$(call DELFILE, $(LIBCANARD_PACKNAME))
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/install/Makefile
+# apps/system/flash_eraseall/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
 #   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
@@ -147,3 +147,5 @@ distclean: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:
