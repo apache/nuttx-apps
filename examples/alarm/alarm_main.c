@@ -279,6 +279,7 @@ int alarm_main(int argc, FAR char *argv[])
   /* Open the RTC driver */
 
   printf("Opening %s\n", CONFIG_EXAMPLES_ALARM_DEVPATH);
+
   fd = open(CONFIG_EXAMPLES_ALARM_DEVPATH, O_WRONLY);
   if (fd < 0)
     {
@@ -297,17 +298,20 @@ int alarm_main(int argc, FAR char *argv[])
 
   setrel.sigvalue.sival_int = alarmid;
 
-  fd = ioctl(fd, RTC_SET_RELATIVE, (unsigned long)((uintptr_t)&setrel));
-  if (fd < 0)
+  ret = ioctl(fd, RTC_SET_RELATIVE, (unsigned long)((uintptr_t)&setrel));
+  if (ret < 0)
     {
       int errcode = errno;
+
       fprintf(stderr, "ERROR: RTC_SET_RELATIVE ioctl failed: %d\n",
               errcode);
+
       (void)close(fd);
       return EXIT_FAILURE;
     }
 
   printf("Alarm %d set in %lu seconds\n", alarmid, seconds);
+
   (void)close(fd);
   return EXIT_SUCCESS;
 }
