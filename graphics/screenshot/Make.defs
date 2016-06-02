@@ -1,5 +1,5 @@
 ############################################################################
-# apps/graphics/Make.defs
+# apps/graphics/screenshot/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
@@ -34,4 +34,6 @@
 #
 ############################################################################
 
-include $(wildcard graphics/*/Make.defs)
+ifeq ($(CONFIG_GRAPHICS_SCREENSHOT),y)
+CONFIGURED_APPS += graphics/screenshot
+endif
