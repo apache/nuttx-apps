@@ -12,4 +12,6 @@
 *.sym
 *.adb
 *.lib
-*.src
+*.srci
+/Kconfig
+
