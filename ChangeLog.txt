@@ -1610,4 +1610,6 @@
 	* apps/system/flash_eraseall:  Removed!  This logic violates the OS/
 	  application interface and cannot be supported.  The old code can still
 	  be found in the 'Obsoleted' repository (2016-06-03).
+	* apps/fsutils/flash_eraseall: IOCTL wrapper for MDCIO_BULKERASE command
+	  (2016-06-04).
 
