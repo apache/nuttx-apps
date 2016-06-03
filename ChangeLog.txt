@@ -1612,4 +1612,6 @@
 	  be found in the 'Obsoleted' repository (2016-06-03).
 	* apps/fsutils/flash_eraseall: IOCTL wrapper for MDCIO_BULKERASE command
 	  (2016-06-04).
+	* apps/system/flash_eraseall: Restored!  Using the new IOCTL wrapper at
+	  apps/fsutils/flash_eraseall (2016-06-04).
 

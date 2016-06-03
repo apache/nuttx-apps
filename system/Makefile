@@ -37,7 +37,7 @@
 
 # Sub-directories containing system tasks/libraries
 
-SUBDIRS  = cdcacm cle composite cu free i2c hex2bin install
+SUBDIRS  = cdcacm cle composite cu free flash_eraseall i2c hex2bin install
 SUBDIRS += hexed lm75 mdio netdb nxplayer ramtest readline
 SUBDIRS += stackmonitor sudoku symtab ubloxmodem usbmonitor usbmsc vi
 SUBDIRS += zmodem zoneinfo
