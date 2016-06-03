@@ -6,6 +6,7 @@
 config FSUTILS_FLASH_ERASEALL
 	bool "flash_eraseall() function"
 	default n
+	depends on MTD
 	---help---
 		Enables support for the callable flash_eraseall() function that can
 		be used to erase all FLASH backing up a block device driver.
