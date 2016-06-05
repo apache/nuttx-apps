@@ -34,7 +34,5 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_BUILTIN),y)
 CONFIGURED_APPS += external
-endif
 
