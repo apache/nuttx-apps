@@ -1607,6 +1607,8 @@
 
 7.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
+	* apps/examples/alarm: ioctl call was clobbering file descriptor
+	  (2016-06-02).
 	* apps/system/flash_eraseall:  Removed!  This logic violates the OS/
 	  application interface and cannot be supported.  The old code can still
 	  be found in the 'Obsoleted' repository (2016-06-03).
@@ -1614,4 +1616,5 @@
 	  (2016-06-04).
 	* apps/system/flash_eraseall: Restored!  Using the new IOCTL wrapper at
 	  apps/fsutils/flash_eraseall (2016-06-04).
-
+	* apps/canutils/libuavcan: Fix for recent change to STM32 timer frequency
+	  definiitions (2016-06-05).
