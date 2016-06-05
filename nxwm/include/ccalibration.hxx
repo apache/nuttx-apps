@@ -182,7 +182,7 @@ namespace NxWM
     bool                       m_stop;            /**< True: We have been asked to stop the calibration */
     bool                       m_touched;         /**< True: The screen is touched */
     uint8_t                    m_touchId;         /**< The ID of the touch */
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
     uint8_t                    m_nsamples;        /**< Number of samples collected so far at this position */
     struct nxgl_point_s        m_sampleData[CONFIG_NXWM_CALIBRATION_NSAMPLES];
 #endif
@@ -278,7 +278,7 @@ namespace NxWM
      * @return True: Average data is available; False: Need to collect more samples
      */
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
     bool averageSamples(struct nxgl_point_s &average);
 #endif
 

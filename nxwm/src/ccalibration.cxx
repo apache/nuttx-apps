@@ -690,7 +690,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
  * @return True: Average data is available; False: Need to collect more samples
  */
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
 bool CCalibration::averageSamples(struct nxgl_point_s &average)
 {
   // Have we started collecting sample data? */
@@ -801,7 +801,7 @@ void CCalibration::stateMachine(void)
 {
   gvdbg("Old m_calphase=%d\n", m_calphase);
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
   // Are we collecting samples?
 
   struct nxgl_point_s average;
@@ -891,7 +891,7 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_UPPER_LEFT state.
           // Save the touch data and set up the next calibration display
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
           m_calibData[CALIB_UPPER_LEFT_INDEX].x = average.x;
           m_calibData[CALIB_UPPER_LEFT_INDEX].y = average.y;
 #else
@@ -928,7 +928,7 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_UPPER_RIGHT state.
           // Save the touch data and set up the next calibration display
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
           m_calibData[CALIB_UPPER_RIGHT_INDEX].x = average.x;
           m_calibData[CALIB_UPPER_RIGHT_INDEX].y = average.y;
 #else
@@ -965,7 +965,7 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_LOWER_RIGHT state.
           // Save the touch data and set up the next calibration display
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
           m_calibData[CALIB_LOWER_RIGHT_INDEX].x = average.x;
           m_calibData[CALIB_LOWER_RIGHT_INDEX].y = average.y;
 #else
@@ -1002,7 +1002,7 @@ void CCalibration::stateMachine(void)
           // A touch has been received while in the CALPHASE_LOWER_LEFT state.
           // Save the touch data and set up the next calibration display
 
-#if CONFIG_NXWM_CALIBRATION_AVERAGE
+#ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
           m_calibData[CALIB_LOWER_LEFT_INDEX].x = average.x;
           m_calibData[CALIB_LOWER_LEFT_INDEX].y = average.y;
 #else
