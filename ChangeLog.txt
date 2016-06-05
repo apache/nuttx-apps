@@ -576,3 +576,8 @@
   (2016-05-10).
 
 1.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* UnitTests: Back conditional logic out of UnitTest Make.defs files.  It
+  does not belong there and causes link failures like "Cannot find nxwm_main"
+  (2016-06-05).
+
