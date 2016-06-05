@@ -55,7 +55,7 @@ STACKSIZE = 1024
 
 ASRCS =
 CSRCS =
-MAINSRC = flash_eraseall.c
+MAINSRC = flash_eraseall_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
