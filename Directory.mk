@@ -60,7 +60,7 @@ nothing:
 install:
 
 preconfig: $(foreach SDIR, $(SUBDIRS), $(SDIR)_preconfig)
-	$(MKKCONFIG) -m "$(shell cat Kmenu)"
+	$(Q) $(MKKCONFIG) -m "$(shell cat Kmenu)"
 
 context: $(foreach SDIR, $(SUBDIRS), $(SDIR)_context)
 

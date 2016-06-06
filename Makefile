@@ -114,8 +114,7 @@ context_serialize:
 context: context_serialize
 
 preconfig:$(foreach SDIR, $(BUILDIRS), $(SDIR)_preconfig)
-	echo subdirs done
-	$(MKKCONFIG)
+	$(Q) $(MKKCONFIG)
 
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
