@@ -2,8 +2,15 @@
 # For a description of the syntax of this configuration file,
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
+config GRAPHICS_TRAVELER
+	bool "Traveler game"
+	default n
+	select FSUTILS_INIFILE
+	---help---
+		Enable or disable the graphic Traveler game
 
 if GRAPHICS_TRAVELER
+
 comment "Color configuration"
 
 choice

@@ -53,3 +53,11 @@ define REGISTER
 	$(Q) touch "$(BUILTIN_REGISTRY)$(DELIM).updated"
 endef
 endif
+
+# Tools
+
+ifeq ($(CONFIG_WINDOWS_NATIVE),y)
+  MKKCONFIG = $(APPDIR)\tools\mkkconfig.bat
+else
+  MKKCONFIG = $(APPDIR)/tools/mkkconfig.sh
+endif

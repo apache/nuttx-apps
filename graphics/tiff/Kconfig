@@ -1,0 +1,9 @@
+config TIFF
+	bool "TIFF file generation library"
+	default n
+	---help---
+		Enable support for the TIFF file generation program.
+
+if TIFF
+endif # TIFF
+

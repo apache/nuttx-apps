@@ -28,3 +28,4 @@ config NETUTILS_PING_SIGNO
 	default 13
 
 endif # NETUTILS_PING || NETUTILS_PING6
+

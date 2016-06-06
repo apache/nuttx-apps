@@ -1618,3 +1618,11 @@
 	  apps/fsutils/flash_eraseall (2016-06-04).
 	* apps/canutils/libuavcan: Fix for recent change to STM32 timer frequency
 	  definiitions (2016-06-05).
+	* Many files:  Change to the way that Kconfig files are generated in order
+	  to better support reuse of the apps/ directory in NuttX products.  Changes
+	  include: add kmenu files, make the full tree use wildcards make.defs, Add
+	  empty preconfig rules to 'leaf' makefiles, Use directory.mk for recursive
+	  dir makefiles, Individual app kconfig fixes, Recursive Kconfig
+	  autogeneration, Add kconfig files for pcode and tiff, and fix a gitignore
+	  rule,  From Sébastien Lorquet (2016-06-06).
+
