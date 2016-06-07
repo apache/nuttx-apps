@@ -113,8 +113,13 @@ context_serialize:
 
 context: context_serialize
 
-preconfig:$(foreach SDIR, $(BUILDIRS), $(SDIR)_preconfig)
+$(TOPDIR)/.config:
+
+Kconfig: $(TOPDIR)/.config
+	$(foreach SDIR, $(BUILDIRS), $(SDIR)_preconfig)
 	$(Q) $(MKKCONFIG)
+
+preconfig: Kconfig
 
 .depdirs: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_depend)
 
