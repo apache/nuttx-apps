@@ -118,9 +118,7 @@ context_serialize:
 
 context: context_serialize
 
-$(TOPDIR)/.config:
-
-Kconfig: $(TOPDIR)/.config
+Kconfig:
 	$(foreach SDIR, $(BUILDIRS), $(call MAKE_template,$(SDIR),preconfig))
 	$(Q) $(MKKCONFIG)
 
