@@ -37,6 +37,8 @@
 
 # The smallest thing you can build -- the NULL example.
 
+APPNAME = rgmp
+
 ASRCS =
 CSRCS =
 MAINSRC = rgmp_main.c

@@ -37,6 +37,8 @@
 
 # Mindlessly simple console loopack test
 
+APPNAME = serloop
+
 ASRCS =
 CSRCS =
 MAINSRC = serloop_main.c

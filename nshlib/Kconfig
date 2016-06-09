@@ -947,7 +947,7 @@ config NSH_NETINIT
 	default y
 	depends on NET
 	---help---
-	   This option enables/disables all network initialization in NSH.
+		This option enables/disables all network initialization in NSH.
 
 if NSH_NETINIT
 

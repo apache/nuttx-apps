@@ -37,6 +37,8 @@
 
 # CONFIGDATA Unit Test
 
+APPNAME = configdata
+
 ASRCS =
 CSRCS =
 MAINSRC = configdata_main.c
