@@ -88,7 +88,7 @@
  *    Attempt to execute the application task whose name is 'cmd'
  *
  * Returned Value:
- *   <0          If exec_builtin() fails, then the negated errno value
+ *   <0          If posix_spawn() fails, then the negated errno value
  *               is returned.
  *   -1 (ERROR)  if the application task corresponding to 'cmd' could not
  *               be started (possibly because it doesn not exist).
