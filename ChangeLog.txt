@@ -1620,9 +1620,12 @@
 	  definiitions (2016-06-05).
 	* Many files:  Change to the way that Kconfig files are generated in order
 	  to better support reuse of the apps/ directory in NuttX products.  Changes
-	  include: add kmenu files, make the full tree use wildcards make.defs, Add
-	  empty preconfig rules to 'leaf' makefiles, Use directory.mk for recursive
-	  dir makefiles, Individual app kconfig fixes, Recursive Kconfig
-	  autogeneration, Add kconfig files for pcode and tiff, and fix a gitignore
-	  rule,  From Sébastien Lorquet (2016-06-06).
-
+	  include: Make the full tree use wildcards make.defs, Add empty preconfig
+	  rules to 'leaf' makefiles, Use directory.mk for recursive dir makefiles,
+	  Individual app kconfig fixes, Recursive Kconfig autogeneration, Add
+	  kconfig files for pcode and tiff, and fix a gitignore rule,  From
+	  Sébastien Lorquet (2016-06-06).
+	* apps/nshlib: Make NSH net-initialization be a configuration option. From
+	  Marten Svanfeld (2016-06-09).
+	* netutils/ntpc and nshlib:  NTP Client: All retries; Add initialization
+	  in NSH network startup logic.  From David S. Alessio (2016-06-09) .
