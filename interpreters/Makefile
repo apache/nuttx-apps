@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "Interpreters"
+
 include $(APPDIR)/Directory.mk

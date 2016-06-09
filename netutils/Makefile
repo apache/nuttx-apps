@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "Network Utilities"
+
 include $(APPDIR)/Directory.mk

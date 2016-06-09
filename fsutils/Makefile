@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "File System Utilities"
+
 include $(APPDIR)/Directory.mk

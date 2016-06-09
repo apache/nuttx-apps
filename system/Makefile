@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "System Libraries and NSH Add-Ons"
+
 include $(APPDIR)/Directory.mk

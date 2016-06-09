@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "Graphics Support"
+
 include $(APPDIR)/Directory.mk
