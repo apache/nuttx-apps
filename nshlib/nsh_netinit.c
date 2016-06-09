@@ -78,7 +78,7 @@
 
 #include "nsh.h"
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NSH_NETINIT
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -690,4 +690,4 @@ int nsh_netinit(void)
 #endif
 }
 
-#endif /* CONFIG_NET */
+#endif /* CONFIG_NSH_NETINIT */
