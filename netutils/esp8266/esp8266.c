@@ -494,7 +494,7 @@ static int lesp_read(int timeout_ms)
       pthread_mutex_unlock(&g_lesp_state.mutex);
 
     }
-  while (ret == 0);
+  while (ret <= 0);
 
   nvdbg("read %d=>%s\n", ret, g_lesp_state.bufans);
 
@@ -1092,7 +1092,7 @@ int lesp_list_access_points(lesp_cb_t cb)
 
   ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT\r\n");
 
-  if (ret < 0) 
+  if (ret >= 0) 
     {
       ret = lesp_send_cmd("AT+CWLAP\r\n");
     }
