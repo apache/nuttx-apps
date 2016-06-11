@@ -485,7 +485,7 @@ examples/ftpc
   Otherwise, you will have not feeback about what is going on:
 
     CONFIG_DEBUG=y
-    CONFIG_DEBUG_VERBOSE=y
+    CONFIG_DEBUG_INFO=y
     CONFIG_DEBUG_FTPC=y
 
 examples/ftpd

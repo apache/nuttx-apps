@@ -244,7 +244,7 @@ ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
     {
       /* For debugging, it is helpful to start with a clean buffer */
 
-#if defined(CONFIG_DEBUG_VERBOSE) && defined(CONFIG_DEBUG_NET)
+#if defined(CONFIG_DEBUG_INFO) && defined(CONFIG_DEBUG_NET)
       memset(buf, 0, len);
 #endif
 

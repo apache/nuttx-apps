@@ -45,8 +45,8 @@
 /* Is network initialization debug forced on? */
 
 #ifdef CONFIG_NSH_NETINIT_DEBUG
-#  undef  CONFIG_DEBUG_VERBOSE
-#  define CONFIG_DEBUG_VERBOSE 1
+#  undef  CONFIG_DEBUG_INFO
+#  define CONFIG_DEBUG_INFO 1
 #  undef  CONFIG_DEBUG_NET
 #  define CONFIG_DEBUG_NET 1
 #endif

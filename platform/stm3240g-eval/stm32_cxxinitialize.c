@@ -60,7 +60,7 @@
 #ifdef CONFIG_DEBUG_CXX
 #  define cxxdbg              dbg
 #  define cxxlldbg            lldbg
-#  ifdef CONFIG_DEBUG_VERBOSE
+#  ifdef CONFIG_DEBUG_INFO
 #    define cxxvdbg           vdbg
 #    define cxxllvdbg         llvdbg
 #  else

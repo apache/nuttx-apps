@@ -1041,10 +1041,10 @@ config NSH_NETINIT_DEBUG
 	depends on DEBUG
 	---help---
 		Normally debug output is controlled by DEBUG_NET.  However, that
-		will generate a LOT of debug output, especially if DEBUG_VERBOSE is
+		will generate a LOT of debug output, especially if CONFIG_DEBUG_INFO is
 		also selected.  This option is intended to force VERVOSE debug
 		output from the NSH network initialization logic even if DEBUG_NET
-		or DEBUG_VERBOSE are not selected.  This allows for focused, unit-
+		or CONFIG_DEBUG_INFO are not selected.  This allows for focused, unit-
 		level debug of the NSH network initialization logic.
 
 menu "IP Address Configuration"

@@ -662,7 +662,7 @@ static int chat_script_run(FAR struct chat* priv)
 {
   FAR struct chat_line* line = priv->script;
   int ret = 0;
-#ifdef CONFIG_DEBUG_VERBOSE
+#ifdef CONFIG_DEBUG_INFO
   int line_num = 0;
 #endif
 
@@ -672,7 +672,7 @@ static int chat_script_run(FAR struct chat* priv)
       if (!ret)
         {
           line = line->next;
-#ifdef CONFIG_DEBUG_VERBOSE
+#ifdef CONFIG_DEBUG_INFO
           line_num++;
 #endif
         }
