@@ -130,7 +130,7 @@ bool CKeyboard::start(void)
   int ret = pthread_create(&m_thread, &attr, listener, (FAR void *)this);
   if (ret != 0)
     {
-      gdbg("CKeyboard::start: pthread_create failed: %d\n", ret);
+      gerr("CKeyboard::start: pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -219,7 +219,7 @@ int CKeyboard::open(void)
                   // Let the top-level logic decide what it wants to do
                   // about all really bad things
 
-                  gdbg("ERROR: Failed to open %s for reading: %d\n",
+                  gerr("ERROR: Failed to open %s for reading: %d\n",
                        CONFIG_NXWM_KEYBOARD_DEVPATH, errcode);
                   return -errcode;
                 }
@@ -276,12 +276,12 @@ int CKeyboard::session(void)
               // Let the top-level listener logic decide what to do about
               // the read failure.
 
-              gdbg("ERROR: read %s failed: %d\n",
+              gerr("ERROR: read %s failed: %d\n",
                    CONFIG_NXWM_KEYBOARD_DEVPATH, errcode);
               return -errcode;
             }
 
-          fdbg("Awakened with EINTR\n");
+          ferr("Awakened with EINTR\n");
         }
 
       // Give the keyboard input to NX
@@ -298,7 +298,7 @@ int CKeyboard::session(void)
           int ret = nx_kbdin(handle, (uint8_t)nbytes, rxbuffer);
           if (ret < 0)
             {
-              gdbg("ERROR: nx_kbdin failed: %d\n", ret);
+              gerr("ERROR: nx_kbdin failed: %d\n", ret);
               //break;  ignore the error
             }
         }
@@ -345,7 +345,7 @@ FAR void *CKeyboard::listener(FAR void *arg)
       This->m_kbdFd = This->open();
       if (This->m_kbdFd < 0)
         {
-          gdbg("ERROR: open failed: %d\n", This->m_kbdFd);
+          gerr("ERROR: open failed: %d\n", This->m_kbdFd);
           This->m_state = LISTENER_FAILED;
           sem_post(&This->m_waitSem);
           return (FAR void *)0;
@@ -370,7 +370,7 @@ FAR void *CKeyboard::listener(FAR void *arg)
 #ifdef CONFIG_NXWM_KEYBOARD_USBHOST
       if (ret < 0)
         {
-          fdbg("ERROR: CKeyboard::session() returned %d\n", ret);
+          ferr("ERROR: CKeyboard::session() returned %d\n", ret);
         }
 #else
       // No errors from session() are expected

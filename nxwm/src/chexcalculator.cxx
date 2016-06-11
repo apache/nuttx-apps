@@ -323,7 +323,7 @@ bool CHexCalculator::run(void)
 
     if (!createCalculator())
       {
-        gdbg("ERROR: Failed to create widgets\n");
+        gerr("ERROR: Failed to create widgets\n");
         return false;
       }
 
@@ -505,7 +505,7 @@ bool CHexCalculator::createCalculator(void)
                                   CONFIG_NXWM_TRANSPARENT_COLOR);
   if (!m_font)
     {
-      gdbg("ERROR failed to create font\n");
+      gerr("ERROR failed to create font\n");
       return false;
     }
 
@@ -522,7 +522,7 @@ bool CHexCalculator::createCalculator(void)
                                          m_buttonSize.w, m_buttonSize.h);
   if (!m_keypad)
     {
-      gdbg("ERROR: Failed to create CButtonArray\n");
+      gerr("ERROR: Failed to create CButtonArray\n");
       return false;
     }
 
@@ -548,7 +548,7 @@ bool CHexCalculator::createCalculator(void)
                                  "0");
   if (!m_text)
     {
-      gdbg("ERROR: Failed to create CLabel\n");
+      gerr("ERROR: Failed to create CLabel\n");
       return false;
     }
 
@@ -658,7 +658,7 @@ int64_t CHexCalculator::evaluateBinaryOperation(uint8_t operation, int64_t value
         return value1 + value2;
 
       default:
-        gdbg("ERROR: Unexpected pending operation %d\n", operation);
+        gerr("ERROR: Unexpected pending operation %d\n", operation);
         return 0;
       }
 }
@@ -945,7 +945,7 @@ void CHexCalculator::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
 
           case KEY_NONE:
           default:
-            gdbg("ERROR: Invalid key type %d\n", g_keyDesc[index].keyType);
+            gerr("ERROR: Invalid key type %d\n", g_keyDesc[index].keyType);
             break;
         }
 
@@ -978,7 +978,7 @@ IApplication *CHexCalculatorFactory::create(void)
   CApplicationWindow *window = m_taskbar->openApplicationWindow();
   if (!window)
     {
-      gdbg("ERROR: Failed to create CApplicationWindow\n");
+      gerr("ERROR: Failed to create CApplicationWindow\n");
       return (IApplication *)0;
     }
 
@@ -986,7 +986,7 @@ IApplication *CHexCalculatorFactory::create(void)
 
   if (!window->open())
     {
-      gdbg("ERROR: Failed to open CApplicationWindow\n");
+      gerr("ERROR: Failed to open CApplicationWindow\n");
       delete window;
       return (IApplication *)0;
     }
@@ -997,7 +997,7 @@ IApplication *CHexCalculatorFactory::create(void)
   CHexCalculator *hexCalculator = new CHexCalculator(m_taskbar, window);
   if (!hexCalculator)
     {
-      gdbg("ERROR: Failed to instantiate CHexCalculator\n");
+      gerr("ERROR: Failed to instantiate CHexCalculator\n");
       delete window;
       return (IApplication *)0;
     }

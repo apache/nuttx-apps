@@ -204,7 +204,7 @@ void CGraphicsPort::drawHorizLine(nxgl_coord_t x, nxgl_coord_t y,
 
   if (!m_pNxWnd->fill(&dest, color))
     {
-      gdbg("INxWindow::fill failed\n");
+      gerr("INxWindow::fill failed\n");
     }
 }
 
@@ -234,7 +234,7 @@ void CGraphicsPort::drawVertLine(nxgl_coord_t x, nxgl_coord_t y,
 
   if (!m_pNxWnd->fill(&dest, color))
     {
-      gdbg("INxWindow::fill failed\n");
+      gerr("INxWindow::fill failed\n");
     }
 }
 
@@ -263,7 +263,7 @@ void CGraphicsPort::drawLine(nxgl_coord_t x1, nxgl_coord_t y1,
 
   if (!m_pNxWnd->drawLine(&vector, 1, color, caps))
     {
-      gdbg("INxWindow::drawLine failed\n");
+      gerr("INxWindow::drawLine failed\n");
     }
 }
 

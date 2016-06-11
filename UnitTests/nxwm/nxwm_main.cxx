@@ -358,7 +358,7 @@ static bool createStartWindow(void)
   g_nxwmtest.startwindow = new NxWM::CStartWindow(g_nxwmtest.taskbar, window);
   if (!g_nxwmtest.startwindow)
     {
-      gdbg("ERROR: Failed to instantiate CStartWindow\n");
+      gerr("ERROR: Failed to instantiate CStartWindow\n");
       delete window;
       return false;
     }

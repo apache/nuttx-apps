@@ -65,13 +65,13 @@
 /* We want debug output from this file if either audio or graphics debug is enabled. */
 
 #if !defined(CONFIG_DEBUG_AUDIO) && !defined(CONFIG_DEBUG_GRAPHICS)
-#  undef dbg
+#  undef gerr
 #  undef info
 #  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define dbg(x...)
+#    define gerr(x...)
 #    define info(x...)
 #  else
-#    define dbg  (void)
+#    define gerr  (void)
 #    define info (void)
 #  endif
 #endif
@@ -312,7 +312,7 @@ bool CMediaPlayer::run(void)
 
       if (!configureNxPlayer())
         {
-          dbg("ERROR: Failed to configure NxPlayer\n");
+          gerr("ERROR: Failed to configure NxPlayer\n");
           return false;
         }
 
@@ -320,7 +320,7 @@ bool CMediaPlayer::run(void)
 
       if (!createPlayer())
         {
-          dbg("ERROR: Failed to create widgets\n");
+          gerr("ERROR: Failed to create widgets\n");
           return false;
         }
     }
@@ -442,7 +442,7 @@ bool CMediaPlayer::getMediaFile(const NXWidgets::CListBoxDataItem *item)
 
       if (!filePath)
         {
-          dbg("ERROR: Failed to allocate file path\n");
+          gerr("ERROR: Failed to allocate file path\n");
           return false;
         }
 
@@ -460,7 +460,7 @@ bool CMediaPlayer::getMediaFile(const NXWidgets::CListBoxDataItem *item)
       if (ret < 0)
         {
           int errcode = errno;
-          dbg("ERROR: Could not stat file %s: %d\n", filePath, errcode);
+          gerr("ERROR: Could not stat file %s: %d\n", filePath, errcode);
           UNUSED(errcode);
 
           // Make sure there is no previous file information
@@ -472,7 +472,7 @@ bool CMediaPlayer::getMediaFile(const NXWidgets::CListBoxDataItem *item)
 
       if (S_ISDIR(buf.st_mode) || S_ISBLK(buf.st_mode))
         {
-          dbg("ERROR: Not a regular file\n");
+          gerr("ERROR: Not a regular file\n");
 
           // Make sure there is no previous file information
 
@@ -503,7 +503,7 @@ void CMediaPlayer::stopPlaying(void)
   int ret = nxplayer_stop(m_player);
   if (ret < 0)
     {
-      auddbg("ERROR: nxplayer_stop failed: %d\n", ret);
+      auderr("ERROR: nxplayer_stop failed: %d\n", ret);
     }
 #endif
 
@@ -659,7 +659,7 @@ bool CMediaPlayer::setDevice(FAR const char *devPath)
     {
       // Device doesn't exit.  Report an error
 
-      dbg("ERROR: Device %s not found\n", devPath);
+      gerr("ERROR: Device %s not found\n", devPath);
       return false;
     }
 
@@ -667,13 +667,13 @@ bool CMediaPlayer::setDevice(FAR const char *devPath)
 
   if (ret == -ENODEV)
     {
-      dbg("ERROR: Device %s is not an audio device\n", devPath);
+      gerr("ERROR: Device %s is not an audio device\n", devPath);
       return false;
     }
 
   if (ret < 0)
     {
-      dbg("ERROR: Error selecting device %s\n", devPath);
+      gerr("ERROR: Error selecting device %s\n", devPath);
       return false;
     }
 
@@ -694,7 +694,7 @@ bool CMediaPlayer::configureNxPlayer(void)
   m_player = nxplayer_create();
   if (!m_player)
     {
-      dbg("ERROR: Failed get NxPlayer handle\n");
+      gerr("ERROR: Failed get NxPlayer handle\n");
       return false;
     }
 
@@ -703,7 +703,7 @@ bool CMediaPlayer::configureNxPlayer(void)
 
   if (!setDevice(CONFIG_NXWM_MEDIAPLAYER_PREFERRED_DEVICE))
     {
-      dbg("ERROR: Failed select NxPlayer audio device\n");
+      gerr("ERROR: Failed select NxPlayer audio device\n");
       return false;
     }
 #endif
@@ -725,7 +725,7 @@ bool CMediaPlayer::createPlayer(void)
                                   CONFIG_NXWM_TRANSPARENT_COLOR);
   if (!m_font)
     {
-      dbg("ERROR: Failed to create font\n");
+      gerr("ERROR: Failed to create font\n");
       return false;
     }
 
@@ -746,7 +746,7 @@ bool CMediaPlayer::createPlayer(void)
   if (!m_playBitmap || !m_pauseBitmap || !m_rewindBitmap ||
       !m_fforwardBitmap || !m_volumeBitmap)
     {
-      dbg("ERROR: Failed to one or more bitmaps\n");
+      gerr("ERROR: Failed to one or more bitmaps\n");
       return false;
     }
 
@@ -796,7 +796,7 @@ bool CMediaPlayer::createPlayer(void)
   m_listbox = new NXWidgets::CListBox(control, 0, 0,  m_windowSize.w, listHeight);
   if (!m_listbox)
     {
-      dbg("ERROR: Failed to create CListBox\n");
+      gerr("ERROR: Failed to create CListBox\n");
       return false;
     }
 
@@ -877,7 +877,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_play)
     {
-      dbg("ERROR: Failed to create play control\n");
+      gerr("ERROR: Failed to create play control\n");
       return false;
     }
 
@@ -904,7 +904,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_pause)
     {
-      dbg("ERROR: Failed to create pause control\n");
+      gerr("ERROR: Failed to create pause control\n");
       return false;
     }
 
@@ -934,7 +934,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_rewind)
     {
-      dbg("ERROR: Failed to create rewind control\n");
+      gerr("ERROR: Failed to create rewind control\n");
       return false;
     }
 
@@ -966,7 +966,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_fforward)
     {
-      dbg("ERROR: Failed to create fast forward control\n");
+      gerr("ERROR: Failed to create fast forward control\n");
       return false;
     }
 
@@ -1007,7 +1007,7 @@ bool CMediaPlayer::createPlayer(void)
 
   if (!m_volume)
     {
-      dbg("ERROR: Failed to create volume control\n");
+      gerr("ERROR: Failed to create volume control\n");
       return false;
     }
 
@@ -1422,7 +1422,7 @@ void CMediaPlayer::setVolumeLevel(void)
   int newLevel =  m_volume->getValue();
   if (newLevel < 0 || newLevel > 100)
     {
-      dbg("ERROR: volume is out of range: %d\n", newLevel);
+      gerr("ERROR: volume is out of range: %d\n", newLevel);
     }
 
   // Has the volume level changed?
@@ -1434,7 +1434,7 @@ void CMediaPlayer::setVolumeLevel(void)
       int ret = nxplayer_setvolume(m_player, (uint16_t)newLevel);
       if (ret < OK)
         {
-          dbg("ERROR: nxplayer_setvolume failed: %d\n", ret);
+          gerr("ERROR: nxplayer_setvolume failed: %d\n", ret);
         }
       else
         {
@@ -1506,7 +1506,7 @@ void CMediaPlayer::checkFileSelection(void)
           // The play button will be disabled because m_fileReady is false.
           // No harm done if we were already STOPPED.
 
-          dbg("ERROR: getMediaFile failed\n");
+          gerr("ERROR: getMediaFile failed\n");
           setMediaPlayerState(MPLAYER_STOPPED);
         }
       else
@@ -1628,7 +1628,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               int ret = nxplayer_rewind(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
-                  dbg("ERROR: nxplayer_rewind failed: %d\n", ret);
+                  gerr("ERROR: nxplayer_rewind failed: %d\n", ret);
                 }
 
               // Update the speed indicator
@@ -1647,7 +1647,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               int ret = nxplayer_rewind(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
-                  dbg("ERROR: nxplayer_rewind failed: %d\n", ret);
+                  gerr("ERROR: nxplayer_rewind failed: %d\n", ret);
                 }
               else
                 {
@@ -1678,7 +1678,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               int ret = nxplayer_fforward(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
-                  dbg("ERROR: nxplayer_fforward failed: %d\n", ret);
+                  gerr("ERROR: nxplayer_fforward failed: %d\n", ret);
                 }
 
               // Update the speed indicator
@@ -1697,7 +1697,7 @@ void CMediaPlayer::handleActionEvent(const NXWidgets::CWidgetEventArgs &e)
               int ret = nxplayer_fforward(m_player, g_motionSteps[m_subSample]);
               if (ret < 0)
                 {
-                  dbg("ERROR: nxplayer_fforward failed: %d\n", ret);
+                  gerr("ERROR: nxplayer_fforward failed: %d\n", ret);
                 }
               else
                 {
@@ -1734,7 +1734,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
           int ret = nxplayer_resume(m_player);
           if (ret < 0)
             {
-              dbg("ERROR: nxplayer_resume() failed: %d\n", ret);
+              gerr("ERROR: nxplayer_resume() failed: %d\n", ret);
             }
           else
             {
@@ -1757,7 +1757,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
 
               if (!filePath)
                 {
-                  dbg("ERROR: Failed to allocate file path\n");
+                  gerr("ERROR: Failed to allocate file path\n");
                   return;
                 }
 
@@ -1769,7 +1769,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
                                           AUDIO_FMT_UNDEF, AUDIO_FMT_UNDEF);
               if (ret < 0)
                 {
-                  dbg("ERROR: nxplayer_playfile %s failed: %d\n", filePath, ret);
+                  gerr("ERROR: nxplayer_playfile %s failed: %d\n", filePath, ret);
                 }
               else
                 {
@@ -1796,7 +1796,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
           int ret = nxplayer_cancel_motion(m_player, m_prevState == MPLAYER_PAUSED);
           if (ret < 0)
             {
-              dbg("ERROR: nxplayer_cancel_motion failed: %d\n", ret);
+              gerr("ERROR: nxplayer_cancel_motion failed: %d\n", ret);
             }
           else
             {
@@ -1826,7 +1826,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
           int ret = nxplayer_pause(m_player);
           if (ret < 0)
             {
-              dbg("ERROR: nxplayer_pause() failed: %d\n", ret);
+              gerr("ERROR: nxplayer_pause() failed: %d\n", ret);
             }
           else
             {
@@ -1849,7 +1849,7 @@ void CMediaPlayer::handleReleaseEvent(const NXWidgets::CWidgetEventArgs &e)
           int ret = nxplayer_cancel_motion(m_player, m_prevState == MPLAYER_PAUSED);
           if (ret < 0)
             {
-              dbg("ERROR: nxplayer_cancel_motion failed: %d\n", ret);
+              gerr("ERROR: nxplayer_cancel_motion failed: %d\n", ret);
             }
           else
             {
@@ -1912,7 +1912,7 @@ IApplication *CMediaPlayerFactory::create(void)
   CApplicationWindow *window = m_taskbar->openApplicationWindow();
   if (!window)
     {
-      dbg("ERROR: Failed to create CApplicationWindow\n");
+      gerr("ERROR: Failed to create CApplicationWindow\n");
       return (IApplication *)0;
     }
 
@@ -1920,7 +1920,7 @@ IApplication *CMediaPlayerFactory::create(void)
 
   if (!window->open())
     {
-      dbg("ERROR: Failed to open CApplicationWindow\n");
+      gerr("ERROR: Failed to open CApplicationWindow\n");
       delete window;
       return (IApplication *)0;
     }
@@ -1931,7 +1931,7 @@ IApplication *CMediaPlayerFactory::create(void)
   CMediaPlayer *mediaPlayer = new CMediaPlayer(m_taskbar, window);
   if (!mediaPlayer)
     {
-      dbg("ERROR: Failed to instantiate CMediaPlayer\n");
+      gerr("ERROR: Failed to instantiate CMediaPlayer\n");
       delete window;
       return (IApplication *)0;
     }

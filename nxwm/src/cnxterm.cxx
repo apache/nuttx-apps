@@ -207,7 +207,7 @@ bool CNxTerm::run(void)
 
   if (m_pid >= 0 || m_nxterm != 0)
     {
-      gdbg("ERROR: All ready running or connected\n");
+      gerr("ERROR: All ready running or connected\n");
       return false;
     }
 
@@ -217,7 +217,7 @@ bool CNxTerm::run(void)
     {
       // This might fail if a signal is received while we are waiting.
 
-      gdbg("ERROR: Failed to get semaphore\n");
+      gerr("ERROR: Failed to get semaphore\n");
       return false;
     }
 
@@ -259,7 +259,7 @@ bool CNxTerm::run(void)
   bool result = true;
   if (m_pid < 0)
     {
-      gdbg("ERROR: Failed to create the NxTerm task\n");
+      gerr("ERROR: Failed to create the NxTerm task\n");
       result = false;
     }
   else
@@ -290,7 +290,7 @@ bool CNxTerm::run(void)
           // sem_timedwait failed OR the NxTerm task reported a
           // failure.  Stop the application
 
-          gdbg("ERROR: Failed start the NxTerm task\n");
+          gerr("ERROR: Failed start the NxTerm task\n");
           stop();
           result = false;
         }
@@ -430,7 +430,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
 
   if (on_exit(exitHandler, g_nxtermvars.console) != 0)
     {
-      gdbg("ERROR: on_exit failed\n");
+      gerr("ERROR: on_exit failed\n");
       goto errout;
     }
 
@@ -440,7 +440,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
                                     g_nxtermvars.minor);
   if (!g_nxtermvars.nxterm)
     {
-      gdbg("ERROR: Failed register the console device\n");
+      gerr("ERROR: Failed register the console device\n");
       goto errout;
     }
 
@@ -462,7 +462,7 @@ int CNxTerm::nxterm(int argc, char *argv[])
 #endif
   if (fd < 0)
     {
-      gdbg("ERROR: Failed open the console device\n");
+      gerr("ERROR: Failed open the console device\n");
       goto errout_with_nxterm;
     }
 
@@ -591,7 +591,7 @@ IApplication *CNxTermFactory::create(void)
   CApplicationWindow *window = m_taskbar->openApplicationWindow();
   if (!window)
     {
-      gdbg("ERROR: Failed to create CApplicationWindow\n");
+      gerr("ERROR: Failed to create CApplicationWindow\n");
       return (IApplication *)0;
     }
 
@@ -599,7 +599,7 @@ IApplication *CNxTermFactory::create(void)
 
   if (!window->open())
     {
-      gdbg("ERROR: Failed to open CApplicationWindow\n");
+      gerr("ERROR: Failed to open CApplicationWindow\n");
       delete window;
       return (IApplication *)0;
     }
@@ -610,7 +610,7 @@ IApplication *CNxTermFactory::create(void)
   CNxTerm *nxterm = new CNxTerm(m_taskbar, window);
   if (!nxterm)
     {
-      gdbg("ERROR: Failed to instantiate CNxTerm\n");
+      gerr("ERROR: Failed to instantiate CNxTerm\n");
       delete window;
       return (IApplication *)0;
     }

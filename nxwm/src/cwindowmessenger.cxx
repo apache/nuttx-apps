@@ -125,7 +125,7 @@ void CWindowMessenger::handleMouseEvent(void)
   int ret = work_queue(USRWORK, &state->work, &inputWorkCallback, state, 0);
   if (ret < 0)
     {
-      gdbg("ERROR: work_queue failed: %d\n", ret);
+      gerr("ERROR: work_queue failed: %d\n", ret);
     }
 }
 #endif
@@ -143,7 +143,7 @@ void CWindowMessenger::handleKeyboardEvent(void)
   int ret = work_queue(USRWORK, &state->work, &inputWorkCallback, state, 0);
   if (ret < 0)
     {
-      gdbg("ERROR: work_queue failed: %d\n", ret);
+      gerr("ERROR: work_queue failed: %d\n", ret);
     }
 }
 #endif
@@ -173,7 +173,7 @@ void CWindowMessenger::handleBlockedEvent(FAR void *arg)
   int ret = work_queue(USRWORK, &state->work, &destroyWorkCallback, state, 0);
   if (ret < 0)
     {
-      gdbg("ERROR: work_queue failed: %d\n", ret);
+      gerr("ERROR: work_queue failed: %d\n", ret);
     }
 }
 
@@ -196,7 +196,7 @@ void CWindowMessenger::destroyWorkCallback(FAR void *arg)
 
   // Then release the memory.
 
-  gdbg("Deleting app=%p\n", state->instance);
+  gerr("Deleting app=%p\n", state->instance);
   IApplication *app = (IApplication *)state->instance;
   delete app;
   delete state;

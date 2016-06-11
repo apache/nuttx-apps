@@ -82,8 +82,8 @@
  */
 
 #ifndef CONFIG_DEBUG_INPUT
-#  undef  idbg
-#  define idbg gdbg
+#  undef  ierr
+#  define ierr gerr
 #  undef  iinfo
 #  define iinfo ginfo
 #endif
@@ -434,7 +434,7 @@ bool CCalibration::createWidgets(void)
             CONFIG_NXWM_DEFAULT_FONTCOLOR, CONFIG_NXWM_TRANSPARENT_COLOR);
   if (!m_font)
     {
-      gdbg("ERROR failed to create font\n");
+      gerr("ERROR failed to create font\n");
       return false;
     }
 
@@ -447,7 +447,7 @@ bool CCalibration::createWidgets(void)
   struct nxgl_size_s windowSize;
   if (!window->getSize(&windowSize))
     {
-      gdbg("ERROR: Failed to get window size\n");
+      gerr("ERROR: Failed to get window size\n");
       delete m_font;
       m_font = (NXWidgets::CNxFont *)0;
       return false;
@@ -486,7 +486,7 @@ bool CCalibration::createWidgets(void)
 
   if (!m_text)
     {
-      gdbg("ERROR: Failed to create CLabel\n");
+      gerr("ERROR: Failed to create CLabel\n");
       delete m_font;
       m_font = (NXWidgets::CNxFont *)0;
       return false;
@@ -539,7 +539,7 @@ bool CCalibration::startCalibration(enum ECalThreadState initialState)
 
   if (isRunning())
     {
-      gdbg("The calibration thread is already running\n");
+      gerr("The calibration thread is already running\n");
       return false;
     }
 
@@ -563,7 +563,7 @@ bool CCalibration::startCalibration(enum ECalThreadState initialState)
   int ret = pthread_create(&m_thread, &attr, calibration, (FAR void *)this);
   if (ret != 0)
     {
-      gdbg("pthread_create failed: %d\n", ret);
+      gerr("pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -589,7 +589,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
   if (!This->createWidgets())
     {
-      gdbg("ERROR failed to create widgets\n");
+      gerr("ERROR failed to create widgets\n");
       return false;
     }
 
@@ -1112,7 +1112,7 @@ void CCalibration::finishCalibration(void)
                                        sizeof(struct SCalibrationData));
           if (ret != 0)
             {
-              gdbg("ERROR: Failed to save calibration data\n");
+              gerr("ERROR: Failed to save calibration data\n");
             }
 #endif
           // And provide the calibration data to the touchscreen, enabling
@@ -1152,7 +1152,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   struct nxgl_size_s windowSize;
   if (!window->getSize(&windowSize))
     {
-      gdbg("NXWidgets::INxWindow::getSize failed\n");
+      gerr("NXWidgets::INxWindow::getSize failed\n");
       return false;
     }
 
@@ -1173,7 +1173,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.left.slope    = (bottomX - topX) / (bottomY - topY);
   data.left.offset   = topX - topY * data.left.slope;
 
-  idbg("Left slope: %6.2f offset: %6.2f\n", data.left.slope, data.left.offset);
+  ierr("Left slope: %6.2f offset: %6.2f\n", data.left.slope, data.left.offset);
 
   topX               = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].x;
   bottomX            = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1184,7 +1184,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.right.slope   = (bottomX - topX) / (bottomY - topY);
   data.right.offset  = topX - topY * data.right.slope;
 
-  idbg("Right slope: %6.2f offset: %6.2f\n", data.right.slope, data.right.offset);
+  ierr("Right slope: %6.2f offset: %6.2f\n", data.right.slope, data.right.offset);
 
   // Y lines:
   //
@@ -1202,7 +1202,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.top.slope     = (rightY - leftY) / (rightX - leftX);
   data.top.offset    = leftY - leftX * data.top.slope;
 
-  idbg("Top slope: %6.2f offset: %6.2f\n", data.top.slope, data.top.offset);
+  ierr("Top slope: %6.2f offset: %6.2f\n", data.top.slope, data.top.offset);
 
   leftX              = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].x;
   rightX             = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1213,7 +1213,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.bottom.slope  = (rightY - leftY) / (rightX - leftX);
   data.bottom.offset = leftY - leftX * data.bottom.slope;
 
-  idbg("Bottom slope: %6.2f offset: %6.2f\n", data.bottom.slope, data.bottom.offset);
+  ierr("Bottom slope: %6.2f offset: %6.2f\n", data.bottom.slope, data.bottom.offset);
 
   // Save also the calibration screen positions
 
@@ -1241,7 +1241,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.xSlope  = b16divb16(itob16(CALIBRATION_RIGHTX - CALIBRATION_LEFTX), (rightX - leftX));
   data.xOffset = itob16(CALIBRATION_LEFTX) - b16mulb16(leftX, data.xSlope);
 
-  idbg("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
+  ierr("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
 
   // Similarly for Y
   //
@@ -1262,7 +1262,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.ySlope  = b16divb16(itob16(CALIBRATION_BOTTOMY - CALIBRATION_TOPY), (bottomY - topY));
   data.yOffset = itob16(CALIBRATION_TOPY) - b16mulb16(topY, data.ySlope);
 
-  idbg("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
+  ierr("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
 #endif
 
   return true;
@@ -1294,7 +1294,7 @@ IApplication *CCalibrationFactory::create(void)
   CFullScreenWindow *window = m_taskbar->openFullScreenWindow();
   if (!window)
     {
-      gdbg("ERROR: Failed to create CFullScreenWindow\n");
+      gerr("ERROR: Failed to create CFullScreenWindow\n");
       return (IApplication *)0;
     }
 
@@ -1302,7 +1302,7 @@ IApplication *CCalibrationFactory::create(void)
 
   if (!window->open())
     {
-      gdbg("ERROR: Failed to open CFullScreenWindow \n");
+      gerr("ERROR: Failed to open CFullScreenWindow \n");
       delete window;
       return (IApplication *)0;
     }
@@ -1313,7 +1313,7 @@ IApplication *CCalibrationFactory::create(void)
   CCalibration *calibration = new CCalibration(m_taskbar, window, m_touchscreen);
   if (!calibration)
     {
-      gdbg("ERROR: Failed to instantiate CCalibration\n");
+      gerr("ERROR: Failed to instantiate CCalibration\n");
       delete window;
       return (IApplication *)0;
     }

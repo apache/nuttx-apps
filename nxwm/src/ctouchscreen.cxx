@@ -67,13 +67,13 @@
  */
 
 #if !defined(CONFIG_DEBUG_INPUT) && !defined(CONFIG_DEBUG_GRAPHICS)
-#  undef dbg
+#  undef gerr
 #  undef info
 #  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define dbg(x...)
+#    define gerr(x...)
 #    define info(x...)
 #  else
-#    define dbg  (void)
+#    define gerr  (void)
 #    define info (void)
 #  endif
 #endif
@@ -170,7 +170,7 @@ bool CTouchscreen::start(void)
   int ret = pthread_create(&m_thread, &attr, listener, (FAR void *)this);
   if (ret != 0)
     {
-      dbg("CTouchscreen::start: pthread_create failed: %d\n", ret);
+      gerr("CTouchscreen::start: pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -285,7 +285,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
   int ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_NXWM_TOUCHSCREEN_DEVNO);
   if (ret < 0)
     {
-      dbg("ERROR Failed initialize the touchscreen device: %d\n", errno);
+      gerr("ERROR Failed initialize the touchscreen device: %d\n", errno);
       This->m_state = LISTENER_FAILED;
       sem_post(&This->m_waitSem);
       return (FAR void *)0;
@@ -297,7 +297,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
   This->m_touchFd = std::open(CONFIG_NXWM_TOUCHSCREEN_DEVPATH, O_RDONLY);
   if (This->m_touchFd < 0)
     {
-      dbg("ERROR Failed to open %s for reading: %d\n",
+      gerr("ERROR Failed to open %s for reading: %d\n",
            CONFIG_NXWM_TOUCHSCREEN_DEVPATH, errno);
       This->m_state = LISTENER_FAILED;
       sem_post(&This->m_waitSem);
@@ -358,7 +358,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 #ifdef CONFIG_DEBUG_FEATURES
           int errval = errno;
 
-          dbg("read %s failed: %d\n",
+          gerr("read %s failed: %d\n",
               CONFIG_NXWM_TOUCHSCREEN_DEVPATH, errval);
           DEBUGASSERT(errval == EINTR);
 #endif
@@ -377,7 +377,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
         }
       else
         {
-          dbg("ERROR Unexpected read size=%d, expected=%d\n",
+          gerr("ERROR Unexpected read size=%d, expected=%d\n",
               nbytes, sizeof(struct touch_sample_s));
         }
     }
