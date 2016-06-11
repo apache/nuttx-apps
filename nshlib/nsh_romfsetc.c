@@ -103,7 +103,7 @@ int nsh_romfsetc(void)
                          NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
   if (ret < 0)
     {
-      dbg("nsh: romdisk_register failed: %d\n", -ret);
+      err("nsh: romdisk_register failed: %d\n", -ret);
       return ERROR;
     }
 
@@ -115,7 +115,7 @@ int nsh_romfsetc(void)
   ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      dbg("nsh: mount(%s,%s,romfs) failed: %d\n",
+      err("nsh: mount(%s,%s,romfs) failed: %d\n",
           MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
       return ERROR;
     }

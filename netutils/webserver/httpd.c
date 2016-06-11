@@ -516,7 +516,7 @@ static int httpd_sendfile(struct httpd_state *pstate)
 
   if (httpd_openindex(pstate) != OK)
     {
-      ndbg("[%d] '%s' not found\n", pstate->ht_sockfd, pstate->ht_filename);
+      nerr("[%d] '%s' not found\n", pstate->ht_sockfd, pstate->ht_filename);
       return httpd_senderror(pstate, 404);
     }
 
@@ -577,7 +577,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
       if (o == pstate->ht_buffer + sizeof pstate->ht_buffer)
         {
-          ndbg("[%d] ht_buffer overflow\n");
+          nerr("[%d] ht_buffer overflow\n");
           return 413;
         }
 
@@ -588,20 +588,20 @@ static inline int httpd_parse(struct httpd_state *pstate)
           sizeof pstate->ht_buffer - (o - pstate->ht_buffer), 0);
         if (r == 0)
           {
-            ndbg("[%d] connection lost\n", pstate->ht_sockfd);
+            nerr("[%d] connection lost\n", pstate->ht_sockfd);
             return ERROR;
           }
 
 #if CONFIG_NETUTILS_HTTPD_TIMEOUT > 0
         if (r == -1 && errno == EWOULDBLOCK)
           {
-            ndbg("[%d] recv timeout\n");
+            nerr("[%d] recv timeout\n");
             return 408;
           }
 #endif
         if (r == -1)
           {
-            ndbg("[%d] recv failed: %d\n", pstate->ht_sockfd, errno);
+            nerr("[%d] recv failed: %d\n", pstate->ht_sockfd, errno);
             return 400;
           }
 
@@ -625,7 +625,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
           if (*end != '\n')
             {
-              ndbg("[%d] expected CRLF\n");
+              nerr("[%d] expected CRLF\n");
               return 400;
             }
 
@@ -638,7 +638,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
           case STATE_METHOD:
             if (0 != strncmp(start, "GET ", 4))
               {
-                ndbg("[%d] method not supported\n");
+                nerr("[%d] method not supported\n");
                 return 501;
               }
 
@@ -647,7 +647,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (0 != strcmp(v, " HTTP/1.0") && 0 != strcmp(v, " HTTP/1.1"))
               {
-                ndbg("[%d] HTTP version not supported\n");
+                nerr("[%d] HTTP version not supported\n");
                 return 505;
               }
 
@@ -655,7 +655,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (v - start >= sizeof pstate->ht_filename)
               {
-                ndbg("[%d] ht_filename overflow\n");
+                nerr("[%d] ht_filename overflow\n");
                 return 414;
               }
 
@@ -680,7 +680,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (*start == '\0' || *v == '\0')
               {
-                ndbg("[%d] header parse error\n");
+                nerr("[%d] header parse error\n");
                 return 400;
               }
 
@@ -688,7 +688,7 @@ static inline int httpd_parse(struct httpd_state *pstate)
 
             if (0 == strcasecmp(start, "Content-Length") && 0 != atoi(v))
               {
-                ndbg("[%d] non-zero request length\n");
+                nerr("[%d] non-zero request length\n");
                 return 413;
               }
 #ifndef CONFIG_NETUTILS_HTTPD_KEEPALIVE_DISABLE
@@ -815,7 +815,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
 
       if (acceptsd < 0)
         {
-          ndbg("accept failure: %d\n", errno);
+          nerr("accept failure: %d\n", errno);
           break;
         }
 
@@ -829,7 +829,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
       if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
         {
           close(acceptsd);
-          ndbg("setsockopt SO_LINGER failure: %d\n", errno);
+          nerr("setsockopt SO_LINGER failure: %d\n", errno);
           break;;
         }
 #endif
@@ -842,7 +842,7 @@ static void single_server(uint16_t portno, pthread_startroutine_t handler, int s
       if (setsockopt(acceptsd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval)) < 0)
         {
           close(acceptsd);
-          ndbg("setsockopt SO_RCVTIMEO failure: %d\n", errno);
+          nerr("setsockopt SO_RCVTIMEO failure: %d\n", errno);
           break;;
         }
 #endif

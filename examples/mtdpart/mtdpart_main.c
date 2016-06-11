@@ -214,7 +214,7 @@ int mtdpart_main(int argc, char *argv[])
   ret = master->ioctl(master, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&geo));
   if (ret < 0)
     {
-      fdbg("ERROR: mtd->ioctl failed: %d\n", ret);
+      ferr("ERROR: mtd->ioctl failed: %d\n", ret);
       exit(3);
     }
 

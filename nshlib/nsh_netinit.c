@@ -413,7 +413,7 @@ static int nsh_netinit_monitor(void)
       ret = -errno;
       DEBUGASSERT(ret < 0);
 
-      ndbg("ERROR: Failed to create a socket: %d\n", ret);
+      nerr("ERROR: Failed to create a socket: %d\n", ret);
       goto errout;
     }
 
@@ -428,7 +428,7 @@ static int nsh_netinit_monitor(void)
       ret = -errno;
       DEBUGASSERT(ret < 0);
 
-      ndbg("ERROR: sigaction() failed: %d\n", ret);
+      nerr("ERROR: sigaction() failed: %d\n", ret);
       goto errout_with_socket;
     }
 
@@ -450,7 +450,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCMIINOTIFY) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCMIINOTIFY) failed: %d\n", ret);
           goto errout_with_sigaction;
         }
 
@@ -462,7 +462,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCGIFFLAGS) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCGIFFLAGS) failed: %d\n", ret);
           goto errout_with_notification;
         }
 
@@ -481,7 +481,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCGMIIPHY) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCGMIIPHY) failed: %d\n", ret);
           goto errout_with_notification;
         }
 
@@ -495,7 +495,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCGMIIREG) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCGMIIREG) failed: %d\n", ret);
           goto errout_with_notification;
         }
 
@@ -523,7 +523,7 @@ static int nsh_netinit_monitor(void)
                   ret = -errno;
                   DEBUGASSERT(ret < 0);
 
-                  ndbg("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
+                  nerr("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
                   goto errout_with_notification;
                 }
 
@@ -561,7 +561,7 @@ static int nsh_netinit_monitor(void)
                   ret = -errno;
                   DEBUGASSERT(ret < 0);
 
-                  ndbg("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
+                  nerr("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
                   goto errout_with_notification;
                 }
             }
@@ -600,7 +600,7 @@ errout_with_sigaction:
 errout_with_socket:
   close(sd);
 errout:
-  ndbg("Aborting\n");
+  nerr("Aborting\n");
   return ret;
 }
 #endif
@@ -666,7 +666,7 @@ int nsh_netinit(void)
   ret = pthread_create(&tid, &attr, nsh_netinit_thread, NULL);
   if (ret != OK)
     {
-      ndbg("ERROR: Failed to create netinit thread: %d\n", ret);
+      nerr("ERROR: Failed to create netinit thread: %d\n", ret);
       (void)nsh_netinit_thread(NULL);
     }
   else

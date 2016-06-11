@@ -310,7 +310,7 @@ static int ntpc_daemon(int argc, char **argv)
   sd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sd < 0)
     {
-      ndbg("ERROR: socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
 
       g_ntpc_daemon.state = NTP_STOPPED;
       sem_post(&g_ntpc_daemon.interlock);
@@ -325,7 +325,7 @@ static int ntpc_daemon(int argc, char **argv)
   ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
   if (ret < 0)
     {
-      ndbg("ERROR: setsockopt failed: %d\n", errno);
+      nerr("ERROR: setsockopt failed: %d\n", errno);
 
       g_ntpc_daemon.state = NTP_STOPPED;
       sem_post(&g_ntpc_daemon.interlock);
@@ -388,7 +388,7 @@ static int ntpc_daemon(int argc, char **argv)
           int errval = errno;
           if (errval != EINTR)
             {
-              ndbg("ERROR: sendto() failed: %d\n", errval);
+              nerr("ERROR: sendto() failed: %d\n", errval);
               exitcode = EXIT_FAILURE;
               break;
             }
@@ -441,7 +441,7 @@ static int ntpc_daemon(int argc, char **argv)
 
               /* Then declare the failure */
 
-              ndbg("ERROR: recvfrom() failed: %d\n", errval);
+              nerr("ERROR: recvfrom() failed: %d\n", errval);
               exitcode = EXIT_FAILURE;
               break;
             }
@@ -517,7 +517,7 @@ int ntpc_start(void)
           DEBUGASSERT(errval > 0);
 
           g_ntpc_daemon.state = NTP_STOPPED;
-          ndbg("ERROR: Failed to start the NTP daemon\n", errval);
+          nerr("ERROR: Failed to start the NTP daemon\n", errval);
           sched_unlock();
           return -errval;
         }
@@ -573,7 +573,7 @@ int ntpc_stop(void)
 
           if (ret < 0)
             {
-              ndbg("ERROR: kill pid %d failed: %d\n",
+              nerr("ERROR: kill pid %d failed: %d\n",
                    g_ntpc_daemon.pid, errno);
               break;
             }

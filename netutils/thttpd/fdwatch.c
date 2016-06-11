@@ -63,12 +63,12 @@
 
 #ifdef CONFIG_THTTPD_FDWATCH_DEBUG
 #  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define fwdbg(format, ...)    ndbg(format, ##__VA_ARGS__)
+#    define fwdbg(format, ...)    nerr(format, ##__VA_ARGS__)
 #    define fwllerr(format, ...)  nllerr(format, ##__VA_ARGS__)
 #    define fwinfo(format, ...)   ninfo(format, ##__VA_ARGS__)
 #    define fwllinfo(format, ...) nllinfo(format, ##__VA_ARGS__)
 #  else
-#    define fwdbg    ndbg
+#    define fwdbg    nerr
 #    define fwllerr  nllerr
 #    define fwinfo   ninfo
 #    define fwllinfo nllinfo

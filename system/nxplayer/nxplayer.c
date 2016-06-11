@@ -176,7 +176,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
         {
           /* Format not supported by the device */
 
-          auddbg("ERROR: Format not supported by device: %d\n", format);
+          auderr("ERROR: Format not supported by device: %d\n", format);
           return -ENODEV;
         }
 
@@ -188,7 +188,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
 
-          auddbg("ERROR: Failed to open %s: %d\n", -errcode);
+          auderr("ERROR: Failed to open %s: %d\n", -errcode);
           UNUSED(errcode);
           return -ENOENT;
         }
@@ -229,7 +229,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
 
-          auddbg("ERROR: Failed to open /dev/audio: %d\n", -errcode);
+          auderr("ERROR: Failed to open /dev/audio: %d\n", -errcode);
           UNUSED(errcode);
           return -ENODEV;
         }
@@ -340,7 +340,7 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
 
   /* Device not found */
 
-  auddbg("ERROR: Device not found\n");
+  auderr("ERROR: Device not found\n");
   pPlayer->devFd = -1;
   return -ENODEV;
 }
@@ -540,7 +540,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
       if (apb->nbytes == 0 && readerror)
         {
           DEBUGASSERT(errcode > 0);
-          auddbg("ERROR: fread failed: %d\n", errcode);
+          auderr("ERROR: fread failed: %d\n", errcode);
         }
 #endif
     }
@@ -598,7 +598,7 @@ static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
 
-      auddbg("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
+      auderr("ERROR: AUDIOIOC_ENQUEUEBUFFER ioctl failed: %d\n", errcode);
       return -errcode;
     }
 
@@ -701,7 +701,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
         {
           /* Buffer alloc Operation not supported or error allocating! */
 
-          auddbg("ERROR: Could not allocate buffer %d\n", x);
+          auderr("ERROR: Could not allocate buffer %d\n", x);
           running = false;
           goto err_out;
         }
@@ -1102,7 +1102,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
           int errcode = errno;
           DEBUGASSERT(errcode > 0);
 
-          auddbg("ERROR: AUDIOIOC_CONFIGURE ioctl failed: %d\n", errcode);
+          auderr("ERROR: AUDIOIOC_CONFIGURE ioctl failed: %d\n", errcode);
           return -errcode;
         }
     }
@@ -1402,7 +1402,7 @@ int nxplayer_fforward(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
 
-      auddbg("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
+      auderr("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
       ret = -errcode;
     }
 
@@ -1458,7 +1458,7 @@ int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
 
-      auddbg("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
+      auderr("ERROR: ioctl AUDIOIOC_CONFIGURE failed: %d\n", errcode);
       ret = -errcode;
     }
 
@@ -1497,7 +1497,7 @@ int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused)
   ret = nxplayer_fforward(pPlayer, AUDIO_SUBSAMPLE_NONE);
   if (ret < 0)
     {
-      auddbg("ERROR: nxplayer_fforward failed: %d\n", ret);
+      auderr("ERROR: nxplayer_fforward failed: %d\n", ret);
       return ret;
     }
 
@@ -1507,7 +1507,7 @@ int nxplayer_cancel_motion(FAR struct nxplayer_s *pPlayer, bool paused)
       ret = nxplayer_pause(pPlayer);
       if (ret < 0)
         {
-          auddbg("ERROR: nxplayer_pause failed: %d\n", ret);
+          auderr("ERROR: nxplayer_pause failed: %d\n", ret);
           return ret;
         }
     }
@@ -1681,18 +1681,18 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
 
           if (nxplayer_mediasearch(pPlayer, pFilename, path, sizeof(path)) != OK)
             {
-              auddbg("ERROR: Could not find file\n");
+              auderr("ERROR: Could not find file\n");
               return -ENOENT;
             }
 #else
-          auddbg("ERROR: Could not open %s or %s\n", pFilename, path);
+          auderr("ERROR: Could not open %s or %s\n", pFilename, path);
           return -ENOENT;
 #endif  /* CONFIG_NXPLAYER_MEDIA_SEARCH */
         }
 
 #else   /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
 
-        auddbg("ERROR: Could not open %s\n", pFilename);
+        auderr("ERROR: Could not open %s\n", pFilename);
         return -ENOENT;
 #endif  /* CONFIG_NXPLAYER_INCLUDE_MEDIADIR */
     }
@@ -1721,7 +1721,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
     {
       /* Hmmm, it's some unknown / unsupported type */
 
-      auddbg("ERROR: Unsupported format: %d \n", filefmt);
+      auderr("ERROR: Unsupported format: %d \n", filefmt);
       ret = -ENOSYS;
       goto err_out_nodev;
     }
@@ -1740,7 +1740,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
     {
       /* Error opening the device */
 
-      auddbg("ERROR: nxplayer_opendevice failed: %d\n", ret);
+      auderr("ERROR: nxplayer_opendevice failed: %d\n", ret);
       goto err_out_nodev;
     }
 
@@ -1756,7 +1756,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
     {
       /* Device is busy or error */
 
-      auddbg("ERROR: Failed to reserve device: %d\n", ret);
+      auderr("ERROR: Failed to reserve device: %d\n", ret);
       ret = -errno;
       goto err_out;
     }
@@ -1777,7 +1777,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
       /* Unable to open message queue! */
 
       ret = -errno;
-      auddbg("ERROR: mq_open failed: %d\n", ret);
+      auderr("ERROR: mq_open failed: %d\n", ret);
       goto err_out;
     }
 
@@ -1813,7 +1813,7 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
                        (pthread_addr_t) pPlayer);
   if (ret != OK)
     {
-      auddbg("ERROR: Failed to create playthread: %d\n", ret);
+      auderr("ERROR: Failed to create playthread: %d\n", ret);
       goto err_out;
     }
 
@@ -1944,7 +1944,7 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
 
       if (errcode != EINTR)
         {
-          auddbg("ERROR: sem_wait failed: %d\n", errcode);
+          auderr("ERROR: sem_wait failed: %d\n", errcode);
           return;
         }
     }
@@ -1964,7 +1964,7 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
 
           if (errcode != -EINTR)
             {
-              auddbg("ERROR: sem_wait failed: %d\n", errcode);
+              auderr("ERROR: sem_wait failed: %d\n", errcode);
               return;
             }
         }
@@ -2006,7 +2006,7 @@ void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
 
       if (errcode != -EINTR)
         {
-          auddbg("ERROR: sem_wait failed: %d\n", errcode);
+          auderr("ERROR: sem_wait failed: %d\n", errcode);
           return;
         }
     }
@@ -2043,7 +2043,7 @@ void nxplayer_detach(FAR struct nxplayer_s* pPlayer)
 
       if (errcode != -EINTR)
         {
-          auddbg("ERROR: sem_wait failed: %d\n", errcode);
+          auderr("ERROR: sem_wait failed: %d\n", errcode);
           return;
         }
     }

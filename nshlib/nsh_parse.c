@@ -363,7 +363,7 @@ static pthread_addr_t nsh_child(pthread_addr_t arg)
   struct cmdarg_s *carg = (struct cmdarg_s *)arg;
   int ret;
 
-  dbg("BG %s\n", carg->argv[0]);
+  info("BG %s\n", carg->argv[0]);
 
   /* Execute the specified command on the child thread */
 
@@ -371,7 +371,7 @@ static pthread_addr_t nsh_child(pthread_addr_t arg)
 
   /* Released the cloned arguments */
 
-  dbg("BG %s complete\n", carg->argv[0]);
+  info("BG %s complete\n", carg->argv[0]);
   nsh_releaseargs(carg);
   return (pthread_addr_t)((uintptr_t)ret);
 }

@@ -59,12 +59,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_MODEM_U_BLOX_DEBUG
-#  define m_dbg    dbg
-#  define m_info   info
+#  define m_err     err
+#  define m_info    info
 #  define m_vllerr  llerr
 #  define m_vllinfo llinfo
 #else
-#  define m_dbg(x...)
+#  define m_err(x...)
 #  define m_info(x...)
 #  define m_llerr(x...)
 #  define m_llinfo(x...)
@@ -364,7 +364,7 @@ static int ubloxmodem_at(FAR struct ubloxmodem_cxt* cxt)
 
   ret = chat_single(fd, atcmd, resp);
 
-  m_dbg("test result: %d\n", ret);
+  m_err("test result: %d\n", ret);
 
   close(fd);
   return ret;

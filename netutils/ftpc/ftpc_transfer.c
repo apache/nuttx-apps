@@ -111,7 +111,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
 
   if (!FTPC_HAS_PASV(session))
   {
-    ndbg("Host doesn't support passive mode\n");
+    nerr("Host doesn't support passive mode\n");
     return ERROR;
   }
 
@@ -143,7 +143,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
                  &tmpap[3], &tmpap[4], &tmpap[5]);
   if (nscan != 6)
     {
-      ndbg("Error parsing PASV reply: '%s'\n", session->reply);
+      nerr("Error parsing PASV reply: '%s'\n", session->reply);
       return ERROR;
     }
 
@@ -255,7 +255,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 
   if (!ftpc_connected(session))
     {
-      ndbg("Not connected\n");
+      nerr("Not connected\n");
       goto errout;
     }
 
@@ -264,7 +264,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
   ret = ftpc_sockinit(&session->data);
   if (ret != OK)
     {
-      ndbg("ftpc_sockinit() failed: %d\n", errno);
+      nerr("ftpc_sockinit() failed: %d\n", errno);
       goto errout;
     }
 
@@ -281,7 +281,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftp_pasvmode(session, addrport);
       if (ret != OK)
         {
-          ndbg("ftp_pasvmode() failed: %d\n", errno);
+          nerr("ftp_pasvmode() failed: %d\n", errno);
           goto errout_with_data;
         }
 
@@ -296,7 +296,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftpc_sockconnect(&session->data, &addr);
       if (ret < 0)
         {
-          ndbg("ftpc_sockconnect() failed: %d\n", errno);
+          nerr("ftpc_sockconnect() failed: %d\n", errno);
           goto errout_with_data;
         }
     }
@@ -316,7 +316,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
                      paddr[3], pport[0], pport[1]);
       if (ret < 0)
         {
-          ndbg("ftpc_cmd() failed: %d\n", errno);
+          nerr("ftpc_cmd() failed: %d\n", errno);
           goto errout_with_data;
         }
     }

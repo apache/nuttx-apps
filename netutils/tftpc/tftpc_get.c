@@ -93,7 +93,7 @@ static inline ssize_t tftp_write(int fd, const uint8_t *buf, size_t len)
 
       if (nbyteswritten < 0)
         {
-          ndbg("write failed: %d\n", errno);
+          nerr("write failed: %d\n", errno);
           return ERROR;
         }
 
@@ -168,7 +168,7 @@ int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
   packet = (FAR uint8_t*)zalloc(TFTP_IOBUFSIZE);
   if (!packet)
     {
-      ndbg("packet memory allocation failure\n");
+      nerr("packet memory allocation failure\n");
       set_errno(ENOMEM);
       goto errout;
     }
@@ -178,7 +178,7 @@ int tftpget(FAR const char *remote, FAR const char *local, in_addr_t addr,
   fd = open(local, O_WRONLY|O_CREAT|O_TRUNC, 0666);
   if (fd < 0)
     {
-      ndbg("open failed: %d\n", errno);
+      nerr("open failed: %d\n", errno);
       goto errout_with_packet;
    }
 

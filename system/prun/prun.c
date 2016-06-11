@@ -95,7 +95,7 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize)
   st = pload(exepath, varsize, varsize);
   if (!st)
     {
-      bdbg("ERROR: Could not load %s\n", exepath);
+      berr("ERROR: Could not load %s\n", exepath);
       return -ENOEXEC;
     }
 
@@ -118,7 +118,7 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize)
     {
       /* REVISIT: Select a more appropriated return errocode */
 
-      bdbg("ERROR: Runtime error 0x%02x -- Execution Stopped\n", errcode);
+      berr("ERROR: Runtime error 0x%02x -- Execution Stopped\n", errcode);
       ret = -ENOEXEC;
     }
 

@@ -59,7 +59,7 @@
 #endif
 
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxdbg              dbg
+#  define cxxerr              err
 #  define cxxllerr            llerr
 #  ifdef CONFIG_DEBUG_INFO
 #    define cxxinfo           info
@@ -69,7 +69,7 @@
 #    define cxxllinfo(x...)
 #  endif
 #else
-#  define cxxdbg(x...)
+#  define cxxerr(x...)
 #  define cxxllerr(x...)
 #  define cxxinfo(x...)
 #  define cxxllinfo(x...)
@@ -127,7 +127,7 @@ void up_cxxinitialize(void)
 {
   initializer_t *initp;
 
-  cxxdbg("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
+  cxxerr("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
          &_sinit, &_einit, &_stext, &_etext);
 
   /* Visit each entry in the initialization table */
@@ -135,7 +135,7 @@ void up_cxxinitialize(void)
   for (initp = &_sinit; initp != &_einit; initp++)
     {
       initializer_t initializer = *initp;
-      cxxdbg("initp: %p initializer: %p\n", initp, initializer);
+      cxxerr("initp: %p initializer: %p\n", initp, initializer);
 
       /* Make sure that the address is non-NULL and lies in the text region
        * defined by the linker script.  Some toolchains may put NULL values
@@ -145,7 +145,7 @@ void up_cxxinitialize(void)
       if ((void *)initializer > (void *)&_stext &&
           (void *)initializer < (void *)&_etext)
         {
-          cxxdbg("Calling %p\n", initializer);
+          cxxerr("Calling %p\n", initializer);
           initializer();
         }
     }

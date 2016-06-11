@@ -100,7 +100,7 @@ FAR char *ftpc_rpwd(SESSION handle)
   start = strchr(session->reply, '\"');
   if (!start)
     {
-      ndbg("Opening quote not found\n");
+      nerr("Opening quote not found\n");
       return NULL;
     }
   start++;
@@ -108,7 +108,7 @@ FAR char *ftpc_rpwd(SESSION handle)
   end = strchr(start, '\"');
   if (!end)
     {
-      ndbg("Closing quote not found\n");
+      nerr("Closing quote not found\n");
       return NULL;
     }
 
@@ -124,7 +124,7 @@ FAR char *ftpc_rpwd(SESSION handle)
   pwd = (char *)malloc(len + 1);
   if (!pwd)
     {
-      ndbg("Failed to allocate string\n");
+      nerr("Failed to allocate string\n");
       return NULL;
     }
 

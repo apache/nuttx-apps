@@ -89,7 +89,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
 
   if (!ftpc_connected(session))
     {
-      ndbg("Not connected\n");
+      nerr("Not connected\n");
       errcode = ENOTCONN;
       goto errout_with_err;
     }
@@ -98,7 +98,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
 
   if (ftpc_loggedin(session))
     {
-      ndbg("Already logged in\n");
+      nerr("Already logged in\n");
       errcode = EINVAL;
       goto errout_with_err;
     }
@@ -123,7 +123,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
   ret = ftpc_relogin(session);
   if (ret != OK)
     {
-      ndbg("login failed: %d\n", errno);
+      nerr("login failed: %d\n", errno);
       goto errout;
     }
 
@@ -167,7 +167,7 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
   ret = ftpc_cmd(session, "USER %s", session->uname);
   if (ret != OK)
     {
-      ndbg("USER %s cmd failed: %d\n", session->uname, errno);
+      nerr("USER %s cmd failed: %d\n", session->uname, errno);
       return ERROR;
     }
 
@@ -189,7 +189,7 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
   ret = ftpc_cmd(session, "PASS %s", session->pwd);
   if (ret != OK)
     {
-      ndbg("PASS %s cmd failed: %d\n", session->pwd, errno);
+      nerr("PASS %s cmd failed: %d\n", session->pwd, errno);
       return ret;
     }
 

@@ -224,7 +224,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
 #ifdef CONFIG_DEBUG_FEATURES_FEATURES
   if (!sockaddr_check(saP))
     {
-      ndbg("unknown sockaddr family on listen socket\n");
+      nerr("unknown sockaddr family on listen socket\n");
       return -1;
     }
 #endif
@@ -235,7 +235,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
   listen_fd = socket(saP->sin_family, SOCK_STREAM, 0);
   if (listen_fd < 0)
     {
-      ndbg("socket failed: %d\n", errno);
+      nerr("socket failed: %d\n", errno);
       return -1;
     }
 
@@ -244,14 +244,14 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
   on = 1;
   if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
     {
-      ndbg("setsockopt(SO_REUSEADDR) failed: %d\n", errno);
+      nerr("setsockopt(SO_REUSEADDR) failed: %d\n", errno);
     }
 
   /* Bind to it. */
 
   if (bind(listen_fd, (struct sockaddr*)saP, sockaddr_len(saP)) < 0)
     {
-      ndbg("bind to %s failed: %d\n", httpd_ntoa(saP), errno);
+      nerr("bind to %s failed: %d\n", httpd_ntoa(saP), errno);
       (void)close(listen_fd);
       return -1;
     }
@@ -261,14 +261,14 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
   flags = fcntl(listen_fd, F_GETFL, 0);
   if (flags == -1)
     {
-      ndbg("fcntl(F_GETFL) failed: %d\n", errno);
+      nerr("fcntl(F_GETFL) failed: %d\n", errno);
       (void)close(listen_fd);
       return -1;
     }
 
   if (fcntl(listen_fd, F_SETFL, flags | O_NDELAY) < 0)
     {
-      ndbg("fcntl(O_NDELAY) failed: %d\n", errno);
+      nerr("fcntl(O_NDELAY) failed: %d\n", errno);
       (void)close(listen_fd);
       return -1;
     }
@@ -277,7 +277,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
 
   if (listen(listen_fd, CONFIG_THTTPD_LISTEN_BACKLOG) < 0)
     {
-      ndbg("listen failed: %d\n", errno);
+      nerr("listen failed: %d\n", errno);
       (void)close(listen_fd);
       return -1;
     }
@@ -297,7 +297,7 @@ static void add_response(httpd_conn *hc, const char *str)
 
   if (resplen > CONFIG_THTTPD_IOBUFFERSIZE)
     {
-      ndbg("resplen(%d) > buffer size(%d)\n", resplen, CONFIG_THTTPD_IOBUFFERSIZE);
+      nerr("resplen(%d) > buffer size(%d)\n", resplen, CONFIG_THTTPD_IOBUFFERSIZE);
       resplen = CONFIG_THTTPD_IOBUFFERSIZE;
       len     = resplen - hc->buflen;
     }
@@ -776,7 +776,7 @@ static int auth_check2(httpd_conn *hc, char *dirname)
     {
       /* The file exists but we can't open it? Disallow access. */
 
-      ndbg("%s auth file %s could not be opened: %d\n",
+      nerr("%s auth file %s could not be opened: %d\n",
              httpd_ntoa(&hc->client_addr), authpath, errno);
 
       httpd_send_err(hc, 403, err403title, "",
@@ -1009,7 +1009,7 @@ static int vhost_map(httpd_conn *hc)
       sz = sizeof(sa);
       if (getsockname(hc->conn_fd, &sa.sa, &sz) < 0)
         {
-          ndbg("getsockname: %d\n", errno);
+          nerr("getsockname: %d\n", errno);
           return 0;
         }
       hc->vhostname = httpd_ntoa(&sa);
@@ -1588,7 +1588,7 @@ static void ls_child(int argc, char **argv)
   fp = fdopen(hc->conn_fd, "w");
   if (fp == NULL)
     {
-      ndbg("fdopen: %d\n", errno);
+      nerr("fdopen: %d\n", errno);
       INTERNALERROR("fdopen");
       httpd_send_err(hc, 500, err500title, "", err500form, hc->encodedurl);
       httpd_write_response(hc);
@@ -1630,7 +1630,7 @@ static void ls_child(int argc, char **argv)
 
           if (!names || !nameptrs)
             {
-              ndbg("out of memory reallocating directory names\n");
+              nerr("out of memory reallocating directory names\n");
               exit(1);
             }
 
@@ -1817,7 +1817,7 @@ static int ls(httpd_conn *hc)
   dirp = opendir(hc->expnfilename);
   if (dirp == NULL)
     {
-      ndbg("opendir %s: %d\n", hc->expnfilename, errno);
+      nerr("opendir %s: %d\n", hc->expnfilename, errno);
       httpd_send_err(hc, 404, err404title, "", err404form, hc->encodedurl);
       return -1;
     }
@@ -1851,7 +1851,7 @@ static int ls(httpd_conn *hc)
                           (main_t)ls_child, (FAR char * const *)argv);
       if (child < 0)
         {
-          ndbg("task_create: %d\n", errno);
+          nerr("task_create: %d\n", errno);
           closedir(dirp);
           INTERNALERROR("task_create");
           httpd_send_err(hc, 500, err500title, "", err500form, hc->encodedurl);
@@ -1859,7 +1859,7 @@ static int ls(httpd_conn *hc)
         }
 
       closedir(dirp);
-      ndbg("spawned indexing task %d for directory '%s'\n", child, hc->expnfilename);
+      nerr("spawned indexing task %d for directory '%s'\n", child, hc->expnfilename);
 
       /* Schedule a kill for the child task, in case it runs too long */
 
@@ -1867,7 +1867,7 @@ static int ls(httpd_conn *hc)
       client_data.i = child;
       if (tmr_create(NULL, cgi_kill, client_data, CONFIG_THTTPD_CGI_TIMELIMIT * 1000L, 0) == NULL)
         {
-          ndbg("tmr_create(cgi_kill ls) failed\n");
+          nerr("tmr_create(cgi_kill ls) failed\n");
           exit(1);
         }
 #endif
@@ -1918,7 +1918,7 @@ static int check_referer(httpd_conn *hc)
           cp = "";
         }
 
-      ndbg("%s non-local referer \"%s%s\" \"%s\"\n",
+      nerr("%s non-local referer \"%s%s\" \"%s\"\n",
              httpd_ntoa(&hc->client_addr), cp, hc->encodedurl, hc->referer);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,
@@ -2092,7 +2092,7 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
   hs = (FAR httpd_server *)zalloc(sizeof(httpd_server));
   if (!hs)
     {
-      ndbg("out of memory allocating an httpd_server\n");
+      nerr("out of memory allocating an httpd_server\n");
       return NULL;
     }
 
@@ -2105,7 +2105,7 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
 
   if (!hs->hostname)
     {
-      ndbg("out of memory copying hostname\n");
+      nerr("out of memory copying hostname\n");
       return NULL;
     }
 
@@ -2116,7 +2116,7 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
   hs->listen_fd = initialize_listen_socket(sa);
   if (hs->listen_fd == -1)
     {
-      ndbg("Failed to create listen socket\n");
+      nerr("Failed to create listen socket\n");
       free_httpd_server(hs);
       return NULL;
     }
@@ -2125,7 +2125,7 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
 
   /* Done initializing. */
 
-  ndbg("%s starting on port %d\n", CONFIG_THTTPD_SERVER_SOFTWARE, (int)CONFIG_THTTPD_PORT);
+  nerr("%s starting on port %d\n", CONFIG_THTTPD_SERVER_SOFTWARE, (int)CONFIG_THTTPD_PORT);
   return hs;
 }
 
@@ -2204,7 +2204,7 @@ void httpd_send_err(httpd_conn *hc, int status, const char *title, const char *e
 
   /* Try virtual host error page. */
 
-  ndbg("title: \"%s\" form: \"%s\"\n", title, form);
+  nerr("title: \"%s\" form: \"%s\"\n", title, form);
 
 #ifdef CONFIG_THTTPD_VHOST
   if (hc->hostdir[0] != '\0')
@@ -2303,14 +2303,14 @@ int httpd_get_conn(httpd_server *hs, int listen_fd, httpd_conn *hc)
           return GC_NO_MORE;
         }
 
-      ndbg("accept failed: %d\n", errno);
+      nerr("accept failed: %d\n", errno);
       return GC_FAIL;
     }
 
 #ifdef CONFIG_DEBUG_FEATURES_FEATURES
   if (!sockaddr_check(&sa))
     {
-      ndbg("unknown sockaddr family\n");
+      nerr("unknown sockaddr family\n");
       close(hc->conn_fd);
       hc->conn_fd = -1;
       return GC_FAIL;
@@ -2788,7 +2788,7 @@ int httpd_parse_request(httpd_conn *hc)
                 {
                   if (strlen(hc->accept) > CONFIG_THTTPD_MAXREALLOC)
                     {
-                      ndbg("%s way too much Accept: data\n",
+                      nerr("%s way too much Accept: data\n",
                              httpd_ntoa(&hc->client_addr));
                       continue;
                     }
@@ -2809,7 +2809,7 @@ int httpd_parse_request(httpd_conn *hc)
                 {
                   if (strlen(hc->accepte) > CONFIG_THTTPD_MAXREALLOC)
                     {
-                      ndbg("%s way too much Accept-Encoding: data\n",
+                      nerr("%s way too much Accept-Encoding: data\n",
                              httpd_ntoa(&hc->client_addr));
                       continue;
                     }
@@ -2833,7 +2833,7 @@ int httpd_parse_request(httpd_conn *hc)
               cp = &buf[18];
               hc->if_modified_since = tdate_parse(cp);
               if (hc->if_modified_since == (time_t) - 1)
-                ndbg("unparsable time: %s\n", cp);
+                nerr("unparsable time: %s\n", cp);
             }
           else if (strncasecmp(buf, "Cookie:", 7) == 0)
             {
@@ -2878,7 +2878,7 @@ int httpd_parse_request(httpd_conn *hc)
               hc->range_if = tdate_parse(cp);
               if (hc->range_if == (time_t) - 1)
                 {
-                  ndbg("unparsable time: %s\n", cp);
+                  nerr("unparsable time: %s\n", cp);
                 }
             }
           else if (strncasecmp(buf, "Content-Type:", 13) == 0)
@@ -2940,7 +2940,7 @@ int httpd_parse_request(httpd_conn *hc)
             ;                   /* ignore */
           else
             {
-              ndbg("unknown request header: %s\n", buf);
+              nerr("unknown request header: %s\n", buf);
             }
 #endif /* LOG_UNKNOWN_HEADERS */
         }
@@ -3058,7 +3058,7 @@ int httpd_parse_request(httpd_conn *hc)
 #endif
       else
         {
-          ndbg("%s URL \"%s\" goes outside the web tree\n",
+          nerr("%s URL \"%s\" goes outside the web tree\n",
                  httpd_ntoa(&hc->client_addr), hc->encodedurl);
           httpd_send_err(hc, 403, err403title, "",
                          ERROR_FORM(err403form,
@@ -3152,7 +3152,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
   if (!(hc->sb.st_mode & (S_IROTH | S_IXOTH)))
     {
-      ndbg("%s URL \"%s\" resolves to a non world-readable file\n",
+      nerr("%s URL \"%s\" resolves to a non world-readable file\n",
            httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,
@@ -3218,7 +3218,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
       if (!(hc->sb.st_mode & S_IROTH))
         {
-          ndbg("%s URL \"%s\" tried to index a non-readable directory\n",
+          nerr("%s URL \"%s\" tried to index a non-readable directory\n",
                  httpd_ntoa(&hc->client_addr), hc->encodedurl);
           httpd_send_err(hc, 403, err403title, "",
                          ERROR_FORM(err403form,
@@ -3248,7 +3248,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 #else /* CONFIG_THTTPD_GENERATE_INDICES */
       /* Indexing is disabled */
 
-      ndbg("%s URL \"%s\" tried to index a directory with indexing disabled\n",
+      nerr("%s URL \"%s\" tried to index a directory with indexing disabled\n",
              httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,
@@ -3279,7 +3279,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
       if (!(hc->sb.st_mode & (S_IROTH | S_IXOTH)))
         {
-          ndbg("%s URL \"%s\" resolves to a non-world-readable index file\n",
+          nerr("%s URL \"%s\" resolves to a non-world-readable index file\n",
                  httpd_ntoa(&hc->client_addr), hc->encodedurl);
           httpd_send_err(hc, 403, err403title, "",
                          ERROR_FORM(err403form,
@@ -3315,7 +3315,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
     {
       if (strcmp(hc->expnfilename, CONFIG_THTTPD_AUTH_FILE) == 0)
         {
-          ndbg("%s URL \"%s\" tried to retrieve an auth file\n",
+          nerr("%s URL \"%s\" tried to retrieve an auth file\n",
                  httpd_ntoa(&hc->client_addr), hc->encodedurl);
           httpd_send_err(hc, 403, err403title, "",
                          ERROR_FORM(err403form,
@@ -3329,7 +3329,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
                   CONFIG_THTTPD_AUTH_FILE) == 0 &&
            hc->expnfilename[expnlen - sizeof(CONFIG_THTTPD_AUTH_FILE)] == '/')
     {
-      ndbg("%s URL \"%s\" tried to retrieve an auth file\n",
+      nerr("%s URL \"%s\" tried to retrieve an auth file\n",
              httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,
@@ -3360,7 +3360,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
   if (hc->sb.st_mode & S_IXOTH)
     {
-      ndbg("%s URL \"%s\" is executable but isn't CGI\n",
+      nerr("%s URL \"%s\" is executable but isn't CGI\n",
              httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,
@@ -3371,7 +3371,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
 
   if (hc->pathinfo[0] != '\0')
     {
-      ndbg("%s URL \"%s\" has pathinfo but isn't CGI\n",
+      nerr("%s URL \"%s\" has pathinfo but isn't CGI\n",
              httpd_ntoa(&hc->client_addr), hc->encodedurl);
       httpd_send_err(hc, 403, err403title, "",
                      ERROR_FORM(err403form,
@@ -3465,7 +3465,7 @@ int httpd_read(int fd, const void *buf, size_t nbytes)
             }
           else if (errno != EINTR)
             {
-              ndbg("Error sending: %d\n", errno);
+              nerr("Error sending: %d\n", errno);
               return nread;
             }
         }
@@ -3497,7 +3497,7 @@ int httpd_write(int fd, const void *buf, size_t nbytes)
             }
           else if (errno != EINTR)
             {
-              ndbg("Error sending: %d\n", errno);
+              nerr("Error sending: %d\n", errno);
               return nwritten;
             }
         }

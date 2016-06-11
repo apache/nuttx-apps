@@ -220,7 +220,7 @@ int mtdrwb_main(int argc, char *argv[])
   ret = mtdrwb->ioctl(mtdrwb, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&geo));
   if (ret < 0)
     {
-      fdbg("ERROR: mtdrwb->ioctl failed: %d\n", ret);
+      ferr("ERROR: mtdrwb->ioctl failed: %d\n", ret);
       exit(5);
     }
 

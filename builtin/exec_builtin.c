@@ -205,7 +205,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
                                              redirfile, O_WRONLY, 0644);
       if (ret != 0)
         {
-          sdbg("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
+          serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
           goto errout_with_actions;
         }
     }
@@ -217,7 +217,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
                    (FAR char * const *)NULL);
   if (ret != 0)
     {
-      sdbg("ERROR: task_spawn failed: %d\n", ret);
+      serr("ERROR: task_spawn failed: %d\n", ret);
       goto errout_with_actions;
     }
 

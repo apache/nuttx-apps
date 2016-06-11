@@ -109,7 +109,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
       acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
       if (acceptsd < 0)
         {
-          ndbg("accept failure: %d\n", errno);
+          nerr("accept failure: %d\n", errno);
           break;
         }
 
@@ -127,7 +127,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
       if (ret < 0)
         {
           close(acceptsd);
-          ndbg("setsockopt SO_LINGER failure: %d\n", errno);
+          nerr("setsockopt SO_LINGER failure: %d\n", errno);
           break;
         }
 #endif
@@ -145,7 +145,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
           /* Close the connection */
 
           close(acceptsd);
-          ndbg("pthread_create failed\n");
+          nerr("pthread_create failed\n");
 
           if (ret == EAGAIN)
             {

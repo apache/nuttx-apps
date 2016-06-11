@@ -82,7 +82,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
 
   if (!ftpc_sockconnected(&session->cmd))
     {
-      ndbg("Cmd channel disconnected\n");
+      nerr("Cmd channel disconnected\n");
       return ERROR;
     }
 
@@ -98,7 +98,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
 
       if (ch == EOF)
         {
-          ndbg("EOF: Server closed command stream\n");
+          nerr("EOF: Server closed command stream\n");
           ftpc_reset(session);
           return ERROR;
         }
@@ -189,7 +189,7 @@ static int ftpc_gets(struct ftpc_session_s *session)
         }
       else
         {
-          ndbg("Reply truncated\n");
+          nerr("Reply truncated\n");
         }
     }
 

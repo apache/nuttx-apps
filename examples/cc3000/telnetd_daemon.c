@@ -125,7 +125,7 @@ static int telnetd_daemon(int argc, char *argv[])
   if (listensd < 0)
     {
       int errval = errno;
-      ndbg("socket failure: %d\n", errval);
+      nerr("socket failure: %d\n", errval);
       return -errval;
     }
 
@@ -135,7 +135,7 @@ static int telnetd_daemon(int argc, char *argv[])
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      ndbg("setsockopt SO_REUSEADDR failure: %d\n", errno);
+      nerr("setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_socket;
     }
 #endif
@@ -148,7 +148,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
   if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
-      ndbg("bind failure: %d\n", errno);
+      nerr("bind failure: %d\n", errno);
       goto errout_with_socket;
     }
 
@@ -156,7 +156,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
   if (listen(listensd, 5) < 0)
     {
-      ndbg("listen failure %d\n", errno);
+      nerr("listen failure %d\n", errno);
       goto errout_with_socket;
     }
 
@@ -325,7 +325,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
     {
       int errval = errno;
       free(daemon);
-      ndbg("Failed to start the telnet daemon: %d\n", errval);
+      nerr("Failed to start the telnet daemon: %d\n", errval);
       return -errval;
     }
 

@@ -415,7 +415,7 @@ static int tiff_datetime(FAR char *timbuf, unsigned int buflen)
   ret = clock_gettime(CLOCK_REALTIME, &ts);
   if (ret < 0)
     {
-      gdbg("clock_gettime failed: %d\n", errno);
+      gerr("clock_gettime failed: %d\n", errno);
       return ERROR;
     }
 
@@ -463,21 +463,21 @@ int tiff_initialize(FAR struct tiff_info_s *info)
   info->outfd = open(info->outfile, O_RDWR|O_CREAT|O_TRUNC, 0666);
   if (info->outfd < 0)
     {
-      gdbg("Failed to open %s for reading/writing: %d\n", info->outfile, errno);
+      gerr("Failed to open %s for reading/writing: %d\n", info->outfile, errno);
       goto errout;
     }
 
   info->tmp1fd = open(info->tmpfile1, O_RDWR|O_CREAT|O_TRUNC, 0666);
   if (info->tmp1fd < 0)
     {
-      gdbg("Failed to open %s for reading/writing: %d\n", info->tmpfile1, errno);
+      gerr("Failed to open %s for reading/writing: %d\n", info->tmpfile1, errno);
       goto errout;
     }
 
   info->tmp2fd = open(info->tmpfile2, O_RDWR|O_CREAT|O_TRUNC, 0666);
   if (info->tmp2fd < 0)
     {
-      gdbg("Failed to open %s for reading/writing: %d\n", info->tmpfile2, errno);
+      gerr("Failed to open %s for reading/writing: %d\n", info->tmpfile2, errno);
       goto errout;
     }
 
@@ -519,7 +519,7 @@ int tiff_initialize(FAR struct tiff_info_s *info)
         break;
 
       default:
-        gdbg("Unsupported color format: %d\n", info->colorfmt);
+        gerr("Unsupported color format: %d\n", info->colorfmt);
         return -EINVAL;
     }
 

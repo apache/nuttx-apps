@@ -73,7 +73,7 @@ int flash_eraseall(FAR const char *driver)
   if (fd < 0)
     {
       errcode = errno;
-      fdbg("ERROR: Failed to open '%s': %d\n", driver, errcode);
+      ferr("ERROR: Failed to open '%s': %d\n", driver, errcode);
       ret = -errcode;
     }
   else
@@ -84,7 +84,7 @@ int flash_eraseall(FAR const char *driver)
       if (ret < 0)
         {
           errcode = errno;
-          fdbg("ERROR: MTD ioctl(%04x) failed: %d\n", MTDIOC_BULKERASE, errcode);
+          ferr("ERROR: MTD ioctl(%04x) failed: %d\n", MTDIOC_BULKERASE, errcode);
           ret = -errcode;
         }
 

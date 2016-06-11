@@ -396,12 +396,12 @@ static int wget_gethostip(FAR char *hostname, in_addr_t *ipv4addr)
   he = gethostbyname(hostname);
   if (he == NULL)
     {
-      ndbg("gethostbyname failed: %d\n", h_errno);
+      nerr("gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
   else if (he->h_addrtype != AF_INET)
     {
-      ndbg("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      nerr("gethostbyname returned an address of type: %d\n", he->h_addrtype);
       return -ENOEXEC;
     }
 
@@ -465,7 +465,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
                             ws.filename, CONFIG_WEBCLIENT_MAXFILENAME);
   if (ret != 0)
     {
-      ndbg("ERROR: Malformed HTTP URL: %s\n", url);
+      nerr("ERROR: Malformed HTTP URL: %s\n", url);
       set_errno(-ret);
       return ERROR;
     }
@@ -493,7 +493,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* socket failed.  It will set the errno appropriately */
 
-          ndbg("ERROR: socket failed: %d\n", errno);
+          nerr("ERROR: socket failed: %d\n", errno);
           return ERROR;
         }
 
@@ -516,7 +516,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* Could not resolve host (or malformed IP address) */
 
-          ndbg("ERROR: Failed to resolve hostname\n");
+          nerr("ERROR: Failed to resolve hostname\n");
           ret = -EHOSTUNREACH;
           goto errout_with_errno;
         }
@@ -529,7 +529,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ret = connect(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in));
       if (ret < 0)
         {
-          ndbg("ERROR: connect failed: %d\n", errno);
+          nerr("ERROR: connect failed: %d\n", errno);
           goto errout;
         }
 
@@ -584,7 +584,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ret = send(sockfd, buffer, len, 0);
       if (ret < 0)
         {
-          ndbg("ERROR: send failed: %d\n", errno);
+          nerr("ERROR: send failed: %d\n", errno);
           goto errout;
         }
 
@@ -600,7 +600,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
           ws.datend = recv(sockfd, ws.buffer, ws.buflen, 0);
           if (ws.datend < 0)
             {
-              ndbg("ERROR: recv failed: %d\n", errno);
+              nerr("ERROR: recv failed: %d\n", errno);
               ret = ws.datend;
               goto errout_with_errno;
             }

@@ -63,7 +63,7 @@
 #endif
 
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxdbg              dbg
+#  define cxxdbg              err
 #  define cxxllerr            llerr
 #  ifdef CONFIG_DEBUG_INFO
 #    define cxxinfo           info

@@ -1034,13 +1034,13 @@ int cgi(httpd_conn *hc)
                           (main_t)cgi_child, (FAR char * const *)argv);
       if (child < 0)
         {
-          ndbg("task_create: %d\n", errno);
+          nerr("task_create: %d\n", errno);
           INTERNALERROR("task_create");
           httpd_send_err(hc, 500, err500title, "", err500form, hc->encodedurl);
           goto errout_with_sem;
         }
 
-      ndbg("Started CGI task %d for file '%s'\n", child, hc->expnfilename);
+      nerr("Started CGI task %d for file '%s'\n", child, hc->expnfilename);
 
       /* Wait for the CGI threads to become initialized */
 

@@ -92,7 +92,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
       if (!sur->dma2d)
         {
-          dbg("up_dma2dcreatelayer failed\n");
+          err("up_dma2dcreatelayer failed\n");
           free(sur);
           sur = NULL;
         }
@@ -102,7 +102,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
           if (ret != OK)
             {
-              dbg("getvideoinfo() failed\n");
+              err("getvideoinfo() failed\n");
             }
           else
             {
@@ -110,7 +110,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
               if (ret != OK)
                 {
-                  dbg("getplaneinfo() failed\n");
+                  err("getplaneinfo() failed\n");
                 }
             }
 
@@ -123,7 +123,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
             {
               int lid;
               sur->dma2d->getlid(sur->dma2d, &lid);
-              dbg("dma2d layer %d is created with: "
+              info("dma2d layer %d is created with: "
                   "layer = %p, xres = %d, yres = %d, fb start address = %p, "
                   "fb size = %d, fmt = %d, bpp = %d\n",
                   lid, sur->dma2d, sur->vinfo.xres, sur->vinfo.yres,
@@ -411,7 +411,7 @@ static void ltdc_dma2d_interface(void)
 #endif
   FAR struct dma2d_layer_s *dma2d = active->dma2d;
 
-  dbg("Perform simple dma2d interface test\n");
+  info("Perform simple dma2d interface test\n");
 
   /* test setalpha */
 
@@ -419,7 +419,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK)
     {
-      dbg("setalpha() failed\n");
+      err("setalpha() failed\n");
       _exit(1);
     }
 
@@ -429,7 +429,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK  || alpha != 127)
     {
-      dbg("getalpha() failed\n");
+      err("getalpha() failed\n");
       _exit(1);
     }
 
@@ -439,7 +439,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK)
     {
-      dbg("setblendmode() failed\n");
+      err("setblendmode() failed\n");
       _exit(1);
     }
 
@@ -449,7 +449,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK  || blendmode != DMA2D_BLEND_ALPHA)
     {
-      dbg("getblendmode() failed\n");
+      err("getblendmode() failed\n");
       _exit(1);
     }
 
@@ -475,20 +475,20 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("ltdc getclut() failed\n");
+          err("ltdc getclut() failed\n");
           _exit(1);
         }
 
       for (i = 0; i < LTDC_EXAMPLE_NCOLORS; i++)
         {
 #ifdef CONFIG_FB_TRANSPARENCY
-          dbg("ltdc color %d, %02x:%02x:%02x:%02x\n", i,
+          info("ltdc color %d, %02x:%02x:%02x:%02x\n", i,
                 cmapltdc->transp[i],
                 cmapltdc->red[i],
                 cmapltdc->green[i],
                 cmapltdc->blue[i]);
 #else
-          dbg("ltdc color %d, %02x:%02x:%02x\n", i,
+          info("ltdc color %d, %02x:%02x:%02x\n", i,
                 cmapltdc->red[i],
                 cmapltdc->green[i],
                 cmapltdc->blue[i]);
@@ -499,7 +499,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("getclut() failed\n");
+          err("getclut() failed\n");
           _exit(1);
         }
 
@@ -509,13 +509,13 @@ static void ltdc_dma2d_interface(void)
 #ifdef CONFIG_FB_TRANSPARENCY
       memset(cmap->transp, 0, 256);
 #endif
-      dbg("set color lookup table to black\n");
+      info("set color lookup table to black\n");
 
       ret = dma2d->setclut(dma2d, cmap);
 
       if (ret != OK)
         {
-          dbg("setclut() failed\n");
+          err("setclut() failed\n");
           _exit(1);
         }
 
@@ -523,7 +523,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("getclut() failed\n");
+          err("getclut() failed\n");
           _exit(1);
         }
 
@@ -538,7 +538,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->red, cmap->green, 256))
 #endif
         {
-          dbg("unexpected clut content\n");
+          err("unexpected clut content\n");
           _exit(1);
         }
 
@@ -548,7 +548,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("ltdc getclut() failed\n");
+          err("ltdc getclut() failed\n");
           _exit(1);
         }
 
@@ -563,7 +563,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->red, cmap->green, 256))
 #endif
         {
-          dbg("unexpected clut content\n");
+          err("unexpected clut content\n");
           _exit(1);
         }
 
@@ -575,7 +575,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("ltdc setclut() failed\n");
+          err("ltdc setclut() failed\n");
           _exit(1);
         }
 
@@ -585,7 +585,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("getclut() failed\n");
+          err("getclut() failed\n");
           _exit(1);
         }
 
@@ -600,12 +600,12 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->blue, cmapltdc->blue, LTDC_EXAMPLE_NCOLORS))
 #endif
         {
-          dbg("clut of ltdc layer and related dma2d layer are different\n");
+          err("clut of ltdc layer and related dma2d layer are different\n");
           _exit(1);
         }
       else
         {
-          dbg("ok, changing the clut by the ltdc layer also changed the clut of "
+          info("ok, changing the clut by the ltdc layer also changed the clut of "
                 "the dma2d layer as expected.\n");
         }
 
@@ -617,11 +617,11 @@ static void ltdc_dma2d_interface(void)
 
       if (ret == OK)
         {
-          dbg("setclut() failed, expected error if first color exceeds 256\n");
+          err("setclut() failed, expected error if first color exceeds 256\n");
         }
       else
         {
-          dbg("setclut() Ok, unsupported cmap detected\n");
+          err("setclut() Ok, unsupported cmap detected\n");
         }
 
       /* Check expected getclut error */
@@ -630,11 +630,11 @@ static void ltdc_dma2d_interface(void)
 
       if (ret == OK)
         {
-          dbg("getclut() failed, expected error if first color exceeds 256\n");
+          err("getclut() failed, expected error if first color exceeds 256\n");
         }
       else
         {
-          dbg("getclut() Ok, unsupported cmap detected\n");
+          err("getclut() Ok, unsupported cmap detected\n");
         }
 
       cmap->first = 0;
@@ -645,7 +645,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          dbg("ltdc setclut() failed\n");
+          err("ltdc setclut() failed\n");
           _exit(1);
         }
 
@@ -672,7 +672,7 @@ static void ltdc_dma2d_fillarea(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -684,7 +684,7 @@ static void ltdc_dma2d_fillarea(void)
   area.xres = active->vinfo.xres;
   area.yres = active->vinfo.yres;
 
-  dbg("check if the ltdc driver recognized when positioning overflows the whole"
+  info("check if the ltdc driver recognized when positioning overflows the whole"
       " layer buffer\n");
 
   if (active->layer->fillarea(active->layer, &area, 0) != OK)
@@ -702,14 +702,14 @@ static void ltdc_dma2d_fillarea(void)
 
   if (ret == OK)
     {
-      dbg("ok, driver detects wrong positioning\n");
+      err("ok, driver detects wrong positioning\n");
     }
   else
     {
-      dbg("fail, wrong positioning can overflow layer buffer\n");
+      err("fail, wrong positioning can overflow layer buffer\n");
     }
 
-  dbg("check if the dma2d driver recognized when positioning overflows the"
+  info("check if the dma2d driver recognized when positioning overflows the"
       " whole layer buffer\n");
 
   if (active->dma2d->fillarea(active->dma2d, &area, 0) != OK)
@@ -727,31 +727,31 @@ static void ltdc_dma2d_fillarea(void)
 
   if (ret == OK)
     {
-      dbg("ok, driver detects wrong positioning\n");
+      err("ok, driver detects wrong positioning\n");
     }
   else
     {
-      dbg("fail, wrong positioning can overflow layer buffer\n");
+      err("fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Flip with non blend */
 
-  dbg("Perform fillarea test\n");
+  info("Perform fillarea test\n");
 
-  dbg("Ensure that the active layer is opaque\n");
+  info("Ensure that the active layer is opaque\n");
   active->layer->setalpha(active->layer, 0xff);
-  dbg("Disable blend mode for the active layer\n");
+  info("Disable blend mode for the active layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   active->layer->update(active->layer, LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
-  dbg("Draw a red rectangle in top left quarter of the screen\n");
+  info("Draw a red rectangle in top left quarter of the screen\n");
 
   area.xpos = 0;
   area.ypos = 0;
@@ -763,12 +763,12 @@ static void ltdc_dma2d_fillarea(void)
 
   usleep(1000000);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
 
-  dbg("Draw a green rectangle in top right quarter of the screen\n");
+  info("Draw a green rectangle in top right quarter of the screen\n");
 
   area.xpos = active->vinfo.xres/2;
   area.ypos = 0;
@@ -778,12 +778,12 @@ static void ltdc_dma2d_fillarea(void)
 
   usleep(1000000);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
 
-  dbg("Draw a white rectangle in bottom left quarter of the screen\n");
+  info("Draw a white rectangle in bottom left quarter of the screen\n");
 
   area.xpos = 0;
   area.ypos = active->vinfo.yres/2;
@@ -791,11 +791,11 @@ static void ltdc_dma2d_fillarea(void)
   active->layer->fillarea(active->layer, &area,
                           ltdc_color(&active->vinfo, LTDC_WHITE));
 
-  dbg("Draw a blue rectangle in bottom right quarter of the screen\n");
+  info("Draw a blue rectangle in bottom right quarter of the screen\n");
 
   usleep(1000000);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
@@ -808,7 +808,7 @@ static void ltdc_dma2d_fillarea(void)
 
   usleep(1000000);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
@@ -832,37 +832,37 @@ static void ltdc_dma2d_blitsimple(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
 
   /* Flip with non blend */
 
-  dbg("Perform simple blit operation\n");
+  info("Perform simple blit operation\n");
 
-  dbg("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
-  dbg("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
+  info("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
+  info("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
 
-  dbg("Ensure that both ltdc layer are opaque\n");
+  info("Ensure that both ltdc layer are opaque\n");
   active->layer->setalpha(active->layer, 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
-  dbg("Disable blend mode for ltdc both layer\n");
+  info("Disable blend mode for ltdc both layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_NONE);
 
   /* Fullscreen blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   inactive->layer->update(active->layer,
                             LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
   ltdc_simple_draw(&inactive->vinfo, &inactive->pinfo);
 
-  dbg("Blit the whole bottom layer to the top layer\n");
+  info("Blit the whole bottom layer to the top layer\n");
   area.xpos = 0;
   area.ypos = 0;
   area.xres = inactive->vinfo.xres;
@@ -873,7 +873,7 @@ static void ltdc_dma2d_blitsimple(void)
 
   /* Top left to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -881,7 +881,7 @@ static void ltdc_dma2d_blitsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blit the top left red rectangle from the bottom layer with the"
+  info("Blit the top left red rectangle from the bottom layer with the"
       " top layer\n");
 
   active->layer->blit(active->layer, active->vinfo.xres/4,
@@ -891,7 +891,7 @@ static void ltdc_dma2d_blitsimple(void)
 
   /* Top right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = inactive->vinfo.xres/2;
@@ -899,7 +899,7 @@ static void ltdc_dma2d_blitsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blit the top right green rectangle from the bottom layer with the"
+  info("Blit the top right green rectangle from the bottom layer with the"
       " top layer\n");
 
   active->layer->blit(active->layer, active->vinfo.xres/4,
@@ -909,7 +909,7 @@ static void ltdc_dma2d_blitsimple(void)
 
   /* Bottom left to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -917,7 +917,7 @@ static void ltdc_dma2d_blitsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blit the bottom left white rectangle from the bottom layer with the"
+  info("Blit the bottom left white rectangle from the bottom layer with the"
       " top layer\n");
 
   active->layer->blit(active->layer, active->vinfo.xres/4,
@@ -927,7 +927,7 @@ static void ltdc_dma2d_blitsimple(void)
 
   /* Bottom right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = inactive->vinfo.xres/2;
@@ -935,7 +935,7 @@ static void ltdc_dma2d_blitsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blit the bottom right blue rectangle from the bottom layer with the"
+  info("Blit the bottom right blue rectangle from the bottom layer with the"
       " top layer\n");
 
   active->layer->blit(active->layer, active->vinfo.xres/4,
@@ -963,29 +963,29 @@ static void ltdc_dma2d_blitpositioning(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
 
   /* Set layer in the middle of the screen */
 
-  dbg("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
-  dbg("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
+  info("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
+  info("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
 
-  dbg("Ensure that both ltdc layer opaque\n");
+  info("Ensure that both ltdc layer opaque\n");
   active->layer->setalpha(active->layer, 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
-  dbg("Disable blend mode for both ltdc layer\n");
+  info("Disable blend mode for both ltdc layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_NONE);
 
   /* Fullscreen blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   inactive->layer->update(active->layer,
                             LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
@@ -993,7 +993,7 @@ static void ltdc_dma2d_blitpositioning(void)
   ltdc_simple_draw(&inactive->vinfo, &inactive->pinfo);
 
 
-  dbg("Perform positioning test\n");
+  info("Perform positioning test\n");
 
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
@@ -1073,14 +1073,14 @@ static void ltdc_dma2d_blitpositioning(void)
        usleep(5);
     }
 
-  dbg("Perform move test\n");
+  info("Perform move test\n");
 
   area.xpos = inactive->vinfo.xres/4;
   area.ypos = inactive->vinfo.yres/4;
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   /* Move right */
@@ -1138,14 +1138,14 @@ static void ltdc_dma2d_blitpositioning(void)
        usleep(5);
     }
 
-  dbg("Perform reference positioning test\n");
+  info("Perform reference positioning test\n");
 
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
   area.xpos = inactive->vinfo.xres/4;
   area.ypos = inactive->vinfo.yres/4;
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   /* Move right */
@@ -1227,35 +1227,35 @@ static void ltdc_dma2d_blendsimple(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
 
-  dbg("Perform simple blend operation\n");
+  info("Perform simple blend operation\n");
 
-  dbg("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
-  dbg("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
+  info("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
+  info("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
 
-  dbg("Ensure that both ltdc layer are opaque\n");
+  info("Ensure that both ltdc layer are opaque\n");
   active->layer->setalpha(active->layer, 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
-  dbg("Enable alpha blend mode for both dma2d layer\n");
+  info("Enable alpha blend mode for both dma2d layer\n");
   active->dma2d->setblendmode(active->dma2d, DMA2D_BLEND_ALPHA);
   inactive->dma2d->setblendmode(inactive->dma2d, DMA2D_BLEND_ALPHA);
 
   /* Fullscreen blend */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   active->layer->update(active->layer,
                         LTDC_UPDATE_ACTIVATE|LTDC_UPDATE_SIM|LTDC_SYNC_VBLANK);
 
   ltdc_simple_draw(&inactive->vinfo, &inactive->pinfo);
 
-  dbg("Blend the whole bottom layer to the top layer\n");
+  info("Blend the whole bottom layer to the top layer\n");
 
   area.xpos = 0;
   area.ypos = 0;
@@ -1274,7 +1274,7 @@ static void ltdc_dma2d_blendsimple(void)
 
   /* Blend top left to the middle */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -1282,7 +1282,7 @@ static void ltdc_dma2d_blendsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blend the top left red rectangle from the bottom layer with the middle"
+  info("Blend the top left red rectangle from the bottom layer with the middle"
       " of the top layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1297,7 +1297,7 @@ static void ltdc_dma2d_blendsimple(void)
 
   /* Top right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = inactive->vinfo.xres/2;
@@ -1305,7 +1305,7 @@ static void ltdc_dma2d_blendsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blend the top right green rectangle from the bottom layer with the"
+  info("Blend the top right green rectangle from the bottom layer with the"
       " middle of the top layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1320,7 +1320,7 @@ static void ltdc_dma2d_blendsimple(void)
 
   /* Bottom left to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -1328,7 +1328,7 @@ static void ltdc_dma2d_blendsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blit the bottom left white rectangle from the bottom layer with the"
+  info("Blit the bottom left white rectangle from the bottom layer with the"
       " middle of the top layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1343,7 +1343,7 @@ static void ltdc_dma2d_blendsimple(void)
 
   /* Bottom right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = inactive->vinfo.xres/2;
@@ -1351,7 +1351,7 @@ static void ltdc_dma2d_blendsimple(void)
   area.xres = inactive->vinfo.xres/2;
   area.yres = inactive->vinfo.yres/2;
 
-  dbg("Blit the bottom right blue rectangle from the bottom layer with the"
+  info("Blit the bottom right blue rectangle from the bottom layer with the"
       " middle of the top layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1364,7 +1364,7 @@ static void ltdc_dma2d_blendsimple(void)
       usleep(5);
     }
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 }
 #endif /* CONFIG_STM32_LTDC_L2 */
@@ -1390,7 +1390,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -1404,7 +1404,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
       _exit(1);
     }
 
-  dbg("create background dma2d surface: %p\n", back);
+  err("create background dma2d surface: %p\n", back);
 
   fore = ltdc_create_dma2d_surface(active->vinfo.xres/2, active->vinfo.yres/2,
                                     active->vinfo.fmt);
@@ -1415,7 +1415,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
       _exit(1);
     }
 
-  dbg("create foreground dma2d surface: %p\n", fore);
+  err("create foreground dma2d surface: %p\n", fore);
 
   /* Wrong positioning detection */
 
@@ -1424,7 +1424,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   forearea.xres = fore->vinfo.xres;
   forearea.yres = fore->vinfo.yres;
 
-  dbg("check if the ltdc driver recognized when positioning overflows the whole"
+  err("check if the ltdc driver recognized when positioning overflows the whole"
       " layer buffer\n");
 
   if (active->layer->blit(active->layer,
@@ -1458,14 +1458,14 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   if (ret == OK)
     {
-      dbg("ok, driver detects wrong positioning\n");
+      err("ok, driver detects wrong positioning\n");
     }
   else
     {
-      dbg("fail, wrong positioning can overflow layer buffer\n");
+      err("fail, wrong positioning can overflow layer buffer\n");
     }
 
-  dbg("check if the dma2d driver recognized when positioning overflows the"
+  info("check if the dma2d driver recognized when positioning overflows the"
         " whole layer buffer\n");
 
   forearea.xpos = 0;
@@ -1502,11 +1502,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   if (ret == OK)
     {
-      dbg("ok, driver detects wrong positioning\n");
+      err("ok, driver detects wrong positioning\n");
     }
   else
     {
-      dbg("fail, wrong positioning can overflow layer buffer\n");
+      err("fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Initialize the dma2d fullscreen background layer */
@@ -1522,23 +1522,23 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   /* Blit test */
 
-  dbg("Perform simple dma2d blit operation\n");
+  info("Perform simple dma2d blit operation\n");
 
-  dbg("Ensure that the ltdc layer is opaque\n");
+  info("Ensure that the ltdc layer is opaque\n");
   active->layer->setalpha(active->layer, 0xff);
-  dbg("Disable blend mode for the ltdc layer\n");
+  info("Disable blend mode for the ltdc layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   active->layer->update(active->layer,
                             LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
   /* Top left to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -1546,11 +1546,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blit the top left red rectangle from the background layer to the"
+  info("Blit the top left red rectangle from the background layer to the"
       " foreground layer\n");
   fore->dma2d->blit(fore->dma2d, 0, 0, back->dma2d, &area);
 
-  dbg("Blit the resulting dma2d layer to the middle of the screen\n");
+  info("Blit the resulting dma2d layer to the middle of the screen\n");
   active->layer->blit(active->layer, active->vinfo.xres/4,
                         active->vinfo.yres/4, back->dma2d, &forearea);
 
@@ -1558,7 +1558,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   /* Top right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = active->vinfo.xres/2;
@@ -1566,11 +1566,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blit the top right green rectangle from the background layer to the"
+  info("Blit the top right green rectangle from the background layer to the"
       " foreground layer\n");
   fore->dma2d->blit(fore->dma2d, 0, 0, back->dma2d, &area);
 
-  dbg("Blit the resulting dma2d layer to the middle of the screen\n");
+  info("Blit the resulting dma2d layer to the middle of the screen\n");
   active->layer->blit(active->layer, active->vinfo.xres/4,
                         active->vinfo.yres/4, fore->dma2d, &forearea);
 
@@ -1578,7 +1578,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   /* Bottom left to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -1586,11 +1586,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blit the bottom left white rectangle from the background layer to the"
+  info("Blit the bottom left white rectangle from the background layer to the"
       " foreground layer\n");
   fore->dma2d->blit(fore->dma2d, 0, 0, back->dma2d, &area);
 
-  dbg("Blit the resulting dma2d layer to the middle of the screen\n");
+  info("Blit the resulting dma2d layer to the middle of the screen\n");
   active->layer->blit(active->layer, active->vinfo.xres/4,
                         active->vinfo.yres/4, fore->dma2d, &forearea);
 
@@ -1598,7 +1598,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   /* Bottom right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = active->vinfo.xres/2;
@@ -1606,11 +1606,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blit the bottom right blue rectangle from the background layer to the"
+  info("Blit the bottom right blue rectangle from the background layer to the"
       " foreground layer\n");
   fore->dma2d->blit(fore->dma2d, 0, 0, back->dma2d, &area);
 
-  dbg("Blit the resulting dma2d layer to the middle of the screen\n");
+  info("Blit the resulting dma2d layer to the middle of the screen\n");
   active->layer->blit(active->layer, active->vinfo.xres/4,
                         active->vinfo.yres/4, fore->dma2d, &forearea);
 
@@ -1618,7 +1618,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   /* Middle to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
 
   ltdc_clearlayer(active, LTDC_BLACK);
 
@@ -1627,11 +1627,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blit the bottom half rectangle from the background layers to the middle"
+  info("Blit the bottom half rectangle from the background layers to the middle"
       " of the foreground layer\n");
   fore->dma2d->blit(fore->dma2d, 0, 0, back->dma2d, &area);
 
-  dbg("Blit the resulting dma2d layer to the middle of the screen\n");
+  info("Blit the resulting dma2d layer to the middle of the screen\n");
   active->layer->blit(active->layer, active->vinfo.xres/4,
                         active->vinfo.yres/4, fore->dma2d, &forearea);
 
@@ -1662,7 +1662,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -1676,7 +1676,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
       _exit(1);
     }
 
-  dbg("create background dma2d surface: %p\n", back);
+  info("create background dma2d surface: %p\n", back);
 
   fore = ltdc_create_dma2d_surface(active->vinfo.xres/2, active->vinfo.yres/2,
                                     active->vinfo.fmt);
@@ -1687,11 +1687,11 @@ static void ltdc_dma2d_blenddynamiclayer(void)
       _exit(1);
     }
 
-  dbg("create foreground dma2d surface: %p\n", fore);
+  info("create foreground dma2d surface: %p\n", fore);
 
   /* Wrong positioning detection */
 
-  dbg("check if the ltdc driver recognized when positioning overflows the whole"
+  info("check if the ltdc driver recognized when positioning overflows the whole"
       " layer buffer\n");
 
   area.xpos = 0;
@@ -1746,14 +1746,14 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   if (ret == OK)
     {
-      dbg("ok, driver detects wrong positioning\n");
+      err("ok, driver detects wrong positioning\n");
     }
   else
     {
-      dbg("fail, wrong positioning can overflow layer buffer\n");
+      err("fail, wrong positioning can overflow layer buffer\n");
     }
 
-  dbg("check if the dma2d driver recognized when positioning overflows the"
+  info("check if the dma2d driver recognized when positioning overflows the"
       " whole layer buffer\n");
 
   area.xpos = 0;
@@ -1806,11 +1806,11 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   if (ret == OK)
     {
-      dbg("ok, driver detects wrong positioning\n");
+      err("ok, driver detects wrong positioning\n");
     }
   else
     {
-      dbg("fail, wrong positioning can overflow layer buffer\n");
+      err("fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Initialize the dma2d fullscreen background layer */
@@ -1819,26 +1819,26 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   /* Blit test */
 
-  dbg("Perform simple dma2d blend operation\n");
+  info("Perform simple dma2d blend operation\n");
 
-  dbg("Ensure that the ltdc layer is opaque\n");
+  info("Ensure that the ltdc layer is opaque\n");
   active->layer->setalpha(active->layer, 0xff);
-  dbg("Disable blend mode for the ltdc layer\n");
+  info("Disable blend mode for the ltdc layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
-  dbg("Enable alpha blend mode for both dma2d layer\n");
+  info("Enable alpha blend mode for both dma2d layer\n");
   fore->dma2d->setblendmode(fore->dma2d, DMA2D_BLEND_ALPHA);
   back->dma2d->setblendmode(back->dma2d, DMA2D_BLEND_ALPHA);
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   active->layer->update(active->layer,
                             LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
   /* Top left to the middle */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -1846,7 +1846,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blend the top left red rectangle from the background layer with the"
+  info("Blend the top left red rectangle from the background layer with the"
       " middle of the foreground layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1863,7 +1863,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   /* Top right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = active->vinfo.xres/2;
@@ -1871,7 +1871,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blend the top right green rectangle from the background layer with the"
+  info("Blend the top right green rectangle from the background layer with the"
       " middle of the foreground layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1888,7 +1888,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   /* Bottom left to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = 0;
@@ -1896,7 +1896,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blend the bottom left white rectangle from the background layer with the"
+  info("Blend the bottom left white rectangle from the background layer with the"
       " middle of foreground layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1913,7 +1913,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   /* Bottom right to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
   area.xpos = active->vinfo.xres/2;
@@ -1921,7 +1921,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blend the bottom right blue rectangle from the background layer with the"
+  info("Blend the bottom right blue rectangle from the background layer with the"
       " middle of the foreground layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1938,7 +1938,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   /* Middle to the middle blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
 
   ltdc_clearlayer(active, LTDC_BLACK);
 
@@ -1947,7 +1947,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
   area.xres = active->vinfo.xres/2;
   area.yres = active->vinfo.yres/2;
 
-  dbg("Blend the bottom half screen rectangle from the background layers middle"
+  info("Blend the bottom half screen rectangle from the background layers middle"
       " with the middle of the foreground layer\n");
 
   for (alpha = 0; alpha < 255 ; alpha++)
@@ -1987,7 +1987,7 @@ static void ltdc_dma2d_blitflippositioning(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8 || inactive->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      err("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -2002,7 +2002,7 @@ static void ltdc_dma2d_blitflippositioning(void)
       _exit(1);
     }
 
-  dbg("create foreground dma2d surface: %p\n", fore);
+  info("create foreground dma2d surface: %p\n", fore);
 
   back = ltdc_create_dma2d_surface(active->vinfo.xres/2, active->vinfo.yres/2,
                                     active->vinfo.fmt);
@@ -2013,7 +2013,7 @@ static void ltdc_dma2d_blitflippositioning(void)
       _exit(1);
     }
 
-  dbg("create background dma2d surface: %p\n", back);
+  info("create background dma2d surface: %p\n", back);
 
   image = ltdc_create_dma2d_surface(active->vinfo.xres, active->vinfo.yres,
                                       active->vinfo.fmt);
@@ -2025,26 +2025,26 @@ static void ltdc_dma2d_blitflippositioning(void)
       _exit(1);
     }
 
-  dbg("create the dma2d surface to store the image: %p\n", image);
+  info("create the dma2d surface to store the image: %p\n", image);
 
-  dbg("Enable alpha blending for both dma2d layer\n");
+  info("Enable alpha blending for both dma2d layer\n");
   fore->dma2d->setblendmode(fore->dma2d, DMA2D_BLEND_ALPHA);
   back->dma2d->setblendmode(back->dma2d, DMA2D_BLEND_ALPHA);
 
 
-  dbg("Ensure that both ltdc layer opaque\n");
+  info("Ensure that both ltdc layer opaque\n");
   active->layer->setalpha(active->layer, 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
-  dbg("Disable blend mode for both ltdc layer\n");
+  info("Disable blend mode for both ltdc layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_NONE);
 
   /* Fullscreen blit */
 
-  dbg("Set the active layer to fullscreen black\n");
+  info("Set the active layer to fullscreen black\n");
   ltdc_clearlayer(active, LTDC_BLACK);
 
-  dbg("Flip the top layer to the active visible layer\n");
+  info("Flip the top layer to the active visible layer\n");
   inactive->layer->update(active->layer,
                             LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
@@ -2052,7 +2052,7 @@ static void ltdc_dma2d_blitflippositioning(void)
 
   ltdc_simple_draw(&image->vinfo, &image->pinfo);
 
-  dbg("Perform positioning test\n");
+  info("Perform positioning test\n");
 
   area.xpos = inactive->vinfo.xres/4;
   area.ypos = inactive->vinfo.yres/4;
@@ -2131,7 +2131,7 @@ static void ltdc_dma2d_blitflippositioning(void)
 
   ltdc_blendoutline(fore, back);
 
-  dbg("Perform move test\n");
+  info("Perform move test\n");
 
   area.xpos = inactive->vinfo.xres/4;
   area.ypos = inactive->vinfo.yres/4;
@@ -2198,7 +2198,7 @@ static void ltdc_dma2d_blitflippositioning(void)
     }
 
 
-  dbg("Perform reference positioning test\n");
+  info("Perform reference positioning test\n");
 
   area.xpos = inactive->vinfo.xres/4;
   area.ypos = inactive->vinfo.yres/4;
@@ -2289,7 +2289,7 @@ static void ltdc_screensaver(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8 || inactive->vinfo.fmt == FB_FMT_RGB8)
     {
-      dbg("skipped, output to layer with CLUT pixel format not supported\n");
+      info("skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -2305,7 +2305,7 @@ static void ltdc_screensaver(void)
       _exit(1);
     }
 
-  dbg("create a scratch dma2d layer: %p\n", scratch);
+  info("create a scratch dma2d layer: %p\n", scratch);
 
   rect1 = ltdc_create_dma2d_surface(active->vinfo.xres/4,
                                     active->vinfo.yres/4,
@@ -2317,7 +2317,7 @@ static void ltdc_screensaver(void)
       _exit(1);
     }
 
-  dbg("create a dma2d layer for the rectangle 1: %p\n", rect1);
+  info("create a dma2d layer for the rectangle 1: %p\n", rect1);
 
   rect2 = ltdc_create_dma2d_surface(active->vinfo.xres/4,
                                     active->vinfo.yres/4,
@@ -2330,7 +2330,7 @@ static void ltdc_screensaver(void)
       _exit(1);
     }
 
-  dbg("create a dma2d layer for rectangle 2: %p\n", rect2);
+  info("create a dma2d layer for rectangle 2: %p\n", rect2);
 
   image = ltdc_create_dma2d_surface(active->vinfo.xres,
                                     active->vinfo.yres,
@@ -2344,19 +2344,19 @@ static void ltdc_screensaver(void)
       _exit(1);
     }
 
-  dbg("create a dma2d layer to store the background image: %p\n", image);
+  info("create a dma2d layer to store the background image: %p\n", image);
 
-  dbg("Enable alpha blending for the dma2d layer\n");
+  info("Enable alpha blending for the dma2d layer\n");
   scratch->dma2d->setblendmode(scratch->dma2d, DMA2D_BLEND_ALPHA);
   rect1->dma2d->setblendmode(rect1->dma2d, DMA2D_BLEND_ALPHA);
   rect2->dma2d->setblendmode(rect2->dma2d, DMA2D_BLEND_ALPHA);
 
   /* ltdc layer settings */
 
-  dbg("Ensure that both ltdc layer opaque\n");
+  info("Ensure that both ltdc layer opaque\n");
   active->layer->setalpha(active->layer, 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
-  dbg("Disable blend mode for both ltdc layer\n");
+  info("Disable blend mode for both ltdc layer\n");
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_NONE);
 
@@ -2364,7 +2364,7 @@ static void ltdc_screensaver(void)
 
   ltdc_simple_draw(&image->vinfo, &image->pinfo);
 
-  dbg("Perform screensaver\n");
+  info("Perform screensaver\n");
 
   area.xpos = image->vinfo.xres/4 + image->vinfo.xres / 8;
   area.ypos = image->vinfo.yres/4 + image->vinfo.yres / 8;

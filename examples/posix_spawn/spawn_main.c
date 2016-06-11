@@ -103,22 +103,22 @@
 #  define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
 #endif
 
-/* If CONFIG_DEBUG_FEATURES is enabled, use dbg instead of printf so that the
+/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
  * output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  ifdef CONFIG_DEBUG_FEATURES
-#    define message(format, ...)    dbg(format, ##__VA_ARGS__)
-#    define errmsg(format, ...)     dbg(format, ##__VA_ARGS__)
+#    define message(format, ...)    info(format, ##__VA_ARGS__)
+#    define errmsg(format, ...)     err(format, ##__VA_ARGS__)
 #  else
 #    define message(format, ...)    printf(format, ##__VA_ARGS__)
 #    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
 #  ifdef CONFIG_DEBUG_FEATURES
-#    define message                 dbg
-#    define errmsg                  dbg
+#    define message                 info
+#    define errmsg                  err
 #  else
 #    define message                 printf
 #    define errmsg                  printf
