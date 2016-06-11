@@ -77,7 +77,7 @@
 #  if !defined(CONFIG_DEBUG_INFO) || !defined(CONFIG_DEBUG_NET)
 #    undef CONFIG_THTTPD_BADREQUEST
 #  else
-#    define BADREQUEST(s) nvdbg("Bad Request: \"%s\"\n", s)
+#    define BADREQUEST(s) ninfo("Bad Request: \"%s\"\n", s)
 #  endif
 #endif
 
@@ -94,7 +94,7 @@
 #  if !defined(CONFIG_DEBUG_INFO) || !defined(CONFIG_DEBUG_NET)
 #    undef CONFIG_THTTPD_NOTIMPLEMENTED
 #  else
-#    define NOTIMPLEMENTED(s) nvdbg("Not Implemented: \"%s\"\n", s)
+#    define NOTIMPLEMENTED(s) ninfo("Not Implemented: \"%s\"\n", s)
 #  endif
 #endif
 
@@ -111,7 +111,7 @@
 #  if !defined(CONFIG_DEBUG_INFO) || !defined(CONFIG_DEBUG_NET)
 #    undef CONFIG_THTTPD_INTERNALERROR
 #  else
-#    define INTERNALERROR(s) nvdbg("Internal Error: \"%s\"\n", s)
+#    define INTERNALERROR(s) ninfo("Internal Error: \"%s\"\n", s)
 #  endif
 #endif
 

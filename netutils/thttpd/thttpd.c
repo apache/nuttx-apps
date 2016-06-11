@@ -178,7 +178,7 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
    * fast as possible so we don't overrun the listen queue.
    */
 
-  nvdbg("New connection(s) on listen_fd %d\n", listen_fd);
+  ninfo("New connection(s) on listen_fd %d\n", listen_fd);
   for (;;)
     {
       /* Get the next free connection from the free list */
@@ -234,7 +234,7 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
           break;
         }
 
-      nvdbg("New connection fd %d\n", conn->hc->conn_fd);
+      ninfo("New connection fd %d\n", conn->hc->conn_fd);
 
       /* Remove the connection entry from the free list */
 
@@ -426,7 +426,7 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
 
   while (conn->offset < conn->end_offset)
     {
-      nvdbg("offset: %d end_offset: %d bytes_sent: %d\n",
+      ninfo("offset: %d end_offset: %d bytes_sent: %d\n",
             conn->offset, conn->end_offset, conn->hc->bytes_sent);
 
       /* Fill the rest of the response buffer with file data */
@@ -437,7 +437,7 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
           ndbg("File read error: %d\n", errno);
           goto errout_clear_connection;
         }
-      nvdbg("Read %d bytes, buflen %d\n", nread, hc->buflen);
+      ninfo("Read %d bytes, buflen %d\n", nread, hc->buflen);
 
       /* Send the buffer */
 
@@ -465,13 +465,13 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
 
           conn->offset         += nwritten;
           conn->hc->bytes_sent += nwritten;
-          nvdbg("Wrote %d bytes\n", nwritten);
+          ninfo("Wrote %d bytes\n", nwritten);
         }
     }
 
   /* The file transfer is complete -- finish the connection */
 
-  nvdbg("Finish connection\n");
+  ninfo("Finish connection\n");
   finish_connection(conn, tv);
   return;
 
@@ -616,7 +616,7 @@ static void linger_clear_connection(ClientData client_data, struct timeval *nowP
 {
   struct connect_s *conn;
 
-  nvdbg("Clear connection\n");
+  ninfo("Clear connection\n");
   conn = (struct connect_s *) client_data.p;
   conn->linger_timer = NULL;
   really_clear_connection(conn);
@@ -663,7 +663,7 @@ int thttpd_main(int argc, char **argv)
   int ret;
 #endif
 
-  nvdbg("THTTPD started\n");
+  ninfo("THTTPD started\n");
 
   /* Setup host address */
 
@@ -702,7 +702,7 @@ int thttpd_main(int argc, char **argv)
 
   /* Initialize the HTTP layer */
 
-  nvdbg("Calling httpd_initialize()\n");
+  ninfo("Calling httpd_initialize()\n");
   hs = httpd_initialize(&sa);
   if (!hs)
     {
@@ -756,7 +756,7 @@ int thttpd_main(int argc, char **argv)
 
   /* Main loop */
 
-  nvdbg("Entering the main loop\n");
+  ninfo("Entering the main loop\n");
   (void)gettimeofday(&tv, NULL);
   for (;;)
     {
@@ -810,7 +810,7 @@ int thttpd_main(int argc, char **argv)
               hc = conn->hc;
               if (fdwatch_check_fd(fw, hc->conn_fd))
                 {
-                  nvdbg("Handle conn_state %d\n", conn->conn_state);
+                  ninfo("Handle conn_state %d\n", conn->conn_state);
                   switch (conn->conn_state)
                     {
                       case CNST_READING:

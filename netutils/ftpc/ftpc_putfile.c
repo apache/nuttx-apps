@@ -276,7 +276,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                 else
                   {
                     rname = strndup(str, len-1);
-                    nvdbg("Unique filename is: %s\n",  rname);
+                    ninfo("Unique filename is: %s\n",  rname);
                   }
                 free(rname);
               }

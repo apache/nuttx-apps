@@ -113,7 +113,7 @@ void netlib_server(uint16_t portno, pthread_startroutine_t handler, int stacksiz
           break;
         }
 
-      nvdbg("Connection accepted -- spawning sd=%d\n", acceptsd);
+      ninfo("Connection accepted -- spawning sd=%d\n", acceptsd);
 
       /* Configure to "linger" until all data is sent when the socket is
        * closed.

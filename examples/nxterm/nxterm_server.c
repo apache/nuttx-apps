@@ -157,7 +157,7 @@ int nxterm_server(int argc, char *argv[])
   /* Then start the server */
 
   ret = nx_run(dev);
-  gvdbg("nx_run returned: %d\n", errno);
+  ginfo("nx_run returned: %d\n", errno);
   return 3;
 }
 

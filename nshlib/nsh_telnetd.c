@@ -201,7 +201,7 @@ int nsh_telnetstart(void)
 
   /* Start the telnet daemon */
 
-  vdbg("Starting the Telnet daemon\n");
+  info("Starting the Telnet daemon\n");
   ret = telnetd_start(&config);
   if (ret < 0)
     {

@@ -366,14 +366,14 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
   ssize_t nbytes_read;
   ssize_t nbytes_written;
 
-  nllvdbg("nbytes: %d contentlength: %d\n", cc->inbuf.nbytes, cc->inbuf.contentlength);
+  nllinfo("nbytes: %d contentlength: %d\n", cc->inbuf.nbytes, cc->inbuf.contentlength);
   if (cc->inbuf.nbytes < cc->inbuf.contentlength)
     {
       do
         {
           nbytes_read = read(cc->connfd, cc->inbuf.buffer,
             MIN(CONFIG_THTTPD_CGIINBUFFERSIZE, cc->inbuf.contentlength - cc->inbuf.nbytes));
-          nllvdbg("nbytes_read: %d\n", nbytes_read);
+          nllinfo("nbytes_read: %d\n", nbytes_read);
           if (nbytes_read < 0)
             {
               if (errno != EINTR)
@@ -388,7 +388,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
       if (nbytes_read > 0)
         {
           nbytes_written = httpd_write(cc->wrfd, cc->inbuf.buffer, nbytes_read);
-          nllvdbg("nbytes_written: %d\n", nbytes_written);
+          nllinfo("nbytes_written: %d\n", nbytes_written);
           if (nbytes_written != nbytes_read)
             {
               nlldbg("httpd_write failed\n");
@@ -447,7 +447,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
 
   /* Loop while there are things we can do without waiting for more input */
 
-  nllvdbg("state: %d\n", cc->outbuf.state);
+  nllinfo("state: %d\n", cc->outbuf.state);
   switch (cc->outbuf.state)
     {
       case CGI_OUTBUFFER_READHEADER:
@@ -461,7 +461,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                */
 
               nbytes_read = read(cc->rdfd, cc->inbuf.buffer, CONFIG_THTTPD_CGIINBUFFERSIZE);
-              nllvdbg("Read %d bytes from fd %d\n", nbytes_read, cc->rdfd);
+              nllinfo("Read %d bytes from fd %d\n", nbytes_read, cc->rdfd);
 
               if (nbytes_read < 0)
                 {
@@ -485,7 +485,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
 
           if (nbytes_read <= 0)
             {
-              nllvdbg("End-of-file\n");
+              nllinfo("End-of-file\n");
               br               = &(cc->outbuf.buffer[cc->outbuf.len]);
               cc->outbuf.state = CGI_OUTBUFFER_HEADERREAD;
             }
@@ -497,14 +497,14 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
               (void)memcpy(&(cc->outbuf.buffer[cc->outbuf.len]), cc->inbuf.buffer, nbytes_read);
               cc->outbuf.len                   += nbytes_read;
               cc->outbuf.buffer[cc->outbuf.len] = '\0';
-              nllvdbg("Header bytes accumulated: %d\n", cc->outbuf.len);
+              nllinfo("Header bytes accumulated: %d\n", cc->outbuf.len);
 
               /* Check for end of header */
 
               if ((br = strstr(cc->outbuf.buffer, "\r\n\r\n")) != NULL ||
                   (br = strstr(cc->outbuf.buffer, "\012\012")) != NULL)
                 {
-                  nllvdbg("End-of-header\n");
+                  nllinfo("End-of-header\n");
                   cc->outbuf.state = CGI_OUTBUFFER_HEADERREAD;
                 }
               else
@@ -559,7 +559,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
 
           /* Write the status line. */
 
-          nllvdbg("Status: %d\n", status);
+          nllinfo("Status: %d\n", status);
           switch (status)
             {
             case 200:
@@ -643,7 +643,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                */
 
               nbytes_read = read(cc->rdfd, cc->inbuf.buffer, CONFIG_THTTPD_CGIINBUFFERSIZE);
-              nllvdbg("Read %d bytes from fd %d\n", nbytes_read, cc->rdfd);
+              nllinfo("Read %d bytes from fd %d\n", nbytes_read, cc->rdfd);
 
               if (nbytes_read < 0)
                 {
@@ -667,7 +667,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
 
           if (nbytes_read == 0)
             {
-              nllvdbg("End-of-file\n");
+              nllinfo("End-of-file\n");
               cc->outbuf.state = CGI_OUTBUFFER_DONE;
               return 1;
             }
@@ -713,7 +713,7 @@ static int cgi_child(int argc, char **argv)
    * all file descriptors
    */
 
-  nllvdbg("Started: %s\n", argv[1]);
+  nllinfo("Started: %s\n", argv[1]);
 
   /* Allocate memory and initialize memory for interposing */
 
@@ -746,7 +746,7 @@ static int cgi_child(int argc, char **argv)
    * now prevents re-use of fd=0 and 1 by pipe().
    */
 
-  nllvdbg("Closing descriptors\n");
+  nllinfo("Closing descriptors\n");
   for (fd = 3; fd < (CONFIG_NFILE_DESCRIPTORS + CONFIG_NSOCKET_DESCRIPTORS); fd++)
     {
        /* Keep hc->conn_fd open for obvious reasons */
@@ -764,7 +764,7 @@ static int cgi_child(int argc, char **argv)
    * socket to the CGI program.
    */
 
-  nllvdbg("Create STDIN pipe\n");
+  nllinfo("Create STDIN pipe\n");
   ret = pipe(pipefd);
   if (ret < 0)
     {
@@ -795,7 +795,7 @@ static int cgi_child(int argc, char **argv)
 
   if (ret == 0)
     {
-      nllvdbg("Create STDOUT pipe\n");
+      nllinfo("Create STDOUT pipe\n");
       ret = pipe(pipefd);
       if (ret < 0)
         {
@@ -857,7 +857,7 @@ static int cgi_child(int argc, char **argv)
 
   /* Run the CGI program. */
 
-  nllvdbg("Starting CGI: %s\n", hc->expnfilename);
+  nllinfo("Starting CGI: %s\n", hc->expnfilename);
 
 #ifdef CONFIG_THTTPD_NXFLAT
   child = exec(hc->expnfilename, (FAR char * const *)argp, g_thttpdsymtab, g_thttpdnsymbols);
@@ -891,7 +891,7 @@ static int cgi_child(int argc, char **argv)
   /* Send any data that is already buffer to the CGI task */
 
   nbytes = hc->read_idx - hc->checked_idx;
-  nllvdbg("nbytes: %d contentlength: %d\n", nbytes, hc->contentlength);
+  nllinfo("nbytes: %d contentlength: %d\n", nbytes, hc->contentlength);
   if (nbytes > 0)
     {
       if (httpd_write(cc->wrfd, &(hc->read_buf[hc->checked_idx]), nbytes) != nbytes)
@@ -909,7 +909,7 @@ static int cgi_child(int argc, char **argv)
   indone  = false;
   outdone = false;
 
-  nllvdbg("Interposing\n");
+  nllinfo("Interposing\n");
   cgi_semgive();  /* Not safe to reference hc after this point */
   do
     {
@@ -921,7 +921,7 @@ static int cgi_child(int argc, char **argv)
         {
           /* Transfer data from the client to the CGI program (POST) */
 
-          nllvdbg("Interpose input\n");
+          nllinfo("Interpose input\n");
           indone = cgi_interpose_input(cc);
           if (indone)
             {
@@ -935,7 +935,7 @@ static int cgi_child(int argc, char **argv)
         {
           /* Handle receipt of headers and CGI program response (GET) */
 
-          nllvdbg("Interpose output\n");
+          nllinfo("Interpose output\n");
           outdone = cgi_interpose_output(cc);
         }
 
@@ -949,7 +949,7 @@ static int cgi_child(int argc, char **argv)
 
       else if (kill(child, 0) != 0)
         {
-          nllvdbg("CGI no longer running: %d\n", errno);
+          nllinfo("CGI no longer running: %d\n", errno);
           outdone = true;
         }
   }
@@ -977,7 +977,7 @@ errout_with_cgiconn:
   httpd_free(cc);
 
 errout:
-  nllvdbg("Return %d\n", err);
+  nllinfo("Return %d\n", err);
   if (err != 0)
     {
       INTERNALERROR("errout");

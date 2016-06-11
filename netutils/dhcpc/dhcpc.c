@@ -373,7 +373,7 @@ void *dhcpc_open(const void *macaddr, int maclen)
       pdhcpc->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
       if (pdhcpc->sockfd < 0)
         {
-          nvdbg("socket handle %d\n",ret);
+          ninfo("socket handle %d\n",ret);
           free(pdhcpc);
           return NULL;
         }
@@ -387,7 +387,7 @@ void *dhcpc_open(const void *macaddr, int maclen)
       ret = bind(pdhcpc->sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
       if (ret < 0)
         {
-          nvdbg("bind status %d\n",ret);
+          ninfo("bind status %d\n",ret);
           close(pdhcpc->sockfd);
           free(pdhcpc);
           return NULL;
@@ -401,7 +401,7 @@ void *dhcpc_open(const void *macaddr, int maclen)
       ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
       if (ret < 0)
         {
-          nvdbg("setsockopt status %d\n",ret);
+          ninfo("setsockopt status %d\n",ret);
           close(pdhcpc->sockfd);
           free(pdhcpc);
           return NULL;

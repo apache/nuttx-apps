@@ -229,7 +229,7 @@ int fptc_getreply(struct ftpc_session_s *session)
       /* No.. cancel the timer and return an error */
 
       wd_cancel(session->wdog);
-      nvdbg("Lost connection\n");
+      ninfo("Lost connection\n");
       return ERROR;
     }
 
@@ -240,11 +240,11 @@ int fptc_getreply(struct ftpc_session_s *session)
       /* No.. cancel the timer and return an error */
 
       wd_cancel(session->wdog);
-      nvdbg("ftpc_gets failed\n");
+      ninfo("ftpc_gets failed\n");
       return ERROR;
     }
 
-  nvdbg("Reply: %s\n", session->reply);
+  ninfo("Reply: %s\n", session->reply);
 
   if (session->reply[3] == '-')
     {
@@ -258,7 +258,7 @@ int fptc_getreply(struct ftpc_session_s *session)
               break;
             }
 
-          nvdbg("Reply: %s\n", session->reply);
+          ninfo("Reply: %s\n", session->reply);
         }
       while (strncmp(tmp, session->reply, 4) != 0);
     }

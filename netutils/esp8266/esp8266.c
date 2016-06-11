@@ -221,13 +221,13 @@ static lesp_socket_t *get_sock(int sockfd)
 {
   if (!g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 not initialized; can't list access points\n");
+      ninfo("Esp8266 not initialized; can't list access points\n");
       return NULL;
     }
 
   if (((unsigned int)sockfd) >= SOCKET_NBR)
     {
-      nvdbg("Esp8266 invalid sockfd\n", sockfd);
+      ninfo("Esp8266 invalid sockfd\n", sockfd);
       return NULL;
     }
 
@@ -348,7 +348,7 @@ static inline int lesp_read_ipd(void)
       return -1;
     }
 
-  nvdbg("Read %d bytes for socket %d \n", len, sockfd);
+  ninfo("Read %d bytes for socket %d \n", len, sockfd);
 
   while(len)
     {
@@ -404,7 +404,7 @@ static inline int lesp_read_ipd(void)
             {
               /* No.. the we have lost data */
 
-              nvdbg("overflow socket 0x%02X\n", b);
+              ninfo("overflow socket 0x%02X\n", b);
             }
         }
 
@@ -442,11 +442,11 @@ int lesp_vsend_cmd(FAR const IPTR char *format, va_list ap)
   if (ret >= BUF_CMD_LEN)
     {
       g_lesp_state.bufcmd[BUF_CMD_LEN-1]='\0';
-      nvdbg("Buffer too small for '%s'...\n", g_lesp_state.bufcmd);
+      ninfo("Buffer too small for '%s'...\n", g_lesp_state.bufcmd);
       ret = -1;
     }
 
-  nvdbg("Write:%s\n", g_lesp_state.bufcmd);
+  ninfo("Write:%s\n", g_lesp_state.bufcmd);
 
   ret = write(g_lesp_state.fd,g_lesp_state.bufcmd,ret);
   if (ret < 0)
@@ -508,7 +508,7 @@ static int lesp_read(int timeout_ms)
 
   if (! g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 not initialized; can't list access points\n");
+      ninfo("Esp8266 not initialized; can't list access points\n");
       return -1;
     }
 
@@ -541,7 +541,7 @@ static int lesp_read(int timeout_ms)
     }
   while (ret <= 0);
 
-  nvdbg("read %d=>%s\n", ret, g_lesp_state.bufans);
+  ninfo("read %d=>%s\n", ret, g_lesp_state.bufans);
 
   return ret;
 }
@@ -607,7 +607,7 @@ int lesp_read_ans_ok(int timeout_ms)
           return -1;
         }
 
-      nvdbg("Got:%s\n", g_lesp_state.bufans);
+      ninfo("Got:%s\n", g_lesp_state.bufans);
 
       /* Ro quit in case of message flooding */
     }
@@ -778,7 +778,7 @@ static void *lesp_worker(void *args)
   UNUSED(args);
 
   pthread_mutex_lock(&g_lesp_state.mutex);
-  nvdbg("worker Started \n");
+  ninfo("worker Started \n");
   p->bufsize = 0;
   pthread_mutex_unlock(&g_lesp_state.mutex);
 
@@ -794,7 +794,7 @@ static void *lesp_worker(void *args)
         }
       else if (ret > 0)
         {
-          //nvdbg("c:0x%02X (%c)\n", c);
+          //ninfo("c:0x%02X (%c)\n", c);
 
           pthread_mutex_lock(&g_lesp_state.mutex);
           if (c == '\n')
@@ -808,7 +808,7 @@ static void *lesp_worker(void *args)
                 {
                   p->buf[p->bufsize] = '\0';
                   memcpy(g_lesp_state.buf,p->buf,p->bufsize+1);
-                  nvdbg("Read data:%s\n", g_lesp_state.buf);
+                  ninfo("Read data:%s\n", g_lesp_state.buf);
                   sem_post(&g_lesp_state.sem);
                   p->bufsize = 0;
                 }
@@ -819,7 +819,7 @@ static void *lesp_worker(void *args)
             }
           else
             {
-              nvdbg("Read char overflow:%c\n", c);
+              ninfo("Read char overflow:%c\n", c);
             }
 
           pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -896,18 +896,18 @@ int lesp_initialize(void)
 
   if (g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 already initialized\n");
+      ninfo("Esp8266 already initialized\n");
       pthread_mutex_unlock(&g_lesp_state.mutex);
       return 0;
     }
 
-  nvdbg("Initializing Esp8266...\n");
+  ninfo("Initializing Esp8266...\n");
 
   memset(g_lesp_state.sockets, 0, SOCKET_NBR * sizeof(lesp_socket_t));
 
   if (sem_init(&g_lesp_state.sem, 0, 0) < 0)
     {
-      nvdbg("Cannot create semaphore\n");
+      ninfo("Cannot create semaphore\n");
       pthread_mutex_unlock(&g_lesp_state.mutex);
       return -1;
     }
@@ -940,12 +940,12 @@ int lesp_initialize(void)
 
   if (ret < 0)
     {
-      nvdbg("Esp8266 initialisation failed!\n");
+      ninfo("Esp8266 initialisation failed!\n");
       return -1;
     }
 
   g_lesp_state.is_initialized = true;
-  nvdbg("Esp8266 initialized\n");
+  ninfo("Esp8266 initialized\n");
 
   return 0;
 }
@@ -1016,7 +1016,7 @@ int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s)
 {
   int ret = 0;
 
-  nvdbg("Starting manual connect...\n");
+  ninfo("Starting manual connect...\n");
 
   if (! g_lesp_state.is_initialized)
     {
@@ -1035,7 +1035,7 @@ int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s)
       return -1;
     }
 
-  nvdbg("Wifi connected\n");
+  ninfo("Wifi connected\n");
   return 0;
 }
 
@@ -1157,7 +1157,7 @@ int lesp_list_access_points(lesp_cb_t cb)
           continue;
         }
 
-      nvdbg("Read:%s\n", g_lesp_state.bufans);
+      ninfo("Read:%s\n", g_lesp_state.bufans);
 
       if (strcmp(g_lesp_state.bufans,"OK") == 0)
         {
@@ -1179,7 +1179,7 @@ int lesp_list_access_points(lesp_cb_t cb)
       return -1;
     }
 
-  nvdbg("Access Point list finished with %d ap founds\n", number);
+  ninfo("Access Point list finished with %d ap founds\n", number);
 
   return number;
 }
@@ -1219,7 +1219,7 @@ int lesp_socket(int domain, int type, int protocol)
   ret = -1;
   if (!g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 not initialized; can't list access points\n");
+      ninfo("Esp8266 not initialized; can't list access points\n");
     }
   else
     {
@@ -1352,7 +1352,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
   if (ret >= 0)
     {
-      nvdbg("Sending in socket %d, %d bytes\n", sockfd,len);
+      ninfo("Sending in socket %d, %d bytes\n", sockfd,len);
       ret = write(g_lesp_state.fd,buf,len);
     }
 
@@ -1380,7 +1380,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
   if (ret >= 0)
     {
-      nvdbg("Sent\n");
+      ninfo("Sent\n");
     }
 
   if (ret < 0)
@@ -1400,7 +1400,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
 
   if (sem_init(&sem, 0, 0) < 0)
     {
-      nvdbg("Cannot create semaphore\n");
+      ninfo("Cannot create semaphore\n");
       return -1;
     }
 

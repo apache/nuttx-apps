@@ -124,7 +124,7 @@ int netlib_listenon(uint16_t portno)
 
   /* Begin accepting connections */
 
-  nvdbg("Accepting connections on port %d\n", ntohs(portno));
+  ninfo("Accepting connections on port %d\n", ntohs(portno));
   return listensd;
 
 errout_with_socket:

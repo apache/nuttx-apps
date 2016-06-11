@@ -796,13 +796,13 @@ static int ftpd_rxpoll(int sd, int timeout)
 
   if (ret == 0)
     {
-      //nvdbg("poll() timed out\n");
+      //ninfo("poll() timed out\n");
       return -ETIMEDOUT;
     }
   else if (ret < 0)
     {
       int errval = errno;
-      nvdbg("poll() failed: %d\n", errval);
+      ninfo("poll() failed: %d\n", errval);
       return -errval;
     }
   else
@@ -838,13 +838,13 @@ static int ftpd_txpoll(int sd, int timeout)
 
   if (ret == 0)
     {
-      nvdbg("poll() timed out\n");
+      ninfo("poll() timed out\n");
       return -ETIMEDOUT;
     }
   else if (ret < 0)
     {
       int errval = errno;
-      nvdbg("poll() failed: %d\n", errval);
+      ninfo("poll() failed: %d\n", errval);
       return -errval;
     }
   else
@@ -911,7 +911,7 @@ static ssize_t ftpd_recv(int sd, FAR void *data, size_t size, int timeout)
       status = ftpd_rxpoll(sd, timeout);
       if (status < 0)
         {
-          nvdbg("ftpd_rxpoll: %d\n", status);
+          ninfo("ftpd_rxpoll: %d\n", status);
           return (ssize_t)status;
         }
     }
@@ -948,7 +948,7 @@ static ssize_t ftpd_send(int sd, FAR const void *data, size_t size, int timeout)
       int status = ftpd_txpoll(sd, timeout);
       if (status < 0)
         {
-          nvdbg("ftpd_rxpoll: %d\n", status);
+          ninfo("ftpd_rxpoll: %d\n", status);
           return (ssize_t)status;
         }
     }
@@ -4022,7 +4022,7 @@ static FAR void *ftpd_worker(FAR void *arg)
   uint8_t ch;
   int ret;
 
-  nvdbg("Worker started\n");
+  ninfo("Worker started\n");
   DEBUGASSERT(session);
 
   /* Configure the session sockets */

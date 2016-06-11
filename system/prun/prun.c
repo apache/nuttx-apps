@@ -99,7 +99,7 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize)
       return -ENOEXEC;
     }
 
-  bvdbg("Loaded %s\n", exepath);
+  binfo("Loaded %s\n", exepath);
 
   /* Execute the P-Code program until a stopping condition occurs */
 
@@ -124,7 +124,7 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize)
 
   /* Clean up resources used by the interpreter */
 
-  bvdbg("Execution terminated\n");
+  binfo("Execution terminated\n");
   pexec_release(st);
   return ret;
 }

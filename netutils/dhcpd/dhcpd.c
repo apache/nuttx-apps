@@ -47,13 +47,13 @@
 #  define FAR
 
 #  define ndbg(...) printf(__VA_ARGS__)
-#  define nvdbg(...) printf(__VA_ARGS__)
+#  define ninfo(...) printf(__VA_ARGS__)
 
 #  define ERROR (-1)
 #  define OK    (0)
 #else
 #  include <nuttx/config.h>          /* NuttX configuration */
-#  include <debug.h>                 /* For ndbg, vdbg */
+#  include <debug.h>                 /* For ndbg, info */
 #  include <nuttx/compiler.h>        /* For CONFIG_CPP_HAVE_WARNING */
 #  include <apps/netutils/dhcpd.h>   /* Advertised DHCPD APIs */
 #endif
@@ -363,7 +363,7 @@ struct lease_s *dhcpd_setlease(const uint8_t *mac, in_addr_t ipaddr, time_t expi
   int ndx = ipaddr - CONFIG_NETUTILS_DHCPD_STARTIP;
   struct lease_s *ret = NULL;
 
-  nvdbg("ipaddr: %08x ipaddr: %08x ndx: %d MAX: %d\n",
+  ninfo("ipaddr: %08x ipaddr: %08x ndx: %d MAX: %d\n",
         ipaddr, CONFIG_NETUTILS_DHCPD_STARTIP, ndx,
         CONFIG_NETUTILS_DHCPD_MAXLEASES);
 
@@ -840,7 +840,7 @@ static inline int dhcpd_openresponder(void)
   int sockfd;
   int ret;
 
-  nvdbg("Responder: %08lx\n", ntohl(g_state.ds_serverip));
+  ninfo("Responder: %08lx\n", ntohl(g_state.ds_serverip));
 
   /* Create a socket to listen for requests from DHCP clients */
 
@@ -980,7 +980,7 @@ static int dhcpd_sendpacket(int bbroadcast)
       /* Send the minimum sized packet that includes the END option */
 
       len = (g_state.ds_optend - (uint8_t*)&g_state.ds_outpacket) + 1;
-      nvdbg("sendto %08lx:%04x len=%d\n",
+      ninfo("sendto %08lx:%04x len=%d\n",
             (long)ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port), len);
 
       ret = sendto(sockfd, &g_state.ds_outpacket, len, 0,
@@ -1004,7 +1004,7 @@ static inline int dhcpd_sendoffer(in_addr_t ipaddr, uint32_t leasetime)
 #endif
   /* IP address is in host order */
 
-  nvdbg("Sending offer: %08lx\n", (long)ipaddr);
+  ninfo("Sending offer: %08lx\n", (long)ipaddr);
 
   /* Initialize the outgoing packet */
 
@@ -1133,7 +1133,7 @@ static inline int dhcpd_discover(void)
       /* Get the IP address associated with the lease (host order) */
 
       ipaddr = dhcp_leaseipaddr(lease);
-      nvdbg("Already have lease for IP %08lx\n", (long)ipaddr);
+      ninfo("Already have lease for IP %08lx\n", (long)ipaddr);
     }
 
   /* Check if the client has requested a specific IP address */
@@ -1143,14 +1143,14 @@ static inline int dhcpd_discover(void)
       /* Use the requested IP address (host order) */
 
       ipaddr = g_state.ds_optreqip;
-      nvdbg("User requested IP %08lx\n", (long)ipaddr);
+      ninfo("User requested IP %08lx\n", (long)ipaddr);
     }
   else
     {
       /* No... allocate a new IP address (host order)*/
 
       ipaddr = dhcpd_allocipaddr();
-      nvdbg("Allocated IP %08lx\n", (long)ipaddr);
+      ninfo("Allocated IP %08lx\n", (long)ipaddr);
     }
 
   /* Did we get any IP address? */
@@ -1203,7 +1203,7 @@ static inline int dhcpd_request(void)
        */
 
       ipaddr = dhcp_leaseipaddr(lease);
-      nvdbg("Lease ipaddr: %08x Server IP: %08x Requested IP: %08x\n",
+      ninfo("Lease ipaddr: %08x Server IP: %08x Requested IP: %08x\n",
             ipaddr, g_state.ds_optserverip, g_state.ds_optreqip);
 
       if (g_state.ds_optserverip)
@@ -1270,7 +1270,7 @@ static inline int dhcpd_request(void)
 
   else if (g_state.ds_optreqip && !g_state.ds_optserverip)
     {
-      nvdbg("Server IP: %08x Requested IP: %08x\n",
+      ninfo("Server IP: %08x Requested IP: %08x\n",
             g_state.ds_optserverip, g_state.ds_optreqip);
 
       /* Is this IP address already assigned? */
@@ -1305,17 +1305,17 @@ static inline int dhcpd_request(void)
 
   if (response == DHCPACK)
     {
-      nvdbg("ACK IP %08lx\n", (long)ipaddr);
+      ninfo("ACK IP %08lx\n", (long)ipaddr);
       dhcpd_sendack(ipaddr);
     }
   else if (response == DHCPNAK)
     {
-      nvdbg("NAK IP %08lx\n", (long)ipaddr);
+      ninfo("NAK IP %08lx\n", (long)ipaddr);
       dhcpd_sendnak();
     }
   else
     {
-      nvdbg("Remaining silent IP %08lx\n", (long)ipaddr);
+      ninfo("Remaining silent IP %08lx\n", (long)ipaddr);
     }
 
   return OK;
@@ -1396,7 +1396,7 @@ static inline int dhcpd_openlistener(void)
     }
 
   g_state.ds_serverip = ((struct sockaddr_in*)&req.ifr_addr)->sin_addr.s_addr;
-  nvdbg("serverip: %08lx\n", ntohl(g_state.ds_serverip));
+  ninfo("serverip: %08lx\n", ntohl(g_state.ds_serverip));
 
   /* Bind the socket to a local port. We have to bind to INADDRY_ANY to
    * receive broadcast messages.
@@ -1431,7 +1431,7 @@ int dhcpd_run(void)
   int sockfd;
   int nbytes;
 
-  nvdbg("Started\n");
+  ninfo("Started\n");
 
   /* Initialize everything to zero */
 
@@ -1491,22 +1491,22 @@ int dhcpd_run(void)
       switch (g_state.ds_optmsgtype)
         {
           case DHCPDISCOVER:
-            nvdbg("DHCPDISCOVER\n");
+            ninfo("DHCPDISCOVER\n");
             dhcpd_discover();
             break;
 
           case DHCPREQUEST:
-            nvdbg("DHCPREQUEST\n");
+            ninfo("DHCPREQUEST\n");
             dhcpd_request();
             break;
 
           case DHCPDECLINE:
-            nvdbg("DHCPDECLINE\n");
+            ninfo("DHCPDECLINE\n");
             dhcpd_decline();
             break;
 
           case DHCPRELEASE:
-            nvdbg("DHCPRELEASE\n");
+            ninfo("DHCPRELEASE\n");
             dhcpd_release();
             break;
 

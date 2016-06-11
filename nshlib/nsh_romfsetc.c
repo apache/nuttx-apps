@@ -109,7 +109,7 @@ int nsh_romfsetc(void)
 
   /* Mount the file system */
 
-  vdbg("Mounting ROMFS filesystem at target=%s with source=%s\n",
+  info("Mounting ROMFS filesystem at target=%s with source=%s\n",
        CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
 
   ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);

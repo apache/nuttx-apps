@@ -184,7 +184,7 @@ static inline void telnetd_dumpbuffer(FAR const char *msg,
   * defined or the following does nothing.
   */
 
-  nvdbgdumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
+  ninfodumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
 }
 #endif
 
@@ -227,12 +227,12 @@ static ssize_t telnetd_receive(FAR struct telnetd_dev_s *priv, FAR const char *s
   int nread;
   uint8_t ch;
 
-  nllvdbg("srclen: %d destlen: %d\n", srclen, destlen);
+  nllinfo("srclen: %d destlen: %d\n", srclen, destlen);
 
   for (nread = 0; srclen > 0 && nread < destlen; srclen--)
     {
       ch = *src++;
-      nllvdbg("ch=%02x state=%d\n", ch, priv->td_state);
+      nllinfo("ch=%02x state=%d\n", ch, priv->td_state);
 
       switch (priv->td_state)
         {
@@ -412,7 +412,7 @@ static int telnetd_open(FAR struct file *filep)
   int tmp;
   int ret;
 
-  nllvdbg("td_crefs: %d\n", priv->td_crefs);
+  nllinfo("td_crefs: %d\n", priv->td_crefs);
 
   /* O_NONBLOCK is not supported */
 
@@ -468,7 +468,7 @@ static int telnetd_close(FAR struct file *filep)
   FAR char *devpath;
   int ret;
 
-  nllvdbg("td_crefs: %d\n", priv->td_crefs);
+  nllinfo("td_crefs: %d\n", priv->td_crefs);
 
   /* Get exclusive access to the device structures */
 
@@ -547,7 +547,7 @@ static ssize_t telnetd_read(FAR struct file *filep, FAR char *buffer, size_t len
   FAR struct telnetd_dev_s *priv = inode->i_private;
   ssize_t ret;
 
-  nllvdbg("len: %d\n", len);
+  nllinfo("len: %d\n", len);
 
   /* First, handle the case where there are still valid bytes left in the
    * I/O buffer from the last time that read was called.  NOTE:  Much of
@@ -620,7 +620,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
   char ch;
   bool eol;
 
-  nllvdbg("len: %d\n", len);
+  nllinfo("len: %d\n", len);
 
   /* Process each character from the user buffer */
 

@@ -247,13 +247,13 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
                if (server->sin_addr.s_addr != from.sin_addr.s_addr)
                  {
-                   nvdbg("Invalid address in DATA\n");
+                   ninfo("Invalid address in DATA\n");
                    continue;
                  }
 
               if (*port != server->sin_port)
                 {
-                  nvdbg("Invalid port in DATA\n");
+                  ninfo("Invalid port in DATA\n");
                   packetlen = tftp_mkerrpacket(packet, TFTP_ERR_UNKID, TFTP_ERRST_UNKID);
                   (void)tftp_sendto(sd, packet, packetlen, server);
                   continue;
@@ -270,7 +270,7 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
                if (opcode != TFTP_ACK)
                  {
-                   nvdbg("Bad opcode\n");
+                   ninfo("Bad opcode\n");
 #if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_NET)
                   if (opcode == TFTP_ERR)
                     {
@@ -291,7 +291,7 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
               /* Success! */
 
-              nvdbg("Received ACK for block %d\n", rblockno);
+              ninfo("Received ACK for block %d\n", rblockno);
               *blockno = rblockno;
               return OK;
             }

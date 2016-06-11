@@ -231,7 +231,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
 
   /* Create socket. */
 
-  nvdbg("Create listen socket\n");
+  ninfo("Create listen socket\n");
   listen_fd = socket(saP->sin_family, SOCK_STREAM, 0);
   if (listen_fd < 0)
     {
@@ -418,7 +418,7 @@ static void send_response(httpd_conn *hc, int status, const char *title, const c
   char defanged[72];
   char buf[128];
 
-  nvdbg("title: \"%s\" form: \"%s\"\n", title, form);
+  ninfo("title: \"%s\" form: \"%s\"\n", title, form);
 
   send_mime(hc, status, title, "", extraheads, "text/html; charset=%s", (off_t)-1, (time_t)0);
   add_response(hc, html_html);
@@ -1116,7 +1116,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
   char *cp2;
   int i;
 
-  nvdbg("path: \"%s\"\n", path);
+  ninfo("path: \"%s\"\n", path);
 #if 0 // REVISIT
   /* We need to do the pathinfo check.  we do a single stat() of the whole
    * filename - if it exists, then we return it as is with nothing in restP.
@@ -1302,7 +1302,7 @@ static char *expand_filename(char *path, char **restP, bool tildemapped)
       (void)strcpy(checked, httpd_root);
     }
 
-  nvdbg("checked: \"%s\"\n", checked);
+  ninfo("checked: \"%s\"\n", checked);
   return checked;
 }
 
@@ -2101,7 +2101,7 @@ FAR httpd_server *httpd_initialize(FAR httpd_sockaddr *sa)
 #else
   hs->hostname = httpd_strdup(httpd_ntoa(sa));
 #endif
-  nvdbg("hostname: %s\n", hs->hostname);
+  ninfo("hostname: %s\n", hs->hostname);
 
   if (!hs->hostname)
     {
@@ -2213,7 +2213,7 @@ void httpd_send_err(httpd_conn *hc, int status, const char *title, const char *e
                      "%s/%s/err%d.html", hc->hostdir, CONFIG_THTTPD_ERROR_DIRECTORY, status);
       if (send_err_file(hc, status, title, extraheads, filename))
         {
-          nvdbg("Sent VHOST error file\n");
+          ninfo("Sent VHOST error file\n");
           return;
         }
     }
@@ -2224,7 +2224,7 @@ void httpd_send_err(httpd_conn *hc, int status, const char *title, const char *e
   (void)snprintf(filename, sizeof(filename), "%s/err%d.html", CONFIG_THTTPD_ERROR_DIRECTORY, status);
   if (send_err_file(hc, status, title, extraheads, filename))
     {
-      nvdbg("Sent server-wide error page\n");
+      ninfo("Sent server-wide error page\n");
       return;
     }
 
@@ -2293,7 +2293,7 @@ int httpd_get_conn(httpd_server *hs, int listen_fd, httpd_conn *hc)
 
   /* Accept the new connection. */
 
-  nvdbg("accept() new connection on listen_fd %d\n", listen_fd);
+  ninfo("accept() new connection on listen_fd %d\n", listen_fd);
   sz = sizeof(sa);
   hc->conn_fd = accept(listen_fd, (struct sockaddr*)&sa, &sz);
   if (hc->conn_fd < 0)
@@ -2368,7 +2368,7 @@ int httpd_get_conn(httpd_server *hs, int listen_fd, httpd_conn *hc)
   hc->should_linger     = false;
   hc->file_fd           = -1;
 
-  nvdbg("New connection accepted on %d\n", hc->conn_fd);
+  ninfo("New connection accepted on %d\n", hc->conn_fd);
   return GC_OK;
 }
 
@@ -2597,7 +2597,7 @@ int httpd_parse_request(httpd_conn *hc)
 
   hc->checked_idx = 0;          /* reset */
   method_str      = bufgets(hc);
-  nvdbg("method_str: \"%s\"\n", method_str);
+  ninfo("method_str: \"%s\"\n", method_str);
 
   url = strpbrk(method_str, " \t\012\015");
   if (!url)
@@ -2609,10 +2609,10 @@ int httpd_parse_request(httpd_conn *hc)
 
   *url++ = '\0';
   url   += strspn(url, " \t\012\015");
-  nvdbg("url: \"%s\"\n", url);
+  ninfo("url: \"%s\"\n", url);
 
   protocol = strpbrk(url, " \t\012\015");
-  nvdbg("protocol: \"%s\"\n", protocol ? protocol : "<null>");
+  ninfo("protocol: \"%s\"\n", protocol ? protocol : "<null>");
 
   if (!protocol)
     {
@@ -3025,7 +3025,7 @@ int httpd_parse_request(httpd_conn *hc)
   (void)strcpy(hc->expnfilename, cp);
   httpd_realloc_str(&hc->pathinfo, &hc->maxpathinfo, strlen(pi));
   (void)strcpy(hc->pathinfo, pi);
-  nvdbg("expnfilename: \"%s\" pathinfo: \"%s\"\n", hc->expnfilename, hc->pathinfo);
+  ninfo("expnfilename: \"%s\" pathinfo: \"%s\"\n", hc->expnfilename, hc->pathinfo);
 
   /* Remove pathinfo stuff from the original filename too. */
 
@@ -3123,7 +3123,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
   char *pi;
   int i;
 
-  nvdbg("File: \"%s\"\n", hc->expnfilename);
+  ninfo("File: \"%s\"\n", hc->expnfilename);
   expnlen = strlen(hc->expnfilename);
 
   if (hc->method != METHOD_GET && hc->method != METHOD_HEAD &&

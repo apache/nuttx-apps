@@ -160,10 +160,10 @@
 #  endif
 
 #  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 1
-#    define vivdbg(format, ...) \
+#    define viinfo(format, ...) \
        syslog(LOG_DEBUG, EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
-#    define vivdbg(x...)
+#    define viinfo(x...)
 #  endif
 #else
 #  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 0
@@ -175,9 +175,9 @@
 #  endif
 
 #  if CONFIG_SYSTEM_VI_DEBUGLEVEL > 1
-#    define vivdbg vi_debug
+#    define viinfo vi_debug
 #  else
-#    define vivdbg (void)
+#    define viinfo (void)
 #  endif
 #endif
 
@@ -494,7 +494,7 @@ static void vi_write(FAR struct vi_s *vi, FAR const char *buffer,
   ssize_t nwritten;
   size_t  nremaining = buflen;
 
-  //vivdbg("buffer=%p buflen=%d\n", buffer, (int)buflen);
+  //viinfo("buffer=%p buflen=%d\n", buffer, (int)buflen);
 
   /* Loop until all bytes have been successfully written (or until a
    * unrecoverable error is encountered)
@@ -592,7 +592,7 @@ static char vi_getch(FAR struct vi_s *vi)
 
   /* On success, return the character that was read */
 
-  vivdbg("Returning: %c[%02x]\n", isprint(buffer) ? buffer : '.', buffer);
+  viinfo("Returning: %c[%02x]\n", isprint(buffer) ? buffer : '.', buffer);
   return buffer;
 }
 
@@ -718,7 +718,7 @@ static void vi_setcursor(FAR struct vi_s *vi, uint16_t row, uint16_t column)
   char buffer[16];
   int len;
 
-  vivdbg("row=%d column=%d\n", row, column);
+  viinfo("row=%d column=%d\n", row, column);
 
   /* Format the cursor position command.  The origin is (1,1). */
 
@@ -772,7 +772,7 @@ static void vi_clrscreen(FAR struct vi_s *vi)
 
 static void vi_scrollup(FAR struct vi_s *vi, uint16_t nlines)
 {
-  vivdbg("nlines=%d\n", nlines);
+  viinfo("nlines=%d\n", nlines);
 
   /* Scroll for the specified number of lines */
 
@@ -794,7 +794,7 @@ static void vi_scrollup(FAR struct vi_s *vi, uint16_t nlines)
 
 static void vi_scrolldown(FAR struct vi_s *vi, uint16_t nlines)
 {
-  vivdbg("nlines=%d\n", nlines);
+  viinfo("nlines=%d\n", nlines);
 
   /* Scroll for the specified number of lines */
 
@@ -883,7 +883,7 @@ static off_t vi_linebegin(FAR struct vi_s *vi, off_t pos)
       pos--;
     }
 
-  vivdbg("Return pos=%ld\n", (long)pos);
+  viinfo("Return pos=%ld\n", (long)pos);
   return pos;
 }
 
@@ -910,7 +910,7 @@ static off_t vi_prevline(FAR struct vi_s *vi, off_t pos)
       pos = vi_linebegin(vi, pos - 1);
     }
 
-  vivdbg("Return pos=%ld\n", (long)pos);
+  viinfo("Return pos=%ld\n", (long)pos);
   return pos;
 }
 
@@ -933,7 +933,7 @@ static off_t vi_lineend(FAR struct vi_s *vi, off_t pos)
       pos++;
     }
 
-  vivdbg("Return pos=%ld\n", (long)pos);
+  viinfo("Return pos=%ld\n", (long)pos);
   return pos;
 }
 
@@ -960,7 +960,7 @@ static off_t vi_nextline(FAR struct vi_s *vi, off_t pos)
       pos++;
     }
 
-  vivdbg("Return pos=%ld\n", (long)pos);
+  viinfo("Return pos=%ld\n", (long)pos);
   return pos;
 }
 
@@ -982,7 +982,7 @@ static bool vi_extendtext(FAR struct vi_s *vi, off_t pos, size_t increment)
   FAR char *alloc;
   int i;
 
-  vivdbg("pos=%ld increment=%ld\n", (long)pos, (long)increment);
+  viinfo("pos=%ld increment=%ld\n", (long)pos, (long)increment);
 
   /* Check if we need to reallocate */
 
@@ -1041,7 +1041,7 @@ static bool vi_extendtext(FAR struct vi_s *vi, off_t pos, size_t increment)
 
 static void vi_shrinkpos(off_t delpos, size_t delsize, FAR off_t *pos)
 {
-  vivdbg("delpos=%ld delsize=%ld pos=%ld\n",
+  viinfo("delpos=%ld delsize=%ld pos=%ld\n",
          (long)delpos, (long)delsize, (long)*pos);
 
   /* Check if the position is beyond the deleted region */
@@ -1079,7 +1079,7 @@ static void vi_shrinktext(FAR struct vi_s *vi, off_t pos, size_t size)
   size_t allocsize;
   int i;
 
-  vivdbg("pos=%ld size=%ld\n", (long)pos, (long)size);
+  viinfo("pos=%ld size=%ld\n", (long)pos, (long)size);
 
   /* Close up the gap to remove 'size' characters at 'pos' */
 
@@ -1137,7 +1137,7 @@ static bool vi_insertfile(FAR struct vi_s *vi, off_t pos,
   int result;
   bool ret;
 
-  vivdbg("pos=%ld filename=\"%s\"\n", (long)pos, filename);
+  viinfo("pos=%ld filename=\"%s\"\n", (long)pos, filename);
 
   /* Get the size of the file  */
 
@@ -1208,7 +1208,7 @@ static bool vi_savetext(FAR struct vi_s *vi, FAR const char *filename,
   FILE *stream;
   size_t nwritten;
 
-  vivdbg("filename=\"%s\" pos=%ld size=%ld\n",
+  viinfo("filename=\"%s\" pos=%ld size=%ld\n",
          filename, (long)pos, (long)size);
 
   /* Open the file for writing */
@@ -1251,7 +1251,7 @@ static bool vi_checkfile(FAR struct vi_s *vi, FAR const char *filename)
   struct stat buf;
   int ret;
 
-  vivdbg("filename=\"%s\"\n", filename);
+  viinfo("filename=\"%s\"\n", filename);
 
   /* Get the size of the file  */
 
@@ -1293,7 +1293,7 @@ static bool vi_checkfile(FAR struct vi_s *vi, FAR const char *filename)
 
 static void vi_setmode(FAR struct vi_s *vi, uint8_t mode, long value)
 {
-  vivdbg("mode=%d value=%ld\n", mode, value);
+  viinfo("mode=%d value=%ld\n", mode, value);
 
   /* Set the mode and clear mode-dependent states that are not preserved
    * across mode changes.
@@ -1320,7 +1320,7 @@ static void vi_setmode(FAR struct vi_s *vi, uint8_t mode, long value)
 static void vi_setsubmode(FAR struct vi_s *vi, uint8_t mode, char prompt,
                           long value)
 {
-  vivdbg("mode=%d prompt='%c' value=%ld\n", mode, prompt, value);
+  viinfo("mode=%d prompt='%c' value=%ld\n", mode, prompt, value);
 
   /* Set up the new mode */
 
@@ -1362,7 +1362,7 @@ static void vi_setsubmode(FAR struct vi_s *vi, uint8_t mode, char prompt,
 
 static void vi_exitsubmode(FAR struct vi_s *vi, uint8_t mode)
 {
-  vivdbg("mode=%d\n", mode);
+  viinfo("mode=%d\n", mode);
 
   /* Set up the new mode */
 
@@ -1394,7 +1394,7 @@ static void vi_windowpos(FAR struct vi_s *vi, off_t start, off_t end,
   uint16_t column;
   off_t pos;
 
-  vivdbg("start=%ld end=%ld\n", (long)start, (long)end);
+  viinfo("start=%ld end=%ld\n", (long)start, (long)end);
 
   /* Make sure that the end position is not beyond the end of the text. We
    * assume that the start position is okay.
@@ -1588,7 +1588,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
    */
 
   vi->prevpos = vi->winpos;
-  vivdbg("winpos=%ld hscroll=%d\n",
+  viinfo("winpos=%ld hscroll=%d\n",
          (long)vi->winpos, (long)vi->hscroll);
 }
 
@@ -1754,7 +1754,7 @@ static void vi_cusorup(FAR struct vi_s *vi, int nlines)
   off_t start;
   off_t end;
 
-  vivdbg("nlines=%d\n", nlines);
+  viinfo("nlines=%d\n", nlines);
 
   /* How many lines do we need to move?  Zero means 1 (so does 1) */
 
@@ -1795,7 +1795,7 @@ static void vi_cursordown(FAR struct vi_s *vi, int nlines)
   off_t start;
   off_t end;
 
-  vivdbg("nlines=%d\n", nlines);
+  viinfo("nlines=%d\n", nlines);
 
   /* How many lines do we need to move?  Zero means 1 (so does 1) */
 
@@ -1836,7 +1836,7 @@ static off_t vi_cursorleft(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 {
   int remaining;
 
-  vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
+  viinfo("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
   /* Loop decrementing the cursor position for each repetition count.  Break
    * out early if we hit either the beginning of the text buffer, or the end
@@ -1864,7 +1864,7 @@ static off_t vi_cursorright(FAR struct vi_s *vi, off_t curpos, int ncolumns)
 {
   int remaining;
 
-  vivdbg("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
+  viinfo("curpos=%ld ncolumns=%d\n", curpos, ncolumns);
 
   /* Loop incrementing the cursor position for each repetition count.  Break
    * out early if we hit either the end of the text buffer, or the end of the line.
@@ -1890,7 +1890,7 @@ static void vi_delforward(FAR struct vi_s *vi)
   off_t end;
   size_t size;
 
-  vivdbg("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
+  viinfo("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
 
   /* Get the cursor position as if we would have move the cursor right N
    * times (which might be <N characters).
@@ -1920,7 +1920,7 @@ static void vi_delbackward(FAR struct vi_s *vi)
   off_t end;
   size_t size;
 
-  vivdbg("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
+  viinfo("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
 
   /* Back up one character.  This is where the deletion will end */
 
@@ -1992,7 +1992,7 @@ static void vi_delline(FAR struct vi_s *vi)
    */
 
   vi_linerange(vi, &start, &end);
-  vivdbg("start=%ld end=%ld\n", (long)start, (long)end);
+  viinfo("start=%ld end=%ld\n", (long)start, (long)end);
 
   /* Remove the text from the text buffer */
 
@@ -2019,7 +2019,7 @@ static void vi_yank(FAR struct vi_s *vi)
    */
 
   vi_linerange(vi, &start, &end);
-  vivdbg("start=%ld end=%ld\n", (long)start, (long)end);
+  viinfo("start=%ld end=%ld\n", (long)start, (long)end);
 
   /* Free any previously yanked lines */
 
@@ -2062,7 +2062,7 @@ static void vi_paste(FAR struct vi_s *vi)
 {
   off_t start;
 
-  vivdbg("curpos=%ld yankalloc=%d\n", (long)vi->curpos, (long)vi->yankalloc);
+  viinfo("curpos=%ld yankalloc=%d\n", (long)vi->curpos, (long)vi->yankalloc);
 
   /* Make sure there is something to be yanked */
 
@@ -2108,7 +2108,7 @@ static void vi_paste(FAR struct vi_s *vi)
 
 static void vi_gotoline(FAR struct vi_s *vi)
 {
-  vivdbg("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
+  viinfo("curpos=%ld value=%ld\n", (long)vi->curpos, vi->value);
 
   /* Special case the first line */
 
@@ -2153,7 +2153,7 @@ static void vi_gotoline(FAR struct vi_s *vi)
 
 static void vi_cmd_mode(FAR struct vi_s *vi)
 {
-  vivdbg("Enter command mode\n");
+  viinfo("Enter command mode\n");
 
   /* Loop while we are in command mode */
 
@@ -2205,7 +2205,7 @@ static void vi_cmd_mode(FAR struct vi_s *vi)
 
           vi->value = tmp;
 
-          vivdbg("Value=%ld\n", vi->value);
+          viinfo("Value=%ld\n", vi->value);
           continue;
         }
 
@@ -2468,7 +2468,7 @@ static void vi_cmdch(FAR struct vi_s *vi, char ch)
   int index = vi->cmdlen;
   int next  = index + 1;
 
-  vivdbg("cmdlen=%d ch=%c[%02x]\n", vi->cmdlen, isprint(ch) ? ch : '.', ch);
+  viinfo("cmdlen=%d ch=%c[%02x]\n", vi->cmdlen, isprint(ch) ? ch : '.', ch);
 
   /* Abort gracelessly if the scratch buffer becomes full */
 
@@ -2502,7 +2502,7 @@ static void vi_cmdch(FAR struct vi_s *vi, char ch)
 
 static void vi_cmdbackspace(FAR struct vi_s *vi)
 {
-  vivdbg("cmdlen=%d\n", vi->cmdlen);
+  viinfo("cmdlen=%d\n", vi->cmdlen);
 
   if (vi->cmdlen > 0)
     {
@@ -2540,7 +2540,7 @@ static void vi_parsecolon(FAR struct vi_s *vi)
   int col;
   int ch;
 
-  vivdbg("Parse: \"%s\"\n", vi->scratch);
+  viinfo("Parse: \"%s\"\n", vi->scratch);
 
   /* NUL terminate the command */
 
@@ -2679,7 +2679,7 @@ static void vi_parsecolon(FAR struct vi_s *vi)
    * A filename where one is not needed is also an error.
    */
 
-  vivdbg("cmd=%d filename=\"%s\"\n", cmd, vi->filename);
+  viinfo("cmd=%d filename=\"%s\"\n", cmd, vi->filename);
 
   if (cmd == CMD_NONE || (IS_READ(cmd) && !filename) ||
       (!USES_FILE(cmd) && filename))
@@ -2838,7 +2838,7 @@ static void vi_cmd_submode(FAR struct vi_s *vi)
 {
   int ch;
 
-  vivdbg("Enter colon command sub-mode\n");
+  viinfo("Enter colon command sub-mode\n");
 
   /* Loop while we are in colon command mode */
 
@@ -2941,7 +2941,7 @@ static bool vi_findstring(FAR struct vi_s *vi)
   off_t pos;
   int len;
 
-  vivdbg("findstr: \"%s\"\n", vi->findstr);
+  viinfo("findstr: \"%s\"\n", vi->findstr);
 
   /* The search string is in the find buffer */
 
@@ -2997,7 +2997,7 @@ static void vi_parsefind(FAR struct vi_s *vi)
    * string from the previous find operation.
    */
 
-  vivdbg("scratch: \"%s\"\n", vi->scratch);
+  viinfo("scratch: \"%s\"\n", vi->scratch);
 
   if (vi->cmdlen > 0)
     {
@@ -3033,7 +3033,7 @@ static void vi_find_submode(FAR struct vi_s *vi)
 {
   int ch;
 
-  vivdbg("Enter find sub-mode\n");
+  viinfo("Enter find sub-mode\n");
 
   /* Loop while we are in find mode */
 
@@ -3133,7 +3133,7 @@ static void vi_find_submode(FAR struct vi_s *vi)
 
 static void vi_replacech(FAR struct vi_s *vi, char ch)
 {
-  vivdbg("curpos=%ld ch=%c[%02x]\n", vi->curpos, isprint(ch) ? ch : '.', ch);
+  viinfo("curpos=%ld ch=%c[%02x]\n", vi->curpos, isprint(ch) ? ch : '.', ch);
 
   /* Is there a newline at the current cursor position? */
 
@@ -3170,7 +3170,7 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
 
   nchars = (vi->value > 0 ? vi->value : 1);
 
-  vivdbg("Enter replaces character(s) sub-mode: nchars=%d\n", nchars);
+  viinfo("Enter replaces character(s) sub-mode: nchars=%d\n", nchars);
 
   /* Are there that many characters left on the line to be replaced? */
 
@@ -3284,7 +3284,7 @@ static void vi_replacech_submode(FAR struct vi_s *vi)
 
 static void vi_insertch(FAR struct vi_s *vi, char ch)
 {
-  vivdbg("curpos=%ld ch=%c[%02x]\n", vi->curpos, isprint(ch) ? ch : '.', ch);
+  viinfo("curpos=%ld ch=%c[%02x]\n", vi->curpos, isprint(ch) ? ch : '.', ch);
 
   /* Make space in the buffer for the new character */
 
@@ -3308,7 +3308,7 @@ static void vi_insert_mode(FAR struct vi_s *vi)
 {
   int ch;
 
-  vivdbg("Enter insert mode\n");
+  viinfo("Enter insert mode\n");
 
   /* Loop while we are in insert mode */
 
@@ -3427,7 +3427,7 @@ static void vi_replace_mode(FAR struct vi_s *vi)
   off_t start = vi->curpos;
   int ch;
 
-  vivdbg("Enter replace mode\n");
+  viinfo("Enter replace mode\n");
 
   /* Loop until ESC is pressed */
 
@@ -3716,7 +3716,7 @@ int vi_main(int argc, char **argv)
     {
       /* We loop, processing each mode change */
 
-      vivdbg("mode=%d\n", vi->mode);
+      viinfo("mode=%d\n", vi->mode);
 
       switch (vi->mode)
         {

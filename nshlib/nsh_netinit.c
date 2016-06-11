@@ -228,7 +228,7 @@ static void nsh_netinit_configure(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  nvdbg("Entry\n");
+  ninfo("Entry\n");
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
@@ -345,7 +345,7 @@ static void nsh_netinit_configure(void)
 #endif
 #endif /* NSH_HAVE_NETDEV */
 
-  nvdbg("Exit\n");
+  ninfo("Exit\n");
 }
 
 /****************************************************************************
@@ -373,7 +373,7 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
       sem_post(&g_notify_sem);
     }
 
-  nllvdbg("Exit\n");
+  nllinfo("Exit\n");
 }
 #endif
 
@@ -397,7 +397,7 @@ static int nsh_netinit_monitor(void)
   int ret;
   int sd;
 
-  nvdbg("Entry\n");
+  ninfo("Entry\n");
 
   /* Initialize the notification semaphore */
 
@@ -499,7 +499,7 @@ static int nsh_netinit_monitor(void)
           goto errout_with_notification;
         }
 
-      nvdbg("%s: devup=%d PHY address=%02x MSR=%04x\n",
+      ninfo("%s: devup=%d PHY address=%02x MSR=%04x\n",
             ifr.ifr_name, devup, ifr.ifr_mii_phy_id, ifr.ifr_mii_val_out);
 
       /* Check for link up or down */
@@ -514,7 +514,7 @@ static int nsh_netinit_monitor(void)
                * Bring the link up.
                */
 
-              nvdbg("Bringing the link up\n");
+              ninfo("Bringing the link up\n");
 
               ifr.ifr_flags = IFF_UP;
               ret = ioctl(sd, SIOCSIFFLAGS, (unsigned long)&ifr);
@@ -552,7 +552,7 @@ static int nsh_netinit_monitor(void)
                * the link down.
                */
 
-              nvdbg("Taking the link down\n");
+              ninfo("Taking the link down\n");
 
               ifr.ifr_flags = IFF_DOWN;
               ret = ioctl(sd, SIOCSIFFLAGS, (unsigned long)&ifr);
@@ -616,7 +616,7 @@ errout:
 #ifdef CONFIG_NSH_NETINIT_THREAD
 static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
 {
-  nvdbg("Entry\n");
+  ninfo("Entry\n");
 
   /* Configure the network */
 
@@ -628,7 +628,7 @@ static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
   nsh_netinit_monitor();
 #endif
 
-  nvdbg("Exit\n");
+  ninfo("Exit\n");
   return NULL;
 }
 #endif
@@ -662,7 +662,7 @@ int nsh_netinit(void)
   (void)pthread_attr_setschedparam(&attr, &sparam);
   (void)pthread_attr_setstacksize(&attr, CONFIG_NSH_NETINIT_THREAD_STACKSIZE);
 
-  nvdbg("Starting netinit thread\n");
+  ninfo("Starting netinit thread\n");
   ret = pthread_create(&tid, &attr, nsh_netinit_thread, NULL);
   if (ret != OK)
     {

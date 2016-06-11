@@ -117,7 +117,7 @@ static void nxtool_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
   nxgl_mxpixel_t color[CONFIG_NX_NPLANES];
   int ret;
 
-  gvdbg("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+  ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
          more ? "true" : "false");
 
@@ -138,7 +138,7 @@ static void nxtool_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
                             FAR const struct nxgl_rect_s *bounds,
                             FAR void *arg)
 {
-  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+  ginfo("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
         hwnd, size->w, size->h, pos->x, pos->y,
         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 }
@@ -151,7 +151,7 @@ static void nxtool_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 static void nxtool_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
                            uint8_t buttons, FAR void *arg)
 {
-  gvdbg("hwnd=%p pos=(%d,%d) button=%02x\n", hwnd,  pos->x, pos->y, buttons);
+  ginfo("hwnd=%p pos=(%d,%d) button=%02x\n", hwnd,  pos->x, pos->y, buttons);
 }
 #endif
 
@@ -163,7 +163,7 @@ static void nxtool_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 static void nxtool_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                          FAR void *arg)
 {
-  gvdbg("hwnd=%p nch=%d\n", hwnd, nch);
+  ginfo("hwnd=%p nch=%d\n", hwnd, nch);
 }
 #endif
 

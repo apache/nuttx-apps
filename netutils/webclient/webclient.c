@@ -350,7 +350,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
                   (void)netlib_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
                                          ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
                                          ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
-                  nvdbg("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
+                  ninfo("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
                 }
             }
 
@@ -470,7 +470,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       return ERROR;
     }
 
-  nvdbg("hostname='%s' filename='%s'\n", ws.hostname, ws.filename);
+  ninfo("hostname='%s' filename='%s'\n", ws.hostname, ws.filename);
 
   /* The following sequence may repeat indefinitely if we are redirected */
 
@@ -606,7 +606,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
             }
           else if (ws.datend == 0)
             {
-              nvdbg("Connection lost\n");
+              ninfo("Connection lost\n");
               close(sockfd);
               break;
             }

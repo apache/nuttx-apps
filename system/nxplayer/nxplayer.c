@@ -519,7 +519,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
       int errcode   = errno;
       int readerror = ferror(pPlayer->fileFd);
 
-      audvdbg("Closing audio file, nbytes=%d readerr=%d\n",
+      audinfo("Closing audio file, nbytes=%d readerr=%d\n",
               apb->nbytes, readerror);
 #endif
 
@@ -639,7 +639,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   int                         x;
   int                         ret;
 
-  audvdbg("Entry\n");
+  audinfo("Entry\n");
 
   /* Query the audio device for it's preferred buffer size / qty */
 
@@ -783,7 +783,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
         }
     }
 
-  audvdbg("%d buffers queued, running=%d streaming=%d\n",
+  audinfo("%d buffers queued, running=%d streaming=%d\n",
           x, running, streaming);
 
   /* Start the audio device */
@@ -849,7 +849,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
    * (3) Terminate playing by sending the AUDIO_MSG_COMPLETE message.
    */
 
-  audvdbg("%s\n", running ? "Playing..." : "Not runnning");
+  audinfo("%s\n", running ? "Playing..." : "Not runnning");
   while (running)
     {
       /* Wait for a signal either from the Audio driver that it needs
@@ -946,7 +946,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           case AUDIO_MSG_STOP:
             /* Send a stop message to the device */
 
-            audvdbg("Stopping! outstanding=%d\n", outstanding);
+            audinfo("Stopping! outstanding=%d\n", outstanding);
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
             ioctl(pPlayer->devFd, AUDIOIOC_STOP,
@@ -965,7 +965,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* Message indicating the playback is complete */
 
           case AUDIO_MSG_COMPLETE:
-            audvdbg("Play complete.  outstanding=%d\n", outstanding);
+            audinfo("Play complete.  outstanding=%d\n", outstanding);
             DEBUGASSERT(outstanding == 0);
             running = false;
             break;
@@ -980,7 +980,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   /* Release our audio buffers and unregister / release the device */
 
 err_out:
-  audvdbg("Clean-up and exit\n");
+  audinfo("Clean-up and exit\n");
 
   /* Unregister the message queue and release the session */
 
@@ -999,7 +999,7 @@ err_out:
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   if (pBuffers != NULL)
     {
-      audvdbg("Freeing buffers\n");
+      audinfo("Freeing buffers\n");
       for (x = 0; x < buf_info.nbuffers; x++)
         {
           /* Fill in the buffer descriptor struct to issue a free request */
@@ -1016,7 +1016,7 @@ err_out:
       free(pBuffers);
     }
 #else
-    audvdbg("Freeing buffers\n");
+    audinfo("Freeing buffers\n");
     for (x = 0; x < CONFIG_AUDIO_NUM_BUFFERS; x++)
       {
         /* Fill in the buffer descriptor struct to issue a free request */
@@ -1052,7 +1052,7 @@ err_out:
 
   nxplayer_release(pPlayer);
 
-  audvdbg("Exit\n");
+  audinfo("Exit\n");
 
   return NULL;
 }
@@ -1661,9 +1661,9 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
       return -EBUSY;
     }
 
-  audvdbg("==============================\n");
-  audvdbg("Playing file %s\n", pFilename);
-  audvdbg("==============================\n");
+  audinfo("==============================\n");
+  audinfo("Playing file %s\n", pFilename);
+  audinfo("==============================\n");
 
   /* Test that the specified file exists */
 

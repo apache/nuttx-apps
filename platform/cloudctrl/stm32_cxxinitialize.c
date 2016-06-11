@@ -62,17 +62,17 @@
 #  define cxxdbg              dbg
 #  define cxxlldbg            lldbg
 #  ifdef CONFIG_DEBUG_INFO
-#    define cxxvdbg           vdbg
-#    define cxxllvdbg         llvdbg
+#    define cxxinfo           info
+#    define cxxllinfo         llinfo
 #  else
-#    define cxxvdbg(x...)
-#    define cxxllvdbg(x...)
+#    define cxxinfo(x...)
+#    define cxxllinfo(x...)
 #  endif
 #else
 #  define cxxdbg(x...)
 #  define cxxlldbg(x...)
-#  define cxxvdbg(x...)
-#  define cxxllvdbg(x...)
+#  define cxxinfo(x...)
+#  define cxxllinfo(x...)
 #endif
 
 /****************************************************************************

@@ -110,7 +110,7 @@ FAR void *httpd_malloc(size_t nbytes)
     }
   else
     {
-      nvdbg("Allocated %d bytes at %p\n", nbytes, ptr);
+      ninfo("Allocated %d bytes at %p\n", nbytes, ptr);
       g_nallocations++;
       g_allocated += nbytes;
     }
@@ -130,7 +130,7 @@ FAR void *httpd_realloc(FAR void *oldptr, size_t oldsize, size_t newsize)
     }
   else
     {
-      nvdbg("Re-allocated form %d to %d bytes (from %p to %p)\n",
+      ninfo("Re-allocated form %d to %d bytes (from %p to %p)\n",
             oldsize, newsize, oldptr, ptr);
       g_allocated += (newsize - oldsize);
     }
@@ -144,7 +144,7 @@ void httpd_free(FAR void *ptr)
 {
   free(ptr);
   g_nfreed++;
-  nvdbg("Freed memory at %p\n", ptr);
+  ninfo("Freed memory at %p\n", ptr);
   httpd_memstats();
 }
 #endif
@@ -159,7 +159,7 @@ FAR char *httpd_strdup(const char *str)
     }
   else
     {
-      nvdbg("strdup'ed %s\n", str);
+      ninfo("strdup'ed %s\n", str);
       g_nallocations++;
       g_allocated += (strlen(str)+1);
     }

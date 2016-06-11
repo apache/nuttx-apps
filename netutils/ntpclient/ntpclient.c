@@ -274,7 +274,7 @@ static void ntpc_settime(FAR uint8_t *timestamp)
   tp.tv_nsec = nsec;
   clock_settime(CLOCK_REALTIME, &tp);
 
-  svdbg("Set time to %lu seconds: %d\n", (unsigned long)tp.tv_sec, ret);
+  sinfo("Set time to %lu seconds: %d\n", (unsigned long)tp.tv_sec, ret);
 }
 
 /****************************************************************************
@@ -373,7 +373,7 @@ static int ntpc_daemon(int argc, char **argv)
       memset(&xmit, 0, sizeof(xmit));
       xmit.lvm = MKLVM(0, 3, NTP_VERSION);
 
-      svdbg("Sending a NTP packet\n");
+      sinfo("Sending a NTP packet\n");
 
       ret = sendto(sd, &xmit, sizeof(struct ntp_datagram_s),
                    0, (FAR struct sockaddr *)&server,
@@ -415,7 +415,7 @@ static int ntpc_daemon(int argc, char **argv)
 
       if (nbytes >= (ssize_t)NTP_DATAGRAM_MINSIZE)
         {
-          svdbg("Setting time\n");
+          sinfo("Setting time\n");
           ntpc_settime(recv.recvtimestamp);
         }
 
@@ -453,7 +453,7 @@ static int ntpc_daemon(int argc, char **argv)
 
       if (g_ntpc_daemon.state == NTP_RUNNING)
         {
-          svdbg("Waiting for %d seconds\n",
+          sinfo("Waiting for %d seconds\n",
                 CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);
 
           (void)sleep(CONFIG_NETUTILS_NTPCLIENT_POLLDELAYSEC);

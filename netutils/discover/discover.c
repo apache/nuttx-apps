@@ -185,7 +185,7 @@ static int discover_daemon(int argc, char *argv[])
   /* memset(&g_state, 0, sizeof(struct discover_state_s)); */
   discover_initresponse();
 
-  nvdbg("Started\n");
+  ninfo("Started\n");
 
   for (;;)
     {
@@ -369,7 +369,7 @@ static inline int discover_openlistener()
       return ERROR;
     }
   g_state.serverip = ((struct sockaddr_in*)&req.ifr_addr)->sin_addr.s_addr;
-  nvdbg("serverip: %08lx\n", ntohl(g_state.serverip));
+  ninfo("serverip: %08lx\n", ntohl(g_state.serverip));
 
   /* Bind the socket to a local port. We have to bind to INADDRY_ANY to
    * receive broadcast messages.

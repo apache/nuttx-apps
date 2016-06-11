@@ -145,7 +145,7 @@ static void ftpc_nlstparse(FAR FILE *instream, callback_t callback,
         {
           break;
         }
-      nvdbg("File: %s\n", buffer);
+      ninfo("File: %s\n", buffer);
 
       /* Perform the callback operation */
 
@@ -349,7 +349,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
           ndbg("Nothing found in directory\n");
           goto errout;
         }
-      nvdbg("nnames: %d\n", nnames);
+      ninfo("nnames: %d\n", nnames);
 
       /* Allocate and initialize a directory container */
 

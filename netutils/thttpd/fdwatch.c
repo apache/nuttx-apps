@@ -65,25 +65,25 @@
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define fwdbg(format, ...)    ndbg(format, ##__VA_ARGS__)
 #    define fwlldbg(format, ...)  nlldbg(format, ##__VA_ARGS__)
-#    define fwvdbg(format, ...)   nvdbg(format, ##__VA_ARGS__)
-#    define fwllvdbg(format, ...) nllvdbg(format, ##__VA_ARGS__)
+#    define fwinfo(format, ...)   ninfo(format, ##__VA_ARGS__)
+#    define fwllinfo(format, ...) nllinfo(format, ##__VA_ARGS__)
 #  else
 #    define fwdbg    ndbg
 #    define fwlldbg  nlldbg
-#    define fwvdbg   nvdbg
-#    define fwllvdbg nllvdbg
+#    define fwinfo   ninfo
+#    define fwllinfo nllinfo
 #  endif
 #else
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define fwdbg(x...)
 #    define fwlldbg(x...)
-#    define fwvdbg(x...)
-#    define fwllvdbg(x...)
+#    define fwinfo(x...)
+#    define fwllinfo(x...)
 #  else
 #    define fwdbg    (void)
 #    define fwlldbg  (void)
-#    define fwvdbg   (void)
-#    define fwllvdbg (void)
+#    define fwinfo   (void)
+#    define fwllinfo (void)
 #  endif
 #endif
 
@@ -108,18 +108,18 @@ static void fdwatch_dump(const char *msg, FAR struct fdwatch_s *fw)
 {
   int i;
 
-  fwvdbg("%s\n", msg);
-  fwvdbg("nwatched: %d nfds: %d\n", fw->nwatched, fw->nfds);
+  fwinfo("%s\n", msg);
+  fwinfo("nwatched: %d nfds: %d\n", fw->nwatched, fw->nfds);
   for (i = 0; i < fw->nwatched; i++)
   {
-    fwvdbg("%2d. pollfds: {fd: %d events: %02x revents: %02x} client: %p\n",
+    fwinfo("%2d. pollfds: {fd: %d events: %02x revents: %02x} client: %p\n",
            i+1, fw->pollfds[i].fd, fw->pollfds[i].events,
            fw->pollfds[i].revents, fw->client[i]);
   }
-  fwvdbg("nactive: %d next: %d\n", fw->nactive, fw->next);
+  fwinfo("nactive: %d next: %d\n", fw->nactive, fw->next);
   for (i = 0; i < fw->nactive; i++)
   {
-    fwvdbg("%2d. %d active\n", i, fw->ready[i]);
+    fwinfo("%2d. %d active\n", i, fw->ready[i]);
   }
 }
 #else
@@ -136,7 +136,7 @@ static int fdwatch_pollndx(FAR struct fdwatch_s *fw, int fd)
     {
       if (fw->pollfds[pollndx].fd == fd)
         {
-          fwvdbg("pollndx: %d\n", pollndx);
+          fwinfo("pollndx: %d\n", pollndx);
           return pollndx;
         }
     }
@@ -224,7 +224,7 @@ void fdwatch_uninitialize(struct fdwatch_s *fw)
 
 void fdwatch_add_fd(struct fdwatch_s *fw, int fd, void *client_data)
 {
-  fwvdbg("fd: %d client_data: %p\n", fd, client_data);
+  fwinfo("fd: %d client_data: %p\n", fd, client_data);
   fdwatch_dump("Before adding:", fw);
 
   if (fw->nwatched >= fw->nfds)
@@ -251,7 +251,7 @@ void fdwatch_del_fd(struct fdwatch_s *fw, int fd)
 {
   int pollndx;
 
-  fwvdbg("fd: %d\n", fd);
+  fwinfo("fd: %d\n", fd);
   fdwatch_dump("Before deleting:", fw);
 
   /* Get the index associated with the fd */
@@ -292,11 +292,11 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
    */
 
   fdwatch_dump("Before waiting:", fw);
-  fwvdbg("Waiting... (timeout %d)\n", timeout_msecs);
+  fwinfo("Waiting... (timeout %d)\n", timeout_msecs);
   fw->nactive = 0;
   fw->next    = 0;
   ret         = poll(fw->pollfds, fw->nwatched, (int)timeout_msecs);
-  fwvdbg("Awakened: %d\n", ret);
+  fwinfo("Awakened: %d\n", ret);
 
   /* Look through all of the descriptors and make a list of all of them than
    * have activity.
@@ -312,7 +312,7 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
             {
               /* Yes... save it in a shorter list */
 
-              fwvdbg("pollndx: %d fd: %d revents: %04x\n",
+              fwinfo("pollndx: %d fd: %d revents: %04x\n",
                     i, fw->pollfds[i].fd, fw->pollfds[i].revents);
 
               fw->ready[fw->nactive++] = fw->pollfds[i].fd;
@@ -328,7 +328,7 @@ int fdwatch(struct fdwatch_s *fw, long timeout_msecs)
 
   /* Return the number of descriptors with activity */
 
-  fwvdbg("nactive: %d\n", fw->nactive);
+  fwinfo("nactive: %d\n", fw->nactive);
   fdwatch_dump("After wakeup:", fw);
   return ret;
 }
@@ -339,7 +339,7 @@ int fdwatch_check_fd(struct fdwatch_s *fw, int fd)
 {
   int pollndx;
 
-  fwvdbg("fd: %d\n", fd);
+  fwinfo("fd: %d\n", fd);
   fdwatch_dump("Checking:", fw);
 
   /* Get the index associated with the fd */
@@ -350,7 +350,7 @@ int fdwatch_check_fd(struct fdwatch_s *fw, int fd)
       return fw->pollfds[pollndx].revents & (POLLIN | POLLHUP | POLLNVAL);
     }
 
-  fwvdbg("POLLERR fd: %d\n", fd);
+  fwinfo("POLLERR fd: %d\n", fd);
   return 0;
 }
 
@@ -359,11 +359,11 @@ void *fdwatch_get_next_client_data(struct fdwatch_s *fw)
   fdwatch_dump("Before getting client data:", fw);
   if (fw->next >= fw->nwatched)
     {
-      fwvdbg("All client data returned: %d\n", fw->next);
+      fwinfo("All client data returned: %d\n", fw->next);
       return (void*)-1;
     }
 
-  fwvdbg("client_data[%d]: %p\n", fw->next, fw->client[fw->next]);
+  fwinfo("client_data[%d]: %p\n", fw->next, fw->client[fw->next]);
   return fw->client[fw->next++];
 }
 

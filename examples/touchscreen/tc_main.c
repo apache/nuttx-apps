@@ -173,9 +173,9 @@ int tc_main(int argc, char *argv[])
 #ifdef CONFIG_EXAMPLES_TOUCHSCREEN_MOUSE
     /* Read one sample */
 
-    ivdbg("Reading...\n");
+    iinfo("Reading...\n");
     nbytes = read(fd, &sample, sizeof(struct mouse_report_s));
-    ivdbg("Bytes read: %d\n", nbytes);
+    iinfo("Bytes read: %d\n", nbytes);
 
     /* Handle unexpected return values */
 
@@ -213,9 +213,9 @@ int tc_main(int argc, char *argv[])
 #else
     /* Read one sample */
 
-    ivdbg("Reading...\n");
+    iinfo("Reading...\n");
     nbytes = read(fd, &sample, sizeof(struct touch_sample_s));
-    ivdbg("Bytes read: %d\n", nbytes);
+    iinfo("Bytes read: %d\n", nbytes);
 
     /* Handle unexpected return values */
 
