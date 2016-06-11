@@ -226,7 +226,7 @@ static int telnetd_daemon(int argc, char *argv[])
       goto errout_with_socket;
     }
 
-  /* Now go silent.  Only the lldbg family of debug functions should
+  /* Now go silent.  Only the llerr family of debug functions should
    * be used after this point because these do not depend on stdout
    * being available.
    */
@@ -259,7 +259,7 @@ static int telnetd_daemon(int argc, char *argv[])
             }
           else
             {
-              nlldbg("ERROR: accept failed: %d\n", errval);
+              nllerr("ERROR: accept failed: %d\n", errval);
               goto errout_with_socket;
             }
         }
@@ -271,7 +271,7 @@ static int telnetd_daemon(int argc, char *argv[])
       ling.l_linger = 30;     /* timeout is seconds */
       if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
         {
-          nlldbg("ERROR: setsockopt failed: %d\n", errno);
+          nllerr("ERROR: setsockopt failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
 #endif
@@ -281,7 +281,7 @@ static int telnetd_daemon(int argc, char *argv[])
       fd = open("/dev/telnet", O_RDONLY);
       if (fd < 0)
         {
-          nlldbg("ERROR: open(/dev/telnet) failed: %d\n", errno);
+          nllerr("ERROR: open(/dev/telnet) failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
 
@@ -297,7 +297,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
       if (ret < 0)
         {
-          nlldbg("ERROR: open(/dev/telnet) failed: %d\n", errno);
+          nllerr("ERROR: open(/dev/telnet) failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
 
@@ -307,7 +307,7 @@ static int telnetd_daemon(int argc, char *argv[])
       drvrfd = open(session.ts_devpath, O_RDWR);
       if (drvrfd < 0)
         {
-          nlldbg("ERROR: Failed to open %s: %d\n", session.ts_devpath, errno);
+          nllerr("ERROR: Failed to open %s: %d\n", session.ts_devpath, errno);
           goto errout_with_acceptsd;
         }
 
@@ -333,7 +333,7 @@ static int telnetd_daemon(int argc, char *argv[])
                          daemon->entry, NULL);
       if (pid < 0)
         {
-          nlldbg("ERROR: Failed start the telnet session: %d\n", errno);
+          nllerr("ERROR: Failed start the telnet session: %d\n", errno);
           goto errout_with_acceptsd;
         }
 

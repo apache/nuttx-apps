@@ -160,7 +160,7 @@ static int telnetd_daemon(int argc, char *argv[])
       goto errout_with_socket;
     }
 
-  /* Now go silent.  Only the lldbg family of debug functions should
+  /* Now go silent.  Only the llerr family of debug functions should
    * be used after this point because these do not depend on stdout
    * being available.
    */
@@ -181,7 +181,7 @@ static int telnetd_daemon(int argc, char *argv[])
       acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
       if (acceptsd < 0)
         {
-          nlldbg("accept failed: %d\n", errno);
+          nllerr("accept failed: %d\n", errno);
           goto errout_with_socket;
         }
 
@@ -192,7 +192,7 @@ static int telnetd_daemon(int argc, char *argv[])
       ling.l_linger = 30;     /* timeout is seconds */
       if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
         {
-          nlldbg("setsockopt failed: %d\n", errno);
+          nllerr("setsockopt failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
 #endif
@@ -203,7 +203,7 @@ static int telnetd_daemon(int argc, char *argv[])
       devpath = telnetd_driver(acceptsd, daemon);
       if (devpath == NULL)
         {
-          nlldbg("telnetd_driver failed\n");
+          nllerr("telnetd_driver failed\n");
           goto errout_with_acceptsd;
         }
 
@@ -213,7 +213,7 @@ static int telnetd_daemon(int argc, char *argv[])
       drvrfd = open(devpath, O_RDWR);
       if (drvrfd < 0)
         {
-          nlldbg("Failed to open %s: %d\n", devpath, errno);
+          nllerr("Failed to open %s: %d\n", devpath, errno);
           goto errout_with_acceptsd;
         }
 
@@ -243,7 +243,7 @@ static int telnetd_daemon(int argc, char *argv[])
                          daemon->entry, NULL);
       if (pid < 0)
         {
-          nlldbg("Failed start the telnet session: %d\n", errno);
+          nllerr("Failed start the telnet session: %d\n", errno);
           goto errout_with_acceptsd;
         }
 

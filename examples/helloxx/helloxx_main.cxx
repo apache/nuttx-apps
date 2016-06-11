@@ -64,7 +64,7 @@
 
 #ifdef CONFIG_DEBUG_CXX
 #  define cxxdbg              dbg
-#  define cxxlldbg            lldbg
+#  define cxxllerr            llerr
 #  ifdef CONFIG_DEBUG_INFO
 #    define cxxinfo           info
 #    define cxxllinfo         llinfo
@@ -74,7 +74,7 @@
 #  endif
 #else
 #  define cxxdbg(x...)
-#  define cxxlldbg(x...)
+#  define cxxllerr(x...)
 #  define cxxinfo(x...)
 #  define cxxllinfo(x...)
 #endif

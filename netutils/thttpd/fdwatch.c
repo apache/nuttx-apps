@@ -58,30 +58,30 @@
 
 /* Debug output from this file is normally suppressed.  If enabled, be aware
  * that output to stdout will interfere with CGI programs (you could use the
- * the low-level debug (lldbg) functions which probably do not use stdout
+ * the low-level debug (llerr) functions which probably do not use stdout
  */
 
 #ifdef CONFIG_THTTPD_FDWATCH_DEBUG
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define fwdbg(format, ...)    ndbg(format, ##__VA_ARGS__)
-#    define fwlldbg(format, ...)  nlldbg(format, ##__VA_ARGS__)
+#    define fwllerr(format, ...)  nllerr(format, ##__VA_ARGS__)
 #    define fwinfo(format, ...)   ninfo(format, ##__VA_ARGS__)
 #    define fwllinfo(format, ...) nllinfo(format, ##__VA_ARGS__)
 #  else
 #    define fwdbg    ndbg
-#    define fwlldbg  nlldbg
+#    define fwllerr  nllerr
 #    define fwinfo   ninfo
 #    define fwllinfo nllinfo
 #  endif
 #else
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define fwdbg(x...)
-#    define fwlldbg(x...)
+#    define fwllerr(x...)
 #    define fwinfo(x...)
 #    define fwllinfo(x...)
 #  else
 #    define fwdbg    (void)
-#    define fwlldbg  (void)
+#    define fwllerr  (void)
 #    define fwinfo   (void)
 #    define fwllinfo (void)
 #  endif
