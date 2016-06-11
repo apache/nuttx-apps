@@ -66,13 +66,13 @@
 
 #if !defined(CONFIG_DEBUG_AUDIO) && !defined(CONFIG_DEBUG_GRAPHICS)
 #  undef dbg
-#  undef vdbg
+#  undef info
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define dbg(x...)
-#    define vdbg(x...)
+#    define info(x...)
 #  else
 #    define dbg  (void)
-#    define vdbg (void)
+#    define info (void)
 #  endif
 #endif
 

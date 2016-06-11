@@ -247,7 +247,7 @@ bool CNxServer::connect(void)
 #ifdef CONFIG_NXWIDGET_SERVERINIT
   // Start the server task
 
-  gvdbg("CNxServer::connect: Starting server task\n");
+  ginfo("CNxServer::connect: Starting server task\n");
   pid_t serverId = task_create("NX Server", CONFIG_NXWIDGETS_SERVERPRIO,
                                CONFIG_NXWIDGETS_SERVERSTACK, server,
                                (FAR char * const *)0);
@@ -463,7 +463,7 @@ int CNxServer::server(int argc, char *argv[])
   // Then start the server
 
   ret = nx_run(dev);
-  gvdbg("nx_run returned: %d\n", errno);
+  ginfo("nx_run returned: %d\n", errno);
   return EXIT_FAILURE;
 }
 #endif // CONFIG_NX_MULTIUSER && CONFIG_NXWIDGET_SERVERINIT
@@ -507,7 +507,7 @@ FAR void *CNxServer::listener(FAR void *arg)
         {
           This->m_connected = true;
           sem_post(&This->m_connsem);
-          gvdbg("Connected\n");
+          ginfo("Connected\n");
         }
     }
 

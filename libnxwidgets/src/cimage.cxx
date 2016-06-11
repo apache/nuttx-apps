@@ -268,7 +268,7 @@ void CImage::drawContents(CGraphicsPort *port, bool selected)
 
           if (!m_bitmap->getRun(0, srcRow, nLeftPixels, &buffer[m_origin.x]))
             {
-              gvdbg("IBitmap::getRun failed at image row\n", srcRow);
+              ginfo("IBitmap::getRun failed at image row\n", srcRow);
               delete buffer;
               return;
             }

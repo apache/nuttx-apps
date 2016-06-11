@@ -107,7 +107,7 @@ void CCallback::redraw(NXHANDLE hwnd,
                        FAR const struct nxgl_rect_s *rect,
                        bool bMore, FAR void *arg)
 {
-  gvdbg("hwnd=%p rect={(%d,%d),(%d,%d)} bMore=%s\n",
+  ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} bMore=%s\n",
          hwnd,
          rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
          bMore ? "true" : "false");
@@ -140,7 +140,7 @@ void CCallback::position(NXHANDLE hwnd,
                          FAR const struct nxgl_rect_s *bounds,
                          FAR void *arg)
 {
-  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)} arg=%p\n",
+  ginfo("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)} arg=%p\n",
         hwnd, size->w, size->h, pos->x, pos->y,
         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y,
         arg);
@@ -170,7 +170,7 @@ void CCallback::newMouseEvent(NXHANDLE hwnd,
                               FAR const struct nxgl_point_s *pos,
                               uint8_t buttons, FAR void *arg)
 {
-  gvdbg("hwnd=%p pos=(%d,%d) buttons=%02x arg=%p\n",
+  ginfo("hwnd=%p pos=(%d,%d) buttons=%02x arg=%p\n",
         hwnd, pos->x, pos->y, buttons, arg);
 
   // The argument must be the CCallback instance
@@ -199,7 +199,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
                                  FAR const uint8_t *str,
                                  FAR void *arg)
 {
-  gvdbg("hwnd=%p nCh=%d arg=%p\n", hwnd, nCh, arg);
+  ginfo("hwnd=%p nCh=%d arg=%p\n", hwnd, nCh, arg);
 
   // The argument must be the CCallback instance
 
@@ -249,7 +249,7 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
 #ifdef CONFIG_NX_MULTIUSER
 void CCallback::windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2)
 {
-  gvdbg("hwnd=%p arg1=%p arg2=%p\n", hwnd, arg1, arg2);
+  ginfo("hwnd=%p arg1=%p arg2=%p\n", hwnd, arg1, arg2);
 
   // The first argument must be the CCallback instance
 

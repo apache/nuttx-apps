@@ -274,7 +274,7 @@ bool CTaskbar::startWindowManager(void)
               break;
             }
         }
-      gvdbg("m_topApp=%p topIndex=%d\n", m_topApp, topIndex);
+      ginfo("m_topApp=%p topIndex=%d\n", m_topApp, topIndex);
 
       // Now start each application (whatever that means to the application)
 
@@ -282,7 +282,7 @@ bool CTaskbar::startWindowManager(void)
         {
           IApplication *app = m_slots.at(i).app;
 
-          gvdbg("Starting app[%d]\n", i);
+          ginfo("Starting app[%d]\n", i);
           if (!app->run())
             {
               // Call stopApplication on a failure to start.  This will call
@@ -309,14 +309,14 @@ bool CTaskbar::startWindowManager(void)
               // application may or may not be minimized, but it is not
               // visible now).
 
-              gvdbg("Hiding app[%d]\n", i);
+              ginfo("Hiding app[%d]\n", i);
               hideApplicationWindow(app);
             }
           else
             {
               // Bring up the application as the new top application
 
-              gvdbg("Showing app[%d]\n", i);
+              ginfo("Showing app[%d]\n", i);
               topApplication(app);
             }
 

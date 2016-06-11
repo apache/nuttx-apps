@@ -113,7 +113,7 @@ bool CKeyboard::start(void)
 {
   pthread_attr_t attr;
 
-  gvdbg("Starting listener\n");
+  ginfo("Starting listener\n");
 
   // Start a separate thread to listen for keyboard events
 
@@ -152,7 +152,7 @@ bool CKeyboard::start(void)
   // Then return true only if the listener thread reported successful
   // initialization.
 
-  gvdbg("Listener m_state=%d\n", (int)m_state);
+  ginfo("Listener m_state=%d\n", (int)m_state);
   return m_state == LISTENER_RUNNING;
 }
 
@@ -207,7 +207,7 @@ int CKeyboard::open(void)
 
                   // Sleep a bit and try again
 
-                  gvdbg("WAITING for a USB device\n");
+                  ginfo("WAITING for a USB device\n");
                   std::sleep(2);
                 }
 
@@ -246,7 +246,7 @@ int CKeyboard::open(void)
 
 int CKeyboard::session(void)
 {
-  gvdbg("Session started\n");
+  ginfo("Session started\n");
 
   // Loop, reading and dispatching keyboard data
 
@@ -254,7 +254,7 @@ int CKeyboard::session(void)
     {
       // Read one keyboard sample
 
-      gvdbg("Listening for keyboard input\n");
+      ginfo("Listening for keyboard input\n");
 
       uint8_t rxbuffer[CONFIG_NXWM_KEYBOARD_BUFSIZE];
       ssize_t nbytes = read(m_kbdFd, rxbuffer,
@@ -326,7 +326,7 @@ FAR void *CKeyboard::listener(FAR void *arg)
 {
   CKeyboard *This = (CKeyboard *)arg;
 
-  gvdbg("Listener started\n");
+  ginfo("Listener started\n");
 
 #ifdef CONFIG_NXWM_KEYBOARD_USBHOST
   // Indicate that we have successfully started.  We might be stuck waiting
@@ -389,7 +389,7 @@ FAR void *CKeyboard::listener(FAR void *arg)
   // m_state = LISTENER_STOPREQUESTED (or perhaps if some irrecoverable
   // error has occurred).
 
-  gvdbg("Listener exiting\n");
+  ginfo("Listener exiting\n");
   This->m_state = LISTENER_TERMINATED;
   return (FAR void *)0;
 }

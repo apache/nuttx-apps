@@ -84,8 +84,8 @@
 #ifndef CONFIG_DEBUG_INPUT
 #  undef  idbg
 #  define idbg gdbg
-#  undef  ivdbg
-#  define ivdbg gvdbg
+#  undef  iinfo
+#  define iinfo ginfo
 #endif
 
 /****************************************************************************
@@ -197,7 +197,7 @@ NXWidgets::CNxString CCalibration::getName(void)
 
 bool CCalibration::run(void)
 {
-  gvdbg("Starting calibration: m_calthread=%d\n", (int)m_calthread);
+  ginfo("Starting calibration: m_calthread=%d\n", (int)m_calthread);
 
   return startCalibration(CALTHREAD_STARTED);
 }
@@ -208,7 +208,7 @@ bool CCalibration::run(void)
 
 void CCalibration::stop(void)
 {
-  gvdbg("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
+  ginfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
 
   // Was the calibration thread created?
 
@@ -227,7 +227,7 @@ void CCalibration::stop(void)
           // Try to wake up the calibration thread so that it will see our
           // termination request
 
-          gvdbg("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
+          ginfo("Stopping calibration: m_calthread=%d\n", (int)m_calthread);
           (void)pthread_kill(m_thread, CONFIG_NXWM_CALIBRATION_SIGNO);
 
           // Wait for the calibration thread to exit
@@ -265,7 +265,7 @@ void CCalibration::destroy(void)
 
 void CCalibration::hide(void)
 {
-  gvdbg("Entry\n");
+  ginfo("Entry\n");
 
   // Is the calibration thread running?
 
@@ -288,7 +288,7 @@ void CCalibration::redraw(void)
 {
   uint8_t waitcount = 0;
 
-  gvdbg("Entry\n");
+  ginfo("Entry\n");
 
   // Is the calibration thread still running?  We might have to restart
   // it if we have completed the calibration early but are being brought
@@ -296,7 +296,7 @@ void CCalibration::redraw(void)
 
   if (!isStarted())
     {
-      gvdbg("Starting calibration: m_calthread=%d\n", (int)m_calthread);
+      ginfo("Starting calibration: m_calthread=%d\n", (int)m_calthread);
       (void)startCalibration(CALTHREAD_SHOW);
     }
 
@@ -356,7 +356,7 @@ void CCalibration::touchscreenInput(struct touch_sample_s &sample)
           m_touchPos.x = sample.point[0].x;
           m_touchPos.y = sample.point[0].y;
 
-          ivdbg("Touch id: %d flags: %02x x: %d y: %d h: %d w: %d pressure: %d\n",
+          iinfo("Touch id: %d flags: %02x x: %d y: %d h: %d w: %d pressure: %d\n",
                 sample.point[0].id, sample.point[0].flags, sample.point[0].x,
                 sample.point[0].y,  sample.point[0].h,     sample.point[0].w,
                 sample.point[0].pressure);
@@ -394,7 +394,7 @@ void CCalibration::touchscreenInput(struct touch_sample_s &sample)
             {
               // Yes.. invoke the state machine.
 
-              ivdbg("State: %d Screen x: %d y: %d  Touch x: %d y: %d\n",
+              iinfo("State: %d Screen x: %d y: %d  Touch x: %d y: %d\n",
                     m_calphase, m_screenInfo.pos.x, m_screenInfo.pos.y,
                     m_touchPos.x, m_touchPos.y);
 
@@ -567,7 +567,7 @@ bool CCalibration::startCalibration(enum ECalThreadState initialState)
       return false;
     }
 
-  gvdbg("Calibration thread m_calthread=%d\n", (int)m_calthread);
+  ginfo("Calibration thread m_calthread=%d\n", (int)m_calthread);
   return true;
 }
 
@@ -602,7 +602,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
   This->m_calthread = CALTHREAD_RUNNING;
   This->m_calphase  = CALPHASE_NOT_STARTED;
-  gvdbg("Started: m_calthread=%d\n", (int)This->m_calthread);
+  ginfo("Started: m_calthread=%d\n", (int)This->m_calthread);
 
   // Loop until calibration completes or we have been requested to terminate
 
@@ -679,7 +679,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
   This->destroyWidgets();
 #endif
 
-  gvdbg("Terminated: m_calthread=%d\n", (int)This->m_calthread);
+  ginfo("Terminated: m_calthread=%d\n", (int)This->m_calthread);
   return (FAR void *)0;
 }
 
@@ -697,7 +697,7 @@ bool CCalibration::averageSamples(struct nxgl_point_s &average)
 
   // Save the sample data
 
-  ivdbg("Sample %d: Touch x: %d y: %d\n", m_nsamples+1, m_touchPos.x, m_touchPos.y);
+  iinfo("Sample %d: Touch x: %d y: %d\n", m_nsamples+1, m_touchPos.x, m_touchPos.y);
 
   m_sampleData[m_nsamples].x = m_touchPos.x;
   m_sampleData[m_nsamples].y = m_touchPos.y;
@@ -786,7 +786,7 @@ bool CCalibration::averageSamples(struct nxgl_point_s &average)
   average.y = m_sampleData[0].y;
 #endif
 
-  ivdbg("Average: Touch x: %d y: %d\n", average.x, average.y);
+  iinfo("Average: Touch x: %d y: %d\n", average.x, average.y);
   m_nsamples = 0;
   return true;
 }
@@ -799,7 +799,7 @@ bool CCalibration::averageSamples(struct nxgl_point_s &average)
 
 void CCalibration::stateMachine(void)
 {
-  gvdbg("Old m_calphase=%d\n", m_calphase);
+  ginfo("Old m_calphase=%d\n", m_calphase);
 
 #ifdef CONFIG_NXWM_CALIBRATION_AVERAGE
   // Are we collecting samples?
@@ -1031,7 +1031,7 @@ void CCalibration::stateMachine(void)
         break;
     }
 
-  ivdbg("New m_calphase=%d Screen x: %d y: %d\n",
+  iinfo("New m_calphase=%d Screen x: %d y: %d\n",
         m_calphase, m_screenInfo.pos.x, m_screenInfo.pos.y);
 }
 

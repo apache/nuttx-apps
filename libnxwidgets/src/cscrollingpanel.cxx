@@ -227,7 +227,7 @@ void CScrollingPanel::scroll(int32_t dx, int32_t dy)
                 {
                   CRect &rrect = revealedRects[i];
 
-                  gvdbg("Redrawing %d,%d,%d,%d after scroll\n",
+                  ginfo("Redrawing %d,%d,%d,%d after scroll\n",
                         rrect.getX(), rrect.getY(),
                         rrect.getWidth(), rrect.getHeight());
 

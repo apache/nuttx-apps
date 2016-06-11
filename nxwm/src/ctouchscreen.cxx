@@ -68,13 +68,13 @@
 
 #if !defined(CONFIG_DEBUG_INPUT) && !defined(CONFIG_DEBUG_GRAPHICS)
 #  undef dbg
-#  undef vdbg
+#  undef info
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define dbg(x...)
-#    define vdbg(x...)
+#    define info(x...)
 #  else
 #    define dbg  (void)
-#    define vdbg (void)
+#    define info (void)
 #  endif
 #endif
 
@@ -153,7 +153,7 @@ bool CTouchscreen::start(void)
 {
   pthread_attr_t attr;
 
-  vdbg("Starting listener\n");
+  info("Starting listener\n");
 
   // Start a separate thread to listen for touchscreen events
 
@@ -192,7 +192,7 @@ bool CTouchscreen::start(void)
   // Then return true only if the listener thread reported successful
   // initialization.
 
-  vdbg("Listener m_state=%d\n", (int)m_state);
+  info("Listener m_state=%d\n", (int)m_state);
   return m_state == LISTENER_RUNNING;
 }
 
@@ -234,7 +234,7 @@ void CTouchscreen::setCalibrationData(const struct SCalibrationData &caldata)
 
 bool CTouchscreen::waitRawTouchData(struct touch_sample_s *touch)
 {
-  vdbg("Capturing touch input\n");
+  info("Capturing touch input\n");
 
   // Setup to cpature raw data into the user provided buffer
 
@@ -260,7 +260,7 @@ bool CTouchscreen::waitRawTouchData(struct touch_sample_s *touch)
   // And return success.  The listener thread will have (1) reset both
   // m_touch and m_capture and (2) posted m_waitSem
 
-  vdbg("Returning touch input: %d\n", ret);
+  info("Returning touch input: %d\n", ret);
   return ret == OK;
 }
 
@@ -277,7 +277,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 {
   CTouchscreen *This = (CTouchscreen *)arg;
 
-  vdbg("Listener started\n");
+  info("Listener started\n");
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_DEVINIT
   // Initialize the touchscreen device
@@ -345,7 +345,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 
       // Read one touchscreen sample
 
-      vdbg("Listening for sample %p\n", sample);
+      info("Listening for sample %p\n", sample);
       DEBUGASSERT(sample);
       ssize_t nbytes = read(This->m_touchFd, sample,
                             sizeof(struct touch_sample_s));
@@ -385,7 +385,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
   // We should get here only if we were asked to terminate via
   // m_state = LISTENER_STOPREQUESTED
 
-  vdbg("Listener exiting\n");
+  info("Listener exiting\n");
   This->m_state = LISTENER_TERMINATED;
   return (FAR void *)0;
 }
@@ -396,7 +396,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 
 void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
 {
-  vdbg("Touch id: %d flags: %02x x: %d y: %d h: %d w: %d pressure: %d\n",
+  info("Touch id: %d flags: %02x x: %d y: %d h: %d w: %d pressure: %d\n",
        sample->point[0].id, sample->point[0].flags, sample->point[0].x,
        sample->point[0].y,  sample->point[0].h,     sample->point[0].w,
        sample->point[0].pressure);
@@ -536,7 +536,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
       x = (nxgl_coord_t)scaledX;
       y = (nxgl_coord_t)scaledY;
 
-      vdbg("raw: (%6.2f, %6.2f) scaled: (%6.2f, %6.2f) (%d, %d)\n",
+      info("raw: (%6.2f, %6.2f) scaled: (%6.2f, %6.2f) (%d, %d)\n",
            rawX, rawY, scaledX, scaledY, x, y);
 #else
       // We have valid coordinates.  Get the raw touch
@@ -584,7 +584,7 @@ void CTouchscreen::handleMouseInput(struct touch_sample_s *sample)
           y = (nxgl_coord_t)bigY;
         }
 
-      vdbg("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
+      info("raw: (%d, %d) scaled: (%d, %d)\n", rawX, rawY, x, y);
 #endif
     }
 

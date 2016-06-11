@@ -535,7 +535,7 @@ void CGraphicsPort::drawBitmapGreyScale(nxgl_coord_t x, nxgl_coord_t y,
   FAR nxwidget_pixel_t *run = new nxwidget_pixel_t[width];
   if (!run)
     {
-      gvdbg("ERROR: Failed to allocated run buffer\n");
+      ginfo("ERROR: Failed to allocated run buffer\n");
       return;
     }
 
@@ -829,7 +829,7 @@ void CGraphicsPort::_drawText(struct nxgl_point_s *pos, CRect *bound,
               if (!m_pNxWnd->bitmap(&intersection, (FAR const void *)bitmap.data,
                                    pos, bitmap.stride))
                 {
-                  gvdbg("nx_bitmapwindow failed: %d\n", errno);
+                  ginfo("nx_bitmapwindow failed: %d\n", errno);
                 }
             }
         }
