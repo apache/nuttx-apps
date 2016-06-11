@@ -53,7 +53,9 @@
 #include <debug.h>
 
 #include <arpa/inet.h>
+#include "sys/ioctl.h"
 #include "sys/socket.h"
+#include "termios.h"
 
 #include "apps/netutils/esp8266.h"
 
@@ -157,6 +159,45 @@ lesp_state_t g_lesp_state =
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ * Name: lesp_set_baudrate
+ *
+ * Description:
+ *   Set com port to baudrate.
+ *
+ * Input Parmeters:
+ *   sockfd : int baudrate
+ *
+ * Returned Value:
+ *   0 on success, -1 incase of error.
+ *
+ ****************************************************************************/
+
+static int lesp_set_baudrate(int baudrate)
+{
+    struct termios term;
+
+    if ( ioctl(g_lesp_state.fd,TCGETS,(unsigned long)&term) < 0 )
+    {
+        ndbg("TCGETS failed.\n");
+        return -1;
+    }
+
+    if ( ( cfsetispeed( &term, baudrate ) < 0 ) || 
+         ( cfsetospeed( &term, baudrate ) < 0 ) )
+    {
+        ndbg("Connot set baudrate %0x08X\n",baudrate);
+        return -1;
+    }
+
+    if ( ioctl(g_lesp_state.fd,TCSETS,(unsigned long)&term) < 0 )
+    {
+        ndbg("TCSETS failed.\n");
+        return -1;
+    }
+    return 0;
+}
 
 /****************************************************************************
  * Name: get_sock
@@ -878,13 +919,11 @@ int lesp_initialize(void)
       ret = -1;
     }
 
-#if 0 // lesp_set_baudrate is not defined
-  if (ret >= 0 && lesp_set_baudrate(g_lesp_state.fd, CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
+  if (ret >= 0 && lesp_set_baudrate(CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
     {
       ndbg("Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
       ret = -1;
     }
-#endif
 
   if ((ret >= 0) && (g_lesp_state.worker.running == false))
     {
@@ -892,6 +931,13 @@ int lesp_initialize(void)
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
+
+  if (ret < 0)
+    {
+      nvdbg("Esp8266 initialisation failed!\n");
+      return -1;
+    }
+
   g_lesp_state.is_initialized = true;
   nvdbg("Esp8266 initialized\n");
 
