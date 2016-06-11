@@ -175,6 +175,7 @@ lesp_state_t g_lesp_state =
  *
  ****************************************************************************/
 
+#ifdef CONFIG_SERIAL_TERMIOS
 static int lesp_set_baudrate(int baudrate)
   {
     struct termios term;
@@ -200,6 +201,7 @@ static int lesp_set_baudrate(int baudrate)
 
     return 0;
   }
+#endif
 
 /****************************************************************************
  * Name: get_sock
@@ -921,11 +923,13 @@ int lesp_initialize(void)
       ret = -1;
     }
 
+#ifdef CONFIG_SERIAL_TERMIOS
   if (ret >= 0 && lesp_set_baudrate(CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
     {
       ndbg("Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
       ret = -1;
     }
+#endif
 
   if ((ret >= 0) && (g_lesp_state.worker.running == false))
     {
