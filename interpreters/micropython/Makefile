@@ -182,3 +182,5 @@ distclean: clean
 
 -include $(MICROPYTHON_SRCDIR)/mkrules.mk
 -include Make.dep
+.PHONY: preconfig
+preconfig:

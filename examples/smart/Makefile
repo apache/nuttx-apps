@@ -37,6 +37,8 @@
 
 # SMART file system stress test
 
+APPNAME = smart
+
 ASRCS =
 CSRCS =
 MAINSRC = smart_main.c

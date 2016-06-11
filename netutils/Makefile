@@ -33,37 +33,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/.config	# Current configuration
+MENUDESC = "Network Utilities"
 
-# Sub-directories
-
-SUBDIRS  = chat json codecs esp8266
-ifeq ($(CONFIG_NET),y)
-SUBDIRS += netlib dhcpc dhcpd discover ftpc ftpd smtp telnetd
-SUBDIRS += webclient webserver tftpc thttpd xmlrpc pppd
-endif
-
-all: nothing
-
-.PHONY: nothing context depend clean distclean
-
-define SDIR_template
-$(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
-endef
-
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
-$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
-
-nothing:
-
-install:
-
-context:
-
-depend: $(foreach SDIR, $(SUBDIRS), $(SDIR)_depend)
-
-clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
-
-distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
+include $(APPDIR)/Directory.mk

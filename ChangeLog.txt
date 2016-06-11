@@ -1607,6 +1607,8 @@
 
 7.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
 
+	* apps/examples/alarm: ioctl call was clobbering file descriptor
+	  (2016-06-02).
 	* apps/system/flash_eraseall:  Removed!  This logic violates the OS/
 	  application interface and cannot be supported.  The old code can still
 	  be found in the 'Obsoleted' repository (2016-06-03).
@@ -1614,4 +1616,16 @@
 	  (2016-06-04).
 	* apps/system/flash_eraseall: Restored!  Using the new IOCTL wrapper at
 	  apps/fsutils/flash_eraseall (2016-06-04).
-
+	* apps/canutils/libuavcan: Fix for recent change to STM32 timer frequency
+	  definiitions (2016-06-05).
+	* Many files:  Change to the way that Kconfig files are generated in order
+	  to better support reuse of the apps/ directory in NuttX products.  Changes
+	  include: Make the full tree use wildcards make.defs, Add empty preconfig
+	  rules to 'leaf' makefiles, Use directory.mk for recursive dir makefiles,
+	  Individual app kconfig fixes, Recursive Kconfig autogeneration, Add
+	  kconfig files for pcode and tiff, and fix a gitignore rule,  From
+	  Sébastien Lorquet (2016-06-06).
+	* apps/nshlib: Make NSH net-initialization be a configuration option. From
+	  Marten Svanfeld (2016-06-09).
+	* netutils/ntpc and nshlib:  NTP Client: All retries; Add initialization
+	  in NSH network startup logic.  From David S. Alessio (2016-06-09) .

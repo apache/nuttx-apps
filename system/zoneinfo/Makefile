@@ -170,3 +170,6 @@ distclean: clean
 	$(call DELDIR, tzcode)
 
 -include Make.dep
+.PHONY:preconfig
+preconfig:
+

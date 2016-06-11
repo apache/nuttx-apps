@@ -13,3 +13,5 @@
 *.adb
 *.lib
 *.src
+/Kconfig
+

@@ -39,14 +39,7 @@ APPDIR = ${shell pwd}
 TOPDIR ?= $(APPDIR)/import
 
 -include $(TOPDIR)/Make.defs
-
-# Tools
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  MKKCONFIG = ${shell $(APPDIR)\tools\mkkconfig.bat}
-else
-  MKKCONFIG = ${shell $(APPDIR)/tools/mkkconfig.sh}
-endif
+-include $(APPDIR)/Make.defs
 
 # Application Directories
 
@@ -85,9 +78,15 @@ BIN = libapps$(LIBEXT)
 all: $(BIN)
 .PHONY: import install context context_serialize context_rest .depdirs preconfig depend clean distclean
 
+define MAKE_template
+	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
+
+endef
+
 define SDIR_template
 $(1)_$(2):
 	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
+
 endef
 
 $(foreach SDIR, $(CONFIGURED_APPS), $(eval $(call SDIR_template,$(SDIR),all)))
@@ -119,8 +118,9 @@ context_serialize:
 
 context: context_serialize
 
-Kconfig: $(MKKCONFIG)
-	$(MKKCONFIG)
+Kconfig:
+	$(foreach SDIR, $(BUILDIRS), $(call MAKE_template,$(SDIR),preconfig))
+	$(Q) $(MKKCONFIG)
 
 preconfig: Kconfig
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netinit.c
  *
- *   Copyright (C) 2010-2012, 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2012, 2014-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This is influenced by similar logic from uIP:
@@ -72,9 +72,13 @@
 #  include <apps/netutils/dhcpc.h>
 #endif
 
+#ifdef CONFIG_NETUTILS_NTPCLIENT
+#  include <apps/netutils/ntpclient.h>
+#endif
+
 #include "nsh.h"
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NSH_NETINIT
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -128,7 +132,6 @@
 #  undef CONFIG_NSH_NETINIT_MONITOR
 #endif
 
-
 /* We need a valid IP domain (any domain) to create a socket that we can use
  * to comunicate with the network device.
  */
@@ -146,10 +149,6 @@
 
 #define LONG_TIME_SEC    (60*60) /* One hour in seconds */
 #define SHORT_TIME_SEC   (2)     /* 2 seconds */
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
 
 /****************************************************************************
  * Private Data
@@ -202,10 +201,6 @@ static const uint16_t g_ipv6_netmask[8] =
   HTONS(CONFIG_NSH_IPv6NETMASK_8),
 };
 #endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF*/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -341,6 +336,12 @@ static void nsh_netinit_configure(void)
 
         dhcpc_close(handle);
     }
+#endif
+
+#ifdef CONFIG_NETUTILS_NTPCLIENT
+  /* Start the NTP client */
+
+  ntpc_start();
 #endif
 #endif /* NSH_HAVE_NETDEV */
 
@@ -689,4 +690,4 @@ int nsh_netinit(void)
 #endif
 }
 
-#endif /* CONFIG_NET */
+#endif /* CONFIG_NSH_NETINIT */

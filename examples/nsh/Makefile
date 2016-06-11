@@ -37,6 +37,8 @@
 
 # NuttShell (NSH) Example
 
+APPNAME = nsh
+
 ASRCS =
 CSRCS =
 MAINSRC = nsh_main.c

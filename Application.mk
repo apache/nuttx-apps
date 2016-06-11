@@ -69,7 +69,7 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: clean preconfig depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -102,6 +102,8 @@ install: $(BIN_DIR)$(DELIM)$(PROGNAME)
 else
 install:
 endif
+
+preconfig:
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 ifneq ($(APPNAME),)

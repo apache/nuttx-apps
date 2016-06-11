@@ -35,6 +35,8 @@
 
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
+
+DELIM = $(strip /)
 include $(APPDIR)$(DELIM)Make.defs
 
 # THTTPD Library
@@ -188,3 +190,5 @@ distclean: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

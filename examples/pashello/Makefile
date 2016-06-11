@@ -37,6 +37,8 @@
 
 # Pascal Add-On Example
 
+APPNAME = pashello
+
 ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif

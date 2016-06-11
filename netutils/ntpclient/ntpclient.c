@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/ntpclient/ntpclient.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* NTP Time is seconds since 1900. Convert to Unix time which is seconds
  * since 1970
  */
@@ -69,6 +70,7 @@
 /****************************************************************************
  * Private Types
  ****************************************************************************/
+
 /* This enumeration describes the state of the NTP daemon */
 
 enum ntpc_daemon_e
@@ -105,6 +107,7 @@ static struct ntpc_daemon_s g_ntpc_daemon;
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
 /****************************************************************************
  * Name: ntpc_getuint32
  *
@@ -293,8 +296,9 @@ static int ntpc_daemon(int argc, char **argv)
   socklen_t socklen;
   ssize_t nbytes;
   int exitcode = EXIT_SUCCESS;
-  int ret;
+  int retry = 0;
   int sd;
+  int ret;
 
   /* Indicate that we have started */
 
@@ -428,6 +432,15 @@ static int ntpc_daemon(int argc, char **argv)
           int errval = errno;
           if (errval != EINTR)
             {
+              /* Allow up to three retries */
+
+              if (++retry < 3)
+                {
+                  continue;
+                }
+
+              /* Then declare the failure */
+
               ndbg("ERROR: recvfrom() failed: %d\n", errval);
               exitcode = EXIT_FAILURE;
               break;

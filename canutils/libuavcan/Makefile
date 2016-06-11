@@ -262,3 +262,5 @@ distclean: clean
 	$(call DELFILE, $(PYUAVCAN_PACKNAME))
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

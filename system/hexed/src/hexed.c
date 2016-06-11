@@ -229,7 +229,7 @@ int parseargs(FAR char *argv[])
   FAR struct command_s *cmd;
   FAR char *fname;
   FAR char *opt;
-  int optc;
+  int optc  = 0;
 
   fname     = NULL;
   cmd       = g_cmdtbl;

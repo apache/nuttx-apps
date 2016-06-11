@@ -37,6 +37,8 @@
 
 # mount() test
 
+APPNAME = mount
+
 ASRCS =
 CSRCS = ramdisk.c
 MAINSRC = mount_main.c

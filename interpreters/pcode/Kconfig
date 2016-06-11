@@ -1,13 +1,3 @@
-#
-# For a description of the syntax of this configuration file,
-# see the file kconfig-language.txt in the NuttX tools repository.
-#
-
-menu "Interpreters"
-
-source "$APPSDIR/interpreters/bas/Kconfig"
-source "$APPSDIR/interpreters/ficl/Kconfig"
-
 config INTERPRETERS_PCODE
 	bool "Pascal p-code interpreter"
 	default n
@@ -21,5 +11,3 @@ config INTERPRETERS_PCODE
 if INTERPRETERS_PCODE
 endif
 
-source "$APPSDIR/interpreters/micropython/Kconfig"
-endmenu # Interpreters

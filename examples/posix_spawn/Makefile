@@ -156,3 +156,5 @@ spawn_main.o: spawn_main.c \
 symtab.o: filesystem/symtab.c \
 	$(TOPDIR)/include/nuttx/compiler.h \
 	$(TOPDIR)/include/nuttx/binfmt/symtab.h
+.PHONY: preconfig
+preconfig:

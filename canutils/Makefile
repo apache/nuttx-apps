@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "CAN Utilities"
+
 include $(APPDIR)/Directory.mk

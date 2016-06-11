@@ -83,6 +83,8 @@ $(COBJS): %$(OBJEXT): %.c
 
 install:
 
+preconfig:
+
 context:
 
 .depend: Makefile $(SRCS)
