@@ -42,20 +42,21 @@
 
 #include <nuttx/config.h>
 
+#include <sys/ioctl.h"
+#include <sys/socket.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <poll.h>
+#include <termios.h>
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
 
 #include <arpa/inet.h>
-#include "sys/ioctl.h"
-#include "sys/socket.h"
-#include "termios.h"
 
 #include "apps/netutils/esp8266.h"
 
@@ -83,7 +84,7 @@
 
 #define ESP8266_ACCESS_POINT_NBR_MAX 32
 
-#define lespWAITING_OK_POLLING_MS   250   
+#define lespWAITING_OK_POLLING_MS   250
 #define lespTIMEOUT_MS              1000
 #define lespTIMEOUT_MS_SEND         1000
 #define lespTIMEOUT_MS_CONNECTION   30000
@@ -178,24 +179,25 @@ static int lesp_set_baudrate(int baudrate)
   {
     struct termios term;
 
-    if ( ioctl(g_lesp_state.fd,TCGETS,(unsigned long)&term) < 0 )
+    if (ioctl(g_lesp_state.fd,TCGETS,(unsigned long)&term) < 0)
       {
         ndbg("TCGETS failed.\n");
         return -1;
       }
 
-    if ( ( cfsetispeed( &term, baudrate ) < 0 ) || 
-         ( cfsetospeed( &term, baudrate ) < 0 ) )
+    if ((cfsetispeed(&term, baudrate) < 0) ||
+        (cfsetospeed(&term, baudrate) < 0))
       {
         ndbg("Connot set baudrate %0x08X\n",baudrate);
         return -1;
       }
 
-    if ( ioctl(g_lesp_state.fd,TCSETS,(unsigned long)&term) < 0 )
+    if (ioctl(g_lesp_state.fd,TCSETS,(unsigned long)&term) < 0)
       {
         ndbg("TCSETS failed.\n");
         return -1;
       }
+
     return 0;
   }
 
@@ -257,7 +259,7 @@ static int lesp_low_level_read(uint8_t* buf, int size)
 
   struct pollfd fds[1];
 
-  memset(fds, 0, sizeof( struct pollfd));
+  memset(fds, 0, sizeof(struct pollfd));
   fds[0].fd       = g_lesp_state.fd;
   fds[0].events   = POLLIN;
 
@@ -269,7 +271,7 @@ static int lesp_low_level_read(uint8_t* buf, int size)
       int err = errno;
       ndbg("worker read Error %d (errno %d)\n", ret, err);
       UNUSED(err);
-    } 
+    }
   else if ((fds[0].revents & POLLERR) && (fds[0].revents & POLLHUP))
     {
       ndbg("worker poll read Error %d\n", ret);
@@ -410,7 +412,7 @@ static inline int lesp_read_ipd(void)
         }
 
       pthread_mutex_unlock(&g_lesp_state.mutex);
-    } 
+    }
 
   return 0;
 }
@@ -515,7 +517,7 @@ static int lesp_read(int timeout_ms)
 
   ts.tv_sec += (timeout_ms/1000) + lespTIMEOUT_FLOODING_OFFSET_S;
 
-  do 
+  do
     {
       if (sem_timedwait(&g_lesp_state.sem,&ts) < 0)
         {
@@ -723,7 +725,7 @@ static int lesp_parse_cwlap_ans_line(char* ptr, lesp_ap_t *ap)
 
           case 2:
               ptr++; /* Remove first '"' */
-              *(ptr_next -1 ) = '\0';
+              *(ptr_next - 1) = '\0';
               ap->ssid = ptr;
               break;
 
@@ -787,7 +789,7 @@ static void *lesp_worker(void *args)
       if (ret < 0)
         {
           ndbg("worker read data Error %d\n", ret);
-        } 
+        }
       else if (ret > 0)
         {
           //nvdbg("c:0x%02X (%c)\n", c);
@@ -844,7 +846,7 @@ static inline int lesp_create_worker(int priority)
 
   ret = pthread_attr_init(&thread_attr);
 
-  if (ret < 0) 
+  if (ret < 0)
     {
       ndbg("Cannot Set scheduler parameter thread (%d)\n", ret);
     }
@@ -863,9 +865,9 @@ static inline int lesp_create_worker(int priority)
 
       g_lesp_state.worker.running = true;
 
-      ret = pthread_create(&g_lesp_state.worker.thread, 
+      ret = pthread_create(&g_lesp_state.worker.thread,
                            (ret < 0)?NULL:&thread_attr, lesp_worker, NULL);
-      if (ret < 0) 
+      if (ret < 0)
         {
           ndbg("Cannot Create thread return (%d)\n", ret);
           g_lesp_state.worker.running = false;
@@ -979,7 +981,7 @@ int lesp_soft_reset(void)
       lesp_flush();
     }
 
-  if (ret >= 0) 
+  if (ret >= 0)
     {
       ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT+GMR\r\n");
     }
@@ -1087,7 +1089,7 @@ int lesp_set_net(lesp_mode_t mode, in_addr_t ip, in_addr_t mask, in_addr_t gatew
  * Name: lesp_set_dhcp
  *
  * Description:
- *   It will Enable or disable DHCP of mode. 
+ *   It will Enable or disable DHCP of mode.
  *
  * Input Parmeters:
  *   mode    : mode to configure.
@@ -1105,7 +1107,7 @@ int lesp_set_dhcp(lesp_mode_t mode,bool enable)
   ret = lesp_ask_ans_ok(lespTIMEOUT_MS,
                         "AT+CWDHCP_CUR=%d,%c\r\n",
                         mode,(enable)?'1':'0');
-  
+
   if (ret < 0)
     {
       return -1;
@@ -1138,7 +1140,7 @@ int lesp_list_access_points(lesp_cb_t cb)
 
   ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT\r\n");
 
-  if (ret >= 0) 
+  if (ret >= 0)
     {
       ret = lesp_send_cmd("AT+CWLAP\r\n");
     }
@@ -1343,7 +1345,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
     {
       ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT+CIPSEND=%d,%d\r\n",sockfd,len);
     }
-  
+
   if (ret >= 0)
     {
       nvdbg("Sending in socket %d, %d bytes\n", sockfd,len);
@@ -1357,7 +1359,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
       if (ret < 0)
         {
-          break; 
+          break;
         }
 
       while ((*ptr != 0) && (*ptr != 'S'))
@@ -1391,7 +1393,7 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
   int ret = 0;
   lesp_socket_t *sock;
   sem_t sem;
-  
+
   if (sem_init(&sem, 0, 0) < 0)
     {
       nvdbg("Cannot create semaphore\n");
