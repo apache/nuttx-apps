@@ -175,29 +175,29 @@ lesp_state_t g_lesp_state =
  ****************************************************************************/
 
 static int lesp_set_baudrate(int baudrate)
-{
+  {
     struct termios term;
 
     if ( ioctl(g_lesp_state.fd,TCGETS,(unsigned long)&term) < 0 )
-    {
+      {
         ndbg("TCGETS failed.\n");
         return -1;
-    }
+      }
 
     if ( ( cfsetispeed( &term, baudrate ) < 0 ) || 
          ( cfsetospeed( &term, baudrate ) < 0 ) )
-    {
+      {
         ndbg("Connot set baudrate %0x08X\n",baudrate);
         return -1;
-    }
+      }
 
     if ( ioctl(g_lesp_state.fd,TCSETS,(unsigned long)&term) < 0 )
-    {
+      {
         ndbg("TCSETS failed.\n");
         return -1;
-    }
+      }
     return 0;
-}
+  }
 
 /****************************************************************************
  * Name: get_sock
