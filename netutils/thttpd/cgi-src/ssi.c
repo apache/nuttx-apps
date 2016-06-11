@@ -888,7 +888,7 @@ int main(int argc, char *argv[])
   char *script_name;
   char *path_info;
   char *path_translated;
-  int err = 0;
+  int errcode = 0;
 
   /* Default formats. */
 
@@ -930,14 +930,14 @@ int main(int argc, char *argv[])
   if (!path_translated)
     {
       internal_error("Couldn't get PATH_TRANSLATED environment variable.");
-      err = 3;
+      errcode = 3;
       goto errout_with_g_url;
     }
 
   if (!check_filename(path_translated))
     {
       not_permitted("initial", "PATH_TRANSLATED", path_translated);
-      err = 4;
+      errcode = 4;
       goto errout_with_g_url;
     }
 
@@ -947,7 +947,7 @@ int main(int argc, char *argv[])
   if (!instream)
     {
       not_found(path_translated);
-      err = 5;
+      errcode = 5;
       goto errout_with_g_url;
     }
 
@@ -959,5 +959,5 @@ int main(int argc, char *argv[])
 
 errout_with_g_url:
   free(g_url);
-  return err;
+  return errcode;
 }

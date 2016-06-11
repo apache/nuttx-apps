@@ -82,7 +82,7 @@
 int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)handle;
-  int err;
+  int errcode;
   int ret;
 
   /* Verify that we are connected to a server */
@@ -90,7 +90,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
   if (!ftpc_connected(session))
     {
       ndbg("Not connected\n");
-      err = ENOTCONN;
+      errcode = ENOTCONN;
       goto errout_with_err;
     }
 
@@ -99,7 +99,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
   if (ftpc_loggedin(session))
     {
       ndbg("Already logged in\n");
-      err = EINVAL;
+      errcode = EINVAL;
       goto errout_with_err;
     }
 
@@ -130,7 +130,7 @@ int ftpc_login(SESSION handle, FAR struct ftpc_login_s *login)
   return OK;
 
 errout_with_err:
-  set_errno(err);
+  set_errno(errcode);
 errout:
   return ERROR;
 }

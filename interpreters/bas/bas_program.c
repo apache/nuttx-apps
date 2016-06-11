@@ -671,10 +671,11 @@ void Program_PCtoError(struct Program *this, struct Pc *pc, struct Value *v)
 struct Value *Program_merge(struct Program *this, int dev, struct Value *value)
 {
   struct String s;
-  int l, err = 0;
+  int l;
+  int errcode = 0;
 
   l = 0;
-  while (String_new(&s), (err = FS_appendToString(dev, &s, 1)) != -1 &&
+  while (String_new(&s), (errcode = FS_appendToString(dev, &s, 1)) != -1 &&
          s.length)
     {
       struct Token *line;
@@ -702,7 +703,7 @@ struct Value *Program_merge(struct Program *this, int dev, struct Value *value)
     }
 
   String_destroy(&s);
-  if (err)
+  if (errcode)
     {
       return Value_new_ERROR(value, IOERROR, FS_errmsg);
     }

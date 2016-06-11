@@ -707,7 +707,7 @@ static int cgi_child(int argc, char **argv)
   int        nbytes;
   int        fd;
   int        ret;
-  int        err = 1;
+  int        errcode = 1;
 
   /* Use low-level debug out (because the low-level output may survive closing
    * all file descriptors
@@ -954,7 +954,7 @@ static int cgi_child(int argc, char **argv)
         }
   }
   while (!outdone);
-  err = 0;
+  errcode = 0;
 
   /* Get rid of watch structures */
 
@@ -977,15 +977,16 @@ errout_with_cgiconn:
   httpd_free(cc);
 
 errout:
-  nllinfo("Return %d\n", err);
-  if (err != 0)
+  nllinfo("Return %d\n", errcode);
+  if (errcode != 0)
     {
       INTERNALERROR("errout");
       httpd_send_err(hc, 500, err500title, "", err500form, hc->encodedurl);
       httpd_write_response(hc);
       cgi_semgive();
     }
-  return err;
+
+  return errcode;
 }
 
 /****************************************************************************

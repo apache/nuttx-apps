@@ -92,7 +92,7 @@ int zerocross_main(int argc, char *argv[])
   int fd;
   int tmp;
   int ret;
-  int err = EXIT_FAILURE;
+  int errcode = EXIT_FAILURE;
 
   /* Open the zerocross device */
 
@@ -140,9 +140,9 @@ int zerocross_main(int argc, char *argv[])
       printf("Sample = %d\n", value.si_value.sival_int);
     }
 
-  err = EXIT_SUCCESS;
+  errcode = EXIT_SUCCESS;
 
 errout_with_fd:
   close(fd);
-  return err;
+  return errcode;
 }

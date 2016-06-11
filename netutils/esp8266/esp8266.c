@@ -270,9 +270,9 @@ static int lesp_low_level_read(uint8_t* buf, int size)
   ret = poll(fds, 1, lespPOLLING_TIME_MS);
   if (ret < 0)
     {
-      int err = errno;
-      ndbg("worker read Error %d (errno %d)\n", ret, err);
-      UNUSED(err);
+      int errcode = errno;
+      ndbg("worker read Error %d (errno %d)\n", ret, errcode);
+      UNUSED(errcode);
     }
   else if ((fds[0].revents & POLLERR) && (fds[0].revents & POLLHUP))
     {

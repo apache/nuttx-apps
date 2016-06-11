@@ -408,7 +408,7 @@ static int configdata_verifyconfig(void)
 {
   FAR struct configdata_entrydesc_s *entry;
   int ret;
-  int err = OK;
+  int errcode = OK;
   int i;
   static int iteration = 0;
 
@@ -441,7 +441,7 @@ static int configdata_verifyconfig(void)
                   printf("ERROR: Failed to read an entry: %d\n", i);
                   printf("  Entry id:   %04X\n", entry->id);
                   printf("  Entry size: %d\n", entry->len);
-                  err = ERROR;
+                  errcode = ERROR;
                 }
             }
           else
@@ -453,7 +453,7 @@ static int configdata_verifyconfig(void)
                   printf("ERROR: Succesffully read a deleted entry\n");
                   printf("  Entry id:   %04X\n", entry->id);
                   printf("  Entry size: %d\n", entry->len);
-                  err = ERROR;
+                  errcode = ERROR;
                 }
               else
                 {
@@ -466,7 +466,7 @@ static int configdata_verifyconfig(void)
         }
     }
 
-  return err;
+  return errcode;
 }
 
 /****************************************************************************
