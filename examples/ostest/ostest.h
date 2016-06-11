@@ -73,7 +73,7 @@
 
 /* Priority inheritance */
 
-#if defined(CONFIG_DEBUG) && defined(CONFIG_PRIORITY_INHERITANCE) && defined(CONFIG_SEM_PHDEBUG)
+#if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_PRIORITY_INHERITANCE) && defined(CONFIG_SEM_PHDEBUG)
 #  define dump_nfreeholders(s) printf(s " nfreeholders: %d\n", sem_nfreeholders())
 #else
 #  define dump_nfreeholders(s)
@@ -215,7 +215,7 @@ int vfork_test(void);
  * priority inheritance
  */
 
-#if defined(CONFIG_DEBUG) && defined(CONFIG_PRIORITY_INHERITANCE) && defined(CONFIG_SEM_PHDEBUG)
+#if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_PRIORITY_INHERITANCE) && defined(CONFIG_SEM_PHDEBUG)
 void sem_enumholders(FAR sem_t *sem);
 int sem_nfreeholders(void);
 #else

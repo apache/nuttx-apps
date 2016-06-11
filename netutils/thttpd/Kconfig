@@ -194,7 +194,7 @@ config THTTPD_OCCASIONAL_MSEC
 config THTTPD_MEMDEBUG
 	bool "Enable memory debug"
 	default n
-	depends on DEBUG && DEBUG_NET
+	depends on DEBUG_FEATURES && DEBUG_NET
 	---help---
 		Enable THTTPD memory usage debug output.  Default: n
 

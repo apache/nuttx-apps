@@ -515,7 +515,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
 
   if (apb->nbytes < apb->nmaxbytes)
     {
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
       int errcode   = errno;
       int readerror = ferror(pPlayer->fileFd);
 
@@ -534,7 +534,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
 
       apb->flags |= AUDIO_APB_FINAL;
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
       /* Was this a file read error */
 
       if (apb->nbytes == 0 && readerror)
@@ -632,7 +632,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
 #else
   FAR struct ap_buffer_s*     pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
 #endif
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
   int                         outstanding = 0;
 #endif
   int                         prio;
@@ -772,7 +772,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
                failed = true;
                break;
             }
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
           else
             {
               /* The audio driver has one more buffer */
@@ -875,7 +875,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
           /* An audio buffer is being dequeued by the driver */
 
           case AUDIO_MSG_DEQUEUE:
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
             /* Make sure that we believe that the audio driver has at
              * least one buffer.
              */
@@ -929,7 +929,7 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
                         streaming = false;
                         failed = true;
                       }
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
                     else
                       {
                         /* The audio driver has one more buffer */

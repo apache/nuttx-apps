@@ -60,7 +60,7 @@ system/composite
   CONFIG_SYSTEM_COMPOSITE_BUFSIZE - The size of the serial I/O buffer in
     bytes.  Default 256 bytes.
 
-  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB), then
+  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB), then
   the add-on code will also manage the USB trace output.  The amount of trace output
   can be controlled using:
 

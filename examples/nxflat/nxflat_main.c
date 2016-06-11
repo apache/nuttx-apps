@@ -96,12 +96,12 @@
 #define ROMFSDEV     "/dev/ram0"
 #define MOUNTPT      "/mnt/romfs"
 
-/* If CONFIG_DEBUG is enabled, use dbg instead of printf so that the
+/* If CONFIG_DEBUG_FEATURES is enabled, use dbg instead of printf so that the
  * output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG
+#  ifdef CONFIG_DEBUG_FEATURES
 #    define message(format, ...)    dbg(format, ##__VA_ARGS__)
 #    define err(format, ...)        dbg(format, ##__VA_ARGS__)
 #  else
@@ -109,7 +109,7 @@
 #    define err(format, ...)        fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
-#  ifdef CONFIG_DEBUG
+#  ifdef CONFIG_DEBUG_FEATURES
 #    define message                 dbg
 #    define err                     dbg
 #  else

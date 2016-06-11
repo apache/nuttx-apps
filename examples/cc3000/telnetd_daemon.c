@@ -165,7 +165,7 @@ static int telnetd_daemon(int argc, char *argv[])
    * being available.
    */
 
-#ifndef CONFIG_DEBUG
+#ifndef CONFIG_DEBUG_FEATURES
   close(0);
   close(1);
   close(2);

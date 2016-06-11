@@ -174,7 +174,7 @@ Building the Zmodem Tools to Run Under Linux
 
        make -f Makefile.host TOPDIR=/home/me/projects/nuttx APPDIR=/home/me/projects/apps
 
-  2. Add CONFIG_DEBUG=1 to the make command line to enable debug output
+  2. Add CONFIG_DEBUG_FEATURES=1 to the make command line to enable debug output
   3. Make sure to clean old target .o files before making new host .o files.
 
   This build is has been verified as of 2013-7-16 using Linux to transfer

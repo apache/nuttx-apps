@@ -484,7 +484,7 @@ examples/ftpc
   You may also want to define the following in your configuration file.
   Otherwise, you will have not feeback about what is going on:
 
-    CONFIG_DEBUG=y
+    CONFIG_DEBUG_FEATURES=y
     CONFIG_DEBUG_INFO=y
     CONFIG_DEBUG_FTPC=y
 
@@ -2089,7 +2089,7 @@ examples/usbserial
     CONFIG_EXAMPLES_USBSERIAL_ONLYBIG
        Send only large, multi-packet messages.  Default: Send large and small.
 
-    If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB), then
+    If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB), then
     the example code will also manage the USB trace output.  The amount of trace output
     can be controlled using:
 
@@ -2184,7 +2184,7 @@ examples/usbterm
     CONFIG_EXAMPLES_USBTERM_BUFLEN - The size of the input and output
       buffers used for receiving data. Default 256 bytes.
 
-  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB, or
+  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB, or
   CONFIG_USBDEV_TRACE), then the example code will also manage the USB trace
   output.  The amount of trace output can be controlled using:
 

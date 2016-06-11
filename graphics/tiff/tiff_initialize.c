@@ -203,12 +203,12 @@
 #define TIFF_RGB_STRIPBCOFFSET  248
 
 /* Debug *******************************************************************/
-/* CONFIG_DEBUG_TIFFOFFSETS may be defined (along with CONFIG_DEBUG and
+/* CONFIG_DEBUG_TIFFOFFSETS may be defined (along with CONFIG_DEBUG_FEATURES and
  * CONFIG_DEBUG_GRAPHICS) in order to verify the pre-determined TIFF file
  * offsets.
  */
 
-#if !defined(CONFIG_DEBUG) || !defined(CONFIG_DEBUG_GRAPHICS)
+#if !defined(CONFIG_DEBUG_FEATURES) || !defined(CONFIG_DEBUG_GRAPHICS)
 #  undef CONFIG_DEBUG_TIFFOFFSETS
 #endif
 

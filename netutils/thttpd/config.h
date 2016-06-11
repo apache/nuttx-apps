@@ -215,7 +215,7 @@
 
 /* Memory debug instrumentation depends on other debug options */
 
-#  if (!defined(CONFIG_DEBUG) || !defined(CONFIG_DEBUG_NET)) && defined(CONFIG_THTTPD_MEMDEBUG)
+#  if (!defined(CONFIG_DEBUG_FEATURES) || !defined(CONFIG_DEBUG_NET)) && defined(CONFIG_THTTPD_MEMDEBUG)
 #    undef CONFIG_THTTPD_MEMDEBUG
 #  endif
 

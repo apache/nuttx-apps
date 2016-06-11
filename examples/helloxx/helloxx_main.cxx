@@ -58,7 +58,7 @@
 // Debug ********************************************************************
 // Non-standard debug that may be enabled just for testing the constructors
 
-#ifndef CONFIG_DEBUG
+#ifndef CONFIG_DEBUG_FEATURES
 #  undef CONFIG_DEBUG_CXX
 #endif
 

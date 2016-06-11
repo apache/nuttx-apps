@@ -180,7 +180,7 @@ static inline void telnetd_dumpbuffer(FAR const char *msg,
                                       FAR const char *buffer,
                                       unsigned int nbytes)
 {
-  /* CONFIG_DEBUG, CONFIG_DEBUG_INFO, and CONFIG_DEBUG_NET have to be
+  /* CONFIG_DEBUG_FEATURES, CONFIG_DEBUG_INFO, and CONFIG_DEBUG_NET have to be
   * defined or the following does nothing.
   */
 

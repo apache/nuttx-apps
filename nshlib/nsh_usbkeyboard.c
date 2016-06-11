@@ -111,7 +111,7 @@ static int nsh_wait_usbready(FAR const char *msg)
       fd = open(NSH_USBKBD_DEVNAME, O_RDONLY);
       if (fd < 0)
         {
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
           int errcode = errno;
 
           /* ENOENT means that the USB device is not yet connected and,

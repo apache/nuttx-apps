@@ -159,7 +159,7 @@ errout:
 int ftpc_reconnect(FAR struct ftpc_session_s *session)
 {
   struct sockaddr_in addr;
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
   char *tmp;
 #endif
   int ret;
@@ -190,7 +190,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
   /* Connect the socket to the server */
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
   tmp = inet_ntoa(session->addr);
   ndbg("Connecting to server address %s:%d\n", tmp, ntohs(session->port));
 #endif
@@ -236,7 +236,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
       goto errout_with_socket;
     }
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
   ndbg("Connected\n");
   tmp = inet_ntoa(addr.sin_addr);
   ndbg("  Remote address: %s:%d\n", tmp, ntohs(addr.sin_port));

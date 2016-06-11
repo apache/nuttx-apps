@@ -20,7 +20,7 @@ system/cdcacm
     CONFIG_SYSTEM_CDCACM_DEVMINOR : The minor number of the CDC/ACM device.
                                     : i.e., the 'x' in /dev/ttyACMx
 
-  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB, or
+  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB, or
   CONFIG_USBDEV_TRACE), then the add-on code will also initialize the USB trace
   output.  The amount of trace output can be controlled using:
 

@@ -188,7 +188,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                          FILE *stream, uint8_t how, uint8_t xfrmode)
 {
   long offset = session->offset;
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
   FAR char *rname;
   FAR char *str;
   int len;
@@ -261,7 +261,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
 
         /* Get the remote filename from the response */
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
         str = strstr(session->reply, " for ");
         if (str)
           {

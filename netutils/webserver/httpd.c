@@ -193,7 +193,7 @@ static int httpd_close(struct httpd_fs_file *file)
 #ifdef CONFIG_NETUTILS_HTTPD_DUMPBUFFER
 static void httpd_dumpbuffer(FAR const char *msg, FAR const char *buffer, unsigned int nbytes)
 {
-  /* CONFIG_DEBUG, CONFIG_DEBUG_INFO, and CONFIG_DEBUG_NET have to be
+  /* CONFIG_DEBUG_FEATURES, CONFIG_DEBUG_INFO, and CONFIG_DEBUG_NET have to be
    * defined or the following does nothing.
    */
 
@@ -206,7 +206,7 @@ static void httpd_dumpbuffer(FAR const char *msg, FAR const char *buffer, unsign
 #ifdef CONFIG_NETUTILS_HTTPD_DUMPPSTATE
 static void httpd_dumppstate(struct httpd_state *pstate, const char *msg)
 {
-#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_INFO) && defined(CONFIG_DEBUG_NET)
+#if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_DEBUG_INFO) && defined(CONFIG_DEBUG_NET)
   ninfo("[%d] pstate(%p): [%s]\n", pstate->ht_sockfd, pstate, msg);
   ninfo("  filename:      [%s]\n", pstate->ht_filename);
   ninfo("  htfile len:    %d\n", pstate->ht_file.len);

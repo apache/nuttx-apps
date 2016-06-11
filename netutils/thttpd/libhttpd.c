@@ -166,7 +166,7 @@ static int  check_referer(httpd_conn *hc);
 #ifdef CONFIG_THTTPD_URLPATTERN
 static int  really_check_referer(httpd_conn *hc);
 #endif
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES_FEATURES
 static int  sockaddr_check(httpd_sockaddr *saP);
 #else
 #  define sockaddr_check(saP) (1)
@@ -221,7 +221,7 @@ static int initialize_listen_socket(httpd_sockaddr *saP)
 
   /* Check sockaddr. */
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES_FEATURES
   if (!sockaddr_check(saP))
     {
       ndbg("unknown sockaddr family on listen socket\n");
@@ -2038,7 +2038,7 @@ static int really_check_referer(httpd_conn *hc)
 }
 #endif /* CONFIG_THTTPD_URLPATTERN */
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES_FEATURES
 static int sockaddr_check(httpd_sockaddr *saP)
 {
   switch (saP->sin_family)
@@ -2055,7 +2055,7 @@ static int sockaddr_check(httpd_sockaddr *saP)
       return 0;
     }
 }
-#endif /* CONFIG_DEBUG */
+#endif /* CONFIG_DEBUG_FEATURES_FEATURES */
 
 static size_t sockaddr_len(httpd_sockaddr *saP)
 {
@@ -2307,7 +2307,7 @@ int httpd_get_conn(httpd_server *hs, int listen_fd, httpd_conn *hc)
       return GC_FAIL;
     }
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES_FEATURES
   if (!sockaddr_check(&sa))
     {
       ndbg("unknown sockaddr family\n");

@@ -879,7 +879,7 @@ endif #NSH_USBKBD
 endmenu # Console Configuration
 
 menu "USB Device Trace Support"
-	depends on USBDEV && (DEBUG || USBDEV_TRACE)
+	depends on USBDEV && (DEBUG_FEATURES || USBDEV_TRACE)
 
 config NSH_USBDEV_TRACE
 	bool "Enable Builtin USB Trace Support"
@@ -887,9 +887,9 @@ config NSH_USBDEV_TRACE
 	---help---
 		Enable builtin USB trace support in NSH.  If selected, buffered USB
 		trace data will be presented each time a command is provided to NSH.
-		The USB trace data will be sent to the console unless DEBUG set or
-		unless you are using a USB console.  In those cases, the trace data
-		will go to the SYSLOG device.
+		The USB trace data will be sent to the console unless CONFIG_DEBUG_FEATURES
+		set or unless you are using a USB console.  In those cases, the trace
+		data will go to the SYSLOG device.
 
 		If not enabled, the USB trace support can be provided by external
 		logic such as apps/system/usbmonitor.
@@ -1038,12 +1038,12 @@ endif # NSH_NETINIT_THREAD
 config NSH_NETINIT_DEBUG
 	bool "Network init debug"
 	default n
-	depends on DEBUG
+	depends on DEBUG_FEATURES
 	---help---
 		Normally debug output is controlled by DEBUG_NET.  However, that
 		will generate a LOT of debug output, especially if CONFIG_DEBUG_INFO is
-		also selected.  This option is intended to force VERVOSE debug
-		output from the NSH network initialization logic even if DEBUG_NET
+		also selected.  This option is intended to force vervose debug
+		output from the NSH network initialization logic even if CONFIG_DEBUG_NET
 		or CONFIG_DEBUG_INFO are not selected.  This allows for focused, unit-
 		level debug of the NSH network initialization logic.
 
