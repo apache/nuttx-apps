@@ -207,18 +207,19 @@ int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode, const char *errormsg)
  *
  ****************************************************************************/
 
-#if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_DEBUG_NET)
+#ifdef CONFIG_DEBUG_NET_WARN
 int tftp_parseerrpacket(const uint8_t *buffer)
 {
-  uint16_t opcode       = (uint16_t)buffer[0] << 8 | (uint16_t)buffer[1];
-  uint16_t errcode      = (uint16_t)buffer[2] << 8 | (uint16_t)buffer[3];
-  const char *errmsg  = (const char *)&buffer[4];
+  uint16_t opcode        = (uint16_t)buffer[0] << 8 | (uint16_t)buffer[1];
+  uint16_t errcode       = (uint16_t)buffer[2] << 8 | (uint16_t)buffer[3];
+  FAR const char *errmsg = (const char *)&buffer[4];
 
   if (opcode == TFTP_ERR)
     {
-      nerr("ERR message: %s (%d)\n", errmsg, errcode);
+      ninfo("ERR message: %s (%d)\n", errmsg, errcode);
       return OK;
     }
+
   return ERROR;
 }
 #endif

@@ -270,8 +270,9 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
                if (opcode != TFTP_ACK)
                  {
-                   ninfo("Bad opcode\n");
-#if defined(CONFIG_DEBUG_FEATURES) && defined(CONFIG_DEBUG_NET)
+                   nwarn("WARNING: Bad opcode\n");
+
+#ifdef CONFIG_DEBUG_NET_WARN
                   if (opcode == TFTP_ERR)
                     {
                       (void)tftp_parseerrpacket(packet);
