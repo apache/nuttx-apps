@@ -52,26 +52,6 @@
 #include "ftpc_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -159,7 +139,7 @@ errout:
 int ftpc_reconnect(FAR struct ftpc_session_s *session)
 {
   struct sockaddr_in addr;
-#ifdef CONFIG_DEBUG_FEATURES
+#ifdef CONFIG_DEBUG_NET_ERROR
   char *tmp;
 #endif
   int ret;
@@ -190,7 +170,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
 
   /* Connect the socket to the server */
 
-#ifdef CONFIG_DEBUG_FEATURES
+#ifdef CONFIG_DEBUG_NET_ERROR
   tmp = inet_ntoa(session->addr);
   nerr("Connecting to server address %s:%d\n", tmp, ntohs(session->port));
 #endif
@@ -236,7 +216,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
       goto errout_with_socket;
     }
 
-#ifdef CONFIG_DEBUG_FEATURES
+#ifdef CONFIG_DEBUG_NET_ERROR
   nerr("Connected\n");
   tmp = inet_ntoa(addr.sin_addr);
   nerr("  Remote address: %s:%d\n", tmp, ntohs(addr.sin_port));

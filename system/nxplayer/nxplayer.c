@@ -515,7 +515,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
 
   if (apb->nbytes < apb->nmaxbytes)
     {
-#ifdef CONFIG_DEBUG_FEATURES
+#ifdef CONFIG_DEBUG_AUDIO_INFO
       int errcode   = errno;
       int readerror = ferror(pPlayer->fileFd);
 
@@ -534,7 +534,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
 
       apb->flags |= AUDIO_APB_FINAL;
 
-#ifdef CONFIG_DEBUG_FEATURES
+#ifdef CONFIG_DEBUG_AUDIO_ERROR
       /* Was this a file read error */
 
       if (apb->nbytes == 0 && readerror)
