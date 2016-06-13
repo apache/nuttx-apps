@@ -355,7 +355,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
       if (nbytes < 0)
         {
           // The only expect error is to be interrupt by a signal
-#ifdef CONFIG_DEBUG_FEATURES
+#if defined(CONFIG_DEBUG_GRAPHICS_ERROR) || defined(CONFIG_DEBUG_ASSERTIONS)
           int errval = errno;
 
           gerr("read %s failed: %d\n",
