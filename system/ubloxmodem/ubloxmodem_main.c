@@ -59,14 +59,18 @@
  ****************************************************************************/
 
 #ifdef CONFIG_MODEM_U_BLOX_DEBUG
-#  define m_err     err
-#  define m_info    info
-#  define m_vllerr  llerr
-#  define m_vllinfo llinfo
+#  define m_err    err
+#  define m_warn   llwarn
+#  define m_info   info
+#  define m_llerr  llerr
+#  define m_llwarn llwarn
+#  define m_llinfo llinfo
 #else
 #  define m_err(x...)
+#  define m_warn(x...)
 #  define m_info(x...)
 #  define m_llerr(x...)
+#  define m_llwarn(x...)
 #  define m_llinfo(x...)
 #endif
 
@@ -364,7 +368,7 @@ static int ubloxmodem_at(FAR struct ubloxmodem_cxt* cxt)
 
   ret = chat_single(fd, atcmd, resp);
 
-  m_err("test result: %d\n", ret);
+  m_info("test result: %d\n", ret);
 
   close(fd);
   return ret;

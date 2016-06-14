@@ -366,7 +366,7 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
   /* What is the count on the semaphore?  Don't over-post */
 
   ret = sem_getvalue(&g_notify_sem, &semcount);
-  nllerr("Entry: semcount=%d\n", semcount);
+  nllinfo("Entry: semcount=%d\n", semcount);
 
   if (ret == OK && semcount <= 0)
     {
@@ -600,7 +600,7 @@ errout_with_sigaction:
 errout_with_socket:
   close(sd);
 errout:
-  nerr("Aborting\n");
+  nerr("ERROR: Aborting\n");
   return ret;
 }
 #endif

@@ -205,7 +205,7 @@ int nsh_telnetstart(void)
   ret = telnetd_start(&config);
   if (ret < 0)
     {
-      err("Failed to tart the Telnet daemon: %d\n", ret);
+      err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
     }
 
   return ret;

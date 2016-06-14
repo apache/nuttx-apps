@@ -475,7 +475,7 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
   he = gethostbyname(hostname);
   if (he == NULL)
     {
-      nerr("gethostbyname failed: %d\n", h_errno);
+      nerr("ERROR: gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
 
@@ -483,7 +483,8 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
 
   else if (he->h_addrtype != addrtype)
     {
-      nerr("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      nerr("ERROR: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
       return -ENOEXEC;
     }
   else if (addrtype == AF_INET)
@@ -499,7 +500,8 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
 
   else if (he->h_addrtype != AF_INET)
     {
-      nerr("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      nerr("ERROR: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
       return -ENOEXEC;
     }
   else
@@ -511,7 +513,8 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
 
   else if (he->h_addrtype != AF_INET6)
     {
-      nerr("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      nerr("ERROR: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
       return -ENOEXEC;
     }
   else
@@ -886,7 +889,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (hw)
     {
-      nerr("HW MAC: %s\n", hw);
+      ninfo("HW MAC: %s\n", hw);
       netlib_setmacaddr(intf, mac);
     }
 #endif
@@ -915,7 +918,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           /* Set DHCP addr */
 
-          nerr("DHCPC Mode\n");
+          ninfo("DHCPC Mode\n");
           gip = addr.s_addr = 0;
         }
       else
@@ -923,7 +926,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           /* Set host IP address */
 
-          nerr("Host IP: %s\n", hostip);
+          ninfo("Host IP: %s\n", hostip);
           gip = addr.s_addr = inet_addr(hostip);
         }
 
@@ -950,14 +953,14 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       if (gwip)
         {
-          nerr("Gateway: %s\n", gwip);
+          ninfo("Gateway: %s\n", gwip);
           gip = addr.s_addr = inet_addr(gwip);
         }
       else
         {
           if (gip)
             {
-              nerr("Gateway: default\n");
+              ninfo("Gateway: default\n");
               gip  = NTOHL(gip);
               gip &= ~0x000000ff;
               gip |= 0x00000001;
@@ -990,12 +993,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       if (mask)
         {
-          nerr("Netmask: %s\n",mask);
+          ninfo("Netmask: %s\n",mask);
           addr.s_addr = inet_addr(mask);
         }
       else
         {
-          nerr("Netmask: Default\n");
+          ninfo("Netmask: Default\n");
           addr.s_addr = inet_addr("255.255.255.0");
         }
 
@@ -1020,12 +1023,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       if (dns)
         {
-          nerr("DNS: %s\n", dns);
+          ninfo("DNS: %s\n", dns);
           addr.s_addr = inet_addr(dns);
         }
       else
         {
-          nerr("DNS: Default\n");
+          ninfo("DNS: Default\n");
           addr.s_addr = gip;
         }
 

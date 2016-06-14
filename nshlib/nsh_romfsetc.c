@@ -103,24 +103,23 @@ int nsh_romfsetc(void)
                          NSECTORS(romfs_img_len), CONFIG_NSH_ROMFSSECTSIZE);
   if (ret < 0)
     {
-      err("nsh: romdisk_register failed: %d\n", -ret);
+      ferr("ERROR: romdisk_register failed: %d\n", -ret);
       return ERROR;
     }
 
   /* Mount the file system */
 
-  info("Mounting ROMFS filesystem at target=%s with source=%s\n",
-       CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
+  finfo("Mounting ROMFS filesystem at target=%s with source=%s\n",
+        CONFIG_NSH_ROMFSMOUNTPT, MOUNT_DEVNAME);
 
   ret = mount(MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      err("nsh: mount(%s,%s,romfs) failed: %d\n",
-          MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
+      ferr("ERROR: mount(%s,%s,romfs) failed: %d\n",
+           MOUNT_DEVNAME, CONFIG_NSH_ROMFSMOUNTPT, errno);
       return ERROR;
     }
   return OK;
 }
 
 #endif /* CONFIG_NSH_ROMFSETC */
-

@@ -183,7 +183,8 @@ static ssize_t nsh_consolewrite(FAR struct nsh_vtbl_s *vtbl,
   ret = fwrite(buffer, 1, nbytes, pstate->cn_outstream);
   if (ret < 0)
     {
-      err("[%d] Failed to send buffer: %d\n", pstate->cn_outfd, errno);
+      err("ERROR: [%d] Failed to send buffer: %d\n",
+          pstate->cn_outfd, errno);
     }
   return ret;
 #else
