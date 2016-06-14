@@ -196,7 +196,7 @@ static int discover_daemon(int argc, char *argv[])
           sockfd = discover_openlistener();
           if (sockfd < 0)
             {
-                nerr("Failed to create socket\n");
+                nerr("ERROR: Failed to create socket\n");
                 break;
             }
         }
@@ -210,7 +210,7 @@ static int discover_daemon(int argc, char *argv[])
         {
           /* On errors (other EINTR), close the socket and try again */
 
-          nerr("recv failed: %d\n", errno);
+          nerr("ERROR: recv failed: %d\n", errno);
           if (errno != EINTR)
             {
               close(sockfd);
@@ -224,7 +224,7 @@ static int discover_daemon(int argc, char *argv[])
           continue;
         }
 
-      nerr("Received discover from %08lx'\n", srcaddr.sin_addr.s_addr);
+      ninfo("Received discover from %08lx'\n", srcaddr.sin_addr.s_addr);
 
       discover_respond(&srcaddr.sin_addr.s_addr);
     }
@@ -239,13 +239,13 @@ static inline int discover_parse(request_t packet)
 
   if (packet[0] != DISCOVER_PROTO_ID)
     {
-      nerr("Wrong protocol id: %d\n", packet[0]);
+      nerr("ERROR: Wrong protocol id: %d\n", packet[0]);
       return ERROR;
     }
 
   if (packet[1] != DISCOVER_REQUEST)
     {
-      nerr("Wrong command: %d\n", packet[1]);
+      nerr("ERROR: Wrong command: %d\n", packet[1]);
       return ERROR;
     }
 
@@ -256,7 +256,7 @@ static inline int discover_parse(request_t packet)
 
       if ((chk & 0xff) != packet[3])
         {
-          nerr("Checksum does not match: %d\n", packet[3]);
+          nerr("ERROR: Checksum does not match: %d\n", packet[3]);
           return ERROR;
         }
       else
@@ -276,7 +276,7 @@ static inline int discover_respond(in_addr_t *ipaddr)
   sockfd = discover_openresponder();
   if (sockfd < 0)
     {
-      nerr("discover_openresponder failed\n");
+      nerr("ERROR: discover_openresponder failed\n");
       return ERROR;
     }
 
@@ -291,7 +291,7 @@ static inline int discover_respond(in_addr_t *ipaddr)
                (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
     {
-      nerr("Could not send discovery response: %d\n", errno);
+      nerr("ERROR: Could not send discovery response: %d\n", errno);
     }
 
   close(sockfd);
@@ -311,7 +311,7 @@ static inline int discover_socket()
   sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
-      nerr("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -322,7 +322,7 @@ static inline int discover_socket()
   ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int));
   if (ret < 0)
     {
-      nerr("setsockopt SO_REUSEADDR failed: %d\n", errno);
+      nerr("ERROR: setsockopt SO_REUSEADDR failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -333,7 +333,7 @@ static inline int discover_socket()
   ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (void*)&optval, sizeof(int));
   if (ret < 0)
     {
-      nerr("setsockopt SO_BROADCAST failed: %d\n", errno);
+      nerr("ERROR: setsockopt SO_BROADCAST failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -354,7 +354,7 @@ static inline int discover_openlistener()
   sockfd = discover_socket();
   if (sockfd < 0)
     {
-      nerr("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -364,7 +364,7 @@ static inline int discover_openlistener()
   ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
   if (ret < 0)
     {
-      nerr("setsockopt SIOCGIFADDR failed: %d\n", errno);
+      nerr("ERROR: setsockopt SIOCGIFADDR failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -382,8 +382,8 @@ static inline int discover_openlistener()
   ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
    {
-     nerr("bind failed, port=%d addr=%08lx: %d\n",
-           addr.sin_port, (long)addr.sin_addr.s_addr, errno);
+     nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
+          addr.sin_port, (long)addr.sin_addr.s_addr, errno);
      close(sockfd);
      return ERROR;
    }
@@ -402,7 +402,7 @@ static inline int discover_openresponder(void)
   sockfd = discover_socket();
   if (sockfd < 0)
     {
-      nerr("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -415,8 +415,8 @@ static inline int discover_openresponder(void)
   ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
    {
-     nerr("bind failed, port=%d addr=%08lx: %d\n",
-           addr.sin_port, (long)addr.sin_addr.s_addr, errno);
+     nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
+          addr.sin_port, (long)addr.sin_addr.s_addr, errno);
      close(sockfd);
      return ERROR;
    }
@@ -457,7 +457,7 @@ int discover_start(struct discover_info_s *info)
   if (pid < 0)
     {
       int errval = errno;
-      nerr("Failed to start the discover daemon: %d\n", errval);
+      nerr("ERROR: Failed to start the discover daemon: %d\n", errval);
       return -errval;
     }
 

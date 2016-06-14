@@ -111,7 +111,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
 
   if (!FTPC_HAS_PASV(session))
   {
-    nerr("Host doesn't support passive mode\n");
+    nwarn("WARNING: Host doesn't support passive mode\n");
     return ERROR;
   }
 
@@ -143,7 +143,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
                  &tmpap[3], &tmpap[4], &tmpap[5]);
   if (nscan != 6)
     {
-      nerr("Error parsing PASV reply: '%s'\n", session->reply);
+      nwarn("WARNING: Error parsing PASV reply: '%s'\n", session->reply);
       return ERROR;
     }
 
@@ -255,7 +255,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 
   if (!ftpc_connected(session))
     {
-      nerr("Not connected\n");
+      nerr("ERROR: Not connected\n");
       goto errout;
     }
 
@@ -264,7 +264,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
   ret = ftpc_sockinit(&session->data);
   if (ret != OK)
     {
-      nerr("ftpc_sockinit() failed: %d\n", errno);
+      nerr("ERROR: ftpc_sockinit() failed: %d\n", errno);
       goto errout;
     }
 
@@ -281,7 +281,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftp_pasvmode(session, addrport);
       if (ret != OK)
         {
-          nerr("ftp_pasvmode() failed: %d\n", errno);
+          nerr("ERROR: ftp_pasvmode() failed: %d\n", errno);
           goto errout_with_data;
         }
 
@@ -296,7 +296,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftpc_sockconnect(&session->data, &addr);
       if (ret < 0)
         {
-          nerr("ftpc_sockconnect() failed: %d\n", errno);
+          nerr("ERROR: ftpc_sockconnect() failed: %d\n", errno);
           goto errout_with_data;
         }
     }
@@ -316,7 +316,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
                      paddr[3], pport[0], pport[1]);
       if (ret < 0)
         {
-          nerr("ftpc_cmd() failed: %d\n", errno);
+          nerr("ERROR: ftpc_cmd() failed: %d\n", errno);
           goto errout_with_data;
         }
     }
@@ -475,7 +475,7 @@ void ftpc_timeout(int argc, uint32_t arg1, ...)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)arg1;
 
-  nllerr("Timeout!\n");
+  nllerr("ERROR: Timeout!\n");
   DEBUGASSERT(argc == 1 && session);
   kill(session->pid, CONFIG_FTP_SIGNAL);
 }

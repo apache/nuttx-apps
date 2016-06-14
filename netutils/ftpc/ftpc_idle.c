@@ -91,7 +91,7 @@ int ftpc_idle(SESSION handle, unsigned int idletime)
 
   if (!FTPC_HAS_IDLE(session))
   {
-    nerr("Server does not support SITE IDLE\n");
+    nwarn("WARNING: Server does not support SITE IDLE\n");
     return ERROR;
   }
 
@@ -114,7 +114,7 @@ int ftpc_idle(SESSION handle, unsigned int idletime)
     {
       /* Server does not support SITE IDLE */
 
-      nerr("Server does not support SITE IDLE\n");
+      nwarn("WARNING: Server does not support SITE IDLE\n");
       FTPC_CLR_IDLE(session);
     }
 

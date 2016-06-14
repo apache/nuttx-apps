@@ -495,7 +495,8 @@ static inline bool dhcpd_parseoptions(void)
     {
       /* Bad magic number... skip g_state.ds_outpacket */
 
-      nerr("Bad magic: %d,%d,%d,%d\n", ptr[0], ptr[1], ptr[2], ptr[3]);
+      nerr("ERROR: Bad magic: %d,%d,%d,%d\n",
+           ptr[0], ptr[1], ptr[2], ptr[3]);
       return false;
     }
 
@@ -798,7 +799,7 @@ static inline int dhcpd_socket(void)
   sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
-      nerr("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -809,7 +810,7 @@ static inline int dhcpd_socket(void)
   ret = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int));
   if (ret < 0)
     {
-      nerr("setsockopt SO_REUSEADDR failed: %d\n", errno);
+      nerr("ERROR: setsockopt SO_REUSEADDR failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -820,7 +821,7 @@ static inline int dhcpd_socket(void)
   ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (void*)&optval, sizeof(int));
   if (ret < 0)
     {
-      nerr("setsockopt SO_BROADCAST failed: %d\n", errno);
+      nerr("ERROR: setsockopt SO_BROADCAST failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -847,7 +848,7 @@ static inline int dhcpd_openresponder(void)
   sockfd = dhcpd_socket();
   if (sockfd < 0)
     {
-      nerr("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -860,8 +861,8 @@ static inline int dhcpd_openresponder(void)
   ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
    {
-     nerr("bind failed, port=%d addr=%08lx: %d\n",
-           addr.sin_port, (long)addr.sin_addr.s_addr, errno);
+     nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
+          addr.sin_port, (long)addr.sin_addr.s_addr, errno);
      close(sockfd);
      return ERROR;
    }
@@ -1159,7 +1160,7 @@ static inline int dhcpd_discover(void)
     {
       /* Nope... return failure */
 
-      nerr("Failed to get IP address\n");
+      nerr("ERROR: Failed to get IP address\n");
       return ERROR;
     }
 
@@ -1167,7 +1168,7 @@ static inline int dhcpd_discover(void)
 
   if (!dhcpd_setlease(g_state.ds_inpacket.chaddr, ipaddr, CONFIG_NETUTILS_DHCPD_OFFERTIME))
     {
-      nerr("Failed to set lease\n");
+      nerr("ERROR: Failed to set lease\n");
       return ERROR;
     }
 
@@ -1380,7 +1381,7 @@ static inline int dhcpd_openlistener(void)
   sockfd = dhcpd_socket();
   if (sockfd < 0)
     {
-      nerr("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -1390,7 +1391,7 @@ static inline int dhcpd_openlistener(void)
   ret = ioctl(sockfd, SIOCGIFADDR, (unsigned long)&req);
   if (ret < 0)
     {
-      nerr("setsockopt SIOCGIFADDR failed: %d\n", errno);
+      nerr("ERROR: setsockopt SIOCGIFADDR failed: %d\n", errno);
       close(sockfd);
       return ERROR;
     }
@@ -1409,7 +1410,7 @@ static inline int dhcpd_openlistener(void)
   ret = bind(sockfd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
   if (ret < 0)
     {
-      nerr("bind failed, port=%d addr=%08lx: %d\n",
+      nerr("ERROR: bind failed, port=%d addr=%08lx: %d\n",
            addr.sin_port, (long)addr.sin_addr.s_addr, errno);
       close(sockfd);
       return ERROR;
@@ -1449,7 +1450,7 @@ int dhcpd_run(void)
           sockfd = dhcpd_openlistener();
           if (sockfd < 0)
             {
-                nerr("Failed to create socket\n");
+                nerr("ERROR: Failed to create socket\n");
                 break;
             }
         }
@@ -1461,7 +1462,7 @@ int dhcpd_run(void)
         {
           /* On errors (other EINTR), close the socket and try again */
 
-          nerr("recv failed: %d\n", errno);
+          nerr("ERROR: recv failed: %d\n", errno);
           if (errno != EINTR)
             {
               close(sockfd);
@@ -1476,7 +1477,7 @@ int dhcpd_run(void)
         {
           /* Failed to parse the message options */
 
-          nerr("No msg type\n");
+          nerr("ERROR: No msg type\n");
           continue;
         }
 
@@ -1512,7 +1513,8 @@ int dhcpd_run(void)
 
           case DHCPINFORM: /* Not supported */
           default:
-            nerr("Unsupported message type: %d\n", g_state.ds_optmsgtype);
+            nerr("ERROR: Unsupported message type: %d\n",
+                 g_state.ds_optmsgtype);
             break;
         }
     }

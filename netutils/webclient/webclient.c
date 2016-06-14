@@ -396,12 +396,13 @@ static int wget_gethostip(FAR char *hostname, in_addr_t *ipv4addr)
   he = gethostbyname(hostname);
   if (he == NULL)
     {
-      nerr("gethostbyname failed: %d\n", h_errno);
+      nwarn("WARNING: gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
   else if (he->h_addrtype != AF_INET)
     {
-      nerr("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      nwarn("WARNING: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
       return -ENOEXEC;
     }
 
@@ -465,7 +466,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
                             ws.filename, CONFIG_WEBCLIENT_MAXFILENAME);
   if (ret != 0)
     {
-      nerr("ERROR: Malformed HTTP URL: %s\n", url);
+      nwarn("WARNING: Malformed HTTP URL: %s\n", url);
       set_errno(-ret);
       return ERROR;
     }
@@ -516,7 +517,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* Could not resolve host (or malformed IP address) */
 
-          nerr("ERROR: Failed to resolve hostname\n");
+          nwarn("WARNING: Failed to resolve hostname\n");
           ret = -EHOSTUNREACH;
           goto errout_with_errno;
         }

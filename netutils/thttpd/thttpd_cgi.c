@@ -378,7 +378,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
             {
               if (errno != EINTR)
                 {
-                  nllerr("read failed: %d\n", errno);
+                  nllerr("ERROR: read failed: %d\n", errno);
                   return 1;
                 }
             }
@@ -391,7 +391,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
           nllinfo("nbytes_written: %d\n", nbytes_written);
           if (nbytes_written != nbytes_read)
             {
-              nllerr("httpd_write failed\n");
+              nllerr("ERROR: httpd_write failed\n");
               return 1;
             }
           cgi_dumpbuffer("Sent to CGI:", cc->inbuf.buffer, nbytes_written);
@@ -469,7 +469,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                     {
                       if (errno != EAGAIN)
                         {
-                          nllerr("read: %d\n", errno);
+                          nllerr("ERROR: read: %d\n", errno);
                         }
                       return 1;
                     }
@@ -651,7 +651,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                     {
                       if (errno != EAGAIN)
                         {
-                          nllerr("read: %d\n", errno);
+                          nllerr("ERROR: read: %d\n", errno);
                         }
                       return 1;
                     }
@@ -1034,13 +1034,14 @@ int cgi(httpd_conn *hc)
                           (main_t)cgi_child, (FAR char * const *)argv);
       if (child < 0)
         {
-          nerr("task_create: %d\n", errno);
+          nerr("ERROR: task_create: %d\n", errno);
           INTERNALERROR("task_create");
-          httpd_send_err(hc, 500, err500title, "", err500form, hc->encodedurl);
+          httpd_send_err(hc, 500, err500title, "", err500form,
+                         hc->encodedurl);
           goto errout_with_sem;
         }
 
-      nerr("Started CGI task %d for file '%s'\n", child, hc->expnfilename);
+      ninfo("Started CGI task %d for file '%s'\n", child, hc->expnfilename);
 
       /* Wait for the CGI threads to become initialized */
 
@@ -1052,7 +1053,8 @@ int cgi(httpd_conn *hc)
   else
     {
       NOTIMPLEMENTED("CGI");
-      httpd_send_err(hc, 501, err501title, "", err501form, httpd_method_str(hc->method));
+      httpd_send_err(hc, 501, err501title, "", err501form,
+                     httpd_method_str(hc->method));
       goto errout_with_sem;
     }
 
@@ -1072,10 +1074,10 @@ static void cgi_kill(ClientData client_data, struct timeval *nowP)
 
   /* task_delete() is a very evil API.  It can leave memory stranded! */
 
-  nllerr("Killing CGI child: %d\n", pid);
+  nllinfo("Killing CGI child: %d\n", pid);
   if (task_delete(pid) != 0)
     {
-      nllerr("task_delete() failed: %d\n", errno);
+      nllerr("ERROR: task_delete() failed: %d\n", errno);
     }
 }
 #endif

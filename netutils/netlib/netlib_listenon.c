@@ -87,7 +87,7 @@ int netlib_listenon(uint16_t portno)
   listensd = socket(PF_INET, SOCK_STREAM, 0);
   if (listensd < 0)
     {
-      nerr("socket failure: %d\n", errno);
+      nerr("ERROR: socket failure: %d\n", errno);
       return ERROR;
     }
 
@@ -97,7 +97,7 @@ int netlib_listenon(uint16_t portno)
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      nerr("setsockopt SO_REUSEADDR failure: %d\n", errno);
+      nerr("ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_socket;
     }
 #endif
@@ -110,7 +110,7 @@ int netlib_listenon(uint16_t portno)
 
   if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
-      nerr("bind failure: %d\n", errno);
+      nerr("ERROR: bind failure: %d\n", errno);
       goto errout_with_socket;
     }
 
@@ -118,7 +118,7 @@ int netlib_listenon(uint16_t portno)
 
   if (listen(listensd, 5) < 0)
     {
-      nerr("listen failure %d\n", errno);
+      nerr("ERROR: listen failure %d\n", errno);
       goto errout_with_socket;
     }
 

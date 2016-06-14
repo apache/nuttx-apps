@@ -182,20 +182,20 @@ static int lesp_set_baudrate(int baudrate)
 
     if (ioctl(g_lesp_state.fd,TCGETS,(unsigned long)&term) < 0)
       {
-        nerr("TCGETS failed.\n");
+        nerr("ERROR: TCGETS failed.\n");
         return -1;
       }
 
     if ((cfsetispeed(&term, baudrate) < 0) ||
         (cfsetospeed(&term, baudrate) < 0))
       {
-        nerr("Connot set baudrate %0x08X\n",baudrate);
+        nerr("ERROR: Connot set baudrate %0x08X\n",baudrate);
         return -1;
       }
 
     if (ioctl(g_lesp_state.fd,TCSETS,(unsigned long)&term) < 0)
       {
-        nerr("TCSETS failed.\n");
+        nerr("ERROR: TCSETS failed.\n");
         return -1;
       }
 
@@ -233,7 +233,7 @@ static lesp_socket_t *get_sock(int sockfd)
 
   if ((g_lesp_state.sockets[sockfd].flags & FLAGS_SOCK_USED) == 0)
     {
-      nerr("Connection id %d not Created!\n", sockfd);
+      nerr("ERROR: Connection id %d not Created!\n", sockfd);
       return NULL;
     }
 
@@ -271,12 +271,12 @@ static int lesp_low_level_read(uint8_t* buf, int size)
   if (ret < 0)
     {
       int errcode = errno;
-      nerr("worker read Error %d (errno %d)\n", ret, errcode);
+      nerr("ERROR: worker read Error %d (errno %d)\n", ret, errcode);
       UNUSED(errcode);
     }
   else if ((fds[0].revents & POLLERR) && (fds[0].revents & POLLHUP))
     {
-      nerr("worker poll read Error %d\n", ret);
+      nerr("ERROR: worker poll read Error %d\n", ret);
       ret = -1;
     }
   else if (fds[0].revents & POLLIN)
@@ -790,7 +790,7 @@ static void *lesp_worker(void *args)
 
       if (ret < 0)
         {
-          nerr("worker read data Error %d\n", ret);
+          nerr("ERROR: worker read data Error %d\n", ret);
         }
       else if (ret > 0)
         {
@@ -850,7 +850,7 @@ static inline int lesp_create_worker(int priority)
 
   if (ret < 0)
     {
-      nerr("Cannot Set scheduler parameter thread (%d)\n", ret);
+      nerr("ERROR: Cannot Set scheduler parameter thread (%d)\n", ret);
     }
   else
     {
@@ -862,7 +862,7 @@ static inline int lesp_create_worker(int priority)
         }
       else
         {
-          nerr("Cannot Get/Set scheduler parameter thread (%d)\n", ret);
+          nerr("ERROR: Cannot Get/Set scheduler parameter thread (%d)\n", ret);
         }
 
       g_lesp_state.worker.running = true;
@@ -871,13 +871,13 @@ static inline int lesp_create_worker(int priority)
                            (ret < 0)?NULL:&thread_attr, lesp_worker, NULL);
       if (ret < 0)
         {
-          nerr("Cannot Create thread return (%d)\n", ret);
+          nerr("ERROR: Cannot Create thread return (%d)\n", ret);
           g_lesp_state.worker.running = false;
         }
 
       if (pthread_attr_destroy(&thread_attr) < 0)
         {
-          nerr("Cannot destroy thread attribute (%d)\n", ret);
+          nerr("ERROR: Cannot destroy thread attribute (%d)\n", ret);
         }
     }
 
@@ -919,14 +919,14 @@ int lesp_initialize(void)
 
   if (g_lesp_state.fd < 0)
     {
-      nerr("Cannot open %s\n", CONFIG_NETUTILS_ESP8266_DEV_PATH);
+      nerr("ERROR: Cannot open %s\n", CONFIG_NETUTILS_ESP8266_DEV_PATH);
       ret = -1;
     }
 
 #ifdef CONFIG_SERIAL_TERMIOS
   if (ret >= 0 && lesp_set_baudrate(CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
     {
-      nerr("Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
+      nerr("ERROR: Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
       ret = -1;
     }
 #endif
@@ -1020,7 +1020,7 @@ int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s)
 
   if (! g_lesp_state.is_initialized)
     {
-      nerr("ESP8266 not initialized; can't run manual connect\n");
+      nerr("ERROR: ESP8266 not initialized; can't run manual connect\n");
       ret = -1;
     }
   else
@@ -1167,7 +1167,7 @@ int lesp_list_access_points(lesp_cb_t cb)
       ret = lesp_parse_cwlap_ans_line(g_lesp_state.bufans,&ap);
       if (ret < 0)
         {
-          nerr("Line badly formed.");
+          nerr("ERROR: Line badly formed.");
         }
 
       cb(&ap);
@@ -1210,7 +1210,7 @@ int lesp_socket(int domain, int type, int protocol)
 
   if ((domain != PF_INET) && (type != SOCK_STREAM) && (IPPROTO_TCP))
     {
-      nerr("Not Implemented!\n");
+      nerr("ERROR: Not Implemented!\n");
       return -1;
     }
 
@@ -1272,7 +1272,7 @@ int lesp_closesocket(int sockfd)
 
 int lesp_bind(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
@@ -1322,13 +1322,13 @@ int lesp_connect(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
 
 int lesp_listen(int sockfd, int backlog)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
@@ -1385,7 +1385,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
   if (ret < 0)
     {
-      nerr("Cannot send in socket %d, %d bytes\n", sockfd, len);
+      nerr("ERROR: Cannot send in socket %d, %d bytes\n", sockfd, len);
       return -1;
     }
 
@@ -1475,28 +1475,28 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
 int lesp_setsockopt(int sockfd, int level, int option,
                     FAR const void *value, socklen_t value_len)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_getsockopt(int sockfd, int level, int option, FAR void *value,
                     FAR socklen_t *value_len)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_gethostbyname(char *hostname, uint16_t usNameLen,
                        unsigned long *out_ip_addr)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_mdnsadvertiser(uint16_t mdnsEnabled, char *deviceServiceName,
                         uint16_t deviceServiceNameLength)
 {
-  nerr("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 

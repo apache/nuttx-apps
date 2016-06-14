@@ -334,7 +334,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
       ret = ftpc_sockaccept(&session->data);
       if (ret != OK)
         {
-          nerr("Data connection not accepted\n");
+          nerr("ERROR: Data connection not accepted\n");
           return ERROR;
         }
     }
@@ -400,7 +400,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   abslpath = ftpc_abslpath(session, lname);
   if (!abslpath)
     {
-      nerr("ftpc_abslpath(%s) failed: %d\n", errno);
+      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", errno);
       goto errout;
     }
 
@@ -409,7 +409,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   ret = stat(abslpath, &statbuf);
   if (ret != OK)
     {
-      nerr("stat(%s) failed: %d\n", errno);
+      nwarn("WARNING: stat(%s) failed: %d\n", errno);
       goto errout_with_abspath;
     }
 
@@ -417,7 +417,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
 
   if (S_ISDIR(statbuf.st_mode))
     {
-      nerr("%s is a directory\n", abslpath);
+      nwarn("WARNING: %s is a directory\n", abslpath);
       goto errout_with_abspath;
     }
 
@@ -426,7 +426,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   finstream = fopen(abslpath, "r");
   if (!finstream)
     {
-      nerr("fopen() failed: %d\n", errno);
+      nwarn("WARNING: fopen() failed: %d\n", errno);
       goto errout_with_abspath;
     }
 
@@ -442,7 +442,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
       session->offset = ftpc_filesize(session, rname);
       if (session->offset == (off_t)ERROR)
         {
-          nerr("Failed to get size of remote file: %s\n", rname);
+          nwarn("WARNING: Failed to get size of remote file: %s\n", rname);
           goto errout_with_instream;
         }
       else
@@ -454,7 +454,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
           ret = fseek(finstream, session->offset, SEEK_SET);
           if (ret != OK)
             {
-              nerr("fseek failed: %d\n", errno);
+              nerr("ERROR: fseek failed: %d\n", errno);
               goto errout_with_instream;
             }
         }

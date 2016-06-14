@@ -136,7 +136,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
 
   if (!ftpc_sockconnected(&session->cmd))
   {
-    nerr("Cmd channel si not connected\n");
+    nwarn("WARNING: Cmd channel is not connected\n");
     goto errout;
   }
 
@@ -164,7 +164,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
 
       if (ret < 0)
         {
-          nerr("Error sending cmd %s: %d\n", cmd, errno);
+          nerr("ERROR: Error sending cmd %s: %d\n", cmd, errno);
           goto errout;
        }
 
@@ -173,7 +173,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
       ret = fptc_getreply(session);
       if (ret < 0)
         {
-          nerr("Error getting reply: %d\n", errno);
+          nerr("ERROR: Error getting reply: %d\n", errno);
           goto errout;
        }
 
@@ -183,7 +183,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
         {
           /* Server is closing the control connection. */
 
-          nerr("Server closed control connection\n");
+          nwarn("WARNING: Server closed control connection\n");
 
           /* If we were previously logged in and this is not a QUIT commnad
            * then attempt to automatically reconnect to the server.
@@ -196,7 +196,7 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
 
               if (reconnect)
                 {
-                  nerr("Reconnect failed\n");
+                  nwarn("WARNING: Reconnect failed\n");
                   goto errout;
                 }
               else
@@ -205,12 +205,12 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
                    * continue the loop and try to send the command again.
                    */
 
-                  nerr("Reconnecting...\n");
+                  ninfo("Reconnecting...\n");
                   reconnect = true;
                   ret = ftpc_restore();
                   if (ret < 0)
                     {
-                      nerr("Failed to restore the connection");
+                      nwarn("WARNING: Failed to restore the connection");
                       goto errout;
                     }
                   continue;

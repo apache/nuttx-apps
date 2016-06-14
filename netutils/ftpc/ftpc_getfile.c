@@ -111,7 +111,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
       ret = ftpc_cmd(session, "REST %ld", offset);
       if (ret < 0)
         {
-          nerr("REST command failed: %d\n", errno);
+          nwarn("WARNING: REST command failed: %d\n", errno);
           return ERROR;
         }
 
@@ -143,7 +143,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
   ret = ftpc_cmd(session, "RETR %s", path);
   if (ret < 0)
     {
-      nerr("RETR command failed: %d\n", errno);
+      nwarn("WARNING: RETR command failed: %d\n", errno);
       return ERROR;
     }
 
@@ -157,7 +157,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
       ret = ftpc_sockaccept(&session->data);
       if (ret != OK)
         {
-          nerr("Data connection not accepted\n");
+          nerr("ERROR: Data connection not accepted\n");
         }
     }
 
@@ -262,7 +262,7 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
   abslpath = ftpc_abslpath(session, lname);
   if (!abslpath)
     {
-      nerr("ftpc_abslpath(%s) failed: %d\n", errno);
+      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", errno);
       goto errout;
     }
 
@@ -275,7 +275,7 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
 
       if (S_ISDIR(statbuf.st_mode))
         {
-          nerr("'%s' is a directory\n", abslpath);
+          nwarn("WARNING: '%s' is a directory\n", abslpath);
           goto errout_with_abspath;
         }
     }
@@ -285,7 +285,7 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
 #ifdef S_IWRITE
   if (!(statbuf.st_mode & S_IWRITE))
     {
-      nerr("'%s' permission denied\n", abslpath);
+      nwarn("WARNING: '%s' permission denied\n", abslpath);
       goto errout_with_abspath;
     }
 #endif
@@ -308,14 +308,14 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
   ret = ftpc_recvinit(session, rname, xfrmode, offset);
   if (ret != OK)
     {
-      nerr("ftpc_recvinit failed\n");
+      nerr("ERROR: ftpc_recvinit failed\n");
       goto errout_with_abspath;
     }
 
   loutstream = fopen(abslpath, (offset > 0 || (how == FTPC_GET_APPEND)) ? "a" : "w");
   if (!loutstream)
     {
-      nerr("fopen failed: %d\n", errno);
+      nerr("ERROR: fopen failed: %d\n", errno);
       goto errout_with_abspath;
     }
 
@@ -326,7 +326,7 @@ int ftpc_getfile(SESSION handle, FAR const char *rname, FAR const char *lname,
       ret = fseek(loutstream, offset, SEEK_SET);
       if (ret != OK)
         {
-          nerr("fseek failed: %d\n", errno);
+          nerr("ERROR: fseek failed: %d\n", errno);
           goto errout_with_outstream;
         }
     }
