@@ -54,25 +54,10 @@
  * constructors.
  */
 
-#ifndef CONFIG_DEBUG_FEATURES
-#  undef CONFIG_DEBUG_CXX
-#endif
-
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxerr              err
-#  define cxxllerr            llerr
-#  ifdef CONFIG_DEBUG_INFO
-#    define cxxinfo           info
-#    define cxxllinfo         llinfo
-#  else
-#    define cxxinfo(x...)
-#    define cxxllinfo(x...)
-#  endif
+#  define cxxinfo        info
 #else
-#  define cxxerr(x...)
-#  define cxxllerr(x...)
 #  define cxxinfo(x...)
-#  define cxxllinfo(x...)
 #endif
 
 /****************************************************************************
@@ -100,10 +85,6 @@ extern uint32_t _stext;
 extern uint32_t _etext;
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -127,15 +108,15 @@ void up_cxxinitialize(void)
 {
   initializer_t *initp;
 
-  cxxerr("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
-         &_sinit, &_einit, &_stext, &_etext);
+  cxxinfo("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
+          &_sinit, &_einit, &_stext, &_etext);
 
   /* Visit each entry in the initialization table */
 
   for (initp = &_sinit; initp != &_einit; initp++)
     {
       initializer_t initializer = *initp;
-      cxxerr("initp: %p initializer: %p\n", initp, initializer);
+      cxxinfo("initp: %p initializer: %p\n", initp, initializer);
 
       /* Make sure that the address is non-NULL and lies in the text region
        * defined by the linker script.  Some toolchains may put NULL values
@@ -145,7 +126,7 @@ void up_cxxinitialize(void)
       if ((void *)initializer > (void *)&_stext &&
           (void *)initializer < (void *)&_etext)
         {
-          cxxerr("Calling %p\n", initializer);
+          cxxinfo("Calling %p\n", initializer);
           initializer();
         }
     }
