@@ -125,7 +125,7 @@ static int telnetd_daemon(int argc, char *argv[])
   if (listensd < 0)
     {
       int errval = errno;
-      nerr("socket failure: %d\n", errval);
+      nerr("ERROR: socket failure: %d\n", errval);
       return -errval;
     }
 
@@ -135,7 +135,7 @@ static int telnetd_daemon(int argc, char *argv[])
   optval = 1;
   if (setsockopt(listensd, SOL_SOCKET, SO_REUSEADDR, (void*)&optval, sizeof(int)) < 0)
     {
-      nerr("setsockopt SO_REUSEADDR failure: %d\n", errno);
+      nerr("ERROR: setsockopt SO_REUSEADDR failure: %d\n", errno);
       goto errout_with_socket;
     }
 #endif
@@ -148,7 +148,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
   if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
     {
-      nerr("bind failure: %d\n", errno);
+      nerr("ERROR: bind failure: %d\n", errno);
       goto errout_with_socket;
     }
 
@@ -156,7 +156,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
   if (listen(listensd, 5) < 0)
     {
-      nerr("listen failure %d\n", errno);
+      nerr("ERROR: listen failure %d\n", errno);
       goto errout_with_socket;
     }
 
@@ -181,7 +181,7 @@ static int telnetd_daemon(int argc, char *argv[])
       acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
       if (acceptsd < 0)
         {
-          nllerr("accept failed: %d\n", errno);
+          nllerr("ERROR: accept failed: %d\n", errno);
           goto errout_with_socket;
         }
 
@@ -192,7 +192,7 @@ static int telnetd_daemon(int argc, char *argv[])
       ling.l_linger = 30;     /* timeout is seconds */
       if (setsockopt(acceptsd, SOL_SOCKET, SO_LINGER, &ling, sizeof(struct linger)) < 0)
         {
-          nllerr("setsockopt failed: %d\n", errno);
+          nllerr("ERROR: setsockopt failed: %d\n", errno);
           goto errout_with_acceptsd;
         }
 #endif
@@ -203,7 +203,7 @@ static int telnetd_daemon(int argc, char *argv[])
       devpath = telnetd_driver(acceptsd, daemon);
       if (devpath == NULL)
         {
-          nllerr("telnetd_driver failed\n");
+          nllerr("ERROR: telnetd_driver failed\n");
           goto errout_with_acceptsd;
         }
 
@@ -213,7 +213,7 @@ static int telnetd_daemon(int argc, char *argv[])
       drvrfd = open(devpath, O_RDWR);
       if (drvrfd < 0)
         {
-          nllerr("Failed to open %s: %d\n", devpath, errno);
+          nllerr("ERROR: Failed to open %s: %d\n", devpath, errno);
           goto errout_with_acceptsd;
         }
 
@@ -243,7 +243,7 @@ static int telnetd_daemon(int argc, char *argv[])
                          daemon->entry, NULL);
       if (pid < 0)
         {
-          nllerr("Failed start the telnet session: %d\n", errno);
+          nllerr("ERROR: Failed start the telnet session: %d\n", errno);
           goto errout_with_acceptsd;
         }
 
@@ -325,7 +325,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
     {
       int errval = errno;
       free(daemon);
-      nerr("Failed to start the telnet daemon: %d\n", errval);
+      nerr("ERROR: Failed to start the telnet daemon: %d\n", errval);
       return -errval;
     }
 

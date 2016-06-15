@@ -92,7 +92,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
       if (!sur->dma2d)
         {
-          err("up_dma2dcreatelayer failed\n");
+          err("ERROR: up_dma2dcreatelayer failed\n");
           free(sur);
           sur = NULL;
         }
@@ -102,7 +102,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
           if (ret != OK)
             {
-              err("getvideoinfo() failed\n");
+              err("ERROR: getvideoinfo() failed\n");
             }
           else
             {
@@ -110,7 +110,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
               if (ret != OK)
                 {
-                  err("getplaneinfo() failed\n");
+                  err("ERROR: getplaneinfo() failed\n");
                 }
             }
 
@@ -419,7 +419,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK)
     {
-      err("setalpha() failed\n");
+      err("ERROR: setalpha() failed\n");
       _exit(1);
     }
 
@@ -429,7 +429,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK  || alpha != 127)
     {
-      err("getalpha() failed\n");
+      err("ERROR: getalpha() failed\n");
       _exit(1);
     }
 
@@ -439,7 +439,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK)
     {
-      err("setblendmode() failed\n");
+      err("ERROR: setblendmode() failed\n");
       _exit(1);
     }
 
@@ -449,7 +449,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK  || blendmode != DMA2D_BLEND_ALPHA)
     {
-      err("getblendmode() failed\n");
+      err("ERROR: getblendmode() failed\n");
       _exit(1);
     }
 
@@ -475,7 +475,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ltdc getclut() failed\n");
+          err("ERROR: ltdc getclut() failed\n");
           _exit(1);
         }
 
@@ -499,7 +499,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("getclut() failed\n");
+          err("ERROR: getclut() failed\n");
           _exit(1);
         }
 
@@ -515,7 +515,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("setclut() failed\n");
+          err("ERROR: setclut() failed\n");
           _exit(1);
         }
 
@@ -523,7 +523,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("getclut() failed\n");
+          err("ERROR: getclut() failed\n");
           _exit(1);
         }
 
@@ -538,7 +538,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->red, cmap->green, 256))
 #endif
         {
-          err("unexpected clut content\n");
+          err("ERROR: unexpected clut content\n");
           _exit(1);
         }
 
@@ -548,7 +548,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ltdc getclut() failed\n");
+          err("ERROR: ltdc getclut() failed\n");
           _exit(1);
         }
 
@@ -563,7 +563,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->red, cmap->green, 256))
 #endif
         {
-          err("unexpected clut content\n");
+          err("ERROR: unexpected clut content\n");
           _exit(1);
         }
 
@@ -575,7 +575,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ltdc setclut() failed\n");
+          err("ERROR: ltdc setclut() failed\n");
           _exit(1);
         }
 
@@ -585,7 +585,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("getclut() failed\n");
+          err("ERROR: getclut() failed\n");
           _exit(1);
         }
 
@@ -600,7 +600,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->blue, cmapltdc->blue, LTDC_EXAMPLE_NCOLORS))
 #endif
         {
-          err("clut of ltdc layer and related dma2d layer are different\n");
+          err("ERROR: clut of ltdc layer and related dma2d layer are different\n");
           _exit(1);
         }
       else
@@ -617,11 +617,11 @@ static void ltdc_dma2d_interface(void)
 
       if (ret == OK)
         {
-          err("setclut() failed, expected error if first color exceeds 256\n");
+          err("ERROR: setclut() failed, expected error if first color exceeds 256\n");
         }
       else
         {
-          err("setclut() Ok, unsupported cmap detected\n");
+          info("setclut() Ok, unsupported cmap detected\n");
         }
 
       /* Check expected getclut error */
@@ -630,11 +630,11 @@ static void ltdc_dma2d_interface(void)
 
       if (ret == OK)
         {
-          err("getclut() failed, expected error if first color exceeds 256\n");
+          err("ERROR: getclut() failed, expected error if first color exceeds 256\n");
         }
       else
         {
-          err("getclut() Ok, unsupported cmap detected\n");
+          info("getclut() Ok, unsupported cmap detected\n");
         }
 
       cmap->first = 0;
@@ -645,7 +645,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ltdc setclut() failed\n");
+          err("ERROR: ltdc setclut() failed\n");
           _exit(1);
         }
 
@@ -672,7 +672,7 @@ static void ltdc_dma2d_fillarea(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -702,11 +702,11 @@ static void ltdc_dma2d_fillarea(void)
 
   if (ret == OK)
     {
-      err("ok, driver detects wrong positioning\n");
+      info("ok, driver detects wrong positioning\n");
     }
   else
     {
-      err("fail, wrong positioning can overflow layer buffer\n");
+      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   info("check if the dma2d driver recognized when positioning overflows the"
@@ -727,11 +727,11 @@ static void ltdc_dma2d_fillarea(void)
 
   if (ret == OK)
     {
-      err("ok, driver detects wrong positioning\n");
+      info("ok, driver detects wrong positioning\n");
     }
   else
     {
-      err("fail, wrong positioning can overflow layer buffer\n");
+      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Flip with non blend */
@@ -832,7 +832,7 @@ static void ltdc_dma2d_blitsimple(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -963,7 +963,7 @@ static void ltdc_dma2d_blitpositioning(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -1227,7 +1227,7 @@ static void ltdc_dma2d_blendsimple(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -1390,7 +1390,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -1404,7 +1404,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
       _exit(1);
     }
 
-  err("create background dma2d surface: %p\n", back);
+  info("create background dma2d surface: %p\n", back);
 
   fore = ltdc_create_dma2d_surface(active->vinfo.xres/2, active->vinfo.yres/2,
                                     active->vinfo.fmt);
@@ -1415,7 +1415,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
       _exit(1);
     }
 
-  err("create foreground dma2d surface: %p\n", fore);
+  info("create foreground dma2d surface: %p\n", fore);
 
   /* Wrong positioning detection */
 
@@ -1424,7 +1424,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
   forearea.xres = fore->vinfo.xres;
   forearea.yres = fore->vinfo.yres;
 
-  err("check if the ltdc driver recognized when positioning overflows the whole"
+  info("check if the ltdc driver recognized when positioning overflows the whole"
       " layer buffer\n");
 
   if (active->layer->blit(active->layer,
@@ -1458,11 +1458,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   if (ret == OK)
     {
-      err("ok, driver detects wrong positioning\n");
+      info("ok, driver detects wrong positioning\n");
     }
   else
     {
-      err("fail, wrong positioning can overflow layer buffer\n");
+      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   info("check if the dma2d driver recognized when positioning overflows the"
@@ -1502,11 +1502,11 @@ static void ltdc_dma2d_blitdynamiclayer(void)
 
   if (ret == OK)
     {
-      err("ok, driver detects wrong positioning\n");
+      info("ok, driver detects wrong positioning\n");
     }
   else
     {
-      err("fail, wrong positioning can overflow layer buffer\n");
+      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Initialize the dma2d fullscreen background layer */
@@ -1662,7 +1662,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif
@@ -1746,11 +1746,11 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   if (ret == OK)
     {
-      err("ok, driver detects wrong positioning\n");
+      info("ok, driver detects wrong positioning\n");
     }
   else
     {
-      err("fail, wrong positioning can overflow layer buffer\n");
+      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   info("check if the dma2d driver recognized when positioning overflows the"
@@ -1806,11 +1806,11 @@ static void ltdc_dma2d_blenddynamiclayer(void)
 
   if (ret == OK)
     {
-      err("ok, driver detects wrong positioning\n");
+      info("ok, driver detects wrong positioning\n");
     }
   else
     {
-      err("fail, wrong positioning can overflow layer buffer\n");
+      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Initialize the dma2d fullscreen background layer */
@@ -1987,7 +1987,7 @@ static void ltdc_dma2d_blitflippositioning(void)
 #ifdef CONFIG_STM32_DMA2D_L8
   if (active->vinfo.fmt == FB_FMT_RGB8 || inactive->vinfo.fmt == FB_FMT_RGB8)
     {
-      err("skipped, output to layer with CLUT pixel format not supported\n");
+      warn("WARNING: skipped, output to layer with CLUT pixel format not supported\n");
       return;
     }
 #endif

@@ -224,7 +224,7 @@ static int tcpecho_server(void)
       return ERROR;
     }
 
-  nerr("start listening on port: %d\n", CONFIG_EXAMPLES_TCPECHO_PORT);
+  ninfo("start listening on port: %d\n", CONFIG_EXAMPLES_TCPECHO_PORT);
 
   ret = listen(listenfd, CONFIG_EXAMPLES_TCPECHO_BACKLOG);
   if (ret < 0)
@@ -253,7 +253,7 @@ static int tcpecho_server(void)
           clilen = sizeof(cliaddr);
           connfd = accept(listenfd, (struct sockaddr*)&cliaddr, &clilen);
 
-          nerr("new client: %s\n", inet_ntoa(cliaddr.sin_addr));
+          ninfo("new client: %s\n", inet_ntoa(cliaddr.sin_addr));
 
           for (i = 1; i < CONFIG_EXAMPLES_TCPECHO_NCONN; i++)
             {
@@ -299,7 +299,7 @@ static int tcpecho_server(void)
                     {
                       /* connection reset by client */
 
-                      nerr("client[%d] aborted connection\n", i);
+                      nwarn("WARNING: client[%d] aborted connection\n", i);
 
                       close(sockfd);
                       client[i].fd = -1;
@@ -315,7 +315,7 @@ static int tcpecho_server(void)
                 {
                   /* connection closed by client */
 
-                  nerr("client[%d] closed connection\n", i);
+                  nwarn("WARNING: client[%d] closed connection\n", i);
 
                   close(sockfd);
                   client[i].fd = -1;
@@ -324,7 +324,7 @@ static int tcpecho_server(void)
                 {
                   if (strcmp(buf, "exit\r\n") == 0)
                     {
-                      nerr("client[%d] closed connection\n", i);
+                      nwarn("WARNING: client[%d] closed connection\n", i);
                       close(sockfd);
                       client[i].fd = -1;
                     }

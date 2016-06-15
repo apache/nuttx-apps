@@ -125,7 +125,7 @@ static void nxtool_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
   ret = nxtk_filltoolbar(hwnd, rect, color);
   if (ret < 0)
     {
-      gerr("nxtk_filltoolbar failed: %d\n", errno);
+      gerr("ERROR: nxtk_filltoolbar failed: %d\n", errno);
     }
 }
 
