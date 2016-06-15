@@ -249,7 +249,7 @@ bool CScaledBitmap::getRun(nxgl_coord_t x, nxgl_coord_t y,
       struct rgbcolor_s color1;
       if (!rowColor(m_rowCache[0], column, color1))
         {
-          gerr("ERROR rowColor failed for the first row\n");
+          gerr("ERROR: rowColor failed for the first row\n");
           return false;
         }
 
@@ -258,7 +258,7 @@ bool CScaledBitmap::getRun(nxgl_coord_t x, nxgl_coord_t y,
       struct rgbcolor_s color2;
       if (!rowColor(m_rowCache[1], column, color2))
         {
-          gerr("ERROR rowColor failed for the second row\n");
+          gerr("ERROR: rowColor failed for the second row\n");
           return false;
         }
 
@@ -389,7 +389,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
 
       if (!m_bitmap->getRun(0, row, bitmapWidth, m_rowCache[1]))
         {
-          gerr("Failed to read bitmap row %d\n", row);
+          gerr("ERROR: Failed to read bitmap row %d\n", row);
           return false;
         }
     }
@@ -408,7 +408,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
 
       if (!m_bitmap->getRun(0, row, bitmapWidth, m_rowCache[0]))
         {
-          gerr("Failed to read bitmap row %d\n", row);
+          gerr("ERROR: Failed to read bitmap row %d\n", row);
           return false;
         }
 
@@ -425,7 +425,7 @@ bool CScaledBitmap::cacheRows(unsigned int row)
 
       if (!m_bitmap->getRun(0, row, bitmapWidth, m_rowCache[1]))
         {
-          gerr("Failed to read bitmap row %d\n", row);
+          gerr("ERROR: Failed to read bitmap row %d\n", row);
           return false;
         }
     }

@@ -162,7 +162,7 @@ void CNxTimer::start(void)
 
       if (ret < 0)
         {
-          gerr("work_queue failed: %d\n", ret);
+          gerr("ERROR: work_queue failed: %d\n", ret);
         }
 
       m_isRunning = true;
@@ -181,7 +181,7 @@ void CNxTimer::stop(void)
 
       if (ret < 0)
         {
-          gerr("work_cancel failed: %d\n", ret);
+          gerr("ERROR: work_cancel failed: %d\n", ret);
         }
 
       m_isRunning = false;

@@ -170,7 +170,7 @@ bool CTouchscreen::start(void)
   int ret = pthread_create(&m_thread, &attr, listener, (FAR void *)this);
   if (ret != 0)
     {
-      gerr("CTouchscreen::start: pthread_create failed: %d\n", ret);
+      ginfo("CTouchscreen::start: pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -358,7 +358,7 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 #if defined(CONFIG_DEBUG_GRAPHICS_ERROR) || defined(CONFIG_DEBUG_ASSERTIONS)
           int errval = errno;
 
-          gerr("read %s failed: %d\n",
+          gerr("ERROR: read %s failed: %d\n",
               CONFIG_NXWM_TOUCHSCREEN_DEVPATH, errval);
           DEBUGASSERT(errval == EINTR);
 #endif

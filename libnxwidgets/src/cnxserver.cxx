@@ -144,7 +144,7 @@ bool CNxServer::connect(void)
   ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
   if (ret < 0)
     {
-      gerr("boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
+      gerr("ERROR: boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
       return false;
     }
 
@@ -158,7 +158,7 @@ bool CNxServer::connect(void)
   ret = board_lcd_initialize();
   if (ret < 0)
     {
-      gerr("board_lcd_initialize failed: %d\n", -ret);
+      gerr("ERROR: board_lcd_initialize failed: %d\n", -ret);
       return false;
     }
 
@@ -167,7 +167,7 @@ bool CNxServer::connect(void)
   m_hDevice = board_lcd_getdev(CONFIG_NXWIDGETS_DEVNO);
   if (!m_hDevice)
     {
-      gerr("board_lcd_getdev failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
+      gerr("ERROR: board_lcd_getdev failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
       return false;
     }
 
@@ -184,14 +184,14 @@ bool CNxServer::connect(void)
   ret = up_fbinitialize(0);
   if (ret < 0)
     {
-      gerr("up_fbinitialize failed: %d\n", -ret);
+      gerr("ERROR: up_fbinitialize failed: %d\n", -ret);
       return false;
     }
 
   m_hDevice = up_fbgetvplane(0, CONFIG_NXWIDGETS_VPLANE);
   if (!m_hDevice)
     {
-      gerr("CNxServer::connect: up_fbgetvplane failed, vplane=%d\n",
+      gerr("ERROR: CNxServer::connect: up_fbgetvplane failed, vplane=%d\n",
              CONFIG_NXWIDGETS_VPLANE);
       return false;
     }
@@ -203,7 +203,7 @@ bool CNxServer::connect(void)
   m_hNxServer = nx_open(m_hDevice);
   if (!m_hNxServer)
     {
-      gerr("CNxServer::connect: nx_open failed: %d\n", errno);
+      gerr("ERROR: CNxServer::connect: nx_open failed: %d\n", errno);
       return false;
     }
 
@@ -213,7 +213,7 @@ bool CNxServer::connect(void)
   ret = vnc_default_fbinitialize(0, m_hNxServer);
   if (ret < 0)
     {
-      gerr("CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
+      gerr("ERROR: CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
       disconnect();
       return false;
     }
@@ -240,7 +240,7 @@ bool CNxServer::connect(void)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      gerr("CNxServer::connect: sched_setparam failed: %d\n" , ret);
+      gerr("ERROR: CNxServer::connect: sched_setparam failed: %d\n" , ret);
       return false;
     }
 
@@ -253,7 +253,7 @@ bool CNxServer::connect(void)
                                (FAR char * const *)0);
   if (serverId < 0)
     {
-      gerr("NxServer::connect: Failed to create nx_servertask task: %d\n", errno);
+      gerr("ERROR: NxServer::connect: Failed to create nx_servertask task: %d\n", errno);
       return false;
     }
 
@@ -276,7 +276,7 @@ bool CNxServer::connect(void)
       ret = vnc_default_fbinitialize(0, m_hNxServer);
       if (ret < 0)
         {
-          gerr("CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
+          gerr("ERROR: CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
           m_running = false;
           disconnect();
           return false;
@@ -298,7 +298,7 @@ bool CNxServer::connect(void)
       ret = pthread_create(&thread, &attr, listener, (FAR void *)this);
       if (ret != 0)
         {
-          gerr("NxServer::connect: pthread_create failed: %d\n", ret);
+          gerr("ERROR: NxServer::connect: pthread_create failed: %d\n", ret);
           m_running = false;
           disconnect();
           return false;
@@ -329,7 +329,7 @@ bool CNxServer::connect(void)
     }
   else
     {
-      gerr("NxServer::connect: nx_connect failed: %d\n", errno);
+      gerr("ERROR: NxServer::connect: nx_connect failed: %d\n", errno);
       return false;
     }
 
@@ -412,7 +412,7 @@ int CNxServer::server(int argc, char *argv[])
   ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
   if (ret < 0)
     {
-      gerr("boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
+      gerr("ERROR: boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
       return EXIT_FAILURE;
     }
 
@@ -424,7 +424,7 @@ int CNxServer::server(int argc, char *argv[])
   ret = board_lcd_initialize();
   if (ret < 0)
     {
-      gerr("board_lcd_initialize failed: %d\n", -ret);
+      gerr("ERROR: board_lcd_initialize failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
@@ -433,7 +433,7 @@ int CNxServer::server(int argc, char *argv[])
   dev = board_lcd_getdev(CONFIG_NXWIDGETS_DEVNO);
   if (!dev)
     {
-      gerr("board_lcd_getdev failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
+      gerr("ERROR: board_lcd_getdev failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
       return EXIT_FAILURE;
     }
 
@@ -447,14 +447,14 @@ int CNxServer::server(int argc, char *argv[])
   ret = up_fbinitialize(0);
   if (ret < 0)
     {
-      gerr("nxterm_server: up_fbinitialize failed: %d\n", -ret);
+      gerr("ERROR: nxterm_server: up_fbinitialize failed: %d\n", -ret);
       return EXIT_FAILURE;
     }
 
   dev = up_fbgetvplane(0, CONFIG_NXWIDGETS_VPLANE);
   if (!dev)
     {
-      gerr("up_fbgetvplane failed, vplane=%d\n", CONFIG_NXWIDGETS_VPLANE);
+      gerr("ERROR: up_fbgetvplane failed, vplane=%d\n", CONFIG_NXWIDGETS_VPLANE);
       return 2;
     }
 
@@ -497,7 +497,7 @@ FAR void *CNxServer::listener(FAR void *arg)
           // An error occurred... assume that we have lost connection with
           // the server.
 
-          gerr("Lost server connection: %d\n", errno);
+          gwarn("WARNING: Lost server connection: %d\n", errno);
           break;
         }
 

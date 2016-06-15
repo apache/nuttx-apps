@@ -196,7 +196,7 @@ void CWindowMessenger::destroyWorkCallback(FAR void *arg)
 
   // Then release the memory.
 
-  gerr("Deleting app=%p\n", state->instance);
+  ginfo("Deleting app=%p\n", state->instance);
   IApplication *app = (IApplication *)state->instance;
   delete app;
   delete state;

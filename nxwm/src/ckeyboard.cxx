@@ -130,7 +130,7 @@ bool CKeyboard::start(void)
   int ret = pthread_create(&m_thread, &attr, listener, (FAR void *)this);
   if (ret != 0)
     {
-      gerr("CKeyboard::start: pthread_create failed: %d\n", ret);
+      gerr("ERROR: CKeyboard::start: pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -281,7 +281,7 @@ int CKeyboard::session(void)
               return -errcode;
             }
 
-          ferr("Awakened with EINTR\n");
+          fwarn("WARNING: Awakened with EINTR\n");
         }
 
       // Give the keyboard input to NX

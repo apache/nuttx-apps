@@ -539,7 +539,7 @@ bool CCalibration::startCalibration(enum ECalThreadState initialState)
 
   if (isRunning())
     {
-      gerr("The calibration thread is already running\n");
+      gwarn("WARNING: The calibration thread is already running\n");
       return false;
     }
 
@@ -563,7 +563,7 @@ bool CCalibration::startCalibration(enum ECalThreadState initialState)
   int ret = pthread_create(&m_thread, &attr, calibration, (FAR void *)this);
   if (ret != 0)
     {
-      gerr("pthread_create failed: %d\n", ret);
+      gerr("ERROR: pthread_create failed: %d\n", ret);
       return false;
     }
 
@@ -589,7 +589,7 @@ FAR void *CCalibration::calibration(FAR void *arg)
 
   if (!This->createWidgets())
     {
-      gerr("ERROR failed to create widgets\n");
+      gerr("ERROR: failed to create widgets\n");
       return false;
     }
 
@@ -1152,7 +1152,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   struct nxgl_size_s windowSize;
   if (!window->getSize(&windowSize))
     {
-      gerr("NXWidgets::INxWindow::getSize failed\n");
+      gerr("ERROR: NXWidgets::INxWindow::getSize failed\n");
       return false;
     }
 
@@ -1173,7 +1173,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.left.slope    = (bottomX - topX) / (bottomY - topY);
   data.left.offset   = topX - topY * data.left.slope;
 
-  ierr("Left slope: %6.2f offset: %6.2f\n", data.left.slope, data.left.offset);
+  iinfo("Left slope: %6.2f offset: %6.2f\n", data.left.slope, data.left.offset);
 
   topX               = (float)m_calibData[CALIB_UPPER_RIGHT_INDEX].x;
   bottomX            = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1184,7 +1184,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.right.slope   = (bottomX - topX) / (bottomY - topY);
   data.right.offset  = topX - topY * data.right.slope;
 
-  ierr("Right slope: %6.2f offset: %6.2f\n", data.right.slope, data.right.offset);
+  iinfo("Right slope: %6.2f offset: %6.2f\n", data.right.slope, data.right.offset);
 
   // Y lines:
   //
@@ -1202,7 +1202,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.top.slope     = (rightY - leftY) / (rightX - leftX);
   data.top.offset    = leftY - leftX * data.top.slope;
 
-  ierr("Top slope: %6.2f offset: %6.2f\n", data.top.slope, data.top.offset);
+  iinfo("Top slope: %6.2f offset: %6.2f\n", data.top.slope, data.top.offset);
 
   leftX              = (float)m_calibData[CALIB_LOWER_LEFT_INDEX].x;
   rightX             = (float)m_calibData[CALIB_LOWER_RIGHT_INDEX].x;
@@ -1213,7 +1213,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.bottom.slope  = (rightY - leftY) / (rightX - leftX);
   data.bottom.offset = leftY - leftX * data.bottom.slope;
 
-  ierr("Bottom slope: %6.2f offset: %6.2f\n", data.bottom.slope, data.bottom.offset);
+  iinfo("Bottom slope: %6.2f offset: %6.2f\n", data.bottom.slope, data.bottom.offset);
 
   // Save also the calibration screen positions
 
@@ -1241,7 +1241,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.xSlope  = b16divb16(itob16(CALIBRATION_RIGHTX - CALIBRATION_LEFTX), (rightX - leftX));
   data.xOffset = itob16(CALIBRATION_LEFTX) - b16mulb16(leftX, data.xSlope);
 
-  ierr("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
+  iinfo("New xSlope: %08x xOffset: %08x\n", data.xSlope, data.xOffset);
 
   // Similarly for Y
   //
@@ -1262,7 +1262,7 @@ bool CCalibration::createCalibrationData(struct SCalibrationData &data)
   data.ySlope  = b16divb16(itob16(CALIBRATION_BOTTOMY - CALIBRATION_TOPY), (bottomY - topY));
   data.yOffset = itob16(CALIBRATION_TOPY) - b16mulb16(topY, data.ySlope);
 
-  ierr("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
+  iinfo("New ySlope: %08x yOffset: %08x\n", data.ySlope, data.yOffset);
 #endif
 
   return true;
