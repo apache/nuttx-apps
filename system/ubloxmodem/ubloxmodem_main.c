@@ -59,12 +59,12 @@
  ****************************************************************************/
 
 #ifdef CONFIG_MODEM_U_BLOX_DEBUG
-#  define m_err   _err
-#  define m_warn   llwarn
-#  define m_info   info
-#  define m_llerr  llerr
-#  define m_llwarn llwarn
-#  define m_llinfo llinfo
+#  define m_err    _err
+#  define m_warn   _llwarn
+#  define m_info   _info
+#  define m_llerr  _llerr
+#  define m_llwarn _llwarn
+#  define m_llinfo _llinfo
 #else
 #  define m_err(x...)
 #  define m_warn(x...)

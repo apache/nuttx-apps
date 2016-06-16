@@ -34,7 +34,7 @@
 ############################################################################
 
 -include $(TOPDIR)/.config	# Current configuration
--include $(TOPDIR)/Make.defs	# Basic make info
+-include $(TOPDIR)/Make.defs	# Basic make _info
 
 BIN			= pthread
 

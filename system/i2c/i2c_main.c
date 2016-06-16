@@ -426,7 +426,7 @@ ssize_t i2ctool_write(FAR struct i2ctool_s *i2ctool, FAR const void *buffer, siz
   ret = fwrite(buffer, 1, nbytes, OUTSTREAM(i2ctool));
   if (ret < 0)
     {
-     _err("ERROR: [%d] Failed to send buffer: %d\n", OUTFD(i2ctool), errno);
+      _err("ERROR: [%d] Failed to send buffer: %d\n", OUTFD(i2ctool), errno);
     }
 
   return ret;

@@ -55,7 +55,7 @@
  */
 
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxinfo        info
+#  define cxxinfo        _info
 #else
 #  define cxxinfo(x...)
 #endif

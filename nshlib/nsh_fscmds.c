@@ -1293,7 +1293,7 @@ int cmd_mkrd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef CONFIG_DEBUG_INFO
   memset(buffer, 0, sectsize * nsectors);
 #endif
-  info("RAMDISK at %p\n", buffer);
+  _info("RAMDISK at %p\n", buffer);
 
   /* Then register the ramdisk */
 

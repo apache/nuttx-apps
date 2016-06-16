@@ -102,16 +102,16 @@
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
 #  ifdef CONFIG_DEBUG_FEATURES
-#    define message(format, ...)    info(format, ##__VA_ARGS__)
-#    define errmsg(format, ...)    _err(format, ##__VA_ARGS__)
+#    define message(format, ...)    _info(format, ##__VA_ARGS__)
+#    define errmsg(format, ...)     _err(format, ##__VA_ARGS__)
 #  else
 #    define message(format, ...)    printf(format, ##__VA_ARGS__)
 #    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
 #  ifdef CONFIG_DEBUG_FEATURES
-#    define message                 info
-#    define errmsg                 _err
+#    define message                 _info
+#    define errmsg                  _err
 #  else
 #    define message                 printf
 #    define errmsg                  printf

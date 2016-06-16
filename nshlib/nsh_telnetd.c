@@ -67,7 +67,7 @@ static int nsh_telnetmain(int argc, char *argv[])
   DEBUGASSERT(pstate != NULL);
   vtbl = &pstate->cn_vtbl;
 
-  info("Session [%d] Started\n", getpid());
+  _info("Session [%d] Started\n", getpid());
 
 #ifdef CONFIG_NSH_TELNET_LOGIN
   /* Login User and Password Check */
@@ -201,11 +201,11 @@ int nsh_telnetstart(void)
 
   /* Start the telnet daemon */
 
-  info("Starting the Telnet daemon\n");
+  _info("Starting the Telnet daemon\n");
   ret = telnetd_start(&config);
   if (ret < 0)
     {
-     _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
+      _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
     }
 
   return ret;

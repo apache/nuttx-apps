@@ -63,10 +63,10 @@
 #endif
 
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxdbg             _err
+#  define cxxdbg              _err
 #  define cxxllerr            llerr
 #  ifdef CONFIG_DEBUG_INFO
-#    define cxxinfo           info
+#    define cxxinfo           _info
 #    define cxxllinfo         llinfo
 #  else
 #    define cxxinfo(x...)

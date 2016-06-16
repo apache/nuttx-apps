@@ -155,14 +155,14 @@ static int chat_tokenise(FAR struct chat* priv,
 
     tok_pos = 0;
 
-    info("%s (%d)\n", tok->string, tok->no_termin);
+    _info("%s (%d)\n", tok->string, tok->no_termin);
     return 0;
   }
 
   /* Tokenizer start */
 
   DEBUGASSERT(script != NULL);
-  info("%s\n", script);
+  _info("%s\n", script);
 
   while (!ret && *cursor != '\0')
     {
@@ -279,7 +279,7 @@ static int chat_tokenise(FAR struct chat* priv,
       ret = tok_on_delimiter();
     }
 
-  info("result %d\n", ret);
+  _info("result %d\n", ret);
   return ret;
 }
 
@@ -297,7 +297,7 @@ static int chat_internalise(FAR struct chat* priv,
   while (tok && !ret)
     {
       DEBUGASSERT(tok->string);
-      info("(%c) %s\n", rhs ? 'R' : 'L', tok->string);
+      _info("(%c) %s\n", rhs ? 'R' : 'L', tok->string);
 
       if (!rhs)
         {
@@ -406,7 +406,7 @@ static int chat_internalise(FAR struct chat* priv,
       ret = -ENODATA;
     }
 
-  info("result %d, rhs %d\n", ret, rhs);
+  _info("result %d, rhs %d\n", ret, rhs);
   return ret;
 }
 
@@ -426,7 +426,7 @@ static void chat_tokens_free(FAR struct chat_token* first_tok)
       first_tok = next_tok;
     }
 
-  info("tokens freed\n");
+  _info("tokens freed\n");
 }
 
 /* Main parsing function. */
@@ -463,14 +463,14 @@ static int chat_readb(FAR struct chat* priv, FAR char* c, int timeout_ms)
   ret = poll(&fds, 1, timeout_ms);
   if (ret <= 0)
     {
-      info("poll timed out\n");
+      _info("poll timed out\n");
       return -ETIMEDOUT;
     }
 
   ret = read(priv->ctl.fd, c, 1);
   if (ret != 1)
     {
-      info("read failed\n");
+      _info("read failed\n");
       return -EPERM;
     }
 
@@ -479,7 +479,7 @@ static int chat_readb(FAR struct chat* priv, FAR char* c, int timeout_ms)
       fputc(*c, stderr);
     }
 
-  info("read \'%c\' (0x%02X)\n", *c, *c);
+  _info("read \'%c\' (0x%02X)\n", *c, *c);
   return 0;
 }
 
@@ -487,9 +487,9 @@ static void chat_flush(FAR struct chat* priv)
 {
   char c;
 
-  info("starting\n");
+  _info("starting\n");
   while (chat_readb(priv, (FAR char*) &c, 0) == 0);
-  info("done\n");
+  _info("done\n");
 }
 
 static int chat_expect(FAR struct chat* priv, FAR const char* s)
@@ -541,7 +541,7 @@ static int chat_expect(FAR struct chat* priv, FAR const char* s)
         }
     }
 
-  info("result %d\n", ret);
+  _info("result %d\n", ret);
   return ret;
 }
 
@@ -553,7 +553,7 @@ static int chat_send(FAR struct chat* priv, FAR const char* s)
   /* 'write' returns the number of successfully written characters */
 
   ret = write(priv->ctl.fd, s, len);
-  info("wrote %d out of %d bytes of \'%s\'\n", ret, len, s);
+  _info("wrote %d out of %d bytes of \'%s\'\n", ret, len, s);
   if (ret > 0)
     {
       /* Just SUCCESS */
@@ -570,7 +570,7 @@ static int chat_line_run(FAR struct chat* priv,
   int ret = 0;
   int numarg;
 
-  info("type %d, rhs %s\n", line->type, line->rhs);
+  _info("type %d, rhs %s\n", line->type, line->rhs);
 
   switch (line->type)
     {
@@ -617,11 +617,11 @@ static int chat_line_run(FAR struct chat* priv,
           numarg = atoi(line->rhs);
           if (numarg < 0)
             {
-              info("invalid timeout string %s\n", line->rhs);
+              _info("invalid timeout string %s\n", line->rhs);
             }
           else
             {
-              info("timeout is %d s\n", numarg);
+              _info("timeout is %d s\n", numarg);
               priv->ctl.timeout = numarg;
             }
 
@@ -678,7 +678,7 @@ static int chat_script_run(FAR struct chat* priv)
         }
     }
 
-  info("Script result %d, exited on line %d\n", ret, line_num);
+  _info("Script result %d, exited on line %d\n", ret, line_num);
   return ret;
 }
 

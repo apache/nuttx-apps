@@ -128,7 +128,7 @@ static int chat_script_preset(FAR struct chat_app* priv, int script_number)
 {
   int ret = 0;
 
-  info("preset script %d\n", script_number);
+  _info("preset script %d\n", script_number);
 
   switch (script_number)
     {
@@ -340,11 +340,11 @@ int chat_main(int argc, FAR char** argv)
   priv.script_dynalloc = false;
   strncpy(priv.tty, CONFIG_EXAMPLES_CHAT_TTY_DEVNODE, CHAT_TTYNAME_SIZE-1);
 
-  info("parsing the arguments\n");
+  _info("parsing the arguments\n");
   ret = chat_parse_args((FAR struct chat_app*) &priv);
   if (ret < 0)
     {
-      info("Command line parsing failed: code %d, errno %d\n", ret, errno);
+      _info("Command line parsing failed: code %d, errno %d\n", ret, errno);
       chat_show_usage();
       exit_code = EXIT_FAILURE;
       goto with_script;
@@ -357,20 +357,20 @@ int chat_main(int argc, FAR char** argv)
       goto no_script;
     }
 
-  info("opening %s\n", priv.tty);
+  _info("opening %s\n", priv.tty);
   priv.ctl.fd = open(priv.tty, O_RDWR);
   if (priv.ctl.fd < 0)
     {
-      info("Failed to open %s: %d\n", priv.tty, errno);
+      _info("Failed to open %s: %d\n", priv.tty, errno);
       exit_code = EXIT_FAILURE;
       goto with_script;
     }
 
-  info("setting up character device\n");
+  _info("setting up character device\n");
   ret = chat_chardev(&priv);
   if (ret < 0)
     {
-      info("Failed to open %s: %d\n", priv.tty, errno);
+      _info("Failed to open %s: %d\n", priv.tty, errno);
       exit_code = EXIT_FAILURE;
       goto with_tty_dev;
     }
@@ -390,6 +390,6 @@ no_script:
   fflush(stderr);
   fflush(stdout);
 
-  info("Exit code %d\n", exit_code);
+  _info("Exit code %d\n", exit_code);
   return exit_code;
 }
