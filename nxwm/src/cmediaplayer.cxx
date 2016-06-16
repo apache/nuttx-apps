@@ -66,13 +66,13 @@
 
 #if !defined(CONFIG_DEBUG_AUDIO) && !defined(CONFIG_DEBUG_GRAPHICS)
 #  undef gerr
-#  undef info
+#  undef _info
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define gerr(x...)
-#    define info(x...)
+#    define _info(x...)
 #  else
 #    define gerr  (void)
-#    define info (void)
+#    define _info (void)
 #  endif
 #endif
 
