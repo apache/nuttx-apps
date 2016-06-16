@@ -102,7 +102,8 @@ static int make_nonblock(int fd)
 static int tun_alloc(char *dev)
 {
   struct ifreq ifr;
-  int fd, err;
+  int fd;
+  int errcode;
 
   if ((fd = open("/dev/tun", O_RDWR)) < 0)
     {
@@ -111,10 +112,10 @@ static int tun_alloc(char *dev)
 
   printf("tun fd:%i\n", fd);
 
-  if ((err = make_nonblock(fd)) < 0)
+  if ((errcode = make_nonblock(fd)) < 0)
     {
       close(fd);
-      return err;
+      return errcode;
     }
 
   memset(&ifr, 0, sizeof(ifr));
@@ -124,10 +125,10 @@ static int tun_alloc(char *dev)
       strncpy(ifr.ifr_name, dev, IFNAMSIZ);
     }
 
-  if ((err = ioctl(fd, TUNSETIFF, (unsigned long)&ifr)) < 0)
+  if ((errcode = ioctl(fd, TUNSETIFF, (unsigned long)&ifr)) < 0)
     {
       close(fd);
-      return err;
+      return errcode;
     }
 
   strcpy(dev, ifr.ifr_name);
@@ -142,17 +143,17 @@ static int tun_alloc(char *dev)
 static int open_tty(char *dev)
 {
   int fd;
-  int err;
+  int errcode;
 
   if ((fd = open(dev, O_RDWR)) < 0)
     {
       return fd;
     }
 
-  if ((err = make_nonblock(fd)) < 0)
+  if ((errcode = make_nonblock(fd)) < 0)
     {
       close(fd);
-      return err;
+      return errcode;
     }
 
   printf("tty fd:%i\n", fd);

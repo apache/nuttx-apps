@@ -92,7 +92,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
       if (!sur->dma2d)
         {
-          err("ERROR: up_dma2dcreatelayer failed\n");
+         _err("ERROR: up_dma2dcreatelayer failed\n");
           free(sur);
           sur = NULL;
         }
@@ -102,7 +102,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
           if (ret != OK)
             {
-              err("ERROR: getvideoinfo() failed\n");
+             _err("ERROR: getvideoinfo() failed\n");
             }
           else
             {
@@ -110,7 +110,7 @@ static FAR struct dma2d_surface *ltdc_create_dma2d_surface(uint16_t xres,
 
               if (ret != OK)
                 {
-                  err("ERROR: getplaneinfo() failed\n");
+                 _err("ERROR: getplaneinfo() failed\n");
                 }
             }
 
@@ -419,7 +419,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK)
     {
-      err("ERROR: setalpha() failed\n");
+     _err("ERROR: setalpha() failed\n");
       _exit(1);
     }
 
@@ -429,7 +429,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK  || alpha != 127)
     {
-      err("ERROR: getalpha() failed\n");
+     _err("ERROR: getalpha() failed\n");
       _exit(1);
     }
 
@@ -439,7 +439,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK)
     {
-      err("ERROR: setblendmode() failed\n");
+     _err("ERROR: setblendmode() failed\n");
       _exit(1);
     }
 
@@ -449,7 +449,7 @@ static void ltdc_dma2d_interface(void)
 
   if (ret != OK  || blendmode != DMA2D_BLEND_ALPHA)
     {
-      err("ERROR: getblendmode() failed\n");
+     _err("ERROR: getblendmode() failed\n");
       _exit(1);
     }
 
@@ -475,7 +475,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: ltdc getclut() failed\n");
+         _err("ERROR: ltdc getclut() failed\n");
           _exit(1);
         }
 
@@ -499,7 +499,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: getclut() failed\n");
+         _err("ERROR: getclut() failed\n");
           _exit(1);
         }
 
@@ -515,7 +515,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: setclut() failed\n");
+         _err("ERROR: setclut() failed\n");
           _exit(1);
         }
 
@@ -523,7 +523,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: getclut() failed\n");
+         _err("ERROR: getclut() failed\n");
           _exit(1);
         }
 
@@ -538,7 +538,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->red, cmap->green, 256))
 #endif
         {
-          err("ERROR: unexpected clut content\n");
+         _err("ERROR: unexpected clut content\n");
           _exit(1);
         }
 
@@ -548,7 +548,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: ltdc getclut() failed\n");
+         _err("ERROR: ltdc getclut() failed\n");
           _exit(1);
         }
 
@@ -563,7 +563,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->red, cmap->green, 256))
 #endif
         {
-          err("ERROR: unexpected clut content\n");
+         _err("ERROR: unexpected clut content\n");
           _exit(1);
         }
 
@@ -575,7 +575,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: ltdc setclut() failed\n");
+         _err("ERROR: ltdc setclut() failed\n");
           _exit(1);
         }
 
@@ -585,7 +585,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: getclut() failed\n");
+         _err("ERROR: getclut() failed\n");
           _exit(1);
         }
 
@@ -600,7 +600,7 @@ static void ltdc_dma2d_interface(void)
            memcmp(cmap->blue, cmapltdc->blue, LTDC_EXAMPLE_NCOLORS))
 #endif
         {
-          err("ERROR: clut of ltdc layer and related dma2d layer are different\n");
+         _err("ERROR: clut of ltdc layer and related dma2d layer are different\n");
           _exit(1);
         }
       else
@@ -617,7 +617,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret == OK)
         {
-          err("ERROR: setclut() failed, expected error if first color exceeds 256\n");
+         _err("ERROR: setclut() failed, expected error if first color exceeds 256\n");
         }
       else
         {
@@ -630,7 +630,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret == OK)
         {
-          err("ERROR: getclut() failed, expected error if first color exceeds 256\n");
+         _err("ERROR: getclut() failed, expected error if first color exceeds 256\n");
         }
       else
         {
@@ -645,7 +645,7 @@ static void ltdc_dma2d_interface(void)
 
       if (ret != OK)
         {
-          err("ERROR: ltdc setclut() failed\n");
+         _err("ERROR: ltdc setclut() failed\n");
           _exit(1);
         }
 
@@ -706,7 +706,7 @@ static void ltdc_dma2d_fillarea(void)
     }
   else
     {
-      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
+     _err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   info("check if the dma2d driver recognized when positioning overflows the"
@@ -731,7 +731,7 @@ static void ltdc_dma2d_fillarea(void)
     }
   else
     {
-      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
+     _err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Flip with non blend */
@@ -1462,7 +1462,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
     }
   else
     {
-      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
+     _err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   info("check if the dma2d driver recognized when positioning overflows the"
@@ -1506,7 +1506,7 @@ static void ltdc_dma2d_blitdynamiclayer(void)
     }
   else
     {
-      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
+     _err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Initialize the dma2d fullscreen background layer */
@@ -1750,7 +1750,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
     }
   else
     {
-      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
+     _err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   info("check if the dma2d driver recognized when positioning overflows the"
@@ -1810,7 +1810,7 @@ static void ltdc_dma2d_blenddynamiclayer(void)
     }
   else
     {
-      err("ERROR: fail, wrong positioning can overflow layer buffer\n");
+     _err("ERROR: fail, wrong positioning can overflow layer buffer\n");
     }
 
   /* Initialize the dma2d fullscreen background layer */

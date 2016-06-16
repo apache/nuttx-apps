@@ -96,19 +96,19 @@ static int ltdc_init_surface(int lid, uint32_t mode)
 
   if (!sur->layer)
     {
-      err("ERROR: up_ltdcgetlayer() failed\n");
+     _err("ERROR: up_ltdcgetlayer() failed\n");
       return -1;
     }
 
   if (sur->layer->getvideoinfo(sur->layer, &sur->vinfo) != OK)
     {
-      err("ERROR: getvideoinfo() failed\n");
+     _err("ERROR: getvideoinfo() failed\n");
       return -1;
     }
 
   if (sur->layer->getplaneinfo(sur->layer, 0, &sur->pinfo) != OK)
     {
-      err("ERROR: getplaneinfo() failed\n");
+     _err("ERROR: getplaneinfo() failed\n");
       return -1;
     }
 
@@ -133,7 +133,7 @@ static int ltdc_init_surface(int lid, uint32_t mode)
 
   if (sur->layer->getlid(sur->layer, &lid, LTDC_LAYER_DMA2D) != OK)
     {
-      err("ERROR: getlid() failed\n");
+     _err("ERROR: getlid() failed\n");
       return -1;
     }
 
@@ -141,7 +141,7 @@ static int ltdc_init_surface(int lid, uint32_t mode)
 
   if (sur->dma2d == NULL)
     {
-      err("ERROR: up_dma2dgetlayer() failed\n");
+     _err("ERROR: up_dma2dgetlayer() failed\n");
       return -1;
     }
 #endif
@@ -176,14 +176,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      err("ERROR: setalpha() failed\n");
+     _err("ERROR: setalpha() failed\n");
     }
 
   ret = sur->layer->getalpha(sur->layer, &alpha);
 
   if (ret != OK || alpha != 0x7f)
     {
-      err("ERROR: getalpha() failed\n");
+     _err("ERROR: getalpha() failed\n");
     }
 
   /* setcolor */
@@ -192,14 +192,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      err("ERROR: setcolor() failed\n");
+     _err("ERROR: setcolor() failed\n");
     }
 
   ret = sur->layer->getcolor(sur->layer, &color);
 
   if (ret != OK || color != 0x11223344)
     {
-      err("ERROR: getcolor() failed\n");
+     _err("ERROR: getcolor() failed\n");
     }
 
   /* setcolorkey */
@@ -208,14 +208,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      err("ERROR: setcolorkey() failed\n");
+     _err("ERROR: setcolorkey() failed\n");
     }
 
   ret = sur->layer->getcolorkey(sur->layer, &color);
 
   if (ret != OK || color != 0x55667788)
     {
-      err("ERROR: getcolorkey() failed\n");
+     _err("ERROR: getcolorkey() failed\n");
     }
 
   /* setblendmode */
@@ -224,14 +224,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      err("ERROR: setblendmode() failed\n");
+     _err("ERROR: setblendmode() failed\n");
     }
 
   ret = sur->layer->getblendmode(sur->layer, &mode);
 
   if (ret != OK || mode != LTDC_BLEND_NONE)
     {
-      err("ERROR: getblendmode() failed\n");
+     _err("ERROR: getblendmode() failed\n");
     }
 
   /* setarea */
@@ -246,7 +246,7 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      err("ERROR: setarea() failed\n");
+     _err("ERROR: setarea() failed\n");
     }
 
   ret = sur->layer->getarea(sur->layer, &area, &xpos, &ypos);
@@ -255,7 +255,7 @@ static void ltdc_setget_test(void)
       area.xpos != sur->vinfo.xres/4 || area.ypos != sur->vinfo.yres/4 ||
       area.xres != sur->vinfo.xres/2 || area.yres != sur->vinfo.yres/2)
     {
-      err("ERROR: getarea() failed\n");
+     _err("ERROR: getarea() failed\n");
     }
 
 #ifdef CONFIG_FB_CMAP
@@ -275,7 +275,7 @@ static void ltdc_setget_test(void)
 
       if (ret != OK)
         {
-          err("ERROR: setclut() failed\n");
+         _err("ERROR: setclut() failed\n");
         }
 
       /* Clear all colors to black */
@@ -291,7 +291,7 @@ static void ltdc_setget_test(void)
 
       if (ret != OK)
         {
-          err("ERROR: getclut() failed\n");
+         _err("ERROR: getclut() failed\n");
         }
 
 #ifdef CONFIG_FB_TRANSPARENCY
@@ -305,7 +305,7 @@ static void ltdc_setget_test(void)
              ltdc_cmpcolor(g_cmap.green, cmap->green, LTDC_EXAMPLE_NCOLORS))
 #endif
         {
-          err("ERROR: getclut() failed, unexpected cmap content\n");
+         _err("ERROR: getclut() failed, unexpected cmap content\n");
         }
 
       ltdc_deletecmap(cmap);
@@ -318,7 +318,7 @@ static void ltdc_setget_test(void)
 
       if (ret != OK)
         {
-          err("ERROR: setclut() failed\n");
+         _err("ERROR: setclut() failed\n");
         }
     }
 #endif
@@ -1728,7 +1728,7 @@ FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
 
       if (!clut)
         {
-          err("ERROR: malloc() failed\n");
+         _err("ERROR: malloc() failed\n");
           free(cmap);
           return NULL;;
         }
@@ -1805,7 +1805,7 @@ uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
           break;
 #endif
         default:
-          err("ERROR: Unsupported pixel format %d\n", vinfo->fmt);
+         _err("ERROR: Unsupported pixel format %d\n", vinfo->fmt);
           value = 0;
           break;
     }
@@ -2059,13 +2059,13 @@ struct surface * ltdc_get_surface(uint32_t mode)
 
   if (ret != OK)
     {
-      err("ERROR: getlid() failed\n");
+     _err("ERROR: getlid() failed\n");
       _exit(1);
     }
 
   if (lid < 0 || lid > 1)
     {
-      err("ERROR: invalid layer id %d\n", lid);
+     _err("ERROR: invalid layer id %d\n", lid);
       _exit(1);
     }
 
@@ -2086,7 +2086,7 @@ int ltdc_main(int argc, char *argv[])
 
   if (up_fbinitialize(0) < 0)
     {
-      err("ERROR: up_fbinitialize() failed\n");
+     _err("ERROR: up_fbinitialize() failed\n");
       return -1;
     }
 
@@ -2094,19 +2094,19 @@ int ltdc_main(int argc, char *argv[])
 
   if (!fbtable)
     {
-      err("ERROR: up_fbgetvplane() failed\n");
+     _err("ERROR: up_fbgetvplane() failed\n");
       return -1;
     }
 
   if (fbtable->getvideoinfo(fbtable, &vinfo)<0)
     {
-      err("ERROR: getvideoinfo failed\n");
+     _err("ERROR: getvideoinfo failed\n");
       return -1;
     }
 
   if (fbtable->getplaneinfo(fbtable, 0, &pinfo)<0)
     {
-      err("ERROR: getplaneinfo failed\n");
+     _err("ERROR: getplaneinfo failed\n");
       return -1;
     }
 
@@ -2122,7 +2122,7 @@ int ltdc_main(int argc, char *argv[])
     {
       if (fbtable->putcmap(fbtable, &g_cmap) != OK)
         {
-          err("ERROR: putcmap() failed\n");
+         _err("ERROR: putcmap() failed\n");
           return -1;
         }
     }

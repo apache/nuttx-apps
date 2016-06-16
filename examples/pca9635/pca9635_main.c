@@ -98,7 +98,7 @@ int pca9635_main(int argc, char *argv[])
               ret = ioctl(fd, PWMIOC_SETLED_BRIGHTNESS, (unsigned long)&ledbright);
               if (ret < 0)
                 {
-                  err("ERROR: ioctl(PWMIOC_SETLED_BRIGHTNESS) failed: %d\n", errno);
+                 _err("ERROR: ioctl(PWMIOC_SETLED_BRIGHTNESS) failed: %d\n", errno);
                 }
             }
 
