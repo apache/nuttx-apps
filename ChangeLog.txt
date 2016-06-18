@@ -580,4 +580,8 @@
 * UnitTests: Back conditional logic out of UnitTest Make.defs files.  It
   does not belong there and causes link failures like "Cannot find nxwm_main"
   (2016-06-05).
+* Change dbg() and vdbg() to err() and info() (2016-06-11).
+* Change some *err() message to *info() messages if what was a *dbg()
+  message does not indicate and error condition (2016-06-14).
+* Add _ to front of debug macros (2016-06-16).
 
