@@ -63,20 +63,9 @@
 #endif
 
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxdbg              _err
-#  define cxxllerr            llerr
-#  ifdef CONFIG_DEBUG_INFO
-#    define cxxinfo           _info
-#    define cxxllinfo         llinfo
-#  else
-#    define cxxinfo(x...)
-#    define cxxllinfo(x...)
-#  endif
+#  define cxxinfo     _info
 #else
-#  define cxxdbg(x...)
-#  define cxxllerr(x...)
 #  define cxxinfo(x...)
-#  define cxxllinfo(x...)
 #endif
 
 //***************************************************************************
@@ -88,17 +77,17 @@ class CHelloWorld
   public:
     CHelloWorld(void) : mSecret(42)
     {
-      cxxdbg("Constructor: mSecret=%d\n", mSecret);
+      cxxinfo("Constructor: mSecret=%d\n", mSecret);
     }
 
     ~CHelloWorld(void)
     {
-      cxxdbg("Destructor\n");
+      cxxinfo("Destructor\n");
     }
 
     bool HelloWorld(void)
     {
-        cxxdbg("HelloWorld: mSecret=%d\n", mSecret);
+        cxxinfo("HelloWorld: mSecret=%d\n", mSecret);
 
         if (mSecret != 42)
           {

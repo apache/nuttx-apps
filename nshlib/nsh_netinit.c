@@ -366,14 +366,14 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
   /* What is the count on the semaphore?  Don't over-post */
 
   ret = sem_getvalue(&g_notify_sem, &semcount);
-  nllinfo("Entry: semcount=%d\n", semcount);
+  ninfo("Entry: semcount=%d\n", semcount);
 
   if (ret == OK && semcount <= 0)
     {
       sem_post(&g_notify_sem);
     }
 
-  nllinfo("Exit\n");
+  ninfo("Exit\n");
 }
 #endif
 

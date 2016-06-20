@@ -62,16 +62,10 @@
 #  define m_err    _err
 #  define m_warn   _llwarn
 #  define m_info   _info
-#  define m_llerr  _llerr
-#  define m_llwarn _llwarn
-#  define m_llinfo _llinfo
 #else
 #  define m_err(x...)
 #  define m_warn(x...)
 #  define m_info(x...)
-#  define m_llerr(x...)
-#  define m_llwarn(x...)
-#  define m_llinfo(x...)
 #endif
 
 #define UBLOXMODEM_MAX_REGISTERS 16

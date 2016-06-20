@@ -175,7 +175,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
   for (;;)
     {
-      nllinfo("Accepting connections on port %d\n", ntohs(daemon->port));
+      ninfo("Accepting connections on port %d\n", ntohs(daemon->port));
 
       addrlen = sizeof(struct sockaddr_in);
       acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
@@ -199,7 +199,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
       /* Create a character device to "wrap" the accepted socket descriptor */
 
-      nllinfo("Creating the telnet driver\n");
+      ninfo("Creating the telnet driver\n");
       devpath = telnetd_driver(acceptsd, daemon);
       if (devpath == NULL)
         {
@@ -209,7 +209,7 @@ static int telnetd_daemon(int argc, char *argv[])
 
       /* Open the driver */
 
-      nllinfo("Opening the telnet driver\n");
+      ninfo("Opening the telnet driver\n");
       drvrfd = open(devpath, O_RDWR);
       if (drvrfd < 0)
         {
@@ -238,7 +238,7 @@ static int telnetd_daemon(int argc, char *argv[])
        * will inherit the new stdin, stdout, and stderr.
        */
 
-      nllinfo("Starting the telnet session\n");
+      ninfo("Starting the telnet session\n");
       pid = task_create("Telnet session", daemon->priority, daemon->stacksize,
                          daemon->entry, NULL);
       if (pid < 0)

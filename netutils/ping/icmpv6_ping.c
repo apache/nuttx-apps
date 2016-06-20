@@ -95,7 +95,7 @@ static void icmpv6_echo_request(FAR struct net_driver_s *dev,
   uint16_t reqlen;
   int i;
 
-  nllinfo("Send ECHO request: seqno=%d\n", pstate->png_seqno);
+  ninfo("Send ECHO request: seqno=%d\n", pstate->png_seqno);
 
   /* Set up the IPv6 header (most is probably already in place) */
 

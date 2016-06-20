@@ -57,33 +57,24 @@
  ****************************************************************************/
 
 /* Debug output from this file is normally suppressed.  If enabled, be aware
- * that output to stdout will interfere with CGI programs (you could use the
- * the low-level debug (llerr) functions which probably do not use stdout
+ * that output to stdout will interfere with CGI programs.
  */
 
 #ifdef CONFIG_THTTPD_FDWATCH_DEBUG
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define fwdbg(format, ...)    nerr(format, ##__VA_ARGS__)
-#    define fwllerr(format, ...)  nllerr(format, ##__VA_ARGS__)
 #    define fwinfo(format, ...)   ninfo(format, ##__VA_ARGS__)
-#    define fwllinfo(format, ...) nllinfo(format, ##__VA_ARGS__)
 #  else
 #    define fwdbg    nerr
-#    define fwllerr  nllerr
 #    define fwinfo   ninfo
-#    define fwllinfo nllinfo
 #  endif
 #else
 #  ifdef CONFIG_CPP_HAVE_VARARGS
 #    define fwdbg(x...)
-#    define fwllerr(x...)
 #    define fwinfo(x...)
-#    define fwllinfo(x...)
 #  else
 #    define fwdbg    (void)
-#    define fwllerr  (void)
-#    define fwinfo   (void)
-#    define fwllinfo (void)
+#    define fwinfo  (void)
 #  endif
 #endif
 
@@ -141,7 +132,7 @@ static int fdwatch_pollndx(FAR struct fdwatch_s *fw, int fd)
         }
     }
 
-  fwdbg("No poll index for fd %d: %d\n", fd);
+  fwerr("ERROR: No poll index for fd %d: %d\n", fd);
   return -1;
 }
 
@@ -160,7 +151,7 @@ struct fdwatch_s *fdwatch_initialize(int nfds)
   fw = (struct fdwatch_s*)zalloc(sizeof(struct fdwatch_s));
   if (!fw)
     {
-      fwdbg("Failed to allocate fdwatch\n");
+      fwerr("ERROR: Failed to allocate fdwatch\n");
       return NULL;
     }
 
@@ -229,7 +220,7 @@ void fdwatch_add_fd(struct fdwatch_s *fw, int fd, void *client_data)
 
   if (fw->nwatched >= fw->nfds)
     {
-      fwdbg("too many fds\n");
+      fwerr("ERROR: too many fds\n");
       return;
     }
 
