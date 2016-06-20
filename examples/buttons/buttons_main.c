@@ -302,12 +302,8 @@ static void show_buttons(uint8_t oldset, uint8_t newset)
               state = "released";
             }
 
-          /* Use lowsyslog() because we make be executing from an
-           * interrupt handler.
-           */
-
-          lowsyslog(LOG_INFO, "  %s %s\n",
-                    g_buttoninfo[BUTTON_INDEX(i)].name, state);
+          syslog(LOG_INFO, "  %s %s\n",
+                 g_buttoninfo[BUTTON_INDEX(i)].name, state);
         }
     }
 }
@@ -317,8 +313,8 @@ static void button_handler(int id, int irq)
 {
   uint8_t newset = board_buttons();
 
-  lowsyslog(LOG_INFO, "IRQ:%d Button %d:%s SET:%02x:\n",
-            irq, id, g_buttoninfo[BUTTON_INDEX(id)].name, newset);
+  syslog(LOG_INFO, "IRQ:%d Button %d:%s SET:%02x:\n",
+         irq, id, g_buttoninfo[BUTTON_INDEX(id)].name, newset);
 
   show_buttons(g_oldset, newset);
   g_oldset = newset;
@@ -421,7 +417,7 @@ int buttons_main(int argc, char *argv[])
       maxbuttons = strtol(argv[1], NULL, 10);
     }
 
-  lowsyslog(LOG_INFO, "maxbuttons: %d\n", maxbuttons);
+  syslog(LOG_INFO, "maxbuttons: %d\n", maxbuttons);
 #endif
 
   /* Initialize the button GPIOs */
@@ -435,11 +431,9 @@ int buttons_main(int argc, char *argv[])
     {
       xcpt_t oldhandler = board_button_irq(i, g_buttoninfo[BUTTON_INDEX(i)].handler);
 
-      /* Use lowsyslog() for compatibility with interrupt handler output. */
-
-      lowsyslog(LOG_INFO, "Attached handler at %p to button %d [%s], oldhandler:%p\n",
-                g_buttoninfo[BUTTON_INDEX(i)].handler, i,
-                g_buttoninfo[BUTTON_INDEX(i)].name, oldhandler);
+      syslog(LOG_INFO, "Attached handler at %p to button %d [%s], oldhandler:%p\n",
+             g_buttoninfo[BUTTON_INDEX(i)].handler, i,
+             g_buttoninfo[BUTTON_INDEX(i)].name, oldhandler);
 
       /* Some hardware multiplexes different GPIO button sources to the same
        * physical interrupt.  If we register multiple such multiplexed button
@@ -450,9 +444,9 @@ int buttons_main(int argc, char *argv[])
 
       if (oldhandler != NULL)
         {
-          lowsyslog(LOG_INFO, "WARNING: oldhandler:%p is not NULL!  "
-                    "Button events may be lost or aliased!\n",
-                    oldhandler);
+          syslog(LOG_INFO, "WARNING: oldhandler:%p is not NULL!  "
+                 "Button events may be lost or aliased!\n",
+                 oldhandler);
         }
     }
 #endif
@@ -480,11 +474,7 @@ int buttons_main(int argc, char *argv[])
 
           flags = enter_critical_section();
 
-          /* Use lowsyslog() for compatibility with interrupt handler
-           * output.
-           */
-
-          lowsyslog(LOG_INFO, "POLL SET:%02x:\n", newset);
+          syslog(LOG_INFO, "POLL SET:%02x:\n", newset);
           show_buttons(g_oldset, newset);
           g_oldset = newset;
           leave_critical_section(flags);
