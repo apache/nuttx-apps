@@ -378,7 +378,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
             {
               if (errno != EINTR)
                 {
-                  nllerr("ERROR: read failed: %d\n", errno);
+                  nerr("ERROR: read failed: %d\n", errno);
                   return 1;
                 }
             }
@@ -391,7 +391,7 @@ static inline int cgi_interpose_input(struct cgi_conn_s *cc)
           ninfo("nbytes_written: %d\n", nbytes_written);
           if (nbytes_written != nbytes_read)
             {
-              nllerr("ERROR: httpd_write failed\n");
+              nerr("ERROR: httpd_write failed\n");
               return 1;
             }
           cgi_dumpbuffer("Sent to CGI:", cc->inbuf.buffer, nbytes_written);
@@ -469,7 +469,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                     {
                       if (errno != EAGAIN)
                         {
-                          nllerr("ERROR: read: %d\n", errno);
+                          nerr("ERROR: read: %d\n", errno);
                         }
                       return 1;
                     }
@@ -651,7 +651,7 @@ static inline int cgi_interpose_output(struct cgi_conn_s *cc)
                     {
                       if (errno != EAGAIN)
                         {
-                          nllerr("ERROR: read: %d\n", errno);
+                          nerr("ERROR: read: %d\n", errno);
                         }
                       return 1;
                     }
@@ -720,7 +720,7 @@ static int cgi_child(int argc, char **argv)
   cc = (FAR struct cgi_conn_s*)httpd_malloc(sizeof(struct cgi_conn_s));
   if (!cc)
     {
-      nllerr("ERROR: cgi_conn allocation failed\n");
+      nerr("ERROR: cgi_conn allocation failed\n");
       close(hc->conn_fd);
       goto errout;
     }
@@ -768,7 +768,7 @@ static int cgi_child(int argc, char **argv)
   ret = pipe(pipefd);
   if (ret < 0)
     {
-      nllerr("ERROR: STDIN pipe: %d\n", errno);
+      nerr("ERROR: STDIN pipe: %d\n", errno);
       goto errout_with_cgiconn;
     }
   else
@@ -784,7 +784,7 @@ static int cgi_child(int argc, char **argv)
 
       if (ret < 0)
         {
-          nllerr("ERROR: STDIN dup2: %d\n", errno);
+          nerr("ERROR: STDIN dup2: %d\n", errno);
           goto errout_with_descriptors;
         }
     }
@@ -799,7 +799,7 @@ static int cgi_child(int argc, char **argv)
       ret = pipe(pipefd);
       if (ret < 0)
         {
-          nllerr("ERROR: STDOUT pipe: %d\n", errno);
+          nerr("ERROR: STDOUT pipe: %d\n", errno);
           goto errout_with_descriptors;
         }
       else
@@ -815,7 +815,7 @@ static int cgi_child(int argc, char **argv)
 
           if (ret < 0)
             {
-              nllerr("ERROR: STDOUT dup2: %d\n", errno);
+              nerr("ERROR: STDOUT dup2: %d\n", errno);
               goto errout_with_descriptors;
             }
         }
@@ -842,7 +842,7 @@ static int cgi_child(int argc, char **argv)
   httpd_realloc_str(&cc->outbuf.buffer, &cc->outbuf.size, CONFIG_THTTPD_CGIOUTBUFFERSIZE);
   if (!cc->outbuf.buffer)
     {
-      nllerr("ERROR: hdr allocation failed\n");
+      nerr("ERROR: hdr allocation failed\n");
       goto errout_with_descriptors;
     }
 
@@ -851,7 +851,7 @@ static int cgi_child(int argc, char **argv)
   fw = fdwatch_initialize(2);
   if (!fw)
     {
-      nllerr("ERROR: fdwatch allocation failed\n");
+      nerr("ERROR: fdwatch allocation failed\n");
       goto errout_with_outbuffer;
     }
 
@@ -868,7 +868,7 @@ static int cgi_child(int argc, char **argv)
     {
       /* Something went wrong. */
 
-      nllerr("ERROR: execve %s: %d\n", hc->expnfilename, errno);
+      nerr("ERROR: execve %s: %d\n", hc->expnfilename, errno);
       goto errout_with_watch;
    }
 
@@ -878,7 +878,7 @@ static int cgi_child(int argc, char **argv)
   client_data.i = child;
   if (tmr_create(NULL, cgi_kill, client_data, CONFIG_THTTPD_CGI_TIMELIMIT * 1000L, 0) == NULL)
     {
-      nllerr("ERROR: tmr_create(cgi_kill child) failed\n");
+      nerr("ERROR: tmr_create(cgi_kill child) failed\n");
       goto errout_with_watch;
     }
 #endif
@@ -896,7 +896,7 @@ static int cgi_child(int argc, char **argv)
     {
       if (httpd_write(cc->wrfd, &(hc->read_buf[hc->checked_idx]), nbytes) != nbytes)
         {
-          nllerr("ERROR: httpd_write failed\n");
+          nerr("ERROR: httpd_write failed\n");
           return 1;
         }
     }
@@ -1077,7 +1077,7 @@ static void cgi_kill(ClientData client_data, struct timeval *nowP)
   ninfo("Killing CGI child: %d\n", pid);
   if (task_delete(pid) != 0)
     {
-      nllerr("ERROR: task_delete() failed: %d\n", errno);
+      nerr("ERROR: task_delete() failed: %d\n", errno);
     }
 }
 #endif

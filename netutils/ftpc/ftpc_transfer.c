@@ -475,7 +475,7 @@ void ftpc_timeout(int argc, uint32_t arg1, ...)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)arg1;
 
-  nllerr("ERROR: Timeout!\n");
+  nerr("ERROR: Timeout!\n");
   DEBUGASSERT(argc == 1 && session);
   kill(session->pid, CONFIG_FTP_SIGNAL);
 }
