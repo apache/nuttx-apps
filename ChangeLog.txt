@@ -1643,3 +1643,5 @@
 	* Change some *err() message to *info() messages if what was a *dbg()
 	  message does not indicate and error condition (2016-06-14).
 	* Add _ to front of debug macros (2016-06-16).
+	* SYSLOG: Remove llinfo(), *llwarn(), and llerr().  These are no longer
+	  supported in the redesigned syslog() logic (2016-06-20).
