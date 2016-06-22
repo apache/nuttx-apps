@@ -6,7 +6,7 @@
 config CANUTILS_LIBCANARD
 	bool "libcanard UAVCAN Library"
 	default n
-	depends on CAN && CAN_EXTID
+	depends on CAN && CAN_EXTID && !DISABLE_POLL
 	---help---
 		Enable the libcanard UAVCAN library.
 
@@ -20,7 +20,7 @@ config LIBCANARD_URL
 
 config LIBCANARD_VERSION
 	string "libcanard Version"
-	default "34195e7f13637bdc79198c94bd1b2e5ecffe9383"
+	default "a7a6d4c6b105976cccac36e05c42abee566b70c4"
 	---help---
 		libcanard version.
 
