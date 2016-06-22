@@ -44,9 +44,14 @@ LIBCANARD_URL = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_URL)))
 LIBCANARD_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBCANARD_VERSION)))
 LIBCANARD_UNPACKNAME = libcanard-$(LIBCANARD_VERSION)
 LIBCANARD_PACKNAME = $(LIBCANARD_UNPACKNAME)$(PACKEXT)
-LIBCANARD_SRCDIR = $(LIBCANARD_UNPACKNAME)$(DELIM)src
+LIBCANARD_SRCDIR = $(LIBCANARD_UNPACKNAME)
+LIBCANARD_DRVDIR = $(LIBCANARD_SRCDIR)$(DELIM)drivers$(DELIM)nuttx
 
-CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c
+APPS_INCDIR = $(APPDIR)$(DELIM)include$(DELIM)canutils
+
+CFLAGS += -I$(APPS_INCDIR)
+
+CSRCS = $(LIBCANARD_SRCDIR)$(DELIM)canard.c $(LIBCANARD_DRVDIR)$(DELIM)nuttx.c
 COBJS = $(CSRCS:.c=$(OBJEXT))
 
 SRCS = $(CSRCS)
@@ -71,12 +76,18 @@ $(LIBCANARD_PACKNAME):
 
 $(LIBCANARD_UNPACKNAME): $(LIBCANARD_PACKNAME)
 	@echo "Unpacking: $< -> $@"
+	$(call DELDIR, $@)
 	$(Q) $(UNPACK) $<
 	$(Q) touch $@
 
 $(LIBCANARD_SRCDIR)$(DELIM)canard.h: $(LIBCANARD_UNPACKNAME)
 
-$(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h: $(LIBCANARD_SRCDIR)$(DELIM)canard.h
+$(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.h: $(LIBCANARD_UNPACKNAME)
+
+$(APPS_INCDIR)$(DELIM)canard.h: $(LIBCANARD_SRCDIR)$(DELIM)canard.h
+	$(Q) cp $< $@
+
+$(APPS_INCDIR)$(DELIM)canard_nuttx.h: $(LIBCANARD_DRVDIR)$(DELIM)canard_nuttx.h
 	$(Q) cp $< $@
 
 $(COBJS): %$(OBJEXT): %.c
@@ -88,7 +99,7 @@ $(COBJS): %$(OBJEXT): %.c
 
 install:
 
-context: $(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h
+context: $(APPS_INCDIR)$(DELIM)canard.h $(APPS_INCDIR)$(DELIM)canard_nuttx.h
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
@@ -104,7 +115,8 @@ clean:
 distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
-	$(call DELFILE, $(APPDIR)$(DELIM)include$(DELIM)canutils$(DELIM)canard.h)
+	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard.h)
+	$(call DELFILE, $(APPS_INCDIR)$(DELIM)canard_nuttx.h)
 	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
 	$(call DELFILE, $(LIBCANARD_PACKNAME))
 
