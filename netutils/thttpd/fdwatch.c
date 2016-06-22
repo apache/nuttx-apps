@@ -62,18 +62,18 @@
 
 #ifdef CONFIG_THTTPD_FDWATCH_DEBUG
 #  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define fderr(format, ...)    nerr(format, ##__VA_ARGS__)
+#    define fwerr(format, ...)    nerr(format, ##__VA_ARGS__)
 #    define fwinfo(format, ...)   ninfo(format, ##__VA_ARGS__)
 #  else
-#    define fderr    nerr
+#    define fwerr    nerr
 #    define fwinfo   ninfo
 #  endif
 #else
 #  ifdef CONFIG_CPP_HAVE_VARARGS
-#    define fderr(x...)
+#    define fwerr(x...)
 #    define fwinfo(x...)
 #  else
-#    define fderr    (void)
+#    define fwerr    (void)
 #    define fwinfo  (void)
 #  endif
 #endif
