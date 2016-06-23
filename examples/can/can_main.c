@@ -175,10 +175,10 @@ int can_main(int argc, FAR char *argv[])
 #endif
   long minid    = 1;
   long maxid    = MAX_ID;
-  int msgdlc;
   uint8_t msgdata;
-  int i;
 #endif
+  int msgdlc;
+  int i;
 
 #ifdef CONFIG_EXAMPLES_CAN_READ
   struct can_msg_s rxmsg;
