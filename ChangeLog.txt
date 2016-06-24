@@ -1645,3 +1645,13 @@
 	* Add _ to front of debug macros (2016-06-16).
 	* SYSLOG: Remove llinfo(), *llwarn(), and llerr().  These are no longer
 	  supported in the redesigned syslog() logic (2016-06-20).
+	* apps/canutils/libcanard: update version.  From Paul Alexander Patience
+	  (2016-06-22).
+	* apps/examples/can: Some variables were not declared in all required
+	  cases. From Sebastien Lorquet (2016-06-23).
+	* apps/gpsutils/minmean: Fix minmea Makefile to find the libapp at the
+	  apps/.  From Alan Carvalho de Assis (2016-06-23).
+	* apps/canutils/canlib: Basic CAN utility library. From Sebastien Lorquet
+	  (2016-06-24).
+	* apps/nshlib/Kconfig:  Move NSH stuff out of nuttx/configs/Kconfig to
+	  here.  Why was it in the NuttX tree in the first place? (2016-06-24).
