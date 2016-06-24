@@ -70,7 +70,7 @@ int canlib_getbaud(int fd, FAR int *bauds)
   struct canioc_bittiming_s timings;
 
   ret = ioctl(fd, CANIOC_GET_BITTIMING, (unsigned long)&timings);
-  if (ret!=OK)
+  if (ret != OK)
     {
       canerr("CANIOC_GET_BITTIMING failed, errno=%d\n", errno);
       return 0;

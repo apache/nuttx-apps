@@ -71,7 +71,7 @@ int canlib_getloopback(int fd, FAR bool *loopback)
   struct canioc_connmodes_s connmodes;
 
   ret = ioctl(fd, CANIOC_GET_CONNMODES, (unsigned long)&connmodes);
-  if (ret!=OK)
+  if (ret != OK)
     {
       canerr("CANIOC_GET_CONNMODES failed, errno=%d\n", errno);
       return FALSE;

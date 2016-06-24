@@ -14,4 +14,3 @@ config CANUTILS_CANLIB
 if CANUTILS_CANLIB
 
 endif
-

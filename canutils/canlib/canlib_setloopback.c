@@ -72,18 +72,19 @@ int canlib_setloopback(int fd, bool loopback)
   struct canioc_connmodes_s connmodes;
 
   ret = ioctl(fd, CANIOC_GET_CONNMODES, (unsigned long)&connmodes);
-  if (ret!=OK)
+  if (ret != OK)
     {
       canerr("CANIOC_GET_CONNMODES failed, errno=%d\n", errno);
       return ret;
     }
 
   connmodes.bm_loopback = !!loopback;
-  ret = ioctl(fd, CANIOC_SET_CONNMODES, (unsigned long)&connmodes);
 
-  if (ret!=OK)
+  ret = ioctl(fd, CANIOC_SET_CONNMODES, (unsigned long)&connmodes);
+  if (ret != OK)
     {
       canerr("CANIOC_SET_CONNMODES failed, errno=%d\n", errno);
     }
+
   return ret;
 }
