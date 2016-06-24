@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/posixtimer.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -258,7 +258,7 @@ errorout:
 
   /* Detach the signal handler */
 
-  act.sa_sigaction = SIG_DFL;
+  act.sa_handler = SIG_DFL;
   status = sigaction(MY_TIMER_SIGNAL, &act, &oact);
 
   printf("timer_test: done\n" );

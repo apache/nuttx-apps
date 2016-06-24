@@ -37,6 +37,8 @@
 
 # Sendmail SMTP Example
 
+APPNAME = sendmail
+
 ASRCS =
 CSRCS =
 MAINSRC = sendmail_main.c

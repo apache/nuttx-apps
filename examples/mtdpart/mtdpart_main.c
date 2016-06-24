@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/mtdpart/mtdpart_main.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -128,10 +128,6 @@ extern FAR struct mtd_dev_s *mtdpart_archinitialize(void);
 #endif
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -218,7 +214,7 @@ int mtdpart_main(int argc, char *argv[])
   ret = master->ioctl(master, MTDIOC_GEOMETRY, (unsigned long)((uintptr_t)&geo));
   if (ret < 0)
     {
-      fdbg("ERROR: mtd->ioctl failed: %d\n", ret);
+      ferr("ERROR: mtd->ioctl failed: %d\n", ret);
       exit(3);
     }
 

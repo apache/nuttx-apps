@@ -1,0 +1,16 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_FLASH_ERASEALL
+	bool "flash_eraseall() function"
+	default n
+	depends on MTD
+	---help---
+		Enables support for the callable flash_eraseall() function that can
+		be used to erase all FLASH backing up a block device driver.
+
+if FSUTILS_FLASH_ERASEALL
+
+endif # FSUTILS_FLASH_ERASEALL

@@ -1,9 +1,9 @@
 ############################################################################
-# apps/system/install/Makefile
+# apps/system/flash_eraseall/Makefile
 #
-#   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
-#   Author: Uros Platise <uros.platise@isotel.eu>
+#   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013 Ken Pettit. All rights reserved.
+#   Author: Ken Pettit <pettitkd@gmail.com>
 #           Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ STACKSIZE = 1024
 
 ASRCS =
 CSRCS =
-MAINSRC = flash_eraseall.c
+MAINSRC = flash_eraseall_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -94,7 +94,7 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: context depend clean distclean
+.PHONY: preconfig context depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -118,6 +118,8 @@ else
 install:
 
 endif
+
+preconfig:
 
 # Register application
 

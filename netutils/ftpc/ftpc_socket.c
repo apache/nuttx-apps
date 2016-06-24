@@ -92,7 +92,7 @@ int ftpc_sockinit(FAR struct ftpc_socket_s *sock)
   sock->sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (sock->sd < 0)
     {
-      ndbg("socket() failed: %d\n", errno);
+      nerr("ERROR: socket() failed: %d\n", errno);
       goto errout;
     }
 
@@ -103,7 +103,7 @@ int ftpc_sockinit(FAR struct ftpc_socket_s *sock)
   sock->instream = fdopen(sock->sd, "r");
   if (!sock->instream)
     {
-      ndbg("fdopen() failed: %d\n", errno);
+      nerr("ERROR: fdopen() failed: %d\n", errno);
       goto errout_with_sd;
     }
 
@@ -114,7 +114,7 @@ int ftpc_sockinit(FAR struct ftpc_socket_s *sock)
   sock->outstream = fdopen(sock->sd, "w");
   if (!sock->outstream)
     {
-      ndbg("fdopen() failed: %d\n", errno);
+      nerr("ERROR: fdopen() failed: %d\n", errno);
       goto errout_with_instream;
     }
 
@@ -173,7 +173,7 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
   ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr));
   if (ret < 0)
     {
-      ndbg("connect() failed: %d\n", errno);
+      nerr("ERROR: connect() failed: %d\n", errno);
       return ERROR;
     }
 
@@ -182,7 +182,7 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
   ret = ftpc_sockgetsockname(sock, &sock->laddr);
   if (ret < 0)
     {
-      ndbg("ftpc_sockgetsockname() failed: %d\n", errno);
+      nerr("ERROR: ftpc_sockgetsockname() failed: %d\n", errno);
       return ERROR;
     }
 
@@ -250,7 +250,7 @@ int ftpc_sockaccept(FAR struct ftpc_socket_s *sock)
   sock->sd = accept(sock->sd, &addr, &addrlen);
   if (sock->sd == -1)
     {
-      ndbg("accept() failed: %d\n", errno);
+      nerr("ERROR: accept() failed: %d\n", errno);
       return ERROR;
     }
 
@@ -263,7 +263,7 @@ int ftpc_sockaccept(FAR struct ftpc_socket_s *sock)
   sock->instream = fdopen(sock->sd, "r");
   if (!sock->instream)
     {
-      ndbg("fdopen() failed: %d\n", errno);
+      nerr("ERROR: fdopen() failed: %d\n", errno);
       goto errout_with_sd;
     }
 
@@ -272,7 +272,7 @@ int ftpc_sockaccept(FAR struct ftpc_socket_s *sock)
   sock->outstream = fdopen(sock->sd, "w");
   if (!sock->outstream)
     {
-      ndbg("fdopen() failed: %d\n", errno);
+      nerr("ERROR: fdopen() failed: %d\n", errno);
       goto errout_with_instream;
     }
 
@@ -310,7 +310,7 @@ int ftpc_socklisten(struct ftpc_socket_s *sock)
   ret = bind(sock->sd, (struct sockaddr *)&sock->laddr, addrlen);
   if (ret < 0)
     {
-      ndbg("bind() failed: %d\n", errno);
+      nerr("ERROR: bind() failed: %d\n", errno);
       return ERROR;
     }
 
@@ -363,7 +363,7 @@ int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
   ret = getsockname(sock->sd, (FAR struct sockaddr *)addr, &len);
   if (ret < 0)
     {
-      ndbg("getsockname failed: %d\n", errno);
+      nerr("ERROR: getsockname failed: %d\n", errno);
       return ERROR;
     }
   return OK;

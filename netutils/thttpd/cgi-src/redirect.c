@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   char *cp = 0;
   FILE *fp;
   char *star;
-  int  err = 0;
+  int  errcode = 0;
 
   /* Get the name that we were run as, which is the filename being **
    * redirected.
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
   if (fp == (FILE *) 0)
     {
       internal_error("Couldn't open .redirects file.");
-      err = 3;
+      errcode = 3;
       goto errout_with_cp;
     }
 
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
   /* No match found. */
 
   not_found(script_name);
-  err = 4;
+  errcode = 4;
 
 success_out:
   fclose(fp);
@@ -269,5 +269,6 @@ errout_with_cp:
     {
       free(cp);
     }
-  return err;
+
+  return errcode;
 }

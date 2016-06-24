@@ -104,7 +104,7 @@ int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr)
   sd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (sd < 0)
     {
-      ndbg("socket failed: %d\n", errno);
+      nerr("ERROR: socket failed: %d\n", errno);
       return ERROR;
     }
 
@@ -115,7 +115,7 @@ int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr)
   ret = setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, &timeo, sizeof(struct timeval));
   if (ret < 0)
     {
-      ndbg("setsockopt failed: %d\n", errno);
+      nerr("ERROR: setsockopt failed: %d\n", errno);
     }
 
   /* Initialize the server address structure */
@@ -207,18 +207,19 @@ int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode, const char *errormsg)
  *
  ****************************************************************************/
 
-#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_NET)
+#ifdef CONFIG_DEBUG_NET_WARN
 int tftp_parseerrpacket(const uint8_t *buffer)
 {
-  uint16_t opcode       = (uint16_t)buffer[0] << 8 | (uint16_t)buffer[1];
-  uint16_t errcode      = (uint16_t)buffer[2] << 8 | (uint16_t)buffer[3];
-  const char *errmsg  = (const char *)&buffer[4];
+  uint16_t opcode        = (uint16_t)buffer[0] << 8 | (uint16_t)buffer[1];
+  uint16_t errcode       = (uint16_t)buffer[2] << 8 | (uint16_t)buffer[3];
+  FAR const char *errmsg = (const char *)&buffer[4];
 
   if (opcode == TFTP_ERR)
     {
-      ndbg("ERR message: %s (%d)\n", errmsg, errcode);
+      ninfo("ERR message: %s (%d)\n", errmsg, errcode);
       return OK;
     }
+
   return ERROR;
 }
 #endif
@@ -244,7 +245,7 @@ ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
     {
       /* For debugging, it is helpful to start with a clean buffer */
 
-#if defined(CONFIG_DEBUG_VERBOSE) && defined(CONFIG_DEBUG_NET)
+#if defined(CONFIG_DEBUG_INFO) && defined(CONFIG_DEBUG_NET)
       memset(buf, 0, len);
 #endif
 
@@ -261,7 +262,7 @@ ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
 
           if (errno == EAGAIN)
             {
-              ndbg("recvfrom timed out\n");
+              nerr("ERROR: recvfrom timed out\n");
               return ERROR;
             }
 
@@ -269,7 +270,7 @@ ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *from)
 
           else if (errno != EINTR)
             {
-              ndbg("recvfrom failed: %d\n", errno);
+              nerr("ERROR: recvfrom failed: %d\n", errno);
               return ERROR;
             }
         }
@@ -313,7 +314,7 @@ ssize_t tftp_sendto(int sd, const void *buf, size_t len, struct sockaddr_in *to)
 
           if (errno != EINTR)
             {
-              ndbg("sendto failed: %d\n", errno);
+              nerr("ERROR: sendto failed: %d\n", errno);
               return ERROR;
             }
         }

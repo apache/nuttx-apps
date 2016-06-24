@@ -54,25 +54,10 @@
  * constructors
  */
 
-#ifndef CONFIG_DEBUG
-#  undef CONFIG_DEBUG_CXX
-#endif
-
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxdbg              dbg
-#  define cxxlldbg            lldbg
-#  ifdef CONFIG_DEBUG_VERBOSE
-#    define cxxvdbg           vdbg
-#    define cxxllvdbg         llvdbg
-#  else
-#    define cxxvdbg(x...)
-#    define cxxllvdbg(x...)
-#  endif
+#  define cxxinfo        _info
 #else
-#  define cxxdbg(x...)
-#  define cxxlldbg(x...)
-#  define cxxvdbg(x...)
-#  define cxxllvdbg(x...)
+#  define cxxinfo(x...)
 #endif
 
 /****************************************************************************
@@ -100,10 +85,6 @@ extern uint32_t _stext;
 extern uint32_t _etext;
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -127,15 +108,15 @@ void up_cxxinitialize(void)
 {
   initializer_t *initp;
 
-  cxxdbg("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
-         &_sinit, &_einit, &_stext, &_etext);
+  cxxinfo("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
+          &_sinit, &_einit, &_stext, &_etext);
 
   /* Visit each entry in the initialization table */
 
   for (initp = &_sinit; initp != &_einit; initp++)
     {
       initializer_t initializer = *initp;
-      cxxdbg("initp: %p initializer: %p\n", initp, initializer);
+      cxxinfo("initp: %p initializer: %p\n", initp, initializer);
 
       /* Make sure that the address is non-NULL and lies in the text region
        * defined by the linker script.  Some toolchains may put NULL values
@@ -145,7 +126,7 @@ void up_cxxinitialize(void)
       if ((void *)initializer > (void *)&_stext &&
           (void *)initializer < (void *)&_etext)
         {
-          cxxdbg("Calling %p\n", initializer);
+          cxxinfo("Calling %p\n", initializer);
           initializer();
         }
     }

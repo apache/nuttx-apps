@@ -14,7 +14,7 @@ if NETUTILS_FTPC
 config DEBUG_FTPC
 	bool "Debug FTP client"
 	default n
-	depends on DEBUG
+	depends on DEBUG_FEATURES
 	---help---
 		Enable debug support for the FTP client.  This option simple forces
 		CONFIG_DEBUG_NET to be on, but only for the files within this directory.

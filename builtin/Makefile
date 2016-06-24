@@ -136,3 +136,5 @@ distclean: clean
 	$(call DELFILE, builtin_proto.h)
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

@@ -145,7 +145,7 @@ static void ftpc_nlstparse(FAR FILE *instream, callback_t callback,
         {
           break;
         }
-      nvdbg("File: %s\n", buffer);
+      ninfo("File: %s\n", buffer);
 
       /* Perform the callback operation */
 
@@ -170,7 +170,7 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
 
   if (!ftpc_connected(session))
     {
-      ndbg("Not connected to server\n");
+      nerr("ERROR: Not connected to server\n");
       return ERROR;
     }
 
@@ -209,7 +209,7 @@ static int ftpc_recvdir(FAR struct ftpc_session_s *session,
       ret = ftpc_sockaccept(&session->data);
       if (ret != OK)
         {
-          ndbg("ftpc_sockaccept() failed: %d\n", errno);
+          nerr("ERROR: ftpc_sockaccept() failed: %d\n", errno);
           return ERROR;
         }
     }
@@ -297,7 +297,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
   filestream = fopen(tmpfname, "w+");
   if (!filestream)
     {
-      ndbg("Failed to create %s: %d\n", tmpfname, errno);
+      nerr("ERROR: Failed to create %s: %d\n", tmpfname, errno);
       free(absrpath);
       free(tmpfname);
       return NULL;
@@ -312,7 +312,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
       ret = ftpc_cmd(session, "CWD %s", absrpath);
       if (ret != OK)
         {
-          ndbg("CWD to %s failed\n", absrpath);
+          nerr("ERROR: CWD to %s failed\n", absrpath);
         }
     }
 
@@ -329,7 +329,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
       int tmpret = ftpc_cmd(session, "CWD %s", session->currdir);
       if (tmpret != OK)
         {
-          ndbg("CWD back to to %s failed\n", session->currdir);
+          nerr("ERROR: CWD back to to %s failed\n", session->currdir);
         }
     }
 
@@ -346,10 +346,10 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
       ftpc_nlstparse(filestream, ftpc_dircount, &nnames);
       if (!nnames)
         {
-          ndbg("Nothing found in directory\n");
+          nwarn("WARNING: Nothing found in directory\n");
           goto errout;
         }
-      nvdbg("nnames: %d\n", nnames);
+      ninfo("nnames: %d\n", nnames);
 
       /* Allocate and initialize a directory container */
 
@@ -357,7 +357,7 @@ FAR struct ftpc_dirlist_s *ftpc_listdir(SESSION handle,
       dirlist = (struct ftpc_dirlist_s *)malloc(allocsize);
       if (!dirlist)
         {
-          ndbg("Failed to allocate dirlist\n");
+          nerr("ERROR: Failed to allocate dirlist\n");
           goto errout;
         }
 

@@ -509,6 +509,34 @@ config NSH_DISABLE_XD
 
 endmenu
 
+if MMCSD
+
+config NSH_MMCSDMINOR
+	int "MMC/SD minor number"
+	default 0
+	---help---
+		If board-specific NSH start-up logic needs to mount an MMC/SD device, then the
+		setting should be provided to identify the MMC/SD minor device number (i.e., the N ini
+		/dev/mmcsdN).  Default 0
+
+config NSH_MMCSDSLOTNO
+	int "MMC/SD slot number"
+	default 0
+	---help---
+		If board-specific NSH start-up supports more than one MMC/SD slot, then this setting
+		should be provided to indicate which slot should be used.  Default: 0.
+
+config NSH_MMCSDSPIPORTNO
+	int "MMC/SD SPI device number"
+	default 0
+	depends on MMCSD_SPI
+	---help---
+		If board-specif NSH start-up logic will mount an SPI-based MMC/SD volume, then this
+		setting may be needed to tell the board logic which SPI bus to use.  Default: 0
+		(meaning is board-specific).
+
+endif # MMCSD
+
 menu "Configure Command Options"
 
 config NSH_CMDOPT_DF_H
@@ -879,7 +907,7 @@ endif #NSH_USBKBD
 endmenu # Console Configuration
 
 menu "USB Device Trace Support"
-	depends on USBDEV && (DEBUG || USBDEV_TRACE)
+	depends on USBDEV && (DEBUG_FEATURES || USBDEV_TRACE)
 
 config NSH_USBDEV_TRACE
 	bool "Enable Builtin USB Trace Support"
@@ -887,9 +915,9 @@ config NSH_USBDEV_TRACE
 	---help---
 		Enable builtin USB trace support in NSH.  If selected, buffered USB
 		trace data will be presented each time a command is provided to NSH.
-		The USB trace data will be sent to the console unless DEBUG set or
-		unless you are using a USB console.  In those cases, the trace data
-		will go to the SYSLOG device.
+		The USB trace data will be sent to the console unless CONFIG_DEBUG_FEATURES
+		set or unless you are using a USB console.  In those cases, the trace
+		data will go to the SYSLOG device.
 
 		If not enabled, the USB trace support can be provided by external
 		logic such as apps/system/usbmonitor.
@@ -941,6 +969,15 @@ config NSH_ARCHINIT
 
 menu "Networking Configuration"
 	depends on NET
+
+config NSH_NETINIT
+	bool "Network initialization"
+	default y
+	depends on NET
+	---help---
+		This option enables/disables all network initialization in NSH.
+
+if NSH_NETINIT
 
 config NSH_NETINIT_THREAD
 	bool "Network initialization thread"
@@ -1029,13 +1066,13 @@ endif # NSH_NETINIT_THREAD
 config NSH_NETINIT_DEBUG
 	bool "Network init debug"
 	default n
-	depends on DEBUG
+	depends on DEBUG_FEATURES
 	---help---
 		Normally debug output is controlled by DEBUG_NET.  However, that
-		will generate a LOT of debug output, especially if DEBUG_VERBOSE is
-		also selected.  This option is intended to force VERVOSE debug
-		output from the NSH network initialization logic even if DEBUG_NET
-		or DEBUG_VERBOSE are not selected.  This allows for focused, unit-
+		will generate a LOT of debug output, especially if CONFIG_DEBUG_INFO is
+		also selected.  This option is intended to force vervose debug
+		output from the NSH network initialization logic even if CONFIG_DEBUG_NET
+		or CONFIG_DEBUG_INFO are not selected.  This allows for focused, unit-
 		level debug of the NSH network initialization logic.
 
 menu "IP Address Configuration"
@@ -1389,6 +1426,7 @@ config NSH_MACADDR
 		MAC address must provided with this selection.
 
 endif # NSH_NOMAC
+endif # NSH_NETINIT
 
 config NSH_MAX_ROUNDTRIP
 	int "Max Ping Round-Trip (DSEC)"

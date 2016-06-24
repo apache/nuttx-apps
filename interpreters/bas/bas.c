@@ -173,7 +173,7 @@ static int cat(const char *filename)
   int fd;
   char buf[4096];
   ssize_t l;
-  int err;
+  int errcode;
 
   if ((fd = open(filename, O_RDONLY)) == -1)
     {
@@ -189,9 +189,9 @@ static int cat(const char *filename)
         {
           if ((w = write(1, buf + off, l - off)) == -1)
             {
-              err = errno;
+              errcode = errno;
               close(fd);
-              errno = err;
+              errno = errcode;
               return -1;
             }
 
@@ -201,9 +201,9 @@ static int cat(const char *filename)
 
   if (l == -1)
     {
-      err = errno;
+      errcode = errno;
       close(fd);
-      errno = err;
+      errno = errcode;
       return -1;
     }
 

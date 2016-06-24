@@ -200,7 +200,7 @@ time_t tdate_parse(char *str)
   long tm_wday;
 #endif
 
-  nvdbg("str: \"%s\"\n", str);
+  ninfo("str: \"%s\"\n", str);
 
   /* Initialize. */
 

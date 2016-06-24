@@ -96,23 +96,23 @@ static int ltdc_init_surface(int lid, uint32_t mode)
 
   if (!sur->layer)
     {
-      dbg("up_ltdcgetlayer() failed\n");
+      _err("ERROR: up_ltdcgetlayer() failed\n");
       return -1;
     }
 
   if (sur->layer->getvideoinfo(sur->layer, &sur->vinfo) != OK)
     {
-      dbg("getvideoinfo() failed\n");
+      _err("ERROR: getvideoinfo() failed\n");
       return -1;
     }
 
   if (sur->layer->getplaneinfo(sur->layer, 0, &sur->pinfo) != OK)
     {
-      dbg("getplaneinfo() failed\n");
+      _err("ERROR: getplaneinfo() failed\n");
       return -1;
     }
 
-  dbg("layer %d is configured with: xres = %d, yres = %d,"
+  _info("layer %d is configured with: xres = %d, yres = %d,"
       "fb start address = %p, fb size = %d, fmt = %d, bpp = %d\n",
           lid, sur->vinfo.xres, sur->vinfo.yres, sur->pinfo.fbmem, sur->pinfo.fblen,
           sur->vinfo.fmt, sur->pinfo.bpp);
@@ -133,7 +133,7 @@ static int ltdc_init_surface(int lid, uint32_t mode)
 
   if (sur->layer->getlid(sur->layer, &lid, LTDC_LAYER_DMA2D) != OK)
     {
-      dbg("getlid() failed\n");
+      _err("ERROR: getlid() failed\n");
       return -1;
     }
 
@@ -141,7 +141,7 @@ static int ltdc_init_surface(int lid, uint32_t mode)
 
   if (sur->dma2d == NULL)
     {
-      dbg("up_dma2dgetlayer() failed\n");
+      _err("ERROR: up_dma2dgetlayer() failed\n");
       return -1;
     }
 #endif
@@ -168,7 +168,7 @@ static void ltdc_setget_test(void)
   FAR struct ltdc_area_s area;
   FAR struct surface *sur = ltdc_get_surface(LTDC_LAYER_ACTIVE);
 
-  dbg("Perform set and get test\n");
+  _info("Perform set and get test\n");
 
   /* setalpha */
 
@@ -176,14 +176,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      dbg("setalpha() failed\n");
+      _err("ERROR: setalpha() failed\n");
     }
 
   ret = sur->layer->getalpha(sur->layer, &alpha);
 
   if (ret != OK || alpha != 0x7f)
     {
-      dbg("getalpha() failed\n");
+      _err("ERROR: getalpha() failed\n");
     }
 
   /* setcolor */
@@ -192,14 +192,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      dbg("setcolor() failed\n");
+      _err("ERROR: setcolor() failed\n");
     }
 
   ret = sur->layer->getcolor(sur->layer, &color);
 
   if (ret != OK || color != 0x11223344)
     {
-      dbg("getcolor() failed\n");
+      _err("ERROR: getcolor() failed\n");
     }
 
   /* setcolorkey */
@@ -208,14 +208,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      dbg("setcolorkey() failed\n");
+      _err("ERROR: setcolorkey() failed\n");
     }
 
   ret = sur->layer->getcolorkey(sur->layer, &color);
 
   if (ret != OK || color != 0x55667788)
     {
-      dbg("getcolorkey() failed\n");
+      _err("ERROR: getcolorkey() failed\n");
     }
 
   /* setblendmode */
@@ -224,14 +224,14 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      dbg("setblendmode() failed\n");
+      _err("ERROR: setblendmode() failed\n");
     }
 
   ret = sur->layer->getblendmode(sur->layer, &mode);
 
   if (ret != OK || mode != LTDC_BLEND_NONE)
     {
-      dbg("getblendmode() failed\n");
+      _err("ERROR: getblendmode() failed\n");
     }
 
   /* setarea */
@@ -246,7 +246,7 @@ static void ltdc_setget_test(void)
 
   if (ret != OK)
     {
-      dbg("setarea() failed\n");
+      _err("ERROR: setarea() failed\n");
     }
 
   ret = sur->layer->getarea(sur->layer, &area, &xpos, &ypos);
@@ -255,7 +255,7 @@ static void ltdc_setget_test(void)
       area.xpos != sur->vinfo.xres/4 || area.ypos != sur->vinfo.yres/4 ||
       area.xres != sur->vinfo.xres/2 || area.yres != sur->vinfo.yres/2)
     {
-      dbg("getarea() failed\n");
+      _err("ERROR: getarea() failed\n");
     }
 
 #ifdef CONFIG_FB_CMAP
@@ -275,7 +275,7 @@ static void ltdc_setget_test(void)
 
       if (ret != OK)
         {
-          dbg("setclut() failed\n");
+          _err("ERROR: setclut() failed\n");
         }
 
       /* Clear all colors to black */
@@ -291,7 +291,7 @@ static void ltdc_setget_test(void)
 
       if (ret != OK)
         {
-          dbg("getclut() failed\n");
+          _err("ERROR: getclut() failed\n");
         }
 
 #ifdef CONFIG_FB_TRANSPARENCY
@@ -305,7 +305,7 @@ static void ltdc_setget_test(void)
              ltdc_cmpcolor(g_cmap.green, cmap->green, LTDC_EXAMPLE_NCOLORS))
 #endif
         {
-          dbg("getclut() failed, unexpected cmap content\n");
+          _err("ERROR: getclut() failed, unexpected cmap content\n");
         }
 
       ltdc_deletecmap(cmap);
@@ -318,7 +318,7 @@ static void ltdc_setget_test(void)
 
       if (ret != OK)
         {
-          dbg("setclut() failed\n");
+          _err("ERROR: setclut() failed\n");
         }
     }
 #endif
@@ -363,22 +363,22 @@ static void ltdc_color_test(void)
 
   /* Default Color black */
 
-  dbg("Set default color to black\n");
+  _info("Set default color to black\n");
 
   sur->layer->setcolor(sur->layer, 0xff000000);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
   /* Set active layer to the upper half of the screen */
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer, should be black outside the colorful rectangle\n");
+  _info("Update the layer, should be black outside the colorful rectangle\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -386,11 +386,11 @@ static void ltdc_color_test(void)
 
   /* Default Color red */
 
-  dbg("Update the layer, should be red outside the colorful rectangle\n");
+  _info("Update the layer, should be red outside the colorful rectangle\n");
 
   sur->layer->setcolor(sur->layer, 0xffff0000);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -398,11 +398,11 @@ static void ltdc_color_test(void)
 
   /* Default Color green */
 
-  dbg("Update the layer, should be green outside the colorful rectangle\n");
+  _info("Update the layer, should be green outside the colorful rectangle\n");
 
   sur->layer->setcolor(sur->layer, 0xff00ff00);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -410,11 +410,11 @@ static void ltdc_color_test(void)
 
   /* Default Color blue */
 
-  dbg("Update the layer, should be blue outside the colorful rectangle\n");
+  _info("Update the layer, should be blue outside the colorful rectangle\n");
 
   sur->layer->setcolor(sur->layer, 0xff0000ff);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -427,18 +427,18 @@ static void ltdc_color_test(void)
   area.xres = sur->vinfo.xres;
   area.yres = sur->vinfo.yres;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
   /* Default Color black */
 
-  dbg("Set default color to black\n");
+  _info("Set default color to black\n");
 
   sur->layer->setcolor(sur->layer, 0);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -468,7 +468,7 @@ static void ltdc_colorkey_test(void)
 
   /* Resize active layer */
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
@@ -479,11 +479,11 @@ static void ltdc_colorkey_test(void)
 
   /* Color key white */
 
-  dbg("Set colorkey to white\n");
+  _info("Set colorkey to white\n");
 
   sur->layer->setcolorkey(sur->layer, 0xffffff);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -491,11 +491,11 @@ static void ltdc_colorkey_test(void)
 
   /* Color key red */
 
-  dbg("Set colorkey to red\n");
+  _info("Set colorkey to red\n");
 
   sur->layer->setcolorkey(sur->layer, 0xff0000);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -503,11 +503,11 @@ static void ltdc_colorkey_test(void)
 
   /* Color key green */
 
-  dbg("Set colorkey to green\n");
+  _info("Set colorkey to green\n");
 
   sur->layer->setcolorkey(sur->layer, 0xff00);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -515,15 +515,15 @@ static void ltdc_colorkey_test(void)
 
   /* Color key red */
 
-  dbg("Set colorkey to blue\n");
+  _info("Set colorkey to blue\n");
 
   sur->layer->setcolorkey(sur->layer, 0xff);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
-  dbg("Disable colorkey\n");
+  _info("Disable colorkey\n");
 
   usleep(1000000);
 
@@ -536,7 +536,7 @@ static void ltdc_colorkey_test(void)
   area.xres = sur->vinfo.xres;
   area.yres = sur->vinfo.yres;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, 0, 0);
@@ -545,7 +545,7 @@ static void ltdc_colorkey_test(void)
 
   sur->layer->setblendmode(sur->layer, LTDC_BLEND_NONE);
 
-  dbg("Update the layer\n");
+  _info("Update the layer\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK|LTDC_SYNC_WAIT);
 
@@ -568,7 +568,7 @@ static void ltdc_area_test(void)
   struct ltdc_area_s area;
   FAR struct surface *sur = ltdc_get_surface(LTDC_LAYER_ACTIVE);
 
-  dbg("Perform area test\n");
+  _info("Perform area test\n");
 
   ltdc_simple_draw(&sur->vinfo, &sur->pinfo);
 
@@ -581,12 +581,12 @@ static void ltdc_area_test(void)
   area.xres = sur->vinfo.xres/2;
   area.yres = sur->vinfo.yres/2;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer, to show the upper left rectangle of the screen\n");
+  _info("Update the layer, to show the upper left rectangle of the screen\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK);
 
@@ -599,12 +599,12 @@ static void ltdc_area_test(void)
   area.xres = sur->vinfo.xres/2;
   area.yres = sur->vinfo.yres/2;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer, to show the upper right rectangle of the screen\n");
+  _info("Update the layer, to show the upper right rectangle of the screen\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK);
 
@@ -617,12 +617,12 @@ static void ltdc_area_test(void)
   area.xres = sur->vinfo.xres/2;
   area.yres = sur->vinfo.yres/2;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer, to show the lower left rectangle of the screen\n");
+  _info("Update the layer, to show the lower left rectangle of the screen\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK);
 
@@ -635,12 +635,12 @@ static void ltdc_area_test(void)
   area.xres = sur->vinfo.xres/2;
   area.yres = sur->vinfo.yres/2;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer, to show the lower right rectangle of the screen\n");
+  _info("Update the layer, to show the lower right rectangle of the screen\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK);
 
@@ -648,7 +648,7 @@ static void ltdc_area_test(void)
 
   /* Perform layer positioning */
 
-  dbg("Perform positioning test\n");
+  _info("Perform positioning test\n");
 
   /* Set layer in the middle of the screen */
 
@@ -712,7 +712,7 @@ static void ltdc_area_test(void)
 
   /* Perform move */
 
-  dbg("Perform move test\n");
+  _info("Perform move test\n");
 
   /* Set layer in the middle of the screen */
 
@@ -786,7 +786,7 @@ static void ltdc_area_test(void)
 
   /* Perform Reference position */
 
-  dbg("Perform reference positioning test\n");
+  _info("Perform reference positioning test\n");
 
   /* Set layer in the middle of the screen */
 
@@ -862,12 +862,12 @@ static void ltdc_area_test(void)
   area.xres = sur->vinfo.xres;
   area.yres = sur->vinfo.yres;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
 
-  dbg("Update the layer to fullscreen\n");
+  _info("Update the layer to fullscreen\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK);
 
@@ -893,7 +893,7 @@ static void ltdc_common_test(void)
   struct ltdc_area_s area;
   FAR struct surface *sur;
 
-  dbg("Set layer 2 to the active layer, blend with subjacent layer 1\n");
+  _info("Set layer 2 to the active layer, blend with subjacent layer 1\n");
 
   sur = ltdc_get_surface(LTDC_LAYER_TOP);
 
@@ -905,7 +905,7 @@ static void ltdc_common_test(void)
 
   /* Perform area test */
 
-  dbg("Perform area test\n");
+  _info("Perform area test\n");
 
   /* Set layer in the middle of the screen */
 
@@ -1026,7 +1026,7 @@ static void ltdc_common_test(void)
 
   /* Perform positioning test */
 
-  dbg("Perform positioning test\n");
+  _info("Perform positioning test\n");
 
   /* Set layer in the middle of the screen */
 
@@ -1145,7 +1145,7 @@ static void ltdc_common_test(void)
 
   /* Perform Reference position */
 
-  dbg("Perform reference positioning test\n");
+  _info("Perform reference positioning test\n");
 
   /* Set layer in the middle of the screen */
 
@@ -1271,7 +1271,7 @@ static void ltdc_common_test(void)
   area.xres = sur->vinfo.xres;
   area.yres = sur->vinfo.yres;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   sur->layer->setarea(sur->layer, &area, area.xpos, area.ypos);
@@ -1281,7 +1281,7 @@ static void ltdc_common_test(void)
   sur->layer->setcolorkey(sur->layer, 0);
   sur->layer->setblendmode(sur->layer, LTDC_BLEND_NONE);
 
-  dbg("Update the layer to fullscreen\n");
+  _info("Update the layer to fullscreen\n");
 
   sur->layer->update(sur->layer, LTDC_SYNC_VBLANK);
 
@@ -1306,16 +1306,16 @@ static void ltdc_alpha_blend_test(void)
 
   /* Ensure operation on layer 2 */
 
-  dbg("Set layer 2 to the active layer, blend with subjacent layer 1\n");
+  _info("Set layer 2 to the active layer, blend with subjacent layer 1\n");
 
   top = ltdc_get_surface(LTDC_LAYER_TOP);
   bottom = ltdc_get_surface(LTDC_LAYER_BOTTOM);
 
-  dbg("top = %p, bottom = %p\n", top->pinfo.fbmem, bottom->pinfo.fbmem);
+  _info("top = %p, bottom = %p\n", top->pinfo.fbmem, bottom->pinfo.fbmem);
 
   ltdc_simple_draw(&top->vinfo, &top->pinfo);
 
-  dbg("Fill layer1 with color black\n");
+  _info("Fill layer1 with color black\n");
 
   ltdc_drawcolor(&bottom->vinfo, bottom->pinfo.fbmem,
                   bottom->vinfo.xres, bottom->vinfo.yres,
@@ -1326,26 +1326,26 @@ static void ltdc_alpha_blend_test(void)
   area.xres = top->vinfo.xres/2;
   area.yres = top->vinfo.yres/2;
 
-  dbg("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
+  _info("Set area to xpos = %d, ypos = %d, xres = %d, yres = %d\n",
         area.xpos, area.ypos, area.xres, area.yres);
 
   top->layer->setarea(top->layer, &area, area.xpos, area.ypos);
 
-  dbg("Set alpha blending with bottom layer1\n");
+  _info("Set alpha blending with bottom layer1\n");
 
   top->layer->setblendmode(top->layer, LTDC_BLEND_ALPHA);
-  dbg("Disable blending for bottom layer1 to make the layer color visible\n");
+  _info("Disable blending for bottom layer1 to make the layer color visible\n");
 
   bottom->layer->setblendmode(bottom->layer, LTDC_BLEND_NONE);
   bottom->layer->setalpha(bottom->layer, 0xff);
 
-  dbg("Fill bottom layer1 with color black\n");
+  _info("Fill bottom layer1 with color black\n");
 
   ltdc_drawcolor(&bottom->vinfo, bottom->pinfo.fbmem,
                   bottom->vinfo.xres, bottom->vinfo.yres,
                   ltdc_color(&bottom->vinfo, LTDC_BLACK));
 
-  dbg("Blend in black subjacent layer\n");
+  _info("Blend in black subjacent layer\n");
 
   for (i = 255; i >= 0; i--)
     {
@@ -1353,13 +1353,13 @@ static void ltdc_alpha_blend_test(void)
       top->layer->update(top->layer, LTDC_UPDATE_SIM|LTDC_SYNC_VBLANK);
     }
 
-  dbg("Fill bottom layer1 with color red\n");
+  _info("Fill bottom layer1 with color red\n");
 
   ltdc_drawcolor(&bottom->vinfo, bottom->pinfo.fbmem,
                   bottom->vinfo.xres, bottom->vinfo.yres,
                   ltdc_color(&bottom->vinfo, LTDC_RED));
 
-  dbg("Blend in red subjacent layer\n");
+  _info("Blend in red subjacent layer\n");
 
   for (i = 255; i >= 0; i--)
     {
@@ -1367,13 +1367,13 @@ static void ltdc_alpha_blend_test(void)
       top->layer->update(top->layer, LTDC_UPDATE_SIM|LTDC_SYNC_VBLANK);
     }
 
-  dbg("Fill bottom layer1 with color green\n");
+  _info("Fill bottom layer1 with color green\n");
 
   ltdc_drawcolor(&bottom->vinfo, bottom->pinfo.fbmem,
                   bottom->vinfo.xres, bottom->vinfo.yres,
                   ltdc_color(&bottom->vinfo, LTDC_GREEN));
 
-  dbg("Blend in green subjacent layer\n");
+  _info("Blend in green subjacent layer\n");
 
   for (i = 255; i >= 0; i--)
     {
@@ -1381,13 +1381,13 @@ static void ltdc_alpha_blend_test(void)
       top->layer->update(top->layer, LTDC_UPDATE_SIM|LTDC_SYNC_VBLANK);
     }
 
-  dbg("Fill bottom layer1 with color blue\n");
+  _info("Fill bottom layer1 with color blue\n");
 
   ltdc_drawcolor(&bottom->vinfo, bottom->pinfo.fbmem,
                   bottom->vinfo.xres, bottom->vinfo.yres,
                   ltdc_color(&bottom->vinfo, LTDC_BLUE));
 
-  dbg("Blend in blue subjacent layer\n");
+  _info("Blend in blue subjacent layer\n");
 
   for (i = 255; i >= 0; i--)
     {
@@ -1395,13 +1395,13 @@ static void ltdc_alpha_blend_test(void)
       top->layer->update(top->layer, LTDC_UPDATE_SIM|LTDC_SYNC_VBLANK);
     }
 
-  dbg("Fill bottom layer1 with color white\n");
+  _info("Fill bottom layer1 with color white\n");
 
   ltdc_drawcolor(&bottom->vinfo, bottom->pinfo.fbmem,
                   bottom->vinfo.xres, bottom->vinfo.yres,
                   ltdc_color(&bottom->vinfo, LTDC_WHITE));
 
-  dbg("Blend in white subjacent layer\n");
+  _info("Blend in white subjacent layer\n");
 
   for (i = 255; i >= 0; i--)
     {
@@ -1437,32 +1437,32 @@ static void ltdc_flip_test(void)
 
   /* Flip with non blend */
 
-  dbg("Perform flip test without blending\n");
+  _info("Perform flip test without blending\n");
 
-  dbg("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
-  dbg("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
+  _info("active->pinfo.fbmem = %p\n", active->pinfo.fbmem);
+  _info("inactive->pinfo.fbmem = %p\n", inactive->pinfo.fbmem);
 
-  dbg("Ensure that both layer opaque\n");
+  _info("Ensure that both layer opaque\n");
   active->layer->setalpha(active->layer, 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
   active->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_NONE);
 
-  dbg("Set the active layer to fullscreen black\n");
+  _info("Set the active layer to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
 
   usleep(1000000);
 
-  dbg("Set invisible layer to fullscreen blue\n");
+  _info("Set invisible layer to fullscreen blue\n");
   ltdc_drawcolor(&inactive->vinfo, inactive->pinfo.fbmem,
                     inactive->vinfo.xres, inactive->vinfo.yres,
                     ltdc_color(&inactive->vinfo, LTDC_BLUE));
 
   usleep(1000000);
 
-  dbg("Flip layer to see the blue fullscreen\n");
+  _info("Flip layer to see the blue fullscreen\n");
   inactive->layer->update(inactive->layer,
                             LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
@@ -1470,41 +1470,41 @@ static void ltdc_flip_test(void)
 
   /* Active layer is now inactive */
 
-  dbg("Set invisible layer to fullscreen green\n");
+  _info("Set invisible layer to fullscreen green\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_GREEN));
 
   usleep(1000000);
 
-  dbg("Flip layer to see the green fullscreen\n");
+  _info("Flip layer to see the green fullscreen\n");
   inactive->layer->update(inactive->layer,
                             LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
   usleep(1000000);
 
-  dbg("Set invisible layer to fullscreen red\n");
+  _info("Set invisible layer to fullscreen red\n");
   ltdc_drawcolor(&inactive->vinfo, inactive->pinfo.fbmem,
                 inactive->vinfo.xres, inactive->vinfo.yres,
                 ltdc_color(&inactive->vinfo, LTDC_RED));
 
   usleep(1000000);
 
-  dbg("Flip layer to see the red fullscreen\n");
+  _info("Flip layer to see the red fullscreen\n");
   inactive->layer->update(inactive->layer, LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
   usleep(1000000);
 
   /* Flip with alpha blend */
 
-  dbg("Perform flip test with alpha blending\n");
+  _info("Perform flip test with alpha blending\n");
 
   /* Set the bottom layer to the current active layer */
 
   active = ltdc_get_surface(LTDC_LAYER_BOTTOM);
   inactive = ltdc_get_surface(LTDC_LAYER_TOP);
 
-  dbg("Ensure that both layer fullscreen black\n");
+  _info("Ensure that both layer fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
@@ -1512,15 +1512,15 @@ static void ltdc_flip_test(void)
                     inactive->vinfo.xres, inactive->vinfo.yres,
                     ltdc_color(&inactive->vinfo, LTDC_BLACK));
 
-  dbg("Ensure that both layer semitransparent\n");
+  _info("Ensure that both layer semitransparent\n");
   active->layer->setalpha(active->layer, 0x7f);
   inactive->layer->setalpha(inactive->layer, 0x7f);
   active->layer->setblendmode(active->layer, LTDC_BLEND_ALPHA);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_ALPHA);
 
-  dbg("Enter in the flip mode sequence\n");
-  dbg("Set the bottom layer to the active layer\n");
-  dbg("Also update both layer simultaneous\n");
+  _info("Enter in the flip mode sequence\n");
+  _info("Set the bottom layer to the active layer\n");
+  _info("Also update both layer simultaneous\n");
   active->layer->update(active->layer,LTDC_UPDATE_ACTIVATE|
                                       LTDC_UPDATE_SIM|
                                       LTDC_UPDATE_FLIP|
@@ -1528,28 +1528,28 @@ static void ltdc_flip_test(void)
 
   usleep(1000000);
 
-  dbg("Set invisible layer to fullscreen blue\n");
+  _info("Set invisible layer to fullscreen blue\n");
   ltdc_drawcolor(&inactive->vinfo, inactive->pinfo.fbmem,
                     inactive->vinfo.xres, inactive->vinfo.yres,
                     ltdc_color(&inactive->vinfo, LTDC_BLUE));
 
   usleep(1000000);
 
-  dbg("Flip layer to see the blue fullscreen\n");
+  _info("Flip layer to see the blue fullscreen\n");
   inactive->layer->update(active->layer, LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
   usleep(1000000);
 
   /* Active layer is top now */
 
-  dbg("Set invisible layer to fullscreen green\n");
+  _info("Set invisible layer to fullscreen green\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_GREEN));
 
   usleep(1000000);
 
-  dbg("Flip layer to see the green fullscreen\n");
+  _info("Flip layer to see the green fullscreen\n");
   inactive->layer->update(active->layer,
                             LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
@@ -1557,32 +1557,32 @@ static void ltdc_flip_test(void)
 
   /* Active layer is bottom now */
 
-  dbg("Set invisible layer to fullscreen red\n");
+  _info("Set invisible layer to fullscreen red\n");
   ltdc_drawcolor(&inactive->vinfo, inactive->pinfo.fbmem,
                     inactive->vinfo.xres, inactive->vinfo.yres,
                     ltdc_color(&inactive->vinfo, LTDC_RED));
 
   usleep(1000000);
 
-  dbg("Flip layer to see the red fullscreen\n");
+  _info("Flip layer to see the red fullscreen\n");
   inactive->layer->update(active->layer, LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
   usleep(1000000);
 
   /* Active layer is top now */
 
-  dbg("Set bottom layer back to fullscreen black\n");
+  _info("Set bottom layer back to fullscreen black\n");
   ltdc_drawcolor(&active->vinfo, active->pinfo.fbmem,
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
 
-  dbg("Set bottom layer to alpha %d and disable blend mode\n", 0xff);
+  _info("Set bottom layer to alpha %d and disable blend mode\n", 0xff);
   inactive->layer->setalpha(active->layer, 0xff);
   inactive->layer->setblendmode(active->layer, LTDC_BLEND_NONE);
 
   usleep(1000000);
 
-  dbg("Flip layer to see the black fullscreen\n");
+  _info("Flip layer to see the black fullscreen\n");
   inactive->layer->update(active->layer,
                             LTDC_UPDATE_FLIP|LTDC_SYNC_VBLANK);
 
@@ -1596,16 +1596,16 @@ static void ltdc_flip_test(void)
 
   /* Restore settings  */
 
-  dbg("Finally set the top layer back to fullscreen black\n");
+  _info("Finally set the top layer back to fullscreen black\n");
   ltdc_drawcolor(&inactive->vinfo, inactive->pinfo.fbmem,
                     inactive->vinfo.xres, inactive->vinfo.yres,
                     ltdc_color(&inactive->vinfo, LTDC_BLACK));
 
-  dbg("Set top layer to alpha %d and disable blend mode\n", 0xff);
+  _info("Set top layer to alpha %d and disable blend mode\n", 0xff);
   inactive->layer->setalpha(inactive->layer, 0xff);
   inactive->layer->setblendmode(inactive->layer, LTDC_BLEND_NONE);
 
-  dbg("Flip to the top layer\n");
+  _info("Flip to the top layer\n");
   inactive->layer->update(inactive->layer,
                             LTDC_UPDATE_ACTIVATE|LTDC_SYNC_VBLANK);
 
@@ -1728,7 +1728,7 @@ FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
 
       if (!clut)
         {
-          dbg("malloc() failed\n");
+          _err("ERROR: malloc() failed\n");
           free(cmap);
           return NULL;;
         }
@@ -1805,7 +1805,7 @@ uint32_t ltdc_color(FAR struct fb_videoinfo_s *vinfo, uint8_t color)
           break;
 #endif
         default:
-          dbg("Unsupported pixel format %d\n", vinfo->fmt);
+          _err("ERROR: Unsupported pixel format %d\n", vinfo->fmt);
           value = 0;
           break;
     }
@@ -1828,8 +1828,8 @@ void ltdc_simple_draw(FAR struct fb_videoinfo_s *vinfo,
   uint16_t xres = vinfo->xres;
   uint16_t yres = vinfo->yres;
 
-  dbg("draw a red and green rectangle in the upper half\n");
-  dbg("draw a white and blue rectangle in the lower half\n");
+  _info("draw a red and green rectangle in the upper half\n");
+  _info("draw a white and blue rectangle in the lower half\n");
 
 #if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
   if (vinfo->fmt == FB_FMT_RGB8)
@@ -1982,7 +1982,7 @@ void ltdc_drawcolor(FAR struct fb_videoinfo_s *vinfo, void *buffer,
 
   /* draw a blue rectangle */
 
-  dbg("draw a full screen rectangle with color %08x\n", color);
+  _info("draw a full screen rectangle with color %08x\n", color);
 
 #if defined(CONFIG_STM32_LTDC_L1_L8) || defined(CONFIG_STM32_LTDC_L2_L8)
   if (vinfo->fmt == FB_FMT_RGB8)
@@ -2059,13 +2059,13 @@ struct surface * ltdc_get_surface(uint32_t mode)
 
   if (ret != OK)
     {
-      dbg("getlid() failed\n");
+      _err("ERROR: getlid() failed\n");
       _exit(1);
     }
 
   if (lid < 0 || lid > 1)
     {
-      dbg("invalid layer id %d\n", lid);
+      _err("ERROR: invalid layer id %d\n", lid);
       _exit(1);
     }
 
@@ -2086,7 +2086,7 @@ int ltdc_main(int argc, char *argv[])
 
   if (up_fbinitialize(0) < 0)
     {
-      dbg("up_fbinitialize() failed\n");
+      _err("ERROR: up_fbinitialize() failed\n");
       return -1;
     }
 
@@ -2094,23 +2094,23 @@ int ltdc_main(int argc, char *argv[])
 
   if (!fbtable)
     {
-      dbg("up_fbgetvplane() failed\n");
+      _err("ERROR: up_fbgetvplane() failed\n");
       return -1;
     }
 
   if (fbtable->getvideoinfo(fbtable, &vinfo)<0)
     {
-      dbg("getvideoinfo failed\n");
+      _err("ERROR: getvideoinfo failed\n");
       return -1;
     }
 
   if (fbtable->getplaneinfo(fbtable, 0, &pinfo)<0)
     {
-      dbg("getplaneinfo failed\n");
+      _err("ERROR: getplaneinfo failed\n");
       return -1;
     }
 
-  dbg("fb is configured with: xres = %d, yres = %d, \
+  _info("fb is configured with: xres = %d, yres = %d, \
           fb start address = %p, fb size = %d, fmt = %d, bpp = %d\n",
           vinfo.xres, vinfo.yres, pinfo.fbmem, pinfo.fblen,
           vinfo.fmt, pinfo.bpp);
@@ -2122,7 +2122,7 @@ int ltdc_main(int argc, char *argv[])
     {
       if (fbtable->putcmap(fbtable, &g_cmap) != OK)
         {
-          dbg("putcmap() failed\n");
+          _err("ERROR: putcmap() failed\n");
           return -1;
         }
     }

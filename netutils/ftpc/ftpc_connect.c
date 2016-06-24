@@ -52,26 +52,6 @@
 #include "ftpc_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -93,7 +73,7 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
   session = (struct ftpc_session_s *)zalloc(sizeof(struct ftpc_session_s));
   if (!session)
     {
-      ndbg("Failed to allocate a session\n");
+      nerr("ERROR: Failed to allocate a session\n");
       set_errno(ENOMEM);
       goto errout;
     }
@@ -136,7 +116,7 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
   ret = ftpc_reconnect(session);
   if (ret != OK)
     {
-      ndbg("ftpc_reconnect() failed: %d\n", errno);
+      nerr("ERROR: ftpc_reconnect() failed: %d\n", errno);
       goto errout_with_alloc;
     }
 
@@ -159,7 +139,7 @@ errout:
 int ftpc_reconnect(FAR struct ftpc_session_s *session)
 {
   struct sockaddr_in addr;
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_NET_ERROR
   char *tmp;
 #endif
   int ret;
@@ -175,7 +155,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
   ret = wd_start(session->wdog, session->conntimeo, ftpc_timeout, 1, session);
   if (ret != OK)
     {
-      ndbg("wd_start() failed\n");
+      nerr("ERROR: wd_start() failed\n");
       goto errout;
     }
 
@@ -184,15 +164,16 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
   ret = ftpc_sockinit(&session->cmd);
   if (ret != OK)
     {
-      ndbg("ftpc_sockinit() failed: %d\n", errno);
+      nerr("ERROR: ftpc_sockinit() failed: %d\n", errno);
       goto errout;
     }
 
   /* Connect the socket to the server */
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_NET_ERROR
   tmp = inet_ntoa(session->addr);
-  ndbg("Connecting to server address %s:%d\n", tmp, ntohs(session->port));
+  ninfo("Connecting to server address %s:%d\n",
+        tmp, ntohs(session->port));
 #endif
 
   addr.sin_family      = AF_INET;
@@ -202,7 +183,7 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
   ret = ftpc_sockconnect(&session->cmd, &addr);
   if (ret != OK)
     {
-      ndbg("ftpc_sockconnect() failed: %d\n", errno);
+      nerr("ERROR: ftpc_sockconnect() failed: %d\n", errno);
       goto errout_with_socket;
     }
 
@@ -236,12 +217,12 @@ int ftpc_reconnect(FAR struct ftpc_session_s *session)
       goto errout_with_socket;
     }
 
-#ifdef CONFIG_DEBUG
-  ndbg("Connected\n");
+#ifdef CONFIG_DEBUG_NET_ERROR
+  ninfo("Connected\n");
   tmp = inet_ntoa(addr.sin_addr);
-  ndbg("  Remote address: %s:%d\n", tmp, ntohs(addr.sin_port));
+  ninfo("  Remote address: %s:%d\n", tmp, ntohs(addr.sin_port));
   tmp = inet_ntoa(session->cmd.laddr.sin_addr);
-  ndbg("  Local address:  %s:%d\n", tmp, ntohs(session->cmd.laddr.sin_port));
+  ninfo("  Local address:  %s:%d\n", tmp, ntohs(session->cmd.laddr.sin_port));
 #endif
   return OK;
 

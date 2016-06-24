@@ -59,15 +59,13 @@
  ****************************************************************************/
 
 #ifdef CONFIG_MODEM_U_BLOX_DEBUG
-#  define m_dbg    dbg
-#  define m_vdbg   vdbg
-#  define m_vlldbg  lldbg
-#  define m_vllvdbg llvdbg
+#  define m_err    _err
+#  define m_warn   _llwarn
+#  define m_info   _info
 #else
-#  define m_dbg(x...)
-#  define m_vdbg(x...)
-#  define m_lldbg(x...)
-#  define m_llvdbg(x...)
+#  define m_err(x...)
+#  define m_warn(x...)
+#  define m_info(x...)
 #endif
 
 #define UBLOXMODEM_MAX_REGISTERS 16
@@ -131,14 +129,14 @@ static int ubloxmodem_open_tty(void)
   fd = open(CONFIG_SYSTEM_UBLOXMODEM_TTY_DEVNODE, O_RDWR);
   if (fd < 0)
     {
-      m_vdbg("failed to open TTY\n");
+      m_info("failed to open TTY\n");
       return fd;
     }
 
   ret = make_nonblock(fd);
   if (ret < 0)
     {
-      m_vdbg("make_nonblock failed\n");
+      m_info("make_nonblock failed\n");
       close(fd);
       return ret;
     }
@@ -158,14 +156,14 @@ static int chat_readb(int fd, FAR char* dst, int timeout_ms)
   ret = poll(&fds, 1, timeout_ms);
   if (ret <= 0)
     {
-      m_vdbg("poll timed out\n");
+      m_info("poll timed out\n");
       return -ETIMEDOUT;
     }
 
   ret = read(fd, dst, 1);
   if (ret != 1)
     {
-      m_vdbg("read failed\n");
+      m_info("read failed\n");
       return -EPERM;
     }
 
@@ -196,7 +194,7 @@ static int chat_match_response(int fd, FAR char* response, int timeout_ms)
         }
       else
         {
-          m_vdbg("expected %c (0x%02X), got %c (0x%02X)\n",
+          m_info("expected %c (0x%02X), got %c (0x%02X)\n",
                  *response, *response, c, c);
           return -EILSEQ;
         }
@@ -230,7 +228,7 @@ static int chat_single(int fd, FAR char* cmd, FAR char* resp)
   ret = chat_match_response(fd, cmd,  5 * 1000);
   if (ret < 0)
     {
-      m_vdbg("invalid echo\n");
+      m_info("invalid echo\n");
       return ret;
     }
 
@@ -364,7 +362,7 @@ static int ubloxmodem_at(FAR struct ubloxmodem_cxt* cxt)
 
   ret = chat_single(fd, atcmd, resp);
 
-  m_dbg("test result: %d\n", ret);
+  m_info("test result: %d\n", ret);
 
   close(fd);
   return ret;

@@ -100,25 +100,25 @@
 #  define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
 #endif
 
-/* If CONFIG_DEBUG is enabled, use dbg instead of printf so that the
+/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
  * output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG
-#    define message(format, ...)    dbg(format, ##__VA_ARGS__)
-#    define err(format, ...)        dbg(format, ##__VA_ARGS__)
+#  ifdef CONFIG_DEBUG_FEATURES
+#    define message(format, ...)    _info(format, ##__VA_ARGS__)
+#    define errmsg(format, ...)     _err(format, ##__VA_ARGS__)
 #  else
 #    define message(format, ...)    printf(format, ##__VA_ARGS__)
-#    define err(format, ...)        fprintf(stderr, format, ##__VA_ARGS__)
+#    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
-#  ifdef CONFIG_DEBUG
-#    define message                 dbg
-#    define err                     dbg
+#  ifdef CONFIG_DEBUG_FEATURES
+#    define message                 _info
+#    define errmsg                  _err
 #  else
 #    define message                 printf
-#    define err                     printf
+#    define errmsg                  printf
 #  endif
 #endif
 
@@ -241,7 +241,7 @@ int elf_main(int argc, char *argv[])
   ret = elf_initialize();
   if (ret < 0)
     {
-      err("ERROR: Initialization of the ELF loader failed: %d\n", ret);
+      errmsg("ERROR: Initialization of the ELF loader failed: %d\n", ret);
       exit(1);
     }
 
@@ -254,7 +254,7 @@ int elf_main(int argc, char *argv[])
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      err("ERROR: romdisk_register failed: %d\n", ret);
+      errmsg("ERROR: romdisk_register failed: %d\n", ret);
       elf_uninitialize();
       exit(1);
     }
@@ -269,8 +269,8 @@ int elf_main(int argc, char *argv[])
   ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      err("ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
+      errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
+             CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
       elf_uninitialize();
     }
 
@@ -319,7 +319,7 @@ int elf_main(int argc, char *argv[])
       ret = load_module(&bin);
       if (ret < 0)
         {
-          err("ERROR: Failed to load program '%s'\n", dirlist[i]);
+          errmsg("ERROR: Failed to load program '%s'\n", dirlist[i]);
           exit(1);
         }
 
@@ -333,7 +333,7 @@ int elf_main(int argc, char *argv[])
 
       if (ret < 0)
         {
-          err("ERROR: Failed to execute program '%s'\n", dirlist[i]);
+          errmsg("ERROR: Failed to execute program '%s'\n", dirlist[i]);
         }
       else
         {

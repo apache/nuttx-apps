@@ -35,7 +35,7 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Generic file system stress test appliation info
+# Generic file system stress test application info
 
 APPNAME = fstest
 PRIORITY = SCHED_PRIORITY_DEFAULT

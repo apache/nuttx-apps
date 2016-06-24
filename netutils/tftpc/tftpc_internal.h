@@ -162,7 +162,7 @@ extern int tftp_sockinit(struct sockaddr_in *server, in_addr_t addr);
 extern int tftp_mkreqpacket(uint8_t *buffer, int opcode, const char *path, bool binary);
 extern int tftp_mkackpacket(uint8_t *buffer, uint16_t blockno);
 extern int tftp_mkerrpacket(uint8_t *buffer, uint16_t errorcode, const char *errormsg);
-#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_NET)
+#ifdef CONFIG_DEBUG_NET_WARN
 extern int tftp_parseerrpacket(const uint8_t *packet);
 #endif
 
@@ -170,7 +170,7 @@ extern ssize_t tftp_recvfrom(int sd, void *buf, size_t len, struct sockaddr_in *
 extern ssize_t tftp_sendto(int sd, const void *buf, size_t len, struct sockaddr_in *to);
 
 #ifdef CONFIG_NETUTILS_TFTP_DUMPBUFFERS
-# define tftp_dumpbuffer(msg, buffer, nbytes) nvdbgdumpbuffer(msg, buffer, nbytes)
+# define tftp_dumpbuffer(msg, buffer, nbytes) ninfodumpbuffer(msg, buffer, nbytes)
 #else
 # define tftp_dumpbuffer(msg, buffer, nbytes)
 #endif

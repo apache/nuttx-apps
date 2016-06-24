@@ -41,7 +41,7 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-# USB Monitor Application
+# RAM test
 
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 768
@@ -140,3 +140,5 @@ distclean: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

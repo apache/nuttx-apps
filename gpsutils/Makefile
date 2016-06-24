@@ -33,4 +33,6 @@
 #
 ############################################################################
 
+MENUDESC = "GPS Utilities"
+
 include $(APPDIR)/Directory.mk

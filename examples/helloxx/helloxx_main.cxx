@@ -58,25 +58,14 @@
 // Debug ********************************************************************
 // Non-standard debug that may be enabled just for testing the constructors
 
-#ifndef CONFIG_DEBUG
+#ifndef CONFIG_DEBUG_FEATURES
 #  undef CONFIG_DEBUG_CXX
 #endif
 
 #ifdef CONFIG_DEBUG_CXX
-#  define cxxdbg              dbg
-#  define cxxlldbg            lldbg
-#  ifdef CONFIG_DEBUG_VERBOSE
-#    define cxxvdbg           vdbg
-#    define cxxllvdbg         llvdbg
-#  else
-#    define cxxvdbg(x...)
-#    define cxxllvdbg(x...)
-#  endif
+#  define cxxinfo     _info
 #else
-#  define cxxdbg(x...)
-#  define cxxlldbg(x...)
-#  define cxxvdbg(x...)
-#  define cxxllvdbg(x...)
+#  define cxxinfo(x...)
 #endif
 
 //***************************************************************************
@@ -88,17 +77,17 @@ class CHelloWorld
   public:
     CHelloWorld(void) : mSecret(42)
     {
-      cxxdbg("Constructor: mSecret=%d\n", mSecret);
+      cxxinfo("Constructor: mSecret=%d\n", mSecret);
     }
 
     ~CHelloWorld(void)
     {
-      cxxdbg("Destructor\n");
+      cxxinfo("Destructor\n");
     }
 
     bool HelloWorld(void)
     {
-        cxxdbg("HelloWorld: mSecret=%d\n", mSecret);
+        cxxinfo("HelloWorld: mSecret=%d\n", mSecret);
 
         if (mSecret != 42)
           {

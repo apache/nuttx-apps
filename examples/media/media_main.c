@@ -127,11 +127,12 @@ static void get_blocksize(int fd, FAR struct media_info_s *info)
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int media_main(int argc, char *argv[])
+int media_main(int argc, FAR char *argv[])
 #endif
 {
   FAR uint8_t *txbuffer;
   FAR uint8_t *rxbuffer;
+  FAR char *devpath;
   struct media_info_s info;
   ssize_t nwritten;
   ssize_t nread;
@@ -145,14 +146,23 @@ int media_main(int argc, char *argv[])
 
   /* Open the character driver that wraps the media */
 
-  fd = open(CONFIG_EXAMPLES_MEDIA_DEVPATH, O_RDWR);
+  if (argc < 2)
+    {
+      devpath = CONFIG_EXAMPLES_MEDIA_DEVPATH;
+    }
+  else
+    {
+      devpath = argv[1];
+    }
+
+  fd = open(argv[1], O_RDWR);
+
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: failed to open %s: %d\n",
-              CONFIG_EXAMPLES_MEDIA_DEVPATH, errno);
+              devpath, errno);
       return 1;
     }
-
   /* Get the block size to use */
 
   get_blocksize(fd, &info);

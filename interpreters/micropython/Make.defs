@@ -1,0 +1,4 @@
+ifeq ($(CONFIG_INTERPRETERS_MICROPYTHON),y)
+CONFIGURED_APPS += interpreters/micropython
+endif
+

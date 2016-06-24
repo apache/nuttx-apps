@@ -211,7 +211,7 @@ static void nxpu_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
   FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
-  gvdbg("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+  ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
           hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
           more ? "true" : "false");
 
@@ -231,7 +231,7 @@ static void nxpu_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
   /* Report the position */
 
-  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+  ginfo("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
         hwnd, size->w, size->h, pos->x, pos->y,
         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
@@ -280,7 +280,7 @@ static void nxpu_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                        FAR void *arg)
 {
   FAR struct nxtext_state_s *st = (FAR struct nxtext_state_s *)arg;
-  gvdbg("hwnd=%p nch=%d\n", hwnd, nch);
+  ginfo("hwnd=%p nch=%d\n", hwnd, nch);
   nxpu_puts(hwnd, st, nch, ch);
 }
 #endif
@@ -345,7 +345,7 @@ NXWINDOW nxpu_open(void)
   nxpu_initstate();
 
   hwnd = nx_openwindow(g_hnx, &g_pucb, (FAR void *)&g_pustate);
-  gvdbg("hwnd=%p\n", hwnd);
+  ginfo("hwnd=%p\n", hwnd);
 
   if (!hwnd)
     {
@@ -375,7 +375,7 @@ NXWINDOW nxpu_open(void)
 
   /* Set the size of the pop-up window */
 
-  gvdbg("Set pop-up size to (%d,%d)\n", size.w, size.h);
+  ginfo("Set pop-up size to (%d,%d)\n", size.w, size.h);
   ret = nxpu_setsize(hwnd, &size);
   if (ret < 0)
     {

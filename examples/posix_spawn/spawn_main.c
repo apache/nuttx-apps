@@ -103,25 +103,25 @@
 #  define CONFIG_EXAMPLES_ELF_DEVPATH "/dev/ram0"
 #endif
 
-/* If CONFIG_DEBUG is enabled, use dbg instead of printf so that the
+/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
  * output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG
-#    define message(format, ...)    dbg(format, ##__VA_ARGS__)
-#    define err(format, ...)        dbg(format, ##__VA_ARGS__)
+#  ifdef CONFIG_DEBUG_FEATURES
+#    define message(format, ...)    _info(format, ##__VA_ARGS__)
+#    define errmsg(format, ...)     _err(format, ##__VA_ARGS__)
 #  else
 #    define message(format, ...)    printf(format, ##__VA_ARGS__)
-#    define err(format, ...)        fprintf(stderr, format, ##__VA_ARGS__)
+#    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
-#  ifdef CONFIG_DEBUG
-#    define message                 dbg
-#    define err                     dbg
+#  ifdef CONFIG_DEBUG_FEATURES
+#    define message                 _info
+#    define errmsg                  _err
 #  else
 #    define message                 printf
-#    define err                     printf
+#    define errmsg                  printf
 #  endif
 #endif
 
@@ -244,7 +244,7 @@ int spawn_main(int argc, char *argv[])
   ret = elf_initialize();
   if (ret < 0)
     {
-      err("ERROR: Initialization of the ELF loader failed: %d\n", ret);
+      errmsg("ERROR: Initialization of the ELF loader failed: %d\n", ret);
       exit(1);
     }
 
@@ -257,7 +257,7 @@ int spawn_main(int argc, char *argv[])
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      err("ERROR: romdisk_register failed: %d\n", ret);
+      errmsg("ERROR: romdisk_register failed: %d\n", ret);
       elf_uninitialize();
       exit(1);
     }
@@ -272,8 +272,8 @@ int spawn_main(int argc, char *argv[])
   ret = mount(CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
-      err("ERROR: mount(%s,%s,romfs) failed: %s\n",
-          CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
+      errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
+             CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
       elf_uninitialize();
     }
 
@@ -307,14 +307,14 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn_file_actions_init(&file_actions);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn_file_actions_init failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn_file_actions_init failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_init(&attr);
   if (ret != 0)
     {
-      err("ERROR: posix_spawnattr_init failed: %d\n", ret);
+      errmsg("ERROR: posix_spawnattr_init failed: %d\n", ret);
     }
   posix_spawnattr_dump(&attr);
 
@@ -340,7 +340,7 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn(&pid, filepath, &file_actions, &attr, NULL, (FAR char * const*)&g_argv);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn failed: %d\n", ret);
     }
 
   sleep(4);
@@ -351,14 +351,14 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn_file_actions_destroy(&file_actions);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn_file_actions_destroy failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn_file_actions_destroy failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_destroy(&attr);
   if (ret != 0)
     {
-      err("ERROR: posix_spawnattr_destroy failed: %d\n", ret);
+      errmsg("ERROR: posix_spawnattr_destroy failed: %d\n", ret);
     }
   posix_spawnattr_dump(&attr);
 
@@ -379,14 +379,14 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn_file_actions_init(&file_actions);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn_file_actions_init failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn_file_actions_init failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_init(&attr);
   if (ret != 0)
     {
-      err("ERROR: posix_spawnattr_init failed: %d\n", ret);
+      errmsg("ERROR: posix_spawnattr_init failed: %d\n", ret);
     }
   posix_spawnattr_dump(&attr);
 
@@ -397,7 +397,7 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn_file_actions_addclose(&file_actions, 0);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn_file_actions_addclose failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn_file_actions_addclose failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
 
@@ -405,7 +405,7 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn_file_actions_addopen(&file_actions, 0, fullpath, O_RDONLY, 0644);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
 
@@ -431,7 +431,7 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn(&pid, filepath, &file_actions, &attr, NULL, NULL);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn failed: %d\n", ret);
     }
 
   sleep(2);
@@ -442,14 +442,14 @@ int spawn_main(int argc, char *argv[])
   ret = posix_spawn_file_actions_destroy(&file_actions);
   if (ret != 0)
     {
-      err("ERROR: posix_spawn_file_actions_destroy failed: %d\n", ret);
+      errmsg("ERROR: posix_spawn_file_actions_destroy failed: %d\n", ret);
     }
   posix_spawn_file_actions_dump(&file_actions);
 
   ret = posix_spawnattr_destroy(&attr);
   if (ret != 0)
     {
-      err("ERROR: posix_spawnattr_destroy failed: %d\n", ret);
+      errmsg("ERROR: posix_spawnattr_destroy failed: %d\n", ret);
     }
   posix_spawnattr_dump(&attr);
 

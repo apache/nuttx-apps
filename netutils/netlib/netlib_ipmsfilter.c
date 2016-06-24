@@ -85,7 +85,7 @@ int ipmsfilter(FAR const char *ifname, FAR const struct in_addr *multiaddr,
 {
   int ret = ERROR;
 
-  nvdbg("ifname: %s muliaddr: %08x fmode: %ld\n", ifname, *multiaddr, fmode);
+  ninfo("ifname: %s muliaddr: %08x fmode: %ld\n", ifname, *multiaddr, fmode);
   if (ifname && multiaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */

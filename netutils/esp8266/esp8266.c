@@ -42,18 +42,21 @@
 
 #include <nuttx/config.h>
 
+#include <sys/ioctl.h"
+#include <sys/socket.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <poll.h>
+#include <termios.h>
 #include <assert.h>
 #include <errno.h>
 #include <debug.h>
 
 #include <arpa/inet.h>
-#include "sys/socket.h"
 
 #include "apps/netutils/esp8266.h"
 
@@ -81,7 +84,7 @@
 
 #define ESP8266_ACCESS_POINT_NBR_MAX 32
 
-#define lespWAITING_OK_POLLING_MS   250   
+#define lespWAITING_OK_POLLING_MS   250
 #define lespTIMEOUT_MS              1000
 #define lespTIMEOUT_MS_SEND         1000
 #define lespTIMEOUT_MS_CONNECTION   30000
@@ -159,6 +162,48 @@ lesp_state_t g_lesp_state =
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: lesp_set_baudrate
+ *
+ * Description:
+ *   Set com port to baudrate.
+ *
+ * Input Parmeters:
+ *   sockfd : int baudrate
+ *
+ * Returned Value:
+ *   0 on success, -1 incase of error.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_SERIAL_TERMIOS
+static int lesp_set_baudrate(int baudrate)
+  {
+    struct termios term;
+
+    if (ioctl(g_lesp_state.fd,TCGETS,(unsigned long)&term) < 0)
+      {
+        nerr("ERROR: TCGETS failed.\n");
+        return -1;
+      }
+
+    if ((cfsetispeed(&term, baudrate) < 0) ||
+        (cfsetospeed(&term, baudrate) < 0))
+      {
+        nerr("ERROR: Connot set baudrate %0x08X\n",baudrate);
+        return -1;
+      }
+
+    if (ioctl(g_lesp_state.fd,TCSETS,(unsigned long)&term) < 0)
+      {
+        nerr("ERROR: TCSETS failed.\n");
+        return -1;
+      }
+
+    return 0;
+  }
+#endif
+
+/****************************************************************************
  * Name: get_sock
  *
  * Description:
@@ -176,19 +221,19 @@ static lesp_socket_t *get_sock(int sockfd)
 {
   if (!g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 not initialized; can't list access points\n");
+      ninfo("Esp8266 not initialized; can't list access points\n");
       return NULL;
     }
 
   if (((unsigned int)sockfd) >= SOCKET_NBR)
     {
-      nvdbg("Esp8266 invalid sockfd\n", sockfd);
+      ninfo("Esp8266 invalid sockfd\n", sockfd);
       return NULL;
     }
 
   if ((g_lesp_state.sockets[sockfd].flags & FLAGS_SOCK_USED) == 0)
     {
-      ndbg("Connection id %d not Created!\n", sockfd);
+      nerr("ERROR: Connection id %d not Created!\n", sockfd);
       return NULL;
     }
 
@@ -216,7 +261,7 @@ static int lesp_low_level_read(uint8_t* buf, int size)
 
   struct pollfd fds[1];
 
-  memset(fds, 0, sizeof( struct pollfd));
+  memset(fds, 0, sizeof(struct pollfd));
   fds[0].fd       = g_lesp_state.fd;
   fds[0].events   = POLLIN;
 
@@ -225,13 +270,13 @@ static int lesp_low_level_read(uint8_t* buf, int size)
   ret = poll(fds, 1, lespPOLLING_TIME_MS);
   if (ret < 0)
     {
-      int err = errno;
-      ndbg("worker read Error %d (errno %d)\n", ret, err);
-      UNUSED(err);
-    } 
+      int errcode = errno;
+      nerr("ERROR: worker read Error %d (errno %d)\n", ret, errcode);
+      UNUSED(errcode);
+    }
   else if ((fds[0].revents & POLLERR) && (fds[0].revents & POLLHUP))
     {
-      ndbg("worker poll read Error %d\n", ret);
+      nerr("ERROR: worker poll read Error %d\n", ret);
       ret = -1;
     }
   else if (fds[0].revents & POLLIN)
@@ -303,7 +348,7 @@ static inline int lesp_read_ipd(void)
       return -1;
     }
 
-  nvdbg("Read %d bytes for socket %d \n", len, sockfd);
+  ninfo("Read %d bytes for socket %d \n", len, sockfd);
 
   while(len)
     {
@@ -359,7 +404,7 @@ static inline int lesp_read_ipd(void)
             {
               /* No.. the we have lost data */
 
-              nvdbg("overflow socket 0x%02X\n", b);
+              ninfo("overflow socket 0x%02X\n", b);
             }
         }
 
@@ -369,7 +414,7 @@ static inline int lesp_read_ipd(void)
         }
 
       pthread_mutex_unlock(&g_lesp_state.mutex);
-    } 
+    }
 
   return 0;
 }
@@ -397,11 +442,11 @@ int lesp_vsend_cmd(FAR const IPTR char *format, va_list ap)
   if (ret >= BUF_CMD_LEN)
     {
       g_lesp_state.bufcmd[BUF_CMD_LEN-1]='\0';
-      nvdbg("Buffer too small for '%s'...\n", g_lesp_state.bufcmd);
+      ninfo("Buffer too small for '%s'...\n", g_lesp_state.bufcmd);
       ret = -1;
     }
 
-  nvdbg("Write:%s\n", g_lesp_state.bufcmd);
+  ninfo("Write:%s\n", g_lesp_state.bufcmd);
 
   ret = write(g_lesp_state.fd,g_lesp_state.bufcmd,ret);
   if (ret < 0)
@@ -463,7 +508,7 @@ static int lesp_read(int timeout_ms)
 
   if (! g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 not initialized; can't list access points\n");
+      ninfo("Esp8266 not initialized; can't list access points\n");
       return -1;
     }
 
@@ -474,7 +519,7 @@ static int lesp_read(int timeout_ms)
 
   ts.tv_sec += (timeout_ms/1000) + lespTIMEOUT_FLOODING_OFFSET_S;
 
-  do 
+  do
     {
       if (sem_timedwait(&g_lesp_state.sem,&ts) < 0)
         {
@@ -494,9 +539,9 @@ static int lesp_read(int timeout_ms)
       pthread_mutex_unlock(&g_lesp_state.mutex);
 
     }
-  while (ret == 0);
+  while (ret <= 0);
 
-  nvdbg("read %d=>%s\n", ret, g_lesp_state.bufans);
+  ninfo("read %d=>%s\n", ret, g_lesp_state.bufans);
 
   return ret;
 }
@@ -562,7 +607,7 @@ int lesp_read_ans_ok(int timeout_ms)
           return -1;
         }
 
-      nvdbg("Got:%s\n", g_lesp_state.bufans);
+      ninfo("Got:%s\n", g_lesp_state.bufans);
 
       /* Ro quit in case of message flooding */
     }
@@ -682,7 +727,7 @@ static int lesp_parse_cwlap_ans_line(char* ptr, lesp_ap_t *ap)
 
           case 2:
               ptr++; /* Remove first '"' */
-              *(ptr_next -1 ) = '\0';
+              *(ptr_next - 1) = '\0';
               ap->ssid = ptr;
               break;
 
@@ -733,7 +778,7 @@ static void *lesp_worker(void *args)
   UNUSED(args);
 
   pthread_mutex_lock(&g_lesp_state.mutex);
-  nvdbg("worker Started \n");
+  ninfo("worker Started \n");
   p->bufsize = 0;
   pthread_mutex_unlock(&g_lesp_state.mutex);
 
@@ -745,11 +790,11 @@ static void *lesp_worker(void *args)
 
       if (ret < 0)
         {
-          ndbg("worker read data Error %d\n", ret);
-        } 
+          nerr("ERROR: worker read data Error %d\n", ret);
+        }
       else if (ret > 0)
         {
-          //nvdbg("c:0x%02X (%c)\n", c);
+          //ninfo("c:0x%02X (%c)\n", c);
 
           pthread_mutex_lock(&g_lesp_state.mutex);
           if (c == '\n')
@@ -763,7 +808,7 @@ static void *lesp_worker(void *args)
                 {
                   p->buf[p->bufsize] = '\0';
                   memcpy(g_lesp_state.buf,p->buf,p->bufsize+1);
-                  nvdbg("Read data:%s\n", g_lesp_state.buf);
+                  ninfo("Read data:%s\n", g_lesp_state.buf);
                   sem_post(&g_lesp_state.sem);
                   p->bufsize = 0;
                 }
@@ -774,7 +819,7 @@ static void *lesp_worker(void *args)
             }
           else
             {
-              nvdbg("Read char overflow:%c\n", c);
+              ninfo("Read char overflow:%c\n", c);
             }
 
           pthread_mutex_unlock(&g_lesp_state.mutex);
@@ -803,9 +848,9 @@ static inline int lesp_create_worker(int priority)
 
   ret = pthread_attr_init(&thread_attr);
 
-  if (ret < 0) 
+  if (ret < 0)
     {
-      ndbg("Cannot Set scheduler parameter thread (%d)\n", ret);
+      nerr("ERROR: Cannot Set scheduler parameter thread (%d)\n", ret);
     }
   else
     {
@@ -817,22 +862,22 @@ static inline int lesp_create_worker(int priority)
         }
       else
         {
-          ndbg("Cannot Get/Set scheduler parameter thread (%d)\n", ret);
+          nerr("ERROR: Cannot Get/Set scheduler parameter thread (%d)\n", ret);
         }
 
       g_lesp_state.worker.running = true;
 
-      ret = pthread_create(&g_lesp_state.worker.thread, 
+      ret = pthread_create(&g_lesp_state.worker.thread,
                            (ret < 0)?NULL:&thread_attr, lesp_worker, NULL);
-      if (ret < 0) 
+      if (ret < 0)
         {
-          ndbg("Cannot Create thread return (%d)\n", ret);
+          nerr("ERROR: Cannot Create thread return (%d)\n", ret);
           g_lesp_state.worker.running = false;
         }
 
       if (pthread_attr_destroy(&thread_attr) < 0)
         {
-          ndbg("Cannot destroy thread attribute (%d)\n", ret);
+          nerr("ERROR: Cannot destroy thread attribute (%d)\n", ret);
         }
     }
 
@@ -851,18 +896,18 @@ int lesp_initialize(void)
 
   if (g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 already initialized\n");
+      ninfo("Esp8266 already initialized\n");
       pthread_mutex_unlock(&g_lesp_state.mutex);
       return 0;
     }
 
-  nvdbg("Initializing Esp8266...\n");
+  ninfo("Initializing Esp8266...\n");
 
   memset(g_lesp_state.sockets, 0, SOCKET_NBR * sizeof(lesp_socket_t));
 
   if (sem_init(&g_lesp_state.sem, 0, 0) < 0)
     {
-      nvdbg("Cannot create semaphore\n");
+      ninfo("Cannot create semaphore\n");
       pthread_mutex_unlock(&g_lesp_state.mutex);
       return -1;
     }
@@ -874,14 +919,14 @@ int lesp_initialize(void)
 
   if (g_lesp_state.fd < 0)
     {
-      ndbg("Cannot open %s\n", CONFIG_NETUTILS_ESP8266_DEV_PATH);
+      nerr("ERROR: Cannot open %s\n", CONFIG_NETUTILS_ESP8266_DEV_PATH);
       ret = -1;
     }
 
-#if 0 // lesp_set_baudrate is not defined
-  if (ret >= 0 && lesp_set_baudrate(g_lesp_state.fd, CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
+#ifdef CONFIG_SERIAL_TERMIOS
+  if (ret >= 0 && lesp_set_baudrate(CONFIG_NETUTILS_ESP8266_BAUDRATE) < 0)
     {
-      ndbg("Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
+      nerr("ERROR: Cannot set baud rate %d\n", CONFIG_NETUTILS_ESP8266_BAUDRATE);
       ret = -1;
     }
 #endif
@@ -892,8 +937,15 @@ int lesp_initialize(void)
     }
 
   pthread_mutex_unlock(&g_lesp_state.mutex);
+
+  if (ret < 0)
+    {
+      ninfo("Esp8266 initialisation failed!\n");
+      return -1;
+    }
+
   g_lesp_state.is_initialized = true;
-  nvdbg("Esp8266 initialized\n");
+  ninfo("Esp8266 initialized\n");
 
   return 0;
 }
@@ -933,7 +985,7 @@ int lesp_soft_reset(void)
       lesp_flush();
     }
 
-  if (ret >= 0) 
+  if (ret >= 0)
     {
       ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT+GMR\r\n");
     }
@@ -964,11 +1016,11 @@ int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s)
 {
   int ret = 0;
 
-  nvdbg("Starting manual connect...\n");
+  ninfo("Starting manual connect...\n");
 
   if (! g_lesp_state.is_initialized)
     {
-      ndbg("ESP8266 not initialized; can't run manual connect\n");
+      nerr("ERROR: ESP8266 not initialized; can't run manual connect\n");
       ret = -1;
     }
   else
@@ -983,7 +1035,7 @@ int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s)
       return -1;
     }
 
-  nvdbg("Wifi connected\n");
+  ninfo("Wifi connected\n");
   return 0;
 }
 
@@ -1041,7 +1093,7 @@ int lesp_set_net(lesp_mode_t mode, in_addr_t ip, in_addr_t mask, in_addr_t gatew
  * Name: lesp_set_dhcp
  *
  * Description:
- *   It will Enable or disable DHCP of mode. 
+ *   It will Enable or disable DHCP of mode.
  *
  * Input Parmeters:
  *   mode    : mode to configure.
@@ -1059,7 +1111,7 @@ int lesp_set_dhcp(lesp_mode_t mode,bool enable)
   ret = lesp_ask_ans_ok(lespTIMEOUT_MS,
                         "AT+CWDHCP_CUR=%d,%c\r\n",
                         mode,(enable)?'1':'0');
-  
+
   if (ret < 0)
     {
       return -1;
@@ -1092,7 +1144,7 @@ int lesp_list_access_points(lesp_cb_t cb)
 
   ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT\r\n");
 
-  if (ret < 0) 
+  if (ret >= 0)
     {
       ret = lesp_send_cmd("AT+CWLAP\r\n");
     }
@@ -1105,7 +1157,7 @@ int lesp_list_access_points(lesp_cb_t cb)
           continue;
         }
 
-      nvdbg("Read:%s\n", g_lesp_state.bufans);
+      ninfo("Read:%s\n", g_lesp_state.bufans);
 
       if (strcmp(g_lesp_state.bufans,"OK") == 0)
         {
@@ -1115,7 +1167,7 @@ int lesp_list_access_points(lesp_cb_t cb)
       ret = lesp_parse_cwlap_ans_line(g_lesp_state.bufans,&ap);
       if (ret < 0)
         {
-          ndbg("Line badly formed.");
+          nerr("ERROR: Line badly formed.");
         }
 
       cb(&ap);
@@ -1127,7 +1179,7 @@ int lesp_list_access_points(lesp_cb_t cb)
       return -1;
     }
 
-  nvdbg("Access Point list finished with %d ap founds\n", number);
+  ninfo("Access Point list finished with %d ap founds\n", number);
 
   return number;
 }
@@ -1158,7 +1210,7 @@ int lesp_socket(int domain, int type, int protocol)
 
   if ((domain != PF_INET) && (type != SOCK_STREAM) && (IPPROTO_TCP))
     {
-      ndbg("Not Implemented!\n");
+      nerr("ERROR: Not Implemented!\n");
       return -1;
     }
 
@@ -1167,7 +1219,7 @@ int lesp_socket(int domain, int type, int protocol)
   ret = -1;
   if (!g_lesp_state.is_initialized)
     {
-      nvdbg("Esp8266 not initialized; can't list access points\n");
+      ninfo("Esp8266 not initialized; can't list access points\n");
     }
   else
     {
@@ -1220,7 +1272,7 @@ int lesp_closesocket(int sockfd)
 
 int lesp_bind(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
@@ -1270,13 +1322,13 @@ int lesp_connect(int sockfd, FAR const struct sockaddr *addr, socklen_t addrlen)
 
 int lesp_listen(int sockfd, int backlog)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
@@ -1297,10 +1349,10 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
     {
       ret = lesp_ask_ans_ok(lespTIMEOUT_MS,"AT+CIPSEND=%d,%d\r\n",sockfd,len);
     }
-  
+
   if (ret >= 0)
     {
-      nvdbg("Sending in socket %d, %d bytes\n", sockfd,len);
+      ninfo("Sending in socket %d, %d bytes\n", sockfd,len);
       ret = write(g_lesp_state.fd,buf,len);
     }
 
@@ -1311,7 +1363,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
       if (ret < 0)
         {
-          break; 
+          break;
         }
 
       while ((*ptr != 0) && (*ptr != 'S'))
@@ -1328,12 +1380,12 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags)
 
   if (ret >= 0)
     {
-      nvdbg("Sent\n");
+      ninfo("Sent\n");
     }
 
   if (ret < 0)
     {
-      ndbg("Cannot send in socket %d, %d bytes\n", sockfd, len);
+      nerr("ERROR: Cannot send in socket %d, %d bytes\n", sockfd, len);
       return -1;
     }
 
@@ -1345,10 +1397,10 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
   int ret = 0;
   lesp_socket_t *sock;
   sem_t sem;
-  
+
   if (sem_init(&sem, 0, 0) < 0)
     {
-      nvdbg("Cannot create semaphore\n");
+      ninfo("Cannot create semaphore\n");
       return -1;
     }
 
@@ -1423,28 +1475,28 @@ ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags)
 int lesp_setsockopt(int sockfd, int level, int option,
                     FAR const void *value, socklen_t value_len)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_getsockopt(int sockfd, int level, int option, FAR void *value,
                     FAR socklen_t *value_len)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_gethostbyname(char *hostname, uint16_t usNameLen,
                        unsigned long *out_ip_addr)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 
 int lesp_mdnsadvertiser(uint16_t mdnsEnabled, char *deviceServiceName,
                         uint16_t deviceServiceNameLength)
 {
-  ndbg("Not implemented %s\n", __func__);
+  nerr("ERROR: Not implemented %s\n", __func__);
   return -1;
 }
 

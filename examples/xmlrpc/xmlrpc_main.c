@@ -193,16 +193,16 @@ static void xmlrpc_handler(int fd)
       tv.tv_sec = 1;
       tv.tv_usec = 0;
 
-      ndbg("[%d] select...\n", fd);
+      ninfo("[%d] select...\n", fd);
       ret = select(fd + 1, &rfds, NULL, NULL, &tv);
-      ndbg("[%d] data ready\n", fd);
+      ninfo("[%d] data ready\n", fd);
 
       if (ret > 0)
         {
           if (FD_ISSET(fd, &rfds))
             {
               len = recv(fd, &buffer[max], 1024, 0);
-              ndbg("[%d] %d bytes received\n", fd, len);
+              ninfo("[%d] %d bytes received\n", fd, len);
 
               if (len > 0)
                 {
@@ -225,7 +225,7 @@ static void xmlrpc_handler(int fd)
         {
           /* Timeout... */
 
-          ndbg("[%d] timeout\n", fd);
+          nerr("ERROR: [%d] timeout\n", fd);
           ret = -1;
           break;
         }
@@ -378,7 +378,7 @@ int xmlrpc_main(int argc, char *argv[])
 
   if (xmlrpc_netinit() < 0)
     {
-      ndbg("Could not initialize the network interface\n");
+      nerr("ERROR: Could not initialize the network interface\n");
       return ERROR;
     }
 
@@ -407,11 +407,11 @@ int xmlrpc_main(int argc, char *argv[])
         {
           break;
         }
-      ndbg("Connection accepted: %d\n", connfd);
+      ninfo("Connection accepted: %d\n", connfd);
 
       xmlrpc_handler(connfd);
       close(connfd);
-      ndbg("[%d] connection closed\n", connfd);
+      ninfo("[%d] connection closed\n", connfd);
     }
 
   close(listenfd);

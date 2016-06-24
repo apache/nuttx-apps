@@ -166,3 +166,5 @@ distclean: clean
 	$(call DELFILE, bridge_config.h)
 
 -include Make.dep
+.PHONY: preconfig
+preconfig:

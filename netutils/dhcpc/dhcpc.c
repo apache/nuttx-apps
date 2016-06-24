@@ -353,9 +353,9 @@ void *dhcpc_open(const void *macaddr, int maclen)
   struct timeval tv;
   int ret;
 
-  ndbg("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-       ((uint8_t*)macaddr)[0], ((uint8_t*)macaddr)[1], ((uint8_t*)macaddr)[2],
-       ((uint8_t*)macaddr)[3], ((uint8_t*)macaddr)[4], ((uint8_t*)macaddr)[5]);
+  ninfo("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        ((uint8_t*)macaddr)[0], ((uint8_t*)macaddr)[1], ((uint8_t*)macaddr)[2],
+        ((uint8_t*)macaddr)[3], ((uint8_t*)macaddr)[4], ((uint8_t*)macaddr)[5]);
 
   /* Allocate an internal DHCP structure */
 
@@ -373,7 +373,7 @@ void *dhcpc_open(const void *macaddr, int maclen)
       pdhcpc->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
       if (pdhcpc->sockfd < 0)
         {
-          nvdbg("socket handle %d\n",ret);
+          ninfo("socket handle %d\n",ret);
           free(pdhcpc);
           return NULL;
         }
@@ -387,7 +387,7 @@ void *dhcpc_open(const void *macaddr, int maclen)
       ret = bind(pdhcpc->sockfd, (struct sockaddr*)&addr, sizeof(struct sockaddr_in));
       if (ret < 0)
         {
-          nvdbg("bind status %d\n",ret);
+          ninfo("bind status %d\n",ret);
           close(pdhcpc->sockfd);
           free(pdhcpc);
           return NULL;
@@ -401,7 +401,7 @@ void *dhcpc_open(const void *macaddr, int maclen)
       ret = setsockopt(pdhcpc->sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval));
       if (ret < 0)
         {
-          nvdbg("setsockopt status %d\n",ret);
+          ninfo("setsockopt status %d\n",ret);
           close(pdhcpc->sockfd);
           free(pdhcpc);
           return NULL;
@@ -469,7 +469,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
         {
           /* Send the DISCOVER command */
 
-          ndbg("Broadcast DISCOVER\n");
+          ninfo("Broadcast DISCOVER\n");
           if (dhcpc_sendmsg(pdhcpc, presult, DHCPDISCOVER) < 0)
             {
               return ERROR;
@@ -487,7 +487,8 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
                    * by a new OFFER.
                    */
 
-                  ndbg("Received OFFER from %08x\n", ntohl(presult->serverid.s_addr));
+                  ninfo("Received OFFER from %08x\n",
+                       ntohl(presult->serverid.s_addr));
                   pdhcpc->ipaddr.s_addr   = presult->ipaddr.s_addr;
                   pdhcpc->serverid.s_addr = presult->serverid.s_addr;
 
@@ -522,7 +523,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
         {
           /* Send the REQUEST message to obtain the lease that was offered to us. */
 
-          ndbg("Send REQUEST\n");
+          ninfo("Send REQUEST\n");
           if (dhcpc_sendmsg(pdhcpc, presult, DHCPREQUEST) < 0)
             {
               return ERROR;
@@ -544,7 +545,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
 
               if (msgtype == DHCPACK)
                 {
-                  ndbg("Received ACK\n");
+                  ninfo("Received ACK\n");
                   state = STATE_HAVE_LEASE;
                 }
 
@@ -554,7 +555,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
 
               else if (msgtype == DHCPNAK)
                 {
-                  ndbg("Received NAK\n");
+                  ninfo("Received NAK\n");
                   break;
                 }
 
@@ -565,7 +566,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
 
               else if (msgtype == DHCPOFFER)
                 {
-                  ndbg("Received another OFFER, send DECLINE\n");
+                  ninfo("Received another OFFER, send DECLINE\n");
                   (void)dhcpc_sendmsg(pdhcpc, presult, DHCPDECLINE);
                 }
 
@@ -573,7 +574,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
 
               else
                 {
-                  ndbg("Ignoring msgtype=%d\n", msgtype);
+                  ninfo("Ignoring msgtype=%d\n", msgtype);
                 }
             }
 
@@ -595,26 +596,26 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
     }
   while (state != STATE_HAVE_LEASE);
 
-  ndbg("Got IP address %d.%d.%d.%d\n",
-       (presult->ipaddr.s_addr       ) & 0xff,
-       (presult->ipaddr.s_addr >> 8  ) & 0xff,
-       (presult->ipaddr.s_addr >> 16 ) & 0xff,
-       (presult->ipaddr.s_addr >> 24 ) & 0xff);
-  ndbg("Got netmask %d.%d.%d.%d\n",
-       (presult->netmask.s_addr       ) & 0xff,
-       (presult->netmask.s_addr >> 8  ) & 0xff,
-       (presult->netmask.s_addr >> 16 ) & 0xff,
-       (presult->netmask.s_addr >> 24 ) & 0xff);
-  ndbg("Got DNS server %d.%d.%d.%d\n",
-       (presult->dnsaddr.s_addr       ) & 0xff,
-       (presult->dnsaddr.s_addr >> 8  ) & 0xff,
-       (presult->dnsaddr.s_addr >> 16 ) & 0xff,
-       (presult->dnsaddr.s_addr >> 24 ) & 0xff);
-  ndbg("Got default router %d.%d.%d.%d\n",
-       (presult->default_router.s_addr       ) & 0xff,
-       (presult->default_router.s_addr >> 8  ) & 0xff,
-       (presult->default_router.s_addr >> 16 ) & 0xff,
-       (presult->default_router.s_addr >> 24 ) & 0xff);
-  ndbg("Lease expires in %d seconds\n", presult->lease_time);
+  ninfo("Got IP address %d.%d.%d.%d\n",
+        (presult->ipaddr.s_addr       ) & 0xff,
+        (presult->ipaddr.s_addr >> 8  ) & 0xff,
+        (presult->ipaddr.s_addr >> 16 ) & 0xff,
+        (presult->ipaddr.s_addr >> 24 ) & 0xff);
+  ninfo("Got netmask %d.%d.%d.%d\n",
+        (presult->netmask.s_addr       ) & 0xff,
+        (presult->netmask.s_addr >> 8  ) & 0xff,
+        (presult->netmask.s_addr >> 16 ) & 0xff,
+        (presult->netmask.s_addr >> 24 ) & 0xff);
+  ninfo("Got DNS server %d.%d.%d.%d\n",
+        (presult->dnsaddr.s_addr       ) & 0xff,
+        (presult->dnsaddr.s_addr >> 8  ) & 0xff,
+        (presult->dnsaddr.s_addr >> 16 ) & 0xff,
+        (presult->dnsaddr.s_addr >> 24 ) & 0xff);
+  ninfo("Got default router %d.%d.%d.%d\n",
+        (presult->default_router.s_addr       ) & 0xff,
+        (presult->default_router.s_addr >> 8  ) & 0xff,
+        (presult->default_router.s_addr >> 16 ) & 0xff,
+        (presult->default_router.s_addr >> 24 ) & 0xff);
+  ninfo("Lease expires in %d seconds\n", presult->lease_time);
   return OK;
 }

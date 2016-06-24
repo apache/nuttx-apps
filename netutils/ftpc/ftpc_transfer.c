@@ -111,7 +111,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
 
   if (!FTPC_HAS_PASV(session))
   {
-    ndbg("Host doesn't support passive mode\n");
+    nwarn("WARNING: Host doesn't support passive mode\n");
     return ERROR;
   }
 
@@ -143,7 +143,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
                  &tmpap[3], &tmpap[4], &tmpap[5]);
   if (nscan != 6)
     {
-      ndbg("Error parsing PASV reply: '%s'\n", session->reply);
+      nwarn("WARNING: Error parsing PASV reply: '%s'\n", session->reply);
       return ERROR;
     }
 
@@ -255,7 +255,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 
   if (!ftpc_connected(session))
     {
-      ndbg("Not connected\n");
+      nerr("ERROR: Not connected\n");
       goto errout;
     }
 
@@ -264,7 +264,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
   ret = ftpc_sockinit(&session->data);
   if (ret != OK)
     {
-      ndbg("ftpc_sockinit() failed: %d\n", errno);
+      nerr("ERROR: ftpc_sockinit() failed: %d\n", errno);
       goto errout;
     }
 
@@ -281,7 +281,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftp_pasvmode(session, addrport);
       if (ret != OK)
         {
-          ndbg("ftp_pasvmode() failed: %d\n", errno);
+          nerr("ERROR: ftp_pasvmode() failed: %d\n", errno);
           goto errout_with_data;
         }
 
@@ -296,7 +296,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       ret = ftpc_sockconnect(&session->data, &addr);
       if (ret < 0)
         {
-          ndbg("ftpc_sockconnect() failed: %d\n", errno);
+          nerr("ERROR: ftpc_sockconnect() failed: %d\n", errno);
           goto errout_with_data;
         }
     }
@@ -316,7 +316,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
                      paddr[3], pport[0], pport[1]);
       if (ret < 0)
         {
-          ndbg("ftpc_cmd() failed: %d\n", errno);
+          nerr("ERROR: ftpc_cmd() failed: %d\n", errno);
           goto errout_with_data;
         }
     }
@@ -407,7 +407,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
   {
     /* Read data from command channel */
 
-    nvdbg("Flush cmd channel data\n");
+    ninfo("Flush cmd channel data\n");
     while (stream && fread(session->buffer, 1, CONFIG_FTP_BUFSIZE, stream) > 0);
     return OK;
   }
@@ -418,7 +418,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
    * <IAC IP><IAC DM>ABORT<CR><LF>
    */
 
-  nvdbg("Telnet ABORt sequence\n");
+  ninfo("Telnet ABORt sequence\n");
   ftpc_sockprintf(&session->cmd, "%c%c", TELNET_IAC, TELNET_IP); /* Interrupt process */
   ftpc_sockprintf(&session->cmd, "%c%c", TELNET_IAC, TELNET_DM); /* Telnet synch signal */
   ftpc_sockprintf(&session->cmd, "ABOR\r\n");                    /* Abort */
@@ -438,7 +438,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
 
   if (session->code != 226 && session->code != 426)
     {
-      nvdbg("Expected 226 or 426 reply\n");
+      ninfo("Expected 226 or 426 reply\n");
     }
   else
     {
@@ -452,7 +452,7 @@ int ftpc_xfrabort(FAR struct ftpc_session_s *session, FAR FILE *stream)
 
      if (session->code != 226 && session->code != 225)
        {
-         nvdbg("Expected 225 or 226 reply\n");
+         ninfo("Expected 225 or 226 reply\n");
        }
     }
 
@@ -475,7 +475,7 @@ void ftpc_timeout(int argc, uint32_t arg1, ...)
 {
   FAR struct ftpc_session_s *session = (FAR struct ftpc_session_s *)arg1;
 
-  nlldbg("Timeout!\n");
+  nerr("ERROR: Timeout!\n");
   DEBUGASSERT(argc == 1 && session);
   kill(session->pid, CONFIG_FTP_SIGNAL);
 }
@@ -493,7 +493,7 @@ FAR char *ftpc_absrpath(FAR struct ftpc_session_s *session,
 {
   FAR char *absrpath = ftpc_abspath(session, relpath,
                                     session->homerdir, session->currdir);
-  nvdbg("%s -> %s\n", relpath, absrpath);
+  ninfo("%s -> %s\n", relpath, absrpath);
   return absrpath;
 }
 
@@ -510,7 +510,7 @@ FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
 {
   FAR char *abslpath = ftpc_abspath(session, relpath,
                                     session->homeldir, session->curldir);
-  nvdbg("%s -> %s\n", relpath, abslpath);
+  ninfo("%s -> %s\n", relpath, abslpath);
   return abslpath;
 }
 

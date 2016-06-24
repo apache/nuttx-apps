@@ -356,21 +356,22 @@ static inline int smart_wrfile(FAR struct smart_filedesc_s *file)
       nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
       if (nbyteswritten < 0)
         {
-          int err = errno;
+          int errcode = errno;
 
           /* If the write failed because there is no space on the device,
            * then don't complain.
            */
 
-          if (err != ENOSPC)
+          if (errcode != ENOSPC)
             {
-              printf("ERROR: Failed to write file: %d\n", err);
+              printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
               printf("  File size:    %d\n", file->len);
               printf("  Write offset: %ld\n", (long)offset);
               printf("  Write size:   %ld\n", (long)nbytestowrite);
               ret = ERROR;
             }
+
           close(fd);
 
           /* Remove any garbage file that might have been left behind */

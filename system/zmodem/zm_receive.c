@@ -839,7 +839,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
  *   Timed out waiting:
  *
  *   1) In state ZMR_INITWAIT - Received ZSINIT, waiting for data, or
- *   2) In state XMRS_FILENAME - Received ZFILE, waiting for file info
+ *   2) In state XMRS_FILENAME - Received ZFILE, waiting for file _info
  *
  ****************************************************************************/
 

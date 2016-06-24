@@ -95,11 +95,11 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize)
   st = pload(exepath, varsize, varsize);
   if (!st)
     {
-      bdbg("ERROR: Could not load %s\n", exepath);
+      berr("ERROR: Could not load %s\n", exepath);
       return -ENOEXEC;
     }
 
-  bvdbg("Loaded %s\n", exepath);
+  binfo("Loaded %s\n", exepath);
 
   /* Execute the P-Code program until a stopping condition occurs */
 
@@ -118,13 +118,13 @@ int prun(FAR char *exepath, size_t varsize, size_t strsize)
     {
       /* REVISIT: Select a more appropriated return errocode */
 
-      bdbg("ERROR: Runtime error 0x%02x -- Execution Stopped\n", errcode);
+      berr("ERROR: Runtime error 0x%02x -- Execution Stopped\n", errcode);
       ret = -ENOEXEC;
     }
 
   /* Clean up resources used by the interpreter */
 
-  bvdbg("Execution terminated\n");
+  binfo("Execution terminated\n");
   pexec_release(st);
   return ret;
 }

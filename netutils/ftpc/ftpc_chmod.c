@@ -99,7 +99,7 @@ int ftpc_chmod(SESSION handle, FAR const char *path, FAR const char *mode)
     }
   else
     {
-      ndbg("Server does not support SITE CHMOD\n");
+      nwarn("WARNING: Server does not support SITE CHMOD\n");
     }
 
   return ERROR;

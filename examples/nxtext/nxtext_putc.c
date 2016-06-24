@@ -233,7 +233,7 @@ nxtext_renderglyph(FAR struct nxtext_state_s *st,
 
   /* Make sure that there is room for another glyph */
 
-  gvdbg("ch=%c [%02x]\n", isprint(ch) ? ch : '.', ch);
+  ginfo("ch=%c [%02x]\n", isprint(ch) ? ch : '.', ch);
 
   /* Allocate the glyph (always succeeds) */
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netinit.c
  *
- *   Copyright (C) 2010-2012, 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2010-2012, 2014-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This is influenced by similar logic from uIP:
@@ -45,8 +45,8 @@
 /* Is network initialization debug forced on? */
 
 #ifdef CONFIG_NSH_NETINIT_DEBUG
-#  undef  CONFIG_DEBUG_VERBOSE
-#  define CONFIG_DEBUG_VERBOSE 1
+#  undef  CONFIG_DEBUG_INFO
+#  define CONFIG_DEBUG_INFO 1
 #  undef  CONFIG_DEBUG_NET
 #  define CONFIG_DEBUG_NET 1
 #endif
@@ -72,9 +72,13 @@
 #  include <apps/netutils/dhcpc.h>
 #endif
 
+#ifdef CONFIG_NETUTILS_NTPCLIENT
+#  include <apps/netutils/ntpclient.h>
+#endif
+
 #include "nsh.h"
 
-#ifdef CONFIG_NET
+#ifdef CONFIG_NSH_NETINIT
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -128,7 +132,6 @@
 #  undef CONFIG_NSH_NETINIT_MONITOR
 #endif
 
-
 /* We need a valid IP domain (any domain) to create a socket that we can use
  * to comunicate with the network device.
  */
@@ -146,10 +149,6 @@
 
 #define LONG_TIME_SEC    (60*60) /* One hour in seconds */
 #define SHORT_TIME_SEC   (2)     /* 2 seconds */
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
 
 /****************************************************************************
  * Private Data
@@ -204,10 +203,6 @@ static const uint16_t g_ipv6_netmask[8] =
 #endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF*/
 
 /****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -233,7 +228,7 @@ static void nsh_netinit_configure(void)
   uint8_t mac[IFHWADDRLEN];
 #endif
 
-  nvdbg("Entry\n");
+  ninfo("Entry\n");
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
@@ -342,9 +337,15 @@ static void nsh_netinit_configure(void)
         dhcpc_close(handle);
     }
 #endif
+
+#ifdef CONFIG_NETUTILS_NTPCLIENT
+  /* Start the NTP client */
+
+  ntpc_start();
+#endif
 #endif /* NSH_HAVE_NETDEV */
 
-  nvdbg("Exit\n");
+  ninfo("Exit\n");
 }
 
 /****************************************************************************
@@ -365,14 +366,14 @@ static void nsh_netinit_signal(int signo, FAR siginfo_t *siginfo,
   /* What is the count on the semaphore?  Don't over-post */
 
   ret = sem_getvalue(&g_notify_sem, &semcount);
-  nlldbg("Entry: semcount=%d\n", semcount);
+  ninfo("Entry: semcount=%d\n", semcount);
 
   if (ret == OK && semcount <= 0)
     {
       sem_post(&g_notify_sem);
     }
 
-  nllvdbg("Exit\n");
+  ninfo("Exit\n");
 }
 #endif
 
@@ -396,7 +397,7 @@ static int nsh_netinit_monitor(void)
   int ret;
   int sd;
 
-  nvdbg("Entry\n");
+  ninfo("Entry\n");
 
   /* Initialize the notification semaphore */
 
@@ -412,7 +413,7 @@ static int nsh_netinit_monitor(void)
       ret = -errno;
       DEBUGASSERT(ret < 0);
 
-      ndbg("ERROR: Failed to create a socket: %d\n", ret);
+      nerr("ERROR: Failed to create a socket: %d\n", ret);
       goto errout;
     }
 
@@ -427,7 +428,7 @@ static int nsh_netinit_monitor(void)
       ret = -errno;
       DEBUGASSERT(ret < 0);
 
-      ndbg("ERROR: sigaction() failed: %d\n", ret);
+      nerr("ERROR: sigaction() failed: %d\n", ret);
       goto errout_with_socket;
     }
 
@@ -449,7 +450,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCMIINOTIFY) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCMIINOTIFY) failed: %d\n", ret);
           goto errout_with_sigaction;
         }
 
@@ -461,7 +462,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCGIFFLAGS) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCGIFFLAGS) failed: %d\n", ret);
           goto errout_with_notification;
         }
 
@@ -480,7 +481,7 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCGMIIPHY) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCGMIIPHY) failed: %d\n", ret);
           goto errout_with_notification;
         }
 
@@ -494,11 +495,11 @@ static int nsh_netinit_monitor(void)
           ret = -errno;
           DEBUGASSERT(ret < 0);
 
-          ndbg("ERROR: ioctl(SIOCGMIIREG) failed: %d\n", ret);
+          nerr("ERROR: ioctl(SIOCGMIIREG) failed: %d\n", ret);
           goto errout_with_notification;
         }
 
-      nvdbg("%s: devup=%d PHY address=%02x MSR=%04x\n",
+      ninfo("%s: devup=%d PHY address=%02x MSR=%04x\n",
             ifr.ifr_name, devup, ifr.ifr_mii_phy_id, ifr.ifr_mii_val_out);
 
       /* Check for link up or down */
@@ -513,7 +514,7 @@ static int nsh_netinit_monitor(void)
                * Bring the link up.
                */
 
-              nvdbg("Bringing the link up\n");
+              ninfo("Bringing the link up\n");
 
               ifr.ifr_flags = IFF_UP;
               ret = ioctl(sd, SIOCSIFFLAGS, (unsigned long)&ifr);
@@ -522,7 +523,7 @@ static int nsh_netinit_monitor(void)
                   ret = -errno;
                   DEBUGASSERT(ret < 0);
 
-                  ndbg("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
+                  nerr("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
                   goto errout_with_notification;
                 }
 
@@ -551,7 +552,7 @@ static int nsh_netinit_monitor(void)
                * the link down.
                */
 
-              nvdbg("Taking the link down\n");
+              ninfo("Taking the link down\n");
 
               ifr.ifr_flags = IFF_DOWN;
               ret = ioctl(sd, SIOCSIFFLAGS, (unsigned long)&ifr);
@@ -560,7 +561,7 @@ static int nsh_netinit_monitor(void)
                   ret = -errno;
                   DEBUGASSERT(ret < 0);
 
-                  ndbg("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
+                  nerr("ERROR: ioctl(SIOCSIFFLAGS) failed: %d\n", ret);
                   goto errout_with_notification;
                 }
             }
@@ -599,7 +600,7 @@ errout_with_sigaction:
 errout_with_socket:
   close(sd);
 errout:
-  ndbg("Aborting\n");
+  nerr("ERROR: Aborting\n");
   return ret;
 }
 #endif
@@ -615,7 +616,7 @@ errout:
 #ifdef CONFIG_NSH_NETINIT_THREAD
 static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
 {
-  nvdbg("Entry\n");
+  ninfo("Entry\n");
 
   /* Configure the network */
 
@@ -627,7 +628,7 @@ static pthread_addr_t nsh_netinit_thread(pthread_addr_t arg)
   nsh_netinit_monitor();
 #endif
 
-  nvdbg("Exit\n");
+  ninfo("Exit\n");
   return NULL;
 }
 #endif
@@ -661,11 +662,11 @@ int nsh_netinit(void)
   (void)pthread_attr_setschedparam(&attr, &sparam);
   (void)pthread_attr_setstacksize(&attr, CONFIG_NSH_NETINIT_THREAD_STACKSIZE);
 
-  nvdbg("Starting netinit thread\n");
+  ninfo("Starting netinit thread\n");
   ret = pthread_create(&tid, &attr, nsh_netinit_thread, NULL);
   if (ret != OK)
     {
-      ndbg("ERROR: Failed to create netinit thread: %d\n", ret);
+      nerr("ERROR: Failed to create netinit thread: %d\n", ret);
       (void)nsh_netinit_thread(NULL);
     }
   else
@@ -689,4 +690,4 @@ int nsh_netinit(void)
 #endif
 }
 
-#endif /* CONFIG_NET */
+#endif /* CONFIG_NSH_NETINIT */

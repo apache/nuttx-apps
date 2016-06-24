@@ -178,7 +178,7 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
    * fast as possible so we don't overrun the listen queue.
    */
 
-  nvdbg("New connection(s) on listen_fd %d\n", listen_fd);
+  ninfo("New connection(s) on listen_fd %d\n", listen_fd);
   for (;;)
     {
       /* Get the next free connection from the free list */
@@ -194,7 +194,7 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
            * back here.
            */
 
-          ndbg("No free connections\n");
+          nerr("ERROR: No free connections\n");
           tmr_run(tv);
           return -1;
         }
@@ -206,7 +206,7 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
           conn->hc = NEW(httpd_conn, 1);
           if (conn->hc == NULL)
             {
-              ndbg("out of memory allocating an httpd_conn\n");
+              nerr("ERROR: out of memory allocating an httpd_conn\n");
               exit(1);
             }
 
@@ -234,7 +234,7 @@ static int handle_newconnect(FAR struct timeval *tv, int listen_fd)
           break;
         }
 
-      nvdbg("New connection fd %d\n", conn->hc->conn_fd);
+      ninfo("New connection fd %d\n", conn->hc->conn_fd);
 
       /* Remove the connection entry from the free list */
 
@@ -294,7 +294,7 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
           return;
         }
 
-      ndbg("read(fd=%d) failed: %d\n", hc->conn_fd, errno);
+      nerr("ERROR: read(fd=%d) failed: %d\n", hc->conn_fd, errno);
       BADREQUEST("read");
       goto errout_with_400;
     }
@@ -372,7 +372,8 @@ static void handle_read(struct connect_s *conn, struct timeval *tv)
   actual = lseek(hc->file_fd, conn->offset, SEEK_SET);
   if (actual != conn->offset)
     {
-       ndbg("fseek to %d failed: offset=%d errno=%d\n", conn->offset, actual, errno);
+       nerr("ERROR: fseek to %d failed: offset=%d errno=%d\n",
+            conn->offset, actual, errno);
        BADREQUEST("lseek");
        goto errout_with_400;
     }
@@ -426,7 +427,7 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
 
   while (conn->offset < conn->end_offset)
     {
-      nvdbg("offset: %d end_offset: %d bytes_sent: %d\n",
+      ninfo("offset: %d end_offset: %d bytes_sent: %d\n",
             conn->offset, conn->end_offset, conn->hc->bytes_sent);
 
       /* Fill the rest of the response buffer with file data */
@@ -434,10 +435,10 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
       nread = read_buffer(conn);
       if (nread < 0)
         {
-          ndbg("File read error: %d\n", errno);
+          nerr("ERROR: File read error: %d\n", errno);
           goto errout_clear_connection;
         }
-      nvdbg("Read %d bytes, buflen %d\n", nread, hc->buflen);
+      ninfo("Read %d bytes, buflen %d\n", nread, hc->buflen);
 
       /* Send the buffer */
 
@@ -450,7 +451,8 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
           nwritten = httpd_write(hc->conn_fd, hc->buffer, hc->buflen);
           if (nwritten < 0)
             {
-              ndbg("Error sending %s: %d\n", hc->encodedurl, errno);
+              nerr("ERROR: Error sending %s: %d\n",
+                   hc->encodedurl, errno);
               goto errout_clear_connection;
             }
 
@@ -465,18 +467,18 @@ static void handle_send(struct connect_s *conn, struct timeval *tv)
 
           conn->offset         += nwritten;
           conn->hc->bytes_sent += nwritten;
-          nvdbg("Wrote %d bytes\n", nwritten);
+          ninfo("Wrote %d bytes\n", nwritten);
         }
     }
 
   /* The file transfer is complete -- finish the connection */
 
-  nvdbg("Finish connection\n");
+  ninfo("Finish connection\n");
   finish_connection(conn, tv);
   return;
 
 errout_clear_connection:
-  ndbg("Clear connection\n");
+  ninfo("Clear connection\n");
   clear_connection(conn, tv);
   return;
 }
@@ -556,7 +558,8 @@ static void clear_connection(struct connect_s *conn, struct timeval *tv)
         {
           return;
         }
-      ndbg("tmr_create(linger_clear_connection) failed\n");
+
+      nerr("ERROR: tmr_create(linger_clear_connection) failed\n");
     }
 
   /* Either we are done lingering, we shouldn't linger, or we failed to setup the linger */
@@ -594,7 +597,8 @@ static void idle(ClientData client_data, struct timeval *nowP)
         case CNST_READING:
           if (nowP->tv_sec - conn->active_at >= CONFIG_THTTPD_IDLE_READ_LIMIT_SEC)
             {
-              ndbg("%s connection timed out reading\n", httpd_ntoa(&conn->hc->client_addr));
+              nerr("ERROR: %s connection timed out reading\n",
+                   httpd_ntoa(&conn->hc->client_addr));
               httpd_send_err(conn->hc, 408, httpd_err408title, "",
                              httpd_err408form, "");
               finish_connection(conn, nowP);
@@ -604,7 +608,8 @@ static void idle(ClientData client_data, struct timeval *nowP)
         case CNST_SENDING:
           if (nowP->tv_sec - conn->active_at >= CONFIG_THTTPD_IDLE_SEND_LIMIT_SEC)
             {
-              ndbg("%s connection timed out sending\n", httpd_ntoa(&conn->hc->client_addr));
+              nerr("ERROR: %s connection timed out sending\n",
+                   httpd_ntoa(&conn->hc->client_addr));
               clear_connection(conn, nowP);
             }
           break;
@@ -616,7 +621,7 @@ static void linger_clear_connection(ClientData client_data, struct timeval *nowP
 {
   struct connect_s *conn;
 
-  nvdbg("Clear connection\n");
+  ninfo("Clear connection\n");
   conn = (struct connect_s *) client_data.p;
   conn->linger_timer = NULL;
   really_clear_connection(conn);
@@ -663,7 +668,7 @@ int thttpd_main(int argc, char **argv)
   int ret;
 #endif
 
-  nvdbg("THTTPD started\n");
+  ninfo("THTTPD started\n");
 
   /* Setup host address */
 
@@ -682,7 +687,7 @@ int thttpd_main(int argc, char **argv)
   fw = fdwatch_initialize(CONFIG_NSOCKET_DESCRIPTORS);
   if (!fw)
     {
-      ndbg("fdwatch initialization failure\n");
+      nerr("ERROR: fdwatch initialization failure\n");
       exit(1);
     }
 
@@ -691,7 +696,8 @@ int thttpd_main(int argc, char **argv)
 #ifdef CONFIG_THTTPD_DATADIR
   if (chdir(CONFIG_THTTPD_DATADIR) < 0)
     {
-      ndbg("chdir to %s: %d\n", CONFIG_THTTPD_DATADIR, errno);
+      ninfo("chdir to %s: %d\n",
+           CONFIG_THTTPD_DATADIR, errno);
       exit(1);
     }
 #endif
@@ -702,11 +708,11 @@ int thttpd_main(int argc, char **argv)
 
   /* Initialize the HTTP layer */
 
-  nvdbg("Calling httpd_initialize()\n");
+  ninfo("Calling httpd_initialize()\n");
   hs = httpd_initialize(&sa);
   if (!hs)
     {
-      ndbg("httpd_initialize() failed\n");
+      nerr("ERROR: httpd_initialize() failed\n");
       exit(1);
     }
 
@@ -714,7 +720,7 @@ int thttpd_main(int argc, char **argv)
 
   if (tmr_create(NULL, occasional, JunkClientData, CONFIG_THTTPD_OCCASIONAL_MSEC * 1000L, 1) == NULL)
     {
-      ndbg("tmr_create(occasional) failed\n");
+      nerr("ERROR: tmr_create(occasional) failed\n");
       exit(1);
     }
 
@@ -722,7 +728,7 @@ int thttpd_main(int argc, char **argv)
 
   if (tmr_create(NULL, idle, JunkClientData, 5 * 1000L, 1) == NULL)
     {
-      ndbg("tmr_create(idle) failed\n");
+      nerr("ERROR: tmr_create(idle) failed\n");
       exit(1);
 
     }
@@ -732,7 +738,7 @@ int thttpd_main(int argc, char **argv)
   connects = NEW(struct connect_s, AVAILABLE_FDS);
   if (connects == NULL)
     {
-      ndbg("Out of memory allocating a struct connect_s\n");
+      nerr("ERROR: Out of memory allocating a struct connect_s\n");
       exit(1);
     }
 
@@ -756,7 +762,7 @@ int thttpd_main(int argc, char **argv)
 
   /* Main loop */
 
-  nvdbg("Entering the main loop\n");
+  ninfo("Entering the main loop\n");
   (void)gettimeofday(&tv, NULL);
   for (;;)
     {
@@ -772,7 +778,7 @@ int thttpd_main(int argc, char **argv)
               continue;
             }
 
-          ndbg("fdwatch failed: %d\n", errno);
+          nerr("ERROR: fdwatch failed: %d\n", errno);
           exit(1);
         }
 
@@ -810,7 +816,7 @@ int thttpd_main(int argc, char **argv)
               hc = conn->hc;
               if (fdwatch_check_fd(fw, hc->conn_fd))
                 {
-                  nvdbg("Handle conn_state %d\n", conn->conn_state);
+                  ninfo("Handle conn_state %d\n", conn->conn_state);
                   switch (conn->conn_state)
                     {
                       case CNST_READING:
@@ -855,7 +861,7 @@ int thttpd_main(int argc, char **argv)
   /* The main loop terminated */
 
   shut_down();
-  ndbg("Exiting\n");
+  ninfo("Exiting\n");
   exit(0);
 }
 

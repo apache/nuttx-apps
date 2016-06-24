@@ -150,7 +150,7 @@ int djoy_main(int argc, char *argv[])
   int fd;
   int tmp;
   int ret;
-  int err = EXIT_FAILURE;
+  int errcode = EXIT_FAILURE;
 
   /* Reset some globals that might been been left in a bad state */
 
@@ -248,9 +248,9 @@ int djoy_main(int argc, char *argv[])
       g_djoylast = newset;
     }
 
-  err = EXIT_SUCCESS;
+  errcode = EXIT_SUCCESS;
 
 errout_with_fd:
   close(fd);
-  return err;
+  return errcode;
 }

@@ -35,6 +35,8 @@
 
 -include $(TOPDIR)/Make.defs
 
+APPNAME = uavcan
+
 MAINSRC = uavcan_main.cxx
 
 CXXFLAGS += -I$(TOPDIR)/include/apps

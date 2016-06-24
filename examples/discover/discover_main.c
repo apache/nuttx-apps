@@ -178,7 +178,7 @@ int discover_main(int argc, char *argv[])
 
   if (discover_start(NULL) < 0)
     {
-      ndbg("Could not start discover daemon.\n");
+      nerr("ERROR: Could not start discover daemon.\n");
       return ERROR;
     }
 

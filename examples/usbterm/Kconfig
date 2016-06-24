@@ -16,7 +16,7 @@ config EXAMPLES_USBTERM_TRACEINIT
 	default n
 	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
-		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB initialization events
@@ -26,7 +26,7 @@ config EXAMPLES_USBTERM_TRACECLASS
 	default n
 	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
-		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB class driver events
@@ -36,7 +36,7 @@ config EXAMPLES_USBTERM_TRACETRANSFERS
 	default n
 	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
-		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB data transfer events
@@ -46,7 +46,7 @@ config EXAMPLES_USBTERM_TRACECONTROLLER
 	default n
 	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
-		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB device controller events
@@ -56,7 +56,7 @@ config EXAMPLES_USBTERM_TRACEINTERRUPTS
 	default n
 	depends on USBDEV_TRACE || DEBUG_USB
 	---help---
-		If USBDEV_TRACE is enabled (or DEBUG and DEBUG_USB),
+		If USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB),
 		then the example code will also manage the USB trace output.  The
 		amount of trace output can be controlled this configuration value:
 		This setting will show USB device controller interrupt-related events.

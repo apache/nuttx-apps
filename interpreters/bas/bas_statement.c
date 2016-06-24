@@ -271,9 +271,10 @@ struct Value *stmt_CASE(struct Value *value)
 
 struct Value *stmt_CHDIR_MKDIR(struct Value *value)
 {
-  int res = -1, err = -1;
   struct Pc dirpc;
   struct Pc statementpc = g_pc;
+  int res = -1;
+  int errcode = -1;
 
   ++g_pc.token;
   dirpc = g_pc;
@@ -299,14 +300,14 @@ struct Value *stmt_CHDIR_MKDIR(struct Value *value)
           assert(0);
         }
 
-      err = errno;
+      errcode = errno;
     }
 
   Value_destroy(value);
   if (g_pass == INTERPRET && res == -1)
     {
       g_pc = dirpc;
-      return Value_new_ERROR(value, IOERROR, strerror(err));
+      return Value_new_ERROR(value, IOERROR, strerror(errcode));
     }
 
   return (struct Value *)0;

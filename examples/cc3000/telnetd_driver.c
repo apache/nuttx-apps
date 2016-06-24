@@ -180,11 +180,11 @@ static inline void telnetd_dumpbuffer(FAR const char *msg,
                                       FAR const char *buffer,
                                       unsigned int nbytes)
 {
-  /* CONFIG_DEBUG, CONFIG_DEBUG_VERBOSE, and CONFIG_DEBUG_NET have to be
+  /* CONFIG_DEBUG_FEATURES, CONFIG_DEBUG_INFO, and CONFIG_DEBUG_NET have to be
   * defined or the following does nothing.
   */
 
-  nvdbgdumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
+  ninfodumpbuffer(msg, (FAR const uint8_t*)buffer, nbytes);
 }
 #endif
 
@@ -227,12 +227,12 @@ static ssize_t telnetd_receive(FAR struct telnetd_dev_s *priv, FAR const char *s
   int nread;
   uint8_t ch;
 
-  nllvdbg("srclen: %d destlen: %d\n", srclen, destlen);
+  ninfo("srclen: %d destlen: %d\n", srclen, destlen);
 
   for (nread = 0; srclen > 0 && nread < destlen; srclen--)
     {
       ch = *src++;
-      nllvdbg("ch=%02x state=%d\n", ch, priv->td_state);
+      ninfo("ch=%02x state=%d\n", ch, priv->td_state);
 
       switch (priv->td_state)
         {
@@ -397,7 +397,7 @@ static void telnetd_sendopt(FAR struct telnetd_dev_s *priv, uint8_t option,
   telnetd_dumpbuffer("Send optbuf", optbuf, 4);
   if (send(priv->td_psock, optbuf, 4, 0) < 0)
     {
-      nlldbg("Failed to send TELNET_IAC\n");
+      nerr("ERROR: Failed to send TELNET_IAC\n");
     }
 }
 
@@ -412,7 +412,7 @@ static int telnetd_open(FAR struct file *filep)
   int tmp;
   int ret;
 
-  nllvdbg("td_crefs: %d\n", priv->td_crefs);
+  ninfo("td_crefs: %d\n", priv->td_crefs);
 
   /* O_NONBLOCK is not supported */
 
@@ -468,7 +468,7 @@ static int telnetd_close(FAR struct file *filep)
   FAR char *devpath;
   int ret;
 
-  nllvdbg("td_crefs: %d\n", priv->td_crefs);
+  ninfo("td_crefs: %d\n", priv->td_crefs);
 
   /* Get exclusive access to the device structures */
 
@@ -498,7 +498,7 @@ static int telnetd_close(FAR struct file *filep)
       ret = asprintf(&devpath, TELNETD_DEVFMT, priv->td_minor);
       if (ret < 0)
         {
-          nlldbg("Failed to allocate the driver path\n");
+          nerr("ERROR: Failed to allocate the driver path\n");
         }
       else
         {
@@ -507,7 +507,7 @@ static int telnetd_close(FAR struct file *filep)
           ret = unregister_driver(devpath);
           if (ret < 0)
             {
-              nlldbg("Failed to unregister the driver %s: %d\n", devpath, ret);
+              nerr("ERROR: Failed to unregister the driver %s: %d\n", devpath, ret);
             }
 
           free(devpath);
@@ -547,7 +547,7 @@ static ssize_t telnetd_read(FAR struct file *filep, FAR char *buffer, size_t len
   FAR struct telnetd_dev_s *priv = inode->i_private;
   ssize_t ret;
 
-  nllvdbg("len: %d\n", len);
+  ninfo("len: %d\n", len);
 
   /* First, handle the case where there are still valid bytes left in the
    * I/O buffer from the last time that read was called.  NOTE:  Much of
@@ -620,7 +620,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
   char ch;
   bool eol;
 
-  nllvdbg("len: %d\n", len);
+  ninfo("len: %d\n", len);
 
   /* Process each character from the user buffer */
 
@@ -645,7 +645,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
           ret = send(priv->td_psock, priv->td_txbuffer, ncopied, 0);
           if (ret < 0)
             {
-              nlldbg("psock_send failed '%s': %d\n", priv->td_txbuffer, ret);
+              nerr("ERROR: psock_send failed '%s': %d\n", priv->td_txbuffer, ret);
               return ret;
             }
 
@@ -662,7 +662,7 @@ static ssize_t telnetd_write(FAR struct file *filep, FAR const char *buffer, siz
       ret = send(priv->td_psock, priv->td_txbuffer, ncopied, 0);
       if (ret < 0)
         {
-          nlldbg("psock_send failed '%s': %d\n", priv->td_txbuffer, ret);
+          nerr("ERROR: psock_send failed '%s': %d\n", priv->td_txbuffer, ret);
           return ret;
         }
     }
@@ -750,7 +750,7 @@ FAR char *telnetd_driver(long sd, FAR struct telnetd_s *daemon)
   priv = (FAR struct telnetd_dev_s*)malloc(sizeof(struct telnetd_dev_s));
   if (!priv)
     {
-      nlldbg("Failed to allocate the driver data structure\n");
+      nerr("ERROR: Failed to allocate the driver data structure\n");
       return NULL;
     }
 
@@ -786,7 +786,7 @@ FAR char *telnetd_driver(long sd, FAR struct telnetd_s *daemon)
   ret = asprintf(&devpath, TELNETD_DEVFMT, priv->td_minor);
   if (ret < 0)
     {
-      nlldbg("Failed to allocate the driver path\n");
+      nerr("ERROR: Failed to allocate the driver path\n");
       goto errout_with_dev;
     }
 
@@ -795,7 +795,7 @@ FAR char *telnetd_driver(long sd, FAR struct telnetd_s *daemon)
   ret = register_driver(devpath, &g_telnetdfops, 0666, priv);
   if (ret < 0)
     {
-      nlldbg("Failed to register the driver %s: %d\n", devpath, ret);
+      nerr("ERROR: Failed to register the driver %s: %d\n", devpath, ret);
       goto errout_with_devpath;
     }
 

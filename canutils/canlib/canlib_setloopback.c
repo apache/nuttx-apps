@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/system/flash_eraseall/flash_eraseall.c
+ * canutils/canlib/canlib_setloopback.c
  *
- *   Copyright (C) 2013 Ken Pettit. All rights reserved.
- *   Author: Ken Pettit <pettitkd@gmail.com>
+ *   Copyright (C) 2016 Sebastien Lorquet. All rights reserved.
+ *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,43 +38,53 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <nuttx/progmem.h>
-#include <sys/stat.h>
 
-#include <unistd.h>
+#include <sys/ioctl.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <nuttx/mtd/mtd.h>
+#include <stdbool.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <nuttx/can.h>
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Name: canlib_setloopback
+ *
+ * Description:
+ *   Wrapper for CANIOC_SET_CONNMODES. When loopback mode is enabled, the CAN
+ *   peripheral transmits on the bus, but only receives its own sent messages.
+ *
+ * Input Parameter:
+ *   fd       - file descriptor of an opened can device
+ *   loopback - wether to use loopback mode.
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success.  Otherwise -1 (ERROR)
+ *   is returned with the errno variable set to indicate the
+ *   nature of the error.
+ *
  ****************************************************************************/
 
-/****************************************************************************
- * Private data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int flash_eraseall_main(int argc, char *argv[])
-#endif
+int canlib_setloopback(int fd, bool loopback)
 {
-  /* Argument given? */
+  int ret;
+  struct canioc_connmodes_s connmodes;
 
-  if (argc < 2)
+  ret = ioctl(fd, CANIOC_GET_CONNMODES, (unsigned long)&connmodes);
+  if (ret != OK)
     {
-      fprintf(stderr, "usage: flash_eraseall flash_block_device\n");
-      return -1;
+      canerr("CANIOC_GET_CONNMODES failed, errno=%d\n", errno);
+      return ret;
     }
 
-  /* Do the job */
+  connmodes.bm_loopback = !!loopback;
 
-  flash_eraseall(argv[1]);
+  ret = ioctl(fd, CANIOC_SET_CONNMODES, (unsigned long)&connmodes);
+  if (ret != OK)
+    {
+      canerr("CANIOC_SET_CONNMODES failed, errno=%d\n", errno);
+    }
 
-  return 0;
+  return ret;
 }

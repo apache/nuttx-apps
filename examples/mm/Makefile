@@ -37,6 +37,8 @@
 
 # Memory Management Test
 
+APPNAME = mm
+
 ASRCS =
 CSRCS =
 MAINSRC = mm_main.c

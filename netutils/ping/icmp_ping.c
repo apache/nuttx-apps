@@ -264,7 +264,7 @@ int ipv4_ping(FAR struct sockaddr_in *raddr,
               int errcode = errno;
               DEBUGASSERT(errno > 0);
 
-              ndbg("ERROR: recv failed: %d\n", errcode);
+              nerr("ERROR: recv failed: %d\n", errcode);
               ret = -errcode;
               break;
             }

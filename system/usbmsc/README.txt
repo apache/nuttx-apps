@@ -43,7 +43,7 @@ system/usbmsc
   CONFIG_SYSTEM_USBMSC_DEBUGMM
     Enables some debug tests to check for memory usage and memory leaks.
 
-  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG and CONFIG_DEBUG_USB), then
+  If CONFIG_USBDEV_TRACE is enabled (or CONFIG_DEBUG_FEATURES and CONFIG_DEBUG_USB), then
   the code will also manage the USB trace output.  The amount of trace output
   can be controlled using:
 

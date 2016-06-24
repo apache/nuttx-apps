@@ -1,5 +1,5 @@
 ############################################################################
-# apps/system/note/Makefile
+# apps/system/sched_note/Makefile
 #
 #   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>

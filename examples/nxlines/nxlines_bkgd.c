@@ -127,7 +127,7 @@ const struct nx_callback_s g_nxlinescb =
 static void nxlines_redraw(NXWINDOW hwnd, FAR const struct nxgl_rect_s *rect,
                         bool more, FAR void *arg)
 {
-  gvdbg("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
+  ginfo("hwnd=%p rect={(%d,%d),(%d,%d)} more=%s\n",
          hwnd, rect->pt1.x, rect->pt1.y, rect->pt2.x, rect->pt2.y,
          more ? "true" : "false");
 }
@@ -143,7 +143,7 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 {
   /* Report the position */
 
-  gvdbg("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
+  ginfo("hwnd=%p size=(%d,%d) pos=(%d,%d) bounds={(%d,%d),(%d,%d)}\n",
         hwnd, size->w, size->h, pos->x, pos->y,
         bounds->pt1.x, bounds->pt1.y, bounds->pt2.x, bounds->pt2.y);
 
@@ -162,7 +162,7 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
 
       g_nxlines.havepos = true;
       sem_post(&g_nxlines.sem);
-      gvdbg("Have xres=%d yres=%d\n", g_nxlines.xres, g_nxlines.yres);
+      ginfo("Have xres=%d yres=%d\n", g_nxlines.xres, g_nxlines.yres);
     }
 }
 
@@ -187,7 +187,7 @@ static void nxlines_mousein(NXWINDOW hwnd, FAR const struct nxgl_point_s *pos,
 static void nxlines_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
                        FAR void *arg)
 {
-  gvdbg("hwnd=%p nch=%d\n", hwnd, nch);
+  ginfo("hwnd=%p nch=%d\n", hwnd, nch);
 
    /* In this example, there is no keyboard so a keyboard event is not
     * expected.

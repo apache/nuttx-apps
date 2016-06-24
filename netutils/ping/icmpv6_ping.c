@@ -95,7 +95,7 @@ static void icmpv6_echo_request(FAR struct net_driver_s *dev,
   uint16_t reqlen;
   int i;
 
-  nllvdbg("Send ECHO request: seqno=%d\n", pstate->png_seqno);
+  ninfo("Send ECHO request: seqno=%d\n", pstate->png_seqno);
 
   /* Set up the IPv6 header (most is probably already in place) */
 
@@ -262,7 +262,7 @@ int ipv6_ping(FAR struct sockaddr_in6 *raddr,
               int errcode = errno;
               DEBUGASSERT(errno > 0);
 
-              ndbg("ERROR: recv failed: %d\n", errcode);
+              nerr("ERROR: recv failed: %d\n", errcode);
               ret = -errcode;
               break;
             }

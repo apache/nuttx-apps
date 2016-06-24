@@ -37,6 +37,8 @@
 
 # USB Host HID keyboard Example
 
+APPNAME = hidkbd
+
 ASRCS =
 CSRCS =
 MAINSRC = hidkbd_main.c

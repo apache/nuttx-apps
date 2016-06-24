@@ -351,15 +351,15 @@ static inline int nxffs_wrfile(FAR struct nxffs_filedesc_s *file)
       nbyteswritten = write(fd, &g_fileimage[offset], nbytestowrite);
       if (nbyteswritten < 0)
         {
-          int err = errno;
+          int errcode = errno;
 
           /* If the write failed because there is no space on the device,
            * then don't complain.
            */
 
-          if (err != ENOSPC)
+          if (errcode != ENOSPC)
             {
-              printf("ERROR: Failed to write file: %d\n", err);
+              printf("ERROR: Failed to write file: %d\n", errcode);
               printf("  File name:    %s\n", file->name);
               printf("  File size:    %lu\n", (unsigned long)file->len);
               printf("  Write offset: %ld\n", (long)offset);

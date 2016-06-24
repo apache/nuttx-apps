@@ -69,10 +69,10 @@
 #  endif
 
 #  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 1
-#    define inivdbg(format, ...) \
+#    define iniinfo(format, ...) \
        printf(EXTRA_FMT format EXTRA_ARG, ##__VA_ARGS__)
 #  else
-#    define inivdbg(x...)
+#    define iniinfo(x...)
 #  endif
 #else
 #  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 0
@@ -82,9 +82,9 @@
 #  endif
 
 #  if CONFIG_FSUTILS_INIFILE_DEBUGLEVEL > 1
-#    define inivdbg printf
+#    define iniinfo printf
 #  else
-#    define inivdbg (void)
+#    define iniinfo (void)
 #  endif
 #endif
 
@@ -416,7 +416,7 @@ static FAR char *
    * for/
    */
 
-  inivdbg("variable=\"%s\"\n", variable);
+  iniinfo("variable=\"%s\"\n", variable);
 
   for (;;)
     {
@@ -429,11 +429,11 @@ static FAR char *
 
       if (!found)
         {
-          inivdbg("Returning NULL\n");
+          iniinfo("Returning NULL\n");
           return NULL;
         }
 
-      inivdbg("varinfo.variable=\"%s\"\n", varinfo.variable);
+      iniinfo("varinfo.variable=\"%s\"\n", varinfo.variable);
 
       /* Does the the variable name match the one we are looking for? */
 
@@ -441,7 +441,7 @@ static FAR char *
         {
           /* Yes... then we have it! */
 
-          inivdbg("Returning \"%s\"\n", varinfo.value);
+          iniinfo("Returning \"%s\"\n", varinfo.value);
           return varinfo.value;
         }
     }
@@ -462,7 +462,7 @@ static FAR char *inifile_find_variable(FAR struct inifile_state_s *priv,
 {
   FAR char *ret = NULL;
 
-  inivdbg("section=\"%s\" variable=\"%s\"\n", section, variable);
+  iniinfo("section=\"%s\" variable=\"%s\"\n", section, variable);
 
   /* Seek to the first variable in the specified section of the INI file */
 
@@ -473,18 +473,18 @@ static FAR char *inifile_find_variable(FAR struct inifile_state_s *priv,
        */
 
       FAR char *value = inifile_find_section_variable(priv, variable);
-      inivdbg("variable_value=0x%p\n", value);
+      iniinfo("variable_value=0x%p\n", value);
 
       if (value && *value)
         {
-          inivdbg("variable_value=\"%s\"\n", value);
+          iniinfo("variable_value=\"%s\"\n", value);
           ret = value;
         }
     }
 
   /* Return the string that we found. */
 
-  inivdbg("Returning 0x%p\n", ret);
+  iniinfo("Returning 0x%p\n", ret);
   return ret;
 }
 
@@ -626,7 +626,7 @@ long inifile_read_integer(INIHANDLE handle,
 
   /* Assume failure to find the requested value */
 
-  inivdbg("section=\"%s\" variable=\"%s\" defvalue=%d\n",
+  iniinfo("section=\"%s\" variable=\"%s\" defvalue=%d\n",
           section, variable, defvalue);
 
   /* Get the value as a string first */
@@ -641,13 +641,13 @@ long inifile_read_integer(INIHANDLE handle,
        * ignore all conversion errors.
        */
 
-      inivdbg("%s=\"%s\"\n", variable, value);
+      iniinfo("%s=\"%s\"\n", variable, value);
       ret = strtol(value, NULL, 0);
     }
 
   /* Return the value that we found. */
 
-  inivdbg("Returning %d\n", ret);
+  iniinfo("Returning %d\n", ret);
   return ret;
 }
 

@@ -34,6 +34,7 @@
 ############################################################################
 
 -include $(TOPDIR)/.config # Current configuration
+include $(APPDIR)/Make.defs
 
 # Sub-directories
 
@@ -48,6 +49,7 @@ $(1)_$(2):
 	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 endef
 
+$(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),preconfig)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),context)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),depend)))
 $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),clean)))
@@ -56,6 +58,9 @@ $(foreach SDIR, $(SUBDIRS), $(eval $(call SDIR_template,$(SDIR),distclean)))
 nothing:
 
 install:
+
+preconfig: $(foreach SDIR, $(SUBDIRS), $(SDIR)_preconfig)
+	$(Q) $(MKKCONFIG) -m $(MENUDESC)
 
 context: $(foreach SDIR, $(SUBDIRS), $(SDIR)_context)
 

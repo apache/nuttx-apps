@@ -350,7 +350,7 @@ static inline int wget_parseheaders(struct wget_s *ws)
                   (void)netlib_parsehttpurl(ws->line + strlen(g_httplocation), &ws->port,
                                          ws->hostname, CONFIG_WEBCLIENT_MAXHOSTNAME,
                                          ws->filename, CONFIG_WEBCLIENT_MAXFILENAME);
-                  nvdbg("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
+                  ninfo("New hostname='%s' filename='%s'\n", ws->hostname, ws->filename);
                 }
             }
 
@@ -396,12 +396,13 @@ static int wget_gethostip(FAR char *hostname, in_addr_t *ipv4addr)
   he = gethostbyname(hostname);
   if (he == NULL)
     {
-      ndbg("gethostbyname failed: %d\n", h_errno);
+      nwarn("WARNING: gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
   else if (he->h_addrtype != AF_INET)
     {
-      ndbg("gethostbyname returned an address of type: %d\n", he->h_addrtype);
+      nwarn("WARNING: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
       return -ENOEXEC;
     }
 
@@ -465,12 +466,12 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
                             ws.filename, CONFIG_WEBCLIENT_MAXFILENAME);
   if (ret != 0)
     {
-      ndbg("ERROR: Malformed HTTP URL: %s\n", url);
+      nwarn("WARNING: Malformed HTTP URL: %s\n", url);
       set_errno(-ret);
       return ERROR;
     }
 
-  nvdbg("hostname='%s' filename='%s'\n", ws.hostname, ws.filename);
+  ninfo("hostname='%s' filename='%s'\n", ws.hostname, ws.filename);
 
   /* The following sequence may repeat indefinitely if we are redirected */
 
@@ -493,7 +494,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* socket failed.  It will set the errno appropriately */
 
-          ndbg("ERROR: socket failed: %d\n", errno);
+          nerr("ERROR: socket failed: %d\n", errno);
           return ERROR;
         }
 
@@ -516,7 +517,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
         {
           /* Could not resolve host (or malformed IP address) */
 
-          ndbg("ERROR: Failed to resolve hostname\n");
+          nwarn("WARNING: Failed to resolve hostname\n");
           ret = -EHOSTUNREACH;
           goto errout_with_errno;
         }
@@ -529,7 +530,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ret = connect(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr_in));
       if (ret < 0)
         {
-          ndbg("ERROR: connect failed: %d\n", errno);
+          nerr("ERROR: connect failed: %d\n", errno);
           goto errout;
         }
 
@@ -584,7 +585,7 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
       ret = send(sockfd, buffer, len, 0);
       if (ret < 0)
         {
-          ndbg("ERROR: send failed: %d\n", errno);
+          nerr("ERROR: send failed: %d\n", errno);
           goto errout;
         }
 
@@ -600,13 +601,13 @@ static int wget_base(FAR const char *url, FAR char *buffer, int buflen,
           ws.datend = recv(sockfd, ws.buffer, ws.buflen, 0);
           if (ws.datend < 0)
             {
-              ndbg("ERROR: recv failed: %d\n", errno);
+              nerr("ERROR: recv failed: %d\n", errno);
               ret = ws.datend;
               goto errout_with_errno;
             }
           else if (ws.datend == 0)
             {
-              nvdbg("Connection lost\n");
+              ninfo("Connection lost\n");
               close(sockfd);
               break;
             }

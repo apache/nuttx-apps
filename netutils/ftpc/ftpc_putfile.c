@@ -188,7 +188,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                          FILE *stream, uint8_t how, uint8_t xfrmode)
 {
   long offset = session->offset;
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
   FAR char *rname;
   FAR char *str;
   int len;
@@ -261,7 +261,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
 
         /* Get the remote filename from the response */
 
-#ifdef CONFIG_DEBUG
+#ifdef CONFIG_DEBUG_FEATURES
         str = strstr(session->reply, " for ");
         if (str)
           {
@@ -276,7 +276,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
                 else
                   {
                     rname = strndup(str, len-1);
-                    nvdbg("Unique filename is: %s\n",  rname);
+                    ninfo("Unique filename is: %s\n",  rname);
                   }
                 free(rname);
               }
@@ -334,7 +334,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
       ret = ftpc_sockaccept(&session->data);
       if (ret != OK)
         {
-          ndbg("Data connection not accepted\n");
+          nerr("ERROR: Data connection not accepted\n");
           return ERROR;
         }
     }
@@ -400,7 +400,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   abslpath = ftpc_abslpath(session, lname);
   if (!abslpath)
     {
-      ndbg("ftpc_abslpath(%s) failed: %d\n", errno);
+      nwarn("WARNING: ftpc_abslpath(%s) failed: %d\n", errno);
       goto errout;
     }
 
@@ -409,7 +409,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   ret = stat(abslpath, &statbuf);
   if (ret != OK)
     {
-      ndbg("stat(%s) failed: %d\n", errno);
+      nwarn("WARNING: stat(%s) failed: %d\n", errno);
       goto errout_with_abspath;
     }
 
@@ -417,7 +417,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
 
   if (S_ISDIR(statbuf.st_mode))
     {
-      ndbg("%s is a directory\n", abslpath);
+      nwarn("WARNING: %s is a directory\n", abslpath);
       goto errout_with_abspath;
     }
 
@@ -426,7 +426,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
   finstream = fopen(abslpath, "r");
   if (!finstream)
     {
-      ndbg("fopen() failed: %d\n", errno);
+      nwarn("WARNING: fopen() failed: %d\n", errno);
       goto errout_with_abspath;
     }
 
@@ -442,7 +442,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
       session->offset = ftpc_filesize(session, rname);
       if (session->offset == (off_t)ERROR)
         {
-          ndbg("Failed to get size of remote file: %s\n", rname);
+          nwarn("WARNING: Failed to get size of remote file: %s\n", rname);
           goto errout_with_instream;
         }
       else
@@ -454,7 +454,7 @@ int ftp_putfile(SESSION handle, const char *lname, const char *rname,
           ret = fseek(finstream, session->offset, SEEK_SET);
           if (ret != OK)
             {
-              ndbg("fseek failed: %d\n", errno);
+              nerr("ERROR: fseek failed: %d\n", errno);
               goto errout_with_instream;
             }
         }

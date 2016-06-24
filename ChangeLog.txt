@@ -1574,7 +1574,7 @@
 	  USB device interfaces that do not yet have boardctl() commands
 	  (2016-03-25).
 
-7.16 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.16 2016-06-01 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/system/sdcard:  Remove the SD card application.  This
 	  application violates OS/application interface rules and has been
@@ -1599,3 +1599,59 @@
 	  (NUCLEO-F746ZG).  From Mark Olsson (2016-05-19).
 	* apps/netutils/esp8266:  ESP8266 driver application.  From Pierre-noel
 	  Bouteville (2016-05-21).
+	* apps/canutils/: Rename uavcan to libuavcan.  From Paul Alexander
+	  Patience (2016-05-25).
+	* apps/examples/media:  You can now override the default device driver
+	  path by providing an alternal path on the command line.  From Sébastien
+	  Lorquet (2016-06-01).
+
+7.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/examples/alarm: ioctl call was clobbering file descriptor
+	  (2016-06-02).
+	* apps/system/flash_eraseall:  Removed!  This logic violates the OS/
+	  application interface and cannot be supported.  The old code can still
+	  be found in the 'Obsoleted' repository (2016-06-03).
+	* apps/fsutils/flash_eraseall: IOCTL wrapper for MDCIO_BULKERASE command
+	  (2016-06-04).
+	* apps/system/flash_eraseall: Restored!  Using the new IOCTL wrapper at
+	  apps/fsutils/flash_eraseall (2016-06-04).
+	* apps/canutils/libuavcan: Fix for recent change to STM32 timer frequency
+	  definiitions (2016-06-05).
+	* Many files:  Change to the way that Kconfig files are generated in order
+	  to better support reuse of the apps/ directory in NuttX products.  Changes
+	  include: Make the full tree use wildcards make.defs, Add empty preconfig
+	  rules to 'leaf' makefiles, Use directory.mk for recursive dir makefiles,
+	  Individual app kconfig fixes, Recursive Kconfig autogeneration, Add
+	  kconfig files for pcode and tiff, and fix a gitignore rule,  From
+	  Sébastien Lorquet (2016-06-06).
+	* apps/nshlib: Make NSH net-initialization be a configuration option. From
+	  Marten Svanfeld (2016-06-09).
+	* netutils/ntpc and nshlib:  NTP Client: All retries; Add initialization
+	  in NSH network startup logic.  From David S. Alessio (2016-06-09) .
+	* Rearrange make to eliminate Kmenu files  From Sebastien Lorquet
+	  (2016-06-09).
+	* apps/nshlib: ake NSH net-initialization be a configuration option.
+	  From Marten Svanfeldt (2016-06-09).
+	* Make sure that APPNAME is defined in all Makefiles that generate
+	  applications.  From Sebastien Lorquet (2016-06-09).
+	* apps/netutils/esp8266/: Add logic to set the BAUD rate.  From Pierr-
+	  noel Bouteville (2016-06-11).
+	* apps/netutils/esp8266/: CONFIG_SERIAL_TERMIOS must be defined in
+	  order to set BAUD (2016-06-11).
+	* Change dbg() and vdbg() to err() and info() (2016-06-11).
+	* Change some *err() message to *info() messages if what was a *dbg()
+	  message does not indicate and error condition (2016-06-14).
+	* Add _ to front of debug macros (2016-06-16).
+	* SYSLOG: Remove llinfo(), *llwarn(), and llerr().  These are no longer
+	  supported in the redesigned syslog() logic (2016-06-20).
+	* apps/canutils/libcanard: update version.  From Paul Alexander Patience
+	  (2016-06-22).
+	* apps/examples/can: Some variables were not declared in all required
+	  cases. From Sebastien Lorquet (2016-06-23).
+	* apps/gpsutils/minmean: Fix minmea Makefile to find the libapp at the
+	  apps/.  From Alan Carvalho de Assis (2016-06-23).
+	* apps/canutils/canlib: Basic CAN utility library. From Sebastien Lorquet
+	  (2016-06-24).
+	* apps/nshlib/Kconfig:  Move NSH stuff out of nuttx/configs/Kconfig to
+	  here.  Why was it in the NuttX tree in the first place? (2016-06-24).

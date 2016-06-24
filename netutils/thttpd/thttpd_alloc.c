@@ -82,7 +82,8 @@ void httpd_memstats(void)
 {
   static struct mallinfo mm;
 
-  ndbg("%d allocations (%lu bytes), %d freed\n", g_nallocations, (unsigned long)g_allocated, g_nfreed);
+  ninfo("%d allocations (%lu bytes), %d freed\n",
+       g_nallocations, (unsigned long)g_allocated, g_nfreed);
 
   /* Get the current memory usage */
 
@@ -91,7 +92,7 @@ void httpd_memstats(void)
 #else
   (void)mallinfo(&mm);
 #endif
-  ndbg("arena: %08x ordblks: %08x mxordblk: %08x uordblks: %08x fordblks: %08x\n",
+  ninfo("arena: %08x ordblks: %08x mxordblk: %08x uordblks: %08x fordblks: %08x\n",
        mm.arena, mm.ordblks, mm.mxordblk, mm.uordblks, mm.fordblks);
 }
 #endif
@@ -106,11 +107,11 @@ FAR void *httpd_malloc(size_t nbytes)
   void *ptr = malloc(nbytes);
   if (!ptr)
     {
-      ndbg("Allocation of %d bytes failed\n", nbytes);
+      nerr("ERROR: Allocation of %d bytes failed\n", nbytes);
     }
   else
     {
-      nvdbg("Allocated %d bytes at %p\n", nbytes, ptr);
+      ninfo("Allocated %d bytes at %p\n", nbytes, ptr);
       g_nallocations++;
       g_allocated += nbytes;
     }
@@ -125,12 +126,12 @@ FAR void *httpd_realloc(FAR void *oldptr, size_t oldsize, size_t newsize)
   void *ptr = realloc(oldptr, newsize);
   if (!ptr)
     {
-      ndbg("Re-allocation from %d to %d bytes failed\n",
+      nerr("ERROR: Re-allocation from %d to %d bytes failed\n",
            oldsize, newsize);
     }
   else
     {
-      nvdbg("Re-allocated form %d to %d bytes (from %p to %p)\n",
+      ninfo("Re-allocated form %d to %d bytes (from %p to %p)\n",
             oldsize, newsize, oldptr, ptr);
       g_allocated += (newsize - oldsize);
     }
@@ -144,7 +145,7 @@ void httpd_free(FAR void *ptr)
 {
   free(ptr);
   g_nfreed++;
-  nvdbg("Freed memory at %p\n", ptr);
+  ninfo("Freed memory at %p\n", ptr);
   httpd_memstats();
 }
 #endif
@@ -155,11 +156,11 @@ FAR char *httpd_strdup(const char *str)
   FAR char *newstr = strdup(str);
   if (!newstr)
     {
-      ndbg("strdup of %s failed\n", str);
+      nerr("ERROR: strdup of %s failed\n", str);
     }
   else
     {
-      nvdbg("strdup'ed %s\n", str);
+      ninfo("strdup'ed %s\n", str);
       g_nallocations++;
       g_allocated += (strlen(str)+1);
     }
@@ -191,7 +192,8 @@ void httpd_realloc_str(char **pstr, size_t *maxsize, size_t size)
 
   if (!*pstr)
     {
-      ndbg("out of memory reallocating a string to %d bytes\n", *maxsize);
+      nerr("ERROR: out of memory reallocating a string to %d bytes\n",
+           *maxsize);
       exit(1);
     }
 }

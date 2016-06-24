@@ -95,7 +95,7 @@ static inline ssize_t tftp_read(int fd, uint8_t *buf, size_t buflen)
 
       if (nbytesread < 0)
         {
-          ndbg("read failed: %d\n", errno);
+          nerr("ERROR: read failed: %d\n", errno);
           return ERROR;
         }
 
@@ -156,7 +156,7 @@ int tftp_mkdatapacket(int fd, off_t offset, uint8_t *packet, uint16_t blockno)
   tmp = lseek(fd, offset, SEEK_SET);
   if (tmp == (off_t)-1)
     {
-      ndbg("lseek failed: %d\n", errno);
+      nerr("ERROR: lseek failed: %d\n", errno);
       return ERROR;
     }
 
@@ -218,15 +218,15 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
               if (nbytes == 0)
                 {
-                  ndbg("Connection lost: %d bytes\n", nbytes);
+                  nerr("ERROR: Connection lost: %d bytes\n", nbytes);
                 }
               else if (nbytes > 0)
                 {
-                  ndbg("Short packet: %d bytes\n", nbytes);
+                  nerr("ERROR: Short packet: %d bytes\n", nbytes);
                 }
               else
                 {
-                  ndbg("Recveid failure\n");
+                  nerr("ERROR: Recvfrom failure\n");
                 }
 
               /* Break out to bump up the retry count */
@@ -247,13 +247,13 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
                if (server->sin_addr.s_addr != from.sin_addr.s_addr)
                  {
-                   nvdbg("Invalid address in DATA\n");
+                   ninfo("Invalid address in DATA\n");
                    continue;
                  }
 
               if (*port != server->sin_port)
                 {
-                  nvdbg("Invalid port in DATA\n");
+                  ninfo("Invalid port in DATA\n");
                   packetlen = tftp_mkerrpacket(packet, TFTP_ERR_UNKID, TFTP_ERRST_UNKID);
                   (void)tftp_sendto(sd, packet, packetlen, server);
                   continue;
@@ -270,8 +270,9 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
                if (opcode != TFTP_ACK)
                  {
-                   nvdbg("Bad opcode\n");
-#if defined(CONFIG_DEBUG) && defined(CONFIG_DEBUG_NET)
+                   nwarn("WARNING: Bad opcode\n");
+
+#ifdef CONFIG_DEBUG_NET_WARN
                   if (opcode == TFTP_ERR)
                     {
                       (void)tftp_parseerrpacket(packet);
@@ -291,7 +292,7 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
               /* Success! */
 
-              nvdbg("Received ACK for block %d\n", rblockno);
+              ninfo("Received ACK for block %d\n", rblockno);
               *blockno = rblockno;
               return OK;
             }
@@ -300,7 +301,7 @@ static int tftp_rcvack(int sd, uint8_t *packet, struct sockaddr_in *server,
 
   /* We have tried TFTP_RETRIES times */
 
-  ndbg("Timeout, Waiting for ACK\n");
+  nerr("ERROR: Timeout, Waiting for ACK\n");
   return ERROR; /* Will never get here */
 }
 
@@ -340,7 +341,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
   packet = (uint8_t*)zalloc(TFTP_IOBUFSIZE);
   if (!packet)
     {
-      ndbg("packet memory allocation failure\n");
+      nerr("ERROR: packet memory allocation failure\n");
       set_errno(ENOMEM);
       goto errout;
     }
@@ -350,7 +351,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
   fd = open(local, O_RDONLY);
   if (fd < 0)
     {
-      ndbg("open failed: %d\n", errno);
+      nerr("ERROR: open failed: %d\n", errno);
       goto errout_with_packet;
     }
 
@@ -386,7 +387,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
           break;
         }
 
-      ndbg("Re-sending request\n");
+      nwarn("WARNING: Re-sending request\n");
 
       /* We are going to loop and re-send the request packet. Check the
        * retry count so that we do not loop forever.
@@ -394,7 +395,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
 
       if (++retry > TFTP_RETRIES)
         {
-          ndbg("Retry count exceeded\n");
+          nerr("ERROR: Retry count exceeded\n");
           set_errno(ETIMEDOUT);
           goto errout_with_sd;
         }
@@ -461,7 +462,7 @@ int tftpput(const char *local, const char *remote, in_addr_t addr, bool binary)
 
       if (++retry > TFTP_RETRIES)
         {
-          ndbg("Retry count exceeded\n");
+          nerr("ERROR: Retry count exceeded\n");
           set_errno(ETIMEDOUT);
           goto errout_with_sd;
         }
