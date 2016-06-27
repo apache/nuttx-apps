@@ -37,10 +37,10 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# I2C tool
+# Hex2bin utility
 
 ASRCS =
-CSRCS = hex2bin.c hex2mem.c fhex2mem.c
+CSRCS =
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
 
@@ -66,9 +66,10 @@ HEX2MEM_MAINOBJ = $(HEX2MEM_MAINSRC:.c=$(OBJEXT))
 
 SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
+MAINOBJ = $(HEX2BIN_MAINOBJ) $(HEX2MEM_MAINOBJ)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  OBJS += $(HEX2BIN_MAINOBJ) $(HEX2MEM_MAINOBJ)
+  OBJS += $(MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
