@@ -1655,3 +1655,9 @@
 	  (2016-06-24).
 	* apps/nshlib/Kconfig:  Move NSH stuff out of nuttx/configs/Kconfig to
 	  here.  Why was it in the NuttX tree in the first place? (2016-06-24).
+	* apps/nshlib/Kconfig: Move some NSH settings out of nuttx/configs/Kconfig
+	  to here.  Why was it in the NuttX tree (2016-06-24).
+	* apps/platform/olimex-stm32-e407: Add platform files for Olimex STM32
+	  E407.  From Mateusz Szafoni (2016-06-27).
+	* apps/system/hex2bin:  Move the portable library portion of hex2bin to
+	  nuttx/libc/hex2bin where it can be shared with the OS internals (2016-06-27).
