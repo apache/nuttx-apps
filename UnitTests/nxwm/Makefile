@@ -187,6 +187,8 @@ else
 context:
 endif
 
+preconfig:
+
 # Standard housekeeping targets
 
 .depend: Makefile $(SRCS)

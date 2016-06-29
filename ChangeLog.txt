@@ -584,4 +584,7 @@
 * Change some *err() message to *info() messages if what was a *dbg()
   message does not indicate and error condition (2016-06-14).
 * Add _ to front of debug macros (2016-06-16).
+* Unittests:  All Makefiles must provided a (dummy) prefconfig target to be
+  compatible with changes to the apps/ configuration system that will be
+  be released in NuttX-7.17.
 
