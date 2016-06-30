@@ -920,7 +920,7 @@ config NSH_USBDEV_TRACE
 		data will go to the SYSLOG device.
 
 		If not enabled, the USB trace support can be provided by external
-		logic such as apps/system/usbmonitor.
+		logic such as nuttx/drivers/usbmonitor.
 
 if NSH_USBDEV_TRACE
 
