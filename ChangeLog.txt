@@ -1660,4 +1660,7 @@
 	* apps/platform/olimex-stm32-e407: Add platform files for Olimex STM32
 	  E407.  From Mateusz Szafoni (2016-06-27).
 	* apps/system/hex2bin:  Move the portable library portion of hex2bin to
-	  nuttx/libc/hex2bin where it can be shared with the OS internals (2016-06-27).
+	  nuttx/libc/hex2bin where it can be shared with the OS internals
+	  (2016-06-27).
+	* apps/nshlib: 'ps' command now prints out the stack usage if stack
+	  coloration is enabled.  From Frank Benkert (2016-06-30).
