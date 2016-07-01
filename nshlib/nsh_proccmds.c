@@ -74,6 +74,7 @@
 #if defined(CONFIG_STACK_COLORATION) && !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
 #  define PS_HAVE_STACKUSAGE
 #endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
