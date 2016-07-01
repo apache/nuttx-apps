@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/symtab.h
+ * apps/include/system/symtab.h
  *
- *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_SYMTAB_H
-#define __APPS_INCLUDE_SYMTAB_H
+#ifndef __APPS_INCLUDE_SYSTEM_SYMTAB_H
+#define __APPS_INCLUDE_SYSTEM_SYMTAB_H
 
 /****************************************************************************
  * Included Files
@@ -98,5 +98,5 @@ void symtab_initialize(void);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_SYMTAB_H */
+#endif /* __APPS_INCLUDE_SYSTEM_SYMTAB_H */
 

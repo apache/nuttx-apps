@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/readline.h
+ * apps/include/system/readline.h
  *
- *   Copyright (C) 2011, 2013, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_READLINE_H
-#define __APPS_INCLUDE_READLINE_H
+#ifndef __APPS_INCLUDE_SYSTEM_READLINE_H
+#define __APPS_INCLUDE_SYSTEM_READLINE_H
 
 /****************************************************************************
  * Included Files
@@ -228,4 +228,4 @@ ssize_t std_readline(FAR char *buf, int buflen);
 #endif
 
 #endif /* CONFIG_SYSTEM_READLINE */
-#endif /* __APPS_INCLUDE_READLINE_H */
+#endif /* __APPS_INCLUDE_SYSTEM_READLINE_H */

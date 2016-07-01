@@ -50,7 +50,7 @@
 #include <nuttx/vt100.h>
 #include <nuttx/binfmt/builtin.h>
 
-#include <apps/readline.h>
+#include <apps/system/readline.h>
 #include "readline.h"
 
 /****************************************************************************

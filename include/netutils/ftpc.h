@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/ftpc.h
+ * apps/include/system/ftpc.h
  *
  *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

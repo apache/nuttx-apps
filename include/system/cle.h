@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/prun.h
+ * apps/include/system/cle.h
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_PRUN_H
-#define __APPS_INCLUDE_PRUN_H
+#ifndef __APPS_INCLUDE_SYSTEM_CLE_H
+#define __APPS_INCLUDE_SYSTEM_CLE_H
 
 /****************************************************************************
  * Included Files
@@ -42,7 +42,10 @@
 
 #include <nuttx/config.h>
 
-#include <sys/types.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#ifdef CONFIG_SYSTEM_CLE
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -65,28 +68,20 @@ extern "C"
  ****************************************************************************/
 
 /****************************************************************************
- * Name: prun
+ * Name: cle
  *
  * Description:
- *   Execute/interpret a P-Code file.  This function does not return until
- *   the P-code program terminates or until a fatal error occurs.
- *
- * Input Parameters:
- *   exepath - The full path to the P-Code binary.
- *   varsize - Size of the P-Code variable stack
- *   strsize - the size of the P-Code string stack.
- *
- * Returned Value:
- *   OK if the P-Code program successfully terminated; A negated errno value
- *   is returned on the event of any failure.
+ *   EMACS-like command line editor.  This is actually more like readline
+ *   than is the NuttX readline!
  *
  ****************************************************************************/
 
-int prun(FAR char *exepath, size_t varsize, size_t strsize);
+int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream);
 
 #undef EXTERN
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __APPS_INCLUDE_PRUN_H */
+#endif /* CONFIG_SYSTEM_CLE */
+#endif /* __APPS_INCLUDE_SYSTEM_CLE_H */

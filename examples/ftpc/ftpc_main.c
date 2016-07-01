@@ -46,7 +46,7 @@
 #include <arpa/inet.h>
 #include <apps/netutils/ftpc.h>
 
-#include <apps/readline.h>
+#include <apps/system/readline.h>
 
 #include "ftpc.h"
 

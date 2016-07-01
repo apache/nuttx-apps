@@ -45,7 +45,7 @@ call traps.
 Your board-level start up code code then needs to select the symbol table
 by calling the function symtab_initialize():
 
-  #include <apps/symtab.h>
+  #include <apps/system/symtab.h>
   ...
     symtab_initialize();
 

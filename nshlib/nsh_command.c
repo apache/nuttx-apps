@@ -46,7 +46,7 @@
 #endif
 
 #if defined(CONFIG_SYSTEM_READLINE) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
-#  include <apps/readline.h>
+#  include <apps/system/readline.h>
 #endif
 
 #include "nsh.h"
