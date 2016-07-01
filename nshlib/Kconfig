@@ -403,6 +403,13 @@ config NSH_DISABLE_PS
 	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_PROCESS
 	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS
 
+config NSH_DISABLE_PSSTACKUSAGE
+	bool "Disable ps stack usage"
+	depends on !NSH_DISABLE_PS
+	default n
+	---help---
+		Disable to save space and not pull in floating point routines
+
 config NSH_DISABLE_PING
 	bool "Disable ping"
 	default n
