@@ -42,7 +42,7 @@
 #include <string.h>
 #include <time.h>
 
-#include <apps/ftpc.h>
+#include <apps/netutils/ftpc.h>
 
 #include "ftpc_internal.h"
 
