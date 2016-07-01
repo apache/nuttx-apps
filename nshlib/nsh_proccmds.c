@@ -71,6 +71,9 @@
 #  undef HAVE_GROUPID
 #endif
 
+#if defined(CONFIG_STACK_COLORATION) && !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
+#  define PS_HAVE_STACKUSAGE
+#endif
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -266,7 +269,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   FAR char *nextline;
   int ret;
   int i;
-#ifndef CONFIG_NSH_DISABLE_PSSTACKUSAGE
+#ifdef PS_HAVE_STACKUSAGE
   int stack_size;
   int stack_used;
   float stack_filled;
@@ -387,7 +390,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_PSSTACKUSAGE
+#ifdef PS_HAVE_STACKUSAGE
   /* Get the StackSize and StackUsed */
 
   stack_size = 0;
@@ -567,7 +570,7 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", "SIGMASK");
 #endif
-#ifndef CONFIG_NSH_DISABLE_PSSTACKUSAGE
+#ifdef PS_HAVE_STACKUSAGE
   nsh_output(vtbl, "%6s ", "STACK");
   nsh_output(vtbl, "%6s ", "USED");
   nsh_output(vtbl, "%7s ", "FILLED");
