@@ -405,7 +405,7 @@ config NSH_DISABLE_PS
 
 config NSH_DISABLE_PSSTACKUSAGE
 	bool "Disable ps stack usage"
-	depends on !NSH_DISABLE_PS
+	depends on STACK_COLORATION && !NSH_DISABLE_PS
 	default n
 	---help---
 		Disable to save space and not pull in floating point routines
