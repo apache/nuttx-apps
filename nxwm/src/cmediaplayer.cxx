@@ -49,7 +49,7 @@
 #include <dirent.h>
 #include <debug.h>
 
-#include <apps/nxplayer.h>
+#include <apps/system/nxplayer.h>
 #include <nuttx/audio/audio.h>
 
 #include "cwidgetcontrol.hxx"
