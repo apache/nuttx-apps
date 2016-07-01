@@ -42,7 +42,7 @@
 #include <sys/boardctl.h>
 
 #include <apps/system/readline.h>
-#include <apps/nsh.h>
+#include <apps/nshlib/nshlib.h>
 
 #include "nsh.h"
 
