@@ -586,5 +586,6 @@
 * Add _ to front of debug macros (2016-06-16).
 * Unittests:  All Makefiles must provided a (dummy) prefconfig target to be
   compatible with changes to the apps/ configuration system that will be
-  be released in NuttX-7.17.
-
+  be released in NuttX-7.17 (2016-06-29).
+* Changes to pre-processor include statments needed to handle reorganization
+  of the apps/include directory  (2016-07-01).
