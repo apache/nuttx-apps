@@ -20,7 +20,7 @@ config LIBCANARD_URL
 
 config LIBCANARD_VERSION
 	string "libcanard Version"
-	default "a7a6d4c6b105976cccac36e05c42abee566b70c4"
+	default "b28bf6ac337e55d49037fd9904d4b951760c4690"
 	---help---
 		libcanard version.
 
