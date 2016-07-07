@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/zmodem.h
+ * apps/include/system/zmodem.h
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * References:
@@ -37,8 +37,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_ZMODEM_H
-#define __APPS_INCLUDE_ZMODEM_H
+#ifndef __APPS_INCLUDE_SYSTEM_ZMODEM_H
+#define __APPS_INCLUDE_SYSTEM_ZMODEM_H
 
 /****************************************************************************
  * Included Files
@@ -345,4 +345,4 @@ int zms_release(ZMSHANDLE handle);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_ZMODEM_H */
+#endif /* __APPS_INCLUDE_SYSTEM_ZMODEM_H */

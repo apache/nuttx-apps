@@ -49,8 +49,8 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <apps/readline.h>
-#include <apps/nxplayer.h>
+#include <apps/system/readline.h>
+#include <apps/system/nxplayer.h>
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/nsh.h
+ * apps/include/nshlib/nshlib.h
  *
- *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_NSH_H
-#define __APPS_INCLUDE_NSH_H
+#ifndef __APPS_INCLUDE_NSHLIB_NSHLIB_H
+#define __APPS_INCLUDE_NSHLIB_NSHLIB_H
 
 /****************************************************************************
  * Included Files
@@ -206,4 +206,4 @@ int platform_user_verify(FAR const char *username, FAR const char *password);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_NSH_H */
+#endif /* __APPS_INCLUDE_NSHLIB_NSHLIB_H */

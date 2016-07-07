@@ -43,7 +43,7 @@
 
 #include <nuttx/compiler.h>
 #include <sys/boardctl.h>
-#include <apps/symtab.h>
+#include <apps/system/symtab.h>
 
 #include "symtab.inc"
 

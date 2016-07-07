@@ -43,7 +43,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <apps/tiff.h>
+#include <apps/graphics/tiff.h>
 
 /****************************************************************************
  * Pre-Processor Definitions

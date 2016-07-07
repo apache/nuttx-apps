@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/system/hex2mem.c
+ * apps/platform/olimex-stm32-e407/src/stm32_cxxinitialize.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,77 +39,96 @@
 
 #include <nuttx/config.h>
 
-#include <stdio.h>
-#include <assert.h>
+#include <debug.h>
 
-#include <nuttx/streams.h>
-#include <apps/hex2bin.h>
+#include <nuttx/arch.h>
 
-#ifdef CONFIG_SYSTEM_HEX2BIN
+#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* Debug ********************************************************************/
+/* Non-standard debug that may be enabled just for testing the static
+ * constructors.
+ */
+
+#ifdef CONFIG_DEBUG_CXX
+#  define cxxinfo        _info
+#else
+#  define cxxinfo(x...)
+#endif
 
 /****************************************************************************
  * Private Types
  ****************************************************************************/
+/* This type defines one entry in initialization array */
+
+typedef void (*initializer_t)(void);
 
 /****************************************************************************
- * Private Functions
+ * External References
  ****************************************************************************/
+/* _sinit and _einit are symbols exported by the linker script that mark the
+ * beginning and the end of the C++ initialization section.
+ */
+
+extern initializer_t _sinit;
+extern initializer_t _einit;
+
+/* _stext and _etext are symbols exported by the linker script that mark the
+ * beginning and the end of text.
+ */
+
+extern uint32_t _stext;
+extern uint32_t _etext;
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name hex2mem
+ * Name: up_cxxinitialize
  *
  * Description:
- *   Read the Intel HEX ASCII data provided on the file descriptor 'fd' and
- *   write the binary to memory.
+ *   If C++ and C++ static constructors are supported, then this function
+ *   must be provided by board-specific logic in order to perform
+ *   initialization of the static C++ class instances.
  *
- *   If, for example, fd is zero (stdin), then the HEX ASCII data would be
- *   taken from the console and written to memory.
- *
- * Input Parameters:
- *   fd        - The file descriptor from which Intel HEX data will be
- *               received.
- *   baseaddr  - The base address of the memory region stream.
- *   endpaddr  - The end address (plus 1) of the memory region.
- *   swap      - Controls byte ordering.  See enum hex2bin_swap_e for
- *               description of the values.
- *
- * Returned Value
- *   Zero (OK) is returned on success; a negated errno value is returned on
- *   failure.
+ *   This function should then be called in the application-specific
+ *   user_start logic in order to perform the C++ initialization.  NOTE
+ *   that no component of the core NuttX RTOS logic is involved; this
+ *   function definition only provides the 'contract' between application
+ *   specific C++ code and platform-specific toolchain support.
  *
  ****************************************************************************/
 
-int hex2mem(int fd, uint32_t baseaddr, uint32_t endpaddr,
-            enum hex2bin_swap_e swap)
+void up_cxxinitialize(void)
 {
-  struct lib_rawinstream_s rawinstream;
-  struct lib_memsostream_s memoutstream;
+  initializer_t *initp;
 
-  /* Check memory addresses */
+  cxxinfo("_sinit: %p _einit: %p _stext: %p _etext: %p\n",
+          &_sinit, &_einit, &_stext, &_etext);
 
-  DEBUGASSERT(fd >= 0 && endpaddr > baseaddr);
+  /* Visit each entry in the initialization table */
 
-  /* Wrap the file descriptor as raw stream; wrap the memory as a memory
-   * stream.
-   */
+  for (initp = &_sinit; initp != &_einit; initp++)
+    {
+      initializer_t initializer = *initp;
+      cxxinfo("initp: %p initializer: %p\n", initp, initializer);
 
-  lib_rawinstream(&rawinstream, fd);
-  lib_memsostream(&memoutstream, (FAR char *)baseaddr,
-                  (int)(endpaddr - baseaddr));
+      /* Make sure that the address is non-NULL and lies in the text region
+       * defined by the linker script.  Some toolchains may put NULL values
+       * or counts in the initialization table.
+       */
 
-  /* And do the deed */
-
-  return hex2bin(&rawinstream.public, &memoutstream.public,
-                 (uint32_t)baseaddr, (uint32_t)endpaddr,
-                 (enum hex2bin_swap_e)swap);
+      if ((void *)initializer > (void *)&_stext &&
+          (void *)initializer < (void *)&_etext)
+        {
+          cxxinfo("Calling %p\n", initializer);
+          initializer();
+        }
+    }
 }
 
-#endif /* CONFIG_SYSTEM_HEX2BIN */
+#endif /* CONFIG_HAVE_CXX && CONFIG_HAVE_CXXINITIALIZE */

@@ -43,7 +43,7 @@
 #include <string.h>
 #include <debug.h>
 
-#include <apps/ftpc.h>
+#include <apps/netutils/ftpc.h>
 
 #include "ftpc_internal.h"
 

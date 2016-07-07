@@ -1,7 +1,7 @@
 /************************************************************************************
- * apps/include/tiff.h
+ * apps/include/graphics/tiff.h
  *
- *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Reference:
@@ -36,8 +36,8 @@
  *
  ************************************************************************************/
 
-#ifndef __APPS_INCLUDE_TIFF_H
-#define __APPS_INCLUDE_TIFF_H
+#ifndef __APPS_INCLUDE_GRAPHICS_TIFF_H
+#define __APPS_INCLUDE_GRAPHICS_TIFF_H
 
 /************************************************************************************
  * Included Files
@@ -463,4 +463,4 @@ uint32_t tiff_get32(FAR uint8_t *dest);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_TIFF_H */
+#endif /* __APPS_INCLUDE_GRAPHICS_TIFF_H */

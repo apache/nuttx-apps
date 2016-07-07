@@ -1,6 +1,5 @@
 ############################################################################
-# apps/system/zoneinfo/Make.defs
-# Adds selected applications to apps/ build
+# apps/platform/olimex-stm32-e407/Make.defs
 #
 #   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,7 +33,8 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_ZONEINFO),y)
-CONFIGURED_APPS += system/zoneinfo
-endif
+# Add platform specific sources to ASRCS and CSRCS
 
+ifeq ($(CONFIG_HAVE_CXX),y)
+CSRCS += stm32_cxxinitialize.c
+endif

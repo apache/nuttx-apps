@@ -51,7 +51,7 @@
 #include <apps/netutils/netlib.h>
 
 #include "shell.h"
-#include <apps/nsh.h>
+#include <apps/nshlib/nshlib.h>
 
 /****************************************************************************
  * Pre-processor Definitions

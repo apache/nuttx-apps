@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/builtin.h
+ * apps/include/builtin/builtin.h
  *
  * Originally by:
  *
@@ -8,7 +8,7 @@
  *
  * With subsequent updates, modifications, and general maintenance by:
  *
- *   Copyright (C) 2012-2013, 2015 Gregory Nutt.  All rights reserved.
+ *   Copyright (C) 2012-2013, 2015-2016 Gregory Nutt.  All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_BUILTIN_H
-#define __APPS_INCLUDE_BUILTIN_H
+#ifndef __APPS_INCLUDE_BUILTIN_BUILTIN_H
+#define __APPS_INCLUDE_BUILTIN_BUILTIN_H
 
 /****************************************************************************
  * Included Files
@@ -109,4 +109,4 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
 }
 #endif
 
-#endif /* __APPS_INCLUDE_BUILTIN_H */
+#endif /* __APPS_INCLUDE_BUILTIN_BUILTIN_H */

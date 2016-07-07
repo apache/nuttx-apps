@@ -43,10 +43,10 @@ config NSH_PLATFORM_MOTD
 
 		One newline will be inserted after the platform-supplied message.
 
-		platform_motd() is prototyped and described in apps/include/nsh.h
+		platform_motd() is prototyped and described in apps/include/nshlib/nshlib.h
 		which may be included like:
 
-			#include <apps/nsh.h>
+			#include <apps/nshlib/nshlib.h>
 
 config NSH_MOTD_STRING
 	string "MOTD String"
@@ -402,6 +402,13 @@ config NSH_DISABLE_PS
 	bool "Disable ps"
 	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_PROCESS
 	default n if FS_PROCFS && !FS_PROCFS_EXCLUDE_PROCESS
+
+config NSH_DISABLE_PSSTACKUSAGE
+	bool "Disable ps stack usage"
+	depends on STACK_COLORATION && !NSH_DISABLE_PS
+	default n
+	---help---
+		Disable to save space and not pull in floating point routines
 
 config NSH_DISABLE_PING
 	bool "Disable ping"
@@ -920,7 +927,7 @@ config NSH_USBDEV_TRACE
 		data will go to the SYSLOG device.
 
 		If not enabled, the USB trace support can be provided by external
-		logic such as apps/system/usbmonitor.
+		logic such as nuttx/drivers/usbmonitor.
 
 if NSH_USBDEV_TRACE
 
@@ -1538,10 +1545,10 @@ config NSH_LOGIN_PLATFORM
 
 			int platform_user_verify(FAR const char *username, FAR const char *password);
 
-		which is prototyped an described in apps/include/nsh.h and which may
-		be included like:
+		which is prototyped an described in apps/include/nshlib/nshlib.h and
+		which may be included like:
 
-			#include <apps/nsh.h>
+			#include <apps/nshlib/nshlib.h>
 
 		An appropriate place to implement this function might be in the
 		directory apps/platform/<board>.

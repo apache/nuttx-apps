@@ -46,7 +46,7 @@
 #endif
 
 #if defined(CONFIG_SYSTEM_READLINE) && defined(CONFIG_READLINE_HAVE_EXTMATCH)
-#  include <apps/readline.h>
+#  include <apps/system/readline.h>
 #endif
 
 #include "nsh.h"
@@ -177,8 +177,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 #endif
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_SYSLOG) && \
-    defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
+#if CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_RAMLOG_SYSLOG) && \
+   !defined(CONFIG_NSH_DISABLE_DMESG)
   { "dmesg",    cmd_dmesg,    1, 1, NULL },
 #endif
 

@@ -1655,3 +1655,24 @@
 	  (2016-06-24).
 	* apps/nshlib/Kconfig:  Move NSH stuff out of nuttx/configs/Kconfig to
 	  here.  Why was it in the NuttX tree in the first place? (2016-06-24).
+	* apps/nshlib/Kconfig: Move some NSH settings out of nuttx/configs/Kconfig
+	  to here.  Why was it in the NuttX tree (2016-06-24).
+	* apps/platform/olimex-stm32-e407: Add platform files for Olimex STM32
+	  E407.  From Mateusz Szafoni (2016-06-27).
+	* apps/system/hex2bin:  Move the portable library portion of hex2bin to
+	  nuttx/libc/hex2bin where it can be shared with the OS internals
+	  (2016-06-27).
+	* apps/nshlib: 'ps' command now prints out the stack usage if stack
+	  coloration is enabled.  From Frank Benkert (2016-06-30).
+	* All inclusion of apps/ header files were removed from the nuttx/
+	  repository. This caused a lot of reshuffling of logic:  binfmt pcode
+	  support, usbmonitor is now a kernel thread, TZ/Olson database moved to
+	  libc/zoneinfo (2016-06-29).
+	* apps/include directory structure reorganized.  There are no longer any
+	  header files in the apps/include/. directory.  Rather, sub-directories
+	  were added to match the partitioning of apps/ sub-directories and the
+	  header files were moved into the appropriate sub-directory.  This
+	  change is intended to help with some changes be considered by
+	  Sébastien Lorquet (2016-07-01).
+	* apps/nshlib: Allow stack usage to be disabled on constrained systems.
+	  From David Sidrane (2016-07-01).

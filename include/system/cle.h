@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/system/fhex2mem.c
+ * apps/include/system/cle.h
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,83 +33,55 @@
  *
  ****************************************************************************/
 
+#ifndef __APPS_INCLUDE_SYSTEM_CLE_H
+#define __APPS_INCLUDE_SYSTEM_CLE_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
 #include <nuttx/config.h>
 
+#include <stdint.h>
 #include <stdio.h>
-#include <assert.h>
 
-#include <nuttx/streams.h>
-#include <apps/hex2bin.h>
-
-#ifdef CONFIG_SYSTEM_HEX2BIN
+#ifdef CONFIG_SYSTEM_CLE
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Private Types
+ * Public Data
+ ****************************************************************************/
+
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
+
+/****************************************************************************
+ * Public Function Prototypes
  ****************************************************************************/
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name fhex2mem
+ * Name: cle
  *
  * Description:
- *   Read the Intel HEX ASCII data provided on the standard stream
- *   'instream' and write the binary to memory.
- *
- *   If, for example, instream is stdin, then the HEX ASCII data would be
- *   taken from the console and written to memory.
- *
- * Input Parameters:
- *   instream  - The incoming standard stream from which Intel HEX data
- *               will be received.
- *   baseaddr  - The base address of the memory region stream.
- *   endpaddr  - The end address (plus 1) of the memory region.
- *   swap      - Controls byte ordering.  See enum hex2bin_swap_e for
- *               description of the values.
- *
- * Returned Value
- *   Zero (OK) is returned on success; a negated errno value is returned on
- *   failure.
+ *   EMACS-like command line editor.  This is actually more like readline
+ *   than is the NuttX readline!
  *
  ****************************************************************************/
 
-int fhex2mem(FAR FILE *instream, uint32_t baseaddr, uint32_t endpaddr,
-             enum hex2bin_swap_e swap)
-{
-  struct lib_stdinstream_s stdinstream;
-  struct lib_memsostream_s memoutstream;
+int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream);
 
-  /* Check memory addresses */
-
-  DEBUGASSERT(instream && endpaddr > baseaddr);
-
-  /* Wrap the file descriptor as raw stream; wrap the memory as a memory
-   * stream.
-   */
-
-  lib_stdinstream(&stdinstream, instream);
-  lib_memsostream(&memoutstream, (FAR char *)baseaddr,
-                  (int)(endpaddr - baseaddr));
-
-  /* And do the deed */
-
-  return hex2bin(&stdinstream.public, &memoutstream.public,
-                 (uint32_t)baseaddr, (uint32_t)endpaddr,
-                 (enum hex2bin_swap_e)swap);
+#undef EXTERN
+#ifdef __cplusplus
 }
+#endif
 
-#endif /* CONFIG_SYSTEM_HEX2BIN */
+#endif /* CONFIG_SYSTEM_CLE */
+#endif /* __APPS_INCLUDE_SYSTEM_CLE_H */

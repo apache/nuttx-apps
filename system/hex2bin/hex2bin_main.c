@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/system/hex2bin_main.c
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <hex2bin.h>
 
 #include <nuttx/streams.h>
-#include <apps/hex2bin.h>
 
 #ifdef CONFIG_SYSTEM_HEX2BIN_BUILTIN
 

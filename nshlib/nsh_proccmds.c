@@ -130,12 +130,17 @@ static const char g_scheduler[] = "Scheduler:";
 static const char g_sigmask[]   = "SigMask:";
 #endif
 
+#if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
+static const char g_stacksize[] = "StackSize:";
+static const char g_stackused[] = "StackUsed:";
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ps_callback
+ * Name: nsh_parse_statusline
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_PS
@@ -261,9 +266,14 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   FAR char *nextline;
   int ret;
   int i;
+#if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
+  int stack_size;
+  int stack_used;
+  float stack_filled;
+#endif
 
-  /* Task/thread entries in the /proc directory will all be (1) directories with
-   * (2) all numeric names.
+  /* Task/thread entries in the /proc directory will all be (1) directories
+   * with (2) all numeric names.
    */
 
   if (!DIRENT_ISDIRECTORY(entryp->d_type))
@@ -377,6 +387,85 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%-8s ", status.td_sigmask);
 #endif
 
+#if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
+  /* Get the StackSize and StackUsed */
+
+  stack_size = 0;
+  stack_used = 0;
+  filepath   = NULL;
+
+  ret = asprintf(&filepath, "%s/%s/stack", dirpath, entryp->d_name);
+  if (ret < 0 || filepath == NULL)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, "ps", "asprintf", NSH_ERRNO);
+      vtbl->iobuffer[0] = '\0';
+    }
+  else
+    {
+      ret = nsh_readfile(vtbl, "ps", filepath, vtbl->iobuffer, IOBUFFERSIZE);
+      free(filepath);
+
+      if (ret >= 0)
+        {
+          nextline = vtbl->iobuffer;
+          do
+            {
+              /* Find the beginning of the next line and NUL-terminate the
+               * current line.
+               */
+
+              line = nextline;
+              for (nextline++;
+                  *nextline != '\n' && *nextline != '\0';
+                  nextline++);
+
+              if (*nextline == '\n')
+                {
+                  *nextline++ = '\0';
+                }
+              else
+                {
+                  nextline = NULL;
+                }
+
+              /* Parse the current line
+               *
+               *   Format:
+               *
+               *            111111111122222222223
+               *   123456789012345678901234567890
+               *   StackBase:  xxxxxxxxxx
+               *   StackSize:  xxxx
+               *   StackUsed:  xxxx
+               */
+
+              if (strncmp(line, g_stacksize, strlen(g_stacksize)) == 0)
+                {
+                  stack_size = atoi(&line[12]);
+                }
+              else if (strncmp(line, g_stackused, strlen(g_stackused)) == 0)
+                {
+                  stack_used = atoi(&line[12]);
+                }
+            }
+          while (nextline != NULL);
+        }
+    }
+
+  nsh_output(vtbl, "%6.6d ", stack_size);
+  nsh_output(vtbl, "%6.6d ", stack_used);
+
+  stack_filled = 0.0;
+  if (stack_size && stack_used)
+    {
+      stack_filled = (100.0 / stack_size * stack_used);
+    }
+
+  /* Additionally print a "!" if the stack is filled more than 80% */
+
+  nsh_output(vtbl, "%5.1f%%%s ", (double)stack_filled, (stack_filled >= 80 ? "!" : " "));
+#endif
+
 #ifdef NSH_HAVE_CPULOAD
   /* Get the CPU load */
 
@@ -477,6 +566,11 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", "SIGMASK");
+#endif
+#if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
+  nsh_output(vtbl, "%6s ", "STACK");
+  nsh_output(vtbl, "%6s ", "USED");
+  nsh_output(vtbl, "%7s ", "FILLED");
 #endif
 #ifdef NSH_HAVE_CPULOAD
   nsh_output(vtbl, "%6s ", "CPU");
@@ -603,6 +697,7 @@ int cmd_usleep(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        nsh_output(vtbl, g_fmtarginvalid, argv[0]);
        return ERROR;
     }
+
   usleep(usecs);
   return OK;
 }

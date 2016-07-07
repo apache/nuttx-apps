@@ -63,7 +63,7 @@
 #include <crc32.h>
 
 #include <nuttx/ascii.h>
-#include <apps/zmodem.h>
+#include <apps/system/zmodem.h>
 
 #include "zm.h"
 

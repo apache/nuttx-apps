@@ -46,7 +46,7 @@
 #include <stdint.h>
 
 #include <nuttx/nx/nxglib.h>
-#include <apps/tiff.h>
+#include <apps/graphics/tiff.h>
 
 /****************************************************************************
  * Pre-Processor Definitions

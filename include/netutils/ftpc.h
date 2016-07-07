@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/ftpc.h
+ * apps/include/system/ftpc.h
  *
- *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_FTPC_H
-#define __APPS_INCLUDE_FTPC_H
+#ifndef __APPS_INCLUDE_NETUTILS_FTPC_H
+#define __APPS_INCLUDE_NETUTILS_FTPC_H
 
 /****************************************************************************
  * Included Files
@@ -223,4 +223,4 @@ FAR char *ftpc_response(SESSION handle);
 }
 #endif
 
-#endif /* __APPS_INCLUDE_FTPC_H */
+#endif /* __APPS_INCLUDE_NETUTILS_FTPC_H */

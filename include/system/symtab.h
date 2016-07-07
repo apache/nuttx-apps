@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/include/cle.h
+ * apps/include/system/symtab.h
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_CLE_H
-#define __APPS_INCLUDE_CLE_H
+#ifndef __APPS_INCLUDE_SYSTEM_SYMTAB_H
+#define __APPS_INCLUDE_SYSTEM_SYMTAB_H
 
 /****************************************************************************
  * Included Files
@@ -42,20 +42,34 @@
 
 #include <nuttx/config.h>
 
-#include <stdint.h>
-#include <stdio.h>
-
-#ifdef CONFIG_SYSTEM_CLE
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 /****************************************************************************
- * Public Data
+ * Public Types
  ****************************************************************************/
 
-#ifdef __cplusplus
+/* struct symbtab_s describes one entry in the symbol table.  A symbol table
+ * is a fixed size array of struct symtab_s.  The information is intentionally
+ * minimal and supports only:
+ *
+ * 1. Function pointers as sym_values.  Of other kinds of values need to be
+ *    supported, then typing information would also need to be included in
+ *    the structure.
+ *
+ * 2. Fixed size arrays.  There is no explicit provisional for dynamically
+ *    adding or removing entries from the symbol table (realloc might be
+ *    used for that purpose if needed).  The intention is to support only
+ *    fixed size arrays completely defined at compilation or link time.
+ */
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+#undef EXTERN
+#if defined(__cplusplus)
 #define EXTERN extern "C"
 extern "C"
 {
@@ -64,24 +78,25 @@ extern "C"
 #endif
 
 /****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Name: cle
+ * Name: symtab_initialize
  *
  * Description:
- *   EMACS-like command line editor.  This is actually more like readline
- *   than is the NuttX readline!
+ *   Setup a user provided symbol table.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   None
  *
  ****************************************************************************/
 
-int cle(FAR char *line, uint16_t linelen, FILE *instream, FILE *outstream);
+void symtab_initialize(void);
 
 #undef EXTERN
-#ifdef __cplusplus
+#if defined(__cplusplus)
 }
 #endif
 
-#endif /* CONFIG_SYSTEM_CLE */
-#endif /* __APPS_INCLUDE_CLE_H */
+#endif /* __APPS_INCLUDE_SYSTEM_SYMTAB_H */
+
