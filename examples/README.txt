@@ -208,6 +208,11 @@ examples/can
    CONFIG_EXAMPLES_CAN_READONLY - Only receive messages
    CONFIG_EXAMPLES_CAN_WRITEONLY - Only send messages
 
+examples/canard
+^^^^^^^^^^^^^^^
+
+  Example application for canutils/libcarnard.
+
 examples/cc3000
 ^^^^^^^^^^^^^^^
 
