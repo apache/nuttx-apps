@@ -1676,3 +1676,5 @@
 	  Sébastien Lorquet (2016-07-01).
 	* apps/nshlib: Allow stack usage to be disabled on constrained systems.
 	  From David Sidrane (2016-07-01).
+	* apps/examples/canard:  Add canard example application.  From Matthias
+	  Renner (2016-07-08).
