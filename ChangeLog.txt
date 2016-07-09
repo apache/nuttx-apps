@@ -1635,7 +1635,7 @@
 	  From Marten Svanfeldt (2016-06-09).
 	* Make sure that APPNAME is defined in all Makefiles that generate
 	  applications.  From Sebastien Lorquet (2016-06-09).
-	* apps/netutils/esp8266/: Add logic to set the BAUD rate.  From Pierr-
+	* apps/netutils/esp8266/: Add logic to set the BAUD rate.  From Pierre-
 	  noel Bouteville (2016-06-11).
 	* apps/netutils/esp8266/: CONFIG_SERIAL_TERMIOS must be defined in
 	  order to set BAUD (2016-06-11).
