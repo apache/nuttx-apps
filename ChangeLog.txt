@@ -1635,7 +1635,7 @@
 	  From Marten Svanfeldt (2016-06-09).
 	* Make sure that APPNAME is defined in all Makefiles that generate
 	  applications.  From Sebastien Lorquet (2016-06-09).
-	* apps/netutils/esp8266/: Add logic to set the BAUD rate.  From Pierr-
+	* apps/netutils/esp8266/: Add logic to set the BAUD rate.  From Pierre-
 	  noel Bouteville (2016-06-11).
 	* apps/netutils/esp8266/: CONFIG_SERIAL_TERMIOS must be defined in
 	  order to set BAUD (2016-06-11).
@@ -1676,3 +1676,5 @@
 	  Sébastien Lorquet (2016-07-01).
 	* apps/nshlib: Allow stack usage to be disabled on constrained systems.
 	  From David Sidrane (2016-07-01).
+	* apps/examples/canard:  Add canard example application.  From Matthias
+	  Renner (2016-07-08).

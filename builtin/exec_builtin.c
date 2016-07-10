@@ -173,7 +173,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       /* Set up to close open redirfile and set to stdout (1) */
 
       ret = posix_spawn_file_actions_addopen(&file_actions, 1,
-                                             redirfile, O_WRONLY, 0644);
+                                             redirfile, oflags, 0644);
       if (ret != 0)
         {
           serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);
