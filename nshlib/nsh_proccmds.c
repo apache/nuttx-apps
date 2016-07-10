@@ -455,15 +455,20 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%6.6d ", stack_size);
   nsh_output(vtbl, "%6.6d ", stack_used);
 
-  stack_filled = 0.0;
+  stack_filled = 0.0F;
   if (stack_size && stack_used)
     {
-      stack_filled = (100.0 / stack_size * stack_used);
+      stack_filled = 100.0F * stack_used / stack_size;
     }
 
   /* Additionally print a "!" if the stack is filled more than 80% */
 
+#ifndef LIBC_FLOATINGPOINT
+  nsh_output(vtbl, "%5d%%%s ", (int)stack_filled, (stack_filled >= 80 ? "!" : " "));
+#else
   nsh_output(vtbl, "%5.1f%%%s ", (double)stack_filled, (stack_filled >= 80 ? "!" : " "));
+#endif
+
 #endif
 
 #ifdef NSH_HAVE_CPULOAD
