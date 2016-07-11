@@ -463,7 +463,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
   /* Additionally print a "!" if the stack is filled more than 80% */
 
-#ifndef LIBC_FLOATINGPOINT
+#ifndef CONFIG_LIBC_FLOATINGPOINT
   nsh_output(vtbl, "%5d%%%s ", (int)stack_filled, (stack_filled >= 80 ? "!" : " "));
 #else
   nsh_output(vtbl, "%5.1f%%%s ", (double)stack_filled, (stack_filled >= 80 ? "!" : " "));
