@@ -55,7 +55,7 @@
 #  include <nuttx/config.h>          /* NuttX configuration */
 #  include <debug.h>                 /* For nerr, info */
 #  include <nuttx/compiler.h>        /* For CONFIG_CPP_HAVE_WARNING */
-#  include <apps/netutils/dhcpd.h>   /* Advertised DHCPD APIs */
+#  include "netutils/dhcpd.h"        /* Advertised DHCPD APIs */
 #endif
 
 #include <sys/socket.h>
@@ -72,7 +72,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Private Data

@@ -60,7 +60,7 @@
 #include <arpa/inet.h>
 
 #include <nuttx/net/ip.h>
-#include <apps/netutils/smtp.h>
+#include "netutils/smtp.h"
 
 /****************************************************************************
  * Pre-processor Definitions

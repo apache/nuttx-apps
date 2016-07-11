@@ -54,8 +54,8 @@
 
 #include <arpa/inet.h>
 
-#include <apps/netutils/dhcpc.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/dhcpc.h"
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -54,7 +54,7 @@
 
 #include <netinet/in.h>
 
-#include <apps/netutils/ftpc.h>
+#include "netutils/ftpc.h"
 
 /****************************************************************************
  * Pre-processor Definitions

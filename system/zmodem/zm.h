@@ -53,7 +53,7 @@
 #include <nuttx/compiler.h>
 #include <nuttx/ascii.h>
 
-#include <apps/system/zmodem.h>
+#include "system/zmodem.h"
 
 /****************************************************************************
  * Pre-processor Definitions

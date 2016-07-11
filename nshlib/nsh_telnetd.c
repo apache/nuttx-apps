@@ -44,7 +44,7 @@
 
 #include <arpa/inet.h>
 
-#include <apps/netutils/telnetd.h>
+#include "netutils/telnetd.h"
 
 #include "nsh.h"
 #include "nsh_console.h"

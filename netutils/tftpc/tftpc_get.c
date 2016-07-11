@@ -52,7 +52,7 @@
 #include <arpa/inet.h>
 
 #include <nuttx/net/netconfig.h>
-#include <apps/netutils/tftp.h>
+#include "netutils/tftp.h"
 
 #include "tftpc_internal.h"
 

@@ -41,8 +41,8 @@
 
 #include <sys/boardctl.h>
 
-#include <apps/system/readline.h>
-#include <apps/nshlib/nshlib.h>
+#include "system/readline.h"
+#include "nshlib/nshlib.h"
 
 #include "nsh.h"
 

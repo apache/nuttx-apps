@@ -43,7 +43,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Private Data

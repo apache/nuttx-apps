@@ -38,7 +38,7 @@
 
 #include <string.h>
 
-#include <apps/netutils/httpd.h>
+#include "netutils/httpd.h"
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -49,7 +49,7 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#include <apps/netutils/ftpc.h>
+#include "netutils/ftpc.h"
 
 /****************************************************************************
  * Pre-processor Definitions

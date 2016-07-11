@@ -59,8 +59,8 @@
 
 #include "ppp.h"
 
-#include <apps/netutils/chat.h>
-#include <apps/netutils/pppd.h>
+#include "netutils/chat.h"
+#include "netutils/pppd.h"
 
 /****************************************************************************
  * Extenal Functions

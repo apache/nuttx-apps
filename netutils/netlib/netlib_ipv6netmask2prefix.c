@@ -42,7 +42,7 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 #ifdef CONFIG_NET_IPv6
 

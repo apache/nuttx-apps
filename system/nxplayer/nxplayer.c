@@ -60,7 +60,7 @@
 #include <debug.h>
 
 #include <nuttx/audio/audio.h>
-#include <apps/system/nxplayer.h>
+#include "system/nxplayer.h"
 
 /****************************************************************************
  * Pre-processor Definitions

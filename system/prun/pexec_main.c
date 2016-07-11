@@ -45,7 +45,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <apps/system/prun.h>
+#include "system/prun.h"
 
 /****************************************************************************
  * Pre-processor Definitions

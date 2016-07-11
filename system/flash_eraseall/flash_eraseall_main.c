@@ -43,7 +43,7 @@
 
 #include <stdio.h>
 
-#include <apps/fsutils/flash_eraseall.h>
+#include "fsutils/flash_eraseall.h"
 
 /****************************************************************************
  * Public Functions

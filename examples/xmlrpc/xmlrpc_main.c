@@ -67,8 +67,8 @@
 #include <netinet/in.h>
 
 #include <nuttx/net/arp.h>
-#include <apps/netutils/netlib.h>
-#include <apps/netutils/xmlrpc.h>
+#include "netutils/netlib.h"
+#include "netutils/xmlrpc.h"
 
 #ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC
 #  include <arpa/inet.h>
@@ -81,7 +81,7 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC
-#  include <apps/netutils/dhcpc.h>
+#  include "netutils/dhcpc.h"
 #endif
 
 /****************************************************************************

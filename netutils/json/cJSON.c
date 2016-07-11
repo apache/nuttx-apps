@@ -43,7 +43,7 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include <apps/netutils/cJSON.h>
+#include "netutils/cJSON.h"
 
 /****************************************************************************
  * Pre-processor Definitions

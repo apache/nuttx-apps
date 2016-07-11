@@ -41,7 +41,7 @@
 #include <sys/socket.h>
 
 #include <nuttx/net/netstats.h>
-#include <apps/netutils/httpd.h>
+#include "netutils/httpd.h"
 
 #include "cgi.h"
 

@@ -56,7 +56,7 @@
 
 #include <nuttx/binfmt/symtab.h>
 #include <nuttx/binfmt/binfmt.h>
-#include <apps/netutils/thttpd.h>
+#include "netutils/thttpd.h"
 
 #include "config.h"
 #include "timers.h"

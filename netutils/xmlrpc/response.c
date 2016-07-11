@@ -55,7 +55,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
-#include <apps/netutils/xmlrpc.h>
+#include "netutils/xmlrpc.h"
 
 /****************************************************************************
  * Private Functions

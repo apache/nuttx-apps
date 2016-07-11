@@ -59,7 +59,7 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <apps/system/zmodem.h>
+#include "system/zmodem.h"
 
 #include "zm.h"
 

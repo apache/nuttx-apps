@@ -58,7 +58,7 @@
 
 #include <arpa/inet.h>
 
-#include "apps/netutils/esp8266.h"
+#include "netutils/esp8266.h"
 
 #ifdef CONFIG_NETUTILS_ESP8266
 

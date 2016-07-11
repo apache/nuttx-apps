@@ -57,7 +57,7 @@
 #include <netinet/in.h>
 
 #include <nuttx/net/arp.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 #ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
 #include <arpa/inet.h>
@@ -70,12 +70,12 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_WEBSERVER_DHCPC
-# include <apps/netutils/dhcpc.h>
+# include "netutils/dhcpc.h"
 #endif
 
 /* Include uIP webserver definitions */
 
-#include <apps/netutils/httpd.h>
+#include "netutils/httpd.h"
 
 #include "cgi.h"
 

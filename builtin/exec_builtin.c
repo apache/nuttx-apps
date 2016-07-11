@@ -51,7 +51,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/builtin/builtin.h>
+#include "builtin/builtin.h"
 
 /****************************************************************************
  * Public Functions

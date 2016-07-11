@@ -43,9 +43,9 @@
 #include <stdlib.h>
 
 #ifdef CONFIG_NSH_CLE
-#  include <apps/system/cle.h>
+#  include "system/cle.h"
 #else
-#  include <apps/system/readline.h>
+#  include "system/readline.h"
 #endif
 
 #include "nsh.h"
