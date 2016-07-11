@@ -47,7 +47,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/netutils/ftpc.h>
+#include "netutils/ftpc.h"
 
 #include "ftpc_internal.h"
 

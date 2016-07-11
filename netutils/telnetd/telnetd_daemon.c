@@ -59,8 +59,8 @@
 
 #include <nuttx/net/telnet.h>
 
-#include <apps/netutils/telnetd.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/telnetd.h"
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Private Types

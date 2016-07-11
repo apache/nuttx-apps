@@ -41,7 +41,7 @@
 
 #include <stdlib.h>
 
-#include <apps/netutils/ftpc.h>
+#include "netutils/ftpc.h"
 
 #include "ftpc_internal.h"
 

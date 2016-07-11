@@ -62,7 +62,7 @@
 
 #include <arpa/inet.h>
 
-#include <apps/netutils/ftpd.h>
+#include "netutils/ftpd.h"
 
 #include "ftpd.h"
 

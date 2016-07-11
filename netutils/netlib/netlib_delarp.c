@@ -52,7 +52,7 @@
 #include <net/if.h>
 
 #include <nuttx/net/arp.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Public Functions

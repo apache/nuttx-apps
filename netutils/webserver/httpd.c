@@ -64,8 +64,8 @@
 
 #include <arpa/inet.h>
 
-#include <apps/netutils/netlib.h>
-#include <apps/netutils/httpd.h>
+#include "netutils/netlib.h"
+#include "netutils/httpd.h"
 
 #include "httpd.h"
 #include "httpd_cgi.h"

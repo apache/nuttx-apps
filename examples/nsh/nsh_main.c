@@ -55,7 +55,7 @@
 #  include <nuttx/binfmt/symtab.h>
 #endif
 
-#include <apps/nshlib/nshlib.h>
+#include "nshlib/nshlib.h"
 
 /****************************************************************************
  * Pre-processor Definitions

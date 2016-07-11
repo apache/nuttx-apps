@@ -61,7 +61,7 @@
 #include <debug.h>
 
 #include <nuttx/regex.h>
-#include <apps/netutils/thttpd.h>
+#include "netutils/thttpd.h"
 
 #include "config.h"
 #include "timers.h"

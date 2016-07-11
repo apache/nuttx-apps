@@ -43,11 +43,11 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <apps/fsutils/passwd.h>
+#include "fsutils/passwd.h"
 #ifdef CONFIG_NSH_CLE
-#  include <apps/system/cle.h>
+#  include "system/cle.h"
 #else
-#  include <apps/system/readline.h>
+#  include "system/readline.h"
 #endif
 
 #include "nsh.h"

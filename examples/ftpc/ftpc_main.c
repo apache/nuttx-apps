@@ -44,9 +44,9 @@
 #include <errno.h>
 
 #include <arpa/inet.h>
-#include <apps/netutils/ftpc.h>
+#include "netutils/ftpc.h"
 
-#include <apps/system/readline.h>
+#include "system/readline.h"
 
 #include "ftpc.h"
 

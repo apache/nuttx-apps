@@ -51,7 +51,7 @@
 
 #include <netinet/in.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Public Functions

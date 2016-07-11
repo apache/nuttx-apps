@@ -46,7 +46,7 @@
 #include <debug.h>
 #include <sys/ioctl.h>
 
-#include <apps/platform/configdata.h>
+#include "platform/configdata.h"
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/configdata.h>
 

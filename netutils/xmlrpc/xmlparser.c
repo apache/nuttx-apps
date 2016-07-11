@@ -56,7 +56,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <apps/netutils/xmlrpc.h>
+#include "netutils/xmlrpc.h"
 
 /****************************************************************************
  * Pre-processor Definitions

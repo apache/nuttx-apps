@@ -1,7 +1,7 @@
 ############################################################################
 # apps/system/lm75/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015-2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,6 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 # LM-75 Temperature Sensor Application
 

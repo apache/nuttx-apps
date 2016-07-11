@@ -1,7 +1,7 @@
 ############################################################################
 # apps/modbus/Makefile
 #
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,6 @@ ifeq ($(CONFIG_MODBUS),y)
 CSRCS += mb.c
 DEPPATH = --dep-path .
 VPATH = .
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 include ascii/Make.defs
 include functions/Make.defs

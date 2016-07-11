@@ -57,7 +57,7 @@
 
 #include <nuttx/compiler.h>
 #include <nuttx/binfmt/symtab.h>
-#include <apps/netutils/thttpd.h>
+#include "netutils/thttpd.h"
 
 #include "config.h"
 #include "fdwatch.h"

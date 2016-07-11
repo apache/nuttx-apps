@@ -50,7 +50,7 @@
 #include "ahdlc.h"
 #include "lcp.h"
 
-#include <apps/netutils/pppd.h>
+#include "netutils/pppd.h"
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -43,7 +43,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include <apps/gpsutils/minmea.h>
+#include "gpsutils/minmea.h"
 
 /****************************************************************************
  * Pre-processor Definitions

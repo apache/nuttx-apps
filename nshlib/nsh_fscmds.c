@@ -59,7 +59,7 @@
 #     include <nuttx/fs/mkfatfs.h>
 #   endif
 #   ifdef CONFIG_FS_SMARTFS
-#     include <apps/fsutils/mksmartfs.h>
+#     include "fsutils/mksmartfs.h"
 #   endif
 #   ifdef CONFIG_SMART_DEV_LOOP
 #     include <sys/ioctl.h>

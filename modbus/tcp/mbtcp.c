@@ -37,7 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <apps/modbus/mb.h>
+#include "modbus/mb.h"
 
 #include "port.h"
 #include "mbtcp.h"

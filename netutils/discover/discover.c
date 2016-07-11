@@ -58,7 +58,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <apps/netutils/discover.h>
+#include "netutils/discover.h"
 
 /****************************************************************************
  * Pre-processor Definitions

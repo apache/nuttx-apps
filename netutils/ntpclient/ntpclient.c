@@ -57,7 +57,7 @@
 #  include <arpa/inet.h>
 #endif
 
-#include <apps/netutils/ntpclient.h>
+#include "netutils/ntpclient.h"
 
 #include "ntpv3.h"
 

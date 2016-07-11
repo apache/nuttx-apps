@@ -50,12 +50,12 @@
 #include <netinet/in.h>
 
 #include <nuttx/net/arp.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 #if defined(CONFIG_EXAMPLES_BRIDGE_NET1_DHCPC) || \
     defined(CONFIG_EXAMPLES_BRIDGE_NET2_DHCPC)
 #  include <arpa/inet.h>
-#  include <apps/netutils/dhcpc.h>
+#  include "netutils/dhcpc.h"
 #endif
 
 /****************************************************************************
