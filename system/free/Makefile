@@ -2,6 +2,7 @@
 # apps/system/free/Makefile
 #
 #   Copyright (C) 2011-2012 Uros Platise. All rights reserved.
+#   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Uros Platise <uros.platise@isotel.eu>
 #           Gregory Nutt <gnutt@nuttx.org>
 #
@@ -37,10 +38,6 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 # Replacement free command
 

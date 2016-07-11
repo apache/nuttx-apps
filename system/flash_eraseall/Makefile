@@ -42,11 +42,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
-# Hello Application
+# flash_eraseall Application
 # TODO: appname can be automatically extracted from the directory name
 
 APPNAME = flash_eraseall

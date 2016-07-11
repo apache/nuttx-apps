@@ -1,7 +1,7 @@
 ############################################################################
 # apps/graphics/traveler/Makefile
 #
-#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -108,10 +108,6 @@ endif
 
 CONFIG_EXAMPLES_HELLO_PROGNAME ?= hello$(EXEEXT)
 PROGNAME = $(CONFIG_EXAMPLES_HELLO_PROGNAME)
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(TRAVELER_INC)}
 

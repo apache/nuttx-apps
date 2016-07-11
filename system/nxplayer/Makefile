@@ -2,7 +2,7 @@
 # apps/system/nxplayer/Makefile
 #
 #   Copyright (C) 2013 Ken Pettit. All rights reserved.
-#   Copyright (C) 2012-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012-2013, 2016 Gregory Nutt. All rights reserved.
 #   Author: Ken Pettit <pettitkd@gmail.com>
 #           Gregory Nutt <gnutt@nuttx.org>
 #
@@ -38,10 +38,6 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 # NxPlayer Library
 
