@@ -51,8 +51,8 @@
 #include <netinet/in.h>
 #include <nuttx/net/arp.h>
 
-#include <apps/netutils/netlib.h>
-#include <apps/netutils/discover.h>
+#include "netutils/netlib.h"
+#include "netutils/discover.h"
 
 #ifdef CONFIG_EXAMPLES_DISCOVER_DHCPC
 #  include <arpa/inet.h>
@@ -65,7 +65,7 @@
 /* DHCPC may be used in conjunction with any other feature (or not) */
 
 #ifdef CONFIG_EXAMPLES_DISCOVER_DHCPC
-#  include <apps/netutils/dhcpc.h>
+#  include "netutils/dhcpc.h"
 #endif
 
 /****************************************************************************

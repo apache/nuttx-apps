@@ -43,7 +43,7 @@
 #include <stdlib.h>
 #include <debug.h>
 
-#include <apps/interpreters/prun.h>
+#include "interpreters/prun.h"
 
 #include "pashello.h"
 

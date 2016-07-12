@@ -48,7 +48,7 @@
 
 #include <nuttx/net/dns.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NETDB_DNSCLIENT)
 

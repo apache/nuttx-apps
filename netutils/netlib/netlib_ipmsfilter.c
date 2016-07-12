@@ -50,8 +50,8 @@
 #include <netinet/in.h>
 #include <sys/sockio.h>
 
-#include <apps/netutils/netlib.h>
-#include <apps/netutils/ipmsfilter.h>
+#include "netutils/netlib.h"
+#include "netutils/ipmsfilter.h"
 
 #ifdef CONFIG_NET_IGMP
 

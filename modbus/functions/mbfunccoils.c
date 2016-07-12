@@ -39,10 +39,10 @@
 
 #include "port.h"
 
-#include <apps/modbus/mb.h>
-#include <apps/modbus/mbframe.h>
-#include <apps/modbus/mbproto.h>
-#include <apps/modbus/mbport.h>
+#include "modbus/mb.h"
+#include "modbus/mbframe.h"
+#include "modbus/mbproto.h"
+#include "modbus/mbport.h"
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -44,7 +44,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <apps/netutils/httpd.h>
+#include "netutils/httpd.h"
 
 /****************************************************************************
  * Public Function Prototypes

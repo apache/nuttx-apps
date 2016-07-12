@@ -49,7 +49,7 @@
 #include <time.h>
 #include <errno.h>
 
-#include <apps/system/zmodem.h>
+#include "system/zmodem.h"
 
 /****************************************************************************
  * Private Functions

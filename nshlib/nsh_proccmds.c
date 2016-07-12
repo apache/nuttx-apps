@@ -267,9 +267,9 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   int ret;
   int i;
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
-  int stack_size;
-  int stack_used;
-  float stack_filled;
+  uint32_t stack_size;
+  uint32_t stack_used;
+  uint32_t stack_filled;
 #endif
 
   /* Task/thread entries in the /proc directory will all be (1) directories
@@ -402,7 +402,8 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
     }
   else
     {
-      ret = nsh_readfile(vtbl, "ps", filepath, vtbl->iobuffer, IOBUFFERSIZE);
+      ret = nsh_readfile(vtbl, "ps", filepath, vtbl->iobuffer,
+                         IOBUFFERSIZE);
       free(filepath);
 
       if (ret >= 0)
@@ -441,29 +442,33 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
 
               if (strncmp(line, g_stacksize, strlen(g_stacksize)) == 0)
                 {
-                  stack_size = atoi(&line[12]);
+                  stack_size = (uint32_t)atoi(&line[12]);
                 }
               else if (strncmp(line, g_stackused, strlen(g_stackused)) == 0)
                 {
-                  stack_used = atoi(&line[12]);
+                  stack_used = (uint32_t)atoi(&line[12]);
                 }
             }
           while (nextline != NULL);
         }
     }
 
-  nsh_output(vtbl, "%6.6d ", stack_size);
-  nsh_output(vtbl, "%6.6d ", stack_used);
+  nsh_output(vtbl, "%6.6u ", (unsigned int)stack_size);
+  nsh_output(vtbl, "%6.6u ", (unsigned int)stack_used);
 
-  stack_filled = 0.0;
-  if (stack_size && stack_used)
+  stack_filled = 0;
+  if (stack_size > 0 && stack_used > 0)
     {
-      stack_filled = (100.0 / stack_size * stack_used);
+      /* Use fixed-point math with one decimal place */
+
+      stack_filled = 10 * 100 * stack_used / stack_size;
     }
 
   /* Additionally print a "!" if the stack is filled more than 80% */
 
-  nsh_output(vtbl, "%5.1f%%%s ", (double)stack_filled, (stack_filled >= 80 ? "!" : " "));
+  nsh_output(vtbl, "%3d.%1d%%%s ",
+             stack_filled / 10, stack_filled % 10,
+             (stack_filled >= 10 * 80 ? "!" : " "));
 #endif
 
 #ifdef NSH_HAVE_CPULOAD

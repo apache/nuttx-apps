@@ -47,7 +47,7 @@
 
 #include <nuttx/config.h>
 
-#include <apps/netutils/chat.h>
+#include "netutils/chat.h"
 
 #include "ppp_conf.h"
 #include "ahdlc.h"

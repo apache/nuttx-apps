@@ -189,6 +189,9 @@ extern "C"
 #  define EXTERN extern
 #endif
 
+EXTERN const struct httpd_fsdata_file g_httpdfs_root[];
+EXTERN const int g_httpd_numfiles;
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
@@ -197,9 +200,6 @@ void httpd_init(void);
 int httpd_listen(void);
 void httpd_cgi_register(struct httpd_cgi_call *cgi_call);
 uint16_t httpd_fs_count(char *name);
-
-const struct httpd_fsdata_file g_httpdfs_root[];
-const int g_httpd_numfiles;
 
 #undef EXTERN
 #ifdef __cplusplus

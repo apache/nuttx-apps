@@ -37,10 +37,6 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
 # RAM test
 
 PRIORITY = SCHED_PRIORITY_DEFAULT

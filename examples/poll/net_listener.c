@@ -58,7 +58,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 #include "poll_internal.h"
 

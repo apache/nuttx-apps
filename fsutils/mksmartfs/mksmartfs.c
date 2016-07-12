@@ -45,7 +45,7 @@
 #include <errno.h>
 # if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #   ifdef CONFIG_FS_SMARTFS
-#     include <apps/fsutils/mksmartfs.h>
+#     include "fsutils/mksmartfs.h"
 #     include <nuttx/fs/ioctl.h>
 #     include <nuttx/fs/smart.h>
 #   endif

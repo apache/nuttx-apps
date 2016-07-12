@@ -40,8 +40,8 @@
 
 #include "port.h"
 
-#include <apps/modbus/mb.h>
-#include <apps/modbus/mbproto.h>
+#include "modbus/mb.h"
+#include "modbus/mbproto.h"
 
 /****************************************************************************
  * Pre-processor Definitions

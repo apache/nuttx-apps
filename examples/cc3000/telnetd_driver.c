@@ -61,7 +61,7 @@
 
 #include <nuttx/net/net.h>
 
-#include <apps/netutils/telnetd.h>
+#include "netutils/telnetd.h"
 
 #include "telnetd.h"
 

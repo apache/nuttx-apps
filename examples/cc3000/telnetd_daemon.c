@@ -53,8 +53,8 @@
 #include <debug.h>
 #include <netinet/in.h>
 
-#include <apps/netutils/telnetd.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/telnetd.h"
+#include "netutils/netlib.h"
 
 #include "telnetd.h"
 

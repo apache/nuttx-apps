@@ -42,7 +42,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <apps/netutils/urldecode.h>
+#include "netutils/urldecode.h"
 
 /****************************************************************************
  * Pre-processor Definitions

@@ -39,12 +39,12 @@
 
 #include "port.h"
 
-#include <apps/modbus/mb.h>
-#include <apps/modbus/mbframe.h>
-#include <apps/modbus/mbproto.h>
-#include <apps/modbus/mbfunc.h>
+#include "modbus/mb.h"
+#include "modbus/mbframe.h"
+#include "modbus/mbproto.h"
+#include "modbus/mbfunc.h"
 
-#include <apps/modbus/mbport.h>
+#include "modbus/mbport.h"
 
 #ifdef CONFIG_MB_RTU_ENABLED
 #  include "mbrtu.h"

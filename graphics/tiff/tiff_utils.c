@@ -45,7 +45,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/graphics/tiff.h>
+#include "graphics/tiff.h"
 
 #include "tiff_internal.h"
 

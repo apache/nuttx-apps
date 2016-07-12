@@ -2,7 +2,7 @@
 # apps/system/install/Makefile
 #
 #   Copyright (C) 2011 Uros Platise. All rights reserved.
-#   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
 #   Author: Uros Platise <uros.platise@isotel.eu>
 #           Gregory Nutt <gnutt@nuttx.org>
 #
@@ -42,11 +42,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
-
-# Hello Application
+# Install Application
 # TODO: appname can be automatically extracted from the directory name
 
 APPNAME = install

@@ -1,7 +1,7 @@
 ############################################################################
 # apps/bas/Makefile
 #
-#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,6 @@ endif
 
 DEPPATH = --dep-path .
 VPATH = .
-
-ifeq ($(WINTOOL),y)
-INCDIROPT = -w
-endif
 
 AOBJS		= $(ASRCS:.S=$(OBJEXT))
 COBJS		= $(CSRCS:.c=$(OBJEXT))

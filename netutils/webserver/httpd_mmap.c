@@ -50,7 +50,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/netutils/httpd.h>
+#include "netutils/httpd.h"
 
 #include "httpd.h"
 

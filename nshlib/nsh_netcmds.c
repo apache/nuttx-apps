@@ -81,23 +81,23 @@
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS)
-#  include <apps/netutils/netlib.h>
+#  include "netutils/netlib.h"
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
-#  include <apps/netutils/netlib.h>
-#  include <apps/netutils/tftp.h>
+#  include "netutils/netlib.h"
+#  include "netutils/tftp.h"
 #endif
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
 #  ifndef CONFIG_NSH_DISABLE_WGET
-#    include <apps/netutils/netlib.h>
-#    include <apps/netutils/webclient.h>
+#    include "netutils/netlib.h"
+#    include "netutils/webclient.h"
 #  endif
 #endif
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-#  include <apps/netutils/dhcpc.h>
+#  include "netutils/dhcpc.h"
 #endif
 
 #include "nsh.h"

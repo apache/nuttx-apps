@@ -47,7 +47,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Public Functions
