@@ -132,7 +132,9 @@ static const char g_sigmask[]   = "SigMask:";
 
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
 static const char g_stacksize[] = "StackSize:";
+#ifdef CONFIG_STACK_COLORATION
 static const char g_stackused[] = "StackUsed:";
+#endif
 #endif
 
 /****************************************************************************
@@ -268,8 +270,10 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   int i;
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   uint32_t stack_size;
+#ifdef CONFIG_STACK_COLORATION
   uint32_t stack_used;
   uint32_t stack_filled;
+#endif
 #endif
 
   /* Task/thread entries in the /proc directory will all be (1) directories
@@ -391,7 +395,9 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   /* Get the StackSize and StackUsed */
 
   stack_size = 0;
+#ifdef CONFIG_STACK_COLORATION
   stack_used = 0;
+#endif
   filepath   = NULL;
 
   ret = asprintf(&filepath, "%s/%s/stack", dirpath, entryp->d_name);
@@ -444,16 +450,20 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                 {
                   stack_size = (uint32_t)atoi(&line[12]);
                 }
+#ifdef CONFIG_STACK_COLORATION
               else if (strncmp(line, g_stackused, strlen(g_stackused)) == 0)
                 {
                   stack_used = (uint32_t)atoi(&line[12]);
                 }
+#endif
             }
           while (nextline != NULL);
         }
     }
 
   nsh_output(vtbl, "%6.6u ", (unsigned int)stack_size);
+
+#ifdef CONFIG_STACK_COLORATION
   nsh_output(vtbl, "%6.6u ", (unsigned int)stack_used);
 
   stack_filled = 0;
@@ -469,6 +479,7 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
   nsh_output(vtbl, "%3d.%1d%%%s ",
              stack_filled / 10, stack_filled % 10,
              (stack_filled >= 10 * 80 ? "!" : " "));
+#endif
 #endif
 
 #ifdef NSH_HAVE_CPULOAD
@@ -572,11 +583,15 @@ int cmd_ps(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_DISABLE_SIGNALS
   nsh_output(vtbl, "%-8s ", "SIGMASK");
 #endif
+
 #if !defined(CONFIG_NSH_DISABLE_PSSTACKUSAGE)
   nsh_output(vtbl, "%6s ", "STACK");
+#ifdef CONFIG_STACK_COLORATION
   nsh_output(vtbl, "%6s ", "USED");
   nsh_output(vtbl, "%7s ", "FILLED");
 #endif
+#endif
+
 #ifdef NSH_HAVE_CPULOAD
   nsh_output(vtbl, "%6s ", "CPU");
 #endif
