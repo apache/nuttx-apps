@@ -71,18 +71,18 @@ int pty_test_main(int argc, char *argv[])
   /* Grant access and unlock the slave device */
 
   ret = grantpt(fd);
-  if (fd < 0)
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR: grantpt() failed: %d\n", errno);
-      fclose(fd);
+      close(fd);
       return -1;
     }
 
   ret = unlockpt(fd);
-  if (fd < 0)
+  if (ret < 0)
     {
       fprintf(stderr, "ERROR: unlockpt() failed: %d\n", errno);
-      fclose(fd);
+      close(fd);
       return -1;
     }
 
@@ -95,12 +95,14 @@ int pty_test_main(int argc, char *argv[])
 
   for (; ; )
     {
-      char buffer;
-      int in;
+      ssize_t nread;
+      char ch;
 
-      in = read(fd, &buffer, 1);
-      putchar(buffer);
-      buffer = '\0';
+      nread = read(fd, &ch, 1);
+      UNUSED(nread);
+
+      putchar(ch);
+      ch = '\0';
     }
 
   return 0;
