@@ -1627,6 +1627,11 @@ examples/posix_spawn
 
        LDELFFLAGS = -r -e main -T$(TOPDIR)/binfmt/libelf/gnu-elf.ld
 
+examples/pty_test
+^^^^^^^^^^^^^^^^^
+
+  A test of NuttX pseudo-terminals.  Provided by Alan Carvalho de Assis.
+
 examples/pwm
 ^^^^^^^^^^^^
 

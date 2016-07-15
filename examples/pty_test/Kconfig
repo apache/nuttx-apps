@@ -1,0 +1,30 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_PTYTEST
+	bool "Pseudo Terminal test example"
+	default n
+	---help---
+		Enable the PTY example
+
+if EXAMPLES_PTYTEST
+
+config EXAMPLES_PTYTEST_PROGNAME
+	string "Program name"
+	default "pts"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_PTYTEST_PRIORITY
+	int "PTY_Test task priority"
+	default 100
+
+config EXAMPLES_PTYTEST_STACKSIZE
+	int "PTYTest stack size"
+	default 2048
+
+endif
