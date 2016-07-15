@@ -235,8 +235,8 @@ static void nsh_parse_statusline(FAR char *line,
     }
   else if (strncmp(line, g_priority, strlen(g_priority)) == 0)
     {
-      FAR char *ptr =
-          status->td_priority = nsh_trimspaces(&line[12]);
+      FAR char *ptr = nsh_trimspaces(&line[12]);
+      status->td_priority = ptr;
 
       /* If priority inheritance is enabled, use current pri, ignore base */
 
