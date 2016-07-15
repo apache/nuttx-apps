@@ -235,7 +235,17 @@ static void nsh_parse_statusline(FAR char *line,
     }
   else if (strncmp(line, g_priority, strlen(g_priority)) == 0)
     {
-      status->td_priority = nsh_trimspaces(&line[12]);
+      FAR char *ptr =
+          status->td_priority = nsh_trimspaces(&line[12]);
+
+      /* If priority inheritance is enabled, use current pri, ignore base */
+
+      while (isdigit(*ptr))
+        {
+          ++ptr;
+        }
+
+      *ptr = '\0';
     }
   else if (strncmp(line, g_scheduler, strlen(g_scheduler)) == 0)
     {
@@ -474,11 +484,11 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
       stack_filled = 10 * 100 * stack_used / stack_size;
     }
 
-  /* Additionally print a "!" if the stack is filled more than 80% */
+  /* Additionally print a '!' if the stack is filled more than 80% */
 
-  nsh_output(vtbl, "%3d.%1d%%%s ",
+  nsh_output(vtbl, "%3d.%1d%%%c ",
              stack_filled / 10, stack_filled % 10,
-             (stack_filled >= 10 * 80 ? "!" : " "));
+             (stack_filled >= 10 * 80 ? '!' : ' '));
 #endif
 #endif
 
