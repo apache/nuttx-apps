@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/nxhello/nxhello_bkgd.c
+ * examples/pty_test/pty_test.c
  *
- *   Copyright (C)  Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016, Gregory Nutt. All rights reserved.
  *   Author: Alan Carvalho de Assisi <acassis@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,16 +37,202 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <poll.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/ioctl.h>
 
 #include <nuttx/serial/pty.h>
 
+#include "nshlib/nshlib.h"
+
 /****************************************************************************
- * pty_test_main
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifndef CONFIG_EXAMPLES_PTYTEST_SERIALDEV
+#  define CONFIG_EXAMPLES_PTYTEST_SERIALDEV "/dev/ttyS1"
+#endif
+
+#ifndef CONFIG_EXAMPLES_PTYTEST_DAEMONPRIO
+#  define CONFIG_EXAMPLES_PTYTEST_DAEMONPRIO SCHED_PRIORITY_DEFAULT
+#endif
+
+#ifndef CONFIG_EXAMPLES_PTYTEST_STACKSIZE
+#  define CONFIG_EXAMPLES_PTYTEST_STACKSIZE 2048
+#endif
+
+#define POLL_TIMEOUT  200
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+struct term_pair_s
+{
+  int fd_uart;
+  int fd_pty;
+};
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: serial_in
+ *
+ * Description:
+ *   Read data from serial and write to pts
+ *
+ ****************************************************************************/
+
+static void serial_in(struct term_pair_s *tp)
+{
+  struct pollfd fdp;
+  char buffer[16];
+  int ret;
+
+  if (!tp)
+    {
+      fprintf(stderr, "ERROR: terminal pair struct is NULL!\n");
+      return;
+    }
+
+  fdp.fd     = tp->fd_uart;
+  fdp.events = POLLIN;
+
+  /* Run forever */
+
+  for (;;)
+    {
+      ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
+      if (ret > 0)
+        {
+          if ((fdp.revents & POLLIN) != 0)
+            {
+              int len;
+
+              len = read(tp->fd_uart, buffer, 16);
+              if (len < 0)
+                {
+                  fprintf(stderr,
+                          "ERROR Failed to read from serial: %d\n",
+                          errno);
+                }
+              else if (len > 0)
+                {
+                  ret = write(tp->fd_pty, buffer, len);
+                  if (ret < 0)
+                    {
+                      fprintf(stderr,
+                              "Failed to write to serial: %d\n",
+                              errno);
+                    }
+                }
+            }
+        }
+
+      /* Timeout */
+
+      else if (ret == 0)
+        {
+          continue;
+        }
+
+      /* Poll error */
+
+      else if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: poll failed: %d\n", errno);
+          continue;
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: serial_out
+ *
+ * Description:
+ *   Read data from pts and write to serial
+ *
+ ****************************************************************************/
+
+static void serial_out(struct term_pair_s *tp)
+{
+  struct pollfd fdp;
+  char buffer[16];
+  int ret;
+
+  if (!tp)
+    {
+      fprintf(stderr, "Error: terminal pair struct is NULL!\n");
+      return;
+    }
+
+  fdp.fd = tp->fd_pty;
+  fdp.events = POLLIN;
+
+  /* Run forever */
+
+  for (;;)
+    {
+      ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
+      if (ret > 0)
+        {
+          if (fdp.revents & POLLIN)
+            {
+              int len;
+
+              len = read(tp->fd_pty, buffer, 16);
+              if (len < 0)
+                {
+                  fprintf(stderr,
+                          "ERROR: Failed to read from pseudo-terminal: %d\n",
+                          errno);
+                }
+              else if (len > 0)
+                {
+                  ret = write(tp->fd_uart, buffer, len);
+                  if (ret < 0)
+                    {
+                      fprintf(stderr,
+                              "ERROR: Failed to write to serial: %d\n",
+                              errno);
+                    }
+                }
+            }
+        }
+
+      /* Timeout */
+
+      else if (ret == 0)
+        {
+          continue;
+        }
+
+      /* poll error */
+
+      else if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: poll failed: %d\n", errno);
+          continue;
+        }
+    }
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: pty_test_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
@@ -55,55 +241,139 @@ int main(int argc, FAR char *argv[])
 int pty_test_main(int argc, char *argv[])
 #endif
 {
+  struct term_pair_s termpair;
+  pthread_t si_thread;
+  pthread_t so_thread;
   char buffer[16];
+  pid_t pid;
+  int fd_pts;
   int ret;
-  int fd;
 
-  /* Open the pseudo-terminal master multiplexor (pmtx) */
+  printf("Create pseudo-terminal\n");
 
-  fd = open("/dev/ptmx", O_RDWR | O_NOCTTY);
-  if (fd < 0)
+  /* Open pseudo-terminal master (pts factory) */
+
+  termpair.fd_pty = open("/dev/ptmx", O_RDWR | O_NOCTTY);
+  if (termpair.fd_pty < 0)
     {
-      fprintf(stderr, "ERROR: Failed to open /dev/ptmx: %d\n", errno);
-      return -1;
+      fprintf(stderr, "ERROR: Failed to opening /dev/ptmx: %d\n",
+              errno);
+      return EXIT_FAILURE;
     }
 
-  /* Grant access and unlock the slave device */
+  /* Grant access and unlock the slave PTY */
 
-  ret = grantpt(fd);
+  ret = grantpt(termpair.fd_pty);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: grantpt() failed: %d\n", errno);
-      close(fd);
-      return -1;
+      goto error_pts;
     }
 
-  ret = unlockpt(fd);
+    ret = unlockpt(termpair.fd_pty);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: unlockpt() failed: %d\n", errno);
-      close(fd);
-      return -1;
+      goto error_pts;
     }
 
-  /* Get the slave device path */
+  /* Get the create pts file-name */
 
-  ptsname_r(fd, buffer, 16);
-  printf("Slave device: %s\n", buffer);
-
-  /* Loop forever, echoing anything received from the slave */
-
-  for (; ; )
+  ret = ptsname_r(termpair.fd_pty, buffer, 16);
+  if (ret < 0)
     {
-      ssize_t nread;
-      char ch;
-
-      nread = read(fd, &ch, 1);
-      UNUSED(nread);
-
-      putchar(ch);
-      ch = '\0';
+      fprintf(stderr, "ERROR: ptsname_r() failed: %d\n", errno);
+      goto error_pts;
     }
 
-  return 0;
+  /* Open the created pts */
+
+  fd_pts = open(buffer, O_RDWR | O_NONBLOCK);
+  if (fd_pts < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to open %s: %d\n", buffer, errno);
+      goto error_pts;
+    }
+
+  /* Open the second serial port to create a new console there */
+
+  termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV,
+                        O_RDWR | O_NONBLOCK);
+  if (termpair.fd_uart < 0)
+    {
+      fprintf(stderr, "Failed to open %s: %\n",
+             CONFIG_EXAMPLES_PTYTEST_SERIALDEV, errno);
+      goto error_serial;
+    }
+
+  printf("Starting a new NSH Session using %s\n", buffer);
+
+  /* Close default stdin, stdout and stderr */
+
+  close(0);
+  close(1);
+  close(2);
+
+  /* Use this pts file as stdin, stdout, and stderr */
+
+  (void)dup2(fd_pts, 0);
+  (void)dup2(fd_pts, 1);
+  (void)dup2(fd_pts, 2);
+
+  /* Create a new console using this /dev/pts/N */
+
+  pid = task_create("NSH Console", CONFIG_EXAMPLES_PTYTEST_DAEMONPRIO,
+                    CONFIG_EXAMPLES_PTYTEST_STACKSIZE, nsh_consolemain, NULL);
+  if (pid < 0)
+    {
+      /* Can't do output because stdout and stderr are redirected */
+
+      goto error_console;
+    }
+
+  /* Start a thread to read from serial */
+
+  ret = pthread_create(&si_thread, NULL,
+                       (pthread_startroutine_t)serial_in,
+                       (pthread_addr_t)&termpair);
+  if (ret != 0)
+    {
+      /* Can't do output because stdout and stderr are redirected */
+
+      goto error_thread1;
+    }
+
+  /* Start a thread to write to serial */
+
+  ret = pthread_create(&so_thread, NULL,
+                       (pthread_startroutine_t)serial_out,
+                       (pthread_addr_t)&termpair);
+  if (ret != 0)
+    {
+      /* Can't do output because stdout and stderr are redirected */
+
+      goto error_thread2;
+    }
+
+  /* Stay here to keep the threads running */
+
+  for (;;)
+    {
+      /* Nothing to do, then sleep to avoid eating all cpu time */
+
+      usleep(10000);
+    }
+
+  return EXIT_SUCCESS;
+
+error_thread2:
+error_thread1:
+error_console:
+  close(termpair.fd_uart);
+error_serial:
+  close(fd_pts);
+error_pts:
+  close(termpair.fd_pty);
+
+  return EXIT_FAILURE;
 }

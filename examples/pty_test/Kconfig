@@ -21,12 +21,24 @@ config EXAMPLES_PTYTEST_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
+config EXAMPLES_PTYTEST_SERIALDEV
+	string "Test serial device"
+	default"/dev/ttyS1"
+
 config EXAMPLES_PTYTEST_PRIORITY
 	int "PTY_Test task priority"
 	default 100
 
 config EXAMPLES_PTYTEST_STACKSIZE
 	int "PTYTest stack size"
+	default 2048
+
+config EXAMPLES_PTYTEST_DAEMONPRIO,
+	int "PTY_Test daemon task priority"
+	default 100
+
+config EXAMPLES_PTYTEST_STACKSIZE
+	int "PTY_Test daemon stack size"
 	default 2048
 
 endif
