@@ -96,7 +96,9 @@ struct term_pair_s
 
 static void serial_in(struct term_pair_s *tp)
 {
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
   struct pollfd fdp;
+#endif
   char buffer[16];
   int ret;
 
@@ -106,19 +108,23 @@ static void serial_in(struct term_pair_s *tp)
       return;
     }
 
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
   fdp.fd     = tp->fd_uart;
   fdp.events = POLLIN;
+#endif
 
   /* Run forever */
 
   for (;;)
     {
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
       ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
       if (ret > 0)
         {
           if ((fdp.revents & POLLIN) != 0)
+#endif
             {
-              int len;
+              ssize_t len;
 
               len = read(tp->fd_uart, buffer, 16);
               if (len < 0)
@@ -138,6 +144,7 @@ static void serial_in(struct term_pair_s *tp)
                     }
                 }
             }
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
         }
 
       /* Timeout */
@@ -154,6 +161,7 @@ static void serial_in(struct term_pair_s *tp)
           fprintf(stderr, "ERROR: poll failed: %d\n", errno);
           continue;
         }
+#endif
     }
 }
 
@@ -167,7 +175,9 @@ static void serial_in(struct term_pair_s *tp)
 
 static void serial_out(struct term_pair_s *tp)
 {
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
   struct pollfd fdp;
+#endif
   char buffer[16];
   int ret;
 
@@ -177,19 +187,23 @@ static void serial_out(struct term_pair_s *tp)
       return;
     }
 
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
   fdp.fd = tp->fd_pty;
   fdp.events = POLLIN;
+#endif
 
   /* Run forever */
 
   for (;;)
     {
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
       ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
       if (ret > 0)
         {
-          if (fdp.revents & POLLIN)
+          if ((fdp.revents & POLLIN != 0))
+#endif
             {
-              int len;
+              ssize_t len;
 
               len = read(tp->fd_pty, buffer, 16);
               if (len < 0)
@@ -209,6 +223,7 @@ static void serial_out(struct term_pair_s *tp)
                     }
                 }
             }
+#ifdef CONFIG_EXAMPLES_PTYTEST_POLL
         }
 
       /* Timeout */
@@ -225,6 +240,7 @@ static void serial_out(struct term_pair_s *tp)
           fprintf(stderr, "ERROR: poll failed: %d\n", errno);
           continue;
         }
+#endif
     }
 }
 

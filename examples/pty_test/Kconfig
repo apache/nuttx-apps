@@ -21,6 +21,10 @@ config EXAMPLES_PTYTEST_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
+config EXAMPLES_PTYTEST_POLL
+	bool "Test poll() with data transfers"
+	default n
+
 config EXAMPLES_PTYTEST_SERIALDEV
 	string "Test serial device"
 	default"/dev/ttyS1"
