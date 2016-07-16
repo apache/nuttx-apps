@@ -270,7 +270,7 @@ int pty_test_main(int argc, char *argv[])
       goto error_pts;
     }
 
-    ret = unlockpt(termpair.fd_pty);
+  ret = unlockpt(termpair.fd_pty);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: unlockpt() failed: %d\n", errno);
@@ -298,7 +298,7 @@ int pty_test_main(int argc, char *argv[])
   /* Open the second serial port to create a new console there */
 
   termpair.fd_uart = open(CONFIG_EXAMPLES_PTYTEST_SERIALDEV,
-                        O_RDWR | O_NONBLOCK);
+                          O_RDWR | O_NONBLOCK);
   if (termpair.fd_uart < 0)
     {
       fprintf(stderr, "Failed to open %s: %\n",
