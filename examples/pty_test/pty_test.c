@@ -44,6 +44,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <termios.h>
 #include <poll.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -242,6 +243,7 @@ int pty_test_main(int argc, char *argv[])
 #endif
 {
   struct term_pair_s termpair;
+  struct termios tio;
   pthread_t si_thread;
   pthread_t so_thread;
   char buffer[16];
@@ -303,6 +305,25 @@ int pty_test_main(int argc, char *argv[])
     {
       fprintf(stderr, "Failed to open %s: %\n",
              CONFIG_EXAMPLES_PTYTEST_SERIALDEV, errno);
+      goto error_serial;
+    }
+
+  /* Enable \n -> \r\n conversion during write */
+
+  ret = tcgetattr(termpair.fd_uart, &tio);
+  if (ret)
+    {
+      fprintf(stderr, "en_crlf_conv: ERROR during tcgetattr(): %d\n",
+              errno);
+      goto error_serial;
+    }
+
+  tio.c_oflag = OPOST | ONLCR;
+  ret = tcsetattr(termpair.fd_uart, TCSANOW, &tio);
+  if (ret)
+    {
+      fprintf(stderr, "en_crlf_conv: ERROR during tcsetattr(): %d\n",
+              errno);
       goto error_serial;
     }
 
