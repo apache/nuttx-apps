@@ -329,8 +329,7 @@ int pty_test_main(int argc, char *argv[])
   ret = tcgetattr(termpair.fd_uart, &tio);
   if (ret)
     {
-      fprintf(stderr, "en_crlf_conv: ERROR during tcgetattr(): %d\n",
-              errno);
+      fprintf(stderr, "ERROR: tcgetattr() failed: %d\n", errno);
       goto error_serial;
     }
 
@@ -338,8 +337,7 @@ int pty_test_main(int argc, char *argv[])
   ret = tcsetattr(termpair.fd_uart, TCSANOW, &tio);
   if (ret)
     {
-      fprintf(stderr, "en_crlf_conv: ERROR during tcsetattr(): %d\n",
-              errno);
+      fprintf(stderr, "ERROR: tcsetattr() failed: %d\n", errno);
       goto error_serial;
     }
 
