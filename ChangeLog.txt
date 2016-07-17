@@ -1678,3 +1678,32 @@
 	  From David Sidrane (2016-07-01).
 	* apps/examples/canard:  Add canard example application.  From Matthias
 	  Renner (2016-07-08).
+	* apps/builtins: exec_builtin was not using the provided open flags.  As
+	  a result >> redirection was not working (2016-07-10).
+	* apps/netutils/ntpclient:  The NTP client will now optionally use
+	  pool.ntp.org as the NTP server; and reset the retry count upon success
+	  -- more robust.  From David Alessio (2016-07-10).
+	* apps/nshlib/nsh_proccmds.c:  Recent enhancements to cmd_ps trips a
+	  floating point exception if LIBC_FLOATINGPOINT is not defined (at
+	  least on Cortex M4 w/ hardfloat).  I’m using a buildroot gcc
+	  configured to support Cortex-M4F and the hard float ABI, target files
+	  are compiles with: -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16
+	  -mfloat-abi=hard.  I’m not sure the best way to address this, but the
+	  this chage is the first that comes to mind.  Note, I added the float
+	  qualifier ‘F’ after a few constants to prevent the compiler from
+	  promoting the multiplication and division to double (expensive on
+	  M4F) then demoting to single float for the store.  From David
+	  Alessio (2016-07-10).
+	* Call all includes fronm <apps/bla/bla.h> to "bla/bla.h". From
+	  Sebastien Lorquet (2016-07-11).
+	* Build System:  Add apps/include to include path in top-level
+	  Make.defs file.  Remove multiple definitions of INCDIR opt
+	  (2016-07-11).
+	* apps/netuils, uIP webserver:  Fix a data declaration in a header file
+	  (2016-07-11).
+	* apps/nshlib:  In ps command, don't show stack usage is
+	  CONFIG_STACK_COLORATION is not enabled (2016-07-13).
+	* apps/netutils/esp8266: In Kconfig, select ARCH_HAVE_NET when
+	  NETUTILS_ESP8266 is selected.  This allows, among other things,
+	  support for network debug output.  From Pierre-noel Bouteville
+	  (2016-07-14).
