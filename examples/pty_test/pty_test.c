@@ -200,7 +200,7 @@ static void serial_out(struct term_pair_s *tp)
       ret = poll((struct pollfd *)&fdp, 1, POLL_TIMEOUT);
       if (ret > 0)
         {
-          if ((fdp.revents & POLLIN != 0))
+          if ((fdp.revents & POLLIN) != 0)
 #endif
             {
               ssize_t len;

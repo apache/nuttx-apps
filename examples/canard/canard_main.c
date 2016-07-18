@@ -425,10 +425,12 @@ void processTxRxOnce(CanardNuttXInstance * nuttxcan, int timeout_msec)
 
 static int canard_daemon(int argc, char *argv[])
 {
-  int ret;
-  int errval = 0;
-  struct canioc_bittiming_s bt;
   static CanardNuttXInstance canardnuttx_instance;
+#ifdef CONFIG_DEBUG_CAN
+  struct canioc_bittiming_s bt;
+#endif
+  int errval = 0;
+  int ret;
 
   /* Initialization of the CAN hardware is performed by logic external to
    * this test.
@@ -462,7 +464,7 @@ static int canard_daemon(int argc, char *argv[])
 
   ret =
     ioctl(canardNuttXGetDeviceFileDescriptor(&canardnuttx_instance),
-          CANIOC_GET_BITTIMING, (unsigned long)((uintptr_t) & bt));
+          CANIOC_GET_BITTIMING, (unsigned long)((uintptr_t)&bt));
   if (ret < 0)
     {
       printf("canard_daemon: Bit timing not available: %d\n", errno);
