@@ -324,6 +324,7 @@ int pty_test_main(int argc, char *argv[])
       goto error_serial;
     }
 
+#ifdef CONFIG_SERIAL_TERMIOS
   /* Enable \n -> \r\n conversion during write */
 
   ret = tcgetattr(termpair.fd_uart, &tio);
@@ -340,6 +341,7 @@ int pty_test_main(int argc, char *argv[])
       fprintf(stderr, "ERROR: tcsetattr() failed: %d\n", errno);
       goto error_serial;
     }
+#endif
 
   printf("Starting a new NSH Session using %s\n", buffer);
 
