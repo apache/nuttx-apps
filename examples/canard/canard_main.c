@@ -37,7 +37,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/can.h>
+#include <nuttx/drivers/can.h>
 #include <canard.h>
 #include <canard_nuttx.h>       /* CAN backend driver for nuttx, distributed
                                  * with Libcanard */
