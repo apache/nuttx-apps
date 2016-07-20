@@ -47,12 +47,13 @@
 #include <debug.h>
 
 #include <nuttx/mtd/mtd.h>
-#include <nuttx/fs/fs.h>
+#include <nuttx/drivers/drivers.h>
 #include <nuttx/fs/ioctl.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
 /* Configuration ************************************************************/
 /* Make sure that support for MTD partitions is enabled */
 
