@@ -46,7 +46,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 
-#include <nuttx/fs/ramdisk.h>
+#include <nuttx/drivers/ramdisk.h>
 
 #include "trv_romfs.h"
 

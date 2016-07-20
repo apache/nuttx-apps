@@ -52,7 +52,7 @@
 #include <dirent.h>
 #include <errno.h>
 
-#include <nuttx/fs/ramdisk.h>
+#include <nuttx/drivers/ramdisk.h>
 #include <nuttx/fs/unionfs.h>
 
 #include "romfs_atestdir.h"

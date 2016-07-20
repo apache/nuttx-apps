@@ -52,7 +52,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/fs/ramdisk.h>
+#include <nuttx/drivers/ramdisk.h>
 #include <nuttx/module.h>
 #include <nuttx/binfmt/symtab.h>
 

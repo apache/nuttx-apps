@@ -49,7 +49,7 @@
 # if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #   ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
 #     include <sys/mount.h>
-#     include <nuttx/fs/ramdisk.h>
+#     include <nuttx/drivers/ramdisk.h>
 #   endif
 #   ifdef CONFIG_DEV_LOOP
 #     include <sys/ioctl.h>

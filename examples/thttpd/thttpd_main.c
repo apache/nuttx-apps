@@ -57,7 +57,7 @@
 #include "netutils/netlib.h"
 #include "netutils/thttpd.h"
 
-#include <nuttx/fs/ramdisk.h>
+#include <nuttx/drivers/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
 
 #ifdef CONFIG_THTTPD_NXFLAT

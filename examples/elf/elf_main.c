@@ -50,7 +50,7 @@
 #include <debug.h>
 #include <errno.h>
 
-#include <nuttx/fs/ramdisk.h>
+#include <nuttx/drivers/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
 #include <nuttx/binfmt/elf.h>
 #include <nuttx/binfmt/symtab.h>
