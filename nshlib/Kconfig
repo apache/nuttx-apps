@@ -344,6 +344,7 @@ config NSH_DISABLE_MKFIFO
 	bool "Disable mkfifo"
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
+	depends on PIPES
 
 config NSH_DISABLE_MKRD
 	bool "Disable mkrd"

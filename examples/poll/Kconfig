@@ -6,7 +6,7 @@
 config EXAMPLES_POLL
 	bool "Poll example"
 	default n
-	depends on !NSH_BUILTIN_APPS
+	depends on !NSH_BUILTIN_APPS && PIPES
 	---help---
 		Enable the poll example
 

@@ -1181,7 +1181,7 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_NSH_DISABLE_MKFIFO
+#if defined(CONFIG_PIPES) && !defined(CONFIG_NSH_DISABLE_MKFIFO)
 int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);

@@ -6,6 +6,7 @@
 config EXAMPLES_PIPE
 	bool "Pipe example"
 	default n
+	depends on PIPES
 	---help---
 		Enable the pipe example
 
