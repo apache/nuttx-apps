@@ -49,7 +49,7 @@
 #include <sched.h>
 #include <debug.h>
 
-#include <apps/nshlib/nshlib.h>
+#include "nshlib/nshlib.h"
 
 #include "cwidgetcontrol.hxx"
 
