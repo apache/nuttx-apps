@@ -48,7 +48,7 @@
 
 #include "platform/configdata.h"
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/configdata.h>
+#include <nuttx/mtd/configdata.h>
 
 #ifdef CONFIG_PLATFORM_CONFIGDATA
 

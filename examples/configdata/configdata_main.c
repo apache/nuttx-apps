@@ -50,7 +50,7 @@
 #include <debug.h>
 
 #include <nuttx/mtd/mtd.h>
-#include <nuttx/configdata.h>
+#include <nuttx/mtd/configdata.h>
 #include <nuttx/fs/ioctl.h>
 #include <sys/ioctl.h>
 
