@@ -45,7 +45,7 @@
 #include <cunistd>
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
-#  include <apps/platform/configdata.h>
+#  include "platform/configdata.hr"
 #endif
 
 #include "ctaskbar.hxx"

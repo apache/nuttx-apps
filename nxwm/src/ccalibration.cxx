@@ -46,7 +46,7 @@
 #include <debug.h>
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
-#  include <apps/platform/configdata.h>
+#  include "platform/configdata.h"
 #endif
 
 #include "nxwmconfig.hxx"
