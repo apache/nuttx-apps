@@ -60,7 +60,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/regex.h>
+#include <nuttx/lib/regex.h>
 #include "netutils/thttpd.h"
 
 #include "config.h"
