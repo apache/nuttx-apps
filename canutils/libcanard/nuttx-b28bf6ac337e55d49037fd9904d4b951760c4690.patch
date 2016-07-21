@@ -1,0 +1,11 @@
+--- libcanard-b28bf6ac337e55d49037fd9904d4b951760c4690/drivers/nuttx/canard_nuttx.c.orig	2016-07-21 09:10:10.781658371 -0600
++++ libcanard-b28bf6ac337e55d49037fd9904d4b951760c4690/drivers/nuttx/canard_nuttx.c	2016-07-21 09:10:26.608658284 -0600
+@@ -10,7 +10,7 @@
+ #include <poll.h>
+ #include <string.h>
+ #include <unistd.h>
+-#include <nuttx/can.h>
++#include <nuttx/drivers/can.h>
+ 
+ int canardNuttXInit(CanardNuttXInstance* out_ins, const char* can_iface_name)
+ {
