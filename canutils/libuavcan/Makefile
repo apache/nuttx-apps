@@ -35,7 +35,7 @@
 
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
+include $(APPDIR)$(DELIM)Make.defs
 
 WGET = wget
 UNPACK = unzip
@@ -59,14 +59,16 @@ PYUAVCAN_VERSION = $(patsubst "%",%,$(strip $(CONFIG_LIBUAVCAN_PYUAVCAN_VERSION)
 PYUAVCAN_UNPACKNAME = pyuavcan-$(PYUAVCAN_VERSION)
 PYUAVCAN_PACKNAME = $(PYUAVCAN_UNPACKNAME)$(PACKEXT)
 
--include libuavcan/libuavcan/include.mk
--include libuavcan/libuavcan_drivers/stm32/driver/include.mk
+-include libuavcan$(DELIM)libuavcan$(DELIM)include.mk
+-include libuavcan$(DELIM)libuavcan_drivers$(DELIM)stm32$(DELIM)driver$(DELIM)include.mk
 
 CXXSRCS = platform_stm32.cpp $(LIBUAVCAN_SRC) $(LIBUAVCAN_STM32_SRC)
 
-CXXFLAGS += -I$(LIBUAVCAN_INC) -I$(LIBUAVCAN_STM32_INC) -Idsdlc_generated
-CXXFLAGS += -I$(TOPDIR)$(DELIM)arch$(DELIM)arm$(DELIM)src$(DELIM)common
-CXXFLAGS += -I$(TOPDIR)$(DELIM)arch$(DELIM)arm$(DELIM)src$(DELIM)stm32
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(LIBUAVCAN_INC)"}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(LIBUAVCAN_STM32_INC)"}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" dsdlc_generated}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(TOPDIR)$(DELIM)arch$(DELIM)arm$(DELIM)src$(DELIM)common"}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(TOPDIR)$(DELIM)arch$(DELIM)arm$(DELIM)src$(DELIM)stm32"}
 
 CXXFLAGS += -D__KERNEL__
 CXXFLAGS += -DUAVCAN_STM32_NUTTX=1
