@@ -89,8 +89,11 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+
 DEPPATH = --dep-path src
 VPATH = src
 

@@ -50,6 +50,7 @@ ASRCS =
 CSRCS =
 
 # Window Manager
+
 CXXSRCS  = capplicationwindow.cxx cfullscreenwindow.cxx ctaskbar.cxx cwindowmessenger.cxx
 
 # Device support
@@ -75,7 +76,6 @@ CXXSRCS +=  cnxterm.cxx
 endif
 
 # Images
-
 
 ifeq ($(CONFIG_NXWM_LARGE_ICONS),y)
 CXXSRCS += glyph_calculator47x49.cxx glyph_calibration48x42.cxx glyph_cmd49x43.cxx
@@ -108,8 +108,10 @@ ifeq ($(WINTOOL),y)
 INCDIROPT = -w
 endif
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 
