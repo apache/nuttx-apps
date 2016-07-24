@@ -1707,3 +1707,13 @@
 	  NETUTILS_ESP8266 is selected.  This allows, among other things,
 	  support for network debug output.  From Pierre-noel Bouteville
 	  (2016-07-14).
+	* apps/nshilib: PS Command: When Priority Inheritance is enabled, the
+	  format of /proc/<PID>/status changes to show both the current priority
+	  and the thread’s base priority.  This messes up the format of cmd_ps.
+	  From David Alessio (2016-07-15).
+	* apps/examples/pty_test: PTY test program.  From Alan Carvalho de Assis
+	  (2016-07-15).
+	* apps/examples/media: media example was intended to take either a
+	  command line argument, or a compiled-in default value from config.
+	  However, the default was ignored, leading to confusing error messages.
+	  From ziggurat29 (2016-07-17).
