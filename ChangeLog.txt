@@ -589,3 +589,5 @@
   be released in NuttX-7.17 (2016-06-29).
 * Changes to pre-processor include statments needed to handle reorganization
   of the apps/include directory  (2016-07-01).
+* Update include paths to adapt to changes made to apps/ include path logic
+  (2016-07-22).
