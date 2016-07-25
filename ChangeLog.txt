@@ -575,7 +575,7 @@
   where 'make clean' is called with no .config or Make.defs file installed
   (2016-05-10).
 
-1.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.17 2016-08-25 Gregory Nutt <gnutt@nuttx.org>
 
 * UnitTests: Back conditional logic out of UnitTest Make.defs files.  It
   does not belong there and causes link failures like "Cannot find nxwm_main"
@@ -591,3 +591,5 @@
   of the apps/include directory  (2016-07-01).
 * Update include paths to adapt to changes made to apps/ include path logic
   (2016-07-22).
+
+1.18 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>

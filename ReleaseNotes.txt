@@ -535,3 +535,31 @@ Bugfixes\:
   has built the NxWidgets packages in the last several realeases!
 * UnitTests: Add some default definitions to handle the (unusual) case
   where 'make clean' is called with no .config or Make.defs file installed
+
+NxWidgets-1.17
+==============
+
+The 18th release of the NxWidgets package was made on July 25, 2016.  This
+release depends on NuttX-7.17 or above and should not be used with older
+NuttX releases.
+
+The TAG for this release is nuttx-7.17
+
+Additional new features and extended functionality in Version 1.17:
+
+* There are no new features in this release.  There are only updates
+  necessary to use NxWidgets with other changes to NuttX-7.17.  These
+  changes include:
+
+  - Changes to debug macro names.  dbg() and vdbg() are replaces with
+    info(), warn(), and err().
+  - Changes to Unittests/ Makefiles to deal with changes in the apps/
+    build system.
+  - Changes to pre-processor include statments needed to handle
+    reorganization of the apps/include directory.
+  - Update include paths to adapt to changes made to apps/ include path
+    logic
+
+Bugfixes\:
+
+* None in this release
