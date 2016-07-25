@@ -1338,7 +1338,7 @@
 	  replaced with the NSH uname command (2015-07-04).
 	* apps/syste/netdb:  Add a command to access the network database
 	  (2015-07-08).
-	* apps/netuils/dnsclient and include/netutils/dnsclient.h:  Move the
+	* apps/netutils/dnsclient and include/netutils/dnsclient.h:  Move the
 	  DNS client logic into the NuttX C library.  It is a necessary part
 	  for the full implementation of the netdb logic and provides more
 	  flexibility in that location (2015-07-10).
@@ -1631,7 +1631,7 @@
 	  in NSH network startup logic.  From David S. Alessio (2016-06-09) .
 	* Rearrange make to eliminate Kmenu files  From Sebastien Lorquet
 	  (2016-06-09).
-	* apps/nshlib: ake NSH net-initialization be a configuration option.
+	* apps/nshlib: Make NSH net-initialization be a configuration option.
 	  From Marten Svanfeldt (2016-06-09).
 	* Make sure that APPNAME is defined in all Makefiles that generate
 	  applications.  From Sebastien Lorquet (2016-06-09).
@@ -1653,8 +1653,6 @@
 	  apps/.  From Alan Carvalho de Assis (2016-06-23).
 	* apps/canutils/canlib: Basic CAN utility library. From Sebastien Lorquet
 	  (2016-06-24).
-	* apps/nshlib/Kconfig:  Move NSH stuff out of nuttx/configs/Kconfig to
-	  here.  Why was it in the NuttX tree in the first place? (2016-06-24).
 	* apps/nshlib/Kconfig: Move some NSH settings out of nuttx/configs/Kconfig
 	  to here.  Why was it in the NuttX tree (2016-06-24).
 	* apps/platform/olimex-stm32-e407: Add platform files for Olimex STM32
@@ -1699,15 +1697,15 @@
 	* Build System:  Add apps/include to include path in top-level
 	  Make.defs file.  Remove multiple definitions of INCDIR opt
 	  (2016-07-11).
-	* apps/netuils, uIP webserver:  Fix a data declaration in a header file
+	* apps/netutils, uIP webserver:  Fix a data declaration in a header file
 	  (2016-07-11).
-	* apps/nshlib:  In ps command, don't show stack usage is
+	* apps/nshlib:  In ps command, don't show stack usage if
 	  CONFIG_STACK_COLORATION is not enabled (2016-07-13).
 	* apps/netutils/esp8266: In Kconfig, select ARCH_HAVE_NET when
 	  NETUTILS_ESP8266 is selected.  This allows, among other things,
 	  support for network debug output.  From Pierre-noel Bouteville
 	  (2016-07-14).
-	* apps/nshilib: PS Command: When Priority Inheritance is enabled, the
+	* apps/nshlib: PS Command: When Priority Inheritance is enabled, the
 	  format of /proc/<PID>/status changes to show both the current priority
 	  and the thread’s base priority.  This messes up the format of cmd_ps.
 	  From David Alessio (2016-07-15).
