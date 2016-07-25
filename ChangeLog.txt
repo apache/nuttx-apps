@@ -1605,7 +1605,7 @@
 	  path by providing an alternal path on the command line.  From Sébastien
 	  Lorquet (2016-06-01).
 
-7.17 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.17 2016-08-25 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/examples/alarm: ioctl call was clobbering file descriptor
 	  (2016-06-02).
@@ -1717,3 +1717,5 @@
 	  command line argument, or a compiled-in default value from config.
 	  However, the default was ignored, leading to confusing error messages.
 	  From ziggurat29 (2016-07-17).
+
+7.18 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
