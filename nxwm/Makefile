@@ -1,7 +1,7 @@
 #################################################################################
 # NxWidgets/nxwm/Makefile
 #
-#   Copyright (C) 2012, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 #
 #################################################################################
 
+-include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
 # Control build verbosity
@@ -112,6 +113,10 @@ CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWMDIR)$(DELIM)include}
 CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(NXWIDGETDIR)$(DELIM)include}
+
+APPDIR    = $(TOPDIR)$(DELIM)$(CONFIG_APPS_DIR)
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
 
 DEPPATH = --dep-path src
 VPATH = src
