@@ -27,7 +27,7 @@ config EXAMPLES_PTYTEST_POLL
 
 config EXAMPLES_PTYTEST_SERIALDEV
 	string "Test serial device"
-	default"/dev/ttyS1"
+	default "/dev/ttyS1"
 
 config EXAMPLES_PTYTEST_PRIORITY
 	int "PTY_Test task priority"
