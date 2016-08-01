@@ -553,6 +553,11 @@ examples/ftpd
     CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_TELNED=y
 
+examples/gpio
+^^^^^^^^^^^^
+
+  A simple test/example of the NuttX GPIO driver.
+
 examples/hello
 ^^^^^^^^^^^^^^
 
@@ -648,8 +653,8 @@ examples/igmp
   * CONFIG_EXAMPLES_NETLIB
       The networking library is needed
 
-examples/adc
-^^^^^^^^^^^^
+examples/i2cchar
+^^^^^^^^^^^^^^^^
 
   A mindlessly simple test of an I2C driver.  It reads an write garbage data to the
   I2C transmitter and/or received as fast possible.
@@ -741,7 +746,7 @@ examples/lcdrw
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
   or CONFIG_BUILD_KERNEL).
 
-examples/adc
+examples/leds
 ^^^^^^^^^^^^
   This is a simple test of the board LED driver at nuttx/drivers/leds/userled_*.c.
 
