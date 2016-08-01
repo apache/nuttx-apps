@@ -56,8 +56,8 @@
 
 static void show_usage(FAR const char *progname)
 {
-  fprintf(stderr, "USAGE: %s [-w <signo>] [-o <value>] <driver-path>\n");
-  fprintf(stderr, "       %s -h\n");
+  fprintf(stderr, "USAGE: %s [-w <signo>] [-o <value>] <driver-path>\n", progname);
+  fprintf(stderr, "       %s -h\n", progname);
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t<driver-path>: The full path to the GPIO pin driver.\n");
   fprintf(stderr, "\t-w <signo>: Wait for an signal if this is an interrupt pin.\n");
@@ -127,7 +127,7 @@ int gpio_main(int argc, char *argv[])
         }
     }
 
-  if (ndx < argc && strcmp(argv[ndx], "-o"))
+  if (ndx < argc && strcmp(argv[ndx], "-o") == 0)
     {
       if (++ndx >= argc)
         {
@@ -136,12 +136,12 @@ int gpio_main(int argc, char *argv[])
           return EXIT_FAILURE;
         }
 
-      if (strcmp(argv[ndx], "0"))
+      if (strcmp(argv[ndx], "0") == 0)
         {
           outvalue = false;
           haveout = true;
         }
-      else if (strcmp(argv[ndx], "1"))
+      else if (strcmp(argv[ndx], "1") == 0)
         {
           outvalue = true;
           haveout = true;
@@ -159,7 +159,6 @@ int gpio_main(int argc, char *argv[])
           show_usage(argv[0]);
           return EXIT_FAILURE;
         }
-
     }
 
   devpath = argv[ndx];
