@@ -60,8 +60,12 @@ endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   MKKCONFIG = $(APPDIR)\tools\mkkconfig.bat
+  DIRLINK   = $(TOPDIR)\tools\link.bat
+  DIRUNLINK = $(TOPDIR)\tools\unlink.bat
 else
   MKKCONFIG = $(APPDIR)/tools/mkkconfig.sh
+  DIRLINK   = $(TOPDIR)/tools/link.sh
+  DIRUNLINK = $(TOPDIR)/tools/unlink.sh
 endif
 
 ifeq ($(WINTOOL),y)
