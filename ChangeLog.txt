@@ -1717,3 +1717,12 @@
 	  From ziggurat29 (2016-07-17).
 
 7.18 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/canutils/libuavcan: Under certain circumstances, DELIM make not
+	  be defined in Makefile (2016-07-28).
+	* Add the dirlinks target to some Makefiles.  This plugs some holes
+	  opened by last chicken-and-egg build fix (2016-07-28).
+	* apps/examples/gpio:  Add a simple test of the GPIO driver (2016-08-01).
+	* Add definition for APPNAME in apps/canutils/canlib.  From Sebastien
+	  Lorquet (2016-08-01).
+	* Add DIRLINK and DIRUNLOBK tool definitions to Make.defs (2016-08-02).
