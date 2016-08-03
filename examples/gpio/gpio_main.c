@@ -240,13 +240,6 @@ int gpio_main(int argc, char *argv[])
 
               printf("  Verify:        Value=%u\n", (unsigned int)invalue);
             }
-          else
-            {
-              fprintf(stderr, "ERROR: Missing value to write\n");
-              show_usage(argv[0]);
-              close(fd);
-              return EXIT_FAILURE;
-            }
         }
         break;
 
