@@ -1201,8 +1201,8 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   return ret;
 }
-#endif # CONFIG_PIPES && CONFIG_DEV_PIPE_SIZE > 0 && !CONFIG_NSH_DISABLE_MKFIFO
-#endif # CONFIG_NFILE_DESCRIPTORS > 0
+#endif /* CONFIG_PIPES && CONFIG_DEV_PIPE_SIZE > 0 && !CONFIG_NSH_DISABLE_MKFIFO */
+#endif /* CONFIG_NFILE_DESCRIPTORS > 0 */
 
 /****************************************************************************
  * Name: cmd_mkrd
@@ -1625,4 +1625,3 @@ errout:
 }
 #endif
 #endif
-
