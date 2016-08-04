@@ -36,7 +36,7 @@
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 
-DELIM ?= $(strip \)
+DELIM ?= $(strip /)
 include $(APPDIR)$(DELIM)Make.defs
 
 WGET = wget
