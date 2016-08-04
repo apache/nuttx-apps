@@ -297,7 +297,8 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0
-# if defined(CONFIG_PIPES) && !defined(CONFIG_NSH_DISABLE_MKFIFO)
+# if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0 && \
+    !defined(CONFIG_NSH_DISABLE_MKFIFO)
   { "mkfifo",   cmd_mkfifo,   2, 2, "<path>" },
 # endif
 #endif

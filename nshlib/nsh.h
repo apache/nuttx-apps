@@ -1039,7 +1039,8 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   if defined(CONFIG_SMART_DEV_LOOP) && !defined(CONFIG_NSH_DISABLE_LOSMART)
        int cmd_losmart(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif
-#   if defined(CONFIG_PIPES) && !defined(CONFIG_NSH_DISABLE_MKFIFO)
+#   if defined(CONFIG_PIPES) && CONFIG_DEV_PIPE_SIZE > 0 && \
+      !defined(CONFIG_NSH_DISABLE_MKFIFO)
        int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif
 #   ifdef CONFIG_FS_READABLE
