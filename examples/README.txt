@@ -1731,6 +1731,11 @@ examples/relays
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
   or CONFIG_BUILD_KERNEL).
 
+examples/rfid_readuid
+^^^^^^^^^^^^^^^^^^^^^
+
+  RFID READUID example
+
 examples/rgbled
 ^^^^^^^^^^^^^^^
 
