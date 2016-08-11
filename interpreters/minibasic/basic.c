@@ -212,6 +212,16 @@ struct mb_forloop_s
  * Private Data
  ****************************************************************************/
 
+/* NOTE: The use of these globals precludes the use of Mini Basic on
+ * multiple threads (at least in a flat address environment).  If you
+ * want multiple copies of Mini Basic to run, you would need to:
+ * (1) Create a new struct mb_state_s that contains all of the following
+ *     as fields.
+ * (2) Allocate an instance of struct mb_state_s in basic() as part of the
+ *     initialization logic. And,
+ * (3) Pass the instance of struct mb_state_s to every Mini Basic function.
+ */
+
 static struct mb_forloop_s g_forstack[MAXFORS]; /* Stack for for loop conrol */
 static int nfors;                               /* Number of fors on stack */
 
@@ -1159,6 +1169,15 @@ static void doinput(void)
     {
     case FLTID:
       {
+        /* REVISIT: fscanf() is not yet available in the NuttX libc.
+         * Recommendation:  Replace fscanf() with this logic.
+         * (1) Copy floating point number to a g_iobuffer.  Skip
+         *     over leading spaces and terminated with a NUL when a
+         *     space, newline, EOF, or comma is detected.
+         * (2) Use strtod() to get the floating point value from the
+         *     substring in g_iobuffer.
+         */
+
         while (fscanf(g_fpin, "%lf", lv.dval) != 1)
           {
             fgetc(g_fpin);
