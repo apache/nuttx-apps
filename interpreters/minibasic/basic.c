@@ -1163,36 +1163,38 @@ static void doinput(void)
       break;
 
     case STRID:
-      if (*lv.sval)
-        {
-          free(*lv.sval);
-          *lv.sval = 0;
-        }
+      {
+        if (*lv.sval)
+          {
+            free(*lv.sval);
+            *lv.sval = 0;
+          }
 
-      if (fgets(buff, sizeof(buff), g_fpin) == 0)
-        {
-          seterror(ERR_EOF);
-          return;
-        }
+        if (fgets(buff, sizeof(buff), g_fpin) == 0)
+          {
+            seterror(ERR_EOF);
+            return;
+          }
 
-      end = strchr(buff, '\n');
-      if (!end)
-        {
-          seterror(ERR_INPUTTOOLONG);
-          return;
-        }
+        end = strchr(buff, '\n');
+        if (!end)
+          {
+            seterror(ERR_INPUTTOOLONG);
+            return;
+          }
 
-      *end = 0;
-      *lv.sval = mystrdup(buff);
-      if (!*lv.sval)
-        {
-          seterror(ERR_OUTOFMEMORY);
-          return;
-        }
+        *end = 0;
+        *lv.sval = mystrdup(buff);
+        if (!*lv.sval)
+          {
+            seterror(ERR_OUTOFMEMORY);
+            return;
+          }
+      }
       break;
 
     default:
-      return;
+      break;
     }
 }
 
@@ -1239,120 +1241,135 @@ static void lvalue(FAR struct mb_lvalue_s *lv)
   switch (g_token)
     {
     case FLTID:
-      getid(g_string, name, &len);
-      match(FLTID);
-      var = findvariable(name);
-      if (!var)
-        {
-          var = addfloat(name);
-        }
+      {
+        getid(g_string, name, &len);
+        match(FLTID);
+        var = findvariable(name);
+        if (!var)
+          {
+            var = addfloat(name);
+          }
 
-      if (!var)
-        {
-          seterror(ERR_OUTOFMEMORY);
-          return;
-        }
+        if (!var)
+          {
+            seterror(ERR_OUTOFMEMORY);
+            return;
+          }
 
-      lv->type = FLTID;
-      lv->dval = &var->dval;
-      lv->sval = 0;
+        lv->type = FLTID;
+        lv->dval = &var->dval;
+        lv->sval = 0;
+      }
       break;
 
     case STRID:
-      getid(g_string, name, &len);
-      match(STRID);
-      var = findvariable(name);
-      if (!var)
-        {
-          var = addstring(name);
-        }
+      {
+        getid(g_string, name, &len);
+        match(STRID);
+        var = findvariable(name);
+        if (!var)
+          {
+            var = addstring(name);
+          }
 
-      if (!var)
-        {
-          seterror(ERR_OUTOFMEMORY);
-          return;
-        }
+        if (!var)
+          {
+            seterror(ERR_OUTOFMEMORY);
+            return;
+          }
 
-      lv->type = STRID;
-      lv->sval = &var->sval;
-      lv->dval = 0;
+        lv->type = STRID;
+        lv->sval = &var->sval;
+        lv->dval = 0;
+      }
       break;
 
     case DIMFLTID:
     case DIMSTRID:
-      type = (g_token == DIMFLTID) ? FLTID : STRID;
-      getid(g_string, name, &len);
-      match(g_token);
-      dimvar = finddimvar(name);
-      if (dimvar)
-        {
-          switch (dimvar->ndims)
-            {
-            case 1:
-              index[0] = integer(expr());
-              if (g_errorflag == 0)
+      {
+        type = (g_token == DIMFLTID) ? FLTID : STRID;
+        getid(g_string, name, &len);
+        match(g_token);
+        dimvar = finddimvar(name);
+        if (dimvar)
+          {
+            switch (dimvar->ndims)
+              {
+              case 1:
                 {
-                  valptr = getdimvar(dimvar, index[0]);
+                  index[0] = integer(expr());
+                  if (g_errorflag == 0)
+                    {
+                      valptr = getdimvar(dimvar, index[0]);
+                    }
                 }
-              break;
+                break;
 
-            case 2:
-              index[0] = integer(expr());
-              match(COMMA);
-              index[1] = integer(expr());
-              if (g_errorflag == 0)
+              case 2:
                 {
-                  valptr = getdimvar(dimvar, index[0], index[1]);
+                  index[0] = integer(expr());
+                  match(COMMA);
+                  index[1] = integer(expr());
+                  if (g_errorflag == 0)
+                    {
+                      valptr = getdimvar(dimvar, index[0], index[1]);
+                    }
                 }
-              break;
+                break;
 
-            case 3:
-              index[0] = integer(expr());
-              match(COMMA);
-              index[1] = integer(expr());
-              match(COMMA);
-              index[2] = integer(expr());
-              if (g_errorflag == 0)
+              case 3:
                 {
-                  valptr = getdimvar(dimvar, index[0], index[1], index[2]);
+                  index[0] = integer(expr());
+                  match(COMMA);
+                  index[1] = integer(expr());
+                  match(COMMA);
+                  index[2] = integer(expr());
+                  if (g_errorflag == 0)
+                    {
+                      valptr = getdimvar(dimvar, index[0], index[1], index[2]);
+                    }
                 }
-              break;
+                break;
 
-            case 4:
-              index[0] = integer(expr());
-              match(COMMA);
-              index[1] = integer(expr());
-              match(COMMA);
-              index[2] = integer(expr());
-              match(COMMA);
-              index[3] = integer(expr());
-              if (g_errorflag == 0)
+              case 4:
                 {
-                  valptr =
-                    getdimvar(dimvar, index[0], index[1], index[2], index[3]);
+                  index[0] = integer(expr());
+                  match(COMMA);
+                  index[1] = integer(expr());
+                  match(COMMA);
+                  index[2] = integer(expr());
+                  match(COMMA);
+                  index[3] = integer(expr());
+                  if (g_errorflag == 0)
+                    {
+                      valptr =
+                        getdimvar(dimvar, index[0], index[1], index[2], index[3]);
+                    }
                 }
-              break;
+                break;
 
-            case 5:
-              index[0] = integer(expr());
-              match(COMMA);
-              index[1] = integer(expr());
-              match(COMMA);
-              index[2] = integer(expr());
-              match(COMMA);
-              index[3] = integer(expr());
-              match(COMMA);
-              index[4] = integer(expr());
-              if (g_errorflag == 0)
+              case 5:
                 {
-                  valptr =
-                    getdimvar(dimvar, index[0], index[1], index[2], index[3]);
+                  index[0] = integer(expr());
+                  match(COMMA);
+                  index[1] = integer(expr());
+                  match(COMMA);
+                  index[2] = integer(expr());
+                  match(COMMA);
+                  index[3] = integer(expr());
+                  match(COMMA);
+                  index[4] = integer(expr());
+                  if (g_errorflag == 0)
+                    {
+                      valptr =
+                        getdimvar(dimvar, index[0], index[1], index[2], index[3]);
+                    }
                 }
-              break;
-            }
+                break;
+             }
 
-          match(CPAREN);
-        }
+           match(CPAREN);
+         }
       else
         {
           seterror(ERR_NOSUCHVARIABLE);
@@ -1375,6 +1392,7 @@ static void lvalue(FAR struct mb_lvalue_s *lv)
               assert(0);
             }
         }
+      }
       break;
 
     default:
@@ -1455,9 +1473,15 @@ static int boolfactor(void)
           if (!strleft || !strright)
             {
               if (strleft)
-                free(strleft);
+                {
+                  free(strleft);
+                }
+
               if (strright)
-                free(strright);
+                {
+                  free(strright);
+                }
+
               return 0;
             }
           cmp = strcmp(strleft, strright);
