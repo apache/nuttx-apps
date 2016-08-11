@@ -71,7 +71,7 @@
 #define COMMA 17
 #define MOD 200
 
-#define ERROR 20
+#define SYNTAX_ERROR 20
 #define EOL 21
 #define EQUALS 22
 #define STRID 23
@@ -188,7 +188,7 @@ struct mb_dimvar_s
 
 struct mb_lvalue_s
 {
-  int type;                     /* Type of variable (STRID or FLTID or ERROR) */
+  int type;                     /* Type of variable (STRID or FLTID or SYNTAX_ERROR) */
   FAR char **sval;              /* Pointer to string data */
   FAR double *dval;             /* Pointer to real data */
 };
@@ -293,7 +293,7 @@ static void getid(FAR const char *str, FAR char *out, FAR int *len);
 static void mystrgrablit(FAR char *dest, FAR const char *src);
 static FAR char *mystrend(FAR const char *str, char quote);
 static int mystrcount(FAR const char *str, char ch);
-static FAR har *mystrdup(FAR const char *str);
+static FAR char *mystrdup(FAR const char *str);
 static FAR char *mystrconcat(FAR const char *str, FAR const char *cat);
 static double factorial(double x);
 
@@ -1043,10 +1043,11 @@ static int dofor(void)
       return -1;
     }
 
-  if (stepval < 0 && initval < toval || stepval > 0 && initval > toval)
+  if ((stepval < 0 && initval < toval) ||
+      (stepval > 0 && initval > toval))
     {
       savestring = g_string;
-      while (g_string = strchr(g_string, '\n'))
+      while ((g_string = strchr(g_string, '\n')) != NULL)
         {
           g_errorflag = 0;
           g_token = gettoken(g_string);
@@ -1231,7 +1232,7 @@ static void lvalue(FAR struct mb_lvalue_s *lv)
   FAR void *valptr = 0;
   int type;
 
-  lv->type = ERROR;
+  lv->type = SYNTAX_ERROR;
   lv->dval = 0;
   lv->sval = 0;
 
@@ -1539,7 +1540,7 @@ static int boolfactor(void)
  *
  * Description:
  *   Get a relational operator
- *   Returns operator parsed or ERROR
+ *   Returns operator parsed or SYNTAX_ERROR
  *
  ****************************************************************************/
 
@@ -1578,7 +1579,7 @@ static int relop(void)
 
     default:
       seterror(ERR_SYNTAX);
-      return ERROR;
+      return SYNTAX_ERROR;
     }
 }
 
@@ -2050,7 +2051,7 @@ static double dimvariable(void)
   char id[32];
   int len;
   int index[5];
-  FAR double *answer;
+  FAR double *answer = NULL;
 
   getid(g_string, id, &len);
   match(DIMFLTID);
@@ -2115,7 +2116,7 @@ static double dimvariable(void)
       match(CPAREN);
     }
 
-  if (answer)
+  if (answer != NULL)
     {
       return *answer;
     }
@@ -2372,7 +2373,7 @@ static FAR void *getdimvar(FAR struct mb_dimvar_s *dv, ...)
           break;
         }
     }
-  else if (dv->type = STRID)
+  else if (dv->type == STRID)
     {
       switch (dv->ndims)
         {
@@ -2915,7 +2916,7 @@ static FAR char *stringdimvar(void)
   char id[32];
   int len;
   FAR struct mb_dimvar_s *dimvar;
-  FAR char **answer;
+  FAR char **answer = NULL;
   int index[5];
 
   getid(g_string, id, &len);
@@ -2957,6 +2958,7 @@ static FAR char *stringdimvar(void)
           index[3] = integer(expr());
           answer = getdimvar(dimvar, index[0], index[1], index[2], index[3]);
           break;
+
         case 5:
           index[0] = integer(expr());
           match(COMMA);
@@ -2981,7 +2983,7 @@ static FAR char *stringdimvar(void)
 
   if (!g_errorflag)
     {
-      if (*answer)
+      if (answer != NULL && *answer != NULL)
         {
           return *answer;
         }
@@ -3138,7 +3140,7 @@ static void match(int tok)
 
   g_string += tokenlen(g_string, g_token);
   g_token = gettoken(g_string);
-  if (g_token == ERROR)
+  if (g_token == SYNTAX_ERROR)
     {
       seterror(ERR_SYNTAX);
     }
@@ -3493,7 +3495,7 @@ static int gettoken(FAR const char *str)
             }
         }
 
-      return ERROR;
+      return SYNTAX_ERROR;
     }
 }
 
@@ -3599,7 +3601,7 @@ static int tokenlen(FAR const char *str, int tokenid)
     case SEMICOLON:
       return 1;
 
-    case ERROR:
+    case SYNTAX_ERROR:
       return 0;
 
     case PRINT:

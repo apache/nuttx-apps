@@ -33,10 +33,6 @@ config INTERPRETERS_MINIBASIC
 
 if INTERPRETERS_MINIBASIC
 
-config INTERPRETER_MINIBASIC_VERSION
-	string "Version number"
-	default "1.0"
-
 config INTERPRETER_MINIBASIC_PRIORITY
 	int "Basic interpreter priority"
 	default 100
