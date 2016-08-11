@@ -53,6 +53,13 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+/* Configuration */
+
+#ifndef CONFIG_INTERPRETER_MINIBASIC_IOBUFSIZE
+#  define CONFIG_INTERPRETER_MINIBASIC_IOBUFSIZE 1024
+#endif
+
+#define IOBUFSIZE CONFIG_INTERPRETER_MINIBASIC_IOBUFSIZE
 
 /* Tokens defined */
 
@@ -224,6 +231,7 @@ static FILE *g_fperr;                           /* Error stream */
 static FAR const char *g_string;                /* String we are parsing */
 static int g_token;                             /* Current token (lookahead) */
 static int g_errorflag;                         /* Set when error in input encountered */
+static char g_iobuffer[IOBUFSIZE];              /* I/O buffer */
 
 /****************************************************************************
  * Private Function Prototypes
@@ -1142,7 +1150,6 @@ static int donext(void)
 static void doinput(void)
 {
   struct mb_lvalue_s lv;
-  char buff[1024];
   FAR char *end;
 
   match(INPUT);
@@ -1151,15 +1158,17 @@ static void doinput(void)
   switch (lv.type)
     {
     case FLTID:
-      while (fscanf(g_fpin, "%lf", lv.dval) != 1)
-        {
-          fgetc(g_fpin);
-          if (feof(g_fpin))
-            {
-              seterror(ERR_EOF);
-              return;
-            }
-        }
+      {
+        while (fscanf(g_fpin, "%lf", lv.dval) != 1)
+          {
+            fgetc(g_fpin);
+            if (feof(g_fpin))
+              {
+                seterror(ERR_EOF);
+                return;
+              }
+          }
+      }
       break;
 
     case STRID:
@@ -1170,13 +1179,13 @@ static void doinput(void)
             *lv.sval = 0;
           }
 
-        if (fgets(buff, sizeof(buff), g_fpin) == 0)
+        if (fgets(g_iobuffer, IOBUFSIZE, g_fpin) == 0)
           {
             seterror(ERR_EOF);
             return;
           }
 
-        end = strchr(buff, '\n');
+        end = strchr(g_iobuffer, '\n');
         if (!end)
           {
             seterror(ERR_INPUTTOOLONG);
@@ -1184,7 +1193,7 @@ static void doinput(void)
           }
 
         *end = 0;
-        *lv.sval = mystrdup(buff);
+        *lv.sval = mystrdup(g_iobuffer);
         if (!*lv.sval)
           {
             seterror(ERR_OUTOFMEMORY);
