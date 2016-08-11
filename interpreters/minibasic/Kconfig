@@ -51,4 +51,13 @@ config INTERPRETER_MINIBASIC_IOBUFSIZE
 	---help---
 		Size of the statically allocated I/O buffer.
 
+config INTERPRETER_MINIBASIC_TESTSCRIPT
+	bool "Test script"
+	default n
+	---help---
+		By default, the path to a basic program must provided on the command
+		line.  It this option is selected, then a built-in, canned script is
+		enabled and will be used if no path is provided on the command line.
+		This canned script can be used for testing purposes.
+
 endif

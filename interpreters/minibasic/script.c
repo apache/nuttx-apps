@@ -47,6 +47,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "interpreters/minibasic.h"
 
@@ -54,6 +55,7 @@
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_INTERPRETER_MINIBASIC_TESTSCRIPT
 /* Here is a simple script to play with */
 
 static FAR char *script =
@@ -64,7 +66,9 @@ static FAR char *script =
   "40 PRINT INSTR(\"FRED\", \"ED\", 4)\n"
   "50 PRINT VALLEN(\"12a\"), VALLEN(\"xyz\")\n"
   "60 LET x = SQRT(3.0) * SQRT(3.0)\n"
-  "65 LET x = INT(x + 0.5)\n" "70 PRINT MID$(\"1234567890\", x, -1)\n";
+  "65 LET x = INT(x + 0.5)\n"
+  "70 PRINT MID$(\"1234567890\", x, -1)\n";
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -91,7 +95,7 @@ static FAR char *loadfile(FAR char *path)
   fp = fopen(path, "r");
   if (!fp)
     {
-      printf("Can't open %s\n", path);
+      fprintf(stderr, "ERROR: Failed to open %s: %d\n", path, errno);
       return 0;
     }
 
@@ -102,7 +106,7 @@ static FAR char *loadfile(FAR char *path)
   answer = malloc(size + 100);
   if (!answer)
     {
-      printf("Out of memory\n");
+      fprintf(stderr, "ERROR: Out of memory\n");
       fclose(fp);
       return 0;
     }
@@ -128,10 +132,10 @@ static FAR char *loadfile(FAR char *path)
 
 static void usage(void)
 {
-  printf("MiniBasic: a BASIC interpreter\n");
-  printf("usage:\n");
-  printf("Basic <script>\n");
-  printf("See documentation for BASIC syntax.\n");
+  fprintf(stderr, "MiniBasic: a BASIC interpreter\n");
+  fprintf(stderr, "usage:\n");
+  fprintf(stderr, "Basic <script>\n");
+  fprintf(stderr, "See documentation for BASIC syntax.\n");
   exit(EXIT_FAILURE);
 }
 
@@ -157,12 +161,14 @@ int basic_main(int argc, char *argv[])
 
   if (argc == 1)
     {
-      /* Comment out usage call to run test script */
-
-      usage();
+#ifdef CONFIG_INTERPRETER_MINIBASIC_TESTSCRIPT
       basic(script, stdin, stdout, stderr);
+#else
+      fprintf(stderr, "ERROR: Missing argument.\n");
+      usage();
+#endif
     }
-  else
+  else if (argc == 2)
     {
       scr = loadfile(argv[1]);
       if (scr)
@@ -170,6 +176,11 @@ int basic_main(int argc, char *argv[])
           basic(scr, stdin, stdout, stderr);
           free(scr);
         }
+    }
+  else
+    {
+      fprintf(stderr, "ERROR: Too many arguments.\n");
+      usage();
     }
 
   return 0;
