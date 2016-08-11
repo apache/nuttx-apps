@@ -1169,23 +1169,41 @@ static void doinput(void)
     {
     case FLTID:
       {
-        /* REVISIT: fscanf() is not yet available in the NuttX libc.
-         * Recommendation:  Replace fscanf() with this logic.
-         * (1) Copy floating point number to a g_iobuffer.  Skip
-         *     over leading spaces and terminated with a NUL when a
-         *     space, newline, EOF, or comma is detected.
-         * (2) Use strtod() to get the floating point value from the
-         *     substring in g_iobuffer.
+        FAR char *ptr;
+        int nch;
+
+        /* Copy floating point number to a g_iobuffer.  Skip over leading
+         * spaces and terminate with a NUL when a space, tab, newline, EOF,
+         * or comma is detected.
          */
 
-        while (fscanf(g_fpin, "%lf", lv.dval) != 1)
+        for (nch = 0, ptr = g_iobuffer; nch < (IOBUFSIZE-1); nch++)
           {
-            fgetc(g_fpin);
-            if (feof(g_fpin))
+            int ch = fgetc(g_fpin);
+            if (ch == EOF)
               {
                 seterror(ERR_EOF);
                 return;
               }
+
+            if (ch == ' ' || ch == '\t' || ch == ',' || ch == '\n')
+              {
+                ungetc(ch, g_fpin);
+                break;
+              }
+          }
+
+        *ptr = '\0';
+
+        /* Use strtod() to get the floating point value from the substring
+         * in g_iobuffer.
+         */
+
+        *lv.dval = strtod(g_iobuffer, &ptr);
+        if (ptr == g_iobuffer)
+          {
+            seterror(ERR_SYNTAX);
+            return;
           }
       }
       break;
@@ -1195,7 +1213,7 @@ static void doinput(void)
         if (*lv.sval)
           {
             free(*lv.sval);
-            *lv.sval = 0;
+            *lv.sval = NULL;
           }
 
         if (fgets(g_iobuffer, IOBUFSIZE, g_fpin) == 0)
@@ -1263,8 +1281,8 @@ static void lvalue(FAR struct mb_lvalue_s *lv)
   int type;
 
   lv->type = SYNTAX_ERROR;
-  lv->dval = 0;
-  lv->sval = 0;
+  lv->dval = NULL;
+  lv->sval = NULL;
 
   switch (g_token)
     {
@@ -1286,7 +1304,7 @@ static void lvalue(FAR struct mb_lvalue_s *lv)
 
         lv->type = FLTID;
         lv->dval = &var->dval;
-        lv->sval = 0;
+        lv->sval = NULL;
       }
       break;
 
@@ -1308,7 +1326,7 @@ static void lvalue(FAR struct mb_lvalue_s *lv)
 
         lv->type = STRID;
         lv->sval = &var->sval;
-        lv->dval = 0;
+        lv->dval = NULL;
       }
       break;
 
@@ -2483,8 +2501,8 @@ static FAR struct mb_variable_s *addfloat(FAR const char *id)
     {
       g_variables = vars;
       strcpy(g_variables[g_nvariables].id, id);
-      g_variables[g_nvariables].dval = 0;
-      g_variables[g_nvariables].sval = 0;
+      g_variables[g_nvariables].dval = 0.0;
+      g_variables[g_nvariables].sval = NULL;
       g_nvariables++;
       return &g_variables[g_nvariables - 1];
     }
@@ -2516,8 +2534,8 @@ static FAR struct mb_variable_s *addstring(FAR const char *id)
     {
       g_variables = vars;
       strcpy(g_variables[g_nvariables].id, id);
-      g_variables[g_nvariables].sval = 0;
-      g_variables[g_nvariables].dval = 0;
+      g_variables[g_nvariables].sval = NULL;
+      g_variables[g_nvariables].dval = 0.0;
       g_nvariables++;
       return &g_variables[g_nvariables - 1];
     }
@@ -2549,10 +2567,10 @@ static FAR struct mb_dimvar_s *adddimvar(FAR const char *id)
     {
       g_dimvariables = vars;
       strcpy(g_dimvariables[g_ndimvariables].id, id);
-      g_dimvariables[g_ndimvariables].dval = 0;
-      g_dimvariables[g_ndimvariables].str = 0;
+      g_dimvariables[g_ndimvariables].dval  = NULL;
+      g_dimvariables[g_ndimvariables].str   = NULL;
       g_dimvariables[g_ndimvariables].ndims = 0;
-      g_dimvariables[g_ndimvariables].type = strchr(id, '$') ? STRID : FLTID;
+      g_dimvariables[g_ndimvariables].type  = strchr(id, '$') ? STRID : FLTID;
       g_ndimvariables++;
       return &g_dimvariables[g_ndimvariables - 1];
     }
@@ -2681,7 +2699,6 @@ static FAR char *stringexpr(void)
 static FAR char *chrstring(void)
 {
   double x;
-  char buff[6];
   FAR char *answer;
 
   match(CHRSTRING);
@@ -2689,9 +2706,9 @@ static FAR char *chrstring(void)
   x = integer(expr());
   match(CPAREN);
 
-  buff[0] = (char)x;
-  buff[1] = 0;
-  answer = mystrdup(buff);
+  g_iobuffer[0] = (char)x;
+  g_iobuffer[1] = 0;
+  answer = mystrdup(g_iobuffer);
 
   if (!answer)
     {
@@ -2712,7 +2729,6 @@ static FAR char *chrstring(void)
 static FAR char *strstring(void)
 {
   double x;
-  char buff[64];
   FAR char *answer;
 
   match(STRSTRING);
@@ -2720,8 +2736,8 @@ static FAR char *strstring(void)
   x = expr();
   match(CPAREN);
 
-  sprintf(buff, "%g", x);
-  answer = mystrdup(buff);
+  sprintf(g_iobuffer, "%g", x);
+  answer = mystrdup(g_iobuffer);
   if (!answer)
     {
       seterror(ERR_OUTOFMEMORY);
@@ -3566,7 +3582,6 @@ static int gettoken(FAR const char *str)
 static int tokenlen(FAR const char *str, int tokenid)
 {
   int len = 0;
-  char buff[32];
 
   switch (tokenid)
     {
@@ -3583,11 +3598,11 @@ static int tokenlen(FAR const char *str, int tokenid)
     case DIMSTRID:
     case DIMFLTID:
     case STRID:
-      getid(str, buff, &len);
+      getid(str, g_iobuffer, &len);
       return len;
 
     case FLTID:
-      getid(str, buff, &len);
+      getid(str, g_iobuffer, &len);
       return len;
 
     case PI:
