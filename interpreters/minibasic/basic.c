@@ -1829,6 +1829,7 @@ static double factor(void)
           seterror(ERR_NEGLOG);
         }
       break;
+
     case POW:
       match(POW);
       match(OPAREN);
