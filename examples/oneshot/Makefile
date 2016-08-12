@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/timer/Makefile
+# apps/examples/oneshot/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,22 +35,22 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Timer built-in application info
+# Oneshot timer built-in application info
 
-CONFIG_EXAMPLES_TIMER_APPNAME ?= "timer"
-CONFIG_EXAMPLES_TIMER_STACKSIZE ?= 2048
-CONFIG_EXAMPLES_TIMER_PRIORITY ?= 100
-CONFIG_EXAMPLES_TIMER_PROGNAME ?= "timer"
+CONFIG_EXAMPLES_ONESHOT_APPNAME ?= "oneshot"
+CONFIG_EXAMPLES_ONESHOT_STACKSIZE ?= 2048
+CONFIG_EXAMPLES_ONESHOT_PRIORITY ?= 100
+CONFIG_EXAMPLES_ONESHOT_PROGNAME ?= "oneshot"
 
-APPNAME   = $(CONFIG_EXAMPLES_TIMER_APPNAME)
-PRIORITY  = $(CONFIG_EXAMPLES_TIMER_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_TIMER_STACKSIZE)
-PROGNAME  = $(CONFIG_EXAMPLES_TIMER_PROGNAME)
+APPNAME   = $(CONFIG_EXAMPLES_ONESHOT_APPNAME)
+PRIORITY  = $(CONFIG_EXAMPLES_ONESHOT_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_ONESHOT_STACKSIZE)
+PROGNAME  = $(CONFIG_EXAMPLES_ONESHOT_PROGNAME)
 
-# Timer example
+# Oneshot timer example
 
 ASRCS =
 CSRCS =
-MAINSRC = timer_main.c
+MAINSRC = oneshot_main.c
 
 include $(APPDIR)/Application.mk

@@ -8,7 +8,7 @@ config EXAMPLES_TIMER
 	default n
 	depends on TIMER && BUILD_FLAT
 	---help---
-		Enable the \"Timer, World!\" example
+		Enable the timer example
 
 if EXAMPLES_TIMER
 

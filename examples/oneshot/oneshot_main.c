@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/timer/timer_main.c
+ * examples/oneshot/oneshot_main.c
  *
  *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -42,29 +42,28 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <signal.h>
 #include <fcntl.h>
+#include <time.h>
 #include <errno.h>
 
-#include <nuttx/timers/timer.h>
+#include <nuttx/timers/oneshot.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLE_TIMER_DEVNAME
-#  define CONFIG_EXAMPLE_TIMER_DEVNAME "/dev/timer0"
+#ifndef CONFIG_EXAMPLE_ONESHOT_DEVNAME
+#  define CONFIG_EXAMPLE_ONESHOT_DEVNAME "/dev/oneshot"
 #endif
 
-#ifndef CONFIG_EXAMPLE_TIMER_INTERVAL
-#  define CONFIG_EXAMPLE_TIMER_INTERVAL 1000000
+#ifndef CONFIG_EXAMPLE_ONESHOT_DELAY
+#  define CONFIG_EXAMPLE_ONESHOT_DELAY 100000
 #endif
 
-#ifndef CONFIG_EXAMPLE_TIMER_DELAY
-#  define CONFIG_EXAMPLE_TIMER_DELAY 100000
-#endif
-
-#ifndef CONFIG_EXAMPLE_TIMER_NSAMPLES
-#  define CONFIG_EXAMPLE_TIMER_NSAMPLES 20
+#ifndef CONFIG_EXAMPLE_ONESHOT_SIGNO
+#  define CONFIG_EXAMPLE_ONESHOT_SIGNO 13
 #endif
 
 /****************************************************************************
@@ -72,44 +71,20 @@
  ****************************************************************************/
 
 /****************************************************************************
- * timer_handler
+ * Name: oneshot_main
  ****************************************************************************/
 
-static bool timer_handler(FAR uint32_t *next_interval_us)
+static void show_usage(FAR const char *progname)
 {
-  /* This handler may:
-   *
-   * (1) Modify the timeout value to change the frequency dynamically, or
-   * (2) Return false to stop the timer.
-   */
-
-  return true;
-}
-
-/****************************************************************************
- * timer_status
- ****************************************************************************/
-
-static void timer_status(int fd)
-{
-  struct timer_status_s status;
-  int ret;
-
-  /* Get timer status */
-
-  ret = ioctl(fd, TCIOC_GETSTATUS, (unsigned long)((uintptr_t)&status));
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to get timer status: %d\n", errno);
-      close(fd);
-      exit(EXIT_FAILURE);
-    }
-
-  /* Print the timer status */
-
-  printf("  flags: %08lx timeout: %lu timeleft: %lu\n",
-         (unsigned long)status.flags, (unsigned long)status.timeout,
-         (unsigned long)status.timeleft);
+  fprintf(stderr, "USAGE: %s [-d <usecs>] [<devname>]\n", progname);
+  fprintf(stderr, "Where:\n");
+  fprintf(stderr, "\t-d <usecs>:\n");
+  fprintf(stderr, "\tSpecifies the oneshot delay in microseconds.  Default %ld\n",
+          (unsigned long)CONFIG_EXAMPLE_ONESHOT_DELAY);
+  fprintf(stderr, "\t<devname>:\n");
+  fprintf(stderr, "\tSpecifies the path to the oneshot driver.  Default %s\n",
+          CONFIG_EXAMPLE_ONESHOT_DEVNAME);
+  exit(EXIT_FAILURE);
 }
 
 /****************************************************************************
@@ -117,112 +92,111 @@ static void timer_status(int fd)
  ****************************************************************************/
 
 /****************************************************************************
- * timer_main
+ * Name: oneshot_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int timer_main(int argc, char *argv[])
+int oneshot_main(int argc, char *argv[])
 #endif
 {
-  struct timer_sethandler_s handler;
+  FAR const char *devname = CONFIG_EXAMPLE_ONESHOT_DEVNAME;
+  unsigned long usecs = CONFIG_EXAMPLE_ONESHOT_DELAY;
+  unsigned long secs;
+  struct oneshot_start_s start;
+  struct siginfo info;
+  sigset_t set;
   int ret;
   int fd;
-  int i;
 
-  /* Open the timer device */
+  /* USAGE: nsh> oneshot [-d <usecs>] [<devname>] */
 
-  printf("Open %s\n", CONFIG_EXAMPLE_TIMER_DEVNAME);
+  if (argc > 1)
+    {
+      if (argc == 2)
+        {
+          /* FORM: nsh> oneshot [<devname>] */
 
-  fd = open(CONFIG_EXAMPLE_TIMER_DEVNAME, O_RDONLY);
+          devname = argv[1];
+        }
+      else if (argc < 5)
+        {
+          /* FORM: nsh> oneshot [-d <usecs>] */
+
+          if (strcmp(argv[1], "-d") != 0)
+            {
+              fprintf(stderr, "ERROR: Unrecognized option: %s\n", argv[1]);
+              show_usage(argv[0]);
+            }
+
+          usecs = strtoul(argv[2], NULL, 10);
+
+          if (argc == 4)
+            {
+              /* FORM: nsh> oneshot [-d <usecs>] [<devname>] */
+          
+              devname = argv[3];
+            }
+        }
+      else
+        {
+          fprintf(stderr, "ERROR: Unsupported number of arguments: %d\n", argc);
+          show_usage(argv[0]);
+        }
+    }
+
+  /* Open the oneshot device */
+
+  printf("Opening %s\n", devname);
+
+  fd = open(devname, O_RDONLY);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
-              CONFIG_EXAMPLE_TIMER_DEVNAME, errno);
+              devname, errno);
       return EXIT_FAILURE;
     }
 
-  /* Show the timer status before setting the timer interval */
+  /* Start the oneshot timer */
 
-  timer_status(fd);
+  sigemptyset(&set);
+  sigaddset(&set, CONFIG_EXAMPLE_ONESHOT_SIGNO);
 
-  /* Set the timer interval */
+  printf("Starting oneshot timer with delay %lu microseconds\n", usecs);
 
-  printf("Set timer interval to %lu\n",
-         (unsigned long)CONFIG_EXAMPLE_TIMER_INTERVAL);
+  start.pid        = 0;
+  start.signo      = CONFIG_EXAMPLE_ONESHOT_SIGNO;
+  start.arg        = NULL;
 
-  ret = ioctl(fd, TCIOC_SETTIMEOUT, CONFIG_EXAMPLE_TIMER_INTERVAL);
+  secs             = usecs / 1000000;
+  usecs           -= 1000000 * secs;
+
+  start.ts.tv_sec  = secs;
+  start.ts.tv_nsec = usecs * 1000;
+
+  ret = ioctl(fd, OSIOC_START, (unsigned long)((uintptr_t)&start));
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: Failed to set the timer interval: %d\n", errno);
+      fprintf(stderr, "ERROR: Failed to start the oneshot interval: %d\n",
+             errno);
       close(fd);
       return EXIT_FAILURE;
     }
 
-  /* Show the timer status before attaching the timer handler */
+  /* Wait for the oneshot to fire */
 
-  timer_status(fd);
-
-  /* Attach the timer handler
-   *
-   * NOTE: If no handler is attached, the timer stop at the first interrupt.
-   */
-
-  printf("Attach timer handler\n");
-
-  handler.newhandler = timer_handler;
-  handler.oldhandler = NULL;
-
-  ret = ioctl(fd, TCIOC_SETHANDLER, (unsigned long)((uintptr_t)&handler));
+  printf("Waiting...\n");
+  ret = sigwaitinfo(&set, &info);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: Failed to set the timer handler: %d\n", errno);
+      fprintf(stderr, "ERROR: sigwaitinfo failed: %d\n",
+              errno);
       close(fd);
       return EXIT_FAILURE;
     }
 
-  /* Show the timer status before starting */
-
-  timer_status(fd);
-
-  /* Start the timer */
-
-  printf("Start the timer\n");
-
-  ret = ioctl(fd, TCIOC_START, 0);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to start the timer: %d\n", errno);
-      close(fd);
-      return EXIT_FAILURE;
-    }
-
-  /* Wait a bit showing timer status */
-
-  for (i = 0; i < CONFIG_EXAMPLE_TIMER_NSAMPLES; i++)
-    {
-      usleep(CONFIG_EXAMPLE_TIMER_DELAY);
-      timer_status(fd);
-    }
-
-  /* Stop the timer */
-
-  printf("Stop the timer\n");
-
-  ret = ioctl(fd, TCIOC_STOP, 0);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to stop the timer: %d\n", errno);
-      close(fd);
-      return EXIT_FAILURE;
-    }
-
-  /* Show the timer status before starting */
-
-  timer_status(fd);
-
-  /* Close the timer driver */
+  /* Close the oneshot driver */
 
   printf("Finished\n");
   close(fd);

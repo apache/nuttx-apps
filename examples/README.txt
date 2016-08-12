@@ -1441,6 +1441,11 @@ examples/null
   This is the do nothing application.  It is only used for bringing
   up new NuttX architectures in the most minimal of environments.
 
+examples/oneshot
+^^^^^^^^^^^^^^^^
+
+  Simple test of a oneshot driver.
+
 examples/ostest
 ^^^^^^^^^^^^^^^
 
