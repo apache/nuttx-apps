@@ -1726,3 +1726,13 @@
 	* Add definition for APPNAME in apps/canutils/canlib.  From Sebastien
 	  Lorquet (2016-08-01).
 	* Add DIRLINK and DIRUNLOBK tool definitions to Make.defs (2016-08-02).
+	* apps/exmples/gpio: Should not claim an error if we are only asked to
+	  read an output pin (2016-08-03).
+	* apps/nshlib/: Fix FIFO_SIZE vs PIPE_SIZE (2016-08-04).
+	* apps/examples/rfid-readuid: Add RFID_READUID sample application. From
+	  Alan Carvalho de Assis (2016-08-06).
+	* apps/interpreters/minibasic:  Add a port of Mini Basic, version 1.0,
+	  written by Malcom McLean and released under the Creative Commons
+	  Attribution license (2016-08-11).
+	* apps/examples: Add Oneshot timer example (2016-08-12).
+	* apps/system/tee: Port tee command from NetBSD (2016-08-12).
