@@ -66,6 +66,16 @@
 #  define CONFIG_EXAMPLE_ONESHOT_SIGNO 13
 #endif
 
+/* For long delays that have to be broken into segments, some loss of
+ * precision is expected to to interrupt and context switch overhead.  The
+ * inaccuracy will cause somewhat longer times than the time requisted due to
+ * this overhead.  It might be possible to reduce this some by (1) make this
+ * task very high priority so that it runs in a more deterministic way, and
+ * (2) by subtracting a "fudge factor" to acount for the overhead.
+ */
+
+#define FUDGE_FACTOR 10
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -216,6 +226,17 @@ int oneshot_main(int argc, char *argv[])
           start.ts.tv_nsec = ts.tv_nsec;
 
           usecs           -= maxus;
+
+#if FUDGE_FACTOR > 0
+          if (usecs > FUDGE_FACTOR)
+            {
+              usecs      -= FUDGE_FACTOR;
+            }
+          else
+            {
+              usecs       = 0;
+            }
+#endif
         }
 
       ret = ioctl(fd, OSIOC_START, (unsigned long)((uintptr_t)&start));
