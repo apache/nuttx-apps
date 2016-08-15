@@ -106,6 +106,8 @@ int oneshot_main(int argc, char *argv[])
   unsigned long secs;
   struct oneshot_start_s start;
   struct siginfo info;
+  struct timespec ts;
+  uint64_t maxus;
   sigset_t set;
   int ret;
   int fd;
@@ -158,42 +160,84 @@ int oneshot_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-  /* Start the oneshot timer */
+  /* Get the maximum delay */
 
-  sigemptyset(&set);
-  sigaddset(&set, CONFIG_EXAMPLE_ONESHOT_SIGNO);
-
-  printf("Starting oneshot timer with delay %lu microseconds\n", usecs);
-
-  start.pid        = 0;
-  start.signo      = CONFIG_EXAMPLE_ONESHOT_SIGNO;
-  start.arg        = NULL;
-
-  secs             = usecs / 1000000;
-  usecs           -= 1000000 * secs;
-
-  start.ts.tv_sec  = secs;
-  start.ts.tv_nsec = usecs * 1000;
-
-  ret = ioctl(fd, OSIOC_START, (unsigned long)((uintptr_t)&start));
+  ret = ioctl(fd, OSIOC_MAXDELAY, (unsigned long)((uintptr_t)&ts));
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: Failed to start the oneshot interval: %d\n",
+      fprintf(stderr, "ERROR: Failed to get the maximum delayl: %d\n",
              errno);
       close(fd);
       return EXIT_FAILURE;
     }
 
-  /* Wait for the oneshot to fire */
+  maxus = (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1000;
 
-  printf("Waiting...\n");
-  ret = sigwaitinfo(&set, &info);
-  if (ret < 0)
+  printf("Maximum delay is %llu\n", maxus);
+
+  /* Loop waiting until the full delay expires */
+
+  while (usecs > 0)
     {
-      fprintf(stderr, "ERROR: sigwaitinfo failed: %d\n",
-              errno);
-      close(fd);
-      return EXIT_FAILURE;
+      /* Start the oneshot timer */
+
+      sigemptyset(&set);
+      sigaddset(&set, CONFIG_EXAMPLE_ONESHOT_SIGNO);
+
+      if (usecs < maxus)
+        {
+          /* Wait for the remaining time */
+
+          printf("Starting oneshot timer with delay %lu microseconds\n",
+                 usecs);
+
+          start.pid        = 0;
+          start.signo      = CONFIG_EXAMPLE_ONESHOT_SIGNO;
+          start.arg        = NULL;
+
+          secs             = usecs / 1000000;
+          usecs           -= 1000000 * secs;
+
+          start.ts.tv_sec  = secs;
+          start.ts.tv_nsec = usecs * 1000;
+  
+          /* Zero usecs to terminate the loop */
+
+          usecs            = 0;
+        }
+      else
+        {
+          /* Wait for the maximum */
+
+          printf("Starting oneshot timer with delay %llu microseconds\n",
+                 maxus);
+
+          start.ts.tv_sec  = ts.tv_sec;
+          start.ts.tv_nsec = ts.tv_nsec;
+
+          usecs           -= maxus;
+        }
+
+      ret = ioctl(fd, OSIOC_START, (unsigned long)((uintptr_t)&start));
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: Failed to start the oneshot interval: %d\n",
+                 errno);
+          close(fd);
+          return EXIT_FAILURE;
+        }
+
+      /* Wait for the oneshot to fire */
+
+      printf("Waiting...\n");
+      ret = sigwaitinfo(&set, &info);
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: sigwaitinfo failed: %d\n",
+                  errno);
+          close(fd);
+          return EXIT_FAILURE;
+        }
     }
 
   /* Close the oneshot driver */
