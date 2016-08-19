@@ -67,11 +67,12 @@
 #endif
 
 /* For long delays that have to be broken into segments, some loss of
- * precision is expected to to interrupt and context switch overhead.  The
- * inaccuracy will cause somewhat longer times than the time requisted due to
- * this overhead.  It might be possible to reduce this some by (1) make this
- * task very high priority so that it runs in a more deterministic way, and
- * (2) by subtracting a "fudge factor" to acount for the overhead.
+ * precision is expected due to interrupt and context switching overhead.
+ * This inaccuracy will cause somewhat longer times than the time requested
+ * due to this overhead.  It might be possible to reduce this inaccuracy
+ * some by (1) making this task very high priority so that it runs in a more
+ * deterministic way, and (2) by subtracting a "fudge factor" to account for
+ * time lost due to the overhead.
  */
 
 #define FUDGE_FACTOR 10
