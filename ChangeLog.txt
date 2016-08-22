@@ -1736,3 +1736,9 @@
 	  Attribution license (2016-08-11).
 	* apps/examples: Add Oneshot timer example (2016-08-12).
 	* apps/system/tee: Port tee command from NetBSD (2016-08-12).
+	* apps/examples/oneshot:  If the requested delay is > max_delay, then
+	  break the delay up into several pieces (2016-08-15).
+	* apps/examples/oneshot: A thought about how we might improve accuracy
+	  of long delays (2016-08-15).
+	* nshlib/Kconfigt: Fix hex representation of IP address.  Noted by
+	  Michal Lyszczek (2016-08-19).
