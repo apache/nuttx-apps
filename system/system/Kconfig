@@ -1,0 +1,28 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config SYSTEM_SYSTEM
+	bool "System Command"
+	default n
+	depends on NSH_LIBRARY && SCHED_WAITPID
+	---help---
+		Enable support for the system() interface.  This will support
+		execution of NSH commands from C code.
+
+if SYSTEM_SYSTEM
+
+config SYSTEM_SYSTEM_STACKSIZE
+	int "system stack size"
+	default 1536
+	---help---
+		The size of stack allocated for the shell.
+
+config SYSTEM_SYSTEM_PRIORITY
+	int "system priority"
+	default 100
+	---help---
+		The priority of the shell.
+
+endif
