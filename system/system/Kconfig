@@ -22,8 +22,9 @@ config SYSTEM_SYSTEM_STACKSIZE
 
 		NOTE: I needed to set the stack size quite large to get this example
 		working on the simulated target (perhaps because of the 64-bit
-		stack?).  I assume that a smaller stack would be okay on real
-		hardware, but I have not yet verified that.
+		stack?  Or perhaps that is a sneak call into the host libc that I
+		have not caught).  I assume that a smaller stack would be okay on
+		real hardware, but I have not yet verified that.
 
 config SYSTEM_SYSTEM_PRIORITY
 	int "system priority"
