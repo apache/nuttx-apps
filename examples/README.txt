@@ -1890,7 +1890,10 @@ examples/smp
 examples/system
 ^^^^^^^^^^^^^^^
 
-  This is a simple test of the system() command.
+  This is a simple test of the system() command.  The test simply executes this
+  system command:
+
+    ret = system("ls -Rl /");
 
 examples/tcpecho
 ^^^^^^^^^^^^^^^^
