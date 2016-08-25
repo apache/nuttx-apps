@@ -39,7 +39,7 @@
 
 #include <nuttx/config.h>
 
-#include <apps/fsutils/passwd.h>
+#include "fsutils/passwd.h"
 
 #include "nsh.h"
 #include "nsh_console.h"

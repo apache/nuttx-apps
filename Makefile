@@ -76,7 +76,7 @@ BIN = libapps$(LIBEXT)
 # Build targets
 
 all: $(BIN)
-.PHONY: import install context context_serialize context_rest .depdirs preconfig depend clean distclean
+.PHONY: import install dirlinks context context_serialize context_rest .depdirs preconfig depend clean distclean
 
 define MAKE_template
 	$(Q) $(MAKE) -C $(1) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"
@@ -109,6 +109,9 @@ install: $(BIN_DIR) .install
 
 import:
 	$(Q) $(MAKE) .import TOPDIR="$(APPDIR)$(DELIM)import"
+
+dirlinks:
+	$(Q) $(MAKE) -C platform dirlinks TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)"
 
 context_rest: $(foreach SDIR, $(CONFIGURED_APPS), $(SDIR)_context)
 

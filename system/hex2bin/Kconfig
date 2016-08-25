@@ -6,6 +6,7 @@
 menuconfig SYSTEM_HEX2BIN
 	bool "Intel HEX to binary conversion"
 	default n
+	select LIB_HEX2BIN
 	---help---
 		Enable support for a logic to convert Intel HEX format to binary.
 
@@ -114,11 +115,4 @@ config SYSTEM_HEX2MEM_USAGE
 		instructions.
 
 endif # SYSTEM_HEX2MEM_BUILTIN
-
-config SYSTEM_HEX2BIN_DEBUG
-	bool "Hex2bin detailed error output"
-	default n
-	---help---
-		Enable extended error output.
-
 endif # SYSTEM_HEX2BIN

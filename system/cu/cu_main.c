@@ -53,7 +53,7 @@
 #include <termios.h>
 #include <debug.h>
 
-#include <apps/readline.h>
+#include "system/readline.h"
 
 #include "cu.h"
 

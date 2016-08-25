@@ -52,13 +52,28 @@
 
 #include <netinet/in.h>
 
-#include <apps/netutils/ntpclient.h>
+#ifdef CONFIG_LIBC_NETDB
+#  include <netdb.h>
+#  include <arpa/inet.h>
+#endif
+
+#include "netutils/ntpclient.h"
 
 #include "ntpv3.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+/* Configuration ************************************************************/
+
+#if defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NETUTILS_NTPCLIENT_SERVER)
+#  error CONFIG_NETUTILS_NTPCLIENT_SERVER my be provided
+#endif
+
+#if !defined(CONFIG_LIBC_NETDB) && !defined(CONFIG_NETUTILS_NTPCLIENT_SERVERIP)
+#  error CONFIG_NETUTILS_NTPCLIENT_SERVERIP my be provided
+#endif
 
 /* NTP Time is seconds since 1900. Convert to Unix time which is seconds
  * since 1970
@@ -293,6 +308,12 @@ static int ntpc_daemon(int argc, char **argv)
   struct ntp_datagram_s xmit;
   struct ntp_datagram_s recv;
   struct timeval tv;
+
+#ifdef CONFIG_LIBC_NETDB
+  struct hostent *he;
+  struct in_addr **addr_list;
+#endif
+
   socklen_t socklen;
   ssize_t nbytes;
   int exitcode = EXIT_SUCCESS;
@@ -339,7 +360,25 @@ static int ntpc_daemon(int argc, char **argv)
   memset(&server, 0, sizeof(struct sockaddr_in));
   server.sin_family      = AF_INET;
   server.sin_port        = htons(CONFIG_NETUTILS_NTPCLIENT_PORTNO);
+
+#ifndef CONFIG_LIBC_NETDB
   server.sin_addr.s_addr = htonl(CONFIG_NETUTILS_NTPCLIENT_SERVERIP);
+#else
+  he = gethostbyname(CONFIG_NETUTILS_NTPCLIENT_SERVER);
+  if (he != NULL && he->h_addrtype == AF_INET)
+    {
+      addr_list = (struct in_addr **)he->h_addr_list;
+      server.sin_addr.s_addr = addr_list[0]->s_addr;
+      ninfo("INFO: '%s' resolved to: %s\n",
+            CONFIG_NETUTILS_NTPCLIENT_SERVER,
+            inet_ntoa(server.sin_addr));
+    }
+  else
+    {
+      nerr("ERROR: Failed to resolve '%s'\n", CONFIG_NETUTILS_NTPCLIENT_SERVER);
+      return EXIT_FAILURE;
+    }
+#endif
 
   /* Here we do the communication with the NTP server.  This is a very simple
    * client architecture.  A request is sent and then a NTP packet is received
@@ -417,6 +456,7 @@ static int ntpc_daemon(int argc, char **argv)
         {
           sinfo("Setting time\n");
           ntpc_settime(recv.recvtimestamp);
+          retry = 0;
         }
 
       /* Check for errors.  Note that properly received, short datagrams

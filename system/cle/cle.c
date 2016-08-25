@@ -53,7 +53,7 @@
 #include <nuttx/ascii.h>
 #include <nuttx/vt100.h>
 
-#include <apps/cle.h>
+#include "system/cle.h"
 
 /****************************************************************************
  * Pre-processor Definitions

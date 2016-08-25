@@ -45,7 +45,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <apps/readline.h>
+#include "system/readline.h"
 #include "readline.h"
 
 /****************************************************************************

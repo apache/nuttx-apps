@@ -51,36 +51,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#if 0
-#include <sys/wait.h>
-#include <sched.h>
-#include <string.h>
-#include <semaphore.h>
-
-#include <nuttx/binfmt/builtin.h>
-#endif
-
-#include <apps/builtin.h>
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
+#include "builtin/builtin.h"
 
 /****************************************************************************
  * Public Functions
@@ -202,7 +173,7 @@ int exec_builtin(FAR const char *appname, FAR char * const *argv,
       /* Set up to close open redirfile and set to stdout (1) */
 
       ret = posix_spawn_file_actions_addopen(&file_actions, 1,
-                                             redirfile, O_WRONLY, 0644);
+                                             redirfile, oflags, 0644);
       if (ret != 0)
         {
           serr("ERROR: posix_spawn_file_actions_addopen failed: %d\n", ret);

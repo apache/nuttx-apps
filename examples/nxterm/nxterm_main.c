@@ -66,7 +66,7 @@
 #include <nuttx/nx/nxfonts.h>
 #include <nuttx/nx/nxterm.h>
 
-#include <apps/nsh.h>
+#include "nshlib/nshlib.h"
 
 #include "nxterm_internal.h"
 

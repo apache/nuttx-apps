@@ -46,8 +46,8 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 
-#include <apps/netutils/netlib.h>
-#include <apps/netutils/webclient.h>
+#include "netutils/netlib.h"
+#include "netutils/webclient.h"
 
 /****************************************************************************
  * Preprocessor Definitions

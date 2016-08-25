@@ -40,7 +40,7 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 
-#include <apps/netutils/pppd.h>
+#include "netutils/pppd.h"
 
 /****************************************************************************
  * Pre-processor Definitions

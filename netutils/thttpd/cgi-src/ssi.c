@@ -47,7 +47,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <nuttx/regex.h>
+#include <nuttx/lib/regex.h>
 
 #include "config.h"
 

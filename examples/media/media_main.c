@@ -155,7 +155,7 @@ int media_main(int argc, FAR char *argv[])
       devpath = argv[1];
     }
 
-  fd = open(argv[1], O_RDWR);
+  fd = open(devpath, O_RDWR);
 
   if (fd < 0)
     {

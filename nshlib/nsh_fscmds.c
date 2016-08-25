@@ -49,7 +49,7 @@
 # if !defined(CONFIG_DISABLE_MOUNTPOINT)
 #   ifdef CONFIG_FS_READABLE /* Need at least one filesytem in configuration */
 #     include <sys/mount.h>
-#     include <nuttx/fs/ramdisk.h>
+#     include <nuttx/drivers/ramdisk.h>
 #   endif
 #   ifdef CONFIG_DEV_LOOP
 #     include <sys/ioctl.h>
@@ -59,7 +59,7 @@
 #     include <nuttx/fs/mkfatfs.h>
 #   endif
 #   ifdef CONFIG_FS_SMARTFS
-#     include <apps/fsutils/mksmartfs.h>
+#     include "fsutils/mksmartfs.h"
 #   endif
 #   ifdef CONFIG_SMART_DEV_LOOP
 #     include <sys/ioctl.h>
@@ -425,8 +425,8 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_dmesg
  ****************************************************************************/
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && \
-    defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
+#if CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_RAMLOG_SYSLOG) && \
+   !defined(CONFIG_NSH_DISABLE_DMESG)
 int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return nsh_catfile(vtbl, argv[0], CONFIG_SYSLOG_DEVPATH);
@@ -1181,7 +1181,8 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
-#ifndef CONFIG_NSH_DISABLE_MKFIFO
+# if defined(CONFIG_PIPES) && CONFIG_DEV_FIFO_SIZE > 0 && \
+    !defined(CONFIG_NSH_DISABLE_MKFIFO)
 int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   char *fullpath = nsh_getfullpath(vtbl, argv[1]);
@@ -1200,8 +1201,8 @@ int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   return ret;
 }
-#endif
-#endif
+#endif /* CONFIG_PIPES && CONFIG_DEV_FIFO_SIZE > 0 && !CONFIG_NSH_DISABLE_MKFIFO */
+#endif /* CONFIG_NFILE_DESCRIPTORS > 0 */
 
 /****************************************************************************
  * Name: cmd_mkrd
@@ -1624,4 +1625,3 @@ errout:
 }
 #endif
 #endif
-

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/netutils/base64.h
+ * apps/netutils/codecs/urldecode.c
  *
  * This file is part of the NuttX RTOS:
  *
@@ -42,7 +42,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <apps/netutils/urldecode.h>
+#include "netutils/urldecode.h"
 
 /****************************************************************************
  * Pre-processor Definitions

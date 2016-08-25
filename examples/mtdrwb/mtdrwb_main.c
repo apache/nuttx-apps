@@ -47,7 +47,7 @@
 #include <debug.h>
 
 #include <nuttx/mtd/mtd.h>
-#include <nuttx/fs/fs.h>
+#include <nuttx/drivers/drivers.h>
 #include <nuttx/fs/ioctl.h>
 
 #ifdef CONFIG_EXAMPLES_MTDRWB
@@ -123,10 +123,6 @@ static uint8_t g_simflash[MTDRWB_BUFSIZE];
 #ifdef CONFIG_EXAMPLES_MTDRWB_ARCHINIT
 extern FAR struct mtd_dev_s *mtdrwb_archinitialize(void);
 #endif
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Public Functions

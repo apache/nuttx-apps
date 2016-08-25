@@ -51,7 +51,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <apps/readline.h>
+#include "system/readline.h"
 
 #include <nuttx/usb/usbdev.h>
 #include <nuttx/usb/usbdev_trace.h>

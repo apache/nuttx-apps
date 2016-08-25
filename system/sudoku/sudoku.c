@@ -41,7 +41,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <apps/readline.h>
+#include "system/readline.h"
 
 /****************************************************************************
  * Pre-processor Definitions

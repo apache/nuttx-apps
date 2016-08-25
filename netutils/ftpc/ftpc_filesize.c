@@ -42,7 +42,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <apps/ftpc.h>
+#include "netutils/ftpc.h"
 
 #include "ftpc_internal.h"
 

@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include <nuttx/fs/ramdisk.h>
+#include <nuttx/drivers/ramdisk.h>
 
 #include "romfs.h"
 

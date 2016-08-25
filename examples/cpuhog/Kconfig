@@ -4,10 +4,11 @@
 #
 
 config EXAMPLES_CPUHOG
-    bool "CPU hog"
-    default n
-    ---help---
-        Enable the cpuhog example
+	bool "CPU hog"
+	default n
+	depends on PIPES
+	---help---
+		Enable the cpuhog example
 
 if EXAMPLES_CPUHOG
 

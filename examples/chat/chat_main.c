@@ -51,7 +51,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <apps/netutils/chat.h>
+#include "netutils/chat.h"
 
 /****************************************************************************
  * Pre-processor Definitions

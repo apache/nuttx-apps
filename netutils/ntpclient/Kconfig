@@ -12,9 +12,15 @@ config NETUTILS_NTPCLIENT
 
 if NETUTILS_NTPCLIENT
 
+config NETUTILS_NTPCLIENT_SERVER
+	string "NTP server URL (or IP address)"
+	default "pool.ntp.org"
+	depends on LIBC_NETDB
+
 config NETUTILS_NTPCLIENT_SERVERIP
 	hex "NTP server IP address"
 	default 0x0a000001
+	depends on !LIBC_NETDB
 
 config NETUTILS_NTPCLIENT_PORTNO
 	int "NTP server port number"

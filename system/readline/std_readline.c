@@ -41,7 +41,7 @@
 
 #include <sys/types.h>
 #include <nuttx/arch.h>
-#include <apps/readline.h>
+#include "system/readline.h"
 
 #include "readline.h"
 

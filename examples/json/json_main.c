@@ -38,7 +38,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <apps/netutils/cJSON.h>
+#include "netutils/cJSON.h"
 
 /****************************************************************************
  * Private Types

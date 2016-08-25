@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/netutils/base64.h
+ * apps/netutils/codecs/md5.c
  *
  * This file is part of the NuttX RTOS:
  *
@@ -65,7 +65,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include <apps/netutils/md5.h>
+#include "netutils/md5.h"
 
 #ifdef CONFIG_CODECS_HASH_MD5
 

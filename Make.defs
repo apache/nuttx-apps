@@ -2,7 +2,7 @@
 # apps/Make.defs
 # Common make definitions provided to all applications
 #
-#   Copyright (C) 2011, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011, 2014, 2016 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@
 #
 ############################################################################
 
+# Builtin Registration
+
 BUILTIN_REGISTRY = $(APPDIR)$(DELIM)builtin$(DELIM)registry
 
 DEPCONFIG = $(TOPDIR)$(DELIM).config
@@ -58,6 +60,20 @@ endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   MKKCONFIG = $(APPDIR)\tools\mkkconfig.bat
+  DIRLINK   = $(TOPDIR)\tools\link.bat
+  DIRUNLINK = $(TOPDIR)\tools\unlink.bat
 else
   MKKCONFIG = $(APPDIR)/tools/mkkconfig.sh
+  DIRLINK   = $(TOPDIR)/tools/link.sh
+  DIRUNLINK = $(TOPDIR)/tools/unlink.sh
 endif
+
+ifeq ($(WINTOOL),y)
+  INCDIROPT = -w
+endif
+
+# Standard include path
+
+CFLAGS   += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+CXXFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" "$(APPDIR)$(DELIM)include"}
+

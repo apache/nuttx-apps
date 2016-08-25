@@ -51,7 +51,7 @@
 #include <debug.h>
 #include <string.h>
 
-#include <nuttx/pwm.h>
+#include <nuttx/drivers/pwm.h>
 
 #include "pwm.h"
 

@@ -40,7 +40,7 @@
 #include <semaphore.h>
 #include <errno.h>
 
-#include <apps/fsutils/passwd.h>
+#include "fsutils/passwd.h"
 #include "passwd.h"
 
 /****************************************************************************

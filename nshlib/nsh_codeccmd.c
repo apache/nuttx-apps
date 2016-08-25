@@ -60,7 +60,7 @@
 #endif
 
 #ifdef CONFIG_CODECS_URLCODE
-#include <apps/netutils/urldecode.h>
+#include "netutils/urldecode.h"
 #endif
 
 #if defined(CONFIG_NSH_DISABLE_BASE64ENC) && defined(CONFIG_NSH_DISABLE_BASE64ENC)
@@ -68,11 +68,11 @@
 #endif
 
 #ifdef CONFIG_CODECS_BASE64
-#include <apps/netutils/base64.h>
+#include "netutils/base64.h"
 #endif
 
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
-#include <apps/netutils/md5.h>
+#include "netutils/md5.h"
 #endif
 
 #include "nsh.h"

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/netutils/base64.h
+ * apps/netutils/codecs/base64.c
  *
  * This file is part of the NuttX RTOS:
  *
@@ -57,7 +57,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <apps/netutils/base64.h>
+#include "netutils/base64.h"
 
 #ifdef CONFIG_CODECS_BASE64
 

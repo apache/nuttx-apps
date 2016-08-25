@@ -47,11 +47,11 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 
-#include <apps/netutils/telnetd.h>
-#include <apps/netutils/netlib.h>
+#include "netutils/telnetd.h"
+#include "netutils/netlib.h"
 
 #include "shell.h"
-#include <apps/nsh.h>
+#include "nshlib/nshlib.h"
 
 /****************************************************************************
  * Pre-processor Definitions

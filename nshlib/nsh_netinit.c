@@ -67,13 +67,13 @@
 
 #include <nuttx/net/mii.h>
 
-#include <apps/netutils/netlib.h>
+#include "netutils/netlib.h"
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
-#  include <apps/netutils/dhcpc.h>
+#  include "netutils/dhcpc.h"
 #endif
 
 #ifdef CONFIG_NETUTILS_NTPCLIENT
-#  include <apps/netutils/ntpclient.h>
+#  include "netutils/ntpclient.h"
 #endif
 
 #include "nsh.h"

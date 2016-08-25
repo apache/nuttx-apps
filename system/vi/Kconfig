@@ -36,6 +36,12 @@ config SYSTEM_VI_COLS
 		the display in columns.  The actually width can be overridden using
 		command line options.
 
+		The default column width for a VT100 terminal is 80 characters.  The
+		default for this setting is smaller, 64, so that a smaller in-memory
+		buffer is used.  You might have a better experience wth a column
+		width of 80 (if the terminal width is not controllable from your
+		terminal application).
+
 config SYSTEM_VI_ROWS
 	int "Display height (rows)"
 	default 16
@@ -44,6 +50,12 @@ config SYSTEM_VI_ROWS
 		its width or height.  This setting provides the default height of
 		the display in rows.  The actually width can be overridden using
 		command line options.
+
+		The default height for a VT100 terminal is 64 rows.  The default
+		for this setting is smaller, 16, so that a smaller in-memory
+		buffer is used.  You might have a better experience wth a height
+		of 64 rows (if the terminal height is not controllable from your
+		terminal application).
 
 config SYSTEM_VI_DEBUGLEVEL
 	int "Debug level"

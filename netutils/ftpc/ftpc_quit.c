@@ -40,7 +40,7 @@
 #include "ftpc_config.h"
 
 #include <time.h>
-#include <apps/ftpc.h>
+#include "netutils/ftpc.h"
 
 #include "ftpc_internal.h"
 

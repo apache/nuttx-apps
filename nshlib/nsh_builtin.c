@@ -55,7 +55,7 @@
 #include <string.h>
 
 #include <nuttx/binfmt/builtin.h>
-#include <apps/builtin.h>
+#include "builtin/builtin.h"
 
 #include "nsh.h"
 #include "nsh_console.h"

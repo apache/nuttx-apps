@@ -148,7 +148,7 @@ spawn_main.o: spawn_main.c \
 	$(TOPDIR)/include/spawn.h \
 	$(TOPDIR)/include/debug.h \
 	$(TOPDIR)/include/errno.h \
-	$(TOPDIR)/include/nuttx/fs/ramdisk.h \
+	$(TOPDIR)/include/nuttx/drivers/ramdisk.h \
 	$(TOPDIR)/include/nuttx/binfmt/elf.h \
 	$(TOPDIR)/include/nuttx/binfmt/symtab.h \
 	filesystem/romfs.h

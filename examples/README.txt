@@ -208,6 +208,11 @@ examples/can
    CONFIG_EXAMPLES_CAN_READONLY - Only receive messages
    CONFIG_EXAMPLES_CAN_WRITEONLY - Only send messages
 
+examples/canard
+^^^^^^^^^^^^^^^
+
+  Example application for canutils/libcarnard.
+
 examples/cc3000
 ^^^^^^^^^^^^^^^
 
@@ -548,6 +553,11 @@ examples/ftpd
     CONFIG_NETUTILS_NETLIB=y
     CONFIG_NETUTILS_TELNED=y
 
+examples/gpio
+^^^^^^^^^^^^
+
+  A simple test/example of the NuttX GPIO driver.
+
 examples/hello
 ^^^^^^^^^^^^^^
 
@@ -643,8 +653,8 @@ examples/igmp
   * CONFIG_EXAMPLES_NETLIB
       The networking library is needed
 
-examples/adc
-^^^^^^^^^^^^
+examples/i2cchar
+^^^^^^^^^^^^^^^^
 
   A mindlessly simple test of an I2C driver.  It reads an write garbage data to the
   I2C transmitter and/or received as fast possible.
@@ -736,7 +746,7 @@ examples/lcdrw
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
   or CONFIG_BUILD_KERNEL).
 
-examples/adc
+examples/leds
 ^^^^^^^^^^^^
   This is a simple test of the board LED driver at nuttx/drivers/leds/userled_*.c.
 
@@ -1431,6 +1441,11 @@ examples/null
   This is the do nothing application.  It is only used for bringing
   up new NuttX architectures in the most minimal of environments.
 
+examples/oneshot
+^^^^^^^^^^^^^^^^
+
+  Simple test of a oneshot driver.
+
 examples/ostest
 ^^^^^^^^^^^^^^^
 
@@ -1484,7 +1499,7 @@ examples/pca9635
 examples/pipe
 ^^^^^^^^^^^^^
 
-  A test of the mkfifo() and pipe() APIs.
+  A test of the mkfifo() and pipe() APIs.  Requires CONFIG_PIPES
 
  * CONFIG_EXAMPLES_PIPE_STACKSIZE
      Sets the size of the stack to use when creating the child tasks.
@@ -1622,6 +1637,11 @@ examples/posix_spawn
 
        LDELFFLAGS = -r -e main -T$(TOPDIR)/binfmt/libelf/gnu-elf.ld
 
+examples/pty_test
+^^^^^^^^^^^^^^^^^
+
+  A test of NuttX pseudo-terminals.  Provided by Alan Carvalho de Assis.
+
 examples/pwm
 ^^^^^^^^^^^^
 
@@ -1715,6 +1735,11 @@ examples/relays
   user-space program.  As a result, this example cannot be used if a
   NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
   or CONFIG_BUILD_KERNEL).
+
+examples/rfid_readuid
+^^^^^^^^^^^^^^^^^^^^^
+
+  RFID READUID example
 
 examples/rgbled
 ^^^^^^^^^^^^^^^

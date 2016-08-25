@@ -43,7 +43,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include <apps/gpsutils/minmea.h>
+#include "gpsutils/minmea.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -197,16 +197,16 @@ bool minmea_scan(FAR const char *sentence, FAR const char *format, ...)
       while (minmea_isfield(*sentence)) \
         { \
           sentence++; \
-          /* Make sure there is a field there. */ \
-          if (*sentence == ',') \
-            { \
-              sentence++; \
-              field = sentence; \
-            } \
-          else \
-            { \
-              field = NULL; \
-            } \
+        } \
+      /* Make sure there is a field there. */ \
+      if (*sentence == ',') \
+        { \
+          sentence++; \
+          field = sentence; \
+        } \
+      else \
+        { \
+          field = NULL; \
         } \
     } \
   while (0)

@@ -49,22 +49,6 @@
 #include "pipe.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -78,12 +62,16 @@ int main(int argc, FAR char *argv[])
 int pipe_main(int argc, char *argv[])
 #endif
 {
+#if CONFIG_DEV_FIFO_SIZE > 0 || CONFIG_DEV_PIPE_SIZE > 0
   int fd[2];
   int ret;
+#endif
 
+#if CONFIG_DEV_FIFO_SIZE > 0
   /* Test FIFO logic */
 
   printf("\npipe_main: Performing FIFO test\n");
+
   ret = mkfifo(FIFO_PATH1, 0666);
   if (ret < 0)
     {
@@ -91,16 +79,17 @@ int pipe_main(int argc, char *argv[])
       return 1;
     }
 
-  /* Open one end of the FIFO for reading and the other end for writing.  NOTE:
-   * the following might not work on most FIFO implementations because the attempt
-   * to open just one end of the FIFO for writing might block.  The NuttX FIFOs block
-   * only on open for read-only (see interlock_test()).
+  /* Open one end of the FIFO for reading and the other end for writing.
+   * NOTE: The following might not work on most FIFO implementations because
+   * the attempt to open just one end of the FIFO for writing might block.
+   * The NuttX FIFOs block only on open for read-only (see interlock_test()).
    */
 
   fd[1] = open(FIFO_PATH1, O_WRONLY);
   if (fd[1] < 0)
     {
-      fprintf(stderr, "pipe_main: Failed to open FIFO %s for writing, errno=%d\n",
+      fprintf(stderr,
+              "pipe_main: Failed to open FIFO %s for writing, errno=%d\n",
               FIFO_PATH1, errno);
       return 2;
     }
@@ -108,12 +97,14 @@ int pipe_main(int argc, char *argv[])
   fd[0] = open(FIFO_PATH1, O_RDONLY);
   if (fd[0] < 0)
     {
-      fprintf(stderr, "pipe_main: Failed to open FIFO %s for reading, errno=%d\n",
+      fprintf(stderr,
+              "pipe_main: Failed to open FIFO %s for reading, errno=%d\n",
               FIFO_PATH1, errno);
       if (close(fd[1]) != 0)
         {
           fprintf(stderr, "pipe_main: close failed: %d\n", errno);
         }
+
       return 3;
     }
 
@@ -124,10 +115,12 @@ int pipe_main(int argc, char *argv[])
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
+
   if (close(fd[1]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
+
   /* unlink(FIFO_PATH1); fails */
 
   if (ret != 0)
@@ -135,11 +128,19 @@ int pipe_main(int argc, char *argv[])
       fprintf(stderr, "pipe_main: FIFO test FAILED (%d)\n", ret);
       return 4;
     }
+
   printf("pipe_main: FIFO test PASSED\n");
 
+#else
+  printf("\npipe_main: Skipping FIFO test\n");
+
+#endif /* CONFIG_DEV_FIFO_SIZE > 0 */
+
+#if CONFIG_DEV_PIPE_SIZE > 0
   /* Test PIPE logic */
 
   printf("\npipe_main: Performing pipe test\n");
+
   ret = pipe(fd);
   if (ret < 0)
     {
@@ -164,6 +165,7 @@ int pipe_main(int argc, char *argv[])
       fprintf(stderr, "pipe_main: PIPE test FAILED (%d)\n", ret);
       return 6;
     }
+
   printf("pipe_main: PIPE test PASSED\n");
 
   /* Perform the FIFO interlock test */
@@ -175,6 +177,7 @@ int pipe_main(int argc, char *argv[])
       fprintf(stderr, "pipe_main: FIFO interlock test FAILED (%d)\n", ret);
       return 7;
     }
+
   printf("pipe_main: PIPE interlock test PASSED\n");
 
   /* Perform the pipe redirection test */
@@ -186,7 +189,13 @@ int pipe_main(int argc, char *argv[])
       fprintf(stderr, "pipe_main: FIFO redirection test FAILED (%d)\n", ret);
       return 7;
     }
+
   printf("pipe_main: PIPE redirection test PASSED\n");
+
+#else
+  printf("\npipe_main: Skipping pipe test\n");
+
+#endif /* CONFIG_DEV_PIPE_SIZE > 0 */
 
   fflush(stdout);
   return 0;

@@ -50,7 +50,7 @@
 #endif
 
 #include <nuttx/version.h>
-#include <apps/nsh.h>
+#include "nshlib/nshlib.h"
 
 #include "nsh.h"
 #include "nsh_console.h"

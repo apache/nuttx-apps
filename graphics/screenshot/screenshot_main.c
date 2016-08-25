@@ -48,7 +48,7 @@
 #include <semaphore.h>
 #include <errno.h>
 
-#include <apps/tiff.h>
+#include "graphics/tiff.h"
 
 #include <nuttx/nx/nx.h>
 

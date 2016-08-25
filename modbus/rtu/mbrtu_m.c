@@ -39,14 +39,14 @@
 
 #include "port.h"
 
-#include <apps/modbus/mb.h>
-#include <apps/modbus/mb_m.h>
+#include "modbus/mb.h"
+#include "modbus/mb_m.h"
 #include "mbrtu.h"
-#include <apps/modbus/mbframe.h>
+#include "modbus/mbframe.h"
 
 #include "mbcrc.h"
 
-#include <apps/modbus/mbport.h>
+#include "modbus/mbport.h"
 
 #if defined(CONFIG_RTU_ASCII_MASTER)
 

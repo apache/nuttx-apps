@@ -61,7 +61,7 @@ highly influenced by uIP) include:
               "wrapped" as character devices and mapped to stdin,
               stdout, and stderr.  Now the telnet session can be
               inherited by spawned tasks.
-  ftpc      - FTP client.  See apps/include/ftpc.h for interface
+  ftpc      - FTP client.  See apps/include/netutils/ftpc.h for interface
               information.
   ftpd      - FTP server.   See apps/include/netutils/ftpd.h for interface
               information.

@@ -125,9 +125,11 @@ $(PLATFORMDIR): $(TOPDIR)$(DELIM).config
 	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 	$(Q) $(DIRLINK) $(LINKDIR) $(PLATFORMDIR)
 
+dirlinks:  $(PLATFORMDIR)
+
 install:
 
-context: $(PLATFORMDIR)
+context: dirlinks
 
 # Dependencies
 
