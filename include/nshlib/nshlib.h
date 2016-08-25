@@ -201,6 +201,27 @@ void platform_motd(FAR char *buffer, size_t buflen);
 int platform_user_verify(FAR const char *username, FAR const char *password);
 #endif
 
+/****************************************************************************
+ * Name: nsh_system
+ *
+ * Description:
+ *   This is the NSH-specific implementation of the standard system()
+ *   command.
+ *
+ *   NOTE: This assumes that other NSH instances have previously ran and so
+ *   common NSH logic is already initialized.
+ *
+ * Input Parameters:
+ *   Standard task start-up arguments.  Expects argc == 2 with argv[1] being
+ *   the command to execute
+ *
+ * Returned Values:
+ *   EXIT_SUCCESS or EXIT_FAILURE
+ *
+ ****************************************************************************/
+
+int nsh_system(int argc, char *argv[]);
+
 #undef EXTERN
 #ifdef __cplusplus
 }

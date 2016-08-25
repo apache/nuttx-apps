@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_consolemain.c
+ * apps/nshlib/nsh_system.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,67 +40,59 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
-
-#if !defined(HAVE_USB_CONSOLE) && !defined(HAVE_USB_KEYBOARD)
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_consolemain (Normal character device version)
+ * Name: nsh_system
  *
  * Description:
- *   This interfaces maybe to called or started with task_start to start a
- *   single an NSH instance that operates on stdin and stdout.  This
- *   function does not normally return (see below).
+ *   This is the NSH-specific implementation of the standard system()
+ *   command.
  *
- *   This version of nsh_consolmain handles generic /dev/console character
- *   devices (see nsh_usbconsole.c and usb_usbkeyboard for other versions
- *   for special USB console devices).
-  *
+ *   NOTE: This assumes that other NSH instances have previously ran and so
+ *   common NSH logic is already initialized.
+ *
  * Input Parameters:
- *   Standard task start-up arguments.  These are not used.  argc may be
- *   zero and argv may be NULL.
+ *   Standard task start-up arguments.  Expects argc == 2 with argv[1] being
+ *   the command to execute
  *
  * Returned Values:
- *   This function does not normally return.  exit() is usually called to
- *   terminate the NSH session.  This function will return in the event of
- *   an error.  In that case, a non-zero value is returned (EXIT_FAILURE=1).
+ *   EXIT_SUCCESS or EXIT_FAILURE
  *
  ****************************************************************************/
 
-int nsh_consolemain(int argc, char *argv[])
+int nsh_system(int argc, char *argv[])
 {
-  FAR struct console_stdio_s *pstate = nsh_newconsole();
-  int ret;
+  /* Expect argc == 2 with argv[1] being the command to execute */
 
-  DEBUGASSERT(pstate);
+  if (argc >= 2)
+    {
+      FAR struct console_stdio_s *pstate = nsh_newconsole();
+      FAR struct nsh_vtbl_s *vtbl;
 
-  /* Execute the start-up script */
+      DEBUGASSERT(pstate != NULL && pstate->cn_vtbl != NULL);
+      vtbl = &pstate->cn_vtbl;
 
-#ifdef CONFIG_NSH_ROMFSETC
-  (void)nsh_initscript(&pstate->cn_vtbl);
-#endif
+      /* Parse process the command */
 
-  /* Initialize any USB tracing options that were requested */
+      (void)nsh_parse(vtbl, argv[1]);
+      fflush(pstate->cn_outstream);
 
-#ifdef CONFIG_NSH_USBDEV_TRACE
-  usbtrace_enable(TRACE_BITSET);
-#endif
+      /* Exit upon return */
 
-  /* Execute the session */
-
-  ret = nsh_session(pstate);
-
-  /* Exit upon return */
-
-  nsh_exit(&pstate->cn_vtbl, ret);
-  return ret;
+      nsh_exit(&pstate->cn_vtbl, OK);
+      return EXIT_SUCCESS;
+    }
+  else
+    {
+      return EXIT_FAILURE;
+    }
 }
-
-#endif /* !HAVE_USB_CONSOLE && !HAVE_USB_KEYBOARD */
