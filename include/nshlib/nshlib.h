@@ -115,16 +115,21 @@ void nsh_initialize(void);
  * Name: nsh_consolemain
  *
  * Description:
- *   This interfaces maybe to called or started with task_start to start a
+ *   This interfaces may be to called or started with task_start to start a
  *   single an NSH instance that operates on stdin and stdout.  This
  *   function does not return.
+ *
+ *   This function performs all basic, one-time initialization logic as
+ *   configured.  This includes such things as mounting the romfs /etc/
+ *   file system and running the initialization script, setting up USB
+ *   tracing options.  It should be spawned only once for this reason.
  *
  *   This function handles generic /dev/console character devices, or
  *   special USB console devices.  The USB console requires some special
  *   operations to handle the cases where the session is lost when the
  *   USB device is unplugged and restarted when the USB device is plugged
  *   in again.
-  *
+ *
  * Input Parameters:
  *   Standard task start-up arguments.  These are not used.  argc may be
  *   zero and argv may be NULL.
@@ -137,6 +142,35 @@ void nsh_initialize(void);
  ****************************************************************************/
 
 int nsh_consolemain(int argc, char *argv[]);
+
+/****************************************************************************
+ * Name: nsh_consolechild
+ *
+ * Description:
+ *   This interfaces maybe to called or started with task_start to start a
+ *   single a new NSH instance that operates on stdin and stdout.  This
+ *   function does not normally return (see below).
+ *
+ *   This function equivalent to nsh_consolemain(), except it assumes that
+ *   all one-time, NSH has already been perfroemd by nsh_consolemain().  It
+ *   simply startes a NSH session with no re-initialization.
+ *
+ *   Like nsh_consolmain(), this functions handles generic /dev/console
+ *   character devices (see nsh_usbconsole.c and usb_usbkeyboard for other
+ *   versions for special USB console devices).
+ *
+ * Input Parameters:
+ *   Standard task start-up arguments.  These are not used.  argc may be
+ *   zero and argv may be NULL.
+ *
+ * Returned Values:
+ *   This function does not normally return.  exit() is usually called to
+ *   terminate the NSH session.  This function will return in the event of
+ *   an error.  In that case, a non-zero value is returned (EXIT_FAILURE=1).
+ *
+ ****************************************************************************/
+
+int nsh_consolechild(int argc, char *argv[]);
 
 /****************************************************************************
  * Name: nsh_telnetstart

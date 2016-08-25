@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/nshlib/nsh_consolemain.c
+ * apps/nshlib/nsh_consolechild.c
  *
- *   Copyright (C) 2007-2009, 2011-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,21 +52,20 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_consolemain (Normal character device version)
+ * Name: nsh_consolechild
  *
  * Description:
- *   This interfaces may be to called or started with task_start to start a
- *   single an NSH instance that operates on stdin and stdout.  This
+ *   This interfaces maybe to called or started with task_start to start a
+ *   single a new NSH instance that operates on stdin and stdout.  This
  *   function does not normally return (see below).
  *
- *   This function performs all basic, one-time initialization logic as
- *   configured.  This includes such things as mounting the romfs /etc/
- *   file system and running the initialization script, setting up USB
- *   tracing options.  It should be spawned only once for this reason.
+ *   This function equivalent to nsh_consolemain(), except it assumes that
+ *   all one-time, NSH has already been perfroemd by nsh_consolemain().  It
+ *   simply startes a NSH session with no re-initialization.
  *
- *   This version of nsh_consolmain() handles generic /dev/console character
- *   devices (see nsh_usbconsole.c and usb_usbkeyboard for other versions
- *   for special USB console devices).
+ *   Like nsh_consolmain(), this functions handles generic /dev/console
+ *   character devices (see nsh_usbconsole.c and usb_usbkeyboard for other
+ *   versions for special USB console devices).
  *
  * Input Parameters:
  *   Standard task start-up arguments.  These are not used.  argc may be
@@ -79,24 +78,12 @@
  *
  ****************************************************************************/
 
-int nsh_consolemain(int argc, char *argv[])
+int nsh_consolechild(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   int ret;
 
   DEBUGASSERT(pstate != NULL);
-
-#ifdef CONFIG_NSH_ROMFSETC
-  /* Execute the start-up script */
-
-  (void)nsh_initscript(&pstate->cn_vtbl);
-#endif
-
-#ifdef CONFIG_NSH_USBDEV_TRACE
-  /* Initialize any USB tracing options that were requested */
-
-  usbtrace_enable(TRACE_BITSET);
-#endif
 
   /* Execute the session */
 
