@@ -113,7 +113,7 @@ int cmd_shutdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (strcmp(argv[1], "--reboot") != 0)
         {
           nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-          return ERROR
+          return ERROR;
         }
 
       /* Invoke the BOARDIOC_RESET board control to reset the board.  If
