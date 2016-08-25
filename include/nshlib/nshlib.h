@@ -124,7 +124,7 @@ void nsh_initialize(void);
  *   operations to handle the cases where the session is lost when the
  *   USB device is unplugged and restarted when the USB device is plugged
  *   in again.
-  *
+ *
  * Input Parameters:
  *   Standard task start-up arguments.  These are not used.  argc may be
  *   zero and argv may be NULL.

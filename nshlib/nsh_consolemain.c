@@ -55,14 +55,14 @@
  * Name: nsh_consolemain (Normal character device version)
  *
  * Description:
- *   This interfaces maybe to called or started with task_start to start a
+ *   This interfaces may be to called or started with task_start to start a
  *   single an NSH instance that operates on stdin and stdout.  This
  *   function does not normally return (see below).
  *
  *   This version of nsh_consolmain handles generic /dev/console character
  *   devices (see nsh_usbconsole.c and usb_usbkeyboard for other versions
  *   for special USB console devices).
-  *
+ *
  * Input Parameters:
  *   Standard task start-up arguments.  These are not used.  argc may be
  *   zero and argv may be NULL.
@@ -79,17 +79,17 @@ int nsh_consolemain(int argc, char *argv[])
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   int ret;
 
-  DEBUGASSERT(pstate);
-
-  /* Execute the start-up script */
+  DEBUGASSERT(pstate != NULL);
 
 #ifdef CONFIG_NSH_ROMFSETC
+  /* Execute the start-up script */
+
   (void)nsh_initscript(&pstate->cn_vtbl);
 #endif
 
+#ifdef CONFIG_NSH_USBDEV_TRACE
   /* Initialize any USB tracing options that were requested */
 
-#ifdef CONFIG_NSH_USBDEV_TRACE
   usbtrace_enable(TRACE_BITSET);
 #endif
 
