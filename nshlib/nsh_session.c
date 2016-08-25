@@ -59,13 +59,12 @@
  * Name: nsh_session
  *
  * Description:
- *   This is the common session login or each NSH session.  This function
- *   returns when an error reading from the input stream occurs, presumably
+ *   This is the common session logic or any NSH session.  This function
+ *   return when an error reading from the input stream occurs, presumably
  *   signaling the end of the session.
  *
  *   This function:
- *   - Performs the logic sequence if so configured.
- *   - Executes the NSH login script
+ *   - Executes the NSH logic script
  *   - Presents a greeting
  *   - Then provides a prompt then gets and processes the command line.
  *   - This continues until an error occurs, then the session returns.

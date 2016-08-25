@@ -90,7 +90,7 @@ endif
 endif
 
 ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS += nsh_consolemain.c nsh_consolechild.c
+CSRCS += nsh_consolemain.c
 endif
 
 ifeq ($(CONFIG_NSH_TELNET),y)
