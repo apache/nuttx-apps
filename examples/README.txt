@@ -1887,6 +1887,11 @@ examples/smp
   This is a simple test for SMP functionality.  It is basically just the
   pthread barrier test with some custom instrumentation.
 
+examples/system
+^^^^^^^^^^^^^^^
+
+  This is a simple test of the system() command.
+
 examples/tcpecho
 ^^^^^^^^^^^^^^^^
 

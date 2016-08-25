@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/system/system/system.c
+ * examples/system/system_main.c
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -39,66 +39,21 @@
 
 #include <nuttx/config.h>
 
-#include <sys/wait.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <sched.h>
-#include <assert.h>
-
-#include "nshlib/nshlib.h"
 
 /****************************************************************************
- * Public Functions
+ * Name: system_main
  ****************************************************************************/
 
-/****************************************************************************
- * Name: system
- *
- * Description:
- *   Use system to pass a command string to the NSH parser and wait for it
- *   to finish executing.
- *
- *   This is an experimental version with known incompatibilies:
- *
- *   1. It is not a part of libc due to its close association with NSH.  The
- *      function is still prototyped in nuttx/include/stdlib.h, however.
- *   2. It cannot use /bin/sh since that program will not exist in most
- *      embedded configurations.  Rather, it will spawn a shell-specific
- *      system command -- currenly only NSH.
- *   3. REVISIT: There may be some issues with returned values.
- *   4. Of course, only NSH commands will be supported so that still means
- *      that many leveraged system() calls will still not be functional.
- *
- ****************************************************************************/
-
-int system(FAR char *cmd)
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int system_main(int argc, char *argv[])
+#endif
 {
-  FAR char *nshargv[2];
-  int pid;
-  int rc;
-  int ret;
-
-  DEBUGASSERT(cmd != NULL);
-
-  /* Spawn nsh_system() which will execute the command under the shell */
-
-  nshargv[0] = cmd;
-  nshargv[1] = NULL;
-
-  pid = task_create("system", CONFIG_SYSTEM_SYSTEM_PRIORITY,
-                    CONFIG_SYSTEM_SYSTEM_STACKSIZE, nsh_system,
-                    (FAR char * const *)nshargv);
-  if (pid < 0)
-    {
-      return EXIT_FAILURE;
-    }
-
-  /* Wait for the shell to return */
-
-  ret = waitpid(pid, &rc, 0);
-  if (ret < 0)
-    {
-      return EXIT_FAILURE;
-    }
-
-  return rc;
+  printf("Calling system(\"ls -Rl /\")\n");
+  int ret = system("ls -Rl /");
+  printf("system returned: %d\n", ret);
+  return 0;
 }
