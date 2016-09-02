@@ -1740,5 +1740,16 @@
 	  break the delay up into several pieces (2016-08-15).
 	* apps/examples/oneshot: A thought about how we might improve accuracy
 	  of long delays (2016-08-15).
-	* nshlib/Kconfigt: Fix hex representation of IP address.  Noted by
+	* nshlib/Kconfig: Fix hex representation of IP address.  Noted by
 	  Michal Lyszczek (2016-08-19).
+	* apps/gpsutils:  Fix an error min minmea.  From Aleksandr Vyhovanec
+	  (2016-08-24).
+	* apps/nshlib/nsh_syscmds.c: missing semicolon.  From Mateusz Szafoni
+	  (2016-08-25).
+	* nshlib/:  Add logic to support an NSH-specific system command
+	  (2016-08-25).
+	* apps/system/system:  Add a generic system command.  Current
+	  implentation cannot use /bin/sh and spawns the custom NSH system
+	  command directly (2016-08-25).
+	* apps/examples/system:  Add a simple test of the system command.  Fix
+	  the first bug discovered by the test (2016-08-25).
