@@ -78,7 +78,7 @@ int nsh_system(int argc, char *argv[])
       FAR struct console_stdio_s *pstate = nsh_newconsole();
       FAR struct nsh_vtbl_s *vtbl;
 
-      DEBUGASSERT(pstate != NULL && pstate->cn_vtbl != NULL);
+      DEBUGASSERT(pstate != NULL);
       vtbl = &pstate->cn_vtbl;
 
       /* Parse process the command */
