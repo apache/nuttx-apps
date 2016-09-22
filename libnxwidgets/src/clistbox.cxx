@@ -607,6 +607,11 @@ void CListBox::onClick(nxgl_coord_t x, nxgl_coord_t y)
   const CListBoxDataItem *item =
     (const CListBoxDataItem*)m_options.getItem(m_lastSelectedIndex);
 
+  if (!item)
+    {
+      return; // No item at click position
+    }
+
   // Are we selecting or de-selecting?
 
   if (item->isSelected())
