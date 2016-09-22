@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/ctext.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,7 +126,7 @@ namespace NXWidgets
     TNxArray<LongestLine> m_longestLines;    /**< Array containing data describing
                                                   successively longer wrapped
                                                   lines */
-    uint8_t               m_lineSpacing;     /**< Spacing between lines of text */
+    nxgl_coord_t          m_lineSpacing;     /**< Spacing between lines of text */
     int32_t               m_textPixelHeight; /**< Total height of the wrapped
                                                   text in pixels */
     uint8_t               m_textPixelWidth;  /**< Total width of the wrapped text
@@ -216,7 +216,7 @@ namespace NXWidgets
      * @param lineSpacing The line spacing.
      */
 
-    void setLineSpacing(uint8_t lineSpacing);
+    void setLineSpacing(nxgl_coord_t lineSpacing);
 
     /**
      * Sets the pixel width of the text; text wider than

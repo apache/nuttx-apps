@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/ctext.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,7 +199,7 @@ void CText::remove(const int startIndex, const int count)
  * @param lineSpacing The line spacing.
  */
 
-void CText::setLineSpacing(uint8_t lineSpacing)
+void CText::setLineSpacing(nxgl_coord_t lineSpacing)
 {
   m_lineSpacing = lineSpacing;
   wrap();
