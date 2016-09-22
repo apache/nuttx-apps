@@ -1,7 +1,7 @@
 /********************************************************************************************
  * NxWidgets/nxwm/src/ctouchscreen.cxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,8 @@
 #include <cfcntl>
 
 #include <sys/boardctl.h>
+#include <sys/prctl.h>
+
 #include <sched.h>
 #include <pthread.h>
 #include <assert.h>
@@ -276,6 +278,8 @@ bool CTouchscreen::waitRawTouchData(struct touch_sample_s *touch)
 FAR void *CTouchscreen::listener(FAR void *arg)
 {
   CTouchscreen *This = (CTouchscreen *)arg;
+
+  prctl(PR_SET_NAME, "CTouchScreen::listener", 0);
 
   _info("Listener started\n");
 

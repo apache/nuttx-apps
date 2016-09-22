@@ -41,6 +41,7 @@
 
 #include <sys/types.h>
 #include <sys/boardctl.h>
+#include <sys/prctl.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -479,6 +480,8 @@ FAR void *CNxServer::listener(FAR void *arg)
   // The argument must be the CNxServer instance
 
   CNxServer *This = (CNxServer*)arg;
+
+  prctl(PR_SET_NAME, "CNxServer::listener", 0);
 
   // Process events forever
 
