@@ -143,8 +143,8 @@ CListBox::~CListBox(void)
 void CListBox::addOption(const CNxString &text, const uint32_t value)
 {
   addOption(text, value,
-            getShadowEdgeColor(), getBackgroundColor(),
-            getShadowEdgeColor(), getHighlightColor());
+            getEnabledTextColor(), getBackgroundColor(),
+            getSelectedTextColor(), getSelectedBackgroundColor());
 }
 
 /**
