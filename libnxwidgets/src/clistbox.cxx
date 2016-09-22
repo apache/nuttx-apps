@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/clistbox.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -628,7 +628,6 @@ void CListBox::onClick(nxgl_coord_t x, nxgl_coord_t y)
     }
 
   startDragging(x, y);
-  redraw();
 }
 
 /**
