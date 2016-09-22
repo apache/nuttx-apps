@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/clistdataitem.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ namespace NXWidgets
 
   class CListDataItem
   {
-  private:
+  protected:
     CNxString m_text;        /**< Text to display for option. */
     uint32_t  m_value;       /**< Option value. */
     bool      m_isSelected;  /**< True if the option is selected. */
