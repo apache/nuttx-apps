@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cmultilinetextbox.cxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -691,13 +691,14 @@ void CMultiLineTextBox::drawContents(CGraphicsPort *port)
 
 void CMultiLineTextBox::drawBorder(CGraphicsPort *port)
 {
-  port->drawFilledRect(0, 0, getWidth(), getHeight(), getBackgroundColor());
+  port->drawFilledRect(getX(), getY(), getWidth(), getHeight(),
+                       getBackgroundColor());
 
   // Stop drawing if the widget indicates it should not have an outline
 
   if (!isBorderless())
     {
-      port->drawBevelledRect(0, 0, getWidth(), getHeight(),
+      port->drawBevelledRect(getX(), getY(), getWidth(), getHeight(),
                              getShadowEdgeColor(), getShineEdgeColor());
     }
 }
@@ -1173,7 +1174,7 @@ void CMultiLineTextBox::drawText(CGraphicsPort *port)
   // Determine the top and bottom rows within the graphicsport's clip rect.
   // We only draw these rows in order to increase the speed of the routine.
 
-  int regionY   = -m_canvasY + m_rect.getY(); // Y coord of canvas visible region
+  int regionY   = -m_canvasY;  // Y coord of canvas visible region
   int topRow    = getRowContainingCoordinate(regionY);
   int bottomRow = getRowContainingCoordinate(regionY + m_rect.getHeight());
 
