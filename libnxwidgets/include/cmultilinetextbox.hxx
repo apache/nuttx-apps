@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/cmultilinetextbox.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -528,6 +528,17 @@ namespace NXWidgets
      */
 
     virtual void setFont(CNxFont *font);
+
+    /**
+     * Set the line spacing of the text.
+     *
+     * @param spacing Extra space (in pixels) to add between lines.
+     */
+
+    virtual inline void setLineSpacing(nxgl_coord_t lineSpacing)
+    {
+      m_text->setLineSpacing(lineSpacing);
+    }
 
     /**
      * Get the length of the text string.
