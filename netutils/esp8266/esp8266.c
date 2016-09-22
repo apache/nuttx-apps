@@ -42,7 +42,7 @@
 
 #include <nuttx/config.h>
 
-#include <sys/ioctl.h"
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 
 #include <string.h>
