@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/src/cnxwindow.cxx
  *
- *   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,11 +77,17 @@ CNxWindow::CNxWindow(NXHANDLE hNxServer, CWidgetControl *pWidgetControl)
 
 CNxWindow::~CNxWindow(void)
 {
-  // Release the window.  We do not release the widget control
-  // instance.  The lifetime of that instance is owned by he-who-
-  // constructed-us.
+  // Release the window.
 
   (void)nx_closewindow(m_hNxWindow);
+
+  // Release the widget control instance. Whether its lifetime
+  // should be handled by the window, or the owner-of-the-window
+  // is debatable. However in general the widget control is stored
+  // only in the window, so it makes sense to release it here also.
+
+  delete m_widgetControl;
+  m_widgetControl = NULL;
 }
 
 /**
