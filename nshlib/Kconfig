@@ -399,6 +399,10 @@ config NSH_DISABLE_POWEROFF
 	default y if DEFAULT_SMALL || BOARDCTL_RESET
 	depends on BOARDCTL_POWEROFF
 
+config NSH_DISABLE_PRINTF
+	bool "Disable printf"
+	default y
+
 config NSH_DISABLE_PS
 	bool "Disable ps"
 	default y if !FS_PROCFS || FS_PROCFS_EXCLUDE_PROCESS

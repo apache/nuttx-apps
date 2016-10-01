@@ -93,6 +93,10 @@ ifeq ($(CONFIG_NSH_CONSOLE),y)
 CSRCS += nsh_consolemain.c
 endif
 
+ifneq ($(CONFIG_NSH_DISABLE_PRINTF),y)
+CSRCS += nsh_printf.c
+endif
+
 ifeq ($(CONFIG_NSH_TELNET),y)
 CSRCS += nsh_telnetd.c
 ifeq ($(CONFIG_NSH_TELNET_LOGIN),y)

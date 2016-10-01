@@ -947,6 +947,9 @@ void nsh_usbtrace(void);
 #ifndef CONFIG_NSH_DISABLE_ECHO
   int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
+#ifndef CONFIG_NSH_DISABLE_PRINTF
+  int cmd_printf(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#endif
 #ifndef CONFIG_NSH_DISABLE_EXEC
   int cmd_exec(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif

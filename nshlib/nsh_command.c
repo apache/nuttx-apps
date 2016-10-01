@@ -184,9 +184,17 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_ECHO
 # ifndef CONFIG_DISABLE_ENVIRON
-  { "echo",     cmd_echo,     0, CONFIG_NSH_MAXARGUMENTS, "[<string|$name> [<string|$name>...]]" },
+  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[<string|$name> [<string|$name>...]]" },
 # else
-  { "echo",     cmd_echo,     0, CONFIG_NSH_MAXARGUMENTS, "[<string> [<string>...]]" },
+  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[<string> [<string>...]]" },
+# endif
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_PRINTF
+# ifndef CONFIG_DISABLE_ENVIRON
+  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string|$name> [<string|$name>...]]" },
+# else
+  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string> [<string>...]]" },
 # endif
 #endif
 
@@ -413,7 +421,7 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
-  { "rmmod",    cmd_rmmod,   2, 2,  "<module-name>" },
+  { "rmmod",    cmd_rmmod,    2, 2, "<module-name>" },
 #endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
@@ -489,10 +497,10 @@ static const struct cmdmap_s g_cmdmap[] =
     defined(CONFIG_FS_WRITABLE) && defined(CONFIG_NSH_LOGIN_PASSWD) && \
     !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 #  ifndef CONFIG_NSH_DISABLE_USERADD
-  { "useradd",   cmd_useradd,     3, 3, "<username> <password>" },
+  { "useradd",   cmd_useradd, 3, 3, "<username> <password>" },
 #  endif
 #  ifndef CONFIG_NSH_DISABLE_USERDEL
-  { "userdel",   cmd_userdel,     2, 2, "<username>" },
+  { "userdel",   cmd_userdel, 2, 2, "<username>" },
 #  endif
 #endif
 
@@ -514,10 +522,6 @@ static const struct cmdmap_s g_cmdmap[] =
 
   { NULL,       NULL,         1, 1, NULL }
 };
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
