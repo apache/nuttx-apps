@@ -50,8 +50,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_WL_MFRC522
-#  error "CONFIG_WL_MFRC522 is not defined in the configuration"
+#ifndef CONFIG_CL_MFRC522
+#  error "CONFIG_CL_MFRC522 is not defined in the configuration"
 #endif
 
 #ifndef CONFIG_EXAMPLES_RFID_READUID_DEVNAME
