@@ -261,7 +261,7 @@ namespace NXWidgets
     {
       if (index < 0 || index >= m_items.size())
         {
-          return nullptr;
+          return (const CListDataItem *)0;
         }
       else
         {
