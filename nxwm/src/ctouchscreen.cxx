@@ -279,7 +279,9 @@ FAR void *CTouchscreen::listener(FAR void *arg)
 {
   CTouchscreen *This = (CTouchscreen *)arg;
 
+#if CONFIG_TASK_NAME_SIZE > 0
   prctl(PR_SET_NAME, "CTouchScreen::listener", 0);
+#endif
 
   _info("Listener started\n");
 

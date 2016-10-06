@@ -481,7 +481,9 @@ FAR void *CNxServer::listener(FAR void *arg)
 
   CNxServer *This = (CNxServer*)arg;
 
+#ifdef CONFIG_TASK_NAME_SIZE > 0
   prctl(PR_SET_NAME, "CNxServer::listener", 0);
+#endif
 
   // Process events forever
 
