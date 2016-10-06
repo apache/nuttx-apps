@@ -44,7 +44,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <nuttx/wireless/mfrc522.h>
+#include <nuttx/contactless/mfrc522.h>
 
 /****************************************************************************
  * Pre-processor Definitions
