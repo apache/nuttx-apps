@@ -593,3 +593,29 @@
   (2016-07-22).
 
 1.18 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* NxWM needs the path to the apps/include directory (2016-07-28).
+* NxWidgets: Fix CListBox crash when clicked below the last item.  From
+  Petteri Aimonen (2016-09-22).
+* libnxwdigets: Fix memory leak in CNxWindow and make behaviour match
+  CNxTkWindow.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets: Fix default text colors in NxWidgets::CListBox.  From
+  Petteri Aimonen (2016-09-22).
+* libnxwidgets: Avoid unnecessary redraw in NxWidgets::CListBox. The
+  ListData will raise an event that will cause a redraw anyway.  Redrawing
+  in click() caused double redraws.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets:  Fix coordinate handling in NxWidgets::CMultiLineTextBox.
+  Related to 'Thu Feb 21 16:47:01 2013 Fix text placement in
+  CMultiLineTextbox.' There was a few similar bugs remaining in calculating
+  of rows to show and in clearing the background.  From Petteri Aimonen
+  (2016-09-22).
+* libnxwidgets: Allow NxWidgets::CListDataItems subclasses access to text
+  and value.  From Petteri Aimonen (2016-09-22).
+* Add setting task name via prctl() to NxWidgets::CNxServer and
+  NxWM:CTouchScreen.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets: In NxWidgets::CText, allow setting negative line spacing.
+  This is useful to have text take up less space, as quite many fonts have
+  large line spacings built-in.  From Petteri Aimonen (2016-09-22).
+* libnxwidgets: Allow setting line spacing in NxWidgets::CMultiLineTextBox.
+  From Petteri Aimonen (2016-09-22).
+
