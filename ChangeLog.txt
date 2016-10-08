@@ -1716,7 +1716,7 @@
 	  However, the default was ignored, leading to confusing error messages.
 	  From ziggurat29 (2016-07-17).
 
-7.18 2016-10-09 Gregory Nutt <gnutt@nuttx.org>
+7.18 2016-10-08 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/canutils/libuavcan: Under certain circumstances, DELIM make not
 	  be defined in Makefile (2016-07-28).
