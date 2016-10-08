@@ -1716,7 +1716,7 @@
 	  However, the default was ignored, leading to confusing error messages.
 	  From ziggurat29 (2016-07-17).
 
-7.18 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.18 2016-10-09 Gregory Nutt <gnutt@nuttx.org>
 
 	* apps/canutils/libuavcan: Under certain circumstances, DELIM make not
 	  be defined in Makefile (2016-07-28).
@@ -1753,3 +1753,11 @@
 	  command directly (2016-08-25).
 	* apps/examples/system:  Add a simple test of the system command.  Fix
 	  the first bug discovered by the test (2016-08-25).
+	* apps/nshlib: Add printf command to NSH, e.g., controlling
+	  /dev/userleds from command line: nsh> printf \x01 > /dev/userleds.
+	  From Alan Carvalho de Assis (2016-10-xx).
+	* apps/platform: Add support for STM32L476-MDK (2016-10-xx).
+	* apps/nshlib: Don't try to flush output streams if stdio buffered
+	  I/O is not supported (2016-10-xx).
+
+7.19 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
