@@ -114,11 +114,11 @@ static char *nsh_getdirpath(FAR struct nsh_vtbl_s *vtbl,
 
   if (strcmp(path, "/") == 0)
     {
-      sprintf(vtbl->iobuffer, "/%s", file);
+      snprintf(vtbl->iobuffer, IOBUFFERSIZE, "/%s", file);
     }
   else
     {
-      sprintf(vtbl->iobuffer, "%s/%s", path, file);
+      snprintf(vtbl->iobuffer, IOBUFFERSIZE, "%s/%s", path, file);
     }
 
   vtbl->iobuffer[PATH_MAX] = '\0';
