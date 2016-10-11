@@ -3,19 +3,19 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_BUTTONS
-	bool "Buttons example"
+config EXAMPLES_ARCHBUTTONS
+	bool "Arch Buttons example"
 	default n
 	depends on ARCH_BUTTONS && BUILD_FLAT
 	---help---
 		Enable the buttons example.  May require ARCH_BUTTONS on some boards.
 
-if EXAMPLES_BUTTONS
-config EXAMPLES_BUTTONS_MIN
+if EXAMPLES_ARCHBUTTONS
+config EXAMPLES_ARCHBUTTONS_MIN
 int "Lowest Button Number"
 default 0
 
-config EXAMPLES_BUTTONS_MAX
+config EXAMPLES_ARCHBUTTONS_MAX
 int "Highest Button Number"
 default 7
 
@@ -28,35 +28,35 @@ config EXAMPLES_IRQBUTTONS_MAX
 int "Highest Interrupting Button Number"
 default 7
 
-config EXAMPLES_BUTTONS_NAME0
+config EXAMPLES_ARCHBUTTONS_NAME0
 string "Button 0 Name"
 default "Button 0"
 
-config EXAMPLES_BUTTONS_NAME1
+config EXAMPLES_ARCHBUTTONS_NAME1
 string "Button 1 Name"
 default "Button 1"
 
-config EXAMPLES_BUTTONS_NAME2
+config EXAMPLES_ARCHBUTTONS_NAME2
 string "Button 2 Name"
 default "Button 2"
 
-config EXAMPLES_BUTTONS_NAME3
+config EXAMPLES_ARCHBUTTONS_NAME3
 string "Button 3 Name"
 default "Button 3"
 
-config EXAMPLES_BUTTONS_NAME4
+config EXAMPLES_ARCHBUTTONS_NAME4
 string "Button 4 Name"
 default "Button 4"
 
-config EXAMPLES_BUTTONS_NAME5
+config EXAMPLES_ARCHBUTTONS_NAME5
 string "Button 5 Name"
 default "Button 5"
 
-config EXAMPLES_BUTTONS_NAME6
+config EXAMPLES_ARCHBUTTONS_NAME6
 string "Button 6 Name"
 default "Button 6"
 
-config EXAMPLES_BUTTONS_NAME7
+config EXAMPLES_ARCHBUTTONS_NAME7
 string "Button 7 Name"
 default "Button 7"
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/buttons/buttons_main.c
+ * examples/archbuttons/archbuttons_main.c
  *
  *   Copyright (C) 2011, 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -64,53 +64,53 @@
 #  error "CONFIG_ARCH_BUTTONS is not defined in the configuration"
 #endif
 
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME0
-#  define CONFIG_EXAMPLES_BUTTONS_NAME0 "BUTTON0"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME0
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME0 "BUTTON0"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME1
-#  define CONFIG_EXAMPLES_BUTTONS_NAME1 "BUTTON1"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME1
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME1 "BUTTON1"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME2
-#  define CONFIG_EXAMPLES_BUTTONS_NAME2 "BUTTON2"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME2
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME2 "BUTTON2"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME3
-#  define CONFIG_EXAMPLES_BUTTONS_NAME3 "BUTTON3"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME3
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME3 "BUTTON3"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME4
-#  define CONFIG_EXAMPLES_BUTTONS_NAME4 "BUTTON4"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME4
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME4 "BUTTON4"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME5
-#  define CONFIG_EXAMPLES_BUTTONS_NAME5 "BUTTON5"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME5
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME5 "BUTTON5"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME6
-#  define CONFIG_EXAMPLES_BUTTONS_NAME6 "BUTTON6"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME6
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME6 "BUTTON6"
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_NAME7
-#  define CONFIG_EXAMPLES_BUTTONS_NAME7 "BUTTON7"
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_NAME7
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_NAME7 "BUTTON7"
 #endif
 
 #define BUTTON_MIN 0
 #define BUTTON_MAX 7
 
-#ifndef CONFIG_EXAMPLES_BUTTONS_MIN
-#  define CONFIG_EXAMPLES_BUTTONS_MIN BUTTON_MIN
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_MIN
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_MIN BUTTON_MIN
 #endif
-#ifndef CONFIG_EXAMPLES_BUTTONS_MAX
-#  define CONFIG_EXAMPLES_BUTTONS_MAX BUTTON_MAX
+#ifndef CONFIG_EXAMPLES_ARCHBUTTONS_MAX
+#  define CONFIG_EXAMPLES_ARCHBUTTONS_MAX BUTTON_MAX
 #endif
 
-#if CONFIG_EXAMPLES_BUTTONS_MIN > CONFIG_EXAMPLES_BUTTONS_MAX
-#  error "CONFIG_EXAMPLES_BUTTONS_MIN > CONFIG_EXAMPLES_BUTTONS_MAX"
+#if CONFIG_EXAMPLES_ARCHBUTTONS_MIN > CONFIG_EXAMPLES_ARCHBUTTONS_MAX
+#  error "CONFIG_EXAMPLES_ARCHBUTTONS_MIN > CONFIG_EXAMPLES_ARCHBUTTONS_MAX"
 #endif
-#if CONFIG_EXAMPLES_BUTTONS_MAX > 7
-#  error "CONFIG_EXAMPLES_BUTTONS_MAX > 7"
+#if CONFIG_EXAMPLES_ARCHBUTTONS_MAX > 7
+#  error "CONFIG_EXAMPLES_ARCHBUTTONS_MAX > 7"
 #endif
 
 #ifndef CONFIG_EXAMPLES_IRQBUTTONS_MIN
-#  define CONFIG_EXAMPLES_IRQBUTTONS_MIN CONFIG_EXAMPLES_BUTTONS_MIN
+#  define CONFIG_EXAMPLES_IRQBUTTONS_MIN CONFIG_EXAMPLES_ARCHBUTTONS_MIN
 #endif
 #ifndef CONFIG_EXAMPLES_IRQBUTTONS_MAX
-#  define CONFIG_EXAMPLES_IRQBUTTONS_MAX CONFIG_EXAMPLES_BUTTONS_MAX
+#  define CONFIG_EXAMPLES_IRQBUTTONS_MAX CONFIG_EXAMPLES_ARCHBUTTONS_MAX
 #endif
 
 #if CONFIG_EXAMPLES_IRQBUTTONS_MIN > CONFIG_EXAMPLES_IRQBUTTONS_MAX
@@ -127,8 +127,8 @@
 #  define MAX(a,b) (a > b ? a : b)
 #endif
 
-#define MIN_BUTTON MIN(CONFIG_EXAMPLES_BUTTONS_MIN, CONFIG_EXAMPLES_IRQBUTTONS_MIN)
-#define MAX_BUTTON MAX(CONFIG_EXAMPLES_BUTTONS_MAX, CONFIG_EXAMPLES_IRQBUTTONS_MAX)
+#define MIN_BUTTON MIN(CONFIG_EXAMPLES_ARCHBUTTONS_MIN, CONFIG_EXAMPLES_IRQBUTTONS_MIN)
+#define MAX_BUTTON MAX(CONFIG_EXAMPLES_ARCHBUTTONS_MAX, CONFIG_EXAMPLES_IRQBUTTONS_MAX)
 
 #define NUM_BUTTONS     (MAX_BUTTON - MIN_BUTTON + 1)
 #define BUTTON_INDEX(b) ((b)-MIN_BUTTON)
@@ -190,7 +190,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 {
 #if MIN_BUTTON < 1
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME0,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME0,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button0_handler
 #endif
@@ -198,7 +198,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MIN_BUTTON < 2 && MAX_BUTTON > 0
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME1,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME1,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button1_handler
 #endif
@@ -206,7 +206,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MIN_BUTTON < 3 && MAX_BUTTON > 1
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME2,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME2,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button2_handler
 #endif
@@ -214,7 +214,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MIN_BUTTON < 4 && MAX_BUTTON > 2
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME3,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME3,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button3_handler
 #endif
@@ -222,7 +222,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MIN_BUTTON < 5 && MAX_BUTTON > 3
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME4,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME4,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button4_handler
 #endif
@@ -230,7 +230,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MIN_BUTTON < 6 && MAX_BUTTON > 4
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME5,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME5,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button5_handler
 #endif
@@ -238,7 +238,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MIN_BUTTON < 7 && MAX_BUTTON > 5
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME6,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME6,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button6_handler
 #endif
@@ -246,7 +246,7 @@ static const struct button_info_s g_buttoninfo[NUM_BUTTONS] =
 #endif
 #if MAX_BUTTON > 6
   {
-    CONFIG_EXAMPLES_BUTTONS_NAME7,
+    CONFIG_EXAMPLES_ARCHBUTTONS_NAME7,
 #ifdef CONFIG_ARCH_IRQBUTTONS
     button7_handler
 #endif
@@ -390,13 +390,13 @@ static int button7_handler(int irq, FAR void *context)
  ****************************************************************************/
 
 /****************************************************************************
- * buttons_main
+ * archbuttons_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int buttons_main(int argc, char *argv[])
+int archbuttons_main(int argc, char *argv[])
 #endif
 {
   uint8_t newset;

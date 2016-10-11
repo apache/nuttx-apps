@@ -1,7 +1,8 @@
 ############################################################################
-# apps/examples/buttons/Makefile
+# apps/examples/archbuttons/Make.defs
+# Adds selected applications to apps/ build
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,21 +34,6 @@
 #
 ############################################################################
 
--include $(TOPDIR)/Make.defs
-
-# Hello, World! Example
-
-ASRCS =
-CSRCS =
-MAINSRC = buttons_main.c
-
-CONFIG_XYZ_PROGNAME ?= buttons$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-# Buttons built-in application info
-
-APPNAME = buttons
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
-
-include $(APPDIR)/Application.mk
+ifeq ($(CONFIG_EXAMPLES_ARCHBUTTONS),y)
+CONFIGURED_APPS += examples/archbuttons
+endif
