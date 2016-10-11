@@ -177,7 +177,7 @@ examples/bridge
 examples/buttons
 ^^^^^^^^^^^^^^^^
 
-To be provided
+  To be provided
 
 examples/can
 ^^^^^^^^^^^^
