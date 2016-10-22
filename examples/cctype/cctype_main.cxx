@@ -70,14 +70,14 @@ extern "C"
        }
 
      std::printf("\nKEY:\n");
-     std::printf("\tA: isspace\tH: isalpha\n");
-     std::printf("\tB: isascii\tI: isblank\n");
-     std::printf("\tC: isprint\tJ: isdigit\n");
-     std::printf("\tD: isgraph\tK: isalnum\n");
-     std::printf("\tE: iscntrl\tL: ispunct\n");
-     std::printf("\tF: islower\tM: isxdigit\n");
-     std::printf("\tG: isupper\tN: toupper\n");
-     std::printf("\t0: tolower\n");
+     std::printf("\tA: isspace\tI: isblank\n");
+     std::printf("\tB: isascii\tJ: isdigit\n");
+     std::printf("\tC: isprint\tK: isalnum\n");
+     std::printf("\tD: isgraph\tL: ispunct\n");
+     std::printf("\tE: iscntrl\tM: isxdigit\n");
+     std::printf("\tF: islower\tN: toupper\n");
+     std::printf("\tG: isupper\t0: tolower\n");
+     std::printf("\tH: isalpha\n");
      return 0;
   }
 }
