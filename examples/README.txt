@@ -223,6 +223,12 @@ examples/cc3000
 
   This is a test for the TI CC3000 wireless networking module.
 
+examples/cctype
+^^^^^^^^^^^^^^^
+
+  Verifies all possible inputs for all functions defined in the header file
+  cctype.
+
 examples/chat
 ^^^^^^^^^^^^^
 
