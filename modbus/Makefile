@@ -44,7 +44,14 @@ CSRCS =
 
 ifeq ($(CONFIG_MODBUS),y)
 
+ifeq ($(CONFIG_MODBUS_SLAVE),y)
 CSRCS += mb.c
+endif
+
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+CSRCS += mb_m.c
+endif
+
 DEPPATH = --dep-path .
 VPATH = .
 

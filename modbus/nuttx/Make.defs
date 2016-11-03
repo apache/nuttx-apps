@@ -33,7 +33,15 @@
 #
 ############################################################################
 
-CSRCS += portevent.c portother.c portserial.c porttimer.c
+CSRCS += portother.c
+
+ifeq ($(CONFIG_MODBUS_SLAVE),y)
+CSRCS += portevent.c portserial.c porttimer.c
+endif
+
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+CSRCS += portother_m.c portserial_m.c porttimer_m.c portevent_m.c
+endif
 
 DEPPATH += --dep-path nuttx
 VPATH += :nuttx

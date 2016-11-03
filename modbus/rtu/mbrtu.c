@@ -40,7 +40,7 @@
 
 #include "port.h"
 
-#include "modbus/mb.h">
+#include "modbus/mb.h"
 #include "modbus/mbframe.h"
 #include "modbus/mbport.h"
 

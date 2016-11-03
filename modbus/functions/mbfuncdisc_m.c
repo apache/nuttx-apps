@@ -65,7 +65,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#if defined(CONFIG_RTU_ASCII_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
+#if defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Description:
@@ -82,7 +82,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_READ_DISCRETE_INPUTS_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_READ_DISCRETE_INPUTS_ENABLED
 eMBMasterReqErrCode eMBMasterReqReadDiscreteInputs(uint8_t ucSndAddr,
                                                    uint16_t usDiscreteAddr,
                                                    uint16_t usNDiscreteIn,

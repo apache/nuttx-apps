@@ -63,7 +63,7 @@ typedef enum
   EV_MASTER_EXECUTE                = 1<<2,  /* Execute function. */
   EV_MASTER_FRAME_SENT             = 1<<3,  /* Frame sent. */
   EV_MASTER_ERROR_PROCESS          = 1<<4,  /* Frame error process. */
-  EV_MASTER_PROCESS_SUCESS         = 1<<5,  /* Request process success. */
+  EV_MASTER_PROCESS_SUCCESS        = 1<<5,  /* Request process success. */
   EV_MASTER_ERROR_RESPOND_TIMEOUT  = 1<<6,  /* Request respond timeout. */
   EV_MASTER_ERROR_RECEIVE_DATA     = 1<<7,  /* Request receive data error. */
   EV_MASTER_ERROR_EXECUTE_FUNCTION = 1<<8   /* Request execute function error. */
@@ -171,7 +171,7 @@ void vMBMasterErrorCBReceiveData(uint8_t ucDestAddress, const uint8_t *pucPDUDat
                                  uint16_t ucPDULength);
 void vMBMasterErrorCBExecuteFunction(uint8_t ucDestAddress, const uint8_t *pucPDUData,
                                      uint16_t ucPDULength);
-void vMBMasterCBRequestScuuess(void);
+void vMBMasterCBRequestSuccess(void);
 
 #ifdef CONFIG_MB_TCP_ENABLED
 /* TCP port function */

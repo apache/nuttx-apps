@@ -94,7 +94,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#if defined(CONFIG_RTU_ASCII_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
+#if defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Description:
@@ -111,7 +111,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_WRITE_HOLDING_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_WRITE_HOLDING_ENABLED
 eMBMasterReqErrCode eMBMasterReqWriteHoldingRegister(uint8_t ucSndAddr,
                                                      uint16_t usRegAddr,
                                                      uint16_t usRegData,
@@ -195,7 +195,7 @@ eMBException eMBMasterFuncWriteHoldingRegister(uint8_t *pucFrame,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_WRITE_MULTIPLE_HOLDING_ENABLED
 eMBMasterReqErrCode
   eMBMasterReqWriteMultipleHoldingRegister(uint8_t ucSndAddr,
                                            uint16_t usRegAddr,
@@ -313,7 +313,7 @@ eMBException eMBMasterFuncWriteMultipleHoldingRegister(uint8_t *pucFrame,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_READ_HOLDING_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_READ_HOLDING_ENABLED
 eMBMasterReqErrCode eMBMasterReqReadHoldingRegister(uint8_t ucSndAddr,
                                                     uint16_t usRegAddr,
                                                     uint16_t usNRegs,
@@ -429,7 +429,7 @@ eMBException eMBMasterFuncReadHoldingRegister(uint8_t *pucFrame,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_READWRITE_HOLDING_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_READWRITE_HOLDING_ENABLED
 eMBMasterReqErrCode
   eMBMasterReqReadWriteMultipleHoldingRegister(uint8_t ucSndAddr,
                                                uint16_t usReadRegAddr,

@@ -33,9 +33,22 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_MB_RTU_ENABLED),y)
+compile_rtu=
 
-CSRCS += mbcrc.c mbrtu.c
+ifeq ($(CONFIG_MB_RTU_ENABLED),y)
+compile_rtu=yes
+endif
+
+ifeq ($(CONFIG_MB_RTU_MASTER),y)
+compile_rtu=yes
+endif
+
+ifdef compile_rtu
+CSRCS += mbcrc.c
+ifeq ($(CONFIG_MB_RTU_ENABLED),y)
+CSRCS +=  mbrtu.c
+endif
+
 ifeq ($(CONFIG_MB_RTU_MASTER),y)
 CSRCS += mbrtu_m.c
 endif

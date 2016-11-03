@@ -1,9 +1,9 @@
 /****************************************************************************
- * apps/modbus/nuttx/port.h
+ * apps/modbus/nuttx/portother_m.c
  *
- * FreeModbus Library: NuttX Port
- * Copyright (c) 2006 Christian Walter <wolti@sil.at>
- * All rights reserved.
+ *   FreeModbus Library: NuttX Port
+ *   Copyright (c) 2006 Christian Walter <wolti@sil.at>
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,75 +29,80 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_MODBUS_NUTTX_PORT_H
-#define __APPS_MODBUS_NUTTX_PORT_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <assert.h>
+#include <nuttx/config.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <pthread.h>
+
+#include "port.h"
+
+#include "modbus/mb.h"
+#include "modbus/mb_m.h"
+#include "modbus/mbport.h"
+
+#if defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#define INLINE
-
-#define ENTER_CRITICAL_SECTION( ) vMBPortEnterCritical()
-#define EXIT_CRITICAL_SECTION( ) vMBPortExitCritical()
-
-#ifndef true
-#  define true   true
-#endif
-
-#ifndef false
-#  define false  false
-#endif
+#define NELEMS(x) (sizeof((x))/sizeof((x)[0]))
 
 /****************************************************************************
- * Public Types
+ * Private Data
  ****************************************************************************/
 
-typedef enum
-{
-  MB_LOG_ERROR = 0,
-  MB_LOG_WARN  = 1,
-  MB_LOG_INFO  = 2,
-  MB_LOG_DEBUG = 3
-} eMBPortLogLevel;
+static FILE *fLogFile = NULL;
+static eMBPortLogLevel eLevelMax = MB_LOG_DEBUG;
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-void vMBPortEnterCritical(void);
-void vMBPortExitCritical(void);
-void vMBPortLog(eMBPortLogLevel eLevel, const char *szModule,
-                const char *szFmt, ...);
-void vMBPortTimerPoll(void);
-bool xMBPortSerialPoll(void);
-bool xMBPortSerialSetTimeout(uint32_t dwTimeoutMs);
-
-#if defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
-  void vMBMasterPortEnterCritical(void);
-  void vMBMasterPortExitCritical(void);
-  void vMBMasterPortLog(eMBPortLogLevel eLevel, const char *szModule,
-                        const char *szFmt, ...);
-  void vMBMasterPortTimerPoll(void);
-  bool xMBMasterPortSerialPoll(void);
-  bool xMBMasterPortSerialSetTimeout(uint32_t dwTimeoutMs);
-#endif
-
-#ifdef __cplusplus
+void vMBMasterPortLogLevel(eMBPortLogLevel eNewLevelMax)
+{
+  eLevelMax = eNewLevelMax;
 }
-#endif
 
-#endif /* __APPS_MODBUS_NUTTX_PORT_H */
+void vMBMasterPortLogFile(FILE * fNewLogFile)
+{
+  fLogFile = fNewLogFile;
+}
+
+void vMBMasterPortLog(eMBPortLogLevel eLevel, const char * szModule,
+                      const char * szFmt, ...)
+{
+  char     szBuf[512];
+  int      i;
+  va_list  args;
+  FILE    *fOutput = fLogFile == NULL ? stderr : fLogFile;
+
+  static const char *arszLevel2Str[] = { "ERROR", "WARN", "INFO", "DEBUG" };
+
+  i = snprintf(szBuf, NELEMS(szBuf),
+               "%s: %s: ", arszLevel2Str[eLevel], szModule);
+
+  if (i != 0)
+    {
+      va_start(args, szFmt);
+      i += vsnprintf(&szBuf[i], NELEMS(szBuf) - i, szFmt, args);
+      va_end(args);
+    }
+
+  if (i != 0)
+    {
+      if (eLevel <= eLevelMax)
+        {
+          fputs(szBuf, fOutput);
+        }
+    }
+}
+
+#endif /* defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER) */

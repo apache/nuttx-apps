@@ -83,7 +83,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  * Public Functions
  ****************************************************************************/
 
-#if defined(CONFIG_RTU_ASCII_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
+#if defined(CONFIG_MB_RTU_MASTER) || defined(CONFIG_MB_ASCII_MASTER)
 
 /****************************************************************************
  * Description:
@@ -100,7 +100,7 @@ eMBException prveMBError2Exception(eMBErrorCode eErrorCode);
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_READ_COILS_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_READ_COILS_ENABLED
 eMBMasterReqErrCode eMBMasterReqReadCoils(uint8_t ucSndAddr,
                                           uint16_t usCoilAddr,
                                           uint16_t usNCoils,
@@ -230,7 +230,7 @@ eMBException eMBMasterFuncReadCoils(uint8_t *pucFrame, uint16_t *usLen)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_WRITE_COIL_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_WRITE_COIL_ENABLED
 eMBMasterReqErrCode eMBMasterReqWriteCoil(uint8_t ucSndAddr,
                                           uint16_t usCoilAddr,
                                           uint16_t usCoilData,
@@ -342,7 +342,7 @@ eMBException eMBMasterFuncWriteCoil(uint8_t *pucFrame, uint16_t *usLen)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_MB_FUNC_WRITE_MULTIPLE_COILS_ENABLED
+#ifdef CONFIG_MB_MASTER_FUNC_WRITE_MULTIPLE_COILS_ENABLED
 eMBMasterReqErrCode eMBMasterReqWriteMultipleCoils(uint8_t ucSndAddr,
                                                    uint16_t usCoilAddr,
                                                    uint16_t usNCoils,

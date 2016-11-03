@@ -36,19 +36,20 @@
 #include <nuttx/config.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "port.h"
 
 #include "modbus/mb.h"
 #include "modbus/mb_m.h"
-#include "mbrtu.h"
+#include "mbrtu_m.h"
 #include "modbus/mbframe.h"
 
 #include "mbcrc.h"
 
 #include "modbus/mbport.h"
 
-#if defined(CONFIG_RTU_ASCII_MASTER)
+#if defined(CONFIG_MB_RTU_MASTER)
 
 /****************************************************************************
  * Included Files
@@ -182,7 +183,7 @@ eMBErrorCode eMBMasterRTUReceive(uint8_t *pucRcvAddress, uint8_t **pucFrame,
   eMBErrorCode eStatus = MB_ENOERR;
 
   ENTER_CRITICAL_SECTION();
-  assert_param(usMasterRcvBufferPos < MB_SER_PDU_SIZE_MAX);
+  ASSERT(usMasterRcvBufferPos < MB_SER_PDU_SIZE_MAX);
 
   /* Length and CRC check */
 
@@ -272,12 +273,12 @@ bool xMBMasterRTUReceiveFSM(void)
   bool xTaskNeedSwitch = false;
   uint8_t ucByte;
 
-  assert_param((eSndState == STATE_M_TX_IDLE) ||
-               (eSndState == STATE_M_TX_XFWR));
+  ASSERT((eSndState == STATE_M_TX_IDLE) ||
+         (eSndState == STATE_M_TX_XFWR));
 
   /* Always read the character. */
 
-  (void)xMBMasterPortSerialGetByte((CHAR *) & ucByte);
+  (void)xMBMasterPortSerialGetByte((uint8_t *) & ucByte);
 
   switch (eRcvState)
     {
@@ -346,7 +347,7 @@ bool xMBMasterRTUTransmitFSM(void)
 {
   bool xNeedPoll = false;
 
-  assert_param(eRcvState == STATE_M_RX_IDLE);
+  ASSERT(eRcvState == STATE_M_RX_IDLE);
 
   switch (eSndState)
     {
@@ -365,7 +366,7 @@ bool xMBMasterRTUTransmitFSM(void)
 
       if (usMasterSndBufferCount != 0)
         {
-          xMBMasterPortSerialPutByte((CHAR) * pucMasterSndBufferCur);
+          xMBMasterPortSerialPutByte((uint8_t) * pucMasterSndBufferCur);
           pucMasterSndBufferCur++;      /* next byte in sendbuffer. */
           usMasterSndBufferCount--;
         }
@@ -431,10 +432,10 @@ bool xMBMasterRTUTimerExpired(void)
       /* Function called in an illegal state. */
 
     default:
-      assert_param((eRcvState == STATE_M_RX_INIT) ||
-                   (eRcvState == STATE_M_RX_RCV) ||
-                   (eRcvState == STATE_M_RX_ERROR) ||
-                   (eRcvState == STATE_M_RX_IDLE));
+      ASSERT((eRcvState == STATE_M_RX_INIT) ||
+             (eRcvState == STATE_M_RX_RCV) ||
+             (eRcvState == STATE_M_RX_ERROR) ||
+             (eRcvState == STATE_M_RX_IDLE));
       break;
     }
 
@@ -458,8 +459,8 @@ bool xMBMasterRTUTimerExpired(void)
       /* Function called in an illegal state. */
 
     default:
-      assert_param((eSndState == STATE_M_TX_XFWR) ||
-                   (eSndState == STATE_M_TX_IDLE));
+      ASSERT((eSndState == STATE_M_TX_XFWR) ||
+             (eSndState == STATE_M_TX_IDLE));
       break;
     }
 
