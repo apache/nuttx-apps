@@ -68,9 +68,7 @@ endif
            TOOLS = $(TRAVELER)/tools
           LIBWLD = $(TOOLS)/libwld
 
-          TOPDIR = /home/patacongo/projects/nuttx/master/nuttx
-        NUTTXINC = $(TOPDIR)/include
-        INC_PATH = -I$(TRAVELER)/include -I$(TOOLS)/tcledit -I$(LIBWLD) -isystem $(NUTTXINC)
+        INC_PATH = -I$(TRAVELER)/include -I$(TOOLS)/tcledit -I$(LIBWLD)
 
            VPATH = $(TOOLS)/tcledit
 

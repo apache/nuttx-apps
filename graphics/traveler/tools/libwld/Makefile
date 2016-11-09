@@ -33,7 +33,10 @@
 #
 #############################################################################
 
-TRAVELER = $(APPDIR)/graphics/traveler
+
+WD       = ${shell pwd}
+APPDIR   = $(WD)/../../..
+TRAVELER = $(WD)/../..
 
 BIN	= libwld.a
 WLDSRCS	= wld_createworld.c wld_deallocateworld.c
@@ -56,7 +59,7 @@ AR	= ar -rcv
 
 DEBUG_LEVEL	= 0
 DEFINES		= -DDEBUG_LEVEL=$(DEBUG_LEVEL)
-INCLUDES	= -I. -I$(APPDIR)/include -I$(TOPDIR)/include  -I$(TRAVELER)/include
+INCLUDES	= -I. -I$(APPDIR)/include -I$(TRAVELER)/include
 WARNINGS	= -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs
 
 ifneq ($(DEBUG_LEVEL),0)
