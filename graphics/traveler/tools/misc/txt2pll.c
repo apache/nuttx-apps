@@ -198,7 +198,7 @@ int main(int argc, char **argv, char** envp)
           break;
 
         default:
-          fprintf(stderr, "ERRORL Unrecognized option: %c\n", option);
+          fprintf(stderr, "ERROR: Unrecognized option: %c\n", option);
           show_usage();
           break;
         }

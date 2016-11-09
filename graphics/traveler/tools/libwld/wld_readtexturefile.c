@@ -1,0 +1,166 @@
+/****************************************************************************
+ * apps/graphics/traveler/tools/libwld/wld_readtexturefile.c
+ *
+ *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/
+
+/*************************************************************************
+ * Included files
+ *************************************************************************/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include "trv_types.h"
+#include "wld_bitmaps.h"
+#include "wld_mem.h"
+#include "wld_graphicfile.h"
+#include "wld_utils.h"
+
+/*************************************************************************
+ * Pre-procssor Definitions
+ *************************************************************************/
+
+#define COLOR_LEVELS 6
+
+#undef MIN
+#undef MAX
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+
+/*************************************************************************
+ * Private Functions
+ *************************************************************************/
+
+
+/*************************************************************************
+ * Name: wld_NewTexture
+ * Description:
+ ************************************************************************/
+
+static bitmapType *wld_NewTexture(uint16_t  width, uint16_t  height)
+{
+  bitmapType *t;
+
+  if (height <= 0 || width <= 0)
+    wld_FatalError("wld_NewTexture:  bad texture dimensions");
+
+  t = (bitmapType*)wld_Malloc(sizeof(bitmapType));
+  t->bm = (trv_pixel_t*)wld_Malloc(height * width * sizeof(trv_pixel_t));
+
+  t->w = width;
+  t->h = height;
+  t->log2h = wld_Log2(height);
+     
+  return t;
+}
+
+/*************************************************************************
+ * Name: 
+ * Description:
+ *   Return the log base 2 of the argument, or -1 if the argument is not
+ *   an integer power of 2.
+ ************************************************************************/
+
+static int wld_Log2(int x)
+{
+  int i;
+  unsigned int n;
+
+  if (x <= 0)
+    return -1;
+  else
+    n = (unsigned int) x;
+     
+  for (i = 0; (n & 0x1) == 0; i++, n >>= 1);
+
+  if (n == 1)
+    return i;
+  else
+    return -1;
+}
+
+/*************************************************************************
+ * Name: wld_QuantizeTexture
+ * Description:
+ ************************************************************************/
+
+static void wld_QuantizeTexture(GraphicFileType *gFile, bitmapType *t)
+{
+  RGBColor pixel;
+  trv_pixel_t *destPixel = t->bm;
+  int x, y;
+
+  for (x = gFile->width - 1; x >= 0; x--)
+    {
+      for (y = gFile->height - 1; y >= 0; y--)
+        {
+          pixel = wld_GraphicFilePixel(gFile, x, y);
+          *destPixel++ = wld_Rgb2Pixel(&pixel);   
+        }
+    }
+}
+
+/*************************************************************************
+ * Public Functions
+ *************************************************************************/
+
+/*************************************************************************
+ * Name: 
+ * Description:
+ ************************************************************************/
+
+bitmapType *wld_ReadTextureFile(char *filename)
+{
+  GraphicFileType *gFile;
+  bitmapType *t;
+
+  gFile = wld_ReadGraphicFile(filename);
+  if (gFile == NULL)
+    wld_FatalError("Error reading texture %s.", filename);
+
+  /* The height and width should be powers of two for efficient
+   *   texture mapping.  Here, we enforce this.
+   */
+
+  if (wld_Log2(gFile->width) == -1 || wld_Log2(gFile->height) == -1)
+    wld_FatalError("Dimensions texture %s are not powers of two.", 
+                  filename);
+     
+  t = wld_NewTexture(gFile->width, gFile->height);
+  wld_QuantizeTexture(gFile, t);
+
+  wld_FreeGraphicFile(gFile);
+
+  return t;
+}

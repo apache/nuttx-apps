@@ -1,0 +1,14 @@
+/Make.dep
+/Makefile
+/.depend
+/.built
+/trv_romfs.h
+/trv_romfs.img
+/*.asm
+/*.rel
+/*.lst
+/*.sym
+/*.adb
+/*.lib
+/*.src
+/*.obj
