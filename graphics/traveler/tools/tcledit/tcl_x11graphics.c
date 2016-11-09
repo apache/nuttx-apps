@@ -114,7 +114,7 @@ void x11_InitGraphics(tcl_window_t *w)
   printf("Pixel depth is %d bits\n", windowAttributes.depth);
   if (windowAttributes.depth != 24)
     {
-      x11_FatalError("Unsupported pixel depth: %d", windowAttributes.depth);
+      wld_fatal_error("Unsupported pixel depth: %d", windowAttributes.depth);
     }
 
   x11_LoadPalette(w);
@@ -147,7 +147,7 @@ static void x11_CreateWindow(tcl_window_t *w)
 
   w->display = XOpenDisplay(NULL);
   if (w->display == NULL)
-    x11_FatalError("Unable to open display.\n");
+    wld_fatal_error("Unable to open display.\n");
 
   w->screen = DefaultScreen(w->display);
 
@@ -199,7 +199,7 @@ static void x11_LoadPalette(tcl_window_t *w)
       if (!astAllocateColors(w, cMap))
         {
           printf("failed\n");
-          x11_FatalError("Unable to allocate enough color cells.");
+          wld_fatal_error("Unable to allocate enough color cells.");
         }
       XSetWindowColormap(w->display, w->win, cMap);
     }
@@ -335,7 +335,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
 
       if (!w->image)
         {
-          x11_FatalError("Unable to create image.");
+          wld_fatal_error("Unable to create image.");
         }
       shmCheckPoint++;
 
@@ -393,7 +393,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
 
           if (w->image == NULL)
             {
-              x11_FatalError("Unable to create image.");
+              wld_fatal_error("Unable to create image.");
             }
           shmCheckPoint++;
         }

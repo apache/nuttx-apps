@@ -56,7 +56,7 @@ void wld_Free(void *addr)
 {
   if (addr == NULL)
     {
-      wld_FatalError("freeing NULL");
+      wld_fatal_error("freeing NULL");
     }
   else
     {

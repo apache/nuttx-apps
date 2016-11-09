@@ -71,7 +71,7 @@ static GraphicFileFormatType wld_CheckFormat(FILE *fp, char *filename)
 
   if (fread(magic, 1, MAGIC_LENGTH, fp) != MAGIC_LENGTH)
     {
-      wld_FatalError("Error reading texture %s.", filename);
+      wld_fatal_error("Error reading texture %s.", filename);
     }
 
   if (strncmp(magic, PPM_MAGIC, sizeof(PPM_MAGIC) -  1) == 0)
@@ -138,7 +138,7 @@ GraphicFileType *wld_ReadGraphicFile(char *filename)
 
   if ((fp = fopen(filename, "rb")) == NULL)
     {
-      wld_FatalError("Could not open texture %s", filename);
+      wld_fatal_error("Could not open texture %s", filename);
     }
 
   format = wld_CheckFormat(fp, filename);
@@ -160,17 +160,17 @@ GraphicFileType *wld_ReadGraphicFile(char *filename)
       break;
 
     case formatUnknown:
-      wld_FatalError("Unknown graphic file format.\n");
+      wld_fatal_error("Unknown graphic file format.\n");
       break;
 
     default:
-      wld_FatalError("The graphic file reading code is really broken.\n");
+      wld_fatal_error("The graphic file reading code is really broken.\n");
       break;
     }
 
   if (gfile == NULL)
     {
-      wld_FatalError("Error reading texture %s\n");
+      wld_fatal_error("Error reading texture %s\n");
     }
 
   fclose(fp);

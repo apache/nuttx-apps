@@ -59,7 +59,7 @@ void *wld_Malloc(size_t size)
   new = malloc(size);
   if (new == NULL)
     {
-      wld_FatalError("out of memory (wld_Malloc %x bytes)", size);
+      wld_fatal_error("out of memory (wld_Malloc %x bytes)", size);
     }
   return new;
 }

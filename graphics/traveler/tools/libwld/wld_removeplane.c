@@ -48,13 +48,13 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_RemovePlane
+ * Name: wld_remove_plane
  * Description:
  * This function removes the specified plane from the world plane list
  * and "deallocates" it by saving it on the free list
  ************************************************************************/
 
-void wld_RemovePlane(rectListType *rect, rectHeadType *list)
+void wld_remove_plane(rectListType *rect, rectHeadType *list)
 {
   /* Un-hook the backward link to the rect */
 

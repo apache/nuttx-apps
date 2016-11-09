@@ -106,25 +106,25 @@ GraphicFileType *wld_LoadPPM(FILE *fp, char *filename)
   skip_cruft(fp);
   if (getc(fp) != 'P' || getc(fp) != '6')
     {
-      wld_FatalError("%s is not a ppm file.", filename);
+      wld_fatal_error("%s is not a ppm file.", filename);
     }
 
   skip_cruft(fp);
   if (fscanf(fp, "%d", &width) != 1)
     {
-      wld_FatalError("%s: bad ppm file.", filename);
+      wld_fatal_error("%s: bad ppm file.", filename);
     }
 
   skip_cruft(fp);
   if (fscanf(fp, "%d", &height) != 1)
     {
-      wld_FatalError("%s: bad ppm file.", filename);
+      wld_fatal_error("%s: bad ppm file.", filename);
     }
 
   skip_cruft(fp);
   if (fscanf(fp, "%d\n", &unknown) != 1)
     {
-      wld_FatalError("%s: bad ppm file.", filename);
+      wld_fatal_error("%s: bad ppm file.", filename);
     }
 
   gfile = wld_NewGraphicFile();
@@ -136,7 +136,7 @@ GraphicFileType *wld_LoadPPM(FILE *fp, char *filename)
 
   if (fread(gfile->bitmap, height * width * 3, 1, fp) != 1)
     {
-      wld_FatalError("%s: incomplete data", filename);
+      wld_fatal_error("%s: incomplete data", filename);
     }
 
   return gfile;

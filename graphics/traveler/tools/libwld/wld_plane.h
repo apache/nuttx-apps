@@ -176,12 +176,12 @@ extern void          wld_AddPlane(rectListType *rect,
                                   rectHeadType *list);
 extern void          wld_MergePlaneLists(rectHeadType *outList,
                                          rectHeadType *inList);
-extern void          wld_RemovePlane(rectListType *rect,
+extern void          wld_remove_plane(rectListType *rect,
                                      rectHeadType *list);
-extern void          wld_MovePlane(rectListType *rect,
+extern void          wld_move_plane(rectListType *rect,
                                    rectHeadType *destList,
                                    rectHeadType *srcList);
-extern rectListType *wld_FindPlane(coord_t h, coord_t v, coord_t plane,
+extern rectListType *wld_find_plane(coord_t h, coord_t v, coord_t plane,
                                    rectHeadType *list);
 
 #ifdef __cplusplus

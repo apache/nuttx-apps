@@ -73,7 +73,7 @@ static bitmapType *wld_NewTexture(uint16_t  width, uint16_t  height)
   bitmapType *t;
 
   if (height <= 0 || width <= 0)
-    wld_FatalError("wld_NewTexture:  bad texture dimensions");
+    wld_fatal_error("wld_NewTexture:  bad texture dimensions");
 
   t = (bitmapType*)wld_Malloc(sizeof(bitmapType));
   t->bm = (trv_pixel_t*)wld_Malloc(height * width * sizeof(trv_pixel_t));
@@ -147,14 +147,14 @@ bitmapType *wld_ReadTextureFile(char *filename)
 
   gFile = wld_ReadGraphicFile(filename);
   if (gFile == NULL)
-    wld_FatalError("Error reading texture %s.", filename);
+    wld_fatal_error("Error reading texture %s.", filename);
 
   /* The height and width should be powers of two for efficient
    *   texture mapping.  Here, we enforce this.
    */
 
   if (wld_Log2(gFile->width) == -1 || wld_Log2(gFile->height) == -1)
-    wld_FatalError("Dimensions texture %s are not powers of two.", 
+    wld_fatal_error("Dimensions texture %s are not powers of two.", 
                   filename);
      
   t = wld_NewTexture(gFile->width, gFile->height);

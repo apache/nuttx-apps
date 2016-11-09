@@ -48,16 +48,16 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_FatalError
+ * Name: wld_fatal_error
  ************************************************************************/
 
 /*************************************************************************
- * Name: wld_FatalError
- * Description:  A dummy version of wld_FatalError that will be used if
+ * Name: wld_fatal_error
+ * Description:  A dummy version of wld_fatal_error that will be used if
  * the application does not provide a better one.
  ************************************************************************/
 
-void wld_FatalError(char *message, ...)
+void wld_fatal_error(char *message, ...)
 {
    va_list args;
 

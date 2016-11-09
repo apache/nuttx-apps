@@ -236,20 +236,20 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
   fseek(fp, 0L, 0);
 
   if (!(ptr = RawGIF = (uint8_t *) malloc(filesize)))
-    wld_FatalError("not enough memory to read gif file");
+    wld_fatal_error("not enough memory to read gif file");
 
   if (!(Rwld_er = (uint8_t *) malloc(filesize)))
     {
       free(ptr);
-      wld_FatalError("not enough memory to read gif file");
+      wld_fatal_error("not enough memory to read gif file");
     }
 
   if (fread(ptr, filesize, 1, fp) != 1)
-    wld_FatalError("GIF data read failed");
+    wld_fatal_error("GIF data read failed");
   
   if (strncmp(ptr, id87, 6))
     if (strncmp(ptr, id89, 6))
-      wld_FatalError("not a GIF file");
+      wld_fatal_error("not a GIF file");
 
   ptr += 6;
 
@@ -273,7 +273,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
   Background   = NEXTBYTE;    /* background color... not used. */
   
   if (NEXTBYTE)    /* supposed to be NULL */
-    wld_FatalError("corrupt GIF file (bad screen descriptor)");
+    wld_fatal_error("corrupt GIF file (bad screen descriptor)");
 
   /* Read in global colormap. */
 
@@ -301,7 +301,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
       i = ch;
       fprintf(stderr, "EXTENSION CHARACTER: %x\n", i);
       if (ch != START_EXTENSION)
-        wld_FatalError("corrupt GIF89a file");
+        wld_fatal_error("corrupt GIF89a file");
 
       /* Handle image extensions */
 
@@ -323,7 +323,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
         case COMMENT_EXT:
           break;
         default:
-          wld_FatalError("invalid GIF89 extension");
+          wld_fatal_error("invalid GIF89 extension");
         }
 
       while ((ch = NEXTBYTE))
@@ -397,7 +397,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
       ch = ch1 = NEXTBYTE;
       while (ch--) *ptr1++ = NEXTBYTE;
       if ((ptr1 - Rwld_er) > filesize)
-        wld_FatalError("corrupt GIF file (unblock)");
+        wld_fatal_error("corrupt GIF file (unblock)");
     }
   while(ch1);
 

@@ -48,13 +48,13 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_FindPlane
+ * Name: wld_find_plane
  * Description:
  * This function finds the plane at the specified point in the world plane
  * list
  ************************************************************************/
 
-rectListType *wld_FindPlane(coord_t h, coord_t v, coord_t plane,
+rectListType *wld_find_plane(coord_t h, coord_t v, coord_t plane,
                            rectHeadType *list)
 {
   rectListType *rect;

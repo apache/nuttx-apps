@@ -48,6 +48,6 @@
  *************************************************************************/
 
 int16_t wld_ReadDecimal(FILE *fp);
-void    wld_FatalError(char *message, ...);
+void    wld_fatal_error(char *message, ...);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_UTILS_H */

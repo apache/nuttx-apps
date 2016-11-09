@@ -48,13 +48,13 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_MovePlane
+ * Name: wld_move_plane
  * Description:
  * This function removes the specified plane from the world plane srcList
  * then adds it to the world plane destList
  ************************************************************************/
 
-void wld_MovePlane(rectListType *rect, rectHeadType *destList,
+void wld_move_plane(rectListType *rect, rectHeadType *destList,
                   rectHeadType *srcList)
 {
   /* Un-hook the backward link to the rect */

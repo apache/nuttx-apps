@@ -173,7 +173,7 @@ static int astSetEditMode(ClientData clientData,
 
   if (argc != 3)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
   else if (strcmp(argv[1], "POS") == 0)
@@ -219,14 +219,14 @@ static int astSetEditMode(ClientData clientData,
         }
       else
         {
-          astFatalError("%s: Unrecognized NEW plane: %s\n",
+          wld_fatal_error("%s: Unrecognized NEW plane: %s\n",
                         __FUNCTION__, argv[2]);
         }
       astUpdateNEWModeDisplay();
     }
   else
     {
-      astFatalError("%s: Unrecognized mode: %s\n",
+      wld_fatal_error("%s: Unrecognized mode: %s\n",
                     __FUNCTION__, argv[1]);
     }
   return TCL_OK;
@@ -242,7 +242,7 @@ static int astNewPosition(ClientData clientData,
 
   if (argc != 4)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
 
@@ -267,7 +267,7 @@ static int astNewZoom(ClientData clientData,
 
   if (argc != 5)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
 
@@ -342,7 +342,7 @@ static int astNewEdit(ClientData clientData,
 
   if (argc != 4)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
 
@@ -380,7 +380,7 @@ static int astNewEdit(ClientData clientData,
             }
           else
             {
-              astFatalError("%s: Unrecognized EDITX plane: %s\n",
+              wld_fatal_error("%s: Unrecognized EDITX plane: %s\n",
                             __FUNCTION__, argv[1]);
             }
           break;
@@ -405,7 +405,7 @@ static int astNewEdit(ClientData clientData,
             }
           else
             {
-              astFatalError("%s: Unrecognized EDITY plane: %s\n",
+              wld_fatal_error("%s: Unrecognized EDITY plane: %s\n",
                             __FUNCTION__, argv[1]);
             }
           break;
@@ -430,7 +430,7 @@ static int astNewEdit(ClientData clientData,
             }
           else
             {
-              astFatalError("%s: Unrecognized EDITZ plane: %s\n",
+              wld_fatal_error("%s: Unrecognized EDITZ plane: %s\n",
                             __FUNCTION__, argv[1]);
             }
           break;
@@ -456,14 +456,14 @@ static int astNewAttributes(ClientData clientData,
 
   if (argc != 4)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
 
   attributes = argv[1];
   if (strlen(attributes) != 3)
     {
-      astFatalError("%s: Unexpected attribute string length: %s\n",
+      wld_fatal_error("%s: Unexpected attribute string length: %s\n",
                     __FUNCTION__, argv[1]);
     }
 
@@ -535,7 +535,7 @@ static int astAddRectangle(ClientData clientData,
 
   if (argc != 1)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
 
@@ -545,7 +545,7 @@ static int astAddRectangle(ClientData clientData,
     {
       /* Get a new container for the rectangle information */
 
-      rectListType *rect = astNewPlane();
+      rectListType *rect = wld_new_plane();
 
       /* Copy the rectangle data into the container */
 
@@ -556,15 +556,15 @@ static int astAddRectangle(ClientData clientData,
       switch (editPlane)
         {
         case EDITPLANE_X:
-          astAddPlane(rect, &xPlane);
+          wld_add_plane(rect, &xPlane);
           break;
 
         case EDITPLANE_Y:
-          astAddPlane(rect, &yPlane);
+          wld_add_plane(rect, &yPlane);
           break;
 
         case EDITPLANE_Z:
-          astAddPlane(rect, &zPlane);
+          wld_add_plane(rect, &zPlane);
           break;
         }
     }
@@ -582,11 +582,11 @@ static int astSaveRectangles(ClientData clientData,
 
   if (argc != 1)
     {
-      astFatalError("%s: Unexpected number of arguments: %d\n",
+      wld_fatal_error("%s: Unexpected number of arguments: %d\n",
                     __FUNCTION__, argc);
     }
 
-  astSavePlanes(astOutFileName);
+  wld_save_planes(astOutFileName);
   return TCL_OK;
 }
 
@@ -638,7 +638,7 @@ int main(int argc, char **argv, char **envp)
    * a valid plaine file.
    */
 
-  if (astLoadPlaneFile(astInFileName) != PLANE_SUCCESS)
+  if (wld_load_planefile(astInFileName) != PLANE_SUCCESS)
     {
       exit(1);
     }
@@ -721,7 +721,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
   return TCL_OK;
 }
 
-void astFatalError(char *message, ...)
+void wld_fatal_error(char *message, ...)
 {
    va_list args;
 
