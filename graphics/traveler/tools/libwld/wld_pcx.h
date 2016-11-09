@@ -69,15 +69,15 @@ typedef struct pcxHeaderType
   char version;
   char encoding;
   char bits_per_pixel;
-  sint16 x, y;
-  sint16 width, height;
-  sint16 horz_res;
-  sint16 vert_res;
+  int16_t x, y;
+  int16_t width, height;
+  int16_t horz_res;
+  int16_t vert_res;
   char ega_palette[48];
   char reserved;
   char num_color_planes;
-  sint16 bytes_per_line;
-  sint16 palette_type;
+  int16_t bytes_per_line;
+  int16_t palette_type;
   char padding[58];
 } pcxHeader, *pcxHeaderPtr;
 

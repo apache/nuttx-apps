@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /* Here's how to build a Makefile from this Imakefile:
- * Either:  xmkmf, or
+* Either:  xmkmf, or
  * imake -DUseInstalled -I/usr/lib/X11/config
  */
 
@@ -62,14 +62,14 @@ endif
 
 /* Define the path to the various files. */
 
-            APPS = /home/patacongo/projects/nuttx/master/apps
-            HOME = $(APPS)/graphics/
+          APPDIR = /home/patacongo/projects/nuttx/master/apps
+            HOME = $(APPDIR)/graphics/
         TRAVELER = $(HOME)/traveler
            TOOLS = $(TRAVELER)/tools
           LIBWLD = $(TOOLS)/libwld
 
-           NUTTX = /home/patacongo/projects/nuttx/master/nuttx
-        NUTTXINC = $(NUTTX)/include
+          TOPDIR = /home/patacongo/projects/nuttx/master/nuttx
+        NUTTXINC = $(TOPDIR)/include
         INC_PATH = -I$(TRAVELER)/include -I$(TOOLS)/tcledit -I$(LIBWLD) -isystem $(NUTTXINC)
 
            VPATH = $(TOOLS)/tcledit

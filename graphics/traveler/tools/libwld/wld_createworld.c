@@ -39,7 +39,7 @@
  *************************************************************************/
 
 #include "trv_types.h"
-#include "inifile.h"
+#include "fsutils/inifile.h"
 #include "wld_paltable.h"
 #include "wld_world.h"
 #include "wld_inifile.h"
@@ -115,13 +115,15 @@ static const char worldImagesName[]          = WORLD_IMAGES;
 
 uint8_t wld_create_world(char *wldFile)
 {
+  INIHANDLE handle;
   uint8_t result;
 
   /* Open the INI file which contains all of the information that we
    * need to construct the world
    */
 
-  if (!init_inifile(wldFile))
+  handle =  inifile_initialize(wldFile);
+  if (handle == NULL)
     {
       fprintf(stderr, "Error:  Could not open INI file=\"%s\"\n", wldFile);
       return WORLD_FILE_OPEN_ERROR;
@@ -133,7 +135,7 @@ uint8_t wld_create_world(char *wldFile)
 
   /* Close the INI file and return */
 
-  uninit_inifile();
+  inifile_uninitialize(handle);
   return result;
 }
 
@@ -210,7 +212,7 @@ static uint8_t wld_ManageWorldFile(void)
   result = wld_load_planefile(fileName);
   if (result != 0) return result;
 
-  free_ini_string(fileName);
+  inifile_free_string(fileName);
 
   /* Get the name of the file containing the palette table which is used
    * to adjust the lighting with distance.
@@ -225,7 +227,7 @@ static uint8_t wld_ManageWorldFile(void)
   result = wld_load_paltable(fileName);
   if (result != 0) return result;
 
-  free_ini_string(fileName);
+  inifile_free_string(fileName);
 
   /* Get the name of the file containing the texture data */
 
@@ -239,7 +241,7 @@ static uint8_t wld_ManageWorldFile(void)
   if (result != 0) return result;
 
   result = wld_load_bitmapfile(fileName);
-  free_ini_string(fileName);
+  inifile_free_string(fileName);
 
   return result;
 }

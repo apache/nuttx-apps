@@ -82,7 +82,7 @@ enum {
 typedef struct {
 
   coord_t x, y, z;       /* Camera position */
-  sint16  yaw, pitch;    /* Camera orientation */
+  int16_t  yaw, pitch;    /* Camera orientation */
 
 } cameraType;
 
