@@ -90,7 +90,7 @@ int BitOffset = 0,           /* Bit Offset of next code */
   ReadMask;                  /* Code AND mask for current code size */
 
 boolean Interlace, HasColormap;
-boolean Verbose = TRUE;
+boolean Verbose = true;
 
 uint8_t *Image;                /* The result array */
 uint8_t *RawGIF;               /* The heap array to hold it, raw */
@@ -264,7 +264,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
     fprintf(stderr, "screen dims: %dx%d.\n", RWidth, RHeight);
 
   ch           = NEXTBYTE;
-  HasColormap  = ((ch & COLORMAPMASK) ? TRUE : FALSE);
+  HasColormap  = ((ch & COLORMAPMASK) ? true : false);
 
   BitsPerPixel = (ch & 7) + 1;
   numcols      = ColorMapSize = 1 << BitsPerPixel;
@@ -340,7 +340,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
   Width     = ch + 0x100 * NEXTBYTE;
   ch        = NEXTBYTE;
   Height    = ch + 0x100 * NEXTBYTE;
-  Interlace = ((NEXTBYTE & INTERLACEMASK) ? TRUE : FALSE);
+  Interlace = ((NEXTBYTE & INTERLACEMASK) ? true : false);
 
   if (Verbose)
     fprintf(stderr, "Reading a %d by %d %sinterlaced image...",

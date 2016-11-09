@@ -124,7 +124,7 @@ static void x11_create_window(tcl_window_t *w)
   XSelectInput(w->display, w->win,
                ButtonPressMask | ButtonReleaseMask |
                ButtonMotionMask | KeyPressMask | ExposureMask);
-  gcValues.graphics_exposures = FALSE;
+  gcValues.graphics_exposures = false;
   gc = XCreateGC(w->display, w->win, GCGraphicsExposures, &gcValues);
 }
 
@@ -193,7 +193,7 @@ static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
 
       if (!XAllocColor(w->display, colormap, &color))
         {
-          return FALSE;
+          return false;
         }
 
       /* Save the RGB to pixel lookup data */
@@ -206,7 +206,7 @@ static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
       w->colorLookup[i] = color.pixel;
       w->ncolors++;
     }
-  return TRUE;
+  return true;
 }
 
 /****************************************************************************
@@ -312,7 +312,7 @@ static void x11_map_sharedmemory(tcl_window_t *w, int depth)
       shmCheckPoint++;
 
       xshminfo.shmaddr = w->image->data;
-      xshminfo.readOnly = FALSE;
+      xshminfo.readOnly = false;
 
       trapErrors();
       result = XShmAttach(w->display, &xshminfo);

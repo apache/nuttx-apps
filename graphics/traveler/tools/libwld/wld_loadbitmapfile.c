@@ -183,7 +183,7 @@ static boolean wld_ReadFileName(FILE  *fp, char *fileName)
   do
     {
       ch = getc(fp);
-      if (ch == EOF) return FALSE;
+      if (ch == EOF) return false;
     }
   while ((ch == ' ') || (ch == '\n') || (ch == '\r'));
 
@@ -198,7 +198,7 @@ static boolean wld_ReadFileName(FILE  *fp, char *fileName)
         {
           /* Make sure that the file name is not too large */
 
-          if (numBytes >= FILE_NAME_SIZE) return FALSE;
+          if (numBytes >= FILE_NAME_SIZE) return false;
       
           /* Add the new character to the file name */
 
@@ -219,10 +219,10 @@ static boolean wld_ReadFileName(FILE  *fp, char *fileName)
        */
 
       ch = getc(fp);
-      if (ch == EOF) return FALSE;
+      if (ch == EOF) return false;
     }
 
-  return TRUE;
+  return true;
 }
 
 

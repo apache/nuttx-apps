@@ -39,12 +39,12 @@
  * Included files
  *************************************************************************/
 
-/* If the following switch is FALSE, then the whole palTable is loaded from
+/* If the following switch is false, then the whole palTable is loaded from
  * the file.  Otherwise, the palTable will be calculated from a range
  * table
  */
 
-#define USE_PAL_RANGES TRUE
+#define USE_PAL_RANGES true
 
 #include "trv_types.h"
 #include "wld_world.h"

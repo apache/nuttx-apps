@@ -68,7 +68,8 @@ endif
            TOOLS = $(TRAVELER)/tools
           LIBWLD = $(TOOLS)/libwld
 
-        INC_PATH = -I$(TRAVELER)/include -I$(TOOLS)/tcledit -I$(LIBWLD)
+        NUTTXINC = $(TOOLS)/include
+        INC_PATH = -I$(TRAVELER)/include -I$(TOOLS)/tcledit -I$(LIBWLD) -isystem $(NUTTXINC)
 
            VPATH = $(TOOLS)/tcledit
 

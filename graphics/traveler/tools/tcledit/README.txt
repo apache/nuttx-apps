@@ -10,14 +10,19 @@ Build instuctions:
        tools/sethost.sh -w or -l
        make context
 
+  Prepare some header files
+
+    3. cd pps/graphics/traveler/tools/nuttx
+    4. make TOPDIR=<nuttx directory>
+
   Then you can use xmfmk to create the Makefile and build the tool:
 
-    3. cd apps/graphics/traveler/tools/tcledit
-    4. Review Imakefile.  You will probabaly to to change the APPDIR and TOPDIR paths
+    5. cd apps/graphics/traveler/tools/tcledit
+    6. Review Imakefile.  You will probabaly to to change the APPDIR and TOPDIR paths
        a minimum.  These are the paths to where you have clones the apps/ repository
        and the nuttx/ repositories, respectively.
-    5. xmfmk
-    6. make
+    7. xmfmk
+    8. make
 
 
 

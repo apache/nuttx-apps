@@ -54,7 +54,7 @@
 int16_t  wld_read_decimal(FILE *fp)
 {
   int16_t  value = 0;
-  boolean negative = FALSE;
+  boolean negative = false;
   int ch;
 
   /* Skip over any leading spaces, new lines, or carriage returns (for
@@ -68,7 +68,7 @@ int16_t  wld_read_decimal(FILE *fp)
 
   if (ch == '-')
     {
-      negative = TRUE;
+      negative = true;
       ch = getc(fp);
     }
 
