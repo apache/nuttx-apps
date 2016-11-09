@@ -47,12 +47,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_AddPlane
+ * Name: wld_add_plane
  * Description:
  * This function adds a plane to a world plane list
  ************************************************************************/
 
-void wld_AddPlane(rectListType *newRect, rectHeadType *list)
+void wld_add_plane(rectListType *newRect, rectHeadType *list)
 {
   rectListType *nextRect, *prevRect;
 

@@ -37,6 +37,7 @@
  * Included Files
  ***************************************************************************/
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <debug.h>
@@ -56,33 +57,10 @@
 #include "wld_bitmaps.h"
 #include "wld_plane.h"
 #include "wld_utils.h"
-#include "x11edit.h"
+#include "tcl_x11graphics.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Type Definitions
- ***************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-static void x11_CreateWindow(tcl_window_t *w);
-static void x11_LoadPalette(tcl_window_t *w);
-static boolean x11_AllocateColors(tcl_window_t *w, Colormap colormap);
-static void x11_MapSharedMemory(tcl_window_t *w, int depth);
-static void x11_UnMapSharedMemory(tcl_window_t *w);
-static void x11_UnMapAllSharedMemory(void);
-
-/****************************************************************************
- * Global Variables
- ****************************************************************************/
-
-/****************************************************************************
- * Private Variables
+ * Private Data
  ****************************************************************************/
 
 static GC gc;
@@ -94,50 +72,26 @@ static int shmCheckPoint = 0;
 static int useShm;
 
 /****************************************************************************
- * Name: x11_InitGraphics
- * Description:
- ***************************************************************************/
+ * Private Functions
+ ****************************************************************************/
 
-void x11_InitGraphics(tcl_window_t *w)
-{
-  XWindowAttributes windowAttributes;
-
-  /* Create the X11 window */
-
-  x11_CreateWindow(w);
-
-  /* Determine the supported pixel depth of the current window */
-
-  XGetWindowAttributes(w->display, DefaultRootWindow(w->display),
-                       &windowAttributes);
-
-  printf("Pixel depth is %d bits\n", windowAttributes.depth);
-  if (windowAttributes.depth != 24)
-    {
-      wld_fatal_error("Unsupported pixel depth: %d", windowAttributes.depth);
-    }
-
-  x11_LoadPalette(w);
-  x11_MapSharedMemory(w, windowAttributes.depth);
-}
+static void x11_create_window(tcl_window_t *w);
+static void x11_load_palette(tcl_window_t *w);
+static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap);
+static void x11_map_sharedmemory(tcl_window_t *w, int depth);
+static void x11_unmap_sharedmemory(tcl_window_t *w);
+static void x11_unmap_all_sharedmemory(void);
 
 /****************************************************************************
- * Name: x11_EndGraphics
- * Description:
- ***************************************************************************/
-
-void x11_EndGraphics(tcl_window_t *w)
-{
-  x11_UnMapAllSharedMemory();
-  XCloseDisplay(w->display);
-}
+ * Private Functions
+ ****************************************************************************/
 
 /****************************************************************************
- * Name: x11_CreateWindow
+ * Name: x11_create_window
  * Description:
  ***************************************************************************/
 
-static void x11_CreateWindow(tcl_window_t *w)
+static void x11_create_window(tcl_window_t *w)
 {
   XGCValues gcValues;
   char *argv[2] = { "xast", NULL };
@@ -175,18 +129,18 @@ static void x11_CreateWindow(tcl_window_t *w)
 }
 
 /****************************************************************************
- * Name: x11_LoadPalette
+ * Name: x11_load_palette
  * Description:
  ***************************************************************************/
 
-static void x11_LoadPalette(tcl_window_t *w)
+static void x11_load_palette(tcl_window_t *w)
 {
   Colormap cMap;
 
   cMap = DefaultColormap(w->display, w->screen);
   printf("Using Default Colormap: ");
 
-  if (!astAllocateColors(w, cMap))
+  if (!x11_allocate_colors(w, cMap))
     {
       printf("failed\nCreating Colormap: ");
 
@@ -196,7 +150,7 @@ static void x11_LoadPalette(tcl_window_t *w)
                              DefaultVisual(w->display, w->screen),
                              AllocNone);
 
-      if (!astAllocateColors(w, cMap))
+      if (!x11_allocate_colors(w, cMap))
         {
           printf("failed\n");
           wld_fatal_error("Unable to allocate enough color cells.");
@@ -208,11 +162,11 @@ static void x11_LoadPalette(tcl_window_t *w)
 }
 
 /****************************************************************************
- * Name: x11_AllocateColors
+ * Name: x11_allocate_colors
  * Description:
  ***************************************************************************/
 
-static boolean x11_AllocateColors(tcl_window_t *w, Colormap colormap)
+static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
 {
   int i;
 
@@ -297,20 +251,20 @@ static int untrapErrors(Display *display)
 #endif
 
 /****************************************************************************
- * Name: x11_MapSharedMemory
+ * Name: x11_map_sharedmemory
  * Description:
  ***************************************************************************/
 
-static void x11_MapSharedMemory(tcl_window_t *w, int depth)
+static void x11_map_sharedmemory(tcl_window_t *w, int depth)
 {
 #ifndef NO_XSHM
   Status result;
 #endif
 
   shmCheckPoint = 0;
-  x11_UnMapSharedMemory(w);
+  x11_unmap_sharedmemory(w);
 
-  if (!shmCheckPoint) atexit(astUnMapAllSharedMemory);
+  if (!shmCheckPoint) atexit(x11_unmap_all_sharedmemory);
   shmCheckPoint = 1;
 
   useShm = 0;
@@ -329,7 +283,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
 
       if (untrapErrors(w->display))
         {
-          x11_UnMapSharedMemory(w);
+          x11_unmap_sharedmemory(w);
           goto shmerror;
         }
 
@@ -344,7 +298,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
                               IPC_CREAT | 0777);
       if (xshminfo.shmid < 0)
         {
-          x11_UnMapSharedMemory(w);
+          x11_unmap_sharedmemory(w);
           goto shmerror;
         }
       shmCheckPoint++;
@@ -352,7 +306,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
       w->image->data = (char *) shmat(xshminfo.shmid, 0, 0);
       if (image->data == ((char *) -1))
         {
-          x11_UnMapSharedMemory(w);
+          x11_unmap_sharedmemory(w);
           goto shmerror;
         }
       shmCheckPoint++;
@@ -364,7 +318,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
       result = XShmAttach(w->display, &xshminfo);
       if (untrapErrors(w->display) || !result)
         {
-          x11_UnMapSharedMemory(w);
+          x11_unmap_sharedmemory(w);
           goto shmerror;
         }
 
@@ -380,7 +334,7 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
           useShm = 0;
 
           w->frameBuffer = (dev_pixel_t*)
-            x11_Malloc(w->width * w->height * sizeof(dev_pixel_t));
+            wld_malloc(w->width * w->height * sizeof(dev_pixel_t));
 
           w->image = XCreateImage(w->display,
                                   DefaultVisual(w->display, w->screen),
@@ -395,16 +349,17 @@ static void x11_MapSharedMemory(tcl_window_t *w, int depth)
             {
               wld_fatal_error("Unable to create image.");
             }
+
           shmCheckPoint++;
         }
 }
 
 /****************************************************************************
- * Name: x11_UnMapSharedMemory
+ * Name: x11_unmap_sharedmemory
  * Description:
  ***************************************************************************/
 
-static void x11_UnMapSharedMemory(tcl_window_t *w)
+static void x11_unmap_sharedmemory(tcl_window_t *w)
 {
 #ifndef NO_XSHM
   if (shmCheckPoint > 4)
@@ -428,7 +383,7 @@ static void x11_UnMapSharedMemory(tcl_window_t *w)
       XDestroyImage(w->image);
       if (!useShm)
         {
-          x11_Free(w->frameBuffer);
+          wld_free(w->frameBuffer);
         }
     }
 
@@ -439,17 +394,17 @@ static void x11_UnMapSharedMemory(tcl_window_t *w)
 }
 
 /****************************************************************************
- * Name: x11_UnMapSharedMemory
+ * Name: x11_unmap_sharedmemory
  * Description:
  ***************************************************************************/
 
-static void x11_UnMapAllSharedMemory(void)
+static void x11_unmap_all_sharedmemory(void)
 {
   int i;
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      x11_UnMapSharedMemory(&windows[i]);
+      x11_unmap_sharedmemory(&windows[i]);
     }
 }
 
@@ -473,4 +428,47 @@ void x11_UpdateScreen(tcl_window_t *w)
                 w->width, w->height);
     }
   XSync(w->display, 0);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: x11_InitGraphics
+ * Description:
+ ***************************************************************************/
+
+void x11_InitGraphics(tcl_window_t *w)
+{
+  XWindowAttributes windowAttributes;
+
+  /* Create the X11 window */
+
+  x11_create_window(w);
+
+  /* Determine the supported pixel depth of the current window */
+
+  XGetWindowAttributes(w->display, DefaultRootWindow(w->display),
+                       &windowAttributes);
+
+  printf("Pixel depth is %d bits\n", windowAttributes.depth);
+  if (windowAttributes.depth != 24)
+    {
+      wld_fatal_error("Unsupported pixel depth: %d", windowAttributes.depth);
+    }
+
+  x11_load_palette(w);
+  x11_map_sharedmemory(w, windowAttributes.depth);
+}
+
+/****************************************************************************
+ * Name: x11_EndGraphics
+ * Description:
+ ***************************************************************************/
+
+void x11_EndGraphics(tcl_window_t *w)
+{
+  x11_unmap_all_sharedmemory();
+  XCloseDisplay(w->display);
 }

@@ -75,8 +75,8 @@ static bitmapType *wld_NewTexture(uint16_t  width, uint16_t  height)
   if (height <= 0 || width <= 0)
     wld_fatal_error("wld_NewTexture:  bad texture dimensions");
 
-  t = (bitmapType*)wld_Malloc(sizeof(bitmapType));
-  t->bm = (trv_pixel_t*)wld_Malloc(height * width * sizeof(trv_pixel_t));
+  t = (bitmapType*)wld_malloc(sizeof(bitmapType));
+  t->bm = (trv_pixel_t*)wld_malloc(height * width * sizeof(trv_pixel_t));
 
   t->w = width;
   t->h = height;
@@ -125,7 +125,7 @@ static void wld_QuantizeTexture(GraphicFileType *gFile, bitmapType *t)
     {
       for (y = gFile->height - 1; y >= 0; y--)
         {
-          pixel = wld_GraphicFilePixel(gFile, x, y);
+          pixel = wld_graphicfile_pixel(gFile, x, y);
           *destPixel++ = wld_Rgb2Pixel(&pixel);   
         }
     }
@@ -140,12 +140,12 @@ static void wld_QuantizeTexture(GraphicFileType *gFile, bitmapType *t)
  * Description:
  ************************************************************************/
 
-bitmapType *wld_ReadTextureFile(char *filename)
+bitmapType *wld_read_texturefile(char *filename)
 {
   GraphicFileType *gFile;
   bitmapType *t;
 
-  gFile = wld_ReadGraphicFile(filename);
+  gFile = wld_readgraphic_file(filename);
   if (gFile == NULL)
     wld_fatal_error("Error reading texture %s.", filename);
 
@@ -160,7 +160,7 @@ bitmapType *wld_ReadTextureFile(char *filename)
   t = wld_NewTexture(gFile->width, gFile->height);
   wld_QuantizeTexture(gFile, t);
 
-  wld_FreeGraphicFile(gFile);
+  wld_free_graphicfile(gFile);
 
   return t;
 }

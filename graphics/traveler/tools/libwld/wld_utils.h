@@ -47,7 +47,7 @@
  * Global Function Prototypes
  *************************************************************************/
 
-int16_t wld_ReadDecimal(FILE *fp);
+int16_t wld_read_decimal(FILE *fp);
 void    wld_fatal_error(char *message, ...);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_UTILS_H */

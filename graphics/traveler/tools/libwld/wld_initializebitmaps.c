@@ -53,11 +53,11 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_InitializeBitmaps
+ * Name: wld_initialize_bitmaps
  * Description:
  ************************************************************************/
 
-uint8_t wld_InitializeBitmaps(void)
+uint8_t wld_initialize_bitmaps(void)
 {
   int i;
   for (i = 0; i < MAX_BITMAPS; i++)

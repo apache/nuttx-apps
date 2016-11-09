@@ -51,12 +51,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_PCXInit
+ * Name: wld_pcx_init
  * Description:
  * This function allocates the buffer region needed to load a pcx file
  ************************************************************************/
 
-uint8_t wld_PCXInit(pcxPicturePtr image, uint16_t  height, uint16_t  width,
+uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t  height, uint16_t  width,
                  RGBColor *palette, uint8_t *buffer)
 {
   image->palette = palette;
@@ -67,7 +67,7 @@ uint8_t wld_PCXInit(pcxPicturePtr image, uint16_t  height, uint16_t  width,
 	}
   else
     {
-      image->buffer = (uint8_t*)wld_Malloc(height * width + 1);
+      image->buffer = (uint8_t*)wld_malloc(height * width + 1);
 	}
 
   if (!image->buffer)

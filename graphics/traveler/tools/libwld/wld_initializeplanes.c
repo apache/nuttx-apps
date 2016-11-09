@@ -48,11 +48,11 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_InitializePlanes
+ * Name: wld_initialize_planes
  * Description:
  ************************************************************************/
 
-uint8_t wld_InitializePlanes(void)
+uint8_t wld_initialize_planes(void)
 {
   xPlane.head = xPlane.tail = NULL;
   yPlane.head = yPlane.tail = NULL;

@@ -70,18 +70,18 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 
   /* Discard any bitmaps that we may currently have buffered */
 
-  wld_DiscardBitmaps();
+  wld_discard_bitmaps();
 
   /* Get the number of bitmaps in the bitmap file */
 
-  numBitmaps = wld_ReadDecimal(fp);
+  numBitmaps = wld_read_decimal(fp);
   if (numBitmaps >= MAX_BITMAPS)
     return BMAP_TOO_MANY;
 
   /* Read the colors used to rend the sky and ground */
 
-  skyColor    = wld_ReadDecimal(fp);
-  groundColor = wld_ReadDecimal(fp);
+  skyColor    = wld_read_decimal(fp);
+  groundColor = wld_read_decimal(fp);
 
 #if MSWINDOWS
   /* Load the textures -- Note that the first texture will be used
@@ -106,7 +106,7 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 #if MSWINDOWS
       /* Setup to load the PCX bitmap from the file for the event bitmap */
 
-      result = wld_PCXInit(&workPCX, BITMAP_HEIGHT, BITMAP_WIDTH,
+      result = wld_pcx_init(&workPCX, BITMAP_HEIGHT, BITMAP_WIDTH,
                           palette, NULL);
       if (result) return result;
 
@@ -119,7 +119,7 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 
       /* Load the PCX bitmap from the file for the event bitmap */
 
-      result = wld_LoadPCX(graphicsFileName, &workPCX);
+      result = wld_loadpcx(graphicsFileName, &workPCX);
       if (result) return result;
 
       /* Don't bother to load the palette on the rest of the textures --
@@ -128,7 +128,7 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 
       palette = NULL;
 #else
-      evenBitmaps[bMapIndex] = wld_ReadTextureFile(graphicsFileName);
+      evenBitmaps[bMapIndex] = wld_read_texturefile(graphicsFileName);
       if (!evenBitmaps[bMapIndex]) return BMAP_BML_READ_ERROR;
 #endif
 
@@ -142,7 +142,7 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 #if MSWINDOWS
       /* Setup to load the PCX bitmap from the file for the odd bitmap */
 
-      result = wld_PCXInit(&workPCX, BITMAP_HEIGHT, BITMAP_WIDTH,
+      result = wld_pcx_init(&workPCX, BITMAP_HEIGHT, BITMAP_WIDTH,
                           palette, NULL);
       if (result) return result;
 
@@ -155,9 +155,9 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 
       /* Load the PCX bitmap from the file for the odd bitmap */
 
-      result = wld_LoadPCX(graphicsFileName, &workPCX);
+      result = wld_loadpcx(graphicsFileName, &workPCX);
 #else
-      oddBitmaps[bMapIndex] = wld_ReadTextureFile(graphicsFileName);
+      oddBitmaps[bMapIndex] = wld_read_texturefile(graphicsFileName);
       if (!oddBitmaps[bMapIndex]) return BMAP_BML_READ_ERROR;
 #endif
 #endif
@@ -231,12 +231,12 @@ static boolean wld_ReadFileName(FILE  *fp, char *fileName)
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_LoadBitmapFile
+ * Name: wld_load_bitmapfile
  * Description:
  * This function opens the input file and loads the world data from it
  ************************************************************************/
 
-uint8_t wld_LoadBitmapFile(char *bmlFile)
+uint8_t wld_load_bitmapfile(char *bmlFile)
 {
   FILE      *fp;
   uint8_t      result;
@@ -249,7 +249,7 @@ uint8_t wld_LoadBitmapFile(char *bmlFile)
   /* Load all of the bitmaps */
 
   result = wld_LoadBitmaps(fp);
-  if (result) wld_DiscardBitmaps();
+  if (result) wld_discard_bitmaps();
 
   /* We are all done with the file, so close it */
 

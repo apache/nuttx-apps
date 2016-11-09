@@ -53,26 +53,26 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_DiscardBitmaps
+ * Name: wld_discard_bitmaps
  * Description:
  * This function deallocates the entire world.
  ************************************************************************/
 
-void wld_DiscardBitmaps(void)
+void wld_discard_bitmaps(void)
 {
   int i;
   for (i = 0; i < MAX_BITMAPS; i++)
     {
       if (evenBitmaps[i])
         {
-          wld_FreeTexture((void*)evenBitmaps[i]);
+          wld_free_texture((void*)evenBitmaps[i]);
           evenBitmaps[i] = NULL;
         }
 
 #ifndef WEDIT
       if (oddBitmaps[i])
         {
-          wld_FreeTexture((void*)oddBitmaps[i]);
+          wld_free_texture((void*)oddBitmaps[i]);
           oddBitmaps[i] = NULL;
         }
 #endif

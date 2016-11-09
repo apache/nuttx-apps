@@ -109,11 +109,11 @@ static const char worldImagesName[]          = WORLD_IMAGES;
  *************************************************************************/
 
 /*************************************************************************
- * Name:    wld_CreateWorld
+ * Name:    wld_create_world
  * Description:
  ************************************************************************/
 
-uint8_t wld_CreateWorld(char *wldFile)
+uint8_t wld_create_world(char *wldFile)
 {
   uint8_t result;
 
@@ -139,7 +139,7 @@ uint8_t wld_CreateWorld(char *wldFile)
 
 /*************************************************************************
  * Name:    wld_ManageWorldFile
- * Description: This is the guts of wld_CreateWorld.  It is implemented as
+ * Description: This is the guts of wld_create_world.  It is implemented as
  * a separate file to simplify error handling
  ************************************************************************/
 
@@ -204,10 +204,10 @@ static uint8_t wld_ManageWorldFile(void)
 
   /* Allocate and load the world */
 
-  result = wld_InitializePlanes();
+  result = wld_initialize_planes();
   if (result != 0) return result;
 
-  result = wld_LoadPlaneFile(fileName);
+  result = wld_load_planefile(fileName);
   if (result != 0) return result;
 
   free_ini_string(fileName);
@@ -222,7 +222,7 @@ static uint8_t wld_ManageWorldFile(void)
 
   /* Then load it into palTable. */
 
-  result = wld_LoadPalTable(fileName);
+  result = wld_load_paltable(fileName);
   if (result != 0) return result;
 
   free_ini_string(fileName);
@@ -235,10 +235,10 @@ static uint8_t wld_ManageWorldFile(void)
 
   /* Then load the bitmaps */
 
-  result = wld_InitializeBitmaps();
+  result = wld_initialize_bitmaps();
   if (result != 0) return result;
 
-  result = wld_LoadBitmapFile(fileName);
+  result = wld_load_bitmapfile(fileName);
   free_ini_string(fileName);
 
   return result;

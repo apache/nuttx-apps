@@ -97,11 +97,11 @@ typedef struct pcxPictureType
  *************************************************************************/
 
 #if MSWINDOWS
-uint8_t wld_PCXInit(pcxPicturePtr image, uint16_t height, uint16_t width,
+uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t height, uint16_t width,
                     RGBColor *palette, uint8_t *buffer);
-uint8_t wld_LoadPCX(char *filename, pcxPicturePtr image);
+uint8_t wld_loadpcx(char *filename, pcxPicturePtr image);
 #else
-GraphicFileType *wld_LoadPCX(FILE *fp, char *filename);
+GraphicFileType *wld_loadpcx(FILE *fp, char *filename);
 #endif
 
 /*************************************************************************

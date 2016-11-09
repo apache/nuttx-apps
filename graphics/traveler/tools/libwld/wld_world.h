@@ -112,8 +112,8 @@ extern coord_t runStepHeight;
  * Global Function Prototypes
  *************************************************************************/
 
-uint8_t wld_CreateWorld(FAR char *mapfile);
-void    wld_DeallocateWorld(void);
+uint8_t wld_create_world(FAR char *mapfile);
+void    wld_deallocate_world(void);
 
 #ifdef __cplusplus
 }

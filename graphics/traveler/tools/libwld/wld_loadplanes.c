@@ -62,7 +62,7 @@ static uint8_t wld_LoadWorldPlane(FILE *fp, rectHeadType *list, uint8_t numRects
     {
       /* Allocate space for the next rectangle */
 
-      rect = wld_NewPlane();
+      rect = wld_new_plane();
       if (!rect) return PLANE_ALLOCATION_FAILURE;
 
       /* Read the next rectangle from the input file */
@@ -78,7 +78,7 @@ static uint8_t wld_LoadWorldPlane(FILE *fp, rectHeadType *list, uint8_t numRects
 
       /* Put the new rectangle into the plane list */
 
-      wld_AddPlane(rect, list);
+      wld_add_plane(rect, list);
     }
 
   return PLANE_SUCCESS;
@@ -89,12 +89,12 @@ static uint8_t wld_LoadWorldPlane(FILE *fp, rectHeadType *list, uint8_t numRects
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_LoadPlanes
+ * Name: wld_load_planes
  * Description:
  * This function loads the world data from the opened file
  ************************************************************************/
 
-uint8_t wld_LoadPlanes(FILE *fp)
+uint8_t wld_load_planes(FILE *fp)
 {
   planeFileHeaderType fileHeader;
   uint8_t result;

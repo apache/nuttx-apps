@@ -48,18 +48,18 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_Malloc
+ * Name: wld_malloc
  * Description:
  ************************************************************************/
 
-void *wld_Malloc(size_t size)
+void *wld_malloc(size_t size)
 {
   void *new;
 
   new = malloc(size);
   if (new == NULL)
     {
-      wld_fatal_error("out of memory (wld_Malloc %x bytes)", size);
+      wld_fatal_error("out of memory (wld_malloc %x bytes)", size);
     }
   return new;
 }

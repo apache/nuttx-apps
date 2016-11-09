@@ -87,12 +87,12 @@ static uint8_t wld_SaveWorldPlane(FILE *fp, rectListType *rect)
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_SavePlanes
+ * Name: wld_save_planes
  * Description:
  * This function stores the world data into the specified file
  ************************************************************************/
 
-uint8_t wld_SavePlanes(const char *wldFile)
+uint8_t wld_save_planes(const char *wldFile)
 {
   FILE  *fp;
   planeFileHeaderType fileHeader;

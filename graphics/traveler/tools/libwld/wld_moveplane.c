@@ -73,5 +73,5 @@ void wld_move_plane(rectListType *rect, rectHeadType *destList,
 
   /* Then add the rect to the specified list */
 
-  wld_AddPlane(rect, destList);
+  wld_add_plane(rect, destList);
 }

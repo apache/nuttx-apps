@@ -46,12 +46,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_ReadDecimal
+ * Name: wld_read_decimal
  * Description:
  * Read a decimal number from the steam fp
  ************************************************************************/
 
-int16_t  wld_ReadDecimal(FILE *fp)
+int16_t  wld_read_decimal(FILE *fp)
 {
   int16_t  value = 0;
   boolean negative = FALSE;

@@ -48,12 +48,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_FreeTexture
+ * Name: wld_free_texture
  * Description:
  ************************************************************************/
 
-void wld_FreeTexture(bitmapType *t)
+void wld_free_texture(bitmapType *t)
 {
-  if (t->bm) wld_Free(t->bm);
-  wld_Free(t);
+  if (t->bm) wld_free(t->bm);
+  wld_free(t);
 }

@@ -50,7 +50,7 @@
  * Description:
  ************************************************************************/
 
-RGBColor wld_GraphicFilePixel(GraphicFileType *gfile, int x, int y)
+RGBColor wld_graphicfile_pixel(GraphicFileType *gfile, int x, int y)
 {
   if (gfile->type == gfPaletted)
     {

@@ -101,10 +101,10 @@ typedef struct
  * Private Variables
  *************************************************************************/
 
-GraphicFileType *wld_NewGraphicFile(void);
-void             wld_FreeGraphicFile(GraphicFileType *gFile);
-RGBColor         wld_GraphicFilePixel(GraphicFileType *gFile,
+GraphicFileType *wld_new_graphicfile(void);
+void             wld_free_graphicfile(GraphicFileType *gFile);
+RGBColor         wld_graphicfile_pixel(GraphicFileType *gFile,
                                             int x, int y);
-GraphicFileType *wld_ReadGraphicFile(char *filename);
+GraphicFileType *wld_readgraphic_file(char *filename);
 
 #endif /* __ASTGRAPHICFILE_H */

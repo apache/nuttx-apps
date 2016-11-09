@@ -130,7 +130,7 @@ static GraphicFileFormatType wld_CheckFormat(FILE *fp, char *filename)
  * Description:
  ************************************************************************/
 
-GraphicFileType *wld_ReadGraphicFile(char *filename)
+GraphicFileType *wld_readgraphic_file(char *filename)
 {
   FILE *fp;
   GraphicFileFormatType format;
@@ -156,7 +156,7 @@ GraphicFileType *wld_ReadGraphicFile(char *filename)
       break;
 
     case formatPCX:
-      gfile = wld_LoadPCX(fp, filename);
+      gfile = wld_loadpcx(fp, filename);
       break;
 
     case formatUnknown:

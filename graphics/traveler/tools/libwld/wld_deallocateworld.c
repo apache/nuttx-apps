@@ -48,13 +48,13 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_DeallocateWorld
+ * Name: wld_deallocate_world
  * Description:
  ************************************************************************/
 
-void wld_DeallocateWorld(void)
+void wld_deallocate_world(void)
 {
-  wld_DiscardPlanes();
-  wld_DiscardBitmaps();
-  wld_DiscardPalTable();
+  wld_discard_planes();
+  wld_discard_bitmaps();
+  wld_discard_paltable();
 }

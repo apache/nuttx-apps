@@ -48,12 +48,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_NewPlane
+ * Name: wld_new_plane
  * Description:
  * This function allocates memory for a new plane rectangle
  ************************************************************************/
 
-rectListType *wld_NewPlane(void)
+rectListType *wld_new_plane(void)
 {
   rectListType *rect;
 
@@ -70,7 +70,7 @@ rectListType *wld_NewPlane(void)
     {
       /* Nothing on the free list.  Allocate a new one */
 
-      rect = (rectListType*)wld_Malloc(sizeof(rectListType));
+      rect = (rectListType*)wld_malloc(sizeof(rectListType));
     }
 
   return rect;

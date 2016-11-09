@@ -127,12 +127,12 @@ GraphicFileType *wld_LoadPPM(FILE *fp, char *filename)
       wld_fatal_error("%s: bad ppm file.", filename);
     }
 
-  gfile = wld_NewGraphicFile();
+  gfile = wld_new_graphicfile();
   gfile->type = gfTrueColor;
   gfile->palette = NULL;
   gfile->width = width;
   gfile->height = height;
-  gfile->bitmap = (uint8_t*)wld_Malloc(height * width * 3);
+  gfile->bitmap = (uint8_t*)wld_malloc(height * width * 3);
 
   if (fread(gfile->bitmap, height * width * 3, 1, fp) != 1)
     {

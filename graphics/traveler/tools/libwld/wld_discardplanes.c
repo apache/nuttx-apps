@@ -60,7 +60,7 @@ static void wld_DiscardWorldPlane(rectListType *rect)
   while (rect)
     {
       next = rect->flink;
-      wld_Free((void *) rect);
+      wld_free((void *) rect);
       rect = next;
     }
 }
@@ -70,12 +70,12 @@ static void wld_DiscardWorldPlane(rectListType *rect)
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_DiscardPlanes
+ * Name: wld_discard_planes
  * Description:
  * This function deallocates the entire world.
  ************************************************************************/
 
-void wld_DiscardPlanes(void)
+void wld_discard_planes(void)
 {
   wld_DiscardWorldPlane(xPlane.head);
   xPlane.head = xPlane.tail = NULL;

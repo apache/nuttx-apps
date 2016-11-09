@@ -47,24 +47,24 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_FreeGraphicFile
+ * Name: wld_free_graphicfile
  * Description:
  ************************************************************************/
 
-void wld_FreeGraphicFile(GraphicFileType *gfile)
+void wld_free_graphicfile(GraphicFileType *gfile)
 {
   if (gfile != NULL)
     {
       if (gfile->palette != NULL)
         {
-          wld_Free(gfile->palette);
+          wld_free(gfile->palette);
         }
 
       if (gfile->bitmap != NULL)
         {
-          wld_Free(gfile->bitmap);
+          wld_free(gfile->bitmap);
         }
 
-      wld_Free(gfile);
+      wld_free(gfile);
     }
 }

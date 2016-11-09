@@ -39,7 +39,7 @@
  *************************************************************************/
 
 #ifndef __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PLANE_H
-#define ___APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PLANE_H
+#define __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PLANE_H 1
 
 #ifdef __cplusplus
 extern "C"
@@ -166,15 +166,15 @@ extern rectListType *freeList;
  * Public Function Prototypes
  *************************************************************************/
 
-extern uint8_t       wld_InitializePlanes(void);
-extern void          wld_DiscardPlanes(void);
-extern uint8_t       wld_LoadPlaneFile(const char *wldfile);
-extern uint8_t       wld_LoadPlanes(FILE *fp);
-extern uint8_t       wld_SavePlanes(const char *wldFile);
-extern rectListType *wld_NewPlane(void);
-extern void          wld_AddPlane(rectListType *rect,
+extern uint8_t       wld_initialize_planes(void);
+extern void          wld_discard_planes(void);
+extern uint8_t       wld_load_planefile(const char *wldfile);
+extern uint8_t       wld_load_planes(FILE *fp);
+extern uint8_t       wld_save_planes(const char *wldFile);
+extern rectListType *wld_new_plane(void);
+extern void          wld_add_plane(rectListType *rect,
                                   rectHeadType *list);
-extern void          wld_MergePlaneLists(rectHeadType *outList,
+extern void          wld_merge_planelists(rectHeadType *outList,
                                          rectHeadType *inList);
 extern void          wld_remove_plane(rectListType *rect,
                                      rectHeadType *list);
@@ -188,4 +188,4 @@ extern rectListType *wld_find_plane(coord_t h, coord_t v, coord_t plane,
 }
 #endif
 
-#endif /* ___APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PLANE_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PLANE_H */

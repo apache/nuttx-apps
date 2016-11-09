@@ -91,8 +91,8 @@ extern trv_pixel_t *palTable[NUM_ZONES];
  * Pulblic Function Prototypes
  *************************************************************************/
 
-uint8_t wld_LoadPalTable(char *file);
-void  wld_DiscardPalTable(void);
+uint8_t wld_load_paltable(char *file);
+void  wld_discard_paltable(void);
 
 #ifdef __cplusplus
 }

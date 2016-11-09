@@ -47,18 +47,18 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_DiscardPalTable
+ * Name: wld_discard_paltable
  * Description:
  ************************************************************************/
 
-void wld_DiscardPalTable(void)
+void wld_discard_paltable(void)
 {
   int i;
   for (i = 0; i < NUM_ZONES; i++)
     {
       if (palTable[i])
         {
-          wld_Free(palTable[i]);
+          wld_free(palTable[i]);
           palTable[i] = NULL;
         }
     }

@@ -346,15 +346,15 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
     fprintf(stderr, "Reading a %d by %d %sinterlaced image...",
             Width, Height, (Interlace) ? "" : "non-");
 
-  gfile = wld_NewGraphicFile();
-  gfile->palette = (RGBColor*)wld_Malloc(sizeof(RGBColor) * ColorMapSize);
+  gfile = wld_new_graphicfile();
+  gfile->palette = (RGBColor*)wld_malloc(sizeof(RGBColor) * ColorMapSize);
   for (i = 0; i < ColorMapSize; i++)
     {
       gfile->palette[i].red = Red[i];
       gfile->palette[i].green = Green[i];
       gfile->palette[i].blue = Blue[i];
     }
-  gfile->bitmap = (uint8_t*)wld_Malloc(Width * Height);
+  gfile->bitmap = (uint8_t*)wld_malloc(Width * Height);
   gfile->type = gfPaletted;
   gfile->width = Width;
   gfile->height = Height;

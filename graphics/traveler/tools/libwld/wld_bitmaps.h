@@ -127,12 +127,12 @@ extern uint8_t groundColor;
  * Global Function Prototypes
  *************************************************************************/
 
-uint8_t wld_InitializeBitmaps(void);
-void    wld_DiscardBitmaps(void);
-uint8_t wld_LoadBitmapFile(char *bmlfile);
+uint8_t wld_initialize_bitmaps(void);
+void    wld_discard_bitmaps(void);
+uint8_t wld_load_bitmapfile(char *bmlfile);
 
-void        wld_FreeTexture(bitmapType *t);
-bitmapType *wld_ReadTextureFile(char *filename);
+void        wld_free_texture(bitmapType *t);
+bitmapType *wld_read_texturefile(char *filename);
 
 #ifdef  __cplusplus
 }

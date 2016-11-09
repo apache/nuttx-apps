@@ -107,7 +107,7 @@ static void wld_AllocatePalTable(uint32 palTabEntrySize)
 
   for (i = 0; i < NUM_ZONES; i++)
     {
-      palTable[i] = (trv_pixel_t*)wld_Malloc(palTabEntrySize*sizeof(trv_pixel_t));
+      palTable[i] = (trv_pixel_t*)wld_malloc(palTabEntrySize*sizeof(trv_pixel_t));
     }
 }
 
@@ -116,12 +116,12 @@ static void wld_AllocatePalTable(uint32 palTabEntrySize)
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_LoadPalTable
+ * Name: wld_load_paltable
  * Description:
  * This function loads the palTable from the specified file
  ************************************************************************/
 
-uint8_t wld_LoadPalTable(char *file)
+uint8_t wld_load_paltable(char *file)
 {
 #if (!MSWINDOWS)
   trv_pixel_t *palPtr;
@@ -194,7 +194,7 @@ uint8_t wld_LoadPalTable(char *file)
 
   /* Read the number of ranges from the file */
 
-  numRanges = wld_ReadDecimal(fp);
+  numRanges = wld_read_decimal(fp);
   if (numRanges > MAX_PAL_RANGES)
     {
       fclose(fp);
@@ -205,9 +205,9 @@ uint8_t wld_LoadPalTable(char *file)
 
   for (i = 0; i < numRanges; i++)
     {
-      ranges[i].firstColor = wld_ReadDecimal(fp);
-      ranges[i].colorRange = wld_ReadDecimal(fp);
-      ranges[i].clipColor  = wld_ReadDecimal(fp);
+      ranges[i].firstColor = wld_read_decimal(fp);
+      ranges[i].colorRange = wld_read_decimal(fp);
+      ranges[i].clipColor  = wld_read_decimal(fp);
     }
 
   /* We are now done with the input file */
@@ -339,7 +339,7 @@ uint8_t wld_LoadPalTable(char *file)
         {
           /* Read the data into palTable */
 
-          palPtr[palIndex] = wld_ReadDecimal(fp);
+          palPtr[palIndex] = wld_read_decimal(fp);
         }
     }
 

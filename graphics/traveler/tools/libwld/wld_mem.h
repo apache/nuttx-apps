@@ -46,8 +46,8 @@
  * Public  Function Prototypes
  *************************************************************************/
 
-void *wld_Malloc(size_t size);
-void *wld_Realloc(void *v, size_t size);
-void  wld_Free(void *v);
+void *wld_malloc(size_t size);
+void *wld_realloc(void *v, size_t size);
+void  wld_free(void *v);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_MEM_H */

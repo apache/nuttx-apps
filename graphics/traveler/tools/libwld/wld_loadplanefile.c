@@ -50,12 +50,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_LoadPlaneFile
+ * Name: wld_load_planefile
  * Description:
  * This function opens the input file and loads the world data from it
  ************************************************************************/
 
-uint8_t wld_LoadPlaneFile(const char *wldFile)
+uint8_t wld_load_planefile(const char *wldFile)
 {
   FILE  *fp;
   uint8_t result;
@@ -72,7 +72,7 @@ uint8_t wld_LoadPlaneFile(const char *wldFile)
 
   /* Load the world data from the file */
 
-  result = wld_LoadPlanes(fp);
+  result = wld_load_planes(fp);
 
   /* Close the file */
 

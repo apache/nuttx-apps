@@ -47,12 +47,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_MergePlaneLists
+ * Name: wld_merge_planelists
  * Description:
  * This function concatenates two world plane lists
  ************************************************************************/
 
-void wld_MergePlaneLists(rectHeadType *outList, rectHeadType *inList)
+void wld_merge_planelists(rectHeadType *outList, rectHeadType *inList)
 {
   rectListType *inRect, *nextInRect;
   rectListType *outRect, *prevRect;
