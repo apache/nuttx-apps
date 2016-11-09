@@ -90,7 +90,7 @@ typedef struct
   uint16_t w;
   uint16_t h;
   uint8_t log2h;
-  pixelType *bm;
+  trv_pixel_t *bm;
 } bitmapType;
 
 /*************************************************************************

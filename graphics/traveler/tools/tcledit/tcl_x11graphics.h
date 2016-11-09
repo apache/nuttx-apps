@@ -42,8 +42,8 @@
 
 #include <X11/Xlib.h>
 #include "trv_graphics.h"
-#include "astbitmaps.h"
-#include "astplane.h"
+#include "wld_bitmaps.h"
+#include "wld_plane.h"
 
 /****************************************************************************
  * Conditional Compilation
@@ -146,7 +146,7 @@ typedef struct
   dev_pixel_t *frameBuffer;            /* Pointer to framebuffer */
   RGBColor palette[PALETTE_SIZE];          /* Colors requested */
   unsigned long colorLookup[PALETTE_SIZE]; /* Color values to use */
-} astWindowType;
+} tcl_window_t;
 
 /****************************************************************************
  * Public Data
@@ -159,20 +159,20 @@ extern int viewSize;
 extern int gridStep;
 extern int coordOffset[NUM_PLANES];
 extern int planePosition[NUM_PLANES];
-extern astWindowType windows[NUM_PLANES];
+extern tcl_window_t windows[NUM_PLANES];
 extern rectDataType editRect;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-extern void astInitGraphics(astWindowType *w);
-extern void astEndGraphics(astWindowType *w);
+extern void tcl_init_graphics(tcl_window_t *w);
+extern void tcl_end_graphics(tcl_window_t *w);
 
-extern void astPaintBackground(astWindowType *w);
-extern void astPaintPosition(astWindowType *w);
-extern void astPaintGrid(astWindowType *w);
-extern void astPaintRectangles(astWindowType *w);
-extern void astUpdateScreen(astWindowType *w);
+extern void tcl_paint_background(tcl_window_t *w);
+extern void tcl_paint_position(tcl_window_t *w);
+extern void tcl_paint_grid(tcl_window_t *w);
+extern void tcl_paint_rectangles(tcl_window_t *w);
+extern void tcl_update_screen(tcl_window_t *w);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOLS_TCLEDIT_TCL_X11GRAPHICS_H */

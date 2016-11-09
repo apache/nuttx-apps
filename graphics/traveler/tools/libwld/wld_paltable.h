@@ -85,7 +85,7 @@ enum
  * with distance
  */
 
-extern pixelType *palTable[NUM_ZONES];
+extern trv_pixel_t *palTable[NUM_ZONES];
 
 /*************************************************************************
  * Pulblic Function Prototypes

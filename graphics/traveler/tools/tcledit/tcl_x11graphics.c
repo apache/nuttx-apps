@@ -52,10 +52,10 @@
 #include "trv_types.h"
 #include "trv_graphics.h"
 #include "debug.h"
-#include "astmem.h"
-#include "astbitmaps.h"
-#include "astplane.h"
-#include "astutils.h"
+#include "wld_mem.h"
+#include "wld_bitmaps.h"
+#include "wld_plane.h"
+#include "wld_utils.h"
 #include "x11edit.h"
 
 /****************************************************************************
@@ -70,11 +70,11 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void x11_CreateWindow(astWindowType *w);
-static void x11_LoadPalette(astWindowType *w);
-static boolean x11_AllocateColors(astWindowType *w, Colormap colormap);
-static void x11_MapSharedMemory(astWindowType *w, int depth);
-static void x11_UnMapSharedMemory(astWindowType *w);
+static void x11_CreateWindow(tcl_window_t *w);
+static void x11_LoadPalette(tcl_window_t *w);
+static boolean x11_AllocateColors(tcl_window_t *w, Colormap colormap);
+static void x11_MapSharedMemory(tcl_window_t *w, int depth);
+static void x11_UnMapSharedMemory(tcl_window_t *w);
 static void x11_UnMapAllSharedMemory(void);
 
 /****************************************************************************
@@ -98,7 +98,7 @@ static int useShm;
  * Description:
  ***************************************************************************/
 
-void x11_InitGraphics(astWindowType *w)
+void x11_InitGraphics(tcl_window_t *w)
 {
   XWindowAttributes windowAttributes;
 
@@ -126,7 +126,7 @@ void x11_InitGraphics(astWindowType *w)
  * Description:
  ***************************************************************************/
 
-void x11_EndGraphics(astWindowType *w)
+void x11_EndGraphics(tcl_window_t *w)
 {
   x11_UnMapAllSharedMemory();
   XCloseDisplay(w->display);
@@ -137,7 +137,7 @@ void x11_EndGraphics(astWindowType *w)
  * Description:
  ***************************************************************************/
 
-static void x11_CreateWindow(astWindowType *w)
+static void x11_CreateWindow(tcl_window_t *w)
 {
   XGCValues gcValues;
   char *argv[2] = { "xast", NULL };
@@ -179,7 +179,7 @@ static void x11_CreateWindow(astWindowType *w)
  * Description:
  ***************************************************************************/
 
-static void x11_LoadPalette(astWindowType *w)
+static void x11_LoadPalette(tcl_window_t *w)
 {
   Colormap cMap;
 
@@ -212,7 +212,7 @@ static void x11_LoadPalette(astWindowType *w)
  * Description:
  ***************************************************************************/
 
-static boolean x11_AllocateColors(astWindowType *w, Colormap colormap)
+static boolean x11_AllocateColors(tcl_window_t *w, Colormap colormap)
 {
   int i;
 
@@ -301,7 +301,7 @@ static int untrapErrors(Display *display)
  * Description:
  ***************************************************************************/
 
-static void x11_MapSharedMemory(astWindowType *w, int depth)
+static void x11_MapSharedMemory(tcl_window_t *w, int depth)
 {
 #ifndef NO_XSHM
   Status result;
@@ -404,7 +404,7 @@ static void x11_MapSharedMemory(astWindowType *w, int depth)
  * Description:
  ***************************************************************************/
 
-static void x11_UnMapSharedMemory(astWindowType *w)
+static void x11_UnMapSharedMemory(tcl_window_t *w)
 {
 #ifndef NO_XSHM
   if (shmCheckPoint > 4)
@@ -458,7 +458,7 @@ static void x11_UnMapAllSharedMemory(void)
  * Description:
  ***************************************************************************/
 
-void x11_UpdateScreen(astWindowType *w)
+void x11_UpdateScreen(tcl_window_t *w)
 {
 #ifndef NO_XSHM
   if (useShm)

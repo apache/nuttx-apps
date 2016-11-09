@@ -46,8 +46,8 @@
 
 #include "trv_types.h"
 #include "debug.h"
-#include "astplane.h"
-#include "astutils.h"
+#include "wld_plane.h"
+#include "wld_utils.h"
 #include "tcl_x11graphics.h"
 #include "tcl_colors.h"
 
@@ -71,7 +71,7 @@ int                gridStep  = WORLD_SIZE / 16;
 
 int coordOffset[NUM_PLANES];
 int planePosition[NUM_PLANES];
-astWindowType windows[NUM_PLANES] =
+tcl_window_t windows[NUM_PLANES] =
 {
   {
     .title  = "X-Plane",
@@ -136,12 +136,12 @@ static void astUpdatePOSModeDisplay(void)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      astWindowType *w = &windows[i];
-      astPaintBackground(w);
-      astPaintGrid(w);
-      astPaintRectangles(w);
-      astPaintPosition(w);
-      astUpdateScreen(w);
+      tcl_window_t *w = &windows[i];
+      tcl_paint_background(w);
+      tcl_paint_grid(w);
+      tcl_paint_rectangles(w);
+      tcl_paint_position(w);
+      tcl_update_screen(w);
     }
 }
 
@@ -153,11 +153,11 @@ static void astUpdateNEWModeDisplay(void)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      astWindowType *w = &windows[i];
-      astPaintBackground(w);
-      astPaintGrid(w);
-      astPaintRectangles(w);
-      astUpdateScreen(w);
+      tcl_window_t *w = &windows[i];
+      tcl_paint_background(w);
+      tcl_paint_grid(w);
+      tcl_paint_rectangles(w);
+      tcl_update_screen(w);
     }
 }
 
@@ -677,7 +677,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      astInitGraphics(&windows[i]);
+      tcl_init_graphics(&windows[i]);
     }
 
   /* Tcl_Init() sets up the Tcl library factility */
