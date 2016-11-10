@@ -38,7 +38,9 @@
  * Included files
  *************************************************************************/
 
+#include <stdbool.h>
 #include <stdio.h>
+
 #include "trv_types.h"
 #include "wld_mem.h"
 #include "wld_world.h"
@@ -53,12 +55,75 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_LoadBitmaps
+ * Name: wld_read_filename
+ * Description:
+ * Read a file name from the input stream
+ ************************************************************************/
+
+static bool wld_read_filename(FILE  *fp, char *fileName)
+{
+  int16_t  nbytes;
+  int ch;
+
+  /* Skip over any leading spaces, new lines, or carriage returns (for
+   * MSDOS compatibility)
+   */
+
+  do
+    {
+      ch = getc(fp);
+      if (ch == EOF) return false;
+    }
+  while ((ch == ' ') || (ch == '\n') || (ch == '\r'));
+
+  /* Get the file name from the file */
+
+  nbytes = 0;
+  for (;;)
+    {
+      /* Everything up to the next newline or space must be the filename */
+
+      if ((ch != '\n') && (ch != ' ') && (ch != '\r'))
+        {
+          /* Make sure that the file name is not too large */
+
+          if (nbytes >= FILE_NAME_SIZE) return false;
+
+          /* Add the new character to the file name */
+
+          fileName[nbytes] = (char)ch;
+          nbytes++;
+        }
+      else
+        {
+          /* End of the file name -- Don't forget the ASCIIZ terminator */
+
+          fileName[nbytes] = '\0';
+          break;
+        }
+
+      /* Get the character for the next time through the loop.  Every file
+       * name should be terminated with a space or a new line.  EOF is
+       * unexpected in this context.
+       */
+
+      ch = getc(fp);
+      if (ch == EOF)
+        {
+          return false;
+        }
+    }
+
+  return true;
+}
+
+/*************************************************************************
+ * Name: wld_load_bitmaps
  * Description:
  * This function loads the world data from the input file
  ************************************************************************/
 
-static uint8_t wld_LoadBitmaps(FILE *fp)
+static uint8_t wld_load_bitmaps(FILE *fp)
 {
 #if MSWINDOWS
   volatile pcxPicture workPCX;
@@ -100,7 +165,7 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
       /* Load the even bitmap */
       /* Get the name of the file which contains the even bitmap */
 
-      if (!wld_ReadFileName(fp, graphicsFileName))
+      if (!wld_read_filename(fp, graphicsFileName))
         return BMAP_BML_READ_ERROR;
 
 #if MSWINDOWS
@@ -135,7 +200,7 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
       /* Load the odd bitmap */
       /* Get the name of the file which contains the odd bitmap */
 
-      if (!wld_ReadFileName(fp, graphicsFileName))
+      if (!wld_read_filename(fp, graphicsFileName))
         return BMAP_BML_READ_ERROR;
 
 #ifndef WEDIT
@@ -166,67 +231,6 @@ static uint8_t wld_LoadBitmaps(FILE *fp)
 }
 
 /*************************************************************************
- * Name: wld_ReadFileName
- * Description:
- * Read a file name from the input stream
- ************************************************************************/
-
-static boolean wld_ReadFileName(FILE  *fp, char *fileName)
-{
-  int16_t  numBytes;
-  int ch;
-
-  /* Skip over any leading spaces, new lines, or carriage returns (for
-   * MSDOS compatibility)
-   */
-
-  do
-    {
-      ch = getc(fp);
-      if (ch == EOF) return false;
-    }
-  while ((ch == ' ') || (ch == '\n') || (ch == '\r'));
-
-  /* Get the file name from the file */
-
-  numBytes = 0;
-  for (;;)
-    {
-      /* Everything up to the next newline or space must be the filename */
-
-      if ((ch != '\n') && (ch != ' ') && (ch != '\r'))
-        {
-          /* Make sure that the file name is not too large */
-
-          if (numBytes >= FILE_NAME_SIZE) return false;
-      
-          /* Add the new character to the file name */
-
-          fileName[numBytes] = (char)ch;
-          numBytes++;
-        }
-      else
-        {
-          /* End of the file name -- Don't forget the ASCIIZ terminator */
-
-          fileName[numBytes] = '\0';
-          break;
-        }
-
-      /* Get the character for the next time through the loop.  Every file
-       * name should be terminated with a space or a new line.  EOF is
-       * unexpected in this context.
-       */
-
-      ch = getc(fp);
-      if (ch == EOF) return false;
-    }
-
-  return true;
-}
-
-
-/*************************************************************************
  * Public Functions
  *************************************************************************/
 
@@ -248,7 +252,7 @@ uint8_t wld_load_bitmapfile(char *bmlFile)
 
   /* Load all of the bitmaps */
 
-  result = wld_LoadBitmaps(fp);
+  result = wld_load_bitmaps(fp);
   if (result) wld_discard_bitmaps();
 
   /* We are all done with the file, so close it */

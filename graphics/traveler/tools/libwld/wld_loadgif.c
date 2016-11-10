@@ -37,6 +37,7 @@
  * Included files
  *************************************************************************/
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -89,8 +90,8 @@ int BitOffset = 0,           /* Bit Offset of next code */
   BitMask,                   /* AND mask for data size */
   ReadMask;                  /* Code AND mask for current code size */
 
-boolean Interlace, HasColormap;
-boolean Verbose = true;
+bool Interlace, HasColormap;
+bool Verbose = true;
 
 uint8_t *Image;                /* The result array */
 uint8_t *RawGIF;               /* The heap array to hold it, raw */

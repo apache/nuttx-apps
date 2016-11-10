@@ -37,7 +37,9 @@
  * Included files
  *************************************************************************/
 
+#include <stdbool.h>
 #include <stdio.h>
+
 #include "trv_types.h"
 #include "wld_utils.h"
 
@@ -54,7 +56,7 @@
 int16_t  wld_read_decimal(FILE *fp)
 {
   int16_t  value = 0;
-  boolean negative = false;
+  bool negative = false;
   int ch;
 
   /* Skip over any leading spaces, new lines, or carriage returns (for

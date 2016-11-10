@@ -49,15 +49,15 @@
  *************************************************************************/
 
 static uint8_t wld_ManageWorldFile(void);
-static uint8_t wld_ReadIniShortInteger(int16_t  *variableValue,
+static uint8_t wld_read_shortint(int16_t  *variableValue,
                                     const char *sectionName,
                                     const char *variableName);
 #if 0 /* Not used */
-static uint8_t wld_ReadIniLongInteger(long *variableValue,
-                                   const char *sectionName,
-                                   const char *variableName);
+static uint8_t wld_read_longint(long *variableValue,
+                                 const char *sectionName,
+                                 const char *variableName);
 #endif
-static uint8_t wld_ReadIniFileName(char **fileName,
+static uint8_t wld_read_filename(char **fileName,
                                 const char *sectionName,
                                 const char *variableName);
 
@@ -105,11 +105,233 @@ static const char worldPaletteName[]         = WORLD_PALETTE;
 static const char worldImagesName[]          = WORLD_IMAGES;
 
 /*************************************************************************
- * Private Variables
+ * Private Functions
  *************************************************************************/
 
 /*************************************************************************
- * Name:    wld_create_world
+ * Name: wld_ManageWorldFile
+ * Description: This is the guts of wld_create_world.  It is implemented as
+ * a separate file to simplify error handling
+ ************************************************************************/
+
+static uint8_t wld_ManageWorldFile(void)
+{
+  char *fileName;
+  uint8_t result;
+
+  /* Read the initial camera/player position */
+
+  result = wld_read_shortint(&initialCamera.x,
+                                  cameraSectionName,
+                                  cameraInitialXName);
+  if (result != 0) return result;
+
+  result = wld_read_shortint(&initialCamera.y,
+                                  cameraSectionName,
+                                  cameraInitialYName);
+  if (result != 0) return result;
+
+  result = wld_read_shortint(&initialCamera.z,
+                                  cameraSectionName,
+                                  cameraInitialZName);
+  if (result != 0) return result;
+
+  /* Get the player's yaw/pitch orientation */
+
+  result = wld_read_shortint(&initialCamera.yaw,
+                                  cameraSectionName,
+                                  cameraInitialYawName);
+  if (result != 0) return result;
+
+  result = wld_read_shortint(&initialCamera.pitch,
+                                  cameraSectionName,
+                                  cameraInitialPitchName);
+  if (result != 0) return result;
+
+  /* Get the height of the player */
+
+  result = wld_read_shortint(&playerHeight,
+                                  playerSectionName,
+                                  playerHeightName);
+  if (result != 0) return result;
+
+  /* Read the player's capability to step on top of things in the world. */
+
+  result = wld_read_shortint(&walkStepHeight,
+                                  playerSectionName,
+                                  playerWalkStepHeightName);
+  if (result != 0) return result;
+
+  result = wld_read_shortint(&runStepHeight,
+                                  playerSectionName, 
+                                  playerRunStepHeightName);
+  if (result != 0) return result;
+
+  /* Get the name of the file containing the world map */
+
+  result = wld_read_filename(&fileName, worldSectionName, worldMapName);
+  if (result != 0) return result;
+  if (fileName == NULL) return WORLD_PLANE_FILE_NAME_ERROR;
+
+  /* Allocate and load the world */
+
+  result = wld_initialize_planes();
+  if (result != 0) return result;
+
+  result = wld_load_planefile(fileName);
+  if (result != 0) return result;
+
+  inifile_free_string(fileName);
+
+  /* Get the name of the file containing the palette table which is used
+   * to adjust the lighting with distance.
+   */
+
+  result = wld_read_filename(&fileName, worldSectionName, worldPaletteName);
+  if (result != 0) return result;
+  if (fileName == NULL) return WORLD_PALR_FILE_NAME_ERROR;
+
+  /* Then load it into palTable. */
+
+  result = wld_load_paltable(fileName);
+  if (result != 0) return result;
+
+  inifile_free_string(fileName);
+
+  /* Get the name of the file containing the texture data */
+
+  result = wld_read_filename(&fileName, worldSectionName, worldImagesName);
+  if (result != 0) return result;
+  if (fileName == NULL) return WORLD_BITMAP_FILE_NAME_ERROR;
+
+  /* Then load the bitmaps */
+
+  result = wld_initialize_bitmaps();
+  if (result != 0) return result;
+
+  result = wld_load_bitmapfile(fileName);
+  inifile_free_string(fileName);
+
+  return result;
+}
+
+/*************************************************************************
+ * Name: wld_read_shortint
+ * Description: Reads a long value from the INI file and assures that
+ *              it is within range for an a int16_t 
+ ************************************************************************/
+
+static uint8_t wld_read_shortint(int16_t  *variableValue,
+                                    const char *sectionName,
+                                    const char *variableName)
+{
+  /* Read the long integer from the ini file.  We supply the default
+   * value of INT32_MAX.  If this value is returned, we assume that
+   * that is evidence that the requested value was not supplied in the
+   * ini file.
+   */
+
+  long value = inifile_read_integer(sectionName, variableName,
+                                INT32_MAX);
+
+  /* Make sure that it is in range for a int16_t . */
+
+  if ((value < INT16_MIN) || (value > INT16_MAX))
+    {
+      /* It is not!... */
+
+      *variableValue = 0;
+
+      /* Is this because the integer was not found? or because
+       * it is really out of range.
+       */
+
+      if (value != INT32_MAX)
+        {
+
+          fprintf(stderr, "Error: Integer out of range in INI file:\n");
+          fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\" value=%ld\n",
+                  sectionName, variableName, (long)variableValue);
+          return WORLD_INTEGER_OUT_OF_RANGE;
+
+        }
+      else
+        {
+
+          fprintf(stderr, "Error: Requird integer not found in INI file:\n");
+          fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\"\n",
+                  sectionName, variableName);
+          return WORLD_INTEGER_NOT_FOUND;
+        }
+    }
+  else
+    {
+
+      *variableValue = (int16_t )value;
+      return 0;
+    }
+}
+
+/*************************************************************************
+ * Name: wld_read_shortint
+ * Description: Reads a long value from the INI file
+ ************************************************************************/
+
+#if 0 /* Not used */
+static uint8_t wld_read_longint(long *variableValue,
+                                   const char *sectionName,
+                                   const char *variableName)
+{
+  /* Read the long integer from the ini file.*/
+
+  *variableValue = inifile_read_integer(sectionName, variableName, 0);
+  return 0;
+}
+#endif
+
+/*************************************************************************
+ * Name: wld_read_shortint
+ * Description: Reads a file name from the the INI file.
+ ************************************************************************/
+
+static uint8_t wld_read_filename(char **fileName,
+                                const char *sectionName,
+                                const char *variableName)
+{
+  /* Read the string from the ini file.  We supply the default
+   * value of NULL.  If this value is returned, we assume that
+   * that is evidence that the requested value was not supplied in the
+   * ini file.
+   */
+
+  char *value = inifile_read_string(sectionName, variableName, NULL);
+
+  /* Did we get the file name? */
+
+  if (!value)
+    {
+      /* No... */
+
+      *fileName = NULL;
+
+      fprintf(stderr, "Error: Required filename not found in INI file:\n");
+      fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\"\n",
+              sectionName, variableName);
+      return WORLD_FILENAME_NOT_FOUND;
+    }
+  else
+    {
+      *fileName = value;
+      return 0;
+    }
+}
+
+/*************************************************************************
+ * Private Functions
+ *************************************************************************/
+
+/*************************************************************************
+ * Name: wld_create_world
  * Description:
  ************************************************************************/
 
@@ -137,222 +359,4 @@ uint8_t wld_create_world(char *wldFile)
 
   inifile_uninitialize(handle);
   return result;
-}
-
-/*************************************************************************
- * Name:    wld_ManageWorldFile
- * Description: This is the guts of wld_create_world.  It is implemented as
- * a separate file to simplify error handling
- ************************************************************************/
-
-static uint8_t wld_ManageWorldFile(void)
-{
-  char *fileName;
-  uint8_t result;
-
-  /* Read the initial camera/player position */
-
-  result = wld_ReadIniShortInteger(&initialCamera.x, 
-                                  cameraSectionName,
-                                  cameraInitialXName);
-  if (result != 0) return result;
-
-  result = wld_ReadIniShortInteger(&initialCamera.y,
-                                  cameraSectionName,
-                                  cameraInitialYName);
-  if (result != 0) return result;
-
-  result = wld_ReadIniShortInteger(&initialCamera.z,
-                                  cameraSectionName,
-                                  cameraInitialZName);
-  if (result != 0) return result;
-
-  /* Get the player's yaw/pitch orientation */
-
-  result = wld_ReadIniShortInteger(&initialCamera.yaw,
-                                  cameraSectionName,
-                                  cameraInitialYawName);
-  if (result != 0) return result;
-
-  result = wld_ReadIniShortInteger(&initialCamera.pitch, 
-                                  cameraSectionName,
-                                  cameraInitialPitchName);
-  if (result != 0) return result;
-
-  /* Get the height of the player */
-
-  result = wld_ReadIniShortInteger(&playerHeight,
-                                  playerSectionName,
-                                  playerHeightName);
-  if (result != 0) return result;
-
-  /* Read the player's capability to step on top of things in the world. */
-
-  result = wld_ReadIniShortInteger(&walkStepHeight,
-                                  playerSectionName,
-                                  playerWalkStepHeightName);
-  if (result != 0) return result;
-
-  result = wld_ReadIniShortInteger(&runStepHeight,
-                                  playerSectionName, 
-                                  playerRunStepHeightName);
-  if (result != 0) return result;
-
-  /* Get the name of the file containing the world map */
-
-  result = wld_ReadIniFileName(&fileName, worldSectionName, worldMapName);
-  if (result != 0) return result;
-  if (fileName == NULL) return WORLD_PLANE_FILE_NAME_ERROR;
-
-  /* Allocate and load the world */
-
-  result = wld_initialize_planes();
-  if (result != 0) return result;
-
-  result = wld_load_planefile(fileName);
-  if (result != 0) return result;
-
-  inifile_free_string(fileName);
-
-  /* Get the name of the file containing the palette table which is used
-   * to adjust the lighting with distance.
-   */
-
-  result = wld_ReadIniFileName(&fileName, worldSectionName, worldPaletteName);
-  if (result != 0) return result;
-  if (fileName == NULL) return WORLD_PALR_FILE_NAME_ERROR;
-
-  /* Then load it into palTable. */
-
-  result = wld_load_paltable(fileName);
-  if (result != 0) return result;
-
-  inifile_free_string(fileName);
-
-  /* Get the name of the file containing the texture data */
-
-  result = wld_ReadIniFileName(&fileName, worldSectionName, worldImagesName);
-  if (result != 0) return result;
-  if (fileName == NULL) return WORLD_BITMAP_FILE_NAME_ERROR;
-
-  /* Then load the bitmaps */
-
-  result = wld_initialize_bitmaps();
-  if (result != 0) return result;
-
-  result = wld_load_bitmapfile(fileName);
-  inifile_free_string(fileName);
-
-  return result;
-}
-
-/*************************************************************************
- * Name:    wld_ReadIniShortInteger
- * Description: Reads a long value from the INI file and assures that
- *              it is within range for an a int16_t 
- ************************************************************************/
-
-static uint8_t wld_ReadIniShortInteger(int16_t  *variableValue,
-                                    const char *sectionName,
-                                    const char *variableName)
-{
-  /* Read the long integer from the ini file.  We supply the default
-   * value of MAX_SINT32.  If this value is returned, we assume that
-   * that is evidence that the requested value was not supplied in the
-   * ini file.
-   */
-
-  long value = ini_read_integer(sectionName, variableName,
-                                MAX_SINT32);
-
-  /* Make sure that it is in range for a int16_t . */
-
-  if ((value < MIN_SINT16) || (value > MAX_SINT16))
-    {
-      /* It is not!... */
-
-      *variableValue = 0;
-
-      /* Is this because the integer was not found? or because
-       * it is really out of range.
-       */
-
-      if (value != MAX_SINT32)
-        {
-
-          fprintf(stderr, "Error: Integer out of range in INI file:\n");
-          fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\" value=%ld\n",
-                  sectionName, variableName, (long)variableValue);
-          return WORLD_INTEGER_OUT_OF_RANGE;
-
-        }
-      else
-        {
-
-          fprintf(stderr, "Error: Requird integer not found in INI file:\n");
-          fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\"\n",
-                  sectionName, variableName);
-          return WORLD_INTEGER_NOT_FOUND;
-        }
-    }
-  else
-    {
-
-      *variableValue = (int16_t )value;
-      return 0;
-    }
-}
-
-/*************************************************************************
- * Name:    wld_ReadIniShortInteger
- * Description: Reads a long value from the INI file
- ************************************************************************/
-
-#if 0 /* Not used */
-static uint8_t wld_ReadIniLongInteger(long *variableValue,
-                                   const char *sectionName,
-                                   const char *variableName)
-{
-  /* Read the long integer from the ini file.*/
-
-  *variableValue = ini_read_integer(sectionName, variableName, 0);
-  return 0;
-}
-#endif
-
-/*************************************************************************
- * Name:    wld_ReadIniShortInteger
- * Description: Reads a file name from the the INI file.
- ************************************************************************/
-
-static uint8_t wld_ReadIniFileName(char **fileName,
-                                const char *sectionName,
-                                const char *variableName)
-{
-  /* Read the string from the ini file.  We supply the default
-   * value of NULL.  If this value is returned, we assume that
-   * that is evidence that the requested value was not supplied in the
-   * ini file.
-   */
-
-  char *value = ini_read_string(sectionName, variableName, NULL);
-
-  /* Did we get the file name? */
-
-  if (!value)
-    {
-      /* No... */
-
-      *fileName = NULL;
-
-      fprintf(stderr, "Error: Required filename not found in INI file:\n");
-      fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\"\n",
-              sectionName, variableName);
-      return WORLD_FILENAME_NOT_FOUND;
-    }
-  else
-    {
-      *fileName = value;
-      return 0;
-    }
 }

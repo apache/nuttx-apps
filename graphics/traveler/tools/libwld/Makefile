@@ -35,8 +35,9 @@
 
 
 WD       = ${shell pwd}
-APPDIR   = $(WD)/../../..
+APPDIR   = $(WD)/../../../..
 TRAVELER = $(WD)/../..
+NUTTXDIR = $(WD)/../include
 
 BIN	= libwld.a
 WLDSRCS	= wld_createworld.c wld_deallocateworld.c
@@ -59,7 +60,7 @@ AR	= ar -rcv
 
 DEBUG_LEVEL	= 0
 DEFINES		= -DDEBUG_LEVEL=$(DEBUG_LEVEL)
-INCLUDES	= -I. -I$(APPDIR)/include -I$(TRAVELER)/include
+INCLUDES	= -I. -I$(APPDIR)/include -I$(TRAVELER)/include -isystem $(NUTTXDIR)
 WARNINGS	= -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs
 
 ifneq ($(DEBUG_LEVEL),0)

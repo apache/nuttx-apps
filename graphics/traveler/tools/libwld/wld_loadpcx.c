@@ -69,7 +69,7 @@
  *************************************************************************/
 
 static void wld_loadpcxHeader(FILE *fp, pcxHeader *header);
-static void wld_loadpcxData(FILE *fp, sint32 imagSize, uint8_t *imageBuffer);
+static void wld_loadpcxData(FILE *fp, int32_t imagSize, uint8_t *imageBuffer);
 static void wld_loadpcxPalette(FILE *fp, RGBColor *palette);
 
 /*************************************************************************
@@ -94,7 +94,7 @@ uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
 {
   FILE *fp, *fopen();
   uint16_t  imageWidth, imageHeight;
-  uint32 imageSize;
+  uint32_t imageSize;
 
   /* Open the file */
 
@@ -133,7 +133,7 @@ GraphicFileType *wld_loadpcx(FILE *fp, char *filename)
   GraphicFileType *gFile;
   RGBColor *palette;
   uint16_t  imageWidth, imageHeight;
-  uint32 imageSize;
+  uint32_t imageSize;
 
   /* Load the PCX Header */
 
@@ -196,9 +196,9 @@ static void wld_loadpcxHeader(FILE *fp, pcxHeader *header)
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxData(FILE *fp, sint32 imageSize, uint8_t *imageBuffer)
+static void wld_loadpcxData(FILE *fp, int32_t imageSize, uint8_t *imageBuffer)
 {
-  uint32 count;
+  uint32_t count;
   int16_t  numBytes;
   uint8_t data;
 

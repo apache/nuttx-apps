@@ -101,7 +101,7 @@ trv_pixel_t *palTable[NUM_ZONES];
  * Description:
  ************************************************************************/
 
-static void wld_AllocatePalTable(uint32 palTabEntrySize)
+static void wld_AllocatePalTable(uint32_t palTabEntrySize)
 {
   int i;
 

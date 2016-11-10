@@ -62,29 +62,6 @@
  * Private Functions
  *************************************************************************/
 
-
-/*************************************************************************
- * Name: wld_NewTexture
- * Description:
- ************************************************************************/
-
-static bitmapType *wld_NewTexture(uint16_t  width, uint16_t  height)
-{
-  bitmapType *t;
-
-  if (height <= 0 || width <= 0)
-    wld_fatal_error("wld_NewTexture:  bad texture dimensions");
-
-  t = (bitmapType*)wld_malloc(sizeof(bitmapType));
-  t->bm = (trv_pixel_t*)wld_malloc(height * width * sizeof(trv_pixel_t));
-
-  t->w = width;
-  t->h = height;
-  t->log2h = wld_Log2(height);
-     
-  return t;
-}
-
 /*************************************************************************
  * Name: 
  * Description:
@@ -92,7 +69,7 @@ static bitmapType *wld_NewTexture(uint16_t  width, uint16_t  height)
  *   an integer power of 2.
  ************************************************************************/
 
-static int wld_Log2(int x)
+static int wld_log2(int x)
 {
   int i;
   unsigned int n;
@@ -111,11 +88,33 @@ static int wld_Log2(int x)
 }
 
 /*************************************************************************
- * Name: wld_QuantizeTexture
+ * Name: wld_new_texture
  * Description:
  ************************************************************************/
 
-static void wld_QuantizeTexture(GraphicFileType *gFile, bitmapType *t)
+static bitmapType *wld_new_texture(uint16_t  width, uint16_t  height)
+{
+  bitmapType *t;
+
+  if (height <= 0 || width <= 0)
+    wld_fatal_error("wld_new_texture:  bad texture dimensions");
+
+  t = (bitmapType*)wld_malloc(sizeof(bitmapType));
+  t->bm = (trv_pixel_t*)wld_malloc(height * width * sizeof(trv_pixel_t));
+
+  t->w = width;
+  t->h = height;
+  t->log2h = wld_log2(height);
+
+  return t;
+}
+
+/*************************************************************************
+ * Name: wld_quantize_texture
+ * Description:
+ ************************************************************************/
+
+static void wld_quantize_texture(GraphicFileType *gFile, bitmapType *t)
 {
   RGBColor pixel;
   trv_pixel_t *destPixel = t->bm;
@@ -136,7 +135,7 @@ static void wld_QuantizeTexture(GraphicFileType *gFile, bitmapType *t)
  *************************************************************************/
 
 /*************************************************************************
- * Name: 
+ * Name: wld_read_texturefile
  * Description:
  ************************************************************************/
 
@@ -153,12 +152,12 @@ bitmapType *wld_read_texturefile(char *filename)
    *   texture mapping.  Here, we enforce this.
    */
 
-  if (wld_Log2(gFile->width) == -1 || wld_Log2(gFile->height) == -1)
+  if (wld_log2(gFile->width) == -1 || wld_log2(gFile->height) == -1)
     wld_fatal_error("Dimensions texture %s are not powers of two.", 
                   filename);
      
-  t = wld_NewTexture(gFile->width, gFile->height);
-  wld_QuantizeTexture(gFile, t);
+  t = wld_new_texture(gFile->width, gFile->height);
+  wld_quantize_texture(gFile, t);
 
   wld_free_graphicfile(gFile);
 
