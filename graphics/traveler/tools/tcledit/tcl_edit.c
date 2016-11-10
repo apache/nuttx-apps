@@ -64,64 +64,68 @@ static const char astDefaultFileName[] = "planes.pll";
  * Public Variables
  ***************************************************************************/
 
-enum editModeEnum  editMode  = EDITMODE_NONE;
+enum editModeEnum editMode = EDITMODE_NONE;
 enum editPlaneEnum editPlane = EDITPLANE_X;
-int                viewSize  = WORLD_INFINITY;
-int                gridStep  = WORLD_SIZE / 16;
+int viewSize = WORLD_INFINITY;
+int gridStep = WORLD_SIZE / 16;
 
 int coordOffset[NUM_PLANES];
 int planePosition[NUM_PLANES];
 tcl_window_t windows[NUM_PLANES] =
 {
   {
-    .title  = "X-Plane",
-    .plane  = EDITPLANE_X,
-    .width  = WINDOW_SIZE,
+    .title = "X-Plane",
+    .plane = EDITPLANE_X,
+    .width = WINDOW_SIZE,
     .height = WINDOW_SIZE,
-    .palette = {
-      Lavender,       Red,          Red,         LemonChiffon,
-      LightCyan,      LightSkyBlue, DeepSkyBlue, LightGray,
+    .palette =
+    {
+      Lavender, Red, Red, LemonChiffon,
+      LightCyan, LightSkyBlue, DeepSkyBlue, LightGray,
 
-      Lavender,       Red,          Red,         LemonChiffon,
-      LightCyan,      LightSkyBlue, DeepSkyBlue, LightGray,
+      Lavender, Red, Red, LemonChiffon,
+      LightCyan, LightSkyBlue, DeepSkyBlue, LightGray,
 
-      LightGray,      DarkGray,  DarkGray,       DarkGray,
-      LightSteelBlue, SlateGray, SlateGray,      SteelBlue,
+      LightGray, DarkGray, DarkGray, DarkGray,
+      LightSteelBlue, SlateGray, SlateGray, SteelBlue,
     },
   },
   {
-    .title  = "Y-Plane",
-    .plane  = EDITPLANE_Y,
-    .width  = WINDOW_SIZE,
-    .height = WINDOW_SIZE,
-    .palette = {
-      Lavender,       Red,          Red,         LemonChiffon,
-      LightCyan,      LightSkyBlue, DeepSkyBlue, LightGray,
+   .title = "Y-Plane",
+   .plane = EDITPLANE_Y,
+   .width = WINDOW_SIZE,
+   .height = WINDOW_SIZE,
+   .palette =
+    {
+      Lavender, Red, Red, LemonChiffon,
+      LightCyan, LightSkyBlue, DeepSkyBlue, LightGray,
 
-      Lavender,       Red,          Red,         LemonChiffon,
-      LightCyan,      LightSkyBlue, DeepSkyBlue, LightGray,
+      Lavender, Red, Red, LemonChiffon,
+      LightCyan, LightSkyBlue, DeepSkyBlue, LightGray,
 
-      LightGray,      DarkGray,  DarkGray,       DarkGray,
-      LightSteelBlue, SlateGray, SlateGray,      SteelBlue,
+      LightGray, DarkGray, DarkGray, DarkGray,
+      LightSteelBlue, SlateGray, SlateGray, SteelBlue,
     },
   },
   {
-    .title  = "Z-Plane",
-    .plane  = EDITPLANE_Z,
-    .width  = WINDOW_SIZE,
-    .height = WINDOW_SIZE,
-    .palette = {
-      Lavender,       Red,          Red,         LemonChiffon,
-      LightCyan,      LightSkyBlue, DeepSkyBlue, LightGray,
+   .title = "Z-Plane",
+   .plane = EDITPLANE_Z,
+   .width = WINDOW_SIZE,
+   .height = WINDOW_SIZE,
+   .palette =
+    {
+      Lavender, Red, Red, LemonChiffon,
+      LightCyan, LightSkyBlue, DeepSkyBlue, LightGray,
 
-      Lavender,       Red,          Red,         LemonChiffon,
-      LightCyan,      LightSkyBlue, DeepSkyBlue, LightGray,
+      Lavender, Red, Red, LemonChiffon,
+      LightCyan, LightSkyBlue, DeepSkyBlue, LightGray,
 
-      LightGray,      DarkGray,  DarkGray,       DarkGray,
-      LightSteelBlue, SlateGray, SlateGray,      SteelBlue,
+      LightGray, DarkGray, DarkGray, DarkGray,
+      LightSteelBlue, SlateGray, SlateGray, SteelBlue,
     },
-  },
+  }
 };
+
 rect_data_t editRect;
 
 /****************************************************************************
@@ -166,15 +170,14 @@ static void astUpdateNEWModeDisplay(void)
  */
 
 static int astSetEditMode(ClientData clientData,
-                          Tcl_Interp *interp,
-                          int argc, const char *argv[])
+                          Tcl_Interp * interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
   if (argc != 3)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
   else if (strcmp(argv[1], "POS") == 0)
     {
@@ -190,60 +193,59 @@ static int astSetEditMode(ClientData clientData,
       if (strcmp(argv[2], "x") == 0)
         {
           ginfo("Entering NEWX mode\n");
-          editPlane       = EDITPLANE_X;
-          editRect.plane  = planePosition[EDITPLANE_X];
+          editPlane = EDITPLANE_X;
+          editRect.plane = planePosition[EDITPLANE_X];
           editRect.hStart = planePosition[EDITPLANE_Y];
-          editRect.hEnd   = editRect.hStart;
+          editRect.hEnd = editRect.hStart;
           editRect.vStart = planePosition[EDITPLANE_Z];
-          editRect.vEnd   = editRect.vStart;
+          editRect.vEnd = editRect.vStart;
         }
       else if (strcmp(argv[2], "y") == 0)
         {
           ginfo("Entering NEWY mode\n");
-          editPlane       = EDITPLANE_Y;
-          editRect.plane  = planePosition[EDITPLANE_Y];
+          editPlane = EDITPLANE_Y;
+          editRect.plane = planePosition[EDITPLANE_Y];
           editRect.hStart = planePosition[EDITPLANE_X];
-          editRect.hEnd   = editRect.hStart;
+          editRect.hEnd = editRect.hStart;
           editRect.vStart = planePosition[EDITPLANE_Z];
-          editRect.vEnd   = editRect.vStart;
+          editRect.vEnd = editRect.vStart;
         }
       else if (strcmp(argv[2], "z") == 0)
         {
           ginfo("Entering NEWZ mode\n");
-          editPlane       = EDITPLANE_Z;
-          editRect.plane  = planePosition[EDITPLANE_Z];
+          editPlane = EDITPLANE_Z;
+          editRect.plane = planePosition[EDITPLANE_Z];
           editRect.hStart = planePosition[EDITPLANE_X];
-          editRect.hEnd   = editRect.hStart;
+          editRect.hEnd = editRect.hStart;
           editRect.vStart = planePosition[EDITPLANE_Y];
-          editRect.vEnd   = editRect.vStart;
+          editRect.vEnd = editRect.vStart;
         }
       else
         {
           wld_fatal_error("%s: Unrecognized NEW plane: %s\n",
-                        __FUNCTION__, argv[2]);
+                          __FUNCTION__, argv[2]);
         }
       astUpdateNEWModeDisplay();
     }
   else
     {
-      wld_fatal_error("%s: Unrecognized mode: %s\n",
-                    __FUNCTION__, argv[1]);
+      wld_fatal_error("%s: Unrecognized mode: %s\n", __FUNCTION__, argv[1]);
     }
+
   return TCL_OK;
 }
 
 /* Called in response to the "ast_position" Tcl command */
 
 static int astNewPosition(ClientData clientData,
-                          Tcl_Interp *interp,
-                          int argc, const char *argv[])
+                          Tcl_Interp * interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
   if (argc != 4)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
 
   planePosition[0] = atoi(argv[1]);
@@ -251,7 +253,7 @@ static int astNewPosition(ClientData clientData,
   planePosition[2] = atoi(argv[3]);
 
   ginfo("New plane positions: {%d,%d,%d}\n",
-      planePosition[0], planePosition[1], planePosition[2]);
+        planePosition[0], planePosition[1], planePosition[2]);
 
   astUpdatePOSModeDisplay();
   return TCL_OK;
@@ -260,20 +262,19 @@ static int astNewPosition(ClientData clientData,
 /* Called in response to the "ast_zoom" Tcl command */
 
 static int astNewZoom(ClientData clientData,
-                          Tcl_Interp *interp,
-                          int argc, const char *argv[])
+                      Tcl_Interp * interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
   if (argc != 5)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
 
   /* Get the zoom settings */
 
-  viewSize       = atoi(argv[1]);
+  viewSize = atoi(argv[1]);
   coordOffset[0] = atoi(argv[2]);
   coordOffset[1] = atoi(argv[3]);
   coordOffset[2] = atoi(argv[4]);
@@ -282,40 +283,40 @@ static int astNewZoom(ClientData clientData,
 
   if (viewSize <= 256)
     {
-      gridStep = 16; /* 16 lines at 256 */
+      gridStep = 16;            /* 16 lines at 256 */
     }
   else if (viewSize <= 512)
     {
-      gridStep = 32; /* 16 lines at 512 */
+      gridStep = 32;            /* 16 lines at 512 */
     }
   else if (viewSize <= 1024)
     {
-      gridStep = 64; /* 16 lines at 1024 */
+      gridStep = 64;            /* 16 lines at 1024 */
     }
   else if (viewSize <= 2048)
     {
-      gridStep = 128; /* 16 lines at 2048 */
+      gridStep = 128;           /* 16 lines at 2048 */
     }
   else if (viewSize <= 4096)
     {
-      gridStep = 256; /* 16 lines at 4096 */
+      gridStep = 256;           /* 16 lines at 4096 */
     }
   else if (viewSize <= 8192)
     {
-      gridStep = 512; /* 16 lines at 8196 */
+      gridStep = 512;           /* 16 lines at 8196 */
     }
   else if (viewSize <= 16384)
     {
-      gridStep = 1024; /* 16 lines at 16384 */
+      gridStep = 1024;          /* 16 lines at 16384 */
     }
-  else /* if (viewSize <= 32768) */
+  else                          /* if (viewSize <= 32768) */
     {
-      gridStep = 2048; /* 16 lines at 32768 */
+      gridStep = 2048;          /* 16 lines at 32768 */
     }
 
   ginfo("New viewSize, gridStep: %d, %d\n", viewSize, gridStep);
   ginfo("New coordinate offsets: {%d,%d,%d}\n",
-      coordOffset[0], coordOffset[1], coordOffset[2]);
+        coordOffset[0], coordOffset[1], coordOffset[2]);
 
   if (editMode == EDITMODE_POS)
     {
@@ -331,8 +332,7 @@ static int astNewZoom(ClientData clientData,
 /* Called in response to the "ast_edit" Tcl command */
 
 static int astNewEdit(ClientData clientData,
-                          Tcl_Interp *interp,
-                          int argc, const char *argv[])
+                      Tcl_Interp * interp, int argc, const char *argv[])
 {
   int start;
   int end;
@@ -343,7 +343,7 @@ static int astNewEdit(ClientData clientData,
   if (argc != 4)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
 
   /* Ignore the command if we are not in NEW mode */
@@ -352,9 +352,9 @@ static int astNewEdit(ClientData clientData,
     {
       /* Get the new position information */
 
-      start  = atoi(argv[2]);
+      start = atoi(argv[2]);
       extent = atoi(argv[3]);
-      end    = start + extent - 1;
+      end = start + extent - 1;
 
       /* Which plane are we editting? */
 
@@ -370,18 +370,18 @@ static int astNewEdit(ClientData clientData,
             {
               ginfo("New horizontal Y coordinates: {%d,%d}\n", start, end);
               editRect.hStart = start;
-              editRect.hEnd   = end;
+              editRect.hEnd = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
               ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
               editRect.vStart = start;
-              editRect.vEnd   = end;
+              editRect.vEnd = end;
             }
           else
             {
               wld_fatal_error("%s: Unrecognized EDITX plane: %s\n",
-                            __FUNCTION__, argv[1]);
+                              __FUNCTION__, argv[1]);
             }
           break;
 
@@ -390,7 +390,7 @@ static int astNewEdit(ClientData clientData,
             {
               ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
               editRect.hStart = start;
-              editRect.hEnd   = end;
+              editRect.hEnd = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
@@ -401,12 +401,12 @@ static int astNewEdit(ClientData clientData,
             {
               ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
               editRect.vStart = start;
-              editRect.vEnd   = end;
+              editRect.vEnd = end;
             }
           else
             {
               wld_fatal_error("%s: Unrecognized EDITY plane: %s\n",
-                            __FUNCTION__, argv[1]);
+                              __FUNCTION__, argv[1]);
             }
           break;
 
@@ -415,13 +415,13 @@ static int astNewEdit(ClientData clientData,
             {
               ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
               editRect.hStart = start;
-              editRect.hEnd   = end;
+              editRect.hEnd = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
               ginfo("New vertical Y coordinates: {%d,%d}\n", start, end);
               editRect.vStart = start;
-              editRect.vEnd   = end;
+              editRect.vEnd = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
@@ -431,7 +431,7 @@ static int astNewEdit(ClientData clientData,
           else
             {
               wld_fatal_error("%s: Unrecognized EDITZ plane: %s\n",
-                            __FUNCTION__, argv[1]);
+                              __FUNCTION__, argv[1]);
             }
           break;
 
@@ -446,8 +446,7 @@ static int astNewEdit(ClientData clientData,
 /* Called in response to the "ast_attribute" Tcl command */
 
 static int astNewAttributes(ClientData clientData,
-                            Tcl_Interp *interp,
-                            int argc, const char *argv[])
+                            Tcl_Interp * interp, int argc, const char *argv[])
 {
   const char *attributes;
   int tmp;
@@ -457,14 +456,14 @@ static int astNewAttributes(ClientData clientData,
   if (argc != 4)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
 
   attributes = argv[1];
   if (strlen(attributes) != 3)
     {
       wld_fatal_error("%s: Unexpected attribute string length: %s\n",
-                    __FUNCTION__, argv[1]);
+                      __FUNCTION__, argv[1]);
     }
 
   /* Ignore the command if we are not in NEW mode */
@@ -500,7 +499,7 @@ static int astNewAttributes(ClientData clientData,
       ginfo("attributes: %s->%02x\n", attributes, editRect.attribute);
 
       tmp = atoi(argv[2]);
-      if ((tmp >=0) && (tmp < 256))
+      if ((tmp >= 0) && (tmp < 256))
         {
           editRect.texture = tmp;
         }
@@ -511,7 +510,7 @@ static int astNewAttributes(ClientData clientData,
       ginfo("texture: %s->%d\n", argv[2], editRect.texture);
 
       tmp = atoi(argv[3]);
-      if ((tmp >=0) && (tmp <= MAXX_SCALING))
+      if ((tmp >= 0) && (tmp <= MAXX_SCALING))
         {
           editRect.scale = tmp;
         }
@@ -521,22 +520,22 @@ static int astNewAttributes(ClientData clientData,
         }
       ginfo("scale: %s->%d\n", argv[3], editRect.scale);
     }
+
   return TCL_OK;
 }
 
 /* Called in response to the "ast_addrectangle" Tcl command */
 
 static int astAddRectangle(ClientData clientData,
-                           Tcl_Interp *interp,
-                           int argc, const char *argv[])
+                           Tcl_Interp * interp, int argc, const char *argv[])
 {
-  
+
   ginfo("Processing command: %s\n", argv[0]);
 
   if (argc != 1)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
 
   /* Ignore the command if we are not in NEW mode */
@@ -556,15 +555,15 @@ static int astAddRectangle(ClientData clientData,
       switch (editPlane)
         {
         case EDITPLANE_X:
-          wld_add_plane(rect, &xPlane);
+          wld_add_plane(rect, &g_xplane_list);
           break;
 
         case EDITPLANE_Y:
-          wld_add_plane(rect, &yPlane);
+          wld_add_plane(rect, &g_yplane_list);
           break;
 
         case EDITPLANE_Z:
-          wld_add_plane(rect, &zPlane);
+          wld_add_plane(rect, &g_zplane_list);
           break;
         }
     }
@@ -574,16 +573,15 @@ static int astAddRectangle(ClientData clientData,
 /* Called in response to the "ast_save" Tcl command */
 
 static int astSaveRectangles(ClientData clientData,
-                             Tcl_Interp *interp,
-                             int argc, const char *argv[])
+                             Tcl_Interp * interp, int argc, const char *argv[])
 {
-  
+
   ginfo("Processing command: %s\n", argv[0]);
 
   if (argc != 1)
     {
       wld_fatal_error("%s: Unexpected number of arguments: %d\n",
-                    __FUNCTION__, argc);
+                      __FUNCTION__, argc);
     }
 
   wld_save_planes(astOutFileName);
@@ -592,8 +590,7 @@ static int astSaveRectangles(ClientData clientData,
 
 static void show_usage(const char *progname)
 {
-  fprintf(stderr, "USAGE:\n\t%s [-o <outfilename>] <infilename>\n",
-          progname);
+  fprintf(stderr, "USAGE:\n\t%s [-o <outfilename>] <infilename>\n", progname);
   exit(1);
 }
 
@@ -613,7 +610,7 @@ int main(int argc, char **argv, char **envp)
     {
       switch (option)
         {
-        case 'o' :
+        case 'o':
           astOutFileName = optarg;
           break;
         default:
@@ -623,29 +620,26 @@ int main(int argc, char **argv, char **envp)
         }
     }
 
-  /* We expect at least one argument after the options: The input
-   * file name.
-   */
+  /* We expect at least one argument after the options: The input file name. */
 
   if (optind > argc - 1)
     {
       fprintf(stderr, "Expected input file name\n");
       show_usage(argv[0]);
     }
+
   astInFileName = argv[optind];
 
-  /* Read the plane file now so that we can be certain that it is
-   * a valid plaine file.
-   */
+  /* Read the plane file now so that we can be certain that it is a valid
+   * plaine file. */
 
   if (wld_load_planefile(astInFileName) != PLANE_SUCCESS)
     {
       exit(1);
     }
 
-  /* Tk_Main creates a Tcl interpreter and calls Tcl_AppInit() then
-   * begins processing window events and interactive commands.
-   */
+  /* Tk_Main creates a Tcl interpreter and calls Tcl_AppInit() then begins
+   * processing window events and interactive commands. */
 
   Tk_Main(1, argv, Tcl_AppInit);
   exit(0);
@@ -665,7 +659,7 @@ int do_tcl_action(const char *script)
  * is entered.
  */
 
-int Tcl_AppInit(Tcl_Interp *interp)
+int Tcl_AppInit(Tcl_Interp * interp)
 {
   int i;
 
@@ -695,19 +689,19 @@ int Tcl_AppInit(Tcl_Interp *interp)
   /* Define application-specific commands */
 
   Tcl_CreateCommand(astInterp, "ast_seteditmode", astSetEditMode,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
   Tcl_CreateCommand(astInterp, "ast_position", astNewPosition,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
   Tcl_CreateCommand(astInterp, "ast_zoom", astNewZoom,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
   Tcl_CreateCommand(astInterp, "ast_edit", astNewEdit,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
   Tcl_CreateCommand(astInterp, "ast_attributes", astNewAttributes,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
   Tcl_CreateCommand(astInterp, "ast_addrectangle", astAddRectangle,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
   Tcl_CreateCommand(astInterp, "ast_save", astSaveRectangles,
-                    (ClientData)0, (Tcl_CmdDeleteProc *) NULL);
+                    (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 
   /* Initialize the Tcl parser */
 
@@ -723,12 +717,12 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
 void wld_fatal_error(char *message, ...)
 {
-   va_list args;
+  va_list args;
 
-   va_start(args, message);
-   vfprintf(stderr, message, args);
-   putc('\n', stderr);
-   va_end(args);
+  va_start(args, message);
+  vfprintf(stderr, message, args);
+  putc('\n', stderr);
+  va_end(args);
 
-   exit(1);
+  exit(1);
 }

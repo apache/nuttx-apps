@@ -59,12 +59,12 @@
 
 void wld_fatal_error(char *message, ...)
 {
-   va_list args;
+  va_list args;
 
-   va_start(args, message);
-   vfprintf(stderr, message, args);
-   putc('\n', stderr);
-   va_end(args);
+  va_start(args, message);
+  vfprintf(stderr, message, args);
+  putc('\n', stderr);
+  va_end(args);
 
-   exit(EXIT_FAILURE);
+  exit(EXIT_FAILURE);
 }

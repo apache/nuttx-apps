@@ -126,43 +126,50 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
   /* Read the initial camera/player position */
 
   result = wld_read_shortint(handle, &g_initial_camera.x,
-                             g_camera_section_name,
-                             g_camera_initialx_name);
+                             g_camera_section_name, g_camera_initialx_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   result = wld_read_shortint(handle, &g_initial_camera.y,
-                             g_camera_section_name,
-                             g_camera_initialy_name);
+                             g_camera_section_name, g_camera_initialy_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   result = wld_read_shortint(handle, &g_initial_camera.z,
-                             g_camera_section_name,
-                             g_camera_initialz_name);
+                             g_camera_section_name, g_camera_initialz_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   /* Get the player's yaw/pitch orientation */
 
   result = wld_read_shortint(handle, &g_initial_camera.yaw,
-                             g_camera_section_name,
-                             g_camera_initialyaw_name);
+                             g_camera_section_name, g_camera_initialyaw_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   result = wld_read_shortint(handle, &g_initial_camera.pitch,
                              g_camera_section_name, g_camera_initialpitch_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   /* Get the height of the player */
 
   result = wld_read_shortint(handle, &playerHeight,
-                             g_player_section_name,
-                             g_player_height_name);
+                             g_player_section_name, g_player_height_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   /* Read the player's capability to step on top of things in the world. */
 
@@ -170,33 +177,45 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
                              g_player_section_name,
                              g_player_walk_stepheight_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   result = wld_read_shortint(handle, &runStepHeight,
                              g_player_section_name,
                              g_player_run_stepheight_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   /* Get the name of the file containing the world map */
 
   result = wld_read_filename(handle, &filename,
-                             g_world_section_name,
-                             g_wold_map_name);
+                             g_world_section_name, g_wold_map_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
+
   if (filename == NULL)
-    return WORLD_PLANE_FILE_NAME_ERROR;
+    {
+      return WORLD_PLANE_FILE_NAME_ERROR;
+    }
 
   /* Allocate and load the world */
 
   result = wld_initialize_planes();
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   result = wld_load_planefile(filename);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   inifile_free_string(filename);
 
@@ -206,15 +225,22 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
   result = wld_read_filename(handle, &filename, g_world_section_name,
                              g_world_palette_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
+
   if (filename == NULL)
-    return WORLD_PALR_FILE_NAME_ERROR;
+    {
+      return WORLD_PALR_FILE_NAME_ERROR;
+    }
 
   /* Then load it into g_pal_table. */
 
   result = wld_load_paltable(filename);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   inifile_free_string(filename);
 
@@ -223,9 +249,14 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
   result = wld_read_filename(handle, &filename, g_world_section_name,
                              g_world_images_name);
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
+
   if (filename == NULL)
-    return WORLD_BITMAP_FILE_NAME_ERROR;
+    {
+      return WORLD_BITMAP_FILE_NAME_ERROR;
+    }
 
   /* Create the RGB lookup table */
 
@@ -235,7 +266,9 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
 
   result = wld_initialize_bitmaps();
   if (result != 0)
-    return result;
+    {
+      return result;
+    }
 
   result = wld_load_bitmapfile(filename);
   inifile_free_string(filename);
@@ -329,8 +362,7 @@ static uint8_t wld_read_filename(INIHANDLE handle,
 {
   /* Read the string from the ini file.  We supply the default value of NULL.
    * If this value is returned, we assume that that is evidence that the
-   * requested value was not supplied in the ini file.
-   */
+   * requested value was not supplied in the ini file. */
 
   char *value = inifile_read_string(handle, section_name, variable_name,
                                     NULL);

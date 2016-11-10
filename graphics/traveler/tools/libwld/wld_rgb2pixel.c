@@ -49,48 +49,48 @@
  *   TRV_PIXEL_MAX.
  ****************************************************************************/
 
-trv_pixel_t wld_rgb2pixel(color_rgb_t *pixel)
+trv_pixel_t wld_rgb2pixel(color_rgb_t * pixel)
 {
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-   color_lum_t lum;
+  color_lum_t lum;
 
-   /* Convert the RGB Value into a luminance value.
-    * Get the luminance associated with the RGB value.
-    */
+  /* Convert the RGB Value into a luminance value. Get the luminance associated 
+   * with the RGB value.
+   */
 
-   lum.luminance = sqrt(pixel->red   * pixel->red
-                      + pixel->green * pixel->green
-                      + pixel->blue  * pixel->blue);
+  lum.luminance = sqrt(pixel->red * pixel->red
+                       + pixel->green * pixel->green
+                       + pixel->blue * pixel->blue);
 
-   /* Convert the RGB Component into unit vector + luminance */
+  /* Convert the RGB Component into unit vector + luminance */
 
-   if (lum.luminance > 0.0)
-     {
-       lum.red   = (float)pixel->red   / lum.luminance;
-       lum.green = (float)pixel->green / lum.luminance;
-       lum.blue  = (float)pixel->blue  / lum.luminance;
-     }
-   else
-     {
-       lum.red = lum.green = lum.blue = g_unit_vector[GREY_NDX].red; 
-     }
+  if (lum.luminance > 0.0)
+    {
+      lum.red = (float)pixel->red / lum.luminance;
+      lum.green = (float)pixel->green / lum.luminance;
+      lum.blue = (float)pixel->blue / lum.luminance;
+    }
+  else
+    {
+      lum.red = lum.green = lum.blue = g_unit_vector[GREY_NDX].red;
+    }
 
-   return wld_lum2pixel(&lum);
+  return wld_lum2pixel(&lum);
 #else
-   trv_pixel_t ret;
-   int red;
-   int green;
-   int blue;
+  trv_pixel_t ret;
+  int red;
+  int green;
+  int blue;
 
-   red   = MIN((pixel->red   * RGB_CUBE_SIZE) / (TRV_PIXEL_MAX + 1),
-               RGB_CUBE_SIZE - 1);
-   green = MIN((pixel->green * RGB_CUBE_SIZE) / (TRV_PIXEL_MAX + 1),
-               RGB_CUBE_SIZE - 1);
-   blue  = MIN((pixel->blue  * RGB_CUBE_SIZE) / (TRV_PIXEL_MAX + 1),
-               RGB_CUBE_SIZE - 1);
+  red = MIN((pixel->red * RGB_CUBE_SIZE) / (TRV_PIXEL_MAX + 1),
+            RGB_CUBE_SIZE - 1);
+  green = MIN((pixel->green * RGB_CUBE_SIZE) / (TRV_PIXEL_MAX + 1),
+              RGB_CUBE_SIZE - 1);
+  blue = MIN((pixel->blue * RGB_CUBE_SIZE) / (TRV_PIXEL_MAX + 1),
+             RGB_CUBE_SIZE - 1);
 
-   ret = (red * RGB_CUBE_SIZE + green) * RGB_CUBE_SIZE + blue;
+  ret = (red * RGB_CUBE_SIZE + green) * RGB_CUBE_SIZE + blue;
 
-   return ret;
+  return ret;
 #endif
 }

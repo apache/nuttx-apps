@@ -40,11 +40,11 @@
  * Included files
  *************************************************************************/
 
-#include <stdio.h>
-#include <malloc.h>
-#include "trv_types.h"
-#include "wld_mem.h"
-#include "wld_pcx.h"
+#  include <stdio.h>
+#  include <malloc.h>
+#  include "trv_types.h"
+#  include "wld_mem.h"
+#  include "wld_pcx.h"
 
 /*************************************************************************
  * Public Functions
@@ -56,28 +56,28 @@
  * This function allocates the buffer region needed to load a pcx file
  ************************************************************************/
 
-uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t  height, uint16_t  width,
-                 RGBColor *palette, uint8_t *buffer)
+uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t height, uint16_t width,
+                     RGBColor * palette, uint8_t * buffer)
 {
   image->palette = palette;
 
   if (buffer)
     {
       image->buffer = buffer;
-	}
+    }
   else
     {
-      image->buffer = (uint8_t*)wld_malloc(height * width + 1);
-	}
+      image->buffer = (uint8_t *) wld_malloc(height * width + 1);
+    }
 
   if (!image->buffer)
     {
       return PCX_ALLOCATION_FAILURE;
-	}
+    }
   else
     {
       return PCX_SUCCESS;
-	}
+    }
 }
 
 #endif /* MSWINDOWS */

@@ -47,8 +47,8 @@
 #include "wld_pcx.h"
 #include "wld_utils.h"
 
-graphic_file_t *wld_LoadPPM(FILE *fp, char *filename);
-graphic_file_t *wld_LoadGIF(FILE *fp, char *filename);
+graphic_file_t *wld_LoadPPM(FILE * fp, char *filename);
+graphic_file_t *wld_LoadGIF(FILE * fp, char *filename);
 
 /*************************************************************************
  * Private Data
@@ -65,7 +65,7 @@ static const char pcxExtension[] = ".PCX";
  * Description:
  ************************************************************************/
 
-static graphic_file_format_t wld_CheckFormat(FILE *fp, char *filename)
+static graphic_file_format_t wld_CheckFormat(FILE * fp, char *filename)
 {
   char magic[MAGIC_LENGTH];
 
@@ -74,7 +74,7 @@ static graphic_file_format_t wld_CheckFormat(FILE *fp, char *filename)
       wld_fatal_error("Error reading texture %s.", filename);
     }
 
-  if (strncmp(magic, PPM_MAGIC, sizeof(PPM_MAGIC) -  1) == 0)
+  if (strncmp(magic, PPM_MAGIC, sizeof(PPM_MAGIC) - 1) == 0)
     {
       return formatPPM;
     }
@@ -90,7 +90,7 @@ static graphic_file_format_t wld_CheckFormat(FILE *fp, char *filename)
     {
       char *ptr1;
       char *ptr2;
- 
+
       /* MS-DOS PCX files will have no magic number, we'll have to make an
        * educated guess based on the file extension.
        */
@@ -101,7 +101,7 @@ static graphic_file_format_t wld_CheckFormat(FILE *fp, char *filename)
 
       /* Check if the extension matches */
 
-      for (ptr2 = (char*)pcxExtension; ((*ptr1) && (*ptr2)); ptr1++, ptr2++)
+      for (ptr2 = (char *)pcxExtension; ((*ptr1) && (*ptr2)); ptr1++, ptr2++)
         {
           if (toupper((int)*ptr1) != *ptr2)
             {
@@ -109,17 +109,17 @@ static graphic_file_format_t wld_CheckFormat(FILE *fp, char *filename)
             }
         }
 
-      /* If it is an exact match, both pointers should refer to the
-       * NULL terminator.
+      /* If it is an exact match, both pointers should refer to the NULL
+       * terminator.
        */
 
       if (!(*ptr1) && !(*ptr2))
         {
           return formatPCX;
         }
-   }
+    }
 
-   return formatUnknown;
+  return formatUnknown;
 }
 
 /*************************************************************************
@@ -177,4 +177,3 @@ graphic_file_t *wld_readgraphic_file(char *filename)
   fclose(fp);
   return gfile;
 }
-

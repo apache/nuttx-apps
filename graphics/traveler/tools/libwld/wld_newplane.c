@@ -70,7 +70,7 @@ rect_list_t *wld_new_plane(void)
     {
       /* Nothing on the free list.  Allocate a new one */
 
-      rect = (rect_list_t*)wld_malloc(sizeof(rect_list_t));
+      rect = (rect_list_t *) wld_malloc(sizeof(rect_list_t));
     }
 
   return rect;

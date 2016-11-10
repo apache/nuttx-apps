@@ -101,9 +101,9 @@ typedef struct
  * bitmaps
  */
 
-extern wld_bitmap_t *evenBitmaps[MAX_BITMAPS];
+extern wld_bitmap_t *g_even_bitmaps[MAX_BITMAPS];
 #ifndef WEDIT
-extern wld_bitmap_t *oddBitmaps[MAX_BITMAPS];
+extern wld_bitmap_t *g_odd_bitmaps[MAX_BITMAPS];
 #endif
 
 /* This is the palette to use for the selected world */
@@ -114,7 +114,7 @@ extern RGBColor worldPalette[256];
 
 /* This is the maximum value + 1 of a texture code */
 
-extern uint16_t numBitmaps;
+extern uint16_t g_nbitmaps;
 
 /* These are the colors from the worldPalette which should used to rend
  * the sky and ground

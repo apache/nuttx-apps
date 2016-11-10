@@ -1,3 +1,4 @@
+
 /****************************************************************************
  * apps/graphics/traveler/tools/libwld/wld_initializeplanes.c
  * This file contains the logic initialize world plane data structures
@@ -54,9 +55,9 @@
 
 uint8_t wld_initialize_planes(void)
 {
-  xPlane.head = xPlane.tail = NULL;
-  yPlane.head = yPlane.tail = NULL;
-  zPlane.head = zPlane.tail = NULL;
+  g_xplane_list.head = g_xplane_list.tail = NULL;
+  g_yplane_list.head = g_yplane_list.tail = NULL;
+  g_zplane_list.head = g_zplane_list.tail = NULL;
   freeList = NULL;
 
   return PLANE_SUCCESS;

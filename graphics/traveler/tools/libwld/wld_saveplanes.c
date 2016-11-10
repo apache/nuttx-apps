@@ -47,16 +47,15 @@
  * Private Functions
  *************************************************************************/
 
-
 /*************************************************************************
  * Name: wld_CountRectangles
  * Description:
  * This function counts the number of rectangles in one plane
  ************************************************************************/
 
-static uint16_t  wld_CountRectangles(rect_list_t *rect)
+static uint16_t wld_CountRectangles(rect_list_t * rect)
 {
-  uint16_t  count;
+  uint16_t count;
   for (count = 0; (rect); count++, rect = rect->flink);
   return count;
 }
@@ -67,7 +66,7 @@ static uint16_t  wld_CountRectangles(rect_list_t *rect)
  * This function stores the world data for one plane
  ************************************************************************/
 
-static uint8_t wld_SaveWorldPlane(FILE *fp, rect_list_t *rect)
+static uint8_t wld_SaveWorldPlane(FILE * fp, rect_list_t * rect)
 {
   /* For each rectangle in the list */
 
@@ -75,7 +74,7 @@ static uint8_t wld_SaveWorldPlane(FILE *fp, rect_list_t *rect)
     {
       /* Write the rectangle to the output file */
 
-      if (fwrite((char*)&rect->d, SIZEOF_RECTDATATYPE, 1, fp) != 1)
+      if (fwrite((char *)&rect->d, SIZEOF_RECTDATATYPE, 1, fp) != 1)
         return PLANE_DATA_WRITE_ERROR;
     }
 
@@ -94,35 +93,45 @@ static uint8_t wld_SaveWorldPlane(FILE *fp, rect_list_t *rect)
 
 uint8_t wld_save_planes(const char *wldFile)
 {
-  FILE  *fp;
+  FILE *fp;
   plane_file_header_t fileHeader;
-  uint8_t  result;
+  uint8_t result;
 
   /* Open the file which contains the description of the world */
 
   fp = fopen(wldFile, "wb");
-  if (!fp) return PLANE_WRITE_OPEN_ERROR;
+  if (!fp)
+    {
+      return PLANE_WRITE_OPEN_ERROR;
+    }
 
   /* Create world file header */
 
-  fileHeader.numXRects = wld_CountRectangles(xPlane.head);
-  fileHeader.numYRects = wld_CountRectangles(yPlane.head);
-  fileHeader.numZRects = wld_CountRectangles(zPlane.head);
+  fileHeader.numXRects = wld_CountRectangles(g_xplane_list.head);
+  fileHeader.numYRects = wld_CountRectangles(g_yplane_list.head);
+  fileHeader.numZRects = wld_CountRectangles(g_zplane_list.head);
 
   /* Write the file header to the output file */
 
-  if (fwrite((char*)&fileHeader, SIZEOF_PLANEFILEHEADERTYPE, 1, fp) != 1)
-    result = PLANE_HEADER_WRITE_ERROR;
+  if (fwrite((char *)&fileHeader, SIZEOF_PLANEFILEHEADERTYPE, 1, fp) != 1)
+    {
+      result = PLANE_HEADER_WRITE_ERROR;
+    }
 
   /* Save the world, one plane at a time */
 
   else
     {
-      result = wld_SaveWorldPlane(fp, xPlane.head);
+      result = wld_SaveWorldPlane(fp, g_xplane_list.head);
       if (result == PLANE_SUCCESS)
-        result = wld_SaveWorldPlane(fp, yPlane.head);
+        {
+          result = wld_SaveWorldPlane(fp, g_yplane_list.head);
+        }
+
       if (result == PLANE_SUCCESS)
-        wld_SaveWorldPlane(fp, zPlane.head);
+        {
+          wld_SaveWorldPlane(fp, g_zplane_list.head);
+        }
     }
 
   /* Close the file */

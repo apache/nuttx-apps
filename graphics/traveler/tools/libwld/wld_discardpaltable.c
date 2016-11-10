@@ -54,6 +54,7 @@
 void wld_discard_paltable(void)
 {
   int i;
+
   for (i = 0; i < NUM_ZONES; i++)
     {
       if (g_pal_table[i])

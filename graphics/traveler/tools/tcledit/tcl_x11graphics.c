@@ -46,8 +46,8 @@
 #include <X11/Xutil.h>
 #include <sys/ipc.h>
 #ifndef NO_XSHM
-#include <sys/shm.h>
-#include <X11/extensions/XShm.h>
+#  include <sys/shm.h>
+#  include <X11/extensions/XShm.h>
 #endif
 
 #include "trv_types.h"
@@ -75,11 +75,11 @@ static int useShm;
  * Private Functions
  ****************************************************************************/
 
-static void x11_create_window(tcl_window_t *w);
-static void x11_load_palette(tcl_window_t *w);
-static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap);
-static void x11_map_sharedmemory(tcl_window_t *w, int depth);
-static void x11_unmap_sharedmemory(tcl_window_t *w);
+static void x11_create_window(tcl_window_t * w);
+static void x11_load_palette(tcl_window_t * w);
+static bool x11_allocate_colors(tcl_window_t * w, Colormap colormap);
+static void x11_map_sharedmemory(tcl_window_t * w, int depth);
+static void x11_unmap_sharedmemory(tcl_window_t * w);
 static void x11_unmap_all_sharedmemory(void);
 
 /****************************************************************************
@@ -91,7 +91,7 @@ static void x11_unmap_all_sharedmemory(void);
  * Description:
  ***************************************************************************/
 
-static void x11_create_window(tcl_window_t *w)
+static void x11_create_window(tcl_window_t * w)
 {
   XGCValues gcValues;
   char *argv[2] = { "xast", NULL };
@@ -114,8 +114,8 @@ static void x11_create_window(tcl_window_t *w)
   XStringListToTextProperty(&iconName, 1, &iNameProp);
 
   sizeHints.flags = PSize | PMinSize | PMaxSize;
-  sizeHints.width= sizeHints.min_width = sizeHints.max_width = w->width;
-  sizeHints.height= sizeHints.min_height = sizeHints.max_height = w->height;
+  sizeHints.width = sizeHints.min_width = sizeHints.max_width = w->width;
+  sizeHints.height = sizeHints.min_height = sizeHints.max_height = w->height;
 
   XSetWMProperties(w->display, w->win, &wNameProp, &iNameProp, argv, 1,
                    &sizeHints, NULL, NULL);
@@ -133,7 +133,7 @@ static void x11_create_window(tcl_window_t *w)
  * Description:
  ***************************************************************************/
 
-static void x11_load_palette(tcl_window_t *w)
+static void x11_load_palette(tcl_window_t * w)
 {
   Colormap cMap;
 
@@ -147,8 +147,7 @@ static void x11_load_palette(tcl_window_t *w)
       XFreeColors(w->display, cMap, w->colorLookup, w->ncolors, 0);
 
       cMap = XCreateColormap(w->display, w->win,
-                             DefaultVisual(w->display, w->screen),
-                             AllocNone);
+                             DefaultVisual(w->display, w->screen), AllocNone);
 
       if (!x11_allocate_colors(w, cMap))
         {
@@ -166,7 +165,7 @@ static void x11_load_palette(tcl_window_t *w)
  * Description:
  ***************************************************************************/
 
-static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
+static bool x11_allocate_colors(tcl_window_t * w, Colormap colormap)
 {
   int i;
 
@@ -184,9 +183,9 @@ static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
        * represented by (65535,65535,65535).
        */
 
-      color.red   = ((unsigned short)w->palette[i].red   << 8);
+      color.red = ((unsigned short)w->palette[i].red << 8);
       color.green = ((unsigned short)w->palette[i].green << 8);
-      color.blue  = ((unsigned short)w->palette[i].blue  << 8);
+      color.blue = ((unsigned short)w->palette[i].blue << 8);
       color.flags = DoRed | DoGreen | DoBlue;
 
       /* Then allocate a color for this selection */
@@ -199,9 +198,9 @@ static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
       /* Save the RGB to pixel lookup data */
 
       ginfo("%d.%d {%02x,%02x,%02x}->0x%06lx\n",
-           w->plane, i,
-           w->palette[i].red, w->palette[i].green, w->palette[i].blue,
-           color.pixel);
+            w->plane, i,
+            w->palette[i].red, w->palette[i].green, w->palette[i].blue,
+            color.pixel);
 
       w->colorLookup[i] = color.pixel;
       w->ncolors++;
@@ -215,7 +214,7 @@ static bool x11_allocate_colors(tcl_window_t *w, Colormap colormap)
  ***************************************************************************/
 
 #ifndef NO_XSHM
-static int errorHandler(Display *display, XErrorEvent *event)
+static int errorHandler(Display * display, XErrorEvent * event)
 {
   xError = 1;
 
@@ -242,9 +241,9 @@ static void trapErrors(void)
  ***************************************************************************/
 
 #ifndef NO_XSHM
-static int untrapErrors(Display *display)
+static int untrapErrors(Display * display)
 {
-  XSync(display,0);
+  XSync(display, 0);
   XSetErrorHandler(NULL);
   return xError;
 }
@@ -255,7 +254,7 @@ static int untrapErrors(Display *display)
  * Description:
  ***************************************************************************/
 
-static void x11_map_sharedmemory(tcl_window_t *w, int depth)
+static void x11_map_sharedmemory(tcl_window_t * w, int depth)
 {
 #ifndef NO_XSHM
   Status result;
@@ -264,7 +263,8 @@ static void x11_map_sharedmemory(tcl_window_t *w, int depth)
   shmCheckPoint = 0;
   x11_unmap_sharedmemory(w);
 
-  if (!shmCheckPoint) atexit(x11_unmap_all_sharedmemory);
+  if (!shmCheckPoint)
+    atexit(x11_unmap_all_sharedmemory);
   shmCheckPoint = 1;
 
   useShm = 0;
@@ -277,7 +277,7 @@ static void x11_map_sharedmemory(tcl_window_t *w, int depth)
 
       trapErrors();
       w->image = XShmCreateImage(w->display,
-                                 DefaultVisual(w->display, w->screen), 
+                                 DefaultVisual(w->display, w->screen),
                                  depth, ZPixmap, NULL, &xshminfo,
                                  w->width, w->height);
 
@@ -302,9 +302,9 @@ static void x11_map_sharedmemory(tcl_window_t *w, int depth)
           goto shmerror;
         }
       shmCheckPoint++;
-      
-      w->image->data = (char *) shmat(xshminfo.shmid, 0, 0);
-      if (image->data == ((char *) -1))
+
+      w->image->data = (char *)shmat(xshminfo.shmid, 0, 0);
+      if (image->data == ((char *)-1))
         {
           x11_unmap_sharedmemory(w);
           goto shmerror;
@@ -323,35 +323,35 @@ static void x11_map_sharedmemory(tcl_window_t *w, int depth)
         }
 
       shmCheckPoint++;
-    } else
+    }
+  else
 #endif
 
-      if (!useShm)
-        {
+  if (!useShm)
+    {
 #ifndef NO_XSHM
-        shmerror:
+    shmerror:
 #endif
-          useShm = 0;
+      useShm = 0;
 
-          w->frameBuffer = (dev_pixel_t*)
-            wld_malloc(w->width * w->height * sizeof(dev_pixel_t));
+      w->frameBuffer = (dev_pixel_t *)
+        wld_malloc(w->width * w->height * sizeof(dev_pixel_t));
 
-          w->image = XCreateImage(w->display,
-                                  DefaultVisual(w->display, w->screen),
-                                  depth,
-                                  ZPixmap,
-                                  0,
-                                  (char*)w->frameBuffer,
-                                  w->width, w->height,
-                                  8, 0);
+      w->image = XCreateImage(w->display,
+                              DefaultVisual(w->display, w->screen),
+                              depth,
+                              ZPixmap,
+                              0,
+                              (char *)w->frameBuffer,
+                              w->width, w->height, 8, 0);
 
-          if (w->image == NULL)
-            {
-              wld_fatal_error("Unable to create image.");
-            }
-
-          shmCheckPoint++;
+      if (w->image == NULL)
+        {
+          wld_fatal_error("Unable to create image.");
         }
+
+      shmCheckPoint++;
+    }
 }
 
 /****************************************************************************
@@ -359,7 +359,7 @@ static void x11_map_sharedmemory(tcl_window_t *w, int depth)
  * Description:
  ***************************************************************************/
 
-static void x11_unmap_sharedmemory(tcl_window_t *w)
+static void x11_unmap_sharedmemory(tcl_window_t * w)
 {
 #ifndef NO_XSHM
   if (shmCheckPoint > 4)
@@ -413,7 +413,7 @@ static void x11_unmap_all_sharedmemory(void)
  * Description:
  ***************************************************************************/
 
-void x11_UpdateScreen(tcl_window_t *w)
+void x11_UpdateScreen(tcl_window_t * w)
 {
 #ifndef NO_XSHM
   if (useShm)
@@ -439,7 +439,7 @@ void x11_UpdateScreen(tcl_window_t *w)
  * Description:
  ***************************************************************************/
 
-void x11_InitGraphics(tcl_window_t *w)
+void x11_InitGraphics(tcl_window_t * w)
 {
   XWindowAttributes windowAttributes;
 
@@ -467,7 +467,7 @@ void x11_InitGraphics(tcl_window_t *w)
  * Description:
  ***************************************************************************/
 
-void x11_EndGraphics(tcl_window_t *w)
+void x11_EndGraphics(tcl_window_t * w)
 {
   x11_unmap_all_sharedmemory();
   XCloseDisplay(w->display);

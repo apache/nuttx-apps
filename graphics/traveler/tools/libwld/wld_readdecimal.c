@@ -53,17 +53,20 @@
  * Read a decimal number from the steam fp
  ************************************************************************/
 
-int16_t  wld_read_decimal(FILE *fp)
+int16_t wld_read_decimal(FILE * fp)
 {
-  int16_t  value = 0;
+  int16_t value = 0;
   bool negative = false;
   int ch;
 
-  /* Skip over any leading spaces, new lines, or carriage returns (for
-   * MSDOS compatibility)
+  /* Skip over any leading spaces, new lines, or carriage returns (for MSDOS
+   * compatibility)
    */
 
-  do ch = getc(fp);
+  do
+    {
+      ch = getc(fp);
+    }
   while ((ch == ' ') || (ch == '\n') || (ch == '\r'));
 
   /* if the first character is '-', then its a negative number */
@@ -78,13 +81,16 @@ int16_t  wld_read_decimal(FILE *fp)
 
   while ((ch >= '0') && (ch <= '9'))
     {
-      value = 10*value + (ch - (int)'0');
+      value = 10 * value + (ch - (int)'0');
       ch = getc(fp);
     }
 
   /* Apply the negation, if appropriate */
 
-  if (negative) value = -value;
+  if (negative)
+    {
+      value = -value;
+    }
 
   return value;
 }

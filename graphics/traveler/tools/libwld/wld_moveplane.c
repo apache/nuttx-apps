@@ -54,22 +54,30 @@
  * then adds it to the world plane destList
  ************************************************************************/
 
-void wld_move_plane(rect_list_t *rect, rect_head_t *destList,
-                  rect_head_t *srcList)
+void wld_move_plane(rect_list_t * rect, rect_head_t * destList,
+                    rect_head_t * srcList)
 {
   /* Un-hook the backward link to the rect */
 
   if (rect->flink)
-    rect->flink->blink = rect->blink;
+    {
+      rect->flink->blink = rect->blink;
+    }
   else
-    srcList->tail = rect->blink;
+    {
+      srcList->tail = rect->blink;
+    }
 
   /* Un-hook the forward link to the rect */
 
   if (rect->blink)
-    rect->blink->flink = rect->flink;
+    {
+      rect->blink->flink = rect->flink;
+    }
   else
-    srcList->head = rect->flink;
+    {
+      srcList->head = rect->flink;
+    }
 
   /* Then add the rect to the specified list */
 

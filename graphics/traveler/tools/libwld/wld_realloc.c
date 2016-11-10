@@ -61,5 +61,6 @@ void *wld_realloc(void *addr, size_t size)
     {
       wld_fatal_error("out of memory (wtrealloc %x bytes)", size);
     }
-   return new;
+
+  return new;
 }

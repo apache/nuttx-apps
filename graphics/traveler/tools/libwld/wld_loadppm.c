@@ -47,7 +47,6 @@
 #include "wld_graphicfile.h"
 #include "wld_utils.h"
 
-
 /*************************************************************************
  * Private Functions
  *************************************************************************/
@@ -58,7 +57,7 @@
  * Skip white space and comments.
  ************************************************************************/
 
-static void skip_cruft(FILE *fp)
+static void skip_cruft(FILE * fp)
 {
   int c;
 
@@ -97,7 +96,7 @@ static void skip_cruft(FILE *fp)
  * Description:
  ************************************************************************/
 
-graphic_file_t *wld_LoadPPM(FILE *fp, char *filename)
+graphic_file_t *wld_LoadPPM(FILE * fp, char *filename)
 {
   int width, height;
   int unknown;
@@ -132,7 +131,7 @@ graphic_file_t *wld_LoadPPM(FILE *fp, char *filename)
   gfile->palette = NULL;
   gfile->width = width;
   gfile->height = height;
-  gfile->bitmap = (uint8_t*)wld_malloc(height * width * 3);
+  gfile->bitmap = (uint8_t *) wld_malloc(height * width * 3);
 
   if (fread(gfile->bitmap, height * width * 3, 1, fp) != 1)
     {

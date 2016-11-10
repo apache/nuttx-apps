@@ -52,8 +52,12 @@
  * Description:
  ************************************************************************/
 
-void wld_free_texture(wld_bitmap_t *t)
+void wld_free_texture(wld_bitmap_t * t)
 {
-  if (t->bm) wld_free(t->bm);
+  if (t->bm)
+    {
+      wld_free(t->bm);
+    }
+
   wld_free(t);
 }

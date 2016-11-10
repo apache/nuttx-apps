@@ -54,21 +54,29 @@
  * and "deallocates" it by saving it on the free list
  ************************************************************************/
 
-void wld_remove_plane(rect_list_t *rect, rect_head_t *list)
+void wld_remove_plane(rect_list_t * rect, rect_head_t * list)
 {
   /* Un-hook the backward link to the rect */
 
   if (rect->flink)
-    rect->flink->blink = rect->blink;
+    {
+      rect->flink->blink = rect->blink;
+    }
   else
-    list->tail = rect->blink;
+    {
+      list->tail = rect->blink;
+    }
 
   /* Un-hook the forward link to the rect */
 
   if (rect->blink)
-    rect->blink->flink = rect->flink;
+    {
+      rect->blink->flink = rect->flink;
+    }
   else
-    list->head = rect->flink;
+    {
+      list->head = rect->flink;
+    }
 
   /* Then put the rect on the free list */
 

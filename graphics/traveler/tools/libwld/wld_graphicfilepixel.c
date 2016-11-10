@@ -71,4 +71,3 @@ RGBColor wld_graphicfile_pixel(graphic_file_t *gfile, int x, int y)
       return rgb;
     }
 }
-

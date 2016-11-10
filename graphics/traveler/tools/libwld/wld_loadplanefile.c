@@ -57,7 +57,7 @@
 
 uint8_t wld_load_planefile(const char *wldFile)
 {
-  FILE  *fp;
+  FILE *fp;
   uint8_t result;
 
   /* Open the map file which contains the description of the world */

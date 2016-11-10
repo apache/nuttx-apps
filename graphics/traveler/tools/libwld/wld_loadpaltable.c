@@ -50,8 +50,8 @@
 #include "wld_world.h"
 #include "wld_paltable.h"
 #if (!MSWINDOWS)
-#include "wld_bitmaps.h"
-#include "wld_color.h"
+#  include "wld_bitmaps.h"
+#  include "wld_color.h"
 #endif
 #include "wld_mem.h"
 #include "wld_utils.h"
@@ -65,7 +65,7 @@
  */
 
 #if USE_PAL_RANGES
-# define MAX_PAL_RANGES 64
+#  define MAX_PAL_RANGES 64
 #endif
 
 /*************************************************************************
@@ -74,11 +74,11 @@
 
 #if USE_PAL_RANGES
 typedef struct
-{
-  uint8_t firstColor;
-  int8_t colorRange;
-  uint8_t clipColor;
-} pal_range_t;
+  {
+    uint8_t firstColor;
+    int8_t colorRange;
+    uint8_t clipColor;
+  } pal_range_t;
 #endif
 
 /*************************************************************************
@@ -106,7 +106,8 @@ static void wld_allocate_paltable(uint32_t palTabEntrySize)
 
   for (i = 0; i < NUM_ZONES; i++)
     {
-      g_pal_table[i] = (trv_pixel_t*)wld_malloc(palTabEntrySize*sizeof(trv_pixel_t));
+      g_pal_table[i] =
+        (trv_pixel_t *) wld_malloc(palTabEntrySize * sizeof(trv_pixel_t));
     }
 }
 
@@ -125,13 +126,13 @@ uint8_t wld_load_paltable(char *file)
 #if (!MSWINDOWS)
   trv_pixel_t *palptr;
   color_lum_t lum;
-  int16_t  zone;
+  int16_t zone;
   float scale;
   int pixel;
 
   /* Allocate memory to hold the palette range mapping data */
 
-  wld_allocate_paltable(TRV_PIXEL_MAX+1);
+  wld_allocate_paltable(TRV_PIXEL_MAX + 1);
 
   /* The first zone is just the identity transformation */
 
@@ -165,9 +166,8 @@ uint8_t wld_load_paltable(char *file)
 
           lum.luminance *= scale;
 
-          /* Then save the pixel associated with this scaled value in
-           * the range palette table
-           */
+          /* Then save the pixel associated with this scaled value in the range 
+           * palette table */
 
           *palptr++ = wld_lum2pixel(&lum);
         }
@@ -176,12 +176,12 @@ uint8_t wld_load_paltable(char *file)
   return WORLD_SUCCESS;
 
 #else
-#if USE_PAL_RANGES
-  FILE  *fp, *fopen();
-  int16_t  i;
-  int16_t  nranges;
-  int16_t  zone;
-  int16_t  palndx;
+#  if USE_PAL_RANGES
+  FILE *fp, *fopen();
+  int16_t i;
+  int16_t nranges;
+  int16_t zone;
+  int16_t palndx;
   trv_pixel_t plotcolor;
   trv_pixel_t *palptr;
   pal_range_t ranges[MAX_PAL_RANGES];
@@ -189,7 +189,10 @@ uint8_t wld_load_paltable(char *file)
   /* Open the file which contains the palette table */
 
   fp = fopen(file, "r");
-  if (!fp) return PALR_FILE_OPEN_ERROR;
+  if (!fp)
+    {
+      return PALR_FILE_OPEN_ERROR;
+    }
 
   /* Read the number of ranges from the file */
 
@@ -206,7 +209,7 @@ uint8_t wld_load_paltable(char *file)
     {
       ranges[i].firstColor = wld_read_decimal(fp);
       ranges[i].colorRange = wld_read_decimal(fp);
-      ranges[i].clipColor  = wld_read_decimal(fp);
+      ranges[i].clipColor = wld_read_decimal(fp);
     }
 
   /* We are now done with the input file */
@@ -229,9 +232,8 @@ uint8_t wld_load_paltable(char *file)
 
       for (palndx = 0; palndx < PALETTE_SIZE; palndx++)
         {
-          /* Assume that the range will not be found.  In this case, we
-           * will perform the 1-to-1 mapping
-           */
+          /* Assume that the range will not be found.  In this case, we will
+           * perform the 1-to-1 mapping */
 
           plotcolor = palndx;
 
@@ -255,12 +257,11 @@ uint8_t wld_load_paltable(char *file)
 
                           plotcolor -= zone;
 
-                          /* Check if we have exceeded the range of this
-                           * color.  If so, then set the color to the
-                           * clipColor
-                           */
+                          /* Check if we have exceeded the range of this color. 
+                           * If so, then set the color to the clipColor */
 
-                          if (plotcolor <= ranges[i].firstColor + ranges[i].colorRange)
+                          if (plotcolor <=
+                              ranges[i].firstColor + ranges[i].colorRange)
                             {
                               plotcolor = ranges[i].clipColor;
                             }
@@ -286,8 +287,7 @@ uint8_t wld_load_paltable(char *file)
                   plotcolor += zone;
 
                   /* Check if we have exceeded the range of this color.  If so,
-                   * then set the color to black
-                   */
+                   * then set the color to black */
 
                   if (plotcolor >= ranges[i].firstColor + ranges[i].colorRange)
                     {
@@ -308,7 +308,7 @@ uint8_t wld_load_paltable(char *file)
     }
 
   return WORLD_SUCCESS;
-#else
+#  else
   FILE *fp;
   int16_t zone;
   int16_t palndx;
@@ -322,7 +322,10 @@ uint8_t wld_load_paltable(char *file)
   /* Open the file which contains the palette table */
 
   fp = fopen(file, "r");
-  if (!fp) return PALR_FILE_OPEN_ERROR;
+  if (!fp)
+    {
+      return PALR_FILE_OPEN_ERROR;
+    }
 
   /* Process each distance zone */
 
@@ -344,6 +347,6 @@ uint8_t wld_load_paltable(char *file)
 
   fclose(fp);
   return WORLD_SUCESS;
-#endif /* USE_PAL_RANGES */
-#endif /* !MSWINDOWS */
+#  endif                               /* USE_PAL_RANGES */
+#endif                                 /* !MSWINDOWS */
 }

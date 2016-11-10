@@ -52,32 +52,32 @@
  * This function adds a plane to a world plane list
  ************************************************************************/
 
-void wld_add_plane(rect_list_t *newRect, rect_head_t *list)
+void wld_add_plane(rect_list_t * newRect, rect_head_t * list)
 {
   rect_list_t *nextRect, *prevRect;
 
-  /* Search the list to find the location to insert the new rectangle.
-   * Each is list is maintained in ascending plane order.
+  /* Search the list to find the location to insert the new rectangle. Each
+   * list is maintained in ascending plane order.
    */
 
   for (nextRect = list->head;
        ((nextRect) && (nextRect->d.plane < newRect->d.plane));
        nextRect = nextRect->flink);
 
-  /* Add the newRect to the spot found in the list.  Check if the newRect
-   * goes at the end of the list.
+  /* Add the newRect to the spot found in the list.  Check if the newRect goes
+   * at the end of the list.
    */
 
   if (!nextRect)
     {
-      /* No rectangle with plane larger than the one to be added was
-       * found in the list.  The newRect goes at the end of the list.
+      /* No rectangle with plane larger than the one to be added was found in
+       * the list.  The newRect goes at the end of the list.
        */
 
       prevRect = list->tail;
       if (!prevRect)
         {
-          /* Special case:  The list is empty */
+          /* Special case: The list is empty */
 
           newRect->flink = NULL;
           newRect->blink = NULL;
@@ -99,7 +99,7 @@ void wld_add_plane(rect_list_t *newRect, rect_head_t *list)
       prevRect = nextRect->blink;
       if (!prevRect)
         {
-          /* Special case:  Insert at the head of the list */
+          /* Special case: Insert at the head of the list */
 
           newRect->flink = nextRect;
           newRect->blink = NULL;

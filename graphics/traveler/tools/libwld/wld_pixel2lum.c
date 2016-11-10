@@ -49,14 +49,14 @@
  * Private Data
  *************************************************************************/
 
-static float g_cube2pixel = (float)TRV_PIXEL_MAX / (float)(RGB_CUBE_SIZE-1);
+static float g_cube2pixel = (float)TRV_PIXEL_MAX / (float)(RGB_CUBE_SIZE - 1);
 
 /*************************************************************************
  * Function: wld_pixel2lum
  * Description: Convert a pixel value into RGB-Luminance value.
  ************************************************************************/
 
-void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t *lum)
+void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t * lum)
 {
   dev_pixel_t devpixel = g_devpixel_lut[pixel_value];
 
@@ -68,16 +68,15 @@ void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t *lum)
 
   /* Get the luminance associated with the RGB value */
 
-  lum->luminance = sqrt(lum->red   * lum->red +
-                        lum->green * lum->green +
-                        lum->blue  * lum->blue);
+  lum->luminance = sqrt(lum->red * lum->red +
+                        lum->green * lum->green + lum->blue * lum->blue);
 
-   /* Convert the RGB Component into unit vector + luminance */
+  /* Convert the RGB Component into unit vector + luminance */
 
-   if (lum->luminance > 0.0)
-     {
-       lum->red   /= lum->luminance;
-       lum->blue  /= lum->luminance;
-       lum->green /= lum->luminance;
-     }
+  if (lum->luminance > 0.0)
+    {
+      lum->red /= lum->luminance;
+      lum->blue /= lum->luminance;
+      lum->green /= lum->luminance;
+    }
 }

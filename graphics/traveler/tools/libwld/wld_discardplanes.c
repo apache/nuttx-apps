@@ -53,14 +53,14 @@
  * This function deallocates one plane of the world
  ************************************************************************/
 
-static void wld_DiscardWorldPlane(rect_list_t *rect)
+static void wld_DiscardWorldPlane(rect_list_t * rect)
 {
   rect_list_t *next;
 
   while (rect)
     {
       next = rect->flink;
-      wld_free((void *) rect);
+      wld_free((void *)rect);
       rect = next;
     }
 }
@@ -77,13 +77,12 @@ static void wld_DiscardWorldPlane(rect_list_t *rect)
 
 void wld_discard_planes(void)
 {
-  wld_DiscardWorldPlane(xPlane.head);
-  xPlane.head = xPlane.tail = NULL;
-  wld_DiscardWorldPlane(yPlane.head);
-  yPlane.head = yPlane.tail = NULL;
-  wld_DiscardWorldPlane(zPlane.head);
-  zPlane.head = zPlane.tail = NULL;
+  wld_DiscardWorldPlane(g_xplane_list.head);
+  g_xplane_list.head = g_xplane_list.tail = NULL;
+  wld_DiscardWorldPlane(g_yplane_list.head);
+  g_yplane_list.head = g_yplane_list.tail = NULL;
+  wld_DiscardWorldPlane(g_zplane_list.head);
+  g_zplane_list.head = g_zplane_list.tail = NULL;
   wld_DiscardWorldPlane(freeList);
   freeList = NULL;
 }
-

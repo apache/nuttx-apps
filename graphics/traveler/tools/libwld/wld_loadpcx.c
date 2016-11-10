@@ -51,8 +51,8 @@
 #include "trv_types.h"
 #include "wld_mem.h"
 #if (!MSWINDOWS)
-#include "wld_bitmaps.h"
-#include "wld_graphicfile.h"
+#  include "wld_bitmaps.h"
+#  include "wld_graphicfile.h"
 #endif
 #include "wld_pcx.h"
 
@@ -68,9 +68,9 @@
  * Private Function Prototypes
  *************************************************************************/
 
-static void wld_loadpcxHeader(FILE *fp, pcxHeader *header);
-static void wld_loadpcxData(FILE *fp, int32_t imagSize, uint8_t *imageBuffer);
-static void wld_loadpcxPalette(FILE *fp, RGBColor *palette);
+static void wld_loadpcxHeader(FILE * fp, pcxHeader * header);
+static void wld_loadpcxData(FILE * fp, int32_t imagSize, uint8_t * imageBuffer);
+static void wld_loadpcxPalette(FILE * fp, RGBColor * palette);
 
 /*************************************************************************
  * Global Variables
@@ -93,13 +93,16 @@ static void wld_loadpcxPalette(FILE *fp, RGBColor *palette);
 uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
 {
   FILE *fp, *fopen();
-  uint16_t  imageWidth, imageHeight;
+  uint16_t imageWidth, imageHeight;
   uint32_t imageSize;
 
   /* Open the file */
 
-  fp = fopen(filename,"rb");
-  if (!fp) return PCX_OPEN_ERROR;
+  fp = fopen(filename, "rb");
+  if (!fp)
+    {
+      return PCX_OPEN_ERROR;
+    }
 
   /* Load the PCX Header */
 
@@ -126,13 +129,13 @@ uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
   return PCX_SUCCESS;
 }
 #else
-graphic_file_t *wld_loadpcx(FILE *fp, char *filename)
+graphic_file_t *wld_loadpcx(FILE * fp, char *filename)
 {
   pcxHeader header;
   trv_pixel_t *buffer;
   graphic_file_t *gFile;
   RGBColor *palette;
-  uint16_t  imageWidth, imageHeight;
+  uint16_t imageWidth, imageHeight;
   uint32_t imageSize;
 
   /* Load the PCX Header */
@@ -144,15 +147,15 @@ graphic_file_t *wld_loadpcx(FILE *fp, char *filename)
   imageWidth = header.width - header.x + 1;
   imageHeight = header.height - header.y + 1;
   imageSize = imageHeight * imageWidth * sizeof(trv_pixel_t);
-  buffer = (trv_pixel_t*)wld_malloc(imageSize + 1);
+  buffer = (trv_pixel_t *) wld_malloc(imageSize + 1);
 
   /* Load the PCX data into the buffer */
 
-  wld_loadpcxData(fp, imageSize, (uint8_t*)buffer);
+  wld_loadpcxData(fp, imageSize, (uint8_t *) buffer);
 
   /* Allocate space to hold the PCX palette */
 
-  palette = (RGBColor*)wld_malloc(sizeof(RGBColor) * 256);
+  palette = (RGBColor *) wld_malloc(sizeof(RGBColor) * 256);
 
   /* Load the PCX palette */
 
@@ -176,14 +179,14 @@ graphic_file_t *wld_loadpcx(FILE *fp, char *filename)
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxHeader(FILE *fp, pcxHeader *header)
+static void wld_loadpcxHeader(FILE * fp, pcxHeader * header)
 {
   uint8_t *tempBuffer;
   int i;
 
   /* Load the header */
 
-  tempBuffer = (uint8_t*)header;
+  tempBuffer = (uint8_t *) header;
 
   for (i = 0; i < SIZEOF_PCX_HEADER; i++)
     {
@@ -196,14 +199,14 @@ static void wld_loadpcxHeader(FILE *fp, pcxHeader *header)
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxData(FILE *fp, int32_t imageSize, uint8_t *imageBuffer)
+static void wld_loadpcxData(FILE * fp, int32_t imageSize, uint8_t * imageBuffer)
 {
   uint32_t count;
-  int16_t  numBytes;
+  int16_t numBytes;
   uint8_t data;
 
   count = 0;
-  while(count <= imageSize)
+  while (count <= imageSize)
     {
       /* Get the first piece of data */
 
@@ -211,7 +214,7 @@ static void wld_loadpcxData(FILE *fp, int32_t imageSize, uint8_t *imageBuffer)
 
       /* Is this a run length encoding? */
 
-      if ((data >= 192) /* && (data <= 255) */)
+      if ((data >= 192) /* && (data <= 255) */ )
         {
           /* How many bytes in run? */
 
@@ -219,11 +222,11 @@ static void wld_loadpcxData(FILE *fp, int32_t imageSize, uint8_t *imageBuffer)
 
           /* Get the actual data for the run */
 
-          data  = getc(fp);
+          data = getc(fp);
 
           /* Replicate data in buffer numBytes times */
 
-          while(numBytes-- > 0)
+          while (numBytes-- > 0)
             {
               imageBuffer[count++] = data;
             }
@@ -242,7 +245,7 @@ static void wld_loadpcxData(FILE *fp, int32_t imageSize, uint8_t *imageBuffer)
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxPalette(FILE *fp, RGBColor *palette)
+static void wld_loadpcxPalette(FILE * fp, RGBColor * palette)
 {
   int i;
 
@@ -257,13 +260,13 @@ static void wld_loadpcxPalette(FILE *fp, RGBColor *palette)
       /* Get the RGB components */
 
 #if MSWINDOWS
-      palette[i].red   = (getc(fp) >> 2);
+      palette[i].red = (getc(fp) >> 2);
       palette[i].green = (getc(fp) >> 2);
-      palette[i].blue  = (getc(fp) >> 2);
+      palette[i].blue = (getc(fp) >> 2);
 #else
-      palette[i].red   = getc(fp);
+      palette[i].red = getc(fp);
       palette[i].green = getc(fp);
-      palette[i].blue  = getc(fp);
+      palette[i].blue = getc(fp);
 #endif
     }
 }

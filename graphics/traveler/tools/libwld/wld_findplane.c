@@ -55,36 +55,31 @@
  ************************************************************************/
 
 rect_list_t *wld_find_plane(wld_coord_t h, wld_coord_t v, wld_coord_t plane,
-                           rect_head_t *list)
+                            rect_head_t * list)
 {
   rect_list_t *rect;
 
-  /* Search until we find the first occurrence of a rectangle in the
-   * specified plane
+  /* Search until we find the first occurrence of a rectangle in the specified
+   * plane.
    */
 
   for (rect = list->head;
-       ((rect) && (rect->d.plane < plane));
-       rect = rect->flink);
+       ((rect) && (rect->d.plane < plane)); rect = rect->flink);
 
-  /* Then look at every occurrence of rectangles at this plane or
-   * until a rectangle containing the specified point is found
+  /* Then look at every occurrence of rectangles at this plane or until a
+   * rectangle containing the specified point is found.
    */
 
-  for (;
-       ((rect) && (rect->d.plane == plane));
-       rect = rect->flink)
+  for (; ((rect) && (rect->d.plane == plane)); rect = rect->flink)
     {
-      /* There is another rectangle in this plane.  Check if the
-       * point lies within the rectangle.
+      /* There is another rectangle in this plane.  Check if the point lies
+       * within the rectangle.
        */
 
       if ((h >= rect->d.hStart) && (h <= rect->d.hEnd)
-          &&  (v >= rect->d.vStart) && (v <= rect->d.vEnd))
+          && (v >= rect->d.vStart) && (v <= rect->d.vEnd))
         return rect;
     }
 
   return NULL;
 }
-
-

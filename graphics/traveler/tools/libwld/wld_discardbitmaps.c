@@ -45,7 +45,7 @@
 #include "wld_world.h"
 #include "wld_bitmaps.h"
 #if (MSWINDOWS)
-#include "wld_pcx.h"
+#  include "wld_pcx.h"
 #endif
 
 /*************************************************************************
@@ -63,20 +63,20 @@ void wld_discard_bitmaps(void)
   int i;
   for (i = 0; i < MAX_BITMAPS; i++)
     {
-      if (evenBitmaps[i])
+      if (g_even_bitmaps[i])
         {
-          wld_free_texture((void*)evenBitmaps[i]);
-          evenBitmaps[i] = NULL;
+          wld_free_texture((void *)g_even_bitmaps[i]);
+          g_even_bitmaps[i] = NULL;
         }
 
 #ifndef WEDIT
-      if (oddBitmaps[i])
+      if (g_odd_bitmaps[i])
         {
-          wld_free_texture((void*)oddBitmaps[i]);
-          oddBitmaps[i] = NULL;
+          wld_free_texture((void *)g_odd_bitmaps[i]);
+          g_odd_bitmaps[i] = NULL;
         }
 #endif
     }
 
-  numBitmaps = 0;
+  g_nbitmaps = 0;
 }

@@ -46,14 +46,14 @@
  * Private Functions
  *************************************************************************/
 
-
 /*************************************************************************
- * Name: wld_LoadWorldPlane
+ * Name: wld_load_worldplane
  * Description:
  * This function loads the world data for one plane
  ************************************************************************/
 
-static uint8_t wld_LoadWorldPlane(FILE *fp, rect_head_t *list, uint8_t numRects)
+static uint8_t wld_load_worldplane(FILE * fp, rect_head_t * list,
+                                   uint8_t numRects)
 {
   rect_list_t *rect;
   int i;
@@ -63,16 +63,18 @@ static uint8_t wld_LoadWorldPlane(FILE *fp, rect_head_t *list, uint8_t numRects)
       /* Allocate space for the next rectangle */
 
       rect = wld_new_plane();
-      if (!rect) return PLANE_ALLOCATION_FAILURE;
+      if (!rect)
+        {
+          return PLANE_ALLOCATION_FAILURE;
+        }
 
       /* Read the next rectangle from the input file */
 
-      if (fread((char*)&rect->d, SIZEOF_RECTDATATYPE, 1, fp) != 1)
+      if (fread((char *)&rect->d, SIZEOF_RECTDATATYPE, 1, fp) != 1)
         {
           fprintf(stderr, "Error: read of rectangle %d (of %d) failed! ",
                   i, numRects);
-          fprintf(stderr, "feof=%d ferror=%d\n",
-                  feof(fp), ferror(fp));
+          fprintf(stderr, "feof=%d ferror=%d\n", feof(fp), ferror(fp));
           return PLANE_DATA_READ_ERROR;
         }
 
@@ -94,23 +96,23 @@ static uint8_t wld_LoadWorldPlane(FILE *fp, rect_head_t *list, uint8_t numRects)
  * This function loads the world data from the opened file
  ************************************************************************/
 
-uint8_t wld_load_planes(FILE *fp)
+uint8_t wld_load_planes(FILE * fp)
 {
   plane_file_header_t fileHeader;
   uint8_t result;
 
   /* Read the plane file header */
 
-  if (fread((char*)&fileHeader, SIZEOF_PLANEFILEHEADERTYPE, 1, fp) != 1)
+  if (fread((char *)&fileHeader, SIZEOF_PLANEFILEHEADERTYPE, 1, fp) != 1)
     return PLANE_HEADER_READ_ERROR;
 
   /* Then load each grid, performing run length (rle) decoding */
 
-  result = wld_LoadWorldPlane(fp, &xPlane, fileHeader.numXRects);
+  result = wld_load_worldplane(fp, &g_xplane_list, fileHeader.numXRects);
   if (!result)
-    result = wld_LoadWorldPlane(fp, &yPlane, fileHeader.numYRects);
+    result = wld_load_worldplane(fp, &g_yplane_list, fileHeader.numYRects);
   if (!result)
-    result = wld_LoadWorldPlane(fp, &zPlane, fileHeader.numZRects);
+    result = wld_load_worldplane(fp, &g_zplane_list, fileHeader.numZRects);
 
   return result;
 }

@@ -75,16 +75,24 @@ static int wld_log2(int x)
   unsigned int n;
 
   if (x <= 0)
-    return -1;
+    {
+      return -1;
+    }
   else
-    n = (unsigned int) x;
-     
+    {
+      n = (unsigned int)x;
+    }
+
   for (i = 0; (n & 0x1) == 0; i++, n >>= 1);
 
   if (n == 1)
-    return i;
+    {
+      return i;
+    }
   else
-    return -1;
+    {
+      return -1;
+    }
 }
 
 /*************************************************************************
@@ -92,15 +100,17 @@ static int wld_log2(int x)
  * Description:
  ************************************************************************/
 
-static wld_bitmap_t *wld_new_texture(uint16_t  width, uint16_t  height)
+static wld_bitmap_t *wld_new_texture(uint16_t width, uint16_t height)
 {
   wld_bitmap_t *t;
 
   if (height <= 0 || width <= 0)
-    wld_fatal_error("wld_new_texture:  bad texture dimensions");
+    {
+      wld_fatal_error("wld_new_texture:  bad texture dimensions");
+    }
 
-  t = (wld_bitmap_t*)wld_malloc(sizeof(wld_bitmap_t));
-  t->bm = (trv_pixel_t*)wld_malloc(height * width * sizeof(trv_pixel_t));
+  t = (wld_bitmap_t *) wld_malloc(sizeof(wld_bitmap_t));
+  t->bm = (trv_pixel_t *) wld_malloc(height * width * sizeof(trv_pixel_t));
 
   t->w = width;
   t->h = height;
@@ -114,7 +124,7 @@ static wld_bitmap_t *wld_new_texture(uint16_t  width, uint16_t  height)
  * Description:
  ************************************************************************/
 
-static void wld_quantize_texture(graphic_file_t *gFile, wld_bitmap_t *t)
+static void wld_quantize_texture(graphic_file_t * gFile, wld_bitmap_t * t)
 {
   RGBColor pixel;
   trv_pixel_t *destPixel = t->bm;
@@ -125,7 +135,7 @@ static void wld_quantize_texture(graphic_file_t *gFile, wld_bitmap_t *t)
       for (y = gFile->height - 1; y >= 0; y--)
         {
           pixel = wld_graphicfile_pixel(gFile, x, y);
-          *destPixel++ = wld_Rgb2Pixel(&pixel);   
+          *destPixel++ = wld_Rgb2Pixel(&pixel);
         }
     }
 }
@@ -146,16 +156,18 @@ wld_bitmap_t *wld_read_texturefile(char *filename)
 
   gFile = wld_readgraphic_file(filename);
   if (gFile == NULL)
-    wld_fatal_error("Error reading texture %s.", filename);
+    {
+      wld_fatal_error("Error reading texture %s.", filename);
+    }
 
-  /* The height and width should be powers of two for efficient
-   *   texture mapping.  Here, we enforce this.
-   */
+  /* The height and width should be powers of two for efficient texture
+   * mapping.  Here, we enforce this. */
 
   if (wld_log2(gFile->width) == -1 || wld_log2(gFile->height) == -1)
-    wld_fatal_error("Dimensions texture %s are not powers of two.", 
-                  filename);
-     
+    {
+      wld_fatal_error("Dimensions texture %s are not powers of two.", filename);
+    }
+
   t = wld_new_texture(gFile->width, gFile->height);
   wld_quantize_texture(gFile, t);
 

@@ -59,6 +59,7 @@
  ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
+
 /* These arrays map color forms into g_unit_vector array indices */
 
 static const enum unit_vector_index_e g_wld_bgrform_map[NCOLOR_FORMS] =
@@ -100,42 +101,42 @@ static float g_wld_cube2pixel;
  ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-FAR color_lum_t *g_pixel2um_lut;
+color_lum_t *g_pixel2um_lut;
 
 /* The following defines the "form" of each color in the g_unit_vector array */
 
 const color_form_t g_wld_colorform[NCOLOR_FORMS] =
 {
-  { 1.0,       0.0,       0.0       },
-  { 0.875,     0.4841229, 0.0       },
-  { 0.7071068, 0.7071068, 0.0       },
-  { 0.6666667, 0.5270463, 0.5270463 },
-  { 0.5773503, 0.5773503, 0.5773503 }
+  {1.0, 0.0, 0.0},
+  {0.875, 0.4841229, 0.0},
+  {0.7071068, 0.7071068, 0.0},
+  {0.6666667, 0.5270463, 0.5270463},
+  {0.5773503, 0.5773503, 0.5773503}
 };
 
 /* This array defines each color supported in the luminance model */
 
 const color_lum_t g_unit_vector[NUNIT_VECTORS] =
 {
-  { 0.5773503, 0.5773503, 0.5773503, 441.672932,}, /* GREY_NDX */
+  {0.5773503, 0.5773503, 0.5773503, 441.672932,},       /* GREY_NDX */
 
-  { 0.0,       0.0,       1.0,       255.0 },      /* BLUE_NDX */
-  { 0.0,       0.4841229, 0.875,     291.428571 }, /* GREENERBLUE_NDX */
-  { 0.0,       0.7071068, 0.7071068, 360.624445 }, /* BLUEGREEN_NDX */
-  { 0.4841229, 0.0,       0.875,     291.428571 }, /* BLUEVIOLET_NDX */
-  { 0.7071068, 0.0,       0.7071068, 360.624445 }, /* VIOLET_NDX */
-  { 0.5270463, 0.5270463, 0.6666667, 382.499981 }, /* LIGHTBLUE_NDX */
+  {0.0, 0.0, 1.0, 255.0},       /* BLUE_NDX */
+  {0.0, 0.4841229, 0.875, 291.428571},  /* GREENERBLUE_NDX */
+  {0.0, 0.7071068, 0.7071068, 360.624445},      /* BLUEGREEN_NDX */
+  {0.4841229, 0.0, 0.875, 291.428571},  /* BLUEVIOLET_NDX */
+  {0.7071068, 0.0, 0.7071068, 360.624445},      /* VIOLET_NDX */
+  {0.5270463, 0.5270463, 0.6666667, 382.499981},        /* LIGHTBLUE_NDX */
 
-  { 0.0,       1.0,       0.0,       255.0 },      /* GREEN_NDX */
-  { 0.0,       0.875,     0.4841229, 291.428571 }, /* BLUERGREN_NDX */
-  { 0.4841229, 0.875,     0.0,       291.428571 }, /* YELLOWGREEN_NDX */
-  { 0.7071068, 0.7071068, 0.0,       360.624445 }, /* YELLOW_NDX */
-  { 0.5270463, 0.6666667, 0.5270463, 382.499981 }, /* LIGHTGREEN_NDX */
+  {0.0, 1.0, 0.0, 255.0},       /* GREEN_NDX */
+  {0.0, 0.875, 0.4841229, 291.428571},  /* BLUERGREN_NDX */
+  {0.4841229, 0.875, 0.0, 291.428571},  /* YELLOWGREEN_NDX */
+  {0.7071068, 0.7071068, 0.0, 360.624445},      /* YELLOW_NDX */
+  {0.5270463, 0.6666667, 0.5270463, 382.499981},        /* LIGHTGREEN_NDX */
 
-  { 1.0,       0.0,       0.0,       255.0 },      /* RED_NDX */
-  { 0.875,     0.0,       0.4841229, 291.428571 }, /* REDVIOLET_NDX */
-  { 0.875,     0.4841229, 0.0,       291.428571 }, /* ORANGE_NDX */
-  { 0.6666667, 0.5270463, 0.5270463, 382.499981 }, /* PINK_NDX */
+  {1.0, 0.0, 0.0, 255.0},       /* RED_NDX */
+  {0.875, 0.0, 0.4841229, 291.428571},  /* REDVIOLET_NDX */
+  {0.875, 0.4841229, 0.0, 291.428571},  /* ORANGE_NDX */
+  {0.6666667, 0.5270463, 0.5270463, 382.499981},        /* PINK_NDX */
 };
 #endif
 
@@ -159,8 +160,8 @@ void wld_rgblookup_allocate(void)
 
   /* Check if a color lookup table has been allocated */
 
-  g_devpixel_lut = (dev_pixel_t*)
-    wld_malloc(sizeof(dev_pixel_t) * (NUNIT_VECTORS*NLUMINANCES));
+  g_devpixel_lut = (dev_pixel_t *)
+    wld_malloc(sizeof(dev_pixel_t) * (NUNIT_VECTORS * NLUMINANCES));
 
   if (!g_devpixel_lut)
     {
@@ -169,12 +170,11 @@ void wld_rgblookup_allocate(void)
 
   lut = g_devpixel_lut;
 
-  /* Save the color information and color lookup table for use in
-   * color mapping below.
-   */
+  /* Save the color information and color lookup table for use in color mapping 
+   * below. */
 
-  g_pixel2um_lut = (color_lum_t*)
-    wld_malloc(sizeof(color_lum_t) * (NUNIT_VECTORS*NLUMINANCES));
+  g_pixel2um_lut = (color_lum_t *)
+    wld_malloc(sizeof(color_lum_t) * (NUNIT_VECTORS * NLUMINANCES));
 
   if (!g_pixel2um_lut)
     {
@@ -189,24 +189,22 @@ void wld_rgblookup_allocate(void)
       for (lumndx = 0; lumndx < NLUMINANCES; lumndx++)
         {
           color_rgb_t color;
-          FAR color_lum_t *lum;
+          color_lum_t *lum;
 
           /* Get a convenience pointer to the lookup table entry */
 
-           lum = &g_pixel2um_lut[index];
+          lum = &g_pixel2um_lut[index];
           *lum = g_unit_vector[uvndx];
 
-          /* Get the luminance associated with this lum for this
-           * unit vector.
-           */
+          /* Get the luminance associated with this lum for this unit vector. */
 
           lum->luminance = (lum->luminance * (float)(lumndx + 1)) / NLUMINANCES;
 
           /* Convert to RGB and allocate the color */
 
-          color.red   = (short) (lum->red   * lum->luminance);
-          color.green = (short) (lum->green * lum->luminance);
-          color.blue  = (short) (lum->blue  * lum->luminance);
+          color.red = (short)(lum->red * lum->luminance);
+          color.green = (short)(lum->green * lum->luminance);
+          color.blue = (short)(lum->blue * lum->luminance);
 
           /* Save the RGB to pixel lookup data */
 
@@ -221,24 +219,23 @@ void wld_rgblookup_allocate(void)
 
   /* Check if a color lookup table has been allocated */
 
-  g_devpixel_lut = (dev_pixel_t*)
-    wld_malloc(sizeof(dev_pixel_t) * (WLD_PIXEL_MAX+1));
+  g_devpixel_lut = (dev_pixel_t *)
+    wld_malloc(sizeof(dev_pixel_t) * (WLD_PIXEL_MAX + 1));
 
   if (!g_devpixel_lut)
     {
       wld_fatal_error("ERROR: Failed to allocate color lookup table\n");
     }
 
-  /* Save the color information and color lookup table for use in
-   * subsequent color mapping.
-   */
+  /* Save the color information and color lookup table for use in subsequent
+   * color mapping. */
 
   lut = g_devpixel_lut;
 
   /* Check if a Pixel-to-RGB color mapping table has been allocated */
 
-  g_devpixel_lut = (color_rgb_t*)
-    wld_malloc(sizeof(color_rgb_t) * (WLD_PIXEL_MAX+1));
+  g_devpixel_lut = (color_rgb_t *)
+    wld_malloc(sizeof(color_rgb_t) * (WLD_PIXEL_MAX + 1));
 
   if (!g_devpixel_lut)
     {
@@ -248,28 +245,26 @@ void wld_rgblookup_allocate(void)
   for (index = 0; index <= WLD_PIXEL_MAX; index++)
     {
       g_devpixel_lut[index].red
-        = g_devpixel_lut[index].green
-        = g_devpixel_lut[index].blue = 0;
+        = g_devpixel_lut[index].green = g_devpixel_lut[index].blue = 0;
     }
 
-  /* Calculate the cube to trv_pixel_t scale factor.  This factor will
-   * convert an RGB component in the range {0..RGB_CUBE_SIZE-1} to
-   * a value in the range {0..WLD_PIXEL_MAX}.
-   */
+  /* Calculate the cube to trv_pixel_t scale factor.  This factor will convert
+   * an RGB component in the range {0..RGB_CUBE_SIZE-1} to a value in the range 
+   * {0..WLD_PIXEL_MAX}. */
 
-  g_wld_cube2pixel = (float)WLD_PIXEL_MAX / (float)(RGB_CUBE_SIZE-1);
+  g_wld_cube2pixel = (float)WLD_PIXEL_MAX / (float)(RGB_CUBE_SIZE - 1);
 
   /* Allocate each color in the RGB Cube */
 
-  for (rgb.red = 0;   rgb.red   < RGB_CUBE_SIZE; rgb.red++)
+  for (rgb.red = 0; rgb.red < RGB_CUBE_SIZE; rgb.red++)
     for (rgb.green = 0; rgb.green < RGB_CUBE_SIZE; rgb.green++)
-      for (rgb.blue = 0;  rgb.blue  < RGB_CUBE_SIZE; rgb.blue++)
+      for (rgb.blue = 0; rgb.blue < RGB_CUBE_SIZE; rgb.blue++)
         {
           color_rgb_t color;
 
-          color.red   = (short) (rgb.red   * 65535 / (RGB_CUBE_SIZE - 1));
-          color.green = (short) (rgb.green * 65535 / (RGB_CUBE_SIZE - 1));
-          color.blue  = (short) (rgb.blue  * 65535 / (RGB_CUBE_SIZE - 1));
+          color.red = (short)(rgb.red * 65535 / (RGB_CUBE_SIZE - 1));
+          color.green = (short)(rgb.green * 65535 / (RGB_CUBE_SIZE - 1));
+          color.blue = (short)(rgb.blue * 65535 / (RGB_CUBE_SIZE - 1));
 
           /* Save the RGB to pixel lookup data */
 
@@ -278,9 +273,9 @@ void wld_rgblookup_allocate(void)
           /* Save the pixel to RGB lookup data */
 
           if (color.pixel <= WLD_PIXEL_MAX)
-             {
-               g_devpixel_lut[color.pixel] = rgb;
-             }
+            {
+              g_devpixel_lut[color.pixel] = rgb;
+            }
         }
 #endif
 }

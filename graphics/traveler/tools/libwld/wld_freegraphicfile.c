@@ -51,7 +51,7 @@
  * Description:
  ************************************************************************/
 
-void wld_free_graphicfile(graphic_file_t *gfile)
+void wld_free_graphicfile(graphic_file_t * gfile)
 {
   if (gfile != NULL)
     {

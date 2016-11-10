@@ -50,9 +50,9 @@
  * bitmaps
  */
 
-wld_bitmap_t *evenBitmaps[MAX_BITMAPS];
+wld_bitmap_t *g_even_bitmaps[MAX_BITMAPS];
 #ifndef WEDIT
-wld_bitmap_t *oddBitmaps[MAX_BITMAPS];
+wld_bitmap_t *g_odd_bitmaps[MAX_BITMAPS];
 #endif
 
 /* This is the palette to use for the selected world */
@@ -63,7 +63,7 @@ RGBColor worldPalette[256];
 
 /* This is the maximum value + 1 of a texture code. */
 
-uint16_t  numBitmaps;
+uint16_t g_nbitmaps;
 
 /* These are the colors from the worldPalette which should used to rend
  * the sky and ground

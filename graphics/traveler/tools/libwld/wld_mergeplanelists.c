@@ -52,7 +52,7 @@
  * This function concatenates two world plane lists
  ************************************************************************/
 
-void wld_merge_planelists(rect_head_t *outList, rect_head_t *inList)
+void wld_merge_planelists(rect_head_t * outList, rect_head_t * inList)
 {
   rect_list_t *inRect, *nextInRect;
   rect_list_t *outRect, *prevRect;
@@ -67,30 +67,27 @@ void wld_merge_planelists(rect_head_t *outList, rect_head_t *inList)
     {
       nextInRect = inRect->flink;
 
-      /* Search the output plane list to find the location to insert the
-       * input rectangle. Each is list is maintained in ascending plane
-       * order.
+      /* Search the output plane list to find the location to insert the input
+       * rectangle. Each is list is maintained in ascending plane order.
        */
 
       for (;
            ((outRect) && (outRect->d.plane < inRect->d.plane));
            outRect = outRect->flink);
 
-      /* Add the inRect to the spot found in the list.  Check if the
-       * inRect goes at the one of the ends of the list.
-       */
+      /* Add the inRect to the spot found in the list.  Check if the inRect
+       * goes at the one of the ends of the list. */
 
       if (!outRect)
         {
-          /* No rectangle with plane larger than the one to be added
-           * was found in the list.  The inRect goes at the end of
-           * the list.
+          /* No rectangle with plane larger than the one to be added was found
+           * in the list.  The inRect goes at the end of the list.
            */
 
           prevRect = outList->tail;
           if (!prevRect)
             {
-              /* Special case:  The list is empty */
+              /* Special case: The list is empty */
 
               inRect->flink = NULL;
               inRect->blink = NULL;
@@ -112,7 +109,7 @@ void wld_merge_planelists(rect_head_t *outList, rect_head_t *inList)
           prevRect = outRect->blink;
           if (!prevRect)
             {
-              /* Special case:  Insert at the head of the list */
+              /* Special case: Insert at the head of the list */
 
               inRect->flink = outRect;
               inRect->blink = NULL;

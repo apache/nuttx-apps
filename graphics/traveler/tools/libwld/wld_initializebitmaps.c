@@ -45,7 +45,7 @@
 #include "wld_world.h"
 #include "wld_bitmaps.h"
 #if (MSWINDOWS)
-#include "wld_pcx.h"
+#  include "wld_pcx.h"
 #endif
 
 /*************************************************************************
@@ -62,12 +62,12 @@ uint8_t wld_initialize_bitmaps(void)
   int i;
   for (i = 0; i < MAX_BITMAPS; i++)
     {
-      evenBitmaps[i] = NULL;
+      g_even_bitmaps[i] = NULL;
 #ifndef WEDIT
-      oddBitmaps[i] = NULL;
+      g_odd_bitmaps[i] = NULL;
 #endif
     }
 
-  numBitmaps = 0;
+  g_nbitmaps = 0;
   return BMAP_SUCCESS;
 }
