@@ -76,8 +76,8 @@ rect_list_t *wld_find_plane(wld_coord_t h, wld_coord_t v, wld_coord_t plane,
        * within the rectangle.
        */
 
-      if ((h >= rect->d.hStart) && (h <= rect->d.hEnd)
-          && (v >= rect->d.vStart) && (v <= rect->d.vEnd))
+      if ((h >= rect->d.hstart) && (h <= rect->d.hend)
+          && (v >= rect->d.vstart) && (v <= rect->d.vend))
         return rect;
     }
 

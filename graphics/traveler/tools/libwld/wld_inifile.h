@@ -61,6 +61,7 @@
 #define PLAYER_SECTION_NAME    "player"
 
 /* These are charwld_erictics of the player. */
+
 #define PLAYER_HEIGHT          "playerheight"
 #define PLAYER_WALK_STEPHEIGHT "playerwalkstepheight"
 #define PLAYER_RUN_STEPHEIGHT  "playerrunstepheight"

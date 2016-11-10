@@ -127,7 +127,7 @@ graphic_file_t *wld_LoadPPM(FILE * fp, char *filename)
     }
 
   gfile = wld_new_graphicfile();
-  gfile->type = gfTrueColor;
+  gfile->type = GFILE_TRUECOLOR;
   gfile->palette = NULL;
   gfile->width = width;
   gfile->height = height;

@@ -98,15 +98,15 @@ extern wld_camera_t g_initial_camera;
  * the position of the player's "feet"
  */
 
-extern wld_coord_t playerHeight;
+extern wld_coord_t g_player_height;
 
 /* This is size of something that the player can step over when "walking" */
 
-extern wld_coord_t walkStepHeight;
+extern wld_coord_t g_walk_stepheight;
 
 /* This is size of something that the player can step over when "running" */
 
-extern wld_coord_t runStepHeight;
+extern wld_coord_t g_run_stepheight;
 
 /*************************************************************************
  * Global Function Prototypes

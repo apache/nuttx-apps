@@ -69,5 +69,5 @@ uint16_t g_nbitmaps;
  * the sky and ground
  */
 
-uint8_t skyColor;
-uint8_t groundColor;
+uint8_t g_sky_color;
+uint8_t g_ground_color;

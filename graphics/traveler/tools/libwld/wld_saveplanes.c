@@ -48,12 +48,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_CountRectangles
+ * Name: wld_count_rectangles
  * Description:
  * This function counts the number of rectangles in one plane
  ************************************************************************/
 
-static uint16_t wld_CountRectangles(rect_list_t * rect)
+static uint16_t wld_count_rectangles(rect_list_t * rect)
 {
   uint16_t count;
   for (count = 0; (rect); count++, rect = rect->flink);
@@ -61,12 +61,12 @@ static uint16_t wld_CountRectangles(rect_list_t * rect)
 }
 
 /*************************************************************************
- * Name: wld_SaveWorldPlane
+ * Name: wld_save_worldplane
  * Description:
  * This function stores the world data for one plane
  ************************************************************************/
 
-static uint8_t wld_SaveWorldPlane(FILE * fp, rect_list_t * rect)
+static uint8_t wld_save_worldplane(FILE * fp, rect_list_t * rect)
 {
   /* For each rectangle in the list */
 
@@ -107,9 +107,9 @@ uint8_t wld_save_planes(const char *wldFile)
 
   /* Create world file header */
 
-  fileHeader.numXRects = wld_CountRectangles(g_xplane_list.head);
-  fileHeader.numYRects = wld_CountRectangles(g_yplane_list.head);
-  fileHeader.numZRects = wld_CountRectangles(g_zplane_list.head);
+  fileHeader.num_xrects = wld_count_rectangles(g_xplane_list.head);
+  fileHeader.num_yrects = wld_count_rectangles(g_yplane_list.head);
+  fileHeader.num_zrects = wld_count_rectangles(g_zplane_list.head);
 
   /* Write the file header to the output file */
 
@@ -122,15 +122,15 @@ uint8_t wld_save_planes(const char *wldFile)
 
   else
     {
-      result = wld_SaveWorldPlane(fp, g_xplane_list.head);
+      result = wld_save_worldplane(fp, g_xplane_list.head);
       if (result == PLANE_SUCCESS)
         {
-          result = wld_SaveWorldPlane(fp, g_yplane_list.head);
+          result = wld_save_worldplane(fp, g_yplane_list.head);
         }
 
       if (result == PLANE_SUCCESS)
         {
-          wld_SaveWorldPlane(fp, g_zplane_list.head);
+          wld_save_worldplane(fp, g_zplane_list.head);
         }
     }
 

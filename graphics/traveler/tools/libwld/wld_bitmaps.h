@@ -115,8 +115,8 @@ extern uint16_t g_nbitmaps;
  * the sky and ground
  */
 
-extern uint8_t skyColor;
-extern uint8_t groundColor;
+extern uint8_t g_sky_color;
+extern uint8_t g_ground_color;
 
 /*************************************************************************
  * Global Function Prototypes

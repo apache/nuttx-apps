@@ -54,18 +54,18 @@ graphic_file_t *wld_LoadGIF(FILE * fp, char *filename);
  * Private Data
  *************************************************************************/
 
-static const char pcxExtension[] = ".PCX";
+static const char g_pcx_extension[] = ".PCX";
 
 /*************************************************************************
  * Private Functions
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_CheckFormat
+ * Name: wld_check_format
  * Description:
  ************************************************************************/
 
-static graphic_file_format_t wld_CheckFormat(FILE * fp, char *filename)
+static graphic_file_format_t wld_check_format(FILE * fp, char *filename)
 {
   char magic[MAGIC_LENGTH];
 
@@ -76,15 +76,15 @@ static graphic_file_format_t wld_CheckFormat(FILE * fp, char *filename)
 
   if (strncmp(magic, PPM_MAGIC, sizeof(PPM_MAGIC) - 1) == 0)
     {
-      return formatPPM;
+      return FORMAT_PPM;
     }
   else if (strncmp(magic, GIF_MAGIC, sizeof(GIF_MAGIC) - 1) == 0)
     {
-      return formatGIF87;
+      return FORMAT_GIT87;
     }
   else if (strncmp(magic, GIF89_MAGIC, sizeof(GIF89_MAGIC) - 1) == 0)
     {
-      return formatGIF89;
+      return FORMAT_GIT89;
     }
   else
     {
@@ -101,11 +101,11 @@ static graphic_file_format_t wld_CheckFormat(FILE * fp, char *filename)
 
       /* Check if the extension matches */
 
-      for (ptr2 = (char *)pcxExtension; ((*ptr1) && (*ptr2)); ptr1++, ptr2++)
+      for (ptr2 = (char *)g_pcx_extension; ((*ptr1) && (*ptr2)); ptr1++, ptr2++)
         {
           if (toupper((int)*ptr1) != *ptr2)
             {
-              return formatUnknown;
+              return FORMAT_UNKNOWN;
             }
         }
 
@@ -115,11 +115,11 @@ static graphic_file_format_t wld_CheckFormat(FILE * fp, char *filename)
 
       if (!(*ptr1) && !(*ptr2))
         {
-          return formatPCX;
+          return FORMAT_PCX;
         }
     }
 
-  return formatUnknown;
+  return FORMAT_UNKNOWN;
 }
 
 /*************************************************************************
@@ -142,25 +142,25 @@ graphic_file_t *wld_readgraphic_file(char *filename)
       wld_fatal_error("Could not open texture %s", filename);
     }
 
-  format = wld_CheckFormat(fp, filename);
+  format = wld_check_format(fp, filename);
   fseek(fp, 0, SEEK_SET);
 
   switch (format)
     {
-    case formatGIF89:
-    case formatGIF87:
+    case FORMAT_GIT89:
+    case FORMAT_GIT87:
       gfile = wld_LoadGIF(fp, filename);
       break;
 
-    case formatPPM:
+    case FORMAT_PPM:
       gfile = wld_LoadPPM(fp, filename);
       break;
 
-    case formatPCX:
+    case FORMAT_PCX:
       gfile = wld_loadpcx(fp, filename);
       break;
 
-    case formatUnknown:
+    case FORMAT_UNKNOWN:
       wld_fatal_error("Unknown graphic file format.\n");
       break;
 

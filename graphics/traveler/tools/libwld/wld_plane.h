@@ -108,38 +108,48 @@ enum
 typedef short wld_coord_t;  /* Max world size is +/- 65536/64 = 1024 */
 typedef uint8_t attrib_t; /* Max attributes = 8 */
 
-typedef struct rectDataStruct
+struct rect_data_s
 {
   wld_coord_t plane;      /* defines the plane that the rect lies in */
-  wld_coord_t hStart;     /* defines the starting "horizontal" position */
-  wld_coord_t hEnd;       /* defines the ending "horizontal" position */
-  wld_coord_t vStart;     /* defines the starting "vertical" position */
-  wld_coord_t vEnd;       /* defines the ending "vertical" position */
+  wld_coord_t hstart;     /* defines the starting "horizontal" position */
+  wld_coord_t hend;       /* defines the ending "horizontal" position */
+  wld_coord_t vstart;     /* defines the starting "vertical" position */
+  wld_coord_t vend;       /* defines the ending "vertical" position */
   attrib_t attribute; /* bit-encoded attributes of the plane */
   uint8_t texture;      /* defines the texture that should be applied */
   uint8_t scale;              /* defines the scaling of the texture */
-} rect_data_t;
+};
+
+typedef struct rect_data_s rect_data_t;
+
 #define SIZEOF_RECTDATATYPE 13
 
-typedef struct rectListStruct
+struct rect_list_s
 {
-  struct rectListStruct *flink; /* points at next rectangle in a list */
-  struct rectListStruct *blink; /* points at previous rectangle in a list */
+  struct rect_list_s *flink; /* points at next rectangle in a list */
+  struct rect_list_s *blink; /* points at previous rectangle in a list */
   rect_data_t d;      /* the data which defines the rectangle */
-} rect_list_t;
+};
 
-typedef struct
+typedef struct rect_list_s rect_list_t;
+
+struct rect_head_s
 {
   rect_list_t *head;  /* points to the start of the list */
   rect_list_t *tail;  /* points to the end of the list */
-} rect_head_t;
+};
 
-typedef struct
+typedef struct rect_head_s rect_head_t;
+
+struct plane_file_header_s
 {
-  uint16_t numXRects;
-  uint16_t numYRects;
-  uint16_t numZRects;
-} plane_file_header_t;
+  uint16_t num_xrects;
+  uint16_t num_yrects;
+  uint16_t num_zrects;
+};
+
+typedef struct plane_file_header_s plane_file_header_t;
+
 #define SIZEOF_PLANEFILEHEADERTYPE 6
 
 /*************************************************************************
@@ -166,23 +176,23 @@ extern rect_list_t *freeList;
  * Public Function Prototypes
  *************************************************************************/
 
-extern uint8_t       wld_initialize_planes(void);
-extern void          wld_discard_planes(void);
-extern uint8_t       wld_load_planefile(const char *wldfile);
-extern uint8_t       wld_load_planes(FILE *fp);
-extern uint8_t       wld_save_planes(const char *wldFile);
-extern rect_list_t *wld_new_plane(void);
-extern void          wld_add_plane(rect_list_t *rect,
-                                  rect_head_t *list);
-extern void          wld_merge_planelists(rect_head_t *outList,
-                                         rect_head_t *inList);
-extern void          wld_remove_plane(rect_list_t *rect,
-                                     rect_head_t *list);
-extern void          wld_move_plane(rect_list_t *rect,
-                                   rect_head_t *destList,
-                                   rect_head_t *srcList);
-extern rect_list_t *wld_find_plane(wld_coord_t h, wld_coord_t v, wld_coord_t plane,
-                                   rect_head_t *list);
+uint8_t       wld_initialize_planes(void);
+void          wld_discard_planes(void);
+uint8_t       wld_load_planefile(const char *wldfile);
+uint8_t       wld_load_planes(FILE *fp);
+uint8_t       wld_save_planes(const char *wldFile);
+rect_list_t *wld_new_plane(void);
+void          wld_add_plane(rect_list_t *rect,
+                            rect_head_t *list);
+void          wld_merge_planelists(rect_head_t *outList,
+                                   rect_head_t *inList);
+void          wld_remove_plane(rect_list_t *rect,
+                               rect_head_t *list);
+void          wld_move_plane(rect_list_t *rect,
+                             rect_head_t *destList,
+                             rect_head_t *srcList);
+rect_list_t  *wld_find_plane(wld_coord_t h, wld_coord_t v, wld_coord_t plane,
+                             rect_head_t *list);
 
 #ifdef __cplusplus
 }

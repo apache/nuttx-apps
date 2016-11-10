@@ -48,12 +48,12 @@
  *************************************************************************/
 
 /*************************************************************************
- * Name: wld_DiscardWorldPlane
+ * Name: wld_discard_worldplane
  * Description:
  * This function deallocates one plane of the world
  ************************************************************************/
 
-static void wld_DiscardWorldPlane(rect_list_t * rect)
+static void wld_discard_worldplane(rect_list_t * rect)
 {
   rect_list_t *next;
 
@@ -77,12 +77,12 @@ static void wld_DiscardWorldPlane(rect_list_t * rect)
 
 void wld_discard_planes(void)
 {
-  wld_DiscardWorldPlane(g_xplane_list.head);
+  wld_discard_worldplane(g_xplane_list.head);
   g_xplane_list.head = g_xplane_list.tail = NULL;
-  wld_DiscardWorldPlane(g_yplane_list.head);
+  wld_discard_worldplane(g_yplane_list.head);
   g_yplane_list.head = g_yplane_list.tail = NULL;
-  wld_DiscardWorldPlane(g_zplane_list.head);
+  wld_discard_worldplane(g_zplane_list.head);
   g_zplane_list.head = g_zplane_list.tail = NULL;
-  wld_DiscardWorldPlane(freeList);
+  wld_discard_worldplane(freeList);
   freeList = NULL;
 }

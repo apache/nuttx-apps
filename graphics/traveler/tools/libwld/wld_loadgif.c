@@ -52,76 +52,76 @@
  * Pre-processor Definitions
  *************************************************************************/
 
-#define NEXTBYTE      (*ptr++)
-#define IMAGESEP      0x2c
-#define GRAPHIC_EXT   0xf9
-#define PLAINTEXT_EXT 0x01
+#define NEXTBYTE        (*ptr++)
+#define IMAGESEP        0x2c
+#define GRAPHIC_EXT     0xf9
+#define PLAINTEXT_EXT   0x01
 #define APPLICATION_EXT 0xff
-#define COMMENT_EXT   0xfe
+#define COMMENT_EXT     0xfe
 #define START_EXTENSION 0x21
-#define INTERLACEMASK 0x40
-#define COLORMAPMASK  0x80
+#define INTERLACEMASK   0x40
+#define COLORMAPMASK    0x80
 
 /*************************************************************************
  * Private Data
  *************************************************************************/
 
-int BitOffset = 0,              /* Bit Offset of next code */
-  XC = 0, YC = 0,               /* Output X and Y coords of current pixel */
-  Pass = 0,                     /* Used by output routine if interlaced pic */
-  OutCount = 0,                 /* Decompressor output 'stack count' */
-  RWidth, RHeight,              /* screen dimensions */
-  Width, Height,                /* image dimensions */
-  LeftOfs, TopOfs,              /* image offset */
-  BitsPerPixel,                 /* Bits per pixel, read from GIF header */
-  BytesPerScanline,             /* bytes per scanline in output rwld_er */
-  ColorMapSize,                 /* number of colors */
-  Background,                   /* background color */
-  CodeSize,                     /* Code size, read from GIF header */
-  InitCodeSize,                 /* Starting code size, used during Clear */
-  Code,                         /* Value returned by ReadCode */
-  MaxCode,                      /* limiting value for current code size */
-  ClearCode,                    /* GIF clear code */
-  EOFCode,                      /* GIF end-of-information code */
-  CurCode, OldCode, InCode,     /* Decompressor variables */
-  FirstFree,                    /* First free code, generated per GIF spec */
-  FreeCode,                     /* Decompressor, next free slot in hash table */
-  FinChar,                      /* Decompressor variable */
-  BitMask,                      /* AND mask for data size */
-  ReadMask;                     /* Code AND mask for current code size */
+static int BitOffset = 0;              /* Bit Offset of next code */
+static int XC = 0, YC = 0;             /* Output X and Y coords of current pixel */
+static int Pass = 0;                   /* Used by output routine if interlaced pic */
+static int OutCount = 0;               /* Decompressor output 'stack count' */
+static int RWidth, RHeight;            /* screen dimensions */
+static int Width, Height;              /* image dimensions */
+static int LeftOfs, TopOfs;            /* image offset */
+static int BitsPerPixel;               /* Bits per pixel, read from GIF header */
+static int BytesPerScanline;           /* bytes per scanline in output rwld_er */
+static int ColorMapSize;               /* number of colors */
+static int Background;                 /* background color */
+static int CodeSize;                   /* Code size, read from GIF header */
+static int InitCodeSize;               /* Starting code size, used during Clear */
+static int Code;                       /* Value returned by ReadCode */
+static int MaxCode;                    /* limiting value for current code size */
+static int ClearCode;                  /* GIF clear code */
+static int EOFCode;                    /* GIF end-of-information code */
+static int CurCode, OldCode, InCode;   /* Decompressor variables */
+static int FirstFree;                  /* First free code, generated per GIF spec */
+static int FreeCode;                   /* Decompressor, next free slot in hash table */
+static int FinChar;                    /* Decompressor variable */
+static int BitMask;                    /* AND mask for data size */
+static int ReadMask;                   /* Code AND mask for current code size */
 
-bool Interlace, HasColormap;
-bool Verbose = true;
+static bool Interlace, HasColormap;
+static bool Verbose = true;
 
-uint8_t *Image;                 /* The result array */
-uint8_t *RawGIF;                /* The heap array to hold it, raw */
-uint8_t *Rwld_er;               /* The rwld_er data stream, unblocked */
+static uint8_t *Image;                 /* The result array */
+static uint8_t *RawGIF;                /* The heap array to hold it, raw */
+static uint8_t *Rwld_er;               /* The rwld_er data stream, unblocked */
 
 /* The hash table used by the decompressor */
 
-int Prefix[4096];
-int Suffix[4096];
+static int Prefix[4096];
+static int Suffix[4096];
 
 /* An output array used by the decompressor */
 
-int OutCode[1025];
+static int OutCode[1025];
 
 /* The color map, read from the GIF header */
 
-uint8_t Red[256], Green[256], Blue[256], used[256];
-int numused;
+static uint8_t Red[256], Green[256], Blue[256], used[256];
+static int numused;
 
-char *id87 = "GIF87a";
-char *id89 = "GIF89a";
+static char *id87 = "GIF87a";
+static char *id89 = "GIF89a";
 
 /*************************************************************************
  * Private Functions
  ************************************************************************/
 
 /*************************************************************************
- * Name: 
+ * Name: ReadCode
  * Description:
- * Fetch the next code from the rwld_er data stream.  The codes can be
+ * Fetch the next code from the data stream.  The codes can be
  * any length from 3 to 12 bits, packed into 8-bit bytes, so we have to
  * maintain our location in the Rwld_er array as a BIT Offset.  We compute
  * the byte Offset into the rwld_er array by dividing this by 8, pick up
@@ -131,7 +131,8 @@ char *id89 = "GIF89a";
 
 static int ReadCode(void)
 {
-  int RawCode, ByteOffset;
+  int RawCode;
+  int ByteOffset;
 
   ByteOffset = BitOffset / 8;
   RawCode = Rwld_er[ByteOffset] + (0x100 * Rwld_er[ByteOffset + 1]);
@@ -376,7 +377,7 @@ graphic_file_t *wld_LoadGIF(FILE * fp, char *fname)
     }
 
   gfile->bitmap = (uint8_t *) wld_malloc(Width * Height);
-  gfile->type = gfPaletted;
+  gfile->type = GFILE_PALETTED;
   gfile->width = Width;
   gfile->height = Height;
   gfile->transparent_entry = transparency;

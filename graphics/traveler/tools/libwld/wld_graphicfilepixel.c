@@ -52,7 +52,7 @@
 
 color_rgb_t wld_graphicfile_pixel(graphic_file_t *gfile, int x, int y)
 {
-  if (gfile->type == gfPaletted)
+  if (gfile->type == GFILE_PALETTED)
     {
       int i;
 

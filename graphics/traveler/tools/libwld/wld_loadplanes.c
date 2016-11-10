@@ -108,11 +108,11 @@ uint8_t wld_load_planes(FILE * fp)
 
   /* Then load each grid, performing run length (rle) decoding */
 
-  result = wld_load_worldplane(fp, &g_xplane_list, fileHeader.numXRects);
+  result = wld_load_worldplane(fp, &g_xplane_list, fileHeader.num_xrects);
   if (!result)
-    result = wld_load_worldplane(fp, &g_yplane_list, fileHeader.numYRects);
+    result = wld_load_worldplane(fp, &g_yplane_list, fileHeader.num_yrects);
   if (!result)
-    result = wld_load_worldplane(fp, &g_zplane_list, fileHeader.numZRects);
+    result = wld_load_worldplane(fp, &g_zplane_list, fileHeader.num_zrects);
 
   return result;
 }

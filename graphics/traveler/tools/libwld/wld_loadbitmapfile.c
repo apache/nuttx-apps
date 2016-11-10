@@ -148,8 +148,8 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 
   /* Read the colors used to rend the sky and ground */
 
-  skyColor = wld_read_decimal(fp);
-  groundColor = wld_read_decimal(fp);
+  g_sky_color = wld_read_decimal(fp);
+  g_ground_color = wld_read_decimal(fp);
 
 #if MSWINDOWS
   /* Load the textures -- Note that the first texture will be used to define

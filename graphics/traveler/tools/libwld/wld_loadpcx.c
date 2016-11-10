@@ -52,21 +52,21 @@
  * Private Function Prototypes
  *************************************************************************/
 
-static void wld_loadpcxHeader(FILE * fp, pcx_header_t * header);
-static void wld_loadpcxData(FILE * fp, int32_t imagSize, uint8_t * imageBuffer);
-static void wld_loadpcxPalette(FILE * fp, color_rgb_t * palette);
+static void wld_load_pcxheader(FILE * fp, pcx_header_t * header);
+static void wld_load_pcxdata(FILE * fp, int32_t imagSize,
+                             uint8_t * imageBuffer);
+static void wld_load_pcxpalette(FILE * fp, color_rgb_t * palette);
 
 /*************************************************************************
  * Private Functions
  *************************************************************************/
 
-
 /*************************************************************************
- * Name: wld_loadpcxHeader
+ * Name: wld_load_pcxheader
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxHeader(FILE * fp, pcx_header_t * header)
+static void wld_load_pcxheader(FILE * fp, pcx_header_t * header)
 {
   uint8_t *tempBuffer;
   int i;
@@ -82,11 +82,11 @@ static void wld_loadpcxHeader(FILE * fp, pcx_header_t * header)
 }
 
 /*************************************************************************
- * Name: wld_loadpcxData
+ * Name: wld_load_pcxdata
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxData(FILE * fp, int32_t imageSize, uint8_t * imageBuffer)
+static void wld_load_pcxdata(FILE * fp, int32_t imageSize, uint8_t * imageBuffer)
 {
   uint32_t count;
   int16_t numBytes;
@@ -128,11 +128,11 @@ static void wld_loadpcxData(FILE * fp, int32_t imageSize, uint8_t * imageBuffer)
 }
 
 /*************************************************************************
- * Name: wld_loadpcxPalette
+ * Name: wld_load_pcxpalette
  * Description:
  ************************************************************************/
 
-static void wld_loadpcxPalette(FILE * fp, color_rgb_t * palette)
+static void wld_load_pcxpalette(FILE * fp, color_rgb_t * palette)
 {
   int i;
 
@@ -188,7 +188,7 @@ uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
 
   /* Load the PCX Header */
 
-  wld_loadpcxHeader(fp, &image->header);
+  wld_load_pcxheader(fp, &image->header);
 
   /* Load the PCX data */
 
@@ -197,14 +197,14 @@ uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
       imageWidth = image->header.width - image->header.x + 1;
       imageHeight = image->header.height - image->header.y + 1;
       imageSize = imageHeight * imageWidth;
-      wld_loadpcxData(fp, imageSize, image->buffer);
+      wld_load_pcxdata(fp, imageSize, image->buffer);
     }
 
   /* Load the PCX palette */
 
   if (image->palette)
     {
-      wld_loadpcxPalette(fp, &image->palette);
+      wld_load_pcxpalette(fp, &image->palette);
     }
 
   fclose(fp);
@@ -222,7 +222,7 @@ graphic_file_t *wld_loadpcx(FILE * fp, char *filename)
 
   /* Load the PCX Header */
 
-  wld_loadpcxHeader(fp, &header);
+  wld_load_pcxheader(fp, &header);
 
   /* Allocate Space to hold the image data */
 
@@ -233,7 +233,7 @@ graphic_file_t *wld_loadpcx(FILE * fp, char *filename)
 
   /* Load the PCX data into the buffer */
 
-  wld_loadpcxData(fp, imageSize, (uint8_t *) buffer);
+  wld_load_pcxdata(fp, imageSize, (uint8_t *) buffer);
 
   /* Allocate space to hold the PCX palette */
 
@@ -241,12 +241,12 @@ graphic_file_t *wld_loadpcx(FILE * fp, char *filename)
 
   /* Load the PCX palette */
 
-  wld_loadpcxPalette(fp, palette);
+  wld_load_pcxpalette(fp, palette);
 
   /* Now save the resulting data in a graphic_file_t structure */
 
   gFile = wld_new_graphicfile();
-  gFile->type = gfPaletted;
+  gFile->type = GFILE_PALETTED;
   gFile->palette = palette;
   gFile->width = imageWidth;
   gFile->height = imageHeight;

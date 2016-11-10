@@ -68,19 +68,19 @@
 
 enum graphic_file_format_e
 {
-  formatGIF87,
-  formatGIF89,
-  formatPPM,
-  formatPCX,
-  formatUnknown
+  FORMAT_GIT87,
+  FORMAT_GIT89,
+  FORMAT_PPM,
+  FORMAT_PCX,
+  FORMAT_UNKNOWN
 };
 
 typedef enum graphic_file_format_e graphic_file_format_t;
 
 enum graphic_file_enum_e
 {
-  gfTrueColor,
-  gfPaletted
+  GFILE_TRUECOLOR,
+  GFILE_PALETTED
 };
 
 typedef enum graphic_file_enum_e graphic_file_enum_t;
@@ -88,7 +88,8 @@ typedef enum graphic_file_enum_e graphic_file_enum_t;
 struct graphic_file_e
 {
   graphic_file_enum_t type;
-  uint16_t height, width;
+  uint16_t height;
+  uint16_t width;
   int palette_entries;
   long transparent_entry;
   color_rgb_t *palette;

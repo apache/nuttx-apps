@@ -77,15 +77,15 @@ wld_camera_t g_initial_camera;
  * the position of the player's "feet"
  */
 
-wld_coord_t playerHeight;
+wld_coord_t g_player_height;
 
 /* This is size of something that the player can step over when "walking" */
 
-wld_coord_t walkStepHeight;
+wld_coord_t g_walk_stepheight;
 
 /* This is size of something that the player can step over when "running" */
 
-wld_coord_t runStepHeight;
+wld_coord_t g_run_stepheight;
 
 /*************************************************************************
  * Private Constant Data
@@ -164,7 +164,7 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
 
   /* Get the height of the player */
 
-  result = wld_read_shortint(handle, &playerHeight,
+  result = wld_read_shortint(handle, &g_player_height,
                              g_player_section_name, g_player_height_name);
   if (result != 0)
     {
@@ -173,7 +173,7 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
 
   /* Read the player's capability to step on top of things in the world. */
 
-  result = wld_read_shortint(handle, &walkStepHeight,
+  result = wld_read_shortint(handle, &g_walk_stepheight,
                              g_player_section_name,
                              g_player_walk_stepheight_name);
   if (result != 0)
@@ -181,7 +181,7 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
       return result;
     }
 
-  result = wld_read_shortint(handle, &runStepHeight,
+  result = wld_read_shortint(handle, &g_run_stepheight,
                              g_player_section_name,
                              g_player_run_stepheight_name);
   if (result != 0)
