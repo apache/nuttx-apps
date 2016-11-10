@@ -115,14 +115,14 @@
  * Public Type Definitions
  ****************************************************************************/
 
-enum editModeEnum
+enum g_edit_modeEnum
 {
   EDITMODE_NONE = 0, /* Initial mode has not been selected */
   EDITMODE_POS,      /* Positioning in world */
   EDITMODE_NEW       /* Creating a new rectangle */
 };
 
-enum editPlaneEnum
+enum g_edit_planeEnum
 {
   EDITPLANE_X = 0,   /* Editting rectangle in the x plane */
   EDITPLANE_Y,       /* Editting rectangle in the y plane */
@@ -132,7 +132,7 @@ enum editPlaneEnum
 typedef struct
 {
   char *title;                             /* Title on window */
-  enum editPlaneEnum plane;                /* Identifies plane of window */
+  enum g_edit_planeEnum plane;                /* Identifies plane of window */
   int width;                               /* Width of window */
   int height;                              /* Height of window */
   int ncolors;                            /* Number of colors allocated (PALETTE_SIZE) */
@@ -149,27 +149,27 @@ typedef struct
  * Public Data
  ****************************************************************************/
 
-extern enum editModeEnum  editMode;
-extern enum editPlaneEnum editPlane;
+extern enum g_edit_modeEnum  g_edit_mode;
+extern enum g_edit_planeEnum g_edit_plane;
 
-extern int viewSize;
-extern int gridStep;
-extern int coordOffset[NUM_PLANES];
-extern int planePosition[NUM_PLANES];
-extern tcl_window_t windows[NUM_PLANES];
-extern rect_data_t editRect;
+extern int g_view_size;
+extern int g_grid_step;
+extern int g_coord_offset[NUM_PLANES];
+extern int g_plane_position[NUM_PLANES];
+extern tcl_window_t g_windows[NUM_PLANES];
+extern rect_data_t g_edit_rect;
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-extern void tcl_init_graphics(tcl_window_t *w);
-extern void tcl_end_graphics(tcl_window_t *w);
+void tcl_init_graphics(tcl_window_t *w);
+void tcl_end_graphics(tcl_window_t *w);
 
-extern void tcl_paint_background(tcl_window_t *w);
-extern void tcl_paint_position(tcl_window_t *w);
-extern void tcl_paint_grid(tcl_window_t *w);
-extern void tcl_paint_rectangles(tcl_window_t *w);
-extern void tcl_update_screen(tcl_window_t *w);
+void tcl_paint_background(tcl_window_t *w);
+void tcl_paint_position(tcl_window_t *w);
+void tcl_paint_grid(tcl_window_t *w);
+void tcl_paint_rectangles(tcl_window_t *w);
+void tcl_update_screen(tcl_window_t *w);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOLS_TCLEDIT_TCL_X11GRAPHICS_H */

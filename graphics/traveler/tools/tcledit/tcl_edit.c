@@ -64,14 +64,14 @@ static const char g_default_filename[] = "planes.pll";
  * Public Variables
  ***************************************************************************/
 
-enum editModeEnum editMode = EDITMODE_NONE;
-enum editPlaneEnum editPlane = EDITPLANE_X;
-int viewSize = WORLD_INFINITY;
-int gridStep = WORLD_SIZE / 16;
+enum g_edit_modeEnum g_edit_mode = EDITMODE_NONE;
+enum g_edit_planeEnum g_edit_plane = EDITPLANE_X;
+int g_view_size = WORLD_INFINITY;
+int g_grid_step = WORLD_SIZE / 16;
 
-int coordOffset[NUM_PLANES];
-int planePosition[NUM_PLANES];
-tcl_window_t windows[NUM_PLANES] =
+int g_coord_offset[NUM_PLANES];
+int g_plane_position[NUM_PLANES];
+tcl_window_t g_windows[NUM_PLANES] =
 {
   {
     .title = "X-Plane",
@@ -126,7 +126,7 @@ tcl_window_t windows[NUM_PLANES] =
   }
 };
 
-rect_data_t editRect;
+rect_data_t g_edit_rect;
 
 /****************************************************************************
  * Private Functions
@@ -140,7 +140,7 @@ static void tcledit_update_posmode_display(void)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      tcl_window_t *w = &windows[i];
+      tcl_window_t *w = &g_windows[i];
       tcl_paint_background(w);
       tcl_paint_grid(w);
       tcl_paint_rectangles(w);
@@ -157,7 +157,7 @@ static void tcledit_update_newmode_display(void)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      tcl_window_t *w = &windows[i];
+      tcl_window_t *w = &g_windows[i];
       tcl_paint_background(w);
       tcl_paint_grid(w);
       tcl_paint_rectangles(w);
@@ -182,43 +182,43 @@ static int tcledit_setmode(ClientData clientData,
   else if (strcmp(argv[1], "POS") == 0)
     {
       ginfo("Entering POS mode\n");
-      editMode = EDITMODE_POS;
+      g_edit_mode = EDITMODE_POS;
       tcledit_update_posmode_display();
     }
 
   else if (strcmp(argv[1], "NEW") == 0)
     {
-      editMode = EDITMODE_NEW;
-      memset(&editRect, 0, sizeof(rect_data_t));
+      g_edit_mode = EDITMODE_NEW;
+      memset(&g_edit_rect, 0, sizeof(rect_data_t));
       if (strcmp(argv[2], "x") == 0)
         {
           ginfo("Entering NEWX mode\n");
-          editPlane = EDITPLANE_X;
-          editRect.plane = planePosition[EDITPLANE_X];
-          editRect.hStart = planePosition[EDITPLANE_Y];
-          editRect.hEnd = editRect.hStart;
-          editRect.vStart = planePosition[EDITPLANE_Z];
-          editRect.vEnd = editRect.vStart;
+          g_edit_plane = EDITPLANE_X;
+          g_edit_rect.plane = g_plane_position[EDITPLANE_X];
+          g_edit_rect.hStart = g_plane_position[EDITPLANE_Y];
+          g_edit_rect.hEnd = g_edit_rect.hStart;
+          g_edit_rect.vStart = g_plane_position[EDITPLANE_Z];
+          g_edit_rect.vEnd = g_edit_rect.vStart;
         }
       else if (strcmp(argv[2], "y") == 0)
         {
           ginfo("Entering NEWY mode\n");
-          editPlane = EDITPLANE_Y;
-          editRect.plane = planePosition[EDITPLANE_Y];
-          editRect.hStart = planePosition[EDITPLANE_X];
-          editRect.hEnd = editRect.hStart;
-          editRect.vStart = planePosition[EDITPLANE_Z];
-          editRect.vEnd = editRect.vStart;
+          g_edit_plane = EDITPLANE_Y;
+          g_edit_rect.plane = g_plane_position[EDITPLANE_Y];
+          g_edit_rect.hStart = g_plane_position[EDITPLANE_X];
+          g_edit_rect.hEnd = g_edit_rect.hStart;
+          g_edit_rect.vStart = g_plane_position[EDITPLANE_Z];
+          g_edit_rect.vEnd = g_edit_rect.vStart;
         }
       else if (strcmp(argv[2], "z") == 0)
         {
           ginfo("Entering NEWZ mode\n");
-          editPlane = EDITPLANE_Z;
-          editRect.plane = planePosition[EDITPLANE_Z];
-          editRect.hStart = planePosition[EDITPLANE_X];
-          editRect.hEnd = editRect.hStart;
-          editRect.vStart = planePosition[EDITPLANE_Y];
-          editRect.vEnd = editRect.vStart;
+          g_edit_plane = EDITPLANE_Z;
+          g_edit_rect.plane = g_plane_position[EDITPLANE_Z];
+          g_edit_rect.hStart = g_plane_position[EDITPLANE_X];
+          g_edit_rect.hEnd = g_edit_rect.hStart;
+          g_edit_rect.vStart = g_plane_position[EDITPLANE_Y];
+          g_edit_rect.vEnd = g_edit_rect.vStart;
         }
       else
         {
@@ -249,12 +249,12 @@ static int tcledit_new_position(ClientData clientData,
                       __FUNCTION__, argc);
     }
 
-  planePosition[0] = atoi(argv[1]);
-  planePosition[1] = atoi(argv[2]);
-  planePosition[2] = atoi(argv[3]);
+  g_plane_position[0] = atoi(argv[1]);
+  g_plane_position[1] = atoi(argv[2]);
+  g_plane_position[2] = atoi(argv[3]);
 
   ginfo("New plane positions: {%d,%d,%d}\n",
-        planePosition[0], planePosition[1], planePosition[2]);
+        g_plane_position[0], g_plane_position[1], g_plane_position[2]);
 
   tcledit_update_posmode_display();
   return TCL_OK;
@@ -275,51 +275,51 @@ static int tcledit_new_zoom(ClientData clientData,
 
   /* Get the zoom settings */
 
-  viewSize = atoi(argv[1]);
-  coordOffset[0] = atoi(argv[2]);
-  coordOffset[1] = atoi(argv[3]);
-  coordOffset[2] = atoi(argv[4]);
+  g_view_size = atoi(argv[1]);
+  g_coord_offset[0] = atoi(argv[2]);
+  g_coord_offset[1] = atoi(argv[3]);
+  g_coord_offset[2] = atoi(argv[4]);
 
   /* The grid size will be determined by the scaling */
 
-  if (viewSize <= 256)
+  if (g_view_size <= 256)
     {
-      gridStep = 16;            /* 16 lines at 256 */
+      g_grid_step = 16;            /* 16 lines at 256 */
     }
-  else if (viewSize <= 512)
+  else if (g_view_size <= 512)
     {
-      gridStep = 32;            /* 16 lines at 512 */
+      g_grid_step = 32;            /* 16 lines at 512 */
     }
-  else if (viewSize <= 1024)
+  else if (g_view_size <= 1024)
     {
-      gridStep = 64;            /* 16 lines at 1024 */
+      g_grid_step = 64;            /* 16 lines at 1024 */
     }
-  else if (viewSize <= 2048)
+  else if (g_view_size <= 2048)
     {
-      gridStep = 128;           /* 16 lines at 2048 */
+      g_grid_step = 128;           /* 16 lines at 2048 */
     }
-  else if (viewSize <= 4096)
+  else if (g_view_size <= 4096)
     {
-      gridStep = 256;           /* 16 lines at 4096 */
+      g_grid_step = 256;           /* 16 lines at 4096 */
     }
-  else if (viewSize <= 8192)
+  else if (g_view_size <= 8192)
     {
-      gridStep = 512;           /* 16 lines at 8196 */
+      g_grid_step = 512;           /* 16 lines at 8196 */
     }
-  else if (viewSize <= 16384)
+  else if (g_view_size <= 16384)
     {
-      gridStep = 1024;          /* 16 lines at 16384 */
+      g_grid_step = 1024;          /* 16 lines at 16384 */
     }
-  else                          /* if (viewSize <= 32768) */
+  else                          /* if (g_view_size <= 32768) */
     {
-      gridStep = 2048;          /* 16 lines at 32768 */
+      g_grid_step = 2048;          /* 16 lines at 32768 */
     }
 
-  ginfo("New viewSize, gridStep: %d, %d\n", viewSize, gridStep);
+  ginfo("New g_view_size, g_grid_step: %d, %d\n", g_view_size, g_grid_step);
   ginfo("New coordinate offsets: {%d,%d,%d}\n",
-        coordOffset[0], coordOffset[1], coordOffset[2]);
+        g_coord_offset[0], g_coord_offset[1], g_coord_offset[2]);
 
-  if (editMode == EDITMODE_POS)
+  if (g_edit_mode == EDITMODE_POS)
     {
       tcledit_update_posmode_display();
     }
@@ -349,7 +349,7 @@ static int tcledit_new_edit(ClientData clientData,
 
   /* Ignore the command if we are not in NEW mode */
 
-  if (editMode == EDITMODE_NEW)
+  if (g_edit_mode == EDITMODE_NEW)
     {
       /* Get the new position information */
 
@@ -359,25 +359,25 @@ static int tcledit_new_edit(ClientData clientData,
 
       /* Which plane are we editting? */
 
-      switch (editPlane)
+      switch (g_edit_plane)
         {
         case EDITPLANE_X:
           if (strcmp(argv[1], "x") == 0)
             {
               ginfo("New X plane position: %d\n", start);
-              editRect.plane = start;
+              g_edit_rect.plane = start;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
               ginfo("New horizontal Y coordinates: {%d,%d}\n", start, end);
-              editRect.hStart = start;
-              editRect.hEnd = end;
+              g_edit_rect.hStart = start;
+              g_edit_rect.hEnd = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
               ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
-              editRect.vStart = start;
-              editRect.vEnd = end;
+              g_edit_rect.vStart = start;
+              g_edit_rect.vEnd = end;
             }
           else
             {
@@ -390,19 +390,19 @@ static int tcledit_new_edit(ClientData clientData,
           if (strcmp(argv[1], "x") == 0)
             {
               ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
-              editRect.hStart = start;
-              editRect.hEnd = end;
+              g_edit_rect.hStart = start;
+              g_edit_rect.hEnd = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
               ginfo("New Y plane position: %d\n", start);
-              editRect.plane = start;
+              g_edit_rect.plane = start;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
               ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
-              editRect.vStart = start;
-              editRect.vEnd = end;
+              g_edit_rect.vStart = start;
+              g_edit_rect.vEnd = end;
             }
           else
             {
@@ -415,19 +415,19 @@ static int tcledit_new_edit(ClientData clientData,
           if (strcmp(argv[1], "x") == 0)
             {
               ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
-              editRect.hStart = start;
-              editRect.hEnd = end;
+              g_edit_rect.hStart = start;
+              g_edit_rect.hEnd = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
               ginfo("New vertical Y coordinates: {%d,%d}\n", start, end);
-              editRect.vStart = start;
-              editRect.vEnd = end;
+              g_edit_rect.vStart = start;
+              g_edit_rect.vEnd = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
               ginfo("New Z plane position: %d\n", start);
-              editRect.plane = start;
+              g_edit_rect.plane = start;
             }
           else
             {
@@ -470,57 +470,57 @@ static int tcledit_new_attributes(ClientData clientData,
 
   /* Ignore the command if we are not in NEW mode */
 
-  if (editMode == EDITMODE_NEW)
+  if (g_edit_mode == EDITMODE_NEW)
     {
       if (attributes[0] == '1')
         {
-          editRect.attribute |= SHADED_PLANE;
+          g_edit_rect.attribute |= SHADED_PLANE;
         }
       else
         {
-          editRect.attribute &= ~SHADED_PLANE;
+          g_edit_rect.attribute &= ~SHADED_PLANE;
         }
 
       if (attributes[1] == '1')
         {
-          editRect.attribute |= TRANSPARENT_PLANE;
+          g_edit_rect.attribute |= TRANSPARENT_PLANE;
         }
       else
         {
-          editRect.attribute &= ~TRANSPARENT_PLANE;
+          g_edit_rect.attribute &= ~TRANSPARENT_PLANE;
         }
 
       if (attributes[2] == '1')
         {
-          editRect.attribute |= DOOR_PLANE;
+          g_edit_rect.attribute |= DOOR_PLANE;
         }
       else
         {
-          editRect.attribute &= ~DOOR_PLANE;
+          g_edit_rect.attribute &= ~DOOR_PLANE;
         }
-      ginfo("attributes: %s->%02x\n", attributes, editRect.attribute);
+      ginfo("attributes: %s->%02x\n", attributes, g_edit_rect.attribute);
 
       tmp = atoi(argv[2]);
       if ((tmp >= 0) && (tmp < 256))
         {
-          editRect.texture = tmp;
+          g_edit_rect.texture = tmp;
         }
       else
         {
           fprintf(stderr, "Texture index out of range: %d\n", tmp);
         }
-      ginfo("texture: %s->%d\n", argv[2], editRect.texture);
+      ginfo("texture: %s->%d\n", argv[2], g_edit_rect.texture);
 
       tmp = atoi(argv[3]);
       if ((tmp >= 0) && (tmp <= MAXX_SCALING))
         {
-          editRect.scale = tmp;
+          g_edit_rect.scale = tmp;
         }
       else
         {
           fprintf(stderr, "Scaling not supported: %d\n", tmp);
         }
-      ginfo("scale: %s->%d\n", argv[3], editRect.scale);
+      ginfo("scale: %s->%d\n", argv[3], g_edit_rect.scale);
     }
 
   return TCL_OK;
@@ -542,7 +542,7 @@ static int tcledit_add_rectangle(ClientData clientData,
 
   /* Ignore the command if we are not in NEW mode */
 
-  if (editMode == EDITMODE_NEW)
+  if (g_edit_mode == EDITMODE_NEW)
     {
       /* Get a new container for the rectangle information */
 
@@ -550,11 +550,11 @@ static int tcledit_add_rectangle(ClientData clientData,
 
       /* Copy the rectangle data into the container */
 
-      rect->d = editRect;
+      rect->d = g_edit_rect;
 
       /* Save the rectangle in the correct list */
 
-      switch (editPlane)
+      switch (g_edit_plane)
         {
         case EDITPLANE_X:
           wld_add_plane(rect, &g_xplane_list);
@@ -674,7 +674,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      tcl_init_graphics(&windows[i]);
+      tcl_init_graphics(&g_windows[i]);
     }
 
   /* Tcl_Init() sets up the Tcl library factility */

@@ -406,7 +406,7 @@ static void x11_unmap_all_sharedmemory(void)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      x11_unmap_sharedmemory(&windows[i]);
+      x11_unmap_sharedmemory(&g_windows[i]);
     }
 }
 
