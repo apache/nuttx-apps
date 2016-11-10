@@ -165,7 +165,7 @@ static void tcledit_update_newmode_display(void)
     }
 }
 
-/* Called in response to the "ast_seteditmode" Tcl command to set the
+/* Called in response to the "seteditmode" Tcl command to set the
  * current edit mode
  */
 
@@ -236,7 +236,7 @@ static int tcledit_setmode(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "ast_position" Tcl command */
+/* Called in response to the "position" Tcl command */
 
 static int tcledit_new_position(ClientData clientData,
                                 Tcl_Interp * interp, int argc, const char *argv[])
@@ -260,7 +260,7 @@ static int tcledit_new_position(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "ast_zoom" Tcl command */
+/* Called in response to the "zoom" Tcl command */
 
 static int tcledit_new_zoom(ClientData clientData,
                             Tcl_Interp * interp, int argc, const char *argv[])
@@ -330,7 +330,7 @@ static int tcledit_new_zoom(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "ast_edit" Tcl command */
+/* Called in response to the "edit" Tcl command */
 
 static int tcledit_new_edit(ClientData clientData,
                             Tcl_Interp * interp, int argc, const char *argv[])
@@ -445,7 +445,7 @@ static int tcledit_new_edit(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "ast_attribute" Tcl command */
+/* Called in response to the "attributes" Tcl command */
 
 static int tcledit_new_attributes(ClientData clientData,
                                   Tcl_Interp * interp, int argc, const char *argv[])
@@ -526,7 +526,7 @@ static int tcledit_new_attributes(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "ast_addrectangle" Tcl command */
+/* Called in response to the "addrectangle" Tcl command */
 
 static int tcledit_add_rectangle(ClientData clientData,
                                  Tcl_Interp * interp, int argc, const char *argv[])
@@ -573,7 +573,7 @@ static int tcledit_add_rectangle(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "ast_save" Tcl command */
+/* Called in response to the "save" Tcl command */
 
 static int tcledit_save_rectangles(ClientData clientData,
                                    Tcl_Interp * interp, int argc, const char *argv[])
@@ -691,19 +691,19 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
   /* Define application-specific commands */
 
-  Tcl_CreateCommand(g_tcledit_interp, "ast_seteditmode", tcledit_setmode,
+  Tcl_CreateCommand(g_tcledit_interp, "seteditmode", tcledit_setmode,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "ast_position", tcledit_new_position,
+  Tcl_CreateCommand(g_tcledit_interp, "position", tcledit_new_position,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "ast_zoom", tcledit_new_zoom,
+  Tcl_CreateCommand(g_tcledit_interp, "zoom", tcledit_new_zoom,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "ast_edit", tcledit_new_edit,
+  Tcl_CreateCommand(g_tcledit_interp, "edit", tcledit_new_edit,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "ast_attributes", tcledit_new_attributes,
+  Tcl_CreateCommand(g_tcledit_interp, "attributes", tcledit_new_attributes,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "ast_addrectangle", tcledit_add_rectangle,
+  Tcl_CreateCommand(g_tcledit_interp, "addrectangle", tcledit_add_rectangle,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "ast_save", tcledit_save_rectangles,
+  Tcl_CreateCommand(g_tcledit_interp, "save", tcledit_save_rectangles,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 
   /* Initialize the Tcl parser */

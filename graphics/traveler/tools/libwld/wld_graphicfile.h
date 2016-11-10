@@ -38,8 +38,8 @@
  * DESCRIPTION:  
  *************************************************************************/
 
-#ifndef __ASTGRAPHICFILE_H
-#define __ASTGRAPHICFILE_H
+#ifndef __APPS_GRAPHICS_TRAVELER_TOOLS_LIBWLD_WLD_GRAPHIFILE_H
+#define __APPS_GRAPHICS_TRAVELER_TOOLS_LIBWLD_WLD_GRAPHIFILE_H
 
 /*************************************************************************
  * Included files
@@ -108,4 +108,4 @@ color_rgb_t     wld_graphicfile_pixel(graphic_file_t *gFile,
                                       int x, int y);
 graphic_file_t *wld_readgraphic_file(char *filename);
 
-#endif /* __ASTGRAPHICFILE_H */
+#endif /* __APPS_GRAPHICS_TRAVELER_TOOLS_LIBWLD_WLD_GRAPHIFILE_H */
