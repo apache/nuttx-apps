@@ -58,40 +58,7 @@
  * Private Data
  ****************************************************************************/
 
-#if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-
-/* These arrays map color forms into g_unit_vector array indices */
-
-static const enum unit_vector_index_e g_wld_bgrform_map[NCOLOR_FORMS] =
-  {
-    BLUE_NDX, GREENERBLUE_NDX, BLUEGREEN_NDX, LIGHTBLUE_NDX, GREY_NDX
-  };
-
-static const enum unit_vector_index_e g_wld_brgform_map[NCOLOR_FORMS] =
-  {
-    BLUE_NDX, BLUEVIOLET_NDX, VIOLET_NDX, LIGHTBLUE_NDX, GREY_NDX
-  };
-
-static const enum unit_vector_index_e g_wld_gbrform_map[NCOLOR_FORMS] =
-  {
-    GREEN_NDX, BLUERGREN_NDX, BLUEGREEN_NDX, LIGHTGREEN_NDX, GREY_NDX
-  };
-
-static const enum unit_vector_index_e g_wld_grbform_map[NCOLOR_FORMS] =
-  {
-    GREEN_NDX, YELLOWGREEN_NDX, YELLOW_NDX, LIGHTGREEN_NDX, GREY_NDX
-  };
-
-static const enum unit_vector_index_e g_wld_rbgform_map[NCOLOR_FORMS] =
-  {
-    RED_NDX, REDVIOLET_NDX, VIOLET_NDX, PINK_NDX, GREY_NDX
-  };
-
-static const enum unit_vector_index_e g_wld_rgbform_map[NCOLOR_FORMS] =
-  {
-    RED_NDX, ORANGE_NDX, YELLOW_NDX, PINK_NDX, GREY_NDX
-  };
-#else
+#if RGB_CUBE_SIZE >= MIN_LUM_LEVELS
 static color_rgb_t *g_devpixel_lut = NULL;
 static float g_wld_cube2pixel;
 #endif
@@ -113,6 +80,38 @@ const color_form_t g_wld_colorform[NCOLOR_FORMS] =
   {0.6666667, 0.5270463, 0.5270463},
   {0.5773503, 0.5773503, 0.5773503}
 };
+
+/* These arrays map color forms into g_unit_vector array indices */
+
+const enum unit_vector_index_e g_wld_bgrform_map[NCOLOR_FORMS] =
+  {
+    BLUE_NDX, GREENERBLUE_NDX, BLUEGREEN_NDX, LIGHTBLUE_NDX, GREY_NDX
+  };
+
+const enum unit_vector_index_e g_wld_brgform_map[NCOLOR_FORMS] =
+  {
+    BLUE_NDX, BLUEVIOLET_NDX, VIOLET_NDX, LIGHTBLUE_NDX, GREY_NDX
+  };
+
+const enum unit_vector_index_e g_wld_gbrform_map[NCOLOR_FORMS] =
+  {
+    GREEN_NDX, BLUERGREN_NDX, BLUEGREEN_NDX, LIGHTGREEN_NDX, GREY_NDX
+  };
+
+const enum unit_vector_index_e g_wld_grbform_map[NCOLOR_FORMS] =
+  {
+    GREEN_NDX, YELLOWGREEN_NDX, YELLOW_NDX, LIGHTGREEN_NDX, GREY_NDX
+  };
+
+const enum unit_vector_index_e g_wld_rbgform_map[NCOLOR_FORMS] =
+  {
+    RED_NDX, REDVIOLET_NDX, VIOLET_NDX, PINK_NDX, GREY_NDX
+  };
+
+const enum unit_vector_index_e g_wld_rgbform_map[NCOLOR_FORMS] =
+  {
+    RED_NDX, ORANGE_NDX, YELLOW_NDX, PINK_NDX, GREY_NDX
+  };
 
 /* This array defines each color supported in the luminance model */
 

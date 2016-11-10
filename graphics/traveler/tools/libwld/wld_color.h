@@ -198,15 +198,24 @@ typedef struct color_form_s color_form_t;
 extern dev_pixel_t *g_devpixel_lut;
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-color_lum_t *g_pixel2um_lut;
+extern color_lum_t *g_pixel2um_lut;
 
 /* The following defines the "form" of each color in the g_unit_vector array */
 
-const color_form_t g_wld_colorform[NCOLOR_FORMS];
+extern const color_form_t g_wld_colorform[NCOLOR_FORMS];
+
+/* These arrays map color forms into g_unit_vector array indices */
+
+extern const enum unit_vector_index_e g_wld_bgrform_map[NCOLOR_FORMS];
+extern const enum unit_vector_index_e g_wld_brgform_map[NCOLOR_FORMS];
+extern const enum unit_vector_index_e g_wld_gbrform_map[NCOLOR_FORMS];
+extern const enum unit_vector_index_e g_wld_grbform_map[NCOLOR_FORMS];
+extern const enum unit_vector_index_e g_wld_rbgform_map[NCOLOR_FORMS];
+extern const enum unit_vector_index_e g_wld_rgbform_map[NCOLOR_FORMS];
 
 /* This array defines each color supported in the luminance model */
 
-const color_lum_t g_unit_vector[NUNIT_VECTORS];
+extern const color_lum_t g_unit_vector[NUNIT_VECTORS];
 #endif
 
 /****************************************************************************

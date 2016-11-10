@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/traveler/tools/tcledit/tcl_x11graphics.c
+ * apps/graphics/traveler/tools/tcledit/tcl_x11graphics.h
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
