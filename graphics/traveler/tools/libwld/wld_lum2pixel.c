@@ -225,7 +225,7 @@ trv_pixel_t wld_color_lum2pixel(color_lum_t * lum)
    * to a wider representation.
    */
 
-  return TRV_UVLUM2NDX(uvndx, lumndx);
+  return WLD_UVLUM2NDX(uvndx, lumndx);
 
 #else
   color_rgb_t rgb;

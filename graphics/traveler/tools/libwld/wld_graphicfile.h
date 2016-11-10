@@ -45,6 +45,8 @@
  * Included files
  *************************************************************************/
 
+#include "wld_color.h"
+
 /*************************************************************************
  * Compilation switches
  *************************************************************************/
@@ -64,47 +66,45 @@
  * Public Type Definitions
  ************************************************************************/
 
-typedef enum
+enum graphic_file_format_e
 {
   formatGIF87,
   formatGIF89,
   formatPPM,
   formatPCX,
   formatUnknown
-} graphic_file_format_t;
+};
 
-typedef enum
+typedef enum graphic_file_format_e graphic_file_format_t;
+
+enum graphic_file_enum_e
 {
   gfTrueColor,
   gfPaletted
-} graphic_file_enum_t;
+};
 
-typedef struct
+typedef enum graphic_file_enum_e graphic_file_enum_t;
+
+struct graphic_file_e
 {
   graphic_file_enum_t type;
   uint16_t height, width;
   int palette_entries;
   long transparent_entry;
-  RGBColor *palette;
+  color_rgb_t *palette;
   uint8_t *bitmap;
-} graphic_file_t;
+};
+
+typedef struct graphic_file_e graphic_file_t;
 
 /*************************************************************************
- * Global Function Prototypes
- *************************************************************************/
-
-/*************************************************************************
- * Global Variables
- *************************************************************************/
-
-/*************************************************************************
- * Private Variables
+ * Public Function Prototypes
  *************************************************************************/
 
 graphic_file_t *wld_new_graphicfile(void);
-void             wld_free_graphicfile(graphic_file_t *gFile);
-RGBColor         wld_graphicfile_pixel(graphic_file_t *gFile,
-                                            int x, int y);
+void            wld_free_graphicfile(graphic_file_t *gFile);
+color_rgb_t     wld_graphicfile_pixel(graphic_file_t *gFile,
+                                      int x, int y);
 graphic_file_t *wld_readgraphic_file(char *filename);
 
 #endif /* __ASTGRAPHICFILE_H */

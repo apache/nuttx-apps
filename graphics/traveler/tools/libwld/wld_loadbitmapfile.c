@@ -129,12 +129,12 @@ static bool wld_read_filename(FILE * fp, char *fileName)
 static uint8_t wld_load_bitmaps(FILE * fp)
 {
 #if MSWINDOWS
-  volatile pcxPicture workPCX;
-  RGBColor *palette;
+  volatile pcx_picture_t pcx;
+  color_rgb_t *palette;
 #endif
-  uint16_t bMapIndex;
+  uint16_t mapndx;
   uint8_t result = BMAP_SUCCESS;
-  uint8_t graphicsFileName[FILE_NAME_SIZE];
+  char filename[FILE_NAME_SIZE];
 
   /* Discard any bitmaps that we may currently have buffered */
 
@@ -160,13 +160,12 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 
   /* Load each bitmap file */
 
-  for (bMapIndex = 0;
-       ((bMapIndex < g_nbitmaps) && (result == BMAP_SUCCESS)); bMapIndex++)
+  for (mapndx = 0; (mapndx < g_nbitmaps && result == BMAP_SUCCESS); mapndx++)
     {
       /* Load the even bitmap */
       /* Get the name of the file which contains the even bitmap */
 
-      if (!wld_read_filename(fp, graphicsFileName))
+      if (!wld_read_filename(fp, filename))
         {
           return BMAP_BML_READ_ERROR;
         }
@@ -174,7 +173,7 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 #if MSWINDOWS
       /* Setup to load the PCX bitmap from the file for the event bitmap */
 
-      result = wld_pcx_init(&workPCX, BITMAP_HEIGHT, BITMAP_WIDTH,
+      result = wld_pcx_init(&pcx, BITMAP_HEIGHT, BITMAP_WIDTH,
                             palette, NULL);
       if (result)
         {
@@ -183,14 +182,14 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 
       /* Put the bitmap buffer into the evenBitmap list */
 
-      g_even_bitmaps[bMapIndex].w = BITMAP_WIDTH;
-      g_even_bitmaps[bMapIndex].h = BITMAP_HEIGHT;
-      g_even_bitmaps[bMapIndex].log2h = BITMAP_LOG2H;
-      g_even_bitmaps[bMapIndex].bm = workPCX.buffer;
+      g_even_bitmaps[mapndx].w = BITMAP_WIDTH;
+      g_even_bitmaps[mapndx].h = BITMAP_HEIGHT;
+      g_even_bitmaps[mapndx].log2h = BITMAP_LOG2H;
+      g_even_bitmaps[mapndx].bm = pcx.buffer;
 
       /* Load the PCX bitmap from the file for the event bitmap */
 
-      result = wld_loadpcx(graphicsFileName, &workPCX);
+      result = wld_loadpcx(filename, &pcx);
       if (result)
         {
           return result;
@@ -201,8 +200,8 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 
       palette = NULL;
 #else
-      g_even_bitmaps[bMapIndex] = wld_read_texturefile(graphicsFileName);
-      if (!g_even_bitmaps[bMapIndex])
+      g_even_bitmaps[mapndx] = wld_read_texturefile(filename);
+      if (!g_even_bitmaps[mapndx])
         {
           return BMAP_BML_READ_ERROR;
         }
@@ -211,7 +210,7 @@ static uint8_t wld_load_bitmaps(FILE * fp)
       /* Load the odd bitmap */
       /* Get the name of the file which contains the odd bitmap */
 
-      if (!wld_read_filename(fp, graphicsFileName))
+      if (!wld_read_filename(fp, filename))
         {
           return BMAP_BML_READ_ERROR;
         }
@@ -220,7 +219,7 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 #  if MSWINDOWS
       /* Setup to load the PCX bitmap from the file for the odd bitmap */
 
-      result = wld_pcx_init(&workPCX, BITMAP_HEIGHT, BITMAP_WIDTH,
+      result = wld_pcx_init(&pcx, BITMAP_HEIGHT, BITMAP_WIDTH,
                             palette, NULL);
       if (result)
         {
@@ -229,17 +228,17 @@ static uint8_t wld_load_bitmaps(FILE * fp)
 
       /* Put the bitmap buffer into the oddBitmap list */
 
-      g_odd_bitmaps[bMapIndex].w = BITMAP_WIDTH;
-      g_odd_bitmaps[bMapIndex].h = BITMAP_HEIGHT;
-      g_odd_bitmaps[bMapIndex].log2h = BITMAP_LOG2H;
-      g_odd_bitmaps[bMapIndex].bm = workPCX.buffer;
+      g_odd_bitmaps[mapndx].w = BITMAP_WIDTH;
+      g_odd_bitmaps[mapndx].h = BITMAP_HEIGHT;
+      g_odd_bitmaps[mapndx].log2h = BITMAP_LOG2H;
+      g_odd_bitmaps[mapndx].bm = pcx.buffer;
 
       /* Load the PCX bitmap from the file for the odd bitmap */
 
-      result = wld_loadpcx(graphicsFileName, &workPCX);
+      result = wld_loadpcx(filename, &pcx);
 #  else
-      g_odd_bitmaps[bMapIndex] = wld_read_texturefile(graphicsFileName);
-      if (!g_odd_bitmaps[bMapIndex])
+      g_odd_bitmaps[mapndx] = wld_read_texturefile(filename);
+      if (!g_odd_bitmaps[mapndx])
         {
           return BMAP_BML_READ_ERROR;
         }

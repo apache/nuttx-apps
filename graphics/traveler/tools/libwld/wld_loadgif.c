@@ -254,9 +254,9 @@ graphic_file_t *wld_LoadGIF(FILE * fp, char *fname)
   if (fread(ptr, filesize, 1, fp) != 1)
     wld_fatal_error("GIF data read failed");
 
-  if (strncmp(ptr, id87, 6))
+  if (strncmp((char *)ptr, id87, 6))
     {
-      if (strncmp(ptr, id89, 6))
+      if (strncmp((char *)ptr, id89, 6))
         {
           wld_fatal_error("not a GIF file");
         }
@@ -367,7 +367,7 @@ graphic_file_t *wld_LoadGIF(FILE * fp, char *fname)
             Width, Height, (Interlace) ? "" : "non-");
 
   gfile = wld_new_graphicfile();
-  gfile->palette = (RGBColor *) wld_malloc(sizeof(RGBColor) * ColorMapSize);
+  gfile->palette = (color_rgb_t *) wld_malloc(sizeof(color_rgb_t) * ColorMapSize);
   for (i = 0; i < ColorMapSize; i++)
     {
       gfile->palette[i].red = Red[i];

@@ -50,7 +50,7 @@
  * Description:
  ************************************************************************/
 
-RGBColor wld_graphicfile_pixel(graphic_file_t *gfile, int x, int y)
+color_rgb_t wld_graphicfile_pixel(graphic_file_t *gfile, int x, int y)
 {
   if (gfile->type == gfPaletted)
     {
@@ -62,7 +62,7 @@ RGBColor wld_graphicfile_pixel(graphic_file_t *gfile, int x, int y)
   else
     {
       unsigned char *pixel = gfile->bitmap + (y * gfile->width + x) * 3;
-      RGBColor rgb;
+      color_rgb_t rgb;
 
       rgb.red = *pixel++;
       rgb.green = *pixel++;

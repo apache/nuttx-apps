@@ -57,7 +57,7 @@
  ************************************************************************/
 
 uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t height, uint16_t width,
-                     RGBColor * palette, uint8_t * buffer)
+                     color_rgb_t * palette, uint8_t * buffer)
 {
   image->palette = palette;
 

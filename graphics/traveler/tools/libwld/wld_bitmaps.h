@@ -78,20 +78,15 @@ enum
  * Public Type Definitions
  *************************************************************************/
 
-typedef struct rgb_color_t
-{
-  uint8_t red;    /* red   component of color 0-63 */
-  uint8_t green;  /* green component of color 0-63 */
-  uint8_t blue;   /* blue  component of color 0-63 */
-} RGBColor;
-
-typedef struct
+struct wld_bitmap_s
 {
   uint16_t w;
   uint16_t h;
   uint8_t log2h;
   trv_pixel_t *bm;
-} wld_bitmap_t;
+};
+
+typedef struct wld_bitmap_s wld_bitmap_t;
 
 /*************************************************************************
  * Global Variables
@@ -109,7 +104,7 @@ extern wld_bitmap_t *g_odd_bitmaps[MAX_BITMAPS];
 /* This is the palette to use for the selected world */
 
 #if MSWINDOWS
-extern RGBColor worldPalette[256];
+extern color_rgb_t worldPalette[256];
 #endif
 
 /* This is the maximum value + 1 of a texture code */

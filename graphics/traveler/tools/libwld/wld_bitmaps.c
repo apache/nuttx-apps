@@ -58,7 +58,7 @@ wld_bitmap_t *g_odd_bitmaps[MAX_BITMAPS];
 /* This is the palette to use for the selected world */
 
 #if MSWINDOWS
-RGBColor worldPalette[256];
+color_rgb_t worldPalette[256];
 #endif
 
 /* This is the maximum value + 1 of a texture code. */

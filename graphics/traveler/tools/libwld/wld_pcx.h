@@ -63,7 +63,7 @@ enum
 };
 #endif
 
-typedef struct pcx_header_t
+struct pcx_header_s
 {
   char manufacturer;
   char version;
@@ -79,17 +79,23 @@ typedef struct pcx_header_t
   int16_t bytes_per_line;
   int16_t palette_type;
   char padding[58];
-} pcxHeader, *pcxHeaderPtr;
+};
+
+typedef struct pcx_header_s pcx_header_t;
+typedef struct pcx_header_s *pcx_pheader_t;
 
 #define SIZEOF_PCX_HEADER 128
 
 #if MSWINDOWS
-typedef struct pcx_picture_t
+struct pcx_picture_t
 {
-  pcxHeader header;
+  pcx_header_t header;
   uint8_t    *buffer;
-  RGBColor *palette;
-} pcxPicture, *pcxPicturePtr;
+  color_rgb_t *palette;
+};
+
+typedef struct pcx_picture_t
+typedef struct pcx_ppicture_t
 #endif
 
 /*************************************************************************
@@ -97,9 +103,9 @@ typedef struct pcx_picture_t
  *************************************************************************/
 
 #if MSWINDOWS
-uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t height, uint16_t width,
-                    RGBColor *palette, uint8_t *buffer);
-uint8_t wld_loadpcx(char *filename, pcxPicturePtr image);
+uint8_t wld_pcx_init(pcxppicture_t image, uint16_t height, uint16_t width,
+                    color_rgb_t *palette, uint8_t *buffer);
+uint8_t wld_loadpcx(char *filename, pcxppicture_t image);
 #else
 graphic_file_t *wld_loadpcx(FILE *fp, char *filename);
 #endif

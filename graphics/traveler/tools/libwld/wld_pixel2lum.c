@@ -46,10 +46,8 @@
 #include "wld_color.h"
 
 /*************************************************************************
- * Private Data
+ * Public Functions
  *************************************************************************/
-
-static float g_cube2pixel = (float)TRV_PIXEL_MAX / (float)(RGB_CUBE_SIZE - 1);
 
 /*************************************************************************
  * Function: wld_pixel2lum
@@ -68,8 +66,9 @@ void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t * lum)
 
   /* Get the luminance associated with the RGB value */
 
-  lum->luminance = sqrt(lum->red * lum->red +
-                        lum->green * lum->green + lum->blue * lum->blue);
+  lum->luminance = sqrt(lum->red   * lum->red   +
+                        lum->green * lum->green +
+                        lum->blue  * lum->blue);
 
   /* Convert the RGB Component into unit vector + luminance */
 

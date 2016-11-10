@@ -41,8 +41,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+
 #include "trv_types.h"
 #include "wld_bitmaps.h"
+#include "wld_color.h"
 #include "wld_mem.h"
 #include "wld_graphicfile.h"
 #include "wld_utils.h"
@@ -126,16 +128,17 @@ static wld_bitmap_t *wld_new_texture(uint16_t width, uint16_t height)
 
 static void wld_quantize_texture(graphic_file_t * gFile, wld_bitmap_t * t)
 {
-  RGBColor pixel;
-  trv_pixel_t *destPixel = t->bm;
-  int x, y;
+  color_rgb_t pixel;
+  trv_pixel_t *dest = t->bm;
+  int x;
+  int y;
 
   for (x = gFile->width - 1; x >= 0; x--)
     {
       for (y = gFile->height - 1; y >= 0; y--)
         {
           pixel = wld_graphicfile_pixel(gFile, x, y);
-          *destPixel++ = wld_Rgb2Pixel(&pixel);
+          *dest++ = wld_rgb2pixel(&pixel);
         }
     }
 }
