@@ -39,37 +39,39 @@ APPDIR   = $(WD)/../../../..
 TRAVELER = $(WD)/../..
 NUTTXDIR = $(WD)/../include
 
-BIN	= libwld.a
-WLDSRCS	= wld_createworld.c wld_deallocateworld.c
-TXTSRCS = wld_newgraphicfile.c wld_freegraphicfile.c wld_graphicfilepixel.c \
-	  wld_readgraphicfile.c wld_readtexturefile.c wld_freetexture.c
-BMSRCS	= wld_bitmaps.c wld_initializebitmaps.c wld_discardbitmaps.c \
-	  wld_loadbitmapfile.c \
-	  wld_pcxinit.c wld_loadpcx.c wld_loadppm.c wld_loadgif.c
-PLNSRCS	= wld_plane.c wld_initializeplanes.c wld_discardplanes.c \
-	  wld_loadplanefile.c wld_loadplanes.c wld_saveplanes.c wld_newplane.c \
-	  wld_addplane.c wld_mergeplanelists.c wld_removeplane.c wld_moveplane.c \
-	  wld_findplane.c
-PALSRCS	= wld_loadpaltable.c wld_discardpaltable.c
-UTSRCS	= wld_readdecimal.c wld_fatalerror.c wld_malloc.c wld_realloc.c wld_free.c
-SRCS	= $(WLDSRCS) $(TXTSRCS) $(BMSRCS) $(PLNSRCS) $(PALSRCS) $(UTSRCS)
-OBJS	= $(SRCS:.c=.o)
+BIN      = libwld.a
+WLDSRCS  = wld_createworld.c wld_deallocateworld.c
+TXTSRCS  = wld_newgraphicfile.c wld_freegraphicfile.c wld_graphicfilepixel.c
+TXTSRCS += wld_readgraphicfile.c wld_readtexturefile.c wld_freetexture.c
+BMSRCS   = wld_bitmaps.c wld_initializebitmaps.c wld_discardbitmaps.c
+BMSRCS  += wld_loadbitmapfile.c wld_pcxinit.c wld_loadpcx.c wld_loadppm.c
+BMSRCS  += wld_loadgif.c
+PLNSRCS  = wld_plane.c wld_initializeplanes.c wld_discardplanes.c
+PLNSRCS += wld_loadplanefile.c wld_loadplanes.c wld_saveplanes.c wld_newplane.c
+PLNSRCS += wld_addplane.c wld_mergeplanelists.c wld_removeplane.c wld_moveplane.c
+PLNSRCS += wld_findplane.c
+PALSRCS  = wld_loadpaltable.c wld_discardpaltable.c
+CLRSRCS  = wld_rgblookup.c wld_rgb2pixel.c wld_pixel2lum.c wld_lum2pixel.c
+UTSRCS   = wld_readdecimal.c wld_fatalerror.c wld_malloc.c wld_realloc.c
+UTSRCS  += wld_free.c
+SRCS     = $(WLDSRCS) $(TXTSRCS) $(BMSRCS) $(PLNSRCS) $(PALSRCS) $(CLRSRCS) $(UTSRCS)
+OBJS     = $(SRCS:.c=.o)
 
-CC	= gcc
-AR	= ar -rcv
+CC       = gcc
+AR       = ar -rcv
 
-DEBUG_LEVEL	= 0
-DEFINES		= -DDEBUG_LEVEL=$(DEBUG_LEVEL)
-INCLUDES	= -I. -I$(APPDIR)/include -I$(TRAVELER)/include -isystem $(NUTTXDIR)
-WARNINGS	= -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs
+DEBUG_LEVEL = 0
+DEFINES  = -DDEBUG_LEVEL=$(DEBUG_LEVEL)
+INCLUDES = -I. -I$(APPDIR)/include -I$(TRAVELER)/include -isystem $(NUTTXDIR)
+WARNINGS = -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs
 
 ifneq ($(DEBUG_LEVEL),0)
-  CPUFLAGS	= -g
+  CPUFLAGS = -g
 else
-  CPUFLAGS	= -O2 -fomit-frame-pointer
+  CPUFLAGS = -O2 -fomit-frame-pointer
 endif
 
-CFLAGS		+= $(CPUFLAGS) $(WARNINGS) $(DEFINES) $(INCLUDES)
+CFLAGS  += $(CPUFLAGS) $(WARNINGS) $(DEFINES) $(INCLUDES)
 
 all: $(BIN)
 

@@ -54,10 +54,10 @@
  * list
  ************************************************************************/
 
-rectListType *wld_find_plane(coord_t h, coord_t v, coord_t plane,
-                           rectHeadType *list)
+rect_list_t *wld_find_plane(wld_coord_t h, wld_coord_t v, wld_coord_t plane,
+                           rect_head_t *list)
 {
-  rectListType *rect;
+  rect_list_t *rect;
 
   /* Search until we find the first occurrence of a rectangle in the
    * specified plane

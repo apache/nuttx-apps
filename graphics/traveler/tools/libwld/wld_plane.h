@@ -70,7 +70,7 @@ enum
   PLANE_DATA_WRITE_ERROR
 };
 
-/* These are bit-field definitions for the rectDataType attribute field
+/* These are bit-field definitions for the rect_data_t attribute field
  * STATIC settings
  */
 
@@ -94,7 +94,7 @@ enum
 #define IS_MOVING_DOOR(r)  ( ((r)->attribute & MOVING_DOOR_PLANE) != 0 )
 #define IS_PASSABLE(r)     IS_OPEN_DOOR(r)
 
-/* Legal values of texture scaling in rectDataType */
+/* Legal values of texture scaling in rect_data_t */
 
 #define ONEX_SCALING  0
 #define TW0X_SCALING  1
@@ -105,41 +105,41 @@ enum
  * Public Type Definitions
  *************************************************************************/
 
-typedef short coord_t;  /* Max world size is +/- 65536/64 = 1024 */
+typedef short wld_coord_t;  /* Max world size is +/- 65536/64 = 1024 */
 typedef uint8_t attrib_t; /* Max attributes = 8 */
 
 typedef struct rectDataStruct
 {
-  coord_t plane;      /* defines the plane that the rect lies in */
-  coord_t hStart;     /* defines the starting "horizontal" position */
-  coord_t hEnd;       /* defines the ending "horizontal" position */
-  coord_t vStart;     /* defines the starting "vertical" position */
-  coord_t vEnd;       /* defines the ending "vertical" position */
+  wld_coord_t plane;      /* defines the plane that the rect lies in */
+  wld_coord_t hStart;     /* defines the starting "horizontal" position */
+  wld_coord_t hEnd;       /* defines the ending "horizontal" position */
+  wld_coord_t vStart;     /* defines the starting "vertical" position */
+  wld_coord_t vEnd;       /* defines the ending "vertical" position */
   attrib_t attribute; /* bit-encoded attributes of the plane */
   uint8_t texture;      /* defines the texture that should be applied */
   uint8_t scale;              /* defines the scaling of the texture */
-} rectDataType;
+} rect_data_t;
 #define SIZEOF_RECTDATATYPE 13
 
 typedef struct rectListStruct
 {
   struct rectListStruct *flink; /* points at next rectangle in a list */
   struct rectListStruct *blink; /* points at previous rectangle in a list */
-  rectDataType d;      /* the data which defines the rectangle */
-} rectListType;
+  rect_data_t d;      /* the data which defines the rectangle */
+} rect_list_t;
 
 typedef struct
 {
-  rectListType *head;  /* points to the start of the list */
-  rectListType *tail;  /* points to the end of the list */
-} rectHeadType;
+  rect_list_t *head;  /* points to the start of the list */
+  rect_list_t *tail;  /* points to the end of the list */
+} rect_head_t;
 
 typedef struct
 {
   uint16_t numXRects;
   uint16_t numYRects;
   uint16_t numZRects;
-} planeFileHeaderType;
+} plane_file_header_t;
 #define SIZEOF_PLANEFILEHEADERTYPE 6
 
 /*************************************************************************
@@ -150,9 +150,9 @@ typedef struct
  * for each of the X, Y, and Z planes.
  */
 
-extern rectHeadType xPlane;  /* list of X=plane rectangles */
-extern rectHeadType yPlane;  /* list of Y=plane rectangles */
-extern rectHeadType zPlane;  /* list of Z=plane rectangles */
+extern rect_head_t xPlane;  /* list of X=plane rectangles */
+extern rect_head_t yPlane;  /* list of Y=plane rectangles */
+extern rect_head_t zPlane;  /* list of Z=plane rectangles */
 
 /* This is the maximum value of a texture code */
 
@@ -160,7 +160,7 @@ extern uint8_t maxTextureCode;
 
 /* "Deallocated" planes are retained in a free list */
 
-extern rectListType *freeList;
+extern rect_list_t *freeList;
 
 /*************************************************************************
  * Public Function Prototypes
@@ -171,18 +171,18 @@ extern void          wld_discard_planes(void);
 extern uint8_t       wld_load_planefile(const char *wldfile);
 extern uint8_t       wld_load_planes(FILE *fp);
 extern uint8_t       wld_save_planes(const char *wldFile);
-extern rectListType *wld_new_plane(void);
-extern void          wld_add_plane(rectListType *rect,
-                                  rectHeadType *list);
-extern void          wld_merge_planelists(rectHeadType *outList,
-                                         rectHeadType *inList);
-extern void          wld_remove_plane(rectListType *rect,
-                                     rectHeadType *list);
-extern void          wld_move_plane(rectListType *rect,
-                                   rectHeadType *destList,
-                                   rectHeadType *srcList);
-extern rectListType *wld_find_plane(coord_t h, coord_t v, coord_t plane,
-                                   rectHeadType *list);
+extern rect_list_t *wld_new_plane(void);
+extern void          wld_add_plane(rect_list_t *rect,
+                                  rect_head_t *list);
+extern void          wld_merge_planelists(rect_head_t *outList,
+                                         rect_head_t *inList);
+extern void          wld_remove_plane(rect_list_t *rect,
+                                     rect_head_t *list);
+extern void          wld_move_plane(rect_list_t *rect,
+                                   rect_head_t *destList,
+                                   rect_head_t *srcList);
+extern rect_list_t *wld_find_plane(wld_coord_t h, wld_coord_t v, wld_coord_t plane,
+                                   rect_head_t *list);
 
 #ifdef __cplusplus
 }

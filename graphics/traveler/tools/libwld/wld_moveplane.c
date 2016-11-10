@@ -54,8 +54,8 @@
  * then adds it to the world plane destList
  ************************************************************************/
 
-void wld_move_plane(rectListType *rect, rectHeadType *destList,
-                  rectHeadType *srcList)
+void wld_move_plane(rect_list_t *rect, rect_head_t *destList,
+                  rect_head_t *srcList)
 {
   /* Un-hook the backward link to the rect */
 

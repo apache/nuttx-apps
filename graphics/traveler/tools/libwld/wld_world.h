@@ -81,10 +81,10 @@ enum {
 
 typedef struct {
 
-  coord_t x, y, z;       /* Camera position */
+  wld_coord_t x, y, z;       /* Camera position */
   int16_t  yaw, pitch;    /* Camera orientation */
 
-} cameraType;
+} wld_camera_t;
 
 /*************************************************************************
  * Global Data
@@ -92,21 +92,21 @@ typedef struct {
 
 /* This is the starting position and orientation of the camera in the world */
 
-extern cameraType initialCamera;
+extern wld_camera_t g_initial_camera;
 
 /* This is the height of player (distance from the camera Z position to
  * the position of the player's "feet"
  */
 
-extern coord_t playerHeight;
+extern wld_coord_t playerHeight;
 
 /* This is size of something that the player can step over when "walking" */
 
-extern coord_t walkStepHeight;
+extern wld_coord_t walkStepHeight;
 
 /* This is size of something that the player can step over when "running" */
 
-extern coord_t runStepHeight;
+extern wld_coord_t runStepHeight;
 
 /*************************************************************************
  * Global Function Prototypes

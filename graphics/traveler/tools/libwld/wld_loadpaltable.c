@@ -39,8 +39,8 @@
  * Included files
  *************************************************************************/
 
-/* If the following switch is false, then the whole palTable is loaded from
- * the file.  Otherwise, the palTable will be calculated from a range
+/* If the following switch is false, then the whole g_pal_table is loaded from
+ * the file.  Otherwise, the g_pal_table will be calculated from a range
  * table
  */
 
@@ -51,7 +51,7 @@
 #include "wld_paltable.h"
 #if (!MSWINDOWS)
 #include "wld_bitmaps.h"
-#include "x11color.h"
+#include "wld_color.h"
 #endif
 #include "wld_mem.h"
 #include "wld_utils.h"
@@ -69,16 +69,16 @@
 #endif
 
 /*************************************************************************
- * Private Type Declarations
+ * Private Type Definitions
  ************************************************************************/
 
 #if USE_PAL_RANGES
 typedef struct
 {
   uint8_t firstColor;
-  sbyte colorRange;
+  int8_t colorRange;
   uint8_t clipColor;
-} palRangeType;
+} pal_range_t;
 #endif
 
 /*************************************************************************
@@ -89,25 +89,24 @@ typedef struct
  * with distance
  */
 
-trv_pixel_t *palTable[NUM_ZONES];
+trv_pixel_t *g_pal_table[NUM_ZONES];
 
 /*************************************************************************
  * Private Functions
  *************************************************************************/
 
-
 /*************************************************************************
- * Name: wld_AllocatePalTable
+ * Name: wld_allocate_paltable
  * Description:
  ************************************************************************/
 
-static void wld_AllocatePalTable(uint32_t palTabEntrySize)
+static void wld_allocate_paltable(uint32_t palTabEntrySize)
 {
   int i;
 
   for (i = 0; i < NUM_ZONES; i++)
     {
-      palTable[i] = (trv_pixel_t*)wld_malloc(palTabEntrySize*sizeof(trv_pixel_t));
+      g_pal_table[i] = (trv_pixel_t*)wld_malloc(palTabEntrySize*sizeof(trv_pixel_t));
     }
 }
 
@@ -118,28 +117,28 @@ static void wld_AllocatePalTable(uint32_t palTabEntrySize)
 /*************************************************************************
  * Name: wld_load_paltable
  * Description:
- * This function loads the palTable from the specified file
+ * This function loads the g_pal_table from the specified file
  ************************************************************************/
 
 uint8_t wld_load_paltable(char *file)
 {
 #if (!MSWINDOWS)
-  trv_pixel_t *palPtr;
-  ColorLumType lum;
+  trv_pixel_t *palptr;
+  color_lum_t lum;
   int16_t  zone;
   float scale;
   int pixel;
 
   /* Allocate memory to hold the palette range mapping data */
 
-  wld_AllocatePalTable(MAX_PIXEL_TYPE+1);
+  wld_allocate_paltable(TRV_PIXEL_MAX+1);
 
   /* The first zone is just the identity transformation */
 
-  palPtr = palTable[0];
-  for (pixel = 0; pixel <= MAX_PIXEL_TYPE; pixel++)
+  palptr = g_pal_table[0];
+  for (pixel = 0; pixel <= TRV_PIXEL_MAX; pixel++)
     {
-      *palPtr++ = pixel;
+      *palptr++ = pixel;
     }
 
   /* Process each remaining distance zone */
@@ -148,7 +147,7 @@ uint8_t wld_load_paltable(char *file)
     {
       /* Point to the palette mapping data for this zone */
 
-      palPtr = palTable[zone];
+      palptr = g_pal_table[zone];
 
       /* Calculate the luminance scaling factor to use for this zone */
 
@@ -156,11 +155,11 @@ uint8_t wld_load_paltable(char *file)
 
       /* Scale each element of the palette */
 
-      for (pixel = 0; pixel <= MAX_PIXEL_TYPE; pixel++)
+      for (pixel = 0; pixel <= TRV_PIXEL_MAX; pixel++)
         {
           /* Get the unit vector + luminance representation of the pixel */
 
-          wld_Pixel2Lum(pixel, &lum);
+          wld_pixel2lum(pixel, &lum);
 
           /* Re-scale the luminance component by range scale factor */
 
@@ -170,22 +169,22 @@ uint8_t wld_load_paltable(char *file)
            * the range palette table
            */
 
-          *palPtr++ = wld_Lum2Pixel(&lum);
-
+          *palptr++ = wld_lum2pixel(&lum);
         }
     }
+
   return WORLD_SUCCESS;
 
 #else
 #if USE_PAL_RANGES
   FILE  *fp, *fopen();
   int16_t  i;
-  int16_t  numRanges;
+  int16_t  nranges;
   int16_t  zone;
-  int16_t  palIndex;
-  trv_pixel_t plotColor;
-  trv_pixel_t *palPtr;
-  palRangeType ranges[MAX_PAL_RANGES];
+  int16_t  palndx;
+  trv_pixel_t plotcolor;
+  trv_pixel_t *palptr;
+  pal_range_t ranges[MAX_PAL_RANGES];
 
   /* Open the file which contains the palette table */
 
@@ -194,8 +193,8 @@ uint8_t wld_load_paltable(char *file)
 
   /* Read the number of ranges from the file */
 
-  numRanges = wld_read_decimal(fp);
-  if (numRanges > MAX_PAL_RANGES)
+  nranges = wld_read_decimal(fp);
+  if (nranges > MAX_PAL_RANGES)
     {
       fclose(fp);
       return PALR_TOO_MANY_RANGES;
@@ -203,7 +202,7 @@ uint8_t wld_load_paltable(char *file)
 
   /* Then read all of the palette range data from the file */
 
-  for (i = 0; i < numRanges; i++)
+  for (i = 0; i < nranges; i++)
     {
       ranges[i].firstColor = wld_read_decimal(fp);
       ranges[i].colorRange = wld_read_decimal(fp);
@@ -216,7 +215,7 @@ uint8_t wld_load_paltable(char *file)
 
   /* Allocate memory to hold the palette range mapping data */
 
-  wld_AllocatePalTable(PALETTE_SIZE);
+  wld_allocate_paltable(PALETTE_SIZE);
 
   /* Process each distance zone */
 
@@ -224,51 +223,51 @@ uint8_t wld_load_paltable(char *file)
     {
       /* Point to the palette mapping data for this zone */
 
-      palPtr = palTable[zone];
+      palptr = g_pal_table[zone];
 
       /* Process each possible palette index within the zone */
 
-      for (palIndex = 0; palIndex < PALETTE_SIZE; palIndex++)
+      for (palndx = 0; palndx < PALETTE_SIZE; palndx++)
         {
           /* Assume that the range will not be found.  In this case, we
            * will perform the 1-to-1 mapping
            */
 
-          plotColor = palIndex;
+          plotcolor = palndx;
 
           /* Find the range the color is in. */
 
-          for (i = 0; i < numRanges; i++)
+          for (i = 0; i < nranges; i++)
             {
               /* Check if the color range is ascending or descending */
 
               if (ranges[i].colorRange < 0)
                 {
                   /* The colors are descending */
-                  if ((palIndex <= ranges[i].firstColor) &&
-                      (palIndex > (ranges[i].firstColor + ranges[i].colorRange)))
+                  if ((palndx <= ranges[i].firstColor) &&
+                      (palndx > (ranges[i].firstColor + ranges[i].colorRange)))
                     {
-                      /* Found it, set the new plotColor */
+                      /* Found it, set the new plotcolor */
 
-                      if (plotColor > zone)
+                      if (plotcolor > zone)
                         {
                           /* Offset the color by the zone we are processing */
 
-                          plotColor -= zone;
+                          plotcolor -= zone;
 
                           /* Check if we have exceeded the range of this
                            * color.  If so, then set the color to the
                            * clipColor
                            */
 
-                          if (plotColor <= ranges[i].firstColor + ranges[i].colorRange)
+                          if (plotcolor <= ranges[i].firstColor + ranges[i].colorRange)
                             {
-                              plotColor = ranges[i].clipColor;
+                              plotcolor = ranges[i].clipColor;
                             }
                         }
                       else
                         {
-                          plotColor = ranges[i].clipColor;
+                          plotcolor = ranges[i].clipColor;
                         }
 
                       /* Now break out of the loop */
@@ -279,20 +278,20 @@ uint8_t wld_load_paltable(char *file)
 
               /* The colors are ascending */
 
-              else if ((palIndex >= ranges[i].firstColor) &&
-                       (palIndex < (ranges[i].firstColor + ranges[i].colorRange)))
+              else if ((palndx >= ranges[i].firstColor) &&
+                       (palndx < (ranges[i].firstColor + ranges[i].colorRange)))
                 {
-                  /* Found it, set the new plotColor */
+                  /* Found it, set the new plotcolor */
 
-                  plotColor += zone;
+                  plotcolor += zone;
 
                   /* Check if we have exceeded the range of this color.  If so,
                    * then set the color to black
                    */
 
-                  if (plotColor >= ranges[i].firstColor + ranges[i].colorRange)
+                  if (plotcolor >= ranges[i].firstColor + ranges[i].colorRange)
                     {
-                      plotColor = ranges[i].clipColor;
+                      plotcolor = ranges[i].clipColor;
                     }
 
                   /* Now break out of the loop */
@@ -301,24 +300,24 @@ uint8_t wld_load_paltable(char *file)
                 }
             }
 
-          /* Save the plotColor in the palTable */
+          /* Save the plotcolor in the g_pal_table */
 
-          palPtr[palIndex] = plotColor;
+          palptr[palndx] = plotcolor;
 
         }
     }
 
   return WORLD_SUCCESS;
 #else
-  FILE  *fp, *fopen();
-  int16_t  zone;
-  int16_t  palIndex;
-  uint8_t plotColor;
-  uint8_t *palPtr;
+  FILE *fp;
+  int16_t zone;
+  int16_t palndx;
+  uint8_t plotcolor;
+  uint8_t *palptr;
 
   /* Allocate memory to hold the palette range mapping data */
 
-  wld_AllocatePalTable();
+  wld_allocate_paltable();
 
   /* Open the file which contains the palette table */
 
@@ -331,15 +330,15 @@ uint8_t wld_load_paltable(char *file)
     {
       /* Point to the palette mapping data for this zone */
 
-      palPtr = GET_PALPTR(zone);
+      palptr = GET_PALPTR(zone);
 
       /* Process each possible palette index within the zone */
 
-      for (palIndex = 0; palIndex < PALETTE_SIZE; palIndex++)
+      for (palndx = 0; palndx < PALETTE_SIZE; palndx++)
         {
-          /* Read the data into palTable */
+          /* Read the data into g_pal_table */
 
-          palPtr[palIndex] = wld_read_decimal(fp);
+          palptr[palndx] = wld_read_decimal(fp);
         }
     }
 

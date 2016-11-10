@@ -61,7 +61,7 @@
  *************************************************************************/
 
 /*************************************************************************
- * Private Type Declarations
+ * Private Type Definitions
  ************************************************************************/
 
 /*************************************************************************
@@ -126,11 +126,11 @@ uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
   return PCX_SUCCESS;
 }
 #else
-GraphicFileType *wld_loadpcx(FILE *fp, char *filename)
+graphic_file_t *wld_loadpcx(FILE *fp, char *filename)
 {
   pcxHeader header;
   trv_pixel_t *buffer;
-  GraphicFileType *gFile;
+  graphic_file_t *gFile;
   RGBColor *palette;
   uint16_t  imageWidth, imageHeight;
   uint32_t imageSize;
@@ -158,7 +158,7 @@ GraphicFileType *wld_loadpcx(FILE *fp, char *filename)
 
   wld_loadpcxPalette(fp, palette);
 
-  /* Now save the resulting data in a GraphicFileType structure */
+  /* Now save the resulting data in a graphic_file_t structure */
 
   gFile = wld_new_graphicfile();
   gFile->type = gfPaletted;

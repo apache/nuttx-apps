@@ -46,11 +46,7 @@
 #include "wld_plane.h"
 
 /****************************************************************************
- * Conditional Compilation
- ***************************************************************************/
-
-/****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
 
 #define NUM_PLANES      3
@@ -160,7 +156,7 @@ extern int gridStep;
 extern int coordOffset[NUM_PLANES];
 extern int planePosition[NUM_PLANES];
 extern tcl_window_t windows[NUM_PLANES];
-extern rectDataType editRect;
+extern rect_data_t editRect;
 
 /****************************************************************************
  * Public Function Prototypes

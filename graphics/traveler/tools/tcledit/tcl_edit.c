@@ -122,7 +122,7 @@ tcl_window_t windows[NUM_PLANES] =
     },
   },
 };
-rectDataType editRect;
+rect_data_t editRect;
 
 /****************************************************************************
  * Private Functions
@@ -186,7 +186,7 @@ static int astSetEditMode(ClientData clientData,
   else if (strcmp(argv[1], "NEW") == 0)
     {
       editMode = EDITMODE_NEW;
-      memset(&editRect, 0, sizeof(rectDataType));
+      memset(&editRect, 0, sizeof(rect_data_t));
       if (strcmp(argv[2], "x") == 0)
         {
           ginfo("Entering NEWX mode\n");
@@ -545,7 +545,7 @@ static int astAddRectangle(ClientData clientData,
     {
       /* Get a new container for the rectangle information */
 
-      rectListType *rect = wld_new_plane();
+      rect_list_t *rect = wld_new_plane();
 
       /* Copy the rectangle data into the container */
 

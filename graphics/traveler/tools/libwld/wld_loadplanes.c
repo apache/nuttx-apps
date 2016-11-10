@@ -53,9 +53,9 @@
  * This function loads the world data for one plane
  ************************************************************************/
 
-static uint8_t wld_LoadWorldPlane(FILE *fp, rectHeadType *list, uint8_t numRects)
+static uint8_t wld_LoadWorldPlane(FILE *fp, rect_head_t *list, uint8_t numRects)
 {
-  rectListType *rect;
+  rect_list_t *rect;
   int i;
 
   for (i = 0; i < numRects; i++)
@@ -96,7 +96,7 @@ static uint8_t wld_LoadWorldPlane(FILE *fp, rectHeadType *list, uint8_t numRects
 
 uint8_t wld_load_planes(FILE *fp)
 {
-  planeFileHeaderType fileHeader;
+  plane_file_header_t fileHeader;
   uint8_t result;
 
   /* Read the plane file header */

@@ -52,9 +52,9 @@
  * This function adds a plane to a world plane list
  ************************************************************************/
 
-void wld_add_plane(rectListType *newRect, rectHeadType *list)
+void wld_add_plane(rect_list_t *newRect, rect_head_t *list)
 {
-  rectListType *nextRect, *prevRect;
+  rect_list_t *nextRect, *prevRect;
 
   /* Search the list to find the location to insert the new rectangle.
    * Each is list is maintained in ascending plane order.

@@ -49,7 +49,7 @@ extern "C"
 #include <stdio.h>
 
 /*************************************************************************
- * Definitions
+ * Pre-processor Definitions
  *************************************************************************/
 
 /* Return codes */
@@ -75,10 +75,10 @@ enum
 #define MAX_BITMAPS   256
 
 /*************************************************************************
- * Type Declarations
+ * Public Type Definitions
  *************************************************************************/
 
-typedef struct RGBColorType
+typedef struct rgb_color_t
 {
   uint8_t red;    /* red   component of color 0-63 */
   uint8_t green;  /* green component of color 0-63 */
@@ -91,7 +91,7 @@ typedef struct
   uint16_t h;
   uint8_t log2h;
   trv_pixel_t *bm;
-} bitmapType;
+} wld_bitmap_t;
 
 /*************************************************************************
  * Global Variables
@@ -101,9 +101,9 @@ typedef struct
  * bitmaps
  */
 
-extern bitmapType *evenBitmaps[MAX_BITMAPS];
+extern wld_bitmap_t *evenBitmaps[MAX_BITMAPS];
 #ifndef WEDIT
-extern bitmapType *oddBitmaps[MAX_BITMAPS];
+extern wld_bitmap_t *oddBitmaps[MAX_BITMAPS];
 #endif
 
 /* This is the palette to use for the selected world */
@@ -131,8 +131,8 @@ uint8_t wld_initialize_bitmaps(void);
 void    wld_discard_bitmaps(void);
 uint8_t wld_load_bitmapfile(char *bmlfile);
 
-void        wld_free_texture(bitmapType *t);
-bitmapType *wld_read_texturefile(char *filename);
+void        wld_free_texture(wld_bitmap_t *t);
+wld_bitmap_t *wld_read_texturefile(char *filename);
 
 #ifdef  __cplusplus
 }

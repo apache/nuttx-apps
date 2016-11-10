@@ -61,7 +61,7 @@
 #define PPM_MAGIC    "P6"
 
 /*************************************************************************
- * Global Type Declarations
+ * Public Type Definitions
  ************************************************************************/
 
 typedef enum
@@ -71,23 +71,23 @@ typedef enum
   formatPPM,
   formatPCX,
   formatUnknown
-} GraphicFileFormatType;
+} graphic_file_format_t;
 
 typedef enum
 {
   gfTrueColor,
   gfPaletted
-} GraphicFileEnumType;
+} graphic_file_enum_t;
 
 typedef struct
 {
-  GraphicFileEnumType type;
+  graphic_file_enum_t type;
   uint16_t height, width;
   int palette_entries;
   long transparent_entry;
   RGBColor *palette;
   uint8_t *bitmap;
-} GraphicFileType;
+} graphic_file_t;
 
 /*************************************************************************
  * Global Function Prototypes
@@ -101,10 +101,10 @@ typedef struct
  * Private Variables
  *************************************************************************/
 
-GraphicFileType *wld_new_graphicfile(void);
-void             wld_free_graphicfile(GraphicFileType *gFile);
-RGBColor         wld_graphicfile_pixel(GraphicFileType *gFile,
+graphic_file_t *wld_new_graphicfile(void);
+void             wld_free_graphicfile(graphic_file_t *gFile);
+RGBColor         wld_graphicfile_pixel(graphic_file_t *gFile,
                                             int x, int y);
-GraphicFileType *wld_readgraphic_file(char *filename);
+graphic_file_t *wld_readgraphic_file(char *filename);
 
 #endif /* __ASTGRAPHICFILE_H */

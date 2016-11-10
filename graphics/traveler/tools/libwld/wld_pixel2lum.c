@@ -1,6 +1,7 @@
 /****************************************************************************
- * apps/graphics/traveler/tools/libwld/wld_paltable.h
- * This file contains definitions for the world model
+ * apps/graphics/traveler/tools/libwld/wld_loadpaltable.c
+ * This file contains the logic that creates the range palette table that is
+ * used to modify the palette with range to hit
  *
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -34,69 +35,49 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PALTABLE_H
-#define __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PALTABLE_H
+/*************************************************************************
+ * Included files
+ *************************************************************************/
 
-#ifdef __cplusplus
-extern "C"
+#include <math.h>
+
+#include "trv_types.h"
+#include "wld_paltable.h"
+#include "wld_color.h"
+
+/*************************************************************************
+ * Private Data
+ *************************************************************************/
+
+static float g_cube2pixel = (float)TRV_PIXEL_MAX / (float)(RGB_CUBE_SIZE-1);
+
+/*************************************************************************
+ * Function: wld_pixel2lum
+ * Description: Convert a pixel value into RGB-Luminance value.
+ ************************************************************************/
+
+void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t *lum)
 {
-#endif  /* __cplusplus */
+  dev_pixel_t devpixel = g_devpixel_lut[pixel_value];
 
-/*************************************************************************
- * Pre-processor Definitions
- *************************************************************************/
+  /* Convert the pixel to its RGB components */
 
-/* Here some palette-related definitions. */
+  lum->red   = (float)RGB2RED(devpixel)   / (float)RGB_MAX_RED;
+  lum->green = (float)RGB2GREEN(devpixel) / (float)RGB_MAX_GREEN;
+  lum->blue  = (float)RGB2BLUE(devpixel)  / (float)RGB_MAX_BLUE;
 
-#define PALETTE_SIZE  256 /* This is the number of colors in the palette */
-#define NUM_ZONES      16 /* This is the number of distance zones in the palette table */
+  /* Get the luminance associated with the RGB value */
 
-/* Here are some macros used to access the g_pal_table.  */
+  lum->luminance = sqrt(lum->red   * lum->red +
+                        lum->green * lum->green +
+                        lum->blue  * lum->blue);
 
-#define PAL_SCALE_BITS     2
-#define GET_DISTANCE(x,y)  ( (x) >= (y) ? ((x) + ((y) >>1)) : ((y) + ((x) >>1)))
-#define GET_ZONE(x,y)      (GET_DISTANCE(x,y) >> (sSHIFT+PAL_SCALE_BITS))
-#define GET_PALINDEX(d)    ((d) >= NUM_ZONES ? (NUM_ZONES-1) : (d))
-#define GET_PALPTR(d)      g_pal_table[GET_PALINDEX(d)]
+   /* Convert the RGB Component into unit vector + luminance */
 
-/* This is a special version which is used by the texture logic.  The
- * texture engine used 8 bits of fraction in many of its calculation
- */
-
-#define GET_FZONE(x,y,n)   (GET_DISTANCE(x,y) >> (sSHIFT+PAL_SCALE_BITS-(n)))
-
-/*************************************************************************
- * Public Type Definitions
- *************************************************************************/
-
-/* World file return codes */
-
-enum
-{
-  PALR_FILE_OPEN_ERROR = 150,
-  PALR_TOO_MANY_RANGES
-};
-
-/*************************************************************************
- * Public Data
- *************************************************************************/
-
-/* This is the palette table which is used to adjust the texture values
- * with distance
- */
-
-extern trv_pixel_t *g_pal_table[NUM_ZONES];
-
-/*************************************************************************
- * Pulblic Function Prototypes
- *************************************************************************/
-
-uint8_t wld_load_paltable(char *file);
-void  wld_discard_paltable(void);
-
-#ifdef __cplusplus
+   if (lum->luminance > 0.0)
+     {
+       lum->red   /= lum->luminance;
+       lum->blue  /= lum->luminance;
+       lum->green /= lum->luminance;
+     }
 }
-#endif
-
-#endif /* __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_PALTABLE_H */
-

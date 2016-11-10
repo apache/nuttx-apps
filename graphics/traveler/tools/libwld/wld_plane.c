@@ -51,10 +51,10 @@
  * for each of the X, Y, and Z planes.
  */
 
-rectHeadType xPlane;  /* list of X=plane rectangles */
-rectHeadType yPlane;  /* list of Y=plane rectangles */
-rectHeadType zPlane;  /* list of Z=plane rectangles */
-rectListType *freeList;
+rect_head_t xPlane;  /* list of X=plane rectangles */
+rect_head_t yPlane;  /* list of Y=plane rectangles */
+rect_head_t zPlane;  /* list of Z=plane rectangles */
+rect_list_t *freeList;
 
 /*************************************************************************
  * Private Variables

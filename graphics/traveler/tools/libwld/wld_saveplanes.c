@@ -54,7 +54,7 @@
  * This function counts the number of rectangles in one plane
  ************************************************************************/
 
-static uint16_t  wld_CountRectangles(rectListType *rect)
+static uint16_t  wld_CountRectangles(rect_list_t *rect)
 {
   uint16_t  count;
   for (count = 0; (rect); count++, rect = rect->flink);
@@ -67,7 +67,7 @@ static uint16_t  wld_CountRectangles(rectListType *rect)
  * This function stores the world data for one plane
  ************************************************************************/
 
-static uint8_t wld_SaveWorldPlane(FILE *fp, rectListType *rect)
+static uint8_t wld_SaveWorldPlane(FILE *fp, rect_list_t *rect)
 {
   /* For each rectangle in the list */
 
@@ -95,7 +95,7 @@ static uint8_t wld_SaveWorldPlane(FILE *fp, rectListType *rect)
 uint8_t wld_save_planes(const char *wldFile)
 {
   FILE  *fp;
-  planeFileHeaderType fileHeader;
+  plane_file_header_t fileHeader;
   uint8_t  result;
 
   /* Open the file which contains the description of the world */

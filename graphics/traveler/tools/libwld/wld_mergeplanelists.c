@@ -52,10 +52,10 @@
  * This function concatenates two world plane lists
  ************************************************************************/
 
-void wld_merge_planelists(rectHeadType *outList, rectHeadType *inList)
+void wld_merge_planelists(rect_head_t *outList, rect_head_t *inList)
 {
-  rectListType *inRect, *nextInRect;
-  rectListType *outRect, *prevRect;
+  rect_list_t *inRect, *nextInRect;
+  rect_list_t *outRect, *prevRect;
 
   /* Initialize the inner plane search loop */
 

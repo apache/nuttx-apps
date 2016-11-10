@@ -47,8 +47,8 @@
 #include "wld_pcx.h"
 #include "wld_utils.h"
 
-GraphicFileType *wld_LoadPPM(FILE *fp, char *filename);
-GraphicFileType *wld_LoadGIF(FILE *fp, char *filename);
+graphic_file_t *wld_LoadPPM(FILE *fp, char *filename);
+graphic_file_t *wld_LoadGIF(FILE *fp, char *filename);
 
 /*************************************************************************
  * Private Data
@@ -65,7 +65,7 @@ static const char pcxExtension[] = ".PCX";
  * Description:
  ************************************************************************/
 
-static GraphicFileFormatType wld_CheckFormat(FILE *fp, char *filename)
+static graphic_file_format_t wld_CheckFormat(FILE *fp, char *filename)
 {
   char magic[MAGIC_LENGTH];
 
@@ -88,7 +88,8 @@ static GraphicFileFormatType wld_CheckFormat(FILE *fp, char *filename)
     }
   else
     {
-      char *ptr1, *ptr2;
+      char *ptr1;
+      char *ptr2;
  
       /* MS-DOS PCX files will have no magic number, we'll have to make an
        * educated guess based on the file extension.
@@ -102,7 +103,7 @@ static GraphicFileFormatType wld_CheckFormat(FILE *fp, char *filename)
 
       for (ptr2 = (char*)pcxExtension; ((*ptr1) && (*ptr2)); ptr1++, ptr2++)
         {
-          if (toupper(*ptr1) != *ptr2)
+          if (toupper((int)*ptr1) != *ptr2)
             {
               return formatUnknown;
             }
@@ -130,11 +131,11 @@ static GraphicFileFormatType wld_CheckFormat(FILE *fp, char *filename)
  * Description:
  ************************************************************************/
 
-GraphicFileType *wld_readgraphic_file(char *filename)
+graphic_file_t *wld_readgraphic_file(char *filename)
 {
   FILE *fp;
-  GraphicFileFormatType format;
-  GraphicFileType *gfile = NULL;
+  graphic_file_format_t format;
+  graphic_file_t *gfile = NULL;
 
   if ((fp = fopen(filename, "rb")) == NULL)
     {

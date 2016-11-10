@@ -97,11 +97,11 @@ static void skip_cruft(FILE *fp)
  * Description:
  ************************************************************************/
 
-GraphicFileType *wld_LoadPPM(FILE *fp, char *filename)
+graphic_file_t *wld_LoadPPM(FILE *fp, char *filename)
 {
   int width, height;
   int unknown;
-  GraphicFileType *gfile;
+  graphic_file_t *gfile;
 
   skip_cruft(fp);
   if (getc(fp) != 'P' || getc(fp) != '6')

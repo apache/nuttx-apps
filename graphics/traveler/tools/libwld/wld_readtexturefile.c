@@ -92,14 +92,14 @@ static int wld_log2(int x)
  * Description:
  ************************************************************************/
 
-static bitmapType *wld_new_texture(uint16_t  width, uint16_t  height)
+static wld_bitmap_t *wld_new_texture(uint16_t  width, uint16_t  height)
 {
-  bitmapType *t;
+  wld_bitmap_t *t;
 
   if (height <= 0 || width <= 0)
     wld_fatal_error("wld_new_texture:  bad texture dimensions");
 
-  t = (bitmapType*)wld_malloc(sizeof(bitmapType));
+  t = (wld_bitmap_t*)wld_malloc(sizeof(wld_bitmap_t));
   t->bm = (trv_pixel_t*)wld_malloc(height * width * sizeof(trv_pixel_t));
 
   t->w = width;
@@ -114,7 +114,7 @@ static bitmapType *wld_new_texture(uint16_t  width, uint16_t  height)
  * Description:
  ************************************************************************/
 
-static void wld_quantize_texture(GraphicFileType *gFile, bitmapType *t)
+static void wld_quantize_texture(graphic_file_t *gFile, wld_bitmap_t *t)
 {
   RGBColor pixel;
   trv_pixel_t *destPixel = t->bm;
@@ -139,10 +139,10 @@ static void wld_quantize_texture(GraphicFileType *gFile, bitmapType *t)
  * Description:
  ************************************************************************/
 
-bitmapType *wld_read_texturefile(char *filename)
+wld_bitmap_t *wld_read_texturefile(char *filename)
 {
-  GraphicFileType *gFile;
-  bitmapType *t;
+  graphic_file_t *gFile;
+  wld_bitmap_t *t;
 
   gFile = wld_readgraphic_file(filename);
   if (gFile == NULL)

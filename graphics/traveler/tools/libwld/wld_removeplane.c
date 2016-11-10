@@ -54,7 +54,7 @@
  * and "deallocates" it by saving it on the free list
  ************************************************************************/
 
-void wld_remove_plane(rectListType *rect, rectHeadType *list)
+void wld_remove_plane(rect_list_t *rect, rect_head_t *list)
 {
   /* Un-hook the backward link to the rect */
 

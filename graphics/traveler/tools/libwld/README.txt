@@ -16,20 +16,8 @@ Build instuctions:
 
     3. cd apps/graphics/traveler/tools/nuttx
     4. make TOPDIR=<nuttx directory>
-
-  Build the world library:
+ 
+  Then you can build the world library:
 
     5. cd apps/graphics/traveler/tools/libwld
     6. make
-
-  Then you can use xmfmk to create the Makefile and build the tool:
-
-    7. cd apps/graphics/traveler/tools/tcledit
-    8. Review Imakefile.  You will probabaly to to change the APPDIR and TOPDIR paths
-       a minimum.  These are the paths to where you have clones the apps/ repository
-       and the nuttx/ repositories, respectively.
-    9. xmfmk
-   10. make
-
-
-

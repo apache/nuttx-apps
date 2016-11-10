@@ -53,9 +53,9 @@
  * This function allocates memory for a new plane rectangle
  ************************************************************************/
 
-rectListType *wld_new_plane(void)
+rect_list_t *wld_new_plane(void)
 {
-  rectListType *rect;
+  rect_list_t *rect;
 
   /* Try to get the new structure from the free list */
 
@@ -70,7 +70,7 @@ rectListType *wld_new_plane(void)
     {
       /* Nothing on the free list.  Allocate a new one */
 
-      rect = (rectListType*)wld_malloc(sizeof(rectListType));
+      rect = (rect_list_t*)wld_malloc(sizeof(rect_list_t));
     }
 
   return rect;

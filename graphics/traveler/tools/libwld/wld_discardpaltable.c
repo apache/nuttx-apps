@@ -56,10 +56,10 @@ void wld_discard_paltable(void)
   int i;
   for (i = 0; i < NUM_ZONES; i++)
     {
-      if (palTable[i])
+      if (g_pal_table[i])
         {
-          wld_free(palTable[i]);
-          palTable[i] = NULL;
+          wld_free(g_pal_table[i]);
+          g_pal_table[i] = NULL;
         }
     }
 }

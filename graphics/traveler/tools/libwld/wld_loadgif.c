@@ -216,13 +216,15 @@ static void AddToPixel(uint8_t Index)
  * Description:
  ************************************************************************/
 
-GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
+graphic_file_t *wld_LoadGIF(FILE *fp, char *fname)
 {
-  GraphicFileType   *gfile;
-  int                filesize, numcols;
-  register unsigned  char ch, ch1;
-  register uint8_t     *ptr, *ptr1;
-  register int   i;
+  graphic_file_t *gfile;
+  int filesize;
+  register unsigned char ch;
+  register unsigned char ch1;
+  register uint8_t *ptr;
+  register uint8_t *ptr1;
+  register int i;
   short transparency = -1;
 
   BitOffset = 0;
@@ -268,7 +270,7 @@ GraphicFileType *wld_LoadGIF(FILE *fp, char *fname)
   HasColormap  = ((ch & COLORMAPMASK) ? true : false);
 
   BitsPerPixel = (ch & 7) + 1;
-  numcols      = ColorMapSize = 1 << BitsPerPixel;
+  ColorMapSize = 1 << BitsPerPixel;
   BitMask      = ColorMapSize - 1;
 
   Background   = NEXTBYTE;    /* background color... not used. */

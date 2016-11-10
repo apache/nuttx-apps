@@ -50,9 +50,9 @@
  * bitmaps
  */
 
-bitmapType *evenBitmaps[MAX_BITMAPS];
+wld_bitmap_t *evenBitmaps[MAX_BITMAPS];
 #ifndef WEDIT
-bitmapType *oddBitmaps[MAX_BITMAPS];
+wld_bitmap_t *oddBitmaps[MAX_BITMAPS];
 #endif
 
 /* This is the palette to use for the selected world */

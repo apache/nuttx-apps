@@ -63,7 +63,7 @@ enum
 };
 #endif
 
-typedef struct pcxHeaderType
+typedef struct pcx_header_t
 {
   char manufacturer;
   char version;
@@ -84,7 +84,7 @@ typedef struct pcxHeaderType
 #define SIZEOF_PCX_HEADER 128
 
 #if MSWINDOWS
-typedef struct pcxPictureType
+typedef struct pcx_picture_t
 {
   pcxHeader header;
   uint8_t    *buffer;
@@ -101,7 +101,7 @@ uint8_t wld_pcx_init(pcxPicturePtr image, uint16_t height, uint16_t width,
                     RGBColor *palette, uint8_t *buffer);
 uint8_t wld_loadpcx(char *filename, pcxPicturePtr image);
 #else
-GraphicFileType *wld_loadpcx(FILE *fp, char *filename);
+graphic_file_t *wld_loadpcx(FILE *fp, char *filename);
 #endif
 
 /*************************************************************************

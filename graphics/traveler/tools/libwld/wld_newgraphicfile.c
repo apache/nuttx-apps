@@ -51,9 +51,9 @@
  * Description:
  ************************************************************************/
 
-GraphicFileType *wld_new_graphicfile( void )
+graphic_file_t *wld_new_graphicfile( void )
 {
-  GraphicFileType *gf = (GraphicFileType*)wld_malloc(sizeof(GraphicFileType));
+  graphic_file_t *gf = (graphic_file_t*)wld_malloc(sizeof(graphic_file_t));
 
   gf->transparent_entry = -1;
 

@@ -53,9 +53,9 @@
  * This function deallocates one plane of the world
  ************************************************************************/
 
-static void wld_DiscardWorldPlane(rectListType *rect)
+static void wld_DiscardWorldPlane(rect_list_t *rect)
 {
-  rectListType *next;
+  rect_list_t *next;
 
   while (rect)
     {
