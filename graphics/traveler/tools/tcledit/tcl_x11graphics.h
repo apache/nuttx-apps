@@ -41,6 +41,7 @@
  ***************************************************************************/
 
 #include <X11/Xlib.h>
+#include "wld_color.h"
 #include "trv_graphics.h"
 #include "wld_bitmaps.h"
 #include "wld_plane.h"
@@ -130,17 +131,17 @@ enum editPlaneEnum
 
 typedef struct
 {
-  char    *title;           /* Title on window */
-  enum editPlaneEnum plane; /* Identifies plane of window */
-  int      width;           /* Width of window */
-  int      height;          /* Height of window */
-  int      ncolors;         /* Number of colors allocated (PALETTE_SIZE) */
-  Display *display;         /* X stuff */
-  Window   win;
-  XImage  *image;
-  int      screen;
-  dev_pixel_t *frameBuffer;            /* Pointer to framebuffer */
-  RGBColor palette[PALETTE_SIZE];          /* Colors requested */
+  char *title;                             /* Title on window */
+  enum editPlaneEnum plane;                /* Identifies plane of window */
+  int width;                               /* Width of window */
+  int height;                              /* Height of window */
+  int ncolors;                            /* Number of colors allocated (PALETTE_SIZE) */
+  Display *display;                        /* X stuff */
+  Window win;
+  XImage *image;
+  int screen;
+  dev_pixel_t *frameBuffer;                /* Pointer to framebuffer */
+  color_rgb_t palette[PALETTE_SIZE];       /* Colors requested */
   unsigned long colorLookup[PALETTE_SIZE]; /* Color values to use */
 } tcl_window_t;
 

@@ -37,6 +37,7 @@
  * Included Files
  ***************************************************************************/
 
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,6 +54,7 @@
 #include "trv_types.h"
 #include "trv_graphics.h"
 #include "debug.h"
+
 #include "wld_mem.h"
 #include "wld_bitmaps.h"
 #include "wld_plane.h"
@@ -94,8 +96,8 @@ static void x11_unmap_all_sharedmemory(void);
 static void x11_create_window(tcl_window_t * w)
 {
   XGCValues gcValues;
-  char *argv[2] = { "xast", NULL };
-  char *iconName = "xast";
+  char *argv[2] = { "tcledit", NULL };
+  char *iconName = "tcledit";
   XTextProperty wNameProp, iNameProp;
   XSizeHints sizeHints;
 

@@ -55,10 +55,10 @@
  * Private Variables
  ***************************************************************************/
 
-static Tcl_Interp *astInterp;
-static const char *astInFileName;
-static const char *astOutFileName;
-static const char astDefaultFileName[] = "planes.pll";
+static Tcl_Interp *g_tcledit_interp;
+static const char *g_in_filename;
+static const char *g_out_filename;
+static const char g_default_filename[] = "planes.pll";
 
 /****************************************************************************
  * Public Variables
@@ -134,7 +134,7 @@ rect_data_t editRect;
 
 /* Called when any change is made to the display while in POS mode */
 
-static void astUpdatePOSModeDisplay(void)
+static void tcledit_update_posmode_display(void)
 {
   int i;
 
@@ -151,7 +151,7 @@ static void astUpdatePOSModeDisplay(void)
 
 /* Called when any change is made to the display while in NEW mode */
 
-static void astUpdateNEWModeDisplay(void)
+static void tcledit_update_newmode_display(void)
 {
   int i;
 
@@ -169,8 +169,8 @@ static void astUpdateNEWModeDisplay(void)
  * current edit mode
  */
 
-static int astSetEditMode(ClientData clientData,
-                          Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_setmode(ClientData clientData,
+                           Tcl_Interp * interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
@@ -183,7 +183,7 @@ static int astSetEditMode(ClientData clientData,
     {
       ginfo("Entering POS mode\n");
       editMode = EDITMODE_POS;
-      astUpdatePOSModeDisplay();
+      tcledit_update_posmode_display();
     }
 
   else if (strcmp(argv[1], "NEW") == 0)
@@ -225,7 +225,8 @@ static int astSetEditMode(ClientData clientData,
           wld_fatal_error("%s: Unrecognized NEW plane: %s\n",
                           __FUNCTION__, argv[2]);
         }
-      astUpdateNEWModeDisplay();
+
+      tcledit_update_newmode_display();
     }
   else
     {
@@ -237,8 +238,8 @@ static int astSetEditMode(ClientData clientData,
 
 /* Called in response to the "ast_position" Tcl command */
 
-static int astNewPosition(ClientData clientData,
-                          Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_new_position(ClientData clientData,
+                                Tcl_Interp * interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
@@ -255,14 +256,14 @@ static int astNewPosition(ClientData clientData,
   ginfo("New plane positions: {%d,%d,%d}\n",
         planePosition[0], planePosition[1], planePosition[2]);
 
-  astUpdatePOSModeDisplay();
+  tcledit_update_posmode_display();
   return TCL_OK;
 }
 
 /* Called in response to the "ast_zoom" Tcl command */
 
-static int astNewZoom(ClientData clientData,
-                      Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_new_zoom(ClientData clientData,
+                            Tcl_Interp * interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
@@ -320,19 +321,19 @@ static int astNewZoom(ClientData clientData,
 
   if (editMode == EDITMODE_POS)
     {
-      astUpdatePOSModeDisplay();
+      tcledit_update_posmode_display();
     }
   else
     {
-      astUpdateNEWModeDisplay();
+      tcledit_update_newmode_display();
     }
   return TCL_OK;
 }
 
 /* Called in response to the "ast_edit" Tcl command */
 
-static int astNewEdit(ClientData clientData,
-                      Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_new_edit(ClientData clientData,
+                            Tcl_Interp * interp, int argc, const char *argv[])
 {
   int start;
   int end;
@@ -438,15 +439,16 @@ static int astNewEdit(ClientData clientData,
         default:
           break;
         }
-      astUpdateNEWModeDisplay();
+      tcledit_update_newmode_display();
     }
+
   return TCL_OK;
 }
 
 /* Called in response to the "ast_attribute" Tcl command */
 
-static int astNewAttributes(ClientData clientData,
-                            Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_new_attributes(ClientData clientData,
+                                  Tcl_Interp * interp, int argc, const char *argv[])
 {
   const char *attributes;
   int tmp;
@@ -526,8 +528,8 @@ static int astNewAttributes(ClientData clientData,
 
 /* Called in response to the "ast_addrectangle" Tcl command */
 
-static int astAddRectangle(ClientData clientData,
-                           Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_add_rectangle(ClientData clientData,
+                                 Tcl_Interp * interp, int argc, const char *argv[])
 {
 
   ginfo("Processing command: %s\n", argv[0]);
@@ -567,13 +569,14 @@ static int astAddRectangle(ClientData clientData,
           break;
         }
     }
+
   return TCL_OK;
 }
 
 /* Called in response to the "ast_save" Tcl command */
 
-static int astSaveRectangles(ClientData clientData,
-                             Tcl_Interp * interp, int argc, const char *argv[])
+static int tcledit_save_rectangles(ClientData clientData,
+                                   Tcl_Interp * interp, int argc, const char *argv[])
 {
 
   ginfo("Processing command: %s\n", argv[0]);
@@ -584,7 +587,7 @@ static int astSaveRectangles(ClientData clientData,
                       __FUNCTION__, argc);
     }
 
-  wld_save_planes(astOutFileName);
+  wld_save_planes(g_out_filename);
   return TCL_OK;
 }
 
@@ -604,14 +607,14 @@ int main(int argc, char **argv, char **envp)
 
   /* Parse command line options */
 
-  astOutFileName = astDefaultFileName;
+  g_out_filename = g_default_filename;
 
   while ((option = getopt(argc, argv, "o:")) != EOF)
     {
       switch (option)
         {
         case 'o':
-          astOutFileName = optarg;
+          g_out_filename = optarg;
           break;
         default:
           fprintf(stderr, "Unrecognized option: %c\n", option);
@@ -628,12 +631,12 @@ int main(int argc, char **argv, char **envp)
       show_usage(argv[0]);
     }
 
-  astInFileName = argv[optind];
+  g_in_filename = argv[optind];
 
   /* Read the plane file now so that we can be certain that it is a valid
    * plaine file. */
 
-  if (wld_load_planefile(astInFileName) != PLANE_SUCCESS)
+  if (wld_load_planefile(g_in_filename) != PLANE_SUCCESS)
     {
       exit(1);
     }
@@ -651,7 +654,7 @@ int main(int argc, char **argv, char **envp)
 
 int do_tcl_action(const char *script)
 {
-  return Tcl_Eval(astInterp, script);
+  return Tcl_Eval(g_tcledit_interp, script);
 }
 
 /* Tcl_AppInit is called from Tcl_Main() after the Tcl interpreter has
@@ -665,7 +668,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
   /* Save the interpreter for later */
 
-  astInterp = interp;
+  g_tcledit_interp = interp;
 
   /* Initialize the edit windows before starting the Tcl parser */
 
@@ -688,27 +691,27 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
   /* Define application-specific commands */
 
-  Tcl_CreateCommand(astInterp, "ast_seteditmode", astSetEditMode,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_seteditmode", tcledit_setmode,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(astInterp, "ast_position", astNewPosition,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_position", tcledit_new_position,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(astInterp, "ast_zoom", astNewZoom,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_zoom", tcledit_new_zoom,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(astInterp, "ast_edit", astNewEdit,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_edit", tcledit_new_edit,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(astInterp, "ast_attributes", astNewAttributes,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_attributes", tcledit_new_attributes,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(astInterp, "ast_addrectangle", astAddRectangle,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_addrectangle", tcledit_add_rectangle,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(astInterp, "ast_save", astSaveRectangles,
+  Tcl_CreateCommand(g_tcledit_interp, "ast_save", tcledit_save_rectangles,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 
   /* Initialize the Tcl parser */
 
-  if (Tcl_EvalFile(astInterp, "tcledit.tk") != TCL_OK)
+  if (Tcl_EvalFile(g_tcledit_interp, "tcledit.tk") != TCL_OK)
     {
-      fprintf(stderr, "%s\n", Tcl_GetVar(astInterp, "errorCode", 0));
-      fprintf(stderr, "%s\n", Tcl_GetVar(astInterp, "errorInfo", 0));
+      fprintf(stderr, "%s\n", Tcl_GetVar(g_tcledit_interp, "errorCode", 0));
+      fprintf(stderr, "%s\n", Tcl_GetVar(g_tcledit_interp, "errorInfo", 0));
       exit(1);
     }
 

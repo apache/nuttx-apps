@@ -125,7 +125,7 @@ proc minimenu {w text variable} {
 proc newattribute { } {
     global shaded transparent door
     global scaleno texture
-    ast_attributes $shaded$transparent$door $texture $scaleno
+    tcl_attributes $shaded$transparent$door $texture $scaleno
 }
 
 # Handle edit mode settings
@@ -140,7 +140,7 @@ proc seteditmode {mode plane} {
     global shaded transparent door
     global scaleno scaling texture
     set editmode $mode; set editplane $plane
-    ast_seteditmode $mode $plane
+    tcl_seteditmode $mode $plane
     if {($editmode == "NEW") || ($editmode == "EDIT")} {
 	set xpt1 $xpos; set xpt2 $xpos; set xpt3 $xpos; set xpt4 $xpos
 	set ypt1 $ypos; set ypt2 $ypos; set ypt3 $ypos; set ypt4 $ypos
@@ -149,9 +149,9 @@ proc seteditmode {mode plane} {
     set editwidth 0; set editheight 0
     set shaded 0; set transparent 0; set door 0
     set scaleno 0; set scaling 1x; set texture 0
-    ast_edit "x" $xpos 0
-    ast_edit "y" $ypos 0
-    ast_edit "z" $zpos 0
+    tcl_edit "x" $xpos 0
+    tcl_edit "y" $ypos 0
+    tcl_edit "z" $zpos 0
     newattribute
 }
 
@@ -202,12 +202,12 @@ proc neweditx { xvalue } {
 	    set xpt4 $xvalue
 	}
 	set editwidth [expr $xpt2 - $xpt1]
-	ast_edit "x" $xpt1 $editwidth
+	tcl_edit "x" $xpt1 $editwidth
     } else {
 	if {$editmode == "POS"} {
 	    global xpos ypos zpos
 	    set xpos $xvalue
-	    ast_position $xpos $ypos $zpos
+	    tcl_position $xpos $ypos $zpos
 	}
     }
 }
@@ -272,7 +272,7 @@ proc newedity { yvalue } {
 		set ypt4 $yvalue
 	    }
 	    set editwidth [expr $ypt2 - $ypt1]
-	    ast_edit "y" $ypt1 $editwidth
+	    tcl_edit "y" $ypt1 $editwidth
 	} else {
 	    if {$editpoint == "1"} {
 		if {$yvalue > $ypt3} {
@@ -290,13 +290,13 @@ proc newedity { yvalue } {
 		set ypt4 $yvalue
 	    }
 	    set editheight [expr $ypt3 - $ypt1]
-	    ast_edit "y" $ypt1 $editheight
+	    tcl_edit "y" $ypt1 $editheight
 	}
     } else {
 	if {$editmode == "POS"} {
 	    global xpos ypos zpos
 	    set ypos $yvalue
-	    ast_position $xpos $ypos $zpos
+	    tcl_position $xpos $ypos $zpos
 	}
     }
 }
@@ -360,12 +360,12 @@ proc neweditz { zvalue } {
 	    set zpt4 $zvalue
 	}
 	set editheight [expr $zpt3 - $zpt1]
-	ast_edit "z" $zpt1 $editheight
+	tcl_edit "z" $zpt1 $editheight
     } else {
 	if {$editmode == "POS"} {
 	    global xpos ypos zpos
 	    set zpos $zvalue
-	    ast_position $xpos $ypos $zpos
+	    tcl_position $xpos $ypos $zpos
 	}
     }
 }
@@ -405,7 +405,7 @@ proc newwidth { width } {
 		if {$editpoint == "2"} {
 		    setyscale $ypt2
 		}
-		ast_edit "y" $ypt1 $editwidth
+		tcl_edit "y" $ypt1 $editwidth
 	    }
 	    default {
 		set xpt2 [expr $xpt1 + $width]
@@ -418,7 +418,7 @@ proc newwidth { width } {
 		if {$editpoint == "2"} {
 		    setxscale $xpt2
 		}
-		ast_edit "x" $xpt1 $editwidth
+		tcl_edit "x" $xpt1 $editwidth
 	    }
 	}
     }
@@ -446,7 +446,7 @@ proc newheight { height } {
 		if {$editpoint == "3"} {
 		    setyscale $ypt3
 		}
-		ast_edit "y" $ypt1 $editheight
+		tcl_edit "y" $ypt1 $editheight
 	    }
 	    default {
 		set zpt3 [expr $zpt1 + $height]
@@ -459,7 +459,7 @@ proc newheight { height } {
 		if {$editpoint == "3"} {
 		    setzscale $zpt3
 		}
-		ast_edit "z" $zpt1 $editheight
+		tcl_edit "z" $zpt1 $editheight
 	    }
 	}
     }
@@ -523,7 +523,7 @@ proc newzoom { newzoom } {
     setxscale $tmpxscale
     setyscale $tmpyscale
     setzscale $tmpzscale
-    ast_zoom $screenwidth $xmin $ymin $zmin
+    tcl_zoom $screenwidth $xmin $ymin $zmin
 }
 
 # Set slider variables
@@ -600,7 +600,7 @@ proc selectedit {} {
 
 # Add the current plane
 proc selectadd {} {
-    ast_addrectangle
+    tcl_addrectangle
     selectpos
 }
 
@@ -698,7 +698,7 @@ proc edit2 { w } {
     button $w.newx -width 8 -text "NEWX" -relief raised -command "selectnew x"
     button $w.newy -width 8 -text "NEWY" -relief raised -command "selectnew y"
     button $w.newz -width 8 -text "NEWZ" -relief raised -command "selectnew z"
-    button $w.save -width 8 -text "SAVE" -relief raised -command ast_save
+    button $w.save -width 8 -text "SAVE" -relief raised -command tcl_save
     pack $w.newx -anchor w -side top -fill y
     pack $w.newy -anchor w -side top -fill y
     pack $w.newz -anchor w -side top -fill y
