@@ -57,6 +57,44 @@ extern "C"
 
 #define FILE_NAME_SIZE 16
 
+/* World file section/variable names */
+
+/* Everything related to the camera POV is defined in the
+ * camera section. */
+
+#define CAMERA_SECTION_NAME    "camera"
+
+/* These values define the initial camera postion. */
+
+#define CAMERA_INITIAL_X       "initialcamerax"
+#define CAMERA_INITIAL_Y       "initialcameray"
+#define CAMERA_INITIAL_Z       "initialcameraz"
+
+/* These values define the orientation of the camera. */
+
+#define CAMERA_INITIAL_YAW     "initialcamerayaw"
+#define CAMERA_INITIAL_PITCH   "initialcamerayaw"
+
+/* Everything related to the player is defined in the player section. */
+
+#define PLAYER_SECTION_NAME    "player"
+
+/* These are charwld_erictics of the player. */
+
+#define PLAYER_HEIGHT          "playerheight"
+#define PLAYER_WALK_STEPHEIGHT "playerwalkstepheight"
+#define PLAYER_RUN_STEPHEIGHT  "playerrunstepheight"
+
+/* Everything related to the world is defined in the world section. */
+
+#define WORLD_SECTION_NAME     "world"
+
+/* Other files: */
+
+#define WORLD_MAP              "worldmap"
+#define WORLD_PALETTE          "worldpalette"
+#define WORLD_IMAGES           "worldimages"
+
 /*************************************************************************
  * Public Type Definitions
  *************************************************************************/

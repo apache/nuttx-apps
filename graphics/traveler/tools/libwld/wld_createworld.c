@@ -39,7 +39,7 @@
  *************************************************************************/
 
 #include "trv_types.h"
-#include "fsutils/inifile.h"
+
 #include "wld_paltable.h"
 #include "wld_color.h"
 #include "wld_inifile.h"

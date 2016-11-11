@@ -37,43 +37,92 @@
 #define __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_INIFILE_H
 
 /****************************************************************************
- * Pre-processor Definitions
+ * Public Types
  ****************************************************************************/
 
-/* Everything related to the camera POV is defined in the
- * camera section. */
+typedef void *INIHANDLE;
 
-#define CAMERA_SECTION_NAME    "camera"
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
-/* These values define the initial camera postion. */
+#ifdef __cplusplus
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+#define EXTERN extern
+#endif
 
-#define CAMERA_INITIAL_X       "initialcamerax"
-#define CAMERA_INITIAL_Y       "initialcameray"
-#define CAMERA_INITIAL_Z       "initialcameraz"
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-/* These values define the orientation of the camera. */
+/****************************************************************************
+ * Name:  inifile_initialize
+ *
+ * Description:
+ *   Initialize for access to the INI file 'inifile_name'
+ *
+ ****************************************************************************/
 
-#define CAMERA_INITIAL_YAW     "initialcamerayaw"
-#define CAMERA_INITIAL_PITCH   "initialcamerayaw"
+INIHANDLE inifile_initialize(const char *inifile_name);
 
-/* Everything related to the player is defined in the player section. */
+/****************************************************************************
+ * Name:  inifile_uninitialize
+ *
+ * Description:
+ *   Free resources commit to INI file parsing
+ *
+ ****************************************************************************/
 
-#define PLAYER_SECTION_NAME    "player"
+void inifile_uninitialize(INIHANDLE handle);
 
-/* These are charwld_erictics of the player. */
+/****************************************************************************
+ * Name: inifile_read_string
+ *
+ * Description:
+ *   Obtains the specified string value for the specified variable name
+ *   within the specified section of the INI file.  The receiver of the
+ *   value string should call inifile_free_string when it no longer needs
+ *   the memory held by the value string.
+ *
+ ****************************************************************************/
 
-#define PLAYER_HEIGHT          "playerheight"
-#define PLAYER_WALK_STEPHEIGHT "playerwalkstepheight"
-#define PLAYER_RUN_STEPHEIGHT  "playerrunstepheight"
+char *inifile_read_string(INIHANDLE handle,
+                          const char *section,
+                          const char *variable,
+                          const char *defvalue);
 
-/* Everything related to the world is defined in the world section. */
+/****************************************************************************
+ * Name:  inifile_read_integer
+ *
+ * Description:
+ *   Obtains the specified integer value for the specified variable name
+ *   within the specified section of the INI file
+ *
+ ****************************************************************************/
 
-#define WORLD_SECTION_NAME     "world"
+long inifile_read_integer(INIHANDLE handle,
+                          const char *section,
+                          const char *variable,
+                          long defvalue);
 
-/* Other files: */
+/****************************************************************************
+ * Name:  inifile_free_string
+ *
+ * Description:
+ *   Release resources allocated for the value string previously obtained
+ *   from inifile_read_string.  The purpose of this inline function is to
+ *   hide the memory allocator used by this implementation.
+ *
+ ****************************************************************************/
 
-#define WORLD_MAP              "worldmap"
-#define WORLD_PALETTE          "worldpalette"
-#define WORLD_IMAGES           "worldimages"
+void inifile_free_string(char *value);
+
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOSL_LIBWLD_WLD_INIFILE_H */

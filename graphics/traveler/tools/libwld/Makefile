@@ -35,7 +35,6 @@
 
 
 WD       = ${shell pwd}
-APPDIR   = $(WD)/../../../..
 TRAVELER = $(WD)/../..
 NUTTXDIR = $(WD)/../include
 
@@ -52,8 +51,8 @@ PLNSRCS += wld_addplane.c wld_mergeplanelists.c wld_removeplane.c wld_moveplane.
 PLNSRCS += wld_findplane.c
 PALSRCS  = wld_loadpaltable.c wld_discardpaltable.c
 CLRSRCS  = wld_rgblookup.c wld_rgb2pixel.c wld_pixel2lum.c wld_lum2pixel.c
-UTSRCS   = wld_readdecimal.c wld_fatalerror.c wld_malloc.c wld_realloc.c
-UTSRCS  += wld_free.c
+UTSRCS   = wld_inifile.c wld_readdecimal.c wld_fatalerror.c
+UTSRCS  += wld_malloc.c wld_realloc.c wld_free.c
 SRCS     = $(WLDSRCS) $(TXTSRCS) $(BMSRCS) $(PLNSRCS) $(PALSRCS) $(CLRSRCS) $(UTSRCS)
 OBJS     = $(SRCS:.c=.o)
 
@@ -62,7 +61,7 @@ AR       = ar -rcv
 
 DEBUG_LEVEL ?= 0
 DEFINES  = -DDEBUG_LEVEL=$(DEBUG_LEVEL)
-INCLUDES = -I. -I$(APPDIR)/include -I$(TRAVELER)/include -isystem $(NUTTXDIR)
+INCLUDES = -I. -I$(TRAVELER)/include -isystem $(NUTTXDIR)
 WARNINGS = -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs
 
 ifneq ($(DEBUG_LEVEL),0)
