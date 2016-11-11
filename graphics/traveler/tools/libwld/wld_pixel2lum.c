@@ -41,7 +41,6 @@
 
 #include <math.h>
 
-#include "trv_types.h"
 #include "wld_paltable.h"
 #include "wld_color.h"
 
@@ -56,26 +55,20 @@
 
 void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t * lum)
 {
-  dev_pixel_t devpixel = g_devpixel_lut[pixel_value];
-
-  /* Convert the pixel to its RGB components */
-
-  lum->red   = (float)RGB2RED(devpixel)   / (float)RGB_MAX_RED;
-  lum->green = (float)RGB2GREEN(devpixel) / (float)RGB_MAX_GREEN;
-  lum->blue  = (float)RGB2BLUE(devpixel)  / (float)RGB_MAX_BLUE;
+  color_rgb_t *rgb = &g_rgb_lut[pixel_value];
 
   /* Get the luminance associated with the RGB value */
 
-  lum->luminance = sqrt(lum->red   * lum->red   +
-                        lum->green * lum->green +
-                        lum->blue  * lum->blue);
+  lum->luminance = sqrt(rgb->red   * rgb->red   +
+                        rgb->green * rgb->green +
+                        rgb->blue  * rgb->blue);
 
   /* Convert the RGB Component into unit vector + luminance */
 
   if (lum->luminance > 0.0)
     {
-      lum->red /= lum->luminance;
-      lum->blue /= lum->luminance;
-      lum->green /= lum->luminance;
+      lum->red   = rgb->red   * lum->luminance;
+      lum->blue  = rgb->green * lum->luminance;
+      lum->green = rgb->blue  * lum->luminance;
     }
 }

@@ -39,7 +39,6 @@
  *************************************************************************/
 
 #include <stdlib.h>
-#include "trv_types.h"
 #include "wld_utils.h"
 #include "wld_mem.h"
 

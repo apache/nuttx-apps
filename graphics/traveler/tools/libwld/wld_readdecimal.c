@@ -40,7 +40,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "trv_types.h"
 #include "wld_utils.h"
 
 /*************************************************************************

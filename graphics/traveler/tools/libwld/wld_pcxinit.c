@@ -42,7 +42,6 @@
 
 #  include <stdio.h>
 #  include <malloc.h>
-#  include "trv_types.h"
 #  include "wld_mem.h"
 #  include "wld_pcx.h"
 

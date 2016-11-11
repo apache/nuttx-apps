@@ -40,7 +40,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "trv_types.h"
 #include "wld_mem.h"
 #include "wld_utils.h"
 #include "wld_color.h"
@@ -59,7 +58,7 @@
  ****************************************************************************/
 
 #if RGB_CUBE_SIZE >= MIN_LUM_LEVELS
-static color_rgb_t *g_devpixel_lut = NULL;
+static color_rgb_t *g_rgb_lut = NULL;
 static float g_wld_cube2pixel;
 #endif
 
@@ -68,7 +67,7 @@ static float g_wld_cube2pixel;
  ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-color_lum_t *g_pixel2um_lut;
+color_lum_t *g_lum_lut;
 
 /* The following defines the "form" of each color in the g_unit_vector array */
 
@@ -152,30 +151,30 @@ const color_lum_t g_unit_vector[NUNIT_VECTORS] =
 void wld_rgblookup_allocate(void)
 {
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-  dev_pixel_t *lut;
+  color_rgb_t *lut;
   int uvndx;
   int lumndx;
   int index;
 
   /* Check if a color lookup table has been allocated */
 
-  g_devpixel_lut = (dev_pixel_t *)
-    wld_malloc(sizeof(dev_pixel_t) * (NUNIT_VECTORS * NLUMINANCES));
+  g_rgb_lut = (color_rgb_t *)
+    wld_malloc(sizeof(color_rgb_t) * (NUNIT_VECTORS * NLUMINANCES));
 
-  if (!g_devpixel_lut)
+  if (!g_rgb_lut)
     {
       wld_fatal_error("ERROR: Failed to allocate color lookup table\n");
     }
 
-  lut = g_devpixel_lut;
+  lut = g_rgb_lut;
 
   /* Save the color information and color lookup table for use in color mapping 
    * below. */
 
-  g_pixel2um_lut = (color_lum_t *)
+  g_lum_lut = (color_lum_t *)
     wld_malloc(sizeof(color_lum_t) * (NUNIT_VECTORS * NLUMINANCES));
 
-  if (!g_pixel2um_lut)
+  if (!g_lum_lut)
     {
       wld_fatal_error("ERROR: Failed to allocate luminance table\n");
     }
@@ -187,41 +186,36 @@ void wld_rgblookup_allocate(void)
     {
       for (lumndx = 0; lumndx < NLUMINANCES; lumndx++)
         {
-          color_rgb_t color;
           color_lum_t *lum;
 
           /* Get a convenience pointer to the lookup table entry */
 
-          lum = &g_pixel2um_lut[index];
+          lum = &g_lum_lut[index];
           *lum = g_unit_vector[uvndx];
 
           /* Get the luminance associated with this lum for this unit vector. */
 
           lum->luminance = (lum->luminance * (float)(lumndx + 1)) / NLUMINANCES;
 
-          /* Convert to RGB and allocate the color */
+          /* Convert to RGB in lookup table */
 
-          color.red = (short)(lum->red * lum->luminance);
-          color.green = (short)(lum->green * lum->luminance);
-          color.blue = (short)(lum->blue * lum->luminance);
-
-          /* Save the RGB to pixel lookup data */
-
-          lut[index] = WLD_MKRGB(color.red, color.green, color.blue);
+          lut[index].red = (short)(lum->red * lum->luminance);
+          lut[index].green = (short)(lum->green * lum->luminance);
+          lut[index].blue = (short)(lum->blue * lum->luminance);
         }
     }
 
 #else
-  dev_pixel_t *lut;
+  color_rgb_t *lut;
   int index;
   color_rgb_t rgb;
 
   /* Check if a color lookup table has been allocated */
 
-  g_devpixel_lut = (dev_pixel_t *)
-    wld_malloc(sizeof(dev_pixel_t) * (WLD_PIXEL_MAX + 1));
+  g_rgb_lut = (color_rgb_t *)
+    wld_malloc(sizeof(color_rgb_t) * (WLD_PIXEL_MAX + 1));
 
-  if (!g_devpixel_lut)
+  if (!g_rgb_lut)
     {
       wld_fatal_error("ERROR: Failed to allocate color lookup table\n");
     }
@@ -229,22 +223,22 @@ void wld_rgblookup_allocate(void)
   /* Save the color information and color lookup table for use in subsequent
    * color mapping. */
 
-  lut = g_devpixel_lut;
+  lut = g_rgb_lut;
 
   /* Check if a Pixel-to-RGB color mapping table has been allocated */
 
-  g_devpixel_lut = (color_rgb_t *)
+  g_rgb_lut = (color_rgb_t *)
     wld_malloc(sizeof(color_rgb_t) * (WLD_PIXEL_MAX + 1));
 
-  if (!g_devpixel_lut)
+  if (!g_rgb_lut)
     {
       wld_fatal_error("ERROR: Failed to allocate luminance table\n");
     }
 
   for (index = 0; index <= WLD_PIXEL_MAX; index++)
     {
-      g_devpixel_lut[index].red
-        = g_devpixel_lut[index].green = g_devpixel_lut[index].blue = 0;
+      g_rgb_lut[index].red
+        = g_rgb_lut[index].green = g_rgb_lut[index].blue = 0;
     }
 
   /* Calculate the cube to trv_pixel_t scale factor.  This factor will convert
@@ -256,26 +250,19 @@ void wld_rgblookup_allocate(void)
   /* Allocate each color in the RGB Cube */
 
   for (rgb.red = 0; rgb.red < RGB_CUBE_SIZE; rgb.red++)
-    for (rgb.green = 0; rgb.green < RGB_CUBE_SIZE; rgb.green++)
-      for (rgb.blue = 0; rgb.blue < RGB_CUBE_SIZE; rgb.blue++)
+    {
+      for (rgb.green = 0; rgb.green < RGB_CUBE_SIZE; rgb.green++)
         {
-          color_rgb_t color;
-
-          color.red = (short)(rgb.red * 65535 / (RGB_CUBE_SIZE - 1));
-          color.green = (short)(rgb.green * 65535 / (RGB_CUBE_SIZE - 1));
-          color.blue = (short)(rgb.blue * 65535 / (RGB_CUBE_SIZE - 1));
-
-          /* Save the RGB to pixel lookup data */
-
-          lut[index] = WLD_MKRGB(color.red, color.green, color.blue);
-
-          /* Save the pixel to RGB lookup data */
-
-          if (color.pixel <= WLD_PIXEL_MAX)
+          for (rgb.blue = 0; rgb.blue < RGB_CUBE_SIZE; rgb.blue++)
             {
-              g_devpixel_lut[color.pixel] = rgb;
+              /* Save the RGB to pixel lookup data */
+
+              lut[index].red = (short)(rgb.red * 65535 / (RGB_CUBE_SIZE - 1));
+              lut[index].green = (short)(rgb.green * 65535 / (RGB_CUBE_SIZE - 1));
+              lut[index].blue = (short)(rgb.blue * 65535 / (RGB_CUBE_SIZE - 1));
             }
         }
+    }
 #endif
 }
 
@@ -291,16 +278,16 @@ void wld_rgblookup_allocate(void)
 void wld_color_endmapping(void)
 {
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
-  if (g_pixel2um_lut)
+  if (g_lum_lut)
     {
-      wld_free(g_pixel2um_lut);
-      g_pixel2um_lut = NULL;
+      wld_free(g_lum_lut);
+      g_lum_lut = NULL;
     }
 #else
-  if (g_devpixel_lut)
+  if (g_rgb_lut)
     {
-      wld_free(g_devpixel_lut);
-      g_devpixel_lut = NULL;
+      wld_free(g_rgb_lut);
+      g_rgb_lut = NULL;
     }
 #endif
 }
@@ -315,9 +302,9 @@ void wld_color_endmapping(void)
 
 void wld_rgblookup_free(void)
 {
-  if (g_devpixel_lut)
+  if (g_rgb_lut)
     {
-      wld_free(g_devpixel_lut);
-      g_devpixel_lut = NULL;
+      wld_free(g_rgb_lut);
+      g_rgb_lut = NULL;
     }
 }

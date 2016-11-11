@@ -42,7 +42,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include "trv_types.h"
 #include "wld_plane.h"
 
 /*************************************************************************
