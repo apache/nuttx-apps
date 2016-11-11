@@ -35,7 +35,14 @@ Build instuctions
 Usage
 =====
 
-   ./tcledit [-o <outfilename>] <infilename>
+  .  /tcledit [-o <outfilename>] <infilename>
 
-   Where <infilename> is the original world file name which will be overwritten
-   unless <outfilename> is provided.
+  Where <infilename> is the original world file name which will be overwritten
+  unless <outfilename> is provided.
+
+  NOTE: The default traveler world file is apps/graphics/traverler/world/transfrm.wld.
+  The file contains relative paths so you may have to CD in to the directory first
+  like:
+
+    cd world
+    ../tools/tcledit/tcledit transfrm.wld
