@@ -214,7 +214,7 @@ uint8_t wld_loadpcx(char *filename, pcxPicturePtr image)
 graphic_file_t *wld_loadpcx(FILE * fp, char *filename)
 {
   pcx_header_t header;
-  trv_pixel_t *buffer;
+  wld_pixel_t *buffer;
   graphic_file_t *gFile;
   color_rgb_t *palette;
   uint16_t imageWidth, imageHeight;
@@ -228,8 +228,8 @@ graphic_file_t *wld_loadpcx(FILE * fp, char *filename)
 
   imageWidth = header.width - header.x + 1;
   imageHeight = header.height - header.y + 1;
-  imageSize = imageHeight * imageWidth * sizeof(trv_pixel_t);
-  buffer = (trv_pixel_t *) wld_malloc(imageSize + 1);
+  imageSize = imageHeight * imageWidth * sizeof(wld_pixel_t);
+  buffer = (wld_pixel_t *) wld_malloc(imageSize + 1);
 
   /* Load the PCX data into the buffer */
 

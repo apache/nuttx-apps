@@ -40,13 +40,13 @@
  * Included Files
  ****************************************************************************/
 
-#include "trv_graphics.h"
+#include <stdint.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* This defines the size of the RGB cube that can be supported by trv_pixel_t
+/* This defines the size of the RGB cube that can be supported by wld_pixel_t
  * Use of the RGB cube gives us a fine control of the color space.  However
  * the lighting logic in this program requires fine control over luminance.
  * If the RGB_CUBE_SIZE is small, then an alternative luminance model is
@@ -82,6 +82,8 @@
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+typedef uint8_t wld_pixel_t;
 
 struct color_rgb_s
 {
@@ -177,8 +179,8 @@ void wld_rgblookup_allocate(void);
 void wld_rgblookup_endmapping(void);
 void wld_rgblookup_free(void);
 
-trv_pixel_t wld_rgb2pixel(color_rgb_t *pixel);
-void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t *lum);
-trv_pixel_t wld_lum2pixel(color_lum_t *lum);
+wld_pixel_t wld_rgb2pixel(color_rgb_t *pixel);
+void wld_pixel2lum(wld_pixel_t pixel_value, color_lum_t *lum);
+wld_pixel_t wld_lum2pixel(color_lum_t *lum);
 
 #endif /* __APPS_GRAPHICS_TRAVELER_TOOLS_LIBWLD_WLD_COLOR_H */

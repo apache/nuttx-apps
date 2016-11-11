@@ -42,7 +42,6 @@
 
 #include <X11/Xlib.h>
 #include "wld_color.h"
-#include "trv_graphics.h"
 #include "wld_bitmaps.h"
 #include "wld_plane.h"
 
@@ -114,6 +113,10 @@
 /****************************************************************************
  * Public Type Definitions
  ****************************************************************************/
+
+/* Assume 32-bit TrueColor */
+
+typedef uint32_t dev_pixel_t;
 
 enum edit_mode_e
 {

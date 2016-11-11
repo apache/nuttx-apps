@@ -191,7 +191,7 @@ static enum unit_vector_index_e wld_lum2colorform(color_lum_t * lum)
  * Description: Convert an RGB-Luminance value into a pixel
  ****************************************************************************/
 
-trv_pixel_t wld_color_lum2pixel(color_lum_t * lum)
+wld_pixel_t wld_color_lum2pixel(color_lum_t * lum)
 {
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
   enum unit_vector_index_e uvndx;

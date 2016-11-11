@@ -52,7 +52,6 @@
 #endif
 
 #include "trv_types.h"
-#include "trv_graphics.h"
 #include "debug.h"
 
 #include "wld_mem.h"

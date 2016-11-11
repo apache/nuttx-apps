@@ -39,6 +39,7 @@
  *************************************************************************/
 
 #include "trv_types.h"
+#include "wld_color.h"
 #include "wld_world.h"
 #include "wld_bitmaps.h"
 #include "wld_paltable.h"

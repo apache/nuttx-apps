@@ -241,7 +241,7 @@ void wld_rgblookup_allocate(void)
         = g_rgb_lut[index].green = g_rgb_lut[index].blue = 0;
     }
 
-  /* Calculate the cube to trv_pixel_t scale factor.  This factor will convert
+  /* Calculate the cube to wld_pixel_t scale factor.  This factor will convert
    * an RGB component in the range {0..RGB_CUBE_SIZE-1} to a value in the range 
    * {0..WLD_PIXEL_MAX}. */
 

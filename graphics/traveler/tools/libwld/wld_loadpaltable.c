@@ -89,7 +89,7 @@ typedef struct
  * with distance
  */
 
-trv_pixel_t *g_pal_table[NUM_ZONES];
+wld_pixel_t *g_pal_table[NUM_ZONES];
 
 /*************************************************************************
  * Private Functions
@@ -107,7 +107,7 @@ static void wld_allocate_paltable(uint32_t palTabEntrySize)
   for (i = 0; i < NUM_ZONES; i++)
     {
       g_pal_table[i] =
-        (trv_pixel_t *) wld_malloc(palTabEntrySize * sizeof(trv_pixel_t));
+        (wld_pixel_t *) wld_malloc(palTabEntrySize * sizeof(wld_pixel_t));
     }
 }
 
@@ -124,7 +124,7 @@ static void wld_allocate_paltable(uint32_t palTabEntrySize)
 uint8_t wld_load_paltable(char *file)
 {
 #if (!MSWINDOWS)
-  trv_pixel_t *palptr;
+  wld_pixel_t *palptr;
   color_lum_t lum;
   int16_t zone;
   float scale;
@@ -182,8 +182,8 @@ uint8_t wld_load_paltable(char *file)
   int16_t nranges;
   int16_t zone;
   int16_t palndx;
-  trv_pixel_t plotcolor;
-  trv_pixel_t *palptr;
+  wld_pixel_t plotcolor;
+  wld_pixel_t *palptr;
   pal_range_t ranges[MAX_PAL_RANGES];
 
   /* Open the file which contains the palette table */

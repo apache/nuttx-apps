@@ -46,7 +46,7 @@ extern "C"
  * Included Files
  *************************************************************************/
 
-#include "trv_types.h"    /* For trv_pixel_t */
+#include "wld_color.h" 
 
 /*************************************************************************
  * Pre-processor Definitions
@@ -91,7 +91,7 @@ enum
  * with distance
  */
 
-extern trv_pixel_t *g_pal_table[NUM_ZONES];
+extern wld_pixel_t *g_pal_table[NUM_ZONES];
 
 /*************************************************************************
  * Pulblic Function Prototypes

@@ -48,7 +48,7 @@
  *   TRV_PIXEL_MAX.
  ****************************************************************************/
 
-trv_pixel_t wld_rgb2pixel(color_rgb_t * pixel)
+wld_pixel_t wld_rgb2pixel(color_rgb_t * pixel)
 {
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
   color_lum_t lum;
@@ -76,7 +76,7 @@ trv_pixel_t wld_rgb2pixel(color_rgb_t * pixel)
 
   return wld_lum2pixel(&lum);
 #else
-  trv_pixel_t ret;
+  wld_pixel_t ret;
   int red;
   int green;
   int blue;

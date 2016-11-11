@@ -47,6 +47,7 @@ extern "C"
  *************************************************************************/
 
 #include <stdio.h>
+#include "wld_color.h"
 
 /*************************************************************************
  * Pre-processor Definitions
@@ -83,7 +84,7 @@ struct wld_bitmap_s
   uint16_t w;
   uint16_t h;
   uint8_t log2h;
-  trv_pixel_t *bm;
+  wld_pixel_t *bm;
 };
 
 typedef struct wld_bitmap_s wld_bitmap_t;

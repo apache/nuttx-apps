@@ -112,7 +112,7 @@ static wld_bitmap_t *wld_new_texture(uint16_t width, uint16_t height)
     }
 
   t = (wld_bitmap_t *) wld_malloc(sizeof(wld_bitmap_t));
-  t->bm = (trv_pixel_t *) wld_malloc(height * width * sizeof(trv_pixel_t));
+  t->bm = (wld_pixel_t *) wld_malloc(height * width * sizeof(wld_pixel_t));
 
   t->w = width;
   t->h = height;
@@ -129,7 +129,7 @@ static wld_bitmap_t *wld_new_texture(uint16_t width, uint16_t height)
 static void wld_quantize_texture(graphic_file_t * gFile, wld_bitmap_t * t)
 {
   color_rgb_t pixel;
-  trv_pixel_t *dest = t->bm;
+  wld_pixel_t *dest = t->bm;
   int x;
   int y;
 

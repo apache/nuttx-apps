@@ -53,7 +53,7 @@
  * Description: Convert a pixel value into RGB-Luminance value.
  ************************************************************************/
 
-void wld_pixel2lum(trv_pixel_t pixel_value, color_lum_t * lum)
+void wld_pixel2lum(wld_pixel_t pixel_value, color_lum_t * lum)
 {
   color_rgb_t *rgb = &g_rgb_lut[pixel_value];
 
