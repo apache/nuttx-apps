@@ -2,8 +2,7 @@
 /Makefile
 /.depend
 /.built
-/trv_romfs.h
-/trv_romfs.img
+/tcledit
 /*.asm
 /*.rel
 /*.lst

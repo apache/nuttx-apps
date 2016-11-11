@@ -115,14 +115,14 @@
  * Public Type Definitions
  ****************************************************************************/
 
-enum g_edit_modeEnum
+enum edit_mode_e
 {
   EDITMODE_NONE = 0, /* Initial mode has not been selected */
   EDITMODE_POS,      /* Positioning in world */
   EDITMODE_NEW       /* Creating a new rectangle */
 };
 
-enum g_edit_planeEnum
+enum edit_plane_e
 {
   EDITPLANE_X = 0,   /* Editting rectangle in the x plane */
   EDITPLANE_Y,       /* Editting rectangle in the y plane */
@@ -132,7 +132,7 @@ enum g_edit_planeEnum
 typedef struct
 {
   char *title;                             /* Title on window */
-  enum g_edit_planeEnum plane;                /* Identifies plane of window */
+  enum edit_plane_e plane;                /* Identifies plane of window */
   int width;                               /* Width of window */
   int height;                              /* Height of window */
   int ncolors;                            /* Number of colors allocated (PALETTE_SIZE) */
@@ -149,8 +149,8 @@ typedef struct
  * Public Data
  ****************************************************************************/
 
-extern enum g_edit_modeEnum  g_edit_mode;
-extern enum g_edit_planeEnum g_edit_plane;
+extern enum edit_mode_e  g_edit_mode;
+extern enum edit_plane_e g_edit_plane;
 
 extern int g_view_size;
 extern int g_grid_step;
@@ -163,8 +163,9 @@ extern rect_data_t g_edit_rect;
  * Public Function Prototypes
  ****************************************************************************/
 
-void tcl_init_graphics(tcl_window_t *w);
-void tcl_end_graphics(tcl_window_t *w);
+void x11_initilaize_graphics(tcl_window_t *w);
+void x11_end_graphics(tcl_window_t *w);
+void x11_update_screen(tcl_window_t *w);
 
 void tcl_paint_background(tcl_window_t *w);
 void tcl_paint_position(tcl_window_t *w);

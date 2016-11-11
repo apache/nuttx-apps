@@ -31,5 +31,9 @@ Build instuctions:
     9. xmfmk
    10. make
 
+Usage:
 
+   ./tcledit [-o <outfilename>] <infilename>
 
+   Where <infilename> is the original world file name which will be overwritten
+   unless <outfilename> is provided.

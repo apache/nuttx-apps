@@ -84,8 +84,8 @@ EXTRA_LIBRARIES  =  -L$(LIBWLD) -lwld $(TCL_LIB) -lm
          DEPLIBS = $(DEPXLIB)
  LOCAL_LIBRARIES = $(XLIB)
 
-            SRCS = tcl_edit.c tcl_x11graphics.c
-            OBJS = tcl_edit.o tcl_x11graphics.o
+            SRCS = tcl_edit.c tcl_paint.c tcl_x11graphics.c
+            OBJS = tcl_edit.o tcl_paint.o tcl_x11graphics.o
 
 ComplexProgramTarget(tcledit)
 

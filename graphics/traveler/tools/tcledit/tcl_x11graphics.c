@@ -437,11 +437,11 @@ void x11_UpdateScreen(tcl_window_t * w)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: x11_InitGraphics
+ * Name: x11_initilaize_graphics
  * Description:
  ***************************************************************************/
 
-void x11_InitGraphics(tcl_window_t * w)
+void x11_initilaize_graphics(tcl_window_t * w)
 {
   XWindowAttributes windowAttributes;
 
@@ -465,12 +465,36 @@ void x11_InitGraphics(tcl_window_t * w)
 }
 
 /****************************************************************************
- * Name: x11_EndGraphics
+ * Name: x11_end_graphics
  * Description:
  ***************************************************************************/
 
-void x11_EndGraphics(tcl_window_t * w)
+void x11_end_graphics(tcl_window_t * w)
 {
   x11_unmap_all_sharedmemory();
   XCloseDisplay(w->display);
 }
+
+/*************************************************************************
+ * Function: x11_update_screen
+ * Description:
+ ************************************************************************/
+
+void x11_update_screen(tcl_window_t *w)
+{
+#ifndef NO_XSHM
+  if (useShm)
+    {
+      XShmPutImage(w->display, w->win, gc, w->image, 0, 0, 0, 0,
+                   w->width, w->height, 0);
+    }
+  else
+#endif
+    {
+      XPutImage(w->display, w->win, gc, w->image, 0, 0, 0, 0,
+                w->width, w->height);
+    }
+
+  XSync(w->display, 0);
+}
+

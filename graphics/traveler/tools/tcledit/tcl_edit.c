@@ -64,8 +64,8 @@ static const char g_default_filename[] = "planes.pll";
  * Public Variables
  ***************************************************************************/
 
-enum g_edit_modeEnum g_edit_mode = EDITMODE_NONE;
-enum g_edit_planeEnum g_edit_plane = EDITPLANE_X;
+enum edit_mode_e g_edit_mode = EDITMODE_NONE;
+enum edit_plane_e g_edit_plane = EDITPLANE_X;
 int g_view_size = WORLD_INFINITY;
 int g_grid_step = WORLD_SIZE / 16;
 
@@ -145,7 +145,7 @@ static void tcledit_update_posmode_display(void)
       tcl_paint_grid(w);
       tcl_paint_rectangles(w);
       tcl_paint_position(w);
-      tcl_update_screen(w);
+      x11_update_screen(w);
     }
 }
 
@@ -161,7 +161,7 @@ static void tcledit_update_newmode_display(void)
       tcl_paint_background(w);
       tcl_paint_grid(w);
       tcl_paint_rectangles(w);
-      tcl_update_screen(w);
+      x11_update_screen(w);
     }
 }
 
@@ -674,7 +674,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      tcl_init_graphics(&g_windows[i]);
+      x11_initilaize_graphics(&g_windows[i]);
     }
 
   /* Tcl_Init() sets up the Tcl library factility */
