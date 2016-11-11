@@ -1,4 +1,5 @@
-Build instuctions:
+Build instuctions
+=================
 
   At the time of 'make', you must have a valid Traveler configuration instantiated
   in the NuttX directory.  This is because the build will depend on certain
@@ -29,9 +30,10 @@ Build instuctions:
        a minimum.  These are the paths to where you have clones the apps/ repository
        and the nuttx/ repositories, respectively.
     9. xmfmk
-   10. make
+   10. make tcledit
 
-Usage:
+Usage
+=====
 
    ./tcledit [-o <outfilename>] <infilename>
 
