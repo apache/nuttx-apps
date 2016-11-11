@@ -219,8 +219,13 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
 
   inifile_free_string(filename);
 
+  /* Create the RGB lookup table */
+
+  wld_rgblookup_allocate();
+
   /* Get the name of the file containing the palette table which is used to
-   * adjust the lighting with distance. */
+   * adjust the lighting with distance.
+   */
 
   result = wld_read_filename(handle, &filename, g_world_section_name,
                              g_world_palette_name);
@@ -257,10 +262,6 @@ static uint8_t wld_manage_worldfile(INIHANDLE handle)
     {
       return WORLD_BITMAP_FILE_NAME_ERROR;
     }
-
-  /* Create the RGB lookup table */
-
-  wld_rgblookup_allocate();
 
   /* Then load the bitmaps */
 

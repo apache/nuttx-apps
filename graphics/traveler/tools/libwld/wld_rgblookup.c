@@ -58,7 +58,7 @@
  ****************************************************************************/
 
 #if RGB_CUBE_SIZE >= MIN_LUM_LEVELS
-static color_rgb_t *g_rgb_lut = NULL;
+static color_rgb_t *g_rgb_lut;
 static float g_wld_cube2pixel;
 #endif
 
@@ -67,6 +67,9 @@ static float g_wld_cube2pixel;
  ****************************************************************************/
 
 #if RGB_CUBE_SIZE < MIN_LUM_LEVELS
+/* Lookup tables */
+
+color_rgb_t *g_rgb_lut;
 color_lum_t *g_lum_lut;
 
 /* The following defines the "form" of each color in the g_unit_vector array */
