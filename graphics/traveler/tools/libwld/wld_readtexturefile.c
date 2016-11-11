@@ -160,7 +160,7 @@ wld_bitmap_t *wld_read_texturefile(char *filename)
   gFile = wld_readgraphic_file(filename);
   if (gFile == NULL)
     {
-      wld_fatal_error("Error reading texture %s.", filename);
+      wld_fatal_error("ERROR: Reading texture %s.", filename);
     }
 
   /* The height and width should be powers of two for efficient texture

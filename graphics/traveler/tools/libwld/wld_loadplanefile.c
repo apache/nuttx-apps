@@ -54,18 +54,18 @@
  * This function opens the input file and loads the world data from it
  ************************************************************************/
 
-uint8_t wld_load_planefile(const char *wldFile)
+uint8_t wld_load_planefile(const char *wldfile)
 {
   FILE *fp;
   uint8_t result;
 
   /* Open the map file which contains the description of the world */
 
-  fp = fopen(wldFile, "rb");
+  fp = fopen(wldfile, "rb");
   if (fp == NULL)
     {
       fprintf(stderr, "ERROR: Could not open map file=\"%s\": %s\n",
-              wldFile, strerror(errno));
+              wldfile, strerror(errno));
       return PLANE_READ_OPEN_ERROR;
     }
 

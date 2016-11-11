@@ -181,7 +181,7 @@ uint8_t       wld_initialize_planes(void);
 void          wld_discard_planes(void);
 uint8_t       wld_load_planefile(const char *wldfile);
 uint8_t       wld_load_planes(FILE *fp);
-uint8_t       wld_save_planes(const char *wldFile);
+uint8_t       wld_save_planes(const char *wldfile);
 rect_list_t *wld_new_plane(void);
 void          wld_add_plane(rect_list_t *rect,
                             rect_head_t *list);
