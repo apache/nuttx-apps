@@ -132,10 +132,10 @@ enum edit_plane_e
 typedef struct
 {
   char *title;                             /* Title on window */
-  enum edit_plane_e plane;                /* Identifies plane of window */
+  enum edit_plane_e plane;                 /* Identifies plane of window */
   int width;                               /* Width of window */
   int height;                              /* Height of window */
-  int ncolors;                            /* Number of colors allocated (PALETTE_SIZE) */
+  int ncolors;                             /* Number of colors allocated (PALETTE_SIZE) */
   Display *display;                        /* X stuff */
   Window win;
   XImage *image;

@@ -100,7 +100,8 @@ static void tcl_paint_rectangle(tcl_window_t *w, int hleft, int hright,
 {
   dev_pixel_t *rowstart;
   dev_pixel_t *dest;
-  int row, col;
+  int row;
+  int col;
 
   /* Paint from top to bottom */
 
@@ -127,11 +128,13 @@ static void tcl_paint_rectangle(tcl_window_t *w, int hleft, int hright,
  ************************************************************************/
 
 static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
-										 rect_data_t *ptr, int hoffset,
-										 int voffset, dev_pixel_t pixel)
+                                         rect_data_t *ptr, int hoffset,
+                                         int voffset, dev_pixel_t pixel)
 {
-  int hleft, hright;
-  int vtop, vbottom;
+  int hleft;
+  int hright;
+  int vtop;
+  int vbottom;
 
   /* Get the left side offset and verify that some part of the rectangle lies
    * to the left of the right side of the display.
@@ -140,10 +143,14 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
   hleft = ptr->hstart - hoffset;
 
   if (hleft >= g_view_size)
-    return;
+    {
+      return;
+    }
 
   if (hleft < 0)
-    hleft = 0;
+    {
+      hleft = 0;
+    }
 
   /* Get the right side offset and verify that some part of the rectangle lies
    * to the right of the left side of the display.
@@ -152,10 +159,14 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
   hright = ptr->hend - hoffset;
 
   if (hright < 0)
-    return;
+    {
+      return;
+    }
 
   if (hright >= g_view_size)
-    hright = g_view_size - 1;
+    {
+      hright = g_view_size - 1;
+    }
 
   /* Get the top side offset and verify that some part of the rectangle lies
    * above the bottom of the display.
@@ -164,10 +175,14 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
   vtop = ptr->vstart - voffset;
 
   if (vtop >= g_view_size)
-    return;
+    {
+      return;
+    }
 
   if (vtop < 0)
-    vtop = 0;
+    {
+      vtop = 0;
+    }
 
   /* Get the bottom side offset and verify that some part of the rectangle lies 
    * below the top of the display.
@@ -176,10 +191,14 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
   vbottom = ptr->vend - voffset;
 
   if (vbottom < 0)
-    return;
+    {
+      return;
+    }
 
   if (vbottom >= g_view_size)
-    vbottom = g_view_size - 1;
+    {
+      vbottom = g_view_size - 1;
+    }
 
   /* If we are viewing the Z plane, then the vpos is "down" the screen from the 
    * top.  Otherwise, it is "up" the screen from the bottom.
@@ -187,10 +206,10 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
 
   if (w->plane != EDITPLANE_Z)
     {
-      int vTmp = vbottom;
+      int vtmp = vbottom;
 
-	  vbottom = g_view_size - vtop - 1;
-      vtop = g_view_size - vTmp - 1;
+      vbottom = g_view_size - vtop - 1;
+      vtop = g_view_size - vtmp - 1;
     }
 
   /* We now have some rectangle that we know is to fully on the the display.
@@ -214,8 +233,8 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
 
 static int tcl_check_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr, int pos)
 {
-
-  int posStart, posEnd;
+  int posstart;
+  int posend;
 
   /* Search the plane list for every place whose "level" component includes the 
    * current map level.  This will be the vertical component of the rectangle
@@ -227,19 +246,18 @@ static int tcl_check_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr, int
 
   if (w->plane != EDITPLANE_X)
     {
-      posStart = ptr->vstart;
-      posEnd = ptr->vend;
+      posstart = ptr->vstart;
+      posend = ptr->vend;
     }
   else
     {
-      posStart = ptr->hstart;
-      posEnd = ptr->hend;
+      posstart = ptr->hstart;
+      posend = ptr->hend;
     }
 
   /* Verify the the vertical rectangle intersects the viewing plane */
 
-  return ((posStart <= pos) && (posEnd >= pos));
-
+  return ((posstart <= pos) && (posend >= pos));
 }
 
 /*************************************************************************
@@ -248,10 +266,13 @@ static int tcl_check_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr, int
  ************************************************************************/
 
 static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
-                                           int hoffset, int voffset, dev_pixel_t pixel)
+                                           int hoffset, int voffset,
+                                           dev_pixel_t pixel)
 {
-  int hleft, hright;
-  int vtop, vbottom;
+  int hleft;
+  int hright;
+  int vtop;
+  int vbottom;
 
   /* Get the "vertical" position of the horizontal line.  This will always be
    * the plane component of the rectangle, but will have to be "flipped" if the 
@@ -264,7 +285,9 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
   vtop = ptr->plane - voffset;
 
   if ((vtop < 0) || (vtop >= g_view_size))
-    return;
+    {
+      return;
+    }
 
   if (w->plane != EDITPLANE_Z)
     {
@@ -297,10 +320,14 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
   hleft -= hoffset;
 
   if (hleft >= g_view_size)
-    return;
+    {
+      return;
+    }
 
   if (hleft < 0)
-    hleft = 0;
+    {
+      hleft = 0;
+    }
 
   /* Get the right side offset and verify that some part of the rectangle lies
    * to the right of the left side of the display.
@@ -309,10 +336,14 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
   hright -= hoffset;
 
   if (hright < 0)
-    return;
+    {
+      return;
+    }
 
   if (hright >= g_view_size)
-    hright = g_view_size - 1;
+    {
+      hright = g_view_size - 1;
+    }
 
   /* We now have some line segment that we know is to fully on the the display. 
    * Get the display positions of the line segment.
@@ -327,12 +358,16 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
   vbottom = vtop + LINE_THICKNESS_DELTA;
 
   if (vbottom >= w->height)
-    vbottom = w->height - 1;
+    {
+      vbottom = w->height - 1;
+    }
 
   vtop -= LINE_THICKNESS_DELTA;
 
   if (vtop < 0)
-    vtop = 0;
+    {
+      vtop = 0;
+    }
 
   /* Paint it */
 
@@ -346,7 +381,8 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
 
 static int tcl_check_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr, int pos)
 {
-  int posStart, posEnd;
+  int posstart;
+  int posend;
 
   /* Search the plane list for every place whose "level" component includes the 
    * current map level.  This will be the horizontal component of the rectangle 
@@ -358,19 +394,18 @@ static int tcl_check_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr, int p
 
   if (w->plane != EDITPLANE_Z)
     {
-      posStart = ptr->hstart;
-      posEnd = ptr->hend;
+      posstart = ptr->hstart;
+      posend = ptr->hend;
     }
   else
     {
-      posStart = ptr->vstart;
-      posEnd = ptr->vend;
+      posstart = ptr->vstart;
+      posend = ptr->vend;
     }
 
   /* Verify the the vertical rectangle intersects the viewing plane */
 
-  return ((posStart <= pos) && (posEnd >= pos));
-
+  return ((posstart <= pos) && (posend >= pos));
 }
 
 /*************************************************************************
@@ -381,8 +416,10 @@ static int tcl_check_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr, int p
 static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
                                         int hoffset, int voffset, dev_pixel_t pixel)
 {
-  int hleft, hright;
-  int vtop, vbottom;
+  int hleft;
+  int hright;
+  int vtop;
+  int vbottom;
 
   /* Get the "horizontal" position of the vertical line.  This will always be
    * the plane component of the rectangle:
@@ -394,7 +431,9 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
   hleft = ptr->plane - hoffset;
 
   if ((hleft < 0) || (hleft >= g_view_size))
-    return;
+    {
+      return;
+    }
 
   /* Get the extent of the vertical line.  This will be the vertical component
    * of the rectangle in every case except when the viewing plane is
@@ -423,10 +462,14 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
   vtop -= voffset;
 
   if (vtop >= g_view_size)
-    return;
+    {
+      return;
+    }
 
   if (vtop < 0)
-    vtop = 0;
+    {
+      vtop = 0;
+    }
 
   /* Get the bottom side offset and verify that some part of the rectangle lies 
    * below the top of the display
@@ -435,19 +478,23 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
   vbottom -= voffset;
 
   if (vbottom < 0)
-    return;
+    {
+      return;
+    }
 
   if (vbottom >= g_view_size)
-    vbottom = g_view_size - 1;
+    {
+      vbottom = g_view_size - 1;
+    }
 
   /* Flip if necessary */
 
   if (w->plane != EDITPLANE_Z)
     {
-      int vTmp = vbottom;
+      int vtmp = vbottom;
 
       vbottom = g_view_size - vtop - 1;
-      vtop = g_view_size - vTmp - 1;
+      vtop = g_view_size - vtmp - 1;
     }
 
   /* We now have some line segment that we know is to fully on the the display. 
@@ -463,12 +510,16 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
   hright = hleft + LINE_THICKNESS_DELTA;
 
   if (hright >= w->width)
-    hright = w->width;
+    {
+      hright = w->width;
+    }
 
   hleft -= LINE_THICKNESS_DELTA;
 
   if (hleft < 0)
-    hleft = 0;
+    {
+      hleft = 0;
+    }
 
   /* Paint it */
 
@@ -527,7 +578,7 @@ void tcl_paint_position(tcl_window_t *w)
 
       /* Horizontal and vertical positions will depend on which plane is
        * selected.
-	   */
+       */
 
       switch (w->plane)
         {
@@ -595,7 +646,6 @@ void tcl_paint_grid(tcl_window_t *w)
   int hoffset, hpos, haccum;
   int voffset, vpos, vaccum;
   int gridmask;
-
   int i;
 
   ginfo("plane=%d ndx=%d\n", w->plane, ndx);
@@ -637,7 +687,7 @@ void tcl_paint_grid(tcl_window_t *w)
 
       dest = w->frameBuffer + vpos * w->width;
 
-	  for (i = 0; i < w->width; i++)
+      for (i = 0; i < w->width; i++)
         {
           *dest++ = pixel;
         }
@@ -662,7 +712,7 @@ void tcl_paint_grid(tcl_window_t *w)
 
       dest = w->frameBuffer + hpos;
 
-	  for (i = 0; i < w->height; i++)
+      for (i = 0; i < w->height; i++)
         {
           *dest = pixel;
           dest += w->width;
@@ -771,7 +821,7 @@ void tcl_paint_rectangles(tcl_window_t *w)
 
       /* Search the plane list for every place whose "level" component includes 
        * the current map level.
-	   */
+       */
 
       if (tcl_check_horizontal_rectangle(w, ptr, pos))
         {
@@ -797,7 +847,8 @@ void tcl_paint_rectangles(tcl_window_t *w)
    * 
    * Process every plane in the horizontal axis (these will be vertical) This
    * will by the X plane for every viewing plane except EDITPLANE_X where it
-   * will be the Y plane */
+   * will be the Y plane.
+   */
 
   pixel = w->colorLookup[ndx + BRECT_COLOR];
 
@@ -807,7 +858,7 @@ void tcl_paint_rectangles(tcl_window_t *w)
 
       /* Search the plane list for every place whose "level" component includes 
        * the current map level.
-	   */
+       */
 
       if (tcl_check_vertical_rectangle(w, ptr, pos))
         {
