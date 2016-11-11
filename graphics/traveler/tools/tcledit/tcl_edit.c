@@ -47,7 +47,7 @@
 
 #include "trv_types.h"
 #include "debug.h"
-#include "wld_plane.h"
+#include "wld_world.h"
 #include "wld_utils.h"
 #include "tcl_x11graphics.h"
 #include "tcl_colors.h"
@@ -650,10 +650,11 @@ int main(int argc, char **argv, char **envp)
 
   g_in_filename = argv[optind];
 
-  /* Read the plane file now so that we can be certain that it is a valid
-   * plaine file. */
+  /* Read the world files now so that we can be certain that it is a valid
+   * world file.
+   */
 
-  if (wld_load_planefile(g_in_filename) != PLANE_SUCCESS)
+  if (wld_create_world(g_in_filename) != PLANE_SUCCESS)
     {
       exit(1);
     }

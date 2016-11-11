@@ -90,7 +90,7 @@ static uint8_t wld_save_worldplane(FILE * fp, rect_list_t * rect)
  * This function stores the world data into the specified file
  ************************************************************************/
 
-uint8_t wld_save_planes(const char *wldFile)
+uint8_t wld_save_planes(const char *wldfile)
 {
   FILE *fp;
   plane_file_header_t fileHeader;
@@ -98,7 +98,7 @@ uint8_t wld_save_planes(const char *wldFile)
 
   /* Open the file which contains the description of the world */
 
-  fp = fopen(wldFile, "wb");
+  fp = fopen(wldfile, "wb");
   if (!fp)
     {
       return PLANE_WRITE_OPEN_ERROR;

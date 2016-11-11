@@ -71,7 +71,7 @@ static graphic_file_format_t wld_check_format(FILE * fp, char *filename)
 
   if (fread(magic, 1, MAGIC_LENGTH, fp) != MAGIC_LENGTH)
     {
-      wld_fatal_error("Error reading texture %s.", filename);
+      wld_fatal_error("ERROR: Reading texture %s.", filename);
     }
 
   if (strncmp(magic, PPM_MAGIC, sizeof(PPM_MAGIC) - 1) == 0)
@@ -171,7 +171,7 @@ graphic_file_t *wld_readgraphic_file(char *filename)
 
   if (gfile == NULL)
     {
-      wld_fatal_error("Error reading texture %s\n");
+      wld_fatal_error("ERROR: Reading texture %s\n");
     }
 
   fclose(fp);

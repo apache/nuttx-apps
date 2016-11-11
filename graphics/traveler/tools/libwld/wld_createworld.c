@@ -308,7 +308,7 @@ static uint8_t wld_read_shortint(INIHANDLE handle,
       if (value != INT32_MAX)
         {
 
-          fprintf(stderr, "Error: Integer out of range in INI file:\n");
+          fprintf(stderr, "ERROR: Integer out of range in INI file:\n");
           fprintf(stderr,
                   "       Section=\"%s\" Variable name=\"%s\" value=%ld\n",
                   section_name, variable_name, (long)variable_value);
@@ -318,7 +318,7 @@ static uint8_t wld_read_shortint(INIHANDLE handle,
       else
         {
 
-          fprintf(stderr, "Error: Requird integer not found in INI file:\n");
+          fprintf(stderr, "ERROR: Requird integer not found in INI file:\n");
           fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\"\n",
                   section_name, variable_name);
           return WORLD_INTEGER_NOT_FOUND;
@@ -375,7 +375,7 @@ static uint8_t wld_read_filename(INIHANDLE handle,
 
       *filename = NULL;
 
-      fprintf(stderr, "Error: Required filename not found in INI file:\n");
+      fprintf(stderr, "ERROR: Required filename not found in INI file:\n");
       fprintf(stderr, "       Section=\"%s\" Variable name=\"%s\"\n",
               section_name, variable_name);
       return WORLD_FILENAME_NOT_FOUND;
@@ -388,7 +388,7 @@ static uint8_t wld_read_filename(INIHANDLE handle,
 }
 
 /*************************************************************************
- * Private Functions
+ * Public Functions
  *************************************************************************/
 
 /*************************************************************************
@@ -407,7 +407,7 @@ uint8_t wld_create_world(char *wldfile)
   handle = inifile_initialize(wldfile);
   if (handle == NULL)
     {
-      fprintf(stderr, "Error:  Could not open INI file=\"%s\"\n", wldfile);
+      fprintf(stderr, "ERROR:  Could not open INI file=\"%s\"\n", wldfile);
       return WORLD_FILE_OPEN_ERROR;
     }
 

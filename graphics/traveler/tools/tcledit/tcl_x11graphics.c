@@ -67,7 +67,7 @@
 static GC gc;
 #ifndef NO_XSHM
 static XShmSegmentInfo xshminfo;
-static int xError;
+static int xerror;
 #endif
 static int shmCheckPoint = 0;
 static int useShm;
@@ -210,43 +210,43 @@ static bool x11_allocate_colors(tcl_window_t * w, Colormap colormap)
 }
 
 /****************************************************************************
- * Name: errorHandler
+ * Name: x11_error_handler
  * Description:
  ***************************************************************************/
 
 #ifndef NO_XSHM
-static int errorHandler(Display * display, XErrorEvent * event)
+static int x11_error_handler(Display * display, XErrorEvent * event)
 {
-  xError = 1;
+  xerror = 1;
 
   return 0;
 }
 #endif
 
 /****************************************************************************
- * Name: trapErrors
+ * Name: x11_trap_errors
  * Description:
  ***************************************************************************/
 
 #ifndef NO_XSHM
-static void trapErrors(void)
+static void x11_trap_errors(void)
 {
-  xError = 0;
-  XSetErrorHandler(errorHandler);
+  xerror = 0;
+  XSetErrorHandler(x11_error_handler);
 }
 #endif
 
 /****************************************************************************
- * Name: untrapErrors
+ * Name: x11_untrap_errors
  * Description:
  ***************************************************************************/
 
 #ifndef NO_XSHM
-static int untrapErrors(Display * display)
+static int x11_untrap_errors(Display * display)
 {
   XSync(display, 0);
   XSetErrorHandler(NULL);
-  return xError;
+  return xerror;
 }
 #endif
 
@@ -276,13 +276,13 @@ static void x11_map_sharedmemory(tcl_window_t * w, int depth)
       useShm = 1;
       printf("Using shared memory.\n");
 
-      trapErrors();
+      x11_trap_errors();
       w->image = XShmCreateImage(w->display,
                                  DefaultVisual(w->display, w->screen),
                                  depth, ZPixmap, NULL, &xshminfo,
                                  w->width, w->height);
 
-      if (untrapErrors(w->display))
+      if (x11_untrap_errors(w->display))
         {
           x11_unmap_sharedmemory(w);
           goto shmerror;
@@ -315,9 +315,9 @@ static void x11_map_sharedmemory(tcl_window_t * w, int depth)
       xshminfo.shmaddr = w->image->data;
       xshminfo.readOnly = false;
 
-      trapErrors();
+      x11_trap_errors();
       result = XShmAttach(w->display, &xshminfo);
-      if (untrapErrors(w->display) || !result)
+      if (x11_untrap_errors(w->display) || !result)
         {
           x11_unmap_sharedmemory(w);
           goto shmerror;

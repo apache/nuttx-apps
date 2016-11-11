@@ -71,7 +71,7 @@ static uint8_t wld_load_worldplane(FILE * fp, rect_head_t * list,
 
       if (fread((char *)&rect->d, SIZEOF_RECTDATATYPE, 1, fp) != 1)
         {
-          fprintf(stderr, "Error: read of rectangle %d (of %d) failed! ",
+          fprintf(stderr, "ERROR: read of rectangle %d (of %d) failed! ",
                   i, numRects);
           fprintf(stderr, "feof=%d ferror=%d\n", feof(fp), ferror(fp));
           return PLANE_DATA_READ_ERROR;
