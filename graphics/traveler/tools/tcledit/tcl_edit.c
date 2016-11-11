@@ -195,30 +195,30 @@ static int tcledit_setmode(ClientData clientData,
           ginfo("Entering NEWX mode\n");
           g_edit_plane = EDITPLANE_X;
           g_edit_rect.plane = g_plane_position[EDITPLANE_X];
-          g_edit_rect.hStart = g_plane_position[EDITPLANE_Y];
-          g_edit_rect.hEnd = g_edit_rect.hStart;
-          g_edit_rect.vStart = g_plane_position[EDITPLANE_Z];
-          g_edit_rect.vEnd = g_edit_rect.vStart;
+          g_edit_rect.hstart = g_plane_position[EDITPLANE_Y];
+          g_edit_rect.hend = g_edit_rect.hstart;
+          g_edit_rect.vstart = g_plane_position[EDITPLANE_Z];
+          g_edit_rect.vend = g_edit_rect.vstart;
         }
       else if (strcmp(argv[2], "y") == 0)
         {
           ginfo("Entering NEWY mode\n");
           g_edit_plane = EDITPLANE_Y;
           g_edit_rect.plane = g_plane_position[EDITPLANE_Y];
-          g_edit_rect.hStart = g_plane_position[EDITPLANE_X];
-          g_edit_rect.hEnd = g_edit_rect.hStart;
-          g_edit_rect.vStart = g_plane_position[EDITPLANE_Z];
-          g_edit_rect.vEnd = g_edit_rect.vStart;
+          g_edit_rect.hstart = g_plane_position[EDITPLANE_X];
+          g_edit_rect.hend = g_edit_rect.hstart;
+          g_edit_rect.vstart = g_plane_position[EDITPLANE_Z];
+          g_edit_rect.vend = g_edit_rect.vstart;
         }
       else if (strcmp(argv[2], "z") == 0)
         {
           ginfo("Entering NEWZ mode\n");
           g_edit_plane = EDITPLANE_Z;
           g_edit_rect.plane = g_plane_position[EDITPLANE_Z];
-          g_edit_rect.hStart = g_plane_position[EDITPLANE_X];
-          g_edit_rect.hEnd = g_edit_rect.hStart;
-          g_edit_rect.vStart = g_plane_position[EDITPLANE_Y];
-          g_edit_rect.vEnd = g_edit_rect.vStart;
+          g_edit_rect.hstart = g_plane_position[EDITPLANE_X];
+          g_edit_rect.hend = g_edit_rect.hstart;
+          g_edit_rect.vstart = g_plane_position[EDITPLANE_Y];
+          g_edit_rect.vend = g_edit_rect.vstart;
         }
       else
         {
@@ -370,14 +370,14 @@ static int tcledit_new_edit(ClientData clientData,
           else if (strcmp(argv[1], "y") == 0)
             {
               ginfo("New horizontal Y coordinates: {%d,%d}\n", start, end);
-              g_edit_rect.hStart = start;
-              g_edit_rect.hEnd = end;
+              g_edit_rect.hstart = start;
+              g_edit_rect.hend = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
               ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
-              g_edit_rect.vStart = start;
-              g_edit_rect.vEnd = end;
+              g_edit_rect.vstart = start;
+              g_edit_rect.vend = end;
             }
           else
             {
@@ -390,8 +390,8 @@ static int tcledit_new_edit(ClientData clientData,
           if (strcmp(argv[1], "x") == 0)
             {
               ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
-              g_edit_rect.hStart = start;
-              g_edit_rect.hEnd = end;
+              g_edit_rect.hstart = start;
+              g_edit_rect.hend = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
@@ -401,8 +401,8 @@ static int tcledit_new_edit(ClientData clientData,
           else if (strcmp(argv[1], "z") == 0)
             {
               ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
-              g_edit_rect.vStart = start;
-              g_edit_rect.vEnd = end;
+              g_edit_rect.vstart = start;
+              g_edit_rect.vend = end;
             }
           else
             {
@@ -415,14 +415,14 @@ static int tcledit_new_edit(ClientData clientData,
           if (strcmp(argv[1], "x") == 0)
             {
               ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
-              g_edit_rect.hStart = start;
-              g_edit_rect.hEnd = end;
+              g_edit_rect.hstart = start;
+              g_edit_rect.hend = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
               ginfo("New vertical Y coordinates: {%d,%d}\n", start, end);
-              g_edit_rect.vStart = start;
-              g_edit_rect.vEnd = end;
+              g_edit_rect.vstart = start;
+              g_edit_rect.vend = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
