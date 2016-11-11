@@ -21,7 +21,11 @@ Build instuctions
   Build the world library:
 
     5. cd apps/graphics/traveler/tools/libwld
-    6. make
+    6a. make
+
+  If you want to create a debug-able version of the library, do:
+
+    6b. make DEBUG_LEVEL=1
 
   Then you can use xmfmk to create the Makefile and build the tool:
 
@@ -30,19 +34,23 @@ Build instuctions
        a minimum.  These are the paths to where you have clones the apps/ repository
        and the nuttx/ repositories, respectively.
     9. xmfmk
-   10. make tcledit
+   10a. make tcledit
+
+  If you want to create a debug-able version of tcledit, do:
+
+   10b. make tcledit DEBUG_LEVEL=1
 
 Usage
 =====
 
-  .  /tcledit [-o <outfilename>] <infilename>
+  .  /tcledit [-D <directory>] [-o <outfilename>] <infilename>
 
   Where <infilename> is the original world file name which will be overwritten
-  unless <outfilename> is provided.
+  unless <outfilename> is provided.  Optionally, switch to <directory> before
+  opening <infilenamea>.
 
   NOTE: The default traveler world file is apps/graphics/traverler/world/transfrm.wld.
   The file contains relative paths so you may have to CD in to the directory first
   like:
 
-    cd world
-    ../tools/tcledit/tcledit transfrm.wld
+    ./tcledit -D ../../world transfrm.wld

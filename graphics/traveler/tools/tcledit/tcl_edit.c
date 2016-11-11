@@ -42,6 +42,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <tk.h>
 
 #include "trv_types.h"
@@ -593,7 +594,8 @@ static int tcledit_save_rectangles(ClientData clientData,
 
 static void show_usage(const char *progname)
 {
-  fprintf(stderr, "USAGE:\n\t%s [-o <outfilename>] <infilename>\n", progname);
+  fprintf(stderr, "USAGE:\n\t%s [-D <directory>] [-o <outfilename>] <infilename>\n",
+          progname);
   exit(1);
 }
 
@@ -603,19 +605,34 @@ static void show_usage(const char *progname)
 
 int main(int argc, char **argv, char **envp)
 {
+  char *directory;
   int option;
+  int ret;
 
   /* Parse command line options */
 
   g_out_filename = g_default_filename;
 
-  while ((option = getopt(argc, argv, "o:")) != EOF)
+  while ((option = getopt(argc, argv, "D:o:")) != EOF)
     {
       switch (option)
         {
+        case 'D':
+          directory = optarg;
+          ret = chdir(directory);
+          if (ret < 0)
+            {
+              int errcode = errno;
+              fprintf(stderr, "ERROR: Failed to CD to %s: %s\n",
+                      directory, strerror(errcode));
+              show_usage(argv[0]);
+            }
+          break;
+
         case 'o':
           g_out_filename = optarg;
           break;
+
         default:
           fprintf(stderr, "Unrecognized option: %c\n", option);
           show_usage(argv[0]);

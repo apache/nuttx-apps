@@ -60,7 +60,7 @@ OBJS     = $(SRCS:.c=.o)
 CC       = gcc
 AR       = ar -rcv
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL ?= 0
 DEFINES  = -DDEBUG_LEVEL=$(DEBUG_LEVEL)
 INCLUDES = -I. -I$(APPDIR)/include -I$(TRAVELER)/include -isystem $(NUTTXDIR)
 WARNINGS = -Wall -Wstrict-prototypes -Wshadow -Wno-trigraphs

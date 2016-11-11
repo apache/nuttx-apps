@@ -20,4 +20,9 @@ Build instuctions:
   Then you can build the world library:
 
     5. cd apps/graphics/traveler/tools/libwld
-    6. make
+    6a. make
+
+  If you want to create a debug-able version of the library, do:
+
+    6b. make DEBUG_LEVEL=1
+
