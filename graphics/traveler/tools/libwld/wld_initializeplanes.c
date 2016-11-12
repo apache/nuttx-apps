@@ -57,7 +57,7 @@ uint8_t wld_initialize_planes(void)
   g_xplane_list.head = g_xplane_list.tail = NULL;
   g_yplane_list.head = g_yplane_list.tail = NULL;
   g_zplane_list.head = g_zplane_list.tail = NULL;
-  freeList = NULL;
+  g_free_planes = NULL;
 
   return PLANE_SUCCESS;
 }

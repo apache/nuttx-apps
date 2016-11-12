@@ -53,28 +53,29 @@
 
 void wld_add_plane(rect_list_t * newRect, rect_head_t * list)
 {
-  rect_list_t *nextRect, *prevRect;
+  rect_list_t *next;
+  rect_list_t *prev;
 
   /* Search the list to find the location to insert the new rectangle. Each
    * list is maintained in ascending plane order.
    */
 
-  for (nextRect = list->head;
-       ((nextRect) && (nextRect->d.plane < newRect->d.plane));
-       nextRect = nextRect->flink);
+  for (next = list->head;
+       ((next) && (next->d.plane < newRect->d.plane));
+       next = next->flink);
 
   /* Add the newRect to the spot found in the list.  Check if the newRect goes
    * at the end of the list.
    */
 
-  if (!nextRect)
+  if (!next)
     {
       /* No rectangle with plane larger than the one to be added was found in
        * the list.  The newRect goes at the end of the list.
        */
 
-      prevRect = list->tail;
-      if (!prevRect)
+      prev = list->tail;
+      if (!prev)
         {
           /* Special case: The list is empty */
 
@@ -86,33 +87,33 @@ void wld_add_plane(rect_list_t * newRect, rect_head_t * list)
       else
         {
           newRect->flink = NULL;
-          newRect->blink = prevRect;
-          prevRect->flink = newRect;
+          newRect->blink = prev;
+          prev->flink = newRect;
           list->tail = newRect;
         }
     }
   else
     {
-      /* The newRect goes just before nextRect */
+      /* The newRect goes just before next */
 
-      prevRect = nextRect->blink;
-      if (!prevRect)
+      prev = next->blink;
+      if (!prev)
         {
           /* Special case: Insert at the head of the list */
 
-          newRect->flink = nextRect;
+          newRect->flink = next;
           newRect->blink = NULL;
-          nextRect->blink = newRect;
+          next->blink = newRect;
           list->head = newRect;
         }
       else
         {
           /* Insert in the middle of the list */
 
-          newRect->flink = nextRect;
-          newRect->blink = prevRect;
-          prevRect->flink = newRect;
-          nextRect->blink = newRect;
+          newRect->flink = next;
+          newRect->blink = prev;
+          prev->flink = newRect;
+          next->blink = newRect;
         }
     }
 }

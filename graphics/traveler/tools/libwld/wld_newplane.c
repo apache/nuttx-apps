@@ -58,18 +58,18 @@ rect_list_t *wld_new_plane(void)
 
   /* Try to get the new structure from the free list */
 
-  rect = freeList;
+  rect = g_free_planes;
   if (rect)
     {
-      /* Got get... remove it from the freeList; */
+      /* Got get... remove it from the g_free_planes; */
 
-      freeList = rect->flink;
+      g_free_planes = rect->flink;
     }
   else
     {
       /* Nothing on the free list.  Allocate a new one */
 
-      rect = (rect_list_t *) wld_malloc(sizeof(rect_list_t));
+      rect = (rect_list_t *)wld_malloc(sizeof(rect_list_t));
     }
 
   return rect;

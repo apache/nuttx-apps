@@ -82,6 +82,6 @@ void wld_discard_planes(void)
   g_yplane_list.head = g_yplane_list.tail = NULL;
   wld_discard_worldplane(g_zplane_list.head);
   g_zplane_list.head = g_zplane_list.tail = NULL;
-  wld_discard_worldplane(freeList);
-  freeList = NULL;
+  wld_discard_worldplane(g_free_planes);
+  g_free_planes = NULL;
 }

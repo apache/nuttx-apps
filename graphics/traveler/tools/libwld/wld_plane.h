@@ -171,7 +171,7 @@ extern uint8_t maxTextureCode;
 
 /* "Deallocated" planes are retained in a free list */
 
-extern rect_list_t *freeList;
+extern rect_list_t *g_free_planes;
 
 /*************************************************************************
  * Public Function Prototypes

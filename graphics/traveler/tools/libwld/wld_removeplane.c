@@ -79,6 +79,6 @@ void wld_remove_plane(rect_list_t * rect, rect_head_t * list)
 
   /* Then put the rect on the free list */
 
-  rect->flink = freeList;
-  freeList = rect;
+  rect->flink = g_free_planes;
+  g_free_planes = rect;
 }
