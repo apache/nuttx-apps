@@ -757,9 +757,18 @@ int Tcl_AppInit(Tcl_Interp *interp)
   ret = Tcl_EvalFile(g_tcledit_interp, g_tcledit_path);
   if (ret != TCL_OK)
     {
-      fprintf(stderr, "Tcl_EvalFile failed: %d\n", ret);
-      fprintf(stderr, "  %s\n", Tcl_GetVar(g_tcledit_interp, "errorCode", 0));
-      fprintf(stderr, "  %s\n", Tcl_GetVar(g_tcledit_interp, "errorInfo", 0));
+      Tcl_Obj *result;
+      char *ptr;
+
+      fprintf(stderr, "Tcl_EvalFile failed (%d): ", ret);
+
+      result = Tcl_GetObjResult(g_tcledit_interp);
+      for (i = 0, ptr = result->bytes; i < result->length; i++, ptr++)
+        {
+          fputc(*ptr, stderr);
+        }
+
+      fputc('\n', stderr);
       exit(1);
     }
 

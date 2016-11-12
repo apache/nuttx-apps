@@ -3,6 +3,7 @@
 /.depend
 /.built
 /tcledit
+/tcledit.exe
 /*.asm
 /*.rel
 /*.lst
