@@ -166,7 +166,7 @@ extern rect_data_t g_edit_rect;
  * Public Function Prototypes
  ****************************************************************************/
 
-void x11_initilaize_graphics(tcl_window_t *w);
+void x11_initialize_graphics(tcl_window_t *w);
 void x11_end_graphics(tcl_window_t *w);
 void x11_update_screen(tcl_window_t *w);
 

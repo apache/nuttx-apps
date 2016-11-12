@@ -436,11 +436,11 @@ void x11_UpdateScreen(tcl_window_t * w)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: x11_initilaize_graphics
+ * Name: x11_initialize_graphics
  * Description:
  ***************************************************************************/
 
-void x11_initilaize_graphics(tcl_window_t * w)
+void x11_initialize_graphics(tcl_window_t * w)
 {
   XWindowAttributes windowAttributes;
 

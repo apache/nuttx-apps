@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -58,8 +59,9 @@
 
 static Tcl_Interp *g_tcledit_interp;
 static const char *g_in_filename;
-static const char *g_out_filename;
-static const char g_default_filename[] = "planes.pll";
+static char *g_out_filename;
+static char g_tcledit_filename[] = "tcl_edit.tk";
+static char *g_tcledit_path = g_tcledit_filename;
 
 /****************************************************************************
  * Public Variables
@@ -166,12 +168,12 @@ static void tcledit_update_newmode_display(void)
     }
 }
 
-/* Called in response to the "seteditmode" Tcl command to set the
+/* Called in response to the "tcl_seteditmode" Tcl command to set the
  * current edit mode
  */
 
 static int tcledit_setmode(ClientData clientData,
-                           Tcl_Interp * interp, int argc, const char *argv[])
+                           Tcl_Interp *interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
@@ -237,10 +239,10 @@ static int tcledit_setmode(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "position" Tcl command */
+/* Called in response to the "tcl_position" Tcl command */
 
 static int tcledit_new_position(ClientData clientData,
-                                Tcl_Interp * interp, int argc, const char *argv[])
+                                Tcl_Interp *interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
@@ -261,10 +263,10 @@ static int tcledit_new_position(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "zoom" Tcl command */
+/* Called in response to the "tcl_zoom" Tcl command */
 
 static int tcledit_new_zoom(ClientData clientData,
-                            Tcl_Interp * interp, int argc, const char *argv[])
+                            Tcl_Interp *interp, int argc, const char *argv[])
 {
   ginfo("Processing command: %s\n", argv[0]);
 
@@ -331,10 +333,10 @@ static int tcledit_new_zoom(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "edit" Tcl command */
+/* Called in response to the "tcl_edit" Tcl command */
 
 static int tcledit_new_edit(ClientData clientData,
-                            Tcl_Interp * interp, int argc, const char *argv[])
+                            Tcl_Interp *interp, int argc, const char *argv[])
 {
   int start;
   int end;
@@ -446,10 +448,10 @@ static int tcledit_new_edit(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "attributes" Tcl command */
+/* Called in response to the "tcl_attributes" Tcl command */
 
 static int tcledit_new_attributes(ClientData clientData,
-                                  Tcl_Interp * interp, int argc, const char *argv[])
+                                  Tcl_Interp *interp, int argc, const char *argv[])
 {
   const char *attributes;
   int tmp;
@@ -527,10 +529,10 @@ static int tcledit_new_attributes(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "addrectangle" Tcl command */
+/* Called in response to the "tcl_addrectangle" Tcl command */
 
 static int tcledit_add_rectangle(ClientData clientData,
-                                 Tcl_Interp * interp, int argc, const char *argv[])
+                                 Tcl_Interp *interp, int argc, const char *argv[])
 {
 
   ginfo("Processing command: %s\n", argv[0]);
@@ -574,10 +576,10 @@ static int tcledit_add_rectangle(ClientData clientData,
   return TCL_OK;
 }
 
-/* Called in response to the "save" Tcl command */
+/* Called in response to the "tcl_save" Tcl command */
 
 static int tcledit_save_rectangles(ClientData clientData,
-                                   Tcl_Interp * interp, int argc, const char *argv[])
+                                   Tcl_Interp *interp, int argc, const char *argv[])
 {
 
   ginfo("Processing command: %s\n", argv[0]);
@@ -607,17 +609,33 @@ int main(int argc, char **argv, char **envp)
 {
   char *directory;
   int option;
+  int len;
   int ret;
 
   /* Parse command line options */
 
-  g_out_filename = g_default_filename;
+  g_out_filename = NULL;
 
   while ((option = getopt(argc, argv, "D:o:")) != EOF)
     {
       switch (option)
         {
         case 'D':
+          /* Save the current working directory */
+
+          g_tcledit_path = (char *)malloc(PATH_MAX);
+          getcwd(g_tcledit_path, PATH_MAX);
+
+          len = strlen(g_tcledit_path);
+          g_tcledit_path[len] = '/';
+          g_tcledit_path[len+1] = '\0';
+          len++;
+
+          strcat(&g_tcledit_path[len], g_tcledit_filename);
+          g_tcledit_path = (char *)realloc(g_tcledit_path, strlen(g_tcledit_path) + 1);
+
+          /* Change to the new directory */
+
           directory = optarg;
           ret = chdir(directory);
           if (ret < 0)
@@ -650,6 +668,19 @@ int main(int argc, char **argv, char **envp)
 
   g_in_filename = argv[optind];
 
+  /* The output file name defaults to the same as the input file name but
+   * with the extension .pll.
+   */
+
+  if (g_out_filename == NULL)
+    {
+      char *ptr;
+
+      g_out_filename = strdup(g_in_filename + 5);
+      for (ptr = g_out_filename; *ptr != '.' && *ptr != '\0'; ptr++);
+      sprintf(ptr, ".pll");
+    }
+
   /* Read the world files now so that we can be certain that it is a valid
    * world file.
    */
@@ -680,8 +711,9 @@ int do_tcl_action(const char *script)
  * is entered.
  */
 
-int Tcl_AppInit(Tcl_Interp * interp)
+int Tcl_AppInit(Tcl_Interp *interp)
 {
+  int ret;
   int i;
 
   /* Save the interpreter for later */
@@ -692,48 +724,46 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
   for (i = 0; i < NUM_PLANES; i++)
     {
-      x11_initilaize_graphics(&g_windows[i]);
+      x11_initialize_graphics(&g_windows[i]);
     }
 
   /* Tcl_Init() sets up the Tcl library factility */
 
-  if (Tcl_Init(interp) == TCL_ERROR)
-    {
-      return TCL_ERROR;
-    }
-
-  if (Tk_Init(interp) == TCL_ERROR)
+  ret = Tcl_Init(interp);
+  if (ret == TCL_ERROR)
     {
       return TCL_ERROR;
     }
 
   /* Define application-specific commands */
 
-  Tcl_CreateCommand(g_tcledit_interp, "seteditmode", tcledit_setmode,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_seteditmode", tcledit_setmode,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "position", tcledit_new_position,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_position", tcledit_new_position,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "zoom", tcledit_new_zoom,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_zoom", tcledit_new_zoom,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "edit", tcledit_new_edit,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_edit", tcledit_new_edit,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "attributes", tcledit_new_attributes,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_attributes", tcledit_new_attributes,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "addrectangle", tcledit_add_rectangle,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_addrectangle", tcledit_add_rectangle,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(g_tcledit_interp, "save", tcledit_save_rectangles,
+  Tcl_CreateCommand(g_tcledit_interp, "tcl_save", tcledit_save_rectangles,
                     (ClientData) 0, (Tcl_CmdDeleteProc *) NULL);
 
   /* Initialize the Tcl parser */
 
-  if (Tcl_EvalFile(g_tcledit_interp, "tcledit.tk") != TCL_OK)
+  ret = Tcl_EvalFile(g_tcledit_interp, g_tcledit_path);
+  if (ret != TCL_OK)
     {
-      fprintf(stderr, "%s\n", Tcl_GetVar(g_tcledit_interp, "errorCode", 0));
-      fprintf(stderr, "%s\n", Tcl_GetVar(g_tcledit_interp, "errorInfo", 0));
+      fprintf(stderr, "Tcl_EvalFile failed: %d\n", ret);
+      fprintf(stderr, "  %s\n", Tcl_GetVar(g_tcledit_interp, "errorCode", 0));
+      fprintf(stderr, "  %s\n", Tcl_GetVar(g_tcledit_interp, "errorInfo", 0));
       exit(1);
     }
 
-  return TCL_OK;
+  return ret;
 }
 
 void wld_fatal_error(char *message, ...)

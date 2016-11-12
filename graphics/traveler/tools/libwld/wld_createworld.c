@@ -397,7 +397,7 @@ static uint8_t wld_read_filename(INIHANDLE handle,
  * Description:
  ************************************************************************/
 
-uint8_t wld_create_world(char *wldfile)
+uint8_t wld_create_world(const char *wldfile)
 {
   INIHANDLE handle;
   uint8_t result;

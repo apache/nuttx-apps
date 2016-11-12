@@ -1,6 +1,9 @@
 Build instuctions
 =================
 
+  tcledit is a world editor for the traveler.  You should be able to build it
+  under Linux or Cygwin.  It needs X11 and Tcl/Tk.
+
   At the time of 'make', you must have a valid Traveler configuration instantiated
   in the NuttX directory.  This is because the build will depend on certain
   configurations (such as color format).
@@ -40,6 +43,8 @@ Build instuctions
 
    10b. make tcledit DEBUG_LEVEL=1
 
+  On Cygwin, the make target will be tcledit.exe, not tcledit.
+
 Usage
 =====
 
@@ -54,3 +59,6 @@ Usage
   like:
 
     ./tcledit -D ../../world transfrm.wld
+
+  On Cywgin, the correct name of the program will be tcledit.exe and must also
+  remember to start the X11 server before trying run the applications.

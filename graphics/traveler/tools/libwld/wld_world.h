@@ -101,7 +101,8 @@ extern "C"
 
 /* World file return codes */
 
-enum {
+enum
+{
   WORLD_SUCCESS = 0,
   WORLD_FILE_OPEN_ERROR = 100,
   WORLD_INTEGER_OUT_OF_RANGE,
@@ -112,20 +113,23 @@ enum {
   WORLD_BITMAP_FILE_NAME_ERROR
 };
 
-
 /* The following structure contains all information necessary to define
  * a point-of-view
  */
 
-typedef struct {
+struct wld_camer_s
+{
+  wld_coord_t x;       /* Camera position */
+  wld_coord_t y;
+  wld_coord_t z;
+  int16_t yaw;         /* Camera orientation */
+  int16_t pitch;
+};
 
-  wld_coord_t x, y, z;       /* Camera position */
-  int16_t  yaw, pitch;    /* Camera orientation */
-
-} wld_camera_t;
+typedef struct wld_camer_s wld_camera_t;
 
 /*************************************************************************
- * Global Data
+ * Public Data
  *************************************************************************/
 
 /* This is the starting position and orientation of the camera in the world */
@@ -150,7 +154,7 @@ extern wld_coord_t g_run_stepheight;
  * Global Function Prototypes
  *************************************************************************/
 
-uint8_t wld_create_world(char *mapfile);
+uint8_t wld_create_world(const char *mapfile);
 void    wld_deallocate_world(void);
 
 #ifdef __cplusplus
