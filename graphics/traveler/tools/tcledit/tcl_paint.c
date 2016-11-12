@@ -48,7 +48,7 @@
 #endif
 
 #include "trv_types.h"
-#include "debug.h"
+#include "wld_debug.h"
 #include "wld_mem.h"
 #include "wld_bitmaps.h"
 #include "wld_plane.h"
@@ -542,13 +542,13 @@ void tcl_paint_background(tcl_window_t *w)
   int ndx = tcl_color_index(w);
   int i;
 
-  ginfo("g_edit_mode=%d g_edit_plane=%d plane=%d ndx=%d\n",
+  info("g_edit_mode=%d g_edit_plane=%d plane=%d ndx=%d\n",
         g_edit_mode, g_edit_plane, w->plane, ndx);
 
   pixel = w->colorLookup[ndx + BKGD_COLOR];
   dest = w->frameBuffer;
 
-  ginfo("ndx=%d dest=%p pixel=0x%06lx\n", ndx, dest, pixel);
+  info("ndx=%d dest=%p pixel=0x%06lx\n", ndx, dest, (unsigned long)pixel);
 
   for (i = 0; i < w->width * w->height; i++)
     {
@@ -574,7 +574,7 @@ void tcl_paint_position(tcl_window_t *w)
       int vpos;
       int i;
 
-      ginfo("plane=%d ndx=%d\n", w->plane, ndx);
+      info("plane=%d ndx=%d\n", w->plane, ndx);
 
       /* Horizontal and vertical positions will depend on which plane is
        * selected.
@@ -611,7 +611,7 @@ void tcl_paint_position(tcl_window_t *w)
       pixel = w->colorLookup[ndx + HLINE_COLOR];
       dest = w->frameBuffer + vpos * w->width;
 
-      ginfo("dest=%p pixel=0x%06lx\n", dest, pixel);
+      info("dest=%p pixel=0x%06lx\n", dest, (unsigned long)pixel);
 
       for (i = 0; i < w->width; i++)
         {
@@ -623,7 +623,7 @@ void tcl_paint_position(tcl_window_t *w)
       pixel = w->colorLookup[ndx + HLINE_COLOR];
       dest = w->frameBuffer + hpos;
 
-      ginfo("dest=%p pixel=0x%06lx\n", dest, pixel);
+      info("dest=%p pixel=0x%06lx\n", dest, (unsigned long)pixel);
 
       for (i = 0; i < w->height; i++)
         {
@@ -648,7 +648,7 @@ void tcl_paint_grid(tcl_window_t *w)
   int gridmask;
   int i;
 
-  ginfo("plane=%d ndx=%d\n", w->plane, ndx);
+  info("plane=%d ndx=%d\n", w->plane, ndx);
 
   /* Horizontal and vertical positions will depend on which plane is selected. */
 

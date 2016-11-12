@@ -47,8 +47,8 @@
 #include <tk.h>
 
 #include "trv_types.h"
-#include "debug.h"
 #include "wld_world.h"
+#include "wld_debug.h"
 #include "wld_utils.h"
 #include "tcl_x11graphics.h"
 #include "tcl_colors.h"
@@ -175,7 +175,7 @@ static void tcledit_update_newmode_display(void)
 static int tcledit_setmode(ClientData clientData,
                            Tcl_Interp *interp, int argc, const char *argv[])
 {
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 3)
     {
@@ -184,7 +184,7 @@ static int tcledit_setmode(ClientData clientData,
     }
   else if (strcmp(argv[1], "POS") == 0)
     {
-      ginfo("Entering POS mode\n");
+      info("Entering POS mode\n");
       g_edit_mode = EDITMODE_POS;
       tcledit_update_posmode_display();
     }
@@ -195,7 +195,7 @@ static int tcledit_setmode(ClientData clientData,
       memset(&g_edit_rect, 0, sizeof(rect_data_t));
       if (strcmp(argv[2], "x") == 0)
         {
-          ginfo("Entering NEWX mode\n");
+          info("Entering NEWX mode\n");
           g_edit_plane = EDITPLANE_X;
           g_edit_rect.plane = g_plane_position[EDITPLANE_X];
           g_edit_rect.hstart = g_plane_position[EDITPLANE_Y];
@@ -205,7 +205,7 @@ static int tcledit_setmode(ClientData clientData,
         }
       else if (strcmp(argv[2], "y") == 0)
         {
-          ginfo("Entering NEWY mode\n");
+          info("Entering NEWY mode\n");
           g_edit_plane = EDITPLANE_Y;
           g_edit_rect.plane = g_plane_position[EDITPLANE_Y];
           g_edit_rect.hstart = g_plane_position[EDITPLANE_X];
@@ -215,7 +215,7 @@ static int tcledit_setmode(ClientData clientData,
         }
       else if (strcmp(argv[2], "z") == 0)
         {
-          ginfo("Entering NEWZ mode\n");
+          info("Entering NEWZ mode\n");
           g_edit_plane = EDITPLANE_Z;
           g_edit_rect.plane = g_plane_position[EDITPLANE_Z];
           g_edit_rect.hstart = g_plane_position[EDITPLANE_X];
@@ -244,7 +244,7 @@ static int tcledit_setmode(ClientData clientData,
 static int tcledit_new_position(ClientData clientData,
                                 Tcl_Interp *interp, int argc, const char *argv[])
 {
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 4)
     {
@@ -256,7 +256,7 @@ static int tcledit_new_position(ClientData clientData,
   g_plane_position[1] = atoi(argv[2]);
   g_plane_position[2] = atoi(argv[3]);
 
-  ginfo("New plane positions: {%d,%d,%d}\n",
+  info("New plane positions: {%d,%d,%d}\n",
         g_plane_position[0], g_plane_position[1], g_plane_position[2]);
 
   tcledit_update_posmode_display();
@@ -268,7 +268,7 @@ static int tcledit_new_position(ClientData clientData,
 static int tcledit_new_zoom(ClientData clientData,
                             Tcl_Interp *interp, int argc, const char *argv[])
 {
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 5)
     {
@@ -318,8 +318,8 @@ static int tcledit_new_zoom(ClientData clientData,
       g_grid_step = 2048;          /* 16 lines at 32768 */
     }
 
-  ginfo("New g_view_size, g_grid_step: %d, %d\n", g_view_size, g_grid_step);
-  ginfo("New coordinate offsets: {%d,%d,%d}\n",
+  info("New g_view_size, g_grid_step: %d, %d\n", g_view_size, g_grid_step);
+  info("New coordinate offsets: {%d,%d,%d}\n",
         g_coord_offset[0], g_coord_offset[1], g_coord_offset[2]);
 
   if (g_edit_mode == EDITMODE_POS)
@@ -342,7 +342,7 @@ static int tcledit_new_edit(ClientData clientData,
   int end;
   int extent;
 
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 4)
     {
@@ -367,18 +367,18 @@ static int tcledit_new_edit(ClientData clientData,
         case EDITPLANE_X:
           if (strcmp(argv[1], "x") == 0)
             {
-              ginfo("New X plane position: %d\n", start);
+              info("New X plane position: %d\n", start);
               g_edit_rect.plane = start;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
-              ginfo("New horizontal Y coordinates: {%d,%d}\n", start, end);
+              info("New horizontal Y coordinates: {%d,%d}\n", start, end);
               g_edit_rect.hstart = start;
               g_edit_rect.hend = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
-              ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
+              info("New vertical Z coordinates: {%d,%d}\n", start, end);
               g_edit_rect.vstart = start;
               g_edit_rect.vend = end;
             }
@@ -392,18 +392,18 @@ static int tcledit_new_edit(ClientData clientData,
         case EDITPLANE_Y:
           if (strcmp(argv[1], "x") == 0)
             {
-              ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
+              info("New horizontal X coordinates: {%d,%d}\n", start, end);
               g_edit_rect.hstart = start;
               g_edit_rect.hend = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
-              ginfo("New Y plane position: %d\n", start);
+              info("New Y plane position: %d\n", start);
               g_edit_rect.plane = start;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
-              ginfo("New vertical Z coordinates: {%d,%d}\n", start, end);
+              info("New vertical Z coordinates: {%d,%d}\n", start, end);
               g_edit_rect.vstart = start;
               g_edit_rect.vend = end;
             }
@@ -417,19 +417,19 @@ static int tcledit_new_edit(ClientData clientData,
         case EDITPLANE_Z:
           if (strcmp(argv[1], "x") == 0)
             {
-              ginfo("New horizontal X coordinates: {%d,%d}\n", start, end);
+              info("New horizontal X coordinates: {%d,%d}\n", start, end);
               g_edit_rect.hstart = start;
               g_edit_rect.hend = end;
             }
           else if (strcmp(argv[1], "y") == 0)
             {
-              ginfo("New vertical Y coordinates: {%d,%d}\n", start, end);
+              info("New vertical Y coordinates: {%d,%d}\n", start, end);
               g_edit_rect.vstart = start;
               g_edit_rect.vend = end;
             }
           else if (strcmp(argv[1], "z") == 0)
             {
-              ginfo("New Z plane position: %d\n", start);
+              info("New Z plane position: %d\n", start);
               g_edit_rect.plane = start;
             }
           else
@@ -456,7 +456,7 @@ static int tcledit_new_attributes(ClientData clientData,
   const char *attributes;
   int tmp;
 
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 4)
     {
@@ -501,7 +501,7 @@ static int tcledit_new_attributes(ClientData clientData,
         {
           g_edit_rect.attribute &= ~DOOR_PLANE;
         }
-      ginfo("attributes: %s->%02x\n", attributes, g_edit_rect.attribute);
+      info("attributes: %s->%02x\n", attributes, g_edit_rect.attribute);
 
       tmp = atoi(argv[2]);
       if ((tmp >= 0) && (tmp < 256))
@@ -512,7 +512,7 @@ static int tcledit_new_attributes(ClientData clientData,
         {
           fprintf(stderr, "Texture index out of range: %d\n", tmp);
         }
-      ginfo("texture: %s->%d\n", argv[2], g_edit_rect.texture);
+      info("texture: %s->%d\n", argv[2], g_edit_rect.texture);
 
       tmp = atoi(argv[3]);
       if ((tmp >= 0) && (tmp <= MAXX_SCALING))
@@ -523,7 +523,7 @@ static int tcledit_new_attributes(ClientData clientData,
         {
           fprintf(stderr, "Scaling not supported: %d\n", tmp);
         }
-      ginfo("scale: %s->%d\n", argv[3], g_edit_rect.scale);
+      info("scale: %s->%d\n", argv[3], g_edit_rect.scale);
     }
 
   return TCL_OK;
@@ -535,7 +535,7 @@ static int tcledit_add_rectangle(ClientData clientData,
                                  Tcl_Interp *interp, int argc, const char *argv[])
 {
 
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 1)
     {
@@ -582,7 +582,7 @@ static int tcledit_save_rectangles(ClientData clientData,
                                    Tcl_Interp *interp, int argc, const char *argv[])
 {
 
-  ginfo("Processing command: %s\n", argv[0]);
+  info("Processing command: %s\n", argv[0]);
 
   if (argc != 1)
     {

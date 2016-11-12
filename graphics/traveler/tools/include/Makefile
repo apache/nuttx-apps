@@ -40,19 +40,14 @@ NXINCNX = $(TOPDIR)/include/nuttx
 
 # Targets
 
-all: debug.h nuttx
+all: nuttx
 
 default: all
 
 .PHONY: clean
 
-debug.h : $(NXINC)/debug.h
-	@cp $(NXINC)/debug.h debug.h
-
 nuttx : $(NXINCNX)
 	@cp -a $(NXINCNX) nuttx
 
-
 clean:
-	@rm -f debug.h
 	@rm -rf nuttx

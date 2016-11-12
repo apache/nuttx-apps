@@ -41,7 +41,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <debug.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -52,9 +51,10 @@
 #endif
 
 #include "trv_types.h"
-#include "debug.h"
+#include "wld_debug.h"
 
 #include "wld_mem.h"
+#include "wld_debug.h"
 #include "wld_bitmaps.h"
 #include "wld_plane.h"
 #include "wld_utils.h"
@@ -198,7 +198,7 @@ static bool x11_allocate_colors(tcl_window_t * w, Colormap colormap)
 
       /* Save the RGB to pixel lookup data */
 
-      ginfo("%d.%d {%02x,%02x,%02x}->0x%06lx\n",
+      info("%d.%d {%02x,%02x,%02x}->0x%06lx\n",
             w->plane, i,
             w->palette[i].red, w->palette[i].green, w->palette[i].blue,
             color.pixel);
