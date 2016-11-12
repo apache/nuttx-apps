@@ -34,6 +34,8 @@
 #
 #############################################################################
 
+package require Tk
+
 # Control features for each element
 
 proc configentry {w option items} {

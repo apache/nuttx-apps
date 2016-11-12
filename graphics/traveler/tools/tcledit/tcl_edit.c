@@ -691,7 +691,8 @@ int main(int argc, char **argv, char **envp)
     }
 
   /* Tk_Main creates a Tcl interpreter and calls Tcl_AppInit() then begins
-   * processing window events and interactive commands. */
+   * processing window events and interactive commands.
+   */
 
   Tk_Main(1, argv, Tcl_AppInit);
   exit(0);
