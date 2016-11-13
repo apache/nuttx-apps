@@ -48,7 +48,7 @@ Build instuctions
 Usage
 =====
 
-  .  /tcledit [-D <directory>] [-o <outfilename>] <infilename>
+    ./tcledit [-D <directory>] [-o <outfilename>] <infilename>
 
   Where <infilename> is the original world file name which will be overwritten
   unless <outfilename> is provided.  Optionally, switch to <directory> before
@@ -62,3 +62,17 @@ Usage
 
   On Cywgin, the correct name of the program will be tcledit.exe and must also
   remember to start the X11 server before trying run the applications.
+
+  Saying that the UI is difficult to use would probably be an understatement.
+  When you start tcledit, four windows appear:  Four X11 graphics windows and
+  one Tcl/Tk edit window.  The four graphic windows present a view at the
+  currently selected X, Y, and planes with a grid and positioning lines.  This
+  gives a rather incomprehensible view into the 3-dimensional world.
+
+  At the top of Tcl/Tk window are three sliders that can be quickly used to
+  generally position yourself in the world.  As you move a slider, the
+  position indicator moves in the corresponding plane view window.  You can
+  set position more precisely with the X, Y, and Z position data entry fields
+
+  The Tcl/Tk edit window also has controls to manage the plane at the selected
+  position:  Add X, Y, or Z plane, Save data, Zoom in or out, etc.
