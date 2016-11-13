@@ -64,15 +64,21 @@ Usage
   remember to start the X11 server before trying run the applications.
 
   Saying that the UI is difficult to use would probably be an understatement.
-  When you start tcledit, four windows appear:  Four X11 graphics windows and
+  When you start tcledit, four windows appear:  Three X11 graphics windows and
   one Tcl/Tk edit window.  The four graphic windows present a view at the
   currently selected X, Y, and planes with a grid and positioning lines.  This
-  gives a rather incomprehensible view into the 3-dimensional world.
+  gives an accurate rather incomprehensible view into the 3-dimensional world.
 
   At the top of Tcl/Tk window are three sliders that can be quickly used to
   generally position yourself in the world.  As you move a slider, the
   position indicator moves in the corresponding plane view window.  You can
-  set position more precisely with the X, Y, and Z position data entry fields
+  set position more precisely with the X, Y, and Z position data entry fields.
 
   The Tcl/Tk edit window also has controls to manage the plane at the selected
   position:  Add X, Y, or Z plane, Save data, Zoom in or out, etc.
+
+  Chances are if you don't know where the planes are defined in the world, you
+  won't even be able to find them.  Hint:  position to X=704, Y=704, and Z=576.
+  There you should see something in the default world.  Trying zooming 8x or
+  more.  The plane is shown in light blue; the edges of othogonal planes are
+  shown in even lighter blue.
