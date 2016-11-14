@@ -1,8 +1,12 @@
 Build instuctions
 =================
 
-  tcledit is a world editor for the traveler.  You should be able to build it
-  under Linux or Cygwin.  It needs X11 and Tcl/Tk.
+  The Traveler is based on a world file (.wld).  The most important component
+  of the file are a set of plane list files (.pll).  There are three: One for
+  each of the X, Y, and Z planes.
+
+  tcledit is a world file editor for the Traveler.  You should be able to build
+  it under Linux or Cygwin.  It needs X11 and Tcl/Tk.
 
   At the time of 'make', you must have a valid Traveler configuration instantiated
   in the NuttX directory.  This is because the build will depend on certain
