@@ -64,8 +64,12 @@ ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   DIRUNLINK = $(TOPDIR)\tools\unlink.bat
 else
   MKKCONFIG = $(APPDIR)/tools/mkkconfig.sh
-  DIRLINK   = $(TOPDIR)/tools/link.sh
   DIRUNLINK = $(TOPDIR)/tools/unlink.sh
+ifeq ($(WINTOOL),y)
+  DIRLINK = $(TOPDIR)/tools/copydir.sh
+else
+  DIRLINK   = $(TOPDIR)/tools/link.sh
+endif
 endif
 
 ifeq ($(WINTOOL),y)
