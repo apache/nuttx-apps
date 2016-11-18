@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <errno.h>
 
 #include <nuttx/timers/timer.h>
@@ -67,23 +68,28 @@
 #  define CONFIG_EXAMPLE_TIMER_NSAMPLES 20
 #endif
 
+#ifndef CONFIG_EXAMPLE_TIMER_SIGNO
+#  define CONFIG_EXAMPLE_TIMER_SIGNO 17
+#endif
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * timer_handler
+ * Private Data
  ****************************************************************************/
 
-static bool timer_handler(FAR uint32_t *next_interval_us)
-{
-  /* This handler may:
-   *
-   * (1) Modify the timeout value to change the frequency dynamically, or
-   * (2) Return false to stop the timer.
-   */
+static volatile unsigned long g_nsignals;
 
-  return true;
+/****************************************************************************
+ * timer_sighandler
+ ****************************************************************************/
+
+static void timer_sighandler(int signo, FAR siginfo_t *siginfo,
+                             FAR void *context)
+{
+  g_nsignals++;
 }
 
 /****************************************************************************
@@ -107,9 +113,9 @@ static void timer_status(int fd)
 
   /* Print the timer status */
 
-  printf("  flags: %08lx timeout: %lu timeleft: %lu\n",
+  printf("  flags: %08lx timeout: %lu timeleft: %lu nsignals: %lu\n",
          (unsigned long)status.flags, (unsigned long)status.timeout,
-         (unsigned long)status.timeleft);
+         (unsigned long)status.timeleft, g_nsignals);
 }
 
 /****************************************************************************
@@ -126,7 +132,8 @@ int main(int argc, FAR char *argv[])
 int timer_main(int argc, char *argv[])
 #endif
 {
-  struct timer_sethandler_s handler;
+  struct timer_notify_s notify;
+  struct sigaction act;
   int ret;
   int fd;
   int i;
@@ -164,17 +171,40 @@ int timer_main(int argc, char *argv[])
 
   timer_status(fd);
 
-  /* Attach the timer handler
+  /* Attach a signal handler to catch the notifications.  NOTE that using
+   * signal handler is very slow.  A much more efficient thing to do is to
+   * create a separate pthread that waits on sigwaitinfo() for timer events.
+   * Much less overhead in that case.
+   */
+
+  g_nsignals       = 0;
+
+  act.sa_sigaction = timer_sighandler;
+  act.sa_flags     = SA_SIGINFO;
+
+  (void)sigfillset(&act.sa_mask);
+  (void)sigdelset(&act.sa_mask, CONFIG_EXAMPLE_TIMER_SIGNO);
+
+  ret = sigaction(CONFIG_EXAMPLE_TIMER_SIGNO, &act, NULL);
+  if (ret != OK)
+    {
+      fprintf(stderr, "ERROR: Fsigaction failed: %d\n", errno);
+      close(fd);
+      return EXIT_FAILURE;
+    }
+
+  /* Register a callback for notifications using the configured signal.
    *
-   * NOTE: If no handler is attached, the timer stop at the first interrupt.
+   * NOTE: If no callback is attached, the timer stop at the first interrupt.
    */
 
   printf("Attach timer handler\n");
 
-  handler.newhandler = timer_handler;
-  handler.oldhandler = NULL;
+  notify.arg   = NULL;
+  notify.pid   = getpid();
+  notify.signo = CONFIG_EXAMPLE_TIMER_SIGNO;
 
-  ret = ioctl(fd, TCIOC_SETHANDLER, (unsigned long)((uintptr_t)&handler));
+  ret = ioctl(fd, TCIOC_NOTIFICATION, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: Failed to set the timer handler: %d\n", errno);
@@ -217,6 +247,11 @@ int timer_main(int argc, char *argv[])
       close(fd);
       return EXIT_FAILURE;
     }
+
+  /* Detach the signal handler */
+
+  act.sa_handler = SIG_DFL;
+  (void)sigaction(CONFIG_EXAMPLE_TIMER_SIGNO, &act, NULL);
 
   /* Show the timer status before starting */
 

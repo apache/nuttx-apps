@@ -36,6 +36,13 @@ config EXAMPLE_TIMER_NSAMPLES
 	---help---
 		This is the number of timer samples that will be collected
 
+config EXAMPLE_TIMER_SIGNO
+	int "Notification signal number"
+	default 17
+	---help---
+		This is the signal number that is used to notify the test of
+		timer expiration events.
+
 config EXAMPLES_TIMER_APPNAME
 	string "Timer executable name"
 	default "timer"
