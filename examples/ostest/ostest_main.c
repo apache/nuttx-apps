@@ -355,11 +355,13 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
+#ifndef CONFIG_SMP /* Not yet supported for the SMP case */
       /* Checkout task_restart() */
 
       printf("\nuser_main: task_restart test\n");
       restart_test();
       check_test_memory_usage();
+#endif
 
 #ifdef CONFIG_SCHED_WAITPID
       /* Check waitpid() and friends */
