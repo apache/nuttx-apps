@@ -52,7 +52,6 @@
 
 struct qe_example_s
 {
-  bool         initialized; /* True: QE devices have been initialized */
   FAR char    *devpath;     /* Path to the QE device */
 #ifdef CONFIG_NSH_BUILTIN_APPS
   bool         reset;       /* True: set the count back to zero */
@@ -66,20 +65,5 @@ struct qe_example_s
  ****************************************************************************/
 
 extern struct qe_example_s g_qeexample;
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Name: qe_devinit()
- *
- * Description:
- *   Perform architecuture-specific initialization of the QE hardware.  This
- *   interface must be provided by all configurations using apps/examples/qe
- *
- ****************************************************************************/
-
-int qe_devinit(void);
 
 #endif /* __APPS_EXAMPLES_QENCODER_QE_H */

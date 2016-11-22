@@ -252,28 +252,9 @@ int qe_main(int argc, FAR char *argv[])
   int nloops;
 #endif
 
-  /* Check if we have initialized */
+  /* Set the default values */
 
-  if (!g_qeexample.initialized)
-    {
-      /* Initialization of the encoder hardware is performed by logic external to
-       * this test.
-       */
-
-      printf("qe_main: Initializing external encoder(s)\n");
-      ret = qe_devinit();
-      if (ret != OK)
-        {
-          printf("qe_main: qe_devinit failed: %d\n", ret);
-          exitval = EXIT_FAILURE;
-          goto errout;
-        }
-
-      /* Set the default values */
-
-      qe_devpath(CONFIG_EXAMPLES_QENCODER_DEVPATH);
-      g_qeexample.initialized = true;
-    }
+  qe_devpath(CONFIG_EXAMPLES_QENCODER_DEVPATH);
 
   /* Parse command line arguments */
 
