@@ -89,6 +89,15 @@ static volatile unsigned long g_nsignals;
 static void timer_sighandler(int signo, FAR siginfo_t *siginfo,
                              FAR void *context)
 {
+  /* Does nothing in this example except for increment a count of signals
+   * received.
+   *
+   * NOTE: The use of signal handler is not recommended if you are concerned
+   * about the signal latency.  Instead, a dedicated, high-priority thread
+   * that waits on sigwaitinfo() is recommended.  High priority is required
+   * if you want a deterministic wake-up time when the signal occurs.
+   */
+
   g_nsignals++;
 }
 
