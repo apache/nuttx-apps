@@ -177,7 +177,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_suspend_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for switch note: %d\n",
+                         "ERROR: note size incorrect for suspend note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -211,7 +211,7 @@ static void dump_notes(size_t nread)
               if (note->nc_length != sizeof(struct note_resume_s))
                 {
                   syslog(LOG_INFO,
-                         "ERROR: note size incorrect for switch note: %d\n",
+                         "ERROR: note size incorrect for resume note: %d\n",
                          note->nc_length);
                   return;
                 }
@@ -230,6 +230,88 @@ static void dump_notes(size_t nread)
 #endif
             }
             break;
+
+#ifdef CONFIG_SMP
+          case NOTE_CPU_PAUSE:
+            {
+              FAR struct note_cpu_pause_s *note_pause =
+                (FAR struct note_cpu_pause_s *)note;
+
+              if (note->nc_length != sizeof(struct note_cpu_pause_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for CPU pause note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+              syslog(LOG_INFO,
+                     "%08lx: Task %u CPU%u requests CPU%u to pause, priority %u\n",
+                     (unsigned long)systime, (unsigned int)pid,
+                     (unsigned int)note->nc_cpu,
+                     (unsigned int)note_pause->ncp_target,
+                     (unsigned int)note->nc_priority);
+            }
+            break;
+
+          case NOTE_CPU_PAUSED:
+            {
+              if (note->nc_length != sizeof(struct note_cpu_paused_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for CPU paused note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+              syslog(LOG_INFO,
+                     "%08lx: Task %u CPU%u has paused, priority %u\n",
+                     (unsigned long)systime, (unsigned int)pid,
+                     (unsigned int)note->nc_cpu,
+                     (unsigned int)note->nc_priority);
+            }
+            break;
+
+          case NOTE_CPU_RESUME:
+            {
+              FAR struct note_cpu_resume_s *note_resume =
+                (FAR struct note_cpu_resume_s *)note;
+
+              if (note->nc_length != sizeof(struct note_cpu_resume_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for CPU resume note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+              syslog(LOG_INFO,
+                     "%08lx: Task %u CPU%u requests CPU%u to resume, priority %u\n",
+                     (unsigned long)systime, (unsigned int)pid,
+                     (unsigned int)note->nc_cpu,
+                     (unsigned int)note_resume->ncr_target,
+                     (unsigned int)note->nc_priority);
+            }
+            break;
+
+          case NOTE_CPU_RESUMED:
+            {
+              if (note->nc_length != sizeof(struct note_cpu_resumed_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for CPU resumed note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+              syslog(LOG_INFO,
+                     "%08lx: Task %u CPU%u has resumed, priority %u\n",
+                     (unsigned long)systime, (unsigned int)pid,
+                     (unsigned int)note->nc_cpu,
+                     (unsigned int)note->nc_priority);
+            }
+            break;
+#endif
 
 #ifdef CONFIG_SCHED_INSTRUMENTATION_PREEMPTION
           case NOTE_PREEMPT_LOCK:
