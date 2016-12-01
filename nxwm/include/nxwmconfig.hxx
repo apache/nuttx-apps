@@ -307,7 +307,7 @@
  * CONFIG_NXWM_STARTWINDOW_MXMPRIO - The message priority. Default: 42.
  * CONFIG_NXWM_STARTWINDOW_PRIO - Priority of the StartWindoW task.  Default:
  *   SCHED_PRIORITY_DEFAULT.  NOTE:  This priority should be less than
- *   CONFIG_NXWIDGETS_SERVERPRIO or else there may be data overrun errors.
+ *   CONFIG_NXSTART_SERVERPRIO or else there may be data overrun errors.
  *   Such errors would most likely appear as duplicated rows of data on the
  *   display.
  * CONFIG_NXWM_STARTWINDOW_STACKSIZE - The stack size to use when starting the
@@ -354,8 +354,8 @@
 #  define CONFIG_NXWM_STARTWINDOW_PRIO  SCHED_PRIORITY_DEFAULT
 #endif
 
-#if CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_STARTWINDOW_PRIO
-#  warning "CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_STARTWINDOW_PRIO"
+#if CONFIG_NXSTART_SERVERPRIO <= CONFIG_NXWM_STARTWINDOW_PRIO
+#  warning "CONFIG_NXSTART_SERVERPRIO <= CONFIG_NXWM_STARTWINDOW_PRIO"
 #  warning" -- This can result in data overrun errors"
 #endif
 
@@ -369,7 +369,7 @@
  *
  * CONFIG_NXWM_NXTERM_PRIO - Priority of the NxTerm task.  Default:
  *   SCHED_PRIORITY_DEFAULT.  NOTE:  This priority should be less than
- *   CONFIG_NXWIDGETS_SERVERPRIO or else there may be data overrun errors.
+ *   CONFIG_NXSTART_SERVERPRIO or else there may be data overrun errors.
  *   Such errors would most likely appear as duplicated rows of data on the
  *   display.
  * CONFIG_NXWM_NXTERM_STACKSIZE - The stack size to use when starting the
@@ -388,8 +388,8 @@
 #    define CONFIG_NXWM_NXTERM_PRIO  SCHED_PRIORITY_DEFAULT
 #  endif
 
-#  if CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_NXTERM_PRIO
-#    warning "CONFIG_NXWIDGETS_SERVERPRIO <= CONFIG_NXWM_NXTERM_PRIO"
+#  if CONFIG_NXSTART_SERVERPRIO <= CONFIG_NXWM_NXTERM_PRIO
+#    warning "CONFIG_NXSTART_SERVERPRIO <= CONFIG_NXWM_NXTERM_PRIO"
 #    warning" -- This can result in data overrun errors"
 #  endif
 

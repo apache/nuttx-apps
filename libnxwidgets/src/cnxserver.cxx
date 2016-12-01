@@ -246,23 +246,15 @@ bool CNxServer::connect(void)
     }
 
 #ifdef CONFIG_NXWIDGET_SERVERINIT
-  // Start the server task
+  // Start the NX server kernel thread
 
-  ginfo("CNxServer::connect: Starting server task\n");
-  pid_t serverId = task_create("NX Server", CONFIG_NXWIDGETS_SERVERPRIO,
-                               CONFIG_NXWIDGETS_SERVERSTACK, server,
-                               (FAR char * const *)0);
-  if (serverId < 0)
+  printf("CNxServer::connect: Starting NX server\n");
+  ret = boardctl(BOARDIOC_NX_START, 0);
+  if (ret < 0)
     {
-      gerr("ERROR: NxServer::connect: Failed to create nx_servertask task: %d\n", errno);
+      printf("ERROR: CNxServer::connect: Failed to start the NX server: %d\n", errno);
       return false;
     }
-
-  // Wait a bit to let the server get started
-
-  usleep(50*1000);
-
-#endif // CONFIG_NXWIDGET_SERVERINIT
 
   // Connect to the server
 
@@ -387,87 +379,6 @@ void CNxServer::disconnect(void)
     }
 }
 #endif // CONFIG_NX_MULTIUSER
-
-/**
- * NX server thread.  This is the entry point into the server thread that
- * serializes the multi-threaded accesses to the display.
- */
-
-#if defined(CONFIG_NX_MULTIUSER) && defined(CONFIG_NXWIDGET_SERVERINIT)
-int CNxServer::server(int argc, char *argv[])
-{
-  FAR NX_DRIVERTYPE *dev;
-  int ret;
-
-#if defined(CONFIG_NXWIDGETS_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
-  int ret;
-
-  // Use external graphics driver initialization
-
-  printf("nxtext_initialize: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_NXWIDGETS_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
-  if (ret < 0)
-    {
-      gerr("ERROR: boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
-      return EXIT_FAILURE;
-    }
-
-  dev = devinfo.dev;
-
-#elif defined(CONFIG_NX_LCDDRIVER)
-  // Initialize the LCD device
-
-  ret = board_lcd_initialize();
-  if (ret < 0)
-    {
-      gerr("ERROR: board_lcd_initialize failed: %d\n", -ret);
-      return EXIT_FAILURE;
-    }
-
-  // Get the device instance
-
-  dev = board_lcd_getdev(CONFIG_NXWIDGETS_DEVNO);
-  if (!dev)
-    {
-      gerr("ERROR: board_lcd_getdev failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
-      return EXIT_FAILURE;
-    }
-
-  // Turn the LCD on at 75% power
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-
-#else // CONFIG_NX_LCDDRIVER
-  // Initialize the frame buffer device
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      gerr("ERROR: nxterm_server: up_fbinitialize failed: %d\n", -ret);
-      return EXIT_FAILURE;
-    }
-
-  dev = up_fbgetvplane(0, CONFIG_NXWIDGETS_VPLANE);
-  if (!dev)
-    {
-      gerr("ERROR: up_fbgetvplane failed, vplane=%d\n", CONFIG_NXWIDGETS_VPLANE);
-      return 2;
-    }
-
-#endif // CONFIG_NX_LCDDRIVER
-
-  // Then start the server
-
-  ret = nx_run(dev);
-  ginfo("nx_run returned: %d\n", errno);
-  return EXIT_FAILURE;
-}
-#endif // CONFIG_NX_MULTIUSER && CONFIG_NXWIDGET_SERVERINIT
 
 /**
  * This is the entry point of a thread that listeners for and dispatches

@@ -91,15 +91,6 @@ namespace NXWidgets
     static uint8_t     m_nServers;   /**< The number of NX server instances */
 
     /**
-     * NX server thread.  This is the entry point into the server thread that
-     * serializes the multi-threaded accesses to the display.
-     */
-
-#if defined(CONFIG_NX_MULTIUSER) && defined(CONFIG_NXWIDGET_SERVERINIT)
-    static int server(int argc, char *argv[]);
-#endif
-
-    /**
      * NX listener thread.  This is the entry point of a thread that listeners for and
      * dispatches events from the NX server.
      */

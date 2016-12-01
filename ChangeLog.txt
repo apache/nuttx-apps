@@ -618,4 +618,8 @@
   large line spacings built-in.  From Petteri Aimonen (2016-09-22).
 * libnxwidgets: Allow setting line spacing in NxWidgets::CMultiLineTextBox.
   From Petteri Aimonen (2016-09-22).
+* CNxServer: Remove NX server task.  Now calls nx_start (indirectly through
+  boardctrl(BOARDIOC_NX_START) to start the NX Server kernel thread
+  (2016-12-01).
+
 
