@@ -366,11 +366,14 @@ static void dump_notes(size_t nread)
             break;
 
 #endif
+
 #ifdef CONFIG_SCHED_INSTRUMENTATION_CSECTION
           case NOTE_CSECTION_ENTER:
           case NOTE_CSECTION_LEAVE:
             {
 #ifdef CONFIG_SMP
+              FAR struct note_csection_s *note_csection =
+                (FAR struct note_csection_s *)note;
               uint16_t count;
 #endif
 
@@ -418,8 +421,123 @@ static void dump_notes(size_t nread)
 #endif
             }
             break;
-
 #endif
+
+#ifdef CONFIG_SCHED_INSTRUMENTATION_SPINLOCKS
+          case NOTE_SPINLOCK_LOCK:
+          case NOTE_SPINLOCK_LOCKED:
+          case NOTE_SPINLOCK_UNLOCK:
+          case NOTE_SPINLOCK_ABORT:
+            {
+              FAR struct note_spinlock_s *note_spinlock =
+                (FAR struct note_spinlock_s *)note;
+
+              if (note->nc_length != sizeof(struct note_spinlock_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for spinlock note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+             switch (note->nc_type)
+               {
+#ifdef CONFIG_SMP
+                case NOTE_SPINLOCK_LOCK:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u CPU%u wait for spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)note->nc_cpu,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+
+                case NOTE_SPINLOCK_LOCKED:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u CPU%u has spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)note->nc_cpu,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+
+                case NOTE_SPINLOCK_UNLOCK:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u CPU%u unlocking spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)note->nc_cpu,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+
+                case NOTE_SPINLOCK_ABORT:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u CPU%u abort wait on spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)note->nc_cpu,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+#else
+                case NOTE_SPINLOCK_LOCK:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u wait for spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+
+                case NOTE_SPINLOCK_LOCKED:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u has spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+
+                case NOTE_SPINLOCK_UNLOCK:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u unlocking spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           (unsigned int)note->nc_cpu,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+
+                case NOTE_SPINLOCK_ABORT:
+                  {
+                    syslog(LOG_INFO,
+                           "%08lx: Task %u abort wait on spinlock=%p value=%u priority %u\n",
+                           (unsigned long)systime, (unsigned int)pid,
+                           note_spinlock->nsp_spinlock,
+                           (unsigned int)note_spinlock->nsp_value,
+                           (unsigned int)note->nc_priority);
+                  }
+                  break;
+#endif
+               }
+#endif
+
           default:
             syslog(LOG_INFO, "Unrecognized note type: %d\n", note->nc_type);
             return;
