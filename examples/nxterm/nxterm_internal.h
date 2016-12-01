@@ -279,7 +279,6 @@ extern const struct nx_callback_s g_nxtoolcb;
 
 /* Server thread support */
 
-int nxterm_server(int argc, char *argv[]);
 FAR void *nxterm_listener(FAR void *arg);
 
 #endif /* __EXAMPLES_NXTERM_NXTERM_INTERNAL_H */

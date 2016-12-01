@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/graphics/traveler/trv_nxserver.c
- * NX server logic
+ * apps/graphics/traveler/trv_nxlistener.c
+ * NX listener logic
  *
- *   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,32 +40,13 @@
 
 #include "trv_types.h"
 
+#include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sched.h>
 #include <errno.h>
 
-#include <nuttx/arch.h>
 #include <nuttx/nx/nx.h>
-#include <nuttx/video/fb.h>
 
 #ifdef CONFIG_NX_MULTIUSER
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Public Functions

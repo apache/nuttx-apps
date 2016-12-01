@@ -39,9 +39,6 @@
 
 ASRCS =
 CSRCS = nx_events.c nx_kbdin.c
-ifeq ($(CONFIG_NX_MULTIUSER),y)
-CSRCS += nx_server.c
-endif
 MAINSRC = nx_main.c
 
 CONFIG_XYZ_PROGNAME ?= nx$(EXEEXT)

@@ -178,15 +178,6 @@
 #  ifndef CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO
 #    define CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO 100
 #  endif
-#  ifndef CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO
-#    define CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO 100
-#  endif
-#  ifndef CONFIG_EXAMPLES_NXTEXT_SERVERPRIO
-#    define CONFIG_EXAMPLES_NXTEXT_SERVERPRIO 120
-#  endif
-#  ifndef CONFIG_EXAMPLES_NXTEXT_NOTIFYSIGNO
-#    define CONFIG_EXAMPLES_NXTEXT_NOTIFYSIGNO 4
-#  endif
 #endif
 
 /* Bitmap flags */
@@ -208,7 +199,7 @@ enum exitcode_e
 {
   NXEXIT_SUCCESS = 0,
   NXEXIT_SCHEDSETPARAM,
-  NXEXIT_TASKCREATE,
+  NXEXIT_SERVERSTART,
   NXEXIT_PTHREADCREATE,
   NXEXIT_EXTINITIALIZE,
   NXEXIT_FBINITIALIZE,
@@ -315,7 +306,6 @@ extern int g_exitcode;
  ****************************************************************************/
 
 #if defined(CONFIG_NX) && defined(CONFIG_NX_MULTIUSER)
-int nxtext_server(int argc, char *argv[]);
 FAR void *nxtext_listener(FAR void *arg);
 #endif
 

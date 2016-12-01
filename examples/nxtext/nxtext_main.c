@@ -40,8 +40,8 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-
 #include <sys/boardctl.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -284,35 +284,18 @@ static inline int nxtext_muinitialize(void)
 {
   struct sched_param param;
   pthread_t thread;
-  pid_t servrid;
   int ret;
 
-  /* Set the client task priority */
+  /* Start the NX server kernel thread */
 
-  param.sched_priority = CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO;
-  ret = sched_setparam(0, &param);
+  printf("nxtext_initialize: Starting NX server\n");
+  ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxtext_initialize: sched_setparam failed: %d\n" , ret);
-      g_exitcode = NXEXIT_SCHEDSETPARAM;
+      printf("nxtext_initialize: Failed to start the NX server: %d\n", errno);
+      g_exitcode = NXEXIT_SERVERSTART;
       return ERROR;
     }
-
-  /* Start the server task */
-
-  printf("nxtext_initialize: Starting nxtext_server task\n");
-  servrid = task_create("NX Server", CONFIG_EXAMPLES_NXTEXT_SERVERPRIO,
-                        CONFIG_EXAMPLES_NXTEXT_STACKSIZE, nxtext_server, NULL);
-  if (servrid < 0)
-    {
-      printf("nxtext_initialize: Failed to create nxtext_server task: %d\n", errno);
-      g_exitcode = NXEXIT_TASKCREATE;
-      return ERROR;
-    }
-
-  /* Wait a bit to let the server get started */
-
-  sleep(1);
 
   /* Connect to the server */
 

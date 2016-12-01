@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
+#include <sys/boardctl.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -71,22 +72,6 @@
 #include "nxterm_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
  * Public Data
  ****************************************************************************/
 
@@ -108,7 +93,6 @@ static int nxterm_initialize(void)
 {
   struct sched_param param;
   pthread_t thread;
-  pid_t servrid;
   int ret;
 
   /* Set the client task priority */
@@ -121,20 +105,14 @@ static int nxterm_initialize(void)
       return ERROR;
     }
 
-  /* Start the server task */
+  /* Start the NX server kernel thread */
 
-  printf("nxterm_initialize: Starting nxterm_server task\n");
-  servrid = task_create("NX Server", CONFIG_EXAMPLES_NXTERM_SERVERPRIO,
-                        CONFIG_EXAMPLES_NXTERM_STACKSIZE, nxterm_server, NULL);
-  if (servrid < 0)
+  ret = boardctl(BOARDIOC_NX_START, 0);
+  if (ret < 0)
     {
-      printf("nxterm_initialize: Failed to create nxterm_server task: %d\n", errno);
+      printf("nxterm_initialize: Failed to start the NX server: %d\n", errno);
       return ERROR;
     }
-
-  /* Wait a bit to let the server get started */
-
-  sleep(1);
 
   /* Connect to the server */
 

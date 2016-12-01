@@ -42,7 +42,7 @@ CSRCS = nxtext_bkgd.c nxtext_popup.c nxtext_putc.c
 MAINSRC = nxtext_main.c
 
 ifeq ($(CONFIG_NX_MULTIUSER),y)
-CSRCS += nxtext_server.c
+CSRCS += nxtext_listener.c
 endif
 
 CONFIG_XYZ_PROGNAME ?= nxtext$(EXEEXT)

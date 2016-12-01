@@ -48,6 +48,7 @@
 #include <string.h>
 
 #ifdef CONFIG_NX_MULTIUSER
+#  include <sys/boardctl.h>
 #  include <semaphore.h>
 #endif
 
@@ -225,27 +226,6 @@ static inline int trv_nxsu_initialize(FAR struct trv_graphics_info_s *ginfo)
 #endif
 
 /****************************************************************************
- * Name: trv_servertask
- ****************************************************************************/
-
-#ifdef CONFIG_NX_MULTIUSER
-int trv_servertask(int argc, char *argv[])
-{
-  FAR struct fb_vtable_s *fbdev;
-  int ret;
-
-  /* Get the framebuffer device */
-
-  fbdev = trv_get_fbdev();
-
-  /* Then start the server */
-
-  ret = nx_run(dev);
-  trv_abort("nx_run returned: %d\n", errno);
-}
-#endif
-
-/****************************************************************************
  * Name: trv_nxmu_initialize
  ****************************************************************************/
 
@@ -254,7 +234,6 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
 {
   struct sched_param param;
   pthread_t thread;
-  pid_t servrid;
   int ret;
 
   /* Set the client task priority */
@@ -263,17 +242,16 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      trv_abort("nxeg_initialize: sched_setparam failed: %d\n" , ret);
+      trv_abort("trv_nxmu_initialize: sched_setparam failed: %d\n" , ret);
     }
 
-  /* Start the server task */
+  /* Start the NX server kernel thread */
 
-  printf("nxeg_initialize: Starting trv_servertask task\n");
-  servrid = task_create("NX Server", CONFIG_EXAMPLES_NX_SERVERPRIO,
-                        CONFIG_EXAMPLES_NX_STACKSIZE, trv_servertask, NULL);
-  if (servrid < 0)
+  printf("trv_nxmu_initialize: Starting NX server\n");
+  ret = boardctl(BOARDIOC_NX_START, 0);
+  if (ret < 0)
     {
-      trv_abort("nxeg_initialize: Failed to create trv_servertask task: %d\n",
+      trv_abort("trv_nxmu_initialize: Failed to start the NX server: %d\n",
                 errno);
     }
 

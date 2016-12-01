@@ -14,6 +14,7 @@ if EXAMPLES_NX
 config EXAMPLES_NX_VPLANE
 	int "Video Plane"
 	default 0
+	depends on !NX_MULTIUSER
 	---help---
 		The plane to select from the framebuffer driver for use in the test.
 		Default: 0
@@ -21,6 +22,7 @@ config EXAMPLES_NX_VPLANE
 config EXAMPLES_NX_DEVNO
 	int "Video Device Number"
 	default 0
+	depends on !NX_MULTIUSER
 	---help---
 		The LCD device to select from the LCD driver for use in the test:
 		Default: 0
@@ -94,6 +96,7 @@ config EXAMPLES_NX_EXTERNINIT
 	default n
 	depends on LIB_BOARDCTL
 	select BOARDCTL_GRAPHICS
+	select NXSTART_EXTERNINIT if NX_MULTIUSER
 	---help---
 		The driver for the graphics device on this platform requires some
 		unusual initialization.  This is the for, for example, SPI LCD/OLED

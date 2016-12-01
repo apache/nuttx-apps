@@ -69,8 +69,8 @@ MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)
 CSRCS  += trv_nxbkgd.c
-ifeq ($(CONFIG_NX),y)
-CSRCS  += trv_nxserver.c
+ifeq ($(CONFIG_NX_MULTIUSER),y)
+CSRCS  += trv_nxlistener.c
 endif
 endif
 

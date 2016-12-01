@@ -277,7 +277,6 @@ extern nxgl_mxpixel_t g_tbcolor[CONFIG_NX_NPLANES];
  ****************************************************************************/
 
 #if defined(CONFIG_NX) && defined(CONFIG_NX_MULTIUSER)
-int nx_servertask(int argc, char *argv[]);
 FAR void *nx_listenerthread(FAR void *arg);
 #endif
 

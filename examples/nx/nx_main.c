@@ -89,14 +89,6 @@
 #endif
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -542,7 +534,6 @@ static inline int nxeg_muinitialize(void)
 {
   struct sched_param param;
   pthread_t thread;
-  pid_t servrid;
   int ret;
 
   /* Set the client task priority */
@@ -556,21 +547,15 @@ static inline int nxeg_muinitialize(void)
       return ERROR;
     }
 
-  /* Start the server task */
+  /* Start the NX server kernel thread */
 
-  printf("nxeg_initialize: Starting nx_servertask task\n");
-  servrid = task_create("NX Server", CONFIG_EXAMPLES_NX_SERVERPRIO,
-                        CONFIG_EXAMPLES_NX_STACKSIZE, nx_servertask, NULL);
-  if (servrid < 0)
+  ret = boardctl(BOARDIOC_NX_START, 0);
+  if (ret < 0)
     {
-      printf("nxeg_initialize: Failed to create nx_servertask task: %d\n", errno);
+      printf("nxeg_initialize: Failed to start the NX server: %d\n", errno);
       g_exitcode = NXEXIT_TASKCREATE;
       return ERROR;
     }
-
-  /* Wait a bit to let the server get started */
-
-  sleep(1);
 
   /* Connect to the server */
 
@@ -942,7 +927,7 @@ errout_with_nx:
   printf("nx_main: Disconnect from the server\n");
   nx_disconnect(g_hnx);
 #else
-  /* Close the server */
+  /* Close the window */
 
   printf("nx_main: Close NX\n");
   nx_close(g_hnx);

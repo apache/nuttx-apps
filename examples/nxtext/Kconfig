@@ -134,34 +134,16 @@ if NX_MULTIUSER
 comment "Multi-User Configuration Options"
 
 config EXAMPLES_NXTEXT_STACKSIZE
-	int "NX Server Stack Size"
+	int "Listener Stack Size"
 	default 2048
 	---help---
-		The stacksize to use when creating the NX server.  Default 2048
-
-config EXAMPLES_NXTEXT_CLIENTPRIO
-	int "Client Priority"
-	default 100
-	---help---
-		The client priority.  Default: 100
-
-config EXAMPLES_NXTEXT_SERVERPRIO
-	int "Server Priority"
-	default 120
-	---help---
-		The server priority.  Default: 120
+		The stacksize to use when starting the NX listener.  Default 2048
 
 config EXAMPLES_NXTEXT_LISTENERPRIO
 	int "Listener Priority"
 	default 80
 	---help---
 		The priority of the event listener thread. Default 100.
-
-config EXAMPLES_NXTEXT_NOTIFYSIGNO
-	int "Notify Signal Number"
-	default 4
-	---help---
-		The signal number to use with nx_eventnotify().  Default: 4
 
 endif # NX_MULTIUSER
 endif # EXAMPLES_NXTEXT

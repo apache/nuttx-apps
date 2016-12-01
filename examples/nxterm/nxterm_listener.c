@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nxterm/nxterm_server.c
+ * examples/nxterm/nxterm_listener.c
  *
  *   Copyright (C) 2012, 2015-2016 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -39,127 +39,17 @@
 
 #include <nuttx/config.h>
 
-#include <sys/boardctl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sched.h>
 #include <errno.h>
-#include <debug.h>
 
-#include <nuttx/arch.h>
-#include <nuttx/board.h>
 #include <nuttx/nx/nx.h>
-
-#ifdef CONFIG_NX_LCDDRIVER
-#  include <nuttx/lcd/lcd.h>
-#else
-#  include <nuttx/video/fb.h>
-#endif
 
 #include "nxterm_internal.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: nxterm_server
- ****************************************************************************/
-
-int nxterm_server(int argc, char *argv[])
-{
-  FAR NX_DRIVERTYPE *dev;
-  int ret;
-
-#if defined(CONFIG_EXAMPLES_NXTERM_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
-  int ret;
-
-  /* Use external graphics driver initialization */
-
-  printf("nxterm_server: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_EXAMPLES_NXTERM_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
-  if (ret < 0)
-    {
-      printf("nxterm_server: boardctl failed, devno=%d: %d\n",
-             CONFIG_EXAMPLES_NXTERM_DEVNO, errno);
-      return ERROR;
-    }
-
-  dev = devinfo.dev;
-
-#elif defined(CONFIG_NX_LCDDRIVER)
-  /* Initialize the LCD device */
-
-  printf("nxterm_server: Initializing LCD\n");
-  ret = board_lcd_initialize();
-  if (ret < 0)
-    {
-      printf("nxterm_server: board_lcd_initialize failed: %d\n", -ret);
-      return 1;
-    }
-
-  /* Get the device instance */
-
-  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXTERM_DEVNO);
-  if (!dev)
-    {
-      printf("nxterm_server: board_lcd_getdev failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXTERM_DEVNO);
-      return 2;
-    }
-
-  /* Turn the LCD on at 75% power */
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
-  /* Initialize the frame buffer device */
-
-  printf("nxterm_server: Initializing framebuffer\n");
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      printf("nxterm_server: up_fbinitialize failed: %d\n", -ret);
-      return 1;
-    }
-
-  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXTERM_VPLANE);
-  if (!dev)
-    {
-      printf("nxterm_server: up_fbgetvplane failed, vplane=%d\n",
-             CONFIG_EXAMPLES_NXTERM_VPLANE);
-      return 2;
-    }
-#endif
-
-  /* Then start the server */
-
-  ret = nx_run(dev);
-  ginfo("nx_run returned: %d\n", errno);
-  return 3;
-}
 
 /****************************************************************************
  * Name: nxterm_listener
