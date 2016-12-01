@@ -2,6 +2,7 @@
 # For a description of the syntax of this configuration file,
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
+
 config GRAPHICS_TRAVELER
 	bool "Traveler game"
 	default n
@@ -10,6 +11,30 @@ config GRAPHICS_TRAVELER
 		Enable or disable the graphic Traveler game
 
 if GRAPHICS_TRAVELER
+
+if NX_MULTIUSER
+
+comment "Multi-User Configuration Options"
+
+config GRAPHICS_TRAVELER_STACKSIZE
+	int "Listener Stack Size"
+	default 2048
+	---help---
+		The stacksize to use when starting the NX listener.  Default 2048
+
+config GRAPHICS_TRAVELER_LISTENERPRIO
+	int "Listener Priority"
+	default 80
+	---help---
+		The priority of the event listener thread. Default 100.
+
+config GRAPHICS_TRAVELER_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
+endif # NX_MULTIUSER
 
 comment "Color configuration"
 

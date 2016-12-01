@@ -238,7 +238,7 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
 
   /* Set the client task priority */
 
-  param.sched_priority = CONFIG_EXAMPLES_NX_CLIENTPRIO;
+  param.sched_priority = CONFIG_GRAPHICS_TRAVELER_CLIENTPRIO;
   ret = sched_setparam(0, &param);
   if (ret < 0)
     {
@@ -282,9 +282,9 @@ static inline int trv_nxmu_initialize(FAR struct trv_graphics_info_s *ginfo)
        */
 
       (void)pthread_attr_init(&attr);
-      param.sched_priority = CONFIG_EXAMPLES_NX_LISTENERPRIO;
+      param.sched_priority = CONFIG_GRAPHICS_TRAVELER_LISTENERPRIO;
       (void)pthread_attr_setschedparam(&attr, &param);
-      (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NX_STACKSIZE);
+      (void)pthread_attr_setstacksize(&attr, CONFIG_GRAPHICS_TRAVELER_STACKSIZE);
 
       ret = pthread_create(&thread, &attr, trv_nxlistener, NULL);
       if (ret != 0)

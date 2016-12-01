@@ -145,5 +145,11 @@ config EXAMPLES_NXTEXT_LISTENERPRIO
 	---help---
 		The priority of the event listener thread. Default 100.
 
+config EXAMPLES_NXTEXT_CLIENTPRIO
+	int "Client Priority"
+	default 100
+	---help---
+		The client priority.  Default: 100
+
 endif # NX_MULTIUSER
 endif # EXAMPLES_NXTEXT

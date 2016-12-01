@@ -286,6 +286,17 @@ static inline int nxtext_muinitialize(void)
   pthread_t thread;
   int ret;
 
+  /* Set the client task priority */
+
+  param.sched_priority = CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO;
+  ret = sched_setparam(0, &param);
+  if (ret < 0)
+    {
+      printf("nxtext_initialize: sched_setparam failed: %d\n" , ret);
+      g_exitcode = NXEXIT_SCHEDSETPARAM;
+      return ERROR;
+    }
+
   /* Start the NX server kernel thread */
 
   printf("nxtext_initialize: Starting NX server\n");
