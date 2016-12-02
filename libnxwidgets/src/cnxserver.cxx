@@ -248,11 +248,11 @@ bool CNxServer::connect(void)
 #ifdef CONFIG_NXWIDGET_SERVERINIT
   // Start the NX server kernel thread
 
-  printf("CNxServer::connect: Starting NX server\n");
+  ginfo("CNxServer::connect: Starting NX server\n");
   ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("ERROR: CNxServer::connect: Failed to start the NX server: %d\n", errno);
+      gerr("ERROR: CNxServer::connect: Failed to start the NX server: %d\n", errno);
       return false;
     }
 #endif // CONFIG_NXWIDGET_SERVERINIT
