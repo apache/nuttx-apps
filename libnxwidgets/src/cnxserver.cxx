@@ -255,6 +255,7 @@ bool CNxServer::connect(void)
       printf("ERROR: CNxServer::connect: Failed to start the NX server: %d\n", errno);
       return false;
     }
+#endif // CONFIG_NXWIDGET_SERVERINIT
 
   // Connect to the server
 
