@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/netutils/esp8266.h
  *
- *   Copyright (C) 2015 Pierre-Noel Bouteville. All rights reserved.
+ *   Copyright (C) 2015-2016 Pierre-Noel Bouteville. All rights reserved.
  *   Author: Pierre-Noel Bouteville <pnb990@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,8 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define lespBSSID_SIZE 6 
+#define lespSSID_SIZE 32 /* Number of character max of SSID (null char not included) */
+#define lespBSSID_SIZE 6
 
 #define lespIP(x1,x2,x3,x4) ((x1) << 24 | (x2) << 16 | (x3) << 8 | (x4) << 0)
 
@@ -58,7 +59,7 @@
  * Public Types
  ****************************************************************************/
 
-typedef enum 
+typedef enum
 {
   lesp_eMODE_AP       = 0,
   lesp_eMODE_STATION  = 1,
@@ -67,7 +68,7 @@ typedef enum
 
 typedef enum
 {
-  lesp_eSECURITY_NONE=0,
+  lesp_eSECURITY_NONE = 0,
   lesp_eSECURITY_WEP,
   lesp_eSECURITY_WPA_PSK,
   lesp_eSECURITY_WPA2_PSK,
@@ -78,9 +79,10 @@ typedef enum
 typedef struct
 {
   lesp_security_t security;
-  const char *ssid;
+  char ssid[lespSSID_SIZE+1];     /* +1 for null char */
   uint8_t bssid[lespBSSID_SIZE];
-  int rssi; 
+  int rssi;
+  int channel;
 } lesp_ap_t;
 
 /****************************************************************************
@@ -92,18 +94,19 @@ int lesp_soft_reset(void);
 
 const char *lesp_security_to_str(lesp_security_t security);
 
-int lesp_ap_connect(const char* ssid_name, const char* ap_key, int timeout_s);
+int lesp_ap_connect(const char *ssid_name, const char *ap_key, int timeout_s);
+int lesp_ap_get(lesp_ap_t *ap);
 
 int lesp_ap_is_connected(void);
 
-int lesp_set_dhcp(lesp_mode_t mode,bool enable);
-int lesp_set_net(lesp_mode_t mode,
-                 in_addr_t ip, 
-                 in_addr_t mask, 
-                 in_addr_t gateway
-                );
+int lesp_set_dhcp(lesp_mode_t mode, bool enable);
+int lesp_get_dhcp(bool *ap_enable, bool *sta_enable);
+int lesp_set_net(lesp_mode_t mode, in_addr_t ip, in_addr_t mask,
+                 in_addr_t gateway);
+int lesp_get_net(lesp_mode_t mode, in_addr_t *ip, in_addr_t *mask,
+                 in_addr_t *gw);
 
-typedef void (*lesp_cb_t)(lesp_ap_t* wlan);
+typedef void (*lesp_cb_t)(lesp_ap_t *wlan);
 
 int lesp_list_access_points(lesp_cb_t cb);
 
@@ -117,6 +120,7 @@ ssize_t lesp_send(int sockfd, FAR const uint8_t *buf, size_t len, int flags);
 ssize_t lesp_recv(int sockfd, FAR uint8_t *buf, size_t len, int flags);
 int lesp_setsockopt(int sockfd, int level, int option,
                     FAR const void *value, socklen_t value_len);
+FAR struct hostent *lesp_gethostbyname(FAR const char *hostname);
 
 #endif /* CONFIG_NETUTILS_ESP8266 */
 #endif /* __APPS_INCLUDE_NETUTILS_ESP8266_H */

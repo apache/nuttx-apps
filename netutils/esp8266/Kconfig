@@ -28,6 +28,10 @@ config NETUTILS_ESP8266_MAXRXLEN
 	int "Max. RX length"
 	default 256
 
+config NETUTILS_ESP8266_WORKER_BUF_LEN
+	int "Max. Worker RX length"
+	default 256
+
 config NETUTILS_ESP8266_THREADPRIO
 	int "Worker thread priority"
 	default 100
