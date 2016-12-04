@@ -3954,7 +3954,7 @@ static void ftpd_freesession(FAR struct ftpd_session_s *session)
       free(session->user);
     }
 
-  if (session->fd > 0)
+  if (session->fd >= 0)
     {
       close(session->fd);
     }
@@ -3971,7 +3971,7 @@ static void ftpd_freesession(FAR struct ftpd_session_s *session)
       free(session->cmd.buffer);
     }
 
-  if (session->cmd.sd > 0)
+  if (session->cmd.sd >= 0)
     {
       close(session->cmd.sd);
     }
