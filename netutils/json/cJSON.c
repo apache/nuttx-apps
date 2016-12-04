@@ -3,7 +3,7 @@
  *
  * This file is a part of NuttX:
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2016 Gregory Nutt. All rights reserved.
  *   Ported by: Darcy Gong
  *
  * And derives from the cJSON Project which has an MIT license:
@@ -34,6 +34,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
@@ -446,6 +447,7 @@ static char *print_string_ptr(const char *str)
   ptr2 = out;
   ptr = str;
   *ptr2++ = '\"';
+
   while (*ptr)
     {
       if ((unsigned char)*ptr > 31 && *ptr != '\"' && *ptr != '\\')
@@ -697,50 +699,54 @@ static const char *parse_array(cJSON *item, const char *value)
 
 static char *print_array(cJSON *item, int depth, int fmt)
 {
-  char **entries;
+  char **entries=0;
   char *out = 0;
   char *ptr;
   char *ret;
   int len = 5;
   cJSON *child = item->child;
+  bool fail = false;
   int numentries = 0;
   int i = 0;
-  int fail = 0;
 
   /* How many entries in the array? */
 
-  while (child)
+  while (child != NULL)
     {
-      numentries++, child = child->next;
-    }
-
-  /* Allocate an array to hold the values for each */
-
-  entries = (char **)cJSON_malloc(numentries * sizeof(char *));
-  if (!entries)
-    {
-      return 0;
-    }
-
-  memset(entries, 0, numentries * sizeof(char *));
-
-  /* Retrieve all the results: */
-
-  child = item->child;
-  while (child && !fail)
-    {
-      ret = print_value(child, depth + 1, fmt);
-      entries[i++] = ret;
-      if (ret)
-        {
-          len += strlen(ret) + 2 + (fmt ? 1 : 0);
-        }
-      else
-        {
-          fail = 1;
-        }
-
+      numentries++;
       child = child->next;
+    }
+
+  if (numentries > 0)
+    {
+      /* Allocate an array to hold the values for each */
+
+      entries = (char **)cJSON_malloc(numentries * sizeof(char *));
+      if (entries == NULL)
+        {
+          return 0;
+        }
+
+      memset(entries, 0, numentries * sizeof(char *));
+
+      /* Retrieve all the results: */
+
+      child = item->child;
+      while (child && !fail)
+        {
+          ret = print_value(child, depth + 1, fmt);
+          entries[i++] = ret;
+          if (ret)
+            {
+              len += strlen(ret) + 2 + (fmt ? 1 : 0);
+            }
+          else
+            {
+              fail = true;
+            }
+
+          child = child->next;
+        }
     }
 
   /* If we didn't fail, try to malloc the output string */
@@ -754,7 +760,7 @@ static char *print_array(cJSON *item, int depth, int fmt)
 
   if (!out)
     {
-      fail = 1;
+      fail = true;
     }
 
   /* Handle failure. */
@@ -769,15 +775,20 @@ static char *print_array(cJSON *item, int depth, int fmt)
             }
         }
 
-      cJSON_free(entries);
+      if ( entries )
+        {
+          cJSON_free(entries);
+        }
+
       return 0;
     }
 
   /* Compose the output array. */
 
   *out = '[';
-  ptr = out + 1;
+  ptr  = out + 1;
   *ptr = 0;
+
   for (i = 0; i < numentries; i++)
     {
       strcpy(ptr, entries[i]);
@@ -792,10 +803,15 @@ static char *print_array(cJSON *item, int depth, int fmt)
 
           *ptr = 0;
         }
+
       cJSON_free(entries[i]);
     }
 
-  cJSON_free(entries);
+  if ( entries )
+    {
+      cJSON_free(entries);
+    }
+
   *ptr++ = ']';
   *ptr++ = 0;
   return out;
@@ -843,7 +859,7 @@ static const char *parse_object(cJSON *item, const char *value)
       return 0;
     }
 
-   /* Skip any spacing, get the value. */
+  /* Skip any spacing, get the value. */
 
   value = skip(parse_value(child, skip(value + 1)));
   if (!value)
@@ -914,8 +930,8 @@ static char *print_object(cJSON *item, int depth, int fmt)
   int i = 0;
   int j;
   cJSON *child = item->child;
+  bool fail = false;
   int numentries = 0;
-  int fail = 0;
 
   /* Count the number of entries. */
 
@@ -961,7 +977,7 @@ static char *print_object(cJSON *item, int depth, int fmt)
         }
       else
         {
-          fail = 1;
+          fail = true;
         }
 
       child = child->next;
@@ -976,7 +992,7 @@ static char *print_object(cJSON *item, int depth, int fmt)
 
   if (!out)
     {
-      fail = 1;
+      fail = true;
     }
 
   /* Handle failure */
