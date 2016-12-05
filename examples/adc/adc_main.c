@@ -41,7 +41,6 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -246,18 +245,10 @@ int adc_main(int argc, char *argv[])
 
   if (!g_adcstate.initialized)
     {
-      /* Initialization of the ADC hardware is performed by logic external to
-       * this test.
+      /* Initialization of the ADC hardware must be performed by board-specific
+       * logic prior to running this test.
        */
 
-      printf("adc_main: Initializing external ADC device\n");
-      ret = boardctl(BOARDIOC_ADCTEST_SETUP, 0);
-      if (ret < 0)
-        {
-          printf("adc_main: boardctl failed: %d\n", errno);
-          errval = 1;
-          goto errout;
-        }
 
       /* Set the default values */
 
