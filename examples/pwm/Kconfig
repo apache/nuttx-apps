@@ -6,8 +6,7 @@
 config EXAMPLES_PWM
 	bool "Pulse width modulation (PWM) example"
 	default n
-	depends on PWM && NSH_BUILTIN_APPS && LIB_BOARDCTL
-	select BOARDCTL_PWMTEST
+	depends on PWM && NSH_BUILTIN_APPS
 	---help---
 		Enable the Pulse width modulation (PWM) example
 

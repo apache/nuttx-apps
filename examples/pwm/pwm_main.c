@@ -41,7 +41,6 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -466,17 +465,6 @@ int pwm_main(int argc, char *argv[])
       /* No.. use the default device */
 
       pwm_devpath(&g_pwmstate, CONFIG_EXAMPLES_PWM_DEVPATH);
-    }
-
-  /* Initialization of the PWM hardware is performed by logic external to
-   * this test.
-   */
-
-  ret = boardctl(BOARDIOC_PWMTEST_SETUP, 0);
-  if (ret != OK)
-    {
-      printf("pwm_main: boardctl failed: %d\n", errno);
-      goto errout;
     }
 
   /* Open the PWM device for reading */
