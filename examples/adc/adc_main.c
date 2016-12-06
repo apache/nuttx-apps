@@ -241,6 +241,8 @@ int adc_main(int argc, char *argv[])
   int ret;
   int i;
 
+  UNUSED(ret);
+
   /* Check if we have initialized */
 
   if (!g_adcstate.initialized)
