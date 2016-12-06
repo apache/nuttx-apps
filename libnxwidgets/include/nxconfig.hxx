@@ -64,7 +64,7 @@
  * NX Server/Device Configuration
  *
  * CONFIG_NXWIDGETS_DEVNO - LCD device number (in case there are more than
- *   one LCDs connected.  Default: 0
+ *   one LCDs connected (single user mode only). Default: 0
  * CONFIG_NXWIDGETS_VPLANE - Only a single video plane is supported. Default: 0
  * CONFIG_NXSTART_SERVERPRIO - Priority of the NX server.  This applies
  *   only if NX is configured in multi-user mode (CONFIG_NX_MULTIUSER=y).
