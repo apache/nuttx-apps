@@ -522,7 +522,6 @@ int can_main(int argc, FAR char *argv[])
 errout_with_dev:
   close(fd);
 
-errout:
   printf("Terminating!\n");
   fflush(stdout);
   return errval;
