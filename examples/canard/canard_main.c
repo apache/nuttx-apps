@@ -43,7 +43,6 @@
                                  * with Libcanard */
 
 #include <sys/ioctl.h>
-#include <sys/boardctl.h>
 #include <sched.h>
 
 #include <stdio.h>
@@ -432,18 +431,9 @@ static int canard_daemon(int argc, char *argv[])
   int errval = 0;
   int ret;
 
-  /* Initialization of the CAN hardware is performed by logic external to
-   * this test.
+  /* Initialization of the CAN hardware is performed by external, board-
+   * specific logic to running this test.
    */
-
-  ret = boardctl(BOARDIOC_CAN_INITIALIZE, 0);
-  if (ret < 0)
-    {
-      printf("canard_daemon: ERROR: BOARDIOC_CAN_INITIALIZE failed: %d\n",
-             ret);
-      errval = 1;
-      goto errout;
-    }
 
   /* Open the CAN device for reading */
 

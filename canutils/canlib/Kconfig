@@ -6,8 +6,7 @@
 config CANUTILS_CANLIB
 	bool "CAN utility library"
 	default n
-	depends on CAN && LIB_BOARDCTL
-	select BOARDCTL_CANINIT
+	depends on CAN
 	---help---
 		Enable the CAN utility library
 
