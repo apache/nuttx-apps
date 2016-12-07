@@ -232,6 +232,46 @@ static void dump_notes(size_t nread)
             break;
 
 #ifdef CONFIG_SMP
+          case NOTE_CPU_START:
+            {
+              FAR struct note_cpu_start_s *note_start =
+                (FAR struct note_cpu_start_s *)note;
+
+              if (note->nc_length != sizeof(struct note_cpu_start_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for CPU start note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+              syslog(LOG_INFO,
+                     "%08lx: Task %u CPU%u requests CPU%u to start, priority %u\n",
+                     (unsigned long)systime, (unsigned int)pid,
+                     (unsigned int)note->nc_cpu,
+                     (unsigned int)note_start->ncs_target,
+                     (unsigned int)note->nc_priority);
+            }
+            break;
+
+          case NOTE_CPU_STARTED:
+            {
+              if (note->nc_length != sizeof(struct note_cpu_started_s))
+                {
+                  syslog(LOG_INFO,
+                         "ERROR: note size incorrect for CPU started note: %d\n",
+                         note->nc_length);
+                  return;
+                }
+
+              syslog(LOG_INFO,
+                     "%08lx: Task %u CPU%u has started, priority %u\n",
+                     (unsigned long)systime, (unsigned int)pid,
+                     (unsigned int)note->nc_cpu,
+                     (unsigned int)note->nc_priority);
+            }
+            break;
+
           case NOTE_CPU_PAUSE:
             {
               FAR struct note_cpu_pause_s *note_pause =
