@@ -33,18 +33,39 @@
  *
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
 #include <stdio.h>
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
+
 #include "ostest.h"
 
 static pthread_mutex_t mutex;
 static pthread_cond_t  cond;
 
-static void *thread_waiter(void *parameter)
+#ifdef CONFIG_PTHREAD_CLEANUP
+static void thread_cleaner(FAR void *arg)
+{
+  printf("thread_cleaner #%u\n", (unsigned int)((uintptr_t)arg));
+}
+#endif
+
+static FAR void *thread_waiter(FAR void *parameter)
 {
   int status;
+
+#ifdef CONFIG_PTHREAD_CLEANUP
+  int i;
+
+  /* Register some clean-up handlers */
+
+  for (i = 0; i < CONFIG_PTHREAD_CLEANUP_STACKSIZE ; i++)
+    {
+      pthread_cleanup_push(thread_cleaner, (FAR void *)((uintptr_t)(i+1)));
+    }
+#endif
 
   /* Take the mutex */
 
