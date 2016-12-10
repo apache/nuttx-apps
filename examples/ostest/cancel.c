@@ -90,7 +90,7 @@ static FAR void *thread_waiter(FAR void *parameter)
         }
     }
 
-  /* The wait -- we will never awaken from this. */
+  /* Then wait -- we will never awaken from this. */
 
   status = pthread_cond_wait(&cond, &mutex);
   if (status != 0)
@@ -210,11 +210,15 @@ void cancel_test(void)
   /* Test 1: Normal Cancel *********************************************/
   /* Start the waiter thread  */
 
-  printf("cancel_test: Test 1: Normal Cancelation\n");
+  printf("cancel_test: Test 1: Normal Cancellation\n");
   printf("cancel_test: Starting thread\n");
   start_thread(&waiter, 1);
 
-  /* Then cancel it.  It should be in the pthread_cond_wait now */
+  /* Then cancel it.  It should be in the pthread_cond_wait now -- wait
+   * bit to make sure.
+   */
+
+  usleep(100*1000);
 
   printf("cancel_test: Canceling thread\n");
   status = pthread_cancel(waiter);
@@ -248,7 +252,7 @@ void cancel_test(void)
 
   /* Test 2: Cancel Detached Thread ************************************/
 
-  printf("cancel_test: Test 2: Cancelation of detached thread\n");
+  printf("cancel_test: Test 2: Cancellation of detached thread\n");
   printf("cancel_test: Re-starting thread\n");
   restart_thread(&waiter, 1);
 
@@ -260,7 +264,11 @@ void cancel_test(void)
       printf("cancel_test: ERROR pthread_detach, status=%d\n", status);
     }
 
-  /* Then cancel it.  It should be in the pthread_cond_wait now */
+  /* Then cancel it.  It should be in the pthread_cond_wait now -- wait a
+   * bit to be certain.
+   */
+
+  usleep(100*1000);
 
   printf("cancel_test: Canceling thread\n");
   status = pthread_cancel(waiter);
@@ -268,6 +276,15 @@ void cancel_test(void)
     {
       printf("cancel_test: ERROR pthread_cancel failed, status=%d\n", status);
     }
+
+#ifdef CONFIG_CANCELLATION_POINTS
+  /* If we are doing deferred cancellation, then we will have to wait a bit
+   * of the fallowing pthread_join() may succeed because it happens before
+   * before the cancellation.
+   */
+
+  usleep(500*1000);
+#endif
 
   /* Join should now fail */
 
@@ -308,6 +325,8 @@ void cancel_test(void)
    *
    * The cancelation should succeed, because the cancelation is pending.
    */
+
+  usleep(100*1000);
 
   printf("cancel_test: Canceling thread\n");
   status = pthread_cancel(waiter);
