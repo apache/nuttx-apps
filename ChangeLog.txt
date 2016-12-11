@@ -621,5 +621,6 @@
 * CNxServer: Remove NX server task.  Now calls nx_start (indirectly through
   boardctrl(BOARDIOC_NX_START) to start the NX Server kernel thread
   (2016-12-01).
+* CNxServer: Can't use printf in this context (2016-12-01)
 
 
