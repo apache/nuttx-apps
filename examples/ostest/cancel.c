@@ -121,7 +121,69 @@ static FAR void *thread_waiter(FAR void *parameter)
   return NULL;
 }
 
-static void start_thread(pthread_t *waiter, int cancelable)
+#ifdef CONFIG_CANCELLATION_POINTS
+static FAR void *asynch_waiter(FAR void *parameter)
+{
+  int status;
+
+#ifdef CONFIG_PTHREAD_CLEANUP
+  int i;
+
+  /* Register some clean-up handlers */
+
+  for (i = 0; i < CONFIG_PTHREAD_CLEANUP_STACKSIZE ; i++)
+    {
+      pthread_cleanup_push(thread_cleaner, (FAR void *)((uintptr_t)(i+1)));
+    }
+#endif
+
+  /* Set the non-cancelable state */
+
+  printf("asynch_waiter: Setting non-cancelable\n");
+  status = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+  if (status != 0)
+    {
+       printf("asynch_waiter: ERROR pthread_setcancelstate failed, status=%d\n", status);
+    }
+
+  /* Set the asynchronous cancellation type */
+
+  printf("asynch_waiter: Setting synchronous cancellation type\n");
+  status = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+  if (status != 0)
+    {
+       printf("asynch_waiter: ERROR pthread_setcanceltype failed, status=%d\n", status);
+    }
+
+  /* Then wait a bit.  We should be canceled aynchronously while waiting, but the
+   * cancellation should pend becaue we are non-cancellable.
+   */
+
+  usleep(250*1000);
+
+  /* We should be canceled when restore the cancelable state. */
+
+  printf("asynch_waiter: Restoring cancelable state\n");
+
+  printf("asynch_waiter: Setting cancelable\n");
+  status = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+
+  /* We should not get here!!! */
+
+  if (status != 0)
+    {
+      printf("asynch_waiter: ERROR pthread_setcancelstate failed, status=%d\n", status);
+    }
+
+  /* Set the cancelable state */
+
+  printf("asynch_waiter: Exit with status 0x12345678\n");
+  pthread_exit((pthread_addr_t)0x12345678);
+  return NULL;
+}
+#endif
+
+static void start_thread(FAR void *(*entry)(FAR void *), pthread_t *waiter, int cancelable)
 {
   pthread_attr_t attr;
   int status;
@@ -161,7 +223,7 @@ static void start_thread(pthread_t *waiter, int cancelable)
   /* Start the waiter thread  */
 
   printf("start_thread: Starting thread\n");
-  status = pthread_create(waiter, &attr, thread_waiter, (pthread_addr_t)((uintptr_t)cancelable));
+  status = pthread_create(waiter, &attr, entry, (pthread_addr_t)((uintptr_t)cancelable));
   if (status != 0)
     {
       printf("start_thread: ERROR pthread_create failed, status=%d\n", status);
@@ -173,7 +235,7 @@ static void start_thread(pthread_t *waiter, int cancelable)
   pthread_yield();
 }
 
-static void restart_thread(pthread_t *waiter, int cancelable)
+static void restart_thread(FAR void *(*entry)(FAR void *), pthread_t *waiter, int cancelable)
 {
   int status;
 
@@ -198,7 +260,7 @@ static void restart_thread(pthread_t *waiter, int cancelable)
   /* Then restart the thread */
 
   printf("restart_thread: Re-starting thread\n");
-  start_thread(waiter, cancelable);
+  start_thread(entry, waiter, cancelable);
 }
 
 void cancel_test(void)
@@ -210,9 +272,62 @@ void cancel_test(void)
   /* Test 1: Normal Cancel *********************************************/
   /* Start the waiter thread  */
 
-  printf("cancel_test: Test 1: Normal Cancellation\n");
+  printf("cancel_test: Test 1a: Normal Cancellation\n");
   printf("cancel_test: Starting thread\n");
-  start_thread(&waiter, 1);
+  start_thread(thread_waiter, &waiter, 1);
+
+  /* Then cancel it.  It should be in the usleep now -- wait bit to
+   * make sure.
+   */
+
+  usleep(75*1000);
+
+  printf("cancel_test: Canceling thread\n");
+  status = pthread_cancel(waiter);
+  if (status != 0)
+    {
+      printf("cancel_test: ERROR pthread_cancel failed, status=%d\n", status);
+    }
+
+  /* Then join to the thread to pick up the result (if we don't do
+   * we will have a memory leak!)
+   */
+
+  printf("cancel_test: Joining\n");
+  status = pthread_join(waiter, &result);
+  if (status != 0)
+    {
+      printf("cancel_test: ERROR pthread_join failed, status=%d\n", status);
+    }
+  else
+    {
+      printf("cancel_test: waiter exited with result=%p\n", result);
+      if (result != PTHREAD_CANCELED)
+        {
+          printf("cancel_test: ERROR expected result=%p\n", PTHREAD_CANCELED);
+        }
+      else
+        {
+          printf("cancel_test: PASS thread terminated with PTHREAD_CANCELED\n");
+        }
+    }
+
+  /* Test 2: Syncrhonous Cancel ****************************************/
+
+  printf("cancel_test: Test 2: Asynchronous Cancellation\n");
+
+#ifdef CONFIG_CANCELLATION_POINTS
+  /* If cancellation points were enabled, then the first test was done
+   * in deferred mode.  Do it again it asynchronous mode.
+   *
+   * This test does not really test asynchronous cancellation (which is
+   * inherently dangerous), but does exercides pthread_setcanceltype().
+   */
+
+  /* Start the waiter thread  */
+
+  printf("cancel_test: Starting thread\n");
+  restart_thread(asynch_waiter, &waiter, 1);
 
   /* Then cancel it.  It should be in the pthread_cond_wait now -- wait
    * bit to make sure.
@@ -249,12 +364,15 @@ void cancel_test(void)
           printf("cancel_test: PASS thread terminated with PTHREAD_CANCELED\n");
         }
     }
+#else
+  printf("... Skipped\n");
+#endif
 
-  /* Test 2: Cancel Detached Thread ************************************/
+  /* Test 3: Cancel Detached Thread ************************************/
 
-  printf("cancel_test: Test 2: Cancellation of detached thread\n");
+  printf("cancel_test: Test 3: Cancellation of detached thread\n");
   printf("cancel_test: Re-starting thread\n");
-  restart_thread(&waiter, 1);
+  restart_thread(thread_waiter, &waiter, 1);
 
   /* Detach the thread */
 
@@ -283,7 +401,7 @@ void cancel_test(void)
    * before the cancellation.
    */
 
-  usleep(500*1000);
+  usleep(100*1000);
 #endif
 
   /* Join should now fail */
@@ -303,15 +421,15 @@ void cancel_test(void)
       printf("cancel_test: PASS pthread_join failed with status=ESRCH\n");
     }
 
-  /* Test 3: Non-cancelable threads ************************************/
+  /* Test 4: Non-cancelable threads ************************************/
   /* This test currently depends on signals.  It doesn't have to and
    * could be re-designed so that it does not depend on signals.
    */
 
 #ifndef CONFIG_DISABLE_SIGNALS
-  printf("cancel_test: Test 3: Non-cancelable threads\n");
+  printf("cancel_test: Test 5: Non-cancelable threads\n");
   printf("cancel_test: Re-starting thread (non-cancelable)\n");
-  restart_thread(&waiter, 0);
+  restart_thread(thread_waiter, &waiter, 0);
 
   /* Give the thread a chance to run an to set the non-cancelable state.
    * This is the dependency on signals:
