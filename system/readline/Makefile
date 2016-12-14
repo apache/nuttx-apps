@@ -40,13 +40,7 @@ include $(APPDIR)/Make.defs
 # The Readline Library
 
 ASRCS =
-CSRCS = readline_common.c
-
-ifeq ($(CONFIG_NFILE_STREAMS),0)
-CSRCS += std_readline.c
-else
-CSRCS += readline.c
-endif
+CSRCS = readline.c readline_common.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

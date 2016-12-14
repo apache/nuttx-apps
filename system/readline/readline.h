@@ -105,7 +105,8 @@ struct rl_common_s
 /****************************************************************************
  * Name: readline_common
  *
- *   Common logic shared by readline and std_readline().
+ *   Common logic shared by various readline frone-ends (currently only
+ *   readline()).
  *
  * Input Parameters:
  *   buf       - The user allocated buffer to be filled.
