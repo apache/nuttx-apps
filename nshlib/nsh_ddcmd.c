@@ -50,6 +50,7 @@
 #include <string.h>
 #include <debug.h>
 #include <errno.h>
+#include <time.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -215,6 +216,12 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   struct dd_s dd;
   char *infile = NULL;
   char *outfile = NULL;
+#ifdef CONFIG_NSH_CMDOPT_DD_STATS
+  struct timespec ts0;
+  struct timespec ts1;
+  uint64_t elapsed;
+  uint64_t total;
+#endif
   int ret = ERROR;
   int i;
 
@@ -302,6 +309,14 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Then perform the data transfer */
 
+#ifdef CONFIG_NSH_CMDOPT_DD_STATS
+#ifdef CONFIG_CLOCK_MONOTONIC
+  (void)clock_gettime(CLOCK_MONOTONIC, &ts0);
+#else
+  (void)clock_gettime(CLOCK_REALTIME, &ts0);
+#endif
+#endif
+
   dd.sector = 0;
   while (!dd.eof && dd.nsectors > 0)
     {
@@ -346,6 +361,25 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 
   ret = OK;
+
+#ifdef CONFIG_NSH_CMDOPT_DD_STATS
+#ifdef CONFIG_CLOCK_MONOTONIC
+  (void)clock_gettime(CLOCK_MONOTONIC, &ts1);
+#else
+  (void)clock_gettime(CLOCK_REALTIME, &ts1);
+#endif
+
+  elapsed  = (((uint64_t)ts1.tv_sec * NSEC_PER_SEC) + ts1.tv_nsec);
+  elapsed -= (((uint64_t)ts0.tv_sec * NSEC_PER_SEC) + ts0.tv_nsec);
+  elapsed /= NSEC_PER_MSEC; /* msec */
+
+  total = ((uint64_t)dd.sector * (uint64_t)dd.sectsize);
+
+  nsh_output(vtbl, "%llu bytes copied, %u msec, ",
+             total, (unsigned int)elapsed);
+  nsh_output(vtbl, "%u KB/s\n" ,
+             (unsigned int)((double)total / (double)elapsed));
+#endif
 
 errout_with_outf:
   (void)close(dd.outfd);

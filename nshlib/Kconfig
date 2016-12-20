@@ -557,6 +557,11 @@ config NSH_CMDOPT_DF_H
 	default y if !DEFAULT_SMALL
 	depends on !NSH_DISABLE_DF
 
+config NSH_CMDOPT_DD_STATS
+	bool "dd: Support transfer statistics"
+	default n
+	depends on !NSH_DISABLE_DD
+
 config NSH_CODECS_BUFSIZE
 	int "File buffer size used by CODEC commands"
 	default 128
