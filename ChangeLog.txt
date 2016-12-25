@@ -1759,64 +1759,76 @@
 	* apps/platform: Add support for STM32L476-MDK (2016-10-06).
 	* apps/nshlib: Don't try to flush output streams if stdio buffered
 	  I/O is not supported (2016-10-06).
-	* OS test: enhance pthread cancellation test some (2016-12-11).
-	* examples/ostest: Add some delays to the pthread cancellation test.
-	  With deferred cancellation enabled, things happen more asynchronously
-	  (2016-12-10).
-	* examples/ostest:  Extend the pthread cancellation test to exercise
-	  pthread_cleanup_push() (and pthread_cleanup_pop() indirectly via
-	  pthread_cancel() and pthread_exit() (2016-12-08).
-	* Add support for new scheduler instrumentation (2016-12-07).
-	* Remove BOARDIOC_CAN_INITIALIZE.  CAN initialization is now done in the
-	  board initialization logic just like every other device driver
-	  (2016-12-06).
-	* Remove all usage of BOARDIOC_ADCTEST_SETUP, BIOARDIOC_PWMSETUP
-	  (2016-12-05).
-	* fix bug un ftpd file or socket may be not closed.  From Pierre-Noel
-	  Bouteville (2016-12-04).
-	* esp8266 update cosmetic and many bug fix.  From Pierre-Noel Bouteville
-	  (2016-12-04).
-	* Import patch to fix:cJSON_PrintUnformatted() behaves unexpected if an
-	  empty array shall be printed to text. from Jerome Lang 2012-04-19.
-	  From Pierre-Noel Bouteville (2016-12-04).
-	* netutils/ntpclient: Fix missing left parenthesis.  From Pierre-Noel
-	  Bouteville (2016-12-04).
-	* Remove some garbage characters added by error.  From Pierre-Noel
-	  Bouteville (2016-12-04).
-	* Remove RGMP example (2016-12-02).
-	* Graphics: Remove all NX server taks.  Instead, call boardctl() to the
-	  NX server kernel thread (2016-12-01).
-	* apps/system/sched_lock:  Add support for spinlock notes (2016-12-01).
-	* apps/system/sched_note:  Extend to include additions to instumentation
-	  for SMP (2016-11-27).
-	* apps/examples/archbuttons:  Removed becaue it violates OS interface
-	  principles (2016-11-22).
+
+7.18 2016-10-08 Gregory Nutt <gnutt@nuttx.org>
+
+	* Rename examples/buttons to examples/archbuttons.  From Alan Carvalho
+	  de Assis (2016-10-11).
+	* Add a new buttons example that uses the button character driver
+	  instead of the architecture buttons directly. From Alan Carvalho de
+	  Assis (2016-10-11).
+	* apps/nshlib: nsh_getdirpath(), use snprint instead of sprintf to avoid
+	  possibility of buffer overrun.  Noted by Chung Hwan Kim (2016-10-11).
+	* examples/cctype:  Add an example to verify cctype functions
+	  (2016-10-22).
+	* Add platform support for the ESP32 core v2 board (2016-10-31).
+	* Modbus Master is missing many files and doesn't compile at all. More
+	  details in https://groups.yahoo.com/neo/groups/nuttx/conversations/topics/13734.
+	  From Vytautas Lukenskas (2016-11-03).
+	* graphics/traveler/tcledit and libwld:  Add an X11 Tcl/Tk tool that can
+	  be used to edit Traveler world files (2016-11-12).
+	* platform/esp32-core:  Fix some naming that prenvented building the C++
+	  support (2016-11-14).
+	* Make.defs:  Using wrong link script if native window tool used with
+	  Cygwin (2016-11-17).
+	* apps/examples/timer: Should detach signal handler before exiting
+	  (2016-11-18).
+	* Fixed bug that didn't free ftpd ressources on exit.  From Pascal
+	  Speck (2016-11-21).
 	* The examples/qencoder app was trying to init the encoder by a direct
 	  call into the board, cheating in a local header to declare the
 	  normally unavailable function prototype.  From Sebastien Lorquet
 	  (2016-11-22).
-	* Fixed bug that didn't free ftpd ressources on exit.  From Pascal
-	  Speck (2016-11-21).
-	* apps/examples/timer: Should detach signal handler before exiting
-	  (2016-11-18).
-	* Make.defs:  Using wrong link script if native window tool used with
-	  Cygwin (2016-11-17).
-	* platform/esp32-core:  Fix some naming that prenvented building the C++
-	  support (2016-11-14).
-	* graphics/traveler/tcledit and libwld:  Add an X11 Tcl/Tk tool that can
-	  be used to edit Traveler world files (2016-11-12).
-	* Modbus Master is missing many files and doesn't compile at all. More
-	  details in https://groups.yahoo.com/neo/groups/nuttx/conversations/topics/13734.
-	  From Vytautas Lukenskas (2016-11-03).
-	* Add platform support for the ESP32 core v2 board (2016-10-31).
-	* examples/cctype:  Add an example to verify cctype fucntions
-	  (2016-10-22).
-	* apps/nshlib: nsh_getdirpath(), use snprint instead of sprintf to avoid
-	  possibility of buffer overrun.  Noted by Chung Hwan Kim (2016-10-11).
-	* Add a new buttons example that uses the button character driver
-	  instead of the architecture buttons directly. From Alan Carvalho de
-	  Assis (2016-10-11).
-	* Rename examples/buttons to examples/archbuttons.  From Alan Carvalho
-	  de Assis (2016-10-xx).
+	* apps/examples/archbuttons:  Removed becaue it violates OS interface
+	  principles (2016-11-22).
+	* apps/system/sched_note:  Extend to include additions to instumentation
+	  for SMP (2016-11-27).
+	* apps/system/sched_lock:  Add support for spinlock notes (2016-12-01).
+	* Graphics: Remove all NX server taks.  Instead, call boardctl() to the
+	  NX server kernel thread (2016-12-01).
+	* Remove RGMP example (2016-12-02).
+	* Remove some garbage characters added by error.  From Pierre-Noel
+	  Bouteville (2016-12-04).
+	* netutils/ntpclient: Fix missing left parenthesis.  From Pierre-Noel
+	  Bouteville (2016-12-04).
+	* Import patch to fix:cJSON_PrintUnformatted() behaves unexpected if an
+	  empty array shall be printed to text. from Jerome Lang 2012-04-19.
+	  From Pierre-Noel Bouteville (2016-12-04).
+	* esp8266 update cosmetic and many bug fix.  From Pierre-Noel Bouteville
+	  (2016-12-04).
+	* fix bug un ftpd file or socket may be not closed.  From Pierre-Noel
+	  Bouteville (2016-12-04).
+	* Remove all usage of BOARDIOC_ADCTEST_SETUP, BIOARDIOC_PWMSETUP
+	  (2016-12-05).
+	* Remove BOARDIOC_CAN_INITIALIZE.  CAN initialization is now done in the
+	  board initialization logic just like every other device driver
+	  (2016-12-06).
+	* Add support for new scheduler instrumentation (2016-12-07).
+	* examples/ostest:  Extend the pthread cancellation test to exercise
+	  pthread_cleanup_push() (and pthread_cleanup_pop() indirectly via
+	  pthread_cancel() and pthread_exit() (2016-12-08).
+	* examples/ostest: Add some delays to the pthread cancellation test.
+	  With deferred cancellation enabled, things happen more asynchronously
+	  (2016-12-10).
+	* OS test: enhance pthread cancellation test some (2016-12-11).
+	* examples/ostest: Add some delays to the pthread cancellation test.
+	  With deferred cancellation enabled, things happen more asynchronously
+	  (2016-12-10).
+	* OS test: enhance pthread cancellation test some (2016-12-11).
+	* Remove std_readline().  This called up_getc() and up_putc() directly,
+	  violating the POSIX OS interface (2016-12-13).
+	* NSH: dd command will show statistics.  From  Masayuki Ishikawa
+	  (2016-12-19).
+	* Add platform support for the Olimex STM32 P407 (2016-12-21).
 
-7.19 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.19 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
