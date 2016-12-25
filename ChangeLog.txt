@@ -592,7 +592,7 @@
 * Update include paths to adapt to changes made to apps/ include path logic
   (2016-07-22).
 
-1.18 2016-xx-xx Gregory Nutt <gnutt@nuttx.org>
+1.18 2016-12-26 Gregory Nutt <gnutt@nuttx.org>
 
 * NxWM needs the path to the apps/include directory (2016-07-28).
 * NxWidgets: Fix CListBox crash when clicked below the last item.  From
@@ -623,4 +623,4 @@
   (2016-12-01).
 * CNxServer: Can't use printf in this context (2016-12-01)
 
-
+1.19 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
