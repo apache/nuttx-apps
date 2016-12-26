@@ -1760,7 +1760,7 @@
 	* apps/nshlib: Don't try to flush output streams if stdio buffered
 	  I/O is not supported (2016-10-06).
 
-7.18 2016-10-08 Gregory Nutt <gnutt@nuttx.org>
+7.19 2016-10-08 Gregory Nutt <gnutt@nuttx.org>
 
 	* Rename examples/buttons to examples/archbuttons.  From Alan Carvalho
 	  de Assis (2016-10-11).
@@ -1821,14 +1821,10 @@
 	  With deferred cancellation enabled, things happen more asynchronously
 	  (2016-12-10).
 	* OS test: enhance pthread cancellation test some (2016-12-11).
-	* examples/ostest: Add some delays to the pthread cancellation test.
-	  With deferred cancellation enabled, things happen more asynchronously
-	  (2016-12-10).
-	* OS test: enhance pthread cancellation test some (2016-12-11).
 	* Remove std_readline().  This called up_getc() and up_putc() directly,
 	  violating the POSIX OS interface (2016-12-13).
 	* NSH: dd command will show statistics.  From  Masayuki Ishikawa
 	  (2016-12-19).
 	* Add platform support for the Olimex STM32 P407 (2016-12-21).
 
-7.19 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.20 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
