@@ -563,3 +563,45 @@ Additional new features and extended functionality in Version 1.17:
 Bugfixes\:
 
 * None in this release
+
+NxWidgets-1.18
+==============
+
+The 19th release of the NxWidgets package was made on December 26, 2016.  This
+release depends on NuttX-7.19 or above and should not be used with older
+NuttX releases.
+
+The TAG for this release is nuttx-7.19
+
+Additional new features and extended functionality in Version 1.18:
+
+* libnxwidgets:  Allow NxWidgets::CListDataItems subclasses access to text
+  and value.  From Petteri Aimonen.
+* Add setting task name via prctl() to NxWidgets::CNxServer and
+  NxWM:CTouchScreen.  From Petteri Aimonen.
+* libnxwidgets:  In NxWidgets::CText, allow setting negative line spacing.
+  This is useful to have text take up less space, as quite many fonts have
+  large line spacings built-in.  From Petteri Aimonen.
+* libnxwidgets: Allow setting line spacing in NxWidgets::CMultiLineTextBox.
+  From Petteri Aimonen.
+* CNxServer: Remove NX server task.  Now calls nx_start (indirectly through
+  boardctrl(BOARDIOC_NX_START) to start the NX Server kernel thread.
+
+Bugfixes:
+
+* NxWM needs the path to the apps/include directory.
+* NxWidgets:  Fix CListBox crash when clicked below the last item.  From
+  Petteri Aimonen.
+* libnxwdigets:  Fix memory leak in CNxWindow and make behaviour match
+  CNxTkWindow.  From Petteri Aimonen.
+* libnxwidgets:  Fix default text colors in NxWidgets::CListBox.  From
+  Petteri Aimonen.
+* libnxwidgets:  Avoid unnecessary redraw in NxWidgets::CListBox. The
+  ListData will raise an event that will cause a redraw anyway.  Redrawing
+  in click() caused double redraws.  From Petteri Aimonen.
+* libnxwidgets:  Fix coordinate handling in NxWidgets::CMultiLineTextBox.
+  Related to 'Thu Feb 21 16:47:01 2013 Fix text placement in
+  CMultiLineTextbox.' There was a few similar bugs remaining in calculating
+  of rows to show and in clearing the background.  From Petteri Aimonen.
+* CNxServer: Can't use printf in this context.
+
