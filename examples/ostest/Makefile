@@ -48,7 +48,9 @@ CSRCS = dev_null.c restart.c
 MAINSRC = ostest_main.c
 
 ifeq ($(CONFIG_ARCH_FPU),y)
+ifneq ($(CONFIG_EXAMPLES_OSTEST_FPUTESTDISABLE),y)
 CSRCS += fpu.c
+endif
 endif
 
 ifeq ($(CONFIG_TLS),y)

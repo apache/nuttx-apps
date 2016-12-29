@@ -347,7 +347,7 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#ifdef  CONFIG_ARCH_FPU
+#if defined(CONFIG_ARCH_FPU) && !defined(CONFIG_EXAMPLES_OSTEST_FPUTESTDISABLE)
       /* Check that the FPU is properly supported during context switching */
 
       printf("\nuser_main: FPU test\n");
