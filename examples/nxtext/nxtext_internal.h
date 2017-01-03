@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxtext/nxtext_internal.h
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,14 @@
 
 #ifndef CONFIG_EXAMPLES_NXTEXT_VPLANE
 #    define CONFIG_EXAMPLES_NXTEXT_VPLANE 0
+#endif
+
+/* Line spacing.  Space (in rows) between lines. */
+
+#ifdef CONFIG_EXAMPLES_NXTEXT_LINESPACING
+#  define LINE_SEPARATION CONFIG_EXAMPLES_NXTEXT_LINESPACING
+#else
+#  define LINE_SEPARATION 2
 #endif
 
 /* Pixel depth.  If none provided, pick the smallest enabled pixel depth */
@@ -192,7 +200,6 @@
 /* Sizes and maximums */
 
 #define MAX_USECNT      255  /* Limit to range of a uint8_t */
-#define LINE_SEPARATION 2    /* Space (in rows) between lines */
 
 /****************************************************************************
  * Public Types

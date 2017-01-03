@@ -46,6 +46,15 @@ config EXAMPLES_NXTEXT_GLCACHE
 	---help---
 		Size of the glyph cache.
 
+config EXAMPLES_NXTEXT_LINESPACING
+	int "Line spacing"
+	default 2
+	range 0 4
+	---help---
+		The vertical distance between lines is the sum of (1) the vertical
+		bounding box dimension of the font, and (2) this additional line
+		space.  This value may be zero, but not negative.
+
 comment "Example Color Configuration"
 
 config EXAMPLES_NXTEXT_DEFAULT_COLORS
