@@ -41,6 +41,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include <semaphore.h>
 
 #include <nuttx/video/fb.h>
 #ifdef CONFIG_NX
