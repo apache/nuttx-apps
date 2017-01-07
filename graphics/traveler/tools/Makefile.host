@@ -114,7 +114,7 @@ endif
 # mktrig - Regenerate trigonometry look-up tables
 
 mktrig$(HOSTEXEEXT): $(MKTRIG_OBJS)
-	$(Q) $(HOSTCC) $(HOSTCFLAGS) -lm $< -o $@
+	$(Q) $(HOSTCC) $(HOSTCFLAGS) $< -o $@ -lm
 
 ifdef HOSTEXEEXT
 mktrig: mktrig$(HOSTEXEEXT)
