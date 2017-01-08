@@ -628,10 +628,10 @@ endif # NXWM_CUSTOM_STARTWINDOW_ICON
 
 config NXWM_STARTWINDOW_MQNAME
 	string "Message Queue Name"
-	default "/dev/nxwm"
+	default "nxwm"
 	---help---
 		The well known name of the message queue. Used to communicated from
-		CWindowMessenger to the start window thread.  Default: "/dev/nxwm"
+		CWindowMessenger to the start window thread.  Default: "nxwm"
 
 config NXWM_STARTWINDOW_MXMSGS
 	int "Max Messages"

@@ -301,7 +301,7 @@
  * CONFIG_NXWM_STARTWINDOW_ICON - The glyph to use as the start window icon
  * CONFIG_NXWM_STARTWINDOW_MQNAME - The well known name of the message queue
  *   Used to communicated from CWindowMessenger to the start window thread.
- *   Default: "/dev/nxwm"
+ *   Default: "nxwm"
  * CONFIG_NXWM_STARTWINDOW_MXMSGS - The maximum number of messages to queue
  *   before blocking.  Default 32
  * CONFIG_NXWM_STARTWINDOW_MXMPRIO - The message priority. Default: 42.
@@ -335,7 +335,7 @@
  */
 
 #ifndef CONFIG_NXWM_STARTWINDOW_MQNAME
-#  define CONFIG_NXWM_STARTWINDOW_MQNAME  "/dev/nxwm"
+#  define CONFIG_NXWM_STARTWINDOW_MQNAME  "nxwm"
 #endif
 
 #ifndef CONFIG_NXWM_STARTWINDOW_MXMSGS
