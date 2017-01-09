@@ -41,6 +41,7 @@
  ****************************************************************************/
 
 #include "trv_types.h"
+#include <semaphore.h>
 
 #include <nuttx/video/fb.h>
 #ifdef CONFIG_NX
@@ -124,7 +125,7 @@ void trv_display_update(struct trv_graphics_info_s *fb);
 trv_pixel_t *trv_get_renderbuffer(uint16_t width, uint16_t height);
 
 #ifdef CONFIG_NX_MULTIUSER
-FAR void *trv_nxlistener(FAR void *arg)
+FAR void *trv_nxlistener(FAR void *arg);
 #endif
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_GRAPHICS_H */
