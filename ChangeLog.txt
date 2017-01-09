@@ -624,3 +624,8 @@
 * CNxServer: Can't use printf in this context (2016-12-01)
 
 1.19 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+
+* Correct NX Server message queue names.  Should not be /dev/nx*.  They
+  must be relative to /dev/mqueue so "nxabc" will appear at "/var/nxabc"
+  (2017-01-08).
+
