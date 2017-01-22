@@ -145,16 +145,18 @@ static int module_uninitialize(FAR void *arg)
  * Name: module_initialize
  *
  * Description:
- *   Register /dev/zero
+ *   Register /dev/chardev
  *
  ****************************************************************************/
 
-int module_initialize(mod_uninitializer_t *uninitializer, FAR void **arg)
+int module_initialize(FAR struct mod_info_s *modinfo)
 {
   syslog(LOG_INFO, "module_initialize:\n");
 
-  *uninitializer = module_uninitialize;
-  *arg = NULL;
+  modinfo->uninitializer = module_uninitialize;
+  modinfo->arg           = NULL;
+  modinfo->exports       = NULL;
+  modinfo->nexports      = 0;
 
   return register_driver("/dev/chardev", &chardev_fops, 0666, NULL);
 }

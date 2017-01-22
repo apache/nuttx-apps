@@ -59,13 +59,13 @@
 
 int cmd_insmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  int ret;
+  FAR void *handle;
 
   /* Usage: insmod <filepath> <modulename> */
   /* Install the module  */
 
-  ret = insmod(argv[1], argv[2]);
-  if (ret < 0)
+  handle = insmod(argv[1], argv[2]);
+  if (handle == NULL)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "insmod", NSH_ERRNO);
       return ERROR;
@@ -80,12 +80,22 @@ int cmd_insmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 int cmd_rmmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+  FAR void *handle;
   int ret;
 
   /* Usage: rmmod <modulename> */
+  /* Get the module handle associated with the name */
+
+  handle = modhandle(argv[1]);
+  if (handle == NULL)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "modhandle", NSH_ERRNO);
+      return ERROR;
+    }
+
   /* Remove the module  */
 
-  ret = rmmod(argv[1]);
+  ret = rmmod(handle);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "rmmod", NSH_ERRNO);
@@ -116,8 +126,8 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Output a Header */
 
-  nsh_output(vtbl, "%-16s %8s %8s %8s %8s %8s %8s %8s\n",
-             "NAME", "INIT", "UNINIT", "ARG", "TEXT", "SIZE",
+  nsh_output(vtbl, "%-16s %8s %8s %8s %8s %8s %8s %8s %8s\n",
+             "NAME", "INIT", "UNINIT", "ARG", "NEXPORTS", "TEXT", "SIZE",
              "DATA", "SIZE");
 
   /* Read each line from the procfs "file" */
@@ -128,6 +138,7 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       FAR char *initializer;
       FAR char *uninitializer;
       FAR char *arg;
+      FAR char *nexports;
       FAR char *text;
       FAR char *textsize;
       FAR char *data;
@@ -152,16 +163,18 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       initializer   = strtok_r(NULL, ",\n", &lasts);
       uninitializer = strtok_r(NULL, ",\n", &lasts);
       arg           = strtok_r(NULL, ",\n", &lasts);
+      nexports      = strtok_r(NULL, ",\n", &lasts);
       text          = strtok_r(NULL, ",\n", &lasts);
       textsize      = strtok_r(NULL, ",\n", &lasts);
       data          = strtok_r(NULL, ",\n", &lasts);
       datasize      = strtok_r(NULL, ",\n", &lasts);
 
-      nsh_output(vtbl, "%-16s %8s %8s %8s %8s %8s %8s %8s\n",
+      nsh_output(vtbl, "%-16s %8s %8s %8s %8s %8s %8s %8s %8s\n",
                  modulename,
                  initializer   ? initializer   : "",
                  uninitializer ? uninitializer : "",
                  arg           ? arg           : "",
+                 nexports      ? nexports      : "",
                  text          ? text          : "",
                  textsize      ? textsize      : "",
                  data          ? data          : "",

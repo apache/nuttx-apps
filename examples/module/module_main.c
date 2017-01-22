@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/module/module_main.c
  *
- *   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -124,6 +124,7 @@ int module_main(int argc, char *argv[])
 #endif
 {
   struct boardioc_symtab_s symdesc;
+  FAR void *handle;
   char buffer[128];
   ssize_t nbytes;
   int ret;
@@ -149,8 +150,15 @@ int module_main(int argc, char *argv[])
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
-      exit(EXIT_FAILURE);
+      /* This will happen naturally if we registered the ROM disk previously. */
+
+      if (ret != -EEXIST)
+        {
+          fprintf(stderr, "ERROR: romdisk_register failed: %d\n", ret);
+          exit(EXIT_FAILURE);
+        }
+
+      printf("main: ROM disk already registered\n");
     }
 
   /* Mount the file system */
@@ -168,10 +176,11 @@ int module_main(int argc, char *argv[])
 
   /* Install the character driver  */
 
-  ret = insmod(MOUNTPT "/chardev", "chardev");
-  if (ret < 0)
+  handle = insmod(MOUNTPT "/chardev", "chardev");
+  if (handle == NULL)
     {
-      fprintf(stderr, "ERROR: insmod failed: %d\n", ret);
+      int errcode = errno;
+      fprintf(stderr, "ERROR: insmod failed: %d\n", errcode);
       exit(EXIT_FAILURE);
     }
 
@@ -214,7 +223,7 @@ int module_main(int argc, char *argv[])
   lib_dumpbuffer("main: Bytes written", (FAR const uint8_t *)g_write_string, nbytes);
 
   close(fd);
-  ret = rmmod("chardev");
+  ret = rmmod(handle);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: rmmod failed: %d\n", ret);

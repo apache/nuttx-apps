@@ -34,6 +34,7 @@
 ############################################################################
 
 -include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 OBJEXT ?= .o
 DELIM ?= /
@@ -45,7 +46,7 @@ NUTTXLIB = "$(TOPDIR)$(DELIM)lib"
 endif
 
 KDEFINE = ${shell $(TOPDIR)/tools/define.sh "$(CC)" __KERNEL__}
-CFLAGS += $(KDEFINE)
+CMODULEFLAGS += $(KDEFINE)
 
 ifeq ($(CONFIG_EXAMPLES_MODULE_LIBGCC),y)
 LIBGCC = "${shell $(CC) $(ARCHCPUFLAGS) -print-libgcc-file-name 2>/dev/null}"
