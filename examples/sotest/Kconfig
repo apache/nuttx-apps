@@ -11,7 +11,10 @@ config EXAMPLES_SOTEST
 		Enable the shared library example
 
 		NOTE: This example can only be used in the FLAT build mode because
-		it makes an illegal OS call to ramdisk_register().
+		it makes an illegal OS call to ramdisk_register().  A proper solution
+		would include the ROMFS file system containing the test shared
+		library in the kernel address space and would register it with logic
+		in the configs/ board directory at start-up.
 
 if EXAMPLES_SOTEST
 

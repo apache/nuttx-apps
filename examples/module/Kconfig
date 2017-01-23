@@ -13,7 +13,10 @@ config EXAMPLES_MODULE
 
 		NOTE: This example can only be used in the FLAT build mode because
 		it makes illegal OS calls to ramdisk_register(), register_device(),
-		and unregister_device().
+		and unregister_device().  A proper solution would include the ROMFS
+		file system containing the test module file in the kernel address
+		space and would register it with logic in the configs/ board directory
+		at start-up.
 
 if EXAMPLES_MODULE
 
