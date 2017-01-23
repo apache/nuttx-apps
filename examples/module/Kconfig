@@ -6,10 +6,14 @@
 config EXAMPLES_MODULE
 	bool "Module Example"
 	default n
-	depends on MODULE && LIB_BOARDCTL
+	depends on MODULE && LIB_BOARDCTL && BUILD_FLAT
 	select BOARDCTL_OS_SYMTAB
 	---help---
 		Enable the module example
+
+		NOTE: This example can only be used in the FLAT build mode because
+		it makes illegal OS calls to ramdisk_register(), register_device(),
+		and unregister_device().
 
 if EXAMPLES_MODULE
 

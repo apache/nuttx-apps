@@ -6,9 +6,12 @@
 config EXAMPLES_SOTEST
 	bool "Shared Library Example"
 	default n
-	depends on LIBC_DLLFCN
+	depends on LIBC_DLLFCN && BUILD_FLAT
 	---help---
 		Enable the shared library example
+
+		NOTE: This example can only be used in the FLAT build mode because
+		it makes an illegal OS call to ramdisk_register().
 
 if EXAMPLES_SOTEST
 
