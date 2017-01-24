@@ -90,7 +90,9 @@ static FAR void *thread_waiter(FAR void *parameter)
         }
     }
 
-  /* Then wait -- we will never awaken from this. */
+  /* Then wait -- we will never awaken from this normaly. We will wake
+   * either by signal or cancellation.
+   */
 
   status = pthread_cond_wait(&cond, &mutex);
   if (status != 0)
@@ -98,22 +100,29 @@ static FAR void *thread_waiter(FAR void *parameter)
       printf("thread_waiter: ERROR pthread_cond_wait failed, status=%d\n", status);
     }
 
-  /* Release the mutex */
-
-  printf("thread_waiter: Releasing mutex\n");
-  status = pthread_mutex_unlock(&mutex);
-  if (status != 0)
+  if (!parameter)
     {
-      printf("thread_waiter: ERROR pthread_mutex_unlock failed, status=%d\n", status);
+      /* Release the mutex */
+ 
+      printf("thread_waiter: Releasing mutex\n");
+      status = pthread_mutex_unlock(&mutex);
+      if (status != 0)
+        {
+          printf("thread_waiter: ERROR pthread_mutex_unlock failed, status=%d\n", status);
+        }
+ 
+      /* Set the cancelable state */
+
+      printf("thread_waiter: Setting cancelable\n");
+      status = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+      if (status != 0)
+        {
+          printf("thread_waiter: ERROR pthread_setcancelstate failed, status=%d\n", status);
+        }
     }
-
-  /* Set the cancelable state */
-
-  printf("thread_waiter: Setting cancelable\n");
-  status = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-  if (status != 0)
+  else
     {
-      printf("thread_waiter: ERROR pthread_setcancelstate failed, status=%d\n", status);
+      printf("thread_waiter: ERROR pthread_cond_wait returned after being cancelled!\n");
     }
 
   printf("thread_waiter: Exit with status 0x12345678\n");
@@ -248,7 +257,9 @@ static void restart_thread(FAR void *(*entry)(FAR void *), pthread_t *waiter, in
       printf("restart_thread: ERROR pthread_cond_destroy failed, status=%d\n", status);
     }
 
-  /* Destroy the mutex */
+  /* Destroy the mutex. Note that this relies on non-portable NuttX assumption,
+   * that it is possible to destroy a locked mutex owned by a cancelled thread.
+   */
 
   printf("restart_thread: Destroying mutex\n");
   status = pthread_mutex_destroy(&mutex);
@@ -312,7 +323,7 @@ void cancel_test(void)
         }
     }
 
-  /* Test 2: Syncrhonous Cancel ****************************************/
+  /* Test 2: Asynchronous Cancel ***************************************/
 
   printf("cancel_test: Test 2: Asynchronous Cancellation\n");
 
