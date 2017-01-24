@@ -90,11 +90,9 @@ static const char *g_argv[NARGS+1];
 static const char *g_argv[NARGS+1] = { arg1, arg2, arg3, arg4, NULL };
 #endif
 
-#ifndef CONFIG_DISABLE_SIGNALS
 static struct mallinfo g_mmbefore;
 static struct mallinfo g_mmprevious;
 static struct mallinfo g_mmafter;
-#endif
 
 #ifndef CONFIG_DISABLE_ENVIRON
 const char g_var1_name[]    = "Variable1";
@@ -119,7 +117,6 @@ const char g_putenv_value[] = "Variable1=BadValue3";
  * Name: show_memory_usage
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 static void show_memory_usage(struct mallinfo *mmbefore,
                               struct mallinfo *mmafter)
 {
@@ -131,15 +128,11 @@ static void show_memory_usage(struct mallinfo *mmbefore,
   printf("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
   printf("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
 }
-#else
-# define show_memory_usage(mm1, mm2)
-#endif
 
 /****************************************************************************
  * Name: check_test_memory_usage
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_SIGNALS
 static void check_test_memory_usage(void)
 {
   /* Wait a little bit to let any threads terminate */
@@ -171,9 +164,6 @@ static void check_test_memory_usage(void)
 
   dump_nfreeholders("user_main:");
 }
-#else
-# define check_test_memory_usage()
-#endif
 
 /****************************************************************************
  * Name: show_variable
@@ -238,7 +228,6 @@ static int user_main(int argc, char *argv[])
 
   /* Sample the memory usage now */
 
-#ifndef CONFIG_DISABLE_SIGNALS
   usleep(HALF_SECOND_USEC);
 
 #ifdef CONFIG_CAN_PASS_STRUCTS
@@ -247,7 +236,6 @@ static int user_main(int argc, char *argv[])
 #else
   (void)mallinfo(&g_mmbefore);
   memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
-#endif
 #endif
 
   printf("\nuser_main: Begin argument test\n");
@@ -424,7 +412,7 @@ static int user_main(int argc, char *argv[])
 #endif
 #endif
 
-#if !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_DISABLE_PTHREAD)
+#ifndef CONFIG_DISABLE_PTHREAD
       /* Verify pthreads and condition variable timed waits */
 
       printf("\nuser_main: timed wait test\n");
@@ -448,7 +436,6 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#ifndef CONFIG_DISABLE_SIGNALS
       /* Verify that we can modify the signal mask */
 
       printf("\nuser_main: sigprocmask test\n");
@@ -464,9 +451,8 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: nested signal handler test\n");
       signest_test();
       check_test_memory_usage();
-#endif
 
-#if !defined(CONFIG_DISABLE_POSIX_TIMERS) && !defined(CONFIG_DISABLE_SIGNALS)
+#ifndef CONFIG_DISABLE_POSIX_TIMERS
       /* Verify posix timers (with SIGEV_SIGNAL) */
 
       printf("\nuser_main: POSIX timer test\n");
@@ -506,16 +492,15 @@ static int user_main(int argc, char *argv[])
       check_test_memory_usage();
 #endif
 
-#if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_DISABLE_PTHREAD)
+#if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_PTHREAD)
       /* Verify priority inheritance */
 
       printf("\nuser_main: priority inheritance test\n");
       priority_inheritance();
       check_test_memory_usage();
-#endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_SIGNALS && !CONFIG_DISABLE_PTHREAD */
+#endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_PTHREAD */
 
-#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
+#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID)
       printf("\nuser_main: vfork() test\n");
       vfork_test();
 #endif
@@ -526,7 +511,6 @@ static int user_main(int argc, char *argv[])
        * leaks.
        */
 
-#ifndef CONFIG_DISABLE_SIGNALS
       usleep(HALF_SECOND_USEC);
 
 #ifdef CONFIG_CAN_PASS_STRUCTS
@@ -537,7 +521,6 @@ static int user_main(int argc, char *argv[])
 
       printf("\nFinal memory usage:\n");
       show_memory_usage(&g_mmbefore, &g_mmafter);
-#endif
     }
 
   printf("user_main: Exitting\n");

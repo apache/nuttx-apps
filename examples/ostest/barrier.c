@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/barrier.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,9 +69,7 @@ static void *barrier_func(void *parameter)
   int status;
 
   printf("barrier_func: Thread %d started\n",  id);
-#ifndef CONFIG_DISABLE_SIGNALS
   usleep(HALF_SECOND);
-#endif
 
   /* Wait at the barrier until all threads are synchronized. */
 
@@ -98,9 +96,7 @@ static void *barrier_func(void *parameter)
     }
   FFLUSH();
 
-#ifndef CONFIG_DISABLE_SIGNALS
   usleep(HALF_SECOND);
-#endif
   printf("barrier_func: Thread %d done\n",  id);
   FFLUSH();
   return NULL;

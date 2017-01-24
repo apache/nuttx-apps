@@ -37,6 +37,14 @@
 #define __APPS_EXAMPLES_OSTEST_OSTEST_H
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifdef CONFIG_DISABLE_SIGNALS
+#  error Signals are disabled (CONFIG_DISABLE_SIGNALS)
+#endif
+
+/****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -206,8 +214,7 @@ void priority_inheritance(void);
 
 /* vfork.c ******************************************************************/
 
-#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
+#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID)
 int vfork_test(void);
 #endif
 

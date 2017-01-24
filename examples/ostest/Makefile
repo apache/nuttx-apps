@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/ostest/Makefile
 #
-#   Copyright (C) 2007-2012, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2012, 2014, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ STACKSIZE = 2048
 # NuttX OS Test
 
 ASRCS =
-CSRCS = dev_null.c restart.c
+CSRCS = dev_null.c restart.c sigprocmask.c sighand.c signest.c
 MAINSRC = ostest_main.c
 
 ifeq ($(CONFIG_ARCH_FPU),y)
@@ -66,7 +66,7 @@ CSRCS += waitpid.c
 endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS += cancel.c cond.c mutex.c sem.c semtimed.c barrier.c
+CSRCS += cancel.c cond.c mutex.c sem.c semtimed.c barrier.c timedwait.c
 
 ifeq ($(CONFIG_FS_NAMED_SEMAPHORES),y)
 CSRCS += nsem.c
@@ -84,13 +84,6 @@ ifeq ($(CONFIG_SCHED_SPORADIC),y)
 CSRCS += sporadic.c
 endif
 endif # CONFIG_DISABLE_PTHREAD
-
-ifneq ($(CONFIG_DISABLE_SIGNALS),y)
-CSRCS += sigprocmask.c sighand.c signest.c
-ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS += timedwait.c
-endif # CONFIG_DISABLE_PTHREAD
-endif # CONFIG_DISABLE_SIGNALS
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
@@ -111,13 +104,11 @@ CSRCS += vfork.c
 endif
 endif
 
-ifneq ($(CONFIG_DISABLE_SIGNALS),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 ifeq ($(CONFIG_PRIORITY_INHERITANCE),y)
 CSRCS += prioinherit.c
 endif # CONFIG_PRIORITY_INHERITANCE
 endif # CONFIG_DISABLE_PTHREAD
-endif # CONFIG_DISABLE_SIGNALS
 
 CONFIG_XYZ_PROGNAME ?= ostest$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)

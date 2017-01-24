@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/cancel.c
  *
- *   Copyright (C) 2007-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,10 @@
  *
  ****************************************************************************/
 
+/****************************************************************************
+ * Included Files
+ ****************************************************************************/
+
 #include <nuttx/config.h>
 
 #include <stdio.h>
@@ -42,8 +46,16 @@
 
 #include "ostest.h"
 
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
 static pthread_mutex_t mutex;
 static pthread_cond_t  cond;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
 
 #ifdef CONFIG_PTHREAD_CLEANUP
 static void thread_cleaner(FAR void *arg)
@@ -274,6 +286,10 @@ static void restart_thread(FAR void *(*entry)(FAR void *), pthread_t *waiter, in
   start_thread(entry, waiter, cancelable);
 }
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 void cancel_test(void)
 {
   pthread_t waiter;
@@ -437,7 +453,6 @@ void cancel_test(void)
    * could be re-designed so that it does not depend on signals.
    */
 
-#ifndef CONFIG_DISABLE_SIGNALS
   printf("cancel_test: Test 5: Non-cancelable threads\n");
   printf("cancel_test: Re-starting thread (non-cancelable)\n");
   restart_thread(thread_waiter, &waiter, 0);
@@ -508,5 +523,4 @@ void cancel_test(void)
           printf("cancel_test: PASS thread terminated with PTHREAD_CANCELED\n");
         }
     }
-#endif
 }

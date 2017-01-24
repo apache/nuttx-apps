@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/vfork.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,12 +47,7 @@
 
 #include "ostest.h"
 
-#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
+#if defined(CONFIG_ARCH_HAVE_VFORK) && defined(CONFIG_SCHED_WAITPID)
 
 /****************************************************************************
  * Private Data
@@ -101,4 +96,4 @@ int vfork_test(void)
   return 0;
 }
 
-#endif /* CONFIG_ARCH_HAVE_VFORK && CONFIG_SCHED_WAITPID && !CONFIG_DISABLE_SIGNALS */
+#endif /* CONFIG_ARCH_HAVE_VFORK && CONFIG_SCHED_WAITPID */

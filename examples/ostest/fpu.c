@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/examples/ostest/fpu.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,6 @@
 #ifdef CONFIG_ARCH_FPU
 #  if defined(CONFIG_EXAMPLES_OSTEST_FPUSIZE) && \
       defined(CONFIG_SCHED_WAITPID) && \
-      !defined(CONFIG_DISABLE_SIGNALS) && \
       defined(CONFIG_BUILD_FLAT)
 #    define HAVE_FPU 1
 #  else
@@ -66,9 +65,6 @@
 #    endif
 #    ifndef CONFIG_SCHED_WAITPID
 #      warning "FPU test not built; CONFIG_SCHED_WAITPID not defined"
-#    endif
-#    ifdef CONFIG_DISABLE_SIGNALS
-#      warning "FPU test not built; CONFIG_DISABLE_SIGNALS defined"
 #    endif
 #    ifndef CONFIG_BUILD_FLAT
 #      warning "FPU test not built; Only available in the flat build (CONFIG_BUILD_FLAT)"

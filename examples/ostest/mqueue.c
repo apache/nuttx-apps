@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/examples/ostest/mqueue.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,33 +59,17 @@
 #if defined(SDCC) || defined(__ZILOG__)
    /* Cannot use strlen in array size */
 
-#  define TEST_MSGLEN         (31)
+#  define TEST_MSGLEN       (31)
 #else
    /* Message lenght is the size of the message plus the null terminator */
 
-#  define TEST_MSGLEN         (strlen(TEST_MESSAGE)+1)
+#  define TEST_MSGLEN       (strlen(TEST_MESSAGE)+1)
 #endif
 
 #define TEST_SEND_NMSGS     (10)
-#ifndef CONFIG_DISABLE_SIGNALS
-# define TEST_RECEIVE_NMSGS (11)
-#else
-# define TEST_RECEIVE_NMSGS (10)
-#endif
+#define TEST_RECEIVE_NMSGS  (11)
 
 #define HALF_SECOND_USEC_USEC 500000L
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Data
@@ -93,10 +77,6 @@
 
 static mqd_t g_send_mqfd;
 static mqd_t g_recv_mqfd;
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
 
 /****************************************************************************
  * Public Functions
@@ -376,7 +356,6 @@ void mqueue_test(void)
              (int)((intptr_t)result));
     }
 
-#ifndef CONFIG_DISABLE_SIGNALS
   /* Wake up the receiver thread with a signal */
 
   printf("mqueue_test: Killing receiver\n");
@@ -385,7 +364,6 @@ void mqueue_test(void)
   /* Wait a bit to see if the thread exits on its own */
 
   usleep(HALF_SECOND_USEC_USEC);
-#endif
 
   /* Then cancel the thread and see if it did */
 

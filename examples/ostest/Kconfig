@@ -6,6 +6,7 @@
 config EXAMPLES_OSTEST
 	bool "OS test example"
 	default n
+	depends on !DISABLE_SIGNALS
 	---help---
 		Enable the OS test example
 
@@ -78,7 +79,7 @@ config EXAMPLES_OSTEST_RR_RUNS
 		length of this test - it should last at least a few tens of seconds. Allowed
 		values [1; 32767], default 10
 
-if ARCH_FPU && SCHED_WAITPID && !DISABLE_SIGNALS
+if ARCH_FPU && SCHED_WAITPID
 
 config EXAMPLES_OSTEST_FPUTESTDISABLE
 	bool "Disable FPU test"

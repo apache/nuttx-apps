@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/ostest/prioinherit.c
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@
 
 #include "ostest.h"
 
-#if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_DISABLE_PTHREAD)
+#if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_PTHREAD)
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -392,7 +392,7 @@ static void *lowpri_thread(void *parameter)
   g_lowstate[threadno-1] = DONE;
   return retval;
 }
-#endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_SIGNALS && !CONFIG_DISABLE_PTHREAD */
+#endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_PTHREAD */
 
 /****************************************************************************
  * Public Functions
@@ -404,7 +404,7 @@ static void *lowpri_thread(void *parameter)
 
 void priority_inheritance(void)
 {
-#if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_DISABLE_PTHREAD)
+#if defined(CONFIG_PRIORITY_INHERITANCE) && !defined(CONFIG_DISABLE_PTHREAD)
   pthread_t lowpri[NLOWPRI_THREADS];
   pthread_t medpri;
   pthread_t highpri[NHIGHPRI_THREADS];
@@ -573,5 +573,5 @@ void priority_inheritance(void)
   sem_destroy(&g_sem);
   dump_nfreeholders("priority_inheritance:");
   FFLUSH();
-#endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_SIGNALS && !CONFIG_DISABLE_PTHREAD */
+#endif /* CONFIG_PRIORITY_INHERITANCE && !CONFIG_DISABLE_PTHREAD */
 }
