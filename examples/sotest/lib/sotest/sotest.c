@@ -107,7 +107,7 @@ static void modprint(FAR const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  (void)syslog(LOG_INFO, fmt, ap);
+  (void)vsyslog(LOG_INFO, fmt, ap);
   va_end(ap);
 }
 #endif
