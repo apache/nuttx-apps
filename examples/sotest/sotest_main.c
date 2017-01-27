@@ -94,8 +94,8 @@
  * Symbols from Auto-Generated Code
  ****************************************************************************/
 
-extern const struct symtab_s exports[];
-extern const int nexports;
+extern const struct symtab_s sot_exports[];
+extern const int sot_nexports;
 
 /****************************************************************************
  * Public Functions
@@ -118,7 +118,7 @@ int sotest_main(int argc, char *argv[])
 
   /* Set the shared library symbol table */
 
-  ret = dlsymtab((FAR struct symtab_s *)exports, nexports);
+  ret = dlsymtab((FAR struct symtab_s *)sot_exports, sot_nexports);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: dlsymtab failed: %d\n", ret);

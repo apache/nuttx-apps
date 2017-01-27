@@ -50,7 +50,7 @@ STACKSIZE = 2048
 # Module Example
 
 ASRCS =
-CSRCS = symtab.c
+CSRCS = mod_symtab.c
 MAINSRC = module_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

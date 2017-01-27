@@ -45,7 +45,7 @@ LIB_DIR = $(SOTEST_DIR)/lib
 ROMFS_DIR = $(LIB_DIR)/romfs
 ROMFS_IMG = $(LIB_DIR)/romfs.img
 ROMFS_HDR = $(LIB_DIR)/romfs.h
-SYMTAB_SRC = $(LIB_DIR)/symtab.c
+SYMTAB_SRC = $(LIB_DIR)/sot_symtab.c
 
 define DIR_template
 $(1)_$(2):

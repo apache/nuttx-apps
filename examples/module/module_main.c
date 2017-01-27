@@ -106,8 +106,8 @@ static const char g_write_string[] = "Hi there, installed driver\n";
  * Symbols from Auto-Generated Code
  ****************************************************************************/
 
-extern const struct symtab_s exports[];
-extern const int nexports;
+extern const struct symtab_s mod_exports[];
+extern const int mod_nexports;
 
 /****************************************************************************
  * Public Functions
@@ -132,8 +132,8 @@ int module_main(int argc, char *argv[])
 
   /* Set the OS symbol table indirectly through the boardctl() */
 
-  symdesc.symtab   = (FAR struct symtab_s *)exports;
-  symdesc.nsymbols = nexports;
+  symdesc.symtab   = (FAR struct symtab_s *)mod_exports;
+  symdesc.nsymbols = mod_nexports;
   ret = boardctl(BOARDIOC_OS_SYMTAB, (uintptr_t)&symdesc);
   if (ret < 0)
     {

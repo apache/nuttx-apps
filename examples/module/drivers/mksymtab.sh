@@ -38,7 +38,7 @@ for var in $varlist; do
 done
 
 echo ""
-echo "const struct symtab_s exports[] = "
+echo "const struct symtab_s mod_exports[] = "
 echo "{"
 
 for var in $varlist; do
@@ -47,5 +47,5 @@ done
 
 echo "};"
 echo ""
-echo "const int nexports = sizeof(exports) / sizeof(struct symtab_s);"
+echo "const int mod_nexports = sizeof(mod_exports) / sizeof(struct symtab_s);"
 

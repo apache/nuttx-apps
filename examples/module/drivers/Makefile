@@ -45,7 +45,7 @@ DRIVER_DIR = $(MODULE_DIR)/drivers
 ROMFS_DIR = $(DRIVER_DIR)/romfs
 ROMFS_IMG = $(DRIVER_DIR)/romfs.img
 ROMFS_HDR = $(DRIVER_DIR)/romfs.h
-SYMTAB_SRC = $(DRIVER_DIR)/symtab.c
+SYMTAB_SRC = $(DRIVER_DIR)/mod_symtab.c
 
 define DIR_template
 $(1)_$(2):

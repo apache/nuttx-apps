@@ -50,7 +50,7 @@ STACKSIZE = 2048
 # Shared Library Example
 
 ASRCS =
-CSRCS = symtab.c
+CSRCS = sot_symtab.c
 MAINSRC = sotest_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
