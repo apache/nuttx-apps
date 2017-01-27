@@ -1,4 +1,5 @@
 #!/bin/bash
+# set -x
 
 usage="Usage: $0 <test-dir-path>"
 
@@ -22,12 +23,17 @@ fi
 # Extract all of the undefined symbols from the SOTEST files and create a
 # list of sorted, unique undefined variable names.
 
-varlist=`find ${dir} -executable -type f | xargs nm | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
+tmplist=`find ${dir} -executable -type f | xargs nm | fgrep ' U ' | sed -e "s/^[ ]*//g" | cut -d' ' -f2 | sort | uniq`
+
+# Remove the special symbol 'modprint'.  It it is not exported by the
+# base firmware, but rather in this test from one shared library to another.
+
+varlist=`echo $tmplist | sed -e "s/modprint//g"`
 
 # Now output the symbol table as a structure in a C source file.  All
 # undefined symbols are declared as void* types.  If the toolchain does
 # any kind of checking for function vs. data objects, then this could
-# faile
+# fail
 
 echo "#include <nuttx/compiler.h>"
 echo "#include <nuttx/binfmt/symtab.h>"

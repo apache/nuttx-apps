@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/sotest/sotest_main.c
  *
- *   Copyright (C) 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,10 @@ int main(int argc, FAR char *argv[])
 int sotest_main(int argc, char *argv[])
 #endif
 {
-  FAR void *handle;
+#if CONFIG_MODULE_MAXDEPEND > 0
+  FAR void *handle1;
+#endif
+  FAR void *handle2;
   CODE void (*testfunc)(FAR const char *msg);
   FAR const char *msg;
   int ret;
@@ -159,25 +162,41 @@ int sotest_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
-  /* Install the test shared library  */
+#if CONFIG_MODULE_MAXDEPEND > 0
+  /* Install the first test shared library.  The first shared library only
+   * verifies that symbols exported be one shared library can be used to
+   * resolve undefined symbols in a second shared library.
+   */
 
-  handle = dlopen(MOUNTPT "/sotest", RTLD_NOW | RTLD_LOCAL);
-  if (handle == NULL)
+  /* Install the second test shared library  */
+
+  handle1 = dlopen(MOUNTPT "/modprint", RTLD_NOW | RTLD_LOCAL);
+  if (handle1 == NULL)
     {
-      fprintf(stderr, "ERROR: dlopen failed\n");
+      fprintf(stderr, "ERROR: dlopen(/modprint) failed\n");
+      exit(EXIT_FAILURE);
+    }
+#endif
+
+  /* Install the second test shared library  */
+
+  handle2 = dlopen(MOUNTPT "/sotest", RTLD_NOW | RTLD_LOCAL);
+  if (handle2 == NULL)
+    {
+      fprintf(stderr, "ERROR: dlopen(/sotest) failed\n");
       exit(EXIT_FAILURE);
     }
 
-  /* Get symbols testfunc1 and msg1 */
+  /* Get symbols testfunc1 and msg1 from the second test shared library */
 
-  testfunc = (CODE void (*)(FAR const char *))dlsym(handle, "testfunc1");
+  testfunc = (CODE void (*)(FAR const char *))dlsym(handle2, "testfunc1");
   if (testfunc == NULL)
     {
       fprintf(stderr, "ERROR: Failed to get symbol \"testfunc1\"\n");
       exit(EXIT_FAILURE);
     }
 
-  msg = (FAR const char *)dlsym(handle, "g_msg1");
+  msg = (FAR const char *)dlsym(handle2, "g_msg1");
   if (msg == NULL)
     {
       fprintf(stderr, "ERROR: Failed to get symbol \"g_msg1\"\n");
@@ -190,14 +209,14 @@ int sotest_main(int argc, char *argv[])
 
   /* Get symbols testfunc2 and msg2 */
 
-  testfunc = (CODE void (*)(FAR const char *))dlsym(handle, "testfunc2");
+  testfunc = (CODE void (*)(FAR const char *))dlsym(handle2, "testfunc2");
   if (testfunc == NULL)
     {
       fprintf(stderr, "ERROR: Failed to get symbol \"testfunc2\"\n");
       exit(EXIT_FAILURE);
     }
 
-  msg = (FAR const char *)dlsym(handle, "g_msg2");
+  msg = (FAR const char *)dlsym(handle2, "g_msg2");
   if (msg == NULL)
     {
       fprintf(stderr, "ERROR: Failed to get symbol \"g_msg2\"\n");
@@ -210,14 +229,14 @@ int sotest_main(int argc, char *argv[])
 
   /* Get symbols testfunc3 and msg3 */
 
-  testfunc = (CODE void (*)(FAR const char *))dlsym(handle, "testfunc3");
+  testfunc = (CODE void (*)(FAR const char *))dlsym(handle2, "testfunc3");
   if (testfunc == NULL)
     {
       fprintf(stderr, "ERROR: Failed to get symbol \"testfunc3\"\n");
       exit(EXIT_FAILURE);
     }
 
-  msg = (FAR const char *)dlsym(handle, "g_msg3");
+  msg = (FAR const char *)dlsym(handle2, "g_msg3");
   if (msg == NULL)
     {
       fprintf(stderr, "ERROR: Failed to get symbol \"g_msg3\"\n");
@@ -228,12 +247,36 @@ int sotest_main(int argc, char *argv[])
 
   testfunc(msg);
 
-  ret = dlclose(handle);
-  if (ret < 0)
+#if CONFIG_MODULE_MAXDEPEND > 0
+  /* This should fail because the second shared library depends on the first. */
+
+  ret = dlclose(handle1);
+  if (ret == 0)
     {
-      fprintf(stderr, "ERROR: rmmod failed: %d\n", ret);
+      fprintf(stderr, "ERROR: dlclose(handle1) succeeded with a dependency\n");
       exit(EXIT_FAILURE);
     }
+#endif
+
+  /* Close the second shared library */
+
+  ret = dlclose(handle2);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: rmmod(handle2) failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+
+#if CONFIG_MODULE_MAXDEPEND > 0
+  /* Now we should be able to close the first shared library. */
+
+  ret = dlclose(handle1);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: rmmod(handle1) failed: %d\n", ret);
+      exit(EXIT_FAILURE);
+    }
+#endif
 
   ret = umount(MOUNTPT);
   if (ret < 0)

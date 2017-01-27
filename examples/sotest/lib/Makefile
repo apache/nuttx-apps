@@ -37,8 +37,13 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-ALL_SUBDIRS = sotest 
-BUILD_SUBDIRS = sotest 
+ALL_SUBDIRS = sotest
+BUILD_SUBDIRS = sotest
+
+ifneq ($(CONFIG_MODULE_MAXDEPEND),0)
+ALL_SUBDIRS += modprint
+BUILD_SUBDIRS += modprint
+endif
 
 SOTEST_DIR = $(APPDIR)/examples/sotest
 LIB_DIR = $(SOTEST_DIR)/lib
