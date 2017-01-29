@@ -826,12 +826,12 @@ examples/module
      and use that be build the ELF executables for the ROMFS file system.
 
   6. Linker scripts.  You might also want to use a linker scripts to combine
-     sections better.  An example linker script is at nuttx/sched/module/gnu-elf.ld.
+     sections better.  An example linker script is at nuttx/libc/modlib/gnu-elf.ld.
      That example might have to be tuned for your particular linker output to
      position additional sections correctly.  The GNU LD LDMODULEFLAGS then might
      be:
 
-       LDMODULEFLAGS = -r -e module_initialize -T$(TOPDIR)/sched/module/gnu-elf.ld
+       LDMODULEFLAGS = -r -e module_initialize -T$(TOPDIR)/libc/modlib/gnu-elf.ld
 
 examples/modbus
 ^^^^^^^^^^^^^^^
@@ -1908,12 +1908,12 @@ examples/sotest
      and use that be build the ELF executables for the ROMFS file system.
 
   6. Linker scripts.  You might also want to use a linker scripts to combine
-     sections better.  An example linker script is at nuttx/sched/module/gnu-elf.ld.
+     sections better.  An example linker script is at nuttx/libc/modlib/gnu-elf.ld.
      That example might have to be tuned for your particular linker output to
      position additional sections correctly.  The GNU LD LDMODULEFLAGS then might
      be:
 
-       LDMODULEFLAGS = -r -e module_initialize -T$(TOPDIR)/sched/module/gnu-elf.ld
+       LDMODULEFLAGS = -r -e module_initialize -T$(TOPDIR)/libc/modlib/gnu-elf.ld
 
 examples/system
 ^^^^^^^^^^^^^^^
