@@ -44,13 +44,14 @@
 #include <dllfcn.h>
 #include <syslog.h>
 
-#include <nuttx/module.h>
+#include <nuttx/symtab.h>
+#include <nuttx/lib/modlib.h>
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#if CONFIG_MODULE_MAXDEPEND > 0
+#if CONFIG_MODLIB_MAXDEPEND > 0
 void modprint(FAR const char *fmt, ...);
 #endif
 
@@ -101,7 +102,7 @@ static const struct symtab_s g_exports[6] =
  * Name: modprint
  ****************************************************************************/
 
-#if CONFIG_MODULE_MAXDEPEND < 1
+#if CONFIG_MODLIB_MAXDEPEND < 1
 static void modprint(FAR const char *fmt, ...)
 {
   va_list ap;

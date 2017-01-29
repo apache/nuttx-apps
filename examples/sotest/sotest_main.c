@@ -111,7 +111,7 @@ int main(int argc, FAR char *argv[])
 int sotest_main(int argc, char *argv[])
 #endif
 {
-#if CONFIG_MODULE_MAXDEPEND > 0
+#if CONFIG_MODLIB_MAXDEPEND > 0
   FAR void *handle1;
 #endif
   FAR void *handle2;
@@ -162,7 +162,7 @@ int sotest_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
-#if CONFIG_MODULE_MAXDEPEND > 0
+#if CONFIG_MODLIB_MAXDEPEND > 0
   /* Install the first test shared library.  The first shared library only
    * verifies that symbols exported be one shared library can be used to
    * resolve undefined symbols in a second shared library.
@@ -247,7 +247,7 @@ int sotest_main(int argc, char *argv[])
 
   testfunc(msg);
 
-#if CONFIG_MODULE_MAXDEPEND > 0
+#if CONFIG_MODLIB_MAXDEPEND > 0
   /* This should fail because the second shared library depends on the first. */
 
   ret = dlclose(handle1);
@@ -267,7 +267,7 @@ int sotest_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
-#if CONFIG_MODULE_MAXDEPEND > 0
+#if CONFIG_MODLIB_MAXDEPEND > 0
   /* Now we should be able to close the first shared library. */
 
   ret = dlclose(handle1);

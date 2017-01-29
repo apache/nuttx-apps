@@ -47,6 +47,7 @@
 #include <debug.h>
 
 #include <nuttx/module.h>
+#include <nuttx/lib/modlib.h>
 #include <nuttx/fs/fs.h>
 
 /****************************************************************************

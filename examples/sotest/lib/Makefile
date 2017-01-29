@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 ALL_SUBDIRS = sotest
 BUILD_SUBDIRS = sotest
 
-ifneq ($(CONFIG_MODULE_MAXDEPEND),0)
+ifneq ($(CONFIG_MODLIB_MAXDEPEND),0)
 ALL_SUBDIRS += modprint
 BUILD_SUBDIRS += modprint
 endif
