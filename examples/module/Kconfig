@@ -6,19 +6,64 @@
 config EXAMPLES_MODULE
 	bool "Module Example"
 	default n
-	depends on MODULE && LIB_BOARDCTL && BUILD_FLAT
+	depends on MODULE && LIB_BOARDCTL
 	select BOARDCTL_OS_SYMTAB
 	---help---
 		Enable the module example
 
-		NOTE: This example can only be used in the FLAT build mode because
-		it makes illegal OS calls to ramdisk_register(), register_device(),
-		and unregister_device().  A proper solution would include the ROMFS
-		file system containing the test module file in the kernel address
-		space and would register it with logic in the configs/ board directory
-		at start-up.
-
 if EXAMPLES_MODULE
+
+config EXAMPLES_MODULE_BUILTINFS
+	bool "Built-in File System"
+	default y
+	depends on FS_ROMFS && BUILD_FLAT
+	---help---
+		This example supports a very, non-standard but also very convenient
+		way of testing with example using CONFIG_EXAMPLES_MODULE_BUILTINFS.
+		If this option is selected, the test modules will be built,
+		installed in the module/lib/fsroot, then converted to a built-in
+		ROMFS file system.
+
+		When the test runs, it will automatically create the ROMFS block
+		device and mount the test modules for testing.
+
+		If this option is not selected, then the modules will be left in
+		the fsroot/ directory.  You can then copy them to, say an SD card,
+		for testing on the target.
+
+		NOTE: This option can only be used in the FLAT build mode because
+		it makes an illegal OS call to ramdisk_register().
+
+if EXAMPLES_MODULE_BUILTINFS
+
+config EXAMPLES_MODULE_DEVMINOR
+	int "ROMFS Minor Device Number"
+	default 0
+	---help---
+		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the MODULE executables to be tested.  Default: 0
+
+config EXAMPLES_MODULE_DEVPATH
+	string "ROMFS Device Path"
+	default "/dev/ram0"
+	---help---
+		The path to the ROMFS block driver device.  This must match EXAMPLES_MODULE_DEVMINOR.
+		Used for registering the RAM block driver that will hold the ROMFS file system
+		containing the MODULE executables to be tested.  Default: "/dev/ram0"
+
+endif # EXAMPLES_MODULE_BUILTINFS
+
+if !EXAMPLES_MODULE_BUILTINFS
+
+config EXAMPLES_MODULE_BINDIR
+	string "Path to Test Modules"
+	default "/mnt/sdcard"
+	---help---
+		The path to the directory on the mounted volume where the test
+		modules can found at runtime.
+
+endif # !EXAMPLES_MODULE_BUILTINFS
 
 config EXAMPLES_MODULE_LIBC
 	bool "Link with LIBC"
@@ -43,21 +88,5 @@ config EXAMPLES_MODULE_LIBGCC
 	bool "Link with LIBGCC"
 	default n
 	depends on !BUILD_KERNEL && EXPERIMENTAL
-
-config EXAMPLES_MODULE_DEVMINOR
-	int "ROMFS Minor Device Number"
-	default 0
-	---help---
-		The minor device number of the ROMFS block. For example, the N in /dev/ramN.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the MODULE executables to be tested.  Default: 0
-
-config EXAMPLES_MODULE_DEVPATH
-	string "ROMFS Device Path"
-	default "/dev/ram0"
-	---help---
-		The path to the ROMFS block driver device.  This must match EXAMPLES_MODULE_DEVMINOR.
-		Used for registering the RAM block driver that will hold the ROMFS file system
-		containing the MODULE executables to be tested.  Default: "/dev/ram0"
 
 endif

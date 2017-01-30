@@ -40,9 +40,11 @@
 #include <nuttx/config.h>
 #include <nuttx/compiler.h>
 
-#include <sys/mount.h>
-#include <sys/boardctl.h>
+#ifdef CONFIG_EXAMPLES_MODULE_BUILTINFS
+#  include <sys/mount.h>
+#endif
 
+#include <sys/boardctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -52,11 +54,13 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/drivers/ramdisk.h>
 #include <nuttx/module.h>
 #include <nuttx/binfmt/symtab.h>
 
-#include "drivers/romfs.h"
+#ifdef CONFIG_EXAMPLES_MODULE_BUILTINFS
+#  include <nuttx/drivers/ramdisk.h>
+#  include "drivers/romfs.h"
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -74,27 +78,31 @@
 #  error "You must select CONFIG_MODULE in your configuration file"
 #endif
 
-#ifndef CONFIG_FS_ROMFS
-#  error "You must select CONFIG_FS_ROMFS in your configuration file"
-#endif
+#ifdef CONFIG_EXAMPLES_MODULE_BUILTINFS
+#  ifndef CONFIG_FS_ROMFS
+#    error "You must select CONFIG_FS_ROMFS in your configuration file"
+#  endif
 
-#ifdef CONFIG_DISABLE_MOUNTPOINT
-#  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
-#endif
+#  ifdef CONFIG_DISABLE_MOUNTPOINT
+#    error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
+#  endif
 
-/* Describe the ROMFS file system */
+  /* Describe the ROMFS file system */
 
-#define SECTORSIZE   64
-#define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
-#define MOUNTPT      "/mnt/romfs"
+#  define SECTORSIZE   64
+#  define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
+#  define BINDIR       "/mnt/romfs"
 
-#ifndef CONFIG_EXAMPLES_MODULE_DEVMINOR
-#  define CONFIG_EXAMPLES_MODULE_DEVMINOR 0
-#endif
+#  ifndef CONFIG_EXAMPLES_MODULE_DEVMINOR
+#    define CONFIG_EXAMPLES_MODULE_DEVMINOR 0
+#  endif
 
-#ifndef CONFIG_EXAMPLES_MODULE_DEVPATH
-#  define CONFIG_EXAMPLES_MODULE_DEVPATH "/dev/ram0"
-#endif
+#  ifndef CONFIG_EXAMPLES_MODULE_DEVPATH
+#    define CONFIG_EXAMPLES_MODULE_DEVPATH "/dev/ram0"
+#  endif
+#else
+#  define BINDIR       CONFIG_EXAMPLES_MODULE_BINDIR
+#endif /* CONFIG_EXAMPLES_MODULE_BUILTINFS */
 
 /****************************************************************************
  * Private data
@@ -141,6 +149,7 @@ int module_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
+#ifdef CONFIG_EXAMPLES_MODULE_BUILTINFS
   /* Create a ROM disk for the ROMFS filesystem */
 
   printf("main: Registering romdisk at /dev/ram%d\n",
@@ -164,19 +173,20 @@ int module_main(int argc, char *argv[])
   /* Mount the file system */
 
   printf("main: Mounting ROMFS filesystem at target=%s with source=%s\n",
-         MOUNTPT, CONFIG_EXAMPLES_MODULE_DEVPATH);
+         BINDIR, CONFIG_EXAMPLES_MODULE_DEVPATH);
 
-  ret = mount(CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(CONFIG_EXAMPLES_MODULE_DEVPATH, BINDIR, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_MODULE_DEVPATH, MOUNTPT, errno);
+              CONFIG_EXAMPLES_MODULE_DEVPATH, BINDIR, errno);
       exit(EXIT_FAILURE);
     }
+#endif /* CONFIG_EXAMPLES_MODULE_BUILTINFS */
 
   /* Install the character driver  */
 
-  handle = insmod(MOUNTPT "/chardev", "chardev");
+  handle = insmod(BINDIR "/chardev", "chardev");
   if (handle == NULL)
     {
       int errcode = errno;

@@ -39,7 +39,10 @@
 
 #include <nuttx/config.h>
 
-#include <sys/mount.h>
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+#  include <sys/mount.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
@@ -47,10 +50,12 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/drivers/ramdisk.h>
 #include <nuttx/binfmt/symtab.h>
 
-#include "lib/romfs.h"
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+#  include <nuttx/drivers/ramdisk.h>
+#  include "lib/romfs.h"
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -64,31 +69,31 @@
 #  error "You must select CONFIG_LIBC_DLLFCN in your configuration file"
 #endif
 
-#ifndef CONFIG_FS_ROMFS
-#  error "You must select CONFIG_FS_ROMFS in your configuration file"
-#endif
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+#  ifndef CONFIG_FS_ROMFS
+#    error "You must select CONFIG_FS_ROMFS in your configuration file"
+#  endif
 
-#ifdef CONFIG_DISABLE_MOUNTPOINT
-#  error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
-#endif
+#  ifdef CONFIG_DISABLE_MOUNTPOINT
+#    error "You must not disable mountpoints via CONFIG_DISABLE_MOUNTPOINT in your configuration file"
+#  endif
 
-/* Describe the ROMFS file system */
+  /* Describe the ROMFS file system */
 
-#define SECTORSIZE   64
-#define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
-#define MOUNTPT      "/mnt/romfs"
+#  define SECTORSIZE   64
+#  define NSECTORS(b)  (((b)+SECTORSIZE-1)/SECTORSIZE)
+#  define BINDIR       "/mnt/romfs"
 
-#ifndef CONFIG_EXAMPLES_SOTEST_DEVMINOR
-#  define CONFIG_EXAMPLES_SOTEST_DEVMINOR 0
-#endif
+#  ifndef CONFIG_EXAMPLES_SOTEST_DEVMINOR
+#    define CONFIG_EXAMPLES_SOTEST_DEVMINOR 0
+#  endif
 
-#ifndef CONFIG_EXAMPLES_SOTEST_DEVPATH
-#  define CONFIG_EXAMPLES_SOTEST_DEVPATH "/dev/ram0"
-#endif
-
-/****************************************************************************
- * Private data
- ****************************************************************************/
+#  ifndef CONFIG_EXAMPLES_SOTEST_DEVPATH
+#    define CONFIG_EXAMPLES_SOTEST_DEVPATH "/dev/ram0"
+#  endif
+#else
+#  define BINDIR       CONFIG_EXAMPLES_SOTEST_BINDIR
+#endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
 
 /****************************************************************************
  * Symbols from Auto-Generated Code
@@ -128,6 +133,7 @@ int sotest_main(int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
   /* Create a ROM disk for the ROMFS filesystem */
 
   printf("main: Registering romdisk at /dev/ram%d\n",
@@ -152,15 +158,16 @@ int sotest_main(int argc, char *argv[])
   /* Mount the file system */
 
   printf("main: Mounting ROMFS filesystem at target=%s with source=%s\n",
-         MOUNTPT, CONFIG_EXAMPLES_SOTEST_DEVPATH);
+         BINDIR, CONFIG_EXAMPLES_SOTEST_DEVPATH);
 
-  ret = mount(CONFIG_EXAMPLES_SOTEST_DEVPATH, MOUNTPT, "romfs", MS_RDONLY, NULL);
+  ret = mount(CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, "romfs", MS_RDONLY, NULL);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: mount(%s,%s,romfs) failed: %s\n",
-              CONFIG_EXAMPLES_SOTEST_DEVPATH, MOUNTPT, errno);
+              CONFIG_EXAMPLES_SOTEST_DEVPATH, BINDIR, errno);
       exit(EXIT_FAILURE);
     }
+#endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
 
 #if CONFIG_MODLIB_MAXDEPEND > 0
   /* Install the first test shared library.  The first shared library only
@@ -170,7 +177,7 @@ int sotest_main(int argc, char *argv[])
 
   /* Install the second test shared library  */
 
-  handle1 = dlopen(MOUNTPT "/modprint", RTLD_NOW | RTLD_LOCAL);
+  handle1 = dlopen(BINDIR "/modprint", RTLD_NOW | RTLD_LOCAL);
   if (handle1 == NULL)
     {
       fprintf(stderr, "ERROR: dlopen(/modprint) failed\n");
@@ -180,7 +187,7 @@ int sotest_main(int argc, char *argv[])
 
   /* Install the second test shared library  */
 
-  handle2 = dlopen(MOUNTPT "/sotest", RTLD_NOW | RTLD_LOCAL);
+  handle2 = dlopen(BINDIR "/sotest", RTLD_NOW | RTLD_LOCAL);
   if (handle2 == NULL)
     {
       fprintf(stderr, "ERROR: dlopen(/sotest) failed\n");
@@ -278,13 +285,15 @@ int sotest_main(int argc, char *argv[])
     }
 #endif
 
-  ret = umount(MOUNTPT);
+#ifdef CONFIG_EXAMPLES_SOTEST_BUILTINFS
+  ret = umount(BINDIR);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: umount(%s) failed: %d\n",
-              MOUNTPT, errno);
+              BINDIR, errno);
       exit(EXIT_FAILURE);
     }
+#endif /* CONFIG_EXAMPLES_SOTEST_BUILTINFS */
 
   return EXIT_SUCCESS;
 }

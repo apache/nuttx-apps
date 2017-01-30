@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/sotest/lib/Makefile
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2015, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,14 @@ endif
 
 SOTEST_DIR = $(APPDIR)/examples/sotest
 LIB_DIR = $(SOTEST_DIR)/lib
-ROMFS_DIR = $(LIB_DIR)/romfs
+FSROOT_DIR = $(LIB_DIR)/fsroot
 ROMFS_IMG = $(LIB_DIR)/romfs.img
 ROMFS_HDR = $(LIB_DIR)/romfs.h
 SYMTAB_SRC = $(LIB_DIR)/sot_symtab.c
 
 define DIR_template
 $(1)_$(2):
-	$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" ROMFS_DIR="$(ROMFS_DIR)" CROSSDEV=$(CROSSDEV)
+	$(Q) $(MAKE) -C $(1) $(3) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" FSROOT_DIR="$(FSROOT_DIR)" CROSSDEV=$(CROSSDEV)
 endef
 
 all: $(ROMFS_HDR) $(DIRLIST_HDR) $(SYMTAB_SRC)
@@ -68,36 +68,40 @@ $(foreach DIR, $(BUILD_SUBDIRS), $(eval $(call DIR_template,$(DIR),install,insta
 
 build: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_build)
 
-# Install each program in the romfs directory
+# Install each program in the fsroot directory
 
 install: $(foreach DIR, $(BUILD_SUBDIRS), $(DIR)_install)
 
-# Create the romfs directory
+# Create the fsroot directory
 
-$(ROMFS_DIR):
-	$(Q) mkdir $(ROMFS_DIR)
+$(FSROOT_DIR):
+	$(Q) mkdir $(FSROOT_DIR)
 
-# Populate the romfs directory
+# Populate the fsroot directory
 
-populate:  $(ROMFS_DIR) build install
+populate:  $(FSROOT_DIR) build install
 
-# Create the romfs.img file from the populated romfs directory
+# Create the romfs.img file from the populated fsroot directory
 
 $(ROMFS_IMG): populate
-	$(Q) genromfs -f $@ -d $(ROMFS_DIR) -V "SOTESTTEST"
+ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
+	$(Q) genromfs -f $@ -d $(FSROOT_DIR) -V "SOTESTTEST"
+endif
 
 # Create the romfs.h header file from the romfs.img file
 
 $(ROMFS_HDR) : $(ROMFS_IMG)
+ifeq ($(CONFIG_EXAMPLES_SOTEST_BUILTINFS),y)
 	$(Q) (cd $(LIB_DIR); xxd -i romfs.img | sed -e "s/^unsigned/static const unsigned/g" >$@)
+endif
 
 # Create the exported symbol table
 
 $(SYMTAB_SRC): build
-	$(Q) $(LIB_DIR)/mksymtab.sh $(ROMFS_DIR) >$@
+	$(Q) $(LIB_DIR)/mksymtab.sh $(FSROOT_DIR) >$@
 
 # Clean each subdirectory
 
 clean: $(foreach DIR, $(ALL_SUBDIRS), $(DIR)_clean)
 	$(Q) rm -f $(ROMFS_HDR) $(DIRLIST_HDR) $(ROMFS_IMG) $(SYMTAB_SRC)
-	$(Q) rm -rf $(ROMFS_DIR)
+	$(Q) rm -rf $(FSROOT_DIR)
