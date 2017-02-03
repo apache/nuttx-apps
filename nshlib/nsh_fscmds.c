@@ -146,7 +146,9 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                       FAR struct dirent *entryp, FAR void *pvarg)
 {
   unsigned int lsflags = (unsigned int)((uintptr_t)pvarg);
+#ifdef CONFIG_PSEUDOFS_SOFTLINKS
   bool isdir = false;
+#endif
   int ret;
 
   /* Check if any options will require that we stat the file */
@@ -180,12 +182,15 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         {
           char details[] = "----------";
 
+#ifdef CONFIG_PSEUDOFS_SOFTLINKS
           if (S_ISLNK(buf.st_mode))
             {
               details[0] = 'l';  /* Takes precedence over type of the target */
               isdir = S_ISDIR(buf.st_mode);
             }
-          else if (S_ISDIR(buf.st_mode))
+          else
+#endif
+          if (S_ISDIR(buf.st_mode))
             {
               details[0] = 'd';
             }
@@ -262,7 +267,36 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
     {
       nsh_output(vtbl, " %s", entryp->d_name);
 
-      if ((DIRENT_ISDIRECTORY(entryp->d_type) || isdir) &&
+#ifdef CONFIG_PSEUDOFS_SOFTLINKS
+      if (DIRENT_ISLINK(entryp->d_type))
+        {
+          FAR char *fullpath;
+          ssize_t len;
+
+          /* Get the target of the symbolic link */
+
+          fullpath = nsh_getdirpath(vtbl, dirpath, entryp->d_name);
+          len = readlink(fullpath, vtbl->iobuffer, IOBUFFERSIZE);
+          free(fullpath);
+
+          if (len < 0)
+            {
+              nsh_output(vtbl, g_fmtcmdfailed, "ls", "readlink", NSH_ERRNO);
+              return ERROR;
+            }
+
+          if (isdir)
+            {
+              nsh_output(vtbl, "/ ->%s\n", vtbl->iobuffer);
+            }
+          else
+            {
+              nsh_output(vtbl, " ->%s\n", vtbl->iobuffer);
+            }
+        }
+      else
+#endif
+      if (DIRENT_ISDIRECTORY(entryp->d_type) &&
           !ls_specialdir(entryp->d_name))
         {
           nsh_output(vtbl, "/\n");
