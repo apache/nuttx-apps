@@ -146,6 +146,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
                       FAR struct dirent *entryp, FAR void *pvarg)
 {
   unsigned int lsflags = (unsigned int)((uintptr_t)pvarg);
+  bool isdir = false;
   int ret;
 
   /* Check if any options will require that we stat the file */
@@ -178,20 +179,13 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
       if ((lsflags & LSFLAGS_LONG) != 0)
         {
           char details[] = "----------";
-#ifdef CONFIG_PSEUDOFS_SOFTLINKS
-          /* Temporary kludge: stat does not return link type because it
-           * follows the link and returns the type of the link target.
-           * readdir(), however, does correctly return the correct type of
-           * the symbolic link.
-           */
 
-          if (DIRENT_ISLINK(entryp->d_type))
+          if (S_ISLNK(buf.st_mode))
             {
-              details[0] = 'l';
+              details[0] = 'l';  /* Takes precedence over type of the target */
+              isdir = S_ISDIR(buf.st_mode);
             }
-          else
-#endif
-          if (S_ISDIR(buf.st_mode))
+          else if (S_ISDIR(buf.st_mode))
             {
               details[0] = 'd';
             }
@@ -203,12 +197,6 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
             {
               details[0] = 'b';
             }
-#if 0 /* ifdef CONFIG_PSEUDOFS_SOFTLINKS See Kludge above. */
-          else if (S_ISLNK(buf.st_mode))
-            {
-              details[0] = 'l';
-            }
-#endif
           else if (!S_ISREG(buf.st_mode))
             {
               details[0] = '?';
@@ -274,7 +262,7 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
     {
       nsh_output(vtbl, " %s", entryp->d_name);
 
-      if (DIRENT_ISDIRECTORY(entryp->d_type) &&
+      if ((DIRENT_ISDIRECTORY(entryp->d_type) || isdir) &&
           !ls_specialdir(entryp->d_name))
         {
           nsh_output(vtbl, "/\n");
