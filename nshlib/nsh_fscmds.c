@@ -178,21 +178,40 @@ static int ls_handler(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
       if ((lsflags & LSFLAGS_LONG) != 0)
         {
           char details[] = "----------";
+#ifdef CONFIG_PSEUDOFS_SOFTLINKS
+          /* Temporary kludge: stat does not return link type because it
+           * follows the link and returns the type of the link target.
+           * readdir(), however, does correctly return the correct type of
+           * the symbolic link.
+           */
+
+          if (DIRENT_ISLINK(entryp->d_type))
+            {
+              details[0] = 'l';
+            }
+          else
+#endif
           if (S_ISDIR(buf.st_mode))
             {
-              details[0]='d';
+              details[0] = 'd';
             }
           else if (S_ISCHR(buf.st_mode))
             {
-              details[0]='c';
+              details[0] = 'c';
             }
           else if (S_ISBLK(buf.st_mode))
             {
-              details[0]='b';
+              details[0] = 'b';
             }
+#if 0 /* ifdef CONFIG_PSEUDOFS_SOFTLINKS See Kludge above. */
+          else if (S_ISLNK(buf.st_mode))
+            {
+              details[0] = 'l';
+            }
+#endif
           else if (!S_ISREG(buf.st_mode))
             {
-              details[0]='?';
+              details[0] = '?';
             }
 
           if ((buf.st_mode & S_IRUSR) != 0)
