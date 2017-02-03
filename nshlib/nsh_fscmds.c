@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_fscmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2014, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -937,6 +937,59 @@ errout_with_paths:
 #endif
 
 /****************************************************************************
+ * Name: cmd_ln
+ ****************************************************************************/
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
+#  if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *fullpath;
+  FAR char *target;
+  int ndx;
+  int ret;
+
+  /* ln [-s] <target> <link> */
+
+  if (argc == 4)
+    {
+      if (strcmp(argv[1], "-s") != 0)
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          return ERROR;
+        }
+
+      ndx = 2;
+    }
+  else
+    {
+      ndx = 1;
+    }
+
+  /* Get the fullpath to the directory */
+
+  target   = argv[ndx];
+  fullpath = nsh_getfullpath(vtbl, argv[ndx + 1]);
+
+  if (!fullpath)
+    {
+      return ERROR;
+    }
+
+  ret = link(target, fullpath);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "link", NSH_ERRNO);
+      return ERROR;
+    }
+
+  nsh_freefullpath(fullpath);
+  return ret;
+}
+#endif
+#endif
+
+/****************************************************************************
  * Name: cmd_ls
  ****************************************************************************/
 
@@ -945,9 +998,9 @@ errout_with_paths:
 int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct stat st;
-  const char *relpath;
+  FAR const char *relpath;
   unsigned int lsflags = 0;
-  char *fullpath;
+  FAR char *fullpath;
   bool badarg = false;
   int len;
   int ret;
@@ -1083,6 +1136,7 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       nsh_freefullpath(fullpath);
     }
+
   return ret;
 }
 #endif
