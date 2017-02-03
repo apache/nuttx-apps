@@ -316,6 +316,11 @@ config NSH_DISABLE_LOSMART
 	default y if DEFAULT_SMALL || !MTD_SMART
 	default n if !DEFAULT_SMALL && MTD_SMART
 
+config NSH_DISABLE_LN
+	bool "Disable ln"
+	default n
+	depends on PSEUDOFS_SOFTLINKS
+
 config NSH_DISABLE_LS
 	bool "Disable ls"
 	default n

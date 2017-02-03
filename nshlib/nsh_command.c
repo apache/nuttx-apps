@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_command.c
  *
- *   Copyright (C) 2007-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -271,6 +271,12 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
+#  if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+  { "ln",       cmd_ln,       3, 4, "[-s] <target> <link>" },
+# endif
+#endif
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
 # ifndef CONFIG_NSH_DISABLE_LS
   { "ls",       cmd_ls,       1, 5, "[-lRs] <dir-path>" },
 # endif
@@ -278,7 +284,7 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
 #if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MODULE)
-  { "lsmod",    cmd_lsmod,   1, 1,  NULL },
+  { "lsmod",    cmd_lsmod,    1, 1,  NULL },
 #endif
 #endif
 
