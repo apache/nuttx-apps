@@ -1017,6 +1017,9 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  if defined(CONFIG_RAMLOG_SYSLOG) && !defined(CONFIG_NSH_DISABLE_DMESG)
       int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
+#  if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+      int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#  endif
 #  if CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)
 #     ifndef CONFIG_NSH_DISABLE_SH
        int cmd_sh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

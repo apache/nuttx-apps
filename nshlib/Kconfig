@@ -1,4 +1,5 @@
 #
+#
 # For a description of the syntax of this configuration file,
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
@@ -318,7 +319,8 @@ config NSH_DISABLE_LOSMART
 
 config NSH_DISABLE_LN
 	bool "Disable ln"
-	default n
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 	depends on PSEUDOFS_SOFTLINKS
 
 config NSH_DISABLE_LS
@@ -433,6 +435,12 @@ config NSH_DISABLE_PUT
 config NSH_DISABLE_PWD
 	bool "Disable pwd"
 	default n
+
+config NSH_DISABLE_READLINK
+	bool "Disable readlink"
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
+	depends on PSEUDOFS_SOFTLINKS
 
 config NSH_DISABLE_REBOOT
 	bool "Disable reboot"

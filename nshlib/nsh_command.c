@@ -410,6 +410,12 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
+#if CONFIG_NFILE_DESCRIPTORS > 0
+#  if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+  { "readlink", cmd_readlink, 2, 2, "<link>" },
+# endif
+#endif
+
 #if defined(CONFIG_BOARDCTL_RESET) && !defined(CONFIG_NSH_DISABLE_REBOOT)
   { "reboot",   cmd_reboot,   1, 1, NULL },
 #endif

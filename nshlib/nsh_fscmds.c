@@ -1543,6 +1543,41 @@ errout_with_oldpath:
 #endif
 
 /****************************************************************************
+ * Name: cmd_readlink
+ ****************************************************************************/
+
+#if CONFIG_NFILE_DESCRIPTORS > 0
+#  if !defined(CONFIG_NSH_DISABLE_READLINK) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
+int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *fullpath;
+  ssize_t len;
+
+  /* readlink <link> */
+  /* Get the fullpath to the directory */
+
+  fullpath = nsh_getfullpath(vtbl, argv[1]);
+  if (!fullpath)
+    {
+      return ERROR;
+    }
+
+  len = readlink(fullpath, vtbl->iobuffer, IOBUFFERSIZE);
+  nsh_freefullpath(fullpath);
+
+  if (len < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, "ls", "readlink", NSH_ERRNO);
+      return ERROR;
+    }
+
+  nsh_output(vtbl, "%s\n", vtbl->iobuffer);
+  return OK;
+}
+#endif
+#endif
+
+/****************************************************************************
  * Name: cmd_rm
  ****************************************************************************/
 
