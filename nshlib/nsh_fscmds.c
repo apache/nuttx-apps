@@ -430,7 +430,7 @@ int cmd_dirname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_CAT
 int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *fullpath;
+  FAR char *fullpath;
   int i;
   int ret = OK;
 
@@ -441,8 +441,9 @@ int cmd_cat(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       /* Get the fullpath to the file */
 
       fullpath = nsh_getfullpath(vtbl, argv[i]);
-      if (!fullpath)
+      if (fullpath == NULL)
         {
+          nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
           ret = ERROR;
         }
       else
@@ -483,9 +484,9 @@ int cmd_dmesg(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct stat buf;
-  char *srcpath  = NULL;
-  char *destpath = NULL;
-  char *allocpath = NULL;
+  FAR char *srcpath  = NULL;
+  FAR char *destpath = NULL;
+  FAR char *allocpath = NULL;
   int oflags = O_WRONLY | O_CREAT | O_TRUNC;
   int rdfd;
   int wrfd;
@@ -494,8 +495,9 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Get the full path to the source file */
 
   srcpath = nsh_getfullpath(vtbl, argv[1]);
-  if (!srcpath)
+  if (srcpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       goto errout;
     }
 
@@ -511,8 +513,9 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Get the full path to the destination file or directory */
 
   destpath = nsh_getfullpath(vtbl, argv[2]);
-  if (!destpath)
+  if (destpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       goto errout_with_rdfd;
     }
 
@@ -1012,8 +1015,9 @@ int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   target   = argv[ndx];
   fullpath = nsh_getfullpath(vtbl, argv[ndx + 1]);
 
-  if (!fullpath)
+  if (fullpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       return ERROR;
     }
 
@@ -1021,7 +1025,7 @@ int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "link", NSH_ERRNO);
-      return ERROR;
+      ret = ERROR;
     }
 
   nsh_freefullpath(fullpath);
@@ -1104,8 +1108,9 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Get the fullpath to the directory */
 
   fullpath = nsh_getfullpath(vtbl, relpath);
-  if (!fullpath)
+  if (fullpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       return ERROR;
     }
 
@@ -1164,10 +1169,10 @@ int cmd_ls(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_MKDIR
 int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 
-  if (fullpath)
+  if (fullpath != NULL)
     {
       ret = mkdir(fullpath, 0777);
       if (ret < 0)
@@ -1239,10 +1244,9 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (optind == argc-1)
     {
       fullpath = nsh_getfullpath(vtbl, argv[optind]);
-      if (!fullpath)
+      if (fullpath == NULL)
         {
-          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "nsh_getfullpath",
-                     NSH_ERRNO);
+          nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
           return ERROR;
         }
     }
@@ -1280,10 +1284,10 @@ int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     !defined(CONFIG_NSH_DISABLE_MKFIFO)
 int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 
-  if (fullpath)
+  if (fullpath != NULL)
     {
       ret = mkfifo(fullpath, 0777);
       if (ret < 0)
@@ -1504,21 +1508,23 @@ int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_MV
 int cmd_mv(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *oldpath;
-  char *newpath;
+  FAR char *oldpath;
+  FAR char *newpath;
   int ret;
 
   /* Get the full path to the old and new file paths */
 
   oldpath = nsh_getfullpath(vtbl, argv[1]);
-  if (!oldpath)
+  if (oldpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       return ERROR;
     }
 
   newpath = nsh_getfullpath(vtbl, argv[2]);
-  if (!newpath)
+  if (newpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       ret = ERROR;
       goto errout_with_oldpath;
     }
@@ -1557,8 +1563,9 @@ int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Get the fullpath to the directory */
 
   fullpath = nsh_getfullpath(vtbl, argv[1]);
-  if (!fullpath)
+  if (fullpath == NULL)
     {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
       return ERROR;
     }
 
@@ -1585,10 +1592,10 @@ int cmd_readlink(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_RM
 int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 
-  if (fullpath)
+  if (fullpath != NULL)
     {
       ret = unlink(fullpath);
       if (ret < 0)
@@ -1612,10 +1619,10 @@ int cmd_rm(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_RMDIR
 int cmd_rmdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *fullpath = nsh_getfullpath(vtbl, argv[1]);
+  FAR char *fullpath = nsh_getfullpath(vtbl, argv[1]);
   int ret = ERROR;
 
-  if (fullpath)
+  if (fullpath != NULL)
     {
       ret = rmdir(fullpath);
       if (ret < 0)
@@ -1662,14 +1669,14 @@ int cmd_cmp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Get the full path to the two files */
 
   path1 = nsh_getfullpath(vtbl, argv[1]);
-  if (!path1)
+  if (path1 == NULL)
     {
       nsh_output(vtbl, g_fmtargrequired, argv[0]);
       goto errout;
     }
 
   path2 = nsh_getfullpath(vtbl, argv[2]);
-  if (!path2)
+  if (path2 == NULL)
     {
       nsh_output(vtbl, g_fmtargrequired, argv[0]);
       goto errout_with_path1;
