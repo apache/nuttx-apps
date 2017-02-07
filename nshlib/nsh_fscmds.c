@@ -988,8 +988,8 @@ errout_with_paths:
 #  if !defined(CONFIG_NSH_DISABLE_LN) && defined(CONFIG_PSEUDOFS_SOFTLINKS)
 int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR char *fullpath;
-  FAR char *target;
+  FAR char *linkpath;
+  FAR char *tgtpath;
   int ndx;
   int ret;
 
@@ -1010,26 +1010,38 @@ int cmd_ln(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       ndx = 1;
     }
 
-  /* Get the fullpath to the directory */
+  /* Get the full path to the link target  */
 
-  target   = argv[ndx];
-  fullpath = nsh_getfullpath(vtbl, argv[ndx + 1]);
-
-  if (fullpath == NULL)
+  tgtpath = nsh_getfullpath(vtbl, argv[ndx]);
+  if (tgtpath == NULL)
     {
-      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
-      return ERROR;
+      goto errout_with_nomemory;
     }
 
-  ret = link(target, fullpath);
+  /* Get the full path to the location where the link will be created */
+
+  linkpath = nsh_getfullpath(vtbl, argv[ndx + 1]);
+  if (linkpath == NULL)
+    {
+      goto errout_with_tgtpath;
+    }
+
+  ret = link(tgtpath, linkpath);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "link", NSH_ERRNO);
       ret = ERROR;
     }
 
-  nsh_freefullpath(fullpath);
+  nsh_freefullpath(linkpath);
+  nsh_freefullpath(tgtpath);
   return ret;
+
+errout_with_tgtpath:
+  nsh_freefullpath(tgtpath);
+errout_with_nomemory:
+  nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
+  return ERROR;
 }
 #endif
 #endif
