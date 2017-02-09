@@ -111,6 +111,12 @@
  * Public Function Prototypes
  ****************************************************************************/
 
+/* setvbuf.c ****************************************************************/
+
+#ifndef CONFIG_STDIO_DISABLE_BUFFERING
+int setvbuf_test(void);
+#endif
+
 /* dev_null.c ***************************************************************/
 
 int dev_null(void);

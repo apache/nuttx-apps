@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/hello/hello_main.c
+ * examples/ostest/setvbuf.c
  *
- *   Copyright (C) 2008, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,20 +40,89 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 
+#ifndef CONFIG_STDIO_DISABLE_BUFFERING
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * hello_main
+ * setvbuf_test
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int hello_main(int argc, char *argv[])
-#endif
+int setvbuf_test(void)
 {
-  printf("Hello, World!!\n");
+  FILE *stream;
+  char buffer[64];
+  int ret;
+
+  stream = fopen("/dev/console", "w");
+  if (stream == NULL)
+    {
+      printf("setvbuf_test ERROR: fopen(dev/console, rw) failed\n");
+      return -1;
+    }
+
+  fprintf(stream, "setvbuf_test: DEFAULT buffering\r\n");
+
+  ret = setvbuf(stream, NULL, _IONBF, 0);
+  if (ret < 0)
+    {
+      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+
+  ret = setvbuf(stream, NULL, _IOFBF, 0);
+  if (ret < 0)
+    {
+      printf("ssetvbuf_test ERROR: etvbuf(stream, NULL, _IONBF, 0) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: FULL buffering, default buffer\r\n");
+
+  ret = setvbuf(stream, NULL, _IONBF, 0);
+  if (ret < 0)
+    {
+      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+
+  ret = setvbuf(stream, NULL, _IOLBF, 64);
+  if (ret < 0)
+    {
+      printf("setvbuf_test: ERROR: setvbuf(stream, NULL, _IOLBF, 64) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: LINE buffering, buffer size 64\r\n");
+
+  ret = setvbuf(stream, NULL, _IONBF, 0);
+  if (ret < 0)
+    {
+      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+
+  ret = setvbuf(stream, buffer, _IOFBF, 64);
+  if (ret < 0)
+    {
+      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IOLBF, 64) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: FULL buffering, pre-allocated buffer\r\n");
+
+  ret = setvbuf(stream, NULL, _IONBF, 0);
+  if (ret < 0)
+    {
+      printf("setvbuf_test ERROR: setvbuf(stream, NULL, _IONBF, 0) failed\n");
+    }
+
+  fprintf(stream, "setvbuf_test: NO buffering\r\n");
+
+  fclose(stream);
   return 0;
 }
+
+#endif /* CONFIG_STDIO_DISABLE_BUFFERING */

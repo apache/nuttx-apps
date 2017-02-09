@@ -53,6 +53,10 @@ CSRCS += fpu.c
 endif
 endif
 
+ifneq ($(CONFIG_STDIO_DISABLE_BUFFERING),y)
+CSRCS += setvbuf.c
+endif
+
 ifeq ($(CONFIG_TLS),y)
 CSRCS += tls.c
 endif

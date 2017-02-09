@@ -319,6 +319,14 @@ static int user_main(int argc, char *argv[])
   for (;;)
 #endif
     {
+#ifndef CONFIG_STDIO_DISABLE_BUFFERING
+      /* Checkout setvbuf */
+
+      printf("\nuser_main: setvbuf test\n");
+      setvbuf_test();
+      check_test_memory_usage();
+#endif
+
 #if CONFIG_NFILE_DESCRIPTORS > 0
       /* Checkout /dev/null */
 
