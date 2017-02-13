@@ -42,12 +42,67 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 
 /****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static struct mallinfo g_mmbefore;
+static struct mallinfo g_mmprevious;
+static struct mallinfo g_mmafter;
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static void showusage(struct mallinfo *mmbefore, struct mallinfo *mmafter)
+{
+  printf("VARIABLE  BEFORE   AFTER\n");
+  printf("======== ======== ========\n");
+  printf("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
+  printf("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
+  printf("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
+  printf("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
+  printf("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+}
+
+static void stepusage(void)
+{
+  /* Get the current memory usage */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmafter = mallinfo();
+#else
+  (void)mallinfo(&g_mmafter);
+#endif
+
+  /* Show the change from the previous loop */
+
+  printf("\nStep memory usage:\n");
+  showusage(&g_mmprevious, &g_mmafter);
+
+  /* Set up for the next test */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmprevious = g_mmafter;
+#else
+  memcpy(&g_mmprevious, &g_mmafter, sizeof(struct mallinfo));
+#endif
+}
+
+static void endusage(void)
+{
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmafter = mallinfo();
+#else
+  (void)mallinfo(&g_mmafter);
+#endif
+  printf("\nFinal memory usage:\n");
+  showusage(&g_mmbefore, &g_mmafter);
+}
 
 static void dump_stat(FAR struct stat *buf)
 {
@@ -90,7 +145,7 @@ static void dump_stat(FAR struct stat *buf)
       typename = "Unknown file type";
     }
 
-  printf("stat:\n");
+  printf("\nstat:\n");
   printf("  st_mode:    %04x\n",   buf->st_mode);
   printf("              %s\n",     typename);
   printf("  st_size:    %llu\n",  (unsigned long long)buf->st_size);
@@ -103,7 +158,7 @@ static void dump_stat(FAR struct stat *buf)
 
 static void dump_statfs(FAR struct statfs *buf)
 {
-  printf("statfs:\n");
+  printf("\nstatfs:\n");
   printf("  f_type:     %lu\n",   (unsigned long)buf->f_type);
   printf("  f_namelen:  %lu\n",   (unsigned long)buf->f_namelen);
   printf("  f_bsize:    %lu\n",   (unsigned long)buf->f_bsize);
@@ -147,6 +202,16 @@ int stat_main(int argc, char *argv[])
   path = argv[1];
   printf("Testing path: \"%s\"\n", path);
 
+  /* Set up memory monitoring */
+
+#ifdef CONFIG_CAN_PASS_STRUCTS
+  g_mmbefore = mallinfo();
+  g_mmprevious = g_mmbefore;
+#else
+  (void)mallinfo(&g_mmbefore);
+  memcpy(&g_mmprevious, &g_mmbefore, sizeof(struct mallinfo));
+#endif
+
   /* Try stat first */
 
   ret = stat(path, &statbuf);
@@ -160,6 +225,7 @@ int stat_main(int argc, char *argv[])
     }
 
   dump_stat(&statbuf);
+  stepusage();
   isreg = S_ISREG(statbuf.st_mode);
 
   /* Try statfs */
@@ -174,6 +240,7 @@ int stat_main(int argc, char *argv[])
     }
 
   dump_statfs(&statfsbuf);
+  stepusage();
 
   /* Try fstat (only if it is a regular file) */
 
@@ -189,6 +256,8 @@ int stat_main(int argc, char *argv[])
           return EXIT_FAILURE;
         }
 
+      stepusage();
+
       ret = fstat(fd, &statbuf);
       if (ret < 0)
         {
@@ -202,8 +271,10 @@ int stat_main(int argc, char *argv[])
           dump_stat(&statbuf);
         }
   
+      stepusage();
       close(fd);
     }
 
+  endusage();
   return 0;
 }
