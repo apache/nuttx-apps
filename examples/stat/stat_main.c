@@ -58,15 +58,20 @@ static struct mallinfo g_mmafter;
  * Private Functions
  ****************************************************************************/
 
-static void showusage(struct mallinfo *mmbefore, struct mallinfo *mmafter)
+static void showusage(FAR struct mallinfo *mmbefore,
+                      FAR struct mallinfo *mmafter, FAR const char *msg)
 {
-  printf("VARIABLE  BEFORE   AFTER\n");
-  printf("======== ======== ========\n");
-  printf("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
-  printf("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
-  printf("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
-  printf("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
-  printf("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+  if (mmbefore->uordblks > mmafter->uordblks)
+    {
+      printf("\n%s:\n", msg);
+      printf("VARIABLE  BEFORE   AFTER\n");
+      printf("======== ======== ========\n");
+      printf("arena    %8x %8x\n", mmbefore->arena,    mmafter->arena);
+      printf("ordblks  %8d %8d\n", mmbefore->ordblks,  mmafter->ordblks);
+      printf("mxordblk %8x %8x\n", mmbefore->mxordblk, mmafter->mxordblk);
+      printf("uordblks %8x %8x\n", mmbefore->uordblks, mmafter->uordblks);
+      printf("fordblks %8x %8x\n", mmbefore->fordblks, mmafter->fordblks);
+    }
 }
 
 static void stepusage(void)
@@ -81,8 +86,7 @@ static void stepusage(void)
 
   /* Show the change from the previous loop */
 
-  printf("\nStep memory usage:\n");
-  showusage(&g_mmprevious, &g_mmafter);
+  showusage(&g_mmprevious, &g_mmafter, "Step memory leak");
 
   /* Set up for the next test */
 
@@ -100,8 +104,7 @@ static void endusage(void)
 #else
   (void)mallinfo(&g_mmafter);
 #endif
-  printf("\nFinal memory usage:\n");
-  showusage(&g_mmbefore, &g_mmafter);
+  showusage(&g_mmbefore, &g_mmafter, "End-of-test memory leak");
 }
 
 static void dump_stat(FAR struct stat *buf)
