@@ -172,6 +172,11 @@ static void dump_stat(FAR struct stat *buf)
       details[8]='w';
     }
 
+  if ((buf->st_mode & S_IXOTH) != 0)
+    {
+      details[9]='x';
+    }
+
   printf("stat buffer:\n");
   printf("  st_mode:    %04x      %s\n",   buf->st_mode, details);
   printf("  st_size:    %llu\n",  (unsigned long long)buf->st_size);
