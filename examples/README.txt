@@ -1915,6 +1915,12 @@ examples/sotest
 
        LDMODULEFLAGS = -r -e module_initialize -T$(TOPDIR)/libc/modlib/gnu-elf.ld
 
+examples/stat
+^^^^^^^^^^^^^
+
+  A simple test of stat(), fstat(), and statfs().  This is useful primarily for
+  bringing up a new file system and verifying the correctness of these operations.
+
 examples/system
 ^^^^^^^^^^^^^^^
 

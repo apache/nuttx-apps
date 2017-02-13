@@ -530,11 +530,11 @@ int cmd_cp(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           /* Yes, it is a directory. Remove any trailing '/' characters from the path */
 
-          nsh_trimdir(argv[2]);
+          nsh_trimdir(destpath);
 
           /* Construct the full path to the new file */
 
-          allocpath = nsh_getdirpath(vtbl, argv[2], basename(argv[1]) );
+          allocpath = nsh_getdirpath(vtbl, destpath, basename(argv[1]) );
           if (!allocpath)
             {
               nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
