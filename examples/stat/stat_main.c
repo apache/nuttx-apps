@@ -109,48 +109,71 @@ static void endusage(void)
 
 static void dump_stat(FAR struct stat *buf)
 {
-  FAR const char *typename;
+  char details[] = "----------";
 
   if (S_ISLNK(buf->st_mode))
     {
-      typename = "Link";
+      details[0] = 'l';  /* Takes precedence over type of the target */
     }
   else if (S_ISCHR(buf->st_mode))
     {
-      typename = "Character driver";
+      details[0] = 'c';
     }
   else if (S_ISDIR(buf->st_mode))
     {
-      typename = "Directory";
+      details[0] = 'd';
     }
   else if (S_ISBLK(buf->st_mode))
     {
-      typename = "Block driver";
+      details[0] = 'b';
     }
-  else if (S_ISREG(buf->st_mode))
+  else if (!S_ISREG(buf->st_mode))
     {
-      typename = "Regular file";
+      details[0] = '?';
     }
-  else if (S_ISMQ(buf->st_mode))
+
+  if ((buf->st_mode & S_IRUSR) != 0)
     {
-      typename = "Message queue";
+      details[1]='r';
     }
-  else if (S_ISSEM(buf->st_mode))
+
+  if ((buf->st_mode & S_IWUSR) != 0)
     {
-      typename = "Named semaphore";
+      details[2]='w';
     }
-  else if (S_ISSHM(buf->st_mode))
+
+  if ((buf->st_mode & S_IXUSR) != 0)
     {
-      typename = "Shared memory";
+      details[3]='x';
     }
-  else
+
+  if ((buf->st_mode & S_IRGRP) != 0)
     {
-      typename = "Unknown file type";
+      details[4]='r';
+    }
+
+  if ((buf->st_mode & S_IWGRP) != 0)
+    {
+      details[5]='w';
+    }
+
+  if ((buf->st_mode & S_IXGRP) != 0)
+    {
+      details[6]='x';
+    }
+
+  if ((buf->st_mode & S_IROTH) != 0)
+    {
+      details[7]='r';
+    }
+
+  if ((buf->st_mode & S_IWOTH) != 0)
+    {
+      details[8]='w';
     }
 
   printf("\nstat:\n");
-  printf("  st_mode:    %04x\n",   buf->st_mode);
-  printf("              %s\n",     typename);
+  printf("  st_mode:    %04x      %s\n",   buf->st_mode, details);
   printf("  st_size:    %llu\n",  (unsigned long long)buf->st_size);
   printf("  st_blksize: %lu\n",   (unsigned long)buf->st_blksize);
   printf("  st_blocks:  %lu\n",   (unsigned long)buf->st_blocks);
