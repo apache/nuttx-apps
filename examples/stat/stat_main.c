@@ -61,7 +61,7 @@ static struct mallinfo g_mmafter;
 static void showusage(FAR struct mallinfo *mmbefore,
                       FAR struct mallinfo *mmafter, FAR const char *msg)
 {
-  if (mmbefore->uordblks > mmafter->uordblks)
+  if (mmbefore->uordblks != mmafter->uordblks)
     {
       printf("\n%s:\n", msg);
       printf("VARIABLE  BEFORE   AFTER\n");
@@ -172,7 +172,7 @@ static void dump_stat(FAR struct stat *buf)
       details[8]='w';
     }
 
-  printf("\nstat:\n");
+  printf("stat buffer:\n");
   printf("  st_mode:    %04x      %s\n",   buf->st_mode, details);
   printf("  st_size:    %llu\n",  (unsigned long long)buf->st_size);
   printf("  st_blksize: %lu\n",   (unsigned long)buf->st_blksize);
@@ -184,7 +184,7 @@ static void dump_stat(FAR struct stat *buf)
 
 static void dump_statfs(FAR struct statfs *buf)
 {
-  printf("\nstatfs:\n");
+  printf("statfs buffer:\n");
   printf("  f_type:     %lu\n",   (unsigned long)buf->f_type);
   printf("  f_namelen:  %lu\n",   (unsigned long)buf->f_namelen);
   printf("  f_bsize:    %lu\n",   (unsigned long)buf->f_bsize);
@@ -240,6 +240,7 @@ int stat_main(int argc, char *argv[])
 
   /* Try stat first */
 
+  printf("\nTest stat(%s)\n", path);
   ret = stat(path, &statbuf);
   if (ret < 0)
     {
@@ -256,6 +257,7 @@ int stat_main(int argc, char *argv[])
 
   /* Try statfs */
 
+  printf("\nTest statfs(%s)\n", path);
   ret = statfs(path, &statfsbuf);
   if (ret < 0)
     {
@@ -272,7 +274,10 @@ int stat_main(int argc, char *argv[])
 
   if (isreg)
     {
-      int fd = open(path, O_RDONLY);
+      int fd;
+
+      printf("\nOpen(%s) and test fstat()\n", path);
+      fd = open(path, O_RDONLY);
       if (fd < 0)
         {
           int errcode = errno;
@@ -281,8 +286,6 @@ int stat_main(int argc, char *argv[])
               path, errcode);
           return EXIT_FAILURE;
         }
-
-      stepusage();
 
       ret = fstat(fd, &statbuf);
       if (ret < 0)
@@ -297,8 +300,8 @@ int stat_main(int argc, char *argv[])
           dump_stat(&statbuf);
         }
   
-      stepusage();
       close(fd);
+      stepusage();
     }
 
   endusage();
