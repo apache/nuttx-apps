@@ -297,7 +297,7 @@ int stat_main(int argc, char *argv[])
         {
           int errcode = errno;
           fprintf(stderr,
-                  "ERROR: statfs(%s) failed: %d\n",
+                  "ERROR: fstat(%s) failed: %d\n",
                   path, errcode);
         }
       else
