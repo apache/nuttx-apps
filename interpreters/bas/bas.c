@@ -75,7 +75,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <math.h>
-#include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <unistd.h>
 

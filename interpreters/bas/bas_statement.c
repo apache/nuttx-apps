@@ -63,6 +63,7 @@
 #include <nuttx/config.h>
 
 #include <stdlib.h>
+#include <strings.h>
 
 #include "bas_statement.h"
 

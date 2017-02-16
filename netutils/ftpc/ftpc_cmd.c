@@ -40,6 +40,7 @@
 #include "ftpc_config.h"
 
 #include <stdlib.h>
+#include <strings.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <debug.h>

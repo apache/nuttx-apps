@@ -390,7 +390,7 @@ int xmlrpc_main(int argc, char *argv[])
 
   setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
-  bzero((void *)&servaddr, sizeof(servaddr));
+  memset((void *)&servaddr, 0, sizeof(servaddr));
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
   servaddr.sin_port = htons(80);

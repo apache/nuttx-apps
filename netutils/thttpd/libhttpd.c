@@ -50,7 +50,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
-#include <string.h>
+#include <strings.h>
 #include <stdarg.h>
 #include <ctype.h>
 #include <fcntl.h>

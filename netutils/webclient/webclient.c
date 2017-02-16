@@ -61,7 +61,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <netdb.h>
-#include <string.h>
+#include <strings.h>
 #include <errno.h>
 
 #include <arpa/inet.h>

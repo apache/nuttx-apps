@@ -231,7 +231,7 @@ bool xMBPortSerialInit(uint8_t ucPort, speed_t ulBaudRate,
     }
   else
     {
-      bzero(&xNewTIO, sizeof(struct termios));
+      memset(&xNewTIO, 0, sizeof(struct termios));
 
       xNewTIO.c_iflag |= IGNBRK | INPCK;
       xNewTIO.c_cflag |= CREAD | CLOCAL;
