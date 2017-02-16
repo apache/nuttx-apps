@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/buttons/buttons_main.c
  *
- *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2016-2027 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,23 +123,37 @@
 #  error "CONFIG_EXAMPLES_BUTTONS_QTD > 8"
 #endif
 
-#ifdef CONFIG_EXAMPLES_BUTTONS_NAMES
-char button_name[CONFIG_EXAMPLES_BUTTONS_QTD][16] =
-{
-  CONFIG_EXAMPLES_BUTTONS_NAME0,
-  CONFIG_EXAMPLES_BUTTONS_NAME1,
-  CONFIG_EXAMPLES_BUTTONS_NAME2,
-  CONFIG_EXAMPLES_BUTTONS_NAME3,
-  CONFIG_EXAMPLES_BUTTONS_NAME4,
-  CONFIG_EXAMPLES_BUTTONS_NAME5,
-  CONFIG_EXAMPLES_BUTTONS_NAME6,
-  CONFIG_EXAMPLES_BUTTONS_NAME7,
-};
-#endif
-
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_BUTTONS_NAMES
+static const char button_name[CONFIG_EXAMPLES_BUTTONS_QTD][16] =
+{
+  CONFIG_EXAMPLES_BUTTONS_NAME0
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 1
+  , CONFIG_EXAMPLES_BUTTONS_NAME1
+#endif
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 2
+  , CONFIG_EXAMPLES_BUTTONS_NAME2
+#endif
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 3
+  , CONFIG_EXAMPLES_BUTTONS_NAME3
+#endif
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 4
+  , CONFIG_EXAMPLES_BUTTONS_NAME4
+#endif
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 5
+  , CONFIG_EXAMPLES_BUTTONS_NAME5
+#endif
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 6
+  , CONFIG_EXAMPLES_BUTTONS_NAME6
+#endif
+#if CONFIG_EXAMPLES_BUTTONS_QTD > 7
+  , CONFIG_EXAMPLES_BUTTONS_NAME7
+#endif
+};
+#endif
 
 static bool g_button_daemon_started;
 
