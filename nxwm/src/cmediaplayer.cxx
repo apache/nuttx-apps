@@ -46,6 +46,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cerrno>
+#include <strings.h>
 #include <dirent.h>
 #include <debug.h>
 
