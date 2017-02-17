@@ -281,7 +281,7 @@ int stat_main(int argc, char *argv[])
     {
       int fd;
 
-      printf("\nOpen(%s) and test fstat()\n", path);
+      printf("\nOpen(%s)\n", path);
       fd = open(path, O_RDONLY);
       if (fd < 0)
         {
@@ -292,6 +292,9 @@ int stat_main(int argc, char *argv[])
           return EXIT_FAILURE;
         }
 
+      /* Try fstat */
+
+      printf("\nTest fstat(%s)\n", path);
       ret = fstat(fd, &statbuf);
       if (ret < 0)
         {
@@ -305,6 +308,22 @@ int stat_main(int argc, char *argv[])
           dump_stat(&statbuf);
         }
   
+      /* Try fstatfs */
+
+      printf("\nTest fstatfs(%s)\n", path);
+      ret = fstatfs(fd, &statfsbuf);
+      if (ret < 0)
+        {
+          int errcode = errno;
+          fprintf(stderr,
+                  "ERROR: fstatfs(%s) failed: %d\n",
+                  path, errcode);
+        }
+      else
+        {
+          dump_statfs(&statfsbuf);
+        }
+
       close(fd);
       stepusage();
     }
