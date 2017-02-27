@@ -61,7 +61,7 @@
 #if !defined(CONFIG_NSH_DISABLE_MB) || !defined(CONFIG_NSH_DISABLE_MH) || \
     !defined(CONFIG_NSH_DISABLE_MW)
 #  define NSH_HAVE_MEMCMDS 1
-#wendif
+#endif
 
 /****************************************************************************
  * Private Types
