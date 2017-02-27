@@ -71,7 +71,7 @@
 struct dbgmem_s
 {
   bool         dm_write;  /* true: perfrom write operation */
-  void        *dm_addr;   /* Address to access */
+  FAR void    *dm_addr;   /* Address to access */
   uint32_t     dm_value;  /* Value to write */
   unsigned int dm_count;  /* The number of bytes to access */
 };
@@ -86,10 +86,10 @@ struct dbgmem_s
  ****************************************************************************/
 
 #ifdef NSH_HAVE_MEMCMDS
-static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
-                     struct dbgmem_s *mem)
+static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv,
+                     FAR struct dbgmem_s *mem)
 {
-  char *pcvalue = strchr(argv[1], '=');
+  FAR char *pcvalue = strchr(argv[1], '=');
   unsigned long lvalue = 0;
 
   /* Check if we are writing a value */
@@ -142,10 +142,10 @@ static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_MB
-int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   struct dbgmem_s mem;
-  volatile uint8_t *ptr;
+  FAR volatile uint8_t *ptr;
   unsigned int i;
   int ret;
 
@@ -196,10 +196,10 @@ int cmd_mb(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_MH
-int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   struct dbgmem_s mem;
-  volatile uint16_t *ptr;
+  FAR volatile uint16_t *ptr;
   unsigned int i;
   int ret;
 
@@ -252,10 +252,10 @@ int cmd_mh(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_MW
-int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   struct dbgmem_s mem;
-  volatile uint32_t *ptr;
+  FAR volatile uint32_t *ptr;
   unsigned int i;
   int ret;
 
@@ -297,8 +297,8 @@ int cmd_mw(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: nsh_dumpbuffer
  ****************************************************************************/
 
-void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
-                    const uint8_t *buffer, ssize_t nbytes)
+void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, FAR const char *msg,
+                    FAR const uint8_t *buffer, ssize_t nbytes)
 {
   char line[128];
   int ch;
@@ -340,7 +340,7 @@ void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
  ****************************************************************************/
 
 #ifndef CONFIG_NSH_DISABLE_XD
-int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR char *addr;
   FAR char *endptr;
@@ -369,7 +369,7 @@ int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #if CONFIG_NFILE_DESCRIPTORS > 0
 #ifndef CONFIG_NSH_DISABLE_HEXDUMP
-int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
 {
   FAR uint8_t *buffer;
   char msg[32];
