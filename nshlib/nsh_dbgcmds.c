@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/dbg_dbgcmds.c
  *
- *   Copyright (C) 2008-2009, 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2011-2012, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,10 +57,17 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#undef NSH_HAVE_MEMCMDS
+#if !defined(CONFIG_NSH_DISABLE_MB) || !defined(CONFIG_NSH_DISABLE_MH) || \
+    !defined(CONFIG_NSH_DISABLE_MW)
+#  define NSH_HAVE_MEMCMDS 1
+#wendif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
 
+#ifdef NSH_HAVE_MEMCMDS
 struct dbgmem_s
 {
   bool         dm_write;  /* true: perfrom write operation */
@@ -68,18 +75,7 @@ struct dbgmem_s
   uint32_t     dm_value;  /* Value to write */
   unsigned int dm_count;  /* The number of bytes to access */
 };
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -89,8 +85,9 @@ struct dbgmem_s
  * Name: mem_parse
  ****************************************************************************/
 
+#ifdef NSH_HAVE_MEMCMDS
 static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
-              struct dbgmem_s *mem)
+                     struct dbgmem_s *mem)
 {
   char *pcvalue = strchr(argv[1], '=');
   unsigned long lvalue = 0;
@@ -134,6 +131,7 @@ static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
