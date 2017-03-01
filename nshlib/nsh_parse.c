@@ -1877,7 +1877,9 @@ static int nsh_parse_cmdparm(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
   FAR char *argv[MAX_ARGV_ENTRIES];
   FAR char *saveptr;
   FAR char *cmd;
+#ifndef CONFIG_NSH_DISABLEBG
   bool bgsave;
+#endif
   bool redirsave;
   int argc;
   int ret;

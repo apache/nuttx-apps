@@ -495,7 +495,6 @@ static int canard_daemon(int argc, char *argv[])
 errout_with_dev:
   canardNuttXClose(&canardnuttx_instance);
 
-errout:
   g_canard_daemon_started = false;
   printf("canard_daemon: Terminating!\n");
   fflush(stdout);
