@@ -116,7 +116,6 @@ int oneshot_main(int argc, char *argv[])
   unsigned long usecs = CONFIG_EXAMPLE_ONESHOT_DELAY;
   unsigned long secs;
   struct oneshot_start_s start;
-  struct siginfo info;
   struct timespec ts;
   uint64_t maxus;
   sigset_t set;
@@ -252,7 +251,7 @@ int oneshot_main(int argc, char *argv[])
       /* Wait for the oneshot to fire */
 
       printf("Waiting...\n");
-      ret = sigwaitinfo(&set, &info);
+      ret = sigwaitinfo(&set, NULL);
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: sigwaitinfo failed: %d\n",

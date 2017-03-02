@@ -146,14 +146,13 @@ static struct trv_joystick_s g_trv_joystick;
 static int trv_joystick_wait(void)
 {
   sigset_t set;
-  struct siginfo value;
   int ret;
 
   /* Wait for a signal */
 
   (void)sigemptyset(&set);
   (void)sigaddset(&set, CONFIG_GRAPHICS_TRAVELER_JOYSTICK_SIGNO);
-  ret = sigwaitinfo(&set, &value);
+  ret = sigwaitinfo(&set, NULL);
   if (ret < 0)
     {
       int errcode = errno;
