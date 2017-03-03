@@ -250,7 +250,6 @@ int gpio_main(int argc, char *argv[])
           if (havesigno)
             {
               struct timespec ts;
-              struct siginfo info;
               sigset_t set;
 
               /* Set up to receive signal */
@@ -273,7 +272,7 @@ int gpio_main(int argc, char *argv[])
               ts.tv_sec  = 5;
               ts.tv_nsec = 0;
 
-              ret = sigtimedwait(&set, &info, &ts);
+              ret = sigtimedwait(&set, NULL, &ts);
               (void)ioctl(fd, GPIOC_UNREGISTER, 0);
 
               if (ret < 0)
