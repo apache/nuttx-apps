@@ -395,7 +395,6 @@ int main(int argc, FAR char *argv[])
 int buttons_main(int argc, FAR char *argv[])
 #endif
 {
-  FAR char *buttonargv[2];
   int ret;
 
   printf("buttons_main: Starting the button_daemon\n");
@@ -405,12 +404,9 @@ int buttons_main(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
-  buttonargv[0] = "button_daemon";
-  buttonargv[1] = NULL;
-
   ret = task_create("button_daemon", CONFIG_EXAMPLES_BUTTONS_PRIORITY,
                     CONFIG_EXAMPLES_BUTTONS_STACKSIZE, button_daemon,
-                    (FAR char * const *)buttonargv);
+                    NULL);
   if (ret < 0)
     {
       int errcode = errno;
