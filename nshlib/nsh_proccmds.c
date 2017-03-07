@@ -108,24 +108,30 @@ struct nsh_taskstatus_s
 
 /* Status strings */
 
+#ifndef CONFIG_NSH_DISABLE_PS
 #if 0 /* Not used */
 static const char g_name[]      = "Name:";
 #endif
+
 static const char g_type[]      = "Type:";
+
 #ifdef CONFIG_SCHED_HAVE_PARENT
 #ifdef HAVE_GROUPID
 static const char g_groupid[]   = "Group:";
 #else
 static const char g_ppid[]      = "PPID:";
 #endif
-#endif
+#endif /* CONFIG_SCHED_HAVE_PARENT */
+
 #ifdef CONFIG_SMP
 static const char g_cpu[]       = "CPU:";
 #endif
+
 static const char g_state[]     = "State:";
 static const char g_flags[]     = "Flags:";
 static const char g_priority[]  = "Priority:";
 static const char g_scheduler[] = "Scheduler:";
+
 #ifndef CONFIG_DISABLE_SIGNALS
 static const char g_sigmask[]   = "SigMask:";
 #endif
@@ -135,7 +141,8 @@ static const char g_stacksize[] = "StackSize:";
 #ifdef CONFIG_STACK_COLORATION
 static const char g_stackused[] = "StackUsed:";
 #endif
-#endif
+#endif /* !CONFIG_NSH_DISABLE_PSSTACKUSAGE */
+#endif /* !CONFIG_NSH_DISABLE_PS */
 
 /****************************************************************************
  * Private Functions
