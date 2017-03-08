@@ -1827,7 +1827,7 @@
 	  (2016-12-19).
 	* Add platform support for the Olimex STM32 P407 (2016-12-21).
 
-7.20 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.20 2017-03-08 Gregory Nutt <gnutt@nuttx.org>
 
 	* OS test: Was ignoring CONFIG_EXAMPLES_OSTEST_FPUTESTDISABLE (2016-12-29).
 	* apps/examples/nxtext: Make line spacing configurable (2017-01-03).
@@ -1835,7 +1835,7 @@
 	  after -o binname.  From Alan Carvalho de Assis (2017-01-07).
 	* apps/system/zmodem/host/nuttx/compiler.h synchronized with
 	  nuttx/nuttx/include/nuttx/compiler.h.  From Aleksandr Vyhovanec
-	  (2017-01-xx).
+	  (2017-01-09).
 	* examples/sotest:  Add a test for shared libraries (2017-01-23).
 	* examples/ostest:  Add new error print and modify comments in cancel
 	  test.  From Juha Niskanen (2017-01-24)
@@ -1866,3 +1866,5 @@
 	* The CONFIG_NETUTILS_HTTPD_PATH constant is used by httpd_mmap.c and
 	  httpd_sendfile.c but It was not present in Kconfig menu.  From Maciej
 	  Wójcik (2017-03-05).
+
+7.21 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
