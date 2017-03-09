@@ -44,11 +44,11 @@ config EXAMPLES_PWM_DUTYPCT1
 config EXAMPLES_PWM_CHANNEL1
 	int "First PWM channel number"
 	default 1
-	range 1 4
+	range 1 6
 	---help---
 		The first PWM channel number.  Default: 1
 
-if PWM_NCHANNELS = 2 || PWM_NCHANNELS = 3 || PWM_NCHANNELS = 4
+if PWM_NCHANNELS = 2 || PWM_NCHANNELS = 3 || PWM_NCHANNELS = 4 || PWM_NCHANNELS = 5 || PWM_NCHANNELS = 6
 
 config EXAMPLES_PWM_DUTYPCT2
 	int "Second PWM duty percentage"
@@ -60,13 +60,13 @@ config EXAMPLES_PWM_DUTYPCT2
 config EXAMPLES_PWM_CHANNEL2
 	int "Second PWM channel number"
 	default 2
-	range 1 4
+	range 1 6
 	---help---
 		The second PWM channel number.  Default: 2
 
 endif
 
-if PWM_NCHANNELS = 3 || PWM_NCHANNELS = 4
+if PWM_NCHANNELS = 3 || PWM_NCHANNELS = 4 || PWM_NCHANNELS = 5 || PWM_NCHANNELS = 6
 
 config EXAMPLES_PWM_DUTYPCT3
 	int "Third PWM duty percentage"
@@ -78,13 +78,13 @@ config EXAMPLES_PWM_DUTYPCT3
 config EXAMPLES_PWM_CHANNEL3
 	int "Third PWM channel number"
 	default 3
-	range 1 4
+	range 1 6
 	---help---
 		The third PWM channel number.  Default: 3
 
 endif
 
-if PWM_NCHANNELS = 4
+if PWM_NCHANNELS = 4 || PWM_NCHANNELS = 5 || PWM_NCHANNELS = 6
 
 config EXAMPLES_PWM_DUTYPCT4
 	int "Fourth PWM duty percentage"
@@ -96,9 +96,45 @@ config EXAMPLES_PWM_DUTYPCT4
 config EXAMPLES_PWM_CHANNEL4
 	int "Fourth PWM channel number"
 	default 4
-	range 1 4
+	range 1 6
 	---help---
 		The fourth PWM channel number.  Default: 4
+
+endif
+
+if PWM_NCHANNELS = 5 || PWM_NCHANNELS = 6
+
+config EXAMPLES_PWM_DUTYPCT5
+	int "Fifth PWM duty percentage"
+	default 50
+	range 1 99
+	---help---
+		The fifth PWM duty as a percentage.  Default: 50%
+
+config EXAMPLES_PWM_CHANNEL5
+	int "Fifth PWM channel number"
+	default 5
+	range 1 6
+	---help---
+		The fifth PWM channel number.  Default: 5
+
+endif
+
+if PWM_NCHANNELS = 6
+
+config EXAMPLES_PWM_DUTYPCT6
+	int "Sixth PWM duty percentage"
+	default 50
+	range 1 99
+	---help---
+		The sixth PWM duty as a percentage.  Default: 50%
+
+config EXAMPLES_PWM_CHANNEL5
+	int "Sixth PWM channel number"
+	default 6
+	range 1 6
+	---help---
+		The sixth PWM channel number.  Default: 6
 
 endif
 
