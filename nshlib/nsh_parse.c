@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_parse.c
  *
- *   Copyright (C) 2007-2013, 2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2014, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1180,7 +1180,11 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
       else
 #endif
         {
-          /* Just to catch any dangling else clauses */
+          /* Not a special character... skip to the next character in the
+           * cmdline.
+           */
+
+          working++;
         }
     }
 }
