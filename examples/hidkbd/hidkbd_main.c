@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/hidkbd/hidkbd_main.c
  *
- *   Copyright (C) 2011, 2013-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013-2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,16 +39,9 @@
 
 #include <nuttx/config.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sched.h>
-#include <string.h>
-#include <ctype.h>
-#include <assert.h>
 #include <errno.h>
 
 #include <nuttx/usb/usbhost.h>
@@ -79,14 +72,6 @@
 
 /* Provide some default values for other configuration settings */
 
-#ifndef CONFIG_EXAMPLES_HIDKBD_DEFPRIO
-#  define CONFIG_EXAMPLES_HIDKBD_DEFPRIO 50
-#endif
-
-#ifndef CONFIG_EXAMPLES_HIDKBD_STACKSIZE
-#  define CONFIG_EXAMPLES_HIDKBD_STACKSIZE 1024
-#endif
-
 #ifndef CONFIG_EXAMPLES_HIDKBD_DEVNAME
 #  define CONFIG_EXAMPLES_HIDKBD_DEVNAME "/dev/kbda"
 #endif
@@ -107,22 +92,6 @@ struct hidbkd_instream_s
   ssize_t nbytes;
 };
 #endif
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-static FAR struct usbhost_connection_s *g_usbconn;
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-/* The platform-specific code must provide a wrapper called
- * arch_usbhost_initialize() that will perform the actual USB host
- * initialization.
- */
-
-FAR struct usbhost_connection_s *arch_usbhost_initialize(void);
 
 /****************************************************************************
  * Private Functions
@@ -224,41 +193,6 @@ static void hidkbd_decode(FAR char *buffer, ssize_t nbytes)
 #endif
 
 /****************************************************************************
- * Name: hidkbd_waiter
- *
- * Description:
- *   Wait for USB devices to be connected.
- *
- ****************************************************************************/
-
-static int hidkbd_waiter(int argc, char *argv[])
-{
-  FAR struct usbhost_hubport_s *hport;
-
-  printf("hidkbd_waiter: Running\n");
-  for (;;)
-    {
-      /* Wait for the device to change state */
-
-      DEBUGVERIFY(CONN_WAIT(g_usbconn, &hport));
-      printf("hidkbd_waiter: %s\n", hport->connected ? "connected" : "disconnected");
-
-      /* Did we just become connected? */
-
-      if (hport->connected)
-        {
-          /* Yes.. enumerate the newly connected device */
-
-          (void)CONN_ENUMERATE(g_usbconn, hport);
-        }
-    }
-
-  /* Keep the compiler from complaining */
-
-  return 0;
-}
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -273,88 +207,58 @@ int hidkbd_main(int argc, char *argv[])
 #endif
 {
   char buffer[256];
-  pid_t pid;
   ssize_t nbytes;
   int fd;
-  int ret;
 
-  /* First, register all of the USB host HID keyboard class driver */
-
-  printf("hidkbd_main: Register class drivers\n");
-  ret = usbhost_kbdinit();
-  if (ret != OK)
-    {
-      printf("hidkbd_main: Failed to register the KBD class\n");
-    }
-
-  /* Then get an instance of the USB host interface.  The platform-specific
-   * code must provide a wrapper called arch_usbhost_initialize() that will
-   * perform the actual USB host initialization.
+  /* Eventually logic here will open the kbd device and perform the HID
+   * keyboard test.
    */
 
-  printf("hidkbd_main: Initialize USB host keyboard driver\n");
-  g_usbconn = arch_usbhost_initialize();
-  if (g_usbconn)
+  for (;;)
     {
-      /* Start a thread to handle device connection. */
-
-      printf("hidkbd_main: Start hidkbd_waiter\n");
-
-      pid = task_create("usbhost", CONFIG_EXAMPLES_HIDKBD_DEFPRIO,
-                        CONFIG_EXAMPLES_HIDKBD_STACKSIZE,
-                        (main_t)hidkbd_waiter, (FAR char * const *)NULL);
-      UNUSED(pid);
-
-      /* Now just sleep.  Eventually logic here will open the kbd device and
-       * perform the HID keyboard test.
+      /* Open the keyboard device.  Loop until the device is successfully
+       * opened.
        */
 
-      for (;;)
+      do
         {
-          /* Open the keyboard device.  Loop until the device is successfully
-           * opened.
-           */
-
-          do
+          printf("Opening device %s\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME);
+          fd = open(CONFIG_EXAMPLES_HIDKBD_DEVNAME, O_RDONLY);
+          if (fd < 0)
             {
-              printf("Opening device %s\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME);
-              fd = open(CONFIG_EXAMPLES_HIDKBD_DEVNAME, O_RDONLY);
-              if (fd < 0)
-                {
-                   printf("Failed: %d\n", errno);
-                   fflush(stdout);
-                   sleep(3);
-                }
+               printf("Failed: %d\n", errno);
+               fflush(stdout);
+               sleep(3);
             }
-          while (fd < 0);
+        }
+      while (fd < 0);
 
-          printf("Device %s opened\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME);
-          fflush(stdout);
+      printf("Device %s opened\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME);
+      fflush(stdout);
 
-          /* Loop until there is a read failure (or EOF?) */
+      /* Loop until there is a read failure (or EOF?) */
 
-          do
+      do
+        {
+          /* Read a buffer of data */
+
+          nbytes = read(fd, buffer, 256);
+          if (nbytes > 0)
             {
-              /* Read a buffer of data */
-
-              nbytes = read(fd, buffer, 256);
-              if (nbytes > 0)
-                {
-                  /* On success, echo the buffer to stdout */
+              /* On success, echo the buffer to stdout */
 
 #ifdef CONFIG_EXAMPLES_HIDKBD_ENCODED
-                  hidkbd_decode(buffer, nbytes);
+              hidkbd_decode(buffer, nbytes);
 #else
-                  (void)write(1, buffer, nbytes);
+              (void)write(1, buffer, nbytes);
 #endif
-                }
             }
-          while (nbytes > 0);
-
-          printf("Closing device %s: %d\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME, (int)nbytes);
-          fflush(stdout);
-          close(fd);
         }
+      while (nbytes > 0);
+
+      printf("Closing device %s: %d\n", CONFIG_EXAMPLES_HIDKBD_DEVNAME, (int)nbytes);
+      fflush(stdout);
+      close(fd);
     }
 
   return 0;

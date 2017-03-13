@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/hidkbd/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,20 @@
 
 # USB Host HID keyboard Example
 
+CONFIG_EXAMPLES_HIDKBD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_HIDKBD_STACKSIZE ?= 2048
+
 APPNAME = hidkbd
+PRIORITY = $(CONFIG_EXAMPLES_HIDKBD_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_HIDKBD_STACKSIZE)
+
+# Hello, World! Example
 
 ASRCS =
 CSRCS =
 MAINSRC = hidkbd_main.c
 
-CONFIG_XYZ_PROGNAME ?= hidkbd$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_HIDKBD_PROGNAME ?= hidkbd$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_HIDKBD_PROGNAME)
 
 include $(APPDIR)/Application.mk

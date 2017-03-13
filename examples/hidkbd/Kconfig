@@ -6,23 +6,10 @@
 config EXAMPLES_HIDKBD
 	bool "USB HID keyboard example"
 	default n
-	depends on !BUILD_PROTECTED && !BUILD_KERNEL
 	---help---
 		Enable the USB HID keyboard example
 
 if EXAMPLES_HIDKBD
-
-config EXAMPLES_HIDKBD_DEFPRIO
-	int "Waiter Thread Priority"
-	default 50
-	---help---
-		Priority of "waiter" thread.  Default: 50
-
-config EXAMPLES_HIDKBD_STACKSIZE
-	int "Waiter Thread Stack Size"
-	default 1024
-	---help---
-		Stacksize of "waiter" thread. Default 1024
 
 config EXAMPLES_HIDKBD_DEVNAME
 	string "Keyboard Device Name"
