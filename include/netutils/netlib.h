@@ -136,6 +136,7 @@ void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
 #endif
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen);
 int netlib_setessid(FAR const char *ifname, FAR const char *essid);
 #endif
 

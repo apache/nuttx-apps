@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setessid.c
+ * netutils/netlib/netlib_getessid.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -58,7 +58,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
- /* The address family that we used to create the socket and in the IOCTL
+/* The address family that we used to create the socket and in the IOCTL
  * data really does not matter.  It should, however, be valid in the current
  * configuration.
  */
@@ -76,26 +76,27 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setessid
+ * Name: netlib_getessid
  *
  * Description:
- *   Set the wireless access point ESSID
+ *   Get the wireless access point ESSID
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   essid    Wireless ESSD address to set, size must be less then or equal
- *            to IW_ESSID_MAX_SIZE + 1 (including the NUL string terminator).
+ *   essid    Location to store the returned ESSID, size must be
+ *            IW_ESSID_MAX_SIZE + 1 or larger
+ *   idlen    size of memory set asdie for the ESSID.
  *
  * Return:
  *   0 on success; -1 on failure (errno may not be set)
  *
  ****************************************************************************/
 
-int netlib_setessid(FAR const char *ifname, FAR const char *essid)
+int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen)
 {
   int ret = ERROR;
 
-  if (ifname != NULL && essid != NULL)
+  if (ifname != NULL && essid != NULL && idlen > IW_ESSID_MAX_SIZE)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
@@ -106,17 +107,16 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid)
 
           /* Put the driver name into the request */
 
+          memset(&req, 0, sizeof(struct iwreq));
           strncpy(req.ifrn_name, ifname, IFNAMSIZ);
 
-          /* Put the new ESSID into the request */
+          /* Put pointer to receive the ESSID into the request */
 
           req.u.essid.pointer = (FAR void *)essid;
-          req.u.essid.length  = strlen(essid) + 1;
-          req.u.essid.flags   = 1;
 
-          /* Perform the ioctl to set the ESSID */
+          /* Perform the ioctl to get the ESSID */
 
-          ret = ioctl(sockfd, SIOCSIWESSID, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCGIWESSID, (unsigned long)&req);
           close(sockfd);
         }
     }
