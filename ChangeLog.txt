@@ -1827,4 +1827,44 @@
 	  (2016-12-19).
 	* Add platform support for the Olimex STM32 P407 (2016-12-21).
 
-7.20 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.20 2017-03-08 Gregory Nutt <gnutt@nuttx.org>
+
+	* OS test: Was ignoring CONFIG_EXAMPLES_OSTEST_FPUTESTDISABLE (2016-12-29).
+	* apps/examples/nxtext: Make line spacing configurable (2017-01-03).
+	* apps/graphics/traveler/tools: Fix linkage issue. The -lm should come
+	  after -o binname.  From Alan Carvalho de Assis (2017-01-07).
+	* apps/system/zmodem/host/nuttx/compiler.h synchronized with
+	  nuttx/nuttx/include/nuttx/compiler.h.  From Aleksandr Vyhovanec
+	  (2017-01-09).
+	* examples/sotest:  Add a test for shared libraries (2017-01-23).
+	* examples/ostest:  Add new error print and modify comments in cancel
+	  test.  From Juha Niskanen (2017-01-24)
+	* In apps/examples/mtdpart/mtdpart_main.c where
+	  CONFIG_EXAMPLES_MTDPART_NPARTITIONS defining is checked should be
+	  #ifndef instead of #ifdef.  Noted by Oleg Evseev (2017-01-30).
+	* NSH: Add support for the 'ln' command (2017-02-02).
+	* NSH ls command: if node is a symobolic link, use readlink() to get and
+	  the display the target of the symblic link (2017-02-03).
+	* NSH: Add readlink command (2017-02-05).
+	* examples/ostest:  Add a test of setvbuf() (2017-02-09).
+	* apps/examples/stat:  Add a simple test for stat(), fstat(), and
+	  statfs() (2017-02-13).
+	* strcasecmp, strncasecmp, bzero, bcmp, and bcopy should be defined in
+	  strings.h, not string.h.  bzero, bcmp, and bcopy are legacy functions;
+	  the contemporary counterparts should be used instead (2017-02-16).
+	* examples/stat:  Add test for fstatfs() (2017-02-17).
+	* C files that reference ANIOC_TRIGGER now need to include
+	  nuttx/analog/ioctl.h (2017-02-25).
+	* Add platform files for nucleo-f334r8.  From Mateusz Szafoni (2017-02-26).
+	* NSH: Eliminate a warning when all memory inspection commands are
+	  disabled (2017-02-27).
+	* netutils/webserver: Needs to include strings.h for strcasecmp()
+	  (2017-02-27).
+	* nxplayer:  Needs to include strings.h for strcasecp() (2017-02-27).
+	* Remove an unused variable when calling sigwaitinfo() and
+	  sigtimedwait().  From Masayuki Ishikawa (2017-03-02).
+	* The CONFIG_NETUTILS_HTTPD_PATH constant is used by httpd_mmap.c and
+	  httpd_sendfile.c but It was not present in Kconfig menu.  From Maciej
+	  Wójcik (2017-03-05).
+
+7.21 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>

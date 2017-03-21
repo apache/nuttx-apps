@@ -74,6 +74,12 @@ CSRCS += netlib_server.c netlib_listenon.c
 endif
 endif
 
+# These require wireless IOCTL support */
+
+ifeq ($(CONFIG_NETDEV_WIRELESS_IOCTL),y)
+CSRCS += netlib_getessid.c netlib_setessid.c
+endif
+
 # No MAC address support for SLIP (Ethernet only)
 
 ifeq ($(CONFIG_NET_ETHERNET),y)

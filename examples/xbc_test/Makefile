@@ -1,8 +1,11 @@
 ############################################################################
-# apps/examples/usbterm/Makefile
+# apps/examples/hello/Makefile
 #
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2008, 2010-2013 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+#   Copyright (C) 2017 Brian Webb. All rights reserved.
+#   Author: Brian Webb <webbbn@gmail.com>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -35,19 +38,22 @@
 
 -include $(TOPDIR)/Make.defs
 
-# USB terminal example
+# XBox controller driver test built-in application info
+
+CONFIG_EXAMPLES_XBC_TEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_XBC_TEST_STACKSIZE ?= 2048
+
+APPNAME = xbc_test
+PRIORITY = $(CONFIG_EXAMPLES_XBC_TEST_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_XBC_TEST_STACKSIZE)
+
+# Xbc_Test, World! Example
 
 ASRCS =
 CSRCS =
-MAINSRC = usbterm_main.c
+MAINSRC = xbc_test_main.c
 
-CONFIG_XYZ_PROGNAME ?= usbterm$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
-# Built-in application info
-
-APPNAME  = usbterm
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
+CONFIG_EXAMPLES_XBC_TEST_PROGNAME ?= xbc_test$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_XBC_TEST_PROGNAME)
 
 include $(APPDIR)/Application.mk

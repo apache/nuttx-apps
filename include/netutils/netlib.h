@@ -3,7 +3,7 @@
  * Various non-standard APIs to support netutils.  All non-standard and
  * intended only for internal use.
  *
- *   Copyright (C) 2007, 2009, 2011m 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009, 2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Some of these APIs derive from uIP.  uIP also has a BSD style license:
@@ -133,6 +133,11 @@ int netlib_set_ipv6netmask(FAR const char *ifname, FAR const struct in6_addr *ad
 
 uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
 void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
+#endif
+
+#ifdef CONFIG_NETDEV_WIRELESS_IOCTL
+int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen);
+int netlib_setessid(FAR const char *ifname, FAR const char *essid);
 #endif
 
 #ifdef CONFIG_NET_ARP

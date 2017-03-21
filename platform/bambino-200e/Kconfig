@@ -3,10 +3,6 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config EXAMPLES_NRF24L01TERM
-	bool "Basic nRF24L01 terminal"
-	default n
-	depends on DRIVERS_WIRELESS
+if ARCH_BOARD_BAMBINO_200E
 
-if EXAMPLES_NRF24L01TERM
 endif

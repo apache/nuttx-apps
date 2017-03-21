@@ -1,9 +1,12 @@
 ############################################################################
-# apps/examples/usbterm/Make.defs
+# apps/examples/xbc_test/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+#   Copyright (C) 2017 Brian Webb. All rights reserved.
+#   Author: Brian Webb <webbbn@gmail.com>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -34,6 +37,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_EXAMPLES_USBTERM),y)
-CONFIGURED_APPS += examples/usbterm
+ifeq ($(CONFIG_EXAMPLES_XBC_TEST),y)
+CONFIGURED_APPS += examples/xbc_test
 endif

@@ -127,6 +127,11 @@ config NETUTILS_HTTPD_SENDFILE
 
 endchoice
 
+config NETUTILS_HTTPD_PATH
+	string "Location of the files"
+	depends on NETUTILS_HTTPD_MMAP || NETUTILS_HTTPD_SENDFILE
+	default "/mnt"
+
 config NETUTILS_HTTPD_KEEPALIVE_DISABLE
 	bool "Keepalive Disable"
 	default y if !NETUTILS_HTTPD_TIMEOUT

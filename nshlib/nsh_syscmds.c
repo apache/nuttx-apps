@@ -86,7 +86,9 @@
  * Private Data
  ****************************************************************************/
 
+#ifndef CONFIG_NSH_DISABLE_UNAME
 static const char g_unknown[] = "unknown";
+#endif
 
 /****************************************************************************
  * Public Functions
