@@ -478,10 +478,10 @@ static int ps_callback(FAR struct nsh_vtbl_s *vtbl, FAR const char *dirpath,
         }
     }
 
-  nsh_output(vtbl, "%6.6u ", (unsigned int)stack_size);
+  nsh_output(vtbl, "%06u ", (unsigned int)stack_size);
 
 #ifdef CONFIG_STACK_COLORATION
-  nsh_output(vtbl, "%6.6u ", (unsigned int)stack_used);
+  nsh_output(vtbl, "%06u ", (unsigned int)stack_used);
 
   stack_filled = 0;
   if (stack_size > 0 && stack_used > 0)
