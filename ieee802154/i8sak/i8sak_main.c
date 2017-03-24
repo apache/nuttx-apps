@@ -59,9 +59,10 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/ieee802154/ieee802154.h>
-#include <nuttx/ieee802154/ieee802154_dev.h>
-#include <apps/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include "ieee802154/ieee802154.h"
 
 /****************************************************************************
  * Definitions
@@ -97,7 +98,7 @@ int energy_scan(int fd)
               printf("Device is not an IEEE 802.15.4 interface!\n");
               return ret;
             }
-          ret = ioctl(fd, MAC854IOCGED, (unsigned long)&energy);
+          ret = ioctl(fd, PHY802154IOC_ENERGYDETECT, (unsigned long)&energy);
           if (ret<0)
             {
               printf("Device is not an IEEE 802.15.4 interface!\n");
@@ -153,10 +154,10 @@ static int status(int fd)
 
   /* Get information */
 
-  ret = ioctl(fd, MAC854IOCGPANID, (unsigned long)&panid);
+  ret = ioctl(fd, PHY802154IOC_GET_PANID, (unsigned long)&panid);
   if (ret)
     {
-      printf("MAC854IOCGPANID failed\n");
+      printf("PHY802154IOC_GET_PANID failed\n");
       return ret;
     }
 
@@ -166,22 +167,22 @@ static int status(int fd)
       return ret;
     }
 
-  ret = ioctl(fd, MAC854IOCGSADDR, (unsigned long)&saddr);
+  ret = ioctl(fd, PHY802154IOC_GET_SADDR, (unsigned long)&saddr);
   if (ret)
     {
-      printf("MAC854IOCGSADDR failed\n");
+      printf("PHY802154IOC_GET_SADDR failed\n");
       return ret;
     }
-  ret = ioctl(fd, MAC854IOCGEADDR, (unsigned long)&eaddr[0]);
+  ret = ioctl(fd, PHY802154IOC_GET_EADDR, (unsigned long)&eaddr[0]);
   if (ret)
     {
-      printf("MAC854IOCGEADR failed\n");
+      printf("PHY802154IOC_GET_EADDR failed\n");
       return ret;
     }
-  ret = ioctl(fd, MAC854IOCGPROMISC, (unsigned long)&promisc);
+  ret = ioctl(fd, PHY802154IOC_GET_PROMISC, (unsigned long)&promisc);
   if (ret)
     {
-      printf("MAC854IOCGPROMISC failed\n");
+      printf("PHY802154IOC_GET_PROMISC failed\n");
       return ret;
     }
   ret = ieee802154_getcca(fd, &cca);
@@ -548,7 +549,7 @@ data_error:
       gTxPacket.data[gTxPacket.len++] = 0x03; //mac command, no ack, no panid compression
       gTxPacket.data[gTxPacket.len++] = 0x00; //short destination address, no source address
       gTxPacket.data[gTxPacket.len++] = 0;    //seq
-      dest.ia_len = 2;
+      dest.ia_mode = IEEE802154_ADDRMODE_SHORT;
       dest.ia_panid = 0xFFFF;
       dest.ia_saddr = 0xFFFF;
 

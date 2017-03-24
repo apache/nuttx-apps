@@ -42,15 +42,16 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/ieee802154/ieee802154.h>
-#include <nuttx/ieee802154/ieee802154_dev.h>
+#include <nuttx/wireless/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+#include "ieee802154/ieee802154.h"
 
 int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca)
 {
-  int ret = ioctl(fd, MAC854IOCSCCA, (unsigned long)cca );
+  int ret = ioctl(fd, PHY802154IOC_SET_CCA, (unsigned long)cca );
   if (ret<0)
     {
-      printf("MAC854IOCSCCA failed\n");
+      printf("PHY802154IOC_SET_CCA failed\n");
     }
   return ret;
 }

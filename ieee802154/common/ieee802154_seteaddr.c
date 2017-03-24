@@ -42,14 +42,15 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/ieee802154/ieee802154_dev.h>
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+#include "ieee802154/ieee802154.h"
 
 int ieee802154_seteaddr(int fd, uint8_t *eaddr)
 {
-  int ret = ioctl(fd, MAC854IOCSEADDR, (unsigned long)eaddr );
+  int ret = ioctl(fd, PHY802154IOC_SET_EADDR, (unsigned long)eaddr );
   if (ret<0)
     {
-      printf("MAC854IOCSEADDR failed\n");
+      printf("PHY802154IOC_SET_EADDR failed\n");
     }
   return ret;
 }

@@ -38,19 +38,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
-struct ieee802154_addr_s
-{
-  uint8_t ia_len; /* structure length NOT including panid, so 2/8*/
-  uint16_t ia_panid;
-  union {
-    uint16_t _ia_saddr;
-    uint8_t  _ia_eaddr[8];
-  } ia_addr;
-#define ia_saddr ia_addr._ia_saddr
-#define ia_eaddr ia_addr._ia_eaddr
-};
-#define IEEE802154_ADDRSTRLEN 22 /* (4+1+8*2) */
+#include <nuttx/wireless/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 
 int ieee802154_setchan   (int fd, uint8_t chan);
 int ieee802154_getchan   (int fd, FAR uint8_t *chan);

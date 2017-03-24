@@ -42,14 +42,15 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/ieee802154/ieee802154_dev.h>
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+#include "ieee802154/ieee802154.h"
 
 int ieee802154_setdevmode(int fd, uint8_t devmode)
 {
-  int ret = ioctl(fd, MAC854IOCSDEVMODE, (unsigned long)devmode );
+  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE, (unsigned long)devmode );
   if (ret<0)
     {
-      printf("MAC854IOCSDEVMODE failed\n");
+      printf("PHY802154IOC_SET_DEVMODE failed\n");
     }
   return ret;
 }

@@ -41,38 +41,55 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <nuttx/ieee802154/ieee802154.h>
-#include <apps/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include "ieee802154/ieee802154.h"
 
 int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
                          FAR struct ieee802154_addr_s *dest,
                          FAR struct ieee802154_addr_s *src)
 {
+  uint16_t frame_ctrl;
   int index=3; //skip fc and seq
+
+  /* Get the frame control word so we can manipulate it */
+
+  frame_ctrl = packet->data[0];
+  frame_ctrl |= packet->data[1] << 8;
+
+
+  /* Clear the destination address mode */
+
+  frame_ctrl &= ~IEEE802154_FRAMECTRL_DADDR;
 
   /* encode dest addr */
 
-  if(dest == NULL || dest->ia_len == 0)
+  if(dest == NULL || dest->ia_mode == IEEE802154_ADDRMODE_NONE)
     {
-      packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_NONE;
+      /* Set the destination address mode to none */
+
+      frame_ctrl |= IEEE802154_ADDRMODE_NONE << IEEE802154_FRAMECTRL_SHIFT_DADDR;
     }
   else
     {
       memcpy(packet->data+index, &dest->ia_panid, 2);
       index += 2; /* skip dest pan id */
-      if(dest->ia_len == 2)
+
+      /* Set the dest address mode field */
+      
+      frame_ctrl |= dest->ia_mode << IEEE802154_FRAMECTRL_SHIFT_DADDR;
+
+      if(dest->ia_mode == IEEE802154_ADDRMODE_SHORT)
         {
           memcpy(packet->data+index, &dest->ia_saddr, 2);
           index += 2; /* skip dest addr */
-          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_SHORT;
         }
-      else if(dest->ia_len == 8)
+      else if(dest->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
         {
           memcpy(packet->data+index, &dest->ia_panid, 2);
           index += 2; /* skip dest pan id */
           memcpy(packet->data+index, dest->ia_eaddr, 8);
           index += 8; /* skip dest addr */
-          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_DADDR) | IEEE802154_DADDR_EXT;
         }
       else
         {
@@ -80,42 +97,57 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
         }
     }
 
-  packet->data[0] &= ~IEEE802154_FC1_INTRA;
-  if( (dest != NULL && dest->ia_len != 0) && (src != NULL && src->ia_len != 0) )
+  /* Clear the PAN ID Compression Field */
+
+  frame_ctrl &= ~IEEE802154_FRAMECTRL_INTRA;
+
+  if( (dest != NULL && dest->ia_mode != IEEE802154_ADDRMODE_NONE) &&
+      (src != NULL && src->ia_mode != IEEE802154_ADDRMODE_NONE) )
     {
       /* we have both adresses, encode source pan id according to compression */
+
       if( dest->ia_panid == src->ia_panid)
         {
-          packet->data[0] |= IEEE802154_FC1_INTRA;
+          frame_ctrl |= IEEE802154_FRAMECTRL_INTRA;
         }
     }
 
 
+  /* Clear the source address mode */
+
+  frame_ctrl &= ~IEEE802154_FRAMECTRL_SADDR;
+
   /* encode source addr */
 
-  if(src == NULL || src->ia_len==0)
+  if(src == NULL || src->ia_mode == IEEE802154_ADDRMODE_NONE)
     {
-    packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_NONE;
+      /* Set the source address mode to none */
+
+      frame_ctrl |= IEEE802154_ADDRMODE_NONE << IEEE802154_FRAMECTRL_SHIFT_SADDR;
     }
   else
     {
-      /*add src pan id if it was not compressed before*/
-      if(!(packet->data[0] & IEEE802154_FC1_INTRA))
+      /* add src pan id if it was not compressed before */
+
+      if(!(frame_ctrl & IEEE802154_FRAMECTRL_INTRA))
         {
           memcpy(packet->data+index, &src->ia_panid, 2);
           index += 2; /*skip src pan id*/
         }
-      if(src->ia_len == 2)
+
+      /* Set the source address mode field */
+
+      frame_ctrl |= src->ia_mode << IEEE802154_FRAMECTRL_SHIFT_SADDR;
+
+      if(src->ia_mode == IEEE802154_ADDRMODE_SHORT)
         {
           memcpy(packet->data+index, &src->ia_saddr, 2);
           index += 2; /* skip src addr */
-          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_SHORT;
         }
-      else if(src->ia_len == 8)
+      else if(src->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
         {
           memcpy(packet->data+index, src->ia_eaddr, 8);
           index += 8; /* skip src addr */
-          packet->data[1] = (packet->data[1] & ~IEEE802154_FC2_SADDR) | IEEE802154_SADDR_EXT;
         }
       else
         {
@@ -123,6 +155,9 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
         }
     }
 
+  /* Copy the frame control word back to the buffer */
+
+  memcpy(packet->data, &frame_ctrl, 2);
+
   return index;
 }
-

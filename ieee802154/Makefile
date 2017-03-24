@@ -66,3 +66,6 @@ clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
 distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
 
 -include Make.dep
+
+.PHONY: preconfig
+preconfig:
