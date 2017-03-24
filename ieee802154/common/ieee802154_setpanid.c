@@ -48,9 +48,10 @@
 int ieee802154_setpanid(int fd, uint16_t panid)
 {
   int ret = ioctl(fd, PHY802154IOC_SET_PANID, (unsigned long)panid );
-  if (ret<0)
+  if (ret < 0)
     {
       printf("PHY802154IOC_SET_PANID failed\n");
     }
+
   return ret;
 }

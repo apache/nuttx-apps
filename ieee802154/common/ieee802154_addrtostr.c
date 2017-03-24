@@ -43,41 +43,48 @@
 #include <nuttx/wireless/ieee802154/ieee802154.h>
 #include "ieee802154/ieee802154.h"
 
-int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *addr)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int ieee802154_addrtostr(FAR char *buf, int len,
+                         FAR struct ieee802154_addr_s *addr)
 {
 #ifndef CONFIG_BIG_ENDIAN
-  uint16_t panid = ((addr->ia_panid & 0xff)<<8) | ((addr->ia_panid>>8) & 0xff);
+  uint16_t panid = ((addr->ia_panid & 0xff) << 8) | ((addr->ia_panid >> 8) & 0xff);
 #else
   uint16_t panid = addr->ia_panid;
 #endif
 
-  if(addr->ia_mode == IEEE802154_ADDRMODE_NONE)
+  if (addr->ia_mode == IEEE802154_ADDRMODE_NONE)
     {
       return snprintf(buf, len, "none");
     }
-  else if(addr->ia_mode == IEEE802154_ADDRMODE_SHORT)
+  else if (addr->ia_mode == IEEE802154_ADDRMODE_SHORT)
     {
 #ifndef CONFIG_BIG_ENDIAN
-      uint16_t saddr = ((addr->ia_saddr & 0xff)<<8) | ((addr->ia_saddr>>8) & 0xff);
+      uint16_t saddr = ((addr->ia_saddr & 0xff) << 8) | ((addr->ia_saddr >> 8) & 0xff);
 #else
       uint16_t saddr = addr->ia_saddr;
 #endif
       return snprintf(buf, len, "%04X/%04X", panid, saddr);
     }
-  else if(addr->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
+  else if (addr->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
     {
       int i;
       int off = snprintf(buf, len, "%04X/", panid);
-      for(i=0; i<8; i++)
+
+      for (i = 0; i < 8; i++)
         {
-        off += snprintf(buf+off, len-off, "%02X", addr->ia_eaddr[i]);
+          off += snprintf(buf + off, len  -off, "%02X", addr->ia_eaddr[i]);
         }
+
       return off;
     }
   else
     {
       return snprintf(buf,len,"<INVAL>");
     }
+
   return -1;
 }
-

@@ -46,13 +46,17 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int ieee802154_getchan(int fd, FAR uint8_t *chan)
 {
   int ret = ioctl(fd, PHY802154IOC_GET_CHAN, (unsigned long)chan );
-  if (ret<0)
+  if (ret < 0)
     {
       printf("PHY802154IOC_GET_CHAN failed\n");
     }
+
   return ret;
 }
-

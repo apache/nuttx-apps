@@ -45,6 +45,10 @@
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "ieee802154/ieee802154.h"
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
                          FAR struct ieee802154_addr_s *dest,
                          FAR struct ieee802154_addr_s *src)
@@ -52,7 +56,7 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
   uint16_t frame_ctrl;
   int index=3;
 
-  /* read fc */
+  /* Read fc */
 
   frame_ctrl = packet->data[0];
   frame_ctrl |= packet->data[1] << 8;
@@ -64,25 +68,25 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
   src->ia_mode = (frame_ctrl & IEEE802154_FRAMECTRL_SADDR)
                   >> IEEE802154_FRAMECTRL_SHIFT_SADDR;
 
-  /* decode dest addr */
+  /* Decode dest addr */
 
   switch (dest->ia_mode)
     {
       case IEEE802154_ADDRMODE_SHORT:
         {
           memcpy(&dest->ia_panid, packet->data+index, 2);
-          index += 2; /* skip dest pan id */
+          index += 2; /* Skip dest pan id */
           memcpy(&dest->ia_saddr, packet->data+index, 2);
-          index += 2; /* skip dest addr */
+          index += 2; /* Skip dest addr */
         }
         break;
 
       case IEEE802154_ADDRMODE_EXTENDED:
         {
           memcpy(&dest->ia_panid, packet->data+index, 2);
-          index += 2; /* skip dest pan id */
+          index += 2; /* Skip dest pan id */
           memcpy(dest->ia_eaddr, packet->data+index, 8);
-          index += 8; /* skip dest addr */
+          index += 8; /* Skip dest addr */
         }
         break;
 
@@ -109,21 +113,21 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
          }
       }
 
-  /* decode source addr */
+  /* Decode source addr */
 
   switch (src->ia_mode)
     {
       case IEEE802154_ADDRMODE_SHORT:
         {
           memcpy(&src->ia_saddr, packet->data+index, 2);
-          index += 2; /* skip src addr */
+          index += 2; /* Skip src addr */
         }
         break;
 
       case IEEE802154_ADDRMODE_EXTENDED:
         {
           memcpy(src->ia_eaddr, packet->data+index, 8);
-          index += 8; /* skip src addr */
+          index += 8; /* Skip src addr */
         }
         break;
 
@@ -136,4 +140,3 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
 
   return index;
 }
-

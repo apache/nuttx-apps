@@ -46,13 +46,17 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca)
 {
   int ret = ioctl(fd, PHY802154IOC_GET_CCA, (unsigned long)cca );
-  if (ret<0)
+  if (ret < 0)
     {
       printf("PHY802154IOC_GET_CCA failed\n");
     }
+
   return ret;
 }
-

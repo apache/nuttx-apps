@@ -45,24 +45,27 @@
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "ieee802154/ieee802154.h"
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
                          FAR struct ieee802154_addr_s *dest,
                          FAR struct ieee802154_addr_s *src)
 {
   uint16_t frame_ctrl;
-  int index=3; //skip fc and seq
+  int index = 3;       /* Skip fc and seq */
 
   /* Get the frame control word so we can manipulate it */
 
   frame_ctrl = packet->data[0];
   frame_ctrl |= packet->data[1] << 8;
 
-
   /* Clear the destination address mode */
 
   frame_ctrl &= ~IEEE802154_FRAMECTRL_DADDR;
 
-  /* encode dest addr */
+  /* Encode dest addr */
 
   if(dest == NULL || dest->ia_mode == IEEE802154_ADDRMODE_NONE)
     {
@@ -73,7 +76,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
   else
     {
       memcpy(packet->data+index, &dest->ia_panid, 2);
-      index += 2; /* skip dest pan id */
+      index += 2;   /* Skip dest pan id */
 
       /* Set the dest address mode field */
       
@@ -82,14 +85,14 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
       if(dest->ia_mode == IEEE802154_ADDRMODE_SHORT)
         {
           memcpy(packet->data+index, &dest->ia_saddr, 2);
-          index += 2; /* skip dest addr */
+          index += 2;  /* Skip dest addr */
         }
       else if(dest->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
         {
           memcpy(packet->data+index, &dest->ia_panid, 2);
-          index += 2; /* skip dest pan id */
+          index += 2;  /* Skip dest pan id */
           memcpy(packet->data+index, dest->ia_eaddr, 8);
-          index += 8; /* skip dest addr */
+          index += 8;  /* Skip dest addr */
         }
       else
         {
@@ -104,7 +107,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
   if( (dest != NULL && dest->ia_mode != IEEE802154_ADDRMODE_NONE) &&
       (src != NULL && src->ia_mode != IEEE802154_ADDRMODE_NONE) )
     {
-      /* we have both adresses, encode source pan id according to compression */
+      /* We have both adresses, encode source pan id according to compression */
 
       if( dest->ia_panid == src->ia_panid)
         {
@@ -112,12 +115,11 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
         }
     }
 
-
   /* Clear the source address mode */
 
   frame_ctrl &= ~IEEE802154_FRAMECTRL_SADDR;
 
-  /* encode source addr */
+  /* Encode source addr */
 
   if(src == NULL || src->ia_mode == IEEE802154_ADDRMODE_NONE)
     {
@@ -127,7 +129,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
     }
   else
     {
-      /* add src pan id if it was not compressed before */
+      /* Add src pan id if it was not compressed before */
 
       if(!(frame_ctrl & IEEE802154_FRAMECTRL_INTRA))
         {
@@ -142,12 +144,12 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
       if(src->ia_mode == IEEE802154_ADDRMODE_SHORT)
         {
           memcpy(packet->data+index, &src->ia_saddr, 2);
-          index += 2; /* skip src addr */
+          index += 2;  /* Skip src addr */
         }
       else if(src->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
         {
           memcpy(packet->data+index, src->ia_eaddr, 8);
-          index += 8; /* skip src addr */
+          index += 8;  /* Skip src addr */
         }
       else
         {

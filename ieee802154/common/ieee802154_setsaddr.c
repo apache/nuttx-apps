@@ -45,12 +45,17 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int ieee802154_setsaddr(int fd, uint16_t saddr)
 {
   int ret = ioctl(fd, PHY802154IOC_SET_SADDR, (unsigned long)saddr );
-  if (ret<0)
+  if (ret < 0)
     {
       printf("PHY802154IOC_SET_SADDR failed\n");
     }
+
   return ret;
 }

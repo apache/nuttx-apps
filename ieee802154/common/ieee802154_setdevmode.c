@@ -45,12 +45,17 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
 int ieee802154_setdevmode(int fd, uint8_t devmode)
 {
   int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE, (unsigned long)devmode );
-  if (ret<0)
+  if (ret < 0)
     {
       printf("PHY802154IOC_SET_DEVMODE failed\n");
     }
+
   return ret;
 }
