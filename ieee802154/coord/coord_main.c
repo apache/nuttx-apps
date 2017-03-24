@@ -70,7 +70,7 @@
 
 #include <nuttx/wireless/ieee802154/ieee802154.h>
 
-#include <apps/ieee802154/ieee802154.h>
+#include "ieee802154/ieee802154.h"
 
 /****************************************************************************
  * Definitions
