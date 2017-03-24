@@ -39,7 +39,7 @@
  * The coordinator is a central node in any IEEE 802.15.4 wireless network.
  * It listens for clients and dispatches short addresses. It stores data from
  * source clients and makes it available to destination clients.
- * Also, in beacon enabled networks, it broadcasts beacons frames and 
+ * Also, in beacon enabled networks, it broadcasts beacons frames and
  * manages guaranteed time slots.
  * On non-beacon enabled networks, it sends a beacon only when a beacon
  * request is received.
@@ -69,15 +69,20 @@
 #include <signal.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 
 #include "ieee802154/ieee802154.h"
 
 /****************************************************************************
- * Definitions
+ * Pre-processor Definitions
  ****************************************************************************/
+
 #ifndef CONFIG_IEEE802154_COORD_MAXCLIENTS
-#define CONFIG_IEEE802154_COORD_MAXCLIENTS 8
+#  define CONFIG_IEEE802154_COORD_MAXCLIENTS 8
 #endif
+
+#define ACTION_STOP 1
+#define ACTION_PANID 2
 
 /****************************************************************************
  * Private Types
@@ -112,10 +117,20 @@ struct ieee_coord_s
   uint8_t                  macBSN;
 };
 
+struct message
+{
+  int action;
+  unsigned long param;
+};
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+
 static struct ieee_coord_s g_coord;
+struct message g_message;
+static volatile int g_run;
+static pthread_t g_daemon_pid;
 
 /****************************************************************************
  * coord_beacon
@@ -160,33 +175,40 @@ static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
 
   printf("Beacon request\n");
 
-  /* check command */
+  /* Check command */
+  /* Build response */
 
-  /* build response */
   tx->len = 0;
-  
-  /* frame control */
+
+  /* Frame control */
+
   tx->data[tx->len++] = 0x00; /* beacon, no ack */
   tx->data[tx->len++] = 0x00; /* updated later */
 
   /* seq */
+
   tx->data[tx->len++] = coord->macBSN;
   coord->macBSN++;
 
-  /* adressing */
+  /* Adressing */
+
   tx->len = ieee802154_addrstore(tx, NULL, &coord->addr);
 
-  /* superframe spec */
+  /* Superframe spec */
+
   tx->data[tx->len++] = 0xff;
   tx->data[tx->len++] = 0xcf;
 
   /* GTS fields */
+
   tx->data[tx->len++] = 0x00;
 
-  /* pending addresses */
+  /* Pending addresses */
+
   tx->data[tx->len++] = 0x00;
 
-  /* payload */
+  /* Payload */
+
   tx->data[tx->len++] = 'F';
   tx->data[tx->len++] = '4';
   tx->data[tx->len++] = 'G';
@@ -196,7 +218,11 @@ static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
   tx->data[tx->len++] = '0';
 
   printf("Beacon: ");
-  for(i=0;i<tx->len;i++) printf("%02X", tx->data[i]);
+  for (i = 0; i < tx->len; i++)
+    {
+      printf("%02X", tx->data[i]);
+    }
+
   printf("\n");
   return write(coord->fd, tx, sizeof(struct ieee802154_packet_s));
 }
@@ -212,11 +238,11 @@ static int coord_command(FAR struct ieee_coord_s *coord)
 
   printf("Command %02X!\n",cmd);
 
-  switch(cmd)
+  switch (cmd)
     {
       case IEEE802154_CMD_ASSOC_REQ      : break;
       case IEEE802154_CMD_ASSOC_RSP      : break;
-      case IEEE802154_CMD_DIS_NOT        : break;
+      case IEEE802154_CMD_DISASSOC_NOT   : break;
       case IEEE802154_CMD_DATA_REQ       : break;
       case IEEE802154_CMD_PANID_CONF_NOT : break;
       case IEEE802154_CMD_ORPHAN_NOT     : break;
@@ -224,6 +250,7 @@ static int coord_command(FAR struct ieee_coord_s *coord)
       case IEEE802154_CMD_COORD_REALIGN  : break;
       case IEEE802154_CMD_GTS_REQ        : break;
     }
+
   return 0;
 }
 
@@ -241,12 +268,11 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
   FAR struct ieee_frame_s *rx = &coord->rxbuf;
   int i;
 
-
   fc1 = rx->packet.data[0];
   rx->seq = rx->packet.data[2];
 
   hlen = ieee802154_addrparse(&rx->packet, &rx->dest, &rx->src);
-  if(hlen<0)
+  if (hlen < 0)
     {
       printf("invalid packet\n");
       return 1;
@@ -261,11 +287,15 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
   printf("[%s -> ", buf);
   ieee802154_addrtostr(buf,sizeof(buf),&rx->dest);
   printf("%s] ", buf);
-  
-  for(i=0; i<rx->plen; i++) printf("%02X", rx->payload[i]);
+
+  for (i = 0; i < rx->plen; i++)
+    {
+      printf("%02X", rx->payload[i]);
+    }
+
   printf("\n");
 
-  switch(ftype)
+  switch (ftype)
     {
       case IEEE802154_FRAME_BEACON : coord_beacon (coord); break;
       case IEEE802154_FRAME_DATA   : coord_data   (coord); break;
@@ -273,6 +303,7 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
       case IEEE802154_FRAME_COMMAND: coord_command(coord); break;
       default                      : fprintf(stderr, "unknown frame type!");
     }
+
   return 0;
 }
 
@@ -280,26 +311,26 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
  * coord_loop
  ****************************************************************************/
 
-static volatile int gRun;
-static pthread_t gDaemonPid;
-
 void task_signal(int sig)
 {
-  gRun = 0;
+  g_run = 0;
 }
 
 /****************************************************************************
  * coord_initialize
  ****************************************************************************/
 
-static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev, FAR char *chan, FAR char *panid)
+static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev,
+                             FAR char *chan, FAR char *panid)
 {
   int i;
+
   coord->nclients = 0;
   for (i = 0; i < CONFIG_IEEE802154_COORD_MAXCLIENTS; i++)
     {
       coord->clients[i].pending.len = 0;
     }
+
   coord->chan  = strtol(chan , NULL, 0);
 
   coord->addr.ia_len   = 2;
@@ -310,71 +341,63 @@ static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev, FAR 
 
 }
 
-#define ACTION_STOP 1
-#define ACTION_PANID 2
-
-struct message
-{
-  int action;
-  unsigned long param;
-};
-
-struct message g_message;
-
 /****************************************************************************
  * coord_task
  ****************************************************************************/
+
 int coord_task(int s_argc, char **s_argv)
 {
   FAR struct ieee_frame_s *rx = &g_coord.rxbuf;
   int ret;
-  
+
   coord_initialize(&g_coord, s_argv[3], s_argv[4], s_argv[5]);
 
-  printf("IEEE 802.15.4 Coordinator started, chan %d, panid %04X, argc %d\n", g_coord.chan, g_coord.addr.ia_panid, s_argc);
+  printf("IEEE 802.15.4 Coordinator started, chan %d, panid %04X, argc %d\n",
+         g_coord.chan, g_coord.addr.ia_panid, s_argc);
 
   ieee802154_setchan (g_coord.fd  , g_coord.chan );
   ieee802154_setsaddr(g_coord.fd  , g_coord.addr.ia_saddr);
   ieee802154_setpanid(g_coord.fd  , g_coord.addr.ia_panid);
   ieee802154_setdevmode(g_coord.fd, IEEE802154_MODE_PANCOORD);
 
-  if(g_coord.fd<0)
+  if (g_coord.fd < 0)
     {
       fprintf(stderr, "cannot open %s, errno=%d\n", s_argv[3], errno);
       exit(ERROR);
     }
-  gRun = 1;
 
-  while(gRun)
+  g_run = 1;
+
+  while(g_run)
     {
       ret = read(g_coord.fd, &rx->packet, sizeof(struct ieee802154_packet_s));
-      if(ret > 0)
+      if (ret > 0)
         {
           coord_manage(&g_coord);
         }
-      if(ret < 0)
+      if (ret < 0)
         {
-          if(errno==4) //EINTR, signal received
+          if (errno == EINTR)
             {
-              switch(g_message.action)
+              switch (g_message.action)
                 {
                   case ACTION_STOP:
-                    gRun = 0; 
+                    g_run = 0;
                     break;
-                    
+
                   case ACTION_PANID:
                     g_coord.addr.ia_panid = (uint16_t)g_message.param;
                     ieee802154_setpanid(g_coord.fd, g_coord.addr.ia_panid);
                     break;
-                    
+
                   default:
                     printf("received unknown message\n");
                 }
             }
         }
     }
-  
-  printf("IEEE 802.15.4 Coordinator stopped\n");  
+
+  printf("IEEE 802.15.4 Coordinator stopped\n");
   return 0;
 }
 
@@ -388,60 +411,63 @@ int main(int argc, FAR char *argv[])
 int coord_main(int argc, FAR char *argv[])
 #endif
 {
-  
-  if(argc < 2)
+  if (argc < 2)
     {
       printf("coord start | stop | panid\n");
       exit(1);
     }
-  
-  if(!strcmp(argv[1], "start"))
+
+  if (!strcmp(argv[1], "start"))
     {
-      if(argc != 5)
+      if (argc != 5)
         {
           printf("coord start <dev> <chan> <panid>\n");
           exit(EXIT_FAILURE);
         }
-      if(gRun)
+      if (g_run)
         {
           printf("Already started.\n");
           exit(EXIT_FAILURE);
         }
-      printf("IEEE 802.15.4 Coordinator starting...\n");  
-      gDaemonPid = task_create("coord", SCHED_PRIORITY_DEFAULT,
-                                   1024,
-                                   coord_task, argv);
+
+      printf("IEEE 802.15.4 Coordinator starting...\n");
+      g_daemon_pid = task_create("coord", SCHED_PRIORITY_DEFAULT,
+                                  1024, coord_task, argv);
     }
-  else if(!strcmp(argv[1], "stop"))
+  else if (!strcmp(argv[1], "stop"))
     {
-      if(!gRun)
+      if (!g_run)
         {
 norun:
           printf("Not started.\n");
           exit(EXIT_FAILURE);
         }
-      printf("IEEE 802.15.4 Coordinator stopping...\n");  
+
+      printf("IEEE 802.15.4 Coordinator stopping...\n");
       g_message.action = ACTION_STOP;
-      kill(gDaemonPid, SIGUSR1);
+      kill(g_daemon_pid, SIGUSR1);
     }
-  else if(!strcmp(argv[1], "status"))
+  else if (!strcmp(argv[1], "status"))
     {
-      printf("IEEE 802.15.4 Coordinator %s.\n", gRun?"started":"stopped");  
+      printf("IEEE 802.15.4 Coordinator %s.\n", g_run?"started":"stopped");
     }
-  else if(!strcmp(argv[1], "panid"))
+  else if (!strcmp(argv[1], "panid"))
     {
-      if(argc != 3)
+      if (argc != 3)
         {
           printf("coord panid <panid>\n");
           exit(EXIT_FAILURE);
         }
-      if(!gRun)
+
+      if (!g_run)
         {
           goto norun;
         }
+
       g_message.action = ACTION_PANID;
       g_message.param = strtol(argv[2], NULL, 0);
-      kill(gDaemonPid, SIGUSR1);
+      kill(g_daemon_pid, SIGUSR1);
     }
+
   return EXIT_SUCCESS;
 }
