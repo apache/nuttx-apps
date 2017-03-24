@@ -40,8 +40,8 @@
 #include <nuttx/config.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <nuttx/ieee802154/ieee802154.h>
-#include <apps/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154.h>
+#include "ieee802154/ieee802154.h"
 
 int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *addr)
 {
@@ -51,11 +51,11 @@ int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *a
   uint16_t panid = addr->ia_panid;
 #endif
 
-  if(addr->ia_len == 0)
+  if(addr->ia_mode == IEEE802154_ADDRMODE_NONE)
     {
       return snprintf(buf, len, "none");
     }
-  else if(addr->ia_len == 2)
+  else if(addr->ia_mode == IEEE802154_ADDRMODE_SHORT)
     {
 #ifndef CONFIG_BIG_ENDIAN
       uint16_t saddr = ((addr->ia_saddr & 0xff)<<8) | ((addr->ia_saddr>>8) & 0xff);
@@ -64,7 +64,7 @@ int ieee802154_addrtostr(FAR char *buf, int len, FAR struct ieee802154_addr_s *a
 #endif
       return snprintf(buf, len, "%04X/%04X", panid, saddr);
     }
-  else if(addr->ia_len == 8)
+  else if(addr->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
     {
       int i;
       int off = snprintf(buf, len, "%04X/", panid);

@@ -41,84 +41,97 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <nuttx/ieee802154/ieee802154.h>
-#include <apps/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include "ieee802154/ieee802154.h"
 
 int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
                          FAR struct ieee802154_addr_s *dest,
                          FAR struct ieee802154_addr_s *src)
 {
-  uint8_t fc1, fc2, daddr, saddr;
+  uint16_t frame_ctrl;
   int index=3;
 
   /* read fc */
-  fc1 = packet->data[0];
-  fc2 = packet->data[1];
-  daddr = fc2 & IEEE802154_FC2_DADDR;
-  saddr = fc2 & IEEE802154_FC2_SADDR;
+
+  frame_ctrl = packet->data[0];
+  frame_ctrl |= packet->data[1] << 8;
+
+  dest->ia_mode = (frame_ctrl & IEEE802154_FRAMECTRL_DADDR)
+                  >> IEEE802154_FRAMECTRL_SHIFT_DADDR;
+
+
+  src->ia_mode = (frame_ctrl & IEEE802154_FRAMECTRL_SADDR)
+                  >> IEEE802154_FRAMECTRL_SHIFT_SADDR;
 
   /* decode dest addr */
 
-  if(daddr == IEEE802154_DADDR_SHORT)
+  switch (dest->ia_mode)
     {
-      memcpy(&dest->ia_panid, packet->data+index, 2);
-      index += 2; /* skip dest pan id */
-      memcpy(&dest->ia_saddr, packet->data+index, 2);
-      index += 2; /* skip dest addr */
-      dest->ia_len = 2;
-    }
-  else if(daddr == IEEE802154_DADDR_EXT)
-    {
-      memcpy(&dest->ia_panid, packet->data+index, 2);
-      index += 2; /* skip dest pan id */
-      memcpy(dest->ia_eaddr, packet->data+index, 8);
-      index += 8; /* skip dest addr */
-      dest->ia_len = 8;
-    }
-  else if(daddr == IEEE802154_DADDR_NONE)
-    {
-      dest->ia_len = 0;
-    }
-  else
-    {
-      return -EINVAL;
+      case IEEE802154_ADDRMODE_SHORT:
+        {
+          memcpy(&dest->ia_panid, packet->data+index, 2);
+          index += 2; /* skip dest pan id */
+          memcpy(&dest->ia_saddr, packet->data+index, 2);
+          index += 2; /* skip dest addr */
+        }
+        break;
+
+      case IEEE802154_ADDRMODE_EXTENDED:
+        {
+          memcpy(&dest->ia_panid, packet->data+index, 2);
+          index += 2; /* skip dest pan id */
+          memcpy(dest->ia_eaddr, packet->data+index, 8);
+          index += 8; /* skip dest addr */
+        }
+        break;
+
+      case IEEE802154_ADDRMODE_NONE:
+        break;
+
+      default:
+        return -EINVAL;
     }
 
-  /* decode source pan id according to compression */
-  if( (saddr == IEEE802154_SADDR_SHORT) || (saddr == IEEE802154_SADDR_EXT) )
-    {
-      if(fc1 & IEEE802154_FC1_INTRA)
-        {
-          src->ia_panid = dest->ia_panid;
-        }
-      else
-        {
-          memcpy(&src->ia_panid, packet->data+index, 2);
-          index += 2; /*skip dest pan id*/
-        }
-    }
+    if ((src->ia_mode == IEEE802154_ADDRMODE_SHORT) || 
+        (src->ia_mode == IEEE802154_ADDRMODE_EXTENDED))
+      {
+        /* If PANID compression, src PAN ID is same as dest */
+      
+        if(frame_ctrl & IEEE802154_FRAMECTRL_INTRA)
+          {
+            src->ia_panid = dest->ia_panid;
+          }
+        else
+         {
+           memcpy(&src->ia_panid, packet->data+index, 2);
+           index += 2; /*skip dest pan id*/
+         }
+      }
 
   /* decode source addr */
 
-  if(saddr == IEEE802154_SADDR_SHORT)
+  switch (src->ia_mode)
     {
-      memcpy(&src->ia_saddr, packet->data+index, 2);
-      index += 2; /* skip dest addr */
-      src->ia_len = 2;
-    }
-  else if(saddr == IEEE802154_SADDR_EXT)
-    {
-      memcpy(src->ia_eaddr, packet->data+index, 8);
-      index += 8; /* skip dest addr */
-      src->ia_len = 8;
-    }
-  else if(saddr == IEEE802154_SADDR_NONE)
-    {
-      src->ia_len = 0;
-    }
-  else
-    {
-      return -EINVAL;
+      case IEEE802154_ADDRMODE_SHORT:
+        {
+          memcpy(&src->ia_saddr, packet->data+index, 2);
+          index += 2; /* skip src addr */
+        }
+        break;
+
+      case IEEE802154_ADDRMODE_EXTENDED:
+        {
+          memcpy(src->ia_eaddr, packet->data+index, 8);
+          index += 8; /* skip src addr */
+        }
+        break;
+
+      case IEEE802154_ADDRMODE_NONE:
+        break;
+
+      default:
+        return -EINVAL;
     }
 
   return index;

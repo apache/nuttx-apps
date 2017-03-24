@@ -68,7 +68,7 @@
 #include <errno.h>
 #include <signal.h>
 
-#include <nuttx/ieee802154/ieee802154.h>
+#include <nuttx/wireless/ieee802154/ieee802154.h>
 
 #include <apps/ieee802154/ieee802154.h>
 
