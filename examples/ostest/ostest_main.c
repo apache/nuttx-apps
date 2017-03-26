@@ -387,6 +387,10 @@ static int user_main(int argc, char *argv[])
       printf("\nuser_main: cancel test\n");
       cancel_test();
       check_test_memory_usage();
+
+      printf("\nuser_main: robust test\n");
+      robust_test();
+      check_test_memory_usage();
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD

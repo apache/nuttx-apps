@@ -177,6 +177,10 @@ void timedmqueue_test(void);
 
 void cancel_test(void);
 
+/* robust.c *****************************************************************/
+
+void robust_test(void);
+
 /* timedwait.c **************************************************************/
 
 void timedwait_test(void);
