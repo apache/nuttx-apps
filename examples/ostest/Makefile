@@ -80,7 +80,7 @@ ifeq ($(CONFIG_FS_NAMED_SEMAPHORES),y)
 CSRCS += nsem.c
 endif
 
-ifeq ($(CONFIG_MUTEX_TYPES),y)
+ifeq ($(CONFIG_PTHREAD_MUTEX_TYPES),y)
 CSRCS += rmutex.c
 endif
 
