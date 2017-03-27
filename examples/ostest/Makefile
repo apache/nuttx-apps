@@ -70,7 +70,11 @@ CSRCS += waitpid.c
 endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
-CSRCS += cancel.c robust.c cond.c mutex.c sem.c semtimed.c barrier.c timedwait.c
+CSRCS += cancel.c cond.c mutex.c sem.c semtimed.c barrier.c timedwait.c
+
+ifneq ($(CONFIG_PTHREAD_MUTEX_UNSAFE),y)
+CSRCS += robust.c
+endif
 
 ifeq ($(CONFIG_FS_NAMED_SEMAPHORES),y)
 CSRCS += nsem.c

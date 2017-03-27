@@ -88,7 +88,8 @@ static FAR void *robust_waiter(FAR void *parameter)
 
 void robust_test(void)
 {
-  pthread_attr_t attr;
+  pthread_attr_t pattr;
+  pthread_mutexattr_t mattr;
   pthread_t waiter;
   void *result;
   int nerrors = 0;
@@ -97,7 +98,24 @@ void robust_test(void)
   /* Initialize the mutex */
 
   printf("robust_test: Initializing mutex\n");
-  status = pthread_mutex_init(&g_robust_mutex, NULL);
+
+  status = pthread_mutexattr_init(&mattr);
+  if (status != 0)
+    {
+      printf("robust_test: ERROR: pthread_mutexattr_init failed, status=%d\n",
+             status);
+      nerrors++;
+    }
+
+  status = pthread_mutexattr_setrobust(&mattr, PTHREAD_MUTEX_ROBUST);
+  if (status != 0)
+    {
+      printf("robust_test: ERROR: pthread_mutexattr_setrobust failed, status=%d\n",
+             status);
+      nerrors++;
+    }
+
+  status = pthread_mutex_init(&g_robust_mutex, &mattr);
   if (status != 0)
     {
       printf("robust_test: ERROR: pthread_mutex_init failed, status=%d\n",
@@ -107,7 +125,9 @@ void robust_test(void)
 
   /* Set up pthread attributes */
 
-  status = pthread_attr_init(&attr);
+  printf("robust_test: Starting thread\n");
+
+  status = pthread_attr_init(&pattr);
   if (status != 0)
     {
       printf("robust_test: ERROR: pthread_attr_init failed, status=%d\n",
@@ -115,7 +135,7 @@ void robust_test(void)
       nerrors++;
     }
 
-  status = pthread_attr_setstacksize(&attr, STACKSIZE);
+  status = pthread_attr_setstacksize(&pattr, STACKSIZE);
   if (status != 0)
     {
       printf("robust_test: ERROR: pthread_attr_setstacksize failed, status=%d\n",
@@ -127,8 +147,7 @@ void robust_test(void)
    * seconds, and exit holding the mutex.
    */
 
-  printf("robust_test: Starting thread\n");
-  status = pthread_create(&waiter, &attr, robust_waiter, NULL);
+  status = pthread_create(&waiter, &pattr, robust_waiter, NULL);
   if (status != 0)
     {
       printf("robust_test: ERROR: pthread_create failed, status=%d\n", status);
