@@ -89,7 +89,7 @@ static FAR void *robust_waiter(FAR void *parameter)
 void robust_test(void)
 {
   pthread_attr_t pattr;
-  pthread_mutexattr_t *mattr;
+  pthread_mutexattr_t mattr;
   pthread_t waiter;
   void *result;
   int nerrors = 0;
