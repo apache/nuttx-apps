@@ -179,7 +179,9 @@ void cancel_test(void);
 
 /* robust.c *****************************************************************/
 
+#ifndef CONFIG_PTHREAD_MUTEX_UNSAFE
 void robust_test(void);
+#endif
 
 /* timedwait.c **************************************************************/
 

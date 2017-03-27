@@ -388,9 +388,11 @@ static int user_main(int argc, char *argv[])
       cancel_test();
       check_test_memory_usage();
 
+#ifndef CONFIG_PTHREAD_MUTEX_UNSAFE
       printf("\nuser_main: robust test\n");
       robust_test();
       check_test_memory_usage();
+#endif
 #endif
 
 #ifndef CONFIG_DISABLE_PTHREAD
