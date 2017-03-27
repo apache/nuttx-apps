@@ -264,7 +264,7 @@ static int status(int fd)
 static int display(uint8_t chan, FAR struct ieee802154_packet_s *pack, bool verbose)
 {
   int i;
-  int hlen = 0,;
+  int hlen = 0;
   int dhlen = 0;
   char buf[IEEE802154_ADDRSTRLEN+1];
   struct ieee802154_addr_s dest,src;
