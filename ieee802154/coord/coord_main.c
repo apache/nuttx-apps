@@ -169,7 +169,6 @@ static int coord_ack(FAR struct ieee_coord_s *coord)
 
 static int coord_command_beacon_req(FAR struct ieee_coord_s *coord)
 {
-  FAR struct ieee_frame_s        *rx = &coord->rxbuf;
   FAR struct ieee802154_packet_s *tx = &coord->txbuf.packet;
   int i;
 
@@ -261,14 +260,17 @@ static int coord_command(FAR struct ieee_coord_s *coord)
 static int coord_manage(FAR struct ieee_coord_s *coord)
 {
   /* Decode frame type */
-  uint8_t fc1, ftype;
+  uint16_t frame_ctrl;
+  uint8_t ftype;
   int     hlen;
   char    buf[IEEE802154_ADDRSTRLEN+1];
 
   FAR struct ieee_frame_s *rx = &coord->rxbuf;
   int i;
 
-  fc1 = rx->packet.data[0];
+  frame_ctrl = rx->packet.data[0];
+  frame_ctrl |= rx->packet.data[1] << 8;
+
   rx->seq = rx->packet.data[2];
 
   hlen = ieee802154_addrparse(&rx->packet, &rx->dest, &rx->src);
@@ -281,7 +283,7 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
   rx->payload = rx->packet.data + hlen;
   rx->plen    = rx->packet.len  - hlen;
 
-  ftype = fc1 & IEEE802154_FC1_FTYPE;
+  ftype = frame_ctrl & IEEE802154_FRAMECTRL_FTYPE;
 
   ieee802154_addrtostr(buf,sizeof(buf),&rx->src);
   printf("[%s -> ", buf);
@@ -333,12 +335,11 @@ static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev,
 
   coord->chan  = strtol(chan , NULL, 0);
 
-  coord->addr.ia_len   = 2;
+  coord->addr.ia_mode  = IEEE802154_ADDRMODE_SHORT;
   coord->addr.ia_panid = strtol(panid, NULL, 0);
   coord->addr.ia_saddr = 0x0001;
 
   coord->fd = open(dev, O_RDWR);
-
 }
 
 /****************************************************************************
