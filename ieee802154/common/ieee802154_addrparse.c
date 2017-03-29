@@ -41,7 +41,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <nuttx/wireless/ieee802154/ieee802154.h>
+
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "ieee802154/ieee802154.h"
 
@@ -102,7 +103,7 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
       {
         /* If PANID compression, src PAN ID is same as dest */
       
-        if(frame_ctrl & IEEE802154_FRAMECTRL_INTRA)
+        if(frame_ctrl & IEEE802154_FRAMECTRL_PANIDCOMP)
           {
             src->ia_panid = dest->ia_panid;
           }
