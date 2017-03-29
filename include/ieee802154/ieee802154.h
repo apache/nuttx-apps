@@ -38,8 +38,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <nuttx/wireless/ieee802154/ieee802154.h>
+
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 
 int ieee802154_setchan   (int fd, uint8_t chan);
 int ieee802154_getchan   (int fd, FAR uint8_t *chan);

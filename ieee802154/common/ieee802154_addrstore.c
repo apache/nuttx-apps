@@ -41,7 +41,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <nuttx/wireless/ieee802154/ieee802154.h>
+
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "ieee802154/ieee802154.h"
 
@@ -102,7 +103,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
 
   /* Clear the PAN ID Compression Field */
 
-  frame_ctrl &= ~IEEE802154_FRAMECTRL_INTRA;
+  frame_ctrl &= ~IEEE802154_FRAMECTRL_PANIDCOMP;
 
   if( (dest != NULL && dest->ia_mode != IEEE802154_ADDRMODE_NONE) &&
       (src != NULL && src->ia_mode != IEEE802154_ADDRMODE_NONE) )
@@ -111,7 +112,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
 
       if( dest->ia_panid == src->ia_panid)
         {
-          frame_ctrl |= IEEE802154_FRAMECTRL_INTRA;
+          frame_ctrl |= IEEE802154_FRAMECTRL_PANIDCOMP;
         }
     }
 
@@ -131,7 +132,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
     {
       /* Add src pan id if it was not compressed before */
 
-      if(!(frame_ctrl & IEEE802154_FRAMECTRL_INTRA))
+      if(!(frame_ctrl & IEEE802154_FRAMECTRL_PANIDCOMP))
         {
           memcpy(packet->data+index, &src->ia_panid, 2);
           index += 2; /*skip src pan id*/

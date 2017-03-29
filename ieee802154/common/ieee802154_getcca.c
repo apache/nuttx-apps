@@ -42,7 +42,7 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/wireless/ieee802154/ieee802154.h>
+
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
