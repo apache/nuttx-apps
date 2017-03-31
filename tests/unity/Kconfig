@@ -1,0 +1,22 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config TESTS_UNITY
+	bool "Unity fixture example"
+	default n
+	---help---
+		Demonstrates Unity fixture and runs its unit test
+
+if TESTS_UNITY
+
+config TESTS_UNITY_PROGNAME
+	string "Program name"
+	default "unity"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+endif

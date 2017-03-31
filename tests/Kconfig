@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+menu "Unity test framework"
+source "$APPSDIR/tests/testing/Kconfig"
+source "$APPSDIR/tests/unity/Kconfig"
+source "$APPSDIR/tests/unity_usrsock/Kconfig"
+source "$APPSDIR/tests/unity_ramtest/Kconfig"
+endmenu

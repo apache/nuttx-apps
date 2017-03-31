@@ -1,0 +1,15 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config TESTS_UNITY_USRSOCK
+    bool "User-space networking stack API Unity tests"
+    default n
+    depends on NET
+    depends on NET_USRSOCK
+    depends on !DISABLE_POLL
+    select PIPES
+    ---help---
+        Enable user-space networking stack API Unity tests
+
