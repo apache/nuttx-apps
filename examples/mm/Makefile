@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/mm/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,18 @@
 
 # Memory Management Test
 
+CONFIG_EXAMPLES_MM_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_MM_STACKSIZE ?= 2048
+
 APPNAME = mm
+PRIORITY = $(CONFIG_EXAMPLES_MM_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_MM_STACKSIZE)
 
 ASRCS =
 CSRCS =
 MAINSRC = mm_main.c
 
-CONFIG_XYZ_PROGNAME ?= mm$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_MM_PROGNAME ?= mm$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_MM_PROGNAME)
 
 include $(APPDIR)/Application.mk
