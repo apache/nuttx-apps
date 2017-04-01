@@ -120,6 +120,8 @@
 #elif defined(CONFIG_NET_LOCAL)
 #  define NET_DEVNAME "lo"
 #  define NSH_HAVE_NETDEV
+#elif defined(CONFIG_NET_USRSOCK)
+#  undef NSH_HAVE_NETDEV
 #elif !defined(CONFIG_NET_LOOPBACK)
 #  error ERROR: No link layer protocol defined
 #endif
