@@ -575,7 +575,7 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
 static void wget_callback(FAR char **buffer, int offset, int datend,
                           FAR int *buflen, FAR void *arg)
 {
-  (void)write((int)arg, &((*buffer)[offset]), datend - offset);
+  (void)write((int)((intptr_t)arg), &((*buffer)[offset]), datend - offset);
 }
 #endif
 #endif
@@ -1668,7 +1668,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* And perform the wget */
 
-  ret = wget(url, buffer, 512, wget_callback, (FAR void *)fd);
+  ret = wget(url, buffer, 512, wget_callback, (FAR void *)((intptr_t)fd));
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "wget", NSH_ERRNO);
