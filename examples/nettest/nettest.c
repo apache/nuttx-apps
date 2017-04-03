@@ -219,8 +219,8 @@ int nettest_main(int argc, char *argv[])
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
   /* Then perform the server side of the test on a child task */
 
-  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_PRIORITY,
-                      CONFIG_EXAMPLES_NETTEST_STACKSIZE, server_child,
+  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_SERVER_PRIORITY,
+                      CONFIG_EXAMPLES_NETTEST_SERVER_STACKSIZE, server_child,
                       NULL);
   if (child < 0)
     {

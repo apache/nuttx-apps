@@ -12,21 +12,37 @@ config EXAMPLES_NETTEST
 
 if EXAMPLES_NETTEST
 
+config EXAMPLES_NETTEST_PROGNAME
+	string "Program name"
+	default "nettest"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the Nettest
+		program is installed.
+
+config EXAMPLES_NETTEST_STACKSIZE
+	int "Nettest stack size"
+	default 2048
+
+config EXAMPLES_NETTEST_PRIORITY
+	int "Nettest priority"
+	default 100
+
 config EXAMPLES_NETTEST_LOOPBACK
 	bool "Loopback test"
 	default n
-	depends on NET_LOOPBACK
+	depends on NET_LOOPBACK || IEEE802154_LOOPBACK
 	---help---
 		Perform the test using the local loopback device.  In this case,
 		both the client and the server reside on the target.
 
 if EXAMPLES_NETTEST_LOOPBACK
 
-config EXAMPLES_NETTEST_STACKSIZE
+config EXAMPLES_NETTEST_SERVER_STACKSIZE
 	int "Server stack size"
 	default 2048
 
-config EXAMPLES_NETTEST_PRIORITY
+config EXAMPLES_NETTEST_SERVER_PRIORITY
 	int "Server priority"
 	default 100
 
@@ -369,7 +385,7 @@ config EXAMPLES_NETTEST_IPv6NETMASK_8
 endif # NET_ICMPv6_AUTOCONF
 endif # EXAMPLES_NETTEST_INIT
 
-if !EXAMPLES_NETTEST_LOOPBACK
+if !EXAMPLES_NETTEST_LOOPBACK || !NET_LOOPBACK
 
 comment "Client IPv6 address"
 
