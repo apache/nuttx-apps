@@ -48,6 +48,8 @@
 #include <stdbool.h>
 
 #include <nuttx/net/netconfig.h>
+#include <nuttx/net/ethernet.h>
+#include <nuttx/net/ip.h>
 
 /****************************************************************************
  * Pre-processor Definitions
