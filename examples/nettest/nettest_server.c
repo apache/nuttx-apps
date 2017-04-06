@@ -110,15 +110,33 @@ void recv_server(void)
   /* Bind the socket to a local address */
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-  myaddr.sin6_family     = AF_INET6;
-  myaddr.sin6_port       = HTONS(PORTNO);
+
+  myaddr.sin6_family            = AF_INET6;
+  myaddr.sin6_port              = HTONS(PORTNO);
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && !defined(NET_LOOPBACK)
+  myaddr.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_1);
+  myaddr.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_2);
+  myaddr.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_3);
+  myaddr.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_4);
+  myaddr.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_5);
+  myaddr.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_6);
+  myaddr.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_7);
+  myaddr.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_8);
+#else
   memset(&myaddr.sin6_addr, 0, sizeof(struct in6_addr));
+#endif
 
   addrlen = sizeof(struct sockaddr_in6);
 #else
-  myaddr.sin_family      = AF_INET;
-  myaddr.sin_port        = HTONS(PORTNO);
-  myaddr.sin_addr.s_addr = INADDR_ANY;
+  myaddr.sin_family             = AF_INET;
+  myaddr.sin_port               = HTONS(PORTNO);
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && !defined(NET_LOOPBACK)
+  myaddr.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
+#else
+  myaddr.sin_addr.s_addr        = INADDR_ANY;
+#endif
 
   addrlen = sizeof(struct sockaddr_in);
 #endif

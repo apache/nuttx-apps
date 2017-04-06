@@ -85,6 +85,12 @@ int nsh_consolemain(int argc, char *argv[])
   /* Execute the start-up script */
 
   (void)nsh_initscript(&pstate->cn_vtbl);
+
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  /* Reset the option flags */
+
+  pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
+#endif
 #endif
 
 #ifdef CONFIG_NSH_USBDEV_TRACE

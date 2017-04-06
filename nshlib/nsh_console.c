@@ -480,5 +480,11 @@ FAR struct console_stdio_s *nsh_newconsole(void)
 #endif
     }
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  /* Set the initial option flags */
+
+  pstate->cn_vtbl.np.np_flags = NSH_NP_SET_OPTIONS_INIT;
+#endif
+
   return pstate;
 }
