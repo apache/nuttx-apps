@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# UIP Library
+# Network Library
 
 ASRCS  =
 CSRCS  = netlib_ipv4addrconv.c netlib_ethaddrconv.c netlib_parsehttpurl.c
@@ -80,10 +80,14 @@ ifeq ($(CONFIG_NETDEV_WIRELESS_IOCTL),y)
 CSRCS += netlib_getessid.c netlib_setessid.c
 endif
 
-# No MAC address support for SLIP (Ethernet only)
+# MAC address support(Ethernet and 6loWPAN only)
 
 ifeq ($(CONFIG_NET_ETHERNET),y)
 CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
+endif
+
+ifeq ($(CONFIG_NET_6LOWPAN),y)
+CSRCS += netlib_setnodeaddr.c
 endif
 
 # IGMP support
