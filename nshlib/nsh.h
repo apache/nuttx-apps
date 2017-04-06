@@ -692,7 +692,7 @@
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
 #  define NSH_NP_SET_OPTIONS "ex"    /* Maintain order see nsh_npflags_e */
-#  define NSH_NP_SET_OPTIONS_INIT    (NSH_PFALG_SILENT)
+#  define NSH_NP_SET_OPTIONS_INIT    (NSH_PFLAG_SILENT)
 #endif
 
 #if defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
@@ -758,9 +758,9 @@ struct nsh_loop_s
 
 enum nsh_npflags_e
 {
-  NSH_PFALG_IGNORE = 1,      /*  set for +e no exit on errors,
+  NSH_PFLAG_IGNORE = 1,      /*  set for +e no exit on errors,
                               *  cleared -e exit on error */
-  NSH_PFALG_SILENT = 2,      /*  cleared -x  print a trace of commands
+  NSH_PFLAG_SILENT = 2,      /*  cleared -x  print a trace of commands
                               *  when parsing.
                               *  set +x no print a trace of commands */
 };
