@@ -690,6 +690,15 @@
 #  undef NSH_HAVE_TRIMSPACES
 #endif
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
+#  define NSH_NP_SET_OPTIONS "ex"    /* Maintain order see nsh_npflags_e */
+#  define NSH_NP_SET_OPTIONS_INIT    (NSH_PFALG_SILENT)
+#endif
+
+#if defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
+#  define CONFIG_NSH_DISABLE_SET
+#endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -741,6 +750,22 @@ struct nsh_loop_s
 };
 #endif
 
+#ifndef CONFIG_NSH_DISABLESCRIPT
+/* Define the bits that correspond to the option defined in
+ * NSH_NP_SET_OPTIONS. The bit value is 1 shifted left the offset
+ * of the char in NSH_NP_SET_OPTIONS string.
+ */
+
+enum nsh_npflags_e
+{
+  NSH_PFALG_IGNORE = 1,      /*  set for +e no exit on errors,
+                              *  cleared -e exit on error */
+  NSH_PFALG_SILENT = 2,      /*  cleared -x  print a trace of commands
+                              *  when parsing.
+                              *  set +x no print a trace of commands */
+};
+#endif
+
 /* These structure provides the overall state of the parser */
 
 struct nsh_parser_s
@@ -752,6 +777,9 @@ struct nsh_parser_s
   bool     np_redirect; /* true: Output from the last command was re-directed */
 #endif
   bool     np_fail;     /* true: The last command failed */
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  uint8_t  np_flags;    /* See nsh_npflags_e above */
+#endif
 #ifndef CONFIG_NSH_DISABLEBG
   int      np_nice;     /* "nice" value applied to last background cmd */
 #endif
@@ -1175,10 +1203,10 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
    int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
-#  ifndef CONFIG_NSH_DISABLE_SET
+#ifndef CONFIG_NSH_DISABLE_SET
       int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#  endif
+#endif
+#ifndef CONFIG_DISABLE_ENVIRON
 #  ifndef CONFIG_NSH_DISABLE_UNSET
       int cmd_unset(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif

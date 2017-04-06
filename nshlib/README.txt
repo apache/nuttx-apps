@@ -1017,10 +1017,10 @@ o rmmod <module-name>
     NAME                 INIT   UNINIT      ARG     TEXT     SIZE     DATA     SIZE
     nsh>
 
-o set <name> <value>
+o set [{+|-}{e|x|xe|ex}] [<name> <value>]
 
-  Set the environment variable <name> to the sting <value>.
-  For example,
+  Set the environment variable <name> to the sting <value> and or set NSH
+  parser control options. For example,
 
     nsh> echo $foobar
 
@@ -1028,6 +1028,38 @@ o set <name> <value>
     nsh> echo $foobar
     foovalue
     nsh>
+
+  Set the 'exit on error control' and/or 'print a trace' of commands when parsing
+  scripts in NSH.  The settinngs are in effect from the point of exection, until
+  they are changed again, or in the case of the init script, the settings are
+  returned to the default settings when it exits. Included child scripts will run
+  with the parents settings and changes made in the child script will effect the
+  parent on return.
+
+    Use 'set -e' to enable and 'set +e' to disable (ignore) the exit condition on commands.
+    The default is -e. Errors cause script to exit.
+
+    Use 'set -x' to enable and 'set +x' to disable (silence) printing a trace of the script
+    commands as they are ececuted.
+    The default is +x. No printing of a trace of script commands as they are executed.
+
+  Example 1 - no exit on command not found
+    set +e
+    notacommand
+
+  Example 2 - will exit on command not found
+    set -e
+    notacommand
+
+  Example 3 - will exit on command not found, and print a trace of the script commmands
+    set -ex
+
+  Example 4 - will exit on command not found, and print a trace of the script commmands
+              and set foobar to foovalue.
+    set -ex foobar foovalue
+    nsh> echo $foobar
+    foovalue
+
 
 o sh <script-path>
 

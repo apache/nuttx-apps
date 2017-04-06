@@ -136,10 +136,15 @@ int nsh_script(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                * considerable amount of stack may be used.
                */
 
+              if ((vtbl->np.np_flags & NSH_PFALG_SILENT) == 0)
+                {
+                  nsh_output(vtbl,"%s", buffer);
+                }
+
               ret = nsh_parse(vtbl, buffer);
             }
         }
-      while (pret && ret == OK);
+      while (pret && (ret == OK || (vtbl->np.np_flags & NSH_PFALG_IGNORE)));
 
       /* Close the script file */
 
