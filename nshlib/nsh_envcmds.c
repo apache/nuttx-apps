@@ -311,28 +311,85 @@ int cmd_pwd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_set
  ****************************************************************************/
 
-#ifndef CONFIG_DISABLE_ENVIRON
 #ifndef CONFIG_NSH_DISABLE_SET
 int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *value;
-  int ret;
+  int ret = OK;
+  int ndx = 1;
+#ifndef CONFIG_NSH_DISABLESCRIPT
+  FAR char *popt;
+  const char opts[] = NSH_NP_SET_OPTIONS;
+  int op;
 
-  /* Trim whitespace from the value */
+  /* Support set [{+|-}{e|x|xe|ex}] [<name> <value>] */
 
-  value = nsh_trimspaces(argv[2]);
-
-  /* Set the environment variable */
-
-  ret = setenv(argv[1], value, TRUE);
-  if (ret < 0)
+  if (argc == 2 || argc == 4)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
-    }
+      if (strlen(argv[1]) < 2)
+        {
+          ret = -EINVAL;
+          nsh_output(vtbl, g_fmtargrequired, argv[0], "set", NSH_ERRNO);
+        }
+      else
+        {
+          op = argv[1][0];
+          if (op != '-' && op != '+')
+            {
+              ret = -EINVAL;
+              nsh_output(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
+            }
+          else
+            {
+              value = &argv[1][1];
+              while(*value && *value != ' ')
+                {
+                  popt = strchr(opts, *value++);
+                  if (popt == NULL)
+                    {
+                      nsh_output(vtbl, g_fmtarginvalid, argv[0], "set", NSH_ERRNO);
+                      ret = -EINVAL;
+                      break;
+                    }
 
+                  if (op == '+')
+                    {
+                      vtbl->np.np_flags |= 1 << (popt-opts);
+                    }
+                  else
+                    {
+                      vtbl->np.np_flags &= ~(1 << (popt-opts));
+                    }
+                }
+
+              if (ret == OK)
+                {
+                  ndx = 2;
+                }
+            }
+         }
+      }
+#  ifndef CONFIG_DISABLE_ENVIRON
+  if (ret == OK && (argc == 3 || argc == 4))
+#  endif
+#endif
+#ifndef CONFIG_DISABLE_ENVIRON
+    {
+      /* Trim whitespace from the value */
+
+      value = nsh_trimspaces(argv[ndx+1]);
+
+      /* Set the environment variable */
+
+      ret = setenv(argv[ndx], value, TRUE);
+      if (ret < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "setenv", NSH_ERRNO);
+        }
+    }
+#endif
   return ret;
 }
-#endif
 #endif
 
 /****************************************************************************

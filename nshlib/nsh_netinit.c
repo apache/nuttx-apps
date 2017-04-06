@@ -101,12 +101,16 @@
 
 /* Select the single network device name supported this this network
  * initialization logci.  If multiple interfaces are present with different
- * link types, the the orider of definition in the following conditional
- * logic will select the one interface that will be used.
+ * link types, the the order of definition in the following conditional
+ * logic will select the one interface that will be used (which might
+ * not be the one that you want).
  */
 
 #if defined(CONFIG_NET_ETHERNET)
 #  define NET_DEVNAME "eth0"
+#  define NSH_HAVE_NETDEV
+#elif defined(CONFIG_NET_6LOWPAN)
+#  define NET_DEVNAME "wpan0"
 #  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_SLIP)
 #  define NET_DEVNAME "sl0"
@@ -120,6 +124,8 @@
 #elif defined(CONFIG_NET_LOCAL)
 #  define NET_DEVNAME "lo"
 #  define NSH_HAVE_NETDEV
+#elif defined(CONFIG_NET_USRSOCK)
+#  undef NSH_HAVE_NETDEV
 #elif !defined(CONFIG_NET_LOOPBACK)
 #  error ERROR: No link layer protocol defined
 #endif
@@ -200,7 +206,7 @@ static const uint16_t g_ipv6_netmask[8] =
   HTONS(CONFIG_NSH_IPv6NETMASK_7),
   HTONS(CONFIG_NSH_IPv6NETMASK_8),
 };
-#endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF*/
+#endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
 
 /****************************************************************************
  * Private Functions

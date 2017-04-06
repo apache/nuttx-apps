@@ -436,10 +436,14 @@ static const struct cmdmap_s g_cmdmap[] =
   { "rmmod",    cmd_rmmod,    2, 2, "<module-name>" },
 #endif
 
-#ifndef CONFIG_DISABLE_ENVIRON
-# ifndef CONFIG_NSH_DISABLE_SET
+#ifndef CONFIG_NSH_DISABLE_SET
+#  if !defined(CONFIG_DISABLE_ENVIRON) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  { "set",      cmd_set,      2, 4, "[{+|-}{e|x|xe|ex}] [<name> <value>]" },
+#  elif !defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
   { "set",      cmd_set,      3, 3, "<name> <value>" },
-# endif
+#  elif defined(CONFIG_DISABLE_ENVIRON) && !defined(CONFIG_NSH_DISABLESCRIPT)
+  { "set",      cmd_set,      2, 2, "{+|-}{e|x|xe|ex}" },
+#  endif
 #endif
 
 #if  CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NFILE_STREAMS > 0 && !defined(CONFIG_NSH_DISABLESCRIPT)

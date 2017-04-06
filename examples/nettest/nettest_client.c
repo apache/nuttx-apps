@@ -106,8 +106,8 @@ void send_client(void)
   myaddr.sin6_family            = AF_INET6;
   myaddr.sin6_port              = HTONS(PORTNO);
 
-#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
-  myaddr.sin6_addr.s6_addr16[0] = 0;
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
+  myaddr.sin6_addr.s6_addr16[0] = 0;        /* Use the loopback address */
   myaddr.sin6_addr.s6_addr16[1] = 0;
   myaddr.sin6_addr.s6_addr16[2] = 0;
   myaddr.sin6_addr.s6_addr16[3] = 0;
@@ -126,16 +126,24 @@ void send_client(void)
   myaddr.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_8);
 #endif
 
+  printf("IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
+         myaddr.sin6_addr.s6_addr16[0], myaddr.sin6_addr.s6_addr16[1],
+         myaddr.sin6_addr.s6_addr16[2], myaddr.sin6_addr.s6_addr16[3],
+         myaddr.sin6_addr.s6_addr16[4], myaddr.sin6_addr.s6_addr16[5],
+         myaddr.sin6_addr.s6_addr16[6], myaddr.sin6_addr.s6_addr16[7]);
+
   addrlen = sizeof(struct sockaddr_in6);
 #else
   myaddr.sin_family             = AF_INET;
   myaddr.sin_port               = HTONS(PORTNO);
 
-#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK && defined(NET_LOOPBACK)
   myaddr.sin_addr.s_addr        = HTONL(0x7f000001);
 #else
   myaddr.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
 #endif
+
+  printf("IPv4 Address: %08x\n", myaddr.sin_addr.s_addr);
 
   addrlen = sizeof(struct sockaddr_in);
 #endif

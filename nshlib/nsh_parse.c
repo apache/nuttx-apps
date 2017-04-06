@@ -1169,6 +1169,11 @@ static FAR char *nsh_argexpand(FAR struct nsh_vtbl_s *vtbl, FAR char *cmdline,
 
           envstr = nsh_envexpand(vtbl, ptr);
 
+          if ((vtbl->np.np_flags & NSH_PFLAG_SILENT) == 0)
+            {
+              nsh_output(vtbl,"  %s=%s\n", ptr, envstr ? envstr :"(null)");
+            }
+
           /* Concatenate the result of the operation with the accumulated
            * string.  On failures to allocation memory, nsh_strcat will
            * just return value value of argument
