@@ -192,8 +192,10 @@ int udpblaster_main(int argc, char *argv[])
 {
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv4
   struct sockaddr_in host;
+  struct sockaddr_in target;
 #else
   struct sockaddr_in6 host;
+  struct sockaddr_in6 target;
 #endif
   socklen_t addrlen;
   int npackets;
@@ -209,10 +211,9 @@ int udpblaster_main(int argc, char *argv[])
 
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv4
   host.sin_family             = AF_INET;
-  host.sin_port               = HTONS(UDPBLASTER_PORTNO);
+  host.sin_port               = HTONS(UDPBLASTER_HOST_PORTNO);
   host.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDPBLASTER_HOSTIP);
 
-  addrlen                     = sizeof(struct sockaddr_in);
   sockfd                      = socket(PF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
@@ -220,23 +221,51 @@ int udpblaster_main(int argc, char *argv[])
       return 1;
     }
 
-#else
-  host.sin6_family            = AF_INET6;
-  host.sin6_port              = HTONS(UDPBLASTER_PORTNO);
-  host.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_1);
-  host.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_2);
-  host.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_3);
-  host.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_4);
-  host.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_5);
-  host.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_6);
-  host.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_7);
-  host.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_8);
+  target.sin_family             = AF_INET;
+  target.sin_port               = HTONS(UDPBLASTER_TARGET_PORTNO);
+  target.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDPBLASTER_TARGETIP);
+  addrlen                       = sizeof(struct sockaddr_in);
 
-  addrlen                     = sizeof(struct sockaddr_in6);
-  sockfd                      = socket(PF_INET6, SOCK_DGRAM, 0);
+  if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
+    {
+      printf("server: ERROR bind failure: %d\n", errno);
+      return 1;
+    }
+
+#else
+  host.sin6_family              = AF_INET6;
+  host.sin6_port                = HTONS(UDPBLASTER_HOST_PORTNO);
+  host.sin6_addr.s6_addr16[0]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_1);
+  host.sin6_addr.s6_addr16[1]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_2);
+  host.sin6_addr.s6_addr16[2]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_3);
+  host.sin6_addr.s6_addr16[3]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_4);
+  host.sin6_addr.s6_addr16[4]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_5);
+  host.sin6_addr.s6_addr16[5]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_6);
+  host.sin6_addr.s6_addr16[6]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_7);
+  host.sin6_addr.s6_addr16[7]   = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_8);
+
+  sockfd                        = socket(PF_INET6, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
       fprintf(stderr, "ERROR: socket() failed: %d\n", errno);
+      return 1;
+    }
+
+  target.sin6_family            = AF_INET6;
+  target.sin6_port              = HTONS(UDPBLASTER_TARGET_PORTNO);
+  target.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_1);
+  target.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_2);
+  target.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_3);
+  target.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_4);
+  target.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_5);
+  target.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_6);
+  target.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_7);
+  target.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_8);
+  addrlen                       = sizeof(struct sockaddr_in6);
+
+  if (bind(sockfd, (struct sockaddr*)&target, addrlen) < 0)
+    {
+      printf("server: ERROR bind failure: %d\n", errno);
       return 1;
     }
 #endif

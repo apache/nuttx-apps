@@ -74,7 +74,13 @@
 #  define PF_INETX PF_INET
 #endif
 
-#define UDPBLASTER_PORTNO  5471
+#ifdef CONFIG_NET_6LOWPAN
+#  define UDPBLASTER_HOST_PORTNO    0xf0b0
+#  define UDPBLASTER_TARGET_PORTNO  0xf0b1
+#else
+#  define UDPBLASTER_HOST_PORTNO    5471
+#  define UDPBLASTER_TARGET_PORTNO  5472
+#endif
 
 #define ETH_HDRLEN         14    /* Size of the Ethernet header */
 #define IPv4_HDRLEN        20    /* Size of IPv4 header */

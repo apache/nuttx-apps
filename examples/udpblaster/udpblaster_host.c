@@ -69,7 +69,7 @@ int main(int argc, char **argv, char **envp)
 
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv4
   target.sin_family             = AF_INET;
-  target.sin_port               = HTONS(UDPBLASTER_PORTNO);
+  target.sin_port               = HTONS(UDPBLASTER_TARGET_PORTNO);
   target.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDPBLASTER_TARGETIP);
 
   addrlen                       = sizeof(struct sockaddr_in);
@@ -82,7 +82,7 @@ int main(int argc, char **argv, char **envp)
 
 #else
   target.sin6_family            = AF_INET6;
-  target.sin6_port              = HTONS(UDPBLASTER_PORTNO);
+  target.sin6_port              = HTONS(UDPBLASTER_TARGET_PORTNO);
   target.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_1);
   target.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_2);
   target.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_3);
