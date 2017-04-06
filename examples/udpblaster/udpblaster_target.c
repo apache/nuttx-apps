@@ -223,20 +223,20 @@ int udpblaster_main(int argc, char *argv[])
 #else
   host.sin6_family            = AF_INET6;
   host.sin6_port              = HTONS(UDPBLASTER_PORTNO);
-  host.sin6_addr.s6_addr16[0] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_1);
-  host.sin6_addr.s6_addr16[1] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_2);
-  host.sin6_addr.s6_addr16[2] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_3);
-  host.sin6_addr.s6_addr16[3] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_4);
-  host.sin6_addr.s6_addr16[4] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_5);
-  host.sin6_addr.s6_addr16[5] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_6);
-  host.sin6_addr.s6_addr16[6] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_7);
-  host.sin6_addr.s6_addr16[7] = HTONL(EXAMPLES_UDPBLASTER_HOSTIPv6_8);
+  host.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_1);
+  host.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_2);
+  host.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_3);
+  host.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_4);
+  host.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_5);
+  host.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_6);
+  host.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_7);
+  host.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_HOSTIPv6_8);
 
   addrlen                     = sizeof(struct sockaddr_in6);
   sockfd                      = socket(PF_INET6, SOCK_DGRAM, 0);
   if (sockfd < 0)
     {
-      fprintf(stderr, "ERROR: socket() failed: %d\n", errno)
+      fprintf(stderr, "ERROR: socket() failed: %d\n", errno);
       return 1;
     }
 #endif
