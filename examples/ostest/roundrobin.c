@@ -127,7 +127,7 @@ static void get_primes(int *count, int *last)
 
 static FAR void *get_primes_thread(FAR void *parameter)
 {
-  int id = (int)parameter;
+  int id = (int)((intptr_t)parameter);
   int count;
   int last;
   int i;
