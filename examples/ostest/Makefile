@@ -93,6 +93,10 @@ CSRCS += sporadic.c
 endif
 endif # CONFIG_DISABLE_PTHREAD
 
+ifeq ($(CONFIG_PTHREAD_RWLOCK),y)
+CSRCS += pthread_rwlock.c
+endif
+
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += mqueue.c timedmqueue.c
