@@ -71,6 +71,7 @@ endif
 
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
 CSRCS += cancel.c cond.c mutex.c sem.c semtimed.c barrier.c timedwait.c
+CSRCS += pthread_rwlock.c
 
 ifneq ($(CONFIG_PTHREAD_MUTEX_UNSAFE),y)
 CSRCS += robust.c
@@ -92,10 +93,6 @@ ifeq ($(CONFIG_SCHED_SPORADIC),y)
 CSRCS += sporadic.c
 endif
 endif # CONFIG_DISABLE_PTHREAD
-
-ifeq ($(CONFIG_PTHREAD_RWLOCK),y)
-CSRCS += pthread_rwlock.c
-endif
 
 ifneq ($(CONFIG_DISABLE_MQUEUE),y)
 ifneq ($(CONFIG_DISABLE_PTHREAD),y)
