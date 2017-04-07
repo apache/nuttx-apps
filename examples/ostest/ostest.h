@@ -216,6 +216,10 @@ void sporadic_test(void);
 
 void tls_test(void);
 
+/* pthread_rwlock.c ****************************************************************/
+
+void pthread_rwlock_test(void);
+
 /* barrier.c ****************************************************************/
 
 void barrier_test(void);

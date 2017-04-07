@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/netlib/netlib_setmacaddr.c
+ * netutils/netlib/netlib_setnodeaddr.c
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -52,50 +51,36 @@
 
 #include "netutils/netlib.h"
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-/* The address family that we used to create the socket and in the IOCTL
- * data really does not matter.  It should, however, be valid in the current
- * configuration.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define PF_INETX PF_INET
-#  define AF_INETX AF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define PF_INETX PF_INET6
-#  define AF_INETX AF_INET6
-#endif
+#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setmacaddr
+ * Name: netlib_setnodeaddr
  *
  * Description:
- *   Set the network driver MAC address
+ *   Set the 6loWPAN IEEE802.15.4 MAC network driver node address
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   macaddr  MAC address to set, size must be IFHWADDRLEN
+ *   nodeaddr Node address to set, size must be CONFIG_NET_6LOWPAN_RIMEADDR_SIZE
  *
  * Return:
  *   0 on success; -1 on failure
  *
  ****************************************************************************/
 
-int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
+int netlib_setnodeaddr(FAR const char *ifname, FAR const uint8_t *nodeaddr)
 {
   int ret = ERROR;
 
-  if (ifname && macaddr)
+  if (ifname && nodeaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
@@ -106,8 +91,8 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
 
           /* Put the new MAC address into the request */
 
-          req.ifr_hwaddr.sa_family = AF_INETX;
-          memcpy(&req.ifr_hwaddr.sa_data, macaddr, IFHWADDRLEN);
+          req.ifr_hwaddr.sa_family = AF_INET6;
+          memcpy(&req.ifr_hwaddr.sa_data, nodeaddr, CONFIG_NET_6LOWPAN_RIMEADDR_SIZE);
 
           /* Perform the ioctl to set the MAC address */
 
@@ -119,4 +104,4 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
   return ret;
 }
 
-#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

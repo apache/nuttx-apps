@@ -424,7 +424,13 @@ static int user_main(int argc, char *argv[])
       cond_test();
       check_test_memory_usage();
 #endif
-#endif
+
+      /* Verify pthreads rwlock interfaces */
+
+      printf("\nuser_main: pthread_rwlock test\n");
+      pthread_rwlock_test();
+      check_test_memory_usage();
+#endif /* !CONFIG_DISABLE_PTHREAD */
 
 #ifndef CONFIG_DISABLE_PTHREAD
       /* Verify pthreads and condition variable timed waits */
