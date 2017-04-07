@@ -49,14 +49,6 @@
 #include "udpblaster.h"
 
 /****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
  * main
  ****************************************************************************/
 
@@ -77,7 +69,7 @@ int main(int argc, char **argv, char **envp)
 
 #ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv4
   target.sin_family             = AF_INET;
-  target.sin_port               = HTONS(UDPBLASTER_PORTNO);
+  target.sin_port               = HTONS(UDPBLASTER_TARGET_PORTNO);
   target.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDPBLASTER_TARGETIP);
 
   addrlen                       = sizeof(struct sockaddr_in);
@@ -90,15 +82,15 @@ int main(int argc, char **argv, char **envp)
 
 #else
   target.sin6_family            = AF_INET6;
-  target.sin6_port              = HTONS(UDPBLASTER_PORTNO);
-  target.sin6_addr.s6_addr16[0] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_1);
-  target.sin6_addr.s6_addr16[1] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_2);
-  target.sin6_addr.s6_addr16[2] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_3);
-  target.sin6_addr.s6_addr16[3] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_4);
-  target.sin6_addr.s6_addr16[4] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_5);
-  target.sin6_addr.s6_addr16[5] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_6);
-  target.sin6_addr.s6_addr16[6] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_7);
-  target.sin6_addr.s6_addr16[7] = HTONL(EXAMPLES_UDPBLASTER_TARGETIPv6_8);
+  target.sin6_port              = HTONS(UDPBLASTER_TARGET_PORTNO);
+  target.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_1);
+  target.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_2);
+  target.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_3);
+  target.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_4);
+  target.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_5);
+  target.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_6);
+  target.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_7);
+  target.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDPBLASTER_TARGETIPv6_8);
 
   addrlen                       = sizeof(struct sockaddr_in6);
   sockfd                        = socket(PF_INET6, SOCK_DGRAM, 0);

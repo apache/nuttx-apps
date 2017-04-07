@@ -99,9 +99,6 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-CONFIG_XYZ_PROGNAME ?= nettest$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
-
 ROOTDEPPATH = --dep-path .
 
 # NET test built-in application info

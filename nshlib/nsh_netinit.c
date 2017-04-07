@@ -84,6 +84,20 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Only Ethernet and 6loWPAN have MAC layer addresses */
+
+#undef HAVE_MAC
+#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
+#  define HAVE_MAC 1
+#  if defined(CONFIG_NET_6LOWPAN)
+#    if (CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 2) && CONFIG_NSH_MACADDR > 0xffff
+#      error Invalid 6loWPAN node address for SIZE == 2
+#    elif (CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 8) && CONFIG_NSH_MACADDR > 0xffffffffffffffffull
+#      error Invalid 6loWPAN node address for SIZE == 8
+#    endif
+#  endif
+#endif
+
 #if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
 #  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
 #endif
@@ -226,19 +240,25 @@ static void nsh_netinit_configure(void)
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
 #endif
+
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
 #endif
-#if (defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)) && \
-    defined(CONFIG_NET_ETHERNET)
+
+#if (defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)) && defined(HAVE_MAC)
+#if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
+#elif defined(CONFIG_NET_6LOWPAN)
+  uint8_t nodeaddr[CONFIG_NET_6LOWPAN_RIMEADDR_SIZE];
+#endif
 #endif
 
   ninfo("Entry\n");
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
-#if defined(CONFIG_NSH_NOMAC) && defined(CONFIG_NET_ETHERNET)
+#if defined(CONFIG_NSH_NOMAC) && defined(HAVE_MAC)
+#if defined(CONFIG_NET_ETHERNET)
   /* Use the configured, fixed MAC address */
 
   mac[0] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
@@ -252,7 +272,29 @@ static void nsh_netinit_configure(void)
 
   netlib_setmacaddr(NET_DEVNAME, mac);
 
-#endif /* CONFIG_NSH_NOMAC && CONFIG_NET_ETHERNET */
+#elif defined(CONFIG_NET_6LOWPAN)
+  /* Use the configured, fixed MAC address */
+
+#if CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 2
+  nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
+  nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+#elif CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 8
+  nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 7)) & 0xff;
+  nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 6)) & 0xff;
+  nodeaddr[2] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
+  nodeaddr[3] = (CONFIG_NSH_MACADDR >> (8 * 4)) & 0xff;
+  nodeaddr[4] = (CONFIG_NSH_MACADDR >> (8 * 3)) & 0xff;
+  nodeaddr[5] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
+  nodeaddr[6] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
+  nodeaddr[7] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+#endif
+
+  /* Set the 6loWPAN node address */
+
+  netlib_setnodeaddr(NET_DEVNAME, nodeaddr);
+
+#endif /* CONFIG_NET_ETHERNET */
+#endif /* CONFIG_NSH_NOMAC && HAVE_MAC */
 
 #ifdef CONFIG_NET_IPv4
   /* Set up our host address */

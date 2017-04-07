@@ -74,7 +74,13 @@
 #  define PF_INETX PF_INET
 #endif
 
-#define UDPBLASTER_PORTNO  5471
+#ifdef CONFIG_NET_6LOWPAN
+#  define UDPBLASTER_HOST_PORTNO    0xf0b0
+#  define UDPBLASTER_TARGET_PORTNO  0xf0b1
+#else
+#  define UDPBLASTER_HOST_PORTNO    5471
+#  define UDPBLASTER_TARGET_PORTNO  5472
+#endif
 
 #define ETH_HDRLEN         14    /* Size of the Ethernet header */
 #define IPv4_HDRLEN        20    /* Size of IPv4 header */
@@ -88,7 +94,6 @@
 #  else
 #    define UDPBLASTER_MSS (UDPBLASTER_MTU - ETH_HDRLEN - IPv4_HDRLEN - UDP_HDRLEN)
 #  endif
-#
 #elif defined(CONFIG_NET_LOOPBACK)
 #  define UDPBLASTER_MTU   1518
 #  ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv6
@@ -96,6 +101,9 @@
 #  else
 #    define UDPBLASTER_MSS (UDPBLASTER_MTU - IPv4_HDRLEN - UDP_HDRLEN)
 #  endif
+#elif defined(CONFIG_NET_6LOWPAN)
+#  define UDPBLASTER_MTU   CONFIG_NET_6LOWPAN_MTU
+#  define UDPBLASTER_MSS  (CONFIG_NET_6LOWPAN_MTU - IPv6_HDRLEN - UDP_HDRLEN)
 #elif defined(CONFIG_NET_SLIP)
 #  define UDPBLASTER_MTU   CONFIG_NET_SLIP_MTU
 #  ifdef CONFIG_EXAMPLES_UDPBLASTER_IPv6
