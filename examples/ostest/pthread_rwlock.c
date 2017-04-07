@@ -53,6 +53,11 @@ struct race_cond_s
 };
 
 /****************************************************************************
+ * Private Data
+ ****************************************************************************/
+static int g_race_cond_thread_pos;
+
+/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -62,6 +67,12 @@ static FAR void *race_cond_thread1(FAR void *data)
   int status;
 
   /* Runs 1st */
+
+  if (g_race_cond_thread_pos++ != 0)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 0, got %d",
+              g_race_cond_thread_pos);
+    }
 
   status = pthread_rwlock_wrlock(rc->rw_lock);
   if (status != 0)
@@ -73,6 +84,12 @@ static FAR void *race_cond_thread1(FAR void *data)
   sem_wait(rc->sem1);
 
   /* Context Switch -> Runs 3rd */
+
+  if (g_race_cond_thread_pos++ != 2)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 2, got %d",
+              g_race_cond_thread_pos);
+    }
 
   status = pthread_rwlock_unlock(rc->rw_lock);
   if (status != 0)
@@ -90,10 +107,39 @@ static FAR void *race_cond_thread1(FAR void *data)
 
   /* Context Switch - Runs 5th */
 
+  if (g_race_cond_thread_pos++ != 4)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 4, got %d",
+              g_race_cond_thread_pos);
+    }
+
   status = pthread_rwlock_unlock(rc->rw_lock);
   if (status != 0)
     {
       printf("pthread_rwlock: Failed to unlock lock held for writing\n");
+    }
+
+  status = pthread_rwlock_rdlock(rc->rw_lock);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to open rwlock for reading. Status: %d\n", status);
+    }
+
+  sem_post(rc->sem2);
+  sem_wait(rc->sem1);
+
+  /* Context switch - Runs 7th */
+
+  if (g_race_cond_thread_pos++ != 6)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 6, got %d",
+              g_race_cond_thread_pos);
+    }
+
+  status = pthread_rwlock_unlock(rc->rw_lock);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to unlock lock held for reading. Status: %d\n", status);
     }
 
   return NULL;
@@ -111,6 +157,11 @@ static FAR void *race_cond_thread2(FAR void *data)
   if (status != 0)
     {
       printf("pthread_rwlock: Failed to wait on semaphore. Status: %d\n", status);
+    }
+
+  if (g_race_cond_thread_pos++ != 1)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 1, got %d", g_race_cond_thread_pos);
     }
 
   status = pthread_rwlock_tryrdlock(rc->rw_lock);
@@ -134,6 +185,12 @@ static FAR void *race_cond_thread2(FAR void *data)
       printf("pthread_rwlock: Failed to open rwlock for reading. Status: %d\n", status);
     }
 
+  if (g_race_cond_thread_pos++ != 3)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 3, got %d",
+             g_race_cond_thread_pos);
+    }
+
   status = pthread_rwlock_unlock(rc->rw_lock);
   if (status != 0)
     {
@@ -141,6 +198,38 @@ static FAR void *race_cond_thread2(FAR void *data)
     }
 
   sem_post(rc->sem1);
+  sem_wait(rc->sem2);
+
+  /* Context switch Runs 6th */
+
+  if (g_race_cond_thread_pos++ != 5)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 5, got %d",
+              g_race_cond_thread_pos);
+    }
+
+  sem_post(rc->sem1);
+  status = pthread_rwlock_wrlock(rc->rw_lock);
+
+  /* Context switch runs 8th */
+
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to open rwlock for reading. Status: %d\n", status);
+    }
+
+  if (g_race_cond_thread_pos++ != 7)
+    {
+      printf("pthread_rwlock: Thread order unexpected. Expected 7, got %d",
+              g_race_cond_thread_pos);
+    }
+
+  status = pthread_rwlock_unlock(rc->rw_lock);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to unlock lock held for writing. Status: %d\n", status);
+    }
+
   return NULL;
 }
 
@@ -176,8 +265,114 @@ static void test_two_threads(void)
   rc.sem2 = &sem2;
   rc.rw_lock = &rw_lock;
 
+  g_race_cond_thread_pos = 0;
   status = pthread_create(&thread1, NULL, race_cond_thread1, &rc);
   status = pthread_create(&thread2, NULL, race_cond_thread2, &rc);
+  (void) pthread_join(thread1, NULL);
+  (void) pthread_join(thread2, NULL);
+}
+
+static void * timeout_thread1(FAR void * data)
+{
+  FAR struct race_cond_s * rc = (FAR struct race_cond_s *) data;
+  int status;
+
+  status = pthread_rwlock_wrlock(rc->rw_lock);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to acquire rw_lock. Status: %d\n", status);
+    }
+
+  sem_wait(rc->sem1);
+
+  status = pthread_rwlock_unlock(rc->rw_lock);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to unlock rw_lock. Status: %d\n", status);
+    }
+
+  return NULL;
+}
+
+static void * timeout_thread2(FAR void * data)
+{
+  FAR struct race_cond_s * rc = (FAR struct race_cond_s *) data;
+  struct timespec time;
+  int status;
+
+  status = clock_gettime(CLOCK_REALTIME, &time);
+  time.tv_sec += 2;
+
+  status = pthread_rwlock_timedwrlock(rc->rw_lock, &time);
+  if (status != ETIMEDOUT)
+    {
+      printf("pthread_rwlock: Failed to properly timeout write lock\n");
+    }
+
+  status = clock_gettime(CLOCK_REALTIME, &time);
+  time.tv_sec += 2;
+
+  status = pthread_rwlock_timedrdlock(rc->rw_lock, &time);
+  if (status != ETIMEDOUT)
+    {
+      printf("pthread_rwlock: Failed to properly timeout rd lock\n");
+    }
+
+  status = clock_gettime(CLOCK_REALTIME, &time);
+  time.tv_sec += 2;
+
+  sem_post(rc->sem1);
+  status = pthread_rwlock_timedrdlock(rc->rw_lock, &time);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to properly acquire rdlock\n");
+    }
+
+  status = pthread_rwlock_unlock(rc->rw_lock);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: Failed to release rdlock\n");
+    }
+
+  return NULL;
+}
+
+static void test_timeout(void)
+{
+  pthread_rwlock_t rw_lock;
+  struct race_cond_s rc;
+  pthread_t thread1;
+  pthread_t thread2;
+  int status;
+  sem_t sem1;
+  sem_t sem2;
+
+  status = pthread_rwlock_init(&rw_lock, NULL);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: ERROR pthread_rwlock_init failed, status=%d\n",
+              status);
+    }
+
+  status = sem_init(&sem1, 0, 0);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: ERROR sem_init failed, status=%d\n", status);
+    }
+
+  status = sem_init(&sem2, 0, 0);
+  if (status != 0)
+    {
+      printf("pthread_rwlock: ERROR sem_init failed, status=%d\n", status);
+    }
+
+  rc.sem1 = &sem1;
+  rc.sem2 = &sem2;
+  rc.rw_lock = &rw_lock;
+
+  status = pthread_create(&thread1, NULL, timeout_thread1, &rc);
+  status = pthread_create(&thread2, NULL, timeout_thread2, &rc);
+
   (void) pthread_join(thread1, NULL);
   (void) pthread_join(thread2, NULL);
 }
@@ -247,4 +442,6 @@ void pthread_rwlock_test(void)
     }
 
   test_two_threads();
+
+  test_timeout();
 }
