@@ -79,6 +79,10 @@
 #include <nuttx/net/icmp.h>
 #include <nuttx/net/icmpv6.h>
 
+#ifdef CONFIG_NET_6LOWPAN
+#include <nuttx/net/sixlowpan.h>
+#endif
+
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS)
 #  include "netutils/netlib.h"
@@ -252,7 +256,7 @@ static int ping_options(FAR struct nsh_vtbl_s *vtbl,
 
   /* There should be exactly on parameter left on the command-line */
 
-  if (optind == argc-1)
+  if (optind == argc - 1)
     {
       *staddr = argv[optind];
     }
@@ -371,7 +375,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   /* There should be exactly one parameter left on the command-line */
 
-  if (optind == argc-1)
+  if (optind == argc - 1)
     {
       args->srcpath = argv[optind];
     }
@@ -384,7 +388,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       goto errout;
     }
 
-  /* optind < argc-1 means that there are too many arguments on the
+  /* optind < argc - 1 means that there are too many arguments on the
    * command-line
    */
 
@@ -744,7 +748,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *gwip = NULL;
   FAR char *mask = NULL;
   FAR char *tmp = NULL;
-#ifdef CONFIG_NET_ETHERNET
+#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
   FAR char *hw = NULL;
 #endif
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
@@ -754,7 +758,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   bool inet6 = false;
 #endif
   bool badarg = false;
+#ifdef CONFIG_NET_ETHERNET
   uint8_t mac[IFHWADDRLEN];
+#endif
+#ifdef CONFIG_NET_6LOWPAN
+  uint8_t nodeaddr[NET_6LOWPAN_RIMEADDR_SIZE];
+#endif
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
 #endif
@@ -802,9 +811,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               tmp = argv[i];
               if (!strcmp(tmp, "dr") || !strcmp(tmp, "gw") || !strcmp(tmp, "gateway"))
                 {
-                  if (argc-1 >= i+1)
+                  if (argc - 1 >= i + 1)
                     {
-                      gwip = argv[i+1];
+                      gwip = argv[i + 1];
                       i++;
                     }
                   else
@@ -814,9 +823,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                 }
               else if (!strcmp(tmp, "netmask"))
                 {
-                  if (argc-1 >= i+1)
+                  if (argc - 1 >= i + 1)
                     {
-                      mask = argv[i+1];
+                      mask = argv[i + 1];
                       i++;
                     }
                   else
@@ -841,16 +850,20 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
                 }
 
-#ifdef CONFIG_NET_ETHERNET
+#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
               /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
               else if (!strcmp(tmp, "hw"))
                 {
-                  if (argc-1>=i+1)
+                  if (argc - 1 >= i + 1)
                     {
-                      hw = argv[i+1];
+                      hw = argv[i + 1];
                       i++;
+#ifdef CONFIG_NET_ETHERNET
                       badarg = !netlib_ethaddrconv(hw, mac);
+#else
+                      badarg = !netlib_nodeaddrconv(hw, nodeaddr);
+#endif
                     }
                   else
                     {
@@ -862,9 +875,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
               else if (!strcmp(tmp, "dns"))
                 {
-                  if (argc-1 >= i+1)
+                  if (argc - 1 >= i + 1)
                     {
-                      dns = argv[i+1];
+                      dns = argv[i + 1];
                       i++;
                     }
                   else
@@ -883,14 +896,18 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-#ifdef CONFIG_NET_ETHERNET
+#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
   /* Set Hardware Ethernet MAC address */
   /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
   if (hw)
     {
       ninfo("HW MAC: %s\n", hw);
+#ifdef CONFIG_NET_ETHERNET
       netlib_setmacaddr(intf, mac);
+#else
+      netlib_setnodeaddr(intf, nodeaddr);
+#endif
     }
 #endif
 
@@ -1620,7 +1637,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* There should be exactly on parameter left on the command-line */
 
-  if (optind == argc-1)
+  if (optind == argc - 1)
     {
       url = argv[optind];
     }

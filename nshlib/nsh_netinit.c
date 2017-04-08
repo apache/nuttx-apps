@@ -72,6 +72,10 @@
 #  include "netutils/dhcpc.h"
 #endif
 
+#ifdef CONFIG_NET_6LOWPAN
+#  include <nuttx/net/sixlowpan.h>
+#endif
+
 #ifdef CONFIG_NETUTILS_NTPCLIENT
 #  include "netutils/ntpclient.h"
 #endif
@@ -90,9 +94,9 @@
 #if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
 #  define HAVE_MAC 1
 #  if defined(CONFIG_NET_6LOWPAN)
-#    if (CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 2) && CONFIG_NSH_MACADDR > 0xffff
+#    if !defined(CONFIG_NET_6LOWPAN_RIMEADDR_EXTENDED) && CONFIG_NSH_MACADDR > 0xffff
 #      error Invalid 6loWPAN node address for SIZE == 2
-#    elif (CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 8) && CONFIG_NSH_MACADDR > 0xffffffffffffffffull
+#    elif defined(CONFIG_NET_6LOWPAN_RIMEADDR_EXTENDED) && CONFIG_NSH_MACADDR > 0xffffffffffffffffull
 #      error Invalid 6loWPAN node address for SIZE == 8
 #    endif
 #  endif
@@ -249,7 +253,7 @@ static void nsh_netinit_configure(void)
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(CONFIG_NET_6LOWPAN)
-  uint8_t nodeaddr[CONFIG_NET_6LOWPAN_RIMEADDR_SIZE];
+  uint8_t nodeaddr[NET_6LOWPAN_RIMEADDR_SIZE];
 #endif
 #endif
 
@@ -275,10 +279,7 @@ static void nsh_netinit_configure(void)
 #elif defined(CONFIG_NET_6LOWPAN)
   /* Use the configured, fixed MAC address */
 
-#if CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 2
-  nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
-  nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
-#elif CONFIG_NET_6LOWPAN_RIMEADDR_SIZE == 8
+#ifdef CONFIG_NET_6LOWPAN_RIMEADDR_EXTENDED
   nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 7)) & 0xff;
   nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 6)) & 0xff;
   nodeaddr[2] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
@@ -287,6 +288,9 @@ static void nsh_netinit_configure(void)
   nodeaddr[5] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
   nodeaddr[6] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
   nodeaddr[7] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+#else
+  nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
+  nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
 #endif
 
   /* Set the 6loWPAN node address */
