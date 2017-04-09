@@ -316,7 +316,9 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   FAR char *value;
   int ret = OK;
+#ifndef CONFIG_DISABLE_ENVIRON
   int ndx = 1;
+#endif
 #ifndef CONFIG_NSH_DISABLESCRIPT
   FAR char *popt;
   const char opts[] = NSH_NP_SET_OPTIONS;
@@ -362,17 +364,20 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     }
                 }
 
+#ifndef CONFIG_DISABLE_ENVIRON
               if (ret == OK)
                 {
                   ndx = 2;
                 }
+#endif
             }
          }
       }
-#  ifndef CONFIG_DISABLE_ENVIRON
+
+#ifndef CONFIG_DISABLE_ENVIRON
   if (ret == OK && (argc == 3 || argc == 4))
-#  endif
 #endif
+#endif /* CONFIG_NSH_DISABLESCRIPT */
 #ifndef CONFIG_DISABLE_ENVIRON
     {
       /* Trim whitespace from the value */
