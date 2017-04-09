@@ -324,9 +324,14 @@ int cmd_set(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   const char opts[] = NSH_NP_SET_OPTIONS;
   int op;
 
+#ifndef CONFIG_DISABLE_ENVIRON
   /* Support set [{+|-}{e|x|xe|ex}] [<name> <value>] */
 
   if (argc == 2 || argc == 4)
+#else
+  /* Support set [{+|-}{e|x|xe|ex}] */
+
+#endif
     {
       if (strlen(argv[1]) < 2)
         {
