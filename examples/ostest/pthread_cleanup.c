@@ -60,21 +60,20 @@ static void cleanup(FAR void * data)
   FAR struct sync_s *sync = (FAR struct sync_s *) data;
   int status;
 
-#ifdef CONFIG_PTHREAD_MUTEX_UNSAFE
+  /* Note:  pthread_cond_wait() will release the mutex while it waits on
+   * condition value.  So a EPERM error is not a failure.
+   */
+
   status = pthread_mutex_unlock(&sync->lock);
-  if (status != 0)
+  if (status == EPERM)
+    {
+      printf("pthread_cleanup: thread did not have mutex locked: %d\n", status);
+    }
+  else if (status != 0)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_unlock in cleanup handler. "
              "Status: %d\n", status);
     }
-#else
-  status = pthread_mutex_consistent(&sync->lock);
-  if (status != 0)
-    {
-      printf("pthread_cleanup: ERROR pthread_mutex_consistent in cleanup handler. "
-             "Status: %d\n", status);
-    }
-#endif
 }
 
 static void *cleanup_thread(FAR void * data)
