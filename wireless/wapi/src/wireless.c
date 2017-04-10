@@ -38,8 +38,9 @@
  ****************************************************************************/
 
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <strings.h>
+#include <math.h>
 
 #include <nuttx/wireless/wireless.h>
 
@@ -378,7 +379,7 @@ int wapi_get_we_version(int sock, const char *ifname, FAR int *we_version)
  ****************************************************************************/
 
 int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
-                  FAR wapi_freq_flag_t *flag);
+                  FAR wapi_freq_flag_t *flag)
 {
   struct iwreq wrq;
   int ret;
@@ -421,8 +422,8 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
  *
  ****************************************************************************/
 
-int wapi_set_freq(int sock, FARconst char *ifname, double freq,
-                  wapi_freq_flag_t flag);
+int wapi_set_freq(int sock, FAR const char *ifname, double freq,
+                  wapi_freq_flag_t flag)
 {
   struct iwreq wrq;
   int ret;
@@ -804,6 +805,7 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
   if ((ret = ioctl(sock, SIOCGIWRATE, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       /* Check if enabled. */
+
       if (wrq.u.bitrate.disabled)
         {
           WAPI_ERROR("Bitrate is disabled.\n");
@@ -811,12 +813,14 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
         }
 
       /* Get bitrate. */
+
       *bitrate = wrq.u.bitrate.value;
       *flag = wrq.u.bitrate.fixed ? WAPI_BITRATE_FIXED : WAPI_BITRATE_AUTO;
     }
   else
     {
-    WAPI_IOCTL_STRERROR(SIOCGIWRATE);
+      WAPI_IOCTL_STRERROR(SIOCGIWRATE);
+    }
 
   return ret;
 }
@@ -942,7 +946,7 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
  ****************************************************************************/
 
 int wapi_set_txpower(int sock, FAR const char *ifname, int power,
-                     wapi_txpower_flag_t flag);
+                     wapi_txpower_flag_t flag)
 {
   struct iwreq wrq;
   int ret;
