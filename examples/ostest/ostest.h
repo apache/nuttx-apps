@@ -145,7 +145,7 @@ int waitpid_test(void);
 
 void mutex_test(void);
 
-/* rmutex.c ******************************************************************/
+/* rmutex.c *****************************************************************/
 
 void recursive_mutex_test(void);
 
@@ -187,7 +187,7 @@ void robust_test(void);
 
 void timedwait_test(void);
 
-/* sigprocmask.c ****************************************************************/
+/* sigprocmask.c ************************************************************/
 
 void sigprocmask_test(void);
 
@@ -208,7 +208,7 @@ void sigev_thread_test(void);
 
 void rr_test(void);
 
-/* sporadic.c *************************************************************/
+/* sporadic.c ***************************************************************/
 
 void sporadic_test(void);
 
@@ -216,9 +216,17 @@ void sporadic_test(void);
 
 void tls_test(void);
 
-/* pthread_rwlock.c ****************************************************************/
+/* pthread_rwlock.c *********************************************************/
 
 void pthread_rwlock_test(void);
+
+/* pthread_rwlock_cancel.c **************************************************/
+
+void pthread_rwlock_cancel_test(void);
+
+/* pthread_cleanup.c ********************************************************/
+
+void pthread_cleanup_test(void);
 
 /* barrier.c ****************************************************************/
 

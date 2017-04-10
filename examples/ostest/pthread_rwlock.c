@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/examples/pthread_rwlock.c
+ * examples/ostest/pthread_rwlock.c
  *
  *   Copyright (C) 2017 Mark Schulte. All rights reserved.
  *   Author: Mark Schulte <mark@mjs.pw>
@@ -423,14 +423,15 @@ void pthread_rwlock_test(void)
   status = pthread_rwlock_trywrlock(&rw_lock);
   if (status != EBUSY)
     {
-      printf("pthread_rwlock: ""ERROR able to acquire to write locks\n");
+      printf("pthread_rwlock: "
+             "ERROR able to acquire write lock when write lock already acquired\n");
     }
 
   status = pthread_rwlock_tryrdlock(&rw_lock);
   if (status != EBUSY)
     {
       printf("pthread_rwlock: "
-             "ERROR able to acquire read lock when read lock already acquired\n");
+             "ERROR able to acquire read lock when write lock already acquired\n");
     }
 
   status = pthread_rwlock_unlock(&rw_lock);
