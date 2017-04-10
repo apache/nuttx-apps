@@ -1,8 +1,13 @@
 /****************************************************************************
  * apps/wireless/wapi/src/wireless.c
  *
- *  Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
- *  All rights reserved.
+ *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Adapted for Nuttx from WAPI:
+ *
+ *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

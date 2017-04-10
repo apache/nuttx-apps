@@ -1,8 +1,13 @@
 /****************************************************************************
  * apps/wireless/wapi/examples/network.c
  *
- *  Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
- *  All rights reserved.
+ *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Adapted for Nuttx from WAPI:
+ *
+ *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -285,116 +290,6 @@ int wapi_set_netmask(int sock, FAR const char *ifname,
                      FAR const struct in_addr *addr)
 {
   return wapi_set_addr(sock, ifname, SIOCSIFNETMASK, addr);
-}
-
-/****************************************************************************
- * Name: wapi_get_routes
- *
- * Description:
- *   Parses routing table rows from WAPI_PROC_NET_ROUTE.
- *
- * Input Parameters:
- *   list - Pushes collected wapi_route_info_t into this list.
- *
- ****************************************************************************/
-
-int wapi_get_routes(FAR wapi_list_t *list)
-{
-  FAR FILE *fp;
-  size_t bufsiz = WAPI_PROC_LINE_SIZE * sizeof(char);
-  char buf[WAPI_PROC_LINE_SIZE];
-  int ret;
-
-  WAPI_VALIDATE_PTR(list);
-
-  /* Open file for reading. */
-
-  fp = fopen(WAPI_PROC_NET_ROUTE, "r");
-  if (!fp)
-    {
-      WAPI_STRERROR("fopen(\"%s\", \"r\")", WAPI_PROC_NET_ROUTE);
-      return -1;
-    }
-
-  /* Skip header line. */
-
-  if (!fgets(buf, bufsiz, fp))
-    {
-      WAPI_ERROR("Invalid \"%s\" content!\n", WAPI_PROC_NET_ROUTE);
-      return -1;
-    }
-
-  /* Read lines. */
-
-  ret = 0;
-  while (fgets(buf, bufsiz, fp))
-    {
-      wapi_route_info_t *ri;
-      char ifname[WAPI_PROC_LINE_SIZE];
-      int refcnt, use, metric, mtu, window, irtt;
-      unsigned int dest, gw, flags, netmask;
-
-      /* Allocate route row buffer. */
-
-      ri = malloc(sizeof(wapi_route_info_t));
-      if (!ri)
-        {
-          WAPI_STRERROR("malloc()");
-          ret = -1;
-          break;
-        }
-
-      /* Read and tokenize fields. */
-
-      sscanf(buf, "%s\t"        /* ifname */
-             "%x\t"             /* dest */
-             "%x\t"             /* gw */
-             "%x\t"             /* flags */
-             "%d\t"             /* refcnt */
-             "%d\t"             /* use */
-             "%d\t"             /* metric */
-             "%x\t"             /* mask */
-             "%d\t"             /* mtu */
-             "%d\t"             /* window */
-             "%d\t",            /* irtt */
-             ifname, &dest, &gw, &flags, &refcnt, &use, &metric, &netmask, &mtu,
-             &window, &irtt);
-
-      /* Allocate "ifname". */
-
-      ri->ifname = malloc((strlen(ifname) + 1) * sizeof(char));
-      if (!ri->ifname)
-        {
-          WAPI_STRERROR("malloc()");
-          free(ri);
-          ret = -1;
-          break;
-        }
-
-      /* Copy fields. */
-
-      sprintf(ri->ifname, "%s", ifname);
-      ri->dest.s_addr = dest;
-      ri->gw.s_addr = gw;
-      ri->flags = flags;
-      ri->refcnt = refcnt;
-      ri->use = use;
-      ri->metric = metric;
-      ri->netmask.s_addr = netmask;
-      ri->mtu = mtu;
-      ri->window = window;
-      ri->irtt = irtt;
-
-      /* Push parsed node to the list. */
-
-      ri->next = list->head.route;
-      list->head.route = ri;
-    }
-
-  /* Close file. */
-
-  fclose(fp);
-  return ret;
 }
 
 /****************************************************************************

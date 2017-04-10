@@ -1,8 +1,13 @@
 /****************************************************************************
  * apps/wireless/wapi/src/wapi.c
  *
- *  Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
- *  All rights reserved.
+ *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Adapted for Nuttx from WAPI:
+ *
+ *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -320,71 +325,6 @@ int wapi_main(int argc, char *argv[])
     }
 
   ifname = argv[1];
-
-  /* Get ifnames */
-
-  bzero(&list, sizeof(wapi_list_t));
-  ret = wapi_get_ifnames(&list);
-  printf("wapi_get_ifnames(): ret: %d", ret);
-  if (ret >= 0)
-    {
-      FAR wapi_string_t *str;
-
-      /* Print ifnames */
-
-      printf(", ifnames:");
-      for (str = list.head.string; str; str = str->next)
-        {
-          printf(" %s", str->data);
-        }
-
-      /* Free ifnames */
-
-      str = list.head.string;
-      while (str)
-        {
-          FAR wapi_string_t *tmp;
-
-          tmp = str->next;
-          free(str->data);
-          free(str);
-          str = tmp;
-        }
-    }
-
-  putchar('\n');
-
-  /* Get routes */
-
-  bzero(&list, sizeof(wapi_list_t));
-  ret = wapi_get_routes(&list);
-  printf("wapi_get_routes(): ret: %d\n", ret);
-  if (ret >= 0)
-    {
-      wapi_route_info_t *ri;
-
-      /* Print route */
-
-      for (ri = list.head.route; ri; ri = ri->next)
-        {
-          printf(">> dest: %s, gw: %s, netmask: %s\n",
-                 inet_ntoa(ri->dest), inet_ntoa(ri->gw),
-                 inet_ntoa(ri->netmask));
-        }
-
-      /* Free routes */
-
-      ri = list.head.route;
-      while (ri)
-        {
-          FAR wapi_route_info_t *tmpri;
-
-          tmpri = ri->next;
-          free(ri->ifname);
-          free(ri);
-          ri = tmpri;
-        }
-    }
 
   /* Make a comm. sock. */
 
