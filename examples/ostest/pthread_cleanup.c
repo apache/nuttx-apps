@@ -60,12 +60,21 @@ static void cleanup(FAR void * data)
   FAR struct sync_s *sync = (FAR struct sync_s *) data;
   int status;
 
+#ifdef CONFIG_PTHREAD_MUTEX_UNSAFE
   status = pthread_mutex_unlock(&sync->lock);
   if (status != 0)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_unlock in cleanup handler. "
              "Status: %d\n", status);
     }
+#else
+  status = pthread_mutex_consistent(&sync->lock);
+  if (status != 0)
+    {
+      printf("pthread_cleanup: ERROR pthread_mutex_consistent in cleanup handler. "
+             "Status: %d\n", status);
+    }
+#endif
 }
 
 static void *cleanup_thread(FAR void * data)
