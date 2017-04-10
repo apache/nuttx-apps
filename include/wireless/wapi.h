@@ -38,7 +38,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <net/ethernet.h>
-#include <linux/wireless.h>
+#include <nuttx/wireless/wireless.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -72,7 +72,7 @@ typedef struct wapi_list_t wapi_list_t;
 
 typedef enum
 {
-  WAPI_FREQ_AUTO = IW_FREQ_AUTO,
+  WAPI_FREQ_AUTO  = IW_FREQ_AUTO,
   WAPI_FREQ_FIXED = IW_FREQ_FIXED
 } wapi_freq_flag_t;
 
@@ -314,10 +314,12 @@ int wapi_get_routes(wapi_list_t * list);
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NET_ROUTE
 int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw);
+#endif
 
 /****************************************************************************
  * Name: wapi_del_route_gw
@@ -327,10 +329,12 @@ int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NET_ROUTE
 int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw);
+#endif
 
 /****************************************************************************
  * Name: wapi_get_we_version
@@ -367,7 +371,7 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
  *
  ****************************************************************************/
 
-int wapi_set_freq(int sock, FARconst char *ifname, double freq,
+int wapi_set_freq(int sock, FAR const char *ifname, double freq,
                   wapi_freq_flag_t flag);
 
 /****************************************************************************

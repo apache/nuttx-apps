@@ -38,7 +38,7 @@
 
 #include <nuttx/wireless/wireless.h>
 
-#include "include/wireless/wapi.h"
+#include "wireless/wapi.h"
 #include "util.h"
 
 /****************************************************************************
@@ -351,7 +351,7 @@ int wapi_get_we_version(int sock, const char *ifname, FAR int *we_version)
   /* Get WE version. */
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWRANGE, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWRANGE, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       struct iw_range *range = (struct iw_range *)buf;
       *we_version = (int)range->we_version_compiled;
@@ -382,7 +382,7 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
   WAPI_VALIDATE_PTR(flag);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWFREQ, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWFREQ, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       /* Set flag. */
 
@@ -440,7 +440,7 @@ int wapi_set_freq(int sock, FARconst char *ifname, double freq,
     }
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCSIWFREQ, &wrq);
+  ret = ioctl(sock, SIOCSIWFREQ, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWFREQ);
@@ -479,7 +479,7 @@ int wapi_freq2chan(int sock, FAR const char *ifname, double freq,
   /* Get range. */
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWRANGE, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWRANGE, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       struct iw_range *range = (struct iw_range *)buf;
       int k;
@@ -539,7 +539,7 @@ int wapi_chan2freq(int sock, FAR const char *ifname, int chan,
   /* Get range. */
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWRANGE, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWRANGE, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       struct iw_range *range = (struct iw_range *)buf;
       int k;
@@ -591,7 +591,7 @@ int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
   wrq.u.essid.flags = 0;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCGIWESSID, &wrq);
+  ret = ioctl(sock, SIOCGIWESSID, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCGIWESSID);
@@ -629,7 +629,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
   wrq.u.essid.flags = (flag == WAPI_ESSID_ON);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCSIWESSID, &wrq);
+  ret = ioctl(sock, SIOCSIWESSID, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWESSID);
@@ -654,7 +654,7 @@ int wapi_get_mode(int sock, FAR const char *ifname, FAR wapi_mode_t *mode)
   WAPI_VALIDATE_PTR(mode);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWMODE, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWMODE, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       ret = wapi_parse_mode(wrq.u.mode, mode);
     }
@@ -682,7 +682,7 @@ int wapi_set_mode(int sock, FAR const char *ifname, wapi_mode_t mode)
   wrq.u.mode = mode;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCSIWMODE, &wrq);
+  ret = ioctl(sock, SIOCSIWMODE, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWMODE);
@@ -737,7 +737,7 @@ int wapi_get_ap(int sock, FAR const char *ifname, FAR struct ether_addr *ap)
   WAPI_VALIDATE_PTR(ap);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWAP, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWAP, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       memcpy(ap, wrq.u.ap_addr.sa_data, sizeof(struct ether_addr));
     }
@@ -769,7 +769,7 @@ int wapi_set_ap(int sock, FAR const char *ifname,
   memcpy(wrq.u.ap_addr.sa_data, ap, sizeof(struct ether_addr));
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
 
-  ret = ioctl(sock, SIOCSIWAP, &wrq);
+  ret = ioctl(sock, SIOCSIWAP, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWAP);
@@ -796,7 +796,7 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
   WAPI_VALIDATE_PTR(flag);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWRATE, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWRATE, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       /* Check if enabled. */
       if (wrq.u.bitrate.disabled)
@@ -834,7 +834,7 @@ int wapi_set_bitrate(int sock, FAR const char *ifname, int bitrate,
   wrq.u.bitrate.fixed = (flag == WAPI_BITRATE_FIXED);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCSIWRATE, &wrq);
+  ret = ioctl(sock, SIOCSIWRATE, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWRATE);
@@ -887,7 +887,7 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
   WAPI_VALIDATE_PTR(flag);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWTXPOW, &wrq)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIWTXPOW, (unsigned long)((uintptr_t)&wrq))) >= 0)
     {
       /* Check if enabled. */
 
@@ -963,7 +963,7 @@ int wapi_set_txpower(int sock, FAR const char *ifname, int power,
   /* Issue the set command. */
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCSIWTXPOW, &wrq);
+  ret = ioctl(sock, SIOCSIWTXPOW, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWTXPOW);
@@ -991,7 +991,7 @@ int wapi_scan_init(int sock, const char *ifname)
   wrq.u.data.length = 0;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  ret = ioctl(sock, SIOCSIWSCAN, &wrq);
+  ret = ioctl(sock, SIOCSIWSCAN, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
       WAPI_IOCTL_STRERROR(SIOCSIWSCAN);
@@ -1022,7 +1022,7 @@ int wapi_scan_stat(int sock, FAR const char *ifname)
   wrq.u.data.length = 0;
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWSCAN, &wrq)) < 0)
+  if ((ret = ioctl(sock, SIOCGIWSCAN, (unsigned long)((uintptr_t)&wrq))) < 0)
     {
       if (errno == E2BIG)
         {
@@ -1090,7 +1090,8 @@ alloc:
   wrq.u.data.length = buflen;
   wrq.u.data.flags = 0;
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWSCAN, &wrq)) < 0 && errno == E2BIG)
+  if ((ret = ioctl(sock, SIOCGIWSCAN, (unsigned long)((uintptr_t)&wrq))) < 0 &&
+       errno == E2BIG)
     {
       char *tmp;
 

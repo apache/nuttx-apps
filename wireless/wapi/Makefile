@@ -53,6 +53,8 @@ ASRCS =
 CSRCS =
 MAINSRC =
 
+VPATH = .
+
 include $(APPDIR)/wireless/wapi/src/Make.defs
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
@@ -88,8 +90,6 @@ PROGNAME = $(CONFIG_WAPI_PROGNAME)
 ROOTDEPPATH = --dep-path .
 
 # Common build
-
-VPATH =
 
 all: .built
 .PHONY: context depend clean distclean

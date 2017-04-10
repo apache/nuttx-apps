@@ -1,5 +1,5 @@
 ############################################################################
-# apps/wireless/src/Make.defs
+# apps/wireless/Makefile
 #
 #   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -33,17 +33,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_WIRELESS_WAPI),y)
+MENUDESC = "Wireless Libraries and NSH Add-Ons"
 
-CSRCS = network.c util.c wireless.c
-
-ifeq ($(CONFIG_WIRELESS_WAPI_CMDTOOL),y)
-MAINSRC = wapi.c
-endif
-
-DEPPATH += --dep-path src
-VPATH += :src
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(APPDIR)/wireless/wapi/src}
-
-endif
-
+include $(APPDIR)/Directory.mk

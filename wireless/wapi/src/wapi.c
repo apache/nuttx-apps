@@ -40,7 +40,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "include/wireless/wapi.h"
+#include "wireless/wapi.h"
 
 
 /* Gets current configuration of the @a ifname using WAPI accessors and prints

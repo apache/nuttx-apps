@@ -32,16 +32,19 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <net/route.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
+#include <strings.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <net/route.h>
+#include <netinet/in.h>
+
 #include "util.h"
-#include "include/wireless/wapi.h"
+#include "wireless/wapi.h"
 
 /****************************************************************************
  * Private Functions
@@ -56,7 +59,7 @@ static int wapi_get_addr(int sock, FAR const char *ifname, int cmd,
   WAPI_VALIDATE_PTR(addr);
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, cmd, &ifr)) >= 0)
+  if ((ret = ioctl(sock, cmd, (unsigned long)((uintptr_t)&ifr))) >= 0)
     {
       struct sockaddr_in *sin = (struct sockaddr_in *)&ifr.ifr_addr;
       memcpy(addr, &sin->sin_addr, sizeof(struct in_addr));
@@ -82,7 +85,7 @@ static int wapi_set_addr(int sock, FAR const char *ifname, int cmd,
   memcpy(&sin.sin_addr, addr, sizeof(struct in_addr));
   memcpy(&ifr.ifr_addr, &sin, sizeof(struct sockaddr_in));
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, cmd, &ifr)) < 0)
+  if ((ret = ioctl(sock, cmd, (unsigned long)((uintptr_t)&ifr))) < 0)
     {
       WAPI_IOCTL_STRERROR(cmd);
     }
@@ -90,6 +93,7 @@ static int wapi_set_addr(int sock, FAR const char *ifname, int cmd,
   return ret;
 }
 
+#ifdef CONFIG_NET_ROUTE
 static int wapi_act_route_gw(int sock, int act,
                              wapi_route_target_t targettype,
                              FAR const struct in_addr *target,
@@ -130,13 +134,14 @@ static int wapi_act_route_gw(int sock, int act,
       rt.rt_flags |= RTF_HOST;
     }
 
-  if ((ret = ioctl(sock, act, &rt)) < 0)
+  if ((ret = ioctl(sock, act, (unsigned long)((uintptr_t)&rt))) < 0)
     {
       WAPI_IOCTL_STRERROR(act);
     }
 
   return ret;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -161,7 +166,7 @@ int wapi_get_ifup(int sock, FAR const char *ifname, FAR int *is_up)
   WAPI_VALIDATE_PTR(is_up);
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIFFLAGS, &ifr)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr))) >= 0)
     {
       *is_up = (ifr.ifr_flags & IFF_UP) == IFF_UP;
     }
@@ -187,10 +192,10 @@ int wapi_set_ifup(int sock, FAR const char *ifname)
   int ret;
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIFFLAGS, &ifr)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr))) >= 0)
     {
       ifr.ifr_flags |= (IFF_UP | IFF_RUNNING);
-      ret = ioctl(sock, SIOCSIFFLAGS, &ifr);
+      ret = ioctl(sock, SIOCSIFFLAGS, (unsigned long)((uintptr_t)&ifr));
     }
   else
     {
@@ -214,10 +219,10 @@ int wapi_set_ifdown(int sock, FAR const char *ifname)
   int ret;
 
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIFFLAGS, &ifr)) >= 0)
+  if ((ret = ioctl(sock, SIOCGIFFLAGS, (unsigned long)((uintptr_t)&ifr))) >= 0)
     {
       ifr.ifr_flags &= ~IFF_UP;
-      ret = ioctl(sock, SIOCSIFFLAGS, &ifr);
+      ret = ioctl(sock, SIOCSIFFLAGS, (unsigned long)((uintptr_t)&ifr));
     }
   else
     {
@@ -296,9 +301,9 @@ int wapi_set_netmask(int sock, FAR const char *ifname,
 int wapi_get_routes(FAR wapi_list_t *list)
 {
   FAR FILE *fp;
-  int ret;
   size_t bufsiz = WAPI_PROC_LINE_SIZE * sizeof(char);
   char buf[WAPI_PROC_LINE_SIZE];
+  int ret;
 
   WAPI_VALIDATE_PTR(list);
 
@@ -389,7 +394,7 @@ int wapi_get_routes(FAR wapi_list_t *list)
   /* Close file. */
 
   fclose(fp);
-  return 0;
+  return ret;
 }
 
 /****************************************************************************
@@ -400,6 +405,7 @@ int wapi_get_routes(FAR wapi_list_t *list)
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NET_ROUTE
 int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
@@ -407,6 +413,7 @@ int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
 {
   return wapi_act_route_gw(sock, SIOCADDRT, targettype, target, netmask, gw);
 }
+#endif
 
 /****************************************************************************
  * Name: wapi_del_route_gw
@@ -416,6 +423,7 @@ int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
  *
  ****************************************************************************/
 
+#ifdef CONFIG_NET_ROUTE
 int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
@@ -423,3 +431,4 @@ int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
 {
   return wapi_act_route_gw(sock, SIOCDELRT, targettype, target, netmask, gw);
 }
+#endif

@@ -39,7 +39,7 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
-#include "include/wireless/wapi.h"
+#include "wireless/wapi.h"
 #include "util.h"
 
 /****************************************************************************

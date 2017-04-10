@@ -4,9 +4,9 @@
 #
 
 menuconfig WIRELESS_WAPI
-	bool "Temperature"
+	bool "IEEE802.11 Configuration Library"
 	default n
-	depends on EXPERIMENTAL
+	depends on NET && DRIVERS_WIRELESS && EXPERIMENTAL
 	---help---
 		Wapi is a tool by Volkan YAZICI <volkan.yazici@gmail.com> that can
 		be used to manage  802.11 network.
@@ -14,7 +14,7 @@ menuconfig WIRELESS_WAPI
 if WIRELESS_WAPI
 
 config WIRELESS_WAPI_CMDTOOL
-	bool "Build command line tool"
+	bool "IEEE802.11 Command Line Tool"
 	default n
 	---help---
 		By default, Wapi is build as only a library.  If this option is
@@ -22,11 +22,11 @@ config WIRELESS_WAPI_CMDTOOL
 		will also be generated.
 
 config WIRELESS_WAPI_ENABLE_SET
-	bool "Enable setting options"
+	bool "Enable Setting Options"
 	default n
 
 config WIRELESS_WAPI_PROGNAME
-	string "Program name"
+	string "Program Name"
 	default "wapi"
 	depends on BUILD_KERNEL
 	---help---
@@ -34,11 +34,11 @@ config WIRELESS_WAPI_PROGNAME
 		program is installed.
 
 config WIRELESS_WAPI_STACKSIZE
-	int "Stack size (bytes)"
+	int "Stack Size (bytes)"
 	default 2048
 
 config WIRELESS_WAPI_PRIORITY
-	int "Command priority"
+	int "Command Priority"
 	default 100
 
 endif
