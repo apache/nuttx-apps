@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/wapi/examples/sample.c
+ * apps/wireless/wapi/src/wapi.c
  *
  *  Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
  *  All rights reserved.
@@ -73,8 +73,8 @@ static void conf(int sock, FAR const char *ifname)
     {
       printf(", ip: %s", inet_ntoa(addr));
 
-#ifdef ENABLE_SET
-      /* set ip (Make sure sin.sin_family is set to AF_INET.) */
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
+      /* Set ip (Make sure sin.sin_family is set to AF_INET.) */
 
       ret = wapi_set_ip(sock, ifname, &addr);
       printf("\nwapi_set_ip(): ret: %d", ret);
@@ -92,7 +92,7 @@ static void conf(int sock, FAR const char *ifname)
     {
       printf(", netmask: %s", inet_ntoa(addr));
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* set netmask (Make sure sin.sin_family is set to AF_INET.) */
 
       ret = wapi_set_netmask(sock, ifname, &addr);
@@ -127,7 +127,7 @@ static void conf(int sock, FAR const char *ifname)
           printf(", freq: %g", tmpfreq);
         }
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* Set freq */
 
       ret = wapi_set_freq(sock, ifname, freq, freq_flag);
@@ -146,7 +146,7 @@ static void conf(int sock, FAR const char *ifname)
       printf(", essid: %s, essid_flag: %s",
              essid, g_wapi_essid_flags[essid_flag]);
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* Set essid */
 
       ret = wapi_set_essid(sock, ifname, essid, essid_flag);
@@ -164,7 +164,7 @@ static void conf(int sock, FAR const char *ifname)
     {
       printf(", mode: %s", g_wapi_modes[mode]);
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* Set operating mode */
 
       ret = wapi_set_mode(sock, ifname, mode);
@@ -185,7 +185,7 @@ static void conf(int sock, FAR const char *ifname)
              ap.ether_addr_octet[2], ap.ether_addr_octet[3],
              ap.ether_addr_octet[4], ap.ether_addr_octet[5]);
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* Set ap */
 
       ret = wapi_set_ap(sock, ifname, &ap);
@@ -204,7 +204,7 @@ static void conf(int sock, FAR const char *ifname)
       printf(", bitrate: %d, bitrate_flag: %s", bitrate,
              g_wapi_bitrate_flags[bitrate_flag]);
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* Set bitrate */
 
       ret = wapi_set_bitrate(sock, ifname, bitrate, bitrate_flag);
@@ -223,7 +223,7 @@ static void conf(int sock, FAR const char *ifname)
       printf(", txpower: %d, txpower_flag: %s",
              txpower, g_wapi_txpower_flags[txpower_flag]);
 
-#ifdef ENABLE_SET
+#ifdef CONFIG_WIRELESS_WAPI_ENABLE_SET
       /* Set txpower */
 
       ret = wapi_set_txpower(sock, ifname, txpower, txpower_flag);

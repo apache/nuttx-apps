@@ -556,27 +556,6 @@ int wapi_set_txpower(int sock, FAR const char *ifname, int power,
                      wapi_txpower_flag_t flag);
 
 /****************************************************************************
- * Name: wapi_if_add
- *
- * Description:
- *   Creates a virtual interface with name for interface ifname.
- *
- ****************************************************************************/
-
-int wapi_if_add(int sock, FAR const char *ifname, FAR const char *name,
-                wapi_mode_t mode);
-
-/****************************************************************************
- * Name: wapi_if_del
- *
- * Description:
- *   Deletes a virtual interface with name.
- *
- ****************************************************************************/
-
-int wapi_if_del(int sock, FAR const char *ifname);
-
-/****************************************************************************
  * Name: wapi_make_socket
  *
  * Description:
