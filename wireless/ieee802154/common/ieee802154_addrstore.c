@@ -80,7 +80,7 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *packet,
       index += 2;   /* Skip dest pan id */
 
       /* Set the dest address mode field */
-      
+
       frame_ctrl |= dest->ia_mode << IEEE802154_FRAMECTRL_SHIFT_DADDR;
 
       if(dest->ia_mode == IEEE802154_ADDRMODE_SHORT)

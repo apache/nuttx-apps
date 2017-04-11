@@ -98,11 +98,11 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
         return -EINVAL;
     }
 
-    if ((src->ia_mode == IEEE802154_ADDRMODE_SHORT) || 
+    if ((src->ia_mode == IEEE802154_ADDRMODE_SHORT) ||
         (src->ia_mode == IEEE802154_ADDRMODE_EXTENDED))
       {
         /* If PANID compression, src PAN ID is same as dest */
-      
+
         if(frame_ctrl & IEEE802154_FRAMECTRL_PANIDCOMP)
           {
             src->ia_panid = dest->ia_panid;
