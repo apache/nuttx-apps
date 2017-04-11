@@ -21,10 +21,6 @@ config WIRELESS_WAPI_CMDTOOL
 		selected than a simple command line tool that can be ran from NSH
 		will also be generated.
 
-config WIRELESS_WAPI_ENABLE_SET
-	bool "Enable Setting Options"
-	default n
-
 config WIRELESS_WAPI_PROGNAME
 	string "Program Name"
 	default "wapi"

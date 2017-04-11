@@ -93,13 +93,14 @@ typedef enum
 
 typedef enum
 {
-  WAPI_MODE_AUTO    = IW_MODE_AUTO,   /* Driver decides. */
-  WAPI_MODE_ADHOC   = IW_MODE_ADHOC,  /* Single cell network. */
-  WAPI_MODE_MANAGED = IW_MODE_INFRA,  /* Multi cell network, roaming, ... */
-  WAPI_MODE_MASTER  = IW_MODE_MASTER, /* Synchronisation master or access point. */
-  WAPI_MODE_REPEAT  = IW_MODE_REPEAT, /* Wireless repeater, forwarder. */
-  WAPI_MODE_SECOND  = IW_MODE_SECOND, /* Secondary master/repeater, backup. */
-  WAPI_MODE_MONITOR = IW_MODE_MONITOR /* Passive monitor, listen only. */
+  WAPI_MODE_AUTO    = IW_MODE_AUTO,    /* Driver decides. */
+  WAPI_MODE_ADHOC   = IW_MODE_ADHOC,   /* Single cell network. */
+  WAPI_MODE_MANAGED = IW_MODE_INFRA,   /* Multi cell network, roaming, ... */
+  WAPI_MODE_MASTER  = IW_MODE_MASTER,  /* Synchronisation master or access point. */
+  WAPI_MODE_REPEAT  = IW_MODE_REPEAT,  /* Wireless repeater, forwarder. */
+  WAPI_MODE_SECOND  = IW_MODE_SECOND,  /* Secondary master/repeater, backup. */
+  WAPI_MODE_MONITOR = IW_MODE_MONITOR, /* Passive monitor, listen only. */
+  WAPI_MODE_MESH    = IW_MODE_MESH     /* Mesh (IEEE 802.11s) network */
 } wapi_mode_t;
 
 /* Bitrate flags.

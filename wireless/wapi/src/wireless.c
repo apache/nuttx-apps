@@ -37,6 +37,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -99,6 +100,7 @@ FAR const char *g_wapi_modes[] =
   "WAPI_MODE_REPEAT",
   "WAPI_MODE_SECOND",
   "WAPI_MODE_MONITOR"
+  "WAPI_MODE_MESH"
 };
 
 /* Bit Rate */
