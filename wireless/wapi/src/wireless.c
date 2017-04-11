@@ -43,18 +43,11 @@
 #include <strings.h>
 #include <math.h>
 
+#include <nuttx/net/arp.h>
 #include <nuttx/wireless/wireless.h>
 
 #include "wireless/wapi.h"
 #include "util.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#ifdef LIBNL1
-#  define nl_sock nl_handle
-#endif
 
 /****************************************************************************
  * Private Types
@@ -62,7 +55,7 @@
 
 /* Events & Streams */
 
-struct iw_event_stream_s
+struct wapi_event_stream_s
 {
   FAR char *end;                  /* End of the stream */
   FAR char *current;              /* Current event in stream of events */
@@ -99,7 +92,7 @@ FAR const char *g_wapi_modes[] =
   "WAPI_MODE_MASTER",
   "WAPI_MODE_REPEAT",
   "WAPI_MODE_SECOND",
-  "WAPI_MODE_MONITOR"
+  "WAPI_MODE_MONITOR",
   "WAPI_MODE_MESH"
 };
 
@@ -182,7 +175,7 @@ static int wapi_parse_mode(int iw_mode, FAR wapi_mode_t *wapi_mode)
       return 0;
 
     default:
-      WAPI_ERROR("Unknown mode: %d.\n", iw_mode);
+      WAPI_ERROR("ERROR: Unknown mode: %d\n", iw_mode);
       return -1;
     }
 }
@@ -202,32 +195,35 @@ static int wapi_make_ether(FAR struct ether_addr *addr, int byte)
 }
 
 /****************************************************************************
- * Name: iw_event_stream_init
+ * Name: wapi_event_stream_init
  *
  * Description:
+ *   Initialize a stream to access the events.
  *
  ****************************************************************************/
 
-static void iw_event_stream_init(FAR struct iw_event_stream_s *stream,
-                                 FAR char *data, size_t len)
+static void wapi_event_stream_init(FAR struct wapi_event_stream_s *stream,
+                                   FAR char *data, size_t len)
 {
-  memset(stream, 0, sizeof(struct iw_event_stream_s));
+  memset(stream, 0, sizeof(struct wapi_event_stream_s));
   stream->current = data;
   stream->end = &data[len];
 }
 
 /****************************************************************************
- * Name: iw_event_stream_pop
+ * Name: wapi_event_stream_extract
  *
  * Description:
+ *   Extract the next event from the stream.
  *
  ****************************************************************************/
 
-static int iw_event_stream_pop(FAR struct iw_event_stream_s *stream,
-                               FAR struct iw_event *iwe, int we_version)
+static int wapi_event_stream_extract(FAR struct wapi_event_stream_s *stream,
+                                     FAR struct iw_event *iwe)
 {
-  return iw_extract_event_stream((struct stream_descr *)stream, iwe,
-                                 we_version);
+#warning Missing logic
+// return iw_extract_event_stream((struct stream_descr *)stream, iwe, 0);
+return -ENOSYS;
 }
 
 /****************************************************************************
@@ -328,51 +324,6 @@ static int wapi_scan_event(FAR struct iw_event *event, FAR wapi_list_t *list)
  ****************************************************************************/
 
 /****************************************************************************
- * Name: wapi_get_we_version
- *
- * Description:
- *   Gets kernel WE (Wireless Extensions) version.
- *
- * Input Parameters:
- *   we_version Set to  we_version_compiled of range information.
- *
- * Returned Value:
- *   Zero on success.
- *
- ****************************************************************************/
-
-int wapi_get_we_version(int sock, const char *ifname, FAR int *we_version)
-{
-  struct iwreq wrq;
-  char buf[sizeof(struct iw_range) * 2];
-  int ret;
-
-  WAPI_VALIDATE_PTR(we_version);
-
-  /* Prepare request. */
-
-  bzero(buf, sizeof(buf));
-  wrq.u.data.pointer = buf;
-  wrq.u.data.length = sizeof(buf);
-  wrq.u.data.flags = 0;
-
-  /* Get WE version. */
-
-  strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWRANGE, (unsigned long)((uintptr_t)&wrq))) >= 0)
-    {
-      struct iw_range *range = (struct iw_range *)buf;
-      *we_version = (int)range->we_version_compiled;
-    }
-  else
-    {
-      WAPI_IOCTL_STRERROR(SIOCGIWRANGE);
-    }
-
-  return ret;
-}
-
-/****************************************************************************
  * Name: wapi_get_freq
  *
  * Description:
@@ -404,7 +355,7 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
         }
       else
         {
-          WAPI_ERROR("Unknown flag: %d.\n", wrq.u.freq.flags);
+          WAPI_ERROR("ERROR: Unknown flag: %d\n", wrq.u.freq.flags);
           return -1;
         }
 
@@ -810,7 +761,7 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
 
       if (wrq.u.bitrate.disabled)
         {
-          WAPI_ERROR("Bitrate is disabled.\n");
+          WAPI_ERROR("ERROR: Bitrate is disabled\n");
           return -1;
         }
 
@@ -923,7 +874,7 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
         }
       else
         {
-          WAPI_ERROR("Unknown flag: %d.\n", wrq.u.txpower.flags);
+          WAPI_ERROR("ERROR: Unknown flag: %d\n", wrq.u.txpower.flags);
           return -1;
         }
 
@@ -1074,17 +1025,9 @@ int wapi_scan_coll(int sock, FAR const char *ifname, FAR wapi_list_t *aps)
   FAR char *buf;
   int buflen;
   struct iwreq wrq;
-  int we_version;
   int ret;
 
   WAPI_VALIDATE_PTR(aps);
-
-  /* Get WE version. (Required for event extraction via libiw.) */
-
-  if ((ret = wapi_get_we_version(sock, ifname, &we_version)) < 0)
-    {
-      return ret;
-    }
 
   buflen = IW_SCAN_MAX_DATA;
   buf = malloc(buflen * sizeof(char));
@@ -1098,13 +1041,14 @@ alloc:
   /* Collect results. */
 
   wrq.u.data.pointer = buf;
-  wrq.u.data.length = buflen;
-  wrq.u.data.flags = 0;
+  wrq.u.data.length  = buflen;
+  wrq.u.data.flags   = 0;
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWSCAN, (unsigned long)((uintptr_t)&wrq))) < 0 &&
-       errno == E2BIG)
+
+  ret = ioctl(sock, SIOCGIWSCAN, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0 && errno == E2BIG)
     {
-      char *tmp;
+      FAR char *tmp;
 
       buflen *= 2;
       tmp = realloc(buf, buflen);
@@ -1135,12 +1079,14 @@ alloc:
   if (wrq.u.data.length)
     {
       struct iw_event iwe;
-      struct iw_event_stream_s stream;
+      struct wapi_event_stream_s stream;
 
-      iw_event_stream_init(&stream, buf, wrq.u.data.length);
+      wapi_event_stream_init(&stream, buf, wrq.u.data.length);
       do
         {
-          if ((ret = iw_event_stream_pop(&stream, &iwe, we_version)) >= 0)
+          /* Get the next event from the stream */
+
+          if ((ret = wapi_event_stream_extract(&stream, &iwe)) >= 0)
             {
               int eventret = wapi_scan_event(&iwe, aps);
               if (eventret < 0)
@@ -1150,7 +1096,7 @@ alloc:
             }
           else
             {
-              WAPI_ERROR("iw_event_stream_pop() failed!\n");
+              WAPI_ERROR("ERROR: wapi_event_stream_extract() failed!\n");
             }
         }
       while (ret > 0);

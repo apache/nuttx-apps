@@ -47,6 +47,7 @@
 #include <arpa/inet.h>
 
 #include "wireless/wapi.h"
+#include "util.h"
 
 /****************************************************************************
  * Private Types
@@ -138,13 +139,13 @@ static int wapi_str2int(FAR const char *str)
   value = strtol(str, &endptr, 0);
   if (*endptr != '\0')
     {
-      fprintf(stderr, "ERROR: Garbage after numeric argument\n");
+      WAPI_ERROR("ERROR: Garbage after numeric argument\n");
       exit(EXIT_FAILURE);
     }
 
   if (value > INT_MAX || value < INT_MIN)
     {
-      fprintf(stderr, "ERROR: Integer value out of range\n");
+      WAPI_ERROR("ERROR: Integer value out of range\n");
       exit(EXIT_FAILURE);
     }
 
@@ -167,7 +168,7 @@ static double wapi_str2double(FAR const char *str)
   value = strtod(str, &endptr);
   if (*endptr != '\0')
     {
-      fprintf(stderr, "ERROR: Garbage after numeric argument\n");
+      WAPI_ERROR("ERROR: Garbage after numeric argument\n");
       exit(EXIT_FAILURE);
     }
 
@@ -218,7 +219,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_ip(sock, ifname, &addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_ip() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_ip() failed: %d\n", ret);
     }
   else
     {
@@ -231,7 +232,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_netmask(sock, ifname, &addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_netmask() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_netmask() failed: %d\n", ret);
     }
   else
     {
@@ -243,7 +244,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_freq(sock, ifname, &freq, &freq_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_freq() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_freq() failed: %d\n", ret);
     }
   else
     {
@@ -256,7 +257,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
       ret = wapi_freq2chan(sock, ifname, freq, &chan);
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR: wapi_freq2chan() failed: %d", ret);
+          WAPI_ERROR("ERROR: wapi_freq2chan() failed: %d\n", ret);
         }
       else
         {
@@ -266,7 +267,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
       ret = wapi_chan2freq(sock, ifname, chan, &tmpfreq);
       if (ret < 0)
         {
-          fprintf(stderr, "ERROR: wapi_chan2freq() failed: %d", ret);
+          WAPI_ERROR("ERROR: wapi_chan2freq() failed: %d\n", ret);
         }
       else
         {
@@ -279,7 +280,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_essid(sock, ifname, essid, &essid_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_essid() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_essid() failed: %d\n", ret);
     }
   else
     {
@@ -292,7 +293,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_mode(sock, ifname, &mode);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_mode() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_mode() failed: %d\n", ret);
     }
   else
     {
@@ -304,11 +305,11 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_ap(sock, ifname, &ap);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_ap() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_ap() failed: %d\n", ret);
     }
   else
     {
-      printf("       AP: %02x:%02x:%02x:%02x:%02x:%02x",
+      printf("       AP: %02x:%02x:%02x:%02x:%02x:%02x\n",
              ap.ether_addr_octet[0], ap.ether_addr_octet[1],
              ap.ether_addr_octet[2], ap.ether_addr_octet[3],
              ap.ether_addr_octet[4], ap.ether_addr_octet[5]);
@@ -319,7 +320,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_bitrate(sock, ifname, &bitrate, &bitrate_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_bitrate() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_bitrate() failed: %d\n", ret);
     }
   else
     {
@@ -332,7 +333,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   ret = wapi_get_txpower(sock, ifname, &txpower, &txpower_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_get_txpower() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_get_txpower() failed: %d\n", ret);
     }
   else
     {
@@ -367,7 +368,7 @@ static void wapi_ip_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_ip(sock, ifname, &addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_set_ip() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_set_ip() failed: %d\n", ret);
     }
 }
 
@@ -397,7 +398,7 @@ static void wapi_mask_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_netmask(sock, ifname, &addr);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_set_netmask() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_set_netmask() failed: %d\n", ret);
     }
 }
 
@@ -437,7 +438,7 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
 
   if (!found)
     {
-      fprintf(stderr, "ERROR: Invalid frequency flag: %s\n", flagstr);
+      WAPI_ERROR("ERROR: Invalid frequency flag: %s\n", flagstr);
       exit(EXIT_FAILURE);
     }
 
@@ -446,7 +447,7 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_freq(sock, ifname, frequency, freq_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: \nwapi_set_freq() failed: %d", ret);
+      WAPI_ERROR("ERROR: \nwapi_set_freq() failed: %d\n", ret);
     }
 }
 
@@ -483,7 +484,7 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
 
   if (!found)
     {
-      fprintf(stderr, "ERROR: Invalid ESSID flag: %s\n", flagstr);
+      WAPI_ERROR("ERROR: Invalid ESSID flag: %s\n", flagstr);
       exit(EXIT_FAILURE);
     }
 
@@ -492,7 +493,7 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_essid(sock, ifname, essid, essid_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_set_essid() failed: %d", ret);
+      WAPI_ERROR("ERROR: wapi_set_essid() failed: %d\n", ret);
     }
 }
 
@@ -529,7 +530,7 @@ static void wapi_mode_cmd(int sock, FAR const char *ifname,
 
   if (!found)
     {
-      fprintf(stderr, "ERROR: Invalid operating mode: %s\n", modestr);
+      WAPI_ERROR("ERROR: Invalid operating mode: %s\n", modestr);
       exit(EXIT_FAILURE);
     }
 
@@ -538,7 +539,7 @@ static void wapi_mode_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_mode(sock, ifname, mode);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: \nwapi_set_mode() failed: %d", ret);
+      WAPI_ERROR("ERROR: \nwapi_set_mode() failed: %d\n", ret);
     }
 }
 
@@ -571,7 +572,7 @@ static void wapi_ap_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_ap(sock, ifname, &ap);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: \nwapi_set_ap() failed: %d", ret);
+      WAPI_ERROR("ERROR: \nwapi_set_ap() failed: %d\n", ret);
     }
 }
 
@@ -612,7 +613,7 @@ static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
 
   if (!found)
     {
-      fprintf(stderr, "ERROR: Invalid bitrate flag: %s\n", flagstr);
+      WAPI_ERROR("ERROR: Invalid bitrate flag: %s\n", flagstr);
       exit(EXIT_FAILURE);
     }
 
@@ -621,7 +622,7 @@ static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_bitrate(sock, ifname, bitrate, bitrate_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: \nwapi_set_bitrate() failed: %d", ret);
+      WAPI_ERROR("ERROR: \nwapi_set_bitrate() failed: %d\n", ret);
     }
 }
 
@@ -649,7 +650,7 @@ static void wapi_txpower_cmd(int sock, FAR const char *ifname,
 
   txpower = wapi_str2int(pwrstr);
 
-  for (i = 0; i < 3; i++)
+  for (i = 0; i < IW_TXPOW_NFLAGS; i++)
     {
       if (strcmp(flagstr, g_wapi_txpower_flags[i]) == 0)
         {
@@ -661,7 +662,7 @@ static void wapi_txpower_cmd(int sock, FAR const char *ifname,
 
   if (!found)
     {
-      fprintf(stderr, "ERROR: Invalid TX power flag: %s\n", flagstr);
+      WAPI_ERROR("ERROR: Invalid TX power flag: %s\n", flagstr);
       exit(EXIT_FAILURE);
     }
 
@@ -670,7 +671,7 @@ static void wapi_txpower_cmd(int sock, FAR const char *ifname,
   ret = wapi_set_txpower(sock, ifname, txpower, txpower_flag);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: \nwapi_set_txpower() failed: %d", ret);
+      WAPI_ERROR("ERROR: \nwapi_set_txpower() failed: %d\n", ret);
     }
 }
 
@@ -696,7 +697,7 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
   /* Start scan */
 
   ret = wapi_scan_init(sock, ifname);
-  fprintf(stderr, "ERROR: wapi_scan_init() failed: %d\n", ret);
+  WAPI_ERROR("ERROR: wapi_scan_init() failed: %d\n", ret);
 
   /* Wait for completion */
 
@@ -704,7 +705,8 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
     {
       sleep(sleepdur);
       ret = wapi_scan_stat(sock, ifname);
-      fprintf(stderr, "ERROR: wapi_scan_stat() failed: %d, sleeptries: %d\n", ret, sleeptries);
+      WAPI_ERROR("ERROR: wapi_scan_stat() failed: %d, sleeptries: %d\n",
+                 ret, sleeptries);
     }
   while (--sleeptries > 0 && ret > 0);
 
@@ -719,7 +721,7 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
   ret = wapi_scan_coll(sock, ifname, &list);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: wapi_scan_coll() failed: %d\n", ret);
+      WAPI_ERROR("ERROR: wapi_scan_coll() failed: %d\n", ret);
     }
 
   /* Print found aps */
@@ -776,34 +778,32 @@ static void wapi_showusage(FAR const char *progname, int exitcode)
   fprintf(stderr, "\nFrequency Flags:\n");
   for (i = 0; i < IW_FREQ_NFLAGS; i++)
     {
-      fprintf(stderr, " %s", g_wapi_freq_flags[i]);
+       fprintf(stderr, "       %s\n", g_wapi_freq_flags[i]);
     }
 
   fprintf(stderr, "\nESSID Flags:\n");
   for (i = 0; i < 2; i++)
     {
-      fprintf(stderr, " %s", g_wapi_essid_flags[i]);
+      fprintf(stderr, "       %s\n", g_wapi_essid_flags[i]);
     }
 
   fprintf(stderr, "\nOperating Modes:\n");
   for (i = 0; i < IW_MODE_NFLAGS; i++)
     {
-      fprintf(stderr, " %s", g_wapi_modes[i]);
+      fprintf(stderr, "       %s\n", g_wapi_modes[i]);
     }
 
   fprintf(stderr, "\nBitrate Flags:\n");
-  for (i = 0; i < 6; i++)
+  for (i = 0; i < 2; i++)
     {
-      fprintf(stderr, " %s", g_wapi_bitrate_flags[i]);
+      fprintf(stderr, "       %s\n", g_wapi_bitrate_flags[i]);
     }
 
   fprintf(stderr, "\nTX power Flags:\n");
-  for (i = 0; i < 3; i++)
+  for (i = 0; i < IW_TXPOW_NFLAGS; i++)
     {
-      fprintf(stderr, " %s", g_wapi_txpower_flags[i]);
+      fprintf(stderr, "       %s\n", g_wapi_txpower_flags[i]);
     }
-
-  putchar('\n');
 
   exit(exitcode);
 }
@@ -827,7 +827,7 @@ int wapi_main(int argc, char *argv[])
 
   if (argc < 2)
     {
-      fprintf(stderr, "ERROR: Missing command\n");
+      WAPI_ERROR("ERROR: Missing command\n");
       wapi_showusage(argv[0], EXIT_FAILURE);
     }
 
@@ -848,18 +848,18 @@ int wapi_main(int argc, char *argv[])
 
   if (wapicmd == NULL)
     {
-      fprintf(stderr, "ERROR: Unsupported command: %s\n", cmdname);
+      WAPI_ERROR("ERROR: Unsupported command: %s\n", cmdname);
       wapi_showusage(argv[0], EXIT_FAILURE);
     }
 
   if (wapicmd->noptions + 2 < argc)
     {
-      fprintf(stderr, "ERROR: Garbage at end of command ignored\n");
+      WAPI_ERROR("ERROR: Garbage at end of command ignored\n");
     }
   else if (wapicmd->noptions + 2 > argc)
     {
-      fprintf(stderr, "ERROR: Missing required command options: %s\n",
-              cmdname);
+      WAPI_ERROR("ERROR: Missing required command options: %s\n",
+                 cmdname);
       wapi_showusage(argv[0], EXIT_FAILURE);
     }
 
@@ -877,7 +877,8 @@ int wapi_main(int argc, char *argv[])
   sock = wapi_make_socket();
   if (sock < 0)
     {
-      fprintf(stderr, "ERROR: wapi_make_socket() failed: %d\n", sock);
+      WAPI_ERROR("ERROR: wapi_make_socket() failed: %d\n", sock);
+      return EXIT_FAILURE;
     }
 
   /* Dispatch the command handling */
@@ -886,7 +887,7 @@ int wapi_main(int argc, char *argv[])
     {
       default:
       case 0:
-        fprintf(stderr, "ERROR: Internal craziness\n");
+        WAPI_ERROR("ERROR: Internal craziness\n");
         wapi_showusage(argv[0], EXIT_FAILURE);
 
       case 1:

@@ -322,22 +322,6 @@ int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
 #endif
 
 /****************************************************************************
- * Name: wapi_get_we_version
- *
- * Description:
- *   Gets kernel WE (Wireless Extensions) version.
- *
- * Input Parameters:
- *   we_version Set to  we_version_compiled of range information.
- *
- * Returned Value:
- *   Zero on success.
- *
- ****************************************************************************/
-
-int wapi_get_we_version(int sock, const char *ifname, FAR int *we_version);
-
-/****************************************************************************
  * Name: wapi_get_freq
  *
  * Description:

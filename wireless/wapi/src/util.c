@@ -51,8 +51,30 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define WAPI_IOCTL_COMMAND_NAMEBUFSIZ 128      /* Is fairly enough to print an
-                                                * integer. */
+/* The address family that we used to create the socket really does not
+ * matter.  It should, however, be valid in the current configuration.
+ */
+
+#if defined(CONFIG_NET_IPv4)
+#  define PF_INETX PF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define PF_INETX PF_INET6
+#endif
+
+/* SOCK_DGRAM is the preferred socket type to use when we just want a
+ * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
+ * if UDP is disabled.
+ */
+
+#ifdef CONFIG_NET_UDP
+# define SOCK_WAPI SOCK_DGRAM
+#else
+# define SOCK_WAPI SOCK_STREAM
+#endif
+
+/* Size of the command buffer */
+
+#define WAPI_IOCTL_COMMAND_NAMEBUFSIZ 24
 
 /****************************************************************************
  * Public Functions
@@ -77,7 +99,7 @@ static char g_ioctl_command_namebuf[WAPI_IOCTL_COMMAND_NAMEBUFSIZ];
 
 int wapi_make_socket(void)
 {
-  return socket(AF_INET, SOCK_DGRAM, 0);
+  return socket(PF_INETX, SOCK_WAPI, 0);
 }
 
 /****************************************************************************
