@@ -1,8 +1,13 @@
 /****************************************************************************
  * apps/include/wireless/wapi.h
  *
- *  Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
- *  All rights reserved.
+ *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Adapted for Nuttx from WAPI:
+ *
+ *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,14 +53,6 @@
 
 #define WAPI_ESSID_MAX_SIZE IW_ESSID_MAX_SIZE
 
-/* Path to /proc/net/wireless. (Requires procfs mounted.) */
-
-#define WAPI_PROC_NET_WIRELESS "/proc/net/wireless"
-
-/* Path to /proc/net/route. (Requires procfs mounted.) */
-
-#define WAPI_PROC_NET_ROUTE "/proc/net/route"
-
 /* Buffer size while reading lines from PROC_NET_ files. */
 
 #define WAPI_PROC_LINE_SIZE  1024
@@ -96,13 +93,14 @@ typedef enum
 
 typedef enum
 {
-  WAPI_MODE_AUTO    = IW_MODE_AUTO,   /* Driver decides. */
-  WAPI_MODE_ADHOC   = IW_MODE_ADHOC,  /* Single cell network. */
-  WAPI_MODE_MANAGED = IW_MODE_INFRA,  /* Multi cell network, roaming, ... */
-  WAPI_MODE_MASTER  = IW_MODE_MASTER, /* Synchronisation master or access point. */
-  WAPI_MODE_REPEAT  = IW_MODE_REPEAT, /* Wireless repeater, forwarder. */
-  WAPI_MODE_SECOND  = IW_MODE_SECOND, /* Secondary master/repeater, backup. */
-  WAPI_MODE_MONITOR = IW_MODE_MONITOR /* Passive monitor, listen only. */
+  WAPI_MODE_AUTO    = IW_MODE_AUTO,    /* Driver decides. */
+  WAPI_MODE_ADHOC   = IW_MODE_ADHOC,   /* Single cell network. */
+  WAPI_MODE_MANAGED = IW_MODE_INFRA,   /* Multi cell network, roaming, ... */
+  WAPI_MODE_MASTER  = IW_MODE_MASTER,  /* Synchronisation master or access point. */
+  WAPI_MODE_REPEAT  = IW_MODE_REPEAT,  /* Wireless repeater, forwarder. */
+  WAPI_MODE_SECOND  = IW_MODE_SECOND,  /* Secondary master/repeater, backup. */
+  WAPI_MODE_MONITOR = IW_MODE_MONITOR, /* Passive monitor, listen only. */
+  WAPI_MODE_MESH    = IW_MODE_MESH     /* Mesh (IEEE 802.11s) network */
 } wapi_mode_t;
 
 /* Bitrate flags.
@@ -294,19 +292,6 @@ int wapi_get_netmask(int sock, const char *ifname, struct in_addr *addr);
 int wapi_set_netmask(int sock, const char *ifname, const struct in_addr *addr);
 
 /****************************************************************************
- * Name: wapi_get_routes
- *
- * Description:
- *   Parses routing table rows from WAPI_PROC_NET_ROUTE.
- *
- * Input Parameters:
- *   list - Pushes collected wapi_route_info_t into this list.
- *
- ****************************************************************************/
-
-int wapi_get_routes(wapi_list_t * list);
-
-/****************************************************************************
  * Name: wapi_add_route_gw
  *
  * Description:
@@ -335,22 +320,6 @@ int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw);
 #endif
-
-/****************************************************************************
- * Name: wapi_get_we_version
- *
- * Description:
- *   Gets kernel WE (Wireless Extensions) version.
- *
- * Input Parameters:
- *   we_version Set to  we_version_compiled of range information.
- *
- * Returned Value:
- *   Zero on success.
- *
- ****************************************************************************/
-
-int wapi_get_we_version(int sock, const char *ifname, FAR int *we_version);
 
 /****************************************************************************
  * Name: wapi_get_freq
@@ -571,19 +540,6 @@ int wapi_set_txpower(int sock, FAR const char *ifname, int power,
  ****************************************************************************/
 
 int wapi_make_socket(void);
-
-/****************************************************************************
- * Name: wapi_get_ifnames
- *
- * Description:
- *   Parses WAPI_PROC_NET_WIRELESS.
- *
- * Returned Value:
- *   list Pushes collected  wapi_string_t into this list.
- *
- ****************************************************************************/
-
-int wapi_get_ifnames(FAR wapi_list_t *list);
 
 /****************************************************************************
  * Name: wapi_scan_init

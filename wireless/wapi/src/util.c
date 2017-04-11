@@ -1,8 +1,13 @@
 /****************************************************************************
  * apps/wireless/wapi/src/util.c
  *
- *  Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
- *  All rights reserved.
+ *   Copyright (C) 2011, 2017Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *
+ * Adapted for Nuttx from WAPI:
+ *
+ *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,8 +51,30 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define WAPI_IOCTL_COMMAND_NAMEBUFSIZ 128      /* Is fairly enough to print an
-                                                * integer. */
+/* The address family that we used to create the socket really does not
+ * matter.  It should, however, be valid in the current configuration.
+ */
+
+#if defined(CONFIG_NET_IPv4)
+#  define PF_INETX PF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define PF_INETX PF_INET6
+#endif
+
+/* SOCK_DGRAM is the preferred socket type to use when we just want a
+ * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
+ * if UDP is disabled.
+ */
+
+#ifdef CONFIG_NET_UDP
+# define SOCK_WAPI SOCK_DGRAM
+#else
+# define SOCK_WAPI SOCK_STREAM
+#endif
+
+/* Size of the command buffer */
+
+#define WAPI_IOCTL_COMMAND_NAMEBUFSIZ 24
 
 /****************************************************************************
  * Public Functions
@@ -72,91 +99,11 @@ static char g_ioctl_command_namebuf[WAPI_IOCTL_COMMAND_NAMEBUFSIZ];
 
 int wapi_make_socket(void)
 {
-  return socket(AF_INET, SOCK_DGRAM, 0);
+  return socket(PF_INETX, SOCK_WAPI, 0);
 }
 
 /****************************************************************************
- * Name: wapi_get_ifnames
- *
- * Description:
- *   Parses WAPI_PROC_NET_WIRELESS.
- *
- * Returned Value:
- *   list Pushes collected  wapi_string_t into this list.
- *
- ****************************************************************************/
-
-int wapi_get_ifnames(FAR wapi_list_t *list)
-{
-  FILE *fp;
-  int ret;
-  size_t tmpsize = WAPI_PROC_LINE_SIZE * sizeof(char);
-  char tmp[WAPI_PROC_LINE_SIZE];
-
-  WAPI_VALIDATE_PTR(list);
-
-  /* Open file for reading. */
-
-  fp = fopen(WAPI_PROC_NET_WIRELESS, "r");
-  if (!fp)
-    {
-      WAPI_STRERROR("fopen(\"%s\", \"r\")", WAPI_PROC_NET_WIRELESS);
-      return -1;
-    }
-
-  /* Skip first two lines. */
-
-  if (!fgets(tmp, tmpsize, fp) || !fgets(tmp, tmpsize, fp))
-    {
-      WAPI_ERROR("Invalid \"%s\" content!\n", WAPI_PROC_NET_WIRELESS);
-      return -1;
-    }
-
-  /* Iterate over available lines. */
-
-  ret = 0;
-  while (fgets(tmp, tmpsize, fp))
-    {
-      char *beg;
-      char *end;
-      wapi_string_t *string;
-
-      /* Locate the interface name region. */
-
-      for (beg = tmp; *beg && isspace(*beg); beg++);
-      for (end = beg; *end && *end != ':'; end++);
-
-      /* Allocate both wapi_string_t and char vector. */
-
-      string = malloc(sizeof(wapi_string_t));
-      if (string)
-        {
-          string->data = malloc(end - beg + sizeof(char));
-        }
-
-      if (!string || !string->data)
-        {
-          WAPI_STRERROR("malloc()");
-          ret = -1;
-          break;
-        }
-
-      /* Copy region into the buffer. */
-
-      snprintf(string->data, (end - beg + sizeof(char)), "%s", beg);
-
-      /* Push string into the list. */
-
-      string->next = list->head.string;
-      list->head.string = string;
-    }
-
-  fclose(fp);
-  return ret;
-}
-
-/****************************************************************************
- * Name: wapi_get_ifnames
+ * Name: wapi_ioctl_command_name
  *
  * Description:
  *   Return name string for IOCTL command
