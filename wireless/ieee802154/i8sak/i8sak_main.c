@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/i8sak/i8sak_main.c
+ * apps/wireless/ieee802154/i8sak/i8sak_main.c
  * IEEE 802.15.4 Swiss Army Knife
  *
  *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
@@ -346,7 +346,7 @@ static FAR void *sniff(FAR void *arg)
       display(chan, &g_rxpacket, sa->verbose);
     }
 
-  return (FAR void*)ret;
+  return (FAR void *)((uintptr_t)ret);
 }
 
 /****************************************************************************
@@ -540,7 +540,7 @@ int i8_main(int argc, char *argv[])
 
       args.fd = fd;
       args.verbose = FALSE;
-      ret = (int)sniff(&args);
+      ret = (int)((intptr_t)sniff(&args));
 
       ret = ieee802154_setpromisc(fd, FALSE);
 

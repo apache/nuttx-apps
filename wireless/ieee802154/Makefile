@@ -1,5 +1,5 @@
 ############################################################################
-# apps/ieee802154/Makefile
+# apps/wireless/ieee802154/Makefile
 #
 #   Copyright (C) 2014 Gregory Nutt. All rights reserved.
 #   Author: Sebastien Lorquet <sebastien@lorquet.fr>

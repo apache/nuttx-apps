@@ -1,5 +1,5 @@
 ############################################################################
-# apps/ieee802154/i8sak/Make.defs
+# apps/wireless/ieee802154/coord/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2015 Gregory Nutt. All rights reserved.
@@ -34,6 +34,6 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_IEEE802154_I8SAK),y)
-CONFIGURED_APPS += ieee802154/i8sak
+ifeq ($(CONFIG_IEEE802154_COORD),y)
+CONFIGURED_APPS += wireless/ieee802154/coord
 endif

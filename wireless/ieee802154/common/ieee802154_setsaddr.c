@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_setchan.c
+ * apps/wireless/ieee802154/common/ieee802154_setsaddr.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -49,12 +49,12 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setchan(int fd, uint8_t chan)
+int ieee802154_setsaddr(int fd, uint16_t saddr)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_CHAN, (unsigned long)chan );
+  int ret = ioctl(fd, PHY802154IOC_SET_SADDR, (unsigned long)saddr );
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_CHAN failed\n");
+      printf("PHY802154IOC_SET_SADDR failed\n");
     }
 
   return ret;

@@ -1,8 +1,8 @@
 ############################################################################
-# apps/ieee802154/coord/Make.defs
+# apps/wireless/ieee802154/Make.defs
 # Adds selected applications to apps/ build
 #
-#   Copyright (C) 2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,4 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_IEEE802154_COORD),y)
-CONFIGURED_APPS += ieee802154/coord
-endif
+include $(wildcard wireless/ieee802154/*/Make.defs)

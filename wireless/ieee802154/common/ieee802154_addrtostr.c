@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_addrtostr.c
+ * apps/wireless/ieee802154/common/ieee802154_addrtostr.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>

@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_setdevmode.c
+ * apps/wireless/ieee802154/common/ieee802154_setchan.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
+
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
@@ -49,12 +50,12 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setdevmode(int fd, uint8_t devmode)
+int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE, (unsigned long)devmode );
+  int ret = ioctl(fd, PHY802154IOC_SET_CCA, (unsigned long)cca );
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_DEVMODE failed\n");
+      printf("PHY802154IOC_SET_CCA failed\n");
     }
 
   return ret;

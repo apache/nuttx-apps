@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/ieee802154/coord/coord_main.c
+ * apps/wireless/ieee802154/coord/coord_main.c
  *
  *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
@@ -138,7 +138,6 @@ static pthread_t g_daemon_pid;
 
 static int coord_beacon(FAR struct ieee_coord_s *coord)
 {
-  FAR struct ieee_frame_s *rx = &coord->rxbuf;
   printf("Beacon!\n");
   return 0;
 }

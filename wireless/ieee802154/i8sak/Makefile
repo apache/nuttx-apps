@@ -1,5 +1,5 @@
 ############################################################################
-# apps/ieee802154/i8sak/Makefile
+# apps/wireless/ieee802154/i8sak/Makefile
 #
 #   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
 #   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
@@ -62,12 +62,12 @@ ifneq ($(CONFIG_BUILD_KERNEL),y)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
+  BIN = ..\..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\..\\libapps$(LIBEXT)
 else
-  BIN = ../../libapps$(LIBEXT)
+  BIN = ../../../libapps$(LIBEXT)
 endif
 endif
 

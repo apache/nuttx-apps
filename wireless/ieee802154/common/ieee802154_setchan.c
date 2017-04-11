@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_setpanid.c
+ * apps/wireless/ieee802154/common/ieee802154_setchan.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -45,12 +45,16 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
-int ieee802154_setpanid(int fd, uint16_t panid)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+int ieee802154_setchan(int fd, uint8_t chan)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_PANID, (unsigned long)panid );
+  int ret = ioctl(fd, PHY802154IOC_SET_CHAN, (unsigned long)chan );
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_PANID failed\n");
+      printf("PHY802154IOC_SET_CHAN failed\n");
     }
 
   return ret;

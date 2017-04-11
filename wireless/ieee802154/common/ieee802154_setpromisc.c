@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_eaddr.c
+ * apps/wireless/ieee802154/common/ieee802154_setpromisc.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
@@ -49,12 +50,12 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_seteaddr(int fd, uint8_t *eaddr)
+int ieee802154_setpromisc(int fd, bool promisc)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_EADDR, (unsigned long)eaddr );
+  int ret = ioctl(fd, PHY802154IOC_SET_PROMISC, (unsigned long)promisc );
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_EADDR failed\n");
+      printf("PHY802154IOC_SET_PROMISC failed\n");
     }
 
   return ret;

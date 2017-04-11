@@ -1,5 +1,5 @@
 /****************************************************************************
- * ieee802154/common/ieee802154_setsaddr.c
+ * apps/wireless/ieee802154/common/ieee802154_setpanid.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -45,16 +45,12 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int ieee802154_setsaddr(int fd, uint16_t saddr)
+int ieee802154_setpanid(int fd, uint16_t panid)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_SADDR, (unsigned long)saddr );
+  int ret = ioctl(fd, PHY802154IOC_SET_PANID, (unsigned long)panid );
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_SADDR failed\n");
+      printf("PHY802154IOC_SET_PANID failed\n");
     }
 
   return ret;
