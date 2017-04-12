@@ -76,6 +76,8 @@ typedef void (*cmd3_t)(int sock, FAR const char *arg1,
 
 static int wapi_str2int(FAR const char *str);
 static double wapi_str2double(FAR const char *str);
+static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
+                                 unsigned int listlen);
 
 static void wapi_show_cmd(int sock, FAR const char *ifname);
 static void wapi_ip_cmd(int sock, FAR const char *ifname,
@@ -196,7 +198,13 @@ static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
         }
     }
 
-  WAPI_ERROR("ERROR: Invalid string: %s\n", name);
+  WAPI_ERROR("ERROR: Invalid option string: %s\n", name);
+  WAPI_ERROR("       Valid options include:\n");
+  for (ndx = 0; ndx < listlen; ndx++)
+    {
+      WAPI_ERROR("       - %s\n", list[ndx]);
+    }
+
   exit(EXIT_FAILURE);
 }
 

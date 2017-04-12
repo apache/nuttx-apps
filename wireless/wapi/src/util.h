@@ -47,29 +47,74 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define WAPI_IOCTL_STRERROR(cmd) \
-  fprintf( \
-    stderr, "%s:%d:%s():ioctl(%s): %s\n", \
-    __FILE__, __LINE__, __func__, \
-    wapi_ioctl_command_name(cmd), strerror(errno))
+#ifdef DEBUG_WIRELESS_ERROR
+#  ifdef CONFIG_LIBC_STRERROR
+#    define WAPI_IOCTL_STRERROR(cmd) \
+      fprintf( \
+        stderr, "%s:%d:%s():ioctl(%s): %s\n", \
+        __FILE__, __LINE__, __func__, \
+        wapi_ioctl_command_name(cmd), strerror(errno))
 
-#define WAPI_STRERROR(fmt, ...) \
-  fprintf( \
-    stderr, "%s:%d:%s():" fmt ": %s\n", \
-    __FILE__, __LINE__, __func__, \
-    ## __VA_ARGS__, strerror(errno))
+#    define WAPI_STRERROR(fmt, ...) \
+      fprintf( \
+          stderr, "%s:%d:%s():" fmt ": %s\n", \
+        __FILE__, __LINE__, __func__, \
+        ## __VA_ARGS__, strerror(errno))
+#  else
+#    define WAPI_IOCTL_STRERROR(cmd) \
+      fprintf( \
+        stderr, "%s:%d:%s():ioctl(%s): %d\n", \
+        __FILE__, __LINE__, __func__, \
+        wapi_ioctl_command_name(cmd), errno)
 
-#define WAPI_ERROR(fmt, ...) \
-  fprintf( \
-    stderr, "%s:%d:%s(): " fmt , \
-    __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+#    define WAPI_STRERROR(fmt, ...) \
+      fprintf( \
+          stderr, "%s:%d:%s():" fmt ": %d\n", \
+        __FILE__, __LINE__, __func__, \
+        ## __VA_ARGS__, errno)
+#  endif
+
+#  define WAPI_ERROR(fmt, ...) \
+    fprintf( \
+      stderr, "%s:%d:%s(): " fmt , \
+      __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+
+#else
+#  ifdef CONFIG_LIBC_STRERROR
+#    define WAPI_IOCTL_STRERROR(cmd) \
+      fprintf( \
+        stderr, "ioctl(%s): %s\n", \
+        wapi_ioctl_command_name(cmd), strerror(errno))
+
+#    define WAPI_STRERROR(fmt, ...) \
+      fprintf( \
+        stderr, fmt ": %s\n", \
+        ## __VA_ARGS__, strerror(errno))
+#  else
+#    define WAPI_IOCTL_STRERROR(cmd) \
+      fprintf( \
+        stderr, "ioctl(%s): %d\n", \
+        wapi_ioctl_command_name(cmd), errno)
+
+#    define WAPI_STRERROR(fmt, ...) \
+      fprintf( \
+        stderr, fmt ": %d\n", \
+        ## __VA_ARGS__, errno)
+#  endif
+
+#  define WAPI_ERROR(fmt, ...) \
+    fprintf( \
+      stderr, fmt , \
+      ## __VA_ARGS__)
+
+#endif
 
 #define WAPI_VALIDATE_PTR(ptr) \
-  if (!ptr) \
-  { \
-    WAPI_ERROR("Null pointer: %s.\n", #ptr); \
-    return -1; \
-  }
+  if (ptr == NULL) \
+    { \
+      WAPI_ERROR("Null pointer: %p\n", ptr); \
+      return -EINVAL; \
+    }
 
 /****************************************************************************
  *  Public Function Prototypes
