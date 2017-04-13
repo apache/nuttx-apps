@@ -2,7 +2,7 @@
  * apps/wireless/ieee802154/i8sak/i8sak_main.c
  * IEEE 802.15.4 Swiss Army Knife
  *
- *   Copyright (C) 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014-2015, 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
@@ -94,8 +94,10 @@ uint8_t g_disp[16];
 
 int energy_scan(int fd)
 {
+  union ieee802154_radioarg_u arg;
+  uint8_t chan;
+  uint8_t energy;
   int ret = OK;
-  uint8_t chan, energy;
 
   printf("\n");
 
@@ -114,14 +116,15 @@ int energy_scan(int fd)
               return ret;
             }
 
-          ret = ioctl(fd, PHY802154IOC_ENERGYDETECT, (unsigned long)&energy);
+          ret = ioctl(fd, PHY802154IOC_ENERGYDETECT,
+                  (unsigned long)((uintptr_t)&arg));
           if (ret < 0)
             {
               printf("Device is not an IEEE 802.15.4 interface!\n");
               return ret;
             }
 
-          g_levels[chan] = energy;
+          g_levels[chan] = arg.energy;
         }
 
       /* Compute max with decay */
@@ -146,7 +149,7 @@ int energy_scan(int fd)
           printf("%2d : [%3d] ",chan+11, g_disp[chan]);
 
           energy = g_disp[chan] >> 3;
-          while(energy-- > 0)
+          while (energy-- > 0)
             {
               printf("#");
             }
@@ -171,20 +174,26 @@ int energy_scan(int fd)
 
 static int status(int fd)
 {
-  int ret,i;
-  uint8_t chan, eaddr[8];
-  uint16_t panid, saddr;
-  bool promisc;
+  union ieee802154_radioarg_u arg;
   struct ieee802154_cca_s cca;
+  uint8_t eaddr[EADDR_SIZE];
+  uint8_t chan;
+  uint16_t panid;
+  uint16_t saddr;
+  bool promisc;
+  int ret;
+  int i;
 
   /* Get information */
 
-  ret = ioctl(fd, PHY802154IOC_GET_PANID, (unsigned long)&panid);
+  ret = ioctl(fd, PHY802154IOC_GET_PANID, (unsigned long)((uintptr_t)&arg));
   if (ret)
     {
       printf("PHY802154IOC_GET_PANID failed\n");
       return ret;
     }
+
+  panid = arg.panid;
 
   ret = ieee802154_getchan(fd, &chan);
   if (ret)
@@ -192,41 +201,38 @@ static int status(int fd)
       return ret;
     }
 
-  ret = ioctl(fd, PHY802154IOC_GET_SADDR, (unsigned long)&saddr);
+  ret = ioctl(fd, PHY802154IOC_GET_SADDR, (unsigned long)((uintptr_t)&arg));
   if (ret)
     {
       printf("PHY802154IOC_GET_SADDR failed\n");
       return ret;
     }
 
-  ret = ioctl(fd, PHY802154IOC_GET_EADDR, (unsigned long)&eaddr[0]);
+  saddr = arg.saddr;
+
+  ret = ioctl(fd, PHY802154IOC_GET_EADDR, (unsigned long)((uintptr_t)&arg));
   if (ret)
     {
       printf("PHY802154IOC_GET_EADDR failed\n");
       return ret;
     }
 
-  ret = ioctl(fd, PHY802154IOC_GET_PROMISC, (unsigned long)&promisc);
+  memcpy(eaddr, arg.eaddr, EADDR_SIZE);
+
+  ret = ioctl(fd, PHY802154IOC_GET_PROMISC, (unsigned long)((uintptr_t)&arg));
   if (ret)
     {
       printf("PHY802154IOC_GET_PROMISC failed\n");
       return ret;
     }
 
+  promisc = arg.promisc;
+
   ret = ieee802154_getcca(fd, &cca);
   if (ret)
     {
       return ret;
     }
-
-#if 0
-  ret = ioctl(fd, MAC854IOCGORDER, (unsigned long)&order);
-  if (ret)
-    {
-      printf("MAC854IOCGORDER failed\n");
-      return ret;
-    }
-#endif
 
   /* Display */
 
@@ -422,10 +428,11 @@ int main(int argc, FAR char *argv[])
 int i8_main(int argc, char *argv[])
 #endif
 {
+  union ieee802154_radioarg_u arg;
+  struct ieee802154_cca_s cca;
+  unsigned long arg = 0;
   int fd;
   int ret = OK;
-  unsigned long arg=0;
-  struct ieee802154_cca_s cca;
 
   printf("IEEE packet sniffer/dumper argc=%d\n", argc);
 

@@ -1,6 +1,7 @@
 /****************************************************************************
  * apps/wireless/ieee802154/common/ieee802154_setpanid.c
  *
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
@@ -47,7 +48,12 @@
 
 int ieee802154_setpanid(int fd, uint16_t panid)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_PANID, (unsigned long)panid );
+  union ieee802154_radioarg_u arg;
+
+  arg.panid = panid;
+
+  int ret = ioctl(fd, PHY802154IOC_SET_PANID,
+                  (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_PANID failed\n");

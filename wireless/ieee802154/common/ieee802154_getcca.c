@@ -1,6 +1,7 @@
 /****************************************************************************
  * apps/wireless/ieee802154/common/ieee802154_getcca.c
  *
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
@@ -52,11 +53,15 @@
 
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca)
 {
-  int ret = ioctl(fd, PHY802154IOC_GET_CCA, (unsigned long)cca );
+  union ieee802154_radioarg_u arg;
+
+  int ret = ioctl(fd, PHY802154IOC_GET_CCA,
+                  (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_GET_CCA failed\n");
     }
 
+  mempy(cca, &arg.cca, sizeof(struct ieee802154_cca_s));
   return ret;
 }

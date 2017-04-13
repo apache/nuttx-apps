@@ -1,6 +1,7 @@
 /****************************************************************************
  * apps/wireless/ieee802154/common/ieee802154_setpromisc.c
  *
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
@@ -52,7 +53,12 @@
 
 int ieee802154_setpromisc(int fd, bool promisc)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_PROMISC, (unsigned long)promisc );
+  union ieee802154_radioarg_u arg;
+
+  arg.promisc = promisc;
+
+  int ret = ioctl(fd, PHY802154IOC_SET_PROMISC,
+                  (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_PROMISC failed\n");

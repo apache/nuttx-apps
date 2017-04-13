@@ -1,6 +1,7 @@
 /****************************************************************************
  * apps/wireless/ieee802154/common/ieee802154_setdevmode.c
  *
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
@@ -51,7 +52,12 @@
 
 int ieee802154_setdevmode(int fd, uint8_t devmode)
 {
-  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE, (unsigned long)devmode );
+  union ieee802154_radioarg_u arg;
+
+  arg.devmode = devmode;
+
+  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE,
+                  (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_DEVMODE failed\n");
