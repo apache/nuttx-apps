@@ -76,6 +76,8 @@ typedef void (*cmd3_t)(int sock, FAR const char *arg1,
 
 static int wapi_str2int(FAR const char *str);
 static double wapi_str2double(FAR const char *str);
+static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
+                                 unsigned int listlen);
 
 static void wapi_show_cmd(int sock, FAR const char *ifname);
 static void wapi_ip_cmd(int sock, FAR const char *ifname,
@@ -114,7 +116,7 @@ static const struct wapi_command_s g_wapi_commands[] =
   {"mode",    2, (CODE void *)wapi_mode_cmd},
   {"ap",      2, (CODE void *)wapi_ap_cmd},
   {"bitrate", 3, (CODE void *)wapi_bitrate_cmd},
-  {"txpower", 2, (CODE void *)wapi_txpower_cmd},
+  {"txpower", 3, (CODE void *)wapi_txpower_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_wapi_commands) / sizeof(struct wapi_command_s))
@@ -173,6 +175,37 @@ static double wapi_str2double(FAR const char *str)
     }
 
   return value;
+}
+
+/****************************************************************************
+ * Name: wapi_str2ndx
+ *
+ * Description:
+ *   Return the index of a string in a list of strings
+ *
+ ****************************************************************************/
+
+static unsigned int wapi_str2ndx(FAR const char *name, FAR const char **list,
+                                 unsigned int listlen)
+{
+  unsigned int ndx;
+
+  for (ndx = 0; ndx < listlen; ndx++)
+    {
+      if (strcmp(name, list[ndx]) == 0)
+        {
+          return ndx;
+        }
+    }
+
+  WAPI_ERROR("ERROR: Invalid option string: %s\n", name);
+  WAPI_ERROR("       Valid options include:\n");
+  for (ndx = 0; ndx < listlen; ndx++)
+    {
+      WAPI_ERROR("       - %s\n", list[ndx]);
+    }
+
+  exit(EXIT_FAILURE);
 }
 
 /****************************************************************************
@@ -418,29 +451,13 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
 {
   double frequency;
   wapi_freq_flag_t freq_flag;
-  bool found = false;
   int ret;
-  int i;
 
   /* Convert input strings to values */
 
   frequency = wapi_str2double(freqstr);
-
-  for (i = 0; i < IW_FREQ_NFLAGS; i++)
-    {
-      if (strcmp(flagstr, g_wapi_freq_flags[i]) == 0)
-        {
-          freq_flag = (wapi_freq_flag_t)i;
-          found = true;
-          break;
-        }
-    }
-
-  if (!found)
-    {
-      WAPI_ERROR("ERROR: Invalid frequency flag: %s\n", flagstr);
-      exit(EXIT_FAILURE);
-    }
+  freq_flag = (wapi_freq_flag_t)wapi_str2ndx(flagstr, g_wapi_freq_flags,
+                                             IW_FREQ_NFLAGS);
 
   /* Set the frequency */
 
@@ -466,28 +483,12 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
                            FAR const char *essid, FAR const char *flagstr)
 {
   wapi_essid_flag_t essid_flag;
-  bool found = false;
   int ret;
-  int i;
 
   /* Convert input strings to values */
 
-  for (i = 0; i < 2; i++)
-    {
-      if (strcmp(flagstr, g_wapi_essid_flags[i]) == 0)
-        {
-          essid_flag = (wapi_essid_flag_t)i;
-          found = true;
-          break;
-        }
-    }
-
-  if (!found)
-    {
-      WAPI_ERROR("ERROR: Invalid ESSID flag: %s\n", flagstr);
-      exit(EXIT_FAILURE);
-    }
-
+  essid_flag = (wapi_essid_flag_t)wapi_str2ndx(flagstr, g_wapi_essid_flags, 2);
+  
   /* Set the ESSID */
 
   ret = wapi_set_essid(sock, ifname, essid, essid_flag);
@@ -512,27 +513,11 @@ static void wapi_mode_cmd(int sock, FAR const char *ifname,
                           FAR const char *modestr)
 {
   wapi_mode_t mode;
-  bool found = false;
   int ret;
-  int i;
 
   /* Convert input strings to values */
 
-  for (i = 0; i < IW_MODE_NFLAGS; i++)
-    {
-      if (strcmp(modestr, g_wapi_modes[i]) == 0)
-        {
-          mode = (wapi_mode_t)i;
-          found = true;
-          break;
-        }
-    }
-
-  if (!found)
-    {
-      WAPI_ERROR("ERROR: Invalid operating mode: %s\n", modestr);
-      exit(EXIT_FAILURE);
-    }
+  mode = (wapi_mode_t)wapi_str2ndx(modestr, g_wapi_modes, IW_MODE_NFLAGS);
 
   /* Set operating mode */
 
@@ -592,30 +577,14 @@ static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
 
 {
   wapi_bitrate_flag_t bitrate_flag;
-  bool found = false;
   int bitrate;
   int ret;
-  int i;
 
   /* Convert input strings to values */
 
-  bitrate = wapi_str2int(ratestr);
-
-  for (i = 0; i < 2; i++)
-    {
-      if (strcmp(flagstr, g_wapi_bitrate_flags[i]) == 0)
-        {
-          bitrate_flag = (wapi_bitrate_flag_t)i;
-          found = true;
-          break;
-        }
-    }
-
-  if (!found)
-    {
-      WAPI_ERROR("ERROR: Invalid bitrate flag: %s\n", flagstr);
-      exit(EXIT_FAILURE);
-    }
+  bitrate      = wapi_str2int(ratestr);
+  bitrate_flag = (wapi_bitrate_flag_t)
+    wapi_str2ndx(flagstr, g_wapi_bitrate_flags, 2);
 
   /* Set bitrate */
 
@@ -641,30 +610,14 @@ static void wapi_txpower_cmd(int sock, FAR const char *ifname,
                              FAR const char *pwrstr, FAR const char *flagstr)
 {
   wapi_txpower_flag_t txpower_flag;
-  bool found = false;
   int txpower;
   int ret;
-  int i;
 
   /* Convert input strings to values */
 
-  txpower = wapi_str2int(pwrstr);
-
-  for (i = 0; i < IW_TXPOW_NFLAGS; i++)
-    {
-      if (strcmp(flagstr, g_wapi_txpower_flags[i]) == 0)
-        {
-          txpower_flag = (wapi_txpower_flag_t)i;
-          found = true;
-          break;
-        }
-    }
-
-  if (!found)
-    {
-      WAPI_ERROR("ERROR: Invalid TX power flag: %s\n", flagstr);
-      exit(EXIT_FAILURE);
-    }
+  txpower      = wapi_str2int(pwrstr);
+  txpower_flag = (wapi_txpower_flag_t)
+    wapi_str2ndx(flagstr, g_wapi_txpower_flags, IW_TXPOW_NFLAGS);
 
   /* Set txpower */
 
@@ -728,7 +681,7 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
 
   for (info = list.head.scan; info; info = info->next)
     {
-      printf(">> %02x:%02x:%02x:%02x:%02x:%02x %s\n",
+      printf("    %02x:%02x:%02x:%02x:%02x:%02x %s\n",
              info->ap.ether_addr_octet[0], info->ap.ether_addr_octet[1],
              info->ap.ether_addr_octet[2], info->ap.ether_addr_octet[3],
              info->ap.ether_addr_octet[4],  info->ap.ether_addr_octet[5],

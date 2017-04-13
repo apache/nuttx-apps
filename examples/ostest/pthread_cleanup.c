@@ -60,16 +60,20 @@ static void cleanup(FAR void * data)
   FAR struct sync_s *sync = (FAR struct sync_s *) data;
   int status;
 
-  /* Note:  pthread_cond_wait() will release the mutex while it waits on
-   * condition value.  So a EPERM error is not a failure.
+  /* Note:  The behavior of canceling pthread_cond_wait() with asynchronous
+   * cancellation is not defined. On NuttX we get EPERM here, but application
+   * code must not rely on this.
    */
 
   status = pthread_mutex_unlock(&sync->lock);
+#ifndef CONFIG_CANCELLATION_POINTS
   if (status == EPERM)
     {
       printf("pthread_cleanup: thread did not have mutex locked: %d\n", status);
+      return;
     }
-  else if (status != 0)
+#endif
+  if (status != 0)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_unlock in cleanup handler. "
              "Status: %d\n", status);
@@ -138,6 +142,7 @@ static void test_cleanup(void)
       printf("pthread_cleanup: ERROR pthread_join returned wrong result: %p\n", result);
     }
 
+#ifdef CONFIG_CANCELLATION_POINTS
   /* Do some operations on lock in order to check if it is in usable state. */
 
   status = pthread_mutex_trylock(&sync.lock);
@@ -151,6 +156,7 @@ static void test_cleanup(void)
     {
       printf("pthread_cleanup: ERROR pthread_mutex_unlock, status=%d\n", status);
     }
+#endif
 }
 
 /****************************************************************************
