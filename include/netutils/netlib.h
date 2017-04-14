@@ -114,10 +114,11 @@ int netlib_setmacaddr(FAR const char *ifname, FAR const uint8_t *macaddr);
 int netlib_getmacaddr(FAR const char *ifname, FAR uint8_t *macaddr);
 #endif
 
-#ifdef CONFIG_NET_ETHERNET
+#ifdef CONFIG_NET_6LOWPAN
 /* Get IEEE802.15.4 MAC driver node address */
 
 int netlib_setnodeaddr(FAR const char *ifname, FAR const uint8_t *nodeaddr);
+bool netlib_nodeaddrconv(FAR const char *hwstr, FAR uint8_t *hw);
 #endif
 
 /* IP address support */

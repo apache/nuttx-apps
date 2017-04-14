@@ -424,15 +424,31 @@ static int user_main(int argc, char *argv[])
       cond_test();
       check_test_memory_usage();
 #endif
+
+      /* Verify pthreads rwlock interfaces */
+
+      printf("\nuser_main: pthread_rwlock test\n");
+      pthread_rwlock_test();
+      check_test_memory_usage();
+
+      printf("\nuser_main: pthread_rwlock_cancel test\n");
+      pthread_rwlock_cancel_test();
+      check_test_memory_usage();
+
+#ifdef CONFIG_PTHREAD_CLEANUP
+      /* Verify pthread cancellation cleanup handlers */
+
+      printf("\nuser_main: pthread_cleanup test\n");
+      pthread_cleanup_test();
+      check_test_memory_usage();
 #endif
 
-#ifndef CONFIG_DISABLE_PTHREAD
       /* Verify pthreads and condition variable timed waits */
 
       printf("\nuser_main: timed wait test\n");
       timedwait_test();
       check_test_memory_usage();
-#endif
+#endif /* !CONFIG_DISABLE_PTHREAD */
 
 #if !defined(CONFIG_DISABLE_MQUEUE) && !defined(CONFIG_DISABLE_PTHREAD)
       /* Verify pthreads and message queues */

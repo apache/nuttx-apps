@@ -1,7 +1,7 @@
 ############################################################################
-# apps/netutils/netlib/Makefile
+# apps/wireless/wapi/Makefile
 #
-#   Copyright (C) 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,76 +33,40 @@
 #
 ############################################################################
 
+# TODO, this makefile should run make under the app dirs, instead of
+# sourcing the Make.defs!
+
 -include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# Network Library
+# IEEE802.11 Wapi Application
 
-ASRCS  =
-CSRCS  = netlib_ipv4addrconv.c netlib_ethaddrconv.c netlib_parsehttpurl.c
-CSRCS += netlib_setifstatus.c netlib_getifstatus.c
+CONFIG_WIRELESS_WAPI_PRIORITY ?= 100
+CONFIG_WIRELESS_WAPI_STACKSIZE ?= 2048
 
-# IP address support
+APPNAME = wapi
+PRIORITY = $(CONFIG_WIRELESS_WAPI_PRIORITY)
+STACKSIZE = $(CONFIG_WIRELESS_WAPI_STACKSIZE)
 
-ifeq ($(CONFIG_NET_IPv4),y)
-CSRCS += netlib_setipv4addr.c netlib_getipv4addr.c
-CSRCS += netlib_setdripv4addr.c netlib_setipv4netmask.c
-CSRCS += netlib_getdripv4addr.c netlib_getipv4netmask.c
-ifeq ($(CONFIG_NET_ARP),y)
-CSRCS += netlib_getarp.c netlib_setarp.c netlib_delarp.c
-endif
-ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
-CSRCS += netlib_setipv4dnsaddr.c
-endif
-endif
+ASRCS =
+CSRCS =
+MAINSRC =
 
-ifeq ($(CONFIG_NET_IPv6),y)
-CSRCS += netlib_setipv6addr.c netlib_getipv6addr.c
-CSRCS += netlib_setdripv6addr.c netlib_setipv6netmask.c
-CSRCS += netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c
-ifeq ($(CONFIG_NET_ICMPv6_AUTOCONF),y)
-CSRCS += netlib_autoconfig.c
-endif
-endif
+VPATH = .
 
-# These require TCP support
-
-ifeq ($(CONFIG_NET_TCP),y)
-ifeq ($(CONFIG_NET_IPv4),y) # Not yet available for IPv6
-CSRCS += netlib_server.c netlib_listenon.c
-endif
-endif
-
-# These require wireless IOCTL support */
-
-ifeq ($(CONFIG_NETDEV_WIRELESS_IOCTL),y)
-CSRCS += netlib_getessid.c netlib_setessid.c
-endif
-
-# MAC address support(Ethernet and 6loWPAN only)
-
-ifeq ($(CONFIG_NET_ETHERNET),y)
-CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
-endif
-
-ifeq ($(CONFIG_NET_6LOWPAN),y)
-CSRCS += netlib_setnodeaddr.c netlib_nodeaddrconv.c
-endif
-
-# IGMP support
-
-ifeq ($(CONFIG_NET_IGMP),y)
-ifeq ($(CONFIG_NET_IPv4),y) # Not yet available for IPv6
-CSRCS += netlib_ipmsfilter.c
-endif
-endif
+include $(APPDIR)/wireless/wapi/src/Make.defs
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
+MAINOBJ = $(MAINSRC:.c=$(OBJEXT))
 
-SRCS = $(ASRCS) $(CSRCS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
+
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS += $(MAINOBJ)
+endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
   BIN = ..\..\libapps$(LIBEXT)
@@ -114,11 +78,18 @@ else
 endif
 endif
 
+ifeq ($(WINTOOL),y)
+  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+else
+  INSTALL_DIR = $(BIN_DIR)
+endif
+
+CONFIG_WAPI_PROGNAME ?= wapi$(EXEEXT)
+PROGNAME = $(CONFIG_WAPI_PROGNAME)
+
 ROOTDEPPATH = --dep-path .
 
 # Common build
-
-VPATH =
 
 all: .built
 .PHONY: context depend clean distclean
@@ -126,16 +97,38 @@ all: .built
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS): %$(OBJEXT): %.c
+$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	$(Q) touch .built
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(MAINOBJ)
+	@echo "LD: $(PROGNAME)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(MAINOBJ) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
+
+install: $(BIN_DIR)$(DELIM)$(PROGNAME)
+
+else
 install:
 
+endif
+
+# Register application
+
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME)_main.bdat
+else
 context:
+endif
+
+# Create dependencies
 
 .depend: Makefile $(SRCS)
 	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
