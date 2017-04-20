@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setnodeaddr.c
+ * netutils/netlib/netlib_getpanid.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -50,6 +50,7 @@
 #include <net/if.h>
 
 #include <nuttx/net/sixlowpan.h>
+#include <nuttx/wireless/wireless.h>
 
 #include "netutils/netlib.h"
 
@@ -60,46 +61,45 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setnodeaddr
+ * Name: netlib_getpanid
  *
  * Description:
- *   Set the 6loWPAN IEEE802.15.4 MAC network driver node address
+ *   Return the current PAN ID
  *
  * Parameters:
- *   ifname   The name of the interface to use
- *   nodeaddr Node address to set, size must be NET_6LOWPAN_RIMEADDR_SIZE
+ *   ifname The name of the interface to use
+ *   panid  The location to return the current PAN ID
  *
  * Return:
- *   0 on success; -1 on failure
+ *   0 on success; -1 on failure.  errno will be set on failure.
  *
  ****************************************************************************/
 
-int netlib_setnodeaddr(FAR const char *ifname, FAR const uint8_t *nodeaddr)
+int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
 {
   int ret = ERROR;
 
-  if (ifname && nodeaddr)
+  if (ifname != NULL && panid != NULL)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          struct ifreq req;
+          struct sixlowpan_req_s req;
 
           /* Put the driver name into the request */
 
           strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
-          /* Put the new MAC address into the request */
+          /* Perform the ioctl to get the current PAN ID */
 
-          req.ifr_hwaddr.sa_family = AF_INET6;
-          memcpy(&req.ifr_hwaddr.sa_data, nodeaddr, NET_6LOWPAN_RIMEADDR_SIZE);
-
-          /* Perform the ioctl to set the node address */
-
-          ret = ioctl(sockfd, SIOCSIFHWADDR, (unsigned long)&req);
+          ret = ioctl(sockfd, SIOCGWPANID, (unsigned long)((uintptr_t)&req));
           close(sockfd);
+
+          /* Reuturn the current PAN ID  */
+
+          *panid = req.u.panid.panid;
         }
     }
 
