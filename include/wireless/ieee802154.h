@@ -129,7 +129,8 @@ int ieee802154_mlme_register(int fd,
       FAR struct ieee802154_mlme_register_s *info);
 #endif
 int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req);
-int ieee802154_desassoc_req(int fd,
+int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp);
+int ieee802154_disassoc_req(int fd,
       FAR struct ieee802154_disassoc_req_s *req);
 int ieee802154_get_req(int fd, FAR struct ieee802154_get_req_s *req);
 int ieee802154_gts_req(int fd, FAR struct ieee802154_gts_req_s *req);
@@ -163,7 +164,7 @@ int sixlowpan_assoc_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_assoc_req_s *req);
 int sixlowpan_assoc_resp(int sock, FAR const char *ifname,
       FAR struct ieee802154_assoc_resp_s *resp);
-int sixlowpan_desassoc_req(int sock, FAR const char *ifname,
+int sixlowpan_disassoc_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_disassoc_req_s *req);
 int sixlowpan_get_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_get_req_s *req);
