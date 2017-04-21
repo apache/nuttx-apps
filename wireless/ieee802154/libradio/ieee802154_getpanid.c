@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/ieee802154_setdevmode.c
+ * apps/wireless/ieee802154/libradio/ieee802154_getpanid.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
@@ -39,29 +39,33 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
+#include <errno.h>
+
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+
 #include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setdevmode(int fd, uint8_t devmode)
+int ieee802154_getpanid(int fd, FAR uint16_t *panid)
 {
   union ieee802154_radioarg_u arg;
 
-  arg.devmode = devmode;
-
-  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE,
+  int ret = ioctl(fd, PHY802154IOC_GET_PANID,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_DEVMODE failed\n");
+      int errcode = errno;
+      printf("PHY802154IOC_GET_PANID failed: %d\n", errcode);
     }
 
+  *panid = arg.panid;
   return ret;
 }

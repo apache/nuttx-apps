@@ -48,7 +48,7 @@
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 
-#include "ieee802154/ieee802154.h"
+#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Public Functions

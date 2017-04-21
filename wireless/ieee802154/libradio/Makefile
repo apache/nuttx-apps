@@ -41,8 +41,9 @@ include $(APPDIR)/Make.defs
 
 ASRCS  =
 CSRCS  = ieee802154_setchan.c ieee802154_getchan.c
-CSRCS += ieee802154_setpanid.c
-CSRCS += ieee802154_seteaddr.c ieee802154_setsaddr.c
+CSRCS += ieee802154_setpanid.c ieee802154_getpanid.c
+CSRCS += ieee802154_seteaddr.c ieee802154_geteaddr.c
+CSRCS += ieee802154_setsaddr.c
 CSRCS += ieee802154_setpromisc.c ieee802154_setdevmode.c
 CSRCS += ieee802154_setcca.c ieee802154_getcca.c
 

@@ -44,7 +44,7 @@
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
-#include "ieee802154/ieee802154.h"
+#include "wireless/ieee802154.h"
 
 int ieee802154_setpanid(int fd, uint16_t panid)
 {

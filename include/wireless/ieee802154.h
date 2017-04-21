@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/include/ieee802154/ieee802154.h
+ * apps/include/wireless/ieee802154.h
  *
  *   Copyright(C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __APPS_INCLUDE_IEEE802154_IEEE802154_H
-#define __APPS_INCLUDE_IEEE802154_IEEE802154_H
+#ifndef __APPS_INCLUDE_WIRELESS_IEEE802154_H
+#define __APPS_INCLUDE_WIRELESS_IEEE802154_H
 
 /****************************************************************************
  * Included Files
@@ -80,4 +80,4 @@ int ieee802154_addrstore(FAR struct ieee802154_packet_s *inPacket,
 int ieee802154_addrtostr(FAR char *buf, int len,
       FAR struct ieee802154_addr_s *addr);
 
-#endif /*__APPS_INCLUDE_IEEE802154_IEEE802154_H */
+#endif /*__APPS_INCLUDE_WIRELESS_IEEE802154_H */
