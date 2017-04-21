@@ -120,6 +120,65 @@ int sixlowpan_energydetect(int sock, FAR const char *ifname,
 #endif
 
 /* libmac *******************************************************************/
+/* Character driver IOCTL helpers */
+
+int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req);
+int ieee802154_desassoc_req(int fd,
+      FAR struct ieee802154_disassoc_req_s *req);
+int ieee802154_get_req(int fd, FAR struct ieee802154_get_req_s *req);
+int ieee802154_gts_req(int fd, FAR struct ieee802154_gts_req_s *req);
+int ieee802154_orphan_resp(int fd,
+      FAR struct ieee802154_orphan_resp_s *resp);
+int ieee802154_rxenable_req(int fd,
+      FAR struct ieee802154_rxenable_req_s *req);
+int ieee802154_scan_req(int fd, FAR struct ieee802154_scan_req_s *req);
+int ieee802154_set_req(int fd, FAR struct ieee802154_set_req_s *req);
+int ieee802154_start_req(int fd, FAR struct ieee802154_start_req_s *req);
+int ieee802154_sync_req(int fd, FAR struct ieee802154_sync_req_s *req);
+int ieee802154_poll_req(int fd, FAR struct ieee802154_poll_req_s *req);
+#if 0
+int ieee802154_dps_req(int fd, FAR struct ieee802154_dps_req_s *req);
+int ieee802154_sounding_req(int fd,
+      FAR struct ieee802154_sounding_req_s *req);
+int ieee802154_calibrate_req(int fd,
+      FAR struct ieee802154_calibrate_req_s *req);
+#endif
+
+#ifdef CONFIG_NET_6LOWPAN
+/* Netork driver IOCTL helpers */
+
+int sixlowpan_assoc_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_assoc_req_s *req);
+int sixlowpan_desassoc_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_disassoc_req_s *req);
+int sixlowpan_get_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_get_req_s *req);
+int sixlowpan_gts_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_gts_req_s *req);
+int sixlowpan_orphan_resp(int sock, FAR const char *ifname,
+      FAR struct ieee802154_orphan_resp_s *resp);
+int sixlowpan_rxenable_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_rxenable_req_s *req);
+int sixlowpan_scan_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_scan_req_s *req);
+int sixlowpan_set_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_set_req_s *req);
+int sixlowpan_start_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_start_req_s *req);
+int sixlowpan_sync_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_sync_req_s *req);
+int sixlowpan_poll_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_poll_req_s *req);
+#if 0
+int sixlowpan_dps_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_dps_req_s *req);
+int sixlowpan_sounding_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_sounding_req_s *req);
+int sixlowpan_calibrate_req(int sock, FAR const char *ifname,
+      FAR struct ieee802154_calibrate_req_s *req);
+#endif
+
+#endif
 
 /* libutils *****************************************************************/
 
