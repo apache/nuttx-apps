@@ -39,21 +39,28 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
+
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+
 #include "wireless/ieee802154.h"
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
 
 int ieee802154_setpanid(int fd, uint16_t panid)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
   arg.panid = panid;
 
-  int ret = ioctl(fd, PHY802154IOC_SET_PANID,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_SET_PANID, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_PANID failed\n");

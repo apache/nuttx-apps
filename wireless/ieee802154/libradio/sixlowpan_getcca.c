@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/ieee802154_settxpwr.c
+ * apps/wireless/ieee802154/libradio/sixlowpan_getcca.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -42,6 +42,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/fs/ioctl.h>
@@ -53,19 +54,21 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_settxpwr(int fd, int32_t txpwr)
+int sixlowpan_getcca(int sock, FAR const char *ifname,
+                     FAR struct ieee802154_cca_s *cca)
 {
-  union ieee802154_radioarg_u arg;
+  struct ieee802154_netradio_s arg;
   int ret;
 
-  arg.txpwr = txpwr;
+  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
 
-  ret = ioctl(fd, PHY802154IOC_SET_TXPWR, (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(sock, PHY802154IOC_GET_CCA, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("PHY802154IOC_SET_TXPWR failed: %d\n", errcode);
+      printf("PHY802154IOC_GET_CCA failed: %d\n", errcode);
     }
 
+  memcpy(cca, &arg.u.cca, sizeof(struct ieee802154_cca_s));
   return ret;
 }

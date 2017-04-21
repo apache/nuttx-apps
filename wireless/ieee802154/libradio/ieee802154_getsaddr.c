@@ -56,9 +56,9 @@
 int ieee802154_getsaddr(int fd, FAR uint16_t *saddr)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
-  int ret = ioctl(fd, PHY802154IOC_GET_SADDR,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_GET_SADDR, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;

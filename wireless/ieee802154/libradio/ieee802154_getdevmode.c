@@ -56,9 +56,9 @@
 int ieee802154_getdevmode(int fd, FAR uint8_t *devmode)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
-  int ret = ioctl(fd, PHY802154IOC_GET_DEVMODE,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_GET_DEVMODE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;

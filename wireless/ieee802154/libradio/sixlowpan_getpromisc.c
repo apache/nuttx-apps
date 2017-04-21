@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/ieee802154_settxpwr.c
+ * apps/wireless/ieee802154/libradio/sixlowpan_getpromisc.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -53,19 +53,20 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_settxpwr(int fd, int32_t txpwr)
+int sixlowpan_getpromisc(int sock, FAR const char *ifname, FAR bool *promisc)
 {
-  union ieee802154_radioarg_u arg;
+  struct ieee802154_netradio_s arg;
   int ret;
 
-  arg.txpwr = txpwr;
+  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
 
-  ret = ioctl(fd, PHY802154IOC_SET_TXPWR, (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(sock, PHY802154IOC_GET_PROMISC, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("PHY802154IOC_SET_TXPWR failed: %d\n", errcode);
+      printf("PHY802154IOC_GET_PROMISC failed: %d\n", errcode);
     }
 
+  *promisc = arg.u.promisc;
   return ret;
 }

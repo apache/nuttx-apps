@@ -53,11 +53,11 @@
 int ieee802154_setchan(int fd, uint8_t chan)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
   arg.channel = chan;
 
-  int ret = ioctl(fd, PHY802154IOC_SET_CHAN,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_SET_CHAN, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_CHAN failed\n");

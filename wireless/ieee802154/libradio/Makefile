@@ -50,6 +50,18 @@ CSRCS += ieee802154_settxpwr.c ieee802154_gettxpwr.c
 CSRCS += ieee802154_setcca.c ieee802154_getcca.c
 CSRCS += ieee802154_energydetect.c
 
+ifeq ($(CONFIG_NET_6LOWPAN),y)
+CSRCS  = sixlowpan_setchan.c sixlowpan_getchan.c
+CSRCS += sixlowpan_setpanid.c sixlowpan_getpanid.c
+CSRCS += sixlowpan_setsaddr.c sixlowpan_getsaddr.c
+CSRCS += sixlowpan_seteaddr.c sixlowpan_geteaddr.c
+CSRCS += sixlowpan_setpromisc.c sixlowpan_getpromisc.c
+CSRCS += sixlowpan_setdevmode.c sixlowpan_getdevmode.c
+CSRCS += sixlowpan_settxpwr.c sixlowpan_gettxpwr.c
+CSRCS += sixlowpan_setcca.c sixlowpan_getcca.c
+CSRCS += sixlowpan_energydetect.c
+endif
+
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
 

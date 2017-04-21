@@ -39,11 +39,14 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
+
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+
 #include "wireless/ieee802154.h"
 
 /****************************************************************************
@@ -53,11 +56,11 @@
 int ieee802154_setdevmode(int fd, uint8_t devmode)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
   arg.devmode = devmode;
 
-  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_SET_DEVMODE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_DEVMODE failed\n");

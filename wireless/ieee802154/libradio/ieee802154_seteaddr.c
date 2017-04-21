@@ -57,11 +57,11 @@
 int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
   memcpy(arg.eaddr, eaddr, EADDR_SIZE);
 
-  int ret = ioctl(fd, PHY802154IOC_SET_EADDR,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_SET_EADDR, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_SET_EADDR failed\n");

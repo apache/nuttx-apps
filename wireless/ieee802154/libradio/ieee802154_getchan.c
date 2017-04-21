@@ -54,9 +54,9 @@
 int ieee802154_getchan(int fd, FAR uint8_t *chan)
 {
   union ieee802154_radioarg_u arg;
+  int ret;
 
-  int ret = ioctl(fd, PHY802154IOC_GET_CHAN,
-                  (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, PHY802154IOC_GET_CHAN, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       printf("PHY802154IOC_GET_CHAN failed\n");
