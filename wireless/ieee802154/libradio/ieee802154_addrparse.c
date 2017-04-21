@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/common/ieee802154_addrparse.c
+ * apps/wireless/ieee802154/libradio/ieee802154_addrparse.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
@@ -38,12 +38,14 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+
 #include "ieee802154/ieee802154.h"
 
 /****************************************************************************
@@ -62,31 +64,31 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
   frame_ctrl = packet->data[0];
   frame_ctrl |= packet->data[1] << 8;
 
-  dest->ia_mode = (frame_ctrl & IEEE802154_FRAMECTRL_DADDR)
-                  >> IEEE802154_FRAMECTRL_SHIFT_DADDR;
+  dest->mode = (frame_ctrl & IEEE802154_FRAMECTRL_DADDR)
+                >> IEEE802154_FRAMECTRL_SHIFT_DADDR;
 
 
-  src->ia_mode = (frame_ctrl & IEEE802154_FRAMECTRL_SADDR)
-                  >> IEEE802154_FRAMECTRL_SHIFT_SADDR;
+  src->mode = (frame_ctrl & IEEE802154_FRAMECTRL_SADDR)
+                >> IEEE802154_FRAMECTRL_SHIFT_SADDR;
 
   /* Decode dest addr */
 
-  switch (dest->ia_mode)
+  switch (dest->mode)
     {
       case IEEE802154_ADDRMODE_SHORT:
         {
-          memcpy(&dest->ia_panid, packet->data+index, 2);
+          memcpy(&dest->panid, packet->data+index, 2);
           index += 2; /* Skip dest pan id */
-          memcpy(&dest->ia_saddr, packet->data+index, 2);
+          memcpy(&dest->saddr, packet->data+index, 2);
           index += 2; /* Skip dest addr */
         }
         break;
 
       case IEEE802154_ADDRMODE_EXTENDED:
         {
-          memcpy(&dest->ia_panid, packet->data+index, 2);
+          memcpy(&dest->panid, packet->data+index, 2);
           index += 2; /* Skip dest pan id */
-          memcpy(dest->ia_eaddr, packet->data+index, 8);
+          memcpy(dest->eaddr, packet->data+index, 8);
           index += 8; /* Skip dest addr */
         }
         break;
@@ -98,36 +100,36 @@ int ieee802154_addrparse(FAR struct ieee802154_packet_s *packet,
         return -EINVAL;
     }
 
-    if ((src->ia_mode == IEEE802154_ADDRMODE_SHORT) ||
-        (src->ia_mode == IEEE802154_ADDRMODE_EXTENDED))
+    if ((src->mode == IEEE802154_ADDRMODE_SHORT) ||
+        (src->mode == IEEE802154_ADDRMODE_EXTENDED))
       {
         /* If PANID compression, src PAN ID is same as dest */
 
         if(frame_ctrl & IEEE802154_FRAMECTRL_PANIDCOMP)
           {
-            src->ia_panid = dest->ia_panid;
+            src->panid = dest->panid;
           }
         else
          {
-           memcpy(&src->ia_panid, packet->data+index, 2);
+           memcpy(&src->panid, packet->data+index, 2);
            index += 2; /*skip dest pan id*/
          }
       }
 
   /* Decode source addr */
 
-  switch (src->ia_mode)
+  switch (src->mode)
     {
       case IEEE802154_ADDRMODE_SHORT:
         {
-          memcpy(&src->ia_saddr, packet->data+index, 2);
+          memcpy(&src->saddr, packet->data+index, 2);
           index += 2; /* Skip src addr */
         }
         break;
 
       case IEEE802154_ADDRMODE_EXTENDED:
         {
-          memcpy(src->ia_eaddr, packet->data+index, 8);
+          memcpy(src->eaddr, packet->data+index, 8);
           index += 8; /* Skip src addr */
         }
         break;

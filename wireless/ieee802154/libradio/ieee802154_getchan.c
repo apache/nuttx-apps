@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/common/ieee802154_getcca.c
+ * apps/wireless/ieee802154/libradio/ieee802154_getchan.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
@@ -51,17 +51,18 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca)
+int ieee802154_getchan(int fd, FAR uint8_t *chan)
 {
   union ieee802154_radioarg_u arg;
 
-  int ret = ioctl(fd, PHY802154IOC_GET_CCA,
+  int ret = ioctl(fd, PHY802154IOC_GET_CHAN,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_GET_CCA failed\n");
+      printf("PHY802154IOC_GET_CHAN failed\n");
+      return ret;
     }
 
-  mempy(cca, &arg.cca, sizeof(struct ieee802154_cca_s));
+  *chan = arg.channel;
   return ret;
 }

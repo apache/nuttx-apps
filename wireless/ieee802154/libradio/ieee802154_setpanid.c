@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/common/ieee802154_eaddr.c
+ * apps/wireless/ieee802154/libradio/ieee802154_setpanid.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
@@ -46,21 +46,17 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-int ieee802154_seteaddr(int fd, uint8_t *eaddr)
+int ieee802154_setpanid(int fd, uint16_t panid)
 {
   union ieee802154_radioarg_u arg;
 
-  memcpy(arg.eaddr, eaddr, EADDR_SIZE);
+  arg.panid = panid;
 
-  int ret = ioctl(fd, PHY802154IOC_SET_EADDR,
+  int ret = ioctl(fd, PHY802154IOC_SET_PANID,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_EADDR failed\n");
+      printf("PHY802154IOC_SET_PANID failed\n");
     }
 
   return ret;

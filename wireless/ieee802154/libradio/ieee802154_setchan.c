@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/common/ieee802154_setdevmode.c
+ * apps/wireless/ieee802154/libradio/ieee802154_setchan.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
@@ -50,17 +50,17 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setdevmode(int fd, uint8_t devmode)
+int ieee802154_setchan(int fd, uint8_t chan)
 {
   union ieee802154_radioarg_u arg;
 
-  arg.devmode = devmode;
+  arg.channel = chan;
 
-  int ret = ioctl(fd, PHY802154IOC_SET_DEVMODE,
+  int ret = ioctl(fd, PHY802154IOC_SET_CHAN,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_DEVMODE failed\n");
+      printf("PHY802154IOC_SET_CHAN failed\n");
     }
 
   return ret;

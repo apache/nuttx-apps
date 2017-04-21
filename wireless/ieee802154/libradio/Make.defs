@@ -35,6 +35,6 @@
 ############################################################################
 
 ifeq ($(CONFIG_IEEE802154_COMMON),y)
-CONFIGURED_APPS += wireless/ieee802154/common
+CONFIGURED_APPS += wireless/ieee802154/libradio
 endif
 

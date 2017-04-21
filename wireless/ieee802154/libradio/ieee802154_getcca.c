@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/common/ieee802154_setsaddr.c
+ * apps/wireless/ieee802154/libradio/ieee802154_getcca.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
@@ -39,29 +39,32 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
+#include <string.h>
+
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+
 #include "ieee802154/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setsaddr(int fd, uint16_t saddr)
+int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca)
 {
   union ieee802154_radioarg_u arg;
 
-  arg.saddr = saddr;
-
-  int ret = ioctl(fd, PHY802154IOC_SET_SADDR,
+  int ret = ioctl(fd, PHY802154IOC_GET_CCA,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_SADDR failed\n");
+      printf("PHY802154IOC_GET_CCA failed\n");
     }
 
+  memcpy(cca, &arg.cca, sizeof(struct ieee802154_cca_s));
   return ret;
 }

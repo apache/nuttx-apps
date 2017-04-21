@@ -428,7 +428,6 @@ int main(int argc, FAR char *argv[])
 int i8_main(int argc, char *argv[])
 #endif
 {
-  union ieee802154_radioarg_u arg;
   struct ieee802154_cca_s cca;
   unsigned long arg = 0;
   int fd;
@@ -612,9 +611,9 @@ data_error:
       g_txpacket.data[g_txpacket.len++] = 0x03; /* Mac command, no ack, no panid compression */
       g_txpacket.data[g_txpacket.len++] = 0x00; /* Short destination address, no source address */
       g_txpacket.data[g_txpacket.len++] = 0;    /* seq */
-      dest.ia_mode = IEEE802154_ADDRMODE_SHORT;
-      dest.ia_panid = 0xFFFF;
-      dest.ia_saddr = 0xFFFF;
+      dest.mode = IEEE802154_ADDRMODE_SHORT;
+      dest.panid = 0xFFFF;
+      dest.saddr = 0xFFFF;
 
       g_txpacket.len = ieee802154_addrstore(&g_txpacket, &dest, NULL);
 

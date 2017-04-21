@@ -1,6 +1,7 @@
 /****************************************************************************
- * apps/wireless/ieee802154/common/ieee802154_addrtostr.c
+ * apps/wireless/ieee802154/libradio/ieee802154_setchan.c
  *
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
@@ -38,54 +39,33 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include <nuttx/fs/ioctl.h>
+
+#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include "ieee802154/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_addrtostr(FAR char *buf, int len,
-                         FAR struct ieee802154_addr_s *addr)
+int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca)
 {
-#ifndef CONFIG_BIG_ENDIAN
-  uint16_t panid = ((addr->ia_panid & 0xff) << 8) | ((addr->ia_panid >> 8) & 0xff);
-#else
-  uint16_t panid = addr->ia_panid;
-#endif
+  union ieee802154_radioarg_u arg;
 
-  if (addr->ia_mode == IEEE802154_ADDRMODE_NONE)
-    {
-      return snprintf(buf, len, "none");
-    }
-  else if (addr->ia_mode == IEEE802154_ADDRMODE_SHORT)
-    {
-#ifndef CONFIG_BIG_ENDIAN
-      uint16_t saddr = ((addr->ia_saddr & 0xff) << 8) | ((addr->ia_saddr >> 8) & 0xff);
-#else
-      uint16_t saddr = addr->ia_saddr;
-#endif
-      return snprintf(buf, len, "%04X/%04X", panid, saddr);
-    }
-  else if (addr->ia_mode == IEEE802154_ADDRMODE_EXTENDED)
-    {
-      int i;
-      int off = snprintf(buf, len, "%04X/", panid);
+  memcpy(&arg.cca, cca, sizeof(struct ieee802154_cca_s));
 
-      for (i = 0; i < 8; i++)
-        {
-          off += snprintf(buf + off, len  -off, "%02X", addr->ia_eaddr[i]);
-        }
-
-      return off;
-    }
-  else
+  int ret = ioctl(fd, PHY802154IOC_SET_CCA,
+                  (unsigned long)((uintptr_t)&arg));
+  if (ret < 0)
     {
-      return snprintf(buf,len,"<INVAL>");
+      printf("PHY802154IOC_SET_CCA failed\n");
     }
 
-  return -1;
+  return ret;
 }
