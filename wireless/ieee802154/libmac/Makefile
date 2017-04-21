@@ -40,9 +40,10 @@ include $(APPDIR)/Make.defs
 # libmac source files
 
 ASRCS  =
-CSRCS  =
+CSRCS  = ieee802154_assocreq.c ieee802154_assocresp.c ieee802154_disassocreq.c
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
+CSRCS += sixlowpan_assocreq.c sixlowpan_assocresp.c sixlowpan_disassocreq.c
 endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

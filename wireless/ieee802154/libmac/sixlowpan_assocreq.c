@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/sixlowpan_getsaddr.c
+ * apps/wireless/ieee802154/libmac/sixlowpan_assocreq.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Author:  Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,28 +46,31 @@
 #include <errno.h>
 
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_getsaddr(int sock, FAR const char *ifname, FAR uint16_t *saddr)
+int sixlowpan_assoc_req(int sock, FAR const char *ifname,
+                        FAR const struct ieee802154_assoc_req_s *req)
 {
-  struct ieee802154_netradio_s arg;
+  struct ieee802154_netmac_s arg;
   int ret;
 
   strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  memcpy(&arg.u.assocreq, req, sizeof(struct ieee802154_assoc_req_s));
 
-  ret = ioctl(sock, PHY802154IOC_GET_SADDR, (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(sock, MAC802154IOC_MLME_ASSOC_REQUEST,
+              (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("PHY802154IOC_GET_SADDR failed: %d\n", errcode);
+      printf("MAC802154IOC_MLME_ASSOC_REQUEST failed: %d\n", errcode);
+      return ret;
     }
 
-  *saddr = arg.u.saddr;
   return ret;
 }
