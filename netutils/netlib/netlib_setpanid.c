@@ -46,12 +46,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <netinet/in.h>
-#include <net/if.h>
-
-#include <nuttx/net/sixlowpan.h>
-#include <nuttx/wireless/wireless.h>
-
 #include "netutils/netlib.h"
 
 #if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
@@ -86,19 +80,12 @@ int netlib_setpanid(FAR const char *ifname, uint16_t panid)
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          struct sixlowpan_req_s req;
-
           /* Put the driver name into the request */
-
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
-
+# warning Missing Logic
           /* Put the new PAN ID into the request */
-
-          req.u.panid.panid = panid;
 
           /* Perform the ioctl to set the new PAN ID */
 
-          ret = ioctl(sockfd, SIOCSWPANID, (unsigned long)((uintptr_t)&req));
           close(sockfd);
         }
     }
