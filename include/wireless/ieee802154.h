@@ -117,7 +117,7 @@ int sixlowpan_getcca(int sock, FAR const char *ifname,
 
 int sixlowpan_energydetect(int sock, FAR const char *ifname,
       FAR bool *energy);
-#endif
+#endif /* CONFIG_NET_6LOWPAN*/
 
 /* libmac *******************************************************************/
 /* Character driver IOCTL helpers */
@@ -177,8 +177,7 @@ int sixlowpan_sounding_req(int sock, FAR const char *ifname,
 int sixlowpan_calibrate_req(int sock, FAR const char *ifname,
       FAR struct ieee802154_calibrate_req_s *req);
 #endif
-
-#endif
+#endif /* CONFIG_NET_6LOWPAN*/
 
 /* libutils *****************************************************************/
 
