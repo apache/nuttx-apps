@@ -45,8 +45,10 @@ CSRCS += ieee802154_setpanid.c ieee802154_getpanid.c
 CSRCS += ieee802154_setsaddr.c ieee802154_getsaddr.c
 CSRCS += ieee802154_seteaddr.c ieee802154_geteaddr.c
 CSRCS += ieee802154_setpromisc.c ieee802154_getpromisc.c
-CSRCS += ieee802154_setdevmode.c
+CSRCS += ieee802154_setdevmode.c ieee802154_getdevmode.c
+CSRCS += ieee802154_settxpwr.c ieee802154_gettxpwr.c
 CSRCS += ieee802154_setcca.c ieee802154_getcca.c
+CSRCS += ieee802154_energydetect.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

@@ -4,22 +4,16 @@
 #
 
 menuconfig WIRELESS_IWPAN
-	bool "IEEE802.15.4 Configuration Library"
+	bool "IEEE 802.15.4 Command Line Tool"
 	default n
-	depends on NET && DRIVERS_WIRELESS && EXPERIMENTAL
+	depends on NET && DRIVERS_WIRELESS
+	select IEEE802154_LIBRADIO
+	select IEEE802154_LIBUTILS
 	---help---
 		IWPAN is a tool similar to wapi and inspired by iwpan on Linux that can
 		be used to manage 802.15.4 PAN.
 
 if WIRELESS_IWPAN
-
-config WIRELESS_IWPAN_CMDTOOL
-	bool "IEEE802.15.4 Command Line Tool"
-	default n
-	---help---
-		By default, iWPAN is build as only a library.  If this option is
-		selected than a simple command line tool that can be ran from NSH
-		will also be generated.
 
 config WIRELESS_IWPAN_PROGNAME
 	string "Program Name"

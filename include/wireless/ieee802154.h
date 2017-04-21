@@ -50,7 +50,8 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-/* libradio */
+/* libradio *****************************************************************/
+/* Character driver IOCTL helpers */
 
 int ieee802154_setchan(int fd, uint8_t chan);
 int ieee802154_getchan(int fd, FAR uint8_t *chan);
@@ -68,11 +69,59 @@ int ieee802154_setpromisc(int fd, bool promisc);
 int ieee802154_getpromisc(int fd, FAR bool *promisc);
 
 int ieee802154_setdevmode(int fd, uint8_t devmode);
+int ieee802154_getdevmode(int fd, FAR uint8_t *devmode);
+
+int ieee802154_settxpwr(int fd, int32_t txpwr);
+int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr);
 
 int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca);
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
 
-/* libutils */
+int ieee802154_energydetect(int fd, FAR bool *energy);
+
+#ifdef CONFIG_NET_6LOWPAN
+/* Netork driver IOCTL helpers */
+
+int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan);
+int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan);
+
+int sixlowpan_setpanid(int sock, FAR const char *ifname, uint16_t panid);
+int sixlowpan_getpanid(int sock, FAR const char *ifname,
+      FAR uint16_t *panid);
+
+int sixlowpan_setsaddr(int sock, FAR const char *ifname, uint16_t saddr);
+int sixlowpan_getsaddr(int sock, FAR const char *ifname,
+      FAR uint16_t *saddr);
+
+int sixlowpan_seteaddr(int sock, FAR const char *ifname,
+      FAR const uint8_t *eaddr);
+int sixlowpan_geteaddr(int sock, FAR const char *ifname,
+      FAR uint8_t *eaddr);
+
+int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc);
+int sixlowpan_getpromisc(int sock, FAR const char *ifname,
+      FAR bool *promisc);
+
+int sixlowpan_setdevmode(int sock, FAR const char *ifname, uint8_t devmode);
+int sixlowpan_getdevmode(int sock, FAR const char *ifname,
+      FAR uint8_t *devmode);
+
+int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr);
+int sixlowpan_gettxpwr(int sock, FAR const char *ifname,
+      FAR int32_t *txpwr);
+
+int sixlowpan_setcca(int sock, FAR const char *ifname,
+      FAR struct ieee802154_cca_s *cca);
+int sixlowpan_getcca(int sock, FAR const char *ifname,
+      FAR struct ieee802154_cca_s *cca);
+
+int sixlowpan_energydetect(int sock, FAR const char *ifname,
+      FAR bool *energy);
+#endif
+
+/* libmac *******************************************************************/
+
+/* libutils *****************************************************************/
 
 int ieee802154_addrparse(FAR struct ieee802154_packet_s *inpacket,
       FAR struct ieee802154_addr_s *dest,
