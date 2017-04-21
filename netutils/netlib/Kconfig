@@ -7,6 +7,8 @@ config NETUTILS_NETLIB
 	bool "Network support library"
 	default n
 	depends on NET
+	select IEEE802154_LIBRADIO if DRIVERS_IEEE802154
+	select IEEE802154_LIBMAC if WIRELESS_IEEE802154
 	---help---
 		Enable support for the network support library.
 

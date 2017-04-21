@@ -80,12 +80,9 @@ int netlib_setpanid(FAR const char *ifname, uint16_t panid)
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          /* Put the driver name into the request */
-# warning Missing Logic
-          /* Put the new PAN ID into the request */
+          /* Use the helper provided in libradio */
 
-          /* Perform the ioctl to set the new PAN ID */
-
+          ret = ieee802154_setpanid(sockfd, ifname, panid);
           close(sockfd);
         }
     }
