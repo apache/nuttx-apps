@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_assocresp.c
+ * apps/wireless/ieee802154/libmac/ieee802154_rxenabreq.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author:  Gregory Nutt <gnutt@nuttx.org>
@@ -42,7 +42,6 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 #include <errno.h>
 
 #include <nuttx/fs/ioctl.h>
@@ -54,22 +53,16 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_assoc_resp(int sock, FAR const char *ifname,
-                         FAR struct ieee802154_assoc_resp_s *resp)
+int ieee802154_rxenable_req(int fd, FAR struct ieee802154_rxenable_req_s *req)
 {
-  struct ieee802154_netmac_s arg;
   int ret;
 
-  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
-
-  ret = ioctl(sock, MAC802154IOC_MLME_ASSOC_RESPONSE,
-              (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, MAC802154IOC_MLME_RXENABLE_REQUEST, (unsigned long)((uintptr_t)req));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("MAC802154IOC_MLME_ASSOC_RESPONSE failed: %d\n", errcode);
+      printf("MAC802154IOC_MLME_RXENABLE_REQUEST failed: %d\n", errcode);
     }
 
-  memcpy(resp, &arg.u.assocresp, sizeof(struct ieee802154_assoc_resp_s));
   return ret;
 }

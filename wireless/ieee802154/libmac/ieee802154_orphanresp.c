@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_assocresp.c
+ * apps/wireless/ieee802154/libmac/ieee802154_orphanresp.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author:  Gregory Nutt <gnutt@nuttx.org>
@@ -54,22 +54,18 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_assoc_resp(int sock, FAR const char *ifname,
-                         FAR struct ieee802154_assoc_resp_s *resp)
+int ieee802154_orphan_resp(int fd, FAR struct ieee802154_orphan_resp_s *resp)
 {
-  struct ieee802154_netmac_s arg;
+  union ieee802154_macarg_u arg;
   int ret;
 
-  strncpy(arg.ifr_name, ifname, IFNAMSIZ);
-
-  ret = ioctl(sock, MAC802154IOC_MLME_ASSOC_RESPONSE,
-              (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, MAC802154IOC_MLME_ORPHAN_RESPONSE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("MAC802154IOC_MLME_ASSOC_RESPONSE failed: %d\n", errcode);
+      printf("MAC802154IOC_MLME_ORPHAN_RESPONSE failed: %d\n", errcode);
     }
 
-  memcpy(resp, &arg.u.assocresp, sizeof(struct ieee802154_assoc_resp_s));
+  memcpy(resp, &arg.orphanresp, sizeof(struct ieee802154_orphan_resp_s));
   return ret;
 }

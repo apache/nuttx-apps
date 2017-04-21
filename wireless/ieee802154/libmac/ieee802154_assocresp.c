@@ -64,7 +64,6 @@ int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp)
     {
       int errcode = errno;
       printf("MAC802154IOC_MLME_ASSOC_RESPONSE failed: %d\n", errcode);
-      return ret;
     }
 
   memcpy(resp, &arg.assocresp, sizeof(struct ieee802154_assoc_resp_s));

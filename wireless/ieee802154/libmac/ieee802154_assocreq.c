@@ -62,7 +62,6 @@ int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req)
     {
       int errcode = errno;
       printf("MAC802154IOC_MLME_ASSOC_REQUEST failed: %d\n", errcode);
-      return ret;
     }
 
   return ret;

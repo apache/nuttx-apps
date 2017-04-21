@@ -69,7 +69,6 @@ int sixlowpan_desassoc_req(int sock, FAR const char *ifname,
     {
       int errcode = errno;
       printf("MAC802154IOC_MLME_DISASSOC_REQUEST failed: %d\n", errcode);
-      return ret;
     }
 
   return ret;

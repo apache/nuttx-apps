@@ -41,9 +41,17 @@ include $(APPDIR)/Make.defs
 
 ASRCS  =
 CSRCS  = ieee802154_assocreq.c ieee802154_assocresp.c ieee802154_disassocreq.c
+CSRCS += ieee802154_getreq.c ieee802154_gtsreq.c ieee802154_orphanresp.c
+CSRCS += ieee802154_resetreq.c ieee802154_rxenabreq.c  ieee802154_scanreq.c
+CSRCS += ieee802154_setreq.c ieee802154_startreq.c ieee802154_syncreq.c
+CSRCS += ieee802154_pollreq.c
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
 CSRCS += sixlowpan_assocreq.c sixlowpan_assocresp.c sixlowpan_disassocreq.c
+CSRCS += sixlowpan_getreq.c sixlowpan_gtsreq.c sixlowpan_orphanresp.c
+CSRCS += sixlowpan_resetreq.c sixlowpan_rxenabreq.c sixlowpan_scanreq.c
+CSRCS += sixlowpan_setreq.c sixlowpan_startreq.c sixlowpan_syncreq.c
+CSRCS += sixlowpan_pollreq.c
 endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

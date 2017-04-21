@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_assocresp.c
+ * apps/wireless/ieee802154/libmac/sixlowpan_syncreq.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author:  Gregory Nutt <gnutt@nuttx.org>
@@ -54,22 +54,22 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_assoc_resp(int sock, FAR const char *ifname,
-                         FAR struct ieee802154_assoc_resp_s *resp)
+int sixlowpan_sync_req(int sock, FAR const char *ifname,
+                       FAR const struct ieee802154_sync_req_s *req)
 {
   struct ieee802154_netmac_s arg;
   int ret;
 
   strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  memcpy(&arg.u.syncreq, req, sizeof(struct ieee802154_sync_req_s));
 
-  ret = ioctl(sock, MAC802154IOC_MLME_ASSOC_RESPONSE,
+  ret = ioctl(sock, MAC802154IOC_MLME_SYNC_REQUEST,
               (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("MAC802154IOC_MLME_ASSOC_RESPONSE failed: %d\n", errcode);
+      printf("MAC802154IOC_MLME_SYNC_REQUEST failed: %d\n", errcode);
     }
 
-  memcpy(resp, &arg.u.assocresp, sizeof(struct ieee802154_assoc_resp_s));
   return ret;
 }

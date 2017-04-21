@@ -69,7 +69,6 @@ int sixlowpan_assoc_req(int sock, FAR const char *ifname,
     {
       int errcode = errno;
       printf("MAC802154IOC_MLME_ASSOC_REQUEST failed: %d\n", errcode);
-      return ret;
     }
 
   return ret;
