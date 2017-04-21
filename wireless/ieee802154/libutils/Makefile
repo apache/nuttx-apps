@@ -1,7 +1,7 @@
 ############################################################################
 # apps/wireless/ieee802154/libradio/Makefile
 #
-#   Copyright (C) 2016-17 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2016-2-17 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,16 +37,10 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# libradio source files
+# libutils source files
 
 ASRCS  =
-CSRCS  = ieee802154_setchan.c ieee802154_getchan.c
-CSRCS += ieee802154_setpanid.c ieee802154_getpanid.c
-CSRCS += ieee802154_setsaddr.c ieee802154_getsaddr.c
-CSRCS += ieee802154_seteaddr.c ieee802154_geteaddr.c
-CSRCS += ieee802154_setpromisc.c ieee802154_getpromisc.c
-CSRCS += ieee802154_setdevmode.c
-CSRCS += ieee802154_setcca.c ieee802154_getcca.c
+CSRCS += ieee802154_addrparse.c ieee802154_addrstore.c ieee802154_addrtostr.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))

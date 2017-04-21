@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/ieee802154_getpanid.c
+ * apps/wireless/ieee802154/libradio/ieee802154_getsaddr.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -53,18 +53,18 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getpanid(int fd, FAR uint16_t *panid)
+int ieee802154_getsaddr(int fd, FAR uint16_t *saddr)
 {
   union ieee802154_radioarg_u arg;
 
-  int ret = ioctl(fd, PHY802154IOC_GET_PANID,
+  int ret = ioctl(fd, PHY802154IOC_GET_SADDR,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("PHY802154IOC_GET_PANID failed: %d\n", errcode);
+      printf("PHY802154IOC_GET_SADDR failed: %d\n", errcode);
     }
 
-  *panid = arg.panid;
+  *saddr = arg.saddr;
   return ret;
 }

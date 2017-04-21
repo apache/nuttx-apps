@@ -54,7 +54,7 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_seteaddr(int fd, uint8_t *eaddr)
+int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr)
 {
   union ieee802154_radioarg_u arg;
 

@@ -59,10 +59,13 @@ int ieee802154_setpanid(int fd, uint16_t panid);
 int ieee802154_getpanid(int fd, FAR uint16_t *panid);
 
 int ieee802154_setsaddr(int fd, uint16_t saddr);
+int ieee802154_getsaddr(int fd, FAR uint16_t *saddr);
 
-int ieee802154_seteaddr(int fd, FAR uint8_t *chan);
+int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr);
+int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr);
 
 int ieee802154_setpromisc(int fd, bool promisc);
+int ieee802154_getpromisc(int fd, FAR bool *promisc);
 
 int ieee802154_setdevmode(int fd, uint8_t devmode);
 
@@ -71,10 +74,10 @@ int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
 
 /* libutils */
 
-int ieee802154_addrparse(FAR struct ieee802154_packet_s *inPacket,
+int ieee802154_addrparse(FAR struct ieee802154_packet_s *inpacket,
       FAR struct ieee802154_addr_s *dest,
       FAR struct ieee802154_addr_s *src);
-int ieee802154_addrstore(FAR struct ieee802154_packet_s *inPacket,
+int ieee802154_addrstore(FAR struct ieee802154_packet_s *inpacket,
       FAR struct ieee802154_addr_s *dest,
       FAR struct ieee802154_addr_s *src);
 int ieee802154_addrtostr(FAR char *buf, int len,

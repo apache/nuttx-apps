@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/ieee802154_getpanid.c
+ * apps/wireless/ieee802154/libradio/ieee802154_getpromisc.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -53,18 +53,18 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getpanid(int fd, FAR uint16_t *panid)
+int ieee802154_getpromisc(int fd, FAR bool *promisc)
 {
   union ieee802154_radioarg_u arg;
 
-  int ret = ioctl(fd, PHY802154IOC_GET_PANID,
+  int ret = ioctl(fd, PHY802154IOC_GET_PROMISC,
                   (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
       int errcode = errno;
-      printf("PHY802154IOC_GET_PANID failed: %d\n", errcode);
+      printf("PHY802154IOC_GET_PROMISC failed: %d\n", errcode);
     }
 
-  *panid = arg.panid;
+  *promisc = arg.promisc;
   return ret;
 }
