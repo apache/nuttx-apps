@@ -3,9 +3,9 @@
 # see misc/tools/kconfig-language.txt.
 #
 
-config IEEE802154_COMMON
-	bool "Common IEEE 802.15.4 library routines"
+config IEEE802154_LIBRADIO
+	bool "IEEE 802.15.4 radio library routines"
 	default n
 	---help---
-		Some common library routines for ieee 802.15.4 apps
+		Some radio library routines for ieee 802.15.4 apps
 

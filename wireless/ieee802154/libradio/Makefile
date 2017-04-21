@@ -1,7 +1,7 @@
 ############################################################################
-# apps/wireless/ieee802154/Makefile
+# apps/wireless/ieee802154/libradio/Makefile
 #
-#   Copyright (C) 2011-2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2016-17 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# NSH Library
+# libradio source files
 
 ASRCS  =
 CSRCS  = ieee802154_setchan.c ieee802154_getchan.c
@@ -45,9 +45,6 @@ CSRCS += ieee802154_setpanid.c
 CSRCS += ieee802154_seteaddr.c ieee802154_setsaddr.c
 CSRCS += ieee802154_setpromisc.c ieee802154_setdevmode.c
 CSRCS += ieee802154_setcca.c ieee802154_getcca.c
-CSRCS += ieee802154_addrparse.c ieee802154_addrstore.c ieee802154_addrtostr.c
-
-#
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -56,12 +53,12 @@ SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\..\libapps$(LIBEXT)
+  BIN = ..\..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../../../libapps$(LIBEXT)
+  BIN = ../../../libapps$(LIBEXT)
 endif
 endif
 

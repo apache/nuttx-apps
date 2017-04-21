@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libradio/ieee802154_addrparse.c
+ * apps/wireless/ieee802154/libutils/ieee802154_addrparse.c
  *
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
