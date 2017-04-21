@@ -46,6 +46,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "wireless/ieee802154.h"
 #include "netutils/netlib.h"
 
 #if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
@@ -82,7 +83,7 @@ int netlib_setpanid(FAR const char *ifname, uint16_t panid)
         {
           /* Use the helper provided in libradio */
 
-          ret = ieee802154_setpanid(sockfd, ifname, panid);
+          ret = sixlowpan_setpanid(sockfd, ifname, panid);
           close(sockfd);
         }
     }

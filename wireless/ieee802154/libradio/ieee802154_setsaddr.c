@@ -64,7 +64,7 @@ int ieee802154_setsaddr(int fd, uint16_t saddr)
   ret = ioctl(fd, PHY802154IOC_SET_SADDR, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      errcode = errno;
+      int errcode = errno;
       printf("PHY802154IOC_SET_SADDR failed: %d\n", errcode);
     }
 

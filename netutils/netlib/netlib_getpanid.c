@@ -83,7 +83,7 @@ int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
         {
           /* Use the helper provided in libradio */
 
-          ret = ieee802154_getpanid(sockfd, ifname, panid);
+          ret = sixlowpan_getpanid(sockfd, ifname, panid);
           close(sockfd);
         }
     }

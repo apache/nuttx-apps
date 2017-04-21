@@ -37,10 +37,7 @@
 ifeq ($(CONFIG_WIRELESS_IWPAN),y)
 
 CSRCS = 
-
-ifeq ($(CONFIG_WIRELESS_IWPAN_CMDTOOL),y)
 MAINSRC = iwpan.c
-endif
 
 DEPPATH += --dep-path src
 VPATH += :src
