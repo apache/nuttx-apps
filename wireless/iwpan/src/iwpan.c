@@ -138,14 +138,14 @@ static const struct iwpan_command_s g_iwpan_commands[] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: iwpan_str2int
+ * Name: iwpan_str2long
  *
  * Description:
  *   Convert a string to an integer value
  *
  ****************************************************************************/
 
-static int iwpan_str2int(FAR const char *str)
+static long iwpan_str2long(FAR const char *str)
 {
   FAR char *endptr;
   long value;
@@ -160,10 +160,31 @@ static int iwpan_str2int(FAR const char *str)
   if (value > INT_MAX || value < INT_MIN)
     {
       fprintf(stderr, "ERROR: Integer value out of range\n");
+      return LONG_MAX;
       exit(EXIT_FAILURE);
     }
 
-  return (int)value;
+  return value;
+}
+
+/****************************************************************************
+ * Name: iwpan_str2luint8
+ *
+ * Description:
+ *   Convert a string to an integer value
+ *
+ ****************************************************************************/
+
+static uint8_t iwpan_str2luint8(FAR const char *str)
+{
+  long value = iwpan_str2long(str);
+  if (value < 0 || value > UINT8_MAX)
+    {
+      fprintf(stderr, "ERROR: 8-bit value out of range\n");
+      exit(EXIT_FAILURE);
+    }
+
+  return (uint8_t)value;
 }
 
 /****************************************************************************
@@ -199,7 +220,98 @@ static double iwpan_str2double(FAR const char *str)
 
 static void iwpan_show_cmd(int sock, FAR const char *ifname)
 {
+  uint8_t eaddr[EADDR_SIZE] =
+  {
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+  };
 
+  union
+  {
+    struct ieee802154_cca_s cca;
+    uint8_t b;
+  } u;
+
+  int32_t txpwr = INT32_MAX;
+  uint16_t saddr = UINT16_MAX;
+  uint16_t panid = UINT16_MAX;
+  uint8_t chan = UINT8_MAX;
+  uint8_t devmode = UINT8_MAX;
+  bool promisc = false;
+  bool energy = false;
+  int ret;
+
+  u.b = 0xff;
+
+  /* Read all parameters from the radio */
+
+  ret = sixlowpan_getchan(sock, ifname, &chan);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_getchan() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_getpanid(sock, ifname, &panid);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_getpanid() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_getsaddr(sock, ifname, &saddr);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_getsaddr() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_geteaddr(sock, ifname,  eaddr);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_geteaddr() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_getpromisc(sock, ifname, &promisc);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_getpromisc() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_getdevmode(sock, ifname, &devmode);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_getdevmode() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_gettxpwr(sock, ifname, &txpwr);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_gettxpwr() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_getcca(sock, ifname, &u.cca);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_getcca() failed: %d\n", ret);
+    }
+
+  ret = sixlowpan_energydetect(sock, ifname, &energy);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_energydetect() failed: %d\n", ret);
+    }
+
+  /* And generate the output */
+
+  fprintf(stderr, "\nRadio Settings (%s):\n", ifname);
+  fprintf(stderr, "    chan: %u\n", chan);
+  fprintf(stderr, "   saddr: %04x\n", saddr);
+  fprintf(stderr, "   eaddr: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+          eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5], 
+          eaddr[6], eaddr[7]);
+  fprintf(stderr, "   panid: %04x\n", panid);
+  fprintf(stderr, " devmode: %u\n", devmode);
+  fprintf(stderr, " promisc: %s\n", promisc ? "true" : "false");
+  fprintf(stderr, "     cca: %02x\n", u.b);
+  fprintf(stderr, "   txpwr: %ld\n", (long)txpwr);
+  fprintf(stderr, " ernergy: %s\n", energy ? "true" : "false");
 }
 
 /****************************************************************************
@@ -213,7 +325,25 @@ static void iwpan_show_cmd(int sock, FAR const char *ifname)
 static void iwpan_cca_cmd(int sock, FAR const char *ifname,
                           FAR const char *ccastr)
 {
+  union
+  {
+    struct ieee802154_cca_s cca;
+    uint8_t b;
+  } u;
+  int value;
+  int ret;
 
+  /* Convert input strings to values */
+
+  u.b = iwpan_str2luint8(ccastr);
+
+  /* Set the CCA */
+
+  ret = sixlowpan_setcca(sock, ifname, &u.cca);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_setcca() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -227,7 +357,20 @@ static void iwpan_cca_cmd(int sock, FAR const char *ifname,
 static void iwpan_chan_cmd(int sock, FAR const char *ifname,
                            FAR const char *chanstr)
 {
+  uint8_t chan;
+  int ret;
 
+  /* Convert input strings to values */
+
+  chan = iwpan_str2luint8(chanstr);
+
+  /* Set the channel */
+
+  ret = sixlowpan_setchan(sock, ifname, chan);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_setchan() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -239,9 +382,22 @@ static void iwpan_chan_cmd(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 static void iwpan_devmode_cmd(int sock, FAR const char *ifname,
-                              FAR const char *modstr)
+                              FAR const char *modestr)
 {
+  uint8_t devmode;
+  int ret;
 
+  /* Convert input strings to values */
+
+  devmode = iwpan_str2luint8(modestr);
+
+  /* Set the devmode */
+
+  ret = sixlowpan_setdevmode(sock, ifname, devmode);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:int sixlowpan_setdevmode() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -256,7 +412,20 @@ static void iwpan_devmode_cmd(int sock, FAR const char *ifname,
 static void iwpan_eaddr_cmd(int sock, FAR const char *ifname,
                             FAR const char *addrstr)
 {
+  uint8_t eaddr[EADDR_SIZE];
+  int ret;
 
+  /* Convert input strings to values */
+  
+#warning Missing logic
+
+  /* Set the extended address */
+
+  ret = sixlowpan_seteaddr(sock, ifname, eaddr);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_seteaddr() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -271,7 +440,19 @@ static void iwpan_eaddr_cmd(int sock, FAR const char *ifname,
 static void iwpan_panid_cmd(int sock, FAR const char *ifname,
                             FAR const char *panstr)
 {
+  uint16_t panid;
+  int ret;
 
+  /* Convert input strings to values */
+#warning Missing logic
+
+  /* Set the PAN ID */
+
+  ret = sixlowpan_setpanid(sock, ifname, panid);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_setpanid() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -286,7 +467,19 @@ static void iwpan_panid_cmd(int sock, FAR const char *ifname,
 static void iwpan_promisc_cmd(int sock, FAR const char *ifname,
                               FAR const char *boolstr)
 {
+  bool promisc;
+  int ret;
 
+  /* Convert input strings to values */
+#warning Missing logic
+
+  /* Set the promisc */
+
+  ret = sixlowpan_setpromisc(sock, ifname, promisc);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_setpromisc() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -300,7 +493,19 @@ static void iwpan_promisc_cmd(int sock, FAR const char *ifname,
 static void iwpan_saddr_cmd(int sock, FAR const char *ifname,
                             FAR const char *addrstr)
 {
+   uint16_t saddr;
+  int ret;
 
+  /* Convert input strings to values */
+#warning Missing logic
+
+  /* Set the short address */
+
+  ret = sixlowpan_setsaddr(sock, ifname, saddr);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_setsaddr() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
@@ -314,7 +519,20 @@ static void iwpan_saddr_cmd(int sock, FAR const char *ifname,
 static void iwpan_txpwr_cmd(int sock, FAR const char *ifname,
                             FAR const char *pwrstr)
 {
+  long txpwr;
+  int ret;
 
+  /* Convert input strings to values */
+
+  txpwr = iwpan_str2long(pwrstr);
+
+  /* Set the TX power */
+
+  ret = sixlowpan_settxpwr(sock, ifname, (int32_t)txpwr);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: sixlowpan_settxpwr() failed: %d\n", ret);
+    }
 }
 
 /****************************************************************************
