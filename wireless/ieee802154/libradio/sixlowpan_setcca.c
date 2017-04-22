@@ -65,8 +65,8 @@ int sixlowpan_setcca(int sock, FAR const char *ifname, FAR struct ieee802154_cca
   ret = ioctl(sock, PHY802154IOC_SET_CCA, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_SET_CCA failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_CCA failed: %d\n", ret);
     }
 
   return ret;

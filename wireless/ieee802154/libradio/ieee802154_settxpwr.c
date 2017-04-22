@@ -63,8 +63,8 @@ int ieee802154_settxpwr(int fd, int32_t txpwr)
   ret = ioctl(fd, PHY802154IOC_SET_TXPWR, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_SET_TXPWR failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_TXPWR failed: %d\n", ret);
     }
 
   return ret;

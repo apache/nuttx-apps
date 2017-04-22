@@ -65,8 +65,8 @@ int sixlowpan_setdevmode(int sock, FAR const char *ifname, uint8_t devmode)
   ret = ioctl(sock, PHY802154IOC_SET_DEVMODE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_SET_DEVMODE failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_DEVMODE failed: %d\n", ret);
     }
 
   return ret;

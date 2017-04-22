@@ -61,10 +61,11 @@ int ieee802154_getsaddr(int fd, FAR uint16_t *saddr)
   ret = ioctl(fd, PHY802154IOC_GET_SADDR, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_GET_SADDR failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_SADDR failed: %d\n", ret);
+      return ret;
     }
 
   *saddr = arg.saddr;
-  return ret;
+  return OK;
 }

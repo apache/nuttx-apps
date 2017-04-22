@@ -61,10 +61,11 @@ int ieee802154_getdevmode(int fd, FAR uint8_t *devmode)
   ret = ioctl(fd, PHY802154IOC_GET_DEVMODE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_GET_DEVMODE failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_DEVMODE failed: %d\n", ret);
+      return ret;
     }
 
   *devmode = arg.devmode;
-  return ret;
+  return OK;
 }

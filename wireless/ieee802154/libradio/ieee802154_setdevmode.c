@@ -43,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
@@ -63,7 +64,8 @@ int ieee802154_setdevmode(int fd, uint8_t devmode)
   ret = ioctl(fd, PHY802154IOC_SET_DEVMODE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_DEVMODE failed\n");
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_DEVMODE failed: %d\n", ret);
     }
 
   return ret;

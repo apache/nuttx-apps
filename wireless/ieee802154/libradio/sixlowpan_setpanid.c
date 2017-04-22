@@ -65,8 +65,8 @@ int sixlowpan_setpanid(int sock, FAR const char *ifname, uint16_t panid)
   ret = ioctl(sock, PHY802154IOC_SET_PANID, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_SET_PANID failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_PANID failed: %d\n", ret);
     }
 
   return ret;

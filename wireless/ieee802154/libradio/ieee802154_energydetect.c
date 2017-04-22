@@ -61,10 +61,11 @@ int ieee802154_energydetect(int fd, FAR bool *energy)
   ret = ioctl(fd, PHY802154IOC_ENERGYDETECT, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_ENERGYDETECT failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_ENERGYDETECT failed: %d\n", ret);
+      return ret;
     }
 
   *energy = arg.energy;
-  return ret;
+  return OK;
 }

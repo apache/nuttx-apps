@@ -62,10 +62,11 @@ int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr)
   ret = ioctl(fd, PHY802154IOC_GET_EADDR, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_GET_EADDR failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_EADDR failed: %d\n", ret);
+      return ret;
     }
 
   memcpy(eaddr, arg.eaddr, EADDR_SIZE);
-  return ret;
+  return OK;
 }

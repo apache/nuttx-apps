@@ -65,10 +65,11 @@ int sixlowpan_getcca(int sock, FAR const char *ifname,
   ret = ioctl(sock, PHY802154IOC_GET_CCA, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_GET_CCA failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_CCA failed: %d\n", ret);
+      return ret;
     }
 
   memcpy(cca, &arg.u.cca, sizeof(struct ieee802154_cca_s));
-  return ret;
+  return OK;
 }

@@ -66,8 +66,8 @@ int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc)
   ret = ioctl(sock, PHY802154IOC_SET_PROMISC, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_SET_PROMISC failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_PROMISC failed: %d\n", ret);
     }
 
   return ret;

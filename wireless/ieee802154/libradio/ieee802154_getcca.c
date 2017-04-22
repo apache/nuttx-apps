@@ -44,6 +44,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
@@ -62,9 +63,11 @@ int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca)
   ret = ioctl(fd, PHY802154IOC_GET_CCA, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_GET_CCA failed\n");
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_CCA failed\n", ret);
+      return ret;
     }
 
   memcpy(cca, &arg.cca, sizeof(struct ieee802154_cca_s));
-  return ret;
+  return OK;
 }

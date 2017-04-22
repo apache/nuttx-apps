@@ -64,10 +64,11 @@ int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan)
   ret = ioctl(sock, PHY802154IOC_GET_CHAN, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_GET_CHAN failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_CHAN failed: %d\n", ret);
+      return ret;
     }
 
   *chan = arg.u.channel;
-  return ret;
+  return OK;
 }

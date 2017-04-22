@@ -61,10 +61,11 @@ int ieee802154_getpromisc(int fd, FAR bool *promisc)
   ret = ioctl(fd, PHY802154IOC_GET_PROMISC, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("PHY802154IOC_GET_PROMISC failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_PROMISC failed: %d\n", ret);
+      return ret;
     }
 
   *promisc = arg.promisc;
-  return ret;
+  return OK;
 }

@@ -39,12 +39,15 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
-#include <nuttx/fs/ioctl.h>
+#include <errno.h>
 
+#include <nuttx/fs/ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
+
 #include "wireless/ieee802154.h"
 
 /****************************************************************************
@@ -59,10 +62,11 @@ int ieee802154_getchan(int fd, FAR uint8_t *chan)
   ret = ioctl(fd, PHY802154IOC_GET_CHAN, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_GET_CHAN failed\n");
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_GET_CHAN failed: %d\n", ret);
       return ret;
     }
 
   *chan = arg.channel;
-  return ret;
+  return OK;
 }

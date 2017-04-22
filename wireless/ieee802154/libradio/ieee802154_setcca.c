@@ -44,6 +44,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include <nuttx/fs/ioctl.h>
 
@@ -64,7 +65,8 @@ int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca)
   ret = ioctl(fd, PHY802154IOC_SET_CCA, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      printf("PHY802154IOC_SET_CCA failed\n");
+      ret = -errno;
+      fprintf(stderr, "PHY802154IOC_SET_CCA failed: %d\n", ret);
     }
 
   return ret;
