@@ -188,26 +188,121 @@ static uint8_t iwpan_str2luint8(FAR const char *str)
 }
 
 /****************************************************************************
- * Name: iwpan_str2double
+ * Name: iwpan_str2luint16
  *
  * Description:
- *   Convert a string to a double value
+ *   Convert a string to an integer value
  *
  ****************************************************************************/
 
-static double iwpan_str2double(FAR const char *str)
+static uint16_t iwpan_str2luint16(FAR const char *str)
 {
-  FAR char *endptr;
-  double value;
-
-  value = strtod(str, &endptr);
-  if (*endptr != '\0')
+  long value = iwpan_str2long(str);
+  if (value < 0 || value > UINT16_MAX)
     {
-      fprintf(stderr, "ERROR: Garbage after numeric argument\n");
+      fprintf(stderr, "ERROR: 16-bit value out of range\n");
       exit(EXIT_FAILURE);
     }
 
-  return value;
+  return (uint8_t)value;
+}
+
+/****************************************************************************
+ * Name: iwpan_char2nibble
+ *
+ * Description:
+ *   Convert an hexadecimal character to a 4-bit nibble.
+ *
+ ****************************************************************************/
+
+static uint8_t iwpan_char2nibble(char ch)
+{
+  if (ch >= '0' && ch <= '9')
+    {
+      return ch - '0';
+    }
+  else if (ch >= 'a' && ch <= 'f')
+    {
+      return ch - 'a' + 10;
+    }
+  else if (ch >= 'A' && ch <= 'F')
+    {
+      return ch - 'A' + 10;
+    }
+  else if (ch == '\0')
+    {
+      fprintf(stderr, "ERROR: Unexpected end hex\n");
+      exit(EXIT_FAILURE);
+    }
+  else
+    {
+      fprintf(stderr, "ERROR: Unexpected character in hex value: %02x\n", ch);
+      exit(EXIT_FAILURE);
+    }
+}
+
+/****************************************************************************
+ * Name: iwpan_str2eaddr
+ *
+ * Description:
+ *   Convert a string 8-byte EADAR array.
+ *
+ ****************************************************************************/
+
+static void iwpan_str2eaddr(FAR const char *str, FAR uint8_t *eaddr)
+{
+  FAR const char *src = str;
+  uint8_t bvalue;
+  char ch;
+  int i;
+
+  for (i = 0; i < 8; i++)
+    {
+      ch = (char)*src++;
+      bvalue = iwpan_char2nibble(ch) << 4;
+
+      ch = (char)*src++;
+      bvalue |= iwpan_char2nibble(ch);
+
+      *eaddr++ = bvalue;
+
+      if (i < 7)
+        {
+          ch = (char)*src++;
+          if (ch != ':')
+            {
+              fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
+              fprintf(stderr, "       Expected xx:xx:xx:xx:xx:xx:xx:xx\n");
+              exit(EXIT_FAILURE);
+            }
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: iwpan_str2bool
+ *
+ * Description:
+ *   Convert a boolean name to a boolean value.
+ *
+ ****************************************************************************/
+
+static bool iwpan_str2bool(FAR const char *str)
+{
+  if (strcasecmp(str, "true") == 0)
+    {
+      return true;
+    }
+  else if (strcasecmp(str, "false") == 0)
+    {
+      return false;
+    }
+  else
+    {
+      fprintf(stderr, "ERROR: Invalid boolean name: %s\n", str);
+      fprintf(stderr, "       Expected true or false\n");
+      exit(EXIT_FAILURE);
+    }
 }
 
 /****************************************************************************
@@ -304,7 +399,7 @@ static void iwpan_show_cmd(int sock, FAR const char *ifname)
   fprintf(stderr, "    chan: %u\n", chan);
   fprintf(stderr, "   saddr: %04x\n", saddr);
   fprintf(stderr, "   eaddr: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
-          eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5], 
+          eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5],
           eaddr[6], eaddr[7]);
   fprintf(stderr, "   panid: %04x\n", panid);
   fprintf(stderr, " devmode: %u\n", devmode);
@@ -330,7 +425,6 @@ static void iwpan_cca_cmd(int sock, FAR const char *ifname,
     struct ieee802154_cca_s cca;
     uint8_t b;
   } u;
-  int value;
   int ret;
 
   /* Convert input strings to values */
@@ -416,8 +510,8 @@ static void iwpan_eaddr_cmd(int sock, FAR const char *ifname,
   int ret;
 
   /* Convert input strings to values */
-  
-#warning Missing logic
+
+  iwpan_str2eaddr(addrstr, eaddr);
 
   /* Set the extended address */
 
@@ -444,7 +538,8 @@ static void iwpan_panid_cmd(int sock, FAR const char *ifname,
   int ret;
 
   /* Convert input strings to values */
-#warning Missing logic
+
+  panid = iwpan_str2luint16(panstr);
 
   /* Set the PAN ID */
 
@@ -471,7 +566,8 @@ static void iwpan_promisc_cmd(int sock, FAR const char *ifname,
   int ret;
 
   /* Convert input strings to values */
-#warning Missing logic
+
+  promisc = iwpan_str2bool(boolstr);
 
   /* Set the promisc */
 
@@ -497,7 +593,8 @@ static void iwpan_saddr_cmd(int sock, FAR const char *ifname,
   int ret;
 
   /* Convert input strings to values */
-#warning Missing logic
+
+  saddr = iwpan_str2luint16(addrstr);
 
   /* Set the short address */
 
@@ -570,6 +667,8 @@ static void iwpan_showusage(FAR const char *progname, int exitcode)
   fprintf(stderr, "\t%s set <ifname> TBD\n", progname);
   fprintf(stderr, "\t%s start <ifname> TBD\n", progname);
   fprintf(stderr, "\t%s sync <ifname> TBD\n", progname);
+  fprintf(stderr, "\nWhere:\n");
+  fprintf(stderr, "\t<eaddr> must be entered as xx:xx:xx:xx:xx:xx:xx\n");
   exit(exitcode);
 }
 
