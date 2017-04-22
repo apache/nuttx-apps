@@ -67,8 +67,8 @@ int sixlowpan_reset_req(int sock, FAR const char *ifname,
               (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("MAC802154IOC_MLME_RESET_REQUEST failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "MAC802154IOC_MLME_RESET_REQUEST failed: %d\n", ret);
     }
 
   return ret;

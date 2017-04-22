@@ -62,10 +62,11 @@ int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp)
   ret = ioctl(fd, MAC802154IOC_MLME_ASSOC_RESPONSE, (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("MAC802154IOC_MLME_ASSOC_RESPONSE failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "MAC802154IOC_MLME_ASSOC_RESPONSE failed: %d\n", ret);
+      return ret;
     }
 
   memcpy(resp, &arg.assocresp, sizeof(struct ieee802154_assoc_resp_s));
-  return ret;
+  return OK;
 }

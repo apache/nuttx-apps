@@ -60,8 +60,8 @@ int ieee802154_poll_req(int fd, FAR struct ieee802154_poll_req_s *req)
   ret = ioctl(fd, MAC802154IOC_MLME_POLL_REQUEST, (unsigned long)((uintptr_t)req));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("MAC802154IOC_MLME_POLL_REQUEST failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "MAC802154IOC_MLME_POLL_REQUEST failed: %d\n", ret);
     }
 
   return ret;

@@ -66,10 +66,11 @@ int sixlowpan_orphan_resp(int sock, FAR const char *ifname,
               (unsigned long)((uintptr_t)&arg));
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("MAC802154IOC_MLME_ORPHAN_RESPONSE failed: %d\n", errcode);
+      ret = -errno;
+      fprintf(stderr, "MAC802154IOC_MLME_ORPHAN_RESPONSE failed: %d\n", ret);
+      return ret;
     }
 
   memcpy(resp, &arg.u.orphanresp, sizeof(struct ieee802154_orphan_resp_s));
-  return ret;
+  return OK;
 }
