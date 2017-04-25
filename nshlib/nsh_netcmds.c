@@ -83,19 +83,16 @@
 #include <nuttx/net/sixlowpan.h>
 #endif
 
-#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_SIGNALS)
+#ifdef CONFIG_NETUTILS_NETLIB
 #  include "netutils/netlib.h"
 #endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
 #  include "netutils/netlib.h"
-#  include "netutils/tftp.h"
 #endif
 
 #if defined(CONFIG_NET_TCP) && CONFIG_NFILE_DESCRIPTORS > 0
 #  ifndef CONFIG_NSH_DISABLE_WGET
-#    include "netutils/netlib.h"
 #    include "netutils/webclient.h"
 #  endif
 #endif
