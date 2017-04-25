@@ -54,6 +54,7 @@ CSRCS =
 MAINSRC =
 
 VPATH = .
+DEPPATH = --dep-path .
 
 include $(APPDIR)/wireless/wapi/src/Make.defs
 
@@ -86,8 +87,6 @@ endif
 
 CONFIG_WAPI_PROGNAME ?= wapi$(EXEEXT)
 PROGNAME = $(CONFIG_WAPI_PROGNAME)
-
-ROOTDEPPATH = --dep-path .
 
 # Common build
 
@@ -131,7 +130,7 @@ endif
 # Create dependencies
 
 .depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) $(MKDEP) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	$(Q) touch $@
 
 depend: .depend
