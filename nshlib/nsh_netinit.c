@@ -295,8 +295,11 @@ static void nsh_netinit_configure(void)
 
   /* Set the 6loWPAN node address */
 
-  netlib_setnodeaddr(NET_DEVNAME, nodeaddr);
+  (void)netlib_setnodeaddr(NET_DEVNAME, nodeaddr);
 
+  /* Set the 6loWPAN PAN ID */
+
+  (void)netlib_setpanid(NET_DEVNAME, CONFIG_NSH_PANID);
 #endif /* CONFIG_NET_ETHERNET */
 #endif /* CONFIG_NSH_NOMAC && HAVE_MAC */
 

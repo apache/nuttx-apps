@@ -96,7 +96,7 @@ int netlib_setnodeaddr(FAR const char *ifname, FAR const uint8_t *nodeaddr)
           req.ifr_hwaddr.sa_family = AF_INET6;
           memcpy(&req.ifr_hwaddr.sa_data, nodeaddr, NET_6LOWPAN_RIMEADDR_SIZE);
 
-          /* Perform the ioctl to set the MAC address */
+          /* Perform the ioctl to set the node address */
 
           ret = ioctl(sockfd, SIOCSIFHWADDR, (unsigned long)&req);
           close(sockfd);

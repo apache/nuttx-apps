@@ -11,6 +11,22 @@ config EXAMPLES_HIDKBD
 
 if EXAMPLES_HIDKBD
 
+config EXAMPLES_HIDKBD_PROGNAME
+	string "Program name"
+	default "hidkbd"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the Nettest
+		program is installed.
+
+config EXAMPLES_HIDKBD_STACKSIZE
+	int "Task stack size"
+	default 2048
+
+config EXAMPLES_HIDKBD_DEFPRIO
+	int "Task priority"
+	default 100
+
 config EXAMPLES_HIDKBD_DEVNAME
 	string "Keyboard Device Name"
 	default "/dev/kbda"

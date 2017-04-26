@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <math.h>
+#include <errno.h>
 
 #include <nuttx/net/arp.h>
 #include <nuttx/wireless/wireless.h>
@@ -341,7 +342,14 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
   WAPI_VALIDATE_PTR(flag);
 
   strncpy(wrq.ifr_name, ifname, IFNAMSIZ);
-  if ((ret = ioctl(sock, SIOCGIWFREQ, (unsigned long)((uintptr_t)&wrq))) >= 0)
+  ret = ioctl(sock, SIOCGIWFREQ, (unsigned long)((uintptr_t)&wrq));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWFREQ, errcode);
+      ret = -errcode;
+    }
+  else
     {
       /* Set flag. */
 
@@ -402,7 +410,9 @@ int wapi_set_freq(int sock, FAR const char *ifname, double freq,
   ret = ioctl(sock, SIOCSIWFREQ, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWFREQ);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWFREQ, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -462,7 +472,9 @@ int wapi_freq2chan(int sock, FAR const char *ifname, double freq,
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWRANGE);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWRANGE, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -518,7 +530,9 @@ int wapi_chan2freq(int sock, FAR const char *ifname, int chan,
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWRANGE);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWRANGE, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -553,7 +567,9 @@ int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
   ret = ioctl(sock, SIOCGIWESSID, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWESSID);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWESSID, errcode);
+      ret = -errcode;
     }
   else
     {
@@ -591,7 +607,9 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
   ret = ioctl(sock, SIOCSIWESSID, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWESSID);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWESSID, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -619,7 +637,9 @@ int wapi_get_mode(int sock, FAR const char *ifname, FAR wapi_mode_t *mode)
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWMODE);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWMODE, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -644,7 +664,9 @@ int wapi_set_mode(int sock, FAR const char *ifname, wapi_mode_t mode)
   ret = ioctl(sock, SIOCSIWMODE, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWMODE);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWMODE, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -702,7 +724,9 @@ int wapi_get_ap(int sock, FAR const char *ifname, FAR struct ether_addr *ap)
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWAP);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWAP, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -731,7 +755,9 @@ int wapi_set_ap(int sock, FAR const char *ifname,
   ret = ioctl(sock, SIOCSIWAP, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWAP);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWAP, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -772,7 +798,9 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWRATE);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWRATE, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -799,7 +827,9 @@ int wapi_set_bitrate(int sock, FAR const char *ifname, int bitrate,
   ret = ioctl(sock, SIOCSIWRATE, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWRATE);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWRATE, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -884,7 +914,9 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWTXPOW);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWTXPOW, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -928,7 +960,9 @@ int wapi_set_txpower(int sock, FAR const char *ifname, int power,
   ret = ioctl(sock, SIOCSIWTXPOW, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWTXPOW);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWTXPOW, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -956,7 +990,9 @@ int wapi_scan_init(int sock, const char *ifname)
   ret = ioctl(sock, SIOCSIWSCAN, (unsigned long)((uintptr_t)&wrq));
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCSIWSCAN);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCSIWSCAN, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -1003,7 +1039,9 @@ int wapi_scan_stat(int sock, FAR const char *ifname)
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWSCAN);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWSCAN, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -1069,9 +1107,10 @@ alloc:
 
   if (ret < 0)
     {
-      WAPI_IOCTL_STRERROR(SIOCGIWSCAN);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIWSCAN, errcode);
       free(buf);
-      return ret;
+      return -errcode;
     }
 
   /* We have the results, process them. */

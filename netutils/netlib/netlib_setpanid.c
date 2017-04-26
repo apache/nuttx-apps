@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setessid.c
+ * netutils/netlib/netlib_setpanid.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -38,7 +38,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -47,76 +46,46 @@
 #include <string.h>
 #include <errno.h>
 
-#include <netinet/in.h>
-#include <net/if.h>
-
-#include <nuttx/wireless/wireless.h>
-
 #include "netutils/netlib.h"
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
- /* The address family that we used to create the socket and in the IOCTL
- * data really does not matter.  It should, however, be valid in the current
- * configuration.
- */
-
-#if defined(CONFIG_NET_IPv4)
-#  define PF_INETX PF_INET
-#  define AF_INETX AF_INET
-#elif defined(CONFIG_NET_IPv6)
-#  define PF_INETX PF_INET6
-#  define AF_INETX AF_INET6
-#endif
+#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setessid
+ * Name: netlib_setpanid
  *
  * Description:
- *   Set the wireless access point ESSID
+ *   Join the specified PAN ID
  *
  * Parameters:
- *   ifname   The name of the interface to use
- *   essid    Wireless ESSD address to set, size must be less then or equal
- *            to IW_ESSID_MAX_SIZE + 1 (including the NUL string terminator).
+ *   ifname The name of the interface to use
+ *   panid  The PAN ID to join
  *
  * Return:
- *   0 on success; -1 on failure (errno may not be set)
+ *   0 on success; -1 on failure.  errno will be set on failure.
  *
  ****************************************************************************/
 
-int netlib_setessid(FAR const char *ifname, FAR const char *essid)
+int netlib_setpanid(FAR const char *ifname, uint16_t panid)
 {
   int ret = ERROR;
 
-  if (ifname != NULL && essid != NULL)
+  if (ifname != NULL)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          struct iwreq req;
-
           /* Put the driver name into the request */
+# warning Missing Logic
+          /* Put the new PAN ID into the request */
 
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
+          /* Perform the ioctl to set the new PAN ID */
 
-          /* Put the new ESSID into the request */
-
-          req.u.essid.pointer = (FAR void *)essid;
-          req.u.essid.length  = strlen(essid) + 1;
-          req.u.essid.flags   = 1;
-
-          /* Perform the ioctl to set the ESSID */
-
-          ret = ioctl(sockfd, SIOCSIWESSID, (unsigned long)&req);
           close(sockfd);
         }
     }
@@ -124,4 +93,4 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid)
   return ret;
 }
 
-#endif /* CONFIG_NET && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

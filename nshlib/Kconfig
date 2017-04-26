@@ -1456,6 +1456,15 @@ config NSH_MACADDR
 		MAC address must provided with this selection.
 
 endif # NSH_NOMAC
+
+config NSH_PANID
+	hex "6loWPAN PAN ID"
+	default 0xface
+	depends on NET_6LOWPAN
+	range 0x0000 0xffff
+	---help---
+		Select the PAN ID to join upon initialization.
+
 endif # NSH_NETINIT
 
 config NSH_MAX_ROUNDTRIP
