@@ -269,7 +269,7 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
     }
   else
     {
-      printf("  NetMask: %s", inet_ntoa(addr));
+      printf("  NetMask: %s\n", inet_ntoa(addr));
     }
 
   /* Get frequency */

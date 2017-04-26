@@ -108,7 +108,7 @@ int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen)
           /* Put the driver name into the request */
 
           memset(&req, 0, sizeof(struct iwreq));
-          strncpy(req.ifrn_name, ifname, IFNAMSIZ);
+          strncpy(req.ifr_name, ifname, IFNAMSIZ);
 
           /* Put pointer to receive the ESSID into the request */
 

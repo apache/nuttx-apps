@@ -49,11 +49,11 @@
 
 #ifdef DEBUG_WIRELESS_ERROR
 #  ifdef CONFIG_LIBC_STRERROR
-#    define WAPI_IOCTL_STRERROR(cmd) \
+#    define WAPI_IOCTL_STRERROR(cmd,errcode) \
       fprintf( \
         stderr, "%s:%d:%s():ioctl(%s): %s\n", \
         __FILE__, __LINE__, __func__, \
-        wapi_ioctl_command_name(cmd), strerror(errno))
+        wapi_ioctl_command_name(cmd), strerror(errcode))
 
 #    define WAPI_STRERROR(fmt, ...) \
       fprintf( \
@@ -61,11 +61,11 @@
         __FILE__, __LINE__, __func__, \
         ## __VA_ARGS__, strerror(errno))
 #  else
-#    define WAPI_IOCTL_STRERROR(cmd) \
+#    define WAPI_IOCTL_STRERROR(cmd,errcode) \
       fprintf( \
         stderr, "%s:%d:%s():ioctl(%s): %d\n", \
         __FILE__, __LINE__, __func__, \
-        wapi_ioctl_command_name(cmd), errno)
+        wapi_ioctl_command_name(cmd), errcode)
 
 #    define WAPI_STRERROR(fmt, ...) \
       fprintf( \
@@ -81,20 +81,20 @@
 
 #else
 #  ifdef CONFIG_LIBC_STRERROR
-#    define WAPI_IOCTL_STRERROR(cmd) \
+#    define WAPI_IOCTL_STRERROR(cmd,errcode) \
       fprintf( \
         stderr, "ioctl(%s): %s\n", \
-        wapi_ioctl_command_name(cmd), strerror(errno))
+        wapi_ioctl_command_name(cmd), strerror(errcode))
 
 #    define WAPI_STRERROR(fmt, ...) \
       fprintf( \
         stderr, fmt ": %s\n", \
         ## __VA_ARGS__, strerror(errno))
 #  else
-#    define WAPI_IOCTL_STRERROR(cmd) \
+#    define WAPI_IOCTL_STRERROR(cmd,errcode) \
       fprintf( \
         stderr, "ioctl(%s): %d\n", \
-        wapi_ioctl_command_name(cmd), errno)
+        wapi_ioctl_command_name(cmd), errcode)
 
 #    define WAPI_STRERROR(fmt, ...) \
       fprintf( \

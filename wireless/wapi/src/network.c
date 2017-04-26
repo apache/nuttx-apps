@@ -71,7 +71,9 @@ static int wapi_get_addr(int sock, FAR const char *ifname, int cmd,
     }
   else
     {
-      WAPI_IOCTL_STRERROR(cmd);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(cmd, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -92,7 +94,9 @@ static int wapi_set_addr(int sock, FAR const char *ifname, int cmd,
   strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
   if ((ret = ioctl(sock, cmd, (unsigned long)((uintptr_t)&ifr))) < 0)
     {
-      WAPI_IOCTL_STRERROR(cmd);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(cmd, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -141,7 +145,9 @@ static int wapi_act_route_gw(int sock, int act,
 
   if ((ret = ioctl(sock, act, (unsigned long)((uintptr_t)&rt))) < 0)
     {
-      WAPI_IOCTL_STRERROR(act);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(act, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -177,7 +183,9 @@ int wapi_get_ifup(int sock, FAR const char *ifname, FAR int *is_up)
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIFFLAGS);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIFFLAGS, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -201,10 +209,18 @@ int wapi_set_ifup(int sock, FAR const char *ifname)
     {
       ifr.ifr_flags |= (IFF_UP | IFF_RUNNING);
       ret = ioctl(sock, SIOCSIFFLAGS, (unsigned long)((uintptr_t)&ifr));
+      if (ret < 0)
+        {
+          int errcode = errno;
+          WAPI_IOCTL_STRERROR(SIOCSIFFLAGS, errcode);
+          ret = -errcode;
+        }
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIFFLAGS);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIFFLAGS, errcode);
+      ret = -errcode;
     }
 
   return ret;
@@ -228,10 +244,18 @@ int wapi_set_ifdown(int sock, FAR const char *ifname)
     {
       ifr.ifr_flags &= ~IFF_UP;
       ret = ioctl(sock, SIOCSIFFLAGS, (unsigned long)((uintptr_t)&ifr));
+      if (ret < 0)
+        {
+          int errcode = errno;
+          WAPI_IOCTL_STRERROR(SIOCSIFFLAGS, errcode);
+          ret = -errcode;
+        }
     }
   else
     {
-      WAPI_IOCTL_STRERROR(SIOCGIFFLAGS);
+      int errcode = errno;
+      WAPI_IOCTL_STRERROR(SIOCGIFFLAGS, errcode);
+      ret = -errcode;
     }
 
   return ret;
