@@ -46,6 +46,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "wireless/ieee802154.h"
 #include "netutils/netlib.h"
 
 #if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
@@ -80,13 +81,10 @@ int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          /* Put the driver name into the request */
-#warning Missing logic
-          /* Perform the ioctl to get the current PAN ID */
+          /* Use the helper provided in libradio */
 
+          ret = sixlowpan_getpanid(sockfd, ifname, panid);
           close(sockfd);
-
-          /* Reuturn the current PAN ID  */
         }
     }
 

@@ -1,7 +1,7 @@
 ############################################################################
 # apps/wireless/ieee802154/Makefile
 #
-#   Copyright (C) 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2016-2017 Gregory Nutt. All rights reserved.
 #   Author: Sebastien Lorquet <sebastien@lorquet.fr>
 #
 # Redistribution and use in source and binary forms, with or without

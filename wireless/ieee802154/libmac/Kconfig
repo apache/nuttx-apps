@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config IEEE802154_LIBMAC
+	bool "IEEE 802.15.4 MAC library routines"
+	default n
+	---help---
+		Some MAC library routines for ieee 802.15.4 apps
+

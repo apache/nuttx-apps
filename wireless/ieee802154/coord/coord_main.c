@@ -71,7 +71,7 @@
 #include <nuttx/wireless/ieee802154/ieee802154_radio.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 
-#include "ieee802154/ieee802154.h"
+#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -238,15 +238,32 @@ static int coord_command(FAR struct ieee_coord_s *coord)
 
   switch (cmd)
     {
-      case IEEE802154_CMD_ASSOC_REQ      : break;
-      case IEEE802154_CMD_ASSOC_RSP      : break;
-      case IEEE802154_CMD_DISASSOC_NOT   : break;
-      case IEEE802154_CMD_DATA_REQ       : break;
-      case IEEE802154_CMD_PANID_CONF_NOT : break;
-      case IEEE802154_CMD_ORPHAN_NOT     : break;
-      case IEEE802154_CMD_BEACON_REQ     : return coord_command_beacon_req(coord); break;
-      case IEEE802154_CMD_COORD_REALIGN  : break;
-      case IEEE802154_CMD_GTS_REQ        : break;
+      case IEEE802154_CMD_ASSOC_REQ:
+        break;
+
+      case IEEE802154_CMD_ASSOC_RESP:
+        break;
+
+      case IEEE802154_CMD_DISASSOC_NOT:
+        break;
+
+      case IEEE802154_CMD_DATA_REQ:
+        break;
+
+      case IEEE802154_CMD_PANID_CONF_NOT:
+        break;
+
+      case IEEE802154_CMD_ORPHAN_NOT:
+        break;
+
+      case IEEE802154_CMD_BEACON_REQ:
+        return coord_command_beacon_req(coord);
+
+      case IEEE802154_CMD_COORD_REALIGN:
+        break;
+
+      case IEEE802154_CMD_GTS_REQ:
+        break;
     }
 
   return 0;
@@ -298,11 +315,25 @@ static int coord_manage(FAR struct ieee_coord_s *coord)
 
   switch (ftype)
     {
-      case IEEE802154_FRAME_BEACON : coord_beacon (coord); break;
-      case IEEE802154_FRAME_DATA   : coord_data   (coord); break;
-      case IEEE802154_FRAME_ACK    : coord_ack    (coord); break;
-      case IEEE802154_FRAME_COMMAND: coord_command(coord); break;
-      default                      : fprintf(stderr, "unknown frame type!");
+      case IEEE802154_FRAME_BEACON:
+        coord_beacon(coord);
+        break;
+
+      case IEEE802154_FRAME_DATA:
+        coord_data(coord);
+        break;
+
+      case IEEE802154_FRAME_ACK:
+        coord_ack(coord);
+        break;
+
+      case IEEE802154_FRAME_COMMAND:
+        coord_command(coord);
+        break;
+
+      default:
+        fprintf(stderr, "unknown frame type!");
+        break;
     }
 
   return 0;
@@ -334,9 +365,9 @@ static void coord_initialize(FAR struct ieee_coord_s *coord, FAR char *dev,
 
   coord->chan  = strtol(chan , NULL, 0);
 
-  coord->addr.ia_mode  = IEEE802154_ADDRMODE_SHORT;
-  coord->addr.ia_panid = strtol(panid, NULL, 0);
-  coord->addr.ia_saddr = 0x0001;
+  coord->addr.mode  = IEEE802154_ADDRMODE_SHORT;
+  coord->addr.panid = strtol(panid, NULL, 0);
+  coord->addr.saddr = 0x0001;
 
   coord->fd = open(dev, O_RDWR);
 }
@@ -353,11 +384,11 @@ int coord_task(int s_argc, char **s_argv)
   coord_initialize(&g_coord, s_argv[3], s_argv[4], s_argv[5]);
 
   printf("IEEE 802.15.4 Coordinator started, chan %d, panid %04X, argc %d\n",
-         g_coord.chan, g_coord.addr.ia_panid, s_argc);
+         g_coord.chan, g_coord.addr.panid, s_argc);
 
   ieee802154_setchan (g_coord.fd  , g_coord.chan );
-  ieee802154_setsaddr(g_coord.fd  , g_coord.addr.ia_saddr);
-  ieee802154_setpanid(g_coord.fd  , g_coord.addr.ia_panid);
+  ieee802154_setsaddr(g_coord.fd  , g_coord.addr.saddr);
+  ieee802154_setpanid(g_coord.fd  , g_coord.addr.panid);
   ieee802154_setdevmode(g_coord.fd, IEEE802154_MODE_PANCOORD);
 
   if (g_coord.fd < 0)
@@ -386,12 +417,13 @@ int coord_task(int s_argc, char **s_argv)
                     break;
 
                   case ACTION_PANID:
-                    g_coord.addr.ia_panid = (uint16_t)g_message.param;
-                    ieee802154_setpanid(g_coord.fd, g_coord.addr.ia_panid);
+                    g_coord.addr.panid = (uint16_t)g_message.param;
+                    ieee802154_setpanid(g_coord.fd, g_coord.addr.panid);
                     break;
 
                   default:
-                    printf("received unknown message\n");
+                    printf("Received unknown message\n");
+                    break;
                 }
             }
         }

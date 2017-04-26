@@ -62,7 +62,7 @@ struct wapi_command_s
   CODE void *handler;
 };
 
-/* Generic form of a commnd handler */
+/* Generic form of a command handler */
 
 typedef void (*cmd1_t)(int sock, FAR const char *arg1);
 typedef void (*cmd2_t)(int sock, FAR const char *arg1,

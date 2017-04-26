@@ -1,5 +1,5 @@
 ############################################################################
-# apps/wireless/ieee802154/Make.defs
+# apps/wireless/ieee802154/libradio/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2012, 2015 Gregory Nutt. All rights reserved.

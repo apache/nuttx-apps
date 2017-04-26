@@ -1,0 +1,11 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config IEEE802154_LIBRADIO
+	bool "IEEE 802.15.4 radio library routines"
+	default n
+	---help---
+		Some radio library routines for ieee 802.15.4 apps
+
