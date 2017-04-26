@@ -92,12 +92,16 @@ int rand_main(int argc, char *argv[])
 
   if (argc > 1)
     {
-      nsamples  = atoi(argv[1]);
+      nsamples = atoi(argv[1]);
     }
 
   /* Clip the number of samples to the configured buffer size */
 
-  if (nsamples > CONFIG_EXAMPLES_MAXSAMPLES)
+  if (nsamples < 0)
+    {
+      nsamples = 0;
+    }
+  else if (nsamples > CONFIG_EXAMPLES_MAXSAMPLES)
     {
       nsamples = CONFIG_EXAMPLES_MAXSAMPLES;
     }
@@ -124,14 +128,14 @@ int rand_main(int argc, char *argv[])
   if (nread < 0)
     {
       int errcode = errno;
-      fprintf(stderr, "ERROR: Read from /dev/randon failed: %d\n", errcode);
+      fprintf(stderr, "ERROR: Read from /dev/random failed: %d\n", errcode);
       (void)close(fd);
       exit(EXIT_FAILURE);
     }
 
   if (nread != nsamples * sizeof(uint32_t))
     {
-      fprintf(stderr, "ERROR: Read from /dev/randon only produced %d bytes\n",
+      fprintf(stderr, "ERROR: Read from /dev/random only produced %d bytes\n",
               (int)nread);
       (void)close(fd);
       exit(EXIT_FAILURE);
