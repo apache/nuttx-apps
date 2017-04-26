@@ -99,7 +99,7 @@ static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv,
       *pcvalue = '\0';
       pcvalue++;
 
-      lvalue = (unsigned long)strtol(pcvalue, NULL, 16);
+      lvalue = strtoul(pcvalue, NULL, 16);
       if (lvalue > 0xffffffffL)
         {
           return -EINVAL;
@@ -116,13 +116,13 @@ static int mem_parse(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv,
 
   /* Get the address to be accessed */
 
-  mem->dm_addr = (void*)((uintptr_t)strtol(argv[1], NULL, 16));
+  mem->dm_addr = (FAR void *)((uintptr_t)strtoul(argv[1], NULL, 16));
 
   /* Get the number of bytes to access */
 
   if (argc > 2)
     {
-      mem->dm_count = (unsigned int)strtol(argv[2], NULL, 16);
+      mem->dm_count = (unsigned int)strtoul(argv[2], NULL, 16);
     }
   else
     {
@@ -346,7 +346,7 @@ int cmd_xd(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   FAR char *endptr;
   int       nbytes;
 
-  addr = (char*)((uintptr_t)strtol(argv[1], &endptr, 16));
+  addr = (FAR char*)((uintptr_t)strtoul(argv[1], &endptr, 16));
   if (argv[0][0] == '\0' || *endptr != '\0')
     {
       return ERROR;
