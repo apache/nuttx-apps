@@ -14,7 +14,8 @@ if NETUTILS_DHCPC
 
 config NETUTILS_DHCPC_DEVNAME
 	string "DHCP device name"
-	default "eth0"
+	default "eth0" if !DRIVERS_IEEE80211
+	default "wlan0" if DRIVERS_IEEE80211
 	depends on NET_UDP && NET_BROADCAST && NET_IPv4
 	---help---
 		Specify the Ethernet or IEEE 802.15.4 device to use.
