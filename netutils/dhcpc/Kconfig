@@ -11,4 +11,12 @@ config NETUTILS_DHCPC
 		Enable support for the DHCP client.
 
 if NETUTILS_DHCPC
+
+config NETUTILS_DHCPC_DEVNAME
+	string "DHCP device name"
+	default "eth0"
+	depends on NET_UDP && NET_BROADCAST && NET_IPv4
+	---help---
+		Specify the Ethernet or IEEE 802.15.4 device to use.
+
 endif

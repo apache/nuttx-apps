@@ -61,6 +61,16 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Configuration */
+
+#ifdef CONFIG_NETUTILS_DHCPC_DEVNAME
+#  define DEVNAME CONFIG_NETUTILS_DHCPC_DEVNAME
+#else
+#  define DEVNAME "eth0"
+#endif
+
+/* DHCP Definitions */
+
 #define STATE_INITIAL           0
 #define STATE_HAVE_OFFER        1
 #define STATE_HAVE_LEASE        2
@@ -447,7 +457,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
   /* Save the currently assigned IP address (should be INADDR_ANY) */
 
   oldaddr.s_addr = 0;
-  netlib_get_ipv4addr("eth0", &oldaddr);
+  netlib_get_ipv4addr(DEVNAME, &oldaddr);
 
   /* Loop until we receive the lease (or an error occurs) */
 
@@ -456,7 +466,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
       /* Set the IP address to INADDR_ANY. */
 
       newaddr.s_addr = INADDR_ANY;
-      (void)netlib_set_ipv4addr("eth0", &newaddr);
+      (void)netlib_set_ipv4addr(DEVNAME, &newaddr);
 
       /* Loop sending DISCOVER until we receive an OFFER from a DHCP
        * server.  We will lock on to the first OFFER and decline any
@@ -496,7 +506,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
                    * out of the loop.
                    */
 
-                  (void)netlib_set_ipv4addr("eth0", &presult->ipaddr);
+                  (void)netlib_set_ipv4addr(DEVNAME, &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -588,7 +598,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
             {
               /* An error other than a timeout was received */
 
-              (void)netlib_set_ipv4addr("eth0", &oldaddr);
+              (void)netlib_set_ipv4addr(DEVNAME, &oldaddr);
               return ERROR;
             }
         }
