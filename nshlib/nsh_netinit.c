@@ -124,7 +124,10 @@
  * not be the one that you want).
  */
 
-#if defined(CONFIG_NET_ETHERNET)
+#if defined(CONFIG_DRIVERS_IEEE80211) /* Usually also has CONFIG_NET_ETHERNET */
+#  define NET_DEVNAME "wlan0"
+#  define NSH_HAVE_NETDEV
+#elif defined(CONFIG_NET_ETHERNET)
 #  define NET_DEVNAME "eth0"
 #  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_6LOWPAN)
