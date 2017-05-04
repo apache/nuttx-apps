@@ -260,7 +260,7 @@ static void nsh_netinit_configure(void)
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(CONFIG_NET_6LOWPAN)
-  uint8_t nodeaddr[NET_6LOWPAN_RIMEADDR_SIZE];
+  uint8_t nodeaddr[NET_6LOWPAN_ADDRSIZE];
 #endif
 #endif
 
