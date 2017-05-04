@@ -80,6 +80,10 @@
 #  include "netutils/ntpclient.h"
 #endif
 
+#ifdef CONFIG_WIRELESS_WEXT
+#  include "wireless/wext.h"
+#endif
+
 #include "nsh.h"
 
 #ifdef CONFIG_NSH_NETINIT
@@ -124,7 +128,10 @@
  * not be the one that you want).
  */
 
-#if defined(CONFIG_NET_ETHERNET)
+#if defined(CONFIG_DRIVERS_IEEE80211) /* Usually also has CONFIG_NET_ETHERNET */
+#  define NET_DEVNAME "wlan0"
+#  define NSH_HAVE_NETDEV
+#elif defined(CONFIG_NET_ETHERNET)
 #  define NET_DEVNAME "eth0"
 #  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_6LOWPAN)
@@ -360,6 +367,14 @@ static void nsh_netinit_configure(void)
 
   netlib_getmacaddr(NET_DEVNAME, mac);
 
+#ifdef CONFIG_WIRELESS_WEXT
+  /* Associate the wlan */
+
+  sleep(2);
+  wpa_driver_wext_associate();
+  sleep(2);
+#endif
+
   /* Set up the DHCPC modules */
 
   handle = dhcpc_open(&mac, IFHWADDRLEN);
@@ -368,28 +383,28 @@ static void nsh_netinit_configure(void)
    * example.  The address should be renewed in ds.lease_time/2 seconds.
    */
 
-  if (handle)
+  if (handle != NULL)
     {
-        struct dhcpc_state ds;
-        (void)dhcpc_request(handle, &ds);
-        netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
+      struct dhcpc_state ds;
+      (void)dhcpc_request(handle, &ds);
+      netlib_set_ipv4addr(NET_DEVNAME, &ds.ipaddr);
 
-        if (ds.netmask.s_addr != 0)
-          {
-            netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
-          }
+      if (ds.netmask.s_addr != 0)
+        {
+          netlib_set_ipv4netmask(NET_DEVNAME, &ds.netmask);
+        }
 
-        if (ds.default_router.s_addr != 0)
-          {
-            netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
-          }
+      if (ds.default_router.s_addr != 0)
+        {
+          netlib_set_dripv4addr(NET_DEVNAME, &ds.default_router);
+        }
 
-        if (ds.dnsaddr.s_addr != 0)
-          {
-            netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-          }
+      if (ds.dnsaddr.s_addr != 0)
+        {
+          netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+        }
 
-        dhcpc_close(handle);
+      dhcpc_close(handle);
     }
 #endif
 

@@ -697,7 +697,8 @@
 #endif
 
 #if defined(CONFIG_DISABLE_ENVIRON) && defined(CONFIG_NSH_DISABLESCRIPT)
-#  define CONFIG_NSH_DISABLE_SET
+#  undef  CONFIG_NSH_DISABLE_SET
+#  define CONFIG_NSH_DISABLE_SET 1
 #endif
 
 /****************************************************************************
