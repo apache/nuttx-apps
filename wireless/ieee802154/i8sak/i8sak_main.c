@@ -121,12 +121,12 @@ static int tx(int fd, FAR const char *str, int verbose)
 
   /* Each byte is represented by 2 chars */
 
-  tx.meta.msdu_length = str_len >> 1;
+  tx.length = str_len >> 1;
 
   /* Check if the number of chars is a multiple of 2 and that the number of 
    * bytes does not exceed the max MAC frame payload supported */
 
-  if ((str_len & 1) || (tx.meta.msdu_length > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
+  if ((str_len & 1) || (tx.length > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
     {
       goto data_error;
     }
@@ -150,7 +150,7 @@ static int tx(int fd, FAR const char *str, int verbose)
 
   if (verbose)
     {
-      for (i = 0; i < tx.meta.msdu_length; i++)
+      for (i = 0; i < tx.length; i++)
         {
           printf("%02X", g_txframe[i]);
         }
