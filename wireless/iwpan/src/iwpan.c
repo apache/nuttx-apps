@@ -315,7 +315,7 @@ static bool iwpan_str2bool(FAR const char *str)
 
 static void iwpan_show_cmd(int sock, FAR const char *ifname)
 {
-  uint8_t eaddr[EADDR_SIZE] =
+  uint8_t eaddr[IEEE802154_EADDR_LEN] =
   {
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
   };
@@ -506,7 +506,7 @@ static void iwpan_devmode_cmd(int sock, FAR const char *ifname,
 static void iwpan_eaddr_cmd(int sock, FAR const char *ifname,
                             FAR const char *addrstr)
 {
-  uint8_t eaddr[EADDR_SIZE];
+  uint8_t eaddr[IEEE802154_EADDR_LEN];
   int ret;
 
   /* Convert input strings to values */

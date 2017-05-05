@@ -5,10 +5,8 @@
 
 menu "IEEE 802.15.4 applications"
 
-source "$APPSDIR/wireless/ieee802154/libradio/Kconfig"
 source "$APPSDIR/wireless/ieee802154/libmac/Kconfig"
 source "$APPSDIR/wireless/ieee802154/libutils/Kconfig"
-source "$APPSDIR/wireless/ieee802154/coord/Kconfig"
 source "$APPSDIR/wireless/ieee802154/i8sak/Kconfig"
 
 endmenu #ieee 802.15.4 apps

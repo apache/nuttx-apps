@@ -1,5 +1,5 @@
 ############################################################################
-# apps/wireless/ieee802154/libradio/Makefile
+# apps/wireless/ieee802154/libmac/Makefile
 #
 #   Copyright (C) 2016-2-17 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 # libutils source files
 
 ASRCS  =
-CSRCS += ieee802154_addrparse.c ieee802154_addrstore.c ieee802154_addrtostr.c
+CSRCS += ieee802154_addrtostr.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
