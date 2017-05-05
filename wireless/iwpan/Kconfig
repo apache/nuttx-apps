@@ -8,7 +8,6 @@ menuconfig WIRELESS_IWPAN
 	default n
 	depends on NET && DRIVERS_WIRELESS
 	select IEEE802154_LIBMAC
-	select IEEE802154_LIBRADIO
 	select IEEE802154_LIBUTILS
 	---help---
 		IWPAN is a tool similar to wapi and inspired by iwpan on Linux that can

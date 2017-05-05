@@ -81,7 +81,7 @@ int netlib_setpanid(FAR const char *ifname, uint16_t panid)
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          /* Use the helper provided in libradio */
+          /* Use the helper provided in libmac */
 
           ret = sixlowpan_setpanid(sockfd, ifname, panid);
           close(sockfd);
