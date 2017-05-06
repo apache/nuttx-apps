@@ -1,12 +1,13 @@
 /************************************************************************************
- * apps/include/graphics/wext.c
+ * apps/wireless/wapi/src/driver_wext.c
  * Driver interaction with generic Wireless Extensions
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Simon Piriou <spiriou31@gmail.com>
  *           Gregory Nutt <gnutt@nuttx.org>
  *
- * Adapted to NuttX from driver_ext.c
+ * Adapted for NuttX from the driver_ext.c of WPA suplicant written originally
+ * by Jouni Malinen
  *
  *   Copyright (c) 2003-2015, Jouni Malinen <j@w1.fi>
  *
@@ -61,49 +62,11 @@
 
 #include <debug.h>
 
-#include "wireless/wext.h"
+#include "wireless/wapi.h"
 
 /************************************************************************************
  * Public Functions
  ************************************************************************************/
-
-/************************************************************************************
- * Name: wpa_driver_wext_set_auth_param
- *
- * Description:
- *
- * Input Parameters:
- *
- * Returned Value:
- *
- ************************************************************************************/
-
-int wpa_driver_wext_set_auth_param(int sockfd, FAR char *ifname, int idx,
-                                   uint32_t value)
-{
-  struct iwreq iwr;
-  int errcode;
-  int ret = 0;
-
-  memset(&iwr, 0, sizeof(iwr));
-  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
-  iwr.u.param.flags = idx & IW_AUTH_INDEX;
-  iwr.u.param.value = value;
-
-  if (ioctl(sockfd, SIOCSIWAUTH, (unsigned long)&iwr) < 0)
-    {
-      errcode = errno;
-      if (errcode != EOPNOTSUPP)
-        {
-          nerr("ERROR: SIOCSIWAUTH(param %d value 0x%x) failed: %d)",
-               idx, value, errcode);
-        }
-
-      ret = errcode == EOPNOTSUPP ? -2 : -1;
-    }
-
-  return ret;
-}
 
 /************************************************************************************
  * Name: wpa_driver_wext_set_ssid
@@ -129,7 +92,7 @@ int wpa_driver_wext_set_ssid(int sockfd,  FAR char *ifname, FAR const uint8_t *s
   int ret = 0;
   char buf[33];
 
-  if (ssid_len > SSID_MAX_LEN)
+  if (ssid_len > WAPI_ESSID_MAX_SIZE)
     {
       return -1;
     }
@@ -156,6 +119,43 @@ int wpa_driver_wext_set_ssid(int sockfd,  FAR char *ifname, FAR const uint8_t *s
 }
 
 /************************************************************************************
+ * Name: wpa_driver_wext_set_mode
+ *
+ * Description:
+ *   Set wireless mode (infra/adhoc), SIOCSIWMODE
+ *
+ * Input Parameters:
+ *   sockfd - Opened network socket
+ *   ifname - Interface name
+ *   mode   - 0 = infra/BSS (associate with an AP), 1 = adhoc/IBSS
+ *
+ * Returned Value:
+ *   0 on success, -1 on failure
+ *
+ ************************************************************************************/
+
+int wpa_driver_wext_set_mode(int sockfd, FAR char *ifname, int mode)
+{
+  struct iwreq iwr;
+  int ret = -1;
+
+  memset(&iwr, 0, sizeof(iwr));
+  strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
+  iwr.u.mode = mode;
+
+  if (ioctl(sockfd, SIOCSIWMODE, (unsigned long)&iwr) == 0)
+    {
+      ret = 0;
+      goto done;
+    }
+
+  nerr("ERROR: ioctl[SIOCSIWMODE]: %d", errno);
+
+done:
+  return ret;
+}
+
+/************************************************************************************
  * Name: wpa_driver_wext_set_key_ext
  *
  * Description:
@@ -168,7 +168,7 @@ int wpa_driver_wext_set_ssid(int sockfd,  FAR char *ifname, FAR const uint8_t *s
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_key_ext(int sockfd,  FAR char *ifname, enum wpa_alg alg,
+int wpa_driver_wext_set_key_ext(int sockfd,  FAR char *ifname, enum wpa_alg_e alg,
                                 FAR const uint8_t *key, size_t key_len)
 {
   struct iwreq iwr;
@@ -258,7 +258,7 @@ int wpa_driver_wext_associate(void)
 
   int cipher_mode = IW_AUTH_CIPHER_CCMP;
 
-  enum wpa_alg alg = WPA_ALG_CCMP;
+  enum wpa_alg_e alg = WPA_ALG_CCMP;
 
   char ifname[] = "wlan0";
   const uint8_t ssid[] = "myApSSID";
@@ -322,38 +322,40 @@ close_socket:
 }
 
 /************************************************************************************
- * Name: wpa_driver_wext_set_mode
+ * Name: wpa_driver_wext_set_auth_param
  *
  * Description:
- *   Set wireless mode (infra/adhoc), SIOCSIWMODE
  *
  * Input Parameters:
- *   sockfd - Opened network socket
- *   ifname - Interface name
- *   mode   - 0 = infra/BSS (associate with an AP), 1 = adhoc/IBSS
  *
  * Returned Value:
- *   0 on success, -1 on failure
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_mode(int sockfd, FAR char *ifname, int mode)
+int wpa_driver_wext_set_auth_param(int sockfd, FAR char *ifname, int idx,
+                                   uint32_t value)
 {
   struct iwreq iwr;
-  int ret = -1;
+  int errcode;
+  int ret = 0;
 
   memset(&iwr, 0, sizeof(iwr));
   strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
-  iwr.u.mode = mode;
+  iwr.u.param.flags = idx & IW_AUTH_INDEX;
+  iwr.u.param.value = value;
 
-  if (ioctl(sockfd, SIOCSIWMODE, (unsigned long)&iwr) == 0)
+  if (ioctl(sockfd, SIOCSIWAUTH, (unsigned long)&iwr) < 0)
     {
-      ret = 0;
-      goto done;
+      errcode = errno;
+      if (errcode != EOPNOTSUPP)
+        {
+          nerr("ERROR: SIOCSIWAUTH(param %d value 0x%x) failed: %d)",
+               idx, value, errcode);
+        }
+
+      ret = errcode == EOPNOTSUPP ? -2 : -1;
     }
 
-  nerr("ERROR: ioctl[SIOCSIWMODE]: %d", errno);
-
-done:
   return ret;
 }
+

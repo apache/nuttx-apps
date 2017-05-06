@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/wireless/wapi.h
  *
- *   Copyright (C) 2011, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Adapted for Nuttx from WAPI:
@@ -9,27 +9,40 @@
  *   Copyright (c) 2010, Volkan YAZICI <volkan.yazici@gmail.com>
  *   All rights reserved.
  *
+ * And includes WPA supplicant logic contributed by:
+ *
+ *   Author: Simon Piriou <spiriou31@gmail.com>
+ *
+ * Which was adapted to NuttX from driver_ext.h
+ *
+ *   Copyright (c) 2003-2005, Jouni Malinen <j@w1.fi>
+ *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions
+ * are met:
  *
- *  - Redistributions of  source code must  retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ * 3. Neither the name NuttX nor the names of its contributors may be
+ *    used to endorse or promote products derived from this software
+ *    without specific prior written permission.
  *
- *  - Redistributions in binary form must reproduce the above copyright
- *    notice, this list of  conditions and the  following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
 
@@ -57,41 +70,47 @@
 
 #define WAPI_PROC_LINE_SIZE  1024
 
+/* Select options to successfully open a socket in this nework configuration. */
+
+#ifdef CONFIG_NET_UDP
+# define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#else
+# define NETLIB_SOCK_IOCTL SOCK_STREAM
+#endif
+
+#define PF_INETX PF_INET
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
 
-/* Generic linked list (dummy) decleration. (No definition!) */
-
-typedef struct wapi_list_t wapi_list_t;
-
 /* Frequency flags. */
 
-typedef enum
+enum wapi_freq_flag_e
 {
   WAPI_FREQ_AUTO  = IW_FREQ_AUTO,
   WAPI_FREQ_FIXED = IW_FREQ_FIXED
-} wapi_freq_flag_t;
+};
 
 /* Route target types. */
 
-typedef enum
+enum wapi_route_target_e
 {
   WAPI_ROUTE_TARGET_NET,              /* The target is a network. */
   WAPI_ROUTE_TARGET_HOST              /* The target is a host. */
-} wapi_route_target_t;
+};
 
 /* ESSID flags.  */
 
-typedef enum
+enum wapi_essid_flag_e
 {
   WAPI_ESSID_ON,
   WAPI_ESSID_OFF
-} wapi_essid_flag_t;
+};
 
 /* Supported operation modes. */
 
-typedef enum
+enum wapi_mode_e
 {
   WAPI_MODE_AUTO    = IW_MODE_AUTO,    /* Driver decides. */
   WAPI_MODE_ADHOC   = IW_MODE_ADHOC,   /* Single cell network. */
@@ -101,7 +120,27 @@ typedef enum
   WAPI_MODE_SECOND  = IW_MODE_SECOND,  /* Secondary master/repeater, backup. */
   WAPI_MODE_MONITOR = IW_MODE_MONITOR, /* Passive monitor, listen only. */
   WAPI_MODE_MESH    = IW_MODE_MESH     /* Mesh (IEEE 802.11s) network */
-} wapi_mode_t;
+};
+
+/* WPA **********************************************************************/
+
+enum wpa_alg_e
+{
+  WPA_ALG_NONE,
+  WPA_ALG_WEP,
+  WPA_ALG_TKIP,
+  WPA_ALG_CCMP,
+  WPA_ALG_IGTK,
+  WPA_ALG_PMK,
+  WPA_ALG_GCMP,
+  WPA_ALG_SMS4,
+  WPA_ALG_KRK,
+  WPA_ALG_GCMP_256,
+  WPA_ALG_CCMP_256,
+  WPA_ALG_BIP_GMAC_128,
+  WPA_ALG_BIP_GMAC_256,
+  WPA_ALG_BIP_CMAC_256
+};
 
 /* Bitrate flags.
  *
@@ -109,51 +148,51 @@ typedef enum
  * (IW_BITRATE_BROADCAST) bitrate flags are not supported.
  */
 
-typedef enum
+enum wapi_bitrate_flag_e
 {
   WAPI_BITRATE_AUTO,
   WAPI_BITRATE_FIXED
-} wapi_bitrate_flag_t;
+};
 
 /* Transmit power (txpower) flags. */
 
-typedef enum
+enum wapi_txpower_flag_e
 {
   WAPI_TXPOWER_DBM,                   /* Value is in dBm. */
   WAPI_TXPOWER_MWATT,                 /* Value is in mW. */
   WAPI_TXPOWER_RELATIVE               /* Value is in arbitrary units. */
-} wapi_txpower_flag_t;
+};
 
 /* Linked list container for strings. */
 
-typedef struct wapi_string_t
+struct wapi_string_s
 {
-  FAR struct wapi_string_t *next;
+  FAR struct wapi_string_s *next;
   FAR char *data;
-} wapi_string_t;
+};
 
 /* Linked list container for scan results. */
 
-typedef struct wapi_scan_info_t
+struct wapi_scan_info_s
 {
-  FAR struct wapi_scan_info_t *next;
+  FAR struct wapi_scan_info_s *next;
   struct ether_addr ap;
   int has_essid;
   char essid[WAPI_ESSID_MAX_SIZE + 1];
-  wapi_essid_flag_t essid_flag;
+  enum wapi_essid_flag_e essid_flag;
   int has_freq;
   double freq;
   int has_mode;
-  wapi_mode_t mode;
+  enum wapi_mode_e mode;
   int has_bitrate;
   int bitrate;
-} wapi_scan_info_t;
+};
 
 /* Linked list container for routing table rows. */
 
-typedef struct wapi_route_info_t
+struct wapi_route_info_s
 {
-  FAR struct wapi_route_info_t *next;
+  FAR struct wapi_route_info_s *next;
   FAR char *ifname;
   struct in_addr dest;
   struct in_addr gw;
@@ -166,19 +205,19 @@ typedef struct wapi_route_info_t
   unsigned int mtu;
   unsigned int window;
   unsigned int irtt;
-} wapi_route_info_t;
+};
 
-/* A generic linked list container. For functions taking  wapi_list_t type of
- * argument, caller is resposible for releasing allocated memory.
+/* A generic linked list container. For functions taking  struct wapi_list_s
+ * type of argument, caller is resposible for releasing allocated memory.
  */
 
-struct wapi_list_t
+struct wapi_list_s
 {
   union wapi_list_head_t
   {
-    FAR wapi_string_t *string;
-    FAR wapi_scan_info_t *scan;
-    FAR wapi_route_info_t *route;
+    FAR struct wapi_string_s     *string;
+    FAR struct wapi_scan_info_s  *scan;
+    FAR struct wapi_route_info_s *route;
   } head;
 };
 
@@ -300,7 +339,7 @@ int wapi_set_netmask(int sock, const char *ifname, const struct in_addr *addr);
  ****************************************************************************/
 
 #ifdef CONFIG_NET_ROUTE
-int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
+int wapi_add_route_gw(int sock, enum wapi_route_target_e targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw);
@@ -315,7 +354,7 @@ int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
  ****************************************************************************/
 
 #ifdef CONFIG_NET_ROUTE
-int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
+int wapi_del_route_gw(int sock, enum wapi_route_target_e targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw);
@@ -330,7 +369,7 @@ int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
  ****************************************************************************/
 
 int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
-                  FAR wapi_freq_flag_t *flag);
+                  FAR enum wapi_freq_flag_e *flag);
 
 /****************************************************************************
  * Name: wapi_set_freq
@@ -341,7 +380,7 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
  ****************************************************************************/
 
 int wapi_set_freq(int sock, FAR const char *ifname, double freq,
-                  wapi_freq_flag_t flag);
+                  enum wapi_freq_flag_e flag);
 
 /****************************************************************************
  * Name: wapi_freq2chan
@@ -384,7 +423,7 @@ int wapi_chan2freq(int sock, FAR const char *ifname, int chan,
  ****************************************************************************/
 
 int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
-                   FAR wapi_essid_flag_t *flag);
+                   FAR enum wapi_essid_flag_e *flag);
 
 /****************************************************************************
  * Name: wapi_set_essid
@@ -397,7 +436,7 @@ int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
  ****************************************************************************/
 
 int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
-                   wapi_essid_flag_t flag);
+                   enum wapi_essid_flag_e flag);
 
 /****************************************************************************
  * Name: wapi_get_mode
@@ -407,7 +446,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
  *
  ****************************************************************************/
 
-int wapi_get_mode(int sock, FAR const char *ifname, FAR wapi_mode_t *mode);
+int wapi_get_mode(int sock, FAR const char *ifname, FAR enum wapi_mode_e *mode);
 
 /****************************************************************************
  * Name: wapi_set_mode
@@ -417,7 +456,7 @@ int wapi_get_mode(int sock, FAR const char *ifname, FAR wapi_mode_t *mode);
  *
  ****************************************************************************/
 
-int wapi_set_mode(int sock, FAR const char *ifname, wapi_mode_t mode);
+int wapi_set_mode(int sock, FAR const char *ifname, enum wapi_mode_e mode);
 
 /****************************************************************************
  * Name: wapi_make_broad_ether
@@ -473,7 +512,7 @@ int wapi_set_ap(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 int wapi_get_bitrate(int sock, FAR const char *ifname,
-                     FAR int *bitrate, FAR wapi_bitrate_flag_t *flag);
+                     FAR int *bitrate, FAR enum wapi_bitrate_flag_e *flag);
 
 /****************************************************************************
  * Name: wapi_set_bitrate
@@ -484,7 +523,7 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 int wapi_set_bitrate(int sock, FAR const char *ifname, int bitrate,
-                     wapi_bitrate_flag_t flag);
+                     enum wapi_bitrate_flag_e flag);
 
 /****************************************************************************
  * Name: wapi_dbm2mwatt
@@ -515,7 +554,7 @@ int wapi_mwatt2dbm(int mwatt);
  ****************************************************************************/
 
 int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
-                     FAR wapi_txpower_flag_t *flag);
+                     FAR enum wapi_txpower_flag_e *flag);
 
 /****************************************************************************
  * Name: wapi_set_txpower
@@ -526,7 +565,7 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
  ****************************************************************************/
 
 int wapi_set_txpower(int sock, FAR const char *ifname, int power,
-                     wapi_txpower_flag_t flag);
+                     enum wapi_txpower_flag_e flag);
 
 /****************************************************************************
  * Name: wapi_make_socket
@@ -572,11 +611,92 @@ int wapi_scan_stat(int sock, FAR const char *ifname);
  *   Collects the results of a scan process.
  *
  * Input Parameters:
- *   aps - Pushes collected  wapi_scan_info_t into this list.
+ *   aps - Pushes collected  struct wapi_scan_info_s into this list.
  *
  ****************************************************************************/
 
-int wapi_scan_coll(int sock, FAR const char *ifname, FAR wapi_list_t *aps);
+int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps);
+
+/************************************************************************************
+ * Name: wpa_driver_wext_set_ssid
+ *
+ * Description:
+ *   Set SSID, SIOCSIWESSID
+ *
+ * Input Parameters:
+ *   sockfd   - Opened network socket
+ *   ifname   - Interface name
+ *   ssid     -  SSID
+ *   ssid_len - Length of SSID (0..32)
+ *
+ * Returned Value:
+ *   0 on success, -1 on failure
+ *
+ ************************************************************************************/
+
+int wpa_driver_wext_set_ssid(int sockfd, FAR char *ifname,
+                             FAR const uint8_t *ssid, size_t ssid_len);
+
+/************************************************************************************
+ * Name: wpa_driver_wext_set_mode
+ *
+ * Description:
+ *   Set wireless mode (infra/adhoc), SIOCSIWMODE
+ *
+ * Input Parameters:
+ *   sockfd - Opened network socket
+ *   ifname - Interface name
+ *   mode   - 0 = infra/BSS (associate with an AP), 1 = adhoc/IBSS
+ *
+ * Returned Value:
+ *   0 on success, -1 on failure
+ *
+ ************************************************************************************/
+
+int wpa_driver_wext_set_mode(int sockfd, FAR char *ifname, int mode);
+
+/************************************************************************************
+ * Name: wpa_driver_wext_set_key_ext
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *   sockfd - Opened network socket
+ *   ifname - Interface name
+ *
+ * Returned Value:
+ *
+ ************************************************************************************/
+
+int wpa_driver_wext_set_key_ext(int sockfd, FAR char *ifname, enum wpa_alg_e alg,
+                                FAR const uint8_t *key, size_t key_len);
+
+/************************************************************************************
+ * Name: wpa_driver_wext_associate
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ************************************************************************************/
+
+int wpa_driver_wext_associate(void);
+
+/************************************************************************************
+ * Name: wpa_driver_wext_set_auth_param
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *
+ * Returned Value:
+ *
+ ************************************************************************************/
+
+int wpa_driver_wext_set_auth_param(int sockfd, FAR char *ifname,
+                                   int idx, uint32_t value);
 
 #undef EXTERN
 #ifdef __cplusplus

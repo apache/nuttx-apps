@@ -104,7 +104,7 @@ static int wapi_set_addr(int sock, FAR const char *ifname, int cmd,
 
 #ifdef CONFIG_NET_ROUTE
 static int wapi_act_route_gw(int sock, int act,
-                             wapi_route_target_t targettype,
+                             enum wapi_route_target_e targettype,
                              FAR const struct in_addr *target,
                              FAR const struct in_addr *netmask,
                              FAR const struct in_addr *gw)
@@ -325,7 +325,7 @@ int wapi_set_netmask(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 #ifdef CONFIG_NET_ROUTE
-int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
+int wapi_add_route_gw(int sock, enum wapi_route_target_e targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw)
@@ -343,7 +343,7 @@ int wapi_add_route_gw(int sock, wapi_route_target_t targettype,
  ****************************************************************************/
 
 #ifdef CONFIG_NET_ROUTE
-int wapi_del_route_gw(int sock, wapi_route_target_t targettype,
+int wapi_del_route_gw(int sock, enum wapi_route_target_e targettype,
                       FAR const struct in_addr *target,
                       FAR const struct in_addr *netmask,
                       FAR const struct in_addr *gw)
