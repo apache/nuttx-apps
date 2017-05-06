@@ -227,20 +227,20 @@ static void wapi_show_cmd(int sock, FAR const char *ifname)
   struct in_addr addr;
 
   double freq;
-  wapi_freq_flag_t freq_flag;
+  enum wapi_freq_flag_e freq_flag;
 
   char essid[WAPI_ESSID_MAX_SIZE + 1];
-  wapi_essid_flag_t essid_flag;
+  enum wapi_essid_flag_e essid_flag;
 
-  wapi_mode_t mode;
+  enum wapi_mode_e mode;
 
   struct ether_addr ap;
 
   int bitrate;
-  wapi_bitrate_flag_t bitrate_flag;
+  enum wapi_bitrate_flag_e bitrate_flag;
 
   int txpower;
-  wapi_txpower_flag_t txpower_flag;
+  enum wapi_txpower_flag_e txpower_flag;
 
   int ret;
 
@@ -450,13 +450,13 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
                           FAR const char *freqstr, FAR const char *flagstr)
 {
   double frequency;
-  wapi_freq_flag_t freq_flag;
+  enum wapi_freq_flag_e freq_flag;
   int ret;
 
   /* Convert input strings to values */
 
   frequency = wapi_str2double(freqstr);
-  freq_flag = (wapi_freq_flag_t)wapi_str2ndx(flagstr, g_wapi_freq_flags,
+  freq_flag = (enum wapi_freq_flag_e)wapi_str2ndx(flagstr, g_wapi_freq_flags,
                                              IW_FREQ_NFLAGS);
 
   /* Set the frequency */
@@ -482,12 +482,12 @@ static void wapi_freq_cmd(int sock, FAR const char *ifname,
 static void wapi_essid_cmd(int sock, FAR const char *ifname,
                            FAR const char *essid, FAR const char *flagstr)
 {
-  wapi_essid_flag_t essid_flag;
+  enum wapi_essid_flag_e essid_flag;
   int ret;
 
   /* Convert input strings to values */
 
-  essid_flag = (wapi_essid_flag_t)wapi_str2ndx(flagstr, g_wapi_essid_flags, 2);
+  essid_flag = (enum wapi_essid_flag_e)wapi_str2ndx(flagstr, g_wapi_essid_flags, 2);
   
   /* Set the ESSID */
 
@@ -512,12 +512,12 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
 static void wapi_mode_cmd(int sock, FAR const char *ifname,
                           FAR const char *modestr)
 {
-  wapi_mode_t mode;
+  enum wapi_mode_e mode;
   int ret;
 
   /* Convert input strings to values */
 
-  mode = (wapi_mode_t)wapi_str2ndx(modestr, g_wapi_modes, IW_MODE_NFLAGS);
+  mode = (enum wapi_mode_e)wapi_str2ndx(modestr, g_wapi_modes, IW_MODE_NFLAGS);
 
   /* Set operating mode */
 
@@ -576,14 +576,14 @@ static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
                              FAR const char *ratestr, FAR const char *flagstr)
 
 {
-  wapi_bitrate_flag_t bitrate_flag;
+  enum wapi_bitrate_flag_e bitrate_flag;
   int bitrate;
   int ret;
 
   /* Convert input strings to values */
 
   bitrate      = wapi_str2int(ratestr);
-  bitrate_flag = (wapi_bitrate_flag_t)
+  bitrate_flag = (enum wapi_bitrate_flag_e)
     wapi_str2ndx(flagstr, g_wapi_bitrate_flags, 2);
 
   /* Set bitrate */
@@ -609,14 +609,14 @@ static void wapi_bitrate_cmd(int sock, FAR const char *ifname,
 static void wapi_txpower_cmd(int sock, FAR const char *ifname,
                              FAR const char *pwrstr, FAR const char *flagstr)
 {
-  wapi_txpower_flag_t txpower_flag;
+  enum wapi_txpower_flag_e txpower_flag;
   int txpower;
   int ret;
 
   /* Convert input strings to values */
 
   txpower      = wapi_str2int(pwrstr);
-  txpower_flag = (wapi_txpower_flag_t)
+  txpower_flag = (enum wapi_txpower_flag_e)
     wapi_str2ndx(flagstr, g_wapi_txpower_flags, IW_TXPOW_NFLAGS);
 
   /* Set txpower */
@@ -643,8 +643,8 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
 {
   int sleepdur = 1;
   int sleeptries = 5;
-  wapi_list_t list;
-  FAR wapi_scan_info_t *info;
+  struct wapi_list_s list;
+  FAR struct wapi_scan_info_s *info;
   int ret;
 
   /* Start scan */
@@ -670,7 +670,7 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
 
   /* Collect results */
 
-  bzero(&list, sizeof(wapi_list_t));
+  bzero(&list, sizeof(struct wapi_list_s));
   ret = wapi_scan_coll(sock, ifname, &list);
   if (ret < 0)
     {
@@ -693,7 +693,7 @@ static void wapi_scan_cmd(int sock, FAR const char *ifname)
   info = list.head.scan;
   while (info)
     {
-      FAR wapi_scan_info_t *temp;
+      FAR struct wapi_scan_info_s *temp;
 
       temp = info->next;
       free(info);

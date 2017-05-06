@@ -80,10 +80,6 @@
 #  include "netutils/ntpclient.h"
 #endif
 
-#ifdef CONFIG_WIRELESS_WEXT
-#  include "wireless/wext.h"
-#endif
-
 #include "nsh.h"
 
 #ifdef CONFIG_NSH_NETINIT
@@ -367,12 +363,10 @@ static void nsh_netinit_configure(void)
 
   netlib_getmacaddr(NET_DEVNAME, mac);
 
-#ifdef CONFIG_WIRELESS_WEXT
+#ifdef CONFIG_WIRELESS_WAPI
   /* Associate the wlan */
 
-  sleep(2);
-  wpa_driver_wext_associate();
-  sleep(2);
+  nsh_associate(NET_DEVNAME);
 #endif
 
   /* Set up the DHCPC modules */
