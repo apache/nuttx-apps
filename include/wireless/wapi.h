@@ -71,14 +71,26 @@
 #define WAPI_PROC_LINE_SIZE  1024
 
 /* Select options to successfully open a socket in this nework configuration. */
+/* The address family that we used to create the socket really does not
+ * matter.  It should, however, be valid in the current configuration.
+ */
 
-#ifdef CONFIG_NET_UDP
-# define NETLIB_SOCK_IOCTL SOCK_DGRAM
-#else
-# define NETLIB_SOCK_IOCTL SOCK_STREAM
+#if defined(CONFIG_NET_IPv4)
+#  define PF_INETX PF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define PF_INETX PF_INET6
 #endif
 
-#define PF_INETX PF_INET
+/* SOCK_DGRAM is the preferred socket type to use when we just want a
+ * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
+ * if UDP is disabled.
+ */
+
+#ifdef CONFIG_NET_UDP
+# define SOCK_WAPI SOCK_DGRAM
+#else
+# define SOCK_WAPI SOCK_STREAM
+#endif
 
 /****************************************************************************
  * Public Types
@@ -120,26 +132,6 @@ enum wapi_mode_e
   WAPI_MODE_SECOND  = IW_MODE_SECOND,  /* Secondary master/repeater, backup. */
   WAPI_MODE_MONITOR = IW_MODE_MONITOR, /* Passive monitor, listen only. */
   WAPI_MODE_MESH    = IW_MODE_MESH     /* Mesh (IEEE 802.11s) network */
-};
-
-/* WPA **********************************************************************/
-
-enum wpa_alg_e
-{
-  WPA_ALG_NONE,
-  WPA_ALG_WEP,
-  WPA_ALG_TKIP,
-  WPA_ALG_CCMP,
-  WPA_ALG_IGTK,
-  WPA_ALG_PMK,
-  WPA_ALG_GCMP,
-  WPA_ALG_SMS4,
-  WPA_ALG_KRK,
-  WPA_ALG_GCMP_256,
-  WPA_ALG_CCMP_256,
-  WPA_ALG_BIP_GMAC_128,
-  WPA_ALG_BIP_GMAC_256,
-  WPA_ALG_BIP_CMAC_256
 };
 
 /* Bitrate flags.
@@ -221,6 +213,47 @@ struct wapi_list_s
   } head;
 };
 
+/* WPA **********************************************************************/
+
+enum wpa_alg_e
+{
+  WPA_ALG_NONE = 0,
+  WPA_ALG_WEP,
+  WPA_ALG_TKIP,
+  WPA_ALG_CCMP,
+  WPA_ALG_IGTK,
+  WPA_ALG_PMK,
+  WPA_ALG_GCMP,
+  WPA_ALG_SMS4,
+  WPA_ALG_KRK,
+  WPA_ALG_GCMP_256,
+  WPA_ALG_CCMP_256,
+  WPA_ALG_BIP_GMAC_128,
+  WPA_ALG_BIP_GMAC_256,
+  WPA_ALG_BIP_CMAC_256
+};
+
+/* This structure provides the wireless configuration to
+ * wpa_driver_wext_associate().
+ */
+
+struct wpa_wconfig_s
+{
+  uint8_t sta_mode;              /* Mode of operation, e.g. IW_MODE_INFRA */
+  uint8_t auth_wpa;              /* IW_AUTH_WPA_VERSION values, e.g.
+                                  * IW_AUTH_WPA_VERSION_WPA2 */
+  uint8_t cipher_mode;           /* IW_AUTH_PAIRWISE_CIPHER and
+                                  * IW_AUTH_GROUP_CIPHER values, e.g.,
+                                  * IW_AUTH_CIPHER_CCMP */
+  uint8_t alg;                   /* See enum wpa_alg_e above, e.g.
+                                  * WPA_ALG_CCMP */
+  uint8_t ssidlen;               /* Length of the SSID */
+  uint8_t phraselen;             /* Length of the passphrase */
+  FAR const char *ifname;        /* E.g., "wlan0" */
+  FAR const uint8_t *ssid;       /* E.g., "myApSSID" */
+  FAR const uint8_t *passphrase; /* E.g., "mySSIDpassphrase" */
+};
+
 /****************************************************************************
  * Public Data
  ****************************************************************************/
@@ -268,7 +301,7 @@ EXTERN FAR const char *g_wapi_txpower_flags[];
  *
  ****************************************************************************/
 
-int wapi_get_ifup(int sock, const char *ifname, int *is_up);
+int wapi_get_ifup(int sock, FAR const char *ifname, FAR int *is_up);
 
 /****************************************************************************
  * Name: wapi_set_ifup
@@ -278,7 +311,7 @@ int wapi_get_ifup(int sock, const char *ifname, int *is_up);
  *
  ****************************************************************************/
 
-int wapi_set_ifup(int sock, const char *ifname);
+int wapi_set_ifup(int sock, FAR const char *ifname);
 
 /****************************************************************************
  * Name: wapi_set_ifdown
@@ -288,7 +321,7 @@ int wapi_set_ifup(int sock, const char *ifname);
  *
  ****************************************************************************/
 
-int wapi_set_ifdown(int sock, const char *ifname);
+int wapi_set_ifdown(int sock, FAR const char *ifname);
 
 /****************************************************************************
  * Name: wapi_get_ip
@@ -298,7 +331,7 @@ int wapi_set_ifdown(int sock, const char *ifname);
  *
  ****************************************************************************/
 
-int wapi_get_ip(int sock, const char *ifname, struct in_addr *addr);
+int wapi_get_ip(int sock, FAR const char *ifname, struct in_addr *addr);
 
 /****************************************************************************
  * Name: wapi_set_ip
@@ -308,7 +341,8 @@ int wapi_get_ip(int sock, const char *ifname, struct in_addr *addr);
  *
  ****************************************************************************/
 
-int wapi_set_ip(int sock, const char *ifname, const struct in_addr *addr);
+int wapi_set_ip(int sock, FAR const char *ifname,
+                FAR const struct in_addr *addr);
 
 /****************************************************************************
  * Name: wapi_get_netmask
@@ -318,7 +352,8 @@ int wapi_set_ip(int sock, const char *ifname, const struct in_addr *addr);
  *
  ****************************************************************************/
 
-int wapi_get_netmask(int sock, const char *ifname, struct in_addr *addr);
+int wapi_get_netmask(int sock, FAR const char *ifname,
+                     FAR struct in_addr *addr);
 
 /****************************************************************************
  * Name: wapi_set_netmask
@@ -328,7 +363,8 @@ int wapi_get_netmask(int sock, const char *ifname, struct in_addr *addr);
  *
  ****************************************************************************/
 
-int wapi_set_netmask(int sock, const char *ifname, const struct in_addr *addr);
+int wapi_set_netmask(int sock, FAR const char *ifname,
+                     FAR const struct in_addr *addr);
 
 /****************************************************************************
  * Name: wapi_add_route_gw
@@ -589,7 +625,7 @@ int wapi_make_socket(void);
  *
  ****************************************************************************/
 
-int wapi_scan_init(int sock, const char *ifname);
+int wapi_scan_init(int sock, FAR const char *ifname);
 
 /****************************************************************************
  * Name: wapi_scan_stat
@@ -634,7 +670,7 @@ int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_ssid(int sockfd, FAR char *ifname,
+int wpa_driver_wext_set_ssid(int sockfd, FAR const char *ifname,
                              FAR const uint8_t *ssid, size_t ssid_len);
 
 /************************************************************************************
@@ -653,7 +689,7 @@ int wpa_driver_wext_set_ssid(int sockfd, FAR char *ifname,
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_mode(int sockfd, FAR char *ifname, int mode);
+int wpa_driver_wext_set_mode(int sockfd, FAR const char *ifname, int mode);
 
 /************************************************************************************
  * Name: wpa_driver_wext_set_key_ext
@@ -668,7 +704,7 @@ int wpa_driver_wext_set_mode(int sockfd, FAR char *ifname, int mode);
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_key_ext(int sockfd, FAR char *ifname, enum wpa_alg_e alg,
+int wpa_driver_wext_set_key_ext(int sockfd, FAR const char *ifname, enum wpa_alg_e alg,
                                 FAR const uint8_t *key, size_t key_len);
 
 /************************************************************************************
@@ -677,12 +713,13 @@ int wpa_driver_wext_set_key_ext(int sockfd, FAR char *ifname, enum wpa_alg_e alg
  * Description:
  *
  * Input Parameters:
+ *   wconfig - Describes the wireless configuration.
  *
  * Returned Value:
  *
  ************************************************************************************/
 
-int wpa_driver_wext_associate(void);
+int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig);
 
 /************************************************************************************
  * Name: wpa_driver_wext_set_auth_param
@@ -695,7 +732,7 @@ int wpa_driver_wext_associate(void);
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_auth_param(int sockfd, FAR char *ifname,
+int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname,
                                    int idx, uint32_t value);
 
 #undef EXTERN

@@ -1465,6 +1465,56 @@ config NSH_PANID
 	---help---
 		Select the PAN ID to join upon initialization.
 
+menu "WAPI Configuration"
+	depends on NET && WIRELESS_WAPI
+
+config NSH_WAPI_STAMODE
+	int "Wireless mode of operation"
+	default 2
+	range 0 8
+	---help---
+		Mode of operation.  See the IW_MODE_* definitions in
+		include/nuttx/wireless/wireless.  The default value corresponds to
+		IW_MODE_INFRA
+
+config NSH_WAPI_AUTHWPA
+	hex "IW_AUTH_WPA_VERSION value"
+	default 0x00000004
+	range 0x00000001 0x00000004
+	---help---
+		IW_AUTH_WPA_VERSION values.  See the IW_AUTH_WPA_VERSION_* definitions
+		in include/nuttx/wireless/wireless.  The default value corresponds to
+		IW_AUTH_WPA_VERSION_WPA2.  NOTE that this is a bit-encoded field.  The
+		only valid values are 0x00000001, 0x00000002, and 0x00000004
+
+config NSH_WAPI_CIPHERMODE
+	hex " IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values"
+	default 0x00000008
+	range 0x00000001 0x00000010
+	---help---
+		IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values. See the
+		IW_AUTH_CIPHER_* definitions in include/nuttx/wireless/wireless.
+		The default value corresponds to IW_AUTH_CIPHER_CCMP.  NOTE that
+		this is a bit-encoded field.  The only valid values are 0x00000001,
+		0x00000002,0x00000004, ... 0x00000010
+
+config NSH_WAPI_ALG;
+	int "Algorithm"
+	default 3
+	range 0 13
+	---help---
+		Algorithm.  See enum wpa_alg_e in apps/include/wireless/wapi.h.  The
+		default corresponds to WPA_ALG_CCMP.
+
+config NSH_WAPI_SSID
+	string "SSID"
+	default "myApSSID"
+
+config NSH_WAPI_PASSPHRASE
+	string "Passprhase"
+	default "mySSIDpassphrase"
+
+endmenu # WAPI Configuration
 endif # NSH_NETINIT
 
 config NSH_MAX_ROUNDTRIP

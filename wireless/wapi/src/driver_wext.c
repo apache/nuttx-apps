@@ -59,6 +59,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <debug.h>
 
@@ -85,12 +86,14 @@
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_ssid(int sockfd,  FAR char *ifname, FAR const uint8_t *ssid,
-                             size_t ssid_len)
+int wpa_driver_wext_set_ssid(int sockfd,  FAR const char *ifname,
+                             FAR const uint8_t *ssid, size_t ssid_len)
 {
   struct iwreq iwr;
   int ret = 0;
   char buf[33];
+
+  DEBUGASSERT(ifname != NULL && ssid != NULL && ssid_len > 0);
 
   if (ssid_len > WAPI_ESSID_MAX_SIZE)
     {
@@ -134,10 +137,12 @@ int wpa_driver_wext_set_ssid(int sockfd,  FAR char *ifname, FAR const uint8_t *s
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_mode(int sockfd, FAR char *ifname, int mode)
+int wpa_driver_wext_set_mode(int sockfd, FAR const char *ifname, int mode)
 {
   struct iwreq iwr;
   int ret = -1;
+
+  DEBUGASSERT(ifname != NULL);
 
   memset(&iwr, 0, sizeof(iwr));
   strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
@@ -168,12 +173,14 @@ done:
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_key_ext(int sockfd,  FAR char *ifname, enum wpa_alg_e alg,
+int wpa_driver_wext_set_key_ext(int sockfd,  FAR const char *ifname, enum wpa_alg_e alg,
                                 FAR const uint8_t *key, size_t key_len)
 {
   struct iwreq iwr;
   int ret = 0;
   struct iw_encode_ext *ext;
+
+  DEBUGASSERT(ifname != NULL && key != NULL && key_len > 0);
 
   ext = malloc(sizeof(*ext) + key_len);
   if (ext == NULL)
@@ -233,42 +240,29 @@ int wpa_driver_wext_set_key_ext(int sockfd,  FAR char *ifname, enum wpa_alg_e al
  * Description:
  *
  * Input Parameters:
+ *   wconfig - Describes the wireless configuration.
  *
  * Returned Value:
  *
  ************************************************************************************/
 
-int wpa_driver_wext_associate(void)
+int wpa_driver_wext_associate(FAR struct wpa_wconfig_s *wconfig)
 {
-  int ret;
-  int sockfd;
   struct iwreq req;
+  int sockfd;
+  int ret;
 
-  int sta_mode = IW_MODE_INFRA;
+  DEBUGASSERT(wconfig != NULL);
 
-  // IW_AUTH_WPA_VERSION_DISABLED
-  // IW_AUTH_WPA_VERSION_WPA
-
-  int auth_wpa = IW_AUTH_WPA_VERSION_WPA2;
-
-  // IW_AUTH_CIPHER_NONE
-  // IW_AUTH_CIPHER_WEP40
-  // IW_AUTH_CIPHER_TKIP
-  // IW_AUTH_CIPHER_WEP104
-
-  int cipher_mode = IW_AUTH_CIPHER_CCMP;
-
-  enum wpa_alg_e alg = WPA_ALG_CCMP;
-
-  char ifname[] = "wlan0";
-  const uint8_t ssid[] = "myApSSID";
-  const uint8_t passphrase[] = "mySSIDpassphrase";
-
-  ninfo("Entry\n");
+  ninfo("sta_mode=%u auth_wpa=%08x cipher_mode=%08x\n",
+        wconfig->sta_mode, wconfig->auth_wpa, wconfig->cipher_mode);
+  ninfo("ifname=%s ssid[%u]=%s passphrase[%u]=%s\n",
+        wconfig->ifname, wconfig->ssidlen, wconfig->ssid, wconfig->phraselen,
+        wconfig->passphrase);
 
   /* Get a socket (only so that we get access to the INET subsystem) */
 
-  sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
+  sockfd = socket(PF_INETX, SOCK_WAPI, 0);
   if (sockfd < 0)
     {
       return sockfd;
@@ -276,44 +270,47 @@ int wpa_driver_wext_associate(void)
 
   /* Put the driver name into the request */
 
-  strncpy(req.ifr_name, ifname, IFNAMSIZ);
+  strncpy(req.ifr_name, wconfig->ifname, IFNAMSIZ);
 
-  if (wpa_driver_wext_set_mode(sockfd, ifname, sta_mode) < 0)
+  ret = wpa_driver_wext_set_mode(sockfd, wconfig->ifname, wconfig->sta_mode);
+  if (ret < 0)
     {
-      nerr("Fail set sta mode\n");
+      nerr("ERROR: Fail set sta mode: %d\n", ret);
+      goto close_socket;
+    }
+
+  ret = wpa_driver_wext_set_auth_param(sockfd, wconfig->ifname,
+                                       IW_AUTH_WPA_VERSION,
+                                       wconfig->auth_wpa);
+  if (ret < 0)
+    {
+      nerr("ERROR: Fail set wpa version: %d\n", ret);
+      goto close_socket;
+    }
+
+  ret = wpa_driver_wext_set_auth_param(sockfd, wconfig->ifname,
+                                       IW_AUTH_CIPHER_PAIRWISE,
+                                       wconfig->cipher_mode);
+  if (ret < 0)
+    {
+      nerr("ERROR: Fail set cipher mode: %d\n", ret);
+      goto close_socket;
+    }
+
+  ret = wpa_driver_wext_set_key_ext(sockfd, wconfig->ifname, wconfig->alg,
+                                    wconfig->passphrase, wconfig->phraselen);
+  if (ret < 0)
+    {
+      nerr("ERROR: Fail set key: %d\n", ret);
       ret = -1;
       goto close_socket;
     }
 
-  if (wpa_driver_wext_set_auth_param(sockfd, ifname, IW_AUTH_WPA_VERSION,
-                                     auth_wpa) < 0)
+  ret = wpa_driver_wext_set_ssid(sockfd, wconfig->ifname, wconfig->ssid,
+                                 wconfig->ssidlen);
+  if (ret < 0)
     {
-      nerr("Fail set wpa version\n");
-      ret = -1;
-      goto close_socket;
-    }
-
-  if (wpa_driver_wext_set_auth_param(sockfd, ifname,
-             IW_AUTH_CIPHER_PAIRWISE, cipher_mode) < 0)
-  {
-    nerr("Fail set cipher mode\n");
-    ret = -1;
-    goto close_socket;
-  }
-
-  if (wpa_driver_wext_set_key_ext(sockfd, ifname, alg, passphrase,
-                                  sizeof(passphrase)-1))
-    {
-      nerr("Fail set key\n");
-      ret = -1;
-      goto close_socket;
-    }
-
-  if (wpa_driver_wext_set_ssid(sockfd, ifname, ssid, sizeof(ssid)-1) < 0)
-    {
-      nerr("Fail set ssid\n");
-      ret = -1;
-      goto close_socket;
+      nerr("ERROR: Fail set ssid: %d\n", ret);
     }
 
 close_socket:
@@ -332,12 +329,14 @@ close_socket:
  *
  ************************************************************************************/
 
-int wpa_driver_wext_set_auth_param(int sockfd, FAR char *ifname, int idx,
+int wpa_driver_wext_set_auth_param(int sockfd, FAR const char *ifname, int idx,
                                    uint32_t value)
 {
   struct iwreq iwr;
   int errcode;
   int ret = 0;
+
+  DEBUGASSERT(ifname != NULL);
 
   memset(&iwr, 0, sizeof(iwr));
   strncpy(iwr.ifr_name, ifname, IFNAMSIZ);
