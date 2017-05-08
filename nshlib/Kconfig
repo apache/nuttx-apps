@@ -1488,7 +1488,7 @@ config NSH_WAPI_AUTHWPA
 		only valid values are 0x00000001, 0x00000002, and 0x00000004
 
 config NSH_WAPI_CIPHERMODE
-	hex " IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values"
+	hex "IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values"
 	default 0x00000008
 	range 0x00000001 0x00000010
 	---help---
@@ -1498,7 +1498,7 @@ config NSH_WAPI_CIPHERMODE
 		this is a bit-encoded field.  The only valid values are 0x00000001,
 		0x00000002,0x00000004, ... 0x00000010
 
-config NSH_WAPI_ALG;
+config NSH_WAPI_ALG
 	int "Algorithm"
 	default 3
 	range 0 13

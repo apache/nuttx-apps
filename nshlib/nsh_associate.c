@@ -69,6 +69,7 @@ int nsh_associate(FAR const char *ifname)
   wconfig.sta_mode    = CONFIG_NSH_WAPI_STAMODE;
   wconfig.auth_wpa    = CONFIG_NSH_WAPI_AUTHWPA;
   wconfig.cipher_mode = CONFIG_NSH_WAPI_CIPHERMODE;
+  wconfig.alg         = CONFIG_NSH_WAPI_ALG;
   wconfig.ifname      = ifname;
   wconfig.ssid        = (FAR const uint8_t *)ssid;
   wconfig.passphrase  = (FAR const uint8_t *)passphrase;
