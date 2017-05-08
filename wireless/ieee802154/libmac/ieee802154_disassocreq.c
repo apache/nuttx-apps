@@ -1,8 +1,8 @@
 /****************************************************************************
- * netutils/netlib/netlib_getpanid.c
+ * apps/wireless/ieee802154/libmac/ieee802154_assocreq.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Author:  Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,56 +39,30 @@
 
 #include <nuttx/config.h>
 
-#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <string.h>
+#include <stdio.h>
 #include <errno.h>
 
-#include "wireless/ieee802154.h"
-#include "netutils/netlib.h"
+#include <nuttx/fs/ioctl.h>
 
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: netlib_getpanid
- *
- * Description:
- *   Return the current PAN ID
- *
- * Parameters:
- *   ifname The name of the interface to use
- *   panid  The location to return the current PAN ID
- *
- * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
- *
- ****************************************************************************/
-
-int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
+int ieee802154_disassoc_req(int fd, FAR struct ieee802154_disassoc_req_s *req)
 {
-  int ret = ERROR;
+  int ret;
 
-  if (ifname != NULL && panid != NULL)
+  ret = ioctl(fd, MAC802154IOC_MLME_DISASSOC_REQUEST, (unsigned long)((uintptr_t)req));
+  if (ret < 0)
     {
-      /* Get a socket (only so that we get access to the INET subsystem) */
-
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          /* Use the helper provided in libmac */
-
-          ret = sixlowpan_getpanid(sockfd, ifname, panid);
-          close(sockfd);
-        }
+      ret = -errno;
+      fprintf(stderr, "MAC802154IOC_MLME_DISASSOC_REQUEST failed: %d\n", ret);
     }
 
   return ret;
 }
-
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

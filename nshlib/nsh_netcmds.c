@@ -762,7 +762,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   uint8_t mac[IFHWADDRLEN];
 #endif
 #ifdef CONFIG_NET_6LOWPAN
-  uint8_t nodeaddr[NET_6LOWPAN_RIMEADDR_SIZE];
+  uint8_t nodeaddr[NET_6LOWPAN_ADDRSIZE];
 #endif
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;

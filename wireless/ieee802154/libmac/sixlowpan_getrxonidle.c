@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_getpanid.c
+ * apps/wireless/ieee802154/libmac/sixlowpan_getrxonidle.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -39,56 +39,29 @@
 
 #include <nuttx/config.h>
 
-#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <stdint.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
-#include "wireless/ieee802154.h"
-#include "netutils/netlib.h"
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: netlib_getpanid
- *
- * Description:
- *   Return the current PAN ID
- *
- * Parameters:
- *   ifname The name of the interface to use
- *   panid  The location to return the current PAN ID
- *
- * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
- *
- ****************************************************************************/
-
-int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
+int sixlowpan_getrxonidle(int sock, FAR const char *ifname, FAR bool *rxonidle)
 {
-  int ret = ERROR;
+  struct ieee802154_get_req_s req;
+  int ret;
 
-  if (ifname != NULL && panid != NULL)
-    {
-      /* Get a socket (only so that we get access to the INET subsystem) */
+  req.pib_attr = IEEE802154_PIB_MAC_RX_ON_WHEN_IDLE;
+  ret = sixlowpan_get_req(sock, ifname, &req);
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          /* Use the helper provided in libmac */
-
-          ret = sixlowpan_getpanid(sockfd, ifname, panid);
-          close(sockfd);
-        }
-    }
+  *rxonidle = req.attr_value.mac.rxonidle;
 
   return ret;
 }
-
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

@@ -67,7 +67,7 @@
  *
  * Parameters:
  *   ifname   The name of the interface to use
- *   nodeaddr Node address to set, size must be NET_6LOWPAN_RIMEADDR_SIZE
+ *   nodeaddr Node address to set, size must be NET_6LOWPAN_ADDRSIZE
  *
  * Return:
  *   0 on success; -1 on failure
@@ -94,7 +94,7 @@ int netlib_setnodeaddr(FAR const char *ifname, FAR const uint8_t *nodeaddr)
           /* Put the new MAC address into the request */
 
           req.ifr_hwaddr.sa_family = AF_INET6;
-          memcpy(&req.ifr_hwaddr.sa_data, nodeaddr, NET_6LOWPAN_RIMEADDR_SIZE);
+          memcpy(&req.ifr_hwaddr.sa_data, nodeaddr, NET_6LOWPAN_ADDRSIZE);
 
           /* Perform the ioctl to set the node address */
 

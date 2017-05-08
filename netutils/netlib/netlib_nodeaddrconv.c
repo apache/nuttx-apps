@@ -62,14 +62,14 @@ bool netlib_nodeaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
 
   /* Form xx:xx or xx:xx:xx:xx:xx:xx:xx:xx for extended Rime address */
 
-  if (strlen(hwstr) != 3 * NET_6LOWPAN_RIMEADDR_SIZE - 1)
+  if (strlen(hwstr) != 3 * NET_6LOWPAN_ADDRSIZE - 1)
     {
       return false;
     }
 
   tmp = 0;
 
-  for (i = 0; i < NET_6LOWPAN_RIMEADDR_SIZE; ++i)
+  for (i = 0; i < NET_6LOWPAN_ADDRSIZE; ++i)
     {
       j = 0;
       do

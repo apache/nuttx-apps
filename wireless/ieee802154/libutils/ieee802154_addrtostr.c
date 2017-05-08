@@ -1,8 +1,8 @@
 /****************************************************************************
- * netutils/netlib/netlib_getpanid.c
+ * apps/wireless/ieee802154/libutils/ieee802154_addrtostr.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
+ *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,57 +38,54 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
+#include <stdio.h>
 
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
-#include "netutils/netlib.h"
-
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: netlib_getpanid
- *
- * Description:
- *   Return the current PAN ID
- *
- * Parameters:
- *   ifname The name of the interface to use
- *   panid  The location to return the current PAN ID
- *
- * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
- *
- ****************************************************************************/
-
-int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
+int ieee802154_addrtostr(FAR char *buf, int len,
+                         FAR struct ieee802154_addr_s *addr)
 {
-  int ret = ERROR;
+#ifndef CONFIG_BIG_ENDIAN
+  uint16_t panid = ((addr->panid & 0xff) << 8) | ((addr->panid >> 8) & 0xff);
+#else
+  uint16_t panid = addr->panid;
+#endif
 
-  if (ifname != NULL && panid != NULL)
+  if (addr->mode == IEEE802154_ADDRMODE_NONE)
     {
-      /* Get a socket (only so that we get access to the INET subsystem) */
+      return snprintf(buf, len, "none");
+    }
+  else if (addr->mode == IEEE802154_ADDRMODE_SHORT)
+    {
+#ifndef CONFIG_BIG_ENDIAN
+      uint16_t saddr = ((addr->saddr & 0xff) << 8) | ((addr->saddr >> 8) & 0xff);
+#else
+      uint16_t saddr = addr->saddr;
+#endif
+      return snprintf(buf, len, "%04X/%04X", panid, saddr);
+    }
+  else if (addr->mode == IEEE802154_ADDRMODE_EXTENDED)
+    {
+      int i;
+      int off = snprintf(buf, len, "%04X/", panid);
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
+      for (i = 0; i < 8; i++)
         {
-          /* Use the helper provided in libmac */
-
-          ret = sixlowpan_getpanid(sockfd, ifname, panid);
-          close(sockfd);
+          off += snprintf(buf + off, len  -off, "%02X", addr->eaddr[i]);
         }
+
+      return off;
+    }
+  else
+    {
+      return snprintf(buf,len,"<INVAL>");
     }
 
-  return ret;
+  return -1;
 }
-
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */
