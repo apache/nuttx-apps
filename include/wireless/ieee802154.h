@@ -100,6 +100,9 @@ int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr);
 int ieee802154_setpromisc(int fd, bool promisc);
 int ieee802154_getpromisc(int fd, FAR bool *promisc);
 
+int ieee802154_setrxonidle(int fd, bool rxonidle);
+int ieee802154_getrxonidle(int fd, FAR bool *rxonidle);
+
 int ieee802154_settxpwr(int fd, int32_t txpwr);
 int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr);
 
@@ -168,21 +171,13 @@ int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc);
 int sixlowpan_getpromisc(int sock, FAR const char *ifname,
       FAR bool *promisc);
 
-int sixlowpan_setdevmode(int sock, FAR const char *ifname, uint8_t devmode);
-int sixlowpan_getdevmode(int sock, FAR const char *ifname,
-      FAR uint8_t *devmode);
+int sixlowpan_setrxonidle(int sock, FAR const char *ifname, bool rxonidle);
+int sixlowpan_getrxonidle(int sock, FAR const char *ifname,
+      FAR bool *rxonidle);
 
 int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr);
 int sixlowpan_gettxpwr(int sock, FAR const char *ifname,
       FAR int32_t *txpwr);
-
-int sixlowpan_setcca(int sock, FAR const char *ifname,
-      FAR struct ieee802154_cca_s *cca);
-int sixlowpan_getcca(int sock, FAR const char *ifname,
-      FAR struct ieee802154_cca_s *cca);
-
-int sixlowpan_energydetect(int sock, FAR const char *ifname,
-      FAR bool *energy);
 
 #endif /* CONFIG_NET_6LOWPAN*/
 

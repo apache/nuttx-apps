@@ -73,7 +73,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static int tx(int fd, FAR const char *str, int verbose);
+static int tx(FAR const char *devname, FAR const char *str, int verbose);
+static int start_sniffer_daemon(FAR const char *devname);
 
 /****************************************************************************
  * Private Data
@@ -81,6 +82,9 @@ static int tx(int fd, FAR const char *str, int verbose);
 
 uint8_t g_handle = 0;
 uint8_t g_txframe[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
+static int sniffer_daemon(int argc, FAR char *argv[]);
+
+bool g_sniffer_daemon_started = false;
 
 /****************************************************************************
  * Public Data
@@ -91,17 +95,133 @@ uint8_t g_txframe[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
  ****************************************************************************/
 
 /****************************************************************************
+ * Name : start_sniff
+ *
+ * Description :
+ *   Starts a thread to run the sniffer in the background
+ ****************************************************************************/
+
+static int start_sniffer_daemon(FAR const char *devname)
+{
+  int ret;
+  FAR const char *sniffer_argv[2];
+
+  printf("i8sak: Starting sniffer_daemon\n");
+
+  if (g_sniffer_daemon_started)
+    {
+      printf("i8sak: sniffer_daemon already running\n");
+      return EXIT_SUCCESS;
+    }
+  
+  sniffer_argv[0] = devname;
+  sniffer_argv[1] = NULL;
+  
+  ret = task_create("sniffer_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
+                    CONFIG_IEEE802154_I8SAK_STACKSIZE, sniffer_daemon,
+                    (FAR char * const *)sniffer_argv);
+  if (ret < 0)
+    {
+      int errcode = errno;
+      printf("i8sak: ERROR: Failed to start sniffer_daemon: %d\n",
+             errcode);
+      return EXIT_FAILURE;
+    }
+
+  g_sniffer_daemon_started = true;
+  printf("i8sak: sniffer_daemon started\n");
+  
+  return OK;
+}
+ 
+/****************************************************************************
+ * Name : sniffer_daemon
+ *
+ * Description :
+ *   Sniff for frames (Promiscuous mode)
+ ****************************************************************************/
+
+static int sniffer_daemon(int argc, FAR char *argv[])
+{
+  int ret, fd, i;
+  struct mac802154dev_rxframe_s rx;
+
+  fd = open(argv[1], O_RDWR);
+  if (fd < 0)
+    {
+      printf("cannot open %s, errno=%d\n", argv[1], errno);
+      ret = errno;
+      return ret;
+    }
+
+  printf("Listening...\n"); 
+
+  /* Enable promiscuous mode */
+
+  ret = ieee802154_setpromisc(fd, true);
+
+  /* Make sure receiver is always on while idle */
+
+  ret = ieee802154_setrxonidle(fd, true);
+
+  while(1)
+    {
+      ret = read(fd, &rx, sizeof(struct mac802154dev_rxframe_s));
+      if (ret < 0)
+        {
+          printf("sniffer_daemon: read failed: %d\n", errno);
+          goto errout;
+        }
+
+      printf("Frame Received:\n");
+
+      for (i = 0; i < rx.length; i++)
+        {
+          printf("%02X", rx.payload[i]);
+        }
+
+      printf("\n");
+
+      fflush(stdout);
+    }
+
+errout:
+  /* Turn receiver off when idle */
+
+  ret = ieee802154_setrxonidle(fd, false);
+
+  /* Disable promiscuous mode */
+
+  ret = ieee802154_setpromisc(fd, false);
+
+  printf("sniffer_daemon: closing");
+  close(fd);
+  g_sniffer_daemon_started = false;
+  return OK;
+}
+
+/****************************************************************************
  * Name : tx
  *
  * Description :
  *   Transmit a data frame.
  ****************************************************************************/
 
-static int tx(int fd, FAR const char *str, int verbose)
+static int tx(FAR const char *devname, FAR const char *str, int verbose)
 {
   struct mac802154dev_txframe_s tx;
-  int ret, str_len;
+  int ret, str_len, fd;
   int i = 0;
+
+  /* Open device */
+
+  fd = open(devname, O_RDWR);
+  if (fd < 0)
+    {
+      printf("cannot open %s, errno=%d\n", devname, errno);
+      ret = errno;
+      return ret;
+    }
 
   /* Set an application defined handle */
 
@@ -116,6 +236,8 @@ static int tx(int fd, FAR const char *str, int verbose)
   tx.meta.ranging = IEEE802154_NON_RANGING;
 
   tx.meta.src_addr_mode = IEEE802154_ADDRMODE_EXTENDED;
+  tx.meta.dest_addr.mode = IEEE802154_ADDRMODE_SHORT;
+  tx.meta.dest_addr.saddr = 0xFADE;
 
   str_len = strlen(str);
 
@@ -128,7 +250,7 @@ static int tx(int fd, FAR const char *str, int verbose)
 
   if ((str_len & 1) || (tx.length > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
     {
-      goto data_error;
+      goto error;
     }
 
   /* Decode hex packet */
@@ -144,7 +266,7 @@ static int tx(int fd, FAR const char *str, int verbose)
         }
       else
         {
-          goto data_error;
+          goto error;
         }
     }
 
@@ -173,11 +295,13 @@ static int tx(int fd, FAR const char *str, int verbose)
       printf(" write: errno=%d\n",errno);
     }
 
-return ret;
+  close(fd);
+  return ret;
 
-data_error:
-          printf("data error\n");
-          return ERROR;;
+error:
+  printf("data error\n");
+  close(fd);
+  return ERROR;
 }
 
 /****************************************************************************
@@ -190,7 +314,8 @@ data_error:
 
 int usage(void)
 {
-  printf("i8 <device> <op> [<args>]\n"
+  printf("i8 <devname> <op> [<args>]\n"
+         "  sniffer           Listen for packets\n"
          "  tx <hexpacket>    Transmit a data frame\n"
          );
 
@@ -207,48 +332,33 @@ int main(int argc, FAR char *argv[])
 int i8_main(int argc, char *argv[])
 #endif
 {
-  unsigned long arg = 0;
-  int fd;
+  FAR const char *devname;
+  FAR const char *cmdname;
   int ret = OK;
 
   if (argc < 3)
     {
+      printf("ERROR: Missing argument\n");
       return usage();
     }
 
-  if (argc >= 4)
-    {
-      arg = atol(argv[3]);
-    }
-
-  /* Open device */
-
-  fd = open(argv[1], O_RDWR);
-  if (fd < 0)
-    {
-      printf("cannot open %s, errno=%d\n", argv[1], errno);
-      ret = errno;
-      goto exit;
-    }
+  devname = argv[1];
+  cmdname = argv[2];
 
   /* Get mode */
 
-  if (!strcmp(argv[2], "tx"))
+  if (!strcmp(cmdname, "tx"))
     {
-      ret = tx(fd, argv[3], TRUE);
-      if (ret < 0)
-      {
-        goto error;
-      }
+      ret = tx(devname, argv[3], TRUE);
+    }
+  else if(!strcmp(argv[2], "sniffer"))
+    {
+      ret = start_sniffer_daemon(devname);
     }
   else
     {
-usage:
       ret = usage();
     }
 
-error:
-  close(fd);
-exit:
   return ret;
 }
