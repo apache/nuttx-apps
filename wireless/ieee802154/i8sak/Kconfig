@@ -20,5 +20,13 @@ config IEEE802154_I8SAK_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
+config IEEE802154_I8SAK_PRIORITY
+	int "i8sak task priority"
+	default 100
+
+config IEEE802154_I8SAK_STACKSIZE
+	int "i8sak stack size"
+	default 2048
+
 endif
 
