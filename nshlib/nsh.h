@@ -943,9 +943,9 @@ int nsh_fileapp(FAR struct nsh_vtbl_s *vtbl, FAR const char *cmd,
                 FAR char **argv, FAR const char *redirfile, int oflags);
 #endif
 
+#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
 /* Working directory support */
 
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_ENVIRON)
 FAR const char *nsh_getcwd(void);
 FAR char *nsh_getfullpath(FAR struct nsh_vtbl_s *vtbl,
                           FAR const char *relpath);
@@ -957,9 +957,15 @@ void nsh_freefullpath(FAR char *fullpath);
 void nsh_dumpbuffer(FAR struct nsh_vtbl_s *vtbl, const char *msg,
                     const uint8_t *buffer, ssize_t nbytes);
 
-/* USB debug support */
+#ifdef CONFIG_WIRELESS_WAPI
+/* Wireless */
+
+int nsh_associate(FAR const char *ifname);
+#endif
 
 #ifdef CONFIG_NSH_USBDEV_TRACE
+/* USB debug support */
+
 void nsh_usbtrace(void);
 #endif
 

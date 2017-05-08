@@ -161,7 +161,7 @@ static inline void wapi_float2freq(double floatfreq, struct iw_freq *freq)
  *
  ****************************************************************************/
 
-static int wapi_parse_mode(int iw_mode, FAR wapi_mode_t *wapi_mode)
+static int wapi_parse_mode(int iw_mode, FAR enum wapi_mode_e *wapi_mode)
 {
   switch (iw_mode)
     {
@@ -234,9 +234,9 @@ return -ENOSYS;
  *
  ****************************************************************************/
 
-static int wapi_scan_event(FAR struct iw_event *event, FAR wapi_list_t *list)
+static int wapi_scan_event(FAR struct iw_event *event, FAR struct wapi_list_s *list)
 {
-  FAR wapi_scan_info_t *info;
+  FAR struct wapi_scan_info_s *info;
 
   /* Get current "wapi_info_t". */
 
@@ -248,11 +248,11 @@ static int wapi_scan_event(FAR struct iw_event *event, FAR wapi_list_t *list)
     {
     case SIOCGIWAP:
       {
-        wapi_scan_info_t *temp;
+        struct wapi_scan_info_s *temp;
 
         /* Allocate a new cell. */
 
-        temp = malloc(sizeof(wapi_scan_info_t));
+        temp = malloc(sizeof(struct wapi_scan_info_s));
         if (!temp)
           {
             WAPI_STRERROR("malloc()");
@@ -261,7 +261,7 @@ static int wapi_scan_event(FAR struct iw_event *event, FAR wapi_list_t *list)
 
         /* Reset it. */
 
-        bzero(temp, sizeof(wapi_scan_info_t));
+        bzero(temp, sizeof(struct wapi_scan_info_s));
 
         /* Save cell identifier. */
 
@@ -333,7 +333,7 @@ static int wapi_scan_event(FAR struct iw_event *event, FAR wapi_list_t *list)
  ****************************************************************************/
 
 int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
-                  FAR wapi_freq_flag_t *flag)
+                  FAR enum wapi_freq_flag_e *flag)
 {
   struct iwreq wrq;
   int ret;
@@ -384,7 +384,7 @@ int wapi_get_freq(int sock, FAR const char *ifname, FAR double *freq,
  ****************************************************************************/
 
 int wapi_set_freq(int sock, FAR const char *ifname, double freq,
-                  wapi_freq_flag_t flag)
+                  enum wapi_freq_flag_e flag)
 {
   struct iwreq wrq;
   int ret;
@@ -551,7 +551,7 @@ int wapi_chan2freq(int sock, FAR const char *ifname, int chan,
  ****************************************************************************/
 
 int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
-                   FAR wapi_essid_flag_t *flag)
+                   FAR enum wapi_essid_flag_e *flag)
 {
   struct iwreq wrq;
   int ret;
@@ -590,7 +590,7 @@ int wapi_get_essid(int sock, FAR const char *ifname, FAR char *essid,
  ****************************************************************************/
 
 int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
-                   wapi_essid_flag_t flag)
+                   enum wapi_essid_flag_e flag)
 {
   char buf[WAPI_ESSID_MAX_SIZE + 1];
   struct iwreq wrq;
@@ -623,7 +623,7 @@ int wapi_set_essid(int sock, FAR const char *ifname, FAR const char *essid,
  *
  ****************************************************************************/
 
-int wapi_get_mode(int sock, FAR const char *ifname, FAR wapi_mode_t *mode)
+int wapi_get_mode(int sock, FAR const char *ifname, FAR enum wapi_mode_e *mode)
 {
   struct iwreq wrq;
   int ret;
@@ -653,7 +653,7 @@ int wapi_get_mode(int sock, FAR const char *ifname, FAR wapi_mode_t *mode)
  *
  ****************************************************************************/
 
-int wapi_set_mode(int sock, FAR const char *ifname, wapi_mode_t mode)
+int wapi_set_mode(int sock, FAR const char *ifname, enum wapi_mode_e mode)
 {
   struct iwreq wrq;
   int ret;
@@ -772,7 +772,7 @@ int wapi_set_ap(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 int wapi_get_bitrate(int sock, FAR const char *ifname,
-                     FAR int *bitrate, FAR wapi_bitrate_flag_t *flag)
+                     FAR int *bitrate, FAR enum wapi_bitrate_flag_e *flag)
 {
   struct iwreq wrq;
   int ret;
@@ -815,7 +815,7 @@ int wapi_get_bitrate(int sock, FAR const char *ifname,
  ****************************************************************************/
 
 int wapi_set_bitrate(int sock, FAR const char *ifname, int bitrate,
-                     wapi_bitrate_flag_t flag)
+                     enum wapi_bitrate_flag_e flag)
 {
   struct iwreq wrq;
   int ret;
@@ -870,7 +870,7 @@ int wapi_mwatt2dbm(int mwatt)
  ****************************************************************************/
 
 int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
-                     FAR wapi_txpower_flag_t *flag)
+                     FAR enum wapi_txpower_flag_e *flag)
 {
   struct iwreq wrq;
   int ret;
@@ -931,7 +931,7 @@ int wapi_get_txpower(int sock, FAR const char *ifname, FAR int *power,
  ****************************************************************************/
 
 int wapi_set_txpower(int sock, FAR const char *ifname, int power,
-                     wapi_txpower_flag_t flag)
+                     enum wapi_txpower_flag_e flag)
 {
   struct iwreq wrq;
   int ret;
@@ -1054,11 +1054,11 @@ int wapi_scan_stat(int sock, FAR const char *ifname)
  *   Collects the results of a scan process.
  *
  * Input Parameters:
- *   aps - Pushes collected  wapi_scan_info_t into this list.
+ *   aps - Pushes collected  struct wapi_scan_info_s into this list.
  *
  ****************************************************************************/
 
-int wapi_scan_coll(int sock, FAR const char *ifname, FAR wapi_list_t *aps)
+int wapi_scan_coll(int sock, FAR const char *ifname, FAR struct wapi_list_s *aps)
 {
   FAR char *buf;
   int buflen;
