@@ -47,11 +47,12 @@ CSRCS += ieee802154_resetreq.c ieee802154_rxenabreq.c  ieee802154_scanreq.c
 CSRCS += ieee802154_setreq.c ieee802154_startreq.c ieee802154_syncreq.c
 CSRCS += ieee802154_pollreq.c
 # Add Get/Set Attribute helpers
-CSRCS  = ieee802154_setchan.c ieee802154_getchan.c 
+CSRCS += ieee802154_setchan.c ieee802154_getchan.c 
 CSRCS += ieee802154_setpanid.c ieee802154_getpanid.c 
 CSRCS += ieee802154_setsaddr.c ieee802154_getsaddr.c 
 CSRCS += ieee802154_seteaddr.c ieee802154_geteaddr.c 
 CSRCS += ieee802154_setpromisc.c ieee802154_getpromisc.c 
+CSRCS += ieee802154_setrxonidle.c ieee802154_getrxonidle.c 
 CSRCS += ieee802154_settxpwr.c ieee802154_gettxpwr.c 
 
 ifeq ($(CONFIG_NET_6LOWPAN),y) 
@@ -67,6 +68,7 @@ CSRCS += sixlowpan_setpanid.c sixlowpan_getpanid.c
 CSRCS += sixlowpan_setsaddr.c sixlowpan_getsaddr.c 
 CSRCS += sixlowpan_seteaddr.c sixlowpan_geteaddr.c 
 CSRCS += sixlowpan_setpromisc.c sixlowpan_getpromisc.c 
+CSRCS += sixlowpan_setrxonidle.c sixlowpan_getrxonidle.c 
 CSRCS += sixlowpan_settxpwr.c sixlowpan_gettxpwr.c 
 endif 
 

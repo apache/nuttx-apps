@@ -1,8 +1,9 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/ieee802154_getpromisc.c
+ * apps/wireless/ieee802154/libmac/ieee802154_setrxonidle.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2017 Verge Inc. All rights reserved.
+ *   Author: Anthony Merlino <anthony@vergeaero.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
@@ -52,15 +54,12 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getpromisc(int fd, FAR bool *promisc)
+int ieee802154_setrxonidle(int fd, bool rxonidle)
 {
-  struct ieee802154_get_req_s req;
-  int ret;
+  struct ieee802154_set_req_s req;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PROMISCUOUS_MODE;
-  ret = ieee802154_get_req(fd, &req);
+  req.pib_attr = IEEE802154_PIB_MAC_RX_ON_WHEN_IDLE;
+  req.attr_value.mac.rxonidle = rxonidle;
 
-  *promisc = req.attr_value.mac.promisc_mode;
-
-  return ret;
+  return ieee802154_set_req(fd, &req);
 }

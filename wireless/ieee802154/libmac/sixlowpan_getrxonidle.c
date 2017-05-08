@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/ieee802154_getpromisc.c
+ * apps/wireless/ieee802154/libmac/sixlowpan_getrxonidle.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -42,6 +42,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
@@ -52,15 +53,15 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getpromisc(int fd, FAR bool *promisc)
+int sixlowpan_getrxonidle(int sock, FAR const char *ifname, FAR bool *rxonidle)
 {
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PROMISCUOUS_MODE;
-  ret = ieee802154_get_req(fd, &req);
+  req.pib_attr = IEEE802154_PIB_MAC_RX_ON_WHEN_IDLE;
+  ret = sixlowpan_get_req(sock, ifname, &req);
 
-  *promisc = req.attr_value.mac.promisc_mode;
+  *rxonidle = req.attr_value.mac.rxonidle;
 
   return ret;
 }
