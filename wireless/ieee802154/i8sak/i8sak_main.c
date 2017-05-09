@@ -68,23 +68,59 @@
  * Private Types
  ****************************************************************************/
 
+struct i8_command_s
+{
+  FAR const char *name;
+  uint8_t noptions;
+  CODE void *handler;
+};
+
+/* Generic form of a command handler */
+
+typedef void (*cmd0_t)(FAR const char *devname);
+typedef void (*cmd1_t)(FAR const char *devname, FAR const char *arg1);
+typedef void (*cmd2_t)(FAR const char *devname, FAR const char *arg1,
+                       FAR const char *arg2);
+typedef void (*cmd3_t)(FAR const char *devname, FAR const char *arg1,
+                       FAR const char *arg2, FAR const char *arg3);
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static int tx(FAR const char *devname, FAR const char *str, int verbose);
-static int start_sniffer_daemon(FAR const char *devname);
+static int i8_tx(int fd);
+static int i8_parse_payload(FAR const char *str);
+
+static void i8_tx_cmd(FAR const char *devname, FAR const char *payload);
+static void i8_sniffer_cmd(FAR const char *devname);
+static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
+                           FAR const char *payload);
+
+static int i8_sniffer_daemon(int argc, FAR char *argv[]);
+static int i8_blaster_daemon(int argc, FAR char *argv[]);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
+static const struct i8_command_s g_i8_commands[] =
+{
+  {"help",    0, (CODE void *)NULL},
+  {"tx",      1, (CODE void *)i8_tx_cmd},
+  {"sniffer", 0, (CODE void *)i8_sniffer_cmd},
+  {"blaster", 2, (CODE void *)i8_blaster_cmd},
+};
+
+#define NCOMMANDS (sizeof(g_i8_commands) / sizeof(struct i8_command_s))
+
 uint8_t g_handle = 0;
 uint8_t g_txframe[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
-static int sniffer_daemon(int argc, FAR char *argv[]);
+uint16_t g_txframe_len;
+
+int g_blaster_period = 0;
 
 bool g_sniffer_daemon_started = false;
+bool g_blaster_daemon_started = false;
 
 /****************************************************************************
  * Public Data
@@ -95,13 +131,13 @@ bool g_sniffer_daemon_started = false;
  ****************************************************************************/
 
 /****************************************************************************
- * Name : start_sniff
+ * Name : i8_sniffer_cmd
  *
  * Description :
  *   Starts a thread to run the sniffer in the background
  ****************************************************************************/
 
-static int start_sniffer_daemon(FAR const char *devname)
+static void i8_sniffer_cmd(FAR const char *devname)
 {
   int ret;
   FAR const char *sniffer_argv[2];
@@ -111,37 +147,32 @@ static int start_sniffer_daemon(FAR const char *devname)
   if (g_sniffer_daemon_started)
     {
       printf("i8sak: sniffer_daemon already running\n");
-      return EXIT_SUCCESS;
+      return;
     }
   
   sniffer_argv[0] = devname;
   sniffer_argv[1] = NULL;
   
   ret = task_create("sniffer_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
-                    CONFIG_IEEE802154_I8SAK_STACKSIZE, sniffer_daemon,
+                    CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_sniffer_daemon,
                     (FAR char * const *)sniffer_argv);
   if (ret < 0)
     {
-      int errcode = errno;
-      printf("i8sak: ERROR: Failed to start sniffer_daemon: %d\n",
-             errcode);
-      return EXIT_FAILURE;
+      fprintf(stderr, "ERROR: Failed to start sniffer_daemon\n", errno);
+      return;
     }
 
-  g_sniffer_daemon_started = true;
   printf("i8sak: sniffer_daemon started\n");
-  
-  return OK;
 }
  
 /****************************************************************************
- * Name : sniffer_daemon
+ * Name : i8_sniffer_daemon
  *
  * Description :
  *   Sniff for frames (Promiscuous mode)
  ****************************************************************************/
 
-static int sniffer_daemon(int argc, FAR char *argv[])
+static int i8_sniffer_daemon(int argc, FAR char *argv[])
 {
   int ret, fd, i;
   struct mac802154dev_rxframe_s rx;
@@ -156,6 +187,8 @@ static int sniffer_daemon(int argc, FAR char *argv[])
 
   printf("Listening...\n"); 
 
+  g_sniffer_daemon_started = true;
+
   /* Enable promiscuous mode */
 
   ret = ieee802154_setpromisc(fd, true);
@@ -169,8 +202,8 @@ static int sniffer_daemon(int argc, FAR char *argv[])
       ret = read(fd, &rx, sizeof(struct mac802154dev_rxframe_s));
       if (ret < 0)
         {
-          printf("sniffer_daemon: read failed: %d\n", errno);
-          goto errout;
+          fprintf(stderr, "ERROR: read failed: %d\n", errno);
+          goto done;
         }
 
       printf("Frame Received:\n");
@@ -180,12 +213,12 @@ static int sniffer_daemon(int argc, FAR char *argv[])
           printf("%02X", rx.payload[i]);
         }
 
-      printf("\n");
+      printf(" \n");
 
       fflush(stdout);
     }
 
-errout:
+done:
   /* Turn receiver off when idle */
 
   ret = ieee802154_setrxonidle(fd, false);
@@ -201,56 +234,161 @@ errout:
 }
 
 /****************************************************************************
- * Name : tx
+ * Name : i8_blaster_cmd
+ *
+ * Description :
+ *   Starts a thread to send continuous packets at a fixed interval
+ ****************************************************************************/
+
+static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
+                           FAR const char *payload)
+{
+  int ret;
+  FAR const char *blaster_argv[2];
+
+  printf("i8sak: Starting blaster_daemon\n");
+
+  if (g_blaster_daemon_started)
+    {
+      printf("i8sak: blaster_daemon already running\n");
+      return;
+    }
+  
+  blaster_argv[0] = devname;
+  blaster_argv[1] = NULL;
+  
+  g_blaster_period = atoi(period_ms);
+
+  ret = i8_parse_payload(payload);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:invalid hex payload\n", ret);
+      return;
+    }
+  
+  ret = task_create("blaster_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
+                    CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_blaster_daemon,
+                    (FAR char * const *)blaster_argv);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR: Failed to start blaster_daemon", errno);
+      return;
+    }
+
+  printf("i8sak: blaster_daemon started\n");
+}
+
+/****************************************************************************
+ * Name : i8_blaster_daemon
+ *
+ * Description :
+ *   Continuously transmit a packet
+ ****************************************************************************/
+
+static int i8_blaster_daemon(int argc, FAR char *argv[])
+{
+  int ret, fd;
+
+  fd = open(argv[1], O_RDWR);
+  if (fd < 0)
+    {
+      fprintf(stderr, "ERROR:cannot open %s, errno=%d\n", argv[1], errno);
+      ret = errno;
+      return ret;
+    }
+
+  printf("blaster_daemon: starting\n"); 
+  g_blaster_daemon_started = true;
+
+  while(1)
+    {
+      ret = i8_tx(fd);
+      if (ret < 0)
+        {
+          goto done;
+        }
+      ret = usleep(g_blaster_period*1000L);
+      if (ret < 0)
+        {
+          goto done;
+        }
+    }
+
+done:
+  printf("blaster_daemon: closing\n");
+  close(fd);
+  g_blaster_daemon_started = false;
+  return OK;
+}
+
+/****************************************************************************
+ * Name : i8_tx_cmd
  *
  * Description :
  *   Transmit a data frame.
  ****************************************************************************/
 
-static int tx(FAR const char *devname, FAR const char *str, int verbose)
+static void i8_tx_cmd(FAR const char *devname, FAR const char *str)
 {
-  struct mac802154dev_txframe_s tx;
-  int ret, str_len, fd;
+  int ret, fd;
   int i = 0;
+
+  ret = i8_parse_payload(str);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:invalid hex payload\n", ret);
+      return;
+    }
+
+  for (i = 0; i < g_txframe_len; i++)
+    {
+      printf("%02X", g_txframe[i]);
+    }
+
+  fflush(stdout);
 
   /* Open device */
 
   fd = open(devname, O_RDWR);
   if (fd < 0)
     {
-      printf("cannot open %s, errno=%d\n", devname, errno);
-      ret = errno;
-      return ret;
+      fprintf(stderr, "ERROR:cannot open %s, errno=%d\n", devname, errno);
+      return;
     }
 
-  /* Set an application defined handle */
+  ret = i8_tx(fd);
+  if (ret < 0)
+    {
+      fprintf(stderr, "ERROR:Failed to transmit packet.\n", ret);
+    }
+  
+  close(fd);
+}
 
-  tx.meta.msdu_handle = g_handle++;
+/****************************************************************************
+ * Name : i8_parse_payload
+ *
+ * Description :
+ *   Parse string to get payload
+ ****************************************************************************/
 
-  /* This is a normal transaction, no special handling */
-
-  tx.meta.msdu_flags.ack_tx = 0;
-  tx.meta.msdu_flags.gts_tx = 0;
-  tx.meta.msdu_flags.indirect_tx = 0;
-
-  tx.meta.ranging = IEEE802154_NON_RANGING;
-
-  tx.meta.src_addr_mode = IEEE802154_ADDRMODE_EXTENDED;
-  tx.meta.dest_addr.mode = IEEE802154_ADDRMODE_SHORT;
-  tx.meta.dest_addr.saddr = 0xFADE;
-
+static int i8_parse_payload(FAR const char *str)
+{
+  int str_len;
+  int i = 0;
+  
   str_len = strlen(str);
 
   /* Each byte is represented by 2 chars */
 
-  tx.length = str_len >> 1;
+  g_txframe_len = str_len >> 1;
 
   /* Check if the number of chars is a multiple of 2 and that the number of 
    * bytes does not exceed the max MAC frame payload supported */
 
-  if ((str_len & 1) || (tx.length > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
+  if ((str_len & 1) || (g_txframe_len > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
     {
-      goto error;
+      return -EINVAL;
     }
 
   /* Decode hex packet */
@@ -266,42 +404,57 @@ static int tx(FAR const char *devname, FAR const char *str, int verbose)
         }
       else
         {
-          goto error;
+          return -EINVAL;
         }
     }
+  
+  return OK;
+}
 
-  if (verbose)
-    {
-      for (i = 0; i < tx.length; i++)
-        {
-          printf("%02X", g_txframe[i]);
-        }
+/****************************************************************************
+ * Name : i8_tx
+ *
+ * Description :
+ *   Transmit a data frame.
+ ****************************************************************************/
 
-      fflush(stdout);
-    }
+static int i8_tx(int fd)
+{
+  int ret;
+  struct mac802154dev_txframe_s tx;
 
+  /* Set an application defined handle */
+
+  tx.meta.msdu_handle = g_handle++;
+
+  /* This is a normal transaction, no special handling */
+
+  tx.meta.msdu_flags.ack_tx = 0;
+  tx.meta.msdu_flags.gts_tx = 0;
+  tx.meta.msdu_flags.indirect_tx = 0;
+
+  tx.meta.ranging = IEEE802154_NON_RANGING;
+
+  tx.meta.src_addrmode = IEEE802154_ADDRMODE_EXTENDED;
+  tx.meta.dest_addr.mode = IEEE802154_ADDRMODE_SHORT;
+  tx.meta.dest_addr.saddr = 0xFADE;
+
+  /* Each byte is represented by 2 chars */
+
+  tx.length = g_txframe_len;
   tx.payload = &g_txframe[0];
 
   ret = write(fd, &tx, sizeof(struct mac802154dev_txframe_s));
   if (ret == OK)
     {
-      if (verbose)
-        {
-          printf(" OK\n");
-        }
+      printf(" Tx OK\n");
     }
   else
     {
       printf(" write: errno=%d\n",errno);
     }
-
-  close(fd);
+  
   return ret;
-
-error:
-  printf("data error\n");
-  close(fd);
-  return ERROR;
 }
 
 /****************************************************************************
@@ -309,17 +462,22 @@ error:
  ****************************************************************************/
 
 /****************************************************************************
- * usage
+ * Name: i8_showusage
+ *
+ * Description:
+ *   Show program usage.
+ *
  ****************************************************************************/
 
-int usage(void)
+int i8_showusage(FAR const char *progname, int exitcode)
 {
-  printf("i8 <devname> <op> [<args>]\n"
-         "  sniffer           Listen for packets\n"
-         "  tx <hexpacket>    Transmit a data frame\n"
-         );
-
-  return ERROR;
+  fprintf(stderr, "Usage:\n", progname);
+  fprintf(stderr, "\t%s <op> <command> [OPTIONS]\n", progname);
+  fprintf(stderr, "\nWhere supported commands and [OPTIONS] appear below\n");
+  fprintf(stderr, "\t%s tx <devname> <hex payload>\n", progname);
+  fprintf(stderr, "\t%s sniffer <devname>\n", progname);
+  fprintf(stderr, "\t%s blaster <devname> <period (ms)> <hex payload>\n", progname);
+  exit(exitcode);
 }
 
 /****************************************************************************
@@ -332,33 +490,90 @@ int main(int argc, FAR char *argv[])
 int i8_main(int argc, char *argv[])
 #endif
 {
-  FAR const char *devname;
   FAR const char *cmdname;
-  int ret = OK;
+  FAR const char *devname;
+  FAR const struct i8_command_s *i8cmd;
+  int i;
+
+  if (argc < 2)
+    {
+      fprintf(stderr, "ERROR: Missing command\n");
+      i8_showusage(argv[0], EXIT_FAILURE);
+    }
 
   if (argc < 3)
     {
-      printf("ERROR: Missing argument\n");
-      return usage();
+      fprintf(stderr, "ERROR: Missing devname\n");
+      i8_showusage(argv[0], EXIT_FAILURE);
     }
 
-  devname = argv[1];
-  cmdname = argv[2];
+  cmdname = argv[1];
+  devname = argv[2];
 
-  /* Get mode */
+  /* Find the command in the g_i8_command[] list */
 
-  if (!strcmp(cmdname, "tx"))
+  i8cmd = NULL;
+  for (i = 0; i < NCOMMANDS; i++)
     {
-      ret = tx(devname, argv[3], TRUE);
-    }
-  else if(!strcmp(argv[2], "sniffer"))
-    {
-      ret = start_sniffer_daemon(devname);
-    }
-  else
-    {
-      ret = usage();
+      FAR const struct i8_command_s *cmd = &g_i8_commands[i];
+      if (strcmp(cmdname, cmd->name) == 0)
+        {
+          i8cmd = cmd;
+          break;
+        }
     }
 
-  return ret;
+  if (i8cmd == NULL)
+    {
+      fprintf(stderr, "ERROR: Unsupported command: %s\n", cmdname);
+      i8_showusage(argv[0], EXIT_FAILURE);
+    }
+
+  if (i8cmd->noptions + 1 < argc)
+    {
+      fprintf(stderr, "ERROR: Garbage at end of command ignored\n");
+    }
+  else if (i8cmd->noptions + 1 > argc)
+    {
+      fprintf(stderr, "ERROR: Missing required command options: %s\n",
+              cmdname);
+      i8_showusage(argv[0], EXIT_FAILURE);
+    }
+
+  /* Special case the help command which has no arguments, no handler,
+   * and does not need a socket.
+   */
+
+  if (i8cmd->handler == NULL)
+    {
+      i8_showusage(argv[0], EXIT_SUCCESS);
+    }
+
+  /* Dispatch the command handling */
+
+  switch (i8cmd->noptions)
+    {
+      case 0:
+        ((cmd0_t)i8cmd->handler)(devname);
+        break;
+
+      case 1:
+        ((cmd1_t)i8cmd->handler)(devname, argv[3]);
+        break;
+
+      case 2:
+        ((cmd2_t)i8cmd->handler)(devname, argv[3], argv[4]);
+        break;
+
+      case 3:
+        ((cmd3_t)i8cmd->handler)(devname, argv[3], argv[4], argv[5]);
+        break;
+
+      default:
+        fprintf(stderr, "ERROR: Too many arguments: %s\n",
+                cmdname);
+        i8_showusage(argv[0], EXIT_FAILURE);
+    }
+
+    return EXIT_SUCCESS;
 }
