@@ -160,17 +160,12 @@ errout:
 
 static int start_daemon(void)
 {
-  FAR char *alarmargv[2];
-
   if (!g_alarm_daemon_started)
     {
-      alarmargv[0] = "alarm_daemon";
-      alarmargv[1] = NULL;
-
       g_alarm_daeon_pid =
         task_create("alarm_daemon", CONFIG_EXAMPLES_ALARM_PRIORITY,
                     CONFIG_EXAMPLES_ALARM_STACKSIZE, alarm_daemon,
-                    (FAR char * const *)alarmargv);
+                    NULL);
       if (g_alarm_daeon_pid < 0)
         {
           int errcode = errno;

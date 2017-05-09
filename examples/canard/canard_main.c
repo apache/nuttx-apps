@@ -514,7 +514,6 @@ int main(int argc, FAR char *argv[])
 int canard_main(int argc, FAR char *argv[])
 #endif
 {
-  FAR char *canardargv[2];
   int ret;
 
   printf("canard_main: Starting canard_daemon\n");
@@ -524,12 +523,9 @@ int canard_main(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
-  canardargv[0] = "canard_daemon";
-  canardargv[1] = NULL;
-
   ret = task_create("canard_daemon", CONFIG_EXAMPLES_LIBCANARD_DAEMON_PRIORITY,
                     CONFIG_EXAMPLES_LIBCANARD_STACKSIZE, canard_daemon,
-                    (FAR char *const *)canardargv);
+                    NULL);
   if (ret < 0)
     {
       int errcode = errno;

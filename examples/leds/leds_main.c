@@ -197,7 +197,6 @@ int main(int argc, FAR char *argv[])
 int leds_main(int argc, FAR char *argv[])
 #endif
 {
-  FAR char *ledargv[2];
   int ret;
 
   printf("leds_main: Starting the led_daemon\n");
@@ -207,12 +206,9 @@ int leds_main(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
-  ledargv[0] = "led_daemon";
-  ledargv[1] = NULL;
-
   ret = task_create("led_daemon", CONFIG_EXAMPLES_LEDS_PRIORITY,
                     CONFIG_EXAMPLES_LEDS_STACKSIZE, led_daemon,
-                    (FAR char * const *)ledargv);
+                    NULL);
   if (ret < 0)
     {
       int errcode = errno;

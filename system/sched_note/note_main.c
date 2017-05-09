@@ -649,7 +649,6 @@ int main(int argc, FAR char *argv[])
 int note_main(int argc, FAR char *argv[])
 #endif
 {
-  FAR char *ledargv[2];
   int ret;
 
   printf("note_main: Starting the note_daemon\n");
@@ -659,12 +658,9 @@ int note_main(int argc, FAR char *argv[])
       return EXIT_SUCCESS;
     }
 
-  ledargv[0] = "note_daemon";
-  ledargv[1] = NULL;
-
   ret = task_create("note_daemon", CONFIG_SYSTEM_NOTE_PRIORITY,
                     CONFIG_SYSTEM_NOTE_STACKSIZE, note_daemon,
-                    (FAR char * const *)ledargv);
+                    NULL);
   if (ret < 0)
     {
       int errcode = errno;
