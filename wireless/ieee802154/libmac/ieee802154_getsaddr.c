@@ -60,7 +60,7 @@ int ieee802154_getsaddr(int fd, FAR uint16_t *saddr)
   req.pib_attr = IEEE802154_PIB_MAC_SHORT_ADDRESS;
   ret = ieee802154_get_req(fd, &req);
 
-  *saddr = req.attr_value.mac.saddr;
+  *saddr = req.attrval.mac.saddr;
 
   return ret;
 }

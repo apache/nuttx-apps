@@ -59,7 +59,7 @@ int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc)
   struct ieee802154_set_req_s req;
 
   req.pib_attr = IEEE802154_PIB_MAC_PROMISCUOUS_MODE;
-  req.attr_value.mac.promisc_mode = promisc;
+  req.attrval.mac.promisc_mode = promisc;
 
   return sixlowpan_set_req(sock, ifname, &req);
 }

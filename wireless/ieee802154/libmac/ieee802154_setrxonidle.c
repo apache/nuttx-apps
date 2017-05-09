@@ -59,7 +59,7 @@ int ieee802154_setrxonidle(int fd, bool rxonidle)
   struct ieee802154_set_req_s req;
 
   req.pib_attr = IEEE802154_PIB_MAC_RX_ON_WHEN_IDLE;
-  req.attr_value.mac.rxonidle = rxonidle;
+  req.attrval.mac.rxonidle = rxonidle;
 
   return ieee802154_set_req(fd, &req);
 }

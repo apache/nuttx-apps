@@ -61,7 +61,7 @@ int sixlowpan_getsaddr(int sock, FAR const char *ifname, FAR uint16_t *saddr)
   req.pib_attr = IEEE802154_PIB_MAC_SHORT_ADDRESS;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
-  *saddr = req.attr_value.mac.saddr;
+  *saddr = req.attrval.mac.saddr;
 
   return ret;
 }

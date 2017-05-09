@@ -61,7 +61,7 @@ int sixlowpan_gettxpwr(int sock, FAR const char *ifname, FAR int32_t *txpwr)
   req.pib_attr = IEEE802154_PIB_PHY_TX_POWER;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
-  *txpwr = req.attr_value.phy.txpwr;
+  *txpwr = req.attrval.phy.txpwr;
 
   return ret;
 }

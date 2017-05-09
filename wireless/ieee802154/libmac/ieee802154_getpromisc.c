@@ -60,7 +60,7 @@ int ieee802154_getpromisc(int fd, FAR bool *promisc)
   req.pib_attr = IEEE802154_PIB_MAC_PROMISCUOUS_MODE;
   ret = ieee802154_get_req(fd, &req);
 
-  *promisc = req.attr_value.mac.promisc_mode;
+  *promisc = req.attrval.mac.promisc_mode;
 
   return ret;
 }

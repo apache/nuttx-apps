@@ -60,7 +60,7 @@ int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr)
   req.pib_attr = IEEE802154_PIB_PHY_TX_POWER;
   ret = ieee802154_get_req(fd, &req);
 
-  *txpwr = req.attr_value.phy.txpwr;
+  *txpwr = req.attrval.phy.txpwr;
 
   return ret;
 }
