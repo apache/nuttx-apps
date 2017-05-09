@@ -309,7 +309,7 @@ static void nsh_netinit_configure(void)
 #ifdef CONFIG_NET_IPv4
   /* Set up our host address */
 
-#if !defined(CONFIG_NSH_DHCPC)
+#ifndef CONFIG_NSH_DHCPC
   addr.s_addr = HTONL(CONFIG_NSH_IPADDR);
 #else
   addr.s_addr = 0;
@@ -353,21 +353,21 @@ static void nsh_netinit_configure(void)
 #endif /* CONFIG_NET_ICMPv6_AUTOCONF */
 #endif /* CONFIG_NET_IPv6 */
 
-#if defined(CONFIG_NSH_DNS)
+#ifdef CONFIG_NSH_DNS
   addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
   netlib_set_ipv4dnsaddr(&addr);
 #endif
 
-#if defined(CONFIG_NSH_DHCPC)
-  /* Get the MAC address of the NIC */
-
-  netlib_getmacaddr(NET_DEVNAME, mac);
-
 #ifdef CONFIG_WIRELESS_WAPI
-  /* Associate the wlan */
+  /* Associate the wlan with an access point. */
 
   nsh_associate(NET_DEVNAME);
 #endif
+
+#ifdef CONFIG_NSH_DHCPC
+  /* Get the MAC address of the NIC */
+
+  netlib_getmacaddr(NET_DEVNAME, mac);
 
   /* Set up the DHCPC modules */
 
