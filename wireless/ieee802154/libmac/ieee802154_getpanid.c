@@ -57,10 +57,10 @@ int ieee802154_getpanid(int fd, FAR uint16_t *panid)
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PAN_ID;
+  req.pib_attr = IEEE802154_PIB_MAC_PANID;
   ret = ieee802154_get_req(fd, &req);
 
-  *panid = req.attr_value.mac.panid;
+  *panid = req.attrval.mac.panid;
 
   return ret;
 }

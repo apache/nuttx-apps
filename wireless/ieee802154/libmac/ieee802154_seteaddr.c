@@ -59,7 +59,7 @@ int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr)
   struct ieee802154_set_req_s req;
 
   req.pib_attr = IEEE802154_PIB_MAC_EXTENDED_ADDR;
-  memcpy(&req.attr_value.mac.eaddr[0], eaddr, 8);
+  memcpy(&req.attrval.mac.eaddr[0], eaddr, 8);
 
   return ieee802154_set_req(fd, &req);
 }

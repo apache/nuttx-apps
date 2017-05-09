@@ -58,7 +58,7 @@ int ieee802154_setsaddr(int fd, uint16_t saddr)
   struct ieee802154_set_req_s req;
 
   req.pib_attr = IEEE802154_PIB_MAC_SHORT_ADDRESS;
-  req.attr_value.mac.saddr = saddr;
+  req.attrval.mac.saddr = saddr;
 
   return ieee802154_set_req(fd, &req);
 }

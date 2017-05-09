@@ -61,7 +61,7 @@ int ieee802154_getchan(int fd, FAR uint8_t *chan)
   req.pib_attr = IEEE802154_PIB_PHY_CURRENT_CHANNEL;
   ret = ieee802154_get_req(fd, &req);
 
-  *chan = req.attr_value.phy.channel;
+  *chan = req.attrval.phy.channel;
 
   return ret;
 }
