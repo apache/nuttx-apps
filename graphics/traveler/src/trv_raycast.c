@@ -584,7 +584,7 @@ static void trv_ray_ycaster12(FAR struct trv_raycast_s *result)
 
   /* Pre-calculate the rate of change of X and Z with respect to Y */
   /* The inverted tangent is equal to the rate of change of X with respect to
-   * the Y-axis.  The cotangent is stored at double the the "normal" scaling.
+   * the Y-axis.  The cotangent is stored at double the "normal" scaling.
    */
 
   dxdy = g_cot_table(g_camera.yaw);
@@ -646,7 +646,7 @@ static void trv_ray_ycaster12(FAR struct trv_raycast_s *result)
 
           if (absx >= rect->hstart && absx <= rect->hend)
             {
-              /* The X position lies in the rectangle.  Now, calculate the the
+              /* The X position lies in the rectangle.  Now, calculate the
                * Z position at this relative X position.  We can skip this step
                * if we are processing another rectangle at the same relx
                * distance.
@@ -810,7 +810,7 @@ static void trv_ray_ycaster34(FAR struct trv_raycast_s *result)
 
   /* Pre-calculate the rate of change of X and Z with respect to Y */
   /* The negative inverted tangent is equal to the rate of change of X with
-   * respect to the Y-axis.  The cotangent is stored at double the the
+   * respect to the Y-axis.  The cotangent is stored at double the
    * "normal" scaling.
    */
 
@@ -1103,7 +1103,7 @@ static void trv_ray_zcasteru(FAR struct trv_raycast_s *result)
 
           if (absx >= rect->hstart && absx <= rect->hend)
             {
-              /* The X position lies in the rectangle.  Now, calculate the the
+              /* The X position lies in the rectangle.  Now, calculate the
                * Y position at this relative Z position.  We can skip this step
                * if we are processing another rectangle at the same relx
                * distance.
@@ -1253,7 +1253,7 @@ static void trv_ray_zcasterl(FAR struct trv_raycast_s *result)
 
           if (absx >= rect->hstart && absx <= rect->hend)
             {
-              /* The X position lies in the rectangle.  Now, calculate the the
+              /* The X position lies in the rectangle.  Now, calculate the
                * Y position at this relative Z position.  We can skip this step
                * if we are processing another rectangle at the same relx
                * distance.

@@ -254,7 +254,7 @@ void fdwatch_del_fd(struct fdwatch_s *fw, int fd)
 
       fw->nwatched--;
 
-      /* Replace the deleted one with the one at the the end
+      /* Replace the deleted one with the one at the end
        * of the list.
        */
 

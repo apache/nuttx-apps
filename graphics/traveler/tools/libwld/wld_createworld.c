@@ -353,7 +353,7 @@ static uint8_t wld_read_longint(INIHANDLE handle, long *variable_value,
 
 /*************************************************************************
  * Name: wld_read_filename
- * Description: Reads a file name from the the INI file.
+ * Description: Reads a file name from the INI file.
  ************************************************************************/
 
 static uint8_t wld_read_filename(INIHANDLE handle,

@@ -387,7 +387,7 @@ static char *inifile_find_section_variable(struct inifile_state_s *priv,
           return NULL;
         }
 
-      /* Does the the variable name match the one we are looking for? */
+      /* Does the variable name match the one we are looking for? */
 
       if (strcasecmp(varinfo.variable, variable) == 0)
         {

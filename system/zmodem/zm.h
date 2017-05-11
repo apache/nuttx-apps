@@ -288,7 +288,7 @@ struct zm_state_s;
 typedef int (*action_t)(FAR struct zm_state_s *pzm);
 
 /* State transition table entry.  There is one row of the table per possible state.
- * Each row is a row of all reasonable events for this state and long the the
+ * Each row is a row of all reasonable events for this state and long the
  * appropriate state transition and transition action.
  */
 

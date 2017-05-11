@@ -101,7 +101,7 @@
 #  define CONFIG_SYSTEM_ZMODEM_MOUNTPOINT "/tmp"
 #endif
 
-/* CONFIG_SYSTEM_ZMODEM_RCVSAMPLE indicates the the local sender can sample
+/* CONFIG_SYSTEM_ZMODEM_RCVSAMPLE indicates the local sender can sample
  * reverse channel while sending.  This means in particular, that Zmodem can
  * detect if data is received from the remote receiver while streaming a file
  * to the remote receiver. Support for such asychronous incoming data

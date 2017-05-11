@@ -6,7 +6,7 @@
  *   Copyright (C) 2016 Gregory Nutt. All rights reserved.
  *
  * This file was taken from Mini Basic, versino 1.0 developed by Malcolm
- * McLean, Leeds University.  Mini Basic version 1.0 was released the the
+ * McLean, Leeds University.  Mini Basic version 1.0 was released the
  * Creative Commons Attribution license which, from my reading, appears to
  * be compatible with the NuttX BSD-style license:
  *

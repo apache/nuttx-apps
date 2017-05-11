@@ -547,7 +547,7 @@ static void trv_ray_yawyprune_12cw(FAR struct trv_rect_head_s *outlist,
 
   /* Pre-calculate the rate of change of X with respect to Y */
   /* The inverted tangent is equal to the rate of change of X with respect
-   * to the Y-axis.  The cotangent is stored at double the the "normal"
+   * to the Y-axis.  The cotangent is stored at double the "normal"
    * scaling.
    */
 
@@ -638,7 +638,7 @@ static void trv_ray_yawyprune_12ccw(FAR struct trv_rect_head_s *outlist,
 
   /* Pre-calculate the rate of change of X with respect to Y */
   /* The inverted tangent is equal to the rate of change of X with respect
-   * to the Y-axis.  The cotangent is stored at double the the "normal"
+   * to the Y-axis.  The cotangent is stored at double the "normal"
    * scaling.
    */
 
@@ -729,7 +729,7 @@ static void trv_ray_yawyprune_34cw(FAR struct trv_rect_head_s *outlist,
 
   /* Pre-calculate the rate of change of X with respect to Y */
   /* The negative inverted tangent is equal to the rate of change of X with
-   * respect to the Y-axis.  The cotangent is stored at double the the
+   * respect to the Y-axis.  The cotangent is stored at double the
    * "normal" scaling.
    */
 
@@ -820,7 +820,7 @@ static void trv_ray_yawyprune_34ccw(FAR struct trv_rect_head_s *outlist,
 
   /* Pre-calculate the rate of change of X with respect to Y */
   /* The negative inverted tangent is equal to the rate of change of X with
-   * respect to the Y-axis.  The cotangent is stored at double the the
+   * respect to the Y-axis.  The cotangent is stored at double the
    * "normal" scaling.
    */
 

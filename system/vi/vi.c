@@ -1519,7 +1519,7 @@ static void vi_scrollcheck(FAR struct vi_s *vi)
       vi->hscroll -= TABSIZE;
     }
 
-  /* If the the cursor column lies to the right of the display, then adjust
+  /* If the cursor column lies to the right of the display, then adjust
    * the horizontal scrolling position so that the cursor position does
    * lie on the display.
    */
@@ -2100,7 +2100,7 @@ static void vi_paste(FAR struct vi_s *vi)
  * Name: vi_gotoline
  *
  * Description:
- *   Position the the cursor at the line specified by vi->value.  If
+ *   Position the cursor at the line specified by vi->value.  If
  *   vi->value is zero, then the cursor is position at the end of the text
  *   buffer.
  *
@@ -2931,7 +2931,7 @@ static void vi_cmd_submode(FAR struct vi_s *vi)
  * Name: vi_findstring
  *
  * Description:
- *   Find the the string in the findstr buffer by searching for a matching
+ *   Find the string in the findstr buffer by searching for a matching
  *   sub-string in the text buffer, starting at the current cursor position.
  *
  ****************************************************************************/

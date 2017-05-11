@@ -238,7 +238,7 @@ static uint8_t trv_ini_long(INIHANDLE inihandle, FAR long *value,
  * Name: trv_ini_filename
  *
  * Description:
- *   Reads a file name from the the INI file.
+ *   Reads a file name from the INI file.
  *
  ****************************************************************************/
 

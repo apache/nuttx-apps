@@ -212,7 +212,7 @@ static void tcl_paint_coplanar_rectangle(tcl_window_t *w,
       vtop = g_view_size - vtmp - 1;
     }
 
-  /* We now have some rectangle that we know is to fully on the the display.
+  /* We now have some rectangle that we know is to fully on the display.
    * Get the display positions of the rectangle
    */
 
@@ -255,7 +255,7 @@ static int tcl_check_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr, int
       posend = ptr->hend;
     }
 
-  /* Verify the the vertical rectangle intersects the viewing plane */
+  /* Verify the vertical rectangle intersects the viewing plane */
 
   return ((posstart <= pos) && (posend >= pos));
 }
@@ -345,7 +345,7 @@ static void tcl_paint_horizontal_rectangle(tcl_window_t *w, rect_data_t *ptr,
       hright = g_view_size - 1;
     }
 
-  /* We now have some line segment that we know is to fully on the the display. 
+  /* We now have some line segment that we know is to fully on the display. 
    * Get the display positions of the line segment.
    */
 
@@ -403,7 +403,7 @@ static int tcl_check_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr, int p
       posend = ptr->vend;
     }
 
-  /* Verify the the vertical rectangle intersects the viewing plane */
+  /* Verify the vertical rectangle intersects the viewing plane */
 
   return ((posstart <= pos) && (posend >= pos));
 }
@@ -497,7 +497,7 @@ static void tcl_paint_vertical_rectangle(tcl_window_t *w, rect_data_t *ptr,
       vtop = g_view_size - vtmp - 1;
     }
 
-  /* We now have some line segment that we know is to fully on the the display. 
+  /* We now have some line segment that we know is to fully on the display. 
    * Get the display positions of the line segment
    */
 

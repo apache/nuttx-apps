@@ -435,7 +435,7 @@ static FAR char *
 
       iniinfo("varinfo.variable=\"%s\"\n", varinfo.variable);
 
-      /* Does the the variable name match the one we are looking for? */
+      /* Does the variable name match the one we are looking for? */
 
       if (strcasecmp(varinfo.variable, variable) == 0)
         {

@@ -61,7 +61,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-/* If no sector size is specified wity BS=, then the following default value
+/* If no sector size is specified with BS=, then the following default value
  * is used.
  */
 
@@ -86,25 +86,17 @@ struct dd_s
   uint32_t nsectors;   /* Number of sectors to transfer */
   uint32_t sector;     /* The current sector number */
   uint32_t skip;       /* The number of sectors skipped on input */
-  bool     eof;        /* true:  The of the input or output file has been hit */
+  bool     eof;        /* true: The end of the input or output file has been hit */
   uint16_t sectsize;   /* Size of one sector */
   uint16_t nbytes;     /* Number of valid bytes in the buffer */
   uint8_t *buffer;     /* Buffer of data to write to the output file */
 };
 
 /****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
 static const char g_dd[] = "dd";
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
