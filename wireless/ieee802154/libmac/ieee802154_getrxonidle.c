@@ -61,7 +61,7 @@ int ieee802154_getrxonidle(int fd, FAR bool *rxonidle)
   req.pib_attr = IEEE802154_PIB_MAC_RX_ON_WHEN_IDLE;
   ret = ieee802154_get_req(fd, &req);
 
-  *rxonidle = req.attr_value.mac.rxonidle;
+  *rxonidle = req.attrval.mac.rxonidle;
 
   return ret;
 }
