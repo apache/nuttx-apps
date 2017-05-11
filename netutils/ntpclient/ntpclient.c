@@ -296,7 +296,7 @@ static void ntpc_settime(FAR uint8_t *timestamp)
  * Name: ntpc_daemon
  *
  * Description:
- *   This the the NTP client daemon.  This is a *very* minimal
+ *   This the NTP client daemon.  This is a *very* minimal
  *   implementation! An NTP request is and the system clock is set when the
  *   response is received
  *
@@ -354,7 +354,7 @@ static int ntpc_daemon(int argc, char **argv)
     }
 
   /* Setup or sockaddr_in struct with information about the server we are
-   * going to ask the the time from.
+   * going to ask the time from.
    */
 
   memset(&server, 0, sizeof(struct sockaddr_in));

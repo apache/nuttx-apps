@@ -160,7 +160,7 @@ int nsh_main(int argc, char *argv[])
   ret = nsh_telnetstart();
   if (ret < 0)
     {
-     /* The daemon is NOT running.  Report the the error then fail...
+     /* The daemon is NOT running.  Report the error then fail...
       * either with the serial console up or just exiting.
       */
 

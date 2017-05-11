@@ -366,7 +366,7 @@ void nxhello_hello(NXWINDOW hwnd)
    * you would need to handle that event.
    */
 
-  /* Get a position so the the "Hello, World!" string will be centered on the
+  /* Get a position so the "Hello, World!" string will be centered on the
    * display.
    */
 

@@ -475,7 +475,7 @@ static int zmr_zcrc(FAR struct zm_state_s *pzm)
 
   pzmr->crc = zm_bytobe32(pzm->hdrdata);
 
-  /* And create the the local file */
+  /* And create the local file */
 
   zmdbg("ZMR_STATE %d: CRC=%08x call zmr_openfile\n", pzmr->crc, pzm->state);
   return zmr_openfile(pzmr, zm_bytobe32(pzm->hdrdata + 1));
@@ -768,7 +768,7 @@ static int zmr_filedata(FAR struct zm_state_s *pzm)
     {
       int errorcode = errno;
 
-      /* Could not write to the the file. */
+      /* Could not write to the file. */
 
       zmdbg("ERROR: Write to file failed: %d\n", errorcode);
       zmdbg("PSTATE %d:%d->%d:%d\n",

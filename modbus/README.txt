@@ -24,7 +24,7 @@ is shown below:
   All top level .txt files    Not included
   demo/                       Not included.  This directory contains demo
                               and porting code for a variety of platforms.
-                              The NuttX demo was ported from the the LINUX
+                              The NuttX demo was ported from the LINUX
                               demo in this director and can be found at
                               apps/examples/modbus.
   doc/                        Note included.  This directory contains Doxygen

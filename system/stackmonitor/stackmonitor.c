@@ -185,7 +185,7 @@ int stackmonitor_stop(int argc, char **argv)
   if (g_stackmonitor.started)
     {
       /* Stop the stack monitor.  The next time the monitor wakes up,
-       * it will see the the stop indication and will exist.
+       * it will see the stop indication and will exist.
        */
 
       syslog(LOG_INFO, STKMON_PREFIX "Stopping: %d\n", g_stackmonitor.pid);

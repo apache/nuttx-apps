@@ -187,7 +187,7 @@ trv_coord_t trv_rayclip_player_xmotion(FAR struct trv_camera_s *pov,
 
                       /* The tangent is equal to the rate of change of Y with
                        * respect to the X-axis.  The tangent is stored at
-                       * double the the "normal" scaling -- so deltay is
+                       * double the "normal" scaling -- so deltay is
                        * "triple" precision
                        */
 
@@ -281,7 +281,7 @@ trv_coord_t trv_rayclip_player_xmotion(FAR struct trv_camera_s *pov,
 
                       /* The negative tangent is equal to the rate of change
                        * of Y with respect to the X-axis.The tangent is
-                       * stored at double the the "normal" scaling -- so
+                       * stored at double the "normal" scaling -- so
                        * deltay is "triple" precision
                        */
 
@@ -436,7 +436,7 @@ trv_coord_t trv_rayclip_player_ymotion(FAR struct trv_camera_s *pov,
 
                       /* The inverted tangent is equal to the rate of change
                        * of X with respect to the Y-axis.  The cotangent is
-                       * stored at double the the "normal" scaling -- so
+                       * stored at double the "normal" scaling -- so
                        * deltax is "triple" precision
                        */
 
@@ -530,7 +530,7 @@ trv_coord_t trv_rayclip_player_ymotion(FAR struct trv_camera_s *pov,
 
                       /* The negative inverted tangent is equal to the rate
                        * of change of X with respect to the Y-axis.  The
-                       * cotangent is stored at double the the "normal"
+                       * cotangent is stored at double the "normal"
                        * scaling -- so deltax is "triple" precision
                        */
 
@@ -584,8 +584,8 @@ trv_coord_t trv_ray_adjust_zpos(FAR struct trv_camera_s *pov,
   struct trv_rect_data_s *rect; /* Points to the rectangle data */
 
   /* We will place the player's feet at the largest Z plane
-   * which is lower the the player's eye level.  We traverse
-   * the the g_zplane list in order of increase Z values
+   * which is lower the player's eye level.  We traverse
+   * the g_zplane list in order of increase Z values
    */
 
   for (list = g_zplane.head; list; list = list->flink)
@@ -607,7 +607,7 @@ trv_coord_t trv_ray_adjust_zpos(FAR struct trv_camera_s *pov,
       if (pov->x >= rect->hstart &&  pov->x <= rect->hend &&
           pov->y >= rect->vstart &&  pov->y <= rect->vend)
         {
-          /* We have the the smallest Z plane under the player
+          /* We have the smallest Z plane under the player
            * which is below the player's eye level (pov->z).
            * Determine the approach delta Z value to return
            */

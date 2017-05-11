@@ -132,7 +132,7 @@ examples/bridge
   networks was performed externally prior to the time that this test was
   started.  Otherwise, the following options are available:
 
-    CONFIG_EXAMPLES_BRIDGE_NETn_NOMAC - Select of the the network n hardware
+    CONFIG_EXAMPLES_BRIDGE_NETn_NOMAC - Select of the network n hardware
       does not have a built-in MAC address.  If selected, the MAC address
       provided by CONFIG_EXAMPLES_BRIDGE_NETn_MACADDR will be used to assign
       the MAC address to the network n device.
@@ -380,7 +380,7 @@ examples/elf
      size of the ELF binaries are using the 'objcopy --strip-unneeded' command to
      remove un-necessary information from the ELF files.
 
-  5. Simulator.  You cannot use this example with the the NuttX simulator on
+  5. Simulator.  You cannot use this example with the NuttX simulator on
      Cygwin.  That is because the Cygwin GCC does not generate ELF file but
      rather some Windows-native binary format.
 
@@ -676,7 +676,7 @@ examples/i2cchar
     CONFIG_EXAMPLES_I2SCHAR_BUFSIZE - The size of the data payload in one
       audio buffer.  Applies to both TX and RX audio buffers.
     CONFIG_EXAMPLES_I2SCHAR_DEVINIT - Define if architecture-specific I2S
-      device initialize is available.  If defined, the the platform specific
+      device initialize is available.  If defined, the platform specific
       code must provide a function i2schar_devinit() that will be called
       each time that this test executes.  Not available in the kernel build
       mode.
@@ -818,7 +818,7 @@ examples/module
      size of the ELF binaries are using the 'objcopy --strip-unneeded' command to
      remove un-necessary information from the ELF files.
 
-  5. Simulator.  You cannot use this example with the the NuttX simulator on
+  5. Simulator.  You cannot use this example with the NuttX simulator on
      Cygwin.  That is because the Cygwin GCC does not generate ELF file but
      rather some Windows-native binary format.
 
@@ -1603,7 +1603,7 @@ examples/posix_spawn
      size of the ELF binaries are using the 'objcopy --strip-unneeded' command to
      remove un-necessary information from the ELF files.
 
-  5. Simulator.  You cannot use this example with the the NuttX simulator on
+  5. Simulator.  You cannot use this example with the NuttX simulator on
      Cygwin.  That is because the Cygwin GCC does not generate ELF file but
      rather some Windows-native binary format.
 
@@ -1900,7 +1900,7 @@ examples/sotest
      size of the ELF binaries are using the 'objcopy --strip-unneeded' command to
      remove un-necessary information from the ELF files.
 
-  5. Simulator.  You cannot use this example with the the NuttX simulator on
+  5. Simulator.  You cannot use this example with the NuttX simulator on
      Cygwin.  That is because the Cygwin GCC does not generate ELF file but
      rather some Windows-native binary format.
 

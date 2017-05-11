@@ -196,7 +196,7 @@ u16_t ppp_raise(u8_t config, u8_t *username, u8_t *password)
   while (status == 0)
     {
 #ifdef SYSTEM_POLLER
-      /* If the the serial interrupt is not hooked to ahdlc_rx, or the
+      /* If the serial interrupt is not hooked to ahdlc_rx, or the
          system needs to handle other stuff while were blocking, call
          the system poller.*/
 

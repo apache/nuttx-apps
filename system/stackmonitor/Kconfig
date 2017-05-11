@@ -20,13 +20,13 @@ config SYSTEM_STACKMONITOR_STACKSIZE
 	int "Stack monitor daemon stack size"
 	default 2048
 	---help---
-		The stack size to use the the stack monitor daemon.  Default: 2048
+		The stack size to use the stack monitor daemon.  Default: 2048
 
 config SYSTEM_STACKMONITOR_PRIORITY
 	int "Stack monitor daemon priority"
 	default 50
 	---help---
-		The priority to use the the stack monitor daemon.  Default: 50
+		The priority to use the stack monitor daemon.  Default: 50
 
 config SYSTEM_STACKMONITOR_INTERVAL
 	int "Stack monitor dump frequency"

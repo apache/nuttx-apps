@@ -34,7 +34,7 @@ config EXAMPLES_MEDIA_DEVPATH
 	string "Character driver path"
 	default "/dev/mtd0"
 	---help---
-		This is the full path to the the character driver that is used to
+		This is the full path to the character driver that is used to
 		access the media.  This test is suitable for use EEPROM character
 		drivers (see nuttx/drivers/eeprom), or with block drivers wrapped as
 		character drivers (see nuttx/drivers/bch)

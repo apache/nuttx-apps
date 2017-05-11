@@ -237,7 +237,7 @@ int nxterm_main(int argc, char **argv)
   ret = nsh_telnetstart();
   if (ret < 0)
     {
-     /* The daemon is NOT running.  Report the the error then fail...
+     /* The daemon is NOT running.  Report the error then fail...
       * either with the serial console up or just exiting.
       */
 
@@ -361,7 +361,7 @@ int nxterm_main(int argc, char **argv)
 
   /* Start Console Task *****************************************************/
   /* Now re-direct stdout and stderr so that they use the NX console driver.
-   * Note that stdin is retained (file descriptor 0, probably the the serial console).
+   * Note that stdin is retained (file descriptor 0, probably the serial console).
     */
 
    printf("nxterm_main: Starting the console task\n");

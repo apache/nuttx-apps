@@ -141,7 +141,7 @@ static void keypad_decode(FAR char *buffer, ssize_t nbytes)
   kbdstream.nbytes      = nbytes;
 
   /* Loop until all of the bytes have been consumed.  We implicitly assume
-   * that the the escaped sequences do not cross buffer boundaries.  That
+   * that the escaped sequences do not cross buffer boundaries.  That
    * might be true if the read buffer were small or the data rates high.
    */
 
