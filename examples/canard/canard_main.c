@@ -470,7 +470,7 @@ static int canard_daemon(int argc, char *argv[])
 #endif
 
   canardInit(&canard, canard_memory_pool, sizeof(canard_memory_pool),
-             onTransferReceived, shouldAcceptTransfer);
+             onTransferReceived, shouldAcceptTransfer, (void *)(12345));
   canardSetLocalNodeID(&canard, CONFIG_EXAMPLES_LIBCANARD_NODE_ID);
   printf("canard_daemon: canard initialized\n");
   printf("start node (ID: %d Name: %s)\n", CONFIG_EXAMPLES_LIBCANARD_NODE_ID,
