@@ -46,7 +46,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <nuttx/drivers/can.h>
+#include <nuttx/can/can.h>
 
 /****************************************************************************
  * Name: canlib_getloopback
