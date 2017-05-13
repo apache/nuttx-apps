@@ -42,8 +42,6 @@
 
 #include <nuttx/config.h>
 
-#ifdef CONFIG_PLATFORM_CONFIGDATA
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -83,5 +81,4 @@ void up_cxxinitialize(void);
 }
 #endif
 
-#endif /* CONFIG_PLATFORM_CONFIGDATA */
 #endif /* __APPS_INCLUDE_PLATFORM_CXXINITIALIZE_H */
