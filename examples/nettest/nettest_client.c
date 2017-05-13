@@ -137,7 +137,7 @@ void send_client(void)
   myaddr.sin_family             = AF_INET;
   myaddr.sin_port               = HTONS(PORTNO);
 
-#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK && defined(NET_LOOPBACK)
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
   myaddr.sin_addr.s_addr        = HTONL(0x7f000001);
 #else
   myaddr.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
