@@ -1,7 +1,7 @@
 //***************************************************************************
 // examples/cxxtest/main.cxx
 //
-//   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+//   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
 //   Author: Qiang Yu, http://rgmp.sourceforge.net/wiki/index.php/Main_Page
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,6 @@
 //***************************************************************************
 
 #include <nuttx/config.h>
-#include <nuttx/init.h>
-#include <nuttx/arch.h>
 
 #include <cstdio>
 #include <fstream>
@@ -48,6 +46,10 @@
 #include <map>
 #include <stdexcept>
 #include <cassert>
+
+#include <nuttx/init.h>
+
+#include "platform/cxxinitialize.h"
 
 using namespace std;
 

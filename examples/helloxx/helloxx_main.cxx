@@ -1,7 +1,7 @@
 //***************************************************************************
 // examples/helloxx/helloxx_main.cxx
 //
-//   Copyright (C) 2009, 2011-2013 Gregory Nutt. All rights reserved.
+//   Copyright (C) 2009, 2011-2013, 2017 Gregory Nutt. All rights reserved.
 //   Author: Gregory Nutt <gnutt@nuttx.org>
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,8 @@
 #include <debug.h>
 
 #include <nuttx/init.h>
-#include <nuttx/arch.h>
+
+#include "platform/cxxinitialize.h"
 
 //***************************************************************************
 // Definitions

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/elf/elf_main.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,8 @@
 #include <nuttx/binfmt/binfmt.h>
 #include <nuttx/binfmt/elf.h>
 #include <nuttx/binfmt/symtab.h>
+
+#include "platform/cxxinitialize.h"
 
 #include "tests/romfs.h"
 #include "tests/dirlist.h"

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nsh/nsh_main.c
  *
- *   Copyright (C) 2007-2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,6 @@
 #include <sched.h>
 #include <errno.h>
 
-#include <nuttx/arch.h>
-
 #if defined(CONFIG_FS_BINFS) && (CONFIG_BUILTIN)
 #  include <nuttx/binfmt/builtin.h>
 #endif
@@ -54,6 +52,8 @@
 #if defined(CONFIG_LIBC_EXECFUNCS) && defined(CONFIG_EXECFUNCS_SYMTAB)
 #  include <nuttx/binfmt/symtab.h>
 #endif
+
+#include "platform/cxxinitialize.h"
 
 #include "nshlib/nshlib.h"
 

@@ -41,7 +41,7 @@
 
 #include <debug.h>
 
-#include <nuttx/arch.h>
+#include "platform/cxxinitialize.h"
 
 #if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
 

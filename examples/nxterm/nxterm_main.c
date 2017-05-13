@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxterm/nxterm_main.c
  *
- *   Copyright (C) 2012, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2016-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,12 +61,12 @@
 #  endif
 #endif
 
-#include <nuttx/arch.h>
 #include <nuttx/nx/nx.h>
 #include <nuttx/nx/nxglib.h>
 #include <nuttx/nx/nxfonts.h>
 #include <nuttx/nx/nxterm.h>
 
+#include "platform/cxxinitialize.h"
 #include "nshlib/nshlib.h"
 
 #include "nxterm_internal.h"

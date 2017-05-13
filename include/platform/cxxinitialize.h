@@ -1,8 +1,8 @@
 /****************************************************************************
- * examples/uavcan/uavcan_main.cxx
+ * apps/include/platform/cxxinitialize.h
  *
- *   Copyright (C) 2015 Omni Hoverboards Inc. All rights reserved.
- *   Author: Paul Alexander Patience <paul-a.patience@polymtl.ca>
+ *   Copyright (C) 2017 Gregory Nutt.  All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,15 +23,18 @@
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
  * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
  * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES(INCLUDING,
  * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
  * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
  * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * LIABILITY, OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
+
+#ifndef __APPS_INCLUDE_PLATFORM_CXXINITIALIZE_H
+#define __APPS_INCLUDE_PLATFORM_CXXINITIALIZE_H
 
 /****************************************************************************
  * Included Files
@@ -39,59 +42,46 @@
 
 #include <nuttx/config.h>
 
-#include <cstdio>
-#include <cstdlib>
-
-#include "platform/cxxinitialize.h"
-
-#include <uavcan/uavcan.hpp>
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
-
-extern uavcan::ICanDriver &getCanDriver(void);
-extern uavcan::ISystemClock &getSystemClock(void);
+#ifdef CONFIG_PLATFORM_CONFIGDATA
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
+#undef EXTERN
+#if defined(__cplusplus)
+#define EXTERN extern "C"
+extern "C"
+{
+#else
+
+#define EXTERN extern
+#endif
+
 /****************************************************************************
- * Name: uavcan_main
+ * Name: up_cxxinitialize
+ *
+ * Description:
+ *   If C++ and C++ static constructors are supported, then this function
+ *   must be provided by board-specific logic in order to perform
+ *   initialization of the static C++ class instances.
+ *
+ *   This function should then be called in the application-specific
+ *   logic in order to perform the C++ initialization.  NOTE  that no
+ *   component of the core NuttX RTOS logic is involved; This function
+ *   definition only provides the 'contract' between application
+ *   specific C++ code and platform-specific toolchain support
+ *
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-extern "C" int uavcan_main(int argc, FAR char *argv[])
+#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
+void up_cxxinitialize(void);
 #endif
-{
-  up_cxxinitialize();
 
-  static uavcan::Node<CONFIG_EXAMPLES_UAVCAN_NODE_MEM_POOL_SIZE>
-    node(getCanDriver(), getSystemClock());
-
-  node.setNodeID(CONFIG_EXAMPLES_UAVCAN_NODE_ID);
-  node.setName(CONFIG_EXAMPLES_UAVCAN_NODE_NAME);
-
-  int ret = node.start();
-  if (ret < 0)
-    {
-      std::fprintf(stderr, "ERROR: node.start failed: %d\n", ret);
-      return EXIT_FAILURE;
-    }
-
-  node.setModeOperational();
-
-  for (;;)
-    {
-      ret = node.spin(uavcan::MonotonicDuration::fromMSec(100));
-      if (ret < 0)
-        {
-          std::fprintf(stderr, "ERROR: node.spin failed: %d\n", ret);
-        }
-    }
-
-  return EXIT_SUCCESS;
+#undef EXTERN
+#if defined(__cplusplus)
 }
+#endif
+
+#endif /* CONFIG_PLATFORM_CONFIGDATA */
+#endif /* __APPS_INCLUDE_PLATFORM_CXXINITIALIZE_H */
