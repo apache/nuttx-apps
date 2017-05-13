@@ -1,7 +1,7 @@
 ############################################################################
 # apps/platform/Makefile
 #
-#   Copyright (C) 2013-2014, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013-2014, 2016-2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,7 @@ endif
 
 # Directories
 
+GNUDIR      = gnu
 PLATFORMDIR = board
 DUMMYDIR    = $(APPDIR)$(DELIM)platform$(DELIM)dummy
 
@@ -71,12 +72,14 @@ else
 endif
 
 VPATH       = board
+DEPPATH     = --dep-path $(PLATFORMDIR)
 
 # Binaries
 
 ASRCS =
 CSRCS =
 
+-include $(GNUDIR)$(DELIM)Make.defs
 -include $(PLATFORMDIR)$(DELIM)Make.defs
 
 AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))

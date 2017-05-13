@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/platform/olimexino-stm32/src/stm32_cxxinitialize.c
+ * apps/platform/gnu/gnu_cxxinitialize.c
  *
- *   Copyright (C) 2015, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
