@@ -137,7 +137,7 @@ context: dirlinks
 # Dependencies
 
 .depend: Makefile $(SRCS) $(PLATFORMDIR)
-	$(Q) $(MKDEP) --obj-path bin --obj-suffix  $(OBJEXT) --dep-path $(PLATFORMDIR) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) $(MKDEP) --obj-path bin --obj-suffix  $(OBJEXT) $(DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
 	$(Q) touch $@
 
 depend: .depend
