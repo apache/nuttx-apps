@@ -38,7 +38,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <nuttx/config.h>
-#include <nuttx/arch.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -46,6 +45,10 @@
 
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
 #  include "platform/configdata.hr"
+#endif
+
+#if defined(CONFIG_HAVE_CXX) && defined(CONFIG_HAVE_CXXINITIALIZE)
+#  include "platform/cxxinitialize.h"
 #endif
 
 #include "ctaskbar.hxx"
