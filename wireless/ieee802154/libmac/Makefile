@@ -45,7 +45,7 @@ CSRCS  = ieee802154_assocreq.c ieee802154_assocresp.c ieee802154_disassocreq.c
 CSRCS += ieee802154_getreq.c ieee802154_gtsreq.c ieee802154_orphanresp.c
 CSRCS += ieee802154_resetreq.c ieee802154_rxenabreq.c  ieee802154_scanreq.c
 CSRCS += ieee802154_setreq.c ieee802154_startreq.c ieee802154_syncreq.c
-CSRCS += ieee802154_pollreq.c
+CSRCS += ieee802154_pollreq.c ieee802154_enableevents.c
 # Add Get/Set Attribute helpers
 CSRCS += ieee802154_setchan.c ieee802154_getchan.c 
 CSRCS += ieee802154_setpanid.c ieee802154_getpanid.c 

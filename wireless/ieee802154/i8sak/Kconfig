@@ -6,7 +6,9 @@
 config IEEE802154_I8SAK
 	bool "IEEE 802.15.4 Swiss Army Knife"
 	default n
+	select IEEE802154_MAC_DEV
 	select IEEE802154_LIBUTILS
+	select IEEE802154_LIBMAC
 	---help---
 		Enable the IEEE 802.15.4 Swiss Army Knife
 

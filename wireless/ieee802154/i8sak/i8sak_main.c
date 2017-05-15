@@ -90,6 +90,7 @@ typedef void (*cmd3_t)(FAR const char *devname, FAR const char *arg1,
 
 static int i8_tx(int fd);
 static int i8_parse_payload(FAR const char *str);
+static pthread_addr_t i8_eventlistener(pthread_addr_t arg);
 
 static void i8_tx_cmd(FAR const char *devname, FAR const char *payload);
 static void i8_sniffer_cmd(FAR const char *devname);
@@ -121,6 +122,7 @@ int g_blaster_period = 0;
 
 bool g_sniffer_daemon_started = false;
 bool g_blaster_daemon_started = false;
+bool g_eventlistener_run = false;
 
 /****************************************************************************
  * Public Data
@@ -189,6 +191,10 @@ static int i8_sniffer_daemon(int argc, FAR char *argv[])
 
   g_sniffer_daemon_started = true;
 
+  /* We don't care about any events, so disable them */
+
+  ret = ieee802154_enableevents(fd, false);
+
   /* Enable promiscuous mode */
 
   ret = ieee802154_setpromisc(fd, true);
@@ -226,6 +232,8 @@ done:
   /* Disable promiscuous mode */
 
   ret = ieee802154_setpromisc(fd, false);
+
+  ret = ieee802154_enableevents(fd, true);
 
   printf("sniffer_daemon: closing");
   close(fd);
@@ -288,6 +296,7 @@ static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
 static int i8_blaster_daemon(int argc, FAR char *argv[])
 {
   int ret, fd;
+  pthread_t eventthread;
 
   fd = open(argv[1], O_RDWR);
   if (fd < 0)
@@ -299,6 +308,16 @@ static int i8_blaster_daemon(int argc, FAR char *argv[])
 
   printf("blaster_daemon: starting\n"); 
   g_blaster_daemon_started = true;
+
+  /* Start a thread to handle any events that occur */
+
+  g_eventlistener_run = true;
+  ret = pthread_create(&eventthread, NULL, i8_eventlistener, (void *)&fd);
+  if (ret != 0)
+    {
+      printf("blaster_daemon: Failed to create eventlistener thread: %d\n", ret);
+      goto done;
+    }
 
   while(1)
     {
@@ -315,7 +334,11 @@ static int i8_blaster_daemon(int argc, FAR char *argv[])
     }
 
 done:
+  /* Tell the eventthread to stop */
+
   printf("blaster_daemon: closing\n");
+  g_eventlistener_run = false;
+  pthread_join(eventthread, NULL);
   close(fd);
   g_blaster_daemon_started = false;
   return OK;
@@ -363,6 +386,41 @@ static void i8_tx_cmd(FAR const char *devname, FAR const char *str)
     }
   
   close(fd);
+}
+
+/****************************************************************************
+ * Name : i8_eventlistener
+ *
+ * Description :
+ *   Listen for events from the MAC layer
+ ****************************************************************************/
+
+static pthread_addr_t i8_eventlistener(pthread_addr_t arg)
+{
+  int ret;
+  struct ieee802154_notif_s notif;
+  int fd = *(int *)arg;
+
+  while (g_eventlistener_run)
+    {
+      ret = ioctl(fd, MAC802154IOC_GET_EVENT, (unsigned long)((uintptr_t)&notif));
+      if (ret < 0)
+        {
+          fprintf(stderr, "MAC802154IOC_GET_EVENTS failed: %d\n", ret);
+        }
+      
+      switch (notif.notiftype)
+        {
+          case IEEE802154_NOTIFY_CONF_DATA:
+            printf("Data Confirmation Status %d\n", notif.u.dataconf.status);
+            break;
+          default:
+            printf("Unhandled notification: %d\n", notif.notiftype);
+            break;
+        }
+    }
+
+    return NULL;
 }
 
 /****************************************************************************

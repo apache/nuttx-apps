@@ -54,12 +54,9 @@
 /* libmac *******************************************************************/
 /* Character driver IOCTL helpers */
 
-#if 0
-int ieee802154_mcps_register(int fd,
-      FAR struct ieee802154_mcps_register_s *info);
-int ieee802154_mlme_register(int fd,
-      FAR struct ieee802154_mlme_register_s *info);
-#endif
+
+int ieee802154_enableevents(int fd, bool enable);
+
 int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req);
 int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp);
 int ieee802154_disassoc_req(int fd,
