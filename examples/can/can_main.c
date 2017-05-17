@@ -401,6 +401,8 @@ int can_main(int argc, FAR char *argv[])
       printf("  ID: %4u DLC: %u\n",
              rxmsg.cm_hdr.ch_id, rxmsg.cm_hdr.ch_dlc);
 
+      msgdlc = rxmsg.cm_hdr.ch_dlc;
+
 #ifdef CONFIG_CAN_ERRORS
       /* Check for error reports */
 
