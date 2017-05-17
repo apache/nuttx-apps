@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/mtdpart/mtdpart_main.c
  *
- *   Copyright (C) 2013, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2016-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,7 +143,7 @@ int mtdpart_main(int argc, char *argv[])
 #endif
 {
   FAR struct mtd_dev_s *master;
-  FAR struct mtd_dev_s *part[CONFIG_EXAMPLES_MTDPART_NPARTITIONS];
+  FAR struct mtd_dev_s *part[CONFIG_EXAMPLES_MTDPART_NPARTITIONS + 1];
   FAR struct mtd_geometry_s geo;
   FAR uint32_t *buffer;
   char blockname[32];
