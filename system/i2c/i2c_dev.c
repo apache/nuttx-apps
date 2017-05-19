@@ -88,7 +88,7 @@ int i2ccmd_dev(FAR struct i2ctool_s *i2ctool, int argc, char **argv)
 
       /* Otherwise, check for common options */
 
-      nargs = common_args(i2ctool, &argv[argndx]);
+      nargs = i2ctool_common_args(i2ctool, &argv[argndx]);
       if (nargs < 0)
         {
           return ERROR;

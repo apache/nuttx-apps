@@ -58,7 +58,7 @@
  * order to avoid name collisions.
  */
 
-struct cdcacm_state_s g_cdcacm;
+static struct cdcacm_state_s g_cdcacm;
 
 /****************************************************************************
  * Public Functions
