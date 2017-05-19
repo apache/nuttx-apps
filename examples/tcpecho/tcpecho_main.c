@@ -143,6 +143,12 @@ static int tcpecho_netsetup()
   addr.s_addr = HTONL(CONFIG_EXAMPLES_TCPECHO_NETMASK);
   netlib_set_ipv4netmask("eth0", &addr);
 
+  /* New versions of netlib_set_ipvXaddr will not bring the network up,
+   * So ensure the network is really up at this point.
+   */
+
+  netlib_ifup("eth0");
+
 #ifdef CONFIG_EXAMPLES_TCPECHO_DHCPC
   /* Get the MAC address of the NIC */
 
