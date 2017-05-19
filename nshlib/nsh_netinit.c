@@ -358,6 +358,11 @@ static void nsh_netinit_configure(void)
   netlib_set_ipv4dnsaddr(&addr);
 #endif
 
+  /* New versions of netlib_set_ipvXaddr will not bring the network up,
+   * So ensure the network is really up at this point. */
+
+  netlib_ifup("eth0");
+
 #ifdef CONFIG_WIRELESS_WAPI
   /* Associate the wlan with an access point. */
 
