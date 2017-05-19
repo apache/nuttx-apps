@@ -159,6 +159,11 @@ static void netest_initialize(void)
   netlib_set_ipv6netmask("eth0",
                         (FAR const struct in6_addr *)g_ipv6_netmask);
 
+  /* New versions of netlib_set_ipv6addr will not bring the network up,
+   * So ensure the network is really up at this point. */
+
+  netlib_ifup("eth0");
+
 #endif /* CONFIG_NET_ICMPv6_AUTOCONF */
 #else /* CONFIG_EXAMPLES_NETTEST_IPv6 */
 
