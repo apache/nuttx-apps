@@ -130,7 +130,8 @@ printf("NET1: Configuring %s\n", CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME);
   netlib_set_ipv4netmask(CONFIG_EXAMPLES_BRIDGE_NET1_IFNAME, &addr);
 
   /* New versions of netlib_set_ipvXaddr will not bring the network up,
-   * So ensure the network is really up at this point. */
+   * So ensure the network is really up at this point.
+   */
 
   netlib_ifup("eth0");
 

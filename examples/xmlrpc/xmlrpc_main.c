@@ -309,7 +309,8 @@ static int xmlrpc_netinit(void)
   netlib_set_ipv4netmask("eth0", &addr);
 
   /* New versions of netlib_set_ipvXaddr will not bring the network up,
-   * So ensure the network is really up at this point. */
+   * So ensure the network is really up at this point.
+   */
 
   netlib_ifup("eth0");
 
