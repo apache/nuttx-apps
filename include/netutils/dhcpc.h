@@ -75,8 +75,9 @@ extern "C"
 #define EXTERN extern
 #endif
 
-FAR void *dhcpc_open(FAR const void *mac_addr, int mac_len);
-int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult);
+FAR void *dhcpc_open(FAR const char *interface,
+                     FAR const void *mac_addr, int mac_len);
+int  dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult);
 void dhcpc_close(FAR void *handle);
 
 #undef EXTERN

@@ -156,7 +156,7 @@ static int tcpecho_netsetup()
 
   /* Set up the DHCPC modules */
 
-  handle = dhcpc_open(&mac, IFHWADDRLEN);
+  handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
 
   /* Get an IP address.  Note:  there is no logic here for renewing the address in this
    * example.  The address should be renewed in ds.lease_time/2 seconds.

@@ -1063,7 +1063,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
       /* Set up the DHCPC modules */
 
-      handle = dhcpc_open(&mac, IFHWADDRLEN);
+      handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
 
       /* Get an IP address.  Note that there is no logic for renewing the IP
        * address in this example.  The address should be renewed in
