@@ -173,6 +173,12 @@ static void netest_initialize(void)
   netlib_set_ipv4netmask("eth0", &addr);
 
 #endif /* CONFIG_EXAMPLES_UDPBLASTER_IPv6 */
+
+  /* New versions of netlib_set_ipvXaddr will not bring the network up,
+   * So ensure the network is really up at this point. */
+
+  netlib_ifup("eth0");
+
 }
 #endif /*CONFIG_EXAMPLES_UDPBLASTER_INIT */
 

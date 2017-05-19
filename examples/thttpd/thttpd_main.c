@@ -254,6 +254,11 @@ int thttp_main(int argc, char *argv[])
   addr.s_addr = HTONL(CONFIG_EXAMPLES_THTTPD_NETMASK);
   netlib_set_ipv4netmask(NET_DEVNAME, &addr);
 
+  /* New versions of netlib_set_ipvXaddr will not bring the network up,
+   * So ensure the network is really up at this point. */
+
+  netlib_ifup("eth0");
+
 #ifdef CONFIG_THTTPD_NXFLAT
   /* Initialize the NXFLAT binary loader */
 
