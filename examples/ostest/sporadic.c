@@ -63,10 +63,6 @@
 #define sched_lock()
 #define sched_unlock()
 
-#ifndef NULL
-# define NULL (void*)0
-#endif
-
 #ifndef MIN
 # define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -82,7 +78,7 @@ static time_t g_start_time;
  * Private Functions
  ****************************************************************************/
 
-void my_mdelay(unsigned int milliseconds)
+static void my_mdelay(unsigned int milliseconds)
 {
   volatile unsigned int i;
   volatile unsigned int j;
@@ -94,6 +90,7 @@ void my_mdelay(unsigned int milliseconds)
         }
     }
 }
+
 static void *nuisance_func(void *parameter)
 {
   /* Synchronized start */

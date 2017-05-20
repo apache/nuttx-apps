@@ -95,18 +95,17 @@ static struct mallinfo g_mmprevious;
 static struct mallinfo g_mmafter;
 
 #ifndef CONFIG_DISABLE_ENVIRON
-const char g_var1_name[]    = "Variable1";
-const char g_var1_value[]   = "GoodValue1";
-const char g_var2_name[]    = "Variable2";
-const char g_var2_value[]   = "GoodValue2";
-const char g_var3_name[]    = "Variable3";
-const char g_var3_value[]   = "GoodValue3";
+static const char g_var1_name[]    = "Variable1";
+static const char g_var1_value[]   = "GoodValue1";
+static const char g_var2_name[]    = "Variable2";
+static const char g_var2_value[]   = "GoodValue2";
+static const char g_var3_name[]    = "Variable3";
+static const char g_var3_value[]   = "GoodValue3";
 
-const char g_bad_value1[]   = "BadValue1";
-const char g_bad_value2[]   = "BadValue2";
+static const char g_bad_value1[]   = "BadValue1";
+static const char g_bad_value2[]   = "BadValue2";
 
-const char g_putenv_value[] = "Variable1=BadValue3";
-
+static const char g_putenv_value[] = "Variable1=BadValue3";
 #endif
 
 /****************************************************************************

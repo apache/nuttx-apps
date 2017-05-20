@@ -132,12 +132,6 @@ struct cdcacm_state_s
  * Public Data
  ****************************************************************************/
 
-/* All global variables used by this add-on are packed into a structure in
- * order to avoid name collisions.
- */
-
-extern struct cdcacm_state_s g_cdcacm;
-
 /****************************************************************************
  * Public Functions
  ****************************************************************************/

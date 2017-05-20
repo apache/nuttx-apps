@@ -63,11 +63,6 @@
 
 /* Configuration */
 
-#ifdef CONFIG_NETUTILS_DHCPC_DEVNAME
-#  define DEVNAME CONFIG_NETUTILS_DHCPC_DEVNAME
-#else
-#  define DEVNAME "eth0"
-#endif
 
 /* DHCP Definitions */
 
@@ -133,7 +128,8 @@ struct dhcp_msg
 
 struct dhcpc_state_s
 {
-  const void        *ds_macaddr;
+  FAR const char    *interface;
+  FAR const void    *ds_macaddr;
   int                ds_maclen;
   int                sockfd;
   struct in_addr     ipaddr;
@@ -156,7 +152,7 @@ static const uint8_t magic_cookie[4] = {99, 130, 83, 99};
  * Name: dhcpc_add<option>
  ****************************************************************************/
 
-static uint8_t *dhcpc_addmsgtype(uint8_t *optptr, uint8_t type)
+static FAR uint8_t *dhcpc_addmsgtype(FAR uint8_t *optptr, uint8_t type)
 {
   *optptr++ = DHCP_OPTION_MSG_TYPE;
   *optptr++ = 1;
@@ -164,7 +160,8 @@ static uint8_t *dhcpc_addmsgtype(uint8_t *optptr, uint8_t type)
   return optptr;
 }
 
-static uint8_t *dhcpc_addserverid(struct in_addr *serverid, uint8_t *optptr)
+static FAR uint8_t *dhcpc_addserverid(FAR struct in_addr *serverid,
+                                      FAR uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_SERVER_ID;
   *optptr++ = 4;
@@ -172,7 +169,8 @@ static uint8_t *dhcpc_addserverid(struct in_addr *serverid, uint8_t *optptr)
   return optptr + 4;
 }
 
-static uint8_t *dhcpc_addreqipaddr(struct in_addr *ipaddr, uint8_t *optptr)
+static FAR uint8_t *dhcpc_addreqipaddr(FAR struct in_addr *ipaddr,
+                                       FAR uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_REQ_IPADDR;
   *optptr++ = 4;
@@ -180,7 +178,7 @@ static uint8_t *dhcpc_addreqipaddr(struct in_addr *ipaddr, uint8_t *optptr)
   return optptr + 4;
 }
 
-static uint8_t *dhcpc_addreqoptions(uint8_t *optptr)
+static FAR uint8_t *dhcpc_addreqoptions(FAR uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_REQ_LIST;
   *optptr++ = 3;
@@ -190,7 +188,7 @@ static uint8_t *dhcpc_addreqoptions(uint8_t *optptr)
   return optptr;
 }
 
-static uint8_t *dhcpc_addend(uint8_t *optptr)
+static FAR uint8_t *dhcpc_addend(FAR uint8_t *optptr)
 {
   *optptr++ = DHCP_OPTION_END;
   return optptr;
@@ -200,11 +198,11 @@ static uint8_t *dhcpc_addend(uint8_t *optptr)
  * Name: dhcpc_sendmsg
  ****************************************************************************/
 
-static int dhcpc_sendmsg(struct dhcpc_state_s *pdhcpc,
-                         struct dhcpc_state *presult, int msgtype)
+static int dhcpc_sendmsg(FAR struct dhcpc_state_s *pdhcpc,
+                         FAR struct dhcpc_state *presult, int msgtype)
 {
   struct sockaddr_in addr;
-  uint8_t *pend;
+  FAR uint8_t *pend;
   in_addr_t serverid = INADDR_BROADCAST;
   int len;
 
@@ -273,9 +271,10 @@ static int dhcpc_sendmsg(struct dhcpc_state_s *pdhcpc,
  * Name: dhcpc_parseoptions
  ****************************************************************************/
 
-static uint8_t dhcpc_parseoptions(struct dhcpc_state *presult, uint8_t *optptr, int len)
+static uint8_t dhcpc_parseoptions(FAR struct dhcpc_state *presult,
+                                  FAR uint8_t *optptr, int len)
 {
-  uint8_t *end = optptr + len;
+  FAR uint8_t *end = optptr + len;
   uint8_t type = 0;
 
   while (optptr < end)
@@ -328,6 +327,7 @@ static uint8_t dhcpc_parseoptions(struct dhcpc_state *presult, uint8_t *optptr, 
 
       optptr += optptr[1] + 2;
     }
+
   return type;
 }
 
@@ -335,8 +335,8 @@ static uint8_t dhcpc_parseoptions(struct dhcpc_state *presult, uint8_t *optptr, 
  * Name: dhcpc_parsemsg
  ****************************************************************************/
 
-static uint8_t dhcpc_parsemsg(struct dhcpc_state_s *pdhcpc, int buflen,
-                            struct dhcpc_state *presult)
+static uint8_t dhcpc_parsemsg(FAR struct dhcpc_state_s *pdhcpc, int buflen,
+                              FAR struct dhcpc_state *presult)
 {
   if (pdhcpc->packet.op == DHCP_REPLY &&
       memcmp(pdhcpc->packet.xid, xid, sizeof(xid)) == 0 &&
@@ -345,6 +345,7 @@ static uint8_t dhcpc_parsemsg(struct dhcpc_state_s *pdhcpc, int buflen,
       memcpy(&presult->ipaddr.s_addr, pdhcpc->packet.yiaddr, 4);
       return dhcpc_parseoptions(presult, &pdhcpc->packet.options[4], buflen);
     }
+
   return 0;
 }
 
@@ -356,9 +357,10 @@ static uint8_t dhcpc_parsemsg(struct dhcpc_state_s *pdhcpc, int buflen,
  * Name: dhcpc_open
  ****************************************************************************/
 
-void *dhcpc_open(const void *macaddr, int maclen)
+FAR void *dhcpc_open(FAR const char *interface, FAR const void *macaddr,
+                     int maclen)
 {
-  struct dhcpc_state_s *pdhcpc;
+  FAR struct dhcpc_state_s *pdhcpc;
   struct sockaddr_in addr;
   struct timeval tv;
   int ret;
@@ -369,12 +371,13 @@ void *dhcpc_open(const void *macaddr, int maclen)
 
   /* Allocate an internal DHCP structure */
 
-  pdhcpc = (struct dhcpc_state_s *)malloc(sizeof(struct dhcpc_state_s));
+  pdhcpc = (FAR struct dhcpc_state_s *)malloc(sizeof(struct dhcpc_state_s));
   if (pdhcpc)
     {
       /* Initialize the allocated structure */
 
       memset(pdhcpc, 0, sizeof(struct dhcpc_state_s));
+      pdhcpc->interface  = interface;
       pdhcpc->ds_macaddr = macaddr;
       pdhcpc->ds_maclen  = maclen;
 
@@ -418,14 +421,14 @@ void *dhcpc_open(const void *macaddr, int maclen)
         }
     }
 
-  return (void*)pdhcpc;
+  return (FAR void *)pdhcpc;
 }
 
 /****************************************************************************
  * Name: dhcpc_close
  ****************************************************************************/
 
-void dhcpc_close(void *handle)
+void dhcpc_close(FAR void *handle)
 {
   struct dhcpc_state_s *pdhcpc = (struct dhcpc_state_s *)handle;
 
@@ -444,9 +447,9 @@ void dhcpc_close(void *handle)
  * Name: dhcpc_request
  ****************************************************************************/
 
-int dhcpc_request(void *handle, struct dhcpc_state *presult)
+int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
 {
-  struct dhcpc_state_s *pdhcpc = (struct dhcpc_state_s *)handle;
+  FAR struct dhcpc_state_s *pdhcpc = (FAR struct dhcpc_state_s *)handle;
   struct in_addr oldaddr;
   struct in_addr newaddr;
   ssize_t result;
@@ -457,7 +460,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
   /* Save the currently assigned IP address (should be INADDR_ANY) */
 
   oldaddr.s_addr = 0;
-  netlib_get_ipv4addr(DEVNAME, &oldaddr);
+  netlib_get_ipv4addr(pdhcpc->interface, &oldaddr);
 
   /* Loop until we receive the lease (or an error occurs) */
 
@@ -466,7 +469,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
       /* Set the IP address to INADDR_ANY. */
 
       newaddr.s_addr = INADDR_ANY;
-      (void)netlib_set_ipv4addr(DEVNAME, &newaddr);
+      (void)netlib_set_ipv4addr(pdhcpc->interface, &newaddr);
 
       /* Loop sending DISCOVER until we receive an OFFER from a DHCP
        * server.  We will lock on to the first OFFER and decline any
@@ -506,7 +509,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
                    * out of the loop.
                    */
 
-                  (void)netlib_set_ipv4addr(DEVNAME, &presult->ipaddr);
+                  (void)netlib_set_ipv4addr(pdhcpc->interface, &presult->ipaddr);
                   state = STATE_HAVE_OFFER;
                 }
             }
@@ -598,7 +601,7 @@ int dhcpc_request(void *handle, struct dhcpc_state *presult)
             {
               /* An error other than a timeout was received */
 
-              (void)netlib_set_ipv4addr(DEVNAME, &oldaddr);
+              (void)netlib_set_ipv4addr(pdhcpc->interface, &oldaddr);
               return ERROR;
             }
         }

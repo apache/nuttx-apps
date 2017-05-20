@@ -123,6 +123,12 @@ int igmp_main(int argc, char *argv[])
   addr.s_addr = HTONL(CONFIG_EXAMPLES_IGMP_NETMASK);
   netlib_set_ipv4netmask("eth0", &addr);
 
+  /* New versions of netlib_set_ipvXaddr will not bring the network up,
+   * So ensure the network is really up at this point.
+   */
+
+  netlib_ifup("eth0");
+
   /* Not much of a test for now */
   /* Join the group */
 

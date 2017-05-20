@@ -308,6 +308,12 @@ static int xmlrpc_netinit(void)
   addr.s_addr = HTONL(CONFIG_EXAMPLES_XMLRPC_NETMASK);
   netlib_set_ipv4netmask("eth0", &addr);
 
+  /* New versions of netlib_set_ipvXaddr will not bring the network up,
+   * So ensure the network is really up at this point.
+   */
+
+  netlib_ifup("eth0");
+
 #ifdef CONFIG_EXAMPLES_XMLRPC_DHCPC
   /* Get the MAC address of the NIC */
 
@@ -315,7 +321,7 @@ static int xmlrpc_netinit(void)
 
   /* Set up the DHCPC modules */
 
-  handle = dhcpc_open(&mac, IFHWADDRLEN);
+  handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
 
   /* Get an IP address.  Note: there is no logic here for renewing the address
    * in this example.  The address should be renewed in ds.lease_time/2

@@ -44,14 +44,66 @@
 #include "i2ctool.h"
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: arg_string
+ ****************************************************************************/
+
+static int arg_string(FAR char **arg, FAR char **value)
+{
+  FAR char *ptr = *arg;
+
+  if (ptr[2] == '\0')
+    {
+      *value = arg[1];
+      return 2;
+    }
+  else
+    {
+      *value = &ptr[2];
+      return 1;
+    }
+}
+
+/****************************************************************************
+ * Name: arg_decimal
+ ****************************************************************************/
+
+static int arg_decimal(FAR char **arg, FAR long *value)
+{
+  FAR char *string;
+  int ret;
+
+  ret = arg_string(arg, &string);
+  *value = strtol(string, NULL, 10);
+  return ret;
+}
+
+/****************************************************************************
+ * Name: arg_hex
+ ****************************************************************************/
+
+static int arg_hex(FAR char **arg, FAR long *value)
+{
+  FAR char *string;
+  int ret;
+
+  ret = arg_string(arg, &string);
+  *value = strtol(string, NULL, 16);
+  return ret;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: common_args
+ * Name: i2ctool_common_args
  ****************************************************************************/
 
-int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
+int i2ctool_common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg)
 {
   FAR char *ptr = *arg;
   long value;
@@ -148,50 +200,3 @@ out_of_range:
   return ERROR;
 }
 
-/****************************************************************************
- * Name: arg_string
- ****************************************************************************/
-
-int arg_string(FAR char **arg, FAR char **value)
-{
-  FAR char *ptr = *arg;
-
-  if (ptr[2] == '\0')
-    {
-      *value = arg[1];
-      return 2;
-    }
-  else
-    {
-      *value = &ptr[2];
-      return 1;
-    }
-}
-
-/****************************************************************************
- * Name: arg_decimal
- ****************************************************************************/
-
-int arg_decimal(FAR char **arg, FAR long *value)
-{
-  FAR char *string;
-  int ret;
-
-  ret = arg_string(arg, &string);
-  *value = strtol(string, NULL, 10);
-  return ret;
-}
-
-/****************************************************************************
- * Name: arg_hex
- ****************************************************************************/
-
-int arg_hex(FAR char **arg, FAR long *value)
-{
-  FAR char *string;
-  int ret;
-
-  ret = arg_string(arg, &string);
-  *value = strtol(string, NULL, 16);
-  return ret;
-}

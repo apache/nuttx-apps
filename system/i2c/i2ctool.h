@@ -199,10 +199,7 @@ int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
 
 /* Common logic */
 
-int common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg);
-int arg_string(FAR char **arg, FAR char **value);
-int arg_decimal(FAR char **arg, FAR long *value);
-int arg_hex(FAR char **arg, FAR long *value);
+int i2ctool_common_args(FAR struct i2ctool_s *i2ctool, FAR char **arg);
 
 /* Driver access utilities */
 

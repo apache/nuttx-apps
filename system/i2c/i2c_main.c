@@ -63,7 +63,7 @@ static int i2ccmd_unrecognized(FAR struct i2ctool_s *i2ctool, int argc, char **a
  * Private Data
  ****************************************************************************/
 
-struct i2ctool_s g_i2ctool;
+static struct i2ctool_s g_i2ctool;
 
 static const struct cmdmap_s g_i2ccmds[] =
 {
@@ -202,7 +202,8 @@ static int i2c_execute(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
  * Name: i2c_argument
  ****************************************************************************/
 
-FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool, int argc, char *argv[], int *pindex)
+static FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool,
+                              int argc, char *argv[], int *pindex)
 {
   FAR char *arg;
   int  index = *pindex;
@@ -247,7 +248,7 @@ FAR char *i2c_argument(FAR struct i2ctool_s *i2ctool, int argc, char *argv[], in
  * Name: i2c_parse
  ****************************************************************************/
 
-int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
+static int i2c_parse(FAR struct i2ctool_s *i2ctool, int argc, char *argv[])
 {
   FAR char *newargs[MAX_ARGUMENTS+2];
   FAR char *cmd;
