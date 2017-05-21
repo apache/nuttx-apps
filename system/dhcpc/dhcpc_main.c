@@ -57,7 +57,7 @@
 
 static void dhcpc_showusage(FAR const char *progname, int exitcode)
 {
-  fprintf(stderr, "Usage: %s <device-name>\n");
+  fprintf(stderr, "Usage: %s <device-name>\n", progname);
   exit(exitcode);
 }
 
