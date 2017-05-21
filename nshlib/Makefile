@@ -74,11 +74,15 @@ endif
 
 ifeq ($(CONFIG_NET),y)
 CSRCS += nsh_netinit.c nsh_netcmds.c
+
 ifeq ($(CONFIG_WIRELESS_WAPI),y)
 ifeq ($(CONFIG_NSH_NETINIT),y)
+ifneq ($(CONFIG_NSH_NETLOCAL),y)
 CSRCS += nsh_associate.c
 endif
 endif
+endif
+
 ifeq ($(CONFIG_NET_ROUTE),y)
 CSRCS += nsh_routecmds.c
 endif
