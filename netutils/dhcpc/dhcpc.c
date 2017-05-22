@@ -541,6 +541,7 @@ int dhcpc_request(FAR void *handle, FAR struct dhcpc_state *presult)
             {
               return ERROR;
             }
+
           retries++;
 
           /* Get the ACK/NAK response to the REQUEST (or timeout) */
