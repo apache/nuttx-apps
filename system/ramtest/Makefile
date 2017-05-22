@@ -1,7 +1,7 @@
 ############################################################################
 # apps/system/ramtest/Makefile
 #
-#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2013, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,15 @@ include $(APPDIR)/Make.defs
 
 # RAM test
 
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 768
+CONFIG_SYSTEM_RAMTEST_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_SYSTEM_RAMTEST_STACKSIZE ?= 1024
+
+APPNAME = ramtest
+PRIORITY = $(CONFIG_SYSTEM_RAMTEST_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_RAMTEST_STACKSIZE)
+
+CONFIG_SYSTEM_RAMTEST_PROGNAME ?= ramtest$(EXEEXT)
+PROGNAME = $(CONFIG_SYSTEM_RAMTEST_PROGNAME)
 
 ASRCS =
 CSRCS =
@@ -72,9 +79,6 @@ ifeq ($(WINTOOL),y)
 else
   INSTALL_DIR = $(BIN_DIR)
 endif
-
-CONFIG_XYZ_PROGNAME ?= ramtest$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 ROOTDEPPATH = --dep-path .
 
@@ -111,10 +115,10 @@ endif
 # Register application
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-$(BUILTIN_REGISTRY)$(DELIM)ramtest.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,"ramtest",$(PRIORITY),$(STACKSIZE),ramtest_main)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME).bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME),$(PRIORITY),$(STACKSIZE),$(APPNAME)_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)ramtest.bdat
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME).bdat
 else
 context:
 endif

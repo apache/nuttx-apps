@@ -248,11 +248,12 @@ static void nsh_netinit_configure(void)
   struct in_addr addr;
 #endif
 
-#if defined(CONFIG_NSH_DHCPC)
+#if defined(CONFIG_NSH_DHCPC) && !defined(CONFIG_NSH_NETLOCAL)
   FAR void *handle;
 #endif
 
-#if (defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_NOMAC)) && defined(HAVE_MAC)
+#if (((defined(CONFIG_NSH_DHCPC) && !defined(CONFIG_NSH_NETLOCAL)) || \
+     defined(CONFIG_NSH_NOMAC)) && defined(HAVE_MAC))
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(CONFIG_NET_6LOWPAN)
@@ -358,9 +359,10 @@ static void nsh_netinit_configure(void)
   netlib_set_ipv4dnsaddr(&addr);
 #endif
 
-  /* New versions of netlib_set_ipvXaddr will not bring the network up,
-   * So ensure the network is really up at this point.
-   */
+  /* That completes the 'local' initialization of the network device. */
+
+#ifndef CONFIG_NSH_NETLOCAL
+  /* Bring the network up. */
 
   netlib_ifup("eth0");
 
@@ -413,6 +415,7 @@ static void nsh_netinit_configure(void)
 
   ntpc_start();
 #endif
+#endif /* CONFIG_NSH_NETLOCAL */
 #endif /* NSH_HAVE_NETDEV */
 
   ninfo("Exit\n");

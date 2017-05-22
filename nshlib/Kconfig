@@ -1009,10 +1009,34 @@ config NSH_NETINIT
 
 if NSH_NETINIT
 
+config NSH_NETLOCAL
+	bool "Local network initialization"
+	default n
+	---help---
+		If this option is selected, then NSH will only initialize the local
+		attributes of the network:  The MAC address if needed and any IP
+		addresses as needed.  More importantly, it will not do the following:
+
+		- It will not bring the network up.  That can be done later with the
+		  NSH ifup command.
+		- It will not associate any wireless devices to an access point.
+		- It will not attempt to obtain an IP address if DHCPC is selected.
+		  This may be done later from the NSH command line with the
+		  apps/system/dhcpc 'renew' command.
+		- It will not start the NTPC daemon.  This may be done later from
+		  the NSH command line with the apps/system/ntpc 'ntpcstart' command.
+
+		This option permits you to divide the network configuration into two
+		parts:  The local configuration of the network device and the dynamic
+		configuration of the device in the network.  This may be important in
+		an environment when, for example, you need to manually scan for
+		available access points and associate the wireless driver with an
+		access point.
+
 config NSH_NETINIT_THREAD
 	bool "Network initialization thread"
 	default n
-	depends on !DISABLE_PTHREAD
+	depends on !DISABLE_PTHREAD && !NSH_NETLOCAL
 	---help---
 		NSH is brought up through a series of sequential initialization
 		steps.  This includes networking. If the network is available on

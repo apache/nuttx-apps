@@ -224,7 +224,57 @@ static int wapi_event_stream_extract(FAR struct wapi_event_stream_s *stream,
 {
 #warning Missing logic
 // return iw_extract_event_stream((struct stream_descr *)stream, iwe, 0);
-return -ENOSYS;
+
+  int ret;
+  struct iw_event *iwe_stream;
+
+  if (stream->current + offsetof(struct iw_event, u) > stream->end)
+    {
+      /* Nothing to process */
+
+      return 0;
+    }
+
+  iwe_stream = (struct iw_event*)stream->current;
+
+  if (stream->current + iwe_stream->len > stream->end ||
+      iwe_stream->len < offsetof(struct iw_event, u))
+    {
+      return -1;
+    }
+
+  ret = 1;
+
+  switch (iwe_stream->cmd)
+    {
+      case SIOCGIWESSID:
+      case IWEVGENIE:
+        iwe->cmd = iwe_stream->cmd;
+        iwe->len = offsetof(struct iw_event, u) + sizeof(struct iw_point);
+        iwe->u.data.flags = iwe_stream->u.data.flags;
+        iwe->u.data.length = iwe_stream->u.data.length;
+
+        iwe->u.data.pointer = (FAR void*)(stream->current +
+                              offsetof(struct iw_event, u) +
+                              (unsigned long)iwe_stream->u.data.pointer);
+        break;
+
+      default:
+        if (iwe_stream->len > sizeof(*iwe))
+          {
+            WAPI_ERROR("Unhandled event size 0x%x %d\n", iwe_stream->cmd,
+                                                         iwe_stream->len);
+            iwe->cmd = 0;
+            iwe->len = offsetof(struct iw_event, u);
+            break;
+          }
+        memcpy(iwe, iwe_stream, iwe_stream->len);
+    }
+
+  /* Update stream to next event */
+
+  stream->current += iwe_stream->len;
+  return ret;
 }
 
 /****************************************************************************
@@ -1113,6 +1163,8 @@ alloc:
       return -errcode;
     }
 
+  printf("got %d bytes\n", wrq.u.data.length);
+
   /* We have the results, process them. */
 
   if (wrq.u.data.length)
@@ -1125,7 +1177,8 @@ alloc:
         {
           /* Get the next event from the stream */
 
-          if ((ret = wapi_event_stream_extract(&stream, &iwe)) >= 0)
+          ret = wapi_event_stream_extract(&stream, &iwe);
+          if (ret > 0)
             {
               int eventret = wapi_scan_event(&iwe, aps);
               if (eventret < 0)
@@ -1133,7 +1186,7 @@ alloc:
                   ret = eventret;
                 }
             }
-          else
+          else if (ret < 0)
             {
               WAPI_ERROR("ERROR: wapi_event_stream_extract() failed!\n");
             }
