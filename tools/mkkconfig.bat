@@ -75,6 +75,9 @@ REM     GOTO :End
 REM   )
 )
 
+REM Get the current directory
+SET APPSDIR=%~dp0
+
 Echo # > %kconfig%
 Echo # For a description of the syntax of this configuration file, >> %kconfig%
 Echo # see the file kconfig-language.txt in the NuttX tools repository. >> %kconfig%
@@ -89,10 +92,9 @@ IF %menu% NEQ "" (
 
 DIR /B /A:D >_tmp_.dat
 
-Echo source "$APPSDIR/builtin/Kconfig" >> %kconfig%
 FOR /F "tokens=*" %%s IN (_tmp_.dat) do (
   IF EXIST %%s\Kconfig (
-    Echo source "$APPSDIR/%%s/Kconfig" >> %kconfig%
+    Echo source "%APPSDIR%/%%s/Kconfig" >> %kconfig%
   )
 )
 DEL _tmp_.dat
