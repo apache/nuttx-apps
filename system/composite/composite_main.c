@@ -549,7 +549,8 @@ static void usbmsc_disconnect(void)
  *
  ****************************************************************************/
 
-int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
+int board_mscclassobject(int minor, FAR struct usbdev_description_s *devdesc,
+                         FAR struct usbdevclass_driver_s **classdev)
 {
   int ret;
 
@@ -620,7 +621,7 @@ int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
 
   /* Get the mass storage device's class object */
 
-  ret = usbmsc_classobject(g_composite.mschandle, classdev);
+  ret = usbmsc_classobject(g_composite.mschandle, devdesc, classdev);
   if (ret < 0)
     {
       printf("board_mscclassobject: usbmsc_classobject failed: %d\n", -ret);
@@ -672,14 +673,15 @@ void board_mscuninitialize(FAR struct usbdevclass_driver_s *classdev)
  *
  ****************************************************************************/
 
-int board_cdcclassobject(FAR struct usbdevclass_driver_s **classdev)
+int board_cdcclassobject(int minor, FAR struct usbdev_description_s *devdesc,
+                         FAR struct usbdevclass_driver_s **classdev)
 {
   int ret;
 
   /* Initialize the USB serial driver */
 
   printf("board_cdcclassobject: Initializing USB serial driver\n");
-  ret = cdcacm_classobject(CONFIG_SYSTEM_COMPOSITE_TTYUSB, classdev);
+  ret = cdcacm_classobject(minor, devdesc, classdev);
   if (ret < 0)
     {
       printf("board_cdcclassobject: ERROR: Failed to create the USB serial device: %d\n", -ret);
