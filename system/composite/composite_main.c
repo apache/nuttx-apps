@@ -517,6 +517,7 @@ static void usbmsc_disconnect(void)
   ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = 0;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.mschandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -716,6 +717,7 @@ void board_cdcuninitialize(FAR struct usbdevclass_driver_s *classdev)
   ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = CONFIG_SYSTEM_COMPOSITE_TTYUSB;
+  ctrl.config   = 0;
   ctrl.handle   = (FAR void **)&classdev;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -774,6 +776,7 @@ int conn_main(int argc, char *argv[])
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
   ctrl.instance = 0;
+  ctrl.config   = 0;
   ctrl.handle   = NULL;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -790,6 +793,7 @@ int conn_main(int argc, char *argv[])
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_CONNECT;
   ctrl.instance = 0;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.cmphandle;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -894,6 +898,7 @@ errout:
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = 0;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.cmphandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -936,6 +941,7 @@ int disconn_main(int argc, char *argv[])
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
   ctrl.instance = 0;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.cmphandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
