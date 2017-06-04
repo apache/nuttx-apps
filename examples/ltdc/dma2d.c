@@ -800,7 +800,7 @@ static void ltdc_dma2d_fillarea(void)
                     active->vinfo.xres, active->vinfo.yres,
                     ltdc_color(&active->vinfo, LTDC_BLACK));
 
-  area.xpos = active->vinfo.xres/2;;
+  area.xpos = active->vinfo.xres/2;
   area.ypos = active->vinfo.yres/2;
 
   active->layer->fillarea(active->layer, &area,
