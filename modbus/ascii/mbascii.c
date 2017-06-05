@@ -420,7 +420,7 @@ bool xMBASCIIReceiveFSM(void)
 
           /* Reset the input buffers to store the frame. */
 
-          usRcvBufferPos = 0;;
+          usRcvBufferPos = 0;
           eBytePos = BYTE_HIGH_NIBBLE;
           eRcvState = STATE_RX_RCV;
         }

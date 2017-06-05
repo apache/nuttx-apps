@@ -558,7 +558,7 @@
 	* apps/netutils/discover:  Added a runtime configuration for the
 	  UDP discover utility.  From Max Holtzberg (2013-5-21).
 	* apps/examples/tcpecho:  Added a simple single threaded, poll based
- 	  TCP echo server based on W. Richard Stevens UNIX Network Programming
+	  TCP echo server based on W. Richard Stevens UNIX Network Programming
 	  Book.  Contributed by Max Holtzberg (2013-5-22).
 	* apps/examples/slcd:  Add an example for testing alphanumeric,
 	  segment LCDs (2013-5-24).
@@ -1867,4 +1867,217 @@
 	  httpd_sendfile.c but It was not present in Kconfig menu.  From Maciej
 	  Wójcik (2017-03-05).
 
-7.21 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.21 2017-06-05 Gregory Nutt <gnutt@nuttx.org>
+
+	* Add c++ platform/bambino-200e with C++ initialization.  From Alan
+	  Carvalho de Assis (2017-03-08).
+	* increase number of supported PWM channels from 4 to 6.  From Andreas
+	  Bihlmaier (2017-03-09).
+	* NSH library:  In nsh_argexand(), if CONFIG_NSH_ARGCAT is defined but
+	  CONFIG_NSH_CMDPARMS defined and/or CONFIG_DISABLE_ENVIRON not
+	  defined, then there is a situation that causes an infinite loop in
+	  the parser.  Noted by Freddie Chopin (2017-03-09).
+	* apps/examples/hidkbd:  Remove call to arch_usbhost_initialize().
+	  That is violation of the OS interfacing rules and will no longer be
+	  supported.  USB host should be initialized as part of the normal
+	  board bring-up logic as with any other devices and should not involve
+	  illegal calls from applications into the OS (2017-03-09).
+	* apps/examples/usbterm:  Removed because it is not very useful and
+	  because it can be configured to use an illegal call into the OS
+	  (2017-03-09).
+	* netutils/netlib:  Add one wireless IOCTL wrapper.  For now, this is
+	  just a test to be sure that the wireless IOCTL definitions are in
+	  place (2017-03-13).
+	* netutils/nshlib:  Add wrapper to get the wireless ESSID (2017-03-13).
+	* Adds a test program for the XBox One controller driver (xbc_test).
+	  From Brian Webb (2017-03-18).
+	* built-in libc defect workaround: replace '%6.6u' format with an
+	  equivalent '%06u'.  From Tomasz Wozniak (2017-03-21).
+	* Clicker-STM32:  Add platform directory w/ C++ support (2017-03-22).
+	* examples/ostest:  Add a test of robust mutexes (2017-03-26).
+	* examples/ostest: Robust mutex test needs to call
+	  pthread_mutexattr_setrobust() (2017-03-27).
+	* Rename CONFIG_MUTEX_TYPES to CONFIG_PTHREAD_MUTEX_TYPES (2017-03-27).
+	* examples/mm: Fix Makefile.  Built-in was not being registered
+	  (2017-03-28).
+	* nshlib: fix building when CONFIG_NET_USRSOCK enabled with other
+	  link-layer.  From Jussi Kivilinna (2017-03-31).
+	* Add examples/usrsocktest application for USRSOCK testing.  From Jussi
+	  Kivilinna (2017-04-03).
+	* NSH: Fix some warnings about integer/pointer casts of different sizes
+	  (probably only effects 64-bit simulation) (2017-04-03).
+	* examples/nettest: Trying to adapt to use for testing 6loWPAN
+	  (2017-04-03).
+	* examples/nettest:  If doing loopback, but not using the official
+	  loopback device, then use the server should use the configured client
+	  IP address (2017-04-04).
+	* Added support for set [{+|-}{e|x|xe|ex}] [<name> <value>].  Set the
+	  'exit on error control' and/or 'print a trace' of commands when
+	  parsing scripts in NSH.  The settinngs are in effect from the point
+	  of exection, until they are changed again, or in the case of the init
+	  script, the settings are returned to the default settings when it
+	  exits.  Included child scripts will run with the parents settings and
+	  changes made in the child script will effect the parent on return.
+	  Use 'set -e' to enable and 'set +e' to disable (ignore) the exit
+	  condition on commands. The default is -e. Errors cause script to
+	  exit.  Use 'set -x' to enable and 'set +x' to disable (silence)
+	  printing a trace of the script commands as they are ececuted. The
+	  default is +x. No printing of a trace of script commands as they are
+	  executed.  From David Sidrane (2017-04-05).
+	* Print expanded variables if -x.  From David Sidrane (2017-04-05).
+	* examples/udpblaster:  Several fixes to work with 6loWPAN (2017-04-06).
+	* examples/udpblaster:  Add logic to bind the local UDP socket to a
+	  well-known address (2017-04-06).
+	* 6loWPAN:  Add network IOCTL support to set the node address
+	  (2017-04-06).
+	* examples/ostest: Add tests for pthread_rwlock.  Adding tests to be
+	  used to verify the pthread_rwlock lock works.  From Mark Schulte
+	  (2017-04-07).
+	* Remove CONFIG_PTHREAD_RWLOCK.  Rwlock interfaces built
+	  unconditionally (2017-04-07).
+	* examples/ostest: pthread rwlock additional tests and bugfixes.  From
+	  Mark Schulte (2017-04-07).
+	* netutils: Add a helper function to convert a string to a 6loWPAN node
+	  address (2017-04-08).
+	* NSH library: Extend ifconfig to support 6loWPAN.  Adapt to some
+	  changes in configuration variable usage (2017-04-08).
+	* NSH set command:  Eliminate useless argc check of SCRIPTS are enabled
+	  but ENVIRONMENT is disabled (2017-04-09).
+	* examples/ostest: additional test for rwlock and one for cancel
+	  cleanup handlers.  From Juha Niskanen (2017-04-10).
+	* wireless/wapi:  Quick port of Wapi wireless services.  No build
+	  support yet.  This also depends on features not supported by NuttX.
+	  This is a work in progress (2017-04-10).
+	* wireless/wapi:  Remove logic that depnds on Linux netlink.  Add
+	  (untested) build support (2017-04-10).
+	* wireless/wapi:  Remove functionality that depends on the Linux
+	  procfs:  This includes only 1) listing of available interfaces and 2)
+	  listing of all routes (2017-04-10).
+	* Beginning real design of wapi application based on Wapi sample code
+	  (2017-04-10).
+	* wireless/wapi: Re-write of wapi tool UI (2017-04-11).
+	* examples/ostest: clarify when pthread clean-up test mutex need to
+	  remain usable.  From Juha Niskanen (2017-04-12).
+	* examples/hidkbd:  Add some missing configuration settings (2017-04-18).
+	* NSH library: Fix open flags in nsh_codeccmd.c.  From Masayuki
+	  Ishikawa (2017-04-19).
+	* netlib and NSH: Add logic to set the IEEE802.15.4 PAN ID (2017-04-18).
+	* wireless/ieee802154: Starts framing out iwpan tool, similar in
+	  concept to wapi.  From Anthony Merlino (2017-04-20).
+	* ieee802154: Move non-radio files from libradio to libutils.  Add
+	  ieee802154_getpanid() (2017-04-21).
+	* wireless/ieee802154:  Beginning of support for IEEE 802.15.4 MAC
+	  library (2017-04-21).
+	* wireless/ieee802154/libmac:  Finishes all defined MAC IOCTL helpers
+	  (there are a few that are not defined) (2017-04-21).
+	* netlib: Get and/or set PAN ID of IEEE 802.15.4 radio (2017-04-21).
+	* wireless/ieee802154: libaudio and libmac need to return the correct
+	  error codes (2017-04-22).
+	* nshlib: nsh_netcmds.c should include netlib.h even if neither TCP nor
+	  UDP are enabled (2017-04-25).
+	* apps/wireless/wapi:  Correct an error in dependency generation
+	  (2017-04-25).
+	* examples: random: avoid stack overflows.  From Juha Niskanen
+	  (2017-04-26).
+	* wireless/wapi: Improve error reporting IOCTL failures (2017-04-26).
+	* I need to look at the registers that are at or around 0xe000ef90.
+	  Using mw and xd, I see that nsh does not support pointers greater
+	  than 0x7fffffff.  A quick look at the source shows that the pointers
+	  for those two commands are set with calls to strtol() rather than
+	  strtoul().  Changing the two pointer-setting instances to strtoul()
+	  fixes the problem, at least for my architecture/config.  From Ian
+	  McAfee (2017-04-26).
+	* NSH: Needs to include tftp.h if TFTP not disabled (2017-04-29).
+	* netutils/dhcpc:  Make the network device name a configuration
+	  option.  Was hardcoded to eth0 but may, instead, need to be wlan0
+	  (2017-05-02).
+	* nshlib/nsh_netinit.c: If IEEE802.11 selected use wlan0 instead of
+	  eth0 for network device name (2017-05-02).
+	* wireless/wext:  Add drivers_wext from the WPA supplicant; Integrate
+	  into NSH.  From Simon Piriou (2017-05-02).
+	* 6loWPAN: Replace some Rime address naming with more consistent
+	  short/exended address terminology (2017-05-04).
+	* wireless/ieee802154:  Removes libradio to coincide with removal of
+	  ioctl with radio. Moves all functionality from libradio to libmac.
+	  From Anthony Merlino (2017-05-05).
+	* wireless/wapi: wpa_driver_wext_associate() now accepts a
+	  configuration parameter that can be used to specify the wireless
+	  properties (2017-05-06).
+	* nshlib:  NSH now has configuration options to select the
+	  wireless properties.  It builds the configuration structure and
+	  passes this to wpa_driver_wext_associate() so that it will set the
+	  network as configured (2017-05-06).
+	* Add platform files for nucleo-l452re and nucleo-l496zg.  From Juha
+	  Niskanen (2017-05-08).
+	* wireless/ieee802154:  Adds rxonidle attribute helpers.  From Anthony
+	  Merlino (2017-05-08).
+	* wireless/ieee802154:  Adds sniffer functionality back in to I8SAK
+	  app.  From Anthony Merlino (2017-05-08).
+	* NSH wireless setup:  Move call to nsh_associate().  It should be
+	  possible to associate with an AP when DHCPC is disabled (2017-05-09).
+	* Fix some calls to task_create():  argv[0] is the first parameter, not
+	  the name of the task (2017-05-09).
+	* wireless/ieee802154: Restructures i8sak app and adds blaster
+	  functionality.  From Anthony Merlino (2017-05-09).
+	* examples/configdata: add stacksize and priority.  From Juha Niskanen
+	  (2017-05-10).
+	* Bitbucket Issue 5:  I found an unexpected behavior in apps/
+	  configuration generation. Adding external symbolic link in apps/
+	  directory and using Make.defs for Kconfig generation, Kconfig file
+	  has a wrong path in the source argument. It contains original dir
+	  path outside of the source tree instead path to sub-directory in
+	  apps/.  The problem is connected with make/system symbolic link path
+	  resolution.  Corrected by a patch submitted by Artur Madrzak with
+	  Issue 5 (2017-05-11).
+	* Bitbucket Issue 5, apps build system: The previous patch wasn't
+	  complete, it was just idea how to resolve issue.  Please, find
+	  attached issue5.patch to resolve it. It can be applied on top current
+	  apps/master. From Artur Madrzak (2017-05-12).
+	* Fix the new can.h header location.  From Alan Carvalho de Assis
+	  (2017-05-12).
+	* Fix libcanard github download link to get it compiling correctly.
+	  From Alan Carvalho de Assis (2017-05-12).
+	* Fix to use the new canardInit() function.  From Alan Carvalho de
+	  Assis (2017-05-12).
+	* apps/platform:  Create gnu/ subdirectory that contains the one and
+	  only GNU C++ initialization function.  Remove all other C++
+	  initialization functions (2017-05-13).
+	* Move up_cxxinitialize() prototype from nuttx/include/nuttx/arch.h to
+	  apps/include/platform/cxxinitialize.h (2017-05-13).
+	* apps/examples/nettest: Fix an error in pre-processor expression
+	  (2017-05-13).
+	* wireless/ieee802154: i8sak adds event handling from MAC char driver.
+	  From Anthony Merlino (2017-05-16).
+	* apps/examples/mtdpart: Prevent part array overflow.  mtdpart examples
+	  create partions and allocate from 1 index not a 0 index to part[]
+	  array. This cause buffer overflow for part array.  This change fixes
+	  this problem.  From  EunBong Song (2017-05-17).
+	* apps/examples/can:  Fix can example app to print data when
+	  CONFIG_EXAMPLE_CAN_READ is defined.  From Alan Carvalho de Assis
+	  (2017-05-17).
+	* apps/: Make more globals static to avoid name clashes.  From Juha
+	  Niskanen (2017-05-19).
+	* Ensure netlib will not be broken when setip will not bring the
+	  network up anymore.  From Sebastien Lorquet (2017-05-19).
+	* DHCPC: Remove hard-coded interface device.  Now passed as a parameter
+	  to dhcpc_open().  From Sebastien Lorquet (2017-05-19).
+	* nshlib: Fix a resource leak in cmd_hexdump().  From Nobutaka
+	  Toyoshima (2017-05-22).
+	* wapi: add basic wapi_event_stream_extract implementation.  From Simon
+	  Piriou (2017-05-21).
+	* apps/system/dhcpc:  Add a command to renew or establish a lease on an
+	  IPv4 address (2017-05-21).
+	* apps/system/ntpc:  Add a command to start or stop the NTPC daemon
+	  (2017-05-21).
+	* apps/system/dhcpc: Add missing argument of fprintf (2017-05-21).
+	* apps/nshlib:  Add a new option CONFIG_NSH_NETLOCAL that will suppress
+	  some built in operations and will support manual configuration of a
+	  wireless network (2017-05-21).
+	* apps/system/ramtest: Make stacksize and priority conigurable
+	  (2017-05-22).
+	* The dedicated windows tool at tools/mkkconfig.bat uses $APPSDIR,
+	  which is not a windows shell variable, and is left uninitialized, but
+	  in fact should be the current directory.  From Sebastien Lorquet
+	  (2017-05-22).
+
+7.22 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
