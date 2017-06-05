@@ -1867,7 +1867,7 @@
 	  httpd_sendfile.c but It was not present in Kconfig menu.  From Maciej
 	  Wójcik (2017-03-05).
 
-7.21 2017-06-06 Gregory Nutt <gnutt@nuttx.org>
+7.21 2017-06-05 Gregory Nutt <gnutt@nuttx.org>
 
 	* Add c++ platform/bambino-200e with C++ initialization.  From Alan
 	  Carvalho de Assis (2017-03-08).
@@ -2002,7 +2002,8 @@
 	  From Anthony Merlino (2017-05-05).
 	* wireless/wapi: wpa_driver_wext_associate() now accepts a
 	  configuration parameter that can be used to specify the wireless
-	  properties.  nshlib:  NSH now has configuration options to select the
+	  properties (2017-05-06).
+	* nshlib:  NSH now has configuration options to select the
 	  wireless properties.  It builds the configuration structure and
 	  passes this to wpa_driver_wext_associate() so that it will set the
 	  network as configured (2017-05-06).
@@ -2073,8 +2074,6 @@
 	  some built in operations and will support manual configuration of a
 	  wireless network (2017-05-21).
 	* apps/system/ramtest: Make stacksize and priority conigurable
-	  (2017-05-22).
-	* nshlib: Fix a resource leak in cmd_hexdump().  From Masayuki Ishikawa
 	  (2017-05-22).
 	* The dedicated windows tool at tools/mkkconfig.bat uses $APPSDIR,
 	  which is not a windows shell variable, and is left uninitialized, but
