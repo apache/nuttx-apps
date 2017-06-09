@@ -131,7 +131,7 @@ void recv_server(void)
 #else
   server.sin_family      = AF_INET;
   server.sin_port        = HTONS(PORTNO);
-  server.sin_addr.s_addr = HTONL(INADDR_ANY);;
+  server.sin_addr.s_addr = HTONL(INADDR_ANY);
 
   addrlen                = sizeof(struct sockaddr_in);
 #endif
