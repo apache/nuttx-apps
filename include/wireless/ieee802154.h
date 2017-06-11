@@ -65,6 +65,7 @@ int ieee802154_get_req(int fd, FAR struct ieee802154_get_req_s *req);
 int ieee802154_gts_req(int fd, FAR struct ieee802154_gts_req_s *req);
 int ieee802154_orphan_resp(int fd,
       FAR struct ieee802154_orphan_resp_s *resp);
+int ieee802154_reset_req(int fd, FAR struct ieee802154_reset_req_s *req);
 int ieee802154_rxenable_req(int fd,
       FAR struct ieee802154_rxenable_req_s *req);
 int ieee802154_scan_req(int fd, FAR struct ieee802154_scan_req_s *req);

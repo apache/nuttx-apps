@@ -4,7 +4,11 @@
  *
  *   Copyright (C) 2014-2015, 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
+ *   Copyright (C) 2017 Verge Inc. All rights reserved.
+ *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+ *   Author: Anthony Merlino <anthony@vergeaero.com>
+ *   Author: Gregory Nuttx <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -65,63 +69,74 @@
 #include "wireless/ieee802154.h"
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-struct i8_command_s
-{
-  FAR const char *name;
-  uint8_t noptions;
-  CODE void *handler;
-};
-
-/* Generic form of a command handler */
-
-typedef void (*cmd0_t)(FAR const char *devname);
-typedef void (*cmd1_t)(FAR const char *devname, FAR const char *arg1);
-typedef void (*cmd2_t)(FAR const char *devname, FAR const char *arg1,
-                       FAR const char *arg2);
-typedef void (*cmd3_t)(FAR const char *devname, FAR const char *arg1,
-                       FAR const char *arg2, FAR const char *arg3);
-
-/****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static int i8_tx(int fd);
+static int i8_tx(int fd, bool indirect);
 static int i8_parse_payload(FAR const char *str);
 static pthread_addr_t i8_eventlistener(pthread_addr_t arg);
 
-static void i8_tx_cmd(FAR const char *devname, FAR const char *payload);
-static void i8_sniffer_cmd(FAR const char *devname);
-static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
-                           FAR const char *payload);
+static int i8_tx_cmd(int fd);
+static int i8_sniffer(int fd);
+static int i8_blaster(int fd);
+static int i8_startpan(int fd);
+static int i8_quit(void);
 
-static int i8_sniffer_daemon(int argc, FAR char *argv[]);
-static int i8_blaster_daemon(int argc, FAR char *argv[]);
+static int i8_test_indirect(int fd);
+static int i8_test_poll(int fd);
+static int i8_test_assoc(int fd);
+
+static int i8_daemon(int argc, FAR char *argv[]);
+
+/****************************************************************************
+ * Macros
+ ****************************************************************************/
+
+#define I8_DEFAULT_PANID 0xFADE
+#define I8_DEFAULT_COORD_SADDR 0x000A
+#define I8_DEFAULT_COORD_EADDR 0xDEADBEEF00FADE0A
+#define I8_DEFAULT_DEV_SADDR 0x000B
+#define I8_DEFAULT_DEV_EADDR 0xDEADBEEF00FADE0B
+#define I8_DEFAULT_CHNUM 0x0B
+#define I8_DEFAULT_CHPAGE 0x00
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+enum i8_cmd_e
+{
+  I8_CMD_NONE = 0x00,
+  I8_CMD_TX,
+  I8_CMD_SNIFFER,
+  I8_CMD_BLASTER,
+  I8_CMD_PANCOORD,
+  I8_CMD_TEST_INDIRECT = 0x40,
+  I8_CMD_TEST_POLL,
+  I8_CMD_TEST_ASSOC,
+};
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct i8_command_s g_i8_commands[] =
-{
-  {"help",    0, (CODE void *)NULL},
-  {"tx",      1, (CODE void *)i8_tx_cmd},
-  {"sniffer", 0, (CODE void *)i8_sniffer_cmd},
-  {"blaster", 2, (CODE void *)i8_blaster_cmd},
-};
-
-#define NCOMMANDS (sizeof(g_i8_commands) / sizeof(struct i8_command_s))
+FAR const char *g_devname;
 
 uint8_t g_handle = 0;
 uint8_t g_txframe[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
 uint16_t g_txframe_len;
 
+enum i8_cmd_e g_cmd = I8_CMD_NONE;
+sem_t g_cmdsem;
+CODE int (*g_cmdfunc)(int fd);
+
 int g_blaster_period = 0;
 
-bool g_sniffer_daemon_started = false;
-bool g_blaster_daemon_started = false;
+struct ieee802154_addr_s g_dev;
+struct ieee802154_addr_s g_coord;
+
+pid_t g_daemon_pid;
+bool g_daemon_started = false;
 bool g_eventlistener_run = false;
 
 /****************************************************************************
@@ -133,67 +148,120 @@ bool g_eventlistener_run = false;
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8_sniffer_cmd
+ * Name : i8_start_daemon
  *
  * Description :
- *   Starts a thread to run the sniffer in the background
+ *   Starts a thread to run command on
  ****************************************************************************/
 
-static void i8_sniffer_cmd(FAR const char *devname)
+static void i8_start_command(enum i8_cmd_e cmd)
 {
-  int ret;
-  FAR const char *sniffer_argv[2];
-
-  printf("i8sak: Starting sniffer_daemon\n");
-
-  if (g_sniffer_daemon_started)
+  if (g_daemon_started)
     {
-      printf("i8sak: sniffer_daemon already running\n");
+      printf("i8sak: command already running\n");
       return;
     }
   
-  sniffer_argv[0] = devname;
-  sniffer_argv[1] = NULL;
+  g_cmd = cmd; 
   
-  ret = task_create("sniffer_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
-                    CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_sniffer_daemon,
-                    (FAR char * const *)sniffer_argv);
-  if (ret < 0)
+  switch (g_cmd)
     {
-      fprintf(stderr, "ERROR: Failed to start sniffer_daemon\n", errno);
+      case I8_CMD_BLASTER:
+        g_cmdfunc = i8_blaster;
+        break;
+      case I8_CMD_SNIFFER:
+        g_cmdfunc = i8_sniffer;
+        break;
+      case I8_CMD_TX:
+        g_cmdfunc = i8_tx_cmd;
+        break;
+      case I8_CMD_PANCOORD:
+        g_cmdfunc = i8_startpan;
+        break;
+      case I8_CMD_TEST_ASSOC:
+        g_cmdfunc = i8_test_assoc;
+        break;
+      case I8_CMD_TEST_INDIRECT:
+        g_cmdfunc = i8_test_indirect;
+        break;
+      case I8_CMD_TEST_POLL:
+        g_cmdfunc = i8_test_poll;
+        break;
+      default:
+        fprintf(stderr, "invalid command\n");
+        return;
+    }
+  
+  g_daemon_pid = task_create("i8_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
+                             CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_daemon,
+                             NULL);
+                    
+  if (g_daemon_pid < 0)
+    {
+      fprintf(stderr, "failed to start daemon\n", errno);
       return;
     }
 
-  printf("i8sak: sniffer_daemon started\n");
+  g_daemon_started = true;
+  printf("i8sak: daemon started\n");
+}
+
+/****************************************************************************
+ * Name : i8_daemon
+ *
+ * Description :
+ *   Runs command in seperate task
+ ****************************************************************************/
+
+static int i8_daemon(int argc, FAR char *argv[])
+{
+  int fd, ret;
+  pthread_t eventthread;
+
+  fd = open(g_devname, O_RDWR);
+  if (fd < 0)
+    {
+      printf("cannot open %s, errno=%d\n", g_devname, errno);
+      ret = errno;
+      return ret;
+    }
+
+  /* Start a thread to handle any events that occur */
+
+  g_eventlistener_run = true;
+  ret = pthread_create(&eventthread, NULL, i8_eventlistener, (void *)&fd);
+  if (ret != 0)
+    {
+      printf("i8_daemon: failed to create eventlistener thread: %d\n", ret);
+      goto done;
+    }
+  
+  g_cmdfunc(fd);
+
+  g_eventlistener_run = false;
+  pthread_kill(eventthread, 9);
+  pthread_join(eventthread, NULL);
+done:
+  close(fd);
+  g_cmd = I8_CMD_NONE;
+  g_daemon_started = false;
+  printf("i8sak: cmd finished\n");
+  return OK;
 }
  
 /****************************************************************************
- * Name : i8_sniffer_daemon
+ * Name : i8_sniffer
  *
  * Description :
  *   Sniff for frames (Promiscuous mode)
  ****************************************************************************/
 
-static int i8_sniffer_daemon(int argc, FAR char *argv[])
+static int i8_sniffer(int fd)
 {
-  int ret, fd, i;
+  int ret, i;
   struct mac802154dev_rxframe_s rx;
 
-  fd = open(argv[1], O_RDWR);
-  if (fd < 0)
-    {
-      printf("cannot open %s, errno=%d\n", argv[1], errno);
-      ret = errno;
-      return ret;
-    }
-
   printf("Listening...\n"); 
-
-  g_sniffer_daemon_started = true;
-
-  /* We don't care about any events, so disable them */
-
-  ret = ieee802154_enableevents(fd, false);
 
   /* Enable promiscuous mode */
 
@@ -209,7 +277,7 @@ static int i8_sniffer_daemon(int argc, FAR char *argv[])
       if (ret < 0)
         {
           fprintf(stderr, "ERROR: read failed: %d\n", errno);
-          goto done;
+          break;
         }
 
       printf("Frame Received:\n");
@@ -224,7 +292,6 @@ static int i8_sniffer_daemon(int argc, FAR char *argv[])
       fflush(stdout);
     }
 
-done:
   /* Turn receiver off when idle */
 
   ret = ieee802154_setrxonidle(fd, false);
@@ -235,112 +302,38 @@ done:
 
   ret = ieee802154_enableevents(fd, true);
 
-  printf("sniffer_daemon: closing");
-  close(fd);
-  g_sniffer_daemon_started = false;
+  printf("sniffer closing\n");
   return OK;
 }
 
 /****************************************************************************
- * Name : i8_blaster_cmd
- *
- * Description :
- *   Starts a thread to send continuous packets at a fixed interval
- ****************************************************************************/
-
-static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
-                           FAR const char *payload)
-{
-  int ret;
-  FAR const char *blaster_argv[2];
-
-  printf("i8sak: Starting blaster_daemon\n");
-
-  if (g_blaster_daemon_started)
-    {
-      printf("i8sak: blaster_daemon already running\n");
-      return;
-    }
-  
-  blaster_argv[0] = devname;
-  blaster_argv[1] = NULL;
-  
-  g_blaster_period = atoi(period_ms);
-
-  ret = i8_parse_payload(payload);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR:invalid hex payload\n", ret);
-      return;
-    }
-  
-  ret = task_create("blaster_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
-                    CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_blaster_daemon,
-                    (FAR char * const *)blaster_argv);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to start blaster_daemon", errno);
-      return;
-    }
-
-  printf("i8sak: blaster_daemon started\n");
-}
-
-/****************************************************************************
- * Name : i8_blaster_daemon
+ * Name : i8_blaster
  *
  * Description :
  *   Continuously transmit a packet
  ****************************************************************************/
 
-static int i8_blaster_daemon(int argc, FAR char *argv[])
+static int i8_blaster(int fd)
 {
-  int ret, fd;
-  pthread_t eventthread;
+  int ret;
 
-  fd = open(argv[1], O_RDWR);
-  if (fd < 0)
-    {
-      fprintf(stderr, "ERROR:cannot open %s, errno=%d\n", argv[1], errno);
-      ret = errno;
-      return ret;
-    }
-
-  printf("blaster_daemon: starting\n"); 
-  g_blaster_daemon_started = true;
-
-  /* Start a thread to handle any events that occur */
-
-  g_eventlistener_run = true;
-  ret = pthread_create(&eventthread, NULL, i8_eventlistener, (void *)&fd);
-  if (ret != 0)
-    {
-      printf("blaster_daemon: Failed to create eventlistener thread: %d\n", ret);
-      goto done;
-    }
+  printf("blaster starting\n"); 
 
   while(1)
     {
-      ret = i8_tx(fd);
+      ret = i8_tx(fd, false);
       if (ret < 0)
         {
-          goto done;
+          break;
         }
       ret = usleep(g_blaster_period*1000L);
       if (ret < 0)
         {
-          goto done;
+          break;
         }
     }
 
-done:
-  /* Tell the eventthread to stop */
-
-  printf("blaster_daemon: closing\n");
-  g_eventlistener_run = false;
-  pthread_join(eventthread, NULL);
-  close(fd);
-  g_blaster_daemon_started = false;
+  printf("blaster closing\n");
   return OK;
 }
 
@@ -351,41 +344,211 @@ done:
  *   Transmit a data frame.
  ****************************************************************************/
 
-static void i8_tx_cmd(FAR const char *devname, FAR const char *str)
+static int i8_tx_cmd(int fd)
 {
-  int ret, fd;
-  int i = 0;
+  int ret;
 
-  ret = i8_parse_payload(str);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR:invalid hex payload\n", ret);
-      return;
-    }
-
-  for (i = 0; i < g_txframe_len; i++)
-    {
-      printf("%02X", g_txframe[i]);
-    }
-
-  fflush(stdout);
-
-  /* Open device */
-
-  fd = open(devname, O_RDWR);
-  if (fd < 0)
-    {
-      fprintf(stderr, "ERROR:cannot open %s, errno=%d\n", devname, errno);
-      return;
-    }
-
-  ret = i8_tx(fd);
+  ret = i8_tx(fd, false);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR:Failed to transmit packet.\n", ret);
     }
   
   close(fd);
+  return ret;
+}
+
+/****************************************************************************
+ * Name : i8_test_coord_indirect
+ *
+ * Description :
+ *   Try and send an indirect transaction to a device
+ ****************************************************************************/
+
+static int i8_test_indirect(int fd)
+{
+  int ret;
+
+  /* Always listen */
+
+  printf("i8sak: enabling receiver\n");
+  ieee802154_setrxonidle(fd, true);
+
+  printf("i8sak: queuing indirect transaction\n");
+  fflush(stdout);
+
+  ret = i8_tx(fd, true);
+  if (ret < 0)
+    {
+      fprintf(stderr, "i8sak: failed to transmit packet\n", ret);
+    }
+  
+  /* Wait here, the event listener will notify us if the correct event occurs */
+
+  ret = sem_wait(&g_cmdsem);
+  if (ret != OK)
+    {
+      printf("i8sak: test cancelled\n");
+      return -EINTR;
+    }
+
+  printf("i8sak: test success\n");
+  return OK;
+}
+
+/****************************************************************************
+ * Name : i8_test_poll
+ *
+ * Description :
+ *   Try and extract data from the coordinator
+ ****************************************************************************/
+
+static int i8_test_poll(int fd)
+{
+  struct ieee802154_poll_req_s pollreq;
+  int ret;
+  
+  printf("i8sak: Polling coordinator. PAN ID: 0x%04X SADDR: 0x%04X\n",
+         g_coord.panid,
+         g_coord.saddr);
+
+  pollreq.coordaddr.mode = IEEE802154_ADDRMODE_SHORT;
+  pollreq.coordaddr.saddr = g_coord.saddr;
+  pollreq.coordaddr.panid = g_coord.panid;
+
+  ieee802154_poll_req(fd, &pollreq);
+
+  /* Wait here, the event listener will notify us if the correct event occurs */
+
+  ret = sem_wait(&g_cmdsem);
+  if (ret != OK)
+    {
+      printf("i8sak: test cancelled\n");
+      return -EINTR;
+    }
+
+  printf("i8sak: test finished\n");
+  return OK;
+}
+
+/****************************************************************************
+ * Name : i8_startpan
+ *
+ * Description :
+ *   Start PAN and accept association requests
+ ****************************************************************************/
+
+static int i8_startpan(int fd)
+{
+  int ret;
+  struct ieee802154_reset_req_s resetreq;
+  struct ieee802154_start_req_s startreq;
+
+  /* Reset the MAC layer */
+
+  printf("\ni8sak: resetting MAC layer\n");
+  resetreq.rst_pibattr = true;
+  ieee802154_reset_req(fd, &resetreq);
+
+  /* Make sure receiver is always on */
+
+  ret = ieee802154_setrxonidle(fd, true);
+
+  /* Set EADDR and SADDR */
+
+  ieee802154_seteaddr(fd, &g_coord.eaddr[0]);
+  ieee802154_setsaddr(fd, g_coord.saddr);
+
+  /* Tell the MAC to start acting as a coordinator */
+
+  printf("i8sak: starting PAN\n");
+
+  startreq.panid = g_coord.panid;
+  startreq.chnum = I8_DEFAULT_CHNUM;
+  startreq.chpage = I8_DEFAULT_CHPAGE;
+  startreq.beaconorder = 15;
+  startreq.pancoord = true;
+  startreq.coordrealign = false;
+
+  ieee802154_start_req(fd, &startreq);
+
+  /* Wait here, the event listener will notify us if the correct event occurs */
+
+  ret = sem_wait(&g_cmdsem);
+  if (ret != OK)
+    {
+      printf("i8sak: test cancelled\n");
+      return -EINTR;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name : i8_test_assoc
+ *
+ * Description :
+ *   Request association with the Coordinator
+ ****************************************************************************/
+
+static int i8_test_assoc(int fd)
+{
+  int ret;
+  struct ieee802154_assoc_req_s assocreq;
+
+  /* Set the extended address of the device */
+
+  ieee802154_seteaddr(fd, &g_dev.eaddr[0]);
+
+  printf("i8sak: issuing ASSOCIATION.request primitive\n");
+
+  assocreq.chnum = I8_DEFAULT_CHNUM;
+  assocreq.chpage = I8_DEFAULT_CHPAGE;
+  assocreq.coordaddr.panid = I8_DEFAULT_PANID;
+  assocreq.coordaddr.mode = IEEE802154_ADDRMODE_SHORT;
+  assocreq.coordaddr.saddr = g_coord.saddr;
+
+  assocreq.capabilities.devtype = 0;
+  assocreq.capabilities.powersource = 1;
+  assocreq.capabilities.rxonidle = 1;
+  assocreq.capabilities.security = 0;
+  assocreq.capabilities.allocaddr = 1;
+
+  ieee802154_assoc_req(fd, &assocreq);
+
+  /* Wait here, the event listener will notify us if the correct event occurs */
+
+  ret = sem_wait(&g_cmdsem);
+  if (ret != OK)
+    {
+      printf("i8sak: test cancelled\n");
+      return -EINTR;
+    }
+
+  return OK;
+}
+
+/****************************************************************************
+ * Name : i8_quit
+ *
+ * Description :
+ *    Quit a running command
+ *
+ ****************************************************************************/
+
+static int i8_quit(void)
+{
+  if (g_daemon_started)
+    {
+      kill(g_daemon_pid, 9);
+    }
+  else
+    {
+      fprintf(stderr, "no command running\n");
+      return ERROR;
+    }
+
+  return OK;
 }
 
 /****************************************************************************
@@ -399,27 +562,137 @@ static pthread_addr_t i8_eventlistener(pthread_addr_t arg)
 {
   int ret;
   struct ieee802154_notif_s notif;
+  struct ieee802154_assoc_resp_s assocresp;
+  struct mac802154dev_rxframe_s rx;
+  int i;
   int fd = *(int *)arg;
 
   while (g_eventlistener_run)
     {
       ret = ioctl(fd, MAC802154IOC_GET_EVENT, (unsigned long)((uintptr_t)&notif));
-      if (ret < 0)
+      if (ret != OK)
         {
-          fprintf(stderr, "MAC802154IOC_GET_EVENTS failed: %d\n", ret);
+          return NULL;
         }
       
       switch (notif.notiftype)
         {
           case IEEE802154_NOTIFY_CONF_DATA:
-            printf("Data Confirmation Status %d\n", notif.u.dataconf.status);
+            if (notif.u.dataconf.status == IEEE802154_STATUS_SUCCESS)
+              {
+                printf("i8sak: frame successfully transmitted\n");
+              }
+            else
+              {
+                printf("i8sak: frame failed to send:  %d\n", notif.u.dataconf.status);
+              }
+            
+            if (g_cmd == I8_CMD_TEST_INDIRECT)
+              {
+                sem_post(&g_cmdsem);
+              }
             break;
+          case IEEE802154_NOTIFY_CONF_POLL:
+            if (notif.u.pollconf.status == IEEE802154_STATUS_SUCCESS)
+              {
+                printf("i8sak: POLL.request succeeded\n");
+
+                ret = read(fd, &rx, sizeof(struct mac802154dev_rxframe_s));
+                if (ret < 0)
+                  {
+                    fprintf(stderr, "i8sak: read failed: %d\n", errno);
+                    break;
+                  }
+
+                printf("i8sak: frame received:\n");
+
+                for (i = 0; i < rx.length; i++)
+                  {
+                    printf("%02X", rx.payload[i]);
+                  }
+
+                printf(" \n");
+
+                fflush(stdout);
+              }
+            else
+              {
+                printf("i8sak: POLL.request failed:  %d\n", notif.u.pollconf.status);
+              }
+
+            if (g_cmd == I8_CMD_TEST_POLL)
+              {
+                sem_post(&g_cmdsem);
+              }
+            break;
+          case IEEE802154_NOTIFY_CONF_ASSOC:
+            if (notif.u.assocconf.status == IEEE802154_STATUS_SUCCESS)
+              {
+                printf("i8sak: ASSOC.request succeeded\n");
+              }
+            else
+              {
+                printf("i8sak: ASSOC.request failed:  %d\n", notif.u.assocconf.status);
+              }
+
+            if (g_cmd == I8_CMD_TEST_ASSOC)
+              {
+                sem_post(&g_cmdsem);
+              }
+            break;
+          case IEEE802154_NOTIFY_IND_ASSOC:
+            /* When the next higher layer of a coordinator receives the
+             * MLME-ASSOCIATE.indication primitive, the coordinator determines
+             * whether to accept or reject the unassociated device using an
+             * algorithm outside the scope of this standard.
+             */
+
+            if (g_cmd == I8_CMD_PANCOORD)
+              {
+                printf("i8sak: a device is trying to associate\n");
+
+                /* If the address matches our device, accept the association.
+                 * Otherwise, reject the assocation.
+                 */
+
+                if (memcmp(&notif.u.assocind.dev_addr[0], &g_dev.eaddr[0],
+                           IEEE802154_EADDR_LEN) == 0)
+                  {
+                    /* Send a ASSOC.resp primtive to the MAC. Copy the association
+                     * indication address into the association response primitive
+                     */  
+
+                    memcpy(&assocresp.dev_addr[0], &notif.u.assocind.dev_addr[0],
+                           IEEE802154_EADDR_LEN);
+                          
+                    assocresp.assoc_saddr = I8_DEFAULT_DEV_SADDR;
+
+                    assocresp.status = IEEE802154_STATUS_SUCCESS;
+
+                    printf("i8sak: accepting association request\n");
+                  }
+                else
+                  {
+                    /* Send a ASSOC.resp primtive to the MAC. Copy the association
+                     * indication address into the association response primitive
+                     */ 
+
+                    memcpy(&assocresp.dev_addr[0], &notif.u.assocind.dev_addr[0],
+                           IEEE802154_EADDR_LEN);
+                          
+                    assocresp.status = IEEE802154_STATUS_DENIED;
+
+                    printf("i8sak: rejecting association request\n");
+                  }
+
+                ieee802154_assoc_resp(fd, &assocresp);
+              }
+              break;
           default:
             printf("Unhandled notification: %d\n", notif.notiftype);
             break;
         }
     }
-
     return NULL;
 }
 
@@ -476,7 +749,7 @@ static int i8_parse_payload(FAR const char *str)
  *   Transmit a data frame.
  ****************************************************************************/
 
-static int i8_tx(int fd)
+static int i8_tx(int fd, bool indirect)
 {
   int ret;
   struct mac802154dev_txframe_s tx;
@@ -489,13 +762,14 @@ static int i8_tx(int fd)
 
   tx.meta.msdu_flags.ack_tx = 0;
   tx.meta.msdu_flags.gts_tx = 0;
-  tx.meta.msdu_flags.indirect_tx = 0;
+  tx.meta.msdu_flags.indirect_tx = indirect;
 
   tx.meta.ranging = IEEE802154_NON_RANGING;
 
-  tx.meta.src_addrmode = IEEE802154_ADDRMODE_EXTENDED;
+  tx.meta.src_addrmode = IEEE802154_ADDRMODE_SHORT;
   tx.meta.dest_addr.mode = IEEE802154_ADDRMODE_SHORT;
-  tx.meta.dest_addr.saddr = 0xFADE;
+  tx.meta.dest_addr.saddr = I8_DEFAULT_DEV_SADDR;
+  tx.meta.dest_addr.panid = I8_DEFAULT_PANID;
 
   /* Each byte is represented by 2 chars */
 
@@ -503,11 +777,7 @@ static int i8_tx(int fd)
   tx.payload = &g_txframe[0];
 
   ret = write(fd, &tx, sizeof(struct mac802154dev_txframe_s));
-  if (ret == OK)
-    {
-      printf(" Tx OK\n");
-    }
-  else
+  if (ret != OK)
     {
       printf(" write: errno=%d\n",errno);
     }
@@ -529,12 +799,22 @@ static int i8_tx(int fd)
 
 int i8_showusage(FAR const char *progname, int exitcode)
 {
-  fprintf(stderr, "Usage:\n", progname);
-  fprintf(stderr, "\t%s <op> <command> [OPTIONS]\n", progname);
-  fprintf(stderr, "\nWhere supported commands and [OPTIONS] appear below\n");
-  fprintf(stderr, "\t%s tx <devname> <hex payload>\n", progname);
-  fprintf(stderr, "\t%s sniffer <devname>\n", progname);
-  fprintf(stderr, "\t%s blaster <devname> <period (ms)> <hex payload>\n", progname);
+  fprintf(stderr, "Usage: %s",
+          "[-t <hex-payload>]"
+          "[-b <period_ms> <hex payload>]"
+          "[-s]"
+          "[-r <test-name>]"
+          "[-p]"
+          "[-q]"
+          ,progname);
+  fprintf(stderr, "\nWhere:\n");
+  fprintf(stderr, "    -t <hex-payload>: Transmit a frame with payload <hex-payload>\n");
+  fprintf(stderr, "    -b <hex-payload> <period_ms>: Transmit data frame with payload"
+                  " <hex-payload> every <period_ms> milliseconds.\n");
+  fprintf(stderr, "    -s: Run sniffer\n");
+  fprintf(stderr, "    -r: Run test <test-name>\n");
+  fprintf(stderr, "    -p: Start PAN Coordinator");
+  fprintf(stderr, "    -q: Quit any running command\n");
   exit(exitcode);
 }
 
@@ -548,90 +828,127 @@ int main(int argc, FAR char *argv[])
 int i8_main(int argc, char *argv[])
 #endif
 {
-  FAR const char *cmdname;
-  FAR const char *devname;
-  FAR const struct i8_command_s *i8cmd;
-  int i;
+  static bool initialized = false;
+  int ret, i;
 
-  if (argc < 2)
+  if (!initialized)
     {
-      fprintf(stderr, "ERROR: Missing command\n");
-      i8_showusage(argv[0], EXIT_FAILURE);
+      for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+        {
+          g_coord.eaddr[i] = (uint8_t)((I8_DEFAULT_COORD_EADDR >> (i*8)) & 0xFF);
+        }
+      
+      g_coord.saddr = I8_DEFAULT_COORD_SADDR;
+      g_coord.panid = I8_DEFAULT_PANID;
+
+      for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+        {
+          g_dev.eaddr[i] = (uint8_t)((I8_DEFAULT_DEV_EADDR >> (i*8)) & 0xFF);
+        }
+
+      g_dev.saddr = IEEE802154_SADDR_UNSPEC;
+      g_dev.panid = IEEE802154_PAN_UNSPEC;
+
+      initialized = true;
     }
 
-  if (argc < 3)
+  if (argc < 2)
     {
       fprintf(stderr, "ERROR: Missing devname\n");
       i8_showusage(argv[0], EXIT_FAILURE);
     }
 
-  cmdname = argv[1];
-  devname = argv[2];
-
-  /* Find the command in the g_i8_command[] list */
-
-  i8cmd = NULL;
-  for (i = 0; i < NCOMMANDS; i++)
+  if (argc < 3)
     {
-      FAR const struct i8_command_s *cmd = &g_i8_commands[i];
-      if (strcmp(cmdname, cmd->name) == 0)
+      fprintf(stderr, "ERROR: Missing command\n");
+      i8_showusage(argv[0], EXIT_FAILURE);
+    }
+
+  g_devname = argv[1];
+
+  if (strcmp(argv[2], "-t") == 0)
+    {
+      if (argc < 4)
         {
-          i8cmd = cmd;
-          break;
+          fprintf(stderr, "i8sak: Missing payload\n");
+          i8_showusage(argv[0], EXIT_FAILURE);
+        }
+      else
+        {
+          ret = i8_parse_payload(argv[3]);
+          if (ret < 0)
+            {
+              fprintf(stderr, "ERROR:invalid hex payload\n", ret);
+              i8_showusage(argv[0], EXIT_FAILURE);
+            }
+          i8_start_command(I8_CMD_TX);
         }
     }
-
-  if (i8cmd == NULL)
+  else if (strcmp(argv[2], "-b") == 0)
     {
-      fprintf(stderr, "ERROR: Unsupported command: %s\n", cmdname);
+      if (argc != 5)
+        {
+          fprintf(stderr, "i8sak: Invalid argument count\n");
+          i8_showusage(argv[0], EXIT_FAILURE);
+        }
+      else
+        {
+          g_blaster_period = atoi(argv[3]);
+
+          ret = i8_parse_payload(argv[4]);
+          if (ret < 0)
+            {
+              fprintf(stderr, "ERROR:invalid hex payload\n", ret);
+              i8_showusage(argv[0], EXIT_FAILURE);
+            }
+
+           i8_start_command(I8_CMD_BLASTER);
+        }
+    }
+  else if (strcmp(argv[2], "-s") == 0) 
+    {
+      i8_start_command(I8_CMD_SNIFFER);
+    }
+  else if (strcmp(argv[2], "-r") == 0)
+    {
+      if (argc < 4)
+        {
+          fprintf(stderr, "i8sak: not enough arguments.", errno);
+          i8_showusage(argv[0], EXIT_FAILURE);
+        }
+
+      if (strcmp(argv[3], "indirect") == 0)
+        {
+          i8_parse_payload(argv[4]);
+          i8_start_command(I8_CMD_TEST_INDIRECT);
+        }
+      else if (strcmp(argv[3], "poll") == 0)
+        {
+          i8_start_command(I8_CMD_TEST_POLL);
+        }
+      else if (strcmp(argv[3], "assoc") == 0)
+        {
+          i8_start_command(I8_CMD_TEST_ASSOC);
+        }
+      else
+        {
+          fprintf(stderr, "i8sak: unknown test", errno);
+          i8_showusage(argv[0], EXIT_FAILURE);
+        }
+    }
+  else if (strcmp(argv[2], "-p") == 0)
+    {
+      i8_start_command(I8_CMD_PANCOORD);
+    }
+  else if (strcmp(argv[2], "-q") == 0)
+    {
+      i8_quit();
+    }
+  else
+    {
+      fprintf(stderr, "i8sak: invalid command\n");
       i8_showusage(argv[0], EXIT_FAILURE);
     }
 
-  if (i8cmd->noptions + 1 < argc)
-    {
-      fprintf(stderr, "ERROR: Garbage at end of command ignored\n");
-    }
-  else if (i8cmd->noptions + 1 > argc)
-    {
-      fprintf(stderr, "ERROR: Missing required command options: %s\n",
-              cmdname);
-      i8_showusage(argv[0], EXIT_FAILURE);
-    }
-
-  /* Special case the help command which has no arguments, no handler,
-   * and does not need a socket.
-   */
-
-  if (i8cmd->handler == NULL)
-    {
-      i8_showusage(argv[0], EXIT_SUCCESS);
-    }
-
-  /* Dispatch the command handling */
-
-  switch (i8cmd->noptions)
-    {
-      case 0:
-        ((cmd0_t)i8cmd->handler)(devname);
-        break;
-
-      case 1:
-        ((cmd1_t)i8cmd->handler)(devname, argv[3]);
-        break;
-
-      case 2:
-        ((cmd2_t)i8cmd->handler)(devname, argv[3], argv[4]);
-        break;
-
-      case 3:
-        ((cmd3_t)i8cmd->handler)(devname, argv[3], argv[4], argv[5]);
-        break;
-
-      default:
-        fprintf(stderr, "ERROR: Too many arguments: %s\n",
-                cmdname);
-        i8_showusage(argv[0], EXIT_FAILURE);
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
