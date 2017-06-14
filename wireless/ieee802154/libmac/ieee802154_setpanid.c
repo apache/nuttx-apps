@@ -57,7 +57,7 @@ int ieee802154_setpanid(int fd, uint16_t panid)
 {
   struct ieee802154_set_req_s req;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PANID;
+  req.attr = IEEE802154_ATTR_MAC_PANID;
   req.attrval.mac.panid = panid;
 
   return ieee802154_set_req(fd, &req);

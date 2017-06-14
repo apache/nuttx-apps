@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/ieee802154_setsaddr.c
+ * apps/wireless/ieee802154/libmac/ieee802154_getdevmode.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
@@ -53,12 +53,15 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setsaddr(int fd, uint16_t saddr)
+int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode)
 {
-  struct ieee802154_set_req_s req;
+  struct ieee802154_get_req_s req;
+  int ret;
 
-  req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
-  req.attrval.mac.saddr = saddr;
+  req.attr = IEEE802154_ATTR_MAC_DEVMODE;
+  ret = ieee802154_get_req(fd, &req);
 
-  return ieee802154_set_req(fd, &req);
+  *devmode = req.attrval.mac.devmode;
+
+  return ret;
 }

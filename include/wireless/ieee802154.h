@@ -107,6 +107,8 @@ int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr);
 int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca);
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
 
+int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode);
+
 #ifdef CONFIG_NET_6LOWPAN
 /* Netork driver IOCTL helpers */
 
