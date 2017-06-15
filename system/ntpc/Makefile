@@ -1,7 +1,7 @@
 ############################################################################
-# apps/nshlib/Makefile
+# apps/system/ntpc/Makefile
 #
-#   Copyright (C) 2011-2013, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,143 +37,104 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# NSH Library
+# NTPC address renewal built-in application info
 
-ASRCS  =
-CSRCS  = nsh_init.c nsh_parse.c nsh_console.c nsh_script.c nsh_system.c
-CSRCS += nsh_command.c nsh_fscmds.c nsh_ddcmd.c nsh_proccmds.c nsh_mmcmds.c
-CSRCS += nsh_timcmds.c nsh_envcmds.c nsh_syscmds.c nsh_dbgcmds.c
+CONFIG_SYSTEM_NTPC_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_SYSTEM_NTPC_STACKSIZE ?= 2048
 
-ifeq ($(CONFIG_NFILE_STREAMS),0)
-CSRCS += nsh_stdsession.c
-ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
-CSRCS += nsh_stdlogin.c
-endif
-else
-CSRCS += nsh_session.c
-ifeq ($(CONFIG_NSH_CONSOLE_LOGIN),y)
-CSRCS += nsh_login.c
-endif
-endif
+APPNAME1 = ntpstart
+APPNAME2 = ntpstop
+PRIORITY = $(CONFIG_SYSTEM_NTPC_PRIORITY)
+STACKSIZE = $(CONFIG_SYSTEM_NTPC_STACKSIZE)
 
-ifneq ($(CONFIG_NFILE_DESCRIPTORS),0)
-CSRCS += nsh_fsutils.c
-endif
+PROGNAME1 = ntpstart$(EXEEXT)
+PROGNAME2 = ntpstop$(EXEEXT)
 
-ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
-CSRCS += nsh_builtin.c
-endif
+# NTPC address renewal
 
-ifeq ($(CONFIG_NSH_FILE_APPS),y)
-CSRCS += nsh_fileapps.c
-endif
-
-ifeq ($(CONFIG_NSH_ROMFSETC),y)
-CSRCS += nsh_romfsetc.c
-endif
-
-ifeq ($(CONFIG_NET),y)
-CSRCS += nsh_netinit.c nsh_netcmds.c
-
-ifeq ($(CONFIG_WIRELESS_WAPI),y)
-ifeq ($(CONFIG_NSH_NETINIT),y)
-ifneq ($(CONFIG_NSH_NETLOCAL),y)
-CSRCS += nsh_associate.c
-endif
-endif
-endif
-
-ifeq ($(CONFIG_NET_ROUTE),y)
-CSRCS += nsh_routecmds.c
-endif
-endif
-
-ifneq ($(CONFIG_DISABLE_MOUNTPOINT),y)
-CSRCS += nsh_mntcmds.c
-endif
-
-ifeq ($(CONFIG_MODULE),y)
-ifneq ($(CONFIG_NSH_DISABLE_MODCMDS),y)
-CSRCS += nsh_modcmds.c
-endif
-endif
-
-ifeq ($(CONFIG_NSH_CONSOLE),y)
-CSRCS += nsh_consolemain.c
-endif
-
-ifneq ($(CONFIG_NSH_DISABLE_PRINTF),y)
-CSRCS += nsh_printf.c
-endif
-
-ifeq ($(CONFIG_NSH_TELNET),y)
-CSRCS += nsh_telnetd.c
-ifeq ($(CONFIG_NSH_TELNET_LOGIN),y)
-CSRCS += nsh_telnetlogin.c
-endif
-endif
-
-ifneq ($(CONFIG_NSH_DISABLESCRIPT),y)
-CSRCS += nsh_test.c
-endif
-
-ifeq ($(CONFIG_USBDEV),y)
-CSRCS += nsh_usbconsole.c
-endif
-
-ifeq ($(CONFIG_USBHOST),y)
-CSRCS += nsh_usbkeyboard.c
-endif
-
-ifeq ($(CONFIG_NSH_USBDEV_TRACE),y)
-CSRCS += nsh_usbtrace.c
-endif
-
-ifeq ($(CONFIG_NETUTILS_CODECS),y)
-CSRCS += nsh_codeccmd.c
-endif
-
-ifeq ($(CONFIG_NSH_LOGIN_PASSWD),y)
-CSRCS += nsh_passwdcmds.c
-endif
+ASRCS =
+CSRCS =
+MAINSRC1 = ntpcstart_main.c
+MAINSRC2 = ntpcstop_main.c
+MAINSRC = $(MAINSRC1) $(MAINSRC2)
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
+MAINOBJ1 = $(MAINSRC1:.c=$(OBJEXT))
+MAINOBJ2 = $(MAINSRC2:.c=$(OBJEXT))
+MAINOBJ = $(MAINOBJ1) $(MAINOBJ2)
 
-SRCS = $(ASRCS) $(CSRCS)
+SRCS = $(ASRCS) $(CSRCS) $(MAINSRC)
 OBJS = $(AOBJS) $(COBJS)
 
+ifneq ($(CONFIG_BUILD_KERNEL),y)
+  OBJS += $(MAINOBJ)
+endif
+
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN		= ..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN		= ../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
+endif
+
+ifeq ($(WINTOOL),y)
+  INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
+else
+  INSTALL_DIR = $(BIN_DIR)
 endif
 
 ROOTDEPPATH = --dep-path .
-VPATH =
 
-# Build targets
+# Common build
+
+VPATH = 
 
 all: .built
-.PHONY: context .depend depend clean distclean
+.PHONY: clean depend distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 
-$(COBJS): %$(OBJEXT): %.c
+$(COBJS) $(MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
 	@touch .built
 
+ifeq ($(CONFIG_BUILD_KERNEL),y)
+$(BIN_DIR)$(DELIM)$(PROGNAME1): $(OBJS) $(MAINOBJ1)
+	@echo "LD: $(PROGNAME1)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME1) $(ARCHCRT0OBJ) $(MAINOBJ1) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME1)
+
+$(BIN_DIR)$(DELIM)$(PROGNAME2): $(OBJS) $(MAINOBJ2)
+	@echo "LD: $(PROGNAME2)"
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME2) $(ARCHCRT0OBJ) $(MAINOBJ2) $(LDLIBS)
+	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME2)
+
+install: $(BIN_DIR)$(DELIM)$(PROGNAME1)  $(BIN_DIR)$(DELIM)$(PROGNAME2)
+
+else
 install:
 
+endif
+
+ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME1),$(PRIORITY),$(STACKSIZE),$(APPNAME1)_main)
+
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME2),$(PRIORITY),$(STACKSIZE),$(APPNAME2)_main)
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat
+else
 context:
+endif
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
@@ -190,6 +151,5 @@ distclean: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
-
 .PHONY: preconfig
 preconfig:

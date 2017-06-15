@@ -21,15 +21,15 @@ config EXAMPLES_BUTTONS_PROGNAME
 		program is installed.
 
 config EXAMPLES_BUTTONS_PRIORITY
-	int "LED task priority"
+	int "Button task priority"
 	default 100
 
 config EXAMPLES_BUTTONS_STACKSIZE
-	int "LED stack size"
+	int "Button stack size"
 	default 2048
 
 config EXAMPLES_BUTTONS_DEVPATH
-	string "LED device path"
+	string "Button device path"
 	default "/dev/buttons"
 
 config EXAMPLES_BUTTONS_NAMES

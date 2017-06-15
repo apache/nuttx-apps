@@ -131,7 +131,7 @@ eMBException eMBFuncReadDiscreteInputs(uint8_t *pucFrame, uint16_t *usLen)
                * buffer because they are still valid.
                */
 
-              *usLen += ucNBytes;;
+              *usLen += ucNBytes;
             }
         }
       else

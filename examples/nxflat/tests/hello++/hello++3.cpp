@@ -114,12 +114,12 @@ int main(int argc, char **argv)
 
   // Tell MyThingSayer that "Hello, World!" is the string to be said
 
-  printf("main: Calling MyThingSayer.Initialize\n");;
+  printf("main: Calling MyThingSayer.Initialize\n");
   MyThingSayer.Initialize("Hello, World!");
 
   // Tell MyThingSayer to say the thing we told it to say
 
-  printf("main: Calling MyThingSayer.SayThing\n");;
+  printf("main: Calling MyThingSayer.SayThing\n");
   MyThingSayer.SayThing();
 
   // We are finished, return.  We should see the message from the
@@ -127,6 +127,6 @@ int main(int argc, char **argv)
   // message.  That is proof that the C++ static destructor logic
   // is working
 
-  printf("main: Returning.  MyThingSayer should be destroyed\n");;
+  printf("main: Returning.  MyThingSayer should be destroyed\n");
   return 0;
 }

@@ -1730,7 +1730,7 @@ FAR struct fb_cmap_s * ltdc_createcmap(uint16_t ncolors)
         {
           _err("ERROR: malloc() failed\n");
           free(cmap);
-          return NULL;;
+          return NULL;
         }
 
 #ifdef CONFIG_FB_TRANSPARENCY
