@@ -3,7 +3,7 @@ IEEE 802.15.4 Swiss Army Knife (i8sak, or i8)
 
 Description
 ===========
-The i8sak app is a useful CLI for testing various IEEE 802.15.4 functionality.  
+The i8sak app is a useful CLI for testing various IEEE 802.15.4 functionality.
 It also serves as a starting place for learning how to interface with the
 NuttX IEEE 802.15.4 MAC layer.
 
@@ -50,7 +50,7 @@ just use it once.
 The acceptassoc command, without any arguments, informs the i8sak instance to
 accept all association requests. The acceptassoc command also allows you to only
 accept requests from a single device by specifying the extended address with option
--e. 
+-e.
 
 For instance:
 ```
@@ -102,7 +102,7 @@ transactions:
     2a) ACK
         Frame Type      - ACK
         Sequence Number - 1
-        
+
 3) Association Response
     Frame Type      - CMD
     Sequence Number - 0
@@ -136,7 +136,7 @@ Because the devmode is PAN Coordinator, the i8sak app knows to send the data
 as an indirect transaction.  If you were running the i8sak app on a device
 that is a coordinator, but not the PAN coordinator, you can force the i8sak app
 to send the transaction directly, rather than to the parent coordinator, by using
-the -d option. 
+the -d option.
 
 NOTE: Currently, the indirect transaction timeout is disabled.  This means frames
 must be extracted or space may run out. This is only for the testing phase as it

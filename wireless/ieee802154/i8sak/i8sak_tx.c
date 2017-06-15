@@ -80,7 +80,10 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   enum ieee802154_devmode_e devmode;
   struct wpanlistener_eventfilter_s eventfilter;
   bool sendasdev = false;
-  int fd, ret, option, argind;
+  int argind;
+  int option;
+  int fd;
+  int ret;
 
   ret = OK;
   argind = 1;
@@ -94,20 +97,25 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    -h = this help menu\n"
                     "    -d = send as device instead of coord\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
+
           case 'd':
             sendasdev = true;
             argind++;
             break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
+
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
             ret = ERROR;
@@ -139,7 +147,8 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   if (!sendasdev)
     {
       /* If we are acting as an endpoint, send as normal CSMA (non-indirect)
-       * If we are a coordinator or PAN coordinator, send as indirect */
+       * If we are a coordinator or PAN coordinator, send as indirect.
+       */
 
       if (devmode == IEEE802154_DEVMODE_ENDPOINT)
         {
@@ -154,7 +163,8 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     {
       /* We cannot send a frame as direct if we are the PAN coordinator. Maybe
        * this should be the hook for sending payload in beacon? But for now,
-       * let's just thow an error. */
+       * let's just thow an error.
+       */
 
       if (devmode == IEEE802154_DEVMODE_PANCOORD)
         {

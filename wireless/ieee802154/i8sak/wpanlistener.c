@@ -448,7 +448,8 @@ static pthread_addr_t wpanlistener_framethread(pthread_addr_t arg)
   FAR struct wpanlistener_s *handle = (FAR struct wpanlistener_s *)arg;
   FAR struct wpanlistener_framereceiver_s *receiver;
   struct mac802154dev_rxframe_s frame;
-  int i, ret;
+  int ret;
+  int i;
 
   while (handle->threadrun)
     {

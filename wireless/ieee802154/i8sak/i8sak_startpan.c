@@ -73,7 +73,9 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_reset_req_s resetreq;
   struct ieee802154_start_req_s startreq;
-  int fd, i, option;
+  int option;
+  int fd;
+  int i;
 
   while ((option = getopt(argc, argv, ":h")) != ERROR)
     {

@@ -97,6 +97,7 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    -p = set period (and start blaster)\n"
                     "Note: No option starts blaster with defaults\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -104,23 +105,29 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           case 'q': /* Quit blaster */
             i8sak->blasterenabled = false;
             break;
+
           case 'p': /* Inline change blaster period */
             i8sak->blasterperiod = atoi(optarg);
             i8sak_blaster_start(i8sak);
             break;
+
           case 'f': /* Inline change blaster frame */
             i8sak->payload_len = i8sak_str2payload(optarg, &i8sak->payload[0]);
             i8sak_blaster_start(i8sak);
             break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
             break;
+
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;

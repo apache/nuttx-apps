@@ -74,7 +74,8 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
 {
   struct wpanlistener_eventfilter_s filter;
   bool acceptall = true; /* start off assuming we are going to allow all connections */
-  int option, optcnt;
+  int option;
+  int optcnt;
 
   optcnt = 0;
   while ((option = getopt(argc, argv, ":he:")) != ERROR)

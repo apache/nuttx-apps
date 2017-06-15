@@ -80,7 +80,9 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_poll_req_s pollreq;
   struct wpanlistener_eventfilter_s eventfilter;
-  int ret, fd, option;
+  int option;
+  int fd;
+  int ret;
 
   ret = OK;
   while ((option = getopt(argc, argv, ":h")) != ERROR)

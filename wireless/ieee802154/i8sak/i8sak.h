@@ -118,7 +118,7 @@ enum i8sak_cmd_e
 struct i8sak_s
 {
   /* Support singly linked list */
-  
+
   FAR struct i8sak_s *flink;
 
   bool initialized      : 1;

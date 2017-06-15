@@ -53,12 +53,12 @@
 
 #if !defined(CONFIG_WPANLISTENER_NFRAMERECEIVERS) || CONFIG_WPANLISTENER_NFRAMERECEIVERS <= 0
 #  undef CONFIG_WPANLISTENER_NFRAMERECEIVERS
-#  define CONFIG_WPANLISTENER_NFRAMERECEIVERS 3 
+#  define CONFIG_WPANLISTENER_NFRAMERECEIVERS 3
 #endif
 
 #if !defined(CONFIG_WPANLISTENER_NEVENTRECEIVERS) || CONFIG_WPANLISTENER_NEVENTRECEIVERS <= 0
 #  undef CONFIG_WPANLISTENER_NEVENTRECEIVERS
-#  define CONFIG_WPANLISTENER_NEVENTRECEIVERS 3 
+#  define CONFIG_WPANLISTENER_NEVENTRECEIVERS 3
 #endif
 
 /****************************************************************************
@@ -142,10 +142,10 @@ struct wpanlistener_s
   sq_queue_t eventreceivers_free;
   sq_queue_t framereceivers_free;
 
-  struct wpanlistener_framereceiver_s 
+  struct wpanlistener_framereceiver_s
             framereceiver_pool[CONFIG_WPANLISTENER_NFRAMERECEIVERS];
 
-  struct wpanlistener_eventreceiver_s 
+  struct wpanlistener_eventreceiver_s
             eventreceiver_pool[CONFIG_WPANLISTENER_NEVENTRECEIVERS];
 };
 
@@ -167,7 +167,7 @@ struct wpanlistener_s
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_setup(FAR struct wpanlistener_s *handle, int fd);
@@ -185,7 +185,7 @@ int wpanlistener_setup(FAR struct wpanlistener_s *handle, int fd);
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_start(FAR struct wpanlistener_s *handle);
@@ -203,7 +203,7 @@ int wpanlistener_start(FAR struct wpanlistener_s *handle);
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_stop(FAR struct wpanlistener_s *handle);
@@ -224,12 +224,12 @@ int wpanlistener_stop(FAR struct wpanlistener_s *handle);
  *   arg      - user specified argument to send to the callback
  *   oneshot  - whether the receiver is automatically unregistered after the
  *              first notification
- *   
+ *
  * Returned Value:
  *   OK if successful; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_add_framereceiver(FAR struct wpanlistener_s *handle,
@@ -258,7 +258,7 @@ int wpanlistener_add_framereceiver(FAR struct wpanlistener_s *handle,
  *   OK if successful; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_add_eventreceiver(FAR struct wpanlistener_s *handle,
@@ -281,7 +281,7 @@ int wpanlistener_add_eventreceiver(FAR struct wpanlistener_s *handle,
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_remove_framereceiver(FAR struct wpanlistener_s *handle,
@@ -302,7 +302,7 @@ int wpanlistener_remove_framereceiver(FAR struct wpanlistener_s *handle,
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_remove_eventreceiver(FAR struct wpanlistener_s *handle,

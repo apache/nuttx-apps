@@ -75,7 +75,9 @@
 
 void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
-  int ret, fd, option;
+  int option;
+  int fd;
+  int ret;
 
   ret = OK;
   while ((option = getopt(argc, argv, "h")) != ERROR)

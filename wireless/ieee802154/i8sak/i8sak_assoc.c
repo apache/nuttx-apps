@@ -79,7 +79,10 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_assoc_req_s assocreq;
   struct wpanlistener_eventfilter_s filter;
-  int fd, option, optcnt, ret;
+  int fd;
+  int option;
+  int optcnt;
+  int ret;
 
   /* If the addresses has never been automatically or manually set before, set
    * it assuming that we are the default device address and the endpoint is the
@@ -103,28 +106,33 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "Usage: %s [-h]\n"
                     "    -h = this help menu\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
+
           case 's':
             /* Parse extended address and put it into the i8sak instance */
 
             i8sak->ep.saddr = i8sak_str2luint16(optarg);
             i8sak->ep.mode= IEEE802154_ADDRMODE_SHORT;
             break;
+
           case 'e':
             /* Parse extended address and put it into the i8sak instance */
 
             i8sak_str2eaddr(optarg, &i8sak->ep.eaddr[0]);
             i8sak->ep.mode = IEEE802154_ADDRMODE_EXTENDED;
             break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
+
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
             /* Must manually reset optind if we are going to exit early */

@@ -112,12 +112,12 @@ static const struct i8sak_command_s g_i8sak_commands[] =
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
 
-sq_queue_t g_i8sak_free;
-sq_queue_t g_i8sak_instances;
-struct i8sak_s g_i8sak_pool[CONFIG_IEEE802154_I8SAK_NINSTANCES];
-bool g_i8sak_initialized = false;
-bool g_activei8sak_set = false;
-FAR struct i8sak_s *g_activei8sak;
+static sq_queue_t g_i8sak_free;
+static sq_queue_t g_i8sak_instances;
+static struct i8sak_s g_i8sak_pool[CONFIG_IEEE802154_I8SAK_NINSTANCES];
+static bool g_i8sak_initialized = false;
+static bool g_activei8sak_set = false;
+static FAR struct i8sak_s *g_activei8sak;
 
 /****************************************************************************
  * Private Function Prototypes
@@ -204,7 +204,9 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 
 int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
 {
-  int str_len, ret, i = 0;
+  int str_len;
+  int ret;
+  int i = 0;
 
   str_len = strlen(str);
 
@@ -213,7 +215,8 @@ int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
   ret = str_len >> 1;
 
   /* Check if the number of chars is a multiple of 2 and that the number of
-   * bytes does not exceed the max MAC frame payload supported */
+   * bytes does not exceed the max MAC frame payload supported.
+   */
 
   if ((str_len & 1) || (ret > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
     {
@@ -418,7 +421,9 @@ static void i8sak_switch_instance(FAR char *devname)
 {
   FAR struct i8sak_s *i8sak;
 
-  /* Search list of i8sak instances for one associated with the provided device */
+  /* Search list of i8sak instances for one associated with the provided
+   * device.
+   */
 
   i8sak = (FAR struct i8sak_s *)sq_peek(&g_i8sak_instances);
 
@@ -447,7 +452,8 @@ static void i8sak_switch_instance(FAR char *devname)
     }
 
   /* Update our "sticky" i8sak instance. Must come before call to setup so that
-   * the shared active global i8sak is correct */
+   * the shared active global i8sak is correct.
+   */
 
   g_activei8sak = i8sak;
 
@@ -465,7 +471,9 @@ static void i8sak_switch_instance(FAR char *devname)
 static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
 {
   char daemonname[I8SAK_DAEMONNAME_FMTLEN];
-  int i, ret, fd;
+  int i;
+  int ret;
+  int fd;
 
   if (i8sak->initialized)
     {
@@ -651,7 +659,9 @@ int i8_main(int argc, char *argv[])
 #endif
 {
   FAR const struct i8sak_command_s *i8sakcmd;
-  int i, ret, argind;
+  int argind;
+  int ret;
+  int i;
 
   if (!g_i8sak_initialized)
     {
@@ -681,11 +691,14 @@ int i8_main(int argc, char *argv[])
 
           if (argc == 2)
             {
-              /* Close silently to allow user to set devname without any other operation */
+              /* Close silently to allow user to set devname without any
+               * other operation.
+               */
 
               return EXIT_SUCCESS;
             }
         }
+
       /* Argument must be command */
     }
 
