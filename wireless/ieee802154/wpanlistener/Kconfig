@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see misc/tools/kconfig-language.txt.
+#
+
+config IEEE802154_WPANLISTENER
+	bool "WPAN Listener Module for receiving various IEEE 802.15.4 MAC events"
+	default n
+	select IEEE802154_MAC_DEV
+	select IEEE802154_LIBUTILS
+	select IEEE802154_LIBMAC
+	---help---
+		Enable the IEEE 802.15.4 WPAN Listener
+
+if IEEE802154_WPANLISTENER
+
+config WPANLISTENER_NFRAMERECEIVERS
+	int "Number of frame receivers"
+	default 3
+
+config WPANLISTENER_NEVENTRECEIVERS
+	int "Number of event receivers"
+	default 3
+
+endif

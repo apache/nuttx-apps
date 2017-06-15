@@ -58,7 +58,7 @@ int sixlowpan_getrxonidle(int sock, FAR const char *ifname, FAR bool *rxonidle)
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.pib_attr = IEEE802154_PIB_MAC_RX_ON_WHEN_IDLE;
+  req.attr = IEEE802154_ATTR_MAC_RX_ON_WHEN_IDLE;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
   *rxonidle = req.attrval.mac.rxonidle;
