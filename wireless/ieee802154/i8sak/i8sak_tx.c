@@ -114,12 +114,12 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
         }
     }
-  
+
   if (ret != OK)
     {
       i8sak_cmd_error(i8sak);
     }
-  
+
   if (argc == argind + 1)
     {
       i8sak->payload_len = i8sak_str2payload(argv[1], &i8sak->payload[0]);
@@ -131,7 +131,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       printf("i8sak: cannot open %s, errno=%d\n", i8sak->devname, errno);
       i8sak_cmd_error(i8sak);
     }
-  
+
   /* Check if transaction should be indirect or not */
 
   ieee802154_getdevmode(fd, &devmode);
@@ -162,7 +162,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           close(fd);
           i8sak_cmd_error(i8sak);
         }
-      
+
       i8sak->indirect = false;
     }
 
@@ -187,7 +187,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       close(fd);
       i8sak_cmd_error(i8sak);
     }
-  
+
   close(fd);
 }
 
@@ -208,7 +208,7 @@ static void tx_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
     }
   else
     {
-      printf("i8sak: frame failed to send: %s\n", 
+      printf("i8sak: frame failed to send: %s\n",
              IEEE802154_STATUS_STRING[notif->u.dataconf.status]);
     }
 

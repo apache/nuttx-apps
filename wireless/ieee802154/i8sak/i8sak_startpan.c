@@ -124,12 +124,12 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
    * it assuming that we are the default PAN coordinator address and the
    * endpoint is the default device address.
    */
-   
+
   if (!i8sak->addrset)
     {
       for (i = 0; i < IEEE802154_EADDR_LEN; i++)
       {
-        i8sak->addr.eaddr[i] = 
+        i8sak->addr.eaddr[i] =
           (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
       }
 
@@ -139,10 +139,10 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
       for (i = 0; i < IEEE802154_EADDR_LEN; i++)
       {
-        i8sak->ep.eaddr[i] = 
+        i8sak->ep.eaddr[i] =
           (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
       }
-  
+
       i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
       i8sak->ep.saddr = CONFIG_IEEE802154_I8SAK_DEV_SADDR;
       i8sak->ep.panid = CONFIG_IEEE802154_I8SAK_PANID;
@@ -159,7 +159,7 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   startreq.panid = i8sak->addr.panid;
   startreq.chnum = i8sak->chnum;
-  startreq.chpage = i8sak->chpage; 
+  startreq.chpage = i8sak->chpage;
   startreq.beaconorder = 15;
   startreq.pancoord = true;
   startreq.coordrealign = false;

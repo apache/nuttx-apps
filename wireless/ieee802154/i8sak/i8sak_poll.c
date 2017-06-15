@@ -110,7 +110,7 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
     }
-  
+
   if (ret != OK)
     {
       i8sak_cmd_error(i8sak);
@@ -167,7 +167,7 @@ static void poll_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
     }
   else
     {
-      printf("i8sak: POLL.request failed: %s\n", 
+      printf("i8sak: POLL.request failed: %s\n",
              IEEE802154_STATUS_STRING[notif->u.pollconf.status]);
     }
 

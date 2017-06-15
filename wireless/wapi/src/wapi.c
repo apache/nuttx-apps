@@ -488,7 +488,7 @@ static void wapi_essid_cmd(int sock, FAR const char *ifname,
   /* Convert input strings to values */
 
   essid_flag = (enum wapi_essid_flag_e)wapi_str2ndx(flagstr, g_wapi_essid_flags, 2);
-  
+
   /* Set the ESSID */
 
   ret = wapi_set_essid(sock, ifname, essid, essid_flag);

@@ -71,13 +71,13 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg);
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_setup(FAR struct wpanlistener_s *handle, int fd)
 {
   int i;
-  
+
   /* Initialize the frame receiver allocation pool */
 
   sq_init(&handle->framereceivers);
@@ -95,9 +95,9 @@ int wpanlistener_setup(FAR struct wpanlistener_s *handle, int fd)
     {
       sq_addlast((FAR sq_entry_t *)&handle->eventreceiver_pool[i], &handle->eventreceivers_free);
     }
-  
+
   sem_init(&handle->exclsem, 0, 1);
-  
+
   handle->is_setup = true;
   handle->fd = fd;
   return OK;
@@ -116,7 +116,7 @@ int wpanlistener_setup(FAR struct wpanlistener_s *handle, int fd)
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_start(FAR struct wpanlistener_s *handle)
@@ -157,7 +157,7 @@ int wpanlistener_start(FAR struct wpanlistener_s *handle)
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_stop(FAR struct wpanlistener_s *handle)
@@ -181,12 +181,12 @@ int wpanlistener_stop(FAR struct wpanlistener_s *handle)
  *   arg      - user specified argument to send to the callback
  *   oneshot  - whether the receiver is automatically unregistered after the
  *              first notification
- *   
+ *
  * Returned Value:
  *   OK if successful; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_add_framereceiver(FAR struct wpanlistener_s *handle,
@@ -216,12 +216,12 @@ int wpanlistener_add_framereceiver(FAR struct wpanlistener_s *handle,
       sem_post(&handle->exclsem);
       return -ENOMEM;
     }
-  
+
   receiver->cb = cb;
   memcpy(&receiver->filter, filter, sizeof(struct wpanlistener_framefilter_s));
   receiver->arg = arg;
   receiver->oneshot = oneshot;
-  
+
   /* Link the receiver into the list */
 
   sq_addlast((FAR sq_entry_t *)receiver, &handle->framereceivers);
@@ -229,7 +229,7 @@ int wpanlistener_add_framereceiver(FAR struct wpanlistener_s *handle,
   sem_post(&handle->exclsem);
   return OK;
 }
-                                  
+
 /****************************************************************************
  * Name: wpanlistener_add_eventreceiver
  *
@@ -251,7 +251,7 @@ int wpanlistener_add_framereceiver(FAR struct wpanlistener_s *handle,
  *   OK if successful; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_add_eventreceiver(FAR struct wpanlistener_s *handle,
@@ -281,7 +281,7 @@ int wpanlistener_add_eventreceiver(FAR struct wpanlistener_s *handle,
       sem_post(&handle->exclsem);
       return -ENOMEM;
     }
-  
+
   receiver->cb = cb;
   memcpy(&receiver->filter, filter, sizeof(struct wpanlistener_eventfilter_s));
   receiver->arg = arg;
@@ -290,7 +290,7 @@ int wpanlistener_add_eventreceiver(FAR struct wpanlistener_s *handle,
   /* Link the receiver into the list */
 
   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers);
- 
+
   sem_post(&handle->exclsem);
 
   return OK;
@@ -311,7 +311,7 @@ int wpanlistener_add_eventreceiver(FAR struct wpanlistener_s *handle,
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_remove_framereceiver(FAR struct wpanlistener_s *handle,
@@ -328,14 +328,14 @@ int wpanlistener_remove_framereceiver(FAR struct wpanlistener_s *handle,
       fprintf(stderr, "wpanlistener: failed to remove receiver: %d\n", ret);
       return ret;
     }
-  
+
   /* Search through frame receivers until either we match the callback, or
    * there is no more receivers to check.
    */
-  
+
   receiver = (FAR struct wpanlistener_framereceiver_s *)sq_peek(
                 &handle->framereceivers);
-      
+
   while (receiver != NULL)
     {
       /* Check if callback matches */
@@ -354,11 +354,11 @@ int wpanlistener_remove_framereceiver(FAR struct wpanlistener_s *handle,
 
           return OK;
         }
-      
+
       receiver = (FAR struct wpanlistener_framereceiver_s *)sq_next(
                     (FAR sq_entry_t *)receiver);
     }
-  
+
   sem_post(&handle->exclsem);
   fprintf(stderr, "wpanlistener: failed to remove receiver");
   return ERROR;
@@ -379,7 +379,7 @@ int wpanlistener_remove_framereceiver(FAR struct wpanlistener_s *handle,
  *   OK on success; a negated errno on failure
  *
  * Assumptions:
- * 
+ *
  ****************************************************************************/
 
 int wpanlistener_remove_eventreceiver(FAR struct wpanlistener_s *handle,
@@ -396,14 +396,14 @@ int wpanlistener_remove_eventreceiver(FAR struct wpanlistener_s *handle,
       fprintf(stderr, "wpanlistener: failed to remove receiver: %d\n", ret);
       return ret;
     }
-  
+
   /* Search through frame receivers until either we match the callback, or
    * there is no more receivers to check.
    */
-  
+
   receiver = (FAR struct wpanlistener_eventreceiver_s *)sq_peek(
                 &handle->eventreceivers);
-      
+
   while (receiver != NULL)
     {
       /* Check if callback matches */
@@ -422,11 +422,11 @@ int wpanlistener_remove_eventreceiver(FAR struct wpanlistener_s *handle,
 
           return OK;
         }
-      
+
       receiver = (FAR struct wpanlistener_eventreceiver_s *)sq_next(
                     (FAR sq_entry_t *)receiver);
     }
-  
+
   sem_post(&handle->exclsem);
   fprintf(stderr, "wpanlistener: failed to remove receiver");
   return ERROR;
@@ -474,29 +474,29 @@ static pthread_addr_t wpanlistener_framethread(pthread_addr_t arg)
 
       printf(" \n");
       fflush(stdout);
-      
+
       /* Loop through frame receivers and call callbacks for those receivers
        * whose filter matches this frame
        */
-       
+
       receiver = (FAR struct wpanlistener_framereceiver_s *)sq_peek(
                     &handle->framereceivers);
-          
+
       while (receiver != NULL)
         {
           /* TODO: When filtering options are figured out. Actually filter packets
            * here. For now, all frames get passed to all receivers.
            */
-          
+
           receiver->cb(&frame, receiver->arg);
-          
+
           receiver = (FAR struct wpanlistener_framereceiver_s *)sq_next(
                         (FAR sq_entry_t *)receiver);
-          
+
           /* Check if the receiver was a one-shot receiver, then throw it out
            * if it is
            */
-          
+
           if (receiver->oneshot)
             {
               /* Unlink the receiver from the list */
@@ -547,10 +547,10 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
       /* Loop through event receivers and call callbacks for those receivers
        * listening for this event type.
        */
-       
+
       receiver = (FAR struct wpanlistener_eventreceiver_s *)sq_peek(
                     &handle->eventreceivers);
-          
+
       while (receiver != NULL)
         {
           if (notif.notiftype == IEEE802154_NOTIFY_CONF_DATA &&
@@ -727,15 +727,15 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
               receiver->filter.indevents.disassoc)
             {
               receiver->cb(&notif, receiver->arg);
-  
+
               if (receiver->oneshot)
                 {
                   /* Unlink the receiver from the list */
-  
+
                   sq_rem((FAR sq_entry_t *)receiver, &handle->eventreceivers);
-  
+
                   /* Link the receiver back into the free list */
-  
+
                   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers_free);
                 }
             }
@@ -744,15 +744,15 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
               receiver->filter.indevents.beaconnotify)
             {
               receiver->cb(&notif, receiver->arg);
-  
+
               if (receiver->oneshot)
                 {
                   /* Unlink the receiver from the list */
-  
+
                   sq_rem((FAR sq_entry_t *)receiver, &handle->eventreceivers);
-  
+
                   /* Link the receiver back into the free list */
-  
+
                   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers_free);
                 }
             }
@@ -761,15 +761,15 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
               receiver->filter.indevents.gts)
             {
               receiver->cb(&notif, receiver->arg);
-  
+
               if (receiver->oneshot)
                 {
                   /* Unlink the receiver from the list */
-  
+
                   sq_rem((FAR sq_entry_t *)receiver, &handle->eventreceivers);
-  
+
                   /* Link the receiver back into the free list */
-  
+
                   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers_free);
                 }
             }
@@ -778,15 +778,15 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
               receiver->filter.indevents.orphan)
             {
               receiver->cb(&notif, receiver->arg);
-  
+
               if (receiver->oneshot)
                 {
                   /* Unlink the receiver from the list */
-  
+
                   sq_rem((FAR sq_entry_t *)receiver, &handle->eventreceivers);
-  
+
                   /* Link the receiver back into the free list */
-  
+
                   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers_free);
                 }
             }
@@ -795,15 +795,15 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
               receiver->filter.indevents.commstatus)
             {
               receiver->cb(&notif, receiver->arg);
-  
+
               if (receiver->oneshot)
                 {
                   /* Unlink the receiver from the list */
-  
+
                   sq_rem((FAR sq_entry_t *)receiver, &handle->eventreceivers);
-  
+
                   /* Link the receiver back into the free list */
-  
+
                   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers_free);
                 }
             }
@@ -812,15 +812,15 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
               receiver->filter.indevents.syncloss)
             {
               receiver->cb(&notif, receiver->arg);
-  
+
               if (receiver->oneshot)
                 {
                   /* Unlink the receiver from the list */
-  
+
                   sq_rem((FAR sq_entry_t *)receiver, &handle->eventreceivers);
-  
+
                   /* Link the receiver back into the free list */
-  
+
                   sq_addlast((FAR sq_entry_t *)receiver, &handle->eventreceivers_free);
                 }
             }

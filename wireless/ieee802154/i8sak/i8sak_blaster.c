@@ -137,7 +137,7 @@ static inline void i8sak_blaster_start (FAR struct i8sak_s *i8sak)
 
       /* Signal the daemon to start running */
 
-      printf("starting blaster\n"); 
+      printf("starting blaster\n");
       sem_post(&i8sak->updatesem);
     }
 }

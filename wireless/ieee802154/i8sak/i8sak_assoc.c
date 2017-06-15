@@ -86,7 +86,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
    * default PAN Coordinator address.  This is actually the way the i8sak settings
    * are configured, so just set the flag if it's not already set.
    */
-   
+
   if (!i8sak->addrset)
     {
       i8sak->addrset = true;
@@ -133,7 +133,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
     }
-  
+
   /* If none of the option flags were used, and there is an argument included,
    * assume it is the PAN ID
    */
@@ -142,7 +142,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     {
       i8sak->ep.panid = i8sak_str2luint16(argv[1]);
     }
-  
+
   fd = open(i8sak->devname, O_RDWR);
   if (fd < 0)
     {
@@ -212,7 +212,7 @@ static void assoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
     }
   else
     {
-      printf("i8sak: ASSOC.request failed: %s\n", 
+      printf("i8sak: ASSOC.request failed: %s\n",
              IEEE802154_STATUS_STRING[notif->u.assocconf.status]);
     }
 

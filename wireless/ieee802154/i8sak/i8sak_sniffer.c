@@ -105,7 +105,7 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
     }
-  
+
   if (ret != OK)
     {
       i8sak_cmd_error(i8sak);
@@ -120,12 +120,12 @@ void i8sak_sniffer_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   /* Enable promiscuous mode */
 
-  printf("i8sak: turning on promiscuous mode.\n"); 
+  printf("i8sak: turning on promiscuous mode.\n");
   ieee802154_setpromisc(fd, true);
 
   /* Make sure receiver is always on while idle */
 
-  printf("i8sak: setting receiveonidle.\n"); 
+  printf("i8sak: setting receiveonidle.\n");
   ieee802154_setrxonidle(fd, true);
 
   close(fd);

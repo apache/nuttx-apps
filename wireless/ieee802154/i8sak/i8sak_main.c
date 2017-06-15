@@ -131,7 +131,7 @@ static void i8sak_switch_instance(FAR char *devname);
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
- 
+
 /****************************************************************************
  * Name : i8sak_tx
  *
@@ -187,7 +187,7 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
     {
       printf(" write: errno=%d\n",errno);
     }
-  
+
   return ret;
 }
 
@@ -205,14 +205,14 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
 {
   int str_len, ret, i = 0;
-  
+
   str_len = strlen(str);
 
   /* Each byte is represented by 2 chars */
 
   ret = str_len >> 1;
 
-  /* Check if the number of chars is a multiple of 2 and that the number of 
+  /* Check if the number of chars is a multiple of 2 and that the number of
    * bytes does not exceed the max MAC frame payload supported */
 
   if ((str_len & 1) || (ret > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
@@ -417,21 +417,21 @@ bool i8sak_str2bool(FAR const char *str)
 static void i8sak_switch_instance(FAR char *devname)
 {
   FAR struct i8sak_s *i8sak;
-  
+
   /* Search list of i8sak instances for one associated with the provided device */
 
   i8sak = (FAR struct i8sak_s *)sq_peek(&g_i8sak_instances);
-      
+
   while (i8sak != NULL)
     {
       if (strcmp(devname, i8sak->devname) == 0)
         {
           break;
         }
-      
+
       i8sak = (FAR struct i8sak_s *)sq_next((FAR sq_entry_t *)i8sak);
     }
-  
+
   /* If there isn't a i8sak instance started for this device, allocate one */
 
   if (i8sak == NULL)
@@ -450,7 +450,7 @@ static void i8sak_switch_instance(FAR char *devname)
    * the shared active global i8sak is correct */
 
   g_activei8sak = i8sak;
-  
+
   if (!g_activei8sak_set)
     {
       g_activei8sak_set = true;
@@ -471,7 +471,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
     {
       return OK;
     }
-  
+
   i8sak->daemon_started = false;
   i8sak->daemon_shutdown = false;
 
@@ -485,9 +485,9 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
     }
 
   strcpy(&i8sak->devname[0], devname);
-  
+
   /* Initialze default extended address */
-  
+
   for (i = 0; i < IEEE802154_EADDR_LEN; i++)
    {
      i8sak->addr.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
@@ -512,9 +512,9 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
       printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
       i8sak_cmd_error(i8sak);
     }
-  
+
   ieee802154_seteaddr(fd, &i8sak->addr.eaddr[0]);
-  
+
   close(fd);
 
   i8sak->addrset = false;
@@ -589,7 +589,7 @@ static int i8sak_daemon(int argc, FAR char *argv[])
   /* Signal the calling thread that the daemon is up and running */
 
   sem_post(&i8sak->sigsem);
-  
+
   while (!i8sak->daemon_shutdown)
     {
       if (i8sak->blasterenabled)
@@ -662,7 +662,7 @@ int i8_main(int argc, char *argv[])
           sq_addlast((FAR sq_entry_t *)&g_i8sak_pool[i], &g_i8sak_free);
           g_i8sak_pool[i].initialized = false;
         }
-      
+
       g_i8sak_initialized = true;
     }
 
@@ -688,17 +688,17 @@ int i8_main(int argc, char *argv[])
         }
       /* Argument must be command */
     }
-  
+
   /* If devname wasn't included, we need to check if our sticky feature has
    * ever been set.
    */
-   
+
   else if (!g_activei8sak_set)
     {
       fprintf(stderr, "ERROR: Must include devname the first time you run\n");
       i8sak_showusage(argv[0], EXIT_FAILURE);
     }
-  
+
   /* Find the command in the g_i8sak_command[] list */
 
   i8sakcmd = NULL;
@@ -711,7 +711,7 @@ int i8_main(int argc, char *argv[])
           break;
         }
     }
-  
+
   if (i8sakcmd == NULL)
     {
       i8sak_showusage(argv[0], EXIT_FAILURE);
@@ -730,7 +730,7 @@ int i8_main(int argc, char *argv[])
       fprintf(stderr, "ERROR: Failed to lock i8sak instance\n");
       exit(EXIT_FAILURE);
     }
-  
+
   i8sakcmd->handler(g_activei8sak, argc - argind, &argv[argind]);
 
   sem_post(&g_activei8sak->exclsem);
