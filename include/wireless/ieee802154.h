@@ -65,6 +65,7 @@ int ieee802154_get_req(int fd, FAR struct ieee802154_get_req_s *req);
 int ieee802154_gts_req(int fd, FAR struct ieee802154_gts_req_s *req);
 int ieee802154_orphan_resp(int fd,
       FAR struct ieee802154_orphan_resp_s *resp);
+int ieee802154_reset_req(int fd, FAR struct ieee802154_reset_req_s *req);
 int ieee802154_rxenable_req(int fd,
       FAR struct ieee802154_rxenable_req_s *req);
 int ieee802154_scan_req(int fd, FAR struct ieee802154_scan_req_s *req);
@@ -105,6 +106,8 @@ int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr);
 
 int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca);
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
+
+int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode);
 
 #ifdef CONFIG_NET_6LOWPAN
 /* Netork driver IOCTL helpers */

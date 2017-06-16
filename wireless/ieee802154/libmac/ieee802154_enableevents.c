@@ -54,7 +54,7 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_enableevents(int fd, bool enable) 
+int ieee802154_enableevents(int fd, bool enable)
 {
   int ret;
 

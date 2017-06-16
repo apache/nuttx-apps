@@ -57,7 +57,7 @@ int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan)
 {
   struct ieee802154_set_req_s req;
 
-  req.pib_attr = IEEE802154_PIB_PHY_CURRENT_CHANNEL;
+  req.attr = IEEE802154_ATTR_PHY_CURRENT_CHANNEL;
   req.attrval.phy.channel = chan;
 
   return sixlowpan_set_req(sock, ifname, &req);
