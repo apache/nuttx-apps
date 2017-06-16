@@ -53,26 +53,6 @@
 #ifdef CONFIG_PLATFORM_CONFIGDATA
 
 /************************************************************************************
- * Pre-processor Definitions
- ************************************************************************************/
-
-/************************************************************************************
- * Private Types
- ************************************************************************************/
-
-/************************************************************************************
- * Private Function Prototypes
- ************************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/************************************************************************************
- * Private Functions
- ************************************************************************************/
-
-/************************************************************************************
  * Public Functions
  ************************************************************************************/
 
@@ -109,12 +89,12 @@ int platform_setconfig(enum config_data_e id, int instance,
                        FAR const uint8_t *configdata, size_t datalen)
 {
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
-  FILE*   fd;
+  FILE *fd;
 #endif
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
-  struct config_data_s  config;
-  int                   ret;
-  int                   fd;
+  struct config_data_s config;
+  int ret;
+  int fd;
 
   /* Try to open the /dev/config device file */
 
@@ -127,10 +107,10 @@ int platform_setconfig(enum config_data_e id, int instance,
 
   /* Setup structure for the SETCONFIG ioctl */
 
-  config.id = (enum config_data_e)id;
-  config.instance = instance;
+  config.id         = (enum config_data_e)id;
+  config.instance   = instance;
   config.configdata = (FAR uint8_t *) configdata;
-  config.len = datalen;
+  config.len        = datalen;
 
   ret = ioctl(fd, CFGDIOC_SETCONFIG, (unsigned long) &config);
   close(fd);
@@ -144,11 +124,13 @@ int platform_setconfig(enum config_data_e id, int instance,
 
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
         /* Save config data in a file on the filesystem.  Try to open
-         * the file. */
+         * the file.
+         */
 
         if ((fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "w+")) == NULL)
           {
             /* Error opening the file */
+
             set_errno(ENOENT);
             return -1;
           }
@@ -167,7 +149,6 @@ int platform_setconfig(enum config_data_e id, int instance,
         return OK;
 
 #elif defined(CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM)
-
         /* We are reading from a read-only system, so nothing to do. */
 
         return OK;
@@ -220,15 +201,17 @@ int platform_getconfig(enum config_data_e id, int instance,
                        FAR uint8_t *configdata, size_t datalen)
 {
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
-  FILE*   fd;
+  FILE   *fd;
   size_t  bytes;
   enum    config_data_e saved_id;
   int     saved_instance;
 #elif defined(CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM)
-  static const uint8_t touch_cal_data[] = {
+  static const uint8_t touch_cal_data[] =
+  {
       0x9a, 0x2f, 0x00, 0x00,
       0x40, 0xbc, 0x69, 0xfe, 0x70, 0x2e, 0x00,
-      0x00, 0xb8, 0x2d, 0xdb, 0xff };
+      0x00, 0xb8, 0x2d, 0xdb, 0xff
+  };
 #endif
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_PART
   struct config_data_s  config;
@@ -256,14 +239,14 @@ int platform_getconfig(enum config_data_e id, int instance,
   return ret;
 
 #else /* CONFIG_MIKROE_STM32F4_CONFIGDATA_PART */
-
   switch (id)
     {
       case CONFIGDATA_TSCALIBRATION:
 
 #ifdef CONFIG_MIKROE_STM32F4_CONFIGDATA_FS
         /* Load config data fram a file on the filesystem.  Try to open
-         * the file. */
+         * the file.
+         */
 
         if ((fd = fopen(CONFIG_MIKROE_STM32F4_CONFIGDATA_FILENAME, "r")) == NULL)
           {
@@ -294,12 +277,7 @@ int platform_getconfig(enum config_data_e id, int instance,
         fclose(fd);
         return OK;
 
-        /* Save config data in a file on the filesystem */
-
-        return OK;
-
 #elif defined(CONFIG_MIKROE_STM32F4_CONFIGDATA_ROM)
-
         memcpy(configdata, touch_cal_data, datalen);
         return OK;
 
@@ -318,3 +296,4 @@ int platform_getconfig(enum config_data_e id, int instance,
 }
 
 #endif /* CONFIG_PLATFORM_CONFIGDATA */
+
