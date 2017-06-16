@@ -58,7 +58,7 @@ int ieee802154_setpromisc(int fd, bool promisc)
 {
   struct ieee802154_set_req_s req;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PROMISCUOUS_MODE;
+  req.attr = IEEE802154_ATTR_MAC_PROMISCUOUS_MODE;
   req.attrval.mac.promisc_mode = promisc;
 
   return ieee802154_set_req(fd, &req);

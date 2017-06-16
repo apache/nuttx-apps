@@ -58,7 +58,7 @@ int sixlowpan_getpromisc(int sock, FAR const char *ifname, FAR bool *promisc)
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PROMISCUOUS_MODE;
+  req.attr = IEEE802154_ATTR_MAC_PROMISCUOUS_MODE;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
   *promisc = req.attrval.mac.promisc_mode;

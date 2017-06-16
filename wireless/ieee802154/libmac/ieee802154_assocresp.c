@@ -56,10 +56,9 @@
 
 int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp)
 {
-  union ieee802154_macarg_u arg;
   int ret;
 
-  ret = ioctl(fd, MAC802154IOC_MLME_ASSOC_RESPONSE, (unsigned long)((uintptr_t)&arg));
+  ret = ioctl(fd, MAC802154IOC_MLME_ASSOC_RESPONSE, (unsigned long)((uintptr_t)resp));
   if (ret < 0)
     {
       ret = -errno;
@@ -67,6 +66,5 @@ int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp)
       return ret;
     }
 
-  memcpy(resp, &arg.assocresp, sizeof(struct ieee802154_assoc_resp_s));
   return OK;
 }

@@ -4,7 +4,11 @@
  *
  *   Copyright (C) 2014-2015, 2017 Gregory Nutt. All rights reserved.
  *   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
+ *   Copyright (C) 2017 Verge Inc. All rights reserved.
+ *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+ *   Author: Anthony Merlino <anthony@vergeaero.com>
+ *   Author: Gregory Nuttx <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -55,398 +59,169 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <queue.h>
 #include <sys/ioctl.h>
 #include <nuttx/fs/ioctl.h>
+
+#include "i8sak.h"
 
 #include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+/* Configuration ************************************************************/
+
+#if !defined(CONFIG_IEEE802154_I8SAK_NINSTANCES) || CONFIG_IEEE802154_I8SAK_NINSTANCES <= 0
+#  undef CONFIG_IEEE802154_I8SAK_NINSTANCES
+#  define CONFIG_IEEE802154_I8SAK_NINSTANCES 3
+#endif
+
+/****************************************************************************
  * Private Types
  ****************************************************************************/
 
-struct i8_command_s
+/* Describes one command */
+
+struct i8sak_command_s
 {
   FAR const char *name;
-  uint8_t noptions;
-  CODE void *handler;
+  CODE void (*handler)(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 };
-
-/* Generic form of a command handler */
-
-typedef void (*cmd0_t)(FAR const char *devname);
-typedef void (*cmd1_t)(FAR const char *devname, FAR const char *arg1);
-typedef void (*cmd2_t)(FAR const char *devname, FAR const char *arg1,
-                       FAR const char *arg2);
-typedef void (*cmd3_t)(FAR const char *devname, FAR const char *arg1,
-                       FAR const char *arg2, FAR const char *arg3);
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-static int i8_tx(int fd);
-static int i8_parse_payload(FAR const char *str);
-static pthread_addr_t i8_eventlistener(pthread_addr_t arg);
-
-static void i8_tx_cmd(FAR const char *devname, FAR const char *payload);
-static void i8_sniffer_cmd(FAR const char *devname);
-static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
-                           FAR const char *payload);
-
-static int i8_sniffer_daemon(int argc, FAR char *argv[]);
-static int i8_blaster_daemon(int argc, FAR char *argv[]);
 
 /****************************************************************************
  * Private Data
  ****************************************************************************/
 
-static const struct i8_command_s g_i8_commands[] =
+static const struct i8sak_command_s g_i8sak_commands[] =
 {
-  {"help",    0, (CODE void *)NULL},
-  {"tx",      1, (CODE void *)i8_tx_cmd},
-  {"sniffer", 0, (CODE void *)i8_sniffer_cmd},
-  {"blaster", 2, (CODE void *)i8_blaster_cmd},
+  {"help",        (CODE void *)NULL},
+  {"startpan",    (CODE void *)i8sak_startpan_cmd},
+  {"acceptassoc", (CODE void *)i8sak_acceptassoc_cmd},
+  {"assoc",       (CODE void *)i8sak_assoc_cmd},
+  {"tx",          (CODE void *)i8sak_tx_cmd},
+  {"poll",        (CODE void *)i8sak_poll_cmd},
+  {"sniffer",     (CODE void *)i8sak_sniffer_cmd},
+  {"blaster",     (CODE void *)i8sak_blaster_cmd},
 };
 
-#define NCOMMANDS (sizeof(g_i8_commands) / sizeof(struct i8_command_s))
+#define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
 
-uint8_t g_handle = 0;
-uint8_t g_txframe[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
-uint16_t g_txframe_len;
-
-int g_blaster_period = 0;
-
-bool g_sniffer_daemon_started = false;
-bool g_blaster_daemon_started = false;
-bool g_eventlistener_run = false;
+static sq_queue_t g_i8sak_free;
+static sq_queue_t g_i8sak_instances;
+static struct i8sak_s g_i8sak_pool[CONFIG_IEEE802154_I8SAK_NINSTANCES];
+static bool g_i8sak_initialized = false;
+static bool g_activei8sak_set = false;
+static FAR struct i8sak_s *g_activei8sak;
 
 /****************************************************************************
- * Public Data
+ * Private Function Prototypes
+ ****************************************************************************/
+
+static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname);
+static int i8sak_daemon(int argc, FAR char *argv[]);
+static int i8sak_showusage(FAR const char *progname, int exitcode);
+static void i8sak_switch_instance(FAR char *devname);
+
+/****************************************************************************
+ * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
- * Name : i8_sniffer_cmd
- *
- * Description :
- *   Starts a thread to run the sniffer in the background
- ****************************************************************************/
-
-static void i8_sniffer_cmd(FAR const char *devname)
-{
-  int ret;
-  FAR const char *sniffer_argv[2];
-
-  printf("i8sak: Starting sniffer_daemon\n");
-
-  if (g_sniffer_daemon_started)
-    {
-      printf("i8sak: sniffer_daemon already running\n");
-      return;
-    }
-  
-  sniffer_argv[0] = devname;
-  sniffer_argv[1] = NULL;
-  
-  ret = task_create("sniffer_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
-                    CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_sniffer_daemon,
-                    (FAR char * const *)sniffer_argv);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to start sniffer_daemon\n", errno);
-      return;
-    }
-
-  printf("i8sak: sniffer_daemon started\n");
-}
- 
-/****************************************************************************
- * Name : i8_sniffer_daemon
- *
- * Description :
- *   Sniff for frames (Promiscuous mode)
- ****************************************************************************/
-
-static int i8_sniffer_daemon(int argc, FAR char *argv[])
-{
-  int ret, fd, i;
-  struct mac802154dev_rxframe_s rx;
-
-  fd = open(argv[1], O_RDWR);
-  if (fd < 0)
-    {
-      printf("cannot open %s, errno=%d\n", argv[1], errno);
-      ret = errno;
-      return ret;
-    }
-
-  printf("Listening...\n"); 
-
-  g_sniffer_daemon_started = true;
-
-  /* We don't care about any events, so disable them */
-
-  ret = ieee802154_enableevents(fd, false);
-
-  /* Enable promiscuous mode */
-
-  ret = ieee802154_setpromisc(fd, true);
-
-  /* Make sure receiver is always on while idle */
-
-  ret = ieee802154_setrxonidle(fd, true);
-
-  while(1)
-    {
-      ret = read(fd, &rx, sizeof(struct mac802154dev_rxframe_s));
-      if (ret < 0)
-        {
-          fprintf(stderr, "ERROR: read failed: %d\n", errno);
-          goto done;
-        }
-
-      printf("Frame Received:\n");
-
-      for (i = 0; i < rx.length; i++)
-        {
-          printf("%02X", rx.payload[i]);
-        }
-
-      printf(" \n");
-
-      fflush(stdout);
-    }
-
-done:
-  /* Turn receiver off when idle */
-
-  ret = ieee802154_setrxonidle(fd, false);
-
-  /* Disable promiscuous mode */
-
-  ret = ieee802154_setpromisc(fd, false);
-
-  ret = ieee802154_enableevents(fd, true);
-
-  printf("sniffer_daemon: closing");
-  close(fd);
-  g_sniffer_daemon_started = false;
-  return OK;
-}
-
-/****************************************************************************
- * Name : i8_blaster_cmd
- *
- * Description :
- *   Starts a thread to send continuous packets at a fixed interval
- ****************************************************************************/
-
-static void i8_blaster_cmd(FAR const char *devname, FAR const char *period_ms,
-                           FAR const char *payload)
-{
-  int ret;
-  FAR const char *blaster_argv[2];
-
-  printf("i8sak: Starting blaster_daemon\n");
-
-  if (g_blaster_daemon_started)
-    {
-      printf("i8sak: blaster_daemon already running\n");
-      return;
-    }
-  
-  blaster_argv[0] = devname;
-  blaster_argv[1] = NULL;
-  
-  g_blaster_period = atoi(period_ms);
-
-  ret = i8_parse_payload(payload);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR:invalid hex payload\n", ret);
-      return;
-    }
-  
-  ret = task_create("blaster_daemon", CONFIG_IEEE802154_I8SAK_PRIORITY,
-                    CONFIG_IEEE802154_I8SAK_STACKSIZE, i8_blaster_daemon,
-                    (FAR char * const *)blaster_argv);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR: Failed to start blaster_daemon", errno);
-      return;
-    }
-
-  printf("i8sak: blaster_daemon started\n");
-}
-
-/****************************************************************************
- * Name : i8_blaster_daemon
- *
- * Description :
- *   Continuously transmit a packet
- ****************************************************************************/
-
-static int i8_blaster_daemon(int argc, FAR char *argv[])
-{
-  int ret, fd;
-  pthread_t eventthread;
-
-  fd = open(argv[1], O_RDWR);
-  if (fd < 0)
-    {
-      fprintf(stderr, "ERROR:cannot open %s, errno=%d\n", argv[1], errno);
-      ret = errno;
-      return ret;
-    }
-
-  printf("blaster_daemon: starting\n"); 
-  g_blaster_daemon_started = true;
-
-  /* Start a thread to handle any events that occur */
-
-  g_eventlistener_run = true;
-  ret = pthread_create(&eventthread, NULL, i8_eventlistener, (void *)&fd);
-  if (ret != 0)
-    {
-      printf("blaster_daemon: Failed to create eventlistener thread: %d\n", ret);
-      goto done;
-    }
-
-  while(1)
-    {
-      ret = i8_tx(fd);
-      if (ret < 0)
-        {
-          goto done;
-        }
-      ret = usleep(g_blaster_period*1000L);
-      if (ret < 0)
-        {
-          goto done;
-        }
-    }
-
-done:
-  /* Tell the eventthread to stop */
-
-  printf("blaster_daemon: closing\n");
-  g_eventlistener_run = false;
-  pthread_join(eventthread, NULL);
-  close(fd);
-  g_blaster_daemon_started = false;
-  return OK;
-}
-
-/****************************************************************************
- * Name : i8_tx_cmd
+ * Name : i8sak_tx
  *
  * Description :
  *   Transmit a data frame.
  ****************************************************************************/
 
-static void i8_tx_cmd(FAR const char *devname, FAR const char *str)
+int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 {
-  int ret, fd;
-  int i = 0;
-
-  ret = i8_parse_payload(str);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR:invalid hex payload\n", ret);
-      return;
-    }
-
-  for (i = 0; i < g_txframe_len; i++)
-    {
-      printf("%02X", g_txframe[i]);
-    }
-
-  fflush(stdout);
-
-  /* Open device */
-
-  fd = open(devname, O_RDWR);
-  if (fd < 0)
-    {
-      fprintf(stderr, "ERROR:cannot open %s, errno=%d\n", devname, errno);
-      return;
-    }
-
-  ret = i8_tx(fd);
-  if (ret < 0)
-    {
-      fprintf(stderr, "ERROR:Failed to transmit packet.\n", ret);
-    }
-  
-  close(fd);
-}
-
-/****************************************************************************
- * Name : i8_eventlistener
- *
- * Description :
- *   Listen for events from the MAC layer
- ****************************************************************************/
-
-static pthread_addr_t i8_eventlistener(pthread_addr_t arg)
-{
+  struct mac802154dev_txframe_s tx;
   int ret;
-  struct ieee802154_notif_s notif;
-  int fd = *(int *)arg;
 
-  while (g_eventlistener_run)
+  /* Set an application defined handle */
+
+  tx.meta.msdu_handle = i8sak->msdu_handle++;
+
+  /* This is a normal transaction, no special handling */
+
+  tx.meta.msdu_flags.ack_tx = 0;
+  tx.meta.msdu_flags.gts_tx = 0;
+
+  tx.meta.msdu_flags.indirect_tx = i8sak->indirect;
+
+  if (i8sak->indirect)
     {
-      ret = ioctl(fd, MAC802154IOC_GET_EVENT, (unsigned long)((uintptr_t)&notif));
-      if (ret < 0)
+      if (i8sak->verbose)
         {
-          fprintf(stderr, "MAC802154IOC_GET_EVENTS failed: %d\n", ret);
+          printf("i8sak: queuing indirect transaction\n");
+          fflush(stdout);
         }
-      
-      switch (notif.notiftype)
+    }
+  else
+    {
+      if (i8sak->verbose)
         {
-          case IEEE802154_NOTIFY_CONF_DATA:
-            printf("Data Confirmation Status %d\n", notif.u.dataconf.status);
-            break;
-          default:
-            printf("Unhandled notification: %d\n", notif.notiftype);
-            break;
+          printf("i8sak: queuing CSMA transaction\n");
+          fflush(stdout);
         }
     }
 
-    return NULL;
+  tx.meta.ranging = IEEE802154_NON_RANGING;
+
+  tx.meta.srcaddr_mode = IEEE802154_ADDRMODE_SHORT;
+  memcpy(&tx.meta.destaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));
+
+  /* Each byte is represented by 2 chars */
+
+  tx.length = i8sak->payload_len;
+  tx.payload = &i8sak->payload[0];
+
+  ret = write(fd, &tx, sizeof(struct mac802154dev_txframe_s));
+  if (ret != OK)
+    {
+      printf(" write: errno=%d\n",errno);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
- * Name : i8_parse_payload
+ * Name : i8sak_str2payload
  *
  * Description :
- *   Parse string to get payload
+ *   Parse string to get buffer of data. Buf is expected to be of size
+ *   IEEE802154_MAX_MAC_PAYLOAD_SIZE or larger.
+ *
+ * Returns:
+ *   Positive length value of frame payload
  ****************************************************************************/
 
-static int i8_parse_payload(FAR const char *str)
+int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf)
 {
   int str_len;
+  int ret;
   int i = 0;
-  
+
   str_len = strlen(str);
 
   /* Each byte is represented by 2 chars */
 
-  g_txframe_len = str_len >> 1;
+  ret = str_len >> 1;
 
-  /* Check if the number of chars is a multiple of 2 and that the number of 
-   * bytes does not exceed the max MAC frame payload supported */
+  /* Check if the number of chars is a multiple of 2 and that the number of
+   * bytes does not exceed the max MAC frame payload supported.
+   */
 
-  if ((str_len & 1) || (g_txframe_len > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
+  if ((str_len & 1) || (ret > IEEE802154_MAX_MAC_PAYLOAD_SIZE))
     {
-      return -EINVAL;
+      fprintf(stderr, "ERROR: Invalid payload\n");
+      exit(EXIT_FAILURE);
     }
 
   /* Decode hex packet */
@@ -456,85 +231,420 @@ static int i8_parse_payload(FAR const char *str)
       int dat;
       if (sscanf(str, "%2x", &dat) == 1)
         {
-          g_txframe[i++] = dat;
+          buf[i++] = dat;
           str += 2;
           str_len -= 2;
         }
       else
         {
-          return -EINVAL;
+          fprintf(stderr, "ERROR: Invalid payload\n");
+          exit(EXIT_FAILURE);
         }
     }
-  
-  return OK;
-}
 
-/****************************************************************************
- * Name : i8_tx
- *
- * Description :
- *   Transmit a data frame.
- ****************************************************************************/
-
-static int i8_tx(int fd)
-{
-  int ret;
-  struct mac802154dev_txframe_s tx;
-
-  /* Set an application defined handle */
-
-  tx.meta.msdu_handle = g_handle++;
-
-  /* This is a normal transaction, no special handling */
-
-  tx.meta.msdu_flags.ack_tx = 0;
-  tx.meta.msdu_flags.gts_tx = 0;
-  tx.meta.msdu_flags.indirect_tx = 0;
-
-  tx.meta.ranging = IEEE802154_NON_RANGING;
-
-  tx.meta.src_addrmode = IEEE802154_ADDRMODE_EXTENDED;
-  tx.meta.dest_addr.mode = IEEE802154_ADDRMODE_SHORT;
-  tx.meta.dest_addr.saddr = 0xFADE;
-
-  /* Each byte is represented by 2 chars */
-
-  tx.length = g_txframe_len;
-  tx.payload = &g_txframe[0];
-
-  ret = write(fd, &tx, sizeof(struct mac802154dev_txframe_s));
-  if (ret == OK)
-    {
-      printf(" Tx OK\n");
-    }
-  else
-    {
-      printf(" write: errno=%d\n",errno);
-    }
-  
   return ret;
 }
 
 /****************************************************************************
- * Public Functions
+ * Name: i8sak_str2long
+ *
+ * Description:
+ *   Convert a hex string to an integer value
+ *
  ****************************************************************************/
 
+long i8sak_str2long(FAR const char *str)
+{
+  FAR char *endptr;
+  long value;
+
+  value = strtol(str, &endptr, 0);
+  if (*endptr != '\0')
+    {
+      fprintf(stderr, "ERROR: Garbage after numeric argument\n");
+      exit(EXIT_FAILURE);
+    }
+
+  if (value > INT_MAX || value < INT_MIN)
+    {
+      fprintf(stderr, "ERROR: Integer value out of range\n");
+      return LONG_MAX;
+      exit(EXIT_FAILURE);
+    }
+
+  return value;
+}
+
 /****************************************************************************
- * Name: i8_showusage
+ * Name: i8sak_str2luint8
+ *
+ * Description:
+ *   Convert a string to an integer value
+ *
+ ****************************************************************************/
+
+uint8_t i8sak_str2luint8(FAR const char *str)
+{
+  long value = i8sak_str2long(str);
+  if (value < 0 || value > UINT8_MAX)
+    {
+      fprintf(stderr, "ERROR: 8-bit value out of range\n");
+      exit(EXIT_FAILURE);
+    }
+
+  return (uint8_t)value;
+}
+
+/****************************************************************************
+ * Name: i8sak_str2luint16
+ *
+ * Description:
+ *   Convert a string to an integer value
+ *
+ ****************************************************************************/
+
+uint16_t i8sak_str2luint16(FAR const char *str)
+{
+  long value = i8sak_str2long(str);
+  if (value < 0 || value > UINT16_MAX)
+    {
+      fprintf(stderr, "ERROR: 16-bit value out of range\n");
+      exit(EXIT_FAILURE);
+    }
+
+  return (uint16_t)value;
+}
+
+/****************************************************************************
+ * Name: i8sak_char2nibble
+ *
+ * Description:
+ *   Convert an hexadecimal character to a 4-bit nibble.
+ *
+ ****************************************************************************/
+
+uint8_t i8sak_char2nibble(char ch)
+{
+  if (ch >= '0' && ch <= '9')
+    {
+      return ch - '0';
+    }
+  else if (ch >= 'a' && ch <= 'f')
+    {
+      return ch - 'a' + 10;
+    }
+  else if (ch >= 'A' && ch <= 'F')
+    {
+      return ch - 'A' + 10;
+    }
+  else if (ch == '\0')
+    {
+      fprintf(stderr, "ERROR: Unexpected end hex\n");
+      exit(EXIT_FAILURE);
+    }
+  else
+    {
+      fprintf(stderr, "ERROR: Unexpected character in hex value: %02x\n", ch);
+      exit(EXIT_FAILURE);
+    }
+}
+
+/****************************************************************************
+ * Name: i8sak_str2eaddr
+ *
+ * Description:
+ *   Convert a string 8-byte EADAR array.
+ *
+ ****************************************************************************/
+
+void i8sak_str2eaddr(FAR const char *str, FAR uint8_t *eaddr)
+{
+  FAR const char *src = str;
+  uint8_t bvalue;
+  char ch;
+  int i;
+
+  for (i = 0; i < 8; i++)
+    {
+      ch = (char)*src++;
+      bvalue = i8sak_char2nibble(ch) << 4;
+
+      ch = (char)*src++;
+      bvalue |= i8sak_char2nibble(ch);
+
+      *eaddr++ = bvalue;
+
+      if (i < 7)
+        {
+          ch = (char)*src++;
+          if (ch != ':')
+            {
+              fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
+              fprintf(stderr, "       Expected xx:xx:xx:xx:xx:xx:xx:xx\n");
+              exit(EXIT_FAILURE);
+            }
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: i8sak_str2bool
+ *
+ * Description:
+ *   Convert a boolean name to a boolean value.
+ *
+ ****************************************************************************/
+
+bool i8sak_str2bool(FAR const char *str)
+{
+  if (strcasecmp(str, "true") == 0)
+    {
+      return true;
+    }
+  else if (strcasecmp(str, "false") == 0)
+    {
+      return false;
+    }
+  else
+    {
+      fprintf(stderr, "ERROR: Invalid boolean name: %s\n", str);
+      fprintf(stderr, "       Expected true or false\n");
+      exit(EXIT_FAILURE);
+    }
+}
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static void i8sak_switch_instance(FAR char *devname)
+{
+  FAR struct i8sak_s *i8sak;
+
+  /* Search list of i8sak instances for one associated with the provided
+   * device.
+   */
+
+  i8sak = (FAR struct i8sak_s *)sq_peek(&g_i8sak_instances);
+
+  while (i8sak != NULL)
+    {
+      if (strcmp(devname, i8sak->devname) == 0)
+        {
+          break;
+        }
+
+      i8sak = (FAR struct i8sak_s *)sq_next((FAR sq_entry_t *)i8sak);
+    }
+
+  /* If there isn't a i8sak instance started for this device, allocate one */
+
+  if (i8sak == NULL)
+    {
+      i8sak = (FAR struct i8sak_s *)sq_remfirst(&g_i8sak_free);
+      if (i8sak == NULL)
+        {
+          fprintf(stderr, "failed to allocate i8sak instance\n");
+          exit(EXIT_FAILURE);
+        }
+
+      sq_addlast((FAR sq_entry_t *)i8sak, &g_i8sak_instances);
+    }
+
+  /* Update our "sticky" i8sak instance. Must come before call to setup so that
+   * the shared active global i8sak is correct.
+   */
+
+  g_activei8sak = i8sak;
+
+  if (!g_activei8sak_set)
+    {
+      g_activei8sak_set = true;
+    }
+
+  if (i8sak_setup(i8sak, devname) < 0)
+    {
+      exit(EXIT_FAILURE);
+    }
+}
+
+static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
+{
+  char daemonname[I8SAK_DAEMONNAME_FMTLEN];
+  int i;
+  int ret;
+  int fd;
+
+  if (i8sak->initialized)
+    {
+      return OK;
+    }
+
+  i8sak->daemon_started = false;
+  i8sak->daemon_shutdown = false;
+
+  i8sak->chnum = CONFIG_IEEE802154_I8SAK_CHNUM;
+  i8sak->chpage = CONFIG_IEEE802154_I8SAK_CHPAGE;
+
+  if (strlen(devname) > I8SAK_MAX_DEVNAME)
+    {
+      fprintf(stderr, "i8sak: too long of devname");
+      return ERROR;
+    }
+
+  strcpy(&i8sak->devname[0], devname);
+
+  /* Initialze default extended address */
+
+  for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+   {
+     i8sak->addr.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
+   }
+
+  /* Initialize the default remote endpoint address */
+
+  for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+   {
+     i8sak->ep.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
+   }
+
+  i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
+  i8sak->ep.saddr = CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR;
+  i8sak->ep.panid = CONFIG_IEEE802154_I8SAK_PANID;
+
+  i8sak->next_saddr = CONFIG_IEEE802154_I8SAK_DEV_SADDR;
+
+  fd = open(i8sak->devname, O_RDWR);
+  if (fd < 0)
+    {
+      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
+      i8sak_cmd_error(i8sak);
+    }
+
+  ieee802154_seteaddr(fd, &i8sak->addr.eaddr[0]);
+
+  close(fd);
+
+  i8sak->addrset = false;
+
+  i8sak->blasterperiod = CONFIG_IEEE802154_I8SAK_BLATER_PERIOD;
+
+  sem_init(&i8sak->exclsem, 0, 1);
+
+  sem_init(&i8sak->updatesem, 0, 0);
+  sem_setprotocol(&i8sak->updatesem, SEM_PRIO_NONE);
+
+  sem_init(&i8sak->sigsem, 0, 0);
+  sem_setprotocol(&i8sak->sigsem, SEM_PRIO_NONE);
+
+  /* Create strings for task based on device. i.e. i8_ieee0 */
+
+  snprintf(daemonname, I8SAK_DAEMONNAME_FMTLEN, I8SAK_DAEMONNAME_FMT, &devname[5]);
+
+  i8sak->daemon_pid = task_create(daemonname, CONFIG_IEEE802154_I8SAK_PRIORITY,
+                                  CONFIG_IEEE802154_I8SAK_STACKSIZE, i8sak_daemon,
+                                  NULL);
+  if (i8sak->daemon_pid < 0)
+    {
+      fprintf(stderr, "failed to start daemon\n");
+      return ERROR;
+    }
+
+  /* Use the signal semaphore to wait for daemon to start before returning */
+
+  ret = sem_wait(&i8sak->sigsem);
+  if (ret < 0)
+    {
+      fprintf(stderr, "i8sak:interrupted while daemon starting\n");
+      return ERROR;
+    }
+
+  i8sak->initialized = true;
+  return OK;
+}
+
+/****************************************************************************
+ * Name : i8sak_daemon
+ *
+ * Description :
+ *   Runs command in seperate task
+ ****************************************************************************/
+
+static int i8sak_daemon(int argc, FAR char *argv[])
+{
+  FAR struct i8sak_s *i8sak = g_activei8sak;
+  int ret;
+
+  fprintf(stderr, "i8sak: daemon started\n");
+  i8sak->daemon_started = true;
+
+  i8sak->fd = open(i8sak->devname, O_RDWR);
+  if (i8sak->fd < 0)
+    {
+      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
+      i8sak->daemon_started = false;
+      ret = errno;
+      return ret;
+    }
+
+  if (!i8sak->wpanlistener.is_setup)
+    {
+      wpanlistener_setup(&i8sak->wpanlistener, i8sak->fd);
+    }
+
+  wpanlistener_start(&i8sak->wpanlistener);
+
+  /* Signal the calling thread that the daemon is up and running */
+
+  sem_post(&i8sak->sigsem);
+
+  while (!i8sak->daemon_shutdown)
+    {
+      if (i8sak->blasterenabled)
+        {
+          usleep(i8sak->blasterperiod*1000);
+        }
+      else
+        {
+          ret = sem_wait(&i8sak->updatesem);
+          if (ret != OK)
+            {
+              break;
+            }
+        }
+
+      if (i8sak->blasterenabled)
+        {
+          i8sak_tx(i8sak, i8sak->fd);
+        }
+    }
+
+  wpanlistener_stop(&i8sak->wpanlistener);
+  i8sak->daemon_started = false;
+  close(i8sak->fd);
+  printf("i8sak: daemon closing\n");
+  return OK;
+}
+
+/****************************************************************************
+ * Name: i8sak_showusage
  *
  * Description:
  *   Show program usage.
  *
  ****************************************************************************/
 
-int i8_showusage(FAR const char *progname, int exitcode)
+static int i8sak_showusage(FAR const char *progname, int exitcode)
 {
-  fprintf(stderr, "Usage:\n", progname);
-  fprintf(stderr, "\t%s <op> <command> [OPTIONS]\n", progname);
-  fprintf(stderr, "\nWhere supported commands and [OPTIONS] appear below\n");
-  fprintf(stderr, "\t%s tx <devname> <hex payload>\n", progname);
-  fprintf(stderr, "\t%s sniffer <devname>\n", progname);
-  fprintf(stderr, "\t%s blaster <devname> <period (ms)> <hex payload>\n", progname);
+  fprintf(stderr, "Usage: %s\n"
+          "    startpan [-h]\n"
+          "    acceptassoc [-h|e <eaddr>]\n"
+          "    assoc [-h] [<panid>] \n"
+          "    tx [-h|d] <hex-payload>\n"
+          "    poll [-h]\n"
+          "    blaster [-h|q|f <hex payload>|p <period_ms>]\n"
+          "    sniffer [-h|q]\n"
+          , progname);
   exit(exitcode);
 }
 
@@ -548,90 +658,94 @@ int main(int argc, FAR char *argv[])
 int i8_main(int argc, char *argv[])
 #endif
 {
-  FAR const char *cmdname;
-  FAR const char *devname;
-  FAR const struct i8_command_s *i8cmd;
+  FAR const struct i8sak_command_s *i8sakcmd;
+  int argind;
+  int ret;
   int i;
 
-  if (argc < 2)
+  if (!g_i8sak_initialized)
     {
-      fprintf(stderr, "ERROR: Missing command\n");
-      i8_showusage(argv[0], EXIT_FAILURE);
+      sq_init(&g_i8sak_free);
+      sq_init(&g_i8sak_instances);
+      for (i = 0; i < CONFIG_IEEE802154_I8SAK_NINSTANCES; i++)
+        {
+          sq_addlast((FAR sq_entry_t *)&g_i8sak_pool[i], &g_i8sak_free);
+          g_i8sak_pool[i].initialized = false;
+        }
+
+      g_i8sak_initialized = true;
     }
 
-  if (argc < 3)
+  argind = 1;
+
+  /* Check if devname was included */
+
+  if (argc > 1)
     {
-      fprintf(stderr, "ERROR: Missing devname\n");
-      i8_showusage(argv[0], EXIT_FAILURE);
+      /* Check if argument starts with /dev/ */
+
+      if (strncmp(argv[argind], "/dev/", 5) == 0)
+        {
+          i8sak_switch_instance(argv[argind]);
+          argind++;
+
+          if (argc == 2)
+            {
+              /* Close silently to allow user to set devname without any
+               * other operation.
+               */
+
+              return EXIT_SUCCESS;
+            }
+        }
+
+      /* Argument must be command */
     }
 
-  cmdname = argv[1];
-  devname = argv[2];
+  /* If devname wasn't included, we need to check if our sticky feature has
+   * ever been set.
+   */
 
-  /* Find the command in the g_i8_command[] list */
+  else if (!g_activei8sak_set)
+    {
+      fprintf(stderr, "ERROR: Must include devname the first time you run\n");
+      i8sak_showusage(argv[0], EXIT_FAILURE);
+    }
 
-  i8cmd = NULL;
+  /* Find the command in the g_i8sak_command[] list */
+
+  i8sakcmd = NULL;
   for (i = 0; i < NCOMMANDS; i++)
     {
-      FAR const struct i8_command_s *cmd = &g_i8_commands[i];
-      if (strcmp(cmdname, cmd->name) == 0)
+      FAR const struct i8sak_command_s *cmd = &g_i8sak_commands[i];
+      if (strcmp(argv[argind], cmd->name) == 0)
         {
-          i8cmd = cmd;
+          i8sakcmd = cmd;
           break;
         }
     }
 
-  if (i8cmd == NULL)
+  if (i8sakcmd == NULL)
     {
-      fprintf(stderr, "ERROR: Unsupported command: %s\n", cmdname);
-      i8_showusage(argv[0], EXIT_FAILURE);
+      i8sak_showusage(argv[0], EXIT_FAILURE);
     }
 
-  if (i8cmd->noptions + 1 < argc)
+  /* Special case the help command which has no handler */
+
+  if (i8sakcmd->handler == NULL)
     {
-      fprintf(stderr, "ERROR: Garbage at end of command ignored\n");
-    }
-  else if (i8cmd->noptions + 1 > argc)
-    {
-      fprintf(stderr, "ERROR: Missing required command options: %s\n",
-              cmdname);
-      i8_showusage(argv[0], EXIT_FAILURE);
+      i8sak_showusage(argv[0], EXIT_SUCCESS);
     }
 
-  /* Special case the help command which has no arguments, no handler,
-   * and does not need a socket.
-   */
-
-  if (i8cmd->handler == NULL)
+  ret = sem_wait(&g_activei8sak->exclsem);
+  if (ret < 0)
     {
-      i8_showusage(argv[0], EXIT_SUCCESS);
+      fprintf(stderr, "ERROR: Failed to lock i8sak instance\n");
+      exit(EXIT_FAILURE);
     }
 
-  /* Dispatch the command handling */
+  i8sakcmd->handler(g_activei8sak, argc - argind, &argv[argind]);
 
-  switch (i8cmd->noptions)
-    {
-      case 0:
-        ((cmd0_t)i8cmd->handler)(devname);
-        break;
-
-      case 1:
-        ((cmd1_t)i8cmd->handler)(devname, argv[3]);
-        break;
-
-      case 2:
-        ((cmd2_t)i8cmd->handler)(devname, argv[3], argv[4]);
-        break;
-
-      case 3:
-        ((cmd3_t)i8cmd->handler)(devname, argv[3], argv[4], argv[5]);
-        break;
-
-      default:
-        fprintf(stderr, "ERROR: Too many arguments: %s\n",
-                cmdname);
-        i8_showusage(argv[0], EXIT_FAILURE);
-    }
-
-    return EXIT_SUCCESS;
+  sem_post(&g_activei8sak->exclsem);
+  return EXIT_SUCCESS;
 }
