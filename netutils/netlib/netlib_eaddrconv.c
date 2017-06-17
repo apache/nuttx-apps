@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_nodeaddrconv.c
+ * netutils/netlib/netlib_eaddrconv.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -50,26 +50,26 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_nodeaddrconv
+ * Name: netlib_eaddrconv
  ****************************************************************************/
 
-bool netlib_nodeaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
+bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
 {
   unsigned char tmp;
   unsigned char i;
   unsigned char j;
   char ch;
 
-  /* Form xx:xx or xx:xx:xx:xx:xx:xx:xx:xx for extended Rime address */
+  /* Extended Address Form:  xx:xx:xx:xx:xx:xx:xx:xx */
 
-  if (strlen(hwstr) != 3 * NET_6LOWPAN_ADDRSIZE - 1)
+  if (strlen(hwstr) != 3 * 8 - 1)
     {
       return false;
     }
 
   tmp = 0;
 
-  for (i = 0; i < NET_6LOWPAN_ADDRSIZE; ++i)
+  for (i = 0; i < 8; ++i)
     {
       j = 0;
       do

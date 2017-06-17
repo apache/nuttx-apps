@@ -1472,22 +1472,15 @@ endchoice # MAC address selection
 
 config NSH_MACADDR
 	hex "Fixed MAC address"
-	default 0x00e0deadbeef
-	depends on NSH_SWMAC
+	default 0x00e0deadbeef if NET_ETHERNET
+	default 0x00fade00deadbeef if !NET_ETHERNET && NET_6LOWPAN
+	depends on NSH_SWMAC && (NET_ETHERNET || NET_6LOWPAN)
 	---help---
 		If the hardware has no built-in MAC address and if the NSH_SWMAC
 		option is selected, then the fixed, software-assigned MAC address
 		MAC address must provided with this selection.
 
 endif # NSH_NOMAC
-
-config NSH_PANID
-	hex "6loWPAN PAN ID"
-	default 0xface
-	depends on NET_6LOWPAN
-	range 0x0000 0xffff
-	---help---
-		Select the PAN ID to join upon initialization.
 
 menu "WAPI Configuration"
 	depends on NET && WIRELESS_WAPI

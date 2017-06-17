@@ -87,8 +87,7 @@ CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
 endif
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
-CSRCS += netlib_getpanid.c netlib_setnodeaddr.c netlib_setpanid.c
-CSRCS += netlib_nodeaddrconv.c
+CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_eaddrconv.c
 endif
 
 # IGMP support
