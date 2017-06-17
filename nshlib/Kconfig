@@ -1129,7 +1129,10 @@ config NSH_NETINIT_DEBUG
 		or CONFIG_DEBUG_INFO are not selected.  This allows for focused, unit-
 		level debug of the NSH network initialization logic.
 
+# No IP address if 6LOWPAN selected; but Ethernet has precedence.
+
 menu "IP Address Configuration"
+	depends on NET_ETHERNET || !NET_6LOWPAN
 
 config NSH_DHCPC
 	bool "Use DHCP to get IP address"
@@ -1426,7 +1429,7 @@ config NSH_IPv6NETMASK_8
 		individually.  This is the eighth of the 8-values.  The default for
 		all eight values is fe00::0.
 
-endif #NET_IPv6 && !NET_ICMPv6_AUTOCONF
+endif # NET_IPv6 && !NET_ICMPv6_AUTOCONF
 endmenu # IP Address Configuration
 
 config NSH_DNS

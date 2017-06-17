@@ -88,6 +88,39 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Pick one and at most one supported link layer so that all decisions are
+ * made consistently.
+ */
+
+#if defined(CONFIG_NET_ETHERNET)
+#  undef CONFIG_NET_6LOWPAN
+#  undef CONFIG_NET_SLIP
+#  undef CONFIG_NET_TUN
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_6LOWPAN)
+#  undef CONFIG_NET_SLIP
+#  undef CONFIG_NET_TUN
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_SLIP)
+#  undef CONFIG_NET_TUN
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_TUN)
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_LOCAL)
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_USRSOCK)
+#  undef CONFIG_NET_LOOPBACK
+#endif
+
 /* Only Ethernet and 6loWPAN have MAC layer addresses */
 
 #undef HAVE_MAC
@@ -95,11 +128,7 @@
 #  define HAVE_MAC 1
 #endif
 
-/* If both are defined, behave as though only Ethernet is available */
-
-#ifdef CONFIG_NET_ETHERNET
-#  undef CONFIG_NET_6LOWPAN
-#endif
+/* Provide a default DNS address */
 
 #if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
 #  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
@@ -184,7 +213,8 @@
 static sem_t g_notify_sem;
 #endif
 
-#if defined(CONFIG_NET_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF)
+#if defined(CONFIG_NET_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF) && \
+   !defined(CONFIG_NET_6LOWPAN)
 /* Host IPv6 address */
 
 static const uint16_t g_ipv6_hostaddr[8] =
@@ -226,7 +256,7 @@ static const uint16_t g_ipv6_netmask[8] =
   HTONS(CONFIG_NSH_IPv6NETMASK_7),
   HTONS(CONFIG_NSH_IPv6NETMASK_8),
 };
-#endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
+#endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF && !CONFIG_NET_6LOWPAN */
 
 /****************************************************************************
  * Private Functions
@@ -294,9 +324,12 @@ static void nsh_set_macaddr(void)
  * Description:
  *   Setup IP addresses.
  *
+ *   For 6loWPAN, the IP address derives from the MAC address.  Setting it
+ *   to any user provided value is asking for trouble.
+ *
  ****************************************************************************/
 
-#if defined(NSH_HAVE_NETDEV)
+#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NET_6LOWPAN)
 static void nsh_set_ipaddrs(void)
 {
 #ifdef CONFIG_NET_IPv4
