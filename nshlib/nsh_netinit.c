@@ -95,6 +95,12 @@
 #  define HAVE_MAC 1
 #endif
 
+/* If both are defined, behave as though only Ethernet is available */
+
+#ifdef CONFIG_NET_ETHERNET
+#  undef CONFIG_NET_6LOWPAN
+#endif
+
 #if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
 #  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
 #endif
@@ -227,38 +233,25 @@ static const uint16_t g_ipv6_netmask[8] =
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_netinit_configure
+ * Name: nsh_set_macaddr
  *
  * Description:
- *   Initialize the network per the selected NuttX configuration
+ *   Set the hardware MAC address if the hardware is not capable of doing
+ *   that for itself.
  *
  ****************************************************************************/
 
-static void nsh_netinit_configure(void)
+#if defined(NSH_HAVE_NETDEV) && defined(CONFIG_NSH_NOMAC) && defined(HAVE_MAC)
+static void nsh_set_macaddr(void)
 {
-#ifdef NSH_HAVE_NETDEV
-#ifdef CONFIG_NET_IPv4
-  struct in_addr addr;
-#endif
-
-#if defined(CONFIG_NSH_DHCPC) && !defined(CONFIG_NSH_NETLOCAL)
-  FAR void *handle;
-#endif
-
-#if (((defined(CONFIG_NSH_DHCPC) && !defined(CONFIG_NSH_NETLOCAL)) || \
-     defined(CONFIG_NSH_NOMAC)) && defined(HAVE_MAC))
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(CONFIG_NET_6LOWPAN)
   uint8_t eaddr[NET_6LOWPAN_ADDRSIZE];
 #endif
-#endif
-
-  ninfo("Entry\n");
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
-#if defined(CONFIG_NSH_NOMAC) && defined(HAVE_MAC)
 #if defined(CONFIG_NET_ETHERNET)
   /* Use the configured, fixed MAC address */
 
@@ -290,9 +283,25 @@ static void nsh_netinit_configure(void)
   (void)netlib_seteaddr(NET_DEVNAME, eaddr);
 
 #endif /* CONFIG_NET_ETHERNET */
-#endif /* CONFIG_NSH_NOMAC && HAVE_MAC */
+}
+#else
+#  define nsh_set_macaddr()
+#endif
 
+/****************************************************************************
+ * Name: nsh_set_ipaddrs
+ *
+ * Description:
+ *   Setup IP addresses.
+ *
+ ****************************************************************************/
+
+#if defined(NSH_HAVE_NETDEV)
+static void nsh_set_ipaddrs(void)
+{
 #ifdef CONFIG_NET_IPv4
+  struct in_addr addr;
+
   /* Set up our host address */
 
 #ifndef CONFIG_NSH_DHCPC
@@ -343,13 +352,30 @@ static void nsh_netinit_configure(void)
   addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
   netlib_set_ipv4dnsaddr(&addr);
 #endif
+}
+#else
+#  define nsh_set_ipaddrs()
+#endif
 
-  /* That completes the 'local' initialization of the network device. */
+/****************************************************************************
+ * Name: nsh_net_bringup()
+ *
+ * Description:
+ *   Bring up the configured network
+ *
+ ****************************************************************************/
 
-#ifndef CONFIG_NSH_NETLOCAL
+#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NSH_NETLOCAL)
+static void nsh_net_bringup(void)
+{
+#ifdef CONFIG_NSH_DHCPC
+  uint8_t mac[IFHWADDRLEN];
+  FAR void *handle;
+#endif
+
   /* Bring the network up. */
 
-  netlib_ifup("eth0");
+  netlib_ifup(NET_DEVNAME);
 
 #ifdef CONFIG_WIRELESS_WAPI
   /* Associate the wlan with an access point. */
@@ -400,10 +426,38 @@ static void nsh_netinit_configure(void)
 
   ntpc_start();
 #endif
-#endif /* CONFIG_NSH_NETLOCAL */
-#endif /* NSH_HAVE_NETDEV */
+}
+#else
+#  define nsh_net_bringup()
+#endif
 
-  ninfo("Exit\n");
+/****************************************************************************
+ * Name: nsh_netinit_configure
+ *
+ * Description:
+ *   Initialize the network per the selected NuttX configuration
+ *
+ ****************************************************************************/
+
+static void nsh_netinit_configure(void)
+{
+#ifdef NSH_HAVE_NETDEV
+  /* Many embedded network interfaces must have a software assigned MAC */
+
+  nsh_set_macaddr();
+
+  /* Set up IP addresses */
+
+  nsh_set_ipaddrs();
+
+  /* That completes the 'local' initialization of the network device. */
+
+#ifndef CONFIG_NSH_NETLOCAL
+  /* Bring the network up. */
+
+  nsh_net_bringup();
+#endif
+#endif /* NSH_HAVE_NETDEV */
 }
 
 /****************************************************************************
