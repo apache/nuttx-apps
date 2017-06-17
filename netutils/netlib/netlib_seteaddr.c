@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_nodeaddrconv.c
+ * netutils/netlib/netlib_seteaddr.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,73 +37,58 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
+#include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
-#include <nuttx/net/sixlowpan.h>
-
+#include "wireless/ieee802154.h"
 #include "netutils/netlib.h"
+
+#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_nodeaddrconv
+ * Name: netlib_seteaddr
+ *
+ * Description:
+ *   Set the IEEE802.15.4 extended MAC address
+ *
+ * Parameters:
+ *   ifname The name of the interface to use
+ *   eaddr  The new extended address
+ *
+ * Return:
+ *   0 on success; -1 on failure.  errno will be set on failure.
+ *
  ****************************************************************************/
 
-bool netlib_nodeaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
+int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr)
 {
-  unsigned char tmp;
-  unsigned char i;
-  unsigned char j;
-  char ch;
+  int ret = ERROR;
 
-  /* Form xx:xx or xx:xx:xx:xx:xx:xx:xx:xx for extended Rime address */
-
-  if (strlen(hwstr) != 3 * NET_6LOWPAN_ADDRSIZE - 1)
+  if (ifname != NULL)
     {
-      return false;
-    }
+      /* Get a socket (only so that we get access to the INET subsystem) */
 
-  tmp = 0;
-
-  for (i = 0; i < NET_6LOWPAN_ADDRSIZE; ++i)
-    {
-      j = 0;
-      do
+      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
+      if (sockfd >= 0)
         {
-          ch = *hwstr++;
-          if (++j > 3)
-           {
-             return false;
-           }
+          /* Use the helper provided in libmac */
 
-          if (ch == ':' || ch == '\0')
-            {
-              *hw++ = tmp;
-              tmp = 0;
-            }
-          else if (ch >= '0' && ch <= '9')
-            {
-              tmp = (tmp << 4) + (ch - '0');
-            }
-          else if (ch >= 'a' && ch <= 'f')
-            {
-              tmp = (tmp << 4) + (ch - 'a' + 10);
-            }
-          else if (ch >= 'A' && ch <= 'F')
-            {
-              tmp = (tmp << 4) + (ch - 'A' + 10);
-            }
-          else
-            {
-              return false;
-            }
+          ret = sixlowpan_seteaddr(sockfd, ifname, eaddr);
+          close(sockfd);
         }
-      while (ch != ':' && ch != 0);
     }
 
-  return true;
+  return ret;
 }
+
+#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

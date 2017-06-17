@@ -88,19 +88,47 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* Pick one and at most one supported link layer so that all decisions are
+ * made consistently.
+ */
+
+#if defined(CONFIG_NET_ETHERNET)
+#  undef CONFIG_NET_6LOWPAN
+#  undef CONFIG_NET_SLIP
+#  undef CONFIG_NET_TUN
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_6LOWPAN)
+#  undef CONFIG_NET_SLIP
+#  undef CONFIG_NET_TUN
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_SLIP)
+#  undef CONFIG_NET_TUN
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_TUN)
+#  undef CONFIG_NET_LOCAL
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_LOCAL)
+#  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_USRSOCK)
+#  undef CONFIG_NET_LOOPBACK
+#endif
+
 /* Only Ethernet and 6loWPAN have MAC layer addresses */
 
 #undef HAVE_MAC
 #if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
 #  define HAVE_MAC 1
-#  if defined(CONFIG_NET_6LOWPAN)
-#    if !defined(CONFIG_NET_6LOWPAN_RIMEADDR_EXTENDED) && CONFIG_NSH_MACADDR > 0xffff
-#      error Invalid 6loWPAN node address for SIZE == 2
-#    elif defined(CONFIG_NET_6LOWPAN_RIMEADDR_EXTENDED) && CONFIG_NSH_MACADDR > 0xffffffffffffffffull
-#      error Invalid 6loWPAN node address for SIZE == 8
-#    endif
-#  endif
 #endif
+
+/* Provide a default DNS address */
 
 #if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
 #  define CONFIG_NSH_DNSIPADDR CONFIG_NSH_DRIPADDR
@@ -185,7 +213,8 @@
 static sem_t g_notify_sem;
 #endif
 
-#if defined(CONFIG_NET_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF)
+#if defined(CONFIG_NET_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF) && \
+   !defined(CONFIG_NET_6LOWPAN)
 /* Host IPv6 address */
 
 static const uint16_t g_ipv6_hostaddr[8] =
@@ -227,45 +256,32 @@ static const uint16_t g_ipv6_netmask[8] =
   HTONS(CONFIG_NSH_IPv6NETMASK_7),
   HTONS(CONFIG_NSH_IPv6NETMASK_8),
 };
-#endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
+#endif /* CONFIG_NET_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF && !CONFIG_NET_6LOWPAN */
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nsh_netinit_configure
+ * Name: nsh_set_macaddr
  *
  * Description:
- *   Initialize the network per the selected NuttX configuration
+ *   Set the hardware MAC address if the hardware is not capable of doing
+ *   that for itself.
  *
  ****************************************************************************/
 
-static void nsh_netinit_configure(void)
+#if defined(NSH_HAVE_NETDEV) && defined(CONFIG_NSH_NOMAC) && defined(HAVE_MAC)
+static void nsh_set_macaddr(void)
 {
-#ifdef NSH_HAVE_NETDEV
-#ifdef CONFIG_NET_IPv4
-  struct in_addr addr;
-#endif
-
-#if defined(CONFIG_NSH_DHCPC) && !defined(CONFIG_NSH_NETLOCAL)
-  FAR void *handle;
-#endif
-
-#if (((defined(CONFIG_NSH_DHCPC) && !defined(CONFIG_NSH_NETLOCAL)) || \
-     defined(CONFIG_NSH_NOMAC)) && defined(HAVE_MAC))
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(CONFIG_NET_6LOWPAN)
-  uint8_t nodeaddr[NET_6LOWPAN_ADDRSIZE];
+  uint8_t eaddr[NET_6LOWPAN_ADDRSIZE];
 #endif
-#endif
-
-  ninfo("Entry\n");
 
   /* Many embedded network interfaces must have a software assigned MAC */
 
-#if defined(CONFIG_NSH_NOMAC) && defined(HAVE_MAC)
 #if defined(CONFIG_NET_ETHERNET)
   /* Use the configured, fixed MAC address */
 
@@ -281,33 +297,44 @@ static void nsh_netinit_configure(void)
   netlib_setmacaddr(NET_DEVNAME, mac);
 
 #elif defined(CONFIG_NET_6LOWPAN)
-  /* Use the configured, fixed MAC address */
+  /* Use the configured, fixed extended address */
 
-#ifdef CONFIG_NET_6LOWPAN_RIMEADDR_EXTENDED
-  nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 7)) & 0xff;
-  nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 6)) & 0xff;
-  nodeaddr[2] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
-  nodeaddr[3] = (CONFIG_NSH_MACADDR >> (8 * 4)) & 0xff;
-  nodeaddr[4] = (CONFIG_NSH_MACADDR >> (8 * 3)) & 0xff;
-  nodeaddr[5] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
-  nodeaddr[6] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
-  nodeaddr[7] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+  eaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 7)) & 0xff;
+  eaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 6)) & 0xff;
+  eaddr[2] = (CONFIG_NSH_MACADDR >> (8 * 5)) & 0xff;
+  eaddr[3] = (CONFIG_NSH_MACADDR >> (8 * 4)) & 0xff;
+  eaddr[4] = (CONFIG_NSH_MACADDR >> (8 * 3)) & 0xff;
+  eaddr[5] = (CONFIG_NSH_MACADDR >> (8 * 2)) & 0xff;
+  eaddr[6] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
+  eaddr[7] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+
+  /* Set the 6loWPAN extended address */
+
+  (void)netlib_seteaddr(NET_DEVNAME, eaddr);
+
+#endif /* CONFIG_NET_ETHERNET */
+}
 #else
-  nodeaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
-  nodeaddr[1] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
+#  define nsh_set_macaddr()
 #endif
 
-  /* Set the 6loWPAN node address */
+/****************************************************************************
+ * Name: nsh_set_ipaddrs
+ *
+ * Description:
+ *   Setup IP addresses.
+ *
+ *   For 6loWPAN, the IP address derives from the MAC address.  Setting it
+ *   to any user provided value is asking for trouble.
+ *
+ ****************************************************************************/
 
-  (void)netlib_setnodeaddr(NET_DEVNAME, nodeaddr);
-
-  /* Set the 6loWPAN PAN ID */
-
-  (void)netlib_setpanid(NET_DEVNAME, CONFIG_NSH_PANID);
-#endif /* CONFIG_NET_ETHERNET */
-#endif /* CONFIG_NSH_NOMAC && HAVE_MAC */
-
+#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NET_6LOWPAN)
+static void nsh_set_ipaddrs(void)
+{
 #ifdef CONFIG_NET_IPv4
+  struct in_addr addr;
+
   /* Set up our host address */
 
 #ifndef CONFIG_NSH_DHCPC
@@ -358,13 +385,30 @@ static void nsh_netinit_configure(void)
   addr.s_addr = HTONL(CONFIG_NSH_DNSIPADDR);
   netlib_set_ipv4dnsaddr(&addr);
 #endif
+}
+#else
+#  define nsh_set_ipaddrs()
+#endif
 
-  /* That completes the 'local' initialization of the network device. */
+/****************************************************************************
+ * Name: nsh_net_bringup()
+ *
+ * Description:
+ *   Bring up the configured network
+ *
+ ****************************************************************************/
 
-#ifndef CONFIG_NSH_NETLOCAL
+#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NSH_NETLOCAL)
+static void nsh_net_bringup(void)
+{
+#ifdef CONFIG_NSH_DHCPC
+  uint8_t mac[IFHWADDRLEN];
+  FAR void *handle;
+#endif
+
   /* Bring the network up. */
 
-  netlib_ifup("eth0");
+  netlib_ifup(NET_DEVNAME);
 
 #ifdef CONFIG_WIRELESS_WAPI
   /* Associate the wlan with an access point. */
@@ -415,10 +459,38 @@ static void nsh_netinit_configure(void)
 
   ntpc_start();
 #endif
-#endif /* CONFIG_NSH_NETLOCAL */
-#endif /* NSH_HAVE_NETDEV */
+}
+#else
+#  define nsh_net_bringup()
+#endif
 
-  ninfo("Exit\n");
+/****************************************************************************
+ * Name: nsh_netinit_configure
+ *
+ * Description:
+ *   Initialize the network per the selected NuttX configuration
+ *
+ ****************************************************************************/
+
+static void nsh_netinit_configure(void)
+{
+#ifdef NSH_HAVE_NETDEV
+  /* Many embedded network interfaces must have a software assigned MAC */
+
+  nsh_set_macaddr();
+
+  /* Set up IP addresses */
+
+  nsh_set_ipaddrs();
+
+  /* That completes the 'local' initialization of the network device. */
+
+#ifndef CONFIG_NSH_NETLOCAL
+  /* Bring the network up. */
+
+  nsh_net_bringup();
+#endif
+#endif /* NSH_HAVE_NETDEV */
 }
 
 /****************************************************************************

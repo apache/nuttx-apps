@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setpanid.c
+ * netutils/netlib/netlib_eaddrconv.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,58 +37,73 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <stdint.h>
-#include <unistd.h>
+#include <stdbool.h>
 #include <string.h>
-#include <errno.h>
 
-#include "wireless/ieee802154.h"
+#include <nuttx/net/sixlowpan.h>
+
 #include "netutils/netlib.h"
-
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setpanid
- *
- * Description:
- *   Join the specified PAN ID
- *
- * Parameters:
- *   ifname The name of the interface to use
- *   panid  The PAN ID to join
- *
- * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
- *
+ * Name: netlib_eaddrconv
  ****************************************************************************/
 
-int netlib_setpanid(FAR const char *ifname, uint16_t panid)
+bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
 {
-  int ret = ERROR;
+  unsigned char tmp;
+  unsigned char i;
+  unsigned char j;
+  char ch;
 
-  if (ifname != NULL)
+  /* Extended Address Form:  xx:xx:xx:xx:xx:xx:xx:xx */
+
+  if (strlen(hwstr) != 3 * 8 - 1)
     {
-      /* Get a socket (only so that we get access to the INET subsystem) */
-
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          /* Use the helper provided in libmac */
-
-          ret = sixlowpan_setpanid(sockfd, ifname, panid);
-          close(sockfd);
-        }
+      return false;
     }
 
-  return ret;
-}
+  tmp = 0;
 
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */
+  for (i = 0; i < 8; ++i)
+    {
+      j = 0;
+      do
+        {
+          ch = *hwstr++;
+          if (++j > 3)
+           {
+             return false;
+           }
+
+          if (ch == ':' || ch == '\0')
+            {
+              *hw++ = tmp;
+              tmp = 0;
+            }
+          else if (ch >= '0' && ch <= '9')
+            {
+              tmp = (tmp << 4) + (ch - '0');
+            }
+          else if (ch >= 'a' && ch <= 'f')
+            {
+              tmp = (tmp << 4) + (ch - 'a' + 10);
+            }
+          else if (ch >= 'A' && ch <= 'F')
+            {
+              tmp = (tmp << 4) + (ch - 'A' + 10);
+            }
+          else
+            {
+              return false;
+            }
+        }
+      while (ch != ':' && ch != 0);
+    }
+
+  return true;
+}
