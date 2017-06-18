@@ -444,7 +444,7 @@ static void i8sak_switch_instance(FAR char *devname)
       i8sak = (FAR struct i8sak_s *)sq_remfirst(&g_i8sak_free);
       if (i8sak == NULL)
         {
-          fprintf(stderr, "failed to allocate i8sak instance\n");
+          fprintf(stderr, "ERROR: Failed to allocate i8sak instance\n");
           exit(EXIT_FAILURE);
         }
 
@@ -488,7 +488,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
 
   if (strlen(devname) > I8SAK_MAX_DEVNAME)
     {
-      fprintf(stderr, "i8sak: too long of devname");
+      fprintf(stderr, "ERROR: devname too long\n");
       return ERROR;
     }
 
