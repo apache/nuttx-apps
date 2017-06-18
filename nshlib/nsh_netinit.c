@@ -90,6 +90,8 @@
 
 /* Pick one and at most one supported link layer so that all decisions are
  * made consistently.
+ *
+ * NOTE: Ethernet should always be selected with IEEE 802.11
  */
 
 #if defined(CONFIG_NET_ETHERNET)
