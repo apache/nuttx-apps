@@ -12,9 +12,28 @@ config EXAMPLES_UDP
 
 if EXAMPLES_UDP
 
-config EXAMPLES_UDP_SERVER
-	bool "Target is the server"
+config EXAMPLES_UDP_SERVER1
+	bool "Target1 is the server"
 	default n
+	---help---
+		By default Target1 is the client and the host PC is the server
+
+config EXAMPLES_UDP_PROGNAME1
+	string "Target1 program name"
+	default "udpserver" if EXAMPLES_UDP_SERVER1
+	default "udpclient" if !EXAMPLES_UDP_SERVER1
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the Target1 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_UDP_PRIORITY1
+	int "Target1 task priority"
+	default 100
+
+config EXAMPLES_UDP_STACKSIZE1
+	int "Target1 stack size"
+	default 2048
 
 config EXAMPLES_UDP_DEVNAME
 	string "Network device"
@@ -55,7 +74,7 @@ if EXAMPLES_UDP_IPv4
 
 comment "IPv4 addresses"
 
-if !EXAMPLES_UDP_NETINIT
+if EXAMPLES_UDP_NETINIT
 
 config EXAMPLES_UDP_IPADDR
 	hex "Target IP address"
@@ -73,8 +92,8 @@ endif # !EXAMPLES_UDP_NETINIT
 
 config EXAMPLES_UDP_SERVERIP
 	hex "Server IP address"
-	default 0x0a000001 if !EXAMPLES_UDP_SERVER
-	default 0x0a000002 if EXAMPLES_UDP_SERVER
+	default 0x0a000001 if !EXAMPLES_UDP_SERVER1
+	default 0x0a000002 if EXAMPLES_UDP_SERVER1
 
 endif # EXAMPLES_UDP_IPv4
 
@@ -445,8 +464,8 @@ config EXAMPLES_UDP_SERVERIPv6ADDR_7
 
 config EXAMPLES_UDP_SERVERIPv6ADDR_8
 	hex "[7]"
-	default 0x0001 if !EXAMPLES_UDP_SERVER
-	default 0x0002 if EXAMPLES_UDP_SERVER
+	default 0x0001 if !EXAMPLES_UDP_SERVER1
+	default 0x0002 if EXAMPLES_UDP_SERVER1
 	range 0x0 0xffff
 	---help---
 		IP address of the server.  If the target is the server, then

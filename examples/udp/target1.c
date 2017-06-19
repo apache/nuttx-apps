@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/udp/target.c
+ * examples/udp/target1.c
  *
- *   Copyright (C) 2007, 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,13 @@
  ****************************************************************************/
 
 /****************************************************************************
- * udp_main
+ * udp1_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#if defined(CONFIG_BUILD_KERNEL)
 int main(int argc, FAR char *argv[])
+#elif defined(CONFIG_EXAMPLES_UDP_TARGET2)
+int udp1_main(int argc, char *argv[])
 #else
 int udp_main(int argc, char *argv[])
 #endif
@@ -62,7 +64,7 @@ int udp_main(int argc, char *argv[])
 
   /* Run the server or client, depending upon how we are configured */
 
-#ifdef CONFIG_EXAMPLES_UDP_SERVER
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
   recv_server();
 #else
   send_client();

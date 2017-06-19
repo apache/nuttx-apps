@@ -54,7 +54,7 @@
 
 int main(int argc, char **argv, char **envp)
 {
-#ifdef CONFIG_EXAMPLES_UDP_SERVER
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
   send_client();
 #else
   recv_server();
