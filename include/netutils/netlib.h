@@ -118,7 +118,7 @@ int netlib_getmacaddr(FAR const char *ifname, FAR uint8_t *macaddr);
 /* Set IEEE 802.15.4 extended address. */
 
 int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr);
-int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid);
+int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid);
 bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw);
 #endif
 

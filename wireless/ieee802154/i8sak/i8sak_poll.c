@@ -63,7 +63,6 @@
  ****************************************************************************/
 
 static void poll_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
-static void poll_receiver(FAR struct mac802154dev_rxframe_s *frame, FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -133,13 +132,13 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   wpanlistener_add_eventreceiver(&i8sak->wpanlistener, poll_eventcb,
                                  &eventfilter, (FAR void *)i8sak, true);
 
-  printf("i8sak: Polling coordinator. PAN ID: 0x%04X SADDR: 0x%04X\n",
-         i8sak->ep.panid,
-         i8sak->ep.saddr);
+  printf("i8sak: Polling coordinator. PAN ID: %02X:%02X SADDR: %02X:%02X\n",
+         i8sak->ep.panid[0], i8sak->ep.panid[1],
+         i8sak->ep.saddr[0], i8sak->ep.saddr[1]);
 
   pollreq.coordaddr.mode = IEEE802154_ADDRMODE_SHORT;
-  pollreq.coordaddr.saddr = i8sak->ep.saddr;
-  pollreq.coordaddr.panid = i8sak->ep.panid;
+  IEEE802154_SADDRCOPY(pollreq.coordaddr.saddr, i8sak->ep.saddr);
+  IEEE802154_PANIDCOPY(pollreq.coordaddr.panid, i8sak->ep.panid);
 
   ieee802154_poll_req(fd, &pollreq);
 

@@ -52,7 +52,7 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getpanid(int fd, FAR uint16_t *panid)
+int ieee802154_getpanid(int fd, FAR uint8_t *panid)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -60,7 +60,7 @@ int ieee802154_getpanid(int fd, FAR uint16_t *panid)
   req.attr = IEEE802154_ATTR_MAC_PANID;
   ret = ieee802154_get_req(fd, &req);
 
-  *panid = req.attrval.mac.panid;
+  IEEE802154_PANIDCOPY(panid, req.attrval.mac.panid);
 
   return ret;
 }

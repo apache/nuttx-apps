@@ -137,37 +137,25 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *
 
   printf("i8sak: a device is trying to associate\n");
 
+  /* Send a ASSOC.resp primtive to the MAC. Copy the association
+   * indication address into the association response primitive
+   */
+
+  IEEE802154_EADDRCOPY(assocresp.devaddr, notif->u.assocind.devaddr);
+
   /* If the address matches our device, accept the association.
    * Otherwise, reject the assocation.
    */
 
-  if (memcmp(&notif->u.assocind.devaddr[0], &i8sak->ep.eaddr[0],
-              IEEE802154_EADDR_LEN) == 0)
+  if (IEEE802154_EADDRCMP(notif->u.assocind.devaddr, i8sak->ep.eaddr))
     {
-      /* Send a ASSOC.resp primtive to the MAC. Copy the association
-        * indication address into the association response primitive
-        */
-
-      memcpy(&assocresp.devaddr[0], &notif->u.assocind.devaddr[0],
-              IEEE802154_EADDR_LEN);
-
-      assocresp.assocsaddr = i8sak->next_saddr;
-
+      IEEE802154_SADDRCOPY(assocresp.assocsaddr, i8sak->next_saddr);
       assocresp.status = IEEE802154_STATUS_SUCCESS;
-
       printf("i8sak: accepting association request\n");
     }
   else
     {
-      /* Send a ASSOC.resp primtive to the MAC. Copy the association
-        * indication address into the association response primitive
-        */
-
-      memcpy(&assocresp.devaddr[0], &notif->u.assocind.devaddr[0],
-              IEEE802154_EADDR_LEN);
-
       assocresp.status = IEEE802154_STATUS_DENIED;
-
       printf("i8sak: rejecting association request\n");
     }
 

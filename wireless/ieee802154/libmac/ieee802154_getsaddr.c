@@ -52,7 +52,7 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getsaddr(int fd, FAR uint16_t *saddr)
+int ieee802154_getsaddr(int fd, FAR uint8_t *saddr)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -60,7 +60,7 @@ int ieee802154_getsaddr(int fd, FAR uint16_t *saddr)
   req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
   ret = ieee802154_get_req(fd, &req);
 
-  *saddr = req.attrval.mac.saddr;
+  IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
 
   return ret;
 }
