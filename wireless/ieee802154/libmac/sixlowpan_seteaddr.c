@@ -58,7 +58,7 @@ int sixlowpan_seteaddr(int sock, FAR const char *ifname, FAR const uint8_t *eadd
   struct ieee802154_set_req_s req;
 
   req.attr = IEEE802154_ATTR_MAC_EXTENDED_ADDR;
-  memcpy(&req.attrval.mac.eaddr[0], eaddr, 8);
+  IEEE802154_EADDRCOPY(req.attrval.mac.eaddr, eaddr);
 
   return sixlowpan_set_req(sock, ifname, &req);
 }

@@ -48,9 +48,11 @@
  * Public Functions
  ****************************************************************************/
 
+
 int ieee802154_addrtostr(FAR char *buf, int len,
                          FAR struct ieee802154_addr_s *addr)
 {
+#if 0
 #ifndef CONFIG_BIG_ENDIAN
   uint16_t panid = ((addr->panid & 0xff) << 8) | ((addr->panid >> 8) & 0xff);
 #else
@@ -87,5 +89,7 @@ int ieee802154_addrtostr(FAR char *buf, int len,
       return snprintf(buf,len,"<INVAL>");
     }
 
+  return -1;
+#endif
   return -1;
 }

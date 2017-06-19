@@ -123,7 +123,7 @@
 #  undef CONFIG_NET_LOOPBACK
 #endif
 
-/* Only Ethernet and 6loWPAN have MAC layer addresses */
+/* Only Ethernet and 6LoWPAN have MAC layer addresses */
 
 #undef HAVE_MAC
 #if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
@@ -310,7 +310,7 @@ static void nsh_set_macaddr(void)
   eaddr[6] = (CONFIG_NSH_MACADDR >> (8 * 1)) & 0xff;
   eaddr[7] = (CONFIG_NSH_MACADDR >> (8 * 0)) & 0xff;
 
-  /* Set the 6loWPAN extended address */
+  /* Set the 6LoWPAN extended address */
 
   (void)netlib_seteaddr(NET_DEVNAME, eaddr);
 
@@ -326,7 +326,7 @@ static void nsh_set_macaddr(void)
  * Description:
  *   Setup IP addresses.
  *
- *   For 6loWPAN, the IP address derives from the MAC address.  Setting it
+ *   For 6LoWPAN, the IP address derives from the MAC address.  Setting it
  *   to any user provided value is asking for trouble.
  *
  ****************************************************************************/
