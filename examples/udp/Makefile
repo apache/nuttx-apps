@@ -39,10 +39,11 @@ include $(APPDIR)/Make.defs
 
 # UDP Test
 
-TARGCMN_CRCS = 
+TARGCMN_CSRCS = udp_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_UDP_NETINIT),y)
-TARGCMN_CRCS += target_netinit.c
+TARGCMN_CSRCS += target_netinit.c
 endif
+TARGCMN_COBJS = $(TARGCMN_CSRCS:.c=$(OBJEXT))
 
 # Target 1
 
@@ -102,8 +103,8 @@ STACKSIZE2 = $(CONFIG_EXAMPLES_UDP_STACKSIZE2)
 
 endif
 
-TARG_SRCS = $(TARG1_CRCS) $(TARG1_MAINSRC) $(TARG2_CRCS) $(TARG2_MAINSRC)
-TARG_OBJS = $(TARG1_COBJS) $(TARG2_COBJS)
+TARG_SRCS = $(TARG1_CRCS) $(TARG1_MAINSRC) $(TARG2_CRCS) $(TARG2_MAINSRC) $(TARGCMN_CSRCS)
+TARG_OBJS = $(TARG1_COBJS) $(TARG2_COBJS) $(TARGCMN_COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   TARG_OBJS += $(TARG1_MAINOBJ) $(TARG2_MAINOBJ)
@@ -114,15 +115,16 @@ endif
 ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 
 HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
+HOSTOBJSEXT ?= o1
 
-HOST_SRCS = host.c
+HOST_SRCS = host.c udp_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
 HOST_SRCS += udp_client.c
 else
 HOST_SRCS += udp_server.c
 endif
 
-HOST_OBJS = $(HOST_SRCS:.c=.o)
+HOST_OBJS = $(HOST_SRCS:.c=.$(HOSTOBJSEXT))
 HOST_BIN = host$(EXEEXT)
 
 endif
@@ -159,14 +161,14 @@ VPATH =
 all: .built
 .PHONY: clean depend distclean preconfig
 
-$(TARG1_COBJS) $(TARG1_MAINOBJ)$(TARG2_COBJS) $(TARG2_MAINOBJ): %$(OBJEXT): %.c
+$(TARG1_COBJS) $(TARG1_MAINOBJ)$(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 $(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
 	$(call ARCHIVE, $@, $(TARG_OBJS))
 
 ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
-$(HOST_OBJS): %.o: %.c
+$(HOST_OBJS): %.$(HOSTOBJSEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 endif
@@ -224,6 +226,7 @@ clean:
 	#$(call DELFILE, $(TARG_BIN))
 ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 	$(call DELFILE, $(HOST_BIN))
+	$(call DELFILE, *.$(HOSTOBJSEXT))
 endif
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)

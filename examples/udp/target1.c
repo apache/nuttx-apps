@@ -56,6 +56,10 @@ int udp1_main(int argc, char *argv[])
 int udp_main(int argc, char *argv[])
 #endif
 {
+  /* Parse any command line options */
+
+  parse_cmdline(argc, argv);
+
 #ifdef CONFIG_EXAMPLES_UDP_NETINIT
   /* Initialize the network */
 

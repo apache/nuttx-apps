@@ -112,22 +112,12 @@ void send_client(void)
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
       server.sin6_family            = AF_INET6;
       server.sin6_port              = HTONS(PORTNO);
-
-      server.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1);
-      server.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2);
-      server.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3);
-      server.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4);
-      server.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5);
-      server.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6);
-      server.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7);
-      server.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8);
-
+      memcpy(server.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
       addrlen                       = sizeof(struct sockaddr_in6);
 #else
       server.sin_family             = AF_INET;
       server.sin_port               = HTONS(PORTNO);
-      server.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
-
+      server.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
       addrlen                       = sizeof(struct sockaddr_in);
 #endif
 

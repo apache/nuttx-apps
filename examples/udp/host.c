@@ -54,6 +54,12 @@
 
 int main(int argc, char **argv, char **envp)
 {
+  /* Parse any command line options */
+
+  parse_cmdline(argc, argv);
+
+  /* Run the server or client, depending upon how target1 was configured */
+
 #ifdef CONFIG_EXAMPLES_UDP_SERVER1
   send_client();
 #else

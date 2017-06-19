@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/udp/udp.h
+ * examples/udp/udp_cmdline.c
  *
- *   Copyright (C) 2007, 2008, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,81 +33,86 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_UDP_UDP_H
-#define __EXAMPLES_UDP_UDP_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#ifdef EXAMPLES_UDP_HOST
-#else
-# include <debug.h>
-#endif
+#include "config.h"
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <arpa/inet.h>
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#ifdef EXAMPLES_UDP_HOST
-   /* HTONS/L macros are unique to uIP-based networks */
-
-#  ifdef CONFIG_ENDIAN_BIG
-#    define HTONS(ns) (ns)
-#    define HTONL(nl) (nl)
-#  else
-#    define HTONS(ns) \
-       (unsigned short) \
-         (((((unsigned short)(ns)) & 0x00ff) << 8) | \
-         ((((unsigned short)(ns)) >> 8) & 0x00ff))
-#      define HTONL(nl) \
-       (unsigned long) \
-         (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
-         ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
-         ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
-         ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
-#  endif
-
-#  define NTOHS(hs) HTONS(hs)
-#  define NTOHL(hl) HTONL(hl)
-#  define FAR
-#endif
-
-#ifdef CONFIG_EXAMPLES_UDP_IPv6
-#  define AF_INETX AF_INET6
-#  define PF_INETX PF_INET6
-#else
-#  define AF_INETX AF_INET
-#  define PF_INETX PF_INET
-#endif
-
-#define PORTNO     5471
-
-#define ASCIISIZE  (0x7f - 0x20)
-#define SENDSIZE   (ASCIISIZE+1)
+#include "udp.h"
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_server_ipv6[8];
+uint16_t g_server_ipv6[8] = 
+{
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8)
+};
 #else
-uint32_t g_server_ipv4;
+uint32_t g_server_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
 #endif
 
 /****************************************************************************
- * Public Function Prototypes
+ * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_UDP_NETINIT
-int target_netinit(void);
+/****************************************************************************
+ * show_usage
+ ****************************************************************************/
+
+static void show_usage(FAR const char *progname)
+{
+  fprintf(stderr, "USAGE: %s [<server-addr>]\n", progname);
+  exit(1);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * parse_cmdline
+ ****************************************************************************/
+
+void parse_cmdline(int argc, char **argv)
+{
+  /* Currently only a single command line option is supported:  The server
+   * IP address.
+   */
+
+  if (argc == 2)
+    {
+      int ret;
+
+      /* Convert the <server-addr> argument into a binary address */
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+      ret = inet_pton(AF_INET6, argv[1], g_server_ipv6);
+#else
+      ret = inet_pton(AF_INET, argv[1], &g_server_ipv4);
 #endif
-
-void parse_cmdline(int argc, char **argv);
-void send_client(void);
-void recv_server(void);
-
-#endif /* __EXAMPLES_UDP_UDP_H */
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: <server-addr> is invalid\n");
+          show_usage(argv[0]);
+        }
+    }
+  else if (argc != 1)
+    {
+      fprintf(stderr, "ERROR: Too many arguments\n");
+      show_usage(argv[0]);
+    }
+}

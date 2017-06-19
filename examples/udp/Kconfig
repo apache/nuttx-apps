@@ -379,7 +379,7 @@ config EXAMPLES_UDP_IPv6NETMASK_8
 
 endif # NET_ICMPv6_AUTOCONF
 
-comment "Server IPv6 address"
+comment "Default Server IPv6 address"
 
 config EXAMPLES_UDP_SERVERIPv6ADDR_1
 	hex "[0]"
