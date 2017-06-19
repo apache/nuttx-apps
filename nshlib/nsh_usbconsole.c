@@ -52,7 +52,7 @@
 #  include <nuttx/usb/cdcacm.h>
 #endif
 
-#ifdef CONFIG_CDCACM
+#ifdef CONFIG_PL2303
 #  include <nuttx/usb/pl2303.h>
 #endif
 
