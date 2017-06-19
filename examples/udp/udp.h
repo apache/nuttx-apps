@@ -1,7 +1,7 @@
 /****************************************************************************
- * netutils/netlib/netlib_setpanid.c
+ * examples/udp/udp.h
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,62 +33,81 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_UDP_UDP_H
+#define __EXAMPLES_UDP_UDP_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#ifdef EXAMPLES_UDP_HOST
+#else
+# include <debug.h>
+#endif
 
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-#include "wireless/ieee802154.h"
-#include "netutils/netlib.h"
-
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#include <arpa/inet.h>
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
+
+#ifdef EXAMPLES_UDP_HOST
+   /* HTONS/L macros are unique to uIP-based networks */
+
+#  ifdef CONFIG_ENDIAN_BIG
+#    define HTONS(ns) (ns)
+#    define HTONL(nl) (nl)
+#  else
+#    define HTONS(ns) \
+       (unsigned short) \
+         (((((unsigned short)(ns)) & 0x00ff) << 8) | \
+         ((((unsigned short)(ns)) >> 8) & 0x00ff))
+#      define HTONL(nl) \
+       (unsigned long) \
+         (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
+         ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
+         ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
+         ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
+#  endif
+
+#  define NTOHS(hs) HTONS(hs)
+#  define NTOHL(hl) HTONL(hl)
+#  define FAR
+#endif
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+#  define AF_INETX AF_INET6
+#  define PF_INETX PF_INET6
+#else
+#  define AF_INETX AF_INET
+#  define PF_INETX PF_INET
+#endif
+
+#define PORTNO     5471
+
+#define ASCIISIZE  (0x7f - 0x20)
+#define SENDSIZE   (ASCIISIZE+1)
 
 /****************************************************************************
- * Name: netlib_setpanid
- *
- * Description:
- *   Join the specified PAN ID
- *
- * Parameters:
- *   ifname The name of the interface to use
- *   panid  The PAN ID to join
- *
- * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
- *
+ * Public Data
  ****************************************************************************/
 
-int netlib_setpanid(FAR const char *ifname, uint16_t panid)
-{
-  int ret = ERROR;
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+uint16_t g_server_ipv6[8];
+#else
+uint32_t g_server_ipv4;
+#endif
 
-  if (ifname != NULL)
-    {
-      /* Get a socket (only so that we get access to the INET subsystem) */
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          /* Use the helper provided in libmac */
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+int target_netinit(void);
+#endif
 
-          ret = sixlowpan_setpanid(sockfd, ifname, panid);
-          close(sockfd);
-        }
-    }
+void parse_cmdline(int argc, char **argv);
+void send_client(void);
+void recv_server(void);
 
-  return ret;
-}
-
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* __EXAMPLES_UDP_UDP_H */

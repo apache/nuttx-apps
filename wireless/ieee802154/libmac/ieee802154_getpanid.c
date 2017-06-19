@@ -42,6 +42,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
@@ -52,7 +53,7 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_getpanid(int fd, FAR uint16_t *panid)
+int ieee802154_getpanid(int fd, FAR uint8_t *panid)
 {
   struct ieee802154_get_req_s req;
   int ret;
@@ -60,7 +61,6 @@ int ieee802154_getpanid(int fd, FAR uint16_t *panid)
   req.attr = IEEE802154_ATTR_MAC_PANID;
   ret = ieee802154_get_req(fd, &req);
 
-  *panid = req.attrval.mac.panid;
-
+  IEEE802154_PANIDCOPY(panid, req.attrval.mac.panid);
   return ret;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_geteaddr.c
+ * netutils/netlib/netlib_eaddrconv.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,31 +37,73 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/ioctl.h>
 #include <stdint.h>
-#include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
-#include <errno.h>
 
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include <nuttx/net/sixlowpan.h>
 
-#include "wireless/ieee802154.h"
+#include "netutils/netlib.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_geteaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr)
+/****************************************************************************
+ * Name: netlib_eaddrconv
+ ****************************************************************************/
+
+bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
 {
-  struct ieee802154_get_req_s req;
-  int ret;
+  unsigned char tmp;
+  unsigned char i;
+  unsigned char j;
+  char ch;
 
-  req.attr = IEEE802154_ATTR_MAC_EXTENDED_ADDR;
-  ret = sixlowpan_get_req(sock, ifname, &req);
+  /* Extended Address Form:  xx:xx:xx:xx:xx:xx:xx:xx */
 
-  IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);
+  if (strlen(hwstr) != 3 * 8 - 1)
+    {
+      return false;
+    }
 
-  return ret;
+  tmp = 0;
+
+  for (i = 0; i < 8; ++i)
+    {
+      j = 0;
+      do
+        {
+          ch = *hwstr++;
+          if (++j > 3)
+           {
+             return false;
+           }
+
+          if (ch == ':' || ch == '\0')
+            {
+              *hw++ = tmp;
+              tmp = 0;
+            }
+          else if (ch >= '0' && ch <= '9')
+            {
+              tmp = (tmp << 4) + (ch - '0');
+            }
+          else if (ch >= 'a' && ch <= 'f')
+            {
+              tmp = (tmp << 4) + (ch - 'a' + 10);
+            }
+          else if (ch >= 'A' && ch <= 'F')
+            {
+              tmp = (tmp << 4) + (ch - 'A' + 10);
+            }
+          else
+            {
+              return false;
+            }
+        }
+      while (ch != ':' && ch != 0);
+    }
+
+  return true;
 }

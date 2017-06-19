@@ -70,7 +70,7 @@
  *
  ****************************************************************************/
 
-int netlib_getpanid(FAR const char *ifname, FAR uint16_t *panid)
+int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid)
 {
   int ret = ERROR;
 

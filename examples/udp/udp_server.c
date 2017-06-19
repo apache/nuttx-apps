@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/udp-server.c
+ * examples/udp/udp_server.c
  *
  *   Copyright (C) 2007, 2009, 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -50,7 +50,7 @@
 
 #include <arpa/inet.h>
 
-#include "udp-internal.h"
+#include "udp.h"
 
 /****************************************************************************
  * Private Functions

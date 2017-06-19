@@ -1,7 +1,7 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_geteaddr.c
+ * examples/udp/target1.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,31 +37,42 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
-
-#include "wireless/ieee802154.h"
+#include "config.h"
+#include "udp.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_geteaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr)
+/****************************************************************************
+ * udp1_main
+ ****************************************************************************/
+
+#if defined(CONFIG_BUILD_KERNEL)
+int main(int argc, FAR char *argv[])
+#elif defined(CONFIG_EXAMPLES_UDP_TARGET2)
+int udp1_main(int argc, char *argv[])
+#else
+int udp_main(int argc, char *argv[])
+#endif
 {
-  struct ieee802154_get_req_s req;
-  int ret;
+  /* Parse any command line options */
 
-  req.attr = IEEE802154_ATTR_MAC_EXTENDED_ADDR;
-  ret = sixlowpan_get_req(sock, ifname, &req);
+  parse_cmdline(argc, argv);
 
-  IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+  /* Initialize the network */
 
-  return ret;
+  (void)target_netinit();
+#endif
+
+  /* Run the server or client, depending upon how we are configured */
+
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
+  recv_server();
+#else
+  send_client();
+#endif
+
+  return 0;
 }

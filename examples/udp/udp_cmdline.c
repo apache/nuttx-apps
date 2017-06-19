@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_nodeaddrconv.c
+ * examples/udp/udp_cmdline.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,73 +37,82 @@
  * Included Files
  ****************************************************************************/
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
+#include "config.h"
 
-#include <nuttx/net/sixlowpan.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <arpa/inet.h>
 
-#include "netutils/netlib.h"
+#include "udp.h"
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+uint16_t g_server_ipv6[8] = 
+{
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8)
+};
+#else
+uint32_t g_server_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * show_usage
+ ****************************************************************************/
+
+static void show_usage(FAR const char *progname)
+{
+  fprintf(stderr, "USAGE: %s [<server-addr>]\n", progname);
+  exit(1);
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_nodeaddrconv
+ * parse_cmdline
  ****************************************************************************/
 
-bool netlib_nodeaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
+void parse_cmdline(int argc, char **argv)
 {
-  unsigned char tmp;
-  unsigned char i;
-  unsigned char j;
-  char ch;
+  /* Currently only a single command line option is supported:  The server
+   * IP address.
+   */
 
-  /* Form xx:xx or xx:xx:xx:xx:xx:xx:xx:xx for extended Rime address */
-
-  if (strlen(hwstr) != 3 * NET_6LOWPAN_ADDRSIZE - 1)
+  if (argc == 2)
     {
-      return false;
-    }
+      int ret;
 
-  tmp = 0;
+      /* Convert the <server-addr> argument into a binary address */
 
-  for (i = 0; i < NET_6LOWPAN_ADDRSIZE; ++i)
-    {
-      j = 0;
-      do
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+      ret = inet_pton(AF_INET6, argv[1], g_server_ipv6);
+#else
+      ret = inet_pton(AF_INET, argv[1], &g_server_ipv4);
+#endif
+      if (ret < 0)
         {
-          ch = *hwstr++;
-          if (++j > 3)
-           {
-             return false;
-           }
-
-          if (ch == ':' || ch == '\0')
-            {
-              *hw++ = tmp;
-              tmp = 0;
-            }
-          else if (ch >= '0' && ch <= '9')
-            {
-              tmp = (tmp << 4) + (ch - '0');
-            }
-          else if (ch >= 'a' && ch <= 'f')
-            {
-              tmp = (tmp << 4) + (ch - 'a' + 10);
-            }
-          else if (ch >= 'A' && ch <= 'F')
-            {
-              tmp = (tmp << 4) + (ch - 'A' + 10);
-            }
-          else
-            {
-              return false;
-            }
+          fprintf(stderr, "ERROR: <server-addr> is invalid\n");
+          show_usage(argv[0]);
         }
-      while (ch != ':' && ch != 0);
     }
-
-  return true;
+  else if (argc != 1)
+    {
+      fprintf(stderr, "ERROR: Too many arguments\n");
+      show_usage(argv[0]);
+    }
 }

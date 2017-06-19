@@ -1906,7 +1906,7 @@
 	  Kivilinna (2017-04-03).
 	* NSH: Fix some warnings about integer/pointer casts of different sizes
 	  (probably only effects 64-bit simulation) (2017-04-03).
-	* examples/nettest: Trying to adapt to use for testing 6loWPAN
+	* examples/nettest: Trying to adapt to use for testing 6LoWPAN
 	  (2017-04-03).
 	* examples/nettest:  If doing loopback, but not using the official
 	  loopback device, then use the server should use the configured client
@@ -1925,10 +1925,10 @@
 	  default is +x. No printing of a trace of script commands as they are
 	  executed.  From David Sidrane (2017-04-05).
 	* Print expanded variables if -x.  From David Sidrane (2017-04-05).
-	* examples/udpblaster:  Several fixes to work with 6loWPAN (2017-04-06).
+	* examples/udpblaster:  Several fixes to work with 6LoWPAN (2017-04-06).
 	* examples/udpblaster:  Add logic to bind the local UDP socket to a
 	  well-known address (2017-04-06).
-	* 6loWPAN:  Add network IOCTL support to set the node address
+	* 6LoWPAN:  Add network IOCTL support to set the node address
 	  (2017-04-06).
 	* examples/ostest: Add tests for pthread_rwlock.  Adding tests to be
 	  used to verify the pthread_rwlock lock works.  From Mark Schulte
@@ -1937,9 +1937,9 @@
 	  unconditionally (2017-04-07).
 	* examples/ostest: pthread rwlock additional tests and bugfixes.  From
 	  Mark Schulte (2017-04-07).
-	* netutils: Add a helper function to convert a string to a 6loWPAN node
+	* netutils: Add a helper function to convert a string to a 6LoWPAN node
 	  address (2017-04-08).
-	* NSH library: Extend ifconfig to support 6loWPAN.  Adapt to some
+	* NSH library: Extend ifconfig to support 6LoWPAN.  Adapt to some
 	  changes in configuration variable usage (2017-04-08).
 	* NSH set command:  Eliminate useless argc check of SCRIPTS are enabled
 	  but ENVIRONMENT is disabled (2017-04-09).
@@ -1995,7 +1995,7 @@
 	  eth0 for network device name (2017-05-02).
 	* wireless/wext:  Add drivers_wext from the WPA supplicant; Integrate
 	  into NSH.  From Simon Piriou (2017-05-02).
-	* 6loWPAN: Replace some Rime address naming with more consistent
+	* 6LoWPAN: Replace some Rime address naming with more consistent
 	  short/exended address terminology (2017-05-04).
 	* wireless/ieee802154:  Removes libradio to coincide with removal of
 	  ioctl with radio. Moves all functionality from libradio to libmac.

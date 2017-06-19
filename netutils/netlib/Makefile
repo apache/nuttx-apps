@@ -80,15 +80,14 @@ ifeq ($(CONFIG_NETDEV_WIRELESS_IOCTL),y)
 CSRCS += netlib_getessid.c netlib_setessid.c
 endif
 
-# MAC address support(Ethernet and 6loWPAN only)
+# MAC address support(Ethernet and 6LoWPAN only)
 
 ifeq ($(CONFIG_NET_ETHERNET),y)
 CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
 endif
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
-CSRCS += netlib_getpanid.c netlib_setnodeaddr.c netlib_setpanid.c
-CSRCS += netlib_nodeaddrconv.c
+CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_eaddrconv.c
 endif
 
 # IGMP support

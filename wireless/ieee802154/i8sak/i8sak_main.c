@@ -353,7 +353,7 @@ uint8_t i8sak_char2nibble(char ch)
  * Name: i8sak_str2eaddr
  *
  * Description:
- *   Convert a string 8-byte EADAR array.
+ *   Convert a string 8-byte EADDR array.
  *
  ****************************************************************************/
 
@@ -381,6 +381,82 @@ void i8sak_str2eaddr(FAR const char *str, FAR uint8_t *eaddr)
             {
               fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
               fprintf(stderr, "       Expected xx:xx:xx:xx:xx:xx:xx:xx\n");
+              exit(EXIT_FAILURE);
+            }
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: i8sak_str2saddr
+ *
+ * Description:
+ *   Convert a string 2-byte SADDR array.
+ *
+ ****************************************************************************/
+
+void i8sak_str2saddr(FAR const char *str, FAR uint8_t *saddr)
+{
+  FAR const char *src = str;
+  uint8_t bvalue;
+  char ch;
+  int i;
+
+  for (i = 0; i < 2; i++)
+    {
+      ch = (char)*src++;
+      bvalue = i8sak_char2nibble(ch) << 4;
+
+      ch = (char)*src++;
+      bvalue |= i8sak_char2nibble(ch);
+
+      *saddr++ = bvalue;
+
+      if (i < 1)
+        {
+          ch = (char)*src++;
+          if (ch != ':')
+            {
+              fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
+              fprintf(stderr, "       Expected xx:xx\n");
+              exit(EXIT_FAILURE);
+            }
+        }
+    }
+}
+
+/****************************************************************************
+ * Name: i8sak_str2panid
+ *
+ * Description:
+ *   Convert a string 2-byte PAN ID array.
+ *
+ ****************************************************************************/
+
+void i8sak_str2panid(FAR const char *str, FAR uint8_t *panid)
+{
+  FAR const char *src = str;
+  uint8_t bvalue;
+  char ch;
+  int i;
+
+  for (i = 0; i < 2; i++)
+    {
+      ch = (char)*src++;
+      bvalue = i8sak_char2nibble(ch) << 4;
+
+      ch = (char)*src++;
+      bvalue |= i8sak_char2nibble(ch);
+
+      *panid++ = bvalue;
+
+      if (i < 1)
+        {
+          ch = (char)*src++;
+          if (ch != ':')
+            {
+              fprintf(stderr, "ERROR: Missing colon separator: %s\n", str);
+              fprintf(stderr, "       Expected xx:xx\n");
               exit(EXIT_FAILURE);
             }
         }
@@ -444,7 +520,7 @@ static void i8sak_switch_instance(FAR char *devname)
       i8sak = (FAR struct i8sak_s *)sq_remfirst(&g_i8sak_free);
       if (i8sak == NULL)
         {
-          fprintf(stderr, "failed to allocate i8sak instance\n");
+          fprintf(stderr, "ERROR: Failed to allocate i8sak instance\n");
           exit(EXIT_FAILURE);
         }
 
@@ -488,7 +564,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
 
   if (strlen(devname) > I8SAK_MAX_DEVNAME)
     {
-      fprintf(stderr, "i8sak: too long of devname");
+      fprintf(stderr, "ERROR: devname too long\n");
       return ERROR;
     }
 
@@ -496,23 +572,38 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
 
   /* Initialze default extended address */
 
-  for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+  for (i = 0; i < IEEE802154_EADDRSIZE; i++)
    {
      i8sak->addr.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
    }
 
   /* Initialize the default remote endpoint address */
 
-  for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+  i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
+
+  for (i = 0; i < IEEE802154_EADDRSIZE; i++)
    {
      i8sak->ep.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
    }
 
-  i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
-  i8sak->ep.saddr = CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR;
-  i8sak->ep.panid = CONFIG_IEEE802154_I8SAK_PANID;
+  for (i = 0; i < IEEE802154_SADDRSIZE; i++)
+   {
+     i8sak->ep.saddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR >> (i*8)) & 0xFF);
+   }
 
-  i8sak->next_saddr = CONFIG_IEEE802154_I8SAK_DEV_SADDR;
+  for (i = 0; i < IEEE802154_PANIDSIZE; i++)
+     {
+       i8sak->ep.panid[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
+     }
+
+  /* Set the next association device to the default device address, so that
+   * the first device to request association gets that address.
+   */
+
+  for (i = 0; i < IEEE802154_SADDRSIZE; i++)
+   {
+     i8sak->next_saddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_SADDR >> (i*8)) & 0xFF);
+   }
 
   fd = open(i8sak->devname, O_RDWR);
   if (fd < 0)
@@ -521,7 +612,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
       i8sak_cmd_error(i8sak);
     }
 
-  ieee802154_seteaddr(fd, &i8sak->addr.eaddr[0]);
+  ieee802154_seteaddr(fd, i8sak->addr.eaddr);
 
   close(fd);
 

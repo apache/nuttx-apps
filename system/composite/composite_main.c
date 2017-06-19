@@ -730,7 +730,7 @@ void board_cdcuninitialize(FAR struct usbdevclass_driver_s *classdev)
  *   This is the main program that configures the USB mass storage device
  *   and exports the LUN(s).  If CONFIG_NSH_BUILTIN_APPS is defined
  *   in the NuttX configuration, then this program can be executed by
- *   entering the "msconn" command at the NSH console.
+ *   entering the "conn" command at the NSH console.
  *
  ****************************************************************************/
 
@@ -743,7 +743,7 @@ int conn_main(int argc, char *argv[])
   struct boardioc_usbdev_ctrl_s ctrl;
   int ret;
 
-  /* If this program is implemented as the NSH 'msconn' command, then we need to
+  /* If this program is implemented as the NSH 'conn' command, then we need to
    * do a little error checking to assure that we are not being called re-entrantly.
    */
 

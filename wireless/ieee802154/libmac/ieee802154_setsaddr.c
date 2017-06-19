@@ -43,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
@@ -53,12 +54,12 @@
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setsaddr(int fd, uint16_t saddr)
+int ieee802154_setsaddr(int fd, FAR const uint8_t *saddr)
 {
   struct ieee802154_set_req_s req;
 
   req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
-  req.attrval.mac.saddr = saddr;
+  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
 
   return ieee802154_set_req(fd, &req);
 }

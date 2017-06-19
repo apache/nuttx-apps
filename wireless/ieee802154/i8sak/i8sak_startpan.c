@@ -129,37 +129,61 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   if (!i8sak->addrset)
     {
-      for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+      /* Set our address to the default PAN Coordinator configuration */
+
+      i8sak->addr.mode = IEEE802154_ADDRMODE_SHORT;
+
+      for (i = 0; i < IEEE802154_EADDRSIZE; i++)
       {
         i8sak->addr.eaddr[i] =
           (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
       }
 
-      i8sak->addr.mode = IEEE802154_ADDRMODE_SHORT;
-      i8sak->addr.saddr = CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR;
-      i8sak->addr.panid = CONFIG_IEEE802154_I8SAK_PANID;
+      for (i = 0; i < IEEE802154_SADDRSIZE; i++)
+      {
+        i8sak->addr.saddr[i] =
+          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR >> (i*8)) & 0xFF);
+      }
 
-      for (i = 0; i < IEEE802154_EADDR_LEN; i++)
+      for (i = 0; i < IEEE802154_PANIDSIZE; i++)
+      {
+        i8sak->addr.panid[i] =
+          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
+      }
+
+      /* Set the endpoint address to the default endpoint device */
+
+      i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
+
+      for (i = 0; i < IEEE802154_EADDRSIZE; i++)
       {
         i8sak->ep.eaddr[i] =
           (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
       }
 
-      i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
-      i8sak->ep.saddr = CONFIG_IEEE802154_I8SAK_DEV_SADDR;
-      i8sak->ep.panid = CONFIG_IEEE802154_I8SAK_PANID;
+      for (i = 0; i < IEEE802154_SADDRSIZE; i++)
+      {
+        i8sak->ep.saddr[i] =
+          (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_SADDR >> (i*8)) & 0xFF);
+      }
+
+      for (i = 0; i < IEEE802154_PANIDSIZE; i++)
+      {
+        i8sak->ep.panid[i] =
+          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
+      }
     }
 
   /* Set EADDR and SADDR */
 
-  ieee802154_seteaddr(fd, &i8sak->addr.eaddr[0]);
+  ieee802154_seteaddr(fd, i8sak->addr.eaddr);
   ieee802154_setsaddr(fd, i8sak->addr.saddr);
 
   /* Tell the MAC to start acting as a coordinator */
 
   printf("i8sak: starting PAN\n");
 
-  startreq.panid = i8sak->addr.panid;
+  IEEE802154_PANIDCOPY(startreq.panid, i8sak->addr.panid);
   startreq.chnum = i8sak->chnum;
   startreq.chpage = i8sak->chpage;
   startreq.beaconorder = 15;
