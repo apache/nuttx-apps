@@ -115,14 +115,14 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           case 's':
             /* Parse extended address and put it into the i8sak instance */
 
-            i8sak->ep.saddr = i8sak_str2luint16(optarg);
+            i8sak_str2saddr(optarg, i8sak->ep.saddr);
             i8sak->ep.mode= IEEE802154_ADDRMODE_SHORT;
             break;
 
           case 'e':
             /* Parse extended address and put it into the i8sak instance */
 
-            i8sak_str2eaddr(optarg, &i8sak->ep.eaddr[0]);
+            i8sak_str2eaddr(optarg, i8sak->ep.eaddr);
             i8sak->ep.mode = IEEE802154_ADDRMODE_EXTENDED;
             break;
 
@@ -148,7 +148,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   if (optcnt && argc == 2)
     {
-      i8sak->ep.panid = i8sak_str2luint16(argv[1]);
+      i8sak_str2panid(argv[1], i8sak->ep.panid);
     }
 
   fd = open(i8sak->devname, O_RDWR);

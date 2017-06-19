@@ -99,6 +99,8 @@
 /* /dev/ is 5 characters */
 #define I8SAK_DAEMONNAME_FMTLEN (6 + (I8SAK_MAX_DEVNAME-5) + 1)
 
+
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -148,7 +150,7 @@ struct i8sak_s
   uint8_t chpage;
   struct ieee802154_addr_s addr;
   struct ieee802154_addr_s ep;
-  uint16_t next_saddr;
+  uint8_t next_saddr[IEEE802154_SADDRSIZE];
   uint8_t payload[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
   uint16_t payload_len;
   int blasterperiod;
@@ -166,6 +168,8 @@ uint8_t i8sak_char2nibble(char ch);
 
 int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf);
 void i8sak_str2eaddr(FAR const char *str, FAR uint8_t *eaddr);
+void i8sak_str2saddr(FAR const char *str, FAR uint8_t *saddr);
+void i8sak_str2panid(FAR const char *str, FAR uint8_t *panid);
 bool i8sak_str2bool(FAR const char *str);
 
 void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
