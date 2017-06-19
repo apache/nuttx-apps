@@ -42,6 +42,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
@@ -61,6 +62,5 @@ int ieee802154_getsaddr(int fd, FAR uint8_t *saddr)
   ret = ieee802154_get_req(fd, &req);
 
   IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
-
   return ret;
 }

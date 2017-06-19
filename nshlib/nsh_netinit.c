@@ -279,7 +279,7 @@ static void nsh_set_macaddr(void)
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
 #elif defined(CONFIG_NET_6LOWPAN)
-  uint8_t eaddr[NET_6LOWPAN_ADDRSIZE];
+  uint8_t eaddr[8];
 #endif
 
   /* Many embedded network interfaces must have a software assigned MAC */

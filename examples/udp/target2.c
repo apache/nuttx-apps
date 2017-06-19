@@ -1,9 +1,8 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/ieee802154_setsaddr.c
+ * examples/udp/target2.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
- *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -38,28 +37,40 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
-
-#include "wireless/ieee802154.h"
+#include "config.h"
+#include "udp.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int ieee802154_setsaddr(int fd, FAR const uint8_t *saddr)
+/****************************************************************************
+ * udp2_main
+ ****************************************************************************/
+
+#if defined(CONFIG_BUILD_KERNEL)
+int main(int argc, FAR char *argv[])
+#else
+int udp2_main(int argc, char *argv[])
+#endif
 {
-  struct ieee802154_set_req_s req;
+  /* Parse any command line options */
 
-  req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
-  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
+  parse_cmdline(argc, argv);
 
-  return ieee802154_set_req(fd, &req);
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+  /* Initialize the network */
+
+  (void)target_netinit();
+#endif
+
+  /* Run the server or client, depending upon how target1 was configured */
+
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
+  send_client();
+#else
+  recv_server();
+#endif
+
+  return 0;
 }

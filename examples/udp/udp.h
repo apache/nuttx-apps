@@ -1,9 +1,8 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/ieee802154_setsaddr.c
+ * examples/udp/udp.h
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
- *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+ *   Copyright (C) 2007, 2008, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,32 +33,81 @@
  *
  ****************************************************************************/
 
+#ifndef __EXAMPLES_UDP_UDP_H
+#define __EXAMPLES_UDP_UDP_H
+
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#ifdef EXAMPLES_UDP_HOST
+#else
+# include <debug.h>
+#endif
 
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
-
-#include "wireless/ieee802154.h"
+#include <arpa/inet.h>
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Definitions
  ****************************************************************************/
 
-int ieee802154_setsaddr(int fd, FAR const uint8_t *saddr)
-{
-  struct ieee802154_set_req_s req;
+#ifdef EXAMPLES_UDP_HOST
+   /* HTONS/L macros are unique to uIP-based networks */
 
-  req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
-  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
+#  ifdef CONFIG_ENDIAN_BIG
+#    define HTONS(ns) (ns)
+#    define HTONL(nl) (nl)
+#  else
+#    define HTONS(ns) \
+       (unsigned short) \
+         (((((unsigned short)(ns)) & 0x00ff) << 8) | \
+         ((((unsigned short)(ns)) >> 8) & 0x00ff))
+#      define HTONL(nl) \
+       (unsigned long) \
+         (((((unsigned long)(nl)) & 0x000000ffUL) << 24) | \
+         ((((unsigned long)(nl)) & 0x0000ff00UL) <<  8) | \
+         ((((unsigned long)(nl)) & 0x00ff0000UL) >>  8) | \
+         ((((unsigned long)(nl)) & 0xff000000UL) >> 24))
+#  endif
 
-  return ieee802154_set_req(fd, &req);
-}
+#  define NTOHS(hs) HTONS(hs)
+#  define NTOHL(hl) HTONL(hl)
+#  define FAR
+#endif
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+#  define AF_INETX AF_INET6
+#  define PF_INETX PF_INET6
+#else
+#  define AF_INETX AF_INET
+#  define PF_INETX PF_INET
+#endif
+
+#define PORTNO     5471
+
+#define ASCIISIZE  (0x7f - 0x20)
+#define SENDSIZE   (ASCIISIZE+1)
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+uint16_t g_server_ipv6[8];
+#else
+uint32_t g_server_ipv4;
+#endif
+
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+int target_netinit(void);
+#endif
+
+void parse_cmdline(int argc, char **argv);
+void send_client(void);
+void recv_server(void);
+
+#endif /* __EXAMPLES_UDP_UDP_H */
