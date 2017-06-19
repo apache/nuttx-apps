@@ -16,6 +16,26 @@ config EXAMPLES_UDP_SERVER
 	bool "Target is the server"
 	default n
 
+config EXAMPLES_UDP_DEVNAME
+	string "Network device"
+	default "eth0"
+
+config EXAMPLES_UDP_NETINIT
+	bool "Initialize network"
+	default n if NSH_NETINIT
+	default y if !NSH_NETINIT
+	---help---
+		Selecting this option will enable logic in the example to perform
+		some basic initialization of the network.  You would probably only
+		want to do this if the example is running stand-alone.  If the
+		example is running as an NSH command, then the network as already
+		been initialized.
+
+		This basic initialization currently only supports basic
+		initialization of Ethernet network devices.  For other exotic
+		network devices this initialization should be suppressed.  Such
+		devices will require other, external initialization.
+
 choice
 	prompt "IP Domain"
 	default EXAMPLES_UDP_IPv4 if NET_IPv4
@@ -35,6 +55,8 @@ if EXAMPLES_UDP_IPv4
 
 comment "IPv4 addresses"
 
+if !EXAMPLES_UDP_NETINIT
+
 config EXAMPLES_UDP_IPADDR
 	hex "Target IP address"
 	default 0x0a000002
@@ -47,16 +69,17 @@ config EXAMPLES_UDP_NETMASK
 	hex "Network mask"
 	default 0xffffff00
 
+endif # !EXAMPLES_UDP_NETINIT
+
 config EXAMPLES_UDP_SERVERIP
 	hex "Server IP address"
 	default 0x0a000001 if !EXAMPLES_UDP_SERVER
 	default 0x0a000002 if EXAMPLES_UDP_SERVER
 
-
 endif # EXAMPLES_UDP_IPv4
 
 if EXAMPLES_UDP_IPv6
-if !NET_ICMPv6_AUTOCONF
+if !NET_ICMPv6_AUTOCONF && EXAMPLES_UDP_NETINIT
 
 comment "Target IPv6 address"
 

@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/udp/udp-internal.h
+ * examples/udp/udp.h
  *
- *   Copyright (C) 2007, 2008, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2008, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_UDP_INTERNAL_H
-#define __EXAMPLES_UDP_INTERNAL_H
+#ifndef __EXAMPLES_UDP_UDP_H
+#define __EXAMPLES_UDP_UDP_H
 
 /****************************************************************************
  * Included Files
@@ -75,7 +75,11 @@
  * Public Function Prototypes
  ****************************************************************************/
 
-extern void send_client(void);
-extern void recv_server(void);
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+int target_netinit(void);
+#endif
 
-#endif /* __EXAMPLES_UDP_INTERNAL_H */
+void send_client(void);
+void recv_server(void);
+
+#endif /* __EXAMPLES_UDP_UDP_H */

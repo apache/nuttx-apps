@@ -38,68 +38,7 @@
  ****************************************************************************/
 
 #include "config.h"
-
-#include <stdio.h>
-#include <debug.h>
-
-#include <arpa/inet.h>
-#include <netinet/in.h>
-
-#include "netutils/netlib.h"
-
-#include "udp-internal.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-#if defined(CONFIG_EXAMPLES_UDP_IPv6) && !defined(CONFIG_NET_ICMPv6_AUTOCONF)
-/* Our host IPv6 address */
-
-static const uint16_t g_ipv6_hostaddr[8] =
-{
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_1),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_2),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_3),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_4),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_5),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_6),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_7),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6ADDR_8),
-};
-
-/* Default routine IPv6 address */
-
-static const uint16_t g_ipv6_draddr[8] =
-{
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_1),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_2),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_3),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_4),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_5),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_6),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_7),
-  HTONS(CONFIG_EXAMPLES_UDP_DRIPv6ADDR_8),
-};
-
-/* IPv6 netmask */
-
-static const uint16_t g_ipv6_netmask[8] =
-{
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_1),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_2),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_3),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_4),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_5),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_6),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_7),
-  HTONS(CONFIG_EXAMPLES_UDP_IPv6NETMASK_8),
-};
-#endif /* CONFIG_EXAMPLES_UDP_IPv6 && !CONFIG_NET_ICMPv6_AUTOCONF */
+#include "udp.h"
 
 /****************************************************************************
  * Public Functions
@@ -115,56 +54,13 @@ int main(int argc, FAR char *argv[])
 int udp_main(int argc, char *argv[])
 #endif
 {
-#ifdef CONFIG_EXAMPLES_UDP_IPv6
-#ifdef CONFIG_NET_ICMPv6_AUTOCONF
-  /* Perform ICMPv6 auto-configuration */
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+  /* Initialize the network */
 
-  netlib_icmpv6_autoconfiguration("eth0");
+  (void)target_netinit();
+#endif
 
-#else /* CONFIG_NET_ICMPv6_AUTOCONF */
-
-  /* Set up our fixed host address */
-
-  netlib_set_ipv6addr("eth0",
-                      (FAR const struct in6_addr *)g_ipv6_hostaddr);
-
-  /* Set up the default router address */
-
-  netlib_set_dripv6addr("eth0",
-                        (FAR const struct in6_addr *)g_ipv6_draddr);
-
-  /* Setup the subnet mask */
-
-  netlib_set_ipv6netmask("eth0",
-                        (FAR const struct in6_addr *)g_ipv6_netmask);
-
-#endif /* CONFIG_NET_ICMPv6_AUTOCONF */
-#else /* CONFIG_EXAMPLES_UDP_IPv6 */
-
-  struct in_addr addr;
-
-  /* Set up our host address */
-
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_UDP_IPADDR);
-  netlib_set_ipv4addr("eth0", &addr);
-
-  /* Set up the default router address */
-
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_UDP_DRIPADDR);
-  netlib_set_dripv4addr("eth0", &addr);
-
-  /* Setup the subnet mask */
-
-  addr.s_addr = HTONL(CONFIG_EXAMPLES_UDP_NETMASK);
-  netlib_set_ipv4netmask("eth0", &addr);
-
-#endif /* CONFIG_EXAMPLES_UDP_IPv6 */
-
-  /* New versions of netlib_set_ipvXaddr will not bring the network up,
-   * So ensure the network is really up at this point.
-   */
-
-  netlib_ifup("eth0");
+  /* Run the server or client, depending upon how we are configured */
 
 #ifdef CONFIG_EXAMPLES_UDP_SERVER
   recv_server();

@@ -43,10 +43,14 @@ TARG_ASRCS =
 
 TARG_CSRCS =
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
-TARG_CSRCS += udp-server.c
+TARG_CSRCS += udp_server.c
 else
-TARG_CSRCS += udp-client.c
+TARG_CSRCS += udp_client.c
 endif
+ifeq ($(CONFIG_EXAMPLES_UDP_NETINIT),y)
+TARG_CSRCS += target_netinit.c
+endif
+
 TARG_MAINSRC = target.c
 
 TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
@@ -74,9 +78,9 @@ HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
 
 HOST_SRCS = host.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER),y)
-HOST_SRCS += udp-client.c
+HOST_SRCS += udp_client.c
 else
-HOST_SRCS += udp-server.c
+HOST_SRCS += udp_server.c
 endif
 
 HOST_OBJS = $(HOST_SRCS:.c=.o)
