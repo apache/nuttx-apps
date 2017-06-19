@@ -39,29 +39,92 @@ include $(APPDIR)/Make.defs
 
 # UDP Test
 
-TARG_ASRCS =
-
-TARG_CSRCS =
-ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
-TARG_CSRCS += udp_server.c
-else
-TARG_CSRCS += udp_client.c
-endif
+TARGCMN_CRCS = 
 ifeq ($(CONFIG_EXAMPLES_UDP_NETINIT),y)
-TARG_CSRCS += target_netinit.c
+TARGCMN_CRCS += target_netinit.c
 endif
 
-TARG_MAINSRC = target1.c
+# Target 1
 
-TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
-TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
-TARG_MAINOBJ = $(TARG_MAINSRC:.c=$(OBJEXT))
+TARG1_CRCS =
+ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
+TARG1_CRCS += udp_server.c
+else
+TARG1_CRCS += udp_client.c
+endif
+TARG1_MAINSRC = target1.c
 
-TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(TARG_MAINSRC)
-TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
+TARG1_COBJS = $(TARG1_CRCS:.c=$(OBJEXT))
+TARG1_MAINOBJ = $(TARG1_MAINSRC:.c=$(OBJEXT))
+
+ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
+CONFIG_EXAMPLES_UDP_PROGNAME1 ?= udpserver
+APPNAME1 = udpserver
+else
+CONFIG_EXAMPLES_UDP_PROGNAME1 ?= udpclient
+APPNAME1 = udpclient
+endif
+CONFIG_EXAMPLES_UDP_PRIORITY1 ?= 100
+CONFIG_EXAMPLES_UDP_STACKSIZE1 ?= 2048
+
+PROGNAME1 = $(CONFIG_EXAMPLES_UDP_PROGNAME1)
+PRIORITY1 = $(CONFIG_EXAMPLES_UDP_PRIORITY1)
+STACKSIZE1 = $(CONFIG_EXAMPLES_UDP_STACKSIZE1)
+
+# Target 2
+
+ifeq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+
+TARG2_CRCS =
+ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
+TARG2_CRCS += udp_client.c
+else
+TARG2_CRCS += udp_server.c
+endif
+TARG2_MAINSRC = target2.c
+
+TARG2_COBJS = $(TARG2_CRCS:.c=$(OBJEXT))
+TARG2_MAINOBJ = $(TARG2_MAINSRC:.c=$(OBJEXT))
+
+ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
+CONFIG_EXAMPLES_UDP_PROGNAME2 ?= udpclient
+APPNAME2 = udpclient
+else
+CONFIG_EXAMPLES_UDP_PROGNAME2 ?= udpserver
+APPNAME2 = udpserver
+endif
+CONFIG_EXAMPLES_UDP_PRIORITY2 ?= 100
+CONFIG_EXAMPLES_UDP_STACKSIZE2 ?= 2048
+
+PROGNAME2 = $(CONFIG_EXAMPLES_UDP_PROGNAME2)
+PRIORITY2 = $(CONFIG_EXAMPLES_UDP_PRIORITY2)
+STACKSIZE2 = $(CONFIG_EXAMPLES_UDP_STACKSIZE2)
+
+endif
+
+TARG_SRCS = $(TARG1_CRCS) $(TARG1_MAINSRC) $(TARG2_CRCS) $(TARG2_MAINSRC)
+TARG_OBJS = $(TARG1_COBJS) $(TARG2_COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  TARG_OBJS += $(TARG_MAINOBJ)
+  TARG_OBJS += $(TARG1_MAINOBJ) $(TARG2_MAINOBJ)
+endif
+
+# Host
+
+ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+
+HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
+
+HOST_SRCS = host.c
+ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
+HOST_SRCS += udp_client.c
+else
+HOST_SRCS += udp_server.c
+endif
+
+HOST_OBJS = $(HOST_SRCS:.c=.o)
+HOST_BIN = host$(EXEEXT)
+
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -74,42 +137,17 @@ else
 endif
 endif
 
-HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
-
-HOST_SRCS = host.c
-ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
-HOST_SRCS += udp_client.c
+ifeq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+MAINNAME1 = udp1_main
+MAINNAME2 = udp2_main
 else
-HOST_SRCS += udp_server.c
+MAINNAME1 = udp_main
 endif
-
-HOST_OBJS = $(HOST_SRCS:.c=.o)
-HOST_BIN = host
 
 ifeq ($(WINTOOL),y)
   INSTALL_DIR = "${shell cygpath -w $(BIN_DIR)}"
 else
   INSTALL_DIR = $(BIN_DIR)
-endif
-
-ifeq ($(EXAMPLES_UDP_SERVER1),y)
-CONFIG_EXAMPLES_UDP_PROGNAME1 ?= udpserver$(EXEEXT)
-APPNAME1 = udpserver
-else
-CONFIG_EXAMPLES_UDP_PROGNAME1 ?= udpclient$(EXEEXT)
-APPNAME1 = udpclient
-endif
-CONFIG_EXAMPLES_UDP_PRIORITY1 ?= 100
-CONFIG_EXAMPLES_UDP_STACKSIZE1 ?= 2048
-
-PROGNAME1 = $(CONFIG_EXAMPLES_UDP_PROGNAME1)
-PRIORITY1 = $(CONFIG_EXAMPLES_UDP_PRIORITY1)
-STACKSIZE1 = $(CONFIG_EXAMPLES_UDP_STACKSIZE1)
-
-ifeq ($(EXAMPLES_UDP_TARGET2),y)
-MAINNAME1 = udp1_main
-else
-MAINNAME1 = udp_main
 endif
 
 ROOTDEPPATH = --dep-path .
@@ -119,35 +157,36 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: clean depend distclean preconfig
 
-$(TARG_AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
+$(TARG1_COBJS) $(TARG1_MAINOBJ)$(TARG2_COBJS) $(TARG2_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 $(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)
 	$(call ARCHIVE, $@, $(TARG_OBJS))
 
+ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 $(HOST_OBJS): %.o: %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
+endif
 
 config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
 
+ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 $(HOST_BIN): config.h $(HOST_OBJS)
 	$(Q) $(HOSTCC) $(HOSTLDFLAGS) $(HOST_OBJS) -o $@
+endif
 
 .built: config.h $(TARG_BIN) $(HOST_BIN)
 	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME1): $(OBJS) $(TARG_MAINOBJ)
+$(BIN_DIR)$(DELIM)$(PROGNAME1): $(OBJS) $(TARG1_MAINOBJ)
 	@echo "LD: $(PROGNAME1)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME1) $(ARCHCRT0OBJ) $(TARG_MAINOBJ) $(LDLIBS)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME1) $(ARCHCRT0OBJ) $(TARG1_MAINOBJ) $(LDLIBS)
 	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME1)
 
 install: $(BIN_DIR)$(DELIM)$(PROGNAME1)
@@ -161,7 +200,15 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(MAINNAME1))
 
+ifeq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat: $(DEPCONFIG) Makefile
+	$(call REGISTER,$(APPNAME2),$(PRIORITY2),$(STACKSIZE2),$(MAINNAME2))
+
+context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat \
+	$(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat
+else
 context: $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat
+endif
 else
 context:
 endif
@@ -174,8 +221,10 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
-	$(call DELFILE, $(TARG_BIN))
+	#$(call DELFILE, $(TARG_BIN))
+ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 	$(call DELFILE, $(HOST_BIN))
+endif
 	$(call DELFILE, *.dSYM)
 	$(call DELFILE, config.h)
 	$(call CLEAN)
@@ -184,7 +233,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

@@ -35,6 +35,37 @@ config EXAMPLES_UDP_STACKSIZE1
 	int "Target1 stack size"
 	default 2048
 
+config EXAMPLES_UDP_TARGET2
+	bool "Second endpoint is a target"
+	default n
+	---help---
+		By default, the host PC is configured as the second endpoint of the
+		UDP test.  If this option is selected, then the second endpoint
+		will be built into the FLASH image as well.  This means that you
+		can use two target boards to run the test with not host PC
+		involvement.
+
+if EXAMPLES_UDP_TARGET2
+
+config EXAMPLES_UDP_PROGNAME2
+	string "Target2 program name"
+	default "udpserver" if !EXAMPLES_UDP_SERVER2
+	default "udpclient" if EXAMPLES_UDP_SERVER2
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_UDP_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_UDP_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_UDP_TARGET2
+
 config EXAMPLES_UDP_DEVNAME
 	string "Network device"
 	default "eth0"
