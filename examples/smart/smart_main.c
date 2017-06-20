@@ -55,7 +55,8 @@
 #include <nuttx/mtd/mtd.h>
 #include <nuttx/fs/smart.h>
 #include <nuttx/fs/ioctl.h>
-#include <nuttx/fs/mksmartfs.h>
+
+#include "fsutils/mksmartfs.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -821,7 +822,7 @@ int smart_main(int argc, char *argv[])
   /* Initialize to provide SMART on an MTD interface */
 
   MTD_IOCTL(mtd, MTDIOC_BULKERASE, 0);
-  ret = smart_initialize(1, mtd);
+  ret = smart_initialize(1, mtd, "SmartTest");
   if (ret < 0)
     {
       printf("ERROR: SMART initialization failed: %d\n", -ret);
@@ -831,7 +832,11 @@ int smart_main(int argc, char *argv[])
 
   /* Create a SMARTFS filesystem */
 
-  (void)mksmartfs("/dev/smart1");
+#ifdef CONFIG_SMARTFS_MULTI_ROOT_DIRS
+  (void)mksmartfs("/dev/smart1", 1024, 1);
+#else
+  (void)mksmartfs("/dev/smart1", 1024);
+#endif
 
   /* Mount the file system */
 
