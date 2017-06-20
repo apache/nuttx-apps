@@ -50,7 +50,7 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_server_ipv6[8] = 
+uint16_t g_server_ipv6[8] =
 {
   HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
   HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
