@@ -76,6 +76,7 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
   bool acceptall = true; /* start off assuming we are going to allow all connections */
   int option;
   int optcnt;
+  int fd;
 
   optcnt = 0;
   while ((option = getopt(argc, argv, ":he:")) != ERROR)
@@ -114,6 +115,15 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
     }
+
+  fd = open(i8sak->devname, O_RDWR);
+  if (fd < 0)
+    {
+      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
+      i8sak_cmd_error(i8sak);
+    }
+  
+  ieee802154_setassocpermit(fd, true);
 
   if (!optcnt)
     {
