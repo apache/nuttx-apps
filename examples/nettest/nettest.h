@@ -84,6 +84,10 @@
  * Public Function Prototypes
  ****************************************************************************/
 
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+void nettest_initialize(void);
+#endif
+
 extern void send_client(void);
 extern void recv_server(void);
 

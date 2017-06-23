@@ -39,6 +39,15 @@ include $(APPDIR)/Make.defs
 
 # Basic TCP networking test
 
+TARGCMN_CSRCS =
+ifeq ($(CONFIG_EXAMPLES_NETTEST_INIT),y)
+TARGCMN_CSRCS += target_netinit.c
+endif
+
+TARGCMN_COBJS = $(TARGCMN_CSRCS:.c=$(OBJEXT))
+
+# Target 1
+
 TARG1_CSRCS =
 ifeq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 TARG1_CSRCS += nettest_server.c nettest_client.c
@@ -52,8 +61,8 @@ TARG1_MAINSRC = nettest_target1.c
 TARG1_COBJS = $(TARG1_CSRCS:.c=$(OBJEXT))
 TARG1_MAINOBJ = $(TARG1_MAINSRC:.c=$(OBJEXT))
 
-TARG_CSRCS = $(TARG1_CSRCS) $(TARG1_CSRCS)
-TARG_OBJS = $(TARG1_COBJS)
+TARG_CSRCS = $(TARG1_CSRCS) $(TARG1_CSRCS) $(TARGCMN_CSRCS)
+TARG_OBJS = $(TARG1_COBJS) $(TARGCMN_COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
   TARG_OBJS += $(TARG1_MAINOBJ)
@@ -118,7 +127,7 @@ VPATH =
 all: .built $(HOST_BIN)
 .PHONY: clean depend distclean preconfig
 
-$(TARG1_COBJS) $(TARG1_MAINOBJ): %$(OBJEXT): %.c
+$(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARGCMN_COBJS) : %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
