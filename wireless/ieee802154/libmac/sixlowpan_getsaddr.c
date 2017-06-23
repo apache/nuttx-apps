@@ -53,15 +53,15 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_getsaddr(int sock, FAR const char *ifname, FAR uint16_t *saddr)
+int sixlowpan_getsaddr(int sock, FAR const char *ifname, FAR uint8_t *saddr)
 {
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.pib_attr = IEEE802154_PIB_MAC_SHORT_ADDRESS;
+  req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
-  *saddr = req.attrval.mac.saddr;
+  IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
 
   return ret;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/udp-server.c
+ * examples/udp/udp_server.c
  *
  *   Copyright (C) 2007, 2009, 2012, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -50,7 +50,7 @@
 
 #include <arpa/inet.h>
 
-#include "udp-internal.h"
+#include "udp.h"
 
 /****************************************************************************
  * Private Functions
@@ -124,13 +124,13 @@ void recv_server(void)
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   server.sin6_family     = AF_INET6;
-  server.sin6_port       = HTONS(PORTNO);
+  server.sin6_port       = HTONS(CONFIG_EXAMPLES_SERVER_PORTNO);
   memset(&server.sin6_addr, 0, sizeof(struct in6_addr));
 
   addrlen                = sizeof(struct sockaddr_in6);
 #else
   server.sin_family      = AF_INET;
-  server.sin_port        = HTONS(PORTNO);
+  server.sin_port        = HTONS(CONFIG_EXAMPLES_SERVER_PORTNO);
   server.sin_addr.s_addr = HTONL(INADDR_ANY);
 
   addrlen                = sizeof(struct sockaddr_in);

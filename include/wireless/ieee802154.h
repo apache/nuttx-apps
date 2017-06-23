@@ -2,7 +2,10 @@
  * apps/include/wireless/ieee802154.h
  *
  *   Copyright(C) 2015 Sebastien Lorquet. All rights reserved.
+ *   Copyright(C) 2017 Verge Inc. All rights reserved.
+ *
  *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
+ *   Author: Anthony Merlino <anthony@vergeaero.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -65,6 +68,7 @@ int ieee802154_get_req(int fd, FAR struct ieee802154_get_req_s *req);
 int ieee802154_gts_req(int fd, FAR struct ieee802154_gts_req_s *req);
 int ieee802154_orphan_resp(int fd,
       FAR struct ieee802154_orphan_resp_s *resp);
+int ieee802154_reset_req(int fd, FAR struct ieee802154_reset_req_s *req);
 int ieee802154_rxenable_req(int fd,
       FAR struct ieee802154_rxenable_req_s *req);
 int ieee802154_scan_req(int fd, FAR struct ieee802154_scan_req_s *req);
@@ -85,11 +89,11 @@ int ieee802154_calibrate_req(int fd,
 int ieee802154_setchan(int fd, uint8_t chan);
 int ieee802154_getchan(int fd, FAR uint8_t *chan);
 
-int ieee802154_setpanid(int fd, uint16_t panid);
-int ieee802154_getpanid(int fd, FAR uint16_t *panid);
+int ieee802154_setpanid(int fd, FAR const uint8_t *panid);
+int ieee802154_getpanid(int fd, FAR uint8_t *panid);
 
-int ieee802154_setsaddr(int fd, uint16_t saddr);
-int ieee802154_getsaddr(int fd, FAR uint16_t *saddr);
+int ieee802154_setsaddr(int fd, FAR const uint8_t *saddr);
+int ieee802154_getsaddr(int fd, FAR uint8_t *saddr);
 
 int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr);
 int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr);
@@ -105,6 +109,8 @@ int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr);
 
 int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca);
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
+
+int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode);
 
 #ifdef CONFIG_NET_6LOWPAN
 /* Netork driver IOCTL helpers */
@@ -151,13 +157,15 @@ int sixlowpan_calibrate_req(int sock, FAR const char *ifname,
 int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan);
 int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan);
 
-int sixlowpan_setpanid(int sock, FAR const char *ifname, uint16_t panid);
+int sixlowpan_setpanid(int sock, FAR const char *ifname,
+      FAR const uint8_t *panid);
 int sixlowpan_getpanid(int sock, FAR const char *ifname,
-      FAR uint16_t *panid);
+      FAR uint8_t *panid);
 
-int sixlowpan_setsaddr(int sock, FAR const char *ifname, uint16_t saddr);
+int sixlowpan_setsaddr(int sock, FAR const char *ifname,
+      FAR const uint8_t *saddr);
 int sixlowpan_getsaddr(int sock, FAR const char *ifname,
-      FAR uint16_t *saddr);
+      FAR uint8_t *saddr);
 
 int sixlowpan_seteaddr(int sock, FAR const char *ifname,
       FAR const uint8_t *eaddr);

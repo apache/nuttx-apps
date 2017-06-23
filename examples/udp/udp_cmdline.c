@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setnodeaddr.c
+ * examples/udp/udp_cmdline.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,73 +37,82 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+#include "config.h"
 
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <arpa/inet.h>
 
-#include <netinet/in.h>
-#include <net/if.h>
+#include "udp.h"
 
-#include <nuttx/net/sixlowpan.h>
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
 
-#include "netutils/netlib.h"
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+uint16_t g_server_ipv6[8] =
+{
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7),
+  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8)
+};
+#else
+uint32_t g_server_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+#endif
 
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * show_usage
+ ****************************************************************************/
+
+static void show_usage(FAR const char *progname)
+{
+  fprintf(stderr, "USAGE: %s [<server-addr>]\n", progname);
+  exit(1);
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setnodeaddr
- *
- * Description:
- *   Set the 6loWPAN IEEE802.15.4 MAC network driver node address
- *
- * Parameters:
- *   ifname   The name of the interface to use
- *   nodeaddr Node address to set, size must be NET_6LOWPAN_ADDRSIZE
- *
- * Return:
- *   0 on success; -1 on failure
- *
+ * parse_cmdline
  ****************************************************************************/
 
-int netlib_setnodeaddr(FAR const char *ifname, FAR const uint8_t *nodeaddr)
+void parse_cmdline(int argc, char **argv)
 {
-  int ret = ERROR;
+  /* Currently only a single command line option is supported:  The server
+   * IP address.
+   */
 
-  if (ifname && nodeaddr)
+  if (argc == 2)
     {
-      /* Get a socket (only so that we get access to the INET subsystem) */
+      int ret;
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
+      /* Convert the <server-addr> argument into a binary address */
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv6
+      ret = inet_pton(AF_INET6, argv[1], g_server_ipv6);
+#else
+      ret = inet_pton(AF_INET, argv[1], &g_server_ipv4);
+#endif
+      if (ret < 0)
         {
-          struct ifreq req;
-
-          /* Put the driver name into the request */
-
-          strncpy(req.ifr_name, ifname, IFNAMSIZ);
-
-          /* Put the new MAC address into the request */
-
-          req.ifr_hwaddr.sa_family = AF_INET6;
-          memcpy(&req.ifr_hwaddr.sa_data, nodeaddr, NET_6LOWPAN_ADDRSIZE);
-
-          /* Perform the ioctl to set the node address */
-
-          ret = ioctl(sockfd, SIOCSIFHWADDR, (unsigned long)&req);
-          close(sockfd);
+          fprintf(stderr, "ERROR: <server-addr> is invalid\n");
+          show_usage(argv[0]);
         }
     }
-
-  return ret;
+  else if (argc != 1)
+    {
+      fprintf(stderr, "ERROR: Too many arguments\n");
+      show_usage(argv[0]);
+    }
 }
-
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

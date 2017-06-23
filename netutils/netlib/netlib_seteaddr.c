@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/udp/udp-internal.h
+ * netutils/netlib/netlib_seteaddr.c
  *
- *   Copyright (C) 2007, 2008, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,49 +33,62 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_UDP_INTERNAL_H
-#define __EXAMPLES_UDP_INTERNAL_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#ifdef EXAMPLES_UDP_HOST
-#else
-# include <debug.h>
-#endif
+#include <nuttx/config.h>
 
-#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
+#include "wireless/ieee802154.h"
+#include "netutils/netlib.h"
 
-#ifdef EXAMPLES_UDP_HOST
-   /* HTONS/L macros are unique to uIP */
-
-#  define HTONS(a)       htons(a)
-#  define HTONL(a)       htonl(a)
-#endif
-
-#ifdef CONFIG_EXAMPLES_UDP_IPv6
-#  define AF_INETX AF_INET6
-#  define PF_INETX PF_INET6
-#else
-#  define AF_INETX AF_INET
-#  define PF_INETX PF_INET
-#endif
-
-#define PORTNO     5471
-
-#define ASCIISIZE  (0x7f - 0x20)
-#define SENDSIZE   (ASCIISIZE+1)
+#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
- * Public Function Prototypes
+ * Public Functions
  ****************************************************************************/
 
-extern void send_client(void);
-extern void recv_server(void);
+/****************************************************************************
+ * Name: netlib_seteaddr
+ *
+ * Description:
+ *   Set the IEEE802.15.4 extended MAC address
+ *
+ * Parameters:
+ *   ifname The name of the interface to use
+ *   eaddr  The new extended address
+ *
+ * Return:
+ *   0 on success; -1 on failure.  errno will be set on failure.
+ *
+ ****************************************************************************/
 
-#endif /* __EXAMPLES_UDP_INTERNAL_H */
+int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr)
+{
+  int ret = ERROR;
+
+  if (ifname != NULL)
+    {
+      /* Get a socket (only so that we get access to the INET subsystem) */
+
+      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
+      if (sockfd >= 0)
+        {
+          /* Use the helper provided in libmac */
+
+          ret = sixlowpan_seteaddr(sockfd, ifname, eaddr);
+          close(sockfd);
+        }
+    }
+
+  return ret;
+}
+
+#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

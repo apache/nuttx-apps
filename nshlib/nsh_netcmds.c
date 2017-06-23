@@ -762,7 +762,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   uint8_t mac[IFHWADDRLEN];
 #endif
 #ifdef CONFIG_NET_6LOWPAN
-  uint8_t nodeaddr[NET_6LOWPAN_ADDRSIZE];
+  uint8_t eaddr[8];
 #endif
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
@@ -862,7 +862,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef CONFIG_NET_ETHERNET
                       badarg = !netlib_ethaddrconv(hw, mac);
 #else
-                      badarg = !netlib_nodeaddrconv(hw, nodeaddr);
+                      badarg = !netlib_eaddrconv(hw, eaddr);
 #endif
                     }
                   else
@@ -906,7 +906,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifdef CONFIG_NET_ETHERNET
       netlib_setmacaddr(intf, mac);
 #else
-      netlib_setnodeaddr(intf, nodeaddr);
+      netlib_seteaddr(intf, eaddr);
 #endif
     }
 #endif

@@ -53,15 +53,15 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_getpanid(int sock, FAR const char *ifname, FAR uint16_t *panid)
+int sixlowpan_getpanid(int sock, FAR const char *ifname, FAR uint8_t *panid)
 {
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.pib_attr = IEEE802154_PIB_MAC_PANID;
+  req.attr = IEEE802154_ATTR_MAC_PANID;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
-  *panid = req.attrval.mac.panid;
+  IEEE802154_PANIDCOPY(panid, req.attrval.mac.panid);
 
   return ret;
 }

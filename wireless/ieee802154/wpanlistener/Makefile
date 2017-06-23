@@ -1,8 +1,11 @@
 ############################################################################
-# apps/netutils/netlib/Makefile
+# apps/wireless/ieee802154/wpanlistener/Makefile
 #
-#   Copyright (C) 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Verge Inc. All rights reserved.
+#
 #   Author: Gregory Nutt <gnutt@nuttx.org>
+#   Author: Anthony Merlino <anthony@vergeaero.com>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -37,66 +40,8 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# Network Library
-
 ASRCS  =
-CSRCS  = netlib_ipv4addrconv.c netlib_ethaddrconv.c netlib_parsehttpurl.c
-CSRCS += netlib_setifstatus.c netlib_getifstatus.c
-
-# IP address support
-
-ifeq ($(CONFIG_NET_IPv4),y)
-CSRCS += netlib_setipv4addr.c netlib_getipv4addr.c
-CSRCS += netlib_setdripv4addr.c netlib_setipv4netmask.c
-CSRCS += netlib_getdripv4addr.c netlib_getipv4netmask.c
-ifeq ($(CONFIG_NET_ARP),y)
-CSRCS += netlib_getarp.c netlib_setarp.c netlib_delarp.c
-endif
-ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
-CSRCS += netlib_setipv4dnsaddr.c
-endif
-endif
-
-ifeq ($(CONFIG_NET_IPv6),y)
-CSRCS += netlib_setipv6addr.c netlib_getipv6addr.c
-CSRCS += netlib_setdripv6addr.c netlib_setipv6netmask.c
-CSRCS += netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c
-ifeq ($(CONFIG_NET_ICMPv6_AUTOCONF),y)
-CSRCS += netlib_autoconfig.c
-endif
-endif
-
-# These require TCP support
-
-ifeq ($(CONFIG_NET_TCP),y)
-ifeq ($(CONFIG_NET_IPv4),y) # Not yet available for IPv6
-CSRCS += netlib_server.c netlib_listenon.c
-endif
-endif
-
-# These require wireless IOCTL support */
-
-ifeq ($(CONFIG_NETDEV_WIRELESS_IOCTL),y)
-CSRCS += netlib_getessid.c netlib_setessid.c
-endif
-
-# MAC address support(Ethernet and 6LoWPAN only)
-
-ifeq ($(CONFIG_NET_ETHERNET),y)
-CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
-endif
-
-ifeq ($(CONFIG_NET_6LOWPAN),y)
-CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_eaddrconv.c
-endif
-
-# IGMP support
-
-ifeq ($(CONFIG_NET_IGMP),y)
-ifeq ($(CONFIG_NET_IPv4),y) # Not yet available for IPv6
-CSRCS += netlib_ipmsfilter.c
-endif
-endif
+CSRCS  = wpanlistener.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -105,23 +50,22 @@ SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\libapps$(LIBEXT)
+  BIN = ..\..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\..\\libapps$(LIBEXT)
 else
-  BIN = ../../libapps$(LIBEXT)
+  BIN = ../../../libapps$(LIBEXT)
 endif
 endif
 
 ROOTDEPPATH = --dep-path .
-
-# Common build
-
 VPATH =
 
+# Build targets
+
 all: .built
-.PHONY: context depend clean distclean
+.PHONY: context .depend depend clean distclean
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -131,15 +75,15 @@ $(COBJS): %$(OBJEXT): %.c
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
+	@touch .built
 
 install:
 
 context:
 
 .depend: Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
+	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	@touch $@
 
 depend: .depend
 
@@ -152,5 +96,4 @@ distclean: clean
 	$(call DELFILE, .depend)
 
 -include Make.dep
-.PHONY: preconfig
-preconfig:
+

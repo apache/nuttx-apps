@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/udp-client.c
+ * examples/udp/udp_client.c
  *
  *   Copyright (C) 2007, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -51,11 +51,64 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#include "udp-internal.h"
+#include "udp.h"
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+static int create_socket(void)
+{
+  socklen_t addrlen;
+  int sockfd;
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv4
+  struct sockaddr_in addr;
+
+  /* Create a new IPv4 UDP socket */
+
+  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0)
+    {
+      printf("client ERROR: client socket failure %d\n", errno);
+      return -1;
+    }
+
+  /* Bind the UDP socket to a IPv4 port */
+
+  addr.sin_family      = AF_INET;
+  addr.sin_port        = HTONS(CONFIG_EXAMPLES_CLIENT_PORTNO);
+  addr.sin_addr.s_addr = HTONL(INADDR_ANY);
+  addrlen              = sizeof(struct sockaddr_in);
+
+#else
+  struct sockaddr_in6 addr;
+
+  /* Create a new IPv6 UDP socket */
+
+  sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
+  if (sockfd < 0)
+    {
+      printf("client ERROR: client socket failure %d\n", errno);
+      return -1;
+    }
+
+  /* Bind the UDP socket to a IPv6 port */
+
+  addr.sin6_family     = AF_INET6;
+  addr.sin6_port       = HTONS(CONFIG_EXAMPLES_CLIENT_PORTNO);
+  memset(addr.sin6_addr.s6_addr, 0, sizeof(struct in6_addr));
+  addrlen              = sizeof(struct sockaddr_in6);
+#endif
+
+  if (bind(sockfd, (FAR struct sockaddr *)&addr, addrlen) < 0)
+    {
+      printf("client ERROR: Bind failure: %d\n", errno);
+      return -1;
+    }
+
+  return sockfd;
+}
 
 static inline void fill_buffer(unsigned char *buf, int offset)
 {
@@ -92,10 +145,10 @@ void send_client(void)
 
   /* Create a new UDP socket */
 
-  sockfd = socket(PF_INETX, SOCK_DGRAM, 0);
+  sockfd = create_socket();
   if (sockfd < 0)
     {
-      printf("client socket failure %d\n", errno);
+      printf("client ERROR: create_socket failed %d\n");
       exit(1);
     }
 
@@ -111,23 +164,13 @@ void send_client(void)
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
       server.sin6_family            = AF_INET6;
-      server.sin6_port              = HTONS(PORTNO);
-
-      server.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1);
-      server.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2);
-      server.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3);
-      server.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4);
-      server.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5);
-      server.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6);
-      server.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7);
-      server.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8);
-
+      server.sin6_port              = HTONS(CONFIG_EXAMPLES_SERVER_PORTNO);
+      memcpy(server.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
       addrlen                       = sizeof(struct sockaddr_in6);
 #else
       server.sin_family             = AF_INET;
-      server.sin_port               = HTONS(PORTNO);
-      server.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
-
+      server.sin_port               = HTONS(CONFIG_EXAMPLES_SERVER_PORTNO);
+      server.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
       addrlen                       = sizeof(struct sockaddr_in);
 #endif
 

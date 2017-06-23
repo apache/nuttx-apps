@@ -56,7 +56,7 @@ int ieee802154_settxpwr(int fd, int32_t txpwr)
 {
   struct ieee802154_set_req_s req;
 
-  req.pib_attr = IEEE802154_PIB_PHY_TX_POWER;
+  req.attr = IEEE802154_ATTR_PHY_TX_POWER;
   req.attrval.phy.txpwr = txpwr;
 
   return ieee802154_set_req(fd, &req);

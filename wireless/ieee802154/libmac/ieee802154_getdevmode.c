@@ -1,8 +1,9 @@
 /****************************************************************************
- * netutils/netlib/netlib_nodeaddrconv.c
+ * apps/wireless/ieee802154/libmac/ieee802154_getdevmode.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2015 Sebastien Lorquet. All rights reserved.
+ *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,73 +38,30 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
+#include <stdio.h>
+#include <errno.h>
 
-#include <nuttx/net/sixlowpan.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 
-#include "netutils/netlib.h"
+#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-/****************************************************************************
- * Name: netlib_nodeaddrconv
- ****************************************************************************/
-
-bool netlib_nodeaddrconv(FAR const char *hwstr, FAR uint8_t *hw)
+int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode)
 {
-  unsigned char tmp;
-  unsigned char i;
-  unsigned char j;
-  char ch;
+  struct ieee802154_get_req_s req;
+  int ret;
 
-  /* Form xx:xx or xx:xx:xx:xx:xx:xx:xx:xx for extended Rime address */
+  req.attr = IEEE802154_ATTR_MAC_DEVMODE;
+  ret = ieee802154_get_req(fd, &req);
 
-  if (strlen(hwstr) != 3 * NET_6LOWPAN_ADDRSIZE - 1)
-    {
-      return false;
-    }
+  *devmode = req.attrval.mac.devmode;
 
-  tmp = 0;
-
-  for (i = 0; i < NET_6LOWPAN_ADDRSIZE; ++i)
-    {
-      j = 0;
-      do
-        {
-          ch = *hwstr++;
-          if (++j > 3)
-           {
-             return false;
-           }
-
-          if (ch == ':' || ch == '\0')
-            {
-              *hw++ = tmp;
-              tmp = 0;
-            }
-          else if (ch >= '0' && ch <= '9')
-            {
-              tmp = (tmp << 4) + (ch - '0');
-            }
-          else if (ch >= 'a' && ch <= 'f')
-            {
-              tmp = (tmp << 4) + (ch - 'a' + 10);
-            }
-          else if (ch >= 'A' && ch <= 'F')
-            {
-              tmp = (tmp << 4) + (ch - 'A' + 10);
-            }
-          else
-            {
-              return false;
-            }
-        }
-      while (ch != ':' && ch != 0);
-    }
-
-  return true;
+  return ret;
 }

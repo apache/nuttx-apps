@@ -1,5 +1,5 @@
 /****************************************************************************
- * netutils/netlib/netlib_setpanid.c
+ * examples/udp/target2.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,58 +37,40 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-#include "wireless/ieee802154.h"
-#include "netutils/netlib.h"
-
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#include "config.h"
+#include "udp.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_setpanid
- *
- * Description:
- *   Join the specified PAN ID
- *
- * Parameters:
- *   ifname The name of the interface to use
- *   panid  The PAN ID to join
- *
- * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
- *
+ * udp2_main
  ****************************************************************************/
 
-int netlib_setpanid(FAR const char *ifname, uint16_t panid)
+#if defined(CONFIG_BUILD_KERNEL)
+int main(int argc, FAR char *argv[])
+#else
+int udp2_main(int argc, char *argv[])
+#endif
 {
-  int ret = ERROR;
+  /* Parse any command line options */
 
-  if (ifname != NULL)
-    {
-      /* Get a socket (only so that we get access to the INET subsystem) */
+  parse_cmdline(argc, argv);
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
-      if (sockfd >= 0)
-        {
-          /* Use the helper provided in libmac */
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+  /* Initialize the network */
 
-          ret = sixlowpan_setpanid(sockfd, ifname, panid);
-          close(sockfd);
-        }
-    }
+  (void)target_netinit();
+#endif
 
-  return ret;
+  /* Run the server or client, depending upon how target1 was configured */
+
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
+  send_client();
+#else
+  recv_server();
+#endif
+
+  return 0;
 }
-
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */
