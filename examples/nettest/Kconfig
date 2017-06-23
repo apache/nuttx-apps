@@ -12,20 +12,20 @@ config EXAMPLES_NETTEST
 
 if EXAMPLES_NETTEST
 
-config EXAMPLES_NETTEST_PROGNAME
-	string "Program name"
+config EXAMPLES_NETTEST_PROGNAME1
+	string "Target1 program name"
 	default "nettest"
 	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be use when the Nettest
 		program is installed.
 
-config EXAMPLES_NETTEST_STACKSIZE
-	int "Nettest stack size"
+config EXAMPLES_NETTEST_STACKSIZE1
+	int "Target1 stack size"
 	default 2048
 
-config EXAMPLES_NETTEST_PRIORITY
-	int "Nettest priority"
+config EXAMPLES_NETTEST_PRIORITY1
+	int "Target1 priority"
 	default 100
 
 config EXAMPLES_NETTEST_LOOPBACK
@@ -48,8 +48,8 @@ config EXAMPLES_NETTEST_SERVER_PRIORITY
 
 endif # EXAMPLES_NETTEST_LOOPBACK
 
-config EXAMPLES_NETTEST_SERVER
-	bool "Target is server"
+config EXAMPLES_NETTEST_SERVER1
+	bool "Target1 is server"
 	default n
 	depends on !EXAMPLES_NETTEST_LOOPBACK
 	---help---
