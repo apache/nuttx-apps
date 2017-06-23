@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/host.c
+ * examples/udp/udp_host.c
  *
  *   Copyright (C) 2007 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

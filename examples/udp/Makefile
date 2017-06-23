@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/udp/Makefile
 #
-#   Copyright (C) 2007-2008, 2011-2012, 2014 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2008, 2011-2012, 2014, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ TARG1_CRCS += udp_server.c
 else
 TARG1_CRCS += udp_client.c
 endif
-TARG1_MAINSRC = target1.c
+TARG1_MAINSRC = udp_target1.c
 
 TARG1_COBJS = $(TARG1_CRCS:.c=$(OBJEXT))
 TARG1_MAINOBJ = $(TARG1_MAINSRC:.c=$(OBJEXT))
@@ -82,7 +82,7 @@ TARG2_CRCS += udp_client.c
 else
 TARG2_CRCS += udp_server.c
 endif
-TARG2_MAINSRC = target2.c
+TARG2_MAINSRC = udp_target2.c
 
 TARG2_COBJS = $(TARG2_CRCS:.c=$(OBJEXT))
 TARG2_MAINOBJ = $(TARG2_MAINSRC:.c=$(OBJEXT))
@@ -96,6 +96,7 @@ APPNAME2 = udpserver
 endif
 CONFIG_EXAMPLES_UDP_PRIORITY2 ?= 100
 CONFIG_EXAMPLES_UDP_STACKSIZE2 ?= 2048
+
 
 PROGNAME2 = $(CONFIG_EXAMPLES_UDP_PROGNAME2)
 PRIORITY2 = $(CONFIG_EXAMPLES_UDP_PRIORITY2)
@@ -117,16 +118,16 @@ ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
 HOSTOBJSEXT ?= o1
 
-HOST_SRCS = host.c udp_cmdline.c
+HOST_SRCS = udp_host.c udp_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)
 HOST_SRCS += udp_client.c
+HOST_BIN = udpclient$(EXEEXT)
 else
 HOST_SRCS += udp_server.c
+HOST_BIN = udpserver$(EXEEXT)
 endif
 
 HOST_OBJS = $(HOST_SRCS:.c=.$(HOSTOBJSEXT))
-HOST_BIN = host$(EXEEXT)
-
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -161,7 +162,7 @@ VPATH =
 all: .built
 .PHONY: clean depend distclean preconfig
 
-$(TARG1_COBJS) $(TARG1_MAINOBJ)$(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS): %$(OBJEXT): %.c
+$(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 $(TARG_BIN): $(TARG_OBJS) $(HOST_BIN)

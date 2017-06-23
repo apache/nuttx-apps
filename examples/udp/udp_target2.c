@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/target2.c
+ * examples/udp/udp_target2.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
