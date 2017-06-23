@@ -1,7 +1,7 @@
 ############################################################################
 # examples/nettest/Makefile
 #
-#   Copyright (C) 2007-2008, 2010-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2008, 2010-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,27 +39,24 @@ include $(APPDIR)/Make.defs
 
 # Basic TCP networking test
 
-TARG_ASRCS =
-TARG_AOBJS = $(TARG_ASRCS:.S=$(OBJEXT))
-
-TARG_CSRCS =
+TARG1_CSRCS =
 ifeq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
-TARG_CSRCS += nettest_server.c nettest_client.c
+TARG1_CSRCS += nettest_server.c nettest_client.c
 else ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
-TARG_CSRCS += nettest_server.c
+TARG1_CSRCS += nettest_server.c
 else
-TARG_CSRCS += nettest_client.c
+TARG1_CSRCS += nettest_client.c
 endif
-TARG_MAINSRC = nettest.c
+TARG1_MAINSRC = nettest_target1.c
 
-TARG_COBJS = $(TARG_CSRCS:.c=$(OBJEXT))
-TARG_MAINOBJ = $(TARG_MAINSRC:.c=$(OBJEXT))
+TARG1_COBJS = $(TARG1_CSRCS:.c=$(OBJEXT))
+TARG1_MAINOBJ = $(TARG1_MAINSRC:.c=$(OBJEXT))
 
-TARG_SRCS = $(TARG_ASRCS) $(TARG_CSRCS) $(TARG_CSRCS)
-TARG_OBJS = $(TARG_AOBJS) $(TARG_COBJS)
+TARG_CSRCS = $(TARG1_CSRCS) $(TARG1_CSRCS)
+TARG_OBJS = $(TARG1_COBJS)
 
 ifneq ($(CONFIG_BUILD_KERNEL),y)
-  TARG_OBJS += $(TARG_MAINOBJ)
+  TARG_OBJS += $(TARG1_MAINOBJ)
 endif
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
@@ -81,16 +78,17 @@ ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
   HOSTCFLAGS += -DCONFIG_EXAMPLES_NETTEST_PERFORMANCE=1
   endif
 
-  HOST_SRCS = host.c
+  HOST_SRCS = nettest_host.c
   ifeq ($(CONFIG_EXAMPLES_NETTEST_SERVER),y)
-  HOST_SRCS += nettest_client.c
+    HOST_SRCS += nettest_client.c
+    HOST_BIN = tcpclient$(EXEEXT)
   else
-  HOST_SRCS += nettest_server.c
+    HOST_SRCS += nettest_server.c
+    HOST_BIN = tcpserver$(EXEEXT)
   endif
 
-  HOSTOBJEXT ?= .hobj
-  HOST_OBJS = $(HOST_SRCS:.c=$(HOSTOBJEXT))
-  HOST_BIN = host
+  HOSTOBJEXT ?= hobj
+  HOST_OBJS = $(HOST_SRCS:.c=.$(HOSTOBJEXT))
 endif
 
 ifeq ($(WINTOOL),y)
@@ -118,16 +116,13 @@ PROGNAME = $(CONFIG_EXAMPLES_HELLO_PROGNAME)
 VPATH =
 
 all: .built $(HOST_BIN)
-.PHONY: clean depend distclean
+.PHONY: clean depend distclean preconfig
 
-$(TARG_AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(TARG_COBJS) $(TARG_MAINOBJ): %$(OBJEXT): %.c
+$(TARG1_COBJS) $(TARG1_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
-$(HOST_OBJS): %$(HOSTOBJEXT): %.c
+$(HOST_OBJS): %.$(HOSTOBJEXT): %.c
 	@echo "CC:  $<"
 	$(Q) $(HOSTCC) -c $(HOSTCFLAGS) $< -o $@
 endif
@@ -147,9 +142,9 @@ endif
 	$(Q) touch .built
 
 ifeq ($(CONFIG_BUILD_KERNEL),y)
-$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(TARG_MAINOBJ)
+$(BIN_DIR)$(DELIM)$(PROGNAME): $(OBJS) $(TARG1_MAINOBJ)
 	@echo "LD: $(PROGNAME)"
-	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(TARG_MAINOBJ) $(LDLIBS)
+	$(Q) $(LD) $(LDELFFLAGS) $(LDLIBPATH) -o $(INSTALL_DIR)$(DELIM)$(PROGNAME) $(ARCHCRT0OBJ) $(TARG1_MAINOBJ) $(LDLIBS)
 	$(Q) $(NM) -u  $(INSTALL_DIR)$(DELIM)$(PROGNAME)
 
 install: $(BIN_DIR)$(DELIM)$(PROGNAME)
@@ -168,15 +163,15 @@ else
 context:
 endif
 
-.depend: Makefile config.h $(TARG_SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_SRCS) >Make.dep
+.depend: Makefile config.h $(TARG_CSRCS)
+	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(TARG_CSRCS) >Make.dep
 	@touch $@
 
 depend: .depend
 
 clean:
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
-	$(call DELFILE, *$(HOSTOBJEXT))
+	$(call DELFILE, *.$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))
 endif
 	$(call DELFILE, .built)
@@ -188,7 +183,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

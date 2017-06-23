@@ -116,7 +116,7 @@ endif
 ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 
 HOSTCFLAGS += -DEXAMPLES_UDP_HOST=1
-HOSTOBJSEXT ?= o1
+HOSTOBJSEXT ?= hobj
 
 HOST_SRCS = udp_host.c udp_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_UDP_SERVER1),y)

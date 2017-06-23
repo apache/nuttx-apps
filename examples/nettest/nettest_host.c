@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nettest/host.c
+ * examples/nettest/nettest_host.c
  *
  *   Copyright (C) 2007, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>

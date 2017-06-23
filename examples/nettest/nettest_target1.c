@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/nettest/nettest.c
+ * examples/nettest/nettest_target1.c
  *
  *   Copyright (C) 2007, 2009-2011, 2015 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
