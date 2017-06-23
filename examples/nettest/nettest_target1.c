@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nettest/nettest_target1.c
  *
- *   Copyright (C) 2007, 2009-2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,10 @@ int nettest_main(int argc, char *argv[])
   int statloc;
 #endif
 #endif
+
+  /* Parse any command line options */
+
+  parse_cmdline(argc, argv);
 
 #ifdef CONFIG_EXAMPLES_NETTEST_INIT
   /* Initialize the network */

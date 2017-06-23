@@ -512,11 +512,11 @@ config EXAMPLES_UDP_SERVERIPv6ADDR_8
 
 endif # EXAMPLES_UDP_IPv6
 
-config EXAMPLES_SERVER_PORTNO
+config EXAMPLES_UDP_SERVER_PORTNO
 	int "Server port number"
 	default 5471
 
-config EXAMPLES_CLIENT_PORTNO
+config EXAMPLES_UDP_CLIENT_PORTNO
 	int "Client port number"
 	default 5472
 
