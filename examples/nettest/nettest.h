@@ -81,7 +81,11 @@
 #  define CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO 5471
 #endif
 
-#define SENDSIZE   4096
+#ifdef CONFIG_EXAMPLES_NETTEST_SENDSIZE
+#  define SENDSIZE CONFIG_EXAMPLES_NETTEST_SENDSIZE
+#else
+#  define SENDSIZE 4096
+#endif
 
 /****************************************************************************
  * Public Data
