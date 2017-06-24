@@ -34,7 +34,7 @@
 #
 ############################################################################
 
-ifeq ($(CONFIG_SYSTEM_DHCPC),y)
+ifeq ($(CONFIG_SYSTEM_DHCPC_RENEW),y)
 CONFIGURED_APPS += system/dhcpc
 endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- * system/dhcpc/dhcpc_main.c
+ * system/dhcpc/renew_main.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -66,13 +66,13 @@ static void dhcpc_showusage(FAR const char *progname, int exitcode)
  ****************************************************************************/
 
 /****************************************************************************
- * dhcpc_main
+ * renew_main
  ****************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int dhcpc_main(int argc, char *argv[])
+int renew_main(int argc, char *argv[])
 #endif
 {
   FAR const char *devname;
