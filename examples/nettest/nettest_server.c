@@ -120,7 +120,7 @@ void recv_server(void)
 #endif
   addrlen = sizeof(struct sockaddr_in6);
 
-  printf("Binding to IPv6 Address: %04x:04x:04x:04x:04x:04x:04x:04x\n",
+  printf("Binding to IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
          myaddr.sin6_addr.s6_addr16[0], myaddr.sin6_addr.s6_addr16[1],
          myaddr.sin6_addr.s6_addr16[2], myaddr.sin6_addr.s6_addr16[3],
          myaddr.sin6_addr.s6_addr16[4], myaddr.sin6_addr.s6_addr16[5],

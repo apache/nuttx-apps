@@ -117,7 +117,6 @@ static const uint16_t g_ipv6_netmask[8] =
  * Public Functions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NETTEST_INIT
 void nettest_initialize(void)
 {
 #ifndef CONFIG_EXAMPLES_NETTEST_IPv6
@@ -188,16 +187,6 @@ void nettest_initialize(void)
 
 #endif /* CONFIG_EXAMPLES_NETTEST_IPv6 */
 }
-#endif /*CONFIG_EXAMPLES_NETTEST_INIT */
-
-#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
-static int server_child(int argc, char *argv[])
-{
-  recv_server();
-  return EXIT_SUCCESS;
-}
-#endif
-
 
 #endif /* CONFIG_EXAMPLES_NETTEST_INIT */
 
