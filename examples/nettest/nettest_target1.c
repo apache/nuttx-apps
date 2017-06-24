@@ -57,8 +57,10 @@
  * nettest_main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
+#if defined(CONFIG_BUILD_KERNEL)
 int main(int argc, FAR char *argv[])
+#elif defined(CONFIG_EXAMPLES_NETTEST_TARGET2)
+int nettest1_main(int argc, char *argv[])
 #else
 int nettest_main(int argc, char *argv[])
 #endif
@@ -83,8 +85,8 @@ int nettest_main(int argc, char *argv[])
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
   /* Then perform the server side of the test on a child task */
 
-  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_SERVER_PRIORITY,
-                      CONFIG_EXAMPLES_NETTEST_SERVER_STACKSIZE, server_child,
+  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_DAEMON_PRIORITY,
+                      CONFIG_EXAMPLES_NETTEST_DAEMON_STACKSIZE, server_child,
                       NULL);
   if (child < 0)
     {

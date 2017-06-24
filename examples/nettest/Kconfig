@@ -36,17 +36,9 @@ config EXAMPLES_NETTEST_LOOPBACK
 		Perform the test using the local loopback device.  In this case,
 		both the client and the server reside on the target.
 
-if EXAMPLES_NETTEST_LOOPBACK
+# No server if loopback; No second target if loopback
 
-config EXAMPLES_NETTEST_SERVER_STACKSIZE
-	int "Server stack size"
-	default 2048
-
-config EXAMPLES_NETTEST_SERVER_PRIORITY
-	int "Server priority"
-	default 100
-
-endif # EXAMPLES_NETTEST_LOOPBACK
+if !EXAMPLES_NETTEST_LOOPBACK
 
 config EXAMPLES_NETTEST_SERVER1
 	bool "Target1 is server"
@@ -55,6 +47,51 @@ config EXAMPLES_NETTEST_SERVER1
 	---help---
 		Select to use the host as the client side of the test.  Default:  The
 		target is the client side of the test
+
+config EXAMPLES_NETTEST_TARGET2
+	bool "Second endpoint is a target"
+	default n
+	---help---
+		By default, the host PC is configured as the second endpoint of the
+		NETTEST.  If this option is selected, then the second endpoint
+		will be built into the FLASH image as well.  This means that you
+		can use two target boards to run the test with no host PC
+		involvement.
+
+if EXAMPLES_NETTEST_TARGET2
+
+config EXAMPLES_NETTEST_PROGNAME2
+	string "Target2 program name"
+	default "udpserver" if !EXAMPLES_NETTEST_SERVER2
+	default "udpclient" if EXAMPLES_NETTEST_SERVER2
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the Target2 program that will be use when the
+		NSH ELF program is installed.
+
+config EXAMPLES_NETTEST_PRIORITY2
+	int "Target2 task priority"
+	default 100
+
+config EXAMPLES_NETTEST_STACKSIZE2
+	int "Target2 stack size"
+	default 2048
+
+endif # EXAMPLES_NETTEST_TARGET2
+
+config EXAMPLES_NETTEST_DAEMON_STACKSIZE
+	int "Server daemon stack size"
+	default 2048
+
+config EXAMPLES_NETTEST_DEAMON_PRIORITY
+	int "Server daemon priority"
+	default 100
+
+endif # EXAMPLES_NETTEST_LOOPBACK
+
+config EXAMPLES_NETTEST_DEVNAME
+	string "Network device"
+	default "eth0"
 
 config EXAMPLES_NETTEST_PERFORMANCE
 	bool "Test for Performance"
@@ -77,6 +114,8 @@ config EXAMPLES_NETTEST_IPv6
 	depends on NET_IPv6
 
 endchoice # IP Domain
+
+# No hardware initialization if loopback
 
 config EXAMPLES_NETTEST_INIT
 	bool "Initialize network"
@@ -113,6 +152,8 @@ config EXAMPLES_NETTEST_NETMASK
 	default 0xffffff00
 
 endif # EXAMPLES_NETTEST_INIT
+
+# No server if loopback
 
 if !EXAMPLES_NETTEST_LOOPBACK
 
@@ -385,9 +426,11 @@ config EXAMPLES_NETTEST_IPv6NETMASK_8
 endif # NET_ICMPv6_AUTOCONF
 endif # EXAMPLES_NETTEST_INIT
 
+# Addresses are well known if loopback is used.
+
 if !EXAMPLES_NETTEST_LOOPBACK || !NET_LOOPBACK
 
-comment "Client IPv6 address"
+comment "Server IPv6 address"
 
 config EXAMPLES_NETTEST_SERVERIPv6ADDR_1
 	hex "[0]"

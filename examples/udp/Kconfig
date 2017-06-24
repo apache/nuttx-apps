@@ -42,7 +42,7 @@ config EXAMPLES_UDP_TARGET2
 		By default, the host PC is configured as the second endpoint of the
 		UDP test.  If this option is selected, then the second endpoint
 		will be built into the FLASH image as well.  This means that you
-		can use two target boards to run the test with not host PC
+		can use two target boards to run the test with no host PC
 		involvement.
 
 if EXAMPLES_UDP_TARGET2
