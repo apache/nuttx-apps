@@ -108,7 +108,7 @@ void nettest_client(void)
   memcpy(server.sin6_addr.s6_addr16, g_nettestserver_ipv6, 8 * sizeof(uint16_t));
   addrlen                       = sizeof(struct sockaddr_in6);
 
-  printf("Connecting to IPv6 Address: %04x:04x:04x:04x:04x:04x:04x:04x\n",
+  printf("Connecting to IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
          g_nettestserver_ipv6[0], g_nettestserver_ipv6[1], g_nettestserver_ipv6[2], g_nettestserver_ipv6[3],
          g_nettestserver_ipv6[4], g_nettestserver_ipv6[5], g_nettestserver_ipv6[6], g_nettestserver_ipv6[7]);
 #else
