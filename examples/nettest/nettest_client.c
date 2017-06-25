@@ -56,7 +56,7 @@
  * Public Functions
  ****************************************************************************/
 
-void send_client(void)
+void nettest_client(void)
 {
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
   struct sockaddr_in6 server;
@@ -105,19 +105,19 @@ void send_client(void)
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
   server.sin6_family            = AF_INET6;
   server.sin6_port              = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
-  memcpy(server.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
+  memcpy(server.sin6_addr.s6_addr16, g_nettestserver_ipv6, 8 * sizeof(uint16_t));
   addrlen                       = sizeof(struct sockaddr_in6);
 
   printf("Connecting to IPv6 Address: %04x:04x:04x:04x:04x:04x:04x:04x\n",
-         g_server_ipv6[0], g_server_ipv6[1], g_server_ipv6[2], g_server_ipv6[3],
-         g_server_ipv6[4], g_server_ipv6[5], g_server_ipv6[6], g_server_ipv6[7]);
+         g_nettestserver_ipv6[0], g_nettestserver_ipv6[1], g_nettestserver_ipv6[2], g_nettestserver_ipv6[3],
+         g_nettestserver_ipv6[4], g_nettestserver_ipv6[5], g_nettestserver_ipv6[6], g_nettestserver_ipv6[7]);
 #else
   server.sin_family             = AF_INET;
   server.sin_port               = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
-  server.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
+  server.sin_addr.s_addr        = (in_addr_t)g_nettestserver_ipv4;
   addrlen                       = sizeof(struct sockaddr_in);
 
-  printf("Connecting to IPv4 Address: %08lx\n", (unsigned long)g_server_ipv4);
+  printf("Connecting to IPv4 Address: %08lx\n", (unsigned long)g_nettestserver_ipv4);
 #endif
 
   /* Connect the socket to the server */

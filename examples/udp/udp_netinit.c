@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/target_netinit.c
+ * examples/udp/udp_netinit.c
  *
  *   Copyright (C) 2007, 2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -117,10 +117,10 @@ static bool g_initialized;
  ****************************************************************************/
 
 /****************************************************************************
- * target_netinit
+ * udp_netinit
  ****************************************************************************/
 
-int target_netinit(void)
+int udp_netinit(void)
 {
   if (!g_initialized)
     {

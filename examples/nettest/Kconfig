@@ -70,8 +70,8 @@ if EXAMPLES_NETTEST_TARGET2
 
 config EXAMPLES_NETTEST_PROGNAME2
 	string "Target2 program name"
-	default "udpserver" if !EXAMPLES_NETTEST_SERVER2
-	default "udpclient" if EXAMPLES_NETTEST_SERVER2
+	default "tcpserver" if !EXAMPLES_NETTEST_SERVER2
+	default "tcpclient" if EXAMPLES_NETTEST_SERVER2
 	depends on BUILD_KERNEL
 	---help---
 		This is the name of the Target2 program that will be use when the

@@ -53,7 +53,7 @@ int nettest2_main(int argc, char *argv[])
 {
   /* Parse any command line options */
 
-  parse_cmdline(argc, argv);
+  nettest_cmdline(argc, argv);
 
 #ifdef CONFIG_EXAMPLES_NETTEST_INIT
   /* Initialize the network */
@@ -64,11 +64,11 @@ int nettest2_main(int argc, char *argv[])
 #if defined(CONFIG_EXAMPLES_NETTEST_SERVER)
   /* Then perform the client side of the test on this thread */
 
-  send_client();
+  nettest_client();
 #else
   /* Then perform the server side of the test on this thread */
 
-  recv_server();
+  nettest_server();
 #endif
 
   return EXIT_SUCCESS;

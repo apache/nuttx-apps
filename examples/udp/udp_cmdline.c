@@ -50,7 +50,7 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_server_ipv6[8] =
+uint16_t g_udpserver_ipv6[8] =
 {
   HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
   HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
@@ -62,7 +62,7 @@ uint16_t g_server_ipv6[8] =
   HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8)
 };
 #else
-uint32_t g_server_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
+uint32_t g_udpserver_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
 #endif
 
 /****************************************************************************
@@ -84,10 +84,10 @@ static void show_usage(FAR const char *progname)
  ****************************************************************************/
 
 /****************************************************************************
- * parse_cmdline
+ * udp_cmdline
  ****************************************************************************/
 
-void parse_cmdline(int argc, char **argv)
+void udp_cmdline(int argc, char **argv)
 {
   /* Currently only a single command line option is supported:  The server
    * IP address.
@@ -100,9 +100,9 @@ void parse_cmdline(int argc, char **argv)
       /* Convert the <server-addr> argument into a binary address */
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-      ret = inet_pton(AF_INET6, argv[1], g_server_ipv6);
+      ret = inet_pton(AF_INET6, argv[1], g_udpserver_ipv6);
 #else
-      ret = inet_pton(AF_INET, argv[1], &g_server_ipv4);
+      ret = inet_pton(AF_INET, argv[1], &g_udpserver_ipv4);
 #endif
       if (ret < 0)
         {

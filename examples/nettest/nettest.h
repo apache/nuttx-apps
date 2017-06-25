@@ -92,9 +92,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-uint16_t g_server_ipv6[8];
+uint16_t g_nettestserver_ipv6[8];
 #else
-uint32_t g_server_ipv4;
+uint32_t g_nettestserver_ipv4;
 #endif
 
 /****************************************************************************
@@ -105,8 +105,8 @@ uint32_t g_server_ipv4;
 void nettest_initialize(void);
 #endif
 
-void parse_cmdline(int argc, char **argv);
-extern void send_client(void);
-extern void recv_server(void);
+void nettest_cmdline(int argc, char **argv);
+extern void nettest_client(void);
+extern void nettest_server(void);
 
 #endif /* __EXAMPLES_NETTEST_H */

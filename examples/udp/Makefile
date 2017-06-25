@@ -41,7 +41,7 @@ include $(APPDIR)/Make.defs
 
 TARGCMN_CSRCS = udp_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_UDP_NETINIT),y)
-TARGCMN_CSRCS += target_netinit.c
+TARGCMN_CSRCS += udp_netinit.c
 endif
 
 TARGCMN_COBJS = $(TARGCMN_CSRCS:.c=$(OBJEXT))

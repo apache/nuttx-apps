@@ -55,9 +55,9 @@
 int main(int argc, char **argv, char **envp)
 {
 #ifdef CONFIG_EXAMPLES_NETTEST_SERVER
-  send_client();
+  nettest_client();
 #else
-  recv_server();
+  nettest_server();
 #endif
 
   return 0;

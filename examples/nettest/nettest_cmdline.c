@@ -51,7 +51,7 @@
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
 
-uint16_t g_server_ipv6[8] =
+uint16_t g_nettestserver_ipv6[8] =
 {
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
   0        /* Use the loopback address */
@@ -77,9 +77,9 @@ uint16_t g_server_ipv6[8] =
 #else
 
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
-uint32_t g_server_ipv4 = HTONL(0x7f000001);
+uint32_t g_nettestserver_ipv4 = HTONL(0x7f000001);
 #else
-uint32_t g_server_ipv4 = HTONL(CONFIG_EXAMPLES_NETTEST_SERVERIP);
+uint32_t g_nettestserver_ipv4 = HTONL(CONFIG_EXAMPLES_NETTEST_SERVERIP);
 #endif
 
 #endif
@@ -103,10 +103,10 @@ static void show_usage(FAR const char *progname)
  ****************************************************************************/
 
 /****************************************************************************
- * parse_cmdline
+ * nettest_cmdline
  ****************************************************************************/
 
-void parse_cmdline(int argc, char **argv)
+void nettest_cmdline(int argc, char **argv)
 {
   /* Currently only a single command line option is supported:  The server
    * IP address.
@@ -119,9 +119,9 @@ void parse_cmdline(int argc, char **argv)
       /* Convert the <server-addr> argument into a binary address */
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-      ret = inet_pton(AF_INET6, argv[1], g_server_ipv6);
+      ret = inet_pton(AF_INET6, argv[1], g_nettestserver_ipv6);
 #else
-      ret = inet_pton(AF_INET, argv[1], &g_server_ipv4);
+      ret = inet_pton(AF_INET, argv[1], &g_nettestserver_ipv4);
 #endif
       if (ret < 0)
         {

@@ -99,9 +99,9 @@
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_server_ipv6[8];
+uint16_t g_udpserver_ipv6[8];
 #else
-uint32_t g_server_ipv4;
+uint32_t g_udpserver_ipv4;
 #endif
 
 /****************************************************************************
@@ -109,11 +109,11 @@ uint32_t g_server_ipv4;
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_UDP_NETINIT
-int target_netinit(void);
+int udp_netinit(void);
 #endif
 
-void parse_cmdline(int argc, char **argv);
-void send_client(void);
-void recv_server(void);
+void udp_cmdline(int argc, char **argv);
+void udp_client(void);
+void udp_server(void);
 
 #endif /* __EXAMPLES_UDP_UDP_H */

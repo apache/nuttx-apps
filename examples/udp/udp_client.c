@@ -130,7 +130,7 @@ static inline void fill_buffer(unsigned char *buf, int offset)
  * Public Functions
  ****************************************************************************/
 
-void send_client(void)
+void udp_client(void)
 {
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   struct sockaddr_in6 server;
@@ -165,12 +165,12 @@ void send_client(void)
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
       server.sin6_family            = AF_INET6;
       server.sin6_port              = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
-      memcpy(server.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
+      memcpy(server.sin6_addr.s6_addr16, g_udpserver_ipv6, 8 * sizeof(uint16_t));
       addrlen                       = sizeof(struct sockaddr_in6);
 #else
       server.sin_family             = AF_INET;
       server.sin_port               = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
-      server.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
+      server.sin_addr.s_addr        = (in_addr_t)g_udpserver_ipv4;
       addrlen                       = sizeof(struct sockaddr_in);
 #endif
 

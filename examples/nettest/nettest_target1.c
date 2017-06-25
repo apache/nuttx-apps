@@ -56,7 +56,7 @@
 #ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
 static int server_child(int argc, char *argv[])
 {
-  recv_server();
+  nettest_server();
   return EXIT_SUCCESS;
 }
 #endif
@@ -86,7 +86,7 @@ int nettest_main(int argc, char *argv[])
 
   /* Parse any command line options */
 
-  parse_cmdline(argc, argv);
+  nettest_cmdline(argc, argv);
 
 #ifdef CONFIG_EXAMPLES_NETTEST_INIT
   /* Initialize the network */
@@ -111,14 +111,14 @@ int nettest_main(int argc, char *argv[])
 #elif defined(CONFIG_EXAMPLES_NETTEST_SERVER)
   /* Then perform the server side of the test on this thread */
 
-  recv_server();
+  nettest_server();
 #endif
 
 #if !defined(CONFIG_EXAMPLES_NETTEST_SERVER) || \
     defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
   /* Then perform the client side of the test on this thread */
 
-  send_client();
+  nettest_client();
 #endif
 
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(CONFIG_SCHED_WAITPID)

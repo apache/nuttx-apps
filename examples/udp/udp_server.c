@@ -84,7 +84,7 @@ static inline int check_buffer(unsigned char *buf)
  * Public Functions
  ****************************************************************************/
 
-void recv_server(void)
+void udp_server(void)
 {
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   struct sockaddr_in6 server;

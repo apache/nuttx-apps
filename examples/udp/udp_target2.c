@@ -56,20 +56,20 @@ int udp2_main(int argc, char *argv[])
 {
   /* Parse any command line options */
 
-  parse_cmdline(argc, argv);
+  udp_cmdline(argc, argv);
 
 #ifdef CONFIG_EXAMPLES_UDP_NETINIT
   /* Initialize the network */
 
-  (void)target_netinit();
+  (void)udp_netinit();
 #endif
 
   /* Run the server or client, depending upon how target1 was configured */
 
 #ifdef CONFIG_EXAMPLES_UDP_SERVER1
-  send_client();
+  udp_client();
 #else
-  recv_server();
+  udp_server();
 #endif
 
   return 0;

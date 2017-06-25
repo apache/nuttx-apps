@@ -41,7 +41,7 @@ include $(APPDIR)/Make.defs
 
 TARGCMN_CSRCS = nettest_cmdline.c
 ifeq ($(CONFIG_EXAMPLES_NETTEST_INIT),y)
-TARGCMN_CSRCS += target_netinit.c
+TARGCMN_CSRCS += nettest_netinit.c
 endif
 
 TARGCMN_COBJS = $(TARGCMN_CSRCS:.c=$(OBJEXT))
@@ -92,7 +92,7 @@ TARG2_CSRCS += nettest_server.c
 endif
 TARG2_MAINSRC = nettest_target2.c
 
-TARG2_COBJS = $(TARG2_CCRCS:.c=$(OBJEXT))
+TARG2_COBJS = $(TARG2_CSRCS:.c=$(OBJEXT))
 TARG2_MAINOBJ = $(TARG2_MAINSRC:.c=$(OBJEXT))
 
 # Target 2 Application Info
@@ -182,10 +182,10 @@ VPATH =
 all: .built $(HOST_BIN)
 .PHONY: clean depend distclean preconfig
 
-$(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARGCMN_COBJS) : %$(OBJEXT): %.c
+$(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS) : %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
-ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 
 $(HOST_OBJS): %.$(HOSTOBJEXT): %.c
@@ -199,7 +199,7 @@ config.h: $(TOPDIR)/include/nuttx/config.h
 	@echo "CP:  $<"
 	$(Q) cp $< $@
 
-ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 
 $(HOST_BIN): config.h $(HOST_OBJS)
@@ -230,7 +230,7 @@ ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME1)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME1),$(PRIORITY1),$(STACKSIZE1),$(MAINNAME1))
 
-ifeq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+ifeq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 $(BUILTIN_REGISTRY)$(DELIM)$(APPNAME2)_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,$(APPNAME2),$(PRIORITY2),$(STACKSIZE2),$(MAINNAME2))
 
@@ -250,7 +250,7 @@ endif
 depend: .depend
 
 clean:
-ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
+ifneq ($(CONFIG_EXAMPLES_NETTEST_TARGET2),y)
 ifneq ($(CONFIG_EXAMPLES_NETTEST_LOOPBACK),y)
 	$(call DELFILE, *.$(HOSTOBJEXT))
 	$(call DELFILE, $(HOST_BIN))

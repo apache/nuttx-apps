@@ -57,7 +57,7 @@
  * Public Functions
  ****************************************************************************/
 
-void recv_server(void)
+void nettest_server(void)
 {
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
   struct sockaddr_in6 myaddr;
@@ -114,7 +114,7 @@ void recv_server(void)
   myaddr.sin6_family            = AF_INET6;
   myaddr.sin6_port              = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && !defined(NET_LOOPBACK)
-  memcpy(myaddr.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
+  memcpy(myaddr.sin6_addr.s6_addr16, g_nettestserver_ipv6, 8 * sizeof(uint16_t));
 #else
   memset(myaddr.sin6_addr.s6_addr16, 0, 8 * sizeof(uint16_t));
 #endif
@@ -130,7 +130,7 @@ void recv_server(void)
   myaddr.sin_port               = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
 
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && !defined(NET_LOOPBACK)
-  myaddr.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
+  myaddr.sin_addr.s_addr        = (in_addr_t)g_nettestserver_ipv4;
 #else
   myaddr.sin_addr.s_addr        = INADDR_ANY;
 #endif
