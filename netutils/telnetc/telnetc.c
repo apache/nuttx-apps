@@ -249,7 +249,7 @@ enum telnet_error_u _init_zlib(struct telnet_s *telnet, int deflate,
   if ((z = (z_stream *) calloc(1, sizeof(z_stream))) == 0)
     {
       return _error(telnet, __LINE__, __func__, TELNET_ENOMEM, err_fatal,
-                    "malloc() failed: %s", strerror(errno));
+                    "malloc() failed: %d", errno);
     }
 
   /* Initialize */
@@ -445,7 +445,7 @@ static inline void _set_rfc1143(struct telnet_s *telnet, unsigned char telopt,
   if (qtmp == 0)
     {
       _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-             "realloc() failed: %s", strerror(errno));
+             "realloc() failed: %d", errno);
       return;
     }
 
@@ -758,7 +758,7 @@ static int _environ_telnet(struct telnet_s *telnet, unsigned char type,
   if (values == 0)
     {
       _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-             "calloc() failed: %s", strerror(errno));
+             "calloc() failed: %d", errno);
       return 0;
     }
 
@@ -901,7 +901,7 @@ static int _mssp_telnet(struct telnet_s *telnet, char *buffer, size_t size)
   if (values == 0)
     {
       _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-             "calloc() failed: %s", strerror(errno));
+             "calloc() failed: %d", errno);
       return 0;
     }
 
@@ -992,7 +992,7 @@ static int _zmp_telnet(struct telnet_s *telnet, const char *buffer, size_t size)
   if ((argv = (char **)calloc(argc, sizeof(char *))) == 0)
     {
       _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-             "calloc() failed: %s", strerror(errno));
+             "calloc() failed: %d", errno);
       return 0;
     }
 
@@ -1053,7 +1053,7 @@ static int _ttype_telnet(struct telnet_s *telnet, const char *buffer,
       if ((name = (char *)malloc(size)) == 0)
         {
           _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                 "malloc() failed: %s", strerror(errno));
+                 "malloc() failed: %d", errno);
           return 0;
         }
 
@@ -1980,7 +1980,7 @@ int telnet_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
       if (output == 0)
         {
           _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                 "malloc() failed: %s", strerror(errno));
+                 "malloc() failed: %d", errno);
           return -1;
         }
 
@@ -2109,7 +2109,7 @@ int telnet_raw_vprintf(struct telnet_s *telnet, const char *fmt, va_list va)
       if (output == 0)
         {
           _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                 "malloc() failed: %s", strerror(errno));
+                 "malloc() failed: %d", errno);
           return -1;
         }
 
