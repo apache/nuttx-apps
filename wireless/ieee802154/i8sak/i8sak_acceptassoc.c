@@ -122,7 +122,7 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
       printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
       i8sak_cmd_error(i8sak);
     }
-  
+
   ieee802154_setassocpermit(fd, true);
 
   if (!optcnt)

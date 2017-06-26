@@ -109,7 +109,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             sendasdev = true;
             argind++;
             break;
-          
+
           case 'm':
             sendmax = true;
             argind++;
@@ -135,7 +135,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     {
       i8sak->payload_len = i8sak_str2payload(argv[1], &i8sak->payload[0]);
     }
-  
+
   if (sendmax)
     {
       i8sak->payload_len = IEEE802154_MAX_SAFE_MAC_PAYLOAD_SIZE;

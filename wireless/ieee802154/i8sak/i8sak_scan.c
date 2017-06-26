@@ -105,7 +105,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
             optind = -1;
             return;
-          
+
           case 'p':
             scan.type = IEEE802154_SCANTYPE_PASSIVE;
             break;
@@ -144,7 +144,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   scan.duration = 5;
   scan.chpage = i8sak->chpage;
- 
+
   /* Parse channel list */
 
   sscanf(argv[argind], "%d-%d", &minchannel, &maxchannel);

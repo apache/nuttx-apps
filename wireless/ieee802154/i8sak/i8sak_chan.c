@@ -105,7 +105,7 @@ void i8sak_chan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
     }
-  
+
   if (!getchan)
     {
       if (argc < argind + 1)
@@ -113,7 +113,7 @@ void i8sak_chan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           fprintf(stderr, "ERROR: missing channel\n");
           i8sak_cmd_error(i8sak); /* This exits for us */
         }
-      
+
       channel  = i8sak_str2luint8(argv[argind]);
     }
 
@@ -124,7 +124,7 @@ void i8sak_chan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak_cmd_error(i8sak);
     }
 
-  if (getchan) 
+  if (getchan)
     {
       ieee802154_getchan(fd, &channel);
       printf("i8sak: Channel: %d\n", (int)channel);
