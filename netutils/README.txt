@@ -55,6 +55,12 @@ highly influenced by uIP) include:
               and adapted for NuttX by Darcy Gong.
   tftpc     - TFTP client.  See apps/include/netutils/tftp.h
               for interface information.
+  telnetc   - This is a port of libtelnet to NuttX.  This is a public domain
+              Telnet client library available from
+              https://github.com/seanmiddleditch/libtelnet modified for use
+              with NuttX.  Original Authors: Sean Middleditch <sean@sourcemud.org>,
+              Jack Kelly <endgame.dos@gmail.com>, and Katherine Flavel
+              <kate@elide.org>
   telnetd   - TELNET server.  This is the Telnet logic adapted from
               uIP and generalized for use as the front end to any
               shell.  The telnet daemon creates sessions that are
