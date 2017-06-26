@@ -47,8 +47,9 @@ STACKSIZE = 4096
 # IEEE 802.15.4 SAK (Swiss Army Knife)
 
 ASRCS =
-CSRCS = i8sak_acceptassoc.c i8sak_assoc.c i8sak_blaster.c i8sak_poll.c
-CSRCS += i8sak_sniffer.c i8sak_startpan.c i8sak_tx.c wpanlistener.c
+CSRCS = i8sak_acceptassoc.c i8sak_assoc.c i8sak_scan.c i8sak_blaster.c i8sak_poll.c
+CSRCS += i8sak_sniffer.c i8sak_startpan.c i8sak_tx.c i8sak_chan.c
+CSRCS += wpanlistener.c
 MAINSRC = i8sak_main.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

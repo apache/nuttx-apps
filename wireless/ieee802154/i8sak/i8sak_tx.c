@@ -126,13 +126,9 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
             ret = ERROR;
-            break;
+            optind = -1;
+            i8sak_cmd_error(i8sak);
         }
-    }
-
-  if (ret != OK)
-    {
-      i8sak_cmd_error(i8sak);
     }
 
   if (argc == argind + 1)

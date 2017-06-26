@@ -146,7 +146,7 @@ struct i8sak_s
 
   /* Settings */
 
-  uint8_t chnum;
+  uint8_t chan;
   uint8_t chpage;
   struct ieee802154_addr_s addr;
   struct ieee802154_addr_s ep;
@@ -154,6 +154,9 @@ struct i8sak_s
   uint8_t payload[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
   uint16_t payload_len;
   int blasterperiod;
+
+  struct ieee802154_pandesc_s pandescs[CONFIG_MAC802154_NPANDESC];
+  uint8_t npandesc;
 };
 
 /****************************************************************************
@@ -175,10 +178,12 @@ bool i8sak_str2bool(FAR const char *str);
 void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_acceptassoc_cmd (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_assoc_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_scan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_tx_cmd          (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_poll_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_blaster_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_chan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 
 /****************************************************************************
  * Inline Functions
