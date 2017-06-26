@@ -1,8 +1,8 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_setsaddr.c
+ * apps/wireless/ieee802154/libmac/ieee802154_assocpermit.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
- *   Author: Gregory Nutt <gnutt@nuttx.org>
+ *   Copyright (C) 2017 Verge Inc. All rights reserved.
+ *   Author: Anthony Merlino <anthony@vergeaero.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,7 +42,7 @@
 #include <sys/ioctl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdbool.h>
 #include <errno.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
@@ -53,12 +53,12 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_setsaddr(int sock, FAR const char *ifname, FAR const uint8_t *saddr)
+int ieee802154_setassocpermit(int fd, bool assocpermit)
 {
   struct ieee802154_set_req_s req;
 
-  req.attr = IEEE802154_ATTR_MAC_SADDR;
-  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
+  req.attr = IEEE802154_ATTR_MAC_ASSOCIATION_PERMIT;
+  req.attrval.mac.assocpermit = assocpermit;
 
-  return sixlowpan_set_req(sock, ifname, &req);
+  return ieee802154_set_req(fd, &req);
 }

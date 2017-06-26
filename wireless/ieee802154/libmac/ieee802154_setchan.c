@@ -57,8 +57,8 @@ int ieee802154_setchan(int fd, uint8_t chan)
 {
   struct ieee802154_set_req_s req;
 
-  req.attr = IEEE802154_ATTR_PHY_CURRENT_CHANNEL;
-  req.attrval.phy.channel = chan;
+  req.attr = IEEE802154_ATTR_PHY_CHAN;
+  req.attrval.phy.chan = chan;
 
   return ieee802154_set_req(fd, &req);
 }
