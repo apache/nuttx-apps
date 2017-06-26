@@ -528,23 +528,24 @@ static void i8sak_switch_instance(FAR char *devname)
         }
 
       sq_addlast((FAR sq_entry_t *)i8sak, &g_i8sak_instances);
+
+      /* Update our "sticky" i8sak instance. Must come before call to setup so that
+       * the shared active global i8sak is correct.
+       */
+
+      g_activei8sak = i8sak;
+
+      if (i8sak_setup(i8sak, devname) < 0)
+        {
+          exit(EXIT_FAILURE);
+        }
     }
-
-  /* Update our "sticky" i8sak instance. Must come before call to setup so that
-   * the shared active global i8sak is correct.
-   */
-
-  g_activei8sak = i8sak;
-
-  if (!g_activei8sak_set)
+  else
     {
-      g_activei8sak_set = true;
+      g_activei8sak = i8sak;
     }
 
-  if (i8sak_setup(i8sak, devname) < 0)
-    {
-      exit(EXIT_FAILURE);
-    }
+  g_activei8sak_set = true;
 }
 
 static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
