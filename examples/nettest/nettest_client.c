@@ -213,6 +213,7 @@ void nettest_client(void)
       goto errout_with_socket;
     }
 
+  printf("client: Terminating\n");
   close(sockfd);
   free(outbuf);
 #ifndef CONFIG_EXAMPLES_NETTEST_PERFORMANCE
