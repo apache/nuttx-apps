@@ -58,7 +58,7 @@ int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr)
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.attr = IEEE802154_ATTR_MAC_EXTENDED_ADDR;
+  req.attr = IEEE802154_ATTR_MAC_EADDR;
   ret = ieee802154_get_req(fd, &req);
 
   IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);

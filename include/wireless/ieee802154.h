@@ -112,6 +112,8 @@ int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
 
 int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode);
 
+int ieee802154_setassocpermit(int fd, bool assocpermit);
+
 #ifdef CONFIG_NET_6LOWPAN
 /* Netork driver IOCTL helpers */
 
