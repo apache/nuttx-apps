@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/nettest/host.c
+ * examples/udp/udp_host.c
  *
- *   Copyright (C) 2007, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
  ****************************************************************************/
 
 #include "config.h"
-#include "nettest.h"
+#include "udp.h"
 
 /****************************************************************************
  * Private Data
@@ -54,10 +54,16 @@
 
 int main(int argc, char **argv, char **envp)
 {
-#ifdef CONFIG_EXAMPLES_NETTEST_SERVER
-  send_client();
+  /* Parse any command line options */
+
+  udp_cmdline(argc, argv);
+
+  /* Run the server or client, depending upon how target1 was configured */
+
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
+  udp_client();
 #else
-  recv_server();
+  udp_server();
 #endif
 
   return 0;

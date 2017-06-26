@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/wireless/ieee802154/libmac/sixlowpan_setsaddr.c
+ * examples/udp/udp_target2.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,28 +37,40 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <sys/ioctl.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
-
-#include "wireless/ieee802154.h"
+#include "config.h"
+#include "udp.h"
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_setsaddr(int sock, FAR const char *ifname, FAR const uint8_t *saddr)
+/****************************************************************************
+ * udp2_main
+ ****************************************************************************/
+
+#if defined(CONFIG_BUILD_KERNEL)
+int main(int argc, FAR char *argv[])
+#else
+int udp2_main(int argc, char *argv[])
+#endif
 {
-  struct ieee802154_set_req_s req;
+  /* Parse any command line options */
 
-  req.attr = IEEE802154_ATTR_MAC_SADDR;
-  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
+  udp_cmdline(argc, argv);
 
-  return sixlowpan_set_req(sock, ifname, &req);
+#ifdef CONFIG_EXAMPLES_UDP_NETINIT
+  /* Initialize the network */
+
+  (void)udp_netinit();
+#endif
+
+  /* Run the server or client, depending upon how target1 was configured */
+
+#ifdef CONFIG_EXAMPLES_UDP_SERVER1
+  udp_client();
+#else
+  udp_server();
+#endif
+
+  return 0;
 }

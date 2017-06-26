@@ -80,6 +80,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   enum ieee802154_devmode_e devmode;
   struct wpanlistener_eventfilter_s eventfilter;
   bool sendasdev = false;
+  bool sendmax = false;
   int argind;
   int option;
   int fd;
@@ -87,7 +88,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   ret = OK;
   argind = 1;
-  while ((option = getopt(argc, argv, ":hd")) != ERROR)
+  while ((option = getopt(argc, argv, ":hdm")) != ERROR)
     {
       switch (option)
         {
@@ -96,6 +97,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "Usage: %s [-h|d] [<hex-payload>]\n"
                     "    -h = this help menu\n"
                     "    -d = send as device instead of coord\n"
+                    "    -m = send the largest frame possible"
                     , argv[0]);
 
             /* Must manually reset optind if we are going to exit early */
@@ -105,6 +107,11 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case 'd':
             sendasdev = true;
+            argind++;
+            break;
+
+          case 'm':
+            sendmax = true;
             argind++;
             break;
 
@@ -119,18 +126,19 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
             ret = ERROR;
-            break;
+            optind = -1;
+            i8sak_cmd_error(i8sak);
         }
-    }
-
-  if (ret != OK)
-    {
-      i8sak_cmd_error(i8sak);
     }
 
   if (argc == argind + 1)
     {
       i8sak->payload_len = i8sak_str2payload(argv[1], &i8sak->payload[0]);
+    }
+
+  if (sendmax)
+    {
+      i8sak->payload_len = IEEE802154_MAX_SAFE_MAC_PAYLOAD_SIZE;
     }
 
   fd = open(i8sak->devname, O_RDWR);

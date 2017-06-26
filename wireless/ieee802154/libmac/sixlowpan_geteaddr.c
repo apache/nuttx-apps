@@ -58,7 +58,7 @@ int sixlowpan_geteaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr)
   struct ieee802154_get_req_s req;
   int ret;
 
-  req.attr = IEEE802154_ATTR_MAC_EXTENDED_ADDR;
+  req.attr = IEEE802154_ATTR_MAC_EADDR;
   ret = sixlowpan_get_req(sock, ifname, &req);
 
   IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);

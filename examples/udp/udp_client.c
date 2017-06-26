@@ -57,6 +57,59 @@
  * Private Functions
  ****************************************************************************/
 
+static int create_socket(void)
+{
+  socklen_t addrlen;
+  int sockfd;
+
+#ifdef CONFIG_EXAMPLES_UDP_IPv4
+  struct sockaddr_in addr;
+
+  /* Create a new IPv4 UDP socket */
+
+  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sockfd < 0)
+    {
+      printf("client ERROR: client socket failure %d\n", errno);
+      return -1;
+    }
+
+  /* Bind the UDP socket to a IPv4 port */
+
+  addr.sin_family      = AF_INET;
+  addr.sin_port        = HTONS(CONFIG_EXAMPLES_UDP_CLIENT_PORTNO);
+  addr.sin_addr.s_addr = HTONL(INADDR_ANY);
+  addrlen              = sizeof(struct sockaddr_in);
+
+#else
+  struct sockaddr_in6 addr;
+
+  /* Create a new IPv6 UDP socket */
+
+  sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
+  if (sockfd < 0)
+    {
+      printf("client ERROR: client socket failure %d\n", errno);
+      return -1;
+    }
+
+  /* Bind the UDP socket to a IPv6 port */
+
+  addr.sin6_family     = AF_INET6;
+  addr.sin6_port       = HTONS(CONFIG_EXAMPLES_UDP_CLIENT_PORTNO);
+  memset(addr.sin6_addr.s6_addr, 0, sizeof(struct in6_addr));
+  addrlen              = sizeof(struct sockaddr_in6);
+#endif
+
+  if (bind(sockfd, (FAR struct sockaddr *)&addr, addrlen) < 0)
+    {
+      printf("client ERROR: Bind failure: %d\n", errno);
+      return -1;
+    }
+
+  return sockfd;
+}
+
 static inline void fill_buffer(unsigned char *buf, int offset)
 {
   int ch;
@@ -77,7 +130,7 @@ static inline void fill_buffer(unsigned char *buf, int offset)
  * Public Functions
  ****************************************************************************/
 
-void send_client(void)
+void udp_client(void)
 {
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   struct sockaddr_in6 server;
@@ -92,10 +145,10 @@ void send_client(void)
 
   /* Create a new UDP socket */
 
-  sockfd = socket(PF_INETX, SOCK_DGRAM, 0);
+  sockfd = create_socket();
   if (sockfd < 0)
     {
-      printf("client socket failure %d\n", errno);
+      printf("client ERROR: create_socket failed %d\n");
       exit(1);
     }
 
@@ -111,13 +164,13 @@ void send_client(void)
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
       server.sin6_family            = AF_INET6;
-      server.sin6_port              = HTONS(PORTNO);
-      memcpy(server.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
+      server.sin6_port              = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
+      memcpy(server.sin6_addr.s6_addr16, g_udpserver_ipv6, 8 * sizeof(uint16_t));
       addrlen                       = sizeof(struct sockaddr_in6);
 #else
       server.sin_family             = AF_INET;
-      server.sin_port               = HTONS(PORTNO);
-      server.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
+      server.sin_port               = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
+      server.sin_addr.s_addr        = (in_addr_t)g_udpserver_ipv4;
       addrlen                       = sizeof(struct sockaddr_in);
 #endif
 

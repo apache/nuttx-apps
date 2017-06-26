@@ -1,12 +1,10 @@
 /****************************************************************************
- * apps/wireless/ieee802154/i8sak/i8sak_assoc.c
+ * apps/wireless/ieee802154/i8sak/i8sak_scan.c
  * IEEE 802.15.4 Swiss Army Knife
  *
  *   Copyright (C) 2014-2015, 2017 Gregory Nutt. All rights reserved.
- *   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
  *   Copyright (C) 2017 Verge Inc. All rights reserved.
  *
- *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
  *   Author: Gregory Nuttx <gnutt@nuttx.org>
  *
@@ -62,89 +60,62 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void assoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
+static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_assoc
+ * Name : i8sak_scan_cmd
  *
  * Description :
  *   Request association with the Coordinator
  ****************************************************************************/
 
-void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
+void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
-  struct ieee802154_assoc_req_s assocreq;
+  struct ieee802154_scan_req_s scan;
   struct wpanlistener_eventfilter_s filter;
-  FAR struct ieee802154_pandesc_s *pandesc;
   int fd;
   int option;
-  int optcnt;
-  int ret;
-  uint8_t resindex;
+  int argind;
+  int i;
+  int minchannel;
+  int maxchannel;
 
-  /* If the addresses has never been automatically or manually set before, set
-   * it assuming that we are the default device address and the endpoint is the
-   * default PAN Coordinator address.  This is actually the way the i8sak settings
-   * are configured, so just set the flag if it's not already set.
-   */
+  scan.type = IEEE802154_SCANTYPE_PASSIVE;
 
-  if (!i8sak->addrset)
+  argind = 1;
+  while ((option = getopt(argc, argv, ":hpae")) != ERROR)
     {
-      i8sak->addrset = true;
-    }
-
-  optcnt = 0;
-  while ((option = getopt(argc, argv, ":hr:s:e:")) != ERROR)
-    {
-      optcnt++;
+      argind++;
       switch (option)
         {
           case 'h':
             fprintf(stderr, "Requests association with endpoint\n"
-                    "Usage: %s [-h]\n"
+                    "Usage: %s [-h|p|a|e] minCh-maxCh\n"
                     "    -h = this help menu\n"
-                    "    -r = use scan result index\n"
+                    "    -p = passive scan (default)\n"
+                    "    -a = active scan\n"
+                    "    -e = energy scan\n"
                     , argv[0]);
 
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
-          case 'r':
-            resindex = i8sak_str2luint8(optarg);
 
-            if (resindex >= i8sak->npandesc)
-              {
-                fprintf(stderr, "ERROR: missing argument\n");
-                /* Must manually reset optind if we are going to exit early */
-
-                optind = -1;
-                i8sak_cmd_error(i8sak); /* This exits for us */
-              }
-
-            pandesc = &i8sak->pandescs[resindex];
-
-            i8sak->chan   = pandesc->chan;
-            i8sak->chpage = pandesc->chpage;
-            memcpy(&i8sak->ep, &pandesc->coordaddr, sizeof(struct ieee802154_addr_s));
+          case 'p':
+            scan.type = IEEE802154_SCANTYPE_PASSIVE;
             break;
 
-          case 's':
-            /* Parse extended address and put it into the i8sak instance */
-
-            i8sak_str2saddr(optarg, i8sak->ep.saddr);
-            i8sak->ep.mode= IEEE802154_ADDRMODE_SHORT;
+          case 'a':
+            scan.type = IEEE802154_SCANTYPE_ACTIVE;
             break;
 
           case 'e':
-            /* Parse extended address and put it into the i8sak instance */
-
-            i8sak_str2eaddr(optarg, i8sak->ep.eaddr);
-            i8sak->ep.mode = IEEE802154_ADDRMODE_EXTENDED;
+            scan.type = IEEE802154_SCANTYPE_ED;
             break;
 
           case ':':
@@ -163,13 +134,32 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
-  /* If none of the option flags were used, and there is an argument included,
-   * assume it is the PAN ID
-   */
+  /* There should always be one argument after the list option argument */
 
-  if (optcnt && argc == 2)
+  if (argc != argind + 1)
     {
-      i8sak_str2panid(argv[1], i8sak->ep.panid);
+      fprintf(stderr, "ERROR: invalid channel list\n");
+      i8sak_cmd_error(i8sak);
+    }
+
+  scan.duration = 5;
+  scan.chpage = i8sak->chpage;
+
+  /* Parse channel list */
+
+  sscanf(argv[argind], "%d-%d", &minchannel, &maxchannel);
+
+  scan.numchan = maxchannel - minchannel + 1;
+
+  if (scan.numchan > 15)
+    {
+      fprintf(stderr, "ERROR: too many channels\n");
+      i8sak_cmd_error(i8sak);
+    }
+
+  for (i = 0; i < scan.numchan; i++)
+    {
+      scan.channels[i] = minchannel + i;
     }
 
   fd = open(i8sak->devname, O_RDWR);
@@ -179,66 +169,85 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak_cmd_error(i8sak);
     }
 
-  /* Register new callback for receiving the association notifications */
+  /* Register new callback for receiving the scan confirmation notification */
 
   memset(&filter, 0, sizeof(struct wpanlistener_eventfilter_s));
-  filter.confevents.assoc = true;
+  filter.confevents.scan = true;
 
-  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, assoc_eventcb, &filter,
+  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, scan_eventcb, &filter,
                                  (FAR void *)i8sak, true);
 
-  printf("i8sak: issuing ASSOC. request\n");
+  printf("i8sak: starting scan\n");
 
-  assocreq.chan = i8sak->chan;
-  assocreq.chpage = i8sak->chpage;
-
-  memcpy(&assocreq.coordaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));
-
-  assocreq.capabilities.devtype = 0;
-  assocreq.capabilities.powersource = 1;
-  assocreq.capabilities.rxonidle = 1;
-  assocreq.capabilities.security = 0;
-  assocreq.capabilities.allocaddr = 1;
-
-  ieee802154_assoc_req(fd, &assocreq);
+  ieee802154_scan_req(fd, &scan);
 
   close(fd);
-
-  /* Wait here, the event listener will notify us if the correct event occurs */
-
-  i8sak->assoc = true;
-
-  ret = sem_wait(&i8sak->sigsem);
-  sem_post(&i8sak->exclsem);
-  if (ret != OK)
-    {
-      i8sak->assoc = false;
-      printf("i8sak: test cancelled\n");
-      i8sak_cmd_error(i8sak);
-    }
 }
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-static void assoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
+static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
+  FAR struct ieee802154_scan_conf_s *scan = &notif->u.scanconf;
+  int i;
 
-  if (notif->u.assocconf.status == IEEE802154_STATUS_SUCCESS)
+  printf("\n\ni8sak: Scan complete: %s\n",
+         IEEE802154_STATUS_STRING[scan->status]);
+
+  printf("Scan type: ");
+
+  switch (scan->type)
     {
-      printf("i8sak: ASSOC.request succeeded\n");
-    }
-  else
-    {
-      printf("i8sak: ASSOC.request failed: %s\n",
-             IEEE802154_STATUS_STRING[notif->u.assocconf.status]);
+      case IEEE802154_SCANTYPE_ACTIVE:
+        printf("Active\n");
+        break;
+      case IEEE802154_SCANTYPE_PASSIVE:
+        printf("Passive\n");
+        break;
+      case IEEE802154_SCANTYPE_ED:
+        printf("Energy\n");
+        break;
+      default:
+        printf("Unknown\n");
+        break;
     }
 
-  if (i8sak->assoc)
+  /* Copy the results from the notification */
+
+  i8sak->npandesc = scan->numdesc;
+  memcpy(i8sak->pandescs, scan->pandescs,
+         sizeof(struct ieee802154_pandesc_s) * i8sak->npandesc);
+
+  printf("Scan results: \n");
+
+  for (i = 0; i < scan->numdesc; i++)
     {
-      sem_post(&i8sak->sigsem);
-      i8sak->assoc = false;
+      printf("Result %d\n", i);
+      printf("    Channel: %u\n", scan->pandescs[i].chan);
+      printf("    PAN ID: %02X:%02X\n",
+             scan->pandescs[i].coordaddr.panid[0],
+             scan->pandescs[i].coordaddr.panid[1]);
+
+      if (scan->pandescs[i].coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
+        {
+          printf("    Coordinator saddr: %02X:%02X\n",
+                 scan->pandescs[i].coordaddr.saddr[0],
+                 scan->pandescs[i].coordaddr.saddr[1]);
+        }
+      else
+        {
+          printf("    Coordinator eaddr: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n",
+                 scan->pandescs[i].coordaddr.eaddr[0],
+                 scan->pandescs[i].coordaddr.eaddr[1],
+                 scan->pandescs[i].coordaddr.eaddr[2],
+                 scan->pandescs[i].coordaddr.eaddr[3],
+                 scan->pandescs[i].coordaddr.eaddr[4],
+                 scan->pandescs[i].coordaddr.eaddr[5],
+                 scan->pandescs[i].coordaddr.eaddr[6],
+                 scan->pandescs[i].coordaddr.eaddr[7]);
+        }
     }
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
- * system/dhcpc/dhcpc_main.c
+ * examples/nettest/nettest_host.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name NuttX nor the names of its contributors may be
+ * 3. Neither the name Gregory Nutt nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -37,102 +37,28 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <net/if.h>
-
-#include "netutils/netlib.h"
-#include "netutils/dhcpc.h"
+#include "config.h"
+#include "nettest.h"
 
 /****************************************************************************
- * Private Functions
+ * Private Data
  ****************************************************************************/
-
-/****************************************************************************
- * dhcpc_showusage
- ****************************************************************************/
-
-static void dhcpc_showusage(FAR const char *progname, int exitcode)
-{
-  fprintf(stderr, "Usage: %s <device-name>\n", progname);
-  exit(exitcode);
-}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * dhcpc_main
+ * main
  ****************************************************************************/
 
-#ifdef CONFIG_BUILD_KERNEL
-int main(int argc, FAR char *argv[])
-#else
-int dhcpc_main(int argc, char *argv[])
-#endif
+int main(int argc, char **argv, char **envp)
 {
-  FAR const char *devname;
-  FAR void *handle;
-  uint8_t mac[IFHWADDRLEN];
-  struct dhcpc_state ds;
-  int ret;
+#ifdef CONFIG_EXAMPLES_NETTEST_SERVER
+  nettest_client();
+#else
+  nettest_server();
+#endif
 
-  /* One and only one argument is expected:  The network device name. */
-
-  if (argc != 2)
-    {
-      fprintf(stderr, "ERROR: Invalid number of arguments\n");
-      dhcpc_showusage(argv[0], EXIT_FAILURE);
-    }
-
-  devname = argv[1];
-
-  /* Get the MAC address of the NIC */
-
-  netlib_getmacaddr(devname, mac);
-
-  /* Set up the DHCPC modules */
-
-  handle = dhcpc_open(devname, &mac, IFHWADDRLEN);
-  if (handle == NULL)
-    {
-      fprintf(stderr, "ERROR: dhcpc_open() for '%s' failed\n", devname);
-      return EXIT_FAILURE;
-    }
-
-  /* Get an IP address. */
-
-  ret = dhcpc_request(handle, &ds);
-  if (ret < 0)
-    {
-      (void)dhcpc_close(handle);
-      fprintf(stderr, "ERROR: dhcpc_request() failed\n");
-      return EXIT_FAILURE;
-    }
-
-  /* Save the addresses that we obtained. */
-
-  netlib_set_ipv4addr(devname, &ds.ipaddr);
-
-  if (ds.netmask.s_addr != 0)
-    {
-      netlib_set_ipv4netmask(devname, &ds.netmask);
-    }
-
-  if (ds.default_router.s_addr != 0)
-    {
-      netlib_set_dripv4addr(devname, &ds.default_router);
-    }
-
-  if (ds.dnsaddr.s_addr != 0)
-    {
-      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
-    }
-
-  dhcpc_close(handle);
-  return EXIT_SUCCESS;
+  return 0;
 }

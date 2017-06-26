@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/udp/host.c
+ * examples/nettest/nettest_target2.c
  *
- *   Copyright (C) 2007 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 3. Neither the name Gregory Nutt nor the names of its contributors may be
+ * 3. Neither the name NuttX nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -38,33 +38,38 @@
  ****************************************************************************/
 
 #include "config.h"
-#include "udp.h"
+#include <stdlib.h>
+#include "nettest.h"
 
 /****************************************************************************
- * Private Data
+ * nettest_main
  ****************************************************************************/
 
-/****************************************************************************
- * Public Functions
- ****************************************************************************/
-
-/****************************************************************************
- * main
- ****************************************************************************/
-
-int main(int argc, char **argv, char **envp)
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int nettest2_main(int argc, char *argv[])
+#endif
 {
   /* Parse any command line options */
 
-  parse_cmdline(argc, argv);
+  nettest_cmdline(argc, argv);
 
-  /* Run the server or client, depending upon how target1 was configured */
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+  /* Initialize the network */
 
-#ifdef CONFIG_EXAMPLES_UDP_SERVER1
-  send_client();
-#else
-  recv_server();
+  nettest_initialize();
 #endif
 
-  return 0;
+#if defined(CONFIG_EXAMPLES_NETTEST_SERVER)
+  /* Then perform the client side of the test on this thread */
+
+  nettest_client();
+#else
+  /* Then perform the server side of the test on this thread */
+
+  nettest_server();
+#endif
+
+  return EXIT_SUCCESS;
 }

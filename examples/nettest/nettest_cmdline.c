@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/nettest/nettest.h
+ * examples/nettest/netest_cmdline.c
  *
- *   Copyright (C) 2007, 2009, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,80 +33,105 @@
  *
  ****************************************************************************/
 
-#ifndef __EXAMPLES_NETTEST_H
-#define __EXAMPLES_NETTEST_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
+#include "config.h"
+
+#include <stdlib.h>
+#include <stdio.h>
 #include <arpa/inet.h>
 
-#ifdef NETTEST_HOST
-#else
-# include <debug.h>
-#endif
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-#ifdef NETTEST_HOST
-   /* HTONS/L macros are unique to uIP */
-
-#  define HTONS(a)       htons(a)
-#  define HTONL(a)       htonl(a)
-
-   /* Have SO_LINGER */
-
-#  define NETTEST_HAVE_SOLINGER 1
-
-#else
-#  ifdef CONFIG_NET_SOLINGER
-#    define NETTEST_HAVE_SOLINGER 1
-#  else
-#    undef NETTEST_HAVE_SOLINGER
-#  endif
-#endif /* NETTEST_HOST */
-
-#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-#  define AF_INETX AF_INET6
-#  define PF_INETX PF_INET6
-#else
-#  define AF_INETX AF_INET
-#  define PF_INETX PF_INET
-#endif
-
-#ifndef CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO
-#  define CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO 5471
-#endif
-
-#ifdef CONFIG_EXAMPLES_NETTEST_SENDSIZE
-#  define SENDSIZE CONFIG_EXAMPLES_NETTEST_SENDSIZE
-#else
-#  define SENDSIZE 4096
-#endif
+#include "nettest.h"
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
-uint16_t g_nettestserver_ipv6[8];
+
+uint16_t g_nettestserver_ipv6[8] =
+{
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
+  0        /* Use the loopback address */
+  0
+  0
+  0
+  0
+  0
+  0
+  HTONS(1);
 #else
-uint32_t g_nettestserver_ipv4;
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_1),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_2),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_3),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_4),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_5),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_6),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_7),
+  HTONS(CONFIG_EXAMPLES_NETTEST_SERVERIPv6ADDR_8)
+#endif
+};
+
+#else
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(NET_LOOPBACK)
+uint32_t g_nettestserver_ipv4 = HTONL(0x7f000001);
+#else
+uint32_t g_nettestserver_ipv4 = HTONL(CONFIG_EXAMPLES_NETTEST_SERVERIP);
+#endif
+
 #endif
 
 /****************************************************************************
- * Public Function Prototypes
+ * Private Functions
  ****************************************************************************/
 
-#ifdef CONFIG_EXAMPLES_NETTEST_INIT
-void nettest_initialize(void);
+/****************************************************************************
+ * show_usage
+ ****************************************************************************/
+
+static void show_usage(FAR const char *progname)
+{
+  fprintf(stderr, "USAGE: %s [<server-addr>]\n", progname);
+  exit(1);
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * nettest_cmdline
+ ****************************************************************************/
+
+void nettest_cmdline(int argc, char **argv)
+{
+  /* Currently only a single command line option is supported:  The server
+   * IP address.
+   */
+
+  if (argc == 2)
+    {
+      int ret;
+
+      /* Convert the <server-addr> argument into a binary address */
+
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+      ret = inet_pton(AF_INET6, argv[1], g_nettestserver_ipv6);
+#else
+      ret = inet_pton(AF_INET, argv[1], &g_nettestserver_ipv4);
 #endif
-
-void nettest_cmdline(int argc, char **argv);
-extern void nettest_client(void);
-extern void nettest_server(void);
-
-#endif /* __EXAMPLES_NETTEST_H */
+      if (ret < 0)
+        {
+          fprintf(stderr, "ERROR: <server-addr> is invalid\n");
+          show_usage(argv[0]);
+        }
+    }
+  else if (argc != 1)
+    {
+      fprintf(stderr, "ERROR: Too many arguments\n");
+      show_usage(argv[0]);
+    }
+}

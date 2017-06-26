@@ -84,7 +84,7 @@ static inline int check_buffer(unsigned char *buf)
  * Public Functions
  ****************************************************************************/
 
-void recv_server(void)
+void udp_server(void)
 {
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   struct sockaddr_in6 server;
@@ -124,13 +124,13 @@ void recv_server(void)
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   server.sin6_family     = AF_INET6;
-  server.sin6_port       = HTONS(PORTNO);
+  server.sin6_port       = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
   memset(&server.sin6_addr, 0, sizeof(struct in6_addr));
 
   addrlen                = sizeof(struct sockaddr_in6);
 #else
   server.sin_family      = AF_INET;
-  server.sin_port        = HTONS(PORTNO);
+  server.sin_port        = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
   server.sin_addr.s_addr = HTONL(INADDR_ANY);
 
   addrlen                = sizeof(struct sockaddr_in);

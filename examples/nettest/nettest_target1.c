@@ -1,7 +1,7 @@
 /****************************************************************************
- * examples/udp/udp_cmdline.c
+ * examples/nettest/nettest_target1.c
  *
- *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2009-2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,80 +39,92 @@
 
 #include "config.h"
 
+#include <sys/wait.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <arpa/inet.h>
+#include <unistd.h>
+#include <sched.h>
+#include <debug.h>
 
-#include "udp.h"
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-#ifdef CONFIG_EXAMPLES_UDP_IPv6
-uint16_t g_udpserver_ipv6[8] =
-{
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_1),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_2),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_3),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_4),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_5),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_6),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_7),
-  HTONS(CONFIG_EXAMPLES_UDP_SERVERIPv6ADDR_8)
-};
-#else
-uint32_t g_udpserver_ipv4 = HTONL(CONFIG_EXAMPLES_UDP_SERVERIP);
-#endif
+#include "nettest.h"
 
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
 
-/****************************************************************************
- * show_usage
- ****************************************************************************/
-
-static void show_usage(FAR const char *progname)
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
+static int server_child(int argc, char *argv[])
 {
-  fprintf(stderr, "USAGE: %s [<server-addr>]\n", progname);
-  exit(1);
+  nettest_server();
+  return EXIT_SUCCESS;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * udp_cmdline
+ * nettest_main
  ****************************************************************************/
 
-void udp_cmdline(int argc, char **argv)
-{
-  /* Currently only a single command line option is supported:  The server
-   * IP address.
-   */
-
-  if (argc == 2)
-    {
-      int ret;
-
-      /* Convert the <server-addr> argument into a binary address */
-
-#ifdef CONFIG_EXAMPLES_UDP_IPv6
-      ret = inet_pton(AF_INET6, argv[1], g_udpserver_ipv6);
+#if defined(CONFIG_BUILD_KERNEL)
+int main(int argc, FAR char *argv[])
+#elif defined(CONFIG_EXAMPLES_NETTEST_TARGET2)
+int nettest1_main(int argc, char *argv[])
 #else
-      ret = inet_pton(AF_INET, argv[1], &g_udpserver_ipv4);
+int nettest_main(int argc, char *argv[])
 #endif
-      if (ret < 0)
-        {
-          fprintf(stderr, "ERROR: <server-addr> is invalid\n");
-          show_usage(argv[0]);
-        }
-    }
-  else if (argc != 1)
+{
+#ifdef CONFIG_EXAMPLES_NETTEST_LOOPBACK
+  pid_t child;
+#ifdef CONFIG_SCHED_WAITPID
+  int statloc;
+#endif
+#endif
+
+  /* Parse any command line options */
+
+  nettest_cmdline(argc, argv);
+
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+  /* Initialize the network */
+
+  nettest_initialize();
+#endif
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  /* Then perform the server side of the test on a child task */
+
+  child = task_create("Nettest Child", CONFIG_EXAMPLES_NETTEST_DAEMON_PRIORITY,
+                      CONFIG_EXAMPLES_NETTEST_DAEMON_STACKSIZE, server_child,
+                      NULL);
+  if (child < 0)
     {
-      fprintf(stderr, "ERROR: Too many arguments\n");
-      show_usage(argv[0]);
+      fprintf(stderr, "ERROR: Failed to server daemon\n");
+      return EXIT_FAILURE;
     }
+
+  usleep(500*1000);
+
+#elif defined(CONFIG_EXAMPLES_NETTEST_SERVER)
+  /* Then perform the server side of the test on this thread */
+
+  nettest_server();
+#endif
+
+#if !defined(CONFIG_EXAMPLES_NETTEST_SERVER) || \
+    defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK)
+  /* Then perform the client side of the test on this thread */
+
+  nettest_client();
+#endif
+
+#if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && defined(CONFIG_SCHED_WAITPID)
+  printf("main: Waiting for the server to exit\n");
+  (void)waitpid(child, &statloc, 0);
+#endif
+
+  return EXIT_SUCCESS;
 }
