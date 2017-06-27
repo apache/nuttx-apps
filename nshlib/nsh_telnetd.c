@@ -39,7 +39,6 @@
 
 #include <nuttx/config.h>
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 #include <debug.h>
@@ -65,12 +64,6 @@ enum telnetd_state_e
 };
 
 /****************************************************************************
- * Private Data
- ****************************************************************************/
-
-static enum telnetd_state_e g_telnetd_state;
-
-/****************************************************************************
  * Private Functions
  ****************************************************************************/
 
@@ -83,9 +76,8 @@ static int nsh_telnetmain(int argc, char *argv[])
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   FAR struct nsh_vtbl_s *vtbl;
 
-  DEBUGASSERT(pstate != NULL && g_telnetd_state == TELNETD_STARTED);
-  vtbl            = &pstate->cn_vtbl;
-  g_telnetd_state = TELNETD_RUNNING;
+  DEBUGASSERT(pstate != NULL);
+  vtbl = &pstate->cn_vtbl;
 
   _info("Session [%d] Started\n", getpid());
 
@@ -95,7 +87,6 @@ static int nsh_telnetmain(int argc, char *argv[])
   if (nsh_telnetlogin(pstate) != OK)
     {
       nsh_exit(vtbl, 1);
-      g_telnetd_state = TELNETD_NOTRUNNING;
       return -1; /* nsh_exit does not return */
     }
 #endif /* CONFIG_NSH_TELNET_LOGIN */
@@ -162,14 +153,12 @@ static int nsh_telnetmain(int argc, char *argv[])
         {
           fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_telnetmain",
                   "fgets", NSH_ERRNO);
-          g_telnetd_state = TELNETD_NOTRUNNING;
           nsh_exit(vtbl, 1);
         }
     }
 
   /* Clean up */
 
-  g_telnetd_state = TELNETD_NOTRUNNING;
   nsh_exit(vtbl, 0);
 
   /* We do not get here, but this is necessary to keep some compilers happy */
@@ -201,9 +190,10 @@ static int nsh_telnetmain(int argc, char *argv[])
 
 int nsh_telnetstart(void)
 {
+  static enum telnetd_state_e state = TELNETD_NOTRUNNING;
   int ret = OK;
 
-  if (g_telnetd_state == TELNETD_NOTRUNNING)
+  if (state == TELNETD_NOTRUNNING)
     {
       struct telnetd_config_s config;
 
@@ -211,7 +201,7 @@ int nsh_telnetstart(void)
        * start the Telnet daemon concurrently.
        */
 
-      g_telnetd_state = TELNETD_STARTED;
+      state = TELNETD_STARTED;
 
       /* Initialize any USB tracing options that were requested.  If
        * standard console is also defined, then we will defer this step to
@@ -239,7 +229,11 @@ int nsh_telnetstart(void)
       if (ret < 0)
         {
           _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
-           g_telnetd_state = TELNETD_NOTRUNNING;
+           state = TELNETD_NOTRUNNING;
+        }
+      else
+        {
+          state = TELNETD_RUNNING;
         }
     }
 
