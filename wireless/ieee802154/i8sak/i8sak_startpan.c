@@ -194,7 +194,7 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   if (beaconenabled)
     {
-      startreq.beaconorder = 6;
+      startreq.beaconorder = 8;
       startreq.superframeorder = 5;
     }
   else
