@@ -75,6 +75,16 @@
 #include "netutils/telnetc.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_TELNETD_PORT
+#  define DEFAULT_PORT CONFIG_NSH_TELNETD_PORT
+#else
+#  define DEFAULT_PORT 23
+#endif
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -246,11 +256,26 @@ static void _event_handler(struct telnet_s *telnet,
 
 static void show_usage(const char *progname, int exitcode)
 {
-  fprintf(stderr, "Usage:\n %s <server-IP-addr> <port>\n", progname);
+  fprintf(stderr, "Usage:\n");
+  fprintf(stderr, "\t%s <server-IP-addr> [<port>]\n", progname);
+  fprintf(stderr, "Where:\n");
+  fprintf(stderr, "\t<server-IP-addr> is the address of the Telnet server.  Either\n");
+  fprintf(stderr, "\t\tIPv4 form: ddd.ddd.ddd.ddd\n");
+  fprintf(stderr, "\t\tIPv6 form: xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx\n");
+  fprintf(stderr, "\t<port> is the (optional) listening port of the Telnet server.\n");
+  fprintf(stderr, "\t\tDefault: %u\n", DEFAULT_PORT);
   exit(exitcode)  ;
 }
 
-int main(int argc, char **argv)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int telnet_main(int argc, char *argv[])
+#endif
 {
   char buffer[512];
   union
@@ -281,19 +306,26 @@ int main(int argc, char **argv)
 
   /* Check usage */
 
-  if (argc != 3)
+  if (argc < 2 || argc > 3)
     {
       fprintf(stderr, "Invalid number of arguments\n");
       show_usage(argv[0], 1);
     }
 
-  /* Convert the port number to binary */
+  /* Convert the port number to binary if provided */
 
-  portno = atoi(argv[2]);
-  if (portno < 0 || portno > UINT16_MAX)
+  if (argc == 3)
     {
-      fprintf(stderr, "Invalid port number\n");
-      show_usage(argv[0], 1);
+      portno = atoi(argv[2]);
+      if (portno < 0 || portno > UINT16_MAX)
+        {
+          fprintf(stderr, "Invalid port number\n");
+          show_usage(argv[0], 1);
+        }
+    }
+  else
+    {
+      portno = DEFAULT_PORT;
     }
     
   /* Convert the <server-IP-addr> argument into a binary address */

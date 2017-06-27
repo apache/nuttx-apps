@@ -229,7 +229,7 @@ int nsh_telnetstart(void)
       if (ret < 0)
         {
           _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
-           state = TELNETD_NOTRUNNING;
+          state = TELNETD_NOTRUNNING;
         }
       else
         {

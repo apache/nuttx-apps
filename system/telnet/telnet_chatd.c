@@ -317,7 +317,15 @@ static void _event_handler(struct telnet_s *telnet,
     }
 }
 
-int main(int argc, char **argv)
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+#ifdef CONFIG_BUILD_KERNEL
+int main(int argc, FAR char *argv[])
+#else
+int chatd_main(int argc, char *argv[])
+#endif
 {
   char buffer[512];
   short listen_port;
