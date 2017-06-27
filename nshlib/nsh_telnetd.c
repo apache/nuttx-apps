@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_telnetd.c
  *
- *   Copyright (C) 2007-2013, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2016-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,9 @@
 
 #include <nuttx/config.h>
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <assert.h>
 #include <debug.h>
 
 #include <arpa/inet.h>
@@ -50,6 +52,23 @@
 #include "nsh_console.h"
 
 #ifdef CONFIG_NSH_TELNET
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+enum telnetd_state_e
+{
+  TELNETD_NOTRUNNING = 0,
+  TELNETD_STARTED,
+  TELNETD_RUNNING
+};
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static enum telnetd_state_e g_telnetd_state;
 
 /****************************************************************************
  * Private Functions
@@ -64,8 +83,9 @@ static int nsh_telnetmain(int argc, char *argv[])
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   FAR struct nsh_vtbl_s *vtbl;
 
-  DEBUGASSERT(pstate != NULL);
-  vtbl = &pstate->cn_vtbl;
+  DEBUGASSERT(pstate != NULL && g_telnetd_state == TELNETD_STARTED);
+  vtbl            = &pstate->cn_vtbl;
+  g_telnetd_state = TELNETD_RUNNING;
 
   _info("Session [%d] Started\n", getpid());
 
@@ -75,6 +95,7 @@ static int nsh_telnetmain(int argc, char *argv[])
   if (nsh_telnetlogin(pstate) != OK)
     {
       nsh_exit(vtbl, 1);
+      g_telnetd_state = TELNETD_NOTRUNNING;
       return -1; /* nsh_exit does not return */
     }
 #endif /* CONFIG_NSH_TELNET_LOGIN */
@@ -141,12 +162,14 @@ static int nsh_telnetmain(int argc, char *argv[])
         {
           fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_telnetmain",
                   "fgets", NSH_ERRNO);
+          g_telnetd_state = TELNETD_NOTRUNNING;
           nsh_exit(vtbl, 1);
         }
     }
 
   /* Clean up */
 
+  g_telnetd_state = TELNETD_NOTRUNNING;
   nsh_exit(vtbl, 0);
 
   /* We do not get here, but this is necessary to keep some compilers happy */
@@ -178,37 +201,82 @@ static int nsh_telnetmain(int argc, char *argv[])
 
 int nsh_telnetstart(void)
 {
-  struct telnetd_config_s config;
-  int ret;
+  int ret = OK;
 
-  /* Initialize any USB tracing options that were requested.  If standard
-   * console is also defined, then we will defer this step to the standard
-   * console.
-   */
+  if (g_telnetd_state == TELNETD_NOTRUNNING)
+    {
+      struct telnetd_config_s config;
+
+      /* There is a tiny race condition here if two tasks were to try to
+       * start the Telnet daemon concurrently.
+       */
+
+      g_telnetd_state = TELNETD_STARTED;
+
+      /* Initialize any USB tracing options that were requested.  If
+       * standard console is also defined, then we will defer this step to
+       * the standard console.
+       */
 
 #if defined(CONFIG_NSH_USBDEV_TRACE) && !defined(CONFIG_NSH_CONSOLE)
-  usbtrace_enable(TRACE_BITSET);
+      usbtrace_enable(TRACE_BITSET);
 #endif
 
-  /* Configure the telnet daemon */
+      /* Configure the telnet daemon */
 
-  config.d_port      = HTONS(CONFIG_NSH_TELNETD_PORT);
-  config.d_priority  = CONFIG_NSH_TELNETD_DAEMONPRIO;
-  config.d_stacksize = CONFIG_NSH_TELNETD_DAEMONSTACKSIZE;
-  config.t_priority  = CONFIG_NSH_TELNETD_CLIENTPRIO;
-  config.t_stacksize = CONFIG_NSH_TELNETD_CLIENTSTACKSIZE;
-  config.t_entry     = nsh_telnetmain;
+      config.d_port      = HTONS(CONFIG_NSH_TELNETD_PORT);
+      config.d_priority  = CONFIG_NSH_TELNETD_DAEMONPRIO;
+      config.d_stacksize = CONFIG_NSH_TELNETD_DAEMONSTACKSIZE;
+      config.t_priority  = CONFIG_NSH_TELNETD_CLIENTPRIO;
+      config.t_stacksize = CONFIG_NSH_TELNETD_CLIENTSTACKSIZE;
+      config.t_entry     = nsh_telnetmain;
 
-  /* Start the telnet daemon */
+      /* Start the telnet daemon */
 
-  _info("Starting the Telnet daemon\n");
-  ret = telnetd_start(&config);
-  if (ret < 0)
-    {
-      _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
+      _info("Starting the Telnet daemon\n");
+
+      ret = telnetd_start(&config);
+      if (ret < 0)
+        {
+          _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
+           g_telnetd_state = TELNETD_NOTRUNNING;
+        }
     }
 
   return ret;
 }
+
+/****************************************************************************
+ * Name: cmd_telnetd
+ *
+ * Description:
+ *   The Telnet daemon may be started either programmatically by calling
+ *   nsh_telnetstart() or it may be started from the NSH command line using
+ *   this telnetd command.
+ *
+ *   Normally this command would be suppressed with CONFIG_NSH_DISABLE_TELNETD
+ *   because the Telnet daemon is automatically started in nsh_main.c.  The
+ *   exception is when CONFIG_NSH_NETLOCAL is selected.  IN that case, the
+ *   network is not enabled at initialization but rather must be enabled from
+ *   the NSH command line or via other applications.
+ *
+ *   In that case, calling nsh_telnetstart() before the the network is
+ *   initialized will fail.
+ *
+ * Input Parameters:
+ *   None.  All of the properties of the Telnet daemon are controlled by
+ *   NuttX configuration setting.
+ *
+ * Returned Values:
+ *   OK is returned on success; ERROR is return on failure.
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_TELNETD
+int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  return nsh_telnetstart() < 0 ? ERROR : OK;
+}
+#endif
 
 #endif /* CONFIG_NSH_TELNET */

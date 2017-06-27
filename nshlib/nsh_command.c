@@ -472,6 +472,10 @@ static const struct cmdmap_s g_cmdmap[] =
   { "test",     cmd_test,     3, CONFIG_NSH_MAXARGUMENTS, "<expression>" },
 #endif
 
+#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_DISABLE_TELNETD)
+  {"telnetd",   cmd_telnetd,  1, 1, NULL },
+#endif
+
 #ifndef CONFIG_NSH_DISABLE_TIME
   { "time",     cmd_time,     2, 2, "\"<command>\"" },
 #endif

@@ -153,10 +153,13 @@ int nsh_main(int argc, char *argv[])
   nsh_initialize();
 
   /* If the Telnet console is selected as a front-end, then start the
-   * Telnet daemon.
+   * Telnet daemon UNLESS network initialization is deferred via
+   * CONFIG_NSH_NETLOCAL.  In that case, the telnet daemon must be
+   * started manually with the telnetd command after the network has
+   * been initialized
    */
 
-#ifdef CONFIG_NSH_TELNET
+#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_NETLOCAL)
   ret = nsh_telnetstart();
   if (ret < 0)
     {
