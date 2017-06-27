@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/examples/cc3000/shell.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * This is a leverage of similar logic from uIP:
@@ -217,6 +217,7 @@ int shell_main(int argc, char *argv[])
   /* Configure the telnet daemon */
 
   config.d_port      = HTONS(23);
+  config.d_family    = AF_INET;
   config.d_priority  = CONFIG_EXAMPLES_TELNETD_DAEMONPRIO;
   config.d_stacksize = CONFIG_EXAMPLES_TELNETD_DAEMONSTACKSIZE;
   config.t_priority  = CONFIG_EXAMPLES_TELNETD_CLIENTPRIO;

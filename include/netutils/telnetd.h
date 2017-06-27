@@ -1,7 +1,7 @@
 /****************************************************************************
  *  apps/include/netutils/telnetd.h
  *
- *   Copyright (C) 2007, 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007, 2011-2012, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,18 +61,22 @@ struct telnetd_config_s
 {
   /* These fields describe the telnet daemon */
 
-  int    d_port;      /* The port to listen on (in network byte order) */
-  int    d_priority;  /* The execution priority of the Telnet daemon task */
-  int    d_stacksize; /* The stack size needed by the Telnet daemon task */
+  uint8_t     d_priority;  /* The execution priority of the Telnet daemon task */
+  size_t      d_stacksize; /* The stack size needed by the Telnet daemon task */
+
+  /* These fields describe the network connection */
+
+  uint16_t    d_port;      /* The port to listen on (in network byte order) */
+  sa_family_t d_family;    /* Address family */
 
   /* These fields describe the priority of each thread created by the Telnet
    * daemon.
    */
 
-  int    t_priority;  /* The execution priority of the spawned task, */
-  int    t_stacksize; /* The stack size needed by the spawned task */
-  main_t t_entry;     /* The entrypoint of the task to spawn when a new
-                       * connection is accepted. */
+  uint8_t     t_priority;  /* The execution priority of the spawned task, */
+  size_t      t_stacksize; /* The stack size needed by the spawned task */
+  main_t      t_entry;     /* The entrypoint of the task to spawn when a new
+                            * connection is accepted. */
 };
 
 /****************************************************************************

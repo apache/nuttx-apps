@@ -473,7 +473,11 @@ static const struct cmdmap_s g_cmdmap[] =
 #endif
 
 #if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_DISABLE_TELNETD)
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+  {"telnetd",   cmd_telnetd,  2, 2, [ipv4|ipv6] },
+#else
   {"telnetd",   cmd_telnetd,  1, 1, NULL },
+#endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_TIME

@@ -73,6 +73,16 @@
 #  undef CONFIG_NSH_TELNET
 #endif
 
+/* If Telnet is used and both IPv6 and IPv4 are enabled, then we need to
+ * pick one.
+ */
+
+#ifdef CONFIG_NET_IPv6
+#  define ADDR_FAMILY AF_INET6
+#else
+#  define ADDR_FAMILY AF_INET
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -160,7 +170,7 @@ int nsh_main(int argc, char *argv[])
    */
 
 #if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_NETLOCAL)
-  ret = nsh_telnetstart();
+  ret = nsh_telnetstart(ADDR_FAMILY);
   if (ret < 0)
     {
      /* The daemon is NOT running.  Report the error then fail...

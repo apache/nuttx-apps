@@ -40,6 +40,7 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include <debug.h>
 
@@ -179,8 +180,12 @@ static int nsh_telnetmain(int argc, char *argv[])
  *   the daemon has been started.
  *
  * Input Parameters:
- *   None.  All of the properties of the Telnet daemon are controlled by
- *   NuttX configuration setting.
+ *   family - Provides the IP family to use by the server.  May be either
+ *     AF_INET or AF_INET6.  This is needed because both both may be
+ *     enabled in the configuration.
+ *
+ *   All of the other properties of the Telnet daemon are controlled by
+ *   NuttX configuration settings.
  *
  * Returned Values:
  *   The task ID of the Telnet daemon was successfully started.  A negated
@@ -188,7 +193,7 @@ static int nsh_telnetmain(int argc, char *argv[])
  *
  ****************************************************************************/
 
-int nsh_telnetstart(void)
+int nsh_telnetstart(sa_family_t family)
 {
   static enum telnetd_state_e state = TELNETD_NOTRUNNING;
   int ret = OK;
@@ -215,6 +220,7 @@ int nsh_telnetstart(void)
       /* Configure the telnet daemon */
 
       config.d_port      = HTONS(CONFIG_NSH_TELNETD_PORT);
+      config.d_family    = family;
       config.d_priority  = CONFIG_NSH_TELNETD_DAEMONPRIO;
       config.d_stacksize = CONFIG_NSH_TELNETD_DAEMONSTACKSIZE;
       config.t_priority  = CONFIG_NSH_TELNETD_CLIENTPRIO;
@@ -269,7 +275,21 @@ int nsh_telnetstart(void)
 #ifndef CONFIG_NSH_DISABLE_TELNETD
 int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  return nsh_telnetstart() < 0 ? ERROR : OK;
+  sa_family_t family;
+
+  /* If both IPv6 nd IPv4 are enabled, then the address family must
+   * be specified on the command line.
+   */
+
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+  family = (strcmp(argv[1], "ipv6") == 0) ? AF_INET6 : AF_INET;
+#elif defined(CONFIG_NET_IPv6)
+  family = AF_INET6;
+#else /* if defined(CONFIG_NET_IPv4) */
+  family = AF_INET;
+#endif
+
+  return nsh_telnetstart(family) < 0 ? ERROR : OK;
 }
 #endif
 
