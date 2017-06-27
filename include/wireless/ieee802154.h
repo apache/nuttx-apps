@@ -98,6 +98,10 @@ int ieee802154_getsaddr(int fd, FAR uint8_t *saddr);
 int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr);
 int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr);
 
+int ieee802154_getcoordsaddr(int fd, FAR uint8_t *saddr);
+
+int ieee802154_getcoordeaddr(int fd, FAR uint8_t *eaddr);
+
 int ieee802154_setpromisc(int fd, bool promisc);
 int ieee802154_getpromisc(int fd, FAR bool *promisc);
 
