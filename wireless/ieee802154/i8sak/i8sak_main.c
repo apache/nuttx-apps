@@ -110,6 +110,7 @@ static const struct i8sak_command_s g_i8sak_commands[] =
   {"sniffer",     (CODE void *)i8sak_sniffer_cmd},
   {"blaster",     (CODE void *)i8sak_blaster_cmd},
   {"chan",        (CODE void *)i8sak_chan_cmd},
+  {"coordinfo",   (CODE void *)i8sak_coordinfo_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
@@ -738,7 +739,8 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    poll [-h]\n"
           "    blaster [-h|q|f <hex payload>|p <period_ms>]\n"
           "    sniffer [-h|q]\n"
-          "    chan [-h|g] [<chan>]"
+          "    chan [-h|g] [<chan>]\n"
+          "    coordinfo [-h|a|e|s]\n"
           , progname);
   exit(exitcode);
 }

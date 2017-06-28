@@ -54,7 +54,10 @@ CSRCS += ieee802154_seteaddr.c ieee802154_geteaddr.c
 CSRCS += ieee802154_setpromisc.c ieee802154_getpromisc.c
 CSRCS += ieee802154_setrxonidle.c ieee802154_getrxonidle.c
 CSRCS += ieee802154_settxpwr.c ieee802154_gettxpwr.c
-CSRCS += ieee802154_getdevmode.c ieee802154_setassocpermit.c
+CSRCS += ieee802154_getdevmode.c
+CSRCS += ieee802154_setassocpermit.c
+CSRCS += ieee802154_getcoordsaddr.c
+CSRCS += ieee802154_getcoordeaddr.c
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
 # Add Get/Set Attribute helpers

@@ -233,21 +233,11 @@ static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
 
       if (scan->pandescs[i].coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
         {
-          printf("    Coordinator saddr: %02X:%02X\n",
-                 scan->pandescs[i].coordaddr.saddr[0],
-                 scan->pandescs[i].coordaddr.saddr[1]);
+          PRINT_COORDSADDR(scan->pandescs[i].coordaddr.saddr);
         }
       else
         {
-          printf("    Coordinator eaddr: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n",
-                 scan->pandescs[i].coordaddr.eaddr[0],
-                 scan->pandescs[i].coordaddr.eaddr[1],
-                 scan->pandescs[i].coordaddr.eaddr[2],
-                 scan->pandescs[i].coordaddr.eaddr[3],
-                 scan->pandescs[i].coordaddr.eaddr[4],
-                 scan->pandescs[i].coordaddr.eaddr[5],
-                 scan->pandescs[i].coordaddr.eaddr[6],
-                 scan->pandescs[i].coordaddr.eaddr[7]);
+          PRINT_COORDEADDR(scan->pandescs[i].coordaddr.eaddr);
         }
     }
 }
