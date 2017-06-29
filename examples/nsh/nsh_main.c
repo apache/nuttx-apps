@@ -73,6 +73,16 @@
 #  undef CONFIG_NSH_TELNET
 #endif
 
+/* If Telnet is used and both IPv6 and IPv4 are enabled, then we need to
+ * pick one.
+ */
+
+#ifdef CONFIG_NET_IPv6
+#  define ADDR_FAMILY AF_INET6
+#else
+#  define ADDR_FAMILY AF_INET
+#endif
+
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -153,11 +163,14 @@ int nsh_main(int argc, char *argv[])
   nsh_initialize();
 
   /* If the Telnet console is selected as a front-end, then start the
-   * Telnet daemon.
+   * Telnet daemon UNLESS network initialization is deferred via
+   * CONFIG_NSH_NETLOCAL.  In that case, the telnet daemon must be
+   * started manually with the telnetd command after the network has
+   * been initialized
    */
 
-#ifdef CONFIG_NSH_TELNET
-  ret = nsh_telnetstart();
+#if defined(CONFIG_NSH_TELNET) && !defined(CONFIG_NSH_NETLOCAL)
+  ret = nsh_telnetstart(ADDR_FAMILY);
   if (ret < 0)
     {
      /* The daemon is NOT running.  Report the error then fail...

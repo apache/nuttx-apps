@@ -483,6 +483,11 @@ config NSH_DISABLE_TEST
 	bool "Disable test"
 	default n
 
+config NSH_DISABLE_TELNETD
+	bool "Disable telnetd"
+	default n if !NSH_NETLOCAL
+	default y if NSH_NETLOCAL
+
 config NSH_DISABLE_UMOUNT
 	bool "Disable umount"
 	default n

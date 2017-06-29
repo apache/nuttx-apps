@@ -216,11 +216,7 @@ ssize_t readline(FAR char *buf, int buflen, FILE *instream, FILE *outstream);
  *
  ****************************************************************************/
 
-#if CONFIG_NFILE_STREAMS > 0
-#  define std_readline(b,s) readline(b,s,stdin,stdout)
-#else
-ssize_t std_readline(FAR char *buf, int buflen);
-#endif
+#define std_readline(b,s) readline(b,s,stdin,stdout)
 
 #undef EXTERN
 #ifdef __cplusplus

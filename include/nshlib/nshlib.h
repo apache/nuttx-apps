@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/include/nshlib/nshlib.h
  *
- *   Copyright (C) 2011, 2013, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013, 2016-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -147,8 +147,12 @@ int nsh_consolemain(int argc, char *argv[]);
  *   the daemon has been started.
  *
  * Input Parameters:
- *   None.  All of the properties of the Telnet daemon are controlled by
- *   NuttX configuration setting.
+ *   family - Provides the IP family to use by the server.  May be either
+ *     AF_INET or AF_INET6.  This is needed because both both may be
+ *     enabled in the configuration.
+ *
+ *   All of the other properties of the Telnet daemon are controlled by
+ *   NuttX configuration settings.
  *
  * Returned Values:
  *   The task ID of the Telnet daemon was successfully started.  A negated
@@ -156,7 +160,7 @@ int nsh_consolemain(int argc, char *argv[]);
  *
  ****************************************************************************/
 
-int nsh_telnetstart(void);
+int nsh_telnetstart(sa_family_t family);
 
 /****************************************************************************
  * Name: platform_motd

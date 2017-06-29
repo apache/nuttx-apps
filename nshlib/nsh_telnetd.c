@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_telnetd.c
  *
- *   Copyright (C) 2007-2013, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2013, 2016-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@
 #include <nuttx/config.h>
 
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
 #include <debug.h>
 
 #include <arpa/inet.h>
@@ -50,6 +52,17 @@
 #include "nsh_console.h"
 
 #ifdef CONFIG_NSH_TELNET
+
+/****************************************************************************
+ * Private Types
+ ****************************************************************************/
+
+enum telnetd_state_e
+{
+  TELNETD_NOTRUNNING = 0,
+  TELNETD_STARTED,
+  TELNETD_RUNNING
+};
 
 /****************************************************************************
  * Private Functions
@@ -167,8 +180,12 @@ static int nsh_telnetmain(int argc, char *argv[])
  *   the daemon has been started.
  *
  * Input Parameters:
- *   None.  All of the properties of the Telnet daemon are controlled by
- *   NuttX configuration setting.
+ *   family - Provides the IP family to use by the server.  May be either
+ *     AF_INET or AF_INET6.  This is needed because both both may be
+ *     enabled in the configuration.
+ *
+ *   All of the other properties of the Telnet daemon are controlled by
+ *   NuttX configuration settings.
  *
  * Returned Values:
  *   The task ID of the Telnet daemon was successfully started.  A negated
@@ -176,39 +193,104 @@ static int nsh_telnetmain(int argc, char *argv[])
  *
  ****************************************************************************/
 
-int nsh_telnetstart(void)
+int nsh_telnetstart(sa_family_t family)
 {
-  struct telnetd_config_s config;
-  int ret;
+  static enum telnetd_state_e state = TELNETD_NOTRUNNING;
+  int ret = OK;
 
-  /* Initialize any USB tracing options that were requested.  If standard
-   * console is also defined, then we will defer this step to the standard
-   * console.
-   */
+  if (state == TELNETD_NOTRUNNING)
+    {
+      struct telnetd_config_s config;
+
+      /* There is a tiny race condition here if two tasks were to try to
+       * start the Telnet daemon concurrently.
+       */
+
+      state = TELNETD_STARTED;
+
+      /* Initialize any USB tracing options that were requested.  If
+       * standard console is also defined, then we will defer this step to
+       * the standard console.
+       */
 
 #if defined(CONFIG_NSH_USBDEV_TRACE) && !defined(CONFIG_NSH_CONSOLE)
-  usbtrace_enable(TRACE_BITSET);
+      usbtrace_enable(TRACE_BITSET);
 #endif
 
-  /* Configure the telnet daemon */
+      /* Configure the telnet daemon */
 
-  config.d_port      = HTONS(CONFIG_NSH_TELNETD_PORT);
-  config.d_priority  = CONFIG_NSH_TELNETD_DAEMONPRIO;
-  config.d_stacksize = CONFIG_NSH_TELNETD_DAEMONSTACKSIZE;
-  config.t_priority  = CONFIG_NSH_TELNETD_CLIENTPRIO;
-  config.t_stacksize = CONFIG_NSH_TELNETD_CLIENTSTACKSIZE;
-  config.t_entry     = nsh_telnetmain;
+      config.d_port      = HTONS(CONFIG_NSH_TELNETD_PORT);
+      config.d_family    = family;
+      config.d_priority  = CONFIG_NSH_TELNETD_DAEMONPRIO;
+      config.d_stacksize = CONFIG_NSH_TELNETD_DAEMONSTACKSIZE;
+      config.t_priority  = CONFIG_NSH_TELNETD_CLIENTPRIO;
+      config.t_stacksize = CONFIG_NSH_TELNETD_CLIENTSTACKSIZE;
+      config.t_entry     = nsh_telnetmain;
 
-  /* Start the telnet daemon */
+      /* Start the telnet daemon */
 
-  _info("Starting the Telnet daemon\n");
-  ret = telnetd_start(&config);
-  if (ret < 0)
-    {
-      _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
+      _info("Starting the Telnet daemon\n");
+
+      ret = telnetd_start(&config);
+      if (ret < 0)
+        {
+          _err("ERROR: Failed to tart the Telnet daemon: %d\n", ret);
+          state = TELNETD_NOTRUNNING;
+        }
+      else
+        {
+          state = TELNETD_RUNNING;
+        }
     }
 
   return ret;
 }
+
+/****************************************************************************
+ * Name: cmd_telnetd
+ *
+ * Description:
+ *   The Telnet daemon may be started either programmatically by calling
+ *   nsh_telnetstart() or it may be started from the NSH command line using
+ *   this telnetd command.
+ *
+ *   Normally this command would be suppressed with CONFIG_NSH_DISABLE_TELNETD
+ *   because the Telnet daemon is automatically started in nsh_main.c.  The
+ *   exception is when CONFIG_NSH_NETLOCAL is selected.  IN that case, the
+ *   network is not enabled at initialization but rather must be enabled from
+ *   the NSH command line or via other applications.
+ *
+ *   In that case, calling nsh_telnetstart() before the the network is
+ *   initialized will fail.
+ *
+ * Input Parameters:
+ *   None.  All of the properties of the Telnet daemon are controlled by
+ *   NuttX configuration setting.
+ *
+ * Returned Values:
+ *   OK is returned on success; ERROR is return on failure.
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_NSH_DISABLE_TELNETD
+int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  sa_family_t family;
+
+  /* If both IPv6 nd IPv4 are enabled, then the address family must
+   * be specified on the command line.
+   */
+
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+  family = (strcmp(argv[1], "ipv6") == 0) ? AF_INET6 : AF_INET;
+#elif defined(CONFIG_NET_IPv6)
+  family = AF_INET6;
+#else /* if defined(CONFIG_NET_IPv4) */
+  family = AF_INET;
+#endif
+
+  return nsh_telnetstart(family) < 0 ? ERROR : OK;
+}
+#endif
 
 #endif /* CONFIG_NSH_TELNET */

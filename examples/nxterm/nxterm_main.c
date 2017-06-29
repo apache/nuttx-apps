@@ -72,6 +72,26 @@
 #include "nxterm_internal.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* The NSH telnet console requires networking support (and TCP/IP) */
+
+#ifndef CONFIG_NET
+#  undef CONFIG_NSH_TELNET
+#endif
+
+/* If Telnet is used and both IPv6 and IPv4 are enabled, then we need to
+ * pick one.
+ */
+
+#ifdef CONFIG_NET_IPv6
+#  define ADDR_FAMILY AF_INET6
+#else
+#  define ADDR_FAMILY AF_INET
+#endif
+
+/****************************************************************************
  * Public Data
  ****************************************************************************/
 
@@ -234,7 +254,7 @@ int nxterm_main(int argc, char **argv)
    */
 
 #ifdef CONFIG_NSH_TELNET
-  ret = nsh_telnetstart();
+  ret = nsh_telnetstart(ADDR_FAMILY);
   if (ret < 0)
     {
      /* The daemon is NOT running.  Report the error then fail...

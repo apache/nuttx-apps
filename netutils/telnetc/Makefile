@@ -1,5 +1,5 @@
 ############################################################################
-# apps/wireless/ieee802154/libmac/Makefile
+# apps/netutils/telnetc/Makefile
 #
 #   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,43 +37,13 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# libmac source files
+# Telnet daemon
 
-ASRCS  =
-# Add IOCTL helpers
-CSRCS  = ieee802154_assocreq.c ieee802154_assocresp.c ieee802154_disassocreq.c
-CSRCS += ieee802154_getreq.c ieee802154_gtsreq.c ieee802154_orphanresp.c
-CSRCS += ieee802154_resetreq.c ieee802154_rxenabreq.c  ieee802154_scanreq.c
-CSRCS += ieee802154_setreq.c ieee802154_startreq.c ieee802154_syncreq.c
-CSRCS += ieee802154_pollreq.c ieee802154_enableevents.c
-# Add Get/Set Attribute helpers
-CSRCS += ieee802154_setchan.c ieee802154_getchan.c
-CSRCS += ieee802154_setpanid.c ieee802154_getpanid.c
-CSRCS += ieee802154_setsaddr.c ieee802154_getsaddr.c
-CSRCS += ieee802154_seteaddr.c ieee802154_geteaddr.c
-CSRCS += ieee802154_setpromisc.c ieee802154_getpromisc.c
-CSRCS += ieee802154_setrxonidle.c ieee802154_getrxonidle.c
-CSRCS += ieee802154_settxpwr.c ieee802154_gettxpwr.c
-CSRCS += ieee802154_getdevmode.c
-CSRCS += ieee802154_setassocpermit.c
-CSRCS += ieee802154_getcoordsaddr.c
-CSRCS += ieee802154_getcoordeaddr.c
+ASRCS =
+CSRCS =
 
-ifeq ($(CONFIG_NET_6LOWPAN),y)
-# Add Get/Set Attribute helpers
-CSRCS += sixlowpan_assocreq.c sixlowpan_assocresp.c sixlowpan_disassocreq.c
-CSRCS += sixlowpan_getreq.c sixlowpan_gtsreq.c sixlowpan_orphanresp.c
-CSRCS += sixlowpan_resetreq.c sixlowpan_rxenabreq.c sixlowpan_scanreq.c
-CSRCS += sixlowpan_setreq.c sixlowpan_startreq.c sixlowpan_syncreq.c
-CSRCS += sixlowpan_pollreq.c
-# Add IOCTL helpers
-CSRCS += sixlowpan_setchan.c sixlowpan_getchan.c
-CSRCS += sixlowpan_setpanid.c sixlowpan_getpanid.c
-CSRCS += sixlowpan_setsaddr.c sixlowpan_getsaddr.c
-CSRCS += sixlowpan_seteaddr.c sixlowpan_geteaddr.c
-CSRCS += sixlowpan_setpromisc.c sixlowpan_getpromisc.c
-CSRCS += sixlowpan_setrxonidle.c sixlowpan_getrxonidle.c
-CSRCS += sixlowpan_settxpwr.c sixlowpan_gettxpwr.c
+ifeq ($(CONFIG_NET_TCP),y)
+CSRCS += telnetc.c
 endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
@@ -83,22 +53,23 @@ SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
 
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN = ..\..\..\libapps$(LIBEXT)
+  BIN = ..\..\libapps$(LIBEXT)
 else
 ifeq ($(WINTOOL),y)
-  BIN = ..\\..\\..\\libapps$(LIBEXT)
+  BIN = ..\\..\\libapps$(LIBEXT)
 else
-  BIN = ../../../libapps$(LIBEXT)
+  BIN = ../../libapps$(LIBEXT)
 endif
 endif
 
-ROOTDEPPATH = --dep-path .
+ROOTDEPPATH	= --dep-path .
+
+# Common build
+
 VPATH =
 
-# Build targets
-
 all: .built
-.PHONY: context .depend depend clean distclean
+.PHONY: context depend clean distclean preconfig
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -108,15 +79,15 @@ $(COBJS): %$(OBJEXT): %.c
 
 .built: $(OBJS)
 	$(call ARCHIVE, $(BIN), $(OBJS))
-	@touch .built
+	$(Q) touch .built
 
 install:
 
 context:
 
 .depend: Makefile $(SRCS)
-	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	@touch $@
+	$(Q) $(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
+	$(Q) touch $@
 
 depend: .depend
 
@@ -128,5 +99,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
+preconfig:
 
+-include Make.dep

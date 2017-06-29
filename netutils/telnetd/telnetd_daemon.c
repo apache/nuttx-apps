@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/telnetd/telnetd_daemon.c
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include <signal.h>
 #include <semaphore.h>
 #include <sched.h>
@@ -72,9 +73,10 @@
 
 struct telnetd_s
 {
-  int                   port;      /* The port to listen on (in network byte order) */
-  int                   priority;  /* The execution priority of the spawned task, */
-  int                   stacksize; /* The stack size needed by the spawned task */
+  uint16_t              port;      /* The port to listen on (in network byte order) */
+  sa_family_t           family;    /* Address family */
+  uint8_t               priority;  /* The execution priority of the spawned task, */
+  size_t                stacksize; /* The stack size needed by the spawned task */
   main_t                entry;     /* The entrypoint of the task to spawn when a new
                                     * connection is accepted. */
 };
@@ -126,7 +128,16 @@ static struct telnetd_common_s g_telnetdcommon;
 static int telnetd_daemon(int argc, char *argv[])
 {
   FAR struct telnetd_s *daemon;
-  struct sockaddr_in myaddr;
+  union
+  {
+    struct sockaddr     generic;
+#ifdef CONFIG_NET_IPv4
+    struct sockaddr_in  ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+    struct sockaddr_in6 ipv6;
+#endif
+  } addr;
   struct telnet_session_s session;
 #ifdef CONFIG_NET_SOLINGER
   struct linger ling;
@@ -187,11 +198,12 @@ static int telnetd_daemon(int argc, char *argv[])
 
   /* Create a new TCP socket to use to listen for connections */
 
-  listensd = socket(PF_INET, SOCK_STREAM, 0);
+  listensd = socket(daemon->family, SOCK_STREAM, 0);
   if (listensd < 0)
     {
       int errval = errno;
-      nerr("ERROR: socket failure: %d\n", errval);
+      nerr("ERROR: socket() failed for family %u: %d\n",
+           daemon->family, errval);
       return -errval;
     }
 
@@ -208,11 +220,33 @@ static int telnetd_daemon(int argc, char *argv[])
 
   /* Bind the socket to a local address */
 
-  myaddr.sin_family      = AF_INET;
-  myaddr.sin_port        = daemon->port;
-  myaddr.sin_addr.s_addr = INADDR_ANY;
+#ifdef CONFIG_NET_IPv4
+  if (daemon->family == AF_INET)
+    {
+      addr.ipv4.sin_family      = AF_INET;
+      addr.ipv4.sin_port        = daemon->port;
+      addr.ipv4.sin_addr.s_addr = INADDR_ANY;
+      addrlen                   = sizeof(struct sockaddr_in);
+    }
+  else
+#endif
+#ifdef CONFIG_NET_IPv6
+  if (daemon->family == AF_INET6)
+    {
+      addr.ipv6.sin6_family     = AF_INET6;
+      addr.ipv6.sin6_port       = daemon->port;
+      addrlen                   = sizeof(struct sockaddr_in6);
 
-  if (bind(listensd, (struct sockaddr*)&myaddr, sizeof(struct sockaddr_in)) < 0)
+      memset(addr.ipv6.sin6_addr.s6_addr, 0, addrlen);
+    }
+  else
+#endif
+    {
+      nerr("ERROR: Unsupported address family: %u", daemon->family);
+      goto errout_with_socket;
+    }
+
+  if (bind(listensd, &addr.generic, addrlen) < 0)
     {
       nerr("ERROR: bind failure: %d\n", errno);
       goto errout_with_socket;
@@ -240,8 +274,8 @@ static int telnetd_daemon(int argc, char *argv[])
     {
       ninfo("Accepting connections on port %d\n", ntohs(daemon->port));
 
-      addrlen = sizeof(struct sockaddr_in);
-      acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
+      socklen_t accptlen = sizeof(addr);
+      acceptsd = accept(listensd, &addr.generic, &accptlen);
       if (acceptsd < 0)
         {
           /* Accept failed */
@@ -390,6 +424,7 @@ int telnetd_start(FAR struct telnetd_config_s *config)
   /* Initialize the daemon structure */
 
   daemon->port      = config->d_port;
+  daemon->family    = config->d_family;
   daemon->priority  = config->t_priority;
   daemon->stacksize = config->t_stacksize;
   daemon->entry     = config->t_entry;
