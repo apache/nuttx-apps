@@ -3,7 +3,7 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config SYSTEM_DHCPC
+config SYSTEM_DHCPC_RENEW
 	bool "DHCP Address Renewal"
 	default n
 	select NETUTILS_DHCPC
@@ -11,9 +11,9 @@ config SYSTEM_DHCPC
 	---help---
 		Enble the DHCP client 'renew' command
 
-if SYSTEM_DHCPC
+if SYSTEM_DHCPC_RENEW
 
-config SYSTEM_DHCPC_PROGNAME
+config DHCPC_RENEW_PROGNAME
 	string "Program name"
 	default "renew"
 	depends on BUILD_KERNEL
@@ -21,11 +21,11 @@ config SYSTEM_DHCPC_PROGNAME
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config SYSTEM_DHCPC_PRIORITY
+config DHCPC_RENEW_PRIORITY
 	int "DHCPC task priority"
 	default 100
 
-config SYSTEM_DHCPC_STACKSIZE
+config DHCPC_RENEW_STACKSIZE
 	int "DHCPC stack size"
 	default 2048
 

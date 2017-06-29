@@ -960,6 +960,13 @@ examples/nettest
     CONFIG_EXAMPLES_NETTEST=y - Enables the nettest example
     CONFIG_EXAMPLES_NETLIB=y  - The networking library in needed.
 
+  Configurations:
+
+    - Server on target hardware; client on host
+    - Client on target hardware; Server on host
+    - Server and Client on different targets.
+    - Loopback configuration with both client and server on the same target.
+
   See also examples/tcpecho
 
 examples/nrf24l01_term
@@ -2105,6 +2112,12 @@ examples/udp
   netutils libraries in the defconfig file:
 
     CONFIG_NETUTILS_NETLIB=y
+
+  Possible configurations:
+
+    - Server on target hardware; client on host
+    - Client on target hardware; Server on host
+    - Server and Client on different targets.
 
 examples/udpblaster
 ^^^^^^^^^^^^^^^^^^^

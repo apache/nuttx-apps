@@ -58,7 +58,7 @@ int ieee802154_setsaddr(int fd, FAR const uint8_t *saddr)
 {
   struct ieee802154_set_req_s req;
 
-  req.attr = IEEE802154_ATTR_MAC_SHORT_ADDRESS;
+  req.attr = IEEE802154_ATTR_MAC_SADDR;
   IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
 
   return ieee802154_set_req(fd, &req);

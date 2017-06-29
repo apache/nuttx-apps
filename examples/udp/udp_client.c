@@ -77,7 +77,7 @@ static int create_socket(void)
   /* Bind the UDP socket to a IPv4 port */
 
   addr.sin_family      = AF_INET;
-  addr.sin_port        = HTONS(CONFIG_EXAMPLES_CLIENT_PORTNO);
+  addr.sin_port        = HTONS(CONFIG_EXAMPLES_UDP_CLIENT_PORTNO);
   addr.sin_addr.s_addr = HTONL(INADDR_ANY);
   addrlen              = sizeof(struct sockaddr_in);
 
@@ -96,7 +96,7 @@ static int create_socket(void)
   /* Bind the UDP socket to a IPv6 port */
 
   addr.sin6_family     = AF_INET6;
-  addr.sin6_port       = HTONS(CONFIG_EXAMPLES_CLIENT_PORTNO);
+  addr.sin6_port       = HTONS(CONFIG_EXAMPLES_UDP_CLIENT_PORTNO);
   memset(addr.sin6_addr.s6_addr, 0, sizeof(struct in6_addr));
   addrlen              = sizeof(struct sockaddr_in6);
 #endif
@@ -130,7 +130,7 @@ static inline void fill_buffer(unsigned char *buf, int offset)
  * Public Functions
  ****************************************************************************/
 
-void send_client(void)
+void udp_client(void)
 {
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
   struct sockaddr_in6 server;
@@ -164,13 +164,13 @@ void send_client(void)
 
 #ifdef CONFIG_EXAMPLES_UDP_IPv6
       server.sin6_family            = AF_INET6;
-      server.sin6_port              = HTONS(CONFIG_EXAMPLES_SERVER_PORTNO);
-      memcpy(server.sin6_addr.s6_addr16, g_server_ipv6, 8 * sizeof(uint16_t));
+      server.sin6_port              = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
+      memcpy(server.sin6_addr.s6_addr16, g_udpserver_ipv6, 8 * sizeof(uint16_t));
       addrlen                       = sizeof(struct sockaddr_in6);
 #else
       server.sin_family             = AF_INET;
-      server.sin_port               = HTONS(CONFIG_EXAMPLES_SERVER_PORTNO);
-      server.sin_addr.s_addr        = (in_addr_t)g_server_ipv4;
+      server.sin_port               = HTONS(CONFIG_EXAMPLES_UDP_SERVER_PORTNO);
+      server.sin_addr.s_addr        = (in_addr_t)g_udpserver_ipv4;
       addrlen                       = sizeof(struct sockaddr_in);
 #endif
 

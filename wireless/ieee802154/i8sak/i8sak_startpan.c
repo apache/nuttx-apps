@@ -73,11 +73,12 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_reset_req_s resetreq;
   struct ieee802154_start_req_s startreq;
+  bool beaconenabled = false;
   int option;
   int fd;
   int i;
 
-  while ((option = getopt(argc, argv, ":h")) != ERROR)
+  while ((option = getopt(argc, argv, ":hb")) != ERROR)
     {
       switch (option)
         {
@@ -85,11 +86,15 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             fprintf(stderr, "Starts PAN as PAN Coordinator\n"
                     "Usage: %s [-h]\n"
                     "    -h = this help menu\n"
+                    "    -b = start beacon-enabled PAN\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
+          case 'b':
+            beaconenabled = true;
+            break;
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
             /* Must manually reset optind if we are going to exit early */
@@ -184,11 +189,22 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   printf("i8sak: starting PAN\n");
 
   IEEE802154_PANIDCOPY(startreq.panid, i8sak->addr.panid);
-  startreq.chnum = i8sak->chnum;
+  startreq.chan  = i8sak->chan;
   startreq.chpage = i8sak->chpage;
-  startreq.beaconorder = 15;
-  startreq.pancoord = true;
+
+  if (beaconenabled)
+    {
+      startreq.beaconorder = 6;
+      startreq.superframeorder = 5;
+    }
+  else
+    {
+      startreq.beaconorder = 15;
+    }
+
+  startreq.pancoord     = true;
   startreq.coordrealign = false;
+  startreq.battlifeext  = false;
 
   ieee802154_start_req(fd, &startreq);
 

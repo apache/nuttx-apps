@@ -79,10 +79,12 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_assoc_req_s assocreq;
   struct wpanlistener_eventfilter_s filter;
+  FAR struct ieee802154_pandesc_s *pandesc;
   int fd;
   int option;
   int optcnt;
   int ret;
+  uint8_t resindex;
 
   /* If the addresses has never been automatically or manually set before, set
    * it assuming that we are the default device address and the endpoint is the
@@ -96,7 +98,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
 
   optcnt = 0;
-  while ((option = getopt(argc, argv, ":hs:e:")) != ERROR)
+  while ((option = getopt(argc, argv, ":hr:s:e:")) != ERROR)
     {
       optcnt++;
       switch (option)
@@ -105,12 +107,31 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             fprintf(stderr, "Requests association with endpoint\n"
                     "Usage: %s [-h]\n"
                     "    -h = this help menu\n"
+                    "    -r = use scan result index\n"
                     , argv[0]);
 
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
+          case 'r':
+            resindex = i8sak_str2luint8(optarg);
+
+            if (resindex >= i8sak->npandesc)
+              {
+                fprintf(stderr, "ERROR: missing argument\n");
+                /* Must manually reset optind if we are going to exit early */
+
+                optind = -1;
+                i8sak_cmd_error(i8sak); /* This exits for us */
+              }
+
+            pandesc = &i8sak->pandescs[resindex];
+
+            i8sak->chan   = pandesc->chan;
+            i8sak->chpage = pandesc->chpage;
+            memcpy(&i8sak->ep, &pandesc->coordaddr, sizeof(struct ieee802154_addr_s));
+            break;
 
           case 's':
             /* Parse extended address and put it into the i8sak instance */
@@ -158,15 +179,6 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak_cmd_error(i8sak);
     }
 
-  if (argc < 2)
-    {
-      /* TODO: Perform a scan operation here, to determine addressing information
-       * of coordinator.
-       */
-
-      fprintf(stderr, "i8sak: scan not implemented. Using default values\n");
-    }
-
   /* Register new callback for receiving the association notifications */
 
   memset(&filter, 0, sizeof(struct wpanlistener_eventfilter_s));
@@ -177,7 +189,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   printf("i8sak: issuing ASSOC. request\n");
 
-  assocreq.chnum = i8sak->chnum;
+  assocreq.chan = i8sak->chan;
   assocreq.chpage = i8sak->chpage;
 
   memcpy(&assocreq.coordaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));

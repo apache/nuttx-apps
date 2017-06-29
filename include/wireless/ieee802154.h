@@ -98,6 +98,10 @@ int ieee802154_getsaddr(int fd, FAR uint8_t *saddr);
 int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr);
 int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr);
 
+int ieee802154_getcoordsaddr(int fd, FAR uint8_t *saddr);
+
+int ieee802154_getcoordeaddr(int fd, FAR uint8_t *eaddr);
+
 int ieee802154_setpromisc(int fd, bool promisc);
 int ieee802154_getpromisc(int fd, FAR bool *promisc);
 
@@ -111,6 +115,8 @@ int ieee802154_setcca(int fd, FAR struct ieee802154_cca_s *cca);
 int ieee802154_getcca(int fd, FAR struct ieee802154_cca_s *cca);
 
 int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode);
+
+int ieee802154_setassocpermit(int fd, bool assocpermit);
 
 #ifdef CONFIG_NET_6LOWPAN
 /* Netork driver IOCTL helpers */

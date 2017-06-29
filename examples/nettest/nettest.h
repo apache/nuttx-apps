@@ -77,14 +77,36 @@
 #  define PF_INETX PF_INET
 #endif
 
-#define PORTNO     5471
-#define SENDSIZE   4096
+#ifndef CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO
+#  define CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO 5471
+#endif
+
+#ifdef CONFIG_EXAMPLES_NETTEST_SENDSIZE
+#  define SENDSIZE CONFIG_EXAMPLES_NETTEST_SENDSIZE
+#else
+#  define SENDSIZE 4096
+#endif
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+uint16_t g_nettestserver_ipv6[8];
+#else
+uint32_t g_nettestserver_ipv4;
+#endif
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-extern void send_client(void);
-extern void recv_server(void);
+#ifdef CONFIG_EXAMPLES_NETTEST_INIT
+void nettest_initialize(void);
+#endif
+
+void nettest_cmdline(int argc, char **argv);
+extern void nettest_client(void);
+extern void nettest_server(void);
 
 #endif /* __EXAMPLES_NETTEST_H */

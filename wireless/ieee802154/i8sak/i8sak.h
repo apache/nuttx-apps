@@ -99,7 +99,14 @@
 /* /dev/ is 5 characters */
 #define I8SAK_DAEMONNAME_FMTLEN (6 + (I8SAK_MAX_DEVNAME-5) + 1)
 
+/* Helper Macros *************************************************************/
 
+#define PRINT_COORDEADDR(eaddr) \
+  printf("    Coordinator EADDR: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n", \
+    eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5], eaddr[6], eaddr[7]);
+
+#define PRINT_COORDSADDR(saddr) \
+  printf("    Coordinator SADDR: %02X:%02X\n", saddr[0], saddr[1]);
 
 /****************************************************************************
  * Public Types
@@ -146,7 +153,7 @@ struct i8sak_s
 
   /* Settings */
 
-  uint8_t chnum;
+  uint8_t chan;
   uint8_t chpage;
   struct ieee802154_addr_s addr;
   struct ieee802154_addr_s ep;
@@ -154,6 +161,9 @@ struct i8sak_s
   uint8_t payload[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
   uint16_t payload_len;
   int blasterperiod;
+
+  struct ieee802154_pandesc_s pandescs[CONFIG_MAC802154_NPANDESC];
+  uint8_t npandesc;
 };
 
 /****************************************************************************
@@ -175,10 +185,13 @@ bool i8sak_str2bool(FAR const char *str);
 void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_acceptassoc_cmd (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_assoc_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_scan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_tx_cmd          (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_poll_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_blaster_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_chan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_coordinfo_cmd   (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 
 /****************************************************************************
  * Inline Functions

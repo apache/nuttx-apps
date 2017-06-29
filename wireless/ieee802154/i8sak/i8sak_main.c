@@ -104,10 +104,13 @@ static const struct i8sak_command_s g_i8sak_commands[] =
   {"startpan",    (CODE void *)i8sak_startpan_cmd},
   {"acceptassoc", (CODE void *)i8sak_acceptassoc_cmd},
   {"assoc",       (CODE void *)i8sak_assoc_cmd},
+  {"scan",        (CODE void *)i8sak_scan_cmd},
   {"tx",          (CODE void *)i8sak_tx_cmd},
   {"poll",        (CODE void *)i8sak_poll_cmd},
   {"sniffer",     (CODE void *)i8sak_sniffer_cmd},
   {"blaster",     (CODE void *)i8sak_blaster_cmd},
+  {"chan",        (CODE void *)i8sak_chan_cmd},
+  {"coordinfo",   (CODE void *)i8sak_coordinfo_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
@@ -559,7 +562,7 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
   i8sak->daemon_started = false;
   i8sak->daemon_shutdown = false;
 
-  i8sak->chnum = CONFIG_IEEE802154_I8SAK_CHNUM;
+  i8sak->chan = CONFIG_IEEE802154_I8SAK_CHNUM;
   i8sak->chpage = CONFIG_IEEE802154_I8SAK_CHPAGE;
 
   if (strlen(devname) > I8SAK_MAX_DEVNAME)
@@ -730,11 +733,14 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
   fprintf(stderr, "Usage: %s\n"
           "    startpan [-h]\n"
           "    acceptassoc [-h|e <eaddr>]\n"
-          "    assoc [-h] [<panid>] \n"
+          "    scan [-h|p|a|e] minch-maxch\n"
+          "    assoc [-h] [<panid>]\n"
           "    tx [-h|d] <hex-payload>\n"
           "    poll [-h]\n"
           "    blaster [-h|q|f <hex payload>|p <period_ms>]\n"
           "    sniffer [-h|q]\n"
+          "    chan [-h|g] [<chan>]\n"
+          "    coordinfo [-h|a|e|s]\n"
           , progname);
   exit(exitcode);
 }

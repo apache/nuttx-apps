@@ -1080,6 +1080,21 @@ o sleep <sec>
 
   Pause execution (sleep) of <sec> seconds.
 
+o telnetd
+
+  The Telnet daemon may be started either programmatically by calling
+  nsh_telnetstart() or it may be started from the NSH command line using
+  this telnetd command.
+
+  Normally this command would be suppressed with CONFIG_NSH_DISABLE_TELNETD
+  because the Telnet daemon is automatically started in nsh_main.c.  The
+  exception is when CONFIG_NSH_NETLOCAL is selected.  IN that case, the
+  network is not enabled at initialization but rather must be enabled from
+  the NSH command line or via other applications.
+
+  In that case, calling nsh_telnetstart() before the the network is
+  initialized will fail.
+
 o time "<command>"
 
   Perform command timing.  This command will execute the following <command>
@@ -1274,6 +1289,7 @@ Command Dependencies on Configuration Settings
   shutdown   CONFIG_BOARDCTL_POWEROFF || CONFIG_BOARDCTL_RESET
   sleep      !CONFIG_DISABLE_SIGNALS
   test       !CONFIG_NSH_DISABLESCRIPT
+  telnetd    CONFIG_NSH_TELNET && !CONFIG_NSH_DISABLE_TELNETD
   time       ---
   umount     !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_READABLE
   uname      !CONFIG_NSH_DISABLE_UNAME

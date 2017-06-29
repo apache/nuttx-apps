@@ -1187,6 +1187,11 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
         int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #    endif
 #  endif
+#  if defined(CONFIG_NSH_TELNET)
+#    ifndef CONFIG_NSH_DISABLE_TELNETD
+        int cmd_telnetd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#    endif
+#  endif
 #endif /* CONFIG_NET */
 
 #if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT) && \

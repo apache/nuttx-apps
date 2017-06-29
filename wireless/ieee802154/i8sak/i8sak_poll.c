@@ -83,7 +83,6 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   int fd;
   int ret;
 
-  ret = OK;
   while ((option = getopt(argc, argv, ":h")) != ERROR)
     {
       switch (option)
@@ -110,11 +109,6 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
         }
-    }
-
-  if (ret != OK)
-    {
-      i8sak_cmd_error(i8sak);
     }
 
   fd = open(i8sak->devname, O_RDWR);

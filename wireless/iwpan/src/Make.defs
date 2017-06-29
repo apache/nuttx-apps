@@ -36,7 +36,7 @@
 
 ifeq ($(CONFIG_WIRELESS_IWPAN),y)
 
-CSRCS = 
+CSRCS =
 MAINSRC = iwpan.c
 
 DEPPATH += --dep-path src

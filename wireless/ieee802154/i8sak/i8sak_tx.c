@@ -109,7 +109,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             sendasdev = true;
             argind++;
             break;
-          
+
           case 'm':
             sendmax = true;
             argind++;
@@ -126,20 +126,16 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
             ret = ERROR;
-            break;
+            optind = -1;
+            i8sak_cmd_error(i8sak);
         }
-    }
-
-  if (ret != OK)
-    {
-      i8sak_cmd_error(i8sak);
     }
 
   if (argc == argind + 1)
     {
       i8sak->payload_len = i8sak_str2payload(argv[1], &i8sak->payload[0]);
     }
-  
+
   if (sendmax)
     {
       i8sak->payload_len = IEEE802154_MAX_SAFE_MAC_PAYLOAD_SIZE;

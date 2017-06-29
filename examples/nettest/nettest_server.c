@@ -57,7 +57,7 @@
  * Public Functions
  ****************************************************************************/
 
-void recv_server(void)
+void nettest_server(void)
 {
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
   struct sockaddr_in6 myaddr;
@@ -112,33 +112,32 @@ void recv_server(void)
 #ifdef CONFIG_EXAMPLES_NETTEST_IPv6
 
   myaddr.sin6_family            = AF_INET6;
-  myaddr.sin6_port              = HTONS(PORTNO);
-
+  myaddr.sin6_port              = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && !defined(NET_LOOPBACK)
-  myaddr.sin6_addr.s6_addr16[0] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_1);
-  myaddr.sin6_addr.s6_addr16[1] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_2);
-  myaddr.sin6_addr.s6_addr16[2] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_3);
-  myaddr.sin6_addr.s6_addr16[3] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_4);
-  myaddr.sin6_addr.s6_addr16[4] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_5);
-  myaddr.sin6_addr.s6_addr16[5] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_6);
-  myaddr.sin6_addr.s6_addr16[6] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_7);
-  myaddr.sin6_addr.s6_addr16[7] = HTONS(CONFIG_EXAMPLES_NETTEST_CLIENTIPv6ADDR_8);
+  memcpy(myaddr.sin6_addr.s6_addr16, g_nettestserver_ipv6, 8 * sizeof(uint16_t));
 #else
-  memset(&myaddr.sin6_addr, 0, sizeof(struct in6_addr));
+  memset(myaddr.sin6_addr.s6_addr16, 0, 8 * sizeof(uint16_t));
 #endif
-
   addrlen = sizeof(struct sockaddr_in6);
+
+  printf("Binding to IPv6 Address: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\n",
+         myaddr.sin6_addr.s6_addr16[0], myaddr.sin6_addr.s6_addr16[1],
+         myaddr.sin6_addr.s6_addr16[2], myaddr.sin6_addr.s6_addr16[3],
+         myaddr.sin6_addr.s6_addr16[4], myaddr.sin6_addr.s6_addr16[5],
+         myaddr.sin6_addr.s6_addr16[6], myaddr.sin6_addr.s6_addr16[7]);
 #else
   myaddr.sin_family             = AF_INET;
-  myaddr.sin_port               = HTONS(PORTNO);
+  myaddr.sin_port               = HTONS(CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
 
 #if defined(CONFIG_EXAMPLES_NETTEST_LOOPBACK) && !defined(NET_LOOPBACK)
-  myaddr.sin_addr.s_addr        = HTONL(CONFIG_EXAMPLES_NETTEST_CLIENTIP);
+  myaddr.sin_addr.s_addr        = (in_addr_t)g_nettestserver_ipv4;
 #else
   myaddr.sin_addr.s_addr        = INADDR_ANY;
 #endif
-
   addrlen = sizeof(struct sockaddr_in);
+
+  printf("Binding to IPv4 Address: %08lx\n",
+         (unsigned long)myaddr.sin_addr.s_addr);
 #endif
 
   if (bind(listensd, (struct sockaddr*)&myaddr, addrlen) < 0)
@@ -157,7 +156,8 @@ void recv_server(void)
 
   /* Accept only one connection */
 
-  printf("server: Accepting connections on port %d\n", PORTNO);
+  printf("server: Accepting connections on port %d\n",
+         CONFIG_EXAMPLES_NETTEST_SERVER_PORTNO);
   acceptsd = accept(listensd, (struct sockaddr*)&myaddr, &addrlen);
   if (acceptsd < 0)
     {

@@ -1,5 +1,5 @@
 /****************************************************************************
- * examples/udp/target2.c
+ * system/dhcpc/renew_main.c
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -37,40 +37,102 @@
  * Included Files
  ****************************************************************************/
 
-#include "config.h"
-#include "udp.h"
+#include <nuttx/config.h>
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <net/if.h>
+
+#include "netutils/netlib.h"
+#include "netutils/dhcpc.h"
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * dhcpc_showusage
+ ****************************************************************************/
+
+static void dhcpc_showusage(FAR const char *progname, int exitcode)
+{
+  fprintf(stderr, "Usage: %s <device-name>\n", progname);
+  exit(exitcode);
+}
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
- * udp2_main
+ * renew_main
  ****************************************************************************/
 
-#if defined(CONFIG_BUILD_KERNEL)
+#ifdef CONFIG_BUILD_KERNEL
 int main(int argc, FAR char *argv[])
 #else
-int udp2_main(int argc, char *argv[])
+int renew_main(int argc, char *argv[])
 #endif
 {
-  /* Parse any command line options */
+  FAR const char *devname;
+  FAR void *handle;
+  uint8_t mac[IFHWADDRLEN];
+  struct dhcpc_state ds;
+  int ret;
 
-  parse_cmdline(argc, argv);
+  /* One and only one argument is expected:  The network device name. */
 
-#ifdef CONFIG_EXAMPLES_UDP_NETINIT
-  /* Initialize the network */
+  if (argc != 2)
+    {
+      fprintf(stderr, "ERROR: Invalid number of arguments\n");
+      dhcpc_showusage(argv[0], EXIT_FAILURE);
+    }
 
-  (void)target_netinit();
-#endif
+  devname = argv[1];
 
-  /* Run the server or client, depending upon how target1 was configured */
+  /* Get the MAC address of the NIC */
 
-#ifdef CONFIG_EXAMPLES_UDP_SERVER1
-  send_client();
-#else
-  recv_server();
-#endif
+  netlib_getmacaddr(devname, mac);
 
-  return 0;
+  /* Set up the DHCPC modules */
+
+  handle = dhcpc_open(devname, &mac, IFHWADDRLEN);
+  if (handle == NULL)
+    {
+      fprintf(stderr, "ERROR: dhcpc_open() for '%s' failed\n", devname);
+      return EXIT_FAILURE;
+    }
+
+  /* Get an IP address. */
+
+  ret = dhcpc_request(handle, &ds);
+  if (ret < 0)
+    {
+      (void)dhcpc_close(handle);
+      fprintf(stderr, "ERROR: dhcpc_request() failed\n");
+      return EXIT_FAILURE;
+    }
+
+  /* Save the addresses that we obtained. */
+
+  netlib_set_ipv4addr(devname, &ds.ipaddr);
+
+  if (ds.netmask.s_addr != 0)
+    {
+      netlib_set_ipv4netmask(devname, &ds.netmask);
+    }
+
+  if (ds.default_router.s_addr != 0)
+    {
+      netlib_set_dripv4addr(devname, &ds.default_router);
+    }
+
+  if (ds.dnsaddr.s_addr != 0)
+    {
+      netlib_set_ipv4dnsaddr(&ds.dnsaddr);
+    }
+
+  dhcpc_close(handle);
+  return EXIT_SUCCESS;
 }
