@@ -44,12 +44,15 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
+
 #include <nuttx/fs/ioctl.h>
 
 #include "i8sak.h"
@@ -80,6 +83,9 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   struct ieee802154_assoc_req_s assocreq;
   struct wpanlistener_eventfilter_s filter;
   FAR struct ieee802154_pandesc_s *pandesc;
+  bool retry     = false;
+  int maxretries = 0;
+  int retrycnt;
   int fd;
   int option;
   int optcnt;
@@ -98,15 +104,16 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
 
   optcnt = 0;
-  while ((option = getopt(argc, argv, ":hr:s:e:")) != ERROR)
+  while ((option = getopt(argc, argv, ":hr:s:e:w:")) != ERROR)
     {
       optcnt++;
       switch (option)
         {
           case 'h':
             fprintf(stderr, "Requests association with endpoint\n"
-                    "Usage: %s [-h]\n"
+                    "Usage: %s [-h] [-w <count>\n"
                     "    -h = this help menu\n"
+                    "    -w = wait and retry on failure\n"
                     "    -r = use scan result index\n"
                     , argv[0]);
 
@@ -114,12 +121,14 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
             optind = -1;
             return;
+
           case 'r':
             resindex = i8sak_str2luint8(optarg);
 
             if (resindex >= i8sak->npandesc)
               {
                 fprintf(stderr, "ERROR: missing argument\n");
+
                 /* Must manually reset optind if we are going to exit early */
 
                 optind = -1;
@@ -147,8 +156,16 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             i8sak->ep.mode = IEEE802154_ADDRMODE_EXTENDED;
             break;
 
+          case 'w':
+            /* Wait and retry if we fail to associate */
+
+            retry      = true;
+            maxretries = atoi(optarg);
+            break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -156,6 +173,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
           case '?':
             fprintf(stderr, "ERROR: unknown argument\n");
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
@@ -179,43 +197,98 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak_cmd_error(i8sak);
     }
 
-  /* Register new callback for receiving the association notifications */
+  /* Register new callback for receiving the association notifications. */
 
   memset(&filter, 0, sizeof(struct wpanlistener_eventfilter_s));
   filter.confevents.assoc = true;
 
-  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, assoc_eventcb, &filter,
-                                 (FAR void *)i8sak, true);
+  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, assoc_eventcb,
+                                 &filter, (FAR void *)i8sak, false);
 
-  printf("i8sak: issuing ASSOC. request\n");
+  /* Loop for the specified retry count if the association fails.
+   */
 
-  assocreq.chan = i8sak->chan;
-  assocreq.chpage = i8sak->chpage;
-
-  memcpy(&assocreq.coordaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));
-
-  assocreq.capabilities.devtype = 0;
-  assocreq.capabilities.powersource = 1;
-  assocreq.capabilities.rxonidle = 1;
-  assocreq.capabilities.security = 0;
-  assocreq.capabilities.allocaddr = 1;
-
-  ieee802154_assoc_req(fd, &assocreq);
-
-  close(fd);
-
-  /* Wait here, the event listener will notify us if the correct event occurs */
-
-  i8sak->assoc = true;
-
-  ret = sem_wait(&i8sak->sigsem);
-  sem_post(&i8sak->exclsem);
-  if (ret != OK)
+  retrycnt = 0;
+  for (; ; )
     {
-      i8sak->assoc = false;
-      printf("i8sak: test cancelled\n");
-      i8sak_cmd_error(i8sak);
+      printf("i8sak: issuing ASSOC. request %d\n", retrycnt + 1);
+
+      /* Issue association request */
+
+      assocreq.chan = i8sak->chan;
+      assocreq.chpage = i8sak->chpage;
+
+      memcpy(&assocreq.coordaddr, &i8sak->ep,
+             sizeof(struct ieee802154_addr_s));
+
+      assocreq.capabilities.devtype = 0;
+      assocreq.capabilities.powersource = 1;
+      assocreq.capabilities.rxonidle = 1;
+      assocreq.capabilities.security = 0;
+      assocreq.capabilities.allocaddr = 1;
+
+      ieee802154_assoc_req(fd, &assocreq);
+
+      /* Wait for the assocconf event */
+
+      i8sak->assoc  = true;
+      i8sak->result = -EBUSY;
+
+      ret = sem_wait(&i8sak->sigsem);
+      sem_post(&i8sak->exclsem);
+      if (ret != OK)
+        {
+          i8sak->assoc = false;
+          printf("i8sak: test cancelled\n");
+          i8sak_cmd_error(i8sak);
+          break;
+        }
+
+      /* Check if the association was successful */
+
+      if (i8sak->result == OK)
+        {
+          /* Break out and return if the association was successful. */
+
+          break;
+        }
+
+      /* Not successful .. were we asked to retry in the event of an
+       * association failure?
+       */
+
+      if (!retry)
+        {
+          /* No retries... break out now with the failed association */
+
+          break;
+        }
+
+      /* A retry count of zero means to retry forever.  Otherwise,
+       * abort as soon as the maximum number of retries have been
+       * performed.
+       */
+
+      if (maxretries > 0 && retrycnt >= maxretries)
+        {
+          /* Max retry count exceeded -- break out now with a failed
+           * association.
+           */
+
+          break;
+        }
+
+      /* Otherwise, wait a bit and try again */
+
+      sleep(2);
+      retrycnt++;
     }
+
+  /* Clean up and return */
+
+  (void)wpanlistener_remove_eventreceiver(&i8sak->wpanlistener,
+                                          assoc_eventcb);
+  close(fd);
 }
 
 /****************************************************************************
@@ -229,16 +302,18 @@ static void assoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
   if (notif->u.assocconf.status == IEEE802154_STATUS_SUCCESS)
     {
       printf("i8sak: ASSOC.request succeeded\n");
+      i8sak->result = OK;
     }
   else
     {
       printf("i8sak: ASSOC.request failed: %s\n",
              IEEE802154_STATUS_STRING[notif->u.assocconf.status]);
+      i8sak->result = -EAGAIN;
     }
 
   if (i8sak->assoc)
     {
-      sem_post(&i8sak->sigsem);
       i8sak->assoc = false;
+      sem_post(&i8sak->sigsem);
     }
 }
