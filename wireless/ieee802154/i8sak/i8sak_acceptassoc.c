@@ -39,12 +39,15 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
+
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
+#include <assert.h>
+#include <errno.h>
+
 #include <nuttx/fs/ioctl.h>
 
 #include "i8sak.h"
@@ -57,7 +60,8 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
+static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
+                                FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -70,10 +74,12 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *
  *   Start accepting association requests.
  ****************************************************************************/
 
-void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
+void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
+                           FAR char *argv[])
 {
   struct wpanlistener_eventfilter_s filter;
-  bool acceptall = true; /* start off assuming we are going to allow all connections */
+  bool acceptall = true; /* Start off assuming we are going to allow all
+                          * connections */
   int option;
   int optcnt;
   int fd;
@@ -91,14 +97,17 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
                     "    -e = only accept requests from eaddr\n"
                     "Note: No option accepts all requests\n"
                     , argv[0]);
+
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
+
           case 'e': /* Accept only this extended address */
             i8sak_str2eaddr(optarg, &i8sak->ep.eaddr[0]);
             acceptall = false;
             break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
 
@@ -106,6 +115,7 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
 
             optind = -1;
             i8sak_cmd_error(i8sak); /* This exits for us */
+
           case '?':
             fprintf(stderr, "ERROR: invalid argument\n");
 
@@ -140,7 +150,8 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]
                                  &filter, (FAR void *)i8sak, !i8sak->acceptall);
 }
 
-static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
+static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
+                                FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
   struct ieee802154_assoc_resp_s assocresp;
@@ -159,7 +170,21 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *
 
   if (IEEE802154_EADDRCMP(notif->u.assocind.devaddr, i8sak->ep.eaddr))
     {
+      /* Assign the short address */
+
       IEEE802154_SADDRCOPY(assocresp.assocsaddr, i8sak->next_saddr);
+
+      /* Select a short address for the next association */
+
+      i8sak->next_saddr[0]++;
+      if (i8sak->next_saddr[0] == 0)
+        {
+          /* Handle the carry */
+
+          i8sak->next_saddr[1]++;
+          DEBUGASSERT(i8sak->next_saddr[1] != 0);
+        }
+
       assocresp.status = IEEE802154_STATUS_SUCCESS;
       printf("i8sak: accepting association request\n");
     }
