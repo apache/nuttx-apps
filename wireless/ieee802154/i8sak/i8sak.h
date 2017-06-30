@@ -143,6 +143,7 @@ struct i8sak_s
   pid_t daemon_pid;
   FAR char devname[I8SAK_MAX_DEVNAME];
   struct wpanlistener_s wpanlistener;
+  int result;
   int fd;
 
   sem_t exclsem;   /* For synchronizing access to the signaling semaphore */
