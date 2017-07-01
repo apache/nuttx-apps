@@ -193,6 +193,7 @@ void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[
 void i8sak_blaster_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_chan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_coordinfo_cmd   (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_reset_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 
 /****************************************************************************
  * Inline Functions
