@@ -103,10 +103,10 @@
 
 #define PRINT_COORDEADDR(eaddr) \
   printf("    Coordinator EADDR: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n", \
-    eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5], eaddr[6], eaddr[7]);
+    eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5], eaddr[6], eaddr[7])
 
 #define PRINT_COORDSADDR(saddr) \
-  printf("    Coordinator SADDR: %02X:%02X\n", saddr[0], saddr[1]);
+  printf("    Coordinator SADDR: %02X:%02X\n", saddr[0], saddr[1])
 
 /****************************************************************************
  * Public Types
