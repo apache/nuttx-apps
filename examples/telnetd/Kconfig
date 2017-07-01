@@ -6,6 +6,7 @@
 config EXAMPLES_TELNETD
 	bool "Telnet daemon example"
 	default n
+	depends on NETUTILS_TELNETD
 	---help---
 		Enable the Telnet daemon example
 
