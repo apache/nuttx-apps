@@ -49,6 +49,7 @@ STACKSIZE = 4096
 ASRCS =
 CSRCS = i8sak_acceptassoc.c i8sak_assoc.c i8sak_scan.c i8sak_blaster.c i8sak_poll.c
 CSRCS += i8sak_sniffer.c i8sak_startpan.c i8sak_tx.c i8sak_chan.c i8sak_coordinfo.c
+CSRCS += i8sak_reset.c
 CSRCS += wpanlistener.c
 MAINSRC = i8sak_main.c
 

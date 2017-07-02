@@ -111,6 +111,7 @@ static const struct i8sak_command_s g_i8sak_commands[] =
   {"blaster",     (CODE void *)i8sak_blaster_cmd},
   {"chan",        (CODE void *)i8sak_chan_cmd},
   {"coordinfo",   (CODE void *)i8sak_coordinfo_cmd},
+  {"reset",       (CODE void *)i8sak_reset_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
@@ -528,23 +529,24 @@ static void i8sak_switch_instance(FAR char *devname)
         }
 
       sq_addlast((FAR sq_entry_t *)i8sak, &g_i8sak_instances);
+
+      /* Update our "sticky" i8sak instance. Must come before call to setup so that
+       * the shared active global i8sak is correct.
+       */
+
+      g_activei8sak = i8sak;
+
+      if (i8sak_setup(i8sak, devname) < 0)
+        {
+          exit(EXIT_FAILURE);
+        }
     }
-
-  /* Update our "sticky" i8sak instance. Must come before call to setup so that
-   * the shared active global i8sak is correct.
-   */
-
-  g_activei8sak = i8sak;
-
-  if (!g_activei8sak_set)
+  else
     {
-      g_activei8sak_set = true;
+      g_activei8sak = i8sak;
     }
 
-  if (i8sak_setup(i8sak, devname) < 0)
-    {
-      exit(EXIT_FAILURE);
-    }
+  g_activei8sak_set = true;
 }
 
 static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
@@ -741,6 +743,7 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    sniffer [-h|q]\n"
           "    chan [-h|g] [<chan>]\n"
           "    coordinfo [-h|a|e|s]\n"
+          "    reset [-h]\n"
           , progname);
   exit(exitcode);
 }

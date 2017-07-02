@@ -84,7 +84,7 @@ struct wpanlistener_eventfilter_s
   {
     uint32_t assoc        : 1;
     uint32_t disassoc     : 1;
-    uint32_t beaconnotify : 1;
+    uint32_t beacon       : 1;
     uint32_t commstatus   : 1;
     uint32_t gts          : 1;
     uint32_t orphan       : 1;
