@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
         "<div class=\"menubox\"><a href=\"/index.html\">Front page</a></div>\r\n"
         "<div class=\"menubox\"><a href=\"hello\">Say Hello</a></div>\r\n"
         "<div class=\"menubox\"><a href=\"tasks\">Tasks</a></div>\r\n"
-        "<div class=\"menubox\"><a href=\"netstat\">Network status</a></div>\r\n"
         "<br>\r\n"
         "</div>\r\n"
         "<div class=\"contentblock\">\r\n");

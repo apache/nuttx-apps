@@ -50,7 +50,7 @@ ROMFS_IMG = $(CONTENT_DIR)/romfs.img
 ROMFS_HDR = $(CONTENT_DIR)/romfs.h
 
 ASRCS =
-CSRCS = hello.c netstat.c tasks.c
+CSRCS = hello.c tasks.c
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))
 COBJS = $(CSRCS:.c=$(OBJEXT))
@@ -74,8 +74,8 @@ else
   INSTALL_DIR = $(BIN_DIR)
 endif
 
-ROOTDEPPATH = --dep-path hello --dep-path netstat --dep-path tasks
-VPATH = hello:netstat:tasks
+ROOTDEPPATH = --dep-path hello --dep-path tasks
+VPATH = hello:tasks
 
 all: .built
 .PHONY: context headers binaries depend clean
@@ -122,13 +122,10 @@ headers: $(ROMFS_HDR)
 $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,hello,$(PRIORITY),$(STACKSIZE),hello_main)
 
-$(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,netstat,$(PRIORITY),$(STACKSIZE),netstat_main)
-
 $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat: $(DEPCONFIG) Makefile
 	$(call REGISTER,tasks,$(PRIORITY),$(STACKSIZE),tasks_main)
 
-context: $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)netstat_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
+context: $(BUILTIN_REGISTRY)$(DELIM)hello_main.bdat $(BUILTIN_REGISTRY)$(DELIM)tasks_main.bdat
 
 .depend: Makefile $(SRCS)
 	@$(MKDEP) $(ROOTDEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep

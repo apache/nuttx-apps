@@ -528,17 +528,17 @@ o ifconfig [nic_name [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask 
 
     nsh> mount -t procfs /proc
 
-o ifdown <nic-name>
+o ifdown <interface>
 
-  Take down the interface identified by the name <nic-name>.
+  Take down the interface identified by the name <interface>.
 
   Example:
 
     ifdown eth0
 
-o ifup <nic-name>
+o ifup <interface>
 
-  Bring up down the interface identified by the name <nic-name>.
+  Bring up down the interface identified by the name <interface>.
 
   Example:
 

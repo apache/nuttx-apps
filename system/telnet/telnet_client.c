@@ -332,7 +332,7 @@ int telnet_main(int argc, char *argv[])
 
   memset(&local, 0, sizeof(local));
 
-#ifdef CONFIG_EXAMPLES_NETTEST_IPv6
+#ifdef CONFIG_NET_IPv6
   addrlen                 = sizeof(struct sockaddr_in6);
   family                  = AF_INET6;
 
@@ -343,7 +343,7 @@ int telnet_main(int argc, char *argv[])
   ret = inet_pton(AF_INET6, argv[1], server.ipv6.sin6_addr.s6_addr);
   if (ret < 0)
 #endif
-#ifdef CONFIG_EXAMPLES_NETTEST_IPv
+#ifdef CONFIG_NET_IPv4
     {
       addrlen                = sizeof(struct sockaddr_in);
       family                 = AF_INET;

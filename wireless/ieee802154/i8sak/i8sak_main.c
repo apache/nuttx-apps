@@ -734,7 +734,7 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    startpan [-h]\n"
           "    acceptassoc [-h|e <eaddr>]\n"
           "    scan [-h|p|a|e] minch-maxch\n"
-          "    assoc [-h] [<panid>]\n"
+          "    assoc [-h] [-w <count>] [<panid>]\n"
           "    tx [-h|d] <hex-payload>\n"
           "    poll [-h]\n"
           "    blaster [-h|q|f <hex payload>|p <period_ms>]\n"
