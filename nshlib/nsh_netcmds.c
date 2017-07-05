@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_netcmds.c
  *
- *   Copyright (C) 2007-2012, 2014-2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2012, 2014-2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -758,10 +758,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   bool inet6 = false;
 #endif
   bool badarg = false;
-#ifdef CONFIG_NET_ETHERNET
+#if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
-#endif
-#ifdef CONFIG_NET_6LOWPAN
+#elif defined(CONFIG_NET_6LOWPAN)
   uint8_t eaddr[8];
 #endif
 #if defined(CONFIG_NSH_DHCPC)
@@ -769,11 +768,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
   int ret;
 
-  /* With one or no arguments, ifconfig simply shows the status of Ethernet
-   * device:
+  /* With one or no arguments, ifconfig simply shows the status of the
+   * network device:
    *
    *   ifconfig
-   *   ifconfig [nic_name]
+   *   ifconfig [interface]
    */
 
   if (argc <= 2)
