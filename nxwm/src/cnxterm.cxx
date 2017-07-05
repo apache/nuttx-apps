@@ -66,6 +66,15 @@
 #  warning You probably do not really want CONFIG_NSH_USBKBD, try CONFIG_NXWM_KEYBOARD_USBHOST
 #endif
 
+/* If Telnet is used and both IPv6 and IPv4 are enabled, then we need to
+ * pick one.
+ */
+
+#ifdef CONFIG_NET_IPv6
+#  define ADDR_FAMILY AF_INET6
+#else
+#  define ADDR_FAMILY AF_INET
+#endif
 /********************************************************************************************
  * Private Types
  ********************************************************************************************/
@@ -656,7 +665,7 @@ bool NxWM::nshlibInitialize(void)
   // Telnet daemon.
 
 #ifdef CONFIG_NSH_TELNET
-  int ret = nsh_telnetstart();
+  int ret = nsh_telnetstart(ADDR_FAMILY);
   if (ret < 0)
     {
       // The daemon is NOT running!
