@@ -87,7 +87,7 @@ Echo # >> %kconfig%
 Echo[ >> %kconfig%
 
 IF %menu% NEQ "" (
-  Echo menu "%menu%" >> %kconfig%
+  Echo menu %menu% >> %kconfig%
 )
 
 DIR /B /A:D >_tmp_.dat
