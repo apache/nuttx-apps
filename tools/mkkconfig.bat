@@ -77,6 +77,7 @@ REM   )
 
 REM Get the current directory
 SET APPSDIR=%cd%
+SET APPSDIR=%APPSDIR:\=/%
 
 Echo # > %kconfig%
 Echo # For a description of the syntax of this configuration file, >> %kconfig%
