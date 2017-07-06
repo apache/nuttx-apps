@@ -37,7 +37,10 @@
 -include $(TOPDIR)/Make.defs
 
 CONFIG_ARCH_BOARD ?= dummy
-DELIM ?= $(strip /)
+
+# REVISIT: Backslash causes problems in $(COBJS) target
+# DELIM ?= $(strip /)
+DELIM := $(strip /)
 
 include $(APPDIR)$(DELIM)Make.defs
 
@@ -46,11 +49,11 @@ include $(APPDIR)$(DELIM)Make.defs
 
 ifeq ($(DIRLINK),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-DIRLINK = $(TOPDIR)/tools/link.bat
-DIRUNLINK = $(TOPDIR)/tools/unlink.bat
+DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)link.bat
+DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.bat
 else
-DIRLINK = $(TOPDIR)/tools/link.sh
-DIRUNLINK = $(TOPDIR)/tools/unlink.sh
+DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)link.sh
+DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
 endif
 endif
 
