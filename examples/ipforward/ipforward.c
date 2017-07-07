@@ -103,9 +103,24 @@ struct ipfwd_arg_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+/* Network addresses:
+ *
+ * g_tun0_laddr is the address assigned to the tun0 device.  g_tun1_laddr
+ * is the address assigned to tun1 device.  Both are loal addresses can the
+ * target can received addresses on.
+ *
+ * g_netmask is the network mask that defines the networks:  tun0 is on
+ * network 0; tun1 is on network 1.
+ *
+ * g_tun0_raddr and g_tun1_raddr are addresses that are not local to the
+ * target, but should instead be forwarded via the correct network device.
+ * g_tun0_raddr lies on network 0 and g_tun1_raddr lies on network 1 and so
+ * should be forwarded from network 0 to network1 by the NuttX IP forwarding
+ * logic.
+ */
 
 #ifdef CONFIG_NET_IPv6
-static const uint16_t g_tun0_ipaddr[8] =
+static const uint16_t g_tun0_laddr[8] =
 {
   HTONS(0x7c00),
   HTONS(0),
@@ -113,11 +128,11 @@ static const uint16_t g_tun0_ipaddr[8] =
   HTONS(0),
   HTONS(0),
   HTONS(0),
-  HTONS(0),
+  HTONS(0),       /* Netork 0 */
   HTONS(0x0097),
 };
 
-static const uint16_t g_tun1_ipaddr[8] =
+static const uint16_t g_tun1_laddr[8] =
 {
   HTONS(0x7c00),
   HTONS(0),
@@ -125,8 +140,32 @@ static const uint16_t g_tun1_ipaddr[8] =
   HTONS(0),
   HTONS(0),
   HTONS(0),
-  HTONS(0),
+  HTONS(0x0001),  /* Netork 1 */
   HTONS(0x0139),
+};
+
+static const uint16_t g_tun0_raddr[8] =
+{
+  HTONS(0x7c00),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),       /* Netork 0 */
+  HTONS(0x0062),
+};
+
+static const uint16_t g_tun1_raddr[8] =
+{
+  HTONS(0x7c00),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0),
+  HTONS(0x0001),  /* Netork 1 */
+  HTONS(0x0147),
 };
 
 static const uint16_t g_netmask[8] =
@@ -141,9 +180,11 @@ static const uint16_t g_netmask[8] =
   HTONS(0),
 };
 #else
-static const uint32_t g_tun0_ipaddr = HTONL(0x0a000097);
-static const uint32_t g_tun1_ipaddr = HTONL(0x0a000039);
-static const uint32_t g_netmask     = HTONL(0xffffff00);
+static const uint32_t g_tun0_laddr = HTONL(0x0a000097);  /* Netork 0 */
+static const uint32_t g_tun1_laddr = HTONL(0x0a000139);  /* Netork 1 */
+static const uint32_t g_tun0_raddr = HTONL(0x0a000062);  /* Netork 0 */
+static const uint32_t g_tun1_raddr = HTONL(0x0a000147);  /* Netork 1 */
+static const uint32_t g_netmask    = HTONL(0xffffff00);
 #endif
 
 static const char g_payload[] = "Hi there, TUN receiver!";
@@ -376,14 +417,14 @@ static void ipfwd_dumpbuffer(FAR uint8_t *buffer, size_t buflen)
 
   for (i = 0; i < buflen; i += NBYTES_PER_LINE)
     {
+      putchar(' ');
+      putchar(' ');
+
       /* Generate hex values:  2 * NBYTES_PER_LINE + 1 bytes */
 
       for (j = 0; j < NBYTES_PER_LINE; j++)
         {
           k = i + j;
-
-          putchar(' ');
-          putchar(' ');
 
           if (j == (NBYTES_PER_LINE / 2))
             {
@@ -623,10 +664,10 @@ int ipfwd_main(int argc, char *argv[])
       goto errout;
     }
 
-  ret = ipfwd_netconfig(&fwd.if_tun0, g_tun0_ipaddr, g_netmask);
+  ret = ipfwd_netconfig(&fwd.if_tun0, g_tun0_laddr, g_netmask);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: ipfwd_netconfig failed: %d\n", ret);
+      fprintf(stderr, "ERROR: ipfwd_netconfig for tun0 failed: %d\n", ret);
       goto errout_with_tun0;
     }
 
@@ -639,21 +680,21 @@ int ipfwd_main(int argc, char *argv[])
       goto errout_with_tun0;
     }
 
-  ret = ipfwd_netconfig(&fwd.if_tun0, g_tun0_ipaddr, g_netmask);
+  ret = ipfwd_netconfig(&fwd.if_tun1, g_tun1_laddr, g_netmask);
   if (ret < 0)
     {
-      fprintf(stderr, "ERROR: ipfwd_netconfig failed: %d\n", ret);
+      fprintf(stderr, "ERROR: ipfwd_netconfig tun1 failed: %d\n", ret);
       errcode = EXIT_FAILURE;
       goto errout_with_tun1;
     }
 
-  /* Start receiver thread on tun0 */
+  /* Start receiver thread on tun1 */
 
-  tun0arg.ia_fd         = fwd.if_tun0.it_fd;
-  tun0arg.ia_srcipaddr  = g_tun0_ipaddr;
-  tun0arg.ia_destipaddr = g_tun1_ipaddr;
+  tun1arg.ia_fd         = fwd.if_tun1.it_fd;
+  tun1arg.ia_srcipaddr  = g_tun1_raddr;
+  tun1arg.ia_destipaddr = g_tun0_raddr;
 
-  ret = pthread_create(&fwd.if_receiver, NULL, ipfwd_receiver, &tun0arg);
+  ret = pthread_create(&fwd.if_receiver, NULL, ipfwd_receiver, &tun1arg);
   if (ret != 0)
     {
       fprintf(stderr, "ERROR: pthread_create() failed for receiver: %d\n", ret);
@@ -661,13 +702,13 @@ int ipfwd_main(int argc, char *argv[])
       goto errout_with_tun1;
     }
 
-  /* Start sender thread on tun1 */
+  /* Start sender thread on tun0 */
 
-  tun1arg.ia_fd         = fwd.if_tun1.it_fd;
-  tun1arg.ia_srcipaddr  = g_tun1_ipaddr;
-  tun1arg.ia_destipaddr = g_tun0_ipaddr;
+  tun0arg.ia_fd         = fwd.if_tun0.it_fd;
+  tun0arg.ia_srcipaddr  = g_tun0_raddr;
+  tun0arg.ia_destipaddr = g_tun1_raddr;
 
-  ret = pthread_create(&fwd.if_sender, NULL, ipfwd_sender, &tun1arg);
+  ret = pthread_create(&fwd.if_sender, NULL, ipfwd_sender, &tun0arg);
   if (ret != 0)
     {
       fprintf(stderr, "ERROR: pthread_create() failed for sender: %d\n", ret);
