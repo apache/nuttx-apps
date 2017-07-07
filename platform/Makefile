@@ -37,10 +37,7 @@
 -include $(TOPDIR)/Make.defs
 
 CONFIG_ARCH_BOARD ?= dummy
-
-# REVISIT: Backslash causes problems in $(COBJS) target
-# DELIM ?= $(strip /)
-DELIM := $(strip /)
+DELIM ?= $(strip /)
 
 include $(APPDIR)$(DELIM)Make.defs
 
@@ -85,8 +82,11 @@ CSRCS =
 -include $(GNUDIR)$(DELIM)Make.defs
 -include $(PLATFORMDIR)$(DELIM)Make.defs
 
-AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))
-COBJS = $(patsubst %.c, bin$(DELIM)%$(OBJEXT), $(CSRCS))
+# REVISIT: Backslash causes problems in $(A/COBJS) patsubst
+# AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))
+# COBJS = $(patsubst %.c, bin$(DELIM)%$(OBJEXT), $(CSRCS))
+AOBJS = $(patsubst %.S, bin/%$(OBJEXT), $(ASRCS))
+COBJS = $(patsubst %.c, bin/%$(OBJEXT), $(CSRCS))
 
 SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
@@ -107,12 +107,16 @@ all: .built
 .PHONY: context .depend depend clean distclean
 
 ifneq ($(ASRCS),)
-$(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
+# REVISIT: Backslash causes problems in $(AOBJS) target
+# $(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
+$(AOBJS): bin/%$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 endif
 
 ifneq ($(CSRCS),)
-$(COBJS): bin$(DELIM)%$(OBJEXT): %.c
+# REVISIT: Backslash causes problems in $(COBJS) target
+# $(COBJS): bin$(DELIM)%$(OBJEXT): %.c
+$(COBJS): bin/%$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 endif
 
