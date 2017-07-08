@@ -91,7 +91,7 @@ VPATH =
 all: .built
 .PHONY: clean depend distclean
 
-$(OBJS) $(RENEW_MAINOBJ): %$(OBJEXT): %.c
+$(RENEW_OBJS) $(RENEW_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 
 .built: $(OBJS)

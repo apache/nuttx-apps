@@ -76,7 +76,8 @@ REM   )
 )
 
 REM Get the current directory
-SET APPSDIR=%~dp0
+SET APPSDIR=%cd%
+SET APPSDIR=%APPSDIR:\=/%
 
 Echo # > %kconfig%
 Echo # For a description of the syntax of this configuration file, >> %kconfig%
@@ -87,7 +88,7 @@ Echo # >> %kconfig%
 Echo[ >> %kconfig%
 
 IF %menu% NEQ "" (
-  Echo menu "%menu%" >> %kconfig%
+  Echo menu %menu% >> %kconfig%
 )
 
 DIR /B /A:D >_tmp_.dat

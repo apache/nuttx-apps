@@ -78,7 +78,7 @@ SRC_DEPPATH = --dep-path src
 VPATH = src:$(FICL_SUBDIR)
 
 all: .built
-.PHONY: debug context depend clean distclean
+.PHONY: debug context depend clean distclean preconfig
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -113,6 +113,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

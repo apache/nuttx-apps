@@ -46,11 +46,11 @@ include $(APPDIR)$(DELIM)Make.defs
 
 ifeq ($(DIRLINK),)
 ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-DIRLINK = $(TOPDIR)/tools/link.bat
-DIRUNLINK = $(TOPDIR)/tools/unlink.bat
+DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)link.bat
+DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.bat
 else
-DIRLINK = $(TOPDIR)/tools/link.sh
-DIRUNLINK = $(TOPDIR)/tools/unlink.sh
+DIRLINK = $(TOPDIR)$(DELIM)tools$(DELIM)link.sh
+DIRUNLINK = $(TOPDIR)$(DELIM)tools$(DELIM)unlink.sh
 endif
 endif
 
@@ -82,8 +82,11 @@ CSRCS =
 -include $(GNUDIR)$(DELIM)Make.defs
 -include $(PLATFORMDIR)$(DELIM)Make.defs
 
-AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))
-COBJS = $(patsubst %.c, bin$(DELIM)%$(OBJEXT), $(CSRCS))
+# REVISIT: Backslash causes problems in $(A/COBJS) patsubst
+# AOBJS = $(patsubst %.S, bin$(DELIM)%$(OBJEXT), $(ASRCS))
+# COBJS = $(patsubst %.c, bin$(DELIM)%$(OBJEXT), $(CSRCS))
+AOBJS = $(patsubst %.S, bin/%$(OBJEXT), $(ASRCS))
+COBJS = $(patsubst %.c, bin/%$(OBJEXT), $(CSRCS))
 
 SRCS = $(ASRCS) $(CSRCS)
 OBJS = $(AOBJS) $(COBJS)
@@ -104,12 +107,16 @@ all: .built
 .PHONY: context .depend depend clean distclean
 
 ifneq ($(ASRCS),)
-$(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
+# REVISIT: Backslash causes problems in $(AOBJS) target
+# $(AOBJS): bin$(DELIM)%$(OBJEXT): %.S
+$(AOBJS): bin/%$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
 endif
 
 ifneq ($(CSRCS),)
-$(COBJS): bin$(DELIM)%$(OBJEXT): %.c
+# REVISIT: Backslash causes problems in $(COBJS) target
+# $(COBJS): bin$(DELIM)%$(OBJEXT): %.c
+$(COBJS): bin/%$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
 endif
 

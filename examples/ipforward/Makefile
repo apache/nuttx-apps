@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/keypadtest/Makefile
+# apps/examples/ipforward/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,19 +35,22 @@
 
 -include $(TOPDIR)/Make.defs
 
-# Keypad Test Example
+# Hello, World! built-in application info
+
+CONFIG_EXAMPLES_IPFORWARD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_IPFORWARD_STACKSIZE ?= 2048
+
+APPNAME = ipfwd
+PRIORITY = $(CONFIG_EXAMPLES_IPFORWARD_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_IPFORWARD_STACKSIZE)
+
+# Hello, World! Example
 
 ASRCS =
 CSRCS =
-MAINSRC = keypadtest_main.c
+MAINSRC = ipforward.c
 
-# helloxx built-in application info
-
-APPNAME         = keypadtest
-PRIORITY        = SCHED_PRIORITY_DEFAULT
-STACKSIZE       = 2048
-
-CONFIG_XYZ_PROGNAME ?= keypadtest$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_IPFORWARD_PROGNAME ?= ipfwd$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_IPFORWARD_PROGNAME)
 
 include $(APPDIR)/Application.mk
