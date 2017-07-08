@@ -1,0 +1,31 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_IPFORWARD
+	bool "IP forwarding example"
+	default n
+	depends on NET_TUN && NET_TCP
+	---help---
+		Enable the IP forwarding example
+
+if EXAMPLES_IPFORWARD
+
+config EXAMPLES_IPFORWARD_PROGNAME
+	string "IP forwarding rogram name"
+	default "ipfwd"
+	depends on BUILD_KERNEL
+	---help---
+		This is the name of the program that will be use when the NSH ELF
+		program is installed.
+
+config EXAMPLES_IPFORWARD_PRIORITY
+	int "IP forwarding task priority"
+	default 100
+
+config EXAMPLES_IPFORWARD_STACKSIZE
+	int "IP forwarding stack size"
+	default 2048
+
+endif

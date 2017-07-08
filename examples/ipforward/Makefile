@@ -1,7 +1,7 @@
 ############################################################################
-# apps/interpreters/ficl/Makefile
+# apps/examples/ipforward/Makefile
 #
-#   Copyright (C) 2011-2012, 2016 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,86 +33,24 @@
 #
 ############################################################################
 
-BUILDDIR := ${shell pwd | sed -e 's/ /\\ /g'}
-
 -include $(TOPDIR)/Make.defs
-include $(APPDIR)/Make.defs
 
-# Tools
+# Hello, World! built-in application info
 
-# Include paths
+CONFIG_EXAMPLES_IPFORWARD_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_IPFORWARD_STACKSIZE ?= 2048
 
-CFLAGS += ${shell $(INCDIR) $(INCDIROPT) "$(CC)" $(BUILDDIR)/$(FICL_SUBDIR) $(BUILDDIR)/src}
+APPNAME = ipfwd
+PRIORITY = $(CONFIG_EXAMPLES_IPFORWARD_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_IPFORWARD_STACKSIZE)
 
-# Source Files
+# Hello, World! Example
 
 ASRCS =
-CXXSRCS =
-CSRCS = nuttx.c
+CSRCS =
+MAINSRC = ipforward.c
 
--include Make.srcs
+CONFIG_EXAMPLES_IPFORWARD_PROGNAME ?= ipfwd$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_IPFORWARD_PROGNAME)
 
-ASRCS += $(FICL_ASRCS)
-CXXSRCS += $(FICL_CXXSRCS)
-CSRCS += $(FICL_CSRCS)
-
-AOBJS = $(ASRCS:.S=$(OBJEXT))
-COBJS = $(CSRCS:.c=$(OBJEXT))
-
-SRCS = $(ASRCS) $(CSRCS)
-OBJS = $(AOBJS) $(COBJS)
-
-ifeq ($(CONFIG_WINDOWS_NATIVE),y)
-  BIN		= ..\..\libapps$(LIBEXT)
-else
-ifeq ($(WINTOOL),y)
-  BIN		= ..\\..\\libapps$(LIBEXT)
-else
-  BIN		= ../../libapps$(LIBEXT)
-endif
-endif
-
-ROOT_DEPPATH = --dep-path .
-SRC_DEPPATH = --dep-path src
-
-VPATH = src:$(FICL_SUBDIR)
-
-all: .built
-.PHONY: debug context depend clean distclean preconfig
-
-$(AOBJS): %$(OBJEXT): %.S
-	$(call ASSEMBLE, $<, $@)
-
-$(COBJS): %$(OBJEXT): %.c
-	$(call COMPILE, $<, $@)
-
-debug:
-	@#echo "FICL:   $(FICL_SUBDIR)"
-	@#echo "VPATH:  $(VPATH)"
-	@#echo "CFLAGS: $(CFLAGS)"
-
-.built: debug $(OBJS)
-	$(call ARCHIVE, $(BIN), $(OBJS))
-	$(Q) touch .built
-
-install:
-
-context:
-
-.depend: debug Makefile $(SRCS)
-	$(Q) $(MKDEP) $(ROOT_DEPPATH) $(SRC_DEPPATH) $(FICL_DEPPATH) "$(CC)" -- $(CFLAGS) -- $(SRCS) >Make.dep
-	$(Q) touch $@
-
-depend: .depend
-
-clean:
-	$(call DELFILE, .built)
-	$(call CLEAN)
-
-distclean: clean
-	$(call DELFILE, Make.dep)
-	$(call DELFILE, .depend)
-
-preconfig:
-
--include Make.dep
+include $(APPDIR)/Application.mk
