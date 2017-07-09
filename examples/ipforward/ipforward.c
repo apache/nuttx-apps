@@ -53,6 +53,7 @@
 
 #include <nuttx/net/ip.h>
 #include <nuttx/net/tcp.h>
+#include <nuttx/net/icmpv6.h>
 #include <nuttx/net/tun.h>
 
 #include "netutils/netlib.h"
@@ -72,6 +73,18 @@
 #else
 #  define IPADDR_TYPE   uint32_t
 #  define IP_HDRLEN     IPv4_HDRLEN
+#endif
+
+#if defined(CONFIG_NET_ETHERNET)
+#  define MAC_ADDRLEN    6   /* IFHWADDRLEN */
+#elif defined(CONFIG_NET_6LOWPAN)
+#  ifdef CONFIG_NET_6LOWPAN_EXTENDEDADDR
+#    define MAC_ADDRLEN  10  /* NET_6LOWPAN_EADDRSIZE */
+#  else
+#    define MAC_ADDRLEN  2   /* NET_6LOWPAN_SADDRSIZE */
+#  endif
+#else
+#  define MAC_ADDRLEN    0   /* No link layer address */
 #endif
 
 /****************************************************************************
@@ -187,7 +200,10 @@ static const uint32_t g_tun1_raddr = HTONL(0x0a000147);  /* Netork 1 */
 static const uint32_t g_netmask    = HTONL(0xffffff00);
 #endif
 
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
 static const char g_payload[] = "Hi there, TUN receiver!";
+#endif
+
 #ifdef CONFIG_NET_IPv4
 static uint16_t g_ipid;
 #endif
@@ -337,7 +353,7 @@ static uint16_t ipv4_chksum(FAR const uint8_t *buffer)
 }
 #endif
 
-uint16_t tcp_chksum(FAR uint8_t *buffer)
+static uint16_t common_chksum(FAR uint8_t *buffer, uint8_t proto)
 {
 #ifdef CONFIG_NET_IPv6
   FAR struct ipv6_hdr_s *ipv6 = (FAR struct ipv6_hdr_s *)buffer;
@@ -355,7 +371,7 @@ uint16_t tcp_chksum(FAR uint8_t *buffer)
    * and destination addresses, the packet length and the next header field.
    */
 
-  sum = upperlen + IP_PROTO_TCP;
+  sum = upperlen + proto;
 
   /* Sum IP source and destination addresses. */
 
@@ -380,7 +396,7 @@ uint16_t tcp_chksum(FAR uint8_t *buffer)
   /* First sum pseudo-header. */
   /* IP protocol and length fields. This addition cannot carry. */
 
-  sum = upperlen + IP_PROTO_TCP;
+  sum = upperlen + proto;
 
   /* Sum IP source and destination addresses. */
 
@@ -392,6 +408,20 @@ uint16_t tcp_chksum(FAR uint8_t *buffer)
   return (sum == 0) ? 0xffff : htons(sum);
 #endif
 }
+
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
+static uint16_t tcp_chksum(FAR uint8_t *buffer)
+{
+  return common_chksum(buffer, IP_PROTO_TCP);
+}
+#endif /* CONFIG_NET_IPv6 */
+
+#ifdef CONFIG_EXAMPLES_IPFORWARD_ICMPv6
+static uint16_t icmpv6_chksum(FAR uint8_t *buffer)
+{
+  return common_chksum(buffer, IP_PROTO_ICMP6);
+}
+#endif
 
 /****************************************************************************
  * Name: ipfwd_dumppkt (and friends)
@@ -459,6 +489,7 @@ static void ipfwd_dumppkt(FAR uint8_t *buffer, size_t buflen)
   dumpsize = IP_HDRLEN;
   if (dumpsize > buflen)
     {
+      printf("Truncated ");
       dumpsize = buflen;
     }
 
@@ -469,12 +500,15 @@ static void ipfwd_dumppkt(FAR uint8_t *buffer, size_t buflen)
   buflen -= dumpsize;
   if (buflen <= 0)
     {
+      printf("Packet truncated\n");
       return;
     }
 
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
   dumpsize = TCP_HDRLEN;
   if (dumpsize > buflen)
     {
+      printf("Truncated ");
       dumpsize = buflen;
     }
 
@@ -485,11 +519,23 @@ static void ipfwd_dumppkt(FAR uint8_t *buffer, size_t buflen)
   buflen -= dumpsize;
   if (buflen <= 0)
     {
+      printf("Packet truncated\n");
       return;
     }
 
   printf("Payload:\n");
   ipfwd_dumpbuffer(buffer, buflen);
+#else
+  dumpsize = SIZEOF_ICMPV6_NEIGHBOR_SOLICIT_S(MAC_ADDRLEN);
+  if (dumpsize > buflen)
+    {
+      printf("Truncated ");
+      dumpsize = buflen;
+    }
+
+  printf("ICMPv6 Neighbor Solicitation:\n");
+  ipfwd_dumpbuffer(buffer, dumpsize);
+#endif
 }
 
 /****************************************************************************
@@ -532,15 +578,30 @@ static FAR void *ipfwd_sender(FAR void *arg)
 #else
   FAR struct ipv4_hdr_s *ipv4;
 #endif
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
   FAR struct tcp_hdr_s *tcp;
   FAR char *payload;
+#endif
+#ifdef CONFIG_EXAMPLES_IPFORWARD_ICMPv6
+  FAR struct icmpv6_neighbor_solicit_s *sol;
+#endif
   size_t paysize;
   size_t pktlen;
   ssize_t nwritten;
+  uint16_t l3hdrlen;
+  uint8_t proto;
   int errcode;
   int i;
 
-  paysize = sizeof(g_payload);
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
+  l3hdrlen = TCP_HDRLEN;
+  paysize  = sizeof(g_payload);
+  proto    = IP_PROTO_TCP;
+#else
+  l3hdrlen = SIZEOF_ICMPV6_NEIGHBOR_SOLICIT_S(MAC_ADDRLEN);
+  paysize  = 0;
+  proto    = IP_PROTO_ICMP6;
+#endif
 
   for (i = 0; i < IPFWD_NPACKETS; i++)
     {
@@ -555,20 +616,42 @@ static FAR void *ipfwd_sender(FAR void *arg)
 
       /* Length excludes the IPv6 header */
 
-      pktlen       = TCP_HDRLEN + paysize;
+      pktlen       = l3hdrlen + paysize;
       ipv6->len[0] = (pktlen >> 8);
       ipv6->len[1] = (pktlen & 0xff);
 
-      ipv6->proto  = IP_PROTO_TCP;                 /* Next header */
+      ipv6->proto  = proto;                 /* Next header */
       ipv6->ttl    = 255;                          /* Hop limit */
 
-      /* Set source and destination address */
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
+      /* Set the uniicast destination IP address */
+
+      net_ipv6addr_copy(ipv6->destipaddr, fwd->ia_destipaddr);
+#else
+      /* Set the multicast destination IP address */
+
+      ipv6->destipaddr[0] = HTONS(0xff02);
+      ipv6->destipaddr[1] = HTONS(0x0000);
+      ipv6->destipaddr[2] = HTONS(0x0000);
+      ipv6->destipaddr[3] = HTONS(0x0000);
+      ipv6->destipaddr[4] = HTONS(0x0000);
+      ipv6->destipaddr[5] = HTONS(0x0001);
+      ipv6->destipaddr[6] = fwd->ia_destipaddr[6] | HTONS(0xff00);
+      ipv6->destipaddr[7] = fwd->ia_destipaddr[7];
+#endif
+
+      /* Set source IP address. */
 
       net_ipv6addr_copy(ipv6->srcipaddr,  fwd->ia_srcipaddr);
-      net_ipv6addr_copy(ipv6->destipaddr, fwd->ia_destipaddr);
 
-      pktlen       = IPv6_HDRLEN + TCP_HDRLEN + paysize;
-      tcp          = (FAR struct tcp_hdr_s *)&fwd->ia_buffer[IPv6_HDRLEN];
+      pktlen       = IPv6_HDRLEN + l3hdrlen + paysize;
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
+      tcp          = (FAR struct tcp_hdr_s *)
+                      &fwd->ia_buffer[IPv6_HDRLEN];
+#else
+      sol          = (FAR struct icmpv6_neighbor_solicit_s *)
+                     &fwd->ia_buffer[IPv6_HDRLEN];
+#endif
 #else
       ipv4 = (FAR struct ipv4_hdr_s *)fwd->ia_buffer;
 
@@ -577,7 +660,7 @@ static FAR void *ipfwd_sender(FAR void *arg)
       ipv4->vhl         = 0x45;
       ipv4->tos         = 0;
 
-      pktlen            = IPv4_HDRLEN + TCP_HDRLEN + paysize;
+      pktlen            = IPv4_HDRLEN + l3hdrlen + paysize;
       ipv4->len[0]      = (pktlen >> 8);
       ipv4->len[1]      = (pktlen & 0xff);
 
@@ -588,19 +671,26 @@ static FAR void *ipfwd_sender(FAR void *arg)
       ipv4->ipoffset[0] = IP_FLAG_DONTFRAG >> 8;
       ipv4->ipoffset[1] = IP_FLAG_DONTFRAG & 0xff;
       ipv4->ttl         = IP_TTL;
-      ipv4->proto       = IP_PROTO_TCP;
+      ipv4->proto       = proto;
 
       net_ipv4addr_hdrcopy(ipv4->srcipaddr,  fwd->ia_srcipaddr);
-      net_ipv4addr_hdrcopy(ipv4->destipaddr, fwd->ia_srcipaddr);
+      net_ipv4addr_hdrcopy(ipv4->destipaddr, fwd->ia_destipaddr);
 
       /* Calculate IP checksum. */
 
       ipv4->ipchksum    = 0;
       ipv4->ipchksum    = ~(ipv4_chksum(fwd->ia_buffer));
 
-      tcp               = (FAR struct tcp_hdr_s *)&fwd->ia_buffer[IPv4_HDRLEN];
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
+      tcp               = (FAR struct tcp_hdr_s *)
+                           &fwd->ia_buffer[IPv4_HDRLEN];
+#else
+      sol               = (FAR struct icmpv6_neighbor_solicit_s *)
+                           &fwd->ia_buffer[IPv4_HDRLEN];
+#endif
 #endif
 
+#ifdef CONFIG_EXAMPLES_IPFORWARD_TCP
       /* Set up the TCP header.  NOTE:  Most of the elements are irrelevant
        * in this test. The forwarding is L2 layer only and the L3 header
        * content is not used in the forwarding.
@@ -616,6 +706,34 @@ static FAR void *ipfwd_sender(FAR void *arg)
       memcpy(payload, g_payload, paysize);
 
       tcp->tcpchksum   = ~tcp_chksum(fwd->ia_buffer);
+#else
+      /* Set up the ICMPv6 Neighbor Solicitation message */
+
+      sol->type     = ICMPv6_NEIGHBOR_SOLICIT; /* Message type */
+      sol->code     = 0;                       /* Message qualifier */
+      sol->flags[0] = 0;                       /* flags */
+      sol->flags[1] = 0;
+      sol->flags[2] = 0;
+      sol->flags[3] = 0;
+
+      /* Copy the target address into the Neighbor Solicitation message */
+
+      net_ipv6addr_copy(sol->tgtaddr, fwd->ia_destipaddr);
+
+      /* Set up the options */
+
+      sol->opttype  = ICMPv6_OPT_SRCLLADDR;           /* Option type */
+      sol->optlen   = ICMPv6_OPT_OCTECTS(MAC_ADDRLEN); /* Option length in octets */
+
+      /* Copy our link layer address into the message */
+
+      memset(sol->srclladdr, 0x88, MAC_ADDRLEN);
+
+      /* Calculate the checksum over both the ICMP header and payload */
+
+      sol->chksum   = 0;
+      sol->chksum   = ~icmpv6_chksum(fwd->ia_buffer);
+#endif
 
       printf("Sending packet %d: size=%lu\n", i+1, (unsigned long)pktlen);
       ipfwd_dumppkt(fwd->ia_buffer, pktlen);

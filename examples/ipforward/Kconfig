@@ -6,11 +6,26 @@
 config EXAMPLES_IPFORWARD
 	bool "IP forwarding example"
 	default n
-	depends on NET_TUN && NET_TCP
+	depends on NET_TUN && (NET_TCP || NET_ICMPv6)
 	---help---
 		Enable the IP forwarding example
 
 if EXAMPLES_IPFORWARD
+
+choice
+	prompt "L3 protocol"
+	default EXAMPLES_IPFORWARD_TCP if NET_TCP
+	default EXAMPLES_IPFORWARD_ICMPv6 if !NET_TCP
+
+config EXAMPLES_IPFORWARD_TCP
+	bool "TCP"
+	depends on NET_TCP
+
+config EXAMPLES_IPFORWARD_ICMPv6
+	bool "ICMPv6"
+	depends on NET_ICMPv6
+
+endchoice # L3 Protocol
 
 config EXAMPLES_IPFORWARD_PROGNAME
 	string "IP forwarding rogram name"
