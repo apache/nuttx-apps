@@ -50,6 +50,7 @@
 #include <nuttx/net/netconfig.h>
 #include <nuttx/net/ethernet.h>
 #include <nuttx/net/ip.h>
+#include <nuttx/net/udp.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -101,7 +102,7 @@
 #if MIN_UDP_MSS < TFTP_MAXPACKETSIZE
 #  define TFTP_PACKETSIZE   MIN_UDP_MSS
 #  ifdef CONFIG_CPP_HAVE_WARNING
-#    warning "uIP MSS is too small for TFTP"
+#    warning "MSS is too small for TFTP"
 #  endif
 #else
 #  define TFTP_PACKETSIZE   TFTP_MAXPACKETSIZE
