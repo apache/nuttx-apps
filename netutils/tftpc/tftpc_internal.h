@@ -47,9 +47,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <nuttx/net/netconfig.h>
-#include <nuttx/net/ethernet.h>
+#include <nuttx/net/udp.h>
 #include <nuttx/net/ip.h>
+#include <nuttx/net/ethernet.h>
+#include <nuttx/net/netconfig.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -82,33 +83,44 @@
 
 /* Sizes of TFTP messsage headers */
 
-#define TFTP_ACKHEADERSIZE  4
-#define TFTP_ERRHEADERSIZE  4
-#define TFTP_DATAHEADERSIZE 4
+#define TFTP_ACKHEADERSIZE    4
+#define TFTP_ERRHEADERSIZE    4
+#define TFTP_DATAHEADERSIZE   4
 
 /* The maximum size for TFTP data is determined by the configured UDP packet
  * payload size (UDP_MSS), but cannot exceed 512 + sizeof(TFTP_DATA header).
  *
  * In the case where there are multiple network devices with different
  * link layer protocols (CONFIG_NET_MULTILINK), each network device
- * may support a different UDP MSS value.  Here we arbitrarily select
- * the minimum MSS for that case.
+ * may support a different UDP MSS value.  Here, if Ethernet is enabled,
+ * we (arbitrarily) assume that the Ethernet is link that will be used.
+ * if Ethernet is not one of the enabled interfaces, we (arbitrarily) select
+ * the minimum MSS.
  */
 
-#define TFTP_DATAHEADERSIZE 4
-#define TFTP_MAXPACKETSIZE  (TFTP_DATAHEADERSIZE+512)
+#define TFTP_DATAHEADERSIZE   4
+#define TFTP_MAXPACKETSIZE    (TFTP_DATAHEADERSIZE+512)
 
-#if MIN_UDP_MSS < TFTP_MAXPACKETSIZE
-#  define TFTP_PACKETSIZE   MIN_UDP_MSS
+#if defined(CONFIG_NET_ETHERNET)
+#  if ETH_UDP_MSS(IPv4_HDRLEN) < TFTP_MAXPACKETSIZE
+#    define TFTP_PACKETSIZE   ETH_UDP_MSS(IPv4_HDRLEN)
+#    ifdef CONFIG_CPP_HAVE_WARNING
+#      warning "Ethernet MSS is too small for TFTP"
+#    endif
+#  else
+#    define TFTP_PACKETSIZE   TFTP_MAXPACKETSIZE
+#  endif
+#elif MIN_UDP_MSS < TFTP_MAXPACKETSIZE
+#  define TFTP_PACKETSIZE     MIN_UDP_MSS
 #  ifdef CONFIG_CPP_HAVE_WARNING
-#    warning "uIP MSS is too small for TFTP"
+#    warning "Minimum MSS is too small for TFTP"
 #  endif
 #else
-#  define TFTP_PACKETSIZE   TFTP_MAXPACKETSIZE
+#  define TFTP_PACKETSIZE     TFTP_MAXPACKETSIZE
 #endif
 
-#define TFTP_DATASIZE      (TFTP_PACKETSIZE-TFTP_DATAHEADERSIZE)
-#define TFTP_IOBUFSIZE     (TFTP_PACKETSIZE+8)
+#define TFTP_DATASIZE         (TFTP_PACKETSIZE-TFTP_DATAHEADERSIZE)
+#define TFTP_IOBUFSIZE        (TFTP_PACKETSIZE+8)
 
 /* TFTP Opcodes *************************************************************/
 
