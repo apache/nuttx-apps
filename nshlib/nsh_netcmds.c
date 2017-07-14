@@ -1096,6 +1096,13 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif
 
+#if !defined(CONFIG_NET_IPv4) && !defined(CONFIG_NET_IPv6)
+  UNUSED(hostip);
+  UNUSED(mask);
+  UNUSED(gwip);
+  UNUSED(gip);
+#endif
+
   return OK;
 }
 #endif

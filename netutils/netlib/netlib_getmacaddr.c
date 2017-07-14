@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/netlib/netlib_getmacaddr.c
  *
- *   Copyright (C) 2007-2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,10 @@
 #  define PF_INETX PF_INET
 #elif defined(CONFIG_NET_IPv6)
 #  define PF_INETX PF_INET6
+#elif defined(CONFIG_NET_PKT)
+#  define PF_INETX PF_PACKET
+#elif defined(CONFIG_NET_USRSOCK)
+#  define PF_INETX PF_INET
 #endif
 
 /****************************************************************************
