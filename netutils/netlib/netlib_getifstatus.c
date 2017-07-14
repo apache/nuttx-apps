@@ -64,6 +64,8 @@
 #  define PF_INETX PF_INET
 #elif defined(CONFIG_NET_IPv6)
 #  define PF_INETX PF_INET6
+#elif defined(CONFIG_NET_LOCAL)
+#  define PF_INETX PF_LOCAL
 #endif
 
 /****************************************************************************
