@@ -63,6 +63,12 @@
 #  define PF_INETX PF_INET
 #elif defined(CONFIG_NET_IPv6)
 #  define PF_INETX PF_INET6
+#elif defined(CONFIG_NET_LOCAL)
+#  define PF_INETX PF_LOCAL
+#elif defined(CONFIG_NET_PKT)
+#  define PF_INETX PF_PACKET
+#elif defined(CONFIG_NET_USRSOCK)
+#  define PF_INETX PF_INET
 #endif
 
 /****************************************************************************
