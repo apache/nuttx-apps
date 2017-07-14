@@ -69,6 +69,9 @@
 #elif defined(CONFIG_NET_PKT)
 #  define PF_INETX PF_PACKET
 #  define AF_INETX AF_PACKET
+#elif defined(CONFIG_NET_USRSOCK)
+#  define PF_INETX PF_INET
+#  define AF_INETX AF_INET
 #endif
 
 /****************************************************************************
