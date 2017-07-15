@@ -549,6 +549,10 @@ int conn_main(int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
+  /* Initialize USB trace output IDs */
+
+  usbtrace_enable(TRACE_BITSET);
+
 #ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
 #  ifdef CONFIG_CAN_PASS_STRUCTS
   g_composite.mmstart    = mallinfo();

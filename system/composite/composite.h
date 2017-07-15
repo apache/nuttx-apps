@@ -186,7 +186,6 @@ struct composite_state_s
    */
 
   FAR void *cmphandle;        /* Composite device handle */
-  FAR void *mschandle;        /* Mass storage device handle */
 
   /* Serial file descriptors */
 
