@@ -518,7 +518,7 @@ int conn_main(int argc, char *argv[])
 #endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
-  int instance = 0;
+  int config = CONFIG_SYSTEM_COMPOSITE_DEFCONFIG;
   int ret;
 
   /* If this program is implemented as the NSH 'conn' command, then we need to
@@ -537,11 +537,11 @@ int conn_main(int argc, char *argv[])
     }
 #endif
 
-  /* There is one optional argument.. the interface instance number */
+  /* There is one optional argument.. the interface configuration ID */
 
   if (argc == 2)
     {
-      instance = atoi(argv[1]);
+      config = atoi(argv[1]);
     }
   else if (argc > 2)
     {
@@ -569,8 +569,8 @@ int conn_main(int argc, char *argv[])
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
-  ctrl.instance = instance;
-  ctrl.config   = 0;
+  ctrl.instance = 0;
+  ctrl.config   = config;
   ctrl.handle   = NULL;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -586,8 +586,8 @@ int conn_main(int argc, char *argv[])
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_CONNECT;
-  ctrl.instance = instance;
-  ctrl.config   = 0;
+  ctrl.instance = 0;
+  ctrl.config   = config;
   ctrl.handle   = &g_composite.cmphandle;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -691,8 +691,8 @@ errout:
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = instance;
-  ctrl.config   = 0;
+  ctrl.instance = 0;
+  ctrl.config   = config;
   ctrl.handle   = &g_composite.cmphandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -719,7 +719,7 @@ int disconn_main(int argc, char *argv[])
 #endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
-  int instance = instance;
+  int config = CONFIG_SYSTEM_COMPOSITE_DEFCONFIG;
 
   /* First check if the USB mass storage device is already connected */
 
@@ -731,7 +731,7 @@ int disconn_main(int argc, char *argv[])
 
   check_test_memory_usage("Since MS connection");
 
-  /* There is one optional argument.. the interface instance number */
+  /* There is one optional argument.. the interface configuration ID */
 
   if (argc == 2)
     {
@@ -747,8 +747,8 @@ int disconn_main(int argc, char *argv[])
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = instance;
-  ctrl.config   = 0;
+  ctrl.instance = 0;
+  ctrl.config   = config;
   ctrl.handle   = &g_composite.cmphandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);

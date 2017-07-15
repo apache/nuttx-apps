@@ -15,6 +15,15 @@ menuconfig SYSTEM_COMPOSITE
 		disconn:  Disconnect the mass storage device to the host
 
 if SYSTEM_COMPOSITE
+
+config SYSTEM_COMPOSITE_DEFCONFIG
+	int "Default composite configuration"
+	default 0
+	---help---
+		Boards may support multiple composite configurations.  If so, then
+		this is the default configuration that the conn command will use if
+		no configuration ID is provided on the command line.
+
 if CDCACM_COMPOSITE
 
 config SYSTEM_COMPOSITE_SERDEV
