@@ -735,7 +735,7 @@ int disconn_main(int argc, char *argv[])
 
   if (argc == 2)
     {
-      instance = atoi(argv[1]);
+      config = atoi(argv[1]);
     }
   else if (argc > 2)
     {
