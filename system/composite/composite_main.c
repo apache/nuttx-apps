@@ -1,7 +1,7 @@
 /****************************************************************************
  * system/composite/composite_main.c
  *
- *   Copyright (C) 2012-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -404,7 +404,7 @@ static int open_serial(void)
       if (g_composite.outfd < 0)
         {
           errcode = errno;
-          printf("open_serial: ERROR: Failed to open %s for writing: %d\n",
+          fprintf(stderr, "open_serial: ERROR: Failed to open %s for writing: %d\n",
               CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
 
           /* ENOTCONN means that the USB device is not yet connected */
@@ -443,7 +443,7 @@ static int open_serial(void)
   if (g_composite.infd < 0)
     {
       errcode = errno;
-      printf("open_serial: ERROR: Failed to open%s for reading: %d\n",
+      fprintf(stderr, "open_serial: ERROR: Failed to open%s for reading: %d\n",
               CONFIG_SYSTEM_COMPOSITE_SERDEV, errcode);
       close(g_composite.outfd);
       return -errcode;
@@ -471,7 +471,7 @@ static int echo_serial(void)
       errcode = errno;
       if (errcode != EAGAIN)
         {
-          printf("echo_serial: ERROR: read failed: %d\n", errcode);
+          fprintf(stderr, "echo_serial: ERROR: read failed: %d\n", errcode);
           return -errcode;
         }
       return OK;
@@ -483,12 +483,12 @@ static int echo_serial(void)
   if (byteswritten < 0)
     {
       errcode = errno;
-      printf("echo_serial: ERROR: write failed: %d\n", errcode);
+      fprintf(stderr, "echo_serial: ERROR: write failed: %d\n", errcode);
       return -errcode;
     }
   else if (byteswritten != bytesread)
     {
-      printf("echo_serial: ERROR: read size: %d write size: %d\n",
+      fprintf(stderr, "echo_serial: ERROR: read size: %d write size: %d\n",
               bytesread, byteswritten);
     }
 
@@ -497,227 +497,8 @@ static int echo_serial(void)
 #endif
 
 /****************************************************************************
- * Name: usbmsc_disconnect
- *
- * Description:
- *   Disconnect the USB MSC device
- *
- * Input Parameters:
- *   None
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-
-static void usbmsc_disconnect(void)
-{
-  struct boardioc_usbdev_ctrl_s ctrl;
-
-  ctrl.usbdev   = BOARDIOC_USBDEV_MSC;
-  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = 0;
-  ctrl.handle   = &g_composite.mschandle;
-
-  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-}
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name: board_mscclassobject
- *
- * Description:
- *   If the mass storage class driver is part of composite device, then
- *   its instantiation and configuration is a multi-step, board-specific,
- *   process (See comments for usbmsc_configure below).  In this case,
- *   board-specific logic must provide board_mscclassobject().
- *
- *   board_mscclassobject() is called from the composite driver.  It must
- *   encapsulate the instantiation and configuration of the mass storage
- *   class and the return the mass storage device's class driver instance
- *   to the composite driver.
- *
- * Input Parameters:
- *   classdev - The location to return the mass storage class' device
- *     instance.
- *
- * Returned Value:
- *   0 on success; a negated errno on failure
- *
- ****************************************************************************/
-
-int board_mscclassobject(FAR struct usbdevclass_driver_s **classdev)
-{
-  int ret;
-
-  DEBUGASSERT(g_composite.mschandle == NULL);
-
-  /* Initialize USB trace output IDs */
-
-  usbtrace_enable(TRACE_BITSET);
-  check_test_memory_usage("After usbtrace_enable()");
-
-  /* Configure the mass storage device */
-
-  printf("board_mscclassobject: Configuring with NLUNS=%d\n", CONFIG_SYSTEM_COMPOSITE_NLUNS);
-  ret = usbmsc_configure(CONFIG_SYSTEM_COMPOSITE_NLUNS, &g_composite.mschandle);
-  if (ret < 0)
-    {
-      printf("board_mscclassobject: usbmsc_configure failed: %d\n", -ret);
-      return ret;
-    }
-
-  printf("board_mscclassobject: MSC handle=%p\n", g_composite.mschandle);
-  check_test_memory_usage("After usbmsc_configure()");
-
-  /* Bind the LUN(s) */
-
-  printf("board_mscclassobject: Bind LUN=0 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH1);
-  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH1, 0, 0, 0, false);
-  if (ret < 0)
-    {
-      printf("board_mscclassobject: usbmsc_bindlun failed for LUN 1 using %s: %d\n",
-               CONFIG_SYSTEM_COMPOSITE_DEVPATH1, -ret);
-      usbmsc_disconnect();
-      return ret;
-    }
-
-  check_test_memory_usage("After usbmsc_bindlun()");
-
-#if CONFIG_SYSTEM_COMPOSITE_NLUNS > 1
-
-  printf("board_mscclassobject: Bind LUN=1 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH2);
-  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH2, 1, 0, 0, false);
-  if (ret < 0)
-    {
-      printf("board_mscclassobject: usbmsc_bindlun failed for LUN 2 using %s: %d\n",
-               CONFIG_SYSTEM_COMPOSITE_DEVPATH2, -ret);
-      usbmsc_disconnect();
-      return ret;
-    }
-
-  check_test_memory_usage("After usbmsc_bindlun() #2");
-
-#if CONFIG_SYSTEM_COMPOSITE_NLUNS > 2
-
-  printf("board_mscclassobject: Bind LUN=2 to %s\n", CONFIG_SYSTEM_COMPOSITE_DEVPATH3);
-  ret = usbmsc_bindlun(g_composite.mschandle, CONFIG_SYSTEM_COMPOSITE_DEVPATH3, 2, 0, 0, false);
-  if (ret < 0)
-    {
-      printf("board_mscclassobject: usbmsc_bindlun failed for LUN 3 using %s: %d\n",
-               CONFIG_SYSTEM_COMPOSITE_DEVPATH3, -ret);
-      usbmsc_disconnect();
-      return ret;
-    }
-
-  check_test_memory_usage("After usbmsc_bindlun() #3");
-
-#endif
-#endif
-
-  /* Get the mass storage device's class object */
-
-  ret = usbmsc_classobject(g_composite.mschandle, classdev);
-  if (ret < 0)
-    {
-      printf("board_mscclassobject: usbmsc_classobject failed: %d\n", -ret);
-      usbmsc_disconnect();
-    }
-
-  check_test_memory_usage("After usbmsc_classobject()");
-  return ret;
-}
-
-/****************************************************************************
- * Name: board_mscuninitialize
- *
- * Description:
- *   Un-initialize the USB storage class driver.  This is just an application-
- *   specific wrapper aboutn usbmsc_unitialize() that is called form the composite
- *   device logic.
- *
- * Input Parameters:
- *   classdev - The class driver instrance previously give to the composite
- *     driver by board_mscclassobject().
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-
-void board_mscuninitialize(FAR struct usbdevclass_driver_s *classdev)
-{
-  DEBUGASSERT(g_composite.mschandle != NULL);
-  usbmsc_disconnect();
-}
-
-/****************************************************************************
- * Name: board_cdcclassobject
- *
- * Description:
- *   If the CDC serial class driver is part of composite device, then
- *   board-specific logic must provide board_cdcclassobject().  In the simplest
- *   case, board_cdcclassobject() is simply a wrapper around cdcacm_classobject()
- *   that provides the correct device minor number.
- *
- * Input Parameters:
- *   classdev - The location to return the CDC serial class' device
- *     instance.
- *
- * Returned Value:
- *   0 on success; a negated errno on failure
- *
- ****************************************************************************/
-
-int board_cdcclassobject(FAR struct usbdevclass_driver_s **classdev)
-{
-  int ret;
-
-  /* Initialize the USB serial driver */
-
-  printf("board_cdcclassobject: Initializing USB serial driver\n");
-  ret = cdcacm_classobject(CONFIG_SYSTEM_COMPOSITE_TTYUSB, classdev);
-  if (ret < 0)
-    {
-      printf("board_cdcclassobject: ERROR: Failed to create the USB serial device: %d\n", -ret);
-    }
-
-  return ret;
-}
-
-/****************************************************************************
- * Name: board_cdcuninitialize
- *
- * Description:
- *   Un-initialize the USB serial class driver.  This is just an application-
- *   specific wrapper aboutn cdcadm_unitialize() that is called form the composite
- *   device logic.
- *
- * Input Parameters:
- *   classdev - The class driver instrance previously give to the composite
- *     driver by board_cdcclassobject().
- *
- * Returned Value:
- *   None
- *
- ****************************************************************************/
-
-void board_cdcuninitialize(FAR struct usbdevclass_driver_s *classdev)
-{
-  struct boardioc_usbdev_ctrl_s ctrl;
-
-  DEBUGASSERT(classdev != NULL);
-
-  ctrl.usbdev   = BOARDIOC_USBDEV_CDCACM;
-  ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = CONFIG_SYSTEM_COMPOSITE_TTYUSB;
-  ctrl.handle   = (FAR void **)&classdev;
-
-  (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
-}
 
 /****************************************************************************
  * conn_main
@@ -737,6 +518,7 @@ int conn_main(int argc, char *argv[])
 #endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
+  int instance = 0;
   int ret;
 
   /* If this program is implemented as the NSH 'conn' command, then we need to
@@ -748,12 +530,28 @@ int conn_main(int argc, char *argv[])
     * USB mass storage device is already configured).
     */
 
-   if (g_composite.cmphandle)
-     {
-       printf("conn_main: ERROR: Already connected\n");
-       return 1;
-     }
+  if (g_composite.cmphandle)
+    {
+      fprintf(stderr, "conn_main: ERROR: Already connected\n");
+      return 1;
+    }
 #endif
+
+  /* There is one optional argument.. the interface instance number */
+
+  if (argc == 2)
+    {
+      instance = atoi(argv[1]);
+    }
+  else if (argc > 2)
+    {
+      fprintf(stderr, "conn_main: ERROR: Too many arguments: %d\n", argc);
+      return EXIT_FAILURE;
+    }
+
+  /* Initialize USB trace output IDs */
+
+  usbtrace_enable(TRACE_BITSET);
 
 #ifdef CONFIG_SYSTEM_COMPOSITE_DEBUGMM
 #  ifdef CONFIG_CAN_PASS_STRUCTS
@@ -771,7 +569,8 @@ int conn_main(int argc, char *argv[])
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_INITIALIZE;
-  ctrl.instance = 0;
+  ctrl.instance = instance;
+  ctrl.config   = 0;
   ctrl.handle   = NULL;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -787,7 +586,8 @@ int conn_main(int argc, char *argv[])
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_CONNECT;
-  ctrl.instance = 0;
+  ctrl.instance = instance;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.cmphandle;
 
   ret = boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -891,7 +691,8 @@ errout:
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = 0;
+  ctrl.instance = instance;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.cmphandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
@@ -918,22 +719,36 @@ int disconn_main(int argc, char *argv[])
 #endif
 {
   struct boardioc_usbdev_ctrl_s ctrl;
+  int instance = instance;
 
   /* First check if the USB mass storage device is already connected */
 
   if (!g_composite.cmphandle)
     {
-      printf("disconn_main: ERROR: Not connected\n");
+      fprintf(stderr, "disconn_main: ERROR: Not connected\n");
       return 1;
     }
 
   check_test_memory_usage("Since MS connection");
 
+  /* There is one optional argument.. the interface instance number */
+
+  if (argc == 2)
+    {
+      instance = atoi(argv[1]);
+    }
+  else if (argc > 2)
+    {
+      fprintf(stderr, "conn_main: ERROR: Too many arguments: %d\n", argc);
+      return EXIT_FAILURE;
+    }
+
   /* Then disconnect the device and uninitialize the USB mass storage driver */
 
   ctrl.usbdev   = BOARDIOC_USBDEV_COMPOSITE;
   ctrl.action   = BOARDIOC_USBDEV_DISCONNECT;
-  ctrl.instance = 0;
+  ctrl.instance = instance;
+  ctrl.config   = 0;
   ctrl.handle   = &g_composite.cmphandle;
 
   (void)boardctl(BOARDIOC_USBDEV_CONTROL, (uintptr_t)&ctrl);
