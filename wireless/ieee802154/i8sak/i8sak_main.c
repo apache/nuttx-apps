@@ -150,14 +150,14 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 
   /* Set an application defined handle */
 
-  tx.meta.msdu_handle = i8sak->msdu_handle++;
+  tx.meta.handle = i8sak->msdu_handle++;
 
   /* This is a normal transaction, no special handling */
 
-  tx.meta.msdu_flags.ack_tx = 0;
-  tx.meta.msdu_flags.gts_tx = 0;
+  tx.meta.flags.ackreq = 1;
+  tx.meta.flags.usegts = 0;
 
-  tx.meta.msdu_flags.indirect_tx = i8sak->indirect;
+  tx.meta.flags.indirect = i8sak->indirect;
 
   if (i8sak->indirect)
     {
@@ -178,7 +178,7 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 
   tx.meta.ranging = IEEE802154_NON_RANGING;
 
-  tx.meta.srcaddr_mode = IEEE802154_ADDRMODE_SHORT;
+  tx.meta.srcmode = IEEE802154_ADDRMODE_SHORT;
   memcpy(&tx.meta.destaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));
 
   /* Each byte is represented by 2 chars */

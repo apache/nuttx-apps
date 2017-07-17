@@ -31,5 +31,9 @@ config IEEE802154_I8SAK_STACKSIZE
 	int "i8sak stack size"
 	default 2048
 
+config IEEE802154_I8SAK_CHNUM
+	int "default channel"
+	default 11
+
 endif
 
