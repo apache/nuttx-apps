@@ -197,8 +197,7 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   wpanlistener_add_eventreceiver(&i8sak->wpanlistener, tx_eventcb,
                                  &eventfilter, (FAR void *)i8sak, true);
 
-
-  ret = i8sak_tx(i8sak,fd);
+  ret = i8sak_tx(i8sak, fd);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: Failed to transmit packet\n");
