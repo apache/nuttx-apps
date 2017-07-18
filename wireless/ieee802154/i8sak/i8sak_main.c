@@ -112,6 +112,7 @@ static const struct i8sak_command_s g_i8sak_commands[] =
   {"chan",        (CODE void *)i8sak_chan_cmd},
   {"coordinfo",   (CODE void *)i8sak_coordinfo_cmd},
   {"reset",       (CODE void *)i8sak_reset_cmd},
+  {"regdump",     (CODE void *)i8sak_regdump_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
@@ -744,6 +745,7 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    chan [-h|g] [<chan>]\n"
           "    coordinfo [-h|a|e|s]\n"
           "    reset [-h]\n"
+          "    regdump [-h]\n"
           , progname);
   exit(exitcode);
 }
