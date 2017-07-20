@@ -111,6 +111,8 @@ static const struct i8sak_command_s g_i8sak_commands[] =
   {"blaster",     (CODE void *)i8sak_blaster_cmd},
   {"chan",        (CODE void *)i8sak_chan_cmd},
   {"coordinfo",   (CODE void *)i8sak_coordinfo_cmd},
+  {"reset",       (CODE void *)i8sak_reset_cmd},
+  {"regdump",     (CODE void *)i8sak_regdump_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
@@ -149,14 +151,14 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 
   /* Set an application defined handle */
 
-  tx.meta.msdu_handle = i8sak->msdu_handle++;
+  tx.meta.handle = i8sak->msdu_handle++;
 
   /* This is a normal transaction, no special handling */
 
-  tx.meta.msdu_flags.ack_tx = 0;
-  tx.meta.msdu_flags.gts_tx = 0;
+  tx.meta.flags.ackreq = 1;
+  tx.meta.flags.usegts = 0;
 
-  tx.meta.msdu_flags.indirect_tx = i8sak->indirect;
+  tx.meta.flags.indirect = i8sak->indirect;
 
   if (i8sak->indirect)
     {
@@ -177,7 +179,7 @@ int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
 
   tx.meta.ranging = IEEE802154_NON_RANGING;
 
-  tx.meta.srcaddr_mode = IEEE802154_ADDRMODE_SHORT;
+  tx.meta.srcmode = IEEE802154_ADDRMODE_SHORT;
   memcpy(&tx.meta.destaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));
 
   /* Each byte is represented by 2 chars */
@@ -528,23 +530,24 @@ static void i8sak_switch_instance(FAR char *devname)
         }
 
       sq_addlast((FAR sq_entry_t *)i8sak, &g_i8sak_instances);
+
+      /* Update our "sticky" i8sak instance. Must come before call to setup so that
+       * the shared active global i8sak is correct.
+       */
+
+      g_activei8sak = i8sak;
+
+      if (i8sak_setup(i8sak, devname) < 0)
+        {
+          exit(EXIT_FAILURE);
+        }
     }
-
-  /* Update our "sticky" i8sak instance. Must come before call to setup so that
-   * the shared active global i8sak is correct.
-   */
-
-  g_activei8sak = i8sak;
-
-  if (!g_activei8sak_set)
+  else
     {
-      g_activei8sak_set = true;
+      g_activei8sak = i8sak;
     }
 
-  if (i8sak_setup(i8sak, devname) < 0)
-    {
-      exit(EXIT_FAILURE);
-    }
+  g_activei8sak_set = true;
 }
 
 static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
@@ -741,6 +744,8 @@ static int i8sak_showusage(FAR const char *progname, int exitcode)
           "    sniffer [-h|q]\n"
           "    chan [-h|g] [<chan>]\n"
           "    coordinfo [-h|a|e|s]\n"
+          "    reset [-h]\n"
+          "    regdump [-h]\n"
           , progname);
   exit(exitcode);
 }

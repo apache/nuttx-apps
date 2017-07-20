@@ -742,7 +742,7 @@ static pthread_addr_t wpanlistener_eventthread(pthread_addr_t arg)
             }
 
           if (notif.notiftype == IEEE802154_NOTIFY_IND_BEACONNOTIFY &&
-              receiver->filter.indevents.beaconnotify)
+              receiver->filter.indevents.beacon)
             {
               receiver->cb(&notif, receiver->arg);
 

@@ -83,6 +83,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   struct ieee802154_assoc_req_s assocreq;
   struct wpanlistener_eventfilter_s filter;
   FAR struct ieee802154_pandesc_s *pandesc;
+  struct ieee802154_set_req_s setreq;
   bool retry     = false;
   int maxretries = 0;
   int retrycnt;
@@ -91,6 +92,9 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   int optcnt;
   int ret;
   uint8_t resindex;
+
+  setreq.attr = IEEE802154_ATTR_MAC_RESPONSE_WAIT_TIME;
+  setreq.attrval.mac.resp_waittime = 32;
 
   /* If the addresses has never been automatically or manually set before, set
    * it assuming that we are the default device address and the endpoint is the
@@ -104,7 +108,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
 
   optcnt = 0;
-  while ((option = getopt(argc, argv, ":hr:s:e:w:")) != ERROR)
+  while ((option = getopt(argc, argv, ":hr:s:e:w:t:")) != ERROR)
     {
       optcnt++;
       switch (option)
@@ -115,6 +119,9 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    -h = this help menu\n"
                     "    -w = wait and retry on failure\n"
                     "    -r = use scan result index\n"
+                    "    -s = coordinator short address"
+                    "    -e = coordinator ext address"
+                    "    -t = response wait time"
                     , argv[0]);
 
             /* Must manually reset optind if we are going to exit early */
@@ -143,7 +150,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
 
           case 's':
-            /* Parse extended address and put it into the i8sak instance */
+            /* Parse short address and put it into the i8sak instance */
 
             i8sak_str2saddr(optarg, i8sak->ep.saddr);
             i8sak->ep.mode= IEEE802154_ADDRMODE_SHORT;
@@ -154,6 +161,12 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
             i8sak_str2eaddr(optarg, i8sak->ep.eaddr);
             i8sak->ep.mode = IEEE802154_ADDRMODE_EXTENDED;
+            break;
+          
+          case 't':
+            /* Parse wait time and set the paremeter in the request */
+
+            setreq.attrval.mac.resp_waittime = i8sak_str2luint8(optarg);
             break;
 
           case 'w':
@@ -196,6 +209,8 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       printf("i8sak: cannot open %s, errno=%d\n", i8sak->devname, errno);
       i8sak_cmd_error(i8sak);
     }
+
+  ieee802154_set_req(fd, &setreq);
 
   /* Register new callback for receiving the association notifications. */
 

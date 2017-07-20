@@ -1,14 +1,9 @@
 /****************************************************************************
- * apps/wireless/ieee802154/i8sak/i8sak_startpan.c
+ * apps/wireless/ieee802154/i8sak/i8sak_regdump.c
  * IEEE 802.15.4 Swiss Army Knife
  *
- *   Copyright (C) 2014-2015, 2017 Gregory Nutt. All rights reserved.
- *   Copyright (C) 2014-2015 Sebastien Lorquet. All rights reserved.
  *   Copyright (C) 2017 Verge Inc. All rights reserved.
- *
- *   Author: Sebastien Lorquet <sebastien@lorquet.fr>
  *   Author: Anthony Merlino <anthony@vergeaero.com>
- *   Author: Gregory Nuttx <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,7 +34,7 @@
  *
  ****************************************************************************/
 
-/****************************************************************************
+ /****************************************************************************
  * Included Files
  ****************************************************************************/
 
@@ -63,37 +58,32 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name : i8sak_startpan_cmd
+ * Name : i8sak_regdump_cmd
  *
  * Description :
- *   Start PAN and accept association requests
+ *   Print register information of radio device
  ****************************************************************************/
 
-void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
+void i8sak_regdump_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
-  struct ieee802154_start_req_s startreq;
-  bool beaconenabled = false;
+  struct ieee802154_get_req_s req;
   int option;
   int fd;
-  int i;
 
-  while ((option = getopt(argc, argv, ":hb")) != ERROR)
+  while ((option = getopt(argc, argv, ":h")) != ERROR)
     {
       switch (option)
         {
           case 'h':
-            fprintf(stderr, "Starts PAN as PAN Coordinator\n"
+            fprintf(stderr, "Prints reg info of radio device\n"
                     "Usage: %s [-h]\n"
                     "    -h = this help menu\n"
-                    "    -b = start beacon-enabled PAN\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
             optind = -1;
             return;
-          case 'b':
-            beaconenabled = true;
-            break;
+
           case ':':
             fprintf(stderr, "ERROR: missing argument\n");
             /* Must manually reset optind if we are going to exit early */
@@ -116,95 +106,8 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak_cmd_error(i8sak);
     }
 
-  /* Reset the MAC layer */
-
-  printf("\ni8sak: resetting MAC layer\n");
-  ieee802154_reset_req(fd, true);
-
-  /* Make sure receiver is always on */
-
-  ieee802154_setrxonidle(fd, true);
-
-  /* If the addresses has never been automatically or manually set before, set
-   * it assuming that we are the default PAN coordinator address and the
-   * endpoint is the default device address.
-   */
-
-  if (!i8sak->addrset)
-    {
-      /* Set our address to the default PAN Coordinator configuration */
-
-      i8sak->addr.mode = IEEE802154_ADDRMODE_SHORT;
-
-      for (i = 0; i < IEEE802154_EADDRSIZE; i++)
-      {
-        i8sak->addr.eaddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_SADDRSIZE; i++)
-      {
-        i8sak->addr.saddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_PANIDSIZE; i++)
-      {
-        i8sak->addr.panid[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
-      }
-
-      /* Set the endpoint address to the default endpoint device */
-
-      i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
-
-      for (i = 0; i < IEEE802154_EADDRSIZE; i++)
-      {
-        i8sak->ep.eaddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_SADDRSIZE; i++)
-      {
-        i8sak->ep.saddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_SADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_PANIDSIZE; i++)
-      {
-        i8sak->ep.panid[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
-      }
-    }
-
-  /* Set EADDR and SADDR */
-
-  ieee802154_seteaddr(fd, i8sak->addr.eaddr);
-  ieee802154_setsaddr(fd, i8sak->addr.saddr);
-
-  /* Tell the MAC to start acting as a coordinator */
-
-  printf("i8sak: starting PAN\n");
-
-  IEEE802154_PANIDCOPY(startreq.panid, i8sak->addr.panid);
-  startreq.chan  = i8sak->chan;
-  startreq.chpage = i8sak->chpage;
-
-  if (beaconenabled)
-    {
-      startreq.beaconorder = 8;
-      startreq.superframeorder = 5;
-    }
-  else
-    {
-      startreq.beaconorder = 15;
-    }
-
-  startreq.pancoord     = true;
-  startreq.coordrealign = false;
-  startreq.battlifeext  = false;
-
-  ieee802154_start_req(fd, &startreq);
+  req.attr = IEEE802154_ATTR_RADIO_REGDUMP;
+  ieee802154_get_req(fd, &req);
 
   close(fd);
 }

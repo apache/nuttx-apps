@@ -142,7 +142,7 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       i8sak_cmd_error(i8sak);
     }
 
-  scan.duration = 5;
+  scan.duration = 7;
   scan.chpage = i8sak->chpage;
 
   /* Parse channel list */
