@@ -65,14 +65,6 @@
 #  error "USB CDC/ACM serial composite device support is not enabled (CONFIG_CDCACM_COMPOSITE)"
 #endif
 
-#ifndef CONFIG_USBMSC
-#  error "USB mass storage device support is not enabled (CONFIG_USBMSC)"
-#endif
-
-#ifndef CONFIG_USBMSC_COMPOSITE
-#  error "USB mass storage composite device support is not enabled (CONFIG_USBMSC_COMPOSITE)"
-#endif
-
 /* Add-on Mass Storagte Class default values */
 
 #ifndef CONFIG_SYSTEM_COMPOSITE_NLUNS
