@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/netutils/ftpc/ftpc_chdir.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,13 @@ int ftpc_chdir(SESSION handle, FAR const char *path)
   if (ret != OK)
     {
       return ret;
+    }
+
+  /* Free any previous setting and set the new working directory */
+
+  if (session->currdir != NULL)
+    {
+      free(session->currdir);
     }
 
   session->currdir  = ftpc_rpwd(handle);

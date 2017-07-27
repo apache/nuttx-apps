@@ -105,7 +105,7 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
    */
 
   session->homeldir = strdup(ftpc_lpwd());
-/* session->curldir = strdup(sssion->homeldir); */
+/* session->curldir = strdup(session->homeldir); */
 
   /* Create up a timer to prevent hangs */
 
@@ -123,6 +123,11 @@ SESSION ftpc_connect(FAR struct ftpc_connect_s *server)
   return (SESSION)session;
 
 errout_with_alloc:
+  if (session->homeldir != NULL)
+    {
+      free(session->homeldir);
+    }
+
   free(session);
 errout:
   return NULL;
