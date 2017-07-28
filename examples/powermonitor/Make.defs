@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_EXAMPLES_POWERMONITOR),y)
-CONFIGURED_APPS += examples/powermonitor
+  CONFIGURED_APPS += examples/powermonitor
 endif

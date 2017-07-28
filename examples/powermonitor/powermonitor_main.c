@@ -33,6 +33,10 @@
  *
  ****************************************************************************/
 
+/******************************************************************************
+ * Included Files
+ ******************************************************************************/
+
 #include <nuttx/config.h>
 
 #include <stdint.h>
@@ -48,9 +52,15 @@
 
 #include <nuttx/sensors/ltc4151.h>
 
-//#include <nuttx/board.h>
+/******************************************************************************
+ * Pre-processor Definitions
+ ******************************************************************************/
 
 #define DECIMAL_PLACES3(x) abs(((int)(((x)-((int)x))*1000)))
+
+/******************************************************************************
+ * Public Functions
+ ******************************************************************************/
 
 #ifdef CONFIG_BUILD_KERNEL
 int main(int argc, char *argv[])
@@ -58,30 +68,42 @@ int main(int argc, char *argv[])
 int powermonitor_main(int argc, char *argv[])
 #endif
 {
-  char* pwrmntr_dev = "/dev/pwrmntr0";
-
-  int samples = 1;
-  if (argc > 1) {
-    samples = atoi(argv[1]);
-  }
-
-  int pwrmntr_fd = open(pwrmntr_dev, O_RDONLY);
-  if (!pwrmntr_fd) {
-    printf("Failed to open %s: %d\n", pwrmntr_dev, errno);
-    return 1;
-  }
-
+  static FAR const char *pwrmntr_dev = "/dev/pwrmntr0";
+  float float_current;
+  float float_voltage;
   ltc4151_t ltc;
+  int pwrmntr_fd;
+  int samples;
   int sample;
-  for (sample = 0; sample < samples; ++sample) {
-    if (read(pwrmntr_fd, &ltc, sizeof(ltc)) < 0) {
-      printf("Failed to read from %s: %d\n", pwrmntr_dev, errno);
+
+  samples = 1;
+  if (argc > 1)
+    {
+      samples = atoi(argv[1]);
+    }
+
+  pwrmntr_fd = open(pwrmntr_dev, O_RDONLY);
+  if (pwrmntr_fd < 0)
+    {
+      printf("Failed to open %s: %d\n", pwrmntr_dev, errno);
       return 1;
     }
-    float float_current = b16tof(ltc.current);
-    float float_voltage = b16tof(ltc.voltage);
-    printf("Current: %d.%03dmA - Voltage: %d.%03dV\n", (int)float_current, DECIMAL_PLACES3(float_current), (int)float_voltage, DECIMAL_PLACES3(float_voltage));
-  }
+
+  for (sample = 0; sample < samples; ++sample)
+    {
+      if (read(pwrmntr_fd, &ltc, sizeof(ltc)) < 0)
+        {
+          printf("Failed to read from %s: %d\n", pwrmntr_dev, errno);
+          return 1;
+        }
+
+      float_current = b16tof(ltc.current);
+      float_voltage = b16tof(ltc.voltage);
+
+      printf("Current: %d.%03dmA - Voltage: %d.%03dV\n",
+             (int)float_current, DECIMAL_PLACES3(float_current),
+             (int)float_voltage, DECIMAL_PLACES3(float_voltage));
+    }
 
   close(pwrmntr_fd);
   return 0;
