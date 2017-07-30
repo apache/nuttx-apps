@@ -130,6 +130,20 @@
 #  define HAVE_MAC 1
 #endif
 
+/* Currently there is only logic in 6LoWPAN configurations to
+ * set the IEEE 802.15.4 addresses.
+ */
+
+#undef HAVE_EADDR
+
+#if defined(CONFIG_NET_6LOWPAN)
+#  if defined(CONFIG_WIRELESS_IEEE802154)
+#    define HAVE_EADDR 1
+#  elif defined(CONFIG_WIRELESS_PKTRADIO)
+#    warning Missing logic
+#  endif
+#endif
+
 /* Provide a default DNS address */
 
 #if defined(CONFIG_NSH_DRIPADDR) && !defined(CONFIG_NSH_DNSIPADDR)
@@ -278,7 +292,7 @@ static void nsh_set_macaddr(void)
 {
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
-#elif defined(CONFIG_NET_6LOWPAN)
+#elif defined(HAVE_EADDR)
   uint8_t eaddr[8];
 #endif
 
@@ -298,7 +312,7 @@ static void nsh_set_macaddr(void)
 
   netlib_setmacaddr(NET_DEVNAME, mac);
 
-#elif defined(CONFIG_NET_6LOWPAN)
+#elif defined(HAVE_EADDR)
   /* Use the configured, fixed extended address */
 
   eaddr[0] = (CONFIG_NSH_MACADDR >> (8 * 7)) & 0xff;
@@ -313,8 +327,7 @@ static void nsh_set_macaddr(void)
   /* Set the 6LoWPAN extended address */
 
   (void)netlib_seteaddr(NET_DEVNAME, eaddr);
-
-#endif /* CONFIG_NET_ETHERNET */
+#endif /* CONFIG_NET_ETHERNET or HAVE_EADDR */
 }
 #else
 #  define nsh_set_macaddr()

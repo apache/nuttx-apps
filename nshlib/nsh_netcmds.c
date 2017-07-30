@@ -113,15 +113,24 @@
 
 #undef HAVE_PING
 #undef HAVE_PING6
+#undef HAVE_EADDR
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING)
-#  define HAVE_PING
+#  define HAVE_PING 1
 #endif
 
 #if defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING6)
-#  define HAVE_PING6
+#  define HAVE_PING6 1
+#endif
+
+#if defined(CONFIG_NET_6LOWPAN)
+#  if defined(CONFIG_WIRELESS_IEEE802154)
+#    define HAVE_EADDR 1
+#  elif defined(CONFIG_WIRELESS_PKTRADIO)
+#    warning Missing logic
+#  endif
 #endif
 
 /* Size of the ECHO data */
@@ -748,7 +757,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *gwip = NULL;
   FAR char *mask = NULL;
   FAR char *tmp = NULL;
-#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
+#if defined(CONFIG_NET_ETHERNET) || defined(HAVE_EADDR)
   FAR char *hw = NULL;
 #endif
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
@@ -760,7 +769,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   bool badarg = false;
 #if defined(CONFIG_NET_ETHERNET)
   uint8_t mac[IFHWADDRLEN];
-#elif defined(CONFIG_NET_6LOWPAN)
+#elif defined(HAVE_EADDR)
   uint8_t eaddr[8];
 #endif
 #if defined(CONFIG_NSH_DHCPC)
@@ -849,7 +858,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
                 }
 
-#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
+#if defined(CONFIG_NET_ETHERNET) || defined(HAVE_EADDR)
               /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
               else if (!strcmp(tmp, "hw"))
@@ -895,7 +904,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-#if defined(CONFIG_NET_ETHERNET) || defined(CONFIG_NET_6LOWPAN)
+#if defined(CONFIG_NET_ETHERNET) || defined(HAVE_EADDR)
   /* Set Hardware Ethernet MAC address */
   /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
@@ -1021,6 +1030,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       netlib_set_ipv4netmask(intf, &addr);
     }
 #endif /* CONFIG_NET_IPv4 */
+
+  UNUSED(intf); /* Not used in all configurations */
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
 #ifdef CONFIG_NET_IPv6
