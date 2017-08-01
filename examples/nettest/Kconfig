@@ -39,7 +39,7 @@ config EXAMPLES_NETTEST_PRIORITY1
 config EXAMPLES_NETTEST_LOOPBACK
 	bool "Loopback test"
 	default n
-	depends on NET_LOOPBACK || IEEE802154_LOOPBACK
+	depends on NET_LOOPBACK || IEEE802154_LOOPBACK || PKTRADIO_LOOPBACK
 	---help---
 		Perform the test using the local loopback device.  In this case,
 		both the client and the server reside on the target.
