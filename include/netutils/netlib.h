@@ -135,8 +135,8 @@ int netlib_setnodeaddr(FAR const char *ifname,
                        FAR const struct pktradio_addr_s *nodeaddr);
 int netlib_getnodnodeaddr(FAR const char *ifname,
                           FAR struct pktradio_addr_s *nodeaddr);
-int netlib_nodeaddrconv(FAR const char *addrstr,
-                        FAR struct pktradio_addr_s *nodeaddr);
+bool netlib_nodeaddrconv(FAR const char *addrstr,
+                         FAR struct pktradio_addr_s *nodeaddr);
 #endif
 #endif
 

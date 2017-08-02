@@ -47,6 +47,7 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+#include <debug.h>
 
 #include "nuttx/wireless/pktradio.h"
 #include "netutils/netlib.h"
@@ -116,17 +117,18 @@ static int get_byte(FAR const char *ptr, FAR uint8_t *byte)
  *   nodeadd - Location to return the node address
  *
  * Return:
- *   0 on success; -1 on failure.  errno will be set on failure.
+ *   true on success; false on failure.
  *
  ****************************************************************************/
 
-int netlib_nodeaddrconv(FAR const char *addrstr,
-                        FAR struct pktradio_addr_s *nodeaddr)
+bool netlib_nodeaddrconv(FAR const char *addrstr,
+                         FAR struct pktradio_addr_s *nodeaddr)
 {
   uint8_t byte;
   int ret;
 
   DEBUGASSERT(addrstr != NULL && nodeaddr != NULL);
+  memset(nodeaddr, 0, sizeof(struct pktradio_addr_s));
 
   /* FORM: xx:xx:...:xx */
 
@@ -146,7 +148,8 @@ int netlib_nodeaddrconv(FAR const char *addrstr,
       ret = get_byte(addrstr, &byte);
       if (ret < 0)
         {
-          goto errout;
+          wlwarn("get_byte failed: %s\n", addrstr);
+          return false;
         }
 
       /* Save the byte */
@@ -173,20 +176,16 @@ int netlib_nodeaddrconv(FAR const char *addrstr,
         }
       else if (*addrstr == '\0')
         {
-          return OK;
+          return true;
         }
       else
         {
-          ret = -EINVAL;
-          goto errout;
+          wlwarn("Unexpect delimiter: %s\n", addrstr);
+          break;
         }
     }
 
-  ret = -E2BIG;
-
-errout:
-  errno = -ret;
-  return ERROR;
+  return false;
 }
 
 #endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */

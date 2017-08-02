@@ -758,7 +758,7 @@ int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (argc != 2)
     {
-      nsh_output(vtbl, "Please select nic_name:\n");
+      nsh_output(vtbl, "Please select ifname:\n");
       return nsh_foreach_netdev(ifconfig_callback, vtbl, "ifup");
     }
 
@@ -781,7 +781,7 @@ int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (argc != 2)
     {
-      nsh_output(vtbl, "Please select nic_name:\n");
+      nsh_output(vtbl, "Please select ifname:\n");
       return nsh_foreach_netdev(ifconfig_callback, vtbl, "ifdown");
     }
 
@@ -821,6 +821,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
   bool inet6 = false;
 #endif
+  bool missingarg = true;
   bool badarg = false;
 #ifdef HAVE_HWADDR
   mac_addr_t macaddr;
@@ -852,24 +853,22 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* If both the network interface name and an IP address are supplied as
    * arguments, then ifconfig will set the address of the Ethernet device:
    *
-   *    ifconfig nic_name ip_address
+   *    ifconfig ifname [ip_address] [named options]
    */
 
   if (argc > 2)
     {
-      for (i = 0; i < argc; i++)
+      for (i = 1; i < argc; i++)
         {
           if (i == 1)
             {
               ifname = argv[i];
-            }
-          else if (i == 2)
-            {
-              hostip = argv[i];
+              missingarg = false;
             }
           else
             {
               tmp = argv[i];
+
               if (!strcmp(tmp, "dr") || !strcmp(tmp, "gw") || !strcmp(tmp, "gateway"))
                 {
                   if (argc - 1 >= i + 1)
@@ -944,13 +943,27 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     }
                 }
 #endif
+              else if (i == 2)
+                {
+                  hostip = tmp;
+                }
+              else
+                {
+                  badarg = true;
+                }
             }
         }
     }
 
-  if (badarg)
+  if (missingarg)
     {
       nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      return ERROR;
+    }
+
+  if (badarg)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
       return ERROR;
     }
 
