@@ -115,11 +115,29 @@ int netlib_getmacaddr(FAR const char *ifname, FAR uint8_t *macaddr);
 #endif
 
 #ifdef CONFIG_NET_6LOWPAN
-/* Set IEEE 802.15.4 extended address. */
+#ifdef CONFIG_WIRELESS_IEEE802154
+/* IEEE 802.15.4 MAC IOCTL commands. */
 
 int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr);
 int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid);
 bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw);
+#endif
+
+#ifdef CONFIG_WIRELESS_PKTRADIO
+/* IEEE 802.15.4 MAC IOCTL commands. */
+
+struct pktradio_properties_s; /* Forward reference */
+struct pktradio_addr_s;       /* Forward reference */
+
+int netlib_getproperties(FAR const char *ifname,
+                         FAR struct pktradio_properties_s *properties);
+int netlib_setnodeaddr(FAR const char *ifname,
+                       FAR const struct pktradio_addr_s *nodeaddr);
+int netlib_getnodnodeaddr(FAR const char *ifname,
+                          FAR struct pktradio_addr_s *nodeaddr);
+int netlib_nodeaddrconv(FAR const char *addrstr,
+                        FAR struct pktradio_addr_s *nodeaddr);
+#endif
 #endif
 
 /* IP address support */

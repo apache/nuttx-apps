@@ -1,7 +1,7 @@
 ############################################################################
 # apps/netutils/netlib/Makefile
 #
-#   Copyright (C) 2011-2012, 2014-2015 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2014-2015, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,13 @@ CSRCS += netlib_setmacaddr.c netlib_getmacaddr.c
 endif
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
+ifeq ($(CONFIG_WIRELESS_IEEE802154),y)
 CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_eaddrconv.c
+endif
+ifeq ($(CONFIG_WIRELESS_PKTRADIO),y)
+CSRCS += netlib_getproperties.c netlib_getnodeaddr.c netlib_setnodeaddr.c
+CSRCS += netlib_nodeaddrconv.c
+endif
 endif
 
 # IGMP support
