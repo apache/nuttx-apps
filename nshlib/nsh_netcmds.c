@@ -80,7 +80,10 @@
 #include <nuttx/net/icmpv6.h>
 
 #ifdef CONFIG_NET_6LOWPAN
-#include <nuttx/net/sixlowpan.h>
+#  include <nuttx/net/sixlowpan.h>
+#  ifdef CONFIG_WIRELESS_PKTRADIO
+#    include <nuttx/wireless/pktradio.h>
+#  endif
 #endif
 
 #ifdef CONFIG_NETUTILS_NETLIB
@@ -113,23 +116,29 @@
 
 #undef HAVE_PING
 #undef HAVE_PING6
+#undef HAVE_HWADDR
 #undef HAVE_EADDR
+#undef HAVE_RADIOADDR
 
 #if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING)
-#  define HAVE_PING 1
+#  define HAVE_PING        1
 #endif
 
 #if defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING6)
-#  define HAVE_PING6 1
+#  define HAVE_PING6       1
 #endif
 
-#if defined(CONFIG_NET_6LOWPAN)
+#if defined(CONFIG_NET_ETHERNET)
+#  define HAVE_HWADDR      1
+#elif defined(CONFIG_NET_6LOWPAN)
 #  if defined(CONFIG_WIRELESS_IEEE802154)
-#    define HAVE_EADDR 1
+#    define HAVE_HWADDR    1
+#    define HAVE_EADDR     1
 #  elif defined(CONFIG_WIRELESS_PKTRADIO)
-#    warning Missing logic
+#    define HAVE_HWADDR    1
+#    define HAVE_RADIOADDR 1
 #  endif
 #endif
 
@@ -146,6 +155,18 @@
 /****************************************************************************
  * Private Types
  ****************************************************************************/
+
+/* Describes the MAC address of the selected device */
+
+#ifdef HAVE_HWADDR
+#if defined(CONFIG_NET_ETHERNET)
+typedef uint8_t mac_addr_t[IFHWADDRLEN];
+#elif defined(HAVE_EADDR)
+typedef uint8_t mac_addr_t[8];
+#elif defined(HAVE_RADIOADDR)
+typedef struct pktradio_addr_s mac_addr_t;
+#endif
+#endif
 
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
 struct tftpc_args_s
@@ -642,6 +663,44 @@ static int nsh_foreach_netdev(nsh_netdev_callback_t callback,
 #endif
 
 /****************************************************************************
+ * Name: nsh_addrconv
+ ****************************************************************************/
+
+#ifdef HAVE_HWADDR
+static inline bool nsh_addrconv(FAR const char *hwstr, FAR mac_addr_t *macaddr)
+{
+  /* REVISIT: How will we handle Ethernet and SLIP networks together? */
+
+#if defined(CONFIG_NET_ETHERNET)
+  return !netlib_ethaddrconv(hwstr, *macaddr);
+#elif defined(HAVE_EADDR)
+  return !netlib_eaddrconv(hwstr, *macaddr);
+#elif defined(HAVE_RADIOADDR)
+  return !netlib_nodeaddrconv(hwstr, macaddr);
+#else
+  return -ENOSUPP;
+#endif
+}
+#endif
+
+/****************************************************************************
+ * Name: nsh_sethwaddr
+ ****************************************************************************/
+
+#ifdef HAVE_HWADDR
+static inline void nsh_sethwaddr(FAR const char *ifname, FAR mac_addr_t *macaddr)
+{
+#if defined(CONFIG_NET_ETHERNET)
+  netlib_setmacaddr(ifname, *macaddr);
+#elif defined(HAVE_EADDR)
+  netlib_seteaddr(ifname, *macaddr);
+#elif defined(HAVE_RADIOADDR)
+  netlib_setnodeaddr(ifname, macaddr);
+#endif
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -694,7 +753,7 @@ int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_IFUPDOWN
 int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR char *intf = NULL;
+  FAR char *ifname = NULL;
   int ret;
 
   if (argc != 2)
@@ -703,9 +762,9 @@ int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return nsh_foreach_netdev(ifconfig_callback, vtbl, "ifup");
     }
 
-  intf = argv[1];
-  ret  = netlib_ifup(intf);
-  nsh_output(vtbl, "ifup %s...%s\n", intf, (ret == OK) ? "OK" : "Failed");
+  ifname = argv[1];
+  ret  = netlib_ifup(ifname);
+  nsh_output(vtbl, "ifup %s...%s\n", ifname, (ret == OK) ? "OK" : "Failed");
   return ret;
 }
 #endif
@@ -717,7 +776,7 @@ int cmd_ifup(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_IFUPDOWN
 int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  FAR char *intf = NULL;
+  FAR char *ifname = NULL;
   int ret;
 
   if (argc != 2)
@@ -726,9 +785,9 @@ int cmd_ifdown(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return nsh_foreach_netdev(ifconfig_callback, vtbl, "ifdown");
     }
 
-  intf = argv[1];
-  ret = netlib_ifdown(intf);
-  nsh_output(vtbl, "ifdown %s...%s\n", intf, (ret == OK) ? "OK" : "Failed");
+  ifname = argv[1];
+  ret = netlib_ifdown(ifname);
+  nsh_output(vtbl, "ifdown %s...%s\n", ifname, (ret == OK) ? "OK" : "Failed");
   return ret;
 }
 #endif
@@ -748,12 +807,12 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
   in_addr_t gip;
   int i;
-  FAR char *intf = NULL;
+  FAR char *ifname = NULL;
   FAR char *hostip = NULL;
   FAR char *gwip = NULL;
   FAR char *mask = NULL;
   FAR char *tmp = NULL;
-#if defined(CONFIG_NET_ETHERNET) || defined(HAVE_EADDR)
+#ifdef HAVE_HWADDR
   FAR char *hw = NULL;
 #endif
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
@@ -763,10 +822,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   bool inet6 = false;
 #endif
   bool badarg = false;
-#if defined(CONFIG_NET_ETHERNET)
-  uint8_t mac[IFHWADDRLEN];
-#elif defined(HAVE_EADDR)
-  uint8_t eaddr[8];
+#ifdef HAVE_HWADDR
+  mac_addr_t macaddr;
 #endif
 #if defined(CONFIG_NSH_DHCPC)
   FAR void *handle;
@@ -804,7 +861,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           if (i == 1)
             {
-              intf = argv[i];
+              ifname = argv[i];
             }
           else if (i == 2)
             {
@@ -854,7 +911,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #endif
                 }
 
-#if defined(CONFIG_NET_ETHERNET) || defined(HAVE_EADDR)
+#ifdef HAVE_HWADDR
               /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
               else if (!strcmp(tmp, "hw"))
@@ -863,11 +920,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                     {
                       hw = argv[i + 1];
                       i++;
-#ifdef CONFIG_NET_ETHERNET
-                      badarg = !netlib_ethaddrconv(hw, mac);
-#else
-                      badarg = !netlib_eaddrconv(hw, eaddr);
-#endif
+
+                      badarg = nsh_addrconv(hw, &macaddr);
                     }
                   else
                     {
@@ -900,18 +954,14 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       return ERROR;
     }
 
-#if defined(CONFIG_NET_ETHERNET) || defined(HAVE_EADDR)
+#ifdef HAVE_HWADDR
   /* Set Hardware Ethernet MAC address */
   /* REVISIT: How will we handle Ethernet and SLIP networks together? */
 
-  if (hw)
+  if (hw != NULL)
     {
       ninfo("HW MAC: %s\n", hw);
-#ifdef CONFIG_NET_ETHERNET
-      netlib_setmacaddr(intf, mac);
-#else
-      netlib_seteaddr(intf, eaddr);
-#endif
+      nsh_sethwaddr(ifname, &macaddr);
     }
 #endif
 
@@ -951,7 +1001,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           gip = addr.s_addr = inet_addr(hostip);
         }
 
-      netlib_set_ipv4addr(intf, &addr);
+      netlib_set_ipv4addr(ifname, &addr);
     }
 #endif /* CONFIG_NET_IPv4 */
 
@@ -991,7 +1041,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           addr.s_addr = gip;
         }
 
-      netlib_set_dripv4addr(intf, &addr);
+      netlib_set_dripv4addr(ifname, &addr);
     }
 #endif /* CONFIG_NET_IPv4 */
 
@@ -1023,11 +1073,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           addr.s_addr = inet_addr("255.255.255.0");
         }
 
-      netlib_set_ipv4netmask(intf, &addr);
+      netlib_set_ipv4netmask(ifname, &addr);
     }
 #endif /* CONFIG_NET_IPv4 */
 
-  UNUSED(intf); /* Not used in all configurations */
+  UNUSED(ifname); /* Not used in all configurations */
 
 #if defined(CONFIG_NSH_DHCPC) || defined(CONFIG_NSH_DNS)
 #ifdef CONFIG_NET_IPv6
@@ -1065,11 +1115,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   if (!gip)
     {
-      netlib_getmacaddr("eth0", mac);
+      netlib_getmacaddr("eth0", macaddr);
 
       /* Set up the DHCPC modules */
 
-      handle = dhcpc_open("eth0", &mac, IFHWADDRLEN);
+      handle = dhcpc_open("eth0", &macaddr, IFHWADDRLEN);
 
       /* Get an IP address.  Note that there is no logic for renewing the IP
        * address in this example.  The address should be renewed in
