@@ -66,7 +66,7 @@
 #if !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_DISABLE_POLL)
 #  define USE_NOTIFY_SIGNAL 1
 #else
-#  define USE_NOFITY_POLL 1
+#  define USE_NOTIFY_POLL 1
 #endif
 
 #ifndef CONFIG_BUTTONS_NPOLLWAITERS
