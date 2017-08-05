@@ -145,7 +145,8 @@ bool netlib_nodeaddrconv(FAR const char *addrstr,
     {
       /* Get the next byte in binary form */
 
-      ret = get_byte(addrstr, &byte);
+      byte = 0;  /* Eliminates a warning */
+      ret  = get_byte(addrstr, &byte);
       if (ret < 0)
         {
           wlwarn("get_byte failed: %s\n", addrstr);
