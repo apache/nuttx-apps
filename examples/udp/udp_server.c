@@ -101,6 +101,9 @@ void udp_server(void)
   int nbytes;
   int optval;
   int offset;
+#ifdef CONFIG_EXAMPLES_UDP_BROADCAST
+  int ret;
+#endif
 
   /* Create a new UDP socket */
 
@@ -119,6 +122,16 @@ void udp_server(void)
       printf("server: setsockopt SO_REUSEADDR failure: %d\n", errno);
       exit(1);
     }
+
+#ifdef CONFIG_EXAMPLES_UDP_BROADCAST
+  optval = 1;
+  ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(int));
+  if (ret < 0)
+    {
+      printf("Failed to set SO_BROADCAST\n");
+      exit(1);
+    }
+#endif
 
   /* Bind the socket to a local address */
 

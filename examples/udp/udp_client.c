@@ -142,6 +142,10 @@ void udp_client(void)
   int sockfd;
   int nbytes;
   int offset;
+#ifdef CONFIG_EXAMPLES_UDP_BROADCAST
+  int optval;
+  int ret;
+#endif
 
   /* Create a new UDP socket */
 
@@ -151,6 +155,16 @@ void udp_client(void)
       printf("client ERROR: create_socket failed %d\n");
       exit(1);
     }
+
+#ifdef CONFIG_EXAMPLES_UDP_BROADCAST
+  optval = 1;
+  ret = setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(int));
+  if (ret < 0)
+    {
+      printf("Failed to set SO_BROADCAST\n");
+      exit(1);
+    }
+#endif
 
   /* Then send and receive 256 messages */
 

@@ -101,6 +101,13 @@ config EXAMPLES_UDP_IPv6
 
 endchoice # IP Domain
 
+config EXAMPLES_UDP_BROADCAST
+	bool "Broadcast outgoing messages"
+	default n
+	depends on NET_BROADCAST
+	---help---
+		Send and receive all UDP packets using the broadcast address.
+
 if EXAMPLES_UDP_IPv4
 
 comment "IPv4 addresses"
