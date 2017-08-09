@@ -91,11 +91,10 @@
  * payload size (UDP_MSS), but cannot exceed 512 + sizeof(TFTP_DATA header).
  *
  * In the case where there are multiple network devices with different
- * link layer protocols (CONFIG_NET_MULTILINK), each network device
- * may support a different UDP MSS value.  Here, if Ethernet is enabled,
- * we (arbitrarily) assume that the Ethernet is link that will be used.
- * if Ethernet is not one of the enabled interfaces, we (arbitrarily) select
- * the minimum MSS.
+ * link layer protocols, each network device may support a different UDP MSS
+ * value.  Here, if Ethernet is enabled, we (arbitrarily) assume that the
+ * Ethernet is link that will be used.  If Ethernet is not one of the
+ * enabled interfaces, we (arbitrarily) select the minimum MSS.
  */
 
 #define TFTP_DATAHEADERSIZE   4

@@ -6,7 +6,7 @@
 config EXAMPLES_BRIDGE
 	bool "UDP bridge example"
 	default n
-	depends on NET_UDP && NETDEV_MULTINIC && !NET_IPv6
+	depends on NET_UDP && !NET_IPv6
 	---help---
 		Simple test of a system with multiple networks.  It simply echoes all
 		UDP packets received on network 1 and network 2 to network 2 and

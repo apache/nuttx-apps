@@ -79,9 +79,8 @@
  * buffer be sufficiently large to contain the entire GET request.
  *
  * In the case where there are multiple network devices with different
- * link layer protocols (CONFIG_NET_MULTILINK), each network device
- * may support a different TCP MSS value.  Here we arbitrarily select
- * the minimum MSS for that case.
+ * link layer protocols, each network device may support a different TCP
+ * MSS value.  Here we arbitrarily select the minimum MSS for that case.
  */
 
 #define HTTPD_IOBUFFER_SIZE (3*MIN_TCP_MSS)
