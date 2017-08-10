@@ -247,7 +247,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               goto errout_with_sockfd;
             }
 
-          inaddr.ipv4.s_addr = (0xffffffff << (32 - shift));
+          inaddr.ipv4.s_addr = htonl(0xffffffff << (32 - shift));
         }
 #endif
 
@@ -286,7 +286,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (shift > 0)
             {
-              inaddr.ipv6.s6_addr16[i] = (0xffff << (16 - shift));
+              inaddr.ipv6.s6_addr16[i] = htons(0xffff << (16 - shift));
             }
         }
 #endif
@@ -527,7 +527,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               goto errout_with_sockfd;
             }
 
-          inaddr.ipv4.s_addr = (0xffffffff << (32 - shift));
+          inaddr.ipv4.s_addr = htonl(0xffffffff << (32 - shift));
         }
 #endif
 
@@ -566,7 +566,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
           if (shift > 0)
             {
-              inaddr.ipv6.s6_addr16[i] = (0xffff << (16 - shift));
+              inaddr.ipv6.s6_addr16[i] = htons(0xffff << (16 - shift));
             }
         }
 #endif
@@ -615,7 +615,7 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
                  (FAR struct sockaddr_storage *)&netmask);
   if (ret < 0)
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "addroute", NSH_ERRNO);
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "delroute", NSH_ERRNO);
       goto errout_with_sockfd;
     }
 
