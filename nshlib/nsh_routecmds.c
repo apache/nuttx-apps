@@ -41,8 +41,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <net/route.h>
+#include <ctype.h>
 
+#include <net/route.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -54,13 +55,51 @@
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ROUTE)
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static int slash_notation(FAR char *arg)
+{
+   FAR char *sptr;
+   FAR char *ptr;
+
+   /* If an address contains a /, then the netmask is imply by the following
+    * numeric value.
+    */
+
+   sptr = strchr(arg, '/');
+   if (sptr != NULL)
+     {
+       /* Make sure that everything following the slash is a decimal digit. */
+
+       ptr = sptr + 1;
+       while (isdigit(*ptr))
+         {
+           ptr++;
+         }
+
+       /* There should be nothing be digits after the slash and up to the
+        * NULL terminator.
+        */
+
+       if (*ptr == '\0')
+         {
+           *sptr++ = '\0';
+           return atoi(sptr);
+         }
+     }
+
+   return ERROR;
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
 /****************************************************************************
  * Name: cmd_addroute
  *
- * nsh> addroute <target> <netmask> <router>
+ * nsh> addroute <target> [<netmask>] <router>
  *
  ****************************************************************************/
 
@@ -108,12 +147,29 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   } inaddr;
 
   sa_family_t family;
+  int rtrndx;
+  int shift;
   int sockfd;
   int ret;
 
-  /* NSH has already verified that there are exactly three arguments, so
-   * we don't have to look at the argument list.
+  /* Check if slash notation is used with the target address */
+
+  shift = slash_notation(argv[1]);
+
+  /* There will be 2 or 3 arguments, depending on if slash notation is
+   * used.
    */
+
+  if (shift > 0 && argc  != 3)
+    {
+      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      goto errout;
+    }
+  else if (shift < 0 && argc != 4)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      goto errout;
+    }
 
   /* Convert the target IP address string into its binary form */
 
@@ -172,12 +228,63 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
    /* Convert the netmask IP address string into its binary form */
 
-  ret = inet_pton(family, argv[2], &inaddr);
-  if (ret != 1)
+  if (shift >= 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-      goto errout_with_sockfd;
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+      if (family == PF_INET)
+#endif
+        {
+          if (shift > 32)
+            {
+              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              goto errout_with_sockfd;
+            }
+
+          inaddr.ipv4.s_addr = (0xffffffff << shift);
+        }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+      else
+#endif
+        {
+          int i;
+
+          memset(&inaddr.ipv6, 0, sizeof(struct sockaddr_in6));
+          for (i = 7; i >= 0 && shift >= 16; i--, shift -= 16)
+            {
+              inaddr.ipv6.s6_addr16[i] = 0xffff;
+            }
+
+          if (shift > 16 || (shift > 0 && i < 0))
+            {
+              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              goto errout_with_sockfd;
+            }
+
+          if (shift > 0)
+            {
+              inaddr.ipv6.s6_addr16[i] = (0xffff << (16 - shift));
+            }
+        }
+#endif
+      rtrndx = 2;
     }
+  else
+    {
+      /* Slash notation not used.. mask should follow the target address */
+
+      ret = inet_pton(family, argv[2], &inaddr);
+      if (ret != 1)
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          goto errout_with_sockfd;
+        }
+
+      rtrndx = 3;
+  }
 
   /* Format the netmask sockaddr instance */
 
@@ -206,7 +313,7 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
    /* Convert the router IP address string into its binary form */
 
-  ret = inet_pton(family, argv[3], &inaddr);
+  ret = inet_pton(family, argv[rtrndx], &inaddr);
   if (ret != 1)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
@@ -263,7 +370,7 @@ errout:
 /****************************************************************************
  * Name: cmd_delroute
  *
- * nsh> delroute <target> <netmask>
+ * nsh> delroute <target> [<netmask>]
  *
  ****************************************************************************/
 
@@ -301,12 +408,28 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   } inaddr;
 
   sa_family_t family;
+  int shift;
   int sockfd;
   int ret;
 
-  /* NSH has already verified that there are exactly two arguments, so
-   * we don't have to look at the argument list.
+  /* Check if slash notation is used with the target address */
+
+  shift = slash_notation(argv[1]);
+
+  /* There will be 1 or 2 arguments, depending on if slash notation is
+   * used.
    */
+
+  if (shift > 0 && argc  != 2)
+    {
+      nsh_output(vtbl, g_fmttoomanyargs, argv[0]);
+      goto errout;
+    }
+  else if (shift < 0 && argc != 3)
+    {
+      nsh_output(vtbl, g_fmtargrequired, argv[0]);
+      goto errout;
+    }
 
   /* Convert the target IP address string into its binary form */
 
@@ -365,11 +488,59 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
    /* Convert the netmask IP address string into its binary form */
 
-  ret = inet_pton(family, argv[2], &inaddr);
-  if (ret != 1)
+  if (shift >= 0)
     {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-      goto errout_with_sockfd;
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+      if (family == PF_INET)
+#endif
+        {
+          if (shift > 32)
+            {
+              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              goto errout_with_sockfd;
+            }
+
+          inaddr.ipv4.s_addr = (0xffffffff << shift);
+        }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+      else
+#endif
+        {
+          int i;
+
+          memset(&inaddr.ipv6, 0, sizeof(struct sockaddr_in6));
+          for (i = 7; i >= 0 && shift >= 16; i--, shift -= 16)
+            {
+              inaddr.ipv6.s6_addr16[i] = 0xffff;
+            }
+
+          if (shift > 16 || (shift > 0 && i < 0))
+            {
+              nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+              goto errout_with_sockfd;
+            }
+
+          if (shift > 0)
+            {
+              inaddr.ipv6.s6_addr16[i] = (0xffff << (16 - shift));
+            }
+        }
+#endif
+    }
+  else
+    {
+      /* Slash notation not used.. mask should follow the target address */
+
+      ret = inet_pton(family, argv[2], &inaddr);
+      if (ret != 1)
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          goto errout_with_sockfd;
+        }
     }
 
   /* Format the netmask sockaddr instance */

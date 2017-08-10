@@ -286,16 +286,23 @@ o test <expression>
                       integer -gt integer | integer -le integer |
                       integer -lt integer | integer -ne integer
 
-o addroute <target> <netmask> <router>
+o addroute <target> [<netmask>] <router>
 
   This command adds an entry in the routing table.  The new entry
   will map the IP address of a router on a local network(<router>)
   to an external network characterized by the <target> IP address and
   a network mask <netmask>
 
+  The netmask may also be expressed using IPv4 CIDR or IPv6 slash
+  notation.  In that case, the netmask need not be provided.
+
   Example:
 
-    nsh> addroute 1.1.1.1 2.2.2.2 3.3.3.3
+    nsh> addroute 11.0.0.0 255.255.255.0 10.0.0.2
+
+  which is equivalent to
+
+    nsh> addroute 11.0.0.0/24 10.0.0.2
 
 o arp [-a <ipaddr>|-d <ipaddr>|-s <ipaddr> <hwaddr>]
 
@@ -418,16 +425,23 @@ o dd if=<infile> of=<outfile> [bs=<sectsize>] [count=<sectors>] [skip=<sectors>]
      brw-rw-rw-       0 ram0
     nsh> dd if=/dev/ram0 of=/dev/null
 
-o delroute <target> <netmask>
+o delroute <target> [<netmask>]
 
   This command removes an entry from the routing table.  The entry
   removed will be the first entry in the routing table that matches
   the external network characterized by the <target> IP address and
   the network mask <netmask>
 
+  The netmask may also be expressed using IPv4 CIDR or IPv6 slash
+  notation.  In that case, the netmask need not be provided.
+
   Example:
 
-    nsh> delroute 1.1.1.1 2.2.2.2
+    nsh> delroute 11.0.0.0 255.255.255.0
+
+  which is equivalent to
+
+    nsh> delroute 11.0.0.0/24
 
 o df
 
