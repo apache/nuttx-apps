@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_routecmds.c
  *
- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2013, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,30 +54,6 @@
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ROUTE)
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
- * Private Functions
- ****************************************************************************/
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -91,17 +67,47 @@
 #ifndef CONFIG_NSH_DISABLE_ADDROUTE
 int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-#ifdef CONFIG_NET_IPv6
-  struct sockaddr_in6 target;
-  struct sockaddr_in6 netmask;
-  struct sockaddr_in6 router;
-  struct in6_addr inaddr;
-#else
-  struct sockaddr_in target;
-  struct sockaddr_in netmask;
-  struct sockaddr_in router;
-  struct in_addr inaddr;
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+    struct sockaddr_in ipv4;
 #endif
+#ifdef CONFIG_NET_IPv6
+    struct sockaddr_in6 ipv6;
+#endif
+  } target;
+
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+    struct sockaddr_in ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+    struct sockaddr_in6 ipv6;
+#endif
+  } netmask;
+
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+  struct sockaddr_in ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+  struct sockaddr_in6 ipv6;
+#endif
+  } router;
+
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+    struct in_addr ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+    struct in6_addr ipv6;
+#endif
+  } inaddr;
+
+  sa_family_t family;
   int sockfd;
   int ret;
 
@@ -109,85 +115,127 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * we don't have to look at the argument list.
    */
 
+  /* Convert the target IP address string into its binary form */
+
+#ifdef CONFIG_NET_IPv4
+  family = PF_INET;
+
+  ret = inet_pton(AF_INET, argv[1], &inaddr.ipv4);
+  if (ret != 1)
+#endif
+    {
+#ifdef CONFIG_NET_IPv6
+      family = PF_INET6;
+
+      ret = inet_pton(AF_INET6, argv[1], &inaddr.ipv6);
+      if (ret != 1)
+#endif
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          goto errout;
+        }
+    }
+
   /* We need to have a socket (any socket) in order to perform the ioctl */
 
-  sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+  sockfd = socket(family, NETLIB_SOCK_IOCTL, 0);
   if (sockfd < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
-      return ERROR;
-    }
-
-  /* Convert the target IP address string into its binary form */
-
-#ifdef CONFIG_NET_IPv6
-  ret = inet_pton(AF_INET6, argv[1], &inaddr);
-#else
-  ret = inet_pton(AF_INET, argv[1], &inaddr);
-#endif
-  if (ret != 1)
-    {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
       goto errout;
     }
 
   /* Format the target sockaddr instance */
 
   memset(&target, 0, sizeof(target));
+
+#ifdef CONFIG_NET_IPv4
 #ifdef CONFIG_NET_IPv6
-  target.sin6_family = AF_INET6;
-  memcpy(&target.sin6_addr, &inaddr, sizeof(struct in6_addr));
-#else
-  target.sin_family = AF_INET;
-  target.sin_addr   = inaddr;
+  if (family == PF_INET)
+#endif
+    {
+      target.ipv4.sin_family  = AF_INET;
+      target.ipv4.sin_addr    = inaddr.ipv4;
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  else
+#endif
+    {
+      target.ipv6.sin6_family = AF_INET6;
+      memcpy(&target.ipv6.sin6_addr, &inaddr.ipv6,
+             sizeof(struct in6_addr));
+    }
 #endif
 
    /* Convert the netmask IP address string into its binary form */
 
-#ifdef CONFIG_NET_IPv6
-  ret = inet_pton(AF_INET6, argv[2], &inaddr);
-#else
-  ret = inet_pton(AF_INET, argv[2], &inaddr);
-#endif
+  ret = inet_pton(family, argv[2], &inaddr);
   if (ret != 1)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-      goto errout;
+      goto errout_with_sockfd;
     }
 
   /* Format the netmask sockaddr instance */
 
   memset(&netmask, 0, sizeof(netmask));
+
+#ifdef CONFIG_NET_IPv4
 #ifdef CONFIG_NET_IPv6
-  netmask.sin6_family = AF_INET6;
-  memcpy(&netmask.sin6_addr, &inaddr, sizeof(struct in6_addr));
-#else
-  netmask.sin_family  = AF_INET;
-  netmask.sin_addr    = inaddr;
+  if (family == PF_INET)
+#endif
+    {
+      netmask.ipv4.sin_family  = AF_INET;
+      netmask.ipv4.sin_addr    = inaddr.ipv4;
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  else
+#endif
+    {
+      netmask.ipv6.sin6_family = AF_INET6;
+      memcpy(&netmask.ipv6.sin6_addr, &inaddr.ipv6,
+             sizeof(struct in6_addr));
+    }
 #endif
 
    /* Convert the router IP address string into its binary form */
 
-#ifdef CONFIG_NET_IPv6
-  ret = inet_pton(AF_INET6, argv[3], &inaddr);
-#else
-  ret = inet_pton(AF_INET, argv[3], &inaddr);
-#endif
+  ret = inet_pton(family, argv[3], &inaddr);
   if (ret != 1)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-      goto errout;
+      goto errout_with_sockfd;
     }
 
   /* Format the router sockaddr instance */
 
   memset(&router, 0, sizeof(router));
+
+#ifdef CONFIG_NET_IPv4
 #ifdef CONFIG_NET_IPv6
-  router.sin6_family = AF_INET6;
-  memcpy(&router.sin6_addr, &inaddr, sizeof(struct in6_addr));
-#else
-  router.sin_family  = AF_INET;
-  router.sin_addr    = inaddr;
+  if (family == PF_INET)
+#endif
+    {
+      router.ipv4.sin_family  = AF_INET;
+      router.ipv4.sin_addr    = inaddr.ipv4;
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  else
+#endif
+    {
+      router.ipv6.sin6_family = AF_INET6;
+      memcpy(&router.ipv6.sin6_addr, &inaddr.ipv6,
+             sizeof(struct in6_addr));
+    }
 #endif
 
   /* Then add the route */
@@ -199,14 +247,15 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "addroute", NSH_ERRNO);
-      goto errout;
+      goto errout_with_sockfd;
     }
 
   close(sockfd);
   return OK;
 
-errout:
+errout_with_sockfd:
   close(sockfd);
+errout:
   return ERROR;
 }
 #endif /* !CONFIG_NSH_DISABLE_ADDROUTE */
@@ -221,15 +270,37 @@ errout:
 #ifndef CONFIG_NSH_DISABLE_DELROUTE
 int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-#ifdef CONFIG_NET_IPv6
-  struct sockaddr_in6 target;
-  struct sockaddr_in6 netmask;
-  struct in6_addr inaddr;
-#else
-  struct sockaddr_in target;
-  struct sockaddr_in netmask;
-  struct in_addr inaddr;
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+    struct sockaddr_in ipv4;
 #endif
+#ifdef CONFIG_NET_IPv6
+    struct sockaddr_in6 ipv6;
+#endif
+  } target;
+
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+    struct sockaddr_in ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+    struct sockaddr_in6 ipv6;
+#endif
+  } netmask;
+
+  union
+  {
+#ifdef CONFIG_NET_IPv4
+    struct in_addr ipv4;
+#endif
+#ifdef CONFIG_NET_IPv6
+    struct in6_addr ipv6;
+#endif
+  } inaddr;
+
+  sa_family_t family;
   int sockfd;
   int ret;
 
@@ -237,61 +308,93 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
    * we don't have to look at the argument list.
    */
 
+  /* Convert the target IP address string into its binary form */
+
+#ifdef CONFIG_NET_IPv4
+  family = PF_INET;
+
+  ret = inet_pton(AF_INET, argv[1], &inaddr.ipv4);
+  if (ret != 1)
+#endif
+    {
+#ifdef CONFIG_NET_IPv6
+      family = PF_INET6;
+
+      ret = inet_pton(AF_INET6, argv[1], &inaddr.ipv6);
+      if (ret != 1)
+#endif
+        {
+          nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+          goto errout;
+        }
+    }
+
   /* We need to have a socket (any socket) in order to perform the ioctl */
 
-  sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+  sockfd = socket(family, NETLIB_SOCK_IOCTL, 0);
   if (sockfd < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "socket", NSH_ERRNO);
-      return ERROR;
-    }
-
-  /* Convert the target IP address string into its binary form */
-
-#ifdef CONFIG_NET_IPv6
-  ret = inet_pton(AF_INET6, argv[1], &inaddr);
-#else
-  ret = inet_pton(AF_INET, argv[1], &inaddr);
-#endif
-  if (ret != 1)
-    {
-      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
       goto errout;
     }
 
   /* Format the target sockaddr instance */
 
   memset(&target, 0, sizeof(target));
+
+#ifdef CONFIG_NET_IPv4
 #ifdef CONFIG_NET_IPv6
-  target.sin6_family = AF_INET6;
-  memcpy(&target.sin6_addr, &inaddr, sizeof(struct in6_addr));
-#else
-  target.sin_family  = AF_INET;
-  target.sin_addr    = inaddr;
+  if (family == PF_INET)
+#endif
+    {
+      target.ipv4.sin_family  = AF_INET;
+      target.ipv4.sin_addr    = inaddr.ipv4;
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  else
+#endif
+    {
+      target.ipv6.sin6_family = AF_INET6;
+      memcpy(&target.ipv6.sin6_addr, &inaddr.ipv6,
+             sizeof(struct in6_addr));
+    }
 #endif
 
    /* Convert the netmask IP address string into its binary form */
 
-#ifdef CONFIG_NET_IPv6
-  ret = inet_pton(AF_INET6, argv[2], &inaddr);
-#else
-  ret = inet_pton(AF_INET, argv[2], &inaddr);
-#endif
+  ret = inet_pton(family, argv[2], &inaddr);
   if (ret != 1)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
-      goto errout;
+      goto errout_with_sockfd;
     }
 
   /* Format the netmask sockaddr instance */
 
   memset(&netmask, 0, sizeof(netmask));
+
+#ifdef CONFIG_NET_IPv4
 #ifdef CONFIG_NET_IPv6
-  netmask.sin6_family = AF_INET6;
-  memcpy(&netmask.sin6_addr, &inaddr, sizeof(struct in6_addr));
-#else
-  netmask.sin_family  = AF_INET;
-  netmask.sin_addr    = inaddr;
+  if (family == PF_INET)
+#endif
+    {
+      netmask.ipv4.sin_family  = AF_INET;
+      netmask.ipv4.sin_addr    = inaddr.ipv4;
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  else
+#endif
+    {
+      netmask.ipv6.sin6_family = AF_INET6;
+      memcpy(&netmask.ipv6.sin6_addr, &inaddr.ipv6,
+             sizeof(struct in6_addr));
+    }
 #endif
 
   /* Then delete the route */
@@ -302,14 +405,15 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtcmdfailed, argv[0], "addroute", NSH_ERRNO);
-      goto errout;
+      goto errout_with_sockfd;
     }
 
   close(sockfd);
   return OK;
 
-errout:
+errout_with_sockfd:
   close(sockfd);
+errout:
   return ERROR;
 }
 #endif /* !CONFIG_NSH_DISABLE_DELROUTE */
