@@ -235,13 +235,19 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (family == PF_INET)
 #endif
         {
+          /* /0  -> 0x00000000
+           * /8  -> 0xff000000
+           * /24 -> 0xffffff00
+           * /32 -> 0xffffffff
+           */
+
           if (shift > 32)
             {
               nsh_output(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
 
-          inaddr.ipv4.s_addr = (0xffffffff << shift);
+          inaddr.ipv4.s_addr = (0xffffffff << (32 - shift));
         }
 #endif
 
@@ -252,17 +258,31 @@ int cmd_addroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           int i;
 
+          /* /0   -> 0000:0000:0000:0000:0000:0000:0000:0000
+           * /16  -> ffff:0000:0000:0000:0000:0000:0000:0000
+           * /32  -> ffff:ffff:0000:0000:0000:0000:0000:0000
+           * ...
+           * /128 -> ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+           */
+
           memset(&inaddr.ipv6, 0, sizeof(struct sockaddr_in6));
-          for (i = 7; i >= 0 && shift >= 16; i--, shift -= 16)
+          for (i = 0; i < 8 && shift >= 16; i++, shift -= 16)
             {
               inaddr.ipv6.s6_addr16[i] = 0xffff;
             }
 
-          if (shift > 16 || (shift > 0 && i < 0))
+          if (shift > 16 || (shift > 0 && i >= 8))
             {
               nsh_output(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
+
+          /* /0   -> 0x0000
+           * /1   -> 0x8000
+           * /2   -> 0xc000
+           * ...
+           * /16  -> 0xffff
+           */
 
           if (shift > 0)
             {
@@ -495,13 +515,19 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (family == PF_INET)
 #endif
         {
+          /* /0  -> 0x00000000
+           * /8  -> 0xff000000
+           * /24 -> 0xffffff00
+           * /32 -> 0xffffffff
+           */
+
           if (shift > 32)
             {
               nsh_output(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
 
-          inaddr.ipv4.s_addr = (0xffffffff << shift);
+          inaddr.ipv4.s_addr = (0xffffffff << (32 - shift));
         }
 #endif
 
@@ -512,17 +538,31 @@ int cmd_delroute(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           int i;
 
+          /* /0   -> 0000:0000:0000:0000:0000:0000:0000:0000
+           * /16  -> ffff:0000:0000:0000:0000:0000:0000:0000
+           * /32  -> ffff:ffff:0000:0000:0000:0000:0000:0000
+           * ...
+           * /128 -> ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+           */
+
           memset(&inaddr.ipv6, 0, sizeof(struct sockaddr_in6));
-          for (i = 7; i >= 0 && shift >= 16; i--, shift -= 16)
+          for (i = 0; i < 8 && shift >= 16; i++, shift -= 16)
             {
               inaddr.ipv6.s6_addr16[i] = 0xffff;
             }
 
-          if (shift > 16 || (shift > 0 && i < 0))
+          if (shift > 16 || (shift > 0 && i >= 8))
             {
               nsh_output(vtbl, g_fmtarginvalid, argv[0]);
               goto errout_with_sockfd;
             }
+
+          /* /0   -> 0x0000
+           * /1   -> 0x8000
+           * /2   -> 0xc000
+           * ...
+           * /16  -> 0xffff
+           */
 
           if (shift > 0)
             {
