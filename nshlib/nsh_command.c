@@ -436,7 +436,7 @@ static const struct cmdmap_s g_cmdmap[] =
   { "rmmod",    cmd_rmmod,    2, 2, "<module-name>" },
 #endif
 
-#ifndef CONFIG_FS_PROCFS_EXCLUDE_ROUTE
+#ifndef CONFIG_NSH_DISABLE_ROUTE
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
   { "route",    cmd_route,    2, 2, "ipv4|ipv6" },
 #elif defined(CONFIG_NET_IPv4)

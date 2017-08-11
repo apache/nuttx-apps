@@ -636,7 +636,7 @@ errout:
  *
  ****************************************************************************/
 
-#ifndef CONFIG_FS_PROCFS_EXCLUDE_ROUTE
+#ifndef CONFIG_NSH_DISABLE_ROUTE
 int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
 #if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
