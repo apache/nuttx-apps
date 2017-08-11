@@ -195,6 +195,7 @@ config NSH_DISABLE_ADDROUTE
 	bool "Disable addroute"
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
+	depends on NET_ROUTE
 
 config NSH_DISABLE_ARP
 	bool "Disable arp"
@@ -255,6 +256,7 @@ config NSH_DISABLE_DELROUTE
 	bool "Disable delroute"
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
+	depends on NET_ROUTE
 
 config NSH_DISABLE_DIRNAME
 	bool "Disable dirname"
@@ -455,6 +457,12 @@ config NSH_DISABLE_RM
 config NSH_DISABLE_RMDIR
 	bool "Disable rmdir"
 	default n
+
+config NSH_DISABLE_ROUTE
+	bool "Disable delroute"
+	depends on FS_PROCFS && NET_ROUTE && !FS_PROCFS_EXCLUDE_NET && !FS_PROCFS_EXCLUDE_ROUTE
+	default y if DEFAULT_SMALL
+	default n if !DEFAULT_SMALL
 
 config NSH_DISABLE_SET
 	bool "Disable set"

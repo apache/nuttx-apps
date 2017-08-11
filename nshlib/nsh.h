@@ -183,6 +183,17 @@
 #  define CONFIG_NSH_DISABLE_GET 1
 #endif
 
+/* Route depends on routing table support and procfs support */
+
+#if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_NET) || \
+    defined(CONFIG_FS_PROCFS_EXCLUDE_ROUTE) || !defined(CONFIG_NET_ROUTE) || \
+    defined(CONFIG_NSH_DISABLE_ROUTE) || \
+    (!defined(CONFIG_NET_IPv4) && !defined(CONFIG_NET_IPv6))
+#  ifndef CONFIG_FS_PROCFS_EXCLUDE_ROUTE
+#    define CONFIG_FS_PROCFS_EXCLUDE_ROUTE 1
+#  endif
+#endif
+
 /* wget depends on web client support */
 
 #ifndef CONFIG_NETUTILS_WEBCLIENT
@@ -1186,6 +1197,9 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #    ifndef CONFIG_NSH_DISABLE_WGET
         int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #    endif
+#  endif
+#  ifndef CONFIG_FS_PROCFS_EXCLUDE_ROUTE
+      int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #  endif
 #  if defined(CONFIG_NSH_TELNET)
 #    ifndef CONFIG_NSH_DISABLE_TELNETD

@@ -632,18 +632,73 @@ errout:
 /****************************************************************************
  * Name: cmd_route
  *
- * nsh> route
+ * nsh> route <ipv4|ipv6>
  *
  ****************************************************************************/
 
-#if !defined(CONFIG_NSH_DISABLE_DELROUTE) && \
-    !defined(CONFIG_BUILD_PROTECTED) && \
-    !defined(CONFIG_BUILD_KERNEL)
+#ifndef CONFIG_FS_PROCFS_EXCLUDE_ROUTE
+int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+  bool ipv6 = false;
+#endif
 
-/* Perhaps... someday.  This would current depend on using the internal
- * OS interface net_foreachroute and internal OS data structures defined
- * in nuttx/net/net_route.h
- */
-#endif /* !CONFIG_NSH_DISABLE_DELROUTE && !CONFIG_BUILD_PROTECTED && !CONFIG_BUILD_KERNEL */
+  /* If both IPv4 and IPv6 and defined then there will be exactly one
+   * argument.  Otherwise no arguments are required, but an addition
+   * argument is accepted.
+   */
+
+#if defined(CONFIG_NET_IPv4) && defined(CONFIG_NET_IPv6)
+  if (strcmp(argv[1], "ipv4") == 0)
+    {
+      ipv6 = false;
+    }
+  else if (strcmp(argv[1], "ipv6") == 0)
+    {
+      ipv6 = true;
+    }
+
+  else
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+#elif defined(CONFIG_NET_IPv4)
+  if (argc == 2 && strcmp(argv[1], "ipv4") != 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+#else
+  if (argc == 2 && strcmp(argv[1], "ipv6") != 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+#endif
+
+  /* Then just cat the procfs file containing the routing table info */
+
+#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_NET_IPv6
+  if (!ipv6)
+#endif
+    {
+      return nsh_catfile(vtbl, argv[0], "/proc/net/route/ipv4");
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+#ifdef CONFIG_NET_IPv4
+  else
+#endif
+    {
+      return nsh_catfile(vtbl, argv[0], "/proc/net/route/ipv6");
+    }
+#endif
+
+  return ERROR; /* Shouldn't get here */
+}
+#endif
 
 #endif /* CONFIG_NET && CONFIG_NET_ROUTE */
