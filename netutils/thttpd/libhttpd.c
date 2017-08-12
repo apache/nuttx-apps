@@ -3409,7 +3409,7 @@ int httpd_start_request(httpd_conn *hc, struct timeval *nowP)
   else
     {
       hc->file_fd = open(hc->expnfilename, O_RDONLY);
-      if (!hc->file_fd < 0)
+      if (hc->file_fd < 0)
         {
           INTERNALERROR(hc->expnfilename);
           httpd_send_err(hc, 500, err500title, "", err500form, hc->encodedurl);
