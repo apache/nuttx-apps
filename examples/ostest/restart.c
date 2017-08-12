@@ -68,8 +68,11 @@ static char * const g_argv[NARGS+1] =
   NULL
 };
 
+#ifndef CONFIG_DISABLE_ENVIRON
 static const char g_varname[] = "VarName";
 static const char g_varvalue[] = "VarValue";
+#endif
+
 static bool g_restarted;
 
 /****************************************************************************
