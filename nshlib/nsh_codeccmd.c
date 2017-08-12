@@ -63,7 +63,7 @@
 #include "netutils/urldecode.h"
 #endif
 
-#if defined(CONFIG_NSH_DISABLE_BASE64ENC) && defined(CONFIG_NSH_DISABLE_BASE64ENC)
+#if defined(CONFIG_NSH_DISABLE_BASE64ENC) && defined(CONFIG_NSH_DISABLE_BASE64DEC)
 #  undef CONFIG_CODECS_BASE64
 #endif
 
@@ -113,10 +113,11 @@
 #  define HAVE_CODECS_HASH_MD5 1
 #endif
 
-#if defined() || defined() || defined() || defined() || defined()
+#if defined(HAVE_CODECS_URLENCODE) || defined(HAVE_CODECS_URLDECODE) || \
+    defined(HAVE_CODECS_BASE64ENC) || defined(HAVE_CODECS_BASE64DEC) || \
+    defined(HAVE_CODECS_HASH_MD5)
 #  define NEED_CMD_CODECS_PROC 1
 #endif
-
 
 #define CODEC_MODE_URLENCODE  1
 #define CODEC_MODE_URLDECODE  2
@@ -139,7 +140,7 @@ typedef void (*codec_callback_t)(FAR char *src, int srclen, FAR char *dest,
  * Name: urlencode_cb
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLENCODE)
+#ifdef HAVE_CODECS_URLENCODE
 static void urlencode_cb(FAR char *src, int srclen, FAR char *dest,
                          FAR int *destlen, int mode)
 {
@@ -151,7 +152,7 @@ static void urlencode_cb(FAR char *src, int srclen, FAR char *dest,
  * Name: urldecode_cb
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLDECODE)
+#ifdef HAVE_CODECS_URLDECODE
 static void urldecode_cb(FAR char *src, int srclen, FAR char *dest,
                          FAR int *destlen, int mode)
 {
@@ -163,7 +164,7 @@ static void urldecode_cb(FAR char *src, int srclen, FAR char *dest,
  * Name: b64enc_cb
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64ENC)
+#ifdef HAVE_CODECS_BASE64ENC
 static void b64enc_cb(FAR char *src, int srclen, FAR char *dest,
                       FAR int *destlen, int mode)
 {
@@ -184,7 +185,7 @@ static void b64enc_cb(FAR char *src, int srclen, FAR char *dest,
  * Name: b64dec_cb
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64DEC)
+#ifdef HAVE_CODECS_BASE64DEC
 static void b64dec_cb(FAR char *src, int srclen, FAR char *dest,
                       FAR int *destlen, int mode)
 {
@@ -205,7 +206,7 @@ static void b64dec_cb(FAR char *src, int srclen, FAR char *dest,
  * Name: md5_cb
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
 static void md5_cb(FAR char *src, int srclen, FAR char *dest,
                    FAR int *destlen, int mode)
 {
@@ -249,7 +250,7 @@ static int calc_codec_buffsize(int srclen, uint8_t mode)
 static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
                            uint8_t mode, codec_callback_t func)
 {
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
   static const unsigned char hexchars[] = "0123456789abcdef";
   MD5_CTX ctx;
   unsigned char mac[16];
@@ -329,7 +330,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       goto errout;
     }
 
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
   if (mode == CODEC_MODE_HASH_MD5)
     {
       MD5Init(&ctx);
@@ -357,7 +358,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
         }
 
       srcbuf = malloc(CONFIG_NSH_CODECS_BUFSIZE+2);
-#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64ENC)
+#ifdef HAVE_CODECS_BASE64ENC
       if (mode == CODEC_MODE_BASE64ENC)
         {
           srclen = CONFIG_NSH_CODECS_BUFSIZE / 3 * 3;
@@ -385,7 +386,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
               break;
             }
 
-#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLDECODE)
+#ifdef HAVE_CODECS_URLDECODE
           if (mode == CODEC_MODE_URLDECODE)
             {
               if (srcbuf[srclen-1]=='%')
@@ -401,7 +402,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           memset(destbuf, 0, buflen);
           if (func)
             {
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
               if (mode == CODEC_MODE_HASH_MD5)
                 {
                   func(srcbuf, ret, (char *)&ctx, &buflen,0);
@@ -417,7 +418,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
           buflen = calc_codec_buffsize(srclen+2, mode);
         }
 
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
       if (mode == CODEC_MODE_HASH_MD5)
         {
           int i;
@@ -454,7 +455,7 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       memset(destbuf, 0, buflen);
       if (func)
         {
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
           if (mode == CODEC_MODE_HASH_MD5)
             {
               int i;
@@ -521,7 +522,7 @@ errout:
  * Name: cmd_urlencode
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLENCODE)
+#ifdef HAVE_CODECS_URLENCODE
 int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLENCODE, urlencode_cb);
@@ -532,7 +533,7 @@ int cmd_urlencode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_urldecode
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLDECODE)
+#ifdef HAVE_CODECS_URLDECODE
 int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_URLDECODE, urldecode_cb);
@@ -543,7 +544,7 @@ int cmd_urldecode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_base64encode
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64ENC)
+#ifdef HAVE_CODECS_BASE64ENC
 int cmd_base64encode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_BASE64ENC, b64enc_cb);
@@ -554,7 +555,7 @@ int cmd_base64encode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_base64decode
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64DEC)
+#ifdef HAVE_CODECS_BASE64DEC
 int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_BASE64DEC, b64dec_cb);
@@ -565,7 +566,7 @@ int cmd_base64decode(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_md5
  ****************************************************************************/
 
-#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#ifdef HAVE_CODECS_HASH_MD5
 int cmd_md5(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return cmd_codecs_proc(vtbl, argc, argv, CODEC_MODE_HASH_MD5, md5_cb);
