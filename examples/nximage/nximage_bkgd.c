@@ -141,8 +141,6 @@ static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
  * Private Data
  ****************************************************************************/
 
-static const char g_hello[] = "Hello, World!";
-
 /* Read one or two rows, output one tow or three rows */
 
 static struct nximage_run_t g_runs[NINPUT_ROWS];
