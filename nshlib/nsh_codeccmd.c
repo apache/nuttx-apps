@@ -86,6 +86,38 @@
 #  define CONFIG_NSH_CODECS_BUFSIZE    128
 #endif
 
+#undef NEED_CMD_CODECS_PROC
+#undef HAVE_CODECS_URLENCODE
+#undef HAVE_CODECS_URLDECODE
+#undef HAVE_CODECS_BASE64ENC
+#undef HAVE_CODECS_BASE64DEC
+#undef HAVE_CODECS_HASH_MD5
+
+#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLENCODE)
+#  define HAVE_CODECS_URLENCODE 1
+#endif
+
+#if defined(CONFIG_CODECS_URLCODE) && !defined(CONFIG_NSH_DISABLE_URLDECODE)
+#  define HAVE_CODECS_URLDECODE 1
+#endif
+
+#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64ENC)
+#  define HAVE_CODECS_BASE64ENC 1
+#endif
+
+#if defined(CONFIG_CODECS_BASE64) && !defined(CONFIG_NSH_DISABLE_BASE64DEC)
+#  define HAVE_CODECS_BASE64DEC 1
+#endif
+
+#if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
+#  define HAVE_CODECS_HASH_MD5 1
+#endif
+
+#if defined() || defined() || defined() || defined() || defined()
+#  define NEED_CMD_CODECS_PROC 1
+#endif
+
+
 #define CODEC_MODE_URLENCODE  1
 #define CODEC_MODE_URLDECODE  2
 #define CODEC_MODE_BASE64ENC  3
@@ -213,6 +245,7 @@ static int calc_codec_buffsize(int srclen, uint8_t mode)
  * Name: cmd_codecs_proc
  ****************************************************************************/
 
+#ifdef NEED_CMD_CODECS_PROC
 static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
                            uint8_t mode, codec_callback_t func)
 {
@@ -237,7 +270,6 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
   int fd = -1;
   int buflen = 0;
   int srclen = 0;
-  int i = 0;
   int ret = OK;
 
   /* Get the command options */
@@ -388,6 +420,8 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
       if (mode == CODEC_MODE_HASH_MD5)
         {
+          int i;
+
           MD5Final(mac, &ctx);
           src = (FAR char *)&mac;
           dest = destbuf;
@@ -423,6 +457,8 @@ static int cmd_codecs_proc(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 #if defined(CONFIG_CODECS_HASH_MD5) && !defined(CONFIG_NSH_DISABLE_MD5)
           if (mode == CODEC_MODE_HASH_MD5)
             {
+              int i;
+
               func(srcbuf, srclen, (char *)&ctx, &buflen, 0);
               MD5Final(mac, &ctx);
               src = (char *)&mac;
@@ -475,6 +511,7 @@ errout:
   ret = ERROR;
   goto exit;
 }
+#endif
 
 /****************************************************************************
  * Public Functions
