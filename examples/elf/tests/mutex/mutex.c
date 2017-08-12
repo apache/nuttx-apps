@@ -73,7 +73,7 @@ void thread_func(void *parameter)
    * 2 seconds by setting bendoftest in any event.
    */
 
-  for (i = 0; i < 20 && !bendoftest; i++);
+  for (i = 0; i < 20 && !bendoftest; i++)
     {
       if ((pthread_mutex_lock(&mut)) != 0)
         {

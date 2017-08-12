@@ -76,6 +76,7 @@ static void *thread_func(FAR void *parameter)
         {
           pthread_yield();
         }
+
       my_mutex = 0;
 
       status = pthread_mutex_unlock(&mut);
