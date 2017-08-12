@@ -102,7 +102,10 @@
  * Private Data
  ****************************************************************************/
 
+#ifdef CONFIG_NX_KBD
 static const uint8_t g_pumsg[] = "Pop-Up!";
+#endif
+
 static const char *g_bgmsg[BGMSG_LINES] =
 {
   "\nJULIET\n",                           /* Line 1 */
