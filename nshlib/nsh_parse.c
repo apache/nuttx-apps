@@ -205,9 +205,9 @@ static const char g_redirect1[]       = ">";
 static const char g_redirect2[]       = ">>";
 #ifndef CONFIG_DISABLE_ENVIRON
 static const char g_exitstatus[]      = "?";
-#endif
 static const char g_success[]         = "0";
 static const char g_failure[]         = "1";
+#endif
 static const char g_nullstring[]      = "";
 
 /****************************************************************************
