@@ -218,6 +218,7 @@ static void md5_cb(FAR char *src, int srclen, FAR char *dest,
  * Name: calc_codec_buffsize
  ****************************************************************************/
 
+#ifdef NEED_CMD_CODECS_PROC
 static int calc_codec_buffsize(int srclen, uint8_t mode)
 {
   switch (mode)
@@ -241,6 +242,7 @@ static int calc_codec_buffsize(int srclen, uint8_t mode)
     return srclen + 1;
   }
 }
+#endif
 
 /****************************************************************************
  * Name: cmd_codecs_proc
