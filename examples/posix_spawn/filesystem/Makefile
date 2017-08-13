@@ -45,7 +45,7 @@ SYMTAB_SRC = $(FILESYSTEM_DIR)$(DELIM)symtab.c
 
 all: $(ROMFS_HDR) $(SYMTAB_SRC)
 .PHONY: all hello/hello redirect/redirect clean populate
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../../libapps$(LIBEXT)
 
 # Create the romfs directory
 

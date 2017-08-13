@@ -111,7 +111,7 @@ STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
 all: $(SUBDIR_BIN) .built
 .PHONY: context depend clean distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

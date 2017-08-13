@@ -42,7 +42,7 @@ SUBDIRS = $(dir $(wildcard */Makefile))
 all: nothing
 
 .PHONY: nothing context depend clean distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 define SDIR_template
 $(1)_$(2):

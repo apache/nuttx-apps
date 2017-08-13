@@ -161,7 +161,7 @@ VPATH =
 
 all: .built
 .PHONY: clean depend distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
@@ -225,7 +225,6 @@ depend: .depend
 
 clean:
 	$(call DELFILE, .built)
-	#$(call DELFILE, $(TARG_BIN))
 ifneq ($(CONFIG_EXAMPLES_UDP_TARGET2),y)
 	$(call DELFILE, $(HOST_BIN))
 	$(call DELFILE, *.$(HOSTOBJSEXT))

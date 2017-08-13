@@ -60,7 +60,7 @@ endef
 
 all: $(ROMFS_HDR) $(ROMFS_DIRLIST) $(SYMTAB)
 .PHONY: all build clean install populate
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../../libapps$(LIBEXT)
 
 $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),build, all)))
 $(foreach DIR, $(SUBDIRS), $(eval $(call DIR_template,$(DIR),clean,clean)))

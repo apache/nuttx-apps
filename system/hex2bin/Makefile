@@ -113,7 +113,7 @@ HEX2MEM_PRIORITY = $(CONFIG_SYSTEM_HEX2MEM_PRIORITY)
 
 all: .built
 .PHONY: context .depend depend clean distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

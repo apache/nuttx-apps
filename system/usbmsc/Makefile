@@ -94,7 +94,7 @@ VPATH =
 
 all: .built
 .PHONY: context clean depend distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

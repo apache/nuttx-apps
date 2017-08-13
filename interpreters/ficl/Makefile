@@ -79,7 +79,7 @@ VPATH = src:$(FICL_SUBDIR)
 
 all: .built
 .PHONY: debug context depend clean distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

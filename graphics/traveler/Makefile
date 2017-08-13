@@ -118,7 +118,7 @@ VPATH = .:src
 
 all: .built tools
 .PHONY: tools clean depend distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

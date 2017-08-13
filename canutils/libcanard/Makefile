@@ -70,7 +70,7 @@ VPATH =
 
 all: .built
 .PHONY: clean depend distclean preconfig
-.PRECIOUS: $(DEPBIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(LIBCANARD_PACKNAME):
 	@echo "Downloading: $@"

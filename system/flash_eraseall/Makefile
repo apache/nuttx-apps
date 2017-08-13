@@ -90,7 +90,7 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

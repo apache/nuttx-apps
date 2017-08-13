@@ -81,7 +81,7 @@ VPATH = filesystem
 
 all: build
 .PHONY: build clean_filesystem clean depend distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

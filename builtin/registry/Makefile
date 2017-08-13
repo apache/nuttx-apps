@@ -40,7 +40,7 @@ include $(APPDIR)/Make.defs
 
 all:
 .PHONY: context depend clean distclean
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 .updated: $(DEPCONFIG)
 	$(call DELFILE, *.bdat)

@@ -102,7 +102,7 @@ LDLIBSTDC_STUBS_LIB	= $(LDLIBSTDC_STUBS_DIR)/liblibxx.a
 
 all: $(BIN1) $(BIN2) $(BIN3) $(BIN4) $(BIN5)
 .PHONY: clean install
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../../../libapps$(LIBEXT)
 
 $(OBJS): %$(OBJEXT): %.cpp
 	@echo "CC: $<"

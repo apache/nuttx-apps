@@ -128,7 +128,7 @@ ROOTDEPPATH = --dep-path .
 
 all: .built
 .PHONY: install context clean distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(MICROPYTHON_TARBALL):
 	@echo "Downloading: $(MICROPYTHON_TARBALL)"

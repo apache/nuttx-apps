@@ -90,7 +90,7 @@ VPATH =
 
 all: .built
 .PHONY: clean depend distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../../libapps$(LIBEXT)
 
 $(RENEW_OBJS) $(RENEW_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)

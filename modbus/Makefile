@@ -83,7 +83,7 @@ endif
 
 all:	.built
 .PHONY: context .depend depend clean distclean preconfig
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../libapps$(LIBEXT)
 
 ifeq ($(CONFIG_MODBUS),y)
 

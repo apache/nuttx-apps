@@ -43,7 +43,7 @@ FILES   = .config
 
 all: nothing
 .PHONY: nothing context depend clean distclean
-.PRECIOUS: $(BIN)
+.PRECIOUS: ../libapps$(LIBEXT)
 
 nothing:
 
