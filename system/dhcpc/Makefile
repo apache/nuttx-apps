@@ -89,7 +89,8 @@ ROOTDEPPATH = --dep-path .
 VPATH = 
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(RENEW_OBJS) $(RENEW_MAINOBJ): %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)
@@ -134,6 +135,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

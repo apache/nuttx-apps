@@ -63,6 +63,7 @@ else
   BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
   INSTALL_DIR = $(BIN_DIR)
 endif
+DEPBIN = $(APPDIR)/libapps$(LIBEXT)
 
 ROOTDEPPATH = --dep-path .
 
@@ -70,7 +71,7 @@ VPATH =
 
 all: .built
 .PHONY: clean preconfig depend distclean
-.PRECIOUS: $(BIN)
+.PRECIOUS: $(DEPBIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

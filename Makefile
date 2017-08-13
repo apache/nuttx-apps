@@ -77,6 +77,7 @@ BIN = libapps$(LIBEXT)
 
 all: $(BIN)
 .PHONY: import install dirlinks context context_serialize context_rest .depdirs preconfig depend clean distclean
+.PRECIOUS: $(BIN)
 
 define MAKE_template
 	$(Q) cd $(1) && $(MAKE) $(2) TOPDIR="$(TOPDIR)" APPDIR="$(APPDIR)" BIN_DIR="$(BIN_DIR)"

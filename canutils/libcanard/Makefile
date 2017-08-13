@@ -62,13 +62,15 @@ ifeq ($(WINTOOL),y)
 else
   BIN = $(APPDIR)$(DELIM)libapps$(LIBEXT)
 endif
+DEPBIN = $(APPDIR)/libapps$(LIBEXT)
 
 ROOTDEPPATH = --dep-path .
 
 VPATH =
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: clean depend distclean preconfig
+.PRECIOUS: $(DEPBIN)
 
 $(LIBCANARD_PACKNAME):
 	@echo "Downloading: $@"
@@ -120,6 +122,6 @@ distclean: clean
 	$(call DELDIR, $(LIBCANARD_UNPACKNAME))
 	$(call DELFILE, $(LIBCANARD_PACKNAME))
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

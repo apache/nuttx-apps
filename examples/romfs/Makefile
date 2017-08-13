@@ -86,7 +86,8 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: checkgenromfs clean depend distclean
+.PHONY: checkgenromfs clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -151,7 +152,6 @@ distclean: clean
 	$(call DELFILE, .depend)
 	$(call DELFILE, testdir.img)
 
--include Make.dep
-
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

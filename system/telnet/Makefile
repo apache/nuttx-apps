@@ -120,6 +120,7 @@ VPATH =
 
 all: .built
 .PHONY: clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(CHATD_COBJS) $(CHATD_MAINOBJ) $(CLIENT_COBJS) $(CLIENT_MAINOBJ) : %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)

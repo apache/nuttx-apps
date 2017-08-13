@@ -41,7 +41,8 @@ SUBDIRS = $(dir $(wildcard */Makefile))
 
 all: nothing
 
-.PHONY: nothing context depend clean distclean
+.PHONY: nothing context depend clean distclean preconfig
+.PRECIOUS: $(BIN)
 
 define SDIR_template
 $(1)_$(2):
@@ -65,7 +66,6 @@ clean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_clean)
 
 distclean: $(foreach SDIR, $(SUBDIRS), $(SDIR)_distclean)
 
--include Make.dep
+ preconfig:
 
-.PHONY: preconfig
-preconfig:
+-include Make.dep

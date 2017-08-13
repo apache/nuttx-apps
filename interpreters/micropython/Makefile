@@ -127,7 +127,8 @@ ROOTDEPPATH = --dep-path .
 # Common build
 
 all: .built
-.PHONY: install context clean distclean
+.PHONY: install context clean distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(MICROPYTHON_TARBALL):
 	@echo "Downloading: $(MICROPYTHON_TARBALL)"
@@ -180,7 +181,7 @@ distclean: clean
 	$(call DELFILE, .downloaded)
 	$(call DELFILE, $(MICROPYTHON_TARBALL))
 
+preconfig:
+
 -include $(MICROPYTHON_SRCDIR)/mkrules.mk
 -include Make.dep
-.PHONY: preconfig
-preconfig:

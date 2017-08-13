@@ -96,7 +96,8 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: clean depend distclean
+.PHONY: clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(TARG_AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -165,6 +166,6 @@ distclean: clean
 	$(call DELFILE, .depend)
 	$(call DELFILE, bridge_config.h)
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

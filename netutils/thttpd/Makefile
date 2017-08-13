@@ -110,7 +110,8 @@ PRIORITY = $(CONFIG_THTTPD_CGI_PRIORITY)
 STACKSIZE = $(CONFIG_THTTPD_CGI_STACKSIZE)
 
 all: $(SUBDIR_BIN) .built
-.PHONY: context depend clean distclean
+.PHONY: context depend clean distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -189,6 +190,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

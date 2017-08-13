@@ -90,7 +90,8 @@ ROOTDEPPATH = --dep-path . --dep-path lib
 VPATH = lib
 
 all: .built
-.PHONY: really_build clean_lib clean depend distclean
+.PHONY: really_build clean_lib clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -152,6 +153,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

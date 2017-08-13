@@ -45,6 +45,7 @@ all: nuttx
 default: all
 
 .PHONY: clean
+.PRECIOUS: $(BIN)
 
 nuttx : $(NXINCNX)
 	@cp -a $(NXINCNX) nuttx

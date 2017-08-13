@@ -181,6 +181,7 @@ VPATH =
 
 all: .built $(HOST_BIN)
 .PHONY: clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(TARG1_COBJS) $(TARG1_MAINOBJ) $(TARG2_COBJS) $(TARG2_MAINOBJ) $(TARGCMN_COBJS) : %$(OBJEXT): %.c
 	$(call COMPILE, $<, $@)

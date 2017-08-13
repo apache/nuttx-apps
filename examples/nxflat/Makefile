@@ -80,7 +80,8 @@ ROOTDEPPATH = --dep-path .
 VPATH =
 
 all: .built
-.PHONY: headers clean depend distclean
+.PHONY: headers clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -126,6 +127,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

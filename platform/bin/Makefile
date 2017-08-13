@@ -37,6 +37,7 @@
 
 all:
 .PHONY: clean distclean
+.PRECIOUS: $(BIN)
 
 # Clean Targets:
 

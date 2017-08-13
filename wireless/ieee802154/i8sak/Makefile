@@ -91,6 +91,7 @@ VPATH =
 
 all: .built
 .PHONY: clean depend distclean
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

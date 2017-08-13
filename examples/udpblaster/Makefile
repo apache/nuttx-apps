@@ -98,7 +98,8 @@ STACKSIZE = $(CONFIG_EXAMPLES_UDPBLASTER_STACKSIZE)
 VPATH =
 
 all: .built $(HOST_BIN)
-.PHONY: clean depend distclean
+.PHONY: clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(TARG_AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -168,7 +169,6 @@ distclean: clean
 	$(call DELFILE, Make.dep)
 	$(call DELFILE, .depend)
 
--include Make.dep
-
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

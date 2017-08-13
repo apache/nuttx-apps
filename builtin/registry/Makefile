@@ -40,6 +40,7 @@ include $(APPDIR)/Make.defs
 
 all:
 .PHONY: context depend clean distclean
+.PRECIOUS: $(BIN)
 
 .updated: $(DEPCONFIG)
 	$(call DELFILE, *.bdat)

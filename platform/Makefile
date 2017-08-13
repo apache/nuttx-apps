@@ -104,7 +104,8 @@ endif
 # Build targets
 
 all: .built
-.PHONY: context .depend depend clean distclean
+.PHONY: context .depend depend clean distclean preconfig
+.PRECIOUS: $(BIN)
 
 ifneq ($(ASRCS),)
 # REVISIT: Backslash causes problems in $(AOBJS) target
@@ -160,7 +161,6 @@ distclean: clean
 	$(call DELFILE, .depend)
 	$(Q) $(DIRUNLINK) $(PLATFORMDIR)
 
--include Make.dep
-
-.PHONY: preconfig
 preconfig:
+
+-include Make.dep

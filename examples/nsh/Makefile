@@ -33,11 +33,18 @@
 #
 ############################################################################
 
+-include $(TOPDIR)/.config
 -include $(TOPDIR)/Make.defs
+include $(APPDIR)/Make.defs
 
 # NuttShell (NSH) Example
 
+CONFIG_EXAMPLES_NSH_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_NSH_STACKSIZE ?= 2048
+
 APPNAME = nsh
+PRIORITY = $(CONFIG_EXAMPLES_NSH_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_NSH_STACKSIZE)
 
 ASRCS =
 CSRCS =

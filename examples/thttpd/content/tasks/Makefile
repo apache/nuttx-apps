@@ -48,6 +48,7 @@ R2OBJ = $(R2SRC:.S=.o)
 
 all: $(BIN)
 .PHONY: clean install
+.PRECIOUS: $(BIN)
 
 $(R1OBJS): %.o: %.c
 	@echo "CC: $<"

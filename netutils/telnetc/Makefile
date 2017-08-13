@@ -70,6 +70,7 @@ VPATH =
 
 all: .built
 .PHONY: context depend clean distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)

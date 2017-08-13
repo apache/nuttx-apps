@@ -80,7 +80,8 @@ ROOTDEPPATH	= --dep-path . --dep-path filesystem
 VPATH = filesystem
 
 all: build
-.PHONY: build clean_filesystem clean depend distclean
+.PHONY: build clean_filesystem clean depend distclean preconfig
+.PRECIOUS: $(BIN)
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
@@ -156,5 +157,5 @@ spawn_main.o: spawn_main.c \
 symtab.o: filesystem/symtab.c \
 	$(TOPDIR)/include/nuttx/compiler.h \
 	$(TOPDIR)/include/nuttx/binfmt/symtab.h
-.PHONY: preconfig
+
 preconfig:
