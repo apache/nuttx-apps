@@ -88,7 +88,7 @@ endif
 
 ifeq ($(CONFIG_NET_6LOWPAN),y)
 ifeq ($(CONFIG_WIRELESS_IEEE802154),y)
-CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_eaddrconv.c
+CSRCS += netlib_seteaddr.c netlib_getpanid.c netlib_saddrconv.c netlib_eaddrconv.c
 endif
 ifeq ($(CONFIG_WIRELESS_PKTRADIO),y)
 CSRCS += netlib_getproperties.c netlib_getnodeaddr.c netlib_setnodeaddr.c

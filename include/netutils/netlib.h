@@ -120,6 +120,7 @@ int netlib_getmacaddr(FAR const char *ifname, FAR uint8_t *macaddr);
 
 int netlib_seteaddr(FAR const char *ifname, FAR const uint8_t *eaddr);
 int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid);
+bool netlib_saddrconv(FAR const char *hwstr, FAR uint8_t *hw);
 bool netlib_eaddrconv(FAR const char *hwstr, FAR uint8_t *hw);
 #endif
 
