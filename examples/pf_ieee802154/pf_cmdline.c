@@ -86,7 +86,6 @@ static void show_usage(FAR const char *progname)
 
 void pf_cmdline(int argc, char **argv)
 {
-  uint16_t panid = IEEE802154_PANID_BROADCAST;
   int ndx = 1;
 
   /* Forms:
