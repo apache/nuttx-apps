@@ -114,7 +114,6 @@ int netlib_setmacaddr(FAR const char *ifname, FAR const uint8_t *macaddr);
 int netlib_getmacaddr(FAR const char *ifname, FAR uint8_t *macaddr);
 #endif
 
-#ifdef CONFIG_NET_6LOWPAN
 #ifdef CONFIG_WIRELESS_IEEE802154
 /* IEEE 802.15.4 MAC IOCTL commands. */
 
@@ -138,7 +137,6 @@ int netlib_getnodnodeaddr(FAR const char *ifname,
                           FAR struct pktradio_addr_s *nodeaddr);
 bool netlib_nodeaddrconv(FAR const char *addrstr,
                          FAR struct pktradio_addr_s *nodeaddr);
-#endif
 #endif
 
 /* IP address support */

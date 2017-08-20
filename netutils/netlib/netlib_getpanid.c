@@ -42,14 +42,18 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
 
-#include "wireless/ieee802154.h"
+#include <net/if.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+
 #include "netutils/netlib.h"
 
-#if defined(CONFIG_NET_6LOWPAN) && CONFIG_NSOCKET_DESCRIPTORS > 0
+#if (defined(CONFIG_NET_6LOWPAN) || defined(CONFIG_NET_IEEE802154)) && \
+    CONFIG_NSOCKET_DESCRIPTORS > 0
 
 /****************************************************************************
  * Public Functions
@@ -72,6 +76,7 @@
 
 int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid)
 {
+  struct ieee802154_netmac_s arg;
   int ret = ERROR;
 
   if (ifname != NULL && panid != NULL)
@@ -81,14 +86,26 @@ int netlib_getpanid(FAR const char *ifname, FAR uint8_t *panid)
       int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
-          /* Use the helper provided in libmac */
+          /* Perform the IOCTL */
 
-          ret = sixlowpan_getpanid(sockfd, ifname, panid);
+         strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+         arg.u.getreq.attr = IEEE802154_ATTR_MAC_PANID;
+
+         ret = ioctl(sockfd, MAC802154IOC_MLME_GET_REQUEST,
+                     (unsigned long)((uintptr_t)&arg));
+         if (ret < 0)
+           {
+             ret = -errno;
+             fprintf(stderr, "MAC802154IOC_MLME_GET_REQUEST failed: %d\n",
+                     ret);
+           }
+
           close(sockfd);
+          IEEE802154_PANIDCOPY(panid, arg.u.getreq.attrval.mac.panid);
         }
     }
 
   return ret;
 }
 
-#endif /* CONFIG_NET_6LOWPAN && CONFIG_NSOCKET_DESCRIPTORS */
+#endif /* (CONFIG_NET_6LOWPAN || CONFIG_NET_IEEE802154) && CONFIG_NSOCKET_DESCRIPTORS */

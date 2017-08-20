@@ -145,7 +145,7 @@ int pfserver_main(int argc, char *argv[])
 
       if (client.sa_addr.s_mode == IEEE802154_ADDRMODE_SHORT)
         {
-          printf("server: %d. Received %d bytes from %02x:02x\n",
+          printf("server: %d. Received %d bytes from %02x:%02x\n",
                  offset, nbytes,
                  client.sa_addr.s_saddr[0], client.sa_addr.s_saddr[1]);
         }

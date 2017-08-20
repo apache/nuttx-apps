@@ -38,7 +38,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -54,6 +53,8 @@
 
 #include "netutils/netlib.h"
 
+#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -64,11 +65,14 @@
  */
 
 #if defined(CONFIG_NET_IPv4)
-#  define PF_INETX PF_INET
-#  define AF_INETX AF_INET
+#  define PF_FAMILY PF_INET
+#  define AF_FAMILY AF_INET
 #elif defined(CONFIG_NET_IPv6)
-#  define PF_INETX PF_INET6
-#  define AF_INETX AF_INET6
+#  define PF_FAMILY PF_INET6
+#  define AF_FAMILY AF_INET6
+#elif defined(CONFIG_NET_IEEE802154)
+#  define PF_FAMILY PF_IEEE802154
+#  define AF_FAMILY AF_IEEE802154
 #endif
 
 /****************************************************************************
@@ -99,7 +103,7 @@ int netlib_setessid(FAR const char *ifname, FAR const char *essid)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_FAMILY, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct iwreq req;

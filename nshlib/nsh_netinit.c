@@ -76,6 +76,10 @@
 #  include <nuttx/net/sixlowpan.h>
 #endif
 
+#ifdef CONFIG_NET_IEEE802154
+#  include <nuttx/net/ieee802154.h>
+#endif
+
 #ifdef CONFIG_NETUTILS_NTPCLIENT
 #  include "netutils/ntpclient.h"
 #endif
@@ -100,26 +104,34 @@
 #  undef CONFIG_NET_TUN
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_IEEE802154
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_6LOWPAN)
 #  undef CONFIG_NET_SLIP
 #  undef CONFIG_NET_TUN
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_IEEE802154
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_SLIP)
 #  undef CONFIG_NET_TUN
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_IEEE802154
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_TUN)
 #  undef CONFIG_NET_LOCAL
 #  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_IEEE802154
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_LOCAL)
 #  undef CONFIG_NET_USRSOCK
+#  undef CONFIG_NET_IEEE802154
 #  undef CONFIG_NET_LOOPBACK
 #elif defined(CONFIG_NET_USRSOCK)
+#  undef CONFIG_NET_IEEE802154
+#  undef CONFIG_NET_LOOPBACK
+#elif defined(CONFIG_NET_IEEE802154)
 #  undef CONFIG_NET_LOOPBACK
 #endif
 
@@ -174,7 +186,7 @@
 #elif defined(CONFIG_NET_ETHERNET)
 #  define NET_DEVNAME "eth0"
 #  define NSH_HAVE_NETDEV
-#elif defined(CONFIG_NET_6LOWPAN)
+#elif defined(CONFIG_NET_6LOWPAN) || defined(CONFIG_NET_IEEE802154)
 #  define NET_DEVNAME "wpan0"
 #  define NSH_HAVE_NETDEV
 #elif defined(CONFIG_NET_SLIP)
@@ -344,7 +356,8 @@ static void nsh_set_macaddr(void)
  *
  ****************************************************************************/
 
-#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NET_6LOWPAN)
+#if defined(NSH_HAVE_NETDEV) && !defined(CONFIG_NET_6LOWPAN) && ! \
+    defined(CONFIG_NET_IEEE802154)
 static void nsh_set_ipaddrs(void)
 {
 #ifdef CONFIG_NET_IPv4

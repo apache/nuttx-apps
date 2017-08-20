@@ -38,7 +38,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
 
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -53,6 +52,8 @@
 
 #include "netutils/netlib.h"
 
+#if defined(CONFIG_NET) && CONFIG_NSOCKET_DESCRIPTORS > 0
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -61,15 +62,17 @@
  */
 
 #if defined(CONFIG_NET_IPv4)
-#  define PF_INETX PF_INET
+#  define AF_FAMILY AF_INET
 #elif defined(CONFIG_NET_IPv6)
-#  define PF_INETX PF_INET6
+#  define AF_FAMILY AF_INET6
 #elif defined(CONFIG_NET_LOCAL)
-#  define PF_INETX PF_LOCAL
+#  define AF_FAMILY AF_LOCAL
 #elif defined(CONFIG_NET_PKT)
-#  define PF_INETX PF_PACKET
+#  define AF_FAMILY AF_PACKET
+#elif defined(CONFIG_NET_IEEE802154)
+#  define AF_FAMILY AF_IEEE802154
 #elif defined(CONFIG_NET_USRSOCK)
-#  define PF_INETX PF_INET
+#  define AF_FAMILY AF_INET
 #endif
 
 /****************************************************************************
@@ -98,7 +101,7 @@ int netlib_getifstatus(FAR const char *ifname, FAR uint8_t *flags)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INETX, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(AF_FAMILY, NETLIB_SOCK_IOCTL, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;
