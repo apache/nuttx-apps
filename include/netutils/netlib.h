@@ -65,10 +65,14 @@
  * if UDP is disabled.
  */
 
-#ifdef CONFIG_NET_UDP
+#if defined(CONFIG_NET_UDP)
 # define NETLIB_SOCK_IOCTL SOCK_DGRAM
-#else
+#elif defined(CONFIG_NET_TCP)
 # define NETLIB_SOCK_IOCTL SOCK_STREAM
+#elif defined(CONFIG_NET_IEEE802154)
+# define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#elif defined(CONFIG_NET_PKT)
+# define NETLIB_SOCK_IOCTL SOCK_RAW
 #endif
 
 /****************************************************************************
