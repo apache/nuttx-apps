@@ -53,8 +53,8 @@
  ****************************************************************************/
 /* Configuration ************************************************************/
 
-#ifndef CONFIG_ZEROCROSS
-#  error "CONFIG_ZEROCROSS is not defined in the configuration"
+#ifndef CONFIG_SENSORS_ZEROCROSS
+#  error "CONFIG_SENSORS_ZEROCROSS is not defined in the configuration"
 #endif
 
 #ifndef CONFIG_EXAMPLES_ZEROCROSS_DEVNAME

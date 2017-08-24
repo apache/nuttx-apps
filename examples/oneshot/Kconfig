@@ -12,21 +12,21 @@ config EXAMPLES_ONESHOT
 
 if EXAMPLES_ONESHOT
 
-config EXAMPLE_ONESHOT_DEVNAME
+config EXAMPLES_ONESHOT_DEVNAME
 	string "Oneshot time device name"
 	default "/dev/oneshot"
 	---help---
 		This is the default name of the timer device that will be tested if
 		one is not specified on the command line.
 
-config EXAMPLE_ONESHOT_DELAY
+config EXAMPLES_ONESHOT_DELAY
 	int "Sample delay (microseconds)"
 	default 100000
 	---help---
 		This is the default delay samples in microseconds if one is not
 		specified on the command line
 
-config EXAMPLE_ONESHOT_SIGNO
+config EXAMPLES_ONESHOT_SIGNO
 	int "Signal number"
 	default 13
 	---help---

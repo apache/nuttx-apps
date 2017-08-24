@@ -54,16 +54,16 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLE_ONESHOT_DEVNAME
-#  define CONFIG_EXAMPLE_ONESHOT_DEVNAME "/dev/oneshot"
+#ifndef CONFIG_EXAMPLES_ONESHOT_DEVNAME
+#  define CONFIG_EXAMPLES_ONESHOT_DEVNAME "/dev/oneshot"
 #endif
 
-#ifndef CONFIG_EXAMPLE_ONESHOT_DELAY
-#  define CONFIG_EXAMPLE_ONESHOT_DELAY 100000
+#ifndef CONFIG_EXAMPLES_ONESHOT_DELAY
+#  define CONFIG_EXAMPLES_ONESHOT_DELAY 100000
 #endif
 
-#ifndef CONFIG_EXAMPLE_ONESHOT_SIGNO
-#  define CONFIG_EXAMPLE_ONESHOT_SIGNO 13
+#ifndef CONFIG_EXAMPLES_ONESHOT_SIGNO
+#  define CONFIG_EXAMPLES_ONESHOT_SIGNO 13
 #endif
 
 /* For long delays that have to be broken into segments, some loss of
@@ -91,10 +91,10 @@ static void show_usage(FAR const char *progname)
   fprintf(stderr, "Where:\n");
   fprintf(stderr, "\t-d <usecs>:\n");
   fprintf(stderr, "\tSpecifies the oneshot delay in microseconds.  Default %ld\n",
-          (unsigned long)CONFIG_EXAMPLE_ONESHOT_DELAY);
+          (unsigned long)CONFIG_EXAMPLES_ONESHOT_DELAY);
   fprintf(stderr, "\t<devname>:\n");
   fprintf(stderr, "\tSpecifies the path to the oneshot driver.  Default %s\n",
-          CONFIG_EXAMPLE_ONESHOT_DEVNAME);
+          CONFIG_EXAMPLES_ONESHOT_DEVNAME);
   exit(EXIT_FAILURE);
 }
 
@@ -112,8 +112,8 @@ int main(int argc, FAR char *argv[])
 int oneshot_main(int argc, char *argv[])
 #endif
 {
-  FAR const char *devname = CONFIG_EXAMPLE_ONESHOT_DEVNAME;
-  unsigned long usecs = CONFIG_EXAMPLE_ONESHOT_DELAY;
+  FAR const char *devname = CONFIG_EXAMPLES_ONESHOT_DEVNAME;
+  unsigned long usecs = CONFIG_EXAMPLES_ONESHOT_DELAY;
   unsigned long secs;
   struct oneshot_start_s start;
   struct timespec ts;
@@ -192,7 +192,7 @@ int oneshot_main(int argc, char *argv[])
       /* Start the oneshot timer */
 
       sigemptyset(&set);
-      sigaddset(&set, CONFIG_EXAMPLE_ONESHOT_SIGNO);
+      sigaddset(&set, CONFIG_EXAMPLES_ONESHOT_SIGNO);
 
       if (usecs < maxus)
         {
@@ -202,7 +202,7 @@ int oneshot_main(int argc, char *argv[])
                  usecs);
 
           start.pid        = 0;
-          start.signo      = CONFIG_EXAMPLE_ONESHOT_SIGNO;
+          start.signo      = CONFIG_EXAMPLES_ONESHOT_SIGNO;
           start.arg        = NULL;
 
           secs             = usecs / 1000000;

@@ -52,24 +52,24 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#ifndef CONFIG_EXAMPLE_TIMER_DEVNAME
-#  define CONFIG_EXAMPLE_TIMER_DEVNAME "/dev/timer0"
+#ifndef CONFIG_EXAMPLES_TIMER_DEVNAME
+#  define CONFIG_EXAMPLES_TIMER_DEVNAME "/dev/timer0"
 #endif
 
-#ifndef CONFIG_EXAMPLE_TIMER_INTERVAL
-#  define CONFIG_EXAMPLE_TIMER_INTERVAL 1000000
+#ifndef CONFIG_EXAMPLES_TIMER_INTERVAL
+#  define CONFIG_EXAMPLES_TIMER_INTERVAL 1000000
 #endif
 
-#ifndef CONFIG_EXAMPLE_TIMER_DELAY
-#  define CONFIG_EXAMPLE_TIMER_DELAY 100000
+#ifndef CONFIG_EXAMPLES_TIMER_DELAY
+#  define CONFIG_EXAMPLES_TIMER_DELAY 100000
 #endif
 
-#ifndef CONFIG_EXAMPLE_TIMER_NSAMPLES
-#  define CONFIG_EXAMPLE_TIMER_NSAMPLES 20
+#ifndef CONFIG_EXAMPLES_TIMER_NSAMPLES
+#  define CONFIG_EXAMPLES_TIMER_NSAMPLES 20
 #endif
 
-#ifndef CONFIG_EXAMPLE_TIMER_SIGNO
-#  define CONFIG_EXAMPLE_TIMER_SIGNO 17
+#ifndef CONFIG_EXAMPLES_TIMER_SIGNO
+#  define CONFIG_EXAMPLES_TIMER_SIGNO 17
 #endif
 
 /****************************************************************************
@@ -149,13 +149,13 @@ int timer_main(int argc, char *argv[])
 
   /* Open the timer device */
 
-  printf("Open %s\n", CONFIG_EXAMPLE_TIMER_DEVNAME);
+  printf("Open %s\n", CONFIG_EXAMPLES_TIMER_DEVNAME);
 
-  fd = open(CONFIG_EXAMPLE_TIMER_DEVNAME, O_RDONLY);
+  fd = open(CONFIG_EXAMPLES_TIMER_DEVNAME, O_RDONLY);
   if (fd < 0)
     {
       fprintf(stderr, "ERROR: Failed to open %s: %d\n",
-              CONFIG_EXAMPLE_TIMER_DEVNAME, errno);
+              CONFIG_EXAMPLES_TIMER_DEVNAME, errno);
       return EXIT_FAILURE;
     }
 
@@ -166,9 +166,9 @@ int timer_main(int argc, char *argv[])
   /* Set the timer interval */
 
   printf("Set timer interval to %lu\n",
-         (unsigned long)CONFIG_EXAMPLE_TIMER_INTERVAL);
+         (unsigned long)CONFIG_EXAMPLES_TIMER_INTERVAL);
 
-  ret = ioctl(fd, TCIOC_SETTIMEOUT, CONFIG_EXAMPLE_TIMER_INTERVAL);
+  ret = ioctl(fd, TCIOC_SETTIMEOUT, CONFIG_EXAMPLES_TIMER_INTERVAL);
   if (ret < 0)
     {
       fprintf(stderr, "ERROR: Failed to set the timer interval: %d\n", errno);
@@ -192,9 +192,9 @@ int timer_main(int argc, char *argv[])
   act.sa_flags     = SA_SIGINFO;
 
   (void)sigfillset(&act.sa_mask);
-  (void)sigdelset(&act.sa_mask, CONFIG_EXAMPLE_TIMER_SIGNO);
+  (void)sigdelset(&act.sa_mask, CONFIG_EXAMPLES_TIMER_SIGNO);
 
-  ret = sigaction(CONFIG_EXAMPLE_TIMER_SIGNO, &act, NULL);
+  ret = sigaction(CONFIG_EXAMPLES_TIMER_SIGNO, &act, NULL);
   if (ret != OK)
     {
       fprintf(stderr, "ERROR: Fsigaction failed: %d\n", errno);
@@ -211,7 +211,7 @@ int timer_main(int argc, char *argv[])
 
   notify.arg   = NULL;
   notify.pid   = getpid();
-  notify.signo = CONFIG_EXAMPLE_TIMER_SIGNO;
+  notify.signo = CONFIG_EXAMPLES_TIMER_SIGNO;
 
   ret = ioctl(fd, TCIOC_NOTIFICATION, (unsigned long)((uintptr_t)&notify));
   if (ret < 0)
@@ -239,9 +239,9 @@ int timer_main(int argc, char *argv[])
 
   /* Wait a bit showing timer status */
 
-  for (i = 0; i < CONFIG_EXAMPLE_TIMER_NSAMPLES; i++)
+  for (i = 0; i < CONFIG_EXAMPLES_TIMER_NSAMPLES; i++)
     {
-      usleep(CONFIG_EXAMPLE_TIMER_DELAY);
+      usleep(CONFIG_EXAMPLES_TIMER_DELAY);
       timer_status(fd);
     }
 
@@ -260,7 +260,7 @@ int timer_main(int argc, char *argv[])
   /* Detach the signal handler */
 
   act.sa_handler = SIG_DFL;
-  (void)sigaction(CONFIG_EXAMPLE_TIMER_SIGNO, &act, NULL);
+  (void)sigaction(CONFIG_EXAMPLES_TIMER_SIGNO, &act, NULL);
 
   /* Show the timer status before starting */
 
