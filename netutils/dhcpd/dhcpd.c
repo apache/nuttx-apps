@@ -1,7 +1,7 @@
 /****************************************************************************
  * netutils/dhcpd/dhcpd.c
  *
- *   Copyright (C) 2007-2009, 2011-2014 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2014, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -705,7 +705,7 @@ static int dhcpd_addoption(uint8_t *option)
 
   if (g_state.ds_optend)
     {
-      offset = g_state.ds_outpacket.options - g_state.ds_optend;
+      offset = g_state.ds_optend - g_state.ds_outpacket.options;
       len    = option[DHCPD_OPTION_LENGTH] + 2;
 
       /* Check if the option will fit into the options array */
