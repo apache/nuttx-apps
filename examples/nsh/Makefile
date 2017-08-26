@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/nsh/Makefile
 #
-#   Copyright (C) 2007-2008, 2010-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2007-2008, 2010-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,13 +38,6 @@
 include $(APPDIR)/Make.defs
 
 # NuttShell (NSH) Example
-
-CONFIG_EXAMPLES_NSH_PRIORITY ?= SCHED_PRIORITY_DEFAULT
-CONFIG_EXAMPLES_NSH_STACKSIZE ?= 2048
-
-APPNAME = nsh
-PRIORITY = $(CONFIG_EXAMPLES_NSH_PRIORITY)
-STACKSIZE = $(CONFIG_EXAMPLES_NSH_STACKSIZE)
 
 ASRCS =
 CSRCS =
