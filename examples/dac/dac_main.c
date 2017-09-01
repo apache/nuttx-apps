@@ -40,7 +40,6 @@
 #include <nuttx/config.h>
 
 #include <errno.h>
-#include <debug.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -192,7 +191,7 @@ static int dac_put(const char *devpath,
     {
       errno = 0;
       ret = write(fd, &msg[i], sizeof(*msg));
-      _info("write: ret=%d, errno=%d\n", ret, errno);
+      printf("write: ret=%d, errno=%d\n", ret, errno);
       if (ret != sizeof(*msg))
         {
           if (errno == EAGAIN)
@@ -201,13 +200,13 @@ static int dac_put(const char *devpath,
               continue;
             }
 
-          _err("write failed: ret=%d, errno=%d\n", ret, errno);
+          fprintf(stderr, "write failed: ret=%d, errno=%d\n", ret, errno);
           ret = -errno;
           break;
         }
       else
         {
-          _info("wrote: chan=%d, data=%d\n", msg[i].am_channel, msg[i].am_data);
+          printf("wrote: chan=%d, data=%d\n", msg[i].am_channel, msg[i].am_data);
           i++;
           retries = 0;
           ret = OK;
@@ -230,7 +229,7 @@ static int cmd_dac_put(int argc, const char *argv[])
   data = (argc > 0) ? atoi(argv[0]) : 100;
   delay = (argc > 1) ? atoi(argv[1]) : g_dacstate.delay;
 
-  _info("devpath=%s data=%d delay=%d\n",
+  printf("devpath=%s data=%d delay=%d\n",
         g_dacstate.devpath, data, delay);
 
   for (i = 0; i < g_dacstate.count; i++)
@@ -238,7 +237,7 @@ static int cmd_dac_put(int argc, const char *argv[])
       msgs[0].am_channel = g_dacstate.channel;
       msgs[0].am_data = data;
       ret = dac_put(g_dacstate.devpath, msgs, ARRAY_SIZE(msgs), delay);
-      _info("ret=%d\n", ret);
+      printf("ret=%d\n", ret);
     }
 
   return ret;
@@ -263,7 +262,7 @@ static int cmd_dac_putv(int argc, const char *argv[])
   for (i = 0; i < g_dacstate.count; i++)
     {
       ret = dac_put(g_dacstate.devpath, msgs, nmsgs, g_dacstate.delay);
-      _info("ret=%d\n", ret);
+      printf("ret=%d\n", ret);
     }
 
   return ret;

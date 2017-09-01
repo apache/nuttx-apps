@@ -174,7 +174,7 @@
 #endif
 
 /* Select the single network device name supported this this network
- * initialization logci.  If multiple interfaces are present with different
+ * initialization logic.  If multiple interfaces are present with different
  * link types, the order of definition in the following conditional
  * logic will select the one interface that will be used (which might
  * not be the one that you want).
