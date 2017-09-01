@@ -1,7 +1,7 @@
 ############################################################################
-# apps/examples/adc/Makefile
+# apps/examples/dac/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -35,18 +35,18 @@
 
 -include $(TOPDIR)/Make.defs
 
-# ADC example
+# DAC tool
 
 ASRCS =
 CSRCS =
-MAINSRC = adc_main.c
+MAINSRC = dac_main.c
 
-CONFIG_XYZ_PROGNAME ?= adc$(EXEEXT)
+CONFIG_XYZ_PROGNAME ?= dac$(EXEEXT)
 PROGNAME = $(CONFIG_XYZ_PROGNAME)
 
 # application info
 
-APPNAME = adc
+APPNAME = dac
 PRIORITY = SCHED_PRIORITY_DEFAULT
 STACKSIZE = 2048
 

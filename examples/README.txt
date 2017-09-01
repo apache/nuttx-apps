@@ -48,11 +48,11 @@ examples/adc
     CONFIG_EXAMPLES_ADC_GROUPSIZE - The number of samples to read at once.
       Default: 4
 
-examples/adjoystick
+examples/ajoystick
 ^^^^^^^^^^^^^^^^^^
 
   This is a simple test of the analog joystick driver.  See details about
-  this driver in nuttx/include/nuttx/input/adjoystick.h.
+  this driver in nuttx/include/nuttx/input/ajoystick.h.
 
   Configuration Pre-requisites:
 
@@ -262,6 +262,11 @@ examples/cxxtest
 
   Additional uClibc++ settings may be required in your build environment.
 
+examples/dac
+^^^^^^^^^^^^
+
+  This is a tool for writing values to DAC device.
+
 examples/dhcpd
 ^^^^^^^^^^^^^^
 
@@ -315,7 +320,7 @@ examples/discover
     CONFIG_EXAMPLES_DISCOVER_DRIPADDR - Router IP address
     CONFIG_EXAMPLES_DISCOVER_NETMASK - Network Mask
 
-examples/adjoystick
+examples/djoystick
 ^^^^^^^^^^^^^^^^^^
 
   This is a simple test of the discrete joystick driver.  See details about
