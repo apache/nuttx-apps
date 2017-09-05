@@ -2080,4 +2080,220 @@
 	  in fact should be the current directory.  From Sebastien Lorquet
 	  (2017-05-22).
 
-7.22 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.22 2017-09-06 Gregory Nutt <gnutt@nuttx.org>
+
+	* apps/system/composite: Update to apps/system/composite assocated with
+	  big changes to the composite device logic.  From Frank Benkert
+	  (2017-06-01).
+	* wireless/ieee802154: Modifies i8 to support running various routines.
+	  From Anthony Merlino (2017-06-14).
+	* wireless/ieee802154: Rewrites i8sak to be test CLI for IEEE 802.15.4
+	  MAC layer.  From Anthony Merlino (2017-06-14).
+	* NSH network initialization: Fix some ieee 802.15.4 initialization
+	  logic.  It should not set the saddr or panid; those cannot be
+	  hard-coded but must come from the coordinator.  Re-factor a function
+	  that has gotten too big and too complex.  Do not set the IP address
+	  for 6loWPAN.  The 6loWPAN stack uses IP address that derive from the
+	  ieee 802.15.4 addressing and cannot be (safely) configured by the
+	  user (2017-06-17).
+	* i8sak:  Missing newline in fprintf output (2017-06-18).
+	* correct copy-paste typo in comments in composite_main.c  From Oleg
+	  Evseev (2017-06-18).
+	* Switches IEEE 802.15.4 based code to using byte arrays instead of
+	  uint16_t values for short address and PAN ID.  From Anthony Merlino
+	  (2017-06-19).
+	* fix copy-paste typo in nsh_usbconsole.c.  From Oleg Evseev
+	  (2017-06-19).
+	* examples/udp: Add configurable network device name; Add option to
+	  suppress network initialization which is not needed if started by NSH
+	  or for 6LoWPAN (2017-06-19).
+	* nshlib: fix size of 6LoWPAN extended address (2017-06-18).
+	* examples/udp:  Fix registration as a built-in program; Change some
+	  naming to make room for a second target.  Current one endpoint is the
+	  target and one is the host.  This will (eventually) allow two targets
+	  to be both endpoints of the test.  Change build so that both server
+	  and client can be on a target, rather than one on the target one on
+	  the host PC.  Server IP address may not be provided on the command
+	  line (2017-06-19).
+	* examples/smart: Fix some compilation errors.  Obviously this test has
+	  not been used in a LONG time (2017-06-20).
+	* examples/udp:  Port numbers need to be configurable to work with
+	  6LoWPAN.  Need to bind the client socket to a port number.  This was
+	  not required before so is a apparently a change in the UDP packet
+	  dispatch logic (2017-06-20).
+	* ieee802154: Changes to support beacon-enabled networks.  From Anthony
+	  Merlino (2017-06-21).
+	* wireless/ieee802154: Adds option to make it easy to send large frame
+	  for testing purposes.  From Anthony Merlino (2017-06-21).
+	* examples/udp:  Renaming some files to prevent name collision in
+	  libapps.a.  Fix naming of a configuration setting (2017-06-23).
+	* examples/nettest:  Renaming some files to prevent name collision in
+	  libapps.a and to prepare to support target boards on both ends of the
+	  test.  Separate out network initialization so that it may,
+	  eventually, be used by both a target server and a target client.  Fix
+	  client/server naming confusion; add command line option to select the
+	  server address on the target.  Add support for both enpoints on
+	  target boards vs. one on a target and one on the host PC
+	  (2017-06-23).
+	* system/dhcpc:  The DHCPC renew command did not build correctly due to
+	  naming problems.  Noted by Masayuki Ishikawa (2017-06-23).
+	* examples/nettest: Fixes for building with loopback device again after
+	  the last changes (2017-06-23).
+	* examples/nettest:  The send buffer size is now a configuration option
+	  (2017-06-24).
+	* examples/udp and examples/nettest: Fix some naming collisions;
+	  examples/nettest:  Fix some build issues with two targets
+	  (2017-06-25).
+	* ieee802154: Adds scan command.   From Anthony Merlino (2017-06-25).
+	* ieee802154: Minor fix to setup logic for i8sak.  From Anthony Merlino
+	  (2017-06-25).
+	* ieee802154: start of scan/beacon-enabled network.  From Anthony
+	  Merlino (2017-06-26).
+	* netutils/telnetc:  This a port of libtelnet to NuttX (2017-06-26).
+	* system/telnet:  Add Telnet Chat deamon and and client from libtelent
+	  (2017-06-26).
+	* NSH library:  Add a Telnetd command.  This is needed when network
+	  initialization is deferred.  In that case, telnet daemon cannot be
+	  started until the network is finally initialized.  The telnetd
+	  command was added just for that case:  So that the telnet daemon can
+	  be started from the NSH command line after the network is configured
+	  (2017-06-26).
+	* revise some of the state handling in the previous commit
+	  (2017-06-26).
+	* system/telnet: POLL must not be disabled in configuration.  Telnet
+	  client port argument is no optional (2017-06-27).
+	* netutils/telnetd and users of telnetd:  Add support for IPv6
+	  (2017-06-27).
+	* ieee802154/i8sak: Adds coordinfo command allowing you to poll various
+	  attributes related to the coordinator.  From Anthony Merlino
+	  (2017-06-27).
+	* i8sak:  Need to increment the next_saddr after each successful
+	  association (2017-06-29).
+	* i8sak:  Add a option to retry on failures to the assoc command
+	  (2017-06-29).
+	* apps/examples/thttpd:  Remove the netstats demo.  This depends on an
+	  illegal function call and cannot be supported.  That example could be
+	  replaced with logic that uses the procfs network entries as was done
+	  for NSH which had the same issue.  But I am too lazy to implement
+	  that (2017-07-01).
+	* i8sak: Adds reset command to reset the MAC layer.  Adds option to
+	  assoc command -t to specify how long to wait for a response from the
+	  Coordinator.  From Anthony Merlino (2017-07-01).
+	* Eliminate a warning when both Ethernet and 6LoWPAN are enabled;
+	  improve some naming (2017-05-02).
+	* ieee802154: Adds reset command, adds resp_waittime option to
+	  associate, and a few other minor tweaks.  From Anthony
+	  Merlino(2017-07-02).
+	* NSH library: Fix build break in nsh_command.c with IPv4/IPv6 dual
+	  stack.  From Masayuki Ishikawa (2017-07-04).
+	* apps/examples/keypadtest: REMOVED and warehoused in the Obsoleted
+	  repository.  This was just a bad clone of apps/examples/hidkbd for a
+	  keypad driver that was removed years ago.  It also uses illegal
+	  function calls into the OS.  So it has no purpse:  It is
+	  redundant, it uses illegal interfaces, and is a test for non-existent
+	  code (2017-07-04).
+	* tools/mkkconfig.bat: Use %cd% instead of %~dp0 for usage of APPSDIR
+	  in this batch file (2017-07-05).
+	* system/dhcpc: Fix warning about renew_main.o appear twice in rule
+	  (2017-07-05).
+	* tools/mkkconfig.bat:  Remove quotes in echo.  These were begin
+	  Echo'ed and generating double quots in the output.  From Jeff
+	  (2017-07-05).
+	* Windows build fixes:  tools/mkkconfig.bat - switch APPSDIR path to
+	  use forward slashes for kconfig-frontends. interpreters/ficl -
+	  Reorder some targets that causes GNUwin32 make to behave badly.  From
+	  Jeff (2017-07-06).
+	* platform/Makefile: More attempts to fix for Windows native build.
+	  Backslash as a delimiter causes problems in pattern subsitutions
+	  (2017-07-06).
+	* apps/examples/ipforward: Add beginning of an IP forwarding example
+	  using only TUN devices.  Test extended to test forwarding of ICMPv6
+	  multicast messages.  Completes code for apps/examples/ipforward.
+	  Still untested (2017-07-09).
+	* apps/netutils/tftpc: Missing header file causes errors in some
+	  configurations (2017-07-10).
+	* Socket I/F: Cleanup for good CONFIG_NET_PKT build (2017-07-14).
+	* netutils/netlib:  Fixes to work when only USRSOCK is enabled
+	  (2017-07-14).
+	* apps/system/composite:  Remove CDC/ACM and MSC configuration logic.
+	  This belongs in the OS composite initialization.  Add and argument so
+	  that you can select the USB composite configuration to be attached.
+	  Restore USB tracing; remove unused field in a structure.  Remove
+	  configuration settings that are no longer used.  Fix configuration
+	  selecting.. was setting the port number, not the configure ID.  Also
+	  add a configuration option to select the default configuration
+	  (2017-07-15).
+	* apps/system/composite: Add a configuration option to the boardctl()
+	  calls to support multiple composite device configurations dynamically
+	  (2017-07-16).
+	* i8sak: Minor formatting fix.  From Anthony Merlino (2017-07-10).
+	* wireless/ieee802154/i8sak: Minor setting changes.  From Anthony
+	  Merlino (2017-07-17).
+	* ieee802154/i8sak:  Adds command to trigger regdump of radio.  From
+	  Anthony Merlino (2017-07-18).
+	* apps/system/composite:  Remove references to USBMSC.  There still
+	  dependencies on CDC/ACM in the serial USB trace output.  That really
+	  should be removed (2017-08-21).
+	* netutils/ftpc:  Fix some memory leaks.  From Boris Astardzhiev
+	  (2017-07-27).
+	* Implement powermonitor example for ltc4151 current and voltage
+	  monitor.  From Giorgio Groﬂ (2017-07-28).
+	* NSH: Misc changes needed for PktRadio support (2017-07-30).
+	* examples/nettest/:  Loopback option should be available in Kconfig
+	  for PktRadio (2017-08-01).
+	* apps/netutils/netlib:  Add support for PktRadio IOCTL commands
+	  (2017-08-02).
+	* NSH library: Extend ifconfig command so that it can set variable
+	  length packet radio addresss (2017-08-02).
+	* netutils/netlib: Fix netlib_nodaddrconv() so that its return type is
+	  the same as other address conversion functions.  NSH: Correct parsing
+	  of ifconfig so that you can specify the HW address without specifying
+	  the IP address (2017-08-02).
+	* apps/examples/udp:  Enable testing with the broadcast address
+	  (2017-08-08).
+	* Remove references to obsoleted CONFIG_NETDEV_MULTINIC and
+	  CONFIG_NETDEV_MULILINK (2017-08-08).
+	* NSH library:  Update addroute and delroute command.  The would
+	  support either IPv4 or IPv6, but not both.  Allow expression of the
+	  netmask in IPv4 CIDR or IPv6 slash notation.  This really reduces the
+	  pain of using the commands, especially for IPv6 (2017-08-10).
+	* NSH Library: Add a route command that will dump the content of
+	  routing table (2017-08-11).
+	* apps/netutils/tftpc depends on CONFIG_NET_IPv4 (2017-08-12).
+	* Application.mk:  Add the .PRECIOUS target to prevent libapps.a from
+	  being deleted when the make is interrupted (2017-08-12).
+	* apps/examples/nximage: Remove unused global variable (2017-08-12).
+	* netutils/thttpd: Fix a malformed if condition detected by GCC 6.x.x
+	  (2017-08-12).
+	* All Makefiles:  Add .PRECIOUS: apps/libapps.a to every Makefile.
+	  Hopefully this will end awkward problems when you Control-C out of a
+	  build and libapps.a is deleted (2017-08-13).
+	* The last change added .PRECIOUS: $(BIN) to everyway Makefile in hopes
+	  the libapps.a will not be deleted on Control-C (unproven so far).
+	  However, $(BIN) may contain back slashes in some build platforms and
+	  that causes problems for make:  It can't handle the backslashes in
+	  the .PRECIOUS dependency list.  $(BIN) replaced with ../../libapp.a,
+	  where the number of ../ depends on the depth of the Makefile in the
+	  apps/ source tree (2017-08-13).
+	* netutils/netlib: Add a helper to decode short addresses
+	  (2017-08-18).
+	* apps/examples/pf_ieee802154:  Add for testing PF_IEEE802154 sockets.
+	  Add PANID to command line options; Cannot bind to address zero...
+	  There is no counterpart to INADDR_ANY for these radios (not now at
+	  least) (2017-08-19).
+	* Changes to netlib and nsh so that you build build with PF_IEEE802154
+	  enabled and 6LoWPAN disabled (2017-08-20).
+	* netutils/netlib: If only PF_IEEE802154 socket family is enabled, then
+	  must use SOCK_DGRAM (2017-08-21).
+	* NSH:  Add conditions so that ifconfig and ifup will not be disabled
+	  if we are using only PF_IEEE802154 (2017-08-21).
+	* dhcpd: Prevent buffer overflow in dhcpd_addoption.  offset represents
+	  distance from start of option buffer.  So this should be changed
+	  current option pointer minus start of buffer.  From EunBong Song
+	  (2017-08-25).
+	* apps/examples/nsh: Remove APPNAME, PRIORITY, and STACKSIZE settings
+	  from Makefile to avoid showing nsh in Builtin Apps.  From Masayuki
+	  Ishikawa (2017-08-26).
+	* examples: add DAC example.  From Juha Niskanen (2017-09-1).
+
+7.23 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
