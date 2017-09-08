@@ -78,7 +78,7 @@ static FAR void *nsem_peer(void *parameter)
 
   printf("nsem_peer: Open semaphore 1\n");
   sem1 = sem_open(SEM1_NAME, 0);
-  if (sem1 == (FAR sem_t*)ERROR)
+  if (sem1 == SEM_FAILED)
     {
       int errcode = errno;
       printf("nsem_peer: ERROR: sem_open(1) failed: %d\n", errcode);
@@ -89,7 +89,7 @@ static FAR void *nsem_peer(void *parameter)
 
   printf("nsem_peer: Create semaphore 2 with value == 0\n");
   sem2 = sem_open(SEM2_NAME, O_CREAT|O_EXCL, 0644, 0);
-  if (sem1 == (FAR sem_t*)ERROR)
+  if (sem1 == SEM_FAILED)
     {
       int errcode = errno;
       printf("nsem_peer: ERROR: sem_open(2) failed: %d\n", errcode);
@@ -134,7 +134,7 @@ void nsem_test(void)
 
   printf("nsem_test: Create semaphore 1 with value == 0\n");
   sem1 = sem_open(SEM1_NAME, O_CREAT|O_EXCL, 0644, 0);
-  if (sem1 == (FAR sem_t*)ERROR)
+  if (sem1 == SEM_FAILED)
     {
       int errcode = errno;
       printf("nsem_peer: ERROR: sem_open(1) failed: %d\n", errcode);
@@ -195,7 +195,7 @@ void nsem_test(void)
 
   printf("nsem_test: Open semaphore 2\n");
   sem2 = sem_open(SEM2_NAME, 0);
-  if (sem2 == (FAR sem_t*)ERROR)
+  if (sem2 == SEM_FAILED)
     {
       int errcode = errno;
       printf("nsem_test: ERROR: sem_open(2) failed: %d\n", errcode);

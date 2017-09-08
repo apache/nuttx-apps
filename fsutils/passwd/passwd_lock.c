@@ -96,7 +96,7 @@ int passwd_lock(FAR sem_t **semp)
   /* Open the shared, named semaphore */
 
   sem = sem_open(PASSWD_SEMNAME, O_CREAT, 0644, 1);
-  if (sem == NULL)
+  if (sem == SEM_FAILED)
     {
       int errcode = errno;
       DEBUGASSERT(errcode > 0);
