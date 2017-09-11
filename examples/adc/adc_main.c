@@ -257,13 +257,14 @@ int adc_main(int argc, char *argv[])
 
       adc_devpath(&g_adcstate, CONFIG_EXAMPLES_ADC_DEVPATH);
 
-#if CONFIG_EXAMPLES_ADC_NSAMPLES > 0
-      g_adcstate.count = CONFIG_EXAMPLES_ADC_NSAMPLES;
-#else
-      g_adcstate.count = 1;
-#endif
       g_adcstate.initialized = true;
     }
+
+#if CONFIG_EXAMPLES_ADC_NSAMPLES > 0
+  g_adcstate.count = CONFIG_EXAMPLES_ADC_NSAMPLES;
+#else
+  g_adcstate.count = 1;
+#endif
 
   /* Parse the command line */
 
