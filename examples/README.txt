@@ -655,7 +655,7 @@ examples/i2cchar
 
     CONFIG_I2S - Enabled I2S support
     CONFIG_AUDIO - Enabled audio support
-    CONFIG_AUDIO_DEVICES - Enable audio device support
+    CONFIG_DRIVERS_AUDIO - Enable audio device support
     CONFIG_AUDIO_I2SCHAR = Enabled support for the I2S character device
     CONFIG_NSH_BUILTIN_APPS - Build the I2S test as an NSH built-in function.
       Default: Built as a standalone problem
