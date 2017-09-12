@@ -46,7 +46,16 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <nuttx/nx/nx.h>
+#include <nuttx/nx/nxglib.h>
 #include <nuttx/video/fb.h>
+#include <nuttx/video/rgbcolors.h>
+
+/****************************************************************************
+ * Preprocessor Definitions
+ ****************************************************************************/
+
+#define NCOLORS 6
 
 /****************************************************************************
  * Private Types
@@ -66,6 +75,129 @@ struct fb_state_s
 
 static const char g_default_fbdev[] = CONFIG_EXAMPLES_FB_DEFAULTFB;
 
+/* Violet-Blue-Green-Yellow-Orange-Red */
+
+static const uint32_t g_rgb24[NCOLORS] =
+{
+  RGB24_VIOLET, RGB24_BLUE, RGB24_GREEN, RGB24_YELLOW, RGB24_ORANGE, RGB24_RED
+};
+
+static const uint16_t g_rgb16[NCOLORS] =
+{
+  RGB16_VIOLET, RGB16_BLUE, RGB16_GREEN, RGB16_YELLOW, RGB16_ORANGE, RGB16_RED
+};
+
+static const uint8_t g_rgb8[NCOLORS] =
+{
+  RGB8_VIOLET,  RGB8_BLUE,  RGB8_GREEN,  RGB8_YELLOW,  RGB8_ORANGE,  RGB8_RED
+};
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * draw_rect
+ ****************************************************************************/
+
+static void draw_rect32(FAR struct fb_state_s *state,
+                        FAR struct nxgl_rect_s *rect, int color)
+{
+  FAR uint32_t *dest;
+  FAR uint8_t *row;
+  int x;
+  int y;
+
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
+  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+    {
+      dest = ((FAR uint32_t *)row) + rect->pt1.x;
+      for (x = rect->pt1.x; x <= rect->pt2.x; x++)
+        {
+          *dest++ = g_rgb24[color];
+        }
+
+      row += state->pinfo.stride;
+    }
+}
+
+static void draw_rect16(FAR struct fb_state_s *state,
+                      FAR struct nxgl_rect_s *rect, int color)
+{
+  FAR uint16_t *dest;
+  FAR uint8_t *row;
+  int x;
+  int y;
+
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
+  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+    {
+      dest = ((FAR uint16_t *)row) + rect->pt1.x;
+      for (x = rect->pt1.x; x <= rect->pt2.x; x++)
+        {
+          *dest++ = g_rgb16[color];
+        }
+
+      row += state->pinfo.stride;
+    }
+}
+
+static void draw_rect8(FAR struct fb_state_s *state,
+                      FAR struct nxgl_rect_s *rect, int color)
+{
+  FAR uint8_t *dest;
+  FAR uint8_t *row;
+  int x;
+  int y;
+
+  row = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
+  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+    {
+      dest = row + rect->pt1.x;
+      for (x = rect->pt1.x; x <= rect->pt2.x; x++)
+        {
+          *dest++ = g_rgb8[color];
+        }
+
+      row += state->pinfo.stride;
+    }
+}
+
+static void draw_rect(FAR struct fb_state_s *state,
+                      FAR struct nxgl_rect_s *rect, int color)
+{
+#ifdef CONFIG_NX_UPDATE
+  int ret;
+#endif
+
+  switch (state->pinfo.bpp)
+    {
+      case 32:
+        draw_rect32(state, rect, color);
+        break;
+
+      case 16:
+        draw_rect16(state, rect, color);
+        break;
+
+      case 8:
+      default:
+        draw_rect8(state, rect, color);
+        break;
+    }
+
+#ifdef CONFIG_NX_UPDATE
+  ret = ioctl(state->fd, FBIO_UPDATE,
+              (unsigned long)((uintptr_t)rect));
+  if (ret < 0)
+    {
+      int errcode = errno;
+      fprintf(stderr, "ERROR: ioctl(FBIO_UPDATE) failed: %d\n",
+              errcode);
+    }
+#endif
+}
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -80,8 +212,17 @@ int main(int argc, FAR char *argv[])
 int fb_main(int argc, char *argv[])
 #endif
 {
-  struct fb_state_s state;
   FAR const char *fbdev = g_default_fbdev;
+  struct fb_state_s state;
+  struct nxgl_rect_s rect;
+  int nsteps;
+  int xstep;
+  int ystep;
+  int width;
+  int height;
+  int color;
+  int x;
+  int y;
   int ret;
 
   /* There is a single required argument:  The path to the framebuffer
@@ -146,6 +287,17 @@ int fb_main(int argc, char *argv[])
   printf("  display: %u\n", state.pinfo.display);
   printf("      bpp: %u\n", state.pinfo.bpp);
 
+  /* Only these pixel depths are supported.  viinfo.fmt is ignored, only
+   * certain color formations are supported.
+   */
+
+  if (state.pinfo.bpp != 32 && state.pinfo.bpp != 16 && state.pinfo.bpp != 8)
+    {
+      fprintf(stderr, "ERROR: bpp=%u not supported\n", state.pinfo.bpp);
+      close(state.fd);
+      return EXIT_FAILURE;
+    }
+
   /* mmap() the framebuffer */
 
   state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ|PROT_WRITE,
@@ -161,6 +313,33 @@ int fb_main(int argc, char *argv[])
 
   printf("Mapped FB: %p\n", state.fbmem);
 
+  /* Draw some rectangles */
+
+  nsteps = 2 * (NCOLORS - 1) + 1;
+  xstep  = state.vinfo.xres / nsteps;
+  ystep  = state.vinfo.yres / nsteps;
+  width  = state.vinfo.xres;
+  height = state.vinfo.yres;
+
+  for (x = 0, y = 0, color = 0;
+       color < NCOLORS;
+       x += xstep, y += ystep, color++)
+    {
+      rect.pt1.x = x;
+      rect.pt1.y = y;
+      rect.pt2.x = x + width - 1;
+      rect.pt2.y = y + height - 1;
+
+      printf("%2d: (%3d,%3d) (%3d,%3d)\n",
+             color, rect.pt1.x, rect.pt1.y, rect.pt2.x, rect.pt2.y);
+
+      draw_rect(&state, &rect, color);
+
+      width  -= (2 * xstep);
+      height -= (2 * ystep);
+    }
+
+  printf("Test finished\n");
   munmap(state.fd, state.fbmem);
   close(state.fd);
   return EXIT_SUCCESS;
