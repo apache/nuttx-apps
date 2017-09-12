@@ -252,7 +252,6 @@ int adc_main(int argc, char *argv[])
        * logic prior to running this test.
        */
 
-
       /* Set the default values */
 
       adc_devpath(&g_adcstate, CONFIG_EXAMPLES_ADC_DEVPATH);

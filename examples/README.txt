@@ -400,6 +400,11 @@ examples/elf
 
        LDELFFLAGS = -r -e main -T$(TOPDIR)/binfmt/libelf/gnu-elf.ld
 
+examples/fb
+^^^^^^^^^^^
+
+  A simple test of the framebuffer character driver.
+
 examples/flash_test
 ^^^^^^^^^^^^^^^^^^^
 
