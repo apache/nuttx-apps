@@ -122,7 +122,7 @@ static void draw_rect32(FAR struct fb_state_s *state,
 }
 
 static void draw_rect16(FAR struct fb_state_s *state,
-                      FAR struct nxgl_rect_s *rect, int color)
+                        FAR struct nxgl_rect_s *rect, int color)
 {
   FAR uint16_t *dest;
   FAR uint8_t *row;
@@ -143,7 +143,7 @@ static void draw_rect16(FAR struct fb_state_s *state,
 }
 
 static void draw_rect8(FAR struct fb_state_s *state,
-                      FAR struct nxgl_rect_s *rect, int color)
+                       FAR struct nxgl_rect_s *rect, int color)
 {
   FAR uint8_t *dest;
   FAR uint8_t *row;
@@ -158,6 +158,63 @@ static void draw_rect8(FAR struct fb_state_s *state,
         {
           *dest++ = g_rgb8[color];
         }
+
+      row += state->pinfo.stride;
+    }
+}
+
+static void draw_rect1(FAR struct fb_state_s *state,
+                       FAR struct nxgl_rect_s *rect, int color)
+{
+  FAR uint8_t *pixel;
+  FAR uint8_t *row;
+  uint8_t color8 = (color & 1) == 0 ? 0 : 0xff;
+  uint8_t lmask;
+  uint8_t rmask;
+  int startx;
+  int endx;
+  int x;
+  int y;
+
+  row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
+  startx = (rect->pt1.x >> 3);
+  endx   = (rect->pt2.x >> 3);
+  lmask  = 0xff << (8 - (rect->pt1.x & 3));
+  rmask  = 0xff >> (rect->pt2.x & 3);
+
+  for (y = rect->pt1.y; y <= rect->pt2.y; y++)
+    {
+      /* 'pixel' points to the 1st pixel the next row */
+
+      pixel = row + startx;
+
+      /* Special case: The row is less no more than one byte wide */
+
+      if (startx == endx)
+        {
+          uint8_t mask = lmask | rmask;
+
+          *pixel = (*pixel & mask) | (color8 & ~mask);
+        }
+      else
+        {
+
+          /* Special case the first byte of the row */
+
+          *pixel = (*pixel & lmask) | (color8 & ~lmask);
+          pixel++;
+
+          /* Handle all middle bytes */
+
+          for (x = startx + 1; x < endx; x++)
+            {
+              *pixel++ = color8;
+            }
+
+          /* Handle the final byte of the row */
+
+          *pixel = (*pixel & rmask) | (color8 & ~rmask);
+       }
 
       row += state->pinfo.stride;
     }
@@ -183,6 +240,10 @@ static void draw_rect(FAR struct fb_state_s *state,
       case 8:
       default:
         draw_rect8(state, rect, color);
+        break;
+
+      case 1:
+        draw_rect1(state, rect, color);
         break;
     }
 
@@ -291,14 +352,22 @@ int fb_main(int argc, char *argv[])
    * certain color formations are supported.
    */
 
-  if (state.pinfo.bpp != 32 && state.pinfo.bpp != 16 && state.pinfo.bpp != 8)
+  if (state.pinfo.bpp != 32 && state.pinfo.bpp != 16 &&
+      state.pinfo.bpp != 8  && state.pinfo.bpp != 1)
     {
       fprintf(stderr, "ERROR: bpp=%u not supported\n", state.pinfo.bpp);
       close(state.fd);
       return EXIT_FAILURE;
     }
 
-  /* mmap() the framebuffer */
+  /* mmap() the framebuffer.
+   *
+   * NOTE: In the FLAT build the frame buffer address returned by the
+   * FBIOGET_PLANEINFO IOCTL command will be the same as the framebuffer
+   * address.  mmap(), however, is the preferred way to get the framebuffer
+   * address because in the KERNEL build, it will perform the necessary
+   * address mapping to make the memory accessible to the application.
+   */
 
   state.fbmem = mmap(NULL, state.pinfo.fblen, PROT_READ|PROT_WRITE,
                      MAP_SHARED|MAP_FILE, state.fd, 0);

@@ -8,7 +8,12 @@ config EXAMPLES_FB
 	default n
 	depends on VIDEO_FB
 	---help---
-		Enable the Framebuffer driver example
+		Enable the Framebuffer driver example.
+
+		This example currently supports only framebuffer devices with 1, 8,
+		16, or 24/32 pixel depth with only Mono, RGB323, RGB565, and RGB888
+		color formats, respectively.  The example would have be extended to
+		support other bits-per-pixels or other color formats.
 
 if EXAMPLES_FB
 
