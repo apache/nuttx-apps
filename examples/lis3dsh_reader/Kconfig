@@ -7,7 +7,7 @@ config EXAMPLES_LIS3DSH_READER
 	bool "LIS3DSH acceleration reader example"
 	default n
 	depends on LIS3DSH
-    depends on SPI_EXCHANGE
+	depends on SPI_EXCHANGE
 	---help---
 		Enable the LIS3DSH reader example
 

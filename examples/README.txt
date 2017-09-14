@@ -735,6 +735,12 @@ examples/leds
 ^^^^^^^^^^^^
   This is a simple test of the board LED driver at nuttx/drivers/leds/userled_*.c.
 
+examples/lis2csh_reader
+^^^^^^^^^^^^^^^^^^^^^^^
+
+  A simple reader example for the LIS3DSH acceleration sensor as found on
+  STM32F4Discovery rev. C
+
 examples/ltdc
 ^^^^^^^^^^^^^
 
