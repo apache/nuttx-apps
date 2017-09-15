@@ -8,12 +8,20 @@ It also serves as a starting place for learning how to interface with the
 NuttX IEEE 802.15.4 MAC layer.
 
 The i8sak CLI can be used to manipulate multiple MAC layer networks at once.
-IEEE 802.15.4 MAC character drivers show up in NuttX as /dev/ieeeN by default.
-When you invoke the first call to i8sak with a specified devname, it creates
+Both a MAC character driver interface and a network interface using sockets
+are supported. The MAC character driver is used in cases where networking is
+not enabled and you want your application to use IEEE 802.15.4 directly. In
+most cases however, you will probably be using 6LoWPAN networking support and
+therefore, the MAC can be controlled directly from the socket interface rather
+than the MAC character driver. IEEE 802.15.4 MAC character drivers show up in
+NuttX as /dev/ieeeN by default.
+
+When you invoke the first call to i8sak with a specified interface name, it creates
 an i8sak instance and launches a deamon to handle processing work. The instance
-is considered sticky, so it is possible to run `i8 /dev/ieee0` at the beginning
-of a session and then can exclude the devname from all future calls. The number
-of i8sak instances supported is controllable through menuconfig.
+is considered sticky, so it is possible to run `i8 /dev/ieee0` or 'i8 wpan0' at
+the beginning of a session and then can exclude the interface name from all
+future calls. The number of i8sak instances supported is controllable through
+menuconfig.
 
 The i8sak app has many settings that can be configured. Most options are "sticky",
 meaning, if you set the endpoint short address once, any future operation using
@@ -31,13 +39,11 @@ We'll refer to that as device A.
 
 On that device, run:
 ```
-i8 /dev/ieee0 startpan
+i8 /dev/ieee0 startpan cd:ab
 ```
-For now, this function assumes that we are operating a non-beacon enabled PAN,
-since, as of this writing, beacon-enabled networks are unfinished. Unless you
-have previously overriden address settings, the startpan command will also
-configure the devices address to be that of CONFIG_I8SAK_PANCOORD_XXX. It
-will then set the endpoint to be the CONFIG_I8SAK_DEV_XXX address.
+This will tell the MAC layer that it should now act as a PAN coordinator using
+PAN ID CD:AB. For now, this function assumes that we are operating a non-beacon
+enabled PAN, since, as of this writing, beacon-enabled networks are unfinished.
 
 Next, on the same device, run:
 ```
@@ -53,9 +59,8 @@ accept requests from a single device by specifying the extended address with opt
 -e.
 
 For instance:
-```
+
 i8 acceptassoc -e DEADBEEF00FADE0B
-```
 
 But for this example, let's just use the command with no arguments.
 
@@ -63,19 +68,17 @@ Now, the second device will act as an endpoint device. The i8sak instance defaul
 to being in endpoint mode. Let's refer to the second device as device B.
 
 On device B, run:
-```
-i8 /dev/ieee0 assoc
-```
-This command without any options defaults the endpoint address to the default
-PANCOORD address settings, and sends an association request to that device.
 
+i8 /dev/ieee0 assoc
+
+This command attempts to associate with the node at the configured endpoint address.
 If everything is setup correctly, device A should have log information saying
 that a device tried to associate and that it accepted the assocation.  On device
 B, the console should show that the association request was successful. With all
 default settings, device B should have been allocated a short address of 0x000B.
 
-If you are following along with a packet sniffer, you should see the following
-transactions:
+If you are following along with a packet sniffer, you should see something
+similar to the following:
 
 1) Association Request
     Frame Type      - CMD
@@ -117,6 +120,18 @@ transactions:
         Frame Type      - ACK
         Sequence Number - 0
 
+
+The default endpoint address can be configured via Kconfig or set dynamically
+using the 'set' command.
+
+Here is how to set the endpoint short address
+
+i8 set ep_saddr 0a:00
+
+When setting the address, it's important to make sure the endpoint addressing
+mode is configured the way you want: Use 's' for short addressing or 'e' for extended
+
+i8 set ep_addrmode s
 
 Device B has now successfully associated with device A. If you want to send data
 from device B to device A, run the following on device B:

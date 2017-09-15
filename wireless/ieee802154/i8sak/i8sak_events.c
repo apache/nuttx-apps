@@ -79,7 +79,7 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
   struct ieee802154_netmac_s netarg;
 #endif
   FAR struct i8sak_eventreceiver_s *receiver;
-  FAR struct ieee802154_notif_s *notif;
+  FAR struct ieee802154_notif_s *notif = NULL;
   int ret;
 
   if (i8sak->mode == I8SAK_MODE_CHAR)
