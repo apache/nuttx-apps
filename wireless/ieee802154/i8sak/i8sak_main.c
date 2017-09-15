@@ -64,13 +64,14 @@
 #include <fcntl.h>
 #include <queue.h>
 #include <sys/ioctl.h>
+#include <arpa/inet.h>
 #include <nuttx/fs/ioctl.h>
 
-#include "i8sak.h"
-
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include <nuttx/wireless/ieee802154/ieee802154_device.h>
 #include "wireless/ieee802154.h"
+
+#include "i8sak.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -98,21 +99,23 @@ struct i8sak_command_s
  * Private Data
  ****************************************************************************/
 
+/* Alphabetical, except for help */
+
 static const struct i8sak_command_s g_i8sak_commands[] =
 {
   {"help",        (CODE void *)NULL},
-  {"startpan",    (CODE void *)i8sak_startpan_cmd},
   {"acceptassoc", (CODE void *)i8sak_acceptassoc_cmd},
   {"assoc",       (CODE void *)i8sak_assoc_cmd},
-  {"scan",        (CODE void *)i8sak_scan_cmd},
-  {"tx",          (CODE void *)i8sak_tx_cmd},
-  {"poll",        (CODE void *)i8sak_poll_cmd},
-  {"sniffer",     (CODE void *)i8sak_sniffer_cmd},
   {"blaster",     (CODE void *)i8sak_blaster_cmd},
-  {"chan",        (CODE void *)i8sak_chan_cmd},
-  {"coordinfo",   (CODE void *)i8sak_coordinfo_cmd},
-  {"reset",       (CODE void *)i8sak_reset_cmd},
+  {"get",         (CODE void *)i8sak_get_cmd},
+  {"poll",        (CODE void *)i8sak_poll_cmd},
   {"regdump",     (CODE void *)i8sak_regdump_cmd},
+  {"reset",       (CODE void *)i8sak_reset_cmd},
+  {"scan",        (CODE void *)i8sak_scan_cmd},
+  {"set",         (CODE void *)i8sak_set_cmd},
+  {"sniffer",     (CODE void *)i8sak_sniffer_cmd},
+  {"startpan",    (CODE void *)i8sak_startpan_cmd},
+  {"tx",          (CODE void *)i8sak_tx_cmd},
 };
 
 #define NCOMMANDS (sizeof(g_i8sak_commands) / sizeof(struct i8sak_command_s))
@@ -128,73 +131,14 @@ static FAR struct i8sak_s *g_activei8sak;
  * Private Function Prototypes
  ****************************************************************************/
 
-static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname);
+static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname);
 static int i8sak_daemon(int argc, FAR char *argv[]);
 static int i8sak_showusage(FAR const char *progname, int exitcode);
-static void i8sak_switch_instance(FAR char *devname);
+static void i8sak_switch_instance(FAR char *ifname);
 
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
-
-/****************************************************************************
- * Name : i8sak_tx
- *
- * Description :
- *   Transmit a data frame.
- ****************************************************************************/
-
-int i8sak_tx(FAR struct i8sak_s *i8sak, int fd)
-{
-  struct mac802154dev_txframe_s tx;
-  int ret;
-
-  /* Set an application defined handle */
-
-  tx.meta.handle = i8sak->msdu_handle++;
-
-  /* This is a normal transaction, no special handling */
-
-  tx.meta.flags.ackreq = 1;
-  tx.meta.flags.usegts = 0;
-
-  tx.meta.flags.indirect = i8sak->indirect;
-
-  if (i8sak->indirect)
-    {
-      if (i8sak->verbose)
-        {
-          printf("i8sak: queuing indirect transaction\n");
-          fflush(stdout);
-        }
-    }
-  else
-    {
-      if (i8sak->verbose)
-        {
-          printf("i8sak: queuing CSMA transaction\n");
-          fflush(stdout);
-        }
-    }
-
-  tx.meta.ranging = IEEE802154_NON_RANGING;
-
-  tx.meta.srcmode = IEEE802154_ADDRMODE_SHORT;
-  memcpy(&tx.meta.destaddr, &i8sak->ep, sizeof(struct ieee802154_addr_s));
-
-  /* Each byte is represented by 2 chars */
-
-  tx.length = i8sak->payload_len;
-  tx.payload = &i8sak->payload[0];
-
-  ret = write(fd, &tx, sizeof(struct mac802154dev_txframe_s));
-  if (ret != OK)
-    {
-      printf(" write: errno=%d\n",errno);
-    }
-
-  return ret;
-}
 
 /****************************************************************************
  * Name : i8sak_str2payload
@@ -498,7 +442,7 @@ bool i8sak_str2bool(FAR const char *str)
  * Private Functions
  ****************************************************************************/
 
-static void i8sak_switch_instance(FAR char *devname)
+static void i8sak_switch_instance(FAR char *ifname)
 {
   FAR struct i8sak_s *i8sak;
 
@@ -510,7 +454,7 @@ static void i8sak_switch_instance(FAR char *devname)
 
   while (i8sak != NULL)
     {
-      if (strcmp(devname, i8sak->devname) == 0)
+      if (strcmp(ifname, i8sak->ifname) == 0)
         {
           break;
         }
@@ -537,7 +481,7 @@ static void i8sak_switch_instance(FAR char *devname)
 
       g_activei8sak = i8sak;
 
-      if (i8sak_setup(i8sak, devname) < 0)
+      if (i8sak_setup(i8sak, ifname) < 0)
         {
           exit(EXIT_FAILURE);
         }
@@ -550,57 +494,62 @@ static void i8sak_switch_instance(FAR char *devname)
   g_activei8sak_set = true;
 }
 
-static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
+static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *ifname)
 {
-  char daemonname[I8SAK_DAEMONNAME_FMTLEN];
+  char daemonname[I8SAK_MAX_DAEMONNAME];
   int i;
   int ret;
-  int fd;
+  int len;
+  int fd = 0;
 
   if (i8sak->initialized)
     {
       return OK;
     }
 
-  i8sak->daemon_started = false;
-  i8sak->daemon_shutdown = false;
+  i8sak->chan = 11;
+  i8sak->chpage = 0;
 
-  i8sak->chan = CONFIG_IEEE802154_I8SAK_CHNUM;
-  i8sak->chpage = CONFIG_IEEE802154_I8SAK_CHPAGE;
-
-  if (strlen(devname) > I8SAK_MAX_DEVNAME)
+  if (strlen(ifname) > I8SAK_MAX_IFNAME)
     {
-      fprintf(stderr, "ERROR: devname too long\n");
+      fprintf(stderr, "ERROR: ifname too long\n");
       return ERROR;
     }
 
-  strcpy(&i8sak->devname[0], devname);
+  strcpy(&i8sak->ifname[0], ifname);
 
-  /* Initialze default extended address */
-
-  for (i = 0; i < IEEE802154_EADDRSIZE; i++)
-   {
-     i8sak->addr.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
-   }
+  i8sak->addrmode = IEEE802154_ADDRMODE_SHORT;
 
   /* Initialize the default remote endpoint address */
 
-  i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
+  i8sak->ep_addr.mode = IEEE802154_ADDRMODE_SHORT;
 
   for (i = 0; i < IEEE802154_EADDRSIZE; i++)
    {
-     i8sak->ep.eaddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
+     i8sak->ep_addr.eaddr[i] =
+       (uint8_t)((CONFIG_IEEE802154_I8SAK_DEFAULT_EP_EADDR >> (i*8)) & 0xFF);
    }
 
   for (i = 0; i < IEEE802154_SADDRSIZE; i++)
-   {
-     i8sak->ep.saddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR >> (i*8)) & 0xFF);
-   }
+    {
+      i8sak->ep_addr.saddr[i] =
+        (uint8_t)((CONFIG_IEEE802154_I8SAK_DEFAULT_EP_SADDR >> (i*8)) & 0xFF);
+    }
 
   for (i = 0; i < IEEE802154_PANIDSIZE; i++)
-     {
-       i8sak->ep.panid[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
-     }
+    {
+      i8sak->ep_addr.panid[i] =
+        (uint8_t)((CONFIG_IEEE802154_I8SAK_DEFAULT_EP_PANID >> (i*8)) & 0xFF);
+    }
+
+#ifdef CONFIG_NET_6LOWPAN
+  i8sak->ep_in6addr.sin6_family = AF_INET6;
+  i8sak->ep_in6addr.sin6_port = HTONS(CONFIG_IEEE802154_I8SAK_DEFAULT_PORT);
+
+  i8sak_update_ep_ip(i8sak);
+
+  i8sak->snifferport = HTONS(CONFIG_IEEE802154_I8SAK_DEFAULT_PORT);
+#endif
 
   /* Set the next association device to the default device address, so that
    * the first device to request association gets that address.
@@ -608,23 +557,48 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
 
   for (i = 0; i < IEEE802154_SADDRSIZE; i++)
    {
-     i8sak->next_saddr[i] = (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_SADDR >> (i*8)) & 0xFF);
+     i8sak->next_saddr[i] =
+        (uint8_t)(((CONFIG_IEEE802154_I8SAK_DEFAULT_EP_SADDR + 1) >> (i*8)) & 0xFF);
    }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
+   /* Check if argument starts with /dev/ */
+
+  if (strncmp(ifname, "/dev/", 5) == 0)
     {
-      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak_cmd_error(i8sak);
+      i8sak->mode = I8SAK_MODE_CHAR;
+    }
+  else
+    {
+      i8sak->mode = I8SAK_MODE_NETIF;
     }
 
-  ieee802154_seteaddr(fd, i8sak->addr.eaddr);
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
+    }
+#endif
+  else
+    {
+      close(fd);
+      return ERROR;
+    }
 
   close(fd);
-
-  i8sak->addrset = false;
-
-  i8sak->blasterperiod = CONFIG_IEEE802154_I8SAK_BLATER_PERIOD;
 
   sem_init(&i8sak->exclsem, 0, 1);
 
@@ -634,9 +608,37 @@ static int i8sak_setup(FAR struct i8sak_s *i8sak, FAR const char *devname)
   sem_init(&i8sak->sigsem, 0, 0);
   sem_setprotocol(&i8sak->sigsem, SEM_PRIO_NONE);
 
+  sem_init(&i8sak->eventsem, 0, 1);
+
+  i8sak->daemon_started = false;
+  i8sak->daemon_shutdown = false;
+
+  i8sak->eventlistener_run = false;
+  sq_init(&i8sak->eventreceivers);
+  sq_init(&i8sak->eventreceivers_free);
+  for (i = 0; i < CONFIG_I8SAK_NEVENTRECEIVERS; i++)
+    {
+      sq_addlast((FAR sq_entry_t *)&i8sak->eventreceiver_pool[i], &i8sak->eventreceivers_free);
+    }
+
+  i8sak->blasterperiod = 1000;
+
   /* Create strings for task based on device. i.e. i8_ieee0 */
 
-  snprintf(daemonname, I8SAK_DAEMONNAME_FMTLEN, I8SAK_DAEMONNAME_FMT, &devname[5]);
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      len = strlen(ifname);
+      snprintf(daemonname, I8SAK_DAEMONNAME_PREFIX_LEN + (len - 5),
+               I8SAK_DAEMONNAME_FMT, &ifname[5]);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      len = strlen(ifname);
+      snprintf(daemonname, I8SAK_DAEMONNAME_PREFIX_LEN + len,
+               I8SAK_DAEMONNAME_FMT, ifname);
+    }
+#endif
 
   i8sak->daemon_pid = task_create(daemonname, CONFIG_IEEE802154_I8SAK_PRIORITY,
                                   CONFIG_IEEE802154_I8SAK_STACKSIZE, i8sak_daemon,
@@ -675,21 +677,32 @@ static int i8sak_daemon(int argc, FAR char *argv[])
   fprintf(stderr, "i8sak: daemon started\n");
   i8sak->daemon_started = true;
 
-  i8sak->fd = open(i8sak->devname, O_RDWR);
-  if (i8sak->fd < 0)
+  if (i8sak->mode == I8SAK_MODE_CHAR)
     {
-      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak->daemon_started = false;
-      ret = errno;
-      return ret;
+      i8sak->fd = open(i8sak->ifname, O_RDWR);
+      if (i8sak->fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          i8sak->daemon_started = false;
+          ret = errno;
+          return ret;
+        }
     }
-
-  if (!i8sak->wpanlistener.is_setup)
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
     {
-      wpanlistener_setup(&i8sak->wpanlistener, i8sak->fd);
+      i8sak->fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (i8sak->fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak->daemon_started = false;
+          ret = errno;
+          return ret;
+        }
     }
+#endif
 
-  wpanlistener_start(&i8sak->wpanlistener);
+  i8sak_eventlistener_start(i8sak);
 
   /* Signal the calling thread that the daemon is up and running */
 
@@ -697,26 +710,42 @@ static int i8sak_daemon(int argc, FAR char *argv[])
 
   while (!i8sak->daemon_shutdown)
     {
-      if (i8sak->blasterenabled)
+      ret = sem_wait(&i8sak->updatesem);
+      if (ret != OK)
         {
-          usleep(i8sak->blasterperiod*1000);
+          continue;
         }
-      else
+
+      if (i8sak->startblaster)
         {
-          ret = sem_wait(&i8sak->updatesem);
-          if (ret != OK)
+          i8sak->blasterenabled = true;
+          i8sak->startblaster = false;
+
+          ret = pthread_create(&i8sak->blaster_threadid, NULL, i8sak_blaster_thread,
+                               (void *)i8sak);
+          if (ret != 0)
             {
-              break;
+              fprintf(stderr, "failed to start blaster thread: %d\n", ret);
+              return ret;
             }
         }
 
-      if (i8sak->blasterenabled)
+      if (i8sak->startsniffer)
         {
-          i8sak_tx(i8sak, i8sak->fd);
+          i8sak->snifferenabled = true;
+          i8sak->startsniffer = false;
+
+          ret = pthread_create(&i8sak->sniffer_threadid, NULL, i8sak_sniffer_thread,
+                               (void *)i8sak);
+          if (ret != 0)
+            {
+              fprintf(stderr, "failed to start sniffer thread: %d\n", ret);
+              return ret;
+            }
         }
     }
 
-  wpanlistener_stop(&i8sak->wpanlistener);
+  i8sak_eventlistener_stop(i8sak);
   i8sak->daemon_started = false;
   close(i8sak->fd);
   printf("i8sak: daemon closing\n");
@@ -733,19 +762,19 @@ static int i8sak_daemon(int argc, FAR char *argv[])
 
 static int i8sak_showusage(FAR const char *progname, int exitcode)
 {
-  fprintf(stderr, "Usage: %s\n"
-          "    startpan [-h]\n"
-          "    acceptassoc [-h|e <eaddr>]\n"
-          "    scan [-h|p|a|e] minch-maxch\n"
-          "    assoc [-h] [-w <count>] [<panid>]\n"
-          "    tx [-h|d] <hex-payload>\n"
+  fprintf(stderr, "Usage (Use the -h option on any command to get more info): %s\n"
+          "    acceptassoc [-h|e]\n"
+          "    assoc [-h|p|e|s|w|r|t]\n"
+          "    blaster [-h|q|f|p]\n"
+          "    get [-h] parameter"
           "    poll [-h]\n"
-          "    blaster [-h|q|f <hex payload>|p <period_ms>]\n"
-          "    sniffer [-h|q]\n"
-          "    chan [-h|g] [<chan>]\n"
-          "    coordinfo [-h|a|e|s]\n"
-          "    reset [-h]\n"
           "    regdump [-h]\n"
+          "    reset [-h]\n"
+          "    scan [-h|p|a|e] minch-maxch\n"
+          "    set [-h] param val"
+          "    sniffer [-h|d]\n"
+          "    startpan [-h|b|s] xx:xx\n"
+          "    tx [-h|d|m] <hex-payload>\n"
           , progname);
   exit(exitcode);
 }
@@ -780,20 +809,22 @@ int i8_main(int argc, char *argv[])
 
   argind = 1;
 
-  /* Check if devname was included */
+  /* Check if ifname was included */
 
   if (argc > 1)
     {
       /* Check if argument starts with /dev/ */
 
-      if (strncmp(argv[argind], "/dev/", 5) == 0)
+      if ((strncmp(argv[argind], "/dev/", 5) == 0) ||
+          (strncmp(argv[argind], "wpan", 4) == 0))
         {
+
           i8sak_switch_instance(argv[argind]);
           argind++;
 
           if (argc == 2)
             {
-              /* Close silently to allow user to set devname without any
+              /* Close silently to allow user to set ifname without any
                * other operation.
                */
 
@@ -804,13 +835,13 @@ int i8_main(int argc, char *argv[])
       /* Argument must be command */
     }
 
-  /* If devname wasn't included, we need to check if our sticky feature has
+  /* If ifname wasn't included, we need to check if our sticky feature has
    * ever been set.
    */
 
-  else if (!g_activei8sak_set)
+  if (!g_activei8sak_set)
     {
-      fprintf(stderr, "ERROR: Must include devname the first time you run\n");
+      fprintf(stderr, "ERROR: Must include ifname the first time you run\n");
       i8sak_showusage(argv[0], EXIT_FAILURE);
     }
 

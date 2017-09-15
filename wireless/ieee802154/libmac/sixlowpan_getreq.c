@@ -61,7 +61,12 @@ int sixlowpan_get_req(int sock, FAR const char *ifname,
   int ret;
 
   strncpy(arg.ifr_name, ifname, IFNAMSIZ);
-  memcpy(&arg.u.getreq, req, sizeof(struct ieee802154_get_req_s));
+
+  /* We must use a shadow arg to perform the operation as we must add the
+   * network interface name to the front of the argument.
+   */
+
+  arg.u.getreq.attr = req->attr;
 
   ret = ioctl(sock, MAC802154IOC_MLME_GET_REQUEST,
               (unsigned long)((uintptr_t)&arg));
@@ -70,6 +75,128 @@ int sixlowpan_get_req(int sock, FAR const char *ifname,
       ret = -errno;
       fprintf(stderr, "MAC802154IOC_MLME_GET_REQUEST failed: %d\n", ret);
     }
+
+  memcpy((void *)req, &arg.u.getreq, sizeof(struct ieee802154_get_req_s));
+
+  return ret;
+}
+
+/* Wrappers around get_req to make it even easier to get common attributes */
+
+int sixlowpan_getchan(int sock, FAR const char *ifname, FAR uint8_t *chan)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_PHY_CHAN;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  *chan = req.attrval.phy.chan;
+
+  return ret;
+}
+
+int sixlowpan_geteaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_EADDR;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);
+
+  return ret;
+}
+
+int sixlowpan_getsaddr(int sock, FAR const char *ifname, FAR uint8_t *saddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_SADDR;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
+
+  return ret;
+}
+
+int sixlowpan_getpanid(int sock, FAR const char *ifname, FAR uint8_t *panid)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_PANID;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  IEEE802154_PANIDCOPY(panid, req.attrval.mac.panid);
+
+  return ret;
+}
+
+int sixlowpan_getcoordeaddr(int sock, FAR const char *ifname, FAR uint8_t *eaddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_COORD_EADDR;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);
+
+  return ret;
+}
+
+int sixlowpan_getcoordsaddr(int sock, FAR const char *ifname, FAR uint8_t *saddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_COORD_SADDR;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
+
+  return ret;
+}
+
+int sixlowpan_getrxonidle(int sock, FAR const char *ifname, FAR bool *rxonidle)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_RX_ON_WHEN_IDLE;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  *rxonidle = req.attrval.mac.rxonidle;
+
+  return ret;
+}
+
+int sixlowpan_getdevmode(int sock, FAR const char *ifname,
+                         FAR enum ieee802154_devmode_e *devmode)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_DEVMODE;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  *devmode = req.attrval.mac.devmode;
+
+  return ret;
+}
+
+int sixlowpan_gettxpwr(int sock, FAR const char *ifname, FAR int32_t *txpwr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_PHY_TX_POWER;
+  ret = sixlowpan_get_req(sock, ifname, &req);
+
+  *txpwr = req.attrval.phy.txpwr;
 
   return ret;
 }

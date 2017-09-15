@@ -48,69 +48,51 @@
 
 #include <nuttx/config.h>
 
-#include "wpanlistener.h"
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+
+#include "i8sak_events.h"
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 /* Configuration ************************************************************/
 
-#if !defined(CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR)
-#define CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR 0x000A
-#endif
-#if !defined(CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR)
-#define CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR 0xDEADBEEF00FADE0A
+#if !defined(CONFIG_IEEE802154_I8SAK_DEFAULT_EP_EADDR)
+#define CONFIG_IEEE802154_I8SAK_DEFAULT_EP_EADDR 0xAABBCCAABBCC000A
 #endif
 
-#if !defined(CONFIG_IEEE802154_I8SAK_COORD_SADDR)
-#define CONFIG_IEEE802154_I8SAK_COORD_SADDR 0x000B
-#endif
-#if !defined(CONFIG_IEEE802154_I8SAK_COORD_EADDR)
-#define CONFIG_IEEE802154_I8SAK_COORD_EADDR 0xDEADBEEF00FADE0B
+#if !defined(CONFIG_IEEE802154_I8SAK_DEFAULT_EP_SADDR)
+#define CONFIG_IEEE802154_I8SAK_DEFAULT_EP_SADDR 0x000A
 #endif
 
-#if !defined(CONFIG_IEEE802154_I8SAK_DEV_SADDR)
-#define CONFIG_IEEE802154_I8SAK_DEV_SADDR 0x000C
-#endif
-#if !defined(CONFIG_IEEE802154_I8SAK_DEV_EADDR)
-#define CONFIG_IEEE802154_I8SAK_DEV_EADDR 0xDEADBEEF00FADE0C
+#if !defined(CONFIG_IEEE802154_I8SAK_DEFAULT_EP_PANID)
+#define CONFIG_IEEE802154_I8SAK_DEFAULT_EP_PANID 0xABCD
 #endif
 
-#if !defined(CONFIG_IEEE802154_I8SAK_PANID)
-#define CONFIG_IEEE802154_I8SAK_PANID 0xFADE
+#ifdef CONFIG_NET_6LOWPAN
+#if !defined(CONFIG_IEEE802154_I8SAK_DEFAULT_PORT)
+#define CONFIG_IEEE802154_I8SAK_DEFAULT_PORT 61616
+#endif
 #endif
 
-#if !defined(CONFIG_IEEE802154_I8SAK_BLATER_PERIOD)
-#define CONFIG_IEEE802154_I8SAK_BLATER_PERIOD 1000
-#endif
+#define I8SAK_MAX_IFNAME            12
 
-#if !defined(CONFIG_IEEE802154_I8SAK_CHNUM)
-#define CONFIG_IEEE802154_I8SAK_CHNUM 11
-#endif
-
-#if !defined(CONFIG_IEEE802154_I8SAK_CHPAGE)
-#define CONFIG_IEEE802154_I8SAK_CHPAGE 0
-#endif
-
-#define I8SAK_DAEMONNAME_FMT    "i8sak_%s"
-#define I8SAK_MAX_DEVNAME 12
-/* /dev/ is 5 characters */
-#define I8SAK_DAEMONNAME_FMTLEN (6 + (I8SAK_MAX_DEVNAME-5) + 1)
-
-/* Helper Macros *************************************************************/
-
-#define PRINT_COORDEADDR(eaddr) \
-  printf("    Coordinator EADDR: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n", \
-    eaddr[0], eaddr[1], eaddr[2], eaddr[3], eaddr[4], eaddr[5], eaddr[6], eaddr[7])
-
-#define PRINT_COORDSADDR(saddr) \
-  printf("    Coordinator SADDR: %02X:%02X\n", saddr[0], saddr[1])
+#define I8SAK_DAEMONNAME_FMT        "i8sak_%s"
+#define I8SAK_DAEMONNAME_PREFIX_LEN 6
+#define I8SAK_MAX_DAEMONNAME        I8SAK_DAEMONNAME_PREFIX_LEN + I8SAK_MAX_IFNAME
 
 /****************************************************************************
  * Public Types
  ****************************************************************************/
+
+enum i8sak_mode_e
+{
+  I8SAK_MODE_CHAR = 0,
+  I8SAK_MODE_NETIF,
+};
 
 enum i8sak_cmd_e
 {
@@ -130,71 +112,137 @@ struct i8sak_s
 
   FAR struct i8sak_s *flink;
 
+  enum i8sak_mode_e mode;
+
   bool initialized      : 1;
   bool daemon_started   : 1;
   bool daemon_shutdown  : 1;
-  bool addrset          : 1;
-  bool blasterenabled   : 1;
   bool verbose          : 1;
-  bool indirect         : 1;
   bool acceptall        : 1;
   bool assoc            : 1;
 
   pid_t daemon_pid;
-  FAR char devname[I8SAK_MAX_DEVNAME];
-  struct wpanlistener_s wpanlistener;
+  FAR char ifname[I8SAK_MAX_IFNAME];
   int result;
-  int fd;
+  int fd;          /* File/Socket descriptor. Only to be used by operations
+                    * occuring within the Daemon TCB
+                    */
 
   sem_t exclsem;   /* For synchronizing access to the signaling semaphore */
   sem_t sigsem;    /* For signaling various tasks */
   sem_t updatesem; /* For signaling the daemon that it's settings have changed */
 
+  /* Fields related to event listener */
+
+  bool eventlistener_run;
+  pthread_t eventlistener_threadid;
+
+  sem_t eventsem;  /* For synchronizing access to the event receiver list */
+  sq_queue_t eventreceivers;
+  sq_queue_t eventreceivers_free;
+  struct i8sak_eventreceiver_s eventreceiver_pool[CONFIG_I8SAK_NEVENTRECEIVERS];
+
+  /* MAC related fields */
+
   uint8_t msdu_handle;
 
-  /* Settings */
+  /* Physical Layer Settings */
 
   uint8_t chan;
   uint8_t chpage;
-  struct ieee802154_addr_s addr;
-  struct ieee802154_addr_s ep;
+
+  enum ieee802154_addrmode_e addrmode;
+
+  /* Support a single endpoint. This is used for all interactions. It must
+   * be updated either inline with the command or manually before performing
+   * an operation.
+   */
+
+  struct ieee802154_addr_s ep_addr;
+#ifdef CONFIG_NET_6LOWPAN
+  struct sockaddr_in6 ep_in6addr;
+#endif
+
+  /* For the Coordinator, we keep a Short Address that will be handed out next.
+   * After assigning the address to a device requesting association, this field
+   * is simply incremented.  This means short addresses will be assigned to
+   * associating devices in order.
+   */
+
   uint8_t next_saddr[IEEE802154_SADDRSIZE];
+
+  /* General payload field used for blaster/tx commands */
+
   uint8_t payload[IEEE802154_MAX_MAC_PAYLOAD_SIZE];
   uint16_t payload_len;
-  int blasterperiod;
+
+  /* Fields to hold scan results in */
 
   struct ieee802154_pandesc_s pandescs[CONFIG_MAC802154_NPANDESC];
   uint8_t npandesc;
+
+  /* Blaster command parameters */
+
+  bool startblaster;
+  bool blasterenabled;
+  pthread_t blaster_threadid;
+  int blasterperiod;
+
+  /* Sniffer command parameters */
+
+  bool startsniffer;
+  bool snifferenabled;
+  pthread_t sniffer_threadid;
+#ifdef CONFIG_NET_6LOWPAN
+  uint16_t snifferport;
+#endif
 };
 
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-int i8sak_tx(FAR struct i8sak_s *i8sak, int fd);
-long i8sak_str2long(FAR const char *str);
-uint8_t i8sak_str2luint8(FAR const char *str);
-uint16_t i8sak_str2luint16(FAR const char *str);
-uint8_t i8sak_char2nibble(char ch);
+uint8_t   i8sak_char2nibble (char ch);
+long      i8sak_str2long    (FAR const char *str);
+uint8_t   i8sak_str2luint8  (FAR const char *str);
+uint16_t  i8sak_str2luint16 (FAR const char *str);
+bool      i8sak_str2bool    (FAR const char *str);
 
-int i8sak_str2payload(FAR const char *str, FAR uint8_t *buf);
-void i8sak_str2eaddr(FAR const char *str, FAR uint8_t *eaddr);
-void i8sak_str2saddr(FAR const char *str, FAR uint8_t *saddr);
-void i8sak_str2panid(FAR const char *str, FAR uint8_t *panid);
-bool i8sak_str2bool(FAR const char *str);
+int       i8sak_str2payload (FAR const char *str, FAR uint8_t *buf);
+void      i8sak_str2eaddr   (FAR const char *str, FAR uint8_t *eaddr);
+void      i8sak_str2saddr   (FAR const char *str, FAR uint8_t *saddr);
+void      i8sak_str2panid   (FAR const char *str, FAR uint8_t *panid);
 
-void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+/* Command Functions. Alphabetical Order */
+
 void i8sak_acceptassoc_cmd (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_assoc_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_scan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_tx_cmd          (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_poll_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_blaster_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_chan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_coordinfo_cmd   (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
-void i8sak_reset_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_get_cmd         (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_poll_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
 void i8sak_regdump_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_reset_cmd       (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_scan_cmd        (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_set_cmd         (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_sniffer_cmd     (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_startpan_cmd    (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+void i8sak_tx_cmd          (FAR struct i8sak_s *i8sak, int argc, FAR char *argv[]);
+
+/* Command background threads */
+
+pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg);
+pthread_addr_t i8sak_sniffer_thread(pthread_addr_t arg);
+
+#define PRINTF_FORMAT_EADDR(eaddr) \
+  "%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n", \
+  eaddr[0], eaddr[1], eaddr[2], eaddr[3], \
+  eaddr[4], eaddr[5], eaddr[6], eaddr[7]
+
+#define PRINTF_FORMAT_SADDR(saddr) \
+  "%02X:%02X\n", saddr[0], saddr[1]
+
+#define PRINTF_FORMAT_PANID(panid) \
+  "%02X:%02X\n", panid[0], panid[1]
 
 /****************************************************************************
  * Inline Functions
@@ -205,5 +253,42 @@ static inline void i8sak_cmd_error(FAR struct i8sak_s *i8sak)
   sem_post(&i8sak->exclsem);
   exit(EXIT_FAILURE);
 }
+
+#ifdef CONFIG_NET_6LOWPAN
+static inline void i8sak_update_ep_ip(FAR struct i8sak_s *i8sak)
+{
+  if (i8sak->ep_addr.mode == IEEE802154_ADDRMODE_EXTENDED)
+    {
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[0] = HTONS(0xfe80);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[1] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[2] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[3] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] =
+        ((uint16_t)i8sak->ep_addr.eaddr[0] << 8 | (uint16_t)i8sak->ep_addr.eaddr[1]);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] =
+        ((uint16_t)i8sak->ep_addr.eaddr[2] << 8 | (uint16_t)i8sak->ep_addr.eaddr[3]);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] =
+        ((uint16_t)i8sak->ep_addr.eaddr[4] << 8 | (uint16_t)i8sak->ep_addr.eaddr[5]);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
+        ((uint16_t)i8sak->ep_addr.eaddr[6] << 8 | (uint16_t)i8sak->ep_addr.eaddr[7]);
+
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] ^= 0x200;
+    }
+  else
+    {
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[0] = HTONS(0xfe80);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[1] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[2] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[3] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[4] = 0;
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[5] = HTONS(0x00ff);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[6] = HTONS(0xfe00);
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] =
+        ((uint16_t)i8sak->ep_addr.saddr[0] << 8 | (uint16_t)i8sak->ep_addr.saddr[1]);
+
+      i8sak->ep_in6addr.sin6_addr.in6_u.u6_addr16[7] ^= 0x200;
+    }
+}
+#endif
 
 #endif /* __APPS_EXAMPLES_WIRELESS_IEEE802154_I8SAK_H */

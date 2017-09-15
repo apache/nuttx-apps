@@ -54,14 +54,13 @@
  * Public Functions
  ****************************************************************************/
 
-int sixlowpan_reset_req(int sock, FAR const char *ifname,
-                        FAR const struct ieee802154_reset_req_s *req)
+int sixlowpan_reset_req(int sock, FAR const char *ifname, bool resetattr)
 {
   struct ieee802154_netmac_s arg;
   int ret;
 
   strncpy(arg.ifr_name, ifname, IFNAMSIZ);
-  memcpy(&arg.u.resetreq, req, sizeof(struct ieee802154_reset_req_s));
+  arg.u.resetreq.resetattr = resetattr;
 
   ret = ioctl(sock, MAC802154IOC_MLME_RESET_REQUEST,
               (unsigned long)((uintptr_t)&arg));

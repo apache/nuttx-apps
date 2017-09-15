@@ -66,3 +66,85 @@ int ieee802154_set_req(int fd, FAR struct ieee802154_set_req_s *req)
 
   return ret;
 }
+
+/* Wrappers around set_req to make it even easier to set common attributes */
+
+int ieee802154_setchan(int fd, uint8_t chan)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_PHY_CHAN;
+  req.attrval.phy.chan = chan;
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_seteaddr(int fd, FAR const uint8_t *eaddr)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_EADDR;
+  IEEE802154_EADDRCOPY(req.attrval.mac.eaddr, eaddr);
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_setsaddr(int fd, FAR const uint8_t *saddr)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_SADDR;
+  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_setpanid(int fd, FAR const uint8_t *panid)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_PANID;
+  IEEE802154_PANIDCOPY(req.attrval.mac.panid, panid);
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_setrxonidle(int fd, bool rxonidle)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_RX_ON_WHEN_IDLE;
+  req.attrval.mac.rxonidle = rxonidle;
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_setpromisc(int fd, bool promisc)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_PROMISCUOUS_MODE;
+  req.attrval.mac.promisc_mode = promisc;
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_setassocpermit(int fd, bool assocpermit)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_ASSOCIATION_PERMIT;
+  req.attrval.mac.assocpermit = assocpermit;
+
+  return ieee802154_set_req(fd, &req);
+}
+
+int ieee802154_settxpwr(int fd, int32_t txpwr)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_PHY_TX_POWER;
+  req.attrval.phy.txpwr = txpwr;
+
+  return ieee802154_set_req(fd, &req);
+}

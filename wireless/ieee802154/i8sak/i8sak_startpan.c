@@ -54,7 +54,6 @@
 
 #include "i8sak.h"
 
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
@@ -74,16 +73,18 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   struct ieee802154_start_req_s startreq;
   bool beaconenabled = false;
   int option;
-  int fd;
-  int i;
+  int argind;
+  int fd = 0;
 
+  argind = 1;
   while ((option = getopt(argc, argv, ":hb")) != ERROR)
     {
+      argind++;
       switch (option)
         {
           case 'h':
             fprintf(stderr, "Starts PAN as PAN Coordinator\n"
-                    "Usage: %s [-h]\n"
+                    "Usage: %s [-h|b|s] xx:xx\n"
                     "    -h = this help menu\n"
                     "    -b = start beacon-enabled PAN\n"
                     , argv[0]);
@@ -109,84 +110,15 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
+  if (argc < argind + 1)
     {
-      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
+      fprintf(stderr, "ERROR: missing PAN ID\n");
       i8sak_cmd_error(i8sak);
     }
 
-  /* Reset the MAC layer */
+  /*  Prepare the START.request primitive */
 
-  printf("\ni8sak: resetting MAC layer\n");
-  ieee802154_reset_req(fd, true);
-
-  /* Make sure receiver is always on */
-
-  ieee802154_setrxonidle(fd, true);
-
-  /* If the addresses has never been automatically or manually set before, set
-   * it assuming that we are the default PAN coordinator address and the
-   * endpoint is the default device address.
-   */
-
-  if (!i8sak->addrset)
-    {
-      /* Set our address to the default PAN Coordinator configuration */
-
-      i8sak->addr.mode = IEEE802154_ADDRMODE_SHORT;
-
-      for (i = 0; i < IEEE802154_EADDRSIZE; i++)
-      {
-        i8sak->addr.eaddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_EADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_SADDRSIZE; i++)
-      {
-        i8sak->addr.saddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANCOORD_SADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_PANIDSIZE; i++)
-      {
-        i8sak->addr.panid[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
-      }
-
-      /* Set the endpoint address to the default endpoint device */
-
-      i8sak->ep.mode = IEEE802154_ADDRMODE_SHORT;
-
-      for (i = 0; i < IEEE802154_EADDRSIZE; i++)
-      {
-        i8sak->ep.eaddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_EADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_SADDRSIZE; i++)
-      {
-        i8sak->ep.saddr[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_DEV_SADDR >> (i*8)) & 0xFF);
-      }
-
-      for (i = 0; i < IEEE802154_PANIDSIZE; i++)
-      {
-        i8sak->ep.panid[i] =
-          (uint8_t)((CONFIG_IEEE802154_I8SAK_PANID >> (i*8)) & 0xFF);
-      }
-    }
-
-  /* Set EADDR and SADDR */
-
-  ieee802154_seteaddr(fd, i8sak->addr.eaddr);
-  ieee802154_setsaddr(fd, i8sak->addr.saddr);
-
-  /* Tell the MAC to start acting as a coordinator */
-
-  printf("i8sak: starting PAN\n");
-
-  IEEE802154_PANIDCOPY(startreq.panid, i8sak->addr.panid);
+  i8sak_str2panid(argv[argind], startreq.panid);
   startreq.chan  = i8sak->chan;
   startreq.chpage = i8sak->chpage;
 
@@ -204,7 +136,59 @@ void i8sak_startpan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   startreq.coordrealign = false;
   startreq.battlifeext  = false;
 
-  ieee802154_start_req(fd, &startreq);
+  /* Perform the operations using the appropriate libmac hooks */
+
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
+                  i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      /* Reset the MAC layer */
+
+      printf("i8sak: resetting MAC layer\n");
+      ieee802154_reset_req(fd, true);
+
+      /* Make sure receiver is always on */
+
+      ieee802154_setrxonidle(fd, true);
+
+      /* Tell the MAC to start acting as a coordinator */
+
+      printf("i8sak: starting PAN\n");
+
+      ieee802154_start_req(fd, &startreq);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      /* Reset the MAC layer */
+
+      printf("i8sak: resetting MAC layer\n");
+      sixlowpan_reset_req(fd, i8sak->ifname, true);
+
+      /* Make sure receiver is always on */
+
+      sixlowpan_setrxonidle(fd, i8sak->ifname, true);
+
+      /* Tell the MAC to start acting as a coordinator */
+
+      printf("i8sak: starting PAN\n");
+
+      sixlowpan_start_req(fd, i8sak->ifname, &startreq);
+    }
+#endif
 
   close(fd);
 }

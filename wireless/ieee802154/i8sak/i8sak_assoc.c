@@ -52,14 +52,12 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-
 #include <nuttx/fs/ioctl.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+
+#include "wireless/ieee802154.h"
 
 #include "i8sak.h"
-
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
-#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Private Function Prototypes
@@ -81,13 +79,13 @@ static void assoc_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
 void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_assoc_req_s assocreq;
-  struct wpanlistener_eventfilter_s filter;
+  struct i8sak_eventfilter_s filter;
   FAR struct ieee802154_pandesc_s *pandesc;
   struct ieee802154_set_req_s setreq;
   bool retry     = false;
   int maxretries = 0;
   int retrycnt;
-  int fd;
+  int fd = 0;
   int option;
   int optcnt;
   int ret;
@@ -96,19 +94,8 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   setreq.attr = IEEE802154_ATTR_MAC_RESPONSE_WAIT_TIME;
   setreq.attrval.mac.resp_waittime = 32;
 
-  /* If the addresses has never been automatically or manually set before, set
-   * it assuming that we are the default device address and the endpoint is the
-   * default PAN Coordinator address.  This is actually the way the i8sak settings
-   * are configured, so just set the flag if it's not already set.
-   */
-
-  if (!i8sak->addrset)
-    {
-      i8sak->addrset = true;
-    }
-
   optcnt = 0;
-  while ((option = getopt(argc, argv, ":hr:s:e:w:t:")) != ERROR)
+  while ((option = getopt(argc, argv, ":hp:e:s:w:r:t:")) != ERROR)
     {
       optcnt++;
       switch (option)
@@ -117,11 +104,12 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             fprintf(stderr, "Requests association with endpoint\n"
                     "Usage: %s [-h] [-w <count>\n"
                     "    -h = this help menu\n"
+                    "    -p = coordinator PAN ID\n"
+                    "    -e = coordinator ext address\n"
+                    "    -s = coordinator short address\n"
                     "    -w = wait and retry on failure\n"
                     "    -r = use scan result index\n"
-                    "    -s = coordinator short address"
-                    "    -e = coordinator ext address"
-                    "    -t = response wait time"
+                    "    -t = response wait time\n"
                     , argv[0]);
 
             /* Must manually reset optind if we are going to exit early */
@@ -146,23 +134,30 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
             i8sak->chan   = pandesc->chan;
             i8sak->chpage = pandesc->chpage;
-            memcpy(&i8sak->ep, &pandesc->coordaddr, sizeof(struct ieee802154_addr_s));
+            memcpy(&i8sak->ep_addr, &pandesc->coordaddr,
+                   sizeof(struct ieee802154_addr_s));
+            break;
+
+          case 'p':
+            /* Parse short address and put it into the i8sak instance */
+
+            i8sak_str2panid(optarg, i8sak->ep_addr.panid);
             break;
 
           case 's':
             /* Parse short address and put it into the i8sak instance */
 
-            i8sak_str2saddr(optarg, i8sak->ep.saddr);
-            i8sak->ep.mode= IEEE802154_ADDRMODE_SHORT;
+            i8sak_str2saddr(optarg, i8sak->ep_addr.saddr);
+            i8sak->ep_addr.mode= IEEE802154_ADDRMODE_SHORT;
             break;
 
           case 'e':
             /* Parse extended address and put it into the i8sak instance */
 
-            i8sak_str2eaddr(optarg, i8sak->ep.eaddr);
-            i8sak->ep.mode = IEEE802154_ADDRMODE_EXTENDED;
+            i8sak_str2eaddr(optarg, i8sak->ep_addr.eaddr);
+            i8sak->ep_addr.mode = IEEE802154_ADDRMODE_EXTENDED;
             break;
-          
+
           case 't':
             /* Parse wait time and set the paremeter in the request */
 
@@ -194,31 +189,37 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
-  /* If none of the option flags were used, and there is an argument included,
-   * assume it is the PAN ID
-   */
-
-  if (optcnt && argc == 2)
+  if (i8sak->mode == I8SAK_MODE_CHAR)
     {
-      i8sak_str2panid(argv[1], i8sak->ep.panid);
-    }
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
+      ieee802154_set_req(fd, &setreq);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
     {
-      printf("i8sak: cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak_cmd_error(i8sak);
-    }
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
 
-  ieee802154_set_req(fd, &setreq);
+      sixlowpan_set_req(fd, i8sak->ifname, &setreq);
+    }
+#endif
 
   /* Register new callback for receiving the association notifications. */
 
-  memset(&filter, 0, sizeof(struct wpanlistener_eventfilter_s));
+  memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));
   filter.confevents.assoc = true;
 
-  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, assoc_eventcb,
-                                 &filter, (FAR void *)i8sak, false);
+  i8sak_eventlistener_addreceiver(i8sak, assoc_eventcb, &filter, false);
 
   /* Loop for the specified retry count if the association fails.
    */
@@ -233,7 +234,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       assocreq.chan = i8sak->chan;
       assocreq.chpage = i8sak->chpage;
 
-      memcpy(&assocreq.coordaddr, &i8sak->ep,
+      memcpy(&assocreq.coordaddr, &i8sak->ep_addr,
              sizeof(struct ieee802154_addr_s));
 
       assocreq.capabilities.devtype = 0;
@@ -242,7 +243,16 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       assocreq.capabilities.security = 0;
       assocreq.capabilities.allocaddr = 1;
 
-      ieee802154_assoc_req(fd, &assocreq);
+      if (i8sak->mode == I8SAK_MODE_CHAR)
+        {
+          ieee802154_assoc_req(fd, &assocreq);
+        }
+#ifdef CONFIG_NET_6LOWPAN
+      else if (i8sak->mode == I8SAK_MODE_NETIF)
+        {
+          sixlowpan_assoc_req(fd, i8sak->ifname, &assocreq);
+        }
+#endif
 
       /* Wait for the assocconf event */
 
@@ -254,7 +264,6 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       if (ret != OK)
         {
           i8sak->assoc = false;
-          printf("i8sak: test cancelled\n");
           i8sak_cmd_error(i8sak);
           break;
         }
@@ -301,8 +310,7 @@ void i8sak_assoc_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 
   /* Clean up and return */
 
-  (void)wpanlistener_remove_eventreceiver(&i8sak->wpanlistener,
-                                          assoc_eventcb);
+  (void)i8sak_eventlistener_removereceiver(i8sak, assoc_eventcb);
   close(fd);
 }
 

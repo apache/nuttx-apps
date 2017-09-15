@@ -52,7 +52,6 @@
 
 #include "i8sak.h"
 
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
@@ -76,8 +75,8 @@ static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
 void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_scan_req_s scan;
-  struct wpanlistener_eventfilter_s filter;
-  int fd;
+  struct i8sak_eventfilter_s filter;
+  int fd = 0;
   int option;
   int argind;
   int i;
@@ -162,24 +161,40 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
       scan.channels[i] = minchannel + i;
     }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
-    {
-      printf("i8sak: cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak_cmd_error(i8sak);
-    }
-
   /* Register new callback for receiving the scan confirmation notification */
 
-  memset(&filter, 0, sizeof(struct wpanlistener_eventfilter_s));
+  memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));
   filter.confevents.scan = true;
 
-  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, scan_eventcb, &filter,
-                                 (FAR void *)i8sak, true);
+  i8sak_eventlistener_addreceiver(i8sak, scan_eventcb, &filter, true);
 
   printf("i8sak: starting scan\n");
 
-  ieee802154_scan_req(fd, &scan);
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
+                  i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      ieee802154_scan_req(fd, &scan);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      sixlowpan_scan_req(fd, i8sak->ifname, &scan);
+    }
+#endif
 
   close(fd);
 }
@@ -227,17 +242,19 @@ static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
     {
       printf("Result %d\n", i);
       printf("    Channel: %u\n", scan->pandescs[i].chan);
-      printf("    PAN ID: %02X:%02X\n",
-             scan->pandescs[i].coordaddr.panid[0],
-             scan->pandescs[i].coordaddr.panid[1]);
+
+      printf("    PAN ID: "
+             PRINTF_FORMAT_PANID(scan->pandescs[i].coordaddr.panid));
 
       if (scan->pandescs[i].coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
         {
-          PRINT_COORDSADDR(scan->pandescs[i].coordaddr.saddr);
+          printf("    Coordinator Short Address: "
+                 PRINTF_FORMAT_SADDR(scan->pandescs[i].coordaddr.saddr));
         }
       else
         {
-          PRINT_COORDEADDR(scan->pandescs[i].coordaddr.eaddr);
+          printf("    Coordinator Extended Address: "
+                 PRINTF_FORMAT_EADDR(scan->pandescs[i].coordaddr.eaddr));
         }
     }
 }

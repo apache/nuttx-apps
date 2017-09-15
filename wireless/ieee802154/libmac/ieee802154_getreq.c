@@ -66,3 +66,132 @@ int ieee802154_get_req(int fd, FAR struct ieee802154_get_req_s *req)
 
   return ret;
 }
+
+/* Wrappers around get_req to make it even easier to get common attributes */
+
+int ieee802154_getchan(int fd, FAR uint8_t *chan)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_PHY_CHAN;
+  ret = ieee802154_get_req(fd, &req);
+
+  *chan = req.attrval.phy.chan;
+
+  return ret;
+}
+
+int ieee802154_geteaddr(int fd, FAR uint8_t *eaddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_EADDR;
+  ret = ieee802154_get_req(fd, &req);
+
+  IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);
+
+  return ret;
+}
+
+int ieee802154_getsaddr(int fd, FAR uint8_t *saddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_SADDR;
+  ret = ieee802154_get_req(fd, &req);
+
+  IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
+  return ret;
+}
+
+int ieee802154_getpanid(int fd, FAR uint8_t *panid)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_PANID;
+  ret = ieee802154_get_req(fd, &req);
+
+  IEEE802154_PANIDCOPY(panid, req.attrval.mac.panid);
+  return ret;
+}
+
+int ieee802154_getcoordeaddr(int fd, FAR uint8_t *eaddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_COORD_EADDR;
+  ret = ieee802154_get_req(fd, &req);
+
+  IEEE802154_EADDRCOPY(eaddr, req.attrval.mac.eaddr);
+
+  return ret;
+}
+
+int ieee802154_getcoordsaddr(int fd, FAR uint8_t *saddr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_COORD_SADDR;
+  ret = ieee802154_get_req(fd, &req);
+
+  IEEE802154_SADDRCOPY(saddr, req.attrval.mac.saddr);
+  return ret;
+}
+
+int ieee802154_getrxonidle(int fd, FAR bool *rxonidle)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_RX_ON_WHEN_IDLE;
+  ret = ieee802154_get_req(fd, &req);
+
+  *rxonidle = req.attrval.mac.rxonidle;
+
+  return ret;
+}
+
+int ieee802154_getdevmode(int fd, FAR enum ieee802154_devmode_e *devmode)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_DEVMODE;
+  ret = ieee802154_get_req(fd, &req);
+
+  *devmode = req.attrval.mac.devmode;
+
+  return ret;
+}
+
+int ieee802154_getpromisc(int fd, FAR bool *promisc)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_MAC_PROMISCUOUS_MODE;
+  ret = ieee802154_get_req(fd, &req);
+
+  *promisc = req.attrval.mac.promisc_mode;
+
+  return ret;
+}
+
+int ieee802154_gettxpwr(int fd, FAR int32_t *txpwr)
+{
+  struct ieee802154_get_req_s req;
+  int ret;
+
+  req.attr = IEEE802154_ATTR_PHY_TX_POWER;
+  ret = ieee802154_get_req(fd, &req);
+
+  *txpwr = req.attrval.phy.txpwr;
+
+  return ret;
+}

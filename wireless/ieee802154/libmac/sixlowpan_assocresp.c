@@ -61,6 +61,7 @@ int sixlowpan_assoc_resp(int sock, FAR const char *ifname,
   int ret;
 
   strncpy(arg.ifr_name, ifname, IFNAMSIZ);
+  memcpy(&arg.u.assocresp, resp, sizeof(struct ieee802154_assoc_resp_s));
 
   ret = ioctl(sock, MAC802154IOC_MLME_ASSOC_RESPONSE,
               (unsigned long)((uintptr_t)&arg));

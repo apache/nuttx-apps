@@ -49,7 +49,6 @@
 
 #include "i8sak.h"
 
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
@@ -68,7 +67,7 @@ void i8sak_regdump_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_get_req_s req;
   int option;
-  int fd;
+  int fd = 0;
 
   while ((option = getopt(argc, argv, ":h")) != ERROR)
     {
@@ -99,15 +98,32 @@ void i8sak_regdump_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
-    {
-      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak_cmd_error(i8sak);
-    }
-
   req.attr = IEEE802154_ATTR_RADIO_REGDUMP;
-  ieee802154_get_req(fd, &req);
+
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n",
+                  i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
+      ieee802154_get_req(fd, &req);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      sixlowpan_get_req(fd, i8sak->ifname, &req);
+    }
+#endif
 
   close(fd);
 }

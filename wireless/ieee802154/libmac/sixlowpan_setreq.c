@@ -73,3 +73,85 @@ int sixlowpan_set_req(int sock, FAR const char *ifname,
 
   return ret;
 }
+
+/* Wrappers around set_req to make it even easier to set common attributes */
+
+int sixlowpan_setchan(int sock, FAR const char *ifname, uint8_t chan)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_PHY_CHAN;
+  req.attrval.phy.chan = chan;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_seteaddr(int sock, FAR const char *ifname, FAR const uint8_t *eaddr)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_EADDR;
+  IEEE802154_EADDRCOPY(req.attrval.mac.eaddr, eaddr);
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_setsaddr(int sock, FAR const char *ifname, FAR const uint8_t *saddr)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_SADDR;
+  IEEE802154_SADDRCOPY(req.attrval.mac.saddr, saddr);
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_setpanid(int sock, FAR const char *ifname, FAR const uint8_t *panid)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_PANID;
+  IEEE802154_PANIDCOPY(req.attrval.mac.panid, panid);
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_setrxonidle(int sock, FAR const char *ifname, bool rxonidle)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_RX_ON_WHEN_IDLE;
+  req.attrval.mac.rxonidle = rxonidle;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_PROMISCUOUS_MODE;
+  req.attrval.mac.promisc_mode = promisc;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_setassocpermit(int sock, FAR const char *ifname, bool assocpermit)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_MAC_ASSOCIATION_PERMIT;
+  req.attrval.mac.assocpermit = assocpermit;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}
+
+int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr)
+{
+  struct ieee802154_set_req_s req;
+
+  req.attr = IEEE802154_ATTR_PHY_TX_POWER;
+  req.attrval.phy.txpwr = txpwr;
+
+  return sixlowpan_set_req(sock, ifname, &req);
+}

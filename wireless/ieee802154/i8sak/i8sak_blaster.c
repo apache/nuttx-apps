@@ -50,19 +50,38 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <arpa/inet.h>
+
 #include <nuttx/fs/ioctl.h>
+#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
+#include <nuttx/wireless/ieee802154/ieee802154_device.h>
+
+#include "wireless/ieee802154.h"
 
 #include "i8sak.h"
-
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
-#include <nuttx/wireless/ieee802154/ieee802154_mac.h>
-#include "wireless/ieee802154.h"
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static inline void i8sak_blaster_start (FAR struct i8sak_s *i8sak);
+static inline void i8sak_blaster_start(FAR struct i8sak_s *i8sak);
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static inline void i8sak_blaster_start(FAR struct i8sak_s *i8sak)
+{
+  if (!i8sak->blasterenabled)
+    {
+      i8sak->startblaster = true;
+
+      /* Signal the daemon to start running */
+
+      printf("i8sak: starting blaster\n");
+      sem_post(&i8sak->updatesem);
+    }
+}
 
 /****************************************************************************
  * Public Functions
@@ -136,15 +155,64 @@ void i8sak_blaster_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
     }
 }
 
-static inline void i8sak_blaster_start (FAR struct i8sak_s *i8sak)
+/****************************************************************************
+ * Name : i8sak_blaster_thread
+ *
+ * Description :
+ *   Send frames periodically
+ ****************************************************************************/
+
+pthread_addr_t i8sak_blaster_thread(pthread_addr_t arg)
 {
-  if (!i8sak->blasterenabled)
+  FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
+  struct mac802154dev_txframe_s tx;
+
+#ifdef CONFIG_NET_6LOWPAN
+  if (i8sak->mode == I8SAK_MODE_NETIF)
     {
-      i8sak->blasterenabled = true;
-
-      /* Signal the daemon to start running */
-
-      printf("starting blaster\n");
-      sem_post(&i8sak->updatesem);
+      if (bind(i8sak->fd, (struct sockaddr*)&i8sak->ep_in6addr,
+               sizeof(struct sockaddr_in6)) < 0)
+        {
+          fprintf(stderr, "ERROR: failure to bind sock: %d\n", errno);
+          exit(1);
+        }
     }
+#endif
+
+  while (i8sak->blasterenabled)
+    {
+      usleep(i8sak->blasterperiod*1000);
+
+      if (i8sak->mode == I8SAK_MODE_CHAR)
+        {
+          /* Set an application defined handle */
+
+          tx.meta.handle = i8sak->msdu_handle++;
+
+          /* This is a normal transaction, no special handling */
+
+          tx.meta.flags.ackreq = 1;
+          tx.meta.flags.usegts = 0;
+          tx.meta.ranging = IEEE802154_NON_RANGING;
+
+          tx.meta.srcmode = i8sak->addrmode;
+          memcpy(&tx.meta.destaddr, &i8sak->ep_addr, sizeof(struct ieee802154_addr_s));
+
+          /* Each byte is represented by 2 chars */
+
+          tx.length = i8sak->payload_len;
+          tx.payload = &i8sak->payload[0];
+
+          write(i8sak->fd, &tx, sizeof(struct mac802154dev_txframe_s));
+        }
+#ifdef CONFIG_NET_6LOWPAN
+      else if (i8sak->mode == I8SAK_MODE_NETIF)
+        {
+          sendto(i8sak->fd, i8sak->payload, i8sak->payload_len, 0,
+                 (struct sockaddr*)&i8sak->ep_in6addr, sizeof(struct sockaddr_in6));
+        }
+#endif
+    }
+
+  return NULL;
 }

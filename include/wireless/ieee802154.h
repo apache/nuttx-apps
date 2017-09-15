@@ -58,8 +58,6 @@
 /* Character driver IOCTL helpers */
 
 
-int ieee802154_enableevents(int fd, bool enable);
-
 int ieee802154_assoc_req(int fd, FAR struct ieee802154_assoc_req_s *req);
 int ieee802154_assoc_resp(int fd, FAR struct ieee802154_assoc_resp_s *resp);
 int ieee802154_disassoc_req(int fd,
@@ -139,6 +137,7 @@ int sixlowpan_gts_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_gts_req_s *req);
 int sixlowpan_orphan_resp(int sock, FAR const char *ifname,
       FAR struct ieee802154_orphan_resp_s *resp);
+int sixlowpan_reset_req(int sock, FAR const char *ifname, bool resetattr);
 int sixlowpan_rxenable_req(int sock, FAR const char *ifname,
       FAR const struct ieee802154_rxenable_req_s *req);
 int sixlowpan_scan_req(int sock, FAR const char *ifname,
@@ -178,6 +177,10 @@ int sixlowpan_seteaddr(int sock, FAR const char *ifname,
 int sixlowpan_geteaddr(int sock, FAR const char *ifname,
       FAR uint8_t *eaddr);
 
+int sixlowpan_getcoordsaddr(int fd, FAR const char *ifname, FAR uint8_t *saddr);
+
+int sixlowpan_getcoordeaddr(int fd, FAR const char *ifname, FAR uint8_t *eaddr);
+
 int sixlowpan_setpromisc(int sock, FAR const char *ifname, bool promisc);
 int sixlowpan_getpromisc(int sock, FAR const char *ifname,
       FAR bool *promisc);
@@ -189,6 +192,11 @@ int sixlowpan_getrxonidle(int sock, FAR const char *ifname,
 int sixlowpan_settxpwr(int sock, FAR const char *ifname, int32_t txpwr);
 int sixlowpan_gettxpwr(int sock, FAR const char *ifname,
       FAR int32_t *txpwr);
+
+int sixlowpan_getdevmode(int fd, FAR const char *ifname,
+                         FAR enum ieee802154_devmode_e *devmode);
+
+int sixlowpan_setassocpermit(int sock, FAR const char *ifname, bool assocpermit);
 
 #endif /* CONFIG_NET_6LOWPAN*/
 

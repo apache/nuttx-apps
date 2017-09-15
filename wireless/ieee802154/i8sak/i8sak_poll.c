@@ -54,7 +54,6 @@
 
 #include "i8sak.h"
 
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
@@ -78,9 +77,9 @@ static void poll_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
 void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
 {
   struct ieee802154_poll_req_s pollreq;
-  struct wpanlistener_eventfilter_s eventfilter;
+  struct i8sak_eventfilter_s eventfilter;
   int option;
-  int fd;
+  int fd = 0;
   int ret;
 
   while ((option = getopt(argc, argv, ":h")) != ERROR)
@@ -111,30 +110,48 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         }
     }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
-    {
-      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak_cmd_error(i8sak);
-    }
-
   /* Register new oneshot callback for receiving the association notifications */
 
-  memset(&eventfilter, 0, sizeof(struct wpanlistener_eventfilter_s));
+  memset(&eventfilter, 0, sizeof(struct i8sak_eventfilter_s));
   eventfilter.confevents.poll = true;
 
-  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, poll_eventcb,
-                                 &eventfilter, (FAR void *)i8sak, true);
+  i8sak_eventlistener_addreceiver(i8sak, poll_eventcb, &eventfilter, true);
 
-  printf("i8sak: Polling coordinator. PAN ID: %02X:%02X SADDR: %02X:%02X\n",
-         i8sak->ep.panid[0], i8sak->ep.panid[1],
-         i8sak->ep.saddr[0], i8sak->ep.saddr[1]);
+  memcpy(&pollreq.coordaddr, &i8sak->ep_addr, sizeof(struct ieee802154_addr_s));
 
-  pollreq.coordaddr.mode = IEEE802154_ADDRMODE_SHORT;
-  IEEE802154_SADDRCOPY(pollreq.coordaddr.saddr, i8sak->ep.saddr);
-  IEEE802154_PANIDCOPY(pollreq.coordaddr.panid, i8sak->ep.panid);
+  if (pollreq.coordaddr.mode == IEEE802154_ADDRMODE_SHORT)
+    {
+      printf("i8sak: Polling " PRINTF_FORMAT_SADDR(pollreq.coordaddr.saddr));
+    }
+  else
+    {
+      printf("i8sak: Polling " PRINTF_FORMAT_EADDR(pollreq.coordaddr.eaddr));
+    }
 
-  ieee802154_poll_req(fd, &pollreq);
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      ieee802154_poll_req(fd, &pollreq);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      sixlowpan_poll_req(fd, i8sak->ifname, &pollreq);
+    }
+#endif
 
   close(fd);
 

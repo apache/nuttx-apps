@@ -52,7 +52,6 @@
 
 #include "i8sak.h"
 
-#include <nuttx/wireless/ieee802154/ieee802154_ioctl.h>
 #include <nuttx/wireless/ieee802154/ieee802154_mac.h>
 #include "wireless/ieee802154.h"
 
@@ -77,7 +76,7 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
 void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
                            FAR char *argv[])
 {
-  struct wpanlistener_eventfilter_s filter;
+  struct i8sak_eventfilter_s filter;
   bool acceptall = true; /* Start off assuming we are going to allow all
                           * connections */
   int option;
@@ -104,7 +103,7 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
             return;
 
           case 'e': /* Accept only this extended address */
-            i8sak_str2eaddr(optarg, &i8sak->ep.eaddr[0]);
+            i8sak_str2eaddr(optarg, &i8sak->ep_addr.eaddr[0]);
             acceptall = false;
             break;
 
@@ -126,14 +125,30 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
         }
     }
 
-  fd = open(i8sak->devname, O_RDWR);
-  if (fd < 0)
+  if (i8sak->mode == I8SAK_MODE_CHAR)
     {
-      printf("cannot open %s, errno=%d\n", i8sak->devname, errno);
-      i8sak_cmd_error(i8sak);
-    }
+      fd = open(i8sak->ifname, O_RDWR);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: cannot open %s, errno=%d\n", i8sak->ifname, errno);
+          i8sak_cmd_error(i8sak);
+        }
 
-  ieee802154_setassocpermit(fd, true);
+      ieee802154_setassocpermit(fd, true);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      fd = socket(PF_INET6, SOCK_DGRAM, 0);
+      if (fd < 0)
+        {
+          fprintf(stderr, "ERROR: failed to open socket, errno=%d\n", errno);
+          i8sak_cmd_error(i8sak);
+        }
+
+      sixlowpan_setassocpermit(fd, i8sak->ifname, true);
+    }
+#endif
 
   if (!optcnt)
     {
@@ -143,11 +158,11 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
 
   /* Register new callback for receiving the association notifications */
 
-  memset(&filter, 0, sizeof(struct wpanlistener_eventfilter_s));
+  memset(&filter, 0, sizeof(struct i8sak_eventfilter_s));
   filter.indevents.assoc = true;
 
-  wpanlistener_add_eventreceiver(&i8sak->wpanlistener, acceptassoc_eventcb,
-                                 &filter, (FAR void *)i8sak, !i8sak->acceptall);
+  i8sak_eventlistener_addreceiver(i8sak, acceptassoc_eventcb, &filter,
+                                  !i8sak->acceptall);
 }
 
 static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
@@ -168,7 +183,7 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
    * Otherwise, reject the assocation.
    */
 
-  if (IEEE802154_EADDRCMP(notif->u.assocind.devaddr, i8sak->ep.eaddr))
+  if (IEEE802154_EADDRCMP(notif->u.assocind.devaddr, i8sak->ep_addr.eaddr))
     {
       /* Assign the short address */
 
@@ -194,5 +209,14 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
       printf("i8sak: rejecting association request\n");
     }
 
-  ieee802154_assoc_resp(i8sak->fd, &assocresp);
+  if (i8sak->mode == I8SAK_MODE_CHAR)
+    {
+      ieee802154_assoc_resp(i8sak->fd, &assocresp);
+    }
+#ifdef CONFIG_NET_6LOWPAN
+  else if (i8sak->mode == I8SAK_MODE_NETIF)
+    {
+      sixlowpan_assoc_resp(i8sak->fd, i8sak->ifname, &assocresp);
+    }
+#endif
 }
