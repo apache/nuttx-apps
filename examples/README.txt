@@ -87,6 +87,11 @@ examples/alarm
     CONFIG_EXAMPLES_ALARM_DEVPATH - RTC device path (/dev/rtc0)
     ONFIG_EXAMPLES_ALARM_SIGNO - Alarm signal
 
+examples/ap102
+^^^^^^^^^^^^^^
+
+  Rainbow example for APA102 LED Strip.
+
 examples/bastest
 ^^^^^^^^^^^^^^^^
   This directory contains a small program that will mount a ROMFS file system
