@@ -58,6 +58,33 @@
 
 /****************************************************************************
  * Name: netlib_ipv4adaptor
+ *
+ * Description:
+ *   Given the destination address, destipaddr, return the IP address
+ *   assigned to the network adaptor that connects the sub-net that
+ *   includes destipaddr.
+ *
+ *   NOTE:  This does not account for any routing information that may
+ *   appear in the routing table.  A complete solution could involve three
+ *   steps:
+ *
+ *   1. Call netlib_ipv4adaptor() to find the address of the network
+ *      adaptor for the destination address.
+ *   2. If this fails, then look up the router address in the routing table
+ *      that can forward to the destination address, then
+ *   3. Call netlib_ipv4adaptor() to find the address of the network
+ *      adaptor for that router address.
+ *
+ * Input Parameters:
+ *   destipaddr - The destination IPv4 address
+ *   srcipaddr  - The location to return that adaptor address that serves
+ *                the sub-net that includes the destination address.
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success with srcipaddr valid.  A negated
+ *   errno value is returned on any failure and in this case the srcipaddr
+ *   is not valid.
+ *
  ****************************************************************************/
 
 int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
