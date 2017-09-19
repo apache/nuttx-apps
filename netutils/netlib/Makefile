@@ -49,6 +49,7 @@ ifeq ($(CONFIG_NET_IPv4),y)
 CSRCS += netlib_setipv4addr.c netlib_getipv4addr.c
 CSRCS += netlib_setdripv4addr.c netlib_setipv4netmask.c
 CSRCS += netlib_getdripv4addr.c netlib_getipv4netmask.c
+CSRCS += netlib_ipv4adaptor.c
 ifeq ($(CONFIG_NET_ARP),y)
 CSRCS += netlib_getarp.c netlib_setarp.c netlib_delarp.c
 endif
@@ -61,6 +62,7 @@ ifeq ($(CONFIG_NET_IPv6),y)
 CSRCS += netlib_setipv6addr.c netlib_getipv6addr.c
 CSRCS += netlib_setdripv6addr.c netlib_setipv6netmask.c
 CSRCS += netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c
+CSRCS += netlib_ipv6adaptor.c
 ifeq ($(CONFIG_NET_ICMPv6_AUTOCONF),y)
 CSRCS += netlib_autoconfig.c
 endif

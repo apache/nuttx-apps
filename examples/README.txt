@@ -87,8 +87,8 @@ examples/alarm
     CONFIG_EXAMPLES_ALARM_DEVPATH - RTC device path (/dev/rtc0)
     ONFIG_EXAMPLES_ALARM_SIGNO - Alarm signal
 
-examples/ap102
-^^^^^^^^^^^^^^
+examples/apa102
+^^^^^^^^^^^^^^^
 
   Rainbow example for APA102 LED Strip.
 

@@ -152,6 +152,7 @@ int netlib_set_dripv4addr(FAR const char *ifname, FAR const struct in_addr *addr
 int netlib_get_dripv4addr(FAR const char *ifname, FAR struct in_addr *addr);
 int netlib_set_ipv4netmask(FAR const char *ifname, FAR const struct in_addr *addr);
 int netlib_get_ipv4netmask(FAR const char *ifname, FAR struct in_addr *addr);
+int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr);
 #endif
 
 #ifdef CONFIG_NET_IPv6
@@ -162,6 +163,8 @@ int netlib_set_ipv6netmask(FAR const char *ifname, FAR const struct in6_addr *ad
 
 uint8_t netlib_ipv6netmask2prefix(FAR const uint16_t *mask);
 void netlib_prefix2ipv6netmask(uint8_t preflen, FAR struct in6_addr *netmask);
+int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
+                       FAR struct in6_addr *srcipaddr);
 #endif
 
 #ifdef CONFIG_NETDEV_WIRELESS_IOCTL
