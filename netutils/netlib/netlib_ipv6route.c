@@ -83,7 +83,12 @@
 
 static void set_nul_terminator(FAR char *str)
 {
-   while ((*str >= '0' && *str <= '9') || *str == '.')
+   /* The first non-hex character that is not ':' terminates the address */
+
+   while ((*str >= '0' && *str <= '9') ||
+          (*str >= 'a' && *str <= 'f') ||
+          (*str >= 'A' && *str <= 'F') ||
+           *str == ':')
      {
        str++;
      }

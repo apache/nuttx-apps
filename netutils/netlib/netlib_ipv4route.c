@@ -84,6 +84,8 @@
 
 static void set_nul_terminator(FAR char *str)
 {
+   /* The first non-decimal character that is not '.' terminates the address */
+
    while ((*str >= '0' && *str <= '9') || *str == '.')
      {
        str++;
