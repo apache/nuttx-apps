@@ -92,6 +92,8 @@ int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
 {
   FAR struct lifreq *lifr;
   struct lifconf lifc;
+  size_t allocsize;
+  size_t buflen;
   int nintf;
   int ret;
   int sd;
@@ -124,7 +126,8 @@ int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
 
   /* Allocate the buffer to hold the interface descriptions */
 
-  lifr = (FAR struct lifreq *)malloc(lifc.lifc_len);
+  allocsize = lifc.lifc_len;
+  lifr      = (FAR struct lifreq *)malloc(allocsize);
   if (lifr == NULL)
     {
       fprintf(stderr, "ERROR: Failed to allocate LIFC buffer\n");
@@ -145,10 +148,22 @@ int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
     }
 
   /* Find an interface that supports the subnet needed by the provided
-   * IPv6 address.
+   * IPv6 address. Be careful!  The size of the returned buffer could
+   * be different if the network device configuration changed in between
+   * the two calls!
    */
 
-  nintf = lifc.lifc_len / sizeof(struct lifreq);
+  buflen = lifc.lifc_len;
+  if (buflen > allocsize)
+    {
+      /* Something has changed.  Limit to the original size (OR do the
+       * allocation and IOCTL again).
+       */
+
+      buflen = allocsize;
+    }
+
+  nintf = buflen / sizeof(struct lifreq);
   ret   = -EHOSTUNREACH;
 
   for (i = 0; i < nintf; i++)

@@ -91,6 +91,8 @@ int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
 {
   FAR struct ifreq *ifr;
   struct ifconf ifc;
+  size_t allocsize;
+  size_t buflen;
   int nintf;
   int ret;
   int sd;
@@ -123,7 +125,8 @@ int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
 
   /* Allocate the buffer to hold the interface descriptions */
 
-  ifr = (FAR struct ifreq *)malloc(ifc.ifc_len);
+  allocsize = ifc.ifc_len;
+  ifr       = (FAR struct ifreq *)malloc(allocsize);
   if (ifr == NULL)
     {
       fprintf(stderr, "ERROR: Failed to allocate IFC buffer\n");
@@ -144,10 +147,22 @@ int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
     }
 
   /* Find an interface that supports the subnet needed by the provided
-   * IPv4 address.
+   * IPv4 address. Be careful!  The size of the returned buffer could
+   * be different if the network device configuration changed in between
+   * the two calls!
    */
 
-  nintf = ifc.ifc_len / sizeof(struct ifreq);
+  buflen = ifc.ifc_len;
+  if (buflen > allocsize)
+    {
+      /* Something has changed.  Limit to the original size (OR do the
+       * allocation and IOCTL again).
+       */
+
+      buflen = allocsize;
+    }
+
+  nintf = buflen / sizeof(struct ifreq);
   ret   = -EHOSTUNREACH;
 
   for (i = 0; i < nintf; i++)
