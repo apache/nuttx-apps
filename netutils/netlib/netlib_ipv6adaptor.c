@@ -53,11 +53,11 @@
 #ifdef CONFIG_NET_IPv6
 
 /****************************************************************************
- * Public Functions
+ * Private Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_ipv6adaptor
+ * Name: _netlib_ipv6adaptor
  *
  * Description:
  *   Given the destination address, destipaddr, return the IP address
@@ -68,15 +68,15 @@
  *   appear in the routing table.  A complete solution could involve three
  *   steps:
  *
- *   1. Call netlib_ipv4adaptor() to find the address of the network
+ *   1. Call netlib_ipv6adaptor() to find the address of the network
  *      adaptor for the destination address.
  *   2. If this fails, then look up the router address in the routing table
  *      that can forward to the destination address, then
- *   3. Call netlib_ipv4adaptor() to find the address of the network
+ *   3. Call netlib_ipv6adaptor() to find the address of the network
  *      adaptor for that router address.
  *
  * Input Parameters:
- *   destipaddr - The destination IPv4 address
+ *   destipaddr - The destination IPv6 address
  *   srcipaddr  - The location to return that adaptor address that serves
  *                the sub-net that includes the destination address.
  *
@@ -87,8 +87,8 @@
  *
  ****************************************************************************/
 
-int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
-                       FAR struct in6_addr *srcipaddr)
+static int _netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
+                               FAR struct in6_addr *srcipaddr)
 {
   FAR struct lifreq *lifr;
   struct lifconf lifc;
@@ -210,6 +210,73 @@ errout_with_ifr:
 
 errout_with_sd:
   close(sd);
+  return ret;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: netlib_ipv6adaptor
+ *
+ * Description:
+ *   Given the destination address, destipaddr, return the IP address
+ *   assigned to the network adaptor that connects the sub-net that
+ *   includes destipaddr.
+ *
+ *   If routing table support is enabled, then this logic will account for
+ *   the case where the destination address is not locally accessible.  In
+ *   this case, it will return the IP address of the network adaptor that
+ *   provides the correct router to handle that destination address.
+ *
+ * Input Parameters:
+ *   destipaddr - The destination IPv6 address
+ *   srcipaddr  - The location to return that adaptor address that serves
+ *                the sub-net that includes the destination address.
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success with srcipaddr valid.  A negated
+ *   errno value is returned on any failure and in this case the srcipaddr
+ *   is not valid.
+ *
+ ****************************************************************************/
+
+int netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
+                       FAR struct in6_addr *srcipaddr)
+{
+  int ret;
+
+  DEBUGASSERT(destipaddr != NULL && srcipaddr != NULL);
+
+  ret = _netlib_ipv6adaptor(destipaddr, srcipaddr);
+
+#ifdef HAVE_ROUTE_PROCFS
+  if (ret < 0)
+    {
+      struct in6_addr router;
+
+      /* If the first adaptor look-up on the the destination IP address
+       * failed,  then the IP address cannot be sent on any of the
+       * currently up network devices configured with an IPv6 address.
+       *
+       * But perhaps the destination address is on a sub-net that is
+       * accessible on a router that can be reached through a local
+       * network adaptor?
+       */
+
+      ret = netlib_ipv6router(destipaddr, &router);
+      if (ret >= 0)
+        {
+          /* Yes... try again using the router address as the destination
+           * address.
+           */
+
+          ret = _netlib_ipv6adaptor(&router, srcipaddr);
+        }
+    }
+#endif
+
   return ret;
 }
 

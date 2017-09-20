@@ -56,6 +56,9 @@ endif
 ifeq ($(CONFIG_NETDB_DNSCLIENT),y)
 CSRCS += netlib_setipv4dnsaddr.c
 endif
+ifeq ($(CONFIG_NET_ROUTE),y)
+CSRCS += netlib_ipv4route.c netlib_ipv4router.c
+endif
 endif
 
 ifeq ($(CONFIG_NET_IPv6),y)
@@ -65,6 +68,9 @@ CSRCS += netlib_prefix2ipv6netmask.c netlib_ipv6netmask2prefix.c
 CSRCS += netlib_ipv6adaptor.c
 ifeq ($(CONFIG_NET_ICMPv6_AUTOCONF),y)
 CSRCS += netlib_autoconfig.c
+endif
+ifeq ($(CONFIG_NET_ROUTE),y)
+CSRCS += netlib_ipv6route.c netlib_ipv6router.c
 endif
 endif
 

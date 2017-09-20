@@ -51,6 +51,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <pthread.h>
 
 #include <netinet/in.h>
@@ -59,6 +60,21 @@
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
+
+#undef HAVE_ROUTE_PROCFS
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_NET_ROUTE) && \
+    defined(CONFIG_FS_PROCFS) && !defined(CONFIG_FS_PROCFS_EXCLUDE_ROUTE)
+#  define HAVE_ROUTE_PROCFS
+#endif
+
+#ifdef HAVE_ROUTE_PROCFS
+#  ifndef CONFIG_NETLIB_PROCFS_MOUNTPT
+#    define CONFIG_NETLIB_PROCFS_MOUNTPT "/proc"
+#  endif
+
+#  define IPv4_ROUTE_PATH CONFIG_NETLIB_PROCFS_MOUNTPT "/net/route/ipv4"
+#  define IPv6_ROUTE_PATH CONFIG_NETLIB_PROCFS_MOUNTPT "/net/route/ipv6"
+#endif
 
 /* SOCK_DGRAM is the preferred socket type to use when we just want a
  * socket for performing drive ioctls.  However, we can't use SOCK_DRAM
@@ -74,6 +90,38 @@
 #elif defined(CONFIG_NET_PKT)
 # define NETLIB_SOCK_IOCTL SOCK_RAW
 #endif
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+#ifdef HAVE_ROUTE_PROCFS
+/* Describes one entry from the IPv4 routing table.  All addresses are in
+ * host byte order!
+ */
+
+#ifdef CONFIG_NET_IPv4
+struct netlib_ipv4_route_s
+{
+  in_addr_t prefix;               /* Routing prefix */
+  in_addr_t netmask;              /* Routing netmask */
+  in_addr_t router;               /* Router IPv4 address */
+};
+#endif
+
+/* Describes one entry from the IPv6 routing table.  All addresses are in
+ * host byte order!
+ */
+
+#ifdef CONFIG_NET_IPv6
+struct netlib_ipv6_route_s
+{
+  uint16_t prefix[8];             /* Routing prefix */
+  uint16_t netmask[8];            /* Routing netmask */
+  uint16_t router[8];             /* Router IPv6 address */
+};
+#endif
+#endif /* HAVE_ROUTE_PROCFS */
 
 /****************************************************************************
  * Public Data
@@ -180,6 +228,25 @@ int netlib_get_arpmapping(FAR const struct sockaddr_in *inaddr,
                           FAR uint8_t *macaddr);
 int netlib_set_arpmapping(FAR const struct sockaddr_in *inaddr,
                           FAR const uint8_t *macaddr);
+#endif
+
+#ifdef HAVE_ROUTE_PROCFS
+#  ifdef CONFIG_NET_IPv4
+#    define netlib_open_ipv4route()        fopen(IPv4_ROUTE_PATH, "r")
+#    define netlib_close_ipv4route(stream) fclose(stream)
+ssize_t netlib_read_ipv4route(FILE *stream,
+                              FAR struct netlib_ipv4_route_s *route);
+int netlib_ipv4router(FAR const struct in_addr *destipaddr,
+                      FAR struct in_addr *router);
+#  endif
+#  ifdef CONFIG_NET_IPv6
+#    define netlib_open_ipv6route()        fopen(IPv6_ROUTE_PATH, "r")
+#    define netlib_close_ipv6route(stream) fclose(stream)
+ssize_t netlib_read_ipv6route(FILE *stream,
+                              FAR struct netlib_ipv6_route_s *route);
+int netlib_ipv6router(FAR const struct in6_addr *destipaddr,
+                      FAR struct in6_addr *router);
+#  endif
 #endif
 
 #ifdef CONFIG_NET_ICMPv6_AUTOCONF

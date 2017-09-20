@@ -53,11 +53,11 @@
 #ifdef CONFIG_NET_IPv4
 
 /****************************************************************************
- * Public Functions
+ * Priver Functions
  ****************************************************************************/
 
 /****************************************************************************
- * Name: netlib_ipv4adaptor
+ * Name: _netlib_ipv4adaptor
  *
  * Description:
  *   Given the destination address, destipaddr, return the IP address
@@ -87,7 +87,7 @@
  *
  ****************************************************************************/
 
-int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
+static int _netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
 {
   FAR struct ifreq *ifr;
   struct ifconf ifc;
@@ -206,6 +206,73 @@ errout_with_ifr:
 
 errout_with_sd:
   close(sd);
+  return ret;
+}
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: netlib_ipv4adaptor
+ *
+ * Description:
+ *   Given the destination address, destipaddr, return the IP address
+ *   assigned to the network adaptor that connects the sub-net that
+ *   includes destipaddr.
+ *
+ *   If routing table support is enabled, then this logic will account for
+ *   the case where the destination address is not locally accessible.  In
+ *   this case, it will return the IP address of the network adaptor that
+ *   provides the correct router to handle that destination address.
+ *
+ * Input Parameters:
+ *   destipaddr - The destination IPv4 address
+ *   srcipaddr  - The location to return that adaptor address that serves
+ *                the sub-net that includes the destination address.
+ *
+ * Returned Value:
+ *   Zero (OK) is returned on success with srcipaddr valid.  A negated
+ *   errno value is returned on any failure and in this case the srcipaddr
+ *   is not valid.
+ *
+ ****************************************************************************/
+
+int netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
+{
+  int ret;
+
+  DEBUGASSERT(srcipaddr != NULL);
+  ret = _netlib_ipv4adaptor(destipaddr, srcipaddr);
+
+#ifdef HAVE_ROUTE_PROCFS
+  if (ret < 0)
+    {
+      struct in_addr router;
+      struct in_addr destinaddr;
+
+      /* If the first adaptor look-up on the the destination IP address
+       * failed, then the IP address cannot be sent on any of the currently
+       * up network devices configured with an IPv4 address.
+       *
+       * But perhaps the destination address is on a sub-net that is
+       * accessible on a router that can be reached through a local network
+       * adaptor?
+       */
+
+      destinaddr.s_addr = destipaddr;
+      ret = netlib_ipv4router(&destinaddr, &router);
+      if (ret >= 0)
+        {
+          /* Yes... try again using the router address as the destination
+           * address.
+           */
+
+          ret = _netlib_ipv4adaptor(router.s_addr, srcipaddr);
+        }
+    }
+#endif
+
   return ret;
 }
 
