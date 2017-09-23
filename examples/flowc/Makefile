@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/flowc/Makefile
 #
-#   Copyright (C) 2007-2008, 2011-2012, 2014, 2017 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without

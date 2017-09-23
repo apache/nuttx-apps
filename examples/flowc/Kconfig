@@ -8,7 +8,27 @@ config EXAMPLES_FLOWC
 	default n
 	depends on SERIAL_TERMIOS
 	---help---
-		Enable the serial hardware flow control test
+		Enable the serial hardware flow control test.
+
+		Serial termios support must be enabled.
+
+			CONFIG_SERIAL_TERMIOS=y
+
+		In addtion, you will need these related serial driver settings (the
+		actual values of the watermark setting may be tuned to suit your
+		preferences)
+
+			CONFIG_SERIAL_IFLOWCONTROL=y
+			CONFIG_SERIAL_IFLOWCONTROL_WATERMARKS=y
+			CONFIG_SERIAL_IFLOWCONTROL_LOWER_WATERMARK=25
+			CONFIG_SERIAL_IFLOWCONTROL_UPPER_WATERMARK=75
+
+		And for the CDC/ACM driver in particular:
+
+			CONFIG_CDCACM_IFLOWCONTROL=y
+
+		There are hooks in place for output flow control but these have not
+		been exercised.
 
 if EXAMPLES_FLOWC
 
