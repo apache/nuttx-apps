@@ -428,6 +428,11 @@ examples/flash_test
       internal OS interfaces and so is not available in the NUTTX kernel
       builds
 
+examples/flowc
+^^^^^^^^^^^^^^
+
+  A simple test of serial hardware flow control.
+
 examples/fstest
 ^^^^^^^^^^^^^^
 
