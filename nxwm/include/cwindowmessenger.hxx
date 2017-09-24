@@ -90,6 +90,8 @@ namespace NxWM
         work_s work;
         CWindowMessenger *windowMessenger;
         void *instance;
+
+        work_state_t() : work() {}
       };
 
     /** Work queue callback functions */
