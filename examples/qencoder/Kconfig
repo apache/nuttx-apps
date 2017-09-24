@@ -6,7 +6,7 @@
 config EXAMPLES_QENCODER
 	bool "Quadrature encoder example"
 	default n
-	depends on QENCODER
+	depends on SENSORS_QENCODER
 	---help---
 		Enable the quadrature encoder example
 
