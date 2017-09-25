@@ -997,21 +997,24 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   else
 #endif
     {
+      if (hostip != NULL)
+        {
 #if defined(CONFIG_NSH_DHCPC)
-      if (!strcmp(hostip, "dhcp"))
-        {
-          /* Set DHCP addr */
+          if (!strcmp(hostip, "dhcp"))
+            {
+              /* Set DHCP addr */
 
-          ninfo("DHCPC Mode\n");
-          gip = addr.s_addr = 0;
-        }
-      else
+              ninfo("DHCPC Mode\n");
+              gip = addr.s_addr = 0;
+            }
+          else
 #endif
-        {
-          /* Set host IP address */
+            {
+              /* Set host IP address */
 
-          ninfo("Host IP: %s\n", hostip);
-          gip = addr.s_addr = inet_addr(hostip);
+              ninfo("Host IP: %s\n", hostip);
+              gip = addr.s_addr = inet_addr(hostip);
+            }
         }
 
       netlib_set_ipv4addr(ifname, &addr);
@@ -1020,7 +1023,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifdef CONFIG_NET_IPv6
 #ifdef CONFIG_NET_IPv4
-  if (inet6)
+  if (inet6i != NULL)
 #endif
     {
 #warning Missing Logic

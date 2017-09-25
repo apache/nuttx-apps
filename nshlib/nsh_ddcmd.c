@@ -246,10 +246,20 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     {
       if (strncmp(argv[i], "if=", 3) == 0)
         {
+          if (infile != NULL)
+            {
+              free(infile);
+            }
+
           infile = nsh_getfullpath(vtbl, &argv[i][3]);
         }
       else if (strncmp(argv[i], "of=", 3) == 0)
         {
+          if (outfile != NULL)
+            {
+              free(outfile);
+            }
+
           outfile = nsh_getfullpath(vtbl, &argv[i][3]);
         }
       else if (strncmp(argv[i], "bs=", 3) == 0)
@@ -267,7 +277,7 @@ int cmd_dd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 
 #ifndef CAN_PIPE_FROM_STD
-  if (!infile || !outfile)
+  if (infile == NULL || outfile == NULL)
     {
       nsh_output(vtbl, g_fmtargrequired, g_dd);
       goto errout_with_paths;

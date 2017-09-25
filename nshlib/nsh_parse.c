@@ -1497,10 +1497,10 @@ static int nsh_loop(FAR struct nsh_vtbl_s *vtbl, FAR char **ppcmd,
     {
       /* Check if the command is preceded by "while" or "until" */
 
-      whilematch = strcmp(cmd, "while");
-      untilmatch = strcmp(cmd, "until");
+      whilematch = strcmp(cmd, "while") == 0;
+      untilmatch = strcmp(cmd, "until") == 0;
 
-      if (whilematch == 0 || untilmatch == 0)
+      if (whilematch || untilmatch)
         {
           uint8_t state;
 
