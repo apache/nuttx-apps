@@ -90,11 +90,16 @@ static inline void check_buffer(FAR uint8_t *buf, size_t buflen)
           g_nerrors++;
           ch = *ptr;
         }
+
+      if (++ch > 0x7e)
+        {
+          ch = 0x20;
+        }
     }
 
   /* Update globals */
 
-  g_expected = ch + 1;
+  g_expected = ch;
   if (g_expected > 0x7e)
     {
       g_expected = 0x20;
