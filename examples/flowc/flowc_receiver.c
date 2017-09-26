@@ -192,7 +192,8 @@ int flowc_receiver(int argc, char **argv)
           return 1;
         }
 
-#ifdef CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY
+#if defined(CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY) && \
+    CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY > 0
       /* Delay to force flow control */
 
       usleep(1000 * CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY);
