@@ -191,6 +191,12 @@ int flowc_receiver(int argc, char **argv)
           close(fd);
           return 1;
         }
+
+#ifdef CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY
+      /* Delay to force flow control */
+
+      usleep(1000 * CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY);
+#endif
     }
 
   close(fd);

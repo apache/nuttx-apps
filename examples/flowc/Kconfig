@@ -102,6 +102,10 @@ config EXAMPLES_FLOWC_RECEIVER_BUFSIZE
 	int "Receiver buffer size"
 	default 64
 
+config EXAMPLES_FLOWC_RECEIVER_DELAY
+	int "Receiver read delay (msec)"
+	default 100
+
 config EXAMPLES_FLOWC_RECEVER_DEVNAME
 	string "Default TTY device for receiver"
 	default "/dev/ttyACM0"
