@@ -203,6 +203,14 @@ int flowc_receiver(int argc, char **argv)
 
       usleep(1000 * CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY);
 #endif
+
+#ifdef CONFIG_SYSLOG_INTBUFFER
+      /* Just to force a flush of syslog interrupt buffer.  May also provide
+       * a handy indication that the test is still running.
+       */
+
+      syslog(LOG_INFO, ".");
+#endif
     }
 
   close(fd);
