@@ -1023,7 +1023,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
 #ifdef CONFIG_NET_IPv6
 #ifdef CONFIG_NET_IPv4
-  if (inet6 != NULL)
+  if (inet6)
 #endif
     {
 #warning Missing Logic
