@@ -143,6 +143,7 @@ int flowc_receiver(int argc, char **argv)
   struct termios term;
 #endif
   ssize_t nread;
+  int readcount = 0;
   int ret;
   int fd;
 
@@ -197,6 +198,10 @@ int flowc_receiver(int argc, char **argv)
           return 1;
         }
 
+      /* Increase the packet counter */
+
+      readcount++;
+
 #if defined(CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY) && \
     CONFIG_EXAMPLES_FLOWC_RECEIVER_DELAY > 0
       /* Delay to force flow control */
@@ -205,6 +210,13 @@ int flowc_receiver(int argc, char **argv)
 #endif
 
 #ifdef CONFIG_SYSLOG_INTBUFFER
+      /* Move to next line if more than 80 chars */
+
+      if ((readcount % 80) == 0)
+        {
+          syslog(LOG_INFO, "\n");
+        }
+
       /* Just to force a flush of syslog interrupt buffer.  May also provide
        * a handy indication that the test is still running.
        */
