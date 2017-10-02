@@ -6,6 +6,7 @@
 config EXAMPLES_ELF
 	bool "ELF Loader Example"
 	default n
+	select LIBC_EXECFUNCS
 	---help---
 		Enable the ELF loader example
 

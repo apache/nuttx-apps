@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxflat/nxflat_main.c
  *
- *   Copyright (C) 2009, 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2009, 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,9 @@
 #include <debug.h>
 #include <errno.h>
 
+#include <nuttx/symtab.h>
 #include <nuttx/drivers/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
-#include <nuttx/binfmt/nxflat.h>
 
 #include "tests/romfs.h"
 #include "tests/dirlist.h"
@@ -96,31 +96,33 @@
 #define ROMFSDEV     "/dev/ram0"
 #define MOUNTPT      "/mnt/romfs"
 
-/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so that the
- * output will be synchronous with the debug output.
+/* If CONFIG_DEBUG_FEATURES is enabled, use info/err instead of printf so
+ * that the output will be synchronous with the debug output.
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG_FEATURES
-#    define message(format, ...)    _info(format, ##__VA_ARGS__)
-#    define errmsg(format, ...)     _err(format, ##__VA_ARGS__)
+#  ifdef CONFIG_DEBUG_INFO
+#    define message(format, ...)    syslog(LOG_INFO, format, ##__VA_ARGS__)
 #  else
 #    define message(format, ...)    printf(format, ##__VA_ARGS__)
+#  endif
+#  ifdef CONFIG_DEBUG_ERROR
+#    define errmsg(format, ...)     syslog(LOG_ERR, format, ##__VA_ARGS__)
+#  else
 #    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
-#  ifdef CONFIG_DEBUG_FEATURES
+#  ifdef CONFIG_DEBUG_INFO
 #    define message                 _info
-#    define errmsg                  _err
 #  else
 #    define message                 printf
+#  endif
+#  ifdef CONFIG_DEBUG_ERROR
+#    define errmsg                  _err
+#  else
 #    define errmsg                  printf
 #  endif
 #endif
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
 
 /****************************************************************************
  * Private Data
@@ -160,28 +162,18 @@ int main(int argc, FAR char *argv[])
 int nxflat_main(int argc, char *argv[])
 #endif
 {
-  struct binary_s bin;
+  FAR char *args[1];
   int ret;
   int i;
-
-  /* Initialize the NXFLAT binary loader */
-
-  message("Initializing the NXFLAT binary loader\n");
-  ret = nxflat_initialize();
-  if (ret < 0)
-    {
-      errmsg("ERROR: Initialization of the NXFLAT loader failed: %d\n", ret);
-      exit(1);
-    }
 
   /* Create a ROM disk for the ROMFS filesystem */
 
   message("Registering romdisk\n");
-  ret = romdisk_register(0, (FAR uint8_t *)romfs_img, NSECTORS(romfs_img_len), SECTORSIZE);
+  ret = romdisk_register(0, (FAR uint8_t *)romfs_img,
+                         NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
       errmsg("ERROR: romdisk_register failed: %d\n", ret);
-      nxflat_uninitialize();
       exit(1);
     }
 
@@ -195,15 +187,14 @@ int nxflat_main(int argc, char *argv[])
     {
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
              ROMFSDEV, MOUNTPT, errno);
-      nxflat_uninitialize();
     }
 
+#if defined(CONFIG_BINFMT_EXEPATH) && !defined(CONFIG_PATH_INITIAL)
   /* Does the system support the PATH variable?  Has the PATH variable
    * already been set?  If YES and NO, then set the PATH variable to
    * the ROMFS mountpoint.
    */
 
-#if defined(CONFIG_BINFMT_EXEPATH) && !defined(CONFIG_PATH_INITIAL)
   (void)setenv("PATH", MOUNTPT, 1);
 #endif
 
@@ -211,15 +202,13 @@ int nxflat_main(int argc, char *argv[])
 
   for (i = 0; dirlist[i]; i++)
     {
+      FAR const char *filename;
+
       /* Output a seperated so that we can clearly discrinmate the output of
        * this program from the others.
        */
 
       testheader(dirlist[i]);
-
-      /* Initialize the binary_s structure */
-
-      memset(&bin, 0, sizeof(struct binary_s));
 
       /* If the binary loader does not support the PATH variable, then
        * create the full path to the executable program.  Otherwise,
@@ -228,17 +217,16 @@ int nxflat_main(int argc, char *argv[])
        */
 
 #ifdef CONFIG_BINFMT_EXEPATH
-      bin.filename = dirlist[i];
+      filename = dirlist[i];
 #else
       snprintf(fullpath, 128, "%s/%s", MOUNTPT, dirlist[i]);
-      bin.filename = fullpath;
+      filename = fullpath;
 #endif
-      bin.exports  = exports;
-      bin.nexports = NEXPORTS;
 
       /* Load the NXFLAT module */
 
-      ret = load_module(&bin);
+      args[0] = NULL;
+      ret = exec(filename, args, exports, NEXPORTS);
       if (ret < 0)
         {
           errmsg("ERROR: Failed to load program '%s'\n", dirlist[i]);
@@ -250,12 +238,13 @@ int nxflat_main(int argc, char *argv[])
       ret = exec_module(&bin);
       if (ret < 0)
         {
-          errmsg("ERROR: Failed to execute program '%s'\n", dirlist[i]);
-          unload_module(&bin);
+          errmsg("ERROR: exec(%s) failed: %d\n", dirlist[i], errno);
         }
-
-      message("Wait a bit for test completion\n");
-      sleep(4);
+      else
+        {
+          message("Wait a bit for test completion\n");
+          sleep(4);
+        }
     }
 
   message("End-of-Test.. Exit-ing\n");

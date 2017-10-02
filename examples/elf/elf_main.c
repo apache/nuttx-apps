@@ -50,10 +50,9 @@
 #include <debug.h>
 #include <errno.h>
 
+#include <nuttx/symtab.h>
 #include <nuttx/drivers/ramdisk.h>
 #include <nuttx/binfmt/binfmt.h>
-#include <nuttx/binfmt/elf.h>
-#include <nuttx/binfmt/symtab.h>
 
 #include "platform/cxxinitialize.h"
 
@@ -107,26 +106,28 @@
  */
 
 #ifdef CONFIG_CPP_HAVE_VARARGS
-#  ifdef CONFIG_DEBUG_FEATURES
-#    define message(format, ...)    _info(format, ##__VA_ARGS__)
-#    define errmsg(format, ...)     _err(format, ##__VA_ARGS__)
+#  ifdef CONFIG_DEBUG_INFO
+#    define message(format, ...)    syslog(LOG_INFO, format, ##__VA_ARGS__)
 #  else
 #    define message(format, ...)    printf(format, ##__VA_ARGS__)
+#  endif
+#  ifdef CONFIG_DEBUG_ERROR
+#    define errmsg(format, ...)     syslog(LOG_ERR, format, ##__VA_ARGS__)
+#  else
 #    define errmsg(format, ...)     fprintf(stderr, format, ##__VA_ARGS__)
 #  endif
 #else
-#  ifdef CONFIG_DEBUG_FEATURES
+#  ifdef CONFIG_DEBUG_INFO
 #    define message                 _info
-#    define errmsg                  _err
 #  else
 #    define message                 printf
+#  endif
+#  ifdef CONFIG_DEBUG_ERROR
+#    define errmsg                  _err
+#  else
 #    define errmsg                  printf
 #  endif
 #endif
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
 
 /****************************************************************************
  * Private Data
@@ -223,13 +224,13 @@ int main(int argc, FAR char *argv[])
 int elf_main(int argc, char *argv[])
 #endif
 {
-  struct binary_s bin;
+  FAR char *args[1];
   int ret;
   int i;
 
+#if defined(CONFIG_EXAMPLES_ELF_CXXINITIALIZE)
   /* Call all C++ static constructors */
 
-#if defined(CONFIG_EXAMPLES_ELF_CXXINITIALIZE)
   up_cxxinitialize();
 #endif
 
@@ -237,27 +238,16 @@ int elf_main(int argc, char *argv[])
 
   mm_initmonitor();
 
-  /* Initialize the ELF binary loader */
-
-  message("Initializing the ELF binary loader\n");
-  ret = elf_initialize();
-  if (ret < 0)
-    {
-      errmsg("ERROR: Initialization of the ELF loader failed: %d\n", ret);
-      exit(1);
-    }
-
-  mm_update(&g_mmstep, "after elf_initialize");
-
   /* Create a ROM disk for the ROMFS filesystem */
 
-  message("Registering romdisk at /dev/ram%d\n", CONFIG_EXAMPLES_ELF_DEVMINOR);
-  ret = romdisk_register(CONFIG_EXAMPLES_ELF_DEVMINOR, (FAR uint8_t *)romfs_img,
+  message("Registering romdisk at /dev/ram%d\n",
+          CONFIG_EXAMPLES_ELF_DEVMINOR);
+  ret = romdisk_register(CONFIG_EXAMPLES_ELF_DEVMINOR,
+                         (FAR uint8_t *)romfs_img,
                          NSECTORS(romfs_img_len), SECTORSIZE);
   if (ret < 0)
     {
       errmsg("ERROR: romdisk_register failed: %d\n", ret);
-      elf_uninitialize();
       exit(1);
     }
 
@@ -273,17 +263,16 @@ int elf_main(int argc, char *argv[])
     {
       errmsg("ERROR: mount(%s,%s,romfs) failed: %s\n",
              CONFIG_EXAMPLES_ELF_DEVPATH, MOUNTPT, errno);
-      elf_uninitialize();
     }
 
   mm_update(&g_mmstep, "after mount");
 
+#if defined(CONFIG_BINFMT_EXEPATH) && !defined(CONFIG_PATH_INITIAL)
   /* Does the system support the PATH variable?  Has the PATH variable
    * already been set?  If YES and NO, then set the PATH variable to
    * the ROMFS mountpoint.
    */
 
-#if defined(CONFIG_BINFMT_EXEPATH) && !defined(CONFIG_PATH_INITIAL)
   (void)setenv("PATH", MOUNTPT, 1);
 #endif
 
@@ -291,15 +280,13 @@ int elf_main(int argc, char *argv[])
 
   for (i = 0; dirlist[i]; i++)
     {
+      FAR const char *filename;
+
       /* Output a seperated so that we can clearly discrinmate the output of
        * this program from the others.
        */
 
       testheader(dirlist[i]);
-
-      /* Initialize the binary_s structure */
-
-      memset(&bin, 0, sizeof(struct binary_s));
 
       /* If the binary loader does not support the PATH variable, then
        * create the full path to the executable program.  Otherwise,
@@ -308,34 +295,22 @@ int elf_main(int argc, char *argv[])
        */
 
 #ifdef CONFIG_BINFMT_EXEPATH
-      bin.filename = dirlist[i];
+      filename = dirlist[i];
 #else
       snprintf(fullpath, 128, "%s/%s", MOUNTPT, dirlist[i]);
-      bin.filename = fullpath;
+      filename = fullpath;
 #endif
-      bin.exports  = exports;
-      bin.nexports = nexports;
-
-      /* Load the ELF module */
-
-      ret = load_module(&bin);
-      if (ret < 0)
-        {
-          errmsg("ERROR: Failed to load program '%s'\n", dirlist[i]);
-          exit(1);
-        }
-
-      mm_update(&g_mmstep, "after load_module");
 
       /* Execute the ELF module */
 
-      ret = exec_module(&bin);
+      args[0] = NULL;
+      ret = exec(filename, args, exports, nexports);
 
-      mm_update(&g_mmstep, "after exec_module");
+      mm_update(&g_mmstep, "after exec");
 
       if (ret < 0)
         {
-          errmsg("ERROR: Failed to execute program '%s'\n", dirlist[i]);
+          errmsg("ERROR: exec(%s) failed: %d\n", dirlist[i], errno);
         }
       else
         {
@@ -343,8 +318,7 @@ int elf_main(int argc, char *argv[])
           sleep(4);
         }
 
-      unload_module(&bin);
-      mm_update(&g_mmstep, "after unload_module");
+      mm_update(&g_mmstep, "after program execution");
     }
 
   mm_update(&g_mmstep, "End-of-Test");
