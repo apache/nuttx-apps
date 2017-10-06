@@ -19,7 +19,7 @@ config EXAMPLES_MAXSAMPLES
 		This is the size of the /dev/random I/O buffer in units of 32-bit
 		samples.  Careful!  This buffer is allocated on the stack as needed!
 
-config EXAMPLES_NSAMPLES;
+config EXAMPLES_NSAMPLES
 	int "Default samples"
 	default 8
 	---help---
