@@ -137,6 +137,12 @@ static FAR void *thread_waiter(FAR void *parameter)
       printf("thread_waiter: ERROR pthread_cond_wait returned after being cancelled!\n");
     }
 
+  /* Why is this here?  Because pthread_setcancelstate() is not a
+   * cancellation point but printf() is.
+   */
+
+  pthread_testcancel();
+
   printf("thread_waiter: Exit with status 0x12345678\n");
   pthread_exit((pthread_addr_t)0x12345678);
   return NULL;
