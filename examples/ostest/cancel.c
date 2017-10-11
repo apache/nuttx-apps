@@ -138,7 +138,12 @@ static FAR void *thread_waiter(FAR void *parameter)
     }
 
   /* Why is this here?  Because pthread_setcancelstate() is not a
-   * cancellation point but printf() is.
+   * cancellation point and printf() may or may not be a cancellation point
+   * (OpenGroup.org allows printf to optionally be a cancellation point).
+   * If printf() is not a cancellation point, then the thread will never
+   * be cancelled in the deffered cancellation mode and will instead exit
+   * with no error.  The pthread_testcancel() is needed to correctly test
+   * that cancellation has been re-enabled.
    */
 
   pthread_testcancel();
