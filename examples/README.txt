@@ -701,6 +701,12 @@ examples/i2cchar
       each time that this test executes.  Not available in the kernel build
       mode.
 
+examples/ina219
+^^^^^^^^^^^^^^^
+
+  This is a simple infinite loop that polls the INA219 sensor and displays
+  the measurements.
+
 examples/ipforward
 ^^^^^^^^^^^^^^^^^^
 
