@@ -216,7 +216,7 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
 
   /* Check for an absolute path */
 
-  else if (relpath[0] == '/' && relpath[1] == ':' && relpath[2] == '\\')
+  else if (relpath[0] == '/')
     {
       ptr = strdup(relpath);
     }
