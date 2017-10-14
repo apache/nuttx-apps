@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/nxlines/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,16 +38,19 @@
 # NuttX NX Graphics Example.
 
 ASRCS =
-CSRCS = nxlines_bkgd.c
+CSRCS = nxlines_bkgd.c nxlines_listener.c
 MAINSRC = nxlines_main.c
 
-CONFIG_XYZ_PROGNAME ?= nxlines$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_NXLINES_PROGNAME ?= nxhello$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_NXLINES_PROGNAME)
 
 # NXLINES built-in application info
 
+CONFIG_EXAMPLES_NXLINES_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_NXLINES_STACKSIZE ?= 2048
+
 APPNAME = nxlines
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
+PRIORITY = $(CONFIG_EXAMPLES_NXLINES_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_NXLINES_STACKSIZE)
 
 include $(APPDIR)/Application.mk

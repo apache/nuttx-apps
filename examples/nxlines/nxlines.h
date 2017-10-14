@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxlines/nxlines.h
  *
- *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,10 +60,6 @@
 #  error "NX is not enabled (CONFIG_NX)"
 #endif
 
-#ifndef CONFIG_EXAMPLES_NXLINES_VPLANE
-#    define CONFIG_EXAMPLES_NXLINES_VPLANE 0
-#endif
-
 #ifndef CONFIG_EXAMPLES_NXLINES_BPP
 #  define CONFIG_EXAMPLES_NXLINES_BPP 16
 #endif
@@ -116,6 +112,36 @@
 #  endif
 #endif
 
+/* NX server support */
+
+#ifdef CONFIG_DISABLE_MQUEUE
+#  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
+#endif
+#ifdef CONFIG_DISABLE_SIGNALS
+#  error "This example requires signal support (CONFIG_DISABLE_SIGNALS=n)"
+#endif
+#ifdef CONFIG_DISABLE_PTHREAD
+#  error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
+#endif
+#ifndef CONFIG_NX_BLOCKING
+#  error "This example depends on CONFIG_NX_BLOCKING"
+#endif
+#ifndef CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE
+#  define CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE 2048
+#endif
+#ifndef CONFIG_EXAMPLES_NXLINES_LISTENERPRIO
+#  define CONFIG_EXAMPLES_NXLINES_LISTENERPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NXLINES_CLIENTPRIO
+#  define CONFIG_EXAMPLES_NXLINES_CLIENTPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NXLINES_SERVERPRIO
+#  define CONFIG_EXAMPLES_NXLINES_SERVERPRIO 120
+#endif
+#ifndef CONFIG_EXAMPLES_NXLINES_NOTIFYSIGNO
+#  define CONFIG_EXAMPLES_NXLINES_NOTIFYSIGNO 4
+#endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -123,12 +149,7 @@
 enum exitcode_e
 {
   NXEXIT_SUCCESS = 0,
-  NXEXIT_EXTINITIALIZE,
-  NXEXIT_FBINITIALIZE,
-  NXEXIT_FBGETVPLANE,
-  NXEXIT_LCDINITIALIZE,
-  NXEXIT_LCDGETDEV,
-  NXEXIT_NXOPEN,
+  NXEXIT_INIT,
   NXEXIT_NXREQUESTBKGD,
   NXEXIT_NXSETBGCOLOR
 };
@@ -139,6 +160,7 @@ struct nxlines_data_s
 
   NXHANDLE hnx;
   NXHANDLE hbkgd;
+  bool connected;
 
   /* The screen resolution */
 
@@ -146,7 +168,7 @@ struct nxlines_data_s
   nxgl_coord_t yres;
 
   volatile bool havepos;
-  sem_t sem;
+  sem_t eventsem;
   volatile int code;
 };
 
@@ -165,6 +187,10 @@ extern const struct nx_callback_s g_nxlinescb;
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+/* NX event listener */
+
+FAR void *nxlines_listener(FAR void *arg);
 
 /* Background window interfaces */
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxlines/nxlines_bkgd.c
  *
- *   Copyright (C) 2011-2012, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -161,7 +161,7 @@ static void nxlines_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
       g_nxlines.yres = bounds->pt2.y + 1;
 
       g_nxlines.havepos = true;
-      sem_post(&g_nxlines.sem);
+      sem_post(&g_nxlines.eventsem);
       ginfo("Have xres=%d yres=%d\n", g_nxlines.xres, g_nxlines.yres);
     }
 }

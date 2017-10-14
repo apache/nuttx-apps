@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxlines/nxlines_main.c
  *
- *   Copyright (C) 2011-2012, 2015-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,13 +54,8 @@
 #include <nuttx/arch.h>
 #include <nuttx/board.h>
 
-#ifdef CONFIG_NX_LCDDRIVER
-#  include <nuttx/lcd/lcd.h>
-#else
-#  include <nuttx/video/fb.h>
-#  ifdef CONFIG_VNCSERVER
-#    include <nuttx/video/vnc.h>
-#  endif
+#ifdef CONFIG_VNCSERVER
+#  include <nuttx/video/vnc.h>
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -103,13 +98,14 @@
 
 struct nxlines_data_s g_nxlines =
 {
-  NULL,          /* hnx */
-  NULL,          /* hbkgd */
-  0,             /* xres */
-  0,             /* yres */
-  false,         /* havpos */
-  { 0 },         /* sem */
-  NXEXIT_SUCCESS /* exit code */
+  NULL,               /* hnx */
+  NULL,               /* hbkgd */
+  false,              /* connected */
+  0,                  /* xres */
+  0,                  /* yres */
+  false,              /* havpos */
+  SEM_INITIALIZER(0), /* eventsem */
+  NXEXIT_SUCCESS      /* exit code */
 };
 
 /****************************************************************************
@@ -122,107 +118,81 @@ struct nxlines_data_s g_nxlines =
 
 static inline int nxlines_initialize(void)
 {
-  FAR NX_DRIVERTYPE *dev;
+  struct sched_param param;
+  pthread_t thread;
   int ret;
 
-#if defined(CONFIG_EXAMPLES_NXLINES_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
+  /* Set the client task priority */
 
-  /* Use external graphics driver initialization */
-
-  printf("nxlines_initialize: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_EXAMPLES_NXLINES_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  param.sched_priority = CONFIG_EXAMPLES_NXLINES_CLIENTPRIO;
+  ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      printf("nxlines_initialize: boardctl failed, devno=%d: %d\n",
-             CONFIG_EXAMPLES_NXLINES_DEVNO, errno);
-      g_nxlines.code = NXEXIT_EXTINITIALIZE;
+      printf("nxlines_initialize: sched_setparam failed: %d\n" , ret);
       return ERROR;
     }
 
-  dev = devinfo.dev;
+  /* Start the NX server kernel thread */
 
-#elif defined(CONFIG_NX_LCDDRIVER)
-  /* Initialize the LCD device */
-
-  printf("nxlines_initialize: Initializing LCD\n");
-  ret = board_lcd_initialize();
+  ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxlines_initialize: board_lcd_initialize failed: %d\n", -ret);
-      g_nxlines.code = NXEXIT_LCDINITIALIZE;
+      printf("nxlines_initialize: Failed to start the NX server: %d\n", errno);
       return ERROR;
     }
 
-  /* Get the device instance */
+  /* Connect to the server */
 
-  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXLINES_DEVNO);
-  if (!dev)
+  g_nxlines.hnx = nx_connect();
+  if (g_nxlines.hnx)
     {
-      printf("nxlines_initialize: board_lcd_getdev failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXLINES_DEVNO);
-      g_nxlines.code = NXEXIT_LCDGETDEV;
-      return ERROR;
-    }
-
-  /* Turn the LCD on at 75% power */
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-#else
-  /* Initialize the frame buffer device */
-
-  printf("nxlines_initialize: Initializing framebuffer\n");
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      printf("nxlines_initialize: up_fbinitialize failed: %d\n", -ret);
-
-      g_nxlines.code = NXEXIT_FBINITIALIZE;
-      return ERROR;
-    }
-
-  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXLINES_VPLANE);
-  if (!dev)
-    {
-      printf("nxlines_initialize: up_fbgetvplane failed, vplane=%d\n",
-             CONFIG_EXAMPLES_NXLINES_VPLANE);
-
-      g_nxlines.code = NXEXIT_FBGETVPLANE;
-      return ERROR;
-    }
-#endif
-
-  /* Then open NX */
-
-  printf("nxlines_initialize: Open NX\n");
-
-  g_nxlines.hnx = nx_open(dev);
-  if (!g_nxlines.hnx)
-    {
-      printf("nxlines_initialize: nx_open failed: %d\n", errno);
-
-      g_nxlines.code = NXEXIT_NXOPEN;
-      return ERROR;
-    }
+       pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
-  /* Setup the VNC server to support keyboard/mouse inputs */
+      /* Setup the VNC server to support keyboard/mouse inputs */
 
-  ret = vnc_default_fbinitialize(0, g_nxlines.hnx);
-  if (ret < 0)
+      ret = vnc_default_fbinitialize(0, g_nxlines.hnx);
+      if (ret < 0)
+        {
+          printf("vnc_default_fbinitialize failed: %d\n", ret);
+          nx_disconnect(g_nxlines.hnx);
+          return ERROR;
+        }
+#endif
+       /* Start a separate thread to listen for server events.  This is probably
+        * the least efficient way to do this, but it makes this example flow more
+        * smoothly.
+        */
+
+       (void)pthread_attr_init(&attr);
+       param.sched_priority = CONFIG_EXAMPLES_NXLINES_LISTENERPRIO;
+       (void)pthread_attr_setschedparam(&attr, &param);
+       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXLINES_LISTENER_STACKSIZE);
+
+       ret = pthread_create(&thread, &attr, nxlines_listener, NULL);
+       if (ret != 0)
+         {
+            printf("nxlines_initialize: pthread_create failed: %d\n", ret);
+            return ERROR;
+         }
+
+       /* Don't return until we are connected to the server */
+
+       while (!g_nxlines.connected)
+         {
+           /* Wait for the listener thread to wake us up when we really
+            * are connected.
+            */
+
+           (void)sem_wait(&g_nxlines.eventsem);
+         }
+    }
+  else
     {
-      printf("vnc_default_fbinitialize failed: %d\n", ret);
-
-      nx_close(g_nxlines.hnx);
-      g_nxlines.code = NXEXIT_FBINITIALIZE;
+      printf("nxlines_initialize: nx_connect failed: %d\n", errno);
       return ERROR;
     }
-#endif
+
   return OK;
 }
 
@@ -250,7 +220,7 @@ int nxlines_main(int argc, char *argv[])
   if (!g_nxlines.hnx || ret < 0)
     {
       printf("nxlines_main: Failed to get NX handle: %d\n", errno);
-      g_nxlines.code = NXEXIT_NXOPEN;
+      g_nxlines.code = NXEXIT_INIT;
       goto errout;
     }
 
@@ -284,8 +254,9 @@ int nxlines_main(int argc, char *argv[])
 
   while (!g_nxlines.havepos)
     {
-      (void)sem_wait(&g_nxlines.sem);
+      (void)sem_wait(&g_nxlines.eventsem);
     }
+
   printf("nxlines_main: Screen resolution (%d,%d)\n", g_nxlines.xres, g_nxlines.yres);
 
   /* Now, say perform the lines (these test does not return so the remaining
@@ -301,8 +272,9 @@ int nxlines_main(int argc, char *argv[])
   /* Close NX */
 
 errout_with_nx:
-  printf("nxlines_main: Close NX\n");
-  nx_close(g_nxlines.hnx);
+  printf("nxhello_main: Disconnect from the server\n");
+  nx_disconnect(g_nxlines.hnx);
+
 errout:
   return g_nxlines.code;
 }

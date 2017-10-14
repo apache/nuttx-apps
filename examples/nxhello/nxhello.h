@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello.h
  *
- *   Copyright (C) 2011, 2015 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@
 #  endif
 #endif
 
-/* Multi-user NX support */
+/* NX server support */
 
 #ifdef CONFIG_DISABLE_MQUEUE
 #  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
