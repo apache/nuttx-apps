@@ -296,7 +296,6 @@ static void nxeg_tbmousein(NXEGWINDOW hwnd, FAR const struct nxgl_point_s *pos,
  * Name: nx_listenerthread
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MULTIUSER
 FAR void *nx_listenerthread(FAR void *arg)
 {
   int ret;
@@ -334,4 +333,3 @@ FAR void *nx_listenerthread(FAR void *arg)
         }
     }
 }
-#endif

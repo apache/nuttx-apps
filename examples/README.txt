@@ -1072,10 +1072,6 @@ examples/nx
 
     CONFIG_NSH_BUILTIN_APPS -- Build the NX example as a "built-in"
       that can be executed from the NSH command line
-    CONFIG_EXAMPLES_NX_VPLANE -- The plane to select from the frame-
-      buffer driver for use in the test.  Default: 0
-    CONFIG_EXAMPLES_NX_DEVNO - The LCD device to select from the LCD
-      driver for use in the test: Default: 0
     CONFIG_EXAMPLES_NX_BGCOLOR -- The color of the background.  Default depends on
       CONFIG_EXAMPLES_NX_BPP.
     CONFIG_EXAMPLES_NX_COLOR1 -- The color of window 1. Default depends on
@@ -1108,10 +1104,8 @@ examples/nx
       CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
       will be available in order to access this function.
 
-  This test can be performed with either the single-user version of
-  NX or with the multiple user version of NX selected with CONFIG_NX_MULTIUSER.
-  If CONFIG_NX_MULTIUSER is defined, then the following configuration
-  options also apply:
+  This test requires the multiple user vrsion of NX selected with
+  CONFIG_NX_MULTIUSER.  Then the following configuration options also apply:
 
     CONFIG_EXAMPLES_NX_STACKSIZE -- The stacksize to use when creating
       the NX server.  Default 2048
@@ -1122,8 +1116,8 @@ examples/nx
     CONFIG_EXAMPLES_NX_NOTIFYSIGNO -- The signal number to use with
       nx_eventnotify().  Default: 4
 
-  If CONFIG_NX_MULTIUSER is defined, then the example also expects the
-  following settings and will generate an error if they are not as expected:
+  The example also has the following settings and will generate an error
+  if they are not as expected:
 
     CONFIG_DISABLE_MQUEUE=n
     CONFIG_DISABLE_SIGNALS=n

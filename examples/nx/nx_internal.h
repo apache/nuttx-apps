@@ -126,34 +126,34 @@
 #  define CONFIG_EXAMPLES_NX_TOOLBAR_HEIGHT 16
 #endif
 
-#ifdef CONFIG_NX_MULTIUSER
-#  ifdef CONFIG_DISABLE_MQUEUE
-#    error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
-#  endif
-#  ifdef CONFIG_DISABLE_SIGNALS
-#    error "This example requires signal support (CONFIG_DISABLE_SIGNALS=n)"
-#  endif
-#  ifdef CONFIG_DISABLE_PTHREAD
-#    error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
-#  endif
-#  ifndef CONFIG_NX_BLOCKING
-#    error "This example depends on CONFIG_NX_BLOCKING"
-#  endif
-#  ifndef CONFIG_EXAMPLES_NX_STACKSIZE
-#    define CONFIG_EXAMPLES_NX_STACKSIZE 2048
-#  endif
-#  ifndef CONFIG_EXAMPLES_NX_LISTENERPRIO
-#    define CONFIG_EXAMPLES_NX_LISTENERPRIO 100
-#  endif
-#  ifndef CONFIG_EXAMPLES_NX_CLIENTPRIO
-#    define CONFIG_EXAMPLES_NX_CLIENTPRIO 100
-#  endif
-#  ifndef CONFIG_EXAMPLES_NX_SERVERPRIO
-#    define CONFIG_EXAMPLES_NX_SERVERPRIO 120
-#  endif
-#  ifndef CONFIG_EXAMPLES_NX_NOTIFYSIGNO
-#    define CONFIG_EXAMPLES_NX_NOTIFYSIGNO 4
-#  endif
+/* NX Server Options */
+
+#ifdef CONFIG_DISABLE_MQUEUE
+#  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
+#endif
+#ifdef CONFIG_DISABLE_SIGNALS
+#  error "This example requires signal support (CONFIG_DISABLE_SIGNALS=n)"
+#endif
+#ifdef CONFIG_DISABLE_PTHREAD
+#  error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
+#endif
+#ifndef CONFIG_NX_BLOCKING
+#  error "This example depends on CONFIG_NX_BLOCKING"
+#endif
+#ifndef CONFIG_EXAMPLES_NX_STACKSIZE
+#  define CONFIG_EXAMPLES_NX_STACKSIZE 2048
+#endif
+#ifndef CONFIG_EXAMPLES_NX_LISTENERPRIO
+#  define CONFIG_EXAMPLES_NX_LISTENERPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NX_CLIENTPRIO
+#  define CONFIG_EXAMPLES_NX_CLIENTPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NX_SERVERPRIO
+#  define CONFIG_EXAMPLES_NX_SERVERPRIO 120
+#endif
+#ifndef CONFIG_EXAMPLES_NX_NOTIFYSIGNO
+#  define CONFIG_EXAMPLES_NX_NOTIFYSIGNO 4
 #endif
 
 #ifdef CONFIG_EXAMPLES_NX_RAWWINDOWS
@@ -259,9 +259,7 @@ extern nxgl_coord_t g_xres;
 extern nxgl_coord_t g_yres;
 
 extern bool b_haveresolution;
-#ifdef CONFIG_NX_MULTIUSER
 extern bool g_connected;
-#endif
 extern sem_t g_semevent;
 
 /* Colors used to fill window 1 & 2 */
@@ -276,9 +274,7 @@ extern nxgl_mxpixel_t g_tbcolor[CONFIG_NX_NPLANES];
  * Public Function Prototypes
  ****************************************************************************/
 
-#if defined(CONFIG_NX) && defined(CONFIG_NX_MULTIUSER)
 FAR void *nx_listenerthread(FAR void *arg);
-#endif
 
 #ifdef CONFIG_NX_KBD
 void nxeg_kbdin(NXWINDOW hwnd, uint8_t nch, const uint8_t *ch, FAR void *arg);

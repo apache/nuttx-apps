@@ -6,26 +6,11 @@
 config EXAMPLES_NX
 	bool "NX graphics example"
 	default n
+	depends on NX_MULTIUSER
 	---help---
 		Enable the NX graphics example
 
 if EXAMPLES_NX
-
-config EXAMPLES_NX_VPLANE
-	int "Video Plane"
-	default 0
-	depends on !NX_MULTIUSER
-	---help---
-		The plane to select from the framebuffer driver for use in the test.
-		Default: 0
-
-config EXAMPLES_NX_DEVNO
-	int "Video Device Number"
-	default 0
-	depends on !NX_MULTIUSER
-	---help---
-		The LCD device to select from the LCD driver for use in the test:
-		Default: 0
 
 config EXAMPLES_NX_DEFAULT_COLORS
 	bool "Use Default Colors"
@@ -96,7 +81,7 @@ config EXAMPLES_NX_EXTERNINIT
 	default n
 	depends on LIB_BOARDCTL
 	select BOARDCTL_GRAPHICS
-	select NXSTART_EXTERNINIT if NX_MULTIUSER
+	select NXSTART_EXTERNINIT
 	---help---
 		The driver for the graphics device on this platform requires some
 		unusual initialization.  This is the for, for example, SPI LCD/OLED
@@ -113,8 +98,7 @@ config EXAMPLES_NX_EXTERNINIT
 		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
 		will be available in order to access this function.
 
-if NX_MULTIUSER
-comment "Multi-User Configuration Options"
+comment "NX Server Options"
 
 config EXAMPLES_NX_STACKSIZE
 	int "NX Server Stack Size"
@@ -146,5 +130,4 @@ config EXAMPLES_NX_NOTIFYSIGNO
 	---help---
 		The signal number to use with nx_eventnotify().  Default: 4
 
-endif
 endif

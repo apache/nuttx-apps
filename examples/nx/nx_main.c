@@ -119,9 +119,7 @@ nxgl_coord_t g_xres;
 nxgl_coord_t g_yres;
 
 bool b_haveresolution = false;
-#ifdef CONFIG_NX_MULTIUSER
 bool g_connected = false;
-#endif
 sem_t g_semevent = {0};
 
 /* Colors used to fill window 1 & 2 */
@@ -413,128 +411,26 @@ static inline int nxeg_raise(NXEGWINDOW hwnd)
 #endif
 
 /****************************************************************************
- * Name: nxeg_suinitialize
- ****************************************************************************/
-
-#ifndef CONFIG_NX_MULTIUSER
-static inline int nxeg_suinitialize(void)
-{
-  FAR NX_DRIVERTYPE *dev;
-  int ret;
-
-#if defined(CONFIG_EXAMPLES_NX_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
-
-  /* Use external graphics driver initialization */
-
-  printf("nxeg_initialize: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_EXAMPLES_NX_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
-  if (ret < 0)
-    {
-      printf("nxeg_initialize: boardctl failed, devno=%d: %d\n",
-             CONFIG_EXAMPLES_NX_DEVNO, errno);
-      g_exitcode = NXEXIT_EXTINITIALIZE;
-      return ERROR;
-    }
-
-  dev = devinfo.dev;
-
-#elif defined(CONFIG_NX_LCDDRIVER)
-  /* Initialize the LCD device */
-
-  printf("nxeg_initialize: Initializing LCD\n");
-  ret = board_lcd_initialize();
-  if (ret < 0)
-    {
-      printf("nxeg_initialize: board_lcd_initialize failed: %d\n", -ret);
-      g_exitcode = NXEXIT_LCDINITIALIZE;
-      return ERROR;
-    }
-
-  /* Get the device instance */
-
-  dev = board_lcd_getdev(CONFIG_EXAMPLES_NX_DEVNO);
-  if (!dev)
-    {
-      printf("nxeg_initialize: board_lcd_getdev failed, devno=%d\n",
-             CONFIG_EXAMPLES_NX_DEVNO);
-      g_exitcode = NXEXIT_LCDGETDEV;
-      return ERROR;
-    }
-
-  /* Turn the LCD on at 75% power */
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-
-#else
-  /* Initialize the frame buffer device */
-
-  printf("nxeg_initialize: Initializing framebuffer\n");
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      printf("nxeg_initialize: up_fbinitialize failed: %d\n", -ret);
-
-      g_exitcode = NXEXIT_FBINITIALIZE;
-      return ERROR;
-    }
-
-  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NX_VPLANE);
-  if (!dev)
-    {
-      printf("nxeg_initialize: up_fbgetvplane failed, vplane=%d\n",
-             CONFIG_EXAMPLES_NX_VPLANE);
-
-      g_exitcode = NXEXIT_FBGETVPLANE;
-      return ERROR;
-    }
-#endif
-
-  /* Then open NX */
-
-  printf("nxeg_initialize: Open NX\n");
-
-  g_hnx = nx_open(dev);
-  if (!g_hnx)
-    {
-      printf("nxeg_suinitialize: nx_open failed: %d\n", errno);
-
-      g_exitcode = NXEXIT_NXOPEN;
-      return ERROR;
-    }
-
-#ifdef CONFIG_VNCSERVER
-  /* Setup the VNC server to support keyboard/mouse inputs */
-
-  ret = vnc_default_fbinitialize(0, g_hnx);
-  if (ret < 0)
-    {
-      printf("vnc_default_fbinitialize failed: %d\n", ret);
-      nx_close(g_hnx);
-      g_exitcode = NXEXIT_FBINITIALIZE;
-      return ERROR;
-    }
-#endif
-
-  return OK;
-}
-#endif
-
-/****************************************************************************
  * Name: nxeg_initialize
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MULTIUSER
-static inline int nxeg_muinitialize(void)
+static int nxeg_initialize(void)
 {
   struct sched_param param;
   pthread_t thread;
   int ret;
+  int i;
+
+  /* Initialize window colors */
+
+  for (i = 0; i < CONFIG_NX_NPLANES; i++)
+    {
+      g_color1[i]  = CONFIG_EXAMPLES_NX_COLOR1;
+      g_color2[i]  = CONFIG_EXAMPLES_NX_COLOR2;
+#ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
+      g_tbcolor[i] = CONFIG_EXAMPLES_NX_TBCOLOR;
+#endif
+    }
 
   /* Set the client task priority */
 
@@ -613,33 +509,6 @@ static inline int nxeg_muinitialize(void)
     }
 
   return OK;
-}
-#endif
-
-/****************************************************************************
- * Name: nxeg_initialize
- ****************************************************************************/
-
-static int nxeg_initialize(void)
-{
-  int i;
-
-  /* Initialize window colors */
-
-  for (i = 0; i < CONFIG_NX_NPLANES; i++)
-    {
-      g_color1[i]  = CONFIG_EXAMPLES_NX_COLOR1;
-      g_color2[i]  = CONFIG_EXAMPLES_NX_COLOR2;
-#ifndef CONFIG_EXAMPLES_NX_RAWWINDOWS
-      g_tbcolor[i] = CONFIG_EXAMPLES_NX_TBCOLOR;
-#endif
-    }
-
-#ifdef CONFIG_NX_MULTIUSER
-  return nxeg_muinitialize();
-#else
-  return nxeg_suinitialize();
-#endif
 }
 
 /****************************************************************************
@@ -921,17 +790,11 @@ errout_with_hwnd1:
   (void)nxeg_closewindow(hwnd1, &g_wstate[0]);
 
 errout_with_nx:
-#ifdef CONFIG_NX_MULTIUSER
   /* Disconnect from the server */
 
   printf("nx_main: Disconnect from the server\n");
   nx_disconnect(g_hnx);
-#else
-  /* Close the window */
 
-  printf("nx_main: Close NX\n");
-  nx_close(g_hnx);
-#endif
 errout:
   return g_exitcode;
 }
