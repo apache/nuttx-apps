@@ -93,10 +93,6 @@
 #  error "Only CONFIG_NX_NPLANES==1 supported"
 #endif
 
-#ifndef CONFIG_EXAMPLES_NXTERM_VPLANE
-#  define CONFIG_EXAMPLES_NXTERM_VPLANE 0
-#endif
-
 /* Pixel depth.  If none provided, pick the smallest enabled pixel depth */
 
 #ifndef CONFIG_EXAMPLES_NXTERM_BPP
@@ -207,12 +203,6 @@
 #endif
 #ifndef CONFIG_EXAMPLES_NXTERM_NOTIFYSIGNO
 #  define CONFIG_EXAMPLES_NXTERM_NOTIFYSIGNO 4
-#endif
-
-/* Graphics Device */
-
-#ifndef CONFIG_EXAMPLES_NXTERM_DEVNO
-#  define CONFIG_EXAMPLES_NXTERM_DEVNO 0
 #endif
 
 /* NX Console Device */

@@ -1134,7 +1134,7 @@ examples/nxterm
   an NX winbdow.  Prerequisite configuration settings for this test include:
 
     CONFIG_NX=y              -- NX graphics must be enabled
-    CONFIG_NXTERM=y       -- The NX console driver must be built
+    CONFIG_NXTERM=y          -- The NX console driver must be built
     CONFIG_NX_MULTIUSER=y    -- NX multi-user support must be enabled.
     CONFIG_DISABLE_MQUEUE=n  -- Message queue support must be available.
     CONFIG_DISABLE_SIGNALS=n -- Signals are needed
@@ -1145,25 +1145,21 @@ examples/nxterm
   The following configuration options can be selected to customize the
   test:
 
-    CONFIG_EXAMPLES_NXCON_VPLANE -- The plane to select from the frame-
-      buffer driver for use in the test.  Default: 0
-    CONFIG_EXAMPLES_NXCON_DEVNO - The LCD device to select from the LCD
-      driver for use in the test: Default: 0
-    CONFIG_EXAMPLES_NXCON_BGCOLOR -- The color of the background.  Default
+    CONFIG_EXAMPLES_NXTERM_BGCOLOR -- The color of the background.  Default
       Default is a darker royal blue.
-    CONFIG_EXAMPLES_NXCON_WCOLOR -- The color of the window. Default is a light
+    CONFIG_EXAMPLES_NXTERM_WCOLOR -- The color of the window. Default is a light
       slate blue.
-    CONFIG_EXAMPLES_NXCON_FONTID -- Selects the font (see font ID numbers in
+    CONFIG_EXAMPLES_NXTERM_FONTID -- Selects the font (see font ID numbers in
       include/nuttx/nx/nxfonts.h)
-    CONFIG_EXAMPLES_NXCON_FONTCOLOR -- The color of the fonts. Default is
+    CONFIG_EXAMPLES_NXTERM_FONTCOLOR -- The color of the fonts. Default is
       black.
-    CONFIG_EXAMPLES_NXCON_BPP -- Pixels per pixel to use.  Valid options
+    CONFIG_EXAMPLES_NXTERM_BPP -- Pixels per pixel to use.  Valid options
       include 2, 4, 8, 16, 24, and 32.  Default is 32.
-    CONFIG_EXAMPLES_NXCON_TOOLBAR_HEIGHT -- The height of the toolbar.
+    CONFIG_EXAMPLES_NXTERM_TOOLBAR_HEIGHT -- The height of the toolbar.
       Default: 16
-    CONFIG_EXAMPLES_NXCON_TBCOLOR -- The color of the toolbar. Default is
+    CONFIG_EXAMPLES_NXTERM_TBCOLOR -- The color of the toolbar. Default is
       a medium grey.
-    CONFIG_EXAMPLES_NXCON_EXTERNINIT - The driver for the graphics device on
+    CONFIG_EXAMPLES_NXTERM_EXTERNINIT - The driver for the graphics device on
       this platform requires some unusual initialization.  This is the
       for, for example, SPI LCD/OLED devices.  If this configuration is
       selected, then the platform code must provide an LCD initialization
@@ -1179,10 +1175,10 @@ examples/nxterm
       CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
       will be available in order to access this function.
 
-    CONFIG_EXAMPLES_NXCON_MINOR -- The NX console device minor number.
+    CONFIG_EXAMPLES_NXTERM_MINOR -- The NX console device minor number.
       Default is 0 corresponding to /dev/nxterm0
-    CONFIG_EXAMPLES_NXCON_DEVNAME -- The quoated, full path to the
-      NX console device corresponding to CONFIG_EXAMPLES_NXCON_MINOR.
+    CONFIG_EXAMPLES_NXTERM_DEVNAME -- The quoated, full path to the
+      NX console device corresponding to CONFIG_EXAMPLES_NXTERM_MINOR.
       Default: "/dev/nxterm0"
     CONFIG_EXAMPLES_NXTERM_PRIO - Priority of the NxTerm task.
       Default: SCHED_PRIORITY_DEFAULT
@@ -1192,13 +1188,13 @@ examples/nxterm
   The following configuration settings determine how to set up the NX
   server (CONFIG_NX_MULTIUSER):
 
-    CONFIG_EXAMPLES_NXCON_STACKSIZE -- The stacksize to use when creating
+    CONFIG_EXAMPLES_NXTERM_STACKSIZE -- The stacksize to use when creating
       the NX server.  Default 2048
-    CONFIG_EXAMPLES_NXCON_CLIENTPRIO -- The client priority.  Default: 100
-    CONFIG_EXAMPLES_NXCON_SERVERPRIO -- The server priority.  Default: 120
-    CONFIG_EXAMPLES_NXCON_LISTENERPRIO -- The priority of the event listener
+    CONFIG_EXAMPLES_NXTERM_CLIENTPRIO -- The client priority.  Default: 100
+    CONFIG_EXAMPLES_NXTERM_SERVERPRIO -- The server priority.  Default: 120
+    CONFIG_EXAMPLES_NXTERM_LISTENERPRIO -- The priority of the event listener
       thread. Default 80.
-    CONFIG_EXAMPLES_NXCON_NOTIFYSIGNO -- The signal number to use with
+    CONFIG_EXAMPLES_NXTERM_NOTIFYSIGNO -- The signal number to use with
       nx_eventnotify().  Default: 4
 
 examples/nxffs

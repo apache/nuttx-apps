@@ -6,6 +6,7 @@
 config EXAMPLES_NXTERM
 	bool "NxTerm example"
 	default n
+	depends on NX_MULTIUSER
 	---help---
 		Enable the NxTerm example
 
