@@ -99,6 +99,89 @@ static void trv_use_bgwindow(FAR struct trv_graphics_info_s *ginfo)
 #endif
 
 /****************************************************************************
+ * Name: trv_get_fbdev
+ *
+ * Description:
+ *   Get the system framebuffer device
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_NX
+static FAR struct fb_vtable_s *trv_get_fbdev(void)
+{
+  FAR struct fb_vtable_s *fbdev;
+  int ret;
+
+  /* Initialize the frame buffer device */
+
+  ret = up_fbinitialize(0);
+  if (ret < 0)
+    {
+      trv_abort("ERROR: up_fbinitialize() failed: %d\n", -ret);
+    }
+
+  /* Set up to use video plane 0.  There is no support for anything but
+   * video plane 0.
+   */
+
+  fbdev = up_fbgetvplane(0,0);
+  if (!fbdev)
+    {
+      trv_abort("ERROR: up_fbgetvplane() failed\n");
+    }
+
+  return fbdev;
+}
+#endif
+
+/****************************************************************************
+ * Name: trv_fb_initialize
+ *
+ * Description:
+ *   Get the system framebuffer device (only used on simulator)
+ *
+ ****************************************************************************/
+
+#ifndef CONFIG_NX
+static void trv_fb_initialize(FAR struct trv_graphics_info_s *ginfo)
+{
+  struct fb_videoinfo_s vinfo;
+  struct fb_planeinfo_s pinfo;
+  FAR struct fb_vtable_s *fbdev;
+  int ret;
+
+  /* Get the framebuffer device */
+
+  fbdev = trv_get_fbdev();
+
+  /* Get information about video plane 0 */
+
+  ret = fbdev->getvideoinfo(fbdev, &vinfo);
+  if (ret < 0)
+    {
+      trv_abort("ERROR: getvideoinfo() failed\n");
+    }
+
+  ginfo->xres = vinfo.xres;
+  ginfo->yres = vinfo.yres;
+
+  ret = fbdev->getplaneinfo(fbdev, 0, &pinfo);
+  if (ret < 0)
+    {
+      trv_abort("ERROR: getplaneinfo() failed\n");
+    }
+
+  ginfo->stride   = pinfo.stride;
+  ginfo->hwbuffer = pinfo.fbmem;
+
+  if (vinfo.fmt != TRV_COLOR_FMT || pinfo.bpp != TRV_BPP)
+    {
+      trv_abort("ERROR: Bad color format(%d)/bpp(%d)\n", vinfo.fmt, pinfo.bpp);
+    }
+}
+#endif
+
+/****************************************************************************
  * Name: trv_nx_initialize
  ****************************************************************************/
 
@@ -257,7 +340,7 @@ int trv_graphics_initialize(FAR struct trv_graphics_info_s *ginfo)
 
   /* Initialize the graphics device and get information about the display */
 
-#if !defined(CONFIG_NX)
+#ifndef CONFIG_NX
   trv_fb_initialize(ginfo);
 #else
   trv_nx_initialize(ginfo);
