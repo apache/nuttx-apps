@@ -82,12 +82,10 @@ namespace NXWidgets
   private:
     FAR NX_DRIVERTYPE *m_hDevice;    /**< LCD/Framebuffer device handle */
     NXHANDLE           m_hNxServer;  /**< NX server handle */
-#ifdef CONFIG_NX_MULTIUSER
     volatile bool      m_running;    /**< True: The listener thread is running */
     volatile bool      m_connected;  /**< True: Connected to the server */
     volatile bool      m_stop;       /**< True: Waiting for the listener thread to stop */
     sem_t              m_connsem;    /**< Wait for server connection */
-#endif
     static uint8_t     m_nServers;   /**< The number of NX server instances */
 
     /**
@@ -95,9 +93,7 @@ namespace NXWidgets
      * dispatches events from the NX server.
      */
 
-#ifdef CONFIG_NX_MULTIUSER
     static FAR void *listener(FAR void *arg);
-#endif
 
   public:
 
@@ -147,11 +143,7 @@ namespace NXWidgets
 
     inline bool connected(void)
     {
-#ifdef CONFIG_NX_MULTIUSER
       return m_connected;
-#else
-      return true;
-#endif
     }
 
     /**

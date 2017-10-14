@@ -118,10 +118,8 @@ CWidgetControl::CWidgetControl(FAR const CWidgetStyle *style)
   m_waiting            = false;
   sem_init(&m_waitSem, 0, 0);
 #endif
-#ifdef CONFIG_NX_MULTIUSER
   sem_init(&m_boundsSem, 0, 0);
   sem_init(&m_geoSem, 0, 0);
-#endif
 
   // Do we need to fetch the default style?
 
@@ -908,7 +906,6 @@ bool CWidgetControl::pollCursorControlEvents(void)
  * Take the geometry semaphore (handling signal interruptions)
  */
 
-#ifdef CONFIG_NX_MULTIUSER
 void CWidgetControl::takeGeoSem(void)
 {
   // Take the geometry semaphore.  Retry is an error occurs (only if
@@ -921,13 +918,11 @@ void CWidgetControl::takeGeoSem(void)
     }
   while (ret < 0 && errno == EINTR);
 }
-#endif
 
 /**
  * Take the bounds semaphore (handling signal interruptions)
  */
 
-#ifdef CONFIG_NX_MULTIUSER
 void CWidgetControl::takeBoundsSem(void)
 {
   // Take the bounds semaphore.  Retry is an error occurs (only if
@@ -940,7 +935,6 @@ void CWidgetControl::takeBoundsSem(void)
     }
   while (ret < 0 && errno == EINTR);
 }
-#endif
 
 /**
  * Clear all mouse events

@@ -207,9 +207,7 @@ namespace NXWidgets
      * @param arg2 - User provided argument (see nx_block or nxtk_block)
      */
 
-#ifdef CONFIG_NX_MULTIUSER
     static void windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2);
-#endif
 
   public:
 

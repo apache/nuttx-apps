@@ -246,7 +246,6 @@ void CCallback::newKeyboardEvent(NXHANDLE hwnd, uint8_t nCh,
  * @param arg2 - User provided argument (see nx_block or nxtk_block)
  */
 
-#ifdef CONFIG_NX_MULTIUSER
 void CCallback::windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2)
 {
   ginfo("hwnd=%p arg1=%p arg2=%p\n", hwnd, arg1, arg2);
@@ -259,5 +258,4 @@ void CCallback::windowBlocked(NXWINDOW hwnd, FAR void *arg1, FAR void *arg2)
 
   This->m_widgetControl->windowBlocked(arg2);
 }
-#endif
 

@@ -215,10 +215,8 @@ namespace NXWidgets
     struct nxgl_size_s          m_size;           /**< Size of the window */
     struct nxgl_point_s         m_pos;            /**< Position in display space */
     struct nxgl_rect_s          m_bounds;         /**< Size of the display */
-#ifdef CONFIG_NX_MULTIUSER
     sem_t                       m_geoSem;         /**< Posted when geometry is valid */
     sem_t                       m_boundsSem;      /**< Posted when bounds are valid */
-#endif
     CWindowEventHandlerList     m_eventHandlers;  /**< List of event handlers. */
 
     /**
@@ -312,11 +310,7 @@ namespace NXWidgets
      * Take the geometry semaphore (handling signal interruptions)
      */
 
-#ifdef CONFIG_NX_MULTIUSER
     void takeGeoSem(void);
-#else
-    inline void takeGeoSem(void) {}
-#endif
 
     /**
      * Give the geometry semaphore
@@ -324,9 +318,7 @@ namespace NXWidgets
 
     inline void giveGeoSem(void)
     {
-#ifdef CONFIG_NX_MULTIUSER
       sem_post(&m_geoSem);
-#endif
     }
 
     /**
@@ -343,11 +335,7 @@ namespace NXWidgets
      * Take the bounds semaphore (handling signal interruptions)
      */
 
-#ifdef CONFIG_NX_MULTIUSER
     void takeBoundsSem(void);
-#else
-    inline void takeBoundsSem(void) {}
-#endif
 
     /**
      * Give the bounds semaphore
@@ -355,9 +343,7 @@ namespace NXWidgets
 
     inline void giveBoundsSem(void)
     {
-#ifdef CONFIG_NX_MULTIUSER
       sem_post(&m_boundsSem);
-#endif
     }
 
     /**
@@ -660,12 +646,10 @@ namespace NXWidgets
     * @param arg - User provided argument (see nx_block or nxtk_block)
     */
 
-#ifdef CONFIG_NX_MULTIUSER
    inline void windowBlocked(FAR void *arg)
    {
      m_eventHandlers.raiseBlockedEvent(arg);
    }
-#endif
 
    /**
     * This event means that cursor control data is available for the window.

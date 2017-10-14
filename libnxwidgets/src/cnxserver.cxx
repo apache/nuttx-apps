@@ -48,14 +48,11 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <cerrno>
+#include <sched.h>
+#include <pthread.h>
 #include <debug.h>
 
 #include <nuttx/board.h>
-
-#ifdef CONFIG_NX_MULTIUSER
-#  include <sched.h>
-#  include <pthread.h>
-#endif
 
 #ifdef CONFIG_VNCSERVER
 #  include <nuttx/video/vnc.h>
@@ -87,10 +84,8 @@ CNxServer::CNxServer(void)
 
   m_hDevice    = (FAR NX_DRIVERTYPE *)NULL;  // LCD/Framebuffer device handle
   m_hNxServer  = (NXHANDLE)NULL;             // NX server handle
-#ifdef CONFIG_NX_MULTIUSER
   m_connected  = false;                      // True:  Connected to the server
   sem_init(&m_connsem, 0, 0);                // Wait for server connection
-#endif
 
   // Increment the global count of NX servers.  Normally there is only one
   // but we don't want to preclude the case where there might be multiple
@@ -125,110 +120,9 @@ CNxServer::~CNxServer(void)
 }
 
 /**
- * Connect to the NX Server -- Single user version
+ * Connect to the NX Server
  */
 
-#ifndef CONFIG_NX_MULTIUSER
-bool CNxServer::connect(void)
-{
-#if defined(CONFIG_NXWIDGETS_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
-  int ret;
-
-  // Use external graphics driver initialization
-
-  printf("nxtext_initialize: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_NXWIDGETS_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
-  if (ret < 0)
-    {
-      gerr("ERROR: boardctl failed, devno=%d: %d\n", CONFIG_NXWIDGETS_DEVNO, errno);
-      return false;
-    }
-
-  m_hDevice = devinfo.dev;
-
-#elif defined(CONFIG_NX_LCDDRIVER)
-  int ret;
-
-  // Initialize the LCD device
-
-  ret = board_lcd_initialize();
-  if (ret < 0)
-    {
-      gerr("ERROR: board_lcd_initialize failed: %d\n", -ret);
-      return false;
-    }
-
-  // Get the device instance
-
-  m_hDevice = board_lcd_getdev(CONFIG_NXWIDGETS_DEVNO);
-  if (!m_hDevice)
-    {
-      gerr("ERROR: board_lcd_getdev failed, devno=%d\n", CONFIG_NXWIDGETS_DEVNO);
-      return false;
-    }
-
-  // Turn the LCD on at 75% power
-
-  (void)m_hDevice->setpower(m_hDevice, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-
-#else // CONFIG_NX_LCDDRIVER
-  int ret;
-
-  // Initialize the frame buffer device
-  // REVISIT: display == 0 is assumed
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      gerr("ERROR: up_fbinitialize failed: %d\n", -ret);
-      return false;
-    }
-
-  m_hDevice = up_fbgetvplane(0, CONFIG_NXWIDGETS_VPLANE);
-  if (!m_hDevice)
-    {
-      gerr("ERROR: CNxServer::connect: up_fbgetvplane failed, vplane=%d\n",
-             CONFIG_NXWIDGETS_VPLANE);
-      return false;
-    }
-
-#endif // CONFIG_NX_LCDDRIVER
-
-  // Then open NX
-
-  m_hNxServer = nx_open(m_hDevice);
-  if (!m_hNxServer)
-    {
-      gerr("ERROR: CNxServer::connect: nx_open failed: %d\n", errno);
-      return false;
-    }
-
-#ifdef CONFIG_VNCSERVER
-  // Setup the VNC server to support keyboard/mouse inputs
-
-  ret = vnc_default_fbinitialize(0, m_hNxServer);
-  if (ret < 0)
-    {
-      gerr("ERROR: CNxServer::connect: vnc_default_fbinitialize failed: %d\n", ret);
-      disconnect();
-      return false;
-    }
-#endif
-
-  return true;
-}
-#endif // CONFIG_NX_MULTIUSER
-
-/**
- * Connect to the NX Server -- Multi user version
- */
-
-#ifdef CONFIG_NX_MULTIUSER
 bool CNxServer::connect(void)
 {
   struct sched_param param;
@@ -329,30 +223,11 @@ bool CNxServer::connect(void)
 
   return true;
 }
-#endif // CONFIG_NX_MULTIUSER
 
 /**
- * Disconnect to the NX Server -- Single user version
+ * Disconnect from the NX Server
  */
 
-#ifndef CONFIG_NX_MULTIUSER
-void CNxServer::disconnect(void)
-{
-  // Close the server
-
-  if (m_hNxServer)
-    {
-      nx_close(m_hNxServer);
-      m_hNxServer = NULL;
-    }
-}
-#endif // CONFIG_NX_MULTIUSER
-
-/**
- * Disconnect to the NX Server -- Single user version
- */
-
-#ifdef CONFIG_NX_MULTIUSER
 void CNxServer::disconnect(void)
 {
   // Is the listener running?
@@ -379,14 +254,12 @@ void CNxServer::disconnect(void)
       m_hNxServer = NULL;
     }
 }
-#endif // CONFIG_NX_MULTIUSER
 
 /**
  * This is the entry point of a thread that listeners for and dispatches
  * events from the NX server.
  */
 
-#ifdef CONFIG_NX_MULTIUSER
 FAR void *CNxServer::listener(FAR void *arg)
 {
   // The argument must be the CNxServer instance
@@ -436,4 +309,4 @@ FAR void *CNxServer::listener(FAR void *arg)
   sem_post(&This->m_connsem);
   return NULL;
 }
-#endif // CONFIG_NX_MULTIUSER
+

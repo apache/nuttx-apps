@@ -1,7 +1,7 @@
 /****************************************************************************
  * NxWidgets/libnxwidgets/include/nxconfig.hxx
  *
- *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2012-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,22 +63,16 @@
  *
  * NX Server/Device Configuration
  *
- * CONFIG_NXWIDGETS_DEVNO - LCD device number (in case there are more than
- *   one LCDs connected (single user mode only). Default: 0
- * CONFIG_NXWIDGETS_VPLANE - Only a single video plane is supported. Default: 0
- * CONFIG_NXSTART_SERVERPRIO - Priority of the NX server.  This applies
- *   only if NX is configured in multi-user mode (CONFIG_NX_MULTIUSER=y).
+ * CONFIG_NXSTART_SERVERPRIO - Priority of the NX server.
  *   Default: (SCHED_PRIORITY_DEFAULT+10).  NOTE:  Of the three priority
  *   definitions here, CONFIG_NXSTART_SERVERPRIO should have the highest
  *   priority to avoid data overrun race conditions. Such errors would most
  *   likely appear as duplicated rows of data on the display.
  * CONFIG_NXWIDGETS_CLIENTPRIO - The thread that calls CNxServer::connect()
- *   will be re-prioritized to this priority.  This applies only if NX is
- *   configured in multi-user mode (CONFIG_NX_MULTIUSER=y). Default:
+ *   will be re-prioritized to this priority.  Default:
  *   SCHED_PRIORITY_DEFAULT
  * CONFIG_NXWIDGETS_LISTENERPRIO - Priority of the NX event listener thread.
- *   This applies only if NX is configured in multi-user mode
- *   (CONFIG_NX_MULTIUSER=y). Default: SCHED_PRIORITY_DEFAULT
+ *   Default: SCHED_PRIORITY_DEFAULT
  * CONFIG_NXWIDGETS_EXTERNINIT - Define to support external display
  *   initialization.
  * CONFIG_NXWIDGETS_LISTENERSTACK - NX listener thread stack size (in multi-user
@@ -191,22 +185,6 @@
 #endif
 
 /* NX Server/Device Configuration *******************************************/
-/**
- * LCD device number (in case there are more than one LCDs connected)
- */
-
-#ifndef CONFIG_NXWIDGETS_DEVNO
-#  define CONFIG_NXWIDGETS_DEVNO 0
-#endif
-
-/**
- * Only a single video plane is supported
- */
-
-#ifndef CONFIG_NXWIDGETS_VPLANE
-#  define CONFIG_NXWIDGETS_VPLANE 0
-#endif
-
 /**
  * Priority of the NX server (in multi-user mode)
  */

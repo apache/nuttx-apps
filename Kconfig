@@ -8,7 +8,7 @@ menu "NxWidgets/NxWM"
 config NXWIDGETS
 	bool "Enable NxWidgets"
 	default n
-	depends on NX && HAVE_CXX
+	depends on NX && HAVE_CXX && NX_MULTIUSER
 	---help---
 		Enable support for NxWidgets
 
@@ -36,23 +36,6 @@ config NXWIDGETS_EXTERNINIT
 	---help---
 		Define to support external display initialization.
 
-config NXWIDGETS_DEVNO
-	int "LCD Device Number"
-	default 0
-	depends on (NXWIDGETS_EXTERNINIT || NX_LCDDRIVER) && !NX_MULTIUSER
-	---help---
-		LCD device number (in case there are more than one LCDs connected).
-		Default: 0
-
-config NXWIDGETS_VPLANE
-	int "Plane Number"
-	default 0
-	depends on !NX_LCDDRIVER && !NXWIDGETS_EXTERNINIT && !NX_MULTIUSER
-	---help---
-		Only a single video plane is supported. Default: 0
-
-if NX_MULTIUSER
-
 config NXWIDGET_SERVERINIT
 	bool "Start server"
 	default y
@@ -70,23 +53,19 @@ config NXWIDGETS_CLIENTPRIO
 	default 100
 	---help---
 		The thread that calls CNxServer::connect() will be re-prioritized to
-		this priority.  This applies only if NX is configured in multi-user
-		mode (NX_MULTIUSER=y). Default: 100
+		this priority. Default: 100
 
 config NXWIDGETS_LISTENERPRIO
 	int "NX Listener Priority"
 	default 100
 	---help---
-		Priority of the NX event listener thread. This applies only if NX
-		is configured in multi-user mode (NX_MULTIUSER=y). Default: 100
+		Priority of the NX event listener thread.  Default: 100
 
 config NXWIDGETS_LISTENERSTACK
 	int "NX Listener Stack Size"
 	default 2048
 	---help---
 		NX listener thread stack size (in multi-user mode).  Default 2048
-
-endif # NX_MULTIUSER
 
 config NXWIDGET_EVENTWAIT
 	bool "Event Waiting"
@@ -294,7 +273,7 @@ endif # NxWidgets
 config NXWM
 	bool "Enable NxWM"
 	default n
-	depends on NXWIDGETS && NX_MULTIUSER
+	depends on NXWIDGETS
 	---help---
 		Enable support for the NuttX Tiny Window Manager (NxWM)
 
