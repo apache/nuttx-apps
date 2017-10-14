@@ -2,7 +2,7 @@
  * apps/graphics/traveler/trv_nxlistener.c
  * NX listener logic
  *
- *   Copyright (C) 2014, 2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2014, 2016-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,6 @@
 #include <errno.h>
 
 #include <nuttx/nx/nx.h>
-
-#ifdef CONFIG_NX_MULTIUSER
 
 /****************************************************************************
  * Public Functions
@@ -92,5 +90,3 @@ FAR void *trv_nxlistener(FAR void *arg)
         }
     }
 }
-
-#endif /* CONFIG_NX_MULTIUSER */

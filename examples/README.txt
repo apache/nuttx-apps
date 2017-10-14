@@ -727,26 +727,6 @@ examples/json
   on 2011-10-10 so I presume that the code is stable and there is no risk
   of maintaining duplicate logic in the NuttX repository.
 
-examples/lcdrw
-^^^^^^^^^^^^^^
-
-  This example may be used to verify if you can or cannot read data
-  correctly from an LCD interface.  At present, this supports only LCDs
-  with RGB565 color format.
-
-  * CONFIG_EXAMPLES_LDCRW_DEVNO
-      LCD device number.  Default: 0
-  * CONFIG_EXAMPLES_LDCRW_XRES
-      LCD X resolution.  Default: 240
-  * CONFIG_EXAMPLES_LDCRW_YRES
-      LCD Y resolution.  Default: 320
-
-  NOTE: This test exercises internal lcd driver interfaces.  As such, it
-  relies on internal OS interfaces that are not normally available to a
-  user-space program.  As a result, this example cannot be used if a
-  NuttX is built as a protected, supervisor kernel (CONFIG_BUILD_PROTECTED
-  or CONFIG_BUILD_KERNEL).
-
 examples/leds
 ^^^^^^^^^^^^
   This is a simple test of the board LED driver at nuttx/drivers/leds/userled_*.c.

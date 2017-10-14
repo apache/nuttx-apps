@@ -68,10 +68,7 @@ endif
 MAINSRC = trv_main.c
 
 ifeq ($(CONFIG_NX),y)
-CSRCS  += trv_nxbkgd.c
-ifeq ($(CONFIG_NX_MULTIUSER),y)
-CSRCS  += trv_nxlistener.c
-endif
+CSRCS  += trv_nxbkgd.c trv_nxlistener.c
 endif
 
 AOBJS = $(ASRCS:.S=$(OBJEXT))

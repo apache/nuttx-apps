@@ -109,9 +109,7 @@ struct trv_graphics_info_s
 extern FAR const struct nx_callback_s *g_trv_nxcallback;
 extern sem_t g_trv_nxevent;
 extern volatile bool g_trv_nxresolution;
-#ifdef CONFIG_NX_MULTIUSER
 extern volatile bool g_trv_nxrconnected;
-#endif
 #endif
 
 /****************************************************************************
@@ -123,9 +121,6 @@ void trv_graphics_terminate(FAR struct trv_graphics_info_s *ginfo);
 trv_pixel_t trv_graphics_index2pixel(int index);
 void trv_display_update(struct trv_graphics_info_s *fb);
 trv_pixel_t *trv_get_renderbuffer(uint16_t width, uint16_t height);
-
-#ifdef CONFIG_NX_MULTIUSER
 FAR void *trv_nxlistener(FAR void *arg);
-#endif
 
 #endif /* __APPS_GRAPHICS_TRAVELER_INCLUDE_TRV_GRAPHICS_H */

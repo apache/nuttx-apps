@@ -7,14 +7,13 @@ config GRAPHICS_TRAVELER
 	bool "Traveler game"
 	default n
 	select FSUTILS_INIFILE
+	depends on NX_MULTIUSER
 	---help---
 		Enable or disable the graphic Traveler game
 
 if GRAPHICS_TRAVELER
 
-if NX_MULTIUSER
-
-comment "Multi-User Configuration Options"
+comment "NX Server Configuration Options"
 
 config GRAPHICS_TRAVELER_STACKSIZE
 	int "Listener Stack Size"
@@ -33,8 +32,6 @@ config GRAPHICS_TRAVELER_CLIENTPRIO
 	default 100
 	---help---
 		The client priority.  Default: 100
-
-endif # NX_MULTIUSER
 
 comment "Color configuration"
 
