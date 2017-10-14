@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello_bkgd.c
  *
- *   Copyright (C) 2011, 2013 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2013, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -173,7 +173,7 @@ static void nxhello_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
       g_nxhello.yres = bounds->pt2.y + 1;
 
       g_nxhello.havepos = true;
-      sem_post(&g_nxhello.sem);
+      sem_post(&g_nxhello.eventsem);
       ginfo("Have xres=%d yres=%d\n", g_nxhello.xres, g_nxhello.yres);
     }
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxhello/nxhello_main.c
  *
- *   Copyright (C) 2011, 2015-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2015-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,13 +56,8 @@
 #include <nuttx/arch.h>
 #include <nuttx/board.h>
 
-#ifdef CONFIG_NX_LCDDRIVER
-#  include <nuttx/lcd/lcd.h>
-#else
-#  include <nuttx/video/fb.h>
-#  ifdef CONFIG_VNCSERVER
-#    include <nuttx/video/vnc.h>
-#  endif
+#ifdef CONFIG_VNCSERVER
+#  include <nuttx/video/vnc.h>
 #endif
 
 #include <nuttx/nx/nx.h>
@@ -72,48 +67,20 @@
 #include "nxhello.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* Configuration ************************************************************/
-/* If not specified, assume that the hardware supports one video plane */
-
-#ifndef CONFIG_EXAMPLES_NXHELLO_VPLANE
-#  define CONFIG_EXAMPLES_NXHELLO_VPLANE 0
-#endif
-
-/* If not specified, assume that the hardware supports one LCD device */
-
-#ifndef CONFIG_EXAMPLES_NXHELLO_DEVNO
-#  define CONFIG_EXAMPLES_NXHELLO_DEVNO 0
-#endif
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
- * Private Data
- ****************************************************************************/
-
-/****************************************************************************
  * Public Data
  ****************************************************************************/
 
 struct nxhello_data_s g_nxhello =
 {
-  NULL,          /* hnx */
-  NULL,          /* hbkgd */
-  NULL,          /* hfont */
-  0,             /* xres */
-  0,             /* yres */
-  false,         /* havpos */
-  { 0 },         /* sem */
-  NXEXIT_SUCCESS /* exit code */
+  NULL,               /* hnx */
+  NULL,               /* hbkgd */
+  NULL,               /* hfont */
+  false,              /* connected */
+  0,                  /* xres */
+  0,                  /* yres */
+  false,              /* havpos */
+  SEM_INITIALIZER(0), /* sem */
+  NXEXIT_SUCCESS      /* exit code */
 };
 
 /****************************************************************************
@@ -126,106 +93,80 @@ struct nxhello_data_s g_nxhello =
 
 static inline int nxhello_initialize(void)
 {
-  FAR NX_DRIVERTYPE *dev;
+  struct sched_param param;
+  pthread_t thread;
   int ret;
 
-#if defined(CONFIG_EXAMPLES_NXHELLO_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
+  /* Set the client task priority */
 
-  /* Use external graphics driver initialization */
-
-  printf("nxhello_initialize: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_EXAMPLES_NXHELLO_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
+  param.sched_priority = CONFIG_EXAMPLES_NXHELLO_CLIENTPRIO;
+  ret = sched_setparam(0, &param);
   if (ret < 0)
     {
-      printf("nxhello_initialize: boardctl failed, devno=%d: %d\n",
-             CONFIG_EXAMPLES_NXHELLO_DEVNO, errno);
-      g_nxhello.code = NXEXIT_EXTINITIALIZE;
+      printf("nxhello_initialize: sched_setparam failed: %d\n" , ret);
       return ERROR;
     }
 
-  dev = devinfo.dev;
+  /* Start the NX server kernel thread */
 
-#elif defined(CONFIG_NX_LCDDRIVER)
-  /* Initialize the LCD device */
-
-  printf("nxhello_initialize: Initializing LCD\n");
-  ret = board_lcd_initialize();
+  ret = boardctl(BOARDIOC_NX_START, 0);
   if (ret < 0)
     {
-      printf("nxhello_initialize: board_lcd_initialize failed: %d\n", -ret);
-      g_nxhello.code = NXEXIT_LCDINITIALIZE;
+      printf("nxhello_initialize: Failed to start the NX server: %d\n", errno);
       return ERROR;
     }
 
-  /* Get the device instance */
+  /* Connect to the server */
 
-  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXHELLO_DEVNO);
-  if (!dev)
+  g_nxhello.hnx = nx_connect();
+  if (g_nxhello.hnx)
     {
-      printf("nxhello_initialize: board_lcd_getdev failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXHELLO_DEVNO);
-      g_nxhello.code = NXEXIT_LCDGETDEV;
-      return ERROR;
-    }
-
-  /* Turn the LCD on at 75% power */
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-
-#else
-  /* Initialize the frame buffer device */
-
-  printf("nxhello_initialize: Initializing framebuffer\n");
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      printf("nxhello_initialize: up_fbinitialize failed: %d\n", -ret);
-
-      g_nxhello.code = NXEXIT_FBINITIALIZE;
-      return ERROR;
-    }
-
-  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXHELLO_VPLANE);
-  if (!dev)
-    {
-      printf("nxhello_initialize: up_fbgetvplane failed, vplane=%d\n",
-             CONFIG_EXAMPLES_NXHELLO_VPLANE);
-
-      g_nxhello.code = NXEXIT_FBGETVPLANE;
-      return ERROR;
-    }
-#endif
-
-  /* Then open NX */
-
-  printf("nxhello_initialize: Open NX\n");
-  g_nxhello.hnx = nx_open(dev);
-  if (!g_nxhello.hnx)
-    {
-      printf("nxhello_initialize: nx_open failed: %d\n", errno);
-      g_nxhello.code = NXEXIT_NXOPEN;
-      return ERROR;
-    }
+       pthread_attr_t attr;
 
 #ifdef CONFIG_VNCSERVER
-  /* Setup the VNC server to support keyboard/mouse inputs */
+      /* Setup the VNC server to support keyboard/mouse inputs */
 
-  ret = vnc_default_fbinitialize(0, g_nxhello.hnx);
-  if (ret < 0)
+      ret = vnc_default_fbinitialize(0, g_nxhello.hnx);
+      if (ret < 0)
+        {
+          printf("vnc_default_fbinitialize failed: %d\n", ret);
+          nx_disconnect(g_nxhello.hnx);
+          return ERROR;
+        }
+#endif
+       /* Start a separate thread to listen for server events.  This is probably
+        * the least efficient way to do this, but it makes this example flow more
+        * smoothly.
+        */
+
+       (void)pthread_attr_init(&attr);
+       param.sched_priority = CONFIG_EXAMPLES_NXHELLO_LISTENERPRIO;
+       (void)pthread_attr_setschedparam(&attr, &param);
+       (void)pthread_attr_setstacksize(&attr, CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE);
+
+       ret = pthread_create(&thread, &attr, nxhello_listener, NULL);
+       if (ret != 0)
+         {
+            printf("nxhello_initialize: pthread_create failed: %d\n", ret);
+            return ERROR;
+         }
+
+       /* Don't return until we are connected to the server */
+
+       while (!g_nxhello.connected)
+         {
+           /* Wait for the listener thread to wake us up when we really
+            * are connected.
+            */
+
+           (void)sem_wait(&g_nxhello.eventsem);
+         }
+    }
+  else
     {
-      printf("vnc_default_fbinitialize failed: %d\n", ret);
-
-      nx_close(g_nxhello.hnx);
-      g_nxhello.code = NXEXIT_FBINITIALIZE;
+      printf("nxhello_initialize: nx_connect failed: %d\n", errno);
       return ERROR;
     }
-#endif
 
   return OK;
 }
@@ -254,7 +195,7 @@ int nxhello_main(int argc, char *argv[])
   if (!g_nxhello.hnx || ret < 0)
     {
       printf("nxhello_main: Failed to get NX handle: %d\n", errno);
-      g_nxhello.code = NXEXIT_NXOPEN;
+      g_nxhello.code = NXEXIT_INIT;
       goto errout;
     }
 
@@ -298,8 +239,9 @@ int nxhello_main(int argc, char *argv[])
 
   while (!g_nxhello.havepos)
     {
-      (void)sem_wait(&g_nxhello.sem);
+      (void)sem_wait(&g_nxhello.eventsem);
     }
+
   printf("nxhello_main: Screen resolution (%d,%d)\n", g_nxhello.xres, g_nxhello.yres);
 
   /* Now, say hello and exit, sleeping a little before each. */
@@ -315,8 +257,9 @@ int nxhello_main(int argc, char *argv[])
   /* Close NX */
 
 errout_with_nx:
-  printf("nxhello_main: Close NX\n");
-  nx_close(g_nxhello.hnx);
+  printf("nxhello_main: Disconnect from the server\n");
+  nx_disconnect(g_nxhello.hnx);
+
 errout:
   return g_nxhello.code;
 }

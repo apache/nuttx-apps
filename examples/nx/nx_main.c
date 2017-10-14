@@ -56,13 +56,8 @@
 #include <nuttx/arch.h>
 #include <nuttx/board.h>
 
-#ifdef CONFIG_NX_LCDDRIVER
-#  include <nuttx/lcd/lcd.h>
-#else
-#  include <nuttx/video/fb.h>
-#  ifdef CONFIG_VNCSERVER
-#    include <nuttx/video/vnc.h>
-#  endif
+#ifdef CONFIG_VNCSERVER
+#  include <nuttx/video/vnc.h>
 #endif
 
 #include <nuttx/nx/nx.h>

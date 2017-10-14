@@ -60,12 +60,14 @@
 #  error "NX is not enabled (CONFIG_NX)"
 #endif
 
-#ifndef CONFIG_EXAMPLES_NXHELLO_VPLANE
-#    define CONFIG_EXAMPLES_NXHELLO_VPLANE 0
+#ifndef CONFIG_NX_MULTIUSER
+#  error "Multi-user NX support is required (CONFIG_NX_MULTIUSER=y)"
 #endif
 
-#ifndef CONFIG_EXAMPLES_NXHELLO_BPP
-#  define CONFIG_EXAMPLES_NXHELLO_BPP 32
+/* If not specified, assume that the hardware supports one video plane */
+
+#if CONFIG_NX_NPLANES != 1
+#  error "Only CONFIG_NX_NPLANES==1 supported"
 #endif
 
 #ifndef CONFIG_EXAMPLES_NXHELLO_BGCOLOR
@@ -96,6 +98,35 @@
 #  endif
 #endif
 
+/* Multi-user NX support */
+
+#ifdef CONFIG_DISABLE_MQUEUE
+#  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
+#endif
+#ifdef CONFIG_DISABLE_SIGNALS
+#  error "This example requires signal support (CONFIG_DISABLE_SIGNALS=n)"
+#endif
+#ifdef CONFIG_DISABLE_PTHREAD
+#  error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
+#endif
+#ifndef CONFIG_NX_BLOCKING
+#  error "This example depends on CONFIG_NX_BLOCKING"
+#endif
+#ifndef CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE
+#  define CONFIG_EXAMPLES_NXHELLO_LISTENER_STACKSIZE 2048
+#endif
+#ifndef CONFIG_EXAMPLES_NXHELLO_LISTENERPRIO
+#  define CONFIG_EXAMPLES_NXHELLO_LISTENERPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NXHELLO_CLIENTPRIO
+#  define CONFIG_EXAMPLES_NXHELLO_CLIENTPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NXHELLO_SERVERPRIO
+#  define CONFIG_EXAMPLES_NXHELLO_SERVERPRIO 120
+#endif
+#ifndef CONFIG_EXAMPLES_NXHELLO_NOTIFYSIGNO
+#  define CONFIG_EXAMPLES_NXHELLO_NOTIFYSIGNO 4
+#endif
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -103,12 +134,7 @@
 enum exitcode_e
 {
   NXEXIT_SUCCESS = 0,
-  NXEXIT_EXTINITIALIZE,
-  NXEXIT_FBINITIALIZE,
-  NXEXIT_FBGETVPLANE,
-  NXEXIT_LCDINITIALIZE,
-  NXEXIT_LCDGETDEV,
-  NXEXIT_NXOPEN,
+  NXEXIT_INIT,
   NXEXIT_FONTOPEN,
   NXEXIT_NXREQUESTBKGD,
   NXEXIT_NXSETBGCOLOR
@@ -142,6 +168,7 @@ struct nxhello_data_s
   NXHANDLE hnx;
   NXHANDLE hbkgd;
   NXHANDLE hfont;
+  bool connected;
 
   /* The screen resolution */
 
@@ -149,7 +176,7 @@ struct nxhello_data_s
   nxgl_coord_t yres;
 
   volatile bool havepos;
-  sem_t sem;
+  sem_t eventsem;
   volatile int code;
 };
 
@@ -168,6 +195,10 @@ extern const struct nx_callback_s g_nxhellocb;
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
+
+/* NX event listener */
+
+FAR void *nxhello_listener(FAR void *arg);
 
 /* Background window interfaces */
 
