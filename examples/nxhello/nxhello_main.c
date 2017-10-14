@@ -79,7 +79,7 @@ struct nxhello_data_s g_nxhello =
   0,                  /* xres */
   0,                  /* yres */
   false,              /* havpos */
-  SEM_INITIALIZER(0), /* sem */
+  SEM_INITIALIZER(0), /* eventsem */
   NXEXIT_SUCCESS      /* exit code */
 };
 

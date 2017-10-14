@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nximage/nximage_bkgd.c
  *
- *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@
  * Private Types
  ****************************************************************************/
 
-struct nximage_run_t
+struct nximage_run_s
 {
   nxgl_mxpixel_t run[SCALED_WIDTH];
 };
@@ -143,7 +143,7 @@ static void nximage_kbdin(NXWINDOW hwnd, uint8_t nch, FAR const uint8_t *ch,
 
 /* Read one or two rows, output one tow or three rows */
 
-static struct nximage_run_t g_runs[NINPUT_ROWS];
+static struct nximage_run_s g_runs[NINPUT_ROWS];
 
 /****************************************************************************
  * Public Data
@@ -216,7 +216,7 @@ static void nximage_position(NXWINDOW hwnd, FAR const struct nxgl_size_s *size,
       g_nximage.yres = bounds->pt2.y + 1;
 
       g_nximage.havepos = true;
-      sem_post(&g_nximage.sem);
+      sem_post(&g_nximage.eventsem);
       ginfo("Have xres=%d yres=%d\n", g_nximage.xres, g_nximage.yres);
     }
 }

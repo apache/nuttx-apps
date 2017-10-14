@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/nximage/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -38,16 +38,19 @@
 # NuttX NX Graphics Example.
 
 ASRCS =
-CSRCS = nximage_bkgd.c nximage_bitmap.c
+CSRCS = nximage_bkgd.c nximage_bitmap.c nximage_listener.c
 MAINSRC = nximage_main.c
 
-CONFIG_XYZ_PROGNAME ?= nximage$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_NXIMAGE_PROGNAME ?= nxhello$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_NXIMAGE_PROGNAME)
 
 # NXIMAGE built-in application info
 
+CONFIG_EXAMPLES_NXIMAGE_PRIORITY ?= SCHED_PRIORITY_DEFAULT
+CONFIG_EXAMPLES_NXIMAGE_STACKSIZE ?= 2048
+
 APPNAME = nximage
-PRIORITY = SCHED_PRIORITY_DEFAULT
-STACKSIZE = 2048
+PRIORITY = $(CONFIG_EXAMPLES_NXIMAGE_PRIORITY)
+STACKSIZE = $(CONFIG_EXAMPLES_NXIMAGE_STACKSIZE)
 
 include $(APPDIR)/Application.mk

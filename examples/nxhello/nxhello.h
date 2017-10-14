@@ -127,6 +127,7 @@
 #ifndef CONFIG_EXAMPLES_NXHELLO_NOTIFYSIGNO
 #  define CONFIG_EXAMPLES_NXHELLO_NOTIFYSIGNO 4
 #endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
