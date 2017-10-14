@@ -6,26 +6,13 @@
 config EXAMPLES_NXTEXT
 	bool "NX graphics text example"
 	default n
+	depends on NX_MULTIUSER
 	---help---
 		Enable the NX graphics text example
 
 if EXAMPLES_NXTEXT
 
 comment "Basic Configuration of the example"
-
-config EXAMPLES_NXTEXT_VPLANE
-	int "Video Plane"
-	default 0
-	---help---
-		The plane to select from the framebuffer driver for use in the test.
-		Default: 0
-
-config EXAMPLES_NXTEXT_DEVNO
-	int "Video Device Number"
-	default 0
-	---help---
-		The LCD device to select from the LCD driver for use in the test:
-		Default: 0
 
 config EXAMPLES_NXTEXT_BPP
 	int "Bits-Per-Pixel"
@@ -138,9 +125,7 @@ config EXAMPLES_NXTEXT_EXTERNINIT
 		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
 		will be available in order to access this function.
 
-if NX_MULTIUSER
-
-comment "Multi-User Configuration Options"
+comment "NX Server Options"
 
 config EXAMPLES_NXTEXT_STACKSIZE
 	int "Listener Stack Size"
@@ -160,5 +145,4 @@ config EXAMPLES_NXTEXT_CLIENTPRIO
 	---help---
 		The client priority.  Default: 100
 
-endif # NX_MULTIUSER
 endif # EXAMPLES_NXTEXT

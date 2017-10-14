@@ -165,30 +165,28 @@
 #  define CONFIG_EXAMPLES_NXTEXT_GLCACHE 16
 #endif
 
-/* NX muli-user mode */
+/* NX Server Configuration */
 
-#ifdef CONFIG_NX_MULTIUSER
-#  ifdef CONFIG_DISABLE_MQUEUE
-#    error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
-#  endif
-#  ifdef CONFIG_DISABLE_SIGNALS
-#    error "This example requires signal support (CONFIG_DISABLE_SIGNALS=n)"
-#  endif
-#  ifdef CONFIG_DISABLE_PTHREAD
-#    error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
-#  endif
-#  ifndef CONFIG_NX_BLOCKING
-#    error "This example depends on CONFIG_NX_BLOCKING"
-#  endif
-#  ifndef CONFIG_EXAMPLES_NXTEXT_STACKSIZE
-#    define CONFIG_EXAMPLES_NXTEXT_STACKSIZE 2048
-#  endif
-#  ifndef CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO
-#    define CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO 100
-#  endif
-#  ifndef CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO
-#    define CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO 100
-#  endif
+#ifdef CONFIG_DISABLE_MQUEUE
+#  error "The multi-threaded example requires MQ support (CONFIG_DISABLE_MQUEUE=n)"
+#endif
+#ifdef CONFIG_DISABLE_SIGNALS
+#  error "This example requires signal support (CONFIG_DISABLE_SIGNALS=n)"
+#endif
+#ifdef CONFIG_DISABLE_PTHREAD
+#  error "This example requires pthread support (CONFIG_DISABLE_PTHREAD=n)"
+#endif
+#ifndef CONFIG_NX_BLOCKING
+#  error "This example depends on CONFIG_NX_BLOCKING"
+#endif
+#ifndef CONFIG_EXAMPLES_NXTEXT_STACKSIZE
+#  define CONFIG_EXAMPLES_NXTEXT_STACKSIZE 2048
+#endif
+#ifndef CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO
+#  define CONFIG_EXAMPLES_NXTEXT_LISTENERPRIO 100
+#endif
+#ifndef CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO
+#  define CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO 100
 #endif
 
 /* Bitmap flags */
@@ -304,9 +302,7 @@ extern nxgl_coord_t g_xres;
 extern nxgl_coord_t g_yres;
 
 extern bool b_haveresolution;
-#ifdef CONFIG_NX_MULTIUSER
 extern bool g_connected;
-#endif
 extern sem_t g_semevent;
 
 extern int g_exitcode;
@@ -315,9 +311,7 @@ extern int g_exitcode;
  * Public Function Prototypes
  ****************************************************************************/
 
-#if defined(CONFIG_NX) && defined(CONFIG_NX_MULTIUSER)
 FAR void *nxtext_listener(FAR void *arg);
-#endif
 
 /* Background window interfaces */
 

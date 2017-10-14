@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/nxtext/nxtext_main.c
  *
- *   Copyright (C) 2011-2012, 2015-2016 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2015-2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -153,9 +153,7 @@ nxgl_coord_t g_xres;
 nxgl_coord_t g_yres;
 
 bool b_haveresolution = false;
-#ifdef CONFIG_NX_MULTIUSER
 bool g_connected = false;
-#endif
 sem_t g_semevent = {0};
 
 int g_exitcode = NXEXIT_SUCCESS;
@@ -165,125 +163,10 @@ int g_exitcode = NXEXIT_SUCCESS;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: nxtext_suinitialize
- ****************************************************************************/
-
-#ifndef CONFIG_NX_MULTIUSER
-static inline int nxtext_suinitialize(void)
-{
-  FAR NX_DRIVERTYPE *dev;
-  int ret;
-
-#if defined(CONFIG_EXAMPLES_NXTEXT_EXTERNINIT)
-  struct boardioc_graphics_s devinfo;
-
-  /* Use external graphics driver initialization */
-
-  printf("nxtext_initialize: Initializing external graphics device\n");
-
-  devinfo.devno = CONFIG_EXAMPLES_NXTEXT_DEVNO;
-  devinfo.dev = NULL;
-
-  ret = boardctl(BOARDIOC_GRAPHICS_SETUP, (uintptr_t)&devinfo);
-  if (ret < 0)
-    {
-      printf("nxtext_initialize: boardctl failed, devno=%d: %d\n",
-             CONFIG_EXAMPLES_NXTEXT_DEVNO, errno);
-      g_exitcode = NXEXIT_EXTINITIALIZE;
-      return ERROR;
-    }
-
-  dev = devinfo.dev;
-
-#elif defined(CONFIG_NX_LCDDRIVER)
-  /* Initialize the LCD device */
-
-  printf("nxtext_initialize: Initializing LCD\n");
-  ret = board_lcd_initialize();
-  if (ret < 0)
-    {
-      printf("nxtext_initialize: board_lcd_initialize failed: %d\n", -ret);
-      g_exitcode = NXEXIT_LCDINITIALIZE;
-      return ERROR;
-    }
-
-  /* Get the device instance */
-
-  dev = board_lcd_getdev(CONFIG_EXAMPLES_NXTEXT_DEVNO);
-  if (!dev)
-    {
-      printf("nxtext_initialize: board_lcd_getdev failed, devno=%d\n",
-             CONFIG_EXAMPLES_NXTEXT_DEVNO);
-      g_exitcode = NXEXIT_LCDGETDEV;
-      return ERROR;
-    }
-
-  /* Turn the LCD on at 75% power */
-
-  (void)dev->setpower(dev, ((3*CONFIG_LCD_MAXPOWER + 3)/4));
-
-#else
-  /* Initialize the frame buffer device */
-
-  printf("nxtext_initialize: Initializing framebuffer\n");
-
-  ret = up_fbinitialize(0);
-  if (ret < 0)
-    {
-      printf("nxtext_initialize: up_fbinitialize failed: %d\n", -ret);
-
-      g_exitcode = NXEXIT_FBINITIALIZE;
-      return ERROR;
-    }
-
-  dev = up_fbgetvplane(0, CONFIG_EXAMPLES_NXTEXT_VPLANE);
-  if (!dev)
-    {
-      printf("nxtext_initialize: up_fbgetvplane failed, vplane=%d\n",
-             CONFIG_EXAMPLES_NXTEXT_VPLANE);
-
-      g_exitcode = NXEXIT_FBGETVPLANE;
-      return ERROR;
-    }
-#endif
-
-  /* Then open NX */
-
-  printf("nxtext_initialize: Open NX\n");
-
-  g_hnx = nx_open(dev);
-  if (!g_hnx)
-    {
-      printf("nxtext_initialize: nx_open failed: %d\n", errno);
-
-      g_exitcode = NXEXIT_NXOPEN;
-      return ERROR;
-    }
-
-#ifdef CONFIG_VNCSERVER
-  /* Setup the VNC server to support keyboard/mouse inputs */
-
-  ret = vnc_default_fbinitialize(0, g_hnx);
-  if (ret < 0)
-    {
-      printf("vnc_default_fbinitialize failed: %d\n", ret);
-
-      nx_close(g_hnx);
-      g_exitcode = NXEXIT_FBINITIALIZE;
-      return ERROR;
-    }
-#endif
-
-  return OK;
-}
-#endif
-
-/****************************************************************************
  * Name: nxtext_initialize
  ****************************************************************************/
 
-#ifdef CONFIG_NX_MULTIUSER
-static inline int nxtext_muinitialize(void)
+static int nxtext_initialize(void)
 {
   struct sched_param param;
   pthread_t thread;
@@ -369,20 +252,6 @@ static inline int nxtext_muinitialize(void)
     }
 
   return OK;
-}
-#endif
-
-/****************************************************************************
- * Name: nxtext_initialize
- ****************************************************************************/
-
-static int nxtext_initialize(void)
-{
-#ifdef CONFIG_NX_MULTIUSER
-  return nxtext_muinitialize();
-#else
-  return nxtext_suinitialize();
-#endif
 }
 
 /****************************************************************************
@@ -539,17 +408,11 @@ errout_with_hwnd:
   (void)nx_releasebkgd(g_bgwnd);
 
 errout_with_nx:
-#ifdef CONFIG_NX_MULTIUSER
   /* Disconnect from the server */
 
   printf("nxtext_main: Disconnect from the server\n");
   nx_disconnect(g_hnx);
-#else
-  /* Close the server */
 
-  printf("nxtext_main: Close NX\n");
-  nx_close(g_hnx);
-#endif
 errout:
   return g_exitcode;
 }

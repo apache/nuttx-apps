@@ -1,7 +1,7 @@
 ############################################################################
 # apps/examples/nxtext/Makefile
 #
-#   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+#   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,14 +39,10 @@
 
 ASRCS =
 CSRCS = nxtext_bkgd.c nxtext_popup.c nxtext_putc.c
-MAINSRC = nxtext_main.c
+MAINSRC = nxtext_main.c nxtext_listener.c
 
-ifeq ($(CONFIG_NX_MULTIUSER),y)
-CSRCS += nxtext_listener.c
-endif
-
-CONFIG_XYZ_PROGNAME ?= nxtext$(EXEEXT)
-PROGNAME = $(CONFIG_XYZ_PROGNAME)
+CONFIG_EXAMPLES_NXTERM_PROGNAME ?= nxtext$(EXEEXT)
+PROGNAME = $(CONFIG_EXAMPLES_NXTERM_PROGNAME)
 
 # NXTEXT built-in application info
 
