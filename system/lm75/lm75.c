@@ -58,15 +58,126 @@
 #  define CONFIG_SYSTEM_LM75_DEVNAME "/dev/temp"
 #endif
 
-#if !defined(CONFIG_SYSTEM_LM75_FAHRENHEIT) && !defined(CONFIG_SYSTEM_LM75_CENTIGRADE)
-#  warning one of CONFIG_SYSTEM_LM75_FAHRENHEIT or CONFIG_SYSTEM_LM75_CENTIGRADE must be defined
+#if !defined(CONFIG_SYSTEM_LM75_FAHRENHEIT) && !defined(CONFIG_SYSTEM_LM75_CELSIUS)
+#  warning one of CONFIG_SYSTEM_LM75_FAHRENHEIT or CONFIG_SYSTEM_LM75_CELSIUS must be defined
 #  defeind CONFIG_SYSTEM_LM75_FAHRENHEIT 1
 #endif
 
-#if defined(CONFIG_SYSTEM_LM75_FAHRENHEIT) && defined(CONFIG_SYSTEM_LM75_CENTIGRADE)
-#  warning both of CONFIG_SYSTEM_LM75_FAHRENHEIT and CONFIG_SYSTEM_LM75_CENTIGRADE defined
-#  undef CONFIG_SYSTEM_LM75_CENTIGRADE
+#if defined(CONFIG_SYSTEM_LM75_FAHRENHEIT) && defined(CONFIG_SYSTEM_LM75_CELSIUS)
+#  warning both of CONFIG_SYSTEM_LM75_FAHRENHEIT and CONFIG_SYSTEM_LM75_CELSIUS defined
+#  undef CONFIG_SYSTEM_LM75_CELSIUS
 #endif
+
+/****************************************************************************
+ * Private Data
+ ****************************************************************************/
+
+static int g_samples = 1;
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: lm75_help
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+static void lm75_help(void)
+{
+  printf("Usage: temp [OPTIONS]\n");
+  printf("  [-n count] selects the samples to collect.  "
+         "Default: 1 Current: %d\n", g_samples);
+  printf("  [-h] shows this message and exits\n");
+}
+#endif
+
+/****************************************************************************
+ * Name: arg_string
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+static int arg_string(FAR char **arg, FAR char **value)
+{
+  FAR char *ptr = *arg;
+
+  if (ptr[2] == '\0')
+    {
+      *value = arg[1];
+      return 2;
+    }
+  else
+    {
+      *value = &ptr[2];
+      return 1;
+    }
+}
+#endif
+
+/****************************************************************************
+ * Name: arg_decimal
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+static int arg_decimal(FAR char **arg, FAR long *value)
+{
+  FAR char *string;
+  int ret;
+
+  ret = arg_string(arg, &string);
+  *value = strtol(string, NULL, 10);
+  return ret;
+}
+#endif
+
+/****************************************************************************
+ * Name: parse_args
+ ****************************************************************************/
+
+#ifdef CONFIG_NSH_BUILTIN_APPS
+static void parse_args(int argc, FAR char **argv)
+{
+  FAR char *ptr;
+  long value;
+  int index;
+  int nargs;
+
+  for (index = 1; index < argc; )
+    {
+      ptr = argv[index];
+      if (ptr[0] != '-')
+        {
+          printf("Invalid options format: %s\n", ptr);
+          exit(0);
+        }
+
+      switch (ptr[1])
+        {
+          case 'n':
+            nargs = arg_decimal(&argv[index], &value);
+            if (value < 0)
+              {
+                printf("Count must be non-negative: %ld\n", value);
+                exit(1);
+              }
+
+            g_samples = (int)value;
+            index += nargs;
+            break;
+
+          case 'h':
+            lm75_help();
+            exit(0);
+
+          default:
+            printf("Unsupported option: %s\n", ptr);
+            lm75_help();
+            exit(1);
+        }
+    }
+}
+#endif
+
 
 /****************************************************************************
  * Public Functions
@@ -85,6 +196,7 @@ int lm75_main(int argc, char *argv[])
   ssize_t nbytes;
   int fd;
   int ret;
+  int i;
 
   /* Open the temperature sensor device */
 
@@ -118,42 +230,60 @@ int lm75_main(int argc, char *argv[])
     }
 #endif
 
-  /* Read the current temperature as a fixed precision number */
+  /* Parse the command line */
 
-  nbytes = read(fd, &temp16, sizeof(b16_t));
-  close(fd);
+#ifdef CONFIG_NSH_BUILTIN_APPS
+  parse_args(argc, argv);
+#endif
 
-  if (nbytes < 0)
+  for (i = 0; i < g_samples; i++)
     {
-      fprintf(stderr, "ERROR: read(%d) failed: %d\n",
-              sizeof(b16_t), errno);
-      return EXIT_FAILURE;
-    }
+      /* Read the current temperature as a fixed precision number */
 
-  if (nbytes != sizeof(b16_t))
-    {
-      fprintf(stderr, "ERROR: Unexpected read size: %Ld vs %d\n",
-              (long)nbytes, sizeof(b16_t));
-      return EXIT_FAILURE;
-    }
+      nbytes = read(fd, &temp16, sizeof(b16_t));
 
-  /* Print the current temperature on stdout */
+      if (nbytes < 0)
+        {
+          fprintf(stderr, "ERROR: read(%d) failed: %d\n",
+                  sizeof(b16_t), errno);
+          return EXIT_FAILURE;
+        }
+
+      if (nbytes != sizeof(b16_t))
+        {
+          fprintf(stderr, "ERROR: Unexpected read size: %Ld vs %d\n",
+                  (long)nbytes, sizeof(b16_t));
+          return EXIT_FAILURE;
+        }
+
+      /* Print the current temperature on stdout */
 
 #ifdef CONFIG_LIBC_FLOATINGPOINT
-  temp = (double)temp16 / 65536.0;
-#ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
-  printf("%3.2f degrees Fahrenheit\n", temp);
-#else
-  printf("%3.2f degrees Centigrade\n", temp);
-#endif
+      temp = (double)temp16 / 65536.0;
+#  ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
+      printf("%3.2f degrees Fahrenheit\n", temp);
+#  else
+      printf("%3.2f degrees Celsius\n", temp);
+#  endif
 
 #else
-#ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
-  printf("0x%04x.%04x degrees Fahrenheit\n", temp16 >> 16, temp16 & 0xffff);
-#else
-  printf("0x%04x.%04x degrees Centigrade\n", temp16 >> 16, temp16 & 0xffff);
+#  ifdef CONFIG_SYSTEM_LM75_FAHRENHEIT
+      printf("0x%04x.%04x degrees Fahrenheit\n", temp16 >> 16, temp16 & 0xffff);
+#  else
+      printf("0x%04x.%04x degrees Celsius\n", temp16 >> 16, temp16 & 0xffff);
+#  endif
 #endif
-#endif
+
+      /* Force it to print out the lines */
+
+      fflush(stdout);
+
+      /* Wait 500 ms */
+
+      usleep(500000);
+    }
+
+  close(fd);
 
   return EXIT_SUCCESS;
 }
