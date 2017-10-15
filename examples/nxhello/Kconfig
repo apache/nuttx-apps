@@ -6,7 +6,7 @@
 config EXAMPLES_NXHELLO
 	bool "NX graphics \"Hello, World!\" example"
 	default n
-	depends on NX_MULTIUSER
+	depends on NX
 	select LIB_BOARDCTL
 	---help---
 		Enable the NX graphics \"Hello, World!\" example

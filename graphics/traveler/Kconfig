@@ -7,7 +7,6 @@ config GRAPHICS_TRAVELER
 	bool "Traveler game"
 	default n
 	select FSUTILS_INIFILE
-	depends on !NX || NX_MULTIUSER
 	---help---
 		Enable or disable the graphic Traveler game
 

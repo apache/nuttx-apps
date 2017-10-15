@@ -6,7 +6,7 @@
 config EXAMPLES_NXIMAGE
 	bool "NX graphics image example"
 	default n
-	depends on NX_MULTIUSER
+	depends on NX
 	select LIB_BOARDCTL
 	---help---
 		Enable the X graphics image example

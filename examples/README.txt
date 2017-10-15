@@ -1068,10 +1068,6 @@ examples/nx
       include 2, 4, 8, 16, 24, and 32.  Default is 32.
     CONFIG_EXAMPLES_NX_RAWWINDOWS -- Use raw windows;  Default is to
       use pretty, framed NXTK windows with toolbars.
-
-  This test requires the multiple user vrsion of NX selected with
-  CONFIG_NX_MULTIUSER.  Then the following configuration options also apply:
-
     CONFIG_EXAMPLES_NX_STACKSIZE -- The stacksize to use when creating
       the NX server.  Default 2048
     CONFIG_EXAMPLES_NX_CLIENTPRIO -- The client priority.  Default: 100
@@ -1101,7 +1097,6 @@ examples/nxterm
 
     CONFIG_NX=y              -- NX graphics must be enabled
     CONFIG_NXTERM=y          -- The NX console driver must be built
-    CONFIG_NX_MULTIUSER=y    -- NX multi-user support must be enabled.
     CONFIG_DISABLE_MQUEUE=n  -- Message queue support must be available.
     CONFIG_DISABLE_SIGNALS=n -- Signals are needed
     CONFIG_DISABLE_PTHREAD=n -- pthreads are needed
@@ -1134,10 +1129,6 @@ examples/nxterm
       Default: SCHED_PRIORITY_DEFAULT
     CONFIG_EXAMPLES_NXTERM_STACKSIZE - Stack size allocated for the
       NxTerm task. Default: 2048
-
-  The following configuration settings determine how to set up the NX
-  server (CONFIG_NX_MULTIUSER):
-
     CONFIG_EXAMPLES_NXTERM_STACKSIZE -- The stacksize to use when creating
       the NX server.  Default 2048
     CONFIG_EXAMPLES_NXTERM_CLIENTPRIO -- The client priority.  Default: 100
@@ -1300,11 +1291,6 @@ examples/nxtext
       can be put in the background window.  Default is 128.
     CONFIG_EXAMPLES_NXTEXT_GLCACHE - The maximum nuber of pre-rendered
       fonts that can be retained for the background window.
-
-  This test must be performed with the multiple user version of NX selected
-  with CONFIG_NX_MULTIUSER=y.  The following configuration options also
-  apply:
-
     CONFIG_EXAMPLES_NXTEXT_STACKSIZE -- The stacksize to use when creating
       the NX server.  Default 2048
     CONFIG_EXAMPLES_NXTEXT_CLIENTPRIO -- The client priority.  Default: 100

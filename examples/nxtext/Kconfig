@@ -6,7 +6,7 @@
 config EXAMPLES_NXTEXT
 	bool "NX graphics text example"
 	default n
-	depends on NX_MULTIUSER
+	depends on NX
 	---help---
 		Enable the NX graphics text example
 

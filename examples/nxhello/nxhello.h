@@ -60,10 +60,6 @@
 #  error "NX is not enabled (CONFIG_NX)"
 #endif
 
-#ifndef CONFIG_NX_MULTIUSER
-#  error "Multi-user NX support is required (CONFIG_NX_MULTIUSER=y)"
-#endif
-
 /* If not specified, assume that the hardware supports one video plane */
 
 #if CONFIG_NX_NPLANES != 1

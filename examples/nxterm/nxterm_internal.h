@@ -69,12 +69,6 @@
 #  error "NxTerm is not enabled (CONFIG_NXTERM=y)"
 #endif
 
-/* NxTerm requires NX Multi-user mode */
-
-#ifndef CONFIG_NX_MULTIUSER
-#  error "Multi-user NX support is required (CONFIG_NX_MULTIUSER=y)"
-#endif
-
 /* If there is no NSH console, then why are we running this example? */
 
 #ifndef CONFIG_NSH_CONSOLE
