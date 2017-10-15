@@ -28,14 +28,6 @@ config NXWIDGETS_FLICKERFREE
 		lower-performance flicker-reductions measures where-ever thay may
 		be available.
 
-config NXWIDGETS_EXTERNINIT
-	bool "External display Initialization"
-	default n
-	depends on LIB_BOARDCTL
-	select BOARDCTL_GRAPHICS
-	---help---
-		Define to support external display initialization.
-
 config NXWIDGET_SERVERINIT
 	bool "Start server"
 	default y

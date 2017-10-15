@@ -73,8 +73,6 @@
  *   SCHED_PRIORITY_DEFAULT
  * CONFIG_NXWIDGETS_LISTENERPRIO - Priority of the NX event listener thread.
  *   Default: SCHED_PRIORITY_DEFAULT
- * CONFIG_NXWIDGETS_EXTERNINIT - Define to support external display
- *   initialization.
  * CONFIG_NXWIDGETS_LISTENERSTACK - NX listener thread stack size (in multi-user
  * mode).  Default 2048
  * CONFIG_NXWIDGET_EVENTWAIT - Build in support for external window event, modal
