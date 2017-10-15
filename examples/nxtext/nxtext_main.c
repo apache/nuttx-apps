@@ -335,6 +335,7 @@ int nxtext_main(int argc, char **argv)
     {
       (void)sem_wait(&g_semevent);
     }
+
   printf("nxtext_main: Screen resolution (%d,%d)\n", g_xres, g_yres);
 
   /* Now loop, adding text to the background and periodically presenting
