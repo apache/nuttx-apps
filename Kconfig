@@ -8,7 +8,7 @@ menu "NxWidgets/NxWM"
 config NXWIDGETS
 	bool "Enable NxWidgets"
 	default n
-	depends on NX && HAVE_CXX && NX_MULTIUSER
+	depends on NX && HAVE_CXX
 	---help---
 		Enable support for NxWidgets
 

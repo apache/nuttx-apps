@@ -88,7 +88,6 @@ Installing and Building the Unit Tests
    d) Special configuration requirements for the nxwm unit test:
 
      CONFIG_NXTERM=y
-     CONFIG_NX_MULTIUSER=y
 
    e) Other .config file changes -- NSH configurations only.
 

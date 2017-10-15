@@ -56,7 +56,6 @@
  *
  * CONFIG_HAVE_CXX        : C++ support is required
  * CONFIG_NX              : NX must enabled
- * CONFIG_NX_MULTIUSER=y  : NX must be configured in multiuse mode
  * CONFIG_NXTERM=y     : For NxTerm support
  * CONFIG_SCHED_ONEXIT    : Support for on_exit()
  *
@@ -78,10 +77,6 @@
 
 #ifndef CONFIG_NX
 #  error "NX support is required (CONFIG_NX)"
-#endif
-
-#ifndef CONFIG_NX_MULTIUSER
-#  error "NX multi-user support is required (CONFIG_NX_MULTIUSER)"
 #endif
 
 /**
