@@ -77,28 +77,6 @@ config EXAMPLES_NX_TOOLBAR_HEIGHT
 	---help---
 		The height of the toolbar in the NXTK framed windows
 
-config EXAMPLES_NX_EXTERNINIT
-	bool "External Device Initialization"
-	default n
-	depends on LIB_BOARDCTL
-	select BOARDCTL_GRAPHICS
-	select NXSTART_EXTERNINIT
-	---help---
-		The driver for the graphics device on this platform requires some
-		unusual initialization.  This is the for, for example, SPI LCD/OLED
-		devices.  If this configuration is selected, then the platform code
-		must provide an LCD initialization function with a prototype like:
-
-		#ifdef CONFIG_NX_LCDDRIVER
-		FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-		#else
-		FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-		#endif
-
-		and must also define: CONFIG_LIB_BOARDCTL=y and
-		CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-		will be available in order to access this function.
-
 comment "NX Server Options"
 
 config EXAMPLES_NX_STACKSIZE

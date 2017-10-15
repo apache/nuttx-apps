@@ -1068,21 +1068,6 @@ examples/nx
       include 2, 4, 8, 16, 24, and 32.  Default is 32.
     CONFIG_EXAMPLES_NX_RAWWINDOWS -- Use raw windows;  Default is to
       use pretty, framed NXTK windows with toolbars.
-    CONFIG_EXAMPLES_NX_EXTERNINIT - The driver for the graphics device on
-      this platform requires some unusual initialization.  This is the
-      for, for example, SPI LCD/OLED devices.  If this configuration is
-      selected, then the platform code must provide an LCD initialization
-      function with a prototype like:
-
-      #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-      #else
-      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-      #endif
-
-      and must also define: CONFIG_LIB_BOARDCTL=y and
-      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-      will be available in order to access this function.
 
   This test requires the multiple user vrsion of NX selected with
   CONFIG_NX_MULTIUSER.  Then the following configuration options also apply:
@@ -1103,6 +1088,7 @@ examples/nx
     CONFIG_DISABLE_SIGNALS=n
     CONFIG_DISABLE_PTHREAD=n
     CONFIG_NX_BLOCKING=y
+    CONFIG_LIB_BOARDCTL=y
 
 examples/nxterm
 ^^^^^^^^^^^^^^^^^^
@@ -1139,22 +1125,6 @@ examples/nxterm
       Default: 16
     CONFIG_EXAMPLES_NXTERM_TBCOLOR -- The color of the toolbar. Default is
       a medium grey.
-    CONFIG_EXAMPLES_NXTERM_EXTERNINIT - The driver for the graphics device on
-      this platform requires some unusual initialization.  This is the
-      for, for example, SPI LCD/OLED devices.  If this configuration is
-      selected, then the platform code must provide an LCD initialization
-      function with a prototype like:
-
-      #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-      #else
-      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-      #endif
-
-      and must also define: CONFIG_LIB_BOARDCTL=y and
-      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-      will be available in order to access this function.
-
     CONFIG_EXAMPLES_NXTERM_MINOR -- The NX console device minor number.
       Default is 0 corresponding to /dev/nxterm0
     CONFIG_EXAMPLES_NXTERM_DEVNAME -- The quoated, full path to the
@@ -1215,21 +1185,6 @@ examplex/nxhello
       background window. Default depends on CONFIG_EXAMPLES_NXHELLO_BPP.
     CONFIG_EXAMPLES_NXHELLO_BPP -- Pixels per pixel to use.  Valid options
       include 2, 4, 8, 16, 24, and 32.  Default is 32.
-    CONFIG_EXAMPLES_NXHELLO_EXTERNINIT - The driver for the graphics device on
-      this platform requires some unusual initialization.  This is the
-      for, for example, SPI LCD/OLED devices.  If this configuration is
-      selected, then the platform code must provide an LCD initialization
-      function with a prototype like:
-
-      #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-      #else
-      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-      #endif
-
-      and must also define: CONFIG_LIB_BOARDCTL=y and
-      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-      will be available in order to access this function.
 
 examples/nximage
 ^^^^^^^^^^^^^^^^
@@ -1255,21 +1210,6 @@ examples/nximage
       One of these may be defined to rescale the image vertically by .5, 1.5,
       or 2.0.
     CONFIG_EXAMPLES_NXIMAGE_GREYSCALE -- Grey scale image.  Default: RGB.
-    CONFIG_EXAMPLES_NXIMAGE_EXTERNINIT - The driver for the graphics device on
-      this platform requires some unusual initialization.  This is the
-      for, for example, SPI LCD/OLED devices.  If this configuration is
-      selected, then the platform code must provide an LCD initialization
-      function with a prototype like:
-
-      #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-      #else
-      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-      #endif
-
-      and must also define: CONFIG_LIB_BOARDCTL=y and
-      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-      will be available in order to access this function.
 
     How was that run-length encoded image produced?
 
@@ -1317,22 +1257,6 @@ examplex/nxlines
 
     CONFIG_EXAMPLES_NXLINES_BPP -- Pixels per pixel to use.  Valid options
       include 2, 4, 8, 16, 24, and 32.  Default is 16.
-    CONFIG_EXAMPLES_NXLINES_EXTERNINIT - The driver for the graphics device on
-      this platform requires some unusual initialization.  This is the
-      for, for example, SPI LCD/OLED devices.  If this configuration is
-      selected, then the platform code must provide an LCD initialization
-      function with a prototype like:
-
-      #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-      #else
-      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-      #endif
-
-      and must also define: CONFIG_LIB_BOARDCTL=y and
-      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-      will be available in order to access this function.
-
     CONFIG_NSH_BUILTIN_APPS - Build the NX lines examples as an NSH built-in
       function.
 
@@ -1372,22 +1296,6 @@ examples/nxtext
     CONFIG_EXAMPLES_NXTEXT_NOGETRUN -- If your display is read-only OR if
       reading is not reliable, then select this configuration to avoid
       reading from the display.
-    CONFIG_EXAMPLES_NXTEXT_EXTERNINIT - The driver for the graphics device on
-      this platform requires some unusual initialization.  This is the
-      for, for example, SPI LCD/OLED devices.  If this configuration is
-      selected, then the platform code must provide an LCD initialization
-      function with a prototype like:
-
-      #ifdef CONFIG_NX_LCDDRIVER
-      FAR struct lcd_dev_s *board_graphics_setup(unsigned int devno);
-      #else
-      FAR struct fb_vtable_s *board_graphics_setup(unsigned int devno);
-      #endif
-
-      and must also define: CONFIG_LIB_BOARDCTL=y and
-      CONFIG_BOARDCTL_GRAPHICS=y so that the boardctl() interface
-      will be available in order to access this function.
-
     CONFIG_EXAMPLES_NXTEXT_BMCACHE - The maximum number of characters that
       can be put in the background window.  Default is 128.
     CONFIG_EXAMPLES_NXTEXT_GLCACHE - The maximum nuber of pre-rendered
