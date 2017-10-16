@@ -349,7 +349,7 @@ int fb_main(int argc, char *argv[])
   printf("      bpp: %u\n", state.pinfo.bpp);
 
   /* Only these pixel depths are supported.  viinfo.fmt is ignored, only
-   * certain color formations are supported.
+   * certain color formats are supported.
    */
 
   if (state.pinfo.bpp != 32 && state.pinfo.bpp != 16 &&

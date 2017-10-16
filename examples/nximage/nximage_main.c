@@ -230,14 +230,13 @@ int nximage_main(int argc, char *argv[])
       goto errout_with_nx;
     }
 
-  /* Wait until we have the screen resolution.  We'll have this immediately
-   * unless we are dealing with the NX server.
-   */
+  /* Wait until we have the screen resolution. */
 
   while (!g_nximage.havepos)
     {
       (void)sem_wait(&g_nximage.eventsem);
     }
+
   printf("nximage_main: Screen resolution (%d,%d)\n", g_nximage.xres, g_nximage.yres);
 
   /* Now, put up the NuttX logo and wait a bit so that it visible. */

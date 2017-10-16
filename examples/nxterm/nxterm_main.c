@@ -299,9 +299,7 @@ int nxterm_main(int argc, char **argv)
     }
   printf("nxterm_main: hwnd=%p\n", g_nxterm_vars.hwnd);
 
-  /* Wait until we have the screen resolution.  We'll have this immediately
-   * unless we are dealing with the NX server.
-   */
+  /* Wait until we have the screen resolution.  */
 
   while (!g_nxterm_vars.haveres)
     {
