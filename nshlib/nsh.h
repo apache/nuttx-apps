@@ -1114,11 +1114,11 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #       endif
 #     endif /* CONFIG_FS_WRITABLE */
 #   endif /* CONFIG_FS_READABLE */
-#   ifdef CONFIG_FS_FAT
+#   ifdef CONFIG_FSUTILS_MKFATFS
 #     ifndef CONFIG_NSH_DISABLE_MKFATFS
          int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
-#   endif /* CONFIG_FS_FAT */
+#   endif /* CONFIG_FSUTILS_MKFATFS */
 #   if defined(CONFIG_FS_SMARTFS) && defined(CONFIG_FSUTILS_MKSMARTFS)
 #     ifndef CONFIG_NSH_DISABLE_MKSMARTFS
          int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

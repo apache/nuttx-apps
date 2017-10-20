@@ -55,9 +55,6 @@
 #     include <sys/ioctl.h>
 #     include <nuttx/fs/loop.h>
 #   endif
-#   ifdef CONFIG_FS_FAT
-#     include <nuttx/fs/mkfatfs.h>
-#   endif
 #   ifdef CONFIG_FS_SMARTFS
 #     include "fsutils/mksmartfs.h"
 #   endif
@@ -85,6 +82,10 @@
 #include <libgen.h>
 #include <errno.h>
 #include <debug.h>
+
+#ifdef CONFIG_FSUTILS_MKFATFS
+#  include "fsutils/mkfatfs.h"
+#endif
 
 #include "nsh.h"
 #include "nsh_console.h"
@@ -1204,7 +1205,8 @@ int cmd_mkdir(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
  * Name: cmd_mkfatfs
  ****************************************************************************/
 
-#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_FAT)
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && \
+     defined(CONFIG_FSUTILS_MKFATFS)
 #ifndef CONFIG_NSH_DISABLE_MKFATFS
 int cmd_mkfatfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {

@@ -347,7 +347,7 @@ config NSH_DISABLE_MKFATFS
 	bool "Disable mkfatfs"
 	default y if DEFAULT_SMALL
 	default n if !DEFAULT_SMALL
-	depends on FS_FAT
+	depends on FUTILS_MKFATFS
 
 config NSH_DISABLE_MKFIFO
 	bool "Disable mkfifo"

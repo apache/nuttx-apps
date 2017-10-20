@@ -1,0 +1,12 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config FSUTILS_MKFATFS
+	bool "mkfatfs utility"
+	default y
+	depends on FS_FAT && !DISABLE_PSEUDOFS_OPERATIONS
+	---help---
+		Enables support for the mkfatfs utility
+

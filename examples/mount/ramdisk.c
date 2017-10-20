@@ -46,8 +46,8 @@
 #include <errno.h>
 
 #include <nuttx/drivers/ramdisk.h>
-#include <nuttx/fs/mkfatfs.h>
 
+#include "fsutils/mkfatfs.h"
 #include "mount.h"
 
 #ifndef CONFIG_EXAMPLES_MOUNT_DEVNAME

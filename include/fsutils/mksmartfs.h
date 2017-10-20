@@ -33,8 +33,8 @@
  *
  ****************************************************************************/
 
-#ifndef __INCLUDE_APPS_INCLUDE_FSUTILS_MKSMARTFS_H
-#define __INCLUDE_APPS_INCLUDE_FSUTILS_MKSMARTFS_H
+#ifndef __APPS_INCLUDE_FSUTILS_MKSMARTFS_H
+#define __APPS_INCLUDE_FSUTILS_MKSMARTFS_H
 
 /****************************************************************************
  * Included Files
@@ -44,15 +44,7 @@
 #include <stdint.h>
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-/****************************************************************************
- * Public Data
+ * Public Function Prototypes
  ****************************************************************************/
 
 #undef EXTERN
@@ -63,10 +55,6 @@ extern "C"
 #else
 #define EXTERN extern
 #endif
-
-/****************************************************************************
- * Public Function Prototypes
- ****************************************************************************/
 
 /****************************************************************************
  * Name: mksmartfs
@@ -108,4 +96,4 @@ int mksmartfs(FAR const char *pathname, uint16_t sectorsize);
 }
 #endif
 
-#endif /* __INCLUDE_APPS_INCLUDE_FSUTILS_MKSMARTFS_H */
+#endif /* __APPS_INCLUDE_FSUTILS_MKSMARTFS_H */
