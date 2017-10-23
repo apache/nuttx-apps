@@ -1225,11 +1225,12 @@ Built-In Commands
 ^^^^^^^^^^^^^^^^^
 In addition to the commands that are part of NSH listed above, there can be
 additional, external "built-in" applications that can be added to NSH.
-These are separately excecuble programs but will appear much like the the
-commands that are a part of NSH.  The primary difference is that help
-information about the built-in applications is not available from NSH.  Most
-built-in applicRather, you will need to execute the application with the -h
-option to get help about using the built-in applications.
+These are separately excecuble programs but will appear much like the
+commands that are a part of NSH.  The primary difference from the user's
+perspective is that help information about the built-in applications is not
+directly available from NSH.  Rather, you will need to execute the
+application with the -h option to get help about using the built-in
+applications.
 
 There are several built-in appliations in the apps/ repository.  No attempt
 is made here to enumerate all of them.  But a few of the more common built-
