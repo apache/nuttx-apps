@@ -49,6 +49,10 @@
 #include <string.h>
 #include <errno.h>
 
+#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+#  include <netdb.h>
+#endif
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -105,6 +109,65 @@ static inline uint16_t ping_newid(void)
   /* Revisit:  No thread safe */
 
   return ++g_pingid;
+}
+
+/****************************************************************************
+ * Name: ping_gethostip
+ *
+ * Description:
+ *   Call gethostbyname() to get the IP address associated with a hostname.
+ *
+ * Input Parameters
+ *   hostname - The host name to use in the nslookup.
+ *   ipv4addr - The location to return the IPv4 address.
+ *
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
+ *
+ ****************************************************************************/
+
+static int ping_gethostip(FAR char *hostname, FAR struct ping_info_s *info)
+{
+#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+  /* Netdb DNS client support is enabled */
+
+  FAR struct hostent *he;
+
+  he = gethostbyname(hostname);
+  if (he == NULL)
+    {
+      nerr("ERROR: gethostbyname failed: %d\n", h_errno);
+      return -ENOENT;
+    }
+  else if (he->h_addrtype = AF_INET)
+    {
+       memcpy(&info->dest, he->h_addr, sizeof(in_addr_t));
+    }
+  else
+    {
+      nerr("ERROR: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
+      return -ENOEXEC;
+    }
+
+  return OK;
+
+#else /* CONFIG_LIBC_NETDB */
+
+  /* No host name support */
+  /* Convert strings to numeric IPv6 address */
+
+  int ret = inet_pton(AF_INET, hostname, &info->dest);
+
+  /* The inet_pton() function returns 1 if the conversion succeeds. It will
+   * return 0 if the input is not a valid IPv4 dotted-decimal string or a
+   * valid IPv6 address string, or -1 with errno set to EAFNOSUPPORT if
+   * the address family argument is unsupported.
+   */
+
+  return (ret > 0) ? OK : ERROR;
+
+#endif /* CONFIG_LIBC_NETDB */
 }
 
 /****************************************************************************
@@ -452,9 +515,9 @@ int ping_main(int argc, char **argv)
       show_usage(argv[0], EXIT_FAILURE);
     }
 
-  if (inet_pton(AF_INET, argv[optind], &info->dest) == 0)
+  if (ping_gethostip(argv[optind], info) == 0)
     {
-      fprintf(stderr, "ERROR: inet_aton(%s) failed\n", argv[optind]);
+      fprintf(stderr, "ERROR: ping_gethostip(%s) failed\n", argv[optind]);
       goto errout_with_info;
     }
 

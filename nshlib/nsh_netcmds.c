@@ -487,8 +487,7 @@ errout:
  ****************************************************************************/
 
 #ifdef HAVE_PING6
-static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
-                         int addrtype)
+static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr)
 {
 #ifdef CONFIG_LIBC_NETDB
 
@@ -502,30 +501,15 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
       nerr("ERROR: gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
-  else if (he->h_addrtype != addrtype)
-    {
-      nerr("ERROR: gethostbyname returned an address of type: %d\n",
-           he->h_addrtype);
-      return -ENOEXEC;
-    }
-  else if (addrtype == AF_INET)
-    {
-      memcpy(&ipaddr->ipv4, he->h_addr, sizeof(in_addr_t));
-    }
-  else /* if (addrtype == AF_INET6) */
+  else if (he->h_addrtype == AF_INET6)
     {
       memcpy(ipaddr->ipv6, he->h_addr, sizeof(net_ipv6addr_t));
-    }
-
-  if (he->h_addrtype != AF_INET6)
-    {
-      nerr("ERROR: gethostbyname returned an address of type: %d\n",
-           he->h_addrtype);
-      return -ENOEXEC;
     }
   else
     {
-      memcpy(ipaddr->ipv6, he->h_addr, sizeof(net_ipv6addr_t));
+      nerr("ERROR: gethostbyname returned an address of type: %d\n",
+           he->h_addrtype);
+      return -ENOEXEC;
     }
 
   return OK;
@@ -1364,7 +1348,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the IP address in binary form */
 
-  ret = nsh_gethostip(staddr, (FAR union ip_addr_u *)&ipaddr, AF_INET6);
+  ret = nsh_gethostip(staddr, (FAR union ip_addr_u *)&ipaddr);
   if (ret < 0)
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
