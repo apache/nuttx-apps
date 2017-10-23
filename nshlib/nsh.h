@@ -1175,12 +1175,6 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
       int cmd_nfsmount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #    endif
 #  endif
-#  if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-     !defined(CONFIG_DISABLE_SIGNALS)
-#    ifndef CONFIG_NSH_DISABLE_PING
-        int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#    endif
-#  endif
 #  if defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && \
      !defined(CONFIG_DISABLE_SIGNALS)
 #    ifndef CONFIG_NSH_DISABLE_PING6

@@ -13,8 +13,10 @@ apps/nshlib
     Environment Variables
   - NSH Start-Up Script
   - Simple Commands
+  - Built-In Applications
   - NSH Configuration Settings
     Command Dependencies on Configuration Settings
+    Built-in Application Configuration Settings
     NSH-Specific Configuration Settings
   - Common Problems
 
@@ -887,26 +889,7 @@ o passwd <username> <password>
 
   Set the password for the existing user <username> to <password>
 
-o ping [-c <count>] [-i <interval>] <ip-address>
-  ping6 [-c <count>] [-i <interval>] <ip-address>
-
-  Test the network communication with a remote peer.  Example,
-
-    nsh> 10.0.0.1
-    PING 10.0.0.1 56 bytes of data
-    56 bytes from 10.0.0.1: icmp_seq=1 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=2 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=3 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=4 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=5 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=6 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=7 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=8 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=9 time=0 ms
-    56 bytes from 10.0.0.1: icmp_seq=10 time=0 ms
-    10 packets transmitted, 10 received, 0% packet loss, time 10190 ms
-    nsh>
-
+o ping6 [-c <count>] [-i <interval>] <ip-address>
   ping6 differs from ping in that it uses IPv6 addressing.
 
 o poweroff
@@ -1238,6 +1221,42 @@ o xd <hex-address> <byte-count>
     01f0: 08 3a 0b 3b 0b 49 13 00 00 04 13 01 01 13 03 08 .:.;.I..........
     nsh>
 
+Built-In Commands
+^^^^^^^^^^^^^^^^^
+In addition to the commands that are part of NSH listed above, there can be
+additional, external "built-in" applications that can be added to NSH.
+These are separately excecuble programs but will appear much like the the
+commands that are a part of NSH.  The primary difference is that help
+information about the built-in applications is not available from NSH.  Most
+built-in applicRather, you will need to execute the application with the -h
+option to get help about using the built-in applications.
+
+There are several built-in appliations in the apps/ repository.  No attempt
+is made here to enumerate all of them.  But a few of the more common built-
+in applications are listed below.
+
+o ping [-c <count>] [-i <interval>] <ip-address>
+  ping6 [-c <count>] [-i <interval>] <ip-address>
+
+  Test the network communication with a remote peer.  Example,
+
+    nsh> 10.0.0.1
+    PING 10.0.0.1 56 bytes of data
+    56 bytes from 10.0.0.1: icmp_seq=1 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=2 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=3 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=4 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=5 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=6 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=7 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=8 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=9 time=0 ms
+    56 bytes from 10.0.0.1: icmp_seq=10 time=0 ms
+    10 packets transmitted, 10 received, 0% packet loss, time 10190 ms
+    nsh>
+
+  ping6 differs from ping in that it uses IPv6 addressing.
+
 NSH Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1294,7 +1313,6 @@ Command Dependencies on Configuration Settings
   nfsmount   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET && CONFIG_NFS
   nslookup   CONFIG_LIBC_NETDB && CONFIG_NETDB_DNSCLIENT
   password   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD
-  ping       CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_PING && !CONFIG_DISABLE_SIGNALS
   ping6      CONFIG_NET && CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_PING && !CONFIG_DISABLE_SIGNALS
   poweroff   CONFIG_BOARDCTL_POWEROFF
   ps         CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_PROC
@@ -1353,19 +1371,27 @@ also allow it to squeeze into very small memory footprints.
   CONFIG_NSH_DISABLE_MKFATFS,   CONFIG_NSH_DISABLE_MKFIFO,    CONFIG_NSH_DISABLE_MKRD,
   CONFIG_NSH_DISABLE_MH,        CONFIG_NSH_DISABLE_MODCMDS,   CONFIG_NSH_DISABLE_MOUNT,
   CONFIG_NSH_DISABLE_MW,        CONFIG_NSH_DISABLE_MV,        CONFIG_NSH_DISABLE_NFSMOUNT,
-  CONFIG_NSH_DISABLE_NSLOOKUP,  CONFIG_NSH_DISABLE_PASSWD,    CONFIG_NSH_DISABLE_PING,
-  CONFIG_NSH_DISABLE_PING6,     CONFIG_NSH_DISABLE_POWEROFF,  CONFIG_NSH_DISABLE_PS,
-  CONFIG_NSH_DISABLE_PUT,       CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_READLINK,
-  CONFIG_NSH_DISABLE_REBOOT,    CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,
-  CONFIG_NSH_DISABLE_ROUTE,     CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,
-  CONFIG_NSH_DISABLE_SHUTDOWN,  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,
-  CONFIG_NSH_DIABLE_TIME,       CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,
-  CONFIG_NSH_DISABLE_URLDECODE, CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USERADD,
-  CONFIG_NSH_DISABLE_USERDEL,   CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,
-  CONFIG_NSH_DISABLE_XD
+  CONFIG_NSH_DISABLE_NSLOOKUP,  CONFIG_NSH_DISABLE_PASSWD,    CONFIG_NSH_DISABLE_PING6,
+  CONFIG_NSH_DISABLE_POWEROFF,  CONFIG_NSH_DISABLE_PS,        CONFIG_NSH_DISABLE_PUT,
+  CONFIG_NSH_DISABLE_PWD,       CONFIG_NSH_DISABLE_READLINK,  CONFIG_NSH_DISABLE_REBOOT,
+  CONFIG_NSH_DISABLE_RM,        CONFIG_NSH_DISABLE_RMDIR,     CONFIG_NSH_DISABLE_ROUTE,
+  CONFIG_NSH_DISABLE_SET,       CONFIG_NSH_DISABLE_SH,        CONFIG_NSH_DISABLE_SHUTDOWN,
+  CONFIG_NSH_DISABLE_SLEEP,     CONFIG_NSH_DISABLE_TEST,      CONFIG_NSH_DIABLE_TIME,
+  CONFIG_NSH_DISABLE_UMOUNT,    CONFIG_NSH_DISABLE_UNSET,     CONFIG_NSH_DISABLE_URLDECODE,
+  CONFIG_NSH_DISABLE_URLENCODE, CONFIG_NSH_DISABLE_USERADD,   CONFIG_NSH_DISABLE_USERDEL,
+  CONFIG_NSH_DISABLE_USLEEP,    CONFIG_NSH_DISABLE_WGET,      CONFIG_NSH_DISABLE_XD
 
 Verbose help output can be suppressed by defining CONFIG_NSH_HELP_TERSE.  In that
 case, the help command is still available but will be slightly smaller.
+
+Built-in Application Configuration Settings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+All built-in applications require that support for NSH built-in applications has been enabled.  This support is enabled with CONFIG_BUILTIN=y and CONFIG_NSH_BUILTIN_APPS=y.
+
+  Application Depends on Configuration
+  ----------- --------------------------
+  ping        CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_SOCKET &&
+              CONFIG_SYSTEM_PING && !CONFIG_DISABLE_POLL && !CONFIG_DISABLE_SIGNALS
 
 NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

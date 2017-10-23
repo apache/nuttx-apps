@@ -424,11 +424,6 @@ config NSH_DISABLE_PSSTACKUSAGE
 	---help---
 		Disable to save space and not pull in floating point routines
 
-config NSH_DISABLE_PING
-	bool "Disable ping"
-	default n
-	depends on NET_ICMP
-
 config NSH_DISABLE_PUT
 	bool "Disable put"
 	default y if DEFAULT_SMALL
@@ -1551,9 +1546,9 @@ endmenu # WAPI Configuration
 endif # NSH_NETINIT
 
 config NSH_MAX_ROUNDTRIP
-	int "Max Ping Round-Trip (DSEC)"
+	int "Max Ping6 Round-Trip (DSEC)"
 	default 20
-	depends on NSH_LIBRARY && NET && !NSH_DISABLE_PING
+	depends on NSH_LIBRARY && NET && !NSH_DISABLE_PING6
 	---help---
 		This is the maximum round trip for a response to a ICMP ECHO request.
 		It is in units of deciseconds.  The default is 20 (2 seconds).

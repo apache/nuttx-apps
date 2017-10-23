@@ -240,7 +240,7 @@ int cmd_uname(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int ret;
   int i;
 
-  /* Get the ping options */
+  /* Get the uname options */
 
   set    = 0;
   badarg = false;

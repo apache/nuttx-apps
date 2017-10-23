@@ -114,16 +114,10 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#undef HAVE_PING
 #undef HAVE_PING6
 #undef HAVE_HWADDR
 #undef HAVE_EADDR
 #undef HAVE_RADIOADDR
-
-#if defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && \
-   !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING)
-#  define HAVE_PING        1
-#endif
 
 #if defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && \
    !defined(CONFIG_DISABLE_SIGNALS) && !defined(CONFIG_NSH_DISABLE_PING6)
@@ -144,7 +138,7 @@
 
 /* Size of the ECHO data */
 
-#define DEFAULT_PING_DATALEN 56
+#define DEFAULT_PING6_DATALEN 56
 
 /* Get the larger value */
 
@@ -190,7 +184,7 @@ typedef int (*nsh_netdev_callback_t)(FAR struct nsh_vtbl_s *vtbl,
  * Private Data
  ****************************************************************************/
 
-#if defined(HAVE_PING) || defined(HAVE_PING6)
+#ifdef HAVE_PING6
 static uint16_t g_pingid = 0;
 #endif
 
@@ -199,34 +193,34 @@ static uint16_t g_pingid = 0;
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ping_newid
+ * Name: ping6_newid
  ****************************************************************************/
 
-#if defined(HAVE_PING) || defined(HAVE_PING6)
-static uint16_t ping_newid(void)
+#ifdef HAVE_PING6
+static uint16_t ping6_newid(void)
 {
   irqstate_t save = enter_critical_section();
   uint16_t ret = ++g_pingid;
   leave_critical_section(save);
   return ret;
 }
-#endif /* HAVE_PING || HAVE_PINg */
+#endif /* HAVE_PIN6 */
 
 /****************************************************************************
- * Name: ping_options
+ * Name: ping6_options
  ****************************************************************************/
 
-#if defined(HAVE_PING) || defined(HAVE_PING6)
-static int ping_options(FAR struct nsh_vtbl_s *vtbl,
-                        int argc, FAR char **argv,
-                        FAR int *count, FAR uint32_t *dsec, FAR char **staddr)
+#ifdef HAVE_PING6
+static int ping6_options(FAR struct nsh_vtbl_s *vtbl,
+                         int argc, FAR char **argv,
+                         FAR int *count, FAR uint32_t *dsec, FAR char **staddr)
 {
   FAR const char *fmt = g_fmtarginvalid;
   bool badarg = false;
   int option;
   int tmp;
 
-  /* Get the ping options */
+  /* Get the ping6 options */
 
   while ((option = getopt(argc, argv, ":c:i:")) != ERROR)
     {
@@ -303,7 +297,7 @@ errout:
   nsh_output(vtbl, fmt, argv[0]);
   return ERROR;
 }
-#endif /* HAVE_PING || HAVE_PING6 */
+#endif /* HAVE_PING6 */
 
 /****************************************************************************
  * Name: net_statistics
@@ -352,7 +346,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
   bool badarg = false;
   int option;
 
-  /* Get the ping options */
+  /* Get the ping6 options */
 
   memset(args, 0, sizeof(struct tftpc_args_s));
   while ((option = getopt(argc, argv, ":bnf:h:")) != ERROR)
@@ -492,7 +486,7 @@ errout:
  *
  ****************************************************************************/
 
-#if defined(HAVE_PING) || defined(HAVE_PING6)
+#ifdef HAVE_PING6
 static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
                          int addrtype)
 {
@@ -508,9 +502,6 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
       nerr("ERROR: gethostbyname failed: %d\n", h_errno);
       return -ENOENT;
     }
-
-#if defined(HAVE_PING) && defined(HAVE_PING6)
-
   else if (he->h_addrtype != addrtype)
     {
       nerr("ERROR: gethostbyname returned an address of type: %d\n",
@@ -526,22 +517,7 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
       memcpy(ipaddr->ipv6, he->h_addr, sizeof(net_ipv6addr_t));
     }
 
-#elif defined(HAVE_PING)
-
-  else if (he->h_addrtype != AF_INET)
-    {
-      nerr("ERROR: gethostbyname returned an address of type: %d\n",
-           he->h_addrtype);
-      return -ENOEXEC;
-    }
-  else
-    {
-      memcpy(&ipaddr->ipv4, he->h_addr, sizeof(in_addr_t));
-    }
-
-#else /* if defined(HAVE_PING6) */
-
-  else if (he->h_addrtype != AF_INET6)
+  if (he->h_addrtype != AF_INET6)
     {
       nerr("ERROR: gethostbyname returned an address of type: %d\n",
            he->h_addrtype);
@@ -552,37 +528,14 @@ static int nsh_gethostip(FAR char *hostname, FAR union ip_addr_u *ipaddr,
       memcpy(ipaddr->ipv6, he->h_addr, sizeof(net_ipv6addr_t));
     }
 
-#endif
-
   return OK;
 
 #else /* CONFIG_LIBC_NETDB */
 
   /* No host name support */
-
-  int ret;
-
-#ifdef HAVE_PING
-  /* Convert strings to numeric IPv4 address */
-
-#ifdef HAVE_PING6
-  if (addrtype == AF_INET)
-#endif
-    {
-      ret = inet_pton(AF_INET, hostname, &ipaddr->ipv4);
-    }
-#endif
-
-#ifdef HAVE_PING6
   /* Convert strings to numeric IPv6 address */
 
-#ifdef HAVE_PING
-  else
-#endif
-    {
-      ret = inet_pton(AF_INET6, hostname, ipaddr->ipv6);
-    }
-#endif
+  int ret = inet_pton(AF_INET6, hostname, ipaddr->ipv6);
 
   /* The inet_pton() function returns 1 if the conversion succeeds. It will
    * return 0 if the input is not a valid IPv4 dotted-decimal string or a
@@ -1380,131 +1333,6 @@ errout_invalid:
 #endif
 
 /****************************************************************************
- * Name: cmd_ping
- ****************************************************************************/
-
-#ifdef HAVE_PING
-int cmd_ping(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
-{
-  FAR char *staddr;
-  in_addr_t ipaddr;
-  systime_t start;
-  systime_t next;
-  int32_t elapsed;
-  uint32_t dsec = 10;
-  uint32_t maxwait;
-  uint16_t id;
-  int count = 10;
-  int seqno;
-  int replies = 0;
-  int ret;
-  int tmp;
-  int i;
-
-  /* Get the ping options */
-
-  ret = ping_options(vtbl, argc, argv, &count, &dsec, &staddr);
-  if (ret < 0)
-    {
-      return ERROR;
-    }
-
-  /* Get the IP address in binary form */
-
-  ret = nsh_gethostip(staddr, (FAR union ip_addr_u *)&ipaddr, AF_INET);
-  if (ret < 0)
-    {
-      nsh_output(vtbl, "nsh: %s: unable to resolve hostname '%s'\n", argv[0], staddr);
-      return ERROR;
-    }
-
-  /* Get the ID to use */
-
-  id = ping_newid();
-
-  /* The maximum wait for a response will be the larger of the inter-ping
-   * time and the configured maximum round-trip time.
-   */
-
-  maxwait = MAX(dsec, CONFIG_NSH_MAX_ROUNDTRIP);
-
-  /* Loop for the specified count */
-
-  nsh_output(vtbl, "PING %d.%d.%d.%d %d bytes of data\n",
-            (ipaddr       ) & 0xff, (ipaddr >> 8  ) & 0xff,
-            (ipaddr >> 16 ) & 0xff, (ipaddr >> 24 ) & 0xff,
-            DEFAULT_PING_DATALEN);
-
-  start = clock_systimer();
-  for (i = 1; i <= count; i++)
-    {
-      /* Send the ECHO request and wait for the response */
-
-      next  = clock_systimer();
-      seqno = icmp_ping(ipaddr, id, i, DEFAULT_PING_DATALEN, maxwait);
-
-      /* Was any response returned? We can tell if a non-negative sequence
-       * number was returned.
-       */
-
-      if (seqno >= 0 && seqno <= i)
-        {
-          /* Get the elapsed time from the time that the request was
-           * sent until the response was received.  If we got a response
-           * to an earlier request, then fudge the elapsed time.
-           */
-
-          elapsed = (int32_t)TICK2MSEC(clock_systimer() - next);
-          if (seqno < i)
-            {
-              elapsed += 100 * dsec * (i - seqno);
-            }
-
-          /* Report the receipt of the reply */
-
-          nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%ld ms\n",
-                     DEFAULT_PING_DATALEN, staddr, seqno, (long)elapsed);
-          replies++;
-        }
-      else if (seqno < 0)
-        {
-          if (seqno == -ETIMEDOUT)
-            {
-              nsh_output(vtbl, "icmp_seq=%d Request timeout\n", i);
-            }
-          else if (seqno == -ENETUNREACH)
-            {
-              nsh_output(vtbl, "icmp_seq=%d Network is unreachable\n", i);
-            }
-        }
-
-      /* Wait for the remainder of the interval.  If the last seqno<i,
-       * then this is a bad idea... we will probably lose the response
-       * to the current request!
-       */
-
-      elapsed = (int32_t)TICK2DSEC(clock_systimer() - next);
-      if (elapsed < dsec)
-        {
-          usleep(100000 * (dsec - elapsed));
-        }
-    }
-
-  /* Get the total elapsed time */
-
-  elapsed = (int32_t)TICK2MSEC(clock_systimer() - start);
-
-  /* Calculate the percentage of lost packets */
-
-  tmp = (100*(count - replies) + (count >> 1)) / count;
-
-  nsh_output(vtbl, "%d packets transmitted, %d received, %d%% packet loss, time %ld ms\n",
-             count, replies, tmp, elapsed);
-  return OK;
-}
-#endif /* HAVE_PING */
-
-/****************************************************************************
  * Name: cmd_ping6
  ****************************************************************************/
 
@@ -1526,9 +1354,9 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int tmp;
   int i;
 
-  /* Get the ping options */
+  /* Get the ping6 options */
 
-  ret = ping_options(vtbl, argc, argv, &count, &dsec, &staddr);
+  ret = ping6_options(vtbl, argc, argv, &count, &dsec, &staddr);
   if (ret < 0)
     {
       return ERROR;
@@ -1545,7 +1373,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the ID to use */
 
-  id = ping_newid();
+  id = ping6_newid();
 
   /* The maximum wait for a response will be the larger of the inter-ping
    * time and the configured maximum round-trip time.
@@ -1561,7 +1389,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
              ntohs(ipaddr.s6_addr16[2]), ntohs(ipaddr.s6_addr16[3]),
              ntohs(ipaddr.s6_addr16[4]), ntohs(ipaddr.s6_addr16[5]),
              ntohs(ipaddr.s6_addr16[6]), ntohs(ipaddr.s6_addr16[7]),
-             DEFAULT_PING_DATALEN);
+             DEFAULT_PING6_DATALEN);
 
   start = clock_systimer();
   for (i = 1; i <= count; i++)
@@ -1569,7 +1397,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       /* Send the ECHO request and wait for the response */
 
       next  = clock_systimer();
-      seqno = icmpv6_ping(ipaddr.s6_addr16, id, i, DEFAULT_PING_DATALEN, maxwait);
+      seqno = icmpv6_ping(ipaddr.s6_addr16, id, i, DEFAULT_PING6_DATALEN, maxwait);
 
       /* Was any response returned? We can tell if a non-negative sequence
        * number was returned.
@@ -1591,7 +1419,7 @@ int cmd_ping6(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           /* Report the receipt of the reply */
 
           nsh_output(vtbl, "%d bytes from %s: icmp_seq=%d time=%ld ms\n",
-                     DEFAULT_PING_DATALEN, staddr, seqno, (long)elapsed);
+                     DEFAULT_PING6_DATALEN, staddr, seqno, (long)elapsed);
           replies++;
         }
 

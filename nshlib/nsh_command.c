@@ -379,12 +379,6 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#if defined(CONFIG_NET) && defined(CONFIG_NET_ICMP) && defined(CONFIG_NET_ICMP_PING) && !defined(CONFIG_DISABLE_SIGNALS)
-# ifndef CONFIG_NSH_DISABLE_PING
-  { "ping",     cmd_ping,     2, 6, "[-c <count>] [-i <interval>] <ip-address>" },
-# endif
-#endif
-
 #if defined(CONFIG_NET) && defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && !defined(CONFIG_DISABLE_SIGNALS)
 # ifndef CONFIG_NSH_DISABLE_PING6
   { "ping6",    cmd_ping6,    2, 6, "[-c <count>] [-i <interval>] <ip-address>" },
