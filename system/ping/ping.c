@@ -417,10 +417,18 @@ static void icmp_ping(FAR struct ping_info_s *info)
 static void show_usage(FAR const char *progname, int exitcode) noreturn_function;
 static void show_usage(FAR const char *progname, int exitcode)
 {
+#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+  printf("\nUsage: %s [-c <count>] [-i <interval>] <hostname>\n", progname);
+  printf("       %s -h\n", progname);
+  printf("\nWhere:\n");
+  printf("  <hostname> is either an IPv6 address or the name of the remote host\n");
+  printf("   that is requested the ICMPv6 ECHO reply.\n");
+#else
   printf("\nUsage: %s [-c <count>] [-i <interval>] <ip-address>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
   printf("  <ip-address> is the IPv4 address request the ICMP ECHO reply.\n");
+#endif
   printf("  -c <count> determines the number of pings.  Default %u.\n",
          ICMP_NPINGS);
   printf("  -i <interval> is the default delay between pings (milliseconds).\n");

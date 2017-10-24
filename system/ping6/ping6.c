@@ -62,7 +62,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define ICMPv6_PING6_DATALEN  56
+#define ICMPv6_PING6_DATALEN 56
 #define ICMPv6_IOBUFFER_SIZE \
   SIZEOF_ICMPV6_ECHO_REQUEST_S(0) + ICMPv6_PING6_DATALEN
 
@@ -85,6 +85,12 @@ struct ping6_info_s
   /* I/O buffer for data transfers */
 
   uint8_t iobuffer[ICMPv6_IOBUFFER_SIZE];
+
+  /* String buffer from representing IPv6 addresses in a more human
+   * readable way.
+   */
+
+  char strbuffer[INET6_ADDRSTRLEN];
 };
 
 /****************************************************************************
@@ -204,12 +210,10 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
   outhdr.id                = ping6_newid();
   outhdr.seqno             = 0;
 
-  printf("PING6 %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x %d bytes of data\n",
-         ntohs(info->dest.s6_addr16[0]), ntohs(info->dest.s6_addr16[1]),
-         ntohs(info->dest.s6_addr16[2]), ntohs(info->dest.s6_addr16[3]),
-         ntohs(info->dest.s6_addr16[4]), ntohs(info->dest.s6_addr16[5]),
-         ntohs(info->dest.s6_addr16[6]), ntohs(info->dest.s6_addr16[7]),
-         ICMPv6_PING6_DATALEN);
+  (void)inet_ntop(AF_INET6, info->dest.s6_addr16, info->strbuffer,
+                  INET6_ADDRSTRLEN);
+  printf("PING6 %s: %d bytes of data\n",
+         info->strbuffer, ICMPv6_PING6_DATALEN);
 
   while (info->nrequests < info->count)
     {
@@ -270,18 +274,10 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
             }
           else if (ret == 0)
             {
-              printf("No response from "
-                     "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x: "
-                     "icmp_seq=%u time=%u ms\n",
-                     ntohs(info->dest.s6_addr16[0]),
-                     ntohs(info->dest.s6_addr16[1]),
-                     ntohs(info->dest.s6_addr16[2]),
-                     ntohs(info->dest.s6_addr16[3]),
-                     ntohs(info->dest.s6_addr16[4]),
-                     ntohs(info->dest.s6_addr16[5]),
-                     ntohs(info->dest.s6_addr16[6]),
-                     ntohs(info->dest.s6_addr16[7]),
-                     outhdr.seqno, info->delay);
+              (void)inet_ntop(AF_INET6, info->dest.s6_addr16,
+                              info->strbuffer, INET6_ADDRSTRLEN);
+              printf("No response from %s: icmp_seq=%u time=%u ms\n",
+                     info->strbuffer, outhdr.seqno, info->delay);
 
               continue;
             }
@@ -336,19 +332,11 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
                       retry     = true;
                     }
 
-                  printf("%ld bytes from "
-                         "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x: "
-                         "icmp_seq=%u time=%u ms\n",
+                  (void)inet_ntop(AF_INET6, fromaddr.sin6_addr.s6_addr16,
+                                  info->strbuffer, INET6_ADDRSTRLEN);
+                  printf("%ld bytes from %s icmp_seq=%u time=%u ms\n",
                          nrecvd - SIZEOF_ICMPV6_ECHO_REPLY_S(0),
-                         ntohs(info->dest.s6_addr16[0]),
-                         ntohs(info->dest.s6_addr16[1]),
-                         ntohs(info->dest.s6_addr16[2]),
-                         ntohs(info->dest.s6_addr16[3]),
-                         ntohs(info->dest.s6_addr16[4]),
-                         ntohs(info->dest.s6_addr16[5]),
-                         ntohs(info->dest.s6_addr16[6]),
-                         ntohs(info->dest.s6_addr16[7]),
-                         inhdr->seqno, pktdelay);
+                         info->strbuffer, inhdr->seqno, pktdelay);
 
                   /* Verify the payload data */
 
@@ -430,10 +418,18 @@ static void icmpv6_ping(FAR struct ping6_info_s *info)
 static void show_usage(FAR const char *progname, int exitcode) noreturn_function;
 static void show_usage(FAR const char *progname, int exitcode)
 {
+#if defined(CONFIG_LIBC_NETDB) && defined(CONFIG_NETDB_DNSCLIENT)
+  printf("\nUsage: %s [-c <count>] [-i <interval>] <hostname>\n", progname);
+  printf("       %s -h\n", progname);
+  printf("\nWhere:\n");
+  printf("  <hostname> is either an IPv6 address or the name of the remote host\n");
+  printf("   that is requested the ICMPv6 ECHO reply.\n");
+#else
   printf("\nUsage: %s [-c <count>] [-i <interval>] <ip-address>\n", progname);
   printf("       %s -h\n", progname);
   printf("\nWhere:\n");
   printf("  <ip-address> is the IPv6 address request the ICMPv6 ECHO reply.\n");
+#endif
   printf("  -c <count> determines the number of pings.  Default %u.\n",
          ICMPv6_NPINGS);
   printf("  -i <interval> is the default delay between pings (milliseconds).\n");
