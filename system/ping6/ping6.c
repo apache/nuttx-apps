@@ -438,7 +438,7 @@ static void show_usage(FAR const char *progname, int exitcode)
          ICMPv6_NPINGS);
   printf("  -i <interval> is the default delay between pings (milliseconds).\n");
   printf("    Default %d.\n", ICMPv6_POLL_DELAY);
-  printf("  -h shows this text an exits.\n");
+  printf("  -h shows this text and exits.\n");
   exit(exitcode);
 }
 
