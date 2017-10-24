@@ -154,11 +154,11 @@ typedef struct pktradio_addr_s mac_addr_t;
 #if defined(CONFIG_NET_UDP) && CONFIG_NFILE_DESCRIPTORS > 0
 struct tftpc_args_s
 {
-  bool        binary;    /* true:binary ("octet") false:text ("netascii") */
-  bool        allocated; /* true: destpath is allocated */
-  char       *destpath;  /* Path at destination */
-  const char *srcpath;   /* Path at src */
-  in_addr_t   ipaddr;    /* Host IP address */
+  bool            binary;    /* true:binary ("octet") false:text ("netascii") */
+  bool            allocated; /* true: destpath is allocated */
+  FAR char       *destpath;  /* Path at destination */
+  FAR const char *srcpath;   /* Path at src */
+  in_addr_t       ipaddr;    /* Host IP address */
 };
 #endif
 
@@ -294,7 +294,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   /* The HOST IP address is also required */
 
-  if (!args->ipaddr)
+  if (args->ipaddr == 0)
     {
       fmt = g_fmtargrequired;
       goto errout;
@@ -302,16 +302,16 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
   /* If the destpath was not provided, then we have do a little work. */
 
-  if (!args->destpath)
+  if (args->destpath == NULL)
     {
-      char *tmp1;
-      char *tmp2;
+      FAR char *tmp1;
+      FAR char *tmp2;
 
       /* Copy the srcpath... baseanme might modify it */
 
       fmt = g_fmtcmdoutofmemory;
       tmp1 = strdup(args->srcpath);
-      if (!tmp1)
+      if (tmp1 == NULL)
         {
           goto errout;
         }
@@ -319,7 +319,7 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
       /* Get the basename of the srcpath */
 
       tmp2 = basename(tmp1);
-      if (!tmp2)
+      if (tmp2 == NULL)
         {
           free(tmp1);
           goto errout;
@@ -327,9 +327,9 @@ int tftpc_parseargs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv,
 
       /* Use that basename as the destpath */
 
-      args->destpath  = strdup(tmp2);
+      args->destpath = strdup(tmp2);
       free(tmp1);
-      if (!args->destpath)
+      if (args->destpath == NULL)
         {
           goto errout;
         }
@@ -462,7 +462,7 @@ static inline void nsh_sethwaddr(FAR const char *ifname, FAR mac_addr_t *macaddr
 int cmd_get(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct tftpc_args_s args;
-  char *fullpath;
+  FAR char *fullpath;
 
   /* Parse the input parameter list */
 
@@ -550,11 +550,11 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
 #ifdef CONFIG_NET_IPv4
   struct in_addr addr;
+  in_addr_t gip;
 #endif
 #ifdef CONFIG_NET_IPv6
   struct in6_addr addr6;
 #endif
-  in_addr_t gip;
   int i;
   FAR char *ifname = NULL;
   FAR char *hostip = NULL;
@@ -618,7 +618,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             {
               tmp = argv[i];
 
-              if (!strcmp(tmp, "dr") || !strcmp(tmp, "gw") || !strcmp(tmp, "gateway"))
+              if (!strcmp(tmp, "dr") || !strcmp(tmp, "gw") ||
+                  !strcmp(tmp, "gateway"))
                 {
                   if (argc - 1 >= i + 1)
                     {
@@ -734,10 +735,15 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (inet6)
 #endif
     {
-#warning Missing Logic
-      UNUSED(addr6);
-      UNUSED(gip);
-      UNUSED(hostip);
+      if (hostip != NULL)
+        {
+          /* REVISIT: Should DHCPC check be used here too? */
+
+          ninfo("Host IP: %s\n", hostip);
+          inet_pton(AF_INET6, hostip, &addr6);
+        }
+
+      netlib_set_ipv6addr(ifname, &addr6);
     }
 #endif /* CONFIG_NET_IPv6 */
 
@@ -749,12 +755,13 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
       if (hostip != NULL)
         {
 #if defined(CONFIG_NSH_DHCPC)
-          if (!strcmp(hostip, "dhcp"))
+          if (strcmp(hostip, "dhcp") == 0)
             {
               /* Set DHCP addr */
 
               ninfo("DHCPC Mode\n");
-              gip = addr.s_addr = 0;
+              addr.s_addr = 0;
+              gip         = 0;
             }
           else
 #endif
@@ -762,7 +769,8 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
               /* Set host IP address */
 
               ninfo("Host IP: %s\n", hostip);
-              gip = addr.s_addr = inet_addr(hostip);
+              addr.s_addr = inet_addr(hostip);
+              gip         = addr.s_addr;
             }
         }
 
@@ -770,13 +778,22 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
     }
 #endif /* CONFIG_NET_IPv4 */
 
+  /* Set gateway */
+
 #ifdef CONFIG_NET_IPv6
 #ifdef CONFIG_NET_IPv4
   if (inet6)
 #endif
     {
-#warning Missing Logic
-      UNUSED(gwip);
+      /* Only set the gateway address if it was explicitly provided. */
+
+      if (gwip != NULL)
+        {
+          ninfo("Gateway: %s\n", gwip);
+          inet_pton(AF_INET6, gwip, &addr6);
+
+          netlib_set_dripv6addr(ifname, &addr6);
+        }
     }
 #endif /* CONFIG_NET_IPv6 */
 
@@ -785,16 +802,14 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   else
 #endif
     {
-      /* Set gateway */
-
-      if (gwip)
+      if (gwip != NULL)
         {
           ninfo("Gateway: %s\n", gwip);
           gip = addr.s_addr = inet_addr(gwip);
         }
       else
         {
-          if (gip)
+          if (gip != 0)
             {
               ninfo("Gateway: default\n");
               gip  = NTOHL(gip);
@@ -817,8 +832,18 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (inet6)
 #endif
     {
-#warning Missing Logic
-      UNUSED(mask);
+      if (mask != NULL)
+        {
+          ninfo("Netmask: %s\n",mask);
+          inet_pton(AF_INET6, mask, &addr6);
+        }
+      else
+        {
+          ninfo("Netmask: Default\n");
+          inet_pton(AF_INET6, "ffff:ffff:ffff:ffff::", &addr6);
+        }
+
+      netlib_set_ipv6netmask(ifname, &addr6);
     }
 #endif /* CONFIG_NET_IPv6 */
 
@@ -827,9 +852,9 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   else
 #endif
     {
-      if (mask)
+      if (mask != NULL)
         {
-          ninfo("Netmask: %s\n",mask);
+          ninfo("Netmask: %s\n", mask);
           addr.s_addr = inet_addr(mask);
         }
       else
@@ -859,7 +884,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   else
 #endif
     {
-      if (dns)
+      if (dns != NULL)
         {
           ninfo("DNS: %s\n", dns);
           addr.s_addr = inet_addr(dns);
@@ -891,7 +916,7 @@ int cmd_ifconfig(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
        * ds.lease_time/2 seconds.
        */
 
-      if (handle)
+      if (handle != NULL)
         {
           struct dhcpc_state ds;
 
@@ -1137,7 +1162,7 @@ errout_invalid:
 int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   struct tftpc_args_s args;
-  char *fullpath;
+  FAR char *fullpath;
 
   /* Parse the input parameter list */
 
@@ -1178,12 +1203,12 @@ int cmd_put(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 #ifndef CONFIG_NSH_DISABLE_WGET
 int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  char *localfile = NULL;
-  char *allocfile = NULL;
-  char *buffer    = NULL;
-  char *fullpath  = NULL;
-  char *url;
-  const char *fmt;
+  FAR char *localfile = NULL;
+  FAR char *allocfile = NULL;
+  FAR char *buffer    = NULL;
+  FAR har *fullpath  = NULL;
+  FAR char *url;
+  FAR const char *fmt;
   bool badarg = false;
   int option;
   int fd = -1;
@@ -1240,7 +1265,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* Get the local file name */
 
-  if (!localfile)
+  if (localfile == NULL)
     {
       allocfile = strdup(url);
       localfile = basename(allocfile);
@@ -1263,7 +1288,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   /* Allocate an I/O buffer */
 
   buffer = malloc(512);
-  if (!buffer)
+  if (buffer == NULL)
     {
       fmt = g_fmtcmdoutofmemory;
       goto errout;
@@ -1286,17 +1311,17 @@ exit:
       close(fd);
     }
 
-  if (allocfile)
+  if (allocfile != NULL)
     {
       free(allocfile);
     }
 
-  if (fullpath)
+  if (fullpath != NULL)
     {
       free(fullpath);
     }
 
-  if (buffer)
+  if (buffer != NULL)
     {
       free(buffer);
     }
