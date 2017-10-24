@@ -889,9 +889,6 @@ o passwd <username> <password>
 
   Set the password for the existing user <username> to <password>
 
-o ping6 [-c <count>] [-i <interval>] <ip-address>
-  ping6 differs from ping in that it uses IPv6 addressing.
-
 o poweroff
 
   Shutdown and power off the system.  This command depends on hardware
@@ -1314,7 +1311,6 @@ Command Dependencies on Configuration Settings
   nfsmount   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_NET && CONFIG_NFS
   nslookup   CONFIG_LIBC_NETDB && CONFIG_NETDB_DNSCLIENT
   password   !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_FS_WRITABLE && CONFIG_NSH_LOGIN_PASSWD
-  ping6      CONFIG_NET && CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_PING && !CONFIG_DISABLE_SIGNALS
   poweroff   CONFIG_BOARDCTL_POWEROFF
   ps         CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_PROC
   put        CONFIG_NET && CONFIG_NET_UDP && CONFIG_NFILE_DESCRIPTORS > 0 && MTU >= 558 (see note 1,2)
@@ -1393,6 +1389,8 @@ All built-in applications require that support for NSH built-in applications has
   ----------- --------------------------
   ping        CONFIG_NET && CONFIG_NET_ICMP && CONFIG_NET_ICMP_SOCKET &&
               CONFIG_SYSTEM_PING && !CONFIG_DISABLE_POLL && !CONFIG_DISABLE_SIGNALS
+  ping6       CONFIG_NET && CONFIG_NET_ICMPv6 && CONFIG_NET_ICMPv6_SOCKET &&
+              CONFIG_SYSTEM_PING6 && !CONFIG_DISABLE_POLL && !CONFIG_DISABLE_SIGNALS
 
 NSH-Specific Configuration Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1671,10 +1669,6 @@ NSH-Specific Configuration Settings
   * CONFIG_NSH_NOMAC
       Set if your ethernet hardware has no built-in MAC address.
       If set, a bogus MAC will be assigned.
-
-  * CONFIG_NSH_MAX_ROUNDTRIP
-     This is the maximum round trip for a response to a ICMP ECHO request.
-    It is in units of deciseconds.  The default is 20 (2 seconds).
 
   If you use DHCPC, then some special configuration network options are
   required.  These include:

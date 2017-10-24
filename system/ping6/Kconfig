@@ -3,27 +3,27 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-config SYSTEM_PING
-	bool "ICMP 'ping' command"
+config SYSTEM_PING6
+	bool "ICMPv6 'ping6' command"
 	default n
-	depends on NET_ICMP_SOCKET
+	depends on NET_ICMPv6_SOCKET
 	---help---
 		Enable support for the ICMP 'ping' command.
 
-if SYSTEM_PING
-config SYSTEM_PING_PROGNAME
+if SYSTEM_PING6
+config SYSTEM_PING6_PROGNAME
 	string "Ping program name"
-	default "ping"
+	default "ping6"
 	depends on BUILD_KERNEL
 	---help---
 		This is the name of the program that will be use when the NSH ELF
 		program is installed.
 
-config SYSTEM_PING_PRIORITY
+config SYSTEM_PING6_PRIORITY
 	int "Ping task priority"
 	default 100
 
-config SYSTEM_PING_STACKSIZE
+config SYSTEM_PING6_STACKSIZE
 	int "Ping stack size"
 	default 2048
 

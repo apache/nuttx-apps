@@ -379,12 +379,6 @@ static const struct cmdmap_s g_cmdmap[] =
 #  endif
 #endif
 
-#if defined(CONFIG_NET) && defined(CONFIG_NET_ICMPv6) && defined(CONFIG_NET_ICMPv6_PING) && !defined(CONFIG_DISABLE_SIGNALS)
-# ifndef CONFIG_NSH_DISABLE_PING6
-  { "ping6",    cmd_ping6,    2, 6, "[-c <count>] [-i <interval>] <ip-address>" },
-# endif
-#endif
-
 #if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
   { "poweroff", cmd_poweroff,  1, 1, NULL },
 #endif
