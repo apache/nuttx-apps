@@ -641,6 +641,30 @@
 #  undef NSH_HAVE_CPULOAD
 #endif
 
+#if !defined(CONFIG_FS_PROCFS) || (defined(CONFIG_FS_PROCFS_EXCLUDE_BLOCKS) && \
+                                   defined(CONFIG_FS_PROCFS_EXCLUDE_USAGE))
+#  undef  CONFIG_NSH_DISABLE_DF          /* 'df' depends on fs procfs */
+#  define CONFIG_NSH_DISABLE_DF 1
+#endif
+
+#if defined(CONFIG_FS_PROCFS) || !defined(CONFIG_NSH_DISABLE_DF)
+#  define HAVE_DF_HUMANREADBLE 1
+#  define HAVE_DF_BLOCKOUTPUT  1
+#  if defined(CONFIG_FS_PROCFS_EXCLUDE_USAGE)
+#    undefine HAVE_DF_HUMANREADBLE
+#  endif
+#  if defined(CONFIG_FS_PROCFS_EXCLUDE_BLOCKS)
+#    undefine HAVE_DF_BLOCKOUTPUT
+#  endif
+#endif
+
+#if defined(CONFIG_FS_PROCFS) || !defined(CONFIG_NSH_DISABLE_MOUNT)
+#  define HAVE_MOUNT_LIST 1
+#  if defined(CONFIG_FS_PROCFS_EXCLUDE_MOUNT)
+#    undefine HAVE_MOUNT_LIST
+#  endif
+#endif
+
 /* Suppress unused file utilities */
 
 #define NSH_HAVE_CATFILE          1
@@ -656,10 +680,11 @@
 #  undef NSH_HAVE_TRIMDIR
 #endif
 
-/* nsh_catfile used by cat, ifconfig, ifup/down */
+/* nsh_catfile used by cat, ifconfig, ifup/down, df, and mount */
 
 #if defined(CONFIG_NSH_DISABLE_CAT) && defined(CONFIG_NSH_DISABLE_IFCONFIG) && \
-    defined(CONFIG_NSH_DISABLE_IFUPDOWN)
+    defined(CONFIG_NSH_DISABLE_IFUPDOWN) && defined(CONFIG_NSH_DISABLE_DF) && \
+    (defined(CONFIG_NSH_DISABLE_MOUNT) || !defined(HAVE_MOUNT_LIST))
 #  undef NSH_HAVE_CATFILE
 #endif
 

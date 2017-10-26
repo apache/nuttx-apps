@@ -71,24 +71,24 @@
 #ifdef NSH_HAVE_CATFILE
 int cmd_df(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
+#if defined(HAVE_DF_HUMANREADBLE) && defined(HAVE_DF_BLOCKOUTPUT)
   if (argc > 1 && strcmp(argv[1], "-h") == 0)
+#endif
+#ifdef HAVE_DF_HUMANREADBLE
     {
-#ifndef CONFIG_FS_PROCFS_EXCLUDE_BLOCKS
       return nsh_catfile(vtbl, argv[0],
                          CONFIG_NSH_PROC_MOUNTPOINT "/fs/usage");
-#else
-      return ERROR;  /* REVISIT, some feedback would be good */
-#endif
     }
+#endif
+#if defined(HAVE_DF_HUMANREADBLE) && defined(HAVE_DF_BLOCKOUTPUT)
   else
+#endif
+#ifdef HAVE_DF_BLOCKOUTPUT
     {
-#ifndef CONFIG_FS_PROCFS_EXCLUDE_USAGE
       return nsh_catfile(vtbl, argv[0],
                          CONFIG_NSH_PROC_MOUNTPOINT "/fs/blocks");
-#else
-      return ERROR;  /* REVISIT, some feedback would be good */
-#endif
     }
+#endif
 }
 #endif
 #endif
@@ -113,7 +113,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* The mount command behaves differently if no parameters are provided. */
 
-#if defined(NSH_HAVE_CATFILE) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MOUNT)
+#if defined(NSH_HAVE_CATFILE) && defined(HAVE_MOUNT_LIST)
   if (argc < 2)
     {
       return nsh_catfile(vtbl, argv[0],

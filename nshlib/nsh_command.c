@@ -171,7 +171,11 @@ static const struct cmdmap_s g_cmdmap[] =
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF)
 #ifdef NSH_HAVE_CATFILE
+#if defined(HAVE_DF_HUMANREADBLE) && defined(HAVE_DF_BLOCKOUTPUT)
   { "df",       cmd_df,       1, 2, "[-h]" },
+#else
+  { "df",       cmd_df,       1, 1, NULL },
+#endif
 #endif
 #endif
 
@@ -339,8 +343,10 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0 && defined(CONFIG_FS_READABLE)
 #ifndef CONFIG_NSH_DISABLE_MOUNT
-#ifdef NSH_HAVE_CATFILE
+#if defined(NSH_HAVE_CATFILE) && defined(HAVE_MOUNT_LIST)
   { "mount",    cmd_mount,    1, 7, "[-t <fstype> [-o <options>] [<block-device>] <mount-point>]" },
+#else
+  { "mount",    cmd_mount,    4, 7, "-t <fstype> [-o <options>] [<block-device>] <mount-point>" },
 #endif
 #endif
 #endif
