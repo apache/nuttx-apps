@@ -262,45 +262,6 @@ static int df_man_readable_handler(FAR const char *mountpoint,
             defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF) */
 
 /****************************************************************************
- * Name: mount_handler
- ****************************************************************************/
-
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
-    defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
-#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
-static int mount_handler(FAR const char *mountpoint,
-                         FAR struct statfs *statbuf, FAR void *arg)
-{
-  FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s *)arg;
-  FAR const char *fstype;
-
-  DEBUGASSERT(mountpoint && statbuf && vtbl);
-
-  /* Get the file system type */
-
-  fstype = get_fstype(statbuf);
-
-  nsh_output(vtbl, "  %s type %s\n", mountpoint, fstype);
-  return OK;
-}
-#endif
-#endif
-
-/****************************************************************************
- * Name: mount_show
- ****************************************************************************/
-
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
-    defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
-#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
-static inline int mount_show(FAR struct nsh_vtbl_s *vtbl, FAR const char *progname)
-{
-  return foreach_mountpoint(mount_handler, (FAR void *)vtbl);
-}
-#endif
-#endif
-
-/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -350,19 +311,20 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   int option;
   int ret;
 
-  /* The mount command behaves differently if no parameters are provided */
+  /* The mount command behaves differently if no parameters are provided. */
 
-#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
+#ifdef NSH_HAVE_CATFILE
   if (argc < 2)
     {
-      return mount_show(vtbl, argv[0]);
+      return nsh_catfile(vtbl, argv[0],
+                         CONFIG_NSH_PROC_MOUNTPOINT "/fs/mount");
     }
 #endif
 
-  /* Get the mount options.  NOTE: getopt() is not thread safe nor re-entrant.
-   * To keep its state proper for the next usage, it is necessary to parse to
-   * the end of the line even if an error occurs.  If an error occurs, this
-   * logic just sets 'badarg' and continues.
+  /* Get the mount options.  NOTE: getopt() is not thread safe nor re-
+   * entrant.  To keep its state proper for the next usage, it is necessary
+   * to parse to the end of the line even if an error occurs.  If an error
+   * occurs, this logic just sets 'badarg' and continues.
    */
 
   while ((option = getopt(argc, argv, ":o:t:")) != ERROR)

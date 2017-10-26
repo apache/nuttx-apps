@@ -684,7 +684,8 @@ int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   if (!ipv6)
 #endif
     {
-      return nsh_catfile(vtbl, argv[0], "/proc/net/route/ipv4");
+      return nsh_catfile(vtbl, argv[0],
+                         CONFIG_NSH_PROC_MOUNTPOINT "/net/route/ipv4");
     }
 #endif
 
@@ -693,7 +694,8 @@ int cmd_route(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   else
 #endif
     {
-      return nsh_catfile(vtbl, argv[0], "/proc/net/route/ipv6");
+      return nsh_catfile(vtbl, argv[0],
+                         CONFIG_NSH_PROC_MOUNTPOINT "/net/route/ipv6");
     }
 #endif
 
