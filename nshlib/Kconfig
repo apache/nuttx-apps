@@ -572,12 +572,6 @@ endif # MMCSD
 
 menu "Configure Command Options"
 
-config NSH_CMDOPT_DF_H
-	bool "df: Enable [-h] man-readable format"
-	default n if DEFAULT_SMALL
-	default y if !DEFAULT_SMALL
-	depends on !NSH_DISABLE_DF
-
 config NSH_CMDOPT_DD_STATS
 	bool "dd: Support transfer statistics"
 	default n

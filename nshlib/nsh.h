@@ -1090,11 +1090,13 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
        int cmd_mkfifo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #   endif
 #   ifdef CONFIG_FS_READABLE
-#     ifndef CONFIG_NSH_DISABLE_DF
-         int cmd_df(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
-#     endif
-#     ifndef CONFIG_NSH_DISABLE_MOUNT
-         int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#     ifdef NSH_HAVE_CATFILE
+#       ifndef CONFIG_NSH_DISABLE_DF
+           int cmd_df(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#       endif
+#       ifndef CONFIG_NSH_DISABLE_MOUNT
+           int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#       endif
 #     endif
 #     ifndef CONFIG_NSH_DISABLE_UMOUNT
          int cmd_umount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);

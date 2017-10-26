@@ -88,7 +88,6 @@
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_MOUNT)
-#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
 static const char* get_fstype(FAR struct statfs *statbuf)
 {
   FAR const char *fstype;
@@ -165,101 +164,6 @@ static const char* get_fstype(FAR struct statfs *statbuf)
   return fstype;
 }
 #endif
-#endif
-
-/****************************************************************************
- * Name: df_handler
- ****************************************************************************/
-
-#if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
-    defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF)
-static int df_handler(FAR const char *mountpoint,
-                      FAR struct statfs *statbuf, FAR void *arg)
-{
-  FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s *)arg;
-
-  DEBUGASSERT(mountpoint && statbuf && vtbl);
-
-  nsh_output(vtbl, "%6ld %8ld %8ld  %8ld %s\n",
-             statbuf->f_bsize, statbuf->f_blocks,
-             statbuf->f_blocks - statbuf->f_bavail, statbuf->f_bavail,
-             mountpoint);
-
-  return OK;
-}
-
-/****************************************************************************
- * Name: df_man_readable_handler
- ****************************************************************************/
-
-#ifdef CONFIG_NSH_CMDOPT_DF_H
-static int df_man_readable_handler(FAR const char *mountpoint,
-                      FAR struct statfs *statbuf, FAR void *arg)
-{
-  FAR struct nsh_vtbl_s *vtbl = (FAR struct nsh_vtbl_s *)arg;
-  uint32_t      size;
-  uint32_t      used;
-  uint32_t      free;
-  int           which;
-  char          sizelabel;
-  char          freelabel;
-  char          usedlabel;
-  const char    labels[5] = { 'B', 'K', 'M', 'G', 'T' };
-
-  DEBUGASSERT(mountpoint && statbuf && vtbl);
-
-  size = statbuf->f_bsize * statbuf->f_blocks;
-  free = statbuf->f_bsize * statbuf->f_bavail;
-  used = size - free;
-
-  /* Find the label for size */
-
-  which = 0;
-  while (size >= 9999 || ((size & 0x3ff) == 0 && size != 0))
-    {
-      which++;
-      size >>= 10;
-    }
-
-  sizelabel = labels[which];
-
-  /* Find the label for free */
-
-  which = 0;
-  while (free >= 9999 || ((free & 0x3ff) == 0 && free != 0))
-    {
-      which++;
-      free >>= 10;
-    }
-
-  freelabel = labels[which];
-
-  /* Find the label for used */
-
-  which = 0;
-  while (used >= 9999 || ((used & 0x3ff) == 0 && used != 0))
-    {
-      which++;
-      used >>= 10;
-    }
-
-  usedlabel = labels[which];
-
-#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
-  nsh_output(vtbl, "%-10s %6ld%c %8ld%c  %8ld%c %s\n", get_fstype(statbuf),
-             size, sizelabel, used, usedlabel, free, freelabel,
-             mountpoint);
-#else
-  nsh_output(vtbl, "%6ld%c %8ld%c  %8ld%c %s\n", size, sizelabel, used,
-             usedlabel, free, freelabel, mountpoint);
-#endif
-
-  return OK;
-}
-#endif /* CONFIG_NSH_CMDOPT_DF_H */
-
-#endif /* CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) &&
-            defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF) */
 
 /****************************************************************************
  * Public Functions
@@ -271,26 +175,29 @@ static int df_man_readable_handler(FAR const char *mountpoint,
 
 #if CONFIG_NFILE_DESCRIPTORS > 0 && !defined(CONFIG_DISABLE_MOUNTPOINT) && \
     defined(CONFIG_FS_READABLE) && !defined(CONFIG_NSH_DISABLE_DF)
+#ifdef NSH_HAVE_CATFILE
 int cmd_df(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-#ifdef CONFIG_NSH_CMDOPT_DF_H
   if (argc > 1 && strcmp(argv[1], "-h") == 0)
     {
-#if !defined(CONFIG_BUILD_PROTECTED) && !defined(CONFIG_BUILD_KERNEL)
-      nsh_output(vtbl, "Filesystem    Size      Used  Available Mounted on\n");
+#ifndef CONFIG_FS_PROCFS_EXCLUDE_BLOCKS
+      return nsh_catfile(vtbl, argv[0],
+                         CONFIG_NSH_PROC_MOUNTPOINT "/fs/usage");
 #else
-      nsh_output(vtbl, "Size      Used  Available Mounted on\n");
+      return ERROR;  /* REVISIT, some feedback would be good */
 #endif
-      return foreach_mountpoint(df_man_readable_handler, (FAR void *)vtbl);
     }
   else
-#endif
     {
-      nsh_output(vtbl, "  Block  Number\n");
-      nsh_output(vtbl, "  Size   Blocks     Used Available Mounted on\n");
-      return foreach_mountpoint(df_handler, (FAR void *)vtbl);
+#ifndef CONFIG_FS_PROCFS_EXCLUDE_USAGE
+      return nsh_catfile(vtbl, argv[0],
+                         CONFIG_NSH_PROC_MOUNTPOINT "/fs/blocks");
+#else
+      return ERROR;  /* REVISIT, some feedback would be good */
+#endif
     }
 }
+#endif
 #endif
 
 /****************************************************************************
@@ -313,7 +220,7 @@ int cmd_mount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 
   /* The mount command behaves differently if no parameters are provided. */
 
-#ifdef NSH_HAVE_CATFILE
+#if defined(NSH_HAVE_CATFILE) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MOUNT)
   if (argc < 2)
     {
       return nsh_catfile(vtbl, argv[0],
@@ -570,6 +477,7 @@ int cmd_umount(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "umount", NSH_ERRNO);
         }
+
       nsh_freefullpath(fullpath);
     }
 
