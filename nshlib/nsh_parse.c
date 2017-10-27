@@ -1321,7 +1321,8 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
       if (*pbegin == '"')
         {
           /* A quoted string can only be terminated with another quotation
-           * mark.
+           * mark.  Set pbegin to point at the character after the opening
+           * quote mark.
            */
 
           pbegin++;
@@ -1329,7 +1330,10 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
         }
       else
         {
-          /* No, then any of the usual separators will terminate the argument */
+          /* No, then any of the usual separators will terminate the
+           * argument.  In this case, pbegin points for the first character
+           * of the token following the previous separator.
+           */
 
           term = g_token_separator;
         }
@@ -1365,7 +1369,15 @@ static FAR char *nsh_argument(FAR struct nsh_vtbl_s *vtbl, FAR char **saveptr,
             }
         }
 #else
-      for (pend = pbegin + 1; *pend && strchr(term, *pend) == NULL; pend++);
+      /* Search the next occurence of a terminating character (or the end
+       * of the line).
+       */
+
+      for (pend = pbegin;
+          *pend != '\0' && strchr(term, *pend) == NULL;
+           pend++)
+        {
+        }
 #endif
 
       /* pend either points to the end of the string or to the first
