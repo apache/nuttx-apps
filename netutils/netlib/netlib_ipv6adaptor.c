@@ -108,7 +108,7 @@ static int _netlib_ipv6adaptor(FAR const struct in6_addr *destipaddr,
   lifc.lifc_req = NULL;
   lifc.lifc_len = 0;
 
-  sd = socket(AF_INET6, NETLIB_SOCK_IOCTL, 0);
+  sd = socket(AF_INET6, NETLIB_SOCK_TYPE, 0);
   if (sd < 0)
     {
       ret = -errno;

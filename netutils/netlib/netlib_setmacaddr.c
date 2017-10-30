@@ -105,7 +105,7 @@ int netlib_setmacaddr(const char *ifname, const uint8_t *macaddr)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_FAMILY, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_FAMILY, NETLIB_SOCK_TYPE, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;

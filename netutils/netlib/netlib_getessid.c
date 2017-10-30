@@ -104,7 +104,7 @@ int netlib_getessid(FAR const char *ifname, FAR char *essid, size_t idlen)
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_FAMILY, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_FAMILY, NETLIB_SOCK_TYPE, 0);
       if (sockfd >= 0)
         {
           struct iwreq req;

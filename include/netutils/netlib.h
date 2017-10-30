@@ -79,7 +79,7 @@
 /* Using the following defintions, the following socket() arguments should
  * provide a valid socket in all configurations:
  *
- *   ret = socket(NETLIB_AF_FAMILY, NETLIB_SOCK_IOCTL, NETLIB_SOCK_PROTOCOL);
+ *   ret = socket(NETLIB_SOCK_FAMILY, NETLIB_SOCK_TYPE, NETLIB_SOCK_PROTOCOL);
  */
 
 /* The address family that we used to create the socket really does not
@@ -87,17 +87,17 @@
  */
 
 #if defined(CONFIG_NET_IPv4)
-#  define NETLIB_AF_FAMILY  AF_INET
+#  define NETLIB_SOCK_FAMILY  AF_INET
 #elif defined(CONFIG_NET_IPv6)
-#  define NETLIB_AF_FAMILY  AF_INET6
+#  define NETLIB_SOCK_FAMILY  AF_INET6
 #elif defined(CONFIG_NET_LOCAL)
-#  define NETLIB_AF_FAMILY  AF_LOCAL
+#  define NETLIB_SOCK_FAMILY  AF_LOCAL
 #elif defined(CONFIG_NET_PKT)
-#  define NETLIB_AF_FAMILY  AF_PACKET
+#  define NETLIB_SOCK_FAMILY  AF_PACKET
 #elif defined(CONFIG_NET_IEEE802154)
-#  define NETLIB_AF_FAMILY  AF_IEEE802154
+#  define NETLIB_SOCK_FAMILY  AF_IEEE802154
 #elif defined(CONFIG_NET_USRSOCK)
-#  define NETLIB_AF_FAMILY  AF_INET
+#  define NETLIB_SOCK_FAMILY  AF_INET
 #endif
 
 /* Socket protocol of zero normally works */
@@ -112,36 +112,36 @@
  * selected address family.
  */
 
-#if NETLIB_AF_FAMILY == AF_INET
+#if NETLIB_SOCK_FAMILY == AF_INET
 #  if defined(CONFIG_NET_UDP)
-#    define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#    define NETLIB_SOCK_TYPE SOCK_DGRAM
 #  elif defined(CONFIG_NET_TCP)
-#   define NETLIB_SOCK_IOCTL SOCK_STREAM
+#   define NETLIB_SOCK_TYPE SOCK_STREAM
 #  elif defined(CONFIG_NET_ICMP_SOCKET)
-#   define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#   define NETLIB_SOCK_TYPE SOCK_DGRAM
 #   undef NETLIB_SOCK_PROTOCOL
 #   define NETLIB_SOCK_PROTOCOL IPPROTO_ICMP
 #  endif
-#elif NETLIB_AF_FAMILY == AF_INET6
+#elif NETLIB_SOCK_FAMILY == AF_INET6
 #  if defined(CONFIG_NET_UDP)
-#    define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#    define NETLIB_SOCK_TYPE SOCK_DGRAM
 #  elif defined(CONFIG_NET_TCP)
-#   define NETLIB_SOCK_IOCTL SOCK_STREAM
+#   define NETLIB_SOCK_TYPE SOCK_STREAM
 #  elif defined(CONFIG_NET_ICMPv6_SOCKET)
-#   define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#   define NETLIB_SOCK_TYPE SOCK_DGRAM
 #   undef NETLIB_SOCK_PROTOCOL
 #   define NETLIB_SOCK_PROTOCOL IPPROTO_ICMP6
 #  endif
-#elif NETLIB_AF_FAMILY == AF_LOCAL
+#elif NETLIB_SOCK_FAMILY == AF_LOCAL
 #  if defined(CONFIG_NET_LOCAL_DGRAM)
-#    define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#    define NETLIB_SOCK_TYPE SOCK_DGRAM
 #  elif defined(CONFIG_NET_LOCAL_STREAM)
-#     define NETLIB_SOCK_IOCTL SOCK_STREAM
+#     define NETLIB_SOCK_TYPE SOCK_STREAM
 #  endif
-#elif NETLIB_AF_FAMILY == AF_PACKET
-#  define NETLIB_SOCK_IOCTL SOCK_RAW
-#elif NETLIB_AF_FAMILY == AF_IEEE802154
-#  define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#elif NETLIB_SOCK_FAMILY == AF_PACKET
+#  define NETLIB_SOCK_TYPE SOCK_RAW
+#elif NETLIB_SOCK_FAMILY == AF_IEEE802154
+#  define NETLIB_SOCK_TYPE SOCK_DGRAM
 #endif
 
 /****************************************************************************

@@ -77,7 +77,7 @@ int netlib_set_ipv4netmask(FAR const char *ifname,
 
   if (ifname && addr)
     {
-      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_TYPE, 0);
       if (sockfd >= 0)
         {
           FAR struct sockaddr_in *inaddr;

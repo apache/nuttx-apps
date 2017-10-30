@@ -107,7 +107,7 @@ static int _netlib_ipv4adaptor(in_addr_t destipaddr, FAR in_addr_t *srcipaddr)
   ifc.ifc_req = NULL;
   ifc.ifc_len = 0;
 
-  sd = socket(AF_INET, NETLIB_SOCK_IOCTL, 0);
+  sd = socket(AF_INET, NETLIB_SOCK_TYPE, 0);
   if (sd < 0)
     {
       ret = -errno;

@@ -81,7 +81,7 @@ int netlib_get_ipv4netmask(FAR const char *ifname, FAR struct in_addr *addr)
 
   if (ifname && addr)
     {
-      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_TYPE, 0);
       if (sockfd >= 0)
         {
           struct ifreq req;

@@ -83,7 +83,7 @@ int netlib_getproperties(FAR const char *ifname,
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET6, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET6, NETLIB_SOCK_TYPE, 0);
       if (sockfd >= 0)
         {
           /* Copy the network interface name */

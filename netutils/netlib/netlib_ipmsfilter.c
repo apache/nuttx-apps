@@ -90,7 +90,7 @@ int ipmsfilter(FAR const char *ifname, FAR const struct in_addr *multiaddr,
     {
       /* Get a socket (only so that we get access to the INET subsystem) */
 
-      int sockfd = socket(PF_INET, NETLIB_SOCK_IOCTL, 0);
+      int sockfd = socket(PF_INET, NETLIB_SOCK_TYPE, 0);
       if (sockfd >= 0)
         {
           struct ip_msfilter imsf;
