@@ -76,19 +76,72 @@
 #  define IPv6_ROUTE_PATH CONFIG_NETLIB_PROCFS_MOUNTPT "/net/route/ipv6"
 #endif
 
-/* SOCK_DGRAM is the preferred socket type to use when we just want a
- * socket for performing drive ioctls.  However, we can't use SOCK_DRAM
- * if UDP is disabled.
+/* Using the following defintions, the following socket() arguments should
+ * provide a valid socket in all configurations:
+ *
+ *   ret = socket(NETLIB_AF_FAMILY, NETLIB_SOCK_IOCTL, NETLIB_SOCK_PROTOCOL);
  */
 
-#if defined(CONFIG_NET_UDP) || defined(CONFIG_NET_LOCAL_DGRAM)
-# define NETLIB_SOCK_IOCTL SOCK_DGRAM
-#elif defined(CONFIG_NET_TCP) || defined(CONFIG_NET_LOCAL_STREAM)
-# define NETLIB_SOCK_IOCTL SOCK_STREAM
-#elif defined(CONFIG_NET_IEEE802154)
-# define NETLIB_SOCK_IOCTL SOCK_DGRAM
+/* The address family that we used to create the socket really does not
+ * matter.  It should, however, be valid in the current configuration.
+ */
+
+#if defined(CONFIG_NET_IPv4)
+#  define NETLIB_AF_FAMILY  AF_INET
+#elif defined(CONFIG_NET_IPv6)
+#  define NETLIB_AF_FAMILY  AF_INET6
+#elif defined(CONFIG_NET_LOCAL)
+#  define NETLIB_AF_FAMILY  AF_LOCAL
 #elif defined(CONFIG_NET_PKT)
-# define NETLIB_SOCK_IOCTL SOCK_RAW
+#  define NETLIB_AF_FAMILY  AF_PACKET
+#elif defined(CONFIG_NET_IEEE802154)
+#  define NETLIB_AF_FAMILY  AF_IEEE802154
+#elif defined(CONFIG_NET_USRSOCK)
+#  define NETLIB_AF_FAMILY  AF_INET
+#endif
+
+/* Socket protocol of zero normally works */
+
+#define NETLIB_SOCK_PROTOCOL  0
+
+/* SOCK_DGRAM is the preferred socket type to use when we just want a
+ * socket for performing driver ioctls.  However, we can't use SOCK_DRAM
+ * if UDP is disabled.
+ *
+ * Pick a socket type (and perhaps protocol) compatible with the currently
+ * selected address family.
+ */
+
+#if NETLIB_AF_FAMILY == AF_INET
+#  if defined(CONFIG_NET_UDP)
+#    define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#  elif defined(CONFIG_NET_TCP)
+#   define NETLIB_SOCK_IOCTL SOCK_STREAM
+#  elif defined(CONFIG_NET_ICMP_SOCKET)
+#   define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#   undef NETLIB_SOCK_PROTOCOL
+#   define NETLIB_SOCK_PROTOCOL IPPROTO_ICMP
+#  endif
+#elif NETLIB_AF_FAMILY == AF_INET6
+#  if defined(CONFIG_NET_UDP)
+#    define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#  elif defined(CONFIG_NET_TCP)
+#   define NETLIB_SOCK_IOCTL SOCK_STREAM
+#  elif defined(CONFIG_NET_ICMPv6_SOCKET)
+#   define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#   undef NETLIB_SOCK_PROTOCOL
+#   define NETLIB_SOCK_PROTOCOL IPPROTO_ICMP6
+#  endif
+#elif NETLIB_AF_FAMILY == AF_LOCAL
+#  if defined(CONFIG_NET_LOCAL_DGRAM)
+#    define NETLIB_SOCK_IOCTL SOCK_DGRAM
+#  elif defined(CONFIG_NET_LOCAL_STREAM)
+#     define NETLIB_SOCK_IOCTL SOCK_STREAM
+#  endif
+#elif NETLIB_AF_FAMILY == AF_PACKET
+#  define NETLIB_SOCK_IOCTL SOCK_RAW
+#elif NETLIB_AF_FAMILY == AF_IEEE802154
+#  define NETLIB_SOCK_IOCTL SOCK_DGRAM
 #endif
 
 /****************************************************************************
