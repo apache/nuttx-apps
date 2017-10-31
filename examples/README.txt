@@ -2127,6 +2127,11 @@ examples/usbserial
     The host and target will exchange are variety of very small and very large
     serial messages.
 
+examples/userfs
+^^^^^^^^^^^^^^^
+
+  A simple test of the UserFS file system.
+
 examples/ustream
 ^^^^^^^^^^^^^^^^
 
