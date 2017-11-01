@@ -241,6 +241,7 @@ int i2ctool_set(FAR struct i2ctool_s *i2ctool, int fd, uint8_t regaddr,
     }
   else
     {
+      msg[1].flags |= I2C_M_NORESTART;
       ret = i2cdev_transfer(fd, msg, 2);
     }
 
