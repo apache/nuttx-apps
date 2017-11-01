@@ -492,11 +492,23 @@ static int ufstest_stat(FAR void *volinfo, FAR const char *relpath,
   FAR void *openinfo;
   int ret;
 
-  ret = ufstest_open(volinfo, relpath, O_RDWR, 0644, &openinfo);
-  if (ret >= 0)
+  /* Are we stat'ing the directory?  Of one of the files in the directory? */
+
+  if (*relpath == '\0')
     {
-      ret = ufstest_fstat(volinfo, openinfo, buf);
-      (void)ufstest_close(volinfo, openinfo);
+      memset(buf, 0, sizeof(struct stat));
+      buf->st_mode    = (S_IFDIR | S_IRWXU | S_IRUSR | S_IRGRP | S_IRWXG |
+                         S_IROTH | S_IRWXO);
+      buf->st_blksize = UFSTEST_FS_BLOCKSIZE;
+    }
+  else
+    {
+      ret = ufstest_open(volinfo, relpath, O_RDWR, 0644, &openinfo);
+      if (ret >= 0)
+        {
+          ret = ufstest_fstat(volinfo, openinfo, buf);
+          (void)ufstest_close(volinfo, openinfo);
+        }
     }
 
   return ret;
