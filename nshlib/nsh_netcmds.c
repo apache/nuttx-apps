@@ -1206,7 +1206,7 @@ int cmd_wget(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
   FAR char *localfile = NULL;
   FAR char *allocfile = NULL;
   FAR char *buffer    = NULL;
-  FAR har *fullpath  = NULL;
+  FAR char *fullpath  = NULL;
   FAR char *url;
   FAR const char *fmt;
   bool badarg = false;
