@@ -1,0 +1,25 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config IEEE802154_I8SHARK
+	bool "IEEE 802.15.4 Wireshark adapter"
+	default n
+	select IEEE802154_LIBUTILS
+	select IEEE802154_LIBMAC
+	depends on IEEE802154_MACDEV && NET_UDP && NET_IPv4
+
+if IEEE802154_I8SHARK
+
+config IEEE802154_I8SHARK_DEVPATH
+	string "MAC char driver path"
+	default "/dev/ieee0"
+	---help---
+		The default path to MAC character driver. Default: /dev/ieee0
+
+config IEEE802154_I8SHARK_HOST_IPADDR
+	hex "Host IP address where Wireshark is running"
+	default 0x0a000001
+
+endif
