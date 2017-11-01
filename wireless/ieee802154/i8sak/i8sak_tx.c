@@ -62,7 +62,7 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void tx_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
+static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -281,18 +281,18 @@ void i8sak_tx_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
   close(fd);
 }
 
-static void tx_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
+static void tx_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
 
-  if (notif->u.dataconf.status == IEEE802154_STATUS_SUCCESS)
+  if (primitive->u.dataconf.status == IEEE802154_STATUS_SUCCESS)
     {
       printf("i8sak: frame tx success\n");
     }
   else
     {
       printf("i8sak: frame failed to send: %s\n",
-             IEEE802154_STATUS_STRING[notif->u.dataconf.status]);
+             IEEE802154_STATUS_STRING[primitive->u.dataconf.status]);
     }
 
   sem_post(&i8sak->sigsem);

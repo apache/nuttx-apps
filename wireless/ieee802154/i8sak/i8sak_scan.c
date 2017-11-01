@@ -59,7 +59,7 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
+static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -203,10 +203,10 @@ void i8sak_scan_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
  * Private Functions
  ****************************************************************************/
 
-static void scan_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
+static void scan_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
-  FAR struct ieee802154_scan_conf_s *scan = &notif->u.scanconf;
+  FAR struct ieee802154_scan_conf_s *scan = &primitive->u.scanconf;
   int i;
 
   printf("\n\ni8sak: Scan complete: %s\n",

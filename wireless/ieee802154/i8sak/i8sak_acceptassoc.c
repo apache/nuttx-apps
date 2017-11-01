@@ -59,7 +59,7 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
+static void acceptassoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
                                 FAR void *arg);
 
 /****************************************************************************
@@ -165,7 +165,7 @@ void i8sak_acceptassoc_cmd(FAR struct i8sak_s *i8sak, int argc,
                                   !i8sak->acceptall);
 }
 
-static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
+static void acceptassoc_eventcb(FAR struct ieee802154_primitive_s *primitive,
                                 FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
@@ -177,13 +177,14 @@ static void acceptassoc_eventcb(FAR struct ieee802154_notif_s *notif,
    * indication address into the association response primitive
    */
 
-  IEEE802154_EADDRCOPY(assocresp.devaddr, notif->u.assocind.devaddr);
+  IEEE802154_EADDRCOPY(assocresp.devaddr, primitive->u.assocind.devaddr);
 
   /* If the address matches our device, accept the association.
    * Otherwise, reject the assocation.
    */
 
-  if (IEEE802154_EADDRCMP(notif->u.assocind.devaddr, i8sak->ep_addr.eaddr))
+  if (i8sak->acceptall ||
+      IEEE802154_EADDRCMP(primitive->u.assocind.devaddr, i8sak->ep_addr.eaddr))
     {
       /* Assign the short address */
 

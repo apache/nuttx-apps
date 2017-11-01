@@ -59,7 +59,7 @@
  * Public Types
  ****************************************************************************/
 
-typedef void (*i8sak_eventcallback_t) (FAR struct ieee802154_notif_s *notif,
+typedef void (*i8sak_eventcallback_t) (FAR struct ieee802154_primitive_s *primitive,
                                        FAR void *arg);
 
 struct i8sak_eventfilter_s

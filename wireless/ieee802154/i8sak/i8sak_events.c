@@ -79,7 +79,7 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
   struct ieee802154_netmac_s netarg;
 #endif
   FAR struct i8sak_eventreceiver_s *receiver;
-  FAR struct ieee802154_notif_s *notif = NULL;
+  FAR struct ieee802154_primitive_s *primitive = NULL;
   int ret;
 
   if (i8sak->mode == I8SAK_MODE_CHAR)
@@ -104,14 +104,14 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
         {
           ret = ioctl(i8sak->fd, MAC802154IOC_GET_EVENT,
                       (unsigned long)((uintptr_t)&macarg));
-          notif = &macarg.notif;
+          primitive = &macarg.primitive;
         }
 #ifdef CONFIG_NET_6LOWPAN
       else if (i8sak->mode == I8SAK_MODE_NETIF)
         {
           ret = ioctl(i8sak->fd, MAC802154IOC_GET_EVENT,
                       (unsigned long)((uintptr_t)&netarg));
-          notif = &netarg.u.notif;
+          primitive = &netarg.u.primitive;
         }
 #endif
 
@@ -135,40 +135,40 @@ static pthread_addr_t i8sak_eventthread(pthread_addr_t arg)
 
       while (receiver != NULL)
         {
-          if ((notif->notiftype == IEEE802154_NOTIFY_CONF_DATA &&
+          if ((primitive->type == IEEE802154_PRIMITIVE_CONF_DATA &&
               receiver->filter.confevents.data) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_ASSOC &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_ASSOC &&
               receiver->filter.confevents.assoc) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_DISASSOC &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_DISASSOC &&
               receiver->filter.confevents.disassoc) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_GTS &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_GTS &&
               receiver->filter.confevents.gts) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_RESET &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_RESET &&
               receiver->filter.confevents.reset) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_RXENABLE &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_RXENABLE &&
               receiver->filter.confevents.rxenable) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_SCAN &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_SCAN &&
               receiver->filter.confevents.scan) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_START &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_START &&
               receiver->filter.confevents.start) ||
-              (notif->notiftype == IEEE802154_NOTIFY_CONF_POLL &&
+              (primitive->type == IEEE802154_PRIMITIVE_CONF_POLL &&
               receiver->filter.confevents.poll) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_ASSOC &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_ASSOC &&
               receiver->filter.indevents.assoc) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_DISASSOC &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_DISASSOC &&
               receiver->filter.indevents.disassoc) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_BEACONNOTIFY &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_BEACONNOTIFY &&
               receiver->filter.indevents.beacon) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_GTS &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_GTS &&
               receiver->filter.indevents.gts) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_ORPHAN &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_ORPHAN &&
               receiver->filter.indevents.orphan) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_COMMSTATUS &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_COMMSTATUS &&
               receiver->filter.indevents.commstatus) ||
-              (notif->notiftype == IEEE802154_NOTIFY_IND_SYNCLOSS &&
+              (primitive->type == IEEE802154_PRIMITIVE_IND_SYNCLOSS &&
               receiver->filter.indevents.syncloss))
             {
-              receiver->cb(notif, receiver->arg);
+              receiver->cb(primitive, receiver->arg);
 
               if (receiver->oneshot)
                 {

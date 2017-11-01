@@ -61,7 +61,7 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void poll_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg);
+static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg);
 
 /****************************************************************************
  * Public Functions
@@ -169,18 +169,18 @@ void i8sak_poll_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
  * Private Function
  ****************************************************************************/
 
-static void poll_eventcb(FAR struct ieee802154_notif_s *notif, FAR void *arg)
+static void poll_eventcb(FAR struct ieee802154_primitive_s *primitive, FAR void *arg)
 {
   FAR struct i8sak_s *i8sak = (FAR struct i8sak_s *)arg;
 
-  if (notif->u.pollconf.status == IEEE802154_STATUS_SUCCESS)
+  if (primitive->u.pollconf.status == IEEE802154_STATUS_SUCCESS)
     {
       printf("i8sak: POLL.request succeeded\n");
     }
   else
     {
       printf("i8sak: POLL.request failed: %s\n",
-             IEEE802154_STATUS_STRING[notif->u.pollconf.status]);
+             IEEE802154_STATUS_STRING[primitive->u.pollconf.status]);
     }
 
   sem_post(&i8sak->sigsem);
