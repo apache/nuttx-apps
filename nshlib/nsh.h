@@ -658,11 +658,10 @@
 #  endif
 #endif
 
-#if defined(CONFIG_FS_PROCFS) || !defined(CONFIG_NSH_DISABLE_MOUNT)
+#undef HAVE_MOUNT_LIST
+#if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_MOUNT) && \
+   !defined(CONFIG_FS_PROCFS_EXCLUDE_MOUNT)
 #  define HAVE_MOUNT_LIST 1
-#  if defined(CONFIG_FS_PROCFS_EXCLUDE_MOUNT)
-#    undefine HAVE_MOUNT_LIST
-#  endif
 #endif
 
 /* Suppress unused file utilities */
