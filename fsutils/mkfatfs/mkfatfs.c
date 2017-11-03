@@ -58,6 +58,70 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: fat_systime2fattime
+ *
+ * Description:
+ *   Get the system time convert to a time and and date suitable for
+ *   writing into the FAT FS.
+ *
+ *    TIME in LS 16-bits:
+ *      Bits 0:4   = 2 second count (0-29 representing 0-58 seconds)
+ *      Bits 5-10  = minutes (0-59)
+ *      Bits 11-15 = hours (0-23)
+ *    DATE in MS 16-bits
+ *      Bits 0:4   = Day of month (1-31)
+ *      Bits 5:8   = Month of year (1-12)
+ *      Bits 9:15  = Year from 1980 (0-127 representing 1980-2107)
+ *
+ ****************************************************************************/
+
+static uint32_t fat_systime2fattime(void)
+{
+  /* Unless you have a hardware RTC or some other to get accurate time, then
+   * there is no reason to support FAT time.
+   */
+
+#ifdef CONFIG_FS_FATTIME
+  struct timespec ts;
+  struct tm tm;
+  int ret;
+
+  /* Get the current time in seconds and nanoseconds */
+
+  ret = clock_gettime(CLOCK_REALTIME, &ts);
+  if (ret == OK)
+    {
+      /* Break done the seconds in date and time units */
+
+      if (gmtime_r((FAR const time_t *)&ts.tv_sec, &tm) != NULL)
+        {
+          /* FAT can only represent dates since 1980.  struct tm can
+           * represent dates since 1900.
+           */
+
+          if (tm.tm_year >= 80)
+            {
+              uint16_t fattime;
+              uint16_t fatdate;
+
+              fattime  = (tm.tm_sec       >>  1) & 0x001f; /* Bits 0-4: 2 second count (0-29) */
+              fattime |= (tm.tm_min       <<  5) & 0x07e0; /* Bits 5-10: minutes (0-59) */
+              fattime |= (tm.tm_hour      << 11) & 0xf800; /* Bits 11-15: hours (0-23) */
+
+              fatdate  =  tm.tm_mday             & 0x001f; /* Bits 0-4: Day of month (1-31) */
+              fatdate |= ((tm.tm_mon+1)   <<  5) & 0x01e0; /* Bits 5-8: Month of year (1-12) */
+              fatdate |= ((tm.tm_year-80) <<  9) & 0xfe00; /* Bits 9-15: Year from 1980 */
+
+              return (uint32_t)fatdate << 16 | (uint32_t)fattime;
+            }
+        }
+    }
+#endif
+
+  return 0;
+}
+
+/****************************************************************************
  * Name: mkfatfs_getgeometry
  *
  * Description:

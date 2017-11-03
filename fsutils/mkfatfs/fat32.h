@@ -328,8 +328,50 @@
 /* #define FAT_MINCLUST32  (FAT_MAXCLUST16 + 1) */
 #define FAT_MAXCLUST32  (((uint32_t)1 << 28) - 16)
 
-/****************************************************************************
- * Access to data in raw sector data */
+/****************************************************************************/
+/* Endian-ness helpers */
+
+#ifdef CONFIG_ENDIAN_BIG
+#  define FAT_PUTUINT16(p,v) \
+    do \
+      { \
+        (p)[0] = ((v) >> 8); \
+        (p)[1] = ((v) & 0xff); \
+    } \
+    while (0)
+#else
+#  define FAT_PUTUINT16(p,v) \
+    do \
+      { \
+        (p)[0] = ((v) & 0xff); \
+        (p)[1] = ((v) >> 8); \
+    } \
+    while (0)
+#endif
+
+#ifdef CONFIG_ENDIAN_BIG
+#  define FAT_PUTUINT32(p,v) \
+    do \
+      { \
+        (p)[0] =  ((v) >> 24); \
+        (p)[1] = (((v) >> 16) & 0xff); \
+        (p)[2] = (((v) >>  8) & 0xff); \
+        (p)[3] =  ((v)        & 0xff); \
+    } \
+    while (0)
+#else
+#  define FAT_PUTUINT32(p,v) \
+    do \
+      { \
+        (p)[0] =  ((v)        & 0xff); \
+        (p)[1] = (((v) >>  8) & 0xff); \
+        (p)[2] = (((v) >> 16) & 0xff); \
+        (p)[3] =  ((v) >> 24); \
+    } \
+    while (0)
+#endif
+
+/* Access to data in raw sector data */
 
 #define UBYTE_VAL(p,o)            (((uint8_t*)(p))[o])
 #define UBYTE_PTR(p,o)            &UBYTE_VAL(p,o)
@@ -423,22 +465,22 @@
 #define PART4_GETSTARTSECTOR(p)    fat_getuint32(UBYTE_PTR(p,PART_ENTRY4+PART_STARTSECTOR))
 #define PART4_GETSIZE(p)           fat_getuint32(UBYTE_PTR(p,PART_ENTRY4+PART_SIZE))
 
-#define MBR_PUTBYTESPERSEC(p,v)    fat_putuint16(UBYTE_PTR(p,BS_BYTESPERSEC),v)
-#define MBR_PUTROOTENTCNT(p,v)     fat_putuint16(UBYTE_PTR(p,BS_ROOTENTCNT),v)
-#define MBR_PUTTOTSEC16(p,v)       fat_putuint16(UBYTE_PTR(p,BS_TOTSEC16),v)
-#define MBR_PUTVOLID16(p,v)        fat_putuint32(UBYTE_PTR(p,BS16_VOLID),v)
-#define MBR_PUTVOLID32(p,v)        fat_putuint32(UBYTE_PTR(p,BS32_VOLID),v)
+#define MBR_PUTBYTESPERSEC(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,BS_BYTESPERSEC),v)
+#define MBR_PUTROOTENTCNT(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,BS_ROOTENTCNT),v)
+#define MBR_PUTTOTSEC16(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,BS_TOTSEC16),v)
+#define MBR_PUTVOLID16(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,BS16_VOLID),v)
+#define MBR_PUTVOLID32(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,BS32_VOLID),v)
 
-#define PART_PUTSTARTSECTOR(n,p,v) fat_putuint32(UBYTE_PTR(p,PART_ENTRY(n)+PART_STARTSECTOR),v)
-#define PART_PUTSIZE(n,p,v)        fat_putuint32(UBYTE_PTR(p,PART_ENTRY(n)+PART_SIZE),v)
-#define PART1_PUTSTARTSECTOR(p,v)  fat_putuint32(UBYTE_PTR(p,PART_ENTRY1+PART_STARTSECTOR),v)
-#define PART1_PUTSIZE(p,v)         fat_putuint32(UBYTE_PTR(p,PART_ENTRY1+PART_SIZE),v)
-#define PART2_PUTSTARTSECTOR(p,v)  fat_putuint32(UBYTE_PTR(p,PART_ENTRY2+PART_STARTSECTOR),v)
-#define PART2_PUTSIZE(p,v)         fat_putuint32(UBYTE_PTR(p,PART_ENTRY2+PART_SIZE),v)
-#define PART3_PUTSTARTSECTOR(p,v)  fat_putuint32(UBYTE_PTR(p,PART_ENTRY3+PART_STARTSECTOR),v)
-#define PART3_PUTSIZE(p,v)         fat_putuint32(UBYTE_PTR(p,PART_ENTRY3+PART_SIZE),v)
-#define PART4_PUTSTARTSECTOR(p,v)  fat_putuint32(UBYTE_PTR(p,PART_ENTRY4+PART_STARTSECTOR),v)
-#define PART4_PUTSIZE(p,v)         fat_putuint32(UBYTE_PTR(p,PART_ENTRY4+PART_SIZE),v)
+#define PART_PUTSTARTSECTOR(n,p,v) FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY(n)+PART_STARTSECTOR),v)
+#define PART_PUTSIZE(n,p,v)        FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY(n)+PART_SIZE),v)
+#define PART1_PUTSTARTSECTOR(p,v)  FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY1+PART_STARTSECTOR),v)
+#define PART1_PUTSIZE(p,v)         FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY1+PART_SIZE),v)
+#define PART2_PUTSTARTSECTOR(p,v)  FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY2+PART_STARTSECTOR),v)
+#define PART2_PUTSIZE(p,v)         FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY2+PART_SIZE),v)
+#define PART3_PUTSTARTSECTOR(p,v)  FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY3+PART_STARTSECTOR),v)
+#define PART3_PUTSIZE(p,v)         FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY3+PART_SIZE),v)
+#define PART4_PUTSTARTSECTOR(p,v)  FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY4+PART_STARTSECTOR),v)
+#define PART4_PUTSIZE(p,v)         FAT_PUTUINT32(UBYTE_PTR(p,PART_ENTRY4+PART_SIZE),v)
 
 #ifdef CONFIG_FAT_LFN
 # define LDIR_PTRWCHAR1_5(p)       UBYTE_PTR(p,LDIR_WCHAR1_5)
@@ -512,59 +554,59 @@
 # define FAT_GETFAT16(p,i)         fat_getuint16(UBYTE_PTR(p,i))
 # define FAT_GETFAT32(p,i)         fat_getuint32(UBYTE_PTR(p,i))
 
-# define MBR_PUTRESVDSECCOUNT(p,v) fat_putuint16(UBYTE_PTR(p,BS_RESVDSECCOUNT),v)
-# define MBR_PUTFATSZ16(p,v)       fat_putuint16(UBYTE_PTR(p,BS_FATSZ16),v)
-# define MBR_PUTSECPERTRK(p,v)     fat_putuint16(UBYTE_PTR(p,BS_SECPERTRK),v)
-# define MBR_PUTNUMHEADS(p,v)      fat_putuint16(UBYTE_PTR(p,BS_NUMHEADS),v)
-# define MBR_PUTHIDSEC(p,v)        fat_putuint32(UBYTE_PTR(p,BS_HIDSEC),v)
-# define MBR_PUTTOTSEC32(p,v)      fat_putuint32(UBYTE_PTR(p,BS_TOTSEC32),v)
-# define MBR_PUTFATSZ32(p,v)       fat_putuint32(UBYTE_PTR(p,BS32_FATSZ32),v)
-# define MBR_PUTEXTFLAGS(p,v)      fat_putuint16(UBYTE_PTR(p,BS32_EXTFLAGS),v)
-# define MBR_PUTFSVER(p,v)         fat_putuint16(UBYTE_PTR(p,BS32_FSVER),v)
-# define MBR_PUTROOTCLUS(p,v)      fat_putuint32(UBYTE_PTR(p,BS32_ROOTCLUS),v)
-# define MBR_PUTFSINFO(p,v)        fat_putuint16(UBYTE_PTR(p,BS32_FSINFO),v)
-# define MBR_PUTBKBOOTSEC(p,v)     fat_putuint16(UBYTE_PTR(p,BS32_BKBOOTSEC),v)
-# define MBR_PUTSIGNATURE(p,v)     fat_putuint16(UBYTE_PTR(p,BS_SIGNATURE),v)
+# define MBR_PUTRESVDSECCOUNT(p,v) FAT_PUTUINT16(UBYTE_PTR(p,BS_RESVDSECCOUNT),v)
+# define MBR_PUTFATSZ16(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,BS_FATSZ16),v)
+# define MBR_PUTSECPERTRK(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,BS_SECPERTRK),v)
+# define MBR_PUTNUMHEADS(p,v)      FAT_PUTUINT16(UBYTE_PTR(p,BS_NUMHEADS),v)
+# define MBR_PUTHIDSEC(p,v)        FAT_PUTUINT32(UBYTE_PTR(p,BS_HIDSEC),v)
+# define MBR_PUTTOTSEC32(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,BS_TOTSEC32),v)
+# define MBR_PUTFATSZ32(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,BS32_FATSZ32),v)
+# define MBR_PUTEXTFLAGS(p,v)      FAT_PUTUINT16(UBYTE_PTR(p,BS32_EXTFLAGS),v)
+# define MBR_PUTFSVER(p,v)         FAT_PUTUINT16(UBYTE_PTR(p,BS32_FSVER),v)
+# define MBR_PUTROOTCLUS(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,BS32_ROOTCLUS),v)
+# define MBR_PUTFSINFO(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,BS32_FSINFO),v)
+# define MBR_PUTBKBOOTSEC(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,BS32_BKBOOTSEC),v)
+# define MBR_PUTSIGNATURE(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,BS_SIGNATURE),v)
 
-# define FSI_PUTLEADSIG(p,v)       fat_putuint32(UBYTE_PTR(p,FSI_LEADSIG),v)
-# define FSI_PUTSTRUCTSIG(p,v)     fat_putuint32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
-# define FSI_PUTFREECOUNT(p,v)     fat_putuint32(UBYTE_PTR(p,FSI_FREECOUNT),v)
-# define FSI_PUTNXTFREE(p,v)       fat_putuint32(UBYTE_PTR(p,FSI_NXTFREE),v)
-# define FSI_PUTTRAILSIG(p,v)      fat_putuint32(UBYTE_PTR(p,FSI_TRAILSIG),v)
+# define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
+# define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
+# define FSI_PUTFREECOUNT(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_FREECOUNT),v)
+# define FSI_PUTNXTFREE(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_NXTFREE),v)
+# define FSI_PUTTRAILSIG(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,FSI_TRAILSIG),v)
 
-# define DIR_PUTCRTIME(p,v)        fat_putuint16(UBYTE_PTR(p,DIR_CRTIME),v)
-# define DIR_PUTCRDATE(p,v)        fat_putuint16(UBYTE_PTR(p,DIR_CRDATE),v)
-# define DIR_PUTLASTACCDATE(p,v)   fat_putuint16(UBYTE_PTR(p,DIR_LASTACCDATE),v)
-# define DIR_PUTFSTCLUSTHI(p,v)    fat_putuint16(UBYTE_PTR(p,DIR_FSTCLUSTHI),v)
-# define DIR_PUTWRTTIME(p,v)       fat_putuint16(UBYTE_PTR(p,DIR_WRTTIME),v)
-# define DIR_PUTWRTDATE(p,v)       fat_putuint16(UBYTE_PTR(p,DIR_WRTDATE),v)
-# define DIR_PUTFSTCLUSTLO(p,v)    fat_putuint16(UBYTE_PTR(p,DIR_FSTCLUSTLO),v)
-# define DIR_PUTFILESIZE(p,v)      fat_putuint32(UBYTE_PTR(p,DIR_FILESIZE),v)
+# define DIR_PUTCRTIME(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,DIR_CRTIME),v)
+# define DIR_PUTCRDATE(p,v)        FAT_PUTUINT16(UBYTE_PTR(p,DIR_CRDATE),v)
+# define DIR_PUTLASTACCDATE(p,v)   FAT_PUTUINT16(UBYTE_PTR(p,DIR_LASTACCDATE),v)
+# define DIR_PUTFSTCLUSTHI(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,DIR_FSTCLUSTHI),v)
+# define DIR_PUTWRTTIME(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,DIR_WRTTIME),v)
+# define DIR_PUTWRTDATE(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,DIR_WRTDATE),v)
+# define DIR_PUTFSTCLUSTLO(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,DIR_FSTCLUSTLO),v)
+# define DIR_PUTFILESIZE(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,DIR_FILESIZE),v)
 
 # ifdef CONFIG_FAT_LFN
-#  define LDIR_PUTWCHAR1(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR1_5),v)
-#  define LDIR_PUTWCHAR2(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+2),v)
-#  define LDIR_PUTWCHAR3(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+4),v)
-#  define LDIR_PUTWCHAR4(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+6),v)
-#  define LDIR_PUTWCHAR5(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+8),v)
-#  define LDIR_PUTWCHAR6(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR6_11),v)
-#  define LDIR_PUTWCHAR7(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+2),v)
-#  define LDIR_PUTWCHAR8(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+4),v)
-#  define LDIR_PUTWCHAR9(p)        fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+6),v)
-#  define LDIR_PUTWCHAR10(p)       fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+8),v)
-#  define LDIR_PUTWCHAR11(p)       fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+10),v)
-#  define LDIR_PUTWCHAR12(p)       fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR12_13),v)
-#  define LDIR_PUTWCHAR13(p)       fat_putuint16(UBYTE_PTR(p,LDIR_WCHAR12_13+2),v)
+#  define LDIR_PUTWCHAR1(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR1_5),v)
+#  define LDIR_PUTWCHAR2(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR1_5+2),v)
+#  define LDIR_PUTWCHAR3(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR1_5+4),v)
+#  define LDIR_PUTWCHAR4(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR1_5+6),v)
+#  define LDIR_PUTWCHAR5(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR1_5+8),v)
+#  define LDIR_PUTWCHAR6(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR6_11),v)
+#  define LDIR_PUTWCHAR7(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR6_11+2),v)
+#  define LDIR_PUTWCHAR8(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR6_11+4),v)
+#  define LDIR_PUTWCHAR9(p)        FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR6_11+6),v)
+#  define LDIR_PUTWCHAR10(p)       FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR6_11+8),v)
+#  define LDIR_PUTWCHAR11(p)       FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR6_11+10),v)
+#  define LDIR_PUTWCHAR12(p)       FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR12_13),v)
+#  define LDIR_PUTWCHAR13(p)       FAT_PUTUINT16(UBYTE_PTR(p,LDIR_WCHAR12_13+2),v)
 # endif
 
-# define FSI_PUTLEADSIG(p,v)       fat_putuint32(UBYTE_PTR(p,FSI_LEADSIG),v)
-# define FSI_PUTSTRUCTSIG(p,v)     fat_putuint32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
-# define FSI_PUTFREECOUNT(p,v)     fat_putuint32(UBYTE_PTR(p,FSI_FREECOUNT),v)
-# define FSI_PUTNXTFREE(p,v)       fat_putuint32(UBYTE_PTR(p,FSI_NXTFREE),v)
-# define FSI_PUTTRAILSIG(p,v)      fat_putuint32(UBYTE_PTR(p,FSI_TRAILSIG),v)
+# define FSI_PUTLEADSIG(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_LEADSIG),v)
+# define FSI_PUTSTRUCTSIG(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_STRUCTSIG),v)
+# define FSI_PUTFREECOUNT(p,v)     FAT_PUTUINT32(UBYTE_PTR(p,FSI_FREECOUNT),v)
+# define FSI_PUTNXTFREE(p,v)       FAT_PUTUINT32(UBYTE_PTR(p,FSI_NXTFREE),v)
+# define FSI_PUTTRAILSIG(p,v)      FAT_PUTUINT32(UBYTE_PTR(p,FSI_TRAILSIG),v)
 
-# define FAT_PUTFAT16(p,i,v)       fat_putuint16(UBYTE_PTR(p,i),v)
-# define FAT_PUTFAT32(p,i,v)       fat_putuint32(UBYTE_PTR(p,i),v)
+# define FAT_PUTFAT16(p,i,v)       FAT_PUTUINT16(UBYTE_PTR(p,i),v)
+# define FAT_PUTFAT32(p,i,v)       FAT_PUTUINT32(UBYTE_PTR(p,i),v)
 
 #else
 
@@ -683,260 +725,7 @@
 #endif
 
 /****************************************************************************
- * Name: fat_io_alloc and fat_io_free
- *
- * Description:
- *   The FAT file system allocates two I/O buffers for data transfer, each
- *   are the size of one device sector.  One of the buffers is allocated
- *   once for each FAT volume that is mounted; the other buffers are
- *   allocated each time a FAT file is opened.
- *
- *   Some hardware, however, may require special DMA-capable memory in
- *   order to perform the transfers.  If CONFIG_FAT_DMAMEMORY is defined
- *   then the architecture-specific hardware must provide the funtions
- *   fat_dma_alloc() and fat_dma_free() as prototyped below:  fat_dmalloc()
- *   will allocate DMA-capable memory of the specified size; fat_dmafree()
- *   is the corresponding function that will be called to free the DMA-
- *   capable memory.
- *
- ****************************************************************************/
-
-#ifdef CONFIG_FAT_DMAMEMORY
-#  define fat_io_alloc(s)  fat_dma_alloc(s)
-#  define fat_io_free(m,s) fat_dma_free(m,s)
-#else
-#  define fat_io_alloc(s)  kmm_malloc(s)
-#  define fat_io_free(m,s) kmm_free(m)
-#endif
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
-
-/* This structure represents the overall mountpoint state.  An instance of this
- * structure is retained as inode private data on each mountpoint that is
- * mounted with a fat32 filesystem.
- */
-
-struct fat_file_s;
-struct fat_mountpt_s
-{
-  struct inode      *fs_blkdriver; /* The block driver inode that hosts the FAT32 fs */
-  struct fat_file_s *fs_head;      /* A list to all files opened on this mountpoint */
-
-  sem_t    fs_sem;                 /* Used to assume thread-safe access */
-  off_t    fs_hwsectorsize;        /* HW: Sector size reported by block driver*/
-  off_t    fs_hwnsectors;          /* HW: The number of sectors reported by the hardware */
-  off_t    fs_fatbase;             /* Logical block of start of filesystem (past resd sectors) */
-  off_t    fs_rootbase;            /* MBR: Cluster no. of 1st cluster of root dir */
-  off_t    fs_database;            /* Logical block of start data sectors */
-  off_t    fs_fsinfo;              /* MBR: Sector number of FSINFO sector */
-  off_t    fs_currentsector;       /* The sector number buffered in fs_buffer */
-  uint32_t fs_nclusters;           /* Maximum number of data clusters */
-  uint32_t fs_nfatsects;           /* MBR: Count of sectors occupied by one fat */
-  uint32_t fs_fattotsec;           /* MBR: Total count of sectors on the volume */
-  uint32_t fs_fsifreecount;        /* FSI: Last free cluster count on volume */
-  uint32_t fs_fsinextfree;         /* FSI: Cluster number of 1st free cluster */
-  uint16_t fs_fatresvdseccount;    /* MBR: The total number of reserved sectors */
-  uint16_t fs_rootentcnt;          /* MBR: Count of 32-bit root directory entries */
-  bool     fs_mounted;             /* true: The file system is ready */
-  bool     fs_dirty;               /* true: fs_buffer is dirty */
-  bool     fs_fsidirty;            /* true: FSINFO sector must be written to disk */
-  uint8_t  fs_type;                /* FSTYPE_FAT12, FSTYPE_FAT16, or FSTYPE_FAT32 */
-  uint8_t  fs_fatnumfats;          /* MBR: Number of FATs (probably 2) */
-  uint8_t  fs_fatsecperclus;       /* MBR: Sectors per allocation unit: 2**n, n=0..7 */
-  uint8_t *fs_buffer;              /* This is an allocated buffer to hold one sector
-                                    * from the device */
-};
-
-/* This structure represents on open file under the mountpoint.  An instance
- * of this structure is retained as struct file specific information on each
- * opened file.
- */
-
-struct fat_file_s
-{
-  struct fat_file_s *ff_next;      /* Retained in a singly linked list */
-  uint8_t  ff_bflags;              /* The file buffer/mount flags */
-  uint8_t  ff_oflags;              /* Flags provided when file was opened */
-  uint8_t  ff_sectorsincluster;    /* Sectors remaining in cluster */
-  uint16_t ff_dirindex;            /* Index into ff_dirsector to directory entry */
-  uint32_t ff_currentcluster;      /* Current cluster being accessed */
-  off_t    ff_dirsector;           /* Sector containing the directory entry */
-  off_t    ff_size;                /* Size of the file in bytes */
-  off_t    ff_startcluster;        /* Start cluster of file on media */
-  off_t    ff_currentsector;       /* Current sector being operated on */
-  off_t    ff_cachesector;         /* Current sector in the file buffer */
-  uint8_t *ff_buffer;              /* File buffer (for partial sector accesses) */
-};
-
-/* This structure holds the sequence of directory entries used by one
- * file element (directory or file).  For short file names, this is
- * single diretory entry.  But for long file names, the is a sequence
- * of directory entries.  Long directory name entries appear in reverse
- * order: Last, next-to-last, ..., first.  The "first" long file name
- * directory is then following by the short directory name entry.  The
- * short file name entry contains the real meat of the file data.
- *
- * So it takes the sector number and entry offset of the last long
- * file name entry and of the short file name entry to define the
- * sequence.  In the case of short file names, the sector number and
- * offset will be the same.
- */
-
-struct fat_dirseq_s
-{
-  /* Sector offsets */
-
-  uint16_t ds_offset;              /* Sector offset to short file name entry */
-#ifdef CONFIG_FAT_LFN
-  uint16_t ds_lfnoffset;           /* Sector offset to last long file name entry */
-#endif
-
-  /* Sector and cluster numbers */
-
-  off_t    ds_sector;              /* Sector of the short file name entry */
-#ifdef CONFIG_FAT_LFN
-  off_t    ds_cluster;             /* Cluster containing the short file name entry */
-  off_t    ds_lfnsector;           /* Sector of the last long name entry */
-  off_t    ds_lfncluster;          /* Cluster containing the long file name entry */
-  off_t    ds_startsector;         /* Starting sector of the directory */
-#endif
-};
-
-/* This structure is used internally for describing directory entries */
-
-struct fat_dirinfo_s
-{
-  /* The file/directory name */
-
-#ifdef CONFIG_FAT_LFN
-  uint8_t fd_lfname[LDIR_MAXFNAME+1]; /* Long filename with terminator */
-#endif
-  uint8_t fd_name[DIR_MAXFNAME];   /* Short 8.3 alias filename (no terminator) */
-
-  /* NT flags are not used */
-
-#ifdef CONFIG_FAT_LCNAMES
-  uint8_t  fd_ntflags;             /* NTRes lower case flags */
-#endif
-
-  /* TRUE if this is the root directory */
-
-  bool     fd_root;
-
-  /* The following provides the sequence of directory entries used by the
-   * file or directory.
-   */
-
-  struct fat_dirseq_s fd_seq;      /* Directory sequence */
-
-  /* This is part of the opendir, readdir, ... logic */
-
-  struct fs_fatdir_s dir;          /* Used with opendir, readdir, etc. */
-};
-
-/* Generic helper macros ****************************************************/
-
-#ifndef MIN
-#  define MIN(a,b) (a < b ? a : b)
-#endif
-
-#ifndef MAX
-#  define MAX(a,b) (a > b ? a : b)
-#endif
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
-
-#undef EXTERN
-#if defined(__cplusplus)
-#define EXTERN extern "C"
-extern "C" {
-#else
-#define EXTERN extern
-#endif
-
-/* Utitilies to handle unaligned or byte swapped accesses */
-
-EXTERN uint16_t fat_getuint16(uint8_t *ptr);
-EXTERN uint32_t fat_getuint32(uint8_t *ptr);
-EXTERN void   fat_putuint16(uint8_t *ptr, uint16_t value16);
-EXTERN void   fat_putuint32(uint8_t *ptr, uint32_t value32);
-
-/* Manage the per-mount semaphore that protects access to shared resources */
-
-EXTERN void   fat_semtake(struct fat_mountpt_s *fs);
-EXTERN void   fat_semgive(struct fat_mountpt_s *fs);
-
-/* Get the current time for FAT creation and write times */
-
-EXTERN uint32_t fat_systime2fattime(void);
-EXTERN time_t fat_fattime2systime(uint16_t fattime, uint16_t fatdate);
-
-/* Handle hardware interactions for mounting */
-
-EXTERN int    fat_mount(struct fat_mountpt_s *fs, bool writeable);
-EXTERN int    fat_checkmount(struct fat_mountpt_s *fs);
-
-/* low-level hardware access */
-
-EXTERN int    fat_hwread(struct fat_mountpt_s *fs, uint8_t *buffer,
-                         off_t sector, unsigned int nsectors);
-EXTERN int    fat_hwwrite(struct fat_mountpt_s *fs, uint8_t *buffer,
-                          off_t sector, unsigned int nsectors);
-
-/* Cluster / cluster chain access helpers */
-
-EXTERN off_t  fat_cluster2sector(struct fat_mountpt_s *fs,  uint32_t cluster);
-EXTERN off_t  fat_getcluster(struct fat_mountpt_s *fs, uint32_t clusterno);
-EXTERN int    fat_putcluster(struct fat_mountpt_s *fs, uint32_t clusterno,
-                             off_t startsector);
-EXTERN int    fat_removechain(struct fat_mountpt_s *fs, uint32_t cluster);
-EXTERN int32_t fat_extendchain(struct fat_mountpt_s *fs, uint32_t cluster);
-
-#define fat_createchain(fs) fat_extendchain(fs, 0)
-
-/* Help for traversing directory trees and accessing directory entries */
-
-EXTERN int    fat_nextdirentry(struct fat_mountpt_s *fs, struct fs_fatdir_s *dir);
-EXTERN int    fat_finddirentry(struct fat_mountpt_s *fs, struct fat_dirinfo_s *dirinfo,
-                               const char *path);
-EXTERN int    fat_dirnamewrite(struct fat_mountpt_s *fs, struct fat_dirinfo_s *dirinfo);
-EXTERN int    fat_dirwrite(struct fat_mountpt_s *fs, struct fat_dirinfo_s *dirinfo,
-                           uint8_t attributes, uint32_t fattime);
-EXTERN int    fat_allocatedirentry(struct fat_mountpt_s *fs, struct fat_dirinfo_s *dirinfo);
-EXTERN int    fat_freedirentry(struct fat_mountpt_s *fs, struct fat_dirseq_s *seq);
-EXTERN int    fat_dirname2path(struct fat_mountpt_s *fs, struct fs_dirent_s *dir);
-
-/* File creation and removal helpers */
-
-EXTERN int    fat_dirtruncate(struct fat_mountpt_s *fs, struct fat_dirinfo_s *dirinfo);
-EXTERN int    fat_dircreate(struct fat_mountpt_s *fs, struct fat_dirinfo_s *dirinfo);
-EXTERN int    fat_remove(struct fat_mountpt_s *fs, const char *relpath, bool directory);
-
-/* Mountpoint and file buffer cache (for partial sector accesses) */
-
-EXTERN int    fat_fscacheflush(struct fat_mountpt_s *fs);
-EXTERN int    fat_fscacheread(struct fat_mountpt_s *fs, off_t sector);
-EXTERN int    fat_ffcacheflush(struct fat_mountpt_s *fs, struct fat_file_s *ff);
-EXTERN int    fat_ffcacheread(struct fat_mountpt_s *fs, struct fat_file_s *ff, off_t sector);
-EXTERN int    fat_ffcacheinvalidate(struct fat_mountpt_s *fs, struct fat_file_s *ff);
-
-/* FSINFO sector support */
-
-EXTERN int    fat_updatefsinfo(struct fat_mountpt_s *fs);
-EXTERN int    fat_nfreeclusters(struct fat_mountpt_s *fs, off_t *pfreeclusters);
-EXTERN int    fat_currentsector(struct fat_mountpt_s *fs, struct fat_file_s *ff, off_t position);
-
-#undef EXTERN
-#if defined(__cplusplus)
-}
-#endif
 
 #endif /* __APPS_FSUTILS_MKFATFS_FAT32_H */
