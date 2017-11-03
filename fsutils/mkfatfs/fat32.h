@@ -499,61 +499,6 @@
  * accessed byte-by-byte.
  */
 
-# define MBR_GETRESVDSECCOUNT(p)   fat_getuint16(UBYTE_PTR(p,BS_RESVDSECCOUNT))
-# define MBR_GETFATSZ16(p)         fat_getuint16(UBYTE_PTR(p,BS_FATSZ16))
-# define MBR_GETSECPERTRK(p)       fat_getuint16(UBYTE_PTR(p,BS_SECPERTRK))
-# define MBR_GETNUMHEADS(p)        fat_getuint16(UBYTE_PTR(p,BS_NUMHEADS))
-# define MBR_GETHIDSEC(p)          fat_getuint32(UBYTE_PTR(p,BS_HIDSEC))
-# define MBR_GETTOTSEC32(p)        fat_getuint32(UBYTE_PTR(p,BS_TOTSEC32))
-# define MBR_GETFATSZ32(p)         fat_getuint32(UBYTE_PTR(p,BS32_FATSZ32))
-# define MBR_GETEXTFLAGS(p)        fat_getuint16(UBYTE_PTR(p,BS32_EXTFLAGS))
-# define MBR_GETFSVER(p)           fat_getuint16(UBYTE_PTR(p,BS32_FSVER))
-# define MBR_GETROOTCLUS(p)        fat_getuint32(UBYTE_PTR(p,BS32_ROOTCLUS))
-# define MBR_GETFSINFO(p)          fat_getuint16(UBYTE_PTR(p,BS32_FSINFO))
-# define MBR_GETBKBOOTSEC(p)       fat_getuint16(UBYTE_PTR(p,BS32_BKBOOTSEC))
-# define MBR_GETSIGNATURE(p)       fat_getuint16(UBYTE_PTR(p,BS_SIGNATURE))
-
-# define FSI_GETLEADSIG(p)         fat_getuint32(UBYTE_PTR(p,FSI_LEADSIG))
-# define FSI_GETSTRUCTSIG(p)       fat_getuint32(UBYTE_PTR(p,FSI_STRUCTSIG))
-# define FSI_GETFREECOUNT(p)       fat_getuint32(UBYTE_PTR(p,FSI_FREECOUNT))
-# define FSI_GETNXTFREE(p)         fat_getuint32(UBYTE_PTR(p,FSI_NXTFREE))
-# define FSI_GETTRAILSIG(p)        fat_getuint32(UBYTE_PTR(p,FSI_TRAILSIG))
-
-# define DIR_GETCRTIME(p)          fat_getuint16(UBYTE_PTR(p,DIR_CRTIME))
-# define DIR_GETCRDATE(p)          fat_getuint16(UBYTE_PTR(p,DIR_CRDATE))
-# define DIR_GETLASTACCDATE(p)     fat_getuint16(UBYTE_PTR(p,DIR_LASTACCDATE))
-# define DIR_GETFSTCLUSTHI(p)      fat_getuint16(UBYTE_PTR(p,DIR_FSTCLUSTHI))
-# define DIR_GETWRTTIME(p)         fat_getuint16(UBYTE_PTR(p,DIR_WRTTIME))
-# define DIR_GETWRTDATE(p)         fat_getuint16(UBYTE_PTR(p,DIR_WRTDATE))
-# define DIR_GETFSTCLUSTLO(p)      fat_getuint16(UBYTE_PTR(p,DIR_FSTCLUSTLO))
-# define DIR_GETFILESIZE(p)        fat_getuint32(UBYTE_PTR(p,DIR_FILESIZE))
-
-# ifdef CONFIG_FAT_LFN
-#  define LDIR_GETWCHAR1(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR1_5))
-#  define LDIR_GETWCHAR2(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+2))
-#  define LDIR_GETWCHAR3(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+4))
-#  define LDIR_GETWCHAR4(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+6))
-#  define LDIR_GETWCHAR5(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR1_5+8))
-#  define LDIR_GETWCHAR6(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR6_11))
-#  define LDIR_GETWCHAR7(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+2))
-#  define LDIR_GETWCHAR8(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+4))
-#  define LDIR_GETWCHAR9(p)        fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+6))
-#  define LDIR_GETWCHAR10(p)       fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+8))
-#  define LDIR_GETWCHAR11(p)       fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR6_11+10))
-#  define LDIR_GETWCHAR12(p)       fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR12_13))
-#  define LDIR_GETWCHAR13(p)       fat_getuint16(UBYTE_PTR(p,LDIR_WCHAR12_13+2))
-#  define LDIR_GETFSTCLUSTLO(p)    fat_getuint16(UBYTE_PTR(p,LDIR_FSTCLUSTLO))
-# endif
-
-# define FSI_GETLEADSIG(p)         fat_getuint32(UBYTE_PTR(p,FSI_LEADSIG))
-# define FSI_GETSTRUCTSIG(p)       fat_getuint32(UBYTE_PTR(p,FSI_STRUCTSIG))
-# define FSI_GETFREECOUNT(p)       fat_getuint32(UBYTE_PTR(p,FSI_FREECOUNT))
-# define FSI_GETNXTFREE(p)         fat_getuint32(UBYTE_PTR(p,FSI_NXTFREE))
-# define FSI_GETTRAILSIG(p)        fat_getuint32(UBYTE_PTR(p,FSI_TRAILSIG))
-
-# define FAT_GETFAT16(p,i)         fat_getuint16(UBYTE_PTR(p,i))
-# define FAT_GETFAT32(p,i)         fat_getuint32(UBYTE_PTR(p,i))
-
 # define MBR_PUTRESVDSECCOUNT(p,v) FAT_PUTUINT16(UBYTE_PTR(p,BS_RESVDSECCOUNT),v)
 # define MBR_PUTFATSZ16(p,v)       FAT_PUTUINT16(UBYTE_PTR(p,BS_FATSZ16),v)
 # define MBR_PUTSECPERTRK(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,BS_SECPERTRK),v)
@@ -613,60 +558,6 @@
 /* But nothing special has to be done for the little endian-case for access
  * to aligned mulitbyte values.
  */
-
-# define MBR_GETRESVDSECCOUNT(p)   UINT16_VAL(p,BS_RESVDSECCOUNT)
-# define MBR_GETFATSZ16(p)         UINT16_VAL(p,BS_FATSZ16)
-# define MBR_GETSECPERTRK(p)       UINT16_VAL(p,BS_SECPERTRK)
-# define MBR_GETNUMHEADS(p)        UINT16_VAL(p,BS_NUMHEADS)
-# define MBR_GETHIDSEC(p)          UINT32_VAL(p,BS_HIDSEC)
-# define MBR_GETTOTSEC32(p)        UINT32_VAL(p,BS_TOTSEC32)
-# define MBR_GETFATSZ32(p)         UINT32_VAL(p,BS32_FATSZ32)
-# define MBR_GETEXTFLAGS(p)        UINT16_VAL(p,BS32_EXTFLAGS)
-# define MBR_GETFSVER(p)           UINT16_VAL(p,BS32_FSVER)
-# define MBR_GETROOTCLUS(p)        UINT32_VAL(p,BS32_ROOTCLUS)
-# define MBR_GETFSINFO(p)          UINT16_VAL(p,BS32_FSINFO)
-# define MBR_GETBKBOOTSEC(p)       UINT16_VAL(p,BS32_BKBOOTSEC)
-# define MBR_GETSIGNATURE(p)       UINT16_VAL(p,BS_SIGNATURE)
-
-# define FSI_GETLEADSIG(p)         UINT32_VAL(p,FSI_LEADSIG)
-# define FSI_GETSTRUCTSIG(p)       UINT32_VAL(p,FSI_STRUCTSIG)
-# define FSI_GETFREECOUNT(p)       UINT32_VAL(p,FSI_FREECOUNT)
-# define FSI_GETNXTFREE(p)         UINT32_VAL(p,FSI_NXTFREE)
-# define FSI_GETTRAILSIG(p)        UINT32_VAL(p,FSI_TRAILSIG)
-
-# define DIR_GETCRTIME(p)          UINT16_VAL(p,DIR_CRTIME)
-# define DIR_GETCRDATE(p)          UINT16_VAL(p,DIR_CRDATE)
-# define DIR_GETLASTACCDATE(p)     UINT16_VAL(p,DIR_LASTACCDATE)
-# define DIR_GETFSTCLUSTHI(p)      UINT16_VAL(p,DIR_FSTCLUSTHI)
-# define DIR_GETWRTTIME(p)         UINT16_VAL(p,DIR_WRTTIME)
-# define DIR_GETWRTDATE(p)         UINT16_VAL(p,DIR_WRTDATE)
-# define DIR_GETFSTCLUSTLO(p)      UINT16_VAL(p,DIR_FSTCLUSTLO)
-# define DIR_GETFILESIZE(p)        UINT32_VAL(p,DIR_FILESIZE)
-
-# ifdef CONFIG_FAT_LFN
-#  define LDIR_GETWCHAR1(p)        UINT16_VAL(p,LDIR_WCHAR1_5)
-#  define LDIR_GETWCHAR2(p)        UINT16_VAL(p,LDIR_WCHAR1_5+2)
-#  define LDIR_GETWCHAR3(p)        UINT16_VAL(p,LDIR_WCHAR1_5+4)
-#  define LDIR_GETWCHAR4(p)        UINT16_VAL(p,LDIR_WCHAR1_5+6)
-#  define LDIR_GETWCHAR5(p)        UINT16_VAL(p,LDIR_WCHAR1_5+8)
-#  define LDIR_GETWCHAR6(p)        UINT16_VAL(p,LDIR_WCHAR6_11)
-#  define LDIR_GETWCHAR7(p)        UINT16_VAL(p,LDIR_WCHAR6_11+2)
-#  define LDIR_GETWCHAR8(p)        UINT16_VAL(p,LDIR_WCHAR6_11+4)
-#  define LDIR_GETWCHAR9(p)        UINT16_VAL(p,LDIR_WCHAR6_11+6)
-#  define LDIR_GETWCHAR10(p)       UINT16_VAL(p,LDIR_WCHAR6_11+8)
-#  define LDIR_GETWCHAR11(p)       UINT16_VAL(p,LDIR_WCHAR6_11+10)
-#  define LDIR_GETWCHAR12(p)       UINT16_VAL(p,LDIR_WCHAR12_13)
-#  define LDIR_GETWCHAR13(p)       UINT16_VAL(p,LDIR_WCHAR12_13+2)
-# endif
-
-# define FSI_GETLEADSIG(p)         UINT32_VAL(p,FSI_LEADSIG)
-# define FSI_GETSTRUCTSIG(p)       UINT32_VAL(p,FSI_STRUCTSIG)
-# define FSI_GETFREECOUNT(p)       UINT32_VAL(p,FSI_FREECOUNT)
-# define FSI_GETNXTFREE(p)         UINT32_VAL(p,FSI_NXTFREE)
-# define FSI_GETTRAILSIG(p)        UINT32_VAL(p,FSI_TRAILSIG)
-
-# define FAT_GETFAT16(p,i)         UINT16_VAL(p,i)
-# define FAT_GETFAT32(p,i)         UINT32_VAL(p,i)
 
 # define MBR_PUTRESVDSECCOUNT(p,v) UINT16_PUT(p,BS_RESVDSECCOUNT,v)
 # define MBR_PUTFATSZ16(p,v)       UINT16_PUT(p,BS_FATSZ16,v)
