@@ -96,8 +96,12 @@
 #  define NETLIB_SOCK_FAMILY  AF_PACKET
 #elif defined(CONFIG_NET_IEEE802154)
 #  define NETLIB_SOCK_FAMILY  AF_IEEE802154
+#elif defined(CONFIG_WIRELESS_PKTRADIO)
+#  define NETLIB_SOCK_FAMILY  AF_PKTRADIO
 #elif defined(CONFIG_NET_USRSOCK)
 #  define NETLIB_SOCK_FAMILY  AF_INET
+#else
+#  define NETLIB_SOCK_FAMILY  AF_UNSPEC
 #endif
 
 /* Socket protocol of zero normally works */
