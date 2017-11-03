@@ -145,7 +145,6 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
           fprintf(stderr, "ERROR: invalid mode. Options: s|e\n");
           i8sak_cmd_error(i8sak);
         }
-
     }
   else if (strcmp(argv[argind], "ep_saddr") == 0)
     {
@@ -156,8 +155,8 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
         {
           i8sak_update_ep_ip(i8sak);
         }
-    }
 #endif
+    }
   else if (strcmp(argv[argind], "ep_eaddr") == 0)
     {
       i8sak_str2eaddr(argv[argind + 1], i8sak->ep_addr.eaddr);
@@ -214,6 +213,7 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             {
               u.attr.phy.chan = i8sak_str2luint8(argv[argind + 1]);
               ieee802154_setchan(fd, u.attr.phy.chan);
+              i8sak->chan = u.attr.phy.chan;
             }
           else if (strcmp(argv[argind], "panid") == 0)
             {
@@ -249,6 +249,7 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             {
               u.attr.phy.chan = i8sak_str2luint8(argv[argind + 1]);
               sixlowpan_setchan(fd, i8sak->ifname, u.attr.phy.chan);
+              i8sak->chan = u.attr.phy.chan;
             }
           else if (strcmp(argv[argind], "panid") == 0)
             {

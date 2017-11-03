@@ -171,7 +171,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             break;
         }
     }
-#if CONFIG_NET_6LOWPAN
+#ifdef CONFIG_NET_6LOWPAN
   else if (strcmp(argv[argind], "ep_port") == 0)
     {
       printf("i8sak: Endpoint Port: %d\n", NTOHS(i8sak->ep_in6addr.sin6_port));
