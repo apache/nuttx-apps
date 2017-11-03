@@ -391,31 +391,6 @@
  * accessed byte-by-byte for big-endian targets.
  */
 
-#define MBR_GETSECPERCLUS(p)      UBYTE_VAL(p,BS_SECPERCLUS)
-#define MBR_GETNUMFATS(p)         UBYTE_VAL(p,BS_NUMFATS)
-#define MBR_GETMEDIA(p)           UBYTE_VAL(p,BS_MEDIA)
-#define MBR_GETDRVNUM16(p)        UBYTE_VAL(p,BS16_DRVNUM)
-#define MBR_GETDRVNUM32(p)        UBYTE_VAL(p,BS32_DRVNUM)
-#define MBR_GETBOOTSIG16(p)       UBYTE_VAL(p,BS16_BOOTSIG)
-#define MBR_GETBOOTSIG32(p)       UBYTE_VAL(p,BS32_BOOTSIG)
-
-#define PART_GETTYPE(n,p)         UBYTE_VAL(p,PART_ENTRY(n)+PART_TYPE)
-#define PART1_GETTYPE(p)          UBYTE_VAL(p,PART_ENTRY1+PART_TYPE)
-#define PART2_GETTYPE(p)          UBYTE_VAL(p,PART_ENTRY2+PART_TYPE)
-#define PART3_GETTYPE(p)          UBYTE_VAL(p,PART_ENTRY3+PART_TYPE)
-#define PART4_GETTYPE(p)          UBYTE_VAL(p,PART_ENTRY4+PART_TYPE)
-
-#define DIR_GETATTRIBUTES(p)      UBYTE_VAL(p,DIR_ATTRIBUTES)
-#define DIR_GETNTRES(p)           UBYTE_VAL(p,DIR_NTRES)
-#define DIR_GETCRTTIMETENTH(p)    UBYTE_VAL(p,DIR_CRTTIMETENTH)
-
-#ifdef CONFIG_FAT_LFN
-# define LDIR_GETSEQ(p)           UBYTE_VAL(p,LDIR_SEQ)
-# define LDIR_GETATTRIBUTES(p)    UBYTE_VAL(p,LDIR_ATTRIBUTES)
-# define LDIR_GETNTRES(p)         UBYTE_VAL(p,LDIR_NTRES)
-# define LDIR_GETCHECKSUM(p)      UBYTE_VAL(p,LDIR_CHECKSUM)
-#endif
-
 #define MBR_PUTSECPERCLUS(p,v)    UBYTE_PUT(p,BS_SECPERCLUS,v)
 #define MBR_PUTNUMFATS(p,v)       UBYTE_PUT(p,BS_NUMFATS,v)
 #define MBR_PUTMEDIA(p,v)         UBYTE_PUT(p,BS_MEDIA,v)
@@ -447,23 +422,6 @@
  */
 
 /* Unaligned multi-byte access macros */
-
-#define MBR_GETBYTESPERSEC(p)      fat_getuint16(UBYTE_PTR(p,BS_BYTESPERSEC))
-#define MBR_GETROOTENTCNT(p)       fat_getuint16(UBYTE_PTR(p,BS_ROOTENTCNT))
-#define MBR_GETTOTSEC16(p)         fat_getuint16(UBYTE_PTR(p,BS_TOTSEC16))
-#define MBR_GETVOLID16(p)          fat_getuint32(UBYTE_PTR(p,BS16_VOLID))
-#define MBR_GETVOLID32(p)          fat_getuint32(UBYTE_PTR(p,BS32_VOLID))
-
-#define PART_GETSTARTSECTOR(n,p)   fat_getuint32(UBYTE_PTR(p,PART_ENTRY(n)+PART_STARTSECTOR))
-#define PART_GETSIZE(n,p)          fat_getuint32(UBYTE_PTR(p,PART_ENTRY(n)+PART_SIZE))
-#define PART1_GETSTARTSECTOR(p)    fat_getuint32(UBYTE_PTR(p,PART_ENTRY1+PART_STARTSECTOR))
-#define PART1_GETSIZE(p)           fat_getuint32(UBYTE_PTR(p,PART_ENTRY1+PART_SIZE))
-#define PART2_GETSTARTSECTOR(p)    fat_getuint32(UBYTE_PTR(p,PART_ENTRY2+PART_STARTSECTOR))
-#define PART2_GETSIZE(p)           fat_getuint32(UBYTE_PTR(p,PART_ENTRY2+PART_SIZE))
-#define PART3_GETSTARTSECTOR(p)    fat_getuint32(UBYTE_PTR(p,PART_ENTRY3+PART_STARTSECTOR))
-#define PART3_GETSIZE(p)           fat_getuint32(UBYTE_PTR(p,PART_ENTRY3+PART_SIZE))
-#define PART4_GETSTARTSECTOR(p)    fat_getuint32(UBYTE_PTR(p,PART_ENTRY4+PART_STARTSECTOR))
-#define PART4_GETSIZE(p)           fat_getuint32(UBYTE_PTR(p,PART_ENTRY4+PART_SIZE))
 
 #define MBR_PUTBYTESPERSEC(p,v)    FAT_PUTUINT16(UBYTE_PTR(p,BS_BYTESPERSEC),v)
 #define MBR_PUTROOTENTCNT(p,v)     FAT_PUTUINT16(UBYTE_PTR(p,BS_ROOTENTCNT),v)
