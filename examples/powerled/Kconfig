@@ -6,8 +6,6 @@
 config EXAMPLES_POWERLED
 	bool "Powerled example"
 	default n
-	select POWERLED_LIBRARY
-	select SYSTEM_READLINE
 	---help---
 		Enable the powerled driver example
 
