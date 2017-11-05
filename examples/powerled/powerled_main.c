@@ -533,7 +533,7 @@ int powerled_main(int argc, char *argv[])
                       config = false;
                     }
 
-                  printf("Brightness is %0.2f\n", powerled_params.brightness);
+                  printf("Brightness is %.2f\n", powerled_params.brightness);
 
                   /* Set Powerled parameters */
 
@@ -591,13 +591,13 @@ int powerled_main(int argc, char *argv[])
                           printf("failed to set powerled mode %d \n", ret);
                         }
 
-                      printf("Brightness is %0.2f\n", powerled_params.brightness);
-                      printf("Duty is %0.2f\n", powerled_params.duty);
+                      printf("Brightness is %.2f\n", powerled_params.brightness);
+                      printf("Duty is %.2f\n", powerled_params.duty);
 
                       config = false;
                     }
 
-                  printf("Frequency is %0.2f\n", powerled_params.frequency);
+                  printf("Frequency is %.2f\n", powerled_params.frequency);
 
                   /* Set Powerled parameters */
 

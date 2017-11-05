@@ -336,21 +336,21 @@ static int validate_args(FAR struct args_s *args)
   if (args->current < 0 ||
       args->current > (((float)CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT)/1000.0))
     {
-      printf("Not valid current value: %0.2f\n", args->current);
+      printf("Not valid current value: %.2f\n", args->current);
       goto errout;
     }
 
   if (args->voltage < 0 ||
       args->voltage > (((float)CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT)/1000.0))
     {
-      printf("Not valid voltage value: %0.2f\n", args->voltage);
+      printf("Not valid voltage value: %.2f\n", args->voltage);
       goto errout;
     }
 
   if (args->power < 0 ||
       args->power > (((float)CONFIG_EXAMPLES_SMPS_OUT_POWER_LIMIT)/1000.0))
     {
-      printf("Not valid power value: %0.2f\n", args->power);
+      printf("Not valid power value: %.2f\n", args->power);
       goto errout;
     }
 
@@ -397,22 +397,22 @@ void print_info(struct smps_limits_s *limits, struct smps_params_s *params,
   printf("\n");
 
 #if CONFIG_EXAMPLES_SMPS_OUT_VOLTAGE_LIMIT > 0
-  printf("  Output voltage limit set to %0.2f\n", limits->v_out);
+  printf("  Output voltage limit set to %.2f\n", limits->v_out);
 #endif
 #if CONFIG_EXAMPLES_SMPS_IN_VOLTAGE_LIMIT > 0
-  printf("  Input voltage limit set to %0.2f\n", limits->v_in);
+  printf("  Input voltage limit set to %.2f\n", limits->v_in);
 #endif
 #if CONFIG_EXAMPLES_SMPS_OUT_CURRENT_LIMIT > 0
-  printf("  Output current limit set to %0.2f\n", limits->i_out);
+  printf("  Output current limit set to %.2f\n", limits->i_out);
 #endif
 #if CONFIG_EXAMPLES_SMPS_IN_CURRENT_LIMIT > 0
-  printf("  Input current limit set to %0.2f\n", limits->i_in);
+  printf("  Input current limit set to %.2f\n", limits->i_in);
 #endif
 #if CONFIG_EXAMPLES_SMPS_OUT_POWER_LIMIT > 0
-  printf("  Output power limit set to %0.2f\n", limits->p_out);
+  printf("  Output power limit set to %.2f\n", limits->p_out);
 #endif
 #if CONFIG_EXAMPLES_SMPS_IN_POWER_LIMIT > 0
-  printf("  Input power limit set to %0.2f\n", limits->p_in);
+  printf("  Input power limit set to %.2f\n", limits->p_in);
 #endif
 
   printf("\n");
@@ -421,17 +421,17 @@ void print_info(struct smps_limits_s *limits, struct smps_params_s *params,
 
   if (params->v_out > 0)
     {
-      printf("  Output voltage set to %0.2f\n", params->v_out);
+      printf("  Output voltage set to %.2f\n", params->v_out);
     }
 
   if (params->i_out > 0)
     {
-      printf("  Output current set to %0.2f\n", params->i_out);
+      printf("  Output current set to %.2f\n", params->i_out);
     }
 
   if (params->p_out > 0)
     {
-      printf("  Output power set to %0.2f\n", params->p_out);
+      printf("  Output power set to %.2f\n", params->p_out);
     }
 
   printf("-------------------------------------\n\n");
