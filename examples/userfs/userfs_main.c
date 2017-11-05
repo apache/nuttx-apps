@@ -252,7 +252,11 @@ static int ufstest_open(FAR void *volinfo, FAR const char *relpath,
 
 static int ufstest_close(FAR void *volinfo, FAR void *openinfo)
 {
-  free(openinfo);
+  if (openinfo != NULL)
+    {
+      free(openinfo);
+    }
+
   return OK;
 }
 
@@ -405,7 +409,11 @@ static int ufstest_opendir(FAR void *volinfo, FAR const char *relpath,
 
 static int ufstest_closedir(FAR void *volinfo, FAR void *dir)
 {
-  free(dir);
+  if (dir != NULL)
+    {
+      free(dir);
+    }
+
   return OK;
 }
 
