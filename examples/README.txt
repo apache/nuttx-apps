@@ -737,17 +737,6 @@ examples/lis2csh_reader
   A simple reader example for the LIS3DSH acceleration sensor as found on
   STM32F4Discovery rev. C
 
-examples/ltdc
-^^^^^^^^^^^^^
-
-  STM32 LTDC framebuffer example.  Depends on:
-
-  * CONFIG_STM32_LTDC
-
-  Enabled with:
-
-  * CONFIG_EXAMPLES_LTDC
-
 examples/media
 ^^^^^^^^^^^^^^
 
