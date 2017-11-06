@@ -233,6 +233,11 @@ static int ufstest_open(FAR void *volinfo, FAR const char *relpath,
           return -ENOMEM;
         }
 
+      if ((oflags & O_TRUNC) != 0)
+        {
+          file->inuse = 0;
+        }
+
       if ((oflags & (O_WROK | O_APPEND)) == (O_WROK | O_APPEND))
         {
           opriv->pos = file->inuse;
