@@ -81,15 +81,19 @@
  *
  ****************************************************************************/
 
-int ftpc_sockinit(FAR struct ftpc_socket_s *sock)
+int ftpc_sockinit(FAR struct ftpc_socket_s *sock, sa_family_t family)
 {
   /* Initialize the socket structure */
 
   memset(sock, 0, sizeof(struct ftpc_socket_s));
 
+  DEBUGASSERT(family == AF_INET || family == AF_INET6);
+
+  sock->laddr.sa.sa_family = family;
+
   /* Create a socket descriptor */
 
-  sock->sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  sock->sd = socket(family, SOCK_STREAM, IPPROTO_TCP);
   if (sock->sd < 0)
     {
       nerr("ERROR: socket() failed: %d\n", errno);
@@ -142,7 +146,7 @@ errout:
  *
  ****************************************************************************/
 
-void ftpc_sockclose(struct ftpc_socket_s *sock)
+void ftpc_sockclose(FAR struct ftpc_socket_s *sock)
 {
   /* Note that the same underlying socket descriptor is used for both streams.
    * There should be harmless failures on the second fclose and the close.
@@ -164,13 +168,31 @@ void ftpc_sockclose(struct ftpc_socket_s *sock)
  *
  ****************************************************************************/
 
-int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
+int ftpc_sockconnect(FAR struct ftpc_socket_s *sock, FAR struct sockaddr *addr)
 {
   int ret;
 
   /* Connect to the server */
 
-  ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr));
+#ifdef CONFIG_NET_IPv6
+  if (addr->sa_family == AF_INET6)
+    {
+      ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr_in6));
+    }
+  else
+#endif
+#ifdef CONFIG_NET_IPv4
+  if (addr->sa_family == AF_INET)
+    {
+      ret = connect(sock->sd, (struct sockaddr *)addr, sizeof(struct sockaddr_in));
+    }
+  else
+#endif
+    {
+      nerr("ERROR: Unsupported address family\n");
+      return ERROR;
+    }
+
   if (ret < 0)
     {
       nerr("ERROR: connect() failed: %d\n", errno);
@@ -201,7 +223,7 @@ int ftpc_sockconnect(struct ftpc_socket_s *sock, struct sockaddr_in *addr)
 void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
                    FAR const struct ftpc_socket_s *src)
 {
-  memcpy(&dest->laddr, &src->laddr, sizeof(struct sockaddr_in));
+  memcpy(&dest->laddr, &src->laddr, sizeof(dest->laddr));
   dest->connected = ftpc_sockconnected(src);
 }
 
@@ -209,7 +231,7 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  * Name: ftpc_sockaccept
  *
  * Description:
- *   Accept a connection on the data socket.  This function is onlly used
+ *   Accept a connection on the data socket.  This function is only used
  *   in active mode.
  *
  *   In active mode FTP the client connects from a random port (N>1023) to the
@@ -230,9 +252,10 @@ void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
  *
  ****************************************************************************/
 
-int ftpc_sockaccept(FAR struct ftpc_socket_s *sock)
+int ftpc_sockaccept(FAR struct ftpc_socket_s *acceptor,
+                    FAR struct ftpc_socket_s *sock)
 {
-  struct sockaddr addr;
+  union ftpc_sockaddr_u addr;
   socklen_t addrlen;
 
   /* Any previous socket should have been uninitialized (0) or explicitly
@@ -247,14 +270,14 @@ int ftpc_sockaccept(FAR struct ftpc_socket_s *sock)
     }
 
   addrlen  = sizeof(addr);
-  sock->sd = accept(sock->sd, &addr, &addrlen);
+  sock->sd = accept(acceptor->sd, (struct sockaddr *)&addr, &addrlen);
   if (sock->sd == -1)
     {
       nerr("ERROR: accept() failed: %d\n", errno);
       return ERROR;
     }
 
-  memcpy(&sock->laddr, &addr, sizeof(sock->laddr));
+  memcpy(&sock->laddr, &addr, sizeof(union ftpc_sockaddr_u));
 
   /* Create in/out C buffer I/O streams on the data channel.  First,
    * create the incoming buffered stream.
@@ -299,15 +322,35 @@ errout_with_sd:
  *
  ****************************************************************************/
 
-int ftpc_socklisten(struct ftpc_socket_s *sock)
+int ftpc_socklisten(FAR struct ftpc_socket_s *sock)
 {
-  unsigned int addrlen = sizeof(sock->laddr);
   int ret;
 
   /* Bind the local socket to the local address */
 
-  sock->laddr.sin_port = 0;
-  ret = bind(sock->sd, (struct sockaddr *)&sock->laddr, addrlen);
+#ifdef CONFIG_NET_IPv6
+  if (sock->laddr.sa.sa_family == AF_INET6)
+    {
+      sock->laddr.in6.sin6_port = 0;
+      ret = bind(sock->sd, (struct sockaddr *)&sock->laddr,
+                 sizeof(struct sockaddr_in6));
+    }
+  else
+#endif
+#ifdef CONFIG_NET_IPv4
+  if (sock->laddr.sa.sa_family == AF_INET)
+    {
+      sock->laddr.in4.sin_port = 0;
+      ret = bind(sock->sd, (struct sockaddr *)&sock->laddr,
+                 sizeof(struct sockaddr_in));
+    }
+  else
+#endif
+    {
+      nerr("ERROR: unsupported family\n");
+      return ERROR;
+    }
+
   if (ret < 0)
     {
       nerr("ERROR: bind() failed: %d\n", errno);
@@ -335,7 +378,7 @@ int ftpc_socklisten(struct ftpc_socket_s *sock)
  *
  ****************************************************************************/
 
-int ftpc_sockprintf(struct ftpc_socket_s *sock, const char *fmt, ...)
+int ftpc_sockprintf(FAR struct ftpc_socket_s *sock, FAR const char *fmt, ...)
 {
   va_list ap;
   int r;
@@ -355,10 +398,12 @@ int ftpc_sockprintf(struct ftpc_socket_s *sock, const char *fmt, ...)
  ****************************************************************************/
 
 int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
-                         FAR struct sockaddr_in *addr)
+                         FAR union ftpc_sockaddr_u *addr)
 {
-  socklen_t len = sizeof(struct sockaddr_in);
+  socklen_t len;
   int ret;
+
+  len = sizeof(union ftpc_sockaddr_u);
 
   ret = getsockname(sock->sd, (FAR struct sockaddr *)addr, &len);
   if (ret < 0)

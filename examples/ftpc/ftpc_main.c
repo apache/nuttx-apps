@@ -56,6 +56,16 @@
 
 #define FTPC_MAX_ARGUMENTS 4
 
+/* If FTP is used and both IPv6 and IPv4 are enabled, then we need to
+ * pick one.
+ */
+
+#ifdef CONFIG_NET_IPv6
+#  define ADDR_FAMILY AF_INET6
+#else
+#  define ADDR_FAMILY AF_INET
+#endif
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -361,39 +371,72 @@ int main(int argc, FAR char *argv[])
 int ftpc_main(int argc, char **argv, char **envp)
 #endif
 {
-  struct ftpc_connect_s connect = {{0}, 0};
+  union ftpc_sockaddr_u server;
   SESSION handle;
+#if ADDR_FAMILY == AF_INET
   FAR char *ptr;
+#endif
 #ifndef CONFIG_EXAMPLES_FTPC_FGETS
   int ret;
 #endif
 
+  memset(&server, 0, sizeof(union ftpc_sockaddr_u));
+
   if (argc != 2)
     {
+#if ADDR_FAMILY == CONFIG_NET_IPv6
+      printf("Usage:\n");
+      printf("   %s xx:xx:xx:xx:xx:xx:xx:xx [pp]\n", argv[0]);
+      printf("Where\n");
+      printf("  xx:xx:xx:xx:xx:xx:xx:xx is the IP address of the FTP server\n");
+      printf("  pp is option port to use with the FTP server\n");
+#else
       printf("Usage:\n");
       printf("   %s xx.xx.xx.xx[:pp]\n", argv[0]);
       printf("Where\n");
       printf("  xx.xx.xx.xx is the IP address of the FTP server\n");
       printf("  pp is option port to use with the FTP server\n");
+#endif
       exit(1);
     }
 
+  /* In any event, we can now extract the IP address from the comman-line */
+
+#if ADDR_FAMILY == AF_INET6
+  server.in6.sin6_family = AF_INET6;
+  ret = inet_pton(AF_INET6, argv[1], &server.in6.sin6_addr);
+  if (ret < 0)
+    {
+      printf("Invalid IPv6 address\n");
+      exit(1);
+    }
+
+  if (argc > 2)
+    {
+      server.in6.sin6_port = atoi(argv[2]);
+    }
+#else
   /* Check if the argument includes a port number */
 
   ptr = strchr(argv[1], ':');
   if (ptr)
     {
       *ptr = '\0';
-      connect.port = atoi(ptr+1);
+      server.in4.sin_port = atoi(ptr+1);
     }
 
-  /* In any event, we can now extract the IP address from the comman-line */
-
-  connect.addr.s_addr = inet_addr(argv[1]);
+  server.in4.sin_family = AF_INET;
+  ret = inet_pton(AF_INET, argv[1], &server.in4.sin_addr);
+  if (ret < 0)
+    {
+      printf("Invalid IP address\n");
+      exit(1);
+    }
+#endif
 
   /* Connect to the FTP server */
 
-  handle = ftpc_connect(&connect);
+  handle = ftpc_connect(&server);
   if (!handle)
     {
       printf("Failed to connect to the server: %d\n", errno);

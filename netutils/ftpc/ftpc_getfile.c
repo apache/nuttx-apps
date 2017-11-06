@@ -154,7 +154,7 @@ static int ftpc_recvinit(struct ftpc_session_s *session, FAR const char *path,
 
   if (!FTPC_IS_PASSIVE(session))
     {
-      ret = ftpc_sockaccept(&session->data);
+      ret = ftpc_sockaccept(&session->dacceptor, &session->data);
       if (ret != OK)
         {
           nerr("ERROR: Data connection not accepted\n");

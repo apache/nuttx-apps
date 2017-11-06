@@ -113,7 +113,7 @@ static ssize_t ftpd_response(int sd, int timeout, FAR const char *fmt, ...);
 
 static int  ftpd_dataopen(FAR struct ftpd_session_s *session);
 static int  ftpd_dataclose(FAR struct ftpd_session_s *session);
-static FAR struct ftpd_server_s *ftpd_openserver(int port);
+static FAR struct ftpd_server_s *ftpd_openserver(int port, sa_family_t family);
 
 /* Path helpers */
 
@@ -1103,10 +1103,9 @@ static int ftpd_dataclose(FAR struct ftpd_session_s *session)
  * Name: ftpd_openserver
  ****************************************************************************/
 
-static FAR struct ftpd_server_s *ftpd_openserver(int port)
+static FAR struct ftpd_server_s *ftpd_openserver(int port, sa_family_t family)
 {
   FAR struct ftpd_server_s *server;
-  sa_family_t family;
   socklen_t addrlen;
   FAR const void *addr;
 #if defined(SOMAXCONN)
@@ -1134,37 +1133,43 @@ static FAR struct ftpd_server_s *ftpd_openserver(int port)
   /* Create the server listen socket */
 
 #ifdef CONFIG_NET_IPv6
-  server->sd = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
-  if (server->sd < 0)
+  if (family == AF_INET6)
     {
-      ftpd_close((FTPD_SESSION)server);
-      return NULL;
+      server->addr.in6.sin6_family   = family;
+      server->addr.in6.sin6_addr     = in6addr_any;
+      server->addr.in6.sin6_port     = htons(port);
+
+      addrlen = (socklen_t)sizeof(server->addr.in6);
+      addr    = (FAR void *)(&server->addr.in6);
+
+      server->sd = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
     }
-
-  family  = AF_INET6;
-  addrlen = (socklen_t)sizeof(server->addr.in6);
-  addr    = (FAR void *)(&server->addr.in6);
-
-  server->addr.in6.sin6_family   = family;
-  server->addr.in6.sin6_flowinfo = 0;
-  server->addr.in6.sin6_addr     = in6addr_any;
-  server->addr.in6.sin6_port     = htons(port);
-#else
-  server->sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (server->sd < 0)
-    {
-      ftpd_close((FTPD_SESSION)server);
-      return NULL;
-    }
-
-  family  = AF_INET;
-  addrlen = (socklen_t)sizeof(server->addr.in4);
-  addr    = (FAR void *)(&server->addr.in4);
-
-  server->addr.in4.sin_family      = family;
-  server->addr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
-  server->addr.in4.sin_port        = htons(port);
+  else
 #endif
+#ifdef CONFIG_NET_IPv4
+  if (family == AF_INET)
+    {
+      server->addr.in4.sin_family       = family;
+      server->addr.in4.sin_addr.s_addr  = htonl(INADDR_ANY);
+      server->addr.in4.sin_port         = htons(port);
+
+      addrlen = (socklen_t)sizeof(server->addr.in4);
+      addr    = (FAR void *)(&server->addr.in4);
+
+      server->sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    }
+  else
+#endif
+    {
+      nerr("ERROR: Unsupported family\n");
+      return NULL;
+    }
+
+  if (server->sd < 0)
+    {
+      ftpd_close((FTPD_SESSION)server);
+      return NULL;
+    }
 
 #ifdef CONFIG_NET_HAVE_REUSEADDR
   {
@@ -1976,14 +1981,31 @@ static int ftpd_stream(FAR struct ftpd_session_s *session, int cmdtype)
         }
       else
         {
+          int remaining;
+          int nwritten;
+          FAR char *next;
+
+          remaining = buflen;
+          next = buffer;
+
           /* Write to the file */
 
-          wrbytes = write(session->fd, buffer, buflen);
-          if (wrbytes < 0)
+          do
             {
-              errval = errno;
-              nerr("ERROR: write() failed: %d\n", errval);
+              nwritten = write(session->fd, next, remaining);
+              if (nwritten < 0)
+                {
+                  errval = errno;
+                  nerr("ERROR: write() failed: %d\n", errval);
+                  break;
+                }
+
+              remaining -= nwritten;
+              next += nwritten;
             }
+          while (remaining > 0);
+
+          wrbytes = next - buffer;
         }
 
       /* If the number of bytes returned by the write is not equal to the
@@ -2646,6 +2668,7 @@ static int ftpd_command_noop(FAR struct ftpd_session_s *session)
 
 static int ftpd_command_port(FAR struct ftpd_session_s *session)
 {
+#ifdef CONFIG_NET_IPv4
   uint8_t value[6];
   unsigned int utemp;
   int temp;
@@ -2749,6 +2772,11 @@ static int ftpd_command_port(FAR struct ftpd_session_s *session)
   return ftpd_response(session->cmd.sd, session->txtimeout,
                        g_respfmt1, 200, ' ',
                        "PORT command successful");
+#else
+  return ftpd_response(session->cmd.sd, session->txtimeout,
+                       g_respfmt1, 502, ' ',
+                       "PORT command not implemented");
+#endif
 }
 
 /****************************************************************************
@@ -3074,6 +3102,7 @@ static int ftpd_command_dele(FAR struct ftpd_session_s *session)
 
 static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
 {
+#ifdef CONFIG_NET_IPv4
   unsigned int value[6];
   unsigned int temp;
   int ret;
@@ -3118,22 +3147,7 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
             session->data.addr.in4.sin_addr.s_addr = in4addr.s_addr;
         }
     }
-  else
 #endif
-#ifndef CONFIG_NET_IPv6
-  if (session->data.addr.ss.ss_family == AF_INET)
-    {
-      /* Fixed to ipv4 */
-
-      memset((FAR void *)(&session->data.addr), 0, sizeof(session->data.addr));
-      session->data.addr.in4.sin_family = AF_INET;
-      session->data.addr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-  else
-#endif
-    {
-      nerr("ERROR: Unsupported family\n");
-    }
 
   session->data.addr.in4.sin_port = 0;
   ret = bind(session->data.sd, (FAR const struct sockaddr *)&session->data.addr,
@@ -3191,6 +3205,11 @@ static int ftpd_command_pasv(FAR struct ftpd_session_s *session)
     }
 
   return ret;
+#else
+  return ftpd_response(session->cmd.sd, session->txtimeout,
+                       g_respfmt1, 502, ' ',
+                       "PASV command not implemented");
+#endif
 }
 
 /****************************************************************************
@@ -3209,7 +3228,9 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
   session->data.sd = socket(PF_INET6, SOCK_STREAM, IPPROTO_TCP);
   if (session->data.sd < 0)
     {
+#ifdef CONFIG_NET_IPv4
       session->data.sd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
     }
   else
     {
@@ -3245,13 +3266,21 @@ static int ftpd_command_epsv(FAR struct ftpd_session_s *session)
     {
       session->data.addr.in6.sin6_port = htons(0);
     }
-  else if (session->data.addr.ss.ss_family == AF_INET)
+  else
+#endif
+#ifdef CONFIG_NET_IPv4
+  if (session->data.addr.ss.ss_family == AF_INET)
     {
       session->data.addr.in4.sin_port = htons(0);
     }
-#else
-  session->data.addr.in4.sin_port = htons(0);
+  else
 #endif
+    {
+      ret = ftpd_response(session->cmd.sd, session->txtimeout,
+                          g_respfmt1, 500, ' ', "EPSV family not supported!");
+      (void)ftpd_dataclose(session);
+      return ret;
+    }
 
   ret = bind(session->data.sd, (FAR const struct sockaddr *)&session->data.addr,
              session->data.addrlen);
@@ -4155,14 +4184,14 @@ static FAR void *ftpd_worker(FAR void *arg)
  *
  ****************************************************************************/
 
-FTPD_SESSION ftpd_open(void)
+FTPD_SESSION ftpd_open(sa_family_t family)
 {
   FAR struct ftpd_server_s *server;
 
-  server = ftpd_openserver(21);
+  server = ftpd_openserver(21, family);
   if (!server)
     {
-      server = ftpd_openserver(2211);
+      server = ftpd_openserver(2211, family);
     }
 
   return (FTPD_SESSION)server;

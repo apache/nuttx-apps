@@ -10,4 +10,9 @@ config EXAMPLES_FTPD
 		Enable the FTP server example
 
 if EXAMPLES_FTPD
+
+config EXAMPLES_FTPD_STACKSIZE
+	int "FTP Daemon Stack Size"
+	default 2048
+
 endif

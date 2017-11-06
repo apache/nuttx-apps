@@ -135,7 +135,8 @@ extern "C"
  *   used to run the server.
  *
  * Input Parameters:
- *    None
+ *    family - The type of INET family to use when opening the socket. AF_INET
+ *    and AF_INET6 are supported.
  *
  * Returned Value:
  *   On success, a non-NULL handle is returned that can be used to reference
@@ -143,7 +144,7 @@ extern "C"
  *
  ****************************************************************************/
 
-FTPD_SESSION ftpd_open(void);
+FTPD_SESSION ftpd_open(sa_family_t family);
 
 /****************************************************************************
  * Name: ftpd_adduser

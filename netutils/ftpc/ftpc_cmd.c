@@ -228,6 +228,17 @@ int ftpc_cmd(struct ftpc_session_s *session, const char *cmd, ...)
             }
         }
 
+      /* Error codes 5xx are Permanent Negative Completion. These can be
+       * handled generically for all commands. An example is error code 530
+       * which means 'not logged in'. The reply should include a string to
+       * display to the user
+       */
+
+      else if (session->code > 500 && session->code < 600)
+        {
+          return ERROR;
+        }
+
       /* The command was successfully sent */
 
       return OK;

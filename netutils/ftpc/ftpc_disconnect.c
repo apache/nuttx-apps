@@ -85,6 +85,7 @@ void ftpc_disconnect(SESSION handle)
       /* Release sockets */
 
       ftpc_sockclose(&session->data);
+      ftpc_sockclose(&session->dacceptor);
       ftpc_sockclose(&session->cmd);
 
       /* Free strings */

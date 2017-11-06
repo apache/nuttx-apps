@@ -37,7 +37,7 @@
 -include $(TOPDIR)/Make.defs
 include $(APPDIR)/Make.defs
 
-# Hello, World! Example
+CONFIG_EXAMPLES_FTPD_STACKSIZE ?= 2048
 
 ASRCS =
 CSRCS =
@@ -109,10 +109,10 @@ endif
 
 ifeq ($(CONFIG_NSH_BUILTIN_APPS),y)
 $(BUILTIN_REGISTRY)$(DELIM)ftpd_start.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,ftpd_start,SCHED_PRIORITY_DEFAULT,2048,ftpd_main)
+	$(call REGISTER,ftpd_start,SCHED_PRIORITY_DEFAULT,$(CONFIG_EXAMPLES_FTPD_STACKSIZE),ftpd_main)
 
 $(BUILTIN_REGISTRY)$(DELIM)ftpd_stop.bdat: $(DEPCONFIG) Makefile
-	$(call REGISTER,ftpd_stop,SCHED_PRIORITY_DEFAULT,2048,ftpd_stop)
+	$(call REGISTER,ftpd_stop,SCHED_PRIORITY_DEFAULT,$(CONFIG_EXAMPLES_FTPD_STACKSIZE),ftpd_stop)
 
 context: $(BUILTIN_REGISTRY)$(DELIM)ftpd_start.bdat $(BUILTIN_REGISTRY)$(DELIM)ftpd_stop.bdat
 else

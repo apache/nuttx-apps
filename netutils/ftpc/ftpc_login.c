@@ -158,9 +158,6 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
    * Or the server may reject USER with:
    *
    * - "530 Not logged in" meaning that the username is unacceptable.
-   *
-   * In practice, the server does not check the username until after a PASS
-   * request
    */
 
   FTPC_CLR_LOGGEDIN(session);
@@ -171,26 +168,29 @@ int ftpc_relogin(FAR struct ftpc_session_s *session)
       return ERROR;
     }
 
-  /* Send the PASS command with the passed. The server may accept PASS with:
-   *
-   * - "230 User logged in, proceed" meaning that the client has permission to
-   *    access files under that username
-   * - "202 Command not implemented, superfluous at this site" meaning that
-   *    permission was already granted in response to USER
-   * - "332 Need account for login" meaning that permission might be granted
-   *    after an ACCT request.
-   *
-   * The server may reject PASS with:
-   *
-   * - "503 Bad sequence of commands" if the previous request was not USER
-   * - "530 - Not logged in" if this username and password are unacceptable.
-   */
-
-  ret = ftpc_cmd(session, "PASS %s", session->pwd);
-  if (ret != OK)
+  if (session->code == 331)
     {
-      nerr("ERROR: PASS %s cmd failed: %d\n", session->pwd, errno);
-      return ret;
+      /* Send the PASS command with the passed. The server may accept PASS with:
+       *
+       * - "230 User logged in, proceed" meaning that the client has permission to
+       *    access files under that username
+       * - "202 Command not implemented, superfluous at this site" meaning that
+       *    permission was already granted in response to USER
+       * - "332 Need account for login" meaning that permission might be granted
+       *    after an ACCT request.
+       *
+       * The server may reject PASS with:
+       *
+       * - "503 Bad sequence of commands" if the previous request was not USER
+       * - "530 - Not logged in" if this username and password are unacceptable.
+       */
+
+      ret = ftpc_cmd(session, "PASS %s", session->pwd);
+      if (ret != OK)
+        {
+          nerr("ERROR: PASS %s cmd failed: %d\n", session->pwd, errno);
+          return ret;
+        }
     }
 
   /* We are logged in.. the current working directory on login is our "home"

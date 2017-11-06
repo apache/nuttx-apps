@@ -58,7 +58,14 @@
  */
 
 #if !defined(CONFIG_DEBUG_NET) && defined(CONFIG_DEBUG_FTPC)
+#  undef  CONFIG_DEBUG_NET
 #  define CONFIG_DEBUG_NET 1
+#  undef  CONFIG_DEBUG_NET_ERROR
+#  define CONFIG_DEBUG_NET_ERROR 1
+#  undef  CONFIG_DEBUG_NET_WARN
+#  define CONFIG_DEBUG_NET_WARN 1
+#  undef  CONFIG_DEBUG_NET_INFO
+#  define CONFIG_DEBUG_NET_INFO 1
 #endif
 
 /****************************************************************************

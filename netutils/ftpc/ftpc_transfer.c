@@ -49,8 +49,10 @@
 #include <errno.h>
 #include <assert.h>
 #include <debug.h>
+#include <arpa/inet.h>
 
 #include "netutils/ftpc.h"
+#include "netutils/netlib.h"
 
 #include "ftpc_internal.h"
 
@@ -75,10 +77,10 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: ftp_pasvmode
+ * Name: ftp_cmd_epsv
  *
  * Description:
- *   Enter passive mode.
+ *   Enter passive mode using EPSV command.
  *
  *   In active mode FTP the client connects from a random port (N>1023) to the
  *   FTP server's command port, port 21. Then, the client starts listening to
@@ -98,22 +100,102 @@
  *
  ****************************************************************************/
 
-static int ftp_pasvmode(struct ftpc_session_s *session,
-                        uint8_t addrport[6])
+#ifndef CONFIG_FTPC_DISABLE_EPSV
+static int ftp_cmd_epsv(FAR struct ftpc_session_s *session,
+                        FAR union ftpc_sockaddr_u *addr)
+{
+  char *ptr;
+  int nscan;
+  int ret;
+  uint16_t tmp;
+
+  /* Request passive mode.  The server normally accepts EPSV with code 227.
+   * Its response is a single line showing the IP address of the server and
+   * the TCP port number where the server is accepting connections.
+   */
+
+  ret = ftpc_cmd(session, "EPSV");
+  if (ret < 0 || !ftpc_connected(session))
+    {
+      return ERROR;
+    }
+
+  /* Skip over any leading stuff before important data begins */
+
+  ptr = session->reply + 4;
+  while (*ptr != '(')
+    {
+      ptr++;
+
+      if (ptr > (session->reply + sizeof(session->reply) - 1))
+        {
+          nwarn("WARNING: Error parsing EPSV reply: '%s'\n", session->reply);
+          return ERROR;
+        }
+    }
+  ptr++;
+
+  /* The response is then just the port number. None of the other fields
+   * are supplied.
+   */
+
+  nscan = sscanf(ptr, "|||%u|", &tmp);
+  if (nscan != 1)
+    {
+      nwarn("WARNING: Error parsing EPSV reply: '%s'\n", session->reply);
+      return ERROR;
+    }
+
+#ifdef CONFIG_NET_IPv4
+  if (addr->sa.sa_family == AF_INET)
+    {
+      addr->in4.sin_port = HTONS(tmp);
+    }
+#endif
+
+#ifdef CONFIG_NET_IPv6
+  if (addr->sa.sa_family == AF_INET6)
+    {
+      addr->in6.sin6_port = HTONS(tmp);
+    }
+#endif
+
+  return OK;
+}
+#endif
+
+/****************************************************************************
+ * Name: ftp_cmd pasv
+ *
+ * Description:
+ *   Enter passive mode using PASV command.
+ *
+ *   In active mode FTP the client connects from a random port (N>1023) to the
+ *   FTP server's command port, port 21. Then, the client starts listening to
+ *   port N+1 and sends the FTP command PORT N+1 to the FTP server. The server
+ *   will then connect back to the client's specified data port from its local
+ *   data port, which is port 20. In passive mode FTP the client initiates
+ *   both connections to the server, solving the problem of firewalls filtering
+ *   the incoming data port connection to the client from the server. When
+ *   opening an FTP connection, the client opens two random ports locally
+ *   (N>1023 and N+1). The first port contacts the server on port 21, but
+ *   instead of then issuing a PORT command and allowing the server to connect
+ *   back to its data port, the client will issue the PASV command. The result
+ *   of this is that the server then opens a random unprivileged port (P >
+ *   1023) and sends the PORT P command back to the client. The client then
+ *   initiates the connection from port N+1 to port P on the server to transfer
+ *   data.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_NET_IPv4
+static int ftp_cmd_pasv(FAR struct ftpc_session_s *session,
+                        FAR union ftpc_sockaddr_u *addr)
 {
   int tmpap[6];
   char *ptr;
   int nscan;
   int ret;
-  int i;
-
-  /* Does this host support the PASV command */
-
-  if (!FTPC_HAS_PASV(session))
-  {
-    nwarn("WARNING: Host doesn't support passive mode\n");
-    return ERROR;
-  }
 
   /* Request passive mode.  The server normally accepts PASV with code 227.
    * Its response is a single line showing the IP address of the server and
@@ -126,7 +208,7 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
       return ERROR;
     }
 
-  /* Skip over any leading stuff before address begins */
+  /* Skip over any leading stuff before important data begins */
 
   ptr = session->reply + 4;
   while (!isdigit((int)*ptr))
@@ -149,14 +231,12 @@ static int ftp_pasvmode(struct ftpc_session_s *session,
 
   /* Then copy the sscanf'ed values as bytes */
 
-
-  for (i = 0; i < 6; i++)
-    {
-      addrport[i] = (uint8_t)(tmpap[i] & 0xff);
-    }
+  memcpy(&addr->in4.sin_addr, tmpap, sizeof(addr->in4.sin_addr));
+  memcpy(&addr->in4.sin_port, &tmpap[4], sizeof(addr->in4.sin_port));
 
   return OK;
 }
+#endif
 
 /****************************************************************************
  * Name: ftpc_abspath
@@ -245,11 +325,14 @@ static FAR char *ftpc_abspath(FAR struct ftpc_session_s *session,
 
 int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 {
-  struct sockaddr_in addr;
-  uint8_t addrport[6];
+  union ftpc_sockaddr_u addr;
+  int ret;
+#ifdef CONFIG_FTPC_DISABLE_EPRT
   uint8_t *paddr;
   uint8_t *pport;
-  int ret;
+#else
+  char ipstr[48];
+#endif
 
   /* We must be connected to initiate a transfer */
 
@@ -259,41 +342,55 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
       goto errout;
     }
 
-  /* Initialize the data channel */
-
-  ret = ftpc_sockinit(&session->data);
-  if (ret != OK)
-    {
-      nerr("ERROR: ftpc_sockinit() failed: %d\n", errno);
-      goto errout;
-    }
-
-  /* Duplicate the address and connection information of the command channel */
-
-  ftpc_sockcopy(&session->data, &session->cmd);
-
   /* Should we enter passive mode? */
 
   if (FTPC_IS_PASSIVE(session))
     {
-      /* Yes.. going passive. */
+      /* Initialize the data channel */
 
-      ret = ftp_pasvmode(session, addrport);
+      ret = ftpc_sockinit(&session->data, session->server.sa.sa_family);
       if (ret != OK)
         {
-          nerr("ERROR: ftp_pasvmode() failed: %d\n", errno);
-          goto errout_with_data;
+          nerr("ERROR: ftpc_sockinit() failed: %d\n", errno);
+          goto errout;
         }
 
-      /* Configure the data socket */
+      /* Does this host support the PASV command */
 
-      ftpc_sockgetsockname(&session->cmd, &addr);
-      memcpy(&addr.sin_addr, addrport, 4);
-      memcpy(&addr.sin_port, addrport+4, 2);
+      if (!FTPC_HAS_PASV(session))
+      {
+        nerr("ERROR: Host doesn't support passive mode\n");
+        goto errout_with_data;
+      }
+
+      /* Configure the address to be the server address. If EPSV is used, the
+       * port will be populated by parsing the reply of the EPSV command. If the
+       * PASV command is used, the address and port will be overwritten.
+       */
+
+      memcpy(&addr, &session->server, sizeof(union ftpc_sockaddr_u));
+
+      /* Yes.. going passive. */
+
+#ifdef CONFIG_FTPC_DISABLE_EPSV
+      ret = ftp_cmd_pasv(session, &addr);
+      if (ret < 0)
+        {
+          nerr("ERROR: ftp_cmd_pasv() failed: %d\n", errno);
+          goto errout_with_data;
+        }
+#else
+      ret = ftp_cmd_epsv(session, &addr);
+      if (ret < 0)
+        {
+          nerr("ERROR: ftp_cmd_epsv() failed: %d\n", errno);
+          goto errout_with_data;
+        }
+#endif
 
       /* Connect the data socket */
 
-      ret = ftpc_sockconnect(&session->data, &addr);
+      ret = ftpc_sockconnect(&session->data, (FAR struct sockaddr *)&addr);
       if (ret < 0)
         {
           nerr("ERROR: ftpc_sockconnect() failed: %d\n", errno);
@@ -302,18 +399,96 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
     }
   else
     {
+      /* Initialize the data listener socket that allows us to accept new
+       * data connections from the server
+       */
+
+      ret = ftpc_sockinit(&session->dacceptor, session->server.sa.sa_family);
+      if (ret != OK)
+        {
+          nerr("ERROR: ftpc_sockinit() failed: %d\n", errno);
+          goto errout;
+        }
+      /* Use the server IP address to find the network interface, and subsequent
+       * local IP address used to establish the active connection. We must send
+       * the IP and port to the server so that it knows how to connect.
+       */
+
+#ifdef CONFIG_NET_IPv6
+      if (session->server.sa.sa_family == AF_INET6)
+        {
+          ret = netlib_ipv6adaptor(&session->server.in6.sin6_addr,
+                                   &session->dacceptor.laddr.in6.sin6_addr);
+          if (ret < 0)
+            {
+              nerr("ERROR: netlib_ipv6adaptor() failed: %d\n", ret);
+              goto errout_with_data;
+            }
+        }
+      else
+#endif
+#ifdef CONFIG_NET_IPv4
+      if (session->server.sa.sa_family == AF_INET)
+        {
+          ret = netlib_ipv4adaptor(&session->server.in4.sin_addr,
+                                   &session->dacceptor.laddr.in4.sin_addr);
+          if (ret < 0)
+            {
+              nerr("ERROR: netlib_ipv4adaptor() failed: %d\n", ret);
+              goto errout_with_data;
+            }
+        }
+      else
+#endif
+        {
+          nerr("ERROR: unsupported address family\n");
+          goto errout_with_data;
+        }
+
       /* Wait for the connection to be established */
 
-      ftpc_socklisten(&session->data);
+      ftpc_socklisten(&session->dacceptor);
 
+#ifdef CONFIG_FTPC_DISABLE_EPRT
       /* Then send our local data channel address to the server */
 
-      paddr = (uint8_t *)&session->data.laddr.sin_addr;
-      pport = (uint8_t *)&session->data.laddr.sin_port;
+      paddr = (uint8_t *)&session->dacceptor.laddr.in4.sin_addr;
+      pport = (uint8_t *)&session->dacceptor.laddr.in4.sin_port;
 
       ret = ftpc_cmd(session, "PORT %d,%d,%d,%d,%d,%d",
                      paddr[0], paddr[1], paddr[2],
                      paddr[3], pport[0], pport[1]);
+#else
+#ifdef CONFIG_NET_IPv6
+      if (session->dacceptor.laddr.sa.sa_family == AF_INET6)
+        {
+          if (!inet_ntop(AF_INET6, &session->dacceptor.laddr.in6.sin6_addr, ipstr, 48))
+            {
+              nerr("ERROR: inet_ntop failed: %d\n", errno);
+              goto errout_with_data;
+            }
+
+          ret = ftpc_cmd(session, "EPRT |2|%s|%d|", ipstr,
+                         session->dacceptor.laddr.in6.sin6_port);
+        }
+      else
+#endif /* CONFIG_NET_IPv6 */
+#ifdef CONFIG_NET_IPv4
+      if (session->dacceptor.laddr.sa.sa_family == AF_INET)
+        {
+          if (!inet_ntop(AF_INET, &session->dacceptor.laddr.in4.sin_addr, ipstr, 48))
+            {
+              nerr("ERROR: inet_ntop failed: %d\n", errno);
+              goto errout_with_data;
+            }
+
+          ret = ftpc_cmd(session, "EPRT |1|%s|%d|", ipstr,
+                         session->dacceptor.laddr.in4.sin_port);
+        }
+      else
+#endif /* CONFIG_NET_IPv4 */
+#endif /* CONFIG_FTPC_DISABLE_EPRT */
+
       if (ret < 0)
         {
           nerr("ERROR: ftpc_cmd() failed: %d\n", errno);
@@ -324,6 +499,7 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 
 errout_with_data:
   ftpc_sockclose(&session->data);
+  ftpc_sockclose(&session->dacceptor);
 errout:
   return ERROR;
 }

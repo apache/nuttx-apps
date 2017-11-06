@@ -47,6 +47,7 @@
 #include <signal.h>
 #include <time.h>
 
+#include <sys/socket.h>
 #include <netinet/in.h>
 
 /****************************************************************************
@@ -113,9 +114,9 @@
 
 typedef FAR void *SESSION;
 
-/* This structure provides information to connect to a host FTP server.
+/* This union provides information to connect to a host FTP server.
  *
- * addr - The IPv4 address of the FTP server (or the proxy) for the FTP
+ * addr - The IPv4 or IPv6 address of the FTP server (or the proxy) for the FTP
  *        server.
  * port - The port number on the FTP server to connect to (in host byte
  *        order).  This is usually port 21 for FTP.  You may set this
@@ -123,10 +124,17 @@ typedef FAR void *SESSION;
  *        you (it will use CONFIG_FTP_DEFPORT).
  */
 
-struct ftpc_connect_s
+union ftpc_sockaddr_u
 {
-  struct in_addr  addr;    /* Server/proxy IP address */
-  uint16_t        port;    /* Server/proxy port number (usually 21) in network order */
+  uint8_t                    raw[sizeof(struct sockaddr_storage)];
+  struct sockaddr_storage    ss;
+  struct sockaddr            sa;
+#ifdef CONFIG_NET_IPv6
+  struct sockaddr_in6        in6;
+#endif
+#ifdef CONFIG_NET_IPv4
+  struct sockaddr_in         in4;
+#endif
 };
 
 /* This structure provides FTP login information */
@@ -177,7 +185,7 @@ extern "C"
  ****************************************************************************/
 /* Connection management ****************************************************/
 
-SESSION ftpc_connect(FAR struct ftpc_connect_s *server);
+SESSION ftpc_connect(FAR union ftpc_sockaddr_u *server);
 void ftpc_disconnect(SESSION handle);
 
 /* FTP commands *************************************************************/

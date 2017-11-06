@@ -331,7 +331,7 @@ static int ftpc_sendfile(struct ftpc_session_s *session, const char *path,
 
   if (!FTPC_IS_PASSIVE(session))
     {
-      ret = ftpc_sockaccept(&session->data);
+      ret = ftpc_sockaccept(&session->dacceptor, &session->data);
       if (ret != OK)
         {
           nerr("ERROR: Data connection not accepted\n");

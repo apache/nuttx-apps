@@ -52,6 +52,20 @@
 #include "ftpd.h"
 
 /****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* If FTP is used and both IPv6 and IPv4 are enabled, then we need to
+ * pick one.
+ */
+
+#ifdef CONFIG_NET_IPv6
+#  define ADDR_FAMILY AF_INET6
+#else
+#  define ADDR_FAMILY AF_INET
+#endif
+
+/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -167,7 +181,12 @@ int ftpd_daemon(int s_argc, char **s_argv)
 
   /* Open FTPD */
 
-  handle = ftpd_open();
+#if ADDR_FAMILY == AF_INET6
+  handle = ftpd_open(AF_INET6);
+#else
+  handle = ftpd_open(AF_INET);
+#endif
+
   if (!handle)
     {
       printf("FTP daemon [%d] failed to open FTPD\n", g_ftpdglob.pid);

@@ -153,7 +153,7 @@ struct ftpc_socket_s
   int                sd;                   /* Socket descriptor */
   FILE              *instream;             /* Incoming stream */
   FILE              *outstream;            /* Outgoing stream */
-  struct sockaddr_in laddr;                /* Local address */
+  union ftpc_sockaddr_u laddr;             /* Local Address */
   bool               connected;            /* True: socket is connected */
 };
 
@@ -161,9 +161,10 @@ struct ftpc_socket_s
 
 struct ftpc_session_s
 {
-  struct in_addr       addr;       /* Server/proxy IP address */
+  union ftpc_sockaddr_u server;    /* Server/proxy socket address */
   struct ftpc_socket_s cmd;        /* FTP command channel */
   struct ftpc_socket_s data;       /* FTP data channel */
+  struct ftpc_socket_s dacceptor;  /* FTP data listener (accepts data connection in active mode) */
   WDOG_ID              wdog;       /* Timer */
   FAR char            *uname;      /* Login uname */
   FAR char            *pwd;        /* Login pwd  */
@@ -173,7 +174,6 @@ struct ftpc_session_s
   FAR char            *homeldir;   /* Local home directory (PWD on startup) */
   pid_t                pid;        /* Task ID of FTP client */
   uint8_t              xfrmode;    /* Previous data transfer type (See FTPC_XFRMODE_* defines) */
-  uint16_t             port;       /* Server/proxy port number (probably 21) */
   uint16_t             flags;      /* Connection flags (see FTPC_FLAGS_* defines) */
   uint16_t             code;       /* Last 3-digit reply code */
   uint32_t             replytimeo; /* Server reply timeout (ticks) */
@@ -250,13 +250,14 @@ EXTERN FAR char *ftpc_abslpath(FAR struct ftpc_session_s *session,
 
 /* Socket helpers */
 
-EXTERN int ftpc_sockinit(FAR struct ftpc_socket_s *sock);
+EXTERN int ftpc_sockinit(FAR struct ftpc_socket_s *sock, sa_family_t family);
 EXTERN void ftpc_sockclose(FAR struct ftpc_socket_s *sock);
 EXTERN int ftpc_sockconnect(FAR struct ftpc_socket_s *sock,
-                           FAR struct sockaddr_in *addr);
+                           FAR struct sockaddr *addr);
 EXTERN int ftpc_sockgetsockname(FAR struct ftpc_socket_s *sock,
-                                FAR struct sockaddr_in *sa);
-EXTERN int ftpc_sockaccept(FAR struct ftpc_socket_s *sock);
+                                FAR union ftpc_sockaddr_u *addr);
+EXTERN int ftpc_sockaccept(FAR struct ftpc_socket_s *acceptor,
+                           FAR struct ftpc_socket_s *sock);
 EXTERN int ftpc_socklisten(FAR struct ftpc_socket_s *sock);
 EXTERN void ftpc_sockcopy(FAR struct ftpc_socket_s *dest,
                           FAR const struct ftpc_socket_s *src);
