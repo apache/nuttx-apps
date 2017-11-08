@@ -855,7 +855,7 @@ NXWidgets::CNxTkWindow *CTaskbar::openFramedWindow(void)
   if (!window)
     {
       delete control;
-      return false;
+      return (NXWidgets::CNxTkWindow *)0;
     }
 
   // Open (and initialize) the window
@@ -865,7 +865,6 @@ NXWidgets::CNxTkWindow *CTaskbar::openFramedWindow(void)
     {
       delete window;
       window = (NXWidgets::CNxTkWindow *)0;
-      return false;
     }
 
   return window;
