@@ -60,6 +60,17 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+/* A lot of effort to avoid warning about dumptrace() not being used */
+
+#undef NEED_DUMPTRACE
+#ifdef CONFIG_USBDEV_TRACE
+#  if !defined(CONFIG_NSH_BUILTIN_APPS) && !defined(CONFIG_DISABLE_SIGNALS)
+#    define NEED_DUMPTRACE 1
+#  elif CONFIG_USBDEV_TRACE_INITIALIDSET != 0
+#    define NEED_DUMPTRACE 1
+#  endif
+#endif
+
 /****************************************************************************
  * Private Data
  ****************************************************************************/
@@ -166,7 +177,7 @@ static void final_memory_usage(FAR const char *msg)
  * Name: composite_enumerate
  ****************************************************************************/
 
-#ifdef CONFIG_USBDEV_TRACE
+#ifdef NEED_DUMPTRACE
 static int composite_enumerate(struct usbtrace_s *trace, void *arg)
 {
   switch (trace->event)
@@ -365,7 +376,7 @@ static int composite_enumerate(struct usbtrace_s *trace, void *arg)
  *
  ****************************************************************************/
 
-#ifdef CONFIG_USBDEV_TRACE
+#ifdef NEED_DUMPTRACE
 static int dumptrace(void)
 {
   int ret;
