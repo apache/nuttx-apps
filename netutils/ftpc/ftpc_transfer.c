@@ -165,7 +165,7 @@ static int ftp_cmd_epsv(FAR struct ftpc_session_s *session,
 #endif
 
 /****************************************************************************
- * Name: ftp_cmd pasv
+ * Name: ftp_cmd_pasv
  *
  * Description:
  *   Enter passive mode using PASV command.
@@ -188,7 +188,7 @@ static int ftp_cmd_epsv(FAR struct ftpc_session_s *session,
  *
  ****************************************************************************/
 
-#ifdef CONFIG_NET_IPv4
+#ifdef CONFIG_FTPC_DISABLE_EPSV
 static int ftp_cmd_pasv(FAR struct ftpc_session_s *session,
                         FAR union ftpc_sockaddr_u *addr)
 {
@@ -430,8 +430,8 @@ int ftpc_xfrinit(FAR struct ftpc_session_s *session)
 #ifdef CONFIG_NET_IPv4
       if (session->server.sa.sa_family == AF_INET)
         {
-          ret = netlib_ipv4adaptor(&session->server.in4.sin_addr,
-                                   &session->dacceptor.laddr.in4.sin_addr);
+          ret = netlib_ipv4adaptor(session->server.in4.sin_addr.s_addr,
+                                   &session->dacceptor.laddr.in4.sin_addr.s_addr);
           if (ret < 0)
             {
               nerr("ERROR: netlib_ipv4adaptor() failed: %d\n", ret);
