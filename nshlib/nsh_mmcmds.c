@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_mmcmds.c
  *
- *   Copyright (C) 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2011-2012, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,63 @@
 
 #include <nuttx/config.h>
 
-#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
 
 #include "nsh.h"
 #include "nsh_console.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+#undef NEED_CATLINE2
+#ifndef CONFIG_NSH_DISABLE_FREE
+#  if defined(HAVE_PROC_KMEM) && (defined(HAVE_PROC_UMEM) || \
+      defined(HAVE_PROC_PROGMEM))
+#    define NEED_CATLINE2 1
+#  elif defined(HAVE_PROC_UMEM) && defined(HAVE_PROC_PROGMEM)
+#    define NEED_CATLINE2 1
+#  endif
+#endif
+
+/****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: cat_free
+ ****************************************************************************/
+
+#ifdef NEED_CATLINE2
+static void nsh_catline2(FAR struct nsh_vtbl_s *vtbl, FAR const char *filepath)
+{
+  int fd;
+
+  /* Open the file for reading */
+
+  fd = open(filepath, O_RDONLY);
+  if (fd >= 0)
+    {
+      /* Skip the first line which contains the header */
+
+      if (fgets(vtbl->iobuffer, IOBUFFERSIZE, INSTREAM(pstate)) != NULL)
+        {
+          /* The second line contains the info to send to stdout */
+
+          if (fgets(vtbl->iobuffer, IOBUFFERSIZE, INSTREAM(pstate)) != NULL)
+            {
+               size_t linesize = strnlen(vtbl->iobuffer, IOBUFFERSIZE);
+               (void)nsh_write(vtbl, vtbl->iobuffer, linesize);
+            }
+        }
+
+      (void)close(fd);
+    }
+}
+#endif
 
 /****************************************************************************
  * Public Functions
@@ -55,24 +108,29 @@
 #ifndef CONFIG_NSH_DISABLE_FREE
 int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
-  struct mallinfo mem;
+#if defined(HAVE_PROC_KMEM)
+   (void)nsh_catfile(vtbl, argv[0], CONFIG_NSH_PROC_MOUNTPOINT "/kmm");
+#  ifdef HAVE_PROC_UMEM
+   nsh_catline2(vtbl, CONFIG_NSH_PROC_MOUNTPOINT "/umm");
+#  endif
+#  ifdef HAVE_PROC_PROGMEM
+   nsh_catline2(vtbl, CONFIG_NSH_PROC_MOUNTPOINT "/progmem");
+#  endif
+   return OK;
 
-#ifdef CONFIG_CAN_PASS_STRUCTS
-  mem = mallinfo();
+#elif defined(HAVE_PROC_UMEM)
+   (void)nsh_catfile(vtbl, argv[0], CONFIG_NSH_PROC_MOUNTPOINT "/umm");
+#  ifdef HAVE_PROC_PROGMEM
+   nsh_catline2(vtbl, CONFIG_NSH_PROC_MOUNTPOINT "/progmem");
+#  endif
+   return OK;
+
 #else
-  (void)mallinfo(&mem);
+#  ifdef HAVE_PROC_PROGMEM
+   return nsh_catfile(vtbl, argv[0], CONFIG_NSH_PROC_MOUNTPOINT "/progmem");
+#  else
+   return ERROR;
+#  endif
 #endif
-
-#ifdef CONFIG_NOPRINTF_FIELDWIDTH
-  nsh_output(vtbl, "\ttotal\tused\tfree\tlargest\n");
-  nsh_output(vtbl, "Mem:\t%d\t%d\t%d\t%d\n",
-             mem.arena, mem.uordblks, mem.fordblks, mem.mxordblk);
-#else
-  nsh_output(vtbl, "             total       used       free    largest\n");
-  nsh_output(vtbl, "Mem:   %11d%11d%11d%11d\n",
-             mem.arena, mem.uordblks, mem.fordblks, mem.mxordblk);
-#endif
-
-  return OK;
 }
 #endif /* !CONFIG_NSH_DISABLE_FREE */

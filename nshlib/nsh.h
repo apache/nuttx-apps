@@ -664,6 +664,26 @@
 #  define HAVE_MOUNT_LIST 1
 #endif
 
+#undef HAVE_PROC_KMEM
+#undef HAVE_PROC_UMEM
+#undef HAVE_PROC_PROGMEM
+
+#ifdef CONFIG_FS_PROCFS
+#  if defined(CONFIG_MM_KERNEL_HEAP) && !defined(CONFIG_FS_PROCFS_EXCLUDE_KMM)
+#    define HAVE_PROC_KMEM    1
+#  endif
+#  if !defined(CONFIG_FS_PROCFS_EXCLUDE_UMM) && !defined(CONFIG_BUILD_KERNEL)
+#    define HAVE_PROC_UMEM    1
+#  endif
+#  if defined(CONFIG_ARCH_HAVE_PROGMEM) && !defined(CONFIG_FS_PROCFS_EXCLUDE_PROGMEM)
+#    define HAVE_PROC_PROGMEM 1
+#  endif
+#  if !defined(HAVE_PROC_KMEM) && !defined(HAVE_PROC_UMEM) && !defined(HAVE_PROC_PROGMEM)
+#    undef  CONFIG_NSH_DISABLE_FREE
+#    define CONFIG_NSH_DISABLE_FREE 1
+#  endif
+#endif
+
 /* Suppress unused file utilities */
 
 #define NSH_HAVE_CATFILE          1
