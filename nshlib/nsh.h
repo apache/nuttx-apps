@@ -684,12 +684,13 @@
 #  undef NSH_HAVE_TRIMDIR
 #endif
 
-/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, and mount */
+/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, and mount (with
+ * no arguments).
+ */
 
 #if !defined(CONFIG_NSH_DISABLE_CAT) && !defined(CONFIG_NSH_DISABLE_IFCONFIG) && \
     !defined(CONFIG_NSH_DISABLE_IFUPDOWN) && !defined(CONFIG_NSH_DISABLE_DF) && \
-    !defined(CONFIG_NSH_DISABLE_FREE) && \
-    (!defined(CONFIG_NSH_DISABLE_MOUNT) || !defined(HAVE_MOUNT_LIST))
+    !defined(CONFIG_NSH_DISABLE_FREE) && !defined(HAVE_MOUNT_LIST)
 #  undef NSH_HAVE_CATFILE
 #endif
 

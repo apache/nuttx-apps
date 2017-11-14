@@ -42,6 +42,8 @@
 #include "nsh.h"
 #include "nsh_console.h"
 
+#if !defined(CONFIG_NSH_DISABLE_FREE) && defined(NSH_HAVE_CATFILE)
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -50,9 +52,9 @@
  * Name: cmd_free
  ****************************************************************************/
 
-#if !defined(CONFIG_NSH_DISABLE_FREE) && defined(NSH_HAVE_CATFILE)
 int cmd_free(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   return nsh_catfile(vtbl, argv[0], CONFIG_NSH_PROC_MOUNTPOINT "/meminfo");
 }
-#endif /* !CONFIG_NSH_DISABLE_FREE */
+
+#endif /* !CONFIG_NSH_DISABLE_FREE && NSH_HAVE_CATFILE */
