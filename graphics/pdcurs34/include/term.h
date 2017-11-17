@@ -1,9 +1,9 @@
 /****************************************************************************
  * apps/graphics/pdcurses/term.h
  * Public Domain Curses
- * PDCurses doesn't operate with terminfo, but we need these functions for 
- * compatibility, to allow some things (notably, interface libraries for 
- * other languages) to be compiled. Anyone who tries to actually _use_ 
+ * PDCurses doesn't operate with terminfo, but we need these functions for
+ * compatibility, to allow some things (notably, interface libraries for
+ * other languages) to be compiled. Anyone who tries to actually _use_
  * them will be disappointed, since they only return ERR.
  * $Id: term.h,v 1.16 2008/07/13 16:08:16 wmcbrine Exp $
  *
@@ -92,7 +92,7 @@ char   *tgoto(const char *, int, int);
 int     tigetflag(const char *);
 int     tigetnum(const char *);
 char   *tigetstr(const char *);
-char   *tparm(const char *, long, long, long, long, long, 
+char   *tparm(const char *, long, long, long, long, long,
               long, long, long, long);
 int     tputs(const char *, int, int (*)(int));
 

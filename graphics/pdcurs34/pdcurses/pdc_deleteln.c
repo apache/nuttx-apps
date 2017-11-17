@@ -59,10 +59,10 @@
  *       current line are moved up one line.  The bottom line of the
  *       window is cleared.  The cursor position does not change.
  *
- *       With the insertln() and winsertn() functions, a blank line is 
+ *       With the insertln() and winsertn() functions, a blank line is
  *       inserted above the current line and the bottom line is lost.
  *
- *       mvdeleteln(), mvwdeleteln(), mvinsertln() and mvwinsertln() 
+ *       mvdeleteln(), mvwdeleteln(), mvinsertln() and mvwinsertln()
  *       allow moving the cursor and inserting/deleting in one call.
  *
  * Return Value:

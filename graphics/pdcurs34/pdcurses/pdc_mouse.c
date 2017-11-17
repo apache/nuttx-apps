@@ -123,9 +123,9 @@
  *       reported) through 1000ms. In x11, the timeout can also be set
  *       via the clickPeriod resource. The return value from
  *       mouseinterval() is the old timeout. To check the old value
- *       without setting a new one, call it with a parameter of -1. Note 
- *       that although there's no classic equivalent for this function 
- *       (apart from the clickPeriod resource), the value set applies in 
+ *       without setting a new one, call it with a parameter of -1. Note
+ *       that although there's no classic equivalent for this function
+ *       (apart from the clickPeriod resource), the value set applies in
  *       both interfaces.
  *
  *       wenclose() reports whether the given screen-relative y, x
@@ -143,23 +143,23 @@
  *       mousemask() is nearly equivalent to mouse_set(), but instead of
  *       OK/ERR, it returns the value of the mask after setting it. (This
  *       isn't necessarily the same value passed in, since the mask could
- *       be altered on some platforms.) And if the second parameter is a 
- *       non-null pointer, mousemask() stores the previous mask value 
- *       there. Also, since the ncurses interface doesn't work with 
+ *       be altered on some platforms.) And if the second parameter is a
+ *       non-null pointer, mousemask() stores the previous mask value
+ *       there. Also, since the ncurses interface doesn't work with
  *       PDCurses' BUTTON_MOVED events, mousemask() filters them out.
  *
- *       nc_getmouse() returns the current mouse status in an MEVENT 
- *       struct. This is equivalent to ncurses' getmouse(), renamed to 
- *       avoid conflict with PDCurses' getmouse(). But if you define 
- *       NCURSES_MOUSE_VERSION (preferably as 2) before including 
- *       curses.h, it defines getmouse() to nc_getmouse(), along with a 
- *       few other redefintions needed for compatibility with ncurses 
- *       code. nc_getmouse() calls request_mouse_pos(), which (not 
+ *       nc_getmouse() returns the current mouse status in an MEVENT
+ *       struct. This is equivalent to ncurses' getmouse(), renamed to
+ *       avoid conflict with PDCurses' getmouse(). But if you define
+ *       NCURSES_MOUSE_VERSION (preferably as 2) before including
+ *       curses.h, it defines getmouse() to nc_getmouse(), along with a
+ *       few other redefintions needed for compatibility with ncurses
+ *       code. nc_getmouse() calls request_mouse_pos(), which (not
  *       getmouse()) is the classic equivalent.
  *
- *       ungetmouse() is the mouse equivalent of ungetch(). However, 
- *       PDCurses doesn't maintain a queue of mouse events; only one can 
- *       be pushed back, and it can overwrite or be overwritten by real 
+ *       ungetmouse() is the mouse equivalent of ungetch(). However,
+ *       PDCurses doesn't maintain a queue of mouse events; only one can
+ *       be pushed back, and it can overwrite or be overwritten by real
  *       mouse events.
  *
  * Portability                                X/Open    BSD    SYS V

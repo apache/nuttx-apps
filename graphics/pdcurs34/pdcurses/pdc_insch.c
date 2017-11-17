@@ -57,20 +57,20 @@
  *       int mvwins_wch(WINDOW *win, int y, int x, const cchar_t *wch);
  *
  * Description:
- *       The insch() functions insert a chtype into the window at the 
- *       current or specified cursor position. The cursor is NOT 
- *       advanced. A newline is equivalent to clrtoeol(); tabs are 
- *       expanded; other control characters are converted as with 
+ *       The insch() functions insert a chtype into the window at the
+ *       current or specified cursor position. The cursor is NOT
+ *       advanced. A newline is equivalent to clrtoeol(); tabs are
+ *       expanded; other control characters are converted as with
  *       unctrl().
  *
  *       The ins_wch() functions are the wide-character
  *       equivalents, taking cchar_t pointers rather than chtypes.
  *
  *       Video attributes can be combined with a character by ORing
- *       them into the parameter. Text, including attributes, can be 
+ *       them into the parameter. Text, including attributes, can be
  *       copied from one place to another using inch() and insch().
  *
- *       insrawch() etc. are PDCurses-specific wrappers for insch() etc. 
+ *       insrawch() etc. are PDCurses-specific wrappers for insch() etc.
  *       that disable the translation of control characters.
  *
  * Return Value:
@@ -171,7 +171,7 @@ int winsch(WINDOW * win, chtype ch)
       int maxx;
       chtype *temp;
 
-      /* If the incoming character doesn't have its own attribute, then use the 
+      /* If the incoming character doesn't have its own attribute, then use the
        * current attributes for the window. If it has attributes but not a
        * color component, OR the attributes to the current attributes for the
        * window. If it has a color component, use the attributes solely from
@@ -182,7 +182,7 @@ int winsch(WINDOW * win, chtype ch)
           attr |= win->_attrs;
         }
 
-      /* wrs (4/10/93): Apply the same sort of logic for the window background, 
+      /* wrs (4/10/93): Apply the same sort of logic for the window background,
        * in that it only takes precedence if other color attributes are not
        * there and that the background character will only print if the
        * printing character is blank. */

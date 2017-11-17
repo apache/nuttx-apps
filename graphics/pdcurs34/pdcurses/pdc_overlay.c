@@ -74,7 +74,7 @@
  *       copywin                                 Y       -      3.0
  *
  *
- * Thanks to Andreas Otte <venn@@uni-paderborn.de> for the 
+ * Thanks to Andreas Otte <venn@@uni-paderborn.de> for the
  * corrected overlay()/overwrite() behavior.
  */
 

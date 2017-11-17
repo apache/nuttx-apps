@@ -67,10 +67,10 @@
  *       int tputs(const char *, int, int (*)(int));
  *
  * Description:
- *       mvcur() lets you move the physical cursor without updating any 
+ *       mvcur() lets you move the physical cursor without updating any
  *       window cursor positions. It returns OK or ERR.
  *
- *       The rest of these functions are currently implemented as stubs, 
+ *       The rest of these functions are currently implemented as stubs,
  *       returning the appropriate errors and doing nothing else.
  *
  * Portability                                X/Open    BSD    SYS V

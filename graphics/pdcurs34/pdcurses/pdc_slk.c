@@ -66,15 +66,15 @@
  *       wchar_t *slk_wlabel(int labnum)
  *
  * Description:
- *       These functions manipulate a window that contain Soft Label Keys 
- *       (SLK). To use the SLK functions, a call to slk_init() must be 
- *       made BEFORE initscr() or newterm(). slk_init() removes 1 or 2 
+ *       These functions manipulate a window that contain Soft Label Keys
+ *       (SLK). To use the SLK functions, a call to slk_init() must be
+ *       made BEFORE initscr() or newterm(). slk_init() removes 1 or 2
  *       lines from the useable screen, depending on the format selected.
  *
- *       The line(s) removed from the screen are used as a separate 
+ *       The line(s) removed from the screen are used as a separate
  *       window, in which SLKs are displayed.
  *
- *       slk_init() requires a single parameter which describes the 
+ *       slk_init() requires a single parameter which describes the
  *       format of the SLKs as follows:
  *
  *               0       3-2-3 format

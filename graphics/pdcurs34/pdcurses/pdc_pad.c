@@ -63,13 +63,13 @@
  *       to specify the part of the pad to be displayed, and the location
  *       to use on the screen.
  *
- *       newpad() creates a new pad data structure.  
+ *       newpad() creates a new pad data structure.
  *
  *       subpad() creates a new sub-pad within a pad, at position (begy,
- *       begx), with dimensions of nlines lines and ncols columns. This 
- *       position is relative to the pad, and not to the screen as with 
- *       subwin.  Changes to either the parent pad or sub-pad will affect 
- *       both.  When using sub-pads, you may need to call touchwin() 
+ *       begx), with dimensions of nlines lines and ncols columns. This
+ *       position is relative to the pad, and not to the screen as with
+ *       subwin.  Changes to either the parent pad or sub-pad will affect
+ *       both.  When using sub-pads, you may need to call touchwin()
  *       before calling prefresh().
  *
  *       pnoutrefresh() copies the specified pad to the virtual screen.
@@ -78,7 +78,7 @@
  *
  *       These routines are analogous to wnoutrefresh() and wrefresh().
  *       (py, px) specifies the upper left corner of the part of the pad
- *       to be displayed; (sy1, sx1) and (sy2, sx2) describe the screen 
+ *       to be displayed; (sy1, sx1) and (sy2, sx2) describe the screen
  *       rectangle that will contain the selected part of the pad.
  *
  *       pechochar() is functionally equivalent to addch() followed by

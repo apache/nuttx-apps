@@ -49,26 +49,26 @@
  *       bool is_wintouched(WINDOW *win);
  *
  * Description:
- *       touchwin() and touchline() throw away all information about 
- *       which parts of the window have been touched, pretending that the 
- *       entire window has been drawn on.  This is sometimes necessary 
- *       when using overlapping windows, since a change to one window 
- *       will affect the other window, but the records of which lines 
- *       have been changed in the other window will not reflect the 
+ *       touchwin() and touchline() throw away all information about
+ *       which parts of the window have been touched, pretending that the
+ *       entire window has been drawn on.  This is sometimes necessary
+ *       when using overlapping windows, since a change to one window
+ *       will affect the other window, but the records of which lines
+ *       have been changed in the other window will not reflect the
  *       change.
  *
- *       untouchwin() marks all lines in the window as unchanged since 
+ *       untouchwin() marks all lines in the window as unchanged since
  *       the last call to wrefresh().
  *
- *       wtouchln() makes n lines in the window, starting at line y, look 
- *       as if they have (changed == 1) or have not (changed == 0) been 
+ *       wtouchln() makes n lines in the window, starting at line y, look
+ *       as if they have (changed == 1) or have not (changed == 0) been
  *       changed since the last call to wrefresh().
  *
- *       is_linetouched() returns true if the specified line in the 
- *       specified window has been changed since the last call to 
+ *       is_linetouched() returns true if the specified line in the
+ *       specified window has been changed since the last call to
  *       wrefresh().
  *
- *       is_wintouched() returns true if the specified window 
+ *       is_wintouched() returns true if the specified window
  *       has been changed since the last call to wrefresh().
  *
  * Return Value:

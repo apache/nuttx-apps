@@ -53,12 +53,12 @@
  *       int raw_output(bool bf);
  *
  * Description:
- *       With clearok(), if bf is true, the next call to wrefresh() with 
- *       this window will clear the screen completely and redraw the 
+ *       With clearok(), if bf is true, the next call to wrefresh() with
+ *       this window will clear the screen completely and redraw the
  *       entire screen.
  *
- *       immedok(), called with a second argument of true, causes an 
- *       automatic wrefresh() every time a change is made to the 
+ *       immedok(), called with a second argument of true, causes an
+ *       automatic wrefresh() every time a change is made to the
  *       specified window.
  *
  *       Normally, the hardware cursor is left at the location of the
@@ -68,17 +68,17 @@
  *       the need for cursor motions.  If possible, the cursor is made
  *       invisible when this option is enabled.
  *
- *       wsetscrreg() sets a scrolling region in a window; "top" and 
- *       "bot" are the line numbers for the top and bottom margins. If 
- *       this option and scrollok() are enabled, any attempt to move off 
- *       the bottom margin will cause all lines in the scrolling region 
+ *       wsetscrreg() sets a scrolling region in a window; "top" and
+ *       "bot" are the line numbers for the top and bottom margins. If
+ *       this option and scrollok() are enabled, any attempt to move off
+ *       the bottom margin will cause all lines in the scrolling region
  *       to scroll up one line. setscrreg() is the stdscr version.
  *
- *       idlok() and idcok() do nothing in PDCurses, but are provided for 
+ *       idlok() and idcok() do nothing in PDCurses, but are provided for
  *       compatibility with other curses implementations.
  *
- *       raw_output() enables the output of raw characters using the 
- *       standard *add* and *ins* curses functions (that is, it disables 
+ *       raw_output() enables the output of raw characters using the
+ *       standard *add* and *ins* curses functions (that is, it disables
  *       translation of control characters).
  *
  * Return Value:

@@ -59,12 +59,12 @@
  *       int getmaxx(WINDOW *win);
  *
  * Description:
- *       The getyx() macro (defined in curses.h -- the prototypes here 
- *       are merely illustrative) puts the current cursor position of the 
- *       specified window into y and x. getbegyx() and getmaxyx() return 
- *       the starting coordinates and size of the specified window, 
- *       respectively. getparyx() returns the starting coordinates of the 
- *       parent's window, if the specified window is a subwindow; 
+ *       The getyx() macro (defined in curses.h -- the prototypes here
+ *       are merely illustrative) puts the current cursor position of the
+ *       specified window into y and x. getbegyx() and getmaxyx() return
+ *       the starting coordinates and size of the specified window,
+ *       respectively. getparyx() returns the starting coordinates of the
+ *       parent's window, if the specified window is a subwindow;
  *       otherwise it sets y and x to -1. These are all macros.
  *
  *       getsyx() gets the coordinates of the virtual screen cursor, and

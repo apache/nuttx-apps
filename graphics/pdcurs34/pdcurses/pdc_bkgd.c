@@ -71,7 +71,7 @@
  *       there is a conflict (e.g., different color pairs).
  *
  * Return Value:
- *       bkgd() and wbkgd() return OK, unless the window is NULL, in 
+ *       bkgd() and wbkgd() return OK, unless the window is NULL, in
  *       which case they return ERR.
  *
  * Portability                                X/Open    BSD    SYS V
@@ -173,7 +173,7 @@ int wbkgd(WINDOW * win, chtype ch)
           attr ^= oldattr;
           attr |= newattr;
 
-          /* Change character if it is there because it was the old background 
+          /* Change character if it is there because it was the old background
            * character.
            */
 
