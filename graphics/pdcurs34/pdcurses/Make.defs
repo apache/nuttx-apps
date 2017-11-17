@@ -1,0 +1,47 @@
+############################################################################
+# apps/graphics/pdcurs34/Make.defs
+#
+#   Copyright (C) 2017 Gregory Nutt. All rights reserved.
+#   Author: Gregory Nutt <gnutt@nuttx.org>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name NuttX nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+############################################################################
+
+CSRCS += pdc_addch.c pdc_addchstr.c pdc_addstr.c pdc_attr.c pdc_beep.c
+CSRCS += pdc_bkgd.c pdc_border.c pdc_clear.c pdc_color.c pdc_debug.c
+CSRCS += pdc_delch.c pdc_deleteln.c pdc_getch.c pdc_getstr.c pdc_getyx.c
+CSRCS += pdc_inch.c pdc_inchstr.c pdc_initscr.c pdc_inopts.c pdc_insch.c
+CSRCS += pdc_insstr.c pdc_instr.c pdc_kernel.c pdc_keyname.c pdc_mouse.c
+CSRCS += pdc_move.c pdc_outopts.c pdc_overlay.c pdc_pad.c pdc_panel.c
+CSRCS += pdc_printw.c pdc_refresh.c pdc_scanw.c pdc_scrdump.c pdc_scroll.c
+CSRCS += pdc_slk.c pdc_termattr.c pdc_terminfo.c pdc_touch.c pdc_util.c
+CSRCS += pdc_window.c
+
+DEPPATH += --dep-path pdcurses
+VPATH += :pdcurses
