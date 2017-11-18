@@ -83,7 +83,7 @@
  * Public Functions
  ****************************************************************************/
 
-chtype winch(WINDOW * win)
+chtype winch(WINDOW *win)
 {
   PDC_LOG(("winch() - called\n"));
 
@@ -114,7 +114,7 @@ chtype mvinch(int y, int x)
   return stdscr->_y[stdscr->_cury][stdscr->_curx];
 }
 
-chtype mvwinch(WINDOW * win, int y, int x)
+chtype mvwinch(WINDOW *win, int y, int x)
 {
   PDC_LOG(("mvwinch() - called\n"));
 
@@ -127,7 +127,7 @@ chtype mvwinch(WINDOW * win, int y, int x)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int win_wch(WINDOW * win, cchar_t * wcval)
+int win_wch(WINDOW *win, cchar_t *wcval)
 {
   PDC_LOG(("win_wch() - called\n"));
 
@@ -141,14 +141,14 @@ int win_wch(WINDOW * win, cchar_t * wcval)
   return OK;
 }
 
-int in_wch(cchar_t * wcval)
+int in_wch(cchar_t *wcval)
 {
   PDC_LOG(("in_wch() - called\n"));
 
   return win_wch(stdscr, wcval);
 }
 
-int mvin_wch(int y, int x, cchar_t * wcval)
+int mvin_wch(int y, int x, cchar_t *wcval)
 {
   PDC_LOG(("mvin_wch() - called\n"));
 
@@ -161,7 +161,7 @@ int mvin_wch(int y, int x, cchar_t * wcval)
   return OK;
 }
 
-int mvwin_wch(WINDOW * win, int y, int x, cchar_t * wcval)
+int mvwin_wch(WINDOW *win, int y, int x, cchar_t *wcval)
 {
   PDC_LOG(("mvwin_wch() - called\n"));
 

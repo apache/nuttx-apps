@@ -118,7 +118,7 @@
  *       the window. (However, you still can call it _on_ subwindows.) It
  *       returns OK or ERR.
  *
- *       PDC_makenew() allocates all data for a new WINDOW * except the
+ *       PDC_makenew() allocates all data for a new WINDOW *except the
  *       actual lines themselves. If it's unable to allocate memory for
  *       the window structure, it will free all allocated memory and
  *       return a NULL pointer.
@@ -360,7 +360,7 @@ int mvwin(WINDOW *win, int y, int x)
   return OK;
 }
 
-WINDOW *subwin(WINDOW * orig, int nlines, int ncols, int begy, int begx)
+WINDOW *subwin(WINDOW *orig, int nlines, int ncols, int begy, int begx)
 {
   WINDOW *win;
   int i;
@@ -417,7 +417,7 @@ WINDOW *subwin(WINDOW * orig, int nlines, int ncols, int begy, int begx)
   return win;
 }
 
-WINDOW *derwin(WINDOW * orig, int nlines, int ncols, int begy, int begx)
+WINDOW *derwin(WINDOW *orig, int nlines, int ncols, int begy, int begx)
 {
   return subwin(orig, nlines, ncols, begy + orig->_begy, begx + orig->_begx);
 }

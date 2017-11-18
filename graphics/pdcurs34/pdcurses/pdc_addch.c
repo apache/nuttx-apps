@@ -373,7 +373,7 @@ int mvaddch(int y, int x, const chtype ch)
   return waddch(stdscr, ch);
 }
 
-int mvwaddch(WINDOW * win, int y, int x, const chtype ch)
+int mvwaddch(WINDOW *win, int y, int x, const chtype ch)
 {
   PDC_LOG(("mvwaddch() - called: win=%p y=%d x=%d ch=%d\n", win, y, x, ch));
 
@@ -392,7 +392,7 @@ int echochar(const chtype ch)
   return wechochar(stdscr, ch);
 }
 
-int wechochar(WINDOW * win, const chtype ch)
+int wechochar(WINDOW *win, const chtype ch)
 {
   PDC_LOG(("wechochar() - called: win=%p ch=%x\n", win, ch));
 
@@ -404,7 +404,7 @@ int wechochar(WINDOW * win, const chtype ch)
   return wrefresh(win);
 }
 
-int waddrawch(WINDOW * win, chtype ch)
+int waddrawch(WINDOW *win, chtype ch)
 {
   PDC_LOG(("waddrawch() - called: win=%p ch=%x (text=%c attr=0x%x)\n",
            win, ch, ch & A_CHARTEXT, ch & A_ATTRIBUTES));
@@ -436,7 +436,7 @@ int mvaddrawch(int y, int x, chtype ch)
   return waddrawch(stdscr, ch);
 }
 
-int mvwaddrawch(WINDOW * win, int y, int x, chtype ch)
+int mvwaddrawch(WINDOW *win, int y, int x, chtype ch)
 {
   PDC_LOG(("mvwaddrawch() - called: win=%p y=%d x=%d ch=%d\n", win, y, x, ch));
 
@@ -449,21 +449,21 @@ int mvwaddrawch(WINDOW * win, int y, int x, chtype ch)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int wadd_wch(WINDOW * win, const cchar_t * wch)
+int wadd_wch(WINDOW *win, const cchar_t *wch)
 {
   PDC_LOG(("wadd_wch() - called: win=%p wch=%x\n", win, *wch));
 
   return wch ? waddch(win, *wch) : ERR;
 }
 
-int add_wch(const cchar_t * wch)
+int add_wch(const cchar_t *wch)
 {
   PDC_LOG(("add_wch() - called: wch=%x\n", *wch));
 
   return wadd_wch(stdscr, wch);
 }
 
-int mvadd_wch(int y, int x, const cchar_t * wch)
+int mvadd_wch(int y, int x, const cchar_t *wch)
 {
   PDC_LOG(("mvaddch() - called: y=%d x=%d wch=%x\n", y, x, *wch));
 
@@ -475,7 +475,7 @@ int mvadd_wch(int y, int x, const cchar_t * wch)
   return wadd_wch(stdscr, wch);
 }
 
-int mvwadd_wch(WINDOW * win, int y, int x, const cchar_t * wch)
+int mvwadd_wch(WINDOW *win, int y, int x, const cchar_t *wch)
 {
   PDC_LOG(("mvwaddch() - called: win=%p y=%d x=%d wch=%d\n",
           win, y, x, *wch));
@@ -488,14 +488,14 @@ int mvwadd_wch(WINDOW * win, int y, int x, const cchar_t * wch)
   return wadd_wch(win, wch);
 }
 
-int echo_wchar(const cchar_t * wch)
+int echo_wchar(const cchar_t *wch)
 {
   PDC_LOG(("echo_wchar() - called: wch=%x\n", *wch));
 
   return wecho_wchar(stdscr, wch);
 }
 
-int wecho_wchar(WINDOW * win, const cchar_t * wch)
+int wecho_wchar(WINDOW *win, const cchar_t *wch)
 {
   PDC_LOG(("wecho_wchar() - called: win=%p wch=%x\n", win, *wch));
 

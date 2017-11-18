@@ -172,7 +172,7 @@ int delay_output(int ms)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int getcchar(const cchar_t * wcval, wchar_t * wch, attr_t * attrs,
+int getcchar(const cchar_t *wcval, wchar_t *wch, attr_t *attrs,
              short *color_pair, void *opts)
 {
   if (!wcval)
@@ -204,7 +204,7 @@ int getcchar(const cchar_t * wcval, wchar_t * wch, attr_t * attrs,
     }
 }
 
-int setcchar(cchar_t * wcval, const wchar_t * wch, const attr_t attrs,
+int setcchar(cchar_t *wcval, const wchar_t *wch, const attr_t attrs,
              short color_pair, const void *opts)
 {
   if (!wcval || !wch)
@@ -216,7 +216,7 @@ int setcchar(cchar_t * wcval, const wchar_t * wch, const attr_t attrs,
   return OK;
 }
 
-wchar_t *wunctrl(cchar_t * wc)
+wchar_t *wunctrl(cchar_t *wc)
 {
   static wchar_t strbuf[3] = { 0, 0, 0 };
 
@@ -247,7 +247,7 @@ wchar_t *wunctrl(cchar_t * wc)
   return strbuf;
 }
 
-int PDC_mbtowc(wchar_t * pwc, const char *s, size_t n)
+int PDC_mbtowc(wchar_t *pwc, const char *s, size_t n)
 {
 #ifdef CONFIG_PDCURSES_FORCE_UTF8
   wchar_t key;
@@ -306,7 +306,7 @@ int PDC_mbtowc(wchar_t * pwc, const char *s, size_t n)
 #endif
 }
 
-size_t PDC_mbstowcs(wchar_t * dest, const char *src, size_t n)
+size_t PDC_mbstowcs(wchar_t *dest, const char *src, size_t n)
 {
 #ifdef CONFIG_PDCURSES_FORCE_UTF8
   size_t len;
@@ -340,7 +340,7 @@ size_t PDC_mbstowcs(wchar_t * dest, const char *src, size_t n)
   return i;
 }
 
-size_t PDC_wcstombs(char *dest, const wchar_t * src, size_t n)
+size_t PDC_wcstombs(char *dest, const wchar_t *src, size_t n)
 {
 #ifdef CONFIG_PDCURSES_FORCE_UTF8
   size_t i = 0;

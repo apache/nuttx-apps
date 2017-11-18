@@ -1,7 +1,11 @@
 /****************************************************************************
- * apps/graphics/pdcurses/pdc_scroll.c
- * Public Domain Curses
- * RCSID("$Id: scroll.c,v 1.36 2008/07/13 16:08:18 wmcbrine Exp $")
+ * apps/examples/pdcurses/tui.c
+ * Textual User Interface
+ *
+ *   Author : P.J. Kunst <kunst@prl.philips.nl>
+ *   Date   : 25-02-93
+ *
+ * $Id: tui.h,v 1.11 2008/07/14 12:35:23 wmcbrine Exp $
  *
  *   Copyright (C) 2017 Gregory Nutt. All rights reserved.
  *   Adapted by: Gregory Nutt <gnutt@nuttx.org>
@@ -38,113 +42,75 @@
  *
  ****************************************************************************/
 
-/* Name: scroll
- *
- * Synopsis:
- *       int scroll(WINDOW *win);
- *       int scrl(int n);
- *       int wscrl(WINDOW *win, int n);
- *
- * Description:
- *       scroll() causes the window to scroll up one line.  This involves
- *       moving the lines in the window data strcture.
- *
- *       With a positive n, scrl() and wscrl() scroll the window up n
- *       lines (line i + n becomes i); otherwise they scroll the window
- *       down n lines.
-
- *       For these functions to work, scrolling must be enabled via
- *       scrollok(). Note also that scrolling is not allowed if the
- *       supplied window is a pad.
- *
- * Return Value:
- *       All functions return OK on success and ERR on error.
- *
- * Portability                                X/Open    BSD    SYS V
- *       scroll                                  Y       Y       Y
- *       scrl                                    Y       -      4.0
- *       wscrl                                   Y       -      4.0
- */
+#ifndef __APPS_EXAMPLES_PDCURSES_TUI_H
+#define __APPS_EXAMPLES_PDCURSES_TUI_H
 
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include "curspriv.h"
+#include "graphics/curses.h"
 
 /****************************************************************************
- * Public Functions
+ * Pre-processor Defintiions
  ****************************************************************************/
 
-int wscrl(WINDOW *win, int n)
+#ifdef A_COLOR
+#  define A_ATTR  (A_ATTRIBUTES ^ A_COLOR)  /* A_BLINK, A_REVERSE, A_BOLD */
+#else
+#  define A_ATTR  (A_ATTRIBUTES)            /* standard UNIX attributes */
+#endif
+
+#define MAXSTRLEN  256
+#define KEY_ESC    0x1b     /* Escape */
+
+#define editstr(s,f)           (weditstr(stdscr,s,f))
+#define mveditstr(y,x,s,f)     (move(y,x)==ERR?ERR:editstr(s,f))
+#define mvweditstr(w,y,x,s,f)  (wmove(w,y,x)==ERR?ERR:weditstr(w,s,f))
+
+#define inputbox(l,c)          (winputbox(stdscr,l,c))
+#define mvinputbox(y,x,l,c)    (move(y,x)==ERR?w:inputbox(l,c))
+#define mvwinputbox(w,y,x,l,c) (wmove(w,y,x)==ERR?w:winputbox(w,l,c))
+
+/****************************************************************************
+ * Public Types
+ ****************************************************************************/
+
+typedef void (*FUNC)(void);
+
+typedef struct
 {
-  chtype blank;
-  chtype *temp;
-  int dir;
-  int start;
-  int end;
-  int l;
-  int i;
+  char *name; /* item label */
+  FUNC  func; /* (pointer to) function */
+  char *desc; /* function description */
+} menu;
 
-  /* Check if window scrolls. Valid for window AND pad */
+/****************************************************************************
+ * Public Functin Prototypes
+ ****************************************************************************/
 
-  if (!win || !win->_scroll || !n)
-    {
-      return ERR;
-    }
+void    clsbody(void);
+int     bodylen(void);
+WINDOW *bodywin(void);
 
-  blank = win->_bkgd;
+void    rmerror(void);
+void    rmstatus(void);
 
-  if (n > 0)
-    {
-      start = win->_tmarg;
-      end = win->_bmarg;
-      dir = 1;
-    }
-  else
-    {
-      start = win->_bmarg;
-      end = win->_tmarg;
-      dir = -1;
-    }
+void    titlemsg(char *msg);
+void    bodymsg(char *msg);
+void    errormsg(char *msg);
+void    statusmsg(char *msg);
 
-  for (l = 0; l < (n * dir); l++)
-    {
-      temp = win->_y[start];
+bool    keypressed(void);
+int     getkey(void);
+int     waitforkey(void);
 
-      /* Re-arrange line pointers */
+void    tui_exit(void);
+void    startmenu(menu *mp, char *title);
+void    domenu(menu *mp);
 
-      for (i = start; i != end; i += dir)
-        {
-          win->_y[i] = win->_y[i + dir];
-        }
+int     weditstr(WINDOW *win, char *buf, int field);
+WINDOW *winputbox(WINDOW *win, int nlines, int ncols);
+int     getstrings(char *desc[], char *buf[], int field);
 
-      win->_y[end] = temp;
-
-      /* Make a blank line */
-
-      for (i = 0; i < win->_maxx; i++)
-        {
-          *temp++ = blank;
-        }
-    }
-
-  touchline(win, win->_tmarg, win->_bmarg - win->_tmarg + 1);
-
-  PDC_sync(win);
-  return OK;
-}
-
-int scrl(int n)
-{
-  PDC_LOG(("scrl() - called\n"));
-
-  return wscrl(stdscr, n);
-}
-
-int scroll(WINDOW *win)
-{
-  PDC_LOG(("scroll() - called\n"));
-
-  return wscrl(win, 1);
-}
+#endif /* __APPS_EXAMPLES_PDCURSES_TUI_H */

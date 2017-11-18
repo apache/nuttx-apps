@@ -75,7 +75,7 @@
  * Public Functions
  ****************************************************************************/
 
-int wdelch(WINDOW * win)
+int wdelch(WINDOW *win)
 {
   int x;
   int y;
@@ -131,7 +131,7 @@ int mvdelch(int y, int x)
   return wdelch(stdscr);
 }
 
-int mvwdelch(WINDOW * win, int y, int x)
+int mvwdelch(WINDOW *win, int y, int x)
 {
   PDC_LOG(("mvwdelch() - called\n"));
 

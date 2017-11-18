@@ -667,7 +667,7 @@ int PDC_mouse_in_slk(int y, int x)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int slk_wset(int labnum, const wchar_t * label, int justify)
+int slk_wset(int labnum, const wchar_t *label, int justify)
 {
   PDC_LOG(("slk_wset() - called\n"));
 

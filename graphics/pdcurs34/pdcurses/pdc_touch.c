@@ -94,7 +94,7 @@
  * Public Functions
  ****************************************************************************/
 
-int touchwin(WINDOW * win)
+int touchwin(WINDOW *win)
 {
   int i;
 
@@ -114,7 +114,7 @@ int touchwin(WINDOW * win)
   return OK;
 }
 
-int touchline(WINDOW * win, int start, int count)
+int touchline(WINDOW *win, int start, int count)
 {
   int i;
 
@@ -135,7 +135,7 @@ int touchline(WINDOW * win, int start, int count)
   return OK;
 }
 
-int untouchwin(WINDOW * win)
+int untouchwin(WINDOW *win)
 {
   int i;
 
@@ -155,7 +155,7 @@ int untouchwin(WINDOW * win)
   return OK;
 }
 
-int wtouchln(WINDOW * win, int y, int n, int changed)
+int wtouchln(WINDOW *win, int y, int n, int changed)
 {
   int i;
 
@@ -184,7 +184,7 @@ int wtouchln(WINDOW * win, int y, int n, int changed)
   return OK;
 }
 
-bool is_linetouched(WINDOW * win, int line)
+bool is_linetouched(WINDOW *win, int line)
 {
   PDC_LOG(("is_linetouched() - called: win=%p line=%d\n", win, line));
 
@@ -196,7 +196,7 @@ bool is_linetouched(WINDOW * win, int line)
   return (win->_firstch[line] != _NO_CHANGE) ? true : false;
 }
 
-bool is_wintouched(WINDOW * win)
+bool is_wintouched(WINDOW *win)
 {
   int i;
 

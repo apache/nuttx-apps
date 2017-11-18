@@ -141,7 +141,7 @@
  *  it. Attributes set explicitly in ch take precedence.
  */
 
-static chtype _attr_passthru(WINDOW * win, chtype ch)
+static chtype _attr_passthru(WINDOW *win, chtype ch)
 {
   chtype attr;
 
@@ -180,7 +180,7 @@ static chtype _attr_passthru(WINDOW * win, chtype ch)
  * Public Functions
  ****************************************************************************/
 
-int wborder(WINDOW * win, chtype ls, chtype rs, chtype ts, chtype bs,
+int wborder(WINDOW *win, chtype ls, chtype rs, chtype ts, chtype bs,
             chtype tl, chtype tr, chtype bl, chtype br)
 {
   int xmax;
@@ -242,14 +242,14 @@ int border(chtype ls, chtype rs, chtype ts, chtype bs, chtype tl,
   return wborder(stdscr, ls, rs, ts, bs, tl, tr, bl, br);
 }
 
-int box(WINDOW * win, chtype verch, chtype horch)
+int box(WINDOW *win, chtype verch, chtype horch)
 {
   PDC_LOG(("box() - called\n"));
 
   return wborder(win, verch, verch, horch, horch, 0, 0, 0, 0);
 }
 
-int whline(WINDOW * win, chtype ch, int n)
+int whline(WINDOW *win, chtype ch, int n)
 {
   chtype *dest;
   int startpos, endpos;
@@ -307,7 +307,7 @@ int mvhline(int y, int x, chtype ch, int n)
   return whline(stdscr, ch, n);
 }
 
-int mvwhline(WINDOW * win, int y, int x, chtype ch, int n)
+int mvwhline(WINDOW *win, int y, int x, chtype ch, int n)
 {
   PDC_LOG(("mvwhline() - called\n"));
 
@@ -319,7 +319,7 @@ int mvwhline(WINDOW * win, int y, int x, chtype ch, int n)
   return whline(win, ch, n);
 }
 
-int wvline(WINDOW * win, chtype ch, int n)
+int wvline(WINDOW *win, chtype ch, int n)
 {
   int endpos;
   int x;
@@ -375,7 +375,7 @@ int mvvline(int y, int x, chtype ch, int n)
   return wvline(stdscr, ch, n);
 }
 
-int mvwvline(WINDOW * win, int y, int x, chtype ch, int n)
+int mvwvline(WINDOW *win, int y, int x, chtype ch, int n)
 {
   PDC_LOG(("mvwvline() - called\n"));
 
@@ -388,9 +388,9 @@ int mvwvline(WINDOW * win, int y, int x, chtype ch, int n)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int wborder_set(WINDOW * win, const cchar_t * ls, const cchar_t * rs,
-                const cchar_t * ts, const cchar_t * bs, const cchar_t * tl,
-                const cchar_t * tr, const cchar_t * bl, const cchar_t * br)
+int wborder_set(WINDOW *win, const cchar_t *ls, const cchar_t *rs,
+                const cchar_t *ts, const cchar_t *bs, const cchar_t *tl,
+                const cchar_t *tr, const cchar_t *bl, const cchar_t *br)
 {
   PDC_LOG(("wborder_set() - called\n"));
 
@@ -399,16 +399,16 @@ int wborder_set(WINDOW * win, const cchar_t * ls, const cchar_t * rs,
                  bl ? *bl : 0, br ? *br : 0);
 }
 
-int border_set(const cchar_t * ls, const cchar_t * rs, const cchar_t * ts,
-               const cchar_t * bs, const cchar_t * tl, const cchar_t * tr,
-               const cchar_t * bl, const cchar_t * br)
+int border_set(const cchar_t *ls, const cchar_t *rs, const cchar_t *ts,
+               const cchar_t *bs, const cchar_t *tl, const cchar_t *tr,
+               const cchar_t *bl, const cchar_t *br)
 {
   PDC_LOG(("border_set() - called\n"));
 
   return wborder_set(stdscr, ls, rs, ts, bs, tl, tr, bl, br);
 }
 
-int box_set(WINDOW * win, const cchar_t * verch, const cchar_t * horch)
+int box_set(WINDOW *win, const cchar_t *verch, const cchar_t *horch)
 {
   PDC_LOG(("box_set() - called\n"));
 
@@ -417,21 +417,21 @@ int box_set(WINDOW * win, const cchar_t * verch, const cchar_t * horch)
                      (const cchar_t *)NULL, (const cchar_t *)NULL);
 }
 
-int whline_set(WINDOW * win, const cchar_t * wch, int n)
+int whline_set(WINDOW *win, const cchar_t *wch, int n)
 {
   PDC_LOG(("whline_set() - called\n"));
 
   return wch ? whline(win, *wch, n) : ERR;
 }
 
-int hline_set(const cchar_t * wch, int n)
+int hline_set(const cchar_t *wch, int n)
 {
   PDC_LOG(("hline_set() - called\n"));
 
   return whline_set(stdscr, wch, n);
 }
 
-int mvhline_set(int y, int x, const cchar_t * wch, int n)
+int mvhline_set(int y, int x, const cchar_t *wch, int n)
 {
   PDC_LOG(("mvhline_set() - called\n"));
 
@@ -443,7 +443,7 @@ int mvhline_set(int y, int x, const cchar_t * wch, int n)
   return whline_set(stdscr, wch, n);
 }
 
-int mvwhline_set(WINDOW * win, int y, int x, const cchar_t * wch, int n)
+int mvwhline_set(WINDOW *win, int y, int x, const cchar_t *wch, int n)
 {
   PDC_LOG(("mvwhline_set() - called\n"));
 
@@ -455,21 +455,21 @@ int mvwhline_set(WINDOW * win, int y, int x, const cchar_t * wch, int n)
   return whline_set(win, wch, n);
 }
 
-int wvline_set(WINDOW * win, const cchar_t * wch, int n)
+int wvline_set(WINDOW *win, const cchar_t *wch, int n)
 {
   PDC_LOG(("wvline_set() - called\n"));
 
   return wch ? wvline(win, *wch, n) : ERR;
 }
 
-int vline_set(const cchar_t * wch, int n)
+int vline_set(const cchar_t *wch, int n)
 {
   PDC_LOG(("vline_set() - called\n"));
 
   return wvline_set(stdscr, wch, n);
 }
 
-int mvvline_set(int y, int x, const cchar_t * wch, int n)
+int mvvline_set(int y, int x, const cchar_t *wch, int n)
 {
   PDC_LOG(("mvvline_set() - called\n"));
 
@@ -481,7 +481,7 @@ int mvvline_set(int y, int x, const cchar_t * wch, int n)
   return wvline_set(stdscr, wch, n);
 }
 
-int mvwvline_set(WINDOW * win, int y, int x, const cchar_t * wch, int n)
+int mvwvline_set(WINDOW *win, int y, int x, const cchar_t *wch, int n)
 {
   PDC_LOG(("mvwvline_set() - called\n"));
 

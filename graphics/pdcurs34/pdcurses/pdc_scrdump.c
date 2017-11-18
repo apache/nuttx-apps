@@ -106,7 +106,7 @@
  * Public Functions
  ****************************************************************************/
 
-int putwin(WINDOW * win, FILE *filep)
+int putwin(WINDOW *win, FILE *filep)
 {
   static const char *marker = "PDC";
   static const unsigned char version = DUMPVER;

@@ -111,56 +111,56 @@
  * Publid Functions
  ****************************************************************************/
 
-int getbegy(WINDOW * win)
+int getbegy(WINDOW *win)
 {
   PDC_LOG(("getbegy() - called\n"));
 
   return win ? win->_begy : ERR;
 }
 
-int getbegx(WINDOW * win)
+int getbegx(WINDOW *win)
 {
   PDC_LOG(("getbegx() - called\n"));
 
   return win ? win->_begx : ERR;
 }
 
-int getcury(WINDOW * win)
+int getcury(WINDOW *win)
 {
   PDC_LOG(("getcury() - called\n"));
 
   return win ? win->_cury : ERR;
 }
 
-int getcurx(WINDOW * win)
+int getcurx(WINDOW *win)
 {
   PDC_LOG(("getcurx() - called\n"));
 
   return win ? win->_curx : ERR;
 }
 
-int getpary(WINDOW * win)
+int getpary(WINDOW *win)
 {
   PDC_LOG(("getpary() - called\n"));
 
   return win ? win->_pary : ERR;
 }
 
-int getparx(WINDOW * win)
+int getparx(WINDOW *win)
 {
   PDC_LOG(("getparx() - called\n"));
 
   return win ? win->_parx : ERR;
 }
 
-int getmaxy(WINDOW * win)
+int getmaxy(WINDOW *win)
 {
   PDC_LOG(("getmaxy() - called\n"));
 
   return win ? win->_maxy : ERR;
 }
 
-int getmaxx(WINDOW * win)
+int getmaxx(WINDOW *win)
 {
   PDC_LOG(("getmaxx() - called\n"));
 

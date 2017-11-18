@@ -94,7 +94,7 @@
 
 #include "curspriv.h"
 
-int wbkgd(WINDOW * win, chtype ch)
+int wbkgd(WINDOW *win, chtype ch)
 {
   int x;
   int y;
@@ -201,7 +201,7 @@ int bkgd(chtype ch)
   return wbkgd(stdscr, ch);
 }
 
-void wbkgdset(WINDOW * win, chtype ch)
+void wbkgdset(WINDOW *win, chtype ch)
 {
   PDC_LOG(("wbkgdset() - called\n"));
 
@@ -223,7 +223,7 @@ void bkgdset(chtype ch)
   wbkgdset(stdscr, ch);
 }
 
-chtype getbkgd(WINDOW * win)
+chtype getbkgd(WINDOW *win)
 {
   PDC_LOG(("getbkgd() - called\n"));
 
@@ -231,21 +231,21 @@ chtype getbkgd(WINDOW * win)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int wbkgrnd(WINDOW * win, const cchar_t * wch)
+int wbkgrnd(WINDOW *win, const cchar_t *wch)
 {
   PDC_LOG(("wbkgrnd() - called\n"));
 
   return wch ? wbkgd(win, *wch) : ERR;
 }
 
-int bkgrnd(const cchar_t * wch)
+int bkgrnd(const cchar_t *wch)
 {
   PDC_LOG(("bkgrnd() - called\n"));
 
   return wbkgrnd(stdscr, wch);
 }
 
-void wbkgrndset(WINDOW * win, const cchar_t * wch)
+void wbkgrndset(WINDOW *win, const cchar_t *wch)
 {
   PDC_LOG(("wbkgdset() - called\n"));
 
@@ -255,14 +255,14 @@ void wbkgrndset(WINDOW * win, const cchar_t * wch)
     }
 }
 
-void bkgrndset(const cchar_t * wch)
+void bkgrndset(const cchar_t *wch)
 {
   PDC_LOG(("bkgrndset() - called\n"));
 
   wbkgrndset(stdscr, wch);
 }
 
-int wgetbkgrnd(WINDOW * win, cchar_t * wch)
+int wgetbkgrnd(WINDOW *win, cchar_t *wch)
 {
   PDC_LOG(("wgetbkgrnd() - called\n"));
 
@@ -276,7 +276,7 @@ int wgetbkgrnd(WINDOW * win, cchar_t * wch)
   return OK;
 }
 
-int getbkgrnd(cchar_t * wch)
+int getbkgrnd(cchar_t *wch)
 {
   PDC_LOG(("getbkgrnd() - called\n"));
 

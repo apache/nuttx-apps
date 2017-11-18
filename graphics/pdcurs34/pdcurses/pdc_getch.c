@@ -138,7 +138,7 @@ static int c_ungch[NUNGETCH];   /* array of ungotten chars */
  * Private Functions
  ****************************************************************************/
 
-static int _mouse_key(WINDOW * win)
+static int _mouse_key(WINDOW *win)
 {
   unsigned long mbe = SP->_trap_mbe;
   int key = KEY_MOUSE;
@@ -214,7 +214,7 @@ static int _mouse_key(WINDOW * win)
  * Public Functions
  ****************************************************************************/
 
-int wgetch(WINDOW * win)
+int wgetch(WINDOW *win)
 {
   static int buffer[_INBUFSIZ]; /* character buffer */
   int key, waitcount;
@@ -394,7 +394,7 @@ int mvgetch(int y, int x)
   return wgetch(stdscr);
 }
 
-int mvwgetch(WINDOW * win, int y, int x)
+int mvwgetch(WINDOW *win, int y, int x)
 {
   PDC_LOG(("mvwgetch() - called\n"));
 
@@ -457,7 +457,7 @@ int PDC_return_key_modifiers(bool flag)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int wget_wch(WINDOW * win, wint_t * wch)
+int wget_wch(WINDOW *win, wint_t *wch)
 {
   int key;
 
@@ -480,14 +480,14 @@ int wget_wch(WINDOW * win, wint_t * wch)
   return SP->key_code ? KEY_CODE_YES : OK;
 }
 
-int get_wch(wint_t * wch)
+int get_wch(wint_t *wch)
 {
   PDC_LOG(("get_wch() - called\n"));
 
   return wget_wch(stdscr, wch);
 }
 
-int mvget_wch(int y, int x, wint_t * wch)
+int mvget_wch(int y, int x, wint_t *wch)
 {
   PDC_LOG(("mvget_wch() - called\n"));
 
@@ -499,7 +499,7 @@ int mvget_wch(int y, int x, wint_t * wch)
   return wget_wch(stdscr, wch);
 }
 
-int mvwget_wch(WINDOW * win, int y, int x, wint_t * wch)
+int mvwget_wch(WINDOW *win, int y, int x, wint_t *wch)
 {
   PDC_LOG(("mvwget_wch() - called\n"));
 

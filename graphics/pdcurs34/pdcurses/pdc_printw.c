@@ -79,7 +79,7 @@
  * Public Functions
  ****************************************************************************/
 
-int vwprintw(WINDOW * win, const char *fmt, va_list varglist)
+int vwprintw(WINDOW *win, const char *fmt, va_list varglist)
 {
   char printbuf[513];
   int len;
@@ -104,7 +104,7 @@ int printw(const char *fmt, ...)
   return retval;
 }
 
-int wprintw(WINDOW * win, const char *fmt, ...)
+int wprintw(WINDOW *win, const char *fmt, ...)
 {
   va_list args;
   int retval;
@@ -137,7 +137,7 @@ int mvprintw(int y, int x, const char *fmt, ...)
   return retval;
 }
 
-int mvwprintw(WINDOW * win, int y, int x, const char *fmt, ...)
+int mvwprintw(WINDOW *win, int y, int x, const char *fmt, ...)
 {
   va_list args;
   int retval;
@@ -156,7 +156,7 @@ int mvwprintw(WINDOW * win, int y, int x, const char *fmt, ...)
   return retval;
 }
 
-int vw_printw(WINDOW * win, const char *fmt, va_list varglist)
+int vw_printw(WINDOW *win, const char *fmt, va_list varglist)
 {
   PDC_LOG(("vw_printw() - called\n"));
 

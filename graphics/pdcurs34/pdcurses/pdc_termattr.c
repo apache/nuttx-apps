@@ -193,7 +193,7 @@ char wordchar(void)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int erasewchar(wchar_t * ch)
+int erasewchar(wchar_t *ch)
 {
   PDC_LOG(("erasewchar() - called\n"));
 
@@ -206,7 +206,7 @@ int erasewchar(wchar_t * ch)
   return OK;
 }
 
-int killwchar(wchar_t * ch)
+int killwchar(wchar_t *ch)
 {
   PDC_LOG(("killwchar() - called\n"));
 

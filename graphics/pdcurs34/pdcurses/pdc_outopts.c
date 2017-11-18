@@ -106,7 +106,7 @@
  * Public Functions
  ****************************************************************************/
 
-int clearok(WINDOW * win, bool bf)
+int clearok(WINDOW *win, bool bf)
 {
   PDC_LOG(("clearok() - called\n"));
 
@@ -119,19 +119,19 @@ int clearok(WINDOW * win, bool bf)
   return OK;
 }
 
-int idlok(WINDOW * win, bool bf)
+int idlok(WINDOW *win, bool bf)
 {
   PDC_LOG(("idlok() - called\n"));
 
   return OK;
 }
 
-void idcok(WINDOW * win, bool bf)
+void idcok(WINDOW *win, bool bf)
 {
   PDC_LOG(("idcok() - called\n"));
 }
 
-void immedok(WINDOW * win, bool bf)
+void immedok(WINDOW *win, bool bf)
 {
   PDC_LOG(("immedok() - called\n"));
 
@@ -141,7 +141,7 @@ void immedok(WINDOW * win, bool bf)
     }
 }
 
-int leaveok(WINDOW * win, bool bf)
+int leaveok(WINDOW *win, bool bf)
 {
   PDC_LOG(("leaveok() - called\n"));
 
@@ -162,7 +162,7 @@ int setscrreg(int top, int bottom)
   return wsetscrreg(stdscr, top, bottom);
 }
 
-int wsetscrreg(WINDOW * win, int top, int bottom)
+int wsetscrreg(WINDOW *win, int top, int bottom)
 {
   PDC_LOG(("wsetscrreg() - called: top %d bottom %d\n", top, bottom));
 
@@ -180,7 +180,7 @@ int wsetscrreg(WINDOW * win, int top, int bottom)
     }
 }
 
-int scrollok(WINDOW * win, bool bf)
+int scrollok(WINDOW *win, bool bf)
 {
   PDC_LOG(("scrollok() - called\n"));
 

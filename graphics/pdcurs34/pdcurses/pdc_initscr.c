@@ -303,7 +303,7 @@ bool isendwin(void)
   return SP ? !(SP->alive) : false;
 }
 
-SCREEN *newterm(const char *type, FILE * outfd, FILE * infd)
+SCREEN *newterm(const char *type, FILE *outfd, FILE *infd)
 {
   PDC_LOG(("newterm() - called\n"));
 

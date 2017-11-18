@@ -106,7 +106,7 @@
  * Public Functions
  ****************************************************************************/
 
-int waddchnstr(WINDOW *win, const chtype * ch, int n)
+int waddchnstr(WINDOW *win, const chtype *ch, int n)
 {
   int x;
   int y;
@@ -162,28 +162,28 @@ int waddchnstr(WINDOW *win, const chtype * ch, int n)
   return OK;
 }
 
-int addchstr(const chtype * ch)
+int addchstr(const chtype *ch)
 {
   PDC_LOG(("addchstr() - called\n"));
 
   return waddchnstr(stdscr, ch, -1);
 }
 
-int addchnstr(const chtype * ch, int n)
+int addchnstr(const chtype *ch, int n)
 {
   PDC_LOG(("addchnstr() - called\n"));
 
   return waddchnstr(stdscr, ch, n);
 }
 
-int waddchstr(WINDOW *win, const chtype * ch)
+int waddchstr(WINDOW *win, const chtype *ch)
 {
   PDC_LOG(("waddchstr() - called: win=%p\n", win));
 
   return waddchnstr(win, ch, -1);
 }
 
-int mvaddchstr(int y, int x, const chtype * ch)
+int mvaddchstr(int y, int x, const chtype *ch)
 {
   PDC_LOG(("mvaddchstr() - called: y %d x %d\n", y, x));
 
@@ -195,7 +195,7 @@ int mvaddchstr(int y, int x, const chtype * ch)
   return waddchnstr(stdscr, ch, -1);
 }
 
-int mvaddchnstr(int y, int x, const chtype * ch, int n)
+int mvaddchnstr(int y, int x, const chtype *ch, int n)
 {
   PDC_LOG(("mvaddchnstr() - called: y %d x %d n %d\n", y, x, n));
 
@@ -207,7 +207,7 @@ int mvaddchnstr(int y, int x, const chtype * ch, int n)
   return waddchnstr(stdscr, ch, n);
 }
 
-int mvwaddchstr(WINDOW *win, int y, int x, const chtype * ch)
+int mvwaddchstr(WINDOW *win, int y, int x, const chtype *ch)
 {
   PDC_LOG(("mvwaddchstr() - called:\n"));
 
@@ -219,7 +219,7 @@ int mvwaddchstr(WINDOW *win, int y, int x, const chtype * ch)
   return waddchnstr(win, ch, -1);
 }
 
-int mvwaddchnstr(WINDOW *win, int y, int x, const chtype * ch, int n)
+int mvwaddchnstr(WINDOW *win, int y, int x, const chtype *ch, int n)
 {
   PDC_LOG(("mvwaddchnstr() - called: y %d x %d n %d \n", y, x, n));
 

@@ -97,7 +97,7 @@
  * Public Functions
  ****************************************************************************/
 
-int winchnstr(WINDOW * win, chtype * ch, int n)
+int winchnstr(WINDOW *win, chtype *ch, int n)
 {
   chtype *src;
   int i;
@@ -125,21 +125,21 @@ int winchnstr(WINDOW * win, chtype * ch, int n)
   return OK;
 }
 
-int inchstr(chtype * ch)
+int inchstr(chtype *ch)
 {
   PDC_LOG(("inchstr() - called\n"));
 
   return winchnstr(stdscr, ch, stdscr->_maxx - stdscr->_curx);
 }
 
-int winchstr(WINDOW * win, chtype * ch)
+int winchstr(WINDOW *win, chtype *ch)
 {
   PDC_LOG(("winchstr() - called\n"));
 
   return winchnstr(win, ch, win->_maxx - win->_curx);
 }
 
-int mvinchstr(int y, int x, chtype * ch)
+int mvinchstr(int y, int x, chtype *ch)
 {
   PDC_LOG(("mvinchstr() - called: y %d x %d\n", y, x));
 
@@ -151,7 +151,7 @@ int mvinchstr(int y, int x, chtype * ch)
   return winchnstr(stdscr, ch, stdscr->_maxx - stdscr->_curx);
 }
 
-int mvwinchstr(WINDOW * win, int y, int x, chtype * ch)
+int mvwinchstr(WINDOW *win, int y, int x, chtype *ch)
 {
   PDC_LOG(("mvwinchstr() - called:\n"));
 
@@ -163,14 +163,14 @@ int mvwinchstr(WINDOW * win, int y, int x, chtype * ch)
   return winchnstr(win, ch, win->_maxx - win->_curx);
 }
 
-int inchnstr(chtype * ch, int n)
+int inchnstr(chtype *ch, int n)
 {
   PDC_LOG(("inchnstr() - called\n"));
 
   return winchnstr(stdscr, ch, n);
 }
 
-int mvinchnstr(int y, int x, chtype * ch, int n)
+int mvinchnstr(int y, int x, chtype *ch, int n)
 {
   PDC_LOG(("mvinchnstr() - called: y %d x %d n %d\n", y, x, n));
 
@@ -182,7 +182,7 @@ int mvinchnstr(int y, int x, chtype * ch, int n)
   return winchnstr(stdscr, ch, n);
 }
 
-int mvwinchnstr(WINDOW * win, int y, int x, chtype * ch, int n)
+int mvwinchnstr(WINDOW *win, int y, int x, chtype *ch, int n)
 {
   PDC_LOG(("mvwinchnstr() - called: y %d x %d n %d \n", y, x, n));
 
@@ -195,28 +195,28 @@ int mvwinchnstr(WINDOW * win, int y, int x, chtype * ch, int n)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int win_wchnstr(WINDOW * win, cchar_t * wch, int n)
+int win_wchnstr(WINDOW *win, cchar_t *wch, int n)
 {
   PDC_LOG(("win_wchnstr() - called\n"));
 
   return winchnstr(win, wch, n);
 }
 
-int in_wchstr(cchar_t * wch)
+int in_wchstr(cchar_t *wch)
 {
   PDC_LOG(("in_wchstr() - called\n"));
 
   return win_wchnstr(stdscr, wch, stdscr->_maxx - stdscr->_curx);
 }
 
-int win_wchstr(WINDOW * win, cchar_t * wch)
+int win_wchstr(WINDOW *win, cchar_t *wch)
 {
   PDC_LOG(("win_wchstr() - called\n"));
 
   return win_wchnstr(win, wch, win->_maxx - win->_curx);
 }
 
-int mvin_wchstr(int y, int x, cchar_t * wch)
+int mvin_wchstr(int y, int x, cchar_t *wch)
 {
   PDC_LOG(("mvin_wchstr() - called: y %d x %d\n", y, x));
 
@@ -228,7 +228,7 @@ int mvin_wchstr(int y, int x, cchar_t * wch)
   return win_wchnstr(stdscr, wch, stdscr->_maxx - stdscr->_curx);
 }
 
-int mvwin_wchstr(WINDOW * win, int y, int x, cchar_t * wch)
+int mvwin_wchstr(WINDOW *win, int y, int x, cchar_t *wch)
 {
   PDC_LOG(("mvwin_wchstr() - called:\n"));
 
@@ -240,14 +240,14 @@ int mvwin_wchstr(WINDOW * win, int y, int x, cchar_t * wch)
   return win_wchnstr(win, wch, win->_maxx - win->_curx);
 }
 
-int in_wchnstr(cchar_t * wch, int n)
+int in_wchnstr(cchar_t *wch, int n)
 {
   PDC_LOG(("in_wchnstr() - called\n"));
 
   return win_wchnstr(stdscr, wch, n);
 }
 
-int mvin_wchnstr(int y, int x, cchar_t * wch, int n)
+int mvin_wchnstr(int y, int x, cchar_t *wch, int n)
 {
   PDC_LOG(("mvin_wchnstr() - called: y %d x %d n %d\n", y, x, n));
 
@@ -259,7 +259,7 @@ int mvin_wchnstr(int y, int x, cchar_t * wch, int n)
   return win_wchnstr(stdscr, wch, n);
 }
 
-int mvwin_wchnstr(WINDOW * win, int y, int x, cchar_t * wch, int n)
+int mvwin_wchnstr(WINDOW *win, int y, int x, cchar_t *wch, int n)
 {
   PDC_LOG(("mvwinchnstr() - called: y %d x %d n %d \n", y, x, n));
 

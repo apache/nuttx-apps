@@ -91,7 +91,7 @@
  * Public Functions
  ****************************************************************************/
 
-int wdeleteln(WINDOW * win)
+int wdeleteln(WINDOW *win)
 {
   chtype blank;
   chtype *temp;
@@ -152,7 +152,7 @@ int mvdeleteln(int y, int x)
   return wdeleteln(stdscr);
 }
 
-int mvwdeleteln(WINDOW * win, int y, int x)
+int mvwdeleteln(WINDOW *win, int y, int x)
 {
   PDC_LOG(("mvwdeleteln() - called\n"));
 
@@ -164,7 +164,7 @@ int mvwdeleteln(WINDOW * win, int y, int x)
   return wdeleteln(win);
 }
 
-int winsdelln(WINDOW * win, int n)
+int winsdelln(WINDOW *win, int n)
 {
   int i;
 
@@ -207,7 +207,7 @@ int insdelln(int n)
   return winsdelln(stdscr, n);
 }
 
-int winsertln(WINDOW * win)
+int winsertln(WINDOW *win)
 {
   chtype blank, *temp, *end;
   int y;
@@ -264,7 +264,7 @@ int mvinsertln(int y, int x)
   return winsertln(stdscr);
 }
 
-int mvwinsertln(WINDOW * win, int y, int x)
+int mvwinsertln(WINDOW *win, int y, int x)
 {
   PDC_LOG(("mvwinsertln() - called\n"));
 

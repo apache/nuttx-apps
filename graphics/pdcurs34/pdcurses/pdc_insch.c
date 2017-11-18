@@ -101,7 +101,7 @@
  * Public Functions
  ****************************************************************************/
 
-int winsch(WINDOW * win, chtype ch)
+int winsch(WINDOW *win, chtype ch)
 {
   chtype attr;
   bool xlat;
@@ -244,7 +244,7 @@ int mvinsch(int y, int x, chtype ch)
   return winsch(stdscr, ch);
 }
 
-int mvwinsch(WINDOW * win, int y, int x, chtype ch)
+int mvwinsch(WINDOW *win, int y, int x, chtype ch)
 {
   PDC_LOG(("mvwinsch() - called\n"));
 
@@ -256,7 +256,7 @@ int mvwinsch(WINDOW * win, int y, int x, chtype ch)
   return winsch(win, ch);
 }
 
-int winsrawch(WINDOW * win, chtype ch)
+int winsrawch(WINDOW *win, chtype ch)
 {
   PDC_LOG(("winsrawch() - called: win=%p ch=%x "
            "(char=%c attr=0x%x)\n", win, ch,
@@ -289,7 +289,7 @@ int mvinsrawch(int y, int x, chtype ch)
   return winsrawch(stdscr, ch);
 }
 
-int mvwinsrawch(WINDOW * win, int y, int x, chtype ch)
+int mvwinsrawch(WINDOW *win, int y, int x, chtype ch)
 {
   PDC_LOG(("mvwinsrawch() - called\n"));
 
@@ -302,21 +302,21 @@ int mvwinsrawch(WINDOW * win, int y, int x, chtype ch)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int wins_wch(WINDOW * win, const cchar_t * wch)
+int wins_wch(WINDOW *win, const cchar_t *wch)
 {
   PDC_LOG(("wins_wch() - called\n"));
 
   return wch ? winsch(win, *wch) : ERR;
 }
 
-int ins_wch(const cchar_t * wch)
+int ins_wch(const cchar_t *wch)
 {
   PDC_LOG(("ins_wch() - called\n"));
 
   return wins_wch(stdscr, wch);
 }
 
-int mvins_wch(int y, int x, const cchar_t * wch)
+int mvins_wch(int y, int x, const cchar_t *wch)
 {
   PDC_LOG(("mvins_wch() - called\n"));
 
@@ -328,7 +328,7 @@ int mvins_wch(int y, int x, const cchar_t * wch)
   return wins_wch(stdscr, wch);
 }
 
-int mvwins_wch(WINDOW * win, int y, int x, const cchar_t * wch)
+int mvwins_wch(WINDOW *win, int y, int x, const cchar_t *wch)
 {
   PDC_LOG(("mvwins_wch() - called\n"));
 

@@ -111,7 +111,7 @@
  * Public Functions
  ****************************************************************************/
 
-int wgetnstr(WINDOW * win, char *str, int n)
+int wgetnstr(WINDOW *win, char *str, int n)
 {
 #ifdef CONFIG_PDCURSES_WIDE
   wchar_t wstr[MAXLINE + 1];
@@ -307,7 +307,7 @@ int getstr(char *str)
   return wgetnstr(stdscr, str, MAXLINE);
 }
 
-int wgetstr(WINDOW * win, char *str)
+int wgetstr(WINDOW *win, char *str)
 {
   PDC_LOG(("wgetstr() - called\n"));
 
@@ -326,7 +326,7 @@ int mvgetstr(int y, int x, char *str)
   return wgetnstr(stdscr, str, MAXLINE);
 }
 
-int mvwgetstr(WINDOW * win, int y, int x, char *str)
+int mvwgetstr(WINDOW *win, int y, int x, char *str)
 {
   PDC_LOG(("mvwgetstr() - called\n"));
 
@@ -357,7 +357,7 @@ int mvgetnstr(int y, int x, char *str, int n)
   return wgetnstr(stdscr, str, n);
 }
 
-int mvwgetnstr(WINDOW * win, int y, int x, char *str, int n)
+int mvwgetnstr(WINDOW *win, int y, int x, char *str, int n)
 {
   PDC_LOG(("mvwgetnstr() - called\n"));
 
@@ -370,7 +370,7 @@ int mvwgetnstr(WINDOW * win, int y, int x, char *str, int n)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int wgetn_wstr(WINDOW * win, wint_t * wstr, int n)
+int wgetn_wstr(WINDOW *win, wint_t *wstr, int n)
 {
   int ch;
   int i;
@@ -541,21 +541,21 @@ int wgetn_wstr(WINDOW * win, wint_t * wstr, int n)
   return OK;
 }
 
-int get_wstr(wint_t * wstr)
+int get_wstr(wint_t *wstr)
 {
   PDC_LOG(("get_wstr() - called\n"));
 
   return wgetn_wstr(stdscr, wstr, MAXLINE);
 }
 
-int wget_wstr(WINDOW * win, wint_t * wstr)
+int wget_wstr(WINDOW *win, wint_t *wstr)
 {
   PDC_LOG(("wget_wstr() - called\n"));
 
   return wgetn_wstr(win, wstr, MAXLINE);
 }
 
-int mvget_wstr(int y, int x, wint_t * wstr)
+int mvget_wstr(int y, int x, wint_t *wstr)
 {
   PDC_LOG(("mvget_wstr() - called\n"));
 
@@ -567,7 +567,7 @@ int mvget_wstr(int y, int x, wint_t * wstr)
   return wgetn_wstr(stdscr, wstr, MAXLINE);
 }
 
-int mvwget_wstr(WINDOW * win, int y, int x, wint_t * wstr)
+int mvwget_wstr(WINDOW *win, int y, int x, wint_t *wstr)
 {
   PDC_LOG(("mvwget_wstr() - called\n"));
 
@@ -579,14 +579,14 @@ int mvwget_wstr(WINDOW * win, int y, int x, wint_t * wstr)
   return wgetn_wstr(win, wstr, MAXLINE);
 }
 
-int getn_wstr(wint_t * wstr, int n)
+int getn_wstr(wint_t *wstr, int n)
 {
   PDC_LOG(("getn_wstr() - called\n"));
 
   return wgetn_wstr(stdscr, wstr, n);
 }
 
-int mvgetn_wstr(int y, int x, wint_t * wstr, int n)
+int mvgetn_wstr(int y, int x, wint_t *wstr, int n)
 {
   PDC_LOG(("mvgetn_wstr() - called\n"));
 
@@ -598,7 +598,7 @@ int mvgetn_wstr(int y, int x, wint_t * wstr, int n)
   return wgetn_wstr(stdscr, wstr, n);
 }
 
-int mvwgetn_wstr(WINDOW * win, int y, int x, wint_t * wstr, int n)
+int mvwgetn_wstr(WINDOW *win, int y, int x, wint_t *wstr, int n)
 {
   PDC_LOG(("mvwgetn_wstr() - called\n"));
 

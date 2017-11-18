@@ -240,7 +240,7 @@ int request_mouse_pos(void)
   return OK;
 }
 
-void wmouse_position(WINDOW * win, int *y, int *x)
+void wmouse_position(WINDOW *win, int *y, int *x)
 {
   PDC_LOG(("wmouse_position() - called\n"));
 
@@ -302,7 +302,7 @@ int mouseinterval(int wait)
   return old_wait;
 }
 
-bool wenclose(const WINDOW * win, int y, int x)
+bool wenclose(const WINDOW *win, int y, int x)
 {
   PDC_LOG(("wenclose() - called: %p %d %d\n", win, y, x));
 
@@ -310,7 +310,7 @@ bool wenclose(const WINDOW * win, int y, int x)
           x >= win->_begx && x < win->_begx + win->_maxx);
 }
 
-bool wmouse_trafo(const WINDOW * win, int *y, int *x, bool to_screen)
+bool wmouse_trafo(const WINDOW *win, int *y, int *x, bool to_screen)
 {
   int newy, newx;
 

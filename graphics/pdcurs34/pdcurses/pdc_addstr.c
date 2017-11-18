@@ -205,7 +205,7 @@ int mvwaddnstr(WINDOW *win, int y, int x, const char *str, int n)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int waddnwstr(WINDOW *win, const wchar_t * wstr, int n)
+int waddnwstr(WINDOW *win, const wchar_t *wstr, int n)
 {
   int i = 0;
 
@@ -229,28 +229,28 @@ int waddnwstr(WINDOW *win, const wchar_t * wstr, int n)
   return OK;
 }
 
-int addwstr(const wchar_t * wstr)
+int addwstr(const wchar_t *wstr)
 {
   PDC_LOG(("addwstr() - called\n"));
 
   return waddnwstr(stdscr, wstr, -1);
 }
 
-int addnwstr(const wchar_t * wstr, int n)
+int addnwstr(const wchar_t *wstr, int n)
 {
   PDC_LOG(("addnwstr() - called\n"));
 
   return waddnwstr(stdscr, wstr, n);
 }
 
-int waddwstr(WINDOW *win, const wchar_t * wstr)
+int waddwstr(WINDOW *win, const wchar_t *wstr)
 {
   PDC_LOG(("waddwstr() - called\n"));
 
   return waddnwstr(win, wstr, -1);
 }
 
-int mvaddwstr(int y, int x, const wchar_t * wstr)
+int mvaddwstr(int y, int x, const wchar_t *wstr)
 {
   PDC_LOG(("mvaddstr() - called\n"));
 
@@ -262,7 +262,7 @@ int mvaddwstr(int y, int x, const wchar_t * wstr)
   return waddnwstr(stdscr, wstr, -1);
 }
 
-int mvaddnwstr(int y, int x, const wchar_t * wstr, int n)
+int mvaddnwstr(int y, int x, const wchar_t *wstr, int n)
 {
   PDC_LOG(("mvaddnstr() - called\n"));
 
@@ -274,7 +274,7 @@ int mvaddnwstr(int y, int x, const wchar_t * wstr, int n)
   return waddnwstr(stdscr, wstr, n);
 }
 
-int mvwaddwstr(WINDOW *win, int y, int x, const wchar_t * wstr)
+int mvwaddwstr(WINDOW *win, int y, int x, const wchar_t *wstr)
 {
   PDC_LOG(("mvwaddstr() - called\n"));
 
@@ -286,7 +286,7 @@ int mvwaddwstr(WINDOW *win, int y, int x, const wchar_t * wstr)
   return waddnwstr(win, wstr, -1);
 }
 
-int mvwaddnwstr(WINDOW *win, int y, int x, const wchar_t * wstr, int n)
+int mvwaddnwstr(WINDOW *win, int y, int x, const wchar_t *wstr, int n)
 {
   PDC_LOG(("mvwaddnstr() - called\n"));
 

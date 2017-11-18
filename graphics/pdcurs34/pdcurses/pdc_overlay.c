@@ -88,7 +88,7 @@
  * Private Functions
  ****************************************************************************/
 
-static int _copy_win(const WINDOW * src_w, WINDOW * dst_w, int src_tr,
+static int _copy_win(const WINDOW *src_w, WINDOW *dst_w, int src_tr,
                      int src_tc, int src_br, int src_bc, int dst_tr,
                      int dst_tc, bool overlay)
 {
@@ -174,7 +174,7 @@ static int _copy_win(const WINDOW * src_w, WINDOW * dst_w, int src_tr,
  * Public Functions
  ****************************************************************************/
 
-int overlay(const WINDOW * src_w, WINDOW * dst_w)
+int overlay(const WINDOW *src_w, WINDOW *dst_w)
 {
   int first_line;
   int first_col;
@@ -241,7 +241,7 @@ int overlay(const WINDOW * src_w, WINDOW * dst_w)
                    dst_start_y, dst_start_x, true);
 }
 
-int overwrite(const WINDOW * src_w, WINDOW * dst_w)
+int overwrite(const WINDOW *src_w, WINDOW *dst_w)
 {
   int first_line;
   int first_col;
@@ -308,7 +308,7 @@ int overwrite(const WINDOW * src_w, WINDOW * dst_w)
                    dst_start_y, dst_start_x, false);
 }
 
-int copywin(const WINDOW * src_w, WINDOW * dst_w, int src_tr, int src_tc,
+int copywin(const WINDOW *src_w, WINDOW *dst_w, int src_tr, int src_tc,
             int dst_tr, int dst_tc, int dst_br, int dst_bc, int overlay)
 {
   int src_end_x;

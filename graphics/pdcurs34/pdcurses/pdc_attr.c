@@ -272,7 +272,7 @@ int color_set(short color_pair, void *opts)
   return wcolor_set(stdscr, color_pair, opts);
 }
 
-int wattr_get(WINDOW *win, attr_t * attrs, short *color_pair, void *opts)
+int wattr_get(WINDOW *win, attr_t *attrs, short *color_pair, void *opts)
 {
   PDC_LOG(("wattr_get() - called\n"));
 
@@ -294,7 +294,7 @@ int wattr_get(WINDOW *win, attr_t * attrs, short *color_pair, void *opts)
   return OK;
 }
 
-int attr_get(attr_t * attrs, short *color_pair, void *opts)
+int attr_get(attr_t *attrs, short *color_pair, void *opts)
 {
   PDC_LOG(("attr_get() - called\n"));
 

@@ -82,7 +82,7 @@ int move(int y, int x)
   return OK;
 }
 
-int wmove(WINDOW * win, int y, int x)
+int wmove(WINDOW *win, int y, int x)
 {
   PDC_LOG(("wmove() - called: y=%d x=%d\n", y, x));
 

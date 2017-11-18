@@ -78,7 +78,7 @@
  * Public Functions
  ****************************************************************************/
 
-int vwscanw(WINDOW * win, const char *fmt, va_list varglist)
+int vwscanw(WINDOW *win, const char *fmt, va_list varglist)
 {
   char scanbuf[256];
 
@@ -106,7 +106,7 @@ int scanw(const char *fmt, ...)
   return retval;
 }
 
-int wscanw(WINDOW * win, const char *fmt, ...)
+int wscanw(WINDOW *win, const char *fmt, ...)
 {
   va_list args;
   int retval;
@@ -139,7 +139,7 @@ int mvscanw(int y, int x, const char *fmt, ...)
   return retval;
 }
 
-int mvwscanw(WINDOW * win, int y, int x, const char *fmt, ...)
+int mvwscanw(WINDOW *win, int y, int x, const char *fmt, ...)
 {
   va_list args;
   int retval;
@@ -158,7 +158,7 @@ int mvwscanw(WINDOW * win, int y, int x, const char *fmt, ...)
   return retval;
 }
 
-int vw_scanw(WINDOW * win, const char *fmt, va_list varglist)
+int vw_scanw(WINDOW *win, const char *fmt, va_list varglist)
 {
   PDC_LOG(("vw_scanw() - called\n"));
 

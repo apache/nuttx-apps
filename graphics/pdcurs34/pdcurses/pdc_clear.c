@@ -88,7 +88,7 @@
  * Public Functions
  ****************************************************************************/
 
-int wclrtoeol(WINDOW * win)
+int wclrtoeol(WINDOW *win)
 {
   chtype blank;
   chtype *ptr;
@@ -133,7 +133,7 @@ int clrtoeol(void)
   return wclrtoeol(stdscr);
 }
 
-int wclrtobot(WINDOW * win)
+int wclrtobot(WINDOW *win)
 {
   int savey = win->_cury;
   int savex = win->_curx;
@@ -174,7 +174,7 @@ int clrtobot(void)
   return wclrtobot(stdscr);
 }
 
-int werase(WINDOW * win)
+int werase(WINDOW *win)
 {
   PDC_LOG(("werase() - called\n"));
 
@@ -193,7 +193,7 @@ int erase(void)
   return werase(stdscr);
 }
 
-int wclear(WINDOW * win)
+int wclear(WINDOW *win)
 {
   PDC_LOG(("wclear() - called\n"));
 

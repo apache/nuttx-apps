@@ -202,14 +202,14 @@ int halfdelay(int tenths)
   return OK;
 }
 
-int intrflush(WINDOW * win, bool bf)
+int intrflush(WINDOW *win, bool bf)
 {
   PDC_LOG(("intrflush() - called\n"));
 
   return OK;
 }
 
-int keypad(WINDOW * win, bool bf)
+int keypad(WINDOW *win, bool bf)
 {
   PDC_LOG(("keypad() - called\n"));
 
@@ -222,7 +222,7 @@ int keypad(WINDOW * win, bool bf)
   return OK;
 }
 
-int meta(WINDOW * win, bool bf)
+int meta(WINDOW *win, bool bf)
 {
   PDC_LOG(("meta() - called\n"));
 
@@ -246,7 +246,7 @@ int nonl(void)
   return OK;
 }
 
-int nodelay(WINDOW * win, bool flag)
+int nodelay(WINDOW *win, bool flag)
 {
   PDC_LOG(("nodelay() - called\n"));
 
@@ -259,7 +259,7 @@ int nodelay(WINDOW * win, bool flag)
   return OK;
 }
 
-int notimeout(WINDOW * win, bool flag)
+int notimeout(WINDOW *win, bool flag)
 {
   PDC_LOG(("notimeout() - called\n"));
 
@@ -301,7 +301,7 @@ int typeahead(int fildes)
   return OK;
 }
 
-void wtimeout(WINDOW * win, int delay)
+void wtimeout(WINDOW *win, int delay)
 {
   PDC_LOG(("wtimeout() - called\n"));
 

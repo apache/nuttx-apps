@@ -149,7 +149,7 @@ WINDOW *newpad(int nlines, int ncols)
   return win;
 }
 
-WINDOW *subpad(WINDOW * orig, int nlines, int ncols, int begy, int begx)
+WINDOW *subpad(WINDOW *orig, int nlines, int ncols, int begy, int begx)
 {
   WINDOW *win;
   int i;
@@ -218,7 +218,7 @@ WINDOW *subpad(WINDOW * orig, int nlines, int ncols, int begy, int begx)
   return win;
 }
 
-int prefresh(WINDOW * win, int py, int px, int sy1, int sx1, int sy2,
+int prefresh(WINDOW *win, int py, int px, int sy1, int sx1, int sy2,
              int sx2)
 {
   PDC_LOG(("prefresh() - called\n"));
@@ -232,7 +232,7 @@ int prefresh(WINDOW * win, int py, int px, int sy1, int sx1, int sy2,
   return OK;
 }
 
-int pnoutrefresh(WINDOW * w, int py, int px, int sy1, int sx1, int sy2,
+int pnoutrefresh(WINDOW *w, int py, int px, int sy1, int sx1, int sy2,
                  int sx2)
 {
   int num_cols;
@@ -320,7 +320,7 @@ int pnoutrefresh(WINDOW * w, int py, int px, int sy1, int sx1, int sy2,
   return OK;
 }
 
-int pechochar(WINDOW * pad, chtype ch)
+int pechochar(WINDOW *pad, chtype ch)
 {
   PDC_LOG(("pechochar() - called\n"));
 
@@ -334,7 +334,7 @@ int pechochar(WINDOW * pad, chtype ch)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int pecho_wchar(WINDOW * pad, const cchar_t * wch)
+int pecho_wchar(WINDOW *pad, const cchar_t *wch)
 {
   PDC_LOG(("pecho_wchar() - called\n"));
 

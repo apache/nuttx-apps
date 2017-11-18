@@ -215,7 +215,7 @@ int mvwinnstr(WINDOW *win, int y, int x, char *str, int n)
 }
 
 #ifdef CONFIG_PDCURSES_WIDE
-int winnwstr(WINDOW *win, wchar_t * wstr, int n)
+int winnwstr(WINDOW *win, wchar_t *wstr, int n)
 {
   chtype *src;
   int i;
@@ -243,21 +243,21 @@ int winnwstr(WINDOW *win, wchar_t * wstr, int n)
   return i;
 }
 
-int inwstr(wchar_t * wstr)
+int inwstr(wchar_t *wstr)
 {
   PDC_LOG(("inwstr() - called\n"));
 
   return (ERR == winnwstr(stdscr, wstr, stdscr->_maxx)) ? ERR : OK;
 }
 
-int winwstr(WINDOW *win, wchar_t * wstr)
+int winwstr(WINDOW *win, wchar_t *wstr)
 {
   PDC_LOG(("winwstr() - called\n"));
 
   return (ERR == winnwstr(win, wstr, win->_maxx)) ? ERR : OK;
 }
 
-int mvinwstr(int y, int x, wchar_t * wstr)
+int mvinwstr(int y, int x, wchar_t *wstr)
 {
   PDC_LOG(("mvinwstr() - called\n"));
 
@@ -269,7 +269,7 @@ int mvinwstr(int y, int x, wchar_t * wstr)
   return (ERR == winnwstr(stdscr, wstr, stdscr->_maxx)) ? ERR : OK;
 }
 
-int mvwinwstr(WINDOW *win, int y, int x, wchar_t * wstr)
+int mvwinwstr(WINDOW *win, int y, int x, wchar_t *wstr)
 {
   PDC_LOG(("mvwinstr() - called\n"));
 
@@ -281,14 +281,14 @@ int mvwinwstr(WINDOW *win, int y, int x, wchar_t * wstr)
   return (ERR == winnwstr(win, wstr, win->_maxx)) ? ERR : OK;
 }
 
-int innwstr(wchar_t * wstr, int n)
+int innwstr(wchar_t *wstr, int n)
 {
   PDC_LOG(("innwstr() - called\n"));
 
   return winnwstr(stdscr, wstr, n);
 }
 
-int mvinnwstr(int y, int x, wchar_t * wstr, int n)
+int mvinnwstr(int y, int x, wchar_t *wstr, int n)
 {
   PDC_LOG(("mvinnstr() - called\n"));
 
@@ -300,7 +300,7 @@ int mvinnwstr(int y, int x, wchar_t * wstr, int n)
   return winnwstr(stdscr, wstr, n);
 }
 
-int mvwinnwstr(WINDOW *win, int y, int x, wchar_t * wstr, int n)
+int mvwinnwstr(WINDOW *win, int y, int x, wchar_t *wstr, int n)
 {
   PDC_LOG(("mvwinnwstr() - called\n"));
 

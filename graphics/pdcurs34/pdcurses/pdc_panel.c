@@ -584,7 +584,7 @@ int move_panel(PANEL *pan, int starty, int startx)
   return OK;
 }
 
-PANEL *new_panel(WINDOW * win)
+PANEL *new_panel(WINDOW *win)
 {
   PANEL *pan = malloc(sizeof(PANEL));
 
@@ -655,7 +655,7 @@ WINDOW *panel_window(const PANEL *pan)
   return pan->win;
 }
 
-int replace_panel(PANEL *pan, WINDOW * win)
+int replace_panel(PANEL *pan, WINDOW *win)
 {
   int maxy, maxx;
 
