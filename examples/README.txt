@@ -1363,6 +1363,12 @@ examples/pca9635
 
   A simple test of the PCA9635PW LED driver.
 
+examples/pdcurses
+^^^^^^^^^^^^^^^^^
+
+  This directory contains the demo/test programs that accompany the public
+  domain cursors package (pdcurses) that can be found at apps/graphics/pdcurs34.
+
 examples/pipe
 ^^^^^^^^^^^^^
 
