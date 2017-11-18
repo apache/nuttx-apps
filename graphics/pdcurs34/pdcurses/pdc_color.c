@@ -87,13 +87,13 @@
  *       color-pair consist of.
  *
  *       assume_default_colors() and use_default_colors() emulate the
- *       ncurses extensions of the same names. assume_default_colors(f,
+ *       ncurses extensions of the same names.  assume_default_colors(f,
  *       b) is essentially the same as init_pair(0, f, b) (which isn't
- *       allowed); it redefines the default colors. use_default_colors()
+ *       allowed); it redefines the default colors.  use_default_colors()
  *       allows the use of -1 as a foreground or background color with
  *       init_pair(), and calls assume_default_colors(-1, -1); -1
  *       represents the foreground or background color that the terminal
- *       had at startup. If the environment variable PDC_ORIGINAL_COLORS
+ *       had at startup.  If the environment variable PDC_ORIGINAL_COLORS
  *       is set at the time start_color() is called, that's equivalent to
  *       calling use_default_colors().
  *
@@ -164,18 +164,21 @@ int start_color(void)
     }
 
   pdc_color_started = true;
-
   PDC_set_blink(false);         /* Also sets COLORS, to 8 or 16 */
+
+#ifndef CONFIG_DISABLE_ENVIRON
+  /* If the environment variable PDC_ORIGINAL_COLORS is set at the time
+   * start_color() is called, that's equivalent to calling use_default_colors().
+   */
 
   if (!default_colors && SP->orig_attr && getenv("PDC_ORIGINAL_COLORS"))
     {
       default_colors = true;
     }
+#endif
 
   PDC_init_atrtab();
-
   memset(pair_set, 0, PDC_COLOR_PAIRS);
-
   return OK;
 }
 

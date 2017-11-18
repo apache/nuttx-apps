@@ -1,0 +1,124 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+choice
+	prompt "TUI Font Selection"
+	default PDCURSES_FOUNT_6X9
+
+config PDCURSES_FOUNT_4X6
+	bool "4x6"
+	select NXFONT_X11_MISC_FIXED_4X6
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_4X6 == 21.
+
+config PDCURSES_FOUNT_5X7
+	bool "5x7"
+	select NXFONT_X11_MISC_FIXED_5X7
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_5X7 == 22.
+
+config PDCURSES_FOUNT_5X8
+	bool "5x8"
+	select NXFONT_X11_MISC_FIXED_5X8
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_5X8 == 23.
+
+config PDCURSES_FOUNT_6X9
+	bool "6x9"
+	select NXFONT_X11_MISC_FIXED_6X9
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X9 == 24.
+
+config PDCURSES_FOUNT_6X10
+	bool "6x10"
+	select NXFONT_X11_MISC_FIXED_6X10
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X10 == 25.
+
+config PDCURSES_FOUNT_6X12
+	bool "6x12"
+	select NXFONT_X11_MISC_FIXED_6X12
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X12 == 26.
+
+config PDCURSES_FOUNT_6X13
+	bool "6x13"
+	select NXFONT_X11_MISC_FIXED_6X13
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X13 == 27.
+
+config PDCURSES_FOUNT_6X13B
+	bool "6x13 Bold"
+	select NXFONT_X11_MISC_FIXED_6X13B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_6X13B == 28.
+
+config PDCURSES_FOUNT_7X13
+	bool "7x13"
+	select NXFONT_X11_MISC_FIXED_7X13
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_7X13 == 30.
+
+config PDCURSES_FOUNT_7X13B
+	bool "7x13 Bold"
+	select NXFONT_X11_MISC_FIXED_7X13B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_7X13B == 31.
+
+config PDCURSES_FOUNT_7X14
+	bool "7x14"
+	select NXFONT_X11_MISC_FIXED_7X14
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_7X14 == 33.
+
+config PDCURSES_FOUNT_7X14B
+	bool "7x14 Bold"
+	select NXFONT_X11_MISC_FIXED_7X14B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_7X14B == 34.
+
+config PDCURSES_FOUNT_8X13
+	bool "8x13"
+	select NXFONT_X11_MISC_FIXED_8X13
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_8X13 == 35.
+
+config PDCURSES_FOUNT_8X13B
+	bool "8x13 Bold"
+	select NXFONT_X11_MISC_FIXED_8X13B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_8X13B == 36.
+
+config PDCURSES_FOUNT_9X15
+	bool "9x15"
+	select NXFONT_X11_MISC_FIXED_9X15
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_9X15 == 38.
+
+config PDCURSES_FOUNT_9X15B
+	bool "9x15 Bold"
+	select NXFONT_X11_MISC_FIXED_9x15B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_9X15B == 39.
+
+config PDCURSES_FOUNT_9X18
+	bool "9x18"
+	select NXFONT_X11_MISC_FIXED_9X18
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_9X18 == 40.
+
+config PDCURSES_FOUNT_9X18B
+	bool "9x18 Bold"
+	select NXFONT_X11_MISC_FIXED_9X18B
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_9X18B == 41.
+
+config PDCURSES_FOUNT_10X20
+	bool "10x20"
+	select NXFONT_X11_MISC_FIXED_10X20
+	---help---
+		Enables font ID FONTID_X11_MISC_FIXED_10X20 == 42.
+
+endchoice # TUI Font Selection
