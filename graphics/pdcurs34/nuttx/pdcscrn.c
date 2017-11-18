@@ -37,7 +37,26 @@
  * Included Files
  ****************************************************************************/
 
+#include <nuttx/config.h>
+
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+
 #include "pdcnuttx.h"
+
+/****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* This singleton represents the state of frame buffer device.  pdcurses
+ * depends on global variables and, hence, can never support more than a
+ * single framebuffer instance in the same address space.
+ */
+
+struct pdc_fbstate_s g_pdc_fbstate;
 
 /****************************************************************************
  * Public Functions
@@ -79,16 +98,16 @@ void PDC_scr_free(void)
  * Name: PDC_scr_open
  *
  * Description:
- *   The platform-specific part of initscr(). It's actually called from
+ *   The platform-specific part of initscr().  It's actually called from
  *   Xinitscr(); the arguments, if present, correspond to those used with
  *   main(), and may be used to set the title of the terminal window, or for
  *   other, platform-specific purposes. (The arguments are currently used
- *   only in X11.) PDC_scr_open() must allocate memory for SP, and must
+ *   only in X11.)  PDC_scr_open() must allocate memory for SP, and must
  *   initialize acs_map[] (unless it's preset) and several members of SP,
  *   including lines, cols, mouse_wait, orig_attr (and if orig_attr is true,
  *   orig_fore and orig_back), mono, _restore and _preserve. (Although SP is
  *   used the same way in all ports, it's allocated here in order to allow
- *   the X11 port to map it to a block of shared memory.) If using an
+ *   the X11 port to map it to a block of shared memory.)  If using an
  *   existing terminal, and the environment variable PDC_RESTORE_SCREEN is
  *   set, this function may also store the existing screen image for later
  *   restoration by PDC_scr_close().
@@ -97,8 +116,146 @@ void PDC_scr_free(void)
 
 int PDC_scr_open(int argc, char **argv)
 {
+  struct fb_videoinfo_s vinfo;
+  struct fb_planeinfo_s pinfo;
+  FAR const struct nx_font_s *fontset;
+  uint32_t bitwidth;
+  int ret;
+
   PDC_LOG(("PDC_scr_open() - called\n"));
-#warning Missing logic
+
+  /* Allocate the global instance of SP */
+
+  SP = (SCREEN *)zalloc(sizeof(SCREEN));
+  if (SP == NULL)
+    {
+      PDC_LOG(("ERROR: Failed to allocate SP\n"));
+      return ERR;
+    }
+
+  /* Open the framebuffer driver */
+
+  g_pdc_fbstate.fd = open(CONFIG_PDCURSES_FBDEV, O_RDWR);
+  if (g_pdc_fbstate.fd < 0)
+    {
+      PDC_LOG(("ERROR: Failed to open %s: %d\n",
+               CONFIG_PDCURSES_FBDEV, errno));
+      goto errout_with_sp;
+    }
+
+  /* Get the characteristics of the framebuffer */
+
+  ret = ioctl(g_pdc_fbstate.fd, FBIOGET_VIDEOINFO,
+              (unsigned long)((uintptr_t)&vinfo));
+  if (ret < 0)
+    {
+      PDC_LOG(("ERROR: ioctl(FBIOGET_VIDEOINFO) failed: %d\n", errno));
+      goto errout_with_fd;
+    }
+
+  PDC_LOG(("VideoInfo:\n"));
+  PDC_LOG(("      fmt: %u\n", vinfo.fmt));
+  PDC_LOG(("     xres: %u\n", vinfo.xres));
+  PDC_LOG(("     yres: %u\n", vinfo.yres));
+  PDC_LOG(("  nplanes: %u\n", vinfo.nplanes));
+
+  g_pdc_fbstate.xres = vinfo.xres;  /* Horizontal resolution in pixel columns */
+  g_pdc_fbstate.yres = vinfo.yres;  /* Vertical resolution in pixel rows */
+
+  ret = ioctl(g_pdc_fbstate.fd, FBIOGET_PLANEINFO,
+              (unsigned long)((uintptr_t)&pinfo));
+  if (ret < 0)
+    {
+      PDC_LOG(("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno));
+      goto errout_with_fd;
+    }
+
+  PDC_LOG(("PlaneInfo (plane 0):\n"));
+  PDC_LOG(("    fbmem: %p\n", pinfo.fbmem));
+  PDC_LOG(("    fblen: %lu\n", (unsigned long)pinfo.fblen));
+  PDC_LOG(("   stride: %u\n", pinfo.stride));
+  PDC_LOG(("  display: %u\n", pinfo.display));
+  PDC_LOG(("      bpp: %u\n", pinfo.bpp));
+
+  g_pdc_fbstate.stride = pinfo.stride; /* Length of a line in bytes */
+  g_pdc_fbstate.bpp    = pinfo.bpp;    /* Bits per pixel */
+
+  /* Only these pixel depths are supported.  vinfo.fmt is ignored, only
+   * certain color formats are supported.
+   */
+
+  if (pinfo.bpp != 32 && pinfo.bpp != 16 &&
+      pinfo.bpp != 8  && pinfo.bpp != 1)
+    {
+      PDC_LOG(("ERROR: bpp=%u not supported\n", pinfo.bpp));
+      goto errout_with_fd;
+    }
+
+  /* mmap() the framebuffer.
+   *
+   * NOTE: In the FLAT build the frame buffer address returned by the
+   * FBIOGET_PLANEINFO IOCTL command will be the same as the framebuffer
+   * address.  mmap(), however, is the preferred way to get the framebuffer
+   * address because in the KERNEL build, it will perform the necessary
+   * address mapping to make the memory accessible to the application.
+   */
+
+  g_pdc_fbstate.fbmem = mmap(NULL, pinfo.fblen, PROT_READ|PROT_WRITE,
+                             MAP_SHARED|MAP_FILE, g_pdc_fbstate.fd, 0);
+  if (g_pdc_fbstate.fbmem == MAP_FAILED)
+    {
+      PDC_LOG(("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno));
+      goto errout_with_fd;
+    }
+
+  PDC_LOG(("Mapped FB: %p\n", g_pdc_fbstate.fbmem));
+
+  /* The the handle for the selected font */
+
+  g_pdc_fbstate.hfont = nxf_getfonthandle(PDCURSES_FONTID);
+  if (g_pdc_fbstate.hfont == NULL)
+    {
+      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno);)
+      goto errout_with_fd;
+    }
+
+  /* Get information about the fontset */
+
+  fontset = nxf_getfontset(g_pdc_fbstate.hfont);
+  if (fontset == NULL)
+    {
+      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno);)
+      goto errout_with_font;
+    }
+
+  PDC_LOG(("Fonset (ID=%d):\n", PDCURSES_FONTID));
+  PDC_LOG((" mxheight: %u\n", fontset->mxheight));
+  PDC_LOG(("  mxwidth: %u\n", fontset->mxwidth));
+  PDC_LOG(("   mxbits: %u\n", fontset->mxbits));
+  PDC_LOG(("  spwidth: %u\n", fontset->spwidth));
+
+  g_pdc_fbstate.fheight = fontset->mxheight;
+  g_pdc_fbstate.fwidth  = fontset->mxwidth;
+
+  /* Calculate the drawable region */
+
+  SP->lines             = g_pdc_fbstate.yres / g_pdc_fbstate.fheight;
+  SP->cols              = g_pdc_fbstate.xres / g_pdc_fbstate.fwidth;
+
+  g_pdc_fbstate.hoffset = (g_pdc_fbstate.yres - g_pdc_fbstate.fheight * SP->lines) / 2;
+  g_pdc_fbstate.hoffset = (g_pdc_fbstate.yres - g_pdc_fbstate.fheight * SP->lines) / 2;
+
+  return OK;
+
+errout_with_font:
+
+errout_with_fd:
+  close(g_pdc_fbstate.fd);
+  g_pdc_fbstate.fd = -1;
+
+errout_with_sp:
+  free(SP);
+  SP = NULL;
   return ERR;
 }
 

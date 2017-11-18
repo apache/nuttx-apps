@@ -34,7 +34,7 @@
 ############################################################################
 
 CSRCS += pdcclip.c pdcdisp.c pdcgetsc.c pdckbd.c pdcscrn.c pdcsetsc.c
-CRCCS += pdcutil.c
+CSRCS += pdcutil.c
 
 DEPPATH += --dep-path nuttx
 VPATH += :nuttx

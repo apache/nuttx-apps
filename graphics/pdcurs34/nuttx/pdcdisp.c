@@ -42,6 +42,29 @@
 #include "pdcnuttx.h"
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* A port of PDCurses must provide acs_map[], a 128-element array of chtypes,
+ * with values laid out based on the Alternate Character Set of the VT100
+ * (see curses.h).  PDC_transform_line() must use this table; when it
+ * encounters a chtype with the A_ALTCHARSET flag set, and an A_CHARTEXT
+ * value in the range 0-127, it must render it using the A_CHARTEXT portion
+ * of the corresponding value from this table, instead of the original
+ * value.  Also, values may be read from this table by apps, and passed
+ * through functions such as waddch(), which does no special processing on
+ * control characters (0-31 and 127) when the A_ALTCHARSET flag is set.
+ * Thus, any control characters used in acs_map[] should also have the
+ * A_ALTCHARSET flag set. Implementations should provide suitable values
+ * for all the ACS_ macros defined in curses.h; other values in the table
+ * should be filled with their own indices (e.g., acs_map['E'] == 'E'). The
+ * table can be either hardwired, or filled by PDC_scr_open(). Existing
+ * ports define it in pdcdisp.c, but this is not required.
+ */
+
+chtype acs_map[128];
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 

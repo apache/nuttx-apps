@@ -34,11 +34,11 @@ DATA STRUCTURES
 
 A port of PDCurses must provide acs_map[], a 128-element array of
 chtypes, with values laid out based on the Alternate Character Set of
-the VT100 (see curses.h). PDC_transform_line() must use this table; when
+the VT100 (see curses.h).  PDC_transform_line() must use this table; when
 it encounters a chtype with the A_ALTCHARSET flag set, and an A_CHARTEXT
 value in the range 0-127, it must render it using the A_CHARTEXT portion
 of the corresponding value from this table, instead of the original
-value. Also, values may be read from this table by apps, and passed
+value.  Also, values may be read from this table by apps, and passed
 through functions such as waddch(), which does no special processing on
 control characters (0-31 and 127) when the A_ALTCHARSET flag is set.
 Thus, any control characters used in acs_map[] should also have the
@@ -101,7 +101,7 @@ internally from PDC_scr_open(), but this is not required.)
 int PDC_get_cursor_mode(void);
 
 Returns the size/shape of the cursor. The format of the result is
-unspecified, except that it must be returned as an int. This function is
+unspecified, except that it must be returned as an int.  This function is
 called from initscr(), and the result is stored in SP->orig_cursor,
 which is used by PDC_curs_set() to determine the size/shape of the
 cursor in normal visibility mode (curs_set(1)).

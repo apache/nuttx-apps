@@ -40,6 +40,20 @@
 #include "pdcnuttx.h"
 
 /****************************************************************************
+ * Public Data
+ ****************************************************************************/
+
+/* Key modifiers.  The OR of any of:
+ *
+ *   PDC_KEY_MODIFIER_SHIFT;
+ *   PDC_KEY_MODIFIER_CONTROL;
+ *   PDC_KEY_MODIFIER_ALT;
+ *   PDC_KEY_MODIFIER_NUMLOCK;
+ */
+
+unsigned long pdc_key_modifiers;
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 

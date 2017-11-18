@@ -3,6 +3,10 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
+config PDCURSES_FBDEV
+	string "Framebuffer device"
+	default "/dev/fb0"
+
 choice
 	prompt "TUI Font Selection"
 	default PDCURSES_FOUNT_6X9
