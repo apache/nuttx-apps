@@ -73,9 +73,9 @@ chtype acs_map[128];
  *
  * Description:
  *   Move the physical cursor (as opposed to the logical cursor affected by
- *   wmove()) to the given location. This is called mainly from doupdate().
- *   In general, this function need not compare the old location with the new
- *   one, and should just move the cursor unconditionally.
+ *   wmove()) to the given location. T his is called mainly from doupdate().
+ *   In general, this function need not compare the old location with the
+ *   new one, and should just move the cursor unconditionally.
  *
  ****************************************************************************/
 
@@ -83,17 +83,46 @@ chtype acs_map[128];
 
 void PDC_gotoyx(int row, int col)
 {
+  chtype ch;
+  int oldrow;
+  int oldcol;
+
   PDC_LOG(("PDC_gotoyx() - called: row %d col %d\n", row, col));
-#warning Missing logic
+
+  if (SP->mono)
+    {
+      return;
+    }
+
+  /* Clear the old cursor */
+
+  oldrow = SP->cursrow;
+  oldcol = SP->curscol;
+
+  PDC_transform_line(oldrow, oldcol, 1, curscr->_y[oldrow] + oldcol);
+
+  if (SP->visibility == 0)
+    {
+      return;
+    }
+
+  /* Draw a new cursor by overprinting the existing character in reverse,
+   * either the full cell (when visibility == 2) or the lowest quarter of
+   * it (when visibility == 1)
+   */
+
+  ch = curscr->_y[row][col] ^ A_REVERSE;
+
+  PDC_transform_line(row, col, 1, &ch);
 }
 
 /****************************************************************************
  * Name: PDC_transform_line
  *
  * Description:
- *   The core output routine. It takes len chtype entities from srcp (a
+ *   The core output routine.  It takes len chtype entities from srcp (a
  *   pointer into curscr) and renders them to the physical screen at line
- *   lineno, column x. It must also translate characters 0-127 via acs_map[],
+ *   lineno, column x.  It must also translate characters 0-127 via acs_map[],
  *   if they're flagged with A_ALTCHARSET in the attribute portion of the
  *   chtype.
  *
@@ -101,6 +130,78 @@ void PDC_gotoyx(int row, int col)
 
 void PDC_transform_line(int lineno, int x, int len, const chtype *srcp)
 {
-  PDC_LOG(("PDC_transform_line() - called: line %d\n", lineno));
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+  chtype ch;
+  short fg;
+  short bg;
+  bool bold;
+  int i;
+
+  PDC_LOG(("PDC_transform_line() - called: lineno=%d x=%d len=%d\n",
+           lineno, x, len));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  /* Set up the start position for the transfer */
 #warning Missing logic
+
+  /* Add each character to the framebuffer at the current position,
+   * incrementing the horizontal position after each character.
+   */
+
+  for (i = 0; i < len; i++)
+    {
+      ch = srcp[i];
+
+      /* Get the forground and background colors of the font */
+
+      PDC_pair_content(PAIR_NUMBER(ch), &fg, &bg);
+
+      /* Handle attributes */
+
+      bold = false;
+      if (!SP->mono)
+        {
+          /* REVISIT:  Only bold and reverse attributed handled */
+          /* Bold will select the bold font.
+          */
+
+          bold = ((ch & A_BOLD) != 0);
+
+          /* Swap the foreground and background colors if reversed */
+
+          if ((ch & A_REVERSE) != 0)
+            {
+              short tmp = fg;
+              fg = bg;
+              bg = tmp;
+            }
+        }
+
+#ifdef CONFIG_PDCURSESCHTYPE_LONG
+      /* Translate characters 0-127 via acs_map[], if they're flagged with
+       * A_ALTCHARSET in the attribute portion of the chtype.
+       */
+
+      if (ch & A_ALTCHARSET && !(ch & 0xff80))
+        {
+          ch = (ch & (A_ATTRIBUTES ^ A_ALTCHARSET)) | acs_map[ch & 0x7f];
+        }
+#endif
+
+      /* Rend the font glyph into the framebuffer */
+#warning Missing logic
+
+      /* Apply more attributes */
+
+      if ((ch & (A_UNDERLINE | A_LEFTLINE | A_RIGHTLINE)) != 0)
+        {
+#warning Missing logic
+        }
+
+      /* Increment the X position by the font width */
+#warning Missing logic
+    }
 }

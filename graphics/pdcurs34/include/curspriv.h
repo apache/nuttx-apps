@@ -69,16 +69,16 @@
 #define _DLCHAR    0x15  /* Delete Line char (^U) */
 
 #ifdef CONFIG_PDCURSES_DEBUG
-# define PDC_LOG(x) if (pdc_trace_on) PDC_debug x
-# define RCSID(x) static const char *rcsid = x;
+#  define PDC_LOG(x) if (pdc_trace_on) PDC_debug x
+#  define RCSID(x) static const char *rcsid = x;
 #else
-# define PDC_LOG(x)
-# define RCSID(x)
+#  define PDC_LOG(x)
+#  define RCSID(x)
 #endif
 
 /* Internal macros for attributes */
 
-#ifdef CHTYPE_LONG
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
 # define PDC_COLOR_PAIRS 256
 #else
 # define PDC_COLOR_PAIRS  32
@@ -110,8 +110,8 @@ extern "C"
 
 typedef struct           /* Structure for ripped off lines */
 {
-    int line;
-    int (*init)(WINDOW *, int);
+  int line;
+  int (*init)(WINDOW *, int);
 } RIPPEDOFFLINE;
 
 /****************************************************************************

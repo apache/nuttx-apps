@@ -51,44 +51,53 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
+#undef HAVE_BOLD_FONT
+
 #if defined(CONFIG_PDCURSES_FOUNT_4X6)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_4X6
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_4X6
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_4X6
 #elif defined(CONFIG_PDCURSES_FOUNT_5X7)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_5X7
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_5X7
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_5X7
 #elif defined(CONFIG_PDCURSES_FOUNT_5X8)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_5X8
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_5X8
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_5X8
 #elif defined(CONFIG_PDCURSES_FOUNT_6X9)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_6X9
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X9
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X9
 #elif defined(CONFIG_PDCURSES_FOUNT_6X10)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_6X10
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X10
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X10
 #elif defined(CONFIG_PDCURSES_FOUNT_6X12)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_6X12
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X12
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X12
 #elif defined(CONFIG_PDCURSES_FOUNT_6X13)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_6X13
-#elif defined(CONFIG_PDCURSES_FOUNT_6X13B)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_6X13B
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X13
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X13B
+#  define HAVE_BOLD_FONT        1
 #elif defined(CONFIG_PDCURSES_FOUNT_7X13)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_7X13
-#elif defined(CONFIG_PDCURSES_FOUNT_7X13B)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_7X13B
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_7X13
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_7X13B
+#  define HAVE_BOLD_FONT        1
 #elif defined(CONFIG_PDCURSES_FOUNT_7X14)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_7X14
-#elif defined(CONFIG_PDCURSES_FOUNT_7X14B)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_7X14B
+#  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_7X14
+#  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_7X14B
+#  define HAVE_BOLD_FONT        1
 #elif defined(CONFIG_PDCURSES_FOUNT_8X13)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_8X13
-#elif defined(CONFIG_PDCURSES_FOUNT_8X13B)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_8X13B
+#  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_8X13
+#  define PDCURSES_BOLD_FONTID   FONTID_X11_MISC_FIXED_8X13B
+#  define HAVE_BOLD_FONT        1
 #elif defined(CONFIG_PDCURSES_FOUNT_9X15)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_9X15
-#elif defined(CONFIG_PDCURSES_FOUNT_9X15B)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_9X15B
+#  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_9X15
+#  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_9X15B
+#  define HAVE_BOLD_FONT        1
 #elif defined(CONFIG_PDCURSES_FOUNT_9X18)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_9X18
-#elif defined(CONFIG_PDCURSES_FOUNT_9X18B)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_9X18B
+#  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_9X18
+#  define PDCURSES_BOLD_FONTID   FONTID_X11_MISC_FIXED_9X18B
+#  define HAVE_BOLD_FONT        1
 #elif defined(CONFIG_PDCURSES_FOUNT_10X20)
-#  define PDCURSES_FONTID FONTID_X11_MISC_FIXED_10X20
+#  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_10X20
+#  define PDCURSES_BOLD_FONTID   FONTID_X11_MISC_FIXED_10X20
 #else
 #  error No fixed width font selected
 #endif
@@ -104,6 +113,23 @@ extern "C"
 #else
 #  define EXTERN extern
 #endif
+
+/* Describes one color pair */
+
+struct pdc_colorpair_s
+{
+  short fg;
+  short bg;
+};
+
+/* Describes one RGB color */
+
+struct pdc_rgbcolor_s
+{
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
+};
 
 /* This structure provides the overall state of the frambuffer device */
 
@@ -128,6 +154,25 @@ struct pdc_fbstate_s
 
   uint8_t hoffset;       /* Offset from left of display in pixels */
   uint8_t voffset;       /* Offset from top of display in lines */
+
+  /* Cursor position in display rows x pixels */
+
+  struct nxgl_point_s curpos;
+
+  /* Colors */
+
+  struct pdc_colorpair_s colorpair[PDC_COLOR_PAIRS];
+  struct pdc_rgbcolor_s rgbcolor[16];
+};
+
+/* This structure contains the framebuffer device structure and is a cast
+ * compatible with type SCREEN.
+ */
+
+struct pdc_fbscreen_s
+{
+  SCREEN screen;
+  struct pdc_fbstate_s fbstate;
 };
 
 /****************************************************************************

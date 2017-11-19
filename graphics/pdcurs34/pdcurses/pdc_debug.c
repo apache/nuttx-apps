@@ -64,9 +64,9 @@
  * Included Files
  ****************************************************************************/
 
-#include <string.h>
-#include <sys/types.h>
-#include <time.h>
+#include <stdbool.h>
+#include <stdarg.h>
+#include <syslog.h>
 
 #include "curspriv.h"
 
@@ -83,33 +83,13 @@ bool pdc_trace_on = false;
 void PDC_debug(const char *fmt, ...)
 {
   va_list args;
-  FILE *dbfp;
-  char hms[9];
-  time_t now;
 
-  if (!pdc_trace_on)
+  if (pdc_trace_on)
     {
-      return;
+      va_start(args, fmt);
+      vsyslog(LOG_NOTICE, fmt, args);
+      va_end(args);
     }
-
-  /* Open debug log file append */
-
-  dbfp = fopen("trace", "a");
-  if (!dbfp)
-    {
-      fprintf(stderr, "PDC_debug(): Unable to open debug log file\n");
-      return;
-    }
-
-  time(&now);
-  strftime(hms, 9, "%H:%M:%S", localtime(&now));
-  fprintf(dbfp, "At: %8.8ld - %s ", (long)clock(), hms);
-
-  va_start(args, fmt);
-  vfprintf(dbfp, fmt, args);
-  va_end(args);
-
-  fclose(dbfp);
 }
 
 void traceon(void)

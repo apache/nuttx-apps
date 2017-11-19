@@ -13,6 +13,10 @@ config PDCURSES_FORCE_UTF8
 	default n
 	depends on PDCURSES_WIDE
 
+config PDCURSES_CHTYPE_LONG
+	bool "32-bit chtype"
+	default n
+
 config PDCURSES_DEBUG
 	bool "Enable pdcurses debug ouput"
 	default n

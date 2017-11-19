@@ -237,7 +237,7 @@ WINDOW *PDC_makelines(WINDOW *win)
   int i;
   int j;
 
-  PDC_LOG(("PDC_makelines() - called: lines %d cols %d\n", nlines, ncols));
+  PDC_LOG(("PDC_makelines() - called\n"));
 
   if (!win)
     {
@@ -245,7 +245,7 @@ WINDOW *PDC_makelines(WINDOW *win)
     }
 
   nlines = win->_maxy;
-  ncols = win->_maxx;
+  ncols  = win->_maxx;
 
   for (i = 0; i < nlines; i++)
     {

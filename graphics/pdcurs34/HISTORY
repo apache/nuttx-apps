@@ -870,8 +870,8 @@ BUGS FIXED:
   XCurses (using Xinitscr() instead of the obsolete XCursesProgramName).
 
 - The 16-bit chtype is a working option again (by removing #define
-  CHTYPE_LONG from curses.h), except in XCurses. It's not recommended;
-  but if your needs are limited, it still works.
+  CONFIG_PDCURSES_CHTYPE_LONG from curses.h), except in XCurses. It's
+  not recommended; but if your needs are limited, it still works.
 
 - Reset screen size in resetty() under DOS, as in Win32 and OS/2.
 

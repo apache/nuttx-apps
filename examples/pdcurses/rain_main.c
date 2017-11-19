@@ -84,6 +84,7 @@ int rain_main(int argc, char *argv[])
   int x, y, j, r, c, seed;
   static int xpos[5], ypos[5];
 
+  traceon();
   initscr();
   seed = time((time_t *) 0);
   srand(seed);

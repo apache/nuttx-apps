@@ -37,6 +37,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <unistd.h>
 #include <poll.h>
 
 #include "pdcnuttx.h"
@@ -49,10 +50,10 @@
  * Name: PDC_beep
  *
  * Description:
- *   Emits a short audible beep. If this is not possible on your platform,
+ *   Emits a short audible beep.  If this is not possible on your platform,
  *   you must set SP->audible to false during initialization (i.e., from
- *   PDC_scr_open() -- not here); otherwise, set it to true. This function is
- *   called from beep().
+ *   PDC_scr_open() -- not here); otherwise, set it to true.  This function
+ *   is called from beep().
  *
  ****************************************************************************/
 
@@ -66,10 +67,10 @@ void PDC_beep(void)
  * Name: PDC_napms
  *
  * Description:
- *   This is the core delay routine, called by napms(). It pauses for about
- *   (the X/Open spec says "at least") ms milliseconds, then returns. High
+ *   This is the core delay routine, called by napms().  It pauses for about
+ *   (the X/Open spec says "at least") ms milliseconds, then returns.  High
  *   degrees of accuracy and precision are not expected (though desirable, if
- *   you can achieve them). More important is that this function gives back
+ *   you can achieve them).  More important is that this function gives back
  *   the process' time slice to the OS, so that PDCurses idles at low CPU
  *   usage.
  *
@@ -78,7 +79,7 @@ void PDC_beep(void)
 void PDC_napms(int ms)
 {
   PDC_LOG(("PDC_napms() - called: ms=%d\n", ms));
-#warning Missing logic
+  usleep(ms * 1000);
 }
 
 /****************************************************************************

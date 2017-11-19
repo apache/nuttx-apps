@@ -64,8 +64,6 @@
  ****************************************************************************/
 
 #define PDC_BUILD 3401
-#define PDCURSES        1      /* PDCurses-only routines */
-#define CHTYPE_LONG     1      /* size of chtype; long */
 
 /* PDCurses Manifest Constants */
 
@@ -188,8 +186,8 @@
  * and color into an unsigned char (all 8 bits!).
  *
  * Today, PDCurses by default uses a long (32 bits) for its chtype, as in
- * System V. The short chtype is still available, by undefining CHTYPE_LONG
- * and rebuilding the library.
+ * System V.  The short chtype is still available, by undefining
+ * CONFIG_PDCURSES_CHTYPE_LONG and rebuilding the library.
  *
  * The following is the structure of a win->_attrs chtype:
  *
@@ -221,7 +219,7 @@
 
 #define A_NORMAL      (chtype)0
 
-#ifdef CHTYPE_LONG
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
 #  define A_ALTCHARSET (chtype)0x00010000
 #  define A_RIGHTLINE  (chtype)0x00020000
 #  define A_LEFTLINE   (chtype)0x00040000
@@ -297,7 +295,7 @@
  *       available for A_ALTCHARSET
  */
 
-#ifdef CHTYPE_LONG
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
 #  define ACS_PICK(w, n) ((chtype)w | A_ALTCHARSET)
 #else
 #  define ACS_PICK(w, n) ((chtype)n)
@@ -740,10 +738,10 @@ extern "C"
 #  define EXTERN extern
 #endif
 
-#ifdef CHTYPE_LONG
+#ifdef CONFIG_PDCURSES_CHTYPE_LONG
 typedef uint32_t chtype;  /* 16-bit attr + 16-bit char */
 #else
-typedef uint16_t chtype; /* 8-bit attr + 8-bit char */
+typedef uint16_t chtype;  /* 8-bit attr + 8-bit char */
 #endif
 
 #ifdef CONFIG_PDCURSES_WIDE

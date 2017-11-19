@@ -43,20 +43,10 @@
 #include <sys/mman.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <assert.h>
 #include <errno.h>
 
 #include "pdcnuttx.h"
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
-
-/* This singleton represents the state of frame buffer device.  pdcurses
- * depends on global variables and, hence, can never support more than a
- * single framebuffer instance in the same address space.
- */
-
-struct pdc_fbstate_s g_pdc_fbstate;
 
 /****************************************************************************
  * Public Functions
@@ -77,7 +67,6 @@ struct pdc_fbstate_s g_pdc_fbstate;
 void PDC_scr_close(void)
 {
   PDC_LOG(("PDC_scr_close() - called\n"));
-#warning Missing logic
 }
 
 /****************************************************************************
@@ -91,7 +80,15 @@ void PDC_scr_close(void)
 
 void PDC_scr_free(void)
 {
-#warning Missing logic
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  close(fbstate->fd);
+  free(fbscreen);
+  SP = NULL;
 }
 
 /****************************************************************************
@@ -116,27 +113,31 @@ void PDC_scr_free(void)
 
 int PDC_scr_open(int argc, char **argv)
 {
+  FAR struct pdc_fbscreen_s *fbscreen;
+  FAR const struct nx_font_s *fontset;
+  FAR struct pdc_fbstate_s *fbstate;
   struct fb_videoinfo_s vinfo;
   struct fb_planeinfo_s pinfo;
-  FAR const struct nx_font_s *fontset;
-  uint32_t bitwidth;
   int ret;
 
   PDC_LOG(("PDC_scr_open() - called\n"));
 
   /* Allocate the global instance of SP */
 
-  SP = (SCREEN *)zalloc(sizeof(SCREEN));
-  if (SP == NULL)
+  fbscreen = (FAR struct pdc_fbscreen_s *)zalloc(sizeof(struct pdc_fbscreen_s));
+  if (fbscreen == NULL)
     {
       PDC_LOG(("ERROR: Failed to allocate SP\n"));
       return ERR;
     }
 
+  SP      = &fbscreen->screen;
+  fbstate = &fbscreen->fbstate;
+
   /* Open the framebuffer driver */
 
-  g_pdc_fbstate.fd = open(CONFIG_PDCURSES_FBDEV, O_RDWR);
-  if (g_pdc_fbstate.fd < 0)
+  fbstate->fd = open(CONFIG_PDCURSES_FBDEV, O_RDWR);
+  if (fbstate->fd < 0)
     {
       PDC_LOG(("ERROR: Failed to open %s: %d\n",
                CONFIG_PDCURSES_FBDEV, errno));
@@ -145,7 +146,7 @@ int PDC_scr_open(int argc, char **argv)
 
   /* Get the characteristics of the framebuffer */
 
-  ret = ioctl(g_pdc_fbstate.fd, FBIOGET_VIDEOINFO,
+  ret = ioctl(fbstate->fd, FBIOGET_VIDEOINFO,
               (unsigned long)((uintptr_t)&vinfo));
   if (ret < 0)
     {
@@ -159,10 +160,10 @@ int PDC_scr_open(int argc, char **argv)
   PDC_LOG(("     yres: %u\n", vinfo.yres));
   PDC_LOG(("  nplanes: %u\n", vinfo.nplanes));
 
-  g_pdc_fbstate.xres = vinfo.xres;  /* Horizontal resolution in pixel columns */
-  g_pdc_fbstate.yres = vinfo.yres;  /* Vertical resolution in pixel rows */
+  fbstate->xres = vinfo.xres;  /* Horizontal resolution in pixel columns */
+  fbstate->yres = vinfo.yres;  /* Vertical resolution in pixel rows */
 
-  ret = ioctl(g_pdc_fbstate.fd, FBIOGET_PLANEINFO,
+  ret = ioctl(fbstate->fd, FBIOGET_PLANEINFO,
               (unsigned long)((uintptr_t)&pinfo));
   if (ret < 0)
     {
@@ -177,8 +178,8 @@ int PDC_scr_open(int argc, char **argv)
   PDC_LOG(("  display: %u\n", pinfo.display));
   PDC_LOG(("      bpp: %u\n", pinfo.bpp));
 
-  g_pdc_fbstate.stride = pinfo.stride; /* Length of a line in bytes */
-  g_pdc_fbstate.bpp    = pinfo.bpp;    /* Bits per pixel */
+  fbstate->stride = pinfo.stride; /* Length of a line in bytes */
+  fbstate->bpp    = pinfo.bpp;    /* Bits per pixel */
 
   /* Only these pixel depths are supported.  vinfo.fmt is ignored, only
    * certain color formats are supported.
@@ -200,20 +201,20 @@ int PDC_scr_open(int argc, char **argv)
    * address mapping to make the memory accessible to the application.
    */
 
-  g_pdc_fbstate.fbmem = mmap(NULL, pinfo.fblen, PROT_READ|PROT_WRITE,
-                             MAP_SHARED|MAP_FILE, g_pdc_fbstate.fd, 0);
-  if (g_pdc_fbstate.fbmem == MAP_FAILED)
+  fbstate->fbmem = mmap(NULL, pinfo.fblen, PROT_READ|PROT_WRITE,
+                             MAP_SHARED|MAP_FILE, fbstate->fd, 0);
+  if (fbstate->fbmem == MAP_FAILED)
     {
       PDC_LOG(("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno));
       goto errout_with_fd;
     }
 
-  PDC_LOG(("Mapped FB: %p\n", g_pdc_fbstate.fbmem));
+  PDC_LOG(("Mapped FB: %p\n", fbstate->fbmem));
 
   /* The the handle for the selected font */
 
-  g_pdc_fbstate.hfont = nxf_getfonthandle(PDCURSES_FONTID);
-  if (g_pdc_fbstate.hfont == NULL)
+  fbstate->hfont = nxf_getfonthandle(PDCURSES_FONTID);
+  if (fbstate->hfont == NULL)
     {
       PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno);)
       goto errout_with_fd;
@@ -221,7 +222,7 @@ int PDC_scr_open(int argc, char **argv)
 
   /* Get information about the fontset */
 
-  fontset = nxf_getfontset(g_pdc_fbstate.hfont);
+  fontset = nxf_getfontset(fbstate->hfont);
   if (fontset == NULL)
     {
       PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno);)
@@ -234,24 +235,24 @@ int PDC_scr_open(int argc, char **argv)
   PDC_LOG(("   mxbits: %u\n", fontset->mxbits));
   PDC_LOG(("  spwidth: %u\n", fontset->spwidth));
 
-  g_pdc_fbstate.fheight = fontset->mxheight;
-  g_pdc_fbstate.fwidth  = fontset->mxwidth;
+  fbstate->fheight = fontset->mxheight;
+  fbstate->fwidth  = fontset->mxwidth;
 
   /* Calculate the drawable region */
 
-  SP->lines             = g_pdc_fbstate.yres / g_pdc_fbstate.fheight;
-  SP->cols              = g_pdc_fbstate.xres / g_pdc_fbstate.fwidth;
+  SP->lines        = fbstate->yres / fbstate->fheight;
+  SP->cols         = fbstate->xres / fbstate->fwidth;
 
-  g_pdc_fbstate.hoffset = (g_pdc_fbstate.yres - g_pdc_fbstate.fheight * SP->lines) / 2;
-  g_pdc_fbstate.hoffset = (g_pdc_fbstate.yres - g_pdc_fbstate.fheight * SP->lines) / 2;
+  fbstate->hoffset = (fbstate->yres - fbstate->fheight * SP->lines) / 2;
+  fbstate->hoffset = (fbstate->yres - fbstate->fheight * SP->lines) / 2;
 
   return OK;
 
 errout_with_font:
 
 errout_with_fd:
-  close(g_pdc_fbstate.fd);
-  g_pdc_fbstate.fd = -1;
+  close(fbstate->fd);
+  fbstate->fd = -1;
 
 errout_with_sp:
   free(SP);
@@ -263,11 +264,11 @@ errout_with_sp:
  * Name: PDC_resize_screen
  *
  * Description:
- *   This does the main work of resize_term(). It may respond to non-zero
+ *   This does the main work of resize_term().  It may respond to non-zero
  *   parameters, by setting the screen to the specified size; to zero
  *   parameters, by setting the screen to a size chosen by the user at
  *   runtime, in an unspecified way (e.g., by dragging the edges of the
- *   window); or both. It may also do nothing, if there's no appropriate
+ *   window); or both.  It may also do nothing, if there's no appropriate
  *   action for the platform.
  *
  ****************************************************************************/
@@ -285,7 +286,7 @@ int PDC_resize_screen(int nlines, int ncols)
  *
  * Description:
  *   The non-portable functionality of reset_prog_mode() is handled here --
- *   whatever's not done in _restore_mode().  In current ports: In OS/2, this
+ *   whatever's not done in _restore_mode().  In current ports:  In OS/2, this
  *   sets the keyboard to binary mode; in Win32, it enables or disables the
  *   mouse pointer to match the saved mode; in others it does nothing.
  *
@@ -294,7 +295,6 @@ int PDC_resize_screen(int nlines, int ncols)
 void PDC_reset_prog_mode(void)
 {
   PDC_LOG(("PDC_reset_prog_mode() - called.\n"));
-#warning Missing logic
 }
 
 /****************************************************************************
@@ -310,7 +310,6 @@ void PDC_reset_prog_mode(void)
 void PDC_reset_shell_mode(void)
 {
   PDC_LOG(("PDC_reset_shell_mode() - called.\n"));
-#warning Missing logic
 }
 
 /****************************************************************************
@@ -318,13 +317,14 @@ void PDC_reset_shell_mode(void)
  *
  * Description:
  *  Called from _restore_mode() in pdc_kernel.c, this function does the
- *  actual mode changing, if applicable. Currently used only in DOS and OS/2.
+ *  actual mode changing, if applicable.  Currently used only in DOS and
+ *  OS/2.
  *
  ****************************************************************************/
 
 void PDC_restore_screen_mode(int i)
 {
-#warning Missing logic
+  PDC_LOG(("PDC_restore_screen_mode().  i=%d.\n", i));
 }
 
 /****************************************************************************
@@ -332,45 +332,62 @@ void PDC_restore_screen_mode(int i)
  *
  * Description:
  *   Called from _save_mode() in pdc_kernel.c, this function saves the actual
- *   screen mode, if applicable. Currently used only in DOS and OS/2.
+ *   screen mode, if applicable.  Currently used only in DOS and OS/2.
  *
  ****************************************************************************/
 
 void PDC_save_screen_mode(int i)
 {
-#warning Missing logic
+  PDC_LOG(("PDC_save_screen_mode().  i=%d.\n", i));
 }
 
 /****************************************************************************
  * Name: PDC_init_pair
  *
  * Description:
- *   The core of init_pair(). This does all the work of that function, except
- *   checking for values out of range. The values passed to this function
+ *   The core of init_pair().  This does all the work of that function, except
+ *   checking for values out of range.  The values passed to this function
  *   should be returned by a call to PDC_pair_content() with the same pair
- *   number. PDC_transform_line() should use the specified colors when
+ *   number.  PDC_transform_line() should use the specified colors when
  *   rendering a chtype with the given pair number.
  *
  ****************************************************************************/
 
 void PDC_init_pair(short pair, short fg, short bg)
 {
-#warning Missing logic
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
+  PDC_LOG(("PDC_init_pair().  pair=%d, fg=%d, bg=%d\n", pair, fg, bg));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  fbstate->colorpair[pair].fg = fg;
+  fbstate->colorpair[pair].bg = bg;
 }
 
 /****************************************************************************
  * Name: PDC_pair_content
  *
  * Description:
- *   The core of pair_content(). This does all the work of that function,
+ *   The core of pair_content().  This does all the work of that function,
  *   except checking for values out of range and null pointers.
  *
  ****************************************************************************/
 
 int PDC_pair_content(short pair, short *fg, short *bg)
 {
-#warning Missing logic
-  return ERR;
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
+  PDC_LOG(("PDC_pair_content().  pair=%d\n", pair));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  *fg = fbstate->colorpair[pair].fg;
+  return OK;
 }
 
 /****************************************************************************
@@ -378,42 +395,64 @@ int PDC_pair_content(short pair, short *fg, short *bg)
  *
  * Description:
  *   Returns true if init_color() and color_content() give meaningful
- *   results, false otherwise. Called from can_change_color().
+ *   results, false otherwise.  Called from can_change_color().
  *
  ****************************************************************************/
 
 bool PDC_can_change_color(void)
 {
-#warning Missing logic
-  return false;
+  return true;
 }
 
 /****************************************************************************
  * Name: PDC_color_content
  *
  * Description:
- *   The core of color_content(). This does all the work of that function,
+ *   The core of color_content().  This does all the work of that function,
  *   except checking for values out of range and null pointers.
  *
  ****************************************************************************/
 
 int PDC_color_content(short color, short *red, short *green, short *blue)
 {
-#warning Missing logic
-  return ERR;
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
+  PDC_LOG(("PDC_init_color().  color=%d\n", color));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  *red   = DIVROUND(fbstate->rgbcolor[color].red * 1000, 255);
+  *green = DIVROUND(fbstate->rgbcolor[color].green * 1000, 255);
+  *blue  = DIVROUND(fbstate->rgbcolor[color].blue * 1000, 255);
+
+  return OK;
 }
 
 /****************************************************************************
  * Name: PDC_init_color
  *
  * Description:
- *   The core of init_color(). This does all the work of that function,
+ *   The core of init_color().  This does all the work of that function,
  *   except checking for values out of range.
  *
  ****************************************************************************/
 
 int PDC_init_color(short color, short red, short green, short blue)
 {
-#warning Missing logic
-  return ERR;
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
+  PDC_LOG(("PDC_init_color().  color=%d, red=%d, green=%d, blue=%d\n",
+           color, red, green, blue));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  fbstate->rgbcolor[color].red   = DIVROUND(red * 255, 1000);
+  fbstate->rgbcolor[color].green = DIVROUND(green * 255, 1000);
+  fbstate->rgbcolor[color].blue  = DIVROUND(blue * 255, 1000);
+
+  return OK;
 }
