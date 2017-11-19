@@ -77,8 +77,6 @@
 
 #define HAVE_CLIPBOARD 0
 
-#define MAX_OPTIONS (6 + HAVE_COLOR + HAVE_CLIPBOARD + HAVE_WIDE)
-
 /****************************************************************************
  * Private Types
  ****************************************************************************/
@@ -96,7 +94,7 @@ typedef struct commands COMMAND;
  ****************************************************************************/
 
 static void continue1(WINDOW *win);
-#if defined(HAVE_CLIPBOARD) || defined(HAVE_WIDE)
+#if HAVE_CLIPBOARD || HAVE_WIDE
 static void continue2(void);
 #endif
 
@@ -124,7 +122,7 @@ static void wide_test(WINDOW *);
 
 static void display_menu(int, int);
 
-static const COMMAND command[MAX_OPTIONS] =
+static const COMMAND command[] =
 {
   {"Intro Test", intro_test},
   {"Pad Test", pad_test},
@@ -143,6 +141,8 @@ static const COMMAND command[MAX_OPTIONS] =
   , {"Wide Input", wide_test}
 #endif
 };
+
+#define MAX_OPTIONS (sizeof(command) / sizeof(COMMAND))
 
 static int height;
 static int width;
@@ -232,7 +232,7 @@ static void continue1(WINDOW *win)
   wgetch(win);
 }
 
-#if defined(HAVE_CLIPBOARD) || defined(HAVE_WIDE)
+#if HAVE_CLIPBOARD || HAVE_WIDE
 static void continue2(void)
 {
   move(LINES - 1, 1);
