@@ -9,45 +9,45 @@ config PDCURSES_FBDEV
 
 choice
 	prompt "TUI Font Selection"
-	default PDCURSES_FOUNT_6X9
+	default PDCURSES_FONT_6X13
 
-config PDCURSES_FOUNT_4X6
+config PDCURSES_FONT_4X6
 	bool "4x6"
 	select NXFONT_X11_MISC_FIXED_4X6
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_4X6 == 21.
 
-config PDCURSES_FOUNT_5X7
+config PDCURSES_FONT_5X7
 	bool "5x7"
 	select NXFONT_X11_MISC_FIXED_5X7
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_5X7 == 22.
 
-config PDCURSES_FOUNT_5X8
+config PDCURSES_FONT_5X8
 	bool "5x8"
 	select NXFONT_X11_MISC_FIXED_5X8
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_5X8 == 23.
 
-config PDCURSES_FOUNT_6X9
+config PDCURSES_FONT_6X9
 	bool "6x9"
 	select NXFONT_X11_MISC_FIXED_6X9
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_6X9 == 24.
 
-config PDCURSES_FOUNT_6X10
+config PDCURSES_FONT_6X10
 	bool "6x10"
 	select NXFONT_X11_MISC_FIXED_6X10
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_6X10 == 25.
 
-config PDCURSES_FOUNT_6X12
+config PDCURSES_FONT_6X12
 	bool "6x12"
 	select NXFONT_X11_MISC_FIXED_6X12
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_6X12 == 26.
 
-config PDCURSES_FOUNT_6X13
+config PDCURSES_FONT_6X13
 	bool "6x13"
 	select NXFONT_X11_MISC_FIXED_6X13
 	select NXFONT_X11_MISC_FIXED_6X13B
@@ -55,7 +55,7 @@ config PDCURSES_FOUNT_6X13
 		Enables font ID FONTID_X11_MISC_FIXED_6X13 == 27 and
 		bold font ID FONTID_X11_MISC_FIXED_6X13B == 28.
 
-config PDCURSES_FOUNT_7X13
+config PDCURSES_FONT_7X13
 	bool "7x13"
 	select NXFONT_X11_MISC_FIXED_7X13
 	select NXFONT_X11_MISC_FIXED_7X13B
@@ -63,7 +63,7 @@ config PDCURSES_FOUNT_7X13
 		Enables font ID FONTID_X11_MISC_FIXED_7X13 == 30 and
 		bold font ID FONTID_X11_MISC_FIXED_7X13B == 31.
 
-config PDCURSES_FOUNT_7X14
+config PDCURSES_FONT_7X14
 	bool "7x14"
 	select NXFONT_X11_MISC_FIXED_7X14
 	select NXFONT_X11_MISC_FIXED_7X14B
@@ -71,7 +71,7 @@ config PDCURSES_FOUNT_7X14
 		Enables font ID FONTID_X11_MISC_FIXED_7X14 == 33 and
 		bold font ID FONTID_X11_MISC_FIXED_7X14B == 34.
 
-config PDCURSES_FOUNT_8X13
+config PDCURSES_FONT_8X13
 	bool "8x13"
 	select NXFONT_X11_MISC_FIXED_8X13
 	select NXFONT_X11_MISC_FIXED_8X13B
@@ -79,7 +79,7 @@ config PDCURSES_FOUNT_8X13
 		Enables font ID FONTID_X11_MISC_FIXED_8X13 == 35 and
 		bold font ID FONTID_X11_MISC_FIXED_8X13B == 36.
 
-config PDCURSES_FOUNT_9X15
+config PDCURSES_FONT_9X15
 	bool "9x15"
 	select NXFONT_X11_MISC_FIXED_9X15
 	select NXFONT_X11_MISC_FIXED_9X15B
@@ -87,7 +87,7 @@ config PDCURSES_FOUNT_9X15
 		Enables font ID FONTID_X11_MISC_FIXED_9X15 == 38 and
 		bold font ID FONTID_X11_MISC_FIXED_9X15B == 39.
 
-config PDCURSES_FOUNT_9X18
+config PDCURSES_FONT_9X18
 	bool "9x18"
 	select NXFONT_X11_MISC_FIXED_9X18
 	select NXFONT_X11_MISC_FIXED_9X18B
@@ -95,10 +95,29 @@ config PDCURSES_FOUNT_9X18
 		Enables font ID FONTID_X11_MISC_FIXED_9X18 == 40 and
 		bold font ID FONTID_X11_MISC_FIXED_9X18B == 41.
 
-config PDCURSES_FOUNT_10X20
+config PDCURSES_FONT_10X20
 	bool "10x20"
 	select NXFONT_X11_MISC_FIXED_10X20
 	---help---
 		Enables font ID FONTID_X11_MISC_FIXED_10X20 == 42.
 
 endchoice # TUI Font Selection
+
+choice
+	prompt "Color Format Selection"
+	default PDCURSES_COLORFMT_RGB565
+
+config PDCURSES_COLORFMT_Y1
+	bool "BPP=1 Monochrome"
+	depends on EXPERIMENTAL
+
+config PDCURSES_COLORFMT_RGB332
+	bool "BPP=8 RGB332"
+
+config PDCURSES_COLORFMT_RGB565
+	bool "BPP=16 RGB565"
+
+config PDCURSES_COLORFMT_RGB888
+	bool "BPP=32 RGB888"
+
+endchoice # Color Format Selection

@@ -163,6 +163,22 @@ int PDC_scr_open(int argc, char **argv)
   fbstate->xres = vinfo.xres;  /* Horizontal resolution in pixel columns */
   fbstate->yres = vinfo.yres;  /* Vertical resolution in pixel rows */
 
+  /* Only one color format supported. */
+
+  if (vinfo.fmt != PDCURSES_COLORFMT)
+    {
+      PDC_LOG(("ERROR: color format=%u not supported\n", vinfo.fmt));
+      goto errout_with_fd;
+    }
+
+#ifdef CONFIG_PDCURSES_COLORFMT_Y1
+  /* Remember if we are using a monochrome framebuffer */
+
+  SP->mono = true;
+#endif
+
+  /* Get characteristics of the color plane */
+
   ret = ioctl(fbstate->fd, FBIOGET_PLANEINFO,
               (unsigned long)((uintptr_t)&pinfo));
   if (ret < 0)
@@ -179,14 +195,10 @@ int PDC_scr_open(int argc, char **argv)
   PDC_LOG(("      bpp: %u\n", pinfo.bpp));
 
   fbstate->stride = pinfo.stride; /* Length of a line in bytes */
-  fbstate->bpp    = pinfo.bpp;    /* Bits per pixel */
 
-  /* Only these pixel depths are supported.  vinfo.fmt is ignored, only
-   * certain color formats are supported.
-   */
+  /* Only one pixel depth is supported. */
 
-  if (pinfo.bpp != 32 && pinfo.bpp != 16 &&
-      pinfo.bpp != 8  && pinfo.bpp != 1)
+  if (pinfo.bpp != PDCURSES_BPP)
     {
       PDC_LOG(("ERROR: bpp=%u not supported\n", pinfo.bpp));
       goto errout_with_fd;
@@ -202,7 +214,7 @@ int PDC_scr_open(int argc, char **argv)
    */
 
   fbstate->fbmem = mmap(NULL, pinfo.fblen, PROT_READ|PROT_WRITE,
-                             MAP_SHARED|MAP_FILE, fbstate->fd, 0);
+                        MAP_SHARED|MAP_FILE, fbstate->fd, 0);
   if (fbstate->fbmem == MAP_FAILED)
     {
       PDC_LOG(("ERROR: ioctl(FBIOGET_PLANEINFO) failed: %d\n", errno));
@@ -211,22 +223,36 @@ int PDC_scr_open(int argc, char **argv)
 
   PDC_LOG(("Mapped FB: %p\n", fbstate->fbmem));
 
-  /* The the handle for the selected font */
+  /* Get the handle for the selected font */
 
   fbstate->hfont = nxf_getfonthandle(PDCURSES_FONTID);
   if (fbstate->hfont == NULL)
     {
-      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno);)
+      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno));
       goto errout_with_fd;
     }
+
+#ifdef HAVE_BOLD_FONT
+  /* Get the handle for the matching bold font.  It is assume that the
+   * geometry of the bold font is exactly the same as the geometry of
+   * the "normal" font.
+   */
+
+  fbstate->hbold = nxf_getfonthandle(PDCURSES_BOLD_FONTID);
+  if (fbstate->hbold == NULL)
+    {
+      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno));
+      goto errout_with_font;
+    }
+#endif
 
   /* Get information about the fontset */
 
   fontset = nxf_getfontset(fbstate->hfont);
   if (fontset == NULL)
     {
-      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno);)
-      goto errout_with_font;
+      PDC_LOG(("ERROR: Failed to get font handle: %d\n", errno));
+      goto errout_with_boldfont;
     }
 
   PDC_LOG(("Fonset (ID=%d):\n", PDCURSES_FONTID));
@@ -243,12 +269,15 @@ int PDC_scr_open(int argc, char **argv)
   SP->lines        = fbstate->yres / fbstate->fheight;
   SP->cols         = fbstate->xres / fbstate->fwidth;
 
-  fbstate->hoffset = (fbstate->yres - fbstate->fheight * SP->lines) / 2;
-  fbstate->hoffset = (fbstate->yres - fbstate->fheight * SP->lines) / 2;
+  fbstate->hoffset = (fbstate->xres - fbstate->fwidth * SP->cols) / 2;
+  fbstate->voffset = (fbstate->yres - fbstate->fheight * SP->lines) / 2;
 
   return OK;
 
+errout_with_boldfont:
+#ifdef HAVE_BOLD_FONT
 errout_with_font:
+#endif
 
 errout_with_fd:
   close(fbstate->fd);
@@ -387,6 +416,7 @@ int PDC_pair_content(short pair, short *fg, short *bg)
   fbstate = &fbscreen->fbstate;
 
   *fg = fbstate->colorpair[pair].fg;
+  *bg = fbstate->colorpair[pair].bg;
   return OK;
 }
 

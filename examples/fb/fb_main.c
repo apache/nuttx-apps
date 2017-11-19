@@ -223,7 +223,7 @@ static void draw_rect1(FAR struct fb_state_s *state,
 static void draw_rect(FAR struct fb_state_s *state,
                       FAR struct nxgl_rect_s *rect, int color)
 {
-#ifdef CONFIG_NX_UPDATE
+#ifdef CONFIG_LCD_UPDATE
   int ret;
 #endif
 
@@ -247,7 +247,7 @@ static void draw_rect(FAR struct fb_state_s *state,
         break;
     }
 
-#ifdef CONFIG_NX_UPDATE
+#ifdef CONFIG_LCD_UPDATE
   ret = ioctl(state->fd, FBIO_UPDATE,
               (unsigned long)((uintptr_t)rect));
   if (ret < 0)

@@ -42,8 +42,12 @@
 
 #include "nuttx/config.h"
 
+#include <stdint.h>
+
 #include "nuttx/nx/nx.h"
 #include "nuttx/nx/nxfonts.h"
+#include <nuttx/video/fb.h>
+#include <nuttx/video/rgbcolors.h>
 
 #include "curspriv.h"
 
@@ -53,54 +57,104 @@
 
 #undef HAVE_BOLD_FONT
 
-#if defined(CONFIG_PDCURSES_FOUNT_4X6)
+#if defined(CONFIG_PDCURSES_FONT_4X6)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_4X6
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_4X6
-#elif defined(CONFIG_PDCURSES_FOUNT_5X7)
+#elif defined(CONFIG_PDCURSES_FONT_5X7)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_5X7
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_5X7
-#elif defined(CONFIG_PDCURSES_FOUNT_5X8)
+#elif defined(CONFIG_PDCURSES_FONT_5X8)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_5X8
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_5X8
-#elif defined(CONFIG_PDCURSES_FOUNT_6X9)
+#elif defined(CONFIG_PDCURSES_FONT_6X9)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X9
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X9
-#elif defined(CONFIG_PDCURSES_FOUNT_6X10)
+#elif defined(CONFIG_PDCURSES_FONT_6X10)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X10
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X10
-#elif defined(CONFIG_PDCURSES_FOUNT_6X12)
+#elif defined(CONFIG_PDCURSES_FONT_6X12)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X12
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X12
-#elif defined(CONFIG_PDCURSES_FOUNT_6X13)
+#elif defined(CONFIG_PDCURSES_FONT_6X13)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_6X13
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_6X13B
 #  define HAVE_BOLD_FONT        1
-#elif defined(CONFIG_PDCURSES_FOUNT_7X13)
+#elif defined(CONFIG_PDCURSES_FONT_7X13)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_7X13
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_7X13B
 #  define HAVE_BOLD_FONT        1
-#elif defined(CONFIG_PDCURSES_FOUNT_7X14)
+#elif defined(CONFIG_PDCURSES_FONT_7X14)
 #  define PDCURSES_FONTID       FONTID_X11_MISC_FIXED_7X14
 #  define PDCURSES_BOLD_FONTID  FONTID_X11_MISC_FIXED_7X14B
 #  define HAVE_BOLD_FONT        1
-#elif defined(CONFIG_PDCURSES_FOUNT_8X13)
+#elif defined(CONFIG_PDCURSES_FONT_8X13)
 #  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_8X13
 #  define PDCURSES_BOLD_FONTID   FONTID_X11_MISC_FIXED_8X13B
 #  define HAVE_BOLD_FONT        1
-#elif defined(CONFIG_PDCURSES_FOUNT_9X15)
+#elif defined(CONFIG_PDCURSES_FONT_9X15)
 #  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_9X15
 #  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_9X15B
 #  define HAVE_BOLD_FONT        1
-#elif defined(CONFIG_PDCURSES_FOUNT_9X18)
+#elif defined(CONFIG_PDCURSES_FONT_9X18)
 #  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_9X18
 #  define PDCURSES_BOLD_FONTID   FONTID_X11_MISC_FIXED_9X18B
 #  define HAVE_BOLD_FONT        1
-#elif defined(CONFIG_PDCURSES_FOUNT_10X20)
+#elif defined(CONFIG_PDCURSES_FONT_10X20)
 #  define PDCURSES_FONTID        FONTID_X11_MISC_FIXED_10X20
 #  define PDCURSES_BOLD_FONTID   FONTID_X11_MISC_FIXED_10X20
 #else
 #  error No fixed width font selected
 #endif
+
+#if defined(CONFIG_PDCURSES_COLORFMT_Y1)
+#  warning CONFIG_PDCURSES_COLORFMT_Y1 not yet supported
+#  define PDCURSES_COLORFMT      FB_FMT_Y1
+#  define PDCURSES_BPP           1
+#elif defined(CONFIG_PDCURSES_COLORFMT_RGB332)
+#  define PDCURSES_COLORFMT      FB_FMT_RGB8_332
+#  define PDCURSES_BPP           8
+#  define PDCURSES_BPP_MASK      7
+#  define PDCURSES_BPP_SHIFT     3
+#elif defined(CONFIG_PDCURSES_COLORFMT_RGB565)
+#  define PDCURSES_COLORFMT      FB_FMT_RGB16_565
+#  define PDCURSES_BPP           16
+#  define PDCURSES_BPP_MASK      15
+#  define PDCURSES_BPP_SHIFT     4
+#elif defined(CONFIG_PDCURSES_COLORFMT_RGB888)
+#  define PDCURSES_COLORFMT      FB_FMT_RGB24  /* RGB24 at 32-BPP */
+#  define PDCURSES_BPP           32
+#  define PDCURSES_BPP_MASK      31
+#  define PDCURSES_BPP_SHIFT     5
+#else
+#  error No color format selected
+#endif
+
+/* Select renderer -- Some additional logic would be required to support
+ * pixel depths that are not directly addressable (1,2,4, and 24).
+ */
+
+#if PDCURSES_BPP == 1
+#  define RENDERER nxf_convert_1bpp
+#elif PDCURSES_BPP == 2
+#  define RENDERER nxf_convert_2bpp
+#elif PDCURSES_BPP == 4
+#  define RENDERER nxf_convert_4bpp
+#elif PDCURSES_BPP == 8
+#  define RENDERER nxf_convert_8bpp
+#elif PDCURSES_BPP == 16
+#  define RENDERER nxf_convert_16bpp
+#elif PDCURSES_BPP == 24
+#  define RENDERER nxf_convert_24bpp
+#elif PDCURSES_BPP == 32
+#  define RENDERER nxf_convert_32bpp
+#else
+#  error "Unsupported bits-per-pixel"
+#endif
+
+/* Convert bits to bytes to hold an even number of pixels */
+
+#define PDCURSES_ALIGN_UP(n)   (((n) + PDCURSES_BPP_MASK) >> 3)
+#define PDCURSES_ALIGN_DOWN(n) (((n) & ~PDCURSES_BPP_MASK) >> 3)
 
 /****************************************************************************
  * Private Types
@@ -131,6 +185,16 @@ struct pdc_rgbcolor_s
   uint8_t blue;
 };
 
+/* Holds one framebuffer pixel */
+
+#if defined(CONFIG_PDCURSES_COLORFMT_RGB332)
+typedef uint8_t  pdc_color_t;
+#elif defined(CONFIG_PDCURSES_COLORFMT_RGB565)
+typedef uint16_t pdc_color_t;
+#elif defined(CONFIG_PDCURSES_COLORFMT_RGB888)
+typedef uint32_t pdc_color_t;
+#endif
+
 /* This structure provides the overall state of the frambuffer device */
 
 struct pdc_fbstate_s
@@ -138,26 +202,26 @@ struct pdc_fbstate_s
   /* Framebuffer */
 
   int fd;                /* Open framebuffer driver file descriptor */
-  fb_coord_t xres;       /* Horizontal resolution in pixel columns */
-  fb_coord_t yres;       /* Vertical resolution in pixel rows */
-  fb_coord_t stride;     /* Length of a line in bytes */
-  uint8_t bpp;           /* Bits per pixel */
   FAR void *fbmem;       /* Start of framebuffer memory */
+  fb_coord_t xres;       /* Horizontal resolution (pixels) */
+  fb_coord_t yres;       /* Vertical resolution (rows) */
+  fb_coord_t stride;     /* Length of a line (bytes) */
 
   /* Font */
 
   NXHANDLE hfont;        /* Handled uses to access selected font */
-  uint8_t fheight;       /* Height of the font in pixels */
-  uint8_t fwidth;        /* Width of the font in pixels */
+#ifdef HAVE_BOLD_FONT
+  NXHANDLE hbold;        /* Handled uses to access bold font */
+#endif
+  uint8_t fheight;       /* Height of the font (rows) */
+  uint8_t fwidth;        /* Width of the font (pixels) */
 
   /* Drawable area (See also SP->lines and SP->cols) */
 
-  uint8_t hoffset;       /* Offset from left of display in pixels */
-  uint8_t voffset;       /* Offset from top of display in lines */
-
-  /* Cursor position in display rows x pixels */
-
-  struct nxgl_point_s curpos;
+  fb_coord_t xpos;       /* Drawing X position (pixels) */
+  fb_coord_t ypos;       /* Drawing Y position (rows) */
+  uint8_t hoffset;       /* Offset from left of display (pixels) */
+  uint8_t voffset;       /* Offset from top of display (rows) */
 
   /* Colors */
 
