@@ -128,14 +128,14 @@ static inline fb_coord_t PDC_pixel_y(FAR struct pdc_fbstate_s *fbstate,
  *
  ****************************************************************************/
 
-static inline fb_coord_t PDC_fbmem_x(FAR struct pdc_fbstate_s *fbstate,
-                                     int col)
+static inline uintptr_t PDC_fbmem_x(FAR struct pdc_fbstate_s *fbstate,
+                                   int col)
 {
   return (PDC_pixel_x(fbstate, col) * PDCURSES_BPP + 7) >> 3;
 }
 
-static inline fb_coord_t PDC_fbmem_y(FAR struct pdc_fbstate_s *fbstate,
-                                     int row)
+static inline uintptr_t PDC_fbmem_y(FAR struct pdc_fbstate_s *fbstate,
+                                    int row)
 {
   return PDC_pixel_y(fbstate, row) * fbstate->stride;
 }

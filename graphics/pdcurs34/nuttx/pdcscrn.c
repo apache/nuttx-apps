@@ -119,6 +119,7 @@ int PDC_scr_open(int argc, char **argv)
   struct fb_videoinfo_s vinfo;
   struct fb_planeinfo_s pinfo;
   int ret;
+  int i;
 
   PDC_LOG(("PDC_scr_open() - called\n"));
 
@@ -133,6 +134,19 @@ int PDC_scr_open(int argc, char **argv)
 
   SP      = &fbscreen->screen;
   fbstate = &fbscreen->fbstate;
+
+  /* Setup initial colors */
+
+  for (i = 0; i < 8; i++)
+    {
+      fbstate->rgbcolor[i].red       = (i & COLOR_RED)   ? 0xc0 : 0;
+      fbstate->rgbcolor[i].green     = (i & COLOR_GREEN) ? 0xc0 : 0;
+      fbstate->rgbcolor[i].blue      = (i & COLOR_BLUE)  ? 0xc0 : 0;
+
+      fbstate->rgbcolor[i + 8].red   = (i & COLOR_RED)   ? 0xff : 0x40;
+      fbstate->rgbcolor[i + 8].green = (i & COLOR_GREEN) ? 0xff : 0x40;
+      fbstate->rgbcolor[i + 8].blue  = (i & COLOR_BLUE)  ? 0xff : 0x40;
+    }
 
   /* Open the framebuffer driver */
 
@@ -306,7 +320,9 @@ int PDC_resize_screen(int nlines, int ncols)
 {
   PDC_LOG(("PDC_resize_screen() - called. Lines: %d Cols: %d\n",
            nlines, ncols));
-#warning Missing logic
+
+  /* We cannot resize the hardware framebuffer */
+
   return ERR;
 }
 

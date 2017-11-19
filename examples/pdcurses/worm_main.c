@@ -65,6 +65,7 @@
  ****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "graphics/curses.h"
@@ -95,7 +96,7 @@ struct options
  * Private Data
  ****************************************************************************/
 
-static const chtype flavor[FLAVORS] =
+static const chtype init_flavor[FLAVORS] =
 {
   'O', '*', '#', '$', '%', '0', '@'
 };
@@ -110,6 +111,7 @@ static const short yinc[] =
   -1, 0, 1, 1, 1, 0, -1, -1
 };
 
+static chtype flavor[FLAVORS];
 static struct worm worm[40];
 static const char *field;
 static int length = 16;
@@ -666,6 +668,9 @@ int worm_main(int argc, char *argv[])
         }
     }
 
+  memcpy(flavor, init_flavor, FLAVORS * sizeof(chtype));
+
+  traceon();
   initscr();
   seed = time((time_t *) 0);
   srand(seed);

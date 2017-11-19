@@ -116,7 +116,7 @@ static int wait_for_user(void)
   return (ch == '\033') ? ch : 0;
 }
 
-static int subwin_test(WIDNOW *win)
+static int subwin_test(WINDOW *win)
 {
   WINDOW *swin1;
   WINDOW *swin2;
@@ -176,7 +176,7 @@ static int subwin_test(WIDNOW *win)
   return 0;
 }
 
-static int bouncing_balls(WIDNOW *win)
+static int bouncing_balls(WINDOW *win)
 {
   chtype c1;
   chtype c2;
@@ -304,9 +304,18 @@ int newdemo_main(int argc, char *argv[])
 #endif
 {
   WINDOW *win;
-  chtype save[80], ch;
-  int width, height, w, x, y, i, j, seed;
+  chtype save[80];
+  chtype ch;
+  int width;
+  int height;
+  int w;
+  int x;
+  int y;
+  int i;
+  int j;
+  int seed;
 
+  traceon();
   initscr();
   seed = time((time_t *) 0);
   srand(seed);
@@ -434,7 +443,6 @@ int newdemo_main(int argc, char *argv[])
           char *scrollbuf = malloc(scroll_len);
           char *visbuf = scrollbuf + msg_len;
           int stop = 0;
-          int i;
 
           for (i = w + msg_len; i > 0; i--)
             {

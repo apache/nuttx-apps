@@ -95,8 +95,10 @@ typedef struct commands COMMAND;
  * Private Function Prototypes
  ****************************************************************************/
 
-static void continue1(WIDNOW *win);
+static void continue1(WINDOW *win);
+#if defined(HAVE_CLIPBOARD) || defined(HAVE_WIDE)
 static void continue2(void);
+#endif
 
 static void input_test(WINDOW *);
 static void scroll_test(WINDOW *);
@@ -130,15 +132,15 @@ static const COMMAND command[MAX_OPTIONS] =
   {"Scroll Test", scroll_test},
   {"Input Test", input_test},
   {"Output Test", output_test},
-  {"ACS Test", acs_test},
+  {"ACS Test", acs_test}
 #if HAVE_COLOR
-  {"Color Test", color_test},
+  , {"Color Test", color_test}
 #endif
 #if HAVE_CLIPBOARD
-  {"Clipboard Test", clipboard_test},
+  , {"Clipboard Test", clipboard_test}
 #endif
 #if HAVE_WIDE
-  {"Wide Input", wide_test}
+  , {"Wide Input", wide_test}
 #endif
 };
 
@@ -222,7 +224,7 @@ static const char *colornames[] =
  * Private Functions
  ****************************************************************************/
 
-static void continue1(WIDNOW *win)
+static void continue1(WINDOW *win)
 {
   mvwaddstr(win, 10, 1, " Press any key to continue");
   wrefresh(win);
@@ -230,6 +232,7 @@ static void continue1(WIDNOW *win)
   wgetch(win);
 }
 
+#if defined(HAVE_CLIPBOARD) || defined(HAVE_WIDE)
 static void continue2(void)
 {
   move(LINES - 1, 1);
@@ -239,9 +242,11 @@ static void continue2(void)
   raw();
   getch();
 }
+#endif
 
 static int init_test(WINDOW ** win, int argc, char *argv[])
 {
+  traceon();
   initscr();
 #ifdef A_COLOR
   if (has_colors())
@@ -264,7 +269,7 @@ static int init_test(WINDOW ** win, int argc, char *argv[])
   return 0;
 }
 
-static void intro_test(WIDNOW *win)
+static void intro_test(WINDOW *win)
 {
   werase(win);
   wmove(win, height / 2 - 5, width / 2);
@@ -290,7 +295,7 @@ static void intro_test(WIDNOW *win)
   continue1(win);
 }
 
-static void scroll_test(WIDNOW *win)
+static void scroll_test(WINDOW *win)
 {
   int oldy;
   int i;
@@ -339,7 +344,7 @@ static void scroll_test(WIDNOW *win)
   wsetscrreg(win, 0, oldy);
 }
 
-static void input_test(WIDNOW *win)
+static void input_test(WINDOW *win)
 {
   int w;
   int h;
@@ -617,7 +622,7 @@ static void input_test(WIDNOW *win)
   continue1(win);
 }
 
-static void output_test(WIDNOW *win)
+static void output_test(WINDOW *win)
 {
   WINDOW *win1;
   char Buffer[80];
@@ -789,7 +794,7 @@ static void output_test(WIDNOW *win)
   continue1(win);
 }
 
-static void resize_test(WIDNOW *dummy)
+static void resize_test(WINDOW *dummy)
 {
   WINDOW *win1;
   int nwidth = 135, nheight = 52;
@@ -838,7 +843,7 @@ static void resize_test(WIDNOW *dummy)
   refresh();
 }
 
-static void pad_test(WIDNOW *dummy)
+static void pad_test(WINDOW *dummy)
 {
   WINDOW *pad, *spad;
 
@@ -876,7 +881,7 @@ static void pad_test(WIDNOW *dummy)
 }
 
 #if HAVE_CLIPBOARD
-static void clipboard_test(WIDNOW *win)
+static void clipboard_test(WINDOW *win)
 {
   static const char *text =
     "This string placed in clipboard by PDCurses test program, testcurs.";
@@ -939,7 +944,7 @@ static void clipboard_test(WIDNOW *win)
 }
 #endif /* HAVE_CLIPBOARD */
 
-static void acs_test(WIDNOW *win)
+static void acs_test(WINDOW *win)
 {
   chtype acs_values[ACSNUM];
   int tmarg = (LINES - 22) / 2;
@@ -1028,7 +1033,7 @@ static void acs_test(WIDNOW *win)
 }
 
 #if HAVE_COLOR
-static void color_test(WIDNOW *win)
+static void color_test(WINDOW *win)
 {
   chtype fill = ACS_BLOCK;
   int tmarg;
@@ -1124,7 +1129,7 @@ static void color_test(WIDNOW *win)
 #endif
 
 #if HAVE_WIDE
-static void wide_test(WIDNOW *win)
+static void wide_test(WINDOW *win)
 {
   wchar_t tmp[513];
   size_t i;
@@ -1199,7 +1204,9 @@ int testcurs_main(int argc, char *argv[])
   int key, old_option = -1, new_option = 0;
   bool quit = false;
 
+#ifdef CONFIG_LIBC_LOCALE
   setlocale(LC_ALL, "");
+#endif
 
   if (init_test(&win, argc, argv))
     {

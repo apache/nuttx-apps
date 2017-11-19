@@ -107,10 +107,10 @@ int     waitforkey(void);
 
 void    tui_exit(void);
 void    startmenu(menu *mp, char *title);
-void    domenu(menu *mp);
+void    domenu(const menu *mp);
 
 int     weditstr(WINDOW *win, char *buf, int field);
 WINDOW *winputbox(WINDOW *win, int nlines, int ncols);
-int     getstrings(char *desc[], char *buf[], int field);
+int     getstrings(const char *desc[], char *buf[], int field);
 
 #endif /* __APPS_EXAMPLES_PDCURSES_TUI_H */

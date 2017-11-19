@@ -152,6 +152,7 @@ int firework_main(int argc, char *argv[])
 {
   int i, start, end, row, diff, flag, direction, seed;
 
+  traceon();
   initscr();
   nodelay(stdscr, true);
   noecho();

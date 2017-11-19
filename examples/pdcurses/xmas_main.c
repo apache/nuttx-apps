@@ -143,20 +143,20 @@ static WINDOW *w_del_msg;
  * Private Functions
  ****************************************************************************/
 
-static void lil(WIDNOW *win)
+static void lil(WINDOW *win)
 {
   mvwaddch(win, 0, 0, (chtype) 'V');
   mvwaddch(win, 1, 0, (chtype) '@');
   mvwaddch(win, 1, 3, (chtype) '~');
 }
 
-static void midtop(WIDNOW *win)
+static void midtop(WINDOW *win)
 {
   mvwaddstr(win, 0, 2, "yy");
   mvwaddstr(win, 1, 2, "0(=)~");
 }
 
-static void bigtop(WIDNOW *win)
+static void bigtop(WINDOW *win)
 {
   mvwaddstr(win, 0, 17, "\\/");
   mvwaddstr(win, 0, 20, "\\/");
@@ -169,7 +169,7 @@ static void bigtop(WIDNOW *win)
   mvwaddstr(win, 5, 7, "^~~~~~~~~//  ~~U");
 }
 
-static void bigface(WIDNOW *win, chtype noseattr)
+static void bigface(WINDOW *win, chtype noseattr)
 {
   mvwaddstr(win, 0, 16, "\\/     \\/");
   mvwaddstr(win, 1, 17, "\\Y/ \\Y/");
@@ -181,7 +181,7 @@ static void bigface(WIDNOW *win, chtype noseattr)
   waddstr(win, "/");
 }
 
-static void legs1(WIDNOW *win)
+static void legs1(WINDOW *win)
 {
   mvwaddstr(win, 6, 7, "( \\_____( /");
   mvwaddstr(win, 7, 8, "( )    /");
@@ -189,7 +189,7 @@ static void legs1(WIDNOW *win)
   mvwaddstr(win, 9, 11, "\\>/>");
 }
 
-static void legs2(WIDNOW *win)
+static void legs2(WINDOW *win)
 {
   mvwaddstr(win, 6, 7, "(( )____( /");
   mvwaddstr(win, 7, 7, "( /      |");
@@ -197,7 +197,7 @@ static void legs2(WIDNOW *win)
   mvwaddstr(win, 9, 9, "|>     |>");
 }
 
-static void legs3(WIDNOW *win)
+static void legs3(WINDOW *win)
 {
   mvwaddstr(win, 6, 6, "( ()_____( /");
   mvwaddstr(win, 7, 6, "/ /       /");
@@ -205,7 +205,7 @@ static void legs3(WIDNOW *win)
   mvwaddstr(win, 9, 5, "/>           \\>");
 }
 
-static void legs4(WIDNOW *win)
+static void legs4(WINDOW *win)
 {
   mvwaddstr(win, 6, 6, "( )______( /");
   mvwaddstr(win, 7, 5, "(/          \\");
@@ -793,6 +793,7 @@ int xmas_main(int argc, char *argv[])
 {
   int loopy;
 
+  traceon();
   initscr();
   nodelay(stdscr, true);
   noecho();

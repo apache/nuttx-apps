@@ -176,6 +176,7 @@ int panel_main(int argc, char *argv[])
       nap_msec = atol(argv[1]);
     }
 
+  traceon();
   initscr();
   backfill();
 

@@ -73,9 +73,15 @@
  * Private Function Prototypes
  ****************************************************************************/
 
-static void sub0(void), sub1(void), sub2(void), sub3(void);
-static void func1(void), func2(void);
-static void subfunc1(void), subfunc2(void);
+static void address(void);
+static void sub0(void);
+static void sub1(void);
+static void sub2(void);
+static void sub3(void);
+static void func1(void);
+static void func2(void);
+static void subfunc1(void);
+static void subfunc2(void);
 static void subsub(void);
 
 /****************************************************************************
@@ -157,14 +163,14 @@ static void address(void)
 
 static char *getfname(char *desc, char *fname, int field)
 {
-  char *g_fieldname[2];
+  char *fieldname[2];
   char *fieldbuf[1];
 
-  g_fieldname[0] = desc;
-  g_fieldname[1] = 0;
-  fieldbuf[0] = fname;
+  fieldname[0] = desc;
+  fieldname[1] = 0;
+  fieldbuf[0]  = fname;
 
-  return (getstrings(g_fieldname, fieldbuf, field) == KEY_ESC) ? NULL : fname;
+  return (getstrings((const char **)fieldname, fieldbuf, field) == KEY_ESC) ? NULL : fname;
 }
 
 static void showfile(char *fname)
@@ -281,7 +287,9 @@ int main(int argc, FAR char *argv[])
 int tui_main(int argc, char *argv[])
 #endif
 {
+#ifdef CONFIG_LIBC_LOCALE
   setlocale(LC_ALL, "");
+#endif
 
   startmenu(g_mainmenu, "TUI - 'textual user interface' demonstration program");
   return 0;

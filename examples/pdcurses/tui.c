@@ -136,7 +136,7 @@ static char *prepad(char *s, int length)
   return s;
 }
 
-static void rmline(WIDNOW *win, int nr)        /* keeps box lines intact */
+static void rmline(WINDOW *win, int nr)        /* keeps box lines intact */
 {
   mvwaddstr(win, nr, 1, padstr(" ", bw - 2));
   wrefresh(win);
@@ -164,7 +164,7 @@ static void initcolor(void)
 #endif
 }
 
-static void setcolor(WIDNOW *win, chtype color)
+static void setcolor(WINDOW *win, chtype color)
 {
   chtype attr = color & A_ATTR; /* extract Bold, Reverse, Blink bits */
 
@@ -177,7 +177,7 @@ static void setcolor(WIDNOW *win, chtype color)
 #endif
 }
 
-static void colorbox(WIDNOW *win, chtype color, int hasbox)
+static void colorbox(WINDOW *win, chtype color, int hasbox)
 {
   int maxy;
   chtype attr = color & A_ATTR; /* extract Bold, Reverse, Blink bits */
@@ -227,7 +227,7 @@ static void idle(void)
   wrefresh(wtitl);
 }
 
-static void menudim(menu *mp, int *lines, int *columns)
+static void menudim(const menu *mp, int *lines, int *columns)
 {
   int n;
   int l;
@@ -272,10 +272,10 @@ static int hotkey(const char *s)
   return *s ? *s : c0;
 }
 
-static void repaintmenu(WIDNOW *wmenu, menu *mp)
+static void repaintmenu(WINDOW *wmenu, const menu *mp)
 {
   int i;
-  menu *p = mp;
+  const menu *p = mp;
 
   for (i = 0; p->func; i++, p++)
     {
@@ -510,7 +510,7 @@ void tui_exit(void)               /* terminate program */
   quit = true;
 }
 
-void domenu(menu *mp)
+void domenu(const menu *mp)
 {
   int x;
   int y;
@@ -617,6 +617,7 @@ void domenu(menu *mp)
 
 void startmenu(menu *mp, char *mtitle)
 {
+  traceon();
   initscr();
   incurses = true;
   initcolor();
@@ -653,7 +654,7 @@ void startmenu(menu *mp, char *mtitle)
   cleanup();
 }
 
-static void repainteditbox(WIDNOW *win, int x, char *buf)
+static void repainteditbox(WINDOW *win, int x, char *buf)
 {
   int maxx;
 
@@ -685,7 +686,7 @@ static void repainteditbox(WIDNOW *win, int x, char *buf)
  *
  */
 
-int weditstr(WIDNOW *win, char *buf, int field)
+int weditstr(WINDOW *win, char *buf, int field)
 {
   char org[MAXSTRLEN], *tp, *bp = buf;
   bool defdisp = true, stop = false, insert = false;
@@ -819,7 +820,7 @@ int weditstr(WIDNOW *win, char *buf, int field)
   return c;
 }
 
-WINDOW *winputbox(WIDNOW *win, int nlines, int ncols)
+WINDOW *winputbox(WINDOW *win, int nlines, int ncols)
 {
   WINDOW *winp;
   int cury, curx, begy, begx;
@@ -833,7 +834,7 @@ WINDOW *winputbox(WIDNOW *win, int nlines, int ncols)
   return winp;
 }
 
-int getstrings(char *desc[], char *buf[], int field)
+int getstrings(const char *desc[], char *buf[], int field)
 {
   WINDOW *winput;
   int oldy, oldx, maxy, maxx, nlines, ncols, i, n, l, mmax = 0;
