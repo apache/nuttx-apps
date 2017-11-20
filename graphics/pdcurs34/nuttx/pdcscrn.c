@@ -135,7 +135,11 @@ int PDC_scr_open(int argc, char **argv)
   SP      = &fbscreen->screen;
   fbstate = &fbscreen->fbstate;
 
-  /* Setup initial colors */
+  /* Number of RGB colors (dimension of rgbcolor[]) */
+
+  COLORS = 16;
+
+  /* Setup initial RGB colors */
 
   for (i = 0; i < 8; i++)
     {
