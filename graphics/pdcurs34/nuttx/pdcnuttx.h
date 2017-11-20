@@ -44,6 +44,7 @@
 
 #include <stdint.h>
 
+#include "nuttx/input/djoystick.h"
 #include "nuttx/nx/nx.h"
 #include "nuttx/nx/nxfonts.h"
 #include <nuttx/video/fb.h>
@@ -211,27 +212,34 @@ struct pdc_fbstate_s
 {
   /* Framebuffer */
 
-  int fd;                /* Open framebuffer driver file descriptor */
-  FAR void *fbmem;       /* Start of framebuffer memory */
-  fb_coord_t xres;       /* Horizontal resolution (pixels) */
-  fb_coord_t yres;       /* Vertical resolution (rows) */
-  fb_coord_t stride;     /* Length of a line (bytes) */
+  int fbfd;                /* Open framebuffer driver file descriptor */
+  FAR void *fbmem;         /* Start of framebuffer memory */
+  fb_coord_t xres;         /* Horizontal resolution (pixels) */
+  fb_coord_t yres;         /* Vertical resolution (rows) */
+  fb_coord_t stride;       /* Length of a line (bytes) */
+
+#ifdef CONFIG_PDCURSES_DJOYSTICK
+  /* Discrete joystick */
+
+  int djfd;                /* Open discrete joystick driver file descriptor */
+  djoy_buttonset_t djlast; /* Last sampled joystick state */
+#endif
 
   /* Font */
 
-  NXHANDLE hfont;        /* Handled uses to access selected font */
+  NXHANDLE hfont;          /* Handled uses to access selected font */
 #ifdef HAVE_BOLD_FONT
-  NXHANDLE hbold;        /* Handled uses to access bold font */
+  NXHANDLE hbold;          /* Handled uses to access bold font */
 #endif
-  uint8_t fheight;       /* Height of the font (rows) */
-  uint8_t fwidth;        /* Width of the font (pixels) */
+  uint8_t fheight;         /* Height of the font (rows) */
+  uint8_t fwidth;          /* Width of the font (pixels) */
 
   /* Drawable area (See also SP->lines and SP->cols) */
 
-  fb_coord_t xpos;       /* Drawing X position (pixels) */
-  fb_coord_t ypos;       /* Drawing Y position (rows) */
-  uint8_t hoffset;       /* Offset from left of display (pixels) */
-  uint8_t voffset;       /* Offset from top of display (rows) */
+  fb_coord_t xpos;         /* Drawing X position (pixels) */
+  fb_coord_t ypos;         /* Drawing Y position (rows) */
+  uint8_t hoffset;         /* Offset from left of display (pixels) */
+  uint8_t voffset;         /* Offset from top of display (rows) */
 
   /* Colors */
 
@@ -259,6 +267,32 @@ struct pdc_fbscreen_s
  */
 
 EXTERN struct pdc_fbstate_s g_pdc_fbstate;
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: PDC_clear_screen
+ *
+ * Description:
+ *   Set the framebuffer content to a single color
+ *
+ ****************************************************************************/
+
+void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate);
+
+/****************************************************************************
+ * Name: PDC_input_open
+ *
+ * Description:
+ *   Open and configure any input devices
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+int PDC_input_open(FAR struct pdc_fbstate_s *fbstate);
+#endif
 
 #undef EXTERN
 #if defined(__cplusplus)

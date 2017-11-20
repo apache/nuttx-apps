@@ -37,7 +37,18 @@
  * Included Files
  ****************************************************************************/
 
+#include <fcntl.h>
+
 #include "pdcnuttx.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Currently only this bits are used.  Others are simply masked out. */
+
+#define DJOY_BITSET (DJOY_UP_BIT | DJOY_DOWN_BIT | DJOY_LEFT_BIT | \
+                     DJOY_RIGHT_BIT | DJOY_BUTTON_SELECT_BIT)
 
 /****************************************************************************
  * Public Data
@@ -54,6 +65,44 @@
 unsigned long pdc_key_modifiers;
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: PDC_djoy_sample
+ *
+ * Description:
+ *   Keyboard/mouse event check, called from wgetch(). Returns true if
+ *   there's an event ready to process. This function must be non-blocking.
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_PDCURSES_DJOYSTICK
+static djoy_buttonset_t PDC_djoy_sample(FAR struct pdc_fbstate_s *fbstate)
+{
+  djoy_buttonset_t sample;
+  ssize_t nread;
+
+  PDC_LOG(("PDC_check_key() - called: DJoystick\n"));
+
+  nread = read(fbstate->djfd, &sample, sizeof(djoy_buttonset_t));
+  if (nread < 0)
+    {
+      PDC_LOG(("ERROR: read() failed: %d\n", errno));
+      return 0;
+    }
+  else if (nread != sizeof(djoy_buttonset_t))
+    {
+      PDC_LOG(("ERROR: read() unexpected size: %ld vs %d\n",
+              (long)nread, sizeof(djoy_buttonset_t)));
+      return 0;
+    }
+
+  return sample & DJOY_BITSET;
+}
+#endif
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -68,8 +117,36 @@ unsigned long pdc_key_modifiers;
 
 bool PDC_check_key(void)
 {
-#warning Missing logic
+#if defined(CONFIG_PDCURSES_KEYBOARD)
+#  warning Missing logic
   return false;
+
+#elif defined(CONFIG_PDCURSES_MOUSE)
+#  warning Missing logic
+  return false;
+
+#elif defined(CONFIG_PDCURSES_DJOYSTICK)
+  {
+    FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+    FAR struct pdc_fbstate_s *fbstate;
+    djoy_buttonset_t newset;
+
+    PDC_LOG(("PDC_check_key() - called: DJoystick\n"));
+
+    DEBUGASSERT(fbscreen != NULL);
+    fbstate = &fbscreen->fbstate;
+
+    /* Sample the discrete joystick bits and return true of any of them
+     * are now in a different state.
+     */
+
+    newset = PDC_djoy_sample(fbstate);
+    return (fbstate->djlast ^ newset) != 0;
+  }
+
+#else
+  return false;
+#endif
 }
 
 /****************************************************************************
@@ -78,8 +155,8 @@ bool PDC_check_key(void)
  * Description:
  *   Get the next available key, or mouse event (indicated by a return of
  *   KEY_MOUSE), and remove it from the OS' input queue, if applicable. This
- *   function is called from wgetch(). This function may be blocking, and
- *   traditionally is; but it need not be. If a valid key or mouse event
+ *   function is called from wgetch().  This function may be blocking, and
+ *   traditionally is; but it need not be.  If a valid key or mouse event
  *   cannot be returned, for any reason, this function returns -1. Valid keys
  *   are those that fall within the appropriate character set, or are in the
  *   list of special keys found in curses.h (KEY_MIN through KEY_MAX). When
@@ -97,8 +174,78 @@ bool PDC_check_key(void)
 
 int PDC_get_key(void)
 {
-#warning Missing logic
-  return 0;
+#if defined(CONFIG_PDCURSES_KEYBOARD)
+#  warning Missing logic
+  return false;
+
+#elif defined(CONFIG_PDCURSES_MOUSE)
+#  warning Missing logic
+  return false;
+
+#elif defined(CONFIG_PDCURSES_DJOYSTICK)
+  {
+    FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+    FAR struct pdc_fbstate_s *fbstate;
+    djoy_buttonset_t sample;
+    djoy_buttonset_t newbits;
+
+    PDC_LOG(("PDC_get_key() - called: DJoystick\n"));
+
+    DEBUGASSERT(fbscreen != NULL);
+    fbstate = &fbscreen->fbstate;
+
+    /* Sample the discrete joystick bits, get the bits that have changed
+     * state, then update the settings for the next time we get here.
+     */
+
+    sample          = PDC_djoy_sample(fbstate);
+    newbits         = sample & (sample ^ fbstate->djlast);
+    fbstate->djlast = sample;
+
+    if (newbits == 0)
+      {
+        /* Nothing has changed... we should:
+         *
+         * 1) Check for repeat keys.  Up, Down, Left and Right should repeat
+         *    at a most rate if held down.
+         * 2) Otherwise, block, polling for a change in button state.  But,
+         *    apparently, we can just return ERR in this case.
+         */
+
+        return ERR;
+      }
+
+    /* Return a key code for any button that has just been pressed (button
+     * releases are not reported)
+     */
+
+    if ((newbits & DJOY_BUTTON_SELECT_BIT) != 0)
+      {
+        return '\n';
+      }
+    else if ((newbits & DJOY_UP_BIT) != 0)
+      {
+        return KEY_UP;
+      }
+    else if ((newbits & DJOY_DOWN_BIT) != 0)
+      {
+        return KEY_DOWN;
+      }
+    else if ((newbits & DJOY_LEFT_BIT) != 0)
+      {
+        return KEY_LEFT;
+      }
+    else /* if ((newbits & DJOY_RIGHT_BIT) != 0) */
+      {
+        return KEY_RIGHT;
+      }
+
+    return ERR;
+  }
+
+#else
+  return false;
+#endif
 }
 
 /****************************************************************************
@@ -112,9 +259,34 @@ int PDC_get_key(void)
 
 unsigned long PDC_get_input_fd(void)
 {
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
   PDC_LOG(("PDC_get_input_fd() - called\n"));
-#warning Missing logic
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+#if defined(CONFIG_PDCURSES_KEYBOARD)
+#  warning Missing logic
   return -1;
+
+#elif defined(CONFIG_PDCURSES_MOUSE)
+#  warning Missing logic
+  return -1;
+
+#else /* if defined(CONFIG_PDCURSES_DJOYSTICK) */
+  return fbstate->djfd;
+
+#endif
+#else
+  PDC_LOG(("PDC_get_input_fd() - called:  No input device\n"));
+
+  /* No input device */
+
+  return -1;
+#endif
 }
 
 /****************************************************************************
@@ -131,7 +303,6 @@ unsigned long PDC_get_input_fd(void)
 void PDC_set_keyboard_binary(bool on)
 {
   PDC_LOG(("PDC_set_keyboard_binary() - called\n"));
-#warning Missing logic
 }
 
 /****************************************************************************
@@ -147,7 +318,14 @@ void PDC_set_keyboard_binary(bool on)
 void PDC_flushinp(void)
 {
   PDC_LOG(("PDC_flushinp() - called\n"));
-#warning Missing logic
+
+#ifdef CONFIG_PDCURSES_KEYBOARD
+#  warning Missing logic
+#endif
+
+#ifdef CONFIG_PDCURSES_MOUSE
+#  warning Missing logic
+#endif
 }
 
 /****************************************************************************
@@ -164,7 +342,9 @@ void PDC_flushinp(void)
 
 int PDC_mouse_set(void)
 {
-#warning Missing logic
+#ifdef CONFIG_PDCURSES_MOUSE
+#  warning Missing logic
+#endif
   return OK;
 }
 
@@ -180,6 +360,39 @@ int PDC_mouse_set(void)
 
 int PDC_modifiers_set(void)
 {
-#warning Missing logic
+#ifdef CONFIG_PDCURSES_KEYBOARD
+#  warning Missing logic
+#endif
   return OK;
 }
+
+/****************************************************************************
+ * Name: PDC_input_open
+ *
+ * Description:
+ *   Open and configure any input devices
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+int PDC_input_open(FAR struct pdc_fbstate_s *fbstate)
+{
+#ifdef CONFIG_PDCURSES_DJOYSTICK
+  /* Initialize discrete joystick state. */
+
+  fbstate->djlast = 0;
+
+  /* Open the djoystick device */
+
+  fbstate->djfd = open(CONFIG_PDCURSES_DJOYDEV, O_RDONLY);
+  if (fbstate->djfd < 0)
+    {
+      PDC_LOG(("ERROR: Failed to open %s: %d\n",
+              CONFIG_PDCURSES_DJOYDEV, errno));
+      return ERR;
+    }
+#endif
+
+  return OK;
+}
+#endif

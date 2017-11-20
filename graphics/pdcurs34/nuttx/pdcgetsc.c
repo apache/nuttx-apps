@@ -44,6 +44,29 @@
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: PDC_get_rows
+ *
+ * Description:
+ *  Returns the size of the screen in rows. It's used in resize_term() to
+ *  set the new value of LINES. (Some existing implementations also call it
+ *  internally from PDC_scr_open(), but this is not required.)
+ *
+ ****************************************************************************/
+
+int PDC_get_rows(void)
+{
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
+  PDC_LOG(("PDC_get_rows() - called\n"));
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  return fbstate->yres / fbstate->fheight;
+}
+
+/****************************************************************************
  * Name: PDC_get_columns
  *
  * Description:
@@ -55,9 +78,15 @@
 
 int PDC_get_columns(void)
 {
+  FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
+  FAR struct pdc_fbstate_s *fbstate;
+
   PDC_LOG(("PDC_get_columns() - called\n"));
-#warning Missing logic
-  return ERR;
+
+  DEBUGASSERT(fbscreen != NULL);
+  fbstate = &fbscreen->fbstate;
+
+  return fbstate->xres / fbstate->fwidth;
 }
 
 /****************************************************************************
@@ -74,23 +103,6 @@ int PDC_get_columns(void)
 
 int PDC_get_cursor_mode(void)
 {
-#warning Missing logic
-  return ERR;
-}
-
-/****************************************************************************
- * Name: PDC_get_rows
- *
- * Description:
- *  Returns the size of the screen in rows. It's used in resize_term() to
- *  set the new value of LINES. (Some existing implementations also call it
- *  internally from PDC_scr_open(), but this is not required.)
- *
- ****************************************************************************/
-
-int PDC_get_rows(void)
-{
-  PDC_LOG(("PDC_get_rows() - called\n"));
-#warning Missing logic
-  return ERR;
+  PDC_LOG(("PDC_get_cursor_mode() - called\n"));
+  return 0;
 }
