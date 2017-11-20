@@ -49,6 +49,63 @@
 #include "pdcnuttx.h"
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+/****************************************************************************
+ * Name: PDC_clear_screen
+ *
+ * Description:
+ *   Set the framebuffer content to a single color
+ *
+ ****************************************************************************/
+
+static void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
+{
+  FAR uint8_t *line;
+  FAR pdc_color_t *dest;
+  int row;
+  int col;
+
+#ifdef CONFIG_LCD_UPDATE
+  struct nxgl_rect_s rect;
+  int ret;
+#endif
+
+  /* Write the intial color into the entire framebuffer */
+
+  for (row = 0, line = (FAR uint8_t *)fbstate->fbmem;
+       row < fbstate->yres;
+       row++, line += fbstate->stride)
+    {
+       for (col = 0, dest = (FAR pdc_color_t *)line;
+            col < fbstate->xres;
+            col++)
+         {
+           *dest++ = PDCURSES_INIT_COLOR;
+         }
+    }
+
+#ifdef CONFIG_LCD_UPDATE
+  /* Update the entire display */
+  /* Setup the bounding rectangle */
+
+  rect.pt1.x = 0;
+  rect.pt1.y = 0;
+  rect.pt2.x = fbstate->xres - 1;
+  rect.pt2.y = fbstate->yres - 1;
+
+  /* Then perfom the update via IOCTL */
+
+  ret = ioctl(fbstate->fd, FBIO_UPDATE, (unsigned long)((uintptr_t)rect));
+  if (ret < 0)
+    {
+      PDC_LOG(("ERROR:  ioctl(FBIO_UPDATE) failed: %d\n", errno));
+    }
+#endif
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -286,6 +343,9 @@ int PDC_scr_open(int argc, char **argv)
   fbstate->hoffset = (fbstate->xres - fbstate->fwidth * SP->cols) / 2;
   fbstate->voffset = (fbstate->yres - fbstate->fheight * SP->lines) / 2;
 
+  /* Set the framebuffer to a known state */
+
+  PDC_clear_screen(fbstate);
   return OK;
 
 errout_with_boldfont:

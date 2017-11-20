@@ -110,21 +110,31 @@
 #  warning CONFIG_PDCURSES_COLORFMT_Y1 not yet supported
 #  define PDCURSES_COLORFMT      FB_FMT_Y1
 #  define PDCURSES_BPP           1
+#  define PDCURSES_INIT_COLOR    PDCURSES_BGCOLOR_GREYLEVEL
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB332)
 #  define PDCURSES_COLORFMT      FB_FMT_RGB8_332
 #  define PDCURSES_BPP           8
 #  define PDCURSES_BPP_MASK      7
 #  define PDCURSES_BPP_SHIFT     3
+#  define PDCURSES_INIT_COLOR    RGBTO8(CONFIG_PDCURSES_BGCOLOR_RED, \
+                                        CONFIG_PDCURSES_BGCOLOR_GREEN, \
+                                        CONFIG_PDCURSES_BGCOLOR_BLUE)
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB565)
 #  define PDCURSES_COLORFMT      FB_FMT_RGB16_565
 #  define PDCURSES_BPP           16
 #  define PDCURSES_BPP_MASK      15
 #  define PDCURSES_BPP_SHIFT     4
+#  define PDCURSES_INIT_COLOR    RGBTO16(CONFIG_PDCURSES_BGCOLOR_RED, \
+                                         CONFIG_PDCURSES_BGCOLOR_GREEN, \
+                                         CONFIG_PDCURSES_BGCOLOR_BLUE)
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB888)
 #  define PDCURSES_COLORFMT      FB_FMT_RGB24  /* RGB24 at 32-BPP */
 #  define PDCURSES_BPP           32
 #  define PDCURSES_BPP_MASK      31
 #  define PDCURSES_BPP_SHIFT     5
+#  define PDCURSES_INIT_COLOR    RGBTO24(CONFIG_PDCURSES_BGCOLOR_RED, \
+                                         CONFIG_PDCURSES_BGCOLOR_GREEN, \
+                                         CONFIG_PDCURSES_BGCOLOR_BLUE)
 #else
 #  error No color format selected
 #endif

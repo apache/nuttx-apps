@@ -339,7 +339,7 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
   fbm = nxf_getbitmap(bold ? fbstate->hfont : fbstate->hbold,
                       ch & A_CHARTEXT);
 #else
-  fbm = nxf_getbitmap(fbstate->hfont, ch);
+  fbm = nxf_getbitmap(fbstate->hfont, ch & A_CHARTEXT);
 #endif
 
   if (fbm != NULL)
