@@ -60,7 +60,6 @@
 void PDC_beep(void)
 {
   PDC_LOG(("PDC_beep() - called\n"));
-#warning Missing logic
 }
 
 /****************************************************************************

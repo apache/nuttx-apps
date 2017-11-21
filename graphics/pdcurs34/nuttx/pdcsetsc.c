@@ -58,9 +58,38 @@
 
 int PDC_curs_set(int visibility)
 {
+  int ret;
+
   PDC_LOG(("PDC_curs_set() - called: visibility=%d\n", visibility));
-#warning Missing logic
-  return ERR;
+
+  /* The return value is the previous visibility */
+
+  ret = SP->visibility;
+
+  /* Make sure that the new visibility is within range, then instantiate it. */
+
+  if (visibility < 0)
+    {
+      visibility = 0;
+    }
+  else if (visibility > 2)
+    {
+      visibility = 2;
+    }
+
+  SP->visibility = visibility;
+
+  /* Redraw the cursor of the visiblity has change.  For our purses 1 and 2
+   * are currently treated the same.
+   */
+
+  if ((ret == 0 && visibility > 0) ||  /* From OFF to ON */
+      (ret > 0  && visibility == 0))   /* From ON to OFF */
+    {
+      PDC_gotoyx(SP->cursrow, SP->curscol);
+    }
+
+  return ret;
 }
 
 /****************************************************************************
@@ -75,8 +104,7 @@ int PDC_curs_set(int visibility)
 
 void PDC_set_title(const char *title)
 {
-    PDC_LOG(("PDC_set_title() - called:<%s>\n", title));
-#warning Missing logic
+  PDC_LOG(("PDC_set_title() - called:<%s>\n", title));
 }
 
 /****************************************************************************
@@ -85,7 +113,7 @@ void PDC_set_title(const char *title)
  * Description:
  *   PDC_set_blink() toggles whether the A_BLINK attribute sets an actual
  *   blink mode (true), or sets the background color to high intensity
- *   (false). The default is platform-dependent (false in most cases).  It
+ *   (false).  The default is platform-dependent (false in most cases).  It
  *   returns OK if it could set the state to match the given parameter,
  *   ERR otherwise. Current platforms also adjust the value of COLORS
  *   according to this function -- 16 for false, and 8 for true.
@@ -94,6 +122,6 @@ void PDC_set_title(const char *title)
 
 int PDC_set_blink(bool blinkon)
 {
-#warning Missing logic
-  return ERR;
+  COLORS = 16;
+  return blinkon ? ERR : OK;
 }

@@ -210,6 +210,9 @@ int PDC_get_key(void)
          *    at a most rate if held down.
          * 2) Otherwise, block, polling for a change in button state.  But,
          *    apparently, we can just return ERR in this case.
+         *
+         *    The joystick driver also supports a notification via signal
+         *    when a button change occurs.  This could be an option to poll().
          */
 
         return ERR;

@@ -396,8 +396,7 @@ void PDC_gotoyx(int row, int col)
   if (SP->visibility != 0)
     {
       /* Draw a new cursor by overprinting the existing character in
-       * reverse, either the full cell (when visibility == 2) or the
-       * lowest quarter of it (when visibility == 1)
+       * reverse.  NOTE: visibility {1, 2} are treated the same.
        */
 
       ch = curscr->_y[row][col] ^ A_REVERSE;
