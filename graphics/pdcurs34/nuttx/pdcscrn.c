@@ -495,7 +495,7 @@ int PDC_color_content(short color, short *red, short *green, short *blue)
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
 #ifdef PDCURSES_MONOCHROME
-  uint8_t greylevel;
+  short greylevel;
 #endif
 
   PDC_LOG(("PDC_init_color().  color=%d\n", color));
