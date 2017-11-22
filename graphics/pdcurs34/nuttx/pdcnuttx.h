@@ -107,10 +107,13 @@
 #  error No fixed width font selected
 #endif
 
+#undef PDCURSES_MONOCHROME
+
 #if defined(CONFIG_PDCURSES_COLORFMT_Y1)
 #  define PDCURSES_COLORFMT      FB_FMT_Y1
 #  define PDCURSES_BPP           1
-#  define PDCURSES_INIT_COLOR    PDCURSES_BGCOLOR_GREYLEVEL
+#  define PDCURSES_INIT_COLOR    CONFIG_PDCURSES_BGCOLOR_GREYLEVEL
+#  define PDCURSES_MONOCHROME    1
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB332)
 #  define PDCURSES_COLORFMT      FB_FMT_RGB8_332
 #  define PDCURSES_BPP           8
@@ -243,7 +246,11 @@ struct pdc_fbstate_s
   /* Colors */
 
   struct pdc_colorpair_s colorpair[PDC_COLOR_PAIRS];
+#ifdef PDCURSES_MONOCHROME
+  uint8_t greylevel[16];
+#else
   struct pdc_rgbcolor_s rgbcolor[16];
+#endif
 };
 
 /* This structure contains the framebuffer device structure and is a cast

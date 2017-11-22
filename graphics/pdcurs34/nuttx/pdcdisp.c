@@ -37,6 +37,7 @@
  * Included Files
  ****************************************************************************/
 
+#include <sys/ioctl.h>
 #include "pdcnuttx.h"
 
 /****************************************************************************
@@ -151,7 +152,9 @@ static inline uintptr_t PDC_fbmem_y(FAR struct pdc_fbstate_s *fbstate,
 static inline pdc_color_t PDC_color(FAR struct pdc_fbstate_s *fbstate,
                                     short color)
 {
-#if defined(CONFIG_PDCURSES_COLORFMT_RGB332)
+#if defined(CONFIG_PDCURSES_COLORFMT_Y1)
+  return  fbstate->greylevel > 0 ? 1 : 0;
+#elif defined(CONFIG_PDCURSES_COLORFMT_RGB332)
   return  RGBTO8(fbstate->rgbcolor[color].red,
                  fbstate->rgbcolor[color].green,
                  fbstate->rgbcolor[color].blue);
@@ -253,12 +256,12 @@ static void PDC_update(FAR struct pdc_fbstate_s *fbstate, int row, int col,
       rect.pt1.x = PDC_pixel_x(FAR fbstate, col);
       rect.pt1.y = PDC_pixel_x(FAR fbstate, row);
       rect.pt2.x = rect.pt1.x + nchars * fbstate->fwidth - 1;
-      rect.pt2.y = y + fbstate->fheight - 1;
+      rect.pt2.y = rect.pt1.y + fbstate->fheight - 1;
 
       /* Then perfom the update via IOCTL */
 
       ret = ioctl(fbstate->fbfd, FBIO_UPDATE,
-                  (unsigned long)((uintptr_t)rect));
+                  (unsigned long)((uintptr_t)&rect));
       if (ret < 0)
         {
           PDC_LOG(("ERROR:  ioctl(FBIO_UPDATE) failed: %d\n", errno));
@@ -495,7 +498,7 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
 
   /* Then perfom the update via IOCTL */
 
-  ret = ioctl(fbstate->fbfd, FBIO_UPDATE, (unsigned long)((uintptr_t)rect));
+  ret = ioctl(fbstate->fbfd, FBIO_UPDATE, (unsigned long)((uintptr_t)&rect));
   if (ret < 0)
     {
       PDC_LOG(("ERROR:  ioctl(FBIO_UPDATE) failed: %d\n", errno));
