@@ -101,6 +101,7 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    ep_eaddr xx:xx:xx:xx:xx:xx:xx:xx = i8sak endpoint extended address\n"
                     "    ep_addrmode s|e = destination addressing mode\n"
                     "    ep_port 1-65535 = port to send to\n"
+                    "    rxonidle = Receiver on when idle\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
@@ -230,6 +231,10 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
               i8sak_str2eaddr(argv[argind + 1], u.attr.mac.eaddr);
               ieee802154_seteaddr(fd, u.attr.mac.eaddr);
             }
+          else if (strcmp(argv[argind], "rxonidle") == 0)
+            {
+              ieee802154_setrxonidle(fd, i8sak_str2bool(argv[argind + 1]));
+            }
           else
             {
               fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
@@ -265,6 +270,10 @@ void i8sak_set_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
             {
               i8sak_str2eaddr(argv[argind + 1], u.attr.mac.eaddr);
               sixlowpan_seteaddr(fd, i8sak->ifname, u.attr.mac.eaddr);
+            }
+          else if (strcmp(argv[argind], "rxonidle") == 0)
+            {
+              sixlowpan_setrxonidle(fd, i8sak->ifname, i8sak_str2bool(argv[argind + 1]));
             }
           else
             {

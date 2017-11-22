@@ -102,6 +102,7 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
                     "    ep_saddr = i8sak endpoint short address\n"
                     "    ep_eaddr = i8sak endpoint extended address\n"
                     "    ep_addrmode = destination address mode"
+                    "    rxonidle = Receiver on when idle\n"
                     , argv[0]);
             /* Must manually reset optind if we are going to exit early */
 
@@ -232,6 +233,18 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
               printf("i8sak: Coordinator Extended Address: "
                      PRINTF_FORMAT_EADDR(u.attr.mac.coordeaddr));
             }
+          else if (strcmp(argv[argind], "rxonidle") == 0)
+            {
+              ieee802154_getrxonidle(fd, &u.attr.mac.rxonidle);
+              if (u.attr.mac.rxonidle)
+                {
+                  printf("i8sak: Receive on Idle: true\n");
+                }
+              else
+                {
+                  printf("i8sak: Receive on Idle: false\n");
+                }
+            }
           else
             {
               fprintf(stderr, "ERROR: unsupported parameter: %s\n", argv[argind]);
@@ -282,6 +295,18 @@ void i8sak_get_cmd(FAR struct i8sak_s *i8sak, int argc, FAR char *argv[])
               sixlowpan_getcoordeaddr(fd, i8sak->ifname, u.attr.mac.coordeaddr);
               printf("i8sak: Coordinator Extended Address: "
                      PRINTF_FORMAT_EADDR(u.attr.mac.coordeaddr));
+            }
+          else if (strcmp(argv[argind], "rxonidle") == 0)
+            {
+              sixlowpan_getrxonidle(fd, i8sak->ifname, &u.attr.mac.rxonidle);
+              if (u.attr.mac.rxonidle)
+                {
+                  printf("i8sak: Receive on Idle: true\n");
+                }
+              else
+                {
+                  printf("i8sak: Receive on Idle: false\n");
+                }
             }
           else
             {
