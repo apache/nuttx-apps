@@ -43,7 +43,6 @@
 
 #include <sys/types.h>
 #include <stdio.h>
-#include <signal.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <time.h>

@@ -217,7 +217,7 @@ static inline void PDC_render_gyph(FAR struct pdc_fbstate_s *fbstate,
   /* Then render the glyph into the allocated memory
    *
    * REVISIT:  The case where visibility==1 is not yet handled.  In that
-   * case, only the lowe quarter of the glyph should be reversed.
+   * case, only the lower quarter of the glyph should be reversed.
    */
 
   ret = RENDERER((FAR pdc_color_t *)fbstart,

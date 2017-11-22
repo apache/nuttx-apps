@@ -108,7 +108,6 @@
 #endif
 
 #if defined(CONFIG_PDCURSES_COLORFMT_Y1)
-#  warning CONFIG_PDCURSES_COLORFMT_Y1 not yet supported
 #  define PDCURSES_COLORFMT      FB_FMT_Y1
 #  define PDCURSES_BPP           1
 #  define PDCURSES_INIT_COLOR    PDCURSES_BGCOLOR_GREYLEVEL
@@ -198,11 +197,11 @@ struct pdc_rgbcolor_s
 
 /* Holds one framebuffer pixel */
 
-#if defined(CONFIG_PDCURSES_COLORFMT_RGB332)
+#if PDCURSES_BPP <= 8
 typedef uint8_t  pdc_color_t;
-#elif defined(CONFIG_PDCURSES_COLORFMT_RGB565)
+#elif PDCURSES_BPP <= 16
 typedef uint16_t pdc_color_t;
-#elif defined(CONFIG_PDCURSES_COLORFMT_RGB888)
+#elif PDCURSES_BPP <= 32
 typedef uint32_t pdc_color_t;
 #endif
 
