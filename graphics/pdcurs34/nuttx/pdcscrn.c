@@ -494,6 +494,9 @@ int PDC_color_content(short color, short *red, short *green, short *blue)
 {
   FAR struct pdc_fbscreen_s *fbscreen = (FAR struct pdc_fbscreen_s *)SP;
   FAR struct pdc_fbstate_s *fbstate;
+#ifdef PDCURSES_MONOCHROME
+  uint8_t greylevel;
+#endif
 
   PDC_LOG(("PDC_init_color().  color=%d\n", color));
 
@@ -501,13 +504,14 @@ int PDC_color_content(short color, short *red, short *green, short *blue)
   fbstate = &fbscreen->fbstate;
 
 #ifdef PDCURSES_MONOCHROME
-  *red   = DIVROUND(fbstate->greylevel[color] * 1000, 255);
-  *green = DIVROUND(fbstate->greylevel[color] * 1000, 255);
-  *blue  = DIVROUND(fbstate->greylevel[color] * 1000, 255);
+  greylevel = DIVROUND(fbstate->greylevel[color] * 1000, 255)
+  *red      = greylevel;
+  *green    = greylevel;
+  *blue     = greylevel;
 #else
-  *red   = DIVROUND(fbstate->rgbcolor[color].red * 1000, 255);
-  *green = DIVROUND(fbstate->rgbcolor[color].green * 1000, 255);
-  *blue  = DIVROUND(fbstate->rgbcolor[color].blue * 1000, 255);
+  *red      = DIVROUND(fbstate->rgbcolor[color].red * 1000, 255);
+  *green    = DIVROUND(fbstate->rgbcolor[color].green * 1000, 255);
+  *blue     = DIVROUND(fbstate->rgbcolor[color].blue * 1000, 255);
 #endif
 
   return OK;
