@@ -415,8 +415,23 @@ static int i8shark_daemon(int argc, FAR char *argv[])
 
       /* The ZEP header is filled, now copy the frame in */
 
+#ifdef CONFIG_IEEE802154_I8SHARK_XBEE_APPHDR
+      memcpy(&zepframe[ind], frame.payload, frame.offset);
+      ind += frame.offset;
+
+      /* XBee radios use a 2 byte "application header" to support duplicate packet
+       * detection.  Wireshark doesn't know how to handle this data, so we provide
+       * a configuration option that drops the first 2 bytes of the payload portion
+       * of the frame for all sniffed frames
+       */
+
+      memcpy(&zepframe[ind], (frame.payload + frame.offset + 2),
+             (frame.length - frame.offset - 2));
+      ind += frame.length - frame.offset - 2;
+#else
       memcpy(&zepframe[ind], frame.payload, frame.length);
       ind += frame.length;
+#endif
 
       /* Send the encapsulated frame to Wireshark over UDP */
 
