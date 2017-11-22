@@ -116,6 +116,16 @@ config PDCURSES_COLORFMT_Y1
 	select PDCURSES_MONO
 	depends on EXPERIMENTAL
 
+config PDCURSES_COLORFMT_Y2
+	bool "BPP=2 Greyscale"
+	select PDCURSES_MONO
+	depends on EXPERIMENTAL
+
+config PDCURSES_COLORFMT_Y4
+	bool "BPP=4 Greyscale"
+	select PDCURSES_MONO
+	depends on EXPERIMENTAL
+
 config PDCURSES_COLORFMT_RGB332
 	bool "BPP=8 RGB332"
 

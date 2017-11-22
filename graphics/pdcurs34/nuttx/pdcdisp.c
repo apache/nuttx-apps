@@ -127,12 +127,16 @@ static inline fb_coord_t PDC_pixel_y(FAR struct pdc_fbstate_s *fbstate,
  * Description:
  *   Convert row or column pixel position to framebuffer x/y byte offsets.
  *
+ *   NOTE: For BPP={8,16,32} this function returns the exact positions.  For
+ *   the case of BPP={1,2,4}, PDC_fbmem_x() aligns down to the address of
+ *   the byte Aligns down to the byte that contains the 'col' pixel.
+ *
  ****************************************************************************/
 
 static inline uintptr_t PDC_fbmem_x(FAR struct pdc_fbstate_s *fbstate,
                                    int col)
 {
-  return (PDC_pixel_x(fbstate, col) * PDCURSES_BPP + 7) >> 3;
+  return (PDC_pixel_x(fbstate, col) * PDCURSES_BPP) >> 3;
 }
 
 static inline uintptr_t PDC_fbmem_y(FAR struct pdc_fbstate_s *fbstate,
@@ -152,20 +156,53 @@ static inline uintptr_t PDC_fbmem_y(FAR struct pdc_fbstate_s *fbstate,
 static inline pdc_color_t PDC_color(FAR struct pdc_fbstate_s *fbstate,
                                     short color)
 {
-#if defined(CONFIG_PDCURSES_COLORFMT_Y1)
-  return  fbstate->greylevel > 0 ? 1 : 0;
+#if defined (CONFIG_PDCURSES_COLORFMT_Y1)
+  /* Returns 8 pixels packed into a byte */
+
+  return (fbstate->greylevel[color] & 0xc0) == 0 ? 0x00 : 0xff;
+
+#elif defined (CONFIG_PDCURSES_COLORFMT_Y2)
+  uint8_t color8;
+
+  /* Returns 4 pixels packed into a byte */
+
+  color8 = fbstate->greylevel[color] >> 6;
+  color8 = color8 << 2 | color8;
+  color8 = color8 << 4 | color8;
+
+  return color8;
+
+#elif defined (CONFIG_PDCURSES_COLORFMT_Y4)
+  uint8_t color8;
+
+  /* Returns 2 pixels packed into a byte */
+
+  color8 = fbstate->greylevel[color] >> 4;
+  color8 = color8 << 4 | color8;
+
+  return color8;
+
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB332)
+  /* Returns 8-bit RGB332 */
+
   return  RGBTO8(fbstate->rgbcolor[color].red,
                  fbstate->rgbcolor[color].green,
                  fbstate->rgbcolor[color].blue);
+
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB565)
+  /* Returns 16-bit RGB565 */
+
   return RGBTO16(fbstate->rgbcolor[color].red,
                  fbstate->rgbcolor[color].green,
                  fbstate->rgbcolor[color].blue);
+
 #elif defined(CONFIG_PDCURSES_COLORFMT_RGB888)
+  /* Returns 32-bit RGB888 */
+
   return RGBTO24(fbstate->rgbcolor[color].red,
                  fbstate->rgbcolor[color].green,
                  fbstate->rgbcolor[color].blue);
+
 #else
 #  error No color format selected
   return 0;
@@ -180,8 +217,129 @@ static inline pdc_color_t PDC_color(FAR struct pdc_fbstate_s *fbstate,
  *
  ****************************************************************************/
 
+#if PDCURSES_BPP < 8
 static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
-                              FAR uint8_t *fbstart, short bg)
+                              FAR uint8_t *fbstart, int col, short bg)
+{
+  uint8_t color8;
+  uint8_t lmask;
+  uint8_t rmask;
+  int startcol;
+  int endcol;
+  int row;
+
+  /* Get a byte that packs multiple pixels into one byte */
+
+  color8   = PDC_color(fbstate, bg);
+
+  /* If the first or last bytes may require read, modify, write operations. */
+
+#if PDCURSES_BPP == 1
+  /* Get the start and end colum in pixels (relative to the start position) */
+
+  startcol = col & 7;
+  endcol   = startcol + fbstate->fwidth - 1;
+
+  /* Get the masks that we will need to perform the read-modify-write
+   * operations.
+   */
+
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+  lmask    = 0xff << (8 - startcol);
+  rmask    = 0xff >> (endcol & 7);
+#else
+  lmask    = 0xff >> (8 - startcol);
+  rmask    = 0xff << (endcol & 7);
+#endif
+
+  /* Convert endcol to a byte offset */
+
+  endcol >>= 3;
+
+#elif PDCURSES_BPP == 2
+  /* Get the start and end colum in pixels (relative to the start position) */
+
+  startcol = col & 3;
+  endcol   = startcol + fbstate->fwidth - 1;
+
+  /* Get the masks that we will need to perform the read-modify-write
+   * operations.
+   */
+
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+  lmask    = 0xff << ((4 - startcol) << 1));
+  rmask    = 0xff >> ((endcol & 3) << 1);
+#else
+  lmask    = 0xff >> ((4 - startcol) << 1));
+  rmask    = 0xff << ((endcol & 3) << 1);
+#endif
+
+  /* Convert endcol to a byte offset */
+
+  endcol >>= 2;
+
+#elif PDCURSES_BPP == 4
+  /* Get the start and end colum in pixels (relative to the start position) */
+
+  startcol = col & 1;
+  endcol   = startcol + fbstate->fwidth - 1;
+
+  /* Get the masks that we will need to perform the read-modify-write
+   * operations.
+   */
+
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+  lmask    = (startcol == 0) 0x00 ? 0xf0;
+  rmask    = ((endcol & 1) == 0) ? 0x00 ? 0x0f;
+#else
+  lmask    = (startcol == 0) 0x00 ? 0x0f;
+  rmask    = ((endcol & 1) == 0) ? 0x00 ? 0xf0;
+#endif
+
+  /* Convert endcol to a byte offset */
+
+  endcol >>= 1;
+#endif
+
+  /* Now copy the color into the entire glyph region */
+
+  for (row = 0; row < fbstate->fheight; row++, fbstart += fbstate->stride)
+    {
+      FAR pdc_color_t *fbdest;
+
+      fbdest = (FAR pdc_color_t *)fbstart;
+
+      /* Special case: The row is less no more than one byte wide */
+
+      if (endcol == 0)
+        {
+          uint8_t mask = lmask | rmask;
+
+          *fbdest = (*fbdest & mask) | (color8 & ~mask);
+        }
+      else
+        {
+          /* Special case the first byte of the row */
+
+          *fbdest = (*fbdest & lmask) | (color8 & ~lmask);
+          fbdest++;
+
+          /* Handle all middle bytes */
+
+          for (col = 1; col < endcol; col++)
+            {
+              *fbdest++ = color8;
+            }
+
+          /* Handle the final byte of the row */
+
+          *fbdest = (*fbdest & rmask) | (color8 & ~rmask);
+       }
+    }
+}
+#else
+static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
+                              FAR uint8_t *fbstart, int col, short bg)
 {
   pdc_color_t bgcolor = PDC_color(fbstate, bg);
   int row;
@@ -191,7 +349,6 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
   for (row = 0; row < fbstate->fheight; row++, fbstart += fbstate->stride)
     {
       FAR pdc_color_t *fbdest;
-      int col;
 
       for (col = 0, fbdest = (FAR pdc_color_t *)fbstart;
            col < fbstate->fwidth;
@@ -201,6 +358,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
         }
     }
 }
+#endif
 
 /****************************************************************************
  * Name: PDC_render_gyph
@@ -334,7 +492,7 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
 
   /* Initialize the glyph to the (possibly reversed) background color */
 
-  PDC_set_bg(fbstate, dest, bg);
+  PDC_set_bg(fbstate, dest, col, bg);
 
   /* Does the code map to a font? */
 
