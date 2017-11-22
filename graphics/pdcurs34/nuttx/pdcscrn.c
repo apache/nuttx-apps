@@ -504,7 +504,7 @@ int PDC_color_content(short color, short *red, short *green, short *blue)
   fbstate = &fbscreen->fbstate;
 
 #ifdef PDCURSES_MONOCHROME
-  greylevel = DIVROUND(fbstate->greylevel[color] * 1000, 255)
+  greylevel = DIVROUND(fbstate->greylevel[color] * 1000, 255);
   *red      = greylevel;
   *green    = greylevel;
   *blue     = greylevel;
