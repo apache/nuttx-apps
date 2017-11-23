@@ -624,7 +624,6 @@ void PDC_transform_line(int lineno, int x, int len, const chtype *srcp)
 void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
 {
   FAR uint8_t *line;
-  FAR pdc_color_t *dest;
   int row;
   int col;
 
@@ -633,7 +632,48 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
   int ret;
 #endif
 
-  /* Write the intial color into the entire framebuffer */
+#if PDCURSES_BPP < 8
+  FAR uint8_t *dest;
+  uint8_t color8;
+  int width;
+
+  /* Get a byte that packs multiple pixels into one byte */
+
+  color8 = PDCURSES_INIT_COLOR;
+
+#if PDCURSES_BPP < 2               /* BPP = 1 */
+  color8 &= 1;                     /* Isolate 0 */
+  color8  = color8 << 1 | color8;  /* Replicate 0 to 1 */
+#endif
+#if PDCURSES_BPP < 4               /* BPP = (1,2} */
+  color8 &= 3;                     /* Isolate 0-1 */
+  color8  = color8 << 2 | color8;  /* Replicate 0-1 to 2-3 */
+#endif                             /* BPP = (1,2,4} */
+  color8 &= 15;                    /* Isolate 0-3 */
+  color8  = color8 << 4 | color8;  /* Replicate 0-3 to 4-7 */
+
+  /* Get the width of the display in bytes. */
+
+  width  = fbstate->xres / PDCURSES_PPB;
+
+  /* Now copy the color into the entire glyph region */
+  /* Write the initial color into the entire framebuffer */
+
+  for (row = 0, line = (FAR uint8_t *)fbstate->fbmem;
+       row < fbstate->yres;
+       row++, line += fbstate->stride)
+    {
+       for (col = 0, dest = (FAR pdc_color_t *)line;
+            col < width;
+            col++)
+         {
+           *dest++ = color8;
+         }
+    }
+#else
+  FAR pdc_color_t *dest;
+
+  /* Write the initial color into the entire framebuffer */
 
   for (row = 0, line = (FAR uint8_t *)fbstate->fbmem;
        row < fbstate->yres;
@@ -646,6 +686,7 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
            *dest++ = PDCURSES_INIT_COLOR;
          }
     }
+#endif
 
 #ifdef CONFIG_LCD_UPDATE
   /* Update the entire display */
@@ -665,4 +706,3 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
     }
 #endif
 }
-
