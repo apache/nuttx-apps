@@ -286,7 +286,7 @@ int PDC_scr_open(int argc, char **argv)
       goto errout_with_boldfont;
     }
 
-  PDC_LOG(("Fonset (ID=%d):\n", PDCURSES_FONTID));
+  PDC_LOG(("Fontset (ID=%d):\n", PDCURSES_FONTID));
   PDC_LOG((" mxheight: %u\n", fontset->mxheight));
   PDC_LOG(("  mxwidth: %u\n", fontset->mxwidth));
   PDC_LOG(("   mxbits: %u\n", fontset->mxbits));

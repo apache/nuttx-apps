@@ -242,9 +242,9 @@ struct pdc_fbstate_s
 
   /* Font */
 
-  NXHANDLE hfont;          /* Handled uses to access selected font */
+  NXHANDLE hfont;          /* Handle used to access selected font */
 #ifdef HAVE_BOLD_FONT
-  NXHANDLE hbold;          /* Handled uses to access bold font */
+  NXHANDLE hbold;          /* Handle used to access bold font */
 #endif
   uint8_t fheight;         /* Height of the font (rows) */
   uint8_t fwidth;          /* Width of the font (pixels) */
