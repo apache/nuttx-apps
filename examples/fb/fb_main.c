@@ -177,12 +177,10 @@ static void draw_rect1(FAR struct fb_state_s *state,
   int y;
 
   row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
-
   startx = (rect->pt1.x >> 3);
   endx   = (rect->pt2.x >> 3);
-
-  lmask  = 0xff << (8 - (rect->pt1.x & 7));
-  rmask  = 0xff >> (rect->pt2.x & 7);
+  lmask  = 0xff << (8 - (rect->pt1.x & 3));
+  rmask  = 0xff >> (rect->pt2.x & 3);
 
   for (y = rect->pt1.y; y <= rect->pt2.y; y++)
     {
