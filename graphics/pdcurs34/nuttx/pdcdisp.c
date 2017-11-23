@@ -623,7 +623,10 @@ void PDC_transform_line(int lineno, int x, int len, const chtype *srcp)
 
 void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
 {
+  FAR pdc_color_t *dest;
+  FAR pdc_color_t bgcolor;
   FAR uint8_t *line;
+  int width;
   int row;
   int col;
 
@@ -632,31 +635,32 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
   int ret;
 #endif
 
+  /* Get the background color and display width */
+
+  bgcolor = PDCURSES_INIT_COLOR;
+  width   = fbstate->xres;
+
 #if PDCURSES_BPP < 8
-  FAR uint8_t *dest;
-  uint8_t color8;
-  int width;
+  /* Pack multiple pixels into one byte */
 
-  /* Get a byte that packs multiple pixels into one byte */
-
-  color8 = PDCURSES_INIT_COLOR;
-
-#if PDCURSES_BPP < 2               /* BPP = 1 */
-  color8 &= 1;                     /* Isolate 0 */
-  color8  = color8 << 1 | color8;  /* Replicate 0 to 1 */
+#if PDCURSES_BPP == 1                 /* BPP = 1 */
+  bgcolor &= 1;                       /* Isolate 0 */
+  bgcolor  = bgcolor << 1 | bgcolor;  /* Replicate 0 to 1 */
+  bgcolor  = bgcolor << 2 | bgcolor;  /* Replicate 0-1 to 2-3 */
+  bgcolor  = bgcolor << 4 | bgcolor;  /* Replicate 0-3 to 4-7 */
+#elif PDCURSES_BPP == 2               /* BPP = 2 */
+  bgcolor &= 3;                       /* Isolate 0-1 */
+  bgcolor  = bgcolor << 2 | bgcolor;  /* Replicate 0-1 to 2-3 */
+  bgcolor  = bgcolor << 4 | bgcolor;  /* Replicate 0-3 to 4-7 */
+#else                                 /* BPP = 4 */
+  bgcolor &= 15;                      /* Isolate 0-3 */
+  bgcolor  = bgcolor << 4 | bgcolor;  /* Replicate 0-3 to 4-7 */
 #endif
-#if PDCURSES_BPP < 4               /* BPP = (1,2} */
-  color8 &= 3;                     /* Isolate 0-1 */
-  color8  = color8 << 2 | color8;  /* Replicate 0-1 to 2-3 */
-#endif                             /* BPP = (1,2,4} */
-  color8 &= 15;                    /* Isolate 0-3 */
-  color8  = color8 << 4 | color8;  /* Replicate 0-3 to 4-7 */
+  /* Convert the width of the display to units of bytes. */
 
-  /* Get the width of the display in bytes. */
+  width   /= PDCURSES_PPB;
+#endif
 
-  width  = fbstate->xres / PDCURSES_PPB;
-
-  /* Now copy the color into the entire glyph region */
   /* Write the initial color into the entire framebuffer */
 
   for (row = 0, line = (FAR uint8_t *)fbstate->fbmem;
@@ -667,26 +671,9 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
             col < width;
             col++)
          {
-           *dest++ = color8;
+           *dest++ = bgcolor;
          }
     }
-#else
-  FAR pdc_color_t *dest;
-
-  /* Write the initial color into the entire framebuffer */
-
-  for (row = 0, line = (FAR uint8_t *)fbstate->fbmem;
-       row < fbstate->yres;
-       row++, line += fbstate->stride)
-    {
-       for (col = 0, dest = (FAR pdc_color_t *)line;
-            col < fbstate->xres;
-            col++)
-         {
-           *dest++ = PDCURSES_INIT_COLOR;
-         }
-    }
-#endif
 
 #ifdef CONFIG_LCD_UPDATE
   /* Update the entire display */
