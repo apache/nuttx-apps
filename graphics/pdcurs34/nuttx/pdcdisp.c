@@ -282,7 +282,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
    * the final byte than may have fewer than 4 pixels in it).
    */
 
-  endcol   = (endcol + 3) >> 3;
+  endcol   = (endcol + 3) >> 2;
 
 #elif PDCURSES_BPP == 4
   /* Get the start and end colum in pixels (relative to the start position) */
@@ -306,7 +306,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
    * the final byte than may have only one pixels in it).
    */
 
-  endcol   = (endcol + 1) >> 3;
+  endcol   = (endcol + 1) >> 1;
 #endif
 
   /* Now copy the color into the entire glyph region */
