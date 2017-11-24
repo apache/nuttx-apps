@@ -237,7 +237,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
   /* If the first or last bytes may require read, modify, write operations. */
 
 #if PDCURSES_BPP == 1
-  /* Get the start and end colum in pixels (relative to the start position) */
+  /* Get the start and end column in pixels (relative to the start position) */
 
   startcol = col & 7;
   endcol   = startcol + fbstate->fwidth - 1;
@@ -254,9 +254,11 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
   rmask    = 0xff << (endcol & 7);
 #endif
 
-  /* Convert endcol to a byte offset */
+  /* Convert endcol to a byte offset (taking the ceiling so that includes
+   * the final byte than may have fewer than 8 pixels in it).
+   */
 
-  endcol >>= 3;
+  endcol   = (endcol + 7) >> 3;
 
 #elif PDCURSES_BPP == 2
   /* Get the start and end colum in pixels (relative to the start position) */
@@ -276,9 +278,11 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
   rmask    = 0xff << ((endcol & 3) << 1);
 #endif
 
-  /* Convert endcol to a byte offset */
+  /* Convert endcol to a byte offset (taking the ceiling so that includes
+   * the final byte than may have fewer than 4 pixels in it).
+   */
 
-  endcol >>= 2;
+  endcol   = (endcol + 3) >> 3;
 
 #elif PDCURSES_BPP == 4
   /* Get the start and end colum in pixels (relative to the start position) */
@@ -298,9 +302,11 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
   rmask    = ((endcol & 1) == 0) ? 0x00 ? 0xf0;
 #endif
 
-  /* Convert endcol to a byte offset */
+  /* Convert endcol to a byte offset (taking the ceiling so that includes
+   * the final byte than may have only one pixels in it).
+   */
 
-  endcol >>= 1;
+  endcol   = (endcol + 1) >> 3;
 #endif
 
   /* Now copy the color into the entire glyph region */
