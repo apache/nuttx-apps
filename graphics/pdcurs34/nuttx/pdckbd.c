@@ -399,3 +399,21 @@ int PDC_input_open(FAR struct pdc_fbstate_s *fbstate)
   return OK;
 }
 #endif
+
+/****************************************************************************
+ * Name: PDC_input_close
+ *
+ * Description:
+ *   Close any input devices and release any resources committed by
+ *   PDC_input_open()
+ *
+ ****************************************************************************/
+
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+void PDC_input_close(FAR struct pdc_fbstate_s *fbstate)
+{
+#ifdef CONFIG_PDCURSES_DJOYSTICK
+  close(fbstate->djfd);
+#endif
+}
+#endif

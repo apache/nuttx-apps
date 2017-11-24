@@ -87,6 +87,9 @@ void PDC_scr_free(void)
   fbstate = &fbscreen->fbstate;
 
   close(fbstate->fbfd);
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+  PDC_input_close(fbstate);
+#endif
   free(fbscreen);
   SP = NULL;
 }

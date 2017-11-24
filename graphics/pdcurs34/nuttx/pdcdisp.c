@@ -637,11 +637,11 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
 
   /* Get the background color and display width */
 
-  bgcolor = PDCURSES_INIT_COLOR;
-  width   = fbstate->xres;
+  bgcolor = PDCURSES_INIT_COLOR;      /* Background color for one pixel */
+  width   = fbstate->xres;            /* Width in units of pixels */
 
 #if PDCURSES_BPP < 8
-  /* Pack multiple pixels into one byte */
+  /* Pack multiple pixels into one byte.  Works for BPP={1,2,4} */
 
 #if PDCURSES_BPP == 1                 /* BPP = 1 */
   bgcolor &= 1;                       /* Isolate 0 */
@@ -656,9 +656,10 @@ void PDC_clear_screen(FAR struct pdc_fbstate_s *fbstate)
   bgcolor &= 15;                      /* Isolate 0-3 */
   bgcolor  = bgcolor << 4 | bgcolor;  /* Replicate 0-3 to 4-7 */
 #endif
+
   /* Convert the width of the display to units of bytes. */
 
-  width   /= PDCURSES_PPB;
+  width    = (width + PDCURSES_PPB - 1) / PDCURSES_PPB;
 #endif
 
   /* Write the initial color into the entire framebuffer */
