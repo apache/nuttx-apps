@@ -303,7 +303,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
 #endif
 
   /* Convert endcol to a byte offset (taking the ceiling so that includes
-   * the final byte than may have only one pixels in it).
+   * the final byte than may have only one pixel in it).
    */
 
   endcol   = (endcol + 1) >> 1;
