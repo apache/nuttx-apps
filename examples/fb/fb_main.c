@@ -176,11 +176,27 @@ static void draw_rect1(FAR struct fb_state_s *state,
   int x;
   int y;
 
+  /* Calculate the framebuffer address of the first row to draw on */
+
   row    = (FAR uint8_t *)state->fbmem + state->pinfo.stride * rect->pt1.y;
+
+  /* Calculate the start byte position rounding down so that we get the
+   * first byte containing any part of the pixel sequence.  Then calculate
+   * the last byte position with a ceil() operation so it includes any final
+   * final pixels of the sequence.
+   */
+
   startx = (rect->pt1.x >> 3);
-  endx   = (rect->pt2.x >> 3);
-  lmask  = 0xff << (8 - (rect->pt1.x & 3));
-  rmask  = 0xff >> (rect->pt2.x & 3);
+  endx   = ((rect->pt2.x + 7) >> 3);
+
+  /* Caculate a mask on the first and last bytes of the sequence that may
+   * not be completely filled with pixel.
+   */
+
+  lmask  = 0xff << (8 - (rect->pt1.x & 7));
+  rmask  = 0xff >> (rect->pt2.x & 7);
+
+  /* Now draw each row, one-at-a-time */
 
   for (y = rect->pt1.y; y <= rect->pt2.y; y++)
     {
@@ -204,7 +220,7 @@ static void draw_rect1(FAR struct fb_state_s *state,
           *pixel = (*pixel & lmask) | (color8 & ~lmask);
           pixel++;
 
-          /* Handle all middle bytes */
+          /* Handle all middle bytes in the row */
 
           for (x = startx + 1; x < endx; x++)
             {
