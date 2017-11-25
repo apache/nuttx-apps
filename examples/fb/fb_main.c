@@ -41,8 +41,9 @@
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -419,6 +420,7 @@ int fb_main(int argc, char *argv[])
              color, rect.pt1.x, rect.pt1.y, rect.pt2.x, rect.pt2.y);
 
       draw_rect(&state, &rect, color);
+      usleep(500*1000);
 
       width  -= (2 * xstep);
       height -= (2 * ystep);
