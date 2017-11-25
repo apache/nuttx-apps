@@ -7,6 +7,8 @@ menuconfig GRAPHICS_PDCURSES
 	bool "pdcurses Text User Interface (TUI)"
 	default n
 	select NXFONTS
+	select NXFONTS_PACKEDMSFIRST
+	select LCD_PACKEDFIRST if LCD
 	---help---
 		Enable support for the pdcurses Text User Interface (TUI) libray.
 
@@ -14,4 +16,3 @@ if GRAPHICS_PDCURSES
 source "$APPSDIR/graphics/pdcurs34/pdcurses/Kconfig"
 source "$APPSDIR/graphics/pdcurs34/nuttx/Kconfig"
 endif # GRAPHICS_PDCURSES
-
