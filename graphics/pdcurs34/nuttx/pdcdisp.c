@@ -419,8 +419,8 @@ static void PDC_update(FAR struct pdc_fbstate_s *fbstate, int row, int col,
     {
       /* Setup the bounding rectangle */
 
-      rect.pt1.x = PDC_pixel_x(fbstate, col) + fbstate->hoffset;
-      rect.pt1.y = PDC_pixel_y(fbstate, row) + fbstate->voffset;
+      rect.pt1.x = PDC_pixel_x(fbstate, col);
+      rect.pt1.y = PDC_pixel_y(fbstate, row);
       rect.pt2.x = rect.pt1.x + nchars * fbstate->fwidth - 1;
       rect.pt2.y = rect.pt1.y + fbstate->fheight - 1;
 
