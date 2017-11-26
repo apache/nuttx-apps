@@ -369,16 +369,16 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
 #endif
 
 /****************************************************************************
- * Name: PDC_render_gyph
+ * Name: PDC_render_glyph
  *
  * Description:
  *   Render the font into the glyph memory using the foreground RGB color.
  *
  ****************************************************************************/
 
-static inline void PDC_render_gyph(FAR struct pdc_fbstate_s *fbstate,
-                                   FAR const struct nx_fontbitmap_s *fbm,
-                                   FAR uint8_t *fbstart, short fg)
+static inline void PDC_render_glyph(FAR struct pdc_fbstate_s *fbstate,
+                                    FAR const struct nx_fontbitmap_s *fbm,
+                                    FAR uint8_t *fbstart, short fg)
 {
   pdc_color_t fgcolor = PDC_color(fbstate, fg);
   int ret;
@@ -515,7 +515,7 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
     {
       /* Yes.. render the glyph */
 
-      PDC_render_gyph(fbstate, fbm, dest, fg);
+      PDC_render_glyph(fbstate, fbm, dest, fg);
     }
 
   /* Apply more attributes */
