@@ -1565,7 +1565,7 @@ examples/qencoder
   This test depends on these specific QE/NSH configurations settings (your
   specific PWM settings might require additional settings).
 
-    CONFIG_QENCODER - Enables quadrature encoder support (upper-half driver).
+    CONFIG_SENSORS_QENCODER - Enables quadrature encoder support (upper-half driver).
     CONFIG_NSH_BUILTIN_APPS - Build the QE test as an NSH built-in function.
       Default: Built as a standalone progrem.
 
