@@ -610,8 +610,15 @@ int worm_main(int argc, char *argv[])
 {
   const struct options *op;
   struct worm *w;
-  short **ref, *ip;
-  int x, y, n, h, last, bottom, seed;
+  short **ref;
+  short *ip;
+  int x;
+  int y;
+  int n;
+  int h;
+  int last;
+  int bottom;
+  int seed;
 
   for (x = 1; x < argc; x++)
     {
@@ -683,7 +690,7 @@ int worm_main(int argc, char *argv[])
   curs_set(0);
 
   bottom = LINES - 1;
-  last = COLS - 1;
+  last   = COLS - 1;
 
 #ifdef A_COLOR
   if (has_colors())
