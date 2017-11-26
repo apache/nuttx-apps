@@ -8,7 +8,7 @@ menuconfig GRAPHICS_PDCURSES
 	default n
 	select NXFONTS
 	select NXFONTS_PACKEDMSFIRST
-	select LCD_PACKEDFIRST if LCD
+	select LCD_PACKEDMSFIRST if LCD
 	---help---
 		Enable support for the pdcurses Text User Interface (TUI) libray.
 

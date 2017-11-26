@@ -6,7 +6,7 @@
 config EXAMPLES_FB
 	bool "Framebuffer driver example"
 	default n
-	select LCD_PACKEDFIRST if LCD
+	select LCD_PACKEDMSFIRST if LCD
 	depends on VIDEO_FB
 	---help---
 		Enable the Framebuffer driver example.
