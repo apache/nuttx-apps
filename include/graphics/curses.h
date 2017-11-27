@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/include/curses.h
+ * apps/include/graphics/curses.h
  * Public Domain Curses
  * $Id: curses.h,v 1.295 2008/07/15 17:13:25 wmcbrine Exp $
  *

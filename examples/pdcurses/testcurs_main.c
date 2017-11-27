@@ -797,8 +797,10 @@ static void output_test(WINDOW *win)
 static void resize_test(WINDOW *dummy)
 {
   WINDOW *win1;
-  int nwidth = 135, nheight = 52;
-  int owidth = COLS, oheight = LINES;
+  int nwidth = 135;
+  int nheight = 52;
+  int owidth = COLS;
+  int oheight = LINES;
 
   savetty();
 
@@ -845,7 +847,8 @@ static void resize_test(WINDOW *dummy)
 
 static void pad_test(WINDOW *dummy)
 {
-  WINDOW *pad, *spad;
+  WINDOW *pad;
+  WINDOW *spad;
 
   pad = newpad(50, 100);
   wattron(pad, A_REVERSE);
@@ -886,7 +889,8 @@ static void clipboard_test(WINDOW *win)
   static const char *text =
     "This string placed in clipboard by PDCurses test program, testcurs.";
   char *ptr = NULL;
-  long i, length = 0;
+  long length = 0;
+  long i;
 
   mvaddstr(1, 1, "This test will display the contents of the system clipboard");
 
@@ -1201,7 +1205,9 @@ int testcurs_main(int argc, char *argv[])
 #endif
 {
   WINDOW *win;
-  int key, old_option = -1, new_option = 0;
+  int key;
+  int old_option = -1;
+  int new_option = 0;
   bool quit = false;
 
 #ifdef CONFIG_LIBC_LOCALE

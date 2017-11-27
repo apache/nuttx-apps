@@ -1,5 +1,5 @@
 /****************************************************************************
- * apps/graphics/include/curses.h
+ * apps/include/graphics/panel.h
  * Public Domain Curses -- Panels for PDCurses
  * $Id: panel.h,v 1.19 2008/07/13 16:08:16 wmcbrine Exp $
  *
