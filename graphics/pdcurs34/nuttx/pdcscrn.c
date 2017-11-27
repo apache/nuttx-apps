@@ -298,6 +298,21 @@ int PDC_scr_open(int argc, char **argv)
   fbstate->fheight = fontset->mxheight;
   fbstate->fwidth  = fontset->mxwidth;
 
+#if PDCURSES_BPP < 8
+  /* Allocate the font buffer for < 8-bit display */
+
+  fbstate->fstride =
+    (fbstate->fwidth + PDCURSES_PPB_MASK) >> PDCURSES_PPB_SHIFT;
+  fbstate->fbuffer  = (FAR uint8_t *)
+    malloc(fbstate->fstride * fbstate->fheight);
+
+  if (fbstate->fbuffer == NULL)
+    {
+      PDC_LOG(("ERROR: Failed to allocate fstride: %d\n", errno));
+      goto errout_with_boldfont;
+    }
+#endif
+
   /* Calculate the drawable region */
 
   SP->lines        = fbstate->yres / fbstate->fheight;
@@ -316,11 +331,18 @@ int PDC_scr_open(int argc, char **argv)
   ret = PDC_input_open(fbstate);
   if (ret == ERR)
     {
-      goto errout_with_boldfont;
+      goto errout_with_fbuffer;
     }
 #endif
 
   return OK;
+
+#ifdef CONFIG_PDCURSES_HAVE_INPUT
+errout_with_fbuffer:
+#if PDCURSES_BPP < 8
+  free(fbstate->fbuffer);
+#endif
+#endif
 
 errout_with_boldfont:
 #ifdef HAVE_BOLD_FONT

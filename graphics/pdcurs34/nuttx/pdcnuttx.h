@@ -112,6 +112,7 @@
 #if defined(CONFIG_PDCURSES_COLORFMT_Y1)
 #  define PDCURSES_COLORFMT      FB_FMT_Y1
 #  define PDCURSES_BPP           1
+#  define PDCURSES_BPP_SHIFT     0
 #  define PDCURSES_PPB           8
 #  define PDCURSES_PPB_MASK      (PDCURSES_PPB - 1)
 #  define PDCURSES_PPB_SHIFT     3
@@ -120,6 +121,7 @@
 #elif defined(CONFIG_PDCURSES_COLORFMT_Y2)
 #  define PDCURSES_COLORFMT      FB_FMT_Y2
 #  define PDCURSES_BPP           2
+#  define PDCURSES_BPP_SHIFT     1
 #  define PDCURSES_PPB           4
 #  define PDCURSES_PPB_MASK      (PDCURSES_PPB - 1)
 #  define PDCURSES_PPB_SHIFT     2
@@ -128,6 +130,7 @@
 #elif defined(CONFIG_PDCURSES_COLORFMT_Y4)
 #  define PDCURSES_COLORFMT      FB_FMT_Y4
 #  define PDCURSES_BPP           4
+#  define PDCURSES_BPP_SHIFT     2
 #  define PDCURSES_PPB           2
 #  define PDCURSES_PPB_MASK      (PDCURSES_PPB - 1)
 #  define PDCURSES_PPB_SHIFT     1
@@ -254,6 +257,10 @@ struct pdc_fbstate_s
 #endif
   uint8_t fheight;         /* Height of the font (rows) */
   uint8_t fwidth;          /* Width of the font (pixels) */
+#if PDCURSES_BPP < 8
+  uint8_t fstride;         /* Width of the font buffer (bytes) */
+  FAR uint8_t *fbuffer;    /* Allocated font buffer */
+#endif
 
   /* Drawable area (See also SP->lines and SP->cols) */
 
