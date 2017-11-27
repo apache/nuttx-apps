@@ -239,7 +239,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
 #if PDCURSES_BPP == 1
   /* Get the start and end column in pixels (relative to the start position) */
 
-  startcol = col & 7;
+  startcol = col & PDCURSES_PPB_MASK;
   endcol   = startcol + fbstate->fwidth - 1;
 
   /* Get the masks that we will need to perform the read-modify-write
@@ -258,12 +258,12 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
    * the final byte than may have fewer than 8 pixels in it).
    */
 
-  endcol   = (endcol + 7) >> 3;
+  endcol   = (endcol + PDCURSES_PPB_MASK) >> PDCURSES_PPB_SHIFT;
 
 #elif PDCURSES_BPP == 2
   /* Get the start and end colum in pixels (relative to the start position) */
 
-  startcol = col & 3;
+  startcol = col & PDCURSES_PPB_MASK;
   endcol   = startcol + fbstate->fwidth - 1;
 
   /* Get the masks that we will need to perform the read-modify-write
@@ -282,12 +282,12 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
    * the final byte than may have fewer than 4 pixels in it).
    */
 
-  endcol   = (endcol + 3) >> 2;
+  endcol   = (endcol + PDCURSES_PPB_MASK) >> PDCURSES_PPB_SHIFT;
 
 #elif PDCURSES_BPP == 4
   /* Get the start and end colum in pixels (relative to the start position) */
 
-  startcol = col & 1;
+  startcol = col & PDCURSES_PPB_MASK;
   endcol   = startcol + fbstate->fwidth - 1;
 
   /* Get the masks that we will need to perform the read-modify-write
@@ -306,7 +306,7 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
    * the final byte than may have only one pixel in it).
    */
 
-  endcol   = (endcol + 1) >> 1;
+  endcol   = (endcol + PDCURSES_PPB_MASK) >> PDCURSES_PPB_SHIFT;
 #endif
 
   /* Now copy the color into the entire glyph region */
