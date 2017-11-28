@@ -221,7 +221,7 @@ static inline pdc_color_t PDC_color(FAR struct pdc_fbstate_s *fbstate,
 
 #if PDCURSES_BPP < 8
 static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
-                              FAR uint8_t *fbstart, int col, short bg)
+                              FAR uint8_t *fbuffer, int col, short bg)
 {
   uint8_t color8;
   uint8_t lmask;
@@ -263,11 +263,11 @@ static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
 
   /* Now copy the color into the entire glyph region */
 
-  for (row = 0; row < fbstate->fheight; row++, fbstart += fbstate->stride)
+  for (row = 0; row < fbstate->fheight; row++, fbuffer += fbstate->fstride)
     {
       FAR pdc_color_t *fbdest;
 
-      fbdest = (FAR pdc_color_t *)fbstart;
+      fbdest = (FAR pdc_color_t *)fbuffer;
 
       /* Special case: The row is less no more than one byte wide */
 
@@ -333,7 +333,18 @@ static inline void PDC_render_glyph(FAR struct pdc_fbstate_s *fbstate,
                                     FAR uint8_t *fbstart, short fg)
 {
   pdc_color_t fgcolor = PDC_color(fbstate, fg);
+  unsigned int stride;
   int ret;
+
+  /* Are we rendering into the framebuffer or the font buffer.  The only
+   * difference here is the stride value.
+   */
+
+#if PDCURSES_BPP < 8
+  stride = fbstate->fstride;  /* Width of the font buffer in bytes */
+#else
+  stride = fbstate->stride;   /* Width of the framebuffer in bytes */
+#endif
 
   /* Then render the glyph into the allocated memory
    *
@@ -341,9 +352,8 @@ static inline void PDC_render_glyph(FAR struct pdc_fbstate_s *fbstate,
    * case, only the lower quarter of the glyph should be reversed.
    */
 
-  ret = RENDERER((FAR pdc_color_t *)fbstart,
-                  fbstate->fheight, fbstate->fwidth, fbstate->stride,
-                  fbm, fgcolor);
+  ret = RENDERER((FAR pdc_color_t *)fbstart, fbstate->fheight,
+                 fbstate->fwidth, stride, fbm, fgcolor);
   if (ret < 0)
     {
       /* Actually, the RENDERER never returns a failure */
@@ -376,92 +386,149 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
   unsigned int startcol;
   unsigned int endcol;
   unsigned int row;
-  unsigned int col;
+  unsigned int npixels;
+  uint8_t lshift;
+  uint8_t rshift;
   uint8_t lmask;
   uint8_t rmask;
-  uint8_t mask;
+  int n;
 
   /* Handle the case where the first or last bytes may require read, modify,
    * write operations.
    *
-   * Get the start and end column in pixels (relative to the start position)
+   * Get the start and end column in pixels (relative to the start position).
    */
 
   startcol = xpos & PDCURSES_PPB_MASK;
-  endcol   = startcol + fbstate->fwidth - 1;
+  endcol   = startcol + fbstate->fwidth;
+
+  /* The data in the font buffer is probably shifted with respect to the
+   * byte position in the framebuffer.
+   */
+
+  lshift   = (PDCURSES_PPB - startcol) << PDCURSES_BPP_SHIFT;
+  rshift   = (endcol & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT;
 
 #ifdef CONFIG_NXFONTS_PACKEDMSFIRST
   /* Get the mask for pixels that are ordered so that they pack from the
    * MS byte down.
    */
 
-  lmask    = 0xff << ((PDCURSES_PPB - startcol) << PDCURSES_BPP_SHIFT);
-  rmask    = 0xff >> ((endcol & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT);
+  lmask    = 0xff << lshift;
+  rmask    = 0xff >> rshift;
 #else
+# warning Unverified
   /* Get the mask for pixels that are ordered so that they pack from the
    * LS byte up.
    */
-  lmask    = 0xff >> ((PDCURSES_PPB - startcol) << PDCURSES_BPP_SHIFT);
-  rmask    = 0xff << ((endcol & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT);
+
+  lmask    = 0xff >> lshift;
+  rmask    = 0xff << rshift;
 #endif
 
-  /* Convert endcol to a byte offset (taking the ceiling so that includes
-   * the final byte than may have fewer than 8 pixels in it).
+  /* Fixups.  Range of lshift should be 0-7, not 1-8;  Make all masks 0x00
+   * if no masking is needed. Convert endcol to a byte offset into the frame
+   * buffer.
    */
 
-  startcol = 0;
-  endcol   = (endcol + PDCURSES_PPB_MASK) >> PDCURSES_PPB_SHIFT;
+  lshift  &= 7;
+  rmask    = (rmask == 0xff) ? 0x00 : rmask;
+
+  /* Convert endcol to a byte offset into the frame buffer. */
+
+  endcol   = (endcol - 1) >> PDCURSES_PPB_SHIFT;
 
   /* Then copy the image */
 
-  srcrow  = fbstate->fbuffer;
-  destrow = dest;
-
-  for (row = 0; row < fbstate->fheight; row++)
+  for (row = 0, srcrow  = fbstate->fbuffer, destrow = dest;
+       row < fbstate->fheight;
+       row++, srcrow += fbstate->fstride, destrow += fbstate->stride)
     {
-     /* Handle masking of the fractional initial byte */
+      /* Handle masking of the fractional initial byte */
 
-     mask = lmask;           /* Start with the left mask */
-     sptr = srcrow;          /* Set to the beginning of the src row */
-     dptr = destrow;         /* Set to the beginning of the dest row */
+      sptr    = srcrow;           /* Set to the beginning of the src row */
+      dptr    = destrow;          /* Set to the beginning of the dest row */
+      npixels = fbstate->fwidth;  /* Number of pixels to copy */
 
-     /* Handle masking of the left, leading byte */
+      /* Special case:  Only one byte will be transferred */
 
-     if (mask != 0x00)
+      if (endcol == 0)
+        {
+          uint8_t dmask = lmask | rmask;
+
+          /* Perform the read/modify/write */
+
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+          *dptr = (*dptr & dmask) | ((*sptr >> (8 - lshift)) & ~rmask);
+#else
+#  warning Unverified
+          *dptr = (*dptr & dmask) | ((*sptr << (8 - lshift)) & ~rmask);
+#endif
+          continue;
+        }
+
+      /* Handle masking of the left, leading byte */
+
+      if (lmask != 0x00)
         {
           /* Perform the read/modify/write */
 
-          dptr[0] = (dptr[0] & ~mask) | (sptr[0] & mask);
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+          *dptr = (*dptr & lmask) | (*sptr >> (8 - lshift));
+#else
+#  warning Unverified
+          *dptr = (*dptr & lmask) | (*sptr << (8 - lshift));
+#endif
 
-          mask = 0xff;       /* Reset the mask */
-          dptr++;            /* Skip to the next src byte */
-          sptr++;            /* Skip to the next destination byte */
-          startcol++;        /* Filled bytes may start on the next column */
+          dptr++;            /* Skip to the next destination byte */
+          npixels -= lshift; /* Decrement number of pixels to copy */
         }
 
       /* Handle masking of the fractional final byte */
 
-      mask &= rmask;
-      if (mask != 0xff)
+      if (rmask != 0x00)
         {
           /* Perform the read/modify/write */
 
-          dptr[endcol] = (dptr[endcol] & ~mask) | (sptr[endcol] & mask);
-
-          endcol--;          /* Filled bytes may end on this column */
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+          dptr[endcol] = (dptr[endcol] & rmask) |
+                         (sptr[endcol] << (8 -rshift));
+#else
+#  warning Unverified
+          dptr[endcol] = (dptr[endcol] & rmask) |
+                         (sptr[endcol] >> (8 - rshift));
+#endif
+          npixels -= rshift; /* Decrement number of pixels to copy */
         }
 
       /* Handle all of the unmasked bytes in-between */
 
-      for (col = startcol; col <= endcol; col++)
+      if (lshift > 0)
         {
-         *dptr++ = *sptr++;
+#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
+          uint16_t shifted;
+
+          shifted = (uint16_t)sptr[0] << (8 + lshift) |
+                    (uint16_t)sptr[1] << lshift;
+          sptr++;
+
+          for (n = lshift; n < npixels; n += 8)
+            {
+              *dptr++ = (shifted >> 8);
+              shifted = (shifted << 8) | sptr[1] << lshift;
+              sptr++;
+            }
+#else
+#  error Missing logic
+#endif
         }
-
-      /* Move to the next row */
-
-      destrow += fbstate->stride;
-      srcrow  += fbstate->fstride;
+      else
+        {
+          for (n = 0; n < npixels; n += 8)
+            {
+               *dptr++ = *sptr++;
+            }
+        }
     }
 }
 #endif
