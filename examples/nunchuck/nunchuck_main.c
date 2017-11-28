@@ -79,7 +79,6 @@
 
 static void show_buttons(nunchuck_buttonset_t oldset, nunchuck_buttonset_t newset);
 static void show_joystick(FAR const struct nunchuck_sample_s *sample);
-static int nunchuck_wait(int fd, FAR const struct timespec *timeout);
 static int nunchuck_read(int fd, FAR struct nunchuck_sample_s *sample);
 static int nunchuck_calibrate(int fd);
 
@@ -386,8 +385,6 @@ int main(int argc, FAR char *argv[])
 int nunchuck_main(int argc, char *argv[])
 #endif
 {
-  struct timespec timeout;
-  struct nunchuck_notify_s notify;
   int fd;
   int tmp;
   int ret;
