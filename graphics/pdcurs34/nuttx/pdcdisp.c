@@ -515,7 +515,7 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
           for (n = lshift; n < npixels; n += 8)
             {
               *dptr++ = (shifted >> 8);
-              shifted = (shifted << 8) | sptr[1] << lshift;
+              shifted = (shifted << 8) | (uint16_t)sptr[1] << lshift;
               sptr++;
             }
 #else
