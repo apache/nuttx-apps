@@ -275,17 +275,21 @@ int redirection_test(void)
   /* Start redirect_reader thread */
 
   printf("redirection_test: Starting redirect_reader task with fd=%d\n", fd[0]);
-  readerid = task_create("redirect_reader", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE, redirect_reader, argv);
+  readerid = task_create("redirect_reader", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE,
+                         redirect_reader, (FAR char * const *)argv);
   if (readerid < 0)
     {
-      fprintf(stderr, "redirection_test: Failed to create redirect_writer task: %d\n", errno);
+      fprintf(stderr,
+              "redirection_test: Failed to create redirect_writer task: %d\n",xi
+              errno);
       return 1;
     }
 
   /* Start redirect_writer task */
 
   printf("redirection_test: Starting redirect_writer task with fd=%d\n", fd[1]);
-  writerid = task_create("redirect_writer", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE, redirect_writer, argv);
+  writerid = task_create("redirect_writer", 50, CONFIG_EXAMPLES_PIPE_STACKSIZE,
+                         redirect_writer, (FAR char * const *)argv);
   if (writerid < 0)
     {
       fprintf(stderr, "redirection_test: Failed to create redirect_writer task: %d\n", errno);
