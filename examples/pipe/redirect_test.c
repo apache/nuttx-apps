@@ -1,7 +1,7 @@
 /****************************************************************************
  * examples/pipe/redirect_test.c
  *
- *   Copyright (C) 2008-2009 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2017 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,10 +55,6 @@
 #define READ_SIZE 37
 
 /****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -92,7 +88,8 @@ static int redirect_reader(int argc, char *argv[])
   ret = close(fdout);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fdout=%d\n", fdout);
+       fprintf(stderr, "redirect_reader: failed to close fdout=%d\n",
+               fdout);
        return 1;
     }
 
@@ -125,13 +122,15 @@ static int redirect_reader(int argc, char *argv[])
       ret = read(0, buffer, READ_SIZE);
       if (ret < 0 )
         {
-           fprintf(stderr, "redirect_reader: read failed, errno=%d\n", errno);
+           fprintf(stderr, "redirect_reader: read failed, errno=%d\n",
+                   errno);
            return 4;
         }
       else if (ret == 0)
         {
           break;
         }
+
       nbytes += ret;
 
       /* Echo to stdout */
@@ -139,7 +138,8 @@ static int redirect_reader(int argc, char *argv[])
       ret = write(1, buffer, ret);
       if (ret < 0)
         {
-           fprintf(stderr, "redirect_reader: read failed, errno=%d\n", errno);
+           fprintf(stderr, "redirect_reader: read failed, errno=%d\n",
+                   errno);
            return 5;
         }
     }
@@ -198,7 +198,8 @@ static int redirect_writer(int argc, char *argv[])
   ret = close(fdout);
   if (ret != 0)
     {
-       fprintf(stderr, "redirect_reader: failed to close fdout=%d\n", fdout);
+       fprintf(stderr, "redirect_reader: failed to close fdout=%d\n",
+               fdout);
        return 3;
     }
 
@@ -280,7 +281,7 @@ int redirection_test(void)
   if (readerid < 0)
     {
       fprintf(stderr,
-              "redirection_test: Failed to create redirect_writer task: %d\n",xi
+              "redirection_test: Failed to create redirect_writer task: %d\n",
               errno);
       return 1;
     }
@@ -292,12 +293,18 @@ int redirection_test(void)
                          redirect_writer, (FAR char * const *)argv);
   if (writerid < 0)
     {
-      fprintf(stderr, "redirection_test: Failed to create redirect_writer task: %d\n", errno);
+      fprintf(stderr,
+              "redirection_test: Failed to create redirect_writer task: %d\n",
+              errno);
+
       ret = task_delete(readerid);
       if (ret != 0)
         {
-          fprintf(stderr, "redirection_test: Failed to delete redirect_reader task %d\n", errno);
+          fprintf(stderr,
+                  "redirection_test: Failed to delete redirect_reader task %d\n",
+                  errno);
         }
+
       return 2;
     }
 
@@ -307,6 +314,7 @@ int redirection_test(void)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
     }
+
   if (close(fd[1]) != 0)
     {
       fprintf(stderr, "pipe_main: close failed: %d\n", errno);
@@ -327,4 +335,3 @@ int redirection_test(void)
   printf("redirection_test: returning %d\n", ret);
   return ret;
 }
-
