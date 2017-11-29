@@ -215,94 +215,48 @@ static inline pdc_color_t PDC_color(FAR struct pdc_fbstate_s *fbstate,
  * Name: PDC_set_bg
  *
  * Description:
- *   Set the glyph memory to the device background RGB color.
+ *   Set memory to the device background RGB color.  For the case of BPP < 8,
+ *   this is byte-aligned font buffer.  For other cases, this clears a patch
+ *   of memory in the framebuffer.
  *
  ****************************************************************************/
 
 #if PDCURSES_BPP < 8
 static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
-                              FAR uint8_t *fbuffer, int col, short bg)
+                              FAR uint8_t *fbuffer, short bg)
 {
   uint8_t color8;
-  uint8_t lmask;
-  uint8_t rmask;
-  int startcol;
-  int endcol;
   int row;
+  int col;
 
   /* Get a byte that packs multiple pixels into one byte */
 
-  color8   = PDC_color(fbstate, bg);
-
-  /* Handle the case where the first or last bytes may require read, modify,
-   * write operations.
-   *
-   * Get the start and end column in pixels (relative to the start position)
-   */
-
-  startcol = col & PDCURSES_PPB_MASK;
-  endcol   = startcol + fbstate->fwidth - 1;
-
-  /* Get the masks that we will need to perform the read-modify-write
-   * operations.
-   */
-
-#ifdef CONFIG_NXFONTS_PACKEDMSFIRST
-  lmask    = 0xff << ((PDCURSES_PPB - startcol) << PDCURSES_BPP_SHIFT);
-  rmask    = 0xff >> ((endcol & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT);
-#else
-  lmask    = 0xff >> ((PDCURSES_PPB - startcol) << PDCURSES_BPP_SHIFT);
-  rmask    = 0xff << ((endcol & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT);
-#endif
-
-  /* Convert endcol to a byte offset (taking the ceiling so that includes
-   * the final byte than may have fewer than 8 pixels in it).
-   */
-
-  endcol   = (endcol + PDCURSES_PPB_MASK) >> PDCURSES_PPB_SHIFT;
+  color8 = PDC_color(fbstate, bg);
 
   /* Now copy the color into the entire glyph region */
 
   for (row = 0; row < fbstate->fheight; row++, fbuffer += fbstate->fstride)
     {
-      FAR pdc_color_t *fbdest;
+      FAR uint8_t *fbdest = fbuffer;
 
-      fbdest = (FAR pdc_color_t *)fbuffer;
+      /* Note that there is no masking on the "right" side, so this will
+       * set color in the unused bits in the final byte of the glyph row.
+       * This should be harmless.
+       */
 
-      /* Special case: The row is less no more than one byte wide */
-
-      if (endcol == 0)
+      for (col = 0; col < fbstate->fwidth; col += PDCURSES_PPB)
         {
-          uint8_t mask = lmask | rmask;
-
-          *fbdest = (*fbdest & mask) | (color8 & ~mask);
+          *fbdest++ = color8;
         }
-      else
-        {
-          /* Special case the first byte of the row */
-
-          *fbdest = (*fbdest & lmask) | (color8 & ~lmask);
-          fbdest++;
-
-          /* Handle all middle bytes */
-
-          for (col = 1; col < endcol; col++)
-            {
-              *fbdest++ = color8;
-            }
-
-          /* Handle the final byte of the row */
-
-          *fbdest = (*fbdest & rmask) | (color8 & ~rmask);
-       }
     }
 }
 #else
 static inline void PDC_set_bg(FAR struct pdc_fbstate_s *fbstate,
-                              FAR uint8_t *fbstart, int col, short bg)
+                              FAR uint8_t *fbstart, short bg)
 {
   pdc_color_t bgcolor = PDC_color(fbstate, bg);
   int row;
+  int col;
 
   /* Set the glyph to the background color. */
 
@@ -644,7 +598,7 @@ static void PDC_putc(FAR struct pdc_fbstate_s *fbstate, int row, int col,
 
   /* Initialize the glyph to the (possibly reversed) background color */
 
-  PDC_set_bg(fbstate, dest, col, bg);
+  PDC_set_bg(fbstate, dest, bg);
 
   /* Does the code map to a font? */
 
