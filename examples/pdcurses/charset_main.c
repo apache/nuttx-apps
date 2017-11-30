@@ -96,6 +96,7 @@ int charset_main(int argc, char *argv[])
     }
 
   /* Set up geometry */
+  /* First get the maximum width */
 
   width = COLS - 2;
   if (width > NUM_CH)
@@ -103,7 +104,7 @@ int charset_main(int argc, char *argv[])
       width = NUM_CH;
     }
 
-  xoffset = (COLS - width) / 2;
+  /* Get the height associated with the maximum width */
 
   height = (NUM_CH + width - 1) / width;
   lastch = LAST_CH;
@@ -114,9 +115,22 @@ int charset_main(int argc, char *argv[])
       lastch = FIRST_CH + width * height - 1;
     }
 
+  /* Reduce the width if it will give us a more balanced layout */
+
+  while (height < (LINES / 2) && width > (COLS / 2))
+    {
+      int numch = lastch - FIRST_CH + 1;
+
+      width >>= 1;
+      height  = (numch + width - 1) / width;
+    }
+
+  /* Center the rectangle containing the font set */
+
+  xoffset = (COLS - width) / 2;
   yoffset = (LINES - height) / 2;
 
-  /* Now display the character set */
+  /* Now display the character set using that geometry */
 
   ch = FIRST_CH;
   for (row = yoffset; row < yoffset + height; row++)
