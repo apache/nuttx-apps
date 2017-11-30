@@ -337,8 +337,9 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
   FAR const uint8_t *sptr;
   FAR uint8_t *destrow;
   FAR uint8_t *dptr;
-  unsigned int startcol;
-  unsigned int endcol;
+  unsigned int srcend;
+  unsigned int dststart;
+  unsigned int dstend;
   unsigned int row;
   unsigned int npixels;
   uint8_t lshift;
@@ -353,15 +354,15 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
    * Get the start and end column in pixels (relative to the start position).
    */
 
-  startcol = xpos & PDCURSES_PPB_MASK;
-  endcol   = startcol + fbstate->fwidth;
+  dststart = PDC_pixel_x(fbstate, xpos) & PDCURSES_PPB_MASK;
+  dstend   = dststart + fbstate->fwidth;
 
   /* The data in the font buffer is probably shifted with respect to the
    * byte position in the framebuffer.
    */
 
-  lshift   = (PDCURSES_PPB - startcol) << PDCURSES_BPP_SHIFT;
-  rshift   = (endcol & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT;
+  lshift   = (PDCURSES_PPB - dststart) << PDCURSES_BPP_SHIFT;
+  rshift   = (dstend & PDCURSES_PPB_MASK) << PDCURSES_BPP_SHIFT;
 
 #ifdef CONFIG_NXFONTS_PACKEDMSFIRST
   /* Get the mask for pixels that are ordered so that they pack from the
@@ -381,16 +382,19 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
 #endif
 
   /* Fixups.  Range of lshift should be 0-7, not 1-8;  Make all masks 0x00
-   * if no masking is needed. Convert endcol to a byte offset into the frame
+   * if no masking is needed. Convert dstend to a byte offset into the frame
    * buffer.
    */
 
   lshift  &= 7;
   rmask    = (rmask == 0xff) ? 0x00 : rmask;
 
-  /* Convert endcol to a byte offset into the frame buffer. */
+  /* Convert dstend to a byte offset into the frame buffer.
+   * Calculate srcend, the byte offset into the font buffer.
+   */
 
-  endcol   = (endcol - 1) >> PDCURSES_PPB_SHIFT;
+  srcend   = (fbstate->fwidth - 1) >> PDCURSES_PPB_SHIFT;
+  dstend   = (dstend - 1) >> PDCURSES_PPB_SHIFT;
 
   /* Then copy the image */
 
@@ -406,17 +410,19 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
 
       /* Special case:  Only one byte will be transferred */
 
-      if (endcol == 0)
+      if (dstend == 0)
         {
           uint8_t dmask = lmask | rmask;
 
           /* Perform the read/modify/write */
 
 #ifdef CONFIG_NXFONTS_PACKEDMSFIRST
-          *dptr = (*dptr & dmask) | ((*sptr >> (8 - lshift)) & ~rmask);
+          *destrow = (*destrow & dmask) |
+                     ((*srcrow >> (8 - lshift)) & ~rmask);
 #else
 #  warning Unverified
-          *dptr = (*dptr & dmask) | ((*sptr << (8 - lshift)) & ~rmask);
+          *destrow = (*destrow & dmask) |
+                     ((*srcrow << (8 - lshift)) & ~rmask);
 #endif
           continue;
         }
@@ -428,10 +434,12 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
           /* Perform the read/modify/write */
 
 #ifdef CONFIG_NXFONTS_PACKEDMSFIRST
-          *dptr = (*dptr & lmask) | (*sptr >> (8 - lshift));
+          *destrow = (*destrow & lmask) |
+                     (*srcrow >> (8 - lshift));
 #else
 #  warning Unverified
-          *dptr = (*dptr & lmask) | (*sptr << (8 - lshift));
+          *destrow = (*destrow & lmask) |
+                     (*srcrow << (8 - lshift));
 #endif
 
           dptr++;            /* Skip to the next destination byte */
@@ -445,12 +453,12 @@ static inline void  PDC_copy_glyph(FAR struct pdc_fbstate_s *fbstate,
           /* Perform the read/modify/write */
 
 #ifdef CONFIG_NXFONTS_PACKEDMSFIRST
-          dptr[endcol] = (dptr[endcol] & rmask) |
-                         (sptr[endcol] << (8 -rshift));
+          destrow[dstend] = (destrow[dstend] & rmask) |
+                            ((srcrow[srcend] << lshift) & ~rmask);
 #else
 #  warning Unverified
-          dptr[endcol] = (dptr[endcol] & rmask) |
-                         (sptr[endcol] >> (8 - rshift));
+          destrow[dstend] = (destrow[dstend] & rmask) |
+                            ((srcrow[srcend] >> lshift) & ~rmask);
 #endif
           npixels -= rshift; /* Decrement number of pixels to copy */
         }
