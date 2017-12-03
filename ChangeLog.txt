@@ -2397,8 +2397,8 @@
 	* examples/nxlines now supports only multiuser mode (2017-10-14).
 	* exampls/nxhello:  Increase the amount of time that the text is
 	  displayed before erasing it (2017-10-15).
-	  Alan Carvalho de Assis (2017-10-15).
 	* Add -n samples to lm75 app and replace Centigrade with Celsius.  From
+	  Alan Carvalho de Assis (2017-10-15).
 	* graphics/traveler: Convert to use the framebuffer driver (2017-10-16).
 	* examples/alarm: add options for reading alarm value and canceling it.
 	  From Juha Niskanen (2017-10-17).
