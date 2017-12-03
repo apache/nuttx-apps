@@ -2296,4 +2296,254 @@
 	  Ishikawa (2017-08-26).
 	* examples: add DAC example.  From Juha Niskanen (2017-09-1).
 
-7.23 2017-xx-xx Gregory Nutt <gnutt@nuttx.org>
+7.23 2017-12-04 Gregory Nutt <gnutt@nuttx.org>
+
+	* examples/ostest: sem_open() now returns SEM_FAILED in the event of a
+	  failure (2017-09-08).
+	* examples/adc: Fix g_adcstate.count initialization.  From Masayuki
+	  Ishikawa (2017-09-11).
+	* examples/fb:  Flesh out the framebuffer driver test.  examples/fb:
+	  Add a simple test for the framebuffer character driver.  This initial
+	  commit just verfies some interfaces and initialization logic.  Still
+	  need to add to graphics update logic (2017-09-12).  
+	* Rename CONFIG_AUDIO_DEVICES to CONFIG_DRIVERS_AUDIO to conform better
+	  to the evolving configuration naming standard (2017-09-12).
+	* examples/fb:  Extend test to include 1-bpp monochrome (2017-09-13).
+	* Added a simple reader example for the LIS3DSH acceleration sensor on
+	  STM32F4Discovery.  From Florian Olbrich (2017-09-14).
+	* wireless/ieee802154/i8sak: Adds socket interface support. You can now
+	  use both socket or char driver to control the MAC layer.  From Anthony
+	  Merlino (2017-09-15).
+	* wireless/ieee802154/i8sak:  Fixes several bugs.  Adds sniffer port
+	  option and a few other get/set parameters.  From Anthony Merlino
+	  (2017-09-15).
+	* i8sak: Updates README to include details about socket interface and
+	  new addressing setup and fixes warning.  Fix warning about
+	  uninitialized variable.  From Anthony Merlino (2017-09-15).
+	* apps/examples/apa102: Add a Rainbow example for APA102 LED Strip.
+	  From Alan Carvalho de Assis (2017-09-18).
+	* netutils/netlib:  Add netlib_ipv6adaptor() and netlib_ipv4adaptor()
+	  (2017-09-19).
+	* netlib_ipv[4|6]adaptor: Add a check to handle the case where the
+	  network device configuration changed asynchronously and the second IOCTL
+	  returns more data than the allocated buffer (2017-09-20).
+	* apps/netutils/netlib:  Add helpers for reading the routing table:
+	  netlib_read_ipv4route() and netlib_read_ipv6route() (2017-09-20).    
+	* apps/netutils/netlib:  Add new utilities netlib_ipv[4|6]router() that
+	  can be used to determine the IP address of a router that would be used
+	  some some destination IP address that is not locally accessible
+	  (2017-09-20).
+	* apps/netutils/netlib:  netlib_ipv[4|6]adaptor() will now use the new
+	  routing table interfaces if they are available:  If the desination IP
+	  address does not correspond to the network served by any device, then
+	  the address of the router that should get us to the correct sub-net is
+	  is determined.  Then the network adaptor that can communicate with the
+	  that router has the IP address that will returned (2017-09-20).
+	* apps/examples/flowc:  Add a simple test of serial hardware flow control
+	  (2017-09-23).
+	* apps/examples/qencode: The QENCODER name was changed to
+	  SENSORS_QENCODER fix it here.  From Alan Carvalho de Assis (2017-09-24).
+	* nshlib/nsh_parse.c: Avoid truncating the strcmp result into a unsigned
+	  char variable.  nshlib/nsh_netcmds.c: Check for valid hostip before
+	  using it.  nshlib/nsh_ddcmd.c: Fix resouce leak when 'if=' or 'of='
+	  params are repeated in the command line.  For example:
+	    - dd if=/dev/null if=/dev/zero of=/dev/null or
+	    - dd if=/dev/zero of=/dev/zero of=/dev/null
+	  From Bruno Herrera (2017-09-25).
+	* nshlib/nsh_netcmds.c: Fix a compilation error when IPv4/IPv6 dual
+	  stack is enabled.  From Masayuki Ishikawa (2017-09-26).
+	* apps/examples/flowc:  Add a delay between received packets in order to
+	  force input flow control (2017-09-26).
+	* apps/examples/flowc: Fix some errors in receiver's verificationg
+	  logic.  Add a 'canned' data file so that we don't need to deal with the
+	  sender program; we can just 'cat' the canned data file (2017-09-26).
+	* apps/examples/flowc:  Add some syslog output to flush the syslog
+	  interrupt buffer (2017-09-27).
+	* apps/examples/flowc: Small improvement to break line if more than 80 .
+	  were printed.  From Alan Carvalho de Assis (2017-09-27).
+	* apps/examples:  In elf and nxflat examples, remove low-level
+	  interfaces and replace with call to exec() (2017-10-02).
+	* examples/elf and nxff: Won't build with CONFIG_BUILD_KERNEL because
+	  the interface exec() is not available in that configuration.  Also,
+	  remove a stray comma and a stray semacolon in examples/pty_test/Kconfig
+	  and examples/random/Kconfig (2017-10-06).
+	* Add powerled driver example.  From Mateusz Szafoni (2017-10-08).
+	* examples/ostest:  Works around a bug in printf() when cancellation
+	  points are enabled.  printf() is a cancellation point because it calls
+	  write().  This is correct according to OpenGroup.org.  However, printf
+	  holds the stdio library semaphore when it is canceled and this leaves
+	  the semaphore in a bad state.  No fix for the printf bug yet (2017-10-10).
+	* examples/ina219: A simple infinite loop that polls the INA219 sensor
+	  and displays the measurements.  From Sebastien Lorquet (2017-10-11).
+	* examples/ostest: Extend cancellation test to make sure that cancelable
+	  threads waiting on a message queue or on a signal can be canceled
+	  (2017-10-12).
+	* netutils/ftpc:  Fix some crazy comparisons to determine is a file is
+	  an absolute path.  Noted by Anthony Merlino (2017-10-13).
+	* examples/nx:  The NX example no longer supports single user mode
+	  (2017-10-14).
+	* examples/nxtext:  The nxtext example no longer supports single user
+	  mode (2017-10-14).
+	* examples/lcdrw:  Remove this example.  It violates the portable OS
+	  interface and cannot be retained (2017-10-14).
+	* graphics/traveler:  Restore most of what was removed in the previous
+	  commit.  That non-standard logic is currently needed by the simulation.
+	  It should be replaced with use of a framebuffer driver.  No longer
+	  supports single user graphics mode (2017-10-14).
+	* examples/nxhello now supports only multiuser mode (2017-10-14).
+	* examples/nximage now supports only multiuser mode (2017-10-14).
+	* system/lm75:  Fix a naming error in a dependency.  From Alan Carvalho
+	  de Assis (2017-10-14).
+	* examples/nxlines now supports only multiuser mode (2017-10-14).
+	* exampls/nxhello:  Increase the amount of time that the text is
+	  displayed before erasing it (2017-10-15).
+	  Alan Carvalho de Assis (2017-10-15).
+	* Add -n samples to lm75 app and replace Centigrade with Celsius.  From
+	* graphics/traveler: Convert to use the framebuffer driver (2017-10-16).
+	* examples/alarm: add options for reading alarm value and canceling it.
+	  From Juha Niskanen (2017-10-17).
+	* apps/fsutils/mkfatfs:  Move mkfatfs from the OS to here.  Not fully
+	  integrated on the intial commit (2017-10-20).
+	* apps/examples/adps9960:  Add ADPS-9960 example.  From Alan Carvalho de
+	  Assis (2017-10-23).
+	* This commit eliminates the ping command from NSH and replaces it with
+	  a ping 'built-in' at apps/system/ping.  The original NSH version of ping
+	  violated the portable POSIX interface and, hence, had to be removed.
+	  The new system/ping command uses the new IPPROTO_ICMP AF_INET datagram
+	  sockets to implement ping (2017-10-23).
+	* apps/system/ping6:  Use inet_ntop() to improve the appearance of the
+	  ping6 IPv6 address output.  Fix a typo and also a place where = used
+	  when == intended.  This commit removes the ping6 command from NSH and
+	  replaces it with the apps/system/ping6 built-in command.  The NSH ping6
+	  command had to be removed because it violated the portable POSIX OS
+	  interface.  The apps/system/ping6 command uses the sem-standard
+	  IPPROTO_ICMP6 socket interface (2017-10-24).
+	* apps/nshlib:  ifconfig improvements.  From Anthony Merlino (2017-10-24).
+	* nshlib:  mount command no long uses the non-standard OS interface
+	  foreach_mountpoint().  Now simply cats /proc/fs/mount when there are no
+	  arguments to the mount command (2017-10-26).
+	* nshlib:  df command no long uses the non-standard OS interface
+	  foreach_mountpoint().  Now simply cats /proc/fs/blocks or /proc/fs/usage
+	  (2017-10-26).
+	* Fix parsing of empty strings when CONFIG_NSH_CMDPARMS is not defined.
+	  Problem noted by Juha Niskanen (2017-10-27).
+	* apps/canutils/libobd2:  Add libobd2 for NuttX.  From Alan Carvalho de
+	  Assis (2017-10-28).
+	* apps/examples/obd2:  Add OBD2 example application.  From Alan Carvalho
+	  de Assis (2017-10-28).
+	* include/netutils/netlib.h:  Broaden socket definitions of previous
+	  commit.  Add definitions needed when only local Unix domain sockets are
+	  supported (2017-10-30).
+	* apps/examples/userfs:  Add a test case for verifying UserFS
+	  (2017-10-31).
+	* Fixed i2ctool write operation in `no restart` mode (flag `-n`).  It
+	  seems that I2C driver has changed a bit since i2ctool was written, so
+	  now i2ctool sends repeated start even if `no restart` flag (-n) was
+	  passed to it.  From Dmitriy Linikov (2017-11-01).
+	* Fixed i2ctool write operation in `no restart` mode (flag `-n`).  From
+	  Dmitriy Linikov (2017-11-01).
+	* Fixed misprint in cmd_wget.  From Dmitriy Linikov (2017-11-01).
+	* apps/examples/userfs:  Fix bad logic in test stat() implementation
+	  (2017-11-01).
+	* i8sak: Changes 'notif' to 'primitive' corresponding to the changes in
+	  the Kernel.  From Anthony Merlino (2017-11-01).
+	* Adds i8shark, a sniffer "adapter" that captures all 802.15.4 traffic,
+	  packages it into a Wireshark ZEP packet, and sends it to a host running
+	  Wireshark  From Anthony Merlino (2017-11-01).
+	* apps/examples/userfs:  Fix check for open with write+append mode
+	  (2017-11-01).
+	* apps/fsutils/mkfatfs:  When fsutils/mkfats was split off from the
+	  operating system, there were a few dangling things left.  Some
+	  references to functions in the OS (which are not available in the
+	  protected and kernel modes) and several types and function prototeypes
+	  that don't exist is apps/fsutils/mkfatfs (2017-11-02).
+	* Fixed the compilation of nsh_routecmds.c, broken after commit
+	  6b9d23c6aa0247c701acf1d0ecdaececf546342a.  From Dmitriy Linikov
+	  (2017-11-03).
+	* include/netutils/netlib.h:  In order to avoid pre-processing warnings,
+	  NETLIB_SOCK_FAMILY must always be assigned a value, even if there is no
+	  real meaning value for it (2017-11-03).
+	* i8sak: Channel setting is now saved locally, so when performing a
+	  startpan or assoc, the channel previously set is still used, even though
+	  the MAC layer gets reset.  Also fixes a few build issues.  From Anthony
+	  Merlino (2017-11-03).
+	* examples: add SMPS driver example.  From Mateusz Szafoni (2017-11-05).
+	* smps, powerled examples: fix floating point format in printf.  From
+	  Mateusz Szafoni (2017-11-05).
+	* apps/examples/userfs:  Handle the O_TRUNC open flag.  Fixes a bug with
+	  double freeing open data when dup'ed files are closed (2017-11-06).
+	* apps/examples/ltdc:  Remove apps/examples/ltdc.  It violates the
+	  portable POSIX interface by calling directly into OS code (2017-11-06).
+	* FTP: Adds support for IPv6 and fixes various transfer issues.   From
+	  Anthony Merlino (2017-11-06).
+	* netutils/ftpc:  Eliminate warnings about types of inputs to
+	  netlib_ipv4adaptr() and about ftp_cmd_pasv() being defined but not used
+	  (2017-11-12).
+	* apps/system/free:  Removed because it violates the portable POSIX OS
+	  interface (2017-11-13).
+	* apps/nshlib:  The free commands no longer used mallinfo() to get the
+	  state of the use heap.  Two reasons:  That is not useful information in
+	  the kernel build.  And (2) there are other memory resources of interest
+	  in other configurations such as the Kernel heap in PROTECTED and KERNEL
+	  builds, and the prog mem uses when FLASH is used to hold modifiable
+	  data.  The free command has been extended to just dump the content of
+	  procfs entries and to include all of these other memory resources of the
+	  procfs entries are available (2017-11-13).
+	* apps/nshlib:  Big simplification of last change.  /proc/kmm, umm, and
+	  progmem have been replaced with a single procfs file called
+	  /proc/meminfo.  The NSH free command now degenerates to a simple dump of
+	  /proc/meminfo (2017-11-13).
+	* apps/graphics/pdcurs34:  This commit brings the basic public domain
+	  pdcurses library into NuttX.  This library is complete but not yet
+	  usuable because it still requires the NuttX interfacing code needed hook
+	  pdcurses into the NuttX graphics drivers.  Also test cases are needed to
+	  verify the pdcurses integration (2017-11-17).
+	* apps/examples/pdcurses:  Bring in pdcurses demos and make them conform
+	  to the NuttX coding style (not yet hooked into the build system)
+	  (2017-11-18).
+	* apps/graphics/pdcurs34:  Extend configuration to select the font size
+	  (2017-11-18).
+	* apps/example/pdcurses:  Add logic to build one of the several pdcurses
+	  demo/test programs (2017-11-18).
+	* apps/graphics/pdcurs34/nuttx:  Completes first cut at framebuffer
+	  rendering logic.  Add NuttX framebuffer color managment and beginning of
+	  some rendering logic (2017-11-19).
+	* apps/examples/pdcurses/: Fix a few more bugs found in testing;  Brings
+	  in the remaining pdcurses demo programs (2017-11-19).
+	* apps/graphics/pdcurs34:  Add support for discrete joystick input. 
+	  This is sufficient to get through all menuing tests that do not require
+	  text input (2017-11-22).
+	* apps/graphics/pdcurs34:  Add support for greylevels vs. RGB.  Define
+	  pdc_color_t based on pixel depth, not on specific color format.  Need to
+	  set the global COLORS or else all displays on monochrome (2017-11-22).
+	* i8shark:  Adds CONFIG_IEEE802154_I8SHARK_XBEE_APPHDR option to remove
+	  XBee's application header before sending to Wireshark. This option will
+	  corrupt any traffic received that does not include this application
+	  header.  From Anthony Merlino (2017-11-22).
+	* apps/wireless/ieee802154/i8sak: Adds ability to get/set rxonidle
+	  setting for MAC layer.  From Anthony Merlino (2017-11-xx).
+	* apps/examples/fb:  Fix calculation of a mask value (2017-11-22).
+	* NxWidgets:  Move from apps/NxWidgts to apps/graphics/NxWidgets
+	  (2017-11-24).
+	* apps/examples/pdcurses:  Add a very simple example that just shows the
+	  entire character set (7-bit only).  It adapts to the size of the
+	  framebuffer and, hence, can be used with very tiny displays.  In fact it
+	  looks really dumb on big displays (2017-11-24).
+	* apps/examples/fb:  Add a small delay between updating each rectangular
+	  region (2017-11-25).
+	* apps/examples: CONFIG_QENCODER was renamed to CONFIG_SENSORS_QENCODER:
+	  update README.txt.  From Fabio D'Urso (2017-11-25).
+	* apps/graphics/pdcurs34: Initial steps to support less than 8-pixel
+	  fonts on less than 8-bit display.  Calculation of font buffer stride
+	  must depend on the configured BPP.  Add first cut at function to copy a
+	  font into the font buffer; Make better use of macros to reduce code
+	  complexity (2017-11-27).
+	* apps/examples/nunchuck: Add Nunchuck example application.  From Alan
+	  Carvalho de Assis (2017-11-28).
+	* apps/graphics/pdcurs34:  Correct logic that sets the font buffer to
+	  the background color for the case of BPP < 8 (2017-11-29).
+	* apps/examples/pdcurses:  Clean up charset example so that the display
+	  geomtry  is better on very wide displays (wide with respect to the width
+	  of a character) (2017-11-30).
+
+7.24 2018-xx-xx Gregory Nutt <gnutt@nuttx.org>
