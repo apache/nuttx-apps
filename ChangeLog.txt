@@ -2305,7 +2305,7 @@
 	* examples/fb:  Flesh out the framebuffer driver test.  examples/fb:
 	  Add a simple test for the framebuffer character driver.  This initial
 	  commit just verfies some interfaces and initialization logic.  Still
-	  need to add to graphics update logic (2017-09-12).  
+	  need to add to graphics update logic (2017-09-12).
 	* Rename CONFIG_AUDIO_DEVICES to CONFIG_DRIVERS_AUDIO to conform better
 	  to the evolving configuration naming standard (2017-09-12).
 	* examples/fb:  Extend test to include 1-bpp monochrome (2017-09-13).
@@ -2328,13 +2328,13 @@
 	  network device configuration changed asynchronously and the second IOCTL
 	  returns more data than the allocated buffer (2017-09-20).
 	* apps/netutils/netlib:  Add helpers for reading the routing table:
-	  netlib_read_ipv4route() and netlib_read_ipv6route() (2017-09-20).    
+	  netlib_read_ipv4route() and netlib_read_ipv6route() (2017-09-20).
 	* apps/netutils/netlib:  Add new utilities netlib_ipv[4|6]router() that
 	  can be used to determine the IP address of a router that would be used
 	  some some destination IP address that is not locally accessible
 	  (2017-09-20).
 	* apps/netutils/netlib:  netlib_ipv[4|6]adaptor() will now use the new
-	  routing table interfaces if they are available:  If the desination IP
+	  routing table interfaces if they are available:  If the destination IP
 	  address does not correspond to the network served by any device, then
 	  the address of the router that should get us to the correct sub-net is
 	  is determined.  Then the network adaptor that can communicate with the
@@ -2440,8 +2440,6 @@
 	  seems that I2C driver has changed a bit since i2ctool was written, so
 	  now i2ctool sends repeated start even if `no restart` flag (-n) was
 	  passed to it.  From Dmitriy Linikov (2017-11-01).
-	* Fixed i2ctool write operation in `no restart` mode (flag `-n`).  From
-	  Dmitriy Linikov (2017-11-01).
 	* Fixed misprint in cmd_wget.  From Dmitriy Linikov (2017-11-01).
 	* apps/examples/userfs:  Fix bad logic in test stat() implementation
 	  (2017-11-01).
@@ -2510,7 +2508,7 @@
 	  some rendering logic (2017-11-19).
 	* apps/examples/pdcurses/: Fix a few more bugs found in testing;  Brings
 	  in the remaining pdcurses demo programs (2017-11-19).
-	* apps/graphics/pdcurs34:  Add support for discrete joystick input. 
+	* apps/graphics/pdcurs34:  Add support for discrete joystick input.
 	  This is sufficient to get through all menuing tests that do not require
 	  text input (2017-11-22).
 	* apps/graphics/pdcurs34:  Add support for greylevels vs. RGB.  Define
