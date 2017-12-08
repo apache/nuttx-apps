@@ -367,7 +367,7 @@ static int i8shark_daemon(int argc, FAR char *argv[])
 
           /* Next bytes is the Channel ID */
 
-          zepframe[ind++] = g_i8shark.chan;
+          ieee802154_getchan(fd, &zepframe[ind++]);
 
           /* For now, just hard code the device ID to an arbitrary value */
 
@@ -410,7 +410,11 @@ static int i8shark_daemon(int argc, FAR char *argv[])
 
           /* Last byte is the length */
 
+#ifdef CONFIG_IEEE802154_I8SHARK_XBEE_APPHDR
+          zepframe[ind++] = frame.length - 2;
+#else
           zepframe[ind++] = frame.length;
+#endif
         }
 
       /* The ZEP header is filled, now copy the frame in */
@@ -423,11 +427,17 @@ static int i8shark_daemon(int argc, FAR char *argv[])
        * detection.  Wireshark doesn't know how to handle this data, so we provide
        * a configuration option that drops the first 2 bytes of the payload portion
        * of the frame for all sniffed frames
+       *
+       * NOTE: Since we remove data from the frame, the FCS is no longer valid
+       * and Wireshark will fail to disect the frame.  Wireshark ignores a case
+       * where the FCS is not included in the actual frame.  Therefore, we
+       * subtract 4 rather than 2 to remove the FCS field so that the disector
+       * will not fail.
        */
 
       memcpy(&zepframe[ind], (frame.payload + frame.offset + 2),
              (frame.length - frame.offset - 2));
-      ind += frame.length - frame.offset - 2;
+      ind += frame.length - frame.offset - 4;
 #else
       memcpy(&zepframe[ind], frame.payload, frame.length);
       ind += frame.length;
