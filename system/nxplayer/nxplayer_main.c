@@ -56,7 +56,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define	NXPLAYER_VER		"1.04"
+#define	NXPLAYER_VER		"1.05"
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_HELP
 #  define NXPLAYER_HELP_TEXT(x)  #x
