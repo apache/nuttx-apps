@@ -114,4 +114,12 @@ config NXPLAYER_INCLUDE_SYSTEM_RESET
 		a HW reset via program call.  The system reset will perform
 		a reset on all registered audio devices.
 
+config NXPLAYER_HTTP_STREAMING_SUPPORT
+	bool "Include support for http streaming"
+	default n
+	depends on NET_IPv4 && NET_TCP
+	---help---
+		When enabled, this feature will add code to enable HTTP
+		audio streaming as well as local file playback.
+
 endif

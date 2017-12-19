@@ -49,6 +49,13 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
+#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
+#  include <sys/time.h>
+#  include <sys/socket.h>
+#  include <arpa/inet.h>
+#  include <netdb.h>
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -59,6 +66,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <debug.h>
+
 
 #include <nuttx/audio/audio.h>
 #include "system/nxplayer.h"
@@ -96,7 +104,7 @@ struct nxplayer_ext_fmt_s
 {
   const char  *ext;
   uint16_t    format;
-  CODE int    (*getsubformat)(FAR FILE *fd);
+  CODE int    (*getsubformat)(int fd);
 };
 #endif
 
@@ -105,7 +113,7 @@ struct nxplayer_ext_fmt_s
  ****************************************************************************/
 
 #ifdef CONFIG_AUDIO_FORMAT_MIDI
-int nxplayer_getmidisubformat(FAR FILE *fd);
+int nxplayer_getmidisubformat(int fd);
 #endif
 
 /****************************************************************************
@@ -144,6 +152,139 @@ static const int g_known_ext_count = sizeof(g_known_ext) /
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
+
+/****************************************************************************
+ ****************************************************************************/
+
+#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
+
+/****************************************************************************
+ * Name: _open_with_http
+ *
+ *   _open_with_http() opens specified fullurl which is http:// or local file
+ *   path and returns a file descriptor.
+ *
+ ****************************************************************************/
+
+static int _open_with_http(const char *fullurl)
+{
+  char relativeurl[32];
+  char hostname[32];
+  int  resp_chk = 0;
+  char resp_msg[] = "\r\n\r\n";
+  struct timeval tv;
+  int  a[4];
+  int  port;
+  char buf[64];
+  int  s;
+  int  n;
+  char c;
+
+  if (NULL == strstr(fullurl, "http://"))
+    {
+      /* assumes local file specified */
+
+      s = open(fullurl, O_RDONLY);
+      return s;
+    }
+
+  memset(relativeurl, 0, sizeof(relativeurl));
+
+#ifdef CONFIG_NET_IPv4
+  n = sscanf(fullurl, "http://%d.%d.%d.%d:%d/%s",
+             &a[0], &a[1], &a[2], &a[3], &port, relativeurl);
+
+  if (6 != n)
+    {
+      n = sscanf(fullurl, "http://%d.%d.%d.%d/%s",
+                 &a[0], &a[1], &a[2], &a[3], relativeurl);
+      ASSERT(n == 5);
+      port = 80;
+    }
+
+  snprintf(hostname, sizeof(hostname),
+           "%d.%d.%d.%d", a[0], a[1], a[2], a[3]);
+#else
+  #error "Only IPv4 is supported. "
+#endif
+
+  s = socket(AF_INET, SOCK_STREAM, 0);
+  ASSERT(s != -1);
+
+  tv.tv_sec  = 10; /* TODO */
+  tv.tv_usec = 0;
+
+  (void)setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (FAR const void *)&tv,
+                   sizeof(struct timeval));
+  (void)setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, (FAR const void *)&tv,
+                   sizeof(struct timeval));
+
+  struct sockaddr_in server;
+  server.sin_family = AF_INET;
+  server.sin_port   = htons(port);
+
+  FAR struct hostent *he;
+  he = gethostbyname(hostname);
+
+  memcpy(&server.sin_addr.s_addr,
+         he->h_addr, sizeof(in_addr_t));
+
+  n = connect(s,
+              (struct sockaddr *)&server,
+              sizeof(struct sockaddr_in));
+
+  if (-1 == n)
+    {
+      close(s);
+      return -1;
+    }
+
+  /* Send GET request */
+
+  snprintf(buf, sizeof(buf), "GET /%s HTTP/1.0\r\n\r\n", relativeurl);
+  n = write(s, buf, strlen(buf));
+
+  usleep(100 * 1000); /* TODO */
+
+  /* Check status line : e.g. "HTTP/1.x XXX" */
+
+  memset(buf, 0, sizeof(buf));
+  read(s, buf, 12);
+  n = atoi(buf + 9);
+
+  if (200 != n)
+    {
+      close(s);
+      return -1;
+    }
+
+  /* Skip response header */
+
+  while (1)
+    {
+      n = read(s, &c, 1);
+
+      if (1 == n)
+        {
+          if (resp_msg[resp_chk] == c)
+            {
+              resp_chk++;
+            }
+          else
+            {
+              resp_chk = 0;
+            }
+        }
+
+      if (resp_chk == 4)
+        {
+          break;
+        }
+    }
+
+  return s;
+}
+#endif
 
 /****************************************************************************
  * Name: nxplayer_opendevice
@@ -355,15 +496,15 @@ static int nxplayer_opendevice(FAR struct nxplayer_s *pPlayer, int format,
  ****************************************************************************/
 
 #ifdef CONFIG_AUDIO_FORMAT_MIDI
-int nxplayer_getmidisubformat(FAR FILE *fd)
+int nxplayer_getmidisubformat(int fd)
 {
   char    type[2];
   int     ret;
 
   /* Seek to location 8 in the file (the format type) */
 
-  fseek(fd, 8, SEEK_SET);
-  fread(type, 1, 2, fd);
+  lseek(fd, 8, SEEK_SET);
+  read(fd, type, sizeof(type));
 
   /* Set return value based on type */
 
@@ -381,7 +522,7 @@ int nxplayer_getmidisubformat(FAR FILE *fd)
         ret = AUDIO_SUBFMT_MIDI_2;
         break;
     }
-  fseek(fd, 0, SEEK_SET);
+  lseek(fd, 0, SEEK_SET);
 
   return ret;
 }
@@ -426,7 +567,7 @@ static inline int nxplayer_fmtfromextension(FAR struct nxplayer_s *pPlayer,
 
                   if (subfmt && g_known_ext[c].getsubformat)
                     {
-                      *subfmt = g_known_ext[c].getsubformat(pPlayer->fileFd);
+                      *subfmt = g_known_ext[c].getsubformat(pPlayer->fd);
                     }
 
                   /* Return the format for this extension */
@@ -492,14 +633,14 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pPlayer,
  ****************************************************************************/
 
 static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
-                               FAR struct ap_buffer_s* apb)
+                               FAR struct ap_buffer_s *apb)
 {
   /* Validate the file is still open.  It will be closed automatically when
    * we encounter the end of file (or, perhaps, a read error that we cannot
    * handle.
    */
 
-  if (pPlayer->fileFd == NULL)
+  if (pPlayer->fd == -1)
     {
       /* Return -ENODATA to indicate that there is nothing more to read from
        * the file.
@@ -510,26 +651,43 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
 
   /* Read data into the buffer. */
 
-  apb->nbytes  = fread(&apb->samp, 1, apb->nmaxbytes, pPlayer->fileFd);
+  apb->nbytes  = read(pPlayer->fd, &apb->samp, apb->nmaxbytes);
   apb->curbyte = 0;
   apb->flags   = 0;
+
+#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
+  /* read data up to nmaxbytes from network */
+
+  while (0 < apb->nbytes && apb->nbytes < apb->nmaxbytes)
+    {
+      int n   = apb->nmaxbytes - apb->nbytes;
+      int ret = read(pPlayer->fd, &apb->samp[apb->nbytes], n);
+
+      if (0 >= ret)
+        {
+          break;
+        }
+
+      apb->nbytes += ret;
+      usleep(10 * 1000);
+    }
+#endif
 
   if (apb->nbytes < apb->nmaxbytes)
     {
 #ifdef CONFIG_DEBUG_AUDIO_INFO
       int errcode   = errno;
-      int readerror = ferror(pPlayer->fileFd);
 
-      audinfo("Closing audio file, nbytes=%d readerr=%d\n",
-              apb->nbytes, readerror);
+      audinfo("Closing audio file, nbytes=%d errcode=%d\n",
+              apb->nbytes, errorcode);
 #endif
 
       /* End of file or read error.. We are finished with this file in any
        * event.
        */
 
-      fclose(pPlayer->fileFd);
-      pPlayer->fileFd = NULL;
+      close(pPlayer->fd);
+      pPlayer->fd = -1;
 
       /* Set a flag to indicate that this is the final buffer in the stream */
 
@@ -574,7 +732,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
  ****************************************************************************/
 
 static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
-                                  FAR struct ap_buffer_s* apb)
+                                  FAR struct ap_buffer_s *apb)
 {
   struct audio_buf_desc_s bufdesc;
   int ret;
@@ -629,9 +787,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   bool                        failed = false;
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   struct ap_buffer_info_s     buf_info;
-  FAR struct ap_buffer_s**    pBuffers;
+  FAR struct ap_buffer_s      **pBuffers;
 #else
-  FAR struct ap_buffer_s*     pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
+  FAR struct ap_buffer_s      *pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
 #endif
 #ifdef CONFIG_DEBUG_FEATURES
   int                         outstanding = 0;
@@ -760,8 +918,8 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
                * file so that no further data is read.
                */
 
-              fclose(pPlayer->fileFd);
-              pPlayer->fileFd = NULL;
+              close(pPlayer->fd);
+              pPlayer->fd = -1;
 
               /* We are no longer streaming data from the file.  Be we will
                * need to wait for any outstanding buffers to be recovered.  We
@@ -919,8 +1077,8 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
                          * Close the file so that no further data is read.
                          */
 
-                        fclose(pPlayer->fileFd);
-                        pPlayer->fileFd = NULL;
+                        close(pPlayer->fd);
+                        pPlayer->fd = -1;
 
                         /* Stop streaming and wait for buffers to be
                          * returned and to receive the AUDIO_MSG_COMPLETE
@@ -1032,10 +1190,10 @@ err_out:
 
   /* Close the files */
 
-  if (pPlayer->fileFd != NULL)
+  if (0 < pPlayer->fd)
     {
-      fclose(pPlayer->fileFd);            /* Close the file */
-      pPlayer->fileFd = NULL;             /* Clear out the FD */
+      close(pPlayer->fd);                 /* Close the file */
+      pPlayer->fd = -1;                   /* Clear out the FD */
     }
 
   close(pPlayer->devFd);                  /* Close the device */
@@ -1091,7 +1249,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session                = pPlayer->session;
 #endif
       cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
@@ -1177,7 +1335,7 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t level)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session               = pPlayer->session;
 #endif
       cap_desc.caps.ac_len           = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
@@ -1229,7 +1387,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t level)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session               = pPlayer->session;
 #endif
       cap_desc.caps.ac_len           = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
@@ -1446,7 +1604,7 @@ int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
   /* Send a CONFIGURE ioctl to the device to set the forward rate */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  cap_desc.session= pPlayer->session;
+  cap_desc.session                = pPlayer->session;
 #endif
   cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
   cap_desc.caps.ac_type           = AUDIO_TYPE_PROCESSING;
@@ -1587,7 +1745,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *pDevice)
 int nxplayer_stop(FAR struct nxplayer_s *pPlayer)
 {
   struct audio_msg_s  term_msg;
-  FAR void*           value;
+  FAR void            *value;
 
   DEBUGASSERT(pPlayer != NULL);
 
@@ -1668,14 +1826,18 @@ int nxplayer_playfile(FAR struct nxplayer_s *pPlayer,
 
   /* Test that the specified file exists */
 
-  if ((pPlayer->fileFd = fopen(pFilename, "r")) == NULL)
+#ifdef CONFIG_NXPLAYER_HTTP_STREAMING_SUPPORT
+  if ((pPlayer->fd = _open_with_http(pFilename)) == -1)
+#else
+  if ((pPlayer->fd = open(pFilename, O_RDONLY)) == -1)
+#endif
     {
       /* File not found.  Test if its in the mediadir */
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
       snprintf(path, sizeof(path), "%s/%s", pPlayer->mediadir, pFilename);
 
-      if ((pPlayer->fileFd = fopen(path, "r")) == NULL)
+      if ((pPlayer->fd = open(path, O_RDONLY)) == -1)
         {
 #ifdef CONFIG_NXPLAYER_MEDIA_SEARCH
           /* File not found in the media dir.  Do a search */
@@ -1828,10 +1990,10 @@ err_out:
   pPlayer->devFd = -1;
 
 err_out_nodev:
-  if (pPlayer->fileFd != NULL)
+  if (0 < pPlayer->fd)
     {
-      fclose(pPlayer->fileFd);
-      pPlayer->fileFd = NULL;
+      close(pPlayer->fd);
+      pPlayer->fd = -1;
     }
 
   return ret;
@@ -1882,7 +2044,7 @@ FAR struct nxplayer_s *nxplayer_create(void)
 
   pPlayer->state = NXPLAYER_STATE_IDLE;
   pPlayer->devFd = -1;
-  pPlayer->fileFd = NULL;
+  pPlayer->fd = -1;
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
   pPlayer->prefdevice[0] = '\0';
   pPlayer->prefformat = 0;
@@ -1931,10 +2093,10 @@ FAR struct nxplayer_s *nxplayer_create(void)
  *
  ****************************************************************************/
 
-void nxplayer_release(FAR struct nxplayer_s* pPlayer)
+void nxplayer_release(FAR struct nxplayer_s *pPlayer)
 {
   int         refcount;
-  FAR void*   value;
+  FAR void    *value;
 
   /* Grab the semaphore */
 
@@ -1996,7 +2158,7 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
  *
  ****************************************************************************/
 
-void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
+void nxplayer_reference(FAR struct nxplayer_s *pPlayer)
 {
   /* Grab the semaphore */
 
@@ -2032,7 +2194,7 @@ void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
  *
  ****************************************************************************/
 
-void nxplayer_detach(FAR struct nxplayer_s* pPlayer)
+void nxplayer_detach(FAR struct nxplayer_s *pPlayer)
 {
 #if 0
   /* Grab the semaphore */

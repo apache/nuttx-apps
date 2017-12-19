@@ -56,7 +56,7 @@
  * Pre-processor Definitions
  ****************************************************************************/
 
-#define	NXPLAYER_VER		"1.04"
+#define	NXPLAYER_VER		"1.05"
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_HELP
 #  define NXPLAYER_HELP_TEXT(x)  #x
@@ -79,44 +79,44 @@ struct mp_cmd_s {
  * Private Function Prototypes
  ****************************************************************************/
 
-static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char* parg);
-static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char *parg);
+static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char *parg);
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
-static int nxplayer_cmd_reset(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_reset(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
-static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-static int nxplayer_cmd_pause(FAR struct nxplayer_s *pPlayer, char* parg);
-static int nxplayer_cmd_resume(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_pause(FAR struct nxplayer_s *pPlayer, char *parg);
+static int nxplayer_cmd_resume(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-static int nxplayer_cmd_mediadir(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_mediadir(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
-static int nxplayer_cmd_stop(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_stop(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-static int nxplayer_cmd_volume(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_volume(FAR struct nxplayer_s *pPlayer, char *parg);
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
-static int nxplayer_cmd_balance(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_balance(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 #endif
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
-static int nxplayer_cmd_bass(FAR struct nxplayer_s *pPlayer, char* parg);
-static int nxplayer_cmd_treble(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_bass(FAR struct nxplayer_s *pPlayer, char *parg);
+static int nxplayer_cmd_treble(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_HELP
-static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char* parg);
+static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char *parg);
 #endif
 
 /****************************************************************************
@@ -156,7 +156,7 @@ static struct mp_cmd_s g_nxplayer_cmds[] =
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
   { "stop",     "",         nxplayer_cmd_stop,      NXPLAYER_HELP_TEXT(Stop playback) },
 #endif
-  { "tone",     "freq secs",NULL,                   NXPLAYER_HELP_TEXT(Produce a pure tone) },
+  { "tone",     "freq secs", NULL,                  NXPLAYER_HELP_TEXT(Produce a pure tone) },
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
   { "treble",   "d%",       nxplayer_cmd_treble,    NXPLAYER_HELP_TEXT(Set treble level percentage) },
 #endif
@@ -181,7 +181,7 @@ static const int g_nxplayer_cmd_count = sizeof(g_nxplayer_cmds) / sizeof(struct 
  *
  ****************************************************************************/
 
-static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   int     ret;
 
@@ -235,7 +235,7 @@ static int nxplayer_cmd_play(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
-static int nxplayer_cmd_volume(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_volume(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   uint16_t   percent;
 
@@ -265,7 +265,7 @@ static int nxplayer_cmd_volume(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
-static int nxplayer_cmd_bass(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_bass(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   uint8_t   level_percent;
 
@@ -295,7 +295,7 @@ static int nxplayer_cmd_bass(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_TONE
-static int nxplayer_cmd_treble(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_treble(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   uint8_t   level_percent;
 
@@ -326,7 +326,7 @@ static int nxplayer_cmd_treble(FAR struct nxplayer_s *pPlayer, char* parg)
 
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
 #ifndef CONFIG_AUDIO_EXCLUDE_BALANCE
-static int nxplayer_cmd_balance(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_balance(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   uint16_t   percent;
 
@@ -357,7 +357,7 @@ static int nxplayer_cmd_balance(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_SYSTEM_RESET
-static int nxplayer_cmd_reset(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_reset(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   nxplayer_systemreset(pPlayer);
 
@@ -374,7 +374,7 @@ static int nxplayer_cmd_reset(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_MEDIADIR
-static int nxplayer_cmd_mediadir(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_mediadir(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   /* If no arg given, then print current media dir */
 
@@ -396,7 +396,7 @@ static int nxplayer_cmd_mediadir(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_STOP
-static int nxplayer_cmd_stop(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_stop(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   /* Stop the playback */
 
@@ -415,7 +415,7 @@ static int nxplayer_cmd_stop(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-static int nxplayer_cmd_pause(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_pause(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   /* Pause the playback */
 
@@ -434,7 +434,7 @@ static int nxplayer_cmd_pause(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifndef CONFIG_AUDIO_EXCLUDE_PAUSE_RESUME
-static int nxplayer_cmd_resume(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_resume(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   /* Resume the playback */
 
@@ -452,7 +452,7 @@ static int nxplayer_cmd_resume(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
-static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   int     ret;
   char    path[32];
@@ -511,7 +511,7 @@ static int nxplayer_cmd_device(FAR struct nxplayer_s *pPlayer, char* parg)
  *   nxplayer_cmd_quit() terminates the application
  ****************************************************************************/
 
-static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   /* Stop the playback if any */
 
@@ -530,7 +530,7 @@ static int nxplayer_cmd_quit(FAR struct nxplayer_s *pPlayer, char* parg)
  ****************************************************************************/
 
 #ifdef CONFIG_NXPLAYER_INCLUDE_HELP
-static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char* parg)
+static int nxplayer_cmd_help(FAR struct nxplayer_s *pPlayer, char *parg)
 {
   int   x, len, maxlen = 0;
   int   c;
@@ -673,7 +673,7 @@ int nxplayer_main(int argc, char *argv[])
 
   /* Release the NxPlayer context */
 
-//  nxplayer_detach(pPlayer);
+  /* nxplayer_detach(pPlayer); */
   nxplayer_release(pPlayer);
 
   return OK;

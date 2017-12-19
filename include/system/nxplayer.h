@@ -64,7 +64,7 @@ struct nxplayer_s
   pthread_t   playId;         /* Thread ID of the playthread */
   int         crefs;          /* Number of references to the player */
   sem_t       sem;            /* Thread sync semaphore */
-  FILE*       fileFd;         /* File descriptor of open file */
+  int         fd;         /* File descriptor of open file */
 #ifdef CONFIG_NXPLAYER_INCLUDE_PREFERRED_DEVICE
   char        prefdevice[CONFIG_NAME_MAX]; /* Preferred audio device */
   int         prefformat;     /* Formats supported by preferred device */
@@ -74,7 +74,7 @@ struct nxplayer_s
   char        mediadir[CONFIG_NAME_MAX];   /* Root media directory where media is located */
 #endif
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  FAR void*   session;        /* Session assigment from device */
+  FAR void    *session;       /* Session assigment from device */
 #endif
 #ifndef CONFIG_AUDIO_EXCLUDE_VOLUME
   uint16_t    volume;         /* Volume as a whole percentage (0-100) */
@@ -88,7 +88,7 @@ struct nxplayer_s
 #endif
 };
 
-typedef int (*nxplayer_func)(FAR struct nxplayer_s* pPlayer, char* pargs);
+typedef int (*nxplayer_func)(FAR struct nxplayer_s *pPlayer, char *pargs);
 
 /****************************************************************************
  * Public Data
