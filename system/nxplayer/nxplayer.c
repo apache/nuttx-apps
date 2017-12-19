@@ -492,7 +492,7 @@ static int nxplayer_mediasearch(FAR struct nxplayer_s *pPlayer,
  ****************************************************************************/
 
 static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
-                               FAR struct ap_buffer_s* apb)
+                               FAR struct ap_buffer_s *apb)
 {
   /* Validate the file is still open.  It will be closed automatically when
    * we encounter the end of file (or, perhaps, a read error that we cannot
@@ -574,7 +574,7 @@ static int nxplayer_readbuffer(FAR struct nxplayer_s *pPlayer,
  ****************************************************************************/
 
 static int nxplayer_enqueuebuffer(FAR struct nxplayer_s *pPlayer,
-                                  FAR struct ap_buffer_s* apb)
+                                  FAR struct ap_buffer_s *apb)
 {
   struct audio_buf_desc_s bufdesc;
   int ret;
@@ -629,9 +629,9 @@ static void *nxplayer_playthread(pthread_addr_t pvarg)
   bool                        failed = false;
 #ifdef CONFIG_AUDIO_DRIVER_SPECIFIC_BUFFERS
   struct ap_buffer_info_s     buf_info;
-  FAR struct ap_buffer_s**    pBuffers;
+  FAR struct ap_buffer_s      **pBuffers;
 #else
-  FAR struct ap_buffer_s*     pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
+  FAR struct ap_buffer_s      *pBuffers[CONFIG_AUDIO_NUM_BUFFERS];
 #endif
 #ifdef CONFIG_DEBUG_FEATURES
   int                         outstanding = 0;
@@ -1091,7 +1091,7 @@ int nxplayer_setvolume(FAR struct nxplayer_s *pPlayer, uint16_t volume)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session                = pPlayer->session;
 #endif
       cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type           = AUDIO_TYPE_FEATURE;
@@ -1177,7 +1177,7 @@ int nxplayer_setbass(FAR struct nxplayer_s *pPlayer, uint8_t level)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session               = pPlayer->session;
 #endif
       cap_desc.caps.ac_len           = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
@@ -1229,7 +1229,7 @@ int nxplayer_settreble(FAR struct nxplayer_s *pPlayer, uint8_t level)
       /* Send a CONFIGURE ioctl to the device to set the volume */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-      cap_desc.session= pPlayer->session;
+      cap_desc.session               = pPlayer->session;
 #endif
       cap_desc.caps.ac_len           = sizeof(struct audio_caps_s);
       cap_desc.caps.ac_type          = AUDIO_TYPE_FEATURE;
@@ -1446,7 +1446,7 @@ int nxplayer_rewind(FAR struct nxplayer_s *pPlayer, uint8_t subsample)
   /* Send a CONFIGURE ioctl to the device to set the forward rate */
 
 #ifdef CONFIG_AUDIO_MULTI_SESSION
-  cap_desc.session= pPlayer->session;
+  cap_desc.session                = pPlayer->session;
 #endif
   cap_desc.caps.ac_len            = sizeof(struct audio_caps_s);
   cap_desc.caps.ac_type           = AUDIO_TYPE_PROCESSING;
@@ -1587,7 +1587,7 @@ int nxplayer_setdevice(FAR struct nxplayer_s *pPlayer, FAR const char *pDevice)
 int nxplayer_stop(FAR struct nxplayer_s *pPlayer)
 {
   struct audio_msg_s  term_msg;
-  FAR void*           value;
+  FAR void            *value;
 
   DEBUGASSERT(pPlayer != NULL);
 
@@ -1931,10 +1931,10 @@ FAR struct nxplayer_s *nxplayer_create(void)
  *
  ****************************************************************************/
 
-void nxplayer_release(FAR struct nxplayer_s* pPlayer)
+void nxplayer_release(FAR struct nxplayer_s *pPlayer)
 {
   int         refcount;
-  FAR void*   value;
+  FAR void    *value;
 
   /* Grab the semaphore */
 
@@ -1996,7 +1996,7 @@ void nxplayer_release(FAR struct nxplayer_s* pPlayer)
  *
  ****************************************************************************/
 
-void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
+void nxplayer_reference(FAR struct nxplayer_s *pPlayer)
 {
   /* Grab the semaphore */
 
@@ -2032,7 +2032,7 @@ void nxplayer_reference(FAR struct nxplayer_s* pPlayer)
  *
  ****************************************************************************/
 
-void nxplayer_detach(FAR struct nxplayer_s* pPlayer)
+void nxplayer_detach(FAR struct nxplayer_s *pPlayer)
 {
 #if 0
   /* Grab the semaphore */
