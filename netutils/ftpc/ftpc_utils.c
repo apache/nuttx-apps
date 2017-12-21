@@ -86,6 +86,7 @@ int ftpc_nibble(char ch)
     {
       return (unsigned int)ch - 'a' + 10;
     }
+
   return ERROR;
 }
 
@@ -163,11 +164,11 @@ void ftpc_stripcrlf(FAR char *str)
       len = strlen(str);
       if (len > 0)
         {
-          ptr = str + len - 1;
-          while (*ptr == '\r' || *ptr == '\n')
+          for (ptr = str + len - 1;
+               len > 0 && (*ptr == '\r' || *ptr == '\n');
+               ptr--, len--;
             {
               *ptr = '\0';
-              ptr--;
             }
         }
     }
@@ -222,17 +223,19 @@ FAR char *ftpc_dequote(FAR const char *str)
       /* Allocate space for a modifiable copy of the string */
 
       len      = strlen(str);
-      allocstr = (FAR char*)malloc(len+1);
+      allocstr = (FAR char*)malloc(len + 1);
       if (allocstr)
         {
           /* Search the string */
 
           ptr = allocstr;
-          while (*str)
+          while (*str != '\0')
             {
-              /* Check for a quoted hex value */
+              /* Check for a quoted hex value (make sure that there are
+               * least 3 characters remaining in the string.
+               */
 
-              if (str[0] == '%')
+              if (len > 2 && str[0] == '%')
                 {
                   /* Extract the hex value */
 
@@ -246,6 +249,7 @@ FAR char *ftpc_dequote(FAR const char *str)
 
                           *ptr++ = (char)(ms << 8 | ls);
                           str += 3;
+                          len -= 3;
                           continue;
                         }
                     }
@@ -254,6 +258,7 @@ FAR char *ftpc_dequote(FAR const char *str)
               /* Just transfer the character */
 
               *ptr++ = *str++;
+              len--;
             }
 
           /* NUL terminate */

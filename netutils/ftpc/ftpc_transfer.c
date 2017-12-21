@@ -211,7 +211,7 @@ static int ftp_cmd_pasv(FAR struct ftpc_session_s *session,
   /* Skip over any leading stuff before important data begins */
 
   ptr = session->reply + 4;
-  while (!isdigit((int)*ptr))
+  while (*ptr != '\0' && !isdigit((int)*ptr))
     {
       ptr++;
     }
