@@ -114,6 +114,8 @@ static int     ufstest_dup(FAR void *volinfo, FAR void *oldinfo,
                  FAR void **newinfo);
 static int     ufstest_fstat(FAR void *volinfo, FAR void *openinfo,
                  FAR struct stat *buf);
+static int     ufstest_truncate(FAR void *volinfo, FAR void *openinfo,
+                 off_t *length);
 static int     ufstest_opendir(FAR void *volinfo, FAR const char *relpath,
                  FAR void **dir);
 static int     ufstest_closedir(FAR void *volinfo, FAR void *dir);
@@ -177,6 +179,7 @@ static const struct userfs_operations_s g_ufstest_ops =
   ufstest_sync,
   ufstest_dup,
   ufstest_fstat,
+  ufstest_truncate,
   ufstest_opendir,
   ufstest_closedir,
   ufstest_readdir,
@@ -414,6 +417,12 @@ static int ufstest_fstat(FAR void *volinfo, FAR void *openinfo,
   buf->st_mtime   = 0;
   buf->st_ctime   = 0;
   return OK;
+}
+
+static int ufstest_truncate(FAR void *volinfo, FAR void *openinfo,
+                            off_t *length)
+{
+  return -ENOSYS;
 }
 
 static int ufstest_opendir(FAR void *volinfo, FAR const char *relpath,
