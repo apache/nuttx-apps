@@ -491,6 +491,10 @@ config NSH_DISABLE_TELNETD
 	default n if !NSH_NETLOCAL
 	default y if NSH_NETLOCAL
 
+config NSH_DISABLE_TRUNCATE
+	bool "Disable truncate"
+	default y
+
 config NSH_DISABLE_UMOUNT
 	bool "Disable umount"
 	default n

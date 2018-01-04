@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/nsh_fscmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2014, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2014, 2017-2018 Gregory Nutt. All rights
+ *     reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1776,3 +1777,95 @@ errout:
 }
 #endif
 #endif
+
+/****************************************************************************
+ * Name: cmd_truncate
+ ****************************************************************************/
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0
+#ifndef CONFIG_NSH_DISABLE_TRUNCATE
+int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
+{
+  FAR char *fullpath;
+  FAR char *endptr;
+  struct stat buf;
+  unsigned long length;
+  int ret;
+
+  /* truncate -s <length> <file-path> */
+
+  if (strcmp(argv[1], "-s") != 0)
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+
+  length = strtoul(argv[2], &endptr, 0);
+  if (*endptr != '\0')
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      return ERROR;
+    }
+
+  /* Get the full path to the file */
+
+  fullpath = nsh_getfullpath(vtbl, argv[3]);
+  if (fullpath == NULL)
+    {
+      nsh_output(vtbl, g_fmtcmdoutofmemory, argv[0]);
+      return ERROR;
+    }
+
+  /* stat the file */
+
+  ret = stat(fullpath, &buf);
+  if (ret < 0)
+    {
+      int errval = errno;
+
+      /* If stat() failed because the file does not exist, then try to
+       * create it.
+       */
+
+      if (errval == ENOENT)
+        {
+          int fd = creat(fullpath, 0666);
+          if (fd < 0)
+            {
+              nsh_output(vtbl, g_fmtcmdfailed, argv[0], "stat", NSH_ERRNO);
+              ret = ERROR;
+              goto errout_with_fullpath;
+            }
+
+          close(fd);
+        }
+      else
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "stat",
+                     NSH_ERRNO_OF(errval));
+          ret = ERROR;
+          goto errout_with_fullpath;
+        }
+    }
+  else if (!S_ISREG(buf.st_mode))
+    {
+      nsh_output(vtbl, g_fmtarginvalid, argv[0]);
+      ret = ERROR;
+      goto errout_with_fullpath;
+    }
+
+  /* Everything looks good... perform the truncation */
+
+  ret = truncate(fullpath, length);
+  if (ret < 0)
+    {
+      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "truncate", NSH_ERRNO);
+    }
+
+errout_with_fullpath:
+  nsh_freefullpath(fullpath);
+  return ret;
+}
+#endif
+#endif
+

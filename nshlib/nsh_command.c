@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_command.c
  *
- *   Copyright (C) 2007-2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -487,6 +487,12 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLESCRIPT
   { "true",     cmd_true,     1, 1, NULL },
+#endif
+
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && CONFIG_NFILE_DESCRIPTORS > 0
+# ifndef CONFIG_NSH_DISABLE_TRUNCATE
+  { "truncate", cmd_truncate, 4, 4, "-s <length> <file-path>" },
+# endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_UNAME

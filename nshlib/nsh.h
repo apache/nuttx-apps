@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh.h
  *
- *   Copyright (C) 2007-2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1141,6 +1141,9 @@ int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
          int cmd_mksmartfs(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #     endif
 #   endif /* CONFIG_FS_SMARTFS */
+#   ifndef CONFIG_NSH_DISABLE_TRUNCATE
+      int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
+#   endif
 #   if defined(CONFIG_NSH_LOGIN_PASSWD) && defined(CONFIG_FS_WRITABLE) && \
       !defined(CONFIG_FSUTILS_PASSWD_READONLY)
 #     ifndef CONFIG_NSH_DISABLE_USERADD
