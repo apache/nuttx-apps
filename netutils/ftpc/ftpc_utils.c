@@ -166,7 +166,7 @@ void ftpc_stripcrlf(FAR char *str)
         {
           for (ptr = str + len - 1;
                len > 0 && (*ptr == '\r' || *ptr == '\n');
-               ptr--, len--;
+               ptr--, len--)
             {
               *ptr = '\0';
             }
