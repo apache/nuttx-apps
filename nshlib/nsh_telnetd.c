@@ -48,6 +48,14 @@
 
 #include "netutils/telnetd.h"
 
+#ifdef CONFIG_TELNET_CHARACTER_MODE
+#ifdef CONFIG_NSH_CLE
+#  include "system/cle.h"
+#else
+#  include "system/readline.h"
+#endif
+#endif
+
 #include "nsh.h"
 #include "nsh_console.h"
 
@@ -76,6 +84,7 @@ static int nsh_telnetmain(int argc, char *argv[])
 {
   FAR struct console_stdio_s *pstate = nsh_newconsole();
   FAR struct nsh_vtbl_s *vtbl;
+  int ret;
 
   DEBUGASSERT(pstate != NULL);
   vtbl = &pstate->cn_vtbl;
@@ -142,8 +151,27 @@ static int nsh_telnetmain(int argc, char *argv[])
       fflush(pstate->cn_outstream);
 
       /* Get the next line of input from the Telnet client */
+#ifdef CONFIG_TELNET_CHARACTER_MODE
+#ifdef CONFIG_NSH_CLE
+      ret = cle(pstate->cn_line, CONFIG_NSH_LINELEN,
+                INSTREAM(pstate), OUTSTREAM(pstate));
+#else
+      ret = readline(pstate->cn_line, CONFIG_NSH_LINELEN,
+                     INSTREAM(pstate), OUTSTREAM(pstate));
+#endif
+#else
+      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN,
+                INSTREAM(pstate)) != NULL)
+        {
+          ret = strlen(pstate->cn_line);
+        }
+      else
+        {
+          ret = EOF;
+        }
+#endif
 
-      if (fgets(pstate->cn_line, CONFIG_NSH_LINELEN, INSTREAM(pstate)) != NULL)
+      if (ret != EOF)
         {
           /* Parse process the received Telnet command */
 
@@ -153,7 +181,7 @@ static int nsh_telnetmain(int argc, char *argv[])
       else
         {
           fprintf(pstate->cn_outstream, g_fmtcmdfailed, "nsh_telnetmain",
-                  "fgets", NSH_ERRNO);
+                  "cle/readline/fgets", NSH_ERRNO);
           nsh_exit(vtbl, 1);
         }
     }
