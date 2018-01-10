@@ -466,10 +466,12 @@ o dirname <path>
   Extract the path string leading up to the full <path> by removing
   the final directory or file name.
 
-o echo [<string|$name> [<string|$name>...]]
+o echo [-n] [<string|$name> [<string|$name>...]]
 
   Copy the sequence of strings and expanded environment variables to
   console out (or to a file if the output is re-directed).
+
+  The -n option will suppress the trailing newline character.
 
 o exec <hex-address>
 

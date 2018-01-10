@@ -186,9 +186,9 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #ifndef CONFIG_NSH_DISABLE_ECHO
 # ifndef CONFIG_DISABLE_ENVIRON
-  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[<string|$name> [<string|$name>...]]" },
+  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[-n] [<string|$name> [<string|$name>...]]" },
 # else
-  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[<string> [<string>...]]" },
+  { "echo",     cmd_echo,     1, CONFIG_NSH_MAXARGUMENTS, "[-n] [<string> [<string>...]]" },
 # endif
 #endif
 

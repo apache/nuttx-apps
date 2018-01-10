@@ -1,7 +1,7 @@
 /****************************************************************************
  * apps/nshlib/nsh_envcmds.c
  *
- *   Copyright (C) 2007-2009, 2011-2012 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2007-2009, 2011-2012, 2018 Gregory Nutt. All rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,18 +51,6 @@
 #include "nsh_console.h"
 
 /****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/****************************************************************************
- * Private Types
- ****************************************************************************/
-
-/****************************************************************************
- * Private Function Prototypes
- ****************************************************************************/
-
-/****************************************************************************
  * Private Data
  ****************************************************************************/
 
@@ -71,10 +59,6 @@ static const char g_pwd[]    = "PWD";
 static const char g_oldpwd[] = "OLDPWD";
 static const char g_home[]   = CONFIG_LIB_HOMEDIR;
 #endif
-
-/****************************************************************************
- * Public Data
- ****************************************************************************/
 
 /****************************************************************************
  * Private Functions
@@ -278,17 +262,32 @@ int cmd_cd(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
 {
   int i;
+  int s = 1;
+
+  if (0 == strncmp(argv[1], "-n", 2))
+    {
+      s = 2;
+    }
 
   /* echo each argument, separated by a space as it must have been on the
    * command line
    */
 
-  for (i = 1; i < argc; i++)
+  for (i = s; i < argc; i++)
     {
-      nsh_output(vtbl, "%s ", argv[i]);
+      if (i != s)
+        {
+          nsh_output(vtbl, " ");
+        }
+
+      nsh_output(vtbl, "%s", argv[i]);
     }
 
-  nsh_output(vtbl, "\n");
+  if (1 == s)
+    {
+      nsh_output(vtbl, "\n");
+    }
+
   return OK;
 }
 #endif
