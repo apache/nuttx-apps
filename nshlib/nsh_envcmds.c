@@ -280,7 +280,7 @@ int cmd_echo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
           nsh_output(vtbl, " ");
         }
 
-      nsh_output(vtbl, "%s ", argv[i]);
+      nsh_output(vtbl, "%s", argv[i]);
     }
 
   if (1 == s)
