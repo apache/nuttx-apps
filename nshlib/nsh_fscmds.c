@@ -1834,35 +1834,53 @@ int cmd_truncate(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv)
             {
               nsh_output(vtbl, g_fmtcmdfailed, argv[0], "stat", NSH_ERRNO);
               ret = ERROR;
-              goto errout_with_fullpath;
             }
+          else
+            {
+              /* We successfully performed the create and now have a zero-
+               * length file.  Perform the truncation to extend the allocation
+               * (unless we really wanted a zero-length file).
+               */
 
-          close(fd);
+              ret = OK;
+              if (length > 0)
+                {
+                  /* Extend the file to length */
+
+                  ret = ftruncate(fd, length);
+                  if (ret < 0)
+                    {
+                      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "ftruncate",
+                                 NSH_ERRNO);
+                    }
+                }
+
+              close(fd);
+            }
         }
       else
         {
           nsh_output(vtbl, g_fmtcmdfailed, argv[0], "stat",
                      NSH_ERRNO_OF(errval));
           ret = ERROR;
-          goto errout_with_fullpath;
         }
     }
   else if (!S_ISREG(buf.st_mode))
     {
       nsh_output(vtbl, g_fmtarginvalid, argv[0]);
       ret = ERROR;
-      goto errout_with_fullpath;
     }
-
-  /* Everything looks good... perform the truncation */
-
-  ret = truncate(fullpath, length);
-  if (ret < 0)
+  else
     {
-      nsh_output(vtbl, g_fmtcmdfailed, argv[0], "truncate", NSH_ERRNO);
+      /* Everything looks good... perform the truncation */
+
+      ret = truncate(fullpath, length);
+      if (ret < 0)
+        {
+          nsh_output(vtbl, g_fmtcmdfailed, argv[0], "truncate", NSH_ERRNO);
+        }
     }
 
-errout_with_fullpath:
   nsh_freefullpath(fullpath);
   return ret;
 }
