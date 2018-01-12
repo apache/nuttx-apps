@@ -125,7 +125,7 @@ static int xmlrpc_getelement(struct parsebuf_s * pbuf, char *data, int dataSize)
   int j = 0;
   int ret = XMLRPC_NO_ERROR;
 
-  while (!isprint(pbuf->buf[pbuf->index]))
+  while (pbuf->index < pbuf->len && !isprint(pbuf->buf[pbuf->index]))
     {
       pbuf->index++;
     }
@@ -162,7 +162,9 @@ static int xmlrpc_getelement(struct parsebuf_s * pbuf, char *data, int dataSize)
         {
           data[j++] = pbuf->buf[pbuf->index++];
           if (j >= dataSize)
-            ret = XMLRPC_PARSE_ERROR;
+            {
+              ret = XMLRPC_PARSE_ERROR;
+            }
         }
     }
 
@@ -229,12 +231,15 @@ static int xmlrpc_parseparam(struct parsebuf_s * pbuf)
     case 'b':
       g_xmlcall.arguments[g_xmlcall.argsize].u.i = atoi(g_data);
       break;
+
     case 'd':
       g_xmlcall.arguments[g_xmlcall.argsize].u.d = atof(g_data);
       break;
+
     case 's':
       strcpy(g_xmlcall.arguments[g_xmlcall.argsize].u.string, g_data);
       break;
+
     default:
       return XMLRPC_PARSE_ERROR;
     }

@@ -658,10 +658,16 @@
 #  endif
 #endif
 
+#undef HAVE_IRQINFO
+#if !defined(CONFIG_DISABLE_MOUNTPOINT) && defined(CONFIG_FS_PROCFS) && \
+     defined(CONFIG_SCHED_IRQMONITOR)
+#  define HAVE_IRQINFO            1
+#endif
+
 #undef HAVE_MOUNT_LIST
 #if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_NSH_DISABLE_MOUNT) && \
    !defined(CONFIG_FS_PROCFS_EXCLUDE_MOUNT)
-#  define HAVE_MOUNT_LIST 1
+#  define HAVE_MOUNT_LIST         1
 #endif
 
 #if !defined(CONFIG_FS_PROCFS) || defined(CONFIG_FS_PROCFS_EXCLUDE_MEMINFO)
@@ -684,13 +690,14 @@
 #  undef NSH_HAVE_TRIMDIR
 #endif
 
-/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, and mount (with
+/* nsh_catfile used by cat, ifconfig, ifup/down, df, free, irqinfo, and mount (with
  * no arguments).
  */
 
 #if !defined(CONFIG_NSH_DISABLE_CAT) && !defined(CONFIG_NSH_DISABLE_IFCONFIG) && \
     !defined(CONFIG_NSH_DISABLE_IFUPDOWN) && !defined(CONFIG_NSH_DISABLE_DF) && \
-    !defined(CONFIG_NSH_DISABLE_FREE) && !defined(HAVE_MOUNT_LIST)
+    !defined(CONFIG_NSH_DISABLE_FREE) && !defined(HAVE_IRQINFO) && \
+    !defined(HAVE_MOUNT_LIST)
 #  undef NSH_HAVE_CATFILE
 #endif
 
@@ -1042,6 +1049,10 @@ int cmd_rmmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #if defined(CONFIG_FS_PROCFS) && !defined(CONFIG_FS_PROCFS_EXCLUDE_MODULE)
 int cmd_lsmod(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
+#endif
+
+#ifdef HAVE_IRQINFO
+int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, char **argv);
 #endif
 
 #if !defined(CONFIG_NSH_DISABLESCRIPT) && !defined(CONFIG_NSH_DISABLE_TEST)

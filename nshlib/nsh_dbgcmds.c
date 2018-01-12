@@ -1,7 +1,8 @@
 /****************************************************************************
  * apps/nshlib/dbg_dbgcmds.c
  *
- *   Copyright (C) 2008-2009, 2011-2012, 2015, 2017 Gregory Nutt. All rights reserved.
+ *   Copyright (C) 2008-2009, 2011-2012, 2015, 2017-2018 Gregory Nutt. All
+ *     rights reserved.
  *   Author: Gregory Nutt <gnutt@nuttx.org>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -499,4 +500,15 @@ int cmd_hexdump(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
   return ret;
 }
 #endif
+#endif
+
+/****************************************************************************
+ * Name: cmd_irqinfo
+ ****************************************************************************/
+
+#ifdef HAVE_IRQINFO
+int cmd_irqinfo(FAR struct nsh_vtbl_s *vtbl, int argc, FAR char **argv)
+{
+  return nsh_catfile(vtbl, argv[0], CONFIG_NSH_PROC_MOUNTPOINT "/irqs");
+}
 #endif

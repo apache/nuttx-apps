@@ -192,14 +192,6 @@ static const struct cmdmap_s g_cmdmap[] =
 # endif
 #endif
 
-#ifndef CONFIG_NSH_DISABLE_PRINTF
-# ifndef CONFIG_DISABLE_ENVIRON
-  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string|$name> [<string|$name>...]]" },
-# else
-  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string> [<string>...]]" },
-# endif
-#endif
-
 #ifndef CONFIG_NSH_DISABLE_EXEC
   { "exec",     cmd_exec,     2, 3, "<hex-address>" },
 #endif
@@ -245,13 +237,17 @@ static const struct cmdmap_s g_cmdmap[] =
   { "ifconfig", cmd_ifconfig, 1, 11, "[interface [<ip-address>|dhcp]] [dr|gw|gateway <dr-address>] [netmask <net-mask>] [dns <dns-address>] [hw <hw-mac>]" },
 # endif
 # ifndef CONFIG_NSH_DISABLE_IFUPDOWN
-  { "ifdown",   cmd_ifdown,   2, 2,  "<interface>" },
-  { "ifup",     cmd_ifup,     2, 2,  "<interface>" },
+  { "ifdown",   cmd_ifdown,   2, 2, "<interface>" },
+  { "ifup",     cmd_ifup,     2, 2, "<interface>" },
 # endif
 #endif
 
 #if defined(CONFIG_MODULE) && !defined(CONFIG_NSH_DISABLE_MODCMDS)
-  { "insmod",   cmd_insmod,   3, 3,  "<file-path> <module-name>" },
+  { "insmod",   cmd_insmod,   3, 3, "<file-path> <module-name>" },
+#endif
+
+#ifdef HAVE_IRQINFO
+  { "irqinfo",  cmd_irqinfo,  1, 1, NULL },
 #endif
 
 #ifndef CONFIG_DISABLE_SIGNALS
@@ -383,6 +379,14 @@ static const struct cmdmap_s g_cmdmap[] =
 
 #if defined(CONFIG_BOARDCTL_POWEROFF) && !defined(CONFIG_NSH_DISABLE_POWEROFF)
   { "poweroff", cmd_poweroff,  1, 1, NULL },
+#endif
+
+#ifndef CONFIG_NSH_DISABLE_PRINTF
+# ifndef CONFIG_DISABLE_ENVIRON
+  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string|$name> [<string|$name>...]]" },
+# else
+  { "printf",   cmd_printf,   1, CONFIG_NSH_MAXARGUMENTS, "[\\xNN] [\\n\\r\\t] [<string> [<string>...]]" },
+# endif
 #endif
 
 #ifndef CONFIG_NSH_DISABLE_PS

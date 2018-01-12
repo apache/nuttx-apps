@@ -590,6 +590,18 @@ o insmod <file-path> <module-name>
     NAME                 INIT   UNINIT      ARG     TEXT     SIZE     DATA     SIZE
     mydriver         20404659 20404625        0 20404580      552 204047a8        0
 
+o irqinfo
+
+  Show the current count of interrupts taken on all attached interrupts.
+
+  Example:
+
+    nsh> irqinfo
+    IRQ HANDLER  ARGUMENT    COUNT    RATE
+      3 00001b3d 00000000        156   19.122
+     15 0000800d 00000000        817  100.000
+     30 00000fd5 20000018         20    2.490
+
 o kill -<signal> <pid>
 
   Send the <signal> to the task identified by <pid>.
@@ -1325,6 +1337,7 @@ Command Dependencies on Configuration Settings
   ifdown     CONFIG_NET && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_NET
   ifup       CONFIG_NET && CONFIG_FS_PROCFS && !CONFIG_FS_PROCFS_EXCLUDE_NET
   insmod     CONFIG_MODULE
+  irqinfo    CONFIG_FS_PROCFS && CONFIG_SCHED_IRQMONITOR
   kill       !CONFIG_DISABLE_SIGNALS
   losetup    !CONFIG_DISABLE_MOUNTPOINT && CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_DEV_LOOP
   ln         CONFIG_NFILE_DESCRIPTORS > 0 && CONFIG_PSEUDOFS_SOFTLINK
