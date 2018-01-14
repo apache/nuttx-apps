@@ -39,6 +39,13 @@ config SYSTEM_USBMSC_DEVPATH1
 		The full path to the registered block driver.  Default is
 		"/dev/mmcsd0"
 
+config SYSTEM_USBMSC_WRITEPROTECT1
+	bool "LUN1 Write-protected"
+	default n
+	---help---
+		Enable this if you want to write-protect the first LUN. Default is
+		off.
+
 config SYSTEM_USBMSC_DEVMINOR2
 	int "LUN2 Minor Device Number"
 	default 1
@@ -54,20 +61,34 @@ config SYSTEM_USBMSC_DEVPATH2
 		The full path to the registered block driver.  Ignored if
 		SYSTEM_USBMSC_NLUNS < 2. Default is "/dev/mmcsd1"
 
+config SYSTEM_USBMSC_WRITEPROTECT2
+	bool "LUN2 Write-protected"
+	default n
+	---help---
+		Enable this if you want to write-protect the second LUN. Ignored if
+		SYSTEM_USBMSC_NLUNS < 2. Default is off.
+
 config SYSTEM_USBMSC_DEVMINOR3
 	int "LUN3 Minor Device Number"
 	default 2
 	---help---
 		The minor device number of the block driver for the third LUN. For
 		example, N in /dev/mmcsdN.  Used for registering the block driver.
-		Ignored if SYSTEM_USBMSC_NLUNS < 2. Default is two.
+		Ignored if SYSTEM_USBMSC_NLUNS < 3. Default is two.
 
 config SYSTEM_USBMSC_DEVPATH3
 	string "LUN3 Device Path"
 	default "/dev/mmcsd2"
 	---help---
 		The full path to the registered block driver.  Ignored if
-		SYSTEM_USBMSC_NLUNS < 2. Default is "/dev/mmcsd2"
+		SYSTEM_USBMSC_NLUNS < 3. Default is "/dev/mmcsd2"
+
+config SYSTEM_USBMSC_WRITEPROTECT3
+	bool "LUN3 Write-protected"
+	default n
+	---help---
+		Enable this if you want to write-protect the third LUN. Ignored if
+		SYSTEM_USBMSC_NLUNS < 3. Default is off.
 
 config SYSTEM_USBMSC_DEBUGMM
 	bool "USB MSC MM Debug"
