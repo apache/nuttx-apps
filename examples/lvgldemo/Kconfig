@@ -1,0 +1,48 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig EXAMPLES_LVGLDEMO
+	bool "Littlev Graphics Library Demo"
+	default n
+	---help---
+		Enable build the Littlev Graphics Library Demo programs
+
+if EXAMPLES_LVGLDEMO
+
+config EXAMPLES_LVGLDEMO_WALLPAPER
+	bool "Use wallpaper"
+	default y
+
+config EXAMPLES_LVGLDEMO_PRIORITY
+	int "lvgl task priority"
+	default 100
+
+config EXAMPLES_LVGLDEMO_STACKSIZE
+	int "lvgldemo stack size"
+	default 16384
+
+config EXAMPLES_LGVLDEMO_MINOR
+	int "Touchscreen minor device number"
+	default 0
+	---help---
+		The minor device number.  Minor=N corresponds to touchscreen device
+		/dev/inputN.  Note this value must with EXAMPLES_LGVLDEMO_DEVPATH.
+		Default 0.
+
+config EXAMPLES_LGVLDEMO_DEVPATH
+	string "Touchscreen device path"
+	default "/dev/input0"
+	---help---
+		The path to the touchscreen device.  This must be consistent with
+		EXAMPLES_LGVLDEMO_MINOR. Default: "/dev/input0"
+
+config EXAMPLES_LGVLDEMO_MOUSE
+	bool "Mouse interface"
+	default n
+	---help---
+		The LittleVGL demo can also be configured to work with a mouse
+		driver by setting this option.
+
+endif
