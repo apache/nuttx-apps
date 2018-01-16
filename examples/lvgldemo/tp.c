@@ -98,12 +98,12 @@ int tp_init(void)
    * external to this test.
    */
 
-  printf("tc_main: Initializing external touchscreen device\n");
+  printf("tp_init: Initializing external touchscreen device\n");
 
   ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_EXAMPLES_LGVLDEMO_MINOR);
   if (ret != OK)
     {
-      printf("tc_main: board_tsc_setup failed: %d\n", errno);
+      printf("tp_init: board_tsc_setup failed: %d\n", errno);
       errval = 1;
       goto errout;
     }
@@ -111,11 +111,11 @@ int tp_init(void)
 
   /* Open the touchscreen device for reading */
 
-  printf("tc_main: Opening %s\n", CONFIG_EXAMPLES_LGVLDEMO_DEVPATH);
+  printf("tp_init: Opening %s\n", CONFIG_EXAMPLES_LGVLDEMO_DEVPATH);
   fd = open(CONFIG_EXAMPLES_LGVLDEMO_DEVPATH, O_RDONLY | O_NONBLOCK);
   if (fd < 0)
     {
-      printf("tc_main: open %s failed: %d\n",
+      printf("tp_init: open %s failed: %d\n",
                CONFIG_EXAMPLES_LGVLDEMO_DEVPATH, errno);
       errval = 2;
       goto errout_with_tc;
