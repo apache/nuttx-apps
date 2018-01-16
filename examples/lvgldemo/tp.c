@@ -40,7 +40,6 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,22 +92,6 @@ int tp_init(void)
   int ret;
   int errval = 0;
 
-#ifdef CONFIG_EXAMPLES_LGVLDEMO_ARCHINIT
-  /* Initialization of the touchscreen hardware is performed by logic
-   * external to this test.
-   */
-
-  printf("tp_init: Initializing external touchscreen device\n");
-
-  ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_EXAMPLES_LGVLDEMO_MINOR);
-  if (ret != OK)
-    {
-      printf("tp_init: board_tsc_setup failed: %d\n", errno);
-      errval = 1;
-      goto errout;
-    }
-#endif
-
   /* Open the touchscreen device for reading */
 
   printf("tp_init: Opening %s\n", CONFIG_EXAMPLES_LGVLDEMO_DEVPATH);
@@ -118,17 +101,12 @@ int tp_init(void)
       printf("tp_init: open %s failed: %d\n",
                CONFIG_EXAMPLES_LGVLDEMO_DEVPATH, errno);
       errval = 2;
-      goto errout_with_tc;
+      goto errout;
     }
 
   return OK;
 
-errout_with_tc:
-#ifdef CONFIG_EXAMPLES_LGVLDEMO_ARCHINIT
-  boardctl(BOARDIOC_TSCTEST_TEARDOWN, 0);
-
 errout:
-#endif
   printf("Terminating!\n");
   fflush(stdout);
   return errval;
