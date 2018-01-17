@@ -61,9 +61,8 @@ config EXAMPLES_TOUCHSCREEN_ARCHINIT
 		mouse is disconnected.
 
 		So, in cases like this, there are two options:  (1) provide dummy
-		board_tsc_setup() and board_tsc_teardown() just to satisfy the
-		linking requirements of boardctl() or, (2) de-select this option.
-		If this option is de-selected, then the boardctl() will never be
-		called.
+		board_tsc_setup() just to satisfy the linking requirements of
+		boardctl() or, (2) de-select this option.  If this option is de-
+		selected, then the boardctl() will never be called.
 
 endif

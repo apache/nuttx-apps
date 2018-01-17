@@ -1993,10 +1993,9 @@ examples/touchscreen
   This example code will call boardctl() to setup the touchscreen driver
   for texting.  The implementation of boardctl() will require that board-
   specific logic  provide the following interfaces that will be called by
-  the boardctl() in order to initialize and uninitialize the touchscreen hardware:
+  the boardctl() in order to initialize the touchscreen hardware:
 
     int board_tsc_setup(int minor);
-    void board_tsc_teardown(void);
 
 examples/uavcan
 ^^^^^^^^^^^^^^^

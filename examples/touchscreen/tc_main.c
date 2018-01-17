@@ -149,7 +149,7 @@ int tc_main(int argc, char *argv[])
       printf("tc_main: open %s failed: %d\n",
               CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH, errno);
       errval = 2;
-      goto errout_with_tc;
+      goto errout;
     }
 
   /* Now loop the appropriate number of times, displaying the collected
@@ -259,12 +259,7 @@ int tc_main(int argc, char *argv[])
 errout_with_dev:
   close(fd);
 
-errout_with_tc:
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
-  boardctl(BOARDIOC_TSCTEST_TEARDOWN, 0);
-
 errout:
-#endif
   printf("Terminating!\n");
   fflush(stdout);
   return errval;
