@@ -89,7 +89,6 @@ static bool y_inv;
 
 int tp_init(void)
 {
-  int ret;
   int errval = 0;
 
   /* Open the touchscreen device for reading */
