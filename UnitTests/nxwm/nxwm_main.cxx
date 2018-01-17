@@ -43,6 +43,8 @@
 #include <cstdlib>
 #include <cunistd>
 
+#include <sys/boardctl.h>
+
 #ifdef CONFIG_NXWM_TOUCHSCREEN_CONFIGDATA
 #  include "platform/configdata.hr"
 #endif
@@ -675,6 +677,16 @@ int nxwm_main(int argc, char *argv[])
   up_cxxinitialize();
 #endif
 
+  // Should we perform board-specific initialization?  There are two ways
+  // that board initialization can occur:  1) automatically via
+  // board_initialize() durring bootup if CONFIG_BOARD_INITIALIZE, or
+  // 2) here via a call to boardctl() if the interface is enabledi
+  // (CONFIG_LIB_BOARDCTL=y).
+
+#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_INITIALIZE)
+  (void)boardctl(BOARDIOC_INIT, 0);
+#endif
+
   // Initialize memory monitor logic
 
   initMemoryUsage();
@@ -688,6 +700,7 @@ int nxwm_main(int argc, char *argv[])
       printf("nxwm_main: ERROR: Failed to initialize the NSH library\n");
       return EXIT_FAILURE;
     }
+
   showTestCaseMemory("nxwm_main: After initializing the NSH library");
 #endif
 
