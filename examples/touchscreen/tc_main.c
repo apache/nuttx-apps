@@ -40,7 +40,6 @@
 #include <nuttx/config.h>
 
 #include <sys/types.h>
-#include <sys/boardctl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -106,9 +105,6 @@ int tc_main(int argc, char *argv[])
 #endif
   int fd;
   int errval = 0;
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
-  int ret;
-#endif
 
   /* If this example is configured as an NX add-on, then limit the number of
    * samples that we collect before returning.  Otherwise, we never return
@@ -123,21 +119,6 @@ int tc_main(int argc, char *argv[])
   printf("tc_main: nsamples: %d\n", nsamples);
 #elif CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES > 0
   printf("tc_main: nsamples: %d\n", CONFIG_EXAMPLES_TOUCHSCREEN_NSAMPLES);
-#endif
-
-#ifdef CONFIG_EXAMPLES_TOUCHSCREEN_ARCHINIT
-  /* Initialization of the touchscreen hardware is performed by logic
-   * external to this test.
-   */
-
-  printf("tc_main: Initializing external touchscreen device\n");
-  ret = boardctl(BOARDIOC_TSCTEST_SETUP, CONFIG_EXAMPLES_TOUCHSCREEN_MINOR);
-  if (ret != OK)
-    {
-      printf("tc_main: board_tsc_setup failed: %d\n", errno);
-      errval = 1;
-      goto errout;
-    }
 #endif
 
   /* Open the touchscreen device for reading */
