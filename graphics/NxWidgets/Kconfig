@@ -736,21 +736,6 @@ if NXWM_TOUCHSCREEN
 
 comment "Touchscreen Device Settings"
 
-config NXWM_TOUCHSCREEN_DEVINIT
-	bool "Touchscreen Device Initialization"
-	default y
-	depends on !BUILD_PROTECTED && !BUILD_KERNEL
-	---help---
-		It this option is selected, then the NxWM:CTouchscreen listener
-		thread will call a function boardctl() in order to instantiate the
-		touchscreen driver at path NXWM_TOUCHSCREEN_DEVPATH.  If
-		NXWM_TOUCHSCREEN_DEVINIT is not selected, then the NxWM:CTouchscreen
-		listener thread will assume that the driver has already been
-		initialized at NXWM_TOUCHSCREEN_DEVPATH.
-
-		NOTE that in the kernel build, all touchscreen initialize must be
-		performed in kernel logic prior to the execution of NxWM.
-
 config NXWM_TOUCHSCREEN_DEVNO
 	int "Touchscreen Device Number"
 	default 0
