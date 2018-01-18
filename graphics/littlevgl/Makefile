@@ -104,7 +104,7 @@ $(LVGL_UNPACKNAME): $(LVGL_TARBALL)
 
 $(APPDIR)/include/graphics/lvgl.h: $(LVGL_UNPACKNAME) lvgl/lvgl.h
 	@echo "CP: lvgl/lvgl.h"
-	$(Q) cp -a lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
+	$(Q) cp lvgl/lvgl.h $(APPDIR)/include/graphics/lvgl.h
 
 $(AOBJS): %$(OBJEXT): %.S
 	$(call ASSEMBLE, $<, $@)
