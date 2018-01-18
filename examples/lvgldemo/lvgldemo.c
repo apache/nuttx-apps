@@ -38,18 +38,40 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include <graphics/lvgl.h>
 
+#include <sys/boardctl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
 
+#include <graphics/lvgl.h>
+
 #include "fbdev.h"
 #include "tp.h"
 #include "demo.h"
 #include "tp_cal.h"
+
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Should we perform board-specific driver initialization?  There are two
+ * ways that board initialization can occur:  1) automatically via
+ * board_initialize() during bootup if CONFIG_BOARD_INITIALIZE, or 2) via a
+ * call to boardctl() if the interface is enabled (CONFIG_LIB_BOARDCTL=y).
+ * If this task is running as an NSH built-in application, then that
+ * initialization has probably already been performed otherwise we do it
+ * here.
+ */
+
+#undef NEED_BOARDINIT
+
+#if defined(CONFIG_LIB_BOARDCTL) && !defined(CONFIG_BOARD_INITIALIZE) && \
+    (!defined(CONFIG_NSH_BUILTIN_APPS) || !defined(CONFIG_NSH_ARCHINIT))
+#  define NEED_BOARDINIT 1
+#endif
 
 /****************************************************************************
  * Private Functions
@@ -125,22 +147,31 @@ int main(int argc, FAR char *argv[])
 int lvgldemo_main(int argc, char *argv[])
 #endif
 {
+  lv_disp_drv_t disp_drv;
+  pthread_t tick_thread;
+
+#ifdef NEED_BOARDINIT
+  /* Perform board-specific driver initialization */
+
+  (void)boardctl(BOARDIOC_INIT, 0);
+#endif
+
+  /* LittlevGL initialization */
+
   lv_init();
 
-  /* DISPLAY INTERFACE INIT */
+  /* Display interface initialization */
 
   fbdev_init();
 
-  /* Basic initialization */
+  /* Basic LittlevGL display driver initialization */
 
-  lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
   disp_drv.disp_flush = fbdev_flush;
   lv_disp_drv_register(&disp_drv);
 
-  /* TICK INTERFACE INIT */
+  /* Tick interface initialization */
 
-  pthread_t tick_thread;
   pthread_create(&tick_thread, NULL, tick_func, NULL);
 
   /* Touchpad Initialization */
