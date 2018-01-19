@@ -47,7 +47,7 @@
  ****************************************************************************/
 /* Configuration ************************************************************/
 /* CONFIG_NSH_BUILTIN_APPS - Build the ADC test as an NSH built-in function.
- *  Default: Built as a standalone problem
+ *  Default: Built as a standalone program
  * CONFIG_EXAMPLES_ADC_DEVPATH - The default path to the ADC device. Default: /dev/adc0
  * CONFIG_EXAMPLES_ADC_NSAMPLES - If CONFIG_NSH_BUILTIN_APPS
  *   is defined, then the number of samples is provided on the command line

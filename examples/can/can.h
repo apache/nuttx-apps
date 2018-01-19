@@ -56,7 +56,7 @@
  * Specific configuration options for this example include:
  *
  * CONFIG_NSH_BUILTIN_APPS - Build the CAN test as an NSH built-in function.
- *   Default: Built as a standalone problem
+ *   Default: Built as a standalone program
  * CONFIG_CAN_LOOPBACK
  * CONFIG_EXAMPLES_CAN_DEVPATH - The path to the CAN device. Default: /dev/can0
  * CONFIG_EXAMPLES_CAN_NMSGS - If CONFIG_NSH_BUILTIN_APPS

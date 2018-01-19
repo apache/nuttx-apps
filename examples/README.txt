@@ -35,7 +35,7 @@ examples/adc
 
     CONFIG_ADC - Enabled ADC support
     CONFIG_NSH_BUILTIN_APPS - Build the ADC test as an NSH built-in function.
-      Default: Built as a standalone problem
+      Default: Built as a standalone program
 
   Specific configuration options for this example include:
 
@@ -169,7 +169,7 @@ examples/can
     CONFIG_CAN_LOOPBACK - A CAN driver may or may not support a loopback
       mode for testing. The STM32 CAN driver does support loopback mode.
     CONFIG_NSH_BUILTIN_APPS - Build the CAN test as an NSH built-in function.
-      Default: Built as a standalone problem
+      Default: Built as a standalone program
 
   Specific configuration options for this example include:
 
@@ -668,7 +668,7 @@ examples/i2cchar
     CONFIG_DRIVERS_AUDIO - Enable audio device support
     CONFIG_AUDIO_I2SCHAR = Enabled support for the I2S character device
     CONFIG_NSH_BUILTIN_APPS - Build the I2S test as an NSH built-in function.
-      Default: Built as a standalone problem
+      Default: Built as a standalone program
 
   Specific configuration options for this example include:
 
@@ -1965,7 +1965,7 @@ examples/touchscreen
   simulated touchscreen driver.
 
     CONFIG_NSH_BUILTIN_APPS - Build the touchscreen test as
-      an NSH built-in function.  Default: Built as a standalone problem
+      an NSH built-in function.  Default: Built as a standalone program
     CONFIG_EXAMPLES_TOUCHSCREEN_MINOR - The minor device number.  Minor=N
       corresponds to touchscreen device /dev/inputN.  Note this value must
       with CONFIG_EXAMPLES_TOUCHSCREEN_DEVPATH.  Default 0.
